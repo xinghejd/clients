@@ -1,15 +1,15 @@
 import { ipcMain } from "electron";
 
-import { clipboards } from "@bitwarden/desktop-native";
+import { clipboard } from "@bitwarden/desktop-napi";
 
 export class ClipboardMain {
   init() {
     ipcMain.handle("clipboard.read", async (event: any, message: any) => {
-      return clipboards.read();
+      return clipboard.read();
     });
 
     ipcMain.handle("clipboard.write", async (event: any, message: any) => {
-      return clipboards.write(message.text, message.password ?? false);
+      return clipboard.write(message.text, message.password ?? false);
     });
   }
 }

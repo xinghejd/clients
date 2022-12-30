@@ -6,6 +6,7 @@ import { StateFactory } from "@bitwarden/common/factories/stateFactory";
 import { GlobalState } from "@bitwarden/common/models/domain/global-state";
 import { MemoryStorageService } from "@bitwarden/common/services/memoryStorage.service";
 import { StateService } from "@bitwarden/common/services/state.service";
+import { ipc } from "@bitwarden/desktop-napi";
 
 import { BiometricMain } from "./main/biometric/biometric.main";
 import { ClipboardMain } from "./main/clipboard.main";
@@ -22,6 +23,10 @@ import { DesktopI18nServiceImplementation } from "./services/desktop-i18n.servic
 import { ElectronLogService } from "./services/electron-log.service";
 import { ElectronMainMessagingService } from "./services/electron-main-messaging.service";
 import { ElectronStorageService } from "./services/electron-storage.service";
+
+ipc.listen((error, message) => {
+  console.log("js: ", message)
+});
 
 export class Main {
   logService: ElectronLogService;
