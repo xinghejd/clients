@@ -1,6 +1,4 @@
-use desktop_core::ipc::{IpcContext, MessageType};
-use once_cell::sync::Lazy;
-use tokio::sync::Mutex;
+use desktop_core::ipc::MessageType;
 use napi::bindgen_prelude::*;
 
 #[macro_use]
@@ -106,8 +104,9 @@ pub mod ipc {
             .create_threadsafe_function(0, |ctx| {
                 let mut obj = ctx.env.create_object()?;
                 let v: crate::IpcMessage = ctx.value;
-                obj.set("kind", v.kind);
-                obj.set("message", v.message);
+                obj.set("kind", v.kind).ok();
+                obj.set("message", v.message).ok();
+                obj.set("client_id", v.client_id).ok();
 
                 Ok(vec![obj])
             })?;

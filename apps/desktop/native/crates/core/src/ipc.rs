@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{collections::VecDeque, sync::Arc};
 
 use futures::StreamExt as _;
 
@@ -25,7 +25,7 @@ pub enum MessageType {
 }
 
 pub struct IpcContext {
-    messages: Vec<String>,
+    messages: VecDeque<String>,
 }
 
 trait Ty: AsyncWrite + Unpin + Send {}
@@ -33,7 +33,7 @@ impl<T: AsyncWrite + Unpin + Send> Ty for T {}
 
 static INSTANCE: Lazy<Mutex<IpcContext>> = Lazy::new(|| {
     Mutex::new(IpcContext {
-        messages: Vec::new(),
+        messages: VecDeque::new(),
     })
 });
 
@@ -51,38 +51,32 @@ pub async fn start(tx: tokio::sync::mpsc::Sender<Message>) {
     let c = connections.clone();
     tokio::spawn(async move {
         loop {
-            let msg = INSTANCE.lock().await.messages.pop();
+            let msg = INSTANCE.lock().await.messages.pop_front();
             if let Some(msg) = msg {
                 print!("Sending message2: {}", msg);
                 for connection in c.lock().await.iter_mut() {
-                    connection
-                        .lock()
-                        .await
-                        .write_all(msg.as_bytes())
-                        .await
-                        .unwrap();
+                    // Ignore errors, typically caused by a disconnected client.
+                    connection.lock().await.write_all(msg.as_bytes()).await.ok();
                 }
             }
-            tokio::time::sleep(std::time::Duration::from_secs(2)).await;
+            tokio::time::sleep(std::time::Duration::from_millis(100)).await;
         }
     });
 
-    let mut nextClientId = 1;
+    let mut next_client_id = 1;
     while let Some(result) = incoming.next().await {
         match result {
             Ok(stream) => {
-                let (mut reader, mut writer) = split(stream);
-                let client_id = nextClientId;
-                nextClientId += 1;
+                let (mut reader, writer) = split(stream);
+                let client_id = next_client_id;
+                next_client_id += 1;
 
                 let mutex: Arc<Mutex<Box<dyn Ty>>> = Arc::new(Mutex::new(Box::new(writer)));
 
                 connections.lock().await.push(mutex.clone());
-                //let x = Arc::new(Mutex::new(writer));
-                //connections.push(x);
-                let tx2 = tx.clone();
+                let tx = tx.clone();
 
-                tx2.send(Message {
+                tx.send(Message {
                     client_id: client_id,
                     kind: MessageType::Connected,
                     message: "Connected".to_owned(),
@@ -92,27 +86,32 @@ pub async fn start(tx: tokio::sync::mpsc::Sender<Message>) {
 
                 tokio::spawn(async move {
                     loop {
-                        let mut buf = [0u8; 4];
-                        if let Err(_) = reader.read_exact(&mut buf).await {
-                            tx2.send(Message {
-                                client_id: client_id,
-                                kind: MessageType::Disconnected,
-                                message: "Disconnected".to_owned(),
-                            })
-                            .await
-                            .unwrap();
-                            break;
-                        }
-                        let msg = std::str::from_utf8(&buf[..]);
-                        println!("Sending message: {}", msg.unwrap());
+                        let mut buf = vec![0u8; 4096].into_boxed_slice();
+                        match reader.read(&mut buf).await {
+                            Err(_) => {
+                                tx.send(Message {
+                                    client_id: client_id,
+                                    kind: MessageType::Disconnected,
+                                    message: "Disconnected".to_owned(),
+                                })
+                                .await
+                                .unwrap();
+                                break;
+                            }
+                            Ok(n) => {
+                                let msg = std::str::from_utf8(&buf[..n]);
+                                println!("Sending message: {}", msg.unwrap());
 
-                        tx2.send(Message {
-                            client_id: client_id,
-                            kind: MessageType::Message,
-                            message: msg.unwrap().to_owned(),
-                        })
-                        .await
-                        .unwrap();
+                                tx.send(Message {
+                                    client_id: client_id,
+                                    kind: MessageType::Message,
+                                    message: msg.unwrap().to_owned(),
+                                })
+                                .await
+                                .unwrap();
+                            },
+                        }
+
                     }
                 });
             }
@@ -122,6 +121,6 @@ pub async fn start(tx: tokio::sync::mpsc::Sender<Message>) {
 }
 
 pub async fn send(message: String) -> Result<()> {
-    INSTANCE.lock().await.messages.push(message);
+    INSTANCE.lock().await.messages.push_back(message);
     Ok(())
 }
