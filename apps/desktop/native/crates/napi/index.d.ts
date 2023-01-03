@@ -32,6 +32,10 @@ export namespace clipboard {
   export function write(text: string, password: boolean): Promise<void>
 }
 export namespace ipc {
+  /** Start the IPC server. */
   export function listen(callback: (error: any, message: IpcMessage) => void): void
+  /** Stop the active IPC server. */
+  export function stop(): void
+  /** Send a message over the IPC server. */
   export function send(message: string): Promise<void>
 }

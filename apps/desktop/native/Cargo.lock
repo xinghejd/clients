@@ -247,6 +247,7 @@ dependencies = [
  "anyhow",
  "arboard",
  "core-foundation",
+ "dirs",
  "futures",
  "gio",
  "keytar",
@@ -278,7 +279,7 @@ name = "desktop_proxy"
 version = "0.0.0"
 dependencies = [
  "anyhow",
- "dirs",
+ "desktop_core",
  "env_logger",
  "log",
  "parity-tokio-ipc",

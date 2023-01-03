@@ -97,7 +97,7 @@ impl From<MessageType> for IpcMessageType {
 
 #[napi]
 pub mod ipc {
-
+    /// Start the IPC server.
     #[napi(ts_args_type = "callback: (error: any, message: IpcMessage) => void")]
     pub fn listen(fn_out: napi::JsFunction) -> napi::Result<()> {
         let tsfn: napi::threadsafe_function::ThreadsafeFunction<crate::IpcMessage> = fn_out
@@ -133,6 +133,13 @@ pub mod ipc {
         Ok(())
     }
 
+    /// Stop the active IPC server.
+    #[napi]
+    pub fn stop() -> napi::Result<()> {
+        desktop_core::ipc::stop().map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+
+    /// Send a message over the IPC server.
     #[napi]
     pub async fn send(message: String) -> napi::Result<()> {
         desktop_core::ipc::send(message)

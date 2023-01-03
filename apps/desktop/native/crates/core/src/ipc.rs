@@ -1,4 +1,4 @@
-use std::{collections::VecDeque, sync::Arc};
+use std::{collections::VecDeque, path::PathBuf, sync::Arc};
 
 use futures::StreamExt as _;
 
@@ -37,10 +37,13 @@ static INSTANCE: Lazy<Mutex<IpcContext>> = Lazy::new(|| {
     })
 });
 
+/// Start the IPC server.
+///
+/// TODO: Detangle this mess
 pub async fn start(tx: tokio::sync::mpsc::Sender<Message>) {
-    let path = r"\\.\pipe\bitwarden.sock";
+    let path = path();
 
-    let mut endpoint = Endpoint::new(path.to_owned());
+    let mut endpoint = Endpoint::new(path.to_string_lossy().to_string());
     endpoint.set_security_attributes(SecurityAttributes::allow_everyone_create().unwrap());
 
     let incoming = endpoint.incoming().expect("failed to open new socket");
@@ -88,7 +91,7 @@ pub async fn start(tx: tokio::sync::mpsc::Sender<Message>) {
                     loop {
                         let mut buf = vec![0u8; 4096].into_boxed_slice();
                         match reader.read(&mut buf).await {
-                            Err(_) => {
+                            Err(_) | Ok(0) => {
                                 tx.send(Message {
                                     client_id: client_id,
                                     kind: MessageType::Disconnected,
@@ -109,9 +112,8 @@ pub async fn start(tx: tokio::sync::mpsc::Sender<Message>) {
                                 })
                                 .await
                                 .unwrap();
-                            },
+                            }
                         }
-
                     }
                 });
             }
@@ -120,7 +122,22 @@ pub async fn start(tx: tokio::sync::mpsc::Sender<Message>) {
     }
 }
 
+pub fn stop() -> Result<()> {
+    // TODO: Close the socket.
+    Ok(())
+}
+
+/// Enqueue a message to be sent over the IPC socket.
 pub async fn send(message: String) -> Result<()> {
     INSTANCE.lock().await.messages.push_back(message);
     Ok(())
+}
+
+/// Resolve the path to the IPC socket.
+pub fn path() -> PathBuf {
+    if cfg!(windows) {
+        PathBuf::from(r"\\.\pipe\bitwarden.sock")
+    } else {
+        dirs::home_dir().unwrap().join("tmp").join("bitwarden.sock")
+    }
 }

@@ -1,20 +1,14 @@
 use anyhow::Result;
 use std::{
-    io::{self, Read, Write, stdin},
-    path::PathBuf,
-    sync::Arc,
+    io::{self, stdin, Read, Write},
     time::Duration,
 };
 
-use anyhow::Error;
 use env_logger::Env;
-use log::{debug, info};
-use parity_tokio_ipc::Endpoint;
-use tokio::{
-    io::{split, AsyncReadExt, AsyncWriteExt},
-    sync::Mutex,
-    time::sleep,
-};
+use log::debug;
+use tokio::time::sleep;
+
+mod ipc;
 
 #[tokio::main]
 async fn main() {
@@ -31,88 +25,41 @@ async fn main() {
     let (in_tx, in_rx) = tokio::sync::mpsc::channel(32);
     let (out_tx, mut out_rx) = tokio::sync::mpsc::channel(32);
 
-    start_ipc(out_tx, in_rx);
+    ipc::start(out_tx, in_rx);
 
+    // Receive messages from IPC and print to STDOUT.
     tokio::spawn(async move {
         loop {
             if let Some(msg) = out_rx.recv().await {
+                debug!("OUT: {}", msg);
                 write(msg);
             }
             sleep(Duration::from_millis(100)).await;
         }
     });
 
+    // Listen to stdin and send messages to ipc processor.
     loop {
         match read(stdin()) {
             Ok(msg) => {
-                in_tx.send(String::from_utf8(msg).unwrap()).await.unwrap();
+                if msg.len() == 0 {
+                    sleep(Duration::from_secs(5)).await;
+                    continue;
+                }
+
+                let m = String::from_utf8(msg).unwrap();
+                debug!("IN: {}", m);
+                in_tx.send(m).await.unwrap();
             }
             Err(e) => {
-                eprintln!("Error: {}", e);
+                // Unexpected error, exit.
+                eprintln!("Error parsing input: {}", e);
+                break;
             }
         }
     }
-}
 
-fn start_ipc(tx: tokio::sync::mpsc::Sender<String>, rx: tokio::sync::mpsc::Receiver<String>) {
-    let path: PathBuf = if cfg!(windows) {
-        PathBuf::from(r"\\.\pipe\bitwarden.sock")
-    } else {
-        dirs::home_dir().unwrap().join("tmp").join("bitwarden.sock")
-    };
-
-    let mrx = Arc::new(Mutex::new(rx));
-
-    tokio::spawn(async move {
-        loop {
-            info!("Attempting to connect to {}", path.display());
-
-            let client = Endpoint::connect(&path).await;
-
-            let mrx = mrx.clone();
-
-            if let Ok(c) = client {
-                info!("Connected to {}", path.display());
-
-                let (mut reader, mut writer) = split(c);
-
-                write("{\"command\":\"connected\"}".to_owned());
-
-                // Start output task
-                let task = tokio::spawn(async move {
-                    loop {
-                        if let Some(msg) = mrx.lock().await.recv().await {
-                            debug!("SENDING: {}", msg);
-                            writer.write_all(msg.as_bytes()).await.unwrap();
-                        }
-                    }
-                });
-
-                // Listening
-                loop {
-                    let mut buffer = vec![0; 4096].into_boxed_slice();
-
-                    let n = reader.read(&mut buffer[..]).await.unwrap();
-                    let s = String::from_utf8_lossy(&buffer[..n]).to_string();
-
-                    if n == 0 {
-                        write("{\"command\":\"disconnected\"}".to_owned());
-                        info!("Connection closed");
-                        break;
-                    }
-
-                    debug!("RECEIVED: {}", s);
-                    tx.send(s).await.unwrap();
-
-                    sleep(Duration::from_millis(100)).await;
-                }
-            } else {
-                info!("Failed to connect to {}", path.display());
-            }
-
-            sleep(Duration::from_secs(5)).await;
-        }
-    });
+    eprintln!("Exiting.");
 }
 
 /// Write a message to stdout. The message is prefixed with its length.

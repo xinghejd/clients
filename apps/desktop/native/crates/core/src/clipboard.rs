@@ -1,4 +1,4 @@
-use anyhow::{Result};
+use anyhow::Result;
 use arboard::{Clipboard, SetExtWindows};
 
 pub fn read() -> Result<String> {
