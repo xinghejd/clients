@@ -394,40 +394,7 @@ export class SettingsComponent implements OnInit {
   }
 
   async saveBrowserIntegration() {
-    if (process.platform === "darwin" && !this.platformUtilsService.isMacAppStore()) {
-      await this.platformUtilsService.showDialog(
-        this.i18nService.t("browserIntegrationMasOnlyDesc"),
-        this.i18nService.t("browserIntegrationUnsupportedTitle"),
-        this.i18nService.t("ok"),
-        null,
-        "warning"
-      );
-
-      this.enableBrowserIntegration = false;
-      return;
-    } else if (isWindowsStore()) {
-      await this.platformUtilsService.showDialog(
-        this.i18nService.t("browserIntegrationWindowsStoreDesc"),
-        this.i18nService.t("browserIntegrationUnsupportedTitle"),
-        this.i18nService.t("ok"),
-        null,
-        "warning"
-      );
-
-      this.enableBrowserIntegration = false;
-      return;
-    } else if (process.platform == "linux") {
-      await this.platformUtilsService.showDialog(
-        this.i18nService.t("browserIntegrationLinuxDesc"),
-        this.i18nService.t("browserIntegrationUnsupportedTitle"),
-        this.i18nService.t("ok"),
-        null,
-        "warning"
-      );
-
-      this.enableBrowserIntegration = false;
-      return;
-    }
+    
 
     await this.stateService.setEnableBrowserIntegration(this.enableBrowserIntegration);
     this.messagingService.send(

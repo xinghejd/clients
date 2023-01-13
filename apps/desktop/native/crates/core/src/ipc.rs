@@ -138,6 +138,7 @@ pub fn path() -> PathBuf {
     if cfg!(windows) {
         PathBuf::from(r"\\.\pipe\bitwarden.sock")
     } else {
-        dirs::home_dir().unwrap().join("tmp").join("bitwarden.sock")
+        PathBuf::from("/Users/oscar/Library/Group Containers/LTZ2PFU5D6.com.bitwarden.desktop/socket/bitwarden.sock")
+        //dirs::home_dir().unwrap().join("tmp").join("bitwarden.sock")
     }
 }

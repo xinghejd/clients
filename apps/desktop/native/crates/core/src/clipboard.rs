@@ -1,5 +1,8 @@
 use anyhow::Result;
-use arboard::{Clipboard, SetExtWindows};
+use arboard::{Clipboard, Set};
+
+#[cfg(target_os = "windows")]
+use arboard::SetExtWindows;
 
 pub fn read() -> Result<String> {
     let mut clipboard = Clipboard::new()?;
@@ -13,11 +16,19 @@ pub fn write(text: String, password: bool) -> Result<()> {
     let mut set = clipboard.set();
 
     if password {
-        if cfg!(windows) {
-            set = set.exclude_from_history();
-        }
+        set = exclude_from_history(set);
     }
 
     set.text(text)?;
     Ok(())
+}
+
+#[cfg(target_os = "windows")]
+fn exclude_from_history(set: Set) -> Set {
+    set.exclude_from_history()
+}
+
+#[cfg(not(target_os = "windows"))]
+fn exclude_from_history(set: Set) -> Set {
+    set
 }

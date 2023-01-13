@@ -10,16 +10,17 @@ use tokio::{
 };
 
 /// Connect to the IPC server and start listening for messages.
-pub(crate) fn start(
+pub fn start(
     tx: tokio::sync::mpsc::Sender<String>,
     rx: tokio::sync::mpsc::Receiver<String>,
 ) {
-    let path = desktop_core::ipc::path();
+    let path = crate::ipc::path();
     let mrx = Arc::new(Mutex::new(rx));
 
     tokio::spawn(async move {
         loop {
             info!("Attempting to connect to {}", path.display());
+            tx.send(path.to_str().unwrap().to_owned()).await.unwrap();
 
             let client = Endpoint::connect(&path).await;
 
@@ -65,6 +66,7 @@ pub(crate) fn start(
                 }
             } else {
                 info!("Failed to connect to {}", path.display());
+                tx.send(client.err().unwrap().to_string()).await.unwrap();
             }
 
             sleep(Duration::from_secs(5)).await;

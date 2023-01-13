@@ -1,0 +1,17 @@
+[Error]
+enum IpcError {
+    "Test",
+};
+
+callback interface MessageCallback {
+    void message(string message);
+};
+
+namespace ipc {
+};
+
+interface IpcClient {
+    constructor();
+    void start(MessageCallback callback);
+    void send(string message);
+};

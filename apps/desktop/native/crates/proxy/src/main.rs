@@ -1,4 +1,5 @@
 use anyhow::Result;
+use desktop_core::ipc_client;
 use std::{
     io::{self, stdin, Read, Write},
     time::Duration,
@@ -7,8 +8,6 @@ use std::{
 use env_logger::Env;
 use log::debug;
 use tokio::time::sleep;
-
-mod ipc;
 
 #[tokio::main]
 async fn main() {
@@ -25,7 +24,7 @@ async fn main() {
     let (in_tx, in_rx) = tokio::sync::mpsc::channel(32);
     let (out_tx, mut out_rx) = tokio::sync::mpsc::channel(32);
 
-    ipc::start(out_tx, in_rx);
+    ipc_client::start(out_tx, in_rx);
 
     // Receive messages from IPC and print to STDOUT.
     tokio::spawn(async move {

@@ -41,3 +41,6 @@ coverage
 documentation.json
 .eslintcache
 storybook-static
+apps/desktop/native/crates/swift/src/ipc.swift
+apps/desktop/native/crates/swift/src/ipcFFI.h
+apps/desktop/native/crates/swift/src/ipcFFI.modulemap
