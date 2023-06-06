@@ -3,7 +3,7 @@ import { MockProxy } from "jest-mock-extended";
 import { MigrationHelper } from "../migration-helper";
 import { mockMigrationHelper } from "../migration-helper.spec";
 
-import { MoveStateVersionMigrator } from "./7-move-state-version";
+import { MoveStateVersionMigrator } from "./8-move-state-version";
 
 function migrateExampleJSON() {
   return {
@@ -32,7 +32,7 @@ describe("moveStateVersion", () => {
   describe("migrate", () => {
     beforeEach(() => {
       helper = mockMigrationHelper(migrateExampleJSON());
-      sut = new MoveStateVersionMigrator(6, 7);
+      sut = new MoveStateVersionMigrator(7, 8);
     });
 
     it("should move state version to root", async () => {
@@ -58,14 +58,14 @@ describe("moveStateVersion", () => {
       await sut.updateVersion(helper, "up");
 
       expect(helper.set).toHaveBeenCalledTimes(1);
-      expect(helper.set).toHaveBeenCalledWith("stateVersion", 7);
+      expect(helper.set).toHaveBeenCalledWith("stateVersion", 8);
     });
   });
 
   describe("rollback", () => {
     beforeEach(() => {
       helper = mockMigrationHelper(rollbackExampleJSON());
-      sut = new MoveStateVersionMigrator(6, 7);
+      sut = new MoveStateVersionMigrator(7, 8);
     });
 
     it("should move state version to global", async () => {
@@ -82,7 +82,7 @@ describe("moveStateVersion", () => {
 
       expect(helper.set).toHaveBeenCalledTimes(1);
       expect(helper.set).toHaveBeenCalledWith("global", {
-        stateVersion: 6,
+        stateVersion: 7,
         otherStuff: "otherStuff",
       });
     });

@@ -9,7 +9,8 @@ import { FixPremiumMigrator } from "./migrations/3-fix-premium";
 import { RemoveEverBeenUnlockedMigrator } from "./migrations/4-remove-ever-been-unlocked";
 import { AddKeyTypeToOrgKeysMigrator } from "./migrations/5-add-key-type-to-org-keys";
 import { RemoveLegacyEtmKeyMigrator } from "./migrations/6-remove-legacy-etm-key";
-import { MoveStateVersionMigrator } from "./migrations/7-move-state-version";
+import { MoveBiometricAutoPromptToAccount } from "./migrations/7-move-biometric-auto-prompt-to-account";
+import { MoveStateVersionMigrator } from "./migrations/8-move-state-version";
 import { MinVersionMigrator } from "./migrations/min-version";
 
 export const MIN_VERSION = 2;
@@ -21,7 +22,8 @@ export const builder: MigrationBuilder<number> = MigrationBuilder.create()
   .with(RemoveEverBeenUnlockedMigrator, 3, 4)
   .with(AddKeyTypeToOrgKeysMigrator, 4, 5)
   .with(RemoveLegacyEtmKeyMigrator, 5, 6)
-  .with(MoveStateVersionMigrator, 6, 7);
+  .with(MoveBiometricAutoPromptToAccount, 6, 7)
+  .with(MoveStateVersionMigrator, 7, 8);
 
 export async function migrate(
   storageService: AbstractStorageService,

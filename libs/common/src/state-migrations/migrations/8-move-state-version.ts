@@ -3,7 +3,7 @@ import { JsonObject } from "type-fest";
 import { MigrationHelper } from "../migration-helper";
 import { Direction, Migrator } from "../migrator";
 
-export class MoveStateVersionMigrator extends Migrator<6, 7> {
+export class MoveStateVersionMigrator extends Migrator<7, 8> {
   async migrate(helper: MigrationHelper): Promise<void> {
     const global = await helper.get<{ stateVersion: number }>("global");
     if (global.stateVersion) {
