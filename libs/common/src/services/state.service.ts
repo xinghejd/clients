@@ -37,6 +37,7 @@ import { StorageOptions } from "../models/domain/storage-options";
 import { DeviceKey, SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
 import { WindowState } from "../models/domain/window-state";
 import { migrate } from "../state-migrations";
+import { CURRENT_VERSION } from "../state-migrations/migrate";
 import { GeneratedPasswordHistory } from "../tools/generator/password";
 import { SendData } from "../tools/send/models/data/send.data";
 import { SendView } from "../tools/send/models/view/send.view";
@@ -48,6 +49,7 @@ import { AddEditCipherInfo } from "../vault/types/add-edit-cipher-info";
 
 const keys = {
   state: "state",
+  stateVersion: "stateVersion",
   global: "global",
   authenticatedAccounts: "authenticatedAccounts",
   activeUserId: "activeUserId",
@@ -2426,7 +2428,12 @@ export class StateService<
       globals = await this.getGlobalsFromDisk(options);
     }
 
-    return globals ?? this.createGlobals();
+    if (globals == null) {
+      globals = this.createGlobals();
+      this.storageService.save(keys.stateVersion, CURRENT_VERSION);
+    }
+
+    return globals;
   }
 
   protected async saveGlobals(globals: TGlobalState, options: StorageOptions) {

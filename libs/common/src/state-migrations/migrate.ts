@@ -14,6 +14,7 @@ import { MoveStateVersionMigrator } from "./migrations/8-move-state-version";
 import { MinVersionMigrator } from "./migrations/min-version";
 
 export const MIN_VERSION = 2;
+export const CURRENT_VERSION = 8;
 export type MinVersion = typeof MIN_VERSION;
 
 export const builder: MigrationBuilder<number> = MigrationBuilder.create()
@@ -23,7 +24,7 @@ export const builder: MigrationBuilder<number> = MigrationBuilder.create()
   .with(AddKeyTypeToOrgKeysMigrator, 4, 5)
   .with(RemoveLegacyEtmKeyMigrator, 5, 6)
   .with(MoveBiometricAutoPromptToAccount, 6, 7)
-  .with(MoveStateVersionMigrator, 7, 8);
+  .with(MoveStateVersionMigrator, 7, CURRENT_VERSION);
 
 export async function migrate(
   storageService: AbstractStorageService,
