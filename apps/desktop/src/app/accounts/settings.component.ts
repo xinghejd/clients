@@ -394,6 +394,10 @@ export class SettingsComponent implements OnInit {
       return;
     }
 
+    if (await this.platformUtilsService.biometricsNeedsSetup()) {
+      await this.platformUtilsService.biometricsSetup();
+    }
+
     await this.stateService.setBiometricUnlock(true);
     if (this.isWindows) {
       // Recommended settings for Windows Hello
