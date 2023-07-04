@@ -25,7 +25,8 @@ const polkitPolicy = `<?xml version="1.0" encoding="UTF-8"?>
       </defaults>
     </action>
 </policyconfig>`;
-const policyPath = "/usr/share/polkit-1/actions/com.bitwarden.Bitwarden.policy";
+const policyFileName = "com.bitwarden.Bitwarden.policy";
+const policyPath = "/usr/share/polkit-1/actions/";
 
 export default class BiometricUnixMain implements OsBiometricService {
   constructor(
@@ -62,15 +63,19 @@ export default class BiometricUnixMain implements OsBiometricService {
   }
 
   async osSupportsBiometric(): Promise<boolean> {
-    return true;
+    return existsSync(policyPath);
   }
 
   async osBiometricsNeedsSetup(): Promise<boolean> {
-    return !existsSync(policyPath);
+    return !existsSync(policyPath + policyFileName);
   }
 
   async osBiometricsSetup(): Promise<void> {
-    const process = spawn("pkexec", ["bash", "-c", `echo '${polkitPolicy}' > ${policyPath}`]);
+    const process = spawn("pkexec", [
+      "bash",
+      "-c",
+      `echo '${polkitPolicy}' > ${policyPath + policyFileName}`,
+    ]);
     process.on("close", (code) => {
       if (code !== 0) {
         throw new Error("Failed to set up polkit policy");
