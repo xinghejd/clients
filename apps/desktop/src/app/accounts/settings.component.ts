@@ -20,7 +20,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { flagEnabled } from "../../platform/flags";
 import { ElectronStateService } from "../../platform/services/electron-state.service.abstraction";
-import { isWindowsStore } from "../../utils";
+import { isSnapStore, isFlatpak, isWindowsStore } from "../../utils";
 import { SetPinComponent } from "../components/set-pin.component";
 
 @Component({
@@ -556,7 +556,7 @@ export class SettingsComponent implements OnInit {
 
       this.form.controls.enableBrowserIntegration.setValue(false);
       return;
-    } else if (process.platform == "linux") {
+    } else if (isSnapStore() || isFlatpak()) {
       await this.dialogService.openSimpleDialog({
         title: { key: "browserIntegrationUnsupportedTitle" },
         content: { key: "browserIntegrationLinuxDesc" },
