@@ -1398,6 +1398,9 @@
   "unlockWithPolkit": {
     "message": "Unlock with Polkit"
   },
+  "additionalPolkitSettings": {
+    "message": "Additional Polkit settings"
+  },
   "windowsHelloConsentMessage": {
     "message": "Verify for Bitwarden."
   },

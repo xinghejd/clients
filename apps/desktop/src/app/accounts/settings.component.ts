@@ -262,6 +262,8 @@ export class SettingsComponent implements OnInit {
     this.additionalBiometricSettingsText =
       this.biometricText === "unlockWithTouchId"
         ? "additionalTouchIdSettings"
+        : this.biometricText == "unlockWithPolkit"
+        ? "additionalPolkitSettings"
         : "additionalWindowsHelloSettings";
     this.autoPromptBiometricsText = await this.stateService.getNoAutoPromptBiometricsText();
     this.previousVaultTimeout = this.form.value.vaultTimeout;
