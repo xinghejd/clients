@@ -45,6 +45,7 @@ export class SettingsComponent implements OnInit {
   requireEnableTray = false;
   showDuckDuckGoIntegrationOption = false;
   isWindows: boolean;
+  isLinux: boolean;
 
   enableTrayText: string;
   enableTrayDescText: string;
@@ -190,6 +191,7 @@ export class SettingsComponent implements OnInit {
 
   async ngOnInit() {
     this.isWindows = (await this.platformUtilsService.getDevice()) === DeviceType.WindowsDesktop;
+    this.isLinux = (await this.platformUtilsService.getDevice()) === DeviceType.LinuxDesktop;
 
     if ((await this.stateService.getUserId()) == null) {
       return;
@@ -395,6 +397,13 @@ export class SettingsComponent implements OnInit {
     await this.stateService.setBiometricUnlock(true);
     if (this.isWindows) {
       // Recommended settings for Windows Hello
+      this.form.controls.requirePasswordOnStart.setValue(true);
+      this.form.controls.autoPromptBiometrics.setValue(false);
+      await this.stateService.setDisableAutoBiometricsPrompt(true);
+      await this.stateService.setBiometricRequirePasswordOnStart(true);
+      await this.stateService.setDismissedBiometricRequirePasswordOnStart();
+    } else if (this.isLinux) {
+      // Similar to Windows
       this.form.controls.requirePasswordOnStart.setValue(true);
       this.form.controls.autoPromptBiometrics.setValue(false);
       await this.stateService.setDisableAutoBiometricsPrompt(true);
