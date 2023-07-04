@@ -10,16 +10,16 @@ pub struct Biometric {}
 #[async_trait]
 impl super::BiometricTrait for Biometric {
     async fn prompt(_hwnd: Vec<u8>, _message: String) -> Result<bool> {
-        let connection = Connection::system().await.unwrap();
-        let proxy = AuthorityProxy::new(&connection).await.unwrap();
-        let subject = Subject::new_for_owner(std::process::id(), None, None).unwrap();
+        let connection = Connection::system().await?;
+        let proxy = AuthorityProxy::new(&connection).await?;
+        let subject = Subject::new_for_owner(std::process::id(), None, None)?;
         let result = proxy.check_authorization(
             &subject,
             "com.bitwarden.Bitwarden.unlock",
             &std::collections::HashMap::new(),
             CheckAuthorizationFlags::AllowUserInteraction.into(),
             "",
-        ).await.unwrap();
+        ).await?;
 
         return Ok(result.is_authorized);
     }
