@@ -1392,6 +1392,9 @@
   "unlockWithWindowsHello": {
     "message": "Unlock with Windows Hello"
   },
+  "additionalWindowsHelloSettings": {
+    "message": "Additional Windows Hello settings"
+  },
   "unlockWithPolkit": {
     "message": "Unlock with Polkit"
   },
