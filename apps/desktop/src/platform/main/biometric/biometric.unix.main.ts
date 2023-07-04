@@ -15,7 +15,7 @@ const polkitPolicy = `<?xml version="1.0" encoding="UTF-8"?>
  "http://www.freedesktop.org/standards/PolicyKit/1.0/policyconfig.dtd">
 
 <policyconfig>
-    <action id="com.bitwarden.bitwarden.unlock">
+    <action id="com.bitwarden.Bitwarden.unlock">
       <description>Unlock Bitwarden</description>
       <message>Authenticate to unlock Bitwarden</message>
       <defaults>
@@ -70,7 +70,7 @@ export default class BiometricUnixMain implements OsBiometricService {
   }
 
   async osBiometricsSetup(): Promise<void> {
-    const process = spawn("pkexec", ["bash", "-c", `echo "${polkitPolicy}" > ${policyPath}`]);
+    const process = spawn("pkexec", ["bash", "-c", `echo '${polkitPolicy}' > ${policyPath}`]);
     process.on("close", (code) => {
       if (code !== 0) {
         throw new Error("Failed to set up polkit policy");

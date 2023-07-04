@@ -25,7 +25,7 @@ impl super::BiometricTrait for Biometric {
     }
 
     fn available() -> Result<bool> {
-        Ok(true)
+        bail!("available not implemented");
     }
 
     fn derive_key_material(_iv_str: Option<&str>) -> Result<OsDerivedKey> {
