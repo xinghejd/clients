@@ -12,7 +12,7 @@ export class MigrationBuilder<TCurrent extends number = 0> {
   }
 
   private constructor(
-    private migrations: { migrator: Migrator<number, number>; direction: Direction }[]
+    private migrations: readonly { migrator: Migrator<number, number>; direction: Direction }[]
   ) {}
 
   /** Add a migrator to the MigrationBuilder. Types are updated such that the chained MigrationBuilder must currently be
@@ -74,13 +74,12 @@ export class MigrationBuilder<TCurrent extends number = 0> {
     migrate: [new () => TMigrator] | [new (from: TFrom, to: TTo) => TMigrator, TFrom, TTo],
     direction: Direction = "up"
   ) {
-    if (migrate.length === 1) {
-      this.migrations.push({ migrator: new migrate[0](), direction });
-    } else {
-      this.migrations.push({ migrator: new migrate[0](migrate[1], migrate[2]), direction });
-    }
+    const newMigration =
+      migrate.length === 1
+        ? { migrator: new migrate[0](), direction }
+        : { migrator: new migrate[0](migrate[1], migrate[2]), direction };
 
-    return new MigrationBuilder<TTo>(this.migrations);
+    return new MigrationBuilder<TTo>([...this.migrations, newMigration]);
   }
 
   private async runMigrator(
@@ -92,7 +91,7 @@ export class MigrationBuilder<TCurrent extends number = 0> {
     helper.info(
       `Migrator ${migrator.constructor.name} (to version ${migrator.toVersion}) should migrate: ${shouldMigrate} - ${direction}`
     );
-    if (await migrator.shouldMigrate(helper, direction)) {
+    if (shouldMigrate) {
       const method = direction === "up" ? migrator.migrate : migrator.rollback;
       await method(helper);
       helper.info(

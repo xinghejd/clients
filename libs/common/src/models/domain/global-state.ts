@@ -1,5 +1,5 @@
 import { EnvironmentUrls } from "../../auth/models/domain/environment-urls";
-import { StateVersion, ThemeType } from "../../enums";
+import { ThemeType } from "../../enums";
 
 import { WindowState } from "./window-state";
 
@@ -26,7 +26,6 @@ export class GlobalState {
   enableBiometrics?: boolean;
   biometricText?: string;
   noAutoPromptBiometricsText?: string;
-  stateVersion: StateVersion = StateVersion.One;
   environmentUrls: EnvironmentUrls = new EnvironmentUrls();
   enableTray?: boolean;
   enableMinimizeToTray?: boolean;

@@ -26,15 +26,15 @@ describe("MigrationBuilder", () => {
   });
 
   it("should be able to add a migrator", () => {
-    sut.with(TestMigrator, 0, 1);
-    const migrations = (sut as any).migrations;
+    const newBuilder = sut.with(TestMigrator, 0, 1);
+    const migrations = newBuilder["migrations"];
     expect(migrations.length).toBe(1);
     expect(migrations[0]).toMatchObject({ migrator: expect.any(TestMigrator), direction: "up" });
   });
 
   it("should be able to add a rollback", () => {
-    sut.with(TestMigrator, 0, 1).rollback(TestMigrator, 1, 0);
-    const migrations = (sut as any).migrations;
+    const newBuilder = sut.with(TestMigrator, 0, 1).rollback(TestMigrator, 1, 0);
+    const migrations = newBuilder["migrations"];
     expect(migrations.length).toBe(2);
     expect(migrations[1]).toMatchObject({ migrator: expect.any(TestMigrator), direction: "down" });
   });

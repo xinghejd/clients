@@ -42,11 +42,14 @@ export async function migrate(
   builder.migrate(migrationHelper);
 }
 
-export async function currentVersion(stateService: AbstractStorageService, logService: LogService) {
-  let state = await stateService.get<number>("stateVersion");
+export async function currentVersion(
+  storageService: AbstractStorageService,
+  logService: LogService
+) {
+  let state = await storageService.get<number>("stateVersion");
   if (state == null) {
     // Pre v7
-    state = (await stateService.get<{ stateVersion: number }>("global"))?.stateVersion;
+    state = (await storageService.get<{ stateVersion: number }>("global"))?.stateVersion;
   }
   if (state == null) {
     logService.info("No state version found, assuming empty state.");
