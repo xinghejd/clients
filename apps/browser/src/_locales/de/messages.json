@@ -1170,7 +1170,7 @@
     "message": "Reisepassnummer"
   },
   "licenseNumber": {
-    "message": "Führerscheinnummer"
+    "message": "Lizenznummer"
   },
   "email": {
     "message": "E-Mail"
@@ -2237,5 +2237,11 @@
   },
   "accessDenied": {
     "message": "Zugriff verweigert. Du hast keine Berechtigung, diese Seite anzuzeigen."
+  },
+  "general": {
+    "message": "Allgemein"
+  },
+  "display": {
+    "message": "Anzeige"
   }
 }

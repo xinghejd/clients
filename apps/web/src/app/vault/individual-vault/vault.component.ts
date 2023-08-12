@@ -84,7 +84,7 @@ import {
   openBulkShareDialog,
 } from "./bulk-action-dialogs/bulk-share-dialog/bulk-share-dialog.component";
 import { CollectionsComponent } from "./collections.component";
-import { FolderAddEditComponent } from "./folder-add-edit.component";
+import { FolderAddEditDialogResult, openFolderAddEditDialog } from "./folder-add-edit.component";
 import { ShareComponent } from "./share.component";
 import { VaultFilterComponent } from "./vault-filter/components/vault-filter.component";
 import { VaultFilterService } from "./vault-filter/services/abstractions/vault-filter.service";
@@ -385,7 +385,9 @@ export class VaultComponent implements OnInit, OnDestroy {
           this.collections = collections;
           this.selectedCollection = selectedCollection;
 
-          this.canCreateCollections = allOrganizations?.some((o) => o.canCreateNewCollections);
+          this.canCreateCollections = allOrganizations?.some(
+            (o) => o.canCreateNewCollections && !o.isProviderUser
+          );
 
           this.showBulkMove =
             filter.type !== "trash" &&
@@ -470,40 +472,25 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   addFolder = async (): Promise<void> => {
-    const [modal] = await this.modalService.openViewRef(
-      FolderAddEditComponent,
-      this.folderAddEditModalRef,
-      (comp) => {
-        comp.folderId = null;
-        comp.onSavedFolder.pipe(takeUntil(this.destroy$)).subscribe(() => {
-          modal.close();
-        });
-      }
-    );
+    openFolderAddEditDialog(this.dialogService);
   };
 
   editFolder = async (folder: FolderFilter): Promise<void> => {
-    const [modal] = await this.modalService.openViewRef(
-      FolderAddEditComponent,
-      this.folderAddEditModalRef,
-      (comp) => {
-        comp.folderId = folder.id;
-        comp.onSavedFolder.pipe(takeUntil(this.destroy$)).subscribe(() => {
-          modal.close();
-        });
-        comp.onDeletedFolder.pipe(takeUntil(this.destroy$)).subscribe(() => {
-          // Navigate away if we deleted the colletion we were viewing
-          if (this.filter.folderId === folder.id) {
-            this.router.navigate([], {
-              queryParams: { folderId: null },
-              queryParamsHandling: "merge",
-              replaceUrl: true,
-            });
-          }
-          modal.close();
-        });
-      }
-    );
+    const dialog = openFolderAddEditDialog(this.dialogService, {
+      data: {
+        folderId: folder.id,
+      },
+    });
+
+    const result = await lastValueFrom(dialog.closed);
+
+    if (result === FolderAddEditDialogResult.Deleted) {
+      this.router.navigate([], {
+        queryParams: { folderId: null },
+        queryParamsHandling: "merge",
+        replaceUrl: true,
+      });
+    }
   };
 
   filterSearchText(searchText: string) {
@@ -511,6 +498,11 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async editCipherAttachments(cipher: CipherView) {
+    if (cipher?.reprompt !== 0 && !(await this.passwordRepromptService.showPasswordPrompt())) {
+      this.go({ cipherId: null, itemId: null });
+      return;
+    }
+
     const canAccessPremium = await this.stateService.getCanAccessPremium();
     if (cipher.organizationId == null && !canAccessPremium) {
       this.messagingService.send("premiumRequired");
@@ -552,6 +544,10 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async shareCipher(cipher: CipherView) {
+    if (cipher?.reprompt !== 0 && !(await this.passwordRepromptService.showPasswordPrompt())) {
+      this.go({ cipherId: null, itemId: null });
+      return;
+    }
     const [modal] = await this.modalService.openViewRef(
       ShareComponent,
       this.shareModalRef,
@@ -608,11 +604,9 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   async editCipherId(id: string) {
     const cipher = await this.cipherService.get(id);
-    if (cipher != null && cipher.reprompt != 0) {
-      if (!(await this.passwordRepromptService.showPasswordPrompt())) {
-        this.go({ cipherId: null, itemId: null });
-        return;
-      }
+    if (cipher?.reprompt !== 0 && !(await this.passwordRepromptService.showPasswordPrompt())) {
+      this.go({ cipherId: null, itemId: null });
+      return;
     }
 
     const [modal, childComponent] = await this.modalService.openViewRef(

@@ -2232,10 +2232,16 @@
     "description": "European Union"
   },
   "us": {
-    "message": "US",
+    "message": "USA",
     "description": "United States"
   },
   "accessDenied": {
     "message": "Access denied. You do not have permission to view this page."
+  },
+  "general": {
+    "message": "General"
+  },
+  "display": {
+    "message": "Display"
   }
 }
