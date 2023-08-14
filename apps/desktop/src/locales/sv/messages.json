@@ -2260,10 +2260,13 @@
     "description": "European Union"
   },
   "us": {
-    "message": "US",
+    "message": "USA",
     "description": "United States"
   },
   "selfHosted": {
     "message": "Self-hosted"
+  },
+  "accessDenied": {
+    "message": "Access denied. You do not have permission to view this page."
   }
 }

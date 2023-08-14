@@ -196,7 +196,7 @@
     "message": "Laguntza eta iritziak"
   },
   "helpCenter": {
-    "message": "Bitwarden Help center"
+    "message": "Bitwarden Laguntza zentroa"
   },
   "communityForums": {
     "message": "Explore Bitwarden community forums"
@@ -2234,5 +2234,14 @@
   "us": {
     "message": "US",
     "description": "United States"
+  },
+  "accessDenied": {
+    "message": "Access denied. You do not have permission to view this page."
+  },
+  "general": {
+    "message": "General"
+  },
+  "display": {
+    "message": "Display"
   }
 }

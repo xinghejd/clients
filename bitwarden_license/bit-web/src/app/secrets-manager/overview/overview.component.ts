@@ -14,10 +14,10 @@ import {
 } from "rxjs";
 
 import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
-import { I18nService } from "@bitwarden/common/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/abstractions/platformUtils.service";
-import { StateService } from "@bitwarden/common/abstractions/state.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 
 import { ProjectListView } from "../models/view/project-list.view";
 import { SecretListView } from "../models/view/secret-list.view";
@@ -130,7 +130,7 @@ export class OverviewComponent implements OnInit, OnDestroy {
       orgId$,
       this.serviceAccountService.serviceAccount$.pipe(startWith(null)),
     ]).pipe(
-      switchMap(([orgId]) => this.serviceAccountService.getServiceAccounts(orgId)),
+      switchMap(([orgId]) => this.serviceAccountService.getServiceAccounts(orgId, false)),
       share()
     );
 
@@ -288,6 +288,10 @@ export class OverviewComponent implements OnInit, OnDestroy {
       this.i18nService,
       this.secretService
     );
+  }
+
+  copySecretUuid(id: string) {
+    SecretsListComponent.copySecretUuid(id, this.platformUtilsService, this.i18nService);
   }
 
   protected hideOnboarding() {

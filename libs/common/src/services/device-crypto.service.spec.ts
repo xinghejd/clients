@@ -1,15 +1,15 @@
 import { mock, mockReset } from "jest-mock-extended";
 
-import { AppIdService } from "../abstractions/appId.service";
-import { CryptoFunctionService } from "../abstractions/cryptoFunction.service";
 import { DevicesApiServiceAbstraction } from "../abstractions/devices/devices-api.service.abstraction";
 import { DeviceResponse } from "../abstractions/devices/responses/device.response";
-import { EncryptService } from "../abstractions/encrypt.service";
-import { StateService } from "../abstractions/state.service";
 import { EncryptionType } from "../enums/encryption-type.enum";
-import { EncString } from "../models/domain/enc-string";
-import { DeviceKey, SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
-import { CryptoService } from "../services/crypto.service";
+import { AppIdService } from "../platform/abstractions/app-id.service";
+import { CryptoFunctionService } from "../platform/abstractions/crypto-function.service";
+import { EncryptService } from "../platform/abstractions/encrypt.service";
+import { StateService } from "../platform/abstractions/state.service";
+import { EncString } from "../platform/models/domain/enc-string";
+import { SymmetricCryptoKey, DeviceKey } from "../platform/models/domain/symmetric-crypto-key";
+import { CryptoService } from "../platform/services/crypto.service";
 import { CsprngArray } from "../types/csprng";
 
 import { DeviceCryptoService } from "./device-crypto.service.implementation";
@@ -57,10 +57,10 @@ describe("deviceCryptoService", () => {
       let makeDeviceKeySpy: jest.SpyInstance;
 
       beforeEach(() => {
-        mockRandomBytes = new Uint8Array(deviceKeyBytesLength).buffer as CsprngArray;
+        mockRandomBytes = new Uint8Array(deviceKeyBytesLength) as CsprngArray;
         mockDeviceKey = new SymmetricCryptoKey(mockRandomBytes);
         existingDeviceKey = new SymmetricCryptoKey(
-          new Uint8Array(deviceKeyBytesLength).buffer as CsprngArray
+          new Uint8Array(deviceKeyBytesLength) as CsprngArray
         ) as DeviceKey;
 
         stateSvcGetDeviceKeySpy = jest.spyOn(stateService, "getDeviceKey");
@@ -97,7 +97,7 @@ describe("deviceCryptoService", () => {
 
     describe("makeDeviceKey", () => {
       it("creates a new non-null 64 byte device key, securely stores it, and returns it", async () => {
-        const mockRandomBytes = new Uint8Array(deviceKeyBytesLength).buffer as CsprngArray;
+        const mockRandomBytes = new Uint8Array(deviceKeyBytesLength) as CsprngArray;
 
         const cryptoFuncSvcRandomBytesSpy = jest
           .spyOn(cryptoFunctionService, "randomBytes")
@@ -128,9 +128,9 @@ describe("deviceCryptoService", () => {
       let mockUserSymKey: SymmetricCryptoKey;
 
       const deviceRsaKeyLength = 2048;
-      let mockDeviceRsaKeyPair: [ArrayBuffer, ArrayBuffer];
-      let mockDevicePrivateKey: ArrayBuffer;
-      let mockDevicePublicKey: ArrayBuffer;
+      let mockDeviceRsaKeyPair: [Uint8Array, Uint8Array];
+      let mockDevicePrivateKey: Uint8Array;
+      let mockDevicePublicKey: Uint8Array;
       let mockDevicePublicKeyEncryptedUserSymKey: EncString;
       let mockUserSymKeyEncryptedDevicePublicKey: EncString;
       let mockDeviceKeyEncryptedDevicePrivateKey: EncString;
@@ -156,15 +156,15 @@ describe("deviceCryptoService", () => {
       beforeEach(() => {
         // Setup all spies and default return values for the happy path
 
-        mockDeviceKeyRandomBytes = new Uint8Array(deviceKeyBytesLength).buffer as CsprngArray;
+        mockDeviceKeyRandomBytes = new Uint8Array(deviceKeyBytesLength) as CsprngArray;
         mockDeviceKey = new SymmetricCryptoKey(mockDeviceKeyRandomBytes) as DeviceKey;
 
-        mockUserSymKeyRandomBytes = new Uint8Array(userSymKeyBytesLength).buffer as CsprngArray;
+        mockUserSymKeyRandomBytes = new Uint8Array(userSymKeyBytesLength) as CsprngArray;
         mockUserSymKey = new SymmetricCryptoKey(mockUserSymKeyRandomBytes);
 
         mockDeviceRsaKeyPair = [
-          new ArrayBuffer(deviceRsaKeyLength),
-          new ArrayBuffer(deviceRsaKeyLength),
+          new Uint8Array(deviceRsaKeyLength),
+          new Uint8Array(deviceRsaKeyLength),
         ];
 
         mockDevicePublicKey = mockDeviceRsaKeyPair[0];

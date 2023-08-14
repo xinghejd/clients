@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from "@angular/core";
 
-import { StateService } from "@bitwarden/common/abstractions/state.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 
 @Component({
   selector: "app-export-scope-callout",
@@ -30,7 +30,7 @@ export class ExportScopeCalloutComponent implements OnInit {
       this.organizationId != null
         ? {
             title: "exportingOrganizationVaultTitle",
-            description: "exportingOrganizationVaultDescription",
+            description: "exportingOrganizationVaultDesc",
             scopeIdentifier: this.organizationService.get(this.organizationId).name,
           }
         : {
