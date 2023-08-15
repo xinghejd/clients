@@ -9,7 +9,7 @@ function migrateExampleJSON() {
   return {
     global: {
       stateVersion: 3,
-      otherStuff: "otherStuff",
+      otherStuff: "otherStuff1",
     },
     authenticatedAccounts: [
       "c493ed01-4e08-4e88-abc7-332f380ca760",
@@ -17,19 +17,19 @@ function migrateExampleJSON() {
     ],
     "c493ed01-4e08-4e88-abc7-332f380ca760": {
       profile: {
-        otherStuff: "otherStuff",
+        otherStuff: "otherStuff2",
         everBeenUnlocked: true,
       },
-      otherStuff: "otherStuff",
+      otherStuff: "otherStuff3",
     },
     "23e61a5f-2ece-4f5e-b499-f0bc489482a9": {
       profile: {
-        otherStuff: "otherStuff",
+        otherStuff: "otherStuff4",
         everBeenUnlocked: false,
       },
-      otherStuff: "otherStuff",
+      otherStuff: "otherStuff5",
     },
-    otherStuff: "otherStuff",
+    otherStuff: "otherStuff6",
   };
 }
 
@@ -48,15 +48,15 @@ describe("RemoveEverBeenUnlockedMigrator", () => {
       expect(helper.set).toHaveBeenCalledTimes(2);
       expect(helper.set).toHaveBeenCalledWith("c493ed01-4e08-4e88-abc7-332f380ca760", {
         profile: {
-          otherStuff: "otherStuff",
+          otherStuff: "otherStuff2",
         },
-        otherStuff: "otherStuff",
+        otherStuff: "otherStuff3",
       });
       expect(helper.set).toHaveBeenCalledWith("23e61a5f-2ece-4f5e-b499-f0bc489482a9", {
         profile: {
-          otherStuff: "otherStuff",
+          otherStuff: "otherStuff4",
         },
-        otherStuff: "otherStuff",
+        otherStuff: "otherStuff5",
       });
     });
   });
@@ -68,7 +68,7 @@ describe("RemoveEverBeenUnlockedMigrator", () => {
       expect(helper.set).toHaveBeenCalledTimes(1);
       expect(helper.set).toHaveBeenCalledWith("global", {
         stateVersion: 4,
-        otherStuff: "otherStuff",
+        otherStuff: "otherStuff1",
       });
     });
   });

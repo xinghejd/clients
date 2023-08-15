@@ -9,7 +9,7 @@ function exampleJSON() {
   return {
     global: {
       stateVersion: 5,
-      otherStuff: "otherStuff",
+      otherStuff: "otherStuff1",
     },
     authenticatedAccounts: [
       "c493ed01-4e08-4e88-abc7-332f380ca760",
@@ -19,16 +19,16 @@ function exampleJSON() {
     "c493ed01-4e08-4e88-abc7-332f380ca760": {
       keys: {
         legacyEtmKey: "legacyEtmKey",
-        otherStuff: "otherStuff",
+        otherStuff: "otherStuff2",
       },
-      otherStuff: "otherStuff",
+      otherStuff: "otherStuff3",
     },
     "23e61a5f-2ece-4f5e-b499-f0bc489482a9": {
       keys: {
         legacyEtmKey: "legacyEtmKey",
-        otherStuff: "otherStuff",
+        otherStuff: "otherStuff4",
       },
-      otherStuff: "otherStuff",
+      otherStuff: "otherStuff5",
     },
   };
 }
@@ -47,15 +47,15 @@ describe("RemoveLegacyEtmKeyMigrator", () => {
       await sut.migrate(helper);
       expect(helper.set).toHaveBeenCalledWith("c493ed01-4e08-4e88-abc7-332f380ca760", {
         keys: {
-          otherStuff: "otherStuff",
+          otherStuff: "otherStuff2",
         },
-        otherStuff: "otherStuff",
+        otherStuff: "otherStuff3",
       });
       expect(helper.set).toHaveBeenCalledWith("23e61a5f-2ece-4f5e-b499-f0bc489482a9", {
         keys: {
-          otherStuff: "otherStuff",
+          otherStuff: "otherStuff4",
         },
-        otherStuff: "otherStuff",
+        otherStuff: "otherStuff5",
       });
     });
   });
@@ -73,7 +73,7 @@ describe("RemoveLegacyEtmKeyMigrator", () => {
       expect(helper.set).toHaveBeenCalledTimes(1);
       expect(helper.set).toHaveBeenCalledWith("global", {
         stateVersion: 6,
-        otherStuff: "otherStuff",
+        otherStuff: "otherStuff1",
       });
     });
   });

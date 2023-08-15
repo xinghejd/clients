@@ -11,7 +11,7 @@ function migrateExampleJSON() {
   return {
     global: {
       stateVersion: 2,
-      otherStuff: "otherStuff",
+      otherStuff: "otherStuff1",
     },
     authenticatedAccounts: [
       "c493ed01-4e08-4e88-abc7-332f380ca760",
@@ -19,27 +19,27 @@ function migrateExampleJSON() {
     ],
     "c493ed01-4e08-4e88-abc7-332f380ca760": {
       profile: {
-        otherStuff: "otherStuff",
+        otherStuff: "otherStuff2",
         hasPremiumPersonally: null as boolean,
       },
       tokens: {
-        otherStuff: "otherStuff",
+        otherStuff: "otherStuff3",
         accessToken: "accessToken",
       },
-      otherStuff: "otherStuff",
+      otherStuff: "otherStuff4",
     },
     "23e61a5f-2ece-4f5e-b499-f0bc489482a9": {
       profile: {
-        otherStuff: "otherStuff",
+        otherStuff: "otherStuff5",
         hasPremiumPersonally: true,
       },
       tokens: {
-        otherStuff: "otherStuff",
+        otherStuff: "otherStuff6",
         accessToken: "accessToken",
       },
-      otherStuff: "otherStuff",
+      otherStuff: "otherStuff7",
     },
-    otherStuff: "otherStuff",
+    otherStuff: "otherStuff8",
   };
 }
 
@@ -71,14 +71,14 @@ describe("FixPremiumMigrator", () => {
       expect(helper.set).toHaveBeenCalledTimes(1);
       expect(helper.set).toHaveBeenCalledWith("c493ed01-4e08-4e88-abc7-332f380ca760", {
         profile: {
-          otherStuff: "otherStuff",
+          otherStuff: "otherStuff2",
           hasPremiumPersonally: true,
         },
         tokens: {
-          otherStuff: "otherStuff",
+          otherStuff: "otherStuff3",
           accessToken: "accessToken",
         },
-        otherStuff: "otherStuff",
+        otherStuff: "otherStuff4",
       });
     });
 
@@ -104,7 +104,7 @@ describe("FixPremiumMigrator", () => {
       expect(helper.set).toHaveBeenCalledTimes(1);
       expect(helper.set).toHaveBeenCalledWith("global", {
         stateVersion: 3,
-        otherStuff: "otherStuff",
+        otherStuff: "otherStuff1",
       });
     });
   });

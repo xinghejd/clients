@@ -9,7 +9,7 @@ function migrateExampleJSON() {
   return {
     global: {
       stateVersion: 4,
-      otherStuff: "otherStuff",
+      otherStuff: "otherStuff1",
     },
     authenticatedAccounts: [
       "c493ed01-4e08-4e88-abc7-332f380ca760",
@@ -23,9 +23,9 @@ function migrateExampleJSON() {
             orgTwoId: "orgTwoEncKey",
           },
         },
-        otherStuff: "otherStuff",
+        otherStuff: "otherStuff2",
       },
-      otherStuff: "otherStuff",
+      otherStuff: "otherStuff3",
     },
   };
 }
@@ -34,7 +34,7 @@ function rollbackExampleJSON() {
   return {
     global: {
       stateVersion: 5,
-      otherStuff: "otherStuff",
+      otherStuff: "otherStuff1",
     },
     authenticatedAccounts: [
       "c493ed01-4e08-4e88-abc7-332f380ca760",
@@ -54,9 +54,9 @@ function rollbackExampleJSON() {
             },
           },
         },
-        otherStuff: "otherStuff",
+        otherStuff: "otherStuff2",
       },
-      otherStuff: "otherStuff",
+      otherStuff: "otherStuff3",
     },
   };
 }
@@ -88,9 +88,9 @@ describe("AddKeyTypeToOrgKeysMigrator", () => {
               },
             },
           },
-          otherStuff: "otherStuff",
+          otherStuff: "otherStuff2",
         },
-        otherStuff: "otherStuff",
+        otherStuff: "otherStuff3",
       });
     });
 
@@ -100,7 +100,7 @@ describe("AddKeyTypeToOrgKeysMigrator", () => {
       expect(helper.set).toHaveBeenCalledTimes(1);
       expect(helper.set).toHaveBeenCalledWith("global", {
         stateVersion: 5,
-        otherStuff: "otherStuff",
+        otherStuff: "otherStuff1",
       });
     });
   });
@@ -122,9 +122,9 @@ describe("AddKeyTypeToOrgKeysMigrator", () => {
               orgTwoId: "orgTwoEncKey",
             },
           },
-          otherStuff: "otherStuff",
+          otherStuff: "otherStuff2",
         },
-        otherStuff: "otherStuff",
+        otherStuff: "otherStuff3",
       });
     });
 
@@ -134,7 +134,7 @@ describe("AddKeyTypeToOrgKeysMigrator", () => {
       expect(helper.set).toHaveBeenCalledTimes(1);
       expect(helper.set).toHaveBeenCalledWith("global", {
         stateVersion: 4,
-        otherStuff: "otherStuff",
+        otherStuff: "otherStuff1",
       });
     });
   });

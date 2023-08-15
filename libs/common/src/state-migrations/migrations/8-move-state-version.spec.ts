@@ -9,19 +9,19 @@ function migrateExampleJSON() {
   return {
     global: {
       stateVersion: 6,
-      otherStuff: "otherStuff",
+      otherStuff: "otherStuff1",
     },
-    otherStuff: "otherStuff",
+    otherStuff: "otherStuff2",
   };
 }
 
 function rollbackExampleJSON() {
   return {
     global: {
-      otherStuff: "otherStuff",
+      otherStuff: "otherStuff1",
     },
     stateVersion: 7,
-    otherStuff: "otherStuff",
+    otherStuff: "otherStuff2",
   };
 }
 
@@ -43,12 +43,12 @@ describe("moveStateVersion", () => {
     it("should remove state version from global", async () => {
       await sut.migrate(helper);
       expect(helper.set).toHaveBeenCalledWith("global", {
-        otherStuff: "otherStuff",
+        otherStuff: "otherStuff1",
       });
     });
 
     it("should throw if state version not found", async () => {
-      helper.get.mockReturnValue({ otherStuff: "otherStuff" } as any);
+      helper.get.mockReturnValue({ otherStuff: "otherStuff1" } as any);
       await expect(sut.migrate(helper)).rejects.toThrow(
         "Migration failed, state version not found"
       );
@@ -72,7 +72,7 @@ describe("moveStateVersion", () => {
       await sut.rollback(helper);
       expect(helper.set).toHaveBeenCalledWith("global", {
         stateVersion: 7,
-        otherStuff: "otherStuff",
+        otherStuff: "otherStuff1",
       });
       expect(helper.set).toHaveBeenCalledWith("stateVersion", undefined);
     });
@@ -83,7 +83,7 @@ describe("moveStateVersion", () => {
       expect(helper.set).toHaveBeenCalledTimes(1);
       expect(helper.set).toHaveBeenCalledWith("global", {
         stateVersion: 7,
-        otherStuff: "otherStuff",
+        otherStuff: "otherStuff1",
       });
     });
   });
