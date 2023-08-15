@@ -7,10 +7,12 @@ import { Migrator } from "./migrator";
 describe("MigrationBuilder", () => {
   class TestMigrator extends Migrator<0, 1> {
     async migrate(helper: MigrationHelper): Promise<void> {
+      await helper.set("test", "test");
       return;
     }
 
     async rollback(helper: MigrationHelper): Promise<void> {
+      await helper.set("test", "rollback");
       return;
     }
   }
@@ -19,6 +21,23 @@ describe("MigrationBuilder", () => {
 
   beforeEach(() => {
     sut = MigrationBuilder.create();
+  });
+
+  class TestBadMigrator extends Migrator<1, 0> {
+    async migrate(helper: MigrationHelper): Promise<void> {
+      await helper.set("test", "test");
+    }
+
+    async rollback(helper: MigrationHelper): Promise<void> {
+      await helper.set("test", "rollback");
+    }
+  }
+
+  it("should throw if instantiated incorrectly", () => {
+    expect(() => MigrationBuilder.create().with(TestMigrator, null, null)).toThrow();
+    expect(() =>
+      MigrationBuilder.create().with(TestMigrator, 0, 1).with(TestBadMigrator, 1, 0)
+    ).toThrow();
   });
 
   it("should be able to create a new MigrationBuilder", () => {

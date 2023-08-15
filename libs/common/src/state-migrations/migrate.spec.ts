@@ -1,54 +1,36 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
 // eslint-disable-next-line import/no-restricted-paths -- Needed to print log messages
-import { LogService } from "../abstractions/log.service";
+import { LogService } from "../platform/abstractions/log.service";
 // eslint-disable-next-line import/no-restricted-paths -- Needed to interface with storage locations
-import { AbstractStorageService } from "../abstractions/storage.service";
+import { AbstractStorageService } from "../platform/abstractions/storage.service";
 
-import { builder, currentVersion, migrate } from "./migrate";
+import { CURRENT_VERSION, currentVersion, migrate } from "./migrate";
 import { MigrationBuilder } from "./migration-builder";
-import { MigrationHelper } from "./migration-helper";
-import { Migrator } from "./migrator";
+
+jest.mock("./migration-builder", () => {
+  return {
+    MigrationBuilder: {
+      create: jest.fn().mockReturnThis(),
+    },
+  };
+});
 
 describe("migrate", () => {
-  class TestMigrator extends Migrator<0, 1> {
-    async migrate(helper: MigrationHelper): Promise<void> {
-      await helper.set("test", "test");
-    }
-
-    async rollback(helper: MigrationHelper): Promise<void> {
-      await helper.set("test", "rollback");
-    }
-  }
-
-  class TestBadMigrator extends Migrator<1, 0> {
-    async migrate(helper: MigrationHelper): Promise<void> {
-      await helper.set("test", "test");
-    }
-
-    async rollback(helper: MigrationHelper): Promise<void> {
-      await helper.set("test", "rollback");
-    }
-  }
-
-  it("should throw if instantiated incorrectly", () => {
-    expect(() => MigrationBuilder.create().with(TestMigrator, null, null)).toThrow();
-    expect(() =>
-      MigrationBuilder.create().with(TestMigrator, 0, 1).with(TestBadMigrator, 1, 0)
-    ).toThrow();
-  });
-
-  it("should load migration builder", () => {
-    expect(builder).toBeInstanceOf(MigrationBuilder);
-  });
-
   it("should not run migrations if state is empty", async () => {
     const storage = mock<AbstractStorageService>();
     const logService = mock<LogService>();
     storage.get.mockReturnValueOnce(null);
-    const migrateSpy = jest.spyOn(builder["migrations"][0].migrator, "migrate");
     await migrate(storage, logService);
-    expect(migrateSpy).not.toHaveBeenCalled();
+    expect(MigrationBuilder.create).not.toHaveBeenCalled();
+  });
+
+  it("should set to current version if state is empty", async () => {
+    const storage = mock<AbstractStorageService>();
+    const logService = mock<LogService>();
+    storage.get.mockReturnValueOnce(null);
+    await migrate(storage, logService);
+    expect(storage.save).toHaveBeenCalledWith("stateVersion", CURRENT_VERSION);
   });
 });
 
