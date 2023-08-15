@@ -30,7 +30,7 @@ export class FixPremiumMigrator extends Migrator<2, 3> {
       }
     }
 
-    await Promise.all(accounts.map(async ({ userId, account }) => fixPremium(userId, account)));
+    await Promise.all(accounts.map(({ userId, account }) => fixPremium(userId, account)));
   }
 
   rollback(helper: MigrationHelper): Promise<void> {

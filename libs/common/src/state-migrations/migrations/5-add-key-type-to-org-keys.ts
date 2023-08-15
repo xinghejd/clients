@@ -31,7 +31,7 @@ export class AddKeyTypeToOrgKeysMigrator extends Migrator<4, 5> {
       await helper.set(userId, account);
     }
 
-    Promise.all(accounts.map(async ({ userId, account }) => updateOrgKey(userId, account)));
+    Promise.all(accounts.map(({ userId, account }) => updateOrgKey(userId, account)));
   }
 
   async rollback(helper: MigrationHelper): Promise<void> {
