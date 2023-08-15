@@ -17,15 +17,6 @@ export const MIN_VERSION = 2;
 export const CURRENT_VERSION = 8;
 export type MinVersion = typeof MIN_VERSION;
 
-export const builder: MigrationBuilder<number> = MigrationBuilder.create()
-  .with(MinVersionMigrator)
-  .with(FixPremiumMigrator, 2, 3)
-  .with(RemoveEverBeenUnlockedMigrator, 3, 4)
-  .with(AddKeyTypeToOrgKeysMigrator, 4, 5)
-  .with(RemoveLegacyEtmKeyMigrator, 5, 6)
-  .with(MoveBiometricAutoPromptToAccount, 6, 7)
-  .with(MoveStateVersionMigrator, 7, CURRENT_VERSION);
-
 export async function migrate(
   storageService: AbstractStorageService,
   logService: LogService
@@ -39,7 +30,15 @@ export async function migrate(
     // Cannot determine state, assuming empty so we don't repeatedly apply a migration.
     return;
   }
-  builder.migrate(migrationHelper);
+  MigrationBuilder.create()
+    .with(MinVersionMigrator)
+    .with(FixPremiumMigrator, 2, 3)
+    .with(RemoveEverBeenUnlockedMigrator, 3, 4)
+    .with(AddKeyTypeToOrgKeysMigrator, 4, 5)
+    .with(RemoveLegacyEtmKeyMigrator, 5, 6)
+    .with(MoveBiometricAutoPromptToAccount, 6, 7)
+    .with(MoveStateVersionMigrator, 7, CURRENT_VERSION)
+    .migrate(migrationHelper);
 }
 
 export async function currentVersion(
