@@ -1,1 +1,1 @@
-export { migrate } from "./migrate";
+export { migrate, CURRENT_VERSION } from "./migrate";
