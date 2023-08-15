@@ -20,7 +20,7 @@ import {
 import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
 import { EventData } from "../../models/data/event.data";
 import { WindowState } from "../../models/domain/window-state";
-import { migrate, CURRENT_VERSION } from "../../state-migrations";
+import { migrate } from "../../state-migrations";
 import { GeneratedPasswordHistory } from "../../tools/generator/password";
 import { SendData } from "../../tools/send/models/data/send.data";
 import { SendView } from "../../tools/send/models/view/send.view";
@@ -2447,7 +2447,6 @@ export class StateService<
 
     if (globals == null) {
       globals = this.createGlobals();
-      this.storageService.save(keys.stateVersion, CURRENT_VERSION);
     }
 
     return globals;

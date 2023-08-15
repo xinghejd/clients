@@ -28,6 +28,7 @@ export async function migrate(
   );
   if (migrationHelper.currentVersion < 0) {
     // Cannot determine state, assuming empty so we don't repeatedly apply a migration.
+    await storageService.save("stateVersion", CURRENT_VERSION);
     return;
   }
   MigrationBuilder.create()
@@ -47,7 +48,7 @@ export async function currentVersion(
 ) {
   let state = await storageService.get<number>("stateVersion");
   if (state == null) {
-    // Pre v7
+    // Pre v8
     state = (await storageService.get<{ stateVersion: number }>("global"))?.stateVersion;
   }
   if (state == null) {
