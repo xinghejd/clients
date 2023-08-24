@@ -1,5 +1,4 @@
-import { Injectable, OnDestroy } from "@angular/core";
-import { BehaviorSubject, Subject, concatMap, from, takeUntil, timer } from "rxjs";
+import { BehaviorSubject, concatMap, from, timer } from "rxjs";
 
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
@@ -11,11 +10,9 @@ import { EnvironmentService } from "../../abstractions/environment.service";
 import { StateService } from "../../abstractions/state.service";
 import { ServerConfigData } from "../../models/data/server-config.data";
 
-@Injectable()
-export class ConfigService implements ConfigServiceAbstraction, OnDestroy {
+export class ConfigService implements ConfigServiceAbstraction {
   protected _serverConfig = new BehaviorSubject<ServerConfig | null>(null);
   serverConfig$ = this._serverConfig.asObservable();
-  private destroy$ = new Subject<void>();
 
   constructor(
     private stateService: StateService,
@@ -30,29 +27,34 @@ export class ConfigService implements ConfigServiceAbstraction, OnDestroy {
         this._serverConfig.next(serverConfig);
       });
 
-    this.environmentService.urls.pipe(takeUntil(this.destroy$)).subscribe(() => {
+    this.environmentService.urls.subscribe(() => {
       this.fetchServerConfig();
     });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   async fetchServerConfig(): Promise<ServerConfig> {
     try {
       const response = await this.configApiService.get();
 
-      if (response != null) {
-        const data = new ServerConfigData(response);
-        const serverConfig = new ServerConfig(data);
-        this._serverConfig.next(serverConfig);
-        if ((await this.authService.getAuthStatus()) === AuthenticationStatus.LoggedOut) {
-          return serverConfig;
-        }
-        await this.stateService.setServerConfig(data);
+      if (response == null) {
+        return;
       }
+
+      const data = new ServerConfigData(response);
+      const serverConfig = new ServerConfig(data);
+      this._serverConfig.next(serverConfig);
+
+      const userAuthStatus = await this.authService.getAuthStatus();
+      if (userAuthStatus !== AuthenticationStatus.LoggedOut) {
+        // Store the config for offline use if the user is logged in
+        await this.stateService.setServerConfig(data);
+        this.environmentService.setCloudWebVaultUrl(data.environment?.cloudRegion);
+      }
+      // Always return new server config from server to calling method
+      // to ensure up to date information
+      // This change is specifically for the getFeatureFlag > buildServerConfig flow
+      // for locked or logged in users.
+      return serverConfig;
     } catch {
       return null;
     }
@@ -68,6 +70,11 @@ export class ConfigService implements ConfigServiceAbstraction, OnDestroy {
 
   async getFeatureFlagNumber(key: FeatureFlag, defaultValue = 0): Promise<number> {
     return await this.getFeatureFlag(key, defaultValue);
+  }
+
+  async getCloudRegion(defaultValue = "US"): Promise<string> {
+    const serverConfig = await this.buildServerConfig();
+    return serverConfig.environment?.cloudRegion ?? defaultValue;
   }
 
   private async getFeatureFlag<T>(key: FeatureFlag, defaultValue: T): Promise<T> {

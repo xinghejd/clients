@@ -2,9 +2,9 @@ import { Directive } from "@angular/core";
 import { Router } from "@angular/router";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { UserVerificationService } from "@bitwarden/common/abstractions/userVerification/userVerification.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
+import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
@@ -14,11 +14,10 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { MasterKey, UserKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 import { Verification } from "@bitwarden/common/types/verification";
-
-import { DialogServiceAbstraction } from "../../services/dialog";
+import { DialogService } from "@bitwarden/components";
 
 import { ChangePasswordComponent as BaseChangePasswordComponent } from "./change-password.component";
 
@@ -44,7 +43,7 @@ export class UpdatePasswordComponent extends BaseChangePasswordComponent {
     stateService: StateService,
     private userVerificationService: UserVerificationService,
     private logService: LogService,
-    dialogService: DialogServiceAbstraction
+    dialogService: DialogService
   ) {
     super(
       i18nService,
@@ -95,19 +94,19 @@ export class UpdatePasswordComponent extends BaseChangePasswordComponent {
   }
 
   async performSubmitActions(
-    masterPasswordHash: string,
-    key: SymmetricCryptoKey,
-    encKey: [SymmetricCryptoKey, EncString]
+    newMasterKeyHash: string,
+    newMasterKey: MasterKey,
+    newUserKey: [UserKey, EncString]
   ) {
     try {
       // Create Request
       const request = new PasswordRequest();
-      request.masterPasswordHash = await this.cryptoService.hashPassword(
+      request.masterPasswordHash = await this.cryptoService.hashMasterKey(
         this.currentMasterPassword,
-        null
+        await this.cryptoService.getOrDeriveMasterKey(this.currentMasterPassword)
       );
-      request.newMasterPasswordHash = masterPasswordHash;
-      request.key = encKey[1].encryptedString;
+      request.newMasterPasswordHash = newMasterKeyHash;
+      request.key = newUserKey[1].encryptedString;
 
       // Update user's password
       this.apiService.postPassword(request);

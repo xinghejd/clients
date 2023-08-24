@@ -3,13 +3,13 @@ import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 
 import { LoginComponent as BaseLoginComponent } from "@bitwarden/angular/auth/components/login.component";
-import { DevicesApiServiceAbstraction } from "@bitwarden/common/abstractions/devices/devices-api.service.abstraction";
+import { FormValidationErrorsService } from "@bitwarden/angular/platform/abstractions/form-validation-errors.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { LoginService } from "@bitwarden/common/auth/abstractions/login.service";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
-import { FormValidationErrorsService } from "@bitwarden/common/platform/abstractions/form-validation-errors.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";

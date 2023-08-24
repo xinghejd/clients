@@ -19,10 +19,10 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
 import {
   CollectionAccessSelectionView,
-  CollectionAdminView,
   GroupView,
 } from "../../../admin-console/organizations/core";
 import { PreloadedEnglishI18nModule } from "../../../core/tests";
+import { CollectionAdminView } from "../../core/views/collection-admin.view";
 import { Unassigned } from "../../individual-vault/vault-filter/shared/models/routed-vault-filter.model";
 
 import { VaultItemsComponent } from "./vault-items.component";
@@ -277,7 +277,7 @@ function createCipherView(i: number, deleted = false): CipherView {
     view.attachments = [attachment];
   } else if (i % 5 === 0) {
     const attachment = new AttachmentView();
-    attachment.key = new SymmetricCryptoKey(new ArrayBuffer(32));
+    attachment.key = new SymmetricCryptoKey(new Uint8Array(32));
     view.attachments = [attachment];
   }
 
