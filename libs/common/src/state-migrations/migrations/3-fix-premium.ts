@@ -42,7 +42,7 @@ export class FixPremiumMigrator extends Migrator<2, 3> {
   override async updateVersion(helper: MigrationHelper, direction: Direction): Promise<void> {
     const endVersion = direction === "up" ? this.toVersion : this.fromVersion;
     helper.currentVersion = endVersion;
-    const global: { stateVersion: number } = (await helper.get("global")) || ({} as any);
+    const global: Record<string, unknown> = (await helper.get("global")) || {};
     await helper.set("global", { ...global, stateVersion: endVersion });
   }
 }
