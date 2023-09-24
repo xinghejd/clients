@@ -33,6 +33,7 @@ const BroadcasterSubscriptionId = "TwoFactorComponent";
 })
 export class TwoFactorComponent extends BaseTwoFactorComponent {
   showNewWindowMessage = false;
+  inPopout = false;
 
   constructor(
     authService: AuthService,
@@ -126,9 +127,13 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
       document.body.classList.add("linux-webauthn");
     }
 
+    // Check if we are in a popout window
+    this.inPopout = this.route.snapshot.queryParams.uilocation === "popout";
+
     if (
       this.selectedProviderType === TwoFactorProviderType.Email &&
-      this.popupUtilsService.inPopup(window)
+      this.popupUtilsService.inPopup(window) &&
+      !this.inPopout
     ) {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "warning" },
@@ -178,7 +183,9 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
       // proper onSuccessfulLogin logic is executed.
       this.router.navigate(["2fa-options"], { queryParams: { sso: true } });
     } else {
-      this.router.navigate(["2fa-options"]);
+      this.router.navigate(["2fa-options"], {
+        queryParams: { uilocation: this.route.snapshot.queryParams.uilocation },
+      });
     }
   }
 

@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
-import { Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 
 import { EnvironmentSelectorComponent } from "@bitwarden/angular/auth/components/environment-selector.component";
@@ -30,6 +30,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     private stateService: StateService,
     private formBuilder: FormBuilder,
     private router: Router,
+    private route: ActivatedRoute,
     private i18nService: I18nService,
     private environmentService: EnvironmentService,
     private loginService: LoginService
@@ -80,7 +81,12 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     this.loginService.setEmail(this.formGroup.value.email);
     this.loginService.setRememberEmail(this.formGroup.value.rememberEmail);
-    this.router.navigate(["login"], { queryParams: { email: this.formGroup.value.email } });
+    this.router.navigate(["login"], {
+      queryParams: {
+        email: this.formGroup.value.email,
+        uilocation: this.route.snapshot.queryParams.uilocation,
+      },
+    });
   }
 
   get selfHostedDomain() {
