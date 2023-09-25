@@ -508,9 +508,6 @@
   "maxFileSize": {
     "message": "O tamanho máximo do ficheiro é de 500 MB."
   },
-  "updateKey": {
-    "message": "Não pode utilizar esta funcionalidade até atualizar a sua chave de encriptação."
-  },
   "addedItem": {
     "message": "Item adicionado"
   },
@@ -1425,8 +1422,11 @@
   "twoStepLoginDesc": {
     "message": "Proteja a sua conta exigindo um passo adicional ao iniciar sessão."
   },
-  "twoStepLoginOrganizationDescStart": {
-    "message": "Reforce as opções de verificação de dois passos do Bitwarden para os membros, utilizando as ",
+  "twoStepLoginTeamsDesc": {
+    "message": "Ativar verificação de dois passos para a sua organização."
+  },
+  "twoStepLoginEnterpriseDescStart": {
+    "message": "Aplicar as opções de verificação de dois passos do Bitwarden para os membros, utilizando as ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Enforce Bitwarden Two-step Login options for members by using the Two-step Login Policy.'"
   },
   "twoStepLoginPolicy": {
@@ -1925,7 +1925,7 @@
     "message": "1 GB de armazenamento encriptado para anexos de ficheiros."
   },
   "premiumSignUpTwoStepOptions": {
-    "message": "Proprietary two-step login options such as YubiKey and Duo."
+    "message": "Opções proprietárias de verificação de dois passos, como YubiKey e Duo."
   },
   "premiumSignUpEmergency": {
     "message": "Acesso de emergência"
@@ -2400,7 +2400,7 @@
     "message": "Acompanhe as ações dos utilizadores com registos de auditoria"
   },
   "enforce2faDuo": {
-    "message": "Impor 2FA com a Duo"
+    "message": "Aplicar 2FA com a Duo"
   },
   "priorityCustomerSupport": {
     "message": "Prioridade no apoio ao cliente"
@@ -3473,17 +3473,11 @@
   "keyUpdated": {
     "message": "Chave atualizada"
   },
-  "updateKeyTitle": {
-    "message": "Atualizar chave"
-  },
   "updateEncryptionKey": {
     "message": "Atualizar chave de encriptação"
   },
-  "updateEncryptionKeyShortDesc": {
-    "message": "Está atualmente a utilizar um esquema de encriptação desatualizado."
-  },
-  "updateEncryptionKeyDesc": {
-    "message": "Passámos a utilizar chaves de encriptação maiores que proporcionam uma melhor segurança e acesso a novas funcionalidades. A atualização da sua chave de encriptação é rápida e fácil. Basta introduzir a sua palavra-passe mestra abaixo. Esta atualização acabará por se tornar obrigatória."
+  "updateEncryptionSchemeDesc": {
+    "message": "Alterámos o esquema de encriptação para proporcionar uma melhor segurança. Atualize a sua chave de encriptação agora, introduzindo a sua palavra-passe mestra abaixo."
   },
   "updateEncryptionKeyWarning": {
     "message": "Depois de atualizar a sua chave de encriptação, é necessário terminar sessão e voltar a iniciar em todas as aplicações Bitwarden que está a utilizar atualmente (como a aplicação móvel ou as extensões do navegador). A falha em terminar sessão e voltar a iniciar (que descarrega a sua nova chave de encriptação) pode resultar em corrupção de dados. Tentaremos terminar a sua sessão automaticamente, no entanto, pode demorar."
@@ -3631,7 +3625,7 @@
     "message": "Este item tem anexos de ficheiros antigos que precisam de ser corrigidos."
   },
   "attachmentFixDescription": {
-    "message": "Este anexo utiliza uma encriptação desatualizada. Selecione \"Corrigir\" para transferir, voltar a encriptar e voltar a carregar o anexo."
+    "message": "Este anexo utiliza uma encriptação desatualizada. Selecione \"Corrigir\" para transferir, reencriptar e recarregar o anexo."
   },
   "fix": {
     "message": "Corrigir",
@@ -7016,12 +7010,6 @@
   "next": {
     "message": "Avançar"
   },
-  "usFlag": {
-    "message": "Bandeira dos EUA"
-  },
-  "euFlag": {
-    "message": "Bandeira da UE"
-  },
   "selectedRegionFlag": {
     "message": "Bandeira da região selecionada"
   },
@@ -7157,7 +7145,7 @@
     "message": "Limite de contas de serviço (opcional)"
   },
   "maxServiceAccountCost": {
-    "message": "Custo máximo potencial da conta de serviço"
+    "message": "Custo potencial máximo da conta de serviço"
   },
   "loggedInExclamation": {
     "message": "Sessão iniciada!"

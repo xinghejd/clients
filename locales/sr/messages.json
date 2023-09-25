@@ -508,9 +508,6 @@
   "maxFileSize": {
     "message": "Максимална величина је 500МБ."
   },
-  "updateKey": {
-    "message": "Не можете да користите ову способност док не промените Ваш кључ за шифровање."
-  },
   "addedItem": {
     "message": "Ставка додата"
   },
@@ -1425,7 +1422,10 @@
   "twoStepLoginDesc": {
     "message": "Заштитите свој налог захтевањем додатног корака приликом пријављивања."
   },
-  "twoStepLoginOrganizationDescStart": {
+  "twoStepLoginTeamsDesc": {
+    "message": "Омогућите пријаву у два корака за вашу организацију."
+  },
+  "twoStepLoginEnterpriseDescStart": {
     "message": "Примени Bitwarden опције за пријаву у два корака за чланове користећи ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Enforce Bitwarden Two-step Login options for members by using the Two-step Login Policy.'"
   },
@@ -1925,7 +1925,7 @@
     "message": "1ГБ шифровано складиште за прилоге."
   },
   "premiumSignUpTwoStepOptions": {
-    "message": "Proprietary two-step login options such as YubiKey and Duo."
+    "message": "Приоритарне опције пријаве у два корака као што су YubiKey и Duo."
   },
   "premiumSignUpEmergency": {
     "message": "Улаз у хитним случајевима"
@@ -2041,7 +2041,7 @@
     }
   },
   "paymentChargedWithUnpaidSubscription": {
-    "message": "Your payment method will be charged for any unpaid subscriptions."
+    "message": "Ваш начин плаћања ће бити наплаћен за све неплаћене претплате."
   },
   "paymentChargedWithTrial": {
     "message": "Ваш план долази са бесплатним 7-дневним пробним периодом. Начин плаћања неће бити наплаћен док се пробно време не заврши. Наплата ће се вршити периодично, сваки $INTERVAL$. Можете отказати било када."
@@ -3473,17 +3473,11 @@
   "keyUpdated": {
     "message": "Кључ је ажуриран"
   },
-  "updateKeyTitle": {
-    "message": "Ажурирате кључ"
-  },
   "updateEncryptionKey": {
     "message": "Ажурирајте кључ за шифровање"
   },
-  "updateEncryptionKeyShortDesc": {
-    "message": "Тренутно користите застарелу шему шифровања."
-  },
-  "updateEncryptionKeyDesc": {
-    "message": "Прешли смо на веће кључеве за шифровање који пружају бољу сигурност и приступ новијим функцијама. Ажурирање кључа за шифровање је брзо и једноставно. Само унесите главну лозинку испод. Ово ажурирање ће временом постати обавезно."
+  "updateEncryptionSchemeDesc": {
+    "message": "We've changed the encryption scheme to provide better security. Update your encryption key now by entering your master password below."
   },
   "updateEncryptionKeyWarning": {
     "message": "Након ажурирања кључа за шифровање, мораћете да се одјавите и вратите у све Bitwarden апликације које тренутно користите (као што су мобилна апликација или додаци прегледача). Ако се не одјавите и поново пријавите (чиме се преузима ваш нови кључ за шифровање), може доћи до оштећења података. Покушаћемо аутоматски да се одјавимо, али може доћи до одлагања."
@@ -7015,12 +7009,6 @@
   },
   "next": {
     "message": "Следеће"
-  },
-  "usFlag": {
-    "message": "Америчка застава"
-  },
-  "euFlag": {
-    "message": "ЕУ застава"
   },
   "selectedRegionFlag": {
     "message": "Одабрана застава"
