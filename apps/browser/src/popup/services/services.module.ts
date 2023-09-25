@@ -90,6 +90,7 @@ import MainBackground from "../../background/main.background";
 import { Account } from "../../models/account";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { ForegroundStateService } from "../../platform/popup/services/foreground-state.service";
+import { BitSubjectFactoryServiceAbstraction } from "../../platform/services/abstractions/bit-subject-factory.service";
 import { BrowserStateService as StateServiceAbstraction } from "../../platform/services/abstractions/browser-state.service";
 import { BrowserConfigService } from "../../platform/services/browser-config.service";
 import { BrowserEnvironmentService } from "../../platform/services/browser-environment.service";
@@ -98,10 +99,11 @@ import { BrowserI18nService } from "../../platform/services/browser-i18n.service
 import BrowserMessagingPrivateModePopupService from "../../platform/services/browser-messaging-private-mode-popup.service";
 import BrowserMessagingService from "../../platform/services/browser-messaging.service";
 import { BrowserStateService } from "../../platform/services/browser-state.service";
+import { ForegroundBitSubjectFactoryService } from "../../platform/services/foreground-bit-subject-factory.service";
 import { BrowserSendService } from "../../services/browser-send.service";
 import { BrowserSettingsService } from "../../services/browser-settings.service";
-import { ForegroundFolderService } from "../../vault/popup/services/foreground-folder.service";
 import { PasswordRepromptService } from "../../vault/popup/services/password-reprompt.service";
+import { SyncedFolderService } from "../../vault/services/synced-folder.service";
 import { VaultFilterService } from "../../vault/services/vault-filter.service";
 
 import { BrowserDialogService } from "./browser-dialog.service";
@@ -194,20 +196,24 @@ function getBgService<T>(service: keyof MainBackground) {
       useFactory: getBgService<FileUploadService>("fileUploadService"),
     },
     {
-      provide: ForegroundFolderService,
+      provide: BitSubjectFactoryServiceAbstraction,
+      useClass: ForegroundBitSubjectFactoryService,
+    },
+    {
+      provide: SyncedFolderService,
       useFactory: (
         cryptoService: CryptoService,
         i18nService: I18nServiceAbstraction,
         cipherService: CipherService,
         stateService: StateServiceAbstraction
       ) => {
-        return new ForegroundFolderService(cryptoService, i18nService, cipherService, stateService);
+        return new SyncedFolderService(cryptoService, i18nService, cipherService, stateService);
       },
       deps: [CryptoService, I18nServiceAbstraction, CipherService, StateServiceAbstraction],
     },
     {
       provide: FolderService,
-      useExisting: ForegroundFolderService,
+      useExisting: SyncedFolderService,
     },
     {
       provide: InternalFolderService,
