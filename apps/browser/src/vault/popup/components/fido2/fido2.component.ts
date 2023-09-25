@@ -66,6 +66,7 @@ export class Fido2Component implements OnInit, OnDestroy {
   protected displayedCiphers?: CipherView[] = [];
   protected loading = false;
   protected subtitleText: string;
+  protected credentialText: string;
 
   private message$ = new BehaviorSubject<BrowserFido2Message>(null);
 
@@ -197,6 +198,7 @@ export class Fido2Component implements OnInit, OnDestroy {
             ? this.getCredentialSubTitleText(message.type)
             : "noMatchingPasskeyLogin";
 
+        this.credentialText = this.getCredentialButtonText(message.type);
         return {
           message,
           fallbackSupported: "fallbackSupported" in message && message.fallbackSupported,
