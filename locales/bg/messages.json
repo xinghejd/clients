@@ -508,6 +508,9 @@
   "maxFileSize": {
     "message": "Големината на файла е най-много 500 MB."
   },
+  "updateKey": {
+    "message": "Трябва да обновите шифриращия си ключ, за да използвате тази възможност."
+  },
   "addedItem": {
     "message": "Елементът е добавен"
   },
@@ -1422,15 +1425,12 @@
   "twoStepLoginDesc": {
     "message": "Допълнителна защита на абонамента чрез изискването на допълнително действие при вписване."
   },
-  "twoStepLoginTeamsDesc": {
-    "message": "Включете двустепенното удостоверяване за организацията си."
-  },
-  "twoStepLoginEnterpriseDescStart": {
-    "message": "Задължете членовете да използват вариантите за двустепенно удостоверяване в Битуорден, като използвате ",
+  "twoStepLoginOrganizationDescStart": {
+    "message": "Enforce Bitwarden Two-step Login options for members by using the ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Enforce Bitwarden Two-step Login options for members by using the Two-step Login Policy.'"
   },
   "twoStepLoginPolicy": {
-    "message": "Политика за двустепенно удостоверяване"
+    "message": "Two-step Login Policy"
   },
   "twoStepLoginOrganizationDuoDesc": {
     "message": "За да направите двустепенното удостоверяване чрез Duo задължително, използвайте настройките по-долу."
@@ -1720,7 +1720,7 @@
     "message": "Открити са записи без двустепенна идентификация"
   },
   "inactive2faFoundDesc": {
-    "message": "В трезора ви има $COUNT$ уебсайт(а), които е възможно да не са настроени за вписване чрез двустепенно удостоверяване (според сайта 2fa.directory). За да защитите тези регистрации, трябва да настроите двустепенното удостоверяване.",
+    "message": "We found $COUNT$ website(s) in your vault that may not be configured with two-step login (according to 2fa.directory). To further protect these accounts, you should set up two-step login.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1925,7 +1925,7 @@
     "message": "1 GB пространство за файлове, които се шифрират."
   },
   "premiumSignUpTwoStepOptions": {
-    "message": "Частно двустепенно удостоверяване чрез YubiKey и Duo."
+    "message": "Proprietary two-step login options such as YubiKey and Duo."
   },
   "premiumSignUpEmergency": {
     "message": "Авариен достъп"
@@ -3473,11 +3473,17 @@
   "keyUpdated": {
     "message": "Ключът е обновен"
   },
+  "updateKeyTitle": {
+    "message": "Обновяване на ключа"
+  },
   "updateEncryptionKey": {
     "message": "Обновяване на ключа за шифриране"
   },
-  "updateEncryptionSchemeDesc": {
-    "message": "Променихме схемата на шифроване, за да подобрим сигурността. Обновете шифриращия си ключ сега, като въведете главната си парола по-долу."
+  "updateEncryptionKeyShortDesc": {
+    "message": "Ползвате остаряла схема за шифриране."
+  },
+  "updateEncryptionKeyDesc": {
+    "message": "Вече ползваме по-дълги ключове за по-добра сигурност и повече възможности. Обновяването на ключа е бързо и лесно. Просто въведете главната си парола по-долу. В някой бъдещ момент това обновяване ще бъде задължително."
   },
   "updateEncryptionKeyWarning": {
     "message": "След смяната на ключа за шифриране ще трябва да се отпишете и след това да се впишете в регистрацията си във всички приложения на Битуорден, които ползвате (като мобилното приложение и разширенията за браузъри). Ако не се отпишете и впишете повторно (за да получите достъп до новия ключ), рискувате да повредите записите си. Сега ще се пробва да бъдете отписани автоматично, това обаче може да се забави."
@@ -4752,10 +4758,10 @@
     "message": "Потребителят с най-големи права на достъп, който може да управлява всички настройки на доставчика, както и да има достъп до и да управлява клиентските организации."
   },
   "serviceUser": {
-    "message": "Сервизен потребител"
+    "message": "Service user"
   },
   "serviceUserDesc": {
-    "message": "Сервизните потребители имат достъп до всички клиентски организации и могат да ги управляват."
+    "message": "Service users can access and manage all client organizations."
   },
   "providerInviteUserDesc": {
     "message": "Може да поканите потребител към доставчика си, като попълните адреса му за електронна поща, с който е регистриран в Битуорден, по-долу. В случай, че потребителят не е регистриран, той автоматично ще получи покана и да се регистрира."
@@ -6630,7 +6636,7 @@
     "message": "Променете настройките си за шифроване, така че да отговарят на новите препоръки за сигурността и да подобрите защитата на регистрацията си."
   },
   "changeKdfLoggedOutWarning": {
-    "message": "Ако продължите, ще излезете от всички активни сесии. Ще трябва да се впишете отново и да завършите настройката на двустепенното удостоверяване. Препоръчително е да изнесете трезора си преди да променяте настройките за шифроване, за да избегнете загуба на данни."
+    "message": "Proceeding will log you out of all active sessions. You will need to log back in and complete two-step login setup. We recommend exporting your vault before changing your encryption settings to prevent data loss."
   },
   "secretsManager": {
     "message": "Управление на тайни"
@@ -7009,6 +7015,12 @@
   },
   "next": {
     "message": "Next"
+  },
+  "usFlag": {
+    "message": "Знаме на САЩ"
+  },
+  "euFlag": {
+    "message": "Знаме на ЕС"
   },
   "selectedRegionFlag": {
     "message": "Знаме на избрания регион"
