@@ -1,16 +1,25 @@
 import { BehaviorSubject, concatMap } from "rxjs";
+import { Jsonify } from "type-fest";
 
 import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { StateService } from "../../../platform/abstractions/state.service";
 import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { ActiveUserStateProviderService, DomainToken, State } from "../../../platform/services/default-global-state-provider.service";
 import { CipherService } from "../../../vault/abstractions/cipher.service";
 import { InternalFolderService as InternalFolderServiceAbstraction } from "../../../vault/abstractions/folder/folder.service.abstraction";
 import { CipherData } from "../../../vault/models/data/cipher.data";
 import { FolderData } from "../../../vault/models/data/folder.data";
 import { Folder } from "../../../vault/models/domain/folder";
 import { FolderView } from "../../../vault/models/view/folder.view";
+
+class UserFolderState {
+  static fromJSON(jsonState: Jsonify<UserFolderState>) {
+    const state = new UserFolderState();
+    return state;
+  }
+}
 
 export class FolderService implements InternalFolderServiceAbstraction {
   protected _folders: BehaviorSubject<Folder[]> = new BehaviorSubject([]);
@@ -19,12 +28,16 @@ export class FolderService implements InternalFolderServiceAbstraction {
   folders$ = this._folders.asObservable();
   folderViews$ = this._folderViews.asObservable();
 
+  private folderState: State<UserFolderState>;
+
   constructor(
     private cryptoService: CryptoService,
     private i18nService: I18nService,
     private cipherService: CipherService,
-    private stateService: StateService
+    private stateService: StateService,
+    private activeUserStateProviderService: ActiveUserStateProviderService
   ) {
+    this.folderState = activeUserStateProviderService.create<UserFolderState>(new DomainToken("folder", UserFolderState.fromJSON));
     this.stateService.activeAccountUnlocked$
       .pipe(
         concatMap(async (unlocked) => {

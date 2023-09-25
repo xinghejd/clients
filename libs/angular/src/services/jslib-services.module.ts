@@ -93,6 +93,7 @@ import { EncryptServiceImplementation } from "@bitwarden/common/platform/service
 import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/multithread-encrypt.service.implementation";
 import { EnvironmentService } from "@bitwarden/common/platform/services/environment.service";
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
+import { ActiveUserStateProviderService, BaseActiveUserStateProviderService } from "@bitwarden/common/platform/services/state-provider.service";
 import { StateService } from "@bitwarden/common/platform/services/state.service";
 import { ValidationService } from "@bitwarden/common/platform/services/validation.service";
 import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
@@ -173,6 +174,7 @@ import {
 import { ModalService } from "./modal.service";
 import { ThemingService } from "./theming/theming.service";
 import { AbstractThemingService } from "./theming/theming.service.abstraction";
+
 
 @NgModule({
   declarations: [],
@@ -717,6 +719,15 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
       useClass: AuthRequestCryptoServiceImplementation,
       deps: [CryptoServiceAbstraction],
     },
+    {
+      provide: ActiveUserStateProviderService,
+      useClass: BaseActiveUserStateProviderService,
+      deps: [
+        // TODO: Do other storage services
+        StateServiceAbstraction,
+        AbstractStorageService
+      ]
+    }
   ],
 })
 export class JslibServicesModule {}
