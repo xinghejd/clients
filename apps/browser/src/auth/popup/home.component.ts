@@ -40,8 +40,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private i18nService: I18nService,
     private environmentService: EnvironmentService,
-    private loginService: LoginService,
-    private route: ActivatedRoute
+    private loginService: LoginService
   ) {}
 
   async ngOnInit(): Promise<void> {
