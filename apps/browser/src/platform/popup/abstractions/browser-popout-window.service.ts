@@ -16,7 +16,7 @@ interface BrowserPopoutWindowService {
       sessionId: string;
       senderTabId: number;
     }
-  ): Promise<void>;
+  ): Promise<number>;
   closeFido2Popout(): Promise<void>;
 }
 
