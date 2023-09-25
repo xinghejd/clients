@@ -65,6 +65,7 @@ export class Fido2Component implements OnInit, OnDestroy {
   protected ciphers?: CipherView[] = [];
   protected displayedCiphers?: CipherView[] = [];
   protected loading = false;
+  protected subtitleText: string;
 
   private message$ = new BehaviorSubject<BrowserFido2Message>(null);
 
@@ -190,6 +191,11 @@ export class Fido2Component implements OnInit, OnDestroy {
             break;
           }
         }
+
+        this.subtitleText =
+          this.displayedCiphers.length > 0
+            ? this.getCredentialSubTitleText(message.type)
+            : "noMatchingPasskeyLogin";
 
         return {
           message,

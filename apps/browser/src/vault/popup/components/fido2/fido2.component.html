@@ -42,13 +42,8 @@
         "
       >
         <div class="auth-flow">
-          <p class="subtitle">
-            {{
-              (displayedCiphers.length > 0
-                ? getCredentialSubTitleText(data.message.type)
-                : "noMatchingPasskeyLogin"
-              ) | i18n
-            }}
+          <p class="subtitle" appA11yTitle="{{ subtitleText | i18n }}">
+            {{ subtitleText | i18n }}
           </p>
           <!-- Display when ciphers exist -->
           <ng-container *ngIf="displayedCiphers.length > 0">
@@ -66,7 +61,12 @@
             </div>
 
             <div class="box">
-              <button type="submit" (click)="submit()" class="btn primary block">
+              <button
+                type="submit"
+                (click)="submit()"
+                class="btn primary block"
+                appA11yTitle="{{ getCredentialButtonText(data.message.type) | i18n }}"
+              >
                 <span [hidden]="loading">
                   {{ getCredentialButtonText(data.message.type) | i18n }}
                 </span>
@@ -81,7 +81,12 @@
 
           <ng-container *ngIf="!displayedCiphers.length">
             <div class="box">
-              <button type="submit" (click)="saveNewLogin()" class="btn primary block">
+              <button
+                type="submit"
+                (click)="saveNewLogin()"
+                class="btn primary block"
+                appA11yTitle="{{ 'savePasskeyNewLogin' | i18n }}"
+              >
                 <span [hidden]="loading">
                   {{ "savePasskeyNewLogin" | i18n }}
                 </span>
