@@ -2,6 +2,7 @@ import { firstValueFrom } from "rxjs";
 
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
+import { ClientType } from "../../enums";
 import { MessagingService } from "../abstractions/messaging.service";
 import { PlatformUtilsService } from "../abstractions/platform-utils.service";
 import { StateService } from "../abstractions/state.service";
@@ -9,8 +10,8 @@ import { SystemService as SystemServiceAbstraction } from "../abstractions/syste
 import { Utils } from "../misc/utils";
 
 export class SystemService implements SystemServiceAbstraction {
-  private reloadInterval: any = null;
-  private clearClipboardTimeout: any = null;
+  private reloadInterval: NodeJS.Timer = null;
+  private clearClipboardTimeout: NodeJS.Timer = null;
   private clearClipboardTimeoutFunction: () => Promise<any> = null;
 
   constructor(
@@ -51,7 +52,10 @@ export class SystemService implements SystemServiceAbstraction {
   private async executeProcessReload() {
     const biometricLockedFingerprintValidated =
       await this.stateService.getBiometricFingerprintValidated();
-    if (!biometricLockedFingerprintValidated) {
+    if (
+      !biometricLockedFingerprintValidated &&
+      this.platformUtilsService.getClientType() === ClientType.Browser
+    ) {
       clearInterval(this.reloadInterval);
       this.reloadInterval = null;
       this.messagingService.send("reloadProcess");
