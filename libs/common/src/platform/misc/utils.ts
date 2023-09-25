@@ -477,6 +477,16 @@ export class Utils {
     }
   }
 
+  static arrayToRecordBy<T, TKey extends keyof T, TKeyValue extends T[TKey] & (string | number)>(
+    array: T[],
+    byKey: TKey
+  ): Record<TKeyValue, T> {
+    return array.reduce((acc, item) => {
+      acc[item[key] as TKeyValue] = item;
+      return acc;
+    }, {} as Record<TKeyValue, T>);
+  }
+
   /** Applies Object.assign, but converts the type nicely using Type-Fest Merge<Destination, Source> */
   static merge<Destination, Source>(
     destination: Destination,

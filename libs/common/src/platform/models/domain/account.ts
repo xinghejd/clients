@@ -18,6 +18,7 @@ import { GeneratedPasswordHistory } from "../../../tools/generator/password";
 import { SendData } from "../../../tools/send/models/data/send.data";
 import { SendView } from "../../../tools/send/models/view/send.view";
 import { DeepJsonify } from "../../../types/deep-jsonify";
+import { UserId } from "../../../types/guid";
 import { CipherData } from "../../../vault/models/data/cipher.data";
 import { CollectionData } from "../../../vault/models/data/collection.data";
 import { FolderData } from "../../../vault/models/data/folder.data";
@@ -193,7 +194,7 @@ export class AccountProfile {
   hasPremiumPersonally?: boolean;
   hasPremiumFromOrganization?: boolean;
   lastSync?: string;
-  userId?: string;
+  userId?: UserId;
   usesKeyConnector?: boolean;
   keyHash?: string;
   kdfIterations?: number;

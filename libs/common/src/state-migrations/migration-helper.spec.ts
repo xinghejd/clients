@@ -79,6 +79,8 @@ export function mockMigrationHelper(storageJson: any): MockProxy<MigrationHelper
   const mockHelper = mock<MigrationHelper>();
   mockHelper.get.mockImplementation((key) => helper.get(key));
   mockHelper.set.mockImplementation((key, value) => helper.set(key, value));
+  mockHelper.remove.mockImplementation((key) => helper.remove(key));
+  mockHelper.getAuthenticatedAccounts.mockImplementation(() => helper.getAuthenticatedAccounts());
   mockHelper.getAccounts.mockImplementation(() => helper.getAccounts());
   return mockHelper;
 }

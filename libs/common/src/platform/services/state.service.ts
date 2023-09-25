@@ -25,6 +25,7 @@ import { migrate } from "../../state-migrations";
 import { GeneratedPasswordHistory } from "../../tools/generator/password";
 import { SendData } from "../../tools/send/models/data/send.data";
 import { SendView } from "../../tools/send/models/view/send.view";
+import { UserId } from "../../types/guid";
 import { CipherData } from "../../vault/models/data/cipher.data";
 import { CollectionData } from "../../vault/models/data/collection.data";
 import { FolderData } from "../../vault/models/data/folder.data";
@@ -2642,7 +2643,7 @@ export class StateService<
     );
   }
 
-  async getUserId(options?: StorageOptions): Promise<string> {
+  async getUserId(options?: StorageOptions): Promise<UserId> {
     return (
       await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
     )?.profile?.userId;

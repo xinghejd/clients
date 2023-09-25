@@ -19,14 +19,23 @@ export class MigrationHelper {
     return this.storageService.save(key, value);
   }
 
+  remove(key: string): Promise<void> {
+    this.logService.info(`Removing ${key}`);
+    return this.storageService.remove(key);
+  }
+
   info(message: string): void {
     this.logService.info(message);
+  }
+
+  async getAuthenticatedAccounts(): Promise<string[]> {
+    return (await this.get<string[]>("authenticatedAccounts")) ?? [];
   }
 
   async getAccounts<ExpectedAccountType>(): Promise<
     { userId: string; account: ExpectedAccountType }[]
   > {
-    const userIds = (await this.get<string[]>("authenticatedAccounts")) ?? [];
+    const userIds = await this.getAuthenticatedAccounts();
     return Promise.all(
       userIds.map(async (userId) => ({
         userId,

@@ -16,6 +16,7 @@ import { WindowState } from "../../models/domain/window-state";
 import { GeneratedPasswordHistory } from "../../tools/generator/password";
 import { SendData } from "../../tools/send/models/data/send.data";
 import { SendView } from "../../tools/send/models/view/send.view";
+import { UserId } from "../../types/guid";
 import { CipherData } from "../../vault/models/data/cipher.data";
 import { CollectionData } from "../../vault/models/data/collection.data";
 import { FolderData } from "../../vault/models/data/folder.data";
@@ -39,8 +40,8 @@ import {
 } from "../models/domain/symmetric-crypto-key";
 
 export abstract class StateService<T extends Account = Account> {
-  accounts$: Observable<{ [userId: string]: T }>;
-  activeAccount$: Observable<string>;
+  accounts$: Observable<{ [userId: UserId]: T }>;
+  activeAccount$: Observable<UserId>;
   activeAccountUnlocked$: Observable<boolean>;
 
   addAccount: (account: T) => Promise<void>;
@@ -486,7 +487,7 @@ export abstract class StateService<T extends Account = Account> {
   setTheme: (value: ThemeType, options?: StorageOptions) => Promise<void>;
   getTwoFactorToken: (options?: StorageOptions) => Promise<string>;
   setTwoFactorToken: (value: string, options?: StorageOptions) => Promise<void>;
-  getUserId: (options?: StorageOptions) => Promise<string>;
+  getUserId: (options?: StorageOptions) => Promise<UserId>;
   getUsesKeyConnector: (options?: StorageOptions) => Promise<boolean>;
   setUsesKeyConnector: (value: boolean, options?: StorageOptions) => Promise<void>;
   getVaultTimeout: (options?: StorageOptions) => Promise<number>;
