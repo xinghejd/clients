@@ -81,7 +81,7 @@
         </button>
       </div>
     </div>
-    <p class="text-center">
+    <p class="text-center" *ngIf="!isPasskeysPopout">
       <button type="button" appStopClick (click)="logOut()">{{ "logOut" | i18n }}</button>
     </p>
     <app-private-mode-warning></app-private-mode-warning>
@@ -89,14 +89,10 @@
     <p class="text-center text-muted" *ngIf="pendingBiometric">
       <i class="bwi bwi-spinner bwi-spin" aria-hidden="true"></i> {{ "awaitDesktop" | i18n }}
     </p>
-
-    <a
-      class="useBrowserlink"
-      *ngIf="isPasskeysPopout"
-      [routerLink]="[]"
-      (click)="abortFido2Popout(true)"
-    >
-      {{ "useBrowserName" | i18n }} browser
-    </a>
+    <div class="useBrowserlink" *ngIf="isPasskeysPopout">
+      <a [routerLink]="[]" (click)="abortFido2Popout(true)">
+        {{ "useBrowserName" | i18n }}
+      </a>
+    </div>
   </main>
 </form>

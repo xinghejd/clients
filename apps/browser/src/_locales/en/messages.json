@@ -2492,12 +2492,6 @@
     "message": "Log in to save [access] this passkey"
   },
   "useBrowserName": {
-    "message": "Use $browserName$",
-    "placeholders": {
-      "browserName": {
-        "content": "$1",
-        "example": "Chrome"
-      }
-    }
+    "message": "Use browser"
   }
 }

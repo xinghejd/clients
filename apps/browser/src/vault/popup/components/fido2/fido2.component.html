@@ -130,14 +130,10 @@
         </button>
       </ng-container>
     </ng-container>
-
-    <a
-      class="useBrowserlink"
-      [routerLink]="[]"
-      *ngIf="data.fallbackSupported"
-      (click)="abort(true)"
-    >
-      {{ "useBrowserName" | i18n }} browser
-    </a>
+    <div class="useBrowserlink">
+      <a [routerLink]="[]" *ngIf="data.fallbackSupported" (click)="abort(true)">
+        {{ "useBrowserName" | i18n }}
+      </a>
+    </div>
   </div>
 </ng-container>
