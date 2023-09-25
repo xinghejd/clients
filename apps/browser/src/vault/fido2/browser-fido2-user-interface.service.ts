@@ -4,10 +4,14 @@ import {
   filter,
   firstValueFrom,
   fromEvent,
+  fromEventPattern,
+  merge,
   Observable,
   Subject,
+  switchMap,
   take,
   takeUntil,
+  throwError,
 } from "rxjs";
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -130,6 +134,8 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     filter((msg) => msg.sessionId === this.sessionId)
   );
   private connected$ = new BehaviorSubject(false);
+  private windowClosed$: Observable<number>;
+  private tabClosed$: Observable<number>;
   private destroy$ = new Subject<void>();
 
   private constructor(
@@ -173,6 +179,11 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
           this.abort(msg.fallbackRequested);
         }
       });
+
+    this.windowClosed$ = fromEventPattern(
+      (handler: any) => chrome.windows.onRemoved.addListener(handler),
+      (handler: any) => chrome.windows.onRemoved.removeListener(handler)
+    );
 
     BrowserFido2UserInterfaceSession.sendMessage({
       type: "NewSessionCreatedRequest",
@@ -286,15 +297,32 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     if (this.closed) {
       throw new Error("Cannot re-open closed session");
     }
-    // create promise first to avoid race condition where the popout opens before we start listening
+
     const connectPromise = firstValueFrom(
-      this.connected$.pipe(filter((connected) => connected === true))
+      merge(
+        this.connected$.pipe(filter((connected) => connected === true)),
+        fromEvent(this.abortController.signal, "abort").pipe(
+          switchMap(() => throwError(() => new SessionClosedError()))
+        )
+      )
     );
 
-    await this.browserPopoutWindowService.openFido2Popout(this.tab.windowId, {
+    const popoutId = await this.browserPopoutWindowService.openFido2Popout(this.tab.windowId, {
       sessionId: this.sessionId,
       senderTabId: this.tab.id,
     });
+
+    this.windowClosed$
+      .pipe(
+        filter((windowId) => {
+          return popoutId === windowId;
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(() => {
+        this.close();
+        this.abort();
+      });
 
     await connectPromise;
   }

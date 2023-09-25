@@ -58,7 +58,7 @@ class BrowserPopoutWindowService implements BrowserPopupWindowServiceInterface {
       sessionId: string;
       senderTabId: number;
     }
-  ): Promise<void> {
+  ): Promise<number> {
     await this.closeFido2Popout();
 
     const promptWindowPath =
@@ -67,7 +67,7 @@ class BrowserPopoutWindowService implements BrowserPopupWindowServiceInterface {
       `&sessionId=${sessionId}` +
       `&senderTabId=${senderTabId}`;
 
-    await this.openSingleActionPopout(senderWindowId, promptWindowPath, "fido2Popout", {
+    return await this.openSingleActionPopout(senderWindowId, promptWindowPath, "fido2Popout", {
       width: 200,
       height: 500,
     });
@@ -82,7 +82,7 @@ class BrowserPopoutWindowService implements BrowserPopupWindowServiceInterface {
     popupWindowURL: string,
     singleActionPopoutKey: string,
     options: chrome.windows.CreateData = {}
-  ) {
+  ): Promise<number> {
     const senderWindow = senderWindowId && (await BrowserApi.getWindow(senderWindowId));
     const url = chrome.extension.getURL(popupWindowURL);
     const offsetRight = 15;
@@ -103,6 +103,8 @@ class BrowserPopoutWindowService implements BrowserPopupWindowServiceInterface {
 
     await this.closeSingleActionPopout(singleActionPopoutKey);
     this.singleActionPopoutTabIds[singleActionPopoutKey] = popupWindow?.tabs[0].id;
+
+    return popupWindow.id;
   }
 
   private async closeSingleActionPopout(popoutKey: string) {
