@@ -44,6 +44,19 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
     this.iframeMutationObserver = new MutationObserver(this.handleMutationObserver);
   }
 
+  /**
+   * Handles initialization of the iframe which includes applying initial styles
+   * to the iframe, setting the source, and adding listener that connects the
+   * iframe to the background script each time it loads. Can conditionally
+   * create an aria alert element to announce to screen readers when the iframe
+   * is loaded. The end result is append to the shadowDOM of the custom element
+   * that is declared.
+   *
+   *
+   * @param initStyles - Initial styles to apply to the iframe
+   * @param iframeTitle - Title to apply to the iframe
+   * @param ariaAlert - Text to announce to screen readers when the iframe is loaded
+   */
   initOverlayIframe(
     initStyles: Partial<CSSStyleDeclaration>,
     iframeTitle: string,
