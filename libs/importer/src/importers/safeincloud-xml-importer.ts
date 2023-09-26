@@ -82,11 +82,7 @@ export class SafeInCloudXmlImporter extends BaseImporter implements Importer {
           } else if (fieldType === "notes") {
             cipher.notes += text + "\n";
           } else if (fieldType === "weblogin" || fieldType === "website") {
-            if (cipher.login.uris) {
-              cipher.login.uris.push(...this.makeUriArray(text));
-            } else {
-              cipher.login.uris = this.makeUriArray(text);
-            }
+            cipher.login.uris.push(...this.makeUriArray(text));
           } else {
             this.processKvp(cipher, name, text);
           }

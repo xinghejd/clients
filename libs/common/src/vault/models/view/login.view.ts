@@ -16,7 +16,7 @@ export class LoginView extends ItemView {
 
   passwordRevisionDate?: Date = null;
   totp: string = null;
-  uris: LoginUriView[] = null;
+  uris: LoginUriView[] = [];
   autofillOnPageLoad: boolean = null;
 
   constructor(l?: Login) {
@@ -60,7 +60,7 @@ export class LoginView extends ItemView {
   }
 
   get hasUris(): boolean {
-    return this.uris != null && this.uris.length > 0;
+    return this.uris.length > 0;
   }
 
   matchesUri(
@@ -78,7 +78,7 @@ export class LoginView extends ItemView {
   static fromJSON(obj: Partial<Jsonify<LoginView>>): LoginView {
     const passwordRevisionDate =
       obj.passwordRevisionDate == null ? null : new Date(obj.passwordRevisionDate);
-    const uris = obj.uris?.map((uri: any) => LoginUriView.fromJSON(uri));
+    const uris = obj.uris.map((uri: any) => LoginUriView.fromJSON(uri));
 
     return Object.assign(new LoginView(), obj, {
       passwordRevisionDate: passwordRevisionDate,
