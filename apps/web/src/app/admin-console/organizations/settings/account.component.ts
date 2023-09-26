@@ -60,7 +60,7 @@ export class AccountComponent {
   });
 
   protected collectionManagementFormGroup = this.formBuilder.group({
-    limitCollectionCdOwnerAdmin: [false],
+    limitCollectionCreationDeletion: [false],
   });
 
   protected organizationId: string;
@@ -127,7 +127,7 @@ export class AccountComponent {
           businessName: this.org.businessName,
         });
         this.collectionManagementFormGroup.patchValue({
-          limitCollectionCdOwnerAdmin: this.org.limitCollectionCdOwnerAdmin,
+          limitCollectionCreationDeletion: this.org.limitCollectionCreationDeletion,
         });
 
         this.loading = false;
@@ -166,7 +166,7 @@ export class AccountComponent {
   submitCollectionManagement = async () => {
     const request = new OrganizationCollectionManagementUpdateRequest();
     request.limitCreateDeleteOwnerAdmin =
-      this.collectionManagementFormGroup.value.limitCollectionCdOwnerAdmin;
+      this.collectionManagementFormGroup.value.limitCollectionCreationDeletion;
 
     await this.organizationApiService.updateCollectionManagement(this.organizationId, request);
 

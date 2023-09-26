@@ -7132,7 +7132,7 @@
   "collectionManagementDesc": {
     "message": "Manage the collection behavior for the organization"
   },
-  "limitCollectionCdOwnerAdminDesc": {
+  "limitCollectionCreationDeletionDesc": {
     "message": "Limit collection creation and deletion to owners and admins"
   },
   "collectionManagementUpdated": {
