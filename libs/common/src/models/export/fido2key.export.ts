@@ -33,7 +33,7 @@ export class Fido2KeyExport {
     view.rpName = req.rpName;
     view.userDisplayName = req.userDisplayName;
     view.discoverable = req.discoverable === "true";
-    view.creationDate = req.creationDate;
+    view.creationDate = new Date(req.creationDate);
     return view;
   }
 
@@ -65,7 +65,7 @@ export class Fido2KeyExport {
   rpName: string;
   userDisplayName: string;
   discoverable: string;
-  creationDate: Date = null;
+  creationDate: Date;
 
   constructor(o?: Fido2KeyView | Fido2KeyDomain) {
     if (o == null) {
@@ -84,7 +84,6 @@ export class Fido2KeyExport {
       this.rpName = o.rpName;
       this.userDisplayName = o.userDisplayName;
       this.discoverable = String(o.discoverable);
-      this.creationDate = o.creationDate;
     } else {
       this.credentialId = o.credentialId?.encryptedString;
       this.keyType = o.keyType?.encryptedString;
@@ -97,7 +96,7 @@ export class Fido2KeyExport {
       this.rpName = o.rpName?.encryptedString;
       this.userDisplayName = o.userDisplayName?.encryptedString;
       this.discoverable = o.discoverable?.encryptedString;
-      this.creationDate = o.creationDate;
     }
+    this.creationDate = o.creationDate;
   }
 }
