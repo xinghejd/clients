@@ -475,8 +475,8 @@
   "maxFileSize": {
     "message": "Maximális fájl méret 500 MB."
   },
-  "updateKey": {
-    "message": "Ez a funkció nem használható a titkosítási kulcs frissítéséig."
+  "encryptionKeyMigrationRequired": {
+    "message": "Titkosítási kulcs migráció szükséges. Jelentkezzünk be a webes széfen keresztül a titkosítási kulcs frissítéséhez."
   },
   "editedFolder": {
     "message": "A mappa mentésre került."
@@ -1985,7 +1985,7 @@
     "message": "Személyes széf exportálása"
   },
   "exportingIndividualVaultDescription": {
-    "message": "Only the individual vault items associated with $EMAIL$ will be exported. Organization vault items will not be included. Only vault item information will be exported and will not include associated attachments.",
+    "message": "$EMAIL$ email címhez társított egyedi széfek kerülnek csak exportálásra. A szervezeti széf elemei nem lesznek benne. Csak a széf információk kerülnek exportálásra és nem tartalmazzák a kapcsolódó mellékleteket.",
     "placeholders": {
       "email": {
         "content": "$1",
