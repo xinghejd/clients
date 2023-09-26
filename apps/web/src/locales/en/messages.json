@@ -7184,6 +7184,12 @@
   "beta": {
     "message": "Beta"
   },
+  "assignCollectionAccess": {
+    "message": "Assign collection access"
+  },
+  "editedCollections": {
+    "message": "Edited collections"
+  },
   "alreadyHaveAccount": {
     "message": "Already have an account?"
   }

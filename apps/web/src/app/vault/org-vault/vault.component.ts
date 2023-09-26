@@ -82,6 +82,10 @@ import { getNestedCollectionTree } from "../utils/collection-utils";
 
 import { AddEditComponent } from "./add-edit.component";
 import { AttachmentsComponent } from "./attachments.component";
+import {
+  BulkCollectionsDialogComponent,
+  BulkCollectionsDialogResult,
+} from "./bulk-collections-dialog";
 import { CollectionsComponent } from "./collections.component";
 import { VaultFilterComponent } from "./vault-filter/vault-filter.component";
 
@@ -499,6 +503,8 @@ export class VaultComponent implements OnInit, OnDestroy {
         await this.editCollection(event.item, CollectionDialogTabType.Info);
       } else if (event.type === "viewAccess") {
         await this.editCollection(event.item, CollectionDialogTabType.Access);
+      } else if (event.type === "bulkEditCollectionAccess") {
+        await this.bulkEditCollectionAccess(event.items);
       } else if (event.type === "viewEvents") {
         await this.viewEvents(event.item);
       }
@@ -874,6 +880,29 @@ export class VaultComponent implements OnInit, OnDestroy {
       result.action === CollectionDialogAction.Saved ||
       result.action === CollectionDialogAction.Deleted
     ) {
+      this.refresh();
+    }
+  }
+
+  async bulkEditCollectionAccess(collections: CollectionView[]): Promise<void> {
+    if (collections.length === 0) {
+      this.platformUtilsService.showToast(
+        "error",
+        this.i18nService.t("errorOccurred"),
+        this.i18nService.t("nothingSelected")
+      );
+      return;
+    }
+
+    const dialog = BulkCollectionsDialogComponent.open(this.dialogService, {
+      data: {
+        collections,
+        organizationId: this.organization?.id,
+      },
+    });
+
+    const result = await lastValueFrom(dialog.closed);
+    if (result === BulkCollectionsDialogResult.Saved) {
       this.refresh();
     }
   }
