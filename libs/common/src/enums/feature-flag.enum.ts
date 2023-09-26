@@ -4,4 +4,8 @@ export enum FeatureFlag {
   TrustedDeviceEncryption = "trusted-device-encryption",
   PasswordlessLogin = "passwordless-login",
   SecretsManagerBilling = "sm-ga-billing",
+  AutofillV2 = "autofill-v2",
 }
+
+// Replace this with a type safe lookup of the feature flag values in PM-2282
+export type FeatureFlagValue = number | string | boolean;

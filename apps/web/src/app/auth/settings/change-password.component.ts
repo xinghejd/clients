@@ -1,6 +1,6 @@
 import { Component } from "@angular/core";
 import { Router } from "@angular/router";
-import { firstValueFrom, from, Observable } from "rxjs";
+import { firstValueFrom, Observable } from "rxjs";
 
 import { ChangePasswordComponent as BaseChangePasswordComponent } from "@bitwarden/angular/auth/components/change-password.component";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -89,8 +89,8 @@ export class ChangePasswordComponent extends BaseChangePasswordComponent {
   }
 
   async ngOnInit() {
-    this.showWebauthnLoginSettings$ = from(
-      this.configService.getFeatureFlagBool(FeatureFlag.PasswordlessLogin)
+    this.showWebauthnLoginSettings$ = this.configService.getFeatureFlag$(
+      FeatureFlag.PasswordlessLogin
     );
 
     if (!(await this.userVerificationService.hasMasterPassword())) {
@@ -152,12 +152,6 @@ export class ChangePasswordComponent extends BaseChangePasswordComponent {
   }
 
   async submit() {
-    const hasUserKey = await this.cryptoService.hasUserKey();
-    if (!hasUserKey) {
-      this.platformUtilsService.showToast("error", null, this.i18nService.t("updateKey"));
-      return;
-    }
-
     if (this.masterPasswordHint != null && this.masterPasswordHint == this.masterPassword) {
       this.platformUtilsService.showToast(
         "error",
