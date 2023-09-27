@@ -483,6 +483,7 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
         MEMORY_STORAGE,
         LogService,
         STATE_FACTORY,
+        AccountServiceAbstraction,
         STATE_SERVICE_USE_CACHE,
       ],
     },
