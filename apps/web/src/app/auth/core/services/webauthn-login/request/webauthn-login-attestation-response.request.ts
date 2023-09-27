@@ -1,8 +1,12 @@
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
-import { WebauthnLoginResponseRequest } from "./webauthn-login-response.request";
+import { WebauthnLoginAuthenticatorResponseRequest } from "./webauthn-login-authenticator-response.request";
 
-export class WebauthnLoginAttestationResponseRequest extends WebauthnLoginResponseRequest {
+/**
+ * The response recieved from an authentiator after a successful attestation.
+ * This request is used to save newly created webauthn login credentials to the server.
+ */
+export class WebauthnLoginAttestationResponseRequest extends WebauthnLoginAuthenticatorResponseRequest {
   response: {
     attestationObject: string;
     clientDataJson: string;
