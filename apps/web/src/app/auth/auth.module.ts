@@ -1,14 +1,12 @@
 import { NgModule } from "@angular/core";
 
 import { CoreAuthModule } from "./core";
-import { WebauthnLoginSettingsModule } from "./settings/webauthn-login-settings";
+import { SettingsModule } from "./settings/settings.module";
 
 @NgModule({
-  imports: [CoreAuthModule, WebauthnLoginSettingsModule],
+  imports: [CoreAuthModule, SettingsModule],
   declarations: [],
   providers: [],
-  exports: [
-    WebauthnLoginSettingsModule, // TODO: Remove when `app/settings/change-password.component.ts` has been moved to `app/auth/settings/.`
-  ],
+  exports: [SettingsModule],
 })
 export class AuthModule {}
