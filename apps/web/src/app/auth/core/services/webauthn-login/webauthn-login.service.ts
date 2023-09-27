@@ -16,13 +16,13 @@ export class WebauthnLoginService {
   private navigatorCredentials: CredentialsContainer;
   private _refresh$ = new BehaviorSubject<void>(undefined);
   private _loading$ = new BehaviorSubject<boolean>(true);
-
-  readonly credentials$ = this._refresh$.pipe(
+  private readonly credentials$ = this._refresh$.pipe(
     tap(() => this._loading$.next(true)),
-    switchMap(() => this.getCredentials$()),
+    switchMap(() => this.fetchCredentials$()),
     tap(() => this._loading$.next(false)),
     shareReplay({ bufferSize: 1, refCount: true })
   );
+
   readonly loading$ = this._loading$.asObservable();
 
   constructor(
@@ -73,12 +73,24 @@ export class WebauthnLoginService {
     this.refresh();
   }
 
+  /**
+   * List of webauthn credentials saved on the server.
+   *
+   * **Note:**
+   *   - Subscribing might trigger a network request if the credentials haven't been fetched yet.
+   *   - The observable is shared and will not create unnecessary duplicate requests.
+   *   - The observable will automatically re-fetch if the user adds or removes a credential.
+   *   - The observable is lazy and will only fetch credentials when subscribed to.
+   *   - Don't subscribe to this in the constructor of a long-running service, as it will keep the observable alive.
+   */
+  getCredentials$(): Observable<WebauthnCredentialView[]> {
+    return this.credentials$;
+  }
+
   getCredential$(credentialId: string): Observable<WebauthnCredentialView> {
     return this.credentials$.pipe(
-      map(
-        (credentials) => credentials.find((c) => c.id === credentialId),
-        filter((c) => c !== undefined)
-      )
+      map((credentials) => credentials.find((c) => c.id === credentialId)),
+      filter((c) => c !== undefined)
     );
   }
 
@@ -87,7 +99,7 @@ export class WebauthnLoginService {
     this.refresh();
   }
 
-  private getCredentials$(): Observable<WebauthnCredentialView[]> {
+  private fetchCredentials$(): Observable<WebauthnCredentialView[]> {
     return from(this.apiService.getCredentials()).pipe(map((response) => response.data));
   }
 
