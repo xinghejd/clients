@@ -135,7 +135,6 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   );
   private connected$ = new BehaviorSubject(false);
   private windowClosed$: Observable<number>;
-  private tabClosed$: Observable<number>;
   private destroy$ = new Subject<void>();
 
   private constructor(
