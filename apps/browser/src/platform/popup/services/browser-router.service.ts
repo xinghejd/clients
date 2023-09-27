@@ -1,8 +1,9 @@
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot, NavigationEnd, Router } from "@angular/router";
+import { filter } from "rxjs";
+
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { filter } from "rxjs";
 
 @Injectable({
   providedIn: "root",
@@ -13,7 +14,7 @@ export class BrowserRouterService {
   constructor(router: Router, private stateService: StateService) {
     router.events
       .pipe(filter((e) => e instanceof NavigationEnd))
-      .subscribe(async (event: NavigationEnd) => {
+      .subscribe((event: NavigationEnd) => {
         const state: ActivatedRouteSnapshot = router.routerState.snapshot.root;
 
         let child = state.firstChild;
