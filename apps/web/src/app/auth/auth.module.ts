@@ -1,9 +1,10 @@
 import { NgModule } from "@angular/core";
 
+import { CoreAuthModule } from "./core";
 import { WebauthnLoginSettingsModule } from "./settings/webauthn-login-settings";
 
 @NgModule({
-  imports: [WebauthnLoginSettingsModule],
+  imports: [CoreAuthModule, WebauthnLoginSettingsModule],
   declarations: [],
   providers: [],
   exports: [
