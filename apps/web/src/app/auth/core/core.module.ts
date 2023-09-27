@@ -1,6 +1,11 @@
 import { NgModule, Optional, SkipSelf } from "@angular/core";
 
-@NgModule({})
+import { WebauthnApiService } from "./services/webauthn/webauthn-api.service";
+import { WebauthnService } from "./services/webauthn/webauthn.service";
+
+@NgModule({
+  providers: [WebauthnService, WebauthnApiService],
+})
 export class CoreAuthModule {
   constructor(@Optional() @SkipSelf() parentModule?: CoreAuthModule) {
     if (parentModule) {

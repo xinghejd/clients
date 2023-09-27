@@ -4,7 +4,6 @@ import { BehaviorSubject, filter, from, map, Observable, shareReplay, switchMap,
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Verification } from "@bitwarden/common/types/verification";
 
-import { CoreAuthModule } from "../../core.module";
 import { CredentialCreateOptionsView } from "../../views/credential-create-options.view";
 import { WebauthnCredentialView } from "../../views/webauth-credential.view";
 
@@ -12,7 +11,7 @@ import { SaveCredentialRequest } from "./request/save-credential.request";
 import { WebauthnAttestationResponseRequest } from "./request/webauthn-attestation-response.request";
 import { WebauthnApiService } from "./webauthn-api.service";
 
-@Injectable({ providedIn: CoreAuthModule })
+@Injectable()
 export class WebauthnService {
   private navigatorCredentials: CredentialsContainer;
   private _refresh$ = new BehaviorSubject<void>(undefined);

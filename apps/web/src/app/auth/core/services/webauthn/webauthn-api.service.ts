@@ -5,13 +5,11 @@ import { UserVerificationService } from "@bitwarden/common/auth/abstractions/use
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { Verification } from "@bitwarden/common/types/verification";
 
-import { CoreAuthModule } from "../../core.module";
-
 import { SaveCredentialRequest } from "./request/save-credential.request";
 import { CredentialCreateOptionsResponse } from "./response/credential-create-options.response";
 import { WebauthnCredentialResponse } from "./response/webauthn-credential.response";
 
-@Injectable({ providedIn: CoreAuthModule })
+@Injectable()
 export class WebauthnApiService {
   constructor(
     private apiService: ApiService,
