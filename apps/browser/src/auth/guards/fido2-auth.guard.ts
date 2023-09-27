@@ -22,12 +22,12 @@ export const fido2AuthGuard: CanActivateFn = async (
   const authStatus = await authService.getAuthStatus();
 
   if (authStatus === AuthenticationStatus.LoggedOut) {
-    routerService.setPreviousUrl(state.url);
+    await routerService.persistPreviousUrl(state.url);
     return router.createUrlTree(["/home"], { queryParams: route.queryParams });
   }
 
   if (authStatus === AuthenticationStatus.Locked) {
-    routerService.setPreviousUrl(state.url);
+    await routerService.persistPreviousUrl(state.url);
     return router.createUrlTree(["/lock"], { queryParams: route.queryParams });
   }
 

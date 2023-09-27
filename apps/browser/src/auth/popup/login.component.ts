@@ -73,7 +73,7 @@ export class LoginComponent extends BaseLoginComponent {
     super.successRoute = "/tabs/vault";
 
     super.onSuccessfulLoginNavigate = async () => {
-      const previousUrl = this.routerService.getPreviousUrl();
+      const previousUrl = await this.routerService.getAndClearPreviousUrl();
 
       if (previousUrl) {
         this.router.navigateByUrl(previousUrl);

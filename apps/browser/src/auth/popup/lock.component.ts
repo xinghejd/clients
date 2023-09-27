@@ -87,7 +87,7 @@ export class LockComponent extends BaseLockComponent {
     this.isInitialLockScreen = (window as any).previousPopupUrl == null;
 
     super.onSuccessfulSubmit = async () => {
-      const previousUrl = this.routerService.getPreviousUrl();
+      const previousUrl = await this.routerService.getAndClearPreviousUrl();
       if (previousUrl) {
         this.router.navigateByUrl(previousUrl);
       } else {

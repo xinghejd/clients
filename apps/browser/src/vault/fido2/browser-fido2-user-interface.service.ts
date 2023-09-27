@@ -25,6 +25,7 @@ import {
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserPopoutWindowService } from "../../platform/popup/abstractions/browser-popout-window.service";
+import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 
 const BrowserFido2MessageName = "BrowserFido2UserInterfaceServiceMessage";
 
@@ -94,7 +95,10 @@ export type BrowserFido2Message = { sessionId: string } & (
  * The user interface is implemented as a popout and the service uses the browser's messaging API to communicate with it.
  */
 export class BrowserFido2UserInterfaceService implements Fido2UserInterfaceServiceAbstraction {
-  constructor(private browserPopoutWindowService: BrowserPopoutWindowService) {}
+  constructor(
+    private browserPopoutWindowService: BrowserPopoutWindowService,
+    private stateService: StateService
+  ) {}
 
   async newSession(
     fallbackSupported: boolean,
@@ -103,6 +107,7 @@ export class BrowserFido2UserInterfaceService implements Fido2UserInterfaceServi
   ): Promise<Fido2UserInterfaceSession> {
     return await BrowserFido2UserInterfaceSession.create(
       this.browserPopoutWindowService,
+      this.stateService,
       fallbackSupported,
       tab,
       abortController
@@ -113,12 +118,14 @@ export class BrowserFido2UserInterfaceService implements Fido2UserInterfaceServi
 export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSession {
   static async create(
     browserPopoutWindowService: BrowserPopoutWindowService,
+    stateService: StateService,
     fallbackSupported: boolean,
     tab: chrome.tabs.Tab,
     abortController?: AbortController
   ): Promise<BrowserFido2UserInterfaceSession> {
     return new BrowserFido2UserInterfaceSession(
       browserPopoutWindowService,
+      stateService,
       fallbackSupported,
       tab,
       abortController
@@ -135,11 +142,11 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   );
   private connected$ = new BehaviorSubject(false);
   private windowClosed$: Observable<number>;
-  private tabClosed$: Observable<number>;
   private destroy$ = new Subject<void>();
 
   private constructor(
     private readonly browserPopoutWindowService: BrowserPopoutWindowService,
+    private readonly stateService: StateService,
     private readonly fallbackSupported: boolean,
     private readonly tab: chrome.tabs.Tab,
     readonly abortController = new AbortController(),
@@ -259,6 +266,8 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   async close() {
     await this.browserPopoutWindowService.closeFido2Popout();
     this.closed = true;
+    // We clear the previous URL incase the popout times out or the user closes it before authenticating.
+    this.stateService.setPreviousUrl(null);
     this.destroy$.next();
     this.destroy$.complete();
   }
