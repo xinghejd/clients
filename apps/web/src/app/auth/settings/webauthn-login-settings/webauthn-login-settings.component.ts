@@ -47,7 +47,8 @@ export class WebauthnLoginSettingsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.webauthnService.credentials$
+    this.webauthnService
+      .getCredentials$()
       .pipe(takeUntil(this.destroy$))
       .subscribe((credentials) => (this.credentials = credentials));
 

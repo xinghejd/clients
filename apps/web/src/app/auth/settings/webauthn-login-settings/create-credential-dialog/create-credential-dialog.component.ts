@@ -57,9 +57,9 @@ export class CreateCredentialDialogComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.hasPasskeys$ = this.webauthnService.credentials$.pipe(
-      map((credentials) => credentials.length > 0)
-    );
+    this.hasPasskeys$ = this.webauthnService
+      .getCredentials$()
+      .pipe(map((credentials) => credentials.length > 0));
   }
 
   protected submit = async () => {
