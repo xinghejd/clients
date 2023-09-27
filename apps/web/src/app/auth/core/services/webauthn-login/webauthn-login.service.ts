@@ -36,7 +36,7 @@ export class WebauthnLoginService {
 
   async getCredentialCreateOptions(
     verification: Verification
-  ): Promise<CredentialCreateOptionsView | undefined> {
+  ): Promise<CredentialCreateOptionsView> {
     const response = await this.apiService.getCredentialCreateOptions(verification);
     return new CredentialCreateOptionsView(response.options, response.token);
   }
