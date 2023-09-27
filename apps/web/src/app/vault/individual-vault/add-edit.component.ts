@@ -1,3 +1,4 @@
+import { DatePipe } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 
 import { AddEditComponent as BaseAddEditComponent } from "@bitwarden/angular/vault/components/add-edit.component";
@@ -42,6 +43,15 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
   protected totpInterval: number;
   protected override componentName = "app-vault-add-edit";
 
+  get fido2KeyCreationDateValue(): string {
+    const dateCreated = this.i18nService.t("dateCreated");
+    const creationDate = this.datePipe.transform(
+      this.cipher?.login?.fido2Keys?.[0]?.creationDate,
+      "short"
+    );
+    return `${dateCreated} ${creationDate}`;
+  }
+
   constructor(
     cipherService: CipherService,
     folderService: FolderService,
@@ -59,7 +69,8 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     logService: LogService,
     passwordRepromptService: PasswordRepromptService,
     sendApiService: SendApiService,
-    dialogService: DialogService
+    dialogService: DialogService,
+    private datePipe: DatePipe
   ) {
     super(
       cipherService,

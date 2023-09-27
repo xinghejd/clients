@@ -2425,14 +2425,8 @@
   "application": {
     "message": "Application"
   },
-  "passkeyEditInformation": {
-    "message": "You cannot edit passkey application because it would invalidate the passkey."
-  },
   "duplicatePasskey": {
     "message": "A passkey with this ID already exists in this organization."
-  },
-  "passkeyTwoStepLogin": {
-    "message": "Available for two-step login"
   },
   "passkeyNotCopied": {
     "message": "Passkey will not be copied"
@@ -2486,10 +2480,10 @@
     "message": "Search all logins"
   },
   "yourPasskeyIsLocked": {
-    "message": "Authentication required to fill passkey. Verify your identity to continue."
+    "message": "Authentication required to use passkey. Verify your identity to continue."
   },
   "loginToSavePasskey": {
-    "message": "Log in to save [access] this passkey"
+    "message": "Log in to use passkeys in Bitwarden"
   },
   "useBrowserName": {
     "message": "Use browser"
