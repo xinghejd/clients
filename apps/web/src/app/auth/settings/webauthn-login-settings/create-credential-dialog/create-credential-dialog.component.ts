@@ -10,7 +10,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService } from "@bitwarden/components";
 
-import { WebauthnService } from "../../../core";
+import { WebauthnLoginService } from "../../../core";
 import { CredentialCreateOptionsView } from "../../../core/views/credential-create-options.view";
 
 import { CreatePasskeyFailedIcon } from "./create-passkey-failed.icon";
@@ -50,7 +50,7 @@ export class CreateCredentialDialogComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private dialogRef: DialogRef,
-    private webauthnService: WebauthnService,
+    private webauthnService: WebauthnLoginService,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
     private logService: LogService

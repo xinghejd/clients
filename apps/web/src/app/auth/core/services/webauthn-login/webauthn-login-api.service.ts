@@ -6,11 +6,11 @@ import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { Verification } from "@bitwarden/common/types/verification";
 
 import { SaveCredentialRequest } from "./request/save-credential.request";
-import { CredentialCreateOptionsResponse } from "./response/credential-create-options.response";
-import { WebauthnCredentialResponse } from "./response/webauthn-credential.response";
+import { WebauthnLoginCredentialCreateOptionsResponse } from "./response/webauthn-login-credential-create-options.response";
+import { WebauthnLoginCredentialResponse } from "./response/webauthn-login-credential.response";
 
 @Injectable()
-export class WebauthnApiService {
+export class WebauthnLoginApiService {
   constructor(
     private apiService: ApiService,
     private userVerificationService: UserVerificationService
@@ -18,10 +18,10 @@ export class WebauthnApiService {
 
   async getCredentialCreateOptions(
     verification: Verification
-  ): Promise<CredentialCreateOptionsResponse> {
+  ): Promise<WebauthnLoginCredentialCreateOptionsResponse> {
     const request = await this.userVerificationService.buildRequest(verification);
     const response = await this.apiService.send("POST", "/webauthn/options", request, true, true);
-    return new CredentialCreateOptionsResponse(response);
+    return new WebauthnLoginCredentialCreateOptionsResponse(response);
   }
 
   async saveCredential(request: SaveCredentialRequest): Promise<boolean> {
@@ -29,7 +29,7 @@ export class WebauthnApiService {
     return true;
   }
 
-  getCredentials(): Promise<ListResponse<WebauthnCredentialResponse>> {
+  getCredentials(): Promise<ListResponse<WebauthnLoginCredentialResponse>> {
     return this.apiService.send("GET", "/webauthn", null, true, true);
   }
 

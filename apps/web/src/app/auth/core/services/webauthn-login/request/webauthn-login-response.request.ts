@@ -1,6 +1,6 @@
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
-export abstract class WebauthnResponseRequest {
+export abstract class WebauthnLoginResponseRequest {
   id: string;
   rawId: string;
   type: string;

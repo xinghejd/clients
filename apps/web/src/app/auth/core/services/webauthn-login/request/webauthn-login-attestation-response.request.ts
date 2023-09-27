@@ -1,8 +1,8 @@
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
-import { WebauthnResponseRequest } from "./webauthn-response.request";
+import { WebauthnLoginResponseRequest } from "./webauthn-login-response.request";
 
-export class WebauthnAttestationResponseRequest extends WebauthnResponseRequest {
+export class WebauthnLoginAttestationResponseRequest extends WebauthnLoginResponseRequest {
   response: {
     attestationObject: string;
     clientDataJson: string;

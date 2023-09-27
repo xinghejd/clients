@@ -1,6 +1,6 @@
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 
-export class WebauthnCredentialResponse extends BaseResponse {
+export class WebauthnLoginCredentialResponse extends BaseResponse {
   id: string;
   name: string;
   prfSupport: boolean;

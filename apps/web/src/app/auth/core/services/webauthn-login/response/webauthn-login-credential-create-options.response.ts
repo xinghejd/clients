@@ -1,7 +1,7 @@
 import { ChallengeResponse } from "@bitwarden/common/auth/models/response/two-factor-web-authn.response";
 import { BaseResponse } from "@bitwarden/common/models/response/base.response";
 
-export class CredentialCreateOptionsResponse extends BaseResponse {
+export class WebauthnLoginCredentialCreateOptionsResponse extends BaseResponse {
   options: ChallengeResponse;
   token: string;
 

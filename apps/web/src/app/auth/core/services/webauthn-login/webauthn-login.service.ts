@@ -8,11 +8,11 @@ import { CredentialCreateOptionsView } from "../../views/credential-create-optio
 import { WebauthnCredentialView } from "../../views/webauth-credential.view";
 
 import { SaveCredentialRequest } from "./request/save-credential.request";
-import { WebauthnAttestationResponseRequest } from "./request/webauthn-attestation-response.request";
-import { WebauthnApiService } from "./webauthn-api.service";
+import { WebauthnLoginAttestationResponseRequest } from "./request/webauthn-login-attestation-response.request";
+import { WebauthnLoginApiService } from "./webauthn-login-api.service";
 
 @Injectable()
-export class WebauthnService {
+export class WebauthnLoginService {
   private navigatorCredentials: CredentialsContainer;
   private _refresh$ = new BehaviorSubject<void>(undefined);
   private _loading$ = new BehaviorSubject<boolean>(true);
@@ -26,7 +26,7 @@ export class WebauthnService {
   readonly loading$ = this._loading$.asObservable();
 
   constructor(
-    private apiService: WebauthnApiService,
+    private apiService: WebauthnLoginApiService,
     @Optional() navigatorCredentials?: CredentialsContainer,
     @Optional() private logService?: LogService
   ) {
@@ -66,7 +66,7 @@ export class WebauthnService {
     name: string
   ) {
     const request = new SaveCredentialRequest();
-    request.deviceResponse = new WebauthnAttestationResponseRequest(deviceResponse);
+    request.deviceResponse = new WebauthnLoginAttestationResponseRequest(deviceResponse);
     request.token = credentialOptions.token;
     request.name = name;
     await this.apiService.saveCredential(request);

@@ -3,7 +3,7 @@ import { Subject, takeUntil } from "rxjs";
 
 import { DialogService } from "@bitwarden/components";
 
-import { WebauthnService } from "../../core";
+import { WebauthnLoginService } from "../../core";
 import { WebauthnCredentialView } from "../../core/views/webauth-credential.view";
 
 import { openCreateCredentialDialog } from "./create-credential-dialog/create-credential-dialog.component";
@@ -24,7 +24,10 @@ export class WebauthnLoginSettingsComponent implements OnInit, OnDestroy {
   protected credentials?: WebauthnCredentialView[];
   protected loading = true;
 
-  constructor(private webauthnService: WebauthnService, private dialogService: DialogService) {}
+  constructor(
+    private webauthnService: WebauthnLoginService,
+    private dialogService: DialogService
+  ) {}
 
   @HostBinding("attr.aria-busy")
   get ariaBusy() {

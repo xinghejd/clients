@@ -2,21 +2,21 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 import { CredentialCreateOptionsView } from "../../views/credential-create-options.view";
 
-import { WebauthnApiService } from "./webauthn-api.service";
-import { WebauthnService } from "./webauthn.service";
+import { WebauthnLoginApiService } from "./webauthn-login-api.service";
+import { WebauthnLoginService } from "./webauthn-login.service";
 
 describe("WebauthnService", () => {
-  let apiService!: MockProxy<WebauthnApiService>;
+  let apiService!: MockProxy<WebauthnLoginApiService>;
   let credentials: MockProxy<CredentialsContainer>;
-  let webauthnService!: WebauthnService;
+  let webauthnService!: WebauthnLoginService;
 
   beforeAll(() => {
     // Polyfill missing class
     window.PublicKeyCredential = class {} as any;
     window.AuthenticatorAttestationResponse = class {} as any;
-    apiService = mock<WebauthnApiService>();
+    apiService = mock<WebauthnLoginApiService>();
     credentials = mock<CredentialsContainer>();
-    webauthnService = new WebauthnService(apiService, credentials);
+    webauthnService = new WebauthnLoginService(apiService, credentials);
   });
 
   describe("createCredential", () => {
