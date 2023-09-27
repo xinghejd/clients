@@ -2422,14 +2422,8 @@
   "application": {
     "message": "Application"
   },
-  "passkeyEditInformation": {
-    "message": "You cannot edit passkey application because it would invalidate the passkey."
-  },
   "duplicatePasskey": {
     "message": "A passkey with this ID already exists in this organization."
-  },
-  "passkeyTwoStepLogin": {
-    "message": "Available for two-step login"
   },
   "passkeyNotCopied": {
     "message": "Passkey will not be copied"
