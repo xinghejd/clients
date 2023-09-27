@@ -27,7 +27,6 @@ import { RecoverTwoFactorComponent } from "../auth/recover-two-factor.component"
 import { RegisterFormModule } from "../auth/register-form/register-form.module";
 import { RemovePasswordComponent } from "../auth/remove-password.component";
 import { SetPasswordComponent } from "../auth/set-password.component";
-import { ChangePasswordComponent } from "../auth/settings/change-password.component";
 import { DeauthorizeSessionsComponent } from "../auth/settings/deauthorize-sessions.component";
 import { EmergencyAccessAddEditComponent } from "../auth/settings/emergency-access/emergency-access-add-edit.component";
 import { EmergencyAccessAttachmentsComponent } from "../auth/settings/emergency-access/emergency-access-attachments.component";
@@ -145,7 +144,6 @@ import { SharedModule } from "./shared.module";
     AttachmentsComponent,
     BillingSyncKeyComponent,
     ChangeEmailComponent,
-    ChangePasswordComponent,
     CollectionsComponent,
     CreateOrganizationComponent,
     DeauthorizeSessionsComponent,
@@ -246,7 +244,6 @@ import { SharedModule } from "./shared.module";
     ApiKeyComponent,
     AttachmentsComponent,
     ChangeEmailComponent,
-    ChangePasswordComponent,
     CollectionsComponent,
     CreateOrganizationComponent,
     DeauthorizeSessionsComponent,
