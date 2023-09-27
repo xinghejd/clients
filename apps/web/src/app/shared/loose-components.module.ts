@@ -121,7 +121,10 @@ import { SharedModule } from "./shared.module";
     UserVerificationModule,
     ChangeKdfModule,
     DynamicAvatarComponent,
-    AuthModule, // TODO: Remove when `app/settings/change-password.component.ts` has been moved to `app/auth/settings/.`
+    // TODO: Remove `AuthModule` when:
+    //   - All components from auth/settings/* have been moved to `AuthSettingsModule`
+    //   - All teams have moved their settings components into their own modules, and are able to directly import `AuthSettingsModule`
+    AuthModule,
     EnvironmentSelectorModule,
     AccountFingerprintComponent,
 
