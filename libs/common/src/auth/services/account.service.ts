@@ -49,6 +49,7 @@ export class AccountServiceImplementation implements InternalAccountService {
     if (userId == null) {
       // indicates no account is active
       this.activeAccountId.next(undefined);
+      return;
     }
 
     if (this.accounts.value[userId] == null) {
