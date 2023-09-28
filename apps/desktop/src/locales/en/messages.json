@@ -1,4 +1,4 @@
-﻿{
+{
   "bitwarden": {
     "message": "Bitwarden"
   },
@@ -2430,5 +2430,8 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "The passkey will not be copied to the cloned item. Do you want to continue cloning this item?"
+  },
+  "aliasDomain": {
+    "message": "Alias domain"
   }
 }
