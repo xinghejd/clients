@@ -1,5 +1,6 @@
 // eslint-disable-next-line no-restricted-imports
 import { Substitute, Arg } from "@fluffy-spoon/substitute";
+import { Observable } from "rxjs";
 
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 
@@ -41,3 +42,22 @@ export function makeStaticByteArray(length: number, start = 0) {
  * Use to mock a return value of a static fromJSON method.
  */
 export const mockFromJson = (stub: any) => (stub + "_fromJSON") as any;
+
+export function trackEmissions<T>(observable: Observable<T>): T[] {
+  const emissions: T[] = [];
+  observable.subscribe((value) => {
+    switch (typeof value) {
+      case "string":
+      case "number":
+      case "boolean":
+        emissions.push(value);
+        break;
+      case "object":
+        emissions.push({ ...value });
+        break;
+      default:
+        emissions.push(JSON.parse(JSON.stringify(value)));
+    }
+  });
+  return emissions;
+}
