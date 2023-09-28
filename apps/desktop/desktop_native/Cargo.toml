@@ -48,7 +48,16 @@ windows = { version = "=0.48.0", features = [
 keytar = "=0.1.6"
 
 [target.'cfg(target_os = "macos")'.dependencies]
+base64-url = "2.0.0"
 core-foundation = "=0.9.3"
+icrate = { version = "0.0.4", features = [
+  "AuthenticationServices_ASAuthorizationController",
+  "AuthenticationServices_ASAuthorizationPlatformPublicKeyCredentialAssertionRequest",
+  "AuthenticationServices_ASAuthorizationPlatformPublicKeyCredentialProvider",
+  "AuthenticationServices",
+  "Foundation_NSData",
+] }
+objc2 = "0.4.1"
 security-framework = "=2.9.1"
 security-framework-sys = "=2.9.0"
 

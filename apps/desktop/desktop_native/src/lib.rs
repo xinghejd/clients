@@ -4,6 +4,7 @@ extern crate napi_derive;
 mod biometric;
 mod crypto;
 mod error;
+mod passkey;
 mod password;
 
 #[napi]
