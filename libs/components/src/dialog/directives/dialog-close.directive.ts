@@ -3,6 +3,7 @@ import { Directive, HostListener, Input, Optional } from "@angular/core";
 
 @Directive({
   selector: "[bitDialogClose]",
+  standalone: true,
 })
 export class DialogCloseDirective {
   @Input("bitDialogClose") dialogResult: any;
