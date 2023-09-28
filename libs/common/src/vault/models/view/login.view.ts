@@ -5,7 +5,7 @@ import { linkedFieldOption } from "../../../misc/linkedFieldOption.decorator";
 import { Utils } from "../../../platform/misc/utils";
 import { Login } from "../domain/login";
 
-import { Fido2KeyView } from "./fido2-key.view";
+import { Fido2CredentialView } from "./fido2-credential.view";
 import { ItemView } from "./item.view";
 import { LoginUriView } from "./login-uri.view";
 
@@ -19,7 +19,7 @@ export class LoginView extends ItemView {
   totp: string = null;
   uris: LoginUriView[] = null;
   autofillOnPageLoad: boolean = null;
-  fido2Keys: Fido2KeyView[] = [];
+  fido2Credentials: Fido2CredentialView[] = [];
 
   constructor(l?: Login) {
     super();
@@ -81,12 +81,13 @@ export class LoginView extends ItemView {
     const passwordRevisionDate =
       obj.passwordRevisionDate == null ? null : new Date(obj.passwordRevisionDate);
     const uris = obj.uris?.map((uri: any) => LoginUriView.fromJSON(uri));
-    const fido2Keys = obj.fido2Keys?.map((key) => Fido2KeyView.fromJSON(key)) ?? [];
+    const fido2Credentials =
+      obj.fido2Credentials?.map((key) => Fido2CredentialView.fromJSON(key)) ?? [];
 
     return Object.assign(new LoginView(), obj, {
       passwordRevisionDate,
       uris,
-      fido2Keys,
+      fido2Credentials,
     });
   }
 }

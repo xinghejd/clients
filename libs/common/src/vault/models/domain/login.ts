@@ -6,7 +6,7 @@ import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-cr
 import { LoginData } from "../data/login.data";
 import { LoginView } from "../view/login.view";
 
-import { Fido2Key } from "./fido2-key";
+import { Fido2Credential } from "./fido2-credential";
 import { LoginUri } from "./login-uri";
 
 export class Login extends Domain {
@@ -16,7 +16,7 @@ export class Login extends Domain {
   passwordRevisionDate?: Date;
   totp: EncString;
   autofillOnPageLoad: boolean;
-  fido2Keys: Fido2Key[] = [];
+  fido2Credentials: Fido2Credential[] = [];
 
   constructor(obj?: LoginData) {
     super();
@@ -45,8 +45,8 @@ export class Login extends Domain {
       });
     }
 
-    if (obj.fido2Keys) {
-      this.fido2Keys = obj.fido2Keys.map((key) => new Fido2Key(key));
+    if (obj.fido2Credentials) {
+      this.fido2Credentials = obj.fido2Credentials.map((key) => new Fido2Credential(key));
     }
   }
 
@@ -70,8 +70,10 @@ export class Login extends Domain {
       }
     }
 
-    if (this.fido2Keys != null) {
-      view.fido2Keys = await Promise.all(this.fido2Keys.map((key) => key.decrypt(orgId, encKey)));
+    if (this.fido2Credentials != null) {
+      view.fido2Credentials = await Promise.all(
+        this.fido2Credentials.map((key) => key.decrypt(orgId, encKey))
+      );
     }
 
     return view;
@@ -95,7 +97,7 @@ export class Login extends Domain {
       });
     }
 
-    l.fido2Keys = this.fido2Keys.map((key) => key.toFido2KeyData());
+    l.fido2Credentials = this.fido2Credentials.map((key) => key.toFido2CredentialData());
 
     return l;
   }
@@ -111,7 +113,8 @@ export class Login extends Domain {
     const passwordRevisionDate =
       obj.passwordRevisionDate == null ? null : new Date(obj.passwordRevisionDate);
     const uris = obj.uris?.map((uri: any) => LoginUri.fromJSON(uri));
-    const fido2Keys = obj.fido2Keys?.map((key) => Fido2Key.fromJSON(key)) ?? [];
+    const fido2Credentials =
+      obj.fido2Credentials?.map((key) => Fido2Credential.fromJSON(key)) ?? [];
 
     return Object.assign(new Login(), obj, {
       username,
@@ -119,7 +122,7 @@ export class Login extends Domain {
       totp,
       passwordRevisionDate,
       uris,
-      fido2Keys,
+      fido2Credentials,
     });
   }
 }

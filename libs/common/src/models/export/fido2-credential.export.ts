@@ -1,11 +1,10 @@
 import { EncString } from "../../platform/models/domain/enc-string";
-import { Fido2KeyView } from "../../vault/models/view/fido2-key.view";
+import { Fido2Credential as Fido2CredentialDomain } from "../../vault/models/domain/fido2-credential";
+import { Fido2CredentialView } from "../../vault/models/view/fido2-credential.view";
 
-import { Fido2Key as Fido2KeyDomain } from "./../../vault/models/domain/fido2-key";
-
-export class Fido2KeyExport {
-  static template(): Fido2KeyExport {
-    const req = new Fido2KeyExport();
+export class Fido2CredentialExport {
+  static template(): Fido2CredentialExport {
+    const req = new Fido2CredentialExport();
     req.credentialId = "keyId";
     req.keyType = "keyType";
     req.keyAlgorithm = "keyAlgorithm";
@@ -21,7 +20,7 @@ export class Fido2KeyExport {
     return req;
   }
 
-  static toView(req: Fido2KeyExport, view = new Fido2KeyView()) {
+  static toView(req: Fido2CredentialExport, view = new Fido2CredentialView()) {
     view.credentialId = req.credentialId;
     view.keyType = req.keyType as "public-key";
     view.keyAlgorithm = req.keyAlgorithm as "ECDSA";
@@ -37,7 +36,7 @@ export class Fido2KeyExport {
     return view;
   }
 
-  static toDomain(req: Fido2KeyExport, domain = new Fido2KeyDomain()) {
+  static toDomain(req: Fido2CredentialExport, domain = new Fido2CredentialDomain()) {
     domain.credentialId = req.credentialId != null ? new EncString(req.credentialId) : null;
     domain.keyType = req.keyType != null ? new EncString(req.keyType) : null;
     domain.keyAlgorithm = req.keyAlgorithm != null ? new EncString(req.keyAlgorithm) : null;
@@ -67,12 +66,12 @@ export class Fido2KeyExport {
   discoverable: string;
   creationDate: Date;
 
-  constructor(o?: Fido2KeyView | Fido2KeyDomain) {
+  constructor(o?: Fido2CredentialView | Fido2CredentialDomain) {
     if (o == null) {
       return;
     }
 
-    if (o instanceof Fido2KeyView) {
+    if (o instanceof Fido2CredentialView) {
       this.credentialId = o.credentialId;
       this.keyType = o.keyType;
       this.keyAlgorithm = o.keyAlgorithm;

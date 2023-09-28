@@ -4,15 +4,15 @@ import { Substitute, Arg } from "@fluffy-spoon/substitute";
 import { mockEnc, mockFromJson } from "../../../../spec";
 import { UriMatchType } from "../../../enums";
 import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
-import { Fido2KeyApi } from "../../api/fido2-key.api";
+import { Fido2CredentialApi } from "../../api/fido2-credential.api";
 import { LoginData } from "../../models/data/login.data";
 import { Login } from "../../models/domain/login";
 import { LoginUri } from "../../models/domain/login-uri";
 import { LoginUriView } from "../../models/view/login-uri.view";
-import { Fido2KeyData } from "../data/fido2-key.data";
-import { Fido2KeyView } from "../view/fido2-key.view";
+import { Fido2CredentialData } from "../data/fido2-credential.data";
+import { Fido2CredentialView } from "../view/fido2-credential.view";
 
-import { Fido2Key } from "./fido2-key";
+import { Fido2Credential } from "./fido2-credential";
 
 describe("Login DTO", () => {
   it("Convert from empty LoginData", () => {
@@ -25,12 +25,12 @@ describe("Login DTO", () => {
       username: null,
       password: null,
       totp: null,
-      fido2Keys: [],
+      fido2Credentials: [],
     });
   });
 
   it("Convert from full LoginData", () => {
-    const fido2KeyData = initializeFido2Key(new Fido2KeyData());
+    const fido2CredentialData = initializeFido2Credential(new Fido2CredentialData());
     const data: LoginData = {
       uris: [{ uri: "uri", match: UriMatchType.Domain }],
       username: "username",
@@ -38,7 +38,7 @@ describe("Login DTO", () => {
       passwordRevisionDate: "2022-01-31T12:00:00.000Z",
       totp: "123",
       autofillOnPageLoad: false,
-      fido2Keys: [fido2KeyData],
+      fido2Credentials: [fido2CredentialData],
     };
     const login = new Login(data);
 
@@ -49,7 +49,7 @@ describe("Login DTO", () => {
       password: { encryptedString: "password", encryptionType: 0 },
       totp: { encryptedString: "123", encryptionType: 0 },
       uris: [{ match: 0, uri: { encryptedString: "uri", encryptionType: 0 } }],
-      fido2Keys: [encryptFido2Key(fido2KeyData)],
+      fido2Credentials: [encryptFido2Credential(fido2CredentialData)],
     });
   });
 
@@ -57,7 +57,7 @@ describe("Login DTO", () => {
     const login = new Login();
 
     expect(login).toEqual({
-      fido2Keys: [],
+      fido2Credentials: [],
     });
   });
 
@@ -68,14 +68,16 @@ describe("Login DTO", () => {
     loginUri.decrypt(Arg.any()).resolves(loginUriView);
 
     const login = new Login();
-    const decryptedFido2Key = Symbol();
+    const decryptedFido2Credential = Symbol();
     login.uris = [loginUri];
     login.username = mockEnc("encrypted username");
     login.password = mockEnc("encrypted password");
     login.passwordRevisionDate = new Date("2022-01-31T12:00:00.000Z");
     login.totp = mockEnc("encrypted totp");
     login.autofillOnPageLoad = true;
-    login.fido2Keys = [{ decrypt: jest.fn().mockReturnValue(decryptedFido2Key) } as any];
+    login.fido2Credentials = [
+      { decrypt: jest.fn().mockReturnValue(decryptedFido2Credential) } as any,
+    ];
 
     const loginView = await login.decrypt(null);
     expect(loginView).toEqual({
@@ -94,7 +96,7 @@ describe("Login DTO", () => {
         },
       ],
       autofillOnPageLoad: true,
-      fido2Keys: [decryptedFido2Key],
+      fido2Credentials: [decryptedFido2Credential],
     });
   });
 
@@ -106,7 +108,7 @@ describe("Login DTO", () => {
       passwordRevisionDate: "2022-01-31T12:00:00.000Z",
       totp: "123",
       autofillOnPageLoad: false,
-      fido2Keys: [initializeFido2Key(new Fido2KeyData())],
+      fido2Credentials: [initializeFido2Credential(new Fido2CredentialData())],
     };
     const login = new Login(data);
 
@@ -128,7 +130,7 @@ describe("Login DTO", () => {
         password: "myPassword" as EncryptedString,
         passwordRevisionDate: passwordRevisionDate.toISOString(),
         totp: "myTotp" as EncryptedString,
-        fido2Keys: [
+        fido2Credentials: [
           {
             credentialId: "keyId" as EncryptedString,
             keyType: "keyType" as EncryptedString,
@@ -152,7 +154,7 @@ describe("Login DTO", () => {
         password: "myPassword_fromJSON",
         passwordRevisionDate: passwordRevisionDate,
         totp: "myTotp_fromJSON",
-        fido2Keys: [
+        fido2Credentials: [
           {
             credentialId: "keyId_fromJSON",
             keyType: "keyType_fromJSON",
@@ -178,8 +180,8 @@ describe("Login DTO", () => {
   });
 });
 
-type Fido2KeyLike = Fido2KeyData | Fido2KeyView | Fido2KeyApi;
-function initializeFido2Key<T extends Fido2KeyLike>(key: T): T {
+type Fido2CredentialLike = Fido2CredentialData | Fido2CredentialView | Fido2CredentialApi;
+function initializeFido2Credential<T extends Fido2CredentialLike>(key: T): T {
   key.credentialId = "credentialId";
   key.keyType = "public-key";
   key.keyAlgorithm = "ECDSA";
@@ -195,8 +197,8 @@ function initializeFido2Key<T extends Fido2KeyLike>(key: T): T {
   return key;
 }
 
-function encryptFido2Key(key: Fido2KeyLike): Fido2Key {
-  const encrypted = new Fido2Key();
+function encryptFido2Credential(key: Fido2CredentialLike): Fido2Credential {
+  const encrypted = new Fido2Credential();
   encrypted.credentialId = { encryptedString: key.credentialId, encryptionType: 0 } as EncString;
   encrypted.keyType = { encryptedString: key.keyType, encryptionType: 0 } as EncString;
   encrypted.keyAlgorithm = { encryptedString: key.keyAlgorithm, encryptionType: 0 } as EncString;
