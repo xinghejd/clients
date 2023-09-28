@@ -138,4 +138,30 @@ export class VaultHeaderComponent {
   async addCollection(): Promise<void> {
     this.onAddCollection.emit();
   }
+
+  get canEditCollection(): boolean {
+    // Only edit collections if not editing "Unassigned"
+    if (this.collection === undefined) {
+      return false;
+    }
+
+    // Otherwise, check if we can edit the specified collection
+    const organization = this.organizations.find(
+      (o) => o.id === this.collection?.node.organizationId
+    );
+    return this.collection.node.canEdit(organization);
+  }
+
+  get canDeleteCollection(): boolean {
+    // Only delete collections if not deleting "Unassigned"
+    if (this.collection === undefined) {
+      return false;
+    }
+
+    // Otherwise, check if we can edit the specified collection
+    const organization = this.organizations.find(
+      (o) => o.id === this.collection?.node.organizationId
+    );
+    return this.collection.node.canDelete(organization);
+  }
 }
