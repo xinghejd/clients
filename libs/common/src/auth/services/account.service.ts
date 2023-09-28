@@ -23,7 +23,7 @@ export class AccountServiceImplementation implements InternalAccountService {
   activeAccount$ = this.activeAccountId.pipe(
     combineLatestWith(this.accounts$),
     map(([id, accounts]) => (id ? { id, status: accounts[id] } : undefined)),
-    distinctUntilChanged((a, b) => a.id === b.id && a.status === b.status),
+    distinctUntilChanged(),
     share()
   );
   accountLock$ = this.lock.asObservable();
