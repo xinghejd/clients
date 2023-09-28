@@ -267,7 +267,7 @@ export class Fido2Component implements OnInit, OnDestroy {
         userVerified = await this.passwordRepromptService.showPasswordPrompt();
       }
 
-      if (userVerified) {
+      if (!data.userVerification || userVerified) {
         await this.createNewCipher();
       }
 
