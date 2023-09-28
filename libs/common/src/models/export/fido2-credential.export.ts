@@ -1,5 +1,5 @@
 import { EncString } from "../../platform/models/domain/enc-string";
-import { Fido2Credential as Fido2CredentialDomain } from "../../vault/models/domain/fido2-credential";
+import { Fido2Credential } from "../../vault/models/domain/fido2-credential";
 import { Fido2CredentialView } from "../../vault/models/view/fido2-credential.view";
 
 export class Fido2CredentialExport {
@@ -36,7 +36,7 @@ export class Fido2CredentialExport {
     return view;
   }
 
-  static toDomain(req: Fido2CredentialExport, domain = new Fido2CredentialDomain()) {
+  static toDomain(req: Fido2CredentialExport, domain = new Fido2Credential()) {
     domain.credentialId = req.credentialId != null ? new EncString(req.credentialId) : null;
     domain.keyType = req.keyType != null ? new EncString(req.keyType) : null;
     domain.keyAlgorithm = req.keyAlgorithm != null ? new EncString(req.keyAlgorithm) : null;
@@ -66,7 +66,7 @@ export class Fido2CredentialExport {
   discoverable: string;
   creationDate: Date;
 
-  constructor(o?: Fido2CredentialView | Fido2CredentialDomain) {
+  constructor(o?: Fido2CredentialView | Fido2Credential) {
     if (o == null) {
       return;
     }
