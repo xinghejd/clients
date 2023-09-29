@@ -1,10 +1,11 @@
 import { MockProxy, mock } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { firstValueFrom } from "rxjs";
 
 import { trackEmissions } from "../../../spec/utils";
 import { LogService } from "../../platform/abstractions/log.service";
 import { MessagingService } from "../../platform/abstractions/messaging.service";
 import { UserId } from "../../types/guid";
+import { AccountInfo } from "../abstractions/account.service";
 import { AuthenticationStatus } from "../enums/authentication-status";
 
 import { AccountServiceImplementation } from "./account.service";
@@ -14,6 +15,9 @@ describe("accountService", () => {
   let logService: MockProxy<LogService>;
   let sut: AccountServiceImplementation;
   const userId = "userId" as UserId;
+  function userInfo(status: AuthenticationStatus): AccountInfo {
+    return { status, email: "email", name: "name" };
+  }
 
   beforeEach(() => {
     messagingService = mock<MessagingService>();
@@ -26,41 +30,89 @@ describe("accountService", () => {
     jest.resetAllMocks();
   });
 
-  describe("setAccountStatus", () => {
-    let sutAccounts: BehaviorSubject<Record<UserId, AuthenticationStatus>>;
-    let accountsNext: jest.SpyInstance;
-    let emissions: Record<UserId, AuthenticationStatus>[];
+  describe("addAccount", () => {
+    it("should throw if the account already exists", () => {
+      sut.addAccount(userId, userInfo(AuthenticationStatus.Unlocked));
 
-    beforeEach(() => {
-      sutAccounts = sut["accounts"];
-      accountsNext = jest.spyOn(sutAccounts, "next");
-      emissions = [];
-      sutAccounts.subscribe((value) => emissions.push(JSON.parse(JSON.stringify(value))));
+      expect(() => sut.addAccount(userId, userInfo(AuthenticationStatus.Unlocked))).toThrowError(
+        "Account already exists"
+      );
     });
 
-    it("should not emit if the status is the same", () => {
-      sut.setAccountStatus(userId, AuthenticationStatus.Locked);
-      sut.setAccountStatus(userId, AuthenticationStatus.Locked);
-
-      expect(sutAccounts.value).toEqual({ userId: AuthenticationStatus.Locked });
-      expect(accountsNext).toHaveBeenCalledTimes(1);
-    });
-
-    it("should emit if the status is different", () => {
-      const emissions = trackEmissions(sutAccounts);
-      sut.setAccountStatus(userId, AuthenticationStatus.Unlocked);
-      sut.setAccountStatus(userId, AuthenticationStatus.Locked);
+    it("should emit the new account", () => {
+      const emissions = trackEmissions(sut.accounts$);
+      sut.addAccount(userId, userInfo(AuthenticationStatus.Unlocked));
 
       expect(emissions).toEqual([
         {}, // initial value
-        { userId: AuthenticationStatus.Unlocked },
-        { userId: AuthenticationStatus.Locked },
+        { [userId]: userInfo(AuthenticationStatus.Unlocked) },
+      ]);
+    });
+  });
+
+  describe("setAccountName", () => {
+    beforeEach(() => {
+      sut.addAccount(userId, userInfo(AuthenticationStatus.Unlocked));
+    });
+
+    it("should emit the updated account", () => {
+      const emissions = trackEmissions(sut.accounts$);
+      sut.setAccountName(userId, "new name");
+
+      expect(emissions).toEqual([
+        { [userId]: { ...userInfo(AuthenticationStatus.Unlocked), name: "name" } },
+        { [userId]: { ...userInfo(AuthenticationStatus.Unlocked), name: "new name" } },
+      ]);
+    });
+  });
+
+  describe("setAccountEmail", () => {
+    beforeEach(() => {
+      sut.addAccount(userId, userInfo(AuthenticationStatus.Unlocked));
+    });
+
+    it("should emit the updated account", () => {
+      const emissions = trackEmissions(sut.accounts$);
+      sut.setAccountEmail(userId, "new email");
+
+      expect(emissions).toEqual([
+        { [userId]: { ...userInfo(AuthenticationStatus.Unlocked), email: "email" } },
+        { [userId]: { ...userInfo(AuthenticationStatus.Unlocked), email: "new email" } },
+      ]);
+    });
+  });
+
+  describe("setAccountStatus", () => {
+    beforeEach(() => {
+      sut.addAccount(userId, userInfo(AuthenticationStatus.Unlocked));
+    });
+
+    it("should not emit if the status is the same", async () => {
+      const emissions = trackEmissions(sut.accounts$);
+      sut.setAccountStatus(userId, AuthenticationStatus.Unlocked);
+      sut.setAccountStatus(userId, AuthenticationStatus.Unlocked);
+
+      expect(emissions).toEqual([{ userId: userInfo(AuthenticationStatus.Unlocked) }]);
+    });
+
+    it("should maintain an accounts cache", async () => {
+      expect(await firstValueFrom(sut.accounts$)).toEqual({
+        [userId]: userInfo(AuthenticationStatus.Unlocked),
+      });
+    });
+
+    it("should emit if the status is different", () => {
+      const emissions = trackEmissions(sut.accounts$);
+      sut.setAccountStatus(userId, AuthenticationStatus.Locked);
+
+      expect(emissions).toEqual([
+        { userId: userInfo(AuthenticationStatus.Unlocked) }, // initial value from beforeEach
+        { userId: userInfo(AuthenticationStatus.Locked) },
       ]);
     });
 
     it("should emit logout if the status is logged out", () => {
       const emissions = trackEmissions(sut.accountLogout$);
-      sut.setAccountStatus(userId, AuthenticationStatus.Unlocked);
       sut.setAccountStatus(userId, AuthenticationStatus.LoggedOut);
 
       expect(emissions).toEqual([userId]);
@@ -68,7 +120,6 @@ describe("accountService", () => {
 
     it("should emit lock if the status is locked", () => {
       const emissions = trackEmissions(sut.accountLock$);
-      sut.setAccountStatus(userId, AuthenticationStatus.Unlocked);
       sut.setAccountStatus(userId, AuthenticationStatus.Locked);
 
       expect(emissions).toEqual([userId]);
@@ -90,15 +141,15 @@ describe("accountService", () => {
     });
 
     it("should emit the active account and status", () => {
-      sut.setAccountStatus(userId, AuthenticationStatus.Unlocked);
+      sut.addAccount(userId, userInfo(AuthenticationStatus.Unlocked));
       sut.switchAccount(userId);
       sut.setAccountStatus(userId, AuthenticationStatus.Locked);
       sut.switchAccount(undefined);
       sut.switchAccount(undefined);
       expect(emissions).toEqual([
         undefined, // initial value
-        { id: userId, status: AuthenticationStatus.Unlocked },
-        { id: userId, status: AuthenticationStatus.Locked },
+        { id: userId, ...userInfo(AuthenticationStatus.Unlocked) },
+        { id: userId, ...userInfo(AuthenticationStatus.Locked) },
       ]);
     });
 
