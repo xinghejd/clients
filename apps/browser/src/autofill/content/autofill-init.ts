@@ -204,8 +204,8 @@ class AutofillInit implements AutofillInitInterface {
       return;
     }
 
-    this.autofillOverlayContentService.setIsOverlayCiphersPopulated(
-      Boolean(data?.isOverlayCiphersPopulated)
+    this.autofillOverlayContentService.isOverlayCiphersPopulated = Boolean(
+      data?.isOverlayCiphersPopulated
     );
   }
 

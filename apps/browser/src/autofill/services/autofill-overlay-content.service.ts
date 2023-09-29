@@ -25,14 +25,14 @@ import { AutofillOverlayContentService as AutofillOverlayContentServiceInterface
 import { AutoFillConstants } from "./autofill-constants";
 
 class AutofillOverlayContentService implements AutofillOverlayContentServiceInterface {
-  private readonly findTabs = tabbable;
-  private readonly sendExtensionMessage = sendExtensionMessage;
   isFieldCurrentlyFocused = false;
   isCurrentlyFilling = false;
-  userFilledFields: Record<string, FillableFormFieldElement> = {};
-  autofillOverlayVisibility: number;
+  isOverlayCiphersPopulated = false;
+  private readonly findTabs = tabbable;
+  private readonly sendExtensionMessage = sendExtensionMessage;
+  private autofillOverlayVisibility: number;
+  private userFilledFields: Record<string, FillableFormFieldElement> = {};
   private authStatus: AuthenticationStatus;
-  private isOverlayCiphersPopulated = false;
   private focusableElements: FocusableElement[] = [];
   private isOverlayButtonVisible = false;
   private isOverlayListVisible = false;
@@ -96,15 +96,6 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     if (!this.mostRecentlyFocusedField) {
       await this.updateMostRecentlyFocusedField(formFieldElement);
     }
-  }
-
-  /**
-   * Sets a value indicating that the overlay ciphers are populated
-   *
-   * @param isOverlayCiphersPopulated - Indicates that cipher were passed to the overlay list
-   */
-  setIsOverlayCiphersPopulated(isOverlayCiphersPopulated: boolean) {
-    this.isOverlayCiphersPopulated = isOverlayCiphersPopulated;
   }
 
   openAutofillOverlay(

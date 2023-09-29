@@ -6,12 +6,12 @@ import { ElementWithOpId, FormFieldElement } from "../../types";
 interface AutofillOverlayContentService {
   isFieldCurrentlyFocused: boolean;
   isCurrentlyFilling: boolean;
+  isOverlayCiphersPopulated: boolean;
   init(): void;
   setupAutofillOverlayListenerOnField(
     autofillFieldElement: ElementWithOpId<FormFieldElement>,
     autofillFieldData: AutofillField
   ): Promise<void>;
-  setIsOverlayCiphersPopulated(isOverlayCiphersPopulated: boolean): void;
   openAutofillOverlay(
     isFocusingFieldElement?: boolean,
     isOpeningFullOverlay?: boolean,

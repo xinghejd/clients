@@ -202,7 +202,7 @@ describe("AutofillOverlayContentService", () => {
     describe("identifies the overlay visibility setting", () => {
       it("defaults the overlay visibility setting to `OnFieldFocus` if a value is not set", async () => {
         sendExtensionMessageSpy.mockResolvedValueOnce(undefined);
-        autofillOverlayContentService.autofillOverlayVisibility = undefined;
+        autofillOverlayContentService["autofillOverlayVisibility"] = undefined;
 
         await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
@@ -210,21 +210,21 @@ describe("AutofillOverlayContentService", () => {
         );
 
         expect(sendExtensionMessageSpy).toHaveBeenCalledWith("getAutofillOverlayVisibility");
-        expect(autofillOverlayContentService.autofillOverlayVisibility).toEqual(
+        expect(autofillOverlayContentService["autofillOverlayVisibility"]).toEqual(
           AutofillOverlayVisibility.OnFieldFocus
         );
       });
 
       it("sets the overlay visibility setting to the value returned from the background script", async () => {
         sendExtensionMessageSpy.mockResolvedValueOnce(AutofillOverlayVisibility.OnFieldFocus);
-        autofillOverlayContentService.autofillOverlayVisibility = undefined;
+        autofillOverlayContentService["autofillOverlayVisibility"] = undefined;
 
         await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
           autofillFieldData
         );
 
-        expect(autofillOverlayContentService.autofillOverlayVisibility).toEqual(
+        expect(autofillOverlayContentService["autofillOverlayVisibility"]).toEqual(
           AutofillOverlayVisibility.OnFieldFocus
         );
       });

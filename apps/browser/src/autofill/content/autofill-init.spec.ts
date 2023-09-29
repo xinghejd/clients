@@ -328,9 +328,9 @@ describe("AutofillInit", () => {
 
       autofillInit["updateIsOverlayCiphersPopulated"](message);
 
-      expect(
-        autofillInit["autofillOverlayContentService"].setIsOverlayCiphersPopulated
-      ).toHaveBeenCalledWith(message.data.isOverlayCiphersPopulated);
+      expect(autofillInit["autofillOverlayContentService"].isOverlayCiphersPopulated).toEqual(
+        message.data.isOverlayCiphersPopulated
+      );
     });
   });
 
