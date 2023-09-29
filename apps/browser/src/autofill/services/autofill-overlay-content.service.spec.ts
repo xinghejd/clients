@@ -334,5 +334,33 @@ describe("AutofillOverlayContentService", () => {
         );
       });
     });
+
+    it("triggers the form field focused handler if the current active element in the document is the passed form field", async () => {
+      const documentRoot = autofillFieldElement.getRootNode() as Document;
+      jest.spyOn(documentRoot, "activeElement", "get").mockReturnValue(autofillFieldElement);
+
+      await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+        autofillFieldElement,
+        autofillFieldData
+      );
+
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("openAutofillOverlay");
+      expect(autofillOverlayContentService["mostRecentlyFocusedField"]).toEqual(
+        autofillFieldElement
+      );
+    });
+
+    it("sets the most recently focused field to the passed form field element if the value is not set", async () => {
+      autofillOverlayContentService["mostRecentlyFocusedField"] = undefined;
+
+      await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+        autofillFieldElement,
+        autofillFieldData
+      );
+
+      expect(autofillOverlayContentService["mostRecentlyFocusedField"]).toEqual(
+        autofillFieldElement
+      );
+    });
   });
 });

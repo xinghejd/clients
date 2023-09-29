@@ -98,6 +98,11 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     }
   }
 
+  /**
+   * Sets a value indicating that the overlay ciphers are populated
+   *
+   * @param isOverlayCiphersPopulated - Indicates that cipher were passed to the overlay list
+   */
   setIsOverlayCiphersPopulated(isOverlayCiphersPopulated: boolean) {
     this.isOverlayCiphersPopulated = isOverlayCiphersPopulated;
   }
