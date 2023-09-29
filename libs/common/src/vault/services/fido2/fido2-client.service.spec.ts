@@ -1,5 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
+import { AuthService } from "../../../auth/abstractions/auth.service";
+import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 import { ConfigServiceAbstraction } from "../../../platform/abstractions/config/config.service.abstraction";
 import { Utils } from "../../../platform/misc/utils";
 import {
@@ -24,13 +26,16 @@ const RpId = "bitwarden.com";
 describe("FidoAuthenticatorService", () => {
   let authenticator!: MockProxy<Fido2AuthenticatorService>;
   let configService!: MockProxy<ConfigServiceAbstraction>;
+  let authService!: MockProxy<AuthService>;
   let client!: Fido2ClientService;
   let tab!: any;
 
   beforeEach(async () => {
     authenticator = mock<Fido2AuthenticatorService>();
     configService = mock<ConfigServiceAbstraction>();
-    client = new Fido2ClientService(authenticator, configService);
+    authService = mock<AuthService>();
+
+    client = new Fido2ClientService(authenticator, configService, authService);
     configService.getFeatureFlag.mockResolvedValue(true);
     tab = { id: 123, windowId: 456 };
   });
@@ -218,6 +223,16 @@ describe("FidoAuthenticatorService", () => {
         const rejects = expect(result).rejects;
         await rejects.toThrow(FallbackRequestedError);
       });
+
+      it("should throw FallbackRequestedError if user is logged out", async () => {
+        const params = createParams();
+        authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.LoggedOut);
+
+        const result = async () => await client.createCredential(params, tab);
+
+        const rejects = expect(result).rejects;
+        await rejects.toThrow(FallbackRequestedError);
+      });
     });
 
     function createParams(params: Partial<CreateCredentialParams> = {}): CreateCredentialParams {
@@ -378,6 +393,16 @@ describe("FidoAuthenticatorService", () => {
         const rejects = expect(result).rejects;
         await rejects.toMatchObject({ name: "NotAllowedError" });
         await rejects.toBeInstanceOf(DOMException);
+      });
+
+      it("should throw FallbackRequestedError if user is logged out", async () => {
+        const params = createParams();
+        authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.LoggedOut);
+
+        const result = async () => await client.assertCredential(params, tab);
+
+        const rejects = expect(result).rejects;
+        await rejects.toThrow(FallbackRequestedError);
       });
     });
 
