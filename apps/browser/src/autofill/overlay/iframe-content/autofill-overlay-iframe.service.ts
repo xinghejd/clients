@@ -134,6 +134,10 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
   };
 
   private updateIframePosition(position: Partial<CSSStyleDeclaration>) {
+    if (!globalThis.document.hasFocus()) {
+      return;
+    }
+
     this.updateElementStyles(this.iframe, position);
     setTimeout(() => this.updateElementStyles(this.iframe, { opacity: "1" }), 0);
     this.announceAriaAlert();
