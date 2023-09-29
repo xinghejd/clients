@@ -312,6 +312,10 @@ class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   private getObscureName(name: string): string {
+    if (!name) {
+      return "";
+    }
+
     const [username, domain] = name.split("@");
     const usernameLength = username?.length;
     if (!usernameLength) {
