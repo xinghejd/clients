@@ -266,6 +266,11 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     return `${formFieldElement.opid}-${formFieldElement.id}-${event}-handler`;
   }
 
+  /**
+   * Form Field blur event handler. Updates the value identifying whether
+   * the field is focused and sends a message to check if the overlay itself
+   * is currently focused.
+   */
   private handleFormFieldBlurEvent = () => {
     this.isFieldCurrentlyFocused = false;
     this.sendExtensionMessage("checkAutofillOverlayFocused");

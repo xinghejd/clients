@@ -264,21 +264,41 @@ describe("AutofillOverlayContentService", () => {
         );
       });
 
-      it("sets up a blur event listener", async () => {
-        const handleFormFieldBlurEventSpy = jest.spyOn(
-          autofillOverlayContentService as any,
-          "handleFormFieldBlurEvent"
-        );
+      describe("form field blur event listener", () => {
+        let handleFormFieldBlurEventSpy: jest.SpyInstance;
 
-        await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
-          autofillFieldElement,
-          autofillFieldData
-        );
+        beforeEach(async () => {
+          handleFormFieldBlurEventSpy = jest.spyOn(
+            autofillOverlayContentService as any,
+            "handleFormFieldBlurEvent"
+          );
 
-        expect(autofillFieldElement.addEventListener).toHaveBeenCalledWith(
-          "blur",
-          handleFormFieldBlurEventSpy
-        );
+          await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+            autofillFieldElement,
+            autofillFieldData
+          );
+        });
+
+        it("sets up the event listener", async () => {
+          expect(autofillFieldElement.addEventListener).toHaveBeenCalledWith(
+            "blur",
+            handleFormFieldBlurEventSpy
+          );
+        });
+
+        it("updates the isFieldCurrentlyFocused value to false", async () => {
+          autofillOverlayContentService["isFieldCurrentlyFocused"] = true;
+
+          autofillFieldElement.dispatchEvent(new Event("blur"));
+
+          expect(autofillOverlayContentService["isFieldCurrentlyFocused"]).toEqual(false);
+        });
+
+        it("sends a message to the background to check if the overlay is focused", () => {
+          autofillFieldElement.dispatchEvent(new Event("blur"));
+
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("checkAutofillOverlayFocused");
+        });
       });
 
       it("sets up a keyup event listener", async () => {
