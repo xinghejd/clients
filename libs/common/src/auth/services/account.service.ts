@@ -7,14 +7,14 @@ import {
   share,
 } from "rxjs";
 
-import { InternalAccountService } from "../../auth/abstractions/account.service";
+import { AccountInfo, InternalAccountService } from "../../auth/abstractions/account.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { MessagingService } from "../../platform/abstractions/messaging.service";
 import { UserId } from "../../types/guid";
 import { AuthenticationStatus } from "../enums/authentication-status";
 
 export class AccountServiceImplementation implements InternalAccountService {
-  private accounts = new BehaviorSubject<Record<UserId, AuthenticationStatus>>({});
+  private accounts = new BehaviorSubject<Record<UserId, AccountInfo>>({});
   private activeAccountId = new BehaviorSubject<UserId | undefined>(undefined);
   private lock = new Subject<UserId>();
   private logout = new Subject<UserId>();
@@ -22,7 +22,7 @@ export class AccountServiceImplementation implements InternalAccountService {
   accounts$ = this.accounts.asObservable();
   activeAccount$ = this.activeAccountId.pipe(
     combineLatestWith(this.accounts$),
-    map(([id, accounts]) => (id ? { id, status: accounts[id] } : undefined)),
+    map(([id, accounts]) => (id ? { id, ...accounts[id] } : undefined)),
     distinctUntilChanged(),
     share()
   );
@@ -30,14 +30,26 @@ export class AccountServiceImplementation implements InternalAccountService {
   accountLogout$ = this.logout.asObservable();
   constructor(private messagingService: MessagingService, private logService: LogService) {}
 
-  setAccountStatus(userId: UserId, status: AuthenticationStatus): void {
-    if (this.accounts.value[userId] === status) {
-      // Do not emit on no change
-      return;
+  addAccount(userId: UserId, accountData: AccountInfo): void {
+    if (this.accounts.value[userId] != null) {
+      throw new Error("Account already exists");
     }
 
-    this.accounts.value[userId] = status;
+    this.accounts.value[userId] = accountData;
     this.accounts.next(this.accounts.value);
+  }
+
+  setAccountName(userId: UserId, name: string): void {
+    this.setAccountInfo(userId, { ...this.accounts.value[userId], name });
+  }
+
+  setAccountEmail(userId: UserId, email: string): void {
+    this.setAccountInfo(userId, { ...this.accounts.value[userId], email });
+  }
+
+  setAccountStatus(userId: UserId, status: AuthenticationStatus): void {
+    this.setAccountInfo(userId, { ...this.accounts.value[userId], status });
+
     if (status === AuthenticationStatus.LoggedOut) {
       this.logout.next(userId);
     } else if (status === AuthenticationStatus.Locked) {
@@ -66,5 +78,20 @@ export class AccountServiceImplementation implements InternalAccountService {
       this.logService.error(e);
       throw e;
     }
+  }
+
+  private setAccountInfo(userId: UserId, accountInfo: AccountInfo) {
+    if (this.accounts.value[userId] == null) {
+      throw new Error("Account does not exist");
+    }
+
+    // Avoid unnecessary updates
+    // TODO: Faster comparison, maybe include a hash on the objects?
+    if (JSON.stringify(this.accounts.value[userId]) === JSON.stringify(accountInfo)) {
+      return;
+    }
+
+    this.accounts.value[userId] = accountInfo;
+    this.accounts.next(this.accounts.value);
   }
 }
