@@ -86,22 +86,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       await this.getAutofillOverlayVisibility();
     }
 
-    this.removeCachedFormFieldEventListeners(formFieldElement);
-
-    formFieldElement.addEventListener(EVENTS.BLUR, this.handleFormFieldBlurEvent);
-    formFieldElement.addEventListener(EVENTS.KEYUP, this.handleFormFieldKeyupEvent);
-    formFieldElement.addEventListener(
-      EVENTS.INPUT,
-      this.handleFormFieldInputEvent(formFieldElement, autofillFieldData)
-    );
-    formFieldElement.addEventListener(
-      EVENTS.CLICK,
-      this.handleFormFieldClickEvent(formFieldElement)
-    );
-    formFieldElement.addEventListener(
-      EVENTS.FOCUS,
-      this.handleFormFieldFocusEvent(formFieldElement)
-    );
+    this.setupFormFieldElementEventListeners(formFieldElement, autofillFieldData);
 
     if (this.getRootNodeActiveElement(formFieldElement) === formFieldElement) {
       await this.triggerFormFieldFocusedAction(formFieldElement);
@@ -223,6 +208,34 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     redirectFocusElement?.focus();
   }
 
+  private setupFormFieldElementEventListeners(
+    formFieldElement: ElementWithOpId<FormFieldElement>,
+    autofillFieldData: AutofillField
+  ) {
+    this.removeCachedFormFieldEventListeners(formFieldElement);
+
+    formFieldElement.addEventListener(EVENTS.BLUR, this.handleFormFieldBlurEvent);
+    formFieldElement.addEventListener(EVENTS.KEYUP, this.handleFormFieldKeyupEvent);
+    formFieldElement.addEventListener(
+      EVENTS.INPUT,
+      this.handleFormFieldInputEvent(formFieldElement, autofillFieldData)
+    );
+    formFieldElement.addEventListener(
+      EVENTS.CLICK,
+      this.handleFormFieldClickEvent(formFieldElement)
+    );
+    formFieldElement.addEventListener(
+      EVENTS.FOCUS,
+      this.handleFormFieldFocusEvent(formFieldElement)
+    );
+  }
+
+  /**
+   * Removes any cached form field element handlers that are encountered
+   * when setting up a form field element to present the overlay.
+   *
+   * @param formFieldElement - The form field element to remove the cached handlers for.
+   */
   private removeCachedFormFieldEventListeners(formFieldElement: ElementWithOpId<FormFieldElement>) {
     const handlers = [EVENTS.INPUT, EVENTS.CLICK, EVENTS.FOCUS];
     for (let index = 0; index < handlers.length; index++) {

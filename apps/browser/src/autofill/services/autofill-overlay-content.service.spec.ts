@@ -11,9 +11,13 @@ import AutofillOverlayContentService from "./autofill-overlay-content.service";
 const defaultWindowReadyState = document.readyState;
 describe("AutofillOverlayContentService", () => {
   let autofillOverlayContentService: AutofillOverlayContentService;
+  let sendExtensionMessageSpy: jest.SpyInstance;
 
   beforeEach(() => {
     autofillOverlayContentService = new AutofillOverlayContentService();
+    sendExtensionMessageSpy = jest
+      .spyOn(autofillOverlayContentService as any, "sendExtensionMessage")
+      .mockResolvedValue(undefined);
     Object.defineProperty(document, "readyState", {
       value: defaultWindowReadyState,
       writable: true,
@@ -100,6 +104,7 @@ describe("AutofillOverlayContentService", () => {
       autofillFieldElement = document.getElementById(
         "username-field"
       ) as ElementWithOpId<FormFieldElement>;
+      autofillFieldElement.opid = "op-1";
       jest.spyOn(autofillFieldElement, "addEventListener");
       autofillFieldData = createAutofillFieldMock({
         opid: "username-field",
@@ -195,15 +200,6 @@ describe("AutofillOverlayContentService", () => {
     });
 
     describe("identifies the overlay visibility setting", () => {
-      let sendExtensionMessageSpy: jest.SpyInstance;
-
-      beforeEach(() => {
-        sendExtensionMessageSpy = jest.spyOn(
-          autofillOverlayContentService as any,
-          "sendExtensionMessage"
-        );
-      });
-
       it("defaults the overlay visibility setting to `OnFieldFocus` if a value is not set", async () => {
         sendExtensionMessageSpy.mockResolvedValueOnce(undefined);
         autofillOverlayContentService.autofillOverlayVisibility = undefined;
@@ -230,6 +226,41 @@ describe("AutofillOverlayContentService", () => {
 
         expect(autofillOverlayContentService.autofillOverlayVisibility).toEqual(
           AutofillOverlayVisibility.OnFieldFocus
+        );
+      });
+    });
+
+    describe("setting up form field element listeners", () => {
+      it("removes all cached event listeners from the form field element", async () => {
+        jest.spyOn(autofillFieldElement, "removeEventListener");
+        const inputHandler = jest.fn();
+        const clickHandler = jest.fn();
+        const focusHandler = jest.fn();
+        autofillOverlayContentService["eventHandlersMemo"] = {
+          "op-1-username-field-input-handler": inputHandler,
+          "op-1-username-field-click-handler": clickHandler,
+          "op-1-username-field-focus-handler": focusHandler,
+        };
+
+        await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+          autofillFieldElement,
+          autofillFieldData
+        );
+
+        expect(autofillFieldElement.removeEventListener).toHaveBeenNthCalledWith(
+          1,
+          "input",
+          inputHandler
+        );
+        expect(autofillFieldElement.removeEventListener).toHaveBeenNthCalledWith(
+          2,
+          "click",
+          clickHandler
+        );
+        expect(autofillFieldElement.removeEventListener).toHaveBeenNthCalledWith(
+          3,
+          "focus",
+          focusHandler
         );
       });
     });
