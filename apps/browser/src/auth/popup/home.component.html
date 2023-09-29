@@ -2,7 +2,7 @@
   <div class="content login-page">
     <div class="logo-image"></div>
     <p class="lead text-center">
-      {{ !isPasskeysPopout ? ("loginOrCreateNewAccount" | i18n) : ("loginToSavePasskey" | i18n) }}
+      {{ "loginOrCreateNewAccount" | i18n }}
     </p>
     <form #form [formGroup]="formGroup" (ngSubmit)="submit()">
       <div class="box">
@@ -29,15 +29,9 @@
         </button>
       </div>
     </form>
-    <p *ngIf="!isPasskeysPopout" class="createAccountLink">
+    <p class="createAccountLink">
       {{ "newAroundHere" | i18n }}
       <a routerLink="/register" (click)="setFormValues()">{{ "createAccount" | i18n }}</a>
     </p>
-
-    <div class="useBrowserlink" *ngIf="isPasskeysPopout">
-      <a [routerLink]="[]" (click)="abortFido2Popout(true)">
-        {{ "useBrowserName" | i18n }}
-      </a>
-    </div>
   </div>
 </div>

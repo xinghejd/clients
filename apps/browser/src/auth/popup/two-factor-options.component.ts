@@ -41,9 +41,7 @@ export class TwoFactorOptionsComponent extends BaseTwoFactorOptionsComponent {
       // SSO + 2FA in browser extension
       this.router.navigate(["2fa"], { queryParams: { sso: true } });
     } else {
-      this.router.navigate(["2fa"], {
-        queryParams: { uilocation: this.activatedRoute.snapshot.queryParams.uilocation },
-      });
+      this.router.navigate(["2fa"]);
     }
   }
 }

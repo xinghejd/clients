@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
+import { Router } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 
 import { EnvironmentSelectorComponent } from "@bitwarden/angular/auth/components/environment-selector.component";
@@ -10,8 +10,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 
-import { BrowserFido2UserInterfaceSession } from "../../vault/fido2/browser-fido2-user-interface.service";
-
 @Component({
   selector: "app-home",
   templateUrl: "home.component.html",
@@ -20,7 +18,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   @ViewChild(EnvironmentSelectorComponent, { static: true })
   environmentSelector!: EnvironmentSelectorComponent;
   private destroyed$: Subject<void> = new Subject();
-  private sessionId?: string; // Used to uniquely identify passkeys
 
   loginInitiated = false;
   formGroup = this.formBuilder.group({
@@ -28,16 +25,11 @@ export class HomeComponent implements OnInit, OnDestroy {
     rememberEmail: [false],
   });
 
-  get isPasskeysPopout(): boolean {
-    return this.sessionId != null;
-  }
-
   constructor(
     protected platformUtilsService: PlatformUtilsService,
     private stateService: StateService,
     private formBuilder: FormBuilder,
     private router: Router,
-    private route: ActivatedRoute,
     private i18nService: I18nService,
     private environmentService: EnvironmentService,
     private loginService: LoginService
@@ -68,9 +60,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.setFormValues();
         this.router.navigate(["environment"]);
       });
-
-    // Get's the sessionId from the query params. The sessionId is sent from the passkeys popout.
-    this.sessionId = this.route.snapshot.queryParams.sessionId;
   }
 
   ngOnDestroy(): void {
@@ -94,7 +83,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.router.navigate(["login"], {
       queryParams: {
         email: this.formGroup.value.email,
-        uilocation: this.route.snapshot.queryParams.uilocation,
       },
     });
   }
@@ -106,16 +94,5 @@ export class HomeComponent implements OnInit, OnDestroy {
   setFormValues() {
     this.loginService.setEmail(this.formGroup.value.email);
     this.loginService.setRememberEmail(this.formGroup.value.rememberEmail);
-  }
-
-  // Used for aborting Fido2 popout
-  abortFido2Popout(fallback = false) {
-    BrowserFido2UserInterfaceSession.sendMessage({
-      sessionId: this.sessionId,
-      type: "AbortResponse",
-      fallbackRequested: fallback,
-    });
-
-    return;
   }
 }

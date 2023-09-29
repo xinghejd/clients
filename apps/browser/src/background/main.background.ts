@@ -568,6 +568,7 @@ export default class MainBackground {
     this.fido2ClientService = new Fido2ClientService(
       this.fido2AuthenticatorService,
       this.configService,
+      this.authService,
       this.logService
     );
 

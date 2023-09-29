@@ -82,14 +82,6 @@ export class LoginComponent extends BaseLoginComponent {
       }
     };
 
-    super.onSuccessfulLoginTwoFactorNavigate = async () => {
-      this.router.navigate([this.twoFactorRoute], {
-        queryParams: {
-          uilocation: this.route.snapshot.queryParams.uilocation,
-        },
-      });
-    };
-
     this.showPasswordless = flagEnabled("showPasswordless");
 
     if (this.showPasswordless) {
