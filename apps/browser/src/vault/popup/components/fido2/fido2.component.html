@@ -3,14 +3,14 @@
     <div class="auth-header">
       <div class="left">
         <ng-container *ngIf="data.message.type != 'PickCredentialRequest'">
-          <svg id="passkey-icon-wrapper" xmlns="http://www.w3.org/2000/svg" height="35" width="32">
-            <use xlink:href="../../../../popup/images/shield.svg#passkey-icon"></use>
-          </svg>
+          <div class="logo">
+            <i class="bwi bwi-shield"></i>
+          </div>
         </ng-container>
         <ng-container *ngIf="data.message.type == 'PickCredentialRequest'">
-          <svg id="passkey-icon-wrapper" xmlns="http://www.w3.org/2000/svg" height="32" width="197">
-            <use xlink:href="../../../../popup/images/shield+logo.svg#passkey-icon"></use>
-          </svg>
+          <div class="logo">
+            <i class="bwi bwi-shield"></i><span><strong>bit</strong>warden</span>
+          </div>
         </ng-container>
       </div>
       <ng-container *ngIf="data.message.type == 'ConfirmNewCredentialRequest'">
