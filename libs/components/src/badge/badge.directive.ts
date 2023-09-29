@@ -20,19 +20,6 @@ const hoverStyles: Record<BadgeTypes, string[]> = {
   info: ["hover:tw-bg-info-700"],
 };
 
-const textAlignment = {
-  baseline: "tw-align-baseline",
-  sub: "tw-align-sub",
-  super: "tw-align-super",
-  textTop: "tw-align-text-top",
-  textBottom: "tw-align-text-bottom",
-  middle: "tw-align-middle",
-  top: "tw-align-top",
-  bottom: "tw-align-bottom",
-};
-
-type TextAlignment = keyof typeof textAlignment;
-
 @Directive({
   selector: "span[bitBadge], a[bitBadge], button[bitBadge]",
 })
@@ -44,7 +31,7 @@ export class BadgeDirective {
       "tw-px-1.5",
       "tw-font-bold",
       "tw-text-center",
-      textAlignment[this.align],
+      "tw-align-text-top",
       "!tw-text-contrast",
       "tw-rounded",
       "tw-border-none",
@@ -67,7 +54,6 @@ export class BadgeDirective {
 
   @Input() badgeType: BadgeTypes = "primary";
   @Input() truncate = true;
-  @Input() align: TextAlignment = "textTop";
 
   private hasHoverEffects = false;
 

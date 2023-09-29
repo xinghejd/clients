@@ -15,7 +15,6 @@ export default {
   args: {
     badgeType: "primary",
     truncate: false,
-    align: "textTop",
   },
   parameters: {
     design: {
