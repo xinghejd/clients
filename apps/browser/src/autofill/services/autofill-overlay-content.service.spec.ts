@@ -265,24 +265,10 @@ describe("AutofillOverlayContentService", () => {
       });
 
       describe("form field blur event listener", () => {
-        let handleFormFieldBlurEventSpy: jest.SpyInstance;
-
         beforeEach(async () => {
-          handleFormFieldBlurEventSpy = jest.spyOn(
-            autofillOverlayContentService as any,
-            "handleFormFieldBlurEvent"
-          );
-
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
             autofillFieldData
-          );
-        });
-
-        it("sets up the event listener", async () => {
-          expect(autofillFieldElement.addEventListener).toHaveBeenCalledWith(
-            "blur",
-            handleFormFieldBlurEventSpy
           );
         });
 
@@ -301,33 +287,203 @@ describe("AutofillOverlayContentService", () => {
         });
       });
 
-      it("sets up a keyup event listener", async () => {
-        const handleFormFieldKeyupEventSpy = jest.spyOn(
-          autofillOverlayContentService as any,
-          "handleFormFieldKeyupEvent"
-        );
+      describe("form field keyup event listener", () => {
+        beforeEach(async () => {
+          await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+            autofillFieldElement,
+            autofillFieldData
+          );
+          jest
+            .spyOn(autofillOverlayContentService as any, "openAutofillOverlay")
+            .mockImplementation();
+        });
 
-        await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
-          autofillFieldElement,
-          autofillFieldData
-        );
+        it("removes the autofill overlay when the `Escape` key is pressed", () => {
+          jest.spyOn(autofillOverlayContentService as any, "removeAutofillOverlay");
 
-        expect(autofillFieldElement.addEventListener).toHaveBeenCalledWith(
-          "keyup",
-          handleFormFieldKeyupEventSpy
-        );
+          autofillFieldElement.dispatchEvent(new KeyboardEvent("keyup", { code: "Escape" }));
+
+          expect(autofillOverlayContentService.removeAutofillOverlay).toHaveBeenCalled();
+        });
+
+        it("repositions the overlay if autofill is not currently filling when the `Enter` key is pressed", () => {
+          const handleOverlayRepositionEventSpy = jest.spyOn(
+            autofillOverlayContentService as any,
+            "handleOverlayRepositionEvent"
+          );
+          autofillOverlayContentService["isCurrentlyFilling"] = false;
+
+          autofillFieldElement.dispatchEvent(new KeyboardEvent("keyup", { code: "Enter" }));
+
+          expect(handleOverlayRepositionEventSpy).toHaveBeenCalled();
+        });
+
+        it("skips repositioning the overlay if autofill is currently filling when the `Enter` key is pressed", () => {
+          const handleOverlayRepositionEventSpy = jest.spyOn(
+            autofillOverlayContentService as any,
+            "handleOverlayRepositionEvent"
+          );
+          autofillOverlayContentService["isCurrentlyFilling"] = true;
+
+          autofillFieldElement.dispatchEvent(new KeyboardEvent("keyup", { code: "Enter" }));
+
+          expect(handleOverlayRepositionEventSpy).not.toHaveBeenCalled();
+        });
+
+        it("opens the overlay list and focuses it after a delay if it is not visible when the `ArrowDown` key is pressed", () => {
+          jest.useFakeTimers();
+          const openAutofillOverlaySpy = jest.spyOn(
+            autofillOverlayContentService as any,
+            "openAutofillOverlay"
+          );
+          autofillOverlayContentService["isOverlayListVisible"] = false;
+
+          autofillFieldElement.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowDown" }));
+
+          expect(openAutofillOverlaySpy).toHaveBeenCalled();
+          expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith("focusAutofillOverlayList");
+
+          jest.advanceTimersByTime(150);
+
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("focusAutofillOverlayList");
+        });
+
+        it("focuses the overlay list when the `ArrowDown` key is pressed", () => {
+          autofillOverlayContentService["isOverlayListVisible"] = true;
+
+          autofillFieldElement.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowDown" }));
+
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("focusAutofillOverlayList");
+        });
       });
 
-      it("sets up a input change event listener", async () => {
-        await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
-          autofillFieldElement,
-          autofillFieldData
-        );
+      describe("form field input change event listener", () => {
+        beforeEach(() => {
+          jest
+            .spyOn(autofillOverlayContentService as any, "openAutofillOverlay")
+            .mockImplementation();
+        });
 
-        expect(autofillFieldElement.addEventListener).toHaveBeenCalledWith(
-          "input",
-          expect.any(Function)
-        );
+        it("ignores span elements that trigger the listener", async () => {
+          const spanAutofillFieldElement = document.createElement(
+            "span"
+          ) as ElementWithOpId<HTMLSpanElement>;
+          jest.spyOn(autofillOverlayContentService as any, "storeModifiedFormElement");
+
+          await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+            spanAutofillFieldElement,
+            autofillFieldData
+          );
+
+          spanAutofillFieldElement.dispatchEvent(new Event("input"));
+
+          expect(autofillOverlayContentService["storeModifiedFormElement"]).not.toHaveBeenCalled();
+        });
+
+        it("stores the field as a user filled field if the form field data indicates that it is for a username", async () => {
+          await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+            autofillFieldElement,
+            autofillFieldData
+          );
+          autofillFieldElement.dispatchEvent(new Event("input"));
+
+          expect(autofillOverlayContentService["userFilledFields"].username).toEqual(
+            autofillFieldElement
+          );
+        });
+
+        it("stores the field as a user filled field if the form field is of type password", async () => {
+          const passwordFieldElement = document.getElementById(
+            "password-field"
+          ) as ElementWithOpId<FormFieldElement>;
+
+          await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+            passwordFieldElement,
+            autofillFieldData
+          );
+          passwordFieldElement.dispatchEvent(new Event("input"));
+
+          expect(autofillOverlayContentService["userFilledFields"].password).toEqual(
+            passwordFieldElement
+          );
+        });
+
+        it("removes the overlay if the form field element has a value and the user is not authed", async () => {
+          jest.spyOn(autofillOverlayContentService as any, "isUserAuthed").mockReturnValue(false);
+          const removeAutofillOverlayListSpy = jest.spyOn(
+            autofillOverlayContentService as any,
+            "removeAutofillOverlayList"
+          );
+          (autofillFieldElement as HTMLInputElement).value = "test";
+
+          await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+            autofillFieldElement,
+            autofillFieldData
+          );
+          autofillFieldElement.dispatchEvent(new Event("input"));
+
+          expect(removeAutofillOverlayListSpy).toHaveBeenCalled();
+        });
+
+        it("removes the overlay if the form field element has a value and the overlay ciphers are populated", async () => {
+          jest.spyOn(autofillOverlayContentService as any, "isUserAuthed").mockReturnValue(true);
+          autofillOverlayContentService["isOverlayCiphersPopulated"] = true;
+          const removeAutofillOverlayListSpy = jest.spyOn(
+            autofillOverlayContentService as any,
+            "removeAutofillOverlayList"
+          );
+          (autofillFieldElement as HTMLInputElement).value = "test";
+
+          await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+            autofillFieldElement,
+            autofillFieldData
+          );
+          autofillFieldElement.dispatchEvent(new Event("input"));
+
+          expect(removeAutofillOverlayListSpy).toHaveBeenCalled();
+        });
+
+        it("opens the autofill overlay if the form field is empty", async () => {
+          jest.spyOn(autofillOverlayContentService as any, "openAutofillOverlay");
+          (autofillFieldElement as HTMLInputElement).value = "";
+
+          await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+            autofillFieldElement,
+            autofillFieldData
+          );
+          autofillFieldElement.dispatchEvent(new Event("input"));
+
+          expect(autofillOverlayContentService["openAutofillOverlay"]).toHaveBeenCalled();
+        });
+
+        it("opens the autofill overlay if the form field is empty and the user is authed", async () => {
+          jest.spyOn(autofillOverlayContentService as any, "isUserAuthed").mockReturnValue(true);
+          jest.spyOn(autofillOverlayContentService as any, "openAutofillOverlay");
+          (autofillFieldElement as HTMLInputElement).value = "";
+
+          await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+            autofillFieldElement,
+            autofillFieldData
+          );
+          autofillFieldElement.dispatchEvent(new Event("input"));
+
+          expect(autofillOverlayContentService["openAutofillOverlay"]).toHaveBeenCalled();
+        });
+
+        it("opens the autofill overlay if the form field is empty and the overlay ciphers are not populated", async () => {
+          jest.spyOn(autofillOverlayContentService as any, "isUserAuthed").mockReturnValue(false);
+          autofillOverlayContentService["isOverlayCiphersPopulated"] = false;
+          jest.spyOn(autofillOverlayContentService as any, "openAutofillOverlay");
+          (autofillFieldElement as HTMLInputElement).value = "";
+
+          await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+            autofillFieldElement,
+            autofillFieldData
+          );
+          autofillFieldElement.dispatchEvent(new Event("input"));
+
+          expect(autofillOverlayContentService["openAutofillOverlay"]).toHaveBeenCalled();
+        });
       });
 
       it("sets up a click event listener", async () => {

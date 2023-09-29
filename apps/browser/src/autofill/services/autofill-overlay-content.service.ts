@@ -222,7 +222,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     formFieldElement.addEventListener(EVENTS.KEYUP, this.handleFormFieldKeyupEvent);
     formFieldElement.addEventListener(
       EVENTS.INPUT,
-      this.handleFormFieldInputEvent(formFieldElement, autofillFieldData)
+      this.handleFormFieldInputEvent(formFieldElement)
     );
     formFieldElement.addEventListener(
       EVENTS.CLICK,
@@ -255,10 +255,22 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     }
   }
 
+  /**
+   * Helper method that facilitates registration of an event handler to a form field element.
+   *
+   * @param eventHandler - The event handler to memoize.
+   * @param memoIndex - The memo index to use for the event handler.
+   */
   private useEventHandlersMemo = (eventHandler: EventListener, memoIndex: string) => {
     return this.eventHandlersMemo[memoIndex] || (this.eventHandlersMemo[memoIndex] = eventHandler);
   };
 
+  /**
+   * Formats the memoIndex for the form field event handler.
+   *
+   * @param formFieldElement - The form field element to format the memo index for.
+   * @param event - The event to format the memo index for.
+   */
   private getFormFieldHandlerMemoIndex(
     formFieldElement: ElementWithOpId<FormFieldElement>,
     event: string
@@ -276,6 +288,14 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     this.sendExtensionMessage("checkAutofillOverlayFocused");
   };
 
+  /**
+   * Form field keyup event handler. Facilitates the ability to remove the
+   * autofill overlay using the escape key, focusing the overlay list using
+   * the ArrowDown key, and ensuring that the overlay is repositioned when
+   * the form is submitted using the Enter key.
+   *
+   * @param event - The keyup event.
+   */
   private handleFormFieldKeyupEvent = (event: KeyboardEvent) => {
     const eventCode = event.code;
     if (eventCode === "Escape") {
@@ -296,6 +316,11 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     }
   };
 
+  /**
+   * Triggers a focus of the overlay list, if it is visible. If the list is not visible,
+   * the overlay will be opened and the list will be focused after a short delay. Ensures
+   * that the overlay list is focused when the user presses the down arrow key.
+   */
   private focusOverlayList() {
     if (!this.isOverlayListVisible) {
       this.openAutofillOverlay(false, true);
@@ -306,25 +331,31 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     this.sendExtensionMessage("focusAutofillOverlayList");
   }
 
-  private handleFormFieldInputEvent = (
-    formFieldElement: ElementWithOpId<FormFieldElement>,
-    autofillFieldData: AutofillField
-  ) => {
+  /**
+   * Sets up and memoizes the form field input event handler.
+   *
+   * @param formFieldElement - The form field element that triggered the input event.
+   */
+  private handleFormFieldInputEvent = (formFieldElement: ElementWithOpId<FormFieldElement>) => {
     return this.useEventHandlersMemo(
-      () => this.triggerFormFieldInput(formFieldElement, autofillFieldData),
+      () => this.triggerFormFieldInput(formFieldElement),
       this.getFormFieldHandlerMemoIndex(formFieldElement, EVENTS.INPUT)
     );
   };
 
-  triggerFormFieldInput(
-    formFieldElement: ElementWithOpId<FormFieldElement>,
-    autofillFieldData: AutofillField
-  ) {
+  /**
+   * Triggers when the form field element receives an input event. This method will
+   * store the modified form element data for use when the user attempts to add a new
+   * vault item. It also acts to remove the overlay list while the user is typing.
+   *
+   * @param formFieldElement - The form field element that triggered the input event.
+   */
+  private triggerFormFieldInput(formFieldElement: ElementWithOpId<FormFieldElement>) {
     if (formFieldElement instanceof HTMLSpanElement) {
       return;
     }
 
-    this.storeModifiedFormElement(formFieldElement, autofillFieldData);
+    this.storeModifiedFormElement(formFieldElement);
 
     if (formFieldElement.value && (this.isOverlayCiphersPopulated || !this.isUserAuthed())) {
       this.removeAutofillOverlayList();
@@ -334,20 +365,21 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     this.openAutofillOverlay();
   }
 
-  private storeModifiedFormElement(
-    formFieldElement: ElementWithOpId<FillableFormFieldElement>,
-    autofillFieldData: AutofillField
-  ) {
+  /**
+   * Stores the modified form element data for use when the user attempts to add a new
+   * vault item. This method will also store the most recently focused field, if it is
+   * not already stored.
+   *
+   * @param formFieldElement
+   * @private
+   */
+  private storeModifiedFormElement(formFieldElement: ElementWithOpId<FillableFormFieldElement>) {
     if (formFieldElement === this.mostRecentlyFocusedField) {
       this.mostRecentlyFocusedField = formFieldElement;
     }
 
     if (formFieldElement.type === "password") {
       this.userFilledFields.password = formFieldElement;
-      return;
-    }
-
-    if (!this.keywordsFoundInFieldData(autofillFieldData, AutoFillConstants.UsernameFieldNames)) {
       return;
     }
 

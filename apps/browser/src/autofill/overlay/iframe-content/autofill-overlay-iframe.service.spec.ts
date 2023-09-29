@@ -18,25 +18,32 @@ describe("AutofillOverlayIframeService", () => {
 
   describe("initOverlayIframe", () => {
     it("sets up the iframe's attributes", () => {
-      const overlayIframe = autofillOverlayIframeService["iframe"];
-
       autofillOverlayIframeService.initOverlayIframe({ height: "0px" }, "title");
 
-      expect(overlayIframe.src).toEqual("chrome-extension://id/overlay/list.html");
-      expect(overlayIframe.tabIndex).toEqual(-1);
-      expect(overlayIframe.getAttribute("title")).toEqual("title");
-      expect(overlayIframe.getAttribute("sandbox")).toEqual("allow-scripts");
-      expect(overlayIframe.getAttribute("allowtransparency")).toEqual("true");
-      expect(overlayIframe.getAttribute("style")).toContain("height: 0px;");
+      expect(autofillOverlayIframeService["iframe"].src).toEqual(
+        "chrome-extension://id/overlay/list.html"
+      );
+      expect(autofillOverlayIframeService["iframe"].tabIndex).toEqual(-1);
+      expect(autofillOverlayIframeService["iframe"].getAttribute("title")).toEqual("title");
+      expect(autofillOverlayIframeService["iframe"].getAttribute("sandbox")).toEqual(
+        "allow-scripts"
+      );
+      expect(autofillOverlayIframeService["iframe"].getAttribute("allowtransparency")).toEqual(
+        "true"
+      );
+      expect(autofillOverlayIframeService["iframe"].getAttribute("style")).toContain(
+        "height: 0px;"
+      );
     });
 
     it("appends the iframe to the shadowDom", () => {
-      const overlayIframe = autofillOverlayIframeService["iframe"];
       jest.spyOn(autofillOverlayIframeService["shadow"], "appendChild");
 
       autofillOverlayIframeService.initOverlayIframe({ height: "0px" }, "title");
 
-      expect(autofillOverlayIframeService["shadow"].appendChild).toBeCalledWith(overlayIframe);
+      expect(autofillOverlayIframeService["shadow"].appendChild).toBeCalledWith(
+        autofillOverlayIframeService["iframe"]
+      );
     });
 
     it("creates an aria alert element if the ariaAlert param is passed", () => {
