@@ -39,6 +39,7 @@ import { SendTypeComponent } from "../tools/popup/send/send-type.component";
 import { ExportComponent } from "../tools/popup/settings/export.component";
 import { ActionButtonsComponent } from "../vault/popup/components/action-buttons.component";
 import { CipherRowComponent } from "../vault/popup/components/cipher-row.component";
+import { Fido2BrowserFallbackComponent } from "../vault/popup/components/fido2/fido2-browser-fallback.component";
 import { Fido2CipherRowComponent } from "../vault/popup/components/fido2/fido2-cipher-row.component";
 import { Fido2Component } from "../vault/popup/components/fido2/fido2.component";
 import { PasswordRepromptComponent } from "../vault/popup/components/password-reprompt.component";
@@ -154,6 +155,7 @@ import "../platform/popup/locales";
     RemovePasswordComponent,
     VaultSelectComponent,
     Fido2Component,
+    Fido2BrowserFallbackComponent,
     HelpAndFeedbackComponent,
     AutofillComponent,
     EnvironmentSelectorComponent,
