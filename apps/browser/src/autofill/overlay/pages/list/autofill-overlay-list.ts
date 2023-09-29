@@ -99,6 +99,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
 
   private updateListItems(ciphers: OverlayCipherData[]) {
     this.ciphers = ciphers;
+    this.currentCipherIndex = 0;
     this.resetOverlayListContainer();
 
     if (!ciphers?.length) {
