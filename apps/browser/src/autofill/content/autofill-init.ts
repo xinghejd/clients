@@ -54,6 +54,7 @@ class AutofillInit implements AutofillInitInterface {
    */
   init() {
     this.setupExtensionMessageListeners();
+    this.autofillOverlayContentService?.init();
   }
 
   /**

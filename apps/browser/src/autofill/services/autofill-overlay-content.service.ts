@@ -26,6 +26,7 @@ import { AutoFillConstants } from "./autofill-constants";
 
 class AutofillOverlayContentService implements AutofillOverlayContentServiceInterface {
   private readonly findTabs = tabbable;
+  private readonly sendExtensionMessage = sendExtensionMessage;
   isFieldCurrentlyFocused = false;
   isCurrentlyFilling = false;
   userFilledFields: Record<string, FillableFormFieldElement> = {};
@@ -53,14 +54,26 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     zIndex: "2147483647",
   };
 
-  constructor() {
-    this.initOverlayOnDomContentLoaded();
+  /**
+   * Initializes the autofill overlay content service by setting up the mutation observers.
+   * The observers will be instantiated on DOMContentLoaded if the page is current loading.
+   */
+  init() {
+    if (globalThis.document.readyState === "loading") {
+      globalThis.document.addEventListener(EVENTS.DOMCONTENTLOADED, this.setupMutationObserver);
+      return;
+    }
+
+    this.setupMutationObserver();
   }
 
-  setIsOverlayCiphersPopulated(isOverlayCiphersPopulated: boolean) {
-    this.isOverlayCiphersPopulated = isOverlayCiphersPopulated;
-  }
-
+  /**
+   * Sets up the autofill overlay listener on the form field element. This method is called
+   * during the page details collection process.
+   *
+   * @param formFieldElement - Form field elements identified during the page details collection process.
+   * @param autofillFieldData - Autofill field data captured from the form field element.
+   */
   async setupAutofillOverlayListenerOnField(
     formFieldElement: ElementWithOpId<FormFieldElement>,
     autofillFieldData: AutofillField
@@ -98,6 +111,10 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     if (!this.mostRecentlyFocusedField) {
       await this.updateMostRecentlyFocusedField(formFieldElement);
     }
+  }
+
+  setIsOverlayCiphersPopulated(isOverlayCiphersPopulated: boolean) {
+    this.isOverlayCiphersPopulated = isOverlayCiphersPopulated;
   }
 
   openAutofillOverlay(
@@ -149,7 +166,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
 
     this.overlayButtonElement.remove();
     this.isOverlayButtonVisible = false;
-    sendExtensionMessage("autofillOverlayElementClosed", {
+    this.sendExtensionMessage("autofillOverlayElementClosed", {
       overlayElement: AutofillOverlayElement.Button,
     });
     this.removeOverlayRepositionEventListeners();
@@ -162,7 +179,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
 
     this.overlayListElement.remove();
     this.isOverlayListVisible = false;
-    sendExtensionMessage("autofillOverlayElementClosed", {
+    this.sendExtensionMessage("autofillOverlayElementClosed", {
       overlayElement: AutofillOverlayElement.List,
     });
   }
@@ -179,7 +196,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       hostname: globalThis.document.location.hostname,
     };
 
-    sendExtensionMessage("autofillOverlayAddNewVaultItem", { login });
+    this.sendExtensionMessage("autofillOverlayAddNewVaultItem", { login });
   }
 
   redirectOverlayFocusOut(direction: string) {
@@ -234,7 +251,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
 
   private handleFormFieldBlurEvent = () => {
     this.isFieldCurrentlyFocused = false;
-    sendExtensionMessage("checkAutofillOverlayFocused");
+    this.sendExtensionMessage("checkAutofillOverlayFocused");
   };
 
   private handleFormFieldKeyupEvent = (event: KeyboardEvent) => {
@@ -260,11 +277,11 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   private focusOverlayList() {
     if (!this.isOverlayListVisible) {
       this.openAutofillOverlay(false, true);
-      setTimeout(() => sendExtensionMessage("focusAutofillOverlayList"), 125);
+      setTimeout(() => this.sendExtensionMessage("focusAutofillOverlayList"), 125);
       return;
     }
 
-    sendExtensionMessage("focusAutofillOverlayList");
+    this.sendExtensionMessage("focusAutofillOverlayList");
   }
 
   private handleFormFieldInputEvent = (
@@ -356,7 +373,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     }
 
     if (!formElementHasValue || (!this.isOverlayCiphersPopulated && this.isUserAuthed())) {
-      sendExtensionMessage("openAutofillOverlay");
+      this.sendExtensionMessage("openAutofillOverlay");
       return;
     }
 
@@ -424,7 +441,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       this.isOverlayButtonVisible = true;
       this.setOverlayRepositionEventListeners();
     }
-    sendExtensionMessage("updateAutofillOverlayPosition", {
+    this.sendExtensionMessage("updateAutofillOverlayPosition", {
       overlayElement: AutofillOverlayElement.Button,
     });
   }
@@ -443,7 +460,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       this.isOverlayListVisible = true;
     }
 
-    sendExtensionMessage("updateAutofillOverlayPosition", {
+    this.sendExtensionMessage("updateAutofillOverlayPosition", {
       overlayElement: AutofillOverlayElement.List,
     });
   }
@@ -455,7 +472,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
 
   private toggleOverlayHidden(isHidden: boolean) {
     const displayValue = isHidden ? "none" : "block";
-    sendExtensionMessage("updateAutofillOverlayHidden", { display: displayValue });
+    this.sendExtensionMessage("updateAutofillOverlayHidden", { display: displayValue });
 
     this.isOverlayButtonVisible = !isHidden;
     this.isOverlayListVisible = !isHidden;
@@ -474,7 +491,9 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       focusedFieldRects: { width, height, top, left },
     };
 
-    sendExtensionMessage("updateFocusedFieldData", { focusedFieldData: this.focusedFieldData });
+    this.sendExtensionMessage("updateFocusedFieldData", {
+      focusedFieldData: this.focusedFieldData,
+    });
   }
 
   private async getMostRecentlyFocusedFieldRects(
@@ -518,6 +537,13 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     });
   }
 
+  /**
+   * Identifies if the field should have the autofill overlay setup on it. Currently, this is mainly
+   * determined by whether the field correlates with a login cipher. This method will need to be
+   * updated in the future to support other types of forms.
+   *
+   * @param autofillFieldData - Autofill field data captured from the form field element.
+   */
   private isIgnoredField(autofillFieldData: AutofillField): boolean {
     const ignoredFieldTypes = new Set(AutoFillConstants.ExcludedAutofillTypes);
     if (
@@ -570,14 +596,14 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     this.observeCustomElements();
   }
 
+  /**
+   * Queries the background script for the autofill overlay visibility setting.
+   * If the setting is not found, a default value of OnFieldFocus will be used
+   * @private
+   */
   private async getAutofillOverlayVisibility() {
-    const overlayVisibility = await sendExtensionMessage("getAutofillOverlayVisibility");
-    if (!overlayVisibility) {
-      this.autofillOverlayVisibility = AutofillOverlayVisibility.OnFieldFocus;
-      return;
-    }
-
-    this.autofillOverlayVisibility = overlayVisibility;
+    const overlayVisibility = await this.sendExtensionMessage("getAutofillOverlayVisibility");
+    this.autofillOverlayVisibility = overlayVisibility || AutofillOverlayVisibility.OnFieldFocus;
   }
 
   private setOverlayRepositionEventListeners() {
@@ -627,22 +653,12 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     }
   }
 
-  private initOverlayOnDomContentLoaded() {
-    if (globalThis.document.readyState === "loading") {
-      globalThis.document.addEventListener(
-        EVENTS.DOMCONTENTLOADED,
-        this.handleDomContentLoadedEvent
-      );
-      return;
-    }
-
-    this.handleDomContentLoadedEvent();
-  }
-
-  private handleDomContentLoadedEvent = () => {
-    this.setupMutationObserver();
-  };
-
+  /**
+   * Sets up mutation observers for the overlay elements, the body element, and the
+   * document element. The mutation observers are used to remove any styles that are
+   * added to the overlay elements by the website. They are also used to ensure that
+   * the overlay elements are always present at the bottom of the body element.
+   */
   private setupMutationObserver = () => {
     this.overlayElementsMutationObserver = new MutationObserver(
       this.handleOverlayElementMutationObserverUpdate
