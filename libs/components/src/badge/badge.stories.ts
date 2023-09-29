@@ -1,6 +1,8 @@
 import { CommonModule } from "@angular/common";
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
+import { TypographyModule } from "../typography";
+
 import { BadgeDirective } from "./badge.directive";
 
 export default {
@@ -8,7 +10,7 @@ export default {
   component: BadgeDirective,
   decorators: [
     moduleMetadata({
-      imports: [CommonModule],
+      imports: [CommonModule, TypographyModule],
       declarations: [BadgeDirective],
     }),
   ],
@@ -79,4 +81,30 @@ export const Truncated: Story = {
   args: {
     truncate: true,
   },
+};
+
+export const Alignment: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <h2 bitTypography="h2" class="tw-text-main">
+        Foo
+        <span bitBadge>bar</span>
+      </h2>
+
+      <br>
+
+      <h2 bitTypography="h2" class="tw-text-main">
+        Foo
+        <span bitBadge class="!tw-align-middle">bar</span>
+      </h2>
+
+      <br>
+
+      <h2 bitTypography="h2" class="tw-text-main tw-inline">
+        Foo
+      </h2>
+      <span bitBadge class="">bar</span>
+    `,
+  }),
 };
