@@ -230,7 +230,7 @@ describe("AutofillOverlayContentService", () => {
       });
     });
 
-    describe("setting up form field element listeners", () => {
+    describe("sets up form field element listeners", () => {
       it("removes all cached event listeners from the form field element", async () => {
         jest.spyOn(autofillFieldElement, "removeEventListener");
         const inputHandler = jest.fn();
@@ -261,6 +261,76 @@ describe("AutofillOverlayContentService", () => {
           3,
           "focus",
           focusHandler
+        );
+      });
+
+      it("sets up a blur event listener", async () => {
+        const handleFormFieldBlurEventSpy = jest.spyOn(
+          autofillOverlayContentService as any,
+          "handleFormFieldBlurEvent"
+        );
+
+        await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+          autofillFieldElement,
+          autofillFieldData
+        );
+
+        expect(autofillFieldElement.addEventListener).toHaveBeenCalledWith(
+          "blur",
+          handleFormFieldBlurEventSpy
+        );
+      });
+
+      it("sets up a keyup event listener", async () => {
+        const handleFormFieldKeyupEventSpy = jest.spyOn(
+          autofillOverlayContentService as any,
+          "handleFormFieldKeyupEvent"
+        );
+
+        await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+          autofillFieldElement,
+          autofillFieldData
+        );
+
+        expect(autofillFieldElement.addEventListener).toHaveBeenCalledWith(
+          "keyup",
+          handleFormFieldKeyupEventSpy
+        );
+      });
+
+      it("sets up a input change event listener", async () => {
+        await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+          autofillFieldElement,
+          autofillFieldData
+        );
+
+        expect(autofillFieldElement.addEventListener).toHaveBeenCalledWith(
+          "input",
+          expect.any(Function)
+        );
+      });
+
+      it("sets up a click event listener", async () => {
+        await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+          autofillFieldElement,
+          autofillFieldData
+        );
+
+        expect(autofillFieldElement.addEventListener).toHaveBeenCalledWith(
+          "click",
+          expect.any(Function)
+        );
+      });
+
+      it("sets up a focus event listener", async () => {
+        await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+          autofillFieldElement,
+          autofillFieldData
+        );
+
+        expect(autofillFieldElement.addEventListener).toHaveBeenCalledWith(
+          "focus",
+          expect.any(Function)
         );
       });
     });

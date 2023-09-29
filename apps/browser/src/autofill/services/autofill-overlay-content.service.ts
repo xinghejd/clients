@@ -208,6 +208,14 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     redirectFocusElement?.focus();
   }
 
+  /**
+   * Sets up the event listeners that facilitate interaction with the form field elements.
+   * Will clear any cached form field element handlers that are encountered when setting
+   * up a form field element to the overlay.
+   *
+   * @param formFieldElement - The form field element to set up the event listeners for.
+   * @param autofillFieldData - Autofill field data captured from the form field element.
+   */
   private setupFormFieldElementEventListeners(
     formFieldElement: ElementWithOpId<FormFieldElement>,
     autofillFieldData: AutofillField
