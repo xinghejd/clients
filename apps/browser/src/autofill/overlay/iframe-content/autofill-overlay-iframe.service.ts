@@ -10,7 +10,7 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
   private port: chrome.runtime.Port | null = null;
   private extensionOriginsSet: Set<string>;
   private iframeMutationObserver: MutationObserver;
-  private readonly iframe: HTMLIFrameElement;
+  private iframe: HTMLIFrameElement;
   private ariaAlertElement: HTMLDivElement;
   private ariaAlertTimeout: NodeJS.Timeout;
   private iframeStyles: Partial<CSSStyleDeclaration> = {
@@ -35,7 +35,6 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
   };
 
   constructor(private iframePath: string, private portName: string, private shadow: ShadowRoot) {
-    this.iframe = globalThis.document.createElement("iframe");
     this.extensionOriginsSet = new Set([
       chrome.runtime.getURL("").slice(0, -1).toLowerCase(), // Remove the trailing slash and normalize the extension url to lowercase
       "null",
@@ -62,6 +61,7 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
     iframeTitle: string,
     ariaAlert?: string
   ) {
+    this.iframe = globalThis.document.createElement("iframe");
     this.iframe.src = chrome.runtime.getURL(this.iframePath);
     this.updateElementStyles(this.iframe, { ...this.iframeStyles, ...initStyles });
     this.iframe.tabIndex = -1;
