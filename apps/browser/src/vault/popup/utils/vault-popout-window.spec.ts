@@ -1,3 +1,5 @@
+import { mock } from "jest-mock-extended";
+
 import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
 
 import {
@@ -39,19 +41,24 @@ describe("VaultPopoutWindow", () => {
 
   describe("openAddEditVaultItemPopout", () => {
     it("opens a popout window that facilitates adding a vault item", async () => {
-      await openAddEditVaultItemPopout(1);
+      await openAddEditVaultItemPopout(mock<chrome.tabs.Tab>({ windowId: 1 }));
 
-      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/edit-cipher", {
-        singleActionKey: VaultPopoutType.addEditVaultItem,
-        senderWindowId: 1,
-      });
+      expect(openPopoutSpy).toHaveBeenCalledWith(
+        "popup/index.html#/edit-cipher?uilocation=popout",
+        {
+          singleActionKey: VaultPopoutType.addEditVaultItem,
+          senderWindowId: 1,
+        }
+      );
     });
 
     it("opens a popout window that facilitates editing a vault item", async () => {
-      await openAddEditVaultItemPopout(1, "cipherId");
+      await openAddEditVaultItemPopout(mock<chrome.tabs.Tab>({ windowId: 1 }), {
+        cipherId: "cipherId",
+      });
 
       expect(openPopoutSpy).toHaveBeenCalledWith(
-        "popup/index.html#/edit-cipher?cipherId=cipherId",
+        "popup/index.html#/edit-cipher?uilocation=popout&cipherId=cipherId",
         {
           singleActionKey: VaultPopoutType.addEditVaultItem,
           senderWindowId: 1,
