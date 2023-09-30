@@ -1,10 +1,14 @@
+import { mock } from "jest-mock-extended";
+
+import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+
 import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
 
 import {
-  VaultPopoutType,
-  openVaultItemPasswordRepromptPopout,
-  openAddEditVaultItemPopout,
   closeAddEditVaultItemPopout,
+  openAddEditVaultItemPopout,
+  openVaultItemPasswordRepromptPopout,
+  VaultPopoutType,
 } from "./vault-popout-window";
 
 describe("VaultPopoutWindow", () => {
@@ -39,21 +43,45 @@ describe("VaultPopoutWindow", () => {
 
   describe("openAddEditVaultItemPopout", () => {
     it("opens a popout window that facilitates adding a vault item", async () => {
-      await openAddEditVaultItemPopout(1);
+      await openAddEditVaultItemPopout(
+        mock<chrome.tabs.Tab>({ windowId: 1, url: "https://tacos.com" })
+      );
 
-      expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/edit-cipher", {
-        singleActionKey: VaultPopoutType.addEditVaultItem,
-        senderWindowId: 1,
+      expect(openPopoutSpy).toHaveBeenCalledWith(
+        "popup/index.html#/edit-cipher?uilocation=popout&uri=https://tacos.com",
+        {
+          singleActionKey: VaultPopoutType.addEditVaultItem,
+          senderWindowId: 1,
+        }
+      );
+    });
+
+    it("opens a popout window that facilitates adding a specific type of vault item", () => {
+      openAddEditVaultItemPopout(mock<chrome.tabs.Tab>({ windowId: 1, url: "https://tacos.com" }), {
+        cipherType: CipherType.Identity,
       });
+
+      expect(openPopoutSpy).toHaveBeenCalledWith(
+        `popup/index.html#/edit-cipher?uilocation=popout&type=${CipherType.Identity}&uri=https://tacos.com`,
+        {
+          singleActionKey: `${VaultPopoutType.addEditVaultItem}_${CipherType.Identity}`,
+          senderWindowId: 1,
+        }
+      );
     });
 
     it("opens a popout window that facilitates editing a vault item", async () => {
-      await openAddEditVaultItemPopout(1, "cipherId");
+      await openAddEditVaultItemPopout(
+        mock<chrome.tabs.Tab>({ windowId: 1, url: "https://tacos.com" }),
+        {
+          cipherId: "cipherId",
+        }
+      );
 
       expect(openPopoutSpy).toHaveBeenCalledWith(
-        "popup/index.html#/edit-cipher?cipherId=cipherId",
+        "popup/index.html#/edit-cipher?uilocation=popout&cipherId=cipherId&uri=https://tacos.com",
         {
-          singleActionKey: VaultPopoutType.addEditVaultItem,
+          singleActionKey: `${VaultPopoutType.addEditVaultItem}_cipherId`,
           senderWindowId: 1,
         }
       );

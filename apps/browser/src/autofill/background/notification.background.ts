@@ -466,7 +466,7 @@ export default class NotificationBackground {
       collectionIds: cipherView.collectionIds,
     });
 
-    await openAddEditVaultItemPopout(senderTab.windowId, cipherView.id);
+    await openAddEditVaultItemPopout(senderTab, { cipherId: cipherView.id });
   }
 
   private async folderExists(folderId: string) {

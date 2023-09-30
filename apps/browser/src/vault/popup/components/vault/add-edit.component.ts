@@ -37,6 +37,7 @@ export class AddEditComponent extends BaseAddEditComponent {
   showAttachments = true;
   openAttachmentsInPopup: boolean;
   showAutoFillOnPageLoadOptions: boolean;
+  private singleActionKey: string;
 
   constructor(
     cipherService: CipherService,
@@ -108,6 +109,9 @@ export class AddEditComponent extends BaseAddEditComponent {
       if (params.selectedVault) {
         this.organizationId = params.selectedVault;
       }
+      if (params.singleActionKey) {
+        this.singleActionKey = params.singleActionKey;
+      }
       await this.load();
 
       if (!this.editMode || this.cloneMode) {
@@ -162,7 +166,7 @@ export class AddEditComponent extends BaseAddEditComponent {
       this.popupCloseWarningService.disable();
     }
 
-    if (BrowserPopupUtils.inSingleActionPopout(window, VaultPopoutType.addEditVaultItem)) {
+    if (this.inAddEditPopoutWindow()) {
       this.messagingService.send("addEditCipherSubmitted");
       await closeAddEditVaultItemPopout(1000);
       return true;
@@ -200,7 +204,7 @@ export class AddEditComponent extends BaseAddEditComponent {
   cancel() {
     super.cancel();
 
-    if (BrowserPopupUtils.inSingleActionPopout(window, VaultPopoutType.addEditVaultItem)) {
+    if (this.inAddEditPopoutWindow()) {
       closeAddEditVaultItemPopout();
       return;
     }
@@ -291,6 +295,13 @@ export class AddEditComponent extends BaseAddEditComponent {
       "info",
       null,
       this.i18nService.t("autofillOnPageLoadSetToDefault")
+    );
+  }
+
+  private inAddEditPopoutWindow() {
+    return BrowserPopupUtils.inSingleActionPopout(
+      window,
+      this.singleActionKey || VaultPopoutType.addEditVaultItem
     );
   }
 }
