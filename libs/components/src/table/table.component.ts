@@ -8,7 +8,7 @@ import {
   OnDestroy,
   TemplateRef,
 } from "@angular/core";
-import { Observable } from "rxjs";
+import { Observable, Subject, takeUntil } from "rxjs";
 
 import { TableDataSource } from "./table-data-source";
 
@@ -34,6 +34,7 @@ export class TableComponent implements OnDestroy, AfterContentChecked {
   protected rows: Observable<readonly any[]>;
 
   private _initialized = false;
+  private _destroy$ = new Subject<void>();
 
   get tableClass() {
     return [
@@ -51,6 +52,12 @@ export class TableComponent implements OnDestroy, AfterContentChecked {
 
       const dataStream = this.dataSource.connect();
       this.rows = dataStream;
+
+      if (this.selectionModel) {
+        dataStream.pipe(takeUntil(this._destroy$)).subscribe(() => {
+          this.selectionModel.clear();
+        });
+      }
     }
   }
 
@@ -58,5 +65,8 @@ export class TableComponent implements OnDestroy, AfterContentChecked {
     if (isDataSource(this.dataSource)) {
       this.dataSource.disconnect();
     }
+
+    this._destroy$.next();
+    this._destroy$.complete();
   }
 }
