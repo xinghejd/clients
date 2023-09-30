@@ -64,6 +64,7 @@ import { TokenService } from "@bitwarden/common/auth/services/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/services/two-factor.service";
 import { UserVerificationApiService } from "@bitwarden/common/auth/services/user-verification/user-verification-api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/services/user-verification/user-verification.service";
+import { ActiveUserStateProvider } from "@bitwarden/common/platform/abstractions/active-user-state.provider";
 import { AppIdService as AppIdServiceAbstraction } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService as BroadcasterServiceAbstraction } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
@@ -91,9 +92,9 @@ import { ConsoleLogService } from "@bitwarden/common/platform/services/console-l
 import { CryptoService } from "@bitwarden/common/platform/services/crypto.service";
 import { EncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/encrypt.service.implementation";
 import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/multithread-encrypt.service.implementation";
+import { DefaultActiveUserStateProvider } from "@bitwarden/common/platform/services/default-active-user-state.provider";
 import { EnvironmentService } from "@bitwarden/common/platform/services/environment.service";
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
-import { ActiveUserStateProviderService, BaseActiveUserStateProviderService } from "@bitwarden/common/platform/services/state-provider.service";
 import { StateService } from "@bitwarden/common/platform/services/state.service";
 import { ValidationService } from "@bitwarden/common/platform/services/validation.service";
 import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
@@ -303,6 +304,7 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
         CryptoServiceAbstraction,
         I18nServiceAbstraction,
         CipherServiceAbstraction,
+        ActiveUserStateProvider,
         StateServiceAbstraction,
       ],
     },
@@ -720,12 +722,15 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
       deps: [CryptoServiceAbstraction],
     },
     {
-      provide: ActiveUserStateProviderService,
-      useClass: BaseActiveUserStateProviderService,
+      provide: ActiveUserStateProvider,
+      useClass: DefaultActiveUserStateProvider,
       deps: [
         // TODO: Do other storage services
         StateServiceAbstraction,
-        AbstractStorageService
+        EncryptService,
+        MEMORY_STORAGE,
+        AbstractStorageService,
+        SECURE_STORAGE
       ]
     }
   ],

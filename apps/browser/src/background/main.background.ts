@@ -56,6 +56,7 @@ import { ConsoleLogService } from "@bitwarden/common/platform/services/console-l
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { EncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/encrypt.service.implementation";
 import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/multithread-encrypt.service.implementation";
+import { DefaultActiveUserStateProviderService } from "@bitwarden/common/platform/services/default-active-user-state-provider.service";
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
@@ -332,11 +333,21 @@ export default class MainBackground {
       this.encryptService,
       this.cipherFileUploadService
     );
+
+    // TODO: This is just to make it compile
+    const activeUserStateProviderService = new DefaultActiveUserStateProviderService(
+      this.stateService,
+      this.memoryStorageService,
+      this.storageService,
+      this.secureStorageService
+    );
+
     this.folderService = new BrowserFolderService(
       this.cryptoService,
       this.i18nService,
       this.cipherService,
-      this.stateService
+      this.stateService,
+      activeUserStateProviderService
     );
     this.folderApiService = new FolderApiService(this.folderService, this.apiService);
     this.collectionService = new CollectionService(

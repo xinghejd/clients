@@ -1,19 +1,15 @@
-import { matches, mock, mockReset, notNull } from "jest-mock-extended";
+import { matches, mock, mockReset } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { StateService } from "../abstractions/state.service"
 import { AbstractMemoryStorageService } from "../abstractions/storage.service";
+import { KeyDefinition } from "../types/key-definition";
+import { StateDefinition } from "../types/state-definition";
 
-import { DomainToken, BaseActiveUserStateProviderService } from "./default-global-state-provider.service"
-
-
+import { DefaultActiveUserStateProvider } from "./default-active-user-state.provider";
 
 class TestState {
-  constructor() {
-
-  }
-
   date: Date;
   array: string[]
   // TODO: More complex data types
@@ -26,16 +22,18 @@ class TestState {
   }
 }
 
-const fakeDomainToken = new DomainToken<TestState>("fake", TestState.fromJSON);
+const testStateDefinition = new StateDefinition("fake", "disk");
 
-describe("BaseStateProviderService", () => {
+const testKeyDefinition = new KeyDefinition<TestState>(testStateDefinition, "fake", TestState.fromJSON);
+
+describe("DefaultStateProvider", () => {
   const stateService = mock<StateService>();
   const memoryStorageService = mock<AbstractMemoryStorageService>();
   const diskStorageService = mock<AbstractMemoryStorageService>();
 
   const activeAccountSubject = new BehaviorSubject<string>(undefined);
 
-  let stateProviderService: BaseActiveUserStateProviderService;
+  let activeUserStateProvider: DefaultActiveUserStateProvider;
 
   beforeEach(() => {
     mockReset(stateService);
@@ -44,7 +42,13 @@ describe("BaseStateProviderService", () => {
 
     stateService.activeAccount$ = activeAccountSubject;
 
-    stateProviderService = new BaseActiveUserStateProviderService(stateService, diskStorageService);
+    activeUserStateProvider = new DefaultActiveUserStateProvider(
+      stateService,
+      null, // Not testing derived state
+      null, // Not testing memory storage
+      diskStorageService,
+      null // Not testing secure storage
+    );
   });
 
   it("createUserState", async () => {
@@ -56,7 +60,7 @@ describe("BaseStateProviderService", () => {
         return undefined;
       });
 
-    const fakeDomainState = stateProviderService.create(fakeDomainToken);
+    const fakeDomainState = activeUserStateProvider.create(testKeyDefinition);
 
     const subscribeCallback = jest.fn<void, [TestState]>();
     const subscription = fakeDomainState.state$.subscribe(subscribeCallback);
@@ -66,8 +70,8 @@ describe("BaseStateProviderService", () => {
     await new Promise<void>(resolve => setTimeout(resolve, 10));
 
     // Service does an update
-    fakeDomainState.update(state => state.array.push("value3"));
-    await new Promise<void>(resolve => setTimeout(resolve, 1));
+    await fakeDomainState.update(state => state.array.push("value3"));
+    await new Promise<void>(resolve => setTimeout(resolve, 10));
 
     subscription.unsubscribe();
 
@@ -76,13 +80,13 @@ describe("BaseStateProviderService", () => {
 
     // Gotten starter user data
     expect(subscribeCallback).toHaveBeenNthCalledWith(2, matches<TestState>(value => {
-      console.log("Called", value);
       return true;
     }));
 
     // Gotten update callback data
     expect(subscribeCallback).toHaveBeenNthCalledWith(3, matches<TestState>((value) => {
-      return typeof value.date == "object" &&
+      return value != null &&
+        typeof value.date == "object" &&
         value.date.getFullYear() == 2023 &&
         value.array.length == 3
     }));
