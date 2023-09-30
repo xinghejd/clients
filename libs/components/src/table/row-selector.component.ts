@@ -1,7 +1,7 @@
 import { SelectionModel } from "@angular/cdk/collections";
 import { CommonModule } from "@angular/common";
 import { ChangeDetectionStrategy, Component, HostBinding, Input, OnInit } from "@angular/core";
-import { Observable, map } from "rxjs";
+import { Observable, map, merge } from "rxjs";
 
 import { CheckboxModule } from "../checkbox";
 import { SharedModule } from "../shared/shared.module";
@@ -129,8 +129,8 @@ export class RowSelectorComponent {
       );
     }
 
-    this.isSelected = this.selection.changed
-      .asObservable()
-      .pipe(map(() => this.selection.isSelected(this.row.rowData)));
+    this.isSelected = merge(this.row.rowData$, this.selection.changed.asObservable()).pipe(
+      map(() => this.selection.isSelected(this.row.rowData))
+    );
   }
 }

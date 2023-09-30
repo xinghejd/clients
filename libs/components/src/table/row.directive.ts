@@ -1,4 +1,5 @@
 import { Directive, HostBinding, Input } from "@angular/core";
+import { BehaviorSubject } from "rxjs";
 
 @Directive({
   selector: "tr[bitRow]",
@@ -6,9 +7,16 @@ import { Directive, HostBinding, Input } from "@angular/core";
 export class RowDirective {
   /**
    * Data used for row selection.
-   * Should match the type of the table's DataSource.
    */
-  @Input("bitRow") rowData: unknown;
+  @Input("bitRow")
+  set rowData(value: unknown) {
+    this._rowData$.next(value);
+  }
+  get rowData(): unknown {
+    return this._rowData$.value;
+  }
+  private _rowData$ = new BehaviorSubject<unknown>(null);
+  rowData$ = this._rowData$.asObservable();
 
   @Input() alignContent: "top" | "middle" | "bottom" | "baseline" = "middle";
 
