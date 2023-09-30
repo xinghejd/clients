@@ -6,6 +6,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 
 import {
   closeUnlockPopout,
@@ -147,6 +148,34 @@ export default class RuntimeBackground {
             if (totpCode != null) {
               this.platformUtilsService.copyToClipboard(totpCode, { window: window });
             }
+            break;
+          }
+          case "autofill_card": {
+            await this.autofillService.doAutoFillActiveTab(
+              [
+                {
+                  frameId: sender.frameId,
+                  tab: msg.tab,
+                  details: msg.details,
+                },
+              ],
+              false,
+              CipherType.Card
+            );
+            break;
+          }
+          case "autofill_identity": {
+            await this.autofillService.doAutoFillActiveTab(
+              [
+                {
+                  frameId: sender.frameId,
+                  tab: msg.tab,
+                  details: msg.details,
+                },
+              ],
+              false,
+              CipherType.Identity
+            );
             break;
           }
           case "contextMenu":

@@ -1,3 +1,5 @@
+import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
 
@@ -61,18 +63,33 @@ async function openVaultItemPasswordRepromptPopout(
 /**
  * Opens a popout window that facilitates adding or editing a vault item.
  *
- * @param senderWindowId - The window id of the sender.
- * @param cipherId - The cipher id to edit. If not provided, a new cipher will be created.
+ * @param senderTab - The window id of the sender.
+ * @param cipherOptions - Options passed as query params to the popout.
  */
-async function openAddEditVaultItemPopout(senderWindowId: number, cipherId?: string) {
-  const addEditCipherUrl =
-    cipherId == null
-      ? "popup/index.html#/edit-cipher"
-      : `popup/index.html#/edit-cipher?cipherId=${cipherId}`;
+async function openAddEditVaultItemPopout(
+  senderTab: chrome.tabs.Tab,
+  cipherOptions: { cipherId?: string; cipherType?: CipherType } = {}
+) {
+  const { cipherId, cipherType } = cipherOptions;
+  const { url, windowId } = senderTab;
+
+  let singleActionKey = VaultPopoutType.addEditVaultItem;
+  let addEditCipherUrl = "popup/index.html#/edit-cipher?uilocation=popout";
+  if (cipherId && !cipherType) {
+    singleActionKey += `_${cipherId}`;
+    addEditCipherUrl += `&cipherId=${cipherId}`;
+  }
+  if (cipherType && !cipherId) {
+    singleActionKey += `_${cipherType}`;
+    addEditCipherUrl += `&type=${cipherType}`;
+  }
+  if (senderTab.url) {
+    addEditCipherUrl += `&uri=${url}`;
+  }
 
   await BrowserPopupUtils.openPopout(addEditCipherUrl, {
-    singleActionKey: VaultPopoutType.addEditVaultItem,
-    senderWindowId,
+    singleActionKey,
+    senderWindowId: windowId,
   });
 }
 

@@ -653,7 +653,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
       collectionIds: cipherView.collectionIds,
     });
 
-    await this.openAddEditVaultItemPopout(sender.tab.windowId, cipherView.id);
+    await this.openAddEditVaultItemPopout(sender.tab, { cipherId: cipherView.id });
   }
 
   /**
