@@ -54,9 +54,11 @@ class BrowserPopoutWindowService implements BrowserPopupWindowServiceInterface {
     {
       sessionId,
       senderTabId,
+      fallbackSupported,
     }: {
       sessionId: string;
       senderTabId: number;
+      fallbackSupported: boolean;
     }
   ): Promise<number> {
     await this.closeFido2Popout();
@@ -65,6 +67,7 @@ class BrowserPopoutWindowService implements BrowserPopupWindowServiceInterface {
       "popup/index.html#/fido2" +
       "?uilocation=popout" +
       `&sessionId=${sessionId}` +
+      `&fallbackSupported=${fallbackSupported}` +
       `&senderTabId=${senderTabId}`;
 
     return await this.openSingleActionPopout(senderWindowId, promptWindowPath, "fido2Popout", {

@@ -1,5 +1,5 @@
 import { Component, NgZone } from "@angular/core";
-import { ActivatedRoute, Router } from "@angular/router";
+import { Router } from "@angular/router";
 
 import { LockComponent as BaseLockComponent } from "@bitwarden/angular/auth/components/lock.component";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -23,7 +23,7 @@ import { DialogService } from "@bitwarden/components";
 
 import { BiometricErrors, BiometricErrorTypes } from "../../models/biometricErrors";
 import { BrowserRouterService } from "../../platform/popup/services/browser-router.service";
-import { BrowserFido2UserInterfaceSession } from "../../vault/fido2/browser-fido2-user-interface.service";
+import { Fido2StateServiceAbstraction } from "../../vault/popup/services/abstractions/fido2-state.service";
 
 @Component({
   selector: "app-lock",
@@ -31,14 +31,10 @@ import { BrowserFido2UserInterfaceSession } from "../../vault/fido2/browser-fido
 })
 export class LockComponent extends BaseLockComponent {
   private isInitialLockScreen: boolean;
-  private sessionId?: string; // Used to uniquely identify passkeys
 
   biometricError: string;
   pendingBiometric = false;
-
-  get isPasskeysPopout(): boolean {
-    return this.sessionId != null;
-  }
+  isPasskeys$ = this.fido2StateService.isPasskeys$;
 
   constructor(
     router: Router,
@@ -61,7 +57,7 @@ export class LockComponent extends BaseLockComponent {
     deviceTrustCryptoService: DeviceTrustCryptoServiceAbstraction,
     userVerificationService: UserVerificationService,
     private routerService: BrowserRouterService,
-    private route: ActivatedRoute
+    private fido2StateService: Fido2StateServiceAbstraction
   ) {
     super(
       router,
@@ -98,8 +94,7 @@ export class LockComponent extends BaseLockComponent {
 
   async ngOnInit() {
     await super.ngOnInit();
-    // Get's the sessionId from the query params. The sessionId is sent from the passkeys popout.
-    this.sessionId = this.route.snapshot.queryParams.sessionId;
+
     const disableAutoBiometricsPrompt =
       (await this.stateService.getDisableAutoBiometricsPrompt()) ?? true;
 
@@ -139,16 +134,5 @@ export class LockComponent extends BaseLockComponent {
     this.pendingBiometric = false;
 
     return success;
-  }
-
-  // Used for aborting Fido2 popout
-  abortFido2Popout(fallback = false) {
-    BrowserFido2UserInterfaceSession.sendMessage({
-      sessionId: this.sessionId,
-      type: "AbortResponse",
-      fallbackRequested: fallback,
-    });
-
-    return;
   }
 }

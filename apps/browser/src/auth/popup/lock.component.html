@@ -63,7 +63,9 @@
       </div>
       <div id="masterPasswordHelp" class="box-footer">
         <p>
-          {{ isPasskeysPopout ? ("yourPasskeyIsLocked" | i18n) : ("yourVaultIsLocked" | i18n) }}
+          {{
+            (isPasskeys$ | async) ? ("yourPasskeyIsLocked" | i18n) : ("yourVaultIsLocked" | i18n)
+          }}
         </p>
         {{ "loggedInAsOn" | i18n : email : webVaultHostname }}
       </div>
@@ -81,7 +83,7 @@
         </button>
       </div>
     </div>
-    <p class="text-center" *ngIf="!isPasskeysPopout">
+    <p class="text-center" *ngIf="!(isPasskeys$ | async)">
       <button type="button" appStopClick (click)="logOut()">{{ "logOut" | i18n }}</button>
     </p>
     <app-private-mode-warning></app-private-mode-warning>
@@ -89,10 +91,7 @@
     <p class="text-center text-muted" *ngIf="pendingBiometric">
       <i class="bwi bwi-spinner bwi-spin" aria-hidden="true"></i> {{ "awaitDesktop" | i18n }}
     </p>
-    <div class="useBrowserlink" *ngIf="isPasskeysPopout">
-      <a [routerLink]="[]" (click)="abortFido2Popout(true)">
-        {{ "useBrowserName" | i18n }}
-      </a>
-    </div>
+
+    <app-fido2-use-browser-link></app-fido2-use-browser-link>
   </main>
 </form>
