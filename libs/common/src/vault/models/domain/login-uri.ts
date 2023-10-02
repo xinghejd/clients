@@ -25,6 +25,7 @@ export class LoginUri extends Domain {
       obj,
       {
         uri: null,
+        uriChecksum: null,
       },
       []
     );
@@ -47,7 +48,7 @@ export class LoginUri extends Domain {
       return true;
     }
 
-    const cryptoService = Utils.getContainerService().getCryptoService();
+    const cryptoService = Utils.getContainerService().getEncryptService();
     const localChecksum = await cryptoService.hash(clearTextUri, "sha256");
 
     const remoteChecksum = await this.uriChecksum.decrypt(orgId, encKey);
@@ -61,6 +62,7 @@ export class LoginUri extends Domain {
       u,
       {
         uri: null,
+        uriChecksum: null,
         match: null,
       },
       ["match"]

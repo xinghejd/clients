@@ -55,7 +55,7 @@ const cipherData: CipherData = {
   key: "EncKey",
   reprompt: CipherRepromptType.None,
   login: {
-    uris: [{ uri: "EncryptedString", match: UriMatchType.Domain }],
+    uris: [{ uri: "EncryptedString", uriChecksum: "EncryptedString", match: UriMatchType.Domain }],
     username: "EncryptedString",
     password: "EncryptedString",
     passwordRevisionDate: "2022-01-31T12:00:00.000Z",

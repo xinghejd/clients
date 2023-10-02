@@ -24,7 +24,7 @@ describe("Login DTO", () => {
 
   it("Convert from full LoginData", () => {
     const data: LoginData = {
-      uris: [{ uri: "uri", match: UriMatchType.Domain }],
+      uris: [{ uri: "uri", uriChecksum: "checksum", match: UriMatchType.Domain }],
       username: "username",
       password: "password",
       passwordRevisionDate: "2022-01-31T12:00:00.000Z",
@@ -39,7 +39,13 @@ describe("Login DTO", () => {
       username: { encryptedString: "username", encryptionType: 0 },
       password: { encryptedString: "password", encryptionType: 0 },
       totp: { encryptedString: "123", encryptionType: 0 },
-      uris: [{ match: 0, uri: { encryptedString: "uri", encryptionType: 0 } }],
+      uris: [
+        {
+          match: 0,
+          uri: { encryptedString: "uri", encryptionType: 0 },
+          uriChecksum: { encryptedString: "checksum", encryptionType: 0 },
+        },
+      ],
     });
   });
 
@@ -112,7 +118,7 @@ describe("Login DTO", () => {
 
   it("Converts from LoginData and back", () => {
     const data: LoginData = {
-      uris: [{ uri: "uri", match: UriMatchType.Domain }],
+      uris: [{ uri: "uri", uriChecksum: "checksum", match: UriMatchType.Domain }],
       username: "username",
       password: "password",
       passwordRevisionDate: "2022-01-31T12:00:00.000Z",

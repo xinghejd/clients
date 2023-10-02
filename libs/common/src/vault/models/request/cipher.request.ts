@@ -59,6 +59,7 @@ export class CipherRequest {
           this.login.uris = cipher.login.uris.map((u) => {
             const uri = new LoginUriApi();
             uri.uri = u.uri != null ? u.uri.encryptedString : null;
+            uri.uriChecksum = u.uriChecksum != null ? u.uriChecksum.encryptedString : null;
             uri.match = u.match != null ? u.match : null;
             return uri;
           });

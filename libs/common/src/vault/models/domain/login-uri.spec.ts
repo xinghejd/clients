@@ -3,7 +3,7 @@ import { Jsonify } from "type-fest";
 
 import { mockEnc, mockFromJson } from "../../../../spec";
 import { UriMatchType } from "../../../enums";
-import { CryptoService } from "../../../platform/abstractions/crypto.service";
+import { EncryptService } from "../../../platform/abstractions/encrypt.service";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { LoginUriData } from "../data/login-uri.data";
 
@@ -15,6 +15,7 @@ describe("LoginUri", () => {
   beforeEach(() => {
     data = {
       uri: "encUri",
+      uriChecksum: "encUriChecksum",
       match: UriMatchType.Domain,
     };
   });
@@ -26,6 +27,7 @@ describe("LoginUri", () => {
     expect(loginUri).toEqual({
       match: null,
       uri: null,
+      uriChecksum: null,
     });
   });
 
@@ -35,6 +37,7 @@ describe("LoginUri", () => {
     expect(loginUri).toEqual({
       match: 0,
       uri: { encryptedString: "encUri", encryptionType: 0 },
+      uriChecksum: { encryptedString: "encUriChecksum", encryptionType: 0 },
     });
   });
 
@@ -61,31 +64,31 @@ describe("LoginUri", () => {
   });
 
   describe("validateChecksum", () => {
-    let cryptoService: MockProxy<CryptoService>;
+    let encryptService: MockProxy<EncryptService>;
 
     beforeEach(() => {
-      cryptoService = mock();
+      encryptService = mock();
       global.bitwardenContainerService = {
-        getCryptoService: () => cryptoService,
-        getEncryptService: () => null,
+        getEncryptService: () => encryptService,
+        getCryptoService: () => null,
       };
     });
 
     it("returns true if checksums match", async () => {
       const loginUri = new LoginUri();
       loginUri.uriChecksum = mockEnc("checksum");
-      cryptoService.hash.mockResolvedValue("checksum");
+      encryptService.hash.mockResolvedValue("checksum");
 
       const actual = await loginUri.validateChecksum("uri", null, null);
 
       expect(actual).toBe(true);
-      expect(cryptoService.hash).toHaveBeenCalledWith("uri", "sha256");
+      expect(encryptService.hash).toHaveBeenCalledWith("uri", "sha256");
     });
 
     it("returns false if checksums don't match", async () => {
       const loginUri = new LoginUri();
       loginUri.uriChecksum = mockEnc("checksum");
-      cryptoService.hash.mockResolvedValue("incorrect checksum");
+      encryptService.hash.mockResolvedValue("incorrect checksum");
 
       const actual = await loginUri.validateChecksum("uri", null, null);
 
@@ -95,7 +98,7 @@ describe("LoginUri", () => {
     it("returns true if LoginUri doesn't have a checksum", async () => {
       const loginUri = new LoginUri();
       loginUri.uriChecksum = null;
-      cryptoService.hash.mockResolvedValue("checksum");
+      encryptService.hash.mockResolvedValue("checksum");
 
       const actual = await loginUri.validateChecksum("uri", null, null);
 
