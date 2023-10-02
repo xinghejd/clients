@@ -1213,4 +1213,184 @@ describe("AutofillOverlayContentService", () => {
       expect(removeAutofillOverlaySpy).toHaveBeenCalled();
     });
   });
+
+  describe("handleOverlayElementMutationObserverUpdate", () => {
+    let usernameField: ElementWithOpId<HTMLInputElement>;
+
+    beforeEach(() => {
+      document.body.innerHTML = `
+      <form id="validFormId">
+        <input type="text" id="username-field" placeholder="username" />
+        <input type="password" id="password-field" placeholder="password" />
+      </form>
+      `;
+      usernameField = document.getElementById(
+        "username-field"
+      ) as ElementWithOpId<HTMLInputElement>;
+      usernameField.style.setProperty("display", "block", "important");
+      jest.spyOn(usernameField, "removeAttribute");
+      jest.spyOn(usernameField.style, "setProperty");
+      jest
+        .spyOn(
+          autofillOverlayContentService as any,
+          "isTriggeringExcessiveMutationObserverIterations"
+        )
+        .mockReturnValue(false);
+    });
+
+    it("skips handling the mutation if excessive mutation observer events are triggered", () => {
+      jest
+        .spyOn(
+          autofillOverlayContentService as any,
+          "isTriggeringExcessiveMutationObserverIterations"
+        )
+        .mockReturnValue(true);
+
+      autofillOverlayContentService["handleOverlayElementMutationObserverUpdate"]([
+        mock<MutationRecord>({
+          target: usernameField,
+        }),
+      ]);
+
+      expect(usernameField.removeAttribute).not.toHaveBeenCalled();
+    });
+
+    it("skips handling the mutation if the record type is not for `attributes`", () => {
+      autofillOverlayContentService["handleOverlayElementMutationObserverUpdate"]([
+        mock<MutationRecord>({
+          target: usernameField,
+          type: "childList",
+        }),
+      ]);
+
+      expect(usernameField.removeAttribute).not.toHaveBeenCalled();
+    });
+
+    it("removes all element attributes that are not the style attribute", () => {
+      autofillOverlayContentService["handleOverlayElementMutationObserverUpdate"]([
+        mock<MutationRecord>({
+          target: usernameField,
+          type: "attributes",
+          attributeName: "placeholder",
+        }),
+      ]);
+
+      expect(usernameField.removeAttribute).toHaveBeenCalledWith("placeholder");
+    });
+
+    it("removes all attached style attributes and sets the default styles", () => {
+      autofillOverlayContentService["handleOverlayElementMutationObserverUpdate"]([
+        mock<MutationRecord>({
+          target: usernameField,
+          type: "attributes",
+          attributeName: "style",
+        }),
+      ]);
+
+      expect(usernameField.removeAttribute).toHaveBeenCalledWith("style");
+      expect(usernameField.style.setProperty).toHaveBeenCalledWith("all", "initial", "important");
+      expect(usernameField.style.setProperty).toHaveBeenCalledWith(
+        "position",
+        "fixed",
+        "important"
+      );
+      expect(usernameField.style.setProperty).toHaveBeenCalledWith("display", "block", "important");
+    });
+  });
+
+  describe("handleBodyElementMutationObserverUpdate", () => {
+    let overlayButtonElement: HTMLElement;
+    let overlayListElement: HTMLElement;
+
+    beforeEach(() => {
+      document.body.innerHTML = `
+      <div class="overlay-button"></div>
+      <div class="overlay-list"></div>
+      `;
+      overlayButtonElement = document.querySelector(".overlay-button") as HTMLElement;
+      overlayListElement = document.querySelector(".overlay-list") as HTMLElement;
+      autofillOverlayContentService["overlayButtonElement"] = overlayButtonElement;
+      autofillOverlayContentService["overlayListElement"] = overlayListElement;
+      autofillOverlayContentService["isOverlayListVisible"] = true;
+      jest.spyOn(globalThis.document.body, "insertBefore");
+      jest
+        .spyOn(
+          autofillOverlayContentService as any,
+          "isTriggeringExcessiveMutationObserverIterations"
+        )
+        .mockReturnValue(false);
+    });
+
+    it("skips handling the mutation if the overlay elements are not present in the DOM", () => {
+      autofillOverlayContentService["overlayButtonElement"] = undefined;
+      autofillOverlayContentService["overlayListElement"] = undefined;
+
+      autofillOverlayContentService["handleBodyElementMutationObserverUpdate"]();
+
+      expect(globalThis.document.body.insertBefore).not.toHaveBeenCalled();
+    });
+
+    it("skips handling the mutation if excessive mutations are being triggered", () => {
+      jest
+        .spyOn(
+          autofillOverlayContentService as any,
+          "isTriggeringExcessiveMutationObserverIterations"
+        )
+        .mockReturnValue(true);
+
+      autofillOverlayContentService["handleBodyElementMutationObserverUpdate"]();
+
+      expect(globalThis.document.body.insertBefore).not.toHaveBeenCalled();
+    });
+
+    it("skips re-arranging the DOM elements if the last child of the body is the overlay list and the second to last child of the body is the overlay button", () => {
+      autofillOverlayContentService["handleBodyElementMutationObserverUpdate"]();
+
+      expect(globalThis.document.body.insertBefore).not.toHaveBeenCalled();
+    });
+
+    it("skips re-arranging the DOM elements if the last child is the overlay button and the overlay list is not visible", () => {
+      overlayListElement.remove();
+      autofillOverlayContentService["isOverlayListVisible"] = false;
+
+      autofillOverlayContentService["handleBodyElementMutationObserverUpdate"]();
+
+      expect(globalThis.document.body.insertBefore).not.toHaveBeenCalled();
+    });
+
+    it("positions the overlay button before the overlay list if an element has inserted itself after the button element", () => {
+      const injectedElement = document.createElement("div");
+      document.body.insertBefore(injectedElement, overlayListElement);
+
+      autofillOverlayContentService["handleBodyElementMutationObserverUpdate"]();
+
+      expect(globalThis.document.body.insertBefore).toHaveBeenCalledWith(
+        overlayButtonElement,
+        overlayListElement
+      );
+    });
+
+    it("positions the overlay button before the overlay list if the elements have inserted in incorrect order", () => {
+      document.body.appendChild(overlayButtonElement);
+
+      autofillOverlayContentService["handleBodyElementMutationObserverUpdate"]();
+
+      expect(globalThis.document.body.insertBefore).toHaveBeenCalledWith(
+        overlayButtonElement,
+        overlayListElement
+      );
+    });
+
+    it("positions the last child before the overlay button if it is not the overlay list", () => {
+      const injectedElement = document.createElement("div");
+      document.body.appendChild(injectedElement);
+
+      autofillOverlayContentService["handleBodyElementMutationObserverUpdate"]();
+
+      expect(globalThis.document.body.insertBefore).toHaveBeenCalledWith(
+        injectedElement,
+        overlayButtonElement
+      );
+    });
+  });
 });
