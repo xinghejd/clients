@@ -181,11 +181,11 @@ describe("AutofillInit", () => {
 
       expect(
         autofillInit["autofillOverlayContentService"].openAutofillOverlay
-      ).toHaveBeenCalledWith(
-        message.data.isFocusingFieldElement,
-        message.data.isOpeningFullOverlay,
-        message.data.authStatus
-      );
+      ).toHaveBeenCalledWith({
+        isFocusingFieldElement: message.data.isFocusingFieldElement,
+        isOpeningFullOverlay: message.data.isOpeningFullOverlay,
+        authStatus: message.data.authStatus,
+      });
     });
   });
 

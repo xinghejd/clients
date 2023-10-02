@@ -1,9 +1,10 @@
 import { mock } from "jest-mock-extended";
 
 import { createAutofillFieldMock } from "../jest/autofill-mocks";
+import { flushPromises } from "../jest/testing-utils";
 import AutofillField from "../models/autofill-field";
 import { ElementWithOpId, FormFieldElement } from "../types";
-import { AutofillOverlayVisibility } from "../utils/autofill-overlay.enum";
+import { AutofillOverlayElement, AutofillOverlayVisibility } from "../utils/autofill-overlay.enum";
 
 import { AutoFillConstants } from "./autofill-constants";
 import AutofillOverlayContentService from "./autofill-overlay-content.service";
@@ -293,9 +294,7 @@ describe("AutofillOverlayContentService", () => {
             autofillFieldElement,
             autofillFieldData
           );
-          jest
-            .spyOn(autofillOverlayContentService as any, "openAutofillOverlay")
-            .mockImplementation();
+          jest.spyOn(globalThis.customElements, "define").mockImplementation();
         });
 
         it("removes the autofill overlay when the `Escape` key is pressed", () => {
@@ -359,9 +358,7 @@ describe("AutofillOverlayContentService", () => {
 
       describe("form field input change event listener", () => {
         beforeEach(() => {
-          jest
-            .spyOn(autofillOverlayContentService as any, "openAutofillOverlay")
-            .mockImplementation();
+          jest.spyOn(globalThis.customElements, "define").mockImplementation();
         });
 
         it("ignores span elements that trigger the listener", async () => {
@@ -486,28 +483,173 @@ describe("AutofillOverlayContentService", () => {
         });
       });
 
-      it("sets up a click event listener", async () => {
-        await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
-          autofillFieldElement,
-          autofillFieldData
-        );
+      describe("form field click event listener", () => {
+        beforeEach(async () => {
+          jest
+            .spyOn(autofillOverlayContentService as any, "triggerFormFieldFocusedAction")
+            .mockImplementation();
+          autofillOverlayContentService["isOverlayListVisible"] = false;
+          autofillOverlayContentService["isOverlayListVisible"] = false;
+          await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+            autofillFieldElement,
+            autofillFieldData
+          );
+        });
 
-        expect(autofillFieldElement.addEventListener).toHaveBeenCalledWith(
-          "click",
-          expect.any(Function)
-        );
+        it("triggers the field focused handler if the overlay is not visible", async () => {
+          autofillFieldElement.dispatchEvent(new Event("click"));
+
+          expect(autofillOverlayContentService["triggerFormFieldFocusedAction"]).toHaveBeenCalled();
+        });
+
+        it("skips triggering the field focused handler if the overlay list is visible", () => {
+          autofillOverlayContentService["isOverlayListVisible"] = true;
+
+          autofillFieldElement.dispatchEvent(new Event("click"));
+
+          expect(
+            autofillOverlayContentService["triggerFormFieldFocusedAction"]
+          ).not.toHaveBeenCalled();
+        });
+
+        it("skips triggering the field focused handler if the overlay button is visible", () => {
+          autofillOverlayContentService["isOverlayButtonVisible"] = true;
+
+          autofillFieldElement.dispatchEvent(new Event("click"));
+
+          expect(
+            autofillOverlayContentService["triggerFormFieldFocusedAction"]
+          ).not.toHaveBeenCalled();
+        });
       });
 
-      it("sets up a focus event listener", async () => {
-        await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
-          autofillFieldElement,
-          autofillFieldData
-        );
+      describe("form field focus event listener", () => {
+        let updateMostRecentlyFocusedFieldSpy: jest.SpyInstance;
 
-        expect(autofillFieldElement.addEventListener).toHaveBeenCalledWith(
-          "focus",
-          expect.any(Function)
-        );
+        beforeEach(() => {
+          jest.spyOn(globalThis.customElements, "define").mockImplementation();
+          updateMostRecentlyFocusedFieldSpy = jest.spyOn(
+            autofillOverlayContentService as any,
+            "updateMostRecentlyFocusedField"
+          );
+          autofillOverlayContentService["isCurrentlyFilling"] = false;
+        });
+
+        it("skips triggering the handler logic if autofill is currently filling", async () => {
+          autofillOverlayContentService["isCurrentlyFilling"] = true;
+          autofillOverlayContentService["mostRecentlyFocusedField"] = autofillFieldElement;
+          autofillOverlayContentService["autofillOverlayVisibility"] =
+            AutofillOverlayVisibility.OnFieldFocus;
+          await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+            autofillFieldElement,
+            autofillFieldData
+          );
+
+          autofillFieldElement.dispatchEvent(new Event("focus"));
+
+          expect(updateMostRecentlyFocusedFieldSpy).not.toHaveBeenCalled();
+        });
+
+        it("updates the most recently focused field", async () => {
+          await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+            autofillFieldElement,
+            autofillFieldData
+          );
+
+          autofillFieldElement.dispatchEvent(new Event("focus"));
+
+          expect(updateMostRecentlyFocusedFieldSpy).toHaveBeenCalledWith(autofillFieldElement);
+          expect(autofillOverlayContentService["mostRecentlyFocusedField"]).toEqual(
+            autofillFieldElement
+          );
+        });
+
+        it("removes the overlay list if the autofill visibility is set to onClick", async () => {
+          autofillOverlayContentService["overlayListElement"] = document.createElement("div");
+          autofillOverlayContentService["autofillOverlayVisibility"] =
+            AutofillOverlayVisibility.OnButtonClick;
+          await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+            autofillFieldElement,
+            autofillFieldData
+          );
+
+          autofillFieldElement.dispatchEvent(new Event("focus"));
+          await flushPromises();
+
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("autofillOverlayElementClosed", {
+            overlayElement: "autofill-overlay-list",
+          });
+        });
+
+        it("removes the overlay list if the form element has a value and the focused field is newly focused", async () => {
+          autofillOverlayContentService["overlayListElement"] = document.createElement("div");
+          autofillOverlayContentService["mostRecentlyFocusedField"] = document.createElement(
+            "input"
+          ) as ElementWithOpId<HTMLInputElement>;
+          (autofillFieldElement as HTMLInputElement).value = "test";
+          await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+            autofillFieldElement,
+            autofillFieldData
+          );
+
+          autofillFieldElement.dispatchEvent(new Event("focus"));
+          await flushPromises();
+
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("autofillOverlayElementClosed", {
+            overlayElement: "autofill-overlay-list",
+          });
+        });
+
+        it("opens the autofill overlay if the form element has no value", async () => {
+          autofillOverlayContentService["overlayListElement"] = document.createElement("div");
+          (autofillFieldElement as HTMLInputElement).value = "";
+          autofillOverlayContentService["autofillOverlayVisibility"] =
+            AutofillOverlayVisibility.OnFieldFocus;
+          await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+            autofillFieldElement,
+            autofillFieldData
+          );
+
+          autofillFieldElement.dispatchEvent(new Event("focus"));
+          await flushPromises();
+
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("openAutofillOverlay");
+        });
+
+        it("opens the autofill overlay if the overlay ciphers are not populated and the user is authed", async () => {
+          autofillOverlayContentService["overlayListElement"] = document.createElement("div");
+          (autofillFieldElement as HTMLInputElement).value = "";
+          autofillOverlayContentService["autofillOverlayVisibility"] =
+            AutofillOverlayVisibility.OnFieldFocus;
+          jest.spyOn(autofillOverlayContentService as any, "isUserAuthed").mockReturnValue(true);
+          await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+            autofillFieldElement,
+            autofillFieldData
+          );
+
+          autofillFieldElement.dispatchEvent(new Event("focus"));
+          await flushPromises();
+
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("openAutofillOverlay");
+        });
+
+        it("updates the overlay button position if the focus event is not opening the overlay", async () => {
+          autofillOverlayContentService["autofillOverlayVisibility"] =
+            AutofillOverlayVisibility.OnFieldFocus;
+          (autofillFieldElement as HTMLInputElement).value = "test";
+          autofillOverlayContentService["isOverlayCiphersPopulated"] = true;
+          await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+            autofillFieldElement,
+            autofillFieldData
+          );
+
+          autofillFieldElement.dispatchEvent(new Event("focus"));
+          await flushPromises();
+
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayPosition", {
+            overlayElement: AutofillOverlayElement.Button,
+          });
+        });
       });
     });
 
@@ -537,6 +679,60 @@ describe("AutofillOverlayContentService", () => {
       expect(autofillOverlayContentService["mostRecentlyFocusedField"]).toEqual(
         autofillFieldElement
       );
+    });
+  });
+
+  describe("openAutofillOverlay", () => {
+    let autofillFieldElement: ElementWithOpId<FormFieldElement>;
+
+    beforeEach(() => {
+      document.body.innerHTML = `
+      <form id="validFormId">
+        <input type="text" id="username-field" placeholder="username" />
+        <input type="password" id="password-field" placeholder="password" />
+      </form>
+      `;
+
+      autofillFieldElement = document.getElementById(
+        "username-field"
+      ) as ElementWithOpId<FormFieldElement>;
+      autofillFieldElement.opid = "op-1";
+    });
+
+    it("skips opening the overlay if a field has not been recently focused", () => {
+      autofillOverlayContentService["mostRecentlyFocusedField"] = undefined;
+
+      autofillOverlayContentService["openAutofillOverlay"]();
+
+      expect(sendExtensionMessageSpy).not.toHaveBeenCalled();
+    });
+
+    it("focuses the most recent overlay field", () => {
+      autofillOverlayContentService["mostRecentlyFocusedField"] = autofillFieldElement;
+      jest
+        .spyOn(autofillOverlayContentService as any, "recentlyFocusedFieldIsCurrentlyFocused")
+        .mockReturnValue(false);
+      const focusMostRecentOverlayFieldSpy = jest.spyOn(
+        autofillOverlayContentService as any,
+        "focusMostRecentOverlayField"
+      );
+
+      autofillOverlayContentService["openAutofillOverlay"]({ isFocusingFieldElement: true });
+
+      expect(focusMostRecentOverlayFieldSpy).toHaveBeenCalled();
+    });
+
+    it("sends a message to the background to open the autofill overlay", () => {
+      autofillOverlayContentService["mostRecentlyFocusedField"] = autofillFieldElement;
+
+      autofillOverlayContentService["openAutofillOverlay"]();
+
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayPosition", {
+        overlayElement: AutofillOverlayElement.Button,
+      });
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayPosition", {
+        overlayElement: AutofillOverlayElement.List,
+      });
     });
   });
 });

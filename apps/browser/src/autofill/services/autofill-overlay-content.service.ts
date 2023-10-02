@@ -21,7 +21,10 @@ import {
   setElementStyles,
 } from "../utils/utils";
 
-import { AutofillOverlayContentService as AutofillOverlayContentServiceInterface } from "./abstractions/autofill-overlay-content.service";
+import {
+  AutofillOverlayContentService as AutofillOverlayContentServiceInterface,
+  OpenAutofillOverlayOptions,
+} from "./abstractions/autofill-overlay-content.service";
 import { AutoFillConstants } from "./autofill-constants";
 
 class AutofillOverlayContentService implements AutofillOverlayContentServiceInterface {
@@ -98,11 +101,16 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     }
   }
 
-  openAutofillOverlay(
-    isFocusingFieldElement?: boolean,
-    isOpeningFullOverlay?: boolean,
-    authStatus?: AuthenticationStatus
-  ) {
+  /**
+   * Handles opening the autofill overlay. Will conditionally open
+   * the overlay based on the current autofill overlay visibility setting.
+   * Allows you to optionally focus the field element when opening the overlay.
+   * Will also optionally ignore the overlay visibility setting and open the
+   *
+   * @param options - Options for opening the autofill overlay.
+   */
+  openAutofillOverlay(options: OpenAutofillOverlayOptions = {}) {
+    const { isFocusingFieldElement, isOpeningFullOverlay, authStatus } = options;
     if (!this.mostRecentlyFocusedField) {
       return;
     }
@@ -323,7 +331,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    */
   private focusOverlayList() {
     if (!this.isOverlayListVisible) {
-      this.openAutofillOverlay(false, true);
+      this.openAutofillOverlay({ isOpeningFullOverlay: true });
       setTimeout(() => this.sendExtensionMessage("focusAutofillOverlayList"), 125);
       return;
     }
@@ -386,6 +394,11 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     this.userFilledFields.username = formFieldElement;
   }
 
+  /**
+   * Sets up and memoizes the form field click event handler.
+   *
+   * @param formFieldElement - The form field element that triggered the click event.
+   */
   private handleFormFieldClickEvent = (formFieldElement: ElementWithOpId<FormFieldElement>) => {
     return this.useEventHandlersMemo(
       () => this.triggerFormFieldClickedAction(formFieldElement),
@@ -393,6 +406,12 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     );
   };
 
+  /**
+   * Triggers when the form field element receives a click event. This method will
+   * trigger the focused action for the form field element if the overlay is not visible.
+   *
+   * @param formFieldElement - The form field element that triggered the click event.
+   */
   private async triggerFormFieldClickedAction(formFieldElement: ElementWithOpId<FormFieldElement>) {
     if (this.isOverlayButtonVisible || this.isOverlayListVisible) {
       return;

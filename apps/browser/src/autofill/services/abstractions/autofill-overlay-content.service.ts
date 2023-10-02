@@ -3,6 +3,12 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import AutofillField from "../../models/autofill-field";
 import { ElementWithOpId, FormFieldElement } from "../../types";
 
+type OpenAutofillOverlayOptions = {
+  isFocusingFieldElement?: boolean;
+  isOpeningFullOverlay?: boolean;
+  authStatus?: AuthenticationStatus;
+};
+
 interface AutofillOverlayContentService {
   isFieldCurrentlyFocused: boolean;
   isCurrentlyFilling: boolean;
@@ -12,11 +18,7 @@ interface AutofillOverlayContentService {
     autofillFieldElement: ElementWithOpId<FormFieldElement>,
     autofillFieldData: AutofillField
   ): Promise<void>;
-  openAutofillOverlay(
-    isFocusingFieldElement?: boolean,
-    isOpeningFullOverlay?: boolean,
-    authStatus?: AuthenticationStatus
-  ): void;
+  openAutofillOverlay(options: OpenAutofillOverlayOptions): void;
   removeAutofillOverlay(): void;
   removeAutofillOverlayButton(): void;
   removeAutofillOverlayList(): void;
@@ -26,4 +28,4 @@ interface AutofillOverlayContentService {
   blurMostRecentOverlayField(): void;
 }
 
-export { AutofillOverlayContentService };
+export { OpenAutofillOverlayOptions, AutofillOverlayContentService };

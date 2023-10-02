@@ -127,12 +127,7 @@ class AutofillInit implements AutofillInitInterface {
       return;
     }
 
-    const { isFocusingFieldElement, isOpeningFullOverlay, authStatus } = data;
-    this.autofillOverlayContentService.openAutofillOverlay(
-      isFocusingFieldElement,
-      isOpeningFullOverlay,
-      authStatus
-    );
+    this.autofillOverlayContentService.openAutofillOverlay(data);
   }
 
   /**
