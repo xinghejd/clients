@@ -1065,9 +1065,4 @@ export class CryptoService implements CryptoServiceAbstraction {
 
     return this.encryptService.decryptToBytes(encBuffer, key);
   }
-
-  async hash(value: string | Uint8Array, algorithm: "sha1" | "sha256" | "sha512"): Promise<string> {
-    const hashArray = await this.cryptoFunctionService.hash(value, algorithm);
-    return Utils.fromBufferToB64(hashArray);
-  }
 }

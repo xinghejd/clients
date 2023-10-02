@@ -261,8 +261,7 @@ describe("Cipher Service", () => {
 
     describe("login encryption", () => {
       it("should add a uri hash to login uris", async () => {
-        encryptService.encrypt.mockImplementation(encryptText);
-        cryptoService.hash.mockImplementation((value) => Promise.resolve(`${value} hash`));
+        encryptService.hash.mockImplementation((value) => Promise.resolve(`${value} hash`));
         cipherView.login.uris = [
           { uri: "uri", match: UriMatchType.RegularExpression } as LoginUriView,
         ];

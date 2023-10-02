@@ -1133,8 +1133,8 @@ export class CipherService implements CipherServiceAbstraction {
               },
               key
             );
-            const uriHash = await this.cryptoService.hash(model.login.uris[i].uri, "sha256");
-            loginUri.uriChecksum = await this.encryptService.encrypt(uriHash, key);
+            const uriHash = await this.encryptService.hash(model.login.uris[i].uri, "sha256");
+            loginUri.uriChecksum = await this.cryptoService.encrypt(uriHash, key);
             cipher.login.uris.push(loginUri);
           }
         }
