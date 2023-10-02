@@ -3,7 +3,6 @@ import "lit/polyfill-support.js";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
 import { EVENTS } from "../../../constants";
-import { AutofillOverlayElement } from "../../../utils/autofill-overlay.enum";
 import { logoIcon, logoLockedIcon } from "../../../utils/svg-icons";
 import { buildSvgDomElement } from "../../../utils/utils";
 import {
@@ -11,8 +10,6 @@ import {
   OverlayButtonWindowMessageHandlers,
 } from "../../abstractions/autofill-overlay-button";
 import AutofillOverlayPageElement from "../shared/autofill-overlay-page-element";
-
-require("./button.scss");
 
 class AutofillOverlayButton extends AutofillOverlayPageElement {
   private authStatus: AuthenticationStatus = AuthenticationStatus.LoggedOut;
@@ -92,6 +89,4 @@ class AutofillOverlayButton extends AutofillOverlayPageElement {
   }
 }
 
-(function () {
-  globalThis.customElements.define(AutofillOverlayElement.Button, AutofillOverlayButton);
-})();
+export default AutofillOverlayButton;

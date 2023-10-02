@@ -4,7 +4,6 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 
 import { OverlayCipherData } from "../../../background/abstractions/overlay.background";
 import { EVENTS } from "../../../constants";
-import { AutofillOverlayElement } from "../../../utils/autofill-overlay.enum";
 import { globeIcon, lockIcon, plusIcon, viewCipherIcon } from "../../../utils/svg-icons";
 import { buildSvgDomElement } from "../../../utils/utils";
 import {
@@ -12,8 +11,6 @@ import {
   OverlayListWindowMessageHandlers,
 } from "../../abstractions/autofill-overlay-list";
 import AutofillOverlayPageElement from "../shared/autofill-overlay-page-element";
-
-require("./list.scss");
 
 class AutofillOverlayList extends AutofillOverlayPageElement {
   private overlayListContainer: HTMLDivElement;
@@ -147,7 +144,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
   private handleDebouncedScrollEvent = () => {
     this.cipherListScrollIsDebounced = false;
 
-    if (globalThis.scrollY + globalThis.innerHeight >= this.ciphersList.clientHeight - 200) {
+    if (globalThis.scrollY + globalThis.innerHeight >= this.ciphersList.clientHeight - 300) {
       this.loadPageOfCiphers();
     }
   };
@@ -440,6 +437,4 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
   }
 }
 
-(function () {
-  globalThis.customElements.define(AutofillOverlayElement.List, AutofillOverlayList);
-})();
+export default AutofillOverlayList;

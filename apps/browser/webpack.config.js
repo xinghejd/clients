@@ -172,8 +172,8 @@ const mainConfig = {
     "content/contextMenuHandler": "./src/autofill/content/context-menu-handler.ts",
     "content/message_handler": "./src/autofill/content/message_handler.ts",
     "notification/bar": "./src/autofill/notification/bar.ts",
-    "overlay/button": "./src/autofill/overlay/pages/button/autofill-overlay-button.ts",
-    "overlay/list": "./src/autofill/overlay/pages/list/autofill-overlay-list.ts",
+    "overlay/button": "./src/autofill/overlay/pages/button/bootstrap-autofill-overlay-button.ts",
+    "overlay/list": "./src/autofill/overlay/pages/list/bootstrap-autofill-overlay-list.ts",
     "encrypt-worker": "../../libs/common/src/platform/services/cryptography/encrypt.worker.ts",
   },
   optimization: {
