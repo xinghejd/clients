@@ -12,8 +12,7 @@ export class Fido2UseBrowserLinkComponent {
 
   constructor(private fido2StateService: Fido2StateServiceAbstraction) {}
 
-  // Used for aborting Fido2 popout
-  abortFido2Popout(fallback = false) {
+  abort(fallback = false) {
     BrowserFido2UserInterfaceSession.sendMessage({
       sessionId: this.fido2StateService.sessionId,
       type: "AbortResponse",
