@@ -2,10 +2,14 @@
 import { Substitute, Arg } from "@fluffy-spoon/substitute";
 import { Jsonify } from "type-fest";
 
-import { mockEnc, mockFromJson } from "../../../../spec";
+import { makeStaticByteArray, mockEnc, mockFromJson } from "../../../../spec/utils";
 import { FieldType, SecureNoteType, UriMatchType } from "../../../enums";
+import { CryptoService } from "../../../platform/abstractions/crypto.service";
+import { EncryptService } from "../../../platform/abstractions/encrypt.service";
 import { EncString } from "../../../platform/models/domain/enc-string";
+import { ContainerService } from "../../../platform/services/container.service";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
+import { CipherService } from "../../abstractions/cipher.service";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
 import { CipherData } from "../../models/data/cipher.data";
@@ -47,6 +51,7 @@ describe("Cipher DTO", () => {
       attachments: null,
       fields: null,
       passwordHistory: null,
+      key: null,
     });
   });
 
@@ -69,6 +74,7 @@ describe("Cipher DTO", () => {
         creationDate: "2022-01-01T12:00:00.000Z",
         deletedDate: null,
         reprompt: CipherRepromptType.None,
+        key: "EncryptedString",
         login: {
           uris: [{ uri: "EncryptedString", match: UriMatchType.Domain }],
           username: "EncryptedString",
@@ -137,6 +143,7 @@ describe("Cipher DTO", () => {
         creationDate: new Date("2022-01-01T12:00:00.000Z"),
         deletedDate: null,
         reprompt: 0,
+        key: { encryptedString: "EncryptedString", encryptionType: 0 },
         login: {
           passwordRevisionDate: new Date("2022-01-31T12:00:00.000Z"),
           autofillOnPageLoad: false,
@@ -208,6 +215,7 @@ describe("Cipher DTO", () => {
       cipher.creationDate = new Date("2022-01-01T12:00:00.000Z");
       cipher.deletedDate = null;
       cipher.reprompt = CipherRepromptType.None;
+      cipher.key = mockEnc("EncKey");
 
       const loginView = new LoginView();
       loginView.username = "username";
@@ -217,7 +225,20 @@ describe("Cipher DTO", () => {
       login.decrypt(Arg.any(), Arg.any()).resolves(loginView);
       cipher.login = login;
 
-      const cipherView = await cipher.decrypt();
+      const cryptoService = Substitute.for<CryptoService>();
+      const encryptService = Substitute.for<EncryptService>();
+      const cipherService = Substitute.for<CipherService>();
+
+      encryptService.decryptToBytes(Arg.any(), Arg.any()).resolves(makeStaticByteArray(64));
+
+      (window as any).bitwardenContainerService = new ContainerService(
+        cryptoService,
+        encryptService
+      );
+
+      const cipherView = await cipher.decrypt(
+        await cipherService.getKeyForCipherKeyDecryption(cipher)
+      );
 
       expect(cipherView).toMatchObject({
         id: "id",
@@ -263,6 +284,7 @@ describe("Cipher DTO", () => {
         creationDate: "2022-01-01T12:00:00.000Z",
         deletedDate: null,
         reprompt: CipherRepromptType.None,
+        key: "EncKey",
         secureNote: {
           type: SecureNoteType.Generic,
         },
@@ -294,6 +316,7 @@ describe("Cipher DTO", () => {
         attachments: null,
         fields: null,
         passwordHistory: null,
+        key: { encryptedString: "EncKey", encryptionType: 0 },
       });
     });
 
@@ -320,8 +343,22 @@ describe("Cipher DTO", () => {
       cipher.reprompt = CipherRepromptType.None;
       cipher.secureNote = new SecureNote();
       cipher.secureNote.type = SecureNoteType.Generic;
+      cipher.key = mockEnc("EncKey");
 
-      const cipherView = await cipher.decrypt();
+      const cryptoService = Substitute.for<CryptoService>();
+      const encryptService = Substitute.for<EncryptService>();
+      const cipherService = Substitute.for<CipherService>();
+
+      encryptService.decryptToBytes(Arg.any(), Arg.any()).resolves(makeStaticByteArray(64));
+
+      (window as any).bitwardenContainerService = new ContainerService(
+        cryptoService,
+        encryptService
+      );
+
+      const cipherView = await cipher.decrypt(
+        await cipherService.getKeyForCipherKeyDecryption(cipher)
+      );
 
       expect(cipherView).toMatchObject({
         id: "id",
@@ -375,6 +412,7 @@ describe("Cipher DTO", () => {
           expYear: "EncryptedString",
           code: "EncryptedString",
         },
+        key: "EncKey",
       };
     });
 
@@ -410,6 +448,7 @@ describe("Cipher DTO", () => {
         attachments: null,
         fields: null,
         passwordHistory: null,
+        key: { encryptedString: "EncKey", encryptionType: 0 },
       });
     });
 
@@ -434,6 +473,7 @@ describe("Cipher DTO", () => {
       cipher.creationDate = new Date("2022-01-01T12:00:00.000Z");
       cipher.deletedDate = null;
       cipher.reprompt = CipherRepromptType.None;
+      cipher.key = mockEnc("EncKey");
 
       const cardView = new CardView();
       cardView.cardholderName = "cardholderName";
@@ -443,7 +483,20 @@ describe("Cipher DTO", () => {
       card.decrypt(Arg.any(), Arg.any()).resolves(cardView);
       cipher.card = card;
 
-      const cipherView = await cipher.decrypt();
+      const cryptoService = Substitute.for<CryptoService>();
+      const encryptService = Substitute.for<EncryptService>();
+      const cipherService = Substitute.for<CipherService>();
+
+      encryptService.decryptToBytes(Arg.any(), Arg.any()).resolves(makeStaticByteArray(64));
+
+      (window as any).bitwardenContainerService = new ContainerService(
+        cryptoService,
+        encryptService
+      );
+
+      const cipherView = await cipher.decrypt(
+        await cipherService.getKeyForCipherKeyDecryption(cipher)
+      );
 
       expect(cipherView).toMatchObject({
         id: "id",
@@ -489,6 +542,7 @@ describe("Cipher DTO", () => {
         creationDate: "2022-01-01T12:00:00.000Z",
         deletedDate: null,
         reprompt: CipherRepromptType.None,
+        key: "EncKey",
         identity: {
           title: "EncryptedString",
           firstName: "EncryptedString",
@@ -556,6 +610,7 @@ describe("Cipher DTO", () => {
         attachments: null,
         fields: null,
         passwordHistory: null,
+        key: { encryptedString: "EncKey", encryptionType: 0 },
       });
     });
 
@@ -580,6 +635,7 @@ describe("Cipher DTO", () => {
       cipher.creationDate = new Date("2022-01-01T12:00:00.000Z");
       cipher.deletedDate = null;
       cipher.reprompt = CipherRepromptType.None;
+      cipher.key = mockEnc("EncKey");
 
       const identityView = new IdentityView();
       identityView.firstName = "firstName";
@@ -589,7 +645,20 @@ describe("Cipher DTO", () => {
       identity.decrypt(Arg.any(), Arg.any()).resolves(identityView);
       cipher.identity = identity;
 
-      const cipherView = await cipher.decrypt();
+      const cryptoService = Substitute.for<CryptoService>();
+      const encryptService = Substitute.for<EncryptService>();
+      const cipherService = Substitute.for<CipherService>();
+
+      encryptService.decryptToBytes(Arg.any(), Arg.any()).resolves(makeStaticByteArray(64));
+
+      (window as any).bitwardenContainerService = new ContainerService(
+        cryptoService,
+        encryptService
+      );
+
+      const cipherView = await cipher.decrypt(
+        await cipherService.getKeyForCipherKeyDecryption(cipher)
+      );
 
       expect(cipherView).toMatchObject({
         id: "id",
