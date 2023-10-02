@@ -1,9 +1,7 @@
 <div class="center-content">
   <div class="content login-page">
     <div class="logo-image"></div>
-    <p class="lead text-center">
-      {{ "loginOrCreateNewAccount" | i18n }}
-    </p>
+    <p class="lead text-center">{{ "loginOrCreateNewAccount" | i18n }}</p>
     <form #form [formGroup]="formGroup" (ngSubmit)="submit()">
       <div class="box">
         <div class="box-content">

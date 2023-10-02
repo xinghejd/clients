@@ -94,7 +94,6 @@ export class LockComponent extends BaseLockComponent {
 
   async ngOnInit() {
     await super.ngOnInit();
-
     const disableAutoBiometricsPrompt =
       (await this.stateService.getDisableAutoBiometricsPrompt()) ?? true;
 

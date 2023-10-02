@@ -80,11 +80,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     this.loginService.setEmail(this.formGroup.value.email);
     this.loginService.setRememberEmail(this.formGroup.value.rememberEmail);
-    this.router.navigate(["login"], {
-      queryParams: {
-        email: this.formGroup.value.email,
-      },
-    });
+    this.router.navigate(["login"], { queryParams: { email: this.formGroup.value.email } });
   }
 
   get selfHostedDomain() {
