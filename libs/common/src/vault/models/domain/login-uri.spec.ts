@@ -1,7 +1,9 @@
+import { MockProxy, mock } from "jest-mock-extended";
 import { Jsonify } from "type-fest";
 
 import { mockEnc, mockFromJson } from "../../../../spec";
 import { UriMatchType } from "../../../enums";
+import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { LoginUriData } from "../data/login-uri.data";
 
@@ -58,16 +60,63 @@ describe("LoginUri", () => {
     });
   });
 
+  describe("validateChecksum", () => {
+    let cryptoService: MockProxy<CryptoService>;
+
+    beforeEach(() => {
+      cryptoService = mock();
+      global.bitwardenContainerService = {
+        getCryptoService: () => cryptoService,
+        getEncryptService: () => null,
+      };
+    });
+
+    it("returns true if checksums match", async () => {
+      const loginUri = new LoginUri();
+      loginUri.uriChecksum = mockEnc("checksum");
+      cryptoService.hash.mockResolvedValue("checksum");
+
+      const actual = await loginUri.validateChecksum("uri", null, null);
+
+      expect(actual).toBe(true);
+      expect(cryptoService.hash).toHaveBeenCalledWith("uri", "sha256");
+    });
+
+    it("returns false if checksums don't match", async () => {
+      const loginUri = new LoginUri();
+      loginUri.uriChecksum = mockEnc("checksum");
+      cryptoService.hash.mockResolvedValue("incorrect checksum");
+
+      const actual = await loginUri.validateChecksum("uri", null, null);
+
+      expect(actual).toBe(false);
+    });
+
+    it("returns true if LoginUri doesn't have a checksum", async () => {
+      const loginUri = new LoginUri();
+      loginUri.uriChecksum = null;
+      cryptoService.hash.mockResolvedValue("checksum");
+
+      const actual = await loginUri.validateChecksum("uri", null, null);
+
+      expect(actual).toBe(true);
+    });
+  });
+
   describe("fromJSON", () => {
     it("initializes nested objects", () => {
       jest.spyOn(EncString, "fromJSON").mockImplementation(mockFromJson);
 
       const actual = LoginUri.fromJSON({
         uri: "myUri",
+        uriChecksum: "myUriChecksum",
+        match: UriMatchType.Domain,
       } as Jsonify<LoginUri>);
 
       expect(actual).toEqual({
         uri: "myUri_fromJSON",
+        uriChecksum: "myUriChecksum_fromJSON",
+        match: UriMatchType.Domain,
       });
       expect(actual).toBeInstanceOf(LoginUri);
     });

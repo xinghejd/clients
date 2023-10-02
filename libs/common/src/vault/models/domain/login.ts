@@ -60,7 +60,12 @@ export class Login extends Domain {
       view.uris = [];
       for (let i = 0; i < this.uris.length; i++) {
         const uri = await this.uris[i].decrypt(orgId, encKey);
-        view.uris.push(uri);
+        // URIs are shared remotely after decryption
+        // we need to validate that the string hasn't been changed by a compromised server
+        // Skip the value if it's been tampered with.
+        if (await this.uris[i].validateChecksum(uri.uri, orgId, encKey)) {
+          view.uris.push(uri);
+        }
       }
     }
 

@@ -1,6 +1,7 @@
 import { Jsonify } from "type-fest";
 
 import { UriMatchType } from "../../../enums";
+import { Utils } from "../../../platform/misc/utils";
 import Domain from "../../../platform/models/domain/domain-base";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
@@ -9,6 +10,7 @@ import { LoginUriView } from "../view/login-uri.view";
 
 export class LoginUri extends Domain {
   uri: EncString;
+  uriChecksum: EncString | undefined;
   match: UriMatchType;
 
   constructor(obj?: LoginUriData) {
@@ -39,6 +41,19 @@ export class LoginUri extends Domain {
     );
   }
 
+  async validateChecksum(clearTextUri: string, orgId: string, encKey: SymmetricCryptoKey) {
+    // return true for missing remote checksum for backwards compatibility
+    if (this.uriChecksum == null) {
+      return true;
+    }
+
+    const cryptoService = Utils.getContainerService().getCryptoService();
+    const localChecksum = await cryptoService.hash(clearTextUri, "sha256");
+
+    const remoteChecksum = await this.uriChecksum.decrypt(orgId, encKey);
+    return remoteChecksum === localChecksum;
+  }
+
   toLoginUriData(): LoginUriData {
     const u = new LoginUriData();
     this.buildDataModel(
@@ -59,8 +74,10 @@ export class LoginUri extends Domain {
     }
 
     const uri = EncString.fromJSON(obj.uri);
+    const uriChecksum = EncString.fromJSON(obj.uriChecksum);
     return Object.assign(new LoginUri(), obj, {
       uri,
+      uriChecksum,
     });
   }
 }

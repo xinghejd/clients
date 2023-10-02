@@ -1,5 +1,4 @@
-// eslint-disable-next-line no-restricted-imports
-import { Substitute, Arg } from "@fluffy-spoon/substitute";
+import { MockProxy, mock } from "jest-mock-extended";
 
 import { mockEnc, mockFromJson } from "../../../../spec";
 import { UriMatchType } from "../../../enums";
@@ -50,39 +49,66 @@ describe("Login DTO", () => {
     expect(login).toEqual({});
   });
 
-  it("Decrypts correctly", async () => {
-    const loginUri = Substitute.for<LoginUri>();
+  describe("decrypt", () => {
+    let loginUri: MockProxy<LoginUri>;
     const loginUriView = new LoginUriView();
-    loginUriView.uri = "decrypted uri";
-    loginUri.decrypt(Arg.any()).resolves(loginUriView);
-
-    const login = new Login();
-    login.uris = [loginUri];
-    login.username = mockEnc("encrypted username");
-    login.password = mockEnc("encrypted password");
-    login.passwordRevisionDate = new Date("2022-01-31T12:00:00.000Z");
-    login.totp = mockEnc("encrypted totp");
-    login.autofillOnPageLoad = true;
-
-    const loginView = await login.decrypt(null);
-    expect(loginView).toEqual({
+    const login = Object.assign(new Login(), {
+      username: mockEnc("encrypted username"),
+      password: mockEnc("encrypted password"),
+      passwordRevisionDate: new Date("2022-01-31T12:00:00.000Z"),
+      totp: mockEnc("encrypted totp"),
+      autofillOnPageLoad: true,
+    });
+    const expectedView = {
       username: "encrypted username",
       password: "encrypted password",
       passwordRevisionDate: new Date("2022-01-31T12:00:00.000Z"),
       totp: "encrypted totp",
       uris: [
         {
-          match: null,
+          match: null as UriMatchType,
           _uri: "decrypted uri",
-          _domain: null,
-          _hostname: null,
-          _host: null,
-          _canLaunch: null,
+          _domain: null as string,
+          _hostname: null as string,
+          _host: null as string,
+          _canLaunch: null as boolean,
         },
       ],
       autofillOnPageLoad: true,
+    };
+
+    beforeEach(() => {
+      loginUri = mock();
+      loginUriView.uri = "decrypted uri";
+    });
+
+    afterEach(() => {
+      jest.resetAllMocks();
+    });
+
+    it("should decrypt to a view", async () => {
+      loginUri.decrypt.mockResolvedValue(loginUriView);
+      loginUri.validateChecksum.mockResolvedValue(true);
+      login.uris = [loginUri];
+
+      const loginView = await login.decrypt(null);
+      expect(loginView).toEqual(expectedView);
+    });
+
+    it("should ignore uris that fail checksum", async () => {
+      loginUri.decrypt.mockResolvedValue(loginUriView);
+      loginUri.validateChecksum
+        .mockResolvedValueOnce(false)
+        .mockResolvedValueOnce(false)
+        .mockResolvedValueOnce(true);
+      login.uris = [loginUri, loginUri, loginUri];
+
+      const loginView = await login.decrypt(null);
+      expect(loginView).toEqual(expectedView);
     });
   });
+
+  // it("Decrypts correctly", async () => {});
 
   it("Converts from LoginData and back", () => {
     const data: LoginData = {
