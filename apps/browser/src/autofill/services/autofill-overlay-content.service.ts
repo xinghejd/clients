@@ -596,11 +596,23 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     });
   }
 
+  /**
+   * Appends the overlay element to the body element. This method will also
+   * observe the body element to ensure that the overlay element is not
+   * interfered with by any DOM changes.
+   *
+   * @param element - The overlay element to append to the body element.
+   */
   private appendOverlayElementToBody(element: HTMLElement) {
     this.observeBodyElement();
     globalThis.document.body.appendChild(element);
   }
 
+  /**
+   * Sends a message that facilitates hiding the overlay elements.
+   *
+   * @param isHidden - Indicates if the overlay elements should be hidden.
+   */
   private toggleOverlayHidden(isHidden: boolean) {
     const displayValue = isHidden ? "none" : "block";
     this.sendExtensionMessage("updateAutofillOverlayHidden", { display: displayValue });
@@ -767,6 +779,10 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     this.userInteractionEventTimeout = setTimeout(this.triggerOverlayRepositionUpdates, 750);
   };
 
+  /**
+   * Triggers the overlay reposition updates. This method ensures that the overlay elements
+   * are correctly positioned when the viewport scrolls or repositions.
+   */
   private triggerOverlayRepositionUpdates = async () => {
     if (!this.recentlyFocusedFieldIsCurrentlyFocused()) {
       this.toggleOverlayHidden(false);
@@ -779,13 +795,20 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     this.toggleOverlayHidden(false);
     this.clearUserInteractionEventTimeout();
 
-    if (this.focusedFieldData.focusedFieldRects?.top > 0) {
+    if (
+      this.focusedFieldData.focusedFieldRects?.top > 0 &&
+      this.focusedFieldData.focusedFieldRects?.top < window.innerHeight
+    ) {
       return;
     }
 
     this.removeAutofillOverlay();
   };
 
+  /**
+   * Clears the user interaction event timeout. This is used to ensure that
+   * the overlay is not repositioned while the user is interacting with it.
+   */
   private clearUserInteractionEventTimeout() {
     if (this.userInteractionEventTimeout) {
       clearTimeout(this.userInteractionEventTimeout);

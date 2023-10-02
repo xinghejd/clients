@@ -34,6 +34,10 @@ describe("AutofillOverlayContentService", () => {
       value: null,
       writable: true,
     });
+    Object.defineProperty(window, "innerHeight", {
+      value: 1080,
+      writable: true,
+    });
   });
 
   afterEach(() => {
@@ -1081,6 +1085,132 @@ describe("AutofillOverlayContentService", () => {
 
       expect(autofillFieldFocusSpy).not.toHaveBeenCalled();
       expect(nextFocusableElement.focus).toHaveBeenCalled();
+    });
+  });
+
+  describe("handleOverlayRepositionEvent", () => {
+    beforeEach(() => {
+      document.body.innerHTML = `
+      <form id="validFormId">
+        <input type="text" id="username-field" placeholder="username" />
+        <input type="password" id="password-field" placeholder="password" />
+      </form>
+      `;
+      const usernameField = document.getElementById(
+        "username-field"
+      ) as ElementWithOpId<HTMLInputElement>;
+      autofillOverlayContentService["mostRecentlyFocusedField"] = usernameField;
+      autofillOverlayContentService["setOverlayRepositionEventListeners"]();
+      autofillOverlayContentService["isOverlayButtonVisible"] = true;
+      autofillOverlayContentService["isOverlayListVisible"] = true;
+      jest
+        .spyOn(autofillOverlayContentService as any, "recentlyFocusedFieldIsCurrentlyFocused")
+        .mockReturnValue(true);
+    });
+
+    it("skips handling the overlay reposition event if the overlay button and list elements are not visible", () => {
+      autofillOverlayContentService["isOverlayButtonVisible"] = false;
+      autofillOverlayContentService["isOverlayListVisible"] = false;
+
+      globalThis.dispatchEvent(new Event("resize"));
+
+      expect(sendExtensionMessageSpy).not.toHaveBeenCalled();
+    });
+
+    it("hides the overlay elements", () => {
+      globalThis.document.body.dispatchEvent(new Event("scroll"));
+
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayHidden", {
+        display: "none",
+      });
+      expect(autofillOverlayContentService["isOverlayButtonVisible"]).toEqual(false);
+      expect(autofillOverlayContentService["isOverlayListVisible"]).toEqual(false);
+    });
+
+    it("clears the user interaction timeout", () => {
+      jest.useFakeTimers();
+      const clearTimeoutSpy = jest.spyOn(globalThis, "clearTimeout");
+      autofillOverlayContentService["userInteractionEventTimeout"] = setTimeout(jest.fn(), 123);
+
+      globalThis.dispatchEvent(new Event("scroll"));
+
+      expect(clearTimeoutSpy).toHaveBeenCalledWith(expect.anything());
+    });
+
+    it("removes the overlay completely if the field is not focused", () => {
+      jest.useFakeTimers();
+      jest
+        .spyOn(autofillOverlayContentService as any, "recentlyFocusedFieldIsCurrentlyFocused")
+        .mockReturnValue(false);
+      const removeAutofillOverlaySpy = jest.spyOn(
+        autofillOverlayContentService as any,
+        "removeAutofillOverlay"
+      );
+      autofillOverlayContentService["mostRecentlyFocusedField"] = undefined;
+
+      globalThis.dispatchEvent(new Event("scroll"));
+      jest.advanceTimersByTime(800);
+
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayHidden", {
+        display: "block",
+      });
+      expect(autofillOverlayContentService["isOverlayButtonVisible"]).toEqual(true);
+      expect(autofillOverlayContentService["isOverlayListVisible"]).toEqual(true);
+      expect(removeAutofillOverlaySpy).toHaveBeenCalled();
+    });
+
+    it("updates the overlay position if the most recently focused field is still within the viewport", async () => {
+      jest.useFakeTimers();
+      jest
+        .spyOn(autofillOverlayContentService as any, "updateMostRecentlyFocusedField")
+        .mockImplementation(() => {
+          autofillOverlayContentService["focusedFieldData"] = {
+            focusedFieldRects: {
+              top: 100,
+            },
+            focusedFieldStyles: {},
+          };
+        });
+      const clearUserInteractionEventTimeoutSpy = jest.spyOn(
+        autofillOverlayContentService as any,
+        "clearUserInteractionEventTimeout"
+      );
+
+      globalThis.dispatchEvent(new Event("scroll"));
+      jest.advanceTimersByTime(800);
+      await flushPromises();
+
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayPosition", {
+        overlayElement: AutofillOverlayElement.Button,
+      });
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayPosition", {
+        overlayElement: AutofillOverlayElement.List,
+      });
+      expect(clearUserInteractionEventTimeoutSpy).toHaveBeenCalled();
+    });
+
+    it("removes the autofill overlay if the focused field is outside of the viewport", async () => {
+      jest.useFakeTimers();
+      jest
+        .spyOn(autofillOverlayContentService as any, "updateMostRecentlyFocusedField")
+        .mockImplementation(() => {
+          autofillOverlayContentService["focusedFieldData"] = {
+            focusedFieldRects: {
+              top: 4000,
+            },
+            focusedFieldStyles: {},
+          };
+        });
+      const removeAutofillOverlaySpy = jest.spyOn(
+        autofillOverlayContentService as any,
+        "removeAutofillOverlay"
+      );
+
+      globalThis.dispatchEvent(new Event("scroll"));
+      jest.advanceTimersByTime(800);
+      await flushPromises();
+
+      expect(removeAutofillOverlaySpy).toHaveBeenCalled();
     });
   });
 });
