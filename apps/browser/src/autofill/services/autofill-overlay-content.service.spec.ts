@@ -1,5 +1,7 @@
 import { mock } from "jest-mock-extended";
 
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+
 import { createAutofillFieldMock } from "../jest/autofill-mocks";
 import { flushPromises } from "../jest/testing-utils";
 import AutofillField from "../models/autofill-field";
@@ -697,6 +699,7 @@ describe("AutofillOverlayContentService", () => {
         "username-field"
       ) as ElementWithOpId<FormFieldElement>;
       autofillFieldElement.opid = "op-1";
+      autofillOverlayContentService["mostRecentlyFocusedField"] = autofillFieldElement;
     });
 
     it("skips opening the overlay if a field has not been recently focused", () => {
@@ -708,7 +711,6 @@ describe("AutofillOverlayContentService", () => {
     });
 
     it("focuses the most recent overlay field", () => {
-      autofillOverlayContentService["mostRecentlyFocusedField"] = autofillFieldElement;
       jest
         .spyOn(autofillOverlayContentService as any, "recentlyFocusedFieldIsCurrentlyFocused")
         .mockReturnValue(false);
@@ -722,7 +724,17 @@ describe("AutofillOverlayContentService", () => {
       expect(focusMostRecentOverlayFieldSpy).toHaveBeenCalled();
     });
 
-    it("sends a message to the background to open the autofill overlay", () => {
+    it("stores the user's auth status", () => {
+      autofillOverlayContentService["authStatus"] = undefined;
+
+      autofillOverlayContentService["openAutofillOverlay"]({
+        authStatus: AuthenticationStatus.Unlocked,
+      });
+
+      expect(autofillOverlayContentService["authStatus"]).toEqual(AuthenticationStatus.Unlocked);
+    });
+
+    it("opens both autofill overlay elements", () => {
       autofillOverlayContentService["mostRecentlyFocusedField"] = autofillFieldElement;
 
       autofillOverlayContentService["openAutofillOverlay"]();
@@ -733,6 +745,62 @@ describe("AutofillOverlayContentService", () => {
       expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayPosition", {
         overlayElement: AutofillOverlayElement.List,
       });
+    });
+
+    it("opens the autofill overlay button only if overlay visibility is set for onButtonClick", () => {
+      autofillOverlayContentService["autofillOverlayVisibility"] =
+        AutofillOverlayVisibility.OnButtonClick;
+
+      autofillOverlayContentService["openAutofillOverlay"]({ isOpeningFullOverlay: false });
+
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayPosition", {
+        overlayElement: AutofillOverlayElement.Button,
+      });
+      expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith("updateAutofillOverlayPosition", {
+        overlayElement: AutofillOverlayElement.List,
+      });
+    });
+
+    it("overrides the onButtonClick visibility setting to open both overlay elements", () => {
+      autofillOverlayContentService["autofillOverlayVisibility"] =
+        AutofillOverlayVisibility.OnButtonClick;
+
+      autofillOverlayContentService["openAutofillOverlay"]({ isOpeningFullOverlay: true });
+
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayPosition", {
+        overlayElement: AutofillOverlayElement.Button,
+      });
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayPosition", {
+        overlayElement: AutofillOverlayElement.List,
+      });
+    });
+  });
+
+  describe("focusMostRecentOverlayField", () => {
+    it("focuses the most recently focused overlay field", () => {
+      const mostRecentlyFocusedField = document.createElement(
+        "input"
+      ) as ElementWithOpId<HTMLInputElement>;
+      autofillOverlayContentService["mostRecentlyFocusedField"] = mostRecentlyFocusedField;
+      jest.spyOn(mostRecentlyFocusedField, "focus");
+
+      autofillOverlayContentService["focusMostRecentOverlayField"]();
+
+      expect(mostRecentlyFocusedField.focus).toHaveBeenCalled();
+    });
+  });
+
+  describe("blurMostRecentOverlayField", () => {
+    it("removes focus from the most recently focused overlay field", () => {
+      const mostRecentlyFocusedField = document.createElement(
+        "input"
+      ) as ElementWithOpId<HTMLInputElement>;
+      autofillOverlayContentService["mostRecentlyFocusedField"] = mostRecentlyFocusedField;
+      jest.spyOn(mostRecentlyFocusedField, "blur");
+
+      autofillOverlayContentService["blurMostRecentOverlayField"]();
+
+      expect(mostRecentlyFocusedField.blur).toHaveBeenCalled();
     });
   });
 });

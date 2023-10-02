@@ -134,10 +134,16 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     this.updateOverlayElementsPosition();
   }
 
+  /**
+   * Focuses the most recently focused field element.
+   */
   focusMostRecentOverlayField() {
     this.mostRecentlyFocusedField?.focus();
   }
 
+  /**
+   * Removes focus from the most recently focused field element.
+   */
   blurMostRecentOverlayField() {
     this.mostRecentlyFocusedField?.blur();
   }
