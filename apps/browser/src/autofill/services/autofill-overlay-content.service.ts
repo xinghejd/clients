@@ -1001,6 +1001,13 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     globalThis.document.body.insertBefore(lastChild, this.overlayButtonElement);
   };
 
+  /**
+   * Handles the mutation observer update for the document element. This
+   * method will ensure that any elements added to the document element
+   * are appended to the body element.
+   *
+   * @param mutationRecords - The mutation records that triggered the update.
+   */
   private handleDocumentElementMutationObserverUpdate = (mutationRecords: MutationRecord[]) => {
     if (
       (!this.overlayButtonElement && !this.overlayListElement) ||
@@ -1025,6 +1032,12 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     }
   };
 
+  /**
+   * Identifies if the mutation observer is triggering excessive iterations.
+   * Will trigger a blur of the most recently focused field and remove the
+   * autofill overlay if any set mutation observer is triggering
+   * excessive iterations.
+   */
   private isTriggeringExcessiveMutationObserverIterations() {
     if (this.mutationObserverIterationsResetTimeout) {
       clearTimeout(this.mutationObserverIterationsResetTimeout);

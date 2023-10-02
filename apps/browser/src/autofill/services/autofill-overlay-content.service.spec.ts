@@ -1393,4 +1393,144 @@ describe("AutofillOverlayContentService", () => {
       );
     });
   });
+
+  describe("handleDocumentElementMutationObserverUpdate", () => {
+    let overlayButtonElement: HTMLElement;
+    let overlayListElement: HTMLElement;
+
+    beforeEach(() => {
+      document.body.innerHTML = `
+      <div class="overlay-button"></div>
+      <div class="overlay-list"></div>
+      `;
+      document.head.innerHTML = `<title>test</title>`;
+      overlayButtonElement = document.querySelector(".overlay-button") as HTMLElement;
+      overlayListElement = document.querySelector(".overlay-list") as HTMLElement;
+      autofillOverlayContentService["overlayButtonElement"] = overlayButtonElement;
+      autofillOverlayContentService["overlayListElement"] = overlayListElement;
+      autofillOverlayContentService["isOverlayListVisible"] = true;
+      jest.spyOn(globalThis.document.body, "appendChild");
+      jest
+        .spyOn(
+          autofillOverlayContentService as any,
+          "isTriggeringExcessiveMutationObserverIterations"
+        )
+        .mockReturnValue(false);
+    });
+
+    it("skips modification of the DOM if the overlay button and list elements are not present", () => {
+      autofillOverlayContentService["overlayButtonElement"] = undefined;
+      autofillOverlayContentService["overlayListElement"] = undefined;
+
+      autofillOverlayContentService["handleDocumentElementMutationObserverUpdate"]([
+        mock<MutationRecord>(),
+      ]);
+
+      expect(globalThis.document.body.appendChild).not.toHaveBeenCalled();
+    });
+
+    it("skips modification of the DOM if excessive mutation events are being triggered", () => {
+      jest
+        .spyOn(
+          autofillOverlayContentService as any,
+          "isTriggeringExcessiveMutationObserverIterations"
+        )
+        .mockReturnValue(true);
+
+      autofillOverlayContentService["handleDocumentElementMutationObserverUpdate"]([
+        mock<MutationRecord>(),
+      ]);
+
+      expect(globalThis.document.body.appendChild).not.toHaveBeenCalled();
+    });
+
+    it("ignores the mutation record if the record is not of type `childlist`", () => {
+      autofillOverlayContentService["handleDocumentElementMutationObserverUpdate"]([
+        mock<MutationRecord>({
+          type: "attributes",
+        }),
+      ]);
+
+      expect(globalThis.document.body.appendChild).not.toHaveBeenCalled();
+    });
+
+    it("ignores the mutation record if the record does not contain any added nodes", () => {
+      autofillOverlayContentService["handleDocumentElementMutationObserverUpdate"]([
+        mock<MutationRecord>({
+          type: "childList",
+          addedNodes: mock<NodeList>({ length: 0 }),
+        }),
+      ]);
+
+      expect(globalThis.document.body.appendChild).not.toHaveBeenCalled();
+    });
+
+    it("ignores mutations for the document body and head", () => {
+      autofillOverlayContentService["handleDocumentElementMutationObserverUpdate"]([
+        {
+          type: "childList",
+          addedNodes: document.querySelectorAll("body, head"),
+        } as unknown as MutationRecord,
+      ]);
+
+      expect(globalThis.document.body.appendChild).not.toHaveBeenCalled();
+    });
+
+    it("appends the identified node to the body", () => {
+      const injectedElement = document.createElement("div");
+      injectedElement.id = "test";
+      document.documentElement.appendChild(injectedElement);
+      autofillOverlayContentService["handleDocumentElementMutationObserverUpdate"]([
+        {
+          type: "childList",
+          addedNodes: document.querySelectorAll("#test"),
+        } as unknown as MutationRecord,
+      ]);
+
+      expect(globalThis.document.body.appendChild).toHaveBeenCalledWith(injectedElement);
+    });
+  });
+
+  describe("isTriggeringExcessiveMutationObserverIterations", () => {
+    it("clears any existing reset timeout", () => {
+      jest.useFakeTimers();
+      const clearTimeoutSpy = jest.spyOn(globalThis, "clearTimeout");
+      autofillOverlayContentService["mutationObserverIterationsResetTimeout"] = setTimeout(
+        jest.fn(),
+        123
+      );
+
+      autofillOverlayContentService["isTriggeringExcessiveMutationObserverIterations"]();
+
+      expect(clearTimeoutSpy).toHaveBeenCalledWith(expect.anything());
+    });
+
+    it("will reset the number of mutationObserverIterations after two seconds", () => {
+      jest.useFakeTimers();
+      autofillOverlayContentService["mutationObserverIterations"] = 10;
+
+      autofillOverlayContentService["isTriggeringExcessiveMutationObserverIterations"]();
+      jest.advanceTimersByTime(2000);
+
+      expect(autofillOverlayContentService["mutationObserverIterations"]).toEqual(0);
+    });
+
+    it("will blur the overlay field and remove the autofill overlay if excessive mutation observer iterations are triggering", async () => {
+      autofillOverlayContentService["mutationObserverIterations"] = 101;
+      const blurMostRecentOverlayFieldSpy = jest.spyOn(
+        autofillOverlayContentService as any,
+        "blurMostRecentOverlayField"
+      );
+      const removeAutofillOverlaySpy = jest.spyOn(
+        autofillOverlayContentService as any,
+        "removeAutofillOverlay"
+      );
+
+      autofillOverlayContentService["isTriggeringExcessiveMutationObserverIterations"]();
+      await flushPromises();
+
+      expect(blurMostRecentOverlayFieldSpy).toHaveBeenCalled();
+      expect(removeAutofillOverlaySpy).toHaveBeenCalled();
+    });
+  });
 });
