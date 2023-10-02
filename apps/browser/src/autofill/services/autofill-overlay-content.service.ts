@@ -148,12 +148,21 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     this.mostRecentlyFocusedField?.blur();
   }
 
+  /**
+   * Removes the autofill overlay from the page. This will initially
+   * unobserve the body element to ensure the mutation observer no
+   * longer triggers.
+   */
   removeAutofillOverlay = () => {
-    this.unobserveBodyElement();
+    this.removeBodyElementObserver();
     this.removeAutofillOverlayButton();
     this.removeAutofillOverlayList();
   };
 
+  /**
+   * Removes the overlay button from the DOM if it is currently present. Will
+   * also remove the overlay reposition event listeners.
+   */
   removeAutofillOverlayButton() {
     if (!this.overlayButtonElement) {
       return;
@@ -167,6 +176,9 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     this.removeOverlayRepositionEventListeners();
   }
 
+  /**
+   * Removes the overlay list from the DOM if it is currently present.
+   */
   removeAutofillOverlayList() {
     if (!this.overlayListElement) {
       return;
@@ -179,6 +191,10 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     });
   }
 
+  /**
+   * Formats any found user filled fields for a login cipher and sends a message
+   * to the background script to add a new cipher.
+   */
   addNewVaultItem() {
     if (!this.isOverlayListVisible) {
       return;
@@ -194,6 +210,13 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     this.sendExtensionMessage("autofillOverlayAddNewVaultItem", { login });
   }
 
+  /**
+   * Redirects the keyboard focus out of the overlay, selecting the element that is
+   * either previous or next in the tab order. If the direction is current, the most
+   * recently focused field will be focused.
+   *
+   * @param direction - The direction to redirect the focus.
+   */
   redirectOverlayFocusOut(direction: string) {
     if (!this.isOverlayListVisible || !this.mostRecentlyFocusedField) {
       return;
@@ -495,6 +518,10 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     return keywordValues;
   }
 
+  /**
+   * Validates that the most recently focused field is currently
+   * focused within the root node relative to the field.
+   */
   private recentlyFocusedFieldIsCurrentlyFocused() {
     return (
       this.getRootNodeActiveElement(this.mostRecentlyFocusedField) === this.mostRecentlyFocusedField
@@ -545,7 +572,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   }
 
   private appendOverlayElementToBody(element: HTMLElement) {
-    this.observerBodyElement();
+    this.observeBodyElement();
     globalThis.document.body.appendChild(element);
   }
 
@@ -685,12 +712,20 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     this.autofillOverlayVisibility = overlayVisibility || AutofillOverlayVisibility.OnFieldFocus;
   }
 
+  /**
+   * Sets up event listeners that facilitate repositioning
+   * the autofill overlay on scroll or resize.
+   */
   private setOverlayRepositionEventListeners() {
     globalThis.document.body?.addEventListener(EVENTS.SCROLL, this.handleOverlayRepositionEvent);
     globalThis.addEventListener(EVENTS.SCROLL, this.handleOverlayRepositionEvent);
     globalThis.addEventListener(EVENTS.RESIZE, this.handleOverlayRepositionEvent);
   }
 
+  /**
+   * Removes the listeners that facilitate repositioning
+   * the autofill overlay on scroll or resize.
+   */
   private removeOverlayRepositionEventListeners() {
     globalThis.document.body?.removeEventListener(EVENTS.SCROLL, this.handleOverlayRepositionEvent);
     globalThis.removeEventListener(EVENTS.SCROLL, this.handleOverlayRepositionEvent);
@@ -771,11 +806,14 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     this.overlayElementsMutationObserver?.disconnect();
   }
 
-  private observerBodyElement() {
+  private observeBodyElement() {
     this.bodyElementMutationObserver?.observe(globalThis.document.body, { childList: true });
   }
 
-  private unobserveBodyElement() {
+  /**
+   * Disconnects the mutation observer for the body element.
+   */
+  private removeBodyElementObserver() {
     this.bodyElementMutationObserver?.disconnect();
   }
 
@@ -901,6 +939,11 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     return false;
   }
 
+  /**
+   * Gets the root node of the passed element and returns the active element within that root node.
+   *
+   * @param element - The element to get the root node active element for.
+   */
   private getRootNodeActiveElement(element: Element): Element {
     const documentRoot = element.getRootNode() as ShadowRoot | Document;
     return documentRoot?.activeElement;

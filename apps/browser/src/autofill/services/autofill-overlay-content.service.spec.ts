@@ -2,11 +2,16 @@ import { mock } from "jest-mock-extended";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
+import { EVENTS } from "../constants";
 import { createAutofillFieldMock } from "../jest/autofill-mocks";
 import { flushPromises } from "../jest/testing-utils";
 import AutofillField from "../models/autofill-field";
 import { ElementWithOpId, FormFieldElement } from "../types";
-import { AutofillOverlayElement, AutofillOverlayVisibility } from "../utils/autofill-overlay.enum";
+import {
+  AutofillOverlayElement,
+  AutofillOverlayVisibility,
+  RedirectFocusDirection,
+} from "../utils/autofill-overlay.enum";
 
 import { AutoFillConstants } from "./autofill-constants";
 import AutofillOverlayContentService from "./autofill-overlay-content.service";
@@ -23,6 +28,10 @@ describe("AutofillOverlayContentService", () => {
       .mockResolvedValue(undefined);
     Object.defineProperty(document, "readyState", {
       value: defaultWindowReadyState,
+      writable: true,
+    });
+    Object.defineProperty(document, "activeElement", {
+      value: null,
       writable: true,
     });
   });
@@ -657,7 +666,10 @@ describe("AutofillOverlayContentService", () => {
 
     it("triggers the form field focused handler if the current active element in the document is the passed form field", async () => {
       const documentRoot = autofillFieldElement.getRootNode() as Document;
-      jest.spyOn(documentRoot, "activeElement", "get").mockReturnValue(autofillFieldElement);
+      Object.defineProperty(documentRoot, "activeElement", {
+        value: autofillFieldElement,
+        writable: true,
+      });
 
       await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
         autofillFieldElement,
@@ -710,10 +722,12 @@ describe("AutofillOverlayContentService", () => {
       expect(sendExtensionMessageSpy).not.toHaveBeenCalled();
     });
 
-    it("focuses the most recent overlay field", () => {
-      jest
-        .spyOn(autofillOverlayContentService as any, "recentlyFocusedFieldIsCurrentlyFocused")
-        .mockReturnValue(false);
+    it("focuses the most recent overlay field if the field is not focused", () => {
+      jest.spyOn(autofillFieldElement, "getRootNode").mockReturnValue(document);
+      Object.defineProperty(document, "activeElement", {
+        value: document.createElement("div"),
+        writable: true,
+      });
       const focusMostRecentOverlayFieldSpy = jest.spyOn(
         autofillOverlayContentService as any,
         "focusMostRecentOverlayField"
@@ -722,6 +736,22 @@ describe("AutofillOverlayContentService", () => {
       autofillOverlayContentService["openAutofillOverlay"]({ isFocusingFieldElement: true });
 
       expect(focusMostRecentOverlayFieldSpy).toHaveBeenCalled();
+    });
+
+    it("skips focusing the most recent overlay field if the field is already focused", () => {
+      jest.spyOn(autofillFieldElement, "getRootNode").mockReturnValue(document);
+      Object.defineProperty(document, "activeElement", {
+        value: autofillFieldElement,
+        writable: true,
+      });
+      const focusMostRecentOverlayFieldSpy = jest.spyOn(
+        autofillOverlayContentService as any,
+        "focusMostRecentOverlayField"
+      );
+
+      autofillOverlayContentService["openAutofillOverlay"]({ isFocusingFieldElement: true });
+
+      expect(focusMostRecentOverlayFieldSpy).not.toHaveBeenCalled();
     });
 
     it("stores the user's auth status", () => {
@@ -801,6 +831,256 @@ describe("AutofillOverlayContentService", () => {
       autofillOverlayContentService["blurMostRecentOverlayField"]();
 
       expect(mostRecentlyFocusedField.blur).toHaveBeenCalled();
+    });
+  });
+
+  describe("removeAutofillOverlay", () => {
+    it("disconnects the body's mutation observer", () => {
+      const bodyMutationObserver = mock<MutationObserver>();
+      autofillOverlayContentService["bodyElementMutationObserver"] = bodyMutationObserver;
+
+      autofillOverlayContentService.removeAutofillOverlay();
+
+      expect(bodyMutationObserver.disconnect).toHaveBeenCalled();
+    });
+  });
+
+  describe("removeAutofillOverlayButton", () => {
+    beforeEach(() => {
+      document.body.innerHTML = `<div class="overlay-button"></div>`;
+      autofillOverlayContentService["overlayButtonElement"] = document.querySelector(
+        ".overlay-button"
+      ) as HTMLElement;
+    });
+
+    it("removes the overlay button from the DOM", () => {
+      const overlayButtonElement = document.querySelector(".overlay-button") as HTMLElement;
+      autofillOverlayContentService["isOverlayButtonVisible"] = true;
+
+      autofillOverlayContentService.removeAutofillOverlay();
+
+      expect(autofillOverlayContentService["isOverlayButtonVisible"]).toEqual(false);
+      expect(document.body.contains(overlayButtonElement)).toEqual(false);
+    });
+
+    it("sends a message to the background indicating that the overlay button has been closed", () => {
+      autofillOverlayContentService.removeAutofillOverlay();
+
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("autofillOverlayElementClosed", {
+        overlayElement: AutofillOverlayElement.Button,
+      });
+    });
+
+    it("removes the overlay reposition event listeners", () => {
+      jest.spyOn(globalThis.document.body, "removeEventListener");
+      jest.spyOn(globalThis, "removeEventListener");
+      const handleOverlayRepositionEventSpy = jest.spyOn(
+        autofillOverlayContentService as any,
+        "handleOverlayRepositionEvent"
+      );
+
+      autofillOverlayContentService.removeAutofillOverlay();
+
+      expect(globalThis.document.body.removeEventListener).toHaveBeenCalledWith(
+        EVENTS.SCROLL,
+        handleOverlayRepositionEventSpy
+      );
+      expect(globalThis.removeEventListener).toHaveBeenCalledWith(
+        EVENTS.SCROLL,
+        handleOverlayRepositionEventSpy
+      );
+      expect(globalThis.removeEventListener).toHaveBeenCalledWith(
+        EVENTS.RESIZE,
+        handleOverlayRepositionEventSpy
+      );
+    });
+  });
+
+  describe("removeAutofillOverlayList", () => {
+    beforeEach(() => {
+      document.body.innerHTML = `<div class="overlay-list"></div>`;
+      autofillOverlayContentService["overlayListElement"] = document.querySelector(
+        ".overlay-list"
+      ) as HTMLElement;
+    });
+
+    it("removes the overlay list element from the dom", () => {
+      const overlayListElement = document.querySelector(".overlay-list") as HTMLElement;
+      autofillOverlayContentService["isOverlayListVisible"] = true;
+
+      autofillOverlayContentService.removeAutofillOverlay();
+
+      expect(autofillOverlayContentService["isOverlayListVisible"]).toEqual(false);
+      expect(document.body.contains(overlayListElement)).toEqual(false);
+    });
+
+    it("sends a message to the extension background indicating that the overlay list has closed", () => {
+      autofillOverlayContentService.removeAutofillOverlay();
+
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("autofillOverlayElementClosed", {
+        overlayElement: AutofillOverlayElement.List,
+      });
+    });
+  });
+
+  describe("addNewVaultItem", () => {
+    it("skips sending the message if the overlay list is not visible", () => {
+      autofillOverlayContentService["isOverlayListVisible"] = false;
+
+      autofillOverlayContentService.addNewVaultItem();
+
+      expect(sendExtensionMessageSpy).not.toHaveBeenCalled();
+    });
+
+    it("sends a message that facilitates adding a new vault item with empty fields", () => {
+      autofillOverlayContentService["isOverlayListVisible"] = true;
+
+      autofillOverlayContentService.addNewVaultItem();
+
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("autofillOverlayAddNewVaultItem", {
+        login: {
+          username: "",
+          password: "",
+          uri: "http://localhost/",
+          hostname: "localhost",
+        },
+      });
+    });
+
+    it("sends a message that facilitates adding a new vault item with data from user filled fields", () => {
+      document.body.innerHTML = `
+      <form id="validFormId">
+        <input type="text" id="username-field" placeholder="username" />
+        <input type="password" id="password-field" placeholder="password" />
+      </form>
+      `;
+      const usernameField = document.getElementById(
+        "username-field"
+      ) as ElementWithOpId<HTMLInputElement>;
+      const passwordField = document.getElementById(
+        "password-field"
+      ) as ElementWithOpId<HTMLInputElement>;
+      usernameField.value = "test-username";
+      passwordField.value = "test-password";
+      autofillOverlayContentService["isOverlayListVisible"] = true;
+      autofillOverlayContentService["userFilledFields"] = {
+        username: usernameField,
+        password: passwordField,
+      };
+
+      autofillOverlayContentService.addNewVaultItem();
+
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("autofillOverlayAddNewVaultItem", {
+        login: {
+          username: "test-username",
+          password: "test-password",
+          uri: "http://localhost/",
+          hostname: "localhost",
+        },
+      });
+    });
+  });
+
+  describe("redirectOverlayFocusOut", () => {
+    let autofillFieldElement: ElementWithOpId<FormFieldElement>;
+    let autofillFieldFocusSpy: jest.SpyInstance;
+    let findTabsSpy: jest.SpyInstance;
+    let previousFocusableElement: HTMLElement;
+    let nextFocusableElement: HTMLElement;
+
+    beforeEach(() => {
+      document.body.innerHTML = `
+      <div class="previous-focusable-element" tabindex="0"></div>
+      <form id="validFormId">
+        <input type="text" id="username-field" placeholder="username" />
+        <input type="password" id="password-field" placeholder="password" />
+      </form>
+      <div class="next-focusable-element" tabindex="0"></div>
+      `;
+      autofillFieldElement = document.getElementById(
+        "username-field"
+      ) as ElementWithOpId<FormFieldElement>;
+      autofillFieldElement.opid = "op-1";
+      previousFocusableElement = document.querySelector(
+        ".previous-focusable-element"
+      ) as HTMLElement;
+      nextFocusableElement = document.querySelector(".next-focusable-element") as HTMLElement;
+      autofillFieldFocusSpy = jest.spyOn(autofillFieldElement, "focus");
+      findTabsSpy = jest.spyOn(autofillOverlayContentService as any, "findTabs");
+      autofillOverlayContentService["isOverlayListVisible"] = true;
+      autofillOverlayContentService["mostRecentlyFocusedField"] = autofillFieldElement;
+      autofillOverlayContentService["focusableElements"] = [
+        previousFocusableElement,
+        autofillFieldElement,
+        nextFocusableElement,
+      ];
+    });
+
+    it("skips focusing an element if the overlay is not visible", () => {
+      autofillOverlayContentService["isOverlayListVisible"] = false;
+
+      autofillOverlayContentService.redirectOverlayFocusOut(RedirectFocusDirection.Next);
+
+      expect(findTabsSpy).not.toHaveBeenCalled();
+    });
+
+    it("skips focusing an element if no recently focused field exists", () => {
+      autofillOverlayContentService["mostRecentlyFocusedField"] = undefined;
+
+      autofillOverlayContentService.redirectOverlayFocusOut(RedirectFocusDirection.Next);
+
+      expect(findTabsSpy).not.toHaveBeenCalled();
+    });
+
+    it("focuses the most recently focused field if the focus direction is `Current`", () => {
+      autofillOverlayContentService.redirectOverlayFocusOut(RedirectFocusDirection.Current);
+
+      expect(findTabsSpy).not.toHaveBeenCalled();
+      expect(autofillFieldFocusSpy).toHaveBeenCalled();
+    });
+
+    it("removes the overlay if the focus direction is `Current`", () => {
+      jest.useFakeTimers();
+      const removeAutofillOverlaySpy = jest.spyOn(
+        autofillOverlayContentService as any,
+        "removeAutofillOverlay"
+      );
+
+      autofillOverlayContentService.redirectOverlayFocusOut(RedirectFocusDirection.Current);
+      jest.advanceTimersByTime(150);
+
+      expect(removeAutofillOverlaySpy).toHaveBeenCalled();
+    });
+
+    it("finds all focusable tabs if the focusable elements array is not populated", () => {
+      autofillOverlayContentService["focusableElements"] = [];
+      findTabsSpy.mockReturnValue([
+        previousFocusableElement,
+        autofillFieldElement,
+        nextFocusableElement,
+      ]);
+
+      autofillOverlayContentService.redirectOverlayFocusOut(RedirectFocusDirection.Next);
+
+      expect(findTabsSpy).toHaveBeenCalledWith(globalThis.document.body, { getShadowRoot: true });
+    });
+
+    it("focuses the previous focusable element if the focus direction is `Previous`", () => {
+      jest.spyOn(previousFocusableElement, "focus");
+
+      autofillOverlayContentService.redirectOverlayFocusOut(RedirectFocusDirection.Previous);
+
+      expect(autofillFieldFocusSpy).not.toHaveBeenCalled();
+      expect(previousFocusableElement.focus).toHaveBeenCalled();
+    });
+
+    it("focuses the next focusable element if the focus direction is `Next`", () => {
+      jest.spyOn(nextFocusableElement, "focus");
+
+      autofillOverlayContentService.redirectOverlayFocusOut(RedirectFocusDirection.Next);
+
+      expect(autofillFieldFocusSpy).not.toHaveBeenCalled();
+      expect(nextFocusableElement.focus).toHaveBeenCalled();
     });
   });
 });
