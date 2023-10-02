@@ -89,7 +89,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       await this.getAutofillOverlayVisibility();
     }
 
-    this.setupFormFieldElementEventListeners(formFieldElement, autofillFieldData);
+    this.setupFormFieldElementEventListeners(formFieldElement);
 
     if (this.getRootNodeActiveElement(formFieldElement) === formFieldElement) {
       await this.triggerFormFieldFocusedAction(formFieldElement);
@@ -247,12 +247,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * up a form field element to the overlay.
    *
    * @param formFieldElement - The form field element to set up the event listeners for.
-   * @param autofillFieldData - Autofill field data captured from the form field element.
    */
-  private setupFormFieldElementEventListeners(
-    formFieldElement: ElementWithOpId<FormFieldElement>,
-    autofillFieldData: AutofillField
-  ) {
+  private setupFormFieldElementEventListeners(formFieldElement: ElementWithOpId<FormFieldElement>) {
     this.removeCachedFormFieldEventListeners(formFieldElement);
 
     formFieldElement.addEventListener(EVENTS.BLUR, this.handleFormFieldBlurEvent);
@@ -449,6 +445,11 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     await this.triggerFormFieldFocusedAction(formFieldElement);
   }
 
+  /**
+   * Sets up and memoizes the form field focus event handler.
+   *
+   * @param formFieldElement - The form field element that triggered the focus event.
+   */
   private handleFormFieldFocusEvent = (formFieldElement: ElementWithOpId<FormFieldElement>) => {
     return this.useEventHandlersMemo(
       () => this.triggerFormFieldFocusedAction(formFieldElement),
@@ -456,6 +457,13 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     );
   };
 
+  /**
+   * Triggers when the form field element receives a focus event. This method will
+   * update the most recently focused field and open the autofill overlay if the
+   * autofill process is not currently active.
+   *
+   * @param formFieldElement - The form field element that triggered the focus event.
+   */
   private async triggerFormFieldFocusedAction(formFieldElement: ElementWithOpId<FormFieldElement>) {
     if (this.isCurrentlyFilling) {
       return;
@@ -482,15 +490,31 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     this.updateOverlayButtonPosition();
   }
 
+  /**
+   * Validates whether the user is currently authenticated.
+   */
   private isUserAuthed() {
     return this.authStatus === AuthenticationStatus.Unlocked;
   }
 
+  /**
+   * Identifies if the autofill field's data contains any of
+   * the keyboards matching the passed list of keywords.
+   *
+   * @param autofillFieldData - Autofill field data captured from the form field element.
+   * @param keywords - Keywords to search for in the autofill field data.
+   */
   private keywordsFoundInFieldData(autofillFieldData: AutofillField, keywords: string[]) {
     const searchedString = this.getAutofillFieldDataKeywords(autofillFieldData);
     return keywords.some((keyword) => searchedString.includes(keyword));
   }
 
+  /**
+   * Aggregates the autofill field's data into a single string
+   * that can be used to search for keywords.
+   *
+   * @param autofillFieldData - Autofill field data captured from the form field element.
+   */
   private getAutofillFieldDataKeywords(autofillFieldData: AutofillField) {
     if (this.autofillFieldKeywordsMap.has(autofillFieldData)) {
       return this.autofillFieldKeywordsMap.get(autofillFieldData);
@@ -528,18 +552,20 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     );
   }
 
+  /**
+   * Updates the position of both the overlay button and overlay list.
+   */
   private updateOverlayElementsPosition() {
     this.updateOverlayButtonPosition();
     this.updateOverlayListPosition();
   }
 
+  /**
+   * Updates the position of the overlay button.
+   */
   private updateOverlayButtonPosition() {
     if (!this.overlayButtonElement) {
       this.createAutofillOverlayButton();
-    }
-
-    if (!this.mostRecentlyFocusedField) {
-      return;
     }
 
     if (!this.isOverlayButtonVisible) {
@@ -552,13 +578,12 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     });
   }
 
+  /**
+   * Updates the position of the overlay list.
+   */
   private updateOverlayListPosition() {
     if (!this.overlayListElement) {
       this.createAutofillOverlayList();
-    }
-
-    if (!this.mostRecentlyFocusedField) {
-      return;
     }
 
     if (!this.isOverlayListVisible) {
