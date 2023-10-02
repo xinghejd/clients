@@ -870,11 +870,115 @@ describe("AutofillService", () => {
       jest.spyOn(autofillService as any, "getActiveTab").mockResolvedValueOnce(tab);
       jest.spyOn(autofillService, "doAutoFillOnTab").mockResolvedValueOnce(totp);
 
-      const result = await autofillService.doAutoFillActiveTab(pageDetails, fromCommand);
+      const result = await autofillService.doAutoFillActiveTab(
+        pageDetails,
+        fromCommand,
+        CipherType.Login
+      );
 
       expect(autofillService["getActiveTab"]).toHaveBeenCalled();
       expect(autofillService.doAutoFillOnTab).toHaveBeenCalledWith(pageDetails, tab, fromCommand);
       expect(result).toBe(totp);
+    });
+
+    it("auto-fills card cipher types", async () => {
+      const cardFormPageDetails = [
+        {
+          frameId: 1,
+          tab: createChromeTabMock(),
+          details: createAutofillPageDetailsMock({
+            fields: [
+              createAutofillFieldMock({
+                opid: "number-field",
+                form: "validFormId",
+                elementNumber: 1,
+              }),
+              createAutofillFieldMock({
+                opid: "ccv-field",
+                form: "validFormId",
+                elementNumber: 2,
+              }),
+            ],
+          }),
+        },
+      ];
+      const cardCipher = mock<CipherView>({
+        type: CipherType.Card,
+        reprompt: CipherRepromptType.None,
+      });
+      jest.spyOn(autofillService as any, "getActiveTab").mockResolvedValueOnce(tab);
+      jest.spyOn(autofillService, "doAutoFill").mockImplementation();
+      jest
+        .spyOn(autofillService["cipherService"], "getAllDecryptedForUrl")
+        .mockResolvedValueOnce([cardCipher]);
+
+      await autofillService.doAutoFillActiveTab(cardFormPageDetails, false, CipherType.Card);
+
+      expect(autofillService["cipherService"].getAllDecryptedForUrl).toHaveBeenCalled();
+      expect(autofillService.doAutoFill).toHaveBeenCalledWith({
+        tab: tab,
+        cipher: cardCipher,
+        pageDetails: cardFormPageDetails,
+        skipLastUsed: true,
+        skipUsernameOnlyFill: true,
+        onlyEmptyFields: true,
+        onlyVisibleFields: true,
+        fillNewPassword: false,
+        allowUntrustedIframe: false,
+        allowTotpAutofill: false,
+      });
+    });
+
+    it("auto-fills identity cipher types", async () => {
+      const identityFormPageDetails = [
+        {
+          frameId: 1,
+          tab: createChromeTabMock(),
+          details: createAutofillPageDetailsMock({
+            fields: [
+              createAutofillFieldMock({
+                opid: "name-field",
+                form: "validFormId",
+                elementNumber: 1,
+              }),
+              createAutofillFieldMock({
+                opid: "address-field",
+                form: "validFormId",
+                elementNumber: 2,
+              }),
+            ],
+          }),
+        },
+      ];
+      const identityCipher = mock<CipherView>({
+        type: CipherType.Identity,
+        reprompt: CipherRepromptType.None,
+      });
+      jest.spyOn(autofillService as any, "getActiveTab").mockResolvedValueOnce(tab);
+      jest.spyOn(autofillService, "doAutoFill").mockImplementation();
+      jest
+        .spyOn(autofillService["cipherService"], "getAllDecryptedForUrl")
+        .mockResolvedValueOnce([identityCipher]);
+
+      await autofillService.doAutoFillActiveTab(
+        identityFormPageDetails,
+        false,
+        CipherType.Identity
+      );
+
+      expect(autofillService["cipherService"].getAllDecryptedForUrl).toHaveBeenCalled();
+      expect(autofillService.doAutoFill).toHaveBeenCalledWith({
+        tab: tab,
+        cipher: identityCipher,
+        pageDetails: identityFormPageDetails,
+        skipLastUsed: true,
+        skipUsernameOnlyFill: true,
+        onlyEmptyFields: true,
+        onlyVisibleFields: true,
+        fillNewPassword: false,
+        allowUntrustedIframe: false,
+        allowTotpAutofill: false,
+      });
     });
   });
 
@@ -4302,6 +4406,16 @@ describe("AutofillService", () => {
       const result = autofillService["isDebouncingPasswordRepromptPopout"]();
 
       expect(result).toBe(true);
+    });
+
+    it("resets the currentlyOpeningPasswordRepromptPopout value to false after the debounce has occurred", () => {
+      jest.useFakeTimers();
+
+      const result = autofillService["isDebouncingPasswordRepromptPopout"]();
+      jest.advanceTimersByTime(100);
+
+      expect(result).toBe(false);
+      expect(autofillService["currentlyOpeningPasswordRepromptPopout"]).toBe(false);
     });
   });
 });
