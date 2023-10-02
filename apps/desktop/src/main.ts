@@ -2,6 +2,7 @@ import * as path from "path";
 
 import { app } from "electron";
 
+import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
@@ -28,6 +29,7 @@ export class Main {
   storageService: ElectronStorageService;
   memoryStorageService: MemoryStorageService;
   messagingService: ElectronMainMessagingService;
+  accountService: AccountServiceImplementation;
   stateService: ElectronStateService;
   desktopCredentialStorageListener: DesktopCredentialStorageListener;
 
@@ -91,6 +93,7 @@ export class Main {
       this.memoryStorageService,
       this.logService,
       new StateFactory(GlobalState, Account),
+      this.accountService, // TODO: This is circular
       false // Do not use disk caching because this will get out of sync with the renderer service
     );
 
@@ -108,6 +111,9 @@ export class Main {
     this.messagingService = new ElectronMainMessagingService(this.windowMain, (message) => {
       this.messagingMain.onMessage(message);
     });
+
+    this.accountService = new AccountServiceImplementation(this.messagingService, this.logService);
+
     this.powerMonitorMain = new PowerMonitorMain(this.messagingService);
     this.menuMain = new MenuMain(
       this.i18nService,

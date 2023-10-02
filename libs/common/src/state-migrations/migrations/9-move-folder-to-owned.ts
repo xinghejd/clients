@@ -13,9 +13,9 @@ import { IRREVERSIBLE, Migrator } from "../migrator";
 type ExpectedAccountType = {
   data: {
     folders: {
-      encrypted: Record<string, { name: string, id: string, revisionDate: string }>
-    }
-  }
+      encrypted: Record<string, { name: string; id: string; revisionDate: string }>;
+    };
+  };
 };
 
 const FOLDER_STATE = new StateDefinition("FolderService", "disk");
@@ -40,9 +40,7 @@ export class MoveFolderToOwnedMigrator extends Migrator<8, 9> {
       // await helper.set("", account);
     }
 
-    await Promise.all(
-      accounts.map(({ userId, account}) => updateAccount(userId, account))
-    );
+    await Promise.all(accounts.map(({ userId, account }) => updateAccount(userId, account)));
   }
 
   rollback(helper: MigrationHelper): Promise<void> {

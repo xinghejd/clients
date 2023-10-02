@@ -4,10 +4,7 @@ import { StorageLocation } from "../services/default-global-state.provider";
 
 // TODO: Move type
 export class DeriveContext {
-  constructor(
-    readonly activeUserKey: UserKey,
-    readonly encryptService: EncryptService
-  ) { }
+  constructor(readonly activeUserKey: UserKey, readonly encryptService: EncryptService) {}
 }
 
 export class DerivedStateDefinition<TFrom, TTo> {

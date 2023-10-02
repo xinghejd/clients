@@ -176,7 +176,6 @@ import { ModalService } from "./modal.service";
 import { ThemingService } from "./theming/theming.service";
 import { AbstractThemingService } from "./theming/theming.service.abstraction";
 
-
 @NgModule({
   declarations: [],
   providers: [
@@ -731,9 +730,9 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
         EncryptService,
         MEMORY_STORAGE,
         AbstractStorageService,
-        SECURE_STORAGE
-      ]
-    }
+        SECURE_STORAGE,
+      ],
+    },
   ],
 })
 export class JslibServicesModule {}

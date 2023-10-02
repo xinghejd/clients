@@ -16,11 +16,9 @@ import { Folder } from "../../../vault/models/domain/folder";
 import { FolderView } from "../../../vault/models/view/folder.view";
 import { FOLDERS } from "../../types/key-definitions";
 
-
 export class FolderService implements InternalFolderServiceAbstraction {
-
-  folderState: ActiveUserState<Record<string, Folder>>;
-  decryptedFolderState: DerivedActiveUserState<Record<string, Folder>, FolderView[]>
+  folderState: ActiveUserState<Record<string, FolderData>>;
+  decryptedFolderState: DerivedActiveUserState<Record<string, FolderData>, FolderView[]>;
 
   folders$: Observable<Folder[]>;
   folderViews$: Observable<FolderView[]>;
@@ -32,18 +30,22 @@ export class FolderService implements InternalFolderServiceAbstraction {
     private activeUserStateProvider: ActiveUserStateProvider,
     private stateService: StateService
   ) {
-    const derivedFoldersDefinition = FOLDERS.createDerivedDefinition("memory", async (foldersMap) => {
-      const folders = this.flattenMap(foldersMap);
-      const decryptedFolders = await this.decryptFolders(folders);
-      return decryptedFolders;
-    })
+    const derivedFoldersDefinition = FOLDERS.createDerivedDefinition(
+      "memory",
+      async (foldersMap) => {
+        const folders = this.flattenMap(foldersMap);
+        const decryptedFolders = await this.decryptFolders(folders);
+        return decryptedFolders;
+      }
+    );
 
     this.folderState = this.activeUserStateProvider.create(FOLDERS);
 
-    this.folders$ = this.folderState.state$
-      .pipe(map(foldersMap => {
+    this.folders$ = this.folderState.state$.pipe(
+      map((foldersMap) => {
         return this.flattenMap(foldersMap);
-      }));
+      })
+    );
 
     this.decryptedFolderState = this.folderState.createDerived(derivedFoldersDefinition);
     this.folderViews$ = this.decryptedFolderState.state$;
@@ -64,7 +66,7 @@ export class FolderService implements InternalFolderServiceAbstraction {
 
   async get(id: string): Promise<Folder> {
     const folders = await firstValueFrom(this.folderState.state$);
-    return folders[id];
+    return new Folder(folders[id]);
   }
 
   async getAllFromState(): Promise<Folder[]> {
@@ -83,7 +85,7 @@ export class FolderService implements InternalFolderServiceAbstraction {
       return null;
     }
 
-    return folder;
+    return new Folder(folder);
   }
 
   /**
@@ -94,37 +96,28 @@ export class FolderService implements InternalFolderServiceAbstraction {
   }
 
   async upsert(folder: FolderData | FolderData[]): Promise<void> {
-    console.log("upsert", folder);
-    await this.folderState.update(folders => {
+    await this.folderState.update((folders) => {
       if (folder instanceof FolderData) {
-        const f = folder as FolderData;
-        folders[f.id] = new Folder(f);
+        folders[folder.id] = folder;
       } else {
         (folder as FolderData[]).forEach((f) => {
-          folders[f.id] = new Folder(f);
+          folders[f.id] = f;
         });
       }
     });
   }
 
   async replace(folders: { [id: string]: FolderData }): Promise<void> {
-    const convertedFolders = Object.entries(folders).reduce((agg, [key, value]) => {
-      agg[key] = new Folder(value);
-      return agg;
-    }, {} as Record<string, Folder>);
-    console.log("replace", folders, convertedFolders);
-    await this.folderState.update(f => f = convertedFolders);
+    await this.folderState.update((f) => (f = folders));
   }
 
   async clear(userId?: string): Promise<any> {
-    console.log("clear", userId);
-    await this.folderState.update(f => f = null);
+    await this.folderState.update((f) => (f = null));
   }
 
   async delete(id: string | string[]): Promise<void> {
     const folderIds = typeof id === "string" ? [id] : id;
-    console.log("delete", folderIds);
-    await this.folderState.update(folders => {
+    await this.folderState.update((folders) => {
       for (const folderId in folderIds) {
         delete folders[folderId];
       }
@@ -159,10 +152,10 @@ export class FolderService implements InternalFolderServiceAbstraction {
     return decryptedFolders;
   }
 
-  private flattenMap(foldersMap: Record<string, Folder>): Folder[] {
+  private flattenMap(foldersMap: Record<string, FolderData>): Folder[] {
     const folders: Folder[] = [];
     for (const id in foldersMap) {
-      folders.push(foldersMap[id]);
+      folders.push(new Folder(foldersMap[id]));
     }
     return folders;
   }

@@ -18,16 +18,24 @@ export class KeyDefinition<T> {
     readonly stateDefinition: StateDefinition,
     readonly key: string,
     readonly serializer: (jsonValue: Jsonify<T>) => T
-  ) { }
+  ) {}
 
-  static array<T>(stateDefinition: StateDefinition, key: string, serializer: (jsonValue: Jsonify<T>) => T) {
+  static array<T>(
+    stateDefinition: StateDefinition,
+    key: string,
+    serializer: (jsonValue: Jsonify<T>) => T
+  ) {
     return new KeyDefinition<T[]>(stateDefinition, key, (jsonValue) => {
       // TODO: Should we handle null for them, I feel like we should discourage null for an array?
-      return jsonValue.map(v => serializer(v));
+      return jsonValue.map((v) => serializer(v));
     });
   }
 
-  static record<T>(stateDefinition: StateDefinition, key: string, serializer: (jsonValue: Jsonify<T>) => T) {
+  static record<T>(
+    stateDefinition: StateDefinition,
+    key: string,
+    serializer: (jsonValue: Jsonify<T>) => T
+  ) {
     return new KeyDefinition<Record<string, T>>(stateDefinition, key, (jsonValue) => {
       const output: Record<string, T> = {};
       for (const key in jsonValue) {

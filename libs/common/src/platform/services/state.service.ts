@@ -190,14 +190,21 @@ export class StateService<
       state.accounts[userId] = this.createAccount();
       const diskAccount = await this.getAccountFromDisk({ userId: userId });
       state.accounts[userId].profile = diskAccount.profile;
+      this.accountService.addAccount(userId as UserId, {
+        status: AuthenticationStatus.Locked,
+        name: diskAccount.profile.name,
+        email: diskAccount.profile.email,
+      });
       return state;
     });
-
-    // TODO: Temporary update to avoid routing all account status changes through account service for now.
-    this.accountService.setAccountStatus(userId as UserId, AuthenticationStatus.Locked);
   }
 
   async addAccount(account: TAccount) {
+    // this.accountService.addAccount(account.profile.userId as UserId, {
+    //   email: account.profile.email,
+    //   name: account.profile.name,
+    //   status: AuthenticationStatus.Locked,
+    // });
     account = await this.setAccountEnvironment(account);
     await this.updateState(async (state) => {
       state.authenticatedAccounts.push(account.profile.userId);

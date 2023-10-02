@@ -5,6 +5,7 @@ import {
   map,
   distinctUntilChanged,
   share,
+  tap,
 } from "rxjs";
 
 import { AccountInfo, InternalAccountService } from "../../auth/abstractions/account.service";
@@ -23,6 +24,7 @@ export class AccountServiceImplementation implements InternalAccountService {
   activeAccount$ = this.activeAccountId.pipe(
     combineLatestWith(this.accounts$),
     map(([id, accounts]) => (id ? { id, ...accounts[id] } : undefined)),
+    tap((stuff) => console.log("stuff", stuff)),
     distinctUntilChanged(),
     share()
   );
