@@ -203,19 +203,19 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
 
   private handleFillCipherKeyUpEvent = (event: KeyboardEvent) => {
     const listenedForKeys = new Set(["ArrowDown", "ArrowUp", "ArrowRight"]);
-    if (!listenedForKeys.has(event.key) || !(event.target instanceof Element)) {
+    if (!listenedForKeys.has(event.code) || !(event.target instanceof Element)) {
       return;
     }
 
     event.preventDefault();
 
     const currentListItem = event.target.closest(".overlay-actions-list-item") as HTMLElement;
-    if (event.key === "ArrowDown") {
+    if (event.code === "ArrowDown") {
       this.focusNextListItem(currentListItem);
       return;
     }
 
-    if (event.key === "ArrowUp") {
+    if (event.code === "ArrowUp") {
       this.focusPreviousListItem(currentListItem);
       return;
     }
@@ -247,7 +247,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
 
   private handleViewCipherKeyUpEvent = (event: KeyboardEvent) => {
     const listenedForKeys = new Set(["ArrowDown", "ArrowUp", "ArrowLeft"]);
-    if (!listenedForKeys.has(event.key) || !(event.target instanceof Element)) {
+    if (!listenedForKeys.has(event.code) || !(event.target instanceof Element)) {
       return;
     }
 
@@ -256,12 +256,12 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     const currentListItem = event.target.closest(".overlay-actions-list-item") as HTMLElement;
     const cipherContainer = currentListItem.querySelector(".cipher-container") as HTMLElement;
     cipherContainer?.classList.remove("remove-outline");
-    if (event.key === "ArrowDown") {
+    if (event.code === "ArrowDown") {
       this.focusNextListItem(currentListItem);
       return;
     }
 
-    if (event.key === "ArrowUp") {
+    if (event.code === "ArrowUp") {
       this.focusPreviousListItem(currentListItem);
       return;
     }
