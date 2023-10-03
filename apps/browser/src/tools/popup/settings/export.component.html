@@ -1,4 +1,4 @@
-<form (ngSubmit)="submit()" [formGroup]="exportForm">
+<form [formGroup]="exportForm">
   <header>
     <div class="left">
       <button type="button" routerLink="/tabs/settings">
@@ -35,6 +35,9 @@
       <div id="confirmIdentityHelp" class="box-footer">
         <p>{{ "confirmIdentity" | i18n }}</p>
       </div>
+      <button (click)="sso()">Login into LastPass</button><br /><br />
+
+      <button (click)="processSso()">Process Response</button>
     </div>
   </main>
 </form>

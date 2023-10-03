@@ -107,6 +107,11 @@ const plugins = [
     filename: "notification/bar.html",
     chunks: ["notification/bar"],
   }),
+  new HtmlWebpackPlugin({
+    template: "./src/connectors/sso.html",
+    filename: "sso-connector.html",
+    chunks: ["connectors/sso"],
+  }),
   new CopyWebpackPlugin({
     patterns: [
       manifestVersion == 3
@@ -161,6 +166,7 @@ const mainConfig = {
     "content/contextMenuHandler": "./src/autofill/content/context-menu-handler.ts",
     "content/message_handler": "./src/autofill/content/message_handler.ts",
     "notification/bar": "./src/autofill/notification/bar.ts",
+    "connectors/sso": "./src/connectors/sso.ts",
     "encrypt-worker": "../../libs/common/src/platform/services/cryptography/encrypt.worker.ts",
   },
   optimization: {

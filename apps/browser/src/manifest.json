@@ -94,6 +94,7 @@
   },
   "web_accessible_resources": [
     "notification/bar.html",
+    "sso-connector.html",
     "images/icon38.png",
     "images/icon38_locked.png"
   ],
