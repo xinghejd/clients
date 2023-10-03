@@ -1,10 +1,11 @@
-import { mockReset, mock } from "jest-mock-extended";
+import { mock } from "jest-mock-extended";
 
 import { makeStaticByteArray } from "../../../spec";
 import { EncryptionType } from "../../enums";
 import { CsprngArray } from "../../types/csprng";
 import { CryptoFunctionService } from "../abstractions/crypto-function.service";
 import { LogService } from "../abstractions/log.service";
+import { Utils } from "../misc/utils";
 import { EncArrayBuffer } from "../models/domain/enc-array-buffer";
 import { EncString } from "../models/domain/enc-string";
 import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
@@ -17,10 +18,11 @@ describe("EncryptService", () => {
   let encryptService: EncryptServiceImplementation;
 
   beforeEach(() => {
-    mockReset(cryptoFunctionService);
-    mockReset(logService);
-
     encryptService = new EncryptServiceImplementation(cryptoFunctionService, logService, true);
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   describe("encryptToBytes", () => {
@@ -183,6 +185,129 @@ describe("EncryptService", () => {
       const actual = encryptService.resolveLegacyKey(key, encString);
 
       expect(actual).toEqual(key);
+    });
+  });
+
+  describe("encryptWithPurpose", () => {
+    const encryptedValue = new EncString("2.iv|data|mac");
+    const key = new SymmetricCryptoKey(
+      makeStaticByteArray(64, 1),
+      EncryptionType.AesCbc256_HmacSha256_B64
+    );
+    const purpose = "purpose";
+    const encPurpose = makeStaticByteArray(32, 2);
+    const encPurposeB64 = Utils.fromBufferToB64(encPurpose);
+    const plainValue = "plainValue";
+    let originalEncryptMethod: (
+      plainValue: string | Uint8Array,
+      key: SymmetricCryptoKey
+    ) => Promise<EncString>;
+
+    beforeEach(() => {
+      originalEncryptMethod = encryptService.encrypt;
+      encryptService.encrypt = jest.fn().mockResolvedValue(encryptedValue);
+      cryptoFunctionService.hkdf.mockResolvedValue(encPurpose);
+    });
+
+    afterEach(() => {
+      encryptService.encrypt = originalEncryptMethod;
+    });
+
+    it("should use the encrypt method", async () => {
+      await encryptService.encryptWithPurpose(plainValue, key, purpose);
+
+      expect(encryptService.encrypt).toHaveBeenCalledWith(plainValue, key);
+    });
+
+    it("should produce an encrypted key with the correct purpose", async () => {
+      const actual = await encryptService.encryptWithPurpose(plainValue, key, purpose);
+
+      expect(cryptoFunctionService.hkdf).toHaveBeenCalled();
+      expect(actual).toEqual(
+        expect.objectContaining({
+          ...new EncString(`7.iv|data|mac|${encPurposeB64}`),
+        })
+      );
+    });
+
+    test.each([
+      EncryptionType.AesCbc256_B64,
+      EncryptionType.AesCbc128_HmacSha256_B64,
+      EncryptionType.Rsa2048_OaepSha1_B64,
+      EncryptionType.Rsa2048_OaepSha1_HmacSha256_B64,
+      EncryptionType.Rsa2048_OaepSha1_HmacSha256_B64,
+      EncryptionType.Rsa2048_OaepSha256_HmacSha256_B64,
+    ])(
+      "should throw if the encryption type is not supported for encryption type %p",
+      async (encType) => {
+        const key = mock<SymmetricCryptoKey>();
+        key.encType = encType;
+        await expect(encryptService.encryptWithPurpose(plainValue, key, purpose)).rejects.toThrow(
+          `EncryptionType ${encType} cannot be extended to support purpose encryption.`
+        );
+      }
+    );
+
+    it("should throw if no purpose is provided", async () => {
+      await expect(encryptService.encryptWithPurpose(plainValue, key, null)).rejects.toThrow(
+        "No purpose provided for encryption."
+      );
+    });
+  });
+
+  describe("decryptToUtf8WithPurpose", () => {
+    let originalDecryptToUtf8Method: (
+      encString: EncString,
+      key: SymmetricCryptoKey
+    ) => Promise<string>;
+    const encPurpose = makeStaticByteArray(32, 1);
+    const encPurposeB64 = Utils.fromBufferToB64(encPurpose);
+    const encString = new EncString(`7.iv|data|mac|${encPurposeB64}`);
+    const key = new SymmetricCryptoKey(
+      makeStaticByteArray(64, 2),
+      EncryptionType.AesCbc256_HmacSha256_B64
+    );
+
+    beforeEach(() => {
+      originalDecryptToUtf8Method = encryptService.decryptToUtf8;
+      encryptService.decryptToUtf8 = jest.fn().mockResolvedValue("decrypted");
+      cryptoFunctionService.hkdf.mockResolvedValue(encPurpose);
+    });
+
+    afterEach(() => {
+      encryptService.decryptToUtf8 = originalDecryptToUtf8Method;
+    });
+
+    it("should throw if no purpose is provided", async () => {
+      await expect(encryptService.decryptToUtf8WithPurpose(encString, key, null)).rejects.toThrow(
+        "No purpose provided for decryption."
+      );
+    });
+
+    it("should call decryptToUtf8 with the correct key", async () => {
+      cryptoFunctionService.compareFast.mockResolvedValue(true);
+      await encryptService.decryptToUtf8WithPurpose(encString, key, "purpose");
+
+      expect(encryptService.decryptToUtf8).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ...new EncString("2.iv|data|mac"),
+        }),
+        key
+      );
+    });
+
+    it("should throw if the purpose does not match", async () => {
+      cryptoFunctionService.compareFast.mockResolvedValue(false);
+      await expect(
+        encryptService.decryptToUtf8WithPurpose(encString, key, "purpose")
+      ).rejects.toThrow("purpose failed.");
+    });
+
+    it("should return the decrypted value if the purpose matches", async () => {
+      cryptoFunctionService.compareFast.mockResolvedValue(true);
+      const actual = await encryptService.decryptToUtf8WithPurpose(encString, key, "purpose");
+
+      expect(actual).toEqual("decrypted");
     });
   });
 });

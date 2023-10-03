@@ -1,4 +1,4 @@
-import { EncryptionType } from "../../../enums";
+import { EncryptionType, PURPOSE_EXTENSION_ENCRYPTION_TYPE_MAP } from "../../../enums";
 import { Utils } from "../../../platform/misc/utils";
 import { CryptoFunctionService } from "../../abstractions/crypto-function.service";
 import { EncryptService } from "../../abstractions/encrypt.service";
@@ -17,6 +17,41 @@ export class EncryptServiceImplementation implements EncryptService {
     protected logService: LogService,
     protected logMacFailures: boolean
   ) {}
+
+  async encryptWithPurpose(
+    plainValue: string,
+    key: SymmetricCryptoKey,
+    purpose: string
+  ): Promise<EncString> {
+    if (purpose == null) {
+      throw new Error("No purpose provided for encryption.");
+    }
+
+    if (PURPOSE_EXTENSION_ENCRYPTION_TYPE_MAP[key.encType] == null) {
+      throw new Error(
+        `EncryptionType ${key.encType} cannot be extended to support purpose encryption.`
+      );
+    }
+
+    const encrypted = await this.encrypt(plainValue, key);
+
+    const purposeBytes = await this.cryptoFunctionService.hkdf(
+      key.encKey,
+      plainValue,
+      purpose,
+      32,
+      "sha256"
+    );
+    const encPurpose = Utils.fromBufferToB64(purposeBytes);
+
+    return new EncString(
+      PURPOSE_EXTENSION_ENCRYPTION_TYPE_MAP[key.encType],
+      encrypted.data,
+      encrypted.iv,
+      encrypted.mac,
+      encPurpose
+    );
+  }
 
   async encrypt(plainValue: string | Uint8Array, key: SymmetricCryptoKey): Promise<EncString> {
     if (key == null) {
@@ -61,6 +96,37 @@ export class EncryptServiceImplementation implements EncryptService {
 
     encBytes.set(new Uint8Array(encValue.data), 1 + encValue.iv.byteLength + macLen);
     return new EncArrayBuffer(encBytes);
+  }
+
+  async decryptToUtf8WithPurpose(
+    encString: EncString,
+    key: SymmetricCryptoKey,
+    cleartextPurpose: string
+  ): Promise<string> {
+    if (cleartextPurpose == null) {
+      throw new Error("No purpose provided for decryption.");
+    }
+
+    if (PURPOSE_EXTENSION_ENCRYPTION_TYPE_MAP[key.encType] == null) {
+      throw new Error(
+        `EncryptionType ${key.encType} cannot be extended to support purpose encryption.`
+      );
+    }
+
+    const removedPurpose = new EncString(key.encType, encString.data, encString.iv, encString.mac);
+
+    const decrypted = await this.decryptToUtf8(removedPurpose, key);
+
+    const purpose = Utils.fromBufferToB64(
+      await this.cryptoFunctionService.hkdf(key.encKey, decrypted, cleartextPurpose, 32, "sha256")
+    );
+
+    const purposesEqual = await this.cryptoFunctionService.compareFast(purpose, encString.purpose);
+    if (!purposesEqual) {
+      throw new Error("purpose failed.");
+    }
+
+    return decrypted;
   }
 
   async decryptToUtf8(encString: EncString, key: SymmetricCryptoKey): Promise<string> {

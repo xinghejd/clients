@@ -13,15 +13,17 @@ export class EncString implements Encrypted {
   data?: string;
   iv?: string;
   mac?: string;
+  purpose?: string;
 
   constructor(
     encryptedStringOrType: string | EncryptionType,
     data?: string,
     iv?: string,
-    mac?: string
+    mac?: string,
+    purpose?: string
   ) {
     if (data != null) {
-      this.initFromData(encryptedStringOrType as EncryptionType, data, iv, mac);
+      this.initFromData(encryptedStringOrType as EncryptionType, data, iv, mac, purpose);
     } else {
       this.initFromEncryptedString(encryptedStringOrType as string);
     }
@@ -51,7 +53,13 @@ export class EncString implements Encrypted {
     return new EncString(obj);
   }
 
-  private initFromData(encType: EncryptionType, data: string, iv: string, mac: string) {
+  private initFromData(
+    encType: EncryptionType,
+    data: string,
+    iv: string,
+    mac: string,
+    purpose: string
+  ) {
     if (iv != null) {
       this.encryptedString = (encType + "." + iv + "|" + data) as EncryptedString;
     } else {
@@ -63,10 +71,16 @@ export class EncString implements Encrypted {
       this.encryptedString = (this.encryptedString + "|" + mac) as EncryptedString;
     }
 
+    // purpose
+    if (purpose != null) {
+      this.encryptedString = (this.encryptedString + "|" + purpose) as EncryptedString;
+    }
+
     this.encryptionType = encType;
     this.data = data;
     this.iv = iv;
     this.mac = mac;
+    this.purpose = purpose;
   }
 
   private initFromEncryptedString(encryptedString: string) {
@@ -96,6 +110,12 @@ export class EncString implements Encrypted {
       case EncryptionType.Rsa2048_OaepSha256_B64:
       case EncryptionType.Rsa2048_OaepSha1_B64:
         this.data = encPieces[0];
+        break;
+      case EncryptionType.AesCbc256_HmacSha256_HkdfSha256Purpose_b64:
+        this.iv = encPieces[0];
+        this.data = encPieces[1];
+        this.mac = encPieces[2];
+        this.purpose = encPieces[3];
         break;
       default:
         return;
@@ -137,7 +157,7 @@ export class EncString implements Encrypted {
     return EXPECTED_NUM_PARTS_BY_ENCRYPTION_TYPE[encType] === encPieces.length;
   }
 
-  async decrypt(orgId: string, key: SymmetricCryptoKey = null): Promise<string> {
+  async decrypt(orgId: string, key: SymmetricCryptoKey = null, purpose?: string): Promise<string> {
     if (this.decryptedValue != null) {
       return this.decryptedValue;
     }
@@ -150,7 +170,18 @@ export class EncString implements Encrypted {
         throw new Error("No key to decrypt EncString with orgId " + orgId);
       }
 
+      if (
+        this.encryptionType === EncryptionType.AesCbc256_HmacSha256_HkdfSha256Purpose_b64 &&
+        purpose == null
+      ) {
+        throw new Error("Purpose required for decryption of EncString with purpose.");
+      }
+
       const encryptService = Utils.getContainerService().getEncryptService();
+
+      if (this.encryptionType === EncryptionType.AesCbc256_HmacSha256_HkdfSha256Purpose_b64) {
+        this.decryptedValue = await encryptService.decryptToUtf8WithPurpose(this, key, purpose);
+      }
       this.decryptedValue = await encryptService.decryptToUtf8(this, key);
     } catch (e) {
       this.decryptedValue = "[error: cannot decrypt]";

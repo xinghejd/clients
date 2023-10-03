@@ -182,6 +182,72 @@ describe("EncString", () => {
     });
   });
 
+  describe("AesCbc256_HmacSha256_HkdfSha256Purpose_b64", () => {
+    test("constructor", () => {
+      const encString = new EncString(
+        EncryptionType.AesCbc256_HmacSha256_HkdfSha256Purpose_b64,
+        "data",
+        "iv",
+        "mac",
+        "purpose"
+      );
+
+      expect(encString).toEqual({
+        data: "data",
+        encryptedString: "7.iv|data|mac|purpose",
+        encryptionType: 7,
+        iv: "iv",
+        mac: "mac",
+        purpose: "purpose",
+      });
+    });
+
+    describe("isSerializedEncString", () => {
+      it("is true if valid", () => {
+        expect(EncString.isSerializedEncString("7.iv|data|mac|purpose")).toBe(true);
+      });
+
+      it("is false if invalid", () => {
+        expect(EncString.isSerializedEncString("7.iv|data|mac")).toBe(false);
+      });
+    });
+
+    test("valid", () => {
+      const encString = new EncString("7.iv|data|mac|purpose");
+
+      expect(encString).toEqual({
+        data: "data",
+        encryptedString: "7.iv|data|mac|purpose",
+        encryptionType: 7,
+        iv: "iv",
+        mac: "mac",
+        purpose: "purpose",
+      });
+    });
+
+    test("invalid", () => {
+      const encString = new EncString("7.iv|data|mac");
+
+      expect(encString).toEqual({
+        encryptedString: "7.iv|data|mac",
+        encryptionType: 7,
+      });
+    });
+
+    test("toJSON includes purpose", () => {
+      expect(new EncString("7.iv|data|mac|purpose").toJSON()).toBe("7.iv|data|mac|purpose");
+      expect(
+        new EncString(
+          EncryptionType.AesCbc256_HmacSha256_HkdfSha256Purpose_b64,
+          "data",
+          "iv",
+          "mac",
+          "purpose"
+        ).toJSON()
+      ).toBe("7.iv|data|mac|purpose");
+    });
+  });
+
   it("Exit early if null", () => {
     const encString = new EncString(null);
 
