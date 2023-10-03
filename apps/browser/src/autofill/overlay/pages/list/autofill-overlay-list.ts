@@ -35,6 +35,15 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     this.setupOverlayListGlobalListeners();
   }
 
+  /**
+   * Initializes the overlay list and updates the list items with the passed ciphers.
+   * If the auth status is not `Unlocked`, the locked overlay is built.
+   *
+   * @param translations - The translations to use for the overlay list.
+   * @param styleSheetUrl - The URL of the stylesheet to use for the overlay list.
+   * @param authStatus - The current authentication status.
+   * @param ciphers - The ciphers to display in the overlay list.
+   */
   private async initAutofillOverlayList({
     translations,
     styleSheetUrl,
@@ -59,13 +68,11 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     this.buildLockedOverlay();
   }
 
-  private resetOverlayListContainer() {
-    this.overlayListContainer.innerHTML = "";
-  }
-
+  /**
+   * Builds the locked overlay, which is displayed when the user is not authenticated.
+   * Facilitates the ability to unlock the extension from the overlay.
+   */
   private buildLockedOverlay() {
-    this.resetOverlayListContainer();
-
     const lockedOverlay = globalThis.document.createElement("div");
     lockedOverlay.id = "locked-overlay-description";
     lockedOverlay.classList.add("locked-overlay", "overlay-list-message");
@@ -90,14 +97,24 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     this.overlayListContainer.append(lockedOverlay, overlayListButtonContainer);
   }
 
+  /**
+   * Handles the click event for the unlock button.
+   * Sends a message to the parent window to unlock the vault.
+   */
   private handleUnlockButtonClick = () => {
     this.postMessageToParent({ command: "unlockVault" });
   };
 
+  /**
+   * Updates the list items with the passed ciphers.
+   * If no ciphers are passed, the no results overlay is built.
+   *
+   * @param ciphers - The ciphers to display in the overlay list.
+   */
   private updateListItems(ciphers: OverlayCipherData[]) {
     this.ciphers = ciphers;
     this.currentCipherIndex = 0;
-    this.resetOverlayListContainer();
+    this.overlayListContainer.innerHTML = "";
 
     if (!ciphers?.length) {
       this.buildNoResultsOverlayList();
@@ -114,6 +131,45 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     this.overlayListContainer.appendChild(this.ciphersList);
   }
 
+  /**
+   * Overlay view that is presented when no ciphers are found for a given page.
+   * Facilitates the ability to add a new vault item from the overlay.
+   */
+  private buildNoResultsOverlayList() {
+    const noItemsMessage = globalThis.document.createElement("div");
+    noItemsMessage.classList.add("no-items", "overlay-list-message");
+    noItemsMessage.textContent = this.getTranslation("noItemsToShow");
+
+    const newItemButton = globalThis.document.createElement("button");
+    newItemButton.tabIndex = -1;
+    newItemButton.id = "new-item-button";
+    newItemButton.classList.add("add-new-item-button", "overlay-list-button");
+    newItemButton.textContent = this.getTranslation("newItem");
+    newItemButton.setAttribute(
+      "aria-label",
+      `${this.getTranslation("addNewVaultItem")}, ${this.getTranslation("opensInANewWindow")}`
+    );
+    newItemButton.prepend(buildSvgDomElement(plusIcon));
+    newItemButton.addEventListener(EVENTS.CLICK, this.handeNewItemButtonClick);
+
+    const overlayListButtonContainer = globalThis.document.createElement("div");
+    overlayListButtonContainer.classList.add("overlay-list-button-container");
+    overlayListButtonContainer.appendChild(newItemButton);
+
+    this.overlayListContainer.append(noItemsMessage, overlayListButtonContainer);
+  }
+
+  /**
+   * Handles the click event for the new item button.
+   * Sends a message to the parent window to add a new vault item.
+   */
+  private handeNewItemButtonClick = () => {
+    this.postMessageToParent({ command: "addNewVaultItem" });
+  };
+
+  /**
+   * Loads a page of ciphers into the overlay list container.
+   */
   private loadPageOfCiphers() {
     const lastIndex = Math.min(
       this.currentCipherIndex + this.showCiphersPerPage,
@@ -129,6 +185,10 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     }
   }
 
+  /**
+   * Handles updating the list of ciphers when the
+   * user scrolls to the bottom of the list.
+   */
   private handleCiphersListScrollEvent = () => {
     if (this.cipherListScrollIsDebounced) {
       return;
@@ -141,6 +201,10 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     this.cipherListScrollDebounceTimeout = setTimeout(this.handleDebouncedScrollEvent, 300);
   };
 
+  /**
+   * Debounced handler for updating the list of ciphers when the user scrolls to
+   * the bottom of the list. Triggers at most once every 300ms.
+   */
   private handleDebouncedScrollEvent = () => {
     this.cipherListScrollIsDebounced = false;
 
@@ -149,6 +213,11 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     }
   };
 
+  /**
+   * Builds the list item for a given cipher.
+   *
+   * @param cipher - The cipher to build the list item for.
+   */
   private buildOverlayActionsListItem(cipher: any) {
     const fillCipherElement = this.buildFillCipherElement(cipher);
     const viewCipherElement = this.buildViewCipherElement(cipher);
@@ -165,6 +234,12 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     return overlayActionsListItem;
   }
 
+  /**
+   * Builds the fill cipher button for a given cipher.
+   * Wraps the cipher icon and details.
+   *
+   * @param cipher - The cipher to build the fill cipher button for.
+   */
   private buildFillCipherElement(cipher: any) {
     const cipherIcon = this.buildCipherIconElement(cipher);
     const cipherDetailsElement = this.buildCipherDetailsElement(cipher);
@@ -187,6 +262,12 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     return fillCipherElement;
   }
 
+  /**
+   * Handles the click event for the fill cipher button.
+   * Sends a message to the parent window to fill the selected cipher.
+   *
+   * @param cipher - The cipher to fill.
+   */
   private handleFillCipherClickEvent = (cipher: any) => {
     return this.useEventHandlersMemo(
       () =>
@@ -198,6 +279,13 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     );
   };
 
+  /**
+   * Handles the keyup event for the fill cipher button. Facilitates
+   * selecting the next/previous cipher item on ArrowDown/ArrowUp. Also
+   * facilitates moving keyboard focus to the view cipher button on ArrowRight.
+   *
+   * @param event - The keyup event.
+   */
   private handleFillCipherKeyUpEvent = (event: KeyboardEvent) => {
     const listenedForKeys = new Set(["ArrowDown", "ArrowUp", "ArrowRight"]);
     if (!listenedForKeys.has(event.code) || !(event.target instanceof Element)) {
@@ -220,6 +308,11 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     this.focusViewCipherButton(currentListItem, event.target as HTMLElement);
   };
 
+  /**
+   * Builds the button that facilitates viewing a cipher in the vault.
+   *
+   * @param cipher - The cipher to view.
+   */
   private buildViewCipherElement(cipher: any) {
     const viewCipherElement = globalThis.document.createElement("button");
     viewCipherElement.tabIndex = -1;
@@ -235,6 +328,12 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     return viewCipherElement;
   }
 
+  /**
+   * Handles the click event for the view cipher button. Sends a
+   * message to the parent window to view the selected cipher.
+   *
+   * @param cipher - The cipher to view.
+   */
   private handleViewCipherClickEvent = (cipher: any) => {
     return this.useEventHandlersMemo(
       () => this.postMessageToParent({ command: "viewSelectedCipher", overlayCipherId: cipher.id }),
@@ -242,6 +341,14 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     );
   };
 
+  /**
+   * Handles the keyup event for the view cipher button. Facilitates
+   * selecting the next/previous cipher item on ArrowDown/ArrowUp.
+   * Also facilitates moving keyboard focus to the current fill
+   * cipher button on ArrowLeft.
+   *
+   * @param event - The keyup event.
+   */
   private handleViewCipherKeyUpEvent = (event: KeyboardEvent) => {
     const listenedForKeys = new Set(["ArrowDown", "ArrowUp", "ArrowLeft"]);
     if (!listenedForKeys.has(event.code) || !(event.target instanceof Element)) {
@@ -267,6 +374,13 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     previousSibling?.focus();
   };
 
+  /**
+   * Builds the icon for a given cipher. Prioritizes the favicon from a given cipher url
+   * and the default icon element within the extension. If neither are available, the
+   * globe icon is used.
+   *
+   * @param cipher - The cipher to build the icon for.
+   */
   private buildCipherIconElement(cipher: any) {
     const cipherIcon = globalThis.document.createElement("span");
     cipherIcon.classList.add("cipher-icon");
@@ -319,34 +433,6 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
 
     return cipherUserLoginElement;
   }
-
-  private buildNoResultsOverlayList() {
-    const noItemsMessage = globalThis.document.createElement("div");
-    noItemsMessage.classList.add("no-items", "overlay-list-message");
-    noItemsMessage.textContent = this.getTranslation("noItemsToShow");
-
-    const newItemButton = globalThis.document.createElement("button");
-    newItemButton.tabIndex = -1;
-    newItemButton.id = "new-item-button";
-    newItemButton.classList.add("add-new-item-button", "overlay-list-button");
-    newItemButton.textContent = this.getTranslation("newItem");
-    newItemButton.setAttribute(
-      "aria-label",
-      `${this.getTranslation("addNewVaultItem")}, ${this.getTranslation("opensInANewWindow")}`
-    );
-    newItemButton.prepend(buildSvgDomElement(plusIcon));
-    newItemButton.addEventListener(EVENTS.CLICK, this.handeNewItemButtonClick);
-
-    const overlayListButtonContainer = globalThis.document.createElement("div");
-    overlayListButtonContainer.classList.add("overlay-list-button-container");
-    overlayListButtonContainer.appendChild(newItemButton);
-
-    this.overlayListContainer.append(noItemsMessage, overlayListButtonContainer);
-  }
-
-  private handeNewItemButtonClick = () => {
-    this.postMessageToParent({ command: "addNewVaultItem" });
-  };
 
   private checkOverlayListFocused() {
     if (globalThis.document.hasFocus()) {
