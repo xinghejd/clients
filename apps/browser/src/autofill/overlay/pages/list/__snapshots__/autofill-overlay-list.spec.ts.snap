@@ -157,8 +157,8 @@ exports[`AutofillOverlayList initAutofillOverlayList the list of ciphers for an 
         class="cipher-container"
       >
         <button
-          aria-description="partialUsername, username3"
-          aria-label="fillCredentialsFor website login 3"
+          aria-description="partialUsername, "
+          aria-label="fillCredentialsFor "
           class="fill-cipher-button"
           tabindex="-1"
         >
@@ -168,23 +168,10 @@ exports[`AutofillOverlayList initAutofillOverlayList the list of ciphers for an 
           />
           <span
             class="cipher-details"
-          >
-            <span
-              class="cipher-name"
-              title="website login 3"
-            >
-              website login 3
-            </span>
-            <span
-              class="cipher-user-login"
-              title="username3"
-            >
-              username3
-            </span>
-          </span>
+          />
         </button>
         <button
-          aria-label="view website login 3, opensInANewWindow"
+          aria-label="view , opensInANewWindow"
           class="view-cipher-button"
           tabindex="-1"
         >

@@ -218,7 +218,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
    *
    * @param cipher - The cipher to build the list item for.
    */
-  private buildOverlayActionsListItem(cipher: any) {
+  private buildOverlayActionsListItem(cipher: OverlayCipherData) {
     const fillCipherElement = this.buildFillCipherElement(cipher);
     const viewCipherElement = this.buildViewCipherElement(cipher);
 
@@ -240,7 +240,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
    *
    * @param cipher - The cipher to build the fill cipher button for.
    */
-  private buildFillCipherElement(cipher: any) {
+  private buildFillCipherElement(cipher: OverlayCipherData) {
     const cipherIcon = this.buildCipherIconElement(cipher);
     const cipherDetailsElement = this.buildCipherDetailsElement(cipher);
 
@@ -268,7 +268,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
    *
    * @param cipher - The cipher to fill.
    */
-  private handleFillCipherClickEvent = (cipher: any) => {
+  private handleFillCipherClickEvent = (cipher: OverlayCipherData) => {
     return this.useEventHandlersMemo(
       () =>
         this.postMessageToParent({
@@ -313,7 +313,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
    *
    * @param cipher - The cipher to view.
    */
-  private buildViewCipherElement(cipher: any) {
+  private buildViewCipherElement(cipher: OverlayCipherData) {
     const viewCipherElement = globalThis.document.createElement("button");
     viewCipherElement.tabIndex = -1;
     viewCipherElement.classList.add("view-cipher-button");
@@ -334,7 +334,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
    *
    * @param cipher - The cipher to view.
    */
-  private handleViewCipherClickEvent = (cipher: any) => {
+  private handleViewCipherClickEvent = (cipher: OverlayCipherData) => {
     return this.useEventHandlersMemo(
       () => this.postMessageToParent({ command: "viewSelectedCipher", overlayCipherId: cipher.id }),
       `${cipher.id}-view-cipher-button-click-handler`
@@ -381,7 +381,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
    *
    * @param cipher - The cipher to build the icon for.
    */
-  private buildCipherIconElement(cipher: any) {
+  private buildCipherIconElement(cipher: OverlayCipherData) {
     const cipherIcon = globalThis.document.createElement("span");
     cipherIcon.classList.add("cipher-icon");
     cipherIcon.setAttribute("aria-hidden", "true");
@@ -405,18 +405,37 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     return cipherIcon;
   }
 
-  private buildCipherDetailsElement(cipher: any) {
+  /**
+   * Builds the details for a given cipher. Includes the cipher name and username login.
+   *
+   * @param cipher - The cipher to build the details for.
+   */
+  private buildCipherDetailsElement(cipher: OverlayCipherData) {
     const cipherNameElement = this.buildCipherNameElement(cipher);
     const cipherUserLoginElement = this.buildCipherUserLoginElement(cipher);
 
     const cipherDetailsElement = globalThis.document.createElement("span");
     cipherDetailsElement.classList.add("cipher-details");
-    cipherDetailsElement.append(cipherNameElement, cipherUserLoginElement);
+    if (cipherNameElement) {
+      cipherDetailsElement.appendChild(cipherNameElement);
+    }
+    if (cipherUserLoginElement) {
+      cipherDetailsElement.appendChild(cipherUserLoginElement);
+    }
 
     return cipherDetailsElement;
   }
 
-  private buildCipherNameElement(cipher: any) {
+  /**
+   * Builds the name element for a given cipher.
+   *
+   * @param cipher - The cipher to build the name element for.
+   */
+  private buildCipherNameElement(cipher: OverlayCipherData): HTMLSpanElement | null {
+    if (!cipher.name) {
+      return null;
+    }
+
     const cipherNameElement = globalThis.document.createElement("span");
     cipherNameElement.classList.add("cipher-name");
     cipherNameElement.textContent = cipher.name;
@@ -425,7 +444,16 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     return cipherNameElement;
   }
 
-  private buildCipherUserLoginElement(cipher: any) {
+  /**
+   * Builds the username login element for a given cipher.
+   *
+   * @param cipher - The cipher to build the username login element for.
+   */
+  private buildCipherUserLoginElement(cipher: OverlayCipherData): HTMLSpanElement | null {
+    if (!cipher.login?.username) {
+      return null;
+    }
+
     const cipherUserLoginElement = globalThis.document.createElement("span");
     cipherUserLoginElement.classList.add("cipher-user-login");
     cipherUserLoginElement.textContent = cipher.login.username;
@@ -434,6 +462,10 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     return cipherUserLoginElement;
   }
 
+  /**
+   * Validates whether the overlay list iframe is currently focused.
+   * If not focused, will check if the button element is focused.
+   */
   private checkOverlayListFocused() {
     if (globalThis.document.hasFocus()) {
       return;
@@ -442,6 +474,11 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     this.postMessageToParent({ command: "checkAutofillOverlayButtonFocused" });
   }
 
+  /**
+   * Focuses the overlay list iframe. The element that receives focus is
+   * determined by the presence of the unlock button, new item button, or
+   * the first cipher button.
+   */
   private focusOverlayList() {
     const unlockButtonElement = this.overlayListContainer.querySelector(
       "#unlock-button"
@@ -465,12 +502,21 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     firstCipherElement?.focus();
   }
 
+  /**
+   * Sets up the global listeners for the overlay list iframe.
+   */
   private setupOverlayListGlobalListeners() {
     this.setupGlobalListeners(this.overlayListWindowMessageHandlers);
 
     this.resizeObserver = new ResizeObserver(this.handleResizeObserver);
   }
 
+  /**
+   * Handles the resize observer event. Facilitates updating the height of the
+   * overlay list iframe when the height of the list changes.
+   *
+   * @param entries - The resize observer entries.
+   */
   private handleResizeObserver = (entries: ResizeObserverEntry[]) => {
     for (let entryIndex = 0; entryIndex < entries.length; entryIndex++) {
       const entry = entries[entryIndex];
@@ -484,10 +530,22 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     }
   };
 
+  /**
+   * Establishes a memoized event handler for a given event.
+   *
+   * @param eventHandler - The event handler to memoize.
+   * @param memoIndex - The memo index to use for the event handler.
+   */
   private useEventHandlersMemo = (eventHandler: EventListener, memoIndex: string) => {
     return this.eventHandlersMemo[memoIndex] || (this.eventHandlersMemo[memoIndex] = eventHandler);
   };
 
+  /**
+   * Focuses the next list item in the overlay list. If the current list item is the last
+   * item in the list, the first item is focused.
+   *
+   * @param currentListItem - The current list item.
+   */
   private focusNextListItem(currentListItem: HTMLElement) {
     const nextListItem = currentListItem.nextSibling as HTMLElement;
     const nextSibling = nextListItem?.querySelector(".fill-cipher-button") as HTMLElement;
@@ -501,6 +559,12 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     firstSibling?.focus();
   }
 
+  /**
+   * Focuses the previous list item in the overlay list. If the current list item is the first
+   * item in the list, the last item is focused.
+   *
+   * @param currentListItem - The current list item.
+   */
   private focusPreviousListItem(currentListItem: HTMLElement) {
     const previousListItem = currentListItem.previousSibling as HTMLElement;
     const previousSibling = previousListItem?.querySelector(".fill-cipher-button") as HTMLElement;
@@ -514,6 +578,13 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     lastSibling?.focus();
   }
 
+  /**
+   * Focuses the view cipher button relative to the current fill cipher button.
+   *
+   * @param currentListItem - The current list item.
+   * @param currentButtonElement - The current button element.
+   * @private
+   */
   private focusViewCipherButton(currentListItem: HTMLElement, currentButtonElement: HTMLElement) {
     const cipherContainer = currentListItem.querySelector(".cipher-container") as HTMLElement;
     cipherContainer.classList.add("remove-outline");

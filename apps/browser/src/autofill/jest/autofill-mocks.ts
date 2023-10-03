@@ -194,6 +194,8 @@ function createInitAutofillOverlayListMessageMock(
         },
       }),
       createAutofillOverlayCipherDataMock(3, {
+        name: "",
+        login: { username: "" },
         icon: { imageEnabled: true, image: "", fallbackImage: "", icon: "bw-icon" },
       }),
       createAutofillOverlayCipherDataMock(4, {
