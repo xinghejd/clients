@@ -300,9 +300,6 @@ export class UpdateBadge {
       stateServiceOptions: {
         stateFactory: new StateFactory(GlobalState, Account),
       },
-      stateMigrationServiceOptions: {
-        stateFactory: new StateFactory(GlobalState, Account),
-      },
       apiServiceOptions: {
         logoutCallback: () => Promise.reject("not implemented"),
       },

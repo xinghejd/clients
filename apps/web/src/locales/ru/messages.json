@@ -508,9 +508,6 @@
   "maxFileSize": {
     "message": "Максимальный размер файла 500 МБ."
   },
-  "updateKey": {
-    "message": "Вы не можете использовать эту функцию, пока не обновите свой ключ шифрования."
-  },
   "addedItem": {
     "message": "Элемент добавлен"
   },
@@ -982,7 +979,7 @@
     "message": "Экспорт"
   },
   "exportVault": {
-    "message": "Экспортировать хранилище"
+    "message": "Экспорт хранилища"
   },
   "exportSecrets": {
     "message": "Экспорт секретов"
@@ -1319,10 +1316,10 @@
     "message": "Файл содержит неназначенные элементы."
   },
   "selectFormat": {
-    "message": "Выберите формат файла импорта"
+    "message": "Выберите формат импортируемого файла"
   },
   "selectImportFile": {
-    "message": "Выберите файл импорта"
+    "message": "Выберите импортируемый файл"
   },
   "chooseFile": {
     "message": "Выбрать файл"
@@ -1425,7 +1422,10 @@
   "twoStepLoginDesc": {
     "message": "Защитите свою учетную запись, при помощи дополнительного шага при авторизации."
   },
-  "twoStepLoginOrganizationDescStart": {
+  "twoStepLoginTeamsDesc": {
+    "message": "Включить двухэтапную аутентификацию для вашей организации."
+  },
+  "twoStepLoginEnterpriseDescStart": {
     "message": "Применить параметры двухэтапной аутентификации Bitwarden для пользователей, используя ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Enforce Bitwarden Two-step Login options for members by using the Two-step Login Policy.'"
   },
@@ -1924,8 +1924,8 @@
   "premiumSignUpStorage": {
     "message": "1 ГБ зашифрованного хранилища для вложенных файлов."
   },
-  "premiumSignUpTwoStep": {
-    "message": "Дополнительные варианты двухэтапной аутентификации, такие как YubiKey, FIDO U2F и Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Проприетарные варианты двухэтапной аутентификации, такие как YubiKey или Duo."
   },
   "premiumSignUpEmergency": {
     "message": "Экстренный доступ"
@@ -2039,6 +2039,9 @@
         "example": "month or year"
       }
     }
+  },
+  "paymentChargedWithUnpaidSubscription": {
+    "message": "За любые неоплаченные подписки будет взиматься плата с вашего способа оплаты."
   },
   "paymentChargedWithTrial": {
     "message": "Ваш план включает семидневную бесплатную пробную версию. Ваш метод оплаты не будет использован до окончания пробной версии. Оплата будет выполняться каждый $INTERVAL$. Вы можете отказаться в любое время."
@@ -3470,17 +3473,11 @@
   "keyUpdated": {
     "message": "Ключ обновлен"
   },
-  "updateKeyTitle": {
-    "message": "Обновить ключ"
-  },
   "updateEncryptionKey": {
     "message": "Обновить ключ шифрования"
   },
-  "updateEncryptionKeyShortDesc": {
-    "message": "В настоящее время вы используете устаревшую схему шифрования."
-  },
-  "updateEncryptionKeyDesc": {
-    "message": "Мы перешли на более сложные ключи шифрования, которые обеспечивают лучшую безопасность и доступ к новым возможностям. Обновление ключа шифрования происходит быстро и легко. Просто введите свой мастер-пароль ниже. Это обновление в конечном итоге станет обязательным."
+  "updateEncryptionSchemeDesc": {
+    "message": "Мы изменили схему шифрования, чтобы повысить безопасность. Обновите ключ шифрования, введя ниже мастер-пароль."
   },
   "updateEncryptionKeyWarning": {
     "message": "После обновления ключа шифрования необходимо выйти из всех приложений Bitwarden, которые вы используете (например, из мобильного приложения или расширения браузера). Если этого не сделать, могут повредиться данные (так как при выходе и последующем входе загружается ваш новый ключ шифрования). Мы попытаемся автоматически осуществить завершение ваших сессий, однако это может произойти с задержкой."
@@ -3646,7 +3643,7 @@
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "fingerprintMatchInfo": {
-    "message": "Убедитесь, что ваше хранилище разблокировано и фраза отпечатка пальца совпадает на другом устройстве."
+    "message": "Убедитесь, что ваше хранилище разблокировано и фраза отпечатка совпадает на другом устройстве."
   },
   "fingerprintPhraseHeader": {
     "message": "Фраза отпечатка"
@@ -6772,7 +6769,7 @@
     "message": "Удалить доступ"
   },
   "checkForBreaches": {
-    "message": "Проверьте известные случаи утечки данных для этого пароля"
+    "message": "Проверять известные случаи утечки данных для этого пароля"
   },
   "exposedMasterPassword": {
     "message": "Мастер-пароль скомпрометирован"
@@ -7013,12 +7010,6 @@
   "next": {
     "message": "Далее"
   },
-  "usFlag": {
-    "message": "Флаг США"
-  },
-  "euFlag": {
-    "message": "Флаг ЕС"
-  },
   "selectedRegionFlag": {
     "message": "Флаг выбранного региона"
   },
@@ -7177,6 +7168,12 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "baseUrl": {
+    "message": "URL сервера"
+  },
+  "aliasDomain": {
+    "message": "Псевдоним домена"
   },
   "alreadyHaveAccount": {
     "message": "Уже зарегистрированы?"

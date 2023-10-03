@@ -508,9 +508,6 @@
   "maxFileSize": {
     "message": "Maksimum lêergrootte is 500 MB."
   },
-  "updateKey": {
-    "message": "U kan eers hierdie funksie gebruik wanneer u u enkripsiesleutel bygewerk het."
-  },
   "addedItem": {
     "message": "Toegevoegde item"
   },
@@ -1425,7 +1422,10 @@
   "twoStepLoginDesc": {
     "message": "Beveilig u rekening deur ’n bykomende stap te vereis wanneer u aanteken."
   },
-  "twoStepLoginOrganizationDescStart": {
+  "twoStepLoginTeamsDesc": {
+    "message": "Enable two-step login for your organization."
+  },
+  "twoStepLoginEnterpriseDescStart": {
     "message": "Enforce Bitwarden Two-step Login options for members by using the ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Enforce Bitwarden Two-step Login options for members by using the Two-step Login Policy.'"
   },
@@ -1924,8 +1924,8 @@
   "premiumSignUpStorage": {
     "message": "1 GG geënkripteerde berging vir lêeraanhegsels."
   },
-  "premiumSignUpTwoStep": {
-    "message": "Bykomende tweestapaantekenopsies soos YubiKey, FIDO U2F en Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Proprietary two-step login options such as YubiKey and Duo."
   },
   "premiumSignUpEmergency": {
     "message": "Noodtoegang"
@@ -2039,6 +2039,9 @@
         "example": "month or year"
       }
     }
+  },
+  "paymentChargedWithUnpaidSubscription": {
+    "message": "Your payment method will be charged for any unpaid subscriptions."
   },
   "paymentChargedWithTrial": {
     "message": "Your plan comes with a free 7 day trial. Your payment method will not be charged until the trial has ended. You may cancel at any time."
@@ -3470,17 +3473,11 @@
   "keyUpdated": {
     "message": "Sleutel bygewerk"
   },
-  "updateKeyTitle": {
-    "message": "Werk sleutel by"
-  },
   "updateEncryptionKey": {
     "message": "Werk enkripsiesleutel by"
   },
-  "updateEncryptionKeyShortDesc": {
-    "message": "U gebruik tans ’n verouderde enkripsieskema."
-  },
-  "updateEncryptionKeyDesc": {
-    "message": "We've moved to larger encryption keys that provide better security and access to newer features. Updating your encryption key is quick and easy. Just type your master password below. This update will eventually become mandatory."
+  "updateEncryptionSchemeDesc": {
+    "message": "We've changed the encryption scheme to provide better security. Update your encryption key now by entering your master password below."
   },
   "updateEncryptionKeyWarning": {
     "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
@@ -7013,12 +7010,6 @@
   "next": {
     "message": "Volgende"
   },
-  "usFlag": {
-    "message": "VS-vlag"
-  },
-  "euFlag": {
-    "message": "EU-vlag"
-  },
   "selectedRegionFlag": {
     "message": "Gekose streekvlag"
   },
@@ -7177,6 +7168,12 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "baseUrl": {
+    "message": "Server URL"
+  },
+  "aliasDomain": {
+    "message": "Alias domain"
   },
   "alreadyHaveAccount": {
     "message": "Already have an account?"

@@ -508,9 +508,6 @@
   "maxFileSize": {
     "message": "Maksimaalne faili suurus on 500 MB."
   },
-  "updateKey": {
-    "message": "Seda funktsiooni ei saa enne krüpteerimise võtme uuendamist kasutada."
-  },
   "addedItem": {
     "message": "Kirje on lisatud"
   },
@@ -1425,7 +1422,10 @@
   "twoStepLoginDesc": {
     "message": "Kaitse oma kontot, nõudes sisselogimisel lisakinnitust."
   },
-  "twoStepLoginOrganizationDescStart": {
+  "twoStepLoginTeamsDesc": {
+    "message": "Enable two-step login for your organization."
+  },
+  "twoStepLoginEnterpriseDescStart": {
     "message": "Enforce Bitwarden Two-step Login options for members by using the ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Enforce Bitwarden Two-step Login options for members by using the Two-step Login Policy.'"
   },
@@ -1924,8 +1924,8 @@
   "premiumSignUpStorage": {
     "message": "1 GB ulatuses krüpteeritud salvestusruum."
   },
-  "premiumSignUpTwoStep": {
-    "message": "Lisavõimalused kaheastmeliseks kinnitamiseks, näiteks YubiKey, FIDO U2F ja Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Proprietary two-step login options such as YubiKey and Duo."
   },
   "premiumSignUpEmergency": {
     "message": "Hädaolukorra ligipääs"
@@ -2039,6 +2039,9 @@
         "example": "month or year"
       }
     }
+  },
+  "paymentChargedWithUnpaidSubscription": {
+    "message": "Your payment method will be charged for any unpaid subscriptions."
   },
   "paymentChargedWithTrial": {
     "message": "Valitud pakett sisaldab 7 päevast prooviperioodi. Krediitkaardilt ei võeta raha enne, kui prooviperiood läbi saab. Väljatoodud summa debiteeritakse iga $INTERVAL$. Tellimust on võimalik igal ajal tühistada."
@@ -3470,17 +3473,11 @@
   "keyUpdated": {
     "message": "Võti on uuendatud"
   },
-  "updateKeyTitle": {
-    "message": "Uuenda võtit"
-  },
   "updateEncryptionKey": {
     "message": "Uuenda krüpteerimisvõtit"
   },
-  "updateEncryptionKeyShortDesc": {
-    "message": "Kasutad hetkeseisuga aegunud krüpteerimise skeemi."
-  },
-  "updateEncryptionKeyDesc": {
-    "message": "Oleme kasutusele võtnud suuremad krüpteerimise võtmed, mis pakuvad paremat turvalisust ja uusi funktsioone. Krüpteerimisvõtmete uuendamine on lihtne ja kiire. Piisab ainult ülemparooli sisestamisest. See uuendus on möödapääsmatu ja tuleb ära teha."
+  "updateEncryptionSchemeDesc": {
+    "message": "We've changed the encryption scheme to provide better security. Update your encryption key now by entering your master password below."
   },
   "updateEncryptionKeyWarning": {
     "message": "Pärast krüpteerimisvõtme uuendamist pead kõikides seadmetes, kus Bitwardeni rakendust kasutad, oma kontosse uuesti sisse logima (nt nutitelefonis ja brauseris). Välja- ja sisselogimise (mis ühtlasi laadib ka uue krüpteerimisvõtme) nurjumine võib tingida andmete riknemise. Üritame sinu seadmetest ise välja logida, aga see võib võtta natukene aega."
@@ -7013,12 +7010,6 @@
   "next": {
     "message": "Next"
   },
-  "usFlag": {
-    "message": "US flag"
-  },
-  "euFlag": {
-    "message": "EU flag"
-  },
   "selectedRegionFlag": {
     "message": "Selected region flag"
   },
@@ -7177,6 +7168,12 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "baseUrl": {
+    "message": "Serveri URL"
+  },
+  "aliasDomain": {
+    "message": "Alias domeen"
   },
   "alreadyHaveAccount": {
     "message": "Already have an account?"

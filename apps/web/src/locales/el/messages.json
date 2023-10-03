@@ -508,9 +508,6 @@
   "maxFileSize": {
     "message": "Το μέγιστο μέγεθος αρχείου είναι 500 MB."
   },
-  "updateKey": {
-    "message": "Δεν μπορείτε να χρησιμοποιήσετε αυτήν τη δυνατότητα μέχρι να ενημερώσετε το κλειδί κρυπτογράφησης."
-  },
   "addedItem": {
     "message": "Προστέθηκε στοιχείο"
   },
@@ -1425,7 +1422,10 @@
   "twoStepLoginDesc": {
     "message": "Ασφαλίστε το λογαριασμό σας απαιτώντας ένα επιπλέον βήμα κατά τη σύνδεση."
   },
-  "twoStepLoginOrganizationDescStart": {
+  "twoStepLoginTeamsDesc": {
+    "message": "Enable two-step login for your organization."
+  },
+  "twoStepLoginEnterpriseDescStart": {
     "message": "Enforce Bitwarden Two-step Login options for members by using the ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Enforce Bitwarden Two-step Login options for members by using the Two-step Login Policy.'"
   },
@@ -1924,8 +1924,8 @@
   "premiumSignUpStorage": {
     "message": "1 GB κρυπτογραφημένο αποθηκευτικό χώρο για συνημμένα αρχεία."
   },
-  "premiumSignUpTwoStep": {
-    "message": "Πρόσθετες επιλογές σύνδεσης δύο παραγόντων, όπως το YubiKey, το FIDO U2F και το Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Proprietary two-step login options such as YubiKey and Duo."
   },
   "premiumSignUpEmergency": {
     "message": "Πρόσβαση Έκτακτης Ανάγκης"
@@ -2039,6 +2039,9 @@
         "example": "month or year"
       }
     }
+  },
+  "paymentChargedWithUnpaidSubscription": {
+    "message": "Your payment method will be charged for any unpaid subscriptions."
   },
   "paymentChargedWithTrial": {
     "message": "Το πακέτο σας έρχεται με δωρεάν δοκιμή 7 ημερών. Ο τρόπος πληρωμής σας δεν θα χρεωθεί μέχρι να τελειώσει η δοκιμή. Η χρέωση θα πραγματοποιείται σε επαναλαμβανόμενη βάση κάθε $INTERVAL$. Μπορείτε να το ακυρώσετε οποιαδήποτε στιγμή."
@@ -3470,17 +3473,11 @@
   "keyUpdated": {
     "message": "Το Κλειδί Ενημερώθηκε"
   },
-  "updateKeyTitle": {
-    "message": "Ενημέρωση Κλειδιού"
-  },
   "updateEncryptionKey": {
     "message": "Ενημέρωση Κλειδιού Κρυπτογράφησης"
   },
-  "updateEncryptionKeyShortDesc": {
-    "message": "Αυτήν τη στιγμή χρησιμοποιείτε ένα ξεπερασμένο σύστημα κρυπτογράφησης."
-  },
-  "updateEncryptionKeyDesc": {
-    "message": "Έχουμε μετακινηθεί σε μεγαλύτερα κλειδιά κρυπτογράφησης που παρέχουν καλύτερη ασφάλεια και πρόσβαση σε νεότερες λειτουργίες. Η ενημέρωση του κλειδιού κρυπτογράφησης είναι γρήγορη και εύκολη. Απλά πληκτρολογήστε τον κύριο κωδικό σας παρακάτω. Αυτή η ενημέρωση τελικά θα καταστεί υποχρεωτική."
+  "updateEncryptionSchemeDesc": {
+    "message": "We've changed the encryption scheme to provide better security. Update your encryption key now by entering your master password below."
   },
   "updateEncryptionKeyWarning": {
     "message": "Μετά την ενημέρωση του κλειδιού κρυπτογράφησης, πρέπει να αποσυνδεθείτε και να επιστρέψετε σε όλες τις εφαρμογές Bitwarden που χρησιμοποιείτε αυτήν τη στιγμή (όπως η εφαρμογή για κινητά ή οι επεκτάσεις του προγράμματος περιήγησης). Η αποτυχία αποσύνδεσης και επαναφοράς (στην οποία γίνεται λήψη του νέου κλειδιού κρυπτογράφησης) ενδέχεται να προκαλέσει καταστροφή δεδομένων. Θα προσπαθήσουμε να αποσυνδεθείτε αυτόματα, ωστόσο αυτό μπορεί να καθυστερήσει."
@@ -7013,12 +7010,6 @@
   "next": {
     "message": "Next"
   },
-  "usFlag": {
-    "message": "US flag"
-  },
-  "euFlag": {
-    "message": "EU flag"
-  },
   "selectedRegionFlag": {
     "message": "Selected region flag"
   },
@@ -7177,6 +7168,12 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "baseUrl": {
+    "message": "Server URL"
+  },
+  "aliasDomain": {
+    "message": "Alias domain"
   },
   "alreadyHaveAccount": {
     "message": "Already have an account?"

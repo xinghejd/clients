@@ -508,9 +508,6 @@
   "maxFileSize": {
     "message": "Maximální velikost souboru je 500 MB."
   },
-  "updateKey": {
-    "message": "Dokud neaktualizujete svůj šifrovací klíč, nemůžete tuto funkci použít."
-  },
   "addedItem": {
     "message": "Položka byla přidána"
   },
@@ -1425,7 +1422,10 @@
   "twoStepLoginDesc": {
     "message": "Zabezpečte svůj účet vyžadováním dodatečného kroku při přihlašování."
   },
-  "twoStepLoginOrganizationDescStart": {
+  "twoStepLoginTeamsDesc": {
+    "message": "Povolí dvoufázové přihlášení pro Vaši organizaci."
+  },
+  "twoStepLoginEnterpriseDescStart": {
     "message": "Vynutí dvoufázové přihlášení členů k Bitwardenu použitím ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Enforce Bitwarden Two-step Login options for members by using the Two-step Login Policy.'"
   },
@@ -1924,8 +1924,8 @@
   "premiumSignUpStorage": {
     "message": "1 GB šifrovaného úložiště pro přílohy."
   },
-  "premiumSignUpTwoStep": {
-    "message": "Další možnosti dvoufázového přihlášení, jako je například YubiKey, FIDO U2F a Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Volby proprietálních dvoufázových přihlášení jako je YubiKey a Duo."
   },
   "premiumSignUpEmergency": {
     "message": "Nouzový přístup"
@@ -2039,6 +2039,9 @@
         "example": "month or year"
       }
     }
+  },
+  "paymentChargedWithUnpaidSubscription": {
+    "message": "Za nezaplacené předplatné bude naúčtována částka z Vaší platební metody."
   },
   "paymentChargedWithTrial": {
     "message": "Vybraný plán obsahuje bezplatnou 7denní zkušební dobu. Částka z Vašeho účtu nebude stržena, dokud tato zkušební doba neuplyne. Předplatné můžete kdykoli zrušit."
@@ -3470,17 +3473,11 @@
   "keyUpdated": {
     "message": "Klíč byl aktualizován"
   },
-  "updateKeyTitle": {
-    "message": "Aktualizovat klíč"
-  },
   "updateEncryptionKey": {
     "message": "Aktualizovat šifrovací klíč"
   },
-  "updateEncryptionKeyShortDesc": {
-    "message": "Aktuálně používáte zastaralé šifrovací schéma."
-  },
-  "updateEncryptionKeyDesc": {
-    "message": "Přešli jsme na delší šifrovací klíče, které poskytují vyšší úroveň zabezpečení a přístup k novým funkcím. Aktualizace Vašeho šifrovacího klíče je rychlá a snadná. Stačí níže zadat Vaše hlavní heslo. Provedení této aktualizace může být v budoucnu povinné."
+  "updateEncryptionSchemeDesc": {
+    "message": "Změnili jsme šifrovací schéma pro zajištění větší bezpečnosti. Aktualizujte Váš šifrovací klíč nyní zadáním hlavního hesla níže."
   },
   "updateEncryptionKeyWarning": {
     "message": "Po aktualizace šifrovacího klíče dojde k odhlášení a budete se muset opětovně přihlásit do všech aplikací Bitwardenu, které aktuálně používáte (např. mobilní aplikace či rozšíření pro prohlížeč). Nezdaří-li se odhlášení a opětovné přihlášení (během něhož bude stažen nový šifrovací klíč), může dojít k poškození dat. Pokusíme se Vás automaticky odhlásit, nicméně, může to chvíli trvat."
@@ -7013,12 +7010,6 @@
   "next": {
     "message": "Další"
   },
-  "usFlag": {
-    "message": "Americká vlajka"
-  },
-  "euFlag": {
-    "message": "Evropská vlajka"
-  },
   "selectedRegionFlag": {
     "message": "Vlajka zvoleného regionu"
   },
@@ -7177,6 +7168,12 @@
   },
   "beta": {
     "message": "Beta"
+  },
+  "baseUrl": {
+    "message": "URL serveru"
+  },
+  "aliasDomain": {
+    "message": "Doména aliasu"
   },
   "alreadyHaveAccount": {
     "message": "Už máte účet?"

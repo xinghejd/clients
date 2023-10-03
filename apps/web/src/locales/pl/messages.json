@@ -508,9 +508,6 @@
   "maxFileSize": {
     "message": "Maksymalny rozmiar pliku to 500 MB."
   },
-  "updateKey": {
-    "message": "Nie możesz używać tej funkcji, dopóki nie zaktualizujesz klucza szyfrowania."
-  },
   "addedItem": {
     "message": "Element został dodany"
   },
@@ -1425,7 +1422,10 @@
   "twoStepLoginDesc": {
     "message": "Zabezpiecz swoje konto poprzez wymóg wykonania dodatkowego kroku podczas logowania."
   },
-  "twoStepLoginOrganizationDescStart": {
+  "twoStepLoginTeamsDesc": {
+    "message": "Włącz dwustopniowe logowanie dla swojej organizacji."
+  },
+  "twoStepLoginEnterpriseDescStart": {
     "message": "Wymuszaj opcje logowania dwustopniowego Bitwarden dla użytkowników za pomocą ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Enforce Bitwarden Two-step Login options for members by using the Two-step Login Policy.'"
   },
@@ -1924,8 +1924,8 @@
   "premiumSignUpStorage": {
     "message": "1 GB przestrzeni na zaszyfrowane załączniki."
   },
-  "premiumSignUpTwoStep": {
-    "message": "Dodatkowe opcje logowania dwustopniowego, takie jak klucze YubiKey, FIDO U2F oraz Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Własnościowe opcje logowania dwuetapowego, takie jak YubiKey i Duo."
   },
   "premiumSignUpEmergency": {
     "message": "Dostęp awaryjny"
@@ -2039,6 +2039,9 @@
         "example": "month or year"
       }
     }
+  },
+  "paymentChargedWithUnpaidSubscription": {
+    "message": "Twoja metoda płatności zostanie obciążona opłatą za wszystkie nieopłacone subskrypcje."
   },
   "paymentChargedWithTrial": {
     "message": "Twój plan zawiera 7-dniowy okres próbny. W tym czasie nie poniesiesz żadnych kosztów. Możesz zrezygnować z niego w każdej chwili."
@@ -3470,17 +3473,11 @@
   "keyUpdated": {
     "message": "Klucz został zaktualizowany"
   },
-  "updateKeyTitle": {
-    "message": "Zaktualizuj klucz"
-  },
   "updateEncryptionKey": {
     "message": "Zaktualizuj klucz szyfrowania"
   },
-  "updateEncryptionKeyShortDesc": {
-    "message": "Używasz przestarzałej metody szyfrowania."
-  },
-  "updateEncryptionKeyDesc": {
-    "message": "Zdecydowaliśmy się na używanie silniejszych kluczy szyfrowania, które zapewniają lepsze bezpieczeństwo i dostęp do nowych funkcji. Zaktualizowanie klucza szyfrowania jest szybkie i łatwe. Wystarczy wpisać poniżej swoje hasło. Aktualizacja klucza stanie się wkrótce obowiązkowa."
+  "updateEncryptionSchemeDesc": {
+    "message": "Zmieniliśmy schemat szyfrowania, aby zapewnić lepsze bezpieczeństwo. Zaktualizuj swój klucz szyfrowania, wprowadzając hasło główne poniżej."
   },
   "updateEncryptionKeyWarning": {
     "message": "Po zaktualizowaniu klucza szyfrowania, musisz ponownie zalogować się do wszystkich aplikacji Bitwarden, z których obecnie korzystasz (na przykład aplikacje mobilne lub rozszerzenia przeglądarki). Niepowodzenie logowania (podczas którego pobierany jest nowy klucz szyfrowania) może spowodować uszkodzenie danych. Postaramy się wylogować Ciebie automatycznie, jednak może to chwilę potrwać."
@@ -7013,12 +7010,6 @@
   "next": {
     "message": "Dalej"
   },
-  "usFlag": {
-    "message": "Flaga USA"
-  },
-  "euFlag": {
-    "message": "Flaga UE"
-  },
   "selectedRegionFlag": {
     "message": "Flaga wybranego regionu"
   },
@@ -7177,6 +7168,12 @@
   },
   "beta": {
     "message": "Wersja beta"
+  },
+  "baseUrl": {
+    "message": "Adres URL serwera"
+  },
+  "aliasDomain": {
+    "message": "Domena aliasu"
   },
   "alreadyHaveAccount": {
     "message": "Masz już konto?"
