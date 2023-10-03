@@ -9,4 +9,8 @@ function flushPromises() {
   });
 }
 
-export { triggerTestFailure, flushPromises };
+function postWindowMessage(data: any, origin = "https://localhost/") {
+  globalThis.dispatchEvent(new MessageEvent("message", { data, origin }));
+}
+
+export { triggerTestFailure, flushPromises, postWindowMessage };

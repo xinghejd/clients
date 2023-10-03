@@ -3,17 +3,9 @@ import { mock } from "jest-mock-extended";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
 import { createInitAutofillOverlayListMessageMock } from "../../../jest/autofill-mocks";
+import { postWindowMessage } from "../../../jest/testing-utils";
 
 import AutofillOverlayList from "./autofill-overlay-list";
-
-function dispatchWindowMessage(message: any) {
-  globalThis.dispatchEvent(
-    new MessageEvent("message", {
-      data: message,
-      origin: "https://localhost/",
-    })
-  );
-}
 
 describe("AutofillOverlayList", () => {
   globalThis.customElements.define("autofill-overlay-list", AutofillOverlayList);
@@ -40,7 +32,7 @@ describe("AutofillOverlayList", () => {
   describe("initAutofillOverlayList", () => {
     describe("the locked overlay for an unauthenticated user", () => {
       beforeEach(() => {
-        dispatchWindowMessage(
+        postWindowMessage(
           createInitAutofillOverlayListMessageMock({
             authStatus: AuthenticationStatus.Locked,
             cipherList: [],
@@ -67,7 +59,7 @@ describe("AutofillOverlayList", () => {
 
     describe("the overlay with an empty list of ciphers", () => {
       beforeEach(() => {
-        dispatchWindowMessage(
+        postWindowMessage(
           createInitAutofillOverlayListMessageMock({
             authStatus: AuthenticationStatus.Unlocked,
             ciphers: [],
@@ -94,7 +86,7 @@ describe("AutofillOverlayList", () => {
 
     describe("the list of ciphers for an authenticated user", () => {
       beforeEach(() => {
-        dispatchWindowMessage(createInitAutofillOverlayListMessageMock());
+        postWindowMessage(createInitAutofillOverlayListMessageMock());
       });
 
       it("creates the view for a list of ciphers", () => {
@@ -136,7 +128,7 @@ describe("AutofillOverlayList", () => {
 
       describe("fill cipher button event listeners", () => {
         beforeEach(() => {
-          dispatchWindowMessage(createInitAutofillOverlayListMessageMock());
+          postWindowMessage(createInitAutofillOverlayListMessageMock());
         });
 
         it("allows the user to fill a cipher on click", () => {
@@ -224,7 +216,7 @@ describe("AutofillOverlayList", () => {
 
       describe("view cipher button event listeners", () => {
         beforeEach(() => {
-          dispatchWindowMessage(createInitAutofillOverlayListMessageMock());
+          postWindowMessage(createInitAutofillOverlayListMessageMock());
         });
 
         it("allows the user to view a cipher on click", () => {
@@ -294,7 +286,7 @@ describe("AutofillOverlayList", () => {
     it("does not post a `checkAutofillOverlayButtonFocused` message to the parent if the overlay is currently focused", () => {
       jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(true);
 
-      dispatchWindowMessage({ command: "checkOverlayListFocused" });
+      postWindowMessage({ command: "checkOverlayListFocused" });
 
       expect(globalThis.parent.postMessage).not.toHaveBeenCalled();
     });
@@ -302,7 +294,7 @@ describe("AutofillOverlayList", () => {
     it("posts a `checkAutofillOverlayButtonFocused` message to the parent if the overlay is not currently focused", () => {
       jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(false);
 
-      dispatchWindowMessage({ command: "checkOverlayListFocused" });
+      postWindowMessage({ command: "checkOverlayListFocused" });
 
       expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
         { command: "checkAutofillOverlayButtonFocused" },
@@ -311,17 +303,17 @@ describe("AutofillOverlayList", () => {
     });
 
     it("updates the list of ciphers", () => {
-      dispatchWindowMessage(createInitAutofillOverlayListMessageMock());
+      postWindowMessage(createInitAutofillOverlayListMessageMock());
       const updateCiphersSpy = jest.spyOn(autofillOverlayList as any, "updateListItems");
 
-      dispatchWindowMessage({ command: "updateOverlayListCiphers" });
+      postWindowMessage({ command: "updateOverlayListCiphers" });
 
       expect(updateCiphersSpy).toHaveBeenCalled();
     });
 
     describe("directing user focus into the overlay list", () => {
       it("focuses the unlock button element if the user is not authenticated", () => {
-        dispatchWindowMessage(
+        postWindowMessage(
           createInitAutofillOverlayListMessageMock({
             authStatus: AuthenticationStatus.Locked,
             cipherList: [],
@@ -331,29 +323,29 @@ describe("AutofillOverlayList", () => {
           autofillOverlayList["overlayListContainer"].querySelector("#unlock-button");
         jest.spyOn(unlockButton as HTMLElement, "focus");
 
-        dispatchWindowMessage({ command: "focusOverlayList" });
+        postWindowMessage({ command: "focusOverlayList" });
 
         expect((unlockButton as HTMLElement).focus).toBeCalled();
       });
 
       it("focuses the new item button element if the cipher list is empty", () => {
-        dispatchWindowMessage(createInitAutofillOverlayListMessageMock({ ciphers: [] }));
+        postWindowMessage(createInitAutofillOverlayListMessageMock({ ciphers: [] }));
         const newItemButton =
           autofillOverlayList["overlayListContainer"].querySelector("#new-item-button");
         jest.spyOn(newItemButton as HTMLElement, "focus");
 
-        dispatchWindowMessage({ command: "focusOverlayList" });
+        postWindowMessage({ command: "focusOverlayList" });
 
         expect((newItemButton as HTMLElement).focus).toBeCalled();
       });
 
       it("focuses the first cipher button element if the cipher list is populated", () => {
-        dispatchWindowMessage(createInitAutofillOverlayListMessageMock());
+        postWindowMessage(createInitAutofillOverlayListMessageMock());
         const firstCipherItem =
           autofillOverlayList["overlayListContainer"].querySelector(".fill-cipher-button");
         jest.spyOn(firstCipherItem as HTMLElement, "focus");
 
-        dispatchWindowMessage({ command: "focusOverlayList" });
+        postWindowMessage({ command: "focusOverlayList" });
 
         expect((firstCipherItem as HTMLElement).focus).toBeCalled();
       });
@@ -362,7 +354,7 @@ describe("AutofillOverlayList", () => {
 
   describe("handleResizeObserver", () => {
     beforeEach(() => {
-      dispatchWindowMessage(createInitAutofillOverlayListMessageMock());
+      postWindowMessage(createInitAutofillOverlayListMessageMock());
     });
 
     it("ignores resize entries whose target is not the overlay list", () => {

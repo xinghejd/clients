@@ -10,6 +10,7 @@ import { OverlayCipherData } from "../background/abstractions/overlay.background
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript, { FillScript } from "../models/autofill-script";
+import { InitAutofillOverlayButtonMessage } from "../overlay/abstractions/autofill-overlay-button";
 import { InitAutofillOverlayListMessage } from "../overlay/abstractions/autofill-overlay-list";
 import { GenerateFillScriptOptions, PageDetail } from "../services/abstractions/autofill.service";
 
@@ -136,6 +137,32 @@ function createAutofillScriptMock(
   };
 }
 
+const overlayPagesTranslations = {
+  locale: "en",
+  buttonPageTitle: "buttonPageTitle",
+  listPageTitle: "listPageTitle",
+  opensInANewWindow: "opensInANewWindow",
+  toggleBitwardenVaultOverlay: "toggleBitwardenVaultOverlay",
+  unlockYourAccount: "unlockYourAccount",
+  unlockAccount: "unlockAccount",
+  fillCredentialsFor: "fillCredentialsFor",
+  partialUsername: "partialUsername",
+  view: "view",
+  noItemsToShow: "noItemsToShow",
+  newItem: "newItem",
+  addNewVaultItem: "addNewVaultItem",
+};
+function createInitAutofillOverlayButtonMessageMock(
+  customFields = {}
+): InitAutofillOverlayButtonMessage {
+  return {
+    command: "initAutofillOverlayButton",
+    translations: overlayPagesTranslations,
+    styleSheetUrl: "https://tacos.com",
+    authStatus: AuthenticationStatus.Unlocked,
+    ...customFields,
+  };
+}
 function createAutofillOverlayCipherDataMock(index: number, customFields = {}): OverlayCipherData {
   return {
     id: String(index),
@@ -159,21 +186,7 @@ function createInitAutofillOverlayListMessageMock(
 ): InitAutofillOverlayListMessage {
   return {
     command: "initAutofillOverlayList",
-    translations: {
-      locale: "en",
-      buttonPageTitle: "buttonPageTitle",
-      listPageTitle: "listPageTitle",
-      opensInANewWindow: "opensInANewWindow",
-      toggleBitwardenVaultOverlay: "toggleBitwardenVaultOverlay",
-      unlockYourAccount: "unlockYourAccount",
-      unlockAccount: "unlockAccount",
-      fillCredentialsFor: "fillCredentialsFor",
-      partialUsername: "partialUsername",
-      view: "view",
-      noItemsToShow: "noItemsToShow",
-      newItem: "newItem",
-      addNewVaultItem: "addNewVaultItem",
-    },
+    translations: overlayPagesTranslations,
     styleSheetUrl: "https://tacos.com",
     authStatus: AuthenticationStatus.Unlocked,
     ciphers: [
@@ -217,5 +230,6 @@ export {
   createChromeTabMock,
   createGenerateFillScriptOptionsMock,
   createAutofillScriptMock,
+  createInitAutofillOverlayButtonMessageMock,
   createInitAutofillOverlayListMessageMock,
 };
