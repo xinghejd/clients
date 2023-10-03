@@ -18,7 +18,6 @@ import { CreateOrganizationComponent } from "../admin-console/settings/create-or
 import { SponsoredFamiliesComponent } from "../admin-console/settings/sponsored-families.component";
 import { SponsoringOrgRowComponent } from "../admin-console/settings/sponsoring-org-row.component";
 import { AuthModule } from "../auth";
-import { AcceptEmergencyComponent } from "../auth/accept-emergency.component";
 import { AcceptOrganizationComponent } from "../auth/accept-organization.component";
 import { HintComponent } from "../auth/hint.component";
 import { LockComponent } from "../auth/lock.component";
@@ -132,7 +131,6 @@ import { SharedModule } from "./shared.module";
     SecretsManagerBillingModule,
   ],
   declarations: [
-    AcceptEmergencyComponent,
     AcceptFamilySponsorshipComponent,
     AcceptOrganizationComponent,
     AccessComponent,
@@ -234,7 +232,6 @@ import { SharedModule } from "./shared.module";
   exports: [
     UserVerificationModule,
     PremiumBadgeComponent,
-    AcceptEmergencyComponent,
     AcceptOrganizationComponent,
     AccessComponent,
     AccountComponent,
