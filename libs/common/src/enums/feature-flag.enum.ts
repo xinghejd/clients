@@ -3,7 +3,6 @@ export enum FeatureFlag {
   DisplayLowKdfIterationWarningFlag = "display-kdf-iteration-warning",
   TrustedDeviceEncryption = "trusted-device-encryption",
   PasswordlessLogin = "passwordless-login",
-  SecretsManagerBilling = "sm-ga-billing",
   AutofillV2 = "autofill-v2",
 }
 
