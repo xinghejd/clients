@@ -200,11 +200,6 @@ export class StateService<
   }
 
   async addAccount(account: TAccount) {
-    // this.accountService.addAccount(account.profile.userId as UserId, {
-    //   email: account.profile.email,
-    //   name: account.profile.name,
-    //   status: AuthenticationStatus.Locked,
-    // });
     account = await this.setAccountEnvironment(account);
     await this.updateState(async (state) => {
       state.authenticatedAccounts.push(account.profile.userId);
@@ -214,6 +209,11 @@ export class StateService<
     });
     await this.scaffoldNewAccountStorage(account);
     await this.setLastActive(new Date().getTime(), { userId: account.profile.userId });
+    this.accountService.addAccount(account.profile.userId as UserId, {
+      status: AuthenticationStatus.Locked,
+      name: account.profile.name,
+      email: account.profile.email,
+    });
     await this.setActiveUser(account.profile.userId);
     this.activeAccountSubject.next(account.profile.userId);
   }
