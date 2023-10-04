@@ -8,6 +8,7 @@ import { Directive, TemplateRef } from "@angular/core";
  */
 @Directive({
   selector: "[bit-i18n-part]",
+  standalone: true,
 })
 export class I18nPartDirective {
   constructor(public templateRef: TemplateRef<any>) {}

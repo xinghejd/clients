@@ -9,6 +9,8 @@ import {
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
+import { SharedModule } from "../shared";
+
 import { I18nPartDirective } from "./i18n-part.directive";
 
 interface I18nStringPart {
@@ -38,6 +40,7 @@ interface I18nStringPart {
  */
 @Component({
   selector: "[bit-i18n],bit-i18n",
+  imports: [SharedModule],
   template: `
     <ng-container *ngFor="let part of translationParts">
       <ng-container *ngIf="part.templateRef != undefined; else text">
@@ -48,6 +51,7 @@ interface I18nStringPart {
       <ng-template #text>{{ part.text }}</ng-template>
     </ng-container>
   `,
+  standalone: true,
 })
 export class I18nComponent implements AfterContentInit {
   @Input("key")
