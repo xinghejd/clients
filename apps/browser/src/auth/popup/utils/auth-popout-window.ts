@@ -11,14 +11,14 @@ const AuthPopoutType = {
  * Opens a window that facilitates unlocking / logging into the extension.
  *
  * @param senderTab - Used to determine the windowId of the sender.
- * @param data - Used to determine whether to show the unlock notification.
+ * @param skipNotification - Used to determine whether to show the unlock notification.
  */
-async function openUnlockPopout(senderTab: chrome.tabs.Tab, data?: Record<string, any>) {
+async function openUnlockPopout(senderTab: chrome.tabs.Tab, skipNotification = false) {
   await BrowserPopupUtils.openPopout("popup/index.html", {
     singleActionKey: AuthPopoutType.unlockExtension,
     senderWindowId: senderTab.windowId,
   });
-  await BrowserApi.tabSendMessageData(senderTab, "bgUnlockPopoutOpened", data);
+  await BrowserApi.tabSendMessageData(senderTab, "bgUnlockPopoutOpened", { skipNotification });
 }
 
 /**

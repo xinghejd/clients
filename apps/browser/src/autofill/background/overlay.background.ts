@@ -520,7 +520,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
       "addToLockedVaultPendingNotifications",
       retryMessage
     );
-    await this.openUnlockPopout(sender.tab, { skipNotification: true });
+    await this.openUnlockPopout(sender.tab, true);
   }
 
   /**

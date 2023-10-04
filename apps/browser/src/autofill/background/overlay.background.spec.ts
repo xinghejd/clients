@@ -17,7 +17,7 @@ import {
   createChromeTabMock,
   createPageDetailMock,
 } from "../jest/autofill-mocks";
-import AutofillService from "../services/autofill.service";
+import { AutofillService } from "../services/abstractions/autofill.service";
 import {
   AutofillOverlayElement,
   AutofillOverlayPort,
@@ -933,9 +933,7 @@ describe("OverlayBackground", () => {
           target: "overlay.background",
         }
       );
-      expect(overlayBackground["openUnlockPopout"]).toHaveBeenCalledWith(tab, {
-        skipNotification: true,
-      });
+      expect(overlayBackground["openUnlockPopout"]).toHaveBeenCalledWith(tab, true);
     });
   });
 
