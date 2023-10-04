@@ -14,6 +14,8 @@ import { InitAutofillOverlayButtonMessage } from "../overlay/abstractions/autofi
 import { InitAutofillOverlayListMessage } from "../overlay/abstractions/autofill-overlay-list";
 import { GenerateFillScriptOptions, PageDetail } from "../services/abstractions/autofill.service";
 
+import { PortSpy } from "./typings";
+
 function createAutofillFieldMock(customFields = {}): AutofillField {
   return {
     opid: "default-input-field-opid",
@@ -223,6 +225,42 @@ function createInitAutofillOverlayListMessageMock(
   };
 }
 
+function createFocusedFieldDataMock(customFields = {}) {
+  return {
+    focusedFieldRects: {
+      top: 1,
+      left: 2,
+      height: 3,
+      width: 4,
+    },
+    focusedFieldStyles: {
+      paddingRight: "6px",
+      paddingLeft: "6px",
+    },
+    ...customFields,
+  };
+}
+
+function createPortSpyMock(
+  name: string,
+  portOnMessageListener: CallableFunction,
+  portSpy: PortSpy
+): PortSpy {
+  return mock<PortSpy>({
+    name,
+    onMessage: {
+      addListener: jest.fn((listener) => (portOnMessageListener = listener)),
+      removeListener: jest.fn(() => {
+        if (portOnMessageListener) {
+          portOnMessageListener = undefined;
+        }
+      }),
+      callListener: jest.fn((message) => portOnMessageListener(message, portSpy)),
+    },
+    postMessage: jest.fn(),
+  });
+}
+
 export {
   createAutofillFieldMock,
   createPageDetailMock,
@@ -232,4 +270,6 @@ export {
   createAutofillScriptMock,
   createInitAutofillOverlayButtonMessageMock,
   createInitAutofillOverlayListMessageMock,
+  createFocusedFieldDataMock,
+  createPortSpyMock,
 };

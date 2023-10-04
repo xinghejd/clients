@@ -286,7 +286,7 @@ describe("AutofillOverlayList", () => {
     it("does not post a `checkAutofillOverlayButtonFocused` message to the parent if the overlay is currently focused", () => {
       jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(true);
 
-      postWindowMessage({ command: "checkOverlayListFocused" });
+      postWindowMessage({ command: "checkAutofillOverlayListFocused" });
 
       expect(globalThis.parent.postMessage).not.toHaveBeenCalled();
     });
@@ -294,7 +294,7 @@ describe("AutofillOverlayList", () => {
     it("posts a `checkAutofillOverlayButtonFocused` message to the parent if the overlay is not currently focused", () => {
       jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(false);
 
-      postWindowMessage({ command: "checkOverlayListFocused" });
+      postWindowMessage({ command: "checkAutofillOverlayListFocused" });
 
       expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
         { command: "checkAutofillOverlayButtonFocused" },

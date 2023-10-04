@@ -60,18 +60,18 @@ class OverlayBackground implements OverlayBackgroundInterface {
     updateFocusedFieldData: ({ message }) => this.setFocusedFieldData(message),
     collectPageDetailsResponse: ({ message, sender }) => this.storePageDetails(message, sender),
     unlockCompleted: ({ message }) => this.unlockCompleted(message),
-    addEditCipherSubmitted: () => this.updateAutofillOverlayCiphers(),
-    deletedCipher: () => this.updateAutofillOverlayCiphers(),
+    addEditCipherSubmitted: () => this.updateOverlayCiphers(),
+    deletedCipher: () => this.updateOverlayCiphers(),
   };
   private readonly overlayButtonPortMessageHandlers: OverlayButtonPortMessageHandlers = {
     overlayButtonClicked: ({ port }) => this.handleOverlayButtonClicked(port),
-    closeAutofillOverlay: ({ port }) => this.closeAutofillOverlay(port),
+    closeAutofillOverlay: ({ port }) => this.closeOverlay(port),
     overlayPageBlurred: () => this.checkOverlayListFocused(),
     redirectOverlayFocusOut: ({ message, port }) => this.redirectOverlayFocusOut(message, port),
   };
   private readonly overlayListPortMessageHandlers: OverlayListPortMessageHandlers = {
-    checkAutofillOverlayButtonFocused: () => this.checkAutofillOverlayButtonFocused(),
-    overlayPageBlurred: () => this.checkAutofillOverlayButtonFocused(),
+    checkAutofillOverlayButtonFocused: () => this.checkOverlayButtonFocused(),
+    overlayPageBlurred: () => this.checkOverlayButtonFocused(),
     unlockVault: ({ port }) => this.unlockVault(port),
     fillSelectedListItem: ({ message, port }) => this.fillSelectedOverlayListItem(message, port),
     addNewVaultItem: ({ port }) => this.getNewVaultItemDetails(port),
@@ -107,7 +107,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * Queries all ciphers for the given url, and sorts them by last used. Will not update the
    * list of ciphers if the extension is not unlocked.
    */
-  async updateAutofillOverlayCiphers() {
+  async updateOverlayCiphers() {
     if (this.userAuthStatus !== AuthenticationStatus.Unlocked) {
       return;
     }
@@ -257,13 +257,13 @@ class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    this.checkAutofillOverlayButtonFocused();
+    this.checkOverlayButtonFocused();
   }
 
   /**
    * Posts a message to the overlay button iframe to check if it is focused.
    */
-  private checkAutofillOverlayButtonFocused() {
+  private checkOverlayButtonFocused() {
     this.overlayButtonPort?.postMessage({ command: "checkAutofillOverlayButtonFocused" });
   }
 
@@ -271,14 +271,14 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * Posts a message to the overlay list iframe to check if it is focused.
    */
   private checkOverlayListFocused() {
-    this.overlayListPort?.postMessage({ command: "checkOverlayListFocused" });
+    this.overlayListPort?.postMessage({ command: "checkAutofillOverlayListFocused" });
   }
 
   /**
    * Sends a message to the sender tab to close the autofill overlay.
    * @param sender - The sender of the port message
    */
-  private closeAutofillOverlay({ sender }: chrome.runtime.Port) {
+  private closeOverlay({ sender }: chrome.runtime.Port) {
     BrowserApi.tabSendMessage(sender.tab, { command: "closeAutofillOverlay" });
   }
 
@@ -349,10 +349,10 @@ class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     return {
-      top: `${elementTopPosition}px`,
-      left: `${elementLeftPosition}px`,
-      height: `${elementHeight}px`,
-      width: `${elementHeight}px`,
+      top: `${Math.round(elementTopPosition)}px`,
+      left: `${Math.round(elementLeftPosition)}px`,
+      height: `${Math.round(elementHeight)}px`,
+      width: `${Math.round(elementHeight)}px`,
     };
   }
 
@@ -367,9 +367,9 @@ class OverlayBackground implements OverlayBackgroundInterface {
 
     const { top, left, width, height } = this.focusedFieldData.focusedFieldRects;
     return {
-      width: `${width}px`,
-      top: `${top + height}px`,
-      left: `${left}px`,
+      width: `${Math.round(width)}px`,
+      top: `${Math.round(top + height)}px`,
+      left: `${Math.round(left)}px`,
     };
   }
 
@@ -469,8 +469,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
       this.userAuthStatus !== formerAuthStatus &&
       this.userAuthStatus === AuthenticationStatus.Unlocked
     ) {
-      this.updateAutofillOverlayButtonAuthStatus();
-      await this.updateAutofillOverlayCiphers();
+      this.updateOverlayButtonAuthStatus();
+      await this.updateOverlayCiphers();
     }
 
     return this.userAuthStatus;
@@ -479,9 +479,9 @@ class OverlayBackground implements OverlayBackgroundInterface {
   /**
    * Sends a message to the overlay button to update its authentication status.
    */
-  private updateAutofillOverlayButtonAuthStatus() {
+  private updateOverlayButtonAuthStatus() {
     this.overlayButtonPort?.postMessage({
-      command: "updateAutofillOverlayButtonAuthStatus",
+      command: "updateOverlayButtonAuthStatus",
       authStatus: this.userAuthStatus,
     });
   }
@@ -511,7 +511,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private async unlockVault(port: chrome.runtime.Port) {
     const { sender } = port;
 
-    this.closeAutofillOverlay(port);
+    this.closeOverlay(port);
     const retryMessage: LockedVaultPendingNotificationsItem = {
       commandToRetry: { msg: { command: "openAutofillOverlay" }, sender },
       target: "overlay.background",

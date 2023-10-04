@@ -106,7 +106,7 @@ type OverlayListPortMessageHandlers = {
 
 interface OverlayBackground {
   removePageDetails(tabId: number): void;
-  updateAutofillOverlayCiphers(): void;
+  updateOverlayCiphers(): void;
 }
 
 export {

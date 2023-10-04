@@ -15,8 +15,12 @@ import { BrowserStateService } from "../../platform/services/browser-state.servi
 import {
   createAutofillPageDetailsMock,
   createChromeTabMock,
+  createFocusedFieldDataMock,
   createPageDetailMock,
+  createPortSpyMock,
 } from "../jest/autofill-mocks";
+import { flushPromises, sendExtensionRuntimeMessage } from "../jest/testing-utils";
+import { PortSpy } from "../jest/typings";
 import { AutofillService } from "../services/abstractions/autofill.service";
 import {
   AutofillOverlayElement,
@@ -25,15 +29,16 @@ import {
   RedirectFocusDirection,
 } from "../utils/autofill-overlay.enum";
 
-import {
-  OverlayBackgroundExtensionMessage,
-  OverlayPortMessage,
-} from "./abstractions/overlay.background";
+import { OverlayPortMessage } from "./abstractions/overlay.background";
 import OverlayBackground from "./overlay.background";
 
 const iconServerUrl = "https://icons.bitwarden.com/";
 
 describe("OverlayBackground", () => {
+  let buttonPortSpy: PortSpy;
+  let buttonPortOnMessageListener: CallableFunction;
+  let listPortSpy: PortSpy;
+  let listPortOnMessageListener: CallableFunction;
   let overlayBackground: OverlayBackground;
   const cipherService = mock<CipherService>();
   const autofillService = mock<AutofillService>();
@@ -44,6 +49,24 @@ describe("OverlayBackground", () => {
   const settingsService = mock<SettingsService>();
   const stateService = mock<BrowserStateService>();
   const i18nService = mock<I18nService>();
+  const initOverlayElementPorts = (options = { initList: true, initButton: true }) => {
+    const { initList, initButton } = options;
+    if (initButton) {
+      overlayBackground["handlePortOnConnect"](
+        createPortSpyMock(AutofillOverlayPort.Button, buttonPortOnMessageListener, buttonPortSpy)
+      );
+      buttonPortSpy = overlayBackground["overlayButtonPort"] as PortSpy;
+    }
+
+    if (initList) {
+      overlayBackground["handlePortOnConnect"](
+        createPortSpyMock(AutofillOverlayPort.List, listPortOnMessageListener, listPortSpy)
+      );
+      listPortSpy = overlayBackground["overlayListPort"] as PortSpy;
+    }
+
+    return { buttonPortSpy, listPortSpy };
+  };
 
   beforeEach(() => {
     overlayBackground = new OverlayBackground(
@@ -63,7 +86,7 @@ describe("OverlayBackground", () => {
   });
 
   describe("removePageDetails", () => {
-    it("remove the page details for a specific tab from the pageDetailsForTab object", () => {
+    it("removes the page details for a specific tab from the pageDetailsForTab object", () => {
       const tabId = 1;
       overlayBackground["pageDetailsForTab"][tabId] = [createPageDetailMock()];
       overlayBackground.removePageDetails(tabId);
@@ -72,7 +95,7 @@ describe("OverlayBackground", () => {
     });
   });
 
-  describe("updateAutofillOverlayCiphers", () => {
+  describe("updateOverlayCiphers", () => {
     const url = "https://tacos.com";
     const tab = createChromeTabMock({ url });
     const cipher1 = mock<CipherView>({
@@ -94,35 +117,35 @@ describe("OverlayBackground", () => {
       overlayBackground["userAuthStatus"] = AuthenticationStatus.Unlocked;
     });
 
-    it("will return early if the user auth status is not unlocked", async () => {
+    it("ignores updating the overlay ciphers if the user's auth status is not unlocked", async () => {
       overlayBackground["userAuthStatus"] = AuthenticationStatus.Locked;
       jest.spyOn(BrowserApi, "getTabFromCurrentWindowId");
       jest.spyOn(cipherService, "getAllDecryptedForUrl");
 
-      await overlayBackground.updateAutofillOverlayCiphers();
+      await overlayBackground.updateOverlayCiphers();
 
       expect(BrowserApi.getTabFromCurrentWindowId).not.toHaveBeenCalled();
       expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
     });
 
-    it("will return early if the tab is undefined", async () => {
+    it("ignores updating the overlay ciphers if the tab is undefined", async () => {
       jest.spyOn(BrowserApi, "getTabFromCurrentWindowId").mockResolvedValueOnce(undefined);
       jest.spyOn(cipherService, "getAllDecryptedForUrl");
 
-      await overlayBackground.updateAutofillOverlayCiphers();
+      await overlayBackground.updateOverlayCiphers();
 
       expect(BrowserApi.getTabFromCurrentWindowId).toHaveBeenCalled();
       expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
     });
 
-    it("will query all ciphers for the given url, sort them by last used, and format them for usage in the overlay", async () => {
+    it("queries all ciphers for the given url, sort them by last used, and format them for usage in the overlay", async () => {
       jest.spyOn(BrowserApi, "getTabFromCurrentWindowId").mockResolvedValueOnce(tab);
       cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher1, cipher2]);
       cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
       jest.spyOn(BrowserApi, "tabSendMessageData").mockImplementation();
       jest.spyOn(overlayBackground as any, "getOverlayCipherData");
 
-      await overlayBackground.updateAutofillOverlayCiphers();
+      await overlayBackground.updateOverlayCiphers();
 
       expect(BrowserApi.getTabFromCurrentWindowId).toHaveBeenCalled();
       expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url);
@@ -136,14 +159,14 @@ describe("OverlayBackground", () => {
       expect(overlayBackground["getOverlayCipherData"]).toHaveBeenCalled();
     });
 
-    it("will post an `updateOverlayListCiphers` message to the overlay list port, and send a `updateIsOverlayCiphersPopulated` message to the tab indicating that the list of ciphers is populated", async () => {
+    it("posts an `updateOverlayListCiphers` message to the overlay list port, and send a `updateIsOverlayCiphersPopulated` message to the tab indicating that the list of ciphers is populated", async () => {
       overlayBackground["overlayListPort"] = mock<chrome.runtime.Port>();
       cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher1, cipher2]);
       cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
       jest.spyOn(BrowserApi, "getTabFromCurrentWindowId").mockResolvedValueOnce(tab);
       jest.spyOn(BrowserApi, "tabSendMessageData").mockImplementation();
 
-      await overlayBackground.updateAutofillOverlayCiphers();
+      await overlayBackground.updateOverlayCiphers();
 
       expect(overlayBackground["overlayListPort"].postMessage).toHaveBeenCalledWith({
         command: "updateOverlayListCiphers",
@@ -193,7 +216,7 @@ describe("OverlayBackground", () => {
   });
 
   describe("initOverlayBackground", () => {
-    it("will set up the extension message listeners, get the overlay's visibility settings, and get the user's auth status", async () => {
+    it("sets up the extension message listeners, get the overlay's visibility settings, and get the user's auth status", async () => {
       overlayBackground["setupExtensionMessageListeners"] = jest.fn();
       overlayBackground["getOverlayVisibility"] = jest.fn();
       overlayBackground["getAuthStatus"] = jest.fn();
@@ -237,7 +260,7 @@ describe("OverlayBackground", () => {
       card: { number: null, brand: "mastercard" },
     });
 
-    it("will return an array of formatted cipher data", () => {
+    it("formats and returns the cipher data", () => {
       overlayBackground["overlayLoginCiphers"] = new Map([
         ["overlay-cipher-0", cipher2],
         ["overlay-cipher-1", cipher1],
@@ -322,70 +345,8 @@ describe("OverlayBackground", () => {
     });
   });
 
-  describe("storePageDetails", () => {
-    it("will store the page details provided by the message by the tab id of the sender", () => {
-      const message = {
-        command: "storePageDetails",
-        details: createAutofillPageDetailsMock({
-          login: { username: "username", password: "password" },
-        }),
-      };
-      const sender = mock<chrome.runtime.MessageSender>({
-        tab: {
-          id: 1,
-        },
-      });
-
-      overlayBackground["storePageDetails"](message, sender);
-
-      expect(overlayBackground["pageDetailsForTab"][sender.tab.id]).toStrictEqual([
-        {
-          frameId: sender.frameId,
-          tab: sender.tab,
-          details: message.details,
-        },
-      ]);
-    });
-
-    it("will store page details for a tab that already has a set of page details stored ", () => {
-      const details1 = createAutofillPageDetailsMock({
-        login: { username: "username1", password: "password1" },
-      });
-      const details2 = createAutofillPageDetailsMock({
-        login: { username: "username2", password: "password2" },
-      });
-      const message = {
-        command: "storePageDetails",
-        details: details2,
-      };
-      const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
-
-      overlayBackground["pageDetailsForTab"][sender.tab.id] = [
-        {
-          frameId: sender.frameId,
-          tab: sender.tab,
-          details: details1,
-        },
-      ];
-      overlayBackground["storePageDetails"](message, sender);
-
-      expect(overlayBackground["pageDetailsForTab"][sender.tab.id]).toStrictEqual([
-        {
-          frameId: sender.frameId,
-          tab: sender.tab,
-          details: details1,
-        },
-        {
-          frameId: sender.frameId,
-          tab: sender.tab,
-          details: details2,
-        },
-      ]);
-    });
-  });
-
   describe("fillSelectedOverlayListItem", () => {
-    it("returns early if the overlay cipher id is not provided", async () => {
+    it("ignores the fill request if the overlay cipher id is not provided", async () => {
       const message = {
         command: "fillSelectedOverlayListItem",
       };
@@ -404,7 +365,7 @@ describe("OverlayBackground", () => {
       expect(overlayBackground["autofillService"].doAutoFill).not.toHaveBeenCalled();
     });
 
-    it("returns early if a master password reprompt is required", async () => {
+    it("ignores the fill request if a master password reprompt is required", async () => {
       const message = {
         command: "fillSelectedOverlayListItem",
         overlayCipherId: "overlay-cipher-1",
@@ -432,7 +393,7 @@ describe("OverlayBackground", () => {
       expect(overlayBackground["autofillService"].doAutoFill).not.toHaveBeenCalled();
     });
 
-    it("will do the autofill of the selected cipher and move it to the top of the front of the ciphers map", async () => {
+    it("auto-fills the selected cipher and move it to the top of the front of the ciphers map", async () => {
       const cipher1 = mock<CipherView>({ id: "overlay-cipher-1" });
       const cipher2 = mock<CipherView>({ id: "overlay-cipher-2" });
       const cipher3 = mock<CipherView>({ id: "overlay-cipher-3" });
@@ -476,62 +437,13 @@ describe("OverlayBackground", () => {
     });
   });
 
-  describe("checkOverlayFocused", () => {
-    it("will check if the overlay list is focused if the list port is open", () => {
-      overlayBackground["overlayListPort"] = mock<chrome.runtime.Port>();
-      jest.spyOn(overlayBackground as any, "checkOverlayListFocused");
-      jest.spyOn(overlayBackground as any, "checkAutofillOverlayButtonFocused");
-
-      overlayBackground["checkOverlayFocused"]();
-
-      expect(overlayBackground["checkOverlayListFocused"]).toHaveBeenCalled();
-      expect(overlayBackground["checkAutofillOverlayButtonFocused"]).not.toHaveBeenCalled();
-    });
-
-    it("will check if the overlay button is focused if the list port is not open", () => {
-      jest.spyOn(overlayBackground as any, "checkOverlayListFocused");
-      jest.spyOn(overlayBackground as any, "checkAutofillOverlayButtonFocused");
-
-      overlayBackground["checkOverlayFocused"]();
-
-      expect(overlayBackground["checkOverlayListFocused"]).not.toHaveBeenCalled();
-      expect(overlayBackground["checkAutofillOverlayButtonFocused"]).toHaveBeenCalled();
-    });
-  });
-
-  describe("checkAutofillOverlayButtonFocused", () => {
-    it("will post a message to the overlay button if the button port is open", () => {
-      overlayBackground["overlayButtonPort"] = mock<chrome.runtime.Port>();
-      jest.spyOn(overlayBackground["overlayButtonPort"], "postMessage");
-
-      overlayBackground["checkAutofillOverlayButtonFocused"]();
-
-      expect(overlayBackground["overlayButtonPort"].postMessage).toHaveBeenCalledWith({
-        command: "checkAutofillOverlayButtonFocused",
-      });
-    });
-  });
-
-  describe("checkOverlayListFocused", () => {
-    it("will post a message to the overlay list if the list port is open", () => {
-      overlayBackground["overlayListPort"] = mock<chrome.runtime.Port>();
-      jest.spyOn(overlayBackground["overlayListPort"], "postMessage");
-
-      overlayBackground["checkOverlayListFocused"]();
-
-      expect(overlayBackground["overlayListPort"].postMessage).toHaveBeenCalledWith({
-        command: "checkOverlayListFocused",
-      });
-    });
-  });
-
-  describe("closeAutofillOverlay", () => {
-    it("will send a `closeAutofillOverlay` message to the sender tab", () => {
+  describe("closeOverlay", () => {
+    it("sends a `closeOverlay` message to the sender tab", () => {
       const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
       const port = mock<chrome.runtime.Port>({ sender });
       jest.spyOn(BrowserApi, "tabSendMessage");
 
-      overlayBackground["closeAutofillOverlay"](port);
+      overlayBackground["closeOverlay"](port);
 
       expect(BrowserApi.tabSendMessage).toHaveBeenCalledWith(port.sender.tab, {
         command: "closeAutofillOverlay",
@@ -539,260 +451,15 @@ describe("OverlayBackground", () => {
     });
   });
 
-  describe("overlayElementClosed", () => {
-    it("will disconnect and nullify the button port if the passed element is the overlay button", () => {
-      const port = mock<chrome.runtime.Port>();
-      overlayBackground["overlayButtonPort"] = port;
-      jest.spyOn(port, "disconnect");
-
-      overlayBackground["overlayElementClosed"]({
-        overlayElement: AutofillOverlayElement.Button,
-      } as OverlayBackgroundExtensionMessage);
-
-      expect(port.disconnect).toHaveBeenCalled();
-      expect(overlayBackground["overlayButtonPort"]).toBeNull();
-    });
-
-    it("will disconnect and nullify the list port if the passed element is the overlay list", () => {
-      const port = mock<chrome.runtime.Port>();
-      overlayBackground["overlayListPort"] = port;
-      jest.spyOn(port, "disconnect");
-
-      overlayBackground["overlayElementClosed"]({
-        overlayElement: AutofillOverlayElement.List,
-      } as OverlayBackgroundExtensionMessage);
-
-      expect(port.disconnect).toHaveBeenCalled();
-      expect(overlayBackground["overlayListPort"]).toBeNull();
-    });
-  });
-
-  describe("updateOverlayPosition", () => {
-    it("will return early if the overlay element type is not provided", () => {
-      overlayBackground["overlayButtonPort"] = mock<chrome.runtime.Port>();
-      overlayBackground["overlayListPort"] = mock<chrome.runtime.Port>();
-      jest.spyOn(overlayBackground["overlayButtonPort"], "postMessage");
-      jest.spyOn(overlayBackground["overlayListPort"], "postMessage");
-
-      overlayBackground["updateOverlayPosition"]({ overlayElement: undefined });
-
-      expect(overlayBackground["overlayButtonPort"].postMessage).not.toHaveBeenCalled();
-      expect(overlayBackground["overlayListPort"].postMessage).not.toHaveBeenCalled();
-    });
-
-    it("will post a message to the overlay button facilitating an update of the button's position", () => {
-      overlayBackground["overlayButtonPort"] = mock<chrome.runtime.Port>();
-      const newPosition = { top: 1, left: 2, height: 3, width: 4 };
-      jest.spyOn(overlayBackground["overlayButtonPort"], "postMessage");
-      jest.spyOn(overlayBackground as any, "getOverlayButtonPosition").mockReturnValue(newPosition);
-
-      overlayBackground["updateOverlayPosition"]({
-        overlayElement: AutofillOverlayElement.Button,
-      });
-
-      expect(overlayBackground["overlayButtonPort"].postMessage).toHaveBeenCalledWith({
-        command: "updateIframePosition",
-        styles: newPosition,
-      });
-    });
-
-    it("will post a message to the overlay list facilitating an update of the list's position", () => {
-      overlayBackground["overlayListPort"] = mock<chrome.runtime.Port>();
-      const newPosition = { top: 1, left: 2, height: 3, width: 4 };
-      jest.spyOn(overlayBackground["overlayListPort"], "postMessage");
-      jest.spyOn(overlayBackground as any, "getOverlayListPosition").mockReturnValue(newPosition);
-
-      overlayBackground["updateOverlayPosition"]({
-        overlayElement: AutofillOverlayElement.List,
-      });
-
-      expect(overlayBackground["overlayListPort"].postMessage).toHaveBeenCalledWith({
-        command: "updateIframePosition",
-        styles: newPosition,
-      });
-    });
-  });
-
-  describe("getOverlayButtonPosition", () => {
-    it("will return early if the focused field data is not populated", () => {
-      overlayBackground["focusedFieldData"] = undefined;
-
-      const position = overlayBackground["getOverlayButtonPosition"]();
-
-      expect(position).toBeUndefined();
-    });
-
-    it("will return the overlay button position if the focused field data is populated", () => {
-      overlayBackground["focusedFieldData"] = {
-        focusedFieldRects: {
-          top: 1,
-          left: 2,
-          height: 3,
-          width: 4,
-        },
-        focusedFieldStyles: {
-          paddingRight: "6px",
-          paddingLeft: "6px",
-        },
-      };
-
-      const position = overlayBackground["getOverlayButtonPosition"]();
-
-      expect(position).toStrictEqual({
-        height: "1.8900000000000001px",
-        left: "3.5549999999999997px",
-        top: "1.555px",
-        width: "1.8900000000000001px",
-      });
-    });
-
-    it("will take into account the right padding of the focused field in positioning the button if the right padding of the field is larger than the left padding", () => {
-      overlayBackground["focusedFieldData"] = {
-        focusedFieldRects: {
-          top: 1,
-          left: 2,
-          height: 3,
-          width: 4,
-        },
-        focusedFieldStyles: {
-          paddingRight: "20px",
-          paddingLeft: "6px",
-        },
-      };
-
-      const position = overlayBackground["getOverlayButtonPosition"]();
-
-      expect(position).toStrictEqual({
-        height: "1.8900000000000001px",
-        left: "-17.89px",
-        top: "1.555px",
-        width: "1.8900000000000001px",
-      });
-    });
-  });
-
-  describe("getOverlayListPosition", () => {
-    it("will return early if the focused field data is not populated ", () => {
-      overlayBackground["focusedFieldData"] = undefined;
-
-      const position = overlayBackground["getOverlayListPosition"]();
-
-      expect(position).toBeUndefined();
-    });
-
-    it("will return the overlay list position if the focused field data is populated", () => {
-      overlayBackground["focusedFieldData"] = {
-        focusedFieldRects: {
-          top: 1,
-          left: 2,
-          height: 3,
-          width: 4,
-        },
-        focusedFieldStyles: {
-          paddingRight: "6px",
-          paddingLeft: "6px",
-        },
-      };
-
-      const position = overlayBackground["getOverlayListPosition"]();
-
-      expect(position).toStrictEqual({
-        left: "2px",
-        top: "4px",
-        width: "4px",
-      });
-    });
-  });
-
-  describe("setFocusedFieldData", () => {
-    it("will set the focused field data", () => {
-      const message = {
-        command: "setFocusedFieldData",
-        focusedFieldData: {
-          focusedFieldRects: {
-            top: 1,
-            left: 2,
-            height: 3,
-            width: 4,
-          },
-          focusedFieldStyles: {
-            paddingRight: "6px",
-            paddingLeft: "6px",
-          },
-        },
-      };
-
-      overlayBackground["setFocusedFieldData"](message);
-
-      expect(overlayBackground["focusedFieldData"]).toStrictEqual(message.focusedFieldData);
-    });
-  });
-
-  describe("updateOverlayHidden", () => {
-    it("returns early if the display value is not provided", () => {
-      const message = {
-        command: "updateOverlayHidden",
-      };
-      overlayBackground["overlayButtonPort"] = mock<chrome.runtime.Port>();
-      overlayBackground["overlayListPort"] = mock<chrome.runtime.Port>();
-      jest.spyOn(overlayBackground["overlayButtonPort"], "postMessage");
-      jest.spyOn(overlayBackground["overlayListPort"], "postMessage");
-
-      overlayBackground["updateOverlayHidden"](message);
-
-      expect(overlayBackground["overlayButtonPort"].postMessage).not.toHaveBeenCalled();
-      expect(overlayBackground["overlayListPort"].postMessage).not.toHaveBeenCalled();
-    });
-
-    it("posts a message to the overlay button and list with the display value", () => {
-      const message = {
-        command: "updateOverlayHidden",
-        display: "none",
-      };
-      overlayBackground["overlayButtonPort"] = mock<chrome.runtime.Port>();
-      overlayBackground["overlayListPort"] = mock<chrome.runtime.Port>();
-      jest.spyOn(overlayBackground["overlayButtonPort"], "postMessage");
-      jest.spyOn(overlayBackground["overlayListPort"], "postMessage");
-
-      overlayBackground["updateOverlayHidden"](message);
-
-      expect(overlayBackground["overlayButtonPort"].postMessage).toHaveBeenCalledWith({
-        command: "updateOverlayHidden",
-        styles: {
-          display: message.display,
-        },
-      });
-      expect(overlayBackground["overlayListPort"].postMessage).toHaveBeenCalledWith({
-        command: "updateOverlayHidden",
-        styles: {
-          display: message.display,
-        },
-      });
-    });
-  });
-
-  describe("openOverlay", () => {
-    it("will send a message to the current tab to open the autofill overlay", async () => {
-      const tab = createChromeTabMock();
-      jest.spyOn(BrowserApi, "getTabFromCurrentWindowId").mockResolvedValueOnce(tab);
-      jest
-        .spyOn(overlayBackground as any, "getAuthStatus")
-        .mockResolvedValue(AuthenticationStatus.Unlocked);
-      jest.spyOn(BrowserApi, "tabSendMessageData").mockImplementation();
-
-      await overlayBackground["openOverlay"](true);
-
-      expect(BrowserApi.getTabFromCurrentWindowId).toHaveBeenCalled();
-      expect(overlayBackground["getAuthStatus"]).toHaveBeenCalled();
-      expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(tab, "openAutofillOverlay", {
-        isFocusingFieldElement: true,
-        isOpeningFullOverlay: false,
-        authStatus: AuthenticationStatus.Unlocked,
-      });
-    });
-  });
-
   describe("getObscureName", () => {
+    it("returns an empty string if the name is falsy", () => {
+      const name: string = undefined;
+
+      const obscureName = overlayBackground["getObscureName"](name);
+
+      expect(obscureName).toBe("");
+    });
+
     it("will not attempt to obscure a username that is only a domain", () => {
       const name = "@domain.com";
 
@@ -826,35 +493,19 @@ describe("OverlayBackground", () => {
     });
   });
 
-  describe("getOverlayVisibility", () => {
-    it("will set the overlayVisibility property and return the value found within the settings service", async () => {
-      const overlayVisibility = AutofillOverlayVisibility.OnFieldFocus;
-      jest
-        .spyOn(overlayBackground["settingsService"], "getAutoFillOverlayVisibility")
-        .mockResolvedValue(overlayVisibility);
-
-      const visibility = await overlayBackground["getOverlayVisibility"]();
-
-      expect(overlayBackground["overlayVisibility"]).toBe(overlayVisibility);
-      expect(visibility).toBe(overlayVisibility);
-    });
-  });
-
   describe("getAuthStatus", () => {
     it("will update the user's auth status but will not update the overlay ciphers", async () => {
       const authStatus = AuthenticationStatus.Unlocked;
       overlayBackground["userAuthStatus"] = AuthenticationStatus.Unlocked;
       jest.spyOn(overlayBackground["authService"], "getAuthStatus").mockResolvedValue(authStatus);
-      jest
-        .spyOn(overlayBackground as any, "updateAutofillOverlayButtonAuthStatus")
-        .mockImplementation();
-      jest.spyOn(overlayBackground as any, "updateAutofillOverlayCiphers").mockImplementation();
+      jest.spyOn(overlayBackground as any, "updateOverlayButtonAuthStatus").mockImplementation();
+      jest.spyOn(overlayBackground as any, "updateOverlayCiphers").mockImplementation();
 
       const status = await overlayBackground["getAuthStatus"]();
 
       expect(overlayBackground["authService"].getAuthStatus).toHaveBeenCalled();
-      expect(overlayBackground["updateAutofillOverlayButtonAuthStatus"]).not.toHaveBeenCalled();
-      expect(overlayBackground["updateAutofillOverlayCiphers"]).not.toHaveBeenCalled();
+      expect(overlayBackground["updateOverlayButtonAuthStatus"]).not.toHaveBeenCalled();
+      expect(overlayBackground["updateOverlayCiphers"]).not.toHaveBeenCalled();
       expect(overlayBackground["userAuthStatus"]).toBe(authStatus);
       expect(status).toBe(authStatus);
     });
@@ -863,29 +514,27 @@ describe("OverlayBackground", () => {
       const authStatus = AuthenticationStatus.Unlocked;
       overlayBackground["userAuthStatus"] = AuthenticationStatus.LoggedOut;
       jest.spyOn(overlayBackground["authService"], "getAuthStatus").mockResolvedValue(authStatus);
-      jest
-        .spyOn(overlayBackground as any, "updateAutofillOverlayButtonAuthStatus")
-        .mockImplementation();
-      jest.spyOn(overlayBackground as any, "updateAutofillOverlayCiphers").mockImplementation();
+      jest.spyOn(overlayBackground as any, "updateOverlayButtonAuthStatus").mockImplementation();
+      jest.spyOn(overlayBackground as any, "updateOverlayCiphers").mockImplementation();
 
       await overlayBackground["getAuthStatus"]();
 
       expect(overlayBackground["authService"].getAuthStatus).toHaveBeenCalled();
-      expect(overlayBackground["updateAutofillOverlayButtonAuthStatus"]).toHaveBeenCalled();
-      expect(overlayBackground["updateAutofillOverlayCiphers"]).toHaveBeenCalled();
+      expect(overlayBackground["updateOverlayButtonAuthStatus"]).toHaveBeenCalled();
+      expect(overlayBackground["updateOverlayCiphers"]).toHaveBeenCalled();
       expect(overlayBackground["userAuthStatus"]).toBe(authStatus);
     });
   });
 
-  describe("updateAutofillOverlayButtonAuthStatus", () => {
+  describe("updateOverlayButtonAuthStatus", () => {
     it("will send a message to the button port with the user's auth status", () => {
       overlayBackground["overlayButtonPort"] = mock<chrome.runtime.Port>();
       jest.spyOn(overlayBackground["overlayButtonPort"], "postMessage");
 
-      overlayBackground["updateAutofillOverlayButtonAuthStatus"]();
+      overlayBackground["updateOverlayButtonAuthStatus"]();
 
       expect(overlayBackground["overlayButtonPort"].postMessage).toHaveBeenCalledWith({
-        command: "updateAutofillOverlayButtonAuthStatus",
+        command: "updateOverlayButtonAuthStatus",
         authStatus: overlayBackground["userAuthStatus"],
       });
     });
@@ -921,13 +570,13 @@ describe("OverlayBackground", () => {
       const sender = mock<chrome.runtime.MessageSender>({ tab: tab });
       const port = mock<chrome.runtime.Port>({ sender });
       overlayBackground["overlayButtonPort"] = port;
-      jest.spyOn(overlayBackground as any, "closeAutofillOverlay").mockImplementation();
+      jest.spyOn(overlayBackground as any, "closeOverlay").mockImplementation();
       jest.spyOn(overlayBackground as any, "openUnlockPopout").mockImplementation();
       jest.spyOn(BrowserApi, "tabSendMessageData").mockImplementation();
 
       await overlayBackground["unlockVault"](port);
 
-      expect(overlayBackground["closeAutofillOverlay"]).toHaveBeenCalledWith(port);
+      expect(overlayBackground["closeOverlay"]).toHaveBeenCalledWith(port);
       expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
         tab,
         "addToLockedVaultPendingNotifications",
@@ -979,55 +628,6 @@ describe("OverlayBackground", () => {
         cipherId: cipher.id,
         action: "show-autofill-button",
       });
-    });
-  });
-
-  describe("focusOverlayList", () => {
-    it("will send a `focusOverlayList` message to the overlay list port", () => {
-      overlayBackground["overlayListPort"] = mock<chrome.runtime.Port>();
-      jest.spyOn(overlayBackground["overlayListPort"], "postMessage");
-
-      overlayBackground["focusOverlayList"]();
-
-      expect(overlayBackground["overlayListPort"].postMessage).toHaveBeenCalledWith({
-        command: "focusOverlayList",
-      });
-    });
-  });
-
-  describe("unlockCompleted", () => {
-    it("will update the user's auth status but not open the overlay", async () => {
-      overlayBackground["userAuthStatus"] = AuthenticationStatus.LoggedOut;
-      const message = {
-        command: "unlockCompleted",
-        data: {
-          commandToRetry: { msg: { command: "" } },
-        },
-      };
-      jest.spyOn(overlayBackground as any, "getAuthStatus").mockImplementation();
-      jest.spyOn(overlayBackground as any, "openOverlay").mockImplementation();
-
-      await overlayBackground["unlockCompleted"](message);
-
-      expect(overlayBackground["getAuthStatus"]).toHaveBeenCalled();
-      expect(overlayBackground["openOverlay"]).not.toHaveBeenCalled();
-    });
-
-    it("will update the user's auth status and open the overlay if a follow up command is provided", async () => {
-      overlayBackground["userAuthStatus"] = AuthenticationStatus.LoggedOut;
-      const message = {
-        command: "unlockCompleted",
-        data: {
-          commandToRetry: { msg: { command: "openAutofillOverlay" } },
-        },
-      };
-      jest.spyOn(overlayBackground as any, "getAuthStatus").mockImplementation();
-      jest.spyOn(overlayBackground as any, "openOverlay").mockImplementation();
-
-      await overlayBackground["unlockCompleted"](message);
-
-      expect(overlayBackground["getAuthStatus"]).toHaveBeenCalled();
-      expect(overlayBackground["openOverlay"]).toHaveBeenCalled();
     });
   });
 
@@ -1121,42 +721,6 @@ describe("OverlayBackground", () => {
     });
   });
 
-  describe("addNewVaultItem", () => {
-    it("will not open the add edit popout window if the message does not have a login cipher provided", () => {
-      const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
-      jest.spyOn(overlayBackground["stateService"], "setAddEditCipherInfo");
-      jest.spyOn(overlayBackground as any, "openAddEditVaultItemPopout");
-
-      overlayBackground["addNewVaultItem"](
-        { command: "addNewVaultItemFromOverlay" } as OverlayBackgroundExtensionMessage,
-        sender
-      );
-
-      expect(overlayBackground["stateService"].setAddEditCipherInfo).not.toHaveBeenCalled();
-      expect(overlayBackground["openAddEditVaultItemPopout"]).not.toHaveBeenCalled();
-    });
-
-    it("will open the add edit popout window after creating a new cipher", async () => {
-      const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
-      const message = {
-        command: "addNewVaultItemFromOverlay",
-        login: {
-          uri: "https://tacos.com",
-          hostname: "",
-          username: "username",
-          password: "password",
-        },
-      };
-      jest.spyOn(overlayBackground["stateService"], "setAddEditCipherInfo").mockImplementation();
-      jest.spyOn(overlayBackground as any, "openAddEditVaultItemPopout").mockImplementation();
-
-      await overlayBackground["addNewVaultItem"](message, sender);
-
-      expect(overlayBackground["stateService"].setAddEditCipherInfo).toHaveBeenCalled();
-      expect(overlayBackground["openAddEditVaultItemPopout"]).toHaveBeenCalled();
-    });
-  });
-
   describe("setupExtensionMessageListeners", () => {
     it("will set up onMessage and onConnect listeners", () => {
       overlayBackground["setupExtensionMessageListeners"]();
@@ -1218,6 +782,387 @@ describe("OverlayBackground", () => {
       );
 
       expect(returnValue).toBe(true);
+    });
+
+    describe("extension message handlers", () => {
+      beforeEach(() => {
+        jest
+          .spyOn(overlayBackground as any, "getAuthStatus")
+          .mockResolvedValue(AuthenticationStatus.Unlocked);
+      });
+
+      describe("openAutofillOverlay message handler", () => {
+        it("opens the autofill overlay by sending a message to the current tab", async () => {
+          const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
+          jest.spyOn(BrowserApi, "getTabFromCurrentWindowId").mockResolvedValueOnce(sender.tab);
+          jest.spyOn(BrowserApi, "tabSendMessageData").mockImplementation();
+
+          sendExtensionRuntimeMessage({ command: "openAutofillOverlay" });
+          await flushPromises();
+
+          expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
+            sender.tab,
+            "openAutofillOverlay",
+            {
+              isFocusingFieldElement: false,
+              isOpeningFullOverlay: false,
+              authStatus: AuthenticationStatus.Unlocked,
+            }
+          );
+        });
+      });
+
+      describe("autofillOverlayElementClosed message handler", () => {
+        beforeEach(() => {
+          initOverlayElementPorts();
+        });
+
+        it("disconnects the button element port", () => {
+          sendExtensionRuntimeMessage({
+            command: "autofillOverlayElementClosed",
+            overlayElement: AutofillOverlayElement.Button,
+          });
+
+          expect(buttonPortSpy.disconnect).toHaveBeenCalled();
+          expect(overlayBackground["overlayButtonPort"]).toBeNull();
+        });
+
+        it("disconnects the list element port", () => {
+          sendExtensionRuntimeMessage({
+            command: "autofillOverlayElementClosed",
+            overlayElement: AutofillOverlayElement.List,
+          });
+
+          expect(listPortSpy.disconnect).toHaveBeenCalled();
+          expect(overlayBackground["overlayListPort"]).toBeNull();
+        });
+      });
+
+      describe("autofillOverlayAddNewVaultItem message handler", () => {
+        let sender: chrome.runtime.MessageSender;
+        beforeEach(() => {
+          sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
+          jest
+            .spyOn(overlayBackground["stateService"], "setAddEditCipherInfo")
+            .mockImplementation();
+          jest.spyOn(overlayBackground as any, "openAddEditVaultItemPopout").mockImplementation();
+        });
+
+        it("will not open the add edit popout window if the message does not have a login cipher provided", () => {
+          sendExtensionRuntimeMessage({ command: "autofillOverlayAddNewVaultItem" }, sender);
+
+          expect(overlayBackground["stateService"].setAddEditCipherInfo).not.toHaveBeenCalled();
+          expect(overlayBackground["openAddEditVaultItemPopout"]).not.toHaveBeenCalled();
+        });
+
+        it("will open the add edit popout window after creating a new cipher", async () => {
+          sendExtensionRuntimeMessage(
+            {
+              command: "autofillOverlayAddNewVaultItem",
+              login: {
+                uri: "https://tacos.com",
+                hostname: "",
+                username: "username",
+                password: "password",
+              },
+            },
+            sender
+          );
+          await flushPromises();
+
+          expect(overlayBackground["stateService"].setAddEditCipherInfo).toHaveBeenCalled();
+          expect(overlayBackground["openAddEditVaultItemPopout"]).toHaveBeenCalled();
+        });
+      });
+
+      describe("getAutofillOverlayVisibility message handler", () => {
+        beforeEach(() => {
+          jest
+            .spyOn(overlayBackground["settingsService"], "getAutoFillOverlayVisibility")
+            .mockResolvedValue(AutofillOverlayVisibility.OnFieldFocus);
+        });
+
+        it("will set the overlayVisibility property", async () => {
+          sendExtensionRuntimeMessage({ command: "getAutofillOverlayVisibility" });
+          await flushPromises();
+
+          expect(overlayBackground["overlayVisibility"]).toBe(
+            AutofillOverlayVisibility.OnFieldFocus
+          );
+        });
+
+        it("returns the overlayVisibility property", async () => {
+          const sendMessageSpy = jest.fn();
+
+          sendExtensionRuntimeMessage(
+            { command: "getAutofillOverlayVisibility" },
+            undefined,
+            sendMessageSpy
+          );
+          await flushPromises();
+
+          expect(sendMessageSpy).toHaveBeenCalledWith(AutofillOverlayVisibility.OnFieldFocus);
+        });
+      });
+
+      describe("checkAutofillOverlayFocused message handler", () => {
+        beforeEach(() => {
+          initOverlayElementPorts();
+        });
+
+        it("will check if the overlay list is focused if the list port is open", () => {
+          sendExtensionRuntimeMessage({ command: "checkAutofillOverlayFocused" });
+
+          expect(listPortSpy.postMessage).toHaveBeenCalledWith({
+            command: "checkAutofillOverlayListFocused",
+          });
+          expect(buttonPortSpy.postMessage).not.toHaveBeenCalledWith({
+            command: "checkAutofillOverlayButtonFocused",
+          });
+        });
+
+        it("will check if the overlay button is focused if the list port is not open", () => {
+          overlayBackground["overlayListPort"] = undefined;
+
+          sendExtensionRuntimeMessage({ command: "checkAutofillOverlayFocused" });
+
+          expect(buttonPortSpy.postMessage).toHaveBeenCalledWith({
+            command: "checkAutofillOverlayButtonFocused",
+          });
+          expect(listPortSpy.postMessage).not.toHaveBeenCalledWith({
+            command: "checkAutofillOverlayListFocused",
+          });
+        });
+      });
+
+      describe("focusAutofillOverlayList message handler", () => {
+        it("will send a `focusOverlayList` message to the overlay list port", () => {
+          initOverlayElementPorts({ initList: true, initButton: false });
+
+          sendExtensionRuntimeMessage({ command: "focusAutofillOverlayList" });
+
+          expect(listPortSpy.postMessage).toHaveBeenCalledWith({ command: "focusOverlayList" });
+        });
+      });
+
+      describe("updateAutofillOverlayPosition message handler", () => {
+        let buttonPortOnMessageListener: CallableFunction;
+        let listPortOnMessageListener: CallableFunction;
+
+        beforeEach(() => {
+          overlayBackground["handlePortOnConnect"](
+            createPortSpyMock(AutofillOverlayPort.List, listPortOnMessageListener, listPortSpy)
+          );
+          listPortSpy = overlayBackground["overlayListPort"] as PortSpy;
+          overlayBackground["handlePortOnConnect"](
+            createPortSpyMock(
+              AutofillOverlayPort.Button,
+              buttonPortOnMessageListener,
+              buttonPortSpy
+            )
+          );
+          buttonPortSpy = overlayBackground["overlayButtonPort"] as PortSpy;
+        });
+
+        it("ignores updating the position if the overlay element type is not provided", () => {
+          sendExtensionRuntimeMessage({ command: "updateAutofillOverlayPosition" });
+
+          expect(listPortSpy.postMessage).not.toHaveBeenCalledWith({
+            command: "updateIframePosition",
+            styles: expect.anything(),
+          });
+          expect(buttonPortSpy.postMessage).not.toHaveBeenCalledWith({
+            command: "updateIframePosition",
+            styles: expect.anything(),
+          });
+        });
+
+        it("updates the overlay button's position", () => {
+          const focusedFieldData = createFocusedFieldDataMock();
+          sendExtensionRuntimeMessage({ command: "updateFocusedFieldData", focusedFieldData });
+
+          sendExtensionRuntimeMessage({
+            command: "updateAutofillOverlayPosition",
+            overlayElement: AutofillOverlayElement.Button,
+          });
+
+          expect(buttonPortSpy.postMessage).toHaveBeenCalledWith({
+            command: "updateIframePosition",
+            styles: { height: "2px", left: "4px", top: "2px", width: "2px" },
+          });
+        });
+
+        it("takes into account the right padding of the focused field in positioning the button if the right padding of the field is larger than the left padding", () => {
+          const focusedFieldData = createFocusedFieldDataMock({
+            focusedFieldStyles: { paddingRight: "20px", paddingLeft: "6px" },
+          });
+          sendExtensionRuntimeMessage({ command: "updateFocusedFieldData", focusedFieldData });
+
+          sendExtensionRuntimeMessage({
+            command: "updateAutofillOverlayPosition",
+            overlayElement: AutofillOverlayElement.Button,
+          });
+
+          expect(buttonPortSpy.postMessage).toHaveBeenCalledWith({
+            command: "updateIframePosition",
+            styles: { height: "2px", left: "-18px", top: "2px", width: "2px" },
+          });
+        });
+
+        it("will post a message to the overlay list facilitating an update of the list's position", () => {
+          const focusedFieldData = createFocusedFieldDataMock();
+          sendExtensionRuntimeMessage({ command: "updateFocusedFieldData", focusedFieldData });
+
+          overlayBackground["updateOverlayPosition"]({
+            overlayElement: AutofillOverlayElement.List,
+          });
+          sendExtensionRuntimeMessage({
+            command: "updateAutofillOverlayPosition",
+            overlayElement: AutofillOverlayElement.List,
+          });
+
+          expect(listPortSpy.postMessage).toHaveBeenCalledWith({
+            command: "updateIframePosition",
+            styles: { left: "2px", top: "4px", width: "4px" },
+          });
+        });
+      });
+
+      describe("updateOverlayHidden", () => {
+        beforeEach(() => {
+          initOverlayElementPorts();
+        });
+
+        it("returns early if the display value is not provided", () => {
+          const message = {
+            command: "updateAutofillOverlayHidden",
+          };
+
+          sendExtensionRuntimeMessage(message);
+
+          expect(buttonPortSpy.postMessage).not.toHaveBeenCalledWith(message);
+          expect(listPortSpy.postMessage).not.toHaveBeenCalledWith(message);
+        });
+
+        it("posts a message to the overlay button and list with the display value", () => {
+          const message = { command: "updateAutofillOverlayHidden", display: "none" };
+
+          sendExtensionRuntimeMessage(message);
+
+          expect(overlayBackground["overlayButtonPort"].postMessage).toHaveBeenCalledWith({
+            command: "updateOverlayHidden",
+            styles: {
+              display: message.display,
+            },
+          });
+          expect(overlayBackground["overlayListPort"].postMessage).toHaveBeenCalledWith({
+            command: "updateOverlayHidden",
+            styles: {
+              display: message.display,
+            },
+          });
+        });
+      });
+
+      describe("collectPageDetailsResponse", () => {
+        let sender: chrome.runtime.MessageSender;
+        const pageDetails1 = createAutofillPageDetailsMock({
+          login: { username: "username1", password: "password1" },
+        });
+        const pageDetails2 = createAutofillPageDetailsMock({
+          login: { username: "username2", password: "password2" },
+        });
+
+        beforeEach(() => {
+          sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
+        });
+
+        it("stores the page details provided by the message by the tab id of the sender", () => {
+          sendExtensionRuntimeMessage(
+            { command: "collectPageDetailsResponse", details: pageDetails1 },
+            sender
+          );
+
+          expect(overlayBackground["pageDetailsForTab"][sender.tab.id]).toStrictEqual([
+            { frameId: sender.frameId, tab: sender.tab, details: pageDetails1 },
+          ]);
+        });
+
+        it("updates the page details for a tab that already has a set of page details stored ", () => {
+          overlayBackground["pageDetailsForTab"][sender.tab.id] = [
+            {
+              frameId: sender.frameId,
+              tab: sender.tab,
+              details: pageDetails1,
+            },
+          ];
+
+          sendExtensionRuntimeMessage(
+            { command: "collectPageDetailsResponse", details: pageDetails2 },
+            sender
+          );
+
+          expect(overlayBackground["pageDetailsForTab"][sender.tab.id]).toStrictEqual([
+            { frameId: sender.frameId, tab: sender.tab, details: pageDetails1 },
+            { frameId: sender.frameId, tab: sender.tab, details: pageDetails2 },
+          ]);
+        });
+      });
+
+      describe("unlockCompleted", () => {
+        let getAuthStatusSpy: jest.SpyInstance;
+
+        beforeEach(() => {
+          overlayBackground["userAuthStatus"] = AuthenticationStatus.LoggedOut;
+          jest.spyOn(BrowserApi, "tabSendMessageData");
+          getAuthStatusSpy = jest
+            .spyOn(overlayBackground as any, "getAuthStatus")
+            .mockImplementation(() => {
+              overlayBackground["userAuthStatus"] = AuthenticationStatus.Unlocked;
+              return Promise.resolve(AuthenticationStatus.Unlocked);
+            });
+        });
+
+        it("updates the user's auth status but does not open the overlay", async () => {
+          const message = {
+            command: "unlockCompleted",
+            data: {
+              commandToRetry: { msg: { command: "" } },
+            },
+          };
+
+          sendExtensionRuntimeMessage(message);
+          await flushPromises();
+
+          expect(getAuthStatusSpy).toHaveBeenCalled();
+          expect(BrowserApi.tabSendMessageData).not.toHaveBeenCalled();
+        });
+
+        it("updates user's auth status and opens the overlay if a follow up command is provided", async () => {
+          const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
+          const message = {
+            command: "unlockCompleted",
+            data: {
+              commandToRetry: { msg: { command: "openAutofillOverlay" } },
+            },
+          };
+          jest.spyOn(BrowserApi, "getTabFromCurrentWindowId").mockResolvedValueOnce(sender.tab);
+
+          sendExtensionRuntimeMessage(message);
+          await flushPromises();
+
+          expect(getAuthStatusSpy).toHaveBeenCalled();
+          expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
+            sender.tab,
+            "openAutofillOverlay",
+            {
+              isFocusingFieldElement: true,
+              isOpeningFullOverlay: false,
+              authStatus: AuthenticationStatus.Unlocked,
+            }
+          );
+        });
+      });
     });
   });
 

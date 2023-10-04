@@ -1,4 +1,6 @@
 // Add chrome storage api
+import { mock } from "jest-mock-extended";
+
 const QUOTA_BYTES = 10;
 const storage = {
   local: {
@@ -17,9 +19,25 @@ const storage = {
   },
 };
 
+let runtimeOnMessageCallback: CallableFunction;
 const runtime = {
   onMessage: {
-    addListener: jest.fn(),
+    addListener: jest.fn((callback) => (runtimeOnMessageCallback = callback)),
+    removeListener: jest.fn((callback) => {
+      if (runtimeOnMessageCallback === callback) {
+        runtimeOnMessageCallback = undefined;
+      }
+    }),
+    callListener: (
+      message: any,
+      sender?: chrome.runtime.MessageSender,
+      sendResponse?: CallableFunction
+    ) => {
+      const messageData = message || {};
+      const messageSender = sender || mock<chrome.runtime.MessageSender>();
+      const sendResponseCallback = sendResponse || jest.fn();
+      runtimeOnMessageCallback(messageData, messageSender, sendResponseCallback);
+    },
   },
   sendMessage: jest.fn(),
   getManifest: jest.fn(),
@@ -65,6 +83,7 @@ const contextMenus = {
 
 const i18n = {
   getMessage: jest.fn(),
+  getUILanguage: jest.fn(),
 };
 
 const tabs = {

@@ -24,7 +24,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
   private readonly showCiphersPerPage = 6;
   private readonly overlayListWindowMessageHandlers: OverlayListWindowMessageHandlers = {
     initAutofillOverlayList: ({ message }) => this.initAutofillOverlayList(message),
-    checkOverlayListFocused: () => this.checkOverlayListFocused(),
+    checkAutofillOverlayListFocused: () => this.checkOverlayListFocused(),
     updateOverlayListCiphers: ({ message }) => this.updateListItems(message.ciphers),
     focusOverlayList: () => this.focusOverlayList(),
   };

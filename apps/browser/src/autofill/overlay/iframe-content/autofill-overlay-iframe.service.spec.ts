@@ -1,13 +1,9 @@
 import { EVENTS } from "../../constants";
 import { flushPromises } from "../../jest/testing-utils";
+import { PortSpy } from "../../jest/typings";
 import { AutofillOverlayPort } from "../../utils/autofill-overlay.enum";
 
 import AutofillOverlayIframeService from "./autofill-overlay-iframe.service";
-
-type PortSpy = chrome.runtime.Port & {
-  onDisconnect: { callListener: () => void };
-  onMessage: { callListener: (message: any) => void };
-};
 
 describe("AutofillOverlayIframeService", () => {
   const iframePath = "overlay/list.html";
