@@ -150,6 +150,12 @@ import {
   VaultExportService,
   VaultExportServiceAbstraction,
 } from "@bitwarden/exporter/vault-export";
+import {
+  ImportApiService,
+  ImportApiServiceAbstraction,
+  ImportService,
+  ImportServiceAbstraction,
+} from "@bitwarden/importer";
 
 import { AuthGuard } from "../auth/guards/auth.guard";
 import { UnauthGuard } from "../auth/guards/unauth.guard";
@@ -271,7 +277,8 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
         searchService: SearchServiceAbstraction,
         stateService: StateServiceAbstraction,
         encryptService: EncryptService,
-        fileUploadService: CipherFileUploadServiceAbstraction
+        fileUploadService: CipherFileUploadServiceAbstraction,
+        configService: ConfigServiceAbstraction
       ) =>
         new CipherService(
           cryptoService,
@@ -281,7 +288,8 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
           searchService,
           stateService,
           encryptService,
-          fileUploadService
+          fileUploadService,
+          configService
         ),
       deps: [
         CryptoServiceAbstraction,
@@ -292,6 +300,7 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
         StateServiceAbstraction,
         EncryptService,
         CipherFileUploadServiceAbstraction,
+        ConfigServiceAbstraction,
       ],
     },
     {
@@ -480,6 +489,23 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
         LogService,
         STATE_FACTORY,
         STATE_SERVICE_USE_CACHE,
+      ],
+    },
+    {
+      provide: ImportApiServiceAbstraction,
+      useClass: ImportApiService,
+      deps: [ApiServiceAbstraction],
+    },
+    {
+      provide: ImportServiceAbstraction,
+      useClass: ImportService,
+      deps: [
+        CipherServiceAbstraction,
+        FolderServiceAbstraction,
+        ImportApiServiceAbstraction,
+        I18nServiceAbstraction,
+        CollectionServiceAbstraction,
+        CryptoServiceAbstraction,
       ],
     },
     {
