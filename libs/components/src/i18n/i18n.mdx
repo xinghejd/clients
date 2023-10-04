@@ -13,10 +13,10 @@ target language.
 
 The templating syntax uses numeric marker tags `<0></0>` around text that will be wrapped. The
 marker tags should numbered sequentially starting from 0. The marker tags are then matched and
-replaced by the `*bit-i18n-tag` directives in the order they appear in the template.
+replaced by the `*bit-i18n-part` directives in the order they appear in the template.
 
-If a corresponding `*bit-i18n-tag` directive is not found for a marker tag, the marker tag's content
-will be rendered as is.
+If a corresponding `*bit-i18n-part` directive is not found for a marker tag, the marker tag's
+content will be rendered as is.
 
 ## Basic Example
 
@@ -33,11 +33,11 @@ will be rendered as is.
 -->
 <bit-i18n key="basicExample">
   <!-- <0></0> -->
-  <a *bit-i18n-tag="let text" routerLink="./">{{ text }}</a>
+  <a *bit-i18n-part="let text" routerLink="./">{{ text }}</a>
   <!-- <1></1> -->
-  <strong *bit-i18n-tag="let text">{{ text }}</strong>
+  <strong *bit-i18n-part="let text">{{ text }}</strong>
   <!-- <2></2> -->
-  <a *bit-i18n-tag="let text" href="#">
+  <a *bit-i18n-part="let text" href="#">
     <strong>{{ text }}</strong>
   </a>
 </bit-i18n>
@@ -58,15 +58,15 @@ You can also use the `bit-i18n` as an attribute to avoid creating an extra eleme
     "This is another example with <1>bold</1> tags to show that tag order does not matter and the <0>link</0> tags are after."
 -->
 <p bit-i18n key="otherExample">
-  <a *bit-i18n-tag="let text" href="#">{{ text }}</a>
-  <strong *bit-i18n-tag="let text">{{ text }}</strong>
+  <a *bit-i18n-part="let text" href="#">{{ text }}</a>
+  <strong *bit-i18n-part="let text">{{ text }}</strong>
 </p>
 ```
 
 ## Missing Template Example
 
-If there are not enough `*bit-i18n-tag` directives to match the marker tags, the marker tags will be
-rendered as is.
+If there are not enough `*bit-i18n-part` directives to match the marker tags, the marker tags will
+be rendered as is.
 
 <Story of={stories.MissingTemplate} />
 
@@ -81,9 +81,9 @@ rendered as is.
 -->
 <bit-i18n key="basicExample">
   <!-- <0></0> -->
-  <a *bit-i18n-tag="let text" routerLink="./">{{ text }}</a>
+  <a *bit-i18n-part="let text" routerLink="./">{{ text }}</a>
   <!-- <1></1> -->
-  <strong *bit-i18n-tag="let text">{{ text }}</strong>
+  <strong *bit-i18n-part="let text">{{ text }}</strong>
   <!-- Missing template for <2></2> -->
 </bit-i18n>
 ```
@@ -104,6 +104,6 @@ You can also pass arguments to the `i18nService.t()` method via the `[args]` inp
 -->
 <bit-i18n key="argExample" [args]="['passed args']">
   <!-- <0></0> -->
-  <a *bit-i18n-tag="let text" routerLink="./">{{ text }}</a>
+  <a *bit-i18n-part="let text" routerLink="./">{{ text }}</a>
 </bit-i18n>
 ```

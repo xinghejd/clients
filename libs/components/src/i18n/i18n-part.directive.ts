@@ -7,8 +7,8 @@ import { Directive, TemplateRef } from "@angular/core";
  * <a routerLink="../policies" *bit-i18n-part="let text">{{text}}</a>
  */
 @Directive({
-  selector: "[bit-i18n-tag]",
+  selector: "[bit-i18n-part]",
 })
-export class I18nTagDirective {
+export class I18nPartDirective {
   constructor(public templateRef: TemplateRef<any>) {}
 }

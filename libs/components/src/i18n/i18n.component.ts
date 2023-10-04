@@ -9,7 +9,7 @@ import {
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { I18nTagDirective } from "./i18n-tag.directive";
+import { I18nPartDirective } from "./i18n-part.directive";
 
 interface I18nStringPart {
   text: string;
@@ -25,13 +25,13 @@ interface I18nStringPart {
  * `"This will be a <0>translated link</0> and this will be another <1>translated link</1>."`
  *
  * The tag identifiers must be numbers surrounded by angle brackets and will be used to match the corresponding
- * bit-i18n-tag. If there are not enough bit-i18n-tag directives, the text will be rendered as-is for the remaining
+ * bit-i18n-part. If there are not enough bit-i18n-part directives, the text will be rendered as-is for the remaining
  * tags.
  *
  * @example
  * <div bit-i18n key="exampleI18nKey">
- *  <a *bit-i18n-tag="let text" routerLink="./first-link">{{ text }}</a>
- *  <a *bit-i18n-tag="let text" routerLink="./bold-link">
+ *  <a *bit-i18n-part="let text" routerLink="./first-link">{{ text }}</a>
+ *  <a *bit-i18n-part="let text" routerLink="./bold-link">
  *    <strong>{{ text }}</strong>
  *  </a>
  * </div>
@@ -59,8 +59,8 @@ export class I18nComponent implements AfterContentInit {
   @Input()
   args: (string | number)[] = [];
 
-  @ContentChildren(I18nTagDirective)
-  templateTags: QueryList<I18nTagDirective>;
+  @ContentChildren(I18nPartDirective)
+  templateTags: QueryList<I18nPartDirective>;
 
   protected translationParts: I18nStringPart[] = [];
 

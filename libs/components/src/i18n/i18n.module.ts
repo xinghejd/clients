@@ -2,12 +2,12 @@ import { NgModule } from "@angular/core";
 
 import { SharedModule } from "../shared";
 
-import { I18nTagDirective } from "./i18n-tag.directive";
+import { I18nPartDirective } from "./i18n-part.directive";
 import { I18nComponent } from "./i18n.component";
 
 @NgModule({
   imports: [SharedModule],
-  declarations: [I18nComponent, I18nTagDirective],
-  exports: [I18nComponent, I18nTagDirective],
+  declarations: [I18nComponent, I18nPartDirective],
+  exports: [I18nComponent, I18nPartDirective],
 })
 export class I18nModule {}
