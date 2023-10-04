@@ -2,7 +2,9 @@ import { matches, mock, mockReset } from "jest-mock-extended";
 import { BehaviorSubject } from "rxjs";
 import { Jsonify } from "type-fest";
 
-import { StateService } from "../abstractions/state.service";
+import { AccountInfo, AccountService } from "../../auth/abstractions/account.service";
+import { AuthenticationStatus } from "../../auth/enums/authentication-status";
+import { UserId } from "../../types/guid";
 import { AbstractMemoryStorageService } from "../abstractions/storage.service";
 import { KeyDefinition } from "../types/key-definition";
 import { StateDefinition } from "../types/state-definition";
@@ -15,10 +17,13 @@ class TestState {
   // TODO: More complex data types
 
   static fromJSON(jsonState: Jsonify<TestState>) {
-    const state = new TestState();
-    state.date = new Date(jsonState.date);
-    state.array = jsonState.array;
-    return state;
+    if (jsonState == null) {
+      return null;
+    }
+
+    return Object.assign(new TestState(), jsonState, {
+      date: new Date(jsonState.date),
+    });
   }
 }
 
@@ -31,23 +36,23 @@ const testKeyDefinition = new KeyDefinition<TestState>(
 );
 
 describe("DefaultStateProvider", () => {
-  const stateService = mock<StateService>();
+  const accountService = mock<AccountService>();
   const memoryStorageService = mock<AbstractMemoryStorageService>();
   const diskStorageService = mock<AbstractMemoryStorageService>();
 
-  const activeAccountSubject = new BehaviorSubject<string>(undefined);
+  const activeAccountSubject = new BehaviorSubject<{ id: UserId } & AccountInfo>(undefined);
 
   let activeUserStateProvider: DefaultActiveUserStateProvider;
 
   beforeEach(() => {
-    mockReset(stateService);
+    mockReset(accountService);
     mockReset(memoryStorageService);
     mockReset(diskStorageService);
 
-    stateService.activeAccount$ = activeAccountSubject;
+    accountService.activeAccount$ = activeAccountSubject;
 
     activeUserStateProvider = new DefaultActiveUserStateProvider(
-      stateService,
+      accountService,
       null, // Not testing derived state
       null, // Not testing memory storage
       diskStorageService,
@@ -56,11 +61,11 @@ describe("DefaultStateProvider", () => {
   });
 
   it("createUserState", async () => {
-    diskStorageService.get.mockImplementation(async (key, options) => {
-      if (key == "fake_1") {
-        return { date: "2023-09-21T13:14:17.648Z", array: ["value1", "value2"] };
-      }
-      return undefined;
+    diskStorageService.get.mockImplementationOnce(() => {
+      return Promise.resolve({
+        date: "2023-09-21T13:14:17.648Z",
+        array: ["value1", "value2"],
+      } as Jsonify<TestState>);
     });
 
     const fakeDomainState = activeUserStateProvider.create(testKeyDefinition);
@@ -69,7 +74,12 @@ describe("DefaultStateProvider", () => {
     const subscription = fakeDomainState.state$.subscribe(subscribeCallback);
 
     // User signs in
-    activeAccountSubject.next("1");
+    activeAccountSubject.next({
+      id: "1" as UserId,
+      email: "useremail",
+      name: "username",
+      status: AuthenticationStatus.Locked,
+    });
     await new Promise<void>((resolve) => setTimeout(resolve, 10));
 
     // Service does an update

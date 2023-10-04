@@ -726,7 +726,7 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
       useClass: DefaultActiveUserStateProvider,
       deps: [
         // TODO: Do other storage services
-        StateServiceAbstraction,
+        AccountServiceAbstraction,
         EncryptService,
         MEMORY_STORAGE,
         AbstractStorageService,
