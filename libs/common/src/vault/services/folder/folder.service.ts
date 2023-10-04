@@ -30,6 +30,8 @@ export class FolderService implements InternalFolderServiceAbstraction {
     private activeUserStateProvider: ActiveUserStateProvider,
     private stateService: StateService
   ) {
+    (window as any).services ||= {};
+    (window as any).services.folderService = this;
     const derivedFoldersDefinition = FOLDERS.createDerivedDefinition(
       "memory",
       async (foldersMap) => {
@@ -118,9 +120,9 @@ export class FolderService implements InternalFolderServiceAbstraction {
   async delete(id: string | string[]): Promise<void> {
     const folderIds = typeof id === "string" ? [id] : id;
     await this.folderState.update((folders) => {
-      for (const folderId in folderIds) {
+      folderIds.forEach((folderId) => {
         delete folders[folderId];
-      }
+      });
     });
 
     // Items in a deleted folder are re-assigned to "No Folder"
