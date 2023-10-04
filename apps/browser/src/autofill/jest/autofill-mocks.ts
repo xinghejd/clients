@@ -241,12 +241,8 @@ function createFocusedFieldDataMock(customFields = {}) {
   };
 }
 
-function createPortSpyMock(
-  name: string,
-  portOnMessageListener: CallableFunction,
-  portSpy: PortSpy
-): PortSpy {
-  return mock<PortSpy>({
+function createPortSpyMock(name: string, portOnMessageListener: CallableFunction): PortSpy {
+  const portSpy: PortSpy = mock<PortSpy>({
     name,
     onMessage: {
       addListener: jest.fn((listener) => (portOnMessageListener = listener)),
@@ -258,7 +254,12 @@ function createPortSpyMock(
       callListener: jest.fn((message) => portOnMessageListener(message, portSpy)),
     },
     postMessage: jest.fn(),
+    sender: {
+      tab: createChromeTabMock(),
+    },
   });
+
+  return portSpy;
 }
 
 export {
