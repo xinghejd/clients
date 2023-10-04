@@ -1,8 +1,8 @@
 import { BehaviorSubject, firstValueFrom } from "rxjs";
 
-import { ActiveUserState } from "../src/platform/interfaces/active-user-state";
+import { UserState } from "../src/platform/interfaces/user-state";
 
-export class TestUserState<T> implements ActiveUserState<T> {
+export class TestUserState<T> implements UserState<T> {
   private _state$: BehaviorSubject<T>;
   get state$() {
     return this._state$.asObservable();

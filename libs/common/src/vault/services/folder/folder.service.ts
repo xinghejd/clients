@@ -1,13 +1,13 @@
 import { Observable, firstValueFrom, map } from "rxjs";
 
-import { ActiveUserStateProvider } from "../../../platform/abstractions/active-user-state.provider";
 import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { StateService } from "../../../platform/abstractions/state.service";
-import { ActiveUserState } from "../../../platform/interfaces/active-user-state";
+import { UserStateProvider } from "../../../platform/abstractions/user-state.provider";
+import { UserState } from "../../../platform/interfaces/user-state";
 import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { DerivedActiveUserState } from "../../../platform/services/default-active-user-state.provider";
+import { DerivedUserState } from "../../../platform/services/default-user-state.provider";
 import { CipherService } from "../../../vault/abstractions/cipher.service";
 import { InternalFolderService as InternalFolderServiceAbstraction } from "../../../vault/abstractions/folder/folder.service.abstraction";
 import { CipherData } from "../../../vault/models/data/cipher.data";
@@ -17,8 +17,8 @@ import { FolderView } from "../../../vault/models/view/folder.view";
 import { FOLDERS } from "../../types/key-definitions";
 
 export class FolderService implements InternalFolderServiceAbstraction {
-  folderState: ActiveUserState<Record<string, FolderData>>;
-  decryptedFolderState: DerivedActiveUserState<Record<string, FolderData>, FolderView[]>;
+  folderState: UserState<Record<string, FolderData>>;
+  decryptedFolderState: DerivedUserState<Record<string, FolderData>, FolderView[]>;
 
   folders$: Observable<Folder[]>;
   folderViews$: Observable<FolderView[]>;
@@ -27,7 +27,7 @@ export class FolderService implements InternalFolderServiceAbstraction {
     private cryptoService: CryptoService,
     private i18nService: I18nService,
     private cipherService: CipherService,
-    private activeUserStateProvider: ActiveUserStateProvider,
+    private userStateProvider: UserStateProvider,
     private stateService: StateService
   ) {
     (window as any).services ||= {};
@@ -41,7 +41,7 @@ export class FolderService implements InternalFolderServiceAbstraction {
       }
     );
 
-    this.folderState = this.activeUserStateProvider.create(FOLDERS);
+    this.folderState = this.userStateProvider.create(FOLDERS);
 
     this.folders$ = this.folderState.state$.pipe(
       map((foldersMap) => {

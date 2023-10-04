@@ -9,7 +9,7 @@ import { AbstractMemoryStorageService } from "../abstractions/storage.service";
 import { KeyDefinition } from "../types/key-definition";
 import { StateDefinition } from "../types/state-definition";
 
-import { DefaultActiveUserStateProvider } from "./default-active-user-state.provider";
+import { DefaultUserStateProvider } from "./default-user-state.provider";
 
 class TestState {
   date: Date;
@@ -42,7 +42,7 @@ describe("DefaultStateProvider", () => {
 
   const activeAccountSubject = new BehaviorSubject<{ id: UserId } & AccountInfo>(undefined);
 
-  let activeUserStateProvider: DefaultActiveUserStateProvider;
+  let userStateProvider: DefaultUserStateProvider;
 
   beforeEach(() => {
     mockReset(accountService);
@@ -51,7 +51,7 @@ describe("DefaultStateProvider", () => {
 
     accountService.activeAccount$ = activeAccountSubject;
 
-    activeUserStateProvider = new DefaultActiveUserStateProvider(
+    userStateProvider = new DefaultUserStateProvider(
       accountService,
       null, // Not testing derived state
       null, // Not testing memory storage
@@ -68,7 +68,7 @@ describe("DefaultStateProvider", () => {
       } as Jsonify<TestState>);
     });
 
-    const fakeDomainState = activeUserStateProvider.create(testKeyDefinition);
+    const fakeDomainState = userStateProvider.create(testKeyDefinition);
 
     const subscribeCallback = jest.fn<void, [TestState]>();
     const subscription = fakeDomainState.state$.subscribe(subscribeCallback);

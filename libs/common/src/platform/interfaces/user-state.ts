@@ -1,9 +1,9 @@
 import { Observable } from "rxjs";
 
-import { DerivedActiveUserState } from "../services/default-active-user-state.provider";
+import { DerivedUserState } from "../services/default-user-state.provider";
 import { DerivedStateDefinition } from "../types/derived-state-definition";
 
-export interface ActiveUserState<T> {
+export interface UserState<T> {
   readonly state$: Observable<T>;
   readonly getFromState: () => Promise<T>;
   /**
@@ -14,5 +14,5 @@ export interface ActiveUserState<T> {
   readonly update: (configureState: (state: T) => T) => Promise<T>;
   createDerived: <TTo>(
     derivedStateDefinition: DerivedStateDefinition<T, TTo>
-  ) => DerivedActiveUserState<T, TTo>;
+  ) => DerivedUserState<T, TTo>;
 }

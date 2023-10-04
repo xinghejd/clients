@@ -11,13 +11,13 @@ import {
 import { Jsonify } from "type-fest";
 
 import { AccountService } from "../../auth/abstractions/account.service";
-import { ActiveUserStateProvider } from "../abstractions/active-user-state.provider";
 import { EncryptService } from "../abstractions/encrypt.service";
 import {
   AbstractMemoryStorageService,
   AbstractStorageService,
 } from "../abstractions/storage.service";
-import { ActiveUserState } from "../interfaces/active-user-state";
+import { UserStateProvider } from "../abstractions/user-state.provider";
+import { UserState } from "../interfaces/user-state";
 import { userKeyBuilder } from "../misc/key-builders";
 import { UserKey } from "../models/domain/symmetric-crypto-key";
 import { KeyDefinition } from "../types/key-definition";
@@ -32,7 +32,7 @@ class DerivedStateDefinition<TFrom, TTo> {
   constructor(readonly converter: (data: TFrom, context: ConverterContext) => Promise<TTo>) {}
 }
 
-export class DerivedActiveUserState<TFrom, TTo> {
+export class DerivedUserState<TFrom, TTo> {
   state$: Observable<TTo>;
 
   // TODO: Probably needs to take state service
@@ -42,9 +42,9 @@ export class DerivedActiveUserState<TFrom, TTo> {
   constructor(
     private derivedStateDefinition: DerivedStateDefinition<TFrom, TTo>,
     private encryptService: EncryptService,
-    private activeUserState: ActiveUserState<TFrom>
+    private userState: UserState<TFrom>
   ) {
-    this.state$ = activeUserState.state$.pipe(
+    this.state$ = userState.state$.pipe(
       switchMap(async (from) => {
         // TODO: How do I get the key?
         const convertedData = await derivedStateDefinition.converter(
@@ -57,7 +57,7 @@ export class DerivedActiveUserState<TFrom, TTo> {
   }
 
   async getFromState(): Promise<TTo> {
-    const encryptedFromState = await this.activeUserState.getFromState();
+    const encryptedFromState = await this.userState.getFromState();
 
     const context = new ConverterContext(null, this.encryptService);
 
@@ -66,7 +66,7 @@ export class DerivedActiveUserState<TFrom, TTo> {
   }
 }
 
-class DefaultActiveUserState<T> implements ActiveUserState<T> {
+class DefaultUserState<T> implements UserState<T> {
   private seededInitial = false;
 
   private formattedKey$: Observable<string>;
@@ -154,8 +154,8 @@ class DefaultActiveUserState<T> implements ActiveUserState<T> {
 
   createDerived<TTo>(
     derivedStateDefinition: DerivedStateDefinition<T, TTo>
-  ): DerivedActiveUserState<T, TTo> {
-    return new DerivedActiveUserState<T, TTo>(derivedStateDefinition, this.encryptService, this);
+  ): DerivedUserState<T, TTo> {
+    return new DerivedUserState<T, TTo>(derivedStateDefinition, this.encryptService, this);
   }
 
   private async createKey(): Promise<string> {
@@ -184,8 +184,8 @@ class DefaultActiveUserState<T> implements ActiveUserState<T> {
   }
 }
 
-export class DefaultActiveUserStateProvider implements ActiveUserStateProvider {
-  private userStateCache: Record<string, DefaultActiveUserState<unknown>> = {};
+export class DefaultUserStateProvider implements UserStateProvider {
+  private userStateCache: Record<string, DefaultUserState<unknown>> = {};
 
   constructor(
     private accountService: AccountService, // Inject the lightest weight service that provides accountUserId$
@@ -195,16 +195,16 @@ export class DefaultActiveUserStateProvider implements ActiveUserStateProvider {
     private secureStorage: AbstractStorageService
   ) {}
 
-  create<T>(keyDefinition: KeyDefinition<T>): DefaultActiveUserState<T> {
+  create<T>(keyDefinition: KeyDefinition<T>): DefaultUserState<T> {
     const locationDomainKey = `${keyDefinition.stateDefinition.storageLocation}_${keyDefinition.stateDefinition.name}_${keyDefinition.key}`;
-    const existingActiveUserState = this.userStateCache[locationDomainKey];
-    if (existingActiveUserState != null) {
+    const existingUserState = this.userStateCache[locationDomainKey];
+    if (existingUserState != null) {
       // I have to cast out of the unknown generic but this should be safe if rules
       // around domain token are made
-      return existingActiveUserState as DefaultActiveUserState<T>;
+      return existingUserState as DefaultUserState<T>;
     }
 
-    const newActiveUserState = new DefaultActiveUserState<T>(
+    const newUserState = new DefaultUserState<T>(
       keyDefinition,
       this.accountService,
       this.encryptService,
@@ -212,7 +212,7 @@ export class DefaultActiveUserStateProvider implements ActiveUserStateProvider {
       this.secureStorage,
       this.diskStorage
     );
-    this.userStateCache[locationDomainKey] = newActiveUserState;
-    return newActiveUserState;
+    this.userStateCache[locationDomainKey] = newUserState;
+    return newUserState;
   }
 }

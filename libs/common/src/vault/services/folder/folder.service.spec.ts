@@ -3,14 +3,14 @@ import { Arg, Substitute, SubstituteOf } from "@fluffy-spoon/substitute";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom } from "rxjs";
 
-import { TestUserState as TestActiveUserState } from "../../../../spec/test-active-user-state";
-import { ActiveUserStateProvider } from "../../../platform/abstractions/active-user-state.provider";
+import { TestUserState } from "../../../../spec/test-active-user-state";
 import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
+import { UserStateProvider } from "../../../platform/abstractions/user-state.provider";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { ContainerService } from "../../../platform/services/container.service";
-import { DerivedActiveUserState } from "../../../platform/services/default-active-user-state.provider";
+import { DerivedUserState } from "../../../platform/services/default-user-state.provider";
 import { StateService } from "../../../platform/services/state.service";
 import { CipherService } from "../../abstractions/cipher.service";
 import { FolderData } from "../../models/data/folder.data";
@@ -28,10 +28,9 @@ describe("Folder Service", () => {
   let stateService: SubstituteOf<StateService>;
   let activeAccount: BehaviorSubject<string>;
   let activeAccountUnlocked: BehaviorSubject<boolean>;
-  const activeUserStateProvider = mock<ActiveUserStateProvider>();
-  let activeUserState: TestActiveUserState<Record<string, FolderData>>;
-  const derivedActiveUserState =
-    mock<DerivedActiveUserState<Record<string, FolderData>, FolderView[]>>();
+  const userStateProvider = mock<UserStateProvider>();
+  let userState: TestUserState<Record<string, FolderData>>;
+  const derivedUserState = mock<DerivedUserState<Record<string, FolderData>, FolderView[]>>();
   let folderViews$: BehaviorSubject<FolderView[]>;
 
   beforeEach(() => {
@@ -51,19 +50,19 @@ describe("Folder Service", () => {
     stateService.activeAccountUnlocked$.returns(activeAccountUnlocked);
     (window as any).bitwardenContainerService = new ContainerService(cryptoService, encryptService);
 
-    activeUserState = new TestActiveUserState({});
-    activeUserState.next(initialState);
-    activeUserStateProvider.create.mockReturnValue(activeUserState);
-    activeUserState.createDerived.mockReturnValue(derivedActiveUserState);
+    userState = new TestUserState({});
+    userState.next(initialState);
+    userStateProvider.create.mockReturnValue(userState);
+    userState.createDerived.mockReturnValue(derivedUserState);
 
     folderViews$ = new BehaviorSubject([]);
-    derivedActiveUserState.state$ = folderViews$;
+    derivedUserState.state$ = folderViews$;
 
     folderService = new FolderService(
       cryptoService,
       i18nService,
       cipherService,
-      activeUserStateProvider,
+      userStateProvider,
       stateService
     );
   });
@@ -71,7 +70,7 @@ describe("Folder Service", () => {
   afterEach(() => {
     jest.resetAllMocks();
     folderViews$.complete();
-    activeUserState.complete();
+    userState.complete();
   });
 
   test("encrypt", async () => {
