@@ -39,7 +39,7 @@ interface I18nStringPart {
  * </div>
  */
 @Component({
-  selector: "[bit-i18n],bit-i18n",
+  selector: "[bit-i18n]",
   imports: [SharedModule],
   template: `
     <ng-container *ngFor="let part of translationParts">

@@ -41,25 +41,13 @@ export const Basic: Story = {
   render: (args) => ({
     props: args,
     template: `
-<bit-i18n key="basicExample">
+<div bit-i18n key="basicExample">
   <a *bit-i18n-part="let text" href="javascript:;">{{ text }}</a>
   <strong *bit-i18n-part="let text">{{ text }}</strong>
   <a *bit-i18n-part="let text" href="https://localization.blog/2022/05/16/i18n-best-practices-keep-it-together/">
     <strong>{{ text }}</strong>
   </a>
-</bit-i18n>
-    `,
-  }),
-};
-
-export const AttributeSelector: Story = {
-  render: (args) => ({
-    props: args,
-    template: `
-<p bit-i18n key="otherExample">
-  <a *bit-i18n-part="let text" href="javascript:;">{{ text }}</a>
-  <strong *bit-i18n-part="let text">{{ text }}</strong>
-</p>
+</div>
     `,
   }),
 };
