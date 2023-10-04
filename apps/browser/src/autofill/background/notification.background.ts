@@ -325,6 +325,13 @@ export default class NotificationBackground {
     }
   }
 
+  /**
+   * Sets up a notification to unlock the vault when the user
+   * attempts to autofill a cipher while the vault is locked.
+   * @param message Extension message, determines if the notification should be skipped
+   * @param tab The tab that the message was sent from
+   * @private
+   */
   private async unlockVault(
     message: { data?: { skipNotification?: boolean } },
     tab: chrome.tabs.Tab

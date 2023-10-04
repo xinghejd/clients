@@ -313,9 +313,15 @@ export class BrowserApi {
     if (BrowserApi.isWebExtensionsApi) {
       return browser.permissions.request(permission);
     }
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       chrome.permissions.request(permission, resolve);
     });
+  }
+
+  static async permissionsGranted(permissions: string[]): Promise<boolean> {
+    return new Promise((resolve) =>
+      chrome.permissions.contains({ permissions }, (result) => resolve(result))
+    );
   }
 
   static getPlatformInfo(): Promise<browser.runtime.PlatformInfo | chrome.runtime.PlatformInfo> {
@@ -366,5 +372,26 @@ export class BrowserApi {
         resolve(result);
       });
     });
+  }
+
+  static async browserAutofillSettingsOverridden(): Promise<boolean> {
+    const autofillAddressOverridden: boolean = await new Promise((resolve) =>
+      chrome.privacy.services.autofillAddressEnabled.get({}, (details) =>
+        resolve(details.levelOfControl === "controlled_by_this_extension" && !details.value)
+      )
+    );
+
+    const autofillCreditCardOverridden: boolean = await new Promise((resolve) =>
+      chrome.privacy.services.autofillCreditCardEnabled.get({}, (details) =>
+        resolve(details.levelOfControl === "controlled_by_this_extension" && !details.value)
+      )
+    );
+
+    return autofillAddressOverridden && autofillCreditCardOverridden;
+  }
+
+  static async updateDefaultBrowserAutofillSettings(value: boolean) {
+    chrome.privacy.services.autofillAddressEnabled.set({ value });
+    chrome.privacy.services.autofillCreditCardEnabled.set({ value });
   }
 }

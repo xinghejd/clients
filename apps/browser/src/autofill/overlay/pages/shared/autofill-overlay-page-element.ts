@@ -17,6 +17,14 @@ class AutofillOverlayPageElement extends HTMLElement {
     this.shadowDom = this.attachShadow({ mode: "closed" });
   }
 
+  /**
+   * Initializes the overlay page element. Facilitates ensuring that the page
+   * is set up with the expected styles and translations.
+   *
+   * @param elementName - The name of the element, e.g. "button" or "list"
+   * @param styleSheetUrl - The URL of the stylesheet to apply to the page
+   * @param translations - The translations to apply to the page
+   */
   protected initOverlayPage(
     elementName: "button" | "list",
     styleSheetUrl: string,
@@ -34,6 +42,11 @@ class AutofillOverlayPageElement extends HTMLElement {
     return linkElement;
   }
 
+  /**
+   * Posts a window message to the parent window.
+   *
+   * @param message - The message to post
+   */
   protected postMessageToParent(message: AutofillOverlayPageElementWindowMessage) {
     if (!this.messageOrigin) {
       return;
@@ -42,10 +55,22 @@ class AutofillOverlayPageElement extends HTMLElement {
     globalThis.parent.postMessage(message, this.messageOrigin);
   }
 
+  /**
+   * Gets a translation from the translations object.
+   *
+   * @param key
+   * @protected
+   */
   protected getTranslation(key: string): string {
     return this.translations[key] || "";
   }
 
+  /**
+   * Sets up global listeners for the window message, window blur, and
+   * document keydown events.
+   *
+   * @param windowMessageHandlers - The window message handlers to use
+   */
   protected setupGlobalListeners(windowMessageHandlers: WindowMessageHandlers) {
     this.windowMessageHandlers = windowMessageHandlers;
 
@@ -54,6 +79,11 @@ class AutofillOverlayPageElement extends HTMLElement {
     globalThis.document.addEventListener(EVENTS.KEYDOWN, this.handleDocumentKeyDownEvent);
   }
 
+  /**
+   * Handles window messages from the parent window.
+   *
+   * @param event - The window message event
+   */
   private handleWindowMessage = (event: MessageEvent) => {
     if (!this.windowMessageHandlers) {
       return;
@@ -72,20 +102,30 @@ class AutofillOverlayPageElement extends HTMLElement {
     handler({ message });
   };
 
+  /**
+   * Handles the window blur event.
+   */
   private handleWindowBlurEvent = () => {
     this.postMessageToParent({ command: "overlayPageBlurred" });
   };
 
+  /**
+   * Handles the document keydown event. Facilitates redirecting the
+   * user focus in the right direction out of the overlay. Also facilitates
+   * closing the overlay when the user presses the Escape key.
+   *
+   * @param event - The document keydown event
+   */
   private handleDocumentKeyDownEvent = (event: KeyboardEvent) => {
     const listenedForKeys = new Set(["Tab", "Escape"]);
-    if (!listenedForKeys.has(event.key)) {
+    if (!listenedForKeys.has(event.code)) {
       return;
     }
 
     event.preventDefault();
     event.stopPropagation();
 
-    if (event.key === "Tab") {
+    if (event.code === "Tab") {
       this.redirectOverlayFocusOutMessage(
         event.shiftKey ? RedirectFocusDirection.Previous : RedirectFocusDirection.Next
       );
@@ -95,6 +135,13 @@ class AutofillOverlayPageElement extends HTMLElement {
     this.redirectOverlayFocusOutMessage(RedirectFocusDirection.Current);
   };
 
+  /**
+   * Redirects the overlay focus out to the previous element on KeyDown of the `Tab+Shift` keys.
+   * Redirects the overlay focus out to the next element on KeyDown of the `Tab` key.
+   * Redirects the overlay focus out to the current element on KeyDown of the `Escape` key.
+   *
+   * @param direction - The direction to redirect the focus out
+   */
   private redirectOverlayFocusOutMessage(direction: string) {
     this.postMessageToParent({ command: "redirectOverlayFocusOut", direction });
   }

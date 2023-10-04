@@ -24,6 +24,38 @@ const runtime = {
   sendMessage: jest.fn(),
   getManifest: jest.fn(),
   getURL: jest.fn((path) => `chrome-extension://id/${path}`),
+  onConnect: {
+    addListener: jest.fn(),
+  },
+  connect: jest.fn((connectInfo: chrome.runtime.ConnectInfo) => {
+    let onMessageCallback: CallableFunction;
+    let onDisconnectCallback: CallableFunction;
+
+    const port = {
+      name: connectInfo.name,
+      onDisconnect: {
+        addListener: jest.fn((callback) => (onDisconnectCallback = callback)),
+        removeListener: jest.fn((callback) => {
+          if (onDisconnectCallback === callback) {
+            onDisconnectCallback = undefined;
+          }
+        }),
+        callListener: () => onDisconnectCallback(port),
+      },
+      onMessage: {
+        addListener: jest.fn((callback) => (onMessageCallback = callback)),
+        removeListener: jest.fn((callback) => {
+          if (onMessageCallback === callback) {
+            onMessageCallback = undefined;
+          }
+        }),
+        callListener: (message: any) => onMessageCallback(message, port),
+      },
+      postMessage: jest.fn(),
+      disconnect: jest.fn(),
+    };
+    return port;
+  }),
 };
 
 const contextMenus = {
@@ -53,6 +85,14 @@ const windows = {
   update: jest.fn(),
 };
 
+const port = {
+  onMessage: {
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+  },
+  postMessage: jest.fn(),
+};
+
 // set chrome
 global.chrome = {
   i18n,
@@ -62,4 +102,5 @@ global.chrome = {
   tabs,
   scripting,
   windows,
+  port,
 } as any;

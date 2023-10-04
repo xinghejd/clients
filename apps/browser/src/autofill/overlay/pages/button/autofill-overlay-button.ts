@@ -3,7 +3,6 @@ import "lit/polyfill-support.js";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
 import { EVENTS } from "../../../constants";
-import { AutofillOverlayElement } from "../../../utils/autofill-overlay.enum";
 import { logoIcon, logoLockedIcon } from "../../../utils/svg-icons";
 import { buildSvgDomElement } from "../../../utils/utils";
 import {
@@ -12,11 +11,9 @@ import {
 } from "../../abstractions/autofill-overlay-button";
 import AutofillOverlayPageElement from "../shared/autofill-overlay-page-element";
 
-require("./button.scss");
-
 class AutofillOverlayButton extends AutofillOverlayPageElement {
   private authStatus: AuthenticationStatus = AuthenticationStatus.LoggedOut;
-  private buttonElement: HTMLButtonElement;
+  private readonly buttonElement: HTMLButtonElement;
   private readonly logoIconElement: HTMLElement;
   private readonly logoLockedIconElement: HTMLElement;
   private readonly overlayButtonWindowMessageHandlers: OverlayButtonWindowMessageHandlers = {
@@ -29,6 +26,8 @@ class AutofillOverlayButton extends AutofillOverlayPageElement {
   constructor() {
     super();
 
+    this.buttonElement = globalThis.document.createElement("button");
+
     this.setupGlobalListeners(this.overlayButtonWindowMessageHandlers);
 
     this.logoIconElement = buildSvgDomElement(logoIcon);
@@ -38,6 +37,15 @@ class AutofillOverlayButton extends AutofillOverlayPageElement {
     this.logoLockedIconElement.classList.add("overlay-button-svg-icon", "logo-locked-icon");
   }
 
+  /**
+   * Initializes the overlay button. Facilitates ensuring that the page
+   * is set up with the expected styles and translations.
+   *
+   * @param authStatus - The authentication status of the user
+   * @param styleSheetUrl - The URL of the stylesheet to apply to the page
+   * @param translations - The translations to apply to the page
+   * @private
+   */
   private async initAutofillOverlayButton({
     authStatus,
     styleSheetUrl,
@@ -45,7 +53,6 @@ class AutofillOverlayButton extends AutofillOverlayPageElement {
   }: InitAutofillOverlayButtonMessage) {
     const linkElement = this.initOverlayPage("button", styleSheetUrl, translations);
 
-    this.buttonElement = globalThis.document.createElement("button");
     this.buttonElement.tabIndex = -1;
     this.buttonElement.type = "button";
     this.buttonElement.classList.add("overlay-button");
@@ -60,18 +67,16 @@ class AutofillOverlayButton extends AutofillOverlayPageElement {
     this.shadowDom.append(linkElement, this.buttonElement);
   }
 
+  /**
+   * Updates the authentication status of the user. This will update the icon
+   * displayed on the button.
+   *
+   * @param authStatus - The authentication status of the user
+   */
   private updateAuthStatus(authStatus: AuthenticationStatus) {
     this.authStatus = authStatus;
-    this.setIconElementSvg();
-  }
-
-  private setIconElementSvg() {
-    if (!this.buttonElement) {
-      return;
-    }
 
     this.buttonElement.innerHTML = "";
-
     const iconElement =
       this.authStatus === AuthenticationStatus.Unlocked
         ? this.logoIconElement
@@ -79,10 +84,18 @@ class AutofillOverlayButton extends AutofillOverlayPageElement {
     this.buttonElement.append(iconElement);
   }
 
+  /**
+   * Handles a click event on the button element. Posts a message to the
+   * parent window indicating that the button was clicked.
+   */
   private handleButtonElementClick = () => {
     this.postMessageToParent({ command: "overlayButtonClicked" });
   };
 
+  /**
+   * Checks if the button is focused. If it is not, then it posts a message
+   * to the parent window indicating that the overlay should be closed.
+   */
   private checkButtonFocused() {
     if (globalThis.document.hasFocus()) {
       return;
@@ -92,6 +105,4 @@ class AutofillOverlayButton extends AutofillOverlayPageElement {
   }
 }
 
-(function () {
-  globalThis.customElements.define(AutofillOverlayElement.Button, AutofillOverlayButton);
-})();
+export default AutofillOverlayButton;

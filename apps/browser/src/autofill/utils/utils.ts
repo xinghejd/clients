@@ -1,3 +1,6 @@
+/**
+ * Generates a random string of characters that formatted as a custom element name.
+ */
 function generateRandomCustomElementName(): string {
   const generateRandomChars = (length: number): string => {
     const chars = "abcdefghijklmnopqrstuvwxyz";
@@ -39,25 +42,55 @@ function generateRandomCustomElementName(): string {
   return randomString;
 }
 
-function buildSvgDomElement(svgString: string, ariaHidden: "true" | "false" = "true"): HTMLElement {
+/**
+ * Builds a DOM element from an SVG string.
+ *
+ * @param svgString - The SVG string to build the DOM element from.
+ * @param ariaHidden - Determines whether the SVG should be hidden from screen readers.
+ */
+function buildSvgDomElement(svgString: string, ariaHidden = true): HTMLElement {
   const domParser = new DOMParser();
   const svgDom = domParser.parseFromString(svgString, "image/svg+xml");
   const domElement = svgDom.documentElement;
-  domElement.setAttribute("aria-hidden", ariaHidden);
+  domElement.setAttribute("aria-hidden", `${ariaHidden}`);
 
   return domElement;
 }
 
-function sendExtensionMessage(command: string, options: Record<string, any> = {}) {
-  chrome.runtime.sendMessage(Object.assign({ command }, options));
+/**
+ * Sends a message to the extension.
+ *
+ * @param command - The command to send.
+ * @param options - The options to send with the command.
+ */
+async function sendExtensionMessage(
+  command: string,
+  options: Record<string, any> = {}
+): Promise<any | void> {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage(Object.assign({ command }, options), (response) => {
+      if (chrome.runtime.lastError) {
+        return;
+      }
+
+      resolve(response);
+    });
+  });
 }
 
+/**
+ * Sets CSS styles on an element.
+ *
+ * @param element - The element to set the styles on.
+ * @param styles - The styles to set on the element.
+ * @param priority - Determines whether the styles should be set as important.
+ */
 function setElementStyles(
   element: HTMLElement,
   styles: Partial<CSSStyleDeclaration>,
-  priority: "important" | "" = ""
+  priority?: boolean
 ) {
-  if (!element) {
+  if (!element || !styles || !Object.keys(styles).length) {
     return;
   }
 
@@ -65,7 +98,7 @@ function setElementStyles(
     element.style.setProperty(
       styleProperty.replace(/([a-z])([A-Z])/g, "$1-$2"), // Convert camelCase to kebab-case
       styles[styleProperty],
-      priority
+      priority ? "important" : undefined
     );
   }
 }

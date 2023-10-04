@@ -171,6 +171,7 @@ body {
     background-size: 2.6rem;
     background-position: center;
     background-repeat: no-repeat;
+    color: $color-gray;
 
     svg {
       width: 100%;
@@ -180,7 +181,10 @@ body {
 
     &.bwi {
       font-size: 2.6rem;
-      color: $color-blue;
+
+      &:not(.cipher-icon) {
+        color: $color-blue;
+      }
     }
   }
 

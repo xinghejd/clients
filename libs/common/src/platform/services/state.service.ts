@@ -1,6 +1,7 @@
 import { BehaviorSubject, concatMap } from "rxjs";
 import { Jsonify, JsonValue } from "type-fest";
 
+import { AutofillOverlayVisibility } from "../../../../../apps/browser/src/autofill/utils/autofill-overlay.enum";
 import { EncryptedOrganizationKeyData } from "../../admin-console/models/data/encrypted-organization-key.data";
 import { OrganizationData } from "../../admin-console/models/data/organization.data";
 import { PolicyData } from "../../admin-console/models/data/policy.data";
@@ -1484,6 +1485,24 @@ export class StateService<
     globals.enableAlwaysOnTop = value;
     await this.saveGlobals(
       globals,
+      this.reconcileOptions(options, await this.defaultOnDiskOptions())
+    );
+  }
+
+  async getAutoFillOverlayVisibility(options?: StorageOptions): Promise<number> {
+    return (
+      (await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions())))
+        ?.settings?.autoFillOverlayVisibility ?? AutofillOverlayVisibility.OnFieldFocus
+    );
+  }
+
+  async setAutoFillOverlayVisibility(value: number, options?: StorageOptions): Promise<void> {
+    const account = await this.getAccount(
+      this.reconcileOptions(options, await this.defaultOnDiskOptions())
+    );
+    account.settings.autoFillOverlayVisibility = value;
+    await this.saveAccount(
+      account,
       this.reconcileOptions(options, await this.defaultOnDiskOptions())
     );
   }
