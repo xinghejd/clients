@@ -276,6 +276,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
 
   /**
    * Sends a message to the sender tab to close the autofill overlay.
+   *
    * @param sender - The sender of the port message
    */
   private closeOverlay({ sender }: chrome.runtime.Port) {
@@ -505,8 +506,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
   /**
    * Facilitates opening the unlock popout window.
    *
-   * @param port
-   * @private
+   * @param port - The port of the overlay list
    */
   private async unlockVault(port: chrome.runtime.Port) {
     const { sender } = port;
@@ -529,7 +529,6 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * with the passed cipher ID.
    * @param overlayCipherId - Cipher ID corresponding to the overlayLoginCiphers map. Does not correspond to the actual cipher's ID.
    * @param sender - The sender of the port message
-   * @private
    */
   private async viewSelectedCipher(
     { overlayCipherId }: OverlayPortMessage,
@@ -623,9 +622,9 @@ class OverlayBackground implements OverlayBackgroundInterface {
   /**
    * Handles adding a new vault item from the overlay. Gathers data login
    * data captured in the extension message.
-   * @param login
-   * @param sender
-   * @private
+   *
+   * @param login - The login data captured from the extension message
+   * @param sender - The sender of the extension message
    */
   private async addNewVaultItem(
     { login }: OverlayAddNewItemMessage,
@@ -722,6 +721,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
 
   /**
    * Handles messages sent to the overlay list or button ports.
+   *
    * @param message - The message received from the port
    * @param port - The port that sent the message
    */
