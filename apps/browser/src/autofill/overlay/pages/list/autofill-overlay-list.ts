@@ -525,7 +525,10 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
       }
 
       const { height } = entry.contentRect;
-      this.postMessageToParent({ command: "updateAutofillOverlayListHeight", style: { height } });
+      this.postMessageToParent({
+        command: "updateAutofillOverlayListHeight",
+        styles: { height: `${height}px` },
+      });
       break;
     }
   };

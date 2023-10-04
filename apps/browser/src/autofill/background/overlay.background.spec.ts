@@ -25,7 +25,10 @@ import {
   RedirectFocusDirection,
 } from "../utils/autofill-overlay.enum";
 
-import { OverlayBackgroundExtensionMessage } from "./abstractions/overlay.background";
+import {
+  OverlayBackgroundExtensionMessage,
+  OverlayPortMessage,
+} from "./abstractions/overlay.background";
 import OverlayBackground from "./overlay.background";
 
 const iconServerUrl = "https://icons.bitwarden.com/";
@@ -1079,10 +1082,7 @@ describe("OverlayBackground", () => {
       const port = mock<chrome.runtime.Port>({ sender });
       jest.spyOn(BrowserApi, "tabSendMessageData");
 
-      overlayBackground["redirectOverlayFocusOut"](
-        { direction: "" } as OverlayBackgroundExtensionMessage,
-        port
-      );
+      overlayBackground["redirectOverlayFocusOut"]({ direction: "" } as OverlayPortMessage, port);
 
       expect(BrowserApi.tabSendMessageData).not.toHaveBeenCalled();
     });
@@ -1093,7 +1093,7 @@ describe("OverlayBackground", () => {
       jest.spyOn(BrowserApi, "tabSendMessageData");
 
       overlayBackground["redirectOverlayFocusOut"](
-        { direction: RedirectFocusDirection.Next } as OverlayBackgroundExtensionMessage,
+        { direction: RedirectFocusDirection.Next } as OverlayPortMessage,
         port
       );
 

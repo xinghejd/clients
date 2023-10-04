@@ -374,14 +374,14 @@ describe("AutofillOverlayList", () => {
       const entries = [
         {
           target: autofillOverlayList["overlayListContainer"],
-          contentRect: { height: "300px" },
+          contentRect: { height: 300 },
         },
       ];
 
       autofillOverlayList["handleResizeObserver"](entries as unknown as ResizeObserverEntry[]);
 
       expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-        { command: "updateAutofillOverlayListHeight", style: { height: "300px" } },
+        { command: "updateAutofillOverlayListHeight", styles: { height: "300px" } },
         "https://localhost/"
       );
     });

@@ -18,9 +18,7 @@ type OverlayBackgroundExtensionMessage = {
   tab?: chrome.tabs.Tab;
   sender?: string;
   details?: AutofillPageDetails;
-  overlayCipherId?: string;
   overlayElement?: string;
-  direction?: string;
   display?: string;
   data?: {
     commandToRetry?: {
@@ -30,6 +28,13 @@ type OverlayBackgroundExtensionMessage = {
     };
   };
 } & OverlayAddNewItemMessage;
+
+type OverlayPortMessage = {
+  [key: string]: any;
+  command: string;
+  direction?: string;
+  overlayCipherId?: string;
+};
 
 type FocusedFieldData = {
   focusedFieldStyles: Partial<CSSStyleDeclaration>;
@@ -47,88 +52,56 @@ type OverlayCipherData = {
   card?: { brand: string; partialNumber: string };
 };
 
+type BackgroundMessageParam = {
+  message: OverlayBackgroundExtensionMessage;
+};
+type BackgroundSenderParam = {
+  sender: chrome.runtime.MessageSender;
+};
+type BackgroundOnMessageHandlerParams = BackgroundMessageParam & BackgroundSenderParam;
+
 type OverlayBackgroundExtensionMessageHandlers = {
   [key: string]: CallableFunction;
   openAutofillOverlay: () => void;
-  autofillOverlayElementClosed: ({
-    message,
-  }: {
-    message: OverlayBackgroundExtensionMessage;
-  }) => void;
-  autofillOverlayAddNewVaultItem: ({
-    message,
-    sender,
-  }: {
-    message: OverlayBackgroundExtensionMessage;
-    sender: chrome.runtime.MessageSender;
-  }) => void;
+  autofillOverlayElementClosed: ({ message }: BackgroundMessageParam) => void;
+  autofillOverlayAddNewVaultItem: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   getAutofillOverlayVisibility: () => void;
   checkAutofillOverlayFocused: () => void;
   focusAutofillOverlayList: () => void;
-  updateAutofillOverlayPosition: ({
-    message,
-  }: {
-    message: OverlayBackgroundExtensionMessage;
-  }) => void;
-  updateAutofillOverlayHidden: ({
-    message,
-  }: {
-    message: OverlayBackgroundExtensionMessage;
-  }) => void;
-  updateFocusedFieldData: ({ message }: { message: OverlayBackgroundExtensionMessage }) => void;
-  collectPageDetailsResponse: ({
-    message,
-    sender,
-  }: {
-    message: OverlayBackgroundExtensionMessage;
-    sender: chrome.runtime.MessageSender;
-  }) => void;
-  unlockCompleted: ({ message }: { message: OverlayBackgroundExtensionMessage }) => void;
+  updateAutofillOverlayPosition: ({ message }: BackgroundMessageParam) => void;
+  updateAutofillOverlayHidden: ({ message }: BackgroundMessageParam) => void;
+  updateFocusedFieldData: ({ message }: BackgroundMessageParam) => void;
+  collectPageDetailsResponse: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
+  unlockCompleted: ({ message }: BackgroundMessageParam) => void;
   addEditCipherSubmitted: () => void;
   deletedCipher: () => void;
 };
 
+type PortMessageParam = {
+  message: OverlayPortMessage;
+};
+type PortConnectionParam = {
+  port: chrome.runtime.Port;
+};
+type PortOnMessageHandlerParams = PortMessageParam & PortConnectionParam;
+
 type OverlayButtonPortMessageHandlers = {
   [key: string]: CallableFunction;
-  overlayButtonClicked: ({ port }: { port: chrome.runtime.Port }) => void;
-  closeAutofillOverlay: ({ port }: { port: chrome.runtime.Port }) => void;
+  overlayButtonClicked: ({ port }: PortConnectionParam) => void;
+  closeAutofillOverlay: ({ port }: PortConnectionParam) => void;
   overlayPageBlurred: () => void;
-  redirectOverlayFocusOut: ({
-    message,
-    port,
-  }: {
-    message: OverlayBackgroundExtensionMessage;
-    port: chrome.runtime.Port;
-  }) => void;
+  redirectOverlayFocusOut: ({ message, port }: PortOnMessageHandlerParams) => void;
 };
 
 type OverlayListPortMessageHandlers = {
   [key: string]: CallableFunction;
   checkAutofillOverlayButtonFocused: () => void;
   overlayPageBlurred: () => void;
-  unlockVault: ({ port }: { port: chrome.runtime.Port }) => void;
-  fillSelectedListItem: ({
-    message,
-    port,
-  }: {
-    message: OverlayBackgroundExtensionMessage;
-    port: chrome.runtime.Port;
-  }) => void;
-  addNewVaultItem: ({ port }: { port: chrome.runtime.Port }) => void;
-  viewSelectedCipher: ({
-    message,
-    port,
-  }: {
-    message: OverlayBackgroundExtensionMessage;
-    port: chrome.runtime.Port;
-  }) => void;
-  redirectOverlayFocusOut: ({
-    message,
-    port,
-  }: {
-    message: OverlayBackgroundExtensionMessage;
-    port: chrome.runtime.Port;
-  }) => void;
+  unlockVault: ({ port }: PortConnectionParam) => void;
+  fillSelectedListItem: ({ message, port }: PortOnMessageHandlerParams) => void;
+  addNewVaultItem: ({ port }: PortConnectionParam) => void;
+  viewSelectedCipher: ({ message, port }: PortOnMessageHandlerParams) => void;
+  redirectOverlayFocusOut: ({ message, port }: PortOnMessageHandlerParams) => void;
 };
 
 interface OverlayBackground {
@@ -138,6 +111,7 @@ interface OverlayBackground {
 
 export {
   OverlayBackgroundExtensionMessage,
+  OverlayPortMessage,
   FocusedFieldData,
   OverlayCipherData,
   OverlayAddNewItemMessage,

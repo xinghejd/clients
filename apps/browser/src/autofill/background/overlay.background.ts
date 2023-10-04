@@ -32,6 +32,7 @@ import {
   OverlayBackground as OverlayBackgroundInterface,
   OverlayBackgroundExtensionMessage,
   OverlayAddNewItemMessage,
+  OverlayPortMessage,
 } from "./abstractions/overlay.background";
 
 class OverlayBackground implements OverlayBackgroundInterface {
@@ -222,7 +223,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * @param sender - The sender of the port message
    */
   private async fillSelectedOverlayListItem(
-    { overlayCipherId }: OverlayBackgroundExtensionMessage,
+    { overlayCipherId }: OverlayPortMessage,
     { sender }: chrome.runtime.Port
   ) {
     if (!overlayCipherId) {
@@ -531,7 +532,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * @private
    */
   private async viewSelectedCipher(
-    { overlayCipherId }: OverlayBackgroundExtensionMessage,
+    { overlayCipherId }: OverlayPortMessage,
     { sender }: chrome.runtime.Port
   ) {
     const cipher = this.overlayLoginCiphers.get(overlayCipherId);
@@ -599,7 +600,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * @param sender - The sender of the port message
    */
   private redirectOverlayFocusOut(
-    { direction }: OverlayBackgroundExtensionMessage,
+    { direction }: OverlayPortMessage,
     { sender }: chrome.runtime.Port
   ) {
     if (!direction) {
