@@ -83,7 +83,10 @@ describe("DefaultStateProvider", () => {
     await new Promise<void>((resolve) => setTimeout(resolve, 10));
 
     // Service does an update
-    await fakeDomainState.update((state) => state.array.push("value3"));
+    await fakeDomainState.update((state) => {
+      state.array.push("value3");
+      return state;
+    });
     await new Promise<void>((resolve) => setTimeout(resolve, 10));
 
     subscription.unsubscribe();

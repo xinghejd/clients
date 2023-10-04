@@ -68,7 +68,7 @@ export class FolderService implements InternalFolderServiceAbstraction {
 
   async get(id: string): Promise<Folder> {
     const folders = await firstValueFrom(this.folderState.state$);
-    return new Folder(folders[id]);
+    return folders[id] == null ? null : new Folder(folders[id]);
   }
 
   async getAllFromState(): Promise<Folder[]> {
@@ -115,6 +115,7 @@ export class FolderService implements InternalFolderServiceAbstraction {
   }
 
   async clear(userId?: string): Promise<any> {
+    // TODO: handle clear for non-active users
     await this.folderState.update((_) => null);
   }
 
