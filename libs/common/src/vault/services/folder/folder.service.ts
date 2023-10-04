@@ -106,15 +106,16 @@ export class FolderService implements InternalFolderServiceAbstraction {
           folders[f.id] = f;
         });
       }
+      return folders;
     });
   }
 
   async replace(folders: { [id: string]: FolderData }): Promise<void> {
-    await this.folderState.update((f) => (f = folders));
+    await this.folderState.update((_) => folders);
   }
 
   async clear(userId?: string): Promise<any> {
-    await this.folderState.update((f) => (f = null));
+    await this.folderState.update((_) => null);
   }
 
   async delete(id: string | string[]): Promise<void> {
@@ -123,6 +124,7 @@ export class FolderService implements InternalFolderServiceAbstraction {
       folderIds.forEach((folderId) => {
         delete folders[folderId];
       });
+      return folders;
     });
 
     // Items in a deleted folder are re-assigned to "No Folder"

@@ -90,7 +90,6 @@ class DefaultActiveUserState<T> implements ActiveUserState<T> {
     );
     // startWith?
     this.formattedKey$ = this.accountService.activeAccount$.pipe(
-      tap((user) => console.log("user", user)), // Temp
       map((account) =>
         account != null && account.id != null
           ? userKeyBuilder(account.id, this.keyDefinition)
@@ -100,7 +99,6 @@ class DefaultActiveUserState<T> implements ActiveUserState<T> {
 
     const activeAccountData$ = this.formattedKey$.pipe(
       switchMap(async (key) => {
-        console.log("user emitted: ", key); // temp
         if (key == null) {
           return null;
         }
@@ -128,7 +126,7 @@ class DefaultActiveUserState<T> implements ActiveUserState<T> {
     });
   }
 
-  async update(configureState: (state: T) => void): Promise<void> {
+  async update(configureState: (state: T) => T): Promise<T> {
     const key = await this.createKey();
     if (key == null) {
       throw new Error("Attempting to active user state, when no user is active.");
@@ -137,10 +135,11 @@ class DefaultActiveUserState<T> implements ActiveUserState<T> {
       ? this.stateSubject.getValue()
       : await this.seedInitial(key);
 
-    configureState(currentState);
+    const newState = configureState(currentState);
 
-    await this.chosenStorageLocation.save(await this.createKey(), currentState);
-    this.stateSubject.next(currentState);
+    await this.chosenStorageLocation.save(await this.createKey(), newState);
+    this.stateSubject.next(newState);
+    return newState;
   }
 
   async getFromState(): Promise<T> {
