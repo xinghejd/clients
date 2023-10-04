@@ -4,7 +4,7 @@ import { IdentityApi } from "../../../models/api/identity.api";
 import { LoginUriApi } from "../../../models/api/login-uri.api";
 import { LoginApi } from "../../../models/api/login.api";
 import { SecureNoteApi } from "../../../models/api/secure-note.api";
-import { Fido2KeyApi } from "../../api/fido2-key.api";
+import { Fido2CredentialApi } from "../../api/fido2-credential.api";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
 import { Cipher } from "../domain/cipher";
@@ -65,9 +65,9 @@ export class CipherRequest {
           });
         }
 
-        if (cipher.login.fido2Keys != null) {
-          this.login.fido2Keys = cipher.login.fido2Keys.map((key) => {
-            const keyApi = new Fido2KeyApi();
+        if (cipher.login.fido2Credentials != null) {
+          this.login.fido2Credentials = cipher.login.fido2Credentials.map((key) => {
+            const keyApi = new Fido2CredentialApi();
             keyApi.credentialId =
               key.credentialId != null ? key.credentialId.encryptedString : null;
             keyApi.keyType =

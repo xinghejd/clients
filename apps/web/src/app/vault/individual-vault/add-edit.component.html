@@ -191,17 +191,17 @@
               </button>
             </div>
           </div>
-          <ng-container *ngIf="cipher.login.fido2Keys[0]">
+          <ng-container *ngIf="cipher.login.fido2Credentials[0]">
             <div class="row">
               <div class="col-6 form-group">
-                <label for="loginFido2key">{{ "typePasskey" | i18n }}</label>
+                <label for="loginFido2credential">{{ "typePasskey" | i18n }}</label>
                 <div class="input-group">
                   <input
-                    id="loginFido2key"
+                    id="loginFido2credential"
                     class="form-control"
                     type="text"
-                    name="Login.Fido2key"
-                    [value]="fido2KeyCreationDateValue"
+                    name="Login.Fido2credential"
+                    [value]="fido2CredentialCreationDateValue"
                     appInputVerbatim
                     disabled
                     readonly
