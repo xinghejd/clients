@@ -71,16 +71,16 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     }
 
     const parsedOrigin = parse(params.origin, { allowPrivateDomains: true });
-    const rpId = params.rp.id ?? parsedOrigin.hostname;
+    params.rp.id = params.rp.id ?? parsedOrigin.hostname;
 
     if (parsedOrigin.hostname == undefined || !params.origin.startsWith("https://")) {
       this.logService?.warning(`[Fido2Client] Invalid https origin: ${params.origin}`);
       throw new DOMException("'origin' is not a valid https origin", "SecurityError");
     }
 
-    if (!isValidRpId(rpId, params.origin)) {
+    if (!isValidRpId(params.rp.id, params.origin)) {
       this.logService?.warning(
-        `[Fido2Client] 'rp.id' cannot be used with the current origin: rp.id = ${rpId}; origin = ${params.origin}`
+        `[Fido2Client] 'rp.id' cannot be used with the current origin: rp.id = ${params.rp.id}; origin = ${params.origin}`
       );
       throw new DOMException("'rp.id' cannot be used with the current origin", "SecurityError");
     }
@@ -202,16 +202,16 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     }
 
     const parsedOrigin = parse(params.origin, { allowPrivateDomains: true });
-    const rpId = params.rpId ?? parsedOrigin.hostname;
+    params.rpId = params.rpId ?? parsedOrigin.hostname;
 
     if (parsedOrigin.hostname == undefined || !params.origin.startsWith("https://")) {
       this.logService?.warning(`[Fido2Client] Invalid https origin: ${params.origin}`);
       throw new DOMException("'origin' is not a valid https origin", "SecurityError");
     }
 
-    if (!isValidRpId(rpId, params.origin)) {
+    if (!isValidRpId(params.rpId, params.origin)) {
       this.logService?.warning(
-        `[Fido2Client] 'rp.id' cannot be used with the current origin: rp.id = ${rpId}; origin = ${params.origin}`
+        `[Fido2Client] 'rp.id' cannot be used with the current origin: rp.id = ${params.rpId}; origin = ${params.origin}`
       );
       throw new DOMException("'rp.id' cannot be used with the current origin", "SecurityError");
     }
