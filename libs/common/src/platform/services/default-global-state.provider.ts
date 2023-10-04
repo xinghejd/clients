@@ -28,7 +28,7 @@ class GlobalStateImplementation<T> implements GlobalState<T> {
     this.storageKey = globalKeyBuilder(this.keyDefinition);
 
     this.seededPromise = this.chosenLocation.get<Jsonify<T>>(this.storageKey).then((data) => {
-      const serializedData = this.keyDefinition.serializer(data);
+      const serializedData = this.keyDefinition.deserializer(data);
       this.stateSubject.next(serializedData);
     });
 
@@ -45,7 +45,7 @@ class GlobalStateImplementation<T> implements GlobalState<T> {
 
   async getFromState(): Promise<T> {
     const data = await this.chosenLocation.get<Jsonify<T>>(this.storageKey);
-    return this.keyDefinition.serializer(data);
+    return this.keyDefinition.deserializer(data);
   }
 }
 

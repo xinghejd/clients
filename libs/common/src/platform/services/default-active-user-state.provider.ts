@@ -103,7 +103,7 @@ class DefaultActiveUserState<T> implements ActiveUserState<T> {
           return null;
         }
         const jsonData = await this.chosenStorageLocation.get<Jsonify<T>>(key);
-        const data = keyDefinition.serializer(jsonData);
+        const data = keyDefinition.deserializer(jsonData);
         return data;
       }),
       tap((data) => {
@@ -149,7 +149,7 @@ class DefaultActiveUserState<T> implements ActiveUserState<T> {
     }
     const key = userKeyBuilder(activeUser.id, this.keyDefinition);
     const data = (await this.chosenStorageLocation.get(key)) as Jsonify<T>;
-    return this.keyDefinition.serializer(data);
+    return this.keyDefinition.deserializer(data);
   }
 
   createDerived<TTo>(
@@ -169,7 +169,7 @@ class DefaultActiveUserState<T> implements ActiveUserState<T> {
   private async seedInitial(key: string): Promise<T> {
     const data = await this.chosenStorageLocation.get<Jsonify<T>>(key);
     this.seededInitial = true;
-    return this.keyDefinition.serializer(data);
+    return this.keyDefinition.deserializer(data);
   }
 
   private chooseStorage(storageLocation: StorageLocation): AbstractStorageService {
