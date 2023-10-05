@@ -58,11 +58,11 @@ import { ConsoleLogService } from "@bitwarden/common/platform/services/console-l
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { EncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/encrypt.service.implementation";
 import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/multithread-encrypt.service.implementation";
-import { DefaultActiveUserStateProviderService } from "@bitwarden/common/platform/services/default-active-user-state-provider.service";
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
 import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
+import { DefaultUserStateProvider } from "@bitwarden/common/platform/state";
 import { AvatarUpdateService } from "@bitwarden/common/services/account/avatar-update.service";
 import { ApiService } from "@bitwarden/common/services/api.service";
 import { AuditService } from "@bitwarden/common/services/audit.service";
@@ -340,8 +340,9 @@ export default class MainBackground {
     );
 
     // TODO: This is just to make it compile
-    const activeUserStateProviderService = new DefaultActiveUserStateProviderService(
-      this.stateService,
+    const userStateProviderService = new DefaultUserStateProvider(
+      this.accountService,
+      this.encryptService,
       this.memoryStorageService,
       this.storageService,
       this.secureStorageService
@@ -351,8 +352,8 @@ export default class MainBackground {
       this.cryptoService,
       this.i18nService,
       this.cipherService,
-      this.stateService,
-      activeUserStateProviderService
+      userStateProviderService,
+      this.stateService
     );
     this.folderApiService = new FolderApiService(this.folderService, this.apiService);
     this.collectionService = new CollectionService(

@@ -17,6 +17,7 @@ import {
   stateServiceFactory as stateServiceFactory,
   StateServiceInitOptions,
 } from "../../../platform/background/service-factories/state-service.factory";
+import { userStateProviderFactory } from "../../../platform/background/service-factories/user-state-provider.factory";
 import { BrowserFolderService } from "../../services/browser-folder.service";
 
 import { cipherServiceFactory, CipherServiceInitOptions } from "./cipher-service.factory";
@@ -42,6 +43,7 @@ export function folderServiceFactory(
         await cryptoServiceFactory(cache, opts),
         await i18nServiceFactory(cache, opts),
         await cipherServiceFactory(cache, opts),
+        await userStateProviderFactory(cache, opts),
         await stateServiceFactory(cache, opts)
       )
   );
