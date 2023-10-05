@@ -5,21 +5,22 @@ import {
   AbstractStorageService,
 } from "../abstractions/storage.service";
 import { UserStateProvider } from "../abstractions/user-state.provider";
+import { UserState } from "../interfaces/user-state";
 import { DefaultUserState } from "../state/default-user-state";
 import { KeyDefinition } from "../state/key-definition";
 
 export class DefaultUserStateProvider implements UserStateProvider {
-  private userStateCache: Record<string, DefaultUserState<unknown>> = {};
+  private userStateCache: Record<string, UserState<unknown>> = {};
 
   constructor(
-    private accountService: AccountService, // Inject the lightest weight service that provides accountUserId$
-    private encryptService: EncryptService,
-    private memoryStorage: AbstractMemoryStorageService,
-    private diskStorage: AbstractStorageService,
-    private secureStorage: AbstractStorageService
+    protected accountService: AccountService, // Inject the lightest weight service that provides accountUserId$
+    protected encryptService: EncryptService,
+    protected memoryStorage: AbstractMemoryStorageService,
+    protected diskStorage: AbstractStorageService,
+    protected secureStorage: AbstractStorageService
   ) {}
 
-  create<T>(keyDefinition: KeyDefinition<T>): DefaultUserState<T> {
+  create<T>(keyDefinition: KeyDefinition<T>): UserState<T> {
     const locationDomainKey = `${keyDefinition.stateDefinition.storageLocation}_${keyDefinition.stateDefinition.name}_${keyDefinition.key}`;
     const existingUserState = this.userStateCache[locationDomainKey];
     if (existingUserState != null) {
@@ -28,7 +29,13 @@ export class DefaultUserStateProvider implements UserStateProvider {
       return existingUserState as DefaultUserState<T>;
     }
 
-    const newUserState = new DefaultUserState<T>(
+    const newUserState = this.buildUserState(keyDefinition);
+    this.userStateCache[locationDomainKey] = newUserState;
+    return newUserState;
+  }
+
+  protected buildUserState<T>(keyDefinition: KeyDefinition<T>): UserState<T> {
+    return new DefaultUserState<T>(
       keyDefinition,
       this.accountService,
       this.encryptService,
@@ -36,7 +43,5 @@ export class DefaultUserStateProvider implements UserStateProvider {
       this.secureStorage,
       this.diskStorage
     );
-    this.userStateCache[locationDomainKey] = newUserState;
-    return newUserState;
   }
 }

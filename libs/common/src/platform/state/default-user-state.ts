@@ -43,7 +43,7 @@ export class DefaultUserState<T> implements UserState<T> {
   state$: Observable<T>;
 
   constructor(
-    private keyDefinition: KeyDefinition<T>,
+    protected keyDefinition: KeyDefinition<T>,
     private accountService: AccountService,
     private encryptService: EncryptService,
     private memoryStorageService: AbstractMemoryStorageService,
@@ -118,7 +118,7 @@ export class DefaultUserState<T> implements UserState<T> {
 
     const newState = configureState(currentState);
 
-    await this.chosenStorageLocation.save(await this.createKey(), newState);
+    await this.saveToStorage(await this.createKey(), newState);
     return newState;
   }
 
@@ -131,7 +131,7 @@ export class DefaultUserState<T> implements UserState<T> {
     const currentStore = await this.chosenStorageLocation.get<Jsonify<T>>(key);
     const currentState = this.keyDefinition.deserializer(currentStore);
     const newState = configureState(currentState);
-    await this.chosenStorageLocation.save(key, newState);
+    await this.saveToStorage(key, newState);
 
     return newState;
   }
@@ -152,7 +152,7 @@ export class DefaultUserState<T> implements UserState<T> {
     return new DerivedUserState<T, TTo>(derivedStateDefinition, this.encryptService, this);
   }
 
-  private async createKey(): Promise<string> {
+  protected async createKey(): Promise<string> {
     const formattedKey = await firstValueFrom(this.formattedKey$);
     if (formattedKey == null) {
       throw new Error("Cannot create a key while there is no active user.");
@@ -175,5 +175,9 @@ export class DefaultUserState<T> implements UserState<T> {
       case "memory":
         return this.memoryStorageService;
     }
+  }
+
+  protected saveToStorage(key: string, data: T): Promise<void> {
+    return this.chosenStorageLocation.save(key, data);
   }
 }

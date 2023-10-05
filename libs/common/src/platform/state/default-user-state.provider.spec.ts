@@ -1,11 +1,11 @@
-import { matches, mock, mockReset } from "jest-mock-extended";
-import { BehaviorSubject } from "rxjs";
+import { matches, mock } from "jest-mock-extended";
+import { BehaviorSubject, Subject } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { AccountInfo, AccountService } from "../../auth/abstractions/account.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { UserId } from "../../types/guid";
-import { AbstractMemoryStorageService } from "../abstractions/storage.service";
+import { AbstractStorageService, StorageUpdateType } from "../abstractions/storage.service";
 import { KeyDefinition } from "../state/key-definition";
 import { StateDefinition } from "../state/state-definition";
 
@@ -35,20 +35,18 @@ const testKeyDefinition = new KeyDefinition<TestState>(
   TestState.fromJSON
 );
 
+// TODO this class needs to be totally retested, it doesn't work like this anymore
 describe("DefaultStateProvider", () => {
   const accountService = mock<AccountService>();
-  const memoryStorageService = mock<AbstractMemoryStorageService>();
-  const diskStorageService = mock<AbstractMemoryStorageService>();
+  const diskStorageService = mock<AbstractStorageService>();
+  const diskUpdates$ = new Subject<{ key: string; value: string; updateType: StorageUpdateType }>();
 
   const activeAccountSubject = new BehaviorSubject<{ id: UserId } & AccountInfo>(undefined);
 
   let userStateProvider: DefaultUserStateProvider;
 
   beforeEach(() => {
-    mockReset(accountService);
-    mockReset(memoryStorageService);
-    mockReset(diskStorageService);
-
+    (diskStorageService as any)["updates$"] = diskUpdates$; // hack to get around mock getters being broken in jest-mock-extended
     accountService.activeAccount$ = activeAccountSubject;
 
     userStateProvider = new DefaultUserStateProvider(
@@ -58,6 +56,10 @@ describe("DefaultStateProvider", () => {
       diskStorageService,
       null // Not testing secure storage
     );
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
   });
 
   it("createUserState", async () => {
