@@ -31,8 +31,6 @@ export class FolderService implements InternalFolderServiceAbstraction {
     private userStateProvider: UserStateProvider,
     private stateService: StateService
   ) {
-    (window as any).services ||= {};
-    (window as any).services.folderService = this;
     const derivedFoldersDefinition = FOLDERS.createDerivedDefinition(
       FOLDER_VIEWS,
       async (foldersMap) => {
