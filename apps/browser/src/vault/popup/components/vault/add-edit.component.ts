@@ -167,6 +167,7 @@ export class AddEditComponent extends BaseAddEditComponent {
     }
 
     if (this.inAddEditPopoutWindow()) {
+      this.messagingService.send("addEditCipherSubmitted");
       await closeAddEditVaultItemPopout(1000);
       return true;
     }
