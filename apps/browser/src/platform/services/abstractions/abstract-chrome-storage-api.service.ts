@@ -1,6 +1,6 @@
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 
-export default abstract class AbstractChromeStorageService implements AbstractStorageService {
+export default abstract class AbstractChromeStorageService extends AbstractStorageService {
   protected abstract chromeStorageApi: chrome.storage.StorageArea;
 
   async get<T>(key: string): Promise<T> {
@@ -22,11 +22,7 @@ export default abstract class AbstractChromeStorageService implements AbstractSt
   async save(key: string, obj: any): Promise<void> {
     if (obj == null) {
       // Fix safari not liking null in set
-      return new Promise<void>((resolve) => {
-        this.chromeStorageApi.remove(key, () => {
-          resolve();
-        });
-      });
+      return this.remove(key);
     }
 
     if (obj instanceof Set) {
@@ -36,6 +32,7 @@ export default abstract class AbstractChromeStorageService implements AbstractSt
     const keyedObj = { [key]: obj };
     return new Promise<void>((resolve) => {
       this.chromeStorageApi.set(keyedObj, () => {
+        this.updatesSubject.next({ key, value: obj, updateType: "save" });
         resolve();
       });
     });
@@ -44,6 +41,7 @@ export default abstract class AbstractChromeStorageService implements AbstractSt
   async remove(key: string): Promise<void> {
     return new Promise<void>((resolve) => {
       this.chromeStorageApi.remove(key, () => {
+        this.updatesSubject.next({ key, value: null, updateType: "remove" });
         resolve();
       });
     });
