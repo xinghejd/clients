@@ -207,16 +207,14 @@ class AutofillInit implements AutofillInitInterface {
   }
 
   /**
-   * Sets up the extension message listeners
-   * for the content script.
+   * Sets up the extension message listeners for the content script.
    */
   private setupExtensionMessageListeners() {
     chrome.runtime.onMessage.addListener(this.handleExtensionMessage);
   }
 
   /**
-   * Handles the extension messages
-   * sent to the content script.
+   * Handles the extension messages sent to the content script.
    *
    * @param message - The extension message.
    * @param sender - The message sender.

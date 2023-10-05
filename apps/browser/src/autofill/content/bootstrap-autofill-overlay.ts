@@ -2,10 +2,10 @@ import AutofillOverlayContentService from "../services/autofill-overlay-content.
 
 import AutofillInit from "./autofill-init";
 
-(function () {
-  if (!window.bitwardenAutofillInit) {
+(function (windowContext) {
+  if (!windowContext.bitwardenAutofillInit) {
     const autofillOverlayContentService = new AutofillOverlayContentService();
-    window.bitwardenAutofillInit = new AutofillInit(autofillOverlayContentService);
-    window.bitwardenAutofillInit.init();
+    windowContext.bitwardenAutofillInit = new AutofillInit(autofillOverlayContentService);
+    windowContext.bitwardenAutofillInit.init();
   }
-})();
+})(window);
