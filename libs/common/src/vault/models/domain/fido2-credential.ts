@@ -3,10 +3,10 @@ import { Jsonify } from "type-fest";
 import Domain from "../../../platform/models/domain/domain-base";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { Fido2KeyData } from "../data/fido2-key.data";
-import { Fido2KeyView } from "../view/fido2-key.view";
+import { Fido2CredentialData } from "../data/fido2-credential.data";
+import { Fido2CredentialView } from "../view/fido2-credential.view";
 
-export class Fido2Key extends Domain {
+export class Fido2Credential extends Domain {
   credentialId: EncString | null = null;
   keyType: EncString;
   keyAlgorithm: EncString;
@@ -20,7 +20,7 @@ export class Fido2Key extends Domain {
   discoverable: EncString;
   creationDate: Date;
 
-  constructor(obj?: Fido2KeyData) {
+  constructor(obj?: Fido2CredentialData) {
     super();
     if (obj == null) {
       return;
@@ -47,9 +47,9 @@ export class Fido2Key extends Domain {
     this.creationDate = obj.creationDate != null ? new Date(obj.creationDate) : null;
   }
 
-  async decrypt(orgId: string, encKey?: SymmetricCryptoKey): Promise<Fido2KeyView> {
+  async decrypt(orgId: string, encKey?: SymmetricCryptoKey): Promise<Fido2CredentialView> {
     const view = await this.decryptObj(
-      new Fido2KeyView(),
+      new Fido2CredentialView(),
       {
         credentialId: null,
         keyType: null,
@@ -91,8 +91,8 @@ export class Fido2Key extends Domain {
     return view;
   }
 
-  toFido2KeyData(): Fido2KeyData {
-    const i = new Fido2KeyData();
+  toFido2CredentialData(): Fido2CredentialData {
+    const i = new Fido2CredentialData();
     i.creationDate = this.creationDate.toISOString();
     this.buildDataModel(this, i, {
       credentialId: null,
@@ -110,7 +110,7 @@ export class Fido2Key extends Domain {
     return i;
   }
 
-  static fromJSON(obj: Jsonify<Fido2Key>): Fido2Key {
+  static fromJSON(obj: Jsonify<Fido2Credential>): Fido2Credential {
     if (obj == null) {
       return null;
     }
@@ -128,7 +128,7 @@ export class Fido2Key extends Domain {
     const discoverable = EncString.fromJSON(obj.discoverable);
     const creationDate = obj.creationDate != null ? new Date(obj.creationDate) : null;
 
-    return Object.assign(new Fido2Key(), obj, {
+    return Object.assign(new Fido2Credential(), obj, {
       credentialId,
       keyType,
       keyAlgorithm,

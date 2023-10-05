@@ -2,7 +2,7 @@ import { Jsonify } from "type-fest";
 
 import { ItemView } from "./item.view";
 
-export class Fido2KeyView extends ItemView {
+export class Fido2CredentialView extends ItemView {
   credentialId: string;
   keyType: "public-key";
   keyAlgorithm: "ECDSA";
@@ -20,9 +20,9 @@ export class Fido2KeyView extends ItemView {
     return this.userDisplayName;
   }
 
-  static fromJSON(obj: Partial<Jsonify<Fido2KeyView>>): Fido2KeyView {
+  static fromJSON(obj: Partial<Jsonify<Fido2CredentialView>>): Fido2CredentialView {
     const creationDate = obj.creationDate != null ? new Date(obj.creationDate) : null;
-    return Object.assign(new Fido2KeyView(), obj, {
+    return Object.assign(new Fido2CredentialView(), obj, {
       creationDate,
     });
   }

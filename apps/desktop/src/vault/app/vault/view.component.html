@@ -119,9 +119,10 @@
             </div>
           </div>
           <!--Passkey-->
-          <div class="box-content-row text-muted" *ngIf="cipher.login.fido2Keys[0]">
+          <div class="box-content-row text-muted" *ngIf="cipher.login.fido2Credentials[0]">
             <span class="row-label">{{ "typePasskey" | i18n }}</span>
-            {{ "dateCreated" | i18n }} {{ cipher.login.fido2Keys[0].creationDate | date : "short" }}
+            {{ "dateCreated" | i18n }}
+            {{ cipher.login.fido2Credentials[0].creationDate | date : "short" }}
           </div>
           <div
             class="box-content-row box-content-row-flex totp"

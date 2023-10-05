@@ -1,6 +1,6 @@
 import { BaseResponse } from "../../models/response/base.response";
 
-export class Fido2KeyApi extends BaseResponse {
+export class Fido2CredentialApi extends BaseResponse {
   credentialId: string;
   keyType: "public-key";
   keyAlgorithm: "ECDSA";

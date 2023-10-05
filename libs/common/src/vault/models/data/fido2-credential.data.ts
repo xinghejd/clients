@@ -1,6 +1,6 @@
-import { Fido2KeyApi } from "../../api/fido2-key.api";
+import { Fido2CredentialApi } from "../../api/fido2-credential.api";
 
-export class Fido2KeyData {
+export class Fido2CredentialData {
   credentialId: string;
   keyType: "public-key";
   keyAlgorithm: "ECDSA";
@@ -14,7 +14,7 @@ export class Fido2KeyData {
   discoverable: string;
   creationDate: string;
 
-  constructor(data?: Fido2KeyApi) {
+  constructor(data?: Fido2CredentialApi) {
     if (data == null) {
       return;
     }

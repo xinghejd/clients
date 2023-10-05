@@ -43,10 +43,10 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
   protected totpInterval: number;
   protected override componentName = "app-vault-add-edit";
 
-  get fido2KeyCreationDateValue(): string {
+  get fido2CredentialCreationDateValue(): string {
     const dateCreated = this.i18nService.t("dateCreated");
     const creationDate = this.datePipe.transform(
-      this.cipher?.login?.fido2Keys?.[0]?.creationDate,
+      this.cipher?.login?.fido2Credentials?.[0]?.creationDate,
       "short"
     );
     return `${dateCreated} ${creationDate}`;

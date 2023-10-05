@@ -1,11 +1,11 @@
 import { mockEnc } from "../../../../spec";
 import { EncryptionType } from "../../../enums";
 import { EncString } from "../../../platform/models/domain/enc-string";
-import { Fido2KeyData } from "../data/fido2-key.data";
+import { Fido2CredentialData } from "../data/fido2-credential.data";
 
-import { Fido2Key } from "./fido2-key";
+import { Fido2Credential } from "./fido2-credential";
 
-describe("Fido2Key", () => {
+describe("Fido2Credential", () => {
   let mockDate: Date;
 
   beforeEach(() => {
@@ -14,10 +14,10 @@ describe("Fido2Key", () => {
 
   describe("constructor", () => {
     it("returns all fields null when given empty data parameter", () => {
-      const data = new Fido2KeyData();
-      const fido2Key = new Fido2Key(data);
+      const data = new Fido2CredentialData();
+      const credential = new Fido2Credential(data);
 
-      expect(fido2Key).toEqual({
+      expect(credential).toEqual({
         credentialId: null,
         keyType: null,
         keyAlgorithm: null,
@@ -33,8 +33,8 @@ describe("Fido2Key", () => {
       });
     });
 
-    it("returns all fields as EncStrings except creationDate when given full Fido2KeyData", () => {
-      const data: Fido2KeyData = {
+    it("returns all fields as EncStrings except creationDate when given full Fido2CredentialData", () => {
+      const data: Fido2CredentialData = {
         credentialId: "credentialId",
         keyType: "public-key",
         keyAlgorithm: "ECDSA",
@@ -48,9 +48,9 @@ describe("Fido2Key", () => {
         discoverable: "discoverable",
         creationDate: mockDate.toISOString(),
       };
-      const fido2Key = new Fido2Key(data);
+      const credential = new Fido2Credential(data);
 
-      expect(fido2Key).toEqual({
+      expect(credential).toEqual({
         credentialId: { encryptedString: "credentialId", encryptionType: 0 },
         keyType: { encryptedString: "public-key", encryptionType: 0 },
         keyAlgorithm: { encryptedString: "ECDSA", encryptionType: 0 },
@@ -67,9 +67,9 @@ describe("Fido2Key", () => {
     });
 
     it("should not populate fields when data parameter is not given", () => {
-      const fido2Key = new Fido2Key();
+      const credential = new Fido2Credential();
 
-      expect(fido2Key).toEqual({
+      expect(credential).toEqual({
         credentialId: null,
       });
     });
@@ -77,23 +77,23 @@ describe("Fido2Key", () => {
 
   describe("decrypt", () => {
     it("decrypts and populates all fields when populated with EncStrings", async () => {
-      const fido2Key = new Fido2Key();
-      fido2Key.credentialId = mockEnc("credentialId");
-      fido2Key.keyType = mockEnc("keyType");
-      fido2Key.keyAlgorithm = mockEnc("keyAlgorithm");
-      fido2Key.keyCurve = mockEnc("keyCurve");
-      fido2Key.keyValue = mockEnc("keyValue");
-      fido2Key.rpId = mockEnc("rpId");
-      fido2Key.userHandle = mockEnc("userHandle");
-      fido2Key.counter = mockEnc("2");
-      fido2Key.rpName = mockEnc("rpName");
-      fido2Key.userDisplayName = mockEnc("userDisplayName");
-      fido2Key.discoverable = mockEnc("true");
-      fido2Key.creationDate = mockDate;
+      const credential = new Fido2Credential();
+      credential.credentialId = mockEnc("credentialId");
+      credential.keyType = mockEnc("keyType");
+      credential.keyAlgorithm = mockEnc("keyAlgorithm");
+      credential.keyCurve = mockEnc("keyCurve");
+      credential.keyValue = mockEnc("keyValue");
+      credential.rpId = mockEnc("rpId");
+      credential.userHandle = mockEnc("userHandle");
+      credential.counter = mockEnc("2");
+      credential.rpName = mockEnc("rpName");
+      credential.userDisplayName = mockEnc("userDisplayName");
+      credential.discoverable = mockEnc("true");
+      credential.creationDate = mockDate;
 
-      const fido2KeyView = await fido2Key.decrypt(null);
+      const credentialView = await credential.decrypt(null);
 
-      expect(fido2KeyView).toEqual({
+      expect(credentialView).toEqual({
         credentialId: "credentialId",
         keyType: "keyType",
         keyAlgorithm: "keyAlgorithm",
@@ -110,9 +110,9 @@ describe("Fido2Key", () => {
     });
   });
 
-  describe("toFido2KeyData", () => {
-    it("encodes to data object when converted from Fido2KeyData and back", () => {
-      const data: Fido2KeyData = {
+  describe("toFido2CredentialData", () => {
+    it("encodes to data object when converted from Fido2CredentialData and back", () => {
+      const data: Fido2CredentialData = {
         credentialId: "credentialId",
         keyType: "public-key",
         keyAlgorithm: "ECDSA",
@@ -127,8 +127,8 @@ describe("Fido2Key", () => {
         creationDate: mockDate.toISOString(),
       };
 
-      const fido2Key = new Fido2Key(data);
-      const result = fido2Key.toFido2KeyData();
+      const credential = new Fido2Credential(data);
+      const result = credential.toFido2CredentialData();
 
       expect(result).toEqual(data);
     });
@@ -136,28 +136,28 @@ describe("Fido2Key", () => {
 
   describe("fromJSON", () => {
     it("recreates equivalent object when converted to JSON and back", () => {
-      const fido2Key = new Fido2Key();
-      fido2Key.credentialId = createEncryptedEncString("credentialId");
-      fido2Key.keyType = createEncryptedEncString("keyType");
-      fido2Key.keyAlgorithm = createEncryptedEncString("keyAlgorithm");
-      fido2Key.keyCurve = createEncryptedEncString("keyCurve");
-      fido2Key.keyValue = createEncryptedEncString("keyValue");
-      fido2Key.rpId = createEncryptedEncString("rpId");
-      fido2Key.userHandle = createEncryptedEncString("userHandle");
-      fido2Key.counter = createEncryptedEncString("2");
-      fido2Key.rpName = createEncryptedEncString("rpName");
-      fido2Key.userDisplayName = createEncryptedEncString("userDisplayName");
-      fido2Key.discoverable = createEncryptedEncString("discoverable");
-      fido2Key.creationDate = mockDate;
+      const credential = new Fido2Credential();
+      credential.credentialId = createEncryptedEncString("credentialId");
+      credential.keyType = createEncryptedEncString("keyType");
+      credential.keyAlgorithm = createEncryptedEncString("keyAlgorithm");
+      credential.keyCurve = createEncryptedEncString("keyCurve");
+      credential.keyValue = createEncryptedEncString("keyValue");
+      credential.rpId = createEncryptedEncString("rpId");
+      credential.userHandle = createEncryptedEncString("userHandle");
+      credential.counter = createEncryptedEncString("2");
+      credential.rpName = createEncryptedEncString("rpName");
+      credential.userDisplayName = createEncryptedEncString("userDisplayName");
+      credential.discoverable = createEncryptedEncString("discoverable");
+      credential.creationDate = mockDate;
 
-      const json = JSON.stringify(fido2Key);
-      const result = Fido2Key.fromJSON(JSON.parse(json));
+      const json = JSON.stringify(credential);
+      const result = Fido2Credential.fromJSON(JSON.parse(json));
 
-      expect(result).toEqual(fido2Key);
+      expect(result).toEqual(credential);
     });
 
     it("returns null if input is null", () => {
-      expect(Fido2Key.fromJSON(null)).toBeNull();
+      expect(Fido2Credential.fromJSON(null)).toBeNull();
     });
   });
 });

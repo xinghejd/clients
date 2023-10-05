@@ -30,7 +30,7 @@ import { CipherData } from "../models/data/cipher.data";
 import { Attachment } from "../models/domain/attachment";
 import { Card } from "../models/domain/card";
 import { Cipher } from "../models/domain/cipher";
-import { Fido2Key } from "../models/domain/fido2-key";
+import { Fido2Credential } from "../models/domain/fido2-credential";
 import { Field } from "../models/domain/field";
 import { Identity } from "../models/domain/identity";
 import { Login } from "../models/domain/login";
@@ -1138,10 +1138,10 @@ export class CipherService implements CipherServiceAbstraction {
           }
         }
 
-        if (model.login.fido2Keys != null) {
-          cipher.login.fido2Keys = await Promise.all(
-            model.login.fido2Keys.map(async (viewKey) => {
-              const domainKey = new Fido2Key();
+        if (model.login.fido2Credentials != null) {
+          cipher.login.fido2Credentials = await Promise.all(
+            model.login.fido2Credentials.map(async (viewKey) => {
+              const domainKey = new Fido2Credential();
               await this.encryptObjProperty(
                 viewKey,
                 domainKey,
