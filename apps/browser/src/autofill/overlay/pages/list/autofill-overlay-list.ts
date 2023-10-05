@@ -590,7 +590,6 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
    *
    * @param currentListItem - The current list item.
    * @param currentButtonElement - The current button element.
-   * @private
    */
   private focusViewCipherButton(currentListItem: HTMLElement, currentButtonElement: HTMLElement) {
     const cipherContainer = currentListItem.querySelector(".cipher-container") as HTMLElement;
