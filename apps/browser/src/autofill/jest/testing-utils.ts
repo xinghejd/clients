@@ -18,13 +18,59 @@ function sendExtensionRuntimeMessage(
   sender?: chrome.runtime.MessageSender,
   sendResponse?: CallableFunction
 ) {
-  if (!(chrome.runtime.onMessage as any).callListener) {
-    throw new Error(
-      'The "callListener" method mock is not defined on the "onMessage" mock of the "runtime" object.'
-    );
+  const onMessageMock = chrome.runtime.onMessage as any;
+  if (onMessageMock.callListener) {
+    onMessageMock.callListener(message, sender, sendResponse);
   }
-
-  (chrome.runtime.onMessage as any).callListener(message, sender, sendResponse);
 }
 
-export { triggerTestFailure, flushPromises, postWindowMessage, sendExtensionRuntimeMessage };
+function triggerWindowOnFocusedChangedEvent(windowId: number) {
+  const onFocusChangedMock = chrome.windows.onFocusChanged as any;
+  if (onFocusChangedMock.callListener) {
+    onFocusChangedMock.callListener(windowId);
+  }
+}
+
+function triggerTabOnActivatedEvent(activeInfo: chrome.tabs.TabActiveInfo) {
+  const onActivatedMock = chrome.tabs.onActivated as any;
+  if (onActivatedMock.callListener) {
+    onActivatedMock.callListener(activeInfo);
+  }
+}
+
+function triggerTabOnReplacedEvent(addedTabId: number, removedTabId: number) {
+  const onReplacedMock = chrome.tabs.onReplaced as any;
+  if (onReplacedMock.callListener) {
+    onReplacedMock.callListener(addedTabId, removedTabId);
+  }
+}
+
+function triggerTabOnUpdatedEvent(
+  tabId: number,
+  changeInfo: chrome.tabs.TabChangeInfo,
+  tab: chrome.tabs.Tab
+) {
+  const onUpdatedMock = chrome.tabs.onUpdated as any;
+  if (onUpdatedMock.callListener) {
+    onUpdatedMock.callListener(tabId, changeInfo, tab);
+  }
+}
+
+function triggerTabOnRemovedEvent(tabId: number, removeInfo: chrome.tabs.TabRemoveInfo) {
+  const onRemovedMock = chrome.tabs.onRemoved as any;
+  if (onRemovedMock.callListener) {
+    onRemovedMock.callListener(tabId, removeInfo);
+  }
+}
+
+export {
+  triggerTestFailure,
+  flushPromises,
+  postWindowMessage,
+  sendExtensionRuntimeMessage,
+  triggerWindowOnFocusedChangedEvent,
+  triggerTabOnActivatedEvent,
+  triggerTabOnReplacedEvent,
+  triggerTabOnUpdatedEvent,
+  triggerTabOnRemovedEvent,
+};

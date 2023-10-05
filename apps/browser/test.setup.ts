@@ -86,22 +86,75 @@ const i18n = {
   getUILanguage: jest.fn(),
 };
 
+let tabsOnActivatedCallback: CallableFunction;
+let tabsOnReplacedCallback: CallableFunction;
+let tabsOnUpdatedCallback: CallableFunction;
+let tabsOnRemovedCallback: CallableFunction;
 const tabs = {
   executeScript: jest.fn(),
   sendMessage: jest.fn(),
   query: jest.fn(),
   remove: jest.fn(),
+  onActivated: {
+    addListener: jest.fn((callback) => (tabsOnActivatedCallback = callback)),
+    removeListener: jest.fn((callback) => {
+      if (tabsOnActivatedCallback === callback) {
+        tabsOnActivatedCallback = undefined;
+      }
+    }),
+    callListener: (activeInfo: chrome.tabs.TabActiveInfo) => tabsOnActivatedCallback(activeInfo),
+  },
+  onReplaced: {
+    addListener: jest.fn((callback) => (tabsOnReplacedCallback = callback)),
+    removeListener: jest.fn((callback) => {
+      if (tabsOnReplacedCallback === callback) {
+        tabsOnReplacedCallback = undefined;
+      }
+    }),
+    callListener: (addedTabId: number, removedTabId: number) =>
+      tabsOnReplacedCallback(addedTabId, removedTabId),
+  },
+  onUpdated: {
+    addListener: jest.fn((callback) => (tabsOnUpdatedCallback = callback)),
+    removeListener: jest.fn((callback) => {
+      if (tabsOnUpdatedCallback === callback) {
+        tabsOnUpdatedCallback = undefined;
+      }
+    }),
+    callListener: (tabId: number, changeInfo: chrome.tabs.TabChangeInfo, tab: chrome.tabs.Tab) =>
+      tabsOnUpdatedCallback(tabId, changeInfo, tab),
+  },
+  onRemoved: {
+    addListener: jest.fn((callback) => (tabsOnRemovedCallback = callback)),
+    removeListener: jest.fn((callback) => {
+      if (tabsOnRemovedCallback === callback) {
+        tabsOnRemovedCallback = undefined;
+      }
+    }),
+    callListener: (tabId: number, removeInfo: chrome.tabs.TabRemoveInfo) =>
+      tabsOnRemovedCallback(tabId, removeInfo),
+  },
 };
 
 const scripting = {
   executeScript: jest.fn(),
 };
 
+let windowsOnFocusChangedCallback: CallableFunction;
 const windows = {
   create: jest.fn(),
   get: jest.fn(),
   getCurrent: jest.fn(),
   update: jest.fn(),
+  onFocusChanged: {
+    addListener: jest.fn((callback) => (windowsOnFocusChangedCallback = callback)),
+    removeListener: jest.fn((callback) => {
+      if (windowsOnFocusChangedCallback === callback) {
+        windowsOnFocusChangedCallback = undefined;
+      }
+    }),
+    callListener: (windowId: number) => windowsOnFocusChangedCallback(windowId),
+  },
 };
 
 const port = {

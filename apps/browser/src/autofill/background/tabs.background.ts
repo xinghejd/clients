@@ -12,6 +12,9 @@ export default class TabsBackground {
 
   private focusedWindowId: number;
 
+  /**
+   * Initializes the window and tab listeners.
+   */
   async init() {
     if (!chrome.tabs || !chrome.windows) {
       return;
@@ -24,6 +27,11 @@ export default class TabsBackground {
     chrome.tabs.onRemoved.addListener(this.handleTabOnRemoved);
   }
 
+  /**
+   * Handles the window onFocusChanged event.
+   *
+   * @param windowId - The ID of the window that was focused.
+   */
   private handleWindowOnFocusChanged = async (windowId: number) => {
     if (!windowId) {
       return;
@@ -34,11 +42,17 @@ export default class TabsBackground {
     this.main.messagingService.send("windowChanged");
   };
 
+  /**
+   * Handles the tab onActivated event.
+   */
   private handleTabOnActivated = async () => {
     await this.updateCurrentTabData();
     this.main.messagingService.send("tabChanged");
   };
 
+  /**
+   * Handles the tab onReplaced event.
+   */
   private handleTabOnReplaced = async () => {
     if (this.main.onReplacedRan) {
       return;
@@ -50,6 +64,13 @@ export default class TabsBackground {
     this.main.messagingService.send("tabChanged");
   };
 
+  /**
+   * Handles the tab onUpdated event.
+   *
+   * @param tabId - The ID of the tab that was updated.
+   * @param changeInfo - The change information.
+   * @param tab - The updated tab.
+   */
   private handleTabOnUpdated = async (
     tabId: number,
     changeInfo: chrome.tabs.TabChangeInfo,
@@ -78,10 +99,19 @@ export default class TabsBackground {
     this.main.messagingService.send("tabChanged");
   };
 
+  /**
+   * Handles the tab onRemoved event.
+   *
+   * @param tabId - The ID of the tab that was removed.
+   */
   private handleTabOnRemoved = async (tabId: number) => {
     this.overlayBackground.removePageDetails(tabId);
   };
 
+  /**
+   * Updates the current tab data, refreshing the badge and context menu
+   * for the current tab. Also updates the overlay ciphers.
+   */
   private updateCurrentTabData = async () => {
     await this.main.refreshBadge();
     await this.main.refreshMenu();
