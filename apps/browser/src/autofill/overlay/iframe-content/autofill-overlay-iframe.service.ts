@@ -279,6 +279,12 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
     return this.extensionOriginsSet.has(messageOrigin);
   }
 
+  /**
+   * Handles mutations to the iframe element. The ensures that the iframe
+   * element's styles are not modified by a third party source.
+   *
+   * @param mutations - The mutations to the iframe element
+   */
   private handleMutations = (mutations: MutationRecord[]) => {
     for (let index = 0; index < mutations.length; index++) {
       const mutation = mutations[index];
@@ -291,10 +297,16 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
     }
   };
 
+  /**
+   * Observes the iframe element for mutations to its style attribute.
+   */
   private observeIframe() {
     this.iframeMutationObserver.observe(this.iframe, { attributes: true });
   }
 
+  /**
+   * Unobserves the iframe element for mutations to its style attribute.
+   */
   private unobserveIframe() {
     this.iframeMutationObserver.disconnect();
   }
