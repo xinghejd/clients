@@ -83,7 +83,7 @@ body {
     outline-style: solid;
 
     @include themify($themes) {
-      color: themed("focusOutlineColor");
+      outline-color: themed("focusOutlineColor");
     }
   }
 
@@ -154,7 +154,7 @@ body {
       outline-style: solid;
 
       @include themify($themes) {
-        color: themed("focusOutlineColor");
+        outline-color: themed("focusOutlineColor");
       }
     }
   }
@@ -192,7 +192,7 @@ body {
       outline-style: solid;
 
       @include themify($themes) {
-        color: themed("focusOutlineColor");
+        outline-color: themed("focusOutlineColor");
       }
     }
 

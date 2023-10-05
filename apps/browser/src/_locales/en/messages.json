@@ -2502,6 +2502,10 @@
     "message": "Add new vault item",
     "description": "Screen reader text (aria-label) for new item button in overlay"
   },
+  "bitwardenOverlayMenuAvailable": {
+    "message": "Bitwarden auto-fill menu available. Press the down arrow key to select.",
+    "description": "Screen reader text for announcing when the overlay opens on the page"
+  },
   "overrideBrowserAutofillTitle": {
     "message": "Override browser auto-fill?",
     "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"

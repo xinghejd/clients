@@ -734,6 +734,8 @@ export default class MainBackground {
     this.configService.init();
     this.twoFactorService.init();
 
+    await this.overlayBackground.init();
+
     await this.tabsBackground.init();
     if (!this.popupOnlyContext) {
       this.contextMenusBackground?.init();

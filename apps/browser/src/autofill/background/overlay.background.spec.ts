@@ -78,6 +78,7 @@ describe("OverlayBackground", () => {
       stateService,
       i18nService
     );
+    overlayBackground.init();
   });
 
   afterEach(() => {
@@ -92,6 +93,20 @@ describe("OverlayBackground", () => {
       overlayBackground.removePageDetails(tabId);
 
       expect(overlayBackground["pageDetailsForTab"][tabId]).toBeUndefined();
+    });
+  });
+
+  describe("init", () => {
+    it("sets up the extension message listeners, get the overlay's visibility settings, and get the user's auth status", async () => {
+      overlayBackground["setupExtensionMessageListeners"] = jest.fn();
+      overlayBackground["getOverlayVisibility"] = jest.fn();
+      overlayBackground["getAuthStatus"] = jest.fn();
+
+      await overlayBackground.init();
+
+      expect(overlayBackground["setupExtensionMessageListeners"]).toHaveBeenCalled();
+      expect(overlayBackground["getOverlayVisibility"]).toHaveBeenCalled();
+      expect(overlayBackground["getAuthStatus"]).toHaveBeenCalled();
     });
   });
 
@@ -212,20 +227,6 @@ describe("OverlayBackground", () => {
         "updateIsOverlayCiphersPopulated",
         { isOverlayCiphersPopulated: true }
       );
-    });
-  });
-
-  describe("initOverlayBackground", () => {
-    it("sets up the extension message listeners, get the overlay's visibility settings, and get the user's auth status", async () => {
-      overlayBackground["setupExtensionMessageListeners"] = jest.fn();
-      overlayBackground["getOverlayVisibility"] = jest.fn();
-      overlayBackground["getAuthStatus"] = jest.fn();
-
-      await overlayBackground["initOverlayBackground"]();
-
-      expect(overlayBackground["setupExtensionMessageListeners"]).toHaveBeenCalled();
-      expect(overlayBackground["getOverlayVisibility"]).toHaveBeenCalled();
-      expect(overlayBackground["getAuthStatus"]).toHaveBeenCalled();
     });
   });
 

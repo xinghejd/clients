@@ -90,7 +90,6 @@ class OverlayBackground implements OverlayBackgroundInterface {
     private i18nService: I18nService
   ) {
     this.iconsServerUrl = this.environmentService.getIconsUrl();
-    this.initOverlayBackground();
   }
 
   /**
@@ -101,6 +100,16 @@ class OverlayBackground implements OverlayBackgroundInterface {
    */
   removePageDetails(tabId: number) {
     delete this.pageDetailsForTab[tabId];
+  }
+
+  /**
+   * Sets up the extension message listeners and gets the settings for the
+   * overlay's visibility and the user's authentication status.
+   */
+  async init() {
+    this.setupExtensionMessageListeners();
+    await this.getOverlayVisibility();
+    await this.getAuthStatus();
   }
 
   /**
@@ -131,16 +140,6 @@ class OverlayBackground implements OverlayBackgroundInterface {
     await BrowserApi.tabSendMessageData(currentTab, "updateIsOverlayCiphersPopulated", {
       isOverlayCiphersPopulated: Boolean(ciphers.length),
     });
-  }
-
-  /**
-   * Sets up the extension message listeners and gets the settings for the
-   * overlay's visibility and the user's authentication status.
-   */
-  private async initOverlayBackground() {
-    this.setupExtensionMessageListeners();
-    await this.getOverlayVisibility();
-    await this.getAuthStatus();
   }
 
   /**

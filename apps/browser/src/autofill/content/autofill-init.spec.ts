@@ -74,7 +74,7 @@ describe("AutofillInit", () => {
 
       expect(response1).not.toBe(false);
 
-      message.command = "addNewVaultItemFromOverlay";
+      message.command = "removeAutofillOverlay";
       message.fillScript = mock<AutofillScript>();
 
       const response2 = autofillInit["handleExtensionMessage"](message, sender, sendResponse);
