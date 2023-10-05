@@ -1,5 +1,4 @@
 import { SettingsService } from "@bitwarden/common/abstractions/settings.service";
-import { WebsiteIconData } from "@bitwarden/common/abstractions/website-icon.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ThemeType } from "@bitwarden/common/enums";
@@ -34,6 +33,7 @@ import {
   OverlayBackgroundExtensionMessage,
   OverlayAddNewItemMessage,
   OverlayPortMessage,
+  WebsiteIconData,
 } from "./abstractions/overlay.background";
 
 class OverlayBackground implements OverlayBackgroundInterface {

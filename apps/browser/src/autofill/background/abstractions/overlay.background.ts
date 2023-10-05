@@ -3,6 +3,13 @@ import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 
 import AutofillPageDetails from "../../models/autofill-page-details";
 
+type WebsiteIconData = {
+  imageEnabled: boolean;
+  image: string;
+  fallbackImage: string;
+  icon: string;
+};
+
 type OverlayAddNewItemMessage = {
   login?: {
     uri?: string;
@@ -110,6 +117,7 @@ interface OverlayBackground {
 }
 
 export {
+  WebsiteIconData,
   OverlayBackgroundExtensionMessage,
   OverlayPortMessage,
   FocusedFieldData,
