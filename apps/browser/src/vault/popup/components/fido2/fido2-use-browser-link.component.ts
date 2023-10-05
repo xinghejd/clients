@@ -1,22 +1,24 @@
 import { Component } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
-import { BrowserFido2UserInterfaceSession } from "../../../fido2/browser-fido2-user-interface.service";
-import { Fido2StateServiceAbstraction } from "../../services/abstractions/fido2-state.service";
+import {
+  BrowserFido2UserInterfaceSession,
+  fido2PopoutSessionData$,
+} from "../../../fido2/browser-fido2-user-interface.service";
 
 @Component({
   selector: "app-fido2-use-browser-link",
   templateUrl: "fido2-use-browser-link.component.html",
 })
 export class Fido2UseBrowserLinkComponent {
-  isPasskeys$ = this.fido2StateService.isPasskeys$;
+  fido2PopoutSessionData$ = fido2PopoutSessionData$();
 
-  constructor(private fido2StateService: Fido2StateServiceAbstraction) {}
-
-  abort(fallback = false) {
+  async abort() {
+    const sessionData = await firstValueFrom(this.fido2PopoutSessionData$);
     BrowserFido2UserInterfaceSession.sendMessage({
-      sessionId: this.fido2StateService.sessionId,
+      sessionId: sessionData.sessionId,
       type: "AbortResponse",
-      fallbackRequested: fallback,
+      fallbackRequested: true,
     });
 
     return;

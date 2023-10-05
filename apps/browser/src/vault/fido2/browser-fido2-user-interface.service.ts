@@ -1,3 +1,5 @@
+import { inject } from "@angular/core";
+import { ActivatedRoute } from "@angular/router";
 import {
   BehaviorSubject,
   EmptyError,
@@ -5,6 +7,7 @@ import {
   firstValueFrom,
   fromEvent,
   fromEventPattern,
+  map,
   merge,
   Observable,
   Subject,
@@ -27,6 +30,18 @@ import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserPopoutWindowService } from "../../platform/popup/abstractions/browser-popout-window.service";
 
 const BrowserFido2MessageName = "BrowserFido2UserInterfaceServiceMessage";
+
+export function fido2PopoutSessionData$() {
+  const route = inject(ActivatedRoute);
+
+  return route.queryParams.pipe(
+    map((queryParams) => ({
+      isFido2Session: queryParams.sessionId != null,
+      sessionId: queryParams.sessionId as string,
+      fallbackSupported: queryParams.fallbackSupported as boolean,
+    }))
+  );
+}
 
 export class SessionClosedError extends Error {
   constructor() {

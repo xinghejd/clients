@@ -103,8 +103,6 @@ import BrowserMessagingService from "../../platform/services/browser-messaging.s
 import { BrowserStateService } from "../../platform/services/browser-state.service";
 import { BrowserSendService } from "../../services/browser-send.service";
 import { BrowserSettingsService } from "../../services/browser-settings.service";
-import { Fido2StateServiceAbstraction } from "../../vault/popup/services/abstractions/fido2-state.service";
-import { Fido2StateService } from "../../vault/popup/services/fido2-state.service";
 import { PasswordRepromptService } from "../../vault/popup/services/password-reprompt.service";
 import { BrowserFolderService } from "../../vault/services/browser-folder.service";
 import { VaultFilterService } from "../../vault/services/vault-filter.service";
@@ -510,7 +508,6 @@ function getBgService<T>(service: keyof MainBackground) {
         LogService,
       ],
     },
-    { provide: Fido2StateServiceAbstraction, useClass: Fido2StateService },
   ],
 })
 export class ServicesModule {}

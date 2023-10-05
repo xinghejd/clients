@@ -1,5 +1,5 @@
-<div class="useBrowserlink" *ngIf="isPasskeys$ | async">
-  <a [routerLink]="[]" (click)="abort(true)">
+<div class="useBrowserlink" *ngIf="(fido2PopoutSessionData$ | async).fallbackSupported">
+  <a [routerLink]="[]" (click)="abort()">
     {{ "useBrowserName" | i18n }}
   </a>
 </div>
