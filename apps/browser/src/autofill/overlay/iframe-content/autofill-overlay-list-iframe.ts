@@ -13,7 +13,9 @@ class AutofillOverlayListIframe extends AutofillOverlayIframeElement {
         maxHeight: "180px",
         boxShadow: "rgba(0, 0, 0, 0.1) 2px 4px 6px 0px",
         borderRadius: "4px",
-        border: "1px solid rgb(206, 212, 220)",
+        borderWidth: "1px",
+        borderStyle: "solid",
+        borderColor: "rgb(206, 212, 220)",
         backgroundColor: "rgb(255, 255, 255)",
       },
       chrome.i18n.getMessage("bitwardenVault")

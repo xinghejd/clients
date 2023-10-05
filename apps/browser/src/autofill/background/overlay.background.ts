@@ -2,6 +2,7 @@ import { SettingsService } from "@bitwarden/common/abstractions/settings.service
 import { WebsiteIconData } from "@bitwarden/common/abstractions/website-icon.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { ThemeType } from "@bitwarden/common/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
@@ -478,6 +479,21 @@ class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
+   * Gets the currently set theme for the user.
+   */
+  private async getCurrentTheme() {
+    const theme = await this.stateService.getTheme();
+
+    if (theme !== ThemeType.System) {
+      return theme;
+    }
+
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? ThemeType.Dark
+      : ThemeType.Light;
+  }
+
+  /**
    * Sends a message to the overlay button to update its authentication status.
    */
   private updateOverlayButtonAuthStatus() {
@@ -709,6 +725,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
       command: `initAutofillOverlay${isOverlayListPort ? "List" : "Button"}`,
       authStatus: await this.getAuthStatus(),
       styleSheetUrl: chrome.runtime.getURL(`overlay/${isOverlayListPort ? "list" : "button"}.css`),
+      theme: `theme_${await this.getCurrentTheme()}`,
       translations: this.getTranslations(),
       ciphers: isOverlayListPort ? this.getOverlayCipherData() : null,
     });

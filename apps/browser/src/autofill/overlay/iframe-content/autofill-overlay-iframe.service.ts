@@ -35,6 +35,7 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
       this.updateElementStyles(this.iframe, message.styles),
   };
   private readonly backgroundPortMessageHandlers: BackgroundPortMessageHandlers = {
+    initAutofillOverlayList: ({ message }) => this.initAutofillOverlayList(message),
     updateIframePosition: ({ message }) => this.updateIframePosition(message.styles),
     updateOverlayHidden: ({ message }) => this.updateElementStyles(this.iframe, message.styles),
   };
@@ -179,6 +180,31 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
 
     this.iframe.contentWindow?.postMessage(message, "*");
   };
+
+  /**
+   * Handles messages sent from the iframe to the extension background script.
+   * Will adjust the border element to fit the user's set theme.
+   *
+   * @param message - The message sent from the iframe
+   */
+  private initAutofillOverlayList(message: AutofillOverlayIframeExtensionMessage) {
+    const { theme } = message;
+    let borderColor: string;
+    if (theme === "theme_dark") {
+      borderColor = "#4c525f";
+    }
+    if (theme === "theme_nord") {
+      borderColor = "#2E3440";
+    }
+    if (theme === "theme_solarizedDark") {
+      borderColor = "#073642";
+    }
+    if (borderColor) {
+      this.updateElementStyles(this.iframe, { borderColor });
+    }
+
+    this.iframe.contentWindow?.postMessage(message, "*");
+  }
 
   /**
    * Updates the position of the iframe element. Will also announce

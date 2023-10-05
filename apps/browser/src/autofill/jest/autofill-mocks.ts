@@ -190,6 +190,7 @@ function createInitAutofillOverlayListMessageMock(
     command: "initAutofillOverlayList",
     translations: overlayPagesTranslations,
     styleSheetUrl: "https://tacos.com",
+    theme: "light",
     authStatus: AuthenticationStatus.Unlocked,
     ciphers: [
       createAutofillOverlayCipherDataMock(1, {

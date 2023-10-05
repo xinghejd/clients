@@ -191,6 +191,71 @@ describe("AutofillOverlayIframeService", () => {
         expect(autofillOverlayIframeService["iframe"].contentWindow.postMessage).not.toBeCalled();
       });
 
+      describe("initializing the overlay list", () => {
+        let updateElementStylesSpy: jest.SpyInstance;
+
+        beforeEach(() => {
+          updateElementStylesSpy = jest.spyOn(
+            autofillOverlayIframeService as any,
+            "updateElementStyles"
+          );
+        });
+
+        it("passed the message on to the iframe element", () => {
+          const message = {
+            command: "initAutofillOverlayList",
+            theme: "theme_light",
+          };
+
+          portSpy.onMessage.callListener(message);
+
+          expect(updateElementStylesSpy).not.toBeCalled();
+          expect(autofillOverlayIframeService["iframe"].contentWindow.postMessage).toBeCalledWith(
+            message,
+            "*"
+          );
+        });
+
+        it("updates the border to match the `dark` theme", () => {
+          const message = {
+            command: "initAutofillOverlayList",
+            theme: "theme_dark",
+          };
+
+          portSpy.onMessage.callListener(message);
+
+          expect(updateElementStylesSpy).toBeCalledWith(autofillOverlayIframeService["iframe"], {
+            borderColor: "#4c525f",
+          });
+        });
+
+        it("updates the border to match the `nord` theme", () => {
+          const message = {
+            command: "initAutofillOverlayList",
+            theme: "theme_nord",
+          };
+
+          portSpy.onMessage.callListener(message);
+
+          expect(updateElementStylesSpy).toBeCalledWith(autofillOverlayIframeService["iframe"], {
+            borderColor: "#2E3440",
+          });
+        });
+
+        it("updates the border to match the `solarizedDark` theme", () => {
+          const message = {
+            command: "initAutofillOverlayList",
+            theme: "theme_solarizedDark",
+          };
+
+          portSpy.onMessage.callListener(message);
+
+          expect(updateElementStylesSpy).toBeCalledWith(autofillOverlayIframeService["iframe"], {
+            borderColor: "#073642",
+          });
+        });
+      });
+
       describe("updating the iframe's position", () => {
         beforeEach(() => {
           jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(true);
@@ -322,7 +387,7 @@ describe("AutofillOverlayIframeService", () => {
       autofillOverlayIframeService["iframe"].dispatchEvent(new Event(EVENTS.LOAD));
     });
 
-    it("will revert any styles changes made directly to the iframe", async () => {
+    it("reverts any styles changes made directly to the iframe", async () => {
       jest.useFakeTimers();
 
       autofillOverlayIframeService["iframe"].style.visibility = "hidden";

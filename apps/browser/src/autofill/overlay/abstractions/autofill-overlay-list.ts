@@ -11,6 +11,7 @@ type UpdateOverlayListCiphersMessage = OverlayListMessage & {
 type InitAutofillOverlayListMessage = OverlayListMessage & {
   authStatus: AuthenticationStatus;
   styleSheetUrl: string;
+  theme: string;
   translations: Record<string, string>;
   ciphers?: OverlayCipherData[];
 };

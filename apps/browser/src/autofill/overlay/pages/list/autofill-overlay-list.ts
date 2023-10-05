@@ -41,19 +41,23 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
    *
    * @param translations - The translations to use for the overlay list.
    * @param styleSheetUrl - The URL of the stylesheet to use for the overlay list.
+   * @param theme - The theme to use for the overlay list.
    * @param authStatus - The current authentication status.
    * @param ciphers - The ciphers to display in the overlay list.
    */
   private async initAutofillOverlayList({
     translations,
     styleSheetUrl,
+    theme,
     authStatus,
     ciphers,
   }: InitAutofillOverlayListMessage) {
     const linkElement = this.initOverlayPage("button", styleSheetUrl, translations);
 
+    globalThis.document.documentElement.classList.add(theme);
+
     this.overlayListContainer = globalThis.document.createElement("div");
-    this.overlayListContainer.classList.add("overlay-list-container");
+    this.overlayListContainer.classList.add("overlay-list-container", theme);
     this.overlayListContainer.setAttribute("role", "dialog");
     this.overlayListContainer.setAttribute("aria-modal", "true");
     this.resizeObserver.observe(this.overlayListContainer);

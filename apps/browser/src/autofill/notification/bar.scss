@@ -1,4 +1,4 @@
-﻿@import "variables.scss";
+﻿@import "../shared/styles/variables";
 
 body {
   padding: 0;
@@ -10,7 +10,7 @@ body {
 
   @include themify($themes) {
     color: themed("textColor");
-    background-color: themed("backgroundColor");
+    background-color: themed("backgroundOffsetColor");
   }
 }
 
@@ -97,14 +97,14 @@ button.primary:not(.neutral) {
 
 button.secondary:not(.neutral) {
   @include themify($themes) {
-    background-color: themed("backgroundColor");
+    background-color: themed("backgroundOffsetColor");
     color: themed("mutedTextColor");
     border-color: themed("mutedTextColor");
   }
 
   &:hover {
     @include themify($themes) {
-      background-color: darken(themed("backgroundColor"), 1.5%);
+      background-color: darken(themed("backgroundOffsetColor"), 1.5%);
       color: darken(themed("mutedTextColor"), 6%);
     }
   }

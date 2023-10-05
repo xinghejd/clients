@@ -2,6 +2,7 @@ import { mock, mockReset } from "jest-mock-extended";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
+import { ThemeType } from "@bitwarden/common/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/services/environment.service";
 import { I18nService } from "@bitwarden/common/platform/services/i18n.service";
 import { SettingsService } from "@bitwarden/common/services/settings.service";
@@ -953,7 +954,7 @@ describe("OverlayBackground", () => {
       jest.spyOn(overlayBackground as any, "getOverlayCipherData").mockImplementation();
     });
 
-    it("will set up the overlay list port if the port connection is for the overlay list", async () => {
+    it("sets up the overlay list port if the port connection is for the overlay list", async () => {
       initOverlayElementPorts({ initList: true, initButton: false });
       await flushPromises();
 
@@ -969,7 +970,7 @@ describe("OverlayBackground", () => {
       });
     });
 
-    it("will set up the overlay button port if the port connection is for the overlay button", async () => {
+    it("sets up the overlay button port if the port connection is for the overlay button", async () => {
       initOverlayElementPorts({ initList: false, initButton: true });
       await flushPromises();
 
@@ -982,6 +983,16 @@ describe("OverlayBackground", () => {
       expect(overlayBackground["updateOverlayPosition"]).toHaveBeenCalledWith({
         overlayElement: AutofillOverlayElement.Button,
       });
+    });
+
+    it("gets the system theme", async () => {
+      jest.spyOn(overlayBackground["stateService"], "getTheme").mockResolvedValue(ThemeType.System);
+      window.matchMedia = jest.fn(() => mock<MediaQueryList>({ matches: true }));
+
+      initOverlayElementPorts({ initList: true, initButton: false });
+      await flushPromises();
+
+      expect(window.matchMedia).toHaveBeenCalledWith("(prefers-color-scheme: dark)");
     });
   });
 

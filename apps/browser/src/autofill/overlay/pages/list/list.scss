@@ -1,13 +1,7 @@
 @import "../../../../../../../libs/angular/src/scss/webfonts.css";
 @import "../../../../../../../libs/angular/src/scss/bwicons/styles/style";
-@import "../shared/styles/variables";
+@import "../../../shared/styles/variables";
 @import "../../../../../../../libs/angular/src/scss/icons";
-
-$color-blue: #175ddc;
-$color-light-gray: #ced4dc;
-$color-gray: #6c747c;
-$color-dark-gray: #212529;
-$color-white: #fff;
 
 * {
   box-sizing: border-box;
@@ -21,7 +15,11 @@ body {
   width: 100%;
   padding: 0;
   margin: 0;
-  background: $color-white;
+
+  @include themify($themes) {
+    color: themed("textColor");
+    background-color: themed("backgroundColor");
+  }
 }
 
 .overlay-list-message {
@@ -31,7 +29,10 @@ body {
   line-height: 1.5;
   width: 100%;
   padding: 0.8rem;
-  color: $color-dark-gray;
+
+  @include themify($themes) {
+    color: themed("textColor");
+  }
 
   &.no-items {
     font-size: 1.6rem;
@@ -43,10 +44,17 @@ body {
   padding: 0.2rem;
   background: transparent;
   transition: background-color 0.2s ease-in-out;
-  border-top: 0.1rem solid $color-light-gray;
+  border-top-width: 0.1rem;
+  border-top-style: solid;
+
+  @include themify($themes) {
+    border-top-color: themed("borderColor");
+  }
 
   &:hover {
-    background: #f0f0f0;
+    @include themify($themes) {
+      background: themed("backgroundOffsetColor");
+    }
   }
 }
 
@@ -58,7 +66,6 @@ body {
   font-family: $font-family-sans-serif;
   font-size: 1.6rem;
   font-weight: 700;
-  color: $color-blue;
   text-align: left;
   background: transparent;
   border: none;
@@ -67,14 +74,29 @@ body {
   cursor: pointer;
   border-radius: 0.4rem;
 
+  @include themify($themes) {
+    color: themed("primaryColor");
+  }
+
   &:focus:focus-visible {
-    outline: 2px solid #1252a3;
+    outline-width: 0.2rem;
+    outline-style: solid;
+
+    @include themify($themes) {
+      color: themed("focusOutlineColor");
+    }
   }
 
   svg {
     position: relative;
     margin-left: 0.4rem;
     margin-right: 0.8rem;
+
+    path {
+      @include themify($themes) {
+        fill: themed("primaryColor") !important;
+      }
+    }
   }
 }
 
@@ -105,11 +127,18 @@ body {
   padding: 0.2rem;
 
   &:not(:last-child) {
-    border-bottom: 0.1rem solid $color-light-gray;
+    border-bottom-width: 0.1rem;
+    border-bottom-style: solid;
+
+    @include themify($themes) {
+      border-bottom-color: themed("borderColor");
+    }
   }
 
   &:hover {
-    background: #f0f0f0;
+    @include themify($themes) {
+      background: themed("backgroundOffsetColor");
+    }
   }
 
   .cipher-container {
@@ -121,7 +150,12 @@ body {
     border-radius: 0.4rem;
 
     &:focus-within:not(.remove-outline) {
-      outline: 2px solid #1252a3;
+      outline-width: 0.2rem;
+      outline-style: solid;
+
+      @include themify($themes) {
+        color: themed("focusOutlineColor");
+      }
     }
   }
 
@@ -154,7 +188,20 @@ body {
     border-radius: 0.4rem;
 
     &:focus:focus-visible {
-      outline: 0.2rem solid #1252a3;
+      outline-width: 0.2rem;
+      outline-style: solid;
+
+      @include themify($themes) {
+        color: themed("focusOutlineColor");
+      }
+    }
+
+    svg {
+      path {
+        @include themify($themes) {
+          fill: themed("primaryColor") !important;
+        }
+      }
     }
   }
 
@@ -171,19 +218,38 @@ body {
     background-size: 2.6rem;
     background-position: center;
     background-repeat: no-repeat;
-    color: $color-gray;
+
+    @include themify($themes) {
+      color: themed("mutedTextColor");
+    }
 
     svg {
       width: 100%;
       height: auto;
       flex-shrink: 0;
+
+      path {
+        @include themify($themes) {
+          fill: themed("primaryColor") !important;
+        }
+      }
     }
 
     &.bwi {
       font-size: 2.6rem;
 
       &:not(.cipher-icon) {
-        color: $color-blue;
+        @include themify($themes) {
+          color: themed("primaryColor");
+        }
+
+        svg {
+          path {
+            @include themify($themes) {
+              fill: themed("primaryColor") !important;
+            }
+          }
+        }
       }
     }
   }
@@ -211,11 +277,17 @@ body {
 
   .cipher-name {
     font-size: 1.6rem;
-    color: $color-dark-gray;
+
+    @include themify($themes) {
+      color: themed("textColor");
+    }
   }
 
   .cipher-user-login {
     font-size: 1.4rem;
-    color: $color-gray;
+
+    @include themify($themes) {
+      color: themed("mutedTextColor");
+    }
   }
 }

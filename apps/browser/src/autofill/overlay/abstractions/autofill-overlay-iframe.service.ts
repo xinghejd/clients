@@ -1,6 +1,7 @@
 type AutofillOverlayIframeExtensionMessage = {
   command: string;
   styles?: Partial<CSSStyleDeclaration>;
+  theme?: string;
 };
 
 type AutofillOverlayIframeWindowMessageHandlers = {
@@ -14,6 +15,7 @@ type AutofillOverlayIframeExtensionMessageParam = {
 
 type BackgroundPortMessageHandlers = {
   [key: string]: CallableFunction;
+  initAutofillOverlayList: ({ message }: AutofillOverlayIframeExtensionMessageParam) => void;
   updateIframePosition: ({ message }: AutofillOverlayIframeExtensionMessageParam) => void;
   updateOverlayHidden: ({ message }: AutofillOverlayIframeExtensionMessageParam) => void;
 };
