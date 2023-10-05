@@ -46,6 +46,16 @@ export const mockFromJson = (stub: any) => (stub + "_fromJSON") as any;
 export function trackEmissions<T>(observable: Observable<T>): T[] {
   const emissions: T[] = [];
   observable.subscribe((value) => {
+    switch (value) {
+      case undefined:
+      case null:
+        emissions.push(value);
+        return;
+      default:
+        // process by type
+        break;
+    }
+
     switch (typeof value) {
       case "string":
       case "number":

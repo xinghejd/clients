@@ -5,6 +5,7 @@ import {
   firstValueFrom,
   map,
   share,
+  shareReplay,
   switchMap,
   tap,
 } from "rxjs";
@@ -95,7 +96,8 @@ class DefaultUserState<T> implements UserState<T> {
         account != null && account.id != null
           ? userKeyBuilder(account.id, this.keyDefinition)
           : null
-      )
+      ),
+      shareReplay({ bufferSize: 1, refCount: false })
     );
 
     const activeAccountData$ = this.formattedKey$.pipe(

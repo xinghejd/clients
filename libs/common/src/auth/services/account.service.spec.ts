@@ -30,6 +30,35 @@ describe("accountService", () => {
     jest.resetAllMocks();
   });
 
+  describe("activeAccount$", () => {
+    it("should emit undefined if no account is active", () => {
+      const emissions = trackEmissions(sut.activeAccount$);
+
+      expect(emissions).toEqual([undefined]);
+    });
+
+    it("should emit the active account and status", async () => {
+      const emissions = trackEmissions(sut.activeAccount$);
+      sut.addAccount(userId, userInfo(AuthenticationStatus.Unlocked));
+      sut.switchAccount(userId);
+
+      expect(emissions).toEqual([
+        undefined, // initial value
+        { id: userId, ...userInfo(AuthenticationStatus.Unlocked) },
+      ]);
+    });
+
+    it("should remember the last emitted value", async () => {
+      sut.addAccount(userId, userInfo(AuthenticationStatus.Unlocked));
+      sut.switchAccount(userId);
+
+      expect(await firstValueFrom(sut.activeAccount$)).toEqual({
+        id: userId,
+        ...userInfo(AuthenticationStatus.Unlocked),
+      });
+    });
+  });
+
   describe("addAccount", () => {
     it("should throw if the account already exists", () => {
       sut.addAccount(userId, userInfo(AuthenticationStatus.Unlocked));
