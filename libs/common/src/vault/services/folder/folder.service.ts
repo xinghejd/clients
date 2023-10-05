@@ -8,7 +8,7 @@ import { UserState } from "../../../platform/interfaces/user-state";
 import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { DerivedUserState } from "../../../platform/state";
-import { FOLDERS } from "../../../platform/state/key-definitions";
+import { FOLDERS, FOLDER_VIEWS } from "../../../platform/state/key-definitions";
 import { UserId } from "../../../types/guid";
 import { CipherService } from "../../../vault/abstractions/cipher.service";
 import { InternalFolderService as InternalFolderServiceAbstraction } from "../../../vault/abstractions/folder/folder.service.abstraction";
@@ -34,7 +34,7 @@ export class FolderService implements InternalFolderServiceAbstraction {
     (window as any).services ||= {};
     (window as any).services.folderService = this;
     const derivedFoldersDefinition = FOLDERS.createDerivedDefinition(
-      "memory",
+      FOLDER_VIEWS,
       async (foldersMap) => {
         const folders = this.flattenMap(foldersMap);
         const decryptedFolders = await this.decryptFolders(folders);

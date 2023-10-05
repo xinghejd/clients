@@ -1,7 +1,7 @@
 import { Jsonify } from "type-fest";
 
 import { DeriveContext, DerivedStateDefinition } from "./derived-state-definition";
-import { StateDefinition, StorageLocation } from "./state-definition";
+import { StateDefinition } from "./state-definition";
 
 /**
  *
@@ -47,14 +47,14 @@ export class KeyDefinition<T> {
 
   /**
    * Helper for defining a derived definition that will often be used alongside a given key
-   * @param storageLocation
-   * @param decrypt
+   * @param keyDefinition The key definition detailing storage details for the derived state
+   * @param deriveCallback The callback used to convert from the parent state to the derived state
    * @returns
    */
   createDerivedDefinition<TTo>(
-    storageLocation: StorageLocation,
-    decrypt: (data: T, context: DeriveContext) => Promise<TTo>
+    keyDefinition: KeyDefinition<TTo>,
+    deriveCallback: (data: T, context: DeriveContext) => Promise<TTo>
   ) {
-    return new DerivedStateDefinition(storageLocation, decrypt);
+    return new DerivedStateDefinition(keyDefinition, deriveCallback);
   }
 }

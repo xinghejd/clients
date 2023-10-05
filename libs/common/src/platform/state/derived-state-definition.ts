@@ -1,7 +1,7 @@
 import { EncryptService } from "../abstractions/encrypt.service";
 import { UserKey } from "../models/domain/symmetric-crypto-key";
 
-import { StorageLocation } from "./state-definition";
+import { KeyDefinition } from "./key-definition";
 
 // TODO: Move type
 export class DeriveContext {
@@ -10,7 +10,7 @@ export class DeriveContext {
 
 export class DerivedStateDefinition<TFrom, TTo> {
   constructor(
-    readonly location: StorageLocation,
+    readonly KeyDefinition: KeyDefinition<TTo>,
     readonly converter: (data: TFrom, context: DeriveContext) => Promise<TTo>
   ) {}
 }
