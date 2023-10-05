@@ -32,7 +32,8 @@ class AutofillInit implements AutofillInitInterface {
   /**
    * AutofillInit constructor. Initializes the DomElementVisibilityService,
    * CollectAutofillContentService and InsertAutofillContentService classes.
-   * @param {AutofillOverlayContentService} autofillOverlayContentService
+   *
+   * @param autofillOverlayContentService - The autofill overlay content service, potentially undefined.
    */
   constructor(autofillOverlayContentService?: AutofillOverlayContentService) {
     this.autofillOverlayContentService = autofillOverlayContentService;
@@ -191,6 +192,7 @@ class AutofillInit implements AutofillInitInterface {
 
   /**
    * Updates whether the current tab has ciphers that can populate the overlay list
+   *
    * @param data - Contains the isOverlayCiphersPopulated value
    *
    */
@@ -207,7 +209,6 @@ class AutofillInit implements AutofillInitInterface {
   /**
    * Sets up the extension message listeners
    * for the content script.
-   * @private
    */
   private setupExtensionMessageListeners() {
     chrome.runtime.onMessage.addListener(this.handleExtensionMessage);
@@ -216,11 +217,10 @@ class AutofillInit implements AutofillInitInterface {
   /**
    * Handles the extension messages
    * sent to the content script.
-   * @param {AutofillExtensionMessage} message
-   * @param {chrome.runtime.MessageSender} sender
-   * @param {(response?: any) => void} sendResponse
-   * @returns {boolean}
-   * @private
+   *
+   * @param message - The extension message.
+   * @param sender - The message sender.
+   * @param sendResponse - The send response callback.
    */
   private handleExtensionMessage = (
     message: AutofillExtensionMessage,
