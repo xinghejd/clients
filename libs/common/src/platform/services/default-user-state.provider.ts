@@ -11,6 +11,7 @@ import {
 import { Jsonify } from "type-fest";
 
 import { AccountService } from "../../auth/abstractions/account.service";
+import { UserId } from "../../types/guid";
 import { EncryptService } from "../abstractions/encrypt.service";
 import {
   AbstractMemoryStorageService,
@@ -139,6 +140,20 @@ class DefaultUserState<T> implements UserState<T> {
 
     await this.chosenStorageLocation.save(await this.createKey(), newState);
     this.stateSubject.next(newState);
+    return newState;
+  }
+
+  async updateFor(userId: UserId, configureState: (state: T) => T): Promise<T> {
+    if (userId == null) {
+      throw new Error("Attempting to update user state, but no userId has been supplied.");
+    }
+
+    const key = userKeyBuilder(userId, this.keyDefinition);
+    const currentStore = await this.chosenStorageLocation.get<Jsonify<T>>(key);
+    const currentState = this.keyDefinition.deserializer(currentStore);
+    const newState = configureState(currentState);
+    await this.chosenStorageLocation.save(key, newState);
+
     return newState;
   }
 

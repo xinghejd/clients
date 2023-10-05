@@ -14,6 +14,7 @@ export class TestUserState<T> implements UserState<T> {
 
   getFromState = jest.fn();
   update = jest.fn().mockImplementation(this.minimalUpdate);
+  updateFor = jest.fn();
   createDerived = jest.fn();
 
   next(next: T) {

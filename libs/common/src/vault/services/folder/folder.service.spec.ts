@@ -3,7 +3,7 @@ import { Arg, Substitute, SubstituteOf } from "@fluffy-spoon/substitute";
 import { mock } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom } from "rxjs";
 
-import { TestUserState } from "../../../../spec/test-active-user-state";
+import { TestUserState } from "../../../../spec/test-user-state";
 import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
@@ -123,17 +123,7 @@ describe("Folder Service", () => {
   test("replace", async () => {
     await folderService.replace({ "2": folderData("2", "test 2") });
 
-    expect(await firstValueFrom(folderService.folders$)).toEqual([
-      {
-        id: "2",
-        name: {
-          decryptedValue: [],
-          encryptedString: "test 2",
-          encryptionType: 0,
-        },
-        revisionDate: null,
-      },
-    ]);
+    expect(await firstValueFrom(folderService.folders$)).toEqual([folder("2", "test 2")]);
   });
 
   test("delete", async () => {
@@ -159,29 +149,24 @@ describe("Folder Service", () => {
     it("null userId", async () => {
       await folderService.clear();
 
-      stateService.received(1).setEncryptedFolders(Arg.any(), Arg.any());
-
-      expect((await firstValueFrom(folderService.folders$)).length).toBe(0);
-      expect((await firstValueFrom(folderService.folderViews$)).length).toBe(0);
+      expect(userState.update).toHaveBeenCalled();
+      expect(await firstValueFrom(folderService.folders$)).toEqual(expect.arrayContaining([]));
     });
 
-    it("matching userId", async () => {
-      stateService.getUserId().resolves("1");
+    it("active userId", async () => {
       await folderService.clear("1");
 
-      stateService.received(1).setEncryptedFolders(Arg.any(), Arg.any());
-
-      expect((await firstValueFrom(folderService.folders$)).length).toBe(0);
-      expect((await firstValueFrom(folderService.folderViews$)).length).toBe(0);
+      expect(userState.updateFor).toHaveBeenCalled();
+      const updateCallback = userState.updateFor.mock.calls[0][1];
+      expect(updateCallback({ "2": folderData("2", "test") })).toEqual(expect.objectContaining({}));
     });
 
-    it("missmatching userId", async () => {
+    it("inactive userId", async () => {
       await folderService.clear("12");
 
-      stateService.received(1).setEncryptedFolders(Arg.any(), Arg.any());
-
-      expect((await firstValueFrom(folderService.folders$)).length).toBe(1);
-      expect((await firstValueFrom(folderService.folderViews$)).length).toBe(2);
+      expect(userState.updateFor).toHaveBeenCalled();
+      const updateCallback = userState.updateFor.mock.calls[0][1];
+      expect(updateCallback({ "2": folderData("2", "test") })).toEqual(expect.objectContaining({}));
     });
   });
 

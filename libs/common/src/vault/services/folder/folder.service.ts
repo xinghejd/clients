@@ -8,6 +8,7 @@ import { UserState } from "../../../platform/interfaces/user-state";
 import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { DerivedUserState } from "../../../platform/services/default-user-state.provider";
+import { UserId } from "../../../types/guid";
 import { CipherService } from "../../../vault/abstractions/cipher.service";
 import { InternalFolderService as InternalFolderServiceAbstraction } from "../../../vault/abstractions/folder/folder.service.abstraction";
 import { CipherData } from "../../../vault/models/data/cipher.data";
@@ -115,8 +116,11 @@ export class FolderService implements InternalFolderServiceAbstraction {
   }
 
   async clear(userId?: string): Promise<any> {
-    // TODO: handle clear for non-active users
-    await this.folderState.update((_) => null);
+    if (userId == null) {
+      await this.folderState.update((_) => ({}));
+    } else {
+      await this.folderState.updateFor(userId as UserId, (_) => ({}));
+    }
   }
 
   async delete(id: string | string[]): Promise<void> {
