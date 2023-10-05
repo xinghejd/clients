@@ -7,7 +7,8 @@ import { UserStateProvider } from "../../../platform/abstractions/user-state.pro
 import { UserState } from "../../../platform/interfaces/user-state";
 import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { DerivedUserState } from "../../../platform/services/default-user-state.provider";
+import { DerivedUserState } from "../../../platform/state";
+import { FOLDERS } from "../../../platform/state/key-definitions";
 import { UserId } from "../../../types/guid";
 import { CipherService } from "../../../vault/abstractions/cipher.service";
 import { InternalFolderService as InternalFolderServiceAbstraction } from "../../../vault/abstractions/folder/folder.service.abstraction";
@@ -15,7 +16,6 @@ import { CipherData } from "../../../vault/models/data/cipher.data";
 import { FolderData } from "../../../vault/models/data/folder.data";
 import { Folder } from "../../../vault/models/domain/folder";
 import { FolderView } from "../../../vault/models/view/folder.view";
-import { FOLDERS } from "../../types/key-definitions";
 
 export class FolderService implements InternalFolderServiceAbstraction {
   folderState: UserState<Record<string, FolderData>>;

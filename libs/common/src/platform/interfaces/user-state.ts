@@ -1,8 +1,7 @@
 import { Observable } from "rxjs";
 
 import { UserId } from "../../types/guid";
-import { DerivedUserState } from "../services/default-user-state.provider";
-import { DerivedStateDefinition } from "../types/derived-state-definition";
+import { DerivedStateDefinition , DerivedUserState } from "../state/";
 
 export interface UserState<T> {
   readonly state$: Observable<T>;

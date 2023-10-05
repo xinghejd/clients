@@ -1,4 +1,4 @@
-import { KeyDefinition } from "../types/key-definition";
+import { KeyDefinition } from "../state/key-definition";
 
 // TODO: Use Matts `UserId` type
 export function userKeyBuilder(userId: string, keyDefinition: KeyDefinition<unknown>): string {

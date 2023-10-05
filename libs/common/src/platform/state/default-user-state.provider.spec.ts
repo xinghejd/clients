@@ -6,8 +6,8 @@ import { AccountInfo, AccountService } from "../../auth/abstractions/account.ser
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { UserId } from "../../types/guid";
 import { AbstractMemoryStorageService } from "../abstractions/storage.service";
-import { KeyDefinition } from "../types/key-definition";
-import { StateDefinition } from "../types/state-definition";
+import { KeyDefinition } from "../state/key-definition";
+import { StateDefinition } from "../state/state-definition";
 
 import { DefaultUserStateProvider } from "./default-user-state.provider";
 

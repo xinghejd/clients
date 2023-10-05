@@ -3,10 +3,10 @@
 import { userKeyBuilder } from "../../platform/misc/key-builders";
 // TODO: Add message
 // eslint-disable-next-line import/no-restricted-paths
-import { KeyDefinition } from "../../platform/types/key-definition";
+import { KeyDefinition } from "../../platform/state/key-definition";
 // TODO: Add message
 // eslint-disable-next-line import/no-restricted-paths
-import { StateDefinition } from "../../platform/types/state-definition";
+import { StateDefinition } from "../../platform/state/state-definition";
 import { MigrationHelper } from "../migration-helper";
 import { IRREVERSIBLE, Migrator } from "../migrator";
 
