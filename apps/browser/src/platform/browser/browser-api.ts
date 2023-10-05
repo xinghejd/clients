@@ -318,6 +318,11 @@ export class BrowserApi {
     });
   }
 
+  /**
+   * Checks if the user has provided the given permissions to the extension.
+   *
+   * @param permissions - The permissions to check.
+   */
   static async permissionsGranted(permissions: string[]): Promise<boolean> {
     return new Promise((resolve) =>
       chrome.permissions.contains({ permissions }, (result) => resolve(result))
