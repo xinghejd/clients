@@ -719,7 +719,6 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       return true;
     }
 
-    // TODO: CG - This is the current method we used to identify login fields. This will need to change at some point as we want to be able to fill in other types of forms.
     const isLoginCipherField =
       autofillFieldData.type === "password" ||
       this.keywordsFoundInFieldData(autofillFieldData, AutoFillConstants.UsernameFieldNames);
