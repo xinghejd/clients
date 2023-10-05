@@ -3,6 +3,7 @@ export enum FeatureFlag {
   DisplayLowKdfIterationWarningFlag = "display-kdf-iteration-warning",
   TrustedDeviceEncryption = "trusted-device-encryption",
   AutofillV2 = "autofill-v2",
+  AutofillOverlay = "autofill-overlay",
   BrowserFilelessImport = "browser-fileless-import",
 }
 
