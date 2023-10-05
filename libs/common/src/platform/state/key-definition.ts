@@ -4,7 +4,9 @@ import { DeriveContext, DerivedStateDefinition } from "./derived-state-definitio
 import { StateDefinition } from "./state-definition";
 
 /**
- *
+ * KeyDefinitions describe the precise location to store data for a given piece of state.
+ * The StateDefinition is used to describe the domain of the state, and the KeyDefinition
+ * sub-divides that domain into specific keys.
  */
 // TODO Import Purpose type
 export class KeyDefinition<T> {

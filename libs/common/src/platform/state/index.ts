@@ -1,5 +1,3 @@
-// Export all established state definitions
-export * from "./state-definitions";
 // Export all established KeyDefinitions
 export * from "./key-definitions";
 export { DefaultGlobalStateProvider } from "./default-global-state.provider";

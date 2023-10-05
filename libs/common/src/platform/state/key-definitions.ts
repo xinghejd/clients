@@ -2,9 +2,11 @@ import { FolderData } from "../../vault/models/data/folder.data";
 import { FolderView } from "../../vault/models/view/folder.view";
 
 import { KeyDefinition } from "./key-definition";
-import { FOLDER_SERVICE_DISK, FOLDER_SERVICE_MEMORY } from "./state-definitions";
+import { StateDefinition } from "./state-definition";
 
-// FolderService Keys
+// FolderService
+const FOLDER_SERVICE_DISK = new StateDefinition("folderService", "disk");
+const FOLDER_SERVICE_MEMORY = new StateDefinition("folderService", "memory");
 export const FOLDERS = KeyDefinition.record<FolderData>(
   FOLDER_SERVICE_DISK,
   "folders",
