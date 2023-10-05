@@ -52,11 +52,6 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     tab: chrome.tabs.Tab,
     abortController = new AbortController()
   ): Promise<CreateCredentialResult> {
-    if (tab == null) {
-      this.logService?.warning(`[Fido2Client] The 'tab' parameter is required`);
-      throw new DOMException("The 'tab' parameter is required", "NotAllowedError");
-    }
-
     const enableFido2VaultCredentials = await this.isFido2FeatureEnabled();
 
     if (!enableFido2VaultCredentials) {
@@ -202,11 +197,6 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     tab: chrome.tabs.Tab,
     abortController = new AbortController()
   ): Promise<AssertCredentialResult> {
-    if (tab == null) {
-      this.logService?.warning(`[Fido2Client] The 'tab' parameter is required`);
-      throw new DOMException("The 'tab' parameter is required", "NotAllowedError");
-    }
-
     const enableFido2VaultCredentials = await this.isFido2FeatureEnabled();
 
     if (!enableFido2VaultCredentials) {

@@ -28,7 +28,7 @@ describe("FidoAuthenticatorService", () => {
   let configService!: MockProxy<ConfigServiceAbstraction>;
   let authService!: MockProxy<AuthService>;
   let client!: Fido2ClientService;
-  let tab!: any;
+  let tab!: chrome.tabs.Tab;
 
   beforeEach(async () => {
     authenticator = mock<Fido2AuthenticatorService>();
@@ -37,22 +37,11 @@ describe("FidoAuthenticatorService", () => {
 
     client = new Fido2ClientService(authenticator, configService, authService);
     configService.getFeatureFlag.mockResolvedValue(true);
-    tab = { id: 123, windowId: 456 };
+    tab = { id: 123, windowId: 456 } as chrome.tabs.Tab;
   });
 
   describe("createCredential", () => {
     describe("input parameters validation", () => {
-      // Spec: If tab is null, return a "NotAllowedError" DOMException.
-      it("should throw error if tab is null", async () => {
-        const params = createParams({ sameOriginWithAncestors: false });
-
-        const result = async () => await client.createCredential(params, null);
-
-        const rejects = expect(result).rejects;
-        await rejects.toMatchObject({ name: "NotAllowedError" });
-        await rejects.toBeInstanceOf(DOMException);
-      });
-
       // Spec: If sameOriginWithAncestors is false, return a "NotAllowedError" DOMException.
       it("should throw error if sameOriginWithAncestors is false", async () => {
         const params = createParams({ sameOriginWithAncestors: false });
@@ -278,17 +267,6 @@ describe("FidoAuthenticatorService", () => {
       // Spec: If callerOrigin is an opaque origin, return a DOMException whose name is "NotAllowedError", and terminate this algorithm.
       // Not sure how to check this, or if it matters.
       it.todo("should throw error if origin is an opaque origin");
-
-      // Spec: If tab is null, return a "NotAllowedError" DOMException.
-      it("should throw error if tab is null", async () => {
-        const params = createParams({ sameOriginWithAncestors: false });
-
-        const result = async () => await client.assertCredential(params, null);
-
-        const rejects = expect(result).rejects;
-        await rejects.toMatchObject({ name: "NotAllowedError" });
-        await rejects.toBeInstanceOf(DOMException);
-      });
 
       // Spec: Let effectiveDomain be the callerOrigin’s effective domain. If effective domain is not a valid domain, then return a DOMException whose name is "SecurityError" and terminate this algorithm.
       it("should throw error if origin is not a valid domain name", async () => {

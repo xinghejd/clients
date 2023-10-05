@@ -34,7 +34,7 @@ describe("FidoAuthenticatorService", () => {
   let userInterfaceSession!: MockProxy<Fido2UserInterfaceSession>;
   let syncService!: MockProxy<SyncService>;
   let authenticator!: Fido2AuthenticatorService;
-  let tab!: any;
+  let tab!: chrome.tabs.Tab;
 
   beforeEach(async () => {
     cipherService = mock<CipherService>();
@@ -43,7 +43,7 @@ describe("FidoAuthenticatorService", () => {
     userInterface.newSession.mockResolvedValue(userInterfaceSession);
     syncService = mock<SyncService>();
     authenticator = new Fido2AuthenticatorService(cipherService, userInterface, syncService);
-    tab = { id: 123, windowId: 456 };
+    tab = { id: 123, windowId: 456 } as chrome.tabs.Tab;
   });
 
   describe("makeCredential", () => {
