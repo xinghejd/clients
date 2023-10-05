@@ -23,7 +23,9 @@ class AutofillInit implements AutofillInitInterface {
     openAutofillOverlay: ({ message }) => this.openAutofillOverlay(message),
     closeAutofillOverlay: () => this.removeAutofillOverlay(),
     redirectOverlayFocusOut: ({ message }) => this.redirectOverlayFocusOut(message),
+    updateIsOverlayCiphersPopulated: ({ message }) => this.updateIsOverlayCiphersPopulated(message),
     bgUnlockPopoutOpened: () => this.blurAndRemoveOverlay(),
+    bgVaultItemRepromptPopoutOpened: () => this.blurAndRemoveOverlay(),
   };
 
   /**
@@ -174,6 +176,22 @@ class AutofillInit implements AutofillInitInterface {
     }
 
     this.autofillOverlayContentService.redirectOverlayFocusOut(data?.direction);
+  }
+
+  /**
+   * Updates whether the current tab has ciphers that can populate the overlay list
+   *
+   * @param data - Contains the isOverlayCiphersPopulated value
+   *
+   */
+  private updateIsOverlayCiphersPopulated({ data }: AutofillExtensionMessage) {
+    if (!this.autofillOverlayContentService) {
+      return;
+    }
+
+    this.autofillOverlayContentService.isOverlayCiphersPopulated = Boolean(
+      data?.isOverlayCiphersPopulated
+    );
   }
 
   /**

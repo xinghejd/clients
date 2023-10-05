@@ -640,12 +640,19 @@ export default class MainBackground {
       this.environmentService
     );
     this.overlayBackground = new OverlayBackground(
+      this.cipherService,
+      this.autofillService,
       this.authService,
+      this.environmentService,
       this.settingsService,
       this.stateService,
       this.i18nService
     );
-    this.tabsBackground = new TabsBackground(this, this.notificationBackground);
+    this.tabsBackground = new TabsBackground(
+      this,
+      this.notificationBackground,
+      this.overlayBackground
+    );
     if (!this.popupOnlyContext) {
       const contextMenuClickedHandler = new ContextMenuClickedHandler(
         (options) => this.platformUtilsService.copyToClipboard(options.text, { window: self }),

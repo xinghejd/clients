@@ -2,8 +2,11 @@ import { mock } from "jest-mock-extended";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { UriMatchType } from "@bitwarden/common/enums";
+import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
+import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
+import { OverlayCipherData } from "../background/abstractions/overlay.background";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript, { FillScript } from "../models/autofill-script";
@@ -162,6 +165,23 @@ function createInitAutofillOverlayButtonMessageMock(
     ...customFields,
   };
 }
+function createAutofillOverlayCipherDataMock(index: number, customFields = {}): OverlayCipherData {
+  return {
+    id: String(index),
+    name: `website login ${index}`,
+    login: { username: `username${index}` },
+    type: CipherType.Login,
+    reprompt: CipherRepromptType.None,
+    favorite: false,
+    icon: {
+      imageEnabled: true,
+      image: "https://tacos.com/image.png",
+      fallbackImage: "https://tacos.com/fallback.png",
+      icon: "bw-icon",
+    },
+    ...customFields,
+  };
+}
 
 function createInitAutofillOverlayListMessageMock(
   customFields = {}
@@ -172,6 +192,36 @@ function createInitAutofillOverlayListMessageMock(
     styleSheetUrl: "https://tacos.com",
     theme: "light",
     authStatus: AuthenticationStatus.Unlocked,
+    ciphers: [
+      createAutofillOverlayCipherDataMock(1, {
+        icon: {
+          imageEnabled: true,
+          image: "https://tacos.com/image.png",
+          fallbackImage: "",
+          icon: "bw-icon",
+        },
+      }),
+      createAutofillOverlayCipherDataMock(2, {
+        icon: {
+          imageEnabled: true,
+          image: "",
+          fallbackImage: "https://tacos.com/fallback.png",
+          icon: "bw-icon",
+        },
+      }),
+      createAutofillOverlayCipherDataMock(3, {
+        name: "",
+        login: { username: "" },
+        icon: { imageEnabled: true, image: "", fallbackImage: "", icon: "bw-icon" },
+      }),
+      createAutofillOverlayCipherDataMock(4, {
+        icon: { imageEnabled: false, image: "", fallbackImage: "", icon: "" },
+      }),
+      createAutofillOverlayCipherDataMock(5),
+      createAutofillOverlayCipherDataMock(6),
+      createAutofillOverlayCipherDataMock(7),
+      createAutofillOverlayCipherDataMock(8),
+    ],
     ...customFields,
   };
 }

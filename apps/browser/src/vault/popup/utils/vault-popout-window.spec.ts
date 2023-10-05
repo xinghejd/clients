@@ -31,9 +31,9 @@ describe("VaultPopoutWindow", () => {
       });
 
       expect(openPopoutSpy).toHaveBeenCalledWith(
-        "popup/index.html#/view-cipher?cipherId=cipherId&senderTabId=undefined&action=action",
+        "popup/index.html#/view-cipher?uilocation=popout&cipherId=cipherId&action=action",
         {
-          singleActionKey: `${VaultPopoutType.vaultItemPasswordReprompt}_cipherId`,
+          singleActionKey: `${VaultPopoutType.viewVaultItem}_cipherId`,
           senderWindowId: 1,
           forceCloseExistingWindows: true,
         }

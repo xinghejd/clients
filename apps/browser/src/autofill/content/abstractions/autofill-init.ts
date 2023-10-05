@@ -27,7 +27,9 @@ type AutofillExtensionMessageHandlers = {
   openAutofillOverlay: ({ message }: AutofillExtensionMessageParam) => void;
   closeAutofillOverlay: () => void;
   redirectOverlayFocusOut: ({ message }: AutofillExtensionMessageParam) => void;
+  updateIsOverlayCiphersPopulated: ({ message }: AutofillExtensionMessageParam) => void;
   bgUnlockPopoutOpened: () => void;
+  bgVaultItemRepromptPopoutOpened: () => void;
 };
 
 interface AutofillInit {

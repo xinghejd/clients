@@ -56,6 +56,206 @@ describe("AutofillOverlayList", () => {
         );
       });
     });
+
+    describe("the overlay with an empty list of ciphers", () => {
+      beforeEach(() => {
+        postWindowMessage(
+          createInitAutofillOverlayListMessageMock({
+            authStatus: AuthenticationStatus.Unlocked,
+            ciphers: [],
+          })
+        );
+      });
+
+      it("creates the views for the no results overlay", () => {
+        expect(autofillOverlayList["overlayListContainer"]).toMatchSnapshot();
+      });
+    });
+
+    describe("the list of ciphers for an authenticated user", () => {
+      beforeEach(() => {
+        postWindowMessage(createInitAutofillOverlayListMessageMock());
+      });
+
+      it("creates the view for a list of ciphers", () => {
+        expect(autofillOverlayList["overlayListContainer"]).toMatchSnapshot();
+      });
+
+      it("loads ciphers on scroll one page at a time", () => {
+        jest.useFakeTimers();
+        const originalListOfElements =
+          autofillOverlayList["overlayListContainer"].querySelectorAll(".cipher-container");
+
+        autofillOverlayList["handleCiphersListScrollEvent"]();
+        jest.runAllTimers();
+
+        const updatedListOfElements =
+          autofillOverlayList["overlayListContainer"].querySelectorAll(".cipher-container");
+
+        expect(originalListOfElements.length).toBe(6);
+        expect(updatedListOfElements.length).toBe(8);
+      });
+
+      it("debounces the ciphers scroll handler", () => {
+        jest.useFakeTimers();
+        autofillOverlayList["cipherListScrollDebounceTimeout"] = setTimeout(jest.fn, 0);
+        const handleDebouncedScrollEventSpy = jest.spyOn(
+          autofillOverlayList as any,
+          "handleDebouncedScrollEvent"
+        );
+
+        autofillOverlayList["handleCiphersListScrollEvent"]();
+        jest.advanceTimersByTime(100);
+        autofillOverlayList["handleCiphersListScrollEvent"]();
+        jest.advanceTimersByTime(100);
+        autofillOverlayList["handleCiphersListScrollEvent"]();
+        jest.advanceTimersByTime(400);
+
+        expect(handleDebouncedScrollEventSpy).toHaveBeenCalledTimes(1);
+      });
+
+      describe("fill cipher button event listeners", () => {
+        beforeEach(() => {
+          postWindowMessage(createInitAutofillOverlayListMessageMock());
+        });
+
+        it("allows the user to move keyboard focus to the next cipher element on ArrowDown", () => {
+          const fillCipherElements =
+            autofillOverlayList["overlayListContainer"].querySelectorAll(".fill-cipher-button");
+          const firstFillCipherElement = fillCipherElements[0];
+          const secondFillCipherElement = fillCipherElements[1];
+          jest.spyOn(secondFillCipherElement as HTMLElement, "focus");
+
+          firstFillCipherElement.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowDown" }));
+
+          expect((secondFillCipherElement as HTMLElement).focus).toBeCalled();
+        });
+
+        it("directs focus to the first item in the cipher list if no cipher is present after the current one when pressing ArrowDown", () => {
+          const fillCipherElements =
+            autofillOverlayList["overlayListContainer"].querySelectorAll(".fill-cipher-button");
+          const lastFillCipherElement = fillCipherElements[fillCipherElements.length - 1];
+          const firstFillCipherElement = fillCipherElements[0];
+          jest.spyOn(firstFillCipherElement as HTMLElement, "focus");
+
+          lastFillCipherElement.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowDown" }));
+
+          expect((firstFillCipherElement as HTMLElement).focus).toBeCalled();
+        });
+
+        it("allows the user to move keyboard focus to the previous cipher element on ArrowUp", () => {
+          const fillCipherElements =
+            autofillOverlayList["overlayListContainer"].querySelectorAll(".fill-cipher-button");
+          const firstFillCipherElement = fillCipherElements[0];
+          const secondFillCipherElement = fillCipherElements[1];
+          jest.spyOn(firstFillCipherElement as HTMLElement, "focus");
+
+          secondFillCipherElement.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowUp" }));
+
+          expect((firstFillCipherElement as HTMLElement).focus).toBeCalled();
+        });
+
+        it("directs focus to the last item in the cipher list if no cipher is present before the current one when pressing ArrowUp", () => {
+          const fillCipherElements =
+            autofillOverlayList["overlayListContainer"].querySelectorAll(".fill-cipher-button");
+          const firstFillCipherElement = fillCipherElements[0];
+          const lastFillCipherElement = fillCipherElements[fillCipherElements.length - 1];
+          jest.spyOn(lastFillCipherElement as HTMLElement, "focus");
+
+          firstFillCipherElement.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowUp" }));
+
+          expect((lastFillCipherElement as HTMLElement).focus).toBeCalled();
+        });
+
+        it("allows the user to move keyboard focus to the view cipher button on ArrowRight", () => {
+          const cipherContainerElement =
+            autofillOverlayList["overlayListContainer"].querySelector(".cipher-container");
+          const fillCipherElement = cipherContainerElement.querySelector(".fill-cipher-button");
+          const viewCipherButton = cipherContainerElement.querySelector(".view-cipher-button");
+          jest.spyOn(viewCipherButton as HTMLElement, "focus");
+
+          fillCipherElement.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowRight" }));
+
+          expect((viewCipherButton as HTMLElement).focus).toBeCalled();
+        });
+
+        it("ignores keyup events that do not include ArrowUp, ArrowDown, or ArrowRight", () => {
+          const fillCipherElement =
+            autofillOverlayList["overlayListContainer"].querySelector(".fill-cipher-button");
+          jest.spyOn(fillCipherElement as HTMLElement, "focus");
+
+          fillCipherElement.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowLeft" }));
+
+          expect((fillCipherElement as HTMLElement).focus).not.toBeCalled();
+        });
+      });
+
+      describe("view cipher button event listeners", () => {
+        beforeEach(() => {
+          postWindowMessage(createInitAutofillOverlayListMessageMock());
+        });
+
+        it("allows the user to view a cipher on click", () => {
+          const viewCipherButton =
+            autofillOverlayList["overlayListContainer"].querySelector(".view-cipher-button");
+
+          viewCipherButton.dispatchEvent(new Event("click"));
+
+          expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
+            { command: "viewSelectedCipher", overlayCipherId: "1" },
+            "https://localhost/"
+          );
+        });
+
+        it("allows the user to move keyboard focus to the current cipher element on ArrowLeft", () => {
+          const cipherContainerElement =
+            autofillOverlayList["overlayListContainer"].querySelector(".cipher-container");
+          const fillCipherButton = cipherContainerElement.querySelector(".fill-cipher-button");
+          const viewCipherButton = cipherContainerElement.querySelector(".view-cipher-button");
+          jest.spyOn(fillCipherButton as HTMLElement, "focus");
+
+          viewCipherButton.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowLeft" }));
+
+          expect((fillCipherButton as HTMLElement).focus).toBeCalled();
+        });
+
+        it("allows the user to move keyboard to the next cipher element on ArrowDown", () => {
+          const cipherContainerElements =
+            autofillOverlayList["overlayListContainer"].querySelectorAll(".cipher-container");
+          const viewCipherButton = cipherContainerElements[0].querySelector(".view-cipher-button");
+          const secondFillCipherButton =
+            cipherContainerElements[1].querySelector(".fill-cipher-button");
+          jest.spyOn(secondFillCipherButton as HTMLElement, "focus");
+
+          viewCipherButton.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowDown" }));
+
+          expect((secondFillCipherButton as HTMLElement).focus).toBeCalled();
+        });
+
+        it("allows the user to move keyboard focus to the previous cipher element on ArrowUp", () => {
+          const cipherContainerElements =
+            autofillOverlayList["overlayListContainer"].querySelectorAll(".cipher-container");
+          const viewCipherButton = cipherContainerElements[1].querySelector(".view-cipher-button");
+          const firstFillCipherButton =
+            cipherContainerElements[0].querySelector(".fill-cipher-button");
+          jest.spyOn(firstFillCipherButton as HTMLElement, "focus");
+
+          viewCipherButton.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowUp" }));
+
+          expect((firstFillCipherButton as HTMLElement).focus).toBeCalled();
+        });
+
+        it("ignores keyup events that do not include ArrowUp, ArrowDown, or ArrowRight", () => {
+          const viewCipherButton =
+            autofillOverlayList["overlayListContainer"].querySelector(".view-cipher-button");
+          jest.spyOn(viewCipherButton as HTMLElement, "focus");
+
+          viewCipherButton.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowRight" }));
+
+          expect((viewCipherButton as HTMLElement).focus).not.toBeCalled();
+        });
+      });
+    });
   });
 
   describe("global event listener handlers", () => {
@@ -78,6 +278,15 @@ describe("AutofillOverlayList", () => {
       );
     });
 
+    it("updates the list of ciphers", () => {
+      postWindowMessage(createInitAutofillOverlayListMessageMock());
+      const updateCiphersSpy = jest.spyOn(autofillOverlayList as any, "updateListItems");
+
+      postWindowMessage({ command: "updateOverlayListCiphers" });
+
+      expect(updateCiphersSpy).toHaveBeenCalled();
+    });
+
     describe("directing user focus into the overlay list", () => {
       it("focuses the unlock button element if the user is not authenticated", () => {
         postWindowMessage(
@@ -93,6 +302,17 @@ describe("AutofillOverlayList", () => {
         postWindowMessage({ command: "focusOverlayList" });
 
         expect((unlockButton as HTMLElement).focus).toBeCalled();
+      });
+
+      it("focuses the first cipher button element if the cipher list is populated", () => {
+        postWindowMessage(createInitAutofillOverlayListMessageMock());
+        const firstCipherItem =
+          autofillOverlayList["overlayListContainer"].querySelector(".fill-cipher-button");
+        jest.spyOn(firstCipherItem as HTMLElement, "focus");
+
+        postWindowMessage({ command: "focusOverlayList" });
+
+        expect((firstCipherItem as HTMLElement).focus).toBeCalled();
       });
     });
   });

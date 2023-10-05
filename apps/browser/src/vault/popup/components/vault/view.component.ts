@@ -29,16 +29,19 @@ import { PasswordRepromptService } from "@bitwarden/vault";
 import { AutofillService } from "../../../../autofill/services/abstractions/autofill.service";
 import { BrowserApi } from "../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../platform/popup/browser-popup-utils";
+import { closeViewVaultItemPopout, VaultPopoutType } from "../../utils/vault-popout-window";
 
 const BroadcasterSubscriptionId = "ChildViewComponent";
 
 export const AUTOFILL_ID = "autofill";
+export const SHOW_AUTOFILL_BUTTON = "show-autofill-button";
 export const COPY_USERNAME_ID = "copy-username";
 export const COPY_PASSWORD_ID = "copy-password";
 export const COPY_VERIFICATIONCODE_ID = "copy-totp";
 
 type LoadAction =
   | typeof AUTOFILL_ID
+  | typeof SHOW_AUTOFILL_BUTTON
   | typeof COPY_USERNAME_ID
   | typeof COPY_PASSWORD_ID
   | typeof COPY_VERIFICATIONCODE_ID;
@@ -168,6 +171,8 @@ export class ViewComponent extends BaseViewComponent {
     await this.loadPageDetails();
 
     switch (this.loadAction) {
+      case SHOW_AUTOFILL_BUTTON:
+        return;
       case AUTOFILL_ID:
         await this.fillCipher();
         break;
@@ -301,9 +306,12 @@ export class ViewComponent extends BaseViewComponent {
   }
 
   close() {
-    if (this.inPopout && this.senderTabId) {
+    if (
+      BrowserPopupUtils.inSingleActionPopout(window, VaultPopoutType.viewVaultItem) &&
+      this.senderTabId
+    ) {
       BrowserApi.focusTab(this.senderTabId);
-      window.close();
+      closeViewVaultItemPopout(`${VaultPopoutType.viewVaultItem}_${this.cipher.id}`);
       return;
     }
 
@@ -312,11 +320,9 @@ export class ViewComponent extends BaseViewComponent {
 
   private async loadPageDetails() {
     this.pageDetails = [];
-    this.tab = await BrowserApi.getTabFromCurrentWindow();
-
-    if (this.senderTabId) {
-      this.tab = await BrowserApi.getTab(this.senderTabId);
-    }
+    this.tab = this.senderTabId
+      ? await BrowserApi.getTab(this.senderTabId)
+      : await BrowserApi.getTabFromCurrentWindow();
 
     if (!this.tab) {
       return;

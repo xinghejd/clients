@@ -2,31 +2,45 @@ import { SettingsService } from "@bitwarden/common/abstractions/settings.service
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { ThemeType } from "@bitwarden/common/enums";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { WebsiteIconService } from "@bitwarden/common/services/website-icon.service";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import LockedVaultPendingNotificationsItem from "../../background/models/lockedVaultPendingNotificationsItem";
 import { BrowserApi } from "../../platform/browser/browser-api";
+import { openViewVaultItemPopout } from "../../vault/popup/utils/vault-popout-window";
+import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
 import { AutofillOverlayElement, AutofillOverlayPort } from "../utils/autofill-overlay.enum";
 
 import {
   FocusedFieldData,
   OverlayBackgroundExtensionMessageHandlers,
   OverlayButtonPortMessageHandlers,
+  OverlayCipherData,
   OverlayListPortMessageHandlers,
+  OverlayBackground as OverlayBackgroundInterface,
   OverlayBackgroundExtensionMessage,
   OverlayPortMessage,
+  WebsiteIconData,
 } from "./abstractions/overlay.background";
 
-class OverlayBackground {
+class OverlayBackground implements OverlayBackgroundInterface {
   private readonly openUnlockPopout = openUnlockPopout;
+  private readonly openViewVaultItemPopout = openViewVaultItemPopout;
   private overlayVisibility: number;
+  private overlayLoginCiphers: Map<string, CipherView> = new Map();
+  private pageDetailsForTab: Record<number, PageDetail[]> = {};
   private userAuthStatus: AuthenticationStatus = AuthenticationStatus.LoggedOut;
   private overlayButtonPort: chrome.runtime.Port;
   private overlayListPort: chrome.runtime.Port;
   private focusedFieldData: FocusedFieldData;
   private overlayPageTranslations: Record<string, string>;
+  private readonly iconsServerUrl: string;
   private readonly extensionMessageHandlers: OverlayBackgroundExtensionMessageHandlers = {
     openAutofillOverlay: () => this.openOverlay(false),
     autofillOverlayElementClosed: ({ message }) => this.overlayElementClosed(message),
@@ -36,7 +50,9 @@ class OverlayBackground {
     updateAutofillOverlayPosition: ({ message }) => this.updateOverlayPosition(message),
     updateAutofillOverlayHidden: ({ message }) => this.updateOverlayHidden(message),
     updateFocusedFieldData: ({ message }) => this.setFocusedFieldData(message),
+    collectPageDetailsResponse: ({ message, sender }) => this.storePageDetails(message, sender),
     unlockCompleted: ({ message }) => this.unlockCompleted(message),
+    deletedCipher: () => this.updateOverlayCiphers(),
   };
   private readonly overlayButtonPortMessageHandlers: OverlayButtonPortMessageHandlers = {
     overlayButtonClicked: ({ port }) => this.handleOverlayButtonClicked(port),
@@ -48,15 +64,31 @@ class OverlayBackground {
     checkAutofillOverlayButtonFocused: () => this.checkOverlayButtonFocused(),
     overlayPageBlurred: () => this.checkOverlayButtonFocused(),
     unlockVault: ({ port }) => this.unlockVault(port),
+    viewSelectedCipher: ({ message, port }) => this.viewSelectedCipher(message, port),
     redirectOverlayFocusOut: ({ message, port }) => this.redirectOverlayFocusOut(message, port),
   };
 
   constructor(
+    private cipherService: CipherService,
+    private autofillService: AutofillService,
     private authService: AuthService,
+    private environmentService: EnvironmentService,
     private settingsService: SettingsService,
     private stateService: StateService,
     private i18nService: I18nService
-  ) {}
+  ) {
+    this.iconsServerUrl = this.environmentService.getIconsUrl();
+  }
+
+  /**
+   * Removes cached page details for a tab
+   * based on the passed tabId.
+   *
+   * @param tabId - Used to reference the page details of a specific tab
+   */
+  removePageDetails(tabId: number) {
+    delete this.pageDetailsForTab[tabId];
+  }
 
   /**
    * Sets up the extension message listeners and gets the settings for the
@@ -66,6 +98,109 @@ class OverlayBackground {
     this.setupExtensionMessageListeners();
     await this.getOverlayVisibility();
     await this.getAuthStatus();
+  }
+
+  /**
+   * Updates the overlay list's ciphers and sends the updated list to the overlay list iframe.
+   * Queries all ciphers for the given url, and sorts them by last used. Will not update the
+   * list of ciphers if the extension is not unlocked.
+   */
+  async updateOverlayCiphers() {
+    if (this.userAuthStatus !== AuthenticationStatus.Unlocked) {
+      return;
+    }
+
+    const currentTab = await BrowserApi.getTabFromCurrentWindowId();
+    if (!currentTab?.url) {
+      return;
+    }
+
+    this.overlayLoginCiphers = new Map();
+    const ciphersViews = (await this.cipherService.getAllDecryptedForUrl(currentTab.url)).sort(
+      (a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b)
+    );
+    for (let cipherIndex = 0; cipherIndex < ciphersViews.length; cipherIndex++) {
+      this.overlayLoginCiphers.set(`overlay-cipher-${cipherIndex}`, ciphersViews[cipherIndex]);
+    }
+
+    const ciphers = this.getOverlayCipherData();
+    this.overlayListPort?.postMessage({ command: "updateOverlayListCiphers", ciphers });
+    await BrowserApi.tabSendMessageData(currentTab, "updateIsOverlayCiphersPopulated", {
+      isOverlayCiphersPopulated: Boolean(ciphers.length),
+    });
+  }
+
+  /**
+   * Strips out unnecessary data from the ciphers and returns an array of
+   * objects that contain the cipher data needed for the overlay list.
+   */
+  private getOverlayCipherData(): OverlayCipherData[] {
+    const isFaviconDisabled = this.settingsService.getDisableFavicon();
+    const overlayCiphersArray = Array.from(this.overlayLoginCiphers);
+    const overlayCipherData = [];
+    let loginCipherIcon: WebsiteIconData;
+
+    for (let cipherIndex = 0; cipherIndex < overlayCiphersArray.length; cipherIndex++) {
+      const [overlayCipherId, cipher] = overlayCiphersArray[cipherIndex];
+      if (!loginCipherIcon && cipher.type === CipherType.Login) {
+        loginCipherIcon = WebsiteIconService.buildCipherIconData(
+          this.iconsServerUrl,
+          cipher,
+          isFaviconDisabled
+        );
+      }
+
+      overlayCipherData.push({
+        id: overlayCipherId,
+        name: cipher.name,
+        type: cipher.type,
+        reprompt: cipher.reprompt,
+        favorite: cipher.favorite,
+        icon:
+          cipher.type === CipherType.Login
+            ? loginCipherIcon
+            : WebsiteIconService.buildCipherIconData(
+                this.iconsServerUrl,
+                cipher,
+                isFaviconDisabled
+              ),
+        login:
+          cipher.type === CipherType.Login
+            ? { username: this.getObscureName(cipher.login.username) }
+            : null,
+        card:
+          cipher.type === CipherType.Card
+            ? { brand: cipher.card.brand, partialNumber: `*${cipher.card.number?.slice(-4)}` }
+            : null,
+      });
+    }
+
+    return overlayCipherData;
+  }
+
+  /**
+   * Handles aggregation of page details for a tab. Stores the page details
+   * in association with the tabId of the tab that sent the message.
+   *
+   * @param message - Message received from the `collectPageDetailsResponse` command
+   * @param sender - The sender of the message
+   */
+  private storePageDetails(
+    message: OverlayBackgroundExtensionMessage,
+    sender: chrome.runtime.MessageSender
+  ) {
+    const pageDetails = {
+      frameId: sender.frameId,
+      tab: sender.tab,
+      details: message.details,
+    };
+
+    if (this.pageDetailsForTab[sender.tab.id]?.length) {
+      this.pageDetailsForTab[sender.tab.id].push(pageDetails);
+      return;
+    }
+
+    this.pageDetailsForTab[sender.tab.id] = [pageDetails];
   }
 
   /**
@@ -238,6 +373,39 @@ class OverlayBackground {
   }
 
   /**
+   * Obscures the username by replacing all but the first and last characters with asterisks.
+   * If the username is less than 4 characters, only the first character will be shown.
+   * If the username is 6 or more characters, the first and last characters will be shown.
+   * The domain will not be obscured.
+   *
+   * @param name - The username to obscure
+   */
+  private getObscureName(name: string): string {
+    if (!name) {
+      return "";
+    }
+
+    const [username, domain] = name.split("@");
+    const usernameLength = username?.length;
+    if (!usernameLength) {
+      return name;
+    }
+
+    const startingCharacters = username.slice(0, usernameLength > 4 ? 2 : 1);
+    let numberStars = usernameLength;
+    if (usernameLength > 4) {
+      numberStars = usernameLength < 6 ? numberStars - 1 : numberStars - 2;
+    }
+
+    let obscureName = `${startingCharacters}${new Array(numberStars).join("*")}`;
+    if (usernameLength >= 6) {
+      obscureName = `${obscureName}${username.slice(-1)}`;
+    }
+
+    return domain ? `${obscureName}@${domain}` : obscureName;
+  }
+
+  /**
    * Gets the overlay's visibility setting from the settings service.
    */
   private async getOverlayVisibility(): Promise<number> {
@@ -260,6 +428,7 @@ class OverlayBackground {
       this.userAuthStatus === AuthenticationStatus.Unlocked
     ) {
       this.updateOverlayButtonAuthStatus();
+      await this.updateOverlayCiphers();
     }
 
     return this.userAuthStatus;
@@ -325,6 +494,27 @@ class OverlayBackground {
       retryMessage
     );
     await this.openUnlockPopout(sender.tab, true);
+  }
+
+  /**
+   * Triggers the opening of a vault item popout window associated
+   * with the passed cipher ID.
+   * @param overlayCipherId - Cipher ID corresponding to the overlayLoginCiphers map. Does not correspond to the actual cipher's ID.
+   * @param sender - The sender of the port message
+   */
+  private async viewSelectedCipher(
+    { overlayCipherId }: OverlayPortMessage,
+    { sender }: chrome.runtime.Port
+  ) {
+    const cipher = this.overlayLoginCiphers.get(overlayCipherId);
+    if (!cipher) {
+      return;
+    }
+
+    await this.openViewVaultItemPopout(sender.tab, {
+      cipherId: cipher.id,
+      action: "show-autofill-button",
+    });
   }
 
   /**
@@ -446,6 +636,7 @@ class OverlayBackground {
       styleSheetUrl: chrome.runtime.getURL(`overlay/${isOverlayListPort ? "list" : "button"}.css`),
       theme: `theme_${await this.getCurrentTheme()}`,
       translations: this.getTranslations(),
+      ciphers: isOverlayListPort ? this.getOverlayCipherData() : null,
     });
     this.updateOverlayPosition({
       overlayElement: isOverlayListPort

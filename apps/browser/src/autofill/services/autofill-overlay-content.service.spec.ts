@@ -393,6 +393,24 @@ describe("AutofillOverlayContentService", () => {
           expect(removeAutofillOverlayListSpy).toHaveBeenCalled();
         });
 
+        it("removes the overlay if the form field element has a value and the overlay ciphers are populated", async () => {
+          jest.spyOn(autofillOverlayContentService as any, "isUserAuthed").mockReturnValue(true);
+          autofillOverlayContentService["isOverlayCiphersPopulated"] = true;
+          const removeAutofillOverlayListSpy = jest.spyOn(
+            autofillOverlayContentService as any,
+            "removeAutofillOverlayList"
+          );
+          (autofillFieldElement as HTMLInputElement).value = "test";
+
+          await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+            autofillFieldElement,
+            autofillFieldData
+          );
+          autofillFieldElement.dispatchEvent(new Event("input"));
+
+          expect(removeAutofillOverlayListSpy).toHaveBeenCalled();
+        });
+
         it("opens the autofill overlay if the form field is empty", async () => {
           jest.spyOn(autofillOverlayContentService as any, "openAutofillOverlay");
           (autofillFieldElement as HTMLInputElement).value = "";
@@ -408,6 +426,21 @@ describe("AutofillOverlayContentService", () => {
 
         it("opens the autofill overlay if the form field is empty and the user is authed", async () => {
           jest.spyOn(autofillOverlayContentService as any, "isUserAuthed").mockReturnValue(true);
+          jest.spyOn(autofillOverlayContentService as any, "openAutofillOverlay");
+          (autofillFieldElement as HTMLInputElement).value = "";
+
+          await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+            autofillFieldElement,
+            autofillFieldData
+          );
+          autofillFieldElement.dispatchEvent(new Event("input"));
+
+          expect(autofillOverlayContentService["openAutofillOverlay"]).toHaveBeenCalled();
+        });
+
+        it("opens the autofill overlay if the form field is empty and the overlay ciphers are not populated", async () => {
+          jest.spyOn(autofillOverlayContentService as any, "isUserAuthed").mockReturnValue(false);
+          autofillOverlayContentService["isOverlayCiphersPopulated"] = false;
           jest.spyOn(autofillOverlayContentService as any, "openAutofillOverlay");
           (autofillFieldElement as HTMLInputElement).value = "";
 
@@ -569,6 +602,24 @@ describe("AutofillOverlayContentService", () => {
           await flushPromises();
 
           expect(sendExtensionMessageSpy).toHaveBeenCalledWith("openAutofillOverlay");
+        });
+
+        it("updates the overlay button position if the focus event is not opening the overlay", async () => {
+          autofillOverlayContentService["autofillOverlayVisibility"] =
+            AutofillOverlayVisibility.OnFieldFocus;
+          (autofillFieldElement as HTMLInputElement).value = "test";
+          autofillOverlayContentService["isOverlayCiphersPopulated"] = true;
+          await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+            autofillFieldElement,
+            autofillFieldData
+          );
+
+          autofillFieldElement.dispatchEvent(new Event("focus"));
+          await flushPromises();
+
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayPosition", {
+            overlayElement: AutofillOverlayElement.Button,
+          });
         });
       });
     });

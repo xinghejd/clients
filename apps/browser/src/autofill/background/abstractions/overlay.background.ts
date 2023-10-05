@@ -3,13 +3,11 @@ import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 
 import AutofillPageDetails from "../../models/autofill-page-details";
 
-type OverlayAddNewItemMessage = {
-  login?: {
-    uri?: string;
-    hostname: string;
-    username: string;
-    password: string;
-  };
+type WebsiteIconData = {
+  imageEnabled: boolean;
+  image: string;
+  fallbackImage: string;
+  icon: string;
 };
 
 type OverlayBackgroundExtensionMessage = {
@@ -27,7 +25,7 @@ type OverlayBackgroundExtensionMessage = {
       };
     };
   };
-} & OverlayAddNewItemMessage;
+};
 
 type OverlayPortMessage = {
   [key: string]: any;
@@ -55,6 +53,10 @@ type OverlayCipherData = {
 type BackgroundMessageParam = {
   message: OverlayBackgroundExtensionMessage;
 };
+type BackgroundSenderParam = {
+  sender: chrome.runtime.MessageSender;
+};
+type BackgroundOnMessageHandlerParams = BackgroundMessageParam & BackgroundSenderParam;
 
 type OverlayBackgroundExtensionMessageHandlers = {
   [key: string]: CallableFunction;
@@ -66,7 +68,9 @@ type OverlayBackgroundExtensionMessageHandlers = {
   updateAutofillOverlayPosition: ({ message }: BackgroundMessageParam) => void;
   updateAutofillOverlayHidden: ({ message }: BackgroundMessageParam) => void;
   updateFocusedFieldData: ({ message }: BackgroundMessageParam) => void;
+  collectPageDetailsResponse: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   unlockCompleted: ({ message }: BackgroundMessageParam) => void;
+  deletedCipher: () => void;
 };
 
 type PortMessageParam = {
@@ -90,19 +94,22 @@ type OverlayListPortMessageHandlers = {
   checkAutofillOverlayButtonFocused: () => void;
   overlayPageBlurred: () => void;
   unlockVault: ({ port }: PortConnectionParam) => void;
+  viewSelectedCipher: ({ message, port }: PortOnMessageHandlerParams) => void;
   redirectOverlayFocusOut: ({ message, port }: PortOnMessageHandlerParams) => void;
 };
 
 interface OverlayBackground {
   init(): Promise<void>;
+  removePageDetails(tabId: number): void;
+  updateOverlayCiphers(): void;
 }
 
 export {
+  WebsiteIconData,
   OverlayBackgroundExtensionMessage,
   OverlayPortMessage,
   FocusedFieldData,
   OverlayCipherData,
-  OverlayAddNewItemMessage,
   OverlayBackgroundExtensionMessageHandlers,
   OverlayButtonPortMessageHandlers,
   OverlayListPortMessageHandlers,

@@ -12,6 +12,7 @@ type OpenAutofillOverlayOptions = {
 interface AutofillOverlayContentService {
   isFieldCurrentlyFocused: boolean;
   isCurrentlyFilling: boolean;
+  isOverlayCiphersPopulated: boolean;
   init(): void;
   setupAutofillOverlayListenerOnField(
     autofillFieldElement: ElementWithOpId<FormFieldElement>,

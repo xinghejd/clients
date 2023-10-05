@@ -30,6 +30,7 @@ import { AutoFillConstants } from "./autofill-constants";
 class AutofillOverlayContentService implements AutofillOverlayContentServiceInterface {
   isFieldCurrentlyFocused = false;
   isCurrentlyFilling = false;
+  isOverlayCiphersPopulated = false;
   private readonly findTabs = tabbable;
   private readonly sendExtensionMessage = sendExtensionMessage;
   private autofillOverlayVisibility: number;
@@ -367,7 +368,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       return;
     }
 
-    if (formFieldElement.value && !this.isUserAuthed()) {
+    if (formFieldElement.value && (this.isOverlayCiphersPopulated || !this.isUserAuthed())) {
       this.removeAutofillOverlayList();
       return;
     }
@@ -438,7 +439,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       this.removeAutofillOverlayList();
     }
 
-    if (!formElementHasValue || this.isUserAuthed()) {
+    if (!formElementHasValue || (!this.isOverlayCiphersPopulated && this.isUserAuthed())) {
       this.sendExtensionMessage("openAutofillOverlay");
       return;
     }
