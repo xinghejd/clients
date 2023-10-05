@@ -21,18 +21,10 @@ import {
 import { UserStateProvider } from "../abstractions/user-state.provider";
 import { UserState } from "../interfaces/user-state";
 import { userKeyBuilder } from "../misc/key-builders";
-import { UserKey } from "../models/domain/symmetric-crypto-key";
+import { DeriveContext, DerivedStateDefinition } from "../types/derived-state-definition";
 import { KeyDefinition } from "../types/key-definition";
 
 import { StorageLocation } from "./default-global-state.provider";
-
-class ConverterContext {
-  constructor(readonly activeUserKey: UserKey, readonly encryptService: EncryptService) {}
-}
-
-class DerivedStateDefinition<TFrom, TTo> {
-  constructor(readonly converter: (data: TFrom, context: ConverterContext) => Promise<TTo>) {}
-}
 
 export class DerivedUserState<TFrom, TTo> {
   state$: Observable<TTo>;
@@ -51,7 +43,7 @@ export class DerivedUserState<TFrom, TTo> {
         // TODO: How do I get the key?
         const convertedData = await derivedStateDefinition.converter(
           from,
-          new ConverterContext(null, encryptService)
+          new DeriveContext(null, encryptService)
         );
         return convertedData;
       })
@@ -61,7 +53,7 @@ export class DerivedUserState<TFrom, TTo> {
   async getFromState(): Promise<TTo> {
     const encryptedFromState = await this.userState.getFromState();
 
-    const context = new ConverterContext(null, this.encryptService);
+    const context = new DeriveContext(null, this.encryptService);
 
     const decryptedData = await this.derivedStateDefinition.converter(encryptedFromState, context);
     return decryptedData;
