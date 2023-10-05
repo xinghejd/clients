@@ -2506,10 +2506,6 @@
     "message": "Bitwarden auto-fill menu available. Press the down arrow key to select.",
     "description": "Screen reader text for announcing when the overlay opens on the page"
   },
-  "bitwardenOverlayVisibility": {
-    "message": "Show auto-fill menu on field selection",
-    "description": "Settings checkbox label that turns the overlay on/off"
-  },
   "overrideBrowserAutofillTitle": {
     "message": "Override browser auto-fill?",
     "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"
