@@ -80,7 +80,6 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
 
     if (userId == null || userId === (await this.stateService.getUserId())) {
       this.searchService.clearIndex();
-      await this.folderService.clearCache();
     }
 
     await this.stateService.setEverBeenUnlocked(true, { userId: userId });

@@ -9,7 +9,6 @@ export abstract class FolderService {
   folders$: Observable<Folder[]>;
   folderViews$: Observable<FolderView[]>;
 
-  clearCache: () => Promise<void>;
   encrypt: (model: FolderView, key?: SymmetricCryptoKey) => Promise<Folder>;
   get: (id: string) => Promise<Folder>;
   getAllFromState: () => Promise<Folder[]>;

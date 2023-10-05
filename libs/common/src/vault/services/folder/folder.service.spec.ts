@@ -132,13 +132,6 @@ describe("Folder Service", () => {
     expect((await firstValueFrom(folderService.folders$)).length).toBe(0);
   });
 
-  test("clearCache", async () => {
-    await folderService.clearCache();
-
-    expect((await firstValueFrom(folderService.folders$)).length).toBe(1);
-    expect((await firstValueFrom(folderService.folderViews$)).length).toBe(0);
-  });
-
   test("clear nulls folders", async () => {
     await folderService.clear();
 
