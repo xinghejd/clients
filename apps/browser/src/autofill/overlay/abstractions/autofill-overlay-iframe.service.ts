@@ -8,10 +8,14 @@ type AutofillOverlayIframeWindowMessageHandlers = {
   updateAutofillOverlayListHeight: (message: AutofillOverlayIframeExtensionMessage) => void;
 };
 
+type AutofillOverlayIframeExtensionMessageParam = {
+  message: AutofillOverlayIframeExtensionMessage;
+};
+
 type BackgroundPortMessageHandlers = {
   [key: string]: CallableFunction;
-  updateIframePosition: ({ message }: { message: AutofillOverlayIframeExtensionMessage }) => void;
-  updateOverlayHidden: ({ message }: { message: AutofillOverlayIframeExtensionMessage }) => void;
+  updateIframePosition: ({ message }: AutofillOverlayIframeExtensionMessageParam) => void;
+  updateOverlayHidden: ({ message }: AutofillOverlayIframeExtensionMessageParam) => void;
 };
 
 interface AutofillOverlayIframeService {
