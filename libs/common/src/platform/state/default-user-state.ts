@@ -26,6 +26,9 @@ import { DerivedUserState } from "./derived-user-state";
 import { KeyDefinition } from "./key-definition";
 import { StorageLocation } from "./state-definition";
 
+// TODO: Update storage services to emit when any key is updated
+// Then listen to that observable here to emit on `state$` when the `formattedKey$`
+// is reported updated by the storage service;
 export class DefaultUserState<T> implements UserState<T> {
   private seededInitial = false;
 
