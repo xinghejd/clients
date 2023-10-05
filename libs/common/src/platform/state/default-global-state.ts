@@ -1,4 +1,4 @@
-import { BehaviorSubject, Observable } from "rxjs";
+import { BehaviorSubject, Observable, defer, filter, map, shareReplay, tap } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { AbstractStorageService } from "../abstractions/storage.service";
@@ -26,7 +26,25 @@ export class DefaultGlobalState<T> implements GlobalState<T> {
       this.stateSubject.next(serializedData);
     });
 
-    this.state$ = this.stateSubject.asObservable();
+    const storageUpdates$ = this.chosenLocation.updates$.pipe(
+      filter((update) => update.key === this.storageKey),
+      map((update) => {
+        return this.keyDefinition.deserializer(update.value as Jsonify<T>);
+      }),
+      shareReplay({ bufferSize: 1, refCount: false })
+    );
+
+    this.state$ = defer(() => {
+      const storageUpdateSubscription = storageUpdates$.subscribe((value) => {
+        this.stateSubject.next(value);
+      });
+
+      return this.stateSubject.pipe(
+        tap({
+          complete: () => storageUpdateSubscription.unsubscribe(),
+        })
+      );
+    });
   }
 
   async update(configureState: (state: T) => void): Promise<void> {

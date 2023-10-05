@@ -8,6 +8,8 @@ import {
   share,
   defer,
   firstValueFrom,
+  combineLatestWith,
+  filter,
 } from "rxjs";
 import { Jsonify } from "type-fest";
 
@@ -78,13 +80,28 @@ export class DefaultUserState<T> implements UserState<T> {
       share()
     );
 
+    const storageUpdates$ = this.chosenStorageLocation.updates$.pipe(
+      combineLatestWith(this.formattedKey$),
+      filter(([update, key]) => update.key === key),
+      map(([update]) => {
+        return keyDefinition.deserializer(update.value as Jsonify<T>);
+      })
+    );
+
     // Whomever subscribes to this data, should be notified of updated data
     // if someone calls my update() method, or the active user changes.
     this.state$ = defer(() => {
-      const subscription = activeAccountData$.subscribe();
+      const accountChangeSubscription = activeAccountData$.subscribe();
+      const storageUpdateSubscription = storageUpdates$.subscribe((data) => {
+        this.stateSubject.next(data);
+      });
+
       return this.stateSubject$.pipe(
         tap({
-          complete: () => subscription.unsubscribe(),
+          complete: () => {
+            accountChangeSubscription.unsubscribe();
+            storageUpdateSubscription.unsubscribe();
+          },
         })
       );
     });
@@ -102,7 +119,6 @@ export class DefaultUserState<T> implements UserState<T> {
     const newState = configureState(currentState);
 
     await this.chosenStorageLocation.save(await this.createKey(), newState);
-    this.stateSubject.next(newState);
     return newState;
   }
 
