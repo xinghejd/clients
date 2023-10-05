@@ -2462,10 +2462,6 @@
     "message": "Turn off master password re-prompt to edit this field",
     "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
-  "bitwardenOverlayVisibility": {
-    "message": "Show auto-fill menu on field selection",
-    "description": "Settings checkbox label that turns the overlay on/off"
-  },
   "overrideBrowserAutofillTitle": {
     "message": "Override browser auto-fill?",
     "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"
