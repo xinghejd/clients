@@ -17,16 +17,18 @@ type AutofillExtensionMessage = {
   };
 };
 
+type AutofillExtensionMessageParam = { message: AutofillExtensionMessage };
+
 type AutofillExtensionMessageHandlers = {
   [key: string]: CallableFunction;
-  collectPageDetails: (message: { message: AutofillExtensionMessage }) => void;
-  collectPageDetailsImmediately: (message: { message: AutofillExtensionMessage }) => void;
-  fillForm: (message: { message: AutofillExtensionMessage }) => void;
-  openAutofillOverlay: (message: { message: AutofillExtensionMessage }) => void;
+  collectPageDetails: ({ message }: AutofillExtensionMessageParam) => void;
+  collectPageDetailsImmediately: ({ message }: AutofillExtensionMessageParam) => void;
+  fillForm: ({ message }: AutofillExtensionMessageParam) => void;
+  openAutofillOverlay: ({ message }: AutofillExtensionMessageParam) => void;
   closeAutofillOverlay: () => void;
   addNewVaultItemFromOverlay: () => void;
-  redirectOverlayFocusOut: ({ message }: { message: AutofillExtensionMessage }) => void;
-  updateIsOverlayCiphersPopulated: ({ message }: { message: AutofillExtensionMessage }) => void;
+  redirectOverlayFocusOut: ({ message }: AutofillExtensionMessageParam) => void;
+  updateIsOverlayCiphersPopulated: ({ message }: AutofillExtensionMessageParam) => void;
   bgUnlockPopoutOpened: () => void;
   bgVaultItemRepromptPopoutOpened: () => void;
 };

@@ -19,9 +19,12 @@ function sendExtensionRuntimeMessage(
   sendResponse?: CallableFunction
 ) {
   const onMessageMock = chrome.runtime.onMessage as any;
+  let returnValue: any;
   if (onMessageMock.callListener) {
-    onMessageMock.callListener(message, sender, sendResponse);
+    returnValue = onMessageMock.callListener(message, sender, sendResponse);
   }
+
+  return returnValue;
 }
 
 function triggerWindowOnFocusedChangedEvent(windowId: number) {
