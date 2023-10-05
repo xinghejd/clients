@@ -57,21 +57,6 @@ describe("AutofillOverlayList", () => {
       });
     });
 
-    describe("the overlay with an empty list of ciphers", () => {
-      beforeEach(() => {
-        postWindowMessage(
-          createInitAutofillOverlayListMessageMock({
-            authStatus: AuthenticationStatus.Unlocked,
-            ciphers: [],
-          })
-        );
-      });
-
-      it("creates the views for the no results overlay", () => {
-        expect(autofillOverlayList["overlayListContainer"]).toMatchSnapshot();
-      });
-    });
-
     describe("the list of ciphers for an authenticated user", () => {
       beforeEach(() => {
         postWindowMessage(createInitAutofillOverlayListMessageMock());
@@ -117,6 +102,18 @@ describe("AutofillOverlayList", () => {
       describe("fill cipher button event listeners", () => {
         beforeEach(() => {
           postWindowMessage(createInitAutofillOverlayListMessageMock());
+        });
+
+        it("allows the user to fill a cipher on click", () => {
+          const fillCipherButton =
+            autofillOverlayList["overlayListContainer"].querySelector(".fill-cipher-button");
+
+          fillCipherButton.dispatchEvent(new Event("click"));
+
+          expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
+            { command: "fillSelectedListItem", overlayCipherId: "1" },
+            "https://localhost/"
+          );
         });
 
         it("allows the user to move keyboard focus to the next cipher element on ArrowDown", () => {

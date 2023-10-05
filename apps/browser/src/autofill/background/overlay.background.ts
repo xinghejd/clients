@@ -64,6 +64,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
     checkAutofillOverlayButtonFocused: () => this.checkOverlayButtonFocused(),
     overlayPageBlurred: () => this.checkOverlayButtonFocused(),
     unlockVault: ({ port }) => this.unlockVault(port),
+    fillSelectedListItem: ({ message, port }) => this.fillSelectedOverlayListItem(message, port),
     viewSelectedCipher: ({ message, port }) => this.viewSelectedCipher(message, port),
     redirectOverlayFocusOut: ({ message, port }) => this.redirectOverlayFocusOut(message, port),
   };
@@ -201,6 +202,37 @@ class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     this.pageDetailsForTab[sender.tab.id] = [pageDetails];
+  }
+
+  /**
+   * Triggers autofill for the selected cipher in the overlay list. Also places
+   * the selected cipher at the top of the list of ciphers.
+   *
+   * @param overlayCipherId - Cipher ID corresponding to the overlayLoginCiphers map. Does not correspond to the actual cipher's ID.
+   * @param sender - The sender of the port message
+   */
+  private async fillSelectedOverlayListItem(
+    { overlayCipherId }: OverlayPortMessage,
+    { sender }: chrome.runtime.Port
+  ) {
+    if (!overlayCipherId) {
+      return;
+    }
+
+    const cipher = this.overlayLoginCiphers.get(overlayCipherId);
+
+    if (await this.autofillService.isPasswordRepromptRequired(cipher, sender.tab)) {
+      return;
+    }
+    await this.autofillService.doAutoFill({
+      tab: sender.tab,
+      cipher: cipher,
+      pageDetails: this.pageDetailsForTab[sender.tab.id],
+      fillNewPassword: true,
+      allowTotpAutofill: true,
+    });
+
+    this.overlayLoginCiphers = new Map([[overlayCipherId, cipher], ...this.overlayLoginCiphers]);
   }
 
   /**

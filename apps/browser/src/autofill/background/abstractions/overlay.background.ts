@@ -94,6 +94,7 @@ type OverlayListPortMessageHandlers = {
   checkAutofillOverlayButtonFocused: () => void;
   overlayPageBlurred: () => void;
   unlockVault: ({ port }: PortConnectionParam) => void;
+  fillSelectedListItem: ({ message, port }: PortOnMessageHandlerParams) => void;
   viewSelectedCipher: ({ message, port }: PortOnMessageHandlerParams) => void;
   redirectOverlayFocusOut: ({ message, port }: PortOnMessageHandlerParams) => void;
 };

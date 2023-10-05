@@ -223,10 +223,28 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
       `${this.getTranslation("partialUsername")}, ${cipher.login.username}`
     );
     fillCipherElement.append(cipherIcon, cipherDetailsElement);
+    fillCipherElement.addEventListener(EVENTS.CLICK, this.handleFillCipherClickEvent(cipher));
     fillCipherElement.addEventListener(EVENTS.KEYUP, this.handleFillCipherKeyUpEvent);
 
     return fillCipherElement;
   }
+
+  /**
+   * Handles the click event for the fill cipher button.
+   * Sends a message to the parent window to fill the selected cipher.
+   *
+   * @param cipher - The cipher to fill.
+   */
+  private handleFillCipherClickEvent = (cipher: OverlayCipherData) => {
+    return this.useEventHandlersMemo(
+      () =>
+        this.postMessageToParent({
+          command: "fillSelectedListItem",
+          overlayCipherId: cipher.id,
+        }),
+      `${cipher.id}-fill-cipher-button-click-handler`
+    );
+  };
 
   /**
    * Handles the keyup event for the fill cipher button. Facilitates
