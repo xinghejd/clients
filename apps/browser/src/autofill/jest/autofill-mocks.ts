@@ -1,12 +1,17 @@
 import { mock } from "jest-mock-extended";
 
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { UriMatchType } from "@bitwarden/common/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript, { FillScript } from "../models/autofill-script";
-import { GenerateFillScriptOptions } from "../services/abstractions/autofill.service";
+import { InitAutofillOverlayButtonMessage } from "../overlay/abstractions/autofill-overlay-button";
+import { InitAutofillOverlayListMessage } from "../overlay/abstractions/autofill-overlay-list";
+import { GenerateFillScriptOptions, PageDetail } from "../services/abstractions/autofill.service";
+
+import { PortSpy } from "./typings";
 
 function createAutofillFieldMock(customFields = {}): AutofillField {
   return {
@@ -34,6 +39,15 @@ function createAutofillFieldMock(customFields = {}): AutofillField {
     selectInfo: "",
     maxLength: 0,
     tagName: "input",
+    ...customFields,
+  };
+}
+
+function createPageDetailMock(customFields = {}): PageDetail {
+  return {
+    frameId: 0,
+    tab: createChromeTabMock(),
+    details: createAutofillPageDetailsMock(),
     ...customFields,
   };
 }
@@ -122,10 +136,92 @@ function createAutofillScriptMock(
   };
 }
 
+const overlayPagesTranslations = {
+  locale: "en",
+  buttonPageTitle: "buttonPageTitle",
+  listPageTitle: "listPageTitle",
+  opensInANewWindow: "opensInANewWindow",
+  toggleBitwardenVaultOverlay: "toggleBitwardenVaultOverlay",
+  unlockYourAccount: "unlockYourAccount",
+  unlockAccount: "unlockAccount",
+  fillCredentialsFor: "fillCredentialsFor",
+  partialUsername: "partialUsername",
+  view: "view",
+  noItemsToShow: "noItemsToShow",
+  newItem: "newItem",
+  addNewVaultItem: "addNewVaultItem",
+};
+function createInitAutofillOverlayButtonMessageMock(
+  customFields = {}
+): InitAutofillOverlayButtonMessage {
+  return {
+    command: "initAutofillOverlayButton",
+    translations: overlayPagesTranslations,
+    styleSheetUrl: "https://tacos.com",
+    authStatus: AuthenticationStatus.Unlocked,
+    ...customFields,
+  };
+}
+
+function createInitAutofillOverlayListMessageMock(
+  customFields = {}
+): InitAutofillOverlayListMessage {
+  return {
+    command: "initAutofillOverlayList",
+    translations: overlayPagesTranslations,
+    styleSheetUrl: "https://tacos.com",
+    theme: "light",
+    authStatus: AuthenticationStatus.Unlocked,
+    ...customFields,
+  };
+}
+
+function createFocusedFieldDataMock(customFields = {}) {
+  return {
+    focusedFieldRects: {
+      top: 1,
+      left: 2,
+      height: 3,
+      width: 4,
+    },
+    focusedFieldStyles: {
+      paddingRight: "6px",
+      paddingLeft: "6px",
+    },
+    ...customFields,
+  };
+}
+
+function createPortSpyMock(name: string, portOnMessageListener: CallableFunction): PortSpy {
+  const portSpy: PortSpy = mock<PortSpy>({
+    name,
+    onMessage: {
+      addListener: jest.fn((listener) => (portOnMessageListener = listener)),
+      removeListener: jest.fn(() => {
+        if (portOnMessageListener) {
+          portOnMessageListener = undefined;
+        }
+      }),
+      callListener: jest.fn((message) => portOnMessageListener(message, portSpy)),
+    },
+    postMessage: jest.fn(),
+    sender: {
+      tab: createChromeTabMock(),
+    },
+  });
+
+  return portSpy;
+}
+
 export {
   createAutofillFieldMock,
+  createPageDetailMock,
   createAutofillPageDetailsMock,
   createChromeTabMock,
   createGenerateFillScriptOptionsMock,
   createAutofillScriptMock,
+  createInitAutofillOverlayButtonMessageMock,
+  createInitAutofillOverlayListMessageMock,
+  createFocusedFieldDataMock,
+  createPortSpyMock,
 };

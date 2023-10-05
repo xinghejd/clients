@@ -278,7 +278,7 @@ export class BrowserApi {
     return process.env.ENV !== "production";
   }
 
-  static getUILanguage(win: Window) {
+  static getUILanguage() {
     return chrome.i18n.getUILanguage();
   }
 

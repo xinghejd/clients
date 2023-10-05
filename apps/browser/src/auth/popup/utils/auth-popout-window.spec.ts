@@ -22,16 +22,30 @@ describe("AuthPopoutWindow", () => {
   });
 
   describe("openUnlockPopout", () => {
-    it("opens a single action popup that allows the user to unlock the extension and sends a `bgUnlockPopoutOpened` message", async () => {
-      const senderTab = { windowId: 1 } as chrome.tabs.Tab;
+    let senderTab: chrome.tabs.Tab;
 
+    beforeEach(() => {
+      senderTab = { windowId: 1 } as chrome.tabs.Tab;
+    });
+
+    it("opens a single action popup that allows the user to unlock the extension and sends a `bgUnlockPopoutOpened` message", async () => {
       await openUnlockPopout(senderTab);
 
       expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html", {
         singleActionKey: AuthPopoutType.unlockExtension,
         senderWindowId: 1,
       });
-      expect(sendMessageDataSpy).toHaveBeenCalledWith(senderTab, "bgUnlockPopoutOpened");
+      expect(sendMessageDataSpy).toHaveBeenCalledWith(senderTab, "bgUnlockPopoutOpened", {
+        skipNotification: false,
+      });
+    });
+
+    it("sends an indication that the presenting the notification bar for unlocking the extension should be skipped", async () => {
+      await openUnlockPopout(senderTab, true);
+
+      expect(sendMessageDataSpy).toHaveBeenCalledWith(senderTab, "bgUnlockPopoutOpened", {
+        skipNotification: true,
+      });
     });
   });
 
