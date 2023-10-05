@@ -1,6 +1,8 @@
 import { Meta, moduleMetadata, StoryObj } from "@storybook/angular";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 
 import { I18nMockService } from "../utils/i18n-mock.service";
 
@@ -27,6 +29,10 @@ export default {
               argExample: (arg1: string) => `This is an example with <0>link</0> tags and ${arg1}.`,
             });
           },
+        },
+        {
+          provide: LogService,
+          useFactory: () => new ConsoleLogService(true),
         },
       ],
     }),

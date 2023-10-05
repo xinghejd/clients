@@ -8,6 +8,7 @@ import {
 } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 
 import { SharedModule } from "../shared";
 
@@ -68,7 +69,7 @@ export class I18nComponent implements AfterContentInit {
 
   protected translationParts: I18nStringPart[] = [];
 
-  constructor(private i18nService: I18nService) {}
+  constructor(private i18nService: I18nService, private logService: LogService) {}
 
   ngAfterContentInit() {
     const translatedText = this.i18nService.t(
@@ -79,6 +80,13 @@ export class I18nComponent implements AfterContentInit {
     );
 
     this.translationParts = this.parseTranslatedString(translatedText);
+
+    if (this.translationParts.length !== this.templateTags.length) {
+      this.logService.warning(
+        `The translation for "${this.translationKey}" has ${this.translationParts.length} template tags(s), but ${this.templateTags.length} bit-i18n-part directive(s) were found.`
+      );
+    }
+
     // Assign any templateRefs to the translation parts
     this.templateTags.forEach((tag, index) => {
       this.translationParts.forEach((part) => {
