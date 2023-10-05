@@ -55,7 +55,7 @@
                   [isSearching]="searchPending"
                   title="{{ 'fido2Item' | i18n }}"
                   (onSelected)="selectedPasskey($event)"
-                  [selectedCipher]="cipher"
+                  [isSelected]="cipher === cipherItem"
                 ></app-fido2-cipher-row>
               </div>
             </div>
@@ -110,7 +110,7 @@
                 [cipher]="cipherItem"
                 title="{{ 'fido2Item' | i18n }}"
                 (onSelected)="selectedPasskey($event)"
-                [selectedCipher]="cipher"
+                [isSelected]="cipher === cipherItem"
               ></app-fido2-cipher-row>
             </div>
           </div>
