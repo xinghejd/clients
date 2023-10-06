@@ -1,6 +1,7 @@
 import { Location } from "@angular/common";
 import { Component } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 import { first, takeUntil } from "rxjs/operators";
 
 import { AddEditComponent as BaseAddEditComponent } from "@bitwarden/angular/vault/components/add-edit.component";
@@ -24,7 +25,10 @@ import { DialogService } from "@bitwarden/components";
 
 import { BrowserApi } from "../../../../platform/browser/browser-api";
 import { PopupUtilsService } from "../../../../popup/services/popup-utils.service";
-import { BrowserFido2UserInterfaceSession } from "../../../fido2/browser-fido2-user-interface.service";
+import {
+  BrowserFido2UserInterfaceSession,
+  fido2PopoutSessionData$,
+} from "../../../fido2/browser-fido2-user-interface.service";
 
 @Component({
   selector: "app-vault-add-edit",
@@ -39,8 +43,8 @@ export class AddEditComponent extends BaseAddEditComponent {
   inPopout = false;
   senderTabId?: number;
   uilocation?: "popout" | "popup" | "sidebar" | "tab";
-  // uniquely identifies a passkey's popout window
-  sessionId?: string;
+
+  private fido2PopoutSessionData$ = fido2PopoutSessionData$();
 
   constructor(
     cipherService: CipherService,
@@ -88,7 +92,6 @@ export class AddEditComponent extends BaseAddEditComponent {
     this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((value) => {
       this.senderTabId = parseInt(value?.senderTabId, 10) || undefined;
       this.uilocation = value?.uilocation;
-      this.sessionId = value?.sessionId;
     });
 
     this.inPopout = this.uilocation === "popout" || this.popupUtilsService.inPopout(window);
@@ -170,9 +173,11 @@ export class AddEditComponent extends BaseAddEditComponent {
       return false;
     }
 
-    if (this.inPopout && this.sessionId) {
-      this.abortFido2Popout();
-    }
+    // Would be refactored after rework is done on the windows popout service
+    // const sessionData = await firstValueFrom(this.fido2PopoutSessionData$);
+    // if (this.inPopout && sessionData.isFido2Session) {
+    //   return;
+    // }
 
     if (this.popupUtilsService.inTab(window)) {
       this.popupUtilsService.disableCloseTabWarning();
@@ -209,12 +214,14 @@ export class AddEditComponent extends BaseAddEditComponent {
     }
   }
 
-  cancel() {
+  async cancel() {
     super.cancel();
 
     // Would be refactored after rework is done on the windows popout service
-    if (this.inPopout && this.sessionId) {
-      this.abortFido2Popout();
+    const sessionData = await firstValueFrom(this.fido2PopoutSessionData$);
+    if (this.inPopout && sessionData.isFido2Session) {
+      BrowserFido2UserInterfaceSession.abortPopout(sessionData.sessionId);
+      return;
     }
 
     if (this.popupUtilsService.inTab(window)) {
@@ -234,17 +241,6 @@ export class AddEditComponent extends BaseAddEditComponent {
   close() {
     BrowserApi.focusTab(this.senderTabId);
     window.close();
-
-    return;
-  }
-
-  // Used for aborting Fido2 popout
-  abortFido2Popout() {
-    BrowserFido2UserInterfaceSession.sendMessage({
-      sessionId: this.sessionId,
-      type: "AbortResponse",
-      fallbackRequested: false,
-    });
 
     return;
   }

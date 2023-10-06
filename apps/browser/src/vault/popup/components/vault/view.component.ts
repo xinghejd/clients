@@ -1,7 +1,7 @@
 import { Location } from "@angular/common";
 import { ChangeDetectorRef, Component, NgZone } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Subject, takeUntil } from "rxjs";
+import { Subject, firstValueFrom, takeUntil } from "rxjs";
 import { first } from "rxjs/operators";
 
 import { ViewComponent as BaseViewComponent } from "@bitwarden/angular/vault/components/view.component";
@@ -28,7 +28,10 @@ import { DialogService } from "@bitwarden/components";
 import { AutofillService } from "../../../../autofill/services/abstractions/autofill.service";
 import { BrowserApi } from "../../../../platform/browser/browser-api";
 import { PopupUtilsService } from "../../../../popup/services/popup-utils.service";
-import { BrowserFido2UserInterfaceSession } from "../../../fido2/browser-fido2-user-interface.service";
+import {
+  BrowserFido2UserInterfaceSession,
+  fido2PopoutSessionData$,
+} from "../../../fido2/browser-fido2-user-interface.service";
 
 const BroadcasterSubscriptionId = "ChildViewComponent";
 
@@ -56,8 +59,7 @@ export class ViewComponent extends BaseViewComponent {
   uilocation?: "popout" | "popup" | "sidebar" | "tab";
   loadPageDetailsTimeout: number;
   inPopout = false;
-  // uniquely identifies a passkey's popout window
-  sessionId?: string;
+  private fido2PopoutSessionData$ = fido2PopoutSessionData$();
 
   private destroy$ = new Subject<void>();
 
@@ -115,7 +117,6 @@ export class ViewComponent extends BaseViewComponent {
       this.loadAction = value?.action;
       this.senderTabId = parseInt(value?.senderTabId, 10) || undefined;
       this.uilocation = value?.uilocation;
-      this.sessionId = value?.sessionId;
     });
 
     this.inPopout = this.uilocation === "popout" || this.popupUtilsService.inPopout(window);
@@ -303,10 +304,12 @@ export class ViewComponent extends BaseViewComponent {
     return false;
   }
 
-  close() {
+  async close() {
     // Would be refactored after rework is done on the windows popout service
-    if (this.inPopout && this.sessionId) {
-      this.abortFido2Popout();
+    const sessionData = await firstValueFrom(this.fido2PopoutSessionData$);
+    if (this.inPopout && sessionData.isFido2Session) {
+      BrowserFido2UserInterfaceSession.abortPopout(sessionData.sessionId);
+      return;
     }
 
     if (this.inPopout && this.senderTabId) {
@@ -316,17 +319,6 @@ export class ViewComponent extends BaseViewComponent {
     }
 
     this.location.back();
-  }
-
-  // Used for aborting Fido2 popout
-  abortFido2Popout() {
-    BrowserFido2UserInterfaceSession.sendMessage({
-      sessionId: this.sessionId,
-      type: "AbortResponse",
-      fallbackRequested: false,
-    });
-
-    return;
   }
 
   private async loadPageDetails() {

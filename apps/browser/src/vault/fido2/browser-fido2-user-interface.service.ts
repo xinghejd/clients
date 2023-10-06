@@ -144,6 +144,14 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     BrowserApi.sendMessage(BrowserFido2MessageName, msg);
   }
 
+  static abortPopout(sessionId: string) {
+    this.sendMessage({
+      sessionId: sessionId,
+      type: "AbortResponse",
+      fallbackRequested: false,
+    });
+  }
+
   private closed = false;
   private messages$ = (BrowserApi.messageListener$() as Observable<BrowserFido2Message>).pipe(
     filter((msg) => msg.sessionId === this.sessionId)
