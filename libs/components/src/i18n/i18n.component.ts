@@ -32,7 +32,7 @@ interface I18nStringPart {
  * tags.
  *
  * @example
- * <div bit-i18n key="exampleI18nKey">
+ * <div bit-i18n="exampleI18nKey">
  *  <a *bit-i18n-part="let text" routerLink="./first-link">{{ text }}</a>
  *  <a *bit-i18n-part="let text" routerLink="./bold-link">
  *    <strong>{{ text }}</strong>
@@ -55,7 +55,7 @@ interface I18nStringPart {
   standalone: true,
 })
 export class I18nComponent implements AfterContentInit {
-  @Input("key")
+  @Input("bit-i18n")
   translationKey: string;
 
   /**

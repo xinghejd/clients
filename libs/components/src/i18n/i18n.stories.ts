@@ -47,7 +47,7 @@ export const Basic: Story = {
   render: (args) => ({
     props: args,
     template: `
-<div bit-i18n key="basicExample">
+<div bit-i18n="basicExample">
   <a *bit-i18n-part="let text" href="javascript:;">{{ text }}</a>
   <strong *bit-i18n-part="let text">{{ text }}</strong>
   <a *bit-i18n-part="let text" href="https://localization.blog/2022/05/16/i18n-best-practices-keep-it-together/">
@@ -62,7 +62,7 @@ export const ArgsExample: Story = {
   render: (args) => ({
     props: args,
     template: `
-<p bit-i18n key="argExample" [args]="['passed args']">
+<p bit-i18n="argExample" [args]="['passed args']">
   <a *bit-i18n-part="let text" href="javascript:;">{{ text }}</a>
   <strong *bit-i18n-part="let text">{{ text }}</strong>
 </p>
@@ -74,7 +74,7 @@ export const MissingTemplate: Story = {
   render: (args) => ({
     props: args,
     template: `
-<p bit-i18n key="basicExample">
+<p bit-i18n="basicExample">
   <a *bit-i18n-part="let text" href="javascript:;">{{ text }}</a>
   <strong *bit-i18n-part="let text">{{ text }}</strong>
 </p>
