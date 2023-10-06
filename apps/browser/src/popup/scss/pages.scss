@@ -186,11 +186,6 @@ app-vault-attachments {
 
 app-fido2 {
   .auth-wrapper {
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
     display: flex;
     flex-direction: column;
     padding: 12px 24px 12px 24px;
@@ -224,11 +219,6 @@ app-fido2 {
             }
           }
         }
-      }
-
-      .right {
-        justify-content: flex-end;
-        align-items: center;
       }
 
       .search {
@@ -267,15 +257,6 @@ app-fido2 {
             mask-image: none;
             -webkit-mask-image: none;
           }
-        }
-      }
-
-      .left + .search,
-      .left + .sr-only + .search {
-        padding-left: 0;
-
-        .bwi {
-          left: 10px;
         }
       }
     }
@@ -364,10 +345,6 @@ app-fido2 {
         font-size: 16px;
         font-weight: 600;
       }
-    }
-
-    .useBrowserlink {
-      margin-top: auto;
     }
   }
 }

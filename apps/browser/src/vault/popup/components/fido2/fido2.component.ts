@@ -303,7 +303,6 @@ export class Fido2Component implements OnInit, OnDestroy {
         cipherId: this.cipher.id,
         uilocation: "popout",
         senderTabId: this.senderTabId,
-        sessionId: this.sessionId,
       },
     });
   }
@@ -315,7 +314,6 @@ export class Fido2Component implements OnInit, OnDestroy {
         uri: this.url,
         uilocation: "popout",
         senderTabId: this.senderTabId,
-        sessionId: this.sessionId,
       },
     });
   }
