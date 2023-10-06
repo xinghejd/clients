@@ -47,18 +47,17 @@ interface ViewData {
   styleUrls: [],
 })
 export class Fido2Component implements OnInit, OnDestroy {
-  cipher: CipherView;
-  searchTypeSearch = false;
-  searchPending = false;
-  searchText: string;
-  url: string;
-  hostname: string;
-
   private destroy$ = new Subject<void>();
   private hasSearched = false;
   private searchTimeout: any = null;
   private hasLoadedAllCiphers = false;
 
+  protected cipher: CipherView;
+  protected searchTypeSearch = false;
+  protected searchPending = false;
+  protected searchText: string;
+  protected url: string;
+  protected hostname: string;
   protected data$: Observable<ViewData>;
   protected sessionId?: string;
   protected senderTabId?: string;
