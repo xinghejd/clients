@@ -2479,8 +2479,8 @@
   "choosePasskey": {
     "message": "Choose a login to save this passkey to"
   },
-  "fido2Item": {
-    "message": "Fido2 Item"
+  "passkeysItem": {
+    "message": "Passkey Item"
   },
   "overwritePasskey": {
     "message": "Overwrite passkey?"
@@ -2502,5 +2502,8 @@
   },
   "useBrowserName": {
     "message": "Use browser"
+  },
+  "selected": {
+    "message": "Selected"
   }
 }
