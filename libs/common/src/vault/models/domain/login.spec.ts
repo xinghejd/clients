@@ -114,8 +114,6 @@ describe("Login DTO", () => {
     });
   });
 
-  // it("Decrypts correctly", async () => {});
-
   it("Converts from LoginData and back", () => {
     const data: LoginData = {
       uris: [{ uri: "uri", uriChecksum: "checksum", match: UriMatchType.Domain }],
