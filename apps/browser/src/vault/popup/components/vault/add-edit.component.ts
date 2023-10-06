@@ -174,10 +174,10 @@ export class AddEditComponent extends BaseAddEditComponent {
     }
 
     // Would be refactored after rework is done on the windows popout service
-    // const sessionData = await firstValueFrom(this.fido2PopoutSessionData$);
-    // if (this.inPopout && sessionData.isFido2Session) {
-    //   return;
-    // }
+    const sessionData = await firstValueFrom(this.fido2PopoutSessionData$);
+    if (this.inPopout && sessionData.isFido2Session) {
+      return;
+    }
 
     if (this.popupUtilsService.inTab(window)) {
       this.popupUtilsService.disableCloseTabWarning();
