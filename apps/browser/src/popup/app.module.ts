@@ -39,7 +39,6 @@ import { SendTypeComponent } from "../tools/popup/send/send-type.component";
 import { ExportComponent } from "../tools/popup/settings/export.component";
 import { ActionButtonsComponent } from "../vault/popup/components/action-buttons.component";
 import { CipherRowComponent } from "../vault/popup/components/cipher-row.component";
-import { PasswordRepromptComponent } from "../vault/popup/components/password-reprompt.component";
 import { PhishingCalloutComponent } from "../vault/popup/components/phishing-callout.component";
 import { AddEditCustomFieldsComponent } from "../vault/popup/components/vault/add-edit-custom-fields.component";
 import { AddEditComponent } from "../vault/popup/components/vault/add-edit.component";
@@ -128,7 +127,6 @@ import "../platform/popup/locales";
     GeneratorComponent,
     PasswordGeneratorHistoryComponent,
     PasswordHistoryComponent,
-    PasswordRepromptComponent,
     PopOutComponent,
     PremiumComponent,
     PrivateModeWarningComponent,
