@@ -1,0 +1,126 @@
+import { Meta } from "@storybook/addon-docs";
+
+<Meta title="Documentation/Migration" />
+
+# Migrating to the Component Library
+
+You, dear developer, have been tasked with migrating a component to use the CL. What does that
+entail?
+
+## Getting Started
+
+Before progressing here, please ensure that...
+
+- You have fully setup your dev environment as described in the
+  [contributing docs](https://contributing.bitwarden.com/).
+- You are familiar with [Angular reactive forms](https://angular.io/guide/reactive-forms).
+- You are familiar with [Tailwind](https://tailwindcss.com/docs/utility-first).
+
+## Background
+
+The design of Bitwarden is in flux. At the time of writing, the frontend codebase uses a mix of
+multiple UI frameworks: Bootstrap, custom "box" styles, and this component library, which is built
+on top of Tailwind. In short, the "CL migration" is a move to only use the CL and remove everything
+else.
+
+This is very important work. Centralizing around a shared design system will:
+
+- improve user experience by utilizing consistent patterns
+- improve developer experience by reducing custom complex UI code
+- improve dev & design velocity by having a central location to make UI/UX changes that impact the
+  entire project
+
+## Success Criteria
+
+Follow these steps to fully migrate a component.
+
+### Use Storybook
+
+Don't recreate the wheel.
+
+After reviewing a design, consult this Storybook to determine if there is a component built for your
+usecase. Don't waste time styling a button or building a popover menu from scratch--we already have
+those.
+
+### Use Tailwind
+
+Only use Tailwind for styling. No Bootstrap or other custom CSS is allowed.
+
+This is easy to verify. Bitwarden prefixes all Tailwind classes with `tw-`. If you see a class
+without this prefix, it probably shouldn't be there.
+
+<div class="tw-bg-danger-500/10 tw-p-4">
+  <span class="tw-font-bold tw-text-danger">Bad (Bootstrap)</span>
+  ```html
+  <div class="mb-2"></div>
+  ```
+</div>
+
+<div class="tw-bg-success-500/10 tw-p-4">
+  <span class="tw-font-bold tw-text-success">Good (Tailwind)</span>
+  ```html
+  <div class="tw-mb-2"></div>
+  ```
+</div>
+
+**Exception:** Icon font classes, prefixed with `bwi`, are allowed.
+
+<div class="tw-bg-success-500/10 tw-p-4">
+  <span class="tw-font-bold tw-text-success">Good (Icons)</span>
+  ```html
+  <i class="bwi bwi-spinner bwi-lg bwi-spin" aria-hidden="true"></i>
+  ```
+</div>
+
+### Use Reactive Forms
+
+The CL has form components that integrate with Angular's reactive forms: `bit-form-field`,
+`bitSubmit`, `bit-form-control`, etc. All forms should be migrated from template-drive forms to
+reactive forms to make use of these components. Review the form component docs.
+
+<div class="tw-bg-danger-500/10 tw-p-4">
+    <span class="tw-text-danger tw-font-bold">Bad</span>
+    ```html
+        <form #form (ngSubmit)="submit()">
+            ...
+        </form>
+    ```
+</div>
+
+<div class="tw-bg-success-500/10 tw-p-4">
+    <span class="tw-text-success tw-font-bold">Good</span>
+    ```html
+        <form [formGroup]="formGroup" [bitSubmit]="submit">
+            ...
+        </form>
+    ```
+</div>
+
+**Exception:** There may be instances where migrating to a reactive form isn't feasible. Some
+components use inheritance to provide different views in web, desktop, and the browser extension.
+_If your goal is to only migrate the web version_ of one such component, you may be unable use
+reactive forms if the other clients rely on template-driven forms.
+
+### Dialogs
+
+.
+
+## Examples
+
+The following examples come from accross the Bitwarden codebase.
+
+### 1 Platform
+
+https://github.com/bitwarden/clients/pull/6301/files
+
+### 2 Auth
+
+https://github.com/bitwarden/clients/pull/5377
+
+### 3 AC
+
+https://github.com/bitwarden/clients/pull/5417
+
+### 4 Vault
+
+https://github.com/bitwarden/clients/pull/5648
