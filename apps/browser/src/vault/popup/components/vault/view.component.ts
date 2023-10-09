@@ -20,11 +20,11 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { PasswordRepromptService } from "@bitwarden/common/vault/abstractions/password-reprompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { DialogService } from "@bitwarden/components";
+import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { AutofillService } from "../../../../autofill/services/abstractions/autofill.service";
 import { BrowserApi } from "../../../../platform/browser/browser-api";
@@ -170,8 +170,8 @@ export class ViewComponent extends BaseViewComponent {
 
     switch (this.loadAction) {
       case AUTOFILL_ID:
-        this.fillCipher();
-        return;
+        await this.fillCipher();
+        break;
       case COPY_USERNAME_ID:
         await this.copy(this.cipher.login.username, "username", "Username");
         break;
@@ -179,14 +179,14 @@ export class ViewComponent extends BaseViewComponent {
         await this.copy(this.cipher.login.password, "password", "Password");
         break;
       case COPY_VERIFICATIONCODE_ID:
-        await this.copy(this.cipher.login.totp, "verificationCodeTotp", "TOTP");
+        await this.copy(this.totpCode, "verificationCodeTotp", "TOTP");
         break;
       default:
         break;
     }
 
     if (this.inPopout && this.loadAction) {
-      this.close();
+      setTimeout(() => this.close(), 1000);
     }
   }
 
@@ -238,10 +238,6 @@ export class ViewComponent extends BaseViewComponent {
     const didAutofill = await this.doAutofill();
     if (didAutofill) {
       this.platformUtilsService.showToast("success", null, this.i18nService.t("autoFillSuccess"));
-
-      if (this.inPopout) {
-        this.close();
-      }
     }
   }
 
@@ -306,11 +302,8 @@ export class ViewComponent extends BaseViewComponent {
   }
 
   close() {
-    if (this.senderTabId) {
+    if (this.inPopout && this.senderTabId) {
       BrowserApi.focusTab(this.senderTabId);
-    }
-
-    if (this.inPopout) {
       window.close();
       return;
     }

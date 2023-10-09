@@ -77,7 +77,6 @@ import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platfor
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService as MessagingServiceAbstraction } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateMigrationService as StateMigrationServiceAbstraction } from "@bitwarden/common/platform/abstractions/state-migration.service";
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { ValidationService as ValidationServiceAbstraction } from "@bitwarden/common/platform/abstractions/validation.service";
@@ -94,7 +93,6 @@ import { EncryptServiceImplementation } from "@bitwarden/common/platform/service
 import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/multithread-encrypt.service.implementation";
 import { EnvironmentService } from "@bitwarden/common/platform/services/environment.service";
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
-import { StateMigrationService } from "@bitwarden/common/platform/services/state-migration.service";
 import { StateService } from "@bitwarden/common/platform/services/state.service";
 import { ValidationService } from "@bitwarden/common/platform/services/validation.service";
 import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
@@ -138,7 +136,6 @@ import {
   FolderService as FolderServiceAbstraction,
   InternalFolderService,
 } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { PasswordRepromptService as PasswordRepromptServiceAbstraction } from "@bitwarden/common/vault/abstractions/password-reprompt.service";
 import { SyncNotifierService as SyncNotifierServiceAbstraction } from "@bitwarden/common/vault/abstractions/sync/sync-notifier.service.abstraction";
 import { SyncService as SyncServiceAbstraction } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
@@ -152,13 +149,19 @@ import {
   VaultExportService,
   VaultExportServiceAbstraction,
 } from "@bitwarden/exporter/vault-export";
+import {
+  ImportApiService,
+  ImportApiServiceAbstraction,
+  ImportService,
+  ImportServiceAbstraction,
+} from "@bitwarden/importer";
+import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { AuthGuard } from "../auth/guards/auth.guard";
 import { UnauthGuard } from "../auth/guards/unauth.guard";
 import { FormValidationErrorsService as FormValidationErrorsServiceAbstraction } from "../platform/abstractions/form-validation-errors.service";
 import { BroadcasterService } from "../platform/services/broadcaster.service";
 import { FormValidationErrorsService } from "../platform/services/form-validation-errors.service";
-import { PasswordRepromptService } from "../vault/services/password-reprompt.service";
 
 import {
   LOCALES_DIRECTORY,
@@ -182,6 +185,8 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
     AuthGuard,
     UnauthGuard,
     ModalService,
+    PasswordRepromptService,
+
     { provide: WINDOW, useValue: window },
     {
       provide: LOCALE_ID,
@@ -273,7 +278,8 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
         searchService: SearchServiceAbstraction,
         stateService: StateServiceAbstraction,
         encryptService: EncryptService,
-        fileUploadService: CipherFileUploadServiceAbstraction
+        fileUploadService: CipherFileUploadServiceAbstraction,
+        configService: ConfigServiceAbstraction
       ) =>
         new CipherService(
           cryptoService,
@@ -283,7 +289,8 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
           searchService,
           stateService,
           encryptService,
-          fileUploadService
+          fileUploadService,
+          configService
         ),
       deps: [
         CryptoServiceAbstraction,
@@ -294,6 +301,7 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
         StateServiceAbstraction,
         EncryptService,
         CipherFileUploadServiceAbstraction,
+        ConfigServiceAbstraction,
       ],
     },
     {
@@ -480,15 +488,26 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
         SECURE_STORAGE,
         MEMORY_STORAGE,
         LogService,
-        StateMigrationServiceAbstraction,
         STATE_FACTORY,
         STATE_SERVICE_USE_CACHE,
       ],
     },
     {
-      provide: StateMigrationServiceAbstraction,
-      useClass: StateMigrationService,
-      deps: [AbstractStorageService, SECURE_STORAGE, STATE_FACTORY],
+      provide: ImportApiServiceAbstraction,
+      useClass: ImportApiService,
+      deps: [ApiServiceAbstraction],
+    },
+    {
+      provide: ImportServiceAbstraction,
+      useClass: ImportService,
+      deps: [
+        CipherServiceAbstraction,
+        FolderServiceAbstraction,
+        ImportApiServiceAbstraction,
+        I18nServiceAbstraction,
+        CollectionServiceAbstraction,
+        CryptoServiceAbstraction,
+      ],
     },
     {
       provide: VaultExportServiceAbstraction,
@@ -572,8 +591,6 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
         LogService,
         OrganizationServiceAbstraction,
         CryptoFunctionServiceAbstraction,
-        SyncNotifierServiceAbstraction,
-        MessagingServiceAbstraction,
         LOGOUT_CALLBACK,
       ],
     },
@@ -587,7 +604,6 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
         UserVerificationApiServiceAbstraction,
       ],
     },
-    { provide: PasswordRepromptServiceAbstraction, useClass: PasswordRepromptService },
     {
       provide: OrganizationServiceAbstraction,
       useClass: OrganizationService,
@@ -650,14 +666,19 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
       useClass: SyncNotifierService,
     },
     {
-      provide: ConfigServiceAbstraction,
+      provide: ConfigService,
       useClass: ConfigService,
       deps: [
         StateServiceAbstraction,
         ConfigApiServiceAbstraction,
         AuthServiceAbstraction,
         EnvironmentServiceAbstraction,
+        LogService,
       ],
+    },
+    {
+      provide: ConfigServiceAbstraction,
+      useExisting: ConfigService,
     },
     {
       provide: ConfigApiServiceAbstraction,

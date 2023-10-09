@@ -1,14 +1,17 @@
 import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 
 import { AutofillService } from "../autofill/services/abstractions/autofill.service";
 import { BrowserApi } from "../platform/browser/browser-api";
 import { BrowserPopoutWindowService } from "../platform/popup/abstractions/browser-popout-window.service";
+import { BrowserStateService } from "../platform/services/abstractions/browser-state.service";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import BrowserPlatformUtilsService from "../platform/services/browser-platform-utils.service";
 
@@ -27,6 +30,7 @@ export default class RuntimeBackground {
     private platformUtilsService: BrowserPlatformUtilsService,
     private i18nService: I18nService,
     private notificationsService: NotificationsService,
+    private stateService: BrowserStateService,
     private systemService: SystemService,
     private environmentService: BrowserEnvironmentService,
     private messagingService: MessagingService,
@@ -102,7 +106,7 @@ export default class RuntimeBackground {
             await this.main.refreshMenu();
           }, 2000);
           this.main.avatarUpdateService.loadColorFromState();
-          this.configService.fetchServerConfig();
+          this.configService.triggerServerConfigFetch();
         }
         break;
       case "openPopup":
@@ -122,18 +126,40 @@ export default class RuntimeBackground {
         }
         break;
       case "openAddEditCipher": {
-        const addEditCipherUrl =
-          cipherId == null
-            ? "popup/index.html#/edit-cipher"
-            : "popup/index.html#/edit-cipher?cipherId=" + cipherId;
+        const isNewCipher = !cipherId;
+        const cipherType = msg.data?.cipherType;
+        const senderTab = sender.tab;
 
-        BrowserApi.openBitwardenExtensionTab(addEditCipherUrl, true);
+        if (!senderTab) {
+          break;
+        }
+
+        if (isNewCipher) {
+          await this.browserPopoutWindowService.openCipherCreation(senderTab.windowId, {
+            cipherType,
+            senderTabId: senderTab.id,
+            senderTabURI: senderTab.url,
+          });
+        } else {
+          await this.browserPopoutWindowService.openCipherEdit(senderTab.windowId, {
+            cipherId,
+            senderTabId: senderTab.id,
+            senderTabURI: senderTab.url,
+          });
+        }
+
         break;
       }
       case "closeTab":
         setTimeout(() => {
           BrowserApi.closeBitwardenExtensionTab();
         }, msg.delay ?? 0);
+        break;
+      case "triggerAutofillScriptInjection":
+        await this.autofillService.injectAutofillScripts(
+          sender,
+          await this.configService.getFeatureFlag<boolean>(FeatureFlag.AutofillV2)
+        );
         break;
       case "bgCollectPageDetails":
         await this.main.collectPageDetailsForContentScript(sender.tab, msg.sender, sender.frameId);
@@ -152,6 +178,7 @@ export default class RuntimeBackground {
         switch (msg.sender) {
           case "autofiller":
           case "autofill_cmd": {
+            this.stateService.setLastActive(new Date().getTime());
             const totpCode = await this.autofillService.doAutoFillActiveTab(
               [
                 {
@@ -165,6 +192,34 @@ export default class RuntimeBackground {
             if (totpCode != null) {
               this.platformUtilsService.copyToClipboard(totpCode, { window: window });
             }
+            break;
+          }
+          case "autofill_card": {
+            await this.autofillService.doAutoFillActiveTab(
+              [
+                {
+                  frameId: sender.frameId,
+                  tab: msg.tab,
+                  details: msg.details,
+                },
+              ],
+              false,
+              CipherType.Card
+            );
+            break;
+          }
+          case "autofill_identity": {
+            await this.autofillService.doAutoFillActiveTab(
+              [
+                {
+                  frameId: sender.frameId,
+                  tab: msg.tab,
+                  details: msg.details,
+                },
+              ],
+              false,
+              CipherType.Identity
+            );
             break;
           }
           case "contextMenu":
