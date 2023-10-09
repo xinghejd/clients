@@ -20,6 +20,7 @@ import { EnvironmentComponent } from "../auth/popup/environment.component";
 import { HintComponent } from "../auth/popup/hint.component";
 import { HomeComponent } from "../auth/popup/home.component";
 import { LockComponent } from "../auth/popup/lock.component";
+import { LoginDecryptionOptionsComponent } from "../auth/popup/login-decryption-options/login-decryption-options.component";
 import { LoginWithDeviceComponent } from "../auth/popup/login-with-device.component";
 import { LoginComponent } from "../auth/popup/login.component";
 import { RegisterComponent } from "../auth/popup/register.component";
@@ -32,14 +33,12 @@ import { UpdateTempPasswordComponent } from "../auth/popup/update-temp-password.
 import { GeneratorComponent } from "../tools/popup/generator/generator.component";
 import { PasswordGeneratorHistoryComponent } from "../tools/popup/generator/password-generator-history.component";
 import { SendListComponent } from "../tools/popup/send/components/send-list.component";
-import { EffluxDatesComponent as SendEffluxDatesComponent } from "../tools/popup/send/efflux-dates.component";
 import { SendAddEditComponent } from "../tools/popup/send/send-add-edit.component";
 import { SendGroupingsComponent } from "../tools/popup/send/send-groupings.component";
 import { SendTypeComponent } from "../tools/popup/send/send-type.component";
 import { ExportComponent } from "../tools/popup/settings/export.component";
 import { ActionButtonsComponent } from "../vault/popup/components/action-buttons.component";
 import { CipherRowComponent } from "../vault/popup/components/cipher-row.component";
-import { PasswordRepromptComponent } from "../vault/popup/components/password-reprompt.component";
 import { AddEditCustomFieldsComponent } from "../vault/popup/components/vault/add-edit-custom-fields.component";
 import { AddEditComponent } from "../vault/popup/components/vault/add-edit.component";
 import { AttachmentsComponent } from "../vault/popup/components/vault/attachments.component";
@@ -61,7 +60,6 @@ import { PrivateModeWarningComponent } from "./components/private-mode-warning.c
 import { SetPinComponent } from "./components/set-pin.component";
 import { UserVerificationComponent } from "./components/user-verification.component";
 import { ServicesModule } from "./services/services.module";
-import { AboutComponent } from "./settings/about.component";
 import { AutofillComponent } from "./settings/autofill.component";
 import { ExcludedDomainsComponent } from "./settings/excluded-domains.component";
 import { FoldersComponent } from "./settings/folders.component";
@@ -121,17 +119,16 @@ import "../platform/popup/locales";
     LockComponent,
     LoginComponent,
     LoginWithDeviceComponent,
+    LoginDecryptionOptionsComponent,
     OptionsComponent,
     GeneratorComponent,
     PasswordGeneratorHistoryComponent,
     PasswordHistoryComponent,
-    PasswordRepromptComponent,
     PopOutComponent,
     PremiumComponent,
     PrivateModeWarningComponent,
     RegisterComponent,
     SendAddEditComponent,
-    SendEffluxDatesComponent,
     SendGroupingsComponent,
     SendListComponent,
     SendTypeComponent,
@@ -151,7 +148,6 @@ import "../platform/popup/locales";
     ViewCustomFieldsComponent,
     RemovePasswordComponent,
     VaultSelectComponent,
-    AboutComponent,
     HelpAndFeedbackComponent,
     AutofillComponent,
     EnvironmentSelectorComponent,

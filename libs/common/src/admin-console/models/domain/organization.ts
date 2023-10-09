@@ -174,7 +174,7 @@ export class Organization {
   }
 
   get canViewAllCollections() {
-    return this.canCreateNewCollections || this.canEditAnyCollection || this.canDeleteAnyCollection;
+    return this.canEditAnyCollection || this.canDeleteAnyCollection;
   }
 
   get canEditAssignedCollections() {
@@ -215,6 +215,10 @@ export class Organization {
 
   get canManageUsersPassword() {
     return this.isAdmin || this.permissions.manageResetPassword;
+  }
+
+  get canManageDeviceApprovals() {
+    return (this.isAdmin || this.permissions.manageResetPassword) && this.useSso;
   }
 
   get isExemptFromPolicies() {

@@ -103,7 +103,9 @@ export class GetCommand extends DownloadCommand {
     if (Utils.isGuid(id)) {
       const cipher = await this.cipherService.get(id);
       if (cipher != null) {
-        decCipher = await cipher.decrypt();
+        decCipher = await cipher.decrypt(
+          await this.cipherService.getKeyForCipherKeyDecryption(cipher)
+        );
       }
     } else if (id.trim() !== "") {
       let ciphers = await this.cipherService.getAllDecrypted();
@@ -513,7 +515,7 @@ export class GetCommand extends DownloadCommand {
       try {
         const response = await this.apiService.getUserPublicKey(id);
         const pubKey = Utils.fromB64ToArray(response.publicKey);
-        fingerprint = await this.cryptoService.getFingerprint(id, pubKey.buffer);
+        fingerprint = await this.cryptoService.getFingerprint(id, pubKey);
       } catch {
         // eslint-disable-next-line
       }
