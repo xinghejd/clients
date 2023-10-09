@@ -31,6 +31,10 @@ import { BrowserPopoutWindowService } from "../../platform/popup/abstractions/br
 
 const BrowserFido2MessageName = "BrowserFido2UserInterfaceServiceMessage";
 
+/**
+ * Function to retrieve FIDO2 session data from query parameters.
+ * Expected to be used within components tied to routes with these query parameters.
+ */
 export function fido2PopoutSessionData$() {
   const route = inject(ActivatedRoute);
 
@@ -144,11 +148,11 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
     BrowserApi.sendMessage(BrowserFido2MessageName, msg);
   }
 
-  static abortPopout(sessionId: string) {
+  static abortPopout(sessionId: string, fallbackRequested = false) {
     this.sendMessage({
       sessionId: sessionId,
       type: "AbortResponse",
-      fallbackRequested: false,
+      fallbackRequested: fallbackRequested,
     });
   }
 
