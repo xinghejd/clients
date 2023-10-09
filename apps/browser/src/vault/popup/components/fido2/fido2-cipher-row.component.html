@@ -1,6 +1,6 @@
 <div
   role="group"
-  appA11yTitle="{{ cipher.name }}"
+  appA11yTitle="{{ cipher.name }} {{ cipher.subTitle }}"
   class="virtual-scroll-item"
   [ngClass]="{ 'override-last': !last }"
 >
@@ -22,7 +22,7 @@
         </span>
         <span class="detail" *ngIf="cipher.subTitle">{{ cipher.subTitle }}</span>
       </div>
-      <span class="sr-only">{{ isSelected ? ("selected" | i18n) : "" }}</span>
+      <span class="sr-only" *ngIf="isSelected">{{ "selected" | i18n }}</span>
     </button>
   </div>
 </div>

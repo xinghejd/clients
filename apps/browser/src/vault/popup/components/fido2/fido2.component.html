@@ -53,7 +53,7 @@
                   *ngFor="let cipherItem of displayedCiphers"
                   [cipher]="cipherItem"
                   [isSearching]="searchPending"
-                  title="{{ 'passkeysItem' | i18n }}"
+                  title="{{ 'passkeyItem' | i18n }}"
                   (onSelected)="selectedPasskey($event)"
                   [isSelected]="cipher === cipherItem"
                 ></app-fido2-cipher-row>
@@ -108,7 +108,7 @@
               <app-fido2-cipher-row
                 *ngFor="let cipherItem of displayedCiphers"
                 [cipher]="cipherItem"
-                title="{{ 'passkeysItem' | i18n }}"
+                title="{{ 'passkeyItem' | i18n }}"
                 (onSelected)="selectedPasskey($event)"
                 [isSelected]="cipher === cipherItem"
               ></app-fido2-cipher-row>
