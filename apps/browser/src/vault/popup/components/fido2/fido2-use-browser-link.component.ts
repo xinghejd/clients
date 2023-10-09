@@ -15,12 +15,7 @@ export class Fido2UseBrowserLinkComponent {
 
   async abort() {
     const sessionData = await firstValueFrom(this.fido2PopoutSessionData$);
-    BrowserFido2UserInterfaceSession.sendMessage({
-      sessionId: sessionData.sessionId,
-      type: "AbortResponse",
-      fallbackRequested: true,
-    });
-
+    BrowserFido2UserInterfaceSession.abortPopout(sessionData.sessionId, true);
     return;
   }
 }
