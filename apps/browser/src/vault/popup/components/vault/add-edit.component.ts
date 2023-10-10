@@ -176,7 +176,12 @@ export class AddEditComponent extends BaseAddEditComponent {
     // Would be refactored after rework is done on the windows popout service
     const sessionData = await firstValueFrom(this.fido2PopoutSessionData$);
     if (this.inPopout && sessionData.isFido2Session) {
-      return;
+      BrowserFido2UserInterfaceSession.confirmNewCredentialResponse(
+        sessionData.sessionId,
+        this.cipher.id,
+        sessionData.userVerified
+      );
+      return true;
     }
 
     if (this.popupUtilsService.inTab(window)) {

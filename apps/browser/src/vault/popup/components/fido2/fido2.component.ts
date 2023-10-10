@@ -262,29 +262,6 @@ export class Fido2Component implements OnInit, OnDestroy {
     this.loading = true;
   }
 
-  async saveNewLogin() {
-    const data = this.message$.value;
-    if (data?.type === "ConfirmNewCredentialRequest") {
-      let userVerified = false;
-      if (data.userVerification) {
-        userVerified = await this.passwordRepromptService.showPasswordPrompt();
-      }
-
-      if (!data.userVerification || userVerified) {
-        await this.createNewCipher();
-      }
-
-      this.send({
-        sessionId: this.sessionId,
-        cipherId: this.cipher?.id,
-        type: "ConfirmNewCredentialResponse",
-        userVerified,
-      });
-    }
-
-    this.loading = true;
-  }
-
   getCredentialSubTitleText(messageType: string): string {
     return messageType == "ConfirmNewCredentialRequest" ? "choosePasskey" : "logInWithPasskey";
   }
@@ -308,41 +285,57 @@ export class Fido2Component implements OnInit, OnDestroy {
     });
   }
 
-  addCipher() {
-    this.router.navigate(["/add-cipher"], {
+  async saveNewLogin() {
+    const data = this.message$.value;
+
+    if (data?.type !== "ConfirmNewCredentialRequest") {
+      return;
+    }
+
+    let userVerified = false;
+    if (data.userVerification) {
+      userVerified = await this.passwordRepromptService.showPasswordPrompt();
+    }
+
+    if (!data.userVerification || userVerified) {
+      await this.createNewCipher();
+    }
+
+    this.send({
+      sessionId: this.sessionId,
+      cipherId: this.cipher?.id,
+      type: "ConfirmNewCredentialResponse",
+      userVerified,
+    });
+
+    this.loading = true;
+  }
+
+  async addCipher() {
+    const data = this.message$.value;
+
+    if (data?.type !== "ConfirmNewCredentialRequest") {
+      return;
+    }
+
+    let userVerified = false;
+    if (data.userVerification) {
+      userVerified = await this.passwordRepromptService.showPasswordPrompt();
+    }
+
+    if (!data.userVerification || userVerified) {
+      await this.createNewCipher();
+    }
+
+    this.router.navigate(["/edit-cipher"], {
       queryParams: {
-        name: Utils.getHostname(this.url),
-        uri: this.url,
+        cipherId: this.cipher.id,
         uilocation: "popout",
         senderTabId: this.senderTabId,
         sessionId: this.sessionId,
+        userVerified: userVerified,
       },
     });
-  }
-
-  buildCipher() {
-    this.cipher = new CipherView();
-    this.cipher.name = Utils.getHostname(this.url);
-    this.cipher.type = CipherType.Login;
-    this.cipher.login = new LoginView();
-    this.cipher.login.uris = [new LoginUriView()];
-    this.cipher.login.uris[0].uri = this.url;
-    this.cipher.card = new CardView();
-    this.cipher.identity = new IdentityView();
-    this.cipher.secureNote = new SecureNoteView();
-    this.cipher.secureNote.type = SecureNoteType.Generic;
-    this.cipher.reprompt = CipherRepromptType.None;
-  }
-
-  async createNewCipher() {
-    this.buildCipher();
-    const cipher = await this.cipherService.encrypt(this.cipher);
-    try {
-      await this.cipherService.createWithServer(cipher);
-      this.cipher.id = cipher.id;
-    } catch (e) {
-      this.logService.error(e);
-    }
   }
 
   async loadLoginCiphers() {
@@ -410,5 +403,30 @@ export class Fido2Component implements OnInit, OnDestroy {
       sessionId: this.sessionId,
       ...msg,
     });
+  }
+
+  private buildCipher() {
+    this.cipher = new CipherView();
+    this.cipher.name = Utils.getHostname(this.url);
+    this.cipher.type = CipherType.Login;
+    this.cipher.login = new LoginView();
+    this.cipher.login.uris = [new LoginUriView()];
+    this.cipher.login.uris[0].uri = this.url;
+    this.cipher.card = new CardView();
+    this.cipher.identity = new IdentityView();
+    this.cipher.secureNote = new SecureNoteView();
+    this.cipher.secureNote.type = SecureNoteType.Generic;
+    this.cipher.reprompt = CipherRepromptType.None;
+  }
+
+  private async createNewCipher() {
+    this.buildCipher();
+    const cipher = await this.cipherService.encrypt(this.cipher);
+    try {
+      await this.cipherService.createWithServer(cipher);
+      this.cipher.id = cipher.id;
+    } catch (e) {
+      this.logService.error(e);
+    }
   }
 }

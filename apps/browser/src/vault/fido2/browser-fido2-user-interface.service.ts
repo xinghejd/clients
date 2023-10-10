@@ -39,6 +39,7 @@ export function fido2PopoutSessionData$() {
       isFido2Session: queryParams.sessionId != null,
       sessionId: queryParams.sessionId as string,
       fallbackSupported: queryParams.fallbackSupported as boolean,
+      userVerified: queryParams.userVerified as boolean,
     }))
   );
 }
@@ -149,6 +150,15 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       sessionId: sessionId,
       type: "AbortResponse",
       fallbackRequested: false,
+    });
+  }
+
+  static confirmNewCredentialResponse(sessionId: string, cipherId: string, userVerified: boolean) {
+    this.sendMessage({
+      sessionId: sessionId,
+      type: "ConfirmNewCredentialResponse",
+      cipherId,
+      userVerified,
     });
   }
 
