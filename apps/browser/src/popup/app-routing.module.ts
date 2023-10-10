@@ -115,7 +115,7 @@ const routes: Routes = [
     path: "2fa-options",
     component: TwoFactorOptionsComponent,
     canActivate: [UnauthGuard],
-    data: { state: "2fa-options" },
+    data: { state: "2fa-options", doNotSaveUrl: true },
   },
   {
     path: "login-initiated",

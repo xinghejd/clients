@@ -258,11 +258,11 @@ export default class RuntimeBackground {
         return await this.main.fido2ClientService.isFido2FeatureEnabled();
       case "fido2RegisterCredentialRequest":
         return await this.abortManager.runWithAbortController(msg.requestId, (abortController) =>
-          this.main.fido2ClientService.createCredential(msg.data, abortController)
+          this.main.fido2ClientService.createCredential(msg.data, sender.tab, abortController)
         );
       case "fido2GetCredentialRequest":
         return await this.abortManager.runWithAbortController(msg.requestId, (abortController) =>
-          this.main.fido2ClientService.assertCredential(msg.data, abortController)
+          this.main.fido2ClientService.assertCredential(msg.data, sender.tab, abortController)
         );
     }
   }

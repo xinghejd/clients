@@ -1,5 +1,7 @@
 import { parse } from "tldts";
 
+import { AuthService } from "../../../auth/abstractions/auth.service";
+import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { ConfigServiceAbstraction } from "../../../platform/abstractions/config/config.service.abstraction";
 import { LogService } from "../../../platform/abstractions/log.service";
@@ -37,6 +39,7 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
   constructor(
     private authenticator: Fido2AuthenticatorService,
     private configService: ConfigServiceAbstraction,
+    private authService: AuthService,
     private logService?: LogService
   ) {}
 
@@ -46,11 +49,19 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
 
   async createCredential(
     params: CreateCredentialParams,
+    tab: chrome.tabs.Tab,
     abortController = new AbortController()
   ): Promise<CreateCredentialResult> {
     const enableFido2VaultCredentials = await this.isFido2FeatureEnabled();
 
     if (!enableFido2VaultCredentials) {
+      this.logService?.warning(`[Fido2Client] Fido2VaultCredential is not enabled`);
+      throw new FallbackRequestedError();
+    }
+
+    const authStatus = await this.authService.getAuthStatus();
+
+    if (authStatus === AuthenticationStatus.LoggedOut) {
       this.logService?.warning(`[Fido2Client] Fido2VaultCredential is not enabled`);
       throw new FallbackRequestedError();
     }
@@ -126,7 +137,7 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     // Set timeout before invoking authenticator
     if (abortController.signal.aborted) {
       this.logService?.info(`[Fido2Client] Aborted with AbortController`);
-      throw new DOMException(undefined, "AbortError");
+      throw new DOMException("The operation either timed out or was not allowed.", "AbortError");
     }
     const timeout = setAbortTimeout(
       abortController,
@@ -138,6 +149,7 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     try {
       makeCredentialResult = await this.authenticator.makeCredential(
         makeCredentialParams,
+        tab,
         abortController
       );
     } catch (error) {
@@ -154,16 +166,19 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
         error.errorCode === Fido2AutenticatorErrorCode.InvalidState
       ) {
         this.logService?.warning(`[Fido2Client] Unknown error: ${error}`);
-        throw new DOMException(undefined, "InvalidStateError");
+        throw new DOMException("Unknown error occured.", "InvalidStateError");
       }
 
       this.logService?.info(`[Fido2Client] Aborted by user: ${error}`);
-      throw new DOMException(undefined, "NotAllowedError");
+      throw new DOMException(
+        "The operation either timed out or was not allowed.",
+        "NotAllowedError"
+      );
     }
 
     if (abortController.signal.aborted) {
       this.logService?.info(`[Fido2Client] Aborted with AbortController`);
-      throw new DOMException(undefined, "AbortError");
+      throw new DOMException("The operation either timed out or was not allowed.", "AbortError");
     }
 
     clearTimeout(timeout);
@@ -179,11 +194,19 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
 
   async assertCredential(
     params: AssertCredentialParams,
+    tab: chrome.tabs.Tab,
     abortController = new AbortController()
   ): Promise<AssertCredentialResult> {
     const enableFido2VaultCredentials = await this.isFido2FeatureEnabled();
 
     if (!enableFido2VaultCredentials) {
+      this.logService?.warning(`[Fido2Client] Fido2VaultCredential is not enabled`);
+      throw new FallbackRequestedError();
+    }
+
+    const authStatus = await this.authService.getAuthStatus();
+
+    if (authStatus === AuthenticationStatus.LoggedOut) {
       this.logService?.warning(`[Fido2Client] Fido2VaultCredential is not enabled`);
       throw new FallbackRequestedError();
     }
@@ -230,7 +253,7 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
 
     if (abortController.signal.aborted) {
       this.logService?.info(`[Fido2Client] Aborted with AbortController`);
-      throw new DOMException(undefined, "AbortError");
+      throw new DOMException("The operation either timed out or was not allowed.", "AbortError");
     }
 
     const timeout = setAbortTimeout(abortController, params.userVerification, params.timeout);
@@ -239,6 +262,7 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     try {
       getAssertionResult = await this.authenticator.getAssertion(
         getAssertionParams,
+        tab,
         abortController
       );
     } catch (error) {
@@ -255,16 +279,19 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
         error.errorCode === Fido2AutenticatorErrorCode.InvalidState
       ) {
         this.logService?.warning(`[Fido2Client] Unknown error: ${error}`);
-        throw new DOMException(undefined, "InvalidStateError");
+        throw new DOMException("Unknown error occured.", "InvalidStateError");
       }
 
       this.logService?.info(`[Fido2Client] Aborted by user: ${error}`);
-      throw new DOMException(undefined, "NotAllowedError");
+      throw new DOMException(
+        "The operation either timed out or was not allowed.",
+        "NotAllowedError"
+      );
     }
 
     if (abortController.signal.aborted) {
       this.logService?.info(`[Fido2Client] Aborted with AbortController`);
-      throw new DOMException(undefined, "AbortError");
+      throw new DOMException("The operation either timed out or was not allowed.", "AbortError");
     }
     clearTimeout(timeout);
 

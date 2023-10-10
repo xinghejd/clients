@@ -1,7 +1,8 @@
 import { Location } from "@angular/common";
 import { Component } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { first } from "rxjs/operators";
+import { firstValueFrom } from "rxjs";
+import { first, takeUntil } from "rxjs/operators";
 
 import { AddEditComponent as BaseAddEditComponent } from "@bitwarden/angular/vault/components/add-edit.component";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
@@ -24,6 +25,10 @@ import { DialogService } from "@bitwarden/components";
 
 import { BrowserApi } from "../../../../platform/browser/browser-api";
 import { PopupUtilsService } from "../../../../popup/services/popup-utils.service";
+import {
+  BrowserFido2UserInterfaceSession,
+  fido2PopoutSessionData$,
+} from "../../../fido2/browser-fido2-user-interface.service";
 
 @Component({
   selector: "app-vault-add-edit",
@@ -35,6 +40,11 @@ export class AddEditComponent extends BaseAddEditComponent {
   showAttachments = true;
   openAttachmentsInPopup: boolean;
   showAutoFillOnPageLoadOptions: boolean;
+  inPopout = false;
+  senderTabId?: number;
+  uilocation?: "popout" | "popup" | "sidebar" | "tab";
+
+  private fido2PopoutSessionData$ = fido2PopoutSessionData$();
 
   constructor(
     cipherService: CipherService,
@@ -78,6 +88,13 @@ export class AddEditComponent extends BaseAddEditComponent {
 
   async ngOnInit() {
     await super.ngOnInit();
+
+    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((value) => {
+      this.senderTabId = parseInt(value?.senderTabId, 10) || undefined;
+      this.uilocation = value?.uilocation;
+    });
+
+    this.inPopout = this.uilocation === "popout" || this.popupUtilsService.inPopout(window);
 
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     this.route.queryParams.pipe(first()).subscribe(async (params) => {
@@ -156,6 +173,12 @@ export class AddEditComponent extends BaseAddEditComponent {
       return false;
     }
 
+    // Would be refactored after rework is done on the windows popout service
+    const sessionData = await firstValueFrom(this.fido2PopoutSessionData$);
+    if (this.inPopout && sessionData.isFido2Session) {
+      return;
+    }
+
     if (this.popupUtilsService.inTab(window)) {
       this.popupUtilsService.disableCloseTabWarning();
       this.messagingService.send("closeTab", { delay: 1000 });
@@ -191,15 +214,35 @@ export class AddEditComponent extends BaseAddEditComponent {
     }
   }
 
-  cancel() {
+  async cancel() {
     super.cancel();
+
+    // Would be refactored after rework is done on the windows popout service
+    const sessionData = await firstValueFrom(this.fido2PopoutSessionData$);
+    if (this.inPopout && sessionData.isFido2Session) {
+      BrowserFido2UserInterfaceSession.abortPopout(sessionData.sessionId);
+      return;
+    }
 
     if (this.popupUtilsService.inTab(window)) {
       this.messagingService.send("closeTab");
       return;
     }
 
+    if (this.inPopout && this.senderTabId) {
+      this.close();
+      return;
+    }
+
     this.location.back();
+  }
+
+  // Used for closing single-action views
+  close() {
+    BrowserApi.focusTab(this.senderTabId);
+    window.close();
+
+    return;
   }
 
   async generateUsername(): Promise<boolean> {

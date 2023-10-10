@@ -23,6 +23,7 @@ import { DialogService } from "@bitwarden/components";
 
 import { BiometricErrors, BiometricErrorTypes } from "../../models/biometricErrors";
 import { BrowserRouterService } from "../../platform/popup/services/browser-router.service";
+import { fido2PopoutSessionData$ } from "../../vault/fido2/browser-fido2-user-interface.service";
 
 @Component({
   selector: "app-lock",
@@ -33,6 +34,7 @@ export class LockComponent extends BaseLockComponent {
 
   biometricError: string;
   pendingBiometric = false;
+  fido2PopoutSessionData$ = fido2PopoutSessionData$();
 
   constructor(
     router: Router,

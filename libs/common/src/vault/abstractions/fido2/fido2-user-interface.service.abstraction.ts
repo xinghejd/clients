@@ -50,6 +50,7 @@ export abstract class Fido2UserInterfaceService {
    */
   newSession: (
     fallbackSupported: boolean,
+    tab: chrome.tabs.Tab,
     abortController?: AbortController
   ) => Promise<Fido2UserInterfaceSession>;
 }

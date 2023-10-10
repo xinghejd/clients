@@ -560,8 +560,9 @@ export default class MainBackground {
 
     this.browserPopoutWindowService = new BrowserPopoutWindowService();
 
-    this.popupUtilsService = new PopupUtilsService(this.isPrivateMode);
-    this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService(this.popupUtilsService);
+    this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService(
+      this.browserPopoutWindowService
+    );
     this.fido2AuthenticatorService = new Fido2AuthenticatorService(
       this.cipherService,
       this.fido2UserInterfaceService,
@@ -571,6 +572,7 @@ export default class MainBackground {
     this.fido2ClientService = new Fido2ClientService(
       this.fido2AuthenticatorService,
       this.configService,
+      this.authService,
       this.logService
     );
 

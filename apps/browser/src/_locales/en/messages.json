@@ -2419,6 +2419,21 @@
     "message": "Toggle collapse",
     "description": "Toggling an expand/collapse state."
   },
+  "aliasDomain": {
+    "message": "Alias domain"
+  },
+  "passwordRepromptDisabledAutofillOnPageLoad": {
+    "message": "Items with master password re-prompt cannot be auto-filled on page load. Auto-fill on page load turned off.",
+    "description": "Toast message for describing that master password re-prompt cannot be auto-filled on page load."
+  },
+  "autofillOnPageLoadSetToDefault": {
+    "message": "Auto-fill on page load set to use default setting.",
+    "description": "Toast message for informing the user that auto-fill on page load has been set to the default setting."
+  },
+  "turnOffMasterPasswordPromptToEditField": {
+    "message": "Turn off master password re-prompt to edit this field",
+    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
+  },
   "loginPasskey": {
     "message": "This login uses a passkey"
   },
@@ -2434,19 +2449,58 @@
   "passkeyNotCopiedAlert": {
     "message": "The passkey will not be copied to the cloned item. Do you want to continue cloning this item?"
   },
-  "aliasDomain": {
-    "message": "Alias domain"
+  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
+    "message": "Verification required by the initiating site. This feature is not yet implemented for accounts without master password."
   },
-  "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Items with master password re-prompt cannot be auto-filled on page load. Auto-fill on page load turned off.",
-    "description": "Toast message for describing that master password re-prompt cannot be auto-filled on page load."
+  "logInWithPasskey": {
+    "message": "Log in with passkey?"
   },
-  "autofillOnPageLoadSetToDefault": {
-    "message": "Auto-fill on page load set to use default setting.",
-    "description": "Toast message for informing the user that auto-fill on page load has been set to the default setting."
+  "savePasskeyInBitwarden": {
+    "message": "Save passkey in Bitwarden?"
   },
-  "turnOffMasterPasswordPromptToEditField": {
-    "message": "Turn off master password re-prompt to edit this field",
-    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
+  "passkeyAlreadyExists": {
+    "message": "A passkey already exists for this application."
+  },
+  "noPasskeysFoundForThisApplication": {
+    "message": "No passkeys found for this application."
+  },
+  "noMatchingPasskeyLogin": {
+    "message": "You do not have a matching login for this site."
+  },
+  "confirm": {
+    "message": "Confirm"
+  },
+  "savePasskey": {
+    "message": "Save passkey"
+  },
+  "savePasskeyNewLogin": {
+    "message": "Save passkey as new login"
+  },
+  "choosePasskey": {
+    "message": "Choose a login to save this passkey to"
+  },
+  "fido2Item": {
+    "message": "Fido2 Item"
+  },
+  "overwritePasskey": {
+    "message": "Overwrite passkey?"
+  },
+  "overwritePasskeyAlert": {
+    "message": "This item already contains a passkey. Are you sure you want to overwrite the current passkey?"
+  },
+  "featureNotSupported": {
+    "message": "Feature not yet supported"
+  },
+  "searchLogins": {
+    "message": "Search all logins"
+  },
+  "yourPasskeyIsLocked": {
+    "message": "Authentication required to use passkey. Verify your identity to continue."
+  },
+  "loginToSavePasskey": {
+    "message": "Log in to use passkeys in Bitwarden"
+  },
+  "useBrowserName": {
+    "message": "Use browser"
   }
 }
