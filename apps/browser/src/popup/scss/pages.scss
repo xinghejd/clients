@@ -314,6 +314,7 @@ app-fido2 {
 
           &:focus {
             @include themify($themes) {
+              padding: 3px 0px 3px 10px;
               border: 2px solid themed("headerInputBackgroundFocusColor");
             }
           }
@@ -321,8 +322,8 @@ app-fido2 {
           &.row-selected {
             @include themify($themes) {
               outline: none;
+              padding-left: 7px;
               border-left: 5px solid themed("primaryColor");
-              padding: 3px 0px 3px 7px;
               background-color: themed("headerBackgroundHoverColor");
               color: themed("headerColor");
             }
