@@ -94,16 +94,6 @@ describe("LoginUri", () => {
 
       expect(actual).toBe(false);
     });
-
-    it("returns true if LoginUri doesn't have a checksum", async () => {
-      const loginUri = new LoginUri();
-      loginUri.uriChecksum = null;
-      encryptService.hash.mockResolvedValue("checksum");
-
-      const actual = await loginUri.validateChecksum("uri", null, null);
-
-      expect(actual).toBe(true);
-    });
   });
 
   describe("fromJSON", () => {
