@@ -191,7 +191,7 @@
               </button>
             </div>
           </div>
-          <ng-container *ngIf="cipher.login.fido2Credentials[0]">
+          <ng-container *ngIf="cipher.login.hasFido2Credentials">
             <div class="row">
               <div class="col-6 form-group">
                 <label for="loginFido2credential">{{ "typePasskey" | i18n }}</label>

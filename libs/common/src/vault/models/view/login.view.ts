@@ -19,7 +19,7 @@ export class LoginView extends ItemView {
   totp: string = null;
   uris: LoginUriView[] = null;
   autofillOnPageLoad: boolean = null;
-  fido2Credentials: Fido2CredentialView[] = [];
+  fido2Credentials: Fido2CredentialView[] = null;
 
   constructor(l?: Login) {
     super();
@@ -65,6 +65,10 @@ export class LoginView extends ItemView {
     return this.uris != null && this.uris.length > 0;
   }
 
+  get hasFido2Credentials(): boolean {
+    return this.fido2Credentials != null && this.fido2Credentials.length > 0;
+  }
+
   matchesUri(
     targetUri: string,
     equivalentDomains: Set<string>,
@@ -81,8 +85,7 @@ export class LoginView extends ItemView {
     const passwordRevisionDate =
       obj.passwordRevisionDate == null ? null : new Date(obj.passwordRevisionDate);
     const uris = obj.uris?.map((uri: any) => LoginUriView.fromJSON(uri));
-    const fido2Credentials =
-      obj.fido2Credentials?.map((key) => Fido2CredentialView.fromJSON(key)) ?? [];
+    const fido2Credentials = obj.fido2Credentials?.map((key) => Fido2CredentialView.fromJSON(key));
 
     return Object.assign(new LoginView(), obj, {
       passwordRevisionDate,

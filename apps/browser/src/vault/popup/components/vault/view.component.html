@@ -144,7 +144,7 @@
         </div>
 
         <!--Passkey-->
-        <div class="box" *ngIf="cipher.login.fido2Credentials[0]">
+        <div class="box" *ngIf="cipher.login.hasFido2Credentials">
           <div class="box-content">
             <div class="box-content-row text-muted">
               <span class="row-label">{{ "typePasskey" | i18n }}</span>
