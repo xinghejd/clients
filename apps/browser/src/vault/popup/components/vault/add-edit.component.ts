@@ -2,7 +2,7 @@ import { Location } from "@angular/common";
 import { Component } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
-import { first, takeUntil } from "rxjs/operators";
+import { first } from "rxjs/operators";
 
 import { AddEditComponent as BaseAddEditComponent } from "@bitwarden/angular/vault/components/add-edit.component";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
@@ -18,10 +18,10 @@ import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.s
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { PasswordRepromptService } from "@bitwarden/common/vault/abstractions/password-reprompt.service";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { DialogService } from "@bitwarden/components";
+import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../platform/browser/browser-api";
 import { PopupUtilsService } from "../../../../popup/services/popup-utils.service";
@@ -40,9 +40,9 @@ export class AddEditComponent extends BaseAddEditComponent {
   showAttachments = true;
   openAttachmentsInPopup: boolean;
   showAutoFillOnPageLoadOptions: boolean;
-  inPopout = false;
   senderTabId?: number;
   uilocation?: "popout" | "popup" | "sidebar" | "tab";
+  inPopout = false;
 
   private fido2PopoutSessionData$ = fido2PopoutSessionData$();
 
@@ -89,15 +89,11 @@ export class AddEditComponent extends BaseAddEditComponent {
   async ngOnInit() {
     await super.ngOnInit();
 
-    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((value) => {
-      this.senderTabId = parseInt(value?.senderTabId, 10) || undefined;
-      this.uilocation = value?.uilocation;
-    });
-
-    this.inPopout = this.uilocation === "popout" || this.popupUtilsService.inPopout(window);
-
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     this.route.queryParams.pipe(first()).subscribe(async (params) => {
+      this.senderTabId = parseInt(params?.senderTabId, 10) || undefined;
+      this.uilocation = params?.uilocation;
+
       if (params.cipherId) {
         this.cipherId = params.cipherId;
       }
@@ -145,6 +141,8 @@ export class AddEditComponent extends BaseAddEditComponent {
       this.openAttachmentsInPopup = this.popupUtilsService.inPopup(window);
     });
 
+    this.inPopout = this.uilocation === "popout" || this.popupUtilsService.inPopout(window);
+
     if (!this.editMode) {
       const tabs = await BrowserApi.tabsQuery({ windowType: "normal" });
       this.currentUris =
@@ -182,6 +180,11 @@ export class AddEditComponent extends BaseAddEditComponent {
     if (this.popupUtilsService.inTab(window)) {
       this.popupUtilsService.disableCloseTabWarning();
       this.messagingService.send("closeTab", { delay: 1000 });
+      return true;
+    }
+
+    if (this.senderTabId && this.inPopout) {
+      setTimeout(() => this.close(), 1000);
       return true;
     }
 
@@ -224,13 +227,13 @@ export class AddEditComponent extends BaseAddEditComponent {
       return;
     }
 
-    if (this.popupUtilsService.inTab(window)) {
-      this.messagingService.send("closeTab");
+    if (this.senderTabId && this.inPopout) {
+      this.close();
       return;
     }
 
-    if (this.inPopout && this.senderTabId) {
-      this.close();
+    if (this.popupUtilsService.inTab(window)) {
+      this.messagingService.send("closeTab");
       return;
     }
 

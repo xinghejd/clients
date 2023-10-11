@@ -108,6 +108,12 @@ import {
   VaultExportService,
   VaultExportServiceAbstraction,
 } from "@bitwarden/exporter/vault-export";
+import {
+  ImportApiServiceAbstraction,
+  ImportApiService,
+  ImportServiceAbstraction,
+  ImportService,
+} from "@bitwarden/importer";
 
 import { BrowserOrganizationService } from "../admin-console/services/browser-organization.service";
 import { BrowserPolicyService } from "../admin-console/services/browser-policy.service";
@@ -179,6 +185,8 @@ export default class MainBackground {
   containerService: ContainerService;
   auditService: AuditServiceAbstraction;
   authService: AuthServiceAbstraction;
+  importApiService: ImportApiServiceAbstraction;
+  importService: ImportServiceAbstraction;
   exportService: VaultExportServiceAbstraction;
   searchService: SearchServiceAbstraction;
   notificationsService: NotificationsServiceAbstraction;
@@ -538,6 +546,18 @@ export default class MainBackground {
       this.userVerificationService
     );
     this.auditService = new AuditService(this.cryptoFunctionService, this.apiService);
+
+    this.importApiService = new ImportApiService(this.apiService);
+
+    this.importService = new ImportService(
+      this.cipherService,
+      this.folderService,
+      this.importApiService,
+      this.i18nService,
+      this.collectionService,
+      this.cryptoService
+    );
+
     this.exportService = new VaultExportService(
       this.folderService,
       this.cipherService,
@@ -602,6 +622,7 @@ export default class MainBackground {
       this.platformUtilsService as BrowserPlatformUtilsService,
       this.i18nService,
       this.notificationsService,
+      this.stateService,
       this.systemService,
       this.environmentService,
       this.messagingService,
@@ -662,6 +683,7 @@ export default class MainBackground {
         },
         this.authService,
         this.cipherService,
+        this.stateService,
         this.totpService,
         this.eventCollectionService,
         this.userVerificationService

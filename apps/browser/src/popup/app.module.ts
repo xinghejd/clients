@@ -42,7 +42,6 @@ import { CipherRowComponent } from "../vault/popup/components/cipher-row.compone
 import { Fido2CipherRowComponent } from "../vault/popup/components/fido2/fido2-cipher-row.component";
 import { Fido2UseBrowserLinkComponent } from "../vault/popup/components/fido2/fido2-use-browser-link.component";
 import { Fido2Component } from "../vault/popup/components/fido2/fido2.component";
-import { PasswordRepromptComponent } from "../vault/popup/components/password-reprompt.component";
 import { AddEditCustomFieldsComponent } from "../vault/popup/components/vault/add-edit-custom-fields.component";
 import { AddEditComponent } from "../vault/popup/components/vault/add-edit.component";
 import { AttachmentsComponent } from "../vault/popup/components/vault/attachments.component";
@@ -130,7 +129,6 @@ import "../platform/popup/locales";
     GeneratorComponent,
     PasswordGeneratorHistoryComponent,
     PasswordHistoryComponent,
-    PasswordRepromptComponent,
     PopOutComponent,
     PremiumComponent,
     PrivateModeWarningComponent,

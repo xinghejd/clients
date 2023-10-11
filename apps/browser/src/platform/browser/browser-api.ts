@@ -229,6 +229,8 @@ export class BrowserApi {
     // updated to pass synchronous callbacks to addListener.
     // Will not pass async methods because they will default return a Promoise<void>
     // this causes race conditions in Firefox when a runtime.sendMessage listener receives undefined
+
+    // eslint-disable-next-line no-restricted-syntax
     chrome.runtime.onMessage.addListener(callback);
 
     if (BrowserApi.isSafariApi && !BrowserApi.isBackgroundPage(window)) {
@@ -240,6 +242,7 @@ export class BrowserApi {
   static storageChangeListener(
     callback: Parameters<typeof chrome.storage.onChanged.addListener>[0]
   ) {
+    // eslint-disable-next-line no-restricted-syntax
     chrome.storage.onChanged.addListener(callback);
 
     if (BrowserApi.isSafariApi && !BrowserApi.isBackgroundPage(window)) {
