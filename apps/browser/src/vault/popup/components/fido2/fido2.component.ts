@@ -89,6 +89,7 @@ export class Fido2Component implements OnInit, OnDestroy {
       map((queryParamMap) => ({
         sessionId: queryParamMap.get("sessionId"),
         senderTabId: queryParamMap.get("senderTabId"),
+        senderUrl: queryParamMap.get("senderUrl"),
       }))
     );
 
@@ -97,7 +98,7 @@ export class Fido2Component implements OnInit, OnDestroy {
         concatMap(async ([queryParams, message]) => {
           this.sessionId = queryParams.sessionId;
           this.senderTabId = queryParams.senderTabId;
-
+          this.url = queryParams.senderUrl;
           // For a 'NewSessionCreatedRequest', abort if it doesn't belong to the current session.
           if (
             message.type === "NewSessionCreatedRequest" &&
@@ -145,8 +146,6 @@ export class Fido2Component implements OnInit, OnDestroy {
       concatMap(async (message) => {
         switch (message.type) {
           case "ConfirmNewCredentialRequest": {
-            const activeTabs = await BrowserApi.getActiveTabs();
-            this.url = activeTabs[0].url;
             const equivalentDomains = this.settingsService.getEquivalentDomains(this.url);
 
             this.ciphers = (await this.cipherService.getAllDecrypted()).filter(

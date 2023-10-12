@@ -96,7 +96,7 @@ class BrowserPopoutWindowService implements BrowserPopupWindowServiceInterface {
   }
 
   async openFido2Popout(
-    senderWindowId: number,
+    senderWindow: chrome.tabs.Tab,
     {
       sessionId,
       senderTabId,
@@ -114,12 +114,18 @@ class BrowserPopoutWindowService implements BrowserPopupWindowServiceInterface {
       "?uilocation=popout" +
       `&sessionId=${sessionId}` +
       `&fallbackSupported=${fallbackSupported}` +
-      `&senderTabId=${senderTabId}`;
+      `&senderTabId=${senderTabId}` +
+      `&senderUrl=${encodeURIComponent(senderWindow.url)}`;
 
-    return await this.openSingleActionPopout(senderWindowId, promptWindowPath, "fido2Popout", {
-      width: 200,
-      height: 500,
-    });
+    return await this.openSingleActionPopout(
+      senderWindow.windowId,
+      promptWindowPath,
+      "fido2Popout",
+      {
+        width: 200,
+        height: 500,
+      }
+    );
   }
 
   async closeFido2Popout(): Promise<void> {

@@ -29,7 +29,7 @@ interface BrowserPopoutWindowService {
   ): Promise<void>;
   closePasswordRepromptPrompt(): Promise<void>;
   openFido2Popout(
-    senderWindowId: number,
+    senderWindow: chrome.tabs.Tab,
     promptData: {
       sessionId: string;
       senderTabId: number;
