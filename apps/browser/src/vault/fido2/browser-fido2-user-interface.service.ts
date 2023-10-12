@@ -42,7 +42,8 @@ export function fido2PopoutSessionData$() {
     map((queryParams) => ({
       isFido2Session: queryParams.sessionId != null,
       sessionId: queryParams.sessionId as string,
-      fallbackSupported: queryParams.fallbackSupported as boolean,
+      fallbackSupported: queryParams.fallbackSupported === "true",
+      userVerification: queryParams.userVerification === "true",
     }))
   );
 }
@@ -153,6 +154,15 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       sessionId: sessionId,
       type: "AbortResponse",
       fallbackRequested: fallbackRequested,
+    });
+  }
+
+  static confirmNewCredentialResponse(sessionId: string, cipherId: string, userVerified: boolean) {
+    this.sendMessage({
+      sessionId: sessionId,
+      type: "ConfirmNewCredentialResponse",
+      cipherId,
+      userVerified,
     });
   }
 

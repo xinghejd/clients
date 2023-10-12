@@ -174,7 +174,11 @@ export class AddEditComponent extends BaseAddEditComponent {
     // Would be refactored after rework is done on the windows popout service
     const sessionData = await firstValueFrom(this.fido2PopoutSessionData$);
     if (this.inPopout && sessionData.isFido2Session) {
-      return;
+      await this.confirmFido2CredentialResponse(
+        sessionData.sessionId,
+        sessionData.userVerification
+      );
+      return true;
     }
 
     if (this.popupUtilsService.inTab(window)) {
@@ -309,6 +313,18 @@ export class AddEditComponent extends BaseAddEditComponent {
         document.getElementById("name").focus();
       }
     }, 200);
+  }
+
+  private async confirmFido2CredentialResponse(sessionId: string, userVerification: boolean) {
+    const userVerified = userVerification
+      ? await this.passwordRepromptService.showPasswordPrompt()
+      : false;
+
+    BrowserFido2UserInterfaceSession.confirmNewCredentialResponse(
+      sessionId,
+      this.cipher.id,
+      userVerified
+    );
   }
 
   repromptChanged() {
