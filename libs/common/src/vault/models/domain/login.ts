@@ -46,7 +46,6 @@ export class Login extends Domain {
     }
 
     if (obj.fido2Credentials) {
-      this.fido2Credentials = [];
       this.fido2Credentials = obj.fido2Credentials.map((key) => new Fido2Credential(key));
     }
   }
@@ -72,7 +71,6 @@ export class Login extends Domain {
     }
 
     if (this.fido2Credentials != null) {
-      view.fido2Credentials = [];
       view.fido2Credentials = await Promise.all(
         this.fido2Credentials.map((key) => key.decrypt(orgId, encKey))
       );
@@ -100,7 +98,6 @@ export class Login extends Domain {
     }
 
     if (this.fido2Credentials != null && this.fido2Credentials.length > 0) {
-      l.fido2Credentials = [];
       l.fido2Credentials = this.fido2Credentials.map((key) => key.toFido2CredentialData());
     }
 
