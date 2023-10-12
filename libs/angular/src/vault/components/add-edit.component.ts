@@ -267,6 +267,11 @@ export class AddEditComponent implements OnInit, OnDestroy {
       }
     }
 
+    // We don't want to copy passkeys when we clone a cipher
+    if (this.cloneMode && this.cipher?.login?.hasFido2Credentials) {
+      this.cipher.login.fido2Credentials = null;
+    }
+
     this.folders$ = this.folderService.folderViews$;
 
     if (this.editMode && this.previousCipherId !== this.cipherId) {
@@ -324,13 +329,9 @@ export class AddEditComponent implements OnInit, OnDestroy {
           : this.collections.filter((c) => (c as any).checked).map((c) => c.id);
     }
 
-    // Clear current Cipher Id and Fido2Credentials if exists to trigger "Add" cipher flow
+    // Clear current Cipher Id if exists to trigger "Add" cipher flow
     if (this.cloneMode) {
       this.cipher.id = null;
-
-      if (this.cipher.type === CipherType.Login && this.cipher.login.hasFido2Credentials) {
-        this.cipher.login.fido2Credentials = null;
-      }
     }
 
     const cipher = await this.encryptCipher();
