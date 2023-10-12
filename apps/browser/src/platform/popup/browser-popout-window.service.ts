@@ -123,7 +123,7 @@ class BrowserPopoutWindowService implements BrowserPopupWindowServiceInterface {
       "fido2Popout",
       {
         width: 200,
-        height: 500,
+        height: 530,
       }
     );
   }
