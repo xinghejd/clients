@@ -73,7 +73,7 @@ const routes: Routes = [
     path: "home",
     component: HomeComponent,
     canActivate: [UnauthGuard],
-    data: { state: "home", doNotSaveUrl: true },
+    data: { state: "home" },
   },
   {
     path: "fido2",
@@ -85,7 +85,7 @@ const routes: Routes = [
     path: "login",
     component: LoginComponent,
     canActivate: [UnauthGuard],
-    data: { state: "login", doNotSaveUrl: true },
+    data: { state: "login" },
   },
   {
     path: "login-with-device",
@@ -109,13 +109,13 @@ const routes: Routes = [
     path: "2fa",
     component: TwoFactorComponent,
     canActivate: [UnauthGuard],
-    data: { state: "2fa", doNotSaveUrl: true },
+    data: { state: "2fa" },
   },
   {
     path: "2fa-options",
     component: TwoFactorOptionsComponent,
     canActivate: [UnauthGuard],
-    data: { state: "2fa-options", doNotSaveUrl: true },
+    data: { state: "2fa-options" },
   },
   {
     path: "login-initiated",

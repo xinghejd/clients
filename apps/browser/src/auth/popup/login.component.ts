@@ -19,7 +19,6 @@ import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/ge
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 
 import { flagEnabled } from "../../platform/flags";
-import { BrowserRouterService } from "../../platform/popup/services/browser-router.service";
 
 @Component({
   selector: "app-login",
@@ -45,8 +44,7 @@ export class LoginComponent extends BaseLoginComponent {
     formBuilder: FormBuilder,
     formValidationErrorService: FormValidationErrorsService,
     route: ActivatedRoute,
-    loginService: LoginService,
-    private routerService: BrowserRouterService
+    loginService: LoginService
   ) {
     super(
       devicesApiService,
@@ -71,16 +69,6 @@ export class LoginComponent extends BaseLoginComponent {
     };
 
     super.successRoute = "/tabs/vault";
-
-    super.onSuccessfulLoginNavigate = async () => {
-      const previousUrl = this.routerService.getPreviousUrl();
-
-      if (previousUrl) {
-        this.router.navigateByUrl(previousUrl);
-      } else {
-        this.router.navigate([this.successRoute]);
-      }
-    };
 
     this.showPasswordless = flagEnabled("showPasswordless");
 
