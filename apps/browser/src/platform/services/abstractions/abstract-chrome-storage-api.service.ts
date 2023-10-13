@@ -1,7 +1,34 @@
-import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
+import { Observable, mergeMap } from "rxjs";
+
+import {
+  AbstractStorageService,
+  StorageUpdateType,
+} from "@bitwarden/common/platform/abstractions/storage.service";
+
+import { fromChromeEvent } from "../../browser/from-chrome-event";
 
 export default abstract class AbstractChromeStorageService extends AbstractStorageService {
   protected abstract chromeStorageApi: chrome.storage.StorageArea;
+
+  override get updates$(): Observable<{
+    key: string;
+    value: unknown;
+    updateType: StorageUpdateType;
+  }> {
+    return fromChromeEvent(this.chromeStorageApi.onChanged).pipe(
+      mergeMap(([changes]) => {
+        return Object.entries(changes).map(([key, change]) => {
+          const newValue = change.newValue;
+          // I'm not sure the != null is the greatest determinator of if it's a remove
+          return {
+            key: key,
+            value: newValue,
+            updateType: (newValue != null ? "save" : "remove") as StorageUpdateType,
+          };
+        });
+      })
+    );
+  }
 
   async get<T>(key: string): Promise<T> {
     return new Promise((resolve) => {
@@ -32,7 +59,6 @@ export default abstract class AbstractChromeStorageService extends AbstractStora
     const keyedObj = { [key]: obj };
     return new Promise<void>((resolve) => {
       this.chromeStorageApi.set(keyedObj, () => {
-        this.updatesSubject.next({ key, value: obj, updateType: "save" });
         resolve();
       });
     });
@@ -41,7 +67,6 @@ export default abstract class AbstractChromeStorageService extends AbstractStora
   async remove(key: string): Promise<void> {
     return new Promise<void>((resolve) => {
       this.chromeStorageApi.remove(key, () => {
-        this.updatesSubject.next({ key, value: null, updateType: "remove" });
         resolve();
       });
     });
