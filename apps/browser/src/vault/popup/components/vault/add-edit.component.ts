@@ -166,17 +166,29 @@ export class AddEditComponent extends BaseAddEditComponent {
   }
 
   async submit(): Promise<boolean> {
+    const fido2SessionData = await firstValueFrom(this.fido2PopoutSessionData$);
+    // Would be refactored after rework is done on the windows popout service
+    if (
+      this.inPopout &&
+      fido2SessionData.isFido2Session &&
+      !(await this.handleFido2UserVerification(
+        fido2SessionData.sessionId,
+        fido2SessionData.userVerification
+      ))
+    ) {
+      return false;
+    }
+
     const success = await super.submit();
     if (!success) {
       return false;
     }
 
-    // Would be refactored after rework is done on the windows popout service
-    const sessionData = await firstValueFrom(this.fido2PopoutSessionData$);
-    if (this.inPopout && sessionData.isFido2Session) {
-      await this.confirmFido2CredentialResponse(
-        sessionData.sessionId,
-        sessionData.userVerification
+    if (this.inPopout && fido2SessionData.isFido2Session) {
+      BrowserFido2UserInterfaceSession.confirmNewCredentialResponse(
+        fido2SessionData.sessionId,
+        this.cipher.id,
+        fido2SessionData.userVerification
       );
       return true;
     }
@@ -315,16 +327,16 @@ export class AddEditComponent extends BaseAddEditComponent {
     }, 200);
   }
 
-  private async confirmFido2CredentialResponse(sessionId: string, userVerification: boolean) {
-    const userVerified = userVerification
-      ? await this.passwordRepromptService.showPasswordPrompt()
-      : false;
+  private async handleFido2UserVerification(
+    sessionId: string,
+    userVerification: boolean
+  ): Promise<boolean> {
+    if (userVerification && !(await this.passwordRepromptService.showPasswordPrompt())) {
+      BrowserFido2UserInterfaceSession.abortPopout(sessionId);
+      return false;
+    }
 
-    BrowserFido2UserInterfaceSession.confirmNewCredentialResponse(
-      sessionId,
-      this.cipher.id,
-      userVerified
-    );
+    return true;
   }
 
   repromptChanged() {
