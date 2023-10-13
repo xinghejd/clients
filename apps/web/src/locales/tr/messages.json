@@ -508,9 +508,6 @@
   "maxFileSize": {
     "message": "Maksimum dosya boyutu 500 MB'dir."
   },
-  "updateKey": {
-    "message": "Şifreleme anahtarınızı güncellemeden bu özelliği kullanamazsınız."
-  },
   "addedItem": {
     "message": "Kayıt eklendi"
   },
@@ -613,6 +610,72 @@
   },
   "loginWithMasterPassword": {
     "message": "Ana parola ile giriş yap"
+  },
+  "loginWithPasskey": {
+    "message": "Şifreyle giriş yapın"
+  },
+  "loginWithPasskeyInfo": {
+    "message": "Parola olmadan otomatik olarak oturum açmanızı sağlayacak oluşturulmuş bir geçiş anahtarı kullanın. Yüz tanıma veya parmak izi gibi biyometri veya başka bir FIDO2 güvenlik yöntemi kimliğinizi doğrulayacaktır."
+  },
+  "newPasskey": {
+    "message": "Yeni şifre"
+  },
+  "learnMoreAboutPasswordless": {
+    "message": "Learn more about passwordless"
+  },
+  "passkeyEnterMasterPassword": {
+    "message": "Şifre anahtarıyla oturum açma ayarlarını değiştirmek için ana şifrenizi girin."
+  },
+  "creatingPasskeyLoading": {
+    "message": "Creating passkey..."
+  },
+  "creatingPasskeyLoadingInfo": {
+    "message": "Bu pencereyi açık tutun ve tarayıcınızdan gelen talimatları izleyin."
+  },
+  "errorCreatingPasskey": {
+    "message": "Error creating passkey"
+  },
+  "errorCreatingPasskeyInfo": {
+    "message": "Şifreniz oluşturulurken bir sorun oluştu."
+  },
+  "passkeySuccessfullyCreated": {
+    "message": "Passkey successfully created!"
+  },
+  "customName": {
+    "message": "Custom name"
+  },
+  "customPasskeyNameInfo": {
+    "message": "Name your passkey to help you identify it."
+  },
+  "encryptionNotSupported": {
+    "message": "Encryption not supported"
+  },
+  "loginWithPasskeyEnabled": {
+    "message": "Log in with passkey turned on"
+  },
+  "passkeySaved": {
+    "message": "$NAME$ kaydedildi",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Personal yubikey"
+      }
+    }
+  },
+  "passkeyRemoved": {
+    "message": "Passkey removed"
+  },
+  "removePasskey": {
+    "message": "Remove passkey"
+  },
+  "removePasskeyInfo": {
+    "message": "If all passkeys are removed, you will be unable to log into new devices without your master password."
+  },
+  "passkeyLimitReachedInfo": {
+    "message": "Passkey limit reached. Remove a passkey to add another."
+  },
+  "tryAgain": {
+    "message": "Try again"
   },
   "createAccount": {
     "message": "Hesap aç"
@@ -1425,12 +1488,15 @@
   "twoStepLoginDesc": {
     "message": "Oturum açarken ek bir adım talep ederek hesabınızı güvenceye alabilirsiniz."
   },
-  "twoStepLoginOrganizationDescStart": {
-    "message": "Üyeler için Bitwarden iki aşamalı giriş seçeneklerini ",
+  "twoStepLoginTeamsDesc": {
+    "message": "Kuruluşunuz için iki aşamalı girişi etkinleştirin."
+  },
+  "twoStepLoginEnterpriseDescStart": {
+    "message": "Üyeler için Bitwarden iki aşamalı giriş seçeneklerini zorunlu kılmak üzere ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Enforce Bitwarden Two-step Login options for members by using the Two-step Login Policy.'"
   },
   "twoStepLoginPolicy": {
-    "message": "iki aşamalı giriş ilkesi ile zorunlu tut"
+    "message": "iki aşamalı giriş ilkesini kullan"
   },
   "twoStepLoginOrganizationDuoDesc": {
     "message": "Duo ile iki aşamalı girişi zorunlu tutmak için aşağıdaki seçenekleri kullanın."
@@ -3473,17 +3539,11 @@
   "keyUpdated": {
     "message": "Anahtar güncellendi"
   },
-  "updateKeyTitle": {
-    "message": "Anahtarı güncelle"
-  },
   "updateEncryptionKey": {
     "message": "Şifreleme anahtarını güncelle"
   },
-  "updateEncryptionKeyShortDesc": {
-    "message": "Şu anda eski bir şifreleme modeli kullanıyorsunuz."
-  },
-  "updateEncryptionKeyDesc": {
-    "message": "Daha yüksek güvenlik ve daha yeni özelliklere erişim sağlayan daha büyük şifreleme anahtarlarına geçtik. Şifreleme anahtarınızı kolayca güncelleyebilirsiniz. Ana parolanızı aşağıya yazmanız yeterli. Bu güncelleme bir süre sonra zorunlu hale gelecektir."
+  "updateEncryptionSchemeDesc": {
+    "message": "Güvenliği daha da artırmak için şifreleme şemamızı değiştirdik. Aşağıya ana parolanızı yazarak şifreleme anahtarınızı güncelleyebilirsiniz."
   },
   "updateEncryptionKeyWarning": {
     "message": "Şifreleme anahtarınızı güncelledikten sonra, şu anda kullanmakta olduğunuz tüm Bitwarden uygulamalarında (mobil uygulama veya tarayıcı uzantıları gibi) oturumunuzu kapatıp tekrar açmanız gerekir. Yeni şifreleme anahtarınızı indirme için oturumu kapatıp tekrar açmamamız verilerin bozulmasına neden olabilir. Oturumunuzu otomatik olarak kapatmaya çalışacağız, ancak bu gecikebilir."
@@ -5412,6 +5472,19 @@
   "required": {
     "message": "zorunlu"
   },
+  "charactersCurrentAndMaximum": {
+    "message": "$CURRENT$/$MAX$ character maximum",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "0"
+      },
+      "max": {
+        "content": "$2",
+        "example": "100"
+      }
+    }
+  },
   "characterMaximum": {
     "message": "en fazla $MAX$ karakter",
     "placeholders": {
@@ -5759,6 +5832,9 @@
   },
   "on": {
     "message": "Açık"
+  },
+  "off": {
+    "message": "Kapalı"
   },
   "members": {
     "message": "Üyeler"
@@ -7016,12 +7092,6 @@
   "next": {
     "message": "İleri"
   },
-  "usFlag": {
-    "message": "ABD bayrağı"
-  },
-  "euFlag": {
-    "message": "AB bayrağı"
-  },
   "selectedRegionFlag": {
     "message": "Seçilen bölgenin bayrağı"
   },
@@ -7108,8 +7178,8 @@
       }
     }
   },
-  "addSecretsManager": {
-    "message": "Add Secrets Manager"
+  "subscribeToSecretsManager": {
+    "message": "Secrets Manager'a abone olun"
   },
   "addSecretsManagerUpgradeDesc": {
     "message": "Add Secrets Manager to your upgraded plan to maintain access to any secrets created with your previous plan."
@@ -7181,7 +7251,19 @@
   "beta": {
     "message": "Beta"
   },
+  "baseUrl": {
+    "message": "Sunucu URL'si"
+  },
+  "aliasDomain": {
+    "message": "Alias alan adı"
+  },
   "alreadyHaveAccount": {
     "message": "Zaten hesabınız var mı?"
+  },
+  "customBillingStart": {
+    "message": "Özel faturalandırma yansıtılmıyor. Son fatura sayfasını "
+  },
+  "customBillingEnd": {
+    "message": " ziyaret edin."
   }
 }

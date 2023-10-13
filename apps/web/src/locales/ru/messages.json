@@ -508,9 +508,6 @@
   "maxFileSize": {
     "message": "Максимальный размер файла 500 МБ."
   },
-  "updateKey": {
-    "message": "Вы не можете использовать эту функцию, пока не обновите свой ключ шифрования."
-  },
   "addedItem": {
     "message": "Элемент добавлен"
   },
@@ -613,6 +610,72 @@
   },
   "loginWithMasterPassword": {
     "message": "Войти с мастер-паролем"
+  },
+  "loginWithPasskey": {
+    "message": "Войти с ключом доступа"
+  },
+  "loginWithPasskeyInfo": {
+    "message": "Используйте сгенерированный ключ доступа для автоматической авторизации без пароля. Ваша личность будет подтверждена биометрическими данными (распознаванием лица, отпечатком пальца или другим методом безопасности FIDO2)."
+  },
+  "newPasskey": {
+    "message": "Новый ключ доступа"
+  },
+  "learnMoreAboutPasswordless": {
+    "message": "Подробнее о беспарольном режиме"
+  },
+  "passkeyEnterMasterPassword": {
+    "message": "Для изменения параметров авторизации ключом доступа введите мастер-пароль."
+  },
+  "creatingPasskeyLoading": {
+    "message": "Создание ключа доступа..."
+  },
+  "creatingPasskeyLoadingInfo": {
+    "message": "Не закрывайте это окно и следуйте запросам браузера."
+  },
+  "errorCreatingPasskey": {
+    "message": "Ошибка создания ключа доступа"
+  },
+  "errorCreatingPasskeyInfo": {
+    "message": "При создании ключа доступа возникла проблема."
+  },
+  "passkeySuccessfullyCreated": {
+    "message": "Ключ доступа успешно создан!"
+  },
+  "customName": {
+    "message": "Имя"
+  },
+  "customPasskeyNameInfo": {
+    "message": "Назовите ключ доступа так, чтобы вы могли его идентифицировать."
+  },
+  "encryptionNotSupported": {
+    "message": "Шифрование не поддерживается"
+  },
+  "loginWithPasskeyEnabled": {
+    "message": "Авторизоваться с помощью ключа доступа"
+  },
+  "passkeySaved": {
+    "message": "$NAME$ сохранен",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Personal yubikey"
+      }
+    }
+  },
+  "passkeyRemoved": {
+    "message": "Ключ доступа удален"
+  },
+  "removePasskey": {
+    "message": "Удалить ключ доступа"
+  },
+  "removePasskeyInfo": {
+    "message": "Если будут удалены все ключи доступа, вы не сможете авторизоваться на новых устройствах без мастер-пароля."
+  },
+  "passkeyLimitReachedInfo": {
+    "message": "Достигнут предел ключей доступа. Удалите какой-нибудь ключ, чтобы добавить другой."
+  },
+  "tryAgain": {
+    "message": "Попробуйте снова"
   },
   "createAccount": {
     "message": "Создать аккаунт"
@@ -982,7 +1045,7 @@
     "message": "Экспорт"
   },
   "exportVault": {
-    "message": "Экспортировать хранилище"
+    "message": "Экспорт хранилища"
   },
   "exportSecrets": {
     "message": "Экспорт секретов"
@@ -1319,10 +1382,10 @@
     "message": "Файл содержит неназначенные элементы."
   },
   "selectFormat": {
-    "message": "Выберите формат файла импорта"
+    "message": "Выберите формат импортируемого файла"
   },
   "selectImportFile": {
-    "message": "Выберите файл импорта"
+    "message": "Выберите импортируемый файл"
   },
   "chooseFile": {
     "message": "Выбрать файл"
@@ -1425,7 +1488,10 @@
   "twoStepLoginDesc": {
     "message": "Защитите свою учетную запись, при помощи дополнительного шага при авторизации."
   },
-  "twoStepLoginOrganizationDescStart": {
+  "twoStepLoginTeamsDesc": {
+    "message": "Включить двухэтапную аутентификацию для вашей организации."
+  },
+  "twoStepLoginEnterpriseDescStart": {
     "message": "Применить параметры двухэтапной аутентификации Bitwarden для пользователей, используя ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Enforce Bitwarden Two-step Login options for members by using the Two-step Login Policy.'"
   },
@@ -3473,17 +3539,11 @@
   "keyUpdated": {
     "message": "Ключ обновлен"
   },
-  "updateKeyTitle": {
-    "message": "Обновить ключ"
-  },
   "updateEncryptionKey": {
     "message": "Обновить ключ шифрования"
   },
-  "updateEncryptionKeyShortDesc": {
-    "message": "В настоящее время вы используете устаревшую схему шифрования."
-  },
-  "updateEncryptionKeyDesc": {
-    "message": "Мы перешли на более сложные ключи шифрования, которые обеспечивают лучшую безопасность и доступ к новым возможностям. Обновление ключа шифрования происходит быстро и легко. Просто введите свой мастер-пароль ниже. Это обновление в конечном итоге станет обязательным."
+  "updateEncryptionSchemeDesc": {
+    "message": "Мы изменили схему шифрования, чтобы повысить безопасность. Обновите ключ шифрования, введя ниже мастер-пароль."
   },
   "updateEncryptionKeyWarning": {
     "message": "После обновления ключа шифрования необходимо выйти из всех приложений Bitwarden, которые вы используете (например, из мобильного приложения или расширения браузера). Если этого не сделать, могут повредиться данные (так как при выходе и последующем входе загружается ваш новый ключ шифрования). Мы попытаемся автоматически осуществить завершение ваших сессий, однако это может произойти с задержкой."
@@ -3649,7 +3709,7 @@
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "fingerprintMatchInfo": {
-    "message": "Убедитесь, что ваше хранилище разблокировано и фраза отпечатка пальца совпадает на другом устройстве."
+    "message": "Убедитесь, что ваше хранилище разблокировано и фраза отпечатка совпадает на другом устройстве."
   },
   "fingerprintPhraseHeader": {
     "message": "Фраза отпечатка"
@@ -5412,6 +5472,19 @@
   "required": {
     "message": "обязательно"
   },
+  "charactersCurrentAndMaximum": {
+    "message": "$CURRENT$/$MAX$ симв. максимум",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "0"
+      },
+      "max": {
+        "content": "$2",
+        "example": "100"
+      }
+    }
+  },
   "characterMaximum": {
     "message": "Максимум символов $MAX$",
     "placeholders": {
@@ -5759,6 +5832,9 @@
   },
   "on": {
     "message": "Вкл"
+  },
+  "off": {
+    "message": "Выкл"
   },
   "members": {
     "message": "Участники"
@@ -6775,7 +6851,7 @@
     "message": "Удалить доступ"
   },
   "checkForBreaches": {
-    "message": "Проверьте известные случаи утечки данных для этого пароля"
+    "message": "Проверять известные случаи утечки данных для этого пароля"
   },
   "exposedMasterPassword": {
     "message": "Мастер-пароль скомпрометирован"
@@ -7016,12 +7092,6 @@
   "next": {
     "message": "Далее"
   },
-  "usFlag": {
-    "message": "Флаг США"
-  },
-  "euFlag": {
-    "message": "Флаг ЕС"
-  },
   "selectedRegionFlag": {
     "message": "Флаг выбранного региона"
   },
@@ -7108,8 +7178,8 @@
       }
     }
   },
-  "addSecretsManager": {
-    "message": "Добавить Менеджер секретов"
+  "subscribeToSecretsManager": {
+    "message": "Подписаться на Менеджер секретов"
   },
   "addSecretsManagerUpgradeDesc": {
     "message": "Добавить Менеджер секретов к этому тарифному плану, чтобы сохранить доступ к секретам, созданным ранее."
@@ -7181,7 +7251,19 @@
   "beta": {
     "message": "Beta"
   },
+  "baseUrl": {
+    "message": "URL сервера"
+  },
+  "aliasDomain": {
+    "message": "Псевдоним домена"
+  },
   "alreadyHaveAccount": {
     "message": "Уже зарегистрированы?"
+  },
+  "customBillingStart": {
+    "message": "Пользовательские счета не отображаются. Посетите страницу "
+  },
+  "customBillingEnd": {
+    "message": " для получения последней информации о выставлении счетов."
   }
 }

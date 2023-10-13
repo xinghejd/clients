@@ -11,7 +11,6 @@ import {
 import { canAccessFeature } from "@bitwarden/angular/guard/feature-flag.guard";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
-import { SubscriptionRoutingModule } from "../app/billing/settings/subscription-routing.module";
 import { flagEnabled, Flags } from "../utils/flags";
 
 import { AcceptFamilySponsorshipComponent } from "./admin-console/organizations/sponsorships/accept-family-sponsorship.component";
@@ -175,6 +174,13 @@ const routes: Routes = [
         canActivate: [AuthGuard],
         data: { titleId: "removeMasterPassword" },
       },
+      {
+        path: "migrate-legacy-encryption",
+        loadComponent: () =>
+          import("./auth/migrate-encryption/migrate-legacy-encryption.component").then(
+            (mod) => mod.MigrateFromLegacyEncryptionComponent
+          ),
+      },
     ],
   },
   {
@@ -214,7 +220,10 @@ const routes: Routes = [
           },
           {
             path: "subscription",
-            loadChildren: () => SubscriptionRoutingModule,
+            loadChildren: () =>
+              import("./billing/individual/individual-billing.module").then(
+                (m) => m.IndividualBillingModule
+              ),
           },
           {
             path: "emergency-access",
@@ -245,11 +254,13 @@ const routes: Routes = [
         children: [
           { path: "", pathMatch: "full", redirectTo: "generator" },
           {
-            path: "",
+            path: "import",
+            loadChildren: () => import("./tools/import/import.module").then((m) => m.ImportModule),
+          },
+          {
+            path: "export",
             loadChildren: () =>
-              import("./tools/import-export/import-export.module").then(
-                (m) => m.ImportExportModule
-              ),
+              import("./tools/vault-export/export.module").then((m) => m.ExportModule),
           },
           {
             path: "generator",

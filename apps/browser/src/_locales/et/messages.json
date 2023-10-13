@@ -91,6 +91,15 @@
   "autoFill": {
     "message": "Automaatne täitmine"
   },
+  "autoFillLogin": {
+    "message": "Täida konto andmed"
+  },
+  "autoFillCard": {
+    "message": "Täida kaardi andmed"
+  },
+  "autoFillIdentity": {
+    "message": "Täida identiteet"
+  },
   "generatePasswordCopied": {
     "message": "Genereeri parool (kopeeritakse)"
   },
@@ -99,6 +108,21 @@
   },
   "noMatchingLogins": {
     "message": "Sobivaid kontoandmeid ei leitud."
+  },
+  "noCards": {
+    "message": "Kaardid puuduvad"
+  },
+  "noIdentities": {
+    "message": "Identiteedid puuduvad"
+  },
+  "addLoginMenu": {
+    "message": "Lisa konto andmed"
+  },
+  "addCardMenu": {
+    "message": "Lisa kaart"
+  },
+  "addIdentityMenu": {
+    "message": "Lisa identiteet"
   },
   "unlockVaultMenu": {
     "message": "Lukusta hoidla lahti"
@@ -771,8 +795,8 @@
   "featureUnavailable": {
     "message": "Funktsioon pole saadaval"
   },
-  "updateKey": {
-    "message": "Seda funktsiooni ei saa enne krüpteerimise võtme uuendamist kasutada."
+  "encryptionKeyMigrationRequired": {
+    "message": "Encryption key migration required. Please login through the web vault to update your encryption key."
   },
   "premiumMembership": {
     "message": "Premium versioon"
@@ -1991,8 +2015,8 @@
   "exportingPersonalVaultTitle": {
     "message": "Personaalse hoidla eksportimine"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Ainult personaalsed $EMAIL$ alla kuuluvad kirjed eksportidakse. Organisatsiooni kirjeid ei ekspordita.",
+  "exportingIndividualVaultDescription": {
+    "message": "Ainult e-postiga $EMAIL$ seonduvad kirjed eksporditakse. Organisatsiooni kirjeid ei kaasata. Samuti ei kaasata organisatsiooniga seonduvaid manuseid.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2092,8 +2116,8 @@
   "serverVersion": {
     "message": "Serveri versioon"
   },
-  "selfHosted": {
-    "message": "Enda majutatud"
+  "selfHostedServer": {
+    "message": "enda majutatud"
   },
   "thirdParty": {
     "message": "Kolmanda osapoole"
@@ -2406,5 +2430,20 @@
   "toggleCollapse": {
     "message": "Peida",
     "description": "Toggling an expand/collapse state."
+  },
+  "aliasDomain": {
+    "message": "Alias domeen"
+  },
+  "passwordRepromptDisabledAutofillOnPageLoad": {
+    "message": "Items with master password re-prompt cannot be auto-filled on page load. Auto-fill on page load turned off.",
+    "description": "Toast message for describing that master password re-prompt cannot be auto-filled on page load."
+  },
+  "autofillOnPageLoadSetToDefault": {
+    "message": "Auto-fill on page load set to use default setting.",
+    "description": "Toast message for informing the user that auto-fill on page load has been set to the default setting."
+  },
+  "turnOffMasterPasswordPromptToEditField": {
+    "message": "Turn off master password re-prompt to edit this field",
+    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   }
 }

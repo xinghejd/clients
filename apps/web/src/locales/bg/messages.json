@@ -508,9 +508,6 @@
   "maxFileSize": {
     "message": "Големината на файла е най-много 500 MB."
   },
-  "updateKey": {
-    "message": "Трябва да обновите шифриращия си ключ, за да използвате тази възможност."
-  },
   "addedItem": {
     "message": "Елементът е добавен"
   },
@@ -613,6 +610,72 @@
   },
   "loginWithMasterPassword": {
     "message": "Вписване с главната парола"
+  },
+  "loginWithPasskey": {
+    "message": "Log in with passkey"
+  },
+  "loginWithPasskeyInfo": {
+    "message": "Use a generated passkey that will automatically log you in without a password. Biometrics, like facial recognition or fingerprint, or another FIDO2 security method will verify your identity."
+  },
+  "newPasskey": {
+    "message": "New passkey"
+  },
+  "learnMoreAboutPasswordless": {
+    "message": "Learn more about passwordless"
+  },
+  "passkeyEnterMasterPassword": {
+    "message": "Enter your master password to modify log in with passkey settings."
+  },
+  "creatingPasskeyLoading": {
+    "message": "Creating passkey..."
+  },
+  "creatingPasskeyLoadingInfo": {
+    "message": "Keep this window open and follow prompts from your browser."
+  },
+  "errorCreatingPasskey": {
+    "message": "Error creating passkey"
+  },
+  "errorCreatingPasskeyInfo": {
+    "message": "There was a problem creating your passkey."
+  },
+  "passkeySuccessfullyCreated": {
+    "message": "Passkey successfully created!"
+  },
+  "customName": {
+    "message": "Custom name"
+  },
+  "customPasskeyNameInfo": {
+    "message": "Name your passkey to help you identify it."
+  },
+  "encryptionNotSupported": {
+    "message": "Encryption not supported"
+  },
+  "loginWithPasskeyEnabled": {
+    "message": "Log in with passkey turned on"
+  },
+  "passkeySaved": {
+    "message": "$NAME$ saved",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Personal yubikey"
+      }
+    }
+  },
+  "passkeyRemoved": {
+    "message": "Passkey removed"
+  },
+  "removePasskey": {
+    "message": "Remove passkey"
+  },
+  "removePasskeyInfo": {
+    "message": "If all passkeys are removed, you will be unable to log into new devices without your master password."
+  },
+  "passkeyLimitReachedInfo": {
+    "message": "Passkey limit reached. Remove a passkey to add another."
+  },
+  "tryAgain": {
+    "message": "Нов опит"
   },
   "createAccount": {
     "message": "Създаване на абонамент"
@@ -1425,12 +1488,15 @@
   "twoStepLoginDesc": {
     "message": "Допълнителна защита на абонамента чрез изискването на допълнително действие при вписване."
   },
-  "twoStepLoginOrganizationDescStart": {
-    "message": "Enforce Bitwarden Two-step Login options for members by using the ",
+  "twoStepLoginTeamsDesc": {
+    "message": "Включете двустепенното удостоверяване за организацията си."
+  },
+  "twoStepLoginEnterpriseDescStart": {
+    "message": "Задължете членовете да използват вариантите за двустепенно удостоверяване в Битуорден, като използвате ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Enforce Bitwarden Two-step Login options for members by using the Two-step Login Policy.'"
   },
   "twoStepLoginPolicy": {
-    "message": "Two-step Login Policy"
+    "message": "Политика за двустепенно удостоверяване"
   },
   "twoStepLoginOrganizationDuoDesc": {
     "message": "За да направите двустепенното удостоверяване чрез Duo задължително, използвайте настройките по-долу."
@@ -1720,7 +1786,7 @@
     "message": "Открити са записи без двустепенна идентификация"
   },
   "inactive2faFoundDesc": {
-    "message": "We found $COUNT$ website(s) in your vault that may not be configured with two-step login (according to 2fa.directory). To further protect these accounts, you should set up two-step login.",
+    "message": "В трезора ви има $COUNT$ уебсайт(а), които е възможно да не са настроени за вписване чрез двустепенно удостоверяване (според сайта 2fa.directory). За да защитите тези регистрации, трябва да настроите двустепенното удостоверяване.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -1925,7 +1991,7 @@
     "message": "1 GB пространство за файлове, които се шифрират."
   },
   "premiumSignUpTwoStepOptions": {
-    "message": "Proprietary two-step login options such as YubiKey and Duo."
+    "message": "Частно двустепенно удостоверяване чрез YubiKey и Duo."
   },
   "premiumSignUpEmergency": {
     "message": "Авариен достъп"
@@ -3473,17 +3539,11 @@
   "keyUpdated": {
     "message": "Ключът е обновен"
   },
-  "updateKeyTitle": {
-    "message": "Обновяване на ключа"
-  },
   "updateEncryptionKey": {
     "message": "Обновяване на ключа за шифриране"
   },
-  "updateEncryptionKeyShortDesc": {
-    "message": "Ползвате остаряла схема за шифриране."
-  },
-  "updateEncryptionKeyDesc": {
-    "message": "Вече ползваме по-дълги ключове за по-добра сигурност и повече възможности. Обновяването на ключа е бързо и лесно. Просто въведете главната си парола по-долу. В някой бъдещ момент това обновяване ще бъде задължително."
+  "updateEncryptionSchemeDesc": {
+    "message": "Променихме схемата на шифроване, за да подобрим сигурността. Обновете шифриращия си ключ сега, като въведете главната си парола по-долу."
   },
   "updateEncryptionKeyWarning": {
     "message": "След смяната на ключа за шифриране ще трябва да се отпишете и след това да се впишете в регистрацията си във всички приложения на Битуорден, които ползвате (като мобилното приложение и разширенията за браузъри). Ако не се отпишете и впишете повторно (за да получите достъп до новия ключ), рискувате да повредите записите си. Сега ще се пробва да бъдете отписани автоматично, това обаче може да се забави."
@@ -4758,10 +4818,10 @@
     "message": "Потребителят с най-големи права на достъп, който може да управлява всички настройки на доставчика, както и да има достъп до и да управлява клиентските организации."
   },
   "serviceUser": {
-    "message": "Service user"
+    "message": "Сервизен потребител"
   },
   "serviceUserDesc": {
-    "message": "Service users can access and manage all client organizations."
+    "message": "Сервизните потребители имат достъп до всички клиентски организации и могат да ги управляват."
   },
   "providerInviteUserDesc": {
     "message": "Може да поканите потребител към доставчика си, като попълните адреса му за електронна поща, с който е регистриран в Битуорден, по-долу. В случай, че потребителят не е регистриран, той автоматично ще получи покана и да се регистрира."
@@ -5412,6 +5472,19 @@
   "required": {
     "message": "задължително"
   },
+  "charactersCurrentAndMaximum": {
+    "message": "Максимален брой знаци: $CURRENT$/$MAX$",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "0"
+      },
+      "max": {
+        "content": "$2",
+        "example": "100"
+      }
+    }
+  },
   "characterMaximum": {
     "message": "Максимален брой знаци: $MAX$",
     "placeholders": {
@@ -5759,6 +5832,9 @@
   },
   "on": {
     "message": "Включено"
+  },
+  "off": {
+    "message": "Изключено"
   },
   "members": {
     "message": "Членове"
@@ -6636,7 +6712,7 @@
     "message": "Променете настройките си за шифроване, така че да отговарят на новите препоръки за сигурността и да подобрите защитата на регистрацията си."
   },
   "changeKdfLoggedOutWarning": {
-    "message": "Proceeding will log you out of all active sessions. You will need to log back in and complete two-step login setup. We recommend exporting your vault before changing your encryption settings to prevent data loss."
+    "message": "Ако продължите, ще излезете от всички активни сесии. Ще трябва да се впишете отново и да завършите настройката на двустепенното удостоверяване. Препоръчително е да изнесете трезора си преди да променяте настройките за шифроване, за да избегнете загуба на данни."
   },
   "secretsManager": {
     "message": "Управление на тайни"
@@ -7016,12 +7092,6 @@
   "next": {
     "message": "Next"
   },
-  "usFlag": {
-    "message": "Знаме на САЩ"
-  },
-  "euFlag": {
-    "message": "Знаме на ЕС"
-  },
   "selectedRegionFlag": {
     "message": "Знаме на избрания регион"
   },
@@ -7108,8 +7178,8 @@
       }
     }
   },
-  "addSecretsManager": {
-    "message": "Добавяне на Управление на тайни"
+  "subscribeToSecretsManager": {
+    "message": "Абониране за Управлението на тайни"
   },
   "addSecretsManagerUpgradeDesc": {
     "message": "Добавете Управление на тайни към своя надграден план, за да продължите да имате достъп до тайните създадени при предишния Ви план."
@@ -7181,7 +7251,19 @@
   "beta": {
     "message": "Бета"
   },
+  "baseUrl": {
+    "message": "Адрес на сървъра"
+  },
+  "aliasDomain": {
+    "message": "Псевдонимен домейн"
+  },
   "alreadyHaveAccount": {
     "message": "Вече имате регистрация?"
+  },
+  "customBillingStart": {
+    "message": "Персонализираното таксуване не е отразено. Посетете страницата за "
+  },
+  "customBillingEnd": {
+    "message": " за последните фактури."
   }
 }

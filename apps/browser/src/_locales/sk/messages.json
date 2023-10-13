@@ -91,6 +91,15 @@
   "autoFill": {
     "message": "Automatické vypĺňanie"
   },
+  "autoFillLogin": {
+    "message": "Automatické vyplnenie prihlasovacích údajov"
+  },
+  "autoFillCard": {
+    "message": "Automatické vyplnenie karty"
+  },
+  "autoFillIdentity": {
+    "message": "Automatické vyplnenie identity"
+  },
   "generatePasswordCopied": {
     "message": "Vygenerovať heslo (skopírované)"
   },
@@ -99,6 +108,21 @@
   },
   "noMatchingLogins": {
     "message": "Žiadne zodpovedajúce prihlasovacie údaje."
+  },
+  "noCards": {
+    "message": "Žiadne karty"
+  },
+  "noIdentities": {
+    "message": "Žiadne identity"
+  },
+  "addLoginMenu": {
+    "message": "Pridať prihlasovacie údaje"
+  },
+  "addCardMenu": {
+    "message": "Pridať kartu"
+  },
+  "addIdentityMenu": {
+    "message": "Pridať identitu"
   },
   "unlockVaultMenu": {
     "message": "Odomknúť trezor"
@@ -771,8 +795,8 @@
   "featureUnavailable": {
     "message": "Funkcia nie je k dispozícii"
   },
-  "updateKey": {
-    "message": "Túto funkciu nemožno použiť, pokým neaktualizujete svoj šifrovací kľúč."
+  "encryptionKeyMigrationRequired": {
+    "message": "Vyžaduje sa migrácia šifrovacieho kľúča. Na aktualizáciu šifrovacieho kľúča sa prihláste cez webový trezor."
   },
   "premiumMembership": {
     "message": "Prémiové členstvo"
@@ -796,7 +820,7 @@
     "message": "1 GB šifrovaného úložiska."
   },
   "premiumSignUpTwoStepOptions": {
-    "message": "Proprietary two-step login options such as YubiKey and Duo."
+    "message": "Proprietárne možnosti dvojstupňového prihlásenia ako napríklad YubiKey a Duo."
   },
   "ppremiumSignUpReports": {
     "message": "Správy o sile hesla, zabezpečení účtov a únikoch dát ktoré vám pomôžu udržať vaše kontá v bezpečí."
@@ -1991,8 +2015,8 @@
   "exportingPersonalVaultTitle": {
     "message": "Exportovanie osobného trezora"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Exportované budú iba položy osobného trezora spojené s $EMAIL$. Položky trezora organizácie nebudú zahrnuté.",
+  "exportingIndividualVaultDescription": {
+    "message": "Exportované budú iba položky súvisiace s $EMAIL$. Položky z trezora organizácie nebudú zahrnuté v exporte. Export bude obsahovať iba informácie z položiek v trezore, súvisiace prílohy nebudú súčasťou exportu.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2092,8 +2116,8 @@
   "serverVersion": {
     "message": "Verzia servera"
   },
-  "selfHosted": {
-    "message": "Vlastný hosting"
+  "selfHostedServer": {
+    "message": "vlastný hosting"
   },
   "thirdParty": {
     "message": "Tretia strana"
@@ -2406,5 +2430,20 @@
   "toggleCollapse": {
     "message": "Prepnúť zbalenie",
     "description": "Toggling an expand/collapse state."
+  },
+  "aliasDomain": {
+    "message": "Alias doména"
+  },
+  "passwordRepromptDisabledAutofillOnPageLoad": {
+    "message": "Položky, ktoré vyžadujú opätovné zadanie hlavného hesla sa nedajú automaticky vyplniť pri načítaní stránky. Automatické vypĺňanie pri načítaní stránky je vypnuté.",
+    "description": "Toast message for describing that master password re-prompt cannot be auto-filled on page load."
+  },
+  "autofillOnPageLoadSetToDefault": {
+    "message": "Automatické vypĺňanie pri načítaní stránky nastavené na pôvodnú predvoľbu.",
+    "description": "Toast message for informing the user that auto-fill on page load has been set to the default setting."
+  },
+  "turnOffMasterPasswordPromptToEditField": {
+    "message": "Vypnite výzvu na opätovné zadanie hlavného hesla na úpravu tohto poľa",
+    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   }
 }

@@ -91,6 +91,15 @@
   "autoFill": {
     "message": "Автозаполнение"
   },
+  "autoFillLogin": {
+    "message": "Автозаполнение логина"
+  },
+  "autoFillCard": {
+    "message": "Автозаполнение карты"
+  },
+  "autoFillIdentity": {
+    "message": "Автозаполнение личности"
+  },
   "generatePasswordCopied": {
     "message": "Сгенерировать пароль (с копированием)"
   },
@@ -99,6 +108,21 @@
   },
   "noMatchingLogins": {
     "message": "Нет подходящих логинов."
+  },
+  "noCards": {
+    "message": "Нет карт"
+  },
+  "noIdentities": {
+    "message": "Нет личностей"
+  },
+  "addLoginMenu": {
+    "message": "Добавить логин"
+  },
+  "addCardMenu": {
+    "message": "Добавить карту"
+  },
+  "addIdentityMenu": {
+    "message": "Добавить личность"
   },
   "unlockVaultMenu": {
     "message": "Разблокировать хранилище"
@@ -671,7 +695,7 @@
     "description": "'Solarized' is a noun and the name of a color scheme. It should not be translated."
   },
   "exportVault": {
-    "message": "Экспортировать хранилище"
+    "message": "Экспорт хранилища"
   },
   "fileFormat": {
     "message": "Формат файла"
@@ -771,8 +795,8 @@
   "featureUnavailable": {
     "message": "Функция недоступна"
   },
-  "updateKey": {
-    "message": "Вы не можете использовать эту функцию, пока не обновите свой ключ шифрования."
+  "encryptionKeyMigrationRequired": {
+    "message": "Требуется миграция ключа шифрования. Чтобы обновить ключ шифрования, войдите через веб-хранилище."
   },
   "premiumMembership": {
     "message": "Премиум"
@@ -1991,8 +2015,8 @@
   "exportingPersonalVaultTitle": {
     "message": "Экспорт личного хранилища"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Будут экспортированы только личные элементы хранилища, связанные с $EMAIL$. Элементы хранилища организации включены не будут.",
+  "exportingIndividualVaultDescription": {
+    "message": "Будут экспортированы только отдельные элементы хранилища, связанные с $EMAIL$. Элементы хранилища организации включены не будут. Экспортируется только информация об элементах хранилища, не включая связанные вложения.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2092,8 +2116,8 @@
   "serverVersion": {
     "message": "Версия сервера"
   },
-  "selfHosted": {
-    "message": "Собственный хостинг"
+  "selfHostedServer": {
+    "message": "собственный хостинг"
   },
   "thirdParty": {
     "message": "Сторонний"
@@ -2141,7 +2165,7 @@
     "message": "Фраза отпечатка"
   },
   "fingerprintMatchInfo": {
-    "message": "Убедитесь, что ваше хранилище разблокировано и фраза отпечатка пальца совпадает на другом устройстве."
+    "message": "Убедитесь, что ваше хранилище разблокировано и фраза отпечатка совпадает на другом устройстве."
   },
   "resendNotification": {
     "message": "Отправить уведомление повторно"
@@ -2168,7 +2192,7 @@
     "message": "Обнаружен слабый пароль, найденный в утечке данных. Используйте надежный и уникальный пароль для защиты вашего аккаунта. Вы уверены, что хотите использовать этот пароль?"
   },
   "checkForBreaches": {
-    "message": "Проверьте известные случаи утечки данных для этого пароля"
+    "message": "Проверять известные случаи утечки данных для этого пароля"
   },
   "important": {
     "message": "Важно:"
@@ -2406,5 +2430,20 @@
   "toggleCollapse": {
     "message": "Свернуть/развернуть",
     "description": "Toggling an expand/collapse state."
+  },
+  "aliasDomain": {
+    "message": "Псевдоним домена"
+  },
+  "passwordRepromptDisabledAutofillOnPageLoad": {
+    "message": "Элементы с повторным запросом мастер-пароля не могут быть автоматически заполнены при загрузке страницы. Автозаполнение при загрузке страницы выключено.",
+    "description": "Toast message for describing that master password re-prompt cannot be auto-filled on page load."
+  },
+  "autofillOnPageLoadSetToDefault": {
+    "message": "Автозаполнение при загрузке страницы использует настройку по умолчанию.",
+    "description": "Toast message for informing the user that auto-fill on page load has been set to the default setting."
+  },
+  "turnOffMasterPasswordPromptToEditField": {
+    "message": "Для редактирования этого поля отключите повторный запрос мастер-пароля",
+    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   }
 }

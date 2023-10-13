@@ -508,9 +508,6 @@
   "maxFileSize": {
     "message": "Максимална величина је 500МБ."
   },
-  "updateKey": {
-    "message": "Не можете да користите ову способност док не промените Ваш кључ за шифровање."
-  },
   "addedItem": {
     "message": "Ставка додата"
   },
@@ -613,6 +610,72 @@
   },
   "loginWithMasterPassword": {
     "message": "Пријавите се са главном лозинком"
+  },
+  "loginWithPasskey": {
+    "message": "Пријави се са passkey"
+  },
+  "loginWithPasskeyInfo": {
+    "message": "Користите генерисан passkey који ће вас аутоматски пријавити без лозинке. Биометрија, као што је препознавање лица или отисак прста, или неки други FIDO2 метод за проверу идентитета."
+  },
+  "newPasskey": {
+    "message": "Нов passkey"
+  },
+  "learnMoreAboutPasswordless": {
+    "message": "Сазнајте више о пријављивању без лозинке"
+  },
+  "passkeyEnterMasterPassword": {
+    "message": "Унесите главну лозинку да бисте изменили подешавања пријављивања са passkey."
+  },
+  "creatingPasskeyLoading": {
+    "message": "Креација passkey-а..."
+  },
+  "creatingPasskeyLoadingInfo": {
+    "message": "Држите овај прозор отворен и пратите упутства из прегледача."
+  },
+  "errorCreatingPasskey": {
+    "message": "Грешки у креацији passkey-а"
+  },
+  "errorCreatingPasskeyInfo": {
+    "message": "Дошло је до проблема приликом креирања вашег passkey-а."
+  },
+  "passkeySuccessfullyCreated": {
+    "message": "Passkey успешно креиран!"
+  },
+  "customName": {
+    "message": "Прилагоди име"
+  },
+  "customPasskeyNameInfo": {
+    "message": "Именујте Ваш passkey за лакшу идентификацију."
+  },
+  "encryptionNotSupported": {
+    "message": "Шифровање није подржано"
+  },
+  "loginWithPasskeyEnabled": {
+    "message": "Пријављивање са passkey је упаљено"
+  },
+  "passkeySaved": {
+    "message": "„$NAME$“ сачувано",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Personal yubikey"
+      }
+    }
+  },
+  "passkeyRemoved": {
+    "message": "Passkey уклоњен"
+  },
+  "removePasskey": {
+    "message": "Уклонити passkey"
+  },
+  "removePasskeyInfo": {
+    "message": "Ако су сви passkey уклоњени, нећете моћи да се пријавите на нове уређаје без ваше главне лозинке."
+  },
+  "passkeyLimitReachedInfo": {
+    "message": "Достугнут лимит Passkey-а. Уклонити један да би додали други."
+  },
+  "tryAgain": {
+    "message": "Покушај поново"
   },
   "createAccount": {
     "message": "Креирај налог"
@@ -1425,7 +1488,10 @@
   "twoStepLoginDesc": {
     "message": "Заштитите свој налог захтевањем додатног корака приликом пријављивања."
   },
-  "twoStepLoginOrganizationDescStart": {
+  "twoStepLoginTeamsDesc": {
+    "message": "Омогућите пријаву у два корака за вашу организацију."
+  },
+  "twoStepLoginEnterpriseDescStart": {
     "message": "Примени Bitwarden опције за пријаву у два корака за чланове користећи ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Enforce Bitwarden Two-step Login options for members by using the Two-step Login Policy.'"
   },
@@ -1925,7 +1991,7 @@
     "message": "1ГБ шифровано складиште за прилоге."
   },
   "premiumSignUpTwoStepOptions": {
-    "message": "Proprietary two-step login options such as YubiKey and Duo."
+    "message": "Приоритарне опције пријаве у два корака као што су YubiKey и Duo."
   },
   "premiumSignUpEmergency": {
     "message": "Улаз у хитним случајевима"
@@ -2041,7 +2107,7 @@
     }
   },
   "paymentChargedWithUnpaidSubscription": {
-    "message": "Your payment method will be charged for any unpaid subscriptions."
+    "message": "Ваш начин плаћања ће бити наплаћен за све неплаћене претплате."
   },
   "paymentChargedWithTrial": {
     "message": "Ваш план долази са бесплатним 7-дневним пробним периодом. Начин плаћања неће бити наплаћен док се пробно време не заврши. Наплата ће се вршити периодично, сваки $INTERVAL$. Можете отказати било када."
@@ -3473,17 +3539,11 @@
   "keyUpdated": {
     "message": "Кључ је ажуриран"
   },
-  "updateKeyTitle": {
-    "message": "Ажурирате кључ"
-  },
   "updateEncryptionKey": {
     "message": "Ажурирајте кључ за шифровање"
   },
-  "updateEncryptionKeyShortDesc": {
-    "message": "Тренутно користите застарелу шему шифровања."
-  },
-  "updateEncryptionKeyDesc": {
-    "message": "Прешли смо на веће кључеве за шифровање који пружају бољу сигурност и приступ новијим функцијама. Ажурирање кључа за шифровање је брзо и једноставно. Само унесите главну лозинку испод. Ово ажурирање ће временом постати обавезно."
+  "updateEncryptionSchemeDesc": {
+    "message": "Променили смо шему шифровања да бисмо пружили бољу безбедност. Ажурирајте кључ за шифровање сада тако што ћете унети испод главну лозинку."
   },
   "updateEncryptionKeyWarning": {
     "message": "Након ажурирања кључа за шифровање, мораћете да се одјавите и вратите у све Bitwarden апликације које тренутно користите (као што су мобилна апликација или додаци прегледача). Ако се не одјавите и поново пријавите (чиме се преузима ваш нови кључ за шифровање), може доћи до оштећења података. Покушаћемо аутоматски да се одјавимо, али може доћи до одлагања."
@@ -5412,6 +5472,19 @@
   "required": {
     "message": "обавезно"
   },
+  "charactersCurrentAndMaximum": {
+    "message": "$CURRENT$ од макс $MAX$ карактера",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "0"
+      },
+      "max": {
+        "content": "$2",
+        "example": "100"
+      }
+    }
+  },
   "characterMaximum": {
     "message": "Максимум $MAX$ карактера",
     "placeholders": {
@@ -5759,6 +5832,9 @@
   },
   "on": {
     "message": "Укључено"
+  },
+  "off": {
+    "message": "Искључено"
   },
   "members": {
     "message": "Чланови"
@@ -7016,12 +7092,6 @@
   "next": {
     "message": "Следеће"
   },
-  "usFlag": {
-    "message": "Америчка застава"
-  },
-  "euFlag": {
-    "message": "ЕУ застава"
-  },
   "selectedRegionFlag": {
     "message": "Одабрана застава"
   },
@@ -7108,8 +7178,8 @@
       }
     }
   },
-  "addSecretsManager": {
-    "message": "Додати Менаџер Тајни"
+  "subscribeToSecretsManager": {
+    "message": "Пријави се на Secrets Manager"
   },
   "addSecretsManagerUpgradeDesc": {
     "message": "Add Secrets Manager to your upgraded plan to maintain access to any secrets created with your previous plan."
@@ -7181,7 +7251,19 @@
   "beta": {
     "message": "Бета"
   },
+  "baseUrl": {
+    "message": "УРЛ Сервера"
+  },
+  "aliasDomain": {
+    "message": "Домен алијаса"
+  },
   "alreadyHaveAccount": {
     "message": "Већ имате налог?"
+  },
+  "customBillingStart": {
+    "message": "Прилагођени обрачун се не одражава. Посетите "
+  },
+  "customBillingEnd": {
+    "message": " страницу за најновије фактуре."
   }
 }

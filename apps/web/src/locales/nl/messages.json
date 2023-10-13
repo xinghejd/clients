@@ -508,9 +508,6 @@
   "maxFileSize": {
     "message": "Maximale bestandsgrootte is 500 MB."
   },
-  "updateKey": {
-    "message": "Je kunt deze functie pas gebruiken als je je encryptiesleutel bijwerkt."
-  },
   "addedItem": {
     "message": "Item is toegevoegd"
   },
@@ -613,6 +610,72 @@
   },
   "loginWithMasterPassword": {
     "message": "Inloggen met je hoofdwachtwoord"
+  },
+  "loginWithPasskey": {
+    "message": "Log in with passkey"
+  },
+  "loginWithPasskeyInfo": {
+    "message": "Use a generated passkey that will automatically log you in without a password. Biometrics, like facial recognition or fingerprint, or another FIDO2 security method will verify your identity."
+  },
+  "newPasskey": {
+    "message": "New passkey"
+  },
+  "learnMoreAboutPasswordless": {
+    "message": "Learn more about passwordless"
+  },
+  "passkeyEnterMasterPassword": {
+    "message": "Enter your master password to modify log in with passkey settings."
+  },
+  "creatingPasskeyLoading": {
+    "message": "Creating passkey..."
+  },
+  "creatingPasskeyLoadingInfo": {
+    "message": "Keep this window open and follow prompts from your browser."
+  },
+  "errorCreatingPasskey": {
+    "message": "Error creating passkey"
+  },
+  "errorCreatingPasskeyInfo": {
+    "message": "There was a problem creating your passkey."
+  },
+  "passkeySuccessfullyCreated": {
+    "message": "Passkey successfully created!"
+  },
+  "customName": {
+    "message": "Custom name"
+  },
+  "customPasskeyNameInfo": {
+    "message": "Name your passkey to help you identify it."
+  },
+  "encryptionNotSupported": {
+    "message": "Encryption not supported"
+  },
+  "loginWithPasskeyEnabled": {
+    "message": "Log in with passkey turned on"
+  },
+  "passkeySaved": {
+    "message": "$NAME$ saved",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Personal yubikey"
+      }
+    }
+  },
+  "passkeyRemoved": {
+    "message": "Passkey removed"
+  },
+  "removePasskey": {
+    "message": "Remove passkey"
+  },
+  "removePasskeyInfo": {
+    "message": "If all passkeys are removed, you will be unable to log into new devices without your master password."
+  },
+  "passkeyLimitReachedInfo": {
+    "message": "Passkey limit reached. Remove a passkey to add another."
+  },
+  "tryAgain": {
+    "message": "Try again"
   },
   "createAccount": {
     "message": "Account aanmaken"
@@ -1425,8 +1488,11 @@
   "twoStepLoginDesc": {
     "message": "Beveilig je account door een extra stap te vereisen bij het inloggen."
   },
-  "twoStepLoginOrganizationDescStart": {
-    "message": "Bitwarden tweestapsaanmeldingsopties afdwingen voor leden door gebruik te maken van de ",
+  "twoStepLoginTeamsDesc": {
+    "message": "Tweestapsaanmelding voor je organisatie activeren."
+  },
+  "twoStepLoginEnterpriseDescStart": {
+    "message": "Bitwarden-tweestapsaanmeldingsinstellingen afdwingen voor leden via het ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Enforce Bitwarden Two-step Login options for members by using the Two-step Login Policy.'"
   },
   "twoStepLoginPolicy": {
@@ -3473,17 +3539,11 @@
   "keyUpdated": {
     "message": "Sleutel bijgewerkt"
   },
-  "updateKeyTitle": {
-    "message": "Sleutel bijwerken"
-  },
   "updateEncryptionKey": {
     "message": "Encryptiesleutel bijwerken"
   },
-  "updateEncryptionKeyShortDesc": {
-    "message": "Je gebruikt een oud versleutelingsschema."
-  },
-  "updateEncryptionKeyDesc": {
-    "message": "We zijn overgeschakeld naar langere encryptiesleutels die beter beveiligen en nieuwe functionaliteiten mogelijk maken. Het bijwerken van je encryptiesleutel gaat snel en eenvoudig. Typ gewoon je hoofdwachtwoord hieronder in. Deze wijziging zal uiteindelijk verplicht worden."
+  "updateEncryptionSchemeDesc": {
+    "message": "We've changed the encryption scheme to provide better security. Update your encryption key now by entering your master password below."
   },
   "updateEncryptionKeyWarning": {
     "message": "Na het bijwerken van je encryptiesleutel moet je je afmelden en weer aanmelden bij alle Bitwarden-applicaties die je gebruikt (zoals de mobiele app of browserextensies). Als je niet opnieuw inlogt (wat je nieuwe encryptiesleutel downloadt), kan dit gegevensbeschadiging tot gevolg hebben. We proberen je automatisch uit te loggen, maar het kan zijn dat dit met enige vertraging gebeurt."
@@ -5412,6 +5472,19 @@
   "required": {
     "message": "vereist"
   },
+  "charactersCurrentAndMaximum": {
+    "message": "$CURRENT$/$MAX$ character maximum",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "0"
+      },
+      "max": {
+        "content": "$2",
+        "example": "100"
+      }
+    }
+  },
   "characterMaximum": {
     "message": "Maximaal $MAX$ tekens",
     "placeholders": {
@@ -5759,6 +5832,9 @@
   },
   "on": {
     "message": "Aan"
+  },
+  "off": {
+    "message": "Off"
   },
   "members": {
     "message": "Leden"
@@ -7016,12 +7092,6 @@
   "next": {
     "message": "Volgende"
   },
-  "usFlag": {
-    "message": "VS-vlag"
-  },
-  "euFlag": {
-    "message": "EU-vlag"
-  },
   "selectedRegionFlag": {
     "message": "Geselecteerde regionale vlag"
   },
@@ -7108,8 +7178,8 @@
       }
     }
   },
-  "addSecretsManager": {
-    "message": "Secrets Manager toevoegen"
+  "subscribeToSecretsManager": {
+    "message": "Abonneren op Secrets Manager"
   },
   "addSecretsManagerUpgradeDesc": {
     "message": "Secrets Manager toevoegen aan je geüpgraded abonnement zodat je toegang houdt tot geheimen die met je vorige abonnement zijn aangemaakt."
@@ -7181,7 +7251,19 @@
   "beta": {
     "message": "Beta"
   },
+  "baseUrl": {
+    "message": "Server-URL"
+  },
+  "aliasDomain": {
+    "message": "Aliasdomein"
+  },
   "alreadyHaveAccount": {
     "message": "Already have an account?"
+  },
+  "customBillingStart": {
+    "message": "Aangepaste facturering is niet weergeven. Bezoek de "
+  },
+  "customBillingEnd": {
+    "message": " pagina voor laatste facturering."
   }
 }

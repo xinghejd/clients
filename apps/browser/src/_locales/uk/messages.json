@@ -91,6 +91,15 @@
   "autoFill": {
     "message": "Автозаповнення"
   },
+  "autoFillLogin": {
+    "message": "Автозаповнення входу"
+  },
+  "autoFillCard": {
+    "message": "Автозаповнення картки"
+  },
+  "autoFillIdentity": {
+    "message": "Автозаповнення особистих даних"
+  },
   "generatePasswordCopied": {
     "message": "Генерувати пароль (з копіюванням)"
   },
@@ -99,6 +108,21 @@
   },
   "noMatchingLogins": {
     "message": "Немає відповідних записів"
+  },
+  "noCards": {
+    "message": "Немає карток"
+  },
+  "noIdentities": {
+    "message": "Немає особистих даних"
+  },
+  "addLoginMenu": {
+    "message": "Додати запис входу"
+  },
+  "addCardMenu": {
+    "message": "Додати картку"
+  },
+  "addIdentityMenu": {
+    "message": "Додати особисті дані"
   },
   "unlockVaultMenu": {
     "message": "Розблокуйте сховище"
@@ -285,7 +309,7 @@
     "message": "Змінити"
   },
   "view": {
-    "message": "Перегляд"
+    "message": "Переглянути"
   },
   "noItemsInList": {
     "message": "Немає записів."
@@ -321,7 +345,7 @@
     "message": "Видалити запис"
   },
   "viewItem": {
-    "message": "Перегляд запису"
+    "message": "Переглянути запис"
   },
   "launch": {
     "message": "Перейти"
@@ -771,8 +795,8 @@
   "featureUnavailable": {
     "message": "Функція недоступна"
   },
-  "updateKey": {
-    "message": "Ви не можете використовувати цю функцію доки не оновите свій ключ шифрування."
+  "encryptionKeyMigrationRequired": {
+    "message": "Потрібно перенести ключ шифрування. Увійдіть у вебсховище та оновіть свій ключ шифрування."
   },
   "premiumMembership": {
     "message": "Преміум статус"
@@ -796,7 +820,7 @@
     "message": "1 ГБ зашифрованого сховища для файлів."
   },
   "premiumSignUpTwoStepOptions": {
-    "message": "Proprietary two-step login options such as YubiKey and Duo."
+    "message": "Додаткові можливості двоетапної авторизації, як-от YubiKey та Duo."
   },
   "ppremiumSignUpReports": {
     "message": "Гігієна паролів, здоров'я облікового запису, а також звіти про вразливості даних, щоб зберігати ваше сховище в безпеці."
@@ -1991,8 +2015,8 @@
   "exportingPersonalVaultTitle": {
     "message": "Експортування особистого сховища"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Будуть експортовані лише записи особистого сховища, пов'язані з $EMAIL$. Записи сховища організації не буде включено.",
+  "exportingIndividualVaultDescription": {
+    "message": "Будуть експортовані лише записи особистого сховища, пов'язані з $EMAIL$. Записи сховища організації не буде включено. Експортуються лише дані записів сховища без пов'язаних вкладень.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2092,8 +2116,8 @@
   "serverVersion": {
     "message": "Версія сервера"
   },
-  "selfHosted": {
-    "message": "Власне розміщення"
+  "selfHostedServer": {
+    "message": "власне розміщення"
   },
   "thirdParty": {
     "message": "Сторонній"
@@ -2406,5 +2430,20 @@
   "toggleCollapse": {
     "message": "Згорнути/розгорнути",
     "description": "Toggling an expand/collapse state."
+  },
+  "aliasDomain": {
+    "message": "Псевдонім домену"
+  },
+  "passwordRepromptDisabledAutofillOnPageLoad": {
+    "message": "Записи з повторним запитом головного пароля не можна автоматично заповнювати під час завантаження сторінки. Автозаповнення на сторінці вимкнено.",
+    "description": "Toast message for describing that master password re-prompt cannot be auto-filled on page load."
+  },
+  "autofillOnPageLoadSetToDefault": {
+    "message": "Автозаповнення на сторінці налаштовано з типовими параметрами.",
+    "description": "Toast message for informing the user that auto-fill on page load has been set to the default setting."
+  },
+  "turnOffMasterPasswordPromptToEditField": {
+    "message": "Вимкніть повторний запит головного пароля, щоб редагувати це поле",
+    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   }
 }

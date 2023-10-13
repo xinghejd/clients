@@ -508,9 +508,6 @@
   "maxFileSize": {
     "message": "Maksymalny rozmiar pliku to 500 MB."
   },
-  "updateKey": {
-    "message": "Nie możesz używać tej funkcji, dopóki nie zaktualizujesz klucza szyfrowania."
-  },
   "addedItem": {
     "message": "Element został dodany"
   },
@@ -613,6 +610,72 @@
   },
   "loginWithMasterPassword": {
     "message": "Logowanie hasłem głównym"
+  },
+  "loginWithPasskey": {
+    "message": "Zaloguj się za pomocą passkey"
+  },
+  "loginWithPasskeyInfo": {
+    "message": "Użyj wygenerowanego passkey'a, który automatycznie zaloguje Cię bez hasła. Biometrie, takie jak rozpoznawanie twarzy lub odcisk palca, lub inna metoda zabezpieczeń FIDO2, zweryfikują Twoją tożsamość."
+  },
+  "newPasskey": {
+    "message": "Nowy passkey"
+  },
+  "learnMoreAboutPasswordless": {
+    "message": "Dowiedz się więcej o rozwiązaniach bezhasłowych"
+  },
+  "passkeyEnterMasterPassword": {
+    "message": "Wprowadź hasło główne, aby zmodyfikować ustawienia logowania za pomocą passkey."
+  },
+  "creatingPasskeyLoading": {
+    "message": "Tworzenie passkey..."
+  },
+  "creatingPasskeyLoadingInfo": {
+    "message": "Pozostaw to okno otwarte i postępuj zgodnie z instrukcjami z przeglądarki."
+  },
+  "errorCreatingPasskey": {
+    "message": "Błąd podczas tworzenia passkey"
+  },
+  "errorCreatingPasskeyInfo": {
+    "message": "Podczas tworzenia passkey'a pojawił się problem."
+  },
+  "passkeySuccessfullyCreated": {
+    "message": "Pomyślnie utworzono passkey!"
+  },
+  "customName": {
+    "message": "Niestandardowa nazwa"
+  },
+  "customPasskeyNameInfo": {
+    "message": "Nazwij swój passkey, aby pomóc Ci go zidentyfikować."
+  },
+  "encryptionNotSupported": {
+    "message": "Szyfrowanie nie jest obsługiwane"
+  },
+  "loginWithPasskeyEnabled": {
+    "message": "Logowanie za pomocą passkey zostało włączone"
+  },
+  "passkeySaved": {
+    "message": "$NAME$ zapisany",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Personal yubikey"
+      }
+    }
+  },
+  "passkeyRemoved": {
+    "message": "Passkey został usunięty"
+  },
+  "removePasskey": {
+    "message": "Usuń passkey"
+  },
+  "removePasskeyInfo": {
+    "message": "Jeśli wszystkie passkey'e zostaną usunięte, nie będziesz mógł zalogować się na nowe urządzenia bez hasła głównego."
+  },
+  "passkeyLimitReachedInfo": {
+    "message": "Osiągnięto limit passkey'ów. Usuń passkey, aby dodać inny."
+  },
+  "tryAgain": {
+    "message": "Spróbuj ponownie"
   },
   "createAccount": {
     "message": "Utwórz konto"
@@ -1425,7 +1488,10 @@
   "twoStepLoginDesc": {
     "message": "Zabezpiecz swoje konto poprzez wymóg wykonania dodatkowego kroku podczas logowania."
   },
-  "twoStepLoginOrganizationDescStart": {
+  "twoStepLoginTeamsDesc": {
+    "message": "Włącz dwustopniowe logowanie dla swojej organizacji."
+  },
+  "twoStepLoginEnterpriseDescStart": {
     "message": "Wymuszaj opcje logowania dwustopniowego Bitwarden dla użytkowników za pomocą ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Enforce Bitwarden Two-step Login options for members by using the Two-step Login Policy.'"
   },
@@ -3473,17 +3539,11 @@
   "keyUpdated": {
     "message": "Klucz został zaktualizowany"
   },
-  "updateKeyTitle": {
-    "message": "Zaktualizuj klucz"
-  },
   "updateEncryptionKey": {
     "message": "Zaktualizuj klucz szyfrowania"
   },
-  "updateEncryptionKeyShortDesc": {
-    "message": "Używasz przestarzałej metody szyfrowania."
-  },
-  "updateEncryptionKeyDesc": {
-    "message": "Zdecydowaliśmy się na używanie silniejszych kluczy szyfrowania, które zapewniają lepsze bezpieczeństwo i dostęp do nowych funkcji. Zaktualizowanie klucza szyfrowania jest szybkie i łatwe. Wystarczy wpisać poniżej swoje hasło. Aktualizacja klucza stanie się wkrótce obowiązkowa."
+  "updateEncryptionSchemeDesc": {
+    "message": "Zmieniliśmy schemat szyfrowania, aby zapewnić lepsze bezpieczeństwo. Zaktualizuj swój klucz szyfrowania, wprowadzając hasło główne poniżej."
   },
   "updateEncryptionKeyWarning": {
     "message": "Po zaktualizowaniu klucza szyfrowania, musisz ponownie zalogować się do wszystkich aplikacji Bitwarden, z których obecnie korzystasz (na przykład aplikacje mobilne lub rozszerzenia przeglądarki). Niepowodzenie logowania (podczas którego pobierany jest nowy klucz szyfrowania) może spowodować uszkodzenie danych. Postaramy się wylogować Ciebie automatycznie, jednak może to chwilę potrwać."
@@ -5412,6 +5472,19 @@
   "required": {
     "message": "wymagane"
   },
+  "charactersCurrentAndMaximum": {
+    "message": "$CURRENT$/$MAX$ znaków",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "0"
+      },
+      "max": {
+        "content": "$2",
+        "example": "100"
+      }
+    }
+  },
   "characterMaximum": {
     "message": "$MAX$ znaków maksymalnie",
     "placeholders": {
@@ -5759,6 +5832,9 @@
   },
   "on": {
     "message": "Wł."
+  },
+  "off": {
+    "message": "Wyłączone"
   },
   "members": {
     "message": "Użytkownicy"
@@ -7016,12 +7092,6 @@
   "next": {
     "message": "Dalej"
   },
-  "usFlag": {
-    "message": "Flaga USA"
-  },
-  "euFlag": {
-    "message": "Flaga UE"
-  },
   "selectedRegionFlag": {
     "message": "Flaga wybranego regionu"
   },
@@ -7108,8 +7178,8 @@
       }
     }
   },
-  "addSecretsManager": {
-    "message": "Dodaj menedżera sekretów"
+  "subscribeToSecretsManager": {
+    "message": "Zasubskrybuj się do menedżera sekretów"
   },
   "addSecretsManagerUpgradeDesc": {
     "message": "Dodaj menedżera sekretów do zaktualizowanego planu, aby zachować dostęp do wszelkich sekretów utworzonych w poprzednim planie."
@@ -7181,7 +7251,19 @@
   "beta": {
     "message": "Wersja beta"
   },
+  "baseUrl": {
+    "message": "Adres URL serwera"
+  },
+  "aliasDomain": {
+    "message": "Domena aliasu"
+  },
   "alreadyHaveAccount": {
     "message": "Masz już konto?"
+  },
+  "customBillingStart": {
+    "message": "Custom billing is not reflected. Visit the "
+  },
+  "customBillingEnd": {
+    "message": " page for latest invoicing."
   }
 }

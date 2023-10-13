@@ -508,9 +508,6 @@
   "maxFileSize": {
     "message": "La taille maximale du fichier est de 500 Mo."
   },
-  "updateKey": {
-    "message": "Vous ne pouvez pas utiliser cette fonctionnalité avant de mettre à jour votre clé de chiffrement."
-  },
   "addedItem": {
     "message": "Élément ajouté"
   },
@@ -613,6 +610,72 @@
   },
   "loginWithMasterPassword": {
     "message": "Se connecter avec le mot de passe principal"
+  },
+  "loginWithPasskey": {
+    "message": "Se connecter avec la clé d'accès"
+  },
+  "loginWithPasskeyInfo": {
+    "message": "Utilisez une clé d'accès générée qui vous connectera automatiquement sans mot de passe. Les fonctions biométriques, comme la reconnaissance faciale, l'empreinte digitale, ou une autre méthode de sécurité FIDO2 vérifiera votre identité."
+  },
+  "newPasskey": {
+    "message": "Nouvelle clé d'accès"
+  },
+  "learnMoreAboutPasswordless": {
+    "message": "En savoir plus sur l'identification sans mots de passe"
+  },
+  "passkeyEnterMasterPassword": {
+    "message": "Entrez votre mot de passe maître pour modifier la connexion avec les paramètres de clé d'accès."
+  },
+  "creatingPasskeyLoading": {
+    "message": "Création de la clé d'accès..."
+  },
+  "creatingPasskeyLoadingInfo": {
+    "message": "Gardez cette fenêtre ouverte et suivez les instructions de votre navigateur."
+  },
+  "errorCreatingPasskey": {
+    "message": "Erreur de création de la clé d'accès"
+  },
+  "errorCreatingPasskeyInfo": {
+    "message": "Il y a eu un problème lors de la crétion de votre clé d'accès."
+  },
+  "passkeySuccessfullyCreated": {
+    "message": "Clé d'accès créée avec succès!"
+  },
+  "customName": {
+    "message": "Nom personnalisé"
+  },
+  "customPasskeyNameInfo": {
+    "message": "Nommez votre clé d'accès pour vous aider à l'identifier."
+  },
+  "encryptionNotSupported": {
+    "message": "Chiffrement non pris en charge"
+  },
+  "loginWithPasskeyEnabled": {
+    "message": "Se connecter avec la clé d'accès activée"
+  },
+  "passkeySaved": {
+    "message": "$NAME$ a été enregistrée",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Personal yubikey"
+      }
+    }
+  },
+  "passkeyRemoved": {
+    "message": "Clé d'accès supprimée"
+  },
+  "removePasskey": {
+    "message": "Supprimer la clé d'accès"
+  },
+  "removePasskeyInfo": {
+    "message": "Si toutes les clés d'accès sont supprimées, vous ne pourrez pas vous connecter à de nouveaux appareils sans votre mot de passe principal."
+  },
+  "passkeyLimitReachedInfo": {
+    "message": "Limite de clé d'accès atteinte. Supprimez une clé d'accès pour en ajouter une autre."
+  },
+  "tryAgain": {
+    "message": "Essayez de nouveau"
   },
   "createAccount": {
     "message": "Créez un compte"
@@ -1425,7 +1488,10 @@
   "twoStepLoginDesc": {
     "message": "Sécurisez votre compte en exigeant une étape supplémentaire lors de la connexion."
   },
-  "twoStepLoginOrganizationDescStart": {
+  "twoStepLoginTeamsDesc": {
+    "message": "Activez l'authentification à deux facteurs pour votre organisation."
+  },
+  "twoStepLoginEnterpriseDescStart": {
     "message": "Imposer les options d'authentification à deux facteurs de Bitwarden pour les membres en utilisant le ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Enforce Bitwarden Two-step Login options for members by using the Two-step Login Policy.'"
   },
@@ -2535,7 +2601,7 @@
     "message": "L’identifiant externe peut être utilisé comme référence ou pour lier cette ressource à un système externe tel qu’un répertoire utilisateur."
   },
   "nestCollectionUnder": {
-    "message": "Collection imbriquée dessous"
+    "message": "Collection imbriquée sous"
   },
   "accessControl": {
     "message": "Contrôle d’accès"
@@ -3473,17 +3539,11 @@
   "keyUpdated": {
     "message": "Clé mise à jour"
   },
-  "updateKeyTitle": {
-    "message": "Mettre à jour la clé"
-  },
   "updateEncryptionKey": {
     "message": "Mettre à jour la clé de chiffrement"
   },
-  "updateEncryptionKeyShortDesc": {
-    "message": "Vous utilisez actuellement un moyen de chiffrement obsolète."
-  },
-  "updateEncryptionKeyDesc": {
-    "message": "Nous sommes passés à des clés de chiffrement plus grandes qui offrent une meilleure sécurité et un accès à des fonctionnalités plus récentes. La mise à jour de votre clé de chiffrement est rapide et facile. Il suffit de saisir votre mot de passe principal ci-dessous. Cette mise à jour deviendra éventuellement obligatoire."
+  "updateEncryptionSchemeDesc": {
+    "message": "Nous avons modifié le schéma de chiffrement pour améliorer la sécurité. Mettez à jour votre clé de chiffrement maintenant en entrant votre mot de passe principal ci-dessous."
   },
   "updateEncryptionKeyWarning": {
     "message": "Après avoir mis à jour votre clé de chiffrement, vous devez vous déconnecter et vous reconnecter à toutes les applications Bitwarden que vous utilisez actuellement (comme l'application mobile ou les extensions de navigateur). Si vous ne vous déconnectez pas et ne vous reconnectez pas (ce qui télécharge votre nouvelle clé de chiffrement), cela peut entraîner une corruption des données. Nous tenterons de vous déconnecter automatiquement, mais cela peut être retardé."
@@ -5412,6 +5472,19 @@
   "required": {
     "message": "requis"
   },
+  "charactersCurrentAndMaximum": {
+    "message": "$CURRENT$/$MAX$ caractères maximum",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "0"
+      },
+      "max": {
+        "content": "$2",
+        "example": "100"
+      }
+    }
+  },
   "characterMaximum": {
     "message": "$MAX$ caractères maximum",
     "placeholders": {
@@ -5759,6 +5832,9 @@
   },
   "on": {
     "message": "Activé"
+  },
+  "off": {
+    "message": "Désactivée"
   },
   "members": {
     "message": "Membres"
@@ -7016,12 +7092,6 @@
   "next": {
     "message": "Suivant"
   },
-  "usFlag": {
-    "message": "Drapeau des États-Unis"
-  },
-  "euFlag": {
-    "message": "Drapeau de l'Union Européenne"
-  },
   "selectedRegionFlag": {
     "message": "Drapeau de la région sélectionnée"
   },
@@ -7108,8 +7178,8 @@
       }
     }
   },
-  "addSecretsManager": {
-    "message": "Ajouter Secrets Manager"
+  "subscribeToSecretsManager": {
+    "message": "S'abonner au Secrets Manager"
   },
   "addSecretsManagerUpgradeDesc": {
     "message": "Ajoutez Secrets Manager à votre plan mis à niveau pour conserver l'accès à tous les secrets créés avec votre plan précédent."
@@ -7181,7 +7251,19 @@
   "beta": {
     "message": "Beta"
   },
+  "baseUrl": {
+    "message": "URL du serveur"
+  },
+  "aliasDomain": {
+    "message": "Domaine de l'alias"
+  },
   "alreadyHaveAccount": {
     "message": "Vous avez déjà un compte ?"
+  },
+  "customBillingStart": {
+    "message": "La facturation personnalisée n'apparaît pas. Visitez la page "
+  },
+  "customBillingEnd": {
+    "message": " pour la dernière facturation."
   }
 }

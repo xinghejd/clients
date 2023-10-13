@@ -508,9 +508,6 @@
   "maxFileSize": {
     "message": "最大ファイルサイズは500MBです。"
   },
-  "updateKey": {
-    "message": "暗号キーを更新するまでこの機能は使用できません。"
-  },
   "addedItem": {
     "message": "追加されたアイテム"
   },
@@ -613,6 +610,72 @@
   },
   "loginWithMasterPassword": {
     "message": "マスターパスワードでログイン"
+  },
+  "loginWithPasskey": {
+    "message": "パスキー でログイン"
+  },
+  "loginWithPasskeyInfo": {
+    "message": "パスワードなしで自動的にログインできる、生成されたパスキーを使用します。顔や指紋などの生体認証、または他の FIDO2 認証方式で本人確認を行います。"
+  },
+  "newPasskey": {
+    "message": "新しいパスキー"
+  },
+  "learnMoreAboutPasswordless": {
+    "message": "パスワードレスの詳細"
+  },
+  "passkeyEnterMasterPassword": {
+    "message": "パスキー設定でのログインを変更するには、マスターパスワードを入力してください。"
+  },
+  "creatingPasskeyLoading": {
+    "message": "パスキーを作成中..."
+  },
+  "creatingPasskeyLoadingInfo": {
+    "message": "このウィンドウを開いたままにして、ブラウザの指示に従ってください。"
+  },
+  "errorCreatingPasskey": {
+    "message": "パスキーの作成に失敗しました"
+  },
+  "errorCreatingPasskeyInfo": {
+    "message": "パスキー作成中に問題が発生しました。"
+  },
+  "passkeySuccessfullyCreated": {
+    "message": "パスキーを作成しました！"
+  },
+  "customName": {
+    "message": "カスタム名"
+  },
+  "customPasskeyNameInfo": {
+    "message": "パスキーに名前を付けて、識別しやすいようにしましょう。"
+  },
+  "encryptionNotSupported": {
+    "message": "暗号化はサポートされていません"
+  },
+  "loginWithPasskeyEnabled": {
+    "message": "パスキーをオンにしてログイン"
+  },
+  "passkeySaved": {
+    "message": "$NAME$ を保存しました",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Personal yubikey"
+      }
+    }
+  },
+  "passkeyRemoved": {
+    "message": "パスキーを削除しました"
+  },
+  "removePasskey": {
+    "message": "パスキーを削除"
+  },
+  "removePasskeyInfo": {
+    "message": "すべてのパスキーを削除すると、マスターパスワードなしで新しいデバイスにログインすることはできません。"
+  },
+  "passkeyLimitReachedInfo": {
+    "message": "パスキーの上限に達しました。追加するにはまず既存のパスキーを削除してください。"
+  },
+  "tryAgain": {
+    "message": "再試行"
   },
   "createAccount": {
     "message": "アカウントの作成"
@@ -1425,8 +1488,11 @@
   "twoStepLoginDesc": {
     "message": "ログイン時に追加の手順を必要としアカウントを保護します。"
   },
-  "twoStepLoginOrganizationDescStart": {
-    "message": "Bitwarden 2段階ログインの使用をメンバーに強制します",
+  "twoStepLoginTeamsDesc": {
+    "message": "組織の2段階認証を有効化します。"
+  },
+  "twoStepLoginEnterpriseDescStart": {
+    "message": "Bitwardenの2段階認証をメンバーに強制するには、次のようにします。 ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Enforce Bitwarden Two-step Login options for members by using the Two-step Login Policy.'"
   },
   "twoStepLoginPolicy": {
@@ -3473,17 +3539,11 @@
   "keyUpdated": {
     "message": "キーが更新されました"
   },
-  "updateKeyTitle": {
-    "message": "キーの更新"
-  },
   "updateEncryptionKey": {
     "message": "暗号化キーを更新します。"
   },
-  "updateEncryptionKeyShortDesc": {
-    "message": "古い暗号化方式が使用されています。"
-  },
-  "updateEncryptionKeyDesc": {
-    "message": "より良いセキュリティと新しい機能が利用できる強力な暗号化方式へ移行することにしました。暗号化キーの更新は迅速かつ簡単です。以下にマスターパスワードを入力して下さい。この更新はやがて必須になります。"
+  "updateEncryptionSchemeDesc": {
+    "message": "より良いセキュリティを提供するために暗号化方式を変更しました。以下にマスターパスワードを入力して、今すぐ暗号化キーを更新してください。"
   },
   "updateEncryptionKeyWarning": {
     "message": "暗号化キーの更新後は、モバイルアプリやブラウザ拡張機能など現在利用中のすべてのBitwardenアプリで再ログインが必要となります。再ログインしないと(新しい暗号化キーをダウンロードすると)データが破損する可能性があります。自動的にログアウトを試みますが、遅延することがあります。"
@@ -5412,6 +5472,19 @@
   "required": {
     "message": "必須"
   },
+  "charactersCurrentAndMaximum": {
+    "message": "$CURRENT$/$MAX$ 文字",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "0"
+      },
+      "max": {
+        "content": "$2",
+        "example": "100"
+      }
+    }
+  },
   "characterMaximum": {
     "message": "最大 $MAX$ 文字",
     "placeholders": {
@@ -5759,6 +5832,9 @@
   },
   "on": {
     "message": "オン"
+  },
+  "off": {
+    "message": "オフ"
   },
   "members": {
     "message": "メンバー"
@@ -7016,12 +7092,6 @@
   "next": {
     "message": "次へ"
   },
-  "usFlag": {
-    "message": "アメリカ"
-  },
-  "euFlag": {
-    "message": "EU"
-  },
   "selectedRegionFlag": {
     "message": "リージョン選択"
   },
@@ -7108,8 +7178,8 @@
       }
     }
   },
-  "addSecretsManager": {
-    "message": "シークレットマネージャーを追加"
+  "subscribeToSecretsManager": {
+    "message": "シークレットマネージャーに登録"
   },
   "addSecretsManagerUpgradeDesc": {
     "message": "アップグレードしたプランにシークレットマネージャーを追加して、以前のプランで作成されたシークレットへのアクセスを維持します。"
@@ -7181,7 +7251,19 @@
   "beta": {
     "message": "ベータ"
   },
+  "baseUrl": {
+    "message": "サーバー URL"
+  },
+  "aliasDomain": {
+    "message": "エイリアスドメイン"
+  },
   "alreadyHaveAccount": {
     "message": "既にアカウントをお持ちですか？"
+  },
+  "customBillingStart": {
+    "message": "カスタム請求は反映されていません。"
+  },
+  "customBillingEnd": {
+    "message": "のページで最新の請求書をご覧いただけます。"
   }
 }

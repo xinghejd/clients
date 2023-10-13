@@ -508,9 +508,6 @@
   "maxFileSize": {
     "message": "Tiedoston enimmäiskoko on 500 Mt."
   },
-  "updateKey": {
-    "message": "Et voi käyttää tätä toimintoa ennen kuin päivität salausavaimesi."
-  },
   "addedItem": {
     "message": "Kohde lisättiin"
   },
@@ -613,6 +610,72 @@
   },
   "loginWithMasterPassword": {
     "message": "Kirjaudu pääsalasanalla"
+  },
+  "loginWithPasskey": {
+    "message": "Kirjaudu suojausavaimella"
+  },
+  "loginWithPasskeyInfo": {
+    "message": "Käytä generoitua suojausavainta, joka kirjaa sinut automaattisesti sisään ilman salasanaa. Henkilöllisyytesi vahvistetaan kasvojen tunnistuksen tai sormenjäljen kataisille biometrisillä tiedoilla, tai jollakin muulla FIDO2-suojausratkaisulla."
+  },
+  "newPasskey": {
+    "message": "Uusi suojausavain"
+  },
+  "learnMoreAboutPasswordless": {
+    "message": "Luo lisää salasanattomasta kirjautumisesta"
+  },
+  "passkeyEnterMasterPassword": {
+    "message": "Syötä pääsalasanasi muokataksesi suojausavaimella kirjautumisen asetuksia."
+  },
+  "creatingPasskeyLoading": {
+    "message": "Suojausavainta luodaan..."
+  },
+  "creatingPasskeyLoadingInfo": {
+    "message": "Pidä tämä ikkuna avoinna ja seuraa selaimesi opasteita."
+  },
+  "errorCreatingPasskey": {
+    "message": "Virhe suojausavaimen luonnissa"
+  },
+  "errorCreatingPasskeyInfo": {
+    "message": "Suojausavaimesi luonnissa kohdattiin ongelma."
+  },
+  "passkeySuccessfullyCreated": {
+    "message": "Suojausavain on luotu!"
+  },
+  "customName": {
+    "message": "Mukautettu nimi"
+  },
+  "customPasskeyNameInfo": {
+    "message": "Anna suojausavaimellesi nimi, josta tunnistat sen."
+  },
+  "encryptionNotSupported": {
+    "message": "Salausta ei tueta"
+  },
+  "loginWithPasskeyEnabled": {
+    "message": "Suojausavaimella kirjautuminen on käytössä"
+  },
+  "passkeySaved": {
+    "message": "$NAME$ tallennettiin",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Personal yubikey"
+      }
+    }
+  },
+  "passkeyRemoved": {
+    "message": "Suojausavain poistettiin"
+  },
+  "removePasskey": {
+    "message": "POista suojausavain"
+  },
+  "removePasskeyInfo": {
+    "message": "Jos kaikki suojausavaimet poistetaan, et voi kirjautua uusille laitteille ilman pääsalasanaasi."
+  },
+  "passkeyLimitReachedInfo": {
+    "message": "Suojausavianten enimmäismäärä on saavutettu. Lisää suojausavain poistamalla jokin nykyisistä avaimista."
+  },
+  "tryAgain": {
+    "message": "Yritä uudelleen"
   },
   "createAccount": {
     "message": "Luo uusi tili"
@@ -1306,7 +1369,7 @@
     "message": "Valitse kokoelma"
   },
   "importTargetHint": {
-    "message": "Valitse tämä, jos haluat tuoda tiedoston sisällön kohteesee $DESTINATION$.",
+    "message": "Valitse tämä, jos haluat tuoda tiedoston sisällön kohteeseen $DESTINATION$.",
     "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
     "placeholders": {
       "destination": {
@@ -1344,7 +1407,7 @@
     }
   },
   "options": {
-    "message": "Asetukset"
+    "message": "Valinnat"
   },
   "preferences": {
     "message": "Asetukset"
@@ -1425,7 +1488,10 @@
   "twoStepLoginDesc": {
     "message": "Suojaa tilisi vaatimalla sisäänkirjautumiseen toinen todennusvaihe."
   },
-  "twoStepLoginOrganizationDescStart": {
+  "twoStepLoginTeamsDesc": {
+    "message": "Ota kaksivaiheinen kirjautuminen käyttöön organisaatiollesi."
+  },
+  "twoStepLoginEnterpriseDescStart": {
     "message": "Pakota jäsenille Bitwardenin kaksivaiheisen kirjautumisen valinnat käytännöllä: ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Enforce Bitwarden Two-step Login options for members by using the Two-step Login Policy.'"
   },
@@ -1925,7 +1991,7 @@
     "message": "1 Gt salattua tallennustilaa tiedostoliitteille."
   },
   "premiumSignUpTwoStepOptions": {
-    "message": "Proprietary two-step login options such as YubiKey and Duo."
+    "message": "Omisteiset kaksivaiheisen kirjautumisen vaihtoehdot, kuten YubiKey ja Duo."
   },
   "premiumSignUpEmergency": {
     "message": "Varmuuskäyttö"
@@ -2041,7 +2107,7 @@
     }
   },
   "paymentChargedWithUnpaidSubscription": {
-    "message": "Maksutavaltasi veloitetaan kaikki maksamattomat tilauksesta."
+    "message": "Maksutavaltasi veloitetaan kaikki maksamattomat tilaukset."
   },
   "paymentChargedWithTrial": {
     "message": "Tilauksesi sisältää ilmaisen 7 päivän kokeilujakson. Maksutapaasi ei veloiteta ennen kokeilujakson päättymistä. Voit irtisanoa tilauksen koska tahansa."
@@ -3473,17 +3539,11 @@
   "keyUpdated": {
     "message": "Avain päivitettiin"
   },
-  "updateKeyTitle": {
-    "message": "Päivitä avain"
-  },
   "updateEncryptionKey": {
     "message": "Päivitä salausavain"
   },
-  "updateEncryptionKeyShortDesc": {
-    "message": "Käytät tällä hetkellä vanhentunutta salausjärjestelmää."
-  },
-  "updateEncryptionKeyDesc": {
-    "message": "Olemme siirtyneet suurempiin salausavaimiin, jotka tarjoavat parempaa suojausta sekä uudempia toimintoja. Salausavaimesi päivitys on helppoa: syötä vain pääsalasanasi alle. Tästä päivityksestä tulee myöhemmin pakollinen."
+  "updateEncryptionSchemeDesc": {
+    "message": "Olemme muuttaneet salausmallia tarjotaksemme paremman tietoturvan. Päivitä salausavaimesi syöttämällä alle pääsalasanasi."
   },
   "updateEncryptionKeyWarning": {
     "message": "Salausavaimesi päivityksen jälkeen, sinun tulee kirjautua ulos ja sitten takaisin sisään kaikissa Bitwarden-sovelluksissa, jotka ovat käytössäsi (esim. mobiilisovellus ja selainlaajennukset). Uudelleenkirjautumisen (joka lataa uuden salausavaimen) suorittamatta jättäminen saattaa johtaa tietojen vaurioitumiseen. Yritämme kirjata sinut ulos autmaattisesti, mutta tämä voi tapahtua vasta jonkin ajan kuluttua."
@@ -3631,7 +3691,7 @@
     "message": "Kohteella on vanhoja tiedostoliitteitä, jotka on korjattava."
   },
   "attachmentFixDescription": {
-    "message": "Liite käyttää vanhentunutta salausta. Lataa liite, salaa se uudelleen ja lisää se uudestaan valitsemalla \"Korjaa\"."
+    "message": "Liite on salattu vanhentuneella salauksella. Lataa, salaa uudelleen ja lisää se uudestaan valitsemalla \"Korjaa\"."
   },
   "fix": {
     "message": "Korjaa",
@@ -5412,6 +5472,19 @@
   "required": {
     "message": "pakollinen"
   },
+  "charactersCurrentAndMaximum": {
+    "message": "$CURRENT$ merkkiä (enimmäismäärä on $MAX$)",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "0"
+      },
+      "max": {
+        "content": "$2",
+        "example": "100"
+      }
+    }
+  },
   "characterMaximum": {
     "message": "Enintään $MAX$ merkkiä",
     "placeholders": {
@@ -5443,7 +5516,7 @@
     "message": "Organisaation holvin vienti"
   },
   "exportingIndividualVaultDescription": {
-    "message": "Vain tunnukseen $EMAIL$ liitetyt yksityisen holvin kohteet viedään. Organisaation holvin kohteita ei sisällytetä. Vain holvin kohteiden tiedot viedään ilman niihin liittyviä liitteitä.",
+    "message": "Vain tunnukseen $EMAIL$ liitetyt yksityisen holvin kohteet viedään. Organisaation holvin kohteita ei sisällytetä. Vain holvin kohteiden tiedot viedään ilman niiden sisältämiä liitteitä.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -5759,6 +5832,9 @@
   },
   "on": {
     "message": "Käytössä"
+  },
+  "off": {
+    "message": "Ei käytössä"
   },
   "members": {
     "message": "Jäsenet"
@@ -6597,13 +6673,13 @@
     "message": "Tallenna lisenssi"
   },
   "projectPeopleDescription": {
-    "message": "Myönnä ryhmille tai henkilöille tämän projektin käyttöoikeus."
+    "message": "Myönnä ryhmille tai henkilöille käyttöoikeus projektiin."
   },
   "projectPeopleSelectHint": {
     "message": "Syötä tai valitse henkilöitä tai ryhmiä"
   },
   "projectServiceAccountsDescription": {
-    "message": "Myönnä palvelutileille tämän projektin käyttöoikeus."
+    "message": "Myönnä palvelutileille käyttöoikeus projektiin."
   },
   "projectServiceAccountsSelectHint": {
     "message": "Syötä tai valitse palvelutilit"
@@ -6851,7 +6927,7 @@
     "message": "Muista tämä laite"
   },
   "uncheckIfPublicDevice": {
-    "message": "Poista käytöstä julkisilla laitteilla"
+    "message": "Poista valinta julkisilla laitteilla"
   },
   "approveFromYourOtherDevice": {
     "message": "Hyväksy muilta laitteiltasi"
@@ -6869,27 +6945,27 @@
     "message": "Luotetut laitteet"
   },
   "memberDecryptionOptionTdeDescriptionPartOne": {
-    "message": "Kun jäsenet on todennettu, he voivat purkaa holvin salauksen heidän laitteellaan säilytettävällä avaimella.",
+    "message": "Kun jäsenet on todennettu, he voivat purkaa holvin salauksen omalla laitteellaan säilytettävällä avaimella.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO Required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescriptionLinkOne": {
-    "message": "Yksittäinen organisaatio",
+    "message": "\"Yksittäinen organisaatio\"",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescriptionPartTwo": {
-    "message": ",",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
-  },
-  "memberDecryptionOptionTdeDescriptionLinkTwo": {
-    "message": "Kertakirjautuminen vaaditaan",
-    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
-  },
-  "memberDecryptionOptionTdeDescriptionPartThree": {
     "message": "ja",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
+  "memberDecryptionOptionTdeDescriptionLinkTwo": {
+    "message": "\"Kertakirjautuminen vaaditaan\"",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  },
+  "memberDecryptionOptionTdeDescriptionPartThree": {
+    "message": "-käytännöt sekä",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  },
   "memberDecryptionOptionTdeDescriptionLinkThree": {
-    "message": "Tilin palautusavun hallinta",
+    "message": "\"Tilien palautusavun hallinta\"",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
   "memberDecryptionOptionTdeDescriptionPartFour": {
@@ -7016,12 +7092,6 @@
   "next": {
     "message": "Seuraava"
   },
-  "usFlag": {
-    "message": "Yhdysvaltain lippu"
-  },
-  "euFlag": {
-    "message": "EU:n lippu"
-  },
   "selectedRegionFlag": {
     "message": "Valitun alueen lippu"
   },
@@ -7032,7 +7102,7 @@
     "message": "Hyväksyntää pyydetty ylläpidolta"
   },
   "adminApprovalRequestSentToAdmins": {
-    "message": "Pyyntösi on välitetty ylläpidolle."
+    "message": "Pyyntösi on välitetty ylläpidollesi."
   },
   "youWillBeNotifiedOnceApproved": {
     "message": "Saat ilmoituksen kun se on hyväksytty."
@@ -7041,7 +7111,7 @@
     "message": "Ongelmia kirjautumisessa?"
   },
   "loginApproved": {
-    "message": "Kirjautuminen hyväksyttiin"
+    "message": "Kirjautuminen hyväksytty"
   },
   "userEmailMissing": {
     "message": "Käyttäjän sähköpostiosoite puuttuu"
@@ -7061,7 +7131,7 @@
     "message": "Kutsu käyttäjiä"
   },
   "secretsManagerForPlan": {
-    "message": "Salaisuushallinta $PLAN$-tilaukseen",
+    "message": "Salaisuushallinta $PLAN$ -tilaukseen",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -7070,7 +7140,7 @@
     }
   },
   "secretsManagerForPlanDesc": {
-    "message": "Kehitys ja DevOps-tiimeille salaisuuksien hallintaan ohjelmistokehityksen koko elinkaaren ajaksi."
+    "message": "Kehitys- ja DevOps-tiimeille ohjelmistokehityksen koko elinkaaren kestävään salaisuuksien hallintaan."
   },
   "free2PersonOrganization": {
     "message": "Ilmainen kahden hengen organisaatioille"
@@ -7108,8 +7178,8 @@
       }
     }
   },
-  "addSecretsManager": {
-    "message": "Lisää Salaisuushallinta"
+  "subscribeToSecretsManager": {
+    "message": "Tilaa Salaisuushallinta"
   },
   "addSecretsManagerUpgradeDesc": {
     "message": "Lisää Salaisuushallinta myös päivitettyyn tilaukseesi, jottet menetä pääsyä aiemmalla tilauksellasi luotuihin salaisuuksiin."
@@ -7160,7 +7230,7 @@
     "message": "Palvelutilin mahdollinen enimmäiskustannus"
   },
   "loggedInExclamation": {
-    "message": "Kirjautuminen onnistui!"
+    "message": "Kirjautuminen onnistui."
   },
   "smBetaEndedDesc": {
     "message": "Salaisuushallinnan beta päättyi $BETA_ENDING_DATE$. Sinulla on $DAYS$ päivää aikaa lisätä Salaisuushallinta maksulliseen tilaukseesi säilyttääksesi Salaisuushallinnassa olevien tietojesi käyttöoikeuden. Lisää Salaisuushallinta tilaukseesi olemalla yhteydessä asiakaspalveluun.",
@@ -7176,12 +7246,24 @@
     }
   },
   "betaEnding": {
-    "message": "Beta päättyy"
+    "message": "Beta on päättynyt"
   },
   "beta": {
     "message": "Beta"
   },
+  "baseUrl": {
+    "message": "Palvelimen URL-osoite"
+  },
+  "aliasDomain": {
+    "message": "Aliasverkkotunnus"
+  },
   "alreadyHaveAccount": {
     "message": "Onko sinulla jo tili?"
+  },
+  "customBillingStart": {
+    "message": "Mukautettu laskutus ei näy. Löydät viimeisimmän laskutuksen "
+  },
+  "customBillingEnd": {
+    "message": " -sivulta."
   }
 }
