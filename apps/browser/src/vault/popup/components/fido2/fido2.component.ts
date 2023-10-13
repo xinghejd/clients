@@ -220,10 +220,7 @@ export class Fido2Component implements OnInit, OnDestroy {
   async submit() {
     const data = this.message$.value;
     if (data?.type === "PickCredentialRequest") {
-      let userVerified = false;
-      if (data.userVerification) {
-        userVerified = await this.passwordRepromptService.showPasswordPrompt();
-      }
+      const userVerified = await this.handleUserVerification(data.userVerification, this.cipher);
 
       this.send({
         sessionId: this.sessionId,
@@ -232,8 +229,6 @@ export class Fido2Component implements OnInit, OnDestroy {
         userVerified,
       });
     } else if (data?.type === "ConfirmNewCredentialRequest") {
-      let userVerified = false;
-
       if (this.cipher.login.hasFido2Credentials) {
         const confirmed = await this.dialogService.openSimpleDialog({
           title: { key: "overwritePasskey" },
@@ -246,9 +241,7 @@ export class Fido2Component implements OnInit, OnDestroy {
         }
       }
 
-      if (data.userVerification) {
-        userVerified = await this.passwordRepromptService.showPasswordPrompt();
-      }
+      const userVerified = await this.handleUserVerification(data.userVerification, this.cipher);
 
       this.send({
         sessionId: this.sessionId,
@@ -409,6 +402,20 @@ export class Fido2Component implements OnInit, OnDestroy {
     } catch (e) {
       this.logService.error(e);
     }
+  }
+
+  private async handleUserVerification(
+    userVerification: boolean,
+    cipher: CipherView
+  ): Promise<boolean> {
+    const masterPasswordRepromptRequiered = cipher && cipher.reprompt !== 0;
+    const verificationRequired = userVerification || masterPasswordRepromptRequiered;
+
+    if (!verificationRequired) {
+      return false;
+    }
+
+    return await this.passwordRepromptService.showPasswordPrompt();
   }
 
   private send(msg: BrowserFido2Message) {

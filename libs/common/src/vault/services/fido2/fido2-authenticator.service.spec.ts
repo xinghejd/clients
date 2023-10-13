@@ -15,6 +15,7 @@ import {
   NewCredentialParams,
 } from "../../abstractions/fido2/fido2-user-interface.service.abstraction";
 import { SyncService } from "../../abstractions/sync/sync.service.abstraction";
+import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
 import { Cipher } from "../../models/domain/cipher";
 import { CipherView } from "../../models/view/cipher.view";
@@ -267,6 +268,20 @@ describe("FidoAuthenticatorService", () => {
         const result = async () => await authenticator.makeCredential(params, tab);
 
         await expect(result).rejects.toThrowError(Fido2AutenticatorErrorCode.NotAllowed);
+      });
+
+      it("should throw error if user verification fails and cipher requires reprompt", async () => {
+        params.requireUserVerification = false;
+        userInterfaceSession.confirmNewCredential.mockResolvedValue({
+          cipherId: existingCipher.id,
+          userVerified: false,
+        });
+        const encryptedCipher = { ...existingCipher, reprompt: CipherRepromptType.Password };
+        cipherService.get.mockResolvedValue(encryptedCipher as unknown as Cipher);
+
+        const result = async () => await authenticator.makeCredential(params, tab);
+
+        await expect(result).rejects.toThrowError(Fido2AutenticatorErrorCode.Unknown);
       });
 
       /** Spec: If any error occurred while creating the new credential object, return an error code equivalent to "UnknownError" and terminate the operation. */
@@ -580,6 +595,18 @@ describe("FidoAuthenticatorService", () => {
       it("should throw error", async () => {
         userInterfaceSession.pickCredential.mockResolvedValue({
           cipherId: undefined,
+          userVerified: false,
+        });
+
+        const result = async () => await authenticator.getAssertion(params, tab);
+
+        await expect(result).rejects.toThrowError(Fido2AutenticatorErrorCode.NotAllowed);
+      });
+
+      it("should throw error if user verification fails and cipher requires reprompt", async () => {
+        ciphers[0].reprompt = CipherRepromptType.Password;
+        userInterfaceSession.pickCredential.mockResolvedValue({
+          cipherId: ciphers[0].id,
           userVerified: false,
         });
 
