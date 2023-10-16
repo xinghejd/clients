@@ -304,6 +304,11 @@ function getBgService<T>(service: keyof MainBackground) {
       useFactory: getBgService<PasswordGenerationServiceAbstraction>("passwordGenerationService"),
       deps: [],
     },
+    {
+      provide: AccountServiceAbstraction,
+      useFactory: getBgService<AccountServiceAbstraction>("accountService"),
+      deps: [],
+    },
     { provide: ApiService, useFactory: getBgService<ApiService>("apiService"), deps: [] },
     {
       provide: SendService,
