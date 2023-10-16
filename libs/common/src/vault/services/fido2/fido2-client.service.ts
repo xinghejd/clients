@@ -188,7 +188,7 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
       authData: Fido2Utils.bufferToString(makeCredentialResult.authData),
       clientDataJSON: Fido2Utils.bufferToString(clientDataJSONBytes),
       publicKeyAlgorithm: makeCredentialResult.publicKeyAlgorithm,
-      transports: ["hybrid"],
+      transports: ["internal"],
     };
   }
 
