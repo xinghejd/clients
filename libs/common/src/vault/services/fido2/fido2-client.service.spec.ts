@@ -361,18 +361,6 @@ describe("FidoAuthenticatorService", () => {
         await rejects.toThrow(FallbackRequestedError);
       });
 
-      // Spec: If sameOriginWithAncestors is false, return a "NotAllowedError" DOMException.
-      it("should throw error if sameOriginWithAncestors is false", async () => {
-        const params = createParams();
-        params.sameOriginWithAncestors = false; // Simulating the falsey value
-
-        const result = async () => await client.assertCredential(params, tab);
-
-        const rejects = expect(result).rejects;
-        await rejects.toMatchObject({ name: "NotAllowedError" });
-        await rejects.toBeInstanceOf(DOMException);
-      });
-
       it("should throw FallbackRequestedError if user is logged out", async () => {
         const params = createParams();
         authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.LoggedOut);

@@ -108,8 +108,6 @@ navigator.credentials.get = async (
   const fallbackSupported = browserNativeWebauthnSupport;
 
   try {
-    const isNotIframe = isSameOriginWithAncestors();
-
     if (options?.mediation && options.mediation !== "optional") {
       throw new FallbackRequestedError();
     }
@@ -120,7 +118,7 @@ navigator.credentials.get = async (
         data: WebauthnUtils.mapCredentialRequestOptions(
           options,
           window.location.origin,
-          isNotIframe,
+          true,
           fallbackSupported
         ),
       },
