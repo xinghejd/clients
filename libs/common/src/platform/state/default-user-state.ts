@@ -28,6 +28,8 @@ import { DerivedUserState } from "./derived-user-state";
 import { KeyDefinition } from "./key-definition";
 import { StorageLocation } from "./state-definition";
 
+const FAKE_DEFAULT = Symbol.for("fakeDefault");
+
 // TODO: Update storage services to emit when any key is updated
 // Then listen to that observable here to emit on `state$` when the `formattedKey$`
 // is reported updated by the storage service;
@@ -37,7 +39,9 @@ export class DefaultUserState<T> implements UserState<T> {
   private formattedKey$: Observable<string>;
   private chosenStorageLocation: AbstractStorageService;
 
-  protected stateSubject: BehaviorSubject<T | null> = new BehaviorSubject<T | null>(null);
+  protected stateSubject: BehaviorSubject<T | typeof FAKE_DEFAULT> = new BehaviorSubject<
+    T | typeof FAKE_DEFAULT
+  >(FAKE_DEFAULT);
   private stateSubject$ = this.stateSubject.asObservable();
 
   state$: Observable<T>;
@@ -104,21 +108,17 @@ export class DefaultUserState<T> implements UserState<T> {
           },
         })
       );
-    });
+    })
+      // I fake the generic here because I am filtering out the other union type
+      // and this makes it so that typescript understands the true type
+      .pipe(filter<T>((value) => value != FAKE_DEFAULT));
   }
 
   async update(configureState: (state: T) => T): Promise<T> {
     const key = await this.createKey();
-    if (key == null) {
-      throw new Error("Attempting to active user state, when no user is active.");
-    }
-    const currentState = this.seededInitial
-      ? this.stateSubject.getValue()
-      : await this.seedInitial(key);
-
+    const currentState = await this.getGuaranteedState(key);
     const newState = configureState(currentState);
-
-    await this.saveToStorage(await this.createKey(), newState);
+    await this.saveToStorage(key, newState);
     return newState;
   }
 
@@ -160,10 +160,16 @@ export class DefaultUserState<T> implements UserState<T> {
     return formattedKey;
   }
 
+  protected async getGuaranteedState(key: string) {
+    const currentValue = this.stateSubject.getValue();
+    return currentValue == FAKE_DEFAULT ? await this.seedInitial(key) : currentValue;
+  }
+
   private async seedInitial(key: string): Promise<T> {
     const data = await this.chosenStorageLocation.get<Jsonify<T>>(key);
-    this.seededInitial = true;
-    return this.keyDefinition.deserializer(data);
+    const serializedData = this.keyDefinition.deserializer(data);
+    this.stateSubject.next(serializedData);
+    return serializedData;
   }
 
   private chooseStorage(storageLocation: StorageLocation): AbstractStorageService {
