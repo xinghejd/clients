@@ -62,6 +62,7 @@ import { FileUploadService } from "@bitwarden/common/platform/services/file-uplo
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
 import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
+import { DefaultUserStateProvider } from "@bitwarden/common/platform/state";
 import { AvatarUpdateService } from "@bitwarden/common/services/account/avatar-update.service";
 import { ApiService } from "@bitwarden/common/services/api.service";
 import { AuditService } from "@bitwarden/common/services/audit.service";
@@ -135,7 +136,6 @@ import BrowserPlatformUtilsService from "../platform/services/browser-platform-u
 import { BrowserStateService } from "../platform/services/browser-state.service";
 import { KeyGenerationService } from "../platform/services/key-generation.service";
 import { LocalBackedSessionStorageService } from "../platform/services/local-backed-session-storage.service";
-import { BackgroundUserStateProvider } from "../platform/state";
 import { BrowserSendService } from "../services/browser-send.service";
 import { BrowserSettingsService } from "../services/browser-settings.service";
 import VaultTimeoutService from "../services/vault-timeout/vault-timeout.service";
@@ -340,7 +340,7 @@ export default class MainBackground {
     );
 
     // TODO: This is just to make it compile
-    const userStateProviderService = new BackgroundUserStateProvider(
+    const userStateProviderService = new DefaultUserStateProvider(
       this.accountService,
       this.encryptService,
       this.memoryStorageService,

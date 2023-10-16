@@ -58,7 +58,6 @@ import {
   AbstractMemoryStorageService,
   AbstractStorageService,
 } from "@bitwarden/common/platform/abstractions/storage.service";
-import { UserStateProvider } from "@bitwarden/common/platform/abstractions/user-state.provider";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { ConfigService } from "@bitwarden/common/platform/services/config/config.service";
@@ -103,7 +102,6 @@ import { BrowserI18nService } from "../../platform/services/browser-i18n.service
 import BrowserMessagingPrivateModePopupService from "../../platform/services/browser-messaging-private-mode-popup.service";
 import BrowserMessagingService from "../../platform/services/browser-messaging.service";
 import { BrowserStateService } from "../../platform/services/browser-state.service";
-import { ForegroundUserStateProvider } from "../../platform/state";
 import { BrowserSendService } from "../../services/browser-send.service";
 import { BrowserSettingsService } from "../../services/browser-settings.service";
 import { PasswordRepromptService } from "../../vault/popup/services/password-reprompt.service";
@@ -504,17 +502,6 @@ function getBgService<T>(service: keyof MainBackground) {
         AuthServiceAbstraction,
         EnvironmentService,
         LogService,
-      ],
-    },
-    {
-      provide: UserStateProvider,
-      useClass: ForegroundUserStateProvider,
-      deps: [
-        AccountServiceAbstraction,
-        EncryptService,
-        MEMORY_STORAGE,
-        AbstractStorageService,
-        SECURE_STORAGE,
       ],
     },
   ],

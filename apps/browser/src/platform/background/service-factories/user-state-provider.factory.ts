@@ -1,10 +1,10 @@
 import { UserStateProvider } from "@bitwarden/common/platform/abstractions/user-state.provider";
+import { DefaultUserStateProvider } from "@bitwarden/common/platform/state";
 
 import {
   AccountServiceInitOptions,
   accountServiceFactory,
 } from "../../../auth/background/service-factories/account-service.factory";
-import { BackgroundUserStateProvider } from "../../state";
 
 import { EncryptServiceInitOptions, encryptServiceFactory } from "./encrypt-service.factory";
 import { FactoryOptions, CachedServices, factory } from "./factory-options";
@@ -35,7 +35,7 @@ export function userStateProviderFactory(
     "userStateProvider",
     opts,
     async () =>
-      new BackgroundUserStateProvider(
+      new DefaultUserStateProvider(
         await accountServiceFactory(cache, opts),
         await encryptServiceFactory(cache, opts),
         await memoryStorageServiceFactory(cache, opts),
