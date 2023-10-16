@@ -1,9 +1,8 @@
 import { DatePipe } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { concatMap, Subject, takeUntil } from "rxjs";
+import { concatMap, firstValueFrom, Subject, takeUntil } from "rxjs";
 
-import { ModalConfig, ModalService } from "@bitwarden/angular/services/modal.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -18,14 +17,10 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DialogService } from "@bitwarden/components";
 
-import {
-  BillingSyncApiKeyComponent,
-  BillingSyncApiModalData,
-} from "./billing-sync-api-key.component";
-import { SecretsManagerSubscriptionOptions } from "./secrets-manager/sm-adjust-subscription.component";
+import { BillingSyncApiKeyComponent } from "./billing-sync-api-key.component";
+import { SecretsManagerSubscriptionOptions } from "./sm-adjust-subscription.component";
 
 @Component({
-  selector: "app-org-subscription-cloud",
   templateUrl: "organization-subscription-cloud.component.html",
 })
 export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy {
@@ -55,7 +50,6 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
     private logService: LogService,
-    private modalService: ModalService,
     private organizationService: OrganizationService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private route: ActivatedRoute,
@@ -116,6 +110,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
 
     this.showSecretsManagerSubscribe =
       this.userOrg.canEditSubscription &&
+      !this.userOrg.hasProvider &&
       !this.userOrg.useSecretsManager &&
       !this.subscription?.cancelled &&
       !this.subscriptionMarkedForCancel;
@@ -330,22 +325,13 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   }
 
   async manageBillingSync() {
-    const modalConfig: ModalConfig<BillingSyncApiModalData> = {
-      data: {
-        organizationId: this.organizationId,
-        hasBillingToken: this.hasBillingSyncToken,
-      },
-    };
-    const modalRef = this.modalService.open(BillingSyncApiKeyComponent, modalConfig);
+    const dialogRef = BillingSyncApiKeyComponent.open(this.dialogService, {
+      organizationId: this.organizationId,
+      hasBillingToken: this.hasBillingSyncToken,
+    });
 
-    modalRef.onClosed
-      .pipe(
-        concatMap(async () => {
-          this.load();
-        }),
-        takeUntil(this.destroy$)
-      )
-      .subscribe();
+    await firstValueFrom(dialogRef.closed);
+    this.load();
   }
 
   closeDownloadLicense() {
