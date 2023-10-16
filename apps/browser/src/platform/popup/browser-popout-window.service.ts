@@ -117,13 +117,15 @@ class BrowserPopoutWindowService implements BrowserPopupWindowServiceInterface {
       `&senderTabId=${senderTabId}` +
       `&senderUrl=${encodeURIComponent(senderWindow.url)}`;
 
+    const popOutHeight = window.navigator.userAgent.includes("Firefox") ? 530 : 500;
+
     return await this.openSingleActionPopout(
       senderWindow.windowId,
       promptWindowPath,
       "fido2Popout",
       {
         width: 200,
-        height: 530,
+        height: popOutHeight,
       }
     );
   }
