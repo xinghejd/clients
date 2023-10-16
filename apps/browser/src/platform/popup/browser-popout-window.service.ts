@@ -122,7 +122,6 @@ class BrowserPopoutWindowService implements BrowserPopupWindowServiceInterface {
       promptWindowPath,
       "fido2Popout",
       {
-        width: 200,
         height: 500,
       }
     );
