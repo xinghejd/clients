@@ -95,8 +95,7 @@ async function openFido2Popout(
   const { sessionId, fallbackSupported } = options;
   const promptWindowPath =
     "popup/index.html#/fido2" +
-    "?uilocation=popout" +
-    `&sessionId=${sessionId}` +
+    `?sessionId=${sessionId}` +
     `&fallbackSupported=${fallbackSupported}` +
     `&senderTabId=${senderTab.id}` +
     `&senderUrl=${encodeURIComponent(senderTab.url)}`;

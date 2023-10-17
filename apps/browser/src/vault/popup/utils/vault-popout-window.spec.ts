@@ -123,7 +123,7 @@ describe("VaultPopoutWindow", () => {
       });
 
       expect(openPopoutSpy).toHaveBeenCalledWith(
-        "popup/index.html#/fido2?uilocation=popout&sessionId=sessionId&fallbackSupported=true&senderTabId=2&senderUrl=https%3A%2F%2Fjest-testing.com",
+        "popup/index.html#/fido2?sessionId=sessionId&fallbackSupported=true&senderTabId=2&senderUrl=https%3A%2F%2Fjest-testing.com",
         {
           singleActionKey: `${VaultPopoutType.fido2Popout}_sessionId`,
           senderWindowId: 1,
