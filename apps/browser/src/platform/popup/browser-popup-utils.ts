@@ -38,9 +38,8 @@ class BrowserPopupUtils {
    */
   static inPopup(win: Window): boolean {
     return (
-      win.location.search === "" ||
-      win.location.search.indexOf("uilocation=") === -1 ||
-      win.location.search.indexOf("uilocation=popup") > -1
+      win.location.href.indexOf("uilocation=") === -1 ||
+      win.location.href.indexOf("uilocation=popup") > -1
     );
   }
 
@@ -123,17 +122,28 @@ class BrowserPopupUtils {
     const offsetTop = 90;
     const popupWidth = defaultPopoutWindowOptions.width;
     const senderWindow = await BrowserApi.getWindow(senderWindowId);
-    const parsedUrl = new URL(chrome.runtime.getURL(extensionUrlPath));
-    parsedUrl.searchParams.set("uilocation", "popout");
-    if (singleActionKey) {
-      parsedUrl.searchParams.set("singleActionPopout", singleActionKey);
+
+    let parsedExtensionUrlPath = extensionUrlPath;
+    if (parsedExtensionUrlPath.includes("uiLocation=")) {
+      parsedExtensionUrlPath = parsedExtensionUrlPath.replace(
+        /uiLocation=[^&]*/g,
+        "uilocation=popout"
+      );
+    } else {
+      parsedExtensionUrlPath +=
+        (parsedExtensionUrlPath.includes("?") ? "&" : "?") + "uilocation=popout";
     }
+
+    if (singleActionKey) {
+      parsedExtensionUrlPath += `&singleActionPopout=${singleActionKey}`;
+    }
+
     const popoutWindowOptions = {
       left: senderWindow.left + senderWindow.width - popupWidth - offsetRight,
       top: senderWindow.top + offsetTop,
       ...defaultPopoutWindowOptions,
       ...windowOptions,
-      url: parsedUrl.toString(),
+      url: chrome.runtime.getURL(parsedExtensionUrlPath),
     };
 
     if (
@@ -255,10 +265,7 @@ class BrowserPopupUtils {
     searchParam: string,
     searchValue: string
   ): boolean {
-    return (
-      win.location.search !== "" &&
-      win.location.search.indexOf(`${searchParam}=${searchValue}`) > -1
-    );
+    return win.location.href.indexOf(`${searchParam}=${searchValue}`) > -1;
   }
 }
 

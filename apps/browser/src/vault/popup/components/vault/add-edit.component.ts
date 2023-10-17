@@ -122,15 +122,10 @@ export class AddEditComponent extends BaseAddEditComponent {
       await this.load();
 
       if (!this.editMode || this.cloneMode) {
-        if (
-          !BrowserPopupUtils.inPopout(window) &&
-          params.name &&
-          (this.cipher.name == null || this.cipher.name === "")
-        ) {
+        if (params.name && (this.cipher.name == null || this.cipher.name === "")) {
           this.cipher.name = params.name;
         }
         if (
-          !BrowserPopupUtils.inPopout(window) &&
           params.uri &&
           (this.cipher.login.uris[0].uri == null || this.cipher.login.uris[0].uri === "")
         ) {
