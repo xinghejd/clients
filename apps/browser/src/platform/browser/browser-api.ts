@@ -177,8 +177,8 @@ export class BrowserApi {
     chrome.tabs.sendMessage<TabMessage, T>(tabId, message, options, responseCallback);
   }
 
-  static async removeTab(tabId: number) {
-    await chrome.tabs.remove(tabId);
+  static removeTab(tabId: number): Promise<void> {
+    return new Promise((resolve) => chrome.tabs.remove(tabId, () => resolve()));
   }
 
   static async getPrivateModeWindows(): Promise<browser.windows.Window[]> {
