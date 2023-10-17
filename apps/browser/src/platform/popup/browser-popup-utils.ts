@@ -114,10 +114,10 @@ class BrowserPopupUtils {
   ) {
     const { senderWindowId, singleActionKey, forceCloseExistingWindows, windowOptions } = options;
     const defaultPopoutWindowOptions: chrome.windows.CreateData = {
-      type: "normal",
+      type: "popup",
       focused: true,
-      width: 500,
-      height: 800,
+      width: 380,
+      height: 630,
     };
     const offsetRight = 15;
     const offsetTop = 90;
