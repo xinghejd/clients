@@ -315,9 +315,20 @@ export class BrowserApi {
     if (BrowserApi.isWebExtensionsApi) {
       return browser.permissions.request(permission);
     }
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       chrome.permissions.request(permission, resolve);
     });
+  }
+
+  /**
+   * Checks if the user has provided the given permissions to the extension.
+   *
+   * @param permissions - The permissions to check.
+   */
+  static async permissionsGranted(permissions: string[]): Promise<boolean> {
+    return new Promise((resolve) =>
+      chrome.permissions.contains({ permissions }, (result) => resolve(result))
+    );
   }
 
   static getPlatformInfo(): Promise<browser.runtime.PlatformInfo | chrome.runtime.PlatformInfo> {
@@ -368,5 +379,34 @@ export class BrowserApi {
         resolve(result);
       });
     });
+  }
+
+  /**
+   * Identifies if the browser autofill settings are overridden by the extension.
+   */
+  static async browserAutofillSettingsOverridden(): Promise<boolean> {
+    const autofillAddressOverridden: boolean = await new Promise((resolve) =>
+      chrome.privacy.services.autofillAddressEnabled.get({}, (details) =>
+        resolve(details.levelOfControl === "controlled_by_this_extension" && !details.value)
+      )
+    );
+
+    const autofillCreditCardOverridden: boolean = await new Promise((resolve) =>
+      chrome.privacy.services.autofillCreditCardEnabled.get({}, (details) =>
+        resolve(details.levelOfControl === "controlled_by_this_extension" && !details.value)
+      )
+    );
+
+    return autofillAddressOverridden && autofillCreditCardOverridden;
+  }
+
+  /**
+   * Updates the browser autofill settings to the given value.
+   *
+   * @param value - Determines whether to enable or disable the autofill settings.
+   */
+  static async updateDefaultBrowserAutofillSettings(value: boolean) {
+    chrome.privacy.services.autofillAddressEnabled.set({ value });
+    chrome.privacy.services.autofillCreditCardEnabled.set({ value });
   }
 }
