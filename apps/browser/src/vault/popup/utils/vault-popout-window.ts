@@ -105,7 +105,7 @@ async function openFido2Popout(
     singleActionKey: `${VaultPopoutType.fido2Popout}_${sessionId}`,
     senderWindowId: senderTab.windowId,
     forceCloseExistingWindows: true,
-    windowOptions: { height: 500 },
+    windowOptions: { height: 450 },
   });
 
   return popoutWindow.id;

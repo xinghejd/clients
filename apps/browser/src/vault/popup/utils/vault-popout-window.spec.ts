@@ -128,7 +128,7 @@ describe("VaultPopoutWindow", () => {
           singleActionKey: `${VaultPopoutType.fido2Popout}_sessionId`,
           senderWindowId: 1,
           forceCloseExistingWindows: true,
-          windowOptions: { height: 500 },
+          windowOptions: { height: 450 },
         }
       );
       expect(returnedWindowId).toEqual(10);
