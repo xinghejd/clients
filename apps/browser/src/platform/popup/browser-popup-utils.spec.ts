@@ -167,7 +167,7 @@ describe("BrowserPopupUtils", () => {
         focused: false,
         alwaysOnTop: false,
         incognito: false,
-        width: 500,
+        width: 380,
       });
       jest.spyOn(BrowserApi, "createWindow").mockImplementation();
     });
@@ -179,10 +179,10 @@ describe("BrowserPopupUtils", () => {
       await BrowserPopupUtils.openPopout(url);
 
       expect(BrowserApi.createWindow).toHaveBeenCalledWith({
-        type: "normal",
+        type: "popup",
         focused: true,
-        width: 500,
-        height: 800,
+        width: 380,
+        height: 630,
         left: 85,
         top: 190,
         url: `chrome-extension://id/${url}?uilocation=popout`,
@@ -196,10 +196,10 @@ describe("BrowserPopupUtils", () => {
       await BrowserPopupUtils.openPopout(url, { singleActionKey: "123" });
 
       expect(BrowserApi.createWindow).toHaveBeenCalledWith({
-        type: "normal",
+        type: "popup",
         focused: true,
-        width: 500,
-        height: 800,
+        width: 380,
+        height: 630,
         left: 85,
         top: 190,
         url: `chrome-extension://id/${url}?uilocation=popout&singleActionPopout=123`,
@@ -249,10 +249,10 @@ describe("BrowserPopupUtils", () => {
       });
 
       expect(BrowserApi.createWindow).toHaveBeenCalledWith({
-        type: "normal",
+        type: "popup",
         focused: true,
-        width: 500,
-        height: 800,
+        width: 380,
+        height: 630,
         left: 85,
         top: 190,
         url: `chrome-extension://id/${url}?uilocation=popout&singleActionPopout=123`,
