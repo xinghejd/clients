@@ -186,6 +186,7 @@ export class AddEditComponent extends BaseAddEditComponent {
         this.cipher.id,
         fido2SessionData.userVerification
       );
+      this.location.back();
       return true;
     }
 
