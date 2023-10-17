@@ -78,6 +78,13 @@ async function closeAddEditVaultItemPopout(delayClose = 0) {
   await BrowserPopupUtils.closeSingleActionPopout(VaultPopoutType.addEditVaultItem, delayClose);
 }
 
+/**
+ * Opens a popout window that facilitates FIDO2
+ * authentication and passkey management.
+ *
+ * @param senderTab - The tab that sent the request.
+ * @param options - Options passed as query params to the popout.
+ */
 async function openFido2Popout(
   senderTab: chrome.tabs.Tab,
   options: {
@@ -104,11 +111,13 @@ async function openFido2Popout(
   return popoutWindow.id;
 }
 
-async function closeFido2Popout(sessionId: string, delayClose = 0): Promise<void> {
-  await BrowserPopupUtils.closeSingleActionPopout(
-    `${VaultPopoutType.fido2Popout}_${sessionId}`,
-    delayClose
-  );
+/**
+ * Closes the FIDO2 popout window associated with the passed session ID.
+ *
+ * @param sessionId - The session ID of the popout to close.
+ */
+async function closeFido2Popout(sessionId: string): Promise<void> {
+  await BrowserPopupUtils.closeSingleActionPopout(`${VaultPopoutType.fido2Popout}_${sessionId}`);
 }
 
 export {
