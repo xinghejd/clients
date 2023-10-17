@@ -1,6 +1,7 @@
 import { Location } from "@angular/common";
 import { Component } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 import { first } from "rxjs/operators";
 
 import { AddEditComponent as BaseAddEditComponent } from "@bitwarden/angular/vault/components/add-edit.component";
@@ -25,6 +26,10 @@ import { PasswordRepromptService } from "@bitwarden/vault";
 import { BrowserApi } from "../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../platform/popup/browser-popup-utils";
 import { PopupCloseWarningService } from "../../../../popup/services/popup-close-warning.service";
+import {
+  BrowserFido2UserInterfaceSession,
+  fido2PopoutSessionData$,
+} from "../../../fido2/browser-fido2-user-interface.service";
 import { VaultPopoutType, closeAddEditVaultItemPopout } from "../../utils/vault-popout-window";
 
 @Component({
@@ -38,6 +43,8 @@ export class AddEditComponent extends BaseAddEditComponent {
   openAttachmentsInPopup: boolean;
   showAutoFillOnPageLoadOptions: boolean;
   private singleActionKey: string;
+
+  private fido2PopoutSessionData$ = fido2PopoutSessionData$();
 
   constructor(
     cipherService: CipherService,
@@ -157,9 +164,30 @@ export class AddEditComponent extends BaseAddEditComponent {
   }
 
   async submit(): Promise<boolean> {
+    const fido2SessionData = await firstValueFrom(this.fido2PopoutSessionData$);
+    if (
+      BrowserPopupUtils.inPopout(window) &&
+      fido2SessionData.isFido2Session &&
+      !(await this.handleFido2UserVerification(
+        fido2SessionData.sessionId,
+        fido2SessionData.userVerification
+      ))
+    ) {
+      return false;
+    }
+
     const success = await super.submit();
     if (!success) {
       return false;
+    }
+
+    if (BrowserPopupUtils.inPopout(window) && fido2SessionData.isFido2Session) {
+      BrowserFido2UserInterfaceSession.confirmNewCredentialResponse(
+        fido2SessionData.sessionId,
+        this.cipher.id,
+        fido2SessionData.userVerification
+      );
+      return true;
     }
 
     if (BrowserPopupUtils.inPopout(window)) {
@@ -200,8 +228,14 @@ export class AddEditComponent extends BaseAddEditComponent {
     }
   }
 
-  cancel() {
+  async cancel() {
     super.cancel();
+
+    const sessionData = await firstValueFrom(this.fido2PopoutSessionData$);
+    if (BrowserPopupUtils.inPopout(window) && sessionData.isFido2Session) {
+      BrowserFido2UserInterfaceSession.abortPopout(sessionData.sessionId);
+      return;
+    }
 
     if (this.inAddEditPopoutWindow()) {
       closeAddEditVaultItemPopout();
@@ -272,6 +306,18 @@ export class AddEditComponent extends BaseAddEditComponent {
         document.getElementById("name").focus();
       }
     }, 200);
+  }
+
+  private async handleFido2UserVerification(
+    sessionId: string,
+    userVerification: boolean
+  ): Promise<boolean> {
+    if (userVerification && !(await this.passwordRepromptService.showPasswordPrompt())) {
+      BrowserFido2UserInterfaceSession.abortPopout(sessionId);
+      return false;
+    }
+
+    return true;
   }
 
   repromptChanged() {
