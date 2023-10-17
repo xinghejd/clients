@@ -181,6 +181,10 @@ export class AddEditComponent extends BaseAddEditComponent {
       return false;
     }
 
+    if (BrowserPopupUtils.inPopout(window)) {
+      this.popupCloseWarningService.disable();
+    }
+
     if (BrowserPopupUtils.inPopout(window) && fido2SessionData.isFido2Session) {
       BrowserFido2UserInterfaceSession.confirmNewCredentialResponse(
         fido2SessionData.sessionId,
@@ -188,10 +192,6 @@ export class AddEditComponent extends BaseAddEditComponent {
         fido2SessionData.userVerification
       );
       return true;
-    }
-
-    if (BrowserPopupUtils.inPopout(window)) {
-      this.popupCloseWarningService.disable();
     }
 
     if (this.inAddEditPopoutWindow()) {
