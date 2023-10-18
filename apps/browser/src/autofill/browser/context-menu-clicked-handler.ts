@@ -273,7 +273,7 @@ export class ContextMenuClickedHandler {
         if (await this.isPasswordRepromptRequired(cipher)) {
           await openVaultItemPasswordRepromptPopout(tab, {
             cipherId: cipher.id,
-            action: info.parentMenuItemId,
+            action: COPY_PASSWORD_ID,
           });
         } else {
           this.copyToClipboard({ text: cipher.login.password, tab: tab });
@@ -290,7 +290,7 @@ export class ContextMenuClickedHandler {
         if (await this.isPasswordRepromptRequired(cipher)) {
           await openVaultItemPasswordRepromptPopout(tab, {
             cipherId: cipher.id,
-            action: info.parentMenuItemId,
+            action: COPY_VERIFICATIONCODE_ID,
           });
         } else {
           this.copyToClipboard({
