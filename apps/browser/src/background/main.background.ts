@@ -574,17 +574,6 @@ export default class MainBackground {
       this.messagingService
     );
 
-    this.configApiService = new ConfigApiService(this.apiService, this.authService);
-
-    this.configService = new BrowserConfigService(
-      this.stateService,
-      this.configApiService,
-      this.authService,
-      this.environmentService,
-      this.logService,
-      true
-    );
-
     this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService();
     this.fido2AuthenticatorService = new Fido2AuthenticatorService(
       this.cipherService,
