@@ -179,6 +179,11 @@ export class BrowserApi {
     chrome.tabs.sendMessage<TabMessage, T>(tabId, message, options, responseCallback);
   }
 
+  /**
+   * Removes the tab with the given id.
+   *
+   * @param tabId - The id of the tab to remove.
+   */
   static removeTab(tabId: number): Promise<void> {
     return new Promise((resolve) => chrome.tabs.remove(tabId, () => resolve()));
   }
