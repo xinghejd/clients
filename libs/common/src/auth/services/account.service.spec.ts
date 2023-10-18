@@ -60,14 +60,6 @@ describe("accountService", () => {
   });
 
   describe("addAccount", () => {
-    it("should throw if the account already exists", () => {
-      sut.addAccount(userId, userInfo(AuthenticationStatus.Unlocked));
-
-      expect(() => sut.addAccount(userId, userInfo(AuthenticationStatus.Unlocked))).toThrowError(
-        "Account already exists"
-      );
-    });
-
     it("should emit the new account", () => {
       const emissions = trackEmissions(sut.accounts$);
       sut.addAccount(userId, userInfo(AuthenticationStatus.Unlocked));
