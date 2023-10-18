@@ -6,13 +6,17 @@ import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
 
 import {
   closeAddEditVaultItemPopout,
+  closeFido2Popout,
   openAddEditVaultItemPopout,
+  openFido2Popout,
   openVaultItemPasswordRepromptPopout,
   VaultPopoutType,
 } from "./vault-popout-window";
 
 describe("VaultPopoutWindow", () => {
-  const openPopoutSpy = jest.spyOn(BrowserPopupUtils, "openPopout").mockImplementation();
+  const openPopoutSpy = jest
+    .spyOn(BrowserPopupUtils, "openPopout")
+    .mockResolvedValue(mock<chrome.windows.Window>({ id: 10 }));
   const closeSingleActionPopoutSpy = jest
     .spyOn(BrowserPopupUtils, "closeSingleActionPopout")
     .mockImplementation();
@@ -101,6 +105,44 @@ describe("VaultPopoutWindow", () => {
       expect(closeSingleActionPopoutSpy).toHaveBeenCalledWith(
         VaultPopoutType.addEditVaultItem,
         1000
+      );
+    });
+  });
+
+  describe("openFido2Popout", () => {
+    it("opens a popout window that facilitates FIDO2 authentication workflows", async () => {
+      const senderTab = mock<chrome.tabs.Tab>({
+        windowId: 1,
+        url: "https://jest-testing.com",
+        id: 2,
+      });
+
+      const returnedWindowId = await openFido2Popout(senderTab, {
+        sessionId: "sessionId",
+        fallbackSupported: true,
+      });
+
+      expect(openPopoutSpy).toHaveBeenCalledWith(
+        "popup/index.html#/fido2?sessionId=sessionId&fallbackSupported=true&senderTabId=2&senderUrl=https%3A%2F%2Fjest-testing.com",
+        {
+          singleActionKey: `${VaultPopoutType.fido2Popout}_sessionId`,
+          senderWindowId: 1,
+          forceCloseExistingWindows: true,
+          windowOptions: { height: 450 },
+        }
+      );
+      expect(returnedWindowId).toEqual(10);
+    });
+  });
+
+  describe("closeFido2Popout", () => {
+    it("closes the fido2 popout window", () => {
+      const sessionId = "sessionId";
+
+      closeFido2Popout(sessionId);
+
+      expect(closeSingleActionPopoutSpy).toHaveBeenCalledWith(
+        `${VaultPopoutType.fido2Popout}_${sessionId}`
       );
     });
   });

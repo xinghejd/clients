@@ -10,13 +10,13 @@ describe("BrowserPopupUtils", () => {
 
   describe("inSidebar", () => {
     it("should return true if the window contains the sidebar query param", () => {
-      const win = { location: { search: "?uilocation=sidebar" } } as Window;
+      const win = { location: { href: "https://jest-testing.com?uilocation=sidebar" } } as Window;
 
       expect(BrowserPopupUtils.inSidebar(win)).toBe(true);
     });
 
     it("should return false if the window does not contain the sidebar query param", () => {
-      const win = { location: { search: "" } } as Window;
+      const win = { location: { href: "https://jest-testing.com?uilocation=popout" } } as Window;
 
       expect(BrowserPopupUtils.inSidebar(win)).toBe(false);
     });
@@ -24,13 +24,13 @@ describe("BrowserPopupUtils", () => {
 
   describe("inPopout", () => {
     it("should return true if the window contains the popout query param", () => {
-      const win = { location: { search: "?uilocation=popout" } } as Window;
+      const win = { location: { href: "https://jest-testing.com?uilocation=popout" } } as Window;
 
       expect(BrowserPopupUtils.inPopout(win)).toBe(true);
     });
 
     it("should return false if the window does not contain the popout query param", () => {
-      const win = { location: { search: "" } } as Window;
+      const win = { location: { href: "https://jest-testing.com?uilocation=sidebar" } } as Window;
 
       expect(BrowserPopupUtils.inPopout(win)).toBe(false);
     });
@@ -38,13 +38,15 @@ describe("BrowserPopupUtils", () => {
 
   describe("inSingleActionPopout", () => {
     it("should return true if the window contains the singleActionPopout query param", () => {
-      const win = { location: { search: "?singleActionPopout=123" } } as Window;
+      const win = {
+        location: { href: "https://jest-testing.com?singleActionPopout=123" },
+      } as Window;
 
       expect(BrowserPopupUtils.inSingleActionPopout(win, "123")).toBe(true);
     });
 
     it("should return false if the window does not contain the singleActionPopout query param", () => {
-      const win = { location: { search: "" } } as Window;
+      const win = { location: { href: "https://jest-testing.com" } } as Window;
 
       expect(BrowserPopupUtils.inSingleActionPopout(win, "123")).toBe(false);
     });
@@ -52,19 +54,19 @@ describe("BrowserPopupUtils", () => {
 
   describe("inPopup", () => {
     it("should return true if the window does not contain the popup query param", () => {
-      const win = { location: { search: "" } } as Window;
+      const win = { location: { href: "https://jest-testing.com" } } as Window;
 
       expect(BrowserPopupUtils.inPopup(win)).toBe(true);
     });
 
     it("should return true if the window contains the popup query param", () => {
-      const win = { location: { search: "?uilocation=popup" } } as Window;
+      const win = { location: { href: "https://jest-testing.com?uilocation=popup" } } as Window;
 
       expect(BrowserPopupUtils.inPopup(win)).toBe(true);
     });
 
     it("should return false if the window does not contain the popup query param", () => {
-      const win = { location: { search: "?uilocation=sidebar" } } as Window;
+      const win = { location: { href: "https://jest-testing.com?uilocation=sidebar" } } as Window;
 
       expect(BrowserPopupUtils.inPopup(win)).toBe(false);
     });
@@ -172,7 +174,7 @@ describe("BrowserPopupUtils", () => {
       jest.spyOn(BrowserApi, "createWindow").mockImplementation();
     });
 
-    it("will create a window with the default window options", async () => {
+    it("creates a window with the default window options", async () => {
       const url = "popup/index.html";
       jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(false);
 
@@ -189,7 +191,41 @@ describe("BrowserPopupUtils", () => {
       });
     });
 
-    it("will create a single action popout window", async () => {
+    it("replaces any existing `uilocation=` query params within the passed extension url path to state the the uilocaiton is a popup", async () => {
+      const url = "popup/index.html#/tabs/vault?uilocation=sidebar";
+      jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(false);
+
+      await BrowserPopupUtils.openPopout(url);
+
+      expect(BrowserApi.createWindow).toHaveBeenCalledWith({
+        type: "popup",
+        focused: true,
+        width: 380,
+        height: 630,
+        left: 85,
+        top: 190,
+        url: `chrome-extension://id/popup/index.html#/tabs/vault?uilocation=popout`,
+      });
+    });
+
+    it("appends the uilocation to the search params if an existing param is passed with the extension url path", async () => {
+      const url = "popup/index.html#/tabs/vault?existingParam=123";
+      jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(false);
+
+      await BrowserPopupUtils.openPopout(url);
+
+      expect(BrowserApi.createWindow).toHaveBeenCalledWith({
+        type: "popup",
+        focused: true,
+        width: 380,
+        height: 630,
+        left: 85,
+        top: 190,
+        url: `chrome-extension://id/${url}&uilocation=popout`,
+      });
+    });
+
+    it("creates a single action popout window", async () => {
       const url = "popup/index.html";
       jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(false);
 
@@ -206,7 +242,7 @@ describe("BrowserPopupUtils", () => {
       });
     });
 
-    it("will not create a single action popout window if it is already open", async () => {
+    it("does not create a single action popout window if it is already open", async () => {
       const url = "popup/index.html";
       jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(true);
 
@@ -215,7 +251,7 @@ describe("BrowserPopupUtils", () => {
       expect(BrowserApi.createWindow).not.toHaveBeenCalled();
     });
 
-    it("will create a window with the provided window options", async () => {
+    it("creates a window with the provided window options", async () => {
       const url = "popup/index.html";
       jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(false);
 
@@ -239,7 +275,7 @@ describe("BrowserPopupUtils", () => {
       });
     });
 
-    it("will open a single action window if the forceCloseExistingWindows param is true", async () => {
+    it("opens a single action window if the forceCloseExistingWindows param is true", async () => {
       const url = "popup/index.html";
       jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(true);
 

@@ -82,6 +82,16 @@ describe("BrowserApi", () => {
     });
   });
 
+  describe("removeTab", () => {
+    it("removes the tab based on the passed tab id", () => {
+      const tabId = 10;
+
+      BrowserApi.removeTab(tabId);
+
+      expect(chrome.tabs.remove).toHaveBeenCalledWith(tabId, expect.anything());
+    });
+  });
+
   describe("executeScriptInTab", () => {
     it("calls to the extension api to execute a script within the give tabId", async () => {
       const tabId = 1;

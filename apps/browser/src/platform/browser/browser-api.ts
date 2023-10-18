@@ -1,3 +1,5 @@
+import { Observable } from "rxjs";
+
 import { DeviceType } from "@bitwarden/common/enums";
 
 import { TabMessage } from "../../types/tab-messages";
@@ -177,6 +179,11 @@ export class BrowserApi {
     chrome.tabs.sendMessage<TabMessage, T>(tabId, message, options, responseCallback);
   }
 
+  /**
+   * Removes the tab with the given id.
+   *
+   * @param tabId - The id of the tab to remove.
+   */
   static removeTab(tabId: number): Promise<void> {
     return new Promise((resolve) => chrome.tabs.remove(tabId, () => resolve()));
   }
@@ -218,7 +225,11 @@ export class BrowserApi {
 
   static messageListener(
     name: string,
-    callback: (message: any, sender: chrome.runtime.MessageSender, response: any) => void
+    callback: (
+      message: any,
+      sender: chrome.runtime.MessageSender,
+      sendResponse: any
+    ) => boolean | void
   ) {
     // eslint-disable-next-line no-restricted-syntax
     chrome.runtime.onMessage.addListener(callback);
@@ -254,6 +265,27 @@ export class BrowserApi {
         chrome.storage.onChanged.removeListener(callback);
       }
     };
+  }
+
+  static messageListener$() {
+    return new Observable<unknown>((subscriber) => {
+      const handler = (message: unknown) => {
+        subscriber.next(message);
+      };
+
+      BrowserApi.messageListener("message", handler);
+
+      return () => {
+        chrome.runtime.onMessage.removeListener(handler);
+
+        if (BrowserApi.isSafariApi) {
+          const index = BrowserApi.registeredMessageListeners.indexOf(handler);
+          if (index !== -1) {
+            BrowserApi.registeredMessageListeners.splice(index, 1);
+          }
+        }
+      };
+    });
   }
 
   static sendMessage(subscriber: string, arg: any = {}) {

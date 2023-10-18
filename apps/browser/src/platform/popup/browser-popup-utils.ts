@@ -38,9 +38,8 @@ class BrowserPopupUtils {
    */
   static inPopup(win: Window): boolean {
     return (
-      win.location.search === "" ||
-      win.location.search.indexOf("uilocation=") === -1 ||
-      win.location.search.indexOf("uilocation=popup") > -1
+      win.location.href.indexOf("uilocation=") === -1 ||
+      win.location.href.indexOf("uilocation=popup") > -1
     );
   }
 
@@ -123,17 +122,14 @@ class BrowserPopupUtils {
     const offsetTop = 90;
     const popupWidth = defaultPopoutWindowOptions.width;
     const senderWindow = await BrowserApi.getWindow(senderWindowId);
-    const parsedUrl = new URL(chrome.runtime.getURL(extensionUrlPath));
-    parsedUrl.searchParams.set("uilocation", "popout");
-    if (singleActionKey) {
-      parsedUrl.searchParams.set("singleActionPopout", singleActionKey);
-    }
     const popoutWindowOptions = {
       left: senderWindow.left + senderWindow.width - popupWidth - offsetRight,
       top: senderWindow.top + offsetTop,
       ...defaultPopoutWindowOptions,
       ...windowOptions,
-      url: parsedUrl.toString(),
+      url: chrome.runtime.getURL(
+        BrowserPopupUtils.parsePopoutUrlPath(extensionUrlPath, singleActionKey)
+      ),
     };
 
     if (
@@ -248,17 +244,39 @@ class BrowserPopupUtils {
    * @param win - The passed window object.
    * @param searchParam - The search param to identify.
    * @param searchValue - The search value to identify.
-   * @private
    */
   private static urlContainsSearchParams(
     win: Window,
     searchParam: string,
     searchValue: string
   ): boolean {
-    return (
-      win.location.search !== "" &&
-      win.location.search.indexOf(`${searchParam}=${searchValue}`) > -1
-    );
+    return win.location.href.indexOf(`${searchParam}=${searchValue}`) > -1;
+  }
+
+  /**
+   * Parses the popout url path. Ensures that the uilocation param is set to
+   * `popout` and that the singleActionPopout param is set to the passed singleActionKey.
+   *
+   * @param extensionUrlPath - A relative path to the extension page. Example: "popup/index.html#/tabs/vault"
+   * @param singleActionKey - The single action popout key used to identify the popout.
+   */
+  private static parsePopoutUrlPath(extensionUrlPath: string, singleActionKey: string) {
+    let parsedExtensionUrlPath = extensionUrlPath;
+    if (parsedExtensionUrlPath.includes("uilocation=")) {
+      parsedExtensionUrlPath = parsedExtensionUrlPath.replace(
+        /uilocation=[^&]*/g,
+        "uilocation=popout"
+      );
+    } else {
+      parsedExtensionUrlPath +=
+        (parsedExtensionUrlPath.includes("?") ? "&" : "?") + "uilocation=popout";
+    }
+
+    if (singleActionKey) {
+      parsedExtensionUrlPath += `&singleActionPopout=${singleActionKey}`;
+    }
+
+    return parsedExtensionUrlPath;
   }
 }
 
