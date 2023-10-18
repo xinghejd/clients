@@ -31,10 +31,6 @@ export class AccountServiceImplementation implements InternalAccountService {
   constructor(private messagingService: MessagingService, private logService: LogService) {}
 
   addAccount(userId: UserId, accountData: AccountInfo): void {
-    if (this.accounts.value[userId] != null) {
-      throw new Error("Account already exists");
-    }
-
     this.accounts.value[userId] = accountData;
     this.accounts.next(this.accounts.value);
   }
