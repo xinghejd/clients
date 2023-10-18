@@ -70,10 +70,10 @@ export class AccountServiceImplementation implements InternalAccountService {
     this.activeAccountId.next(userId);
   }
 
-  // TODO: update to use our own account status settings.
+  // TODO: update to use our own account status settings. Requires inverting direction of state service accounts flow
   async delete(): Promise<void> {
     try {
-      this.messagingService.send("logout");
+      this.messagingService?.send("logout");
     } catch (e) {
       this.logService.error(e);
       throw e;
