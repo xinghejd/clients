@@ -160,9 +160,10 @@ export class AddEditComponent extends BaseAddEditComponent {
 
   async submit(): Promise<boolean> {
     const fido2SessionData = await firstValueFrom(this.fido2PopoutSessionData$);
+    const inFido2PopoutWindow =
+      BrowserPopupUtils.inPopout(window) && fido2SessionData.isFido2Session;
     if (
-      BrowserPopupUtils.inPopout(window) &&
-      fido2SessionData.isFido2Session &&
+      inFido2PopoutWindow &&
       !(await this.handleFido2UserVerification(
         fido2SessionData.sessionId,
         fido2SessionData.userVerification
@@ -180,7 +181,7 @@ export class AddEditComponent extends BaseAddEditComponent {
       this.popupCloseWarningService.disable();
     }
 
-    if (BrowserPopupUtils.inPopout(window) && fido2SessionData.isFido2Session) {
+    if (inFido2PopoutWindow) {
       BrowserFido2UserInterfaceSession.confirmNewCredentialResponse(
         fido2SessionData.sessionId,
         this.cipher.id,
