@@ -1,17 +1,17 @@
-// eslint-disable-next-line no-restricted-imports
-import { Arg, Substitute, SubstituteOf } from "@fluffy-spoon/substitute";
-import { mock } from "jest-mock-extended";
+import { mock, MockProxy } from "jest-mock-extended";
 import { BehaviorSubject, firstValueFrom } from "rxjs";
 
+import { makeStaticByteArray } from "../../../../spec";
 import { TestUserState } from "../../../../spec/test-user-state";
 import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { UserStateProvider } from "../../../platform/abstractions/user-state.provider";
 import { EncString } from "../../../platform/models/domain/enc-string";
+import { SymmetricCryptoKey, UserKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "../../../platform/services/container.service";
-import { DerivedUserState } from "../../../platform/services/default-user-state.provider";
 import { StateService } from "../../../platform/services/state.service";
+import { DerivedUserState } from "../../../platform/state";
 import { CipherService } from "../../abstractions/cipher.service";
 import { FolderData } from "../../models/data/folder.data";
 import { Folder } from "../../models/domain/folder";
@@ -21,11 +21,11 @@ import { FolderService } from "../../services/folder/folder.service";
 describe("Folder Service", () => {
   let folderService: FolderService;
 
-  let cryptoService: SubstituteOf<CryptoService>;
-  let encryptService: SubstituteOf<EncryptService>;
-  let i18nService: SubstituteOf<I18nService>;
-  let cipherService: SubstituteOf<CipherService>;
-  let stateService: SubstituteOf<StateService>;
+  let cryptoService: MockProxy<CryptoService>;
+  let encryptService: MockProxy<EncryptService>;
+  let i18nService: MockProxy<I18nService>;
+  let cipherService: MockProxy<CipherService>;
+  let stateService: MockProxy<StateService>;
   let activeAccount: BehaviorSubject<string>;
   let activeAccountUnlocked: BehaviorSubject<boolean>;
   const userStateProvider = mock<UserStateProvider>();
@@ -34,20 +34,31 @@ describe("Folder Service", () => {
   let folderViews$: BehaviorSubject<FolderView[]>;
 
   beforeEach(() => {
-    cryptoService = Substitute.for();
-    encryptService = Substitute.for();
-    i18nService = Substitute.for();
-    cipherService = Substitute.for();
-    stateService = Substitute.for();
+    cryptoService = mock<CryptoService>();
+    encryptService = mock<EncryptService>();
+    i18nService = mock<I18nService>();
+    cipherService = mock<CipherService>();
+    stateService = mock<StateService>();
     activeAccount = new BehaviorSubject("123");
     activeAccountUnlocked = new BehaviorSubject(true);
 
     const initialState = {
       "1": folderData("1", "test"),
     };
-    stateService.getEncryptedFolders().resolves(initialState);
-    stateService.activeAccount$.returns(activeAccount);
-    stateService.activeAccountUnlocked$.returns(activeAccountUnlocked);
+    i18nService.collator = new Intl.Collator("en");
+    stateService.getEncryptedFolders.mockResolvedValue({
+      "1": folderData("1", "test"),
+    });
+    stateService.activeAccount$ = activeAccount;
+    stateService.activeAccountUnlocked$ = activeAccountUnlocked;
+    stateService.getEncryptedFolders.mockResolvedValue(initialState);
+
+    cryptoService.hasUserKey.mockResolvedValue(true);
+    cryptoService.getUserKeyWithLegacySupport.mockResolvedValue(
+      new SymmetricCryptoKey(makeStaticByteArray(32)) as UserKey
+    );
+    encryptService.decryptToUtf8.mockResolvedValue("DEC");
+
     (window as any).bitwardenContainerService = new ContainerService(cryptoService, encryptService);
 
     userState = new TestUserState({});
@@ -78,8 +89,8 @@ describe("Folder Service", () => {
     model.id = "2";
     model.name = "Test Folder";
 
-    cryptoService.encrypt(Arg.any()).resolves(new EncString("ENC"));
-    cryptoService.decryptToUtf8(Arg.any()).resolves("DEC");
+    cryptoService.encrypt.mockResolvedValue(new EncString("ENC"));
+    cryptoService.decryptToUtf8.mockResolvedValue("DEC");
 
     const result = await folderService.encrypt(model);
 
