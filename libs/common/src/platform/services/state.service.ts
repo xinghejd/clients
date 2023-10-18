@@ -190,11 +190,14 @@ export class StateService<
       state.accounts[userId] = this.createAccount();
       const diskAccount = await this.getAccountFromDisk({ userId: userId });
       state.accounts[userId].profile = diskAccount.profile;
+      // TODO: Temporary update to avoid routing all account status changes through account service for now.
+      this.accountService.addAccount(userId as UserId, {
+        status: AuthenticationStatus.Locked,
+        name: diskAccount.profile.name,
+        email: diskAccount.profile.email,
+      });
       return state;
     });
-
-    // TODO: Temporary update to avoid routing all account status changes through account service for now.
-    this.accountService.setAccountStatus(userId as UserId, AuthenticationStatus.Locked);
   }
 
   async addAccount(account: TAccount) {
@@ -207,6 +210,12 @@ export class StateService<
     });
     await this.scaffoldNewAccountStorage(account);
     await this.setLastActive(new Date().getTime(), { userId: account.profile.userId });
+    // TODO: Temporary update to avoid routing all account status changes through account service for now.
+    this.accountService.addAccount(account.profile.userId as UserId, {
+      status: AuthenticationStatus.Locked,
+      name: account.profile.name,
+      email: account.profile.email,
+    });
     await this.setActiveUser(account.profile.userId);
     this.activeAccountSubject.next(account.profile.userId);
   }
