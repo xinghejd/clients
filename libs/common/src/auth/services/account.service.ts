@@ -4,7 +4,7 @@ import {
   combineLatestWith,
   map,
   distinctUntilChanged,
-  share,
+  shareReplay,
 } from "rxjs";
 
 import { AccountInfo, InternalAccountService } from "../../auth/abstractions/account.service";
@@ -24,7 +24,7 @@ export class AccountServiceImplementation implements InternalAccountService {
     combineLatestWith(this.accounts$),
     map(([id, accounts]) => (id ? { id, ...accounts[id] } : undefined)),
     distinctUntilChanged(),
-    share()
+    shareReplay({ bufferSize: 1, refCount: false })
   );
   accountLock$ = this.lock.asObservable();
   accountLogout$ = this.logout.asObservable();
