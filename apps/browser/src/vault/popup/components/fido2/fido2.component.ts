@@ -297,6 +297,7 @@ export class Fido2Component implements OnInit, OnDestroy {
         uilocation: "popout",
         senderTabId: this.senderTabId,
         sessionId: this.sessionId,
+        singleActionPopout: `${VaultPopoutType.fido2Popout}_${this.sessionId}`,
       },
     });
   }
