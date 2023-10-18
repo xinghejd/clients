@@ -122,28 +122,14 @@ class BrowserPopupUtils {
     const offsetTop = 90;
     const popupWidth = defaultPopoutWindowOptions.width;
     const senderWindow = await BrowserApi.getWindow(senderWindowId);
-
-    let parsedExtensionUrlPath = extensionUrlPath;
-    if (parsedExtensionUrlPath.includes("uilocation=")) {
-      parsedExtensionUrlPath = parsedExtensionUrlPath.replace(
-        /uilocation=[^&]*/g,
-        "uilocation=popout"
-      );
-    } else {
-      parsedExtensionUrlPath +=
-        (parsedExtensionUrlPath.includes("?") ? "&" : "?") + "uilocation=popout";
-    }
-
-    if (singleActionKey) {
-      parsedExtensionUrlPath += `&singleActionPopout=${singleActionKey}`;
-    }
-
     const popoutWindowOptions = {
       left: senderWindow.left + senderWindow.width - popupWidth - offsetRight,
       top: senderWindow.top + offsetTop,
       ...defaultPopoutWindowOptions,
       ...windowOptions,
-      url: chrome.runtime.getURL(parsedExtensionUrlPath),
+      url: chrome.runtime.getURL(
+        BrowserPopupUtils.parsePopoutUrlPath(extensionUrlPath, singleActionKey)
+      ),
     };
 
     if (
@@ -266,6 +252,33 @@ class BrowserPopupUtils {
     searchValue: string
   ): boolean {
     return win.location.href.indexOf(`${searchParam}=${searchValue}`) > -1;
+  }
+
+  /**
+   * Parses the popout url path. Ensures that the uilocation param is set to
+   * `popout` and that the singleActionPopout param is set to the passed singleActionKey.
+   *
+   * @param extensionUrlPath - A relative path to the extension page. Example: "popup/index.html#/tabs/vault"
+   * @param singleActionKey - The single action popout key used to identify the popout.
+   * @private
+   */
+  private static parsePopoutUrlPath(extensionUrlPath: string, singleActionKey: string) {
+    let parsedExtensionUrlPath = extensionUrlPath;
+    if (parsedExtensionUrlPath.includes("uilocation=")) {
+      parsedExtensionUrlPath = parsedExtensionUrlPath.replace(
+        /uilocation=[^&]*/g,
+        "uilocation=popout"
+      );
+    } else {
+      parsedExtensionUrlPath +=
+        (parsedExtensionUrlPath.includes("?") ? "&" : "?") + "uilocation=popout";
+    }
+
+    if (singleActionKey) {
+      parsedExtensionUrlPath += `&singleActionPopout=${singleActionKey}`;
+    }
+
+    return parsedExtensionUrlPath;
   }
 }
 
