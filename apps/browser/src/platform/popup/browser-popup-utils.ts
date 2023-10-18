@@ -244,7 +244,6 @@ class BrowserPopupUtils {
    * @param win - The passed window object.
    * @param searchParam - The search param to identify.
    * @param searchValue - The search value to identify.
-   * @private
    */
   private static urlContainsSearchParams(
     win: Window,
@@ -260,7 +259,6 @@ class BrowserPopupUtils {
    *
    * @param extensionUrlPath - A relative path to the extension page. Example: "popup/index.html#/tabs/vault"
    * @param singleActionKey - The single action popout key used to identify the popout.
-   * @private
    */
   private static parsePopoutUrlPath(extensionUrlPath: string, singleActionKey: string) {
     let parsedExtensionUrlPath = extensionUrlPath;
