@@ -124,9 +124,9 @@ class BrowserPopupUtils {
     const senderWindow = await BrowserApi.getWindow(senderWindowId);
 
     let parsedExtensionUrlPath = extensionUrlPath;
-    if (parsedExtensionUrlPath.includes("uiLocation=")) {
+    if (parsedExtensionUrlPath.includes("uilocation=")) {
       parsedExtensionUrlPath = parsedExtensionUrlPath.replace(
-        /uiLocation=[^&]*/g,
+        /uilocation=[^&]*/g,
         "uilocation=popout"
       );
     } else {

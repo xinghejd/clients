@@ -114,13 +114,9 @@ async function openFido2Popout(
  * Closes the FIDO2 popout window associated with the passed session ID.
  *
  * @param sessionId - The session ID of the popout to close.
- * @param delay - The amount of time to wait before closing the popout. Defaults to 0.
  */
-async function closeFido2Popout(sessionId: string, delay = 0): Promise<void> {
-  await BrowserPopupUtils.closeSingleActionPopout(
-    `${VaultPopoutType.fido2Popout}_${sessionId}`,
-    delay
-  );
+async function closeFido2Popout(sessionId: string): Promise<void> {
+  await BrowserPopupUtils.closeSingleActionPopout(`${VaultPopoutType.fido2Popout}_${sessionId}`);
 }
 
 export {
