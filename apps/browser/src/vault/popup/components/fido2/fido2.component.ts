@@ -35,6 +35,7 @@ import {
   BrowserFido2Message,
   BrowserFido2UserInterfaceSession,
 } from "../../../fido2/browser-fido2-user-interface.service";
+import { VaultPopoutType } from "../../utils/vault-popout-window";
 
 interface ViewData {
   message: BrowserFido2Message;
@@ -296,6 +297,7 @@ export class Fido2Component implements OnInit, OnDestroy {
         uilocation: "popout",
         senderTabId: this.senderTabId,
         sessionId: this.sessionId,
+        singleActionPopout: `${VaultPopoutType.fido2Popout}_${this.sessionId}`,
       },
     });
   }
@@ -315,6 +317,7 @@ export class Fido2Component implements OnInit, OnDestroy {
         senderTabId: this.senderTabId,
         sessionId: this.sessionId,
         userVerification: data.userVerification,
+        singleActionPopout: `${VaultPopoutType.fido2Popout}_${this.sessionId}`,
       },
     });
   }
