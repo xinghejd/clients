@@ -32,7 +32,7 @@ export class ForegroundMemoryStorageService extends AbstractMemoryStorageService
     this._backgroundResponses$
       .pipe(filter((message) => message.action === "subject_update"))
       .subscribe((message) => {
-        const update = JSON.parse(message.data);
+        const update = message.data as StorageUpdate;
         this.updatesSubject.next(update);
       });
   }
@@ -63,7 +63,7 @@ export class ForegroundMemoryStorageService extends AbstractMemoryStorageService
     const response = firstValueFrom(
       this._backgroundResponses$.pipe(
         filter((message) => message.id === id),
-        map((message) => JSON.parse(message.data) as T) // message data is jsonified
+        map((message) => message.data as T)
       )
     );
 
@@ -71,10 +71,11 @@ export class ForegroundMemoryStorageService extends AbstractMemoryStorageService
       id: id,
       key: key,
       action: action,
-      data: JSON.stringify(data),
+      data: data,
     });
 
-    return await response;
+    const result = await response;
+    return result;
   }
 
   private sendMessage(message: Omit<MemoryStoragePortMessage, "originator">) {
