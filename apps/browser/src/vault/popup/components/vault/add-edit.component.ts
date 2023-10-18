@@ -187,7 +187,6 @@ export class AddEditComponent extends BaseAddEditComponent {
         this.cipher.id,
         fido2SessionData.userVerification
       );
-      this.location.back();
       return true;
     }
 
@@ -230,6 +229,7 @@ export class AddEditComponent extends BaseAddEditComponent {
 
     const sessionData = await firstValueFrom(this.fido2PopoutSessionData$);
     if (BrowserPopupUtils.inPopout(window) && sessionData.isFido2Session) {
+      this.popupCloseWarningService.disable();
       BrowserFido2UserInterfaceSession.abortPopout(sessionData.sessionId);
       return;
     }
