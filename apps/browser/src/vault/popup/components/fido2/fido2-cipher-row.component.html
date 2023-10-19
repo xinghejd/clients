@@ -1,12 +1,13 @@
 <div
-  role="option"
   appA11yTitle="{{ cipher.name }}"
   class="virtual-scroll-item"
   [ngClass]="{ 'override-last': !last }"
 >
   <div class="box-content-row box-content-row-flex">
     <button
+      id="{{ buttonId }}"
       type="button"
+      [attr.aria-pressed]="isSelected"
       (click)="selectCipher(cipher)"
       tabindex="0"
       title="{{ title }} - {{ cipher.name }}"
@@ -22,7 +23,6 @@
         </span>
         <span class="detail" *ngIf="cipher.subTitle">{{ cipher.subTitle }}</span>
       </div>
-      <span class="sr-only" *ngIf="isSelected">{{ "selected" | i18n }}</span>
     </button>
   </div>
 </div>

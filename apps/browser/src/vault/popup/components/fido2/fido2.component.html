@@ -48,14 +48,15 @@
           <!-- Display when ciphers exist -->
           <ng-container *ngIf="displayedCiphers.length > 0">
             <div class="box list">
-              <div class="box-content" role="listbox">
+              <div class="box-content">
                 <app-fido2-cipher-row
-                  *ngFor="let cipherItem of displayedCiphers"
+                  *ngFor="let cipherItem of displayedCiphers; let i = index"
                   [cipher]="cipherItem"
                   [isSearching]="searchPending"
                   title="{{ 'passkeyItem' | i18n }}"
                   (onSelected)="selectedPasskey($event)"
                   [isSelected]="cipher === cipherItem"
+                  [buttonId]="'fido2-' + (i + 1)"
                 ></app-fido2-cipher-row>
               </div>
             </div>

@@ -66,6 +66,7 @@ export class Fido2Component implements OnInit, OnDestroy {
   protected loading = false;
   protected subtitleText: string;
   protected credentialText: string;
+  protected selectedCipherId: string;
 
   private message$ = new BehaviorSubject<BrowserFido2Message>(null);
 
@@ -295,6 +296,8 @@ export class Fido2Component implements OnInit, OnDestroy {
 
   selectedPasskey(item: CipherView) {
     this.cipher = item;
+    const index = this.displayedCiphers.indexOf(item);
+    this.selectedCipherId = "fido2-" + (index + 1);
   }
 
   viewPasskey() {
