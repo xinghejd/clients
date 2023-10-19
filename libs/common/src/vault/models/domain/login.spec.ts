@@ -99,10 +99,6 @@ describe("Login DTO", () => {
       loginUriView.uri = "decrypted uri";
     });
 
-    afterEach(async () => {
-      jest.resetAllMocks();
-    });
-
     it("should decrypt to a view", async () => {
       loginUri.decrypt.mockResolvedValue(loginUriView);
       loginUri.validateChecksum.mockResolvedValue(true);
