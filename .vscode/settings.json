@@ -5,5 +5,25 @@
     "**/locales/*[^n]/messages.json": true,
     "**/_locales/[^e]*/messages.json": true,
     "**/_locales/*[^n]/messages.json": true
-  }
+  },
+  "gitlens.autolinks": [
+    {
+      "prefix": "PM-",
+      "url": "https://bitwarden.atlassian.net/browse/PM-<num>",
+      "ignoreCase": true,
+      "title": "Password Manager Ticket #<num>"
+    },
+    {
+      "prefix": "SM-",
+      "url": "https://bitwarden.atlassian.net/browse/SM-<num>",
+      "ignoreCase": true,
+      "title": "Secrets Manager Ticket #<num>"
+    },
+    {
+      "prefix": "AC-",
+      "url": "https://bitwarden.atlassian.net/browse/AC-<num>",
+      "ignoreCase": true,
+      "title": "Admin Console Ticket #<num>"
+    }
+  ]
 }
