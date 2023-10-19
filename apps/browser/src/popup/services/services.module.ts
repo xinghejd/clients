@@ -7,7 +7,6 @@ import { ThemingService } from "@bitwarden/angular/services/theming/theming.serv
 import { AbstractThemingService } from "@bitwarden/angular/services/theming/theming.service.abstraction";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
-import { DevicesServiceAbstraction } from "@bitwarden/common/abstractions/devices/devices.service.abstraction";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
@@ -27,6 +26,7 @@ import { PolicyApiService } from "@bitwarden/common/admin-console/services/polic
 import { AuthRequestCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-crypto.service.abstraction";
 import { AuthService as AuthServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth.service";
 import { DeviceTrustCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust-crypto.service.abstraction";
+import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
 import { LoginService as LoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/login.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
@@ -84,7 +84,7 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder-api.service";
 import { DialogService } from "@bitwarden/components";
 import { VaultExportServiceAbstraction } from "@bitwarden/exporter/vault-export";
-import { ImportServiceAbstraction } from "@bitwarden/importer";
+import { ImportServiceAbstraction } from "@bitwarden/importer/core";
 
 import { BrowserOrganizationService } from "../../admin-console/services/browser-organization.service";
 import { BrowserPolicyService } from "../../admin-console/services/browser-policy.service";
