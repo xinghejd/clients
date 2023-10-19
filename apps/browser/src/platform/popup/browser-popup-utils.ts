@@ -128,7 +128,7 @@ class BrowserPopupUtils {
       ...defaultPopoutWindowOptions,
       ...windowOptions,
       url: chrome.runtime.getURL(
-        BrowserPopupUtils.parsePopoutUrlPath(extensionUrlPath, singleActionKey)
+        BrowserPopupUtils.buildPopoutUrlPath(extensionUrlPath, singleActionKey)
       ),
     };
 
@@ -254,29 +254,29 @@ class BrowserPopupUtils {
   }
 
   /**
-   * Parses the popout url path. Ensures that the uilocation param is set to
+   * Builds the popout url path. Ensures that the uilocation param is set to
    * `popout` and that the singleActionPopout param is set to the passed singleActionKey.
    *
    * @param extensionUrlPath - A relative path to the extension page. Example: "popup/index.html#/tabs/vault"
    * @param singleActionKey - The single action popout key used to identify the popout.
    */
-  private static parsePopoutUrlPath(extensionUrlPath: string, singleActionKey: string) {
-    let parsedExtensionUrlPath = extensionUrlPath;
-    if (parsedExtensionUrlPath.includes("uilocation=")) {
-      parsedExtensionUrlPath = parsedExtensionUrlPath.replace(
+  private static buildPopoutUrlPath(extensionUrlPath: string, singleActionKey: string) {
+    let formattedExtensionUrlPath = extensionUrlPath;
+    if (formattedExtensionUrlPath.includes("uilocation=")) {
+      formattedExtensionUrlPath = formattedExtensionUrlPath.replace(
         /uilocation=[^&]*/g,
         "uilocation=popout"
       );
     } else {
-      parsedExtensionUrlPath +=
-        (parsedExtensionUrlPath.includes("?") ? "&" : "?") + "uilocation=popout";
+      formattedExtensionUrlPath +=
+        (formattedExtensionUrlPath.includes("?") ? "&" : "?") + "uilocation=popout";
     }
 
     if (singleActionKey) {
-      parsedExtensionUrlPath += `&singleActionPopout=${singleActionKey}`;
+      formattedExtensionUrlPath += `&singleActionPopout=${singleActionKey}`;
     }
 
-    return parsedExtensionUrlPath;
+    return formattedExtensionUrlPath;
   }
 }
 
