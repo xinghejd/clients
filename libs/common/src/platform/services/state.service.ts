@@ -6,7 +6,7 @@ import { OrganizationData } from "../../admin-console/models/data/organization.d
 import { PolicyData } from "../../admin-console/models/data/policy.data";
 import { ProviderData } from "../../admin-console/models/data/provider.data";
 import { Policy } from "../../admin-console/models/domain/policy";
-import { AccountService } from "../../auth/abstractions/account.service";
+import { AccountInfo, AccountService } from "../../auth/abstractions/account.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { AdminAuthRequestStorable } from "../../auth/models/domain/admin-auth-req-storable";
 import { EnvironmentUrls } from "../../auth/models/domain/environment-urls";
@@ -3095,10 +3095,22 @@ export class StateService<
     await this.state().then((state) => {
       if (state.accounts == null || Object.keys(state.accounts).length < 1) {
         this.accountsSubject.next({});
+        this.accountService.setAccounts({});
         return;
       }
 
       this.accountsSubject.next(state.accounts);
+      this.accountService.setAccounts(
+        Object.entries(state.accounts).reduce((agg, [accountId, account]) => {
+          // TODO: Probably not the best status
+          agg[accountId as UserId] = {
+            name: account.profile.email,
+            email: account.profile.email,
+            status: AuthenticationStatus.Locked,
+          };
+          return agg;
+        }, {} as Record<UserId, AccountInfo>)
+      );
     });
   }
 

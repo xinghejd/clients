@@ -312,6 +312,11 @@ export default class RuntimeBackground {
         return await this.abortManager.runWithAbortController(msg.requestId, (abortController) =>
           this.main.fido2ClientService.assertCredential(msg.data, sender.tab, abortController)
         );
+      case "switchAccount":
+        if (msg.userId != null) {
+          // How does popup get told about this?
+          await this.stateService.setActiveUser(msg.userId);
+        }
     }
   }
 

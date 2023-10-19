@@ -44,6 +44,11 @@ export abstract class AccountService {
    * @param userId
    */
   abstract switchAccount(userId: UserId): void;
+
+  /**
+   * Temp method until account service takes over full responsibility
+   */
+  abstract setAccounts(accounts: Record<UserId, AccountInfo>): void;
 }
 
 export abstract class InternalAccountService extends AccountService {

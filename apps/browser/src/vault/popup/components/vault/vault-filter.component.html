@@ -16,6 +16,11 @@
     />
     <i class="bwi bwi-search"></i>
   </div>
+  <select *ngIf="accountOptions$ | async as accounts" (change)="onAccountSelect($event)">
+    <option *ngFor="let account of accounts" [value]="account.id" [selected]="account.isSelected">
+      {{ account.name }}
+    </option>
+  </select>
   <div class="right">
     <button type="button" (click)="addCipher()" appA11yTitle="{{ 'addItem' | i18n }}">
       <i class="bwi bwi-plus bwi-lg bwi-fw" aria-hidden="true"></i>

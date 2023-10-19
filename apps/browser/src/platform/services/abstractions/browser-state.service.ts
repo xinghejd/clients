@@ -7,6 +7,11 @@ import { BrowserGroupingsComponentState } from "../../../models/browserGroupings
 import { BrowserSendComponentState } from "../../../models/browserSendComponentState";
 
 export abstract class BrowserStateService extends BaseStateServiceAbstraction<Account> {
+  /**
+   * Provides special init logic that should only be called from popup contexts,
+   * this should be called **after** the base {@link init} method.
+   */
+  popupInit: () => Promise<void>;
   getBrowserGroupingComponentState: (
     options?: StorageOptions
   ) => Promise<BrowserGroupingsComponentState>;

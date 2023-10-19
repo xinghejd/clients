@@ -1,15 +1,18 @@
 import { Location } from "@angular/common";
 import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { Observable, combineLatest, firstValueFrom, map } from "rxjs";
 import { first } from "rxjs/operators";
 
 import { VaultFilter } from "@bitwarden/angular/vault/vault-filter/models/vault-filter.model";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { TreeNode } from "@bitwarden/common/models/domain/tree-node";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
@@ -86,7 +89,9 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     private searchService: SearchService,
     private location: Location,
     private browserStateService: BrowserStateService,
-    private vaultFilterService: VaultFilterService
+    private vaultFilterService: VaultFilterService,
+    private accountService: AccountService,
+    private messagingService: MessagingService
   ) {
     this.noFolderListSize = 100;
   }
@@ -175,6 +180,59 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     await this.search(null);
     this.getCounts();
   }
+
+  // TODO: remove this
+  async onAccountSelect(event: Event) {
+    const select = event.target as HTMLSelectElement;
+    const selectedOption = select.options[select.options.selectedIndex];
+    if (selectedOption.value == "addAccount") {
+      this.addAccount();
+      return;
+    }
+
+    this.switchTo(selectedOption.value as UserId);
+  }
+
+  get accountOptions$(): Observable<{ name: string; id: string; isSelected: boolean }[]> {
+    return combineLatest([this.accountService.accounts$, this.accountService.activeAccount$]).pipe(
+      map(([accounts, activeAccount]) => {
+        const accountEntries = Object.entries(accounts);
+        // Accounts shouldn't ever be more than 5 but just in case do a greater than
+        const hasMaxAccounts = accountEntries.length >= 5;
+        const options: { name: string; id: string; isSelected: boolean }[] = accountEntries.map(
+          ([id, account]) => {
+            return {
+              name: account.name ?? account.email,
+              id: id,
+              isSelected: id === activeAccount?.id,
+            };
+          }
+        );
+
+        if (!hasMaxAccounts) {
+          options.push({
+            name: "Add Account",
+            id: "addAccount",
+            isSelected: activeAccount?.id == null,
+          });
+        }
+
+        return options;
+      })
+    );
+  }
+
+  async addAccount() {
+    await this.browserStateService.setActiveUser(null);
+    await this.browserStateService.setRememberedEmail(null);
+    this.router.navigate(["/home"]);
+  }
+
+  async switchTo(userId: UserId) {
+    this.accountService.switchAccount(userId);
+    this.messagingService.send("switchAccount", { userId: userId });
+  }
+  // END TODO
 
   async loadCollections() {
     const allCollections = await this.vaultFilterService.buildCollections(

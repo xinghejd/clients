@@ -66,6 +66,11 @@ export class AccountServiceImplementation implements InternalAccountService {
     this.activeAccountId.next(userId);
   }
 
+  // This should be temporary until AccountService takes over full account switching capabilities
+  setAccounts(accounts: Record<UserId, AccountInfo>) {
+    this.accounts.next(accounts);
+  }
+
   // TODO: update to use our own account status settings. Requires inverting direction of state service accounts flow
   async delete(): Promise<void> {
     try {

@@ -1,6 +1,7 @@
 import { BehaviorSubject } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
   AbstractStorageService,
@@ -10,6 +11,7 @@ import { StateFactory } from "@bitwarden/common/platform/factories/state-factory
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { StorageOptions } from "@bitwarden/common/platform/models/domain/storage-options";
 import { StateService as BaseStateService } from "@bitwarden/common/platform/services/state.service";
+import { UserId } from "@bitwarden/common/types/guid";
 
 import { Account } from "../../models/account";
 import { BrowserComponentState } from "../../models/browserComponentState";
@@ -70,6 +72,23 @@ export class BrowserStateService
         }
       });
     }
+  }
+
+  /** @inheritdoc */
+  async popupInit(): Promise<void> {
+    const state = await this.state();
+    for (const accountId of state.authenticatedAccounts) {
+      const account = state.accounts[accountId];
+      if (account == null) {
+        continue;
+      }
+      this.accountService.addAccount(accountId as UserId, {
+        status: AuthenticationStatus.Locked,
+        name: account.profile.name,
+        email: account.profile.email,
+      });
+    }
+    this.accountService.switchAccount(state.activeUserId as UserId);
   }
 
   async addAccount(account: Account) {
