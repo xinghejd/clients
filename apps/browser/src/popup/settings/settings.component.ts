@@ -33,10 +33,10 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { DialogService } from "@bitwarden/components";
 
+import { SetPinComponent } from "../../auth/popup/components/set-pin.component";
 import { BiometricErrors, BiometricErrorTypes } from "../../models/biometricErrors";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
-import { SetPinComponent } from "../components/set-pin.component";
 
 import { AboutComponent } from "./about.component";
 import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";

@@ -160,14 +160,11 @@ export class AddEditComponent extends BaseAddEditComponent {
 
   async submit(): Promise<boolean> {
     const fido2SessionData = await firstValueFrom(this.fido2PopoutSessionData$);
-    const inFido2PopoutWindow =
-      BrowserPopupUtils.inPopout(window) && fido2SessionData.isFido2Session;
+    const { isFido2Session, sessionId, userVerification } = fido2SessionData;
+    const inFido2PopoutWindow = BrowserPopupUtils.inPopout(window) && isFido2Session;
     if (
       inFido2PopoutWindow &&
-      !(await this.handleFido2UserVerification(
-        fido2SessionData.sessionId,
-        fido2SessionData.userVerification
-      ))
+      !(await this.handleFido2UserVerification(sessionId, userVerification))
     ) {
       return false;
     }
@@ -183,9 +180,9 @@ export class AddEditComponent extends BaseAddEditComponent {
 
     if (inFido2PopoutWindow) {
       BrowserFido2UserInterfaceSession.confirmNewCredentialResponse(
-        fido2SessionData.sessionId,
+        sessionId,
         this.cipher.id,
-        fido2SessionData.userVerification
+        userVerification
       );
       return true;
     }
