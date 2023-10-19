@@ -201,41 +201,33 @@ class BrowserPopupUtils {
     windowInfo: chrome.windows.CreateData,
     forceCloseExistingWindows = false
   ) {
-    let isPopoutOpen = false;
-    let singleActionPopoutFound = false;
     if (!popoutKey) {
-      return isPopoutOpen;
+      return false;
     }
 
     const extensionUrl = chrome.runtime.getURL("popup/index.html");
-    const tabs = await BrowserApi.tabsQuery({ url: `${extensionUrl}*` });
-    if (tabs.length === 0) {
-      return isPopoutOpen;
+    const popoutTabs = (await BrowserApi.tabsQuery({ url: `${extensionUrl}*` })).filter((tab) =>
+      tab.url.includes(`singleActionPopout=${popoutKey}`)
+    );
+    if (popoutTabs.length === 0) {
+      return false;
     }
 
-    for (let index = 0; index < tabs.length; index++) {
-      const tab = tabs[index];
-      if (!tab.url.includes(`singleActionPopout=${popoutKey}`)) {
-        continue;
-      }
-
-      isPopoutOpen = true;
-      if (!forceCloseExistingWindows && !singleActionPopoutFound) {
-        await BrowserApi.updateWindowProperties(tab.windowId, {
-          focused: true,
-          width: windowInfo.width,
-          height: windowInfo.height,
-          top: windowInfo.top,
-          left: windowInfo.left,
-        });
-        singleActionPopoutFound = true;
-        continue;
-      }
-
-      BrowserApi.removeTab(tab.id);
+    if (!forceCloseExistingWindows) {
+      // Update first, remove it from list
+      const tab = popoutTabs.shift();
+      BrowserApi.updateWindowProperties(tab.windowId, {
+        focused: true,
+        width: windowInfo.width,
+        height: windowInfo.height,
+        top: windowInfo.top,
+        left: windowInfo.left,
+      });
     }
 
-    return isPopoutOpen;
+    popoutTabs.forEach((tab) => BrowserApi.removeTab(tab.id));
+
+    return true;
   }
 
   /**
