@@ -6,7 +6,7 @@ export class AppSettingsJsonSecretsManagerImporter extends JsonSecretsManagerImp
   constructor() {
     super(
       "appsettingsJson",
-      "App Settings Json",
+      "AppSettings JSON",
       JSON.stringify(
         {
           key1: {
@@ -23,7 +23,7 @@ export class AppSettingsJsonSecretsManagerImporter extends JsonSecretsManagerImp
   buildOptions(organizationId: string): Promise<ImportOption[]> {
     const seperatorOption = new ImportOption({
       key: AppSettingsJsonSecretsManagerImporter.SeperatorKey,
-      label: "Key Seperator",
+      label: { key: "keySeperator" },
       value: ":",
       type: "textbox",
     });

@@ -7287,5 +7287,8 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "The passkey will not be copied to the cloned item. Do you want to continue cloning this item?"
+  },
+  "keySeperator": {
+    "message": "Key Seperator"
   }
 }
