@@ -6,7 +6,7 @@ export class AppSettingsJsonSecretsManagerImporter extends JsonSecretsManagerImp
   constructor() {
     super(
       "appsettingsJson",
-      "AppSettings JSON",
+      "App Settings (json)",
       JSON.stringify(
         {
           key1: {

@@ -25,6 +25,6 @@ export class SecretsManagerDynamicImportOptionComponent {
   get label(): string {
     return typeof this.option.label === "string"
       ? this.option.label
-      : this.i18nService.t(this.option.label.key, ...this.option.label.args);
+      : this.i18nService.t(this.option.label.key);
   }
 }

@@ -48,9 +48,7 @@ export class SecretsManagerImportComponent implements OnInit, OnDestroy {
 
   selectableImporters = this.importers.map((i) => ({
     label:
-      typeof i.displayInfo === "string"
-        ? i.displayInfo
-        : this.i18nService.t(i.displayInfo.key, ...i.displayInfo.args),
+      typeof i.displayInfo === "string" ? i.displayInfo : this.i18nService.t(i.displayInfo.key),
     value: i.id,
   }));
   selectedImporter$: Observable<SecretsManagerImporter>;

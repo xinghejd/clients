@@ -5,7 +5,6 @@ export type ImportData = {
 
 export type Translation = {
   key: string;
-  args?: (string | number)[];
 };
 
 export class ImportOption {
