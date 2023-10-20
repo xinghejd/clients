@@ -3,6 +3,8 @@ import { NgModule } from "@angular/core";
 import { SecretsManagerSharedModule } from "../shared/sm-shared.module";
 
 import { SecretsManagerImportErrorDialogComponent } from "./dialog/sm-import-error-dialog.component";
+import { ImporterModule } from "./importers/importer.module";
+import { SecretsManagerDynamicImportOptionComponent } from "./porting/sm-dynamic-import-option.component";
 import { SecretsManagerExportComponent } from "./porting/sm-export.component";
 import { SecretsManagerImportComponent } from "./porting/sm-import.component";
 import { SecretsManagerPortingApiService } from "./services/sm-porting-api.service";
@@ -10,10 +12,11 @@ import { SecretsManagerPortingService } from "./services/sm-porting.service";
 import { SettingsRoutingModule } from "./settings-routing.module";
 
 @NgModule({
-  imports: [SecretsManagerSharedModule, SettingsRoutingModule],
+  imports: [SecretsManagerSharedModule, SettingsRoutingModule, ImporterModule],
   declarations: [
     SecretsManagerImportComponent,
     SecretsManagerExportComponent,
+    SecretsManagerDynamicImportOptionComponent,
     SecretsManagerImportErrorDialogComponent,
   ],
   providers: [SecretsManagerPortingService, SecretsManagerPortingApiService],

@@ -7,6 +7,7 @@ import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 
+import { ImportData } from "../importers/importer.abstraction";
 import { SecretsManagerImportError } from "../models/error/sm-import-error";
 import { SecretsManagerImportRequest } from "../models/requests/sm-import.request";
 import { SecretsManagerImportedProjectRequest } from "../models/requests/sm-imported-project.request";
@@ -45,12 +46,12 @@ export class SecretsManagerPortingApiService {
     );
   }
 
-  async import(organizationId: string, fileContents: string): Promise<SecretsManagerImportError> {
-    let requestObject = {};
-
+  async import(
+    organizationId: string,
+    fileContents: ImportData
+  ): Promise<SecretsManagerImportError> {
     try {
-      requestObject = JSON.parse(fileContents);
-      const requestBody = await this.encryptImport(organizationId, requestObject);
+      const requestBody = await this.encryptImport(organizationId, fileContents);
 
       await this.apiService.send(
         "POST",
@@ -61,13 +62,13 @@ export class SecretsManagerPortingApiService {
       );
     } catch (error) {
       const errorResponse = new ErrorResponse(error, 400);
-      return this.handleServerError(errorResponse, requestObject);
+      return this.handleServerError(errorResponse, fileContents);
     }
   }
 
   private async encryptImport(
     organizationId: string,
-    importData: any
+    importData: ImportData
   ): Promise<SecretsManagerImportRequest> {
     const encryptedImport = new SecretsManagerImportRequest();
 
@@ -77,7 +78,7 @@ export class SecretsManagerPortingApiService {
       encryptedImport.secrets = [];
 
       encryptedImport.projects = await Promise.all(
-        importData.projects.map(async (p: any) => {
+        importData.projects.map(async (p) => {
           const project = new SecretsManagerImportedProjectRequest();
           project.id = p.id;
           project.name = await this.encryptService.encrypt(p.name, orgKey);
@@ -86,7 +87,7 @@ export class SecretsManagerPortingApiService {
       );
 
       encryptedImport.secrets = await Promise.all(
-        importData.secrets.map(async (s: any) => {
+        importData.secrets.map(async (s) => {
           const secret = new SecretsManagerImportedSecretRequest();
 
           [secret.key, secret.value, secret.note] = await Promise.all([

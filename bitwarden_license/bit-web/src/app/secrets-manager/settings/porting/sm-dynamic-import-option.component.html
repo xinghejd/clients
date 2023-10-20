@@ -1,0 +1,7 @@
+<bit-form-field [formGroup]="form" [ngSwitch]="option.type">
+  <bit-label>{{ option.label }}</bit-label>
+  <input bitInput *ngSwitchCase="'textbox'" [formControlName]="key" [id]="key" type="text" />
+  <bit-select *ngSwitchCase="'dropdown'" [formControlName]="key" [id]="key">
+    <bit-option *ngFor="let opt of option.options" [value]="opt.key" [label]="opt.value" />
+  </bit-select>
+</bit-form-field>

@@ -2,41 +2,63 @@
 
 <form [formGroup]="formGroup" [bitSubmit]="submit" class="tw-max-w-xl">
   <bit-form-field>
-    <bit-label>{{ "fileUpload" | i18n }}</bit-label>
-    <div class="file-selector">
-      <button bitButton type="button" buttonType="secondary" (click)="fileSelector.click()">
-        {{ "chooseFile" | i18n }}
-      </button>
-      {{ selectedFile?.name ?? ("noFileChosen" | i18n) }}
+    <bit-label>Importer</bit-label>
+    <bit-select
+      bitInput
+      id="selectedImporter"
+      name="Selected Importer"
+      required
+      formControlName="selectedImporter"
+    >
+      <bit-option
+        *ngFor="let i of selectableImporters"
+        [value]="i.value"
+        [label]="i.label"
+      ></bit-option>
+    </bit-select>
+  </bit-form-field>
+  <sm-dynamic-import-option
+    *ngFor="let option of selectedImporterOptions$ | async"
+    [option]="option"
+    [form]="formGroup.controls.importerOptions"
+  ></sm-dynamic-import-option>
+  <ng-container *ngIf="selectedImporter$ | async as selectedImporter">
+    <bit-form-field>
+      <bit-label>{{ "fileUpload" | i18n }}</bit-label>
+      <div class="file-selector">
+        <button bitButton type="button" buttonType="secondary" (click)="fileSelector.click()">
+          {{ "chooseFile" | i18n }}
+        </button>
+        {{ selectedFile?.name ?? ("noFileChosen" | i18n) }}
+      </div>
+      <input
+        #fileSelector
+        hidden
+        bitInput
+        type="file"
+        id="file"
+        class="form-control-file"
+        name="file"
+        (change)="setSelectedFile($event)"
+        [accept]="selectedImporter.accept"
+      />
+    </bit-form-field>
+    <div class="my-4">
+      {{ "or" | i18n }}
     </div>
-    <input
-      #fileSelector
-      hidden
-      bitInput
-      type="file"
-      id="file"
-      class="form-control-file"
-      name="file"
-      (change)="setSelectedFile($event)"
-      accept="application/JSON"
-    />
-    <bit-hint>{{ "acceptedFormats" | i18n }} Bitwarden (json)</bit-hint>
-  </bit-form-field>
-  <div class="my-4">
-    {{ "or" | i18n }}
-  </div>
-  <bit-form-field>
-    <bit-label for="pastedContents">{{ "copyPasteImportContents" | i18n }}</bit-label>
-    <textarea
-      bitInput
-      id="pastedContents"
-      class="form-control"
-      name="FileContents"
-      formControlName="pastedContents"
-    ></textarea>
-    <bit-hint>{{ "acceptedFormats" | i18n }} Bitwarden (json)</bit-hint>
-  </bit-form-field>
-  <button bitButton bitFormButton type="submit" buttonType="primary">
-    {{ "importData" | i18n }}
-  </button>
+    <bit-form-field>
+      <bit-label for="pastedContents">{{ "copyPasteImportContents" | i18n }}</bit-label>
+      <textarea
+        bitInput
+        id="pastedContents"
+        class="form-control"
+        name="FileContents"
+        formControlName="pastedContents"
+        [placeholder]="selectedImporter.placeholder"
+      ></textarea>
+    </bit-form-field>
+    <button bitButton bitFormButton type="submit" buttonType="primary">
+      {{ "importData" | i18n }}
+    </button>
+  </ng-container>
 </form>
