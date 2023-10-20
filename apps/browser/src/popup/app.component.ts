@@ -19,7 +19,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { DialogService, SimpleDialogOptions } from "@bitwarden/components";
 
 import { BrowserApi } from "../platform/browser/browser-api";
-import { BrowserMessagingApiService } from "../platform/browser/browser-messaging-api.service";
+import { ZonedMessageListenerService } from "../platform/browser/zoned-message-listener.service";
 import { BrowserStateService } from "../platform/services/abstractions/browser-state.service";
 
 import { routerTransition } from "./app-routing.animations";
@@ -52,7 +52,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private sanitizer: DomSanitizer,
     private platformUtilsService: PlatformUtilsService,
     private dialogService: DialogService,
-    private browserMessagingApi: BrowserMessagingApiService
+    private browserMessagingApi: ZonedMessageListenerService
   ) {}
 
   async ngOnInit() {

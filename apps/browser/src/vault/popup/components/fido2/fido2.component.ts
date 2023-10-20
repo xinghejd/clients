@@ -30,7 +30,7 @@ import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.
 import { DialogService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
-import { BrowserMessagingApiService } from "../../../../platform/browser/browser-messaging-api.service";
+import { ZonedMessageListenerService } from "../../../../platform/browser/zoned-message-listener.service";
 import {
   BrowserFido2Message,
   BrowserFido2UserInterfaceSession,
@@ -79,7 +79,7 @@ export class Fido2Component implements OnInit, OnDestroy {
     private searchService: SearchService,
     private logService: LogService,
     private dialogService: DialogService,
-    private browserMessagingApi: BrowserMessagingApiService
+    private browserMessagingApi: ZonedMessageListenerService
   ) {}
 
   ngOnInit() {
