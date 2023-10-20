@@ -5,9 +5,11 @@ import {
   Observable,
   Subject,
   combineLatest,
+  concat,
   concatMap,
   firstValueFrom,
   map,
+  of,
   takeUntil,
 } from "rxjs";
 
@@ -29,7 +31,7 @@ import { SecretsManagerPortingApiService } from "../services/sm-porting-api.serv
 
 type ImportForm = {
   selectedImporter: FormControl<string>;
-  importerOptions: FormGroup<Record<symbol, FormControl<string>>>;
+  importerOptions: FormGroup<Record<string, FormControl<string>>>;
   pastedContents: FormControl<string>;
 };
 
@@ -67,7 +69,7 @@ export class SecretsManagerImportComponent implements OnInit, OnDestroy {
     @Inject(SecretsManagerImporter) private importers: SecretsManagerImporter[]
   ) {
     this.formGroup = this.fb.group({
-      selectedImporter: this.fb.control("bitwardenJson"),
+      selectedImporter: this.fb.control(""),
       importerOptions: this.fb.group({}),
       pastedContents: this.fb.control(""),
     });
@@ -78,9 +80,16 @@ export class SecretsManagerImportComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .pipe(map((params) => params.organizationId));
 
-    this.selectedImporter$ = this.formGroup.controls.selectedImporter.valueChanges.pipe(
-      map((importerId) => this.importers.find((i) => i.id === importerId) ?? this.importers[0])
+    const defaultImporter = this.importers[0];
+
+    this.selectedImporter$ = concat(
+      of(defaultImporter),
+      this.formGroup.controls.selectedImporter.valueChanges.pipe(
+        map((importerId) => this.importers.find((i) => i.id === importerId) ?? defaultImporter)
+      )
     );
+
+    this.formGroup.controls.selectedImporter.setValue(defaultImporter.id);
 
     this.selectedImporterOptions$ = combineLatest([
       this.selectedImporter$,
@@ -92,13 +101,12 @@ export class SecretsManagerImportComponent implements OnInit, OnDestroy {
           options.reduce((agg, option) => {
             agg[option.key] = this.fb.control(option.value);
             return agg;
-          }, {} as Record<symbol, FormControl<string>>)
+          }, {} as Record<string, FormControl<string>>)
         );
         this.formGroup.controls.importerOptions = importerOptionsGroup;
         return options;
       })
     );
-    this.formGroup.controls.selectedImporter.valueChanges.pipe();
   }
 
   async ngOnDestroy() {

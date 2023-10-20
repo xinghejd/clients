@@ -10,7 +10,7 @@ export type Translation = {
 
 export class ImportOption {
   value: string | undefined;
-  key: symbol;
+  key: string;
   label: string | Translation;
   required: boolean;
   type: "textbox" | "dropdown";
@@ -18,7 +18,7 @@ export class ImportOption {
 
   constructor(options: {
     value?: string;
-    key: symbol;
+    key: string;
     label: string | Translation;
     required?: boolean;
     type?: "textbox" | "dropdown";
@@ -43,20 +43,20 @@ export abstract class SecretsManagerImporter {
   buildOptions(organizationId: string): Promise<ImportOption[]> {
     return Promise.resolve([]);
   }
-  abstract createImportData(data: string, options: Record<symbol, string>): Promise<ImportData>;
+  abstract createImportData(data: string, options: Record<string, string>): Promise<ImportData>;
 }
 
 export abstract class JsonSecretsManagerImporter extends SecretsManagerImporter {
-  constructor(id: string, displayInfo: string | Translation) {
-    super(id, displayInfo, "application/JSON");
+  constructor(id: string, displayInfo: string | Translation, placeholder: string) {
+    super(id, displayInfo, "application/JSON", placeholder);
   }
 
   abstract createImportDataParsed(
     data: unknown,
-    options: Record<symbol, string>
+    options: Record<string, string>
   ): Promise<ImportData>;
 
-  override createImportData(data: string, options: Record<symbol, string>): Promise<ImportData> {
+  override createImportData(data: string, options: Record<string, string>): Promise<ImportData> {
     return this.createImportDataParsed(JSON.parse(data), options);
   }
 }

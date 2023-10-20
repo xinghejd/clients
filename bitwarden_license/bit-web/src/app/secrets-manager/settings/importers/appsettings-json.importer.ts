@@ -1,52 +1,47 @@
-import { ProjectService } from "../../projects/project.service";
-
 import { ImportData, ImportOption, JsonSecretsManagerImporter } from "./importer.abstraction";
 
-export class KeyValuePairJsonSecretsManagerImporter extends JsonSecretsManagerImporter {
-  static readonly SeperatorKey = Symbol("seperator");
-  static readonly ProjectKey = Symbol("project");
+export class AppSettingsJsonSecretsManagerImporter extends JsonSecretsManagerImporter {
+  static readonly SeperatorKey = "seperator";
 
-  constructor(private projectService: ProjectService) {
-    super("keyValuePairJson", "Key Value Pair Json");
+  constructor() {
+    super(
+      "appsettingsJson",
+      "App Settings Json",
+      JSON.stringify(
+        {
+          key1: {
+            key2: "my_config_value",
+          },
+          key3: true,
+        },
+        null,
+        2
+      )
+    );
   }
 
-  async buildOptions(organizationId: string): Promise<ImportOption[]> {
-    const projects = await this.projectService.getProjects(organizationId);
-    const options = projects.map((p) => ({ key: p.id, value: p.name }));
-    options.unshift({ key: "", value: "-- None --" });
-    const projectOption = new ImportOption({
-      key: KeyValuePairJsonSecretsManagerImporter.ProjectKey,
-      label: "Project",
-      value: null,
-      type: "dropdown",
-      options: options,
-    });
-
+  buildOptions(organizationId: string): Promise<ImportOption[]> {
     const seperatorOption = new ImportOption({
-      key: KeyValuePairJsonSecretsManagerImporter.SeperatorKey,
+      key: AppSettingsJsonSecretsManagerImporter.SeperatorKey,
       label: "Key Seperator",
       value: ":",
       type: "textbox",
     });
 
-    return [projectOption, seperatorOption];
+    return Promise.resolve([seperatorOption]);
   }
 
-  createImportDataParsed(data: unknown, options: Record<symbol, string>): Promise<ImportData> {
-    const seperator = options[KeyValuePairJsonSecretsManagerImporter.SeperatorKey] || ":";
+  createImportDataParsed(data: unknown, options: Record<string, string>): Promise<ImportData> {
+    const seperator = options[AppSettingsJsonSecretsManagerImporter.SeperatorKey] || ":";
     const parser = new Parser(seperator);
     const parsedData = parser.parse(data);
-
-    const projectId = options[KeyValuePairJsonSecretsManagerImporter.ProjectKey] || null;
-
-    const projectIdsArray = projectId != null && projectId != "" ? [projectId] : [];
 
     return Promise.resolve({
       secrets: Object.entries(parsedData).map(([key, value]) => ({
         key: key,
         value: value || "",
         note: "",
-        projectIds: projectIdsArray,
+        projectIds: [],
       })),
       projects: [],
     });
