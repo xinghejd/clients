@@ -9,10 +9,6 @@ import { runInsideAngular } from "./run-inside-angular.operator";
  * It automatically runs all callbacks inside the Angular zone.
  * This should be used instead of `BrowserApi.messageListener` in all popup-components.
  * Not needed for services running in the background script.
- *
- * Technically this shouldn't be needed because we have a polyfill for `chrome.runtime.sendMessage`
- * that should run all callbacks inside the Angular zone, but it's currently unstable in Safari,
- * where it only works sometimes.
  */
 @Injectable({ providedIn: "root" })
 export class ZonedMessageListenerService {
