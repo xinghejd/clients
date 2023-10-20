@@ -472,8 +472,8 @@ export class SettingsComponent implements OnInit {
     BrowserApi.createNewTab(url);
   }
 
-  import() {
-    BrowserApi.createNewTab("https://bitwarden.com/help/import-data/");
+  async import() {
+    this.router.navigate(["/import"]);
   }
 
   export() {
