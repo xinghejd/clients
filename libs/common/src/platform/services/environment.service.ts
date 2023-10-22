@@ -2,6 +2,7 @@ import { concatMap, Observable, ReplaySubject } from "rxjs";
 
 import { EnvironmentUrls } from "../../auth/models/domain/environment-urls";
 import {
+  CloudRegion,
   EnvironmentService as EnvironmentServiceAbstraction,
   Region,
   Urls,
@@ -10,101 +11,95 @@ import { StateService } from "../abstractions/state.service";
 
 export class EnvironmentService implements EnvironmentServiceAbstraction {
   private readonly urlsSubject = new ReplaySubject<void>(1);
-  urls: Observable<void> = this.urlsSubject.asObservable();
+  urls$: Observable<void> = this.urlsSubject.asObservable();
   selectedRegion?: Region;
   initialized = false;
 
-  protected baseUrl: string;
-  protected webVaultUrl: string;
-  protected apiUrl: string;
-  protected identityUrl: string;
-  protected iconsUrl: string;
-  protected notificationsUrl: string;
-  protected eventsUrl: string;
-  private keyConnectorUrl: string;
-  private scimUrl: string = null;
+  protected urls: Urls = null;
   private cloudWebVaultUrl: string;
 
-  readonly usUrls: Urls = {
-    base: null,
-    api: "https://api.bitwarden.com",
-    identity: "https://identity.bitwarden.com",
-    icons: "https://icons.bitwarden.net",
-    webVault: "https://vault.bitwarden.com",
-    notifications: "https://notifications.bitwarden.com",
-    events: "https://events.bitwarden.com",
-    scim: "https://scim.bitwarden.com",
+  readonly cloudRegionUrls: { [key in CloudRegion]: Urls } = {
+    [Region.US]: {
+      base: null,
+      api: "https://api.bitwarden.com",
+      identity: "https://identity.bitwarden.com",
+      icons: "https://icons.bitwarden.net",
+      webVault: "https://vault.bitwarden.com",
+      notifications: "https://notifications.bitwarden.com",
+      events: "https://events.bitwarden.com",
+      scim: "https://scim.bitwarden.com",
+    },
+    [Region.EU]: {
+      base: null,
+      api: "https://api.bitwarden.eu",
+      identity: "https://identity.bitwarden.eu",
+      icons: "https://icons.bitwarden.eu",
+      webVault: "https://vault.bitwarden.eu",
+      notifications: "https://notifications.bitwarden.eu",
+      events: "https://events.bitwarden.eu",
+      scim: "https://scim.bitwarden.eu",
+    },
   };
 
-  readonly euUrls: Urls = {
-    base: null,
-    api: "https://api.bitwarden.eu",
-    identity: "https://identity.bitwarden.eu",
-    icons: "https://icons.bitwarden.eu",
-    webVault: "https://vault.bitwarden.eu",
-    notifications: "https://notifications.bitwarden.eu",
-    events: "https://events.bitwarden.eu",
-    scim: "https://scim.bitwarden.eu",
-  };
+  constructor(private stateService: StateService, private loadOnAccountChange = true) {
+    if (!this.loadOnAccountChange) {
+      return;
+    }
 
-  constructor(private stateService: StateService) {
     this.stateService.activeAccount$
       .pipe(
         concatMap(async () => {
           if (!this.initialized) {
             return;
           }
-          await this.setUrlsFromStorage();
+          // only if we have urls in state, load them
+          await this.loadEnvironment();
         })
       )
       .subscribe();
   }
 
   hasBaseUrl() {
-    return this.baseUrl != null;
+    return this.urls?.base != null;
   }
 
   getNotificationsUrl() {
-    if (this.notificationsUrl != null) {
-      return this.notificationsUrl;
-    }
-
-    if (this.baseUrl != null) {
-      return this.baseUrl + "/notifications";
-    }
-
-    return "https://notifications.bitwarden.com";
+    return this.deriveUrl(
+      this.urls?.notifications,
+      "/notifications",
+      "https://notifications.bitwarden.com"
+    );
   }
 
   getWebVaultUrl() {
-    if (this.webVaultUrl != null) {
-      return this.webVaultUrl;
-    }
+    return this.deriveUrl(this.urls?.webVault, "", "https://vault.bitwarden.com");
+  }
 
-    if (this.baseUrl) {
-      return this.baseUrl;
-    }
-    return "https://vault.bitwarden.com";
+  getIconsUrl() {
+    return this.deriveUrl(this.urls?.icons, "/icons", "https://icons.bitwarden.net");
+  }
+
+  getApiUrl() {
+    return this.deriveUrl(this.urls?.api, "/api", "https://api.bitwarden.com");
+  }
+
+  getIdentityUrl() {
+    return this.deriveUrl(this.urls?.identity, "/identity", "https://identity.bitwarden.com");
+  }
+
+  getEventsUrl() {
+    return this.deriveUrl(this.urls?.events, "/events", "https://events.bitwarden.com");
   }
 
   getCloudWebVaultUrl() {
     if (this.cloudWebVaultUrl != null) {
       return this.cloudWebVaultUrl;
     }
-
-    return this.usUrls.webVault;
+    return this.cloudRegionUrls.US.webVault;
   }
 
-  setCloudWebVaultUrl(region: Region) {
-    switch (region) {
-      case Region.EU:
-        this.cloudWebVaultUrl = this.euUrls.webVault;
-        break;
-      case Region.US:
-      default:
-        this.cloudWebVaultUrl = this.usUrls.webVault;
-        break;
-    }
+  setCloudWebVaultUrl(region: CloudRegion) {
+    this.cloudWebVaultUrl = this.cloudRegionUrls[region].webVault;
   }
 
   getSendUrl() {
@@ -113,61 +108,13 @@ export class EnvironmentService implements EnvironmentServiceAbstraction {
       : this.getWebVaultUrl() + "/#/send/";
   }
 
-  getIconsUrl() {
-    if (this.iconsUrl != null) {
-      return this.iconsUrl;
-    }
-
-    if (this.baseUrl) {
-      return this.baseUrl + "/icons";
-    }
-
-    return "https://icons.bitwarden.net";
-  }
-
-  getApiUrl() {
-    if (this.apiUrl != null) {
-      return this.apiUrl;
-    }
-
-    if (this.baseUrl) {
-      return this.baseUrl + "/api";
-    }
-
-    return "https://api.bitwarden.com";
-  }
-
-  getIdentityUrl() {
-    if (this.identityUrl != null) {
-      return this.identityUrl;
-    }
-
-    if (this.baseUrl) {
-      return this.baseUrl + "/identity";
-    }
-
-    return "https://identity.bitwarden.com";
-  }
-
-  getEventsUrl() {
-    if (this.eventsUrl != null) {
-      return this.eventsUrl;
-    }
-
-    if (this.baseUrl) {
-      return this.baseUrl + "/events";
-    }
-
-    return "https://events.bitwarden.com";
-  }
-
   getKeyConnectorUrl() {
-    return this.keyConnectorUrl;
+    return this.urls?.keyConnector;
   }
 
   getScimUrl() {
-    if (this.scimUrl != null) {
-      return this.scimUrl + "/v2";
+    if (this.urls?.scim != null) {
+      return this.urls?.scim + "/v2";
     }
 
     return this.getWebVaultUrl() === "https://vault.bitwarden.com"
@@ -175,58 +122,60 @@ export class EnvironmentService implements EnvironmentServiceAbstraction {
       : this.getWebVaultUrl() + "/scim/v2";
   }
 
-  async setUrlsFromStorage(): Promise<void> {
+  /**
+   * Load the environment from state
+   */
+  async loadEnvironment(): Promise<void> {
     const region = await this.stateService.getRegion();
-    const savedUrls = await this.stateService.getEnvironmentUrls();
-    const envUrls = new EnvironmentUrls();
 
-    // In release `2023.5.0`, we set the `base` property of the environment URLs to the US web vault URL when a user clicked the "US" region.
-    // This check will detect these cases and convert them to the proper region instead.
-    // We are detecting this by checking for the presence of the web vault URL in the `base` and the absence of the `notifications` property.
-    // This is because the `notifications` will not be `null` in the web vault, and we don't want to migrate the URLs in that case.
-    if (savedUrls.base === "https://vault.bitwarden.com" && savedUrls.notifications == null) {
-      await this.setRegion(Region.US);
-      return;
-    }
-
-    switch (region) {
-      case Region.EU:
-        await this.setRegion(Region.EU);
-        return;
-      case Region.US:
-        await this.setRegion(Region.US);
-        return;
-      case Region.SelfHosted:
-      case null:
-      default:
-        this.baseUrl = envUrls.base = savedUrls.base;
-        this.webVaultUrl = savedUrls.webVault;
-        this.apiUrl = envUrls.api = savedUrls.api;
-        this.identityUrl = envUrls.identity = savedUrls.identity;
-        this.iconsUrl = savedUrls.icons;
-        this.notificationsUrl = savedUrls.notifications;
-        this.eventsUrl = envUrls.events = savedUrls.events;
-        this.keyConnectorUrl = savedUrls.keyConnector;
-        await this.setRegion(Region.SelfHosted);
-        // scimUrl is not saved to storage
-        this.urlsSubject.next();
-        break;
+    // There are two ways we can load the URLs into the service:
+    // 1. If the region is stored in state AND is EU or US, we should load the URLs defined for that region
+    // 2. Otherwise, we should load the URLs stored individually in state. This will be the case if the region isn't
+    //    defined in state, or if the region is SelfHosted.
+    if (region == null || region === Region.SelfHosted) {
+      const savedUrls = await this.stateService.getEnvironmentUrls();
+      this.setEnvironmentBasedOnUrls(savedUrls);
+    } else {
+      this.setEnvironmentBasedOnRegion(region);
     }
   }
 
-  async setUrls(urls: Urls): Promise<Urls> {
-    urls.base = this.formatUrl(urls.base);
-    urls.webVault = this.formatUrl(urls.webVault);
-    urls.api = this.formatUrl(urls.api);
-    urls.identity = this.formatUrl(urls.identity);
-    urls.icons = this.formatUrl(urls.icons);
-    urls.notifications = this.formatUrl(urls.notifications);
-    urls.events = this.formatUrl(urls.events);
-    urls.keyConnector = this.formatUrl(urls.keyConnector);
+  /**
+   * Set the region whose configured URLs should be provided by the `EnvironmentService`.
+   * @param region The the `CloudRegion` whose environment should be provided by `EnvironmentService`.
+   */
+  async setEnvironmentByRegion(region: CloudRegion) {
+    await this.setRegionInState(region);
+    await this.setEnvironmentBasedOnRegion(region);
+  }
 
-    // scimUrl cannot be cleared
-    urls.scim = this.formatUrl(urls.scim) ?? this.scimUrl;
+  /**
+   * Accepts a set of URLs and defines the client environment based on those URLs, setting the `selectedRegion` to `Region.SelfHosted`.
+   * @param urls The URLs to set for the environment.
+   * @returns The URLs that were set.
+   */
+  async setEnvironmentByUrls(urls: Urls): Promise<Urls> {
+    this.formatUrls(urls);
 
+    await this.setEnvironmentUrlsInState(urls);
+    this.setEnvironmentBasedOnUrls(urls);
+
+    return urls;
+  }
+
+  getUrls() {
+    return this.urls;
+  }
+
+  private async setRegionInState(region: CloudRegion) {
+    this.selectedRegion = region;
+    await this.stateService.setRegion(region);
+
+    // Since we are setting the region to a configured one, clear the self-hosted URLs
+    await this.stateService.setEnvironmentUrls(new EnvironmentUrls());
+  }
+
+  private async setEnvironmentUrlsInState(urls: Urls) {
     await this.stateService.setEnvironmentUrls({
       base: urls.base,
       api: urls.api,
@@ -239,83 +188,42 @@ export class EnvironmentService implements EnvironmentServiceAbstraction {
       // scimUrl is not saved to storage
     });
 
-    this.baseUrl = urls.base;
-    this.webVaultUrl = urls.webVault;
-    this.apiUrl = urls.api;
-    this.identityUrl = urls.identity;
-    this.iconsUrl = urls.icons;
-    this.notificationsUrl = urls.notifications;
-    this.eventsUrl = urls.events;
-    this.keyConnectorUrl = urls.keyConnector;
-    this.scimUrl = urls.scim;
+    // Since we are setting the URLs to a custom definition, set the region to SelfHosted
+    await this.stateService.setRegion(Region.SelfHosted);
+  }
 
-    await this.setRegion(Region.SelfHosted);
+  private async setEnvironmentBasedOnRegion(region: CloudRegion) {
+    this.setEnvironmentBasedOnUrls(this.cloudRegionUrls[region]);
+  }
 
+  private setEnvironmentBasedOnUrls(updatedUrls: Urls) {
+    this.formatUrls(updatedUrls);
+    this.urls = updatedUrls;
     this.urlsSubject.next();
-
-    return urls;
   }
 
-  getUrls() {
-    return {
-      base: this.baseUrl,
-      webVault: this.webVaultUrl,
-      cloudWebVault: this.cloudWebVaultUrl,
-      api: this.apiUrl,
-      identity: this.identityUrl,
-      icons: this.iconsUrl,
-      notifications: this.notificationsUrl,
-      events: this.eventsUrl,
-      keyConnector: this.keyConnectorUrl,
-      scim: this.scimUrl,
-    };
-  }
-
-  isEmpty(): boolean {
-    return (
-      this.baseUrl == null &&
-      this.webVaultUrl == null &&
-      this.apiUrl == null &&
-      this.identityUrl == null &&
-      this.iconsUrl == null &&
-      this.notificationsUrl == null &&
-      this.eventsUrl == null
-    );
-  }
-
-  async setRegion(region: Region) {
-    this.selectedRegion = region;
-    await this.stateService.setRegion(region);
-
-    if (region === Region.SelfHosted) {
-      // If user saves a self-hosted region with empty fields, default to US
-      if (this.isEmpty()) {
-        await this.setRegion(Region.US);
-      }
-    } else {
-      // If we are setting the region to EU or US, clear the self-hosted URLs
-      await this.stateService.setEnvironmentUrls(new EnvironmentUrls());
-      if (region === Region.EU) {
-        this.setUrlsInternal(this.euUrls);
-      } else if (region === Region.US) {
-        this.setUrlsInternal(this.usUrls);
-      }
+  private deriveUrl(url: string, path: string, fallback: string) {
+    if (url != null) {
+      return url;
     }
+
+    if (this.urls?.base != null) {
+      return this.urls.base + path;
+    }
+
+    return fallback;
   }
 
-  private setUrlsInternal(urls: Urls) {
-    this.baseUrl = this.formatUrl(urls.base);
-    this.webVaultUrl = this.formatUrl(urls.webVault);
-    this.apiUrl = this.formatUrl(urls.api);
-    this.identityUrl = this.formatUrl(urls.identity);
-    this.iconsUrl = this.formatUrl(urls.icons);
-    this.notificationsUrl = this.formatUrl(urls.notifications);
-    this.eventsUrl = this.formatUrl(urls.events);
-    this.keyConnectorUrl = this.formatUrl(urls.keyConnector);
-
-    // scimUrl cannot be cleared
-    this.scimUrl = this.formatUrl(urls.scim) ?? this.scimUrl;
-    this.urlsSubject.next();
+  private formatUrls(urls: Urls) {
+    urls.base = this.formatUrl(urls.base);
+    urls.webVault = this.formatUrl(urls.webVault);
+    urls.api = this.formatUrl(urls.api);
+    urls.identity = this.formatUrl(urls.identity);
+    urls.icons = this.formatUrl(urls.icons);
+    urls.notifications = this.formatUrl(urls.notifications);
+    urls.events = this.formatUrl(urls.events);
+    urls.keyConnector = this.formatUrl(urls.keyConnector);
+    urls.scim = this.formatUrl(urls.scim) ?? this.urls?.scim; // scimUrl cannot be cleared
   }
 
   private formatUrl(url: string): string {

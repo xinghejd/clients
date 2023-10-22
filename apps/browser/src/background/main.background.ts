@@ -769,7 +769,7 @@ export default class MainBackground {
 
     return new Promise<void>((resolve) => {
       setTimeout(async () => {
-        await this.environmentService.setUrlsFromStorage();
+        await this.environmentService.loadEnvironment();
         // Workaround to ignore stateService.activeAccount until URLs are set
         // TODO: Remove this when implementing ticket PM-2637
         this.environmentService.initialized = true;

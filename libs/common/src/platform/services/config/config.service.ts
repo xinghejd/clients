@@ -67,7 +67,7 @@ export class ConfigService implements ConfigServiceAbstraction {
     // If you need to fetch a new config when an event occurs, add an observable that emits on that event here
     merge(
       this.refreshTimer$, // an overridable interval
-      this.environmentService.urls, // when environment URLs change (including when app is started)
+      this.environmentService.urls$, // when environment URLs change (including when app is started)
       this._forceFetchConfig // manual
     )
       .pipe(

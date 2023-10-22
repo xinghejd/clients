@@ -83,7 +83,7 @@ export class EnvironmentSelectorComponent implements OnInit, OnDestroy {
       return;
     }
 
-    await this.environmentService.setRegion(option);
+    await this.environmentService.setEnvironmentByRegion(option);
     this.updateEnvironmentInfo();
   }
 

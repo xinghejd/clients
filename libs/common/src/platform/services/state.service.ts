@@ -37,6 +37,7 @@ import { LocalData } from "../../vault/models/data/local.data";
 import { CipherView } from "../../vault/models/view/cipher.view";
 import { CollectionView } from "../../vault/models/view/collection.view";
 import { AddEditCipherInfo } from "../../vault/types/add-edit-cipher-info";
+import { Region } from "../abstractions/environment.service";
 import { LogService } from "../abstractions/log.service";
 import { StateService as StateServiceAbstraction } from "../abstractions/state.service";
 import {
@@ -1968,7 +1969,7 @@ export class StateService<
     );
   }
 
-  async getRegion(options?: StorageOptions): Promise<string> {
+  async getRegion(options?: StorageOptions): Promise<Region> {
     if ((await this.state())?.activeUserId == null) {
       options = this.reconcileOptions(options, await this.defaultOnDiskOptions());
       return (await this.getGlobals(options)).region ?? null;
@@ -1977,7 +1978,7 @@ export class StateService<
     return (await this.getAccount(options))?.settings?.region ?? null;
   }
 
-  async setRegion(value: string, options?: StorageOptions): Promise<void> {
+  async setRegion(value: Region, options?: StorageOptions): Promise<void> {
     // Global values are set on each change and the current global settings are passed to any newly authed accounts.
     // This is to allow setting region values before an account is active, while still allowing individual accounts to have their own region.
     const globals = await this.getGlobals(
@@ -3241,7 +3242,7 @@ export class StateService<
     return (await this.getGlobals(options)).environmentUrls ?? new EnvironmentUrls();
   }
 
-  protected async getGlobalRegion(options?: StorageOptions): Promise<string> {
+  protected async getGlobalRegion(options?: StorageOptions): Promise<Region> {
     options = this.reconcileOptions(options, await this.defaultOnDiskOptions());
     return (await this.getGlobals(options)).region ?? null;
   }

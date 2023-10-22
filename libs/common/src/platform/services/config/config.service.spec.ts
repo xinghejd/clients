@@ -47,7 +47,7 @@ describe("ConfigService", () => {
     environmentService = mock();
     logService = mock();
 
-    environmentService.urls = new ReplaySubject<void>(1);
+    environmentService.urls$ = new ReplaySubject<void>(1);
 
     serverResponseCount = 1;
     configApiService.get.mockImplementation(() =>
@@ -139,7 +139,7 @@ describe("ConfigService", () => {
         }
       });
 
-      (environmentService.urls as ReplaySubject<void>).next();
+      (environmentService.urls$ as ReplaySubject<void>).next();
     });
 
     it("when triggerServerConfigFetch() is called", (done) => {

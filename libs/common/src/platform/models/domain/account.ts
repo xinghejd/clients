@@ -28,6 +28,7 @@ import { CollectionData } from "../../../vault/models/data/collection.data";
 import { FolderData } from "../../../vault/models/data/folder.data";
 import { CipherView } from "../../../vault/models/view/cipher.view";
 import { CollectionView } from "../../../vault/models/view/collection.view";
+import { Region } from "../../abstractions/environment.service";
 import { Utils } from "../../misc/utils";
 import { ServerConfigData } from "../../models/data/server-config.data";
 
@@ -253,7 +254,7 @@ export class AccountSettings {
   approveLoginRequests?: boolean;
   avatarColor?: string;
   activateAutoFillOnPageLoadFromPolicy?: boolean;
-  region?: string;
+  region?: Region;
   smOnboardingTasks?: Record<string, Record<string, boolean>>;
   trustDeviceChoiceForDecryption?: boolean;
 

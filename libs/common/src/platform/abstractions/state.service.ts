@@ -40,6 +40,8 @@ import {
   UserKey,
 } from "../models/domain/symmetric-crypto-key";
 
+import { Region } from "./environment.service";
+
 export abstract class StateService<T extends Account = Account> {
   accounts$: Observable<{ [userId: string]: T }>;
   activeAccount$: Observable<string>;
@@ -381,8 +383,8 @@ export abstract class StateService<T extends Account = Account> {
   setEntityType: (value: string, options?: StorageOptions) => Promise<void>;
   getEnvironmentUrls: (options?: StorageOptions) => Promise<EnvironmentUrls>;
   setEnvironmentUrls: (value: EnvironmentUrls, options?: StorageOptions) => Promise<void>;
-  getRegion: (options?: StorageOptions) => Promise<string>;
-  setRegion: (value: string, options?: StorageOptions) => Promise<void>;
+  getRegion: (options?: StorageOptions) => Promise<Region>;
+  setRegion: (value: Region, options?: StorageOptions) => Promise<void>;
   getEquivalentDomains: (options?: StorageOptions) => Promise<string[][]>;
   setEquivalentDomains: (value: string, options?: StorageOptions) => Promise<void>;
   getEventCollection: (options?: StorageOptions) => Promise<EventData[]>;

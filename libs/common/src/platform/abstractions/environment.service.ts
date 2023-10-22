@@ -23,6 +23,8 @@ export enum Region {
   SelfHosted = "Self-hosted",
 }
 
+export type CloudRegion = Exclude<Region, Region.SelfHosted>;
+
 export enum RegionDomain {
   US = "bitwarden.com",
   EU = "bitwarden.eu",
@@ -30,9 +32,7 @@ export enum RegionDomain {
 }
 
 export abstract class EnvironmentService {
-  urls: Observable<void>;
-  usUrls: Urls;
-  euUrls: Urls;
+  urls$: Observable<void>;
   selectedRegion?: Region;
   initialized = true;
 
@@ -59,10 +59,9 @@ export abstract class EnvironmentService {
   getEventsUrl: () => string;
   getKeyConnectorUrl: () => string;
   getScimUrl: () => string;
-  setUrlsFromStorage: () => Promise<void>;
-  setUrls: (urls: Urls) => Promise<Urls>;
-  setRegion: (region: Region) => Promise<void>;
+  loadEnvironment: () => Promise<void>;
+  setEnvironmentByUrls: (urls: Urls) => Promise<Urls>;
+  setEnvironmentByRegion: (region: CloudRegion) => Promise<void>;
   getUrls: () => Urls;
   isCloud: () => boolean;
-  isEmpty: () => boolean;
 }

@@ -27,13 +27,13 @@ export class BrowserEnvironmentService extends EnvironmentService {
     const env = await this.getManagedEnvironment();
 
     return (
-      env.base != this.baseUrl ||
-      env.webVault != this.webVaultUrl ||
-      env.api != this.webVaultUrl ||
-      env.identity != this.identityUrl ||
-      env.icons != this.iconsUrl ||
-      env.notifications != this.notificationsUrl ||
-      env.events != this.eventsUrl
+      env.base != this.urls?.base ||
+      env.webVault != this.urls?.webVault ||
+      env.api != this.urls?.webVault ||
+      env.identity != this.urls?.identity ||
+      env.icons != this.urls?.icons ||
+      env.notifications != this.urls?.notifications ||
+      env.events != this.urls?.events
     );
   }
 
@@ -57,7 +57,7 @@ export class BrowserEnvironmentService extends EnvironmentService {
 
   async setUrlsToManagedEnvironment() {
     const env = await this.getManagedEnvironment();
-    await this.setUrls({
+    await this.setEnvironmentByUrls({
       base: env.base,
       webVault: env.webVault,
       api: env.api,
