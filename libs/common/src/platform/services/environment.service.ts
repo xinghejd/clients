@@ -7,6 +7,7 @@ import {
   Region,
   Urls,
 } from "../abstractions/environment.service";
+import { LogService } from "../abstractions/log.service";
 import { StateService } from "../abstractions/state.service";
 
 export class EnvironmentService implements EnvironmentServiceAbstraction {
@@ -41,7 +42,11 @@ export class EnvironmentService implements EnvironmentServiceAbstraction {
     },
   };
 
-  constructor(private stateService: StateService, private loadOnAccountChange = true) {
+  constructor(
+    private stateService: StateService,
+    private logService: LogService,
+    private loadOnAccountChange = true
+  ) {
     if (!this.loadOnAccountChange) {
       return;
     }
@@ -50,8 +55,10 @@ export class EnvironmentService implements EnvironmentServiceAbstraction {
       .pipe(
         concatMap(async () => {
           if (!this.initialized) {
+            this.logService.debug("EnvironmentService not initialized, skipping loadEnvironment");
             return;
           }
+          this.logService.debug("Account changed, loading environment");
           // only if we have urls in state, load them
           await this.loadEnvironment();
         })
@@ -128,14 +135,18 @@ export class EnvironmentService implements EnvironmentServiceAbstraction {
   async loadEnvironment(): Promise<void> {
     const region = await this.stateService.getRegion();
 
+    this.logService.debug("Loading environment for region: " + region);
+
     // There are two ways we can load the URLs into the service:
     // 1. If the region is stored in state AND is EU or US, we should load the URLs defined for that region
     // 2. Otherwise, we should load the URLs stored individually in state. This will be the case if the region isn't
     //    defined in state, or if the region is SelfHosted.
     if (region == null || region === Region.SelfHosted) {
       const savedUrls = await this.stateService.getEnvironmentUrls();
+      this.logService.debug("Loading these URLs from state:" + JSON.stringify(savedUrls));
       this.setEnvironmentBasedOnUrls(savedUrls);
     } else {
+      this.logService.debug("Loading configured URLs for region: " + region);
       this.setEnvironmentBasedOnRegion(region);
     }
   }

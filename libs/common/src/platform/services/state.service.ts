@@ -1950,10 +1950,15 @@ export class StateService<
 
   async getEnvironmentUrls(options?: StorageOptions): Promise<EnvironmentUrls> {
     if ((await this.state())?.activeUserId == null) {
-      return await this.getGlobalEnvironmentUrls(options);
+      const urls = await this.getGlobalEnvironmentUrls(options);
+      this.logService.debug("Loaded global environment URLs: " + JSON.stringify(urls));
+      return urls;
     }
     options = this.reconcileOptions(options, await this.defaultOnDiskOptions());
-    return (await this.getAccount(options))?.settings?.environmentUrls ?? new EnvironmentUrls();
+    const urls =
+      (await this.getAccount(options))?.settings?.environmentUrls ?? new EnvironmentUrls();
+    this.logService.debug("Loaded account environment URLs: " + JSON.stringify(urls));
+    return urls;
   }
 
   async setEnvironmentUrls(value: EnvironmentUrls, options?: StorageOptions): Promise<void> {
@@ -1963,6 +1968,9 @@ export class StateService<
       this.reconcileOptions(options, await this.defaultOnDiskOptions())
     );
     globals.environmentUrls = value;
+    this.logService.debug(
+      "Setting global environment URLs to " + JSON.stringify(globals.environmentUrls)
+    );
     await this.saveGlobals(
       globals,
       this.reconcileOptions(options, await this.defaultOnDiskOptions())
@@ -1972,10 +1980,14 @@ export class StateService<
   async getRegion(options?: StorageOptions): Promise<Region> {
     if ((await this.state())?.activeUserId == null) {
       options = this.reconcileOptions(options, await this.defaultOnDiskOptions());
-      return (await this.getGlobals(options)).region ?? null;
+      const region = (await this.getGlobals(options)).region ?? null;
+      this.logService.debug("Loaded global region: " + region);
+      return region;
     }
     options = this.reconcileOptions(options, await this.defaultOnDiskOptions());
-    return (await this.getAccount(options))?.settings?.region ?? null;
+    const region = (await this.getAccount(options))?.settings?.region ?? null;
+    this.logService.debug("Loaded account region: " + region);
+    return region;
   }
 
   async setRegion(value: Region, options?: StorageOptions): Promise<void> {
@@ -1985,6 +1997,7 @@ export class StateService<
       this.reconcileOptions(options, await this.defaultOnDiskOptions())
     );
     globals.region = value;
+    this.logService.debug("Setting global region to " + globals.region);
     await this.saveGlobals(
       globals,
       this.reconcileOptions(options, await this.defaultOnDiskOptions())
@@ -3234,6 +3247,12 @@ export class StateService<
   protected async setAccountEnvironment(account: TAccount): Promise<TAccount> {
     account.settings.region = await this.getGlobalRegion();
     account.settings.environmentUrls = await this.getGlobalEnvironmentUrls();
+    this.logService.debug(
+      "Transferring environment urls and region to authenticated account: " +
+        account.settings.region +
+        " | " +
+        JSON.stringify(account.settings.environmentUrls)
+    );
     return account;
   }
 
