@@ -7279,6 +7279,29 @@
   "customBillingEnd": {
     "message": " page for latest invoicing."
   },
+  "moveToProject": {
+    "message": "Move to Project"
+  },
+  "move": {
+    "message": "Move"
+  },
+  "bulkMoveToProjectSummary": {
+    "message": "New Assignments: $NEW_ASSIGNMENTS$, Same Assignments: $SAME_ASSIGNMENTS$, Override Assignments: $OVERRIDE_ASSIGNMENTS$",
+    "placeholders": {
+      "new_assignments": {
+        "content": "$1",
+        "example": 4
+      },
+      "same_assignments": {
+        "content": "$2",
+        "example": 4
+      },
+      "override_assignments": {
+        "content": "$3",
+        "example": 4
+      }
+    }
+  },
   "typePasskey": {
     "message": "Passkey"
   },
