@@ -133,6 +133,21 @@ export class SecretService {
     this._secret.next(null);
   }
 
+  async bulkMoveToProject(organizationId: string, secretIds: string[], projectIds: string[]) {
+    await this.apiService.send(
+      "POST",
+      "/secrets/" + organizationId + "/move",
+      {
+        secrets: secretIds,
+        projects: projectIds,
+      },
+      true,
+      true
+    );
+
+    this._secret.next(null);
+  }
+
   private async getOrganizationKey(organizationId: string): Promise<SymmetricCryptoKey> {
     return await this.cryptoService.getOrgKey(organizationId);
   }

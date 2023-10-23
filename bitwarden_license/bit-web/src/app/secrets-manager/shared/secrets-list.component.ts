@@ -43,6 +43,7 @@ export class SecretsListComponent implements OnDestroy {
   @Output() deleteSecretsEvent = new EventEmitter<SecretListView[]>();
   @Output() newSecretEvent = new EventEmitter();
   @Output() restoreSecretsEvent = new EventEmitter();
+  @Output() bulkMoveToProjectEvent = new EventEmitter<SecretListView[]>();
 
   private destroy$: Subject<void> = new Subject<void>();
 
@@ -96,6 +97,20 @@ export class SecretsListComponent implements OnDestroy {
   bulkRestoreSecrets() {
     if (this.selection.selected.length >= 1) {
       this.restoreSecretsEvent.emit(this.selection.selected);
+    } else {
+      this.platformUtilsService.showToast(
+        "error",
+        this.i18nService.t("errorOccurred"),
+        this.i18nService.t("nothingSelected")
+      );
+    }
+  }
+
+  bulkMoveToProject() {
+    if (this.selection.selected.length >= 1) {
+      this.bulkMoveToProjectEvent.emit(
+        this.secrets.filter((secret) => this.selection.isSelected(secret.id))
+      );
     } else {
       this.platformUtilsService.showToast(
         "error",

@@ -19,6 +19,10 @@ import {
   SecretDialogComponent,
   SecretOperation,
 } from "./dialog/secret-dialog.component";
+import {
+  SecretMoveProjectComponent,
+  SecretMoveProjectOperation,
+} from "./dialog/secret-move-project.component";
 import { SecretService } from "./secret.service";
 
 @Component({
@@ -106,5 +110,14 @@ export class SecretsComponent implements OnInit {
 
   copySecretUuid(id: string) {
     SecretsListComponent.copySecretUuid(id, this.platformUtilsService, this.i18nService);
+  }
+
+  openMoveToProjectDialog(event: SecretListView[]) {
+    this.dialogService.open<unknown, SecretMoveProjectOperation>(SecretMoveProjectComponent, {
+      data: {
+        secrets: event,
+        organizationId: this.organizationId,
+      },
+    });
   }
 }
