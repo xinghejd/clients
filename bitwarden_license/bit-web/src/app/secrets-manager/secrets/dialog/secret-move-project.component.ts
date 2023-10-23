@@ -16,12 +16,6 @@ export interface SecretMoveProjectOperation {
   organizationId: string;
 }
 
-/**
- * A future consideration for this component could be giving a summary
- * of changes about to be made something like:
- *
- * This will add a project to 14 secrets and overwrite the project of 3.
- */
 @Component({
   templateUrl: "./secret-move-project.component.html",
 })
