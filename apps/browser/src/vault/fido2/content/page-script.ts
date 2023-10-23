@@ -94,6 +94,7 @@ navigator.credentials.create = async (
     return WebauthnUtils.mapCredentialRegistrationResult(response.result);
   } catch (error) {
     if (error && error.fallbackRequested && fallbackSupported) {
+      await waitForFocus();
       return await browserCredentials.create(options);
     }
 
@@ -132,9 +133,20 @@ navigator.credentials.get = async (
     return WebauthnUtils.mapCredentialAssertResult(response.result);
   } catch (error) {
     if (error && error.fallbackRequested && fallbackSupported) {
+      await waitForFocus();
       return await browserCredentials.get(options);
     }
 
     throw error;
   }
 };
+
+function waitForFocus() {
+  if (document.hasFocus()) {
+    return;
+  }
+
+  return new Promise<void>((resolve) => {
+    window.addEventListener("focus", () => resolve(), { once: true });
+  });
+}
