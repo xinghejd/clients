@@ -473,7 +473,10 @@ export class SettingsComponent implements OnInit {
   }
 
   async import() {
-    this.router.navigate(["/import"]);
+    await this.router.navigate(["/import"]);
+    if (await BrowserApi.isPopupOpen()) {
+      BrowserPopupUtils.openCurrentPagePopout(window);
+    }
   }
 
   export() {
