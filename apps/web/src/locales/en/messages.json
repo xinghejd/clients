@@ -7324,12 +7324,6 @@
   "alreadyHaveAccount": {
     "message": "Already have an account?"
   },
-  "customBillingStart": {
-    "message": "Custom billing is not reflected. Visit the "
-  },
-  "customBillingEnd": {
-    "message": " page for latest invoicing."
-  },
   "typePasskey": {
     "message": "Passkey"
   },
