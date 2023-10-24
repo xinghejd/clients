@@ -217,10 +217,17 @@ export default class RuntimeBackground {
           return;
         }
 
-        try {
-          await openSsoAuthResultPopout(msg);
-        } catch {
-          this.logService.error("Unable to open sso popout tab");
+        if (msg.lastpass) {
+          this.messagingService.send("importCallbackLastPass", {
+            code: msg.code,
+            state: msg.state,
+          });
+        } else {
+          try {
+            await openSsoAuthResultPopout(msg);
+          } catch {
+            this.logService.error("Unable to open sso popout tab");
+          }
         }
         break;
       }
