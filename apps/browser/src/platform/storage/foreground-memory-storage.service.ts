@@ -30,10 +30,24 @@ export class ForegroundMemoryStorageService extends AbstractMemoryStorageService
     );
 
     this._backgroundResponses$
-      .pipe(filter((message) => message.action === "subject_update"))
+      .pipe(
+        filter(
+          (message) => message.action === "subject_update" || message.action === "initialization"
+        )
+      )
       .subscribe((message) => {
-        const update = message.data as StorageUpdate;
-        this.updatesSubject.next(update);
+        switch (message.action) {
+          case "initialization":
+            this.handleInitialize(message.data as [string, unknown][]); // Map entries as array
+            break;
+          case "subject_update":
+            this.handleSubjectUpdate(
+              message.data as StorageUpdate
+            );
+            break;
+          default:
+            throw new Error(`Unknown action: ${message.action}`);
+        }
       });
   }
 
@@ -78,10 +92,21 @@ export class ForegroundMemoryStorageService extends AbstractMemoryStorageService
     return result;
   }
 
-  private sendMessage(message: Omit<MemoryStoragePortMessage, "originator">) {
+  private sendMessage(data: Omit<MemoryStoragePortMessage, "originator">) {
     this._port.postMessage({
-      ...message,
+      ...data,
       originator: "foreground",
     });
+  }
+
+  private handleInitialize(data: [string, unknown][]) {
+    // TODO: this isn't a save, but we don't have a better indicator for this
+    data.forEach(([key, value]) => {
+      this.updatesSubject.next({ key, updateType: "save" });
+    });
+  }
+
+  private handleSubjectUpdate(data: StorageUpdate) {
+    this.updatesSubject.next(data);
   }
 }
