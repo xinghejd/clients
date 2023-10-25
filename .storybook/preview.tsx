@@ -5,6 +5,8 @@ import type { Preview } from "@storybook/angular";
 import docJson from "../documentation.json";
 setCompodocJson(docJson);
 
+document.body.classList.add("bit-select-container");
+
 const decorator = componentWrapperDecorator(
   (story) => {
     return `
