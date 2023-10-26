@@ -363,9 +363,7 @@ function mapToMakeCredentialParams({
     (params.authenticatorSelection?.residentKey === undefined &&
       params.authenticatorSelection?.requireResidentKey === true);
 
-  const requireUserVerification =
-    params.authenticatorSelection?.userVerification === "required" ||
-    params.authenticatorSelection?.userVerification === undefined;
+  const requireUserVerification = params.authenticatorSelection?.userVerification === "required";
 
   return {
     requireResidentKey,
@@ -402,8 +400,7 @@ function mapToGetAssertionParams({
       type: "public-key",
     }));
 
-  const requireUserVerification =
-    params.userVerification === "required" || params.userVerification === undefined;
+  const requireUserVerification = params.userVerification === "required";
 
   return {
     rpId: params.rpId,
