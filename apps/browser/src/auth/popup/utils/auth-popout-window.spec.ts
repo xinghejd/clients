@@ -22,30 +22,44 @@ describe("AuthPopoutWindow", () => {
   });
 
   describe("openUnlockPopout", () => {
-    it("opens a single action popup that allows the user to unlock the extension and sends a `bgUnlockPopoutOpened` message", async () => {
-      const senderTab = { windowId: 1 } as chrome.tabs.Tab;
+    let senderTab: chrome.tabs.Tab;
 
+    beforeEach(() => {
+      senderTab = { windowId: 1 } as chrome.tabs.Tab;
+    });
+
+    it("opens a single action popup that allows the user to unlock the extension and sends a `bgUnlockPopoutOpened` message", async () => {
       await openUnlockPopout(senderTab);
 
       expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html", {
         singleActionKey: AuthPopoutType.unlockExtension,
         senderWindowId: 1,
       });
-      expect(sendMessageDataSpy).toHaveBeenCalledWith(senderTab, "bgUnlockPopoutOpened");
+      expect(sendMessageDataSpy).toHaveBeenCalledWith(senderTab, "bgUnlockPopoutOpened", {
+        skipNotification: false,
+      });
+    });
+
+    it("sends an indication that the presenting the notification bar for unlocking the extension should be skipped", async () => {
+      await openUnlockPopout(senderTab, true);
+
+      expect(sendMessageDataSpy).toHaveBeenCalledWith(senderTab, "bgUnlockPopoutOpened", {
+        skipNotification: true,
+      });
     });
   });
 
   describe("closeUnlockPopout", () => {
-    it("closes the unlock extension popout window", () => {
-      closeUnlockPopout();
+    it("closes the unlock extension popout window", async () => {
+      await closeUnlockPopout();
 
-      expect(closeSingleActionPopoutSpy).toHaveBeenCalledWith("auth_unlockExtension");
+      expect(closeSingleActionPopoutSpy).toHaveBeenCalledWith(AuthPopoutType.unlockExtension);
     });
   });
 
   describe("openSsoAuthResultPopout", () => {
-    it("opens a window that facilitates presentation of the results for SSO authentication", () => {
-      openSsoAuthResultPopout({ code: "code", state: "state" });
+    it("opens a window that facilitates presentation of the results for SSO authentication", async () => {
+      await openSsoAuthResultPopout({ code: "code", state: "state" });
 
       expect(openPopoutSpy).toHaveBeenCalledWith("popup/index.html#/sso?code=code&state=state", {
         singleActionKey: AuthPopoutType.ssoAuthResult,
@@ -54,8 +68,8 @@ describe("AuthPopoutWindow", () => {
   });
 
   describe("openTwoFactorAuthPopout", () => {
-    it("opens a window that facilitates two factor authentication", () => {
-      openTwoFactorAuthPopout({ data: "data", remember: "remember" });
+    it("opens a window that facilitates two factor authentication", async () => {
+      await openTwoFactorAuthPopout({ data: "data", remember: "remember" });
 
       expect(openPopoutSpy).toHaveBeenCalledWith(
         "popup/index.html#/2fa;webAuthnResponse=data;remember=remember",
@@ -65,10 +79,10 @@ describe("AuthPopoutWindow", () => {
   });
 
   describe("closeTwoFactorAuthPopout", () => {
-    it("closes the two-factor authentication window", () => {
-      closeTwoFactorAuthPopout();
+    it("closes the two-factor authentication window", async () => {
+      await closeTwoFactorAuthPopout();
 
-      expect(closeSingleActionPopoutSpy).toHaveBeenCalledWith("auth_twoFactorAuth");
+      expect(closeSingleActionPopoutSpy).toHaveBeenCalledWith(AuthPopoutType.twoFactorAuth);
     });
   });
 });

@@ -36,4 +36,5 @@ export class GlobalState {
   enableBrowserIntegrationFingerprint?: boolean;
   enableDuckDuckGoBrowserIntegration?: boolean;
   region?: string;
+  autoFillOverlayVisibility?: number;
 }

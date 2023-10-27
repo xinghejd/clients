@@ -8,16 +8,18 @@ import {
   FormElementWithAttribute,
 } from "../types";
 
+import { AutofillOverlayContentService } from "./abstractions/autofill-overlay-content.service";
 import {
   UpdateAutofillDataAttributeParams,
   AutofillFieldElements,
   AutofillFormElements,
   CollectAutofillContentService as CollectAutofillContentServiceInterface,
 } from "./abstractions/collect-autofill-content.service";
-import DomElementVisibilityService from "./dom-element-visibility.service";
+import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 
 class CollectAutofillContentService implements CollectAutofillContentServiceInterface {
   private readonly domElementVisibilityService: DomElementVisibilityService;
+  private readonly autofillOverlayContentService: AutofillOverlayContentService;
   private noFieldsFound = false;
   private domRecentlyMutated = true;
   private autofillFormElements: AutofillFormElements = new Map();
@@ -27,8 +29,12 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
   private updateAutofillElementsAfterMutationTimeout: NodeJS.Timeout;
   private readonly updateAfterMutationTimeoutDelay = 1000;
 
-  constructor(domElementVisibilityService: DomElementVisibilityService) {
+  constructor(
+    domElementVisibilityService: DomElementVisibilityService,
+    autofillOverlayContentService?: AutofillOverlayContentService
+  ) {
     this.domElementVisibilityService = domElementVisibilityService;
+    this.autofillOverlayContentService = autofillOverlayContentService;
   }
 
   /**
@@ -324,6 +330,10 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
 
     if (element instanceof HTMLSpanElement) {
       this.autofillFieldElements.set(element, autofillFieldBase);
+      this.autofillOverlayContentService?.setupAutofillOverlayListenerOnField(
+        element,
+        autofillFieldBase
+      );
       return autofillFieldBase;
     }
 
@@ -361,6 +371,7 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
     };
 
     this.autofillFieldElements.set(element, autofillField);
+    this.autofillOverlayContentService?.setupAutofillOverlayListenerOnField(element, autofillField);
     return autofillField;
   };
 

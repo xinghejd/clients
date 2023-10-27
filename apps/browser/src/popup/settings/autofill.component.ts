@@ -17,11 +17,11 @@ import { BrowserApi } from "../../platform/browser/browser-api";
   templateUrl: "autofill.component.html",
 })
 export class AutofillComponent implements OnInit {
-  canOverrideBrowserAutofillSetting = false;
-  defaultBrowserAutofillDisabled = false;
-  isAutoFillOverlayFlagEnabled = false;
-  autoFillOverlayVisibility: number;
-  autoFillOverlayVisibilityOptions: any[];
+  protected canOverrideBrowserAutofillSetting = false;
+  protected defaultBrowserAutofillDisabled = false;
+  protected isAutoFillOverlayFlagEnabled = false;
+  protected autoFillOverlayVisibility: number;
+  protected autoFillOverlayVisibilityOptions: any[];
   enableAutoFillOnPageLoad = false;
   autoFillOnPageLoadDefault = false;
   autoFillOnPageLoadOptions: any[];

@@ -233,8 +233,6 @@ export class AccountSettings {
   dontShowCardsCurrentTab?: boolean;
   dontShowIdentitiesCurrentTab?: boolean;
   enableAlwaysOnTop?: boolean;
-  enableAutoFillOverlay?: boolean;
-  autoFillOverlayVisibility?: number;
   enableAutoFillOnPageLoad?: boolean;
   enableBiometric?: boolean;
   enableFullWidth?: boolean;
