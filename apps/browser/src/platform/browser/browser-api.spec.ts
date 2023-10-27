@@ -51,6 +51,16 @@ describe("BrowserApi", () => {
     });
   });
 
+  describe("removeWindow", () => {
+    it("removes the window based on the passed window id", () => {
+      const windowId = 10;
+
+      BrowserApi.removeWindow(windowId);
+
+      expect(chrome.windows.remove).toHaveBeenCalledWith(windowId, expect.anything());
+    });
+  });
+
   describe("updateWindowProperties", () => {
     it("will update the window with the provided window options", () => {
       const windowId = 1;
@@ -79,16 +89,6 @@ describe("BrowserApi", () => {
         { focused: true },
         expect.anything()
       );
-    });
-  });
-
-  describe("removeTab", () => {
-    it("removes the tab based on the passed tab id", () => {
-      const tabId = 10;
-
-      BrowserApi.removeTab(tabId);
-
-      expect(chrome.tabs.remove).toHaveBeenCalledWith(tabId, expect.anything());
     });
   });
 

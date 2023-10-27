@@ -39,7 +39,6 @@ const tabs = {
   executeScript: jest.fn(),
   sendMessage: jest.fn(),
   query: jest.fn(),
-  remove: jest.fn(),
 };
 
 const scripting = {
@@ -51,6 +50,7 @@ const windows = {
   get: jest.fn(),
   getCurrent: jest.fn(),
   update: jest.fn(),
+  remove: jest.fn(),
 };
 
 // set chrome

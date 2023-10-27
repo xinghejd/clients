@@ -340,24 +340,27 @@ describe("BrowserPopupUtils", () => {
         createChromeTabMock({
           id: 10,
           url: `chrome-extension://id/${url}?uilocation=popout&singleActionPopout=123`,
+          windowId: 11,
         }),
         createChromeTabMock({
           id: 20,
           url: `chrome-extension://id/${url}?uilocation=popout&singleActionPopout=123`,
+          windowId: 21,
         }),
         createChromeTabMock({
           id: 30,
           url: `chrome-extension://id/${url}?uilocation=popout&singleActionPopout=456`,
+          windowId: 31,
         }),
       ]);
-      jest.spyOn(BrowserApi, "removeTab").mockResolvedValueOnce();
+      jest.spyOn(BrowserApi, "removeWindow").mockResolvedValueOnce();
 
       await BrowserPopupUtils.closeSingleActionPopout("123");
       jest.runOnlyPendingTimers();
 
-      expect(BrowserApi.removeTab).toHaveBeenNthCalledWith(1, 10);
-      expect(BrowserApi.removeTab).toHaveBeenNthCalledWith(2, 20);
-      expect(BrowserApi.removeTab).not.toHaveBeenCalledWith(30);
+      expect(BrowserApi.removeWindow).toHaveBeenNthCalledWith(1, 11);
+      expect(BrowserApi.removeWindow).toHaveBeenNthCalledWith(2, 21);
+      expect(BrowserApi.removeWindow).not.toHaveBeenCalledWith(31);
     });
   });
 
@@ -375,7 +378,7 @@ describe("BrowserPopupUtils", () => {
 
     beforeEach(() => {
       jest.spyOn(BrowserApi, "updateWindowProperties").mockImplementation();
-      jest.spyOn(BrowserApi, "removeTab").mockImplementation();
+      jest.spyOn(BrowserApi, "removeWindow").mockImplementation();
     });
 
     it("returns false if the popoutKey is not provided", async () => {
@@ -439,7 +442,7 @@ describe("BrowserPopupUtils", () => {
         top: 100,
         left: 100,
       });
-      expect(BrowserApi.removeTab).toHaveBeenCalledTimes(1);
+      expect(BrowserApi.removeWindow).toHaveBeenCalledTimes(1);
     });
   });
 });

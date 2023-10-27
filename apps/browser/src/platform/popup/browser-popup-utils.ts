@@ -160,7 +160,7 @@ class BrowserPopupUtils {
         continue;
       }
 
-      setTimeout(() => BrowserApi.removeTab(tab.id), delayClose);
+      setTimeout(() => BrowserApi.removeWindow(tab.windowId), delayClose);
     }
   }
 
@@ -216,7 +216,7 @@ class BrowserPopupUtils {
     if (!forceCloseExistingWindows) {
       // Update first, remove it from list
       const tab = popoutTabs.shift();
-      BrowserApi.updateWindowProperties(tab.windowId, {
+      await BrowserApi.updateWindowProperties(tab.windowId, {
         focused: true,
         width: windowInfo.width,
         height: windowInfo.height,
@@ -225,7 +225,7 @@ class BrowserPopupUtils {
       });
     }
 
-    popoutTabs.forEach((tab) => BrowserApi.removeTab(tab.id));
+    popoutTabs.forEach((tab) => BrowserApi.removeWindow(tab.windowId));
 
     return true;
   }

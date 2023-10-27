@@ -57,6 +57,15 @@ export class BrowserApi {
   }
 
   /**
+   * Removes the window with the given id.
+   *
+   * @param windowId - The id of the window to remove.
+   */
+  static async removeWindow(windowId: number): Promise<void> {
+    return new Promise((resolve) => chrome.windows.remove(windowId, () => resolve()));
+  }
+
+  /**
    * Updates the properties of the window with the given id.
    *
    * @param windowId - The id of the window to update.
@@ -177,15 +186,6 @@ export class BrowserApi {
     responseCallback?: (response: T) => void
   ) {
     chrome.tabs.sendMessage<TabMessage, T>(tabId, message, options, responseCallback);
-  }
-
-  /**
-   * Removes the tab with the given id.
-   *
-   * @param tabId - The id of the tab to remove.
-   */
-  static removeTab(tabId: number): Promise<void> {
-    return new Promise((resolve) => chrome.tabs.remove(tabId, () => resolve()));
   }
 
   static async getPrivateModeWindows(): Promise<browser.windows.Window[]> {
