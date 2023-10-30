@@ -272,7 +272,7 @@ export class SettingsComponent implements OnInit {
 
     await this.vaultTimeoutSettingsService.setVaultTimeoutOptions(
       newValue,
-      this.form.value.vaultTimeoutAction
+      await firstValueFrom(this.vaultTimeoutSettingsService.vaultTimeoutAction$())
     );
     if (newValue == null) {
       this.messagingService.send("bgReseedStorage");
@@ -370,7 +370,7 @@ export class SettingsComponent implements OnInit {
 
       await Promise.race([
         awaitDesktopDialogClosed.then(async (result) => {
-          if (result) {
+          if (result !== true) {
             this.form.controls.biometric.setValue(false);
             await this.stateService.setBiometricAwaitingAcceptance(null);
           }
@@ -402,7 +402,7 @@ export class SettingsComponent implements OnInit {
             });
           })
           .finally(() => {
-            awaitDesktopDialogRef.close(false);
+            awaitDesktopDialogRef.close(true);
           }),
       ]);
     } else {
