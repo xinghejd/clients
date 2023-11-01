@@ -94,9 +94,9 @@ export default class RuntimeBackground {
           await closeUnlockPopout();
         }
 
+        await this.notificationsService.updateConnection(msg.command === "loggedIn");
         await this.main.refreshBadge();
         await this.main.refreshMenu(false);
-        this.notificationsService.updateConnection(msg.command === "unlocked");
         this.systemService.cancelProcessReload();
 
         if (item) {
