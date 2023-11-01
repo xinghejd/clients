@@ -22,6 +22,14 @@ export default class TabsBackground {
 
     this.updateCurrentTabData();
 
+    // eslint-disable-next-line
+    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+      if (message.command === "unlockCompleted") {
+        // TODO - I do not like this implementation, it's flaky and not guaranteed to work. We need to figure a way to handle updating these ciphers on login after the cipher data has been decrypted.
+        setTimeout(() => this.updateCurrentTabData(), 1000);
+      }
+    });
+
     chrome.windows.onFocusChanged.addListener(this.handleWindowOnFocusChanged);
     chrome.tabs.onActivated.addListener(this.handleTabOnActivated);
     chrome.tabs.onReplaced.addListener(this.handleTabOnReplaced);
