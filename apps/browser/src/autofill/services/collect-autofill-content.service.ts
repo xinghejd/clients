@@ -1205,6 +1205,10 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
 
     return attributeValue;
   }
+
+  destroy() {
+    this.mutationObserver?.disconnect();
+  }
 }
 
 export default CollectAutofillContentService;

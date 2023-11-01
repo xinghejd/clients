@@ -33,6 +33,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   isOverlayCiphersPopulated = false;
   private readonly findTabs = tabbable;
   private readonly sendExtensionMessage = sendExtensionMessage;
+  private formFieldElements: Set<ElementWithOpId<FormFieldElement>> = new Set([]);
   private autofillOverlayVisibility: number;
   private userFilledFields: Record<string, FillableFormFieldElement> = {};
   private authStatus: AuthenticationStatus;
@@ -46,6 +47,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   private userInteractionEventTimeout: NodeJS.Timeout;
   private overlayElementsMutationObserver: MutationObserver;
   private bodyElementMutationObserver: MutationObserver;
+  private documentElementMutationObserver: MutationObserver;
   private mutationObserverIterations = 0;
   private mutationObserverIterationsResetTimeout: NodeJS.Timeout;
   private autofillFieldKeywordsMap: WeakMap<AutofillField, string> = new WeakMap();
@@ -84,6 +86,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     if (this.isIgnoredField(autofillFieldData)) {
       return;
     }
+
+    this.formFieldElements.add(formFieldElement);
 
     if (!this.autofillOverlayVisibility) {
       await this.getAutofillOverlayVisibility();
@@ -867,10 +871,10 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       this.handleBodyElementMutationObserverUpdate
     );
 
-    const documentElementMutationObserver = new MutationObserver(
+    this.documentElementMutationObserver = new MutationObserver(
       this.handleDocumentElementMutationObserverUpdate
     );
-    documentElementMutationObserver.observe(globalThis.document.documentElement, {
+    this.documentElementMutationObserver.observe(globalThis.document.documentElement, {
       childList: true,
     });
   };
@@ -1068,6 +1072,17 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   private getRootNodeActiveElement(element: Element): Element {
     const documentRoot = element.getRootNode() as ShadowRoot | Document;
     return documentRoot?.activeElement;
+  }
+
+  destroy() {
+    this.documentElementMutationObserver?.disconnect();
+    this.removeAutofillOverlay();
+    this.removeOverlayRepositionEventListeners();
+    this.formFieldElements.forEach((formFieldElement) => {
+      this.removeCachedFormFieldEventListeners(formFieldElement);
+      formFieldElement.removeEventListener(EVENTS.BLUR, this.handleFormFieldBlurEvent);
+      formFieldElement.removeEventListener(EVENTS.KEYUP, this.handleFormFieldKeyupEvent);
+    });
   }
 }
 

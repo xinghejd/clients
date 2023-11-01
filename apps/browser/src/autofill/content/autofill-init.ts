@@ -4,6 +4,7 @@ import { AutofillOverlayContentService } from "../services/abstractions/autofill
 import CollectAutofillContentService from "../services/collect-autofill-content.service";
 import DomElementVisibilityService from "../services/dom-element-visibility.service";
 import InsertAutofillContentService from "../services/insert-autofill-content.service";
+import { sendExtensionMessage } from "../utils/utils";
 
 import {
   AutofillExtensionMessage,
@@ -78,8 +79,7 @@ class AutofillInit implements AutofillInitInterface {
       return pageDetails;
     }
 
-    chrome.runtime.sendMessage({
-      command: "collectPageDetailsResponse",
+    sendExtensionMessage("collectPageDetailsResponse", {
       tab: message.tab,
       details: pageDetails,
       sender: message.sender,
@@ -239,6 +239,12 @@ class AutofillInit implements AutofillInitInterface {
     Promise.resolve(messageResponse).then((response) => sendResponse(response));
     return true;
   };
+
+  destroy() {
+    chrome.runtime.onMessage.removeListener(this.handleExtensionMessage);
+    this.autofillOverlayContentService?.destroy();
+    this.collectAutofillContentService.destroy();
+  }
 }
 
 export default AutofillInit;

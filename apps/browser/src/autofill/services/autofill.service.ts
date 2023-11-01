@@ -57,6 +57,12 @@ export default class AutofillService implements AutofillServiceInterface {
         this.injectAutofillScripts(tab);
       }
     }
+
+    chrome.runtime.onConnect.addListener((port) => {
+      if (port.name === "autofill") {
+        // TODO - What are we wanting to do here?
+      }
+    });
   }
 
   /**
