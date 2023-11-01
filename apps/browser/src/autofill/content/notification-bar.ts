@@ -121,6 +121,24 @@ async function loadNotificationBar() {
     }
   }
 
+  const port = chrome.runtime.connect({ name: "content-script-channel" });
+  port.onDisconnect.addListener(() => {
+    clearTimeout(domObservationCollectTimeoutId);
+    clearTimeout(collectPageDetailsTimeoutId);
+    clearTimeout(handlePageChangeTimeoutId);
+    observer?.disconnect();
+    observer = null;
+    watchedForms.forEach((wf: WatchedForm) => {
+      const form = wf.formEl;
+      form.removeEventListener("submit", formSubmitted, false);
+      const submitButton = getSubmitButton(
+        form,
+        unionSets(logInButtonNames, changePasswordButtonNames)
+      );
+      submitButton?.removeEventListener("click", formSubmitted, false);
+    });
+  });
+
   if (!showNotificationBar) {
     return;
   }

@@ -59,8 +59,8 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     chrome.runtime.onConnect.addListener((port) => {
-      if (port.name === "autofill") {
-        // TODO - What are we wanting to do here?
+      if (port.name === "content-script-channel") {
+        port.postMessage({ command: "content-script-channel-connected" });
       }
     });
   }
@@ -104,6 +104,11 @@ export default class AutofillService implements AutofillServiceInterface {
         runAt: "document_start",
       });
     }
+
+    await BrowserApi.executeScriptInTab(tab.id, {
+      file: "content/message_handler.js",
+      runAt: "document_start",
+    });
   }
 
   /**

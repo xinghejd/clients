@@ -7,7 +7,7 @@ import AutofillInit from "./autofill-init";
     const autofillOverlayContentService = new AutofillOverlayContentService();
     windowContext.bitwardenAutofillInit = new AutofillInit(autofillOverlayContentService);
 
-    const port = chrome.runtime.connect({ name: "autofill" });
+    const port = chrome.runtime.connect({ name: "content-script-channel" });
     port.onDisconnect.addListener(() => {
       windowContext.bitwardenAutofillInit.destroy();
       delete windowContext.bitwardenAutofillInit;

@@ -1207,6 +1207,9 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
   }
 
   destroy() {
+    if (this.updateAutofillElementsAfterMutationTimeout) {
+      clearTimeout(this.updateAutofillElementsAfterMutationTimeout);
+    }
     this.mutationObserver?.disconnect();
   }
 }

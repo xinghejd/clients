@@ -1076,6 +1076,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
 
   destroy() {
     this.documentElementMutationObserver?.disconnect();
+    this.clearUserInteractionEventTimeout();
     this.removeAutofillOverlay();
     this.removeOverlayRepositionEventListeners();
     this.formFieldElements.forEach((formFieldElement) => {

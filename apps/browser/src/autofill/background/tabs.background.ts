@@ -20,6 +20,8 @@ export default class TabsBackground {
       return;
     }
 
+    this.updateCurrentTabData();
+
     chrome.windows.onFocusChanged.addListener(this.handleWindowOnFocusChanged);
     chrome.tabs.onActivated.addListener(this.handleTabOnActivated);
     chrome.tabs.onReplaced.addListener(this.handleTabOnReplaced);
