@@ -1,5 +1,4 @@
 import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -131,11 +130,7 @@ export default class RuntimeBackground {
         await this.main.openPopup();
         break;
       case "triggerAutofillScriptInjection":
-        await this.autofillService.injectAutofillScripts(
-          sender,
-          await this.configService.getFeatureFlag<boolean>(FeatureFlag.AutofillV2),
-          await this.configService.getFeatureFlag<boolean>(FeatureFlag.AutofillOverlay)
-        );
+        await this.autofillService.injectAutofillScripts(sender.tab, sender.frameId);
         break;
       case "bgCollectPageDetails":
         await this.main.collectPageDetailsForContentScript(sender.tab, msg.sender, sender.frameId);

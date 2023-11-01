@@ -8,7 +8,9 @@ import {
   LoginLinkedId,
   UriMatchType,
 } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ConfigService } from "@bitwarden/common/platform/services/config/config.service";
 import { EventCollectionService } from "@bitwarden/common/services/event/event-collection.service";
 import { SettingsService } from "@bitwarden/common/services/settings.service";
 import { TotpService } from "@bitwarden/common/services/totp.service";
@@ -54,6 +56,7 @@ describe("AutofillService", () => {
   const logService = mock<LogService>();
   const settingsService = mock<SettingsService>();
   const userVerificationService = mock<UserVerificationService>();
+  const configService = mock<ConfigService>();
 
   beforeEach(() => {
     autofillService = new AutofillService(
@@ -63,7 +66,8 @@ describe("AutofillService", () => {
       eventCollectionService,
       logService,
       settingsService,
-      userVerificationService
+      userVerificationService,
+      configService
     );
   });
 
@@ -83,12 +87,12 @@ describe("AutofillService", () => {
 
     beforeEach(() => {
       tabMock = createChromeTabMock();
-      sender = { tab: tabMock };
+      sender = { tab: tabMock, frameId: 1 };
       jest.spyOn(BrowserApi, "executeScriptInTab").mockImplementation();
     });
 
     it("accepts an extension message sender and injects the autofill scripts into the tab of the sender", async () => {
-      await autofillService.injectAutofillScripts(sender);
+      await autofillService.injectAutofillScripts(sender.tab, sender.frameId);
 
       [autofillV1Script, ...defaultAutofillScripts].forEach((scriptName) => {
         expect(BrowserApi.executeScriptInTab).toHaveBeenCalledWith(tabMock.id, {
@@ -105,7 +109,11 @@ describe("AutofillService", () => {
     });
 
     it("will inject the bootstrap-autofill script if the enableAutofillV2 flag is set", async () => {
-      await autofillService.injectAutofillScripts(sender, true);
+      jest
+        .spyOn(configService, "getFeatureFlag")
+        .mockImplementation((flag) => Promise.resolve(flag === FeatureFlag.AutofillV2));
+
+      await autofillService.injectAutofillScripts(sender.tab, sender.frameId);
 
       expect(BrowserApi.executeScriptInTab).toHaveBeenCalledWith(tabMock.id, {
         file: `content/${autofillV2BootstrapScript}`,
@@ -123,8 +131,9 @@ describe("AutofillService", () => {
       jest
         .spyOn(autofillService["settingsService"], "getAutoFillOverlayVisibility")
         .mockResolvedValue(AutofillOverlayVisibility.OnFieldFocus);
+      jest.spyOn(configService, "getFeatureFlag").mockImplementation(() => Promise.resolve(true));
 
-      await autofillService.injectAutofillScripts(sender, true, true);
+      await autofillService.injectAutofillScripts(sender.tab, sender.frameId);
 
       expect(BrowserApi.executeScriptInTab).toHaveBeenCalledWith(tabMock.id, {
         file: `content/${autofillOverlayBootstrapScript}`,
@@ -147,11 +156,15 @@ describe("AutofillService", () => {
       jest
         .spyOn(autofillService["settingsService"], "getAutoFillOverlayVisibility")
         .mockResolvedValue(AutofillOverlayVisibility.Off);
+      jest
+        .spyOn(configService, "getFeatureFlag")
+        .mockImplementation((flag) => Promise.resolve(flag === FeatureFlag.AutofillV2));
 
-      await autofillService.injectAutofillScripts(sender, true, true);
+      await autofillService.injectAutofillScripts(sender.tab, sender.frameId);
 
       expect(BrowserApi.executeScriptInTab).toHaveBeenCalledWith(tabMock.id, {
         file: `content/${autofillV2BootstrapScript}`,
+        frameId: sender.frameId,
         ...defaultExecuteScriptOptions,
       });
       expect(BrowserApi.executeScriptInTab).not.toHaveBeenCalledWith(tabMock.id, {

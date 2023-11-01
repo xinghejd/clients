@@ -45,11 +45,8 @@ export interface GenerateFillScriptOptions {
 }
 
 export abstract class AutofillService {
-  injectAutofillScripts: (
-    sender: chrome.runtime.MessageSender,
-    autofillV2?: boolean,
-    autofillOverlay?: boolean
-  ) => Promise<void>;
+  init: () => Promise<void>;
+  injectAutofillScripts: (tab: chrome.tabs.Tab, frameId?: number) => Promise<void>;
   getFormsWithPasswordFields: (pageDetails: AutofillPageDetails) => FormData[];
   doAutoFill: (options: AutoFillOptions) => Promise<string | null>;
   doAutoFillOnTab: (

@@ -3,6 +3,8 @@ import { SettingsService } from "@bitwarden/common/abstractions/settings.service
 import { TotpService } from "@bitwarden/common/abstractions/totp.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { EventType, FieldType, UriMatchType } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
@@ -43,24 +45,33 @@ export default class AutofillService implements AutofillServiceInterface {
     private eventCollectionService: EventCollectionService,
     private logService: LogService,
     private settingsService: SettingsService,
-    private userVerificationService: UserVerificationService
+    private userVerificationService: UserVerificationService,
+    private configService: ConfigServiceAbstraction
   ) {}
+
+  async init() {
+    const tabs = await BrowserApi.tabsQuery({});
+    for (let index = 0; index < tabs.length; index++) {
+      const tab = tabs[index];
+      if (tab.url?.startsWith("http")) {
+        this.injectAutofillScripts(tab);
+      }
+    }
+  }
 
   /**
    * Injects the autofill scripts into the current tab and all frames
    * found within the tab. Temporarily, will conditionally inject
    * the refactor of the core autofill script if the feature flag
    * is enabled.
-   * @param {chrome.runtime.MessageSender} sender
-   * @param {boolean} autofillV2
-   * @param {boolean} autofillOverlay
-   * @returns {Promise<void>}
+   * @param {chrome.tabs.Tab} tab
+   * @param {number} frameId
    */
-  async injectAutofillScripts(
-    sender: chrome.runtime.MessageSender,
-    autofillV2 = false,
-    autofillOverlay = false
-  ) {
+  async injectAutofillScripts(tab: chrome.tabs.Tab, frameId = 0): Promise<void> {
+    const autofillV2 = await this.configService.getFeatureFlag<boolean>(FeatureFlag.AutofillV2);
+    const autofillOverlay = await this.configService.getFeatureFlag<boolean>(
+      FeatureFlag.AutofillOverlay
+    );
     let mainAutofillScript = "autofill.js";
 
     const isUsingAutofillOverlay =
@@ -81,9 +92,9 @@ export default class AutofillService implements AutofillServiceInterface {
     ];
 
     for (const injectedScript of injectedScripts) {
-      await BrowserApi.executeScriptInTab(sender.tab.id, {
+      await BrowserApi.executeScriptInTab(tab.id, {
         file: `content/${injectedScript}`,
-        frameId: sender.frameId,
+        frameId,
         runAt: "document_start",
       });
     }
