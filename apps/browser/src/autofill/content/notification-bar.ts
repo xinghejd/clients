@@ -123,6 +123,7 @@ async function loadNotificationBar() {
 
   const port = chrome.runtime.connect({ name: "content-script-channel" });
   port.onDisconnect.addListener(() => {
+    closeBar(false);
     clearTimeout(domObservationCollectTimeoutId);
     clearTimeout(collectPageDetailsTimeoutId);
     clearTimeout(handlePageChangeTimeoutId);
