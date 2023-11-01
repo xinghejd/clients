@@ -549,20 +549,14 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   async editCipherCollections(cipher: CipherView) {
     const currCollections = await firstValueFrom(this.vaultFilterService.filteredCollections$);
-    const [modal] = await this.modalService.openViewRef(
-      CollectionsComponent,
-      this.collectionsModalRef,
-      (comp) => {
-        comp.collectionIds = cipher.collectionIds;
-        comp.collections = currCollections.filter((c) => !c.readOnly && c.id != Unassigned);
-        comp.organization = this.organization;
-        comp.cipherId = cipher.id;
-        comp.onSavedCollections.pipe(takeUntil(this.destroy$)).subscribe(() => {
-          modal.close();
-          this.refresh();
-        });
-      }
-    );
+    this.dialogService.open(CollectionsComponent, {
+      data: {
+        collectionId: cipher.collectionIds,
+        collections: currCollections.filter((c) => !c.readOnly && c.id != Unassigned),
+        organization: this.organization,
+        cipherId: cipher.id,
+      },
+    });
   }
 
   async addCipher() {

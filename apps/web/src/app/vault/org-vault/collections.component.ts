@@ -1,4 +1,5 @@
-import { Component } from "@angular/core";
+import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
+import { Component, Inject } from "@angular/core";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -10,6 +11,8 @@ import { CollectionService } from "@bitwarden/common/vault/abstractions/collecti
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherCollectionsRequest } from "@bitwarden/common/vault/models/request/cipher-collections.request";
+import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
+import { DialogService } from "@bitwarden/components";
 
 import { CollectionsComponent as BaseCollectionsComponent } from "../individual-vault/collections.component";
 
@@ -26,10 +29,16 @@ export class CollectionsComponent extends BaseCollectionsComponent {
     i18nService: I18nService,
     cipherService: CipherService,
     private apiService: ApiService,
-    logService: LogService
+    logService: LogService,
+    protected dialogRef?: DialogRef<CollectionsDialogResult>,
+    @Inject(DIALOG_DATA) params?: CollectionsDialogParams
   ) {
     super(collectionService, platformUtilsService, i18nService, cipherService, logService);
     this.allowSelectNone = true;
+    this.collectionIds = params?.collectionIds;
+    this.collections = params?.collections;
+    this.organization = params?.organization;
+    this.cipherId = params?.cipherId;
   }
 
   protected async loadCipher() {
@@ -62,4 +71,32 @@ export class CollectionsComponent extends BaseCollectionsComponent {
       return super.saveCollections();
     }
   }
+}
+
+export interface CollectionsDialogParams {
+  collectionIds: string[];
+  collections: CollectionView[];
+  organization: Organization;
+  cipherId: string;
+}
+
+export enum CollectionsDialogResult {
+  Deleted = "deleted",
+  Canceled = "canceled",
+  Saved = "saved",
+}
+
+/**
+ * Strongly typed helper to open a Collections dialog
+ * @param dialogService Instance of the dialog service that will be used to open the dialog
+ * @param config Optional configuration for the dialog
+ */
+export function collectionsDialog(
+  dialogService: DialogService,
+  config?: DialogConfig<CollectionsDialogParams>
+) {
+  return dialogService.open<CollectionsDialogResult, CollectionsDialogParams>(
+    CollectionsComponent,
+    config
+  );
 }
