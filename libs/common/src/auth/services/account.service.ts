@@ -5,23 +5,21 @@ import { AccountInfo, InternalAccountService } from "../../auth/abstractions/acc
 import { LogService } from "../../platform/abstractions/log.service";
 import { MessagingService } from "../../platform/abstractions/messaging.service";
 import {
-  ACCOUNT_ACCOUNTS,
-  ACCOUNT_ACTIVE_ACCOUNT_ID,
+  ACCOUNT_MEMORY,
   GlobalState,
   GlobalStateProvider,
+  KeyDefinition,
 } from "../../platform/state";
 import { UserId } from "../../types/guid";
 import { AuthenticationStatus } from "../enums/authentication-status";
 
-export function AccountsDeserializer(
-  accounts: Jsonify<Record<UserId, AccountInfo> | null>
-): Record<UserId, AccountInfo> {
-  if (accounts == null) {
-    return {};
-  }
+export const ACCOUNT_ACCOUNTS = KeyDefinition.record(ACCOUNT_MEMORY, "accounts", {
+  deserializer: (accountInfo: Jsonify<AccountInfo>) => accountInfo,
+});
 
-  return accounts;
-}
+export const ACCOUNT_ACTIVE_ACCOUNT_ID = new KeyDefinition(ACCOUNT_MEMORY, "activeAccountId", {
+  deserializer: (id: UserId) => id,
+});
 
 export class AccountServiceImplementation implements InternalAccountService {
   private lock = new Subject<UserId>();
@@ -36,7 +34,7 @@ export class AccountServiceImplementation implements InternalAccountService {
     return this.activeAccountIdState.state$.pipe(
       combineLatestWith(this.accounts$),
       map(([id, accounts]) => (id ? { id, ...accounts[id] } : undefined)),
-      distinctUntilChanged(),
+      distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)), // TODO: better comparison
       shareReplay({ bufferSize: 1, refCount: false })
     );
   }
@@ -51,24 +49,24 @@ export class AccountServiceImplementation implements InternalAccountService {
     this.activeAccountIdState = this.globalStateProvider.get(ACCOUNT_ACTIVE_ACCOUNT_ID);
   }
 
-  addAccount(userId: UserId, accountData: AccountInfo): void {
-    this.accountsState.update((accounts) => {
+  async addAccount(userId: UserId, accountData: AccountInfo): Promise<void> {
+    await this.accountsState.update((accounts) => {
       accounts ||= {};
       accounts[userId] = accountData;
       return accounts;
     });
   }
 
-  setAccountName(userId: UserId, name: string): void {
-    this.setAccountInfo(userId, { name });
+  async setAccountName(userId: UserId, name: string): Promise<void> {
+    await this.setAccountInfo(userId, { name });
   }
 
-  setAccountEmail(userId: UserId, email: string): void {
-    this.setAccountInfo(userId, { email });
+  async setAccountEmail(userId: UserId, email: string): Promise<void> {
+    await this.setAccountInfo(userId, { email });
   }
 
-  setAccountStatus(userId: UserId, status: AuthenticationStatus): void {
-    this.setAccountInfo(userId, { status });
+  async setAccountStatus(userId: UserId, status: AuthenticationStatus): Promise<void> {
+    await this.setAccountInfo(userId, { status });
 
     if (status === AuthenticationStatus.LoggedOut) {
       this.logout.next(userId);
@@ -77,8 +75,8 @@ export class AccountServiceImplementation implements InternalAccountService {
     }
   }
 
-  switchAccount(userId: UserId) {
-    this.activeAccountIdState.update(
+  async switchAccount(userId: UserId): Promise<void> {
+    await this.activeAccountIdState.update(
       (_, accounts) => {
         if (userId == null) {
           // indicates no account is active
@@ -92,6 +90,10 @@ export class AccountServiceImplementation implements InternalAccountService {
       },
       {
         combineLatestWith: this.accounts$,
+        shouldUpdate: (id) => {
+          // update only if userId changes
+          return id !== userId;
+        },
       }
     );
   }
@@ -106,11 +108,11 @@ export class AccountServiceImplementation implements InternalAccountService {
     }
   }
 
-  private setAccountInfo(userId: UserId, update: Partial<AccountInfo>) {
+  private async setAccountInfo(userId: UserId, update: Partial<AccountInfo>): Promise<void> {
     function newAccountInfo(oldAccountInfo: AccountInfo): AccountInfo {
       return { ...oldAccountInfo, ...update };
     }
-    this.accountsState.update(
+    await this.accountsState.update(
       (accounts) => {
         accounts[userId] = newAccountInfo(accounts[userId]);
         return accounts;
