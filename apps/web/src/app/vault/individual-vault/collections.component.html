@@ -20,26 +20,22 @@
       <div *ngIf="!collections || !collections.length">
         {{ "noCollectionsInList" | i18n }}
       </div>
-      <div class="modal-body">
-        <bit-table *ngIf="collections && collections.length">
-          <ng-template body>
-            <tr bitRow *ngFor="let c of collections; let i = index" (click)="check(c)">
-              <td bitCell>
-                <input
-                  type="checkbox"
-                  bitCheckbox
-                  [(ngModel)]="$any(c).checked"
-                  name="Collection[{{ i }}].Checked"
-                  appStopProp
-                />
-              </td>
-              <td bitCell>
-                {{ c.name }}
-              </td>
-            </tr>
-          </ng-template>
-        </bit-table>
-      </div>
+      <bit-table *ngIf="collections && collections.length">
+        <ng-template body>
+          <tr bitRow *ngFor="let c of collections; let i = index" (click)="check(c)">
+            <td bitCell>
+              <input
+                type="checkbox"
+                bitCheckbox
+                [(ngModel)]="$any(c).checked"
+                name="Collection[{{ i }}].Checked"
+                appStopProp
+              />
+              {{ c.name }}
+            </td>
+          </tr>
+        </ng-template>
+      </bit-table>
     </ng-container>
     <ng-container bitDialogFooter>
       <button bitButton buttonType="primary" type="submit">
