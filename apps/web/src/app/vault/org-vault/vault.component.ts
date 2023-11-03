@@ -551,7 +551,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     const currCollections = await firstValueFrom(this.vaultFilterService.filteredCollections$);
     this.dialogService.open(CollectionsComponent, {
       data: {
-        collectionId: cipher.collectionIds,
+        collectionIds: cipher.collectionIds,
         collections: currCollections.filter((c) => !c.readOnly && c.id != Unassigned),
         organization: this.organization,
         cipherId: cipher.id,
