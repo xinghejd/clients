@@ -221,7 +221,7 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
         this.logService?.info(
           `[Fido2Authenticator] Aborting because no matching credentials were found in the vault.`
         );
-        await userInterfaceSession.informCredentialNotFound();
+        abortController.abort("UserRequestedFallback");
         throw new Fido2AuthenticatorError(Fido2AuthenticatorErrorCode.NotAllowed);
       }
 
