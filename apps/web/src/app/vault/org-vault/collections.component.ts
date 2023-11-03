@@ -30,10 +30,18 @@ export class CollectionsComponent extends BaseCollectionsComponent {
     cipherService: CipherService,
     private apiService: ApiService,
     logService: LogService,
-    protected dialogRef?: DialogRef<CollectionsDialogResult>,
-    @Inject(DIALOG_DATA) params?: CollectionsDialogParams
+    protected dialogRef: DialogRef<CollectionsDialogResult>,
+    @Inject(DIALOG_DATA) params: CollectionsDialogParams
   ) {
-    super(collectionService, platformUtilsService, i18nService, cipherService, logService);
+    super(
+      collectionService,
+      platformUtilsService,
+      i18nService,
+      cipherService,
+      logService,
+      dialogRef,
+      params
+    );
     this.allowSelectNone = true;
     this.collectionIds = params?.collectionIds;
     this.collections = params?.collections;

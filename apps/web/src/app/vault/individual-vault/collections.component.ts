@@ -21,8 +21,8 @@ export class CollectionsComponent extends BaseCollectionsComponent implements On
     i18nService: I18nService,
     cipherService: CipherService,
     logService: LogService,
-    protected dialogRef?: DialogRef<CollectionsDialogResult>,
-    @Inject(DIALOG_DATA) params?: CollectionsDialogParams
+    protected dialogRef: DialogRef<CollectionsDialogResult>,
+    @Inject(DIALOG_DATA) params: CollectionsDialogParams
   ) {
     super(collectionService, platformUtilsService, i18nService, cipherService, logService);
     this.cipherId = params?.cipherId;

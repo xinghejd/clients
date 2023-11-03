@@ -82,7 +82,7 @@ import { getNestedCollectionTree } from "../utils/collection-utils";
 
 import { AddEditComponent } from "./add-edit.component";
 import { AttachmentsComponent } from "./attachments.component";
-import { CollectionsComponent } from "./collections.component";
+import { CollectionsComponent, CollectionsDialogResult } from "./collections.component";
 import { VaultFilterComponent } from "./vault-filter/vault-filter.component";
 
 const BroadcasterSubscriptionId = "OrgVaultComponent";
@@ -549,7 +549,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   async editCipherCollections(cipher: CipherView) {
     const currCollections = await firstValueFrom(this.vaultFilterService.filteredCollections$);
-    this.dialogService.open(CollectionsComponent, {
+    const dialog = this.dialogService.open(CollectionsComponent, {
       data: {
         collectionIds: cipher.collectionIds,
         collections: currCollections.filter((c) => !c.readOnly && c.id != Unassigned),
@@ -557,6 +557,9 @@ export class VaultComponent implements OnInit, OnDestroy {
         cipherId: cipher.id,
       },
     });
+    if ((await lastValueFrom(dialog.closed)) == CollectionsDialogResult.Saved) {
+      await this.refresh();
+    }
   }
 
   async addCipher() {
