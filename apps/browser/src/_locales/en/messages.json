@@ -2803,8 +2803,8 @@
   "switchAccounts": {
     "message": "Switch Accounts"
   },
-  "switchAccount": {
-    "message": "Switch Account"
+  "switchToAccount": {
+    "message": "Switch to account"
   },
   "activeAccount": {
     "message": "Active Account"
