@@ -1545,9 +1545,6 @@
   "manage": {
     "message": "Manage"
   },
-  "canManage": {
-    "message": "Can manage"
-  },
   "disable": {
     "message": "Turn off"
   },
@@ -3469,9 +3466,6 @@
   },
   "subscriptionUpdated": {
     "message": "Subscription updated"
-  },
-  "subscribedToSecretsManager": {
-    "message": "Subscription updated. You now have access to Secrets Manager."
   },
   "additionalOptions": {
     "message": "Additional options"
@@ -7272,18 +7266,6 @@
       }
     }
   },
-  "collectionManagement": {
-    "message": "Collection management"
-  },
-  "collectionManagementDesc": {
-    "message": "Manage the collection behavior for the organization"
-  },
-  "limitCollectionCreationDeletionDesc": {
-    "message": "Limit collection creation and deletion to owners and admins"
-  },
-  "collectionManagementUpdated": {
-    "message": "Collection management behavior saved"
-  },
   "passwordManagerPlanPrice": {
     "message": "Password Manager plan price"
   },
@@ -7330,12 +7312,6 @@
   "beta": {
     "message": "Beta"
   },
-  "assignCollectionAccess": {
-    "message": "Assign collection access"
-  },
-  "editedCollections": {
-    "message": "Edited collections"
-  },
   "baseUrl": {
     "message": "Server URL"
   },
@@ -7350,9 +7326,6 @@
   },
   "customBillingEnd": {
     "message": " page for latest invoicing."
-  },
-  "managePermissionRequired": {
-    "message": "At least one member or group must have can manage permission."
   },
   "typePasskey": {
     "message": "Passkey"

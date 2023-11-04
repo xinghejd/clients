@@ -7273,6 +7273,12 @@
   "alreadyHaveAccount": {
     "message": "Уже зарегистрированы?"
   },
+  "customBillingStart": {
+    "message": "Пользовательские счета не отображаются. Посетите страницу "
+  },
+  "customBillingEnd": {
+    "message": " для получения последней информации о выставлении счетов."
+  },
   "typePasskey": {
     "message": "Ключ доступа"
   },
@@ -7281,9 +7287,5 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "Ключ доступа не будет скопирован в клонированный элемент. Продолжить клонирование этого элемента?"
-  },
-  "seeDetailedInstructions": {
-    "message": "Подробные инструкции см. на нашем справочном сайте по адресу",
-    "description": "This is followed a by a hyperlink to the help website."
   }
 }

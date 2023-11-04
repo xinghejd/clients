@@ -7273,6 +7273,12 @@
   "alreadyHaveAccount": {
     "message": "Већ имате налог?"
   },
+  "customBillingStart": {
+    "message": "Прилагођени обрачун се не одражава. Посетите "
+  },
+  "customBillingEnd": {
+    "message": " страницу за најновије фактуре."
+  },
   "typePasskey": {
     "message": "Приступачни кључ"
   },
@@ -7281,9 +7287,5 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "Приступачни кључ неће бити копиран на клонирану ставку. Да ли желите да наставите са клонирањем ставке?"
-  },
-  "seeDetailedInstructions": {
-    "message": "See detailed instructions on our help site at",
-    "description": "This is followed a by a hyperlink to the help website."
   }
 }
