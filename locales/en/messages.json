@@ -2277,9 +2277,6 @@
   "contactSupport": {
     "message": "Contact customer support"
   },
-  "contactSupportShort": {
-    "message": "Contact Support"
-  },
   "updatedPaymentMethod": {
     "message": "Updated payment method."
   },
@@ -2380,9 +2377,6 @@
   },
   "planDescTeams": {
     "message": "For businesses and other team organizations."
-  },
-  "planNameTeamsStarter": {
-    "message": "Teams Starter"
   },
   "planNameEnterprise": {
     "message": "Enterprise"
@@ -3485,15 +3479,6 @@
       }
     }
   },
-  "subscriptionUserSeatsWithoutAdditionalSeatsOption": {
-    "message": "You can invite up to $COUNT$ members for no additional charge. Contact Customer Support to upgrade your plan and invite more members.",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      }
-    }
-  },
   "subscriptionFreePlan": {
     "message": "You cannot invite more than $COUNT$ members without upgrading your plan.",
     "placeholders": {
@@ -3994,21 +3979,6 @@
   },
   "includeAllTeamsFeatures": {
     "message": "All Teams features, plus:"
-  },
-  "includeAllTeamsStarterFeatures": {
-    "message": "All Teams Starter features, plus:"
-  },
-  "chooseMonthlyOrAnnualBilling": {
-    "message": "Choose monthly or annual billing"
-  },
-  "abilityToAddMoreThanNMembers": {
-    "message": "Ability to add more than $COUNT$ members",
-    "placeholders": {
-      "count": {
-        "content": "$1",
-        "example": "10"
-      }
-    }
   },
   "includeSsoAuthentication": {
     "message": "SSO Authentication via SAML2.0 and OpenID Connect"
@@ -6625,24 +6595,6 @@
       }
     }
   },
-  "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Contact Customer Support to upgrade your plan and invite more members.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "10"
-      }
-    }
-  },
-  "teamsStarterPlanInvLimitReachedNoManageBilling": {
-    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade your plan and invite more members.",
-    "placeholders": {
-      "seatcount": {
-        "content": "$1",
-        "example": "10"
-      }
-    }
-  },
   "freeOrgMaxCollectionReachedManageBilling": {
     "message": "Free organizations may have up to $COLLECTIONCOUNT$ collections. Upgrade to a paid plan to add more collections.",
     "placeholders": {
@@ -7335,9 +7287,5 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "The passkey will not be copied to the cloned item. Do you want to continue cloning this item?"
-  },
-  "seeDetailedInstructions": {
-    "message": "See detailed instructions on our help site at",
-    "description": "This is followed a by a hyperlink to the help website."
   }
 }

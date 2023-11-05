@@ -621,25 +621,25 @@
     "message": "Yeni şifre"
   },
   "learnMoreAboutPasswordless": {
-    "message": "Şifresiz giriş hakkında daha fazla bilgi"
+    "message": "Learn more about passwordless"
   },
   "passkeyEnterMasterPassword": {
     "message": "Şifre anahtarıyla oturum açma ayarlarını değiştirmek için ana şifrenizi girin."
   },
   "creatingPasskeyLoading": {
-    "message": "Geçiş anahtarı oluşturuluyor..."
+    "message": "Creating passkey..."
   },
   "creatingPasskeyLoadingInfo": {
     "message": "Bu pencereyi açık tutun ve tarayıcınızdan gelen talimatları izleyin."
   },
   "errorCreatingPasskey": {
-    "message": "Geçiş anahtarı oluşturulurken hata oluştu"
+    "message": "Error creating passkey"
   },
   "errorCreatingPasskeyInfo": {
     "message": "Şifreniz oluşturulurken bir sorun oluştu."
   },
   "passkeySuccessfullyCreated": {
-    "message": "Geçiş anahtarı başarıyla oluşturuldu!"
+    "message": "Passkey successfully created!"
   },
   "customName": {
     "message": "Custom name"

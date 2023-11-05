@@ -4485,7 +4485,7 @@
     "message": "Een organisatiebeleid heeft invloed op je eigendomsopties."
   },
   "personalOwnershipPolicyInEffectImports": {
-    "message": "Organisatiebeleid heeft het importeren van items in je persoonlijke kluis geblokkeerd."
+    "message": "Een organisatiebeleid heeft het importeren van items in je persoonlijke kluis uitgeschakeld."
   },
   "personalOwnershipCheckboxDesc": {
     "message": "Schakel persoonlijke eigendom uit voor organisatiegebruikers"
