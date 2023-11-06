@@ -1,10 +1,11 @@
 import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
-import { Component, Inject, OnInit } from "@angular/core";
+import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
-import { Observable, map } from "rxjs";
+import { Observable, Subject, takeUntil } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { TableDataSource } from "@bitwarden/components";
 
 import { ProjectListView } from "../../models/view/project-list.view";
 import { SecretListView } from "../../models/view/secret-list.view";
@@ -16,16 +17,21 @@ export interface SecretMoveProjectOperation {
   organizationId: string;
 }
 
+type Secret = { name: string; currentProject?: string; moveTo: string };
+
 @Component({
   templateUrl: "./secret-move-project.component.html",
 })
-export class SecretMoveProjectComponent implements OnInit {
+export class SecretMoveProjectComponent implements OnInit, OnDestroy {
   protected formGroup = new FormGroup({
     project: new FormControl("", [Validators.required]),
   });
 
   projects: ProjectListView[];
-  summary$: Observable<string | null>;
+  secretsCount: number;
+  selectedProjectId$: Observable<string | undefined>;
+  private destroy$ = new Subject<void>();
+  dataSource = new TableDataSource<Secret>();
 
   constructor(
     private dialogRef: DialogRef,
@@ -34,43 +40,37 @@ export class SecretMoveProjectComponent implements OnInit {
     private secretService: SecretService,
     private i18nService: I18nService
   ) {
-    this.summary$ = this.formGroup.controls.project.valueChanges.pipe(
-      map((projectId) => {
-        if (Utils.isNullOrWhitespace(projectId)) {
-          return null;
+    this.secretsCount = data.secrets.length;
+    this.selectedProjectId$ = this.formGroup.controls.project.valueChanges;
+
+    this.selectedProjectId$.pipe(takeUntil(this.destroy$)).subscribe((projectId) => {
+      if (Utils.isNullOrWhitespace(projectId)) {
+        this.dataSource.data = [];
+        return;
+      }
+
+      const chosenProjectName = this.projects.find((p) => p.id === projectId)?.name;
+
+      if (!chosenProjectName) {
+        return { showTable: false };
+      }
+
+      const data = this.data.secrets.map((s) => {
+        if (s.projects == null || s.projects.length === 0) {
+          return { name: s.name, moveTo: chosenProjectName };
         }
 
-        let newAssignments = 0;
-        let sameAssignments = 0;
-        let overrideAssignments = 0;
-        this.data.secrets.forEach((s) => {
-          if (s.projects == null || s.projects.length === 0) {
-            newAssignments++;
-            return;
-          }
+        // TODO: The logic will need updating if/when secrets can have more than one project
+        const currentProject = s.projects[0];
+        return { name: s.name, moveTo: chosenProjectName, currentProject: currentProject.name };
+      });
 
-          // TODO: The logic will need updating if/when secrets can have more than one project
-          if (s.projects.some((p) => p.id === projectId)) {
-            // This secret has this project already as one of it's projects
-            // but as current rules dictate this will be the only project
-            // therefore we will consider this a same assignment
-            sameAssignments++;
-            return;
-          }
-
-          // At this point, it has a project assignment but it's not
-          // the selected one
-          overrideAssignments++;
-        });
-
-        return this.i18nService.t(
-          "bulkMoveToProjectSummary",
-          newAssignments,
-          sameAssignments,
-          overrideAssignments
-        );
-      })
-    );
+      this.dataSource.data = data;
+    });
+  }
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   async ngOnInit() {

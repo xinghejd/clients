@@ -7280,10 +7280,22 @@
     "message": " page for latest invoicing."
   },
   "moveToProject": {
-    "message": "Move to Project"
+    "message": "Move to project"
   },
-  "move": {
-    "message": "Move"
+  "bulkMoveToProjectCallout": {
+    "message": "Moving secrets will give access to any users assigned to a project."
+  },
+  "moveTo": {
+    "message": "Move to"
+  },
+  "currentProject": {
+    "message": "Current project"
+  },
+  "secretPlural": {
+    "message": "secrets"
+  },
+  "secretLowercase": {
+    "message": "secret"
   },
   "bulkMoveToProjectSummary": {
     "message": "New Assignments: $NEW_ASSIGNMENTS$, Same Assignments: $SAME_ASSIGNMENTS$, Override Assignments: $OVERRIDE_ASSIGNMENTS$",
