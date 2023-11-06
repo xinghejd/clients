@@ -72,6 +72,7 @@ import {
   BulkDeleteDialogResult,
   openBulkDeleteDialog,
 } from "../individual-vault/bulk-action-dialogs/bulk-delete-dialog/bulk-delete-dialog.component";
+import { CollectionsDialogResult } from "../individual-vault/collections.component";
 import { RoutedVaultFilterBridgeService } from "../individual-vault/vault-filter/services/routed-vault-filter-bridge.service";
 import { RoutedVaultFilterService } from "../individual-vault/vault-filter/services/routed-vault-filter.service";
 import { createFilterFunction } from "../individual-vault/vault-filter/shared/models/filter-function";
@@ -88,10 +89,7 @@ import {
   BulkCollectionsDialogComponent,
   BulkCollectionsDialogResult,
 } from "./bulk-collections-dialog";
-import {
-  OrgVaultCollectionsDialogResult,
-  openOrgVaultCollectionsDialog,
-} from "./collections.component";
+import { openOrgVaultCollectionsDialog } from "./collections.component";
 import { VaultFilterComponent } from "./vault-filter/vault-filter.component";
 
 const BroadcasterSubscriptionId = "OrgVaultComponent";
@@ -573,7 +571,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         cipherId: cipher.id,
       },
     });
-    if ((await lastValueFrom(dialog.closed)) == OrgVaultCollectionsDialogResult.Saved) {
+    if ((await lastValueFrom(dialog.closed)) == CollectionsDialogResult.Saved) {
       await this.refresh();
     }
   }

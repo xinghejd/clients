@@ -22,7 +22,7 @@ export class CollectionsComponent extends BaseCollectionsComponent implements On
     cipherService: CipherService,
     logService: LogService,
     protected dialogRef: DialogRef,
-    @Inject(DIALOG_DATA) params: IndividualVaultCollectionsDialogParams
+    @Inject(DIALOG_DATA) params: CollectionsDialogParams
   ) {
     super(collectionService, platformUtilsService, i18nService, cipherService, logService);
     this.cipherId = params?.cipherId;
@@ -30,7 +30,7 @@ export class CollectionsComponent extends BaseCollectionsComponent implements On
 
   override async submit() {
     await super.submit();
-    this.dialogRef.close();
+    this.dialogRef.close(CollectionsDialogResult.Saved);
   }
 
   check(c: CollectionView, select?: boolean) {
@@ -46,8 +46,12 @@ export class CollectionsComponent extends BaseCollectionsComponent implements On
   }
 }
 
-export interface IndividualVaultCollectionsDialogParams {
+export interface CollectionsDialogParams {
   cipherId: string;
+}
+
+export enum CollectionsDialogResult {
+  Saved = "saved",
 }
 
 /**
@@ -57,7 +61,10 @@ export interface IndividualVaultCollectionsDialogParams {
  */
 export function openIndividualVaultCollectionsDialog(
   dialogService: DialogService,
-  config?: DialogConfig<IndividualVaultCollectionsDialogParams>
+  config?: DialogConfig<CollectionsDialogParams>
 ) {
-  return dialogService.open<IndividualVaultCollectionsDialogParams>(CollectionsComponent, config);
+  return dialogService.open<CollectionsDialogResult, CollectionsDialogParams>(
+    CollectionsComponent,
+    config
+  );
 }

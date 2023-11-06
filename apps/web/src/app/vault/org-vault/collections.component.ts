@@ -14,7 +14,10 @@ import { CipherCollectionsRequest } from "@bitwarden/common/vault/models/request
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { DialogService } from "@bitwarden/components";
 
-import { CollectionsComponent as BaseCollectionsComponent } from "../individual-vault/collections.component";
+import {
+  CollectionsComponent as BaseCollectionsComponent,
+  CollectionsDialogResult,
+} from "../individual-vault/collections.component";
 
 @Component({
   selector: "app-org-vault-collections",
@@ -88,10 +91,6 @@ export interface OrgVaultCollectionsDialogParams {
   cipherId: string;
 }
 
-export enum OrgVaultCollectionsDialogResult {
-  Saved = "saved",
-}
-
 /**
  * Strongly typed helper to open a Collections dialog
  * @param dialogService Instance of the dialog service that will be used to open the dialog
@@ -101,7 +100,7 @@ export function openOrgVaultCollectionsDialog(
   dialogService: DialogService,
   config?: DialogConfig<OrgVaultCollectionsDialogParams>
 ) {
-  return dialogService.open<OrgVaultCollectionsDialogResult, OrgVaultCollectionsDialogParams>(
+  return dialogService.open<CollectionsDialogResult, OrgVaultCollectionsDialogParams>(
     CollectionsComponent,
     config
   );
