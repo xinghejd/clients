@@ -21,8 +21,8 @@ export class CollectionsComponent extends BaseCollectionsComponent implements On
     i18nService: I18nService,
     cipherService: CipherService,
     logService: LogService,
-    protected dialogRef: DialogRef<CollectionsDialogResult>,
-    @Inject(DIALOG_DATA) params: CollectionsDialogParams
+    protected dialogRef: DialogRef,
+    @Inject(DIALOG_DATA) params: IndividualVaultCollectionsDialogParams
   ) {
     super(collectionService, platformUtilsService, i18nService, cipherService, logService);
     this.cipherId = params?.cipherId;
@@ -30,7 +30,7 @@ export class CollectionsComponent extends BaseCollectionsComponent implements On
 
   override async submit() {
     await super.submit();
-    this.dialogRef.close(CollectionsDialogResult.Saved);
+    this.dialogRef.close();
   }
 
   check(c: CollectionView, select?: boolean) {
@@ -46,14 +46,8 @@ export class CollectionsComponent extends BaseCollectionsComponent implements On
   }
 }
 
-export interface CollectionsDialogParams {
+export interface IndividualVaultCollectionsDialogParams {
   cipherId: string;
-}
-
-export enum CollectionsDialogResult {
-  Deleted = "deleted",
-  Canceled = "canceled",
-  Saved = "saved",
 }
 
 /**
@@ -61,12 +55,9 @@ export enum CollectionsDialogResult {
  * @param dialogService Instance of the dialog service that will be used to open the dialog
  * @param config Optional configuration for the dialog
  */
-export function collectionsDialog(
+export function openIndividualVaultCollectionsDialog(
   dialogService: DialogService,
-  config?: DialogConfig<CollectionsDialogParams>
+  config?: DialogConfig<IndividualVaultCollectionsDialogParams>
 ) {
-  return dialogService.open<CollectionsDialogResult, CollectionsDialogParams>(
-    CollectionsComponent,
-    config
-  );
+  return dialogService.open<IndividualVaultCollectionsDialogParams>(CollectionsComponent, config);
 }

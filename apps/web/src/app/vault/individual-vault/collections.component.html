@@ -1,4 +1,4 @@
-<form (submit)="submit()">
+<form (ngSubmit)="submit()">
   <bit-dialog>
     <span bitDialogTitle>
       {{ "collections" | i18n }}
@@ -6,13 +6,13 @@
     </span>
     <ng-container bitDialogContent>
       <p>{{ "collectionsDesc" | i18n }}</p>
-      <div class="d-flex">
+      <div class="tw-flex">
         <h3>{{ "collections" | i18n }}</h3>
-        <div class="ml-auto d-flex" *ngIf="collections && collections.length">
-          <button type="button" (click)="selectAll(true)" class="btn btn-link btn-sm py-0">
+        <div class="tw-ml-auto tw-flex" *ngIf="collections && collections.length">
+          <button bitLink type="button" (click)="selectAll(true)" class="tw-px-2">
             {{ "selectAll" | i18n }}
           </button>
-          <button type="button" (click)="selectAll(false)" class="btn btn-link btn-sm py-0">
+          <button bitLink type="button" (click)="selectAll(false)" class="tw-px-2">
             {{ "unselectAll" | i18n }}
           </button>
         </div>
@@ -39,7 +39,7 @@
     </ng-container>
     <ng-container bitDialogFooter>
       <button bitButton buttonType="primary" type="submit">
-        <span>{{ "save" | i18n }}</span>
+        {{ "save" | i18n }}
       </button>
       <button bitButton bitDialogClose buttonType="secondary" type="button">
         {{ "cancel" | i18n }}

@@ -88,7 +88,10 @@ import {
   BulkCollectionsDialogComponent,
   BulkCollectionsDialogResult,
 } from "./bulk-collections-dialog";
-import { CollectionsComponent, CollectionsDialogResult } from "./collections.component";
+import {
+  OrgVaultCollectionsDialogResult,
+  openOrgVaultCollectionsDialog,
+} from "./collections.component";
 import { VaultFilterComponent } from "./vault-filter/vault-filter.component";
 
 const BroadcasterSubscriptionId = "OrgVaultComponent";
@@ -562,7 +565,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   async editCipherCollections(cipher: CipherView) {
     const currCollections = await firstValueFrom(this.vaultFilterService.filteredCollections$);
-    const dialog = this.dialogService.open(CollectionsComponent, {
+    const dialog = openOrgVaultCollectionsDialog(this.dialogService, {
       data: {
         collectionIds: cipher.collectionIds,
         collections: currCollections.filter((c) => !c.readOnly && c.id != Unassigned),
@@ -570,7 +573,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         cipherId: cipher.id,
       },
     });
-    if ((await lastValueFrom(dialog.closed)) == CollectionsDialogResult.Saved) {
+    if ((await lastValueFrom(dialog.closed)) == OrgVaultCollectionsDialogResult.Saved) {
       await this.refresh();
     }
   }

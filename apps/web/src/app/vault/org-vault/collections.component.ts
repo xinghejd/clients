@@ -30,8 +30,8 @@ export class CollectionsComponent extends BaseCollectionsComponent {
     cipherService: CipherService,
     private apiService: ApiService,
     logService: LogService,
-    protected dialogRef: DialogRef<CollectionsDialogResult>,
-    @Inject(DIALOG_DATA) params: CollectionsDialogParams
+    protected dialogRef: DialogRef,
+    @Inject(DIALOG_DATA) params: OrgVaultCollectionsDialogParams
   ) {
     super(
       collectionService,
@@ -81,16 +81,14 @@ export class CollectionsComponent extends BaseCollectionsComponent {
   }
 }
 
-export interface CollectionsDialogParams {
+export interface OrgVaultCollectionsDialogParams {
   collectionIds: string[];
   collections: CollectionView[];
   organization: Organization;
   cipherId: string;
 }
 
-export enum CollectionsDialogResult {
-  Deleted = "deleted",
-  Canceled = "canceled",
+export enum OrgVaultCollectionsDialogResult {
   Saved = "saved",
 }
 
@@ -99,11 +97,11 @@ export enum CollectionsDialogResult {
  * @param dialogService Instance of the dialog service that will be used to open the dialog
  * @param config Optional configuration for the dialog
  */
-export function collectionsDialog(
+export function openOrgVaultCollectionsDialog(
   dialogService: DialogService,
-  config?: DialogConfig<CollectionsDialogParams>
+  config?: DialogConfig<OrgVaultCollectionsDialogParams>
 ) {
-  return dialogService.open<CollectionsDialogResult, CollectionsDialogParams>(
+  return dialogService.open<OrgVaultCollectionsDialogResult, OrgVaultCollectionsDialogParams>(
     CollectionsComponent,
     config
   );
