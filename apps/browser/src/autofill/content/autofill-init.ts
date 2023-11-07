@@ -13,6 +13,7 @@ import {
 } from "./abstractions/autofill-init";
 
 class AutofillInit implements AutofillInitInterface {
+  private readonly sendExtensionMessage = sendExtensionMessage;
   private readonly autofillOverlayContentService: AutofillOverlayContentService | undefined;
   private readonly domElementVisibilityService: DomElementVisibilityService;
   private readonly collectAutofillContentService: CollectAutofillContentService;
@@ -79,7 +80,7 @@ class AutofillInit implements AutofillInitInterface {
       return pageDetails;
     }
 
-    sendExtensionMessage("collectPageDetailsResponse", {
+    this.sendExtensionMessage("collectPageDetailsResponse", {
       tab: message.tab,
       details: pageDetails,
       sender: message.sender,

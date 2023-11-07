@@ -13,10 +13,14 @@ import AutofillInit from "./autofill-init";
 
 describe("AutofillInit", () => {
   let autofillInit: AutofillInit;
+  let sendExtensionMessageSpy: jest.SpyInstance;
   const autofillOverlayContentService = mock<AutofillOverlayContentService>();
 
   beforeEach(() => {
     autofillInit = new AutofillInit(autofillOverlayContentService);
+    sendExtensionMessageSpy = jest
+      .spyOn(autofillInit as any, "sendExtensionMessage")
+      .mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -131,8 +135,7 @@ describe("AutofillInit", () => {
           sendExtensionRuntimeMessage(message, sender, sendResponse);
           await flushPromises();
 
-          expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({
-            command: "collectPageDetailsResponse",
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("collectPageDetailsResponse", {
             tab: message.tab,
             details: pageDetails,
             sender: message.sender,
@@ -163,7 +166,7 @@ describe("AutofillInit", () => {
 
           expect(autofillInit["collectAutofillContentService"].getPageDetails).toHaveBeenCalled();
           expect(sendResponse).toBeCalledWith(pageDetails);
-          expect(chrome.runtime.sendMessage).not.toHaveBeenCalled();
+          expect(sendExtensionMessageSpy).not.toHaveBeenCalled();
         });
       });
 
