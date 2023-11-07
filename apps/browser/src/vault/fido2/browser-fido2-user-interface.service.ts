@@ -17,6 +17,8 @@ import {
   throwError,
 } from "rxjs";
 
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserRequestedFallbackAbortReason } from "@bitwarden/common/vault/abstractions/fido2/fido2-client.service.abstraction";
 import {
@@ -114,22 +116,35 @@ export type BrowserFido2Message = { sessionId: string } & (
  * The user interface is implemented as a popout and the service uses the browser's messaging API to communicate with it.
  */
 export class BrowserFido2UserInterfaceService implements Fido2UserInterfaceServiceAbstraction {
+  constructor(private authService: AuthService) {}
+
   async newSession(
     fallbackSupported: boolean,
     tab: chrome.tabs.Tab,
     abortController?: AbortController
   ): Promise<Fido2UserInterfaceSession> {
-    return await BrowserFido2UserInterfaceSession.create(fallbackSupported, tab, abortController);
+    return await BrowserFido2UserInterfaceSession.create(
+      this.authService,
+      fallbackSupported,
+      tab,
+      abortController
+    );
   }
 }
 
 export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSession {
   static async create(
+    authService: AuthService,
     fallbackSupported: boolean,
     tab: chrome.tabs.Tab,
     abortController?: AbortController
   ): Promise<BrowserFido2UserInterfaceSession> {
-    return new BrowserFido2UserInterfaceSession(fallbackSupported, tab, abortController);
+    return new BrowserFido2UserInterfaceSession(
+      authService,
+      fallbackSupported,
+      tab,
+      abortController
+    );
   }
 
   static sendMessage(msg: BrowserFido2Message) {
@@ -162,6 +177,7 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   private destroy$ = new Subject<void>();
 
   private constructor(
+    private readonly authService: AuthService,
     private readonly fallbackSupported: boolean,
     private readonly tab: chrome.tabs.Tab,
     readonly abortController = new AbortController(),
@@ -264,7 +280,9 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   }
 
   async ensureUnlockedVault(): Promise<void> {
-    await this.connect();
+    if ((await this.authService.getAuthStatus()) !== AuthenticationStatus.Unlocked) {
+      await this.connect();
+    }
   }
 
   async informCredentialNotFound(): Promise<void> {
@@ -343,7 +361,7 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       )
       .subscribe(() => {
         this.close();
-        this.abort();
+        this.abort(true);
       });
 
     await connectPromise;

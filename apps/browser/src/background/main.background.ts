@@ -581,7 +581,7 @@ export default class MainBackground {
       this.messagingService
     );
 
-    this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService();
+    this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService(this.authService);
     this.fido2AuthenticatorService = new Fido2AuthenticatorService(
       this.cipherService,
       this.fido2UserInterfaceService,
@@ -592,6 +592,7 @@ export default class MainBackground {
       this.fido2AuthenticatorService,
       this.configService,
       this.authService,
+      this.stateService,
       this.logService
     );
 
