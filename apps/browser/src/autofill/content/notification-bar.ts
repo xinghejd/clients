@@ -4,6 +4,7 @@ import AutofillField from "../models/autofill-field";
 import { WatchedForm } from "../models/watched-form";
 import { FormData } from "../services/abstractions/autofill.service";
 import { UserSettings } from "../types";
+import { getFromLocalStorage, setupExtensionDisconnectAction } from "../utils/utils";
 
 interface HTMLElementWithFormOpId extends HTMLElement {
   formOpId: string;
@@ -121,8 +122,7 @@ async function loadNotificationBar() {
     }
   }
 
-  const port = chrome.runtime.connect({ name: "content-script-channel" });
-  port.onDisconnect.addListener(() => {
+  setupExtensionDisconnectAction(() => {
     closeBar(false);
     clearTimeout(domObservationCollectTimeoutId);
     clearTimeout(collectPageDetailsTimeoutId);
@@ -1014,10 +1014,4 @@ async function loadNotificationBar() {
   }
 
   // End Helper Functions
-}
-
-async function getFromLocalStorage(keys: string | string[]): Promise<Record<string, any>> {
-  return new Promise((resolve) => {
-    chrome.storage.local.get(keys, (storage: Record<string, any>) => resolve(storage));
-  });
 }

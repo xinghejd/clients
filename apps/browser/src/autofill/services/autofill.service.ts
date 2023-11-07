@@ -57,12 +57,6 @@ export default class AutofillService implements AutofillServiceInterface {
         this.injectAutofillScripts(tab);
       }
     }
-
-    chrome.runtime.onConnect.addListener((port) => {
-      if (port.name === "content-script-channel") {
-        port.postMessage({ command: "content-script-channel-connected" });
-      }
-    });
   }
 
   /**
@@ -72,8 +66,13 @@ export default class AutofillService implements AutofillServiceInterface {
    * is enabled.
    * @param {chrome.tabs.Tab} tab
    * @param {number} frameId
+   * @param {boolean} triggeringOnPageLoad
    */
-  async injectAutofillScripts(tab: chrome.tabs.Tab, frameId = 0): Promise<void> {
+  async injectAutofillScripts(
+    tab: chrome.tabs.Tab,
+    frameId = 0,
+    triggeringOnPageLoad = false
+  ): Promise<void> {
     const autofillV2 = await this.configService.getFeatureFlag<boolean>(FeatureFlag.AutofillV2);
     const autofillOverlay = await this.configService.getFeatureFlag<boolean>(
       FeatureFlag.AutofillOverlay
@@ -90,12 +89,11 @@ export default class AutofillService implements AutofillServiceInterface {
         : "bootstrap-autofill.js";
     }
 
-    const injectedScripts = [
-      mainAutofillScript,
-      "autofiller.js",
-      "notificationBar.js",
-      "contextMenuHandler.js",
-    ];
+    const injectedScripts = [mainAutofillScript];
+    if (triggeringOnPageLoad) {
+      injectedScripts.push("autofiller.js");
+    }
+    injectedScripts.push("notificationBar.js", "contextMenuHandler.js");
 
     for (const injectedScript of injectedScripts) {
       await BrowserApi.executeScriptInTab(tab.id, {

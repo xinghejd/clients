@@ -92,7 +92,7 @@ describe("AutofillService", () => {
     });
 
     it("accepts an extension message sender and injects the autofill scripts into the tab of the sender", async () => {
-      await autofillService.injectAutofillScripts(sender.tab, sender.frameId);
+      await autofillService.injectAutofillScripts(sender.tab, sender.frameId, true);
 
       [autofillV1Script, ...defaultAutofillScripts].forEach((scriptName) => {
         expect(BrowserApi.executeScriptInTab).toHaveBeenCalledWith(tabMock.id, {

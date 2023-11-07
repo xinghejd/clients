@@ -78,6 +78,12 @@ async function sendExtensionMessage(
   });
 }
 
+async function getFromLocalStorage(keys: string | string[]): Promise<Record<string, any>> {
+  return new Promise((resolve) => {
+    chrome.storage.local.get(keys, (storage: Record<string, any>) => resolve(storage));
+  });
+}
+
 /**
  * Sets CSS styles on an element.
  *
@@ -103,9 +109,28 @@ function setElementStyles(
   }
 }
 
+function setupExtensionDisconnectAction(callback: CallableFunction) {
+  const port = chrome.runtime.connect({ name: "content-script-extension-connection-port" });
+  port.onDisconnect.addListener((port) => callback(port));
+}
+
+function setupAutofillInitDisconnectAction(windowContext: Window) {
+  if (!windowContext.bitwardenAutofillInit) {
+    return;
+  }
+
+  setupExtensionDisconnectAction(() => {
+    windowContext.bitwardenAutofillInit.destroy();
+    delete windowContext.bitwardenAutofillInit;
+  });
+}
+
 export {
   generateRandomCustomElementName,
   buildSvgDomElement,
   sendExtensionMessage,
+  getFromLocalStorage,
   setElementStyles,
+  setupExtensionDisconnectAction,
+  setupAutofillInitDisconnectAction,
 };
