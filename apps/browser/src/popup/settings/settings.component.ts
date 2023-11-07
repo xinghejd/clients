@@ -439,9 +439,7 @@ export class SettingsComponent implements OnInit {
       type: "info",
     });
     if (confirmed) {
-      BrowserApi.createNewTab(
-        "https://bitwarden.com/help/master-password/#change-your-master-password"
-      );
+      BrowserApi.createNewTab(this.environmentService.getWebVaultUrl());
     }
   }
 
