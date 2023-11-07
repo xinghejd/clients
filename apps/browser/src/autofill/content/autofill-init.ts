@@ -241,6 +241,10 @@ class AutofillInit implements AutofillInitInterface {
     return true;
   };
 
+  /**
+   * Handles destroying the autofill init content script. Removes all
+   * listeners, timeouts, and object instances to prevent memory leaks.
+   */
   destroy() {
     chrome.runtime.onMessage.removeListener(this.handleExtensionMessage);
     this.autofillOverlayContentService?.destroy();

@@ -430,4 +430,32 @@ describe("AutofillInit", () => {
       });
     });
   });
+
+  describe("destroy", () => {
+    it("removes the extension message listeners", () => {
+      jest.spyOn(chrome.runtime.onMessage, "removeListener");
+
+      autofillInit.destroy();
+
+      expect(chrome.runtime.onMessage.removeListener).toHaveBeenCalledWith(
+        autofillInit["handleExtensionMessage"]
+      );
+    });
+
+    it("destroys the autofillOverlayContentService", () => {
+      jest.spyOn(autofillInit["autofillOverlayContentService"], "destroy");
+
+      autofillInit.destroy();
+
+      expect(autofillInit["autofillOverlayContentService"].destroy).toHaveBeenCalled();
+    });
+
+    it("destroys the collectAutofillContentService", () => {
+      jest.spyOn(autofillInit["collectAutofillContentService"], "destroy");
+
+      autofillInit.destroy();
+
+      expect(autofillInit["collectAutofillContentService"].destroy).toHaveBeenCalled();
+    });
+  });
 });
