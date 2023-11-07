@@ -8,7 +8,9 @@ import {
   LoginLinkedId,
   UriMatchType,
 } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ConfigService } from "@bitwarden/common/platform/services/config/config.service";
 import { EventCollectionService } from "@bitwarden/common/services/event/event-collection.service";
 import { SettingsService } from "@bitwarden/common/services/settings.service";
 import { TotpService } from "@bitwarden/common/services/totp.service";
@@ -53,6 +55,7 @@ describe("AutofillService", () => {
   const logService = mock<LogService>();
   const settingsService = mock<SettingsService>();
   const userVerificationService = mock<UserVerificationService>();
+  const configService = mock<ConfigService>();
 
   beforeEach(() => {
     autofillService = new AutofillService(
@@ -62,13 +65,52 @@ describe("AutofillService", () => {
       eventCollectionService,
       logService,
       settingsService,
-      userVerificationService
+      userVerificationService,
+      configService
     );
   });
 
   afterEach(() => {
     jest.clearAllMocks();
     mockReset(cipherService);
+  });
+
+  describe("init", () => {
+    let tab1: chrome.tabs.Tab;
+    let tab2: chrome.tabs.Tab;
+    let tab3: chrome.tabs.Tab;
+
+    beforeEach(() => {
+      tab1 = createChromeTabMock({ id: 1, url: "https://some-url.com" });
+      tab2 = createChromeTabMock({ id: 2, url: "http://some-url.com" });
+      tab3 = createChromeTabMock({ id: 3, url: "chrome-extension://some-extension-route" });
+      jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValueOnce([tab1, tab2]);
+    });
+
+    it("queries all browser tabs and injects the autofill scripts into them", async () => {
+      jest.spyOn(autofillService, "injectAutofillScripts");
+
+      await autofillService.init();
+
+      expect(BrowserApi.tabsQuery).toHaveBeenCalledWith({});
+      expect(autofillService.injectAutofillScripts).toHaveBeenCalledWith(tab1);
+      expect(autofillService.injectAutofillScripts).toHaveBeenCalledWith(tab2);
+    });
+
+    it("skips injecting scripts into tabs that do not have an http(s) protocol", async () => {
+      jest.spyOn(autofillService, "injectAutofillScripts");
+
+      await autofillService.init();
+
+      expect(BrowserApi.tabsQuery).toHaveBeenCalledWith({});
+      expect(autofillService.injectAutofillScripts).not.toHaveBeenCalledWith(tab3);
+    });
+
+    it("sets up an extension runtime onConnect listener", async () => {
+      await autofillService.init();
+
+      expect(chrome.runtime.onConnect.addListener).toHaveBeenCalledWith(expect.any(Function));
+    });
   });
 
   describe("injectAutofillScripts", () => {
@@ -81,12 +123,12 @@ describe("AutofillService", () => {
 
     beforeEach(() => {
       tabMock = createChromeTabMock();
-      sender = { tab: tabMock };
+      sender = { tab: tabMock, frameId: 1 };
       jest.spyOn(BrowserApi, "executeScriptInTab").mockImplementation();
     });
 
     it("accepts an extension message sender and injects the autofill scripts into the tab of the sender", async () => {
-      await autofillService.injectAutofillScripts(sender);
+      await autofillService.injectAutofillScripts(sender.tab, sender.frameId, true);
 
       [autofillV1Script, ...defaultAutofillScripts].forEach((scriptName) => {
         expect(BrowserApi.executeScriptInTab).toHaveBeenCalledWith(tabMock.id, {
@@ -102,15 +144,21 @@ describe("AutofillService", () => {
       });
     });
 
-    it("will inject the autofill-init class if the enableAutofillV2 flag is set", () => {
-      autofillService.injectAutofillScripts(sender, true);
+    it("will inject the autofill-init class if the enableAutofillV2 flag is set", async () => {
+      jest
+        .spyOn(configService, "getFeatureFlag")
+        .mockImplementation((flag) => Promise.resolve(flag === FeatureFlag.AutofillV2));
+
+      await autofillService.injectAutofillScripts(sender.tab, sender.frameId);
 
       expect(BrowserApi.executeScriptInTab).toHaveBeenCalledWith(tabMock.id, {
         file: `content/${autofillV2Script}`,
+        frameId: sender.frameId,
         ...defaultExecuteScriptOptions,
       });
       expect(BrowserApi.executeScriptInTab).not.toHaveBeenCalledWith(tabMock.id, {
         file: `content/${autofillV1Script}`,
+        frameId: sender.frameId,
         ...defaultExecuteScriptOptions,
       });
     });

@@ -3,6 +3,7 @@ import AutofillScript from "../models/autofill-script";
 import CollectAutofillContentService from "../services/collect-autofill-content.service";
 import DomElementVisibilityService from "../services/dom-element-visibility.service";
 import InsertAutofillContentService from "../services/insert-autofill-content.service";
+import { setupExtensionDisconnectAction } from "../utils/utils";
 
 import {
   AutofillExtensionMessage,
@@ -120,11 +121,24 @@ class AutofillInit implements AutofillInitInterface {
     Promise.resolve(messageResponse).then((response) => sendResponse(response));
     return true;
   };
+
+  /**
+   * Handles destroying the autofill init content script. Removes all
+   * listeners, timeouts, and object instances to prevent memory leaks.
+   */
+  destroy() {
+    chrome.runtime.onMessage.removeListener(this.handleExtensionMessage);
+    this.collectAutofillContentService.destroy();
+  }
 }
 
 (function () {
   if (!window.bitwardenAutofillInit) {
     window.bitwardenAutofillInit = new AutofillInit();
+    setupExtensionDisconnectAction(() => {
+      window.bitwardenAutofillInit.destroy();
+      delete window.bitwardenAutofillInit;
+    });
     window.bitwardenAutofillInit.init();
   }
 })();

@@ -16,6 +16,7 @@ type AutofillExtensionMessageHandlers = {
 
 interface AutofillInit {
   init(): void;
+  destroy(): void;
 }
 
 export { AutofillExtensionMessage, AutofillExtensionMessageHandlers, AutofillInit };

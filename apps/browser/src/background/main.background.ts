@@ -548,7 +548,8 @@ export default class MainBackground {
       this.eventCollectionService,
       this.logService,
       this.settingsService,
-      this.userVerificationService
+      this.userVerificationService,
+      this.configService
     );
     this.auditService = new AuditService(this.cryptoFunctionService, this.apiService);
 
@@ -742,6 +743,7 @@ export default class MainBackground {
     await (this.i18nService as BrowserI18nService).init();
     await (this.eventUploadService as EventUploadService).init(true);
     await this.runtimeBackground.init();
+    await this.autofillService.init();
     await this.notificationBackground.init();
     await this.commandsBackground.init();
 

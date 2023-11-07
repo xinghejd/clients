@@ -20,9 +20,14 @@ const storage = {
 const runtime = {
   onMessage: {
     addListener: jest.fn(),
+    removeListener: jest.fn(),
+  },
+  onConnect: {
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
   },
   sendMessage: jest.fn(),
-  getManifest: jest.fn(),
+  getManifest: jest.fn(() => ({ version: 2 })),
 };
 
 const contextMenus = {

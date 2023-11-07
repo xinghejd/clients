@@ -15,20 +15,20 @@ export default class TabsBackground {
       return;
     }
 
+    this.updateCurrentTabData();
+
     chrome.windows.onFocusChanged.addListener(async (windowId: number) => {
       if (windowId === null || windowId < 0) {
         return;
       }
 
       this.focusedWindowId = windowId;
-      await this.main.refreshBadge();
-      await this.main.refreshMenu();
+      await this.updateCurrentTabData();
       this.main.messagingService.send("windowChanged");
     });
 
     chrome.tabs.onActivated.addListener(async (activeInfo: chrome.tabs.TabActiveInfo) => {
-      await this.main.refreshBadge();
-      await this.main.refreshMenu();
+      await this.updateCurrentTabData();
       this.main.messagingService.send("tabChanged");
     });
 
@@ -39,8 +39,7 @@ export default class TabsBackground {
       this.main.onReplacedRan = true;
 
       await this.notificationBackground.checkNotificationQueue();
-      await this.main.refreshBadge();
-      await this.main.refreshMenu();
+      await this.updateCurrentTabData();
       this.main.messagingService.send("tabChanged");
     });
 
@@ -60,10 +59,14 @@ export default class TabsBackground {
         this.main.onUpdatedRan = true;
 
         await this.notificationBackground.checkNotificationQueue(tab);
-        await this.main.refreshBadge();
-        await this.main.refreshMenu();
+        await this.updateCurrentTabData();
         this.main.messagingService.send("tabChanged");
       }
     );
   }
+
+  private updateCurrentTabData = async () => {
+    await this.main.refreshBadge();
+    await this.main.refreshMenu();
+  };
 }

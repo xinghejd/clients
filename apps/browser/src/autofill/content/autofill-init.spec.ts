@@ -9,6 +9,11 @@ describe("AutofillInit", () => {
   let bitwardenAutofillInit: any;
 
   beforeEach(() => {
+    chrome.runtime.connect = jest.fn().mockReturnValue({
+      onDisconnect: {
+        addListener: jest.fn(),
+      },
+    });
     require("../content/autofill-init");
     bitwardenAutofillInit = window.bitwardenAutofillInit;
   });
@@ -170,6 +175,24 @@ describe("AutofillInit", () => {
 
       expect(response).toBe(true);
       expect(sendResponse).toHaveBeenCalledWith(pageDetails);
+    });
+  });
+
+  describe("destroy", () => {
+    it("removes the extension message listeners", () => {
+      bitwardenAutofillInit.destroy();
+
+      expect(chrome.runtime.onMessage.removeListener).toHaveBeenCalledWith(
+        bitwardenAutofillInit["handleExtensionMessage"]
+      );
+    });
+
+    it("destroys the collectAutofillContentService", () => {
+      jest.spyOn(bitwardenAutofillInit["collectAutofillContentService"], "destroy");
+
+      bitwardenAutofillInit.destroy();
+
+      expect(bitwardenAutofillInit["collectAutofillContentService"].destroy).toHaveBeenCalled();
     });
   });
 });
