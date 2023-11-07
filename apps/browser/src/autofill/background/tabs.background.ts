@@ -21,7 +21,13 @@ export default class TabsBackground {
     }
 
     this.updateCurrentTabData();
+    this.setupTabEventListeners();
+  }
 
+  /**
+   * Sets up the tab and window event listeners.
+   */
+  private setupTabEventListeners() {
     chrome.windows.onFocusChanged.addListener(this.handleWindowOnFocusChanged);
     chrome.tabs.onActivated.addListener(this.handleTabOnActivated);
     chrome.tabs.onReplaced.addListener(this.handleTabOnReplaced);

@@ -49,7 +49,7 @@ describe("TabsBackground", () => {
 
   describe("tab event listeners", () => {
     beforeEach(() => {
-      tabsBackgorund.init();
+      tabsBackgorund["setupTabEventListeners"]();
     });
 
     describe("window onFocusChanged event", () => {
