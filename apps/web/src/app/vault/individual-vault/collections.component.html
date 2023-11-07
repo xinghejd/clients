@@ -7,7 +7,9 @@
     <ng-container bitDialogContent>
       <p>{{ "collectionsDesc" | i18n }}</p>
       <div class="tw-flex">
-        <h3>{{ "collections" | i18n }}</h3>
+        <label class="tw-mb-1 tw-block tw-font-semibold tw-text-main">{{
+          "collections" | i18n
+        }}</label>
         <div class="tw-ml-auto tw-flex" *ngIf="collections && collections.length">
           <button bitLink type="button" (click)="selectAll(true)" class="tw-px-2">
             {{ "selectAll" | i18n }}
