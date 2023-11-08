@@ -38,7 +38,7 @@ export class ForegroundMemoryStorageService extends AbstractMemoryStorageService
       .subscribe((message) => {
         switch (message.action) {
           case "initialization":
-            this.handleInitialize(message.data as [string, unknown][]); // Map entries as array
+            this.handleInitialize(message.data as string[]); // Map entries as array
             break;
           case "subject_update":
             this.handleSubjectUpdate(
@@ -99,9 +99,9 @@ export class ForegroundMemoryStorageService extends AbstractMemoryStorageService
     });
   }
 
-  private handleInitialize(data: [string, unknown][]) {
+  private handleInitialize(data: string[]) {
     // TODO: this isn't a save, but we don't have a better indicator for this
-    data.forEach(([key, value]) => {
+    data.forEach((key) => {
       this.updatesSubject.next({ key, updateType: "save" });
     });
   }
