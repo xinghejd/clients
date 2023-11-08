@@ -1,3 +1,5 @@
+import { BehaviorSubject, distinctUntilChanged, Subject } from "rxjs";
+
 import { ApiService } from "../../../abstractions/api.service";
 import { SettingsService } from "../../../abstractions/settings.service";
 import { InternalOrganizationServiceAbstraction } from "../../../admin-console/abstractions/organization/organization.service.abstraction";
@@ -38,8 +40,24 @@ import { FolderResponse } from "../../../vault/models/response/folder.response";
 import { CollectionService } from "../../abstractions/collection.service";
 import { CollectionData } from "../../models/data/collection.data";
 import { CollectionDetailsResponse } from "../../models/response/collection.response";
+import { SyncError, SyncEventArgs } from "../../types/sync-event-args";
 
 export class SyncService implements SyncServiceAbstraction {
+  private syncEventSubject = new Subject<SyncEventArgs>();
+  private syncErrorSubject = new BehaviorSubject<SyncError | null>(null);
+
+  /**
+   * Observable that emits when a full sync event occurs. This includes when a sync starts, completes, or fails.
+   * @see SyncEventArgs
+   */
+  syncEvent$ = this.syncEventSubject.asObservable();
+
+  /**
+   * Observable that emits when a full sync error occurs or when any prior error has been cleared.
+   * Defaults to null when no error has occurred and is cleared when a sync completes without error.
+   */
+  syncError$ = this.syncErrorSubject.pipe(distinctUntilChanged());
+
   syncInProgress = false;
 
   constructor(
@@ -60,18 +78,26 @@ export class SyncService implements SyncServiceAbstraction {
     private organizationService: InternalOrganizationServiceAbstraction,
     private sendApiService: SendApiService,
     private logoutCallback: (expired: boolean) => Promise<void>
-  ) {}
+  ) {
+    this.syncEvent$.subscribe((event) => {
+      if (event.status === "Completed") {
+        if (event.successfully === true) {
+          this.syncErrorSubject.next(null);
+        } else if (event.successfully === false) {
+          this.syncErrorSubject.next(event.error ? event.error : null);
+        }
+      }
+    });
+  }
 
   async getLastSync(): Promise<Date> {
     if ((await this.stateService.getUserId()) == null) {
       return null;
     }
-
     const lastSync = await this.stateService.getLastSync();
     if (lastSync) {
       return new Date(lastSync);
     }
-
     return null;
   }
 
@@ -82,8 +108,13 @@ export class SyncService implements SyncServiceAbstraction {
   @sequentialize(() => "fullSync")
   async fullSync(forceSync: boolean, allowThrowOnError = false): Promise<boolean> {
     this.syncStarted();
+    this.syncEventSubject.next({ status: "Started" });
     const isAuthenticated = await this.stateService.getIsAuthenticated();
     if (!isAuthenticated) {
+      this.syncEventSubject.next({
+        status: "Completed",
+        successfully: false,
+      });
       return this.syncCompleted(false);
     }
 
@@ -92,13 +123,24 @@ export class SyncService implements SyncServiceAbstraction {
     try {
       needsSync = await this.needsSyncing(forceSync);
     } catch (e) {
+      this.syncEventSubject.next({
+        status: "Completed",
+        successfully: false,
+        error: e,
+      });
       if (allowThrowOnError) {
         throw e;
       }
+      // Don't set last sync date if we failed to get the account revision date
+      return this.syncCompleted(false);
     }
 
     if (!needsSync) {
       await this.setLastSync(now);
+      this.syncEventSubject.next({
+        status: "Completed",
+        successfully: false,
+      });
       return this.syncCompleted(false);
     }
 
@@ -115,8 +157,20 @@ export class SyncService implements SyncServiceAbstraction {
       await this.syncPolicies(response.policies);
 
       await this.setLastSync(now);
+
+      this.syncEventSubject.next({
+        status: "Completed",
+        successfully: true,
+        data: response,
+      });
+
       return this.syncCompleted(true);
     } catch (e) {
+      this.syncEventSubject.next({
+        status: "Completed",
+        successfully: false,
+        error: e,
+      });
       if (allowThrowOnError) {
         throw e;
       } else {

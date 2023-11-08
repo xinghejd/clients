@@ -1,3 +1,4 @@
+import { ErrorResponse } from "../../models/response/error.response";
 import { SyncResponse } from "../models/response/sync.response";
 
 type SyncStatus = "Started" | "Completed";
@@ -14,9 +15,18 @@ type SyncSuccessfullyCompletedEventArgs = SyncCompletedEventArgsBase<true> & {
   data: SyncResponse;
 };
 
+export type SyncError = Error | ErrorResponse;
+
+type SyncUnsuccessfullyCompletedEventArgs = SyncCompletedEventArgsBase<false> & {
+  /**
+   * Optional error that caused the sync to complete unsuccessfully
+   */
+  error?: SyncError;
+};
+
 export type SyncEventArgs =
   | SyncSuccessfullyCompletedEventArgs
-  | SyncCompletedEventArgsBase<false>
+  | SyncUnsuccessfullyCompletedEventArgs
   | SyncEventArgsBase<"Started">;
 
 /**
