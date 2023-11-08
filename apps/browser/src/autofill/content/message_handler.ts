@@ -1,12 +1,10 @@
 import { setupExtensionDisconnectAction } from "../utils/utils";
 
 const forwardCommands = [
-  "promptForLogin",
-  "passwordReprompt",
+  "bgUnlockPopoutOpened",
   "addToLockedVaultPendingNotifications",
   "unlockCompleted",
   "addedCipher",
-  "openAddEditCipher",
 ];
 
 /**
