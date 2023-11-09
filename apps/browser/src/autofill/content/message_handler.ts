@@ -1,4 +1,4 @@
-import { setupExtensionDisconnectAction } from "../utils/utils";
+import { setupExtensionDisconnectAction } from "../utils";
 
 const forwardCommands = [
   "bgUnlockPopoutOpened",

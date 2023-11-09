@@ -4,7 +4,7 @@ import AutofillField from "../models/autofill-field";
 import { WatchedForm } from "../models/watched-form";
 import { FormData } from "../services/abstractions/autofill.service";
 import { UserSettings } from "../types";
-import { getFromLocalStorage, setupExtensionDisconnectAction } from "../utils/utils";
+import { getFromLocalStorage, setupExtensionDisconnectAction } from "../utils";
 
 interface HTMLElementWithFormOpId extends HTMLElement {
   formOpId: string;

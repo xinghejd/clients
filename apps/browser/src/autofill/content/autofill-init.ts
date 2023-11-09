@@ -3,7 +3,7 @@ import AutofillScript from "../models/autofill-script";
 import CollectAutofillContentService from "../services/collect-autofill-content.service";
 import DomElementVisibilityService from "../services/dom-element-visibility.service";
 import InsertAutofillContentService from "../services/insert-autofill-content.service";
-import { setupExtensionDisconnectAction } from "../utils/utils";
+import { setupExtensionDisconnectAction } from "../utils";
 
 import {
   AutofillExtensionMessage,

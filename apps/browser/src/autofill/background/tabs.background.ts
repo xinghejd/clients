@@ -66,7 +66,6 @@ export default class TabsBackground {
   }
 
   private updateCurrentTabData = async () => {
-    await this.main.refreshBadge();
-    await this.main.refreshMenu();
+    await Promise.all([this.main.refreshBadge(), this.main.refreshMenu()]);
   };
 }

@@ -1,4 +1,4 @@
-import { getFromLocalStorage, setupExtensionDisconnectAction } from "../utils/utils";
+import { getFromLocalStorage, setupExtensionDisconnectAction } from "../utils";
 
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", loadAutofiller);
