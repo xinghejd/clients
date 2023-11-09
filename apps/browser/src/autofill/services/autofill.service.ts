@@ -49,12 +49,12 @@ export default class AutofillService implements AutofillServiceInterface {
   ) {}
 
   /**
-   * Initializes the autofill service, handles injecting content
-   * scripts into all tabs that are currently open, and sets up
-   * a listener to ensure content scripts can identify if the
-   * extension context has been disconnected.
+   * Triggers on installation of the extension Handles injecting
+   * content scripts into all tabs that are currently open, and
+   * sets up a listener to ensure content scripts can identify
+   * if the extension context has been disconnected.
    */
-  async init() {
+  async loadAutofillScriptsOnInstall() {
     const tabs = await BrowserApi.tabsQuery({});
     for (let index = 0; index < tabs.length; index++) {
       const tab = tabs[index];

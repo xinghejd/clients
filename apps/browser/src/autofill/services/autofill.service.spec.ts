@@ -75,7 +75,7 @@ describe("AutofillService", () => {
     mockReset(cipherService);
   });
 
-  describe("init", () => {
+  describe("loadAutofillScriptsOnInstall", () => {
     let tab1: chrome.tabs.Tab;
     let tab2: chrome.tabs.Tab;
     let tab3: chrome.tabs.Tab;
@@ -90,7 +90,7 @@ describe("AutofillService", () => {
     it("queries all browser tabs and injects the autofill scripts into them", async () => {
       jest.spyOn(autofillService, "injectAutofillScripts");
 
-      await autofillService.init();
+      await autofillService.loadAutofillScriptsOnInstall();
 
       expect(BrowserApi.tabsQuery).toHaveBeenCalledWith({});
       expect(autofillService.injectAutofillScripts).toHaveBeenCalledWith(tab1, 0, false);
@@ -100,14 +100,14 @@ describe("AutofillService", () => {
     it("skips injecting scripts into tabs that do not have an http(s) protocol", async () => {
       jest.spyOn(autofillService, "injectAutofillScripts");
 
-      await autofillService.init();
+      await autofillService.loadAutofillScriptsOnInstall();
 
       expect(BrowserApi.tabsQuery).toHaveBeenCalledWith({});
       expect(autofillService.injectAutofillScripts).not.toHaveBeenCalledWith(tab3);
     });
 
     it("sets up an extension runtime onConnect listener", async () => {
-      await autofillService.init();
+      await autofillService.loadAutofillScriptsOnInstall();
 
       expect(chrome.runtime.onConnect.addListener).toHaveBeenCalledWith(expect.any(Function));
     });

@@ -45,7 +45,7 @@ export interface GenerateFillScriptOptions {
 }
 
 export abstract class AutofillService {
-  init: () => Promise<void>;
+  loadAutofillScriptsOnInstall: () => Promise<void>;
   injectAutofillScripts: (
     tab: chrome.tabs.Tab,
     frameId?: number,
