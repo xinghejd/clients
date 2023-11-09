@@ -760,6 +760,8 @@ export default class MainBackground {
     await this.idleBackground.init();
     await this.webRequestBackground.init();
 
+    await this.fido2Service.init();
+
     if (this.platformUtilsService.isFirefox() && !this.isPrivateMode) {
       // Set Private Mode windows to the default icon - they do not share state with the background page
       const privateWindows = await BrowserApi.getPrivateModeWindows();

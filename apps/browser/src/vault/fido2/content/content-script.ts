@@ -109,6 +109,11 @@ function initializeFido2ContentScript() {
 async function run() {
   if ((await hasActiveUser()) && (await isFido2FeatureEnabled()) && !(await isDomainExcluded())) {
     initializeFido2ContentScript();
+
+    const port = chrome.runtime.connect({ name: "fido2ContentScript" });
+    port.onDisconnect.addListener(() => {
+      //remove webauthn listeners
+    });
   }
 }
 

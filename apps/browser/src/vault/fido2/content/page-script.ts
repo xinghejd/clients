@@ -195,3 +195,7 @@ async function waitForFocus(fallbackWait = 500, timeout = 5 * 60 * 1000) {
     window.clearTimeout(timeoutId);
   }
 }
+
+// window.addEventListener("message", (event) => {
+//   console.log("beforeunload::", event);
+// });
