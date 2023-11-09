@@ -59,7 +59,7 @@ export default class AutofillService implements AutofillServiceInterface {
     for (let index = 0; index < tabs.length; index++) {
       const tab = tabs[index];
       if (tab.url?.startsWith("http")) {
-        this.injectAutofillScripts(tab);
+        this.injectAutofillScripts(tab, 0, false);
       }
     }
 
@@ -82,7 +82,7 @@ export default class AutofillService implements AutofillServiceInterface {
   async injectAutofillScripts(
     tab: chrome.tabs.Tab,
     frameId = 0,
-    triggeringOnPageLoad = false
+    triggeringOnPageLoad = true
   ): Promise<void> {
     const autofillV2 = await this.configService.getFeatureFlag<boolean>(FeatureFlag.AutofillV2);
     const mainAutofillScript = autofillV2 ? `autofill-init.js` : "autofill.js";

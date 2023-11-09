@@ -130,7 +130,7 @@ export default class RuntimeBackground {
         await this.main.openPopup();
         break;
       case "triggerAutofillScriptInjection":
-        await this.autofillService.injectAutofillScripts(sender.tab, sender.frameId, true);
+        await this.autofillService.injectAutofillScripts(sender.tab, sender.frameId);
         break;
       case "bgCollectPageDetails":
         await this.main.collectPageDetailsForContentScript(sender.tab, msg.sender, sender.frameId);
