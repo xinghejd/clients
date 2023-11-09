@@ -93,8 +93,8 @@ describe("AutofillService", () => {
       await autofillService.init();
 
       expect(BrowserApi.tabsQuery).toHaveBeenCalledWith({});
-      expect(autofillService.injectAutofillScripts).toHaveBeenCalledWith(tab1);
-      expect(autofillService.injectAutofillScripts).toHaveBeenCalledWith(tab2);
+      expect(autofillService.injectAutofillScripts).toHaveBeenCalledWith(tab1, 0, false);
+      expect(autofillService.injectAutofillScripts).toHaveBeenCalledWith(tab2, 0, false);
     });
 
     it("skips injecting scripts into tabs that do not have an http(s) protocol", async () => {
