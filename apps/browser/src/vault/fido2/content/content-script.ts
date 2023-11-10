@@ -106,6 +106,15 @@ function initializeFido2ContentScript() {
   };
 }
 
+function cleanUpResources() {
+  // const injectedScriptSrc = chrome.runtime.getURL("content/fido2/page-script.js");
+  // const scriptElements = document.querySelectorAll(`script[src="${injectedScriptSrc}"]`);
+  // console.log("Here::", scriptElements);
+  // scriptElements.forEach((element) => element.remove());
+
+  window.postMessage({ type: "cleanup" }, "*");
+}
+
 async function run() {
   if ((await hasActiveUser()) && (await isFido2FeatureEnabled()) && !(await isDomainExcluded())) {
     initializeFido2ContentScript();
@@ -113,6 +122,7 @@ async function run() {
     const port = chrome.runtime.connect({ name: "fido2ContentScript" });
     port.onDisconnect.addListener(() => {
       //remove webauthn listeners
+      cleanUpResources();
     });
   }
 }

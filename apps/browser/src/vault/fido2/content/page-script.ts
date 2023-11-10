@@ -153,6 +153,9 @@ function isWebauthnCall(options?: CredentialCreationOptions | CredentialRequestO
   return options && "publicKey" in options;
 }
 
+let focusListener: ((this: Window, ev: FocusEvent) => any) | null = null;
+let timeoutId: number | null = null;
+
 /**
  * Wait for window to be focused.
  * Safari doesn't allow scripts to trigger webauthn when window is not focused.
@@ -171,13 +174,11 @@ async function waitForFocus(fallbackWait = 500, timeout = 5 * 60 * 1000) {
     return await new Promise((resolve) => window.setTimeout(resolve, fallbackWait));
   }
 
-  let focusListener;
   const focusPromise = new Promise<void>((resolve) => {
     focusListener = () => resolve();
     window.top.addEventListener("focus", focusListener);
   });
 
-  let timeoutId;
   const timeoutPromise = new Promise<void>((_, reject) => {
     timeoutId = window.setTimeout(
       () =>
@@ -196,6 +197,19 @@ async function waitForFocus(fallbackWait = 500, timeout = 5 * 60 * 1000) {
   }
 }
 
-// window.addEventListener("message", (event) => {
-//   console.log("beforeunload::", event);
-// });
+window.addEventListener("message", (event) => {
+  if (browserNativeWebauthnSupport) {
+    navigator.credentials.create = browserCredentials.create;
+    navigator.credentials.get = browserCredentials.get;
+  }
+
+  if (focusListener) {
+    window.top.removeEventListener("focus", focusListener);
+    focusListener = null;
+  }
+
+  if (timeoutId) {
+    window.clearTimeout(timeoutId);
+    timeoutId = null;
+  }
+});
