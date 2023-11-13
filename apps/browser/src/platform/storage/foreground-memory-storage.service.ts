@@ -1,6 +1,9 @@
 import { Observable, Subject, filter, firstValueFrom, map } from "rxjs";
 
-import { AbstractMemoryStorageService, StorageUpdate } from "@bitwarden/common/platform/abstractions/storage.service";
+import {
+  AbstractMemoryStorageService,
+  StorageUpdate,
+} from "@bitwarden/common/platform/abstractions/storage.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { fromChromeEvent } from "../browser/from-chrome-event";
@@ -41,9 +44,7 @@ export class ForegroundMemoryStorageService extends AbstractMemoryStorageService
             this.handleInitialize(message.data as string[]); // Map entries as array
             break;
           case "subject_update":
-            this.handleSubjectUpdate(
-              message.data as StorageUpdate
-            );
+            this.handleSubjectUpdate(message.data as StorageUpdate);
             break;
           default:
             throw new Error(`Unknown action: ${message.action}`);
