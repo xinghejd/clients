@@ -6,7 +6,10 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-import { AccountSwitcherService } from "../../../../apps/browser/src/auth/popup/services/account-switcher.service";
+import {
+  AccountOption,
+  AccountSwitcherService,
+} from "../../../../apps/browser/src/auth/popup/services/account-switcher.service";
 import { BrowserRouterService } from "../../../../apps/browser/src/platform/popup/services/browser-router.service";
 import { AvatarModule } from "../../../components/src/avatar";
 
@@ -17,8 +20,7 @@ import { AvatarModule } from "../../../components/src/avatar";
   imports: [CommonModule, JslibModule, AvatarModule],
 })
 export class AccountComponent {
-  // TODO: replace use of 'any'
-  @Input() account: any;
+  @Input() account: AccountOption;
 
   constructor(
     private accountSwitcherService: AccountSwitcherService,

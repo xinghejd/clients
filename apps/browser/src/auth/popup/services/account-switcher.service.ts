@@ -7,6 +7,13 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
+export type AccountOption = {
+  name: string;
+  id: string;
+  isSelected: boolean;
+  status?: AuthenticationStatus;
+};
+
 @Injectable({
   providedIn: "root",
 })
@@ -28,16 +35,14 @@ export class AccountSwitcherService {
         );
         // Accounts shouldn't ever be more than ACCOUNT_LIMIT but just in case do a greater than
         const hasMaxAccounts = accountEntries.length >= this.ACCOUNT_LIMIT;
-        const options: { name: string; id: string; isSelected: boolean }[] = accountEntries.map(
-          ([id, account]) => {
-            return {
-              name: account.name ?? account.email,
-              id: id,
-              status: account.status,
-              isSelected: id === activeAccount?.id,
-            };
-          }
-        );
+        const options: AccountOption[] = accountEntries.map(([id, account]) => {
+          return {
+            name: account.name ?? account.email,
+            id: id,
+            status: account.status,
+            isSelected: id === activeAccount?.id,
+          };
+        });
 
         if (!hasMaxAccounts) {
           options.push({
