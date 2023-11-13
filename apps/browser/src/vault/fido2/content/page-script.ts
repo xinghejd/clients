@@ -198,6 +198,8 @@ async function waitForFocus(fallbackWait = 500, timeout = 5 * 60 * 1000) {
 }
 
 window.addEventListener("message", (event) => {
+  messenger.cleanup();
+
   if (browserNativeWebauthnSupport) {
     navigator.credentials.create = browserCredentials.create;
     navigator.credentials.get = browserCredentials.get;

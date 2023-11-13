@@ -22,6 +22,8 @@ type Handler = (
  * handling aborts and exceptions across separate execution contexts.
  */
 export class Messenger {
+  private messageEventListener: (event: MessageEvent<MessageWithMetadata>) => void | null = null;
+
   /**
    * Creates a messenger that uses the browser's `window.postMessage` API to initiate
    * requests in the content script. Every request will then create it's own
@@ -54,7 +56,7 @@ export class Messenger {
   handler?: Handler;
 
   constructor(private broadcastChannel: Channel) {
-    this.broadcastChannel.addEventListener(async (event) => {
+    this.messageEventListener = async (event) => {
       if (this.handler === undefined) {
         return;
       }
@@ -84,7 +86,9 @@ export class Messenger {
       } finally {
         port.close();
       }
-    });
+    };
+
+    this.broadcastChannel.addEventListener(this.messageEventListener);
   }
 
   /**
@@ -125,6 +129,13 @@ export class Messenger {
       return response;
     } finally {
       localPort.close();
+    }
+  }
+
+  cleanup() {
+    if (this.messageEventListener) {
+      window.removeEventListener("message", this.messageEventListener);
+      this.messageEventListener = null;
     }
   }
 }

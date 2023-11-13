@@ -40,12 +40,12 @@ async function hasActiveUser() {
   return activeUserStorageValue[activeUserIdKey] !== undefined;
 }
 
+const messenger = Messenger.forDOMCommunication(window);
+
 function initializeFido2ContentScript() {
   const s = document.createElement("script");
   s.src = chrome.runtime.getURL("content/fido2/page-script.js");
   (document.head || document.documentElement).appendChild(s);
-
-  const messenger = Messenger.forDOMCommunication(window);
 
   messenger.handler = async (message, abortController) => {
     const requestId = Date.now().toString();
@@ -107,11 +107,7 @@ function initializeFido2ContentScript() {
 }
 
 function cleanUpResources() {
-  // const injectedScriptSrc = chrome.runtime.getURL("content/fido2/page-script.js");
-  // const scriptElements = document.querySelectorAll(`script[src="${injectedScriptSrc}"]`);
-  // console.log("Here::", scriptElements);
-  // scriptElements.forEach((element) => element.remove());
-
+  messenger.cleanup();
   window.postMessage({ type: "cleanup" }, "*");
 }
 
@@ -121,7 +117,6 @@ async function run() {
 
     const port = chrome.runtime.connect({ name: "fido2ContentScript" });
     port.onDisconnect.addListener(() => {
-      //remove webauthn listeners
       cleanUpResources();
     });
   }
