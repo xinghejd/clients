@@ -234,7 +234,7 @@ header:not(bit-callout header) {
   }
 
   app-pop-out > button,
-  div > button:not(app-current-account button),
+  div > button:not(app-current-account button):not(.home-acc-switcher-btn),
   div > a {
     border: none;
     padding: 0 10px;
@@ -246,12 +246,15 @@ header:not(bit-callout header) {
     height: 100%;
     white-space: pre;
 
-    &:hover,
-    &:focus {
+    &:not(.home-acc-switcher-btn):hover,
+    &:not(.home-acc-switcher-btn):focus {
       @include themify($themes) {
         background-color: themed("headerBackgroundHoverColor");
         color: themed("headerColor");
       }
+    }
+
+    app-header .home-account-switcher-btn {
     }
 
     &[disabled] {

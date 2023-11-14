@@ -1,4 +1,14 @@
-<app-header [noTheme]="true"></app-header>
+<app-header [noTheme]="true">
+  <div class="right">
+    <button
+      type="button"
+      routerLink="/account-switcher"
+      class="home-acc-switcher-btn tw-mr-2 tw-mt-2 tw-rounded-full hover:tw-bg-none hover:tw-outline hover:tw-outline-1 hover:tw-outline-offset-1"
+    >
+      <bit-avatar [color]="'#175DDC'" [text]="'&hellip;'" aria-hidden="true"></bit-avatar>
+    </button>
+  </div>
+</app-header>
 <div class="center-content">
   <div class="content login-page">
     <div class="logo-image"></div>
