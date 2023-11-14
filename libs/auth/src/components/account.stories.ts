@@ -64,7 +64,6 @@ export const Unlocked: Story = {
       name: "John Doe",
       id: "John Doe",
       isSelected: false,
-      server: "jdoe@example.com",
       status: AuthenticationStatus.Unlocked,
     },
   },
