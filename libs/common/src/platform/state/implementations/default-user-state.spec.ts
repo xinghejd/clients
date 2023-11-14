@@ -33,11 +33,9 @@ class TestState {
 
 const testStateDefinition = new StateDefinition("fake", "disk");
 
-const testKeyDefinition = new KeyDefinition<TestState>(
-  testStateDefinition,
-  "fake",
-  TestState.fromJSON
-);
+const testKeyDefinition = new KeyDefinition<TestState>(testStateDefinition, "fake", {
+  deserializer: TestState.fromJSON,
+});
 
 describe("DefaultUserState", () => {
   const accountService = mock<AccountService>();
