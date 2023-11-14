@@ -1,6 +1,7 @@
 import { NgModule } from "@angular/core";
 
 import { BreadcrumbsModule } from "@bitwarden/components";
+import { FailedSyncWarningComponent } from "@bitwarden/vault";
 
 import { LooseComponentsModule, SharedModule } from "../../shared";
 import { CollectionDialogModule } from "../components/collection-dialog";
@@ -30,6 +31,7 @@ import { VaultComponent } from "./vault.component";
     BreadcrumbsModule,
     VaultItemsModule,
     CollectionDialogModule,
+    FailedSyncWarningComponent,
   ],
   declarations: [VaultComponent, VaultHeaderComponent],
   exports: [VaultComponent],

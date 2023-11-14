@@ -7440,5 +7440,26 @@
   },
   "serviceAccountAccessUpdated": {
     "message": "Service account access updated"
+  },
+  "unableToConnect": {
+    "message": "Unable to connect"
+  },
+  "serverError": {
+    "message": "$ERROR_CODE$ server error",
+    "placeholders": {
+      "error_code": {
+        "content": "$1",
+        "example": "500"
+      }
+    }
+  },
+  "syncUnsuccessful": {
+    "message": "Sync unsuccessful"
+  },
+  "noNetworkConnectionDesc": {
+    "message": "Unable to connect to server. Please check you internet connection and try again."
+  },
+  "unknownSyncErrorDesc": {
+    "message": "Unable to complete vault sync at this time. Please try again later."
   }
 }
