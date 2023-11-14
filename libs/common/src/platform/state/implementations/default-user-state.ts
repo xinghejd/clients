@@ -71,7 +71,7 @@ export class DefaultUserState<T> implements UserState<T> {
       filter(([update, key]) => key !== null && update.key === key),
       switchMap(async ([update, key]) => {
         if (update.updateType === "remove") {
-          return FAKE_DEFAULT;
+          return null;
         }
         const data = await getStoredValue(
           key,
