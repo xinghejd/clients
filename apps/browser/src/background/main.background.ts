@@ -132,7 +132,6 @@ import { Account } from "../models/account";
 import { BrowserApi } from "../platform/browser/browser-api";
 import { flagEnabled } from "../platform/flags";
 import { UpdateBadge } from "../platform/listeners/update-badge";
-import BrowserPopoutWindowService from "../platform/popup/browser-popout-window.service";
 import { BrowserStateService as StateServiceAbstraction } from "../platform/services/abstractions/browser-state.service";
 import { BrowserConfigService } from "../platform/services/browser-config.service";
 import { BrowserCryptoService } from "../platform/services/browser-crypto.service";
@@ -145,7 +144,6 @@ import BrowserPlatformUtilsService from "../platform/services/browser-platform-u
 import { BrowserStateService } from "../platform/services/browser-state.service";
 import { KeyGenerationService } from "../platform/services/key-generation.service";
 import { LocalBackedSessionStorageService } from "../platform/services/local-backed-session-storage.service";
-import { PopupUtilsService } from "../popup/services/popup-utils.service";
 import { BrowserSendService } from "../services/browser-send.service";
 import { BrowserSettingsService } from "../services/browser-settings.service";
 import VaultTimeoutService from "../services/vault-timeout/vault-timeout.service";
@@ -227,8 +225,6 @@ export default class MainBackground {
   devicesService: DevicesServiceAbstraction;
   deviceTrustCryptoService: DeviceTrustCryptoServiceAbstraction;
   authRequestCryptoService: AuthRequestCryptoServiceAbstraction;
-  popupUtilsService: PopupUtilsService;
-  browserPopoutWindowService: BrowserPopoutWindowService;
   accountService: AccountServiceAbstraction;
   fido2Service: Fido2ServiceAbstraction;
 
@@ -586,13 +582,8 @@ export default class MainBackground {
       this.messagingService
     );
 
-    this.browserPopoutWindowService = new BrowserPopoutWindowService();
-
     this.fido2Service = new Fido2Service();
-    this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService(
-      this.browserPopoutWindowService,
-      this.authService
-    );
+    this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService(this.authService);
     this.fido2AuthenticatorService = new Fido2AuthenticatorService(
       this.cipherService,
       this.fido2UserInterfaceService,
@@ -639,7 +630,6 @@ export default class MainBackground {
       this.messagingService,
       this.logService,
       this.configService,
-      this.browserPopoutWindowService,
       this.fido2Service
     );
     this.nativeMessagingBackground = new NativeMessagingBackground(
