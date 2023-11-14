@@ -28,7 +28,7 @@
     </p>
   </div>
 
-  <div class="tw-mt-8">
+  <div class="tw-mt-8" *ngIf="currentAccount$ | async">
     <div class="tw-mb-2 tw-uppercase tw-text-muted">{{ "options" | i18n }}</div>
     <div class="tw-grid tw-gap-2">
       <button

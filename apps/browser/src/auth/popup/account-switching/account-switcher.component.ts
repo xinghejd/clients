@@ -4,6 +4,7 @@ import { Router } from "@angular/router";
 import { Subject, map, takeUntil } from "rxjs";
 
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { DialogService } from "@bitwarden/components";
 
@@ -17,6 +18,7 @@ export class AccountSwitcherComponent implements OnDestroy {
 
   constructor(
     private accountSwitcherService: AccountSwitcherService,
+    private accountService: AccountService,
     private vaultTimeoutService: VaultTimeoutService,
     public messagingService: MessagingService,
     private dialogService: DialogService,
@@ -34,6 +36,10 @@ export class AccountSwitcherComponent implements OnDestroy {
 
   get accountOptions$() {
     return this.accountSwitcherService.accountOptions$;
+  }
+
+  get currentAccount$() {
+    return this.accountService.activeAccount$;
   }
 
   back() {
