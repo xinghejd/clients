@@ -86,11 +86,13 @@ class TestChannelPair {
 
     this.channelA = {
       addEventListener: (listener) => (broadcastChannel.port1.onmessage = listener),
+      removeEventListener: () => (broadcastChannel.port1.onmessage = null),
       postMessage: (message, port) => broadcastChannel.port1.postMessage(message, port),
     };
 
     this.channelB = {
       addEventListener: (listener) => (broadcastChannel.port2.onmessage = listener),
+      removeEventListener: () => (broadcastChannel.port1.onmessage = null),
       postMessage: (message, port) => broadcastChannel.port2.postMessage(message, port),
     };
   }

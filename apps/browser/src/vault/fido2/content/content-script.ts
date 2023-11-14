@@ -40,7 +40,7 @@ async function hasActiveUser() {
   return activeUserStorageValue[activeUserIdKey] !== undefined;
 }
 
-const messenger = Messenger.forDOMCommunication(window);
+const messenger = Messenger.forDOMCommunication(window, "content-script");
 
 function initializeFido2ContentScript() {
   const s = document.createElement("script");
@@ -106,18 +106,15 @@ function initializeFido2ContentScript() {
   };
 }
 
-function cleanUpResources() {
-  messenger.cleanup();
-  window.postMessage({ type: "cleanup" }, "*");
-}
-
 async function run() {
   if ((await hasActiveUser()) && (await isFido2FeatureEnabled()) && !(await isDomainExcluded())) {
     initializeFido2ContentScript();
 
     const port = chrome.runtime.connect({ name: "fido2ContentScript" });
     port.onDisconnect.addListener(() => {
-      cleanUpResources();
+      // Cleanup the messenger and remove the event listener
+      messenger.cleanup();
+      window.postMessage({ type: "cleanup" }, "*");
     });
   }
 }

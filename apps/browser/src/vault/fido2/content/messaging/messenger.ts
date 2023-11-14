@@ -6,6 +6,7 @@ type PostMessageFunction = (message: MessageWithMetadata, remotePort: MessagePor
 
 export type Channel = {
   addEventListener: (listener: (message: MessageEvent<MessageWithMetadata>) => void) => void;
+  removeEventListener: (listener: (message: MessageEvent<MessageWithMetadata>) => void) => void;
   postMessage: PostMessageFunction;
 };
 
@@ -30,21 +31,31 @@ export class Messenger {
    * `MessageChannel` through which all subsequent communication will be sent through.
    *
    * @param window the window object to use for communication
+   * @param memoIndex a unique identifier for the content script
    * @returns a `Messenger` instance
    */
-  static forDOMCommunication(window: Window) {
+  static forDOMCommunication(window: Window, memoIndex: string) {
     const windowOrigin = window.location.origin;
+    const eventHandlersMemo: { [key: string]: EventListener } = {};
 
-    return new Messenger({
-      postMessage: (message, port) => window.postMessage(message, windowOrigin, [port]),
-      addEventListener: (listener) =>
-        window.addEventListener("message", (event: MessageEvent<unknown>) => {
+    const messageListener = (listener: CallableFunction) => {
+      return (
+        eventHandlersMemo[memoIndex] ||
+        (eventHandlersMemo[memoIndex] = (event: MessageEvent<MessageWithMetadata>) => {
           if (event.origin !== windowOrigin) {
             return;
           }
 
           listener(event as MessageEvent<MessageWithMetadata>);
-        }),
+        })
+      );
+    };
+
+    return new Messenger({
+      postMessage: (message, port) => window.postMessage(message, windowOrigin, [port]),
+      addEventListener: (listener) => window.addEventListener("message", messageListener(listener)),
+      removeEventListener: (listener) =>
+        window.removeEventListener("message", messageListener(listener)),
     });
   }
 
@@ -134,7 +145,7 @@ export class Messenger {
 
   cleanup() {
     if (this.messageEventListener) {
-      window.removeEventListener("message", this.messageEventListener);
+      this.broadcastChannel.removeEventListener(this.messageEventListener);
       this.messageEventListener = null;
     }
   }
