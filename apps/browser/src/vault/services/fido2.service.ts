@@ -12,7 +12,7 @@ export default class Fido2Service implements Fido2ServiceInterface {
       }
     }
 
-    chrome.runtime.onConnect.addListener((port) => {
+    BrowserApi.addListener(chrome.runtime.onConnect, (port) => {
       if (port.name === "fido2ContentScript") {
         port.postMessage({ command: "fido2ContentScriptInit" });
       }
@@ -20,7 +20,7 @@ export default class Fido2Service implements Fido2ServiceInterface {
   }
 
   /**
-   *
+   * Injects the FIDO2 content script into the current tab.
    * @param {chrome.runtime.MessageSender}  sender
    * @returns {Promise<void>}
    */
