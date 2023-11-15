@@ -101,9 +101,11 @@ import { NoopNotificationsService } from "@bitwarden/common/platform/services/no
 import { StateService } from "@bitwarden/common/platform/services/state.service";
 import { ValidationService } from "@bitwarden/common/platform/services/validation.service";
 import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
-import { GlobalStateProvider } from "@bitwarden/common/platform/state";
+import { GlobalStateProvider, UserStateProvider } from "@bitwarden/common/platform/state";
 // eslint-disable-next-line import/no-restricted-paths -- We need the implementation to inject, but generally this should not be accessed
 import { DefaultGlobalStateProvider } from "@bitwarden/common/platform/state/implementations/default-global-state.provider";
+// eslint-disable-next-line import/no-restricted-paths -- We need the implementation to inject, but generally this should not be accessed
+import { DefaultUserStateProvider } from "@bitwarden/common/platform/state/implementations/default-user-state.provider";
 import { AvatarUpdateService } from "@bitwarden/common/services/account/avatar-update.service";
 import { AnonymousHubService } from "@bitwarden/common/services/anonymousHub.service";
 import { ApiService } from "@bitwarden/common/services/api.service";
@@ -360,7 +362,7 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
     {
       provide: EnvironmentServiceAbstraction,
       useClass: EnvironmentService,
-      deps: [StateServiceAbstraction],
+      deps: [StateServiceAbstraction, UserStateProvider, GlobalStateProvider],
     },
     {
       provide: TotpServiceAbstraction,
@@ -754,6 +756,11 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
       provide: GlobalStateProvider,
       useClass: DefaultGlobalStateProvider,
       deps: [MEMORY_STORAGE, AbstractStorageService],
+    },
+    {
+      provide: UserStateProvider,
+      useClass: DefaultUserStateProvider,
+      deps: [AccountServiceAbstraction, EncryptService, MEMORY_STORAGE, AbstractStorageService],
     },
   ],
 })

@@ -7,6 +7,21 @@ import {
   Urls,
 } from "../abstractions/environment.service";
 import { StateService } from "../abstractions/state.service";
+import {
+  ENVIRONMENT_DISK,
+  KeyDefinition,
+  UserState,
+  GlobalState,
+  UserStateProvider,
+  GlobalStateProvider,
+} from "../state";
+
+const ACCOUNT_ENVIRONMENTS = new KeyDefinition<Urls>(ENVIRONMENT_DISK, "environment", {
+  deserializer: (urls) => urls,
+});
+const DEFAULT_ENVIRONMENT = new KeyDefinition<Urls>(ENVIRONMENT_DISK, "default_environment", {
+  deserializer: (urls) => urls,
+});
 
 export class EnvironmentService implements EnvironmentServiceAbstraction {
   private readonly urlsSubject = new ReplaySubject<void>(1);
@@ -24,6 +39,9 @@ export class EnvironmentService implements EnvironmentServiceAbstraction {
   private keyConnectorUrl: string;
   private scimUrl: string = null;
   private cloudWebVaultUrl: string;
+
+  private accountEnvironmentState: UserState<Urls>;
+  private defaultEnvironmentState: GlobalState<Urls>;
 
   readonly usUrls: Urls = {
     base: null,
@@ -47,7 +65,13 @@ export class EnvironmentService implements EnvironmentServiceAbstraction {
     scim: "https://scim.bitwarden.eu",
   };
 
-  constructor(private stateService: StateService) {
+  constructor(
+    private stateService: StateService,
+    userStateProvider: UserStateProvider,
+    globalStateProvider: GlobalStateProvider
+  ) {
+    this.accountEnvironmentState = userStateProvider.get(ACCOUNT_ENVIRONMENTS);
+    this.defaultEnvironmentState = globalStateProvider.get(DEFAULT_ENVIRONMENT);
     this.stateService.activeAccount$
       .pipe(
         concatMap(async () => {
