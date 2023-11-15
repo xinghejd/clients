@@ -132,12 +132,12 @@ export class Messenger {
     }
   }
 
-  async sendDisconnectCommand() {
-    await this.request({ type: MessageType.DisconnectRequest });
-  }
-
   async sendReconnectCommand() {
     await this.request({ type: MessageType.ReconnectRequest });
+  }
+
+  private async sendDisconnectCommand() {
+    await this.request({ type: MessageType.DisconnectRequest });
   }
 
   /**
@@ -145,6 +145,7 @@ export class Messenger {
    */
   destroy() {
     if (this.messageEventListener) {
+      this.sendDisconnectCommand();
       this.broadcastChannel.removeEventListener(this.messageEventListener);
       this.messageEventListener = null;
     }

@@ -127,7 +127,6 @@ async function run() {
     const port = chrome.runtime.connect({ name: "fido2ContentScriptReady" });
     port.onDisconnect.addListener(() => {
       // Cleanup the messenger and remove the event listener
-      messenger.sendDisconnectCommand();
       messenger.destroy();
     });
   }
