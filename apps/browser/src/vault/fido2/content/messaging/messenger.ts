@@ -143,7 +143,18 @@ export class Messenger {
     }
   }
 
-  cleanup() {
+  async sendDisconnectCommand() {
+    await this.request({ type: MessageType.DisconnectRequest });
+  }
+
+  async sendReconnectCommand() {
+    await this.request({ type: MessageType.ReconnectRequest });
+  }
+
+  /**
+   * Cleans up the messenger by removing the message event listener
+   */
+  destroy() {
     if (this.messageEventListener) {
       this.broadcastChannel.removeEventListener(this.messageEventListener);
       this.messageEventListener = null;
