@@ -143,9 +143,9 @@ export class Messenger {
   /**
    * Cleans up the messenger by removing the message event listener
    */
-  destroy() {
+  async destroy() {
     if (this.messageEventListener) {
-      this.sendDisconnectCommand();
+      await this.sendDisconnectCommand();
       this.broadcastChannel.removeEventListener(this.messageEventListener);
       this.messageEventListener = null;
     }

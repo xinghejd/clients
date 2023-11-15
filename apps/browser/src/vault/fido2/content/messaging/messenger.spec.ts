@@ -73,15 +73,18 @@ describe("Messenger", () => {
   });
 
   describe("destroy", () => {
-    it("should remove the message event listener", () => {
+    it("should remove the message event listener", async () => {
       const channelPair = new TestChannelPair();
       const addEventListenerSpy = jest.spyOn(channelPair.channelA, "addEventListener");
       const removeEventListenerSpy = jest.spyOn(channelPair.channelA, "removeEventListener");
-
       messengerA = new Messenger(channelPair.channelA);
+      jest
+        .spyOn(messengerA as any, "sendDisconnectCommand")
+        .mockImplementation(() => Promise.resolve());
+
       expect(addEventListenerSpy).toHaveBeenCalled();
 
-      messengerA.destroy();
+      await messengerA.destroy();
 
       expect(removeEventListenerSpy).toHaveBeenCalled();
     });
