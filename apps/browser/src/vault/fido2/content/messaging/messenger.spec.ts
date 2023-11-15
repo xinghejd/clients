@@ -65,6 +65,21 @@ describe("Messenger", () => {
 
     expect(received[0].abortController.signal.aborted).toBe(true);
   });
+
+  describe("destroy", () => {
+    it("should remove the message event listener", () => {
+      const channelPair = new TestChannelPair();
+      const addEventListenerSpy = jest.spyOn(channelPair.channelA, "addEventListener");
+      const removeEventListenerSpy = jest.spyOn(channelPair.channelA, "removeEventListener");
+
+      messengerA = new Messenger(channelPair.channelA);
+      expect(addEventListenerSpy).toHaveBeenCalled();
+
+      messengerA.destroy();
+
+      expect(removeEventListenerSpy).toHaveBeenCalled();
+    });
+  });
 });
 
 type TestMessage = MessageWithMetadata & { testId: string };
