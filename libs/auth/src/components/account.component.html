@@ -21,9 +21,9 @@
       {{ account.name }}
     </div>
     <div class="tw-text-sm tw-text-muted">
-      <span class="tw-sr-only">hosted at server</span>
+      <span class="tw-sr-only">{{ "hostedAt" | i18n }}</span>
       <!-- TODO: add actual server -->
-      server.com
+      bitwarden.com
     </div>
     <div class="tw-text-sm tw-italic tw-text-muted" [attr.aria-hidden]="status.text === 'active'">
       <span class="tw-sr-only">(</span>
