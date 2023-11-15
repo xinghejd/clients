@@ -5,15 +5,14 @@ import { Fido2Service as Fido2ServiceInterface } from "./abstractions/fido2.serv
 export default class Fido2Service implements Fido2ServiceInterface {
   async init() {
     const tabs = await BrowserApi.tabsQuery({});
-    for (let index = 0; index < tabs.length; index++) {
-      const tab = tabs[index];
-      if (tab.url?.startsWith("http")) {
+    tabs.forEach((tab) => {
+      if (tab.url?.startsWith("https")) {
         this.injectFido2ContentScripts({ tab } as chrome.runtime.MessageSender);
       }
-    }
+    });
 
     BrowserApi.addListener(chrome.runtime.onConnect, (port) => {
-      if (port.name === "fido2ContentScript") {
+      if (port.name === "fido2ContentScriptReady") {
         port.postMessage({ command: "fido2ContentScriptInit" });
       }
     });

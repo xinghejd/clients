@@ -9,7 +9,7 @@ describe("Fido2Service", () => {
 
   beforeEach(() => {
     fido2Service = new Fido2Service();
-    tabMock = { id: 123, url: "http://bitwarden.com" } as chrome.tabs.Tab;
+    tabMock = { id: 123, url: "https://bitwarden.com" } as chrome.tabs.Tab;
     sender = { tab: tabMock };
     jest.spyOn(BrowserApi, "executeScriptInTab").mockImplementation();
   });
