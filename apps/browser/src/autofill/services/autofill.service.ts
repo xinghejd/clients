@@ -242,6 +242,7 @@ export default class AutofillService implements AutofillServiceInterface {
             command: "fillForm",
             fillScript: fillScript,
             url: tab.url,
+            pageDetailsUrl: pd.details.url,
           },
           { frameId: pd.frameId }
         );
