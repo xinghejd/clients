@@ -3,6 +3,7 @@ import { BehaviorSubject, firstValueFrom, timeout } from "rxjs";
 
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -16,6 +17,7 @@ describe("AccountSwitcherService", () => {
   const accountService = mock<AccountService>();
   const stateService = mock<StateService>();
   const messagingService = mock<MessagingService>();
+  const environmentService = mock<EnvironmentService>();
 
   let accountSwitcherService: AccountSwitcherService;
 
@@ -26,7 +28,8 @@ describe("AccountSwitcherService", () => {
     accountSwitcherService = new AccountSwitcherService(
       accountService,
       stateService,
-      messagingService
+      messagingService,
+      environmentService
     );
   });
 
