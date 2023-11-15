@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout repo
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Set up cloc
         run: |
@@ -60,7 +60,7 @@ jobs:
       node_version: ${{ steps.retrieve-node-version.outputs.node_version }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Get GitHub sha as version
         id: version
@@ -78,8 +78,8 @@ jobs:
     runs-on: ubuntu-22.04
     needs: setup
     env:
-      _VERSION: ${{ needs.setup.outputs.version }}
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
+      _VERSION: ${{ needs.setup.outputs.version }}
     strategy:
       matrix:
         include:
@@ -97,10 +97,9 @@ jobs:
             npm_command: "build:bit:euprd"
           - name: "cloud-euqa"
             npm_command: "build:bit:euqa"
-
     steps:
       - name: Checkout repo
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Set up Node
         uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c # v3.6.0
@@ -163,10 +162,18 @@ jobs:
           - artifact_name: selfhosted-COMMERCIAL
             image_name: web
     env:
+      _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
       _VERSION: ${{ needs.setup.outputs.version }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      # Checkout server repository
+      - name: Checkout repo
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        with:
+          path: server
+          repository: bitwarden/server
 
       - name: Check Branch to Publish
         env:
@@ -188,19 +195,7 @@ jobs:
           creds: ${{ secrets.AZURE_PROD_KV_CREDENTIALS }}
 
       - name: Log into Prod container registry
-        run: az acr login -n bitwardenprod
-
-      - name: Login to Azure - CI Subscription
-        uses: Azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2 # v1.4.7
-        with:
-          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
-
-      - name: Retrieve github PAT secrets
-        id: retrieve-secret-pat
-        uses: bitwarden/gh-actions/get-keyvault-secrets@main
-        with:
-          keyvault: "bitwarden-ci"
-          secrets: "github-pat-bitwarden-devops-bot-repo-scope"
+        run: az acr login -n ${_AZ_REGISTRY%.azurecr.io}
 
       - name: Download ${{ matrix.artifact_name }} artifact
         uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
@@ -245,13 +240,16 @@ jobs:
       - name: Build Docker image
         uses: docker/build-push-action@2eb1c1961a95fc15694676618e422e8ba1d63825 # v4.1.1
         with:
-          context: apps/web
+          build-args: |
+            NODE_VERSION=${{ env._NODE_VERSION }}
+          context: .
           file: apps/web/Dockerfile
-          platforms: linux/amd64
+          platforms: |
+            linux/amd64,
+            linux/arm/v7,
+            linux/arm64
           push: true
           tags: ${{ steps.image-name.outputs.name }}
-          secrets: |
-            "GH_PAT=${{ steps.retrieve-secret-pat.outputs.github-pat-bitwarden-devops-bot-repo-scope }}"
 
       - name: Log out of Docker
         run: docker logout
@@ -264,7 +262,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout repo
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Login to Azure
         uses: Azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2 # v1.4.7
