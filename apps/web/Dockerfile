@@ -57,6 +57,8 @@ RUN apt-get update \
 # Copy app from the build stage
 WORKDIR /bitwarden_server
 COPY --from=build /app/Server ./
+
+WORKDIR /app
 COPY apps/web/build .
 COPY apps/web/entrypoint.sh /
 RUN chmod +x /entrypoint.sh
