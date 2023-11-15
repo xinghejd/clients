@@ -42,10 +42,24 @@ async function hasActiveUser() {
 
 const messenger = Messenger.forDOMCommunication(window, "content-script");
 
+function injectPageScript() {
+  // Locate an existing page-script on the page
+  const existingPageScript = document.getElementById("bw-fido2-page-script");
+
+  // Inject the page-script if it doesn't exist
+  if (!existingPageScript) {
+    const s = document.createElement("script");
+    s.src = chrome.runtime.getURL("content/fido2/page-script.js");
+    s.id = "bw-fido2-page-script";
+    (document.head || document.documentElement).appendChild(s);
+  } else {
+    // If the page-script already exists, send a reconnect message to the page-script
+    messenger.sendReconnectCommand();
+  }
+}
+
 function initializeFido2ContentScript() {
-  const s = document.createElement("script");
-  s.src = chrome.runtime.getURL("content/fido2/page-script.js");
-  (document.head || document.documentElement).appendChild(s);
+  injectPageScript();
 
   messenger.handler = async (message, abortController) => {
     const requestId = Date.now().toString();
@@ -110,11 +124,11 @@ async function run() {
   if ((await hasActiveUser()) && (await isFido2FeatureEnabled()) && !(await isDomainExcluded())) {
     initializeFido2ContentScript();
 
-    const port = chrome.runtime.connect({ name: "fido2ContentScript" });
+    const port = chrome.runtime.connect({ name: "fido2ContentScriptReady" });
     port.onDisconnect.addListener(() => {
       // Cleanup the messenger and remove the event listener
-      messenger.cleanup();
-      window.postMessage({ type: "cleanup" }, "*");
+      messenger.sendDisconnectCommand();
+      messenger.destroy();
     });
   }
 }

@@ -62,10 +62,66 @@ function isSameOriginWithAncestors() {
   }
 }
 
-navigator.credentials.create = async (
+navigator.credentials.create = createWebAuthnCredential;
+navigator.credentials.get = getWebAuthnCredential;
+
+function isWebauthnCall(options?: CredentialCreationOptions | CredentialRequestOptions) {
+  return options && "publicKey" in options;
+}
+
+/**
+ * Wait for window to be focused.
+ * Safari doesn't allow scripts to trigger webauthn when window is not focused.
+ *
+ * @param fallbackWait How long to wait when the script is not able to add event listeners to `window.top`. Defaults to 500ms.
+ * @param timeout Maximum time to wait for focus in milliseconds. Defaults to 5 minutes.
+ * @returns Promise that resolves when window is focused, or rejects if timeout is reached.
+ */
+async function waitForFocus(fallbackWait = 500, timeout = 5 * 60 * 1000) {
+  try {
+    if (window.top.document.hasFocus()) {
+      return;
+    }
+  } catch {
+    // Cannot access window.top due to cross-origin frame, fallback to waiting
+    return await new Promise((resolve) => window.setTimeout(resolve, fallbackWait));
+  }
+  let focusListener;
+  const focusPromise = new Promise<void>((resolve) => {
+    focusListener = () => resolve();
+    window.top.addEventListener("focus", focusListener);
+  });
+
+  let timeoutId;
+  const timeoutPromise = new Promise<void>((_, reject) => {
+    timeoutId = window.setTimeout(
+      () =>
+        reject(
+          new DOMException("The operation either timed out or was not allowed.", "AbortError")
+        ),
+      timeout
+    );
+  });
+
+  try {
+    await Promise.race([focusPromise, timeoutPromise]);
+  } finally {
+    window.top.removeEventListener("focus", focusListener);
+    window.clearTimeout(timeoutId);
+  }
+}
+
+/**
+ * Creates a new webauthn credential.
+ *
+ * @param options Options for creating new credentials.
+ * @param abortController Abort controller to abort the request if needed.
+ * @returns Promise that resolves to the new credential object.
+ */
+async function createWebAuthnCredential(
   options?: CredentialCreationOptions,
   abortController?: AbortController
-): Promise<Credential> => {
+): Promise<Credential> {
   if (!isWebauthnCall(options)) {
     return await browserCredentials.create(options);
   }
@@ -104,12 +160,19 @@ navigator.credentials.create = async (
 
     throw error;
   }
-};
+}
 
-navigator.credentials.get = async (
+/**
+ * Retrieves a webauthn credential.
+ *
+ * @param options Options for creating new credentials.
+ * @param abortController Abort controller to abort the request if needed.
+ * @returns Promise that resolves to the new credential object.
+ */
+async function getWebAuthnCredential(
   options?: CredentialRequestOptions,
   abortController?: AbortController
-): Promise<Credential> => {
+): Promise<Credential> {
   if (!isWebauthnCall(options)) {
     return await browserCredentials.get(options);
   }
@@ -147,76 +210,29 @@ navigator.credentials.get = async (
 
     throw error;
   }
-};
-
-function isWebauthnCall(options?: CredentialCreationOptions | CredentialRequestOptions) {
-  return options && "publicKey" in options;
 }
-
-let focusListener: ((this: Window, ev: FocusEvent) => any) | null = null;
-let timeoutId: number | null = null;
 
 /**
- * Wait for window to be focused.
- * Safari doesn't allow scripts to trigger webauthn when window is not focused.
- *
- * @param fallbackWait How long to wait when the script is not able to add event listeners to `window.top`. Defaults to 500ms.
- * @param timeout Maximum time to wait for focus in milliseconds. Defaults to 5 minutes.
- * @returns Promise that resolves when window is focused, or rejects if timeout is reached.
+ * Sets up a listener to handle cleanup or reconnection when the extension's
+ * context changes due to being reloaded or unloaded.
  */
-async function waitForFocus(fallbackWait = 500, timeout = 5 * 60 * 1000) {
-  try {
-    if (window.top.document.hasFocus()) {
-      return;
-    }
-  } catch {
-    // Cannot access window.top due to cross-origin frame, fallback to waiting
-    return await new Promise((resolve) => window.setTimeout(resolve, fallbackWait));
-  }
-
-  const focusPromise = new Promise<void>((resolve) => {
-    focusListener = () => resolve();
-    window.top.addEventListener("focus", focusListener);
-  });
-
-  const timeoutPromise = new Promise<void>((_, reject) => {
-    timeoutId = window.setTimeout(
-      () =>
-        reject(
-          new DOMException("The operation either timed out or was not allowed.", "AbortError")
-        ),
-      timeout
-    );
-  });
-
-  try {
-    await Promise.race([focusPromise, timeoutPromise]);
-  } finally {
-    window.top.removeEventListener("focus", focusListener);
-    window.clearTimeout(timeoutId);
-  }
-}
-
-// Cleanup when the extension is unloaded
 window.addEventListener("message", (event) => {
-  if (event.data.type !== "cleanup") {
+  const { type } = event.data;
+
+  // Only handle disconnect and reconnect requests
+  if (type !== MessageType.DisconnectRequest && type !== MessageType.ReconnectRequest) {
     return;
   }
 
-  messenger.cleanup();
-
-  if (browserNativeWebauthnSupport) {
+  // Handle cleanup for disconnect request
+  if (type === MessageType.DisconnectRequest && browserNativeWebauthnSupport) {
     navigator.credentials.create = browserCredentials.create;
     navigator.credentials.get = browserCredentials.get;
   }
 
-  if (focusListener) {
-    window.top.removeEventListener("focus", focusListener);
-    focusListener = null;
-  }
-
-  if (timeoutId) {
-    window.clearTimeout(timeoutId);
-    timeoutId = null;
+  // Handle reinitialization for reconnect request
+  if (type === MessageType.ReconnectRequest && browserNativeWebauthnSupport) {
+    navigator.credentials.create = createWebAuthnCredential;
+    navigator.credentials.get = getWebAuthnCredential;
   }
 });
