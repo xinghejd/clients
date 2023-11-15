@@ -40,7 +40,7 @@ async function hasActiveUser() {
   return activeUserStorageValue[activeUserIdKey] !== undefined;
 }
 
-const messenger = Messenger.forDOMCommunication(window, "content-script");
+const messenger = Messenger.forDOMCommunication(window);
 
 function injectPageScript() {
   // Locate an existing page-script on the page

@@ -12,6 +12,12 @@ describe("Messenger", () => {
   beforeEach(() => {
     // jest does not support MessageChannel
     window.MessageChannel = MockMessageChannel as any;
+    Object.defineProperty(window, "location", {
+      value: {
+        origin: "https://bitwarden.com",
+      },
+      writable: true,
+    });
 
     const channelPair = new TestChannelPair();
     messengerA = new Messenger(channelPair.channelA);
@@ -161,7 +167,11 @@ class MockMessagePort<T> {
 
   postMessage(message: T, port?: MessagePort) {
     this.remotePort.onmessage(
-      new MessageEvent("message", { data: message, ports: port ? [port] : [] })
+      new MessageEvent("message", {
+        data: message,
+        ports: port ? [port] : [],
+        origin: "https://bitwarden.com",
+      })
     );
   }
 

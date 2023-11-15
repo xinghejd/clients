@@ -52,7 +52,7 @@ const browserCredentials = {
   get: navigator.credentials.get.bind(navigator.credentials) as typeof navigator.credentials.get,
 };
 
-const messenger = Messenger.forDOMCommunication(window, "page-script");
+const messenger = Messenger.forDOMCommunication(window);
 
 function isSameOriginWithAncestors() {
   try {
