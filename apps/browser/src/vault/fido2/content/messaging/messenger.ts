@@ -15,7 +15,7 @@ export type MessageWithMetadata = Message & Metadata;
 type Handler = (
   message: MessageWithMetadata,
   abortController?: AbortController
-) => Promise<Message | undefined>;
+) => void | Promise<Message | undefined>;
 
 /**
  * A class that handles communication between the page and content script. It converts

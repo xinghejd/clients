@@ -71,7 +71,7 @@ function initializeFido2ContentScript() {
     abortController.signal.addEventListener("abort", abortHandler);
 
     if (message.type === MessageType.CredentialCreationRequest) {
-      return new Promise((resolve, reject) => {
+      return new Promise<Message | undefined>((resolve, reject) => {
         chrome.runtime.sendMessage(
           {
             command: "fido2RegisterCredentialRequest",
@@ -93,7 +93,7 @@ function initializeFido2ContentScript() {
     }
 
     if (message.type === MessageType.CredentialGetRequest) {
-      return new Promise((resolve, reject) => {
+      return new Promise<Message | undefined>((resolve, reject) => {
         chrome.runtime.sendMessage(
           {
             command: "fido2GetCredentialRequest",

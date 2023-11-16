@@ -70,48 +70,6 @@ function isWebauthnCall(options?: CredentialCreationOptions | CredentialRequestO
 }
 
 /**
- * Wait for window to be focused.
- * Safari doesn't allow scripts to trigger webauthn when window is not focused.
- *
- * @param fallbackWait How long to wait when the script is not able to add event listeners to `window.top`. Defaults to 500ms.
- * @param timeout Maximum time to wait for focus in milliseconds. Defaults to 5 minutes.
- * @returns Promise that resolves when window is focused, or rejects if timeout is reached.
- */
-async function waitForFocus(fallbackWait = 500, timeout = 5 * 60 * 1000) {
-  try {
-    if (window.top.document.hasFocus()) {
-      return;
-    }
-  } catch {
-    // Cannot access window.top due to cross-origin frame, fallback to waiting
-    return await new Promise((resolve) => window.setTimeout(resolve, fallbackWait));
-  }
-  let focusListener;
-  const focusPromise = new Promise<void>((resolve) => {
-    focusListener = () => resolve();
-    window.top.addEventListener("focus", focusListener);
-  });
-
-  let timeoutId;
-  const timeoutPromise = new Promise<void>((_, reject) => {
-    timeoutId = window.setTimeout(
-      () =>
-        reject(
-          new DOMException("The operation either timed out or was not allowed.", "AbortError")
-        ),
-      timeout
-    );
-  });
-
-  try {
-    await Promise.race([focusPromise, timeoutPromise]);
-  } finally {
-    window.top.removeEventListener("focus", focusListener);
-    window.clearTimeout(timeoutId);
-  }
-}
-
-/**
  * Creates a new webauthn credential.
  *
  * @param options Options for creating new credentials.
@@ -213,16 +171,58 @@ async function getWebAuthnCredential(
 }
 
 /**
+ * Wait for window to be focused.
+ * Safari doesn't allow scripts to trigger webauthn when window is not focused.
+ *
+ * @param fallbackWait How long to wait when the script is not able to add event listeners to `window.top`. Defaults to 500ms.
+ * @param timeout Maximum time to wait for focus in milliseconds. Defaults to 5 minutes.
+ * @returns Promise that resolves when window is focused, or rejects if timeout is reached.
+ */
+async function waitForFocus(fallbackWait = 500, timeout = 5 * 60 * 1000) {
+  try {
+    if (window.top.document.hasFocus()) {
+      return;
+    }
+  } catch {
+    // Cannot access window.top due to cross-origin frame, fallback to waiting
+    return await new Promise((resolve) => window.setTimeout(resolve, fallbackWait));
+  }
+  let focusListener;
+  const focusPromise = new Promise<void>((resolve) => {
+    focusListener = () => resolve();
+    window.top.addEventListener("focus", focusListener);
+  });
+
+  let timeoutId;
+  const timeoutPromise = new Promise<void>((_, reject) => {
+    timeoutId = window.setTimeout(
+      () =>
+        reject(
+          new DOMException("The operation either timed out or was not allowed.", "AbortError")
+        ),
+      timeout
+    );
+  });
+
+  try {
+    await Promise.race([focusPromise, timeoutPromise]);
+  } finally {
+    window.top.removeEventListener("focus", focusListener);
+    window.clearTimeout(timeoutId);
+  }
+}
+
+/**
  * Sets up a listener to handle cleanup or reconnection when the extension's
  * context changes due to being reloaded or unloaded.
  */
-window.addEventListener("message", (event) => {
-  const { type } = event.data;
+messenger.handler = (message, abortController) => {
+  const type = message.type;
 
-  // Only handle disconnect and reconnect requests
-  if (type !== MessageType.DisconnectRequest && type !== MessageType.ReconnectRequest) {
-    return;
-  }
+  // // Only handle disconnect and reconnect requests
+  // if (type !== MessageType.DisconnectRequest && type !== MessageType.ReconnectRequest) {
+  //   return;
+  // }
 
   // Handle cleanup for disconnect request
   if (type === MessageType.DisconnectRequest && browserNativeWebauthnSupport) {
@@ -235,4 +235,24 @@ window.addEventListener("message", (event) => {
     navigator.credentials.create = createWebAuthnCredential;
     navigator.credentials.get = getWebAuthnCredential;
   }
-});
+};
+// window.addEventListener("message", (event) => {
+//   const { type } = event.data;
+
+//   // Only handle disconnect and reconnect requests
+//   if (type !== MessageType.DisconnectRequest && type !== MessageType.ReconnectRequest) {
+//     return;
+//   }
+
+//   // Handle cleanup for disconnect request
+//   if (type === MessageType.DisconnectRequest && browserNativeWebauthnSupport) {
+//     navigator.credentials.create = browserCredentials.create;
+//     navigator.credentials.get = browserCredentials.get;
+//   }
+
+//   // Handle reinitialization for reconnect request
+//   if (type === MessageType.ReconnectRequest && browserNativeWebauthnSupport) {
+//     navigator.credentials.create = createWebAuthnCredential;
+//     navigator.credentials.get = getWebAuthnCredential;
+//   }
+// });
