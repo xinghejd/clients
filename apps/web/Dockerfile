@@ -1,5 +1,21 @@
 ###############################################
-#                 Build stage                 #
+#                Build stage 1                #
+###############################################
+ARG NODE_VERSION=18
+FROM --platform=$BUILDPLATFORM node:${NODE_VERSION} AS node-build
+
+ARG NPM_COMMAND=dist:bit:selfhost
+
+WORKDIR /source
+COPY . .
+
+RUN npm ci
+
+WORKDIR /source/apps/web
+RUN npm run ${NPM_COMMAND}
+
+###############################################
+#                Build stage 2                #
 ###############################################
 FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 
@@ -59,8 +75,8 @@ WORKDIR /bitwarden_server
 COPY --from=build /app/Server ./
 
 WORKDIR /app
-COPY apps/web/build .
-COPY apps/web/entrypoint.sh /
+COPY --from=node-build /source/apps/web/build .
+COPY --from=node-build /source/apps/web/entrypoint.sh /
 RUN chmod +x /entrypoint.sh
 
 HEALTHCHECK CMD curl -f http://localhost:5000 || exit 1

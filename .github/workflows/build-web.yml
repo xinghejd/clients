@@ -73,8 +73,8 @@ jobs:
           NODE_VERSION=${NODE_NVMRC/v/''}
           echo "node_version=$NODE_VERSION" >> $GITHUB_OUTPUT
 
-  build-artifacts:
-    name: Build artifacts
+  build:
+    name: Build artifacts and images
     runs-on: ubuntu-22.04
     needs: setup
     env:
@@ -89,81 +89,17 @@ jobs:
             npm_command: "dist:bit:cloud"
           - name: "selfhosted-COMMERCIAL"
             npm_command: "dist:bit:selfhost"
+            image_name: web
           - name: "cloud-QA"
             npm_command: "build:bit:qa"
+            image_name: web-qa-cloud
           - name: "ee"
             npm_command: "build:bit:ee"
+            image_name: web-ee
           - name: "cloud-euprd"
             npm_command: "build:bit:euprd"
           - name: "cloud-euqa"
             npm_command: "build:bit:euqa"
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
-
-      - name: Set up Node
-        uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c # v3.6.0
-        with:
-          cache: 'npm'
-          cache-dependency-path: '**/package-lock.json'
-          node-version: ${{ env._NODE_VERSION }}
-
-      - name: Print environment
-        run: |
-          whoami
-          node --version
-          npm --version
-          gulp --version
-          docker --version
-          echo "GitHub ref: $GITHUB_REF"
-          echo "GitHub event: $GITHUB_EVENT"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Setup QA metadata
-        working-directory: apps/web
-        if: matrix.name == 'cloud-QA'
-        run: |
-          VERSION=$( jq -r ".version" package.json)
-          jq --arg version "$VERSION+${GITHUB_SHA:0:7}" '.version = $version' package.json > package.json.tmp
-          mv package.json.tmp package.json
-
-      - name: Build ${{ matrix.name }}
-        working-directory: apps/web
-        run: npm run ${{ matrix.npm_command }}
-
-      - name: Package artifact
-        working-directory: apps/web
-        run: zip -r web-${{ env._VERSION }}-${{ matrix.name }}.zip build
-
-      - name: Upload ${{ matrix.name }} artifact
-        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
-        with:
-          name: web-${{ env._VERSION }}-${{ matrix.name }}.zip
-          path: apps/web/web-${{ env._VERSION }}-${{ matrix.name }}.zip
-          if-no-files-found: error
-
-
-  build-containers:
-    name: Build Docker images
-    runs-on: ubuntu-22.04
-    needs:
-      - setup
-      - build-artifacts
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - artifact_name: cloud-QA
-            image_name: web-qa-cloud
-          - artifact_name: ee
-            image_name: web-ee
-          - artifact_name: selfhosted-COMMERCIAL
-            image_name: web
-    env:
-      _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
-      _VERSION: ${{ needs.setup.outputs.version }}
     steps:
       - name: Checkout repo
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
@@ -175,6 +111,16 @@ jobs:
           path: server
           repository: bitwarden/server
 
+      - name: Print environment
+        run: |
+          whoami
+          node --version
+          npm --version
+          gulp --version
+          docker --version
+          echo "GitHub ref: $GITHUB_REF"
+          echo "GitHub event: $GITHUB_EVENT"
+      
       - name: Check Branch to Publish
         env:
           PUBLISH_BRANCHES: "master,rc,hotfix-rc-web"
@@ -187,6 +133,14 @@ jobs:
           else
             echo "is_publish_branch=false" >> $GITHUB_ENV
           fi
+
+      - name: Setup QA metadata
+        working-directory: apps/web
+        if: matrix.name == 'cloud-QA'
+        run: |
+          VERSION=$( jq -r ".version" package.json)
+          jq --arg version "$VERSION+${GITHUB_SHA:0:7}" '.version = $version' package.json > package.json.tmp
+          mv package.json.tmp package.json
       
       ########## Set up Docker ##########
       - name: Set up QEMU emulators
@@ -203,12 +157,6 @@ jobs:
 
       - name: Log into Prod container registry
         run: az acr login -n ${_AZ_REGISTRY%.azurecr.io}
-
-      - name: Download ${{ matrix.artifact_name }} artifact
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
-        with:
-          name: web-${{ env._VERSION }}-${{ matrix.artifact_name }}.zip
-          path: apps/web
 
       ########## Generate image tag and build Docker image ##########
       - name: Generate Docker image tag
@@ -233,10 +181,6 @@ jobs:
           echo "image_tag=$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       ########## Build Image ##########
-      - name: Extract artifact
-        working-directory: apps/web
-        run: unzip web-${{ env._VERSION }}-${{ matrix.artifact_name }}.zip
-
       - name: Generate image full name
         id: image-name
         env:
@@ -244,11 +188,14 @@ jobs:
           PROJECT_NAME: ${{ matrix.image_name }}
         run: echo "name=$_AZ_REGISTRY/${PROJECT_NAME}:${IMAGE_TAG}" >> $GITHUB_OUTPUT
 
-      - name: Build Docker image
+      - name: Build ${{ matrix.name }} Docker image
         uses: docker/build-push-action@2eb1c1961a95fc15694676618e422e8ba1d63825 # v4.1.1
         with:
           build-args: |
             NODE_VERSION=${{ env._NODE_VERSION }}
+            NPM_COMMAND=${{ matirx.npm_command }}
+          cache-from: type=registry,ref=${{ steps.image-name.outputs.name }}
+          cache-to: type=inline
           context: .
           file: apps/web/Dockerfile
           platforms: |
@@ -258,6 +205,22 @@ jobs:
           push: true
           tags: ${{ steps.image-name.outputs.name }}
 
+      - name: Zip project
+        working-directory: apps/web
+        run: |
+          mkdir build
+          docker run --rm --platform linux/amd64 --volume $(pwd)/build:temp --entrypoint bash \
+            ${{ steps.image-name.outputs.name }} -c "cp -r ./ /temp"
+
+          zip -r web-${{ env._VERSION }}-${{ matrix.name }}.zip build
+
+      - name: Upload ${{ matrix.name }} artifact
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
+        with:
+          name: web-${{ env._VERSION }}-${{ matrix.name }}.zip
+          path: apps/web/web-${{ env._VERSION }}-${{ matrix.name }}.zip
+          if-no-files-found: error
+
       - name: Log out of Docker
         run: docker logout
 
@@ -265,7 +228,7 @@ jobs:
   crowdin-push:
     name: Crowdin Push
     if: github.ref == 'refs/heads/master'
-    needs: build-artifacts
+    needs: build
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout repo
@@ -303,8 +266,7 @@ jobs:
     needs:
       - cloc
       - setup
-      - build-artifacts
-      - build-containers
+      - build
       - crowdin-push
     steps:
       - name: Check if any job failed
@@ -312,19 +274,14 @@ jobs:
         env:
           CLOC_STATUS: ${{ needs.cloc.result }}
           SETUP_STATUS: ${{ needs.setup.result }}
-          ARTIFACT_STATUS: ${{ needs.build-artifacts.result }}
-          BUILD_CONTAINERS_STATUS: ${{ needs.build-containers.result }}
+          BUILD_STATUS: ${{ needs.build.result }}
           CROWDIN_PUSH_STATUS: ${{ needs.crowdin-push.result }}
         run: |
           if [ "$CLOC_STATUS" = "failure" ]; then
               exit 1
           elif [ "$SETUP_STATUS" = "failure" ]; then
               exit 1
-          elif [ "$ARTIFACT_STATUS" = "failure" ]; then
-              exit 1
-          elif [ "$BUILD_SELFHOST_STATUS" = "failure" ]; then
-              exit 1
-          elif [ "$BUILD_CONTAINERS_STATUS" = "failure" ]; then
+          elif [ "$BUILD_STATUS" = "failure" ]; then
               exit 1
           elif [ "$CROWDIN_PUSH_STATUS" = "failure" ]; then
               exit 1
