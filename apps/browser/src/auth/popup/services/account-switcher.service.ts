@@ -12,6 +12,7 @@ export type AccountOption = {
   name: string;
   id: string;
   isSelected: boolean;
+  server?: string;
   status?: AuthenticationStatus;
 };
 
