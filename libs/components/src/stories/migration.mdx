@@ -81,18 +81,18 @@ reactive forms to make use of these components. Review the form component docs.
 <div class="tw-bg-danger-500/10 tw-p-4">
     <span class="tw-text-danger tw-font-bold">Bad</span>
     ```html
-        <form #form (ngSubmit)="submit()">
-            ...
-        </form>
+    <form #form (ngSubmit)="submit()">
+        ...
+    </form>
     ```
 </div>
 
 <div class="tw-bg-success-500/10 tw-p-4">
     <span class="tw-text-success tw-font-bold">Good</span>
     ```html
-        <form [formGroup]="formGroup" [bitSubmit]="submit">
-            ...
-        </form>
+    <form [formGroup]="formGroup" [bitSubmit]="submit">
+        ...
+    </form>
     ```
 </div>
 
@@ -103,7 +103,35 @@ reactive forms if the other clients rely on template-driven forms.
 
 ### Dialogs
 
-.
+Legacy Bootstrap modals use the `ModalService`. These should be converted to use the `DialogService`
+and it's related CL components. Components that are fully migrated should have no reference to the
+`ModalService`.
+
+<div class="tw-bg-danger-500/10 tw-p-4">
+    <span class="tw-text-danger tw-font-bold">Bad</span>
+    ```ts
+    this.modalService.open(DeleteAccountComponent);
+    ```
+
+    ```html
+    <!-- DeleteAccountComponent -->
+    <div class="modal fade" role="dialog" aria-modal="true">...</div>
+    ```
+
+</div>
+
+<div class="tw-bg-success-500/10 tw-p-4">
+    <span class="tw-text-success tw-font-bold">Good</span>
+    ```ts
+    this.dialogService.open(DeleteAccountComponent);
+    ```
+
+    ```html
+    <!-- DeleteAccountComponent -->
+    <bit-dialog>...</bit-dialog>
+    ```
+
+</div>
 
 ## Examples
 
