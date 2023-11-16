@@ -24,6 +24,7 @@ type Handler = (
  */
 export class Messenger {
   private messageEventListener: (event: MessageEvent<MessageWithMetadata>) => void | null = null;
+  private onDestroy = new EventTarget();
 
   /**
    * Creates a messenger that uses the browser's `window.postMessage` API to initiate
@@ -53,48 +54,7 @@ export class Messenger {
   private messengerId = generateUniqueId();
 
   constructor(private broadcastChannel: Channel) {
-    this.messageEventListener = async (event) => {
-      const windowOrigin = window.location.origin;
-      if (event.origin !== windowOrigin) {
-        return;
-      }
-
-      if (this.handler === undefined) {
-        return;
-      }
-
-      const message = event.data;
-      const port = event.ports?.[0];
-      if (
-        message?.SENDER !== SENDER ||
-        message.senderId == this.messengerId ||
-        message == null ||
-        port == null
-      ) {
-        return;
-      }
-
-      const abortController = new AbortController();
-      port.onmessage = (event: MessageEvent<MessageWithMetadata>) => {
-        if (event.data.type === MessageType.AbortRequest) {
-          abortController.abort();
-        }
-      };
-
-      try {
-        const handlerResponse = await this.handler(message, abortController);
-        port.postMessage({ ...handlerResponse, SENDER });
-      } catch (error) {
-        port.postMessage({
-          SENDER,
-          type: MessageType.ErrorResponse,
-          error: JSON.stringify(error, Object.getOwnPropertyNames(error)),
-        });
-      } finally {
-        port.close();
-      }
-    };
-
+    this.messageEventListener = this.createMessageEventListener();
     this.broadcastChannel.addEventListener(this.messageEventListener);
   }
 
@@ -142,23 +102,77 @@ export class Messenger {
     }
   }
 
-  async sendReconnectCommand() {
-    await this.request({ type: MessageType.ReconnectRequest });
-  }
+  private createMessageEventListener() {
+    return async (event: MessageEvent<MessageWithMetadata>) => {
+      const windowOrigin = window.location.origin;
+      if (event.origin !== windowOrigin) {
+        return;
+      }
 
-  private async sendDisconnectCommand() {
-    await this.request({ type: MessageType.DisconnectRequest });
+      if (this.handler === undefined) {
+        return;
+      }
+
+      const message = event.data;
+      const port = event.ports?.[0];
+      if (
+        message?.SENDER !== SENDER ||
+        message.senderId == this.messengerId ||
+        message == null ||
+        port == null
+      ) {
+        return;
+      }
+
+      const abortController = new AbortController();
+      port.onmessage = (event: MessageEvent<MessageWithMetadata>) => {
+        if (event.data.type === MessageType.AbortRequest) {
+          abortController.abort();
+        }
+      };
+
+      let onDestroyListener;
+      const destroyPromise = new Promise((_, reject) => {
+        onDestroyListener = () => reject(new Error("Extension is being destroyed"));
+        this.onDestroy.addEventListener("destroy", onDestroyListener);
+      });
+
+      try {
+        await Promise.race([this.handler(message, abortController), destroyPromise]);
+        const handlerResponse = await this.handler(message, abortController);
+        port.postMessage({ ...handlerResponse, SENDER });
+      } catch (error) {
+        port.postMessage({
+          SENDER,
+          type: MessageType.ErrorResponse,
+          error: JSON.stringify(error, Object.getOwnPropertyNames(error)),
+        });
+      } finally {
+        this.onDestroy.removeEventListener("destroy", onDestroyListener);
+        port.close();
+      }
+    };
   }
 
   /**
    * Cleans up the messenger by removing the message event listener
    */
   async destroy() {
+    this.onDestroy.dispatchEvent(new Event("destroy"));
+
     if (this.messageEventListener) {
       await this.sendDisconnectCommand();
       this.broadcastChannel.removeEventListener(this.messageEventListener);
       this.messageEventListener = null;
     }
+  }
+
+  async sendReconnectCommand() {
+    await this.request({ type: MessageType.ReconnectRequest });
+  }
+
+  private async sendDisconnectCommand() {
+    await this.request({ type: MessageType.DisconnectRequest });
   }
 }
 
