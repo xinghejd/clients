@@ -83,23 +83,27 @@ jobs:
     strategy:
       matrix:
         include:
-          - name: "selfhosted-open-source"
-            npm_command: "dist:oss:selfhost"
-          - name: "cloud-COMMERCIAL"
-            npm_command: "dist:bit:cloud"
-          - name: "selfhosted-COMMERCIAL"
-            npm_command: "dist:bit:selfhost"
+          - name: selfhosted-open-source
+            npm_command: dist:oss:selfhost
+            image_name: web-oss-selfhost
+          - name: cloud-COMMERCIAL
+            npm_command: dist:bit:cloud
+            image_name: web-cloud-commercial
+          - name: selfhosted-COMMERCIAL
+            npm_command: dist:bit:selfhost
             image_name: web
-          - name: "cloud-QA"
-            npm_command: "build:bit:qa"
+          - name: cloud-QA
+            npm_command: build:bit:qa
             image_name: web-qa-cloud
-          - name: "ee"
-            npm_command: "build:bit:ee"
+          - name: ee
+            npm_command: build:bit:ee
             image_name: web-ee
-          - name: "cloud-euprd"
-            npm_command: "build:bit:euprd"
-          - name: "cloud-euqa"
-            npm_command: "build:bit:euqa"
+          - name: cloud-euprd
+            npm_command: build:bit:euprd
+            image_name: web-cloud-euprd
+          - name: cloud-euqa
+            npm_command: build:bit:euqa
+            image_name: web-cloud-euqa
     steps:
       - name: Checkout repo
         uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
