@@ -193,7 +193,7 @@ jobs:
         with:
           build-args: |
             NODE_VERSION=${{ env._NODE_VERSION }}
-            NPM_COMMAND=${{ matirx.npm_command }}
+            NPM_COMMAND=${{ matrix.npm_command }}
           cache-from: type=registry,ref=${{ steps.image-name.outputs.name }}
           cache-to: type=inline
           context: .
