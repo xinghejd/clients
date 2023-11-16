@@ -10,7 +10,7 @@ export type Channel = {
   postMessage: PostMessageFunction;
 };
 
-export type Metadata = { SENDER: typeof SENDER };
+export type Metadata = { SENDER: typeof SENDER; senderId: string };
 export type MessageWithMetadata = Message & Metadata;
 type Handler = (
   message: MessageWithMetadata,
@@ -50,6 +50,8 @@ export class Messenger {
    */
   handler?: Handler;
 
+  private messengerId = generateUniqueId();
+
   constructor(private broadcastChannel: Channel) {
     this.messageEventListener = async (event) => {
       const windowOrigin = window.location.origin;
@@ -63,7 +65,12 @@ export class Messenger {
 
       const message = event.data;
       const port = event.ports?.[0];
-      if (message?.SENDER !== SENDER || message == null || port == null) {
+      if (
+        message?.SENDER !== SENDER ||
+        message.senderId == this.messengerId ||
+        message == null ||
+        port == null
+      ) {
         return;
       }
 
@@ -115,7 +122,10 @@ export class Messenger {
         });
       abortController?.signal.addEventListener("abort", abortListener);
 
-      this.broadcastChannel.postMessage({ ...request, SENDER }, remotePort);
+      this.broadcastChannel.postMessage(
+        { ...request, SENDER, senderId: this.messengerId },
+        remotePort
+      );
       const response = await promise;
 
       abortController?.signal.removeEventListener("abort", abortListener);
@@ -150,4 +160,8 @@ export class Messenger {
       this.messageEventListener = null;
     }
   }
+}
+
+function generateUniqueId() {
+  return Date.now().toString(36) + Math.random().toString(36).substring(2);
 }
