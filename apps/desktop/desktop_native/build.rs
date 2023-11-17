@@ -2,8 +2,6 @@ extern crate napi_build;
 use std::{path::PathBuf, process::Command};
 
 fn main() {
-    napi_build::setup();
-
     // 1. Use `swift-bridge-build` to generate Swift/C FFI glue.
     //    You can also use the `swift-bridge` CLI.
     let bridge_files = vec!["src/webauthn/macos.rs"];
@@ -81,6 +79,8 @@ Stdout: {}
             String::from_utf8(exit_status.stdout).unwrap(),
         )
     }
+
+    napi_build::setup();
 }
 
 fn swift_bridge_out_dir() -> PathBuf {

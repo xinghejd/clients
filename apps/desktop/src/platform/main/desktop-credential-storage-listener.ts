@@ -95,7 +95,7 @@ export class DesktopCredentialStorageListener {
     if (keySuffix === AuthRequiredSuffix) {
       val = (await this.biometricService.getBiometricKey(serviceName, key)) ?? null;
     } else {
-      val = await passwords.getPassword(serviceName, key);
+      // val = await passwords.getPassword(serviceName, key);
     }
 
     try {

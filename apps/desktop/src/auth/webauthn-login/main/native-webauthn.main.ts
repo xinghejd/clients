@@ -11,8 +11,14 @@ export class NativeWebauthnMain implements NativeWebauthnMainAbstraction {
     });
   }
 
-  webauthnCreate(): string {
+  async webauthnCreate(): Promise<string> {
     // return "Hello from the main process!";
-    return webauthns.webauthnCreate();
+    try {
+      return await webauthns.webauthnCreate();
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
+      return "Error: " + error;
+    }
   }
 }

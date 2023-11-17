@@ -127,7 +127,7 @@ pub mod clipboards {
 #[napi]
 pub mod webauthns {
     #[napi]
-    pub fn webauthn_create() -> napi::Result<String> {
+    pub async fn webauthn_create() -> napi::Result<String> {
         super::webauthn::create().map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 }
