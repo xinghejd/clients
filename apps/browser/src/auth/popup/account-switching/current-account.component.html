@@ -8,7 +8,8 @@
     <span class="tw-sr-only"> {{ "activeAccount" | i18n }} {{ currentAccount.email }}</span>
     <bit-avatar
       [id]="currentAccount.id"
-      [text]="currentAccountName$ | async"
+      [text]="currentAccount.name"
+      [color]="currentAccount.avatarColor"
       [isButton]="true"
       size="medium"
       aria-hidden="true"

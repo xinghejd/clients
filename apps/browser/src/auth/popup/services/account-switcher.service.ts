@@ -14,6 +14,7 @@ export type AccountOption = {
   isSelected: boolean;
   server?: string;
   status?: AuthenticationStatus;
+  avatarColor?: string;
 };
 
 @Injectable({
@@ -48,6 +49,7 @@ export class AccountSwitcherService {
               server: await this.environmentService.getHost(id),
               status: account.status,
               isSelected: id === activeAccount?.id,
+              avatarColor: await this.stateService.getAvatarColor({ userId: id }),
             };
           })
         );
