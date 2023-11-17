@@ -26,7 +26,6 @@ on:
       - '!*.txt'
       - '.github/workflows/build-desktop.yml'
   workflow_dispatch:
-    inputs: {}
 
 defaults:
   run:
@@ -35,10 +34,10 @@ defaults:
 jobs:
   cloc:
     name: CLOC
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout repo
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Set up cloc
         run: |
@@ -50,10 +49,10 @@ jobs:
 
   electron-verify:
     name: Verify Electron Version
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout repo
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Verify
         run: |
@@ -69,7 +68,7 @@ jobs:
 
   setup:
     name: Setup
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     outputs:
       package_version: ${{ steps.retrieve-version.outputs.package_version }}
       release_channel: ${{ steps.release-channel.outputs.channel }}
@@ -82,7 +81,7 @@ jobs:
         working-directory: apps/desktop
     steps:
       - name: Checkout repo
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Get Package Version
         id: retrieve-version
@@ -139,7 +138,7 @@ jobs:
 
   linux:
     name: Linux Build
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs:
       - setup
     env:
@@ -150,7 +149,7 @@ jobs:
         working-directory: apps/desktop
     steps:
       - name: Checkout repo
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Set up Node
         uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c # v3.6.0
@@ -162,10 +161,10 @@ jobs:
       - name: Set Node options
         run: echo "NODE_OPTIONS=--max_old_space_size=4096" >> $GITHUB_ENV
 
-      - name: Install node-gyp
-        run: |
-          npm install -g node-gyp
-          node-gyp install $(node -v)
+      # - name: Install node-gyp
+      #   run: |
+      #     npm install -g node-gyp
+      #     node-gyp install $(node -v)
 
       - name: Set up environment
         run: |
@@ -255,9 +254,8 @@ jobs:
 
   windows:
     name: Windows Build
-    runs-on: windows-2019
-    needs:
-      - setup
+    runs-on: windows-2022
+    needs: setup
     defaults:
       run:
         shell: pwsh
@@ -267,7 +265,7 @@ jobs:
       _NODE_VERSION: ${{ needs.setup.outputs.node_version }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Set up Node
         uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c # v3.6.0
@@ -279,15 +277,15 @@ jobs:
       - name: Set Node options
         run: echo "NODE_OPTIONS=--max_old_space_size=4096" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
-      - name: Install node-gyp
-        run: |
-          npm install -g node-gyp
-          node-gyp install $(node -v)
+      # - name: Install node-gyp
+      #   run: |
+      #     npm install -g node-gyp
+      #     node-gyp install $(node -v)
 
       - name: Install AST
         uses: bitwarden/gh-actions/install-ast@main
 
-      - name: Set up environmentF
+      - name: Set up environment
         run: choco install checksum --no-progress
 
       - name: Rust
@@ -470,7 +468,7 @@ jobs:
 
   macos-build:
     name: MacOS Build
-    runs-on: macos-11
+    runs-on: macos-12
     needs:
       - setup
     env:
@@ -481,7 +479,7 @@ jobs:
         working-directory: apps/desktop
     steps:
       - name: Checkout repo
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Set up Node
         uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c # v3.6.0
@@ -493,10 +491,10 @@ jobs:
       - name: Set Node options
         run: echo "NODE_OPTIONS=--max_old_space_size=4096" >> $GITHUB_ENV
 
-      - name: Install node-gyp
-        run: |
-          npm install -g node-gyp
-          node-gyp install $(node -v)
+      # - name: Install node-gyp
+      #   run: |
+      #     npm install -g node-gyp
+      #     node-gyp install $(node -v)
 
       - name: Rust
         shell: pwsh
@@ -621,7 +619,7 @@ jobs:
 
   macos-package-github:
     name: MacOS Package GitHub Release Assets
-    runs-on: macos-11
+    runs-on: macos-12
     needs:
       - browser-build
       - macos-build
@@ -634,7 +632,7 @@ jobs:
         working-directory: apps/desktop
     steps:
       - name: Checkout repo
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Set up Node
         uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c # v3.6.0
@@ -646,10 +644,10 @@ jobs:
       - name: Set Node options
         run: echo "NODE_OPTIONS=--max_old_space_size=4096" >> $GITHUB_ENV
 
-      - name: Install node-gyp
-        run: |
-          npm install -g node-gyp
-          node-gyp install $(node -v)
+      # - name: Install node-gyp
+      #   run: |
+      #     npm install -g node-gyp
+      #     node-gyp install $(node -v)
 
       - name: Rust
         shell: pwsh
@@ -819,7 +817,7 @@ jobs:
 
   macos-package-mas:
     name: MacOS Package Prod Release Asset
-    runs-on: macos-11
+    runs-on: macos-12
     needs:
       - browser-build
       - macos-build
@@ -832,7 +830,7 @@ jobs:
         working-directory: apps/desktop
     steps:
       - name: Checkout repo
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Set up Node
         uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c # v3.6.0
@@ -844,10 +842,10 @@ jobs:
       - name: Set Node options
         run: echo "NODE_OPTIONS=--max_old_space_size=4096" >> $GITHUB_ENV
 
-      - name: Install node-gyp
-        run: |
-          npm install -g node-gyp
-          node-gyp install $(node -v)
+      # - name: Install node-gyp
+      #   run: |
+      #     npm install -g node-gyp
+      #     node-gyp install $(node -v)
 
       - name: Rust
         shell: pwsh
@@ -1009,7 +1007,7 @@ jobs:
   macos-package-dev:
     name: MacOS Package Dev Release Asset
     if: false  # We need to look into how code signing works for dev
-    runs-on: macos-11
+    runs-on: macos-12
     needs:
       - browser-build
       - macos-build
@@ -1022,7 +1020,7 @@ jobs:
         working-directory: apps/desktop
     steps:
       - name: Checkout repo
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Set up Node
         uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c # v3.6.0
@@ -1034,10 +1032,10 @@ jobs:
       - name: Set Node options
         run: echo "NODE_OPTIONS=--max_old_space_size=4096" >> $GITHUB_ENV
 
-      - name: Install node-gyp
-        run: |
-          npm install -g node-gyp
-          node-gyp install $(node -v)
+      # - name: Install node-gyp
+      #   run: |
+      #     npm install -g node-gyp
+      #     node-gyp install $(node -v)
 
       - name: Print environment
         run: |
@@ -1190,10 +1188,10 @@ jobs:
       - windows
       - macos-package-github
       - macos-package-mas
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout repo
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Login to Azure
         uses: Azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2 # v1.4.7
@@ -1223,7 +1221,7 @@ jobs:
   check-failures:
     name: Check for failures
     if: always()
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs:
       - cloc
       - electron-verify
