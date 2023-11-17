@@ -157,20 +157,9 @@ fully migrated should have no reference to the `ModalService`.
 4. Replace calls to `ModalService.open` or `ModalService.openViewRef` with the newly created static
    `open` method:
 
-<div class="tw-bg-danger-500/10 tw-p-4">
-  ```ts 
-    this.modalService.open(FooDialogComponent);
+<div class="tw-bg-danger-500/10 tw-p-4">`this.modalService.open(FooDialogComponent);`</div>
 
-````
-</div>
-
-<div class="tw-bg-success-500/10 tw-p-4">
-```ts
-  FooDialogComponent.open(this.dialogService);
-
-````
-
-</div>
+<div class="tw-bg-success-500/10 tw-p-4">`FooDialogComponent.open(this.dialogService);`</div>
 
 ## Examples
 
