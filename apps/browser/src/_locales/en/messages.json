@@ -2810,7 +2810,7 @@
     "message": "Switch to account"
   },
   "activeAccount": {
-    "message": "Active Account"
+    "message": "Active account"
   },
   "accountLimitReached": {
     "message": "Account limit reached. Log out of an account to add another."

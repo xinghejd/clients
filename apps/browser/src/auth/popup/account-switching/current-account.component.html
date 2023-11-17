@@ -5,7 +5,7 @@
     (click)="currentAccountClicked()"
   >
     <span class="tw-sr-only">{{ "switchAccounts" | i18n }}:</span>
-    <span class="tw-sr-only">{{ "activeAccount" | i18n }} {{ currentAccount.name }}</span>
+    <span class="tw-sr-only"> {{ "activeAccount" | i18n }} {{ currentAccount.email }}</span>
     <bit-avatar
       [id]="currentAccount.id"
       [text]="currentAccountName$ | async"
