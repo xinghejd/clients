@@ -25,6 +25,7 @@ export class AvatarComponent implements OnChanges {
   @Input() text?: string;
   @Input() title: string;
   @Input() size: SizeTypes = "default";
+  @Input() isButton = false;
 
   private svgCharCount = 2;
   private svgFontSize = 20;
@@ -39,9 +40,10 @@ export class AvatarComponent implements OnChanges {
   }
 
   get classList() {
-    return ["tw-rounded-full tw-block"]
+    return ["tw-rounded-full"]
       .concat(SizeClasses[this.size] ?? [])
-      .concat(this.border ? ["tw-border", "tw-border-solid", "tw-border-secondary-500"] : []);
+      .concat(this.border ? ["tw-border", "tw-border-solid", "tw-border-secondary-500"] : [])
+      .concat(this.isButton ? ["tw-block"] : []);
   }
 
   private generate() {
