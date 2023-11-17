@@ -1,6 +1,6 @@
 import { ipcMain } from "electron";
 
-// import { webauthns } from "@bitwarden/desktop-native";
+import { webauthns } from "@bitwarden/desktop-native";
 
 import { NativeWebauthnMainAbstraction } from "./native-webauthn.main.abstraction";
 
@@ -12,7 +12,7 @@ export class NativeWebauthnMain implements NativeWebauthnMainAbstraction {
   }
 
   webauthnCreate(): string {
-    return "Hello from the main process!";
-    // return webauthns.webauthnCreate();
+    // return "Hello from the main process!";
+    return webauthns.webauthnCreate();
   }
 }
