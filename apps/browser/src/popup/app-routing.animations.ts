@@ -215,5 +215,6 @@ export const routerTransition = trigger("routerTransition", [
   transition("tabs => autofill", inSlideLeft),
   transition("autofill => tabs", outSlideRight),
 
+  transition("* => account-switcher", inSlideUp),
   transition("account-switcher => *", outSlideDown),
 ]);
