@@ -33,7 +33,7 @@ describe("Messenger", () => {
     const request = createRequest();
     messengerA.request(request);
 
-    const received = handlerB.recieve();
+    const received = handlerB.receive();
 
     expect(received.length).toBe(1);
     expect(received[0].message).toMatchObject(request);
@@ -43,7 +43,7 @@ describe("Messenger", () => {
     const request = createRequest();
     const response = createResponse();
     const requestPromise = messengerA.request(request);
-    const received = handlerB.recieve();
+    const received = handlerB.receive();
     received[0].respond(response);
 
     const returned = await requestPromise;
@@ -55,7 +55,7 @@ describe("Messenger", () => {
     const request = createRequest();
     const error = new Error("Test error");
     const requestPromise = messengerA.request(request);
-    const received = handlerB.recieve();
+    const received = handlerB.receive();
 
     received[0].reject(error);
 
@@ -67,7 +67,7 @@ describe("Messenger", () => {
     messengerA.request(createRequest(), abortController);
     abortController.abort();
 
-    const received = handlerB.recieve();
+    const received = handlerB.receive();
 
     expect(received[0].abortController.signal.aborted).toBe(true);
   });
@@ -87,6 +87,16 @@ describe("Messenger", () => {
       await messengerA.destroy();
 
       expect(removeEventListenerSpy).toHaveBeenCalled();
+    });
+
+    it("should dispatch the destroy event on messenger destruction", async () => {
+      const request = createRequest();
+      messengerA.request(request);
+
+      const dispatchEventSpy = jest.spyOn((messengerA as any).onDestroy, "dispatchEvent");
+      messengerA.destroy();
+
+      expect(dispatchEventSpy).toHaveBeenCalledWith(expect.any(Event));
     });
   });
 });
@@ -128,7 +138,7 @@ class TestMessageHandler {
     abortController?: AbortController
   ) => Promise<Message | undefined>;
 
-  private recievedMessages: {
+  private receivedMessages: {
     message: TestMessage;
     respond: (response: TestMessage) => void;
     reject: (error: Error) => void;
@@ -138,7 +148,7 @@ class TestMessageHandler {
   constructor() {
     this.handler = (message, abortController) =>
       new Promise((resolve, reject) => {
-        this.recievedMessages.push({
+        this.receivedMessages.push({
           message,
           abortController,
           respond: (response) => resolve(response),
@@ -147,9 +157,9 @@ class TestMessageHandler {
       });
   }
 
-  recieve() {
-    const received = this.recievedMessages;
-    this.recievedMessages = [];
+  receive() {
+    const received = this.receivedMessages;
+    this.receivedMessages = [];
     return received;
   }
 }

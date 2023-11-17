@@ -51,7 +51,7 @@ export class Messenger {
    */
   handler?: Handler;
 
-  private messengerId = generateUniqueId();
+  private messengerId = this.generateUniqueId();
 
   constructor(private broadcastChannel: Channel) {
     this.messageEventListener = this.createMessageEventListener();
@@ -156,14 +156,6 @@ export class Messenger {
     };
   }
 
-  async sendReconnectCommand() {
-    await this.request({ type: MessageType.ReconnectRequest });
-  }
-
-  private async sendDisconnectCommand() {
-    await this.request({ type: MessageType.DisconnectRequest });
-  }
-
   /**
    * Cleans up the messenger by removing the message event listener
    */
@@ -176,8 +168,16 @@ export class Messenger {
       this.messageEventListener = null;
     }
   }
-}
 
-function generateUniqueId() {
-  return Date.now().toString(36) + Math.random().toString(36).substring(2);
+  async sendReconnectCommand() {
+    await this.request({ type: MessageType.ReconnectRequest });
+  }
+
+  private async sendDisconnectCommand() {
+    await this.request({ type: MessageType.DisconnectRequest });
+  }
+
+  private generateUniqueId() {
+    return Date.now().toString(36) + Math.random().toString(36).substring(2);
+  }
 }
