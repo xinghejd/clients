@@ -6,6 +6,7 @@ mod clipboard;
 mod crypto;
 mod error;
 mod password;
+mod webauthn;
 
 #[napi]
 pub mod passwords {
