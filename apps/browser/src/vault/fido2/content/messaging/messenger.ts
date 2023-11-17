@@ -132,14 +132,16 @@ export class Messenger {
       };
 
       let onDestroyListener;
-      const destroyPromise = new Promise((_, reject) => {
+      const destroyPromise: Promise<never> = new Promise((_, reject) => {
         onDestroyListener = () => reject(new Error("Extension is being destroyed"));
         this.onDestroy.addEventListener("destroy", onDestroyListener);
       });
 
       try {
-        await Promise.race([this.handler(message, abortController), destroyPromise]);
-        const handlerResponse = await this.handler(message, abortController);
+        const handlerResponse = await Promise.race([
+          this.handler(message, abortController),
+          destroyPromise,
+        ]);
         port.postMessage({ ...handlerResponse, SENDER });
       } catch (error) {
         port.postMessage({
@@ -154,6 +156,14 @@ export class Messenger {
     };
   }
 
+  async sendReconnectCommand() {
+    await this.request({ type: MessageType.ReconnectRequest });
+  }
+
+  private async sendDisconnectCommand() {
+    await this.request({ type: MessageType.DisconnectRequest });
+  }
+
   /**
    * Cleans up the messenger by removing the message event listener
    */
@@ -165,14 +175,6 @@ export class Messenger {
       this.broadcastChannel.removeEventListener(this.messageEventListener);
       this.messageEventListener = null;
     }
-  }
-
-  async sendReconnectCommand() {
-    await this.request({ type: MessageType.ReconnectRequest });
-  }
-
-  private async sendDisconnectCommand() {
-    await this.request({ type: MessageType.DisconnectRequest });
   }
 }
 

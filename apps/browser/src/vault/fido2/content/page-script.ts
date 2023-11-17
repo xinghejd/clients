@@ -219,11 +219,6 @@ async function waitForFocus(fallbackWait = 500, timeout = 5 * 60 * 1000) {
 messenger.handler = (message, abortController) => {
   const type = message.type;
 
-  // // Only handle disconnect and reconnect requests
-  // if (type !== MessageType.DisconnectRequest && type !== MessageType.ReconnectRequest) {
-  //   return;
-  // }
-
   // Handle cleanup for disconnect request
   if (type === MessageType.DisconnectRequest && browserNativeWebauthnSupport) {
     navigator.credentials.create = browserCredentials.create;
@@ -236,23 +231,3 @@ messenger.handler = (message, abortController) => {
     navigator.credentials.get = getWebAuthnCredential;
   }
 };
-// window.addEventListener("message", (event) => {
-//   const { type } = event.data;
-
-//   // Only handle disconnect and reconnect requests
-//   if (type !== MessageType.DisconnectRequest && type !== MessageType.ReconnectRequest) {
-//     return;
-//   }
-
-//   // Handle cleanup for disconnect request
-//   if (type === MessageType.DisconnectRequest && browserNativeWebauthnSupport) {
-//     navigator.credentials.create = browserCredentials.create;
-//     navigator.credentials.get = browserCredentials.get;
-//   }
-
-//   // Handle reinitialization for reconnect request
-//   if (type === MessageType.ReconnectRequest && browserNativeWebauthnSupport) {
-//     navigator.credentials.create = createWebAuthnCredential;
-//     navigator.credentials.get = getWebAuthnCredential;
-//   }
-// });
