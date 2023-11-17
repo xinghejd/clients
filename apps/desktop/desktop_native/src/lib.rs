@@ -114,12 +114,20 @@ pub mod biometrics {
 pub mod clipboards {
     #[napi]
     pub async fn read() -> napi::Result<String> {
-        super::clipboard::read().map_err(|e| napi::Error::from_reason(e.to_string()))
+        super::clipboard::read().map_err(|e: anyhow::Error| napi::Error::from_reason(e.to_string()))
     }
 
     #[napi]
     pub async fn write(text: String, password: bool) -> napi::Result<()> {
         super::clipboard::write(&text, password)
             .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+}
+
+#[napi]
+pub mod webauthns {
+    #[napi]
+    pub fn webauthn_create() -> napi::Result<String> {
+        super::webauthn::create().map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 }
