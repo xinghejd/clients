@@ -24,12 +24,14 @@ rand = "=0.8.5"
 retry = "=2.0.0"
 scopeguard = "=1.1.0"
 sha2 = "=0.10.6"
+swift-bridge = "0.1.52"
 thiserror = "=1.0.40"
 tokio = { version = "=1.28.2", features = ["full"] }
 typenum = "=1.16.0"
 
 [build-dependencies]
 napi-build = "=2.0.1"
+swift-bridge-build = "0.1.52"
 
 [target.'cfg(windows)'.dependencies]
 widestring = "=1.0.2"
