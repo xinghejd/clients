@@ -38,8 +38,9 @@ Follow these steps to fully migrate a component.
 Don't recreate the wheel.
 
 After reviewing a design, consult this Storybook to determine if there is a component built for your
-usecase. Don't waste time styling a button or building a popover menu from scratch--we already have
-those. If a component isn't flexible enough or doesn't exist for your usecase, contact Will Martin.
+usecase. Don't waste effort styling a button or building a popover menu from scratch--we already
+have those. If a component isn't flexible enough or doesn't exist for your usecase, contact Will
+Martin.
 
 ### Use Tailwind
 
@@ -75,7 +76,8 @@ without this prefix, it probably shouldn't be there.
 
 The CL has form components that integrate with Angular's reactive forms: `bit-form-field`,
 `bitSubmit`, `bit-form-control`, etc. All forms should be migrated from template-drive forms to
-reactive forms to make use of these components. Review the form component docs.
+reactive forms to make use of these components. Review the
+[form component docs](?path=/docs/component-library-form--docs).
 
 <div class="tw-bg-danger-500/10 tw-p-4">
     <span class="tw-text-danger tw-font-bold">Bad</span>
@@ -98,33 +100,69 @@ reactive forms to make use of these components. Review the form component docs.
 ### Dialogs
 
 Legacy Bootstrap modals use the `ModalService`. These should be converted to use the `DialogService`
-and it's related CL components. Components that are fully migrated should have no reference to the
-`ModalService`.
+and it's [related CL components](?path=/docs/component-library-dialogs--docs). Components that are
+fully migrated should have no reference to the `ModalService`.
+
+1. Update the template to use CL components:
 
 <div class="tw-bg-danger-500/10 tw-p-4">
-    <span class="tw-text-danger tw-font-bold">Bad</span>
-    ```ts
-    this.modalService.open(DeleteAccountComponent);
-    ```
-
     ```html
-    <!-- DeleteAccountComponent -->
+    <!-- FooDialogComponent -->
     <div class="modal fade" role="dialog" aria-modal="true">...</div>
+    ```
+</div>
+
+<div class="tw-bg-success-500/10 tw-p-4">
+    ```html
+    <!-- FooDialogComponent -->
+    <bit-dialog>...</bit-dialog>
+    ```
+</div>
+
+2. Create a static `open` method on the component, that calls `DialogService.open`:
+
+<div class="tw-bg-success-500/10 tw-p-4">
+    ```ts
+      export class FooDialogComponent {
+        //...
+
+        static open(dialogService: DialogService) {
+          return dialogService.open(DeleteAccountComponent);
+        }
+      }
     ```
 
 </div>
 
+3. If you need to pass data into the dialog, pass it to `open` as a parameter and inject
+   `DIALOG_DATA` into the component's constructor.
+
 <div class="tw-bg-success-500/10 tw-p-4">
-    <span class="tw-text-success tw-font-bold">Good</span>
     ```ts
-    this.dialogService.open(DeleteAccountComponent);
+    export type FooDialogParams = {
+      bar: string;
+    }
+
+    export class FooDialogComponent {
+      constructor(@Inject(DIALOG_DATA) protected params: FooDialogParams) {}
+
+      static open(dialogService: DialogService, data: FooDialogParams) {
+        return dialogService.open(DeleteAccountComponent, { data });
+      }
+    }
     ```
 
-    ```html
-    <!-- DeleteAccountComponent -->
-    <bit-dialog>...</bit-dialog>
-    ```
+</div>
 
+4. Replace calls to `ModalService.open` or `ModalService.openViewRef` with the newly created static
+   `open` method:
+
+<div class="tw-bg-danger-500/10 tw-p-4">
+  ```ts this.modalService.open(FooDialogComponent); // or ModalService.openViewRef ```
+</div>
+
+<div class="tw-bg-success-500/10 tw-p-4">
+  ```ts FooDialogComponent.open(this.dialogService); ```
 </div>
 
 ## Examples
