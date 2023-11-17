@@ -13,6 +13,8 @@ fn main() {
     // 2. Compile Swift library
     compile_swift();
 
+    println!("AFTER COMPILE SWIFT");
+
     // 3. Link to Swift library
     println!("cargo:rustc-link-lib=static=swift-library");
     println!(
