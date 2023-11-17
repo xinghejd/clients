@@ -2801,10 +2801,10 @@
     "message": "Insert the YubiKey associated with your LastPass account into your computer's USB port, then touch its button."
   },
   "switchAccount": {
-    "message": "Switch Account"
+    "message": "Switch account"
   },
   "switchAccounts": {
-    "message": "Switch Accounts"
+    "message": "Switch accounts"
   },
   "switchToAccount": {
     "message": "Switch to account"
