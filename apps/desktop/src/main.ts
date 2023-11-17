@@ -7,6 +7,8 @@ import { StateFactory } from "@bitwarden/common/platform/factories/state-factory
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 
+import { NativeWebauthnMain } from "./auth/webauthn-login/main/native-webauthn.main";
+import { NativeWebauthnMainAbstraction } from "./auth/webauthn-login/main/native-webauthn.main.abstraction";
 import { MenuMain } from "./main/menu/menu.main";
 import { MessagingMain } from "./main/messaging.main";
 import { NativeMessagingMain } from "./main/native-messaging.main";
@@ -42,6 +44,7 @@ export class Main {
   biometricsService: BiometricsServiceAbstraction;
   nativeMessagingMain: NativeMessagingMain;
   clipboardMain: ClipboardMain;
+  webauthnMain: NativeWebauthnMainAbstraction;
 
   constructor() {
     // Set paths for portable builds
@@ -146,6 +149,9 @@ export class Main {
 
     this.clipboardMain = new ClipboardMain();
     this.clipboardMain.init();
+
+    this.webauthnMain = new NativeWebauthnMain();
+    this.webauthnMain.init();
   }
 
   bootstrap() {

@@ -51,6 +51,10 @@ const clipboard = {
   write: (message: ClipboardWriteMessage) => ipcRenderer.invoke("clipboard.write", message),
 };
 
+const webauthn = {
+  create: (): Promise<string> => ipcRenderer.invoke("webauthn.create"),
+};
+
 export default {
   versions: {
     app: (): Promise<string> => ipcRenderer.invoke("appVersion"),
@@ -93,6 +97,7 @@ export default {
   passwords,
   biometric,
   clipboard,
+  webauthn,
 };
 
 function deviceType(): DeviceType {
