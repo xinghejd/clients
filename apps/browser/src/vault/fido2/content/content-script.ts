@@ -79,7 +79,7 @@ function initializeFido2ContentScript() {
             requestId: requestId,
           },
           (response) => {
-            if (response.error !== undefined) {
+            if (response && response.error !== undefined) {
               return reject(response.error);
             }
 
@@ -101,7 +101,7 @@ function initializeFido2ContentScript() {
             requestId: requestId,
           },
           (response) => {
-            if (response.error !== undefined) {
+            if (response && response.error !== undefined) {
               return reject(response.error);
             }
 
