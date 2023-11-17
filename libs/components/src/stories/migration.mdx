@@ -158,11 +158,18 @@ fully migrated should have no reference to the `ModalService`.
    `open` method:
 
 <div class="tw-bg-danger-500/10 tw-p-4">
-  ```ts this.modalService.open(FooDialogComponent); // or ModalService.openViewRef ```
+  ```ts 
+    this.modalService.open(FooDialogComponent);
+
+````
 </div>
 
 <div class="tw-bg-success-500/10 tw-p-4">
-  ```ts FooDialogComponent.open(this.dialogService); ```
+```ts
+  FooDialogComponent.open(this.dialogService);
+
+````
+
 </div>
 
 ## Examples
