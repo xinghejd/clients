@@ -49,7 +49,7 @@ describe("TabsBackground", () => {
 
   describe("tab event listeners", () => {
     beforeEach(() => {
-      tabsBackgorund.init();
+      tabsBackgorund["setupTabEventListeners"]();
     });
 
     describe("window onFocusChanged event", () => {
@@ -169,9 +169,9 @@ describe("TabsBackground", () => {
         triggerTabOnUpdatedEvent(focusedWindowId, { status: "loading" }, tab);
         await flushPromises();
 
-        expect(mainBackground.refreshBadge).not.toHaveBeenCalledTimes(2);
-        expect(mainBackground.refreshMenu).not.toHaveBeenCalledTimes(2);
-        expect(overlayBackground.updateOverlayCiphers).not.toHaveBeenCalledTimes(2);
+        expect(mainBackground.refreshBadge).not.toHaveBeenCalled();
+        expect(mainBackground.refreshMenu).not.toHaveBeenCalled();
+        expect(overlayBackground.updateOverlayCiphers).not.toHaveBeenCalled();
       });
 
       it("skips updating the current tab data if the updated tab is not for the focusedWindowId", async () => {
@@ -179,9 +179,9 @@ describe("TabsBackground", () => {
         triggerTabOnUpdatedEvent(focusedWindowId, { status: "loading" }, tab);
         await flushPromises();
 
-        expect(mainBackground.refreshBadge).not.toHaveBeenCalledTimes(2);
-        expect(mainBackground.refreshMenu).not.toHaveBeenCalledTimes(2);
-        expect(overlayBackground.updateOverlayCiphers).not.toHaveBeenCalledTimes(2);
+        expect(mainBackground.refreshBadge).not.toHaveBeenCalled();
+        expect(mainBackground.refreshMenu).not.toHaveBeenCalled();
+        expect(overlayBackground.updateOverlayCiphers).not.toHaveBeenCalled();
       });
 
       it("skips updating the current tab data if the updated tab is not active", async () => {
@@ -189,9 +189,9 @@ describe("TabsBackground", () => {
         triggerTabOnUpdatedEvent(focusedWindowId, { status: "loading" }, tab);
         await flushPromises();
 
-        expect(mainBackground.refreshBadge).not.toHaveBeenCalledTimes(2);
-        expect(mainBackground.refreshMenu).not.toHaveBeenCalledTimes(2);
-        expect(overlayBackground.updateOverlayCiphers).not.toHaveBeenCalledTimes(2);
+        expect(mainBackground.refreshBadge).not.toHaveBeenCalled();
+        expect(mainBackground.refreshMenu).not.toHaveBeenCalled();
+        expect(overlayBackground.updateOverlayCiphers).not.toHaveBeenCalled();
       });
 
       it("skips updating the badge, context menu and notification bar if the `onUpdatedRan` property of the main background class is set to `true`", async () => {
@@ -199,8 +199,8 @@ describe("TabsBackground", () => {
         triggerTabOnUpdatedEvent(focusedWindowId, { status: "loading" }, tab);
         await flushPromises();
 
-        expect(mainBackground.refreshBadge).not.toHaveBeenCalledTimes(2);
-        expect(mainBackground.refreshMenu).not.toHaveBeenCalledTimes(2);
+        expect(mainBackground.refreshBadge).not.toHaveBeenCalled();
+        expect(mainBackground.refreshMenu).not.toHaveBeenCalled();
       });
 
       it("checks the notification queue", async () => {

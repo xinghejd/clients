@@ -1,10 +1,11 @@
 import { logoIcon, logoLockedIcon } from "./svg-icons";
+
 import {
   buildSvgDomElement,
   generateRandomCustomElementName,
   sendExtensionMessage,
   setElementStyles,
-} from "./utils";
+} from "./index";
 
 describe("buildSvgDomElement", () => {
   it("returns an SVG DOM element", () => {

@@ -1,5 +1,5 @@
 import { EVENTS } from "../../constants";
-import { setElementStyles } from "../../utils/utils";
+import { setElementStyles } from "../../utils";
 import {
   BackgroundPortMessageHandlers,
   AutofillOverlayIframeService as AutofillOverlayIframeServiceInterface,
@@ -151,9 +151,9 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
 
     this.updateElementStyles(this.iframe, { opacity: "0", height: "0px", display: "block" });
     globalThis.removeEventListener("message", this.handleWindowMessage);
-    this.port.onMessage.removeListener(this.handlePortMessage);
-    this.port.onDisconnect.removeListener(this.handlePortDisconnect);
-    this.port.disconnect();
+    this.port?.onMessage.removeListener(this.handlePortMessage);
+    this.port?.onDisconnect.removeListener(this.handlePortDisconnect);
+    this.port?.disconnect();
     this.port = null;
   };
 

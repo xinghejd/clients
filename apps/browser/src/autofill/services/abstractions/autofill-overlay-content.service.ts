@@ -27,6 +27,7 @@ interface AutofillOverlayContentService {
   redirectOverlayFocusOut(direction: "previous" | "next"): void;
   focusMostRecentOverlayField(): void;
   blurMostRecentOverlayField(): void;
+  destroy(): void;
 }
 
 export { OpenAutofillOverlayOptions, AutofillOverlayContentService };

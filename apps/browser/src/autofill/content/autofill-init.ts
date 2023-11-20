@@ -250,6 +250,7 @@ class AutofillInit implements AutofillInitInterface {
   destroy() {
     chrome.runtime.onMessage.removeListener(this.handleExtensionMessage);
     this.collectAutofillContentService.destroy();
+    this.autofillOverlayContentService?.destroy();
   }
 }
 
