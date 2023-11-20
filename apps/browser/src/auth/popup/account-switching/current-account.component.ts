@@ -2,7 +2,7 @@ import { Location } from "@angular/common";
 import { Component } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 
-import { CurrentAccountService } from "../services/current-account.service";
+import { CurrentAccountService } from "./services/current-account.service";
 
 @Component({
   selector: "app-current-account",

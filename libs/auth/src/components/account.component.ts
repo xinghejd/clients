@@ -9,7 +9,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import {
   AvailableAccount,
   AccountSwitcherService,
-} from "../../../../apps/browser/src/auth/popup/services/account-switcher.service";
+} from "../../../../apps/browser/src/auth/popup/account-switching/services/account-switcher.service";
 import { BrowserRouterService } from "../../../../apps/browser/src/platform/popup/services/browser-router.service";
 import { AvatarModule } from "../../../components/src/avatar";
 

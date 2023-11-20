@@ -8,7 +8,7 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { DialogService } from "@bitwarden/components";
 
-import { AccountSwitcherService } from "../services/account-switcher.service";
+import { AccountSwitcherService } from "./services/account-switcher.service";
 
 @Component({
   templateUrl: "account-switcher.component.html",

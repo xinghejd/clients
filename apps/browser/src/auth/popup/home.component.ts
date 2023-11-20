@@ -10,7 +10,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 
-import { AccountSwitcherService } from "./services/account-switcher.service";
+import { AccountSwitcherService } from "./account-switching/services/account-switcher.service";
 
 @Component({
   selector: "app-home",
