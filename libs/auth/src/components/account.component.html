@@ -1,5 +1,5 @@
 <button
-  *ngIf="account.id !== specialAccountAddId; else addAccount"
+  *ngIf="account.id !== specialAccountAddId"
   type="button"
   class="tw-flex tw-w-full tw-items-center tw-gap-3 tw-rounded-md tw-border-none tw-bg-background tw-p-3 hover:tw-bg-background-alt"
   (click)="selectAccount(account.id)"
@@ -36,15 +36,14 @@
   </div>
 </button>
 
-<ng-template #addAccount>
-  <button
-    type="button"
-    class="tw-flex tw-w-full tw-items-center tw-gap-3 tw-rounded-md tw-border-none tw-bg-background tw-p-3 hover:tw-bg-background-alt"
-    (click)="selectAccount(account.id)"
-  >
-    <i class="bwi bwi-plus tw-text-2xl tw-text-main" aria-hidden="true"></i>
-    <div class="tw-text-main">
-      {{ account.name }}
-    </div>
-  </button>
-</ng-template>
+<button
+  *ngIf="account.id === specialAccountAddId"
+  type="button"
+  class="tw-flex tw-w-full tw-items-center tw-gap-3 tw-rounded-md tw-border-none tw-bg-background tw-p-3 hover:tw-bg-background-alt"
+  (click)="selectAccount(account.id)"
+>
+  <i class="bwi bwi-plus tw-text-2xl tw-text-main" aria-hidden="true"></i>
+  <div class="tw-text-main">
+    {{ account.name }}
+  </div>
+</button>
