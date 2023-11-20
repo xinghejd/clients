@@ -70,8 +70,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.destroyed$.complete();
   }
 
-  get accountOptions$() {
-    return this.accountSwitcherService.accountOptions$;
+  get availableAccounts$() {
+    return this.accountSwitcherService.availableAccounts$;
   }
 
   submit() {

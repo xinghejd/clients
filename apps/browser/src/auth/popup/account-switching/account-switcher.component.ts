@@ -34,8 +34,8 @@ export class AccountSwitcherComponent implements OnDestroy {
     return this.accountSwitcherService.SPECIAL_ADD_ACCOUNT_ID;
   }
 
-  get accountOptions$() {
-    return this.accountSwitcherService.accountOptions$;
+  get availableAccounts$() {
+    return this.accountSwitcherService.availableAccounts$;
   }
 
   get currentAccount$() {
@@ -52,7 +52,7 @@ export class AccountSwitcherComponent implements OnDestroy {
   }
 
   async lockAll() {
-    this.accountOptions$
+    this.availableAccounts$
       .pipe(
         map((accounts) =>
           accounts

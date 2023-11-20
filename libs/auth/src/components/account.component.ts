@@ -7,7 +7,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import {
-  AccountOption,
+  AvailableAccount,
   AccountSwitcherService,
 } from "../../../../apps/browser/src/auth/popup/services/account-switcher.service";
 import { BrowserRouterService } from "../../../../apps/browser/src/platform/popup/services/browser-router.service";
@@ -20,7 +20,7 @@ import { AvatarModule } from "../../../components/src/avatar";
   imports: [CommonModule, JslibModule, AvatarModule],
 })
 export class AccountComponent {
-  @Input() account: AccountOption;
+  @Input() account: AvailableAccount;
 
   constructor(
     private accountSwitcherService: AccountSwitcherService,

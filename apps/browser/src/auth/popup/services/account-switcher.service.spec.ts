@@ -33,7 +33,7 @@ describe("AccountSwitcherService", () => {
     );
   });
 
-  describe("accountOptions$", () => {
+  describe("availableAccounts$", () => {
     it("should return all accounts and an add account option when accounts are less than 5", async () => {
       const user1AccountInfo: AccountInfo = {
         name: "Test User 1",
@@ -48,7 +48,7 @@ describe("AccountSwitcherService", () => {
       activeAccountSubject.next(Object.assign(user1AccountInfo, { id: "1" as UserId }));
 
       const accounts = await firstValueFrom(
-        accountSwitcherService.accountOptions$.pipe(timeout(20))
+        accountSwitcherService.availableAccounts$.pipe(timeout(20))
       );
       expect(accounts).toHaveLength(2);
       expect(accounts[0].id).toBe("1");
@@ -74,7 +74,7 @@ describe("AccountSwitcherService", () => {
           Object.assign(seedAccounts["1" as UserId], { id: "1" as UserId })
         );
 
-        const accounts = await firstValueFrom(accountSwitcherService.accountOptions$);
+        const accounts = await firstValueFrom(accountSwitcherService.availableAccounts$);
 
         expect(accounts).toHaveLength(numberOfAccounts);
         accounts.forEach((account) => {

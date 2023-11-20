@@ -1,5 +1,5 @@
-<app-header [noTheme]="true" *ngIf="accountOptions$ | async as accountOptions">
-  <div class="right" *ngIf="accountOptions.length > 1">
+<app-header [noTheme]="true" *ngIf="availableAccounts$ | async as availableAccounts">
+  <div class="right" *ngIf="availableAccounts.length > 1">
     <button
       type="button"
       routerLink="/account-switcher"

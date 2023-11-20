@@ -8,7 +8,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
-export type AccountOption = {
+export type AvailableAccount = {
   name: string;
   id: string;
   isSelected: boolean;
@@ -23,7 +23,7 @@ export type AccountOption = {
 export class AccountSwitcherService {
   ACCOUNT_LIMIT = 5;
   SPECIAL_ADD_ACCOUNT_ID = "addAccount";
-  accountOptions$: Observable<AccountOption[]>;
+  availableAccounts$: Observable<AvailableAccount[]>;
 
   constructor(
     private accountService: AccountService,
@@ -31,7 +31,7 @@ export class AccountSwitcherService {
     private messagingService: MessagingService,
     private environmentService: EnvironmentService
   ) {
-    this.accountOptions$ = combineLatest([
+    this.availableAccounts$ = combineLatest([
       this.accountService.accounts$,
       this.accountService.activeAccount$,
     ]).pipe(
@@ -41,7 +41,7 @@ export class AccountSwitcherService {
         );
         // Accounts shouldn't ever be more than ACCOUNT_LIMIT but just in case do a greater than
         const hasMaxAccounts = accountEntries.length >= this.ACCOUNT_LIMIT;
-        const options: AccountOption[] = await Promise.all(
+        const options: AvailableAccount[] = await Promise.all(
           accountEntries.map(async ([id, account]) => {
             return {
               name: account.name ?? account.email,
