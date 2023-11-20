@@ -52,10 +52,10 @@ describe("AccountSwitcherService", () => {
       );
       expect(accounts).toHaveLength(2);
       expect(accounts[0].id).toBe("1");
-      expect(accounts[0].isSelected).toBeTruthy();
+      expect(accounts[0].isActive).toBeTruthy();
 
       expect(accounts[1].id).toBe("addAccount");
-      expect(accounts[1].isSelected).toBeFalsy();
+      expect(accounts[1].isActive).toBeFalsy();
     });
 
     it.each([5, 6])(

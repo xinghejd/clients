@@ -63,7 +63,7 @@ export const Unlocked: Story = {
     account: {
       name: "John Doe",
       id: "John Doe",
-      isSelected: false,
+      isActive: false,
       status: AuthenticationStatus.Unlocked,
     },
   },
@@ -84,7 +84,7 @@ export const Active: Story = {
   args: {
     account: {
       ...Unlocked.args.account,
-      isSelected: true,
+      isActive: true,
     },
   },
 };
@@ -95,7 +95,7 @@ export const AddAccount: Story = {
     account: {
       name: "Add Account",
       id: "addAccount",
-      isSelected: false,
+      isActive: false,
     },
   },
 };

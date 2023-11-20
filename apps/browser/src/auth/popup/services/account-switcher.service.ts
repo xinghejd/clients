@@ -11,7 +11,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 export type AvailableAccount = {
   name: string;
   id: string;
-  isSelected: boolean;
+  isActive: boolean;
   server?: string;
   status?: AuthenticationStatus;
   avatarColor?: string;
@@ -48,7 +48,7 @@ export class AccountSwitcherService {
               id: id,
               server: await this.environmentService.getHost(id),
               status: account.status,
-              isSelected: id === activeAccount?.id,
+              isActive: id === activeAccount?.id,
               avatarColor: await this.stateService.getAvatarColor({ userId: id }),
             };
           })
@@ -58,7 +58,7 @@ export class AccountSwitcherService {
           options.push({
             name: "Add account",
             id: this.SPECIAL_ADD_ACCOUNT_ID,
-            isSelected: activeAccount?.id == null,
+            isActive: activeAccount?.id == null,
           });
         }
 

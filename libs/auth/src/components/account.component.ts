@@ -44,7 +44,7 @@ export class AccountComponent {
   }
 
   get status() {
-    if (this.account.isSelected && this.account.status !== AuthenticationStatus.Locked) {
+    if (this.account.isActive && this.account.status !== AuthenticationStatus.Locked) {
       return { text: this.i18nService.t("active"), icon: "bwi-check-circle" };
     }
 
