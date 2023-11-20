@@ -20,7 +20,7 @@ export class AccountSwitcherComponent implements OnDestroy {
     private accountSwitcherService: AccountSwitcherService,
     private accountService: AccountService,
     private vaultTimeoutService: VaultTimeoutService,
-    public messagingService: MessagingService,
+    private messagingService: MessagingService,
     private dialogService: DialogService,
     private location: Location,
     private router: Router
