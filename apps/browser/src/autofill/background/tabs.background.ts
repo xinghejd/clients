@@ -41,7 +41,7 @@ export default class TabsBackground {
    * @param windowId - The ID of the window that was focused.
    */
   private handleWindowOnFocusChanged = async (windowId: number) => {
-    if (!windowId || windowId < 0) {
+    if (windowId == null || windowId < 0) {
       return;
     }
 

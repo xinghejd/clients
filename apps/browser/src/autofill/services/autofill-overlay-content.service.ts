@@ -1120,6 +1120,10 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     return documentRoot?.activeElement;
   }
 
+  /**
+   * Destroys the autofill overlay content service. This method will
+   * disconnect the mutation observers and remove all event listeners.
+   */
   destroy() {
     this.documentElementMutationObserver?.disconnect();
     this.clearUserInteractionEventTimeout();
