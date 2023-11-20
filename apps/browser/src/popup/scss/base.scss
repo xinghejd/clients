@@ -254,9 +254,6 @@ header:not(bit-callout header) {
       }
     }
 
-    app-header .home-account-switcher-btn {
-    }
-
     &[disabled] {
       opacity: 0.65;
       cursor: default !important;
