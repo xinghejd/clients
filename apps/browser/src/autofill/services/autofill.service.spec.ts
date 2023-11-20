@@ -109,6 +109,7 @@ describe("AutofillService", () => {
     it("sets up an extension runtime onConnect listener", async () => {
       await autofillService.loadAutofillScriptsOnInstall();
 
+      // eslint-disable-next-line no-restricted-syntax
       expect(chrome.runtime.onConnect.addListener).toHaveBeenCalledWith(expect.any(Function));
     });
   });

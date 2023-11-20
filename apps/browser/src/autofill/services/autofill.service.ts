@@ -63,7 +63,7 @@ export default class AutofillService implements AutofillServiceInterface {
       }
     }
 
-    chrome.runtime.onConnect.addListener((port) => {
+    BrowserApi.addListener(chrome.runtime.onConnect, (port) => {
       if (port.name === "content-script-extension-connection-port") {
         port.postMessage("extension connected");
       }
