@@ -22,13 +22,13 @@ const runtime = {
     addListener: jest.fn(),
     removeListener: jest.fn(),
   },
+  sendMessage: jest.fn(),
+  getManifest: jest.fn(() => ({ version: 2 })),
+  getURL: jest.fn((path) => `chrome-extension://id/${path}`),
   onConnect: {
     addListener: jest.fn(),
     removeListener: jest.fn(),
   },
-  sendMessage: jest.fn(),
-  getManifest: jest.fn(() => ({ version: 2 })),
-  getURL: jest.fn((path) => `chrome-extension://id/${path}`),
 };
 
 const contextMenus = {
@@ -38,12 +38,29 @@ const contextMenus = {
 
 const i18n = {
   getMessage: jest.fn(),
+  getUILanguage: jest.fn(),
 };
 
 const tabs = {
   executeScript: jest.fn(),
   sendMessage: jest.fn(),
   query: jest.fn(),
+  onActivated: {
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+  },
+  onReplaced: {
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+  },
+  onUpdated: {
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+  },
+  onRemoved: {
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+  },
 };
 
 const scripting = {
@@ -56,6 +73,18 @@ const windows = {
   getCurrent: jest.fn(),
   update: jest.fn(),
   remove: jest.fn(),
+  onFocusChanged: {
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+  },
+};
+
+const port = {
+  onMessage: {
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+  },
+  postMessage: jest.fn(),
 };
 
 // set chrome
@@ -67,4 +96,5 @@ global.chrome = {
   tabs,
   scripting,
   windows,
+  port,
 } as any;

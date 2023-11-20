@@ -63,4 +63,5 @@ export abstract class AutofillService {
     fromCommand: boolean,
     cipherType?: CipherType
   ) => Promise<string | null>;
+  isPasswordRepromptRequired: (cipher: CipherView, tab: chrome.tabs.Tab) => Promise<boolean>;
 }
