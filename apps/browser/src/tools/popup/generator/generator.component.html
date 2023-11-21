@@ -334,7 +334,7 @@
           <select
             id="ForwardTypeDropdown"
             name="ForwardType"
-            [(ngModel)]="usernameOptions.forwardedService"
+            [(ngModel)]="usernameOptions.forwarders.service"
             (change)="saveUsernameOptions()"
           >
             <option *ngFor="let o of forwardOptions" [ngValue]="o.value" role="option">
@@ -342,14 +342,14 @@
             </option>
           </select>
         </div>
-        <ng-container *ngIf="usernameOptions.forwardedService === 'simplelogin'">
+        <ng-container *ngIf="usernameOptions.forwarders.service === forwarderIds.SimpleLogin">
           <div class="box-content-row" appBoxRow>
             <label for="simplelogin-apikey">{{ "apiKey" | i18n }}</label>
             <input
               id="simplelogin-apikey"
               type="password"
               name="SimpleLoginApiKey"
-              [(ngModel)]="usernameOptions.forwardedSimpleLoginApiKey"
+              [(ngModel)]="usernameOptions.forwarders.simpleLogin.token"
               (blur)="saveUsernameOptions()"
             />
           </div>
@@ -359,31 +359,31 @@
               id="simplelogin-baseUrl"
               type="text"
               name="SimpleLoginDomain"
-              [(ngModel)]="usernameOptions.forwardedSimpleLoginBaseUrl"
+              [(ngModel)]="usernameOptions.forwarders.simpleLogin.baseUrl"
               (blur)="saveUsernameOptions()"
             />
           </div>
         </ng-container>
-        <ng-container *ngIf="usernameOptions.forwardedService === 'duckduckgo'">
+        <ng-container *ngIf="usernameOptions.forwarders.service === forwarderIds.DuckDuckGo">
           <div class="box-content-row" appBoxRow>
             <label for="duckduckgo-apikey">{{ "apiKey" | i18n }}</label>
             <input
               id="duckduckgo-apikey"
               type="password"
               name="DuckDuckGoApiKey"
-              [(ngModel)]="usernameOptions.forwardedDuckDuckGoToken"
+              [(ngModel)]="usernameOptions.forwarders.duckDuckGo.token"
               (blur)="saveUsernameOptions()"
             />
           </div>
         </ng-container>
-        <ng-container *ngIf="usernameOptions.forwardedService === 'anonaddy'">
+        <ng-container *ngIf="usernameOptions.forwarders.service === forwarderIds.AddyIo">
           <div class="box-content-row" appBoxRow>
             <label for="anonaddy-accessToken">{{ "apiAccessToken" | i18n }}</label>
             <input
               id="anonaddy-accessToken"
               type="password"
               name="AnonAddyAccessToken"
-              [(ngModel)]="usernameOptions.forwardedAnonAddyApiToken"
+              [(ngModel)]="usernameOptions.forwarders.addyIo.token"
               (blur)="saveUsernameOptions()"
             />
           </div>
@@ -393,7 +393,7 @@
               id="anonaddy-domain"
               type="text"
               name="AnonAddyDomain"
-              [(ngModel)]="usernameOptions.forwardedAnonAddyDomain"
+              [(ngModel)]="usernameOptions.forwarders.addyIo.domain"
               (blur)="saveUsernameOptions()"
             />
           </div>
@@ -403,43 +403,43 @@
               id="anonaddy-baseUrl"
               type="text"
               name="AnonAddyDomain"
-              [(ngModel)]="usernameOptions.forwardedAnonAddyBaseUrl"
+              [(ngModel)]="usernameOptions.forwarders.addyIo.baseUrl"
               (blur)="saveUsernameOptions()"
             />
           </div>
         </ng-container>
-        <ng-container *ngIf="usernameOptions.forwardedService === 'firefoxrelay'">
+        <ng-container *ngIf="usernameOptions.forwarders.service === forwarderIds.FirefoxRelay">
           <div class="box-content-row" appBoxRow>
             <label for="firefox-apikey">{{ "apiAccessToken" | i18n }}</label>
             <input
               id="firefox-apikey"
               type="password"
               name="FirefoxApiKey"
-              [(ngModel)]="usernameOptions.forwardedFirefoxApiToken"
+              [(ngModel)]="usernameOptions.forwarders.firefoxRelay.token"
               (blur)="saveUsernameOptions()"
             />
           </div>
         </ng-container>
-        <ng-container *ngIf="usernameOptions.forwardedService === 'fastmail'">
+        <ng-container *ngIf="usernameOptions.forwarders.service === forwarderIds.FastMail">
           <div class="box-content-row" appBoxRow>
             <label for="fastmail-apiToken">{{ "apiAccessToken" | i18n }}</label>
             <input
               id="fastmail-apiToken"
               type="password"
               name="FastmailApiToken"
-              [(ngModel)]="usernameOptions.forwardedFastmailApiToken"
+              [(ngModel)]="usernameOptions.forwarders.fastMail.token"
               (blur)="saveUsernameOptions()"
             />
           </div>
         </ng-container>
-        <ng-container *ngIf="usernameOptions.forwardedService === 'forwardemail'">
+        <ng-container *ngIf="usernameOptions.forwarders.service === forwarderIds.ForwardEmail">
           <div class="box-content-row" appBoxRow>
             <label for="forwardemail-accessToken">{{ "apiAccessToken" | i18n }}</label>
             <input
               id="forwardemail-accessToken"
               type="password"
               name="ForwardEmailAccessToken"
-              [(ngModel)]="usernameOptions.forwardedForwardEmailApiToken"
+              [(ngModel)]="usernameOptions.forwarders.forwardEmail.token"
               (blur)="saveUsernameOptions()"
             />
           </div>
@@ -449,7 +449,7 @@
               id="forwardemail-domain"
               type="text"
               name="ForwardEmailDomain"
-              [(ngModel)]="usernameOptions.forwardedForwardEmailDomain"
+              [(ngModel)]="usernameOptions.forwarders.forwardEmail.domain"
               (blur)="saveUsernameOptions()"
             />
           </div>
@@ -464,7 +464,7 @@
             id="subaddress-email"
             type="text"
             name="SubaddressEmail"
-            [(ngModel)]="usernameOptions.subaddressEmail"
+            [(ngModel)]="usernameOptions.subaddress.email"
             (blur)="saveUsernameOptions()"
           />
         </div>
@@ -478,12 +478,12 @@
           <div class="radio-group text-default" appBoxRow *ngFor="let o of subaddressOptions">
             <input
               type="radio"
-              [(ngModel)]="usernameOptions.subaddressType"
+              [(ngModel)]="usernameOptions.subaddress.algorithm"
               name="SubaddressType"
               id="subaddresstype_{{ o.value }}"
               [value]="o.value"
               (change)="saveUsernameOptions()"
-              [checked]="usernameOptions.subaddressType === o.value"
+              [checked]="usernameOptions.subaddress.algorithm === o.value"
             />
             <label for="subaddresstype_{{ o.value }}">
               {{ o.name }}
@@ -511,7 +511,7 @@
             id="catchall-domain"
             type="text"
             name="CatchallDomain"
-            [(ngModel)]="usernameOptions.catchallDomain"
+            [(ngModel)]="usernameOptions.catchall.domain"
             (blur)="saveUsernameOptions()"
           />
         </div>
@@ -525,12 +525,12 @@
           <div class="radio-group text-default" appBoxRow *ngFor="let o of catchallOptions">
             <input
               type="radio"
-              [(ngModel)]="usernameOptions.catchallType"
+              [(ngModel)]="usernameOptions.catchall.algorithm"
               name="CatchallType"
               id="catchalltype_{{ o.value }}"
               [value]="o.value"
               (change)="saveUsernameOptions()"
-              [checked]="usernameOptions.catchallType === o.value"
+              [checked]="usernameOptions.catchall.algorithm === o.value"
             />
             <label for="catchalltype_{{ o.value }}">
               {{ o.name }}
@@ -558,7 +558,7 @@
             id="capitalize"
             type="checkbox"
             (change)="saveUsernameOptions()"
-            [(ngModel)]="usernameOptions.wordCapitalize"
+            [(ngModel)]="usernameOptions.word.capitalize"
           />
         </div>
         <div class="box-content-row box-content-row-checkbox" appBoxRow>
@@ -567,7 +567,7 @@
             id="include-number"
             type="checkbox"
             (change)="saveUsernameOptions()"
-            [(ngModel)]="usernameOptions.wordIncludeNumber"
+            [(ngModel)]="usernameOptions.word.includeNumber"
           />
         </div>
       </div>

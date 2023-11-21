@@ -1,39 +1,25 @@
+import _ from "lodash";
+
 import { ApiService } from "../../../abstractions/api.service";
 import { CryptoService } from "../../../platform/abstractions/crypto.service";
+import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { StateService } from "../../../platform/abstractions/state.service";
 import { EFFLongWordList } from "../../../platform/misc/wordlist";
 
+import { createForwarder } from "./email-forwarders";
 import {
-  AnonAddyForwarder,
-  DuckDuckGoForwarder,
-  FastmailForwarder,
-  FirefoxRelayForwarder,
-  ForwardEmailForwarder,
-  Forwarder,
-  ForwarderOptions,
-  SimpleLoginForwarder,
-} from "./email-forwarders";
-import { UsernameGeneratorOptions } from "./username-generation-options";
+  UsernameGeneratorOptions,
+  DefaultOptions,
+  getForwarderOptions,
+} from "./username-generation-options";
 import { UsernameGenerationServiceAbstraction } from "./username-generation.service.abstraction";
-
-const DefaultOptions: UsernameGeneratorOptions = {
-  type: "word",
-  wordCapitalize: true,
-  wordIncludeNumber: true,
-  subaddressType: "random",
-  catchallType: "random",
-  forwardedService: "",
-  forwardedAnonAddyDomain: "anonaddy.me",
-  forwardedAnonAddyBaseUrl: "https://app.addy.io",
-  forwardedForwardEmailDomain: "hideaddress.net",
-  forwardedSimpleLoginBaseUrl: "https://app.simplelogin.io",
-};
 
 export class UsernameGenerationService implements UsernameGenerationServiceAbstraction {
   constructor(
     private cryptoService: CryptoService,
     private stateService: StateService,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private i18nService: I18nService
   ) {}
 
   generateUsername(options: UsernameGeneratorOptions): Promise<string> {
@@ -49,21 +35,16 @@ export class UsernameGenerationService implements UsernameGenerationServiceAbstr
   }
 
   async generateWord(options: UsernameGeneratorOptions): Promise<string> {
-    const o = Object.assign({}, DefaultOptions, options);
-
-    if (o.wordCapitalize == null) {
-      o.wordCapitalize = true;
-    }
-    if (o.wordIncludeNumber == null) {
-      o.wordIncludeNumber = true;
-    }
+    const {
+      word: { capitalize, includeNumber },
+    } = _.defaultsDeep(options, DefaultOptions);
 
     const wordIndex = await this.cryptoService.randomNumber(0, EFFLongWordList.length - 1);
     let word = EFFLongWordList[wordIndex];
-    if (o.wordCapitalize) {
+    if (capitalize) {
       word = word.charAt(0).toUpperCase() + word.slice(1);
     }
-    if (o.wordIncludeNumber) {
+    if (includeNumber) {
       const num = await this.cryptoService.randomNumber(1, 9999);
       word = word + this.zeroPad(num.toString(), 4);
     }
@@ -71,99 +52,72 @@ export class UsernameGenerationService implements UsernameGenerationServiceAbstr
   }
 
   async generateSubaddress(options: UsernameGeneratorOptions): Promise<string> {
-    const o = Object.assign({}, DefaultOptions, options);
+    const {
+      website,
+      subaddress: { algorithm, email },
+    } = _.defaultsDeep(options, DefaultOptions);
 
-    const subaddressEmail = o.subaddressEmail;
-    if (subaddressEmail == null || subaddressEmail.length < 3) {
-      return o.subaddressEmail;
+    if (email.length < 3) {
+      return email;
     }
-    const atIndex = subaddressEmail.indexOf("@");
-    if (atIndex < 1 || atIndex >= subaddressEmail.length - 1) {
-      return subaddressEmail;
-    }
-    if (o.subaddressType == null) {
-      o.subaddressType = "random";
+    const atIndex = email.indexOf("@");
+    if (atIndex < 1 || atIndex >= email.length - 1) {
+      return email;
     }
 
-    const emailBeginning = subaddressEmail.substr(0, atIndex);
-    const emailEnding = subaddressEmail.substr(atIndex + 1, subaddressEmail.length);
+    const emailBeginning = email.substring(0, atIndex);
+    const emailEnding = email.substring(atIndex + 1, email.length);
 
     let subaddressString = "";
-    if (o.subaddressType === "random") {
+    if (algorithm === "random") {
       subaddressString = await this.randomString(8);
-    } else if (o.subaddressType === "website-name") {
-      subaddressString = o.website;
+    } else if (algorithm === "website-name") {
+      subaddressString = website;
     }
     return emailBeginning + "+" + subaddressString + "@" + emailEnding;
   }
 
   async generateCatchall(options: UsernameGeneratorOptions): Promise<string> {
-    const o = Object.assign({}, DefaultOptions, options);
+    const {
+      website,
+      catchall: { algorithm, domain },
+    } = _.defaultsDeep(options, DefaultOptions);
 
-    if (o.catchallDomain == null || o.catchallDomain === "") {
+    if (domain === "") {
       return null;
-    }
-    if (o.catchallType == null) {
-      o.catchallType = "random";
     }
 
     let startString = "";
-    if (o.catchallType === "random") {
+    if (algorithm === "random") {
       startString = await this.randomString(8);
-    } else if (o.catchallType === "website-name") {
-      startString = o.website;
+    } else if (algorithm === "website-name") {
+      startString = website;
     }
-    return startString + "@" + o.catchallDomain;
+    return startString + "@" + domain;
   }
 
   async generateForwarded(options: UsernameGeneratorOptions): Promise<string> {
-    const o = Object.assign({}, DefaultOptions, options);
+    const {
+      website,
+      forwarders: { service },
+    } = _.defaultsDeep(options, DefaultOptions);
 
-    if (o.forwardedService == null) {
-      return null;
+    const forwarder = createForwarder(service, this.apiService, this.i18nService);
+    const forwarderOptions = getForwarderOptions(service, options);
+
+    if (!forwarder || !forwarderOptions) {
+      const error = this.i18nService.t("forwarder.unknownForwarder", service);
+      throw error;
     }
 
-    let forwarder: Forwarder = null;
-    const forwarderOptions = new ForwarderOptions();
-    forwarderOptions.website = o.website;
-    if (o.forwardedService === "simplelogin") {
-      forwarder = new SimpleLoginForwarder();
-      forwarderOptions.apiKey = o.forwardedSimpleLoginApiKey;
-      forwarderOptions.simplelogin.baseUrl = o.forwardedSimpleLoginBaseUrl;
-    } else if (o.forwardedService === "anonaddy") {
-      forwarder = new AnonAddyForwarder();
-      forwarderOptions.apiKey = o.forwardedAnonAddyApiToken;
-      forwarderOptions.anonaddy.domain = o.forwardedAnonAddyDomain;
-      forwarderOptions.anonaddy.baseUrl = o.forwardedAnonAddyBaseUrl;
-    } else if (o.forwardedService === "firefoxrelay") {
-      forwarder = new FirefoxRelayForwarder();
-      forwarderOptions.apiKey = o.forwardedFirefoxApiToken;
-    } else if (o.forwardedService === "fastmail") {
-      forwarder = new FastmailForwarder();
-      forwarderOptions.apiKey = o.forwardedFastmailApiToken;
-    } else if (o.forwardedService === "duckduckgo") {
-      forwarder = new DuckDuckGoForwarder();
-      forwarderOptions.apiKey = o.forwardedDuckDuckGoToken;
-    } else if (o.forwardedService === "forwardemail") {
-      forwarder = new ForwardEmailForwarder();
-      forwarderOptions.apiKey = o.forwardedForwardEmailApiToken;
-      forwarderOptions.forwardemail.domain = o.forwardedForwardEmailDomain;
-    }
-
-    if (forwarder == null) {
-      return null;
-    }
-
-    return forwarder.generate(this.apiService, forwarderOptions);
+    const generated = await forwarder.generate(website, forwarderOptions);
+    return generated;
   }
 
   async getOptions(): Promise<UsernameGeneratorOptions> {
     let options = await this.stateService.getUsernameGenerationOptions();
-    if (options == null) {
-      options = Object.assign({}, DefaultOptions);
-    } else {
-      options = Object.assign({}, DefaultOptions, options);
-    }
+    options = _.defaultsDeep(options ?? {}, DefaultOptions);
+
     await this.stateService.setUsernameGenerationOptions(options);
     return options;
   }

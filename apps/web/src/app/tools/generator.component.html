@@ -263,7 +263,7 @@
       <select
         id="ForwardTypeDropdown"
         name="ForwardType"
-        [(ngModel)]="usernameOptions.forwardedService"
+        [(ngModel)]="usernameOptions.forwarders.service"
         (change)="saveUsernameOptions()"
         class="form-control w-auto"
       >
@@ -272,14 +272,14 @@
         </option>
       </select>
     </div>
-    <div class="row" *ngIf="usernameOptions.forwardedService === 'simplelogin'">
+    <div class="row" *ngIf="usernameOptions.forwarders.service === forwarderIds.SimpleLogin">
       <div class="form-group col-4">
         <label for="simplelogin-apikey">{{ "apiKey" | i18n }}</label>
         <input
           id="simplelogin-apikey"
           class="form-control"
           type="password"
-          [(ngModel)]="usernameOptions.forwardedSimpleLoginApiKey"
+          [(ngModel)]="usernameOptions.forwarders.simpleLogin.token"
           (blur)="saveUsernameOptions()"
         />
       </div>
@@ -290,12 +290,12 @@
           class="form-control"
           type="text"
           name="SimpleLoginDomain"
-          [(ngModel)]="usernameOptions.forwardedSimpleLoginBaseUrl"
+          [(ngModel)]="usernameOptions.forwarders.simpleLogin.baseUrl"
           (blur)="saveUsernameOptions()"
         />
       </div>
     </div>
-    <div class="row" *ngIf="usernameOptions.forwardedService === 'duckduckgo'">
+    <div class="row" *ngIf="usernameOptions.forwarders.service === forwarderIds.DuckDuckGo">
       <div class="form-group col-4">
         <label for="duckduckgo-apikey">{{ "apiKey" | i18n }}</label>
         <input
@@ -303,19 +303,19 @@
           class="form-control"
           type="password"
           name="DuckDuckGoApiKey"
-          [(ngModel)]="usernameOptions.forwardedDuckDuckGoToken"
+          [(ngModel)]="usernameOptions.forwarders.duckDuckGo.token"
           (blur)="saveUsernameOptions()"
         />
       </div>
     </div>
-    <div class="row" *ngIf="usernameOptions.forwardedService === 'anonaddy'">
+    <div class="row" *ngIf="usernameOptions.forwarders.service === forwarderIds.AddyIo">
       <div class="form-group col-4">
         <label for="anonaddy-apikey">{{ "apiAccessToken" | i18n }}</label>
         <input
           id="anonaddy-apikey"
           class="form-control"
           type="password"
-          [(ngModel)]="usernameOptions.forwardedAnonAddyApiToken"
+          [(ngModel)]="usernameOptions.forwarders.addyIo.token"
           (blur)="saveUsernameOptions()"
         />
       </div>
@@ -325,7 +325,7 @@
           id="anonaddy-domain"
           class="form-control"
           type="text"
-          [(ngModel)]="usernameOptions.forwardedAnonAddyDomain"
+          [(ngModel)]="usernameOptions.forwarders.addyIo.domain"
           (blur)="saveUsernameOptions()"
         />
       </div>
@@ -336,43 +336,43 @@
           class="form-control"
           type="text"
           name="AnonAddyDomain"
-          [(ngModel)]="usernameOptions.forwardedAnonAddyBaseUrl"
+          [(ngModel)]="usernameOptions.forwarders.addyIo.baseUrl"
           (blur)="saveUsernameOptions()"
         />
       </div>
     </div>
-    <div class="row" *ngIf="usernameOptions.forwardedService === 'firefoxrelay'">
+    <div class="row" *ngIf="usernameOptions.forwarders.service === forwarderIds.FirefoxRelay">
       <div class="form-group col-4">
         <label for="firefox-apikey">{{ "apiAccessToken" | i18n }}</label>
         <input
           id="firefox-apikey"
           class="form-control"
           type="password"
-          [(ngModel)]="usernameOptions.forwardedFirefoxApiToken"
+          [(ngModel)]="usernameOptions.forwarders.firefoxRelay.token"
           (blur)="saveUsernameOptions()"
         />
       </div>
     </div>
-    <div class="row" *ngIf="usernameOptions.forwardedService === 'fastmail'">
+    <div class="row" *ngIf="usernameOptions.forwarders.service === forwarderIds.FastMail">
       <div class="form-group col-4">
         <label for="fastmail-apiToken">{{ "apiAccessToken" | i18n }}</label>
         <input
           id="fastmail-apiToken"
           class="form-control"
           type="password"
-          [(ngModel)]="usernameOptions.forwardedFastmailApiToken"
+          [(ngModel)]="usernameOptions.forwarders.fastMail.token"
           (blur)="saveUsernameOptions()"
         />
       </div>
     </div>
-    <div class="row" *ngIf="usernameOptions.forwardedService === 'forwardemail'">
+    <div class="row" *ngIf="usernameOptions.forwarders.service === forwarderIds.ForwardEmail">
       <div class="form-group col-4">
         <label for="forwardemail-apikey">{{ "apiAccessToken" | i18n }}</label>
         <input
           id="forwardemail-apikey"
           class="form-control"
           type="password"
-          [(ngModel)]="usernameOptions.forwardedForwardEmailApiToken"
+          [(ngModel)]="usernameOptions.forwarders.forwardEmail.token"
           (blur)="saveUsernameOptions()"
         />
       </div>
@@ -382,7 +382,7 @@
           id="forwardemail-domain"
           class="form-control"
           type="text"
-          [(ngModel)]="usernameOptions.forwardedForwardEmailDomain"
+          [(ngModel)]="usernameOptions.forwarders.forwardEmail.token"
           (blur)="saveUsernameOptions()"
         />
       </div>
@@ -395,7 +395,7 @@
         id="subaddress-email"
         class="form-control"
         type="text"
-        [(ngModel)]="usernameOptions.subaddressEmail"
+        [(ngModel)]="usernameOptions.subaddress.email"
         (blur)="saveUsernameOptions()"
       />
     </div>
@@ -407,7 +407,7 @@
         id="catchall-domain"
         class="form-control"
         type="text"
-        [(ngModel)]="usernameOptions.catchallDomain"
+        [(ngModel)]="usernameOptions.catchall.domain"
         (blur)="saveUsernameOptions()"
       />
     </div>
@@ -421,7 +421,7 @@
             id="capitalizeUsername"
             type="checkbox"
             (change)="saveUsernameOptions()"
-            [(ngModel)]="usernameOptions.wordCapitalize"
+            [(ngModel)]="usernameOptions.word.capitalize"
           />
           <label for="capitalizeUsername" class="form-check-label">{{ "capitalize" | i18n }}</label>
         </div>
@@ -430,7 +430,7 @@
             id="includeNumberUsername"
             type="checkbox"
             (change)="saveUsernameOptions()"
-            [(ngModel)]="usernameOptions.wordIncludeNumber"
+            [(ngModel)]="usernameOptions.word.includeNumber"
           />
           <label for="includeNumberUsername" class="form-check-label">{{
             "includeNumber" | i18n

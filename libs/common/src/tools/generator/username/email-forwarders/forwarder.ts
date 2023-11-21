@@ -1,7 +1,45 @@
-import { ApiService } from "../../../../abstractions/api.service";
-
-import { ForwarderOptions } from "./forwarder-options";
-
+/** An email forwarding service configurable through an API. */
 export interface Forwarder {
-  generate(apiService: ApiService, options: ForwarderOptions): Promise<string>;
+  /** Generate a forwarding email.
+   * @param website The website to generate a username for.
+   * @param options The options to use when generating the username.
+   */
+  generate(website: string | null, options: ApiOptions): Promise<string>;
 }
+
+/** Options common to all forwarder APIs */
+export type ApiOptions = {
+  /** bearer token that authenticates bitwarden to the forwarder.
+   *  This is required to issue an API request.
+   */
+  token: string;
+};
+
+/** Api configuration for forwarders that support self-hosted installations. */
+export type SelfHostedApiOptions = ApiOptions & {
+  /** The base URL of the forwarder's API.
+   *  When this is empty, the forwarder's default production API is used.
+   */
+  baseUrl: string;
+};
+
+/** Api configuration for forwarders that support custom domains. */
+export type EmailDomainOptions = {
+  /** The domain part of the generated email address.
+   *  @remarks The domain should be authorized by the forwarder before
+   *           submitting a request through bitwarden.
+   *  @example If the domain is `domain.io` and the generated username
+   *  is `jd`, then the generated email address will be `jd@mydomain.io`
+   */
+  domain: string;
+};
+
+/** Api configuration for forwarders that support custom email parts. */
+export type EmailPartOptions = EmailDomainOptions & {
+  /** A prefix joined to the generated email address' username.
+   *  @example If the prefix is `foo`, the generated username is `bar`,
+   *  and the domain is `domain.io`, then the generated email address is `
+   *  then the generated username is `foobar@domain.io`.
+   */
+  prefix: string;
+};

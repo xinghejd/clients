@@ -1,5 +1,6 @@
 import { Directive, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
+import _ from "lodash";
 import { first } from "rxjs/operators";
 
 import { PasswordGeneratorPolicyOptions } from "@bitwarden/common/admin-console/models/domain/password-generator-policy-options";
@@ -16,6 +17,8 @@ import {
 import {
   UsernameGenerationServiceAbstraction,
   UsernameGeneratorOptions,
+  DefaultOptions,
+  ForwarderIds,
 } from "@bitwarden/common/tools/generator/username";
 
 @Directive()
@@ -31,7 +34,7 @@ export class GeneratorComponent implements OnInit {
   subaddressOptions: any[];
   catchallOptions: any[];
   forwardOptions: EmailForwarderOptions[];
-  usernameOptions: UsernameGeneratorOptions = {};
+  usernameOptions: UsernameGeneratorOptions = _.cloneDeep(DefaultOptions);
   passwordOptions: PasswordGeneratorOptions = {};
   username = "-";
   password = "-";
@@ -39,6 +42,7 @@ export class GeneratorComponent implements OnInit {
   avoidAmbiguous = false;
   enforcedPasswordPolicyOptions: PasswordGeneratorPolicyOptions;
   usernameWebsite: string = null;
+  readonly forwarderIds = ForwarderIds;
 
   constructor(
     protected passwordGenerationService: PasswordGenerationServiceAbstraction,
@@ -96,13 +100,14 @@ export class GeneratorComponent implements OnInit {
         this.usernameOptions.type = "word";
       }
       if (
-        this.usernameOptions.subaddressEmail == null ||
-        this.usernameOptions.subaddressEmail === ""
+        this.usernameOptions.subaddress.email == null ||
+        this.usernameOptions.subaddress.email === ""
       ) {
-        this.usernameOptions.subaddressEmail = await this.stateService.getEmail();
+        this.usernameOptions.subaddress.email = await this.stateService.getEmail();
       }
       if (this.usernameWebsite == null) {
-        this.usernameOptions.subaddressType = this.usernameOptions.catchallType = "random";
+        this.usernameOptions.subaddress.algorithm = this.usernameOptions.catchall.algorithm =
+          "random";
       } else {
         this.usernameOptions.website = this.usernameWebsite;
         const websiteOption = { name: this.i18nService.t("websiteName"), value: "website-name" };
@@ -243,19 +248,25 @@ export class GeneratorComponent implements OnInit {
   }
 
   private async initForwardOptions() {
-    this.forwardOptions = [
-      { name: "addy.io", value: "anonaddy", validForSelfHosted: true },
-      { name: "DuckDuckGo", value: "duckduckgo", validForSelfHosted: false },
-      { name: "Fastmail", value: "fastmail", validForSelfHosted: true },
-      { name: "Firefox Relay", value: "firefoxrelay", validForSelfHosted: false },
-      { name: "SimpleLogin", value: "simplelogin", validForSelfHosted: true },
-      { name: "Forward Email", value: "forwardemail", validForSelfHosted: true },
+    const validForSelfHosted: string[] = [
+      ForwarderIds.AddyIo,
+      ForwarderIds.FastMail,
+      ForwarderIds.ForwardEmail,
+      ForwarderIds.SimpleLogin,
     ];
+    this.forwardOptions = _(ForwarderIds)
+      .values()
+      .map((v) => ({
+        name: this.i18nService.t(`forwarder.serviceName.${v}`),
+        value: v,
+        validForSelfHosted: validForSelfHosted.includes(v),
+      }))
+      .value();
 
     this.usernameOptions = await this.usernameGenerationService.getOptions();
     if (
-      this.usernameOptions.forwardedService == null ||
-      this.usernameOptions.forwardedService === ""
+      this.usernameOptions.forwarders.service == null ||
+      this.usernameOptions.forwarders.service === ""
     ) {
       this.forwardOptions.push({ name: "", value: null, validForSelfHosted: false });
     }
