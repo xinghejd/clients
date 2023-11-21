@@ -159,7 +159,7 @@ export class StateService<
         (await this.storageService.get<string[]>(keys.authenticatedAccounts)) ?? [];
       for (const i in state.authenticatedAccounts) {
         if (i != null) {
-          await this.syncAccountFromDisk(state.authenticatedAccounts[i]);
+          state = await this.syncAccountFromDisk(state.authenticatedAccounts[i]);
         }
       }
       const storedActiveUser = await this.storageService.get<string>(keys.activeUserId);
@@ -186,11 +186,11 @@ export class StateService<
     });
   }
 
-  async syncAccountFromDisk(userId: string) {
+  async syncAccountFromDisk(userId: string): Promise<State<TGlobalState, TAccount>> {
     if (userId == null) {
       return;
     }
-    await this.updateState(async (state) => {
+    return await this.updateState(async (state) => {
       if (state.accounts == null) {
         state.accounts = {};
       }
@@ -3370,20 +3370,23 @@ export class StateService<
     return state;
   }
 
-  private async setState(state: State<TGlobalState, TAccount>): Promise<void> {
+  private async setState(
+    state: State<TGlobalState, TAccount>
+  ): Promise<State<TGlobalState, TAccount>> {
     await this.memoryStorageService.save(keys.state, state);
+    return state;
   }
 
   protected async updateState(
     stateUpdater: (state: State<TGlobalState, TAccount>) => Promise<State<TGlobalState, TAccount>>
-  ) {
-    await this.state().then(async (state) => {
+  ): Promise<State<TGlobalState, TAccount>> {
+    return await this.state().then(async (state) => {
       const updatedState = await stateUpdater(state);
       if (updatedState == null) {
         throw new Error("Attempted to update state to null value");
       }
 
-      await this.setState(updatedState);
+      return await this.setState(updatedState);
     });
   }
 
