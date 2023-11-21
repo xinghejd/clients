@@ -119,6 +119,7 @@ export class UsernameGenerationService implements UsernameGenerationServiceAbstr
 
   async getOptions(): Promise<UsernameGeneratorOptions> {
     let options = await this.stateService.getUsernameGenerationOptions();
+    this.decryptKeys(options);
     options = _.defaultsDeep(options ?? {}, DefaultOptions);
 
     await this.stateService.setUsernameGenerationOptions(options);
@@ -126,6 +127,7 @@ export class UsernameGenerationService implements UsernameGenerationServiceAbstr
   }
 
   async saveOptions(options: UsernameGeneratorOptions) {
+    await this.encryptKeys(options);
     await this.stateService.setUsernameGenerationOptions(options);
   }
 
@@ -148,6 +150,10 @@ export class UsernameGenerationService implements UsernameGenerationServiceAbstr
       encryptService: EncryptService,
       options: ApiOptions & MaybeLeakedOptions
     ) {
+      if (!options.token) {
+        return;
+      }
+
       const encryptOptions = _.pick(options, ["token", "wasPlainText"]);
       delete options.token;
       delete options.wasPlainText;
@@ -178,6 +184,10 @@ export class UsernameGenerationService implements UsernameGenerationServiceAbstr
       encryptService: EncryptService,
       options: ApiOptions & MaybeLeakedOptions
     ) {
+      if (!options.encryptedToken) {
+        return;
+      }
+
       const decrypted = await encryptService.decryptToUtf8(options.encryptedToken, key);
       delete options.encryptedToken;
 
