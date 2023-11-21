@@ -12,6 +12,7 @@ describe("Messenger", () => {
   beforeEach(() => {
     // jest does not support MessageChannel
     window.MessageChannel = MockMessageChannel as any;
+
     Object.defineProperty(window, "location", {
       value: {
         origin: "https://bitwarden.com",
@@ -73,6 +74,14 @@ describe("Messenger", () => {
   });
 
   describe("destroy", () => {
+    beforeEach(() => {
+      /**
+       * In Jest's jsdom environment, there is an issue where event listeners are not
+       * triggered upon dispatching an event. This is a workaround to mock the EventTarget
+       */
+      window.EventTarget = MockEventTarget as any;
+    });
+
     it("should remove the message event listener", async () => {
       const channelPair = new TestChannelPair();
       const addEventListenerSpy = jest.spyOn(channelPair.channelA, "addEventListener");
@@ -97,6 +106,20 @@ describe("Messenger", () => {
       messengerA.destroy();
 
       expect(dispatchEventSpy).toHaveBeenCalledWith(expect.any(Event));
+    });
+
+    it("should trigger onDestroyListener when the destroy event is dispatched", async () => {
+      const request = createRequest();
+      messengerA.request(request);
+
+      const onDestroyListener = jest.fn();
+      (messengerA as any).onDestroy.addEventListener("destroy", onDestroyListener);
+      messengerA.destroy();
+
+      expect(onDestroyListener).toHaveBeenCalled();
+      const eventArg = onDestroyListener.mock.calls[0][0];
+      expect(eventArg).toBeInstanceOf(Event);
+      expect(eventArg.type).toBe("destroy");
     });
   });
 });
@@ -190,5 +213,22 @@ class MockMessagePort<T> {
 
   close() {
     // Do nothing
+  }
+}
+
+class MockEventTarget {
+  listeners: Record<string, EventListener[]> = {};
+
+  addEventListener(type: string, callback: EventListener) {
+    this.listeners[type] = this.listeners[type] || [];
+    this.listeners[type].push(callback);
+  }
+
+  dispatchEvent(event: Event) {
+    (this.listeners[event.type] || []).forEach((callback) => callback(event));
+  }
+
+  removeEventListener(type: string, callback: EventListener) {
+    this.listeners[type] = (this.listeners[type] || []).filter((listener) => listener !== callback);
   }
 }
