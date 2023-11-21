@@ -23,6 +23,9 @@ export class CurrentAccountService {
   constructor(private accountService: AccountService, private stateService: StateService) {
     this.currentAccount$ = this.accountService.activeAccount$.pipe(
       switchMap(async (account) => {
+        if (account == null) {
+          return null;
+        }
         const currentAccount: CurrentAccount = {
           id: account.id,
           name: account.name || account.email,
