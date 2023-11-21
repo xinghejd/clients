@@ -86,7 +86,7 @@ export class AccountServiceImplementation implements InternalAccountService {
       (_, accounts) => {
         if (userId == null) {
           // indicates no account is active
-          return undefined;
+          return null;
         }
 
         if (accounts?.[userId] == null) {
