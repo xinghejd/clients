@@ -62,7 +62,7 @@
         <span class="sr-only">{{ "loading" | i18n }}</span>
       </div>
       <div
-        *ngIf="isEmpty && !performingInitialLoad"
+        *ngIf="isEmpty && !performingInitialLoad && !(showFailedSyncWarning$ | async)"
         class="tw-mt-6 tw-flex tw-h-full tw-flex-col tw-items-center tw-justify-start"
       >
         <bit-icon [icon]="noItemIcon" aria-hidden="true"></bit-icon>
@@ -77,6 +77,11 @@
           <i class="bwi bwi-plus bwi-fw" aria-hidden="true"></i>
           {{ "newItem" | i18n }}
         </button>
+      </div>
+      <div *ngIf="!performingInitialLoad && showFailedSyncWarning$ | async" class="tw-mt-6">
+        <app-vault-failed-sync-warning
+          [syncError]="syncError$ | async"
+        ></app-vault-failed-sync-warning>
       </div>
     </div>
     <div class="col-3">

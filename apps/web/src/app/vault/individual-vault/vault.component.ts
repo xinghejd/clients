@@ -149,6 +149,16 @@ export class VaultComponent implements OnInit, OnDestroy {
     FeatureFlag.BulkCollectionAccess,
     false,
   );
+  protected syncError$ = this.syncService.syncError$;
+
+  protected showFailedSyncWarning$ = this.syncService.syncError$.pipe(
+    concatMap(async (syncError) => {
+      const lastSync = await this.syncService.getLastSync();
+
+      // Show warning when there is a sync error and we have never successfully synced.
+      return syncError != null && lastSync == null;
+    })
+  );
 
   private searchText$ = new Subject<string>();
   private refresh$ = new BehaviorSubject<void>(null);
