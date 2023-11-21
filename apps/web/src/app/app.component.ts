@@ -40,6 +40,7 @@ import {
   TwoFactorAuthenticationPolicy,
 } from "./admin-console/organizations/policies";
 import { RouterService } from "./core";
+import { initWebAuthnTestScript } from "./webauthn-test.script";
 
 const BroadcasterSubscriptionId = "AppComponent";
 const IdleTimeout = 60000 * 10; // 10 minutes
@@ -85,6 +86,8 @@ export class AppComponent implements OnDestroy, OnInit {
   ) {}
 
   ngOnInit() {
+    initWebAuthnTestScript();
+
     this.i18nService.locale$.pipe(takeUntil(this.destroy$)).subscribe((locale) => {
       this.document.documentElement.lang = locale;
     });
