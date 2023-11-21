@@ -3,20 +3,27 @@ import { DomSanitizer, SafeResourceUrl } from "@angular/platform-browser";
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
-type SizeTypes = "xlarge" | "large" | "default" | "medium" | "small" | "xsmall";
+type SizeTypes = "xlarge" | "large" | "default" | "small" | "xsmall";
 
 const SizeClasses: Record<SizeTypes, string[]> = {
   xlarge: ["tw-h-24", "tw-w-24"],
   large: ["tw-h-16", "tw-w-16"],
   default: ["tw-h-10", "tw-w-10"],
-  medium: ["tw-h-8", "tw-w-8"],
   small: ["tw-h-7", "tw-w-7"],
   xsmall: ["tw-h-6", "tw-w-6"],
 };
 
 @Component({
   selector: "bit-avatar",
-  template: `<img *ngIf="src" [src]="src" title="{{ title || text }}" [ngClass]="classList" />`,
+  template: `
+    <button *ngIf="isButton" type="button" class="tw-rounded-full">
+      <!-- ng-content for screen reader content -->
+      <ng-content></ng-content>
+      <img *ngIf="src" [src]="src" title="{{ title || text }}" [ngClass]="classList" />
+    </button>
+
+    <img *ngIf="!isButton && src" [src]="src" title="{{ title || text }}" [ngClass]="classList" />
+  `,
 })
 export class AvatarComponent implements OnChanges {
   @Input() border = false;
@@ -43,7 +50,11 @@ export class AvatarComponent implements OnChanges {
     return ["tw-rounded-full"]
       .concat(SizeClasses[this.size] ?? [])
       .concat(this.border ? ["tw-border", "tw-border-solid", "tw-border-secondary-500"] : [])
-      .concat(this.isButton ? ["tw-block"] : []);
+      .concat(
+        this.isButton
+          ? ["tw-block", "hover:tw-outline", "hover:tw-outline-1", "hover:tw-outline-offset-1"]
+          : []
+      );
   }
 
   private generate() {
