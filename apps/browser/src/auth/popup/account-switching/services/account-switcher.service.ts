@@ -10,6 +10,7 @@ import { UserId } from "@bitwarden/common/types/guid";
 
 export type AvailableAccount = {
   name: string;
+  email?: string;
   id: string;
   isActive: boolean;
   server?: string;
@@ -45,6 +46,7 @@ export class AccountSwitcherService {
           accountEntries.map(async ([id, account]) => {
             return {
               name: account.name ?? account.email,
+              email: account.email,
               id: id,
               server: await this.environmentService.getHost(id),
               status: account.status,
