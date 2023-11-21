@@ -50,7 +50,7 @@ export class AccountServiceImplementation implements InternalAccountService {
     this.activeAccount$ = this.activeAccountIdState.state$.pipe(
       combineLatestWith(this.accounts$),
       map(([id, accounts]) => (id ? { id, ...accounts[id] } : undefined)),
-      distinctUntilChanged((a, b) => a.id == b.id && accountInfoEqual(a, b)),
+      distinctUntilChanged((a, b) => a?.id == b?.id && accountInfoEqual(a, b)),
       shareReplay({ bufferSize: 1, refCount: false })
     );
   }

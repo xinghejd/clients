@@ -14,7 +14,7 @@ export type AccountInfo = {
 };
 
 export function accountInfoEqual(a: AccountInfo, b: AccountInfo) {
-  return a.status == b.status && a.email == b.email && a.name == b.name;
+  return a?.status == b?.status && a?.email == b?.email && a?.name == b?.name;
 }
 
 export abstract class AccountService {
