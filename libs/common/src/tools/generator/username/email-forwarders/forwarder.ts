@@ -1,3 +1,5 @@
+import { EncString } from "../../../../platform/models/domain/enc-string";
+
 /** An email forwarding service configurable through an API. */
 export interface Forwarder {
   /** Generate a forwarding email.
@@ -12,7 +14,12 @@ export type ApiOptions = {
   /** bearer token that authenticates bitwarden to the forwarder.
    *  This is required to issue an API request.
    */
-  token: string;
+  token?: string;
+
+  /** encrypted bearer token that authenticates bitwarden to the forwarder.
+   *  This is used to store the token at rest and must be decoded before use.
+   */
+  encryptedToken?: EncString;
 };
 
 /** Api configuration for forwarders that support self-hosted installations. */

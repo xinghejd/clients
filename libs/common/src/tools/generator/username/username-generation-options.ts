@@ -33,7 +33,7 @@ export const ForwarderIds = Object.freeze({
 });
 
 /** Identifies encrypted options that could have leaked from the configuration. */
-type MaybeLeakedOptions = {
+export type MaybeLeakedOptions = {
   /** When true, encrypted options were previously stored as plaintext.
    *  @remarks This is used to alert the user that the token should be
    *           regenerated. If a token has always been stored encrypted,

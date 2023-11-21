@@ -2,15 +2,17 @@ import _ from "lodash";
 
 import { ApiService } from "../../../abstractions/api.service";
 import { CryptoService } from "../../../platform/abstractions/crypto.service";
+import { EncryptService } from "../../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { StateService } from "../../../platform/abstractions/state.service";
 import { EFFLongWordList } from "../../../platform/misc/wordlist";
 
-import { createForwarder } from "./email-forwarders";
+import { ApiOptions, createForwarder } from "./email-forwarders";
 import {
   UsernameGeneratorOptions,
   DefaultOptions,
   getForwarderOptions,
+  MaybeLeakedOptions,
 } from "./username-generation-options";
 import { UsernameGenerationServiceAbstraction } from "./username-generation.service.abstraction";
 
@@ -19,7 +21,8 @@ export class UsernameGenerationService implements UsernameGenerationServiceAbstr
     private cryptoService: CryptoService,
     private stateService: StateService,
     private apiService: ApiService,
-    private i18nService: I18nService
+    private i18nService: I18nService,
+    private encryptService: EncryptService
   ) {}
 
   generateUsername(options: UsernameGeneratorOptions): Promise<string> {
@@ -124,6 +127,59 @@ export class UsernameGenerationService implements UsernameGenerationServiceAbstr
 
   async saveOptions(options: UsernameGeneratorOptions) {
     await this.stateService.setUsernameGenerationOptions(options);
+  }
+
+  async encryptKeys(options: UsernameGeneratorOptions) {
+    const key = await this.cryptoService.getUserKey();
+
+    await Promise.all([
+      encryptAndStore(this.encryptService, options.forwarders.addyIo),
+      encryptAndStore(this.encryptService, options.forwarders.duckDuckGo),
+      encryptAndStore(this.encryptService, options.forwarders.fastMail),
+      encryptAndStore(this.encryptService, options.forwarders.firefoxRelay),
+      encryptAndStore(this.encryptService, options.forwarders.forwardEmail),
+      encryptAndStore(this.encryptService, options.forwarders.simpleLogin),
+    ]);
+
+    // encrypts sensitive options and stores them in-place.
+    async function encryptAndStore(
+      encryptService: EncryptService,
+      options: ApiOptions & MaybeLeakedOptions
+    ) {
+      const encryptOptions = _.pick(options, ["token", "wasPlainText"]);
+      delete options.token;
+      delete options.wasPlainText;
+
+      // don't leak if a leak was possible by encrypting it with the token
+      const toEncrypt = JSON.stringify(encryptOptions);
+      const encrypted = await encryptService.encrypt(toEncrypt, key);
+      options.encryptedToken = encrypted;
+    }
+  }
+
+  async decryptKeys(options: UsernameGeneratorOptions) {
+    const key = await this.cryptoService.getUserKey();
+
+    await Promise.all([
+      decryptAndStore(this.encryptService, options.forwarders.addyIo),
+      decryptAndStore(this.encryptService, options.forwarders.duckDuckGo),
+      decryptAndStore(this.encryptService, options.forwarders.fastMail),
+      decryptAndStore(this.encryptService, options.forwarders.firefoxRelay),
+      decryptAndStore(this.encryptService, options.forwarders.forwardEmail),
+      decryptAndStore(this.encryptService, options.forwarders.simpleLogin),
+    ]);
+
+    // decrypts sensitive options and stores them in-place.
+    async function decryptAndStore(
+      encryptService: EncryptService,
+      options: ApiOptions & MaybeLeakedOptions
+    ) {
+      const decrypted = await encryptService.decryptToUtf8(options.encryptedToken, key);
+      delete options.encryptedToken;
+
+      const decryptedOptions = JSON.parse(decrypted);
+      _.assign(options, decryptedOptions);
+    }
   }
 
   private async randomString(length: number) {

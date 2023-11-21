@@ -254,14 +254,11 @@ export class GeneratorComponent implements OnInit {
       ForwarderIds.ForwardEmail,
       ForwarderIds.SimpleLogin,
     ];
-    this.forwardOptions = _(ForwarderIds)
-      .values()
-      .map((v) => ({
-        name: this.i18nService.t(`forwarder.serviceName.${v}`),
-        value: v,
-        validForSelfHosted: validForSelfHosted.includes(v),
-      }))
-      .value();
+    this.forwardOptions = Object.values(ForwarderIds).map((v) => ({
+      name: this.i18nService.t(`forwarder.serviceName.${v}`),
+      value: v,
+      validForSelfHosted: validForSelfHosted.includes(v),
+    }));
 
     this.usernameOptions = await this.usernameGenerationService.getOptions();
     if (
