@@ -882,8 +882,9 @@ export default class MainBackground {
 
     if (newActiveUser != null) {
       // we have a new active user, do not continue tearing down application
-      this.switchAccount(newActiveUser as UserId);
+      await this.switchAccount(newActiveUser as UserId);
       this.messagingService.send("switchAccountFinish");
+      this.messagingService.send("doneLoggingOut", { expired: expired, userId: userId });
       return;
     }
 
