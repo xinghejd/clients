@@ -132,6 +132,8 @@ export class UsernameGenerationService implements UsernameGenerationServiceAbstr
   async encryptKeys(options: UsernameGeneratorOptions) {
     const key = await this.cryptoService.getUserKey();
 
+    // each `encryptAndStore` call must be passed an independent object, otherwise
+    // they'll race and clobber each other
     await Promise.all([
       encryptAndStore(this.encryptService, options.forwarders.addyIo),
       encryptAndStore(this.encryptService, options.forwarders.duckDuckGo),
@@ -160,6 +162,8 @@ export class UsernameGenerationService implements UsernameGenerationServiceAbstr
   async decryptKeys(options: UsernameGeneratorOptions) {
     const key = await this.cryptoService.getUserKey();
 
+    // each `decryptAndStore` call must be passed an independent object, otherwise
+    // they'll race and clobber each other
     await Promise.all([
       decryptAndStore(this.encryptService, options.forwarders.addyIo),
       decryptAndStore(this.encryptService, options.forwarders.duckDuckGo),
