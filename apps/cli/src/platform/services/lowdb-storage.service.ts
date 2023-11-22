@@ -29,6 +29,7 @@ export class LowdbStorageService implements AbstractStorageService {
   private defaults: any;
   private ready = false;
   private updatesSubject = new Subject<StorageUpdate>();
+  updates$;
 
   constructor(
     protected logService: LogService,
@@ -38,6 +39,7 @@ export class LowdbStorageService implements AbstractStorageService {
     private requireLock = false
   ) {
     this.defaults = defaults;
+    this.updates$ = this.updatesSubject.asObservable();
   }
 
   @sequentialize(() => "lowdbStorageInit")
@@ -107,8 +109,8 @@ export class LowdbStorageService implements AbstractStorageService {
     this.ready = true;
   }
 
-  get updates$() {
-    return this.updatesSubject.asObservable();
+  get valuesRequireDeserialization(): boolean {
+    return true;
   }
 
   async get<T>(key: string): Promise<T> {
@@ -133,7 +135,7 @@ export class LowdbStorageService implements AbstractStorageService {
     return this.lockDbFile(() => {
       this.readForNoCache();
       this.db.set(key, obj).write();
-      this.updatesSubject.next({ key, value: obj, updateType: "save" });
+      this.updatesSubject.next({ key, updateType: "save" });
       this.logService.debug(`Successfully wrote ${key} to db`);
       return;
     });
@@ -144,7 +146,7 @@ export class LowdbStorageService implements AbstractStorageService {
     return this.lockDbFile(() => {
       this.readForNoCache();
       this.db.unset(key).write();
-      this.updatesSubject.next({ key, value: null, updateType: "remove" });
+      this.updatesSubject.next({ key, updateType: "remove" });
       this.logService.debug(`Successfully removed ${key} from db`);
       return;
     });

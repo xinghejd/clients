@@ -92,13 +92,13 @@
     "message": "Аўтазапаўненне"
   },
   "autoFillLogin": {
-    "message": "Auto-fill login"
+    "message": "Аўтазапаўненне лагіна"
   },
   "autoFillCard": {
-    "message": "Auto-fill card"
+    "message": "Аўтазапаўненне карткі"
   },
   "autoFillIdentity": {
-    "message": "Auto-fill identity"
+    "message": "Аўтазапаўненне асабістых даных"
   },
   "generatePasswordCopied": {
     "message": "Генерыраваць пароль (з капіяваннем)"
@@ -110,13 +110,13 @@
     "message": "Няма адпаведных лагінаў."
   },
   "noCards": {
-    "message": "No cards"
+    "message": "Няма картак"
   },
   "noIdentities": {
-    "message": "No identities"
+    "message": "Няма прыватных даных"
   },
   "addLoginMenu": {
-    "message": "Add login"
+    "message": "Дадаць лагін"
   },
   "addCardMenu": {
     "message": "Add card"
@@ -1925,8 +1925,13 @@
   "selectFolder": {
     "message": "Выбраць папку..."
   },
-  "ssoCompleteRegistration": {
-    "message": "Для завяршэння працэсу ўваходу з дапамогай SSO, прызначце асноўны пароль для доступу да вашага сховішча і яго абароны."
+  "orgPermissionsUpdatedMustSetPassword": {
+    "message": "Your organization permissions were updated, requiring you to set a master password.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "orgRequiresYouToSetPassword": {
+    "message": "Your organization requires you to set a master password.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "hours": {
     "message": "Гадзіны"

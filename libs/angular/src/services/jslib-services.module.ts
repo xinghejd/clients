@@ -54,6 +54,9 @@ import { TokenService as TokenServiceAbstraction } from "@bitwarden/common/auth/
 import { TwoFactorService as TwoFactorServiceAbstraction } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { UserVerificationApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification-api.service.abstraction";
 import { UserVerificationService as UserVerificationServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { WebAuthnLoginApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-api.service.abstraction";
+import { WebAuthnLoginPrfCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-crypto.service.abstraction";
+import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
 import { AccountApiServiceImplementation } from "@bitwarden/common/auth/services/account-api.service";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { AuthRequestCryptoServiceImplementation } from "@bitwarden/common/auth/services/auth-request-crypto.service.implementation";
@@ -68,6 +71,9 @@ import { TokenService } from "@bitwarden/common/auth/services/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/services/two-factor.service";
 import { UserVerificationApiService } from "@bitwarden/common/auth/services/user-verification/user-verification-api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/services/user-verification/user-verification.service";
+import { WebAuthnLoginApiService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login-api.service";
+import { WebAuthnLoginPrfCryptoService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login-prf-crypto.service";
+import { WebAuthnLoginService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login.service";
 import { AppIdService as AppIdServiceAbstraction } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService as BroadcasterServiceAbstraction } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
@@ -101,6 +107,9 @@ import { NoopNotificationsService } from "@bitwarden/common/platform/services/no
 import { StateService } from "@bitwarden/common/platform/services/state.service";
 import { ValidationService } from "@bitwarden/common/platform/services/validation.service";
 import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
+import { GlobalStateProvider } from "@bitwarden/common/platform/state";
+// eslint-disable-next-line import/no-restricted-paths -- We need the implementation to inject, but generally this should not be accessed
+import { DefaultGlobalStateProvider } from "@bitwarden/common/platform/state/implementations/default-global-state.provider";
 import { AvatarUpdateService } from "@bitwarden/common/services/account/avatar-update.service";
 import { AnonymousHubService } from "@bitwarden/common/services/anonymousHub.service";
 import { ApiService } from "@bitwarden/common/services/api.service";
@@ -170,6 +179,8 @@ import {
   LOG_MAC_FAILURES,
   LOGOUT_CALLBACK,
   MEMORY_STORAGE,
+  OBSERVABLE_DISK_STORAGE,
+  OBSERVABLE_MEMORY_STORAGE,
   SECURE_STORAGE,
   STATE_FACTORY,
   STATE_SERVICE_USE_CACHE,
@@ -337,7 +348,7 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
     {
       provide: AccountServiceAbstraction,
       useClass: AccountServiceImplementation,
-      deps: [MessagingServiceAbstraction, LogService],
+      deps: [MessagingServiceAbstraction, LogService, GlobalStateProvider],
     },
     {
       provide: InternalAccountService,
@@ -746,6 +757,33 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
       provide: AuthRequestCryptoServiceAbstraction,
       useClass: AuthRequestCryptoServiceImplementation,
       deps: [CryptoServiceAbstraction],
+    },
+    {
+      provide: WebAuthnLoginPrfCryptoServiceAbstraction,
+      useClass: WebAuthnLoginPrfCryptoService,
+      deps: [CryptoFunctionServiceAbstraction],
+    },
+    {
+      provide: WebAuthnLoginApiServiceAbstraction,
+      useClass: WebAuthnLoginApiService,
+      deps: [ApiServiceAbstraction, EnvironmentServiceAbstraction],
+    },
+    {
+      provide: WebAuthnLoginServiceAbstraction,
+      useClass: WebAuthnLoginService,
+      deps: [
+        WebAuthnLoginApiServiceAbstraction,
+        AuthServiceAbstraction,
+        ConfigServiceAbstraction,
+        WebAuthnLoginPrfCryptoServiceAbstraction,
+        WINDOW,
+        LogService,
+      ],
+    },
+    {
+      provide: GlobalStateProvider,
+      useClass: DefaultGlobalStateProvider,
+      deps: [OBSERVABLE_MEMORY_STORAGE, OBSERVABLE_DISK_STORAGE],
     },
   ],
 })
