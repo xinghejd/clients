@@ -5,13 +5,11 @@ import { Router } from "@angular/router";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { AvatarModule } from "@bitwarden/components";
 
-import {
-  AvailableAccount,
-  AccountSwitcherService,
-} from "../../../../apps/browser/src/auth/popup/account-switching/services/account-switcher.service";
-import { BrowserRouterService } from "../../../../apps/browser/src/platform/popup/services/browser-router.service";
-import { AvatarModule } from "../../../components/src/avatar";
+import { BrowserRouterService } from "../../../platform/popup/services/browser-router.service";
+
+import { AccountSwitcherService, AvailableAccount } from "./services/account-switcher.service";
 
 @Component({
   standalone: true,
