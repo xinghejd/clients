@@ -371,6 +371,14 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
     return autofillField;
   };
 
+  /**
+   * Caches the autofill field element and its data.
+   * Will not cache the element if the index is less than 0.
+   *
+   * @param index - The index of the autofill field element
+   * @param element - The autofill field element to cache
+   * @param autofillFieldData - The autofill field data to cache
+   */
   private cacheAutofillFieldElement(
     index: number,
     element: ElementWithOpId<FormFieldElement>,
@@ -1029,18 +1037,24 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
           node as ElementWithOpId<HTMLFormElement> | ElementWithOpId<FormFieldElement>
         );
       }
-    } else {
+    } else if (this.autofillOverlayContentService) {
       setTimeout(() => this.setupOverlayListenersOnMutatedElements(mutatedElements), 1000);
     }
 
     return isElementMutated;
   }
 
+  /**
+   * Sets up the overlay listeners on the passed mutated elements. This ensures
+   * that the overlay can appear on elements that are injected into the DOM after
+   * the initial page load.
+   *
+   * @param mutatedElements - HTML elements that have been mutated
+   */
   private setupOverlayListenersOnMutatedElements(mutatedElements: Node[]) {
     for (let elementIndex = 0; elementIndex < mutatedElements.length; elementIndex++) {
       const node = mutatedElements[elementIndex];
       if (
-        this.autofillOverlayContentService &&
         this.isNodeFormFieldElement(node) &&
         !this.autofillFieldElements.get(node as ElementWithOpId<FormFieldElement>)
       ) {
