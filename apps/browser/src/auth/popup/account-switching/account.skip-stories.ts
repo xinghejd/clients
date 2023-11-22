@@ -3,10 +3,10 @@
 
 // import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 // import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+// import { I18nMockService } from "@bitwarden/components/src/utils/i18n-mock.service";
 
-// import { AccountComponent } from "../../../../apps/browser/src/auth/popup/account-switching/account.component";
-// import { AccountSwitcherService } from "../../../../apps/browser/src/auth/popup/account-switching/services/account-switcher.service";
-// import { I18nMockService } from "../../../components/src/utils/i18n-mock.service";
+// import { AccountComponent } from "./account.component";
+// import { AccountSwitcherService } from "./services/account-switcher.service";
 
 // @Injectable({
 //   providedIn: "root",
