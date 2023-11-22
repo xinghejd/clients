@@ -2,9 +2,13 @@ import * as path from "path";
 
 import { app } from "electron";
 
+import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
+import { NoopMessagingService } from "@bitwarden/common/platform/services/noop-messaging.service";
+// eslint-disable-next-line import/no-restricted-paths -- We need the implementation to inject, but generally this should not be accessed
+import { DefaultGlobalStateProvider } from "@bitwarden/common/platform/state/implementations/default-global-state.provider";
 
 import { MenuMain } from "./main/menu/menu.main";
 import { MessagingMain } from "./main/messaging.main";
@@ -15,16 +19,17 @@ import { UpdaterMain } from "./main/updater.main";
 import { WindowMain } from "./main/window.main";
 import { Account } from "./models/account";
 import { BiometricsService, BiometricsServiceAbstraction } from "./platform/main/biometric/index";
+import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { ElectronLogService } from "./platform/services/electron-log.service";
 import { ElectronStateService } from "./platform/services/electron-state.service";
 import { ElectronStorageService } from "./platform/services/electron-storage.service";
-import { I18nService } from "./platform/services/i18n.service";
+import { I18nMainService } from "./platform/services/i18n.main.service";
 import { ElectronMainMessagingService } from "./services/electron-main-messaging.service";
 
 export class Main {
   logService: ElectronLogService;
-  i18nService: I18nService;
+  i18nService: I18nMainService;
   storageService: ElectronStorageService;
   memoryStorageService: MemoryStorageService;
   messagingService: ElectronMainMessagingService;
@@ -39,6 +44,7 @@ export class Main {
   trayMain: TrayMain;
   biometricsService: BiometricsServiceAbstraction;
   nativeMessagingMain: NativeMessagingMain;
+  clipboardMain: ClipboardMain;
 
   constructor() {
     // Set paths for portable builds
@@ -73,7 +79,8 @@ export class Main {
     }
 
     this.logService = new ElectronLogService(null, app.getPath("userData"));
-    this.i18nService = new I18nService("en", "./locales/");
+    this.logService.init();
+    this.i18nService = new I18nMainService("en", "./locales/");
 
     const storageDefaults: any = {};
     // Default vault timeout to "on restart", and action to "lock"
@@ -81,6 +88,10 @@ export class Main {
     storageDefaults["global.vaultTimeoutAction"] = "lock";
     this.storageService = new ElectronStorageService(app.getPath("userData"), storageDefaults);
     this.memoryStorageService = new MemoryStorageService();
+    const globalStateProvider = new DefaultGlobalStateProvider(
+      this.memoryStorageService,
+      this.storageService
+    );
 
     // TODO: this state service will have access to on disk storage, but not in memory storage.
     // If we could get this to work using the stateService singleton that the rest of the app uses we could save
@@ -91,6 +102,11 @@ export class Main {
       this.memoryStorageService,
       this.logService,
       new StateFactory(GlobalState, Account),
+      new AccountServiceImplementation(
+        new NoopMessagingService(),
+        this.logService,
+        globalStateProvider
+      ), // will not broadcast logouts. This is a hack until we can remove messaging dependency
       false // Do not use disk caching because this will get out of sync with the renderer service
     );
 
@@ -138,6 +154,9 @@ export class Main {
       app.getPath("userData"),
       app.getPath("exe")
     );
+
+    this.clipboardMain = new ClipboardMain();
+    this.clipboardMain.init();
   }
 
   bootstrap() {
@@ -211,9 +230,16 @@ export class Main {
         const url = new URL(s);
         const code = url.searchParams.get("code");
         const receivedState = url.searchParams.get("state");
-        if (code != null && receivedState != null) {
-          this.messagingService.send("ssoCallback", { code: code, state: receivedState });
+
+        if (code == null || receivedState == null) {
+          return;
         }
+
+        const message =
+          s.indexOf("bitwarden://import-callback-lp") === 0
+            ? "importCallbackLastPass"
+            : "ssoCallback";
+        this.messagingService.send(message, { code: code, state: receivedState });
       });
   }
 }

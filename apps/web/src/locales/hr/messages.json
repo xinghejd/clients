@@ -611,6 +611,87 @@
   "loginWithMasterPassword": {
     "message": "Prijava glavnom lozinkom"
   },
+  "loginWithPasskey": {
+    "message": "Prijava pristupnim ključem"
+  },
+  "loginWithPasskeyInfo": {
+    "message": "Use a generated passkey that will automatically log you in without a password. Biometrics, like facial recognition or fingerprint, or another FIDO2 security method will verify your identity."
+  },
+  "newPasskey": {
+    "message": "Novi pristupni ključ"
+  },
+  "learnMoreAboutPasswordless": {
+    "message": "Learn more about passwordless"
+  },
+  "passkeyEnterMasterPassword": {
+    "message": "Unesi glavnu lozinku za promjenu postavki prijave pristupnim ključem."
+  },
+  "creatingPasskeyLoading": {
+    "message": "Stvaranje pristupnog ključa..."
+  },
+  "creatingPasskeyLoadingInfo": {
+    "message": "Ostavi ovaj prozor otvoren i prati upute u svojem pregledniku."
+  },
+  "errorCreatingPasskey": {
+    "message": "Greška kreiranja pristupnog ključa"
+  },
+  "errorCreatingPasskeyInfo": {
+    "message": "Došlo je do problema sa stvaranjem pristupnog ključa."
+  },
+  "passkeySuccessfullyCreated": {
+    "message": "Pristupni ključ je uspješno stvoren!"
+  },
+  "customName": {
+    "message": "Naziv"
+  },
+  "customPasskeyNameInfo": {
+    "message": "Name your passkey to help you identify it."
+  },
+  "useForVaultEncryption": {
+    "message": "Koristi enkripciju trezora"
+  },
+  "useForVaultEncryptionInfo": {
+    "message": "Log in and unlock on supported devices without your master password. Follow the prompts from your browser to finalize setup."
+  },
+  "useForVaultEncryptionErrorReadingPasskey": {
+    "message": "Error reading passkey. Try again or uncheck this option."
+  },
+  "encryptionNotSupported": {
+    "message": "Encryption not supported"
+  },
+  "encryptionNotEnabled": {
+    "message": "Encryption not enabled"
+  },
+  "usedForEncryption": {
+    "message": "Used for encryption"
+  },
+  "loginWithPasskeyEnabled": {
+    "message": "Log in with passkey turned on"
+  },
+  "passkeySaved": {
+    "message": "$NAME$ saved",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Personal yubikey"
+      }
+    }
+  },
+  "passkeyRemoved": {
+    "message": "Passkey removed"
+  },
+  "removePasskey": {
+    "message": "Remove passkey"
+  },
+  "removePasskeyInfo": {
+    "message": "If all passkeys are removed, you will be unable to log into new devices without your master password."
+  },
+  "passkeyLimitReachedInfo": {
+    "message": "Passkey limit reached. Remove a passkey to add another."
+  },
+  "tryAgain": {
+    "message": "Try again"
+  },
   "createAccount": {
     "message": "Stvori račun"
   },
@@ -967,7 +1048,7 @@
     "message": "Ovaj izvoz sadrži podatke trezora u nešifriranom obliku! Izvezenu datoteku se ne bi smjelo pohranjivati ili slati putem nesigurnih kanala (npr. e-poštom). Izbriši ju odmah nakon završetka korištenja."
   },
   "exportSecretsWarningDesc": {
-    "message": "This export contains your secrets data in an unencrypted format. You should not store or send the exported file over unsecure channels (such as email). Delete it immediately after you are done using it."
+    "message": "Ovaj izvoz sadrži podatke trezora u nešifriranom obliku! Izvezenu datoteku se ne bi smjelo pohranjivati ili slati putem nesigurnih kanala (npr. e-poštom). Izbriši ju odmah nakon završetka korištenja."
   },
   "encExportKeyWarningDesc": {
     "message": "Ovaj izvoz šifrira tvoje podatke koristeći ključ za šifriranje. Promijeniš li naknadno ključ za šifriranje, potrebno je ponovno napraviti izvoz jer nećeš moći dešifrirati ovu izvezenu datoteku."
@@ -982,7 +1063,7 @@
     "message": "Izvezi trezor"
   },
   "exportSecrets": {
-    "message": "Export secrets"
+    "message": "Izvezi tajne"
   },
   "fileFormat": {
     "message": "Format datoteke"
@@ -1009,7 +1090,7 @@
     "message": "Upotrijebi svoj ključ za šifriranje računa, izveden iz korisničkog imena i glavne lozinke za šifriranje izvoza i ograničavanje uvoza samo na trenutni Bitwarden račun."
   },
   "passwordProtectedOptionDescription": {
-    "message": "Postavi lozinku za šifriranje izvozne datoteke. Datoteku uvezi ju u bilo koji Bitwarden račun koristeći istu lozinku."
+    "message": "Postavi lozinku za šifriranje izvozne datoteke. Datoteku uvezi u u bilo koji Bitwarden račun koristeći lozinku."
   },
   "exportTypeHeading": {
     "message": "Tip izvoza"
@@ -1261,7 +1342,7 @@
     "message": "Uvoz podataka u trezor je uspio"
   },
   "importSuccessNumberOfItems": {
-    "message": "A total of $AMOUNT$ items were imported.",
+    "message": "Ukupno je uvezeno $AMOUNT$ stavaka.",
     "placeholders": {
       "amount": {
         "content": "$1",
@@ -1291,10 +1372,10 @@
     "message": "Greška u dešifriranju izvozne datoteke. Ovaj ključ za šifriranje ne odgovara ključu za šifriranje korištenom pri izvozu datoteke."
   },
   "importDestination": {
-    "message": "Import destination"
+    "message": "Odredište uvoza"
   },
   "learnAboutImportOptions": {
-    "message": "Learn about your import options"
+    "message": "Više o mogućnostima uvoza"
   },
   "selectImportFolder": {
     "message": "Odaberi mapu"
@@ -1303,7 +1384,7 @@
     "message": "Odaberi zbirku"
   },
   "importTargetHint": {
-    "message": "Select this option if you want the imported file contents moved to a $DESTINATION$",
+    "message": "Odaberi ovu opciju ako sadržaj uvezene datoteke želiš spremiti u $DESTINATION$",
     "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
     "placeholders": {
       "destination": {
@@ -1313,7 +1394,7 @@
     }
   },
   "importUnassignedItemsError": {
-    "message": "File contains unassigned items."
+    "message": "Datoteka sadrži nedodijeljene stavke."
   },
   "selectFormat": {
     "message": "Odaberi format datoteke za uvoz"
@@ -1423,10 +1504,10 @@
     "message": "Osiguraj svoj račun dodavanjem dodatnog koraka prilikom prijave."
   },
   "twoStepLoginTeamsDesc": {
-    "message": "Enable two-step login for your organization."
+    "message": "Omogući prijavu dvostrukom autentifikacijom za svoju organizaciju."
   },
   "twoStepLoginEnterpriseDescStart": {
-    "message": "Enforce Bitwarden Two-step Login options for members by using the ",
+    "message": "Prisili korištenje prijave dvostrukom autentifikacijom koristeći ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Enforce Bitwarden Two-step Login options for members by using the Two-step Login Policy.'"
   },
   "twoStepLoginPolicy": {
@@ -1478,6 +1559,9 @@
   },
   "manage": {
     "message": "Upravljaj"
+  },
+  "canManage": {
+    "message": "Can manage"
   },
   "disable": {
     "message": "Onemogući"
@@ -1925,7 +2009,7 @@
     "message": "1 GB šifriranog prostora za pohranu podataka."
   },
   "premiumSignUpTwoStepOptions": {
-    "message": "Proprietary two-step login options such as YubiKey and Duo."
+    "message": "Mogućnosti za prijavu u dva koraka kao što su YubiKey i Duo."
   },
   "premiumSignUpEmergency": {
     "message": "Pristup u nuždi"
@@ -2041,7 +2125,7 @@
     }
   },
   "paymentChargedWithUnpaidSubscription": {
-    "message": "Your payment method will be charged for any unpaid subscriptions."
+    "message": "Sve neplaćene pretplate naplatiti će se na tvoj način plaćanja."
   },
   "paymentChargedWithTrial": {
     "message": "Plan dolazi s besplatnom probnom verzijom od 7 dana. Tvoj način plaćanja neće biti terećen dok ne završi probno razdoblje. Možeš otkazati u bilo kojem trenutku."
@@ -2211,6 +2295,9 @@
   "contactSupport": {
     "message": "Kontaktiraj službu za korisnike"
   },
+  "contactSupportShort": {
+    "message": "Contact Support"
+  },
   "updatedPaymentMethod": {
     "message": "Ažurirani način plaćanja."
   },
@@ -2311,6 +2398,9 @@
   },
   "planDescTeams": {
     "message": "Za male tvtke ili druge manje organizacije."
+  },
+  "planNameTeamsStarter": {
+    "message": "Teams Starter"
   },
   "planNameEnterprise": {
     "message": "Tvrtke"
@@ -2672,6 +2762,9 @@
   "webVault": {
     "message": "Web trezor"
   },
+  "cli": {
+    "message": "CLI"
+  },
   "bitWebVault": {
     "message": "Bitwarden Web trezor"
   },
@@ -2703,7 +2796,7 @@
     "message": "Netočna lozinka"
   },
   "incorrectCode": {
-    "message": "Incorrect code"
+    "message": "Neispravan kôd"
   },
   "exportedVault": {
     "message": "Trezor izvezen"
@@ -3192,7 +3285,7 @@
     "message": "Pristup organizaciji biti će ti omogućen čim administrator potvrdi tvoje članstvo, o čemu ćemo te obavijestiti e-poštom."
   },
   "inviteInitAcceptedDesc": {
-    "message": "You can now access this organization."
+    "message": "Sada imaš pristup organizaciji."
   },
   "inviteAcceptFailed": {
     "message": "Nije moguće prihvatiti poziv. Zamoli administratora organizacije da ti pošalje novi poziv."
@@ -3357,7 +3450,7 @@
     "message": "Ograniči broj korisnika u pretplati. Kada je broj dosegnut, neće biti moguće pozvati nove korisnike."
   },
   "limitSmSubscriptionDesc": {
-    "message": "Set a seat limit for your Secrets Manger subscription. Once this limit is reached, you will not be able to invite new members."
+    "message": "Ograniči broj korisnika u pretplati. Kada je broj dosegnut, neće biti moguće pozvati nove korisnike."
   },
   "maxSeatLimit": {
     "message": "Najveći dozvoljeni broj korisnika (opcionalno)",
@@ -3395,6 +3488,9 @@
   "subscriptionUpdated": {
     "message": "Preplata ažurirana"
   },
+  "subscribedToSecretsManager": {
+    "message": "Subscription updated. You now have access to Secrets Manager."
+  },
   "additionalOptions": {
     "message": "Dodatne postavke"
   },
@@ -3410,6 +3506,15 @@
       "max": {
         "content": "$1",
         "example": "50"
+      }
+    }
+  },
+  "subscriptionUserSeatsWithoutAdditionalSeatsOption": {
+    "message": "You can invite up to $COUNT$ members for no additional charge. Contact Customer Support to upgrade your plan and invite more members.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
       }
     }
   },
@@ -3534,7 +3639,7 @@
     "message": "Odaberi kada će isteći trezor i koja će se radnja izvršiti."
   },
   "vaultTimeoutLogoutDesc": {
-    "message": "Choose when your vault will be logged out."
+    "message": "Odaberi kada će se tvoj trezor odjaviti."
   },
   "oneMinute": {
     "message": "1 minuta"
@@ -3571,6 +3676,18 @@
   },
   "organizationIsDisabled": {
     "message": "Organizacija suspendirana"
+  },
+  "secretsAccessSuspended": {
+    "message": "Stavkama u suspendiranoj Organizaciji se ne može pristupiti. Kontaktiraj vlasnika Organizacije za pomoć."
+  },
+  "secretsCannotCreate": {
+    "message": "Secrets cannot be created in suspended organizations. Please contact your organization owner for assistance."
+  },
+  "projectsCannotCreate": {
+    "message": "Projects cannot be created in suspended organizations. Please contact your organization owner for assistance."
+  },
+  "serviceAccountsCannotCreate": {
+    "message": "Service accounts cannot be created in suspended organizations. Please contact your organization owner for assistance."
   },
   "disabledOrganizationFilterError": {
     "message": "Stavkama u suspendiranoj Organizaciji se ne može pristupiti. Kontaktiraj vlasnika Organizacije za pomoć."
@@ -3625,7 +3742,7 @@
     "message": "Ova stavka ima stare privitke koje je potrebno popraviti."
   },
   "attachmentFixDescription": {
-    "message": "This attachment uses outdated encryption. Select 'Fix' to download, re-encrypt, and re-upload the attachment."
+    "message": "Ovaj privitak koristi zastarjelo šifriranje. Odaberi „Popravi” za preuzimanje i ponovno šifriranje i slanje privitka."
   },
   "fix": {
     "message": "Popravi",
@@ -3881,9 +3998,6 @@
   "setMasterPassword": {
     "message": "Postavi glavnu lozinku"
   },
-  "ssoCompleteRegistration": {
-    "message": "Za dovršetak jedinstvene prijave na razini tvrtke (SSO), postavi glavnu lozinku za pristup i zaštitu tvog trezora."
-  },
   "identifier": {
     "message": "Identifikator"
   },
@@ -3891,7 +4005,7 @@
     "message": "Identifikator organizacije"
   },
   "ssoLogInWithOrgIdentifier": {
-    "message": "Prijavi se koristeći SSO portal tvoje tvrtke. Za nastavak unesi identifikator organizacije."
+    "message": "Prijavi se koristeći SSO portal tvoje organizacije. Za nastavak unesi identifikator organizacije."
   },
   "enterpriseSingleSignOn": {
     "message": "Jedinstvena prijava na razini tvrtke (SSO)"
@@ -3901,6 +4015,21 @@
   },
   "includeAllTeamsFeatures": {
     "message": "Sve značajke Team, plus:"
+  },
+  "includeAllTeamsStarterFeatures": {
+    "message": "Sve značajke Team, plus:"
+  },
+  "chooseMonthlyOrAnnualBilling": {
+    "message": "Choose monthly or annual billing"
+  },
+  "abilityToAddMoreThanNMembers": {
+    "message": "Ability to add more than $COUNT$ members",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "includeSsoAuthentication": {
     "message": "SSO autentifikacija putem SAML2.0 i OpenID Connect"
@@ -3917,8 +4046,9 @@
   "ssoIdentifier": {
     "message": "SSO identifikator"
   },
-  "ssoIdentifierHint": {
-    "message": "Dajte ovaj ID svojim članovima za prijavu putem SSO-a."
+  "ssoIdentifierHintPartOne": {
+    "message": "Provide this ID to your members to login with SSO. To bypass this step, set up ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
   },
   "unlinkSso": {
     "message": "Odspoji SSO"
@@ -4022,7 +4152,7 @@
     "message": "Trenutni broj pristupanja"
   },
   "sendPasswordDesc": {
-    "message": "Neobavezno zahtijevaj korisnika lozinku za pristup ovom Sendu.",
+    "message": "Ako želiš, možeš za pristup Sendu zahtijevati lozinku (nije obavezno).",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendNotesDesc": {
@@ -4088,8 +4218,8 @@
     "message": "Ovaj je Send zadano skriven. Moguće mu je promijeniti vidljivost.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "downloadFile": {
-    "message": "Preuzmi datoteku"
+  "downloadAttachments": {
+    "message": "Download attachments"
   },
   "sendAccessUnavailable": {
     "message": "Send kojem pokušavaš pristupiti više ne postoji ili više nije dostupan.",
@@ -4391,7 +4521,7 @@
     "message": "Upravljanje korisnicima"
   },
   "manageAccountRecovery": {
-    "message": "Manage account recovery"
+    "message": "Upravljaj oporavkom računa"
   },
   "disableRequiredError": {
     "message": "Prije onemogućavanja ovog pravila, potrebno je onemogućiti pravilo $POLICYNAME$.",
@@ -4479,8 +4609,8 @@
     "message": "za isprobavanje.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about Bitwarden Send or sign up to **try it today.**'"
   },
-  "sendCreatorIdentifier": {
-    "message": "Bitwarden korisnik $USER_IDENTIFIER$ je s tobom podijelio",
+  "sendAccessCreatorIdentifier": {
+    "message": "Bitwarden member $USER_IDENTIFIER$ shared the following with you",
     "placeholders": {
       "user_identifier": {
         "content": "$1",
@@ -4523,13 +4653,13 @@
     "message": "Podsjetnik za lozinku ne može biti isti kao lozinka."
   },
   "enrollAccountRecovery": {
-    "message": "Enroll in account recovery"
+    "message": "Uključi oporavak računa"
   },
   "enrolledAccountRecovery": {
-    "message": "Enrolled in account recovery"
+    "message": "Oporavak računa uključen"
   },
   "withdrawAccountRecovery": {
-    "message": "Withdraw from account recovery"
+    "message": "Isključi oporavak računa"
   },
   "enrollPasswordResetSuccess": {
     "message": "Prijava uspješna!"
@@ -4538,7 +4668,7 @@
     "message": "Odjava uspješna!"
   },
   "eventEnrollAccountRecovery": {
-    "message": "User $ID$ enrolled in account recovery.",
+    "message": "Korisnik $ID$ uključio oporavak računa.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4547,7 +4677,7 @@
     }
   },
   "eventWithdrawAccountRecovery": {
-    "message": "User $ID$ withdrew from account recovery.",
+    "message": "Korisnik $ID$ isključio oporavak računa.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -4607,7 +4737,7 @@
     "message": "Učlanjenje će administratorima organizacije omogućiti promjenu tvoje glavne lozinke. Sigurno se želiš učlaniti?"
   },
   "accountRecoveryPolicy": {
-    "message": "Account recovery administration"
+    "message": "Administracija oporavka računa"
   },
   "accountRecoveryPolicyDesc": {
     "message": "Based on the encryption method, recover accounts when master passwords or trusted devices are forgotten or lost."
@@ -4616,7 +4746,7 @@
     "message": "Existing accounts with master passwords will require members to self-enroll before administrators can recover their accounts. Automatic enrollment will turn on account recovery for new members."
   },
   "accountRecoverySingleOrgRequirementDesc": {
-    "message": "The single organization Enterprise policy must be turned on before activating this policy."
+    "message": "Pravilo Isključive organizacije mora biti uključeno prije aktivacije ovog pravila."
   },
   "resetPasswordPolicyAutoEnroll": {
     "message": "Automatsko učlanjenje"
@@ -4721,7 +4851,7 @@
     "message": "Greška"
   },
   "accountRecoveryManageUsers": {
-    "message": "Manage users must also be granted with the manage account recovery permission"
+    "message": "Upravljanje korisnicima mora također biti uključeno s dozvolom za Upravljanje ponovnim postavljanjem lozinke"
   },
   "setupProvider": {
     "message": "Postavke davatelja"
@@ -4858,7 +4988,7 @@
     "message": "Tvoja glavna lozinka ne zadovoljava pravila ove organizacije. Kako bi se pridružio organizaciji, moraš odmah ažurirati svoju glavnu lozinku. Ako nastaviš, odjavit ćeš se iz trenutne sesije te ćeš se morati ponovno prijaviti. Aktivne sesije na drugim uređajima mogu ostati aktivne do jedan sat."
   },
   "updateWeakMasterPasswordWarning": {
-    "message": "Your master password does not meet one or more of your organization policies. In order to access the vault, you must update your master password now. Proceeding will log you out of your current session, requiring you to log back in. Active sessions on other devices may continue to remain active for up to one hour."
+    "message": "Tvoja glavna lozinka ne zadovoljava pravila ove organizacije. Za pristup trezoru moraš odmah ažurirati svoju glavnu lozinku. Ako nastaviš, odjaviti ćeš se iz trenutne sesije te ćeš se morati ponovno prijaviti. Aktivne sesije na drugim uređajima mogu ostati aktivne do jedan sat."
   },
   "maximumVaultTimeout": {
     "message": "Istek trezora"
@@ -4933,7 +5063,7 @@
     "message": "Onemogući izvoz osobnog trezora"
   },
   "disablePersonalVaultExportDescription": {
-    "message": "Do not allow members to export data from their individual vault."
+    "message": "Onemogućuje korisnike da izvezu svoj osobni trezor."
   },
   "vaultExportDisabled": {
     "message": "Izvoz trezora onemogućen"
@@ -4945,7 +5075,7 @@
     "message": "Aktiviraj auto-ispunu"
   },
   "activateAutofillPolicyDesc": {
-    "message": "Activate the auto-fill on page load setting on the browser extension for all existing and new members."
+    "message": "Aktivira auto-ispunu kod učitavanja stranice u dodatku za preglednik za sve postojeće i nove korisnike."
   },
   "experimentalFeature": {
     "message": "Ugrožene ili nepouzdane web stranice mogu iskoristiti auto-ispunu prilikom učitavanja stranice."
@@ -5237,7 +5367,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "ssoPolicyHelpAnchor": {
-    "message": "require single sign-on authentication policy",
+    "message": "zahtijevaj SSO autentifikaciju",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Use the require single-sign-on authentication policy to require all members to log in with SSO.'"
   },
   "ssoPolicyHelpEnd": {
@@ -5406,6 +5536,19 @@
   "required": {
     "message": "obavezno"
   },
+  "charactersCurrentAndMaximum": {
+    "message": "$CURRENT$/$MAX$ character maximum",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "0"
+      },
+      "max": {
+        "content": "$2",
+        "example": "100"
+      }
+    }
+  },
   "characterMaximum": {
     "message": "najviše $MAX$ znakova",
     "placeholders": {
@@ -5437,7 +5580,7 @@
     "message": "Izvoz organizacijskog trezora"
   },
   "exportingIndividualVaultDescription": {
-    "message": "Only the individual vault items associated with $EMAIL$ will be exported. Organization vault items will not be included. Only vault item information will be exported and will not include associated attachments.",
+    "message": "Izvest će se samo stavke osobnog trezora povezanog s $EMAIL$. Stavke organizacijskog trezora neće biti uključene. Izvest će se samo informacije o stavci trezora bez pripadajućih privitaka.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -5446,7 +5589,7 @@
     }
   },
   "exportingOrganizationVaultDesc": {
-    "message": "Only the organization vault associated with $ORGANIZATION$ will be exported. Items in individual vaults or other organizations will not be included.",
+    "message": "Izvest će se samo organizacijski trezor povezan s $ORGANIZATION$. Stavke iz osobnih trezora i stavke iz drugih organizacija neće biti uključene.",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -5710,7 +5853,7 @@
     }
   },
   "inputMinValue": {
-    "message": "Input value must be at least $MIN$.",
+    "message": "Unos mora biti najmanje $MIN$.",
     "placeholders": {
       "min": {
         "content": "$1",
@@ -5719,7 +5862,7 @@
     }
   },
   "inputMaxValue": {
-    "message": "Input value must not exceed $MAX$.",
+    "message": "Unos ne smije biti više od $MAX$.",
     "placeholders": {
       "max": {
         "content": "$1",
@@ -5753,6 +5896,9 @@
   },
   "on": {
     "message": "Uključeno"
+  },
+  "off": {
+    "message": "Off"
   },
   "members": {
     "message": "Članovi"
@@ -6321,7 +6467,7 @@
     "message": "Nema domena"
   },
   "noDomainsSubText": {
-    "message": "Povezivanje domene omogućuje članovima da preskoče polje SSO identifikatora tijekom prijave pomoću SSO-a."
+    "message": "Povezivanje domene omogućuje članovima da preskoče polje SSO identifikatora tijekom SSO prijave."
   },
   "verifyDomain": {
     "message": "Potvrdi domenu"
@@ -6497,6 +6643,24 @@
       "seatcount": {
         "content": "$1",
         "example": "2"
+      }
+    }
+  },
+  "teamsStarterPlanInvLimitReachedManageBilling": {
+    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Contact Customer Support to upgrade your plan and invite more members.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "teamsStarterPlanInvLimitReachedNoManageBilling": {
+    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade your plan and invite more members.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
       }
     }
   },
@@ -6802,7 +6966,7 @@
     }
   },
   "inputTrimValidator": {
-    "message": "Input must not contain only whitespace.",
+    "message": "Unos ne smije biti prazan.",
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
   },
   "dismiss": {
@@ -6833,34 +6997,34 @@
     "description": "The message shown to the user when bulk deleting projects and the user doesn't have access to some projects."
   },
   "updateKdfSettings": {
-    "message": "Update KDF settings"
+    "message": "Promijeni KDF postavke"
   },
   "loginInitiated": {
-    "message": "Login initiated"
+    "message": "Prijava pokrenuta"
   },
   "deviceApprovalRequired": {
-    "message": "Device approval required. Select an approval option below:"
+    "message": "Potrebno je odobriti uređaj. Odaberi metodu odobravanja:"
   },
   "rememberThisDevice": {
-    "message": "Remember this device"
+    "message": "Zapamti ovaj uređaj"
   },
   "uncheckIfPublicDevice": {
-    "message": "Uncheck if using a public device"
+    "message": "Odznači ako koristiš javni uređaj"
   },
   "approveFromYourOtherDevice": {
-    "message": "Approve from your other device"
+    "message": "Odobri drugim uređajem"
   },
   "requestAdminApproval": {
-    "message": "Request admin approval"
+    "message": "Zatraži odobrenje administratora"
   },
   "approveWithMasterPassword": {
-    "message": "Approve with master password"
+    "message": "Odobri glavnom lozinkom"
   },
   "trustedDeviceEncryption": {
     "message": "Trusted device encryption"
   },
   "trustedDevices": {
-    "message": "Trusted devices"
+    "message": "Pouzdani uređaji"
   },
   "memberDecryptionOptionTdeDescriptionPartOne": {
     "message": "Once authenticated, members will decrypt vault data using a key stored on their device. The",
@@ -6889,6 +7053,14 @@
   "memberDecryptionOptionTdeDescriptionPartFour": {
     "message": "policy with automatic enrollment will turn on when this option is used.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
+  },
+  "orgPermissionsUpdatedMustSetPassword": {
+    "message": "Moraš postaviti glavnu lozinku jer su dopuštenja tvoje organizacije ažurirana.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "orgRequiresYouToSetPassword": {
+    "message": "Tvoja organizacija zahtijeva da postaviš glavnu lozinku.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "notFound": {
     "message": "$RESOURCE$ not found",
@@ -6920,7 +7092,7 @@
     "message": "Activate Secrets Manager"
   },
   "yourOrganizationsFingerprint": {
-    "message": "Your organization's fingerprint phrase",
+    "message": "Jedinstvena fraza tvoje organizacije",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their organization's public key with another user, for the purposes of sharing."
   },
   "deviceApprovals": {
@@ -6930,40 +7102,40 @@
     "message": "Approve login requests below to allow the requesting member to finish logging in. Unapproved requests expire after 1 week. Verify the member’s information before approving."
   },
   "deviceInfo": {
-    "message": "Device info"
+    "message": "Informacije o uređaju"
   },
   "time": {
-    "message": "Time"
+    "message": "Vrijeme"
   },
   "denyAllRequests": {
-    "message": "Deny all requests"
+    "message": "Odbij sve zahtjeve"
   },
   "denyRequest": {
-    "message": "Deny request"
+    "message": "Odbij zahtjev"
   },
   "approveRequest": {
-    "message": "Approve request"
+    "message": "Odobri zahtjev"
   },
   "noDeviceRequests": {
-    "message": "No device requests"
+    "message": "Nema zahtjeva na čekanju"
   },
   "noDeviceRequestsDesc": {
-    "message": "Member device approval requests will appear here"
+    "message": "Ovdje će biti prikazani zahtjevi za odobrenje uređaja"
   },
   "loginRequestDenied": {
-    "message": "Login request denied"
+    "message": "Zahtjev za prijavu odbijen"
   },
   "allLoginRequestsDenied": {
-    "message": "All login requests denied"
+    "message": "Svi zahtjevi za prijavu odbijeni"
   },
   "loginRequestApproved": {
-    "message": "Login request approved"
+    "message": "Zahtjev za prijavu odobren"
   },
   "removeOrgUserNoMasterPasswordTitle": {
-    "message": "Account does not have master password"
+    "message": "Račun nema glavnu lozinku"
   },
   "removeOrgUserNoMasterPasswordDesc": {
-    "message": "Removing $USER$ without setting a master password for them may restrict access to their full account. Are you sure you want to continue?",
+    "message": "Uklanjanje korisnika $USER$ bez postavljanja glavne lozinke onemougućiti će pristup tom računu. Sigurno želiš nastaviti?",
     "placeholders": {
       "user": {
         "content": "$1",
@@ -6972,13 +7144,13 @@
     }
   },
   "noMasterPassword": {
-    "message": "No master password"
+    "message": "Nema glavne lozinke"
   },
   "removeMembersWithoutMasterPasswordWarning": {
-    "message": "Removing members who do not have master passwords without setting one for them may restrict access to their full account."
+    "message": "Članovi koje ukloniš, a koji nemaju postavljenu glavnu lozinku, neće moći pristupiti svom računu."
   },
   "approvedAuthRequest": {
-    "message": "Approved device for $ID$.",
+    "message": "Odobren uređaj za $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -6987,7 +7159,7 @@
     }
   },
   "rejectedAuthRequest": {
-    "message": "Denied device for $ID$.",
+    "message": "Odbijen uređaj za $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -6996,10 +7168,10 @@
     }
   },
   "requestedDeviceApproval": {
-    "message": "Requested device approval."
+    "message": "Zatraži odobrenje uređaja."
   },
   "startYour7DayFreeTrialOfBitwardenFor": {
-    "message": "Start your 7-Day free trial of Bitwarden for $ORG$",
+    "message": "Pokreni besplatnih 7 dana Bitwardena za $ORG$",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -7008,45 +7180,48 @@
     }
   },
   "next": {
-    "message": "Next"
+    "message": "Sljedeće"
+  },
+  "ssoLoginIsRequired": {
+    "message": "SSO login is required"
   },
   "selectedRegionFlag": {
-    "message": "Selected region flag"
+    "message": "Zastava odabrane regije"
   },
   "accountSuccessfullyCreated": {
-    "message": "Account successfully created!"
+    "message": "Račun je uspješno stvoren!"
   },
   "adminApprovalRequested": {
-    "message": "Admin approval requested"
+    "message": "Zatraženo odobrenje administratora"
   },
   "adminApprovalRequestSentToAdmins": {
-    "message": "Your request has been sent to your admin."
+    "message": "Tvoj zahtjev je poslan administratoru."
   },
   "youWillBeNotifiedOnceApproved": {
-    "message": "You will be notified once approved."
+    "message": "Dobiti ćeš obavijest kada bude odobreno."
   },
   "troubleLoggingIn": {
-    "message": "Trouble logging in?"
+    "message": "Problem s prijavom?"
   },
   "loginApproved": {
-    "message": "Login approved"
+    "message": "Prijava odobrena"
   },
   "userEmailMissing": {
-    "message": "User email missing"
+    "message": "Nedostaje e-pošta korisnika"
   },
   "deviceTrusted": {
-    "message": "Device trusted"
+    "message": "Uređaj pouzdan"
   },
   "sendsNoItemsTitle": {
-    "message": "No active Sends",
+    "message": "Nema aktivnih Sendova",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "sendsNoItemsMessage": {
-    "message": "Use Send to securely share encrypted information with anyone.",
+    "message": "Koristi Send za sigurno slanje šifriranih podataka bilo kome.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "inviteUsers": {
-    "message": "Invite Users"
+    "message": "Pozovi korisnike"
   },
   "secretsManagerForPlan": {
     "message": "Secrets Manager for $PLAN$",
@@ -7061,7 +7236,7 @@
     "message": "For engineering and DevOps teams to manage secrets throughout the software development lifecycle."
   },
   "free2PersonOrganization": {
-    "message": "Free 2-person Organizations"
+    "message": "Bepslatne organizacije za 2 člana"
   },
   "unlimitedSecrets": {
     "message": "Unlimited secrets"
@@ -7096,8 +7271,8 @@
       }
     }
   },
-  "addSecretsManager": {
-    "message": "Add Secrets Manager"
+  "subscribeToSecretsManager": {
+    "message": "Subscribe to Secrets Manager"
   },
   "addSecretsManagerUpgradeDesc": {
     "message": "Add Secrets Manager to your upgraded plan to maintain access to any secrets created with your previous plan."
@@ -7123,6 +7298,18 @@
       }
     }
   },
+  "collectionManagement": {
+    "message": "Collection management"
+  },
+  "collectionManagementDesc": {
+    "message": "Manage the collection behavior for the organization"
+  },
+  "limitCollectionCreationDeletionDesc": {
+    "message": "Limit collection creation and deletion to owners and admins"
+  },
+  "collectionManagementUpdated": {
+    "message": "Collection management behavior saved"
+  },
   "passwordManagerPlanPrice": {
     "message": "Password Manager plan price"
   },
@@ -7130,7 +7317,7 @@
     "message": "Secrets Manager plan price"
   },
   "passwordManager": {
-    "message": "Password Manager"
+    "message": "Upravitelj lozinkama"
   },
   "freeOrganization": {
     "message": "Free Organization"
@@ -7148,7 +7335,7 @@
     "message": "Max potential service account cost"
   },
   "loggedInExclamation": {
-    "message": "Logged in!"
+    "message": "Prijava uspješna!"
   },
   "smBetaEndedDesc": {
     "message": "The Secrets Manager Beta ended $BETA_ENDING_DATE$. You have $DAYS$ days left to add Secrets Manager to your paid subscription and maintain access to Secrets Manager data. Contact Customer Success to add Secrets Manager to your subscription.",
@@ -7164,12 +7351,52 @@
     }
   },
   "betaEnding": {
-    "message": "Beta Ending"
+    "message": "Beta završava"
   },
   "beta": {
     "message": "Beta"
   },
+  "assignCollectionAccess": {
+    "message": "Assign collection access"
+  },
+  "editedCollections": {
+    "message": "Edited collections"
+  },
+  "baseUrl": {
+    "message": "URL poslužitelja"
+  },
+  "aliasDomain": {
+    "message": "Alias domene"
+  },
   "alreadyHaveAccount": {
-    "message": "Already have an account?"
+    "message": "Već imaš račun?"
+  },
+  "customBillingStart": {
+    "message": "Custom billing is not reflected. Visit the "
+  },
+  "customBillingEnd": {
+    "message": " page for latest invoicing."
+  },
+  "managePermissionRequired": {
+    "message": "At least one member or group must have can manage permission."
+  },
+  "typePasskey": {
+    "message": "Passkey"
+  },
+  "passkeyNotCopied": {
+    "message": "Passkey will not be copied"
+  },
+  "passkeyNotCopiedAlert": {
+    "message": "The passkey will not be copied to the cloned item. Do you want to continue cloning this item?"
+  },
+  "seeDetailedInstructions": {
+    "message": "Detaljne upute za pomoć pronađi na našoj stranici za pomoć na",
+    "description": "This is followed a by a hyperlink to the help website."
+  },
+  "projectAccessUpdated": {
+    "message": "Project access updated"
+  },
+  "unexpectedErrorSend": {
+    "message": "An unexpected error has occurred while loading this Send. Try again later."
   }
 }

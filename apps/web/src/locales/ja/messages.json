@@ -611,6 +611,87 @@
   "loginWithMasterPassword": {
     "message": "マスターパスワードでログイン"
   },
+  "loginWithPasskey": {
+    "message": "パスキー でログイン"
+  },
+  "loginWithPasskeyInfo": {
+    "message": "パスワードなしで自動的にログインできる、生成されたパスキーを使用します。顔や指紋などの生体認証、または他の FIDO2 認証方式で本人確認を行います。"
+  },
+  "newPasskey": {
+    "message": "新しいパスキー"
+  },
+  "learnMoreAboutPasswordless": {
+    "message": "パスワードレスの詳細"
+  },
+  "passkeyEnterMasterPassword": {
+    "message": "パスキー設定でのログインを変更するには、マスターパスワードを入力してください。"
+  },
+  "creatingPasskeyLoading": {
+    "message": "パスキーを作成中..."
+  },
+  "creatingPasskeyLoadingInfo": {
+    "message": "このウィンドウを開いたままにして、ブラウザの指示に従ってください。"
+  },
+  "errorCreatingPasskey": {
+    "message": "パスキーの作成に失敗しました"
+  },
+  "errorCreatingPasskeyInfo": {
+    "message": "パスキー作成中に問題が発生しました。"
+  },
+  "passkeySuccessfullyCreated": {
+    "message": "パスキーを作成しました！"
+  },
+  "customName": {
+    "message": "カスタム名"
+  },
+  "customPasskeyNameInfo": {
+    "message": "パスキーに名前を付けて、識別しやすいようにしましょう。"
+  },
+  "useForVaultEncryption": {
+    "message": "保管庫の暗号化に使用"
+  },
+  "useForVaultEncryptionInfo": {
+    "message": "対応デバイスではマスターパスワードなしでログインとロック解除をできます。ブラウザの指示に従ってセットアップを完了してください。"
+  },
+  "useForVaultEncryptionErrorReadingPasskey": {
+    "message": "パスキーの読み込みに失敗しました。もう一度試すか、このオプションのチェックを外してください。"
+  },
+  "encryptionNotSupported": {
+    "message": "暗号化はサポートされていません"
+  },
+  "encryptionNotEnabled": {
+    "message": "暗号化が有効ではありません"
+  },
+  "usedForEncryption": {
+    "message": "暗号化に使用中"
+  },
+  "loginWithPasskeyEnabled": {
+    "message": "パスキーをオンにしてログイン"
+  },
+  "passkeySaved": {
+    "message": "$NAME$ を保存しました",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Personal yubikey"
+      }
+    }
+  },
+  "passkeyRemoved": {
+    "message": "パスキーを削除しました"
+  },
+  "removePasskey": {
+    "message": "パスキーを削除"
+  },
+  "removePasskeyInfo": {
+    "message": "すべてのパスキーを削除すると、マスターパスワードなしで新しいデバイスにログインすることはできません。"
+  },
+  "passkeyLimitReachedInfo": {
+    "message": "パスキーの上限に達しました。追加するにはまず既存のパスキーを削除してください。"
+  },
+  "tryAgain": {
+    "message": "再試行"
+  },
   "createAccount": {
     "message": "アカウントの作成"
   },
@@ -1479,6 +1560,9 @@
   "manage": {
     "message": "管理"
   },
+  "canManage": {
+    "message": "管理可能"
+  },
   "disable": {
     "message": "無効化"
   },
@@ -2211,6 +2295,9 @@
   "contactSupport": {
     "message": "カスタマーサポートに連絡"
   },
+  "contactSupportShort": {
+    "message": "サポートに連絡する"
+  },
   "updatedPaymentMethod": {
     "message": "お支払い方法を更新しました。"
   },
@@ -2311,6 +2398,9 @@
   },
   "planDescTeams": {
     "message": "ビジネスやチーム組織のために。"
+  },
+  "planNameTeamsStarter": {
+    "message": "Teams Starter"
   },
   "planNameEnterprise": {
     "message": "エンタープライズ"
@@ -2671,6 +2761,9 @@
   },
   "webVault": {
     "message": "ウェブ保管庫"
+  },
+  "cli": {
+    "message": "CLI"
   },
   "bitWebVault": {
     "message": "Bitwarden ウェブ保管庫"
@@ -3395,6 +3488,9 @@
   "subscriptionUpdated": {
     "message": "サブスクリプションが更新されました"
   },
+  "subscribedToSecretsManager": {
+    "message": "サブスクリプションを更新しました。シークレットマネージャーにアクセスできるようになりました。"
+  },
   "additionalOptions": {
     "message": "追加オプション"
   },
@@ -3410,6 +3506,15 @@
       "max": {
         "content": "$1",
         "example": "50"
+      }
+    }
+  },
+  "subscriptionUserSeatsWithoutAdditionalSeatsOption": {
+    "message": "追加料金なしで最大 $COUNT$ 人のメンバーを招待できます。さらにメンバーを招待するには、カスタマーサポートに連絡してプランをアップグレードしてください。",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
       }
     }
   },
@@ -3571,6 +3676,18 @@
   },
   "organizationIsDisabled": {
     "message": "組織は無効です。"
+  },
+  "secretsAccessSuspended": {
+    "message": "一時停止された組織にはアクセスできません。組織の所有者にお問い合わせください。"
+  },
+  "secretsCannotCreate": {
+    "message": "一時停止中の組織ではシークレットを作成できません。組織の所有者に問い合わせてください。"
+  },
+  "projectsCannotCreate": {
+    "message": "一時停止中の組織ではプロジェクトを作成できません。組織の所有者に問い合わせてください。"
+  },
+  "serviceAccountsCannotCreate": {
+    "message": "一時停止中の組織ではサービスアカウントを作成できません。組織の所有者に問い合わせてください。"
   },
   "disabledOrganizationFilterError": {
     "message": "無効な組織のアイテムにアクセスすることはできません。組織の所有者に連絡してください。"
@@ -3881,9 +3998,6 @@
   "setMasterPassword": {
     "message": "マスターパスワードを設定"
   },
-  "ssoCompleteRegistration": {
-    "message": "SSO ログインを完了するには、保管庫にアクセス・保護するためのマスターパスワードを設定してください。"
-  },
   "identifier": {
     "message": "識別子"
   },
@@ -3902,6 +4016,21 @@
   "includeAllTeamsFeatures": {
     "message": "すべてのチームの機能に加えて:"
   },
+  "includeAllTeamsStarterFeatures": {
+    "message": "すべての Teams Starter の機能 ＋"
+  },
+  "chooseMonthlyOrAnnualBilling": {
+    "message": "月額または年間の請求期間を選択してください"
+  },
+  "abilityToAddMoreThanNMembers": {
+    "message": "$COUNT$ 人以上のメンバーを追加可能",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "includeSsoAuthentication": {
     "message": "SAML2.0 と OpenID Connect による SSO 認証"
   },
@@ -3917,8 +4046,9 @@
   "ssoIdentifier": {
     "message": "SSO 識別子"
   },
-  "ssoIdentifierHint": {
-    "message": "SSO でログインするには、この ID をメンバーに提供してください。"
+  "ssoIdentifierHintPartOne": {
+    "message": "SSO でログインできるようこの ID をメンバーに提供してください。この手順をバイパスするには、以下の設定をしてください：",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
   },
   "unlinkSso": {
     "message": "SSO のリンクを解除"
@@ -4088,8 +4218,8 @@
     "message": "このSendはデフォルトでは非表示になっています。下のボタンで表示・非表示が切り替え可能です。",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "downloadFile": {
-    "message": "ファイルをダウンロード"
+  "downloadAttachments": {
+    "message": "添付ファイルをダウンロード"
   },
   "sendAccessUnavailable": {
     "message": "アクセスしようとしているSendは存在しないか、利用できません。",
@@ -4479,8 +4609,8 @@
     "message": "試してみてください",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about Bitwarden Send or sign up to **try it today.**'"
   },
-  "sendCreatorIdentifier": {
-    "message": "Bitwarden ユーザー $USER_IDENTIFIER$ が共有しました",
+  "sendAccessCreatorIdentifier": {
+    "message": "Bitwarden メンバー $USER_IDENTIFIER$ が共有しました",
     "placeholders": {
       "user_identifier": {
         "content": "$1",
@@ -5406,6 +5536,19 @@
   "required": {
     "message": "必須"
   },
+  "charactersCurrentAndMaximum": {
+    "message": "$CURRENT$/$MAX$ 文字",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "0"
+      },
+      "max": {
+        "content": "$2",
+        "example": "100"
+      }
+    }
+  },
   "characterMaximum": {
     "message": "最大 $MAX$ 文字",
     "placeholders": {
@@ -5753,6 +5896,9 @@
   },
   "on": {
     "message": "オン"
+  },
+  "off": {
+    "message": "オフ"
   },
   "members": {
     "message": "メンバー"
@@ -6500,6 +6646,24 @@
       }
     }
   },
+  "teamsStarterPlanInvLimitReachedManageBilling": {
+    "message": "Teams Starter プランは $SEATCOUNT$ 人のメンバーまでです。さらにメンバーを招待するには、カスタマーサポートに連絡してプランをアップグレードしてください。",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "teamsStarterPlanInvLimitReachedNoManageBilling": {
+    "message": "Teams Starter プランは $SEATCOUNT$ 人のメンバーまでです。さらにメンバーを招待するには、組織の所有者に連絡してプランをアップグレードしてもらってください。",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "freeOrgMaxCollectionReachedManageBilling": {
     "message": "無料の組織では最大 $COLLECTIONCOUNT$ コレクションまでです。さらにコレクションを追加するには有料プランにアップグレードしてください。",
     "placeholders": {
@@ -6890,6 +7054,14 @@
     "message": "自動登録のポリシーがオンになります。",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
+  "orgPermissionsUpdatedMustSetPassword": {
+    "message": "組織の権限が更新され、マスターパスワードの設定が必要になりました。",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "orgRequiresYouToSetPassword": {
+    "message": "あなたの組織では、マスターパスワードの設定を義務付けています。",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
   "notFound": {
     "message": "$RESOURCE$ が見つかりません",
     "placeholders": {
@@ -7010,6 +7182,9 @@
   "next": {
     "message": "次へ"
   },
+  "ssoLoginIsRequired": {
+    "message": "SSO ログインが必要です"
+  },
   "selectedRegionFlag": {
     "message": "リージョン選択"
   },
@@ -7096,8 +7271,8 @@
       }
     }
   },
-  "addSecretsManager": {
-    "message": "シークレットマネージャーを追加"
+  "subscribeToSecretsManager": {
+    "message": "シークレットマネージャーに登録"
   },
   "addSecretsManagerUpgradeDesc": {
     "message": "アップグレードしたプランにシークレットマネージャーを追加して、以前のプランで作成されたシークレットへのアクセスを維持します。"
@@ -7122,6 +7297,18 @@
         "example": "$0.50"
       }
     }
+  },
+  "collectionManagement": {
+    "message": "コレクション管理"
+  },
+  "collectionManagementDesc": {
+    "message": "組織のコレクションに関する挙動を管理します"
+  },
+  "limitCollectionCreationDeletionDesc": {
+    "message": "コレクションの作成・削除を所有者と管理者のみに制限"
+  },
+  "collectionManagementUpdated": {
+    "message": "コレクション管理の挙動を保存しました"
   },
   "passwordManagerPlanPrice": {
     "message": "パスワードマネージャーのプラン価格"
@@ -7169,7 +7356,47 @@
   "beta": {
     "message": "ベータ"
   },
+  "assignCollectionAccess": {
+    "message": "コレクションへのアクセスを割り当て"
+  },
+  "editedCollections": {
+    "message": "編集されたコレクション"
+  },
+  "baseUrl": {
+    "message": "サーバー URL"
+  },
+  "aliasDomain": {
+    "message": "エイリアスドメイン"
+  },
   "alreadyHaveAccount": {
     "message": "既にアカウントをお持ちですか？"
+  },
+  "customBillingStart": {
+    "message": "カスタム請求は反映されていません。"
+  },
+  "customBillingEnd": {
+    "message": "のページで最新の請求書をご覧いただけます。"
+  },
+  "managePermissionRequired": {
+    "message": "少なくとも1人のメンバーまたはグループに「管理可能」権限を与えてください。"
+  },
+  "typePasskey": {
+    "message": "パスキー"
+  },
+  "passkeyNotCopied": {
+    "message": "パスキーはコピーされません"
+  },
+  "passkeyNotCopiedAlert": {
+    "message": "パスキーは複製されたアイテムにコピーされません。このアイテムを複製しますか？"
+  },
+  "seeDetailedInstructions": {
+    "message": "詳細な手順はこちらをご覧ください：",
+    "description": "This is followed a by a hyperlink to the help website."
+  },
+  "projectAccessUpdated": {
+    "message": "プロジェクトへのアクセスを更新しました"
+  },
+  "unexpectedErrorSend": {
+    "message": "この Send の読み込み中に予期しないエラーが発生しました。後でもう一度お試しください。"
   }
 }

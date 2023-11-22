@@ -8,6 +8,8 @@ import {
   LOCALES_DIRECTORY,
   SYSTEM_LANGUAGE,
   MEMORY_STORAGE,
+  OBSERVABLE_MEMORY_STORAGE,
+  OBSERVABLE_DISK_STORAGE,
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
 import { ModalService as ModalServiceAbstraction } from "@bitwarden/angular/services/modal.service";
@@ -21,13 +23,11 @@ import { StateService as BaseStateServiceAbstraction } from "@bitwarden/common/p
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
-import { PasswordRepromptService as PasswordRepromptServiceAbstraction } from "@bitwarden/common/vault/abstractions/password-reprompt.service";
 
 import { PolicyListService } from "../admin-console/core/policy-list.service";
 import { HtmlStorageService } from "../core/html-storage.service";
 import { I18nService } from "../core/i18n.service";
 import { CollectionAdminService } from "../vault/core/collection-admin.service";
-import { PasswordRepromptService } from "../vault/core/password-reprompt.service";
 
 import { BroadcasterMessagingService } from "./broadcaster-messaging.service";
 import { EventService } from "./event.service";
@@ -76,6 +76,8 @@ import { WebPlatformUtilsService } from "./web-platform-utils.service";
       provide: MEMORY_STORAGE,
       useClass: MemoryStorageService,
     },
+    { provide: OBSERVABLE_MEMORY_STORAGE, useExisting: MEMORY_STORAGE },
+    { provide: OBSERVABLE_DISK_STORAGE, useExisting: AbstractStorageService },
     {
       provide: PlatformUtilsServiceAbstraction,
       useClass: WebPlatformUtilsService,
@@ -86,10 +88,6 @@ import { WebPlatformUtilsService } from "./web-platform-utils.service";
     {
       provide: BaseStateServiceAbstraction,
       useExisting: StateService,
-    },
-    {
-      provide: PasswordRepromptServiceAbstraction,
-      useClass: PasswordRepromptService,
     },
     {
       provide: FileDownloadService,

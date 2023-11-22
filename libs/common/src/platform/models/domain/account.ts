@@ -5,10 +5,9 @@ import { OrganizationData } from "../../../admin-console/models/data/organizatio
 import { PolicyData } from "../../../admin-console/models/data/policy.data";
 import { ProviderData } from "../../../admin-console/models/data/provider.data";
 import { Policy } from "../../../admin-console/models/domain/policy";
-import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 import { AdminAuthRequestStorable } from "../../../auth/models/domain/admin-auth-req-storable";
 import { EnvironmentUrls } from "../../../auth/models/domain/environment-urls";
-import { ForceResetPasswordReason } from "../../../auth/models/domain/force-reset-password-reason";
+import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
 import { KeyConnectorUserDecryptionOption } from "../../../auth/models/domain/user-decryption-options/key-connector-user-decryption-option";
 import { TrustedDeviceUserDecryptionOption } from "../../../auth/models/domain/user-decryption-options/trusted-device-user-decryption-option";
 import { IdentityTokenResponse } from "../../../auth/models/response/identity-token.response";
@@ -140,8 +139,11 @@ export class AccountKeys {
   >();
 
   toJSON() {
+    // If you pass undefined into fromBufferToByteString, you will get an empty string back
+    // which will cause all sorts of headaches down the line when you try to getPublicKey
+    // and expect a Uint8Array and get an empty string instead.
     return Utils.merge(this, {
-      publicKey: Utils.fromBufferToByteString(this.publicKey),
+      publicKey: this.publicKey ? Utils.fromBufferToByteString(this.publicKey) : undefined,
     });
   }
 
@@ -149,7 +151,6 @@ export class AccountKeys {
     if (obj == null) {
       return null;
     }
-
     return Object.assign(new AccountKeys(), {
       userKey: SymmetricCryptoKey.fromJSON(obj?.userKey),
       masterKey: SymmetricCryptoKey.fromJSON(obj?.masterKey),
@@ -185,7 +186,6 @@ export class AccountKeys {
 
 export class AccountProfile {
   apiKeyClientId?: string;
-  authenticationStatus?: AuthenticationStatus;
   convertAccountToKeyConnector?: boolean;
   name?: string;
   email?: string;
@@ -194,7 +194,7 @@ export class AccountProfile {
   entityType?: string;
   everHadUserKey?: boolean;
   everBeenUnlocked?: boolean;
-  forcePasswordResetReason?: ForceResetPasswordReason;
+  forceSetPasswordReason?: ForceSetPasswordReason;
   hasPremiumPersonally?: boolean;
   hasPremiumFromOrganization?: boolean;
   lastSync?: string;
@@ -222,12 +222,9 @@ export class AccountSettings {
   clearClipboard?: number;
   collapsedGroupings?: string[];
   defaultUriMatch?: UriMatchType;
-  disableAddLoginNotification?: boolean;
   disableAutoBiometricsPrompt?: boolean;
   disableAutoTotpCopy?: boolean;
   disableBadgeCounter?: boolean;
-  disableChangedPasswordNotification?: boolean;
-  disableContextMenuItem?: boolean;
   disableGa?: boolean;
   dismissedAutoFillOnPageLoadCallout?: boolean;
   dontShowCardsCurrentTab?: boolean;
@@ -239,7 +236,6 @@ export class AccountSettings {
   environmentUrls: EnvironmentUrls = new EnvironmentUrls();
   equivalentDomains?: any;
   minimizeOnCopyToClipboard?: boolean;
-  neverDomains?: { [id: string]: any };
   passwordGenerationOptions?: PasswordGeneratorOptions;
   usernameGenerationOptions?: UsernameGeneratorOptions;
   generatorOptions?: GeneratorOptions;

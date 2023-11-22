@@ -611,6 +611,87 @@
   "loginWithMasterPassword": {
     "message": "Přihlásit se pomocí hlavního hesla"
   },
+  "loginWithPasskey": {
+    "message": "Přihlásit se pomocí přístupového klíče"
+  },
+  "loginWithPasskeyInfo": {
+    "message": "Použijte vygenerovaný přístupový klíč, který Vás automaticky přihlásí bez hesla. Biometriky, jako je rozpoznávání obličeje, otisky prstů nebo jiná bezpečnostní metoda FIDO2 ověří Vaši totožnost."
+  },
+  "newPasskey": {
+    "message": "Nové přístupový klíč"
+  },
+  "learnMoreAboutPasswordless": {
+    "message": "Další informace o přihlášení bez hesla"
+  },
+  "passkeyEnterMasterPassword": {
+    "message": "Zadejte Vaše hlavní heslo pro úpravu dvoufázového přihlášení."
+  },
+  "creatingPasskeyLoading": {
+    "message": "Vytváření přístupového klíče..."
+  },
+  "creatingPasskeyLoadingInfo": {
+    "message": "Ponechte toto okno otevřené a postupujte podle dotazů z Vašeho prohlížeče."
+  },
+  "errorCreatingPasskey": {
+    "message": "Chyba při vytváření přístupového klíče"
+  },
+  "errorCreatingPasskeyInfo": {
+    "message": "Vyskytl se problém při vytváření přístupového klíče."
+  },
+  "passkeySuccessfullyCreated": {
+    "message": "Přístupový klíč byl úspěšně vytvořen!"
+  },
+  "customName": {
+    "message": "Vlastní název"
+  },
+  "customPasskeyNameInfo": {
+    "message": "Pojmenujte Váš přístupový klíč, abyste jej mohli snáze identifikovat."
+  },
+  "useForVaultEncryption": {
+    "message": "Použít pro šifrování trezoru"
+  },
+  "useForVaultEncryptionInfo": {
+    "message": "Přihlaste se a odemykejte na podporovaných zařízeních bez hlavního hesla. Postupujte podle výzev Vašeho prohlížeče a dokončete nastavení."
+  },
+  "useForVaultEncryptionErrorReadingPasskey": {
+    "message": "Chyba při čtení přístupového klíče. Zkuste to znovu nebo zrušte zaškrtnutí této volby."
+  },
+  "encryptionNotSupported": {
+    "message": "Šifrování není podporováno"
+  },
+  "encryptionNotEnabled": {
+    "message": "Šifrování nebylo zapnuto"
+  },
+  "usedForEncryption": {
+    "message": "Použito pro šifrování"
+  },
+  "loginWithPasskeyEnabled": {
+    "message": "Přihlásit se se zapnutým přístupovým klíčem"
+  },
+  "passkeySaved": {
+    "message": "$NAME$ uloženo",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Personal yubikey"
+      }
+    }
+  },
+  "passkeyRemoved": {
+    "message": "Přístupový klíč byl odebrán"
+  },
+  "removePasskey": {
+    "message": "Odebrat přístupový klíč"
+  },
+  "removePasskeyInfo": {
+    "message": "Pokud budou odebrány všechny přístupové klíče, nebudete se moci přihlásit do nových zařízení bez hlavního hesla."
+  },
+  "passkeyLimitReachedInfo": {
+    "message": "Byl dosažen limit přístupového klíče. Chcete-li přidat další, odeberte nějaký."
+  },
+  "tryAgain": {
+    "message": "Zkusit znovu"
+  },
   "createAccount": {
     "message": "Vytvořit účet"
   },
@@ -1479,6 +1560,9 @@
   "manage": {
     "message": "Spravovat"
   },
+  "canManage": {
+    "message": "Může spravovat"
+  },
   "disable": {
     "message": "Vypnout"
   },
@@ -2211,6 +2295,9 @@
   "contactSupport": {
     "message": "Kontaktovat zákaznickou podporu"
   },
+  "contactSupportShort": {
+    "message": "Kontaktovat podporu"
+  },
   "updatedPaymentMethod": {
     "message": "Platební metoda byla aktualizována."
   },
@@ -2311,6 +2398,9 @@
   },
   "planDescTeams": {
     "message": "Pro společnosti a různé týmy."
+  },
+  "planNameTeamsStarter": {
+    "message": "Teams Starter"
   },
   "planNameEnterprise": {
     "message": "Podniky"
@@ -2671,6 +2761,9 @@
   },
   "webVault": {
     "message": "Webový trezor"
+  },
+  "cli": {
+    "message": "CLI"
   },
   "bitWebVault": {
     "message": "Webový trezor Bitwardenu"
@@ -3395,6 +3488,9 @@
   "subscriptionUpdated": {
     "message": "Předplatné bylo aktualizováno"
   },
+  "subscribedToSecretsManager": {
+    "message": "Předplatné bylo aktualizováno. Nyní máte přístup ke správci tajných klíčů."
+  },
   "additionalOptions": {
     "message": "Další volby"
   },
@@ -3410,6 +3506,15 @@
       "max": {
         "content": "$1",
         "example": "50"
+      }
+    }
+  },
+  "subscriptionUserSeatsWithoutAdditionalSeatsOption": {
+    "message": "Můžete pozvat až $COUNT$ členů bez dalších poplatků. Obraťte se na zákaznickou podporu a aktualizujte Váš plán a pozvěte více členů.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
       }
     }
   },
@@ -3571,6 +3676,18 @@
   },
   "organizationIsDisabled": {
     "message": "Organizace byla deaktivována"
+  },
+  "secretsAccessSuspended": {
+    "message": "K deaktivované organizaci nemáte přístup. Požádejte o pomoc vlastníka organizace."
+  },
+  "secretsCannotCreate": {
+    "message": "Tajné klíče nelze vytvořit v pozastavených organizacích. Požádejte o pomoc vlastníka organizace."
+  },
+  "projectsCannotCreate": {
+    "message": "Projekty nelze vytvořit v pozastavených organizacích. Požádejte o pomoc vlastníka organizace."
+  },
+  "serviceAccountsCannotCreate": {
+    "message": "Servisní účty nelze vytvořit v pozastavených organizacích. Požádejte o pomoc vlastníka organizace."
   },
   "disabledOrganizationFilterError": {
     "message": "K položkám v deaktivované organizaci nemáte přístup. Požádejte o pomoc vlastníka organizace."
@@ -3881,9 +3998,6 @@
   "setMasterPassword": {
     "message": "Nastavit hlavní heslo"
   },
-  "ssoCompleteRegistration": {
-    "message": "Chcete-li dokončit přihlášení pomocí SSO, nastavte hlavní přístupové heslo k Vašemu trezoru."
-  },
   "identifier": {
     "message": "Identifikátor"
   },
@@ -3902,6 +4016,21 @@
   "includeAllTeamsFeatures": {
     "message": "Všechny funkce týmů, navíc:"
   },
+  "includeAllTeamsStarterFeatures": {
+    "message": "Všechny funkce Teams Starter, plus:"
+  },
+  "chooseMonthlyOrAnnualBilling": {
+    "message": "Vyberte měsíční nebo roční fakturaci"
+  },
+  "abilityToAddMoreThanNMembers": {
+    "message": "Možnost přidání více než $COUNT$ členů",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "includeSsoAuthentication": {
     "message": "Podnikové přihlášení prostřednictvím SAML2.0 a OpenID Connect"
   },
@@ -3917,8 +4046,9 @@
   "ssoIdentifier": {
     "message": "SSO identifikátor"
   },
-  "ssoIdentifierHint": {
-    "message": "Pro přihlášení pomocí SSO poskytněte toto ID svým členům."
+  "ssoIdentifierHintPartOne": {
+    "message": "Poskytněte toto ID Vašim členům pro přihlášení pomocí SSO. Chcete-li obejít tento krok, nastavte ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
   },
   "unlinkSso": {
     "message": "Zrušit propojení s SSO"
@@ -4088,8 +4218,8 @@
     "message": "Tento Send je ve výchozím nastavení skrytý. Viditelnost můžete přepnout pomocí tlačítka níže.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "downloadFile": {
-    "message": "Stáhnout soubor"
+  "downloadAttachments": {
+    "message": "Stáhnout přílohy"
   },
   "sendAccessUnavailable": {
     "message": "Send, ke kterému se pokoušíte přistupovat, neexistuje nebo již není k dispozici.",
@@ -4479,7 +4609,7 @@
     "message": "abyste to vyzkoušeli ještě dnes.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about Bitwarden Send or sign up to **try it today.**'"
   },
-  "sendCreatorIdentifier": {
+  "sendAccessCreatorIdentifier": {
     "message": "Uživatel Bitwarden $USER_IDENTIFIER$ s Vámi sdílí následující",
     "placeholders": {
       "user_identifier": {
@@ -5406,6 +5536,19 @@
   "required": {
     "message": "vyžadováno"
   },
+  "charactersCurrentAndMaximum": {
+    "message": "$CURRENT$/$MAX$ znaků maximálně",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "0"
+      },
+      "max": {
+        "content": "$2",
+        "example": "100"
+      }
+    }
+  },
   "characterMaximum": {
     "message": "Maximálně $MAX$ znaků",
     "placeholders": {
@@ -5753,6 +5896,9 @@
   },
   "on": {
     "message": "Zapnuto"
+  },
+  "off": {
+    "message": "VYP."
   },
   "members": {
     "message": "Členové"
@@ -6500,6 +6646,24 @@
       }
     }
   },
+  "teamsStarterPlanInvLimitReachedManageBilling": {
+    "message": "Plány Teams Starter mohou mít až $SEATCOUNT$ členů. Obraťte se na zákaznickou podporu a aktualizujte Váš plán a pozvěte více členů.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "teamsStarterPlanInvLimitReachedNoManageBilling": {
+    "message": "Plány Teams Starter mohou mít až $SEATCOUNT$ členů. Obraťte se na vlastníka organizace a aktualizujte Váš plán a pozvěte více členů.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "freeOrgMaxCollectionReachedManageBilling": {
     "message": "Bezplatné organizace mohou mít až $COLLECTIONCOUNT$ kolekcí. Chcete-li přidat více kolekcí, přejděte na placený tarif.",
     "placeholders": {
@@ -6890,6 +7054,14 @@
     "message": "s automatickým zápisem.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
+  "orgPermissionsUpdatedMustSetPassword": {
+    "message": "Oprávnění Vaší organizace byla aktualizována. To vyžaduje nastavení hlavního hesla.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "orgRequiresYouToSetPassword": {
+    "message": "Vaše organizace vyžaduje nastavení hlavního hesla.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
   "notFound": {
     "message": "$RESOURCE$ nebyl nalezen",
     "placeholders": {
@@ -7010,6 +7182,9 @@
   "next": {
     "message": "Další"
   },
+  "ssoLoginIsRequired": {
+    "message": "Přihlášení SSO je povinné"
+  },
   "selectedRegionFlag": {
     "message": "Vlajka zvoleného regionu"
   },
@@ -7096,8 +7271,8 @@
       }
     }
   },
-  "addSecretsManager": {
-    "message": "Přidat správce tajných klíčů"
+  "subscribeToSecretsManager": {
+    "message": "Přihlásit se ke správci klíčů"
   },
   "addSecretsManagerUpgradeDesc": {
     "message": "Přidáním správce klíčů k aktualizovanému plánu si zachováte přístup ke všem klíčům vytvořeným v předchozím plánu."
@@ -7122,6 +7297,18 @@
         "example": "$0.50"
       }
     }
+  },
+  "collectionManagement": {
+    "message": "Správa kolekce"
+  },
+  "collectionManagementDesc": {
+    "message": "Spravuje chování kolekce pro organizaci"
+  },
+  "limitCollectionCreationDeletionDesc": {
+    "message": "Omezí vytváření a mazání kolekce na vlastníky a správce"
+  },
+  "collectionManagementUpdated": {
+    "message": "Chování správy kolekce bylo uloženo"
   },
   "passwordManagerPlanPrice": {
     "message": "Cena předplatného správce hesel"
@@ -7169,7 +7356,47 @@
   "beta": {
     "message": "Beta"
   },
+  "assignCollectionAccess": {
+    "message": "Přiřadit přístup ke kolekci"
+  },
+  "editedCollections": {
+    "message": "Upravené kolekce"
+  },
+  "baseUrl": {
+    "message": "URL serveru"
+  },
+  "aliasDomain": {
+    "message": "Doména aliasu"
+  },
   "alreadyHaveAccount": {
     "message": "Už máte účet?"
+  },
+  "customBillingStart": {
+    "message": "Vlastní fakturace není zahrnuta. Navštivte stránku "
+  },
+  "customBillingEnd": {
+    "message": " pro nejnovější faktury."
+  },
+  "managePermissionRequired": {
+    "message": "Alespoň jeden člen nebo skupina musí mít možnost spravovat oprávnění."
+  },
+  "typePasskey": {
+    "message": "Přístupový klíč"
+  },
+  "passkeyNotCopied": {
+    "message": "Přístupový klíč nebude zkopírován"
+  },
+  "passkeyNotCopiedAlert": {
+    "message": "Přístupový klíč nebude zkopírován do duplikované položky. Chete pokračovat v duplikování této položky?"
+  },
+  "seeDetailedInstructions": {
+    "message": "Podívejte se na podrobné pokyny na našem webu s nápovědou na",
+    "description": "This is followed a by a hyperlink to the help website."
+  },
+  "projectAccessUpdated": {
+    "message": "Přístup k projektu byl aktualizován"
+  },
+  "unexpectedErrorSend": {
+    "message": "Při načítání tohoto Sendu došlo k neočekávané chybě. Zkuste to znovu později."
   }
 }

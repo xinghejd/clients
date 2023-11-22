@@ -611,6 +611,87 @@
   "loginWithMasterPassword": {
     "message": "Ana parola ile giriş yap"
   },
+  "loginWithPasskey": {
+    "message": "Geçiş anahtarıyla giriş yap"
+  },
+  "loginWithPasskeyInfo": {
+    "message": "Parola kullanmadan otomatik olarak giriş yapmanızı sağlayacak bir geçiş anahtarı kullanabilirsiniz. Kimliğinizi doğrulamak için yüz tanıma veya parmak izi gibi biyometri özellikleri ya da başka bir FIDO2 güvenlik yöntemi kullanılacaktır."
+  },
+  "newPasskey": {
+    "message": "Yeni geçiş anahtarı"
+  },
+  "learnMoreAboutPasswordless": {
+    "message": "Parolasız giriş hakkında bilgi alın"
+  },
+  "passkeyEnterMasterPassword": {
+    "message": "Parola anahtarıyla giriş ayarlarını değiştirmek için ana parolanızı girin."
+  },
+  "creatingPasskeyLoading": {
+    "message": "Geçiş anahtarı oluşturuluyor..."
+  },
+  "creatingPasskeyLoadingInfo": {
+    "message": "Bu pencereyi açık tutun ve tarayıcınızdan gelen talimatları uygulayın."
+  },
+  "errorCreatingPasskey": {
+    "message": "Geçiş anahtarı oluşturulurken hata oluştu"
+  },
+  "errorCreatingPasskeyInfo": {
+    "message": "Geçiş anahtarınız oluşturulurken bir sorun oluştu."
+  },
+  "passkeySuccessfullyCreated": {
+    "message": "Geçiş anahtarı başarıyla oluşturuldu."
+  },
+  "customName": {
+    "message": "Özel ad"
+  },
+  "customPasskeyNameInfo": {
+    "message": "Name your passkey to help you identify it."
+  },
+  "useForVaultEncryption": {
+    "message": "Kasa şifrelemesinde kullan"
+  },
+  "useForVaultEncryptionInfo": {
+    "message": "Desteklenen cihazlarda ana parolanızı yazmadan giriş yapabilir ve kasa kilidini açabilirsiniz. Kurulumu tamamlamak için tarayıcınızdaki talimatları izleyin."
+  },
+  "useForVaultEncryptionErrorReadingPasskey": {
+    "message": "Geçiş anathtarı okunurken hata oluştu. Tekrar deneyin veya bu seçeneğin işaretini kaldırın."
+  },
+  "encryptionNotSupported": {
+    "message": "Şifreleme desteklenmiyor"
+  },
+  "encryptionNotEnabled": {
+    "message": "Şifreleme etkin değil"
+  },
+  "usedForEncryption": {
+    "message": "Şifreleme için kullanılır"
+  },
+  "loginWithPasskeyEnabled": {
+    "message": "Log in with passkey turned on"
+  },
+  "passkeySaved": {
+    "message": "$NAME$ kaydedildi",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Personal yubikey"
+      }
+    }
+  },
+  "passkeyRemoved": {
+    "message": "Geçiş anahtarı kaldırıldı"
+  },
+  "removePasskey": {
+    "message": "Geçiş anahtarını kaldır"
+  },
+  "removePasskeyInfo": {
+    "message": "If all passkeys are removed, you will be unable to log into new devices without your master password."
+  },
+  "passkeyLimitReachedInfo": {
+    "message": "Passkey limit reached. Remove a passkey to add another."
+  },
+  "tryAgain": {
+    "message": "Yeniden dene"
+  },
   "createAccount": {
     "message": "Hesap aç"
   },
@@ -1313,7 +1394,7 @@
     }
   },
   "importUnassignedItemsError": {
-    "message": "File contains unassigned items."
+    "message": "Dosya atanmamış öğeler içeriyor."
   },
   "selectFormat": {
     "message": "İçe aktarma dosyasının biçimini seçin"
@@ -1478,6 +1559,9 @@
   },
   "manage": {
     "message": "Yönet"
+  },
+  "canManage": {
+    "message": "Yönetebilir"
   },
   "disable": {
     "message": "Kapat"
@@ -2211,6 +2295,9 @@
   "contactSupport": {
     "message": "Müşteri hizmetleriyle iletişime geçin"
   },
+  "contactSupportShort": {
+    "message": "Destek Ekibiyle İletişime Geç"
+  },
   "updatedPaymentMethod": {
     "message": "Ödeme yöntemi güncellendi."
   },
@@ -2311,6 +2398,9 @@
   },
   "planDescTeams": {
     "message": "İşletmeler ve diğer ekipler için."
+  },
+  "planNameTeamsStarter": {
+    "message": "Teams Starter"
   },
   "planNameEnterprise": {
     "message": "Kurumsal"
@@ -2671,6 +2761,9 @@
   },
   "webVault": {
     "message": "Web kasası"
+  },
+  "cli": {
+    "message": "CLI"
   },
   "bitWebVault": {
     "message": "Bitwarden web kasası"
@@ -3395,6 +3488,9 @@
   "subscriptionUpdated": {
     "message": "Abonelik güncellendi"
   },
+  "subscribedToSecretsManager": {
+    "message": "Abonelik güncellendi. Artık Secrets Manager'a erişebilirsiniz."
+  },
   "additionalOptions": {
     "message": "Ek seçenekler"
   },
@@ -3410,6 +3506,15 @@
       "max": {
         "content": "$1",
         "example": "50"
+      }
+    }
+  },
+  "subscriptionUserSeatsWithoutAdditionalSeatsOption": {
+    "message": "You can invite up to $COUNT$ members for no additional charge. Contact Customer Support to upgrade your plan and invite more members.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
       }
     }
   },
@@ -3571,6 +3676,18 @@
   },
   "organizationIsDisabled": {
     "message": "Kuruluş askıya alındı"
+  },
+  "secretsAccessSuspended": {
+    "message": "Askıya alınan kuruluşlara erişilemez. Lütfen yardım için kuruluşunuzun sahibiyle iletişime geçin."
+  },
+  "secretsCannotCreate": {
+    "message": "Askıya alınan kuruluşlarda sır oluşturulamaz. Lütfen yardım için kuruluşunuzun sahibiyle iletişime geçin."
+  },
+  "projectsCannotCreate": {
+    "message": "Askıya alınan kuruluşlarda proje oluşturulamaz. Lütfen yardım için kuruluşunuzun sahibiyle iletişime geçin."
+  },
+  "serviceAccountsCannotCreate": {
+    "message": "Askıya alınan kuruluşlarda hizmet hesapları oluşturulamaz. Lütfen yardım için kuruluşunuzun sahibiyle iletişime geçin."
   },
   "disabledOrganizationFilterError": {
     "message": "Askıya alınmış kuruluşlardaki kayıtlara erişilemez. Destek almak için kuruluş sahibinizle iletişime geçin."
@@ -3881,9 +3998,6 @@
   "setMasterPassword": {
     "message": "Ana parolayı belirle"
   },
-  "ssoCompleteRegistration": {
-    "message": "SSO ile girişinizi tamamlamak için lütfen kasanıza erişirken kullanacağınız ana parolayı belirleyin."
-  },
   "identifier": {
     "message": "Tanımlayıcı"
   },
@@ -3902,6 +4016,21 @@
   "includeAllTeamsFeatures": {
     "message": "Ekip paketi özelliklerinin yanı sıra:"
   },
+  "includeAllTeamsStarterFeatures": {
+    "message": "All Teams Starter features, plus:"
+  },
+  "chooseMonthlyOrAnnualBilling": {
+    "message": "Aylık veya yıllık faturalandırmayı seçin"
+  },
+  "abilityToAddMoreThanNMembers": {
+    "message": "$COUNT$+ üye ekleme olanağı",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "includeSsoAuthentication": {
     "message": "SAML2.0 ve OpenID Connect ile SSO doğrulaması"
   },
@@ -3917,8 +4046,9 @@
   "ssoIdentifier": {
     "message": "SSO tanımlayıcı"
   },
-  "ssoIdentifierHint": {
-    "message": "SSO ile giriş yapan üyelere bu kimliği bildirin."
+  "ssoIdentifierHintPartOne": {
+    "message": "SSO ile giriş yapmaları için bu kimliği üyelerinize sağlayın. Bu adımı atlamak için kurulum yapın ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
   },
   "unlinkSso": {
     "message": "SSO bağlantısını kes"
@@ -4088,8 +4218,8 @@
     "message": "Bu Send varsayılan olarak gizlidir. Aşağıdaki düğmeyi kullanarak görünürlüğünü değiştirebilirsiniz.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "downloadFile": {
-    "message": "Dosyayı indir"
+  "downloadAttachments": {
+    "message": "Ekleri indir"
   },
   "sendAccessUnavailable": {
     "message": "Erişmeye çalıştığınız Send yok veya artık mevcut değil.",
@@ -4479,8 +4609,8 @@
     "message": "hemen deneyin.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about Bitwarden Send or sign up to **try it today.**'"
   },
-  "sendCreatorIdentifier": {
-    "message": "Bitwarden kullanıcısı $USER_IDENTIFIER$ aşağıdakileri sizinle paylaştı",
+  "sendAccessCreatorIdentifier": {
+    "message": "Bitwarden üyesi $USER_IDENTIFIER$ aşağıdakileri sizinle paylaştı",
     "placeholders": {
       "user_identifier": {
         "content": "$1",
@@ -5406,6 +5536,19 @@
   "required": {
     "message": "zorunlu"
   },
+  "charactersCurrentAndMaximum": {
+    "message": "$CURRENT$/$MAX$ character maximum",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "0"
+      },
+      "max": {
+        "content": "$2",
+        "example": "100"
+      }
+    }
+  },
   "characterMaximum": {
     "message": "en fazla $MAX$ karakter",
     "placeholders": {
@@ -5753,6 +5896,9 @@
   },
   "on": {
     "message": "Açık"
+  },
+  "off": {
+    "message": "Kapalı"
   },
   "members": {
     "message": "Üyeler"
@@ -6500,6 +6646,24 @@
       }
     }
   },
+  "teamsStarterPlanInvLimitReachedManageBilling": {
+    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Contact Customer Support to upgrade your plan and invite more members.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "teamsStarterPlanInvLimitReachedNoManageBilling": {
+    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade your plan and invite more members.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "freeOrgMaxCollectionReachedManageBilling": {
     "message": "Ücretsiz kuruluşların en fazla $COLLECTIONCOUNT$ koleksiyonu olabilir. Daha fazla koleksiyon eklemek için ücretli bir plana geçin.",
     "placeholders": {
@@ -6890,6 +7054,14 @@
     "message": "ilkesi otomatik kayıtla birlikte açılacaktır.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
+  "orgPermissionsUpdatedMustSetPassword": {
+    "message": "Kuruluş izinleriniz güncellendi ve bir ana parola belirlemeniz gerekiyor.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "orgRequiresYouToSetPassword": {
+    "message": "Kuruluşunuz bir ana parola belirlemenizi gerektiriyor.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
   "notFound": {
     "message": "$RESOURCE$ bulunamadı",
     "placeholders": {
@@ -6996,7 +7168,7 @@
     }
   },
   "requestedDeviceApproval": {
-    "message": "Requested device approval."
+    "message": "Cihaz onayı istendi."
   },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "7 günlük ücretsiz $ORG$ için Bitwarden denemenizi başlatın",
@@ -7009,6 +7181,9 @@
   },
   "next": {
     "message": "İleri"
+  },
+  "ssoLoginIsRequired": {
+    "message": "SSO girişi gereklidir"
   },
   "selectedRegionFlag": {
     "message": "Seçilen bölgenin bayrağı"
@@ -7096,8 +7271,8 @@
       }
     }
   },
-  "addSecretsManager": {
-    "message": "Add Secrets Manager"
+  "subscribeToSecretsManager": {
+    "message": "Secrets Manager'a abone olun"
   },
   "addSecretsManagerUpgradeDesc": {
     "message": "Add Secrets Manager to your upgraded plan to maintain access to any secrets created with your previous plan."
@@ -7122,6 +7297,18 @@
         "example": "$0.50"
       }
     }
+  },
+  "collectionManagement": {
+    "message": "Collection management"
+  },
+  "collectionManagementDesc": {
+    "message": "Kuruluş için toplama davranışını yönetin"
+  },
+  "limitCollectionCreationDeletionDesc": {
+    "message": "Koleksiyon oluşturma ve silme işlemlerini sahipler ve yöneticilerle sınırlandırın"
+  },
+  "collectionManagementUpdated": {
+    "message": "Collection management behavior saved"
   },
   "passwordManagerPlanPrice": {
     "message": "Password Manager plan price"
@@ -7169,7 +7356,47 @@
   "beta": {
     "message": "Beta"
   },
+  "assignCollectionAccess": {
+    "message": "Assign collection access"
+  },
+  "editedCollections": {
+    "message": "Edited collections"
+  },
+  "baseUrl": {
+    "message": "Sunucu URL'si"
+  },
+  "aliasDomain": {
+    "message": "Alias alan adı"
+  },
   "alreadyHaveAccount": {
     "message": "Zaten hesabınız var mı?"
+  },
+  "customBillingStart": {
+    "message": "Özel faturalandırma yansıtılmıyor. Ziyaret edin "
+  },
+  "customBillingEnd": {
+    "message": " en son faturalandırma sayfası."
+  },
+  "managePermissionRequired": {
+    "message": "En az bir üyenin veya grubun yönetebilme iznine sahip olması gerekir."
+  },
+  "typePasskey": {
+    "message": "Geçiş anahtarı"
+  },
+  "passkeyNotCopied": {
+    "message": "Geçiş anahtarı kopyalanmayacak"
+  },
+  "passkeyNotCopiedAlert": {
+    "message": "Geçiş anahtarı klonlanan öğeye kopyalanmayacaktır. Bu öğeyi klonlamaya devam etmek istiyor musunuz?"
+  },
+  "seeDetailedInstructions": {
+    "message": "Ayrıntılı talimatları yardım sitemizde bulabilirsiniz:",
+    "description": "This is followed a by a hyperlink to the help website."
+  },
+  "projectAccessUpdated": {
+    "message": "Proje erişimi güncellendi"
+  },
+  "unexpectedErrorSend": {
+    "message": "Bu Gönderim yüklenirken beklenmeyen bir hata oluştu. Daha sonra tekrar deneyin."
   }
 }

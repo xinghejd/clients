@@ -611,6 +611,87 @@
   "loginWithMasterPassword": {
     "message": "Logowanie hasłem głównym"
   },
+  "loginWithPasskey": {
+    "message": "Zaloguj się za pomocą passkey"
+  },
+  "loginWithPasskeyInfo": {
+    "message": "Użyj wygenerowanego passkey'a, który automatycznie zaloguje Cię bez hasła. Biometrie, takie jak rozpoznawanie twarzy lub odcisk palca, lub inna metoda zabezpieczeń FIDO2, zweryfikują Twoją tożsamość."
+  },
+  "newPasskey": {
+    "message": "Nowy passkey"
+  },
+  "learnMoreAboutPasswordless": {
+    "message": "Dowiedz się więcej o rozwiązaniach bezhasłowych"
+  },
+  "passkeyEnterMasterPassword": {
+    "message": "Wprowadź hasło główne, aby zmodyfikować ustawienia logowania za pomocą passkey."
+  },
+  "creatingPasskeyLoading": {
+    "message": "Tworzenie passkey..."
+  },
+  "creatingPasskeyLoadingInfo": {
+    "message": "Pozostaw to okno otwarte i postępuj zgodnie z instrukcjami z przeglądarki."
+  },
+  "errorCreatingPasskey": {
+    "message": "Błąd podczas tworzenia passkey"
+  },
+  "errorCreatingPasskeyInfo": {
+    "message": "Podczas tworzenia passkey'a pojawił się problem."
+  },
+  "passkeySuccessfullyCreated": {
+    "message": "Pomyślnie utworzono passkey!"
+  },
+  "customName": {
+    "message": "Niestandardowa nazwa"
+  },
+  "customPasskeyNameInfo": {
+    "message": "Nazwij swój passkey, aby pomóc Ci go zidentyfikować."
+  },
+  "useForVaultEncryption": {
+    "message": "Użyj do szyfrowania sejfu"
+  },
+  "useForVaultEncryptionInfo": {
+    "message": "Log in and unlock on supported devices without your master password. Follow the prompts from your browser to finalize setup."
+  },
+  "useForVaultEncryptionErrorReadingPasskey": {
+    "message": "Error reading passkey. Try again or uncheck this option."
+  },
+  "encryptionNotSupported": {
+    "message": "Szyfrowanie nie jest obsługiwane"
+  },
+  "encryptionNotEnabled": {
+    "message": "Encryption not enabled"
+  },
+  "usedForEncryption": {
+    "message": "Used for encryption"
+  },
+  "loginWithPasskeyEnabled": {
+    "message": "Logowanie za pomocą passkey zostało włączone"
+  },
+  "passkeySaved": {
+    "message": "$NAME$ zapisany",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Personal yubikey"
+      }
+    }
+  },
+  "passkeyRemoved": {
+    "message": "Passkey został usunięty"
+  },
+  "removePasskey": {
+    "message": "Usuń passkey"
+  },
+  "removePasskeyInfo": {
+    "message": "Jeśli wszystkie passkey'e zostaną usunięte, nie będziesz mógł zalogować się na nowe urządzenia bez hasła głównego."
+  },
+  "passkeyLimitReachedInfo": {
+    "message": "Osiągnięto limit passkey'ów. Usuń passkey, aby dodać inny."
+  },
+  "tryAgain": {
+    "message": "Spróbuj ponownie"
+  },
   "createAccount": {
     "message": "Utwórz konto"
   },
@@ -1479,6 +1560,9 @@
   "manage": {
     "message": "Zarządzaj"
   },
+  "canManage": {
+    "message": "Może zarządzać"
+  },
   "disable": {
     "message": "Wyłącz"
   },
@@ -2211,6 +2295,9 @@
   "contactSupport": {
     "message": "Skontaktuj się z działem obsługi klienta"
   },
+  "contactSupportShort": {
+    "message": "Skontaktuj się z pomocą techniczną"
+  },
   "updatedPaymentMethod": {
     "message": "Metoda płatności została zaktualizowana."
   },
@@ -2311,6 +2398,9 @@
   },
   "planDescTeams": {
     "message": "Dla firm i innych zorganizowanych zespołów."
+  },
+  "planNameTeamsStarter": {
+    "message": "Teams Starter"
   },
   "planNameEnterprise": {
     "message": "Przedsiębiorstwo"
@@ -2671,6 +2761,9 @@
   },
   "webVault": {
     "message": "Sejf internetowy"
+  },
+  "cli": {
+    "message": "CLI"
   },
   "bitWebVault": {
     "message": "Sejf internetowy Bitwarden"
@@ -3395,6 +3488,9 @@
   "subscriptionUpdated": {
     "message": "Subskrypcja została zaktualizowana"
   },
+  "subscribedToSecretsManager": {
+    "message": "Subskrypcja zaktualizowana. Masz teraz dostęp do Menedżera Sekretów."
+  },
   "additionalOptions": {
     "message": "Dodatkowe opcje"
   },
@@ -3410,6 +3506,15 @@
       "max": {
         "content": "$1",
         "example": "50"
+      }
+    }
+  },
+  "subscriptionUserSeatsWithoutAdditionalSeatsOption": {
+    "message": "Możesz zaprosić do $COUNT$ członków bez dodatkowych opłat. Skontaktuj się z działem obsługi klienta, aby ulepszyć swój plan i zaprosić więcej członków.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
       }
     }
   },
@@ -3571,6 +3676,18 @@
   },
   "organizationIsDisabled": {
     "message": "Organizacja została zawieszona"
+  },
+  "secretsAccessSuspended": {
+    "message": "Nie można uzyskać dostępu do zawieszonych organizacji. Skontaktuj się z właścicielem organizacji, aby uzyskać pomoc."
+  },
+  "secretsCannotCreate": {
+    "message": "Sekrety nie mogą być tworzone w zawieszonych organizacjach. Skontaktuj się z właścicielem organizacji, aby uzyskać pomoc."
+  },
+  "projectsCannotCreate": {
+    "message": "Projekty nie mogą być tworzone w zawieszonych organizacjach. Skontaktuj się z właścicielem organizacji, aby uzyskać pomoc."
+  },
+  "serviceAccountsCannotCreate": {
+    "message": "Konta serwisowe nie mogą być tworzone w zawieszonych organizacjach. Skontaktuj się z właścicielem organizacji, aby uzyskać pomoc."
   },
   "disabledOrganizationFilterError": {
     "message": "Nie można uzyskać dostępu do elementów w zawieszonych organizacjach. Skontaktuj się z właścicielem organizacji, aby uzyskać pomoc."
@@ -3881,9 +3998,6 @@
   "setMasterPassword": {
     "message": "Ustaw hasło główne"
   },
-  "ssoCompleteRegistration": {
-    "message": "W celu zakończenia jednokrotnego logowania SSO, ustaw hasło główne, aby uzyskać dostęp do sejfu."
-  },
   "identifier": {
     "message": "Identyfikator"
   },
@@ -3902,6 +4016,21 @@
   "includeAllTeamsFeatures": {
     "message": "Wszystkie funkcje zespołów oraz:"
   },
+  "includeAllTeamsStarterFeatures": {
+    "message": "All Teams Starter features, plus:"
+  },
+  "chooseMonthlyOrAnnualBilling": {
+    "message": "Wybierz miesięczną lub roczną płatność"
+  },
+  "abilityToAddMoreThanNMembers": {
+    "message": "Możliwość dodania więcej niż $COUNT$ członków",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "includeSsoAuthentication": {
     "message": "Logowanie jednokrotne SSO za pomocą protokołu SAML2.0 i OpenID Connect"
   },
@@ -3917,8 +4046,9 @@
   "ssoIdentifier": {
     "message": "Identyfikator SSO"
   },
-  "ssoIdentifierHint": {
-    "message": "Podaj ten identyfikator swoim użytkownikom, aby zalogować się za pomocą SSO."
+  "ssoIdentifierHintPartOne": {
+    "message": "Provide this ID to your members to login with SSO. To bypass this step, set up ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
   },
   "unlinkSso": {
     "message": "Odłącz logowanie jednokrotne SSO"
@@ -4088,8 +4218,8 @@
     "message": "Ta wysyłka jest domyślnie ukryta. Możesz zmienić jej widoczność za pomocą przycisku.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "downloadFile": {
-    "message": "Pobierz plik"
+  "downloadAttachments": {
+    "message": "Pobierz załączniki"
   },
   "sendAccessUnavailable": {
     "message": "Wysyłka nie istnieje lub nie jest już dostępna.",
@@ -4479,7 +4609,7 @@
     "message": ", aby ją wypróbować.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about Bitwarden Send or sign up to **try it today.**'"
   },
-  "sendCreatorIdentifier": {
+  "sendAccessCreatorIdentifier": {
     "message": "Użytkownik Bitwarden $USER_IDENTIFIER$ udostępnił Tobie",
     "placeholders": {
       "user_identifier": {
@@ -5406,6 +5536,19 @@
   "required": {
     "message": "wymagane"
   },
+  "charactersCurrentAndMaximum": {
+    "message": "$CURRENT$/$MAX$ znaków",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "0"
+      },
+      "max": {
+        "content": "$2",
+        "example": "100"
+      }
+    }
+  },
   "characterMaximum": {
     "message": "$MAX$ znaków maksymalnie",
     "placeholders": {
@@ -5753,6 +5896,9 @@
   },
   "on": {
     "message": "Wł."
+  },
+  "off": {
+    "message": "Wyłączone"
   },
   "members": {
     "message": "Użytkownicy"
@@ -6500,6 +6646,24 @@
       }
     }
   },
+  "teamsStarterPlanInvLimitReachedManageBilling": {
+    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Contact Customer Support to upgrade your plan and invite more members.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "teamsStarterPlanInvLimitReachedNoManageBilling": {
+    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade your plan and invite more members.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "freeOrgMaxCollectionReachedManageBilling": {
     "message": "Darmowe organizacje mogą mieć maksymalnie $COLLECTIONCOUNT$ kolekcji. Przejdź na płatny plan, aby dodać więcej kolekcji.",
     "placeholders": {
@@ -6890,6 +7054,14 @@
     "message": "z automatycznym zapisem włączy się, gdy ta opcja jest używana.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
+  "orgPermissionsUpdatedMustSetPassword": {
+    "message": "Uprawnienia w Twojej organizacji zostały zaktualizowane, musisz teraz ustawić hasło główne.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "orgRequiresYouToSetPassword": {
+    "message": "Twoja organizacja wymaga ustawienia hasła głównego.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
   "notFound": {
     "message": "$RESOURCE$ nie znaleziony",
     "placeholders": {
@@ -7010,6 +7182,9 @@
   "next": {
     "message": "Dalej"
   },
+  "ssoLoginIsRequired": {
+    "message": "Logowaniez użyciem SSO jest wymagane"
+  },
   "selectedRegionFlag": {
     "message": "Flaga wybranego regionu"
   },
@@ -7096,8 +7271,8 @@
       }
     }
   },
-  "addSecretsManager": {
-    "message": "Dodaj menedżera sekretów"
+  "subscribeToSecretsManager": {
+    "message": "Zasubskrybuj się do menedżera sekretów"
   },
   "addSecretsManagerUpgradeDesc": {
     "message": "Dodaj menedżera sekretów do zaktualizowanego planu, aby zachować dostęp do wszelkich sekretów utworzonych w poprzednim planie."
@@ -7122,6 +7297,18 @@
         "example": "$0.50"
       }
     }
+  },
+  "collectionManagement": {
+    "message": "Zarządzanie kolekcją"
+  },
+  "collectionManagementDesc": {
+    "message": "Zarządzaj zachowaniami kolekcji w organizacji"
+  },
+  "limitCollectionCreationDeletionDesc": {
+    "message": "Ogranicz tworzenie i usuwanie kolekcji dla właścicieli i administratorów"
+  },
+  "collectionManagementUpdated": {
+    "message": "Zachowanie zarządzania kolekcją zapisane"
   },
   "passwordManagerPlanPrice": {
     "message": "Cennik menedżera haseł"
@@ -7169,7 +7356,47 @@
   "beta": {
     "message": "Wersja beta"
   },
+  "assignCollectionAccess": {
+    "message": "Przypisz dostęp do kolekcji"
+  },
+  "editedCollections": {
+    "message": "Edytowane kolekcje"
+  },
+  "baseUrl": {
+    "message": "Adres URL serwera"
+  },
+  "aliasDomain": {
+    "message": "Domena aliasu"
+  },
   "alreadyHaveAccount": {
     "message": "Masz już konto?"
+  },
+  "customBillingStart": {
+    "message": "Niestandardowe rozliczenie nie jest odzwierciedlone. Odwiedź "
+  },
+  "customBillingEnd": {
+    "message": " stronę po najnowsze faktury."
+  },
+  "managePermissionRequired": {
+    "message": "Co najmniej jeden członek lub grupa musi mieć możliwość zarządzania uprawnieniami."
+  },
+  "typePasskey": {
+    "message": "Passkey"
+  },
+  "passkeyNotCopied": {
+    "message": "Passkey nie zostanie skopiowany"
+  },
+  "passkeyNotCopiedAlert": {
+    "message": "Passkey nie zostanie skopiowane do sklonowanego elementu. Czy chcesz kontynuować klonowanie tego elementu?"
+  },
+  "seeDetailedInstructions": {
+    "message": "Zobacz szczegółowe instrukcje na naszej stronie pomocy pod adresem",
+    "description": "This is followed a by a hyperlink to the help website."
+  },
+  "projectAccessUpdated": {
+    "message": "Project access updated"
+  },
+  "unexpectedErrorSend": {
+    "message": "An unexpected error has occurred while loading this Send. Try again later."
   }
 }

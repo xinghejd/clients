@@ -1,14 +1,17 @@
 import { BehaviorSubject, concatMap } from "rxjs";
 import { Jsonify, JsonValue } from "type-fest";
 
+import { AutofillOverlayVisibility } from "../../../../../apps/browser/src/autofill/utils/autofill-overlay.enum";
 import { EncryptedOrganizationKeyData } from "../../admin-console/models/data/encrypted-organization-key.data";
 import { OrganizationData } from "../../admin-console/models/data/organization.data";
 import { PolicyData } from "../../admin-console/models/data/policy.data";
 import { ProviderData } from "../../admin-console/models/data/provider.data";
 import { Policy } from "../../admin-console/models/domain/policy";
+import { AccountService } from "../../auth/abstractions/account.service";
+import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { AdminAuthRequestStorable } from "../../auth/models/domain/admin-auth-req-storable";
 import { EnvironmentUrls } from "../../auth/models/domain/environment-urls";
-import { ForceResetPasswordReason } from "../../auth/models/domain/force-reset-password-reason";
+import { ForceSetPasswordReason } from "../../auth/models/domain/force-set-password-reason";
 import { KdfConfig } from "../../auth/models/domain/kdf-config";
 import { BiometricKey } from "../../auth/types/biometric-key";
 import {
@@ -27,6 +30,7 @@ import { GeneratedPasswordHistory, PasswordGeneratorOptions } from "../../tools/
 import { UsernameGeneratorOptions } from "../../tools/generator/username";
 import { SendData } from "../../tools/send/models/data/send.data";
 import { SendView } from "../../tools/send/models/view/send.view";
+import { UserId } from "../../types/guid";
 import { CipherData } from "../../vault/models/data/cipher.data";
 import { CollectionData } from "../../vault/models/data/collection.data";
 import { FolderData } from "../../vault/models/data/folder.data";
@@ -110,6 +114,7 @@ export class StateService<
     protected memoryStorageService: AbstractMemoryStorageService,
     protected logService: LogService,
     protected stateFactory: StateFactory<TGlobalState, TAccount>,
+    protected accountService: AccountService,
     protected useAccountCache: boolean = true
   ) {
     // If the account gets changed, verify the new account is unlocked
@@ -168,6 +173,19 @@ export class StateService<
       }
       await this.pushAccounts();
       this.activeAccountSubject.next(state.activeUserId);
+      // TODO: Temporary update to avoid routing all account status changes through account service for now.
+      // account service tracks logged out accounts, but State service does not, so we need to add the active account
+      // if it's not in the accounts list.
+      if (state.activeUserId != null && this.accountsSubject.value[state.activeUserId] == null) {
+        const activeDiskAccount = await this.getAccountFromDisk({ userId: state.activeUserId });
+        this.accountService.addAccount(state.activeUserId as UserId, {
+          name: activeDiskAccount.profile.name,
+          email: activeDiskAccount.profile.email,
+          status: AuthenticationStatus.LoggedOut,
+        });
+      }
+      this.accountService.switchAccount(state.activeUserId as UserId);
+      // End TODO
 
       return state;
     });
@@ -184,6 +202,12 @@ export class StateService<
       state.accounts[userId] = this.createAccount();
       const diskAccount = await this.getAccountFromDisk({ userId: userId });
       state.accounts[userId].profile = diskAccount.profile;
+      // TODO: Temporary update to avoid routing all account status changes through account service for now.
+      this.accountService.addAccount(userId as UserId, {
+        status: AuthenticationStatus.Locked,
+        name: diskAccount.profile.name,
+        email: diskAccount.profile.email,
+      });
       return state;
     });
   }
@@ -198,6 +222,12 @@ export class StateService<
     });
     await this.scaffoldNewAccountStorage(account);
     await this.setLastActive(new Date().getTime(), { userId: account.profile.userId });
+    // TODO: Temporary update to avoid routing all account status changes through account service for now.
+    this.accountService.addAccount(account.profile.userId as UserId, {
+      status: AuthenticationStatus.Locked,
+      name: account.profile.name,
+      email: account.profile.email,
+    });
     await this.setActiveUser(account.profile.userId);
     this.activeAccountSubject.next(account.profile.userId);
   }
@@ -208,6 +238,9 @@ export class StateService<
       state.activeUserId = userId;
       await this.storageService.save(keys.activeUserId, userId);
       this.activeAccountSubject.next(state.activeUserId);
+      // TODO: temporary update to avoid routing all account status changes through account service for now.
+      this.accountService.switchAccount(userId as UserId);
+
       return state;
     });
 
@@ -548,6 +581,9 @@ export class StateService<
       this.reconcileOptions(options, await this.defaultInMemoryOptions())
     );
 
+    const nextStatus = value != null ? AuthenticationStatus.Unlocked : AuthenticationStatus.Locked;
+    this.accountService.setAccountStatus(options.userId as UserId, nextStatus);
+
     if (options.userId == this.activeAccountSubject.getValue()) {
       const nextValue = value != null;
 
@@ -580,6 +616,9 @@ export class StateService<
       account,
       this.reconcileOptions(options, await this.defaultInMemoryOptions())
     );
+
+    const nextStatus = value != null ? AuthenticationStatus.Unlocked : AuthenticationStatus.Locked;
+    this.accountService.setAccountStatus(options.userId as UserId, nextStatus);
 
     if (options?.userId == this.activeAccountSubject.getValue()) {
       const nextValue = value != null;
@@ -1083,18 +1122,18 @@ export class StateService<
 
   async getDisableAddLoginNotification(options?: StorageOptions): Promise<boolean> {
     return (
-      (await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions())))
-        ?.settings?.disableAddLoginNotification ?? false
+      (await this.getGlobals(this.reconcileOptions(options, await this.defaultOnDiskOptions())))
+        ?.disableAddLoginNotification ?? false
     );
   }
 
   async setDisableAddLoginNotification(value: boolean, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
+    const globals = await this.getGlobals(
       this.reconcileOptions(options, await this.defaultOnDiskOptions())
     );
-    account.settings.disableAddLoginNotification = value;
-    await this.saveAccount(
-      account,
+    globals.disableAddLoginNotification = value;
+    await this.saveGlobals(
+      globals,
       this.reconcileOptions(options, await this.defaultOnDiskOptions())
     );
   }
@@ -1155,8 +1194,8 @@ export class StateService<
 
   async getDisableChangedPasswordNotification(options?: StorageOptions): Promise<boolean> {
     return (
-      (await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions())))
-        ?.settings?.disableChangedPasswordNotification ?? false
+      (await this.getGlobals(this.reconcileOptions(options, await this.defaultOnDiskOptions())))
+        ?.disableChangedPasswordNotification ?? false
     );
   }
 
@@ -1164,30 +1203,30 @@ export class StateService<
     value: boolean,
     options?: StorageOptions
   ): Promise<void> {
-    const account = await this.getAccount(
+    const globals = await this.getGlobals(
       this.reconcileOptions(options, await this.defaultOnDiskOptions())
     );
-    account.settings.disableChangedPasswordNotification = value;
-    await this.saveAccount(
-      account,
+    globals.disableChangedPasswordNotification = value;
+    await this.saveGlobals(
+      globals,
       this.reconcileOptions(options, await this.defaultOnDiskOptions())
     );
   }
 
   async getDisableContextMenuItem(options?: StorageOptions): Promise<boolean> {
     return (
-      (await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions())))
-        ?.settings?.disableContextMenuItem ?? false
+      (await this.getGlobals(this.reconcileOptions(options, await this.defaultOnDiskOptions())))
+        ?.disableContextMenuItem ?? false
     );
   }
 
   async setDisableContextMenuItem(value: boolean, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
+    const globals = await this.getGlobals(
       this.reconcileOptions(options, await this.defaultOnDiskOptions())
     );
-    account.settings.disableContextMenuItem = value;
-    await this.saveAccount(
-      account,
+    globals.disableContextMenuItem = value;
+    await this.saveGlobals(
+      globals,
       this.reconcileOptions(options, await this.defaultOnDiskOptions())
     );
   }
@@ -1485,6 +1524,27 @@ export class StateService<
     await this.saveGlobals(
       globals,
       this.reconcileOptions(options, await this.defaultOnDiskOptions())
+    );
+  }
+
+  async getAutoFillOverlayVisibility(options?: StorageOptions): Promise<number> {
+    return (
+      (
+        await this.getGlobals(
+          this.reconcileOptions(options, await this.defaultOnDiskLocalOptions())
+        )
+      )?.autoFillOverlayVisibility ?? AutofillOverlayVisibility.OnFieldFocus
+    );
+  }
+
+  async setAutoFillOverlayVisibility(value: number, options?: StorageOptions): Promise<void> {
+    const globals = await this.getGlobals(
+      this.reconcileOptions(options, await this.defaultOnDiskLocalOptions())
+    );
+    globals.autoFillOverlayVisibility = value;
+    await this.saveGlobals(
+      globals,
+      this.reconcileOptions(options, await this.defaultOnDiskLocalOptions())
     );
   }
 
@@ -2034,24 +2094,24 @@ export class StateService<
     );
   }
 
-  async getForcePasswordResetReason(options?: StorageOptions): Promise<ForceResetPasswordReason> {
+  async getForceSetPasswordReason(options?: StorageOptions): Promise<ForceSetPasswordReason> {
     return (
       (
         await this.getAccount(
           this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions())
         )
-      )?.profile?.forcePasswordResetReason ?? ForceResetPasswordReason.None
+      )?.profile?.forceSetPasswordReason ?? ForceSetPasswordReason.None
     );
   }
 
-  async setForcePasswordResetReason(
-    value: ForceResetPasswordReason,
+  async setForceSetPasswordReason(
+    value: ForceSetPasswordReason,
     options?: StorageOptions
   ): Promise<void> {
     const account = await this.getAccount(
       this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions())
     );
-    account.profile.forcePasswordResetReason = value;
+    account.profile.forceSetPasswordReason = value;
     await this.saveAccount(
       account,
       this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions())
@@ -2257,19 +2317,19 @@ export class StateService<
     );
   }
 
-  async getNeverDomains(options?: StorageOptions): Promise<{ [id: string]: any }> {
+  async getNeverDomains(options?: StorageOptions): Promise<{ [id: string]: unknown }> {
     return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
-    )?.settings?.neverDomains;
+      await this.getGlobals(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
+    )?.neverDomains;
   }
 
-  async setNeverDomains(value: { [id: string]: any }, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
+  async setNeverDomains(value: { [id: string]: unknown }, options?: StorageOptions): Promise<void> {
+    const globals = await this.getGlobals(
       this.reconcileOptions(options, await this.defaultOnDiskOptions())
     );
-    account.settings.neverDomains = value;
-    await this.saveAccount(
-      account,
+    globals.neverDomains = value;
+    await this.saveGlobals(
+      globals,
       this.reconcileOptions(options, await this.defaultOnDiskOptions())
     );
   }
@@ -2323,23 +2383,6 @@ export class StateService<
     await this.saveGlobals(
       globals,
       this.reconcileOptions(options, await this.defaultInMemoryOptions())
-    );
-  }
-
-  async getEmergencyAccessInvitation(options?: StorageOptions): Promise<any> {
-    return (
-      await this.getGlobals(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
-    )?.emergencyAccessInvitation;
-  }
-
-  async setEmergencyAccessInvitation(value: any, options?: StorageOptions): Promise<void> {
-    const globals = await this.getGlobals(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions())
-    );
-    globals.emergencyAccessInvitation = value;
-    await this.saveGlobals(
-      globals,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions())
     );
   }
 
@@ -2824,6 +2867,23 @@ export class StateService<
     );
   }
 
+  async getDeepLinkRedirectUrl(options?: StorageOptions): Promise<string> {
+    return (
+      await this.getGlobals(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
+    )?.deepLinkRedirectUrl;
+  }
+
+  async setDeepLinkRedirectUrl(url: string, options?: StorageOptions): Promise<void> {
+    const globals = await this.getGlobals(
+      this.reconcileOptions(options, await this.defaultOnDiskOptions())
+    );
+    globals.deepLinkRedirectUrl = url;
+    await this.saveGlobals(
+      globals,
+      this.reconcileOptions(options, await this.defaultOnDiskOptions())
+    );
+  }
+
   protected async getGlobals(options: StorageOptions): Promise<TGlobalState> {
     let globals: TGlobalState;
     if (this.useMemory(options.storageLocation)) {
@@ -3062,7 +3122,6 @@ export class StateService<
       this.reconcileOptions({ userId: account.profile.userId }, await this.defaultOnDiskOptions())
     );
   }
-  //
 
   protected async pushAccounts(): Promise<void> {
     await this.pruneInMemoryAccounts();
@@ -3180,6 +3239,8 @@ export class StateService<
 
       return state;
     });
+    // TODO: Invert this logic, we should remove accounts based on logged out emit
+    this.accountService.setAccountStatus(userId as UserId, AuthenticationStatus.LoggedOut);
   }
 
   protected async pruneInMemoryAccounts() {

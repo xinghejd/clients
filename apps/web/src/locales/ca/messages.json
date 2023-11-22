@@ -611,6 +611,87 @@
   "loginWithMasterPassword": {
     "message": "Inici de sessió amb contrasenya mestra"
   },
+  "loginWithPasskey": {
+    "message": "Inicieu sessió amb la clau de pas"
+  },
+  "loginWithPasskeyInfo": {
+    "message": "Utilitzeu una contrasenya generada que us iniciarà automàticament sense contrasenya. La biometria, com ara el reconeixement facial o l'empremta digital, o un altre mètode de seguretat FIDO2 verificarà la vostra identitat."
+  },
+  "newPasskey": {
+    "message": "Nova clau de pas"
+  },
+  "learnMoreAboutPasswordless": {
+    "message": "Més informació sobre sense contrasenyes"
+  },
+  "passkeyEnterMasterPassword": {
+    "message": "Introduïu la vostra contrasenya mestra per modificar l'inici de sessió amb la configuració de la clau de pas."
+  },
+  "creatingPasskeyLoading": {
+    "message": "S'està creant la clau de pas..."
+  },
+  "creatingPasskeyLoadingInfo": {
+    "message": "Manteniu aquesta finestra oberta i seguiu les indicacions del vostre navegador."
+  },
+  "errorCreatingPasskey": {
+    "message": "S'ha produït un error en crear la clau de pas"
+  },
+  "errorCreatingPasskeyInfo": {
+    "message": "Hi ha hagut un problema en crear la clau de pas."
+  },
+  "passkeySuccessfullyCreated": {
+    "message": "Clau de pas creada correctament!"
+  },
+  "customName": {
+    "message": "Nom personalitzat"
+  },
+  "customPasskeyNameInfo": {
+    "message": "Poseu un nom a la vostra clau per ajudar-vos a identificar-la."
+  },
+  "useForVaultEncryption": {
+    "message": "Utilitza'l per al xifratge de la caixa forta"
+  },
+  "useForVaultEncryptionInfo": {
+    "message": "Inicieu sessió i desbloquegeu els dispositius compatibles sense la contrasenya mestra. Seguiu les instruccions del navegador per finalitzar la configuració."
+  },
+  "useForVaultEncryptionErrorReadingPasskey": {
+    "message": "S'ha produït un error en llegir la clau de pas. Torneu a provar-ho o desmarqueu aquesta opció."
+  },
+  "encryptionNotSupported": {
+    "message": "El xifratge no és compatible"
+  },
+  "encryptionNotEnabled": {
+    "message": "Xifratge no habilitat"
+  },
+  "usedForEncryption": {
+    "message": "S'utilitza per al xifratge"
+  },
+  "loginWithPasskeyEnabled": {
+    "message": "Inicieu sessió amb la clau d'accés activada"
+  },
+  "passkeySaved": {
+    "message": "S'ha guardat $NAME$",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Personal yubikey"
+      }
+    }
+  },
+  "passkeyRemoved": {
+    "message": "Clau de pas suprimida"
+  },
+  "removePasskey": {
+    "message": "Suprimeix la clau de pas"
+  },
+  "removePasskeyInfo": {
+    "message": "Si se suprimeixen totes les contrasenyes, no podreu iniciar sessió en dispositius nous sense la vostra contrasenya mestra."
+  },
+  "passkeyLimitReachedInfo": {
+    "message": "S'ha assolit el límit de clau d'accés. Suprimeix una contrasenya per afegir-ne una altra."
+  },
+  "tryAgain": {
+    "message": "Torneu-ho a provar"
+  },
   "createAccount": {
     "message": "Crea un compte"
   },
@@ -1479,6 +1560,9 @@
   "manage": {
     "message": "Administra"
   },
+  "canManage": {
+    "message": "Pot gestionar"
+  },
   "disable": {
     "message": "Inhabilita"
   },
@@ -2211,6 +2295,9 @@
   "contactSupport": {
     "message": "Contacteu amb atenció al client"
   },
+  "contactSupportShort": {
+    "message": "Contacta amb Assistència tècnica"
+  },
   "updatedPaymentMethod": {
     "message": "Mètode de pagament actualitzat."
   },
@@ -2311,6 +2398,9 @@
   },
   "planDescTeams": {
     "message": "Per a empreses i altres equips organitzats."
+  },
+  "planNameTeamsStarter": {
+    "message": "Teams Starter"
   },
   "planNameEnterprise": {
     "message": "Empresa"
@@ -2671,6 +2761,9 @@
   },
   "webVault": {
     "message": "Caixa forta web"
+  },
+  "cli": {
+    "message": "CLI"
   },
   "bitWebVault": {
     "message": "Caixa forta web de Bitwarden"
@@ -3395,6 +3488,9 @@
   "subscriptionUpdated": {
     "message": "S'ha actualitzat la subscripció"
   },
+  "subscribedToSecretsManager": {
+    "message": "Subscripció actualitzada. Ara teniu accés a l'administrador de secrets."
+  },
   "additionalOptions": {
     "message": "Opcions addicionals"
   },
@@ -3410,6 +3506,15 @@
       "max": {
         "content": "$1",
         "example": "50"
+      }
+    }
+  },
+  "subscriptionUserSeatsWithoutAdditionalSeatsOption": {
+    "message": "Podeu convidar fins a $COUNT$ membres sense cap càrrec addicional. Poseu-vos en contacte amb el servei d'atenció al client per actualitzar el vostre pla i convidar més membres.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
       }
     }
   },
@@ -3477,7 +3582,7 @@
     "message": "Actualitza la clau de xifratge"
   },
   "updateEncryptionSchemeDesc": {
-    "message": "We've changed the encryption scheme to provide better security. Update your encryption key now by entering your master password below."
+    "message": "Hem canviat l'esquema de xifratge per oferir una millor seguretat. Actualitzeu ara la vostra clau de xifratge introduint la vostra contrasenya mestra a continuació."
   },
   "updateEncryptionKeyWarning": {
     "message": "Després d'actualitzar la vostra clau de xifratge, heu de tancar la sessió i tornar a entrar a totes les aplicacions de Bitwarden que esteu utilitzant actualment (com ara l'aplicació mòbil o les extensions del navegador). Si no es tanca i torna a iniciar la sessió (la qual descarrega la vostra nova clau de xifratge) pot provocar corrupció en les dades. Intentarem registrar-vos automàticament, però, es pot retardar."
@@ -3571,6 +3676,18 @@
   },
   "organizationIsDisabled": {
     "message": "L'organització està inhabilitada."
+  },
+  "secretsAccessSuspended": {
+    "message": "No es pot accedir a les organitzacions suspeses. Poseu-vos en contacte amb el propietari de la vostra organització per obtenir ajuda."
+  },
+  "secretsCannotCreate": {
+    "message": "No es poden crear secrets en organitzacions suspeses. Poseu-vos en contacte amb el propietari de la vostra organització per obtenir ajuda."
+  },
+  "projectsCannotCreate": {
+    "message": "No es poden crear projectes en organitzacions suspeses. Poseu-vos en contacte amb el propietari de la vostra organització per obtenir ajuda."
+  },
+  "serviceAccountsCannotCreate": {
+    "message": "No es poden crear comptes de servei en organitzacions suspeses. Poseu-vos en contacte amb el propietari de la vostra organització per obtenir ajuda."
   },
   "disabledOrganizationFilterError": {
     "message": "No es pot accedir als elements de les organitzacions inhabilitades. Poseu-vos en contacte amb el propietari de la vostra organització per obtenir ajuda."
@@ -3881,9 +3998,6 @@
   "setMasterPassword": {
     "message": "Estableix la contrasenya mestra"
   },
-  "ssoCompleteRegistration": {
-    "message": "Per completar la sessió amb SSO, configureu una contrasenya mestra per accedir i protegir la vostra caixa forta."
-  },
   "identifier": {
     "message": "Identificador"
   },
@@ -3902,6 +4016,21 @@
   "includeAllTeamsFeatures": {
     "message": "Característiques de tots els equips, a més de:"
   },
+  "includeAllTeamsStarterFeatures": {
+    "message": "Totes les característiques de Teams Starter, a més de:"
+  },
+  "chooseMonthlyOrAnnualBilling": {
+    "message": "Trieu facturació mensual o anual"
+  },
+  "abilityToAddMoreThanNMembers": {
+    "message": "Possibilitat d'afegir més de $COUNT$ membres",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "includeSsoAuthentication": {
     "message": "Autenticació SSO mitjançant SAML2.0 i OpenID Connect"
   },
@@ -3917,8 +4046,9 @@
   "ssoIdentifier": {
     "message": "Identificador SSO"
   },
-  "ssoIdentifierHint": {
-    "message": "Proporcioneu aquest identificador als vostres membres per iniciar sessió amb SSO."
+  "ssoIdentifierHintPartOne": {
+    "message": "Proporcioneu aquest identificador als vostres membres per iniciar sessió amb SSO. Per evitar aquest pas, configureu-ho ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
   },
   "unlinkSso": {
     "message": "Desenllaça SSO"
@@ -4088,8 +4218,8 @@
     "message": "Aquest Send està ocult per defecte. Podeu canviar la seua visibilitat mitjançant el botó següent.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "downloadFile": {
-    "message": "Baixa el fitxer"
+  "downloadAttachments": {
+    "message": "Baixa els fitxers adjunts"
   },
   "sendAccessUnavailable": {
     "message": "L'enviament al qual intenteu accedir no existeix o ja no està disponible.",
@@ -4479,8 +4609,8 @@
     "message": "per provar-ho hui.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about Bitwarden Send or sign up to **try it today.**'"
   },
-  "sendCreatorIdentifier": {
-    "message": "L'usuari bitwarden $USER_IDENTIFIER$ ha compartit el següent amb vosaltres",
+  "sendAccessCreatorIdentifier": {
+    "message": "El membre de Bitwarden $USER_IDENTIFIER$ us ha compartit això",
     "placeholders": {
       "user_identifier": {
         "content": "$1",
@@ -5406,6 +5536,19 @@
   "required": {
     "message": "requerit"
   },
+  "charactersCurrentAndMaximum": {
+    "message": "$CURRENT$/$MAX$ caràcters màxim",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "0"
+      },
+      "max": {
+        "content": "$2",
+        "example": "100"
+      }
+    }
+  },
   "characterMaximum": {
     "message": "$MAX$ caràcters màxim",
     "placeholders": {
@@ -5753,6 +5896,9 @@
   },
   "on": {
     "message": "Activat"
+  },
+  "off": {
+    "message": "Desactivat"
   },
   "members": {
     "message": "Membres"
@@ -6500,6 +6646,24 @@
       }
     }
   },
+  "teamsStarterPlanInvLimitReachedManageBilling": {
+    "message": "Els plans de Teams Starter poden tenir fins a $SEATCOUNT$ membres. Poseu-vos en contacte amb el servei d'atenció al client per actualitzar el vostre pla i convidar més membres.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "teamsStarterPlanInvLimitReachedNoManageBilling": {
+    "message": "Els plans de Teams Starter poden tenir fins a $SEATCOUNT$ membres. Contacteu amb el propietari de la vostra organització per actualitzar el vostre pla i convidar més membres.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "freeOrgMaxCollectionReachedManageBilling": {
     "message": "Les organitzacions gratuïtes poden tindre fins a $COLLECTIONCOUNT$ col·leccions. Actualitza a un pla de pagament per afegir més col·leccions.",
     "placeholders": {
@@ -6890,6 +7054,14 @@
     "message": "amb inscripció automàtica s'activaran quan s'utilitze aquesta opció.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
+  "orgPermissionsUpdatedMustSetPassword": {
+    "message": "Els permisos de la vostra organització s'han actualitzat, cal que establiu una contrasenya mestra.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "orgRequiresYouToSetPassword": {
+    "message": "La vostra organització requereix que establiu una contrasenya mestra.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
   "notFound": {
     "message": "No s'ha trobat $RESOURCE$",
     "placeholders": {
@@ -7010,6 +7182,9 @@
   "next": {
     "message": "Següent"
   },
+  "ssoLoginIsRequired": {
+    "message": "Inici de sessió SSO necessari"
+  },
   "selectedRegionFlag": {
     "message": "Bandera de la regió seleccionada"
   },
@@ -7096,8 +7271,8 @@
       }
     }
   },
-  "addSecretsManager": {
-    "message": "Afig administrador de secrets"
+  "subscribeToSecretsManager": {
+    "message": "Subscriu-te a l'administrador de Secrets"
   },
   "addSecretsManagerUpgradeDesc": {
     "message": "Afegiu administrador de secrets al vostre pla actualitzat per mantindre l'accés a tots els secrets creats amb el vostre pla anterior."
@@ -7122,6 +7297,18 @@
         "example": "$0.50"
       }
     }
+  },
+  "collectionManagement": {
+    "message": "Gestió de col·lecció"
+  },
+  "collectionManagementDesc": {
+    "message": "Administra el comportament de col·lecció per a l'organització"
+  },
+  "limitCollectionCreationDeletionDesc": {
+    "message": "Limita la creació i la supressió de col·leccions als propietaris i administradors"
+  },
+  "collectionManagementUpdated": {
+    "message": "S'ha guardat el comportament d'administració de la col·lecció"
   },
   "passwordManagerPlanPrice": {
     "message": "Preu del pla Administrador de contrasenyes"
@@ -7169,7 +7356,47 @@
   "beta": {
     "message": "Beta"
   },
+  "assignCollectionAccess": {
+    "message": "Assigna accés a la col·lecció"
+  },
+  "editedCollections": {
+    "message": "Col·leccions editades"
+  },
+  "baseUrl": {
+    "message": "URL del servidor"
+  },
+  "aliasDomain": {
+    "message": "Alies de domini"
+  },
   "alreadyHaveAccount": {
     "message": "Ja tens un compte?"
+  },
+  "customBillingStart": {
+    "message": "La facturació personalitzada no es reflecteix. Visita la "
+  },
+  "customBillingEnd": {
+    "message": " pàgina per a la facturació més recent."
+  },
+  "managePermissionRequired": {
+    "message": "Com a mínim un membre o grup ha de tindre permís de gestió."
+  },
+  "typePasskey": {
+    "message": "Clau de pas"
+  },
+  "passkeyNotCopied": {
+    "message": "La clau de pas no es copiarà"
+  },
+  "passkeyNotCopiedAlert": {
+    "message": "La clau de pas no es copiarà a l'element clonat. Voleu continuar clonant aquest element?"
+  },
+  "seeDetailedInstructions": {
+    "message": "Consulteu les instruccions detallades al nostre lloc d'ajuda a",
+    "description": "This is followed a by a hyperlink to the help website."
+  },
+  "projectAccessUpdated": {
+    "message": "S'ha actualitzat l'accés al projecte"
+  },
+  "unexpectedErrorSend": {
+    "message": "S'ha produït un error inesperat en carregar aquest enviament. Torneu a provar-ho més tard."
   }
 }
