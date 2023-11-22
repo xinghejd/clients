@@ -71,9 +71,7 @@ export class AccountSwitcherService {
 
   async selectAccount(id: string) {
     if (id === this.SPECIAL_ADD_ACCOUNT_ID) {
-      await this.stateService.setActiveUser(null);
-      await this.stateService.setRememberedEmail(null);
-      return;
+      id = null;
     }
 
     await this.accountService.switchAccount(id as UserId);

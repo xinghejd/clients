@@ -832,9 +832,17 @@ export default class MainBackground {
     }
   }
 
+  /**
+   * Switch accounts to indicated userId -- null is no active user
+   */
   async switchAccount(userId: UserId) {
-    if (userId != null) {
-      await this.stateService.setActiveUser(userId);
+    await this.stateService.setActiveUser(userId);
+
+    if (userId == null) {
+      await this.stateService.setRememberedEmail(null);
+      await this.refreshBadge();
+      await this.refreshMenu();
+      return;
     }
 
     const status = await this.authService.getAuthStatus(userId);
