@@ -842,6 +842,9 @@ export default class MainBackground {
       (await this.stateService.getForceSetPasswordReason({ userId: userId })) !=
       ForceSetPasswordReason.None;
 
+    await this.systemService.clearPendingClipboard();
+    await this.notificationsService.updateConnection(false);
+
     if (status === AuthenticationStatus.Locked) {
       this.messagingService.send("locked", { userId: userId });
     } else if (forcePasswordReset) {
@@ -875,10 +878,7 @@ export default class MainBackground {
     //Needs to be checked before state is cleaned
     const needStorageReseed = await this.needsStorageReseed();
 
-    await this.systemService.clearPendingClipboard();
-
     const newActiveUser = await this.stateService.clean({ userId: userId });
-    this.notificationsService.updateConnection(false);
 
     if (newActiveUser != null) {
       // we have a new active user, do not continue tearing down application
