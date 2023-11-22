@@ -100,11 +100,32 @@ class AuthDelegate: NSObject, ASAuthorizationControllerDelegate, ASAuthorization
     }
 
     func presentationAnchor(for controller: ASAuthorizationController) -> ASPresentationAnchor {
+        let logger = Logger()
+        logger.log("presentationAnchor")
         return window
     }
 
     func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
-        print("Authorization completed")
+        let logger = Logger()
+        logger.log("Authorization completed")
+    }
+
+    func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+        let logger = Logger()
+        guard let authorizationError = error as? ASAuthorizationError else {
+            logger.error("Unexpected authorization error: \(error.localizedDescription)")
+            return
+        }
+
+        if authorizationError.code == .canceled {
+            // Either the system doesn't find any credentials and the request ends silently, or the user cancels the request.
+            // This is a good time to show a traditional login form, or ask the user to create an account.
+            logger.log("Request canceled.")
+        } else {
+            // Another ASAuthorization error.
+            // Note: The userInfo dictionary contains useful information.
+            logger.error("Error: \((error as NSError).userInfo)")
+        }
     }
 }
 
@@ -112,11 +133,19 @@ func webauthn_create(window_handle_uint: UInt64) -> String {
     let logger = Logger()
     logger.log("creating passkey... window handle: \(window_handle_uint)")
 
-    let window_handle = Int(truncatingIfNeeded: window_handle_uint)
-    let ptr = UnsafeMutablePointer<NSView>(bitPattern: window_handle)
-    let title = ptr?.pointee.window?.title
+    let window_count = NSApplication.shared.windows.count
+    logger.log("creating passkey... window count: \(window_count)")
 
-    logger.log("creating passkey... window title: \(title ?? "nil")")
+    let window_title = NSApplication.shared.windows[0].title
+    logger.log("creating passkey... window title: \(window_title)")
+
+    return "window_title \(window_title)"
+
+    // let window_handle = Int(truncatingIfNeeded: window_handle_uint)
+    // let ptr = UnsafeMutablePointer<NSView>(bitPattern: window_handle)
+    // let title = ptr?.pointee.window?.title
+
+    // logger.log("creating passkey... window title: \(title ?? "nil")")
 
     do {
         return try create()
@@ -128,20 +157,28 @@ func webauthn_create(window_handle_uint: UInt64) -> String {
 }
 
 func create() throws -> String {
-    // let logger = Logger()
+    let logger = Logger()
 
-    // let domain = "shiny.coroiu.com"
+    let domain = "shiny.coroiu.com"
 
-    // let publicKeyCredentialProvider = ASAuthorizationPlatformPublicKeyCredentialProvider(relyingPartyIdentifier: domain)
+    let publicKeyCredentialProvider = ASAuthorizationPlatformPublicKeyCredentialProvider(relyingPartyIdentifier: domain)
 
-    // let userName = "user"
-    // let challenge = Data()
-    // let userID = Data(UUID().uuidString.utf8)
+    let userName = "user"
+    let challenge = Data()
+    let userID = Data(UUID().uuidString.utf8)
 
-    return "Create!";
+    let registrationRequest = publicKeyCredentialProvider.createCredentialRegistrationRequest(challenge: challenge,
+                                                                                              name: userName, userID: userID)
 
-    // let registrationRequest = publicKeyCredentialProvider.createCredentialRegistrationRequest(challenge: challenge,
-                                                                                            //   name: userName, userID: userID)
+    let authDelegate = AuthDelegate(window: NSApplication.shared.windows[0])
+    let authController = ASAuthorizationController(authorizationRequests: [ registrationRequest ] )
+    authController.delegate = authDelegate
+    authController.presentationContextProvider = authDelegate
+
+    logger.log("performing request")
+    authController.performRequests()
+
+    return "ok"
 
     // let authController = ASAuthorizationController(authorizationRequests: [ registrationRequest ] )
 
