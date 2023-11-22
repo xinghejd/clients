@@ -15,15 +15,7 @@ const SizeClasses: Record<SizeTypes, string[]> = {
 
 @Component({
   selector: "bit-avatar",
-  template: `
-    <button *ngIf="isButton" type="button" class="tw-rounded-full">
-      <!-- ng-content for screen reader content -->
-      <ng-content></ng-content>
-      <img *ngIf="src" [src]="src" title="{{ title || text }}" [ngClass]="classList" />
-    </button>
-
-    <img *ngIf="!isButton && src" [src]="src" title="{{ title || text }}" [ngClass]="classList" />
-  `,
+  template: `<img *ngIf="src" [src]="src" title="{{ title || text }}" [ngClass]="classList" />`,
 })
 export class AvatarComponent implements OnChanges {
   @Input() border = false;
@@ -32,7 +24,6 @@ export class AvatarComponent implements OnChanges {
   @Input() text?: string;
   @Input() title: string;
   @Input() size: SizeTypes = "default";
-  @Input() isButton = false;
 
   private svgCharCount = 2;
   private svgFontSize = 20;
@@ -49,12 +40,7 @@ export class AvatarComponent implements OnChanges {
   get classList() {
     return ["tw-rounded-full"]
       .concat(SizeClasses[this.size] ?? [])
-      .concat(this.border ? ["tw-border", "tw-border-solid", "tw-border-secondary-500"] : [])
-      .concat(
-        this.isButton
-          ? ["tw-block", "hover:tw-outline", "hover:tw-outline-1", "hover:tw-outline-offset-1"]
-          : []
-      );
+      .concat(this.border ? ["tw-border", "tw-border-solid", "tw-border-secondary-500"] : []);
   }
 
   private generate() {
