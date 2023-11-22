@@ -303,7 +303,7 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
     element.opid = `__${index}`;
 
     const existingAutofillField = this.autofillFieldElements.get(element);
-    if (existingAutofillField) {
+    if (index >= 0 && existingAutofillField) {
       existingAutofillField.opid = element.opid;
       existingAutofillField.elementNumber = index;
       this.autofillFieldElements.set(element, existingAutofillField);
@@ -325,7 +325,7 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
     };
 
     if (element instanceof HTMLSpanElement) {
-      this.autofillFieldElements.set(element, autofillFieldBase);
+      this.cacheAutofillFieldElement(index, element, autofillFieldBase);
       this.autofillOverlayContentService?.setupAutofillOverlayListenerOnField(
         element,
         autofillFieldBase
@@ -366,10 +366,22 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
       "data-stripe": this.getPropertyOrAttribute(element, "data-stripe"),
     };
 
-    this.autofillFieldElements.set(element, autofillField);
+    this.cacheAutofillFieldElement(index, element, autofillField);
     this.autofillOverlayContentService?.setupAutofillOverlayListenerOnField(element, autofillField);
     return autofillField;
   };
+
+  private cacheAutofillFieldElement(
+    index: number,
+    element: ElementWithOpId<FormFieldElement>,
+    autofillFieldData: AutofillField
+  ) {
+    if (index < 0) {
+      return;
+    }
+
+    this.autofillFieldElements.set(element, autofillFieldData);
+  }
 
   /**
    * Identifies the autocomplete attribute associated with an element and returns
@@ -987,7 +999,7 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
     }
 
     let isElementMutated = false;
-    const mutatedElements = [];
+    const mutatedElements: Node[] = [];
     for (let index = 0; index < nodes.length; index++) {
       const node = nodes[index];
       if (!(node instanceof HTMLElement)) {
@@ -1010,15 +1022,23 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
       }
     }
 
-    for (let elementIndex = 0; elementIndex < mutatedElements.length; elementIndex++) {
-      const node = mutatedElements[elementIndex];
-      if (isRemovingNodes) {
+    if (isRemovingNodes) {
+      for (let elementIndex = 0; elementIndex < mutatedElements.length; elementIndex++) {
+        const node = mutatedElements[elementIndex];
         this.deleteCachedAutofillElement(
           node as ElementWithOpId<HTMLFormElement> | ElementWithOpId<FormFieldElement>
         );
-        continue;
       }
+    } else {
+      setTimeout(() => this.setupOverlayListenersOnMutatedElements(mutatedElements), 1000);
+    }
 
+    return isElementMutated;
+  }
+
+  private setupOverlayListenersOnMutatedElements(mutatedElements: Node[]) {
+    for (let elementIndex = 0; elementIndex < mutatedElements.length; elementIndex++) {
+      const node = mutatedElements[elementIndex];
       if (
         this.autofillOverlayContentService &&
         this.isNodeFormFieldElement(node) &&
@@ -1029,8 +1049,6 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
         this.buildAutofillFieldItem(node as ElementWithOpId<FormFieldElement>, -1);
       }
     }
-
-    return isElementMutated;
   }
 
   /**
