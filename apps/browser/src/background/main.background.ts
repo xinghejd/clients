@@ -883,7 +883,7 @@ export default class MainBackground {
     if (newActiveUser != null) {
       // we have a new active user, do not continue tearing down application
       this.switchAccount(newActiveUser as UserId);
-      this.messagingService.send("switchAccount");
+      this.messagingService.send("switchAccountFinish");
       return;
     }
 
