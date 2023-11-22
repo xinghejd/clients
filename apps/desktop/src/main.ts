@@ -150,8 +150,7 @@ export class Main {
     this.clipboardMain = new ClipboardMain();
     this.clipboardMain.init();
 
-    this.webauthnMain = new NativeWebauthnMain();
-    this.webauthnMain.init();
+    this.webauthnMain = new NativeWebauthnMain(this.windowMain);
   }
 
   bootstrap() {
@@ -210,6 +209,8 @@ export class Main {
         this.windowMain.win.on("minimize", () => {
           this.messagingService.send("windowHidden");
         });
+
+        this.webauthnMain.init();
       },
       (e: any) => {
         // eslint-disable-next-line

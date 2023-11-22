@@ -108,14 +108,18 @@ class AuthDelegate: NSObject, ASAuthorizationControllerDelegate, ASAuthorization
     }
 }
 
-func webauthn_create() -> String {
+func webauthn_create(window_handle_uint: UInt64) -> String {
     let logger = Logger()
-    logger.log("creating passkey...")
-    print("Creating passkey...")
+    logger.log("creating passkey... window handle: \(window_handle_uint)")
+
+    let window_handle = Int(truncatingIfNeeded: window_handle_uint)
+    let ptr = UnsafeMutablePointer<NSView>(bitPattern: window_handle)
+    let title = ptr?.pointee.window?.title
+
+    logger.log("creating passkey... window title: \(title ?? "nil")")
 
     do {
-        try create()
-        return "success!"
+        return try create()
     } catch {
         logger.log("Error: \(error)")
         print("Error: \(error)")
@@ -123,24 +127,26 @@ func webauthn_create() -> String {
     }
 }
 
-func create() throws {
-    let logger = Logger()
+func create() throws -> String {
+    // let logger = Logger()
 
-    let domain = "shiny.coroiu.com"
+    // let domain = "shiny.coroiu.com"
 
-    let publicKeyCredentialProvider = ASAuthorizationPlatformPublicKeyCredentialProvider(relyingPartyIdentifier: domain)
+    // let publicKeyCredentialProvider = ASAuthorizationPlatformPublicKeyCredentialProvider(relyingPartyIdentifier: domain)
 
-    let userName = "user"
-    let challenge = Data()
-    let userID = Data(UUID().uuidString.utf8)
+    // let userName = "user"
+    // let challenge = Data()
+    // let userID = Data(UUID().uuidString.utf8)
 
-    let registrationRequest = publicKeyCredentialProvider.createCredentialRegistrationRequest(challenge: challenge,
-                                                                                              name: userName, userID: userID)
+    return "Create!";
 
-    let authController = ASAuthorizationController(authorizationRequests: [ registrationRequest ] )
+    // let registrationRequest = publicKeyCredentialProvider.createCredentialRegistrationRequest(challenge: challenge,
+                                                                                            //   name: userName, userID: userID)
 
-    logger.log("first window \(NSApplication.shared.windows.first!.description)")
-    NSApplication.shared.windows.first!.toggleFullScreen(nil)
+    // let authController = ASAuthorizationController(authorizationRequests: [ registrationRequest ] )
+
+    // logger.log("first window \(NSApplication.shared.windows.first!.description)")
+    // NSApplication.shared.windows.first!.toggleFullScreen(nil)
     // authController.delegate = AuthDelegate(window: NSApplication.shared.windows.first!)
 
     // authController.delegate = AuthDelegate(window: NSApplication.shared.windows.first!)

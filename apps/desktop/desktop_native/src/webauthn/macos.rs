@@ -1,7 +1,7 @@
 use anyhow::Result;
 
-pub fn create() -> Result<String> {
-    Ok(ffi::webauthn_create())
+pub fn create(window_handle: u64) -> Result<String> {
+    Ok(ffi::webauthn_create(window_handle))
 }
 
 #[swift_bridge::bridge]
@@ -11,7 +11,7 @@ mod ffi {
     }
 
     extern "Swift" {
-        fn webauthn_create() -> String;
+        fn webauthn_create(window_handle_uint: u64) -> String;
         // fn swift_multiply_by_4(num: i64) -> i64;
     }
 }

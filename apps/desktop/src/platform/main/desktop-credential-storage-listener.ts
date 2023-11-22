@@ -92,6 +92,7 @@ export class DesktopCredentialStorageListener {
   // Gracefully handle old keytar values, and if detected updated the entry to the proper format
   private async getPassword(serviceName: string, key: string, keySuffix: string) {
     let val: string;
+    return null;
     if (keySuffix === AuthRequiredSuffix) {
       val = (await this.biometricService.getBiometricKey(serviceName, key)) ?? null;
     } else {

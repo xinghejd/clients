@@ -127,7 +127,10 @@ pub mod clipboards {
 #[napi]
 pub mod webauthns {
     #[napi]
-    pub async fn webauthn_create() -> napi::Result<String> {
-        super::webauthn::create().map_err(|e| napi::Error::from_reason(e.to_string()))
+    pub async fn webauthn_create(
+        window_handle: napi::bindgen_prelude::Buffer,
+    ) -> napi::Result<String> {
+        let window_handle = u64::from_le_bytes(window_handle.as_ref().try_into().unwrap());
+        super::webauthn::create(window_handle).map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 }
