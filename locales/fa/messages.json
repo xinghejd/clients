@@ -647,8 +647,23 @@
   "customPasskeyNameInfo": {
     "message": "کلید عبور خود را برای کمک به شناسایی آن نام ببرید."
   },
+  "useForVaultEncryption": {
+    "message": "Use for vault encryption"
+  },
+  "useForVaultEncryptionInfo": {
+    "message": "Log in and unlock on supported devices without your master password. Follow the prompts from your browser to finalize setup."
+  },
+  "useForVaultEncryptionErrorReadingPasskey": {
+    "message": "Error reading passkey. Try again or uncheck this option."
+  },
   "encryptionNotSupported": {
     "message": "رمزگذاری پشتیبانی نمی‌شود"
+  },
+  "encryptionNotEnabled": {
+    "message": "Encryption not enabled"
+  },
+  "usedForEncryption": {
+    "message": "Used for encryption"
   },
   "loginWithPasskeyEnabled": {
     "message": "با فعال بودن کلید ورود وارد شوید"
@@ -1545,6 +1560,9 @@
   "manage": {
     "message": "مدیریت"
   },
+  "canManage": {
+    "message": "Can manage"
+  },
   "disable": {
     "message": "خاموش کردن"
   },
@@ -2277,6 +2295,9 @@
   "contactSupport": {
     "message": "با پشتیبانی مشتری تماس بگیرید"
   },
+  "contactSupportShort": {
+    "message": "Contact Support"
+  },
   "updatedPaymentMethod": {
     "message": "روش پرداخت به‌روز شده."
   },
@@ -2377,6 +2398,9 @@
   },
   "planDescTeams": {
     "message": "برای مشاغل و سایر سازمان های تیمی."
+  },
+  "planNameTeamsStarter": {
+    "message": "Teams Starter"
   },
   "planNameEnterprise": {
     "message": "سازمانی"
@@ -2737,6 +2761,9 @@
   },
   "webVault": {
     "message": "گاوصندوق وب"
+  },
+  "cli": {
+    "message": "CLI"
   },
   "bitWebVault": {
     "message": "گاوصندوق وب Bitwarden"
@@ -3461,6 +3488,9 @@
   "subscriptionUpdated": {
     "message": "اشتراک به‌روز شد"
   },
+  "subscribedToSecretsManager": {
+    "message": "Subscription updated. You now have access to Secrets Manager."
+  },
   "additionalOptions": {
     "message": "گزینه‌های اضافی"
   },
@@ -3476,6 +3506,15 @@
       "max": {
         "content": "$1",
         "example": "50"
+      }
+    }
+  },
+  "subscriptionUserSeatsWithoutAdditionalSeatsOption": {
+    "message": "You can invite up to $COUNT$ members for no additional charge. Contact Customer Support to upgrade your plan and invite more members.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
       }
     }
   },
@@ -3959,9 +3998,6 @@
   "setMasterPassword": {
     "message": "تنظیم کلمه عبور اصلی"
   },
-  "ssoCompleteRegistration": {
-    "message": "برای پر کردن ورود به سیستم با SSO، لطفاً یک کلمه عبور اصلی برای دسترسی و محافظت از گاوصندوق خود تنظیم کنید."
-  },
   "identifier": {
     "message": "شناسه"
   },
@@ -3979,6 +4015,21 @@
   },
   "includeAllTeamsFeatures": {
     "message": "همه ویژگی های تیم، به علاوه:"
+  },
+  "includeAllTeamsStarterFeatures": {
+    "message": "All Teams Starter features, plus:"
+  },
+  "chooseMonthlyOrAnnualBilling": {
+    "message": "Choose monthly or annual billing"
+  },
+  "abilityToAddMoreThanNMembers": {
+    "message": "Ability to add more than $COUNT$ members",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "includeSsoAuthentication": {
     "message": "احراز هویت SSO از طریق SAML2.0 و OpenID Connect"
@@ -6595,6 +6646,24 @@
       }
     }
   },
+  "teamsStarterPlanInvLimitReachedManageBilling": {
+    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Contact Customer Support to upgrade your plan and invite more members.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "teamsStarterPlanInvLimitReachedNoManageBilling": {
+    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade your plan and invite more members.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "freeOrgMaxCollectionReachedManageBilling": {
     "message": "سازمان‌های رایگان ممکن است تا $COLLECTIONCOUNT$ مجموعه داشته باشند. برای افزودن مجموعه‌های بیشتر، به یک طرح پولی ارتقا دهید.",
     "placeholders": {
@@ -6985,6 +7054,14 @@
     "message": "سیاست‌ها با ثبت نام خودکار زمانی که از این گزینه استفاده می‌شود روشن می‌شود.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
+  "orgPermissionsUpdatedMustSetPassword": {
+    "message": "Your organization permissions were updated, requiring you to set a master password.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "orgRequiresYouToSetPassword": {
+    "message": "Your organization requires you to set a master password.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
   "notFound": {
     "message": "$RESOURCE$ پیدا نشد",
     "placeholders": {
@@ -7218,6 +7295,18 @@
       }
     }
   },
+  "collectionManagement": {
+    "message": "Collection management"
+  },
+  "collectionManagementDesc": {
+    "message": "Manage the collection behavior for the organization"
+  },
+  "limitCollectionCreationDeletionDesc": {
+    "message": "Limit collection creation and deletion to owners and admins"
+  },
+  "collectionManagementUpdated": {
+    "message": "Collection management behavior saved"
+  },
   "passwordManagerPlanPrice": {
     "message": "قیمت طرح مدیریت کلمه عبور"
   },
@@ -7264,6 +7353,12 @@
   "beta": {
     "message": "آزمایشی"
   },
+  "assignCollectionAccess": {
+    "message": "Assign collection access"
+  },
+  "editedCollections": {
+    "message": "Edited collections"
+  },
   "baseUrl": {
     "message": "نشانی اینترنتی سرور"
   },
@@ -7274,10 +7369,13 @@
     "message": "پیشتر حساب کاربری داشته اید؟"
   },
   "customBillingStart": {
-    "message": "صورتحساب سفارشی منعکس نمی‌شود. بازدید کنید "
+    "message": "Custom billing is not reflected. Visit the "
   },
   "customBillingEnd": {
-    "message": " صفحه برای آخرین صورتحساب"
+    "message": " page for latest invoicing."
+  },
+  "managePermissionRequired": {
+    "message": "At least one member or group must have can manage permission."
   },
   "typePasskey": {
     "message": "کلید عبور"
@@ -7287,5 +7385,12 @@
   },
   "passkeyNotCopiedAlert": {
     "message": "کلید عبور در مورد شبیه سازی شده کپی نمی‌شود. آیا می‌خواهید به شبیه سازی این مورد ادامه دهید؟"
+  },
+  "seeDetailedInstructions": {
+    "message": "See detailed instructions on our help site at",
+    "description": "This is followed a by a hyperlink to the help website."
+  },
+  "projectAccessUpdated": {
+    "message": "Project access updated"
   }
 }
