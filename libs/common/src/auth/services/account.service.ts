@@ -1,5 +1,4 @@
 import { Subject, combineLatestWith, map, distinctUntilChanged, shareReplay } from "rxjs";
-import { Jsonify } from "type-fest";
 
 import {
   AccountInfo,
@@ -17,9 +16,13 @@ import {
 import { UserId } from "../../types/guid";
 import { AuthenticationStatus } from "../enums/authentication-status";
 
-export const ACCOUNT_ACCOUNTS = KeyDefinition.record(ACCOUNT_MEMORY, "accounts", {
-  deserializer: (accountInfo: Jsonify<AccountInfo>) => accountInfo,
-});
+export const ACCOUNT_ACCOUNTS = KeyDefinition.record<AccountInfo, UserId>(
+  ACCOUNT_MEMORY,
+  "accounts",
+  {
+    deserializer: (accountInfo) => accountInfo,
+  }
+);
 
 export const ACCOUNT_ACTIVE_ACCOUNT_ID = new KeyDefinition(ACCOUNT_MEMORY, "activeAccountId", {
   deserializer: (id: UserId) => id,
@@ -50,7 +53,7 @@ export class AccountServiceImplementation implements InternalAccountService {
     this.activeAccount$ = this.activeAccountIdState.state$.pipe(
       combineLatestWith(this.accounts$),
       map(([id, accounts]) => (id ? { id, ...accounts[id] } : undefined)),
-      distinctUntilChanged((a, b) => a?.id == b?.id && accountInfoEqual(a, b)),
+      distinctUntilChanged((a, b) => a?.id === b?.id && accountInfoEqual(a, b)),
       shareReplay({ bufferSize: 1, refCount: false })
     );
   }
