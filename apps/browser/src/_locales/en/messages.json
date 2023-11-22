@@ -1134,6 +1134,9 @@
   "faviconDesc": {
     "message": "Show a recognizable image next to each login."
   },
+  "faviconDescAlt": {
+    "message": "Show a recognizable image next to each login. Applies to all logged in accounts."
+  },
   "enableBadgeCounter": {
     "message": "Show badge counter"
   },
