@@ -26,5 +26,9 @@
 		<string>/Library/Application Support/Microsoft Edge Canary/NativeMessagingHosts/</string>
         <string>/Library/Application Support/Vivaldi/NativeMessagingHosts/</string>
 	</array>
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>webcredentials:shiny.coroiu.com</string>
+	</array>
 </dict>
 </plist>

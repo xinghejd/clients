@@ -139,8 +139,6 @@ func webauthn_create(window_handle_uint: UInt64) -> String {
     let window_title = NSApplication.shared.windows[0].title
     logger.log("creating passkey... window title: \(window_title)")
 
-    return "window_title \(window_title)"
-
     // let window_handle = Int(truncatingIfNeeded: window_handle_uint)
     // let ptr = UnsafeMutablePointer<NSView>(bitPattern: window_handle)
     // let title = ptr?.pointee.window?.title
@@ -158,6 +156,7 @@ func webauthn_create(window_handle_uint: UInt64) -> String {
 
 func create() throws -> String {
     let logger = Logger()
+    logger.log("Create()")
 
     let domain = "shiny.coroiu.com"
 
@@ -177,6 +176,10 @@ func create() throws -> String {
 
     logger.log("performing request")
     authController.performRequests()
+
+    if let bundleIdentifier = Bundle.main.bundleIdentifier {
+        return bundleIdentifier
+    }
 
     return "ok"
 
