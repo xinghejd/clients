@@ -145,16 +145,16 @@ func webauthn_create(window_handle_uint: UInt64) -> String {
 
     // logger.log("creating passkey... window title: \(title ?? "nil")")
 
-    do {
-        return try create()
-    } catch {
-        logger.log("Error: \(error)")
-        print("Error: \(error)")
-        return "Error: \(error)"
-    }
+    // do {
+    return create()
+    // } catch {
+    //     logger.log("Error: \(error)")
+    //     print("Error: \(error)")
+    //     return "Error: \(error)"
+    // }
 }
 
-func create() throws -> String {
+func create() -> String {
     let logger = Logger()
     logger.log("Create()")
 
