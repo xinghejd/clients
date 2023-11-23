@@ -842,6 +842,8 @@ export default class MainBackground {
       await this.stateService.setRememberedEmail(null);
       await this.refreshBadge();
       await this.refreshMenu();
+      // TODO: Discuss fix before merging and remove comment
+      this.messagingService.send("switchAccountFinish", { userId: userId });
       return;
     }
 
