@@ -190,21 +190,28 @@ export class StateService<
     if (userId == null) {
       return;
     }
-    return await this.updateState(async (state) => {
+    const diskAccount = await this.getAccountFromDisk({ userId: userId });
+    const state = await this.updateState(async (state) => {
       if (state.accounts == null) {
         state.accounts = {};
       }
       state.accounts[userId] = this.createAccount();
-      const diskAccount = await this.getAccountFromDisk({ userId: userId });
       state.accounts[userId].profile = diskAccount.profile;
-      // TODO: Temporary update to avoid routing all account status changes through account service for now.
-      await this.accountService.addAccount(userId as UserId, {
-        status: AuthenticationStatus.Locked,
-        name: diskAccount.profile.name,
-        email: diskAccount.profile.email,
-      });
       return state;
     });
+
+    // TODO: Temporary update to avoid routing all account status changes through account service for now.
+    const accountStatus =
+      (await this.getAccessToken({ userId: userId })) != null
+        ? AuthenticationStatus.Locked
+        : AuthenticationStatus.LoggedOut;
+    await this.accountService.addAccount(userId as UserId, {
+      status: accountStatus,
+      name: diskAccount.profile.name,
+      email: diskAccount.profile.email,
+    });
+
+    return state;
   }
 
   async addAccount(account: TAccount) {
@@ -3321,10 +3328,9 @@ export class StateService<
     await this.removeAccountFromSecureStorage(userId);
   }
 
-  protected async dynamicallySetActiveUser() {
+  async nextUpActiveUser() {
     const accounts = (await this.state())?.accounts;
     if (accounts == null || Object.keys(accounts).length < 1) {
-      await this.setActiveUser(null);
       return null;
     }
 
@@ -3339,6 +3345,11 @@ export class StateService<
       }
       newActiveUser = null;
     }
+    return newActiveUser as UserId;
+  }
+
+  protected async dynamicallySetActiveUser() {
+    const newActiveUser = await this.nextUpActiveUser();
     await this.setActiveUser(newActiveUser);
     return newActiveUser;
   }

@@ -624,7 +624,8 @@ export default class MainBackground {
       this.messagingService,
       this.platformUtilsService,
       systemUtilsServiceReloadCallback,
-      this.stateService
+      this.stateService,
+      this.vaultTimeoutSettingsService
     );
 
     // Other fields
