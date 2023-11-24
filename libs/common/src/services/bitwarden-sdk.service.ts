@@ -2,7 +2,7 @@ import {
   BitwardenClient,
   Convert,
   DeviceType as SdkDeviceType,
-  KdfType as SdkKdfType,
+  PasswordLoginKdf as SdkKdfType,
 } from "@bitwarden/sdk-client";
 
 import { BitwardenSdkServiceAbstraction } from "../abstractions/bitwarden-sdk.service.abstraction";
@@ -26,7 +26,7 @@ export class BitwardenSdkService implements BitwardenSdkServiceAbstraction {
 
   async init(): Promise<void> {
     // TODO: Subscribe to account observable
-    const kdfConfig = await this.stateService.getKdfConfig();
+    //const kdfConfig = await this.stateService.getKdfConfig();
 
     // Build the SDK config. Currently consists of many internal settings that will be removed in the future.
     const settings_json = Convert.clientSettingsToJson({
@@ -34,18 +34,10 @@ export class BitwardenSdkService implements BitwardenSdkServiceAbstraction {
       identityUrl: this.environmentService.getIdentityUrl(),
       deviceType: this.toDevice(this.platformUtilsService.getDevice()),
       userAgent: this.userAgent ?? navigator.userAgent,
-      internal: {
-        accessToken: await this.tokenService.getToken(),
-        refreshToken: await this.tokenService.getRefreshToken(),
-        expiresIn: await this.tokenService.tokenSecondsRemaining(),
-        email: await this.tokenService.getEmail(),
-        kdfType: this.toKdf(await this.stateService.getKdfType()),
-        kdfIterations: kdfConfig.iterations,
-      },
     });
 
     const module = await import("@bitwarden/sdk-wasm");
-    this.client = new BitwardenClient(new module.BitwardenClient(settings_json, 0));
+    this.client = new BitwardenClient(new module.BitwardenClient(settings_json, 2));
   }
 
   private toDevice(device: DeviceType): SdkDeviceType {
@@ -100,9 +92,19 @@ export class BitwardenSdkService implements BitwardenSdkServiceAbstraction {
   private toKdf(kdf: KdfType): SdkKdfType {
     switch (kdf) {
       case KdfType.PBKDF2_SHA256:
-        return SdkKdfType.Pbkdf2Sha256;
+        return {
+          pBKDF2: {
+            iterations: 0,
+          },
+        };
       case KdfType.Argon2id:
-        return SdkKdfType.Argon2ID;
+        return {
+          argon2id: {
+            iterations: 0,
+            memory: 0,
+            parallelism: 0,
+          },
+        };
     }
   }
 

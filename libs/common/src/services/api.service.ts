@@ -20,7 +20,6 @@ import {
 } from "../admin-console/models/response/organization-connection.response";
 import { OrganizationExportResponse } from "../admin-console/models/response/organization-export.response";
 import { OrganizationSponsorshipSyncStatusResponse } from "../admin-console/models/response/organization-sponsorship-sync-status.response";
-import { PolicyResponse } from "../admin-console/models/response/policy.response";
 import {
   ProviderOrganizationOrganizationDetailsResponse,
   ProviderOrganizationResponse,
@@ -34,24 +33,20 @@ import {
 import { ProviderResponse } from "../admin-console/models/response/provider/provider.response";
 import { SelectionReadOnlyResponse } from "../admin-console/models/response/selection-read-only.response";
 import { TokenService } from "../auth/abstractions/token.service";
+import { CreateAuthRequest } from "../auth/models/request/create-auth.request";
 import { DeviceVerificationRequest } from "../auth/models/request/device-verification.request";
 import { EmailTokenRequest } from "../auth/models/request/email-token.request";
 import { EmailRequest } from "../auth/models/request/email.request";
-import { EmergencyAccessAcceptRequest } from "../auth/models/request/emergency-access-accept.request";
-import { EmergencyAccessConfirmRequest } from "../auth/models/request/emergency-access-confirm.request";
-import { EmergencyAccessInviteRequest } from "../auth/models/request/emergency-access-invite.request";
-import { EmergencyAccessPasswordRequest } from "../auth/models/request/emergency-access-password.request";
-import { EmergencyAccessUpdateRequest } from "../auth/models/request/emergency-access-update.request";
 import { DeviceRequest } from "../auth/models/request/identity-token/device.request";
 import { PasswordTokenRequest } from "../auth/models/request/identity-token/password-token.request";
 import { SsoTokenRequest } from "../auth/models/request/identity-token/sso-token.request";
 import { TokenTwoFactorRequest } from "../auth/models/request/identity-token/token-two-factor.request";
 import { UserApiTokenRequest } from "../auth/models/request/identity-token/user-api-token.request";
+import { WebAuthnLoginTokenRequest } from "../auth/models/request/identity-token/webauthn-login-token.request";
 import { KeyConnectorUserKeyRequest } from "../auth/models/request/key-connector-user-key.request";
 import { PasswordHintRequest } from "../auth/models/request/password-hint.request";
 import { PasswordRequest } from "../auth/models/request/password.request";
 import { PasswordlessAuthRequest } from "../auth/models/request/passwordless-auth.request";
-import { PasswordlessCreateAuthRequest } from "../auth/models/request/passwordless-create-auth.request";
 import { SecretVerificationRequest } from "../auth/models/request/secret-verification.request";
 import { SetKeyConnectorKeyRequest } from "../auth/models/request/set-key-connector-key.request";
 import { SetPasswordRequest } from "../auth/models/request/set-password.request";
@@ -69,12 +64,6 @@ import { UpdateTwoFactorYubioOtpRequest } from "../auth/models/request/update-tw
 import { ApiKeyResponse } from "../auth/models/response/api-key.response";
 import { AuthRequestResponse } from "../auth/models/response/auth-request.response";
 import { DeviceVerificationResponse } from "../auth/models/response/device-verification.response";
-import {
-  EmergencyAccessGranteeDetailsResponse,
-  EmergencyAccessGrantorDetailsResponse,
-  EmergencyAccessTakeoverResponse,
-  EmergencyAccessViewResponse,
-} from "../auth/models/response/emergency-access.response";
 import { IdentityCaptchaResponse } from "../auth/models/response/identity-captcha.response";
 import { IdentityTokenResponse } from "../auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "../auth/models/response/identity-two-factor.response";
@@ -133,6 +122,7 @@ import { Utils } from "../platform/misc/utils";
 import { AttachmentRequest } from "../vault/models/request/attachment.request";
 import { CipherBulkDeleteRequest } from "../vault/models/request/cipher-bulk-delete.request";
 import { CipherBulkMoveRequest } from "../vault/models/request/cipher-bulk-move.request";
+import { CipherBulkRestoreRequest } from "../vault/models/request/cipher-bulk-restore.request";
 import { CipherBulkShareRequest } from "../vault/models/request/cipher-bulk-share.request";
 import { CipherCollectionsRequest } from "../vault/models/request/cipher-collections.request";
 import { CipherCreateRequest } from "../vault/models/request/cipher-create.request";
@@ -182,13 +172,20 @@ export class ApiService implements ApiServiceAbstraction {
     this.isDesktopClient =
       this.device === DeviceType.WindowsDesktop ||
       this.device === DeviceType.MacOsDesktop ||
-      this.device === DeviceType.LinuxDesktop;
+      this.device === DeviceType.LinuxDesktop ||
+      this.device === DeviceType.WindowsCLI ||
+      this.device === DeviceType.MacOsCLI ||
+      this.device === DeviceType.LinuxCLI;
   }
 
   // Auth APIs
 
   async postIdentityToken(
-    request: UserApiTokenRequest | PasswordTokenRequest | SsoTokenRequest
+    request:
+      | UserApiTokenRequest
+      | PasswordTokenRequest
+      | SsoTokenRequest
+      | WebAuthnLoginTokenRequest
   ): Promise<IdentityTokenResponse | IdentityTwoFactorResponse | IdentityCaptchaResponse> {
     const headers = new Headers({
       "Content-Type": "application/x-www-form-urlencoded; charset=utf-8",
@@ -250,8 +247,13 @@ export class ApiService implements ApiServiceAbstraction {
     }
   }
 
-  async postAuthRequest(request: PasswordlessCreateAuthRequest): Promise<AuthRequestResponse> {
+  // TODO: PM-3519: Create and move to AuthRequest Api service
+  async postAuthRequest(request: CreateAuthRequest): Promise<AuthRequestResponse> {
     const r = await this.send("POST", "/auth-requests/", request, false, true);
+    return new AuthRequestResponse(r);
+  }
+  async postAdminAuthRequest(request: CreateAuthRequest): Promise<AuthRequestResponse> {
+    const r = await this.send("POST", "/auth-requests/admin-request", request, true, true);
     return new AuthRequestResponse(r);
   }
 
@@ -614,9 +616,16 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   async putRestoreManyCiphers(
-    request: CipherBulkDeleteRequest
+    request: CipherBulkRestoreRequest
   ): Promise<ListResponse<CipherResponse>> {
     const r = await this.send("PUT", "/ciphers/restore", request, true, true);
+    return new ListResponse<CipherResponse>(r, CipherResponse);
+  }
+
+  async putRestoreManyCiphersAdmin(
+    request: CipherBulkRestoreRequest
+  ): Promise<ListResponse<CipherResponse>> {
+    const r = await this.send("PUT", "/ciphers/restore-admin", request, true, true);
     return new ListResponse<CipherResponse>(r, CipherResponse);
   }
 
@@ -821,11 +830,11 @@ export class ApiService implements ApiServiceAbstraction {
     );
   }
 
-  deleteManyCollections(request: CollectionBulkDeleteRequest): Promise<any> {
+  deleteManyCollections(organizationId: string, collectionIds: string[]): Promise<any> {
     return this.send(
       "DELETE",
-      "/organizations/" + request.organizationId + "/collections",
-      request,
+      "/organizations/" + organizationId + "/collections",
+      new CollectionBulkDeleteRequest(collectionIds),
       true,
       false
     );
@@ -881,7 +890,7 @@ export class ApiService implements ApiServiceAbstraction {
   // Plan APIs
 
   async getPlans(): Promise<ListResponse<PlanResponse>> {
-    const r = await this.send("GET", "/plans/", null, false, true);
+    const r = await this.send("GET", "/plans", null, false, true);
     return new ListResponse(r, PlanResponse);
   }
 
@@ -1108,81 +1117,6 @@ export class ApiService implements ApiServiceAbstraction {
       true
     );
     return new DeviceVerificationResponse(r);
-  }
-
-  // Emergency Access APIs
-
-  async getEmergencyAccessTrusted(): Promise<ListResponse<EmergencyAccessGranteeDetailsResponse>> {
-    const r = await this.send("GET", "/emergency-access/trusted", null, true, true);
-    return new ListResponse(r, EmergencyAccessGranteeDetailsResponse);
-  }
-
-  async getEmergencyAccessGranted(): Promise<ListResponse<EmergencyAccessGrantorDetailsResponse>> {
-    const r = await this.send("GET", "/emergency-access/granted", null, true, true);
-    return new ListResponse(r, EmergencyAccessGrantorDetailsResponse);
-  }
-
-  async getEmergencyAccess(id: string): Promise<EmergencyAccessGranteeDetailsResponse> {
-    const r = await this.send("GET", "/emergency-access/" + id, null, true, true);
-    return new EmergencyAccessGranteeDetailsResponse(r);
-  }
-
-  async getEmergencyGrantorPolicies(id: string): Promise<ListResponse<PolicyResponse>> {
-    const r = await this.send("GET", "/emergency-access/" + id + "/policies", null, true, true);
-    return new ListResponse(r, PolicyResponse);
-  }
-
-  putEmergencyAccess(id: string, request: EmergencyAccessUpdateRequest): Promise<any> {
-    return this.send("PUT", "/emergency-access/" + id, request, true, false);
-  }
-
-  deleteEmergencyAccess(id: string): Promise<any> {
-    return this.send("DELETE", "/emergency-access/" + id, null, true, false);
-  }
-
-  postEmergencyAccessInvite(request: EmergencyAccessInviteRequest): Promise<any> {
-    return this.send("POST", "/emergency-access/invite", request, true, false);
-  }
-
-  postEmergencyAccessReinvite(id: string): Promise<any> {
-    return this.send("POST", "/emergency-access/" + id + "/reinvite", null, true, false);
-  }
-
-  postEmergencyAccessAccept(id: string, request: EmergencyAccessAcceptRequest): Promise<any> {
-    return this.send("POST", "/emergency-access/" + id + "/accept", request, true, false);
-  }
-
-  postEmergencyAccessConfirm(id: string, request: EmergencyAccessConfirmRequest): Promise<any> {
-    return this.send("POST", "/emergency-access/" + id + "/confirm", request, true, false);
-  }
-
-  postEmergencyAccessInitiate(id: string): Promise<any> {
-    return this.send("POST", "/emergency-access/" + id + "/initiate", null, true, false);
-  }
-
-  postEmergencyAccessApprove(id: string): Promise<any> {
-    return this.send("POST", "/emergency-access/" + id + "/approve", null, true, false);
-  }
-
-  postEmergencyAccessReject(id: string): Promise<any> {
-    return this.send("POST", "/emergency-access/" + id + "/reject", null, true, false);
-  }
-
-  async postEmergencyAccessTakeover(id: string): Promise<EmergencyAccessTakeoverResponse> {
-    const r = await this.send("POST", "/emergency-access/" + id + "/takeover", null, true, true);
-    return new EmergencyAccessTakeoverResponse(r);
-  }
-
-  async postEmergencyAccessPassword(
-    id: string,
-    request: EmergencyAccessPasswordRequest
-  ): Promise<any> {
-    await this.send("POST", "/emergency-access/" + id + "/password", request, true, true);
-  }
-
-  async postEmergencyAccessView(id: string): Promise<EmergencyAccessViewResponse> {
-    const r = await this.send("POST", "/emergency-access/" + id + "/view", null, true, true);
-    return new EmergencyAccessViewResponse(r);
   }
 
   // Organization APIs
@@ -1572,7 +1506,9 @@ export class ApiService implements ApiServiceAbstraction {
 
   // Key Connector
 
-  async getUserKeyFromKeyConnector(keyConnectorUrl: string): Promise<KeyConnectorUserKeyResponse> {
+  async getMasterKeyFromKeyConnector(
+    keyConnectorUrl: string
+  ): Promise<KeyConnectorUserKeyResponse> {
     const authHeader = await this.getActiveBearerToken();
 
     const response = await this.fetch(

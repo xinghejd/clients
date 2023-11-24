@@ -1,10 +1,12 @@
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { BitwardenSdkServiceAbstraction } from "@bitwarden/common/abstractions/bitwarden-sdk.service.abstraction";
+import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { TotpService } from "@bitwarden/common/abstractions/totp.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { EventType } from "@bitwarden/common/enums";
 import { CardExport } from "@bitwarden/common/models/export/card.export";
 import { CipherExport } from "@bitwarden/common/models/export/cipher.export";
 import { CollectionExport } from "@bitwarden/common/models/export/collection.export";
@@ -55,6 +57,7 @@ export class GetCommand extends DownloadCommand {
     private searchService: SearchService,
     private apiService: ApiService,
     private organizationService: OrganizationService,
+    private eventCollectionService: EventCollectionService,
     private bitwardenSdkService: BitwardenSdkServiceAbstraction
   ) {
     super(cryptoService);
@@ -105,7 +108,9 @@ export class GetCommand extends DownloadCommand {
     if (Utils.isGuid(id)) {
       const cipher = await this.cipherService.get(id);
       if (cipher != null) {
-        decCipher = await cipher.decrypt();
+        decCipher = await cipher.decrypt(
+          await this.cipherService.getKeyForCipherKeyDecryption(cipher)
+        );
       }
     } else if (id.trim() !== "") {
       let ciphers = await this.cipherService.getAllDecrypted();
@@ -137,6 +142,14 @@ export class GetCommand extends DownloadCommand {
         return Response.multipleResults(decCipher.map((c) => c.id));
       }
     }
+
+    this.eventCollectionService.collect(
+      EventType.Cipher_ClientViewed,
+      id,
+      true,
+      decCipher.organizationId
+    );
+
     const res = new CipherResponse(decCipher);
     return Response.success(res);
   }
@@ -427,7 +440,9 @@ export class GetCommand extends DownloadCommand {
       const groups =
         response.groups == null
           ? null
-          : response.groups.map((g) => new SelectionReadOnly(g.id, g.readOnly, g.hidePasswords));
+          : response.groups.map(
+              (g) => new SelectionReadOnly(g.id, g.readOnly, g.hidePasswords, g.manage)
+            );
       const res = new OrganizationCollectionResponse(decCollection, groups);
       return Response.success(res);
     } catch (e) {
@@ -519,7 +534,7 @@ export class GetCommand extends DownloadCommand {
       try {
         const response = await this.apiService.getUserPublicKey(id);
         const pubKey = Utils.fromB64ToArray(response.publicKey);
-        fingerprint = (await this.cryptoService.getFingerprint(id, pubKey.buffer)).join("-");
+        fingerprint = (await this.cryptoService.getFingerprint(id, pubKey)).join("-");
       } catch {
         // eslint-disable-next-line
       }

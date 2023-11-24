@@ -20,6 +20,27 @@ export class AutoFillConstants {
     "benutzer id",
   ];
 
+  static readonly TotpFieldNames: string[] = [
+    "totp",
+    "2fa",
+    "mfa",
+    "totpcode",
+    "2facode",
+    "approvals_code",
+    "code",
+    "mfacode",
+    "otc",
+    "otc-code",
+    "otp-code",
+    "otpcode",
+    "pin",
+    "security_code",
+    "twofactor",
+    "twofa",
+    "twofactorcode",
+    "verificationCode",
+  ];
+
   static readonly PasswordFieldIgnoreList: string[] = [
     "onetimepassword",
     "captcha",
@@ -89,6 +110,7 @@ export class CreditCardAutoFillConstants {
     "carte-credit",
     "num-carte",
     "cb-num",
+    "card-pan",
   ];
 
   static readonly CardNumberFieldNameValues: string[] = [

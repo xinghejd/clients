@@ -4,7 +4,6 @@ import { Component, EventEmitter, OnDestroy, OnInit, Output } from "@angular/cor
 import { Router } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import {
   EnvironmentService as EnvironmentServiceAbstraction,
@@ -37,12 +36,11 @@ import {
 })
 export class EnvironmentSelectorComponent implements OnInit, OnDestroy {
   @Output() onOpenSelfHostedSettings = new EventEmitter();
-  euServerFlagEnabled: boolean;
   isOpen = false;
   showingModal = false;
   selectedEnvironment: Region;
   ServerEnvironmentType = Region;
-  overlayPostition: ConnectedPosition[] = [
+  overlayPosition: ConnectedPosition[] = [
     {
       originX: "start",
       originY: "bottom",
@@ -88,10 +86,6 @@ export class EnvironmentSelectorComponent implements OnInit, OnDestroy {
   }
 
   async updateEnvironmentInfo() {
-    this.euServerFlagEnabled = await this.configService.getFeatureFlagBool(
-      FeatureFlag.DisplayEuEnvironmentFlag
-    );
-
     this.selectedEnvironment = this.environmentService.selectedRegion;
   }
 

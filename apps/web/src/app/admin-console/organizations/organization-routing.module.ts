@@ -1,7 +1,7 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
-import { AuthGuard } from "@bitwarden/angular/auth/guards/auth.guard";
+import { AuthGuard } from "@bitwarden/angular/auth/guards";
 import {
   canAccessOrgAdmin,
   canAccessGroupsTab,
@@ -16,13 +16,14 @@ import { OrganizationPermissionsGuard } from "../../admin-console/organizations/
 import { OrganizationRedirectGuard } from "../../admin-console/organizations/guards/org-redirect.guard";
 import { OrganizationLayoutComponent } from "../../admin-console/organizations/layouts/organization-layout.component";
 import { GroupsComponent } from "../../admin-console/organizations/manage/groups.component";
+import { deepLinkGuard } from "../../auth/guards/deep-link.guard";
 import { VaultModule } from "../../vault/org-vault/vault.module";
 
 const routes: Routes = [
   {
     path: ":organizationId",
     component: OrganizationLayoutComponent,
-    canActivate: [AuthGuard, OrganizationPermissionsGuard],
+    canActivate: [deepLinkGuard(), AuthGuard, OrganizationPermissionsGuard],
     data: {
       organizationPermissions: canAccessOrgAdmin,
     },

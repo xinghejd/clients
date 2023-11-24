@@ -12,19 +12,24 @@ import { SharedModule } from "../../shared.module";
 })
 export class AccountFingerprintComponent implements OnInit {
   @Input() fingerprintMaterial: string;
-  @Input() publicKeyBuffer: ArrayBuffer;
+  @Input() publicKeyBuffer: Uint8Array;
   @Input() fingerprintLabel: string;
 
   protected fingerprint: string;
 
-  constructor(private cryptoService: CryptoService) {}
+  constructor(
+    private cryptoService: CryptoService,
+    private bitwardenSdkService: BitwardenSdkServiceAbstraction
+  ) {}
 
   async ngOnInit() {
+    const client = await this.bitwardenSdkService.getClient();
+    const pubKey = this.publicKeyBuffer ?? (await this.cryptoService.getPublicKey());
+
     // TODO - In the future, remove this code and use the fingerprint pipe once merged
-    const generatedFingerprint = await this.cryptoService.getFingerprint(
+    this.fingerprint = await client.fingerprint(
       this.fingerprintMaterial,
-      this.publicKeyBuffer
+      Utils.fromBufferToB64(pubKey)
     );
-    this.fingerprint = generatedFingerprint?.join("-") ?? null;
   }
 }

@@ -8,6 +8,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 
+import { flagEnabled } from "../../platform/flags";
+
 @Component({
   selector: "app-options",
   templateUrl: "options.component.html",
@@ -22,6 +24,7 @@ export class OptionsComponent implements OnInit {
   enableContextMenuItem = false;
   enableAddLoginNotification = false;
   enableChangedPasswordNotification = false;
+  enablePasskeys = true;
   showCardsCurrentTab = false;
   showIdentitiesCurrentTab = false;
   showClearClipboard = true;
@@ -34,6 +37,7 @@ export class OptionsComponent implements OnInit {
   showGeneral = true;
   showAutofill = true;
   showDisplay = true;
+  accountSwitcherEnabled = false;
 
   constructor(
     private messagingService: MessagingService,
@@ -71,6 +75,8 @@ export class OptionsComponent implements OnInit {
       { name: i18nService.t("autoFillOnPageLoadYes"), value: true },
       { name: i18nService.t("autoFillOnPageLoadNo"), value: false },
     ];
+
+    this.accountSwitcherEnabled = flagEnabled("accountSwitching");
   }
 
   async ngOnInit() {
@@ -95,6 +101,8 @@ export class OptionsComponent implements OnInit {
 
     this.enableBadgeCounter = !(await this.stateService.getDisableBadgeCounter());
 
+    this.enablePasskeys = await this.stateService.getEnablePasskeys();
+
     this.theme = await this.stateService.getTheme();
 
     const defaultUriMatch = await this.stateService.getDefaultUriMatch();
@@ -111,6 +119,10 @@ export class OptionsComponent implements OnInit {
     await this.stateService.setDisableChangedPasswordNotification(
       !this.enableChangedPasswordNotification
     );
+  }
+
+  async updateEnablePasskeys() {
+    await this.stateService.setEnablePasskeys(this.enablePasskeys);
   }
 
   async updateContextMenuItem() {

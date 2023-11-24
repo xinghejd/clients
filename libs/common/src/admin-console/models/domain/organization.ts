@@ -31,6 +31,7 @@ export class Organization {
   useCustomPermissions: boolean;
   useResetPassword: boolean;
   useSecretsManager: boolean;
+  usePasswordManager: boolean;
   useActivateAutofillPolicy: boolean;
   selfHost: boolean;
   usersGetPremium: boolean;
@@ -63,6 +64,10 @@ export class Organization {
   familySponsorshipValidUntil?: Date;
   familySponsorshipToDelete?: boolean;
   accessSecretsManager: boolean;
+  /**
+   * Refers to the ability for an organization to limit collection creation and deletion to owners and admins only
+   */
+  limitCollectionCreationDeletion: boolean;
 
   constructor(obj?: OrganizationData) {
     if (obj == null) {
@@ -87,6 +92,7 @@ export class Organization {
     this.useCustomPermissions = obj.useCustomPermissions;
     this.useResetPassword = obj.useResetPassword;
     this.useSecretsManager = obj.useSecretsManager;
+    this.usePasswordManager = obj.usePasswordManager;
     this.useActivateAutofillPolicy = obj.useActivateAutofillPolicy;
     this.selfHost = obj.selfHost;
     this.usersGetPremium = obj.usersGetPremium;
@@ -113,6 +119,7 @@ export class Organization {
     this.familySponsorshipValidUntil = obj.familySponsorshipValidUntil;
     this.familySponsorshipToDelete = obj.familySponsorshipToDelete;
     this.accessSecretsManager = obj.accessSecretsManager;
+    this.limitCollectionCreationDeletion = obj.limitCollectionCreationDeletion;
   }
 
   get canAccess() {
@@ -156,7 +163,9 @@ export class Organization {
   }
 
   get canCreateNewCollections() {
-    return this.isManager || this.permissions.createNewCollections;
+    return (
+      !this.limitCollectionCreationDeletion || this.isAdmin || this.permissions.createNewCollections
+    );
   }
 
   get canEditAnyCollection() {
@@ -172,7 +181,7 @@ export class Organization {
   }
 
   get canViewAllCollections() {
-    return this.canCreateNewCollections || this.canEditAnyCollection || this.canDeleteAnyCollection;
+    return this.canEditAnyCollection || this.canDeleteAnyCollection;
   }
 
   get canEditAssignedCollections() {
@@ -215,6 +224,10 @@ export class Organization {
     return this.isAdmin || this.permissions.manageResetPassword;
   }
 
+  get canManageDeviceApprovals() {
+    return (this.isAdmin || this.permissions.manageResetPassword) && this.useSso;
+  }
+
   get isExemptFromPolicies() {
     return this.canManagePolicies;
   }
@@ -243,6 +256,10 @@ export class Organization {
 
   get hasProvider() {
     return this.providerId != null || this.providerName != null;
+  }
+
+  get hasReseller() {
+    return this.hasProvider && this.providerType === ProviderType.Reseller;
   }
 
   get canAccessSecretsManager() {

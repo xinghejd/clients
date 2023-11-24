@@ -7,9 +7,10 @@ import { EnvironmentSelectorComponent } from "@bitwarden/angular/auth/components
 import { LoginComponent as BaseLoginComponent } from "@bitwarden/angular/auth/components/login.component";
 import { FormValidationErrorsService } from "@bitwarden/angular/platform/abstractions/form-validation-errors.service";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
-import { DevicesApiServiceAbstraction } from "@bitwarden/common/abstractions/devices/devices-api.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { LoginService } from "@bitwarden/common/auth/abstractions/login.service";
+import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
@@ -33,8 +34,8 @@ const BroadcasterSubscriptionId = "LoginComponent";
 export class LoginComponent extends BaseLoginComponent implements OnDestroy {
   @ViewChild("environment", { read: ViewContainerRef, static: true })
   environmentModal: ViewContainerRef;
-  @ViewChild(EnvironmentSelectorComponent)
-  environmentSelector!: EnvironmentSelectorComponent;
+  @ViewChild("environmentSelector", { read: ViewContainerRef, static: true })
+  environmentSelector: EnvironmentSelectorComponent;
 
   protected componentDestroyed$: Subject<void> = new Subject();
   webVaultHostname = "";
@@ -71,7 +72,8 @@ export class LoginComponent extends BaseLoginComponent implements OnDestroy {
     formBuilder: FormBuilder,
     formValidationErrorService: FormValidationErrorsService,
     route: ActivatedRoute,
-    loginService: LoginService
+    loginService: LoginService,
+    webAuthnLoginService: WebAuthnLoginServiceAbstraction
   ) {
     super(
       devicesApiService,
@@ -89,7 +91,8 @@ export class LoginComponent extends BaseLoginComponent implements OnDestroy {
       formBuilder,
       formValidationErrorService,
       route,
-      loginService
+      loginService,
+      webAuthnLoginService
     );
     super.onSuccessfulLogin = () => {
       return syncService.fullSync(true);
@@ -121,11 +124,6 @@ export class LoginComponent extends BaseLoginComponent implements OnDestroy {
       });
     });
     this.messagingService.send("getWindowIsFocused");
-    this.environmentSelector.onOpenSelfHostedSettings
-      .pipe(takeUntil(this.componentDestroyed$))
-      .subscribe(() => {
-        this.settings();
-      });
   }
 
   ngOnDestroy() {
@@ -187,6 +185,6 @@ export class LoginComponent extends BaseLoginComponent implements OnDestroy {
 
   private focusInput() {
     const email = this.loggedEmail;
-    document.getElementById(email == null || email === "" ? "email" : "masterPassword").focus();
+    document.getElementById(email == null || email === "" ? "email" : "masterPassword")?.focus();
   }
 }

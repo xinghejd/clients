@@ -32,6 +32,7 @@ export class Utils {
   static regexpEmojiPresentation =
     /(?:[\u231A\u231B\u23E9-\u23EC\u23F0\u23F3\u25FD\u25FE\u2614\u2615\u2648-\u2653\u267F\u2693\u26A1\u26AA\u26AB\u26BD\u26BE\u26C4\u26C5\u26CE\u26D4\u26EA\u26F2\u26F3\u26F5\u26FA\u26FD\u2705\u270A\u270B\u2728\u274C\u274E\u2753-\u2755\u2757\u2795-\u2797\u27B0\u27BF\u2B1B\u2B1C\u2B50\u2B55]|\uD83C[\uDC04\uDCCF\uDD8E\uDD91-\uDD9A\uDDE6-\uDDFF\uDE01\uDE1A\uDE2F\uDE32-\uDE36\uDE38-\uDE3A\uDE50\uDE51\uDF00-\uDF20\uDF2D-\uDF35\uDF37-\uDF7C\uDF7E-\uDF93\uDFA0-\uDFCA\uDFCF-\uDFD3\uDFE0-\uDFF0\uDFF4\uDFF8-\uDFFF]|\uD83D[\uDC00-\uDC3E\uDC40\uDC42-\uDCFC\uDCFF-\uDD3D\uDD4B-\uDD4E\uDD50-\uDD67\uDD7A\uDD95\uDD96\uDDA4\uDDFB-\uDE4F\uDE80-\uDEC5\uDECC\uDED0-\uDED2\uDED5-\uDED7\uDEEB\uDEEC\uDEF4-\uDEFC\uDFE0-\uDFEB]|\uD83E[\uDD0C-\uDD3A\uDD3C-\uDD45\uDD47-\uDD78\uDD7A-\uDDCB\uDDCD-\uDDFF\uDE70-\uDE74\uDE78-\uDE7A\uDE80-\uDE86\uDE90-\uDEA8\uDEB0-\uDEB6\uDEC0-\uDEC2\uDED0-\uDED6])/g;
   static readonly validHosts: string[] = ["localhost"];
+  static readonly originalMinimumPasswordLength = 8;
   static readonly minimumPasswordLength = 12;
   static readonly DomainMatchBlacklist = new Map<string, Set<string>>([
     ["google.com", new Set(["script.google.com"])],
@@ -169,6 +170,43 @@ export class Utils {
     }
   }
 
+  /**
+   * Converts a hex string to an ArrayBuffer.
+   * Note: this doesn't need any Node specific code as parseInt() / ArrayBuffer / Uint8Array
+   * work the same in Node and the browser.
+   * @param {string} hexString - A string of hexadecimal characters.
+   * @returns {ArrayBuffer} The ArrayBuffer representation of the hex string.
+   */
+  static hexStringToArrayBuffer(hexString: string): ArrayBuffer {
+    // Check if the hexString has an even length, as each hex digit represents half a byte (4 bits),
+    // and it takes two hex digits to represent a full byte (8 bits).
+    if (hexString.length % 2 !== 0) {
+      throw "HexString has to be an even length";
+    }
+
+    // Create an ArrayBuffer with a length that is half the length of the hex string,
+    // because each pair of hex digits will become a single byte.
+    const arrayBuffer = new ArrayBuffer(hexString.length / 2);
+
+    // Create a Uint8Array view on top of the ArrayBuffer (each position represents a byte)
+    // as ArrayBuffers cannot be edited directly.
+    const uint8Array = new Uint8Array(arrayBuffer);
+
+    // Loop through the bytes
+    for (let i = 0; i < uint8Array.length; i++) {
+      // Extract two hex characters (1 byte)
+      const hexByte = hexString.substr(i * 2, 2);
+
+      // Convert hexByte into a decimal value from base 16. (ex: ff --> 255)
+      const byteValue = parseInt(hexByte, 16);
+
+      // Place the byte value into the uint8Array
+      uint8Array[i] = byteValue;
+    }
+
+    return arrayBuffer;
+  }
+
   static fromUrlB64ToB64(urlB64Str: string): string {
     let output = urlB64Str.replace(/-/g, "+").replace(/_/g, "/");
     switch (output.length % 4) {
@@ -288,7 +326,10 @@ export class Utils {
     }
 
     try {
-      const parseResult = parse(uriString, { validHosts: this.validHosts });
+      const parseResult = parse(uriString, {
+        validHosts: this.validHosts,
+        allowPrivateDomains: true,
+      });
       if (parseResult != null && parseResult.hostname != null) {
         if (parseResult.hostname === "localhost" || parseResult.isIp) {
           return parseResult.hostname;
@@ -536,6 +577,16 @@ export class Utils {
    * */
   static asyncToObservable<T>(generator: () => Promise<T>): Observable<T> {
     return of(undefined).pipe(switchMap(() => generator()));
+  }
+
+  /**
+   * Return the number of days remaining before a target date arrives.
+   * Returns 0 if the day has already passed.
+   */
+  static daysRemaining(targetDate: Date): number {
+    const diffTime = targetDate.getTime() - Date.now();
+    const msPerDay = 86400000;
+    return Math.max(0, Math.floor(diffTime / msPerDay));
   }
 
   private static isAppleMobile(win: Window) {

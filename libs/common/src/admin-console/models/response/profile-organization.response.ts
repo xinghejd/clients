@@ -19,6 +19,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
   useCustomPermissions: boolean;
   useResetPassword: boolean;
   useSecretsManager: boolean;
+  usePasswordManager: boolean;
   useActivateAutofillPolicy: boolean;
   selfHost: boolean;
   usersGetPremium: boolean;
@@ -47,6 +48,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
   familySponsorshipValidUntil?: Date;
   familySponsorshipToDelete?: boolean;
   accessSecretsManager: boolean;
+  limitCollectionCreationDeletion: boolean;
 
   constructor(response: any) {
     super(response);
@@ -65,6 +67,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
     this.useCustomPermissions = this.getResponseProperty("UseCustomPermissions") ?? false;
     this.useResetPassword = this.getResponseProperty("UseResetPassword");
     this.useSecretsManager = this.getResponseProperty("UseSecretsManager");
+    this.usePasswordManager = this.getResponseProperty("UsePasswordManager");
     this.useActivateAutofillPolicy = this.getResponseProperty("UseActivateAutofillPolicy");
     this.selfHost = this.getResponseProperty("SelfHost");
     this.usersGetPremium = this.getResponseProperty("UsersGetPremium");
@@ -103,5 +106,8 @@ export class ProfileOrganizationResponse extends BaseResponse {
     }
     this.familySponsorshipToDelete = this.getResponseProperty("FamilySponsorshipToDelete");
     this.accessSecretsManager = this.getResponseProperty("AccessSecretsManager");
+    this.limitCollectionCreationDeletion = this.getResponseProperty(
+      "LimitCollectionCreationDeletion"
+    );
   }
 }

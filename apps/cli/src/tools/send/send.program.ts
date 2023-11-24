@@ -157,6 +157,7 @@ export class SendProgram extends Program {
           this.main.searchService,
           this.main.apiService,
           this.main.organizationService,
+          this.main.eventCollectionService,
           this.main.bitwardenSdkService
         );
         const response = await cmd.run("template", object, null);
