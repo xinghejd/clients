@@ -7,7 +7,6 @@ export class GlobalState {
   installedVersion?: string;
   locale?: string;
   organizationInvitation?: any;
-  emergencyAccessInvitation?: any;
   ssoCodeVerifier?: string;
   ssoOrganizationIdentifier?: string;
   ssoState?: string;
@@ -37,8 +36,10 @@ export class GlobalState {
   enableDuckDuckGoBrowserIntegration?: boolean;
   region?: string;
   neverDomains?: { [id: string]: unknown };
+  enablePasskeys?: boolean;
   disableAddLoginNotification?: boolean;
   disableChangedPasswordNotification?: boolean;
   disableContextMenuItem?: boolean;
   autoFillOverlayVisibility?: number;
+  deepLinkRedirectUrl?: string;
 }
