@@ -1,11 +1,15 @@
 import JSDOMEnvironment from "jest-environment-jsdom";
 
 /**
- * Maps missing jsdom APIs to the Node.js implementation.
- * Details for each interface are in the FIXME(s) below.
+ * Maps Node's APIs to the jsdom global object to work around
+ * missing methods in Jest's 'jsdom' test environment.
+ *
  * @remarks To use this test environment, reference this file
  * in the `testEnvironment` property of the Jest configuration
- * or using `@jest-environment path/to/test.environment.ts`
+ * or adding a `@jest-environment path/to/test.environment.ts`
+ * directive to your test file. Consult the Jest documentation
+ * for more information.
+ *
  * @see https://github.com/facebook/jest/blob/v29.4.3/website/versioned_docs/version-29.4/Configuration.md#testenvironment-string
  */
 export default class FixJSDOMEnvironment extends JSDOMEnvironment {
