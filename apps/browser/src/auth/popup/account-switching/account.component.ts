@@ -1,4 +1,4 @@
-import { CommonModule } from "@angular/common";
+import { CommonModule, Location } from "@angular/common";
 import { Component, Input } from "@angular/core";
 import { Router } from "@angular/router";
 
@@ -6,8 +6,6 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { AvatarModule } from "@bitwarden/components";
-
-import { BrowserRouterService } from "../../../platform/popup/services/browser-router.service";
 
 import { AccountSwitcherService, AvailableAccount } from "./services/account-switcher.service";
 
@@ -23,7 +21,7 @@ export class AccountComponent {
   constructor(
     private accountSwitcherService: AccountSwitcherService,
     private router: Router,
-    private routerService: BrowserRouterService,
+    private location: Location,
     private i18nService: I18nService
   ) {}
 
@@ -37,7 +35,7 @@ export class AccountComponent {
     if (id === this.specialAccountAddId) {
       this.router.navigate(["home"]);
     } else {
-      this.router.navigate([this.routerService.getPreviousUrl() ?? "/home"]);
+      this.location.back();
     }
   }
 
