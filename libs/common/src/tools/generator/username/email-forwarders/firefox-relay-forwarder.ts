@@ -19,7 +19,7 @@ export class FirefoxRelayForwarder implements Forwarder {
     const url = "https://relay.firefox.com/api/v1/relayaddresses/";
 
     const descriptionId =
-      website && website !== "" ? "forwarder.generatedBy" : "forwarder.generatedByWithWebsite";
+      website && website !== "" ? "forwarder.generatedByWithWebsite" : "forwarder.generatedBy";
     const description = this.i18nService.t(descriptionId, website ?? "");
 
     const request = new Request(url, {
