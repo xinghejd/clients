@@ -1,7 +1,6 @@
 import { AnonAddyForwarder } from "./anon-addy-forwarder";
 import { mockApiService, mockI18nService } from "./mocks.spec";
 
-// here's where the tests start
 describe("Addy.io Forwarder", () => {
   describe("constructor(ApiService, I18nService)", () => {
     it("looks up the service name from the i18nService", () => {
