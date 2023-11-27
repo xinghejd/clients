@@ -9,7 +9,7 @@ module.exports = {
   ...sharedConfig,
   displayName: "libs/common tests",
   preset: "ts-jest",
-  testEnvironment: "jsdom",
+  testEnvironment: "<rootDir>/spec/fix-jsdom-missing-fetch.ts",
   setupFilesAfterEnv: ["<rootDir>/test.setup.ts"],
   moduleNameMapper: pathsToModuleNameMapper(compilerOptions?.paths || {}, {
     prefix: "<rootDir>/",

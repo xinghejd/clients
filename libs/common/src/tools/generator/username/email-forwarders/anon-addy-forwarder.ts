@@ -28,7 +28,7 @@ export class AnonAddyForwarder implements Forwarder {
     }
 
     const descriptionId =
-      website && website !== "" ? "forwarder.generatedBy" : "forwarder.generatedByWithWebsite";
+      website && website !== "" ? "forwarder.generatedByWithWebsite" : "forwarder.generatedBy";
     const description = this.i18nService.t(descriptionId, website ?? "");
 
     const url = options.baseUrl + "/api/v1/aliases";
@@ -54,7 +54,7 @@ export class AnonAddyForwarder implements Forwarder {
     } else if (response.status === 401) {
       const error = this.i18nService.t("forwarder.invalidToken", this.serviceName);
       throw error;
-    } else if (response?.statusText != null) {
+    } else if (response?.statusText) {
       const error = this.i18nService.t("forwarder.error", this.serviceName, response.statusText);
       throw error;
     } else {
