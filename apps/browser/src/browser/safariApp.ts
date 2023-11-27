@@ -10,7 +10,7 @@ export class SafariApp {
       const messageId =
         now.getTime().toString() + "_" + Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
       (browser as any).runtime.sendNativeMessage(
-        "com.bitwarden.desktop",
+        "com.example.apple-samplecode.ShinyLTZ2PFU5D6",
         {
           id: messageId,
           command: command,
