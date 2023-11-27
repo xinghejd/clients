@@ -5,7 +5,7 @@ import JSDOMEnvironment from "jest-environment-jsdom";
  * Details for each interface are in the FIXME(s) below.
  * @remarks To use this test environment, reference this file
  * in the `testEnvironment` property of the Jest configuration
- * or using `@jest-environment path\to\test.environment.ts`
+ * or using `@jest-environment path/to/test.environment.ts`
  * @see https://github.com/facebook/jest/blob/v29.4.3/website/versioned_docs/version-29.4/Configuration.md#testenvironment-string
  */
 export default class FixJSDOMEnvironment extends JSDOMEnvironment {
