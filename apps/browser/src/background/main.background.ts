@@ -837,34 +837,35 @@ export default class MainBackground {
    * Switch accounts to indicated userId -- null is no active user
    */
   async switchAccount(userId: UserId) {
-    await this.stateService.setActiveUser(userId);
+    try {
+      await this.stateService.setActiveUser(userId);
 
-    if (userId == null) {
-      await this.stateService.setRememberedEmail(null);
-      await this.refreshBadge();
-      await this.refreshMenu();
-      // TODO: Discuss fix before merging and remove comment
-      this.messagingService.send("switchAccountFinish", { userId: userId });
-      return;
-    }
+      if (userId == null) {
+        await this.stateService.setRememberedEmail(null);
+        await this.refreshBadge();
+        await this.refreshMenu();
+        return;
+      }
 
-    const status = await this.authService.getAuthStatus(userId);
-    const forcePasswordReset =
-      (await this.stateService.getForceSetPasswordReason({ userId: userId })) !=
-      ForceSetPasswordReason.None;
+      const status = await this.authService.getAuthStatus(userId);
+      const forcePasswordReset =
+        (await this.stateService.getForceSetPasswordReason({ userId: userId })) !=
+        ForceSetPasswordReason.None;
 
-    await this.systemService.clearPendingClipboard();
-    await this.notificationsService.updateConnection(false);
+      await this.systemService.clearPendingClipboard();
+      await this.notificationsService.updateConnection(false);
 
-    if (status === AuthenticationStatus.Locked) {
-      this.messagingService.send("locked", { userId: userId });
-    } else if (forcePasswordReset) {
-      this.messagingService.send("update-temp-password", { userId: userId });
-    } else {
-      this.messagingService.send("unlocked", { userId: userId });
-      await this.refreshBadge();
-      await this.refreshMenu();
-      await this.syncService.fullSync(false);
+      if (status === AuthenticationStatus.Locked) {
+        this.messagingService.send("locked", { userId: userId });
+      } else if (forcePasswordReset) {
+        this.messagingService.send("update-temp-password", { userId: userId });
+      } else {
+        this.messagingService.send("unlocked", { userId: userId });
+        await this.refreshBadge();
+        await this.refreshMenu();
+        await this.syncService.fullSync(false);
+      }
+    } finally {
       this.messagingService.send("switchAccountFinish", { userId: userId });
     }
   }

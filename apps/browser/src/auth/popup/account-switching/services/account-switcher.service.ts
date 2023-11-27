@@ -13,6 +13,7 @@ import {
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -33,6 +34,8 @@ export type AvailableAccount = {
   providedIn: "root",
 })
 export class AccountSwitcherService {
+  static incompleteAccountSwitchError = "Account switch did not complete.";
+
   ACCOUNT_LIMIT = 5;
   SPECIAL_ADD_ACCOUNT_ID = "addAccount";
   availableAccounts$: Observable<AvailableAccount[]>;
@@ -43,7 +46,8 @@ export class AccountSwitcherService {
     private accountService: AccountService,
     private stateService: StateService,
     private messagingService: MessagingService,
-    private environmentService: EnvironmentService
+    private environmentService: EnvironmentService,
+    private logService: LogService
   ) {
     this.availableAccounts$ = combineLatest([
       this.accountService.accounts$,
@@ -110,7 +114,8 @@ export class AccountSwitcherService {
           // for very large accounts and want to still have a timeout
           // to avoid a promise that might never resolve/reject
           first: 60_000,
-          with: () => throwError(() => new Error("Account switch did not complete.")),
+          with: () =>
+            throwError(() => new Error(AccountSwitcherService.incompleteAccountSwitchError)),
         })
       )
     );
@@ -120,6 +125,15 @@ export class AccountSwitcherService {
     this.messagingService.send("switchAccount", { userId: id }); // This message should cause switchAccountFinish to be sent
 
     // Wait until we recieve the switchAccountFinished message
-    await switchAccountFinishedPromise;
+    await switchAccountFinishedPromise.catch((err) => {
+      if (
+        err instanceof Error &&
+        err.message === AccountSwitcherService.incompleteAccountSwitchError
+      ) {
+        this.logService.warning("message 'switchAccount' never responded.");
+        return;
+      }
+      throw err;
+    });
   }
 }
