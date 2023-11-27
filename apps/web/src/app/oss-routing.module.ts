@@ -18,12 +18,12 @@ import { FamiliesForEnterpriseSetupComponent } from "./admin-console/organizatio
 import { CreateOrganizationComponent } from "./admin-console/settings/create-organization.component";
 import { SponsoredFamiliesComponent } from "./admin-console/settings/sponsored-families.component";
 import { AcceptOrganizationComponent } from "./auth/accept-organization.component";
-import { AcceptEmergencyComponent } from "./auth/emergency-access/accept/accept-emergency.component";
 import { deepLinkGuard } from "./auth/guards/deep-link.guard";
 import { HintComponent } from "./auth/hint.component";
 import { LockComponent } from "./auth/lock.component";
 import { LoginDecryptionOptionsComponent } from "./auth/login/login-decryption-options/login-decryption-options.component";
 import { LoginViaAuthRequestComponent } from "./auth/login/login-via-auth-request.component";
+import { LoginViaWebAuthnComponent } from "./auth/login/login-via-webauthn/login-via-webauthn.component";
 import { LoginComponent } from "./auth/login/login.component";
 import { RecoverDeleteComponent } from "./auth/recover-delete.component";
 import { RecoverTwoFactorComponent } from "./auth/recover-two-factor.component";
@@ -69,6 +69,11 @@ const routes: Routes = [
         path: "login-with-device",
         component: LoginViaAuthRequestComponent,
         data: { titleId: "loginWithDevice" },
+      },
+      {
+        path: "login-with-passkey",
+        component: LoginViaWebAuthnComponent,
+        data: { titleId: "loginWithPasskey" },
       },
       {
         path: "admin-approval-requested",
@@ -126,7 +131,6 @@ const routes: Routes = [
       },
       {
         path: "accept-emergency",
-        component: AcceptEmergencyComponent,
         canActivate: [deepLinkGuard()],
         data: { titleId: "acceptEmergency", doNotSaveUrl: false },
         loadComponent: () =>
