@@ -52,7 +52,6 @@ export class SetPinComponent implements OnInit {
     } else {
       await this.stateService.setPinKeyEncryptedUserKey(pinProtectedKey);
     }
-    await this.cryptoService.clearDeprecatedKeys(KeySuffixOptions.Pin);
 
     this.modalRef.close(true);
   }

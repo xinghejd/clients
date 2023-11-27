@@ -3041,7 +3041,7 @@ export class StateService<
   }
 
   protected async saveAccountToMemory(account: TAccount): Promise<void> {
-    if (this.getAccountFromMemory({ userId: account.profile.userId }) !== null) {
+    if ((await this.getAccountFromMemory({ userId: account.profile.userId })) !== null) {
       await this.updateState((state) => {
         return new Promise((resolve) => {
           state.accounts[account.profile.userId] = account;
