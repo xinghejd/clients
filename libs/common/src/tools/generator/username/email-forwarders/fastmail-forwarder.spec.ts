@@ -233,7 +233,7 @@ describe("Fastmail Forwarder", () => {
       [["MaskedEmail/set", { notCreated: null }]],
       [["MaskedEmail/set", { notCreated: { "new-masked-email": null } }]],
     ])(
-      "throws an unknown error if the jmap request is missing data (= %p)",
+      "throws an unknown error if the jmap request is malformed (= %p)",
       async (responses: any) => {
         const apiService = mockApiService(AccountIdSuccess, {
           status: 200,
