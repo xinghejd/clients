@@ -109,7 +109,7 @@ class BrowserPopupUtils {
       singleActionKey?: string;
       forceCloseExistingWindows?: boolean;
       windowOptions?: Partial<chrome.windows.CreateData>;
-      skipParsingExtensionUrl?: boolean;
+      skipParsingExtensionUrlPath?: boolean;
     } = {}
   ) {
     const {
@@ -117,7 +117,7 @@ class BrowserPopupUtils {
       singleActionKey,
       forceCloseExistingWindows,
       windowOptions,
-      skipParsingExtensionUrl,
+      skipParsingExtensionUrlPath,
     } = options;
     const defaultPopoutWindowOptions: chrome.windows.CreateData = {
       type: "popup",
@@ -129,7 +129,7 @@ class BrowserPopupUtils {
     const offsetTop = 90;
     const popupWidth = defaultPopoutWindowOptions.width;
     const senderWindow = await BrowserApi.getWindow(senderWindowId);
-    const parsedUrlPath = skipParsingExtensionUrl
+    const parsedUrlPath = skipParsingExtensionUrlPath
       ? extensionUrlPath
       : BrowserPopupUtils.buildPopoutUrlPath(extensionUrlPath, singleActionKey);
     const popoutWindowOptions = {
@@ -191,7 +191,7 @@ class BrowserPopupUtils {
     // When opening a popout from the current popup page, we need to ensure that the query param for the uilocation is present before the hash route.
     // This ensures that the value persists when the user navigates within the popout window, which is normally unnecessary to do with other popout windows.
     await BrowserPopupUtils.openPopout(`${parsedUrl.pathname}?uilocation=popout${hashRoute}`, {
-      skipParsingExtensionUrl: true,
+      skipParsingExtensionUrlPath: true,
     });
 
     if (BrowserPopupUtils.inPopup(win)) {

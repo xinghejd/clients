@@ -196,7 +196,7 @@ describe("BrowserPopupUtils", () => {
       jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(false);
       jest.spyOn(BrowserPopupUtils as any, "buildPopoutUrlPath");
 
-      BrowserPopupUtils.openPopout(url, { skipParsingExtensionUrl: true });
+      BrowserPopupUtils.openPopout(url, { skipParsingExtensionUrlPath: true });
 
       expect(BrowserPopupUtils["buildPopoutUrlPath"]).not.toHaveBeenCalled();
     });
@@ -316,7 +316,7 @@ describe("BrowserPopupUtils", () => {
       await BrowserPopupUtils.openCurrentPagePopout(win);
 
       expect(BrowserPopupUtils.openPopout).toHaveBeenCalledWith("/?uilocation=popout#/tabs/vault", {
-        skipParsingExtensionUrl: true,
+        skipParsingExtensionUrlPath: true,
       });
       expect(BrowserApi.closePopup).not.toHaveBeenCalled();
     });
@@ -329,7 +329,7 @@ describe("BrowserPopupUtils", () => {
       await BrowserPopupUtils.openCurrentPagePopout(win, "https://example.com#/settings");
 
       expect(BrowserPopupUtils.openPopout).toHaveBeenCalledWith("/?uilocation=popout#/settings", {
-        skipParsingExtensionUrl: true,
+        skipParsingExtensionUrlPath: true,
       });
     });
 
@@ -342,7 +342,7 @@ describe("BrowserPopupUtils", () => {
       await BrowserPopupUtils.openCurrentPagePopout(win);
 
       expect(BrowserPopupUtils.openPopout).toHaveBeenCalledWith("/?uilocation=popout#/tabs/vault", {
-        skipParsingExtensionUrl: true,
+        skipParsingExtensionUrlPath: true,
       });
       expect(BrowserApi.closePopup).toHaveBeenCalledWith(win);
     });
