@@ -184,7 +184,7 @@ class BrowserPopupUtils {
     const popoutUrl = href || win.location.href;
     const parsedUrl = new URL(popoutUrl);
     let hashRoute = parsedUrl.hash;
-    if (hashRoute.includes("#/tabs/current")) {
+    if (hashRoute.startsWith("#/tabs/current")) {
       hashRoute = "#/tabs/vault";
     }
 
