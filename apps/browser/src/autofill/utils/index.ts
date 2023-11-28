@@ -126,6 +126,12 @@ function setupExtensionDisconnectAction(callback: CallableFunction) {
   port.onDisconnect.addListener((port) => callback(port));
 }
 
+/**
+ * Handles setup of the extension disconnect action for the autofill init class
+ * in both instances where the overlay might or might not be initialized.
+ *
+ * @param windowContext - The global window context
+ */
 function setupAutofillInitDisconnectAction(windowContext: Window) {
   if (!windowContext.bitwardenAutofillInit) {
     return;
