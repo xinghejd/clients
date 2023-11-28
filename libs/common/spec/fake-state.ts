@@ -1,11 +1,6 @@
 import { ReplaySubject, firstValueFrom, timeout } from "rxjs";
 
-import {
-  DerivedStateDefinition,
-  DerivedUserState,
-  GlobalState,
-  UserState,
-} from "../src/platform/state";
+import { DerivedUserState, GlobalState, UserState } from "../src/platform/state";
 // eslint-disable-next-line import/no-restricted-paths -- using unexposed options for clean typing in test class
 import { StateUpdateOptions } from "../src/platform/state/state-update-options";
 import { UserId } from "../src/types/guid";
@@ -91,8 +86,8 @@ export class FakeUserState<T> implements UserState<T> {
   ) => Promise<T> = jest.fn();
 
   createDerived: <TTo>(
-    derivedStateDefinition: DerivedStateDefinition<T, TTo>
-  ) => DerivedUserState<T, TTo> = jest.fn();
+    converter: (data: T, context: any) => Promise<TTo>
+  ) => DerivedUserState<TTo> = jest.fn();
 
   getFromState: () => Promise<T> = jest.fn(async () => {
     return await firstValueFrom(this.state$.pipe(timeout(10)));
