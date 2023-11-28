@@ -15,6 +15,10 @@ export class SimpleLoginForwarder implements Forwarder {
       const error = this.i18nService.t("forwarder.invalidToken", this.serviceName);
       throw error;
     }
+    if (!options.baseUrl || options.baseUrl === "") {
+      const error = this.i18nService.t("forwarder.noUrl", this.serviceName);
+      throw error;
+    }
 
     let url = options.baseUrl + "/api/alias/random/new";
     let noteId = "forwarder.generatedBy";
