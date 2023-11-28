@@ -103,6 +103,7 @@ export interface CreateCredentialParams {
   user: {
     id: string; // b64 encoded
     displayName: string;
+    name: string;
   };
   /** Forwarded to user interface */
   fallbackSupported: boolean;
@@ -121,6 +122,7 @@ export interface CreateCredentialResult {
   clientDataJSON: string;
   attestationObject: string;
   authData: string;
+  publicKey: string;
   publicKeyAlgorithm: number;
   transports: string[];
 }
