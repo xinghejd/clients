@@ -1,6 +1,6 @@
-import { ProductType, ProviderType } from "../../../enums";
+import { ProductType } from "../../../enums";
 import { BaseResponse } from "../../../models/response/base.response";
-import { OrganizationUserStatusType, OrganizationUserType } from "../../enums";
+import { OrganizationUserStatusType, OrganizationUserType, ProviderType } from "../../enums";
 import { PermissionsApi } from "../api/permissions.api";
 
 export class ProfileOrganizationResponse extends BaseResponse {
@@ -49,6 +49,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
   familySponsorshipToDelete?: boolean;
   accessSecretsManager: boolean;
   limitCollectionCreationDeletion: boolean;
+  allowAdminAccessToAllCollectionItems: boolean;
 
   constructor(response: any) {
     super(response);
@@ -108,6 +109,9 @@ export class ProfileOrganizationResponse extends BaseResponse {
     this.accessSecretsManager = this.getResponseProperty("AccessSecretsManager");
     this.limitCollectionCreationDeletion = this.getResponseProperty(
       "LimitCollectionCreationDeletion"
+    );
+    this.allowAdminAccessToAllCollectionItems = this.getResponseProperty(
+      "AllowAdminAccessToAllCollectionItems"
     );
   }
 }
