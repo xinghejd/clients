@@ -305,7 +305,9 @@ describe("BrowserPopupUtils", () => {
 
       await BrowserPopupUtils.openCurrentPagePopout(win);
 
-      expect(BrowserPopupUtils.openPopout).toHaveBeenCalledWith("/#/tabs/vault");
+      expect(BrowserPopupUtils.openPopout).toHaveBeenCalledWith("/?uilocation=popout#/tabs/vault", {
+        skipParsingExtensionUrl: true,
+      });
       expect(BrowserApi.closePopup).not.toHaveBeenCalled();
     });
 
@@ -316,7 +318,9 @@ describe("BrowserPopupUtils", () => {
 
       await BrowserPopupUtils.openCurrentPagePopout(win, "https://example.com#/settings");
 
-      expect(BrowserPopupUtils.openPopout).toHaveBeenCalledWith("/#/settings");
+      expect(BrowserPopupUtils.openPopout).toHaveBeenCalledWith("/?uilocation=popout#/settings", {
+        skipParsingExtensionUrl: true,
+      });
     });
 
     it("opens a popout window for the current page and closes the popup window", async () => {
@@ -327,7 +331,9 @@ describe("BrowserPopupUtils", () => {
 
       await BrowserPopupUtils.openCurrentPagePopout(win);
 
-      expect(BrowserPopupUtils.openPopout).toHaveBeenCalledWith("/#/tabs/vault");
+      expect(BrowserPopupUtils.openPopout).toHaveBeenCalledWith("/?uilocation=popout#/tabs/vault", {
+        skipParsingExtensionUrl: true,
+      });
       expect(BrowserApi.closePopup).toHaveBeenCalledWith(win);
     });
   });

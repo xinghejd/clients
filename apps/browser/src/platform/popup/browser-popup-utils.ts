@@ -109,9 +109,16 @@ class BrowserPopupUtils {
       singleActionKey?: string;
       forceCloseExistingWindows?: boolean;
       windowOptions?: Partial<chrome.windows.CreateData>;
+      skipParsingExtensionUrl?: boolean;
     } = {}
   ) {
-    const { senderWindowId, singleActionKey, forceCloseExistingWindows, windowOptions } = options;
+    const {
+      senderWindowId,
+      singleActionKey,
+      forceCloseExistingWindows,
+      windowOptions,
+      skipParsingExtensionUrl,
+    } = options;
     const defaultPopoutWindowOptions: chrome.windows.CreateData = {
       type: "popup",
       focused: true,
@@ -122,14 +129,15 @@ class BrowserPopupUtils {
     const offsetTop = 90;
     const popupWidth = defaultPopoutWindowOptions.width;
     const senderWindow = await BrowserApi.getWindow(senderWindowId);
+    const parsedUrlPath = skipParsingExtensionUrl
+      ? extensionUrlPath
+      : BrowserPopupUtils.buildPopoutUrlPath(extensionUrlPath, singleActionKey);
     const popoutWindowOptions = {
       left: senderWindow.left + senderWindow.width - popupWidth - offsetRight,
       top: senderWindow.top + offsetTop,
       ...defaultPopoutWindowOptions,
       ...windowOptions,
-      url: chrome.runtime.getURL(
-        BrowserPopupUtils.buildPopoutUrlPath(extensionUrlPath, singleActionKey)
-      ),
+      url: chrome.runtime.getURL(parsedUrlPath),
     };
 
     if (
@@ -176,11 +184,15 @@ class BrowserPopupUtils {
     const popoutUrl = href || win.location.href;
     const parsedUrl = new URL(popoutUrl);
     let hashRoute = parsedUrl.hash;
-    if (hashRoute.startsWith("#/tabs/current")) {
+    if (hashRoute.includes("#/tabs/current")) {
       hashRoute = "#/tabs/vault";
     }
 
-    await BrowserPopupUtils.openPopout(`${parsedUrl.pathname}${hashRoute}`);
+    // When opening a popout from the current popup page, we need to ensure that the query param for the uilocation is present before the hash route.
+    // This ensures that the value persists when the user navigates within the popout window, which is normally unnecessary to do with other popout windows.
+    await BrowserPopupUtils.openPopout(`${parsedUrl.pathname}?uilocation=popout${hashRoute}`, {
+      skipParsingExtensionUrl: true,
+    });
 
     if (BrowserPopupUtils.inPopup(win)) {
       BrowserApi.closePopup(win);
