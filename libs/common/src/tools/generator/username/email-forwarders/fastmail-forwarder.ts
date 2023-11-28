@@ -15,6 +15,10 @@ export class FastmailForwarder implements Forwarder {
       const error = this.i18nService.t("forwarder.invalidToken", this.serviceName);
       throw error;
     }
+    if (!options.domain || options.domain === "") {
+      const error = this.i18nService.t("forwarder.noDomain", this.serviceName);
+      throw error;
+    }
 
     const accountId = await this.getAccountId(options);
     if (!accountId || accountId === "") {
@@ -84,10 +88,10 @@ export class FastmailForwarder implements Forwarder {
     } else if (response.status === 401 || response.status === 403) {
       const error = this.i18nService.t("forwarder.invalidToken", this.serviceName);
       throw error;
-    } else {
-      const error = this.i18nService.t("forwarder.unknownError", this.serviceName);
-      throw error;
     }
+
+    const error = this.i18nService.t("forwarder.unknownError", this.serviceName);
+    throw error;
   }
 
   private async getAccountId(options: ApiOptions): Promise<string> {
