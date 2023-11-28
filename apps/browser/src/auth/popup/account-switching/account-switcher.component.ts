@@ -1,7 +1,7 @@
 import { Location } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
-import { Subject, firstValueFrom, map, takeUntil } from "rxjs";
+import { Subject, firstValueFrom, map, switchMap, takeUntil } from "rxjs";
 
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
@@ -69,11 +69,21 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
         map((accounts) =>
           accounts
             .filter((account) => account.id !== this.specialAddAccountId)
+            .sort((a, b) => (a.isActive ? -1 : b.isActive ? 1 : 0)) // Log out of the active account first
             .map((account) => account.id)
         ),
+        switchMap(async (accountIds) => {
+          if (accountIds.length === 0) {
+            return;
+          }
+
+          // Must lock active (first) account first, then order doesn't matter
+          await this.vaultTimeoutService.lock(accountIds.shift());
+          await Promise.all(accountIds.map((id) => this.vaultTimeoutService.lock(id)));
+        }),
         takeUntil(this.destroy$)
       )
-      .subscribe((accountIds) => accountIds.forEach(async (id) => await this.lock(id)));
+      .subscribe(() => this.router.navigate(["lock"]));
   }
 
   async logOut() {
