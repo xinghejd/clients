@@ -191,6 +191,16 @@ describe("BrowserPopupUtils", () => {
       });
     });
 
+    it("skips parsing the passed extension url path if the option to do that is set", () => {
+      const url = "popup/index.html?uilocation=popout#/tabs/vault";
+      jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(false);
+      jest.spyOn(BrowserPopupUtils as any, "buildPopoutUrlPath");
+
+      BrowserPopupUtils.openPopout(url, { skipParsingExtensionUrl: true });
+
+      expect(BrowserPopupUtils["buildPopoutUrlPath"]).not.toHaveBeenCalled();
+    });
+
     it("replaces any existing `uilocation=` query params within the passed extension url path to state the the uilocaiton is a popup", async () => {
       const url = "popup/index.html#/tabs/vault?uilocation=sidebar";
       jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(false);
