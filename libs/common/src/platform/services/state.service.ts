@@ -96,7 +96,7 @@ export class StateService<
   activeAccountUnlocked$ = this.activeAccountUnlockedSubject.asObservable();
 
   private hasBeenInited = false;
-  private isRecoveredSession = false;
+  protected isRecoveredSession = false;
 
   protected accountDiskCache = new BehaviorSubject<Record<string, TAccount>>({});
 
