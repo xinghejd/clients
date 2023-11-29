@@ -466,12 +466,10 @@ describe("AutofillInit", () => {
         });
 
         it("skips attempting to update the overlay visibility if the autofillOverlayVisibility data value is not present", () => {
-          const message = {
+          sendExtensionRuntimeMessage({
             command: "updateAutofillOverlayVisibility",
             data: {},
-          };
-
-          sendExtensionRuntimeMessage(message);
+          });
 
           expect(autofillInit["autofillOverlayContentService"].autofillOverlayVisibility).toEqual(
             AutofillOverlayVisibility.OnButtonClick
@@ -489,7 +487,7 @@ describe("AutofillInit", () => {
           sendExtensionRuntimeMessage(message);
 
           expect(autofillInit["autofillOverlayContentService"].autofillOverlayVisibility).toEqual(
-            AutofillOverlayVisibility.Off
+            message.data.autofillOverlayVisibility
           );
         });
       });
