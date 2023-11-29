@@ -50,7 +50,11 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
     updateOverlayHidden: ({ message }) => this.updateElementStyles(this.iframe, message.styles),
   };
 
-  constructor(private iframePath: string, private portName: string, private shadow: ShadowRoot) {
+  constructor(
+    private iframePath: string,
+    private portName: string,
+    private shadow: ShadowRoot,
+  ) {
     this.extensionOriginsSet = new Set([
       chrome.runtime.getURL("").slice(0, -1).toLowerCase(), // Remove the trailing slash and normalize the extension url to lowercase
       "null",
@@ -75,7 +79,7 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
   initOverlayIframe(
     initStyles: Partial<CSSStyleDeclaration>,
     iframeTitle: string,
-    ariaAlert?: string
+    ariaAlert?: string,
   ) {
     this.defaultIframeAttributes.src = chrome.runtime.getURL(this.iframePath);
     this.defaultIframeAttributes.title = iframeTitle;
@@ -178,7 +182,7 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
    */
   private handlePortMessage = (
     message: AutofillOverlayIframeExtensionMessage,
-    port: chrome.runtime.Port
+    port: chrome.runtime.Port,
   ) => {
     if (port.name !== this.portName) {
       return;
