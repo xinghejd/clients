@@ -289,6 +289,9 @@ export default class RuntimeBackground {
             }
           }
         );
+      case "switchAccount": {
+        await this.main.switchAccount(msg.userId);
+      }
     }
   }
 
