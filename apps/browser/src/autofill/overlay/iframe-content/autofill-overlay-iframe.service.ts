@@ -335,7 +335,7 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
 
       if (this.foreignMutationsCount >= 10) {
         this.port?.postMessage({ command: "forceCloseAutofillOverlay" });
-        return;
+        break;
       }
 
       const defaultIframeAttribute = this.defaultIframeAttributes[attribute.name];
@@ -374,20 +374,21 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
    * triggering excessive iterations.
    */
   private isTriggeringExcessiveMutationObserverIterations() {
+    const resetCounters = () => {
+      this.mutationObserverIterations = 0;
+      this.foreignMutationsCount = 0;
+    };
+
     if (this.mutationObserverIterationsResetTimeout) {
       clearTimeout(this.mutationObserverIterationsResetTimeout);
     }
 
     this.mutationObserverIterations++;
-    this.mutationObserverIterationsResetTimeout = setTimeout(() => {
-      this.mutationObserverIterations = 0;
-      this.foreignMutationsCount = 0;
-    }, 2000);
+    this.mutationObserverIterationsResetTimeout = setTimeout(() => resetCounters(), 2000);
 
     if (this.mutationObserverIterations > 20) {
       clearTimeout(this.mutationObserverIterationsResetTimeout);
-      this.mutationObserverIterations = 0;
-      this.foreignMutationsCount = 0;
+      resetCounters();
       this.port?.postMessage({ command: "forceCloseAutofillOverlay" });
 
       return true;
