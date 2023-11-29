@@ -5,20 +5,15 @@ import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { StateService } from "../../../platform/abstractions/state.service";
 import { EFFLongWordList } from "../../../platform/misc/wordlist";
 
-import { ApiOptions, createForwarder } from "./email-forwarders";
+import { createForwarder } from "./email-forwarders";
 import {
   UsernameGeneratorOptions,
   DefaultOptions,
   getForwarderOptions,
-  MaybeLeakedOptions,
+  encryptInPlace,
+  decryptInPlace,
 } from "./username-generation-options";
 import { UsernameGenerationServiceAbstraction } from "./username-generation.service.abstraction";
-
-const SecretPadding = Object.freeze({
-  length: 512,
-  character: "0",
-  hasInvalidPadding: /[^0]/,
-});
 
 export class UsernameGenerationService implements UsernameGenerationServiceAbstraction {
   constructor(
@@ -153,37 +148,13 @@ export class UsernameGenerationService implements UsernameGenerationServiceAbstr
     // each `encryptAndStore` call must be passed an independent object, otherwise
     // they'll race and clobber each other
     await Promise.all([
-      encryptAndStore(this.encryptService, options.forwarders.addyIo),
-      encryptAndStore(this.encryptService, options.forwarders.duckDuckGo),
-      encryptAndStore(this.encryptService, options.forwarders.fastMail),
-      encryptAndStore(this.encryptService, options.forwarders.firefoxRelay),
-      encryptAndStore(this.encryptService, options.forwarders.forwardEmail),
-      encryptAndStore(this.encryptService, options.forwarders.simpleLogin),
+      encryptInPlace(this.encryptService, key, options.forwarders.addyIo),
+      encryptInPlace(this.encryptService, key, options.forwarders.duckDuckGo),
+      encryptInPlace(this.encryptService, key, options.forwarders.fastMail),
+      encryptInPlace(this.encryptService, key, options.forwarders.firefoxRelay),
+      encryptInPlace(this.encryptService, key, options.forwarders.forwardEmail),
+      encryptInPlace(this.encryptService, key, options.forwarders.simpleLogin),
     ]);
-
-    // encrypts sensitive options and stores them in-place.
-    async function encryptAndStore(
-      encryptService: EncryptService,
-      options: ApiOptions & MaybeLeakedOptions
-    ) {
-      if (!options.token) {
-        return;
-      }
-
-      // pick the options that require encryption
-      const encryptOptions = (({ token, wasPlainText }) => ({ token, wasPlainText }))(options);
-      delete options.token;
-      delete options.wasPlainText;
-
-      // don't leak if a leak was possible by encrypting it with the token.
-      // 0 padding ensures the encrypted string doesn't leak the length of the JSON.
-      const toEncrypt = JSON.stringify(encryptOptions).padEnd(
-        SecretPadding.length,
-        SecretPadding.character
-      );
-      const encrypted = await encryptService.encrypt(toEncrypt, key);
-      options.encryptedToken = encrypted;
-    }
   }
 
   async decryptKeys(options: UsernameGeneratorOptions) {
@@ -192,50 +163,13 @@ export class UsernameGenerationService implements UsernameGenerationServiceAbstr
     // each `decryptAndStore` call must be passed an independent object, otherwise
     // they'll race and clobber each other
     await Promise.all([
-      decryptAndStore(this.encryptService, options.forwarders.addyIo),
-      decryptAndStore(this.encryptService, options.forwarders.duckDuckGo),
-      decryptAndStore(this.encryptService, options.forwarders.fastMail),
-      decryptAndStore(this.encryptService, options.forwarders.firefoxRelay),
-      decryptAndStore(this.encryptService, options.forwarders.forwardEmail),
-      decryptAndStore(this.encryptService, options.forwarders.simpleLogin),
+      decryptInPlace(this.encryptService, key, options.forwarders.addyIo),
+      decryptInPlace(this.encryptService, key, options.forwarders.duckDuckGo),
+      decryptInPlace(this.encryptService, key, options.forwarders.fastMail),
+      decryptInPlace(this.encryptService, key, options.forwarders.firefoxRelay),
+      decryptInPlace(this.encryptService, key, options.forwarders.forwardEmail),
+      decryptInPlace(this.encryptService, key, options.forwarders.simpleLogin),
     ]);
-
-    // decrypts sensitive options and stores them in-place.
-    async function decryptAndStore(
-      encryptService: EncryptService,
-      options: ApiOptions & MaybeLeakedOptions
-    ) {
-      if (!options.encryptedToken) {
-        return;
-      }
-
-      const decrypted = await encryptService.decryptToUtf8(options.encryptedToken, key);
-      delete options.encryptedToken;
-
-      // If '}' is not found, then the string was not JSON encoded and it should be ignored.
-      const lastJsonIndex = decrypted.lastIndexOf(SecretPadding.character);
-      if (lastJsonIndex < 0) {
-        return;
-      }
-
-      // if the padding contains invalid padding characters then the string was not properly
-      // encoded and should be ignored.
-      if (decrypted.substring(lastJsonIndex + 1).match(SecretPadding.hasInvalidPadding)) {
-        return;
-      }
-
-      // remove padding padding
-      const json = decrypted.substring(0, lastJsonIndex + 1);
-      const decryptedOptions = JSON.parse(json);
-
-      // if the decrypted options contain any property that is not in the original
-      // options, then the string was not properly encoded and should be ignored.
-      if (Object.keys(decryptedOptions).some((key) => !(key in options))) {
-        return;
-      }
-
-      Object.assign(options, decryptedOptions);
-    }
   }
 
   private async randomString(length: number) {
