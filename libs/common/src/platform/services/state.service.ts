@@ -201,10 +201,15 @@ export class StateService<
     });
 
     // TODO: Temporary update to avoid routing all account status changes through account service for now.
+    // The determination of state should be handled by the various services that control those values.
+    const token = await this.getAccessToken({ userId: userId });
+    const autoKey = await this.getUserKeyAutoUnlock({ userId: userId });
     const accountStatus =
-      (await this.getAccessToken({ userId: userId })) != null
+      token == null
+        ? AuthenticationStatus.LoggedOut
+        : autoKey == null
         ? AuthenticationStatus.Locked
-        : AuthenticationStatus.LoggedOut;
+        : AuthenticationStatus.Unlocked;
     await this.accountService.addAccount(userId as UserId, {
       status: accountStatus,
       name: diskAccount.profile.name,
