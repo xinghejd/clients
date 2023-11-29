@@ -26,17 +26,20 @@ async function openViewVaultItemPopout(
   const { cipherId, action, forceCloseExistingWindows } = cipherOptions;
   let promptWindowPath = "popup/index.html#/view-cipher";
   let queryParamToken = "?";
+  const formatQueryString = (key: string, value: string) => {
+    const queryString = `${queryParamToken}${key}=${value}`;
+    queryParamToken = "&";
+    return queryString;
+  };
 
   if (cipherId) {
-    promptWindowPath += `${queryParamToken}cipherId=${cipherId}`;
-    queryParamToken = "&";
+    promptWindowPath += formatQueryString("cipherId", cipherId);
   }
   if (senderTab.id) {
-    promptWindowPath += `${queryParamToken}senderTabId=${senderTab.id}`;
-    queryParamToken = "&";
+    promptWindowPath += formatQueryString("senderTabId", String(senderTab.id));
   }
   if (action) {
-    promptWindowPath += `${queryParamToken}action=${action}`;
+    promptWindowPath += formatQueryString("action", action);
   }
 
   await BrowserPopupUtils.openPopout(promptWindowPath, {
@@ -89,23 +92,25 @@ async function openAddEditVaultItemPopout(
 ) {
   const { cipherId, cipherType } = cipherOptions;
   const { url, windowId } = senderTab;
-
   let singleActionKey = VaultPopoutType.addEditVaultItem;
   let addEditCipherUrl = "popup/index.html#/edit-cipher";
   let queryParamToken = "?";
+  const formatQueryString = (key: string, value: string) => {
+    const queryString = `${queryParamToken}${key}=${value}`;
+    queryParamToken = "&";
+    return queryString;
+  };
 
   if (cipherId && !cipherType) {
     singleActionKey += `_${cipherId}`;
-    addEditCipherUrl += `${queryParamToken}cipherId=${cipherId}`;
-    queryParamToken = "&";
+    addEditCipherUrl += formatQueryString("cipherId", cipherId);
   }
   if (cipherType && !cipherId) {
     singleActionKey += `_${cipherType}`;
-    addEditCipherUrl += `${queryParamToken}type=${cipherType}`;
-    queryParamToken = "&";
+    addEditCipherUrl += formatQueryString("type", String(cipherType));
   }
   if (senderTab.url) {
-    addEditCipherUrl += `${queryParamToken}uri=${url}`;
+    addEditCipherUrl += formatQueryString("uri", url);
   }
 
   await BrowserPopupUtils.openPopout(addEditCipherUrl, {
