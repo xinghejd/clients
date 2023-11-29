@@ -16,6 +16,7 @@ type AutofillExtensionMessage = {
     isOverlayCiphersPopulated?: boolean;
     direction?: "previous" | "next";
     isOpeningFullOverlay?: boolean;
+    autoFillOverlayVisibility?: number;
   };
 };
 
@@ -33,6 +34,7 @@ type AutofillExtensionMessageHandlers = {
   updateIsOverlayCiphersPopulated: ({ message }: AutofillExtensionMessageParam) => void;
   bgUnlockPopoutOpened: () => void;
   bgVaultItemRepromptPopoutOpened: () => void;
+  // autofillOverlayVisibilityUpdated: ({ message }: AutofillExtensionMessageParam) => void;
 };
 
 interface AutofillInit {

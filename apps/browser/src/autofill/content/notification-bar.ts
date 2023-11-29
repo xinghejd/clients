@@ -123,7 +123,7 @@ async function loadNotificationBar() {
     }
   }
 
-  setupExtensionDisconnectAction(() => handleExtensionDisconnection());
+  setupExtensionDisconnectAction(handleExtensionDisconnection);
 
   if (!showNotificationBar) {
     return;
@@ -1002,24 +1002,22 @@ async function loadNotificationBar() {
     return theEl === document;
   }
 
-  function handleExtensionDisconnection() {
-    {
-      closeBar(false);
-      clearTimeout(domObservationCollectTimeoutId);
-      clearTimeout(collectPageDetailsTimeoutId);
-      clearTimeout(handlePageChangeTimeoutId);
-      observer?.disconnect();
-      observer = null;
-      watchedForms.forEach((wf: WatchedForm) => {
-        const form = wf.formEl;
-        form.removeEventListener("submit", formSubmitted, false);
-        const submitButton = getSubmitButton(
-          form,
-          unionSets(logInButtonNames, changePasswordButtonNames)
-        );
-        submitButton?.removeEventListener("click", formSubmitted, false);
-      });
-    }
+  function handleExtensionDisconnection(port: chrome.runtime.Port) {
+    closeBar(false);
+    clearTimeout(domObservationCollectTimeoutId);
+    clearTimeout(collectPageDetailsTimeoutId);
+    clearTimeout(handlePageChangeTimeoutId);
+    observer?.disconnect();
+    observer = null;
+    watchedForms.forEach((wf: WatchedForm) => {
+      const form = wf.formEl;
+      form.removeEventListener("submit", formSubmitted, false);
+      const submitButton = getSubmitButton(
+        form,
+        unionSets(logInButtonNames, changePasswordButtonNames)
+      );
+      submitButton?.removeEventListener("click", formSubmitted, false);
+    });
   }
 
   // End Helper Functions

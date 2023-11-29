@@ -1,3 +1,5 @@
+import { AutofillPort } from "../enums/autofill-port.enums";
+
 /**
  * Generates a random string of characters that formatted as a custom element name.
  */
@@ -121,9 +123,13 @@ async function getFromLocalStorage(keys: string | string[]): Promise<Record<stri
  *
  * @param callback - Callback function to run when the extension disconnects
  */
-function setupExtensionDisconnectAction(callback: CallableFunction) {
-  const port = chrome.runtime.connect({ name: "content-script-extension-connection-port" });
-  port.onDisconnect.addListener((port) => callback(port));
+function setupExtensionDisconnectAction(callback: (port: chrome.runtime.Port) => void) {
+  const port = chrome.runtime.connect({ name: AutofillPort.InjectedScript });
+  const onDisconnectCallback = (disconnectedPort: chrome.runtime.Port) => {
+    callback(disconnectedPort);
+    port.onDisconnect.removeListener(onDisconnectCallback);
+  };
+  port.onDisconnect.addListener(onDisconnectCallback);
 }
 
 /**
@@ -137,10 +143,11 @@ function setupAutofillInitDisconnectAction(windowContext: Window) {
     return;
   }
 
-  setupExtensionDisconnectAction(() => {
+  const onDisconnectCallback = () => {
     windowContext.bitwardenAutofillInit.destroy();
     delete windowContext.bitwardenAutofillInit;
-  });
+  };
+  setupExtensionDisconnectAction(onDisconnectCallback);
 }
 
 export {

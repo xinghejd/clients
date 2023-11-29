@@ -1,3 +1,4 @@
+import { AutofillPort } from "../enums/autofill-port.enums";
 import { triggerPortOnDisconnectEvent } from "../jest/testing-utils";
 
 import { logoIcon, logoLockedIcon } from "./svg-icons";
@@ -171,7 +172,7 @@ describe("setupExtensionDisconnectAction", () => {
     setupExtensionDisconnectAction(onDisconnectCallback);
 
     expect(chrome.runtime.connect).toHaveBeenCalledWith({
-      name: "content-script-extension-connection-port",
+      name: AutofillPort.InjectedScript,
     });
     expect(port.onDisconnect.addListener).toHaveBeenCalledWith(expect.any(Function));
   });

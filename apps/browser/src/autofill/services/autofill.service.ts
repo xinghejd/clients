@@ -15,6 +15,7 @@ import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserStateService } from "../../platform/services/abstractions/browser-state.service";
 import { openVaultItemPasswordRepromptPopout } from "../../vault/popup/utils/vault-popout-window";
+import { AutofillPort } from "../enums/autofill-port.enums";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
@@ -37,6 +38,7 @@ export default class AutofillService implements AutofillServiceInterface {
   private openVaultItemPasswordRepromptPopout = openVaultItemPasswordRepromptPopout;
   private openPasswordRepromptPopoutDebounce: NodeJS.Timeout;
   private currentlyOpeningPasswordRepromptPopout = false;
+  private autofillScriptPortsSet = new Set<chrome.runtime.Port>();
 
   constructor(
     private cipherService: CipherService,
@@ -56,19 +58,18 @@ export default class AutofillService implements AutofillServiceInterface {
    * if the extension context has been disconnected.
    */
   async loadAutofillScriptsOnInstall() {
-    const tabs = await BrowserApi.tabsQuery({});
-    for (let index = 0; index < tabs.length; index++) {
-      const tab = tabs[index];
-      if (tab.url?.startsWith("http")) {
-        this.injectAutofillScripts(tab, 0, false);
-      }
-    }
+    BrowserApi.addListener(chrome.runtime.onConnect, this.handleInjectedScriptPortConnection);
 
-    BrowserApi.addListener(chrome.runtime.onConnect, (port) => {
-      if (port.name === "content-script-extension-connection-port") {
-        port.postMessage("extension connected");
-      }
+    this.injectAutofillScriptsInAllTabs();
+  }
+
+  async reloadAutofillScripts() {
+    this.autofillScriptPortsSet.forEach((port) => {
+      port.disconnect();
+      this.autofillScriptPortsSet.delete(port);
     });
+
+    this.injectAutofillScriptsInAllTabs();
   }
 
   /**
@@ -1908,5 +1909,32 @@ export default class AutofillService implements AutofillServiceInterface {
     }, 100);
 
     return false;
+  }
+
+  private handleInjectedScriptPortConnection = (port: chrome.runtime.Port) => {
+    if (port.name !== AutofillPort.InjectedScript) {
+      return;
+    }
+
+    this.autofillScriptPortsSet.add(port);
+    port.onDisconnect.addListener(this.handleInjectScriptPortOnDisconnect);
+  };
+
+  private handleInjectScriptPortOnDisconnect = (port: chrome.runtime.Port) => {
+    if (port.name !== AutofillPort.InjectedScript) {
+      return;
+    }
+
+    this.autofillScriptPortsSet.delete(port);
+  };
+
+  private async injectAutofillScriptsInAllTabs() {
+    const tabs = await BrowserApi.tabsQuery({});
+    for (let index = 0; index < tabs.length; index++) {
+      const tab = tabs[index];
+      if (tab.url?.startsWith("http")) {
+        this.injectAutofillScripts(tab, 0, false);
+      }
+    }
   }
 }
