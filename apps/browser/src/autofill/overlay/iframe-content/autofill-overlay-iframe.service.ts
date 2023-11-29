@@ -82,7 +82,9 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
 
     this.iframe = globalThis.document.createElement("iframe");
     this.updateElementStyles(this.iframe, { ...this.iframeStyles, ...initStyles });
-    this.setIframeDefaultAttributes();
+    for (const [attribute, value] of Object.entries(this.defaultIframeAttributes)) {
+      this.iframe.setAttribute(attribute, value);
+    }
     this.iframe.addEventListener(EVENTS.LOAD, this.setupPortMessageListener);
 
     if (ariaAlert) {
@@ -90,15 +92,6 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
     }
 
     this.shadow.appendChild(this.iframe);
-  }
-
-  /**
-   * Sets the default attributes for the iframe element.
-   */
-  private setIframeDefaultAttributes() {
-    for (const [attribute, value] of Object.entries(this.defaultIframeAttributes)) {
-      this.iframe.setAttribute(attribute, value);
-    }
   }
 
   /**
