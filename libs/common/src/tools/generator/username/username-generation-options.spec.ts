@@ -104,25 +104,28 @@ describe("Username Generation Options", () => {
     });
 
     it.each([
-      [{ token: "a token" }, `{"token":"a token"}${"0".repeat(493)}`, "a key"],
+      ["a token", { token: "a token" }, `{"token":"a token"}${"0".repeat(493)}`, "a key"],
       [
+        "a token and wasPlainText",
         { token: "a token", wasPlainText: true },
         `{"token":"a token","wasPlainText":true}${"0".repeat(473)}`,
         "another key",
       ],
       [
+        "a really long token",
         { token: `a ${"really ".repeat(50)}long token` },
         `{"token":"a ${"really ".repeat(50)}long token"}${"0".repeat(138)}`,
         "a third key",
       ],
       [
+        "a really long token and wasPlainText",
         { token: `a ${"really ".repeat(50)}long token`, wasPlainText: true },
         `{"token":"a ${"really ".repeat(50)}long token","wasPlainText":true}${"0".repeat(118)}`,
         "a key",
       ],
-    ] as unknown as [ApiOptions & MaybeLeakedOptions, string, SymmetricCryptoKey][])(
-      "encrypts %p to %p and removes encrypted values",
-      async (options, encryptedToken, key) => {
+    ] as unknown as [string, ApiOptions & MaybeLeakedOptions, string, SymmetricCryptoKey][])(
+      "encrypts %s and removes encrypted values",
+      async (_description, options, encryptedToken, key) => {
         const encryptService = mockEncryptService();
 
         await encryptInPlace(encryptService, key, options);
