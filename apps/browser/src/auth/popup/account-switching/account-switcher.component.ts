@@ -6,6 +6,7 @@ import { Subject, firstValueFrom, map, switchMap, takeUntil } from "rxjs";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { DialogService } from "@bitwarden/components";
@@ -16,6 +17,7 @@ import { AccountSwitcherService } from "./services/account-switcher.service";
   templateUrl: "account-switcher.component.html",
 })
 export class AccountSwitcherComponent implements OnInit, OnDestroy {
+  readonly lockedStatus = AuthenticationStatus.Locked;
   private destroy$ = new Subject<void>();
 
   activeUserCanLock = false;

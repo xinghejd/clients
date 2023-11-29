@@ -28,14 +28,15 @@
     </p>
   </div>
 
-  <div class="tw-mt-8" *ngIf="currentAccount$ | async">
+  <div class="tw-mt-8" *ngIf="currentAccount$ | async as currentAccount">
     <div class="tw-mb-2 tw-uppercase tw-text-muted">{{ "options" | i18n }}</div>
     <div class="tw-grid tw-gap-2">
       <button
-        *ngIf="activeUserCanLock"
         type="button"
-        class="tw-flex tw-w-full tw-items-center tw-gap-3 tw-rounded-md tw-bg-background tw-p-3 hover:tw-bg-background-alt"
+        class="tw-flex tw-w-full tw-items-center tw-gap-3 tw-rounded-md tw-bg-background tw-p-3 hover:tw-bg-background-alt disabled:tw-cursor-not-allowed disabled:tw-border-text-muted/60 disabled:!tw-text-muted/60"
         (click)="lock()"
+        [disabled]="currentAccount.status === lockedStatus || !activeUserCanLock"
+        [title]="!activeUserCanLock ? ('unlockMethodNeeded' | i18n) : ''"
       >
         <i class="bwi bwi-lock tw-text-2xl" aria-hidden="true"></i>
         {{ "lockNow" | i18n }}
