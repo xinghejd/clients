@@ -6,7 +6,7 @@ import { flushPromises, sendExtensionRuntimeMessage } from "../jest/testing-util
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
 import AutofillOverlayContentService from "../services/autofill-overlay-content.service";
-import { RedirectFocusDirection } from "../utils/autofill-overlay.enum";
+import { AutofillOverlayVisibility, RedirectFocusDirection } from "../utils/autofill-overlay.enum";
 
 import { AutofillExtensionMessage } from "./abstractions/autofill-init";
 import AutofillInit from "./autofill-init";
@@ -456,6 +456,41 @@ describe("AutofillInit", () => {
             autofillInit["autofillOverlayContentService"].blurMostRecentOverlayField
           ).toHaveBeenCalled();
           expect(autofillInit["removeAutofillOverlay"]).toHaveBeenCalled();
+        });
+      });
+
+      describe("updateAutofillOverlayVisibility", () => {
+        beforeEach(() => {
+          autofillInit["autofillOverlayContentService"].autofillOverlayVisibility =
+            AutofillOverlayVisibility.OnButtonClick;
+        });
+
+        it("skips attempting to update the overlay visibility if the autofillOverlayVisibility data value is not present", () => {
+          const message = {
+            command: "updateAutofillOverlayVisibility",
+            data: {},
+          };
+
+          sendExtensionRuntimeMessage(message);
+
+          expect(autofillInit["autofillOverlayContentService"].autofillOverlayVisibility).toEqual(
+            AutofillOverlayVisibility.OnButtonClick
+          );
+        });
+
+        it("updates the overlay visibility value", () => {
+          const message = {
+            command: "updateAutofillOverlayVisibility",
+            data: {
+              autofillOverlayVisibility: AutofillOverlayVisibility.Off,
+            },
+          };
+
+          sendExtensionRuntimeMessage(message);
+
+          expect(autofillInit["autofillOverlayContentService"].autofillOverlayVisibility).toEqual(
+            AutofillOverlayVisibility.Off
+          );
         });
       });
     });

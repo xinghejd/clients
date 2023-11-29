@@ -16,7 +16,7 @@ type AutofillExtensionMessage = {
     isOverlayCiphersPopulated?: boolean;
     direction?: "previous" | "next";
     isOpeningFullOverlay?: boolean;
-    autoFillOverlayVisibility?: number;
+    autofillOverlayVisibility?: number;
   };
 };
 

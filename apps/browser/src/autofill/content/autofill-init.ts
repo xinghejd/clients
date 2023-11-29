@@ -210,12 +210,17 @@ class AutofillInit implements AutofillInitInterface {
     );
   }
 
+  /**
+   * Updates the autofill overlay visibility.
+   *
+   * @param data - Contains the autoFillOverlayVisibility value
+   */
   private updateAutofillOverlayVisibility({ data }: AutofillExtensionMessage) {
-    if (!this.autofillOverlayContentService) {
+    if (!this.autofillOverlayContentService || isNaN(data?.autofillOverlayVisibility)) {
       return;
     }
 
-    this.autofillOverlayContentService.autofillOverlayVisibility = data?.autoFillOverlayVisibility;
+    this.autofillOverlayContentService.autofillOverlayVisibility = data?.autofillOverlayVisibility;
   }
 
   /**

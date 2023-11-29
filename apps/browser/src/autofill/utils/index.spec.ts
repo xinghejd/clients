@@ -163,6 +163,7 @@ describe("setupExtensionDisconnectAction", () => {
       port = {
         onDisconnect: {
           addListener: onDisconnectCallback,
+          removeListener: jest.fn(),
         },
       } as unknown as chrome.runtime.Port;
 
@@ -190,6 +191,7 @@ describe("setupAutofillInitDisconnectAction", () => {
       return {
         onDisconnect: {
           addListener: onDisconnectCallback,
+          removeListener: jest.fn(),
         },
       } as unknown as chrome.runtime.Port;
     });
@@ -209,6 +211,7 @@ describe("setupAutofillInitDisconnectAction", () => {
       port = {
         onDisconnect: {
           addListener: jest.fn(),
+          removeListener: jest.fn(),
         },
       } as unknown as chrome.runtime.Port;
 
