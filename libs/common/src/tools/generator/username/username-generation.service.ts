@@ -1,5 +1,3 @@
-import _ from "lodash";
-
 import { ApiService } from "../../../abstractions/api.service";
 import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../../platform/abstractions/encrypt.service";
@@ -15,6 +13,12 @@ import {
   MaybeLeakedOptions,
 } from "./username-generation-options";
 import { UsernameGenerationServiceAbstraction } from "./username-generation.service.abstraction";
+
+const SecretPadding = Object.freeze({
+  length: 512,
+  character: "0",
+  hasInvalidPadding: /[^0]/,
+});
 
 export class UsernameGenerationService implements UsernameGenerationServiceAbstraction {
   constructor(
@@ -39,8 +43,11 @@ export class UsernameGenerationService implements UsernameGenerationServiceAbstr
 
   async generateWord(options: UsernameGeneratorOptions): Promise<string> {
     const {
-      word: { capitalize, includeNumber },
-    } = _.defaultsDeep(options, DefaultOptions);
+      word: {
+        capitalize = DefaultOptions.word.capitalize,
+        includeNumber = DefaultOptions.word.includeNumber,
+      },
+    } = options;
 
     const wordIndex = await this.cryptoService.randomNumber(0, EFFLongWordList.length - 1);
     let word = EFFLongWordList[wordIndex];
@@ -57,8 +64,11 @@ export class UsernameGenerationService implements UsernameGenerationServiceAbstr
   async generateSubaddress(options: UsernameGeneratorOptions): Promise<string> {
     const {
       website,
-      subaddress: { algorithm, email },
-    } = _.defaultsDeep(options, DefaultOptions);
+      subaddress: {
+        algorithm = DefaultOptions.subaddress.algorithm,
+        email = DefaultOptions.subaddress.email,
+      },
+    } = options;
 
     if (email.length < 3) {
       return email;
@@ -83,8 +93,11 @@ export class UsernameGenerationService implements UsernameGenerationServiceAbstr
   async generateCatchall(options: UsernameGeneratorOptions): Promise<string> {
     const {
       website,
-      catchall: { algorithm, domain },
-    } = _.defaultsDeep(options, DefaultOptions);
+      catchall: {
+        algorithm = DefaultOptions.catchall.algorithm,
+        domain = DefaultOptions.catchall.domain,
+      },
+    } = options;
 
     if (domain === "") {
       return null;
@@ -102,8 +115,8 @@ export class UsernameGenerationService implements UsernameGenerationServiceAbstr
   async generateForwarded(options: UsernameGeneratorOptions): Promise<string> {
     const {
       website,
-      forwarders: { service },
-    } = _.defaultsDeep(options, DefaultOptions);
+      forwarders: { service = DefaultOptions.forwarders.service },
+    } = options;
 
     const forwarder = createForwarder(service, this.apiService, this.i18nService);
     const forwarderOptions = getForwarderOptions(service, options);
@@ -120,7 +133,10 @@ export class UsernameGenerationService implements UsernameGenerationServiceAbstr
   async getOptions(): Promise<UsernameGeneratorOptions> {
     let options = await this.stateService.getUsernameGenerationOptions();
     this.decryptKeys(options);
-    options = _.defaultsDeep(options ?? {}, DefaultOptions);
+
+    // clone the assignment result because the default options are frozen and
+    // assign aliases the frozen objects in `options`.
+    options = structuredClone(Object.assign(options ?? {}, DefaultOptions));
 
     await this.stateService.setUsernameGenerationOptions(options);
     return options;
@@ -154,12 +170,17 @@ export class UsernameGenerationService implements UsernameGenerationServiceAbstr
         return;
       }
 
-      const encryptOptions = _.pick(options, ["token", "wasPlainText"]);
+      // pick the options that require encryption
+      const encryptOptions = (({ token, wasPlainText }) => ({ token, wasPlainText }))(options);
       delete options.token;
       delete options.wasPlainText;
 
-      // don't leak if a leak was possible by encrypting it with the token
-      const toEncrypt = JSON.stringify(encryptOptions);
+      // don't leak if a leak was possible by encrypting it with the token.
+      // 0 padding ensures the encrypted string doesn't leak the length of the JSON.
+      const toEncrypt = JSON.stringify(encryptOptions).padEnd(
+        SecretPadding.length,
+        SecretPadding.character
+      );
       const encrypted = await encryptService.encrypt(toEncrypt, key);
       options.encryptedToken = encrypted;
     }
@@ -191,8 +212,29 @@ export class UsernameGenerationService implements UsernameGenerationServiceAbstr
       const decrypted = await encryptService.decryptToUtf8(options.encryptedToken, key);
       delete options.encryptedToken;
 
-      const decryptedOptions = JSON.parse(decrypted);
-      _.assign(options, decryptedOptions);
+      // If '}' is not found, then the string was not JSON encoded and it should be ignored.
+      const lastJsonIndex = decrypted.lastIndexOf(SecretPadding.character);
+      if (lastJsonIndex < 0) {
+        return;
+      }
+
+      // if the padding contains invalid padding characters then the string was not properly
+      // encoded and should be ignored.
+      if (decrypted.substring(lastJsonIndex + 1).match(SecretPadding.hasInvalidPadding)) {
+        return;
+      }
+
+      // remove padding padding
+      const json = decrypted.substring(0, lastJsonIndex + 1);
+      const decryptedOptions = JSON.parse(json);
+
+      // if the decrypted options contain any property that is not in the original
+      // options, then the string was not properly encoded and should be ignored.
+      if (Object.keys(decryptedOptions).some((key) => !(key in options))) {
+        return;
+      }
+
+      Object.assign(options, decryptedOptions);
     }
   }
 
