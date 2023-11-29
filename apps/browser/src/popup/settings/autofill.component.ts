@@ -37,7 +37,7 @@ export class AutofillComponent implements OnInit {
     private platformUtilsService: PlatformUtilsService,
     private configService: ConfigServiceAbstraction,
     private settingsService: SettingsService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
   ) {
     this.autoFillOverlayVisibilityOptions = [
       {
@@ -78,7 +78,7 @@ export class AutofillComponent implements OnInit {
     this.defaultBrowserAutofillDisabled = await this.browserAutofillSettingCurrentlyOverridden();
 
     this.isAutoFillOverlayFlagEnabled = await this.configService.getFeatureFlag<boolean>(
-      FeatureFlag.AutofillOverlay
+      FeatureFlag.AutofillOverlay,
     );
     this.autoFillOverlayVisibility =
       (await this.settingsService.getAutoFillOverlayVisibility()) || AutofillOverlayVisibility.Off;
