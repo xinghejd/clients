@@ -40,11 +40,11 @@ class AutofillInit implements AutofillInitInterface {
     this.domElementVisibilityService = new DomElementVisibilityService();
     this.collectAutofillContentService = new CollectAutofillContentService(
       this.domElementVisibilityService,
-      this.autofillOverlayContentService
+      this.autofillOverlayContentService,
     );
     this.insertAutofillContentService = new InsertAutofillContentService(
       this.domElementVisibilityService,
-      this.collectAutofillContentService
+      this.collectAutofillContentService,
     );
   }
 
@@ -70,7 +70,7 @@ class AutofillInit implements AutofillInitInterface {
    */
   private async collectPageDetails(
     message: AutofillExtensionMessage,
-    sendDetailsInResponse = false
+    sendDetailsInResponse = false,
   ): Promise<AutofillPageDetails | void> {
     const pageDetails: AutofillPageDetails =
       await this.collectAutofillContentService.getPageDetails();
@@ -206,7 +206,7 @@ class AutofillInit implements AutofillInitInterface {
     }
 
     this.autofillOverlayContentService.isOverlayCiphersPopulated = Boolean(
-      data?.isOverlayCiphersPopulated
+      data?.isOverlayCiphersPopulated,
     );
   }
 
@@ -240,7 +240,7 @@ class AutofillInit implements AutofillInitInterface {
   private handleExtensionMessage = (
     message: AutofillExtensionMessage,
     sender: chrome.runtime.MessageSender,
-    sendResponse: (response?: any) => void
+    sendResponse: (response?: any) => void,
   ): boolean => {
     const command: string = message.command;
     const handler: CallableFunction | undefined = this.extensionMessageHandlers[command];

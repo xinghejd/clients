@@ -39,7 +39,7 @@ export class AutofillComponent implements OnInit {
     private configService: ConfigServiceAbstraction,
     private settingsService: SettingsService,
     private dialogService: DialogService,
-    private autofillService: AutofillService
+    private autofillService: AutofillService,
   ) {
     this.autoFillOverlayVisibilityOptions = [
       {
@@ -77,7 +77,7 @@ export class AutofillComponent implements OnInit {
     this.defaultBrowserAutofillDisabled = await this.browserAutofillSettingCurrentlyOverridden();
 
     this.isAutoFillOverlayFlagEnabled = await this.configService.getFeatureFlag<boolean>(
-      FeatureFlag.AutofillOverlay
+      FeatureFlag.AutofillOverlay,
     );
     this.autoFillOverlayVisibility =
       (await this.settingsService.getAutoFillOverlayVisibility()) || AutofillOverlayVisibility.Off;
@@ -203,7 +203,7 @@ export class AutofillComponent implements OnInit {
   }
 
   private async handleUpdatingAutofillOverlayContentScripts(
-    previousAutoFillOverlayVisibility: number
+    previousAutoFillOverlayVisibility: number,
   ) {
     const autofillOverlayPreviouslyDisabled =
       previousAutoFillOverlayVisibility === AutofillOverlayVisibility.Off;
@@ -215,7 +215,7 @@ export class AutofillComponent implements OnInit {
       tabs.forEach((tab) =>
         BrowserApi.tabSendMessageData(tab, "updateAutofillOverlayVisibility", {
           autofillOverlayVisibility: this.autoFillOverlayVisibility,
-        })
+        }),
       );
       return;
     }

@@ -46,7 +46,7 @@ describe("AutofillInit", () => {
       autofillInit["setupExtensionMessageListeners"]();
 
       expect(chrome.runtime.onMessage.addListener).toHaveBeenCalledWith(
-        autofillInit["handleExtensionMessage"]
+        autofillInit["handleExtensionMessage"],
       );
     });
   });
@@ -162,7 +162,7 @@ describe("AutofillInit", () => {
           sendExtensionRuntimeMessage(
             { command: "collectPageDetailsImmediately" },
             sender,
-            sendResponse
+            sendResponse,
           );
           await flushPromises();
 
@@ -191,7 +191,7 @@ describe("AutofillInit", () => {
           await flushPromises();
 
           expect(autofillInit["insertAutofillContentService"].fillForm).not.toHaveBeenCalledWith(
-            fillScript
+            fillScript,
           );
         });
 
@@ -204,7 +204,7 @@ describe("AutofillInit", () => {
           await flushPromises();
 
           expect(autofillInit["insertAutofillContentService"].fillForm).toHaveBeenCalledWith(
-            fillScript
+            fillScript,
           );
         });
 
@@ -225,11 +225,11 @@ describe("AutofillInit", () => {
 
           expect(autofillInit["updateOverlayIsCurrentlyFilling"]).toHaveBeenNthCalledWith(1, true);
           expect(autofillInit["insertAutofillContentService"].fillForm).toHaveBeenCalledWith(
-            fillScript
+            fillScript,
           );
           expect(autofillInit["updateOverlayIsCurrentlyFilling"]).toHaveBeenNthCalledWith(2, false);
           expect(
-            autofillInit["autofillOverlayContentService"].focusMostRecentOverlayField
+            autofillInit["autofillOverlayContentService"].focusMostRecentOverlayField,
           ).toHaveBeenCalled();
         });
 
@@ -252,14 +252,14 @@ describe("AutofillInit", () => {
 
           expect(newAutofillInit["updateOverlayIsCurrentlyFilling"]).toHaveBeenNthCalledWith(
             1,
-            true
+            true,
           );
           expect(newAutofillInit["insertAutofillContentService"].fillForm).toHaveBeenCalledWith(
-            fillScript
+            fillScript,
           );
           expect(newAutofillInit["updateOverlayIsCurrentlyFilling"]).not.toHaveBeenNthCalledWith(
             2,
-            false
+            false,
           );
         });
       });
@@ -287,7 +287,7 @@ describe("AutofillInit", () => {
           sendExtensionRuntimeMessage(message);
 
           expect(
-            autofillInit["autofillOverlayContentService"].openAutofillOverlay
+            autofillInit["autofillOverlayContentService"].openAutofillOverlay,
           ).toHaveBeenCalledWith({
             isFocusingFieldElement: message.data.isFocusingFieldElement,
             isOpeningFullOverlay: message.data.isOpeningFullOverlay,
@@ -308,10 +308,10 @@ describe("AutofillInit", () => {
           sendExtensionRuntimeMessage({ command: "closeAutofillOverlay" });
 
           expect(
-            autofillInit["autofillOverlayContentService"].removeAutofillOverlayList
+            autofillInit["autofillOverlayContentService"].removeAutofillOverlayList,
           ).not.toHaveBeenCalled();
           expect(
-            autofillInit["autofillOverlayContentService"].removeAutofillOverlay
+            autofillInit["autofillOverlayContentService"].removeAutofillOverlay,
           ).not.toHaveBeenCalled();
         });
 
@@ -321,10 +321,10 @@ describe("AutofillInit", () => {
           sendExtensionRuntimeMessage({ command: "closeAutofillOverlay" });
 
           expect(
-            autofillInit["autofillOverlayContentService"].removeAutofillOverlayList
+            autofillInit["autofillOverlayContentService"].removeAutofillOverlayList,
           ).toHaveBeenCalled();
           expect(
-            autofillInit["autofillOverlayContentService"].removeAutofillOverlay
+            autofillInit["autofillOverlayContentService"].removeAutofillOverlay,
           ).not.toHaveBeenCalled();
         });
 
@@ -332,10 +332,10 @@ describe("AutofillInit", () => {
           sendExtensionRuntimeMessage({ command: "closeAutofillOverlay" });
 
           expect(
-            autofillInit["autofillOverlayContentService"].removeAutofillOverlayList
+            autofillInit["autofillOverlayContentService"].removeAutofillOverlayList,
           ).not.toHaveBeenCalled();
           expect(
-            autofillInit["autofillOverlayContentService"].removeAutofillOverlay
+            autofillInit["autofillOverlayContentService"].removeAutofillOverlay,
           ).toHaveBeenCalled();
         });
       });
@@ -378,7 +378,7 @@ describe("AutofillInit", () => {
           sendExtensionRuntimeMessage(message);
 
           expect(
-            autofillInit["autofillOverlayContentService"].redirectOverlayFocusOut
+            autofillInit["autofillOverlayContentService"].redirectOverlayFocusOut,
           ).toHaveBeenCalledWith(message.data.direction);
         });
       });
@@ -404,7 +404,7 @@ describe("AutofillInit", () => {
           sendExtensionRuntimeMessage(message);
 
           expect(autofillInit["autofillOverlayContentService"].isOverlayCiphersPopulated).toEqual(
-            message.data.isOverlayCiphersPopulated
+            message.data.isOverlayCiphersPopulated,
           );
         });
       });
@@ -428,7 +428,7 @@ describe("AutofillInit", () => {
           sendExtensionRuntimeMessage({ command: "bgUnlockPopoutOpened" });
 
           expect(
-            autofillInit["autofillOverlayContentService"].blurMostRecentOverlayField
+            autofillInit["autofillOverlayContentService"].blurMostRecentOverlayField,
           ).toHaveBeenCalled();
           expect(autofillInit["removeAutofillOverlay"]).toHaveBeenCalled();
         });
@@ -453,7 +453,7 @@ describe("AutofillInit", () => {
           sendExtensionRuntimeMessage({ command: "bgVaultItemRepromptPopoutOpened" });
 
           expect(
-            autofillInit["autofillOverlayContentService"].blurMostRecentOverlayField
+            autofillInit["autofillOverlayContentService"].blurMostRecentOverlayField,
           ).toHaveBeenCalled();
           expect(autofillInit["removeAutofillOverlay"]).toHaveBeenCalled();
         });
@@ -472,7 +472,7 @@ describe("AutofillInit", () => {
           });
 
           expect(autofillInit["autofillOverlayContentService"].autofillOverlayVisibility).toEqual(
-            AutofillOverlayVisibility.OnButtonClick
+            AutofillOverlayVisibility.OnButtonClick,
           );
         });
 
@@ -487,7 +487,7 @@ describe("AutofillInit", () => {
           sendExtensionRuntimeMessage(message);
 
           expect(autofillInit["autofillOverlayContentService"].autofillOverlayVisibility).toEqual(
-            message.data.autofillOverlayVisibility
+            message.data.autofillOverlayVisibility,
           );
         });
       });
@@ -499,7 +499,7 @@ describe("AutofillInit", () => {
       autofillInit.destroy();
 
       expect(chrome.runtime.onMessage.removeListener).toHaveBeenCalledWith(
-        autofillInit["handleExtensionMessage"]
+        autofillInit["handleExtensionMessage"],
       );
     });
 

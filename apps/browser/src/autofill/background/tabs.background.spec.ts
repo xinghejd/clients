@@ -36,13 +36,13 @@ describe("TabsBackground", () => {
     it("sets up a window on focusChanged listener", () => {
       const handleWindowOnFocusChangedSpy = jest.spyOn(
         tabsBackground as any,
-        "handleWindowOnFocusChanged"
+        "handleWindowOnFocusChanged",
       );
 
       tabsBackground.init();
 
       expect(chrome.windows.onFocusChanged.addListener).toHaveBeenCalledWith(
-        handleWindowOnFocusChangedSpy
+        handleWindowOnFocusChangedSpy,
       );
     });
   });

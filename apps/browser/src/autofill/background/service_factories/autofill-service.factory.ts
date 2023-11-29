@@ -52,7 +52,7 @@ export type AutoFillServiceInitOptions = AutoFillServiceOptions &
 
 export function autofillServiceFactory(
   cache: { autofillService?: AbstractAutoFillService } & CachedServices,
-  opts: AutoFillServiceInitOptions
+  opts: AutoFillServiceInitOptions,
 ): Promise<AbstractAutoFillService> {
   return factory(
     cache,
@@ -67,7 +67,7 @@ export function autofillServiceFactory(
         await logServiceFactory(cache, opts),
         await settingsServiceFactory(cache, opts),
         await userVerificationServiceFactory(cache, opts),
-        await configServiceFactory(cache, opts)
-      )
+        await configServiceFactory(cache, opts),
+      ),
   );
 }
