@@ -63,6 +63,12 @@ export default class AutofillService implements AutofillServiceInterface {
     this.injectAutofillScriptsInAllTabs();
   }
 
+  /**
+   * Triggers a complete reload of all autofill scripts on tabs open within
+   * the user's browsing session. This is done by first disconnecting all
+   * existing autofill content script ports, which cleans up existing object
+   * instances, and then re-injecting the autofill scripts into all tabs.
+   */
   async reloadAutofillScripts() {
     this.autofillScriptPortsSet.forEach((port) => {
       port.disconnect();
@@ -1911,6 +1917,13 @@ export default class AutofillService implements AutofillServiceInterface {
     return false;
   }
 
+  /**
+   * Handles incoming long-lived connections from injected autofill scripts.
+   * Stores the port in a set to facilitate disconnecting ports if the extension
+   * needs to re-inject the autofill scripts.
+   *
+   * @param port - The port that was connected
+   */
   private handleInjectedScriptPortConnection = (port: chrome.runtime.Port) => {
     if (port.name !== AutofillPort.InjectedScript) {
       return;
@@ -1920,6 +1933,11 @@ export default class AutofillService implements AutofillServiceInterface {
     port.onDisconnect.addListener(this.handleInjectScriptPortOnDisconnect);
   };
 
+  /**
+   * Handles disconnecting ports that relate to injected autofill scripts.
+
+   * @param port - The port that was disconnected
+   */
   private handleInjectScriptPortOnDisconnect = (port: chrome.runtime.Port) => {
     if (port.name !== AutofillPort.InjectedScript) {
       return;
@@ -1928,6 +1946,10 @@ export default class AutofillService implements AutofillServiceInterface {
     this.autofillScriptPortsSet.delete(port);
   };
 
+  /**
+   * Queries all open tabs in the user's browsing session
+   * and injects the autofill scripts into the page.
+   */
   private async injectAutofillScriptsInAllTabs() {
     const tabs = await BrowserApi.tabsQuery({});
     for (let index = 0; index < tabs.length; index++) {

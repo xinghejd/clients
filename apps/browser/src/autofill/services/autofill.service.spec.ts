@@ -26,6 +26,7 @@ import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserStateService } from "../../platform/services/browser-state.service";
+import { AutofillPort } from "../enums/autofill-port.enums";
 import {
   createAutofillFieldMock,
   createAutofillPageDetailsMock,
@@ -112,6 +113,33 @@ describe("AutofillService", () => {
 
       // eslint-disable-next-line no-restricted-syntax
       expect(chrome.runtime.onConnect.addListener).toHaveBeenCalledWith(expect.any(Function));
+    });
+  });
+
+  describe("reloadAutofillScripts", () => {
+    it("disconnects and removes all autofill script ports", () => {
+      const port1 = mock<chrome.runtime.Port>({
+        disconnect: jest.fn(),
+      });
+      const port2 = mock<chrome.runtime.Port>({
+        disconnect: jest.fn(),
+      });
+      autofillService["autofillScriptPortsSet"] = new Set([port1, port2]);
+
+      autofillService.reloadAutofillScripts();
+
+      expect(port1.disconnect).toHaveBeenCalled();
+      expect(port2.disconnect).toHaveBeenCalled();
+      expect(autofillService["autofillScriptPortsSet"].size).toBe(0);
+    });
+
+    it("re-injects the autofill scripts in all tabs", () => {
+      autofillService["autofillScriptPortsSet"] = new Set([mock<chrome.runtime.Port>()]);
+      jest.spyOn(autofillService as any, "injectAutofillScriptsInAllTabs");
+
+      autofillService.reloadAutofillScripts();
+
+      expect(autofillService["injectAutofillScriptsInAllTabs"]).toHaveBeenCalled();
     });
   });
 
@@ -4493,6 +4521,60 @@ describe("AutofillService", () => {
 
       expect(result).toBe(false);
       expect(autofillService["currentlyOpeningPasswordRepromptPopout"]).toBe(false);
+    });
+  });
+
+  describe("handleInjectedScriptPortConnection", () => {
+    it("ignores port connections that do not have the correct port name", () => {
+      const port = mock<chrome.runtime.Port>({
+        name: "some-invalid-port-name",
+        onDisconnect: { addListener: jest.fn() },
+      }) as any;
+
+      autofillService["handleInjectedScriptPortConnection"](port);
+
+      expect(port.onDisconnect.addListener).not.toHaveBeenCalled();
+      expect(autofillService["autofillScriptPortsSet"].size).toBe(0);
+    });
+
+    it("adds the connect port to the set of injected script ports and sets up an onDisconnect listener", () => {
+      const port = mock<chrome.runtime.Port>({
+        name: AutofillPort.InjectedScript,
+        onDisconnect: { addListener: jest.fn() },
+      }) as any;
+      jest.spyOn(autofillService as any, "handleInjectScriptPortOnDisconnect");
+
+      autofillService["handleInjectedScriptPortConnection"](port);
+
+      expect(port.onDisconnect.addListener).toHaveBeenCalledWith(
+        autofillService["handleInjectScriptPortOnDisconnect"]
+      );
+      expect(autofillService["autofillScriptPortsSet"].size).toBe(1);
+    });
+  });
+
+  describe("handleInjectScriptPortOnDisconnect", () => {
+    it("ignores port disconnections that do not have the correct port name", () => {
+      autofillService["autofillScriptPortsSet"].add(mock<chrome.runtime.Port>());
+
+      autofillService["handleInjectScriptPortOnDisconnect"](
+        mock<chrome.runtime.Port>({
+          name: "some-invalid-port-name",
+        })
+      );
+
+      expect(autofillService["autofillScriptPortsSet"].size).toBe(1);
+    });
+
+    it("removes the port from the set of injected script ports", () => {
+      const port = mock<chrome.runtime.Port>({
+        name: AutofillPort.InjectedScript,
+      }) as any;
+      autofillService["autofillScriptPortsSet"].add(port);
+
+      autofillService["handleInjectScriptPortOnDisconnect"](port);
+
+      expect(autofillService["autofillScriptPortsSet"].size).toBe(0);
     });
   });
 });
