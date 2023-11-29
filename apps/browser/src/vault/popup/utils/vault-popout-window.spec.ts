@@ -42,7 +42,7 @@ describe("VaultPopoutWindow", () => {
           singleActionKey: `${VaultPopoutType.viewVaultItem}_cipherId`,
           senderWindowId: 2,
           forceCloseExistingWindows: undefined,
-        }
+        },
       );
     });
   });
@@ -70,7 +70,7 @@ describe("VaultPopoutWindow", () => {
           singleActionKey: `${VaultPopoutType.viewVaultItem}_cipherId`,
           senderWindowId: 1,
           forceCloseExistingWindows: true,
-        }
+        },
       );
     });
   });
@@ -78,7 +78,7 @@ describe("VaultPopoutWindow", () => {
   describe("openAddEditVaultItemPopout", () => {
     it("opens a popout window that facilitates adding a vault item", async () => {
       await openAddEditVaultItemPopout(
-        mock<chrome.tabs.Tab>({ windowId: 1, url: "https://jest-testing-website.com" })
+        mock<chrome.tabs.Tab>({ windowId: 1, url: "https://jest-testing-website.com" }),
       );
 
       expect(openPopoutSpy).toHaveBeenCalledWith(
@@ -86,7 +86,7 @@ describe("VaultPopoutWindow", () => {
         {
           singleActionKey: VaultPopoutType.addEditVaultItem,
           senderWindowId: 1,
-        }
+        },
       );
     });
 
@@ -95,7 +95,7 @@ describe("VaultPopoutWindow", () => {
         mock<chrome.tabs.Tab>({ windowId: 1, url: "https://jest-testing-website.com" }),
         {
           cipherType: CipherType.Identity,
-        }
+        },
       );
 
       expect(openPopoutSpy).toHaveBeenCalledWith(
@@ -103,7 +103,7 @@ describe("VaultPopoutWindow", () => {
         {
           singleActionKey: `${VaultPopoutType.addEditVaultItem}_${CipherType.Identity}`,
           senderWindowId: 1,
-        }
+        },
       );
     });
 
@@ -112,7 +112,7 @@ describe("VaultPopoutWindow", () => {
         mock<chrome.tabs.Tab>({ windowId: 1, url: "https://jest-testing-website.com" }),
         {
           cipherId: "cipherId",
-        }
+        },
       );
 
       expect(openPopoutSpy).toHaveBeenCalledWith(
@@ -120,7 +120,7 @@ describe("VaultPopoutWindow", () => {
         {
           singleActionKey: `${VaultPopoutType.addEditVaultItem}_cipherId`,
           senderWindowId: 1,
-        }
+        },
       );
     });
   });
@@ -137,7 +137,7 @@ describe("VaultPopoutWindow", () => {
 
       expect(closeSingleActionPopoutSpy).toHaveBeenCalledWith(
         VaultPopoutType.addEditVaultItem,
-        1000
+        1000,
       );
     });
   });
@@ -162,7 +162,7 @@ describe("VaultPopoutWindow", () => {
           senderWindowId: 1,
           forceCloseExistingWindows: true,
           windowOptions: { height: 450 },
-        }
+        },
       );
       expect(returnedWindowId).toEqual(10);
     });
@@ -175,7 +175,7 @@ describe("VaultPopoutWindow", () => {
       await closeFido2Popout(sessionId);
 
       expect(closeSingleActionPopoutSpy).toHaveBeenCalledWith(
-        `${VaultPopoutType.fido2Popout}_${sessionId}`
+        `${VaultPopoutType.fido2Popout}_${sessionId}`,
       );
     });
   });
