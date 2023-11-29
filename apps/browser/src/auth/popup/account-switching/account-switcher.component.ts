@@ -20,6 +20,7 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
   readonly lockedStatus = AuthenticationStatus.Locked;
   private destroy$ = new Subject<void>();
 
+  loading = false;
   activeUserCanLock = false;
 
   constructor(
@@ -61,11 +62,13 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
   }
 
   async lock(userId?: string) {
+    this.loading = true;
     await this.vaultTimeoutService.lock(userId ? userId : null);
     this.router.navigate(["lock"]);
   }
 
   async lockAll() {
+    this.loading = true;
     this.availableAccounts$
       .pipe(
         map((accounts) =>
@@ -89,6 +92,7 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
   }
 
   async logOut() {
+    this.loading = true;
     const confirmed = await this.dialogService.openSimpleDialog({
       title: { key: "logOut" },
       content: { key: "logOutConfirmation" },

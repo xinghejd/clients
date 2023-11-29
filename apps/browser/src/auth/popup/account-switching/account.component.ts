@@ -1,5 +1,5 @@
 import { CommonModule, Location } from "@angular/common";
-import { Component, Input } from "@angular/core";
+import { Component, EventEmitter, Input, Output } from "@angular/core";
 import { Router } from "@angular/router";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
@@ -17,6 +17,7 @@ import { AccountSwitcherService, AvailableAccount } from "./services/account-swi
 })
 export class AccountComponent {
   @Input() account: AvailableAccount;
+  @Output() loading = new EventEmitter<boolean>();
 
   constructor(
     private accountSwitcherService: AccountSwitcherService,
@@ -30,6 +31,7 @@ export class AccountComponent {
   }
 
   async selectAccount(id: string) {
+    this.loading.emit(true);
     await this.accountSwitcherService.selectAccount(id);
 
     if (id === this.specialAccountAddId) {
