@@ -1,5 +1,3 @@
-import _ from "lodash";
-
 import {
   ApiOptions,
   SelfHostedApiOptions,
@@ -122,6 +120,7 @@ export type UsernameGeneratorOptions = {
 // freeze all the things to prevent mutation
 export const DefaultOptions: UsernameGeneratorOptions = Object.freeze({
   type: "word",
+  website: "",
   word: Object.freeze({
     capitalize: true,
     includeNumber: true,
@@ -135,7 +134,6 @@ export const DefaultOptions: UsernameGeneratorOptions = Object.freeze({
     domain: "",
   }),
   forwarders: Object.freeze({
-    website: "",
     service: ForwarderIds.FastMail,
     fastMail: Object.freeze({
       domain: "",
@@ -175,16 +173,36 @@ export function getForwarderOptions(
   options: UsernameGeneratorOptions
 ): ApiOptions {
   if (service === ForwarderIds.AddyIo) {
-    return _.defaults(options.forwarders.addyIo, DefaultOptions.forwarders.addyIo);
+    return Object.assign(
+      structuredClone(DefaultOptions.forwarders.addyIo),
+      options.forwarders.addyIo
+    );
   } else if (service === ForwarderIds.DuckDuckGo) {
-    return _.defaults(options.forwarders.duckDuckGo, DefaultOptions.forwarders.duckDuckGo);
+    return Object.assign(
+      structuredClone(DefaultOptions.forwarders.duckDuckGo),
+      options.forwarders.duckDuckGo
+    );
   } else if (service === ForwarderIds.FastMail) {
-    return _.defaults(options.forwarders.fastMail, DefaultOptions.forwarders.fastMail);
+    return Object.assign(
+      structuredClone(DefaultOptions.forwarders.fastMail),
+      options.forwarders.fastMail
+    );
   } else if (service === ForwarderIds.FirefoxRelay) {
-    return _.defaults(options.forwarders.firefoxRelay, DefaultOptions.forwarders.firefoxRelay);
+    return Object.assign(
+      structuredClone(DefaultOptions.forwarders.firefoxRelay),
+      options.forwarders.firefoxRelay
+    );
   } else if (service === ForwarderIds.ForwardEmail) {
-    return _.defaults(options.forwarders.forwardEmail, DefaultOptions.forwarders.forwardEmail);
+    return Object.assign(
+      structuredClone(DefaultOptions.forwarders.forwardEmail),
+      options.forwarders.forwardEmail
+    );
   } else if (service === ForwarderIds.SimpleLogin) {
-    return _.defaults(options.forwarders.simpleLogin, DefaultOptions.forwarders.simpleLogin);
+    return Object.assign(
+      structuredClone(DefaultOptions.forwarders.simpleLogin),
+      options.forwarders.simpleLogin
+    );
+  } else {
+    return null;
   }
 }
