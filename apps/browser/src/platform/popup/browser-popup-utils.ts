@@ -67,7 +67,7 @@ class BrowserPopupUtils {
     options: ScrollOptions = {
       delay: 0,
       containerSelector: "main",
-    }
+    },
   ) {
     const { delay, containerSelector } = options;
     return new Promise<void>((resolve) =>
@@ -78,7 +78,7 @@ class BrowserPopupUtils {
         }
 
         resolve();
-      }, delay)
+      }, delay),
     );
   }
 
@@ -109,7 +109,7 @@ class BrowserPopupUtils {
       singleActionKey?: string;
       forceCloseExistingWindows?: boolean;
       windowOptions?: Partial<chrome.windows.CreateData>;
-    } = {}
+    } = {},
   ) {
     const { senderWindowId, singleActionKey, forceCloseExistingWindows, windowOptions } = options;
     const defaultPopoutWindowOptions: chrome.windows.CreateData = {
@@ -134,7 +134,7 @@ class BrowserPopupUtils {
       (await BrowserPopupUtils.isSingleActionPopoutOpen(
         singleActionKey,
         popoutWindowOptions,
-        forceCloseExistingWindows
+        forceCloseExistingWindows,
       )) &&
       !forceCloseExistingWindows
     ) {
@@ -197,7 +197,7 @@ class BrowserPopupUtils {
   private static async isSingleActionPopoutOpen(
     popoutKey: string | undefined,
     windowInfo: chrome.windows.CreateData,
-    forceCloseExistingWindows = false
+    forceCloseExistingWindows = false,
   ) {
     if (!popoutKey) {
       return false;
@@ -205,7 +205,7 @@ class BrowserPopupUtils {
 
     const extensionUrl = chrome.runtime.getURL("popup/index.html");
     const popoutTabs = (await BrowserApi.tabsQuery({ url: `${extensionUrl}*` })).filter((tab) =>
-      tab.url.includes(`singleActionPopout=${popoutKey}`)
+      tab.url.includes(`singleActionPopout=${popoutKey}`),
     );
     if (popoutTabs.length === 0) {
       return false;
@@ -238,7 +238,7 @@ class BrowserPopupUtils {
   private static urlContainsSearchParams(
     win: Window,
     searchParam: string,
-    searchValue: string
+    searchValue: string,
   ): boolean {
     return win.location.href.indexOf(`${searchParam}=${searchValue}`) > -1;
   }
