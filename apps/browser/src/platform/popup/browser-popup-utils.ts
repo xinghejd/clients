@@ -109,7 +109,7 @@ class BrowserPopupUtils {
       singleActionKey?: string;
       forceCloseExistingWindows?: boolean;
       windowOptions?: Partial<chrome.windows.CreateData>;
-      skipParsingExtensionUrlPath?: boolean;
+      // skipParsingExtensionUrlPath?: boolean;
     } = {}
   ) {
     const {
@@ -117,7 +117,7 @@ class BrowserPopupUtils {
       singleActionKey,
       forceCloseExistingWindows,
       windowOptions,
-      skipParsingExtensionUrlPath,
+      // skipParsingExtensionUrlPath,
     } = options;
     const defaultPopoutWindowOptions: chrome.windows.CreateData = {
       type: "popup",
@@ -129,15 +129,12 @@ class BrowserPopupUtils {
     const offsetTop = 90;
     const popupWidth = defaultPopoutWindowOptions.width;
     const senderWindow = await BrowserApi.getWindow(senderWindowId);
-    const parsedUrlPath = skipParsingExtensionUrlPath
-      ? extensionUrlPath
-      : BrowserPopupUtils.buildPopoutUrlPath(extensionUrlPath, singleActionKey);
     const popoutWindowOptions = {
       left: senderWindow.left + senderWindow.width - popupWidth - offsetRight,
       top: senderWindow.top + offsetTop,
       ...defaultPopoutWindowOptions,
       ...windowOptions,
-      url: chrome.runtime.getURL(parsedUrlPath),
+      url: BrowserPopupUtils.buildPopoutUrl(extensionUrlPath, singleActionKey),
     };
 
     if (
@@ -188,11 +185,7 @@ class BrowserPopupUtils {
       hashRoute = "#/tabs/vault";
     }
 
-    // When opening a popout from the current popup page, we need to ensure that the query param for the uilocation is present before the hash route.
-    // This ensures that the value persists when the user navigates within the popout window, which is normally unnecessary to do with other popout windows.
-    await BrowserPopupUtils.openPopout(`${parsedUrl.pathname}?uilocation=popout${hashRoute}`, {
-      skipParsingExtensionUrlPath: true,
-    });
+    await BrowserPopupUtils.openPopout(`${parsedUrl.pathname}${hashRoute}`);
 
     if (BrowserPopupUtils.inPopup(win)) {
       BrowserApi.closePopup(win);
@@ -264,23 +257,15 @@ class BrowserPopupUtils {
    * @param extensionUrlPath - A relative path to the extension page. Example: "popup/index.html#/tabs/vault"
    * @param singleActionKey - The single action popout key used to identify the popout.
    */
-  private static buildPopoutUrlPath(extensionUrlPath: string, singleActionKey: string) {
-    let formattedExtensionUrlPath = extensionUrlPath;
-    if (formattedExtensionUrlPath.includes("uilocation=")) {
-      formattedExtensionUrlPath = formattedExtensionUrlPath.replace(
-        /uilocation=[^&]*/g,
-        "uilocation=popout"
-      );
-    } else {
-      formattedExtensionUrlPath +=
-        (formattedExtensionUrlPath.includes("?") ? "&" : "?") + "uilocation=popout";
-    }
+  private static buildPopoutUrl(extensionUrlPath: string, singleActionKey: string) {
+    const parsedUrl = new URL(chrome.runtime.getURL(extensionUrlPath));
+    parsedUrl.searchParams.set("uilocation", "popout");
 
     if (singleActionKey) {
-      formattedExtensionUrlPath += `&singleActionPopout=${singleActionKey}`;
+      parsedUrl.searchParams.set("singleActionPopout", singleActionKey);
     }
 
-    return formattedExtensionUrlPath;
+    return parsedUrl.toString();
   }
 }
 

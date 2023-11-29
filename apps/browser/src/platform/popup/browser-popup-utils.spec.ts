@@ -194,11 +194,11 @@ describe("BrowserPopupUtils", () => {
     it("skips parsing the passed extension url path if the option to do that is set", () => {
       const url = "popup/index.html?uilocation=popout#/tabs/vault";
       jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(false);
-      jest.spyOn(BrowserPopupUtils as any, "buildPopoutUrlPath");
+      jest.spyOn(BrowserPopupUtils as any, "buildPopoutUrl");
 
-      BrowserPopupUtils.openPopout(url, { skipParsingExtensionUrlPath: true });
+      BrowserPopupUtils.openPopout(url);
 
-      expect(BrowserPopupUtils["buildPopoutUrlPath"]).not.toHaveBeenCalled();
+      expect(BrowserPopupUtils["buildPopoutUrl"]).not.toHaveBeenCalled();
     });
 
     it("replaces any existing `uilocation=` query params within the passed extension url path to state the the uilocaiton is a popup", async () => {
@@ -315,9 +315,7 @@ describe("BrowserPopupUtils", () => {
 
       await BrowserPopupUtils.openCurrentPagePopout(win);
 
-      expect(BrowserPopupUtils.openPopout).toHaveBeenCalledWith("/?uilocation=popout#/tabs/vault", {
-        skipParsingExtensionUrlPath: true,
-      });
+      expect(BrowserPopupUtils.openPopout).toHaveBeenCalledWith("/?uilocation=popout#/tabs/vault");
       expect(BrowserApi.closePopup).not.toHaveBeenCalled();
     });
 
@@ -328,9 +326,7 @@ describe("BrowserPopupUtils", () => {
 
       await BrowserPopupUtils.openCurrentPagePopout(win, "https://example.com#/settings");
 
-      expect(BrowserPopupUtils.openPopout).toHaveBeenCalledWith("/?uilocation=popout#/settings", {
-        skipParsingExtensionUrlPath: true,
-      });
+      expect(BrowserPopupUtils.openPopout).toHaveBeenCalledWith("/#/settings");
     });
 
     it("opens a popout window for the current page and closes the popup window", async () => {
@@ -341,9 +337,7 @@ describe("BrowserPopupUtils", () => {
 
       await BrowserPopupUtils.openCurrentPagePopout(win);
 
-      expect(BrowserPopupUtils.openPopout).toHaveBeenCalledWith("/?uilocation=popout#/tabs/vault", {
-        skipParsingExtensionUrlPath: true,
-      });
+      expect(BrowserPopupUtils.openPopout).toHaveBeenCalledWith("/#/tabs/vault");
       expect(BrowserApi.closePopup).toHaveBeenCalledWith(win);
     });
   });
