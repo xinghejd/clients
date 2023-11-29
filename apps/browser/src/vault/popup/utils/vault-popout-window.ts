@@ -9,6 +9,12 @@ const VaultPopoutType = {
   fido2Popout: "vault_Fido2Popout",
 } as const;
 
+/**
+ * Opens a popout window that facilitates viewing a vault item.
+ *
+ * @param senderTab - The tab that sent the request.
+ * @param cipherOptions - The cipher id and action to perform.
+ */
 async function openViewVaultItemPopout(
   senderTab: chrome.tabs.Tab,
   cipherOptions: {
@@ -18,15 +24,19 @@ async function openViewVaultItemPopout(
   }
 ) {
   const { cipherId, action, forceCloseExistingWindows } = cipherOptions;
-  let promptWindowPath = "popup/index.html#/view-cipher?uilocation=popout";
+  let promptWindowPath = "popup/index.html#/view-cipher";
+  let queryParamToken = "?";
+
   if (cipherId) {
-    promptWindowPath += `&cipherId=${cipherId}`;
+    promptWindowPath += `${queryParamToken}cipherId=${cipherId}`;
+    queryParamToken = "&";
   }
   if (senderTab.id) {
-    promptWindowPath += `&senderTabId=${senderTab.id}`;
+    promptWindowPath += `${queryParamToken}senderTabId=${senderTab.id}`;
+    queryParamToken = "&";
   }
   if (action) {
-    promptWindowPath += `&action=${action}`;
+    promptWindowPath += `${queryParamToken}action=${action}`;
   }
 
   await BrowserPopupUtils.openPopout(promptWindowPath, {
@@ -36,6 +46,12 @@ async function openViewVaultItemPopout(
   });
 }
 
+/**
+ * Closes the view vault item popout window.
+ *
+ * @param singleActionKey - The single action popout key used to identify the popout.
+ * @param delayClose - The amount of time to wait before closing the popout. Defaults to 0.
+ */
 async function closeViewVaultItemPopout(singleActionKey: string, delayClose = 0) {
   await BrowserPopupUtils.closeSingleActionPopout(singleActionKey, delayClose);
 }
@@ -75,17 +91,21 @@ async function openAddEditVaultItemPopout(
   const { url, windowId } = senderTab;
 
   let singleActionKey = VaultPopoutType.addEditVaultItem;
-  let addEditCipherUrl = "popup/index.html#/edit-cipher?uilocation=popout";
+  let addEditCipherUrl = "popup/index.html#/edit-cipher";
+  let queryParamToken = "?";
+
   if (cipherId && !cipherType) {
     singleActionKey += `_${cipherId}`;
-    addEditCipherUrl += `&cipherId=${cipherId}`;
+    addEditCipherUrl += `${queryParamToken}cipherId=${cipherId}`;
+    queryParamToken = "&";
   }
   if (cipherType && !cipherId) {
     singleActionKey += `_${cipherType}`;
-    addEditCipherUrl += `&type=${cipherType}`;
+    addEditCipherUrl += `${queryParamToken}type=${cipherType}`;
+    queryParamToken = "&";
   }
   if (senderTab.url) {
-    addEditCipherUrl += `&uri=${url}`;
+    addEditCipherUrl += `${queryParamToken}uri=${url}`;
   }
 
   await BrowserPopupUtils.openPopout(addEditCipherUrl, {

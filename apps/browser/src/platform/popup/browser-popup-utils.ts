@@ -109,16 +109,9 @@ class BrowserPopupUtils {
       singleActionKey?: string;
       forceCloseExistingWindows?: boolean;
       windowOptions?: Partial<chrome.windows.CreateData>;
-      // skipParsingExtensionUrlPath?: boolean;
     } = {}
   ) {
-    const {
-      senderWindowId,
-      singleActionKey,
-      forceCloseExistingWindows,
-      windowOptions,
-      // skipParsingExtensionUrlPath,
-    } = options;
+    const { senderWindowId, singleActionKey, forceCloseExistingWindows, windowOptions } = options;
     const defaultPopoutWindowOptions: chrome.windows.CreateData = {
       type: "popup",
       focused: true,
