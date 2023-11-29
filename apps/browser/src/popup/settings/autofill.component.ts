@@ -70,7 +70,10 @@ export class AutofillComponent implements OnInit {
   }
 
   async ngOnInit() {
-    this.canOverrideBrowserAutofillSetting = this.platformUtilsService.isChrome();
+    this.canOverrideBrowserAutofillSetting =
+      this.platformUtilsService.isChrome() ||
+      this.platformUtilsService.isEdge() ||
+      this.platformUtilsService.isOpera();
 
     this.defaultBrowserAutofillDisabled = await this.browserAutofillSettingCurrentlyOverridden();
 
