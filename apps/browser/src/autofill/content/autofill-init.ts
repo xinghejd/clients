@@ -26,6 +26,7 @@ class AutofillInit implements AutofillInitInterface {
     updateIsOverlayCiphersPopulated: ({ message }) => this.updateIsOverlayCiphersPopulated(message),
     bgUnlockPopoutOpened: () => this.blurAndRemoveOverlay(),
     bgVaultItemRepromptPopoutOpened: () => this.blurAndRemoveOverlay(),
+    updateAutofillOverlayVisibility: ({ message }) => this.updateAutofillOverlayVisibility(message),
   };
 
   /**
@@ -207,6 +208,14 @@ class AutofillInit implements AutofillInitInterface {
     this.autofillOverlayContentService.isOverlayCiphersPopulated = Boolean(
       data?.isOverlayCiphersPopulated
     );
+  }
+
+  private updateAutofillOverlayVisibility({ data }: AutofillExtensionMessage) {
+    if (!this.autofillOverlayContentService) {
+      return;
+    }
+
+    this.autofillOverlayContentService.autofillOverlayVisibility = data?.autoFillOverlayVisibility;
   }
 
   /**

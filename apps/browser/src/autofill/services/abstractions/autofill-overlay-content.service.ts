@@ -14,6 +14,7 @@ interface AutofillOverlayContentService {
   isCurrentlyFilling: boolean;
   isOverlayCiphersPopulated: boolean;
   pageDetailsUpdateRequired: boolean;
+  autofillOverlayVisibility: number;
   init(): void;
   setupAutofillOverlayListenerOnField(
     autofillFieldElement: ElementWithOpId<FormFieldElement>,

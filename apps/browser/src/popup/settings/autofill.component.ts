@@ -119,8 +119,12 @@ export class AutofillComponent implements OnInit {
   }
 
   async updateAutoFillOverlayVisibility() {
+    const previousAutoFillOverlayVisibility =
+      await this.settingsService.getAutoFillOverlayVisibility();
     await this.settingsService.setAutoFillOverlayVisibility(this.autoFillOverlayVisibility);
-    await this.autofillService.reloadAutofillScripts();
+
+    await this.handleUpdatingAutofillOverlayContentScripts(previousAutoFillOverlayVisibility);
+
     if (
       this.autoFillOverlayVisibility === AutofillOverlayVisibility.Off ||
       !this.canOverrideBrowserAutofillSetting ||
@@ -196,5 +200,26 @@ export class AutofillComponent implements OnInit {
 
   async privacyPermissionGranted(): Promise<boolean> {
     return await BrowserApi.permissionsGranted(["privacy"]);
+  }
+
+  private async handleUpdatingAutofillOverlayContentScripts(
+    previousAutoFillOverlayVisibility: number
+  ) {
+    const autofillOverlayPreviouslyDisabled =
+      previousAutoFillOverlayVisibility === AutofillOverlayVisibility.Off;
+    const autofillOverlayCurrentlyDisabled =
+      this.autoFillOverlayVisibility === AutofillOverlayVisibility.Off;
+
+    if (!autofillOverlayPreviouslyDisabled && !autofillOverlayCurrentlyDisabled) {
+      const tabs = await BrowserApi.tabsQuery({});
+      tabs.forEach((tab) =>
+        BrowserApi.tabSendMessageData(tab, "updateAutofillOverlayVisibility", {
+          autoFillOverlayVisibility: this.autoFillOverlayVisibility,
+        })
+      );
+      return;
+    }
+
+    await this.autofillService.reloadAutofillScripts();
   }
 }

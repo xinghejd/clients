@@ -28,10 +28,10 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   isCurrentlyFilling = false;
   isOverlayCiphersPopulated = false;
   pageDetailsUpdateRequired = false;
+  autofillOverlayVisibility: number;
   private readonly findTabs = tabbable;
   private readonly sendExtensionMessage = sendExtensionMessage;
   private formFieldElements: Set<ElementWithOpId<FormFieldElement>> = new Set([]);
-  private autofillOverlayVisibility: number;
   private userFilledFields: Record<string, FillableFormFieldElement> = {};
   private authStatus: AuthenticationStatus;
   private focusableElements: FocusableElement[] = [];

@@ -34,7 +34,7 @@ type AutofillExtensionMessageHandlers = {
   updateIsOverlayCiphersPopulated: ({ message }: AutofillExtensionMessageParam) => void;
   bgUnlockPopoutOpened: () => void;
   bgVaultItemRepromptPopoutOpened: () => void;
-  // autofillOverlayVisibilityUpdated: ({ message }: AutofillExtensionMessageParam) => void;
+  updateAutofillOverlayVisibility: ({ message }: AutofillExtensionMessageParam) => void;
 };
 
 interface AutofillInit {
