@@ -23,8 +23,8 @@ type LegacyAccountType = {
       forwardedForwardEmailDomain?: string;
       forwardedSimpleLoginApiKey?: string;
       forwardedSimpleLoginBaseUrl?: string;
-    }
-  }
+    };
+  };
 };
 
 type NewAccountType = {
@@ -45,7 +45,13 @@ type NewAccountType = {
       };
       website?: string;
       forwarders: {
-        service: "fastmail" | "anonaddy" | "forwardemail" | "simplelogin" | "duckduckgo" | "firefoxrelay";
+        service:
+          | "fastmail"
+          | "anonaddy"
+          | "forwardemail"
+          | "simplelogin"
+          | "duckduckgo"
+          | "firefoxrelay";
         fastMail: {
           domain: string;
           prefix: string;
@@ -151,32 +157,32 @@ export async function mapAccount(account: LegacyAccountType) {
             token: oldOptions.forwardedFirefoxApiToken,
           },
         },
-      }
-    }
+      },
+    },
   } as NewAccountType;
 
   // if the token is not empty, then it was stored as plaintext
-  if(mappedOptions.settings.usernameGenerationOptions.forwarders.fastMail.token.length > 0) {
+  if (mappedOptions.settings.usernameGenerationOptions.forwarders.fastMail.token.length > 0) {
     mappedOptions.settings.usernameGenerationOptions.forwarders.fastMail.wasPlainText = true;
   }
 
-  if(mappedOptions.settings.usernameGenerationOptions.forwarders.addyIo.token.length > 0) {
+  if (mappedOptions.settings.usernameGenerationOptions.forwarders.addyIo.token.length > 0) {
     mappedOptions.settings.usernameGenerationOptions.forwarders.addyIo.wasPlainText = true;
   }
 
-  if(mappedOptions.settings.usernameGenerationOptions.forwarders.forwardEmail.token.length > 0) {
+  if (mappedOptions.settings.usernameGenerationOptions.forwarders.forwardEmail.token.length > 0) {
     mappedOptions.settings.usernameGenerationOptions.forwarders.forwardEmail.wasPlainText = true;
   }
 
-  if(mappedOptions.settings.usernameGenerationOptions.forwarders.simpleLogin.token.length > 0) {
+  if (mappedOptions.settings.usernameGenerationOptions.forwarders.simpleLogin.token.length > 0) {
     mappedOptions.settings.usernameGenerationOptions.forwarders.simpleLogin.wasPlainText = true;
   }
 
-  if(mappedOptions.settings.usernameGenerationOptions.forwarders.duckDuckGo.token.length > 0) {
+  if (mappedOptions.settings.usernameGenerationOptions.forwarders.duckDuckGo.token.length > 0) {
     mappedOptions.settings.usernameGenerationOptions.forwarders.duckDuckGo.wasPlainText = true;
   }
 
-  if(mappedOptions.settings.usernameGenerationOptions.forwarders.firefoxRelay.token.length > 0) {
+  if (mappedOptions.settings.usernameGenerationOptions.forwarders.firefoxRelay.token.length > 0) {
     mappedOptions.settings.usernameGenerationOptions.forwarders.firefoxRelay.wasPlainText = true;
   }
 }
