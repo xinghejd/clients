@@ -109,11 +109,6 @@ export class LockComponent extends BaseLockComponent {
     }, 100);
   }
 
-  async logOut() {
-    await super.logOut();
-    this.router.navigate(["account-switcher"]);
-  }
-
   override async unlockBiometric(): Promise<boolean> {
     if (!this.biometricLock) {
       return;

@@ -217,4 +217,6 @@ export const routerTransition = trigger("routerTransition", [
 
   transition("* => account-switcher", inSlideUp),
   transition("account-switcher => *", outSlideDown),
+
+  transition("lock => *", outSlideDown),
 ]);
