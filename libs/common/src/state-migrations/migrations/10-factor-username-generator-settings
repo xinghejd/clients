@@ -28,8 +28,8 @@ type LegacyAccountType = {
 };
 
 type NewAccountType = {
-  settings?: {
-    usernameGenerationOptions?: {
+  settings: {
+    usernameGenerationOptions: {
       type: "word" | "subaddress" | "catchall" | "forwarded";
       word: {
         capitalize: boolean;
@@ -46,35 +46,35 @@ type NewAccountType = {
       website?: string;
       forwarders: {
         service: "fastmail" | "anonaddy" | "forwardemail" | "simplelogin" | "duckduckgo" | "firefoxrelay";
-        fastMail?: {
+        fastMail: {
           domain: string;
           prefix: string;
           token: string;
-          wasPlainText: boolean;
+          wasPlainText?: true;
         };
-        addyIo?: {
+        addyIo: {
           token: string;
-          wasPlainText: boolean;
+          wasPlainText?: true;
           domain: string;
           baseUrl: string;
         };
-        forwardEmail?: {
+        forwardEmail: {
           token: string;
-          wasPlainText: boolean;
+          wasPlainText?: true;
           domain: string;
         };
-        simpleLogin?: {
+        simpleLogin: {
           token: string;
-          wasPlainText: boolean;
+          wasPlainText?: true;
           baseUrl: string;
         };
-        duckDuckGo?: {
+        duckDuckGo: {
           token: string;
-          wasPlainText: boolean;
+          wasPlainText?: true;
         };
-        firefoxRelay?: {
+        firefoxRelay: {
           token: string;
-          wasPlainText: boolean;
+          wasPlainText?: true;
         };
       };
     };
@@ -107,53 +107,75 @@ export async function mapAccount(account: LegacyAccountType) {
   }
 
   // if oldOptions exists, then we know that account.settings exists; replace it
-  return {
-    type: "word",
-    word: {
-      capitalize: oldOptions.wordCapitalize,
-      includeNumber: oldOptions.wordIncludeNumber,
-    },
-    subaddress: {
-      algorithm: oldOptions.subaddressType,
-      email: oldOptions.subaddressEmail,
-    },
-    catchall: {
-      algorithm: oldOptions.catchallType,
-      domain: oldOptions.catchallDomain,
-    },
-    website: oldOptions.website,
-    forwarders: Object.freeze({
-      service: "fastmail",
-      fastMail: {
-        domain: "",
-        prefix: "",
-        token: oldOptions.forwardedFastmailApiToken,
-        wasPlainText: true,
-      },
-      addyIo: {
-        token: oldOptions.forwardedAnonAddyApiToken,
-        wasPlainText: true,
-        domain: oldOptions.forwardedAnonAddyDomain,
-        baseUrl: oldOptions.forwardedAnonAddyBaseUrl,
-      },
-      forwardEmail: {
-        token: oldOptions.forwardedForwardEmailApiToken,
-        wasPlainText: true,
-        domain: oldOptions.forwardedForwardEmailDomain,
-      },
-      simpleLogin: {
-        token: oldOptions.forwardedSimpleLoginApiKey,
-        wasPlainText: true,
-        baseUrl: oldOptions.forwardedSimpleLoginBaseUrl,
-      },
-      duckDuckGo: {
-        token: oldOptions.forwardedDuckDuckGoToken,
-        wasPlainText: true,
-      },
-      firefoxRelay: {
-        token: oldOptions.forwardedFirefoxApiToken,
-        wasPlainText: true,
-      },
-    }),
+  const mappedOptions = {
+    settings: {
+      usernameGenerationOptions: {
+        type: "word",
+        word: {
+          capitalize: oldOptions.wordCapitalize,
+          includeNumber: oldOptions.wordIncludeNumber,
+        },
+        subaddress: {
+          algorithm: oldOptions.subaddressType,
+          email: oldOptions.subaddressEmail,
+        },
+        catchall: {
+          algorithm: oldOptions.catchallType,
+          domain: oldOptions.catchallDomain,
+        },
+        website: oldOptions.website,
+        forwarders: {
+          service: "fastmail",
+          fastMail: {
+            domain: "",
+            prefix: "",
+            token: oldOptions.forwardedFastmailApiToken,
+          },
+          addyIo: {
+            token: oldOptions.forwardedAnonAddyApiToken,
+            domain: oldOptions.forwardedAnonAddyDomain,
+            baseUrl: oldOptions.forwardedAnonAddyBaseUrl,
+          },
+          forwardEmail: {
+            token: oldOptions.forwardedForwardEmailApiToken,
+            domain: oldOptions.forwardedForwardEmailDomain,
+          },
+          simpleLogin: {
+            token: oldOptions.forwardedSimpleLoginApiKey,
+            baseUrl: oldOptions.forwardedSimpleLoginBaseUrl,
+          },
+          duckDuckGo: {
+            token: oldOptions.forwardedDuckDuckGoToken,
+          },
+          firefoxRelay: {
+            token: oldOptions.forwardedFirefoxApiToken,
+          },
+        },
+      }
+    }
   } as NewAccountType;
+
+  if(mappedOptions.settings.usernameGenerationOptions.forwarders.fastMail.token.length > 0) {
+    mappedOptions.settings.usernameGenerationOptions.forwarders.fastMail.wasPlainText = true;
+  }
+
+  if(mappedOptions.settings.usernameGenerationOptions.forwarders.addyIo.token.length > 0) {
+    mappedOptions.settings.usernameGenerationOptions.forwarders.addyIo.wasPlainText = true;
+  }
+
+  if(mappedOptions.settings.usernameGenerationOptions.forwarders.forwardEmail.token.length > 0) {
+    mappedOptions.settings.usernameGenerationOptions.forwarders.forwardEmail.wasPlainText = true;
+  }
+
+  if(mappedOptions.settings.usernameGenerationOptions.forwarders.simpleLogin.token.length > 0) {
+    mappedOptions.settings.usernameGenerationOptions.forwarders.simpleLogin.wasPlainText = true;
+  }
+
+  if(mappedOptions.settings.usernameGenerationOptions.forwarders.duckDuckGo.token.length > 0) {
+    mappedOptions.settings.usernameGenerationOptions.forwarders.duckDuckGo.wasPlainText = true;
+  }
+
+  if(mappedOptions.settings.usernameGenerationOptions.forwarders.firefoxRelay.token.length > 0) {
+    mappedOptions.settings.usernameGenerationOptions.forwarders.firefoxRelay.wasPlainText = true;
+  }
 }
