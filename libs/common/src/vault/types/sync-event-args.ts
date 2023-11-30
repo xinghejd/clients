@@ -42,7 +42,7 @@ export type SyncEventArgs =
  * ```
  */
 export function isSuccessfullyCompleted(
-  syncEvent: SyncEventArgs
+  syncEvent: SyncEventArgs,
 ): syncEvent is SyncSuccessfullyCompletedEventArgs {
   return syncEvent.status === "Completed" && syncEvent.successfully;
 }

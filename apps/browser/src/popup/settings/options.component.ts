@@ -1,12 +1,13 @@
 import { Component, OnInit } from "@angular/core";
 
-import { AbstractThemingService } from "@bitwarden/angular/services/theming/theming.service.abstraction";
+import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { SettingsService } from "@bitwarden/common/abstractions/settings.service";
-import { TotpService } from "@bitwarden/common/abstractions/totp.service";
-import { ThemeType, UriMatchType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { ThemeType } from "@bitwarden/common/platform/enums";
+import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
+import { UriMatchType } from "@bitwarden/common/vault/enums";
 
 import { flagEnabled } from "../../platform/flags";
 
@@ -24,6 +25,7 @@ export class OptionsComponent implements OnInit {
   enableContextMenuItem = false;
   enableAddLoginNotification = false;
   enableChangedPasswordNotification = false;
+  enablePasskeys = true;
   showCardsCurrentTab = false;
   showIdentitiesCurrentTab = false;
   showClearClipboard = true;
@@ -44,7 +46,7 @@ export class OptionsComponent implements OnInit {
     private totpService: TotpService,
     i18nService: I18nService,
     private themingService: AbstractThemingService,
-    private settingsService: SettingsService
+    private settingsService: SettingsService,
   ) {
     this.themeOptions = [
       { name: i18nService.t("default"), value: ThemeType.System },
@@ -100,6 +102,8 @@ export class OptionsComponent implements OnInit {
 
     this.enableBadgeCounter = !(await this.stateService.getDisableBadgeCounter());
 
+    this.enablePasskeys = await this.stateService.getEnablePasskeys();
+
     this.theme = await this.stateService.getTheme();
 
     const defaultUriMatch = await this.stateService.getDefaultUriMatch();
@@ -114,8 +118,12 @@ export class OptionsComponent implements OnInit {
 
   async updateChangedPasswordNotification() {
     await this.stateService.setDisableChangedPasswordNotification(
-      !this.enableChangedPasswordNotification
+      !this.enableChangedPasswordNotification,
     );
+  }
+
+  async updateEnablePasskeys() {
+    await this.stateService.setEnablePasskeys(this.enablePasskeys);
   }
 
   async updateContextMenuItem() {

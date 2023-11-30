@@ -77,7 +77,7 @@ export class SyncService implements SyncServiceAbstraction {
     private folderApiService: FolderApiServiceAbstraction,
     private organizationService: InternalOrganizationServiceAbstraction,
     private sendApiService: SendApiService,
-    private logoutCallback: (expired: boolean) => Promise<void>
+    private logoutCallback: (expired: boolean) => Promise<void>,
   ) {
     this.syncEvent$.subscribe((event) => {
       if (event.status === "Completed") {
@@ -393,7 +393,7 @@ export class SyncService implements SyncServiceAbstraction {
     // The `forcePasswordReset` flag indicates an admin has reset the user's password and must be updated
     if (profileResponse.forcePasswordReset) {
       await this.stateService.setForceSetPasswordReason(
-        ForceSetPasswordReason.AdminForcePasswordReset
+        ForceSetPasswordReason.AdminForcePasswordReset,
       );
     }
 
@@ -423,7 +423,7 @@ export class SyncService implements SyncServiceAbstraction {
       // TDE user w/out MP went from having no password reset permission to having it.
       // Must set the force password reset reason so the auth guard will redirect to the set password page.
       await this.stateService.setForceSetPasswordReason(
-        ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission
+        ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission,
       );
     }
   }
