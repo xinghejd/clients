@@ -1,0 +1,106 @@
+import { MigrationHelper } from "../migration-helper";
+import { Direction, IRREVERSIBLE, Migrator } from "../migrator";
+import { UsernameGeneratorOptions, DefaultOptions } from "../../tools/generator/username/username-generation-options";
+
+/** Original format for options */
+type LegacyUsernameGeneratorOptions = {
+  type?: "word" | "subaddress" | "catchall" | "forwarded";
+  wordCapitalize?: boolean;
+  wordIncludeNumber?: boolean;
+  subaddressType?: "random" | "website-name";
+  subaddressEmail?: string;
+  catchallType?: "random" | "website-name";
+  catchallDomain?: string;
+  website?: string;
+  forwardedService?: string;
+  forwardedAnonAddyApiToken?: string;
+  forwardedAnonAddyDomain?: string;
+  forwardedAnonAddyBaseUrl?: string;
+  forwardedDuckDuckGoToken?: string;
+  forwardedFirefoxApiToken?: string;
+  forwardedFastmailApiToken?: string;
+  forwardedForwardEmailApiToken?: string;
+  forwardedForwardEmailDomain?: string;
+  forwardedSimpleLoginApiKey?: string;
+  forwardedSimpleLoginBaseUrl?: string;
+};
+
+/** The transform occurs in-place.
+ */
+type ExpectedAccountType = {
+  settings?: {
+    usernameGenerationOptions?: UsernameGeneratorOptions | LegacyUsernameGeneratorOptions
+  }
+};
+
+export class FactorUsernameGeneratorSettingsMigrator extends Migrator<9, 10> {
+  async migrate(helper: MigrationHelper): Promise<void> {
+    const accounts = await helper.getAccounts<ExpectedAccountType>();
+    async function updateAccount(userId: string, account: ExpectedAccountType) {
+      if (account == null) {
+        return;
+      }
+
+      const oldOptions = account.settings?.usernameGenerationOptions as LegacyUsernameGeneratorOptions;
+      if (!oldOptions) {
+        return;
+      }
+
+      // if oldOptions exists, then we know that account.settings exists
+      account!.settings!.usernameGenerationOptions = structuredClone(DefaultOptions);
+
+      const mappedOptions = {
+        type: oldOptions.type,
+        word: {
+          capitalize: oldOptions.wordCapitalize,
+          includeNumber: oldOptions.wordIncludeNumber,
+        },
+        subaddress: {
+          algorithm: oldOptions.subaddressType,
+          email: oldOptions.subaddressEmail,
+        },
+        catchall: {
+          algorithm: oldOptions.catchallType,
+          domain: oldOptions.catchallDomain,
+        },
+        website: oldOptions.website,
+        forwarders: {
+          service: oldOptions.forwardedService,
+          anonaddy: {
+            apiToken: oldOptions.forwardedAnonAddyApiToken,
+            domain: oldOptions.forwardedAnonAddyDomain,
+            baseUrl: oldOptions.forwardedAnonAddyBaseUrl,
+          },
+          duckduckgo: {
+            token: oldOptions.forwardedDuckDuckGoToken,
+          },
+          firefox: {
+            apiToken: oldOptions.forwardedFirefoxApiToken,
+          },
+          fastmail: {
+            apiToken: oldOptions.forwardedFastmailApiToken,
+          },
+          forwardEmail: {
+            apiToken: oldOptions.forwardedForwardEmailApiToken,
+            domain: oldOptions.forwardedForwardEmailDomain,
+          },
+          simpleLogin: {
+            apiKey: oldOptions.forwardedSimpleLoginApiKey,
+            baseUrl: oldOptions.forwardedSimpleLoginBaseUrl,
+          },
+        },
+      };
+
+      Object.assign(account!.settings!.usernameGenerationOptions, mappedOptions);
+    }
+
+    await Promise.all([
+      ...accounts.map(({ userId, account }) => updateAccount(userId, account)),
+    ]);
+  }
+
+  async rollback(helper: MigrationHelper): Promise<void> {
+    // old settings aren't compatible with the new UI, so we can't rollback
+    throw IRREVERSIBLE;
+  }
+}
