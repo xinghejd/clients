@@ -1,4 +1,4 @@
-import { BehaviorSubject, distinctUntilChanged, Subject } from "rxjs";
+import { BehaviorSubject, distinctUntilChanged, map, shareReplay } from "rxjs";
 
 import { ApiService } from "../../../abstractions/api.service";
 import { SettingsService } from "../../../abstractions/settings.service";
@@ -40,11 +40,10 @@ import { FolderResponse } from "../../../vault/models/response/folder.response";
 import { CollectionService } from "../../abstractions/collection.service";
 import { CollectionData } from "../../models/data/collection.data";
 import { CollectionDetailsResponse } from "../../models/response/collection.response";
-import { SyncError, SyncEventArgs } from "../../types/sync-event-args";
+import { SyncEventArgs } from "../../types/sync-event-args";
 
 export class SyncService implements SyncServiceAbstraction {
-  private syncEventSubject = new Subject<SyncEventArgs>();
-  private syncErrorSubject = new BehaviorSubject<SyncError | null>(null);
+  private syncEventSubject = new BehaviorSubject<SyncEventArgs>(null);
 
   /**
    * Observable that emits when a full sync event occurs. This includes when a sync starts, completes, or fails.
@@ -56,7 +55,19 @@ export class SyncService implements SyncServiceAbstraction {
    * Observable that emits when a full sync error occurs or when any prior error has been cleared.
    * Defaults to null when no error has occurred and is cleared when a sync completes without error.
    */
-  syncError$ = this.syncErrorSubject.pipe(distinctUntilChanged());
+  syncError$ = this.syncEvent$.pipe(
+    map((event) => {
+      if (event.status === "Completed") {
+        if (event.successfully === true) {
+          return null;
+        } else if (event.successfully === false) {
+          return event.error ? event.error : null;
+        }
+      }
+    }),
+    distinctUntilChanged(),
+    shareReplay({ bufferSize: 1, refCount: true }),
+  );
 
   syncInProgress = false;
 
@@ -78,17 +89,7 @@ export class SyncService implements SyncServiceAbstraction {
     private organizationService: InternalOrganizationServiceAbstraction,
     private sendApiService: SendApiService,
     private logoutCallback: (expired: boolean) => Promise<void>,
-  ) {
-    this.syncEvent$.subscribe((event) => {
-      if (event.status === "Completed") {
-        if (event.successfully === true) {
-          this.syncErrorSubject.next(null);
-        } else if (event.successfully === false) {
-          this.syncErrorSubject.next(event.error ? event.error : null);
-        }
-      }
-    });
-  }
+  ) {}
 
   async getLastSync(): Promise<Date> {
     if ((await this.stateService.getUserId()) == null) {
