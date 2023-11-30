@@ -304,28 +304,37 @@ export async function decryptInPlace(
 
   // remove padding and parse the JSON
   const json = decrypted.substring(0, jsonBreakpoint);
+
+  const { decryptedOptions, error } = parseOptions(json);
+  if (error) {
+    return error;
+  }
+
+  Object.assign(options, decryptedOptions);
+}
+
+function parseOptions(json: string) {
   let decryptedOptions = null;
   try {
     decryptedOptions = JSON.parse(json);
   } catch {
-    return "invalid json";
+    return { decryptedOptions, error: "invalid json" };
   }
 
   // If the decrypted options contain any property that is not in the original
   // options, then the object could be used as a side channel for arbitrary data.
   if (Object.keys(decryptedOptions).some((key) => key !== "token" && key !== "wasPlainText")) {
-    return "unknown keys";
+    return { decryptedOptions, error: "unknown keys" };
   }
 
   // If the decrypted properties are not the expected type, then the object could
   // be compromised and shouldn't be trusted.
   if (typeof decryptedOptions.token !== "string") {
-    return "invalid token";
+    return { decryptedOptions, error: "invalid token" };
   }
   if (decryptedOptions.wasPlainText !== undefined && decryptedOptions.wasPlainText !== true) {
-    return "invalid wasPlainText";
+    return { decryptedOptions, error: "invalid wasPlainText" };
   }
 
-  Object.assign(options, decryptedOptions);
-  return null;
+  return decryptedOptions;
 }
