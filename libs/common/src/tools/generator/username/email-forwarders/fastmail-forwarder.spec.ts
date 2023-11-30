@@ -65,11 +65,11 @@ describe("Fastmail Forwarder", () => {
             domain: "example.com",
             prefix: "prefix",
           })
-      ).rejects.toEqual("forwarder.invalidToken");
+      ).rejects.toEqual("forwaderInvalidToken");
 
       expect(apiService.nativeFetch).not.toHaveBeenCalled();
       expect(i18nService.t).toHaveBeenCalledWith(
-        "forwarder.invalidToken",
+        "forwaderInvalidToken",
         "forwarder.serviceName.fastmail"
       );
     });
@@ -89,11 +89,11 @@ describe("Fastmail Forwarder", () => {
               domain,
               prefix: "prefix",
             })
-        ).rejects.toEqual("forwarder.noDomain");
+        ).rejects.toEqual("forwarderNoDomain");
 
         expect(apiService.nativeFetch).not.toHaveBeenCalled();
         expect(i18nService.t).toHaveBeenCalledWith(
-          "forwarder.noDomain",
+          "forwarderNoDomain",
           "forwarder.serviceName.fastmail"
         );
       }
@@ -114,13 +114,13 @@ describe("Fastmail Forwarder", () => {
               domain: "example.com",
               prefix: "prefix",
             })
-        ).rejects.toEqual("forwarder.noAccountId");
+        ).rejects.toEqual("forwarderNoAccountId");
 
         expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
         // counting instances is terribly flaky over changes, but jest doesn't have a better way to do this
         expect(i18nService.t).toHaveBeenNthCalledWith(
           2,
-          "forwarder.noAccountId",
+          "forwarderNoAccountId",
           "forwarder.serviceName.fastmail"
         );
       }
@@ -182,13 +182,13 @@ describe("Fastmail Forwarder", () => {
               domain: "example.com",
               prefix: "prefix",
             })
-        ).rejects.toEqual("forwarder.error");
+        ).rejects.toEqual("forwarderError");
 
         expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
         // counting instances is terribly flaky over changes, but jest doesn't have a better way to do this
         expect(i18nService.t).toHaveBeenNthCalledWith(
           2,
-          "forwarder.error",
+          "forwarderError",
           "forwarder.serviceName.fastmail",
           description
         );
@@ -210,13 +210,13 @@ describe("Fastmail Forwarder", () => {
               domain: "example.com",
               prefix: "prefix",
             })
-        ).rejects.toEqual("forwarder.invalidToken");
+        ).rejects.toEqual("forwaderInvalidToken");
 
         expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
         // counting instances is terribly flaky over changes, but jest doesn't have a better way to do this
         expect(i18nService.t).toHaveBeenNthCalledWith(
           2,
-          "forwarder.invalidToken",
+          "forwaderInvalidToken",
           "forwarder.serviceName.fastmail"
         );
       }
@@ -252,13 +252,13 @@ describe("Fastmail Forwarder", () => {
               domain: "example.com",
               prefix: "prefix",
             })
-        ).rejects.toEqual("forwarder.unknownError");
+        ).rejects.toEqual("forwarderUnknownError");
 
         expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
         // counting instances is terribly flaky over changes, but jest doesn't have a better way to do this
         expect(i18nService.t).toHaveBeenNthCalledWith(
           2,
-          "forwarder.unknownError",
+          "forwarderUnknownError",
           "forwarder.serviceName.fastmail"
         );
       }
@@ -279,13 +279,13 @@ describe("Fastmail Forwarder", () => {
               domain: "example.com",
               prefix: "prefix",
             })
-        ).rejects.toEqual("forwarder.unknownError");
+        ).rejects.toEqual("forwarderUnknownError");
 
         expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
         // counting instances is terribly flaky over changes, but jest doesn't have a better way to do this
         expect(i18nService.t).toHaveBeenNthCalledWith(
           2,
-          "forwarder.unknownError",
+          "forwarderUnknownError",
           "forwarder.serviceName.fastmail"
         );
       }

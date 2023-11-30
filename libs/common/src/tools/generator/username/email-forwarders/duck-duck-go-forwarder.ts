@@ -12,7 +12,7 @@ export class DuckDuckGoForwarder implements Forwarder {
 
   async generate(_website: string | null, options: ApiOptions): Promise<string> {
     if (!options.token || options.token === "") {
-      const error = this.i18nService.t("forwarder.invalidToken", this.serviceName);
+      const error = this.i18nService.t("forwaderInvalidToken", this.serviceName);
       throw error;
     }
 
@@ -33,14 +33,14 @@ export class DuckDuckGoForwarder implements Forwarder {
       if (json.address) {
         return `${json.address}@duck.com`;
       } else {
-        const error = this.i18nService.t("forwarder.unknownError", this.serviceName);
+        const error = this.i18nService.t("forwarderUnknownError", this.serviceName);
         throw error;
       }
     } else if (response.status === 401) {
-      const error = this.i18nService.t("forwarder.invalidToken", this.serviceName);
+      const error = this.i18nService.t("forwaderInvalidToken", this.serviceName);
       throw error;
     } else {
-      const error = this.i18nService.t("forwarder.unknownError", this.serviceName);
+      const error = this.i18nService.t("forwarderUnknownError", this.serviceName);
       throw error;
     }
   }

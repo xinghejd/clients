@@ -12,19 +12,19 @@ export class SimpleLoginForwarder implements Forwarder {
 
   async generate(website: string, options: SelfHostedApiOptions): Promise<string> {
     if (!options.token || options.token === "") {
-      const error = this.i18nService.t("forwarder.invalidToken", this.serviceName);
+      const error = this.i18nService.t("forwaderInvalidToken", this.serviceName);
       throw error;
     }
     if (!options.baseUrl || options.baseUrl === "") {
-      const error = this.i18nService.t("forwarder.noUrl", this.serviceName);
+      const error = this.i18nService.t("forwarderNoUrl", this.serviceName);
       throw error;
     }
 
     let url = options.baseUrl + "/api/alias/random/new";
-    let noteId = "forwarder.generatedBy";
+    let noteId = "forwarderGeneratedBy";
     if (website && website !== "") {
       url += "?hostname=" + website;
-      noteId = "forwarder.generatedByWithWebsite";
+      noteId = "forwarderGeneratedByWithWebsite";
     }
     const note = this.i18nService.t(noteId, website ?? "");
 
@@ -41,7 +41,7 @@ export class SimpleLoginForwarder implements Forwarder {
 
     const response = await this.apiService.nativeFetch(request);
     if (response.status === 401) {
-      const error = this.i18nService.t("forwarder.invalidToken", this.serviceName);
+      const error = this.i18nService.t("forwaderInvalidToken", this.serviceName);
       throw error;
     }
 
@@ -49,10 +49,10 @@ export class SimpleLoginForwarder implements Forwarder {
     if (response.status === 200 || response.status === 201) {
       return json.alias;
     } else if (json?.error != null) {
-      const error = this.i18nService.t("forwarder.error", this.serviceName, json.error);
+      const error = this.i18nService.t("forwarderError", this.serviceName, json.error);
       throw error;
     } else {
-      const error = this.i18nService.t("forwarder.unknownError", this.serviceName);
+      const error = this.i18nService.t("forwarderUnknownError", this.serviceName);
       throw error;
     }
   }

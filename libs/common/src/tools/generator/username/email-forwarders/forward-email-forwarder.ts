@@ -16,18 +16,18 @@ export class ForwardEmailForwarder implements Forwarder {
     options: ApiOptions & EmailDomainOptions
   ): Promise<string> {
     if (!options.token || options.token === "") {
-      const error = this.i18nService.t("forwarder.invalidToken", this.serviceName);
+      const error = this.i18nService.t("forwaderInvalidToken", this.serviceName);
       throw error;
     }
     if (!options.domain || options.domain === "") {
-      const error = this.i18nService.t("forwarder.noDomain", this.serviceName);
+      const error = this.i18nService.t("forwarderNoDomain", this.serviceName);
       throw error;
     }
 
     const url = `https://api.forwardemail.net/v1/domains/${options.domain}/aliases`;
 
     const descriptionId =
-      website && website !== "" ? "forwarder.generatedByWithWebsite" : "forwarder.generatedBy";
+      website && website !== "" ? "forwarderGeneratedByWithWebsite" : "forwarderGeneratedBy";
     const description = this.i18nService.t(descriptionId, website ?? "");
 
     const request = new Request(url, {
@@ -46,7 +46,7 @@ export class ForwardEmailForwarder implements Forwarder {
 
     const response = await this.apiService.nativeFetch(request);
     if (response.status === 401) {
-      const error = this.i18nService.t("forwarder.invalidToken", this.serviceName);
+      const error = this.i18nService.t("forwaderInvalidToken", this.serviceName);
       throw error;
     }
 
@@ -56,13 +56,13 @@ export class ForwardEmailForwarder implements Forwarder {
       const domainPart = domain?.name || options.domain;
       return `${name}@${domainPart}`;
     } else if (json?.message) {
-      const error = this.i18nService.t("forwarder.error", this.serviceName, json.message);
+      const error = this.i18nService.t("forwarderError", this.serviceName, json.message);
       throw error;
     } else if (json?.error) {
-      const error = this.i18nService.t("forwarder.error", this.serviceName, json.error);
+      const error = this.i18nService.t("forwarderError", this.serviceName, json.error);
       throw error;
     } else {
-      const error = this.i18nService.t("forwarder.unknownError", this.serviceName);
+      const error = this.i18nService.t("forwarderUnknownError", this.serviceName);
       throw error;
     }
   }

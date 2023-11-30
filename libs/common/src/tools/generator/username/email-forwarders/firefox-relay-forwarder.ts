@@ -12,14 +12,14 @@ export class FirefoxRelayForwarder implements Forwarder {
 
   async generate(website: string | null, options: ApiOptions): Promise<string> {
     if (!options.token || options.token === "") {
-      const error = this.i18nService.t("forwarder.invalidToken", this.serviceName);
+      const error = this.i18nService.t("forwaderInvalidToken", this.serviceName);
       throw error;
     }
 
     const url = "https://relay.firefox.com/api/v1/relayaddresses/";
 
     const descriptionId =
-      website && website !== "" ? "forwarder.generatedByWithWebsite" : "forwarder.generatedBy";
+      website && website !== "" ? "forwarderGeneratedByWithWebsite" : "forwarderGeneratedBy";
     const description = this.i18nService.t(descriptionId, website ?? "");
 
     const request = new Request(url, {
@@ -39,13 +39,13 @@ export class FirefoxRelayForwarder implements Forwarder {
 
     const response = await this.apiService.nativeFetch(request);
     if (response.status === 401) {
-      const error = this.i18nService.t("forwarder.invalidToken", this.serviceName);
+      const error = this.i18nService.t("forwaderInvalidToken", this.serviceName);
       throw error;
     } else if (response.status === 200 || response.status === 201) {
       const json = await response.json();
       return json?.full_address;
     } else {
-      const error = this.i18nService.t("forwarder.unknownError", this.serviceName);
+      const error = this.i18nService.t("forwarderUnknownError", this.serviceName);
       throw error;
     }
   }

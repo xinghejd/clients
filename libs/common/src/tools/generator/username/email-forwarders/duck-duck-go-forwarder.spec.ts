@@ -25,11 +25,11 @@ describe("DuckDuckGo Forwarder", () => {
           await forwarder.generate(null, {
             token,
           })
-      ).rejects.toEqual("forwarder.invalidToken");
+      ).rejects.toEqual("forwaderInvalidToken");
 
       expect(apiService.nativeFetch).not.toHaveBeenCalled();
       expect(i18nService.t).toHaveBeenCalledWith(
-        "forwarder.invalidToken",
+        "forwaderInvalidToken",
         "forwarder.serviceName.duckduckgo"
       );
     });
@@ -67,13 +67,13 @@ describe("DuckDuckGo Forwarder", () => {
           await forwarder.generate(null, {
             token: "token",
           })
-      ).rejects.toEqual("forwarder.invalidToken");
+      ).rejects.toEqual("forwaderInvalidToken");
 
       expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
       // counting instances is terribly flaky over changes, but jest doesn't have a better way to do this
       expect(i18nService.t).toHaveBeenNthCalledWith(
         2,
-        "forwarder.invalidToken",
+        "forwaderInvalidToken",
         "forwarder.serviceName.duckduckgo"
       );
     });
@@ -91,13 +91,13 @@ describe("DuckDuckGo Forwarder", () => {
             await forwarder.generate(null, {
               token: "token",
             })
-        ).rejects.toEqual("forwarder.unknownError");
+        ).rejects.toEqual("forwarderUnknownError");
 
         expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
         // counting instances is terribly flaky over changes, but jest doesn't have a better way to do this
         expect(i18nService.t).toHaveBeenNthCalledWith(
           2,
-          "forwarder.unknownError",
+          "forwarderUnknownError",
           "forwarder.serviceName.duckduckgo"
         );
       }

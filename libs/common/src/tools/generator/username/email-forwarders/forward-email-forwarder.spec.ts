@@ -26,11 +26,11 @@ describe("ForwardEmail Forwarder", () => {
             token,
             domain: "example.com",
           })
-      ).rejects.toEqual("forwarder.invalidToken");
+      ).rejects.toEqual("forwaderInvalidToken");
 
       expect(apiService.nativeFetch).not.toHaveBeenCalled();
       expect(i18nService.t).toHaveBeenCalledWith(
-        "forwarder.invalidToken",
+        "forwaderInvalidToken",
         "forwarder.serviceName.forwardemail"
       );
     });
@@ -49,21 +49,21 @@ describe("ForwardEmail Forwarder", () => {
               token: "token",
               domain,
             })
-        ).rejects.toEqual("forwarder.noDomain");
+        ).rejects.toEqual("forwarderNoDomain");
 
         expect(apiService.nativeFetch).not.toHaveBeenCalled();
         expect(i18nService.t).toHaveBeenCalledWith(
-          "forwarder.noDomain",
+          "forwarderNoDomain",
           "forwarder.serviceName.forwardemail"
         );
       }
     );
 
     it.each([
-      ["forwarder.generatedByWithWebsite", "provided", "bitwarden.com", "bitwarden.com"],
-      ["forwarder.generatedByWithWebsite", "provided", "httpbin.org", "httpbin.org"],
-      ["forwarder.generatedBy", "not provided", null, ""],
-      ["forwarder.generatedBy", "not provided", "", ""],
+      ["forwarderGeneratedByWithWebsite", "provided", "bitwarden.com", "bitwarden.com"],
+      ["forwarderGeneratedByWithWebsite", "provided", "httpbin.org", "httpbin.org"],
+      ["forwarderGeneratedBy", "not provided", null, ""],
+      ["forwarderGeneratedBy", "not provided", "", ""],
     ])(
       "describes the website with %p when the website is %s (= %p)",
       async (translationKey, _ignored, website, expectedWebsite) => {
@@ -121,13 +121,13 @@ describe("ForwardEmail Forwarder", () => {
             token: "token",
             domain: "example.com",
           })
-      ).rejects.toEqual("forwarder.invalidToken");
+      ).rejects.toEqual("forwaderInvalidToken");
 
       expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
       // counting instances is terribly flaky over changes, but jest doesn't have a better way to do this
       expect(i18nService.t).toHaveBeenNthCalledWith(
         3,
-        "forwarder.invalidToken",
+        "forwaderInvalidToken",
         "forwarder.serviceName.forwardemail"
       );
     });
@@ -144,13 +144,13 @@ describe("ForwardEmail Forwarder", () => {
             token: "token",
             domain: "example.com",
           })
-      ).rejects.toEqual("forwarder.unknownError");
+      ).rejects.toEqual("forwarderUnknownError");
 
       expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
       // counting instances is terribly flaky over changes, but jest doesn't have a better way to do this
       expect(i18nService.t).toHaveBeenNthCalledWith(
         3,
-        "forwarder.unknownError",
+        "forwarderUnknownError",
         "forwarder.serviceName.forwardemail"
       );
     });
@@ -176,13 +176,13 @@ describe("ForwardEmail Forwarder", () => {
               token: "token",
               domain: "example.com",
             })
-        ).rejects.toEqual("forwarder.error");
+        ).rejects.toEqual("forwarderError");
 
         expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
         // counting instances is terribly flaky over changes, but jest doesn't have a better way to do this
         expect(i18nService.t).toHaveBeenNthCalledWith(
           3,
-          "forwarder.error",
+          "forwarderError",
           "forwarder.serviceName.forwardemail",
           message
         );
@@ -210,13 +210,13 @@ describe("ForwardEmail Forwarder", () => {
               token: "token",
               domain: "example.com",
             })
-        ).rejects.toEqual("forwarder.error");
+        ).rejects.toEqual("forwarderError");
 
         expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
         // counting instances is terribly flaky over changes, but jest doesn't have a better way to do this
         expect(i18nService.t).toHaveBeenNthCalledWith(
           3,
-          "forwarder.error",
+          "forwarderError",
           "forwarder.serviceName.forwardemail",
           error
         );

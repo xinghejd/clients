@@ -118,7 +118,7 @@ export class UsernameGenerationService implements UsernameGenerationServiceAbstr
     const forwarderOptions = getForwarderOptions(service, options);
 
     if (!forwarder || !forwarderOptions) {
-      const error = this.i18nService.t("forwarder.unknownForwarder", service);
+      const error = this.i18nService.t("forwarderUnknownForwarder", service);
       throw error;
     }
 
