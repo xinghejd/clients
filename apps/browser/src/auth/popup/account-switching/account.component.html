@@ -18,10 +18,10 @@
     <span class="tw-sr-only" *ngIf="status.text !== 'active'">
       {{ "switchToAccount" | i18n }}
     </span>
-    <div class="tw-text-main">
+    <div class="tw-max-w-64 tw-truncate tw-text-main">
       {{ account.email }}
     </div>
-    <div class="tw-text-sm tw-text-muted">
+    <div class="tw-max-w-64 tw-truncate tw-text-sm tw-text-muted">
       <span class="tw-sr-only">{{ "hostedAt" | i18n }}</span>
       {{ account.server }}
     </div>
