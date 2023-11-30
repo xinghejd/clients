@@ -29,73 +29,19 @@ type LegacyUsernameGeneratorOptions = {
  */
 type ExpectedAccountType = {
   settings?: {
-    usernameGenerationOptions?: UsernameGeneratorOptions | LegacyUsernameGeneratorOptions
+    usernameGenerationOptions?: LegacyUsernameGeneratorOptions
   }
 };
 
 export class FactorUsernameGeneratorSettingsMigrator extends Migrator<9, 10> {
   async migrate(helper: MigrationHelper): Promise<void> {
     const accounts = await helper.getAccounts<ExpectedAccountType>();
-    async function updateAccount(userId: string, account: ExpectedAccountType) {
-      if (account == null) {
-        return;
-      }
-
-      const oldOptions = account.settings?.usernameGenerationOptions as LegacyUsernameGeneratorOptions;
-      if (!oldOptions) {
-        return;
-      }
-
-      // if oldOptions exists, then we know that account.settings exists
-      account!.settings!.usernameGenerationOptions = structuredClone(DefaultOptions);
-
-      const mappedOptions = {
-        type: oldOptions.type,
-        word: {
-          capitalize: oldOptions.wordCapitalize,
-          includeNumber: oldOptions.wordIncludeNumber,
-        },
-        subaddress: {
-          algorithm: oldOptions.subaddressType,
-          email: oldOptions.subaddressEmail,
-        },
-        catchall: {
-          algorithm: oldOptions.catchallType,
-          domain: oldOptions.catchallDomain,
-        },
-        website: oldOptions.website,
-        forwarders: {
-          service: oldOptions.forwardedService,
-          anonaddy: {
-            apiToken: oldOptions.forwardedAnonAddyApiToken,
-            domain: oldOptions.forwardedAnonAddyDomain,
-            baseUrl: oldOptions.forwardedAnonAddyBaseUrl,
-          },
-          duckduckgo: {
-            token: oldOptions.forwardedDuckDuckGoToken,
-          },
-          firefox: {
-            apiToken: oldOptions.forwardedFirefoxApiToken,
-          },
-          fastmail: {
-            apiToken: oldOptions.forwardedFastmailApiToken,
-          },
-          forwardEmail: {
-            apiToken: oldOptions.forwardedForwardEmailApiToken,
-            domain: oldOptions.forwardedForwardEmailDomain,
-          },
-          simpleLogin: {
-            apiKey: oldOptions.forwardedSimpleLoginApiKey,
-            baseUrl: oldOptions.forwardedSimpleLoginBaseUrl,
-          },
-        },
-      };
-
-      Object.assign(account!.settings!.usernameGenerationOptions, mappedOptions);
-    }
 
     await Promise.all([
-      ...accounts.map(({ userId, account }) => updateAccount(userId, account)),
+      ...accounts.map(({ userId, account }) => {
+        updateAccount(account);
+        helper.set(userId, account);
+      }),
     ]);
   }
 
@@ -103,4 +49,59 @@ export class FactorUsernameGeneratorSettingsMigrator extends Migrator<9, 10> {
     // old settings aren't compatible with the new UI, so we can't rollback
     throw IRREVERSIBLE;
   }
+}
+
+// exported for unit testing only
+export async function updateAccount(account: ExpectedAccountType) {
+  const oldOptions = account.settings?.usernameGenerationOptions as LegacyUsernameGeneratorOptions;
+  if (!oldOptions) {
+    return;
+  }
+
+  // if oldOptions exists, then we know that account.settings exists; replace it
+  account!.settings!.usernameGenerationOptions = structuredClone(DefaultOptions);
+
+  const mappedOptions = {
+    type: oldOptions.type,
+    word: {
+      capitalize: oldOptions.wordCapitalize,
+      includeNumber: oldOptions.wordIncludeNumber,
+    },
+    subaddress: {
+      algorithm: oldOptions.subaddressType,
+      email: oldOptions.subaddressEmail,
+    },
+    catchall: {
+      algorithm: oldOptions.catchallType,
+      domain: oldOptions.catchallDomain,
+    },
+    website: oldOptions.website,
+    forwarders: {
+      service: oldOptions.forwardedService,
+      anonaddy: {
+        apiToken: oldOptions.forwardedAnonAddyApiToken,
+        domain: oldOptions.forwardedAnonAddyDomain,
+        baseUrl: oldOptions.forwardedAnonAddyBaseUrl,
+      },
+      duckduckgo: {
+        token: oldOptions.forwardedDuckDuckGoToken,
+      },
+      firefox: {
+        apiToken: oldOptions.forwardedFirefoxApiToken,
+      },
+      fastmail: {
+        apiToken: oldOptions.forwardedFastmailApiToken,
+      },
+      forwardEmail: {
+        apiToken: oldOptions.forwardedForwardEmailApiToken,
+        domain: oldOptions.forwardedForwardEmailDomain,
+      },
+      simpleLogin: {
+        apiKey: oldOptions.forwardedSimpleLoginApiKey,
+        baseUrl: oldOptions.forwardedSimpleLoginBaseUrl,
+      },
+    },
+  };
+
+  Object.assign(account!.settings!.usernameGenerationOptions, mappedOptions);
 }
