@@ -9,10 +9,10 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { UriMatchType } from "@bitwarden/common/vault/enums";
 import { DialogService } from "@bitwarden/components";
 
-import { AutofillService } from "../../autofill/services/abstractions/autofill.service";
-import { AutofillOverlayVisibility } from "../../autofill/utils/autofill-overlay.enum";
-import { BrowserApi } from "../../platform/browser/browser-api";
-import { flagEnabled } from "../../platform/flags";
+import { BrowserApi } from "../../../platform/browser/browser-api";
+import { flagEnabled } from "../../../platform/flags";
+import { AutofillService } from "../../services/abstractions/autofill.service";
+import { AutofillOverlayVisibility } from "../../utils/autofill-overlay.enum";
 
 @Component({
   selector: "app-autofill",
