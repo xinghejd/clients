@@ -12,6 +12,7 @@ import {
   getForwarderOptions,
   encryptInPlace,
   decryptInPlace,
+  forAllForwarders,
 } from "./username-generation-options";
 import { UsernameGenerationServiceAbstraction } from "./username-generation.service.abstraction";
 
@@ -145,31 +146,23 @@ export class UsernameGenerationService implements UsernameGenerationServiceAbstr
   async encryptKeys(options: UsernameGeneratorOptions) {
     const key = await this.cryptoService.getUserKey();
 
-    // each `encryptAndStore` call must be passed an independent object, otherwise
+    // each `encryptInPlace` call must be passed an independent object, otherwise
     // they'll race and clobber each other
-    await Promise.all([
-      encryptInPlace(this.encryptService, key, options.forwarders.addyIo),
-      encryptInPlace(this.encryptService, key, options.forwarders.duckDuckGo),
-      encryptInPlace(this.encryptService, key, options.forwarders.fastMail),
-      encryptInPlace(this.encryptService, key, options.forwarders.firefoxRelay),
-      encryptInPlace(this.encryptService, key, options.forwarders.forwardEmail),
-      encryptInPlace(this.encryptService, key, options.forwarders.simpleLogin),
-    ]);
+    const encryptions = forAllForwarders(options, (opts) =>
+      encryptInPlace(this.encryptService, key, opts)
+    );
+    await Promise.all(encryptions);
   }
 
   async decryptKeys(options: UsernameGeneratorOptions) {
     const key = await this.cryptoService.getUserKey();
 
-    // each `decryptAndStore` call must be passed an independent object, otherwise
+    // each `decryptInPlace` call must be passed an independent object, otherwise
     // they'll race and clobber each other
-    await Promise.all([
-      decryptInPlace(this.encryptService, key, options.forwarders.addyIo),
-      decryptInPlace(this.encryptService, key, options.forwarders.duckDuckGo),
-      decryptInPlace(this.encryptService, key, options.forwarders.fastMail),
-      decryptInPlace(this.encryptService, key, options.forwarders.firefoxRelay),
-      decryptInPlace(this.encryptService, key, options.forwarders.forwardEmail),
-      decryptInPlace(this.encryptService, key, options.forwarders.simpleLogin),
-    ]);
+    const decryptions = forAllForwarders(options, (opts) =>
+      decryptInPlace(this.encryptService, key, opts)
+    );
+    await Promise.all(decryptions);
   }
 
   private async randomString(length: number) {

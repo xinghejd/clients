@@ -165,6 +165,21 @@ export const DefaultOptions: UsernameGeneratorOptions = Object.freeze({
   }),
 });
 
+/** runs the callback on each forwarder configuration */
+export function forAllForwarders<T>(
+  options: UsernameGeneratorOptions,
+  callback: (options: ApiOptions) => T
+) {
+  const results = [];
+  for (const forwarder of Object.values(ForwarderIds)) {
+    const forwarderOptions = getForwarderOptions(forwarder, options);
+    if (forwarderOptions) {
+      results.push(callback(forwarderOptions));
+    }
+  }
+  return results;
+}
+
 /** Gets the options for the specified forwarding service with defaults applied.
  *  This method mutates `options`.
  * @param service Identifies the service whose options should be loaded.
