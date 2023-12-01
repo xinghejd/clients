@@ -5,7 +5,6 @@ import { makeStaticByteArray } from "../../../spec/utils";
 import { ApiService } from "../../abstractions/api.service";
 import { SearchService } from "../../abstractions/search.service";
 import { SettingsService } from "../../abstractions/settings.service";
-import { UriMatchType, FieldType } from "../../enums";
 import { ConfigServiceAbstraction } from "../../platform/abstractions/config/config.service.abstraction";
 import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../platform/abstractions/encrypt.service";
@@ -20,6 +19,7 @@ import {
 } from "../../platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "../../platform/services/container.service";
 import { CipherFileUploadService } from "../abstractions/file-upload/cipher-file-upload.service";
+import { UriMatchType, FieldType } from "../enums";
 import { CipherRepromptType } from "../enums/cipher-reprompt-type";
 import { CipherType } from "../enums/cipher-type";
 import { CipherData } from "../models/data/cipher.data";
@@ -132,7 +132,7 @@ describe("Cipher Service", () => {
       stateService,
       encryptService,
       cipherFileUploadService,
-      configService
+      configService,
     );
 
     cipherObj = new Cipher(cipherData);
@@ -142,16 +142,14 @@ describe("Cipher Service", () => {
       const fileName = "filename";
       const fileData = new Uint8Array(10);
       cryptoService.getOrgKey.mockReturnValue(
-        Promise.resolve<any>(new SymmetricCryptoKey(new Uint8Array(32)) as OrgKey)
+        Promise.resolve<any>(new SymmetricCryptoKey(new Uint8Array(32)) as OrgKey),
       );
       cryptoService.makeDataEncKey.mockReturnValue(
-        Promise.resolve<any>(new SymmetricCryptoKey(new Uint8Array(32)))
+        Promise.resolve<any>(new SymmetricCryptoKey(new Uint8Array(32))),
       );
 
       configService.checkServerMeetsVersionRequirement$.mockReturnValue(of(false));
-      process.env.FLAGS = JSON.stringify({
-        enableCipherKeyEncryption: false,
-      });
+      setEncryptionKeyFlag(false);
 
       const spy = jest.spyOn(cipherFileUploadService, "upload");
 
@@ -255,16 +253,14 @@ describe("Cipher Service", () => {
       encryptService.decryptToBytes.mockReturnValue(Promise.resolve(makeStaticByteArray(64)));
       configService.checkServerMeetsVersionRequirement$.mockReturnValue(of(true));
       cryptoService.makeCipherKey.mockReturnValue(
-        Promise.resolve(new SymmetricCryptoKey(makeStaticByteArray(64)) as CipherKey)
+        Promise.resolve(new SymmetricCryptoKey(makeStaticByteArray(64)) as CipherKey),
       );
       cryptoService.encrypt.mockReturnValue(Promise.resolve(new EncString(ENCRYPTED_TEXT)));
     });
 
     describe("cipher.key", () => {
       it("is null when enableCipherKeyEncryption flag is false", async () => {
-        process.env.FLAGS = JSON.stringify({
-          enableCipherKeyEncryption: false,
-        });
+        setEncryptionKeyFlag(false);
 
         const cipher = await cipherService.encrypt(cipherView);
 
@@ -272,9 +268,7 @@ describe("Cipher Service", () => {
       });
 
       it("is defined when enableCipherKeyEncryption flag is true", async () => {
-        process.env.FLAGS = JSON.stringify({
-          enableCipherKeyEncryption: true,
-        });
+        setEncryptionKeyFlag(true);
 
         const cipher = await cipherService.encrypt(cipherView);
 
@@ -288,9 +282,7 @@ describe("Cipher Service", () => {
       });
 
       it("is not called when enableCipherKeyEncryption is false", async () => {
-        process.env.FLAGS = JSON.stringify({
-          enableCipherKeyEncryption: false,
-        });
+        setEncryptionKeyFlag(false);
 
         await cipherService.encrypt(cipherView);
 
@@ -298,9 +290,7 @@ describe("Cipher Service", () => {
       });
 
       it("is called when enableCipherKeyEncryption is true", async () => {
-        process.env.FLAGS = JSON.stringify({
-          enableCipherKeyEncryption: true,
-        });
+        setEncryptionKeyFlag(true);
 
         await cipherService.encrypt(cipherView);
 
@@ -309,3 +299,9 @@ describe("Cipher Service", () => {
     });
   });
 });
+
+function setEncryptionKeyFlag(value: boolean) {
+  process.env.FLAGS = JSON.stringify({
+    enableCipherKeyEncryption: value,
+  });
+}

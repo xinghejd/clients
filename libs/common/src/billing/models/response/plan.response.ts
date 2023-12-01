@@ -51,7 +51,7 @@ export class PlanResponse extends BaseResponse {
     this.hasResetPassword = this.getResponseProperty("HasResetPassword");
     this.usersGetPremium = this.getResponseProperty("UsersGetPremium");
     this.upgradeSortOrder = this.getResponseProperty("UpgradeSortOrder");
-    this.displaySortOrder = this.getResponseProperty("SortOrder");
+    this.displaySortOrder = this.getResponseProperty("DisplaySortOrder");
     this.legacyYear = this.getResponseProperty("LegacyYear");
     this.disabled = this.getResponseProperty("Disabled");
     const passwordManager = this.getResponseProperty("PasswordManager");
@@ -95,12 +95,12 @@ export class SecretsManagerPlanFeaturesResponse extends BaseResponse {
     this.maxSeats = this.getResponseProperty("MaxSeats");
     this.stripeServiceAccountPlanId = this.getResponseProperty("StripeServiceAccountPlanId");
     this.additionalPricePerServiceAccount = this.getResponseProperty(
-      "AdditionalPricePerServiceAccount"
+      "AdditionalPricePerServiceAccount",
     );
     this.baseServiceAccount = this.getResponseProperty("BaseServiceAccount");
     this.maxServiceAccount = this.getResponseProperty("MaxServiceAccount");
     this.hasAdditionalServiceAccountOption = this.getResponseProperty(
-      "HasAdditionalServiceAccountOption"
+      "HasAdditionalServiceAccountOption",
     );
     this.maxAdditionalServiceAccounts = this.getResponseProperty("MaxAdditionalServiceAccounts");
     this.maxProjects = this.getResponseProperty("MaxProjects");

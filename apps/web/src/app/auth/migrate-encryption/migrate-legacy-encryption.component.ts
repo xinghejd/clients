@@ -8,6 +8,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 import { SharedModule } from "../../shared";
+import { EmergencyAccessModule } from "../emergency-access";
 
 import { MigrateFromLegacyEncryptionService } from "./migrate-legacy-encryption.service";
 
@@ -15,7 +16,7 @@ import { MigrateFromLegacyEncryptionService } from "./migrate-legacy-encryption.
 // This component is used to migrate from the old encryption scheme to the new one.
 @Component({
   standalone: true,
-  imports: [SharedModule],
+  imports: [SharedModule, EmergencyAccessModule],
   providers: [MigrateFromLegacyEncryptionService],
   templateUrl: "migrate-legacy-encryption.component.html",
 })
@@ -30,7 +31,7 @@ export class MigrateFromLegacyEncryptionComponent {
     private migrationService: MigrateFromLegacyEncryptionService,
     private cryptoService: CryptoService,
     private messagingService: MessagingService,
-    private logService: LogService
+    private logService: LogService,
   ) {}
 
   submit = async () => {
@@ -50,9 +51,8 @@ export class MigrateFromLegacyEncryptionComponent {
 
     try {
       // Create new user key
-      const [newUserKey, masterKeyEncUserKey] = await this.migrationService.createNewUserKey(
-        masterPassword
-      );
+      const [newUserKey, masterKeyEncUserKey] =
+        await this.migrationService.createNewUserKey(masterPassword);
 
       // Update admin recover keys
       await this.migrationService.updateAllAdminRecoveryKeys(masterPassword, newUserKey);
@@ -64,14 +64,14 @@ export class MigrateFromLegacyEncryptionComponent {
       await this.migrationService.updateKeysAndEncryptedData(
         masterPassword,
         newUserKey,
-        masterKeyEncUserKey
+        masterKeyEncUserKey,
       );
 
       this.platformUtilsService.showToast(
         "success",
         this.i18nService.t("keyUpdated"),
         this.i18nService.t("logBackInOthersToo"),
-        { timeout: 15000 }
+        { timeout: 15000 },
       );
       this.messagingService.send("logout");
     } catch (e) {

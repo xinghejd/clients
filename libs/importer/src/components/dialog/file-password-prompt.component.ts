@@ -27,11 +27,14 @@ import {
   ],
 })
 export class FilePasswordPromptComponent {
-  formGroup = this.formBuilder.group({
+  protected formGroup = this.formBuilder.group({
     filePassword: ["", Validators.required],
   });
 
-  constructor(public dialogRef: DialogRef, protected formBuilder: FormBuilder) {}
+  constructor(
+    public dialogRef: DialogRef,
+    protected formBuilder: FormBuilder,
+  ) {}
 
   submit = () => {
     this.formGroup.markAsTouched();

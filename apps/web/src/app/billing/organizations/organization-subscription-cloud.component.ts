@@ -11,6 +11,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
 import { PlanType } from "@bitwarden/common/billing/enums";
 import { OrganizationSubscriptionResponse } from "@bitwarden/common/billing/models/response/organization-subscription.response";
 import { BillingSubscriptionItemResponse } from "@bitwarden/common/billing/models/response/subscription.response";
+import { ProductType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -43,6 +44,8 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   private readonly _smBetaEndingDate = new Date(2023, 7, 15);
   private readonly _smGracePeriodEndingDate = new Date(2023, 10, 14);
 
+  protected readonly teamsStarter = ProductType.TeamsStarter;
+
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -54,7 +57,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     private organizationApiService: OrganizationApiServiceAbstraction,
     private route: ActivatedRoute,
     private dialogService: DialogService,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
   ) {}
 
   async ngOnInit() {
@@ -69,7 +72,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
           await this.load();
           this.firstLoaded = true;
         }),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe();
   }
@@ -95,8 +98,8 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
             const seatPriceTotal = this.sub.plan?.SecretsManager?.seatPrice * item.quantity;
             item.productName =
               itemTotalAmount === seatPriceTotal || item.name.includes("Service Accounts")
-                ? "SecretsManager"
-                : "PasswordManager";
+                ? "secretsManager"
+                : "passwordManager";
             return item;
           })
           .sort(sortSubscriptionItems);
@@ -104,10 +107,10 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     }
 
     const apiKeyResponse = await this.organizationApiService.getApiKeyInformation(
-      this.organizationId
+      this.organizationId,
     );
     this.hasBillingSyncToken = apiKeyResponse.data.some(
-      (i) => i.keyType === OrganizationApiKeyType.BillingSync
+      (i) => i.keyType === OrganizationApiKeyType.BillingSync,
     );
 
     this.showSecretsManagerSubscribe =
@@ -134,12 +137,24 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     return this.sub != null ? this.sub.subscription : null;
   }
 
+  get subscriptionLineItems() {
+    return this.lineItems.map((lineItem: BillingSubscriptionItemResponse) => ({
+      name: lineItem.name,
+      amount: this.discountPrice(lineItem.amount),
+      quantity: lineItem.quantity,
+      interval: lineItem.interval,
+      sponsoredSubscriptionItem: lineItem.sponsoredSubscriptionItem,
+      addonSubscriptionItem: lineItem.addonSubscriptionItem,
+      productName: lineItem.productName,
+    }));
+  }
+
   get nextInvoice() {
     return this.sub != null ? this.sub.upcomingInvoice : null;
   }
 
-  get discount() {
-    return this.sub != null ? this.sub.discount : null;
+  get customerDiscount() {
+    return this.sub != null ? this.sub.customerDiscount : null;
   }
 
   get isExpired() {
@@ -168,11 +183,11 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
   }
 
   get storageGbPrice() {
-    return this.sub.plan.PasswordManager.additionalStoragePricePerGb;
+    return this.discountPrice(this.sub.plan.PasswordManager.additionalStoragePricePerGb);
   }
 
   get seatPrice() {
-    return this.sub.plan.PasswordManager.seatPrice;
+    return this.discountPrice(this.sub.plan.PasswordManager.seatPrice);
   }
 
   get seats() {
@@ -183,12 +198,14 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     return {
       seatCount: this.sub.smSeats,
       maxAutoscaleSeats: this.sub.maxAutoscaleSmSeats,
-      seatPrice: this.sub.plan.SecretsManager.seatPrice,
+      seatPrice: this.discountPrice(this.sub.plan.SecretsManager.seatPrice),
       maxAutoscaleServiceAccounts: this.sub.maxAutoscaleSmServiceAccounts,
       additionalServiceAccounts:
         this.sub.smServiceAccounts - this.sub.plan.SecretsManager.baseServiceAccount,
       interval: this.sub.plan.isAnnual ? "year" : "month",
-      additionalServiceAccountPrice: this.sub.plan.SecretsManager.additionalPricePerServiceAccount,
+      additionalServiceAccountPrice: this.discountPrice(
+        this.sub.plan.SecretsManager.additionalPricePerServiceAccount,
+      ),
       baseServiceAccountCount: this.sub.plan.SecretsManager.baseServiceAccount,
     };
   }
@@ -220,6 +237,8 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     return (
       this.sub.planType === PlanType.EnterpriseAnnually ||
       this.sub.planType === PlanType.EnterpriseMonthly ||
+      this.sub.planType === PlanType.EnterpriseAnnually2020 ||
+      this.sub.planType === PlanType.EnterpriseMonthly2020 ||
       this.sub.planType === PlanType.EnterpriseAnnually2019 ||
       this.sub.planType === PlanType.EnterpriseMonthly2019
     );
@@ -239,12 +258,14 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
       }
     } else if (this.sub.maxAutoscaleSeats === this.sub.seats && this.sub.seats != null) {
       return this.i18nService.t("subscriptionMaxReached", this.sub.seats.toString());
+    } else if (this.userOrg.planProductType === ProductType.TeamsStarter) {
+      return this.i18nService.t("subscriptionUserSeatsWithoutAdditionalSeatsOption", 10);
     } else if (this.sub.maxAutoscaleSeats == null) {
       return this.i18nService.t("subscriptionUserSeatsUnlimitedAutoscale");
     } else {
       return this.i18nService.t(
         "subscriptionUserSeatsLimitedAutoscale",
-        this.sub.maxAutoscaleSeats.toString()
+        this.sub.maxAutoscaleSeats.toString(),
       );
     }
   }
@@ -259,7 +280,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
     return this.i18nService.translate(
       "smBetaEndedDesc",
       this.datePipe.transform(this._smBetaEndingDate),
-      Utils.daysRemaining(this._smGracePeriodEndingDate).toString()
+      Utils.daysRemaining(this._smGracePeriodEndingDate).toString(),
     );
   }
 
@@ -283,7 +304,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
       this.platformUtilsService.showToast(
         "success",
         null,
-        this.i18nService.t("canceledSubscription")
+        this.i18nService.t("canceledSubscription"),
       );
       this.load();
     } catch (e) {
@@ -374,12 +395,21 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
       this.platformUtilsService.showToast(
         "success",
         null,
-        this.i18nService.t("removeSponsorshipSuccess")
+        this.i18nService.t("removeSponsorshipSuccess"),
       );
       await this.load();
     } catch (e) {
       this.logService.error(e);
     }
+  };
+
+  discountPrice = (price: number) => {
+    const discount =
+      !!this.customerDiscount && this.customerDiscount.active
+        ? price * (this.customerDiscount.percentOff / 100)
+        : 0;
+
+    return price - discount;
   };
 
   get showChangePlanButton() {
@@ -392,7 +422,7 @@ export class OrganizationSubscriptionCloudComponent implements OnInit, OnDestroy
  */
 function sortSubscriptionItems(
   a: BillingSubscriptionItemResponse,
-  b: BillingSubscriptionItemResponse
+  b: BillingSubscriptionItemResponse,
 ) {
   if (a.productName == b.productName) {
     if (a.addonSubscriptionItem == b.addonSubscriptionItem) {

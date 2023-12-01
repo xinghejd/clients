@@ -6,18 +6,22 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+import { CipherType } from "@bitwarden/common/vault/enums";
 
+import {
+  closeUnlockPopout,
+  openSsoAuthResultPopout,
+  openTwoFactorAuthPopout,
+} from "../auth/popup/utils/auth-popout-window";
+import LockedVaultPendingNotificationsItem from "../autofill/notification/models/locked-vault-pending-notifications-item";
 import { AutofillService } from "../autofill/services/abstractions/autofill.service";
 import { BrowserApi } from "../platform/browser/browser-api";
-import { BrowserPopoutWindowService } from "../platform/popup/abstractions/browser-popout-window.service";
 import { BrowserStateService } from "../platform/services/abstractions/browser-state.service";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import BrowserPlatformUtilsService from "../platform/services/browser-platform-utils.service";
 import { AbortManager } from "../vault/background/abort-manager";
 
 import MainBackground from "./main.background";
-import LockedVaultPendingNotificationsItem from "./models/lockedVaultPendingNotificationsItem";
 
 export default class RuntimeBackground {
   private autofillTimeout: any;
@@ -38,7 +42,6 @@ export default class RuntimeBackground {
     private messagingService: MessagingService,
     private logService: LogService,
     private configService: ConfigServiceAbstraction,
-    private browserPopoutWindowService: BrowserPopoutWindowService
   ) {
     // onInstalled listener must be wired up before anything else, so we do it in the ctor
     chrome.runtime.onInstalled.addListener((details: any) => {
@@ -55,7 +58,7 @@ export default class RuntimeBackground {
     const backgroundMessageListener = (
       msg: any,
       sender: chrome.runtime.MessageSender,
-      sendResponse: any
+      sendResponse: any,
     ) => {
       const messagesWithResponse = [
         "checkFido2FeatureEnabled",
@@ -66,7 +69,7 @@ export default class RuntimeBackground {
       if (messagesWithResponse.includes(msg.command)) {
         this.processMessage(msg, sender).then(
           (value) => sendResponse({ result: value }),
-          (error) => sendResponse({ error: { ...error, message: error.message } })
+          (error) => sendResponse({ error: { ...error, message: error.message } }),
         );
         return true;
       }
@@ -82,8 +85,6 @@ export default class RuntimeBackground {
   }
 
   async processMessage(msg: any, sender: chrome.runtime.MessageSender) {
-    const cipherId = msg.data?.cipherId;
-
     switch (msg.command) {
       case "loggedIn":
       case "unlocked": {
@@ -91,7 +92,7 @@ export default class RuntimeBackground {
 
         if (this.lockedVaultPendingNotifications?.length > 0) {
           item = this.lockedVaultPendingNotifications.pop();
-          await this.browserPopoutWindowService.closeUnlockPrompt();
+          await closeUnlockPopout();
         }
 
         await this.main.refreshBadge();
@@ -105,7 +106,7 @@ export default class RuntimeBackground {
           await BrowserApi.tabSendMessageData(
             item.commandToRetry.sender.tab,
             "unlockCompleted",
-            item
+            item,
           );
         }
         break;
@@ -129,53 +130,11 @@ export default class RuntimeBackground {
       case "openPopup":
         await this.main.openPopup();
         break;
-      case "promptForLogin":
-      case "bgReopenPromptForLogin":
-        await this.browserPopoutWindowService.openUnlockPrompt(sender.tab?.windowId);
-        break;
-      case "passwordReprompt":
-        if (cipherId) {
-          await this.browserPopoutWindowService.openPasswordRepromptPrompt(sender.tab?.windowId, {
-            cipherId: cipherId,
-            senderTabId: sender.tab.id,
-            action: msg.data?.action,
-          });
-        }
-        break;
-      case "openAddEditCipher": {
-        const isNewCipher = !cipherId;
-        const cipherType = msg.data?.cipherType;
-        const senderTab = sender.tab;
-
-        if (!senderTab) {
-          break;
-        }
-
-        if (isNewCipher) {
-          await this.browserPopoutWindowService.openCipherCreation(senderTab.windowId, {
-            cipherType,
-            senderTabId: senderTab.id,
-            senderTabURI: senderTab.url,
-          });
-        } else {
-          await this.browserPopoutWindowService.openCipherEdit(senderTab.windowId, {
-            cipherId,
-            senderTabId: senderTab.id,
-            senderTabURI: senderTab.url,
-          });
-        }
-
-        break;
-      }
-      case "closeTab":
-        setTimeout(() => {
-          BrowserApi.closeBitwardenExtensionTab();
-        }, msg.delay ?? 0);
-        break;
       case "triggerAutofillScriptInjection":
         await this.autofillService.injectAutofillScripts(
           sender,
-          await this.configService.getFeatureFlag<boolean>(FeatureFlag.AutofillV2)
+          await this.configService.getFeatureFlag<boolean>(FeatureFlag.AutofillV2),
+          await this.configService.getFeatureFlag<boolean>(FeatureFlag.AutofillOverlay),
         );
         break;
       case "bgCollectPageDetails":
@@ -204,7 +163,7 @@ export default class RuntimeBackground {
                   details: msg.details,
                 },
               ],
-              msg.sender === "autofill_cmd"
+              msg.sender === "autofill_cmd",
             );
             if (totpCode != null) {
               this.platformUtilsService.copyToClipboard(totpCode, { window: window });
@@ -221,7 +180,7 @@ export default class RuntimeBackground {
                 },
               ],
               false,
-              CipherType.Card
+              CipherType.Card,
             );
             break;
           }
@@ -235,7 +194,7 @@ export default class RuntimeBackground {
                 },
               ],
               false,
-              CipherType.Identity
+              CipherType.Identity,
             );
             break;
           }
@@ -259,15 +218,17 @@ export default class RuntimeBackground {
           return;
         }
 
-        try {
-          BrowserApi.createNewTab(
-            "popup/index.html?uilocation=popout#/sso?code=" +
-              encodeURIComponent(msg.code) +
-              "&state=" +
-              encodeURIComponent(msg.state)
-          );
-        } catch {
-          this.logService.error("Unable to open sso popout tab");
+        if (msg.lastpass) {
+          this.messagingService.send("importCallbackLastPass", {
+            code: msg.code,
+            state: msg.state,
+          });
+        } else {
+          try {
+            await openSsoAuthResultPopout(msg);
+          } catch {
+            this.logService.error("Unable to open sso popout tab");
+          }
         }
         break;
       }
@@ -278,10 +239,7 @@ export default class RuntimeBackground {
           return;
         }
 
-        const params =
-          `webAuthnResponse=${encodeURIComponent(msg.data)};` +
-          `remember=${encodeURIComponent(msg.remember)}`;
-        BrowserApi.openBitwardenExtensionTab(`popup/index.html#/2fa;${params}`, false);
+        await openTwoFactorAuthPopout(msg);
         break;
       }
       case "reloadPopup":
@@ -305,13 +263,40 @@ export default class RuntimeBackground {
       case "checkFido2FeatureEnabled":
         return await this.main.fido2ClientService.isFido2FeatureEnabled();
       case "fido2RegisterCredentialRequest":
-        return await this.abortManager.runWithAbortController(msg.requestId, (abortController) =>
-          this.main.fido2ClientService.createCredential(msg.data, sender.tab, abortController)
+        return await this.abortManager.runWithAbortController(
+          msg.requestId,
+          async (abortController) => {
+            try {
+              return await this.main.fido2ClientService.createCredential(
+                msg.data,
+                sender.tab,
+                abortController,
+              );
+            } finally {
+              await BrowserApi.focusTab(sender.tab.id);
+              await BrowserApi.focusWindow(sender.tab.windowId);
+            }
+          },
         );
       case "fido2GetCredentialRequest":
-        return await this.abortManager.runWithAbortController(msg.requestId, (abortController) =>
-          this.main.fido2ClientService.assertCredential(msg.data, sender.tab, abortController)
+        return await this.abortManager.runWithAbortController(
+          msg.requestId,
+          async (abortController) => {
+            try {
+              return await this.main.fido2ClientService.assertCredential(
+                msg.data,
+                sender.tab,
+                abortController,
+              );
+            } finally {
+              await BrowserApi.focusTab(sender.tab.id);
+              await BrowserApi.focusWindow(sender.tab.windowId);
+            }
+          },
         );
+      case "switchAccount": {
+        await this.main.switchAccount(msg.userId);
+      }
     }
   }
 

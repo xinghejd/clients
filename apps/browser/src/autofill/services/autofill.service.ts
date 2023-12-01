@@ -1,20 +1,22 @@
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { SettingsService } from "@bitwarden/common/abstractions/settings.service";
-import { TotpService } from "@bitwarden/common/abstractions/totp.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
-import { EventType, FieldType, UriMatchType } from "@bitwarden/common/enums";
+import { EventType } from "@bitwarden/common/enums";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
+import { FieldType, UriMatchType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserStateService } from "../../platform/services/abstractions/browser-state.service";
+import { openVaultItemPasswordRepromptPopout } from "../../vault/popup/utils/vault-popout-window";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
+import { AutofillOverlayVisibility } from "../utils/autofill-overlay.enum";
 
 import {
   AutoFillOptions,
@@ -30,6 +32,10 @@ import {
 } from "./autofill-constants";
 
 export default class AutofillService implements AutofillServiceInterface {
+  private openVaultItemPasswordRepromptPopout = openVaultItemPasswordRepromptPopout;
+  private openPasswordRepromptPopoutDebounce: NodeJS.Timeout;
+  private currentlyOpeningPasswordRepromptPopout = false;
+
   constructor(
     private cipherService: CipherService,
     private stateService: BrowserStateService,
@@ -37,7 +43,7 @@ export default class AutofillService implements AutofillServiceInterface {
     private eventCollectionService: EventCollectionService,
     private logService: LogService,
     private settingsService: SettingsService,
-    private userVerificationService: UserVerificationService
+    private userVerificationService: UserVerificationService,
   ) {}
 
   /**
@@ -47,10 +53,25 @@ export default class AutofillService implements AutofillServiceInterface {
    * is enabled.
    * @param {chrome.runtime.MessageSender} sender
    * @param {boolean} autofillV2
+   * @param {boolean} autofillOverlay
    * @returns {Promise<void>}
    */
-  async injectAutofillScripts(sender: chrome.runtime.MessageSender, autofillV2 = false) {
-    const mainAutofillScript = autofillV2 ? `autofill-init.js` : "autofill.js";
+  async injectAutofillScripts(
+    sender: chrome.runtime.MessageSender,
+    autofillV2 = false,
+    autofillOverlay = false,
+  ) {
+    let mainAutofillScript = "autofill.js";
+
+    const isUsingAutofillOverlay =
+      autofillOverlay &&
+      (await this.settingsService.getAutoFillOverlayVisibility()) !== AutofillOverlayVisibility.Off;
+
+    if (autofillV2) {
+      mainAutofillScript = isUsingAutofillOverlay
+        ? "bootstrap-autofill-overlay.js"
+        : "bootstrap-autofill.js";
+    }
 
     const injectedScripts = [
       mainAutofillScript,
@@ -203,8 +224,9 @@ export default class AutofillService implements AutofillServiceInterface {
             command: "fillForm",
             fillScript: fillScript,
             url: tab.url,
+            pageDetailsUrl: pd.details.url,
           },
-          { frameId: pd.frameId }
+          { frameId: pd.frameId },
         );
 
         // Skip getting the TOTP code for clipboard in these cases
@@ -223,7 +245,7 @@ export default class AutofillService implements AutofillServiceInterface {
           }
           return null;
         });
-      })
+      }),
     );
 
     if (didAutofill) {
@@ -248,7 +270,7 @@ export default class AutofillService implements AutofillServiceInterface {
   async doAutoFillOnTab(
     pageDetails: PageDetail[],
     tab: chrome.tabs.Tab,
-    fromCommand: boolean
+    fromCommand: boolean,
   ): Promise<string | null> {
     let cipher: CipherView;
     if (fromCommand) {
@@ -270,18 +292,12 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     if (
-      cipher.reprompt === CipherRepromptType.Password &&
-      // If the master password has is not available, reprompt will error
-      (await this.userVerificationService.hasMasterPasswordAndMasterKeyHash())
+      (await this.isPasswordRepromptRequired(cipher, tab)) &&
+      !this.isDebouncingPasswordRepromptPopout()
     ) {
       if (fromCommand) {
         this.cipherService.updateLastUsedIndexForUrl(tab.url);
       }
-
-      await BrowserApi.tabSendMessageData(tab, "passwordReprompt", {
-        cipherId: cipher.id,
-        action: "autofill",
-      });
 
       return null;
     }
@@ -307,6 +323,21 @@ export default class AutofillService implements AutofillServiceInterface {
     return totpCode;
   }
 
+  async isPasswordRepromptRequired(cipher: CipherView, tab: chrome.tabs.Tab): Promise<boolean> {
+    const userHasMasterPasswordAndKeyHash =
+      await this.userVerificationService.hasMasterPasswordAndMasterKeyHash();
+    if (cipher.reprompt === CipherRepromptType.Password && userHasMasterPasswordAndKeyHash) {
+      await this.openVaultItemPasswordRepromptPopout(tab, {
+        cipherId: cipher.id,
+        action: "autofill",
+      });
+
+      return true;
+    }
+
+    return false;
+  }
+
   /**
    * Autofill the active tab with the next cipher from the cache
    * @param {PageDetail[]} pageDetails The data scraped from the page
@@ -316,7 +347,7 @@ export default class AutofillService implements AutofillServiceInterface {
   async doAutoFillActiveTab(
     pageDetails: PageDetail[],
     fromCommand: boolean,
-    cipherType?: CipherType
+    cipherType?: CipherType,
   ): Promise<string | null> {
     if (!pageDetails[0]?.details?.fields?.length) {
       return null;
@@ -379,7 +410,7 @@ export default class AutofillService implements AutofillServiceInterface {
    */
   private async generateFillScript(
     pageDetails: AutofillPageDetails,
-    options: GenerateFillScriptOptions
+    options: GenerateFillScriptOptions,
   ): Promise<AutofillScript | null> {
     if (!pageDetails || !options.cipher) {
       return null;
@@ -434,7 +465,7 @@ export default class AutofillService implements AutofillServiceInterface {
           fillScript,
           pageDetails,
           filledFields,
-          options
+          options,
         );
         break;
       case CipherType.Card:
@@ -445,7 +476,7 @@ export default class AutofillService implements AutofillServiceInterface {
           fillScript,
           pageDetails,
           filledFields,
-          options
+          options,
         );
         break;
       default:
@@ -468,7 +499,7 @@ export default class AutofillService implements AutofillServiceInterface {
     fillScript: AutofillScript,
     pageDetails: AutofillPageDetails,
     filledFields: { [id: string]: AutofillField },
-    options: GenerateFillScriptOptions
+    options: GenerateFillScriptOptions,
   ): Promise<AutofillScript | null> {
     if (!options.cipher.login) {
       return null;
@@ -491,7 +522,7 @@ export default class AutofillService implements AutofillServiceInterface {
       false,
       false,
       options.onlyEmptyFields,
-      options.fillNewPassword
+      options.fillNewPassword,
     );
     if (!passwordFields.length && !options.onlyVisibleFields) {
       // not able to find any viewable password fields. maybe there are some "hidden" ones?
@@ -500,7 +531,7 @@ export default class AutofillService implements AutofillServiceInterface {
         true,
         true,
         options.onlyEmptyFields,
-        options.fillNewPassword
+        options.fillNewPassword,
       );
     }
 
@@ -630,7 +661,7 @@ export default class AutofillService implements AutofillServiceInterface {
           filledFields[t.opid] = t;
           const totpValue = await this.totpService.getCode(login.totp);
           AutofillService.fillByOpid(fillScript, t, totpValue);
-        })
+        }),
       );
     }
 
@@ -651,7 +682,7 @@ export default class AutofillService implements AutofillServiceInterface {
     fillScript: AutofillScript,
     pageDetails: AutofillPageDetails,
     filledFields: { [id: string]: AutofillField },
-    options: GenerateFillScriptOptions
+    options: GenerateFillScriptOptions,
   ): AutofillScript | null {
     if (!options.cipher.card) {
       return null;
@@ -682,7 +713,7 @@ export default class AutofillService implements AutofillServiceInterface {
           AutofillService.isFieldMatch(
             f[attr],
             CreditCardAutoFillConstants.CardHolderFieldNames,
-            CreditCardAutoFillConstants.CardHolderFieldNameValues
+            CreditCardAutoFillConstants.CardHolderFieldNameValues,
           )
         ) {
           fillFields.cardholderName = f;
@@ -692,7 +723,7 @@ export default class AutofillService implements AutofillServiceInterface {
           AutofillService.isFieldMatch(
             f[attr],
             CreditCardAutoFillConstants.CardNumberFieldNames,
-            CreditCardAutoFillConstants.CardNumberFieldNameValues
+            CreditCardAutoFillConstants.CardNumberFieldNameValues,
           )
         ) {
           fillFields.number = f;
@@ -702,7 +733,7 @@ export default class AutofillService implements AutofillServiceInterface {
           AutofillService.isFieldMatch(
             f[attr],
             CreditCardAutoFillConstants.CardExpiryFieldNames,
-            CreditCardAutoFillConstants.CardExpiryFieldNameValues
+            CreditCardAutoFillConstants.CardExpiryFieldNameValues,
           )
         ) {
           fillFields.exp = f;
@@ -848,7 +879,7 @@ export default class AutofillService implements AutofillServiceInterface {
             fillFields.exp,
             CreditCardAutoFillConstants.MonthAbbr[i] +
               "/" +
-              CreditCardAutoFillConstants.YearAbbrLong[i]
+              CreditCardAutoFillConstants.YearAbbrLong[i],
           )
         ) {
           exp = fullMonth + "/" + fullYear;
@@ -857,7 +888,7 @@ export default class AutofillService implements AutofillServiceInterface {
             fillFields.exp,
             CreditCardAutoFillConstants.MonthAbbr[i] +
               "/" +
-              CreditCardAutoFillConstants.YearAbbrShort[i]
+              CreditCardAutoFillConstants.YearAbbrShort[i],
           ) &&
           partYear != null
         ) {
@@ -867,7 +898,7 @@ export default class AutofillService implements AutofillServiceInterface {
             fillFields.exp,
             CreditCardAutoFillConstants.YearAbbrLong[i] +
               "/" +
-              CreditCardAutoFillConstants.MonthAbbr[i]
+              CreditCardAutoFillConstants.MonthAbbr[i],
           )
         ) {
           exp = fullYear + "/" + fullMonth;
@@ -876,7 +907,7 @@ export default class AutofillService implements AutofillServiceInterface {
             fillFields.exp,
             CreditCardAutoFillConstants.YearAbbrShort[i] +
               "/" +
-              CreditCardAutoFillConstants.MonthAbbr[i]
+              CreditCardAutoFillConstants.MonthAbbr[i],
           ) &&
           partYear != null
         ) {
@@ -886,7 +917,7 @@ export default class AutofillService implements AutofillServiceInterface {
             fillFields.exp,
             CreditCardAutoFillConstants.MonthAbbr[i] +
               "-" +
-              CreditCardAutoFillConstants.YearAbbrLong[i]
+              CreditCardAutoFillConstants.YearAbbrLong[i],
           )
         ) {
           exp = fullMonth + "-" + fullYear;
@@ -895,7 +926,7 @@ export default class AutofillService implements AutofillServiceInterface {
             fillFields.exp,
             CreditCardAutoFillConstants.MonthAbbr[i] +
               "-" +
-              CreditCardAutoFillConstants.YearAbbrShort[i]
+              CreditCardAutoFillConstants.YearAbbrShort[i],
           ) &&
           partYear != null
         ) {
@@ -905,7 +936,7 @@ export default class AutofillService implements AutofillServiceInterface {
             fillFields.exp,
             CreditCardAutoFillConstants.YearAbbrLong[i] +
               "-" +
-              CreditCardAutoFillConstants.MonthAbbr[i]
+              CreditCardAutoFillConstants.MonthAbbr[i],
           )
         ) {
           exp = fullYear + "-" + fullMonth;
@@ -914,7 +945,7 @@ export default class AutofillService implements AutofillServiceInterface {
             fillFields.exp,
             CreditCardAutoFillConstants.YearAbbrShort[i] +
               "-" +
-              CreditCardAutoFillConstants.MonthAbbr[i]
+              CreditCardAutoFillConstants.MonthAbbr[i],
           ) &&
           partYear != null
         ) {
@@ -922,14 +953,14 @@ export default class AutofillService implements AutofillServiceInterface {
         } else if (
           this.fieldAttrsContain(
             fillFields.exp,
-            CreditCardAutoFillConstants.YearAbbrLong[i] + CreditCardAutoFillConstants.MonthAbbr[i]
+            CreditCardAutoFillConstants.YearAbbrLong[i] + CreditCardAutoFillConstants.MonthAbbr[i],
           )
         ) {
           exp = fullYear + fullMonth;
         } else if (
           this.fieldAttrsContain(
             fillFields.exp,
-            CreditCardAutoFillConstants.YearAbbrShort[i] + CreditCardAutoFillConstants.MonthAbbr[i]
+            CreditCardAutoFillConstants.YearAbbrShort[i] + CreditCardAutoFillConstants.MonthAbbr[i],
           ) &&
           partYear != null
         ) {
@@ -937,14 +968,14 @@ export default class AutofillService implements AutofillServiceInterface {
         } else if (
           this.fieldAttrsContain(
             fillFields.exp,
-            CreditCardAutoFillConstants.MonthAbbr[i] + CreditCardAutoFillConstants.YearAbbrLong[i]
+            CreditCardAutoFillConstants.MonthAbbr[i] + CreditCardAutoFillConstants.YearAbbrLong[i],
           )
         ) {
           exp = fullMonth + fullYear;
         } else if (
           this.fieldAttrsContain(
             fillFields.exp,
-            CreditCardAutoFillConstants.MonthAbbr[i] + CreditCardAutoFillConstants.YearAbbrShort[i]
+            CreditCardAutoFillConstants.MonthAbbr[i] + CreditCardAutoFillConstants.YearAbbrShort[i],
           ) &&
           partYear != null
         ) {
@@ -987,7 +1018,7 @@ export default class AutofillService implements AutofillServiceInterface {
     const matchesUri = options.cipher.login.matchesUri(
       pageUrl,
       equivalentDomains,
-      options.defaultUriMatch
+      options.defaultUriMatch,
     );
     return !matchesUri;
   }
@@ -1033,7 +1064,7 @@ export default class AutofillService implements AutofillServiceInterface {
     fillScript: AutofillScript,
     pageDetails: AutofillPageDetails,
     filledFields: { [id: string]: AutofillField },
-    options: GenerateFillScriptOptions
+    options: GenerateFillScriptOptions,
   ): AutofillScript {
     if (!options.cipher.identity) {
       return null;
@@ -1064,7 +1095,7 @@ export default class AutofillService implements AutofillServiceInterface {
           AutofillService.isFieldMatch(
             f[attr],
             IdentityAutoFillConstants.FullNameFieldNames,
-            IdentityAutoFillConstants.FullNameFieldNameValues
+            IdentityAutoFillConstants.FullNameFieldNameValues,
           )
         ) {
           fillFields.name = f;
@@ -1104,7 +1135,7 @@ export default class AutofillService implements AutofillServiceInterface {
           AutofillService.isFieldMatch(
             f[attr],
             IdentityAutoFillConstants.AddressFieldNames,
-            IdentityAutoFillConstants.AddressFieldNameValues
+            IdentityAutoFillConstants.AddressFieldNameValues,
           )
         ) {
           fillFields.address = f;
@@ -1289,7 +1320,7 @@ export default class AutofillService implements AutofillServiceInterface {
   private static isFieldMatch(
     value: string,
     options: string[],
-    containsOptions?: string[]
+    containsOptions?: string[],
   ): boolean {
     value = value
       .trim()
@@ -1324,14 +1355,14 @@ export default class AutofillService implements AutofillServiceInterface {
     fillFields: { [id: string]: AutofillField },
     filledFields: { [id: string]: AutofillField },
     dataProp: string,
-    fieldProp?: string
+    fieldProp?: string,
   ) {
     fieldProp = fieldProp || dataProp;
     this.makeScriptActionWithValue(
       fillScript,
       cipherData[dataProp],
       fillFields[fieldProp],
-      filledFields
+      filledFields,
     );
   }
 
@@ -1350,7 +1381,7 @@ export default class AutofillService implements AutofillServiceInterface {
     fillScript: AutofillScript,
     dataValue: any,
     field: AutofillField,
-    filledFields: { [id: string]: AutofillField }
+    filledFields: { [id: string]: AutofillField },
   ) {
     let doFill = false;
     if (AutofillService.hasValue(dataValue) && field) {
@@ -1400,7 +1431,7 @@ export default class AutofillService implements AutofillServiceInterface {
     canBeHidden: boolean,
     canBeReadOnly: boolean,
     mustBeEmpty: boolean,
-    fillNewPassword: boolean
+    fillNewPassword: boolean,
   ) {
     const arr: AutofillField[] = [];
     pageDetails.fields.forEach((f) => {
@@ -1472,7 +1503,7 @@ export default class AutofillService implements AutofillServiceInterface {
     passwordField: AutofillField,
     canBeHidden: boolean,
     canBeReadOnly: boolean,
-    withoutForm: boolean
+    withoutForm: boolean,
   ): AutofillField | null {
     let usernameField: AutofillField = null;
     for (let i = 0; i < pageDetails.fields.length; i++) {
@@ -1520,7 +1551,7 @@ export default class AutofillService implements AutofillServiceInterface {
     passwordField: AutofillField,
     canBeHidden: boolean,
     canBeReadOnly: boolean,
-    withoutForm: boolean
+    withoutForm: boolean,
   ): AutofillField | null {
     let totpField: AutofillField = null;
     for (let i = 0; i < pageDetails.fields.length; i++) {
@@ -1628,7 +1659,7 @@ export default class AutofillService implements AutofillServiceInterface {
     property: string,
     name: string,
     prefix: string,
-    separator = "="
+    separator = "=",
   ): boolean {
     if (name.indexOf(prefix + separator) === 0) {
       const sepIndex = name.indexOf(separator);
@@ -1775,7 +1806,7 @@ export default class AutofillService implements AutofillServiceInterface {
    */
   static setFillScriptForFocus(
     filledFields: { [id: string]: AutofillField },
-    fillScript: AutofillScript
+    fillScript: AutofillScript,
   ): AutofillScript {
     let lastField: AutofillField = null;
     let lastPasswordField: AutofillField = null;
@@ -1827,5 +1858,23 @@ export default class AutofillService implements AutofillServiceInterface {
    */
   static forCustomFieldsOnly(field: AutofillField): boolean {
     return field.tagName === "span";
+  }
+
+  /**
+   * Handles debouncing the opening of the master password reprompt popout.
+   */
+  private isDebouncingPasswordRepromptPopout() {
+    if (this.currentlyOpeningPasswordRepromptPopout) {
+      return true;
+    }
+
+    this.currentlyOpeningPasswordRepromptPopout = true;
+    clearTimeout(this.openPasswordRepromptPopoutDebounce);
+
+    this.openPasswordRepromptPopoutDebounce = setTimeout(() => {
+      this.currentlyOpeningPasswordRepromptPopout = false;
+    }, 100);
+
+    return false;
   }
 }

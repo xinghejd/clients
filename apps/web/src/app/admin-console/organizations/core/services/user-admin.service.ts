@@ -1,11 +1,11 @@
 import { Injectable } from "@angular/core";
 
-import { OrganizationUserService } from "@bitwarden/common/abstractions/organization-user/organization-user.service";
+import { OrganizationUserService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user.service";
 import {
   OrganizationUserInviteRequest,
   OrganizationUserUpdateRequest,
-} from "@bitwarden/common/abstractions/organization-user/requests";
-import { OrganizationUserDetailsResponse } from "@bitwarden/common/abstractions/organization-user/responses";
+} from "@bitwarden/common/admin-console/abstractions/organization-user/requests";
+import { OrganizationUserDetailsResponse } from "@bitwarden/common/admin-console/abstractions/organization-user/responses";
 
 import { CoreOrganizationModule } from "../core-organization.module";
 import { OrganizationUserAdminView } from "../views/organization-user-admin-view";
@@ -16,14 +16,14 @@ export class UserAdminService {
 
   async get(
     organizationId: string,
-    organizationUserId: string
+    organizationUserId: string,
   ): Promise<OrganizationUserAdminView | undefined> {
     const userResponse = await this.organizationUserService.getOrganizationUser(
       organizationId,
       organizationUserId,
       {
         includeGroups: true,
-      }
+      },
     );
 
     if (userResponse == null) {
@@ -62,7 +62,7 @@ export class UserAdminService {
 
   private async decryptMany(
     organizationId: string,
-    users: OrganizationUserDetailsResponse[]
+    users: OrganizationUserDetailsResponse[],
   ): Promise<OrganizationUserAdminView[]> {
     const promises = users.map(async (u) => {
       const view = new OrganizationUserAdminView();
@@ -80,6 +80,7 @@ export class UserAdminService {
         id: c.id,
         hidePasswords: c.hidePasswords,
         readOnly: c.readOnly,
+        manage: c.manage,
       }));
       view.groups = u.groups;
       view.accessSecretsManager = u.accessSecretsManager;

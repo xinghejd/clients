@@ -31,14 +31,17 @@ const KnownOtpMethods = new Map<string, OtpMethod>([
 ]);
 
 export class Client {
-  constructor(private parser: Parser, private cryptoUtils: CryptoUtils) {}
+  constructor(
+    private parser: Parser,
+    private cryptoUtils: CryptoUtils,
+  ) {}
 
   async openVault(
     username: string,
     password: string,
     clientInfo: ClientInfo,
     ui: Ui,
-    options: ParserOptions
+    options: ParserOptions,
   ): Promise<Account[]> {
     const lowercaseUsername = username.toLowerCase();
     const [session, rest] = await this.login(lowercaseUsername, password, clientInfo, ui);
@@ -47,7 +50,7 @@ export class Client {
       const key = await this.cryptoUtils.deriveKey(
         lowercaseUsername,
         password,
-        session.keyIterationCount
+        session.keyIterationCount,
       );
 
       let privateKey: Uint8Array = null;
@@ -65,7 +68,7 @@ export class Client {
     blob: Uint8Array,
     encryptionKey: Uint8Array,
     privateKey: Uint8Array,
-    options: ParserOptions
+    options: ParserOptions,
   ): Promise<Account[]> {
     const reader = new BinaryReader(blob);
     const chunks = this.parser.extractChunks(reader);
@@ -79,7 +82,7 @@ export class Client {
     chunks: Chunk[],
     encryptionKey: Uint8Array,
     privateKey: Uint8Array,
-    options: ParserOptions
+    options: ParserOptions,
   ): Promise<Account[]> {
     const accounts = new Array<Account>();
     let folder: SharedFolder = null;
@@ -109,7 +112,7 @@ export class Client {
     username: string,
     password: string,
     clientInfo: ClientInfo,
-    ui: Ui
+    ui: Ui,
   ): Promise<[Session, RestClient]> {
     const rest = new RestClient();
     rest.baseUrl = "https://lastpass.com";
@@ -142,7 +145,7 @@ export class Client {
         keyIterationCount,
         new Map<string, any>(),
         clientInfo,
-        rest
+        rest,
       );
 
       session = this.extractSessionFromLoginResponse(response, keyIterationCount, clientInfo);
@@ -192,7 +195,7 @@ export class Client {
         optMethod,
         clientInfo,
         ui,
-        rest
+        rest,
       );
     } else if (cause === "outofbandrequired") {
       // 3.2. Some out-of-bound authentication is enabled. This does not require any
@@ -204,7 +207,7 @@ export class Client {
         this.getAllErrorAttributes(response),
         clientInfo,
         ui,
-        rest
+        rest,
       );
     }
 
@@ -224,7 +227,7 @@ export class Client {
     method: OtpMethod,
     clientInfo: ClientInfo,
     ui: Ui,
-    rest: RestClient
+    rest: RestClient,
   ): Promise<Session> {
     let passcode: OtpResult = null;
     switch (method) {
@@ -251,7 +254,7 @@ export class Client {
       keyIterationCount,
       new Map<string, string>([["otp", passcode.passcode]]),
       clientInfo,
-      rest
+      rest,
     );
 
     const session = this.extractSessionFromLoginResponse(response, keyIterationCount, clientInfo);
@@ -271,36 +274,23 @@ export class Client {
     parameters: Map<string, string>,
     clientInfo: ClientInfo,
     ui: Ui,
-    rest: RestClient
+    rest: RestClient,
   ): Promise<Session> {
-    const answer = await this.approveOob(username, parameters, ui, rest);
-    if (answer == OobResult.cancel) {
-      throw new Error("Out of band step is canceled by the user");
-    }
-
-    const extraParameters = new Map<string, any>();
-    if (answer.waitForOutOfBand) {
-      extraParameters.set("outofbandrequest", 1);
-    } else {
-      extraParameters.set("otp", answer.passcode);
-    }
-
-    let session: Session = null;
-    for (;;) {
-      // In case of the OOB auth the server doesn't respond instantly. This works more like a long poll.
-      // The server times out in about 10 seconds so there's no need to back off.
+    // In case of the OOB auth the server doesn't respond instantly. This works more like a long poll.
+    // The server times out in about 10 seconds so there's no need to back off.
+    const attemptLogin = async (extraParameters: Map<string, any>): Promise<Session> => {
       const response = await this.performSingleLoginRequest(
         username,
         password,
         keyIterationCount,
         extraParameters,
         clientInfo,
-        rest
+        rest,
       );
 
-      session = this.extractSessionFromLoginResponse(response, keyIterationCount, clientInfo);
+      const session = this.extractSessionFromLoginResponse(response, keyIterationCount, clientInfo);
       if (session != null) {
-        break;
+        return session;
       }
 
       if (this.getOptionalErrorAttribute(response, "cause") != "outofbandrequired") {
@@ -310,11 +300,37 @@ export class Client {
       // Retry
       extraParameters.set("outofbandretry", "1");
       extraParameters.set("outofbandretryid", this.getErrorAttribute(response, "retryid"));
-    }
 
-    if (answer.rememberMe) {
-      await this.markDeviceAsTrusted(session, clientInfo, rest);
-    }
+      return attemptLogin(extraParameters);
+    };
+
+    const pollingLoginSession = () => {
+      const extraParameters = new Map<string, any>();
+      extraParameters.set("outofbandrequest", 1);
+      return attemptLogin(extraParameters);
+    };
+
+    const passcodeLoginSession = async () => {
+      const answer = await this.approveOob(username, parameters, ui, rest);
+
+      if (answer == OobResult.cancel) {
+        throw new Error("Out of band step is canceled by the user");
+      }
+      const extraParameters = new Map<string, any>();
+      extraParameters.set("otp", answer.passcode);
+      const session = await attemptLogin(extraParameters);
+      if (answer.rememberMe) {
+        await this.markDeviceAsTrusted(session, clientInfo, rest);
+      }
+      return session;
+    };
+
+    const session: Session = await Promise.race([
+      pollingLoginSession(),
+      passcodeLoginSession(),
+    ]).finally(() => {
+      ui.closeMFADialog();
+    });
     return session;
   }
 
@@ -322,7 +338,7 @@ export class Client {
     username: string,
     parameters: Map<string, string>,
     ui: Ui,
-    rest: RestClient
+    rest: RestClient,
   ): Promise<OobResult> {
     const method = parameters.get("outofbandtype");
     if (method == null) {
@@ -344,7 +360,7 @@ export class Client {
     username: string,
     parameters: Map<string, string>,
     ui: Ui,
-    rest: RestClient
+    rest: RestClient,
   ): Promise<OobResult> {
     return parameters.get("preferduowebsdk") == "1"
       ? this.approveDuoWebSdk(username, parameters, ui, rest)
@@ -355,10 +371,10 @@ export class Client {
     username: string,
     parameters: Map<string, string>,
     ui: Ui,
-    rest: RestClient
-  ): OobResult {
-    // TODO: implement this
-    return OobResult.cancel;
+    rest: RestClient,
+  ): Promise<OobResult> {
+    // TODO: implement this instead of calling `approveDuo`
+    return ui.approveDuo();
   }
 
   private async markDeviceAsTrusted(session: Session, clientInfo: ClientInfo, rest: RestClient) {
@@ -371,7 +387,7 @@ export class Client {
       "trust.php",
       parameters,
       null,
-      this.getSessionCookies(session)
+      this.getSessionCookies(session),
     );
     if (response.status == HttpStatusCode.Ok) {
       return;
@@ -388,7 +404,7 @@ export class Client {
       "logout.php",
       parameters,
       null,
-      this.getSessionCookies(session)
+      this.getSessionCookies(session),
     );
     if (response.status == HttpStatusCode.Ok) {
       return;
@@ -447,7 +463,7 @@ export class Client {
   private extractSessionFromLoginResponse(
     response: Document,
     keyIterationCount: number,
-    clientInfo: ClientInfo
+    clientInfo: ClientInfo,
   ): Session {
     const ok = response.querySelector("response > ok");
     if (ok == null) {
@@ -481,7 +497,7 @@ export class Client {
     keyIterationCount: number,
     extraParameters: Map<string, any>,
     clientInfo: ClientInfo,
-    rest: RestClient
+    rest: RestClient,
   ) {
     const hash = await this.cryptoUtils.deriveKeyHash(username, password, keyIterationCount);
 
@@ -513,7 +529,7 @@ export class Client {
   private makeError(response: Response) {
     // TODO: error parsing
     throw new Error(
-      "HTTP request to " + response.url + " failed with status " + response.status + "."
+      "HTTP request to " + response.url + " failed with status " + response.status + ".",
     );
   }
 
@@ -539,6 +555,8 @@ export class Client {
           return "Second factor code is incorrect";
         case "multifactorresponsefailed":
           return "Out of band authentication failed";
+        case "unifiedloginresult":
+          return "unifiedloginresult";
         default:
           return message?.value ?? cause.value;
       }

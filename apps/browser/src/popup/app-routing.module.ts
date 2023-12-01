@@ -8,16 +8,17 @@ import {
   tdeDecryptionRequiredGuard,
   UnauthGuard,
 } from "@bitwarden/angular/auth/guards";
-import { canAccessFeature } from "@bitwarden/angular/guard/feature-flag.guard";
+import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 import { fido2AuthGuard } from "../auth/guards/fido2-auth.guard";
+import { AccountSwitcherComponent } from "../auth/popup/account-switching/account-switcher.component";
 import { EnvironmentComponent } from "../auth/popup/environment.component";
 import { HintComponent } from "../auth/popup/hint.component";
 import { HomeComponent } from "../auth/popup/home.component";
 import { LockComponent } from "../auth/popup/lock.component";
 import { LoginDecryptionOptionsComponent } from "../auth/popup/login-decryption-options/login-decryption-options.component";
-import { LoginWithDeviceComponent } from "../auth/popup/login-with-device.component";
+import { LoginViaAuthRequestComponent } from "../auth/popup/login-via-auth-request.component";
 import { LoginComponent } from "../auth/popup/login.component";
 import { RegisterComponent } from "../auth/popup/register.component";
 import { RemovePasswordComponent } from "../auth/popup/remove-password.component";
@@ -26,6 +27,7 @@ import { SsoComponent } from "../auth/popup/sso.component";
 import { TwoFactorOptionsComponent } from "../auth/popup/two-factor-options.component";
 import { TwoFactorComponent } from "../auth/popup/two-factor.component";
 import { UpdateTempPasswordComponent } from "../auth/popup/update-temp-password.component";
+import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
 import { GeneratorComponent } from "../tools/popup/generator/generator.component";
 import { PasswordGeneratorHistoryComponent } from "../tools/popup/generator/password-generator-history.component";
 import { SendAddEditComponent } from "../tools/popup/send/send-add-edit.component";
@@ -46,7 +48,6 @@ import { ViewComponent } from "../vault/popup/components/vault/view.component";
 import { FolderAddEditComponent } from "../vault/popup/settings/folder-add-edit.component";
 
 import { DebounceNavigationService } from "./services/debounceNavigationService";
-import { AutofillComponent } from "./settings/autofill.component";
 import { ExcludedDomainsComponent } from "./settings/excluded-domains.component";
 import { FoldersComponent } from "./settings/folders.component";
 import { HelpAndFeedbackComponent } from "./settings/help-and-feedback.component";
@@ -90,13 +91,13 @@ const routes: Routes = [
   },
   {
     path: "login-with-device",
-    component: LoginWithDeviceComponent,
+    component: LoginViaAuthRequestComponent,
     canActivate: [],
     data: { state: "login-with-device" },
   },
   {
     path: "admin-approval-requested",
-    component: LoginWithDeviceComponent,
+    component: LoginViaAuthRequestComponent,
     canActivate: [],
     data: { state: "login-with-device" },
   },
@@ -361,6 +362,11 @@ const routes: Routes = [
         data: { state: "tabs_send" },
       },
     ],
+  },
+  {
+    path: "account-switcher",
+    component: AccountSwitcherComponent,
+    data: { state: "account-switcher", doNotSaveUrl: true },
   },
 ];
 

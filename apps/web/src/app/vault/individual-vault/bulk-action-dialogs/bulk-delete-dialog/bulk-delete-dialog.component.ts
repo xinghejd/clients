@@ -3,7 +3,6 @@ import { Component, Inject } from "@angular/core";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { CollectionBulkDeleteRequest } from "@bitwarden/common/models/request/collection-bulk-delete.request";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -33,11 +32,11 @@ export enum BulkDeleteDialogResult {
  */
 export const openBulkDeleteDialog = (
   dialogService: DialogService,
-  config: DialogConfig<BulkDeleteDialogParams>
+  config: DialogConfig<BulkDeleteDialogParams>,
 ) => {
   return dialogService.open<BulkDeleteDialogResult, BulkDeleteDialogParams>(
     BulkDeleteDialogComponent,
-    config
+    config,
   );
 };
 
@@ -59,7 +58,7 @@ export class BulkDeleteDialogComponent {
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
     private apiService: ApiService,
-    private collectionService: CollectionService
+    private collectionService: CollectionService,
   ) {
     this.cipherIds = params.cipherIds ?? [];
     this.collectionIds = params.collectionIds ?? [];
@@ -93,7 +92,7 @@ export class BulkDeleteDialogComponent {
       this.platformUtilsService.showToast(
         "success",
         null,
-        this.i18nService.t(this.permanent ? "permanentlyDeletedItems" : "deletedItems")
+        this.i18nService.t(this.permanent ? "permanentlyDeletedItems" : "deletedItems"),
       );
     }
     if (this.collectionIds.length) {
@@ -101,7 +100,7 @@ export class BulkDeleteDialogComponent {
       this.platformUtilsService.showToast(
         "success",
         null,
-        this.i18nService.t("deletedCollections")
+        this.i18nService.t("deletedCollections"),
       );
     }
     this.close(BulkDeleteDialogResult.Deleted);
@@ -135,15 +134,11 @@ export class BulkDeleteDialogComponent {
         this.platformUtilsService.showToast(
           "error",
           this.i18nService.t("errorOccurred"),
-          this.i18nService.t("missingPermissions")
+          this.i18nService.t("missingPermissions"),
         );
         return;
       }
-      const deleteRequest = new CollectionBulkDeleteRequest(
-        this.collectionIds,
-        this.organization.id
-      );
-      return await this.apiService.deleteManyCollections(deleteRequest);
+      return await this.apiService.deleteManyCollections(this.organization.id, this.collectionIds);
       // From individual vault, so there can be multiple organizations
     } else if (this.organizations && this.collections) {
       const deletePromises: Promise<any>[] = [];
@@ -152,15 +147,16 @@ export class BulkDeleteDialogComponent {
           this.platformUtilsService.showToast(
             "error",
             this.i18nService.t("errorOccurred"),
-            this.i18nService.t("missingPermissions")
+            this.i18nService.t("missingPermissions"),
           );
           return;
         }
         const orgCollections = this.collections
           .filter((o) => o.organizationId === organization.id)
           .map((c) => c.id);
-        const deleteRequest = new CollectionBulkDeleteRequest(orgCollections, organization.id);
-        deletePromises.push(this.apiService.deleteManyCollections(deleteRequest));
+        deletePromises.push(
+          this.apiService.deleteManyCollections(this.organization.id, orgCollections),
+        );
       }
       return await Promise.all(deletePromises);
     }

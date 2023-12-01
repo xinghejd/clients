@@ -1,18 +1,59 @@
+import {
+  AssertCredentialParams,
+  CreateCredentialParams,
+} from "@bitwarden/common/vault/abstractions/fido2/fido2-client.service.abstraction";
+
 import { Message, MessageType } from "./messaging/message";
 import { Messenger } from "./messaging/messenger";
 
-function checkFido2FeatureEnabled() {
-  chrome.runtime.sendMessage(
-    { command: "checkFido2FeatureEnabled" },
-    (response: { result?: boolean }) => initializeFido2ContentScript(response.result)
-  );
+function isFido2FeatureEnabled(): Promise<boolean> {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage(
+      { command: "checkFido2FeatureEnabled" },
+      (response: { result?: boolean }) => resolve(response.result),
+    );
+  });
 }
 
-function initializeFido2ContentScript(isFido2FeatureEnabled: boolean) {
-  if (isFido2FeatureEnabled !== true) {
-    return;
+async function getFromLocalStorage(keys: string | string[]): Promise<Record<string, any>> {
+  return new Promise((resolve) => {
+    chrome.storage.local.get(keys, (storage: Record<string, any>) => resolve(storage));
+  });
+}
+
+async function isDomainExcluded() {
+  // TODO: This is code copied from `notification-bar.tsx`. We should refactor this into a shared function.
+  // Look up the active user id from storage
+  const activeUserIdKey = "activeUserId";
+  let activeUserId: string;
+
+  const activeUserStorageValue = await getFromLocalStorage(activeUserIdKey);
+  if (activeUserStorageValue[activeUserIdKey]) {
+    activeUserId = activeUserStorageValue[activeUserIdKey];
   }
 
+  // Look up the user's settings from storage
+  const userSettingsStorageValue = await getFromLocalStorage(activeUserId);
+
+  const excludedDomains = userSettingsStorageValue[activeUserId]?.settings?.neverDomains;
+  return excludedDomains && window.location.hostname in excludedDomains;
+}
+
+async function hasActiveUser() {
+  const activeUserIdKey = "activeUserId";
+  const activeUserStorageValue = await getFromLocalStorage(activeUserIdKey);
+  return activeUserStorageValue[activeUserIdKey] !== undefined;
+}
+
+function isSameOriginWithAncestors() {
+  try {
+    return window.self === window.top;
+  } catch {
+    return false;
+  }
+}
+
+function initializeFido2ContentScript() {
   const s = document.createElement("script");
   s.src = chrome.runtime.getURL("content/fido2/page-script.js");
   (document.head || document.documentElement).appendChild(s);
@@ -30,10 +71,16 @@ function initializeFido2ContentScript(isFido2FeatureEnabled: boolean) {
 
     if (message.type === MessageType.CredentialCreationRequest) {
       return new Promise((resolve, reject) => {
+        const data: CreateCredentialParams = {
+          ...message.data,
+          origin: window.location.origin,
+          sameOriginWithAncestors: isSameOriginWithAncestors(),
+        };
+
         chrome.runtime.sendMessage(
           {
             command: "fido2RegisterCredentialRequest",
-            data: message.data,
+            data,
             requestId: requestId,
           },
           (response) => {
@@ -45,17 +92,23 @@ function initializeFido2ContentScript(isFido2FeatureEnabled: boolean) {
               type: MessageType.CredentialCreationResponse,
               result: response.result,
             });
-          }
+          },
         );
       });
     }
 
     if (message.type === MessageType.CredentialGetRequest) {
       return new Promise((resolve, reject) => {
+        const data: AssertCredentialParams = {
+          ...message.data,
+          origin: window.location.origin,
+          sameOriginWithAncestors: isSameOriginWithAncestors(),
+        };
+
         chrome.runtime.sendMessage(
           {
             command: "fido2GetCredentialRequest",
-            data: message.data,
+            data,
             requestId: requestId,
           },
           (response) => {
@@ -67,10 +120,10 @@ function initializeFido2ContentScript(isFido2FeatureEnabled: boolean) {
               type: MessageType.CredentialGetResponse,
               result: response.result,
             });
-          }
+          },
         );
       }).finally(() =>
-        abortController.signal.removeEventListener("abort", abortHandler)
+        abortController.signal.removeEventListener("abort", abortHandler),
       ) as Promise<Message>;
     }
 
@@ -78,4 +131,10 @@ function initializeFido2ContentScript(isFido2FeatureEnabled: boolean) {
   };
 }
 
-checkFido2FeatureEnabled();
+async function run() {
+  if ((await hasActiveUser()) && (await isFido2FeatureEnabled()) && !(await isDomainExcluded())) {
+    initializeFido2ContentScript();
+  }
+}
+
+run();

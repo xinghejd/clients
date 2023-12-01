@@ -2,12 +2,12 @@ import { Component } from "@angular/core";
 import { ActivatedRoute, Params, Router } from "@angular/router";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { OrganizationUserService } from "@bitwarden/common/abstractions/organization-user/organization-user.service";
+import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
+import { OrganizationUserService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user.service";
 import {
   OrganizationUserAcceptInitRequest,
   OrganizationUserAcceptRequest,
-} from "@bitwarden/common/abstractions/organization-user/requests";
-import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
+} from "@bitwarden/common/admin-console/abstractions/organization-user/requests";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
@@ -45,7 +45,7 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
     private organizationApiService: OrganizationApiServiceAbstraction,
     private organizationUserService: OrganizationUserService,
     private messagingService: MessagingService,
-    private apiService: ApiService
+    private apiService: ApiService,
   ) {
     super(router, platformUtilsService, i18nService, route, stateService);
   }
@@ -77,7 +77,7 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
       initOrganization
         ? this.i18nService.t("inviteInitAcceptedDesc")
         : this.i18nService.t("inviteAcceptedDesc"),
-      { timeout: 10000 }
+      { timeout: 10000 },
     );
     this.router.navigate(["/vault"]);
   }
@@ -91,8 +91,8 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
       this.organizationUserService.postOrganizationUserAcceptInit(
         qParams.organizationId,
         qParams.organizationUserId,
-        request
-      )
+        request,
+      ),
     );
   }
 
@@ -101,13 +101,13 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
       this.organizationUserService.postOrganizationUserAccept(
         qParams.organizationId,
         qParams.organizationUserId,
-        request
-      )
+        request,
+      ),
     );
   }
 
   private async prepareAcceptInitRequest(
-    qParams: Params
+    qParams: Params,
   ): Promise<OrganizationUserAcceptInitRequest> {
     const request = new OrganizationUserAcceptInitRequest();
     request.token = qParams.token;
@@ -116,13 +116,13 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
     const [orgPublicKey, encryptedOrgPrivateKey] = await this.cryptoService.makeKeyPair(orgKey);
     const collection = await this.cryptoService.encrypt(
       this.i18nService.t("defaultCollection"),
-      orgKey
+      orgKey,
     );
 
     request.key = encryptedOrgKey.encryptedString;
     request.keys = new OrganizationKeysRequest(
       orgPublicKey,
-      encryptedOrgPrivateKey.encryptedString
+      encryptedOrgPrivateKey.encryptedString,
     );
     request.collectionName = collection.encryptedString;
 
@@ -159,7 +159,7 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
         qParams.organizationId,
         qParams.token,
         qParams.email,
-        qParams.organizationUserId
+        qParams.organizationUserId,
       );
       policyList = this.policyService.mapPoliciesFromToken(policies);
     } catch (e) {
@@ -169,7 +169,7 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
     if (policyList != null) {
       const result = this.policyService.getResetPasswordPolicyOptions(
         policyList,
-        qParams.organizationId
+        qParams.organizationId,
       );
       // Return true if policy enabled and auto-enroll enabled
       return result[1] && result[0].autoEnrollEnabled;

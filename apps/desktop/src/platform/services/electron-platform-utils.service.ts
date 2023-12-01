@@ -1,5 +1,3 @@
-import { ipcRenderer, shell } from "electron";
-
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -8,12 +6,14 @@ import {
   PlatformUtilsService,
 } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
-import { BiometricMessage, BiometricStorageAction } from "../../types/biometric-message";
 import { isMacAppStore } from "../../utils";
 import { ClipboardWriteMessage } from "../types/clipboard";
 
 export class ElectronPlatformUtilsService implements PlatformUtilsService {
-  constructor(protected i18nService: I18nService, private messagingService: MessagingService) {}
+  constructor(
+    protected i18nService: I18nService,
+    private messagingService: MessagingService,
+  ) {}
 
   getDevice(): DeviceType {
     return ipc.platform.deviceType;
@@ -61,7 +61,7 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
   }
 
   launchUri(uri: string, options?: any): void {
-    shell.openExternal(uri);
+    ipc.platform.launchUri(uri);
   }
 
   getApplicationVersion(): Promise<string> {
@@ -86,7 +86,7 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
     type: "error" | "success" | "warning" | "info",
     title: string,
     text: string | string[],
-    options?: any
+    options?: any,
   ): void {
     this.messagingService.send("showToast", {
       text: text,
@@ -108,7 +108,7 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
     const clearing = options?.clearing === true;
     const clearMs = options?.clearMs ?? null;
 
-    ipcRenderer.invoke("clipboard.write", {
+    ipc.platform.clipboard.write({
       text: text,
       password: (options?.allowHistory ?? false) === false, // default to false
     } satisfies ClipboardWriteMessage);
@@ -123,13 +123,11 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
   }
 
   readFromClipboard(): Promise<string> {
-    return ipcRenderer.invoke("clipboard.read");
+    return ipc.platform.clipboard.read();
   }
 
   async supportsBiometric(): Promise<boolean> {
-    return await ipcRenderer.invoke("biometric", {
-      action: BiometricStorageAction.OsSupported,
-    } as BiometricMessage);
+    return await ipc.platform.biometric.osSupported();
   }
 
   /** This method is used to authenticate the user presence _only_.
@@ -137,11 +135,7 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
    * biometric keys, which has a separate authentication mechanism.
    * For biometric keys, invoke "keytar" with a biometric key suffix */
   async authenticateBiometric(): Promise<boolean> {
-    const val = await ipcRenderer.invoke("biometric", {
-      action: "authenticate",
-    });
-
-    return val;
+    return await ipc.platform.biometric.authenticate();
   }
 
   supportsSecureStorage(): boolean {

@@ -36,7 +36,7 @@ export class UserSubscriptionComponent implements OnInit {
     private logService: LogService,
     private fileDownloadService: FileDownloadService,
     private dialogService: DialogService,
-    private environmentService: EnvironmentService
+    private environmentService: EnvironmentService,
   ) {
     this.selfHosted = platformUtilsService.isSelfHost();
     this.cloudWebVaultUrl = this.environmentService.getCloudWebVaultUrl();
@@ -134,7 +134,7 @@ export class UserSubscriptionComponent implements OnInit {
       this.platformUtilsService.showToast(
         "success",
         null,
-        this.i18nService.t("canceledSubscription")
+        this.i18nService.t("canceledSubscription"),
       );
       this.load();
     } catch (e) {
@@ -203,10 +203,6 @@ export class UserSubscriptionComponent implements OnInit {
 
   get nextInvoice() {
     return this.sub != null ? this.sub.upcomingInvoice : null;
-  }
-
-  get discount() {
-    return this.sub != null ? this.sub.discount : null;
   }
 
   get storagePercentage() {
