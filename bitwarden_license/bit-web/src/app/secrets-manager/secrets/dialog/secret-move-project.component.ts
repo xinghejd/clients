@@ -38,7 +38,7 @@ export class SecretMoveProjectComponent implements OnInit, OnDestroy {
     @Inject(DIALOG_DATA) private data: SecretMoveProjectOperation,
     private projectService: ProjectService,
     private secretService: SecretService,
-    private i18nService: I18nService
+    private i18nService: I18nService,
   ) {
     this.secretsCount = data.secrets.length;
     this.selectedProjectId$ = this.formGroup.controls.project.valueChanges;
@@ -87,7 +87,7 @@ export class SecretMoveProjectComponent implements OnInit, OnDestroy {
     await this.secretService.bulkMoveToProject(
       this.data.organizationId,
       this.data.secrets.map((s) => s.id),
-      [this.formGroup.controls.project.value]
+      [this.formGroup.controls.project.value],
     );
 
     this.dialogRef.close();
