@@ -400,7 +400,7 @@ describe("AutofillOverlayIframeService", () => {
       jest
         .spyOn(
           autofillOverlayIframeService as any,
-          "isTriggeringExcessiveMutationObserverIterations"
+          "isTriggeringExcessiveMutationObserverIterations",
         )
         .mockReturnValue(true);
       jest.spyOn(autofillOverlayIframeService as any, "updateElementStyles");

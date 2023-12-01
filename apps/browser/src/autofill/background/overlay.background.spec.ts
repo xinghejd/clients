@@ -1063,7 +1063,7 @@ describe("OverlayBackground", () => {
           expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
             buttonPortSpy.sender.tab,
             "closeAutofillOverlay",
-            { forceCloseOverlay: false }
+            { forceCloseOverlay: false },
           );
         });
       });
@@ -1077,7 +1077,7 @@ describe("OverlayBackground", () => {
           expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
             buttonPortSpy.sender.tab,
             "closeAutofillOverlay",
-            { forceCloseOverlay: true }
+            { forceCloseOverlay: true },
           );
         });
       });
@@ -1138,7 +1138,7 @@ describe("OverlayBackground", () => {
           expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
             listPortSpy.sender.tab,
             "closeAutofillOverlay",
-            { forceCloseOverlay: true }
+            { forceCloseOverlay: true },
           );
         });
       });

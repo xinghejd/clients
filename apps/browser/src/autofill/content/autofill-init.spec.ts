@@ -317,7 +317,7 @@ describe("AutofillInit", () => {
           });
 
           expect(
-            autofillInit["autofillOverlayContentService"].removeAutofillOverlay
+            autofillInit["autofillOverlayContentService"].removeAutofillOverlay,
           ).toHaveBeenCalled();
         });
 
