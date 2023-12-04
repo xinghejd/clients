@@ -74,31 +74,6 @@ describe("Fastmail Forwarder", () => {
       );
     });
 
-    it.each([null, ""])(
-      "throws an error if the domain is missing (domain = %p)",
-      async (domain) => {
-        const apiService = mockApiService(AccountIdSuccess, EmptyResponse);
-        const i18nService = mockI18nService();
-
-        const forwarder = new FastmailForwarder(apiService, i18nService);
-
-        await expect(
-          async () =>
-            await forwarder.generate(null, {
-              token: "token",
-              domain,
-              prefix: "prefix",
-            })
-        ).rejects.toEqual("forwarderNoDomain");
-
-        expect(apiService.nativeFetch).not.toHaveBeenCalled();
-        expect(i18nService.t).toHaveBeenCalledWith(
-          "forwarderNoDomain",
-          "forwarder.serviceName.fastmail"
-        );
-      }
-    );
-
     it.each([401, 403])(
       "throws a no account id error if the accountId request responds with a status other than 200",
       async (status) => {

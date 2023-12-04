@@ -1,7 +1,8 @@
 import { MigrationHelper } from "../migration-helper";
 import { IRREVERSIBLE, Migrator } from "../migrator";
 
-type LegacyAccountType = {
+/** username generation options prior to refactoring */
+export type LegacyAccountType = {
   settings?: {
     usernameGenerationOptions?: {
       type?: "word" | "subaddress" | "catchall" | "forwarded";
@@ -27,10 +28,33 @@ type LegacyAccountType = {
   };
 };
 
-type NewAccountType = {
+type ForwarderService =
+  | "fastmail"
+  | "anonaddy"
+  | "forwardemail"
+  | "simplelogin"
+  | "duckduckgo"
+  | "firefoxrelay";
+const ValidForwarderServices = Object.freeze([
+  "fastmail",
+  "anonaddy",
+  "forwardemail",
+  "simplelogin",
+  "duckduckgo",
+  "firefoxrelay",
+]);
+
+/** username generation options after refactoring.
+ * @remarks Starting at `settings.usernameGenerationOptions`, this is a
+ *  reified version of the `UsernameGeneratorOptions` type in
+ * `libs/common/src/tools/generator/username/username-generation-options.ts`
+ * as of the moment the migration was created.
+ */
+export type NewAccountType = {
   settings: {
     usernameGenerationOptions: {
       type: "word" | "subaddress" | "catchall" | "forwarded";
+      website?: string;
       word: {
         capitalize: boolean;
         includeNumber: boolean;
@@ -43,15 +67,8 @@ type NewAccountType = {
         algorithm: "random" | "website-name";
         domain: string;
       };
-      website?: string;
       forwarders: {
-        service:
-          | "fastmail"
-          | "anonaddy"
-          | "forwardemail"
-          | "simplelogin"
-          | "duckduckgo"
-          | "firefoxrelay";
+        service: ForwarderService;
         fastMail: {
           domain: string;
           prefix: string;
@@ -92,9 +109,11 @@ export class FactorUsernameGeneratorSettingsMigrator extends Migrator<9, 10> {
     const accounts = await helper.getAccounts<LegacyAccountType>();
 
     await Promise.all([
-      ...accounts.map(({ userId, account }) => {
+      ...accounts.map(async ({ userId, account }) => {
         const newAccount = mapAccount(account);
-        helper.set(userId, newAccount);
+        if (newAccount) {
+          await helper.set(userId, newAccount);
+        }
       }),
     ]);
   }
@@ -105,84 +124,84 @@ export class FactorUsernameGeneratorSettingsMigrator extends Migrator<9, 10> {
   }
 }
 
-// exported for unit testing only
-export async function mapAccount(account: LegacyAccountType) {
-  const oldOptions = account.settings?.usernameGenerationOptions;
-  if (!oldOptions) {
+/** Maps legacy generation settings to new generation settings.
+ * @remarks Exported for unit testing purposes only.
+ */
+export function mapAccount(account?: LegacyAccountType) {
+  const legacy = account?.settings?.usernameGenerationOptions;
+  if (!legacy) {
     return;
   }
 
-  // if oldOptions exists, then we know that account.settings exists; replace it
+  // default values inlined from `libs/common/src/tools/generator/username/username-generation-options.ts`
+  // as of the moment the migration was created.
   const mappedOptions = {
     settings: {
       usernameGenerationOptions: {
-        type: "word",
+        type: legacy.type ?? "word",
+        website: legacy.website,
         word: {
-          capitalize: oldOptions.wordCapitalize,
-          includeNumber: oldOptions.wordIncludeNumber,
+          capitalize: legacy.wordCapitalize ?? false,
+          includeNumber: legacy.wordIncludeNumber ?? false,
         },
         subaddress: {
-          algorithm: oldOptions.subaddressType,
-          email: oldOptions.subaddressEmail,
+          algorithm: legacy.subaddressType ?? "random",
+          email: legacy.subaddressEmail ?? "",
         },
         catchall: {
-          algorithm: oldOptions.catchallType,
-          domain: oldOptions.catchallDomain,
+          algorithm: legacy.catchallType ?? "random",
+          domain: legacy.catchallDomain ?? "",
         },
-        website: oldOptions.website,
         forwarders: {
-          service: oldOptions.forwardedService,
+          service: "fastmail",
           fastMail: {
-            domain: "",
             prefix: "",
-            token: oldOptions.forwardedFastmailApiToken,
+            token: legacy.forwardedFastmailApiToken ?? "",
           },
           addyIo: {
-            token: oldOptions.forwardedAnonAddyApiToken,
-            domain: oldOptions.forwardedAnonAddyDomain,
-            baseUrl: oldOptions.forwardedAnonAddyBaseUrl,
+            token: legacy.forwardedAnonAddyApiToken ?? "",
+            domain: legacy.forwardedAnonAddyDomain ?? "",
+            baseUrl: legacy.forwardedAnonAddyBaseUrl ?? "https://app.addy.io",
           },
           forwardEmail: {
-            token: oldOptions.forwardedForwardEmailApiToken,
-            domain: oldOptions.forwardedForwardEmailDomain,
+            token: legacy.forwardedForwardEmailApiToken ?? "",
+            domain: legacy.forwardedForwardEmailDomain ?? "",
           },
           simpleLogin: {
-            token: oldOptions.forwardedSimpleLoginApiKey,
-            baseUrl: oldOptions.forwardedSimpleLoginBaseUrl,
+            token: legacy.forwardedSimpleLoginApiKey ?? "",
+            baseUrl: legacy.forwardedSimpleLoginBaseUrl ?? "https://app.simplelogin.io",
           },
           duckDuckGo: {
-            token: oldOptions.forwardedDuckDuckGoToken,
+            token: legacy.forwardedDuckDuckGoToken ?? "",
           },
           firefoxRelay: {
-            token: oldOptions.forwardedFirefoxApiToken,
+            token: legacy.forwardedFirefoxApiToken ?? "",
           },
         },
       },
     },
   } as NewAccountType;
 
-  // if the token is not empty, then it was stored as plaintext
-  if (mappedOptions.settings.usernameGenerationOptions.forwarders.fastMail.token.length > 0) {
-    mappedOptions.settings.usernameGenerationOptions.forwarders.fastMail.wasPlainText = true;
+  // verify forwarder service mapping before overwriting the default
+  if (Object.values(ValidForwarderServices).includes(legacy.forwardedService)) {
+    mappedOptions.settings.usernameGenerationOptions.forwarders.service =
+      legacy.forwardedService as ForwarderService;
   }
 
-  if (mappedOptions.settings.usernameGenerationOptions.forwarders.addyIo.token.length > 0) {
-    mappedOptions.settings.usernameGenerationOptions.forwarders.addyIo.wasPlainText = true;
+  // if the token of any forwarder is set, then the token was stored as plaintext
+  const forwarders = [
+    mappedOptions.settings.usernameGenerationOptions.forwarders.fastMail,
+    mappedOptions.settings.usernameGenerationOptions.forwarders.addyIo,
+    mappedOptions.settings.usernameGenerationOptions.forwarders.forwardEmail,
+    mappedOptions.settings.usernameGenerationOptions.forwarders.simpleLogin,
+    mappedOptions.settings.usernameGenerationOptions.forwarders.duckDuckGo,
+    mappedOptions.settings.usernameGenerationOptions.forwarders.firefoxRelay,
+  ];
+  for (const forwarder of forwarders) {
+    if (forwarder.token.length > 0) {
+      forwarder.wasPlainText = true;
+    }
   }
 
-  if (mappedOptions.settings.usernameGenerationOptions.forwarders.forwardEmail.token.length > 0) {
-    mappedOptions.settings.usernameGenerationOptions.forwarders.forwardEmail.wasPlainText = true;
-  }
-
-  if (mappedOptions.settings.usernameGenerationOptions.forwarders.simpleLogin.token.length > 0) {
-    mappedOptions.settings.usernameGenerationOptions.forwarders.simpleLogin.wasPlainText = true;
-  }
-
-  if (mappedOptions.settings.usernameGenerationOptions.forwarders.duckDuckGo.token.length > 0) {
-    mappedOptions.settings.usernameGenerationOptions.forwarders.duckDuckGo.wasPlainText = true;
-  }
-
-  if (mappedOptions.settings.usernameGenerationOptions.forwarders.firefoxRelay.token.length > 0) {
-    mappedOptions.settings.usernameGenerationOptions.forwarders.firefoxRelay.wasPlainText = true;
-  }
+  return mappedOptions;
 }

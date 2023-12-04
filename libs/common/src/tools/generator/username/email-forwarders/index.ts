@@ -14,7 +14,7 @@ export {
   ApiOptions,
   SelfHostedApiOptions,
   EmailDomainOptions,
-  EmailPartOptions,
+  EmailPrefixOptions,
 } from "./forwarder";
 
 /** Static factory for creating forwarders

@@ -1,7 +1,7 @@
 import { ApiService } from "../../../../abstractions/api.service";
 import { I18nService } from "../../../../platform/abstractions/i18n.service";
 
-import { ApiOptions, EmailPartOptions, Forwarder } from "./forwarder";
+import { ApiOptions, EmailPrefixOptions, Forwarder } from "./forwarder";
 
 export class FastmailForwarder implements Forwarder {
   readonly serviceName: string;
@@ -10,13 +10,12 @@ export class FastmailForwarder implements Forwarder {
     this.serviceName = i18nService.t("forwarder.serviceName.fastmail");
   }
 
-  async generate(website: string | null, options: ApiOptions & EmailPartOptions): Promise<string> {
+  async generate(
+    website: string | null,
+    options: ApiOptions & EmailPrefixOptions
+  ): Promise<string> {
     if (!options.token || options.token === "") {
       const error = this.i18nService.t("forwaderInvalidToken", this.serviceName);
-      throw error;
-    }
-    if (!options.domain || options.domain === "") {
-      const error = this.i18nService.t("forwarderNoDomain", this.serviceName);
       throw error;
     }
 

@@ -5,7 +5,7 @@ import {
   ApiOptions,
   SelfHostedApiOptions,
   EmailDomainOptions,
-  EmailPartOptions,
+  EmailPrefixOptions,
 } from "./email-forwarders";
 
 /** Identifiers for email forwarding services.
@@ -106,7 +106,7 @@ export type UsernameGeneratorOptions = {
     duckDuckGo: ApiOptions & MaybeLeakedOptions;
 
     /** {@link ForwarderIds.FastMail} */
-    fastMail: ApiOptions & EmailPartOptions & MaybeLeakedOptions;
+    fastMail: ApiOptions & EmailPrefixOptions & MaybeLeakedOptions;
 
     /** {@link ForwarderIds.FireFoxRelay} */
     firefoxRelay: ApiOptions & MaybeLeakedOptions;

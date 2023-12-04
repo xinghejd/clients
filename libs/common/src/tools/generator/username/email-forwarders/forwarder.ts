@@ -42,7 +42,7 @@ export type EmailDomainOptions = {
 };
 
 /** Api configuration for forwarders that support custom email parts. */
-export type EmailPartOptions = EmailDomainOptions & {
+export type EmailPrefixOptions = EmailDomainOptions & {
   /** A prefix joined to the generated email address' username.
    *  @example If the prefix is `foo`, the generated username is `bar`,
    *  and the domain is `domain.io`, then the generated email address is `
