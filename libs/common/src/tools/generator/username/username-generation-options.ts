@@ -194,7 +194,7 @@ export function forAllForwarders<T>(
 export function getForwarderOptions(
   service: string,
   options: UsernameGeneratorOptions
-): ApiOptions {
+): ApiOptions & MaybeLeakedOptions {
   if (service === ForwarderIds.AddyIo) {
     return Object.assign(
       structuredClone(DefaultOptions.forwarders.addyIo),

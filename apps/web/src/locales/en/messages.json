@@ -5740,6 +5740,9 @@
   "forwardedEmailDesc": {
     "message": "Generate an email alias with an external forwarding service."
   },
+  "forwarderReplaceTokenWarning": {
+    "message": "API key was stored in an unencrypted format and should be replaced."
+  },
   "forwarderError": {
     "message": "$SERVICENAME$ error: $ERRORMESSAGE$",
     "description": "Reports an error returned by a forwarding service to the user.",

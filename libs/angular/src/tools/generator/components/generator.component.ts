@@ -18,6 +18,7 @@ import {
   UsernameGeneratorOptions,
   DefaultOptions,
   ForwarderIds,
+  getForwarderOptions,
 } from "@bitwarden/common/tools/generator/username";
 
 @Directive()
@@ -41,6 +42,7 @@ export class GeneratorComponent implements OnInit {
   avoidAmbiguous = false;
   enforcedPasswordPolicyOptions: PasswordGeneratorPolicyOptions;
   usernameWebsite: string = null;
+  displayReplaceTokenWarning = false;
   readonly forwarderIds = ForwarderIds;
 
   constructor(
@@ -160,6 +162,15 @@ export class GeneratorComponent implements OnInit {
     if (regenerate && this.regenerateWithoutButtonPress()) {
       await this.regeneratePassword();
     }
+  }
+
+  async onForwarderChanged() {
+    this.saveUsernameOptions();
+    const forwarder = getForwarderOptions(
+      this.usernameOptions.forwarders.service,
+      this.usernameOptions
+    );
+    this.displayReplaceTokenWarning = forwarder.wasPlainText || false;
   }
 
   async saveUsernameOptions(regenerate = true) {
