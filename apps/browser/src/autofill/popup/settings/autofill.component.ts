@@ -9,9 +9,9 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { UriMatchType } from "@bitwarden/common/vault/enums";
 import { DialogService } from "@bitwarden/components";
 
-import { AutofillOverlayVisibility } from "../../autofill/utils/autofill-overlay.enum";
-import { BrowserApi } from "../../platform/browser/browser-api";
-import { flagEnabled } from "../../platform/flags";
+import { BrowserApi } from "../../../platform/browser/browser-api";
+import { flagEnabled } from "../../../platform/flags";
+import { AutofillOverlayVisibility } from "../../utils/autofill-overlay.enum";
 
 @Component({
   selector: "app-autofill",
@@ -37,7 +37,7 @@ export class AutofillComponent implements OnInit {
     private platformUtilsService: PlatformUtilsService,
     private configService: ConfigServiceAbstraction,
     private settingsService: SettingsService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
   ) {
     this.autoFillOverlayVisibilityOptions = [
       {
@@ -75,7 +75,7 @@ export class AutofillComponent implements OnInit {
     this.defaultBrowserAutofillDisabled = await this.browserAutofillSettingCurrentlyOverridden();
 
     this.isAutoFillOverlayFlagEnabled = await this.configService.getFeatureFlag<boolean>(
-      FeatureFlag.AutofillOverlay
+      FeatureFlag.AutofillOverlay,
     );
     this.autoFillOverlayVisibility =
       (await this.settingsService.getAutoFillOverlayVisibility()) || AutofillOverlayVisibility.Off;

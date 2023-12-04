@@ -1,4 +1,4 @@
-import { Directive, EventEmitter, OnDestroy, OnInit, Output } from "@angular/core";
+import { Directive, EventEmitter, OnDestroy, OnInit, Output, ViewChild } from "@angular/core";
 import { UntypedFormBuilder, Validators } from "@angular/forms";
 import { merge, startWith, Subject, takeUntil } from "rxjs";
 
@@ -16,10 +16,14 @@ import { EncryptedExportType } from "@bitwarden/common/tools/enums/encrypted-exp
 import { DialogService } from "@bitwarden/components";
 import { VaultExportServiceAbstraction } from "@bitwarden/exporter/vault-export";
 
+import { PasswordStrengthComponent } from "../../../shared/components/password-strength/password-strength.component";
+
 @Directive()
 export class ExportComponent implements OnInit, OnDestroy {
   @Output() onSaved = new EventEmitter();
+  @ViewChild(PasswordStrengthComponent) passwordStrengthComponent: PasswordStrengthComponent;
 
+  filePasswordValue: string = null;
   formPromise: Promise<string>;
   private _disabledByPolicy = false;
 
@@ -55,7 +59,7 @@ export class ExportComponent implements OnInit, OnDestroy {
     private userVerificationService: UserVerificationService,
     private formBuilder: UntypedFormBuilder,
     protected fileDownloadService: FileDownloadService,
-    protected dialogService: DialogService
+    protected dialogService: DialogService,
   ) {}
 
   async ngOnInit() {
@@ -71,7 +75,7 @@ export class ExportComponent implements OnInit, OnDestroy {
 
     merge(
       this.exportForm.get("format").valueChanges,
-      this.exportForm.get("fileEncryptionType").valueChanges
+      this.exportForm.get("fileEncryptionType").valueChanges,
     )
       .pipe(takeUntil(this.destroy$))
       .pipe(startWith(0))
@@ -105,7 +109,7 @@ export class ExportComponent implements OnInit, OnDestroy {
       this.platformUtilsService.showToast(
         "error",
         null,
-        this.i18nService.t("personalVaultExportPolicyInEffect")
+        this.i18nService.t("personalVaultExportPolicyInEffect"),
       );
       return;
     }

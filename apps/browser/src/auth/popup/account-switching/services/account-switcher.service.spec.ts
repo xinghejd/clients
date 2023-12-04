@@ -32,7 +32,7 @@ describe("AccountSwitcherService", () => {
       stateService,
       messagingService,
       environmentService,
-      logService
+      logService,
     );
   });
 
@@ -51,7 +51,7 @@ describe("AccountSwitcherService", () => {
       activeAccountSubject.next(Object.assign(user1AccountInfo, { id: "1" as UserId }));
 
       const accounts = await firstValueFrom(
-        accountSwitcherService.availableAccounts$.pipe(timeout(20))
+        accountSwitcherService.availableAccounts$.pipe(timeout(20)),
       );
       expect(accounts).toHaveLength(2);
       expect(accounts[0].id).toBe("1");
@@ -74,7 +74,7 @@ describe("AccountSwitcherService", () => {
         }
         accountsSubject.next(seedAccounts);
         activeAccountSubject.next(
-          Object.assign(seedAccounts["1" as UserId], { id: "1" as UserId })
+          Object.assign(seedAccounts["1" as UserId], { id: "1" as UserId }),
         );
 
         const accounts = await firstValueFrom(accountSwitcherService.availableAccounts$);
@@ -83,7 +83,7 @@ describe("AccountSwitcherService", () => {
         accounts.forEach((account) => {
           expect(account.id).not.toBe("addAccount");
         });
-      }
+      },
     );
   });
 
@@ -92,7 +92,7 @@ describe("AccountSwitcherService", () => {
       let listener: (
         message: { command: string; userId: string },
         sender: unknown,
-        sendResponse: unknown
+        sendResponse: unknown,
       ) => void = null;
       jest.spyOn(chrome.runtime.onMessage, "addListener").mockImplementation((addedListener) => {
         listener = addedListener;
@@ -116,7 +116,7 @@ describe("AccountSwitcherService", () => {
       let listener: (
         message: { command: string; userId: string },
         sender: unknown,
-        sendResponse: unknown
+        sendResponse: unknown,
       ) => void;
       jest.spyOn(chrome.runtime.onMessage, "addListener").mockImplementation((addedListener) => {
         listener = addedListener;
@@ -135,7 +135,7 @@ describe("AccountSwitcherService", () => {
         "switchAccount",
         matches((payload) => {
           return payload.userId === "1";
-        })
+        }),
       );
       expect(removeListenerSpy).toBeCalledTimes(1);
     });

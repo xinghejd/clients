@@ -52,7 +52,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private sanitizer: DomSanitizer,
     private platformUtilsService: PlatformUtilsService,
     private dialogService: DialogService,
-    private browserMessagingApi: ZonedMessageListenerService
+    private browserMessagingApi: ZonedMessageListenerService,
   ) {}
 
   async ngOnInit() {
@@ -70,7 +70,7 @@ export class AppComponent implements OnInit, OnDestroy {
         concatMap(async () => {
           await this.recordActivity();
         }),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe();
 
@@ -118,7 +118,7 @@ export class AppComponent implements OnInit, OnDestroy {
         // Wait to make sure background has reloaded first.
         window.setTimeout(
           () => BrowserApi.reloadExtension(forceWindowReload ? window : null),
-          2000
+          2000,
         );
       } else if (msg.command === "reloadPopup") {
         this.router.navigate(["/"]);
@@ -212,7 +212,7 @@ export class AppComponent implements OnInit, OnDestroy {
     } else {
       msg.text.forEach(
         (t: string) =>
-          (message += "<p>" + this.sanitizer.sanitize(SecurityContext.HTML, t) + "</p>")
+          (message += "<p>" + this.sanitizer.sanitize(SecurityContext.HTML, t) + "</p>"),
       );
       options.enableHtml = true;
     }

@@ -31,7 +31,7 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
     private dialogService: DialogService,
     private location: Location,
     private router: Router,
-    private vaultTimeoutSettingsService: VaultTimeoutSettingsService
+    private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
   ) {}
 
   get accountLimit() {
@@ -52,7 +52,7 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     const availableVaultTimeoutActions = await firstValueFrom(
-      this.vaultTimeoutSettingsService.availableVaultTimeoutActions$()
+      this.vaultTimeoutSettingsService.availableVaultTimeoutActions$(),
     );
     this.activeUserCanLock = availableVaultTimeoutActions.includes(VaultTimeoutAction.Lock);
   }
@@ -75,7 +75,7 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
           accounts
             .filter((account) => account.id !== this.specialAddAccountId)
             .sort((a, b) => (a.isActive ? -1 : b.isActive ? 1 : 0)) // Log out of the active account first
-            .map((account) => account.id)
+            .map((account) => account.id),
         ),
         switchMap(async (accountIds) => {
           if (accountIds.length === 0) {
@@ -86,7 +86,7 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
           await this.vaultTimeoutService.lock(accountIds.shift());
           await Promise.all(accountIds.map((id) => this.vaultTimeoutService.lock(id)));
         }),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe(() => this.router.navigate(["lock"]));
   }

@@ -13,7 +13,7 @@ export class CurrentAccountComponent {
     private currentAccountService: CurrentAccountService,
     private router: Router,
     private location: Location,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
   ) {}
 
   get currentAccount$() {
