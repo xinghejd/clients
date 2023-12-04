@@ -2115,7 +2115,7 @@ describe("CollectAutofillContentService", () => {
       `;
 
       const inputElement = document.getElementById(
-        "username-id"
+        "username-id",
       ) as ElementWithOpId<HTMLInputElement>;
       inputElement.setAttribute("type", "password");
       const nodes = [inputElement];
@@ -2125,7 +2125,7 @@ describe("CollectAutofillContentService", () => {
 
       expect(collectAutofillContentService["buildAutofillFieldItem"]).toBeCalledWith(
         inputElement,
-        -1
+        -1,
       );
     });
   });

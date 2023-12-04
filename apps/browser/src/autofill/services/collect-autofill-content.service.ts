@@ -382,7 +382,7 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
   private cacheAutofillFieldElement(
     index: number,
     element: ElementWithOpId<FormFieldElement>,
-    autofillFieldData: AutofillField
+    autofillFieldData: AutofillField,
   ) {
     if (index < 0) {
       return;
