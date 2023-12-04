@@ -611,8 +611,23 @@
   "loginWithMasterPassword": {
     "message": "Log ind med hovedadgangskode"
   },
+  "readingPasskeyLoading": {
+    "message": "Læser adgangsnøgle..."
+  },
+  "readingPasskeyLoadingInfo": {
+    "message": "Hold dette vindue åbent, og følg prompterne fra webbrowseren."
+  },
+  "useADifferentLogInMethod": {
+    "message": "Benyt en anden login-metode"
+  },
   "loginWithPasskey": {
     "message": "Log ind med adgangsnøgle"
+  },
+  "invalidPasskeyPleaseTryAgain": {
+    "message": "Ugyldig adgangsnøgle. Prøv igen."
+  },
+  "twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn": {
+    "message": "2FA til adgangsnøgler understøttes ikke. Opdatér appen for at logge ind."
   },
   "loginWithPasskeyInfo": {
     "message": "Brug en genereret adgangsnøgle, der automatisk logger dig ind uden en adgangskode. Biometri, såsom ansigtsgenkendelse eller fingeraftryk, eller en anden FIDO2-sikkerhedsmetode, vil bekræfte din identitet."
@@ -7307,6 +7322,9 @@
   "limitCollectionCreationDeletionDesc": {
     "message": "Begræns samlingsoprettelse og -sletning til ejere og admins"
   },
+  "allowAdminAccessToAllCollectionItemsDesc": {
+    "message": "Ejere og admins kan håndtere alle samlinger og emner"
+  },
   "collectionManagementUpdated": {
     "message": "Samlingshåndteringsadfærd gemt"
   },
@@ -7389,6 +7407,15 @@
   "passkeyNotCopiedAlert": {
     "message": "Adgangsnøglen kopieres ikke til det klonede emne. Fortsæt kloningen af emnet alligevel?"
   },
+  "modifiedCollectionManagement": {
+    "message": "Ændret samlingshåndteringsindstilling $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "seeDetailedInstructions": {
     "message": "See detailed instructions on our help site at",
     "description": "This is followed a by a hyperlink to the help website."
@@ -7398,5 +7425,14 @@
   },
   "unexpectedErrorSend": {
     "message": "En uventet fejl opstod under indlæsning af denne Send. Forsøg igen senere."
+  },
+  "seatLimitReached": {
+    "message": "Pladskvote er opbrugt"
+  },
+  "contactYourProvider": {
+    "message": "Kontakt udbyderen for at tilkøbe yderligere pladser."
+  },
+  "seatLimitReachedContactYourProvider": {
+    "message": "Pladskvote er opbrugt. Kontakt udbyderen for at tilkøbe yderligere pladser."
   }
 }

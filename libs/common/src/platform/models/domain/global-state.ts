@@ -1,6 +1,6 @@
 import { EnvironmentUrls } from "../../../auth/models/domain/environment-urls";
-import { ThemeType } from "../../../enums";
 import { WindowState } from "../../../models/domain/window-state";
+import { ThemeType } from "../../enums";
 
 export class GlobalState {
   enableAlwaysOnTop?: boolean;
@@ -36,6 +36,7 @@ export class GlobalState {
   enableDuckDuckGoBrowserIntegration?: boolean;
   region?: string;
   neverDomains?: { [id: string]: unknown };
+  enablePasskeys?: boolean;
   disableAddLoginNotification?: boolean;
   disableChangedPasswordNotification?: boolean;
   disableContextMenuItem?: boolean;

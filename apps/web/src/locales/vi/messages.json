@@ -611,8 +611,23 @@
   "loginWithMasterPassword": {
     "message": "Đăng nhập bằng mật khẩu chính"
   },
+  "readingPasskeyLoading": {
+    "message": "Đang đọc passkey..."
+  },
+  "readingPasskeyLoadingInfo": {
+    "message": "Giữ cửa sổ này mở và làm theo lời nhắc từ trình duyệt của bạn."
+  },
+  "useADifferentLogInMethod": {
+    "message": "Dùng phương thức đăng nhập khác"
+  },
   "loginWithPasskey": {
     "message": "Log in with passkey"
+  },
+  "invalidPasskeyPleaseTryAgain": {
+    "message": "PassKey sai. Hãy thử lại."
+  },
+  "twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn": {
+    "message": "Chưa hỗ trợ 2FA cho PassKey. Cập nhật app để đăng nhập."
   },
   "loginWithPasskeyInfo": {
     "message": "Use a generated passkey that will automatically log you in without a password. Biometrics, like facial recognition or fingerprint, or another FIDO2 security method will verify your identity."
@@ -2475,7 +2490,7 @@
     }
   },
   "onPremHostingOptional": {
-    "message": "On-premise hosting (optional)"
+    "message": "On-premises hosting (optional)"
   },
   "usersGetPremium": {
     "message": "Users get access to Premium features"
@@ -7307,6 +7322,9 @@
   "limitCollectionCreationDeletionDesc": {
     "message": "Limit collection creation and deletion to owners and admins"
   },
+  "allowAdminAccessToAllCollectionItemsDesc": {
+    "message": "Chủ sở hữu và quản trị viên có thể quản lý tất cả các bộ sưu tập và mục"
+  },
   "collectionManagementUpdated": {
     "message": "Collection management behavior saved"
   },
@@ -7389,6 +7407,15 @@
   "passkeyNotCopiedAlert": {
     "message": "The passkey will not be copied to the cloned item. Do you want to continue cloning this item?"
   },
+  "modifiedCollectionManagement": {
+    "message": "Cài đặt quản lý bộ sưu tập đã sửa đổi $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "seeDetailedInstructions": {
     "message": "See detailed instructions on our help site at",
     "description": "This is followed a by a hyperlink to the help website."
@@ -7398,5 +7425,14 @@
   },
   "unexpectedErrorSend": {
     "message": "Đã xảy ra lỗi khi tải mục Gửi này. Hãy thử lại sau."
+  },
+  "seatLimitReached": {
+    "message": "Số ghế sử dụng hàng tháng đã đạt đến giới hạn"
+  },
+  "contactYourProvider": {
+    "message": "Liên hệ nhà cung cấp của bạn để mua thêm ghế."
+  },
+  "seatLimitReachedContactYourProvider": {
+    "message": "Số ghế sử dụng hàng tháng đã đạt đến giới hạn. Liên hệ nhà cung cấp để mua thêm."
   }
 }

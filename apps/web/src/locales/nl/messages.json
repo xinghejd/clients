@@ -611,8 +611,23 @@
   "loginWithMasterPassword": {
     "message": "Inloggen met je hoofdwachtwoord"
   },
+  "readingPasskeyLoading": {
+    "message": "Passkey uitlezen..."
+  },
+  "readingPasskeyLoadingInfo": {
+    "message": "Houd dit venster open en volg de aanwijzingen van je browser."
+  },
+  "useADifferentLogInMethod": {
+    "message": "Gebruik een andere loginmethode"
+  },
   "loginWithPasskey": {
     "message": "Inloggen met passkey"
+  },
+  "invalidPasskeyPleaseTryAgain": {
+    "message": "Ongeldige passkey. Probeer het opnieuw."
+  },
+  "twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn": {
+    "message": "2FA voor passkeys is niet ondersteund. Werk de app bij om in te loggen."
   },
   "loginWithPasskeyInfo": {
     "message": "Gebruik een gegenereerde passkey die je automatisch inlogt zonder wachtwoord. Biometrie, zoals gezichtsherkenning of vingerafdruk, of een andere FIDO2-beveiligingsmethode controleren je identiteit."
@@ -7307,6 +7322,9 @@
   "limitCollectionCreationDeletionDesc": {
     "message": "Aanmaken en verwijderen van collecties tot eigenaren en managers beperken"
   },
+  "allowAdminAccessToAllCollectionItemsDesc": {
+    "message": "Eigenaren en beheerders kunnen alle collecties en items beheren"
+  },
   "collectionManagementUpdated": {
     "message": "Collectiebeheergedrag opgeslagen"
   },
@@ -7389,6 +7407,15 @@
   "passkeyNotCopiedAlert": {
     "message": "De passkey wordt niet gekopieerd naar het gekloonde item. Wil je doorgaan met het klonen van dit item?"
   },
+  "modifiedCollectionManagement": {
+    "message": "Gewijzigde collectiebeheerinstelling $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "seeDetailedInstructions": {
     "message": "See detailed instructions on our help site at",
     "description": "This is followed a by a hyperlink to the help website."
@@ -7398,5 +7425,14 @@
   },
   "unexpectedErrorSend": {
     "message": "Er is een onverwachte fout opgetreden tijdens het laden van deze Send. Probeer het later opnieuw."
+  },
+  "seatLimitReached": {
+    "message": "Seat limit has been reached"
+  },
+  "contactYourProvider": {
+    "message": "Contact your provider to purchase additional seats."
+  },
+  "seatLimitReachedContactYourProvider": {
+    "message": "Seat limit has been reached. Contact your provider to purchase additional seats."
   }
 }

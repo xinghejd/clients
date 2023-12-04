@@ -611,8 +611,23 @@
   "loginWithMasterPassword": {
     "message": "Inici de sessió amb contrasenya mestra"
   },
+  "readingPasskeyLoading": {
+    "message": "S'està llegint la clau de pas..."
+  },
+  "readingPasskeyLoadingInfo": {
+    "message": "."
+  },
+  "useADifferentLogInMethod": {
+    "message": "Utilitzeu un mètode d'inici de sessió diferent"
+  },
   "loginWithPasskey": {
     "message": "Inicieu sessió amb la clau de pas"
+  },
+  "invalidPasskeyPleaseTryAgain": {
+    "message": "Clau d'accés no vàlida. Torneu-ho a provar."
+  },
+  "twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn": {
+    "message": "No és compatible 2FA per a claus de pas. Actualitza l'aplicació per iniciar sessió."
   },
   "loginWithPasskeyInfo": {
     "message": "Utilitzeu una contrasenya generada que us iniciarà automàticament sense contrasenya. La biometria, com ara el reconeixement facial o l'empremta digital, o un altre mètode de seguretat FIDO2 verificarà la vostra identitat."
@@ -7307,6 +7322,9 @@
   "limitCollectionCreationDeletionDesc": {
     "message": "Limita la creació i la supressió de col·leccions als propietaris i administradors"
   },
+  "allowAdminAccessToAllCollectionItemsDesc": {
+    "message": "Els propietaris i els administradors poden gestionar totes les col·leccions i articles"
+  },
   "collectionManagementUpdated": {
     "message": "S'ha guardat el comportament d'administració de la col·lecció"
   },
@@ -7389,6 +7407,15 @@
   "passkeyNotCopiedAlert": {
     "message": "La clau de pas no es copiarà a l'element clonat. Voleu continuar clonant aquest element?"
   },
+  "modifiedCollectionManagement": {
+    "message": "S'ha modificat la configuració de gestió de col·leccions $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "seeDetailedInstructions": {
     "message": "Consulteu les instruccions detallades al nostre lloc d'ajuda a",
     "description": "This is followed a by a hyperlink to the help website."
@@ -7398,5 +7425,14 @@
   },
   "unexpectedErrorSend": {
     "message": "S'ha produït un error inesperat en carregar aquest enviament. Torneu a provar-ho més tard."
+  },
+  "seatLimitReached": {
+    "message": "S'ha arribat al límit de places"
+  },
+  "contactYourProvider": {
+    "message": "Contacta amb el teu proveïdor per comprar places addicionals."
+  },
+  "seatLimitReachedContactYourProvider": {
+    "message": "S'ha arribat al límit de places. Contacta amb el teu proveïdor per comprar places addicionals."
   }
 }

@@ -22,7 +22,7 @@ export class UsernameGenerationService implements UsernameGenerationServiceAbstr
     private stateService: StateService,
     private apiService: ApiService,
     private i18nService: I18nService,
-    private encryptService: EncryptService
+    private encryptService: EncryptService,
   ) {}
 
   generateUsername(options: UsernameGeneratorOptions): Promise<string> {
@@ -159,7 +159,7 @@ export class UsernameGenerationService implements UsernameGenerationServiceAbstr
     // each `encryptInPlace` call must be passed an independent object, otherwise
     // they'll race and clobber each other
     const encryptions = forAllForwarders(options, (opts) =>
-      encryptInPlace(this.encryptService, key, opts)
+      encryptInPlace(this.encryptService, key, opts),
     );
     await Promise.all(encryptions);
   }
@@ -170,7 +170,7 @@ export class UsernameGenerationService implements UsernameGenerationServiceAbstr
     // each `decryptInPlace` call must be passed an independent object, otherwise
     // they'll race and clobber each other
     const decryptions = forAllForwarders(options, (opts) =>
-      decryptInPlace(this.encryptService, key, opts)
+      decryptInPlace(this.encryptService, key, opts),
     );
     await Promise.all(decryptions);
   }

@@ -611,8 +611,23 @@
   "loginWithMasterPassword": {
     "message": "Ana parola ile giriş yap"
   },
+  "readingPasskeyLoading": {
+    "message": "Geçiş anahtarı okunuyor..."
+  },
+  "readingPasskeyLoadingInfo": {
+    "message": "Bu pencereyi açık tutun ve tarayıcınızdan gelen talimatları uygulayın."
+  },
+  "useADifferentLogInMethod": {
+    "message": "Başka bir giriş yöntemi kullan"
+  },
   "loginWithPasskey": {
     "message": "Geçiş anahtarıyla giriş yap"
+  },
+  "invalidPasskeyPleaseTryAgain": {
+    "message": "Geçersiz geçiş anahtarı. Lütfen tekrar deneyin."
+  },
+  "twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn": {
+    "message": "Geçiş anahtarları için 2FA desteklebmiyor. Giriş yapmak için uygulamayı güncelleyin."
   },
   "loginWithPasskeyInfo": {
     "message": "Parola kullanmadan otomatik olarak giriş yapmanızı sağlayacak bir geçiş anahtarı kullanabilirsiniz. Kimliğinizi doğrulamak için yüz tanıma veya parmak izi gibi biyometri özellikleri ya da başka bir FIDO2 güvenlik yöntemi kullanılacaktır."
@@ -7307,6 +7322,9 @@
   "limitCollectionCreationDeletionDesc": {
     "message": "Koleksiyon oluşturma ve silme işlemlerini sahipler ve yöneticilerle sınırlandırın"
   },
+  "allowAdminAccessToAllCollectionItemsDesc": {
+    "message": "Sahipler ve yöneticiler tüm koleksiyonları ve öğeleri yönetebilir"
+  },
   "collectionManagementUpdated": {
     "message": "Collection management behavior saved"
   },
@@ -7389,6 +7407,15 @@
   "passkeyNotCopiedAlert": {
     "message": "Geçiş anahtarı klonlanan öğeye kopyalanmayacaktır. Bu öğeyi klonlamaya devam etmek istiyor musunuz?"
   },
+  "modifiedCollectionManagement": {
+    "message": "Koleksiyon yönetimi ayarı $ID$ değiştirildi.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "seeDetailedInstructions": {
     "message": "Ayrıntılı talimatları yardım sitemizde bulabilirsiniz:",
     "description": "This is followed a by a hyperlink to the help website."
@@ -7398,5 +7425,14 @@
   },
   "unexpectedErrorSend": {
     "message": "Bu Gönderim yüklenirken beklenmeyen bir hata oluştu. Daha sonra tekrar deneyin."
+  },
+  "seatLimitReached": {
+    "message": "Seat limit has been reached"
+  },
+  "contactYourProvider": {
+    "message": "Contact your provider to purchase additional seats."
+  },
+  "seatLimitReachedContactYourProvider": {
+    "message": "Seat limit has been reached. Contact your provider to purchase additional seats."
   }
 }
