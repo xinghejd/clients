@@ -1,6 +1,5 @@
 import { Directive, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import _ from "lodash";
 import { first } from "rxjs/operators";
 
 import { PasswordGeneratorPolicyOptions } from "@bitwarden/common/admin-console/models/domain/password-generator-policy-options";
@@ -34,7 +33,7 @@ export class GeneratorComponent implements OnInit {
   subaddressOptions: any[];
   catchallOptions: any[];
   forwardOptions: EmailForwarderOptions[];
-  usernameOptions: UsernameGeneratorOptions = _.cloneDeep(DefaultOptions);
+  usernameOptions: UsernameGeneratorOptions = structuredClone(DefaultOptions);
   passwordOptions: PasswordGeneratorOptions = {};
   username = "-";
   password = "-";
