@@ -6,13 +6,16 @@ import { ApiOptions, EmailPrefixOptions, Forwarder } from "./forwarder";
 export class FastmailForwarder implements Forwarder {
   readonly serviceName: string;
 
-  constructor(private apiService: ApiService, private i18nService: I18nService) {
+  constructor(
+    private apiService: ApiService,
+    private i18nService: I18nService,
+  ) {
     this.serviceName = i18nService.t("forwarder.serviceName.fastmail");
   }
 
   async generate(
     website: string | null,
-    options: ApiOptions & EmailPrefixOptions
+    options: ApiOptions & EmailPrefixOptions,
   ): Promise<string> {
     if (!options.token || options.token === "") {
       const error = this.i18nService.t("forwaderInvalidToken", this.serviceName);

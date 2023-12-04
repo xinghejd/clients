@@ -136,7 +136,7 @@ describe("Username Generation Options", () => {
 
         // Why `encryptedToken`? The mock outputs its input without encryption.
         expect(encryptService.encrypt).toBeCalledWith(encryptedToken, key);
-      }
+      },
     );
   });
 
@@ -189,7 +189,7 @@ describe("Username Generation Options", () => {
 
         // Why `encryptedToken`? The mock outputs its input without encryption.
         expect(encryptService.decryptToUtf8).toBeCalledWith(encryptedToken, key);
-      }
+      },
     );
 
     it.each([
@@ -230,7 +230,7 @@ describe("Username Generation Options", () => {
 
         expect(options).not.toHaveProperty("encryptedToken");
         expect(reason).toEqual(expectedReason);
-      }
+      },
     );
   });
 });

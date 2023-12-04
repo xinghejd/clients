@@ -24,13 +24,13 @@ describe("DuckDuckGo Forwarder", () => {
         async () =>
           await forwarder.generate(null, {
             token,
-          })
+          }),
       ).rejects.toEqual("forwaderInvalidToken");
 
       expect(apiService.nativeFetch).not.toHaveBeenCalled();
       expect(i18nService.t).toHaveBeenCalledWith(
         "forwaderInvalidToken",
-        "forwarder.serviceName.duckduckgo"
+        "forwarder.serviceName.duckduckgo",
       );
     });
 
@@ -53,7 +53,7 @@ describe("DuckDuckGo Forwarder", () => {
 
         expect(result).toEqual(email);
         expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
-      }
+      },
     );
 
     it("throws an invalid token error if the request fails with a 401", async () => {
@@ -66,7 +66,7 @@ describe("DuckDuckGo Forwarder", () => {
         async () =>
           await forwarder.generate(null, {
             token: "token",
-          })
+          }),
       ).rejects.toEqual("forwaderInvalidToken");
 
       expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
@@ -74,7 +74,7 @@ describe("DuckDuckGo Forwarder", () => {
       expect(i18nService.t).toHaveBeenNthCalledWith(
         2,
         "forwaderInvalidToken",
-        "forwarder.serviceName.duckduckgo"
+        "forwarder.serviceName.duckduckgo",
       );
     });
 
@@ -90,7 +90,7 @@ describe("DuckDuckGo Forwarder", () => {
           async () =>
             await forwarder.generate(null, {
               token: "token",
-            })
+            }),
         ).rejects.toEqual("forwarderUnknownError");
 
         expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
@@ -98,9 +98,9 @@ describe("DuckDuckGo Forwarder", () => {
         expect(i18nService.t).toHaveBeenNthCalledWith(
           2,
           "forwarderUnknownError",
-          "forwarder.serviceName.duckduckgo"
+          "forwarder.serviceName.duckduckgo",
         );
-      }
+      },
     );
   });
 });

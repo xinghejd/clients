@@ -6,7 +6,10 @@ import { ApiOptions, Forwarder } from "./forwarder";
 export class FirefoxRelayForwarder implements Forwarder {
   readonly serviceName: string;
 
-  constructor(private apiService: ApiService, private i18nService: I18nService) {
+  constructor(
+    private apiService: ApiService,
+    private i18nService: I18nService,
+  ) {
     this.serviceName = i18nService.t("forwarder.serviceName.firefoxrelay");
   }
 

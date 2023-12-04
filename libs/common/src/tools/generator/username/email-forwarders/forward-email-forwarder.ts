@@ -7,13 +7,16 @@ import { ApiOptions, EmailDomainOptions, Forwarder } from "./forwarder";
 export class ForwardEmailForwarder implements Forwarder {
   readonly serviceName: string;
 
-  constructor(private apiService: ApiService, private i18nService: I18nService) {
+  constructor(
+    private apiService: ApiService,
+    private i18nService: I18nService,
+  ) {
     this.serviceName = i18nService.t("forwarder.serviceName.forwardemail");
   }
 
   async generate(
     website: string | null,
-    options: ApiOptions & EmailDomainOptions
+    options: ApiOptions & EmailDomainOptions,
   ): Promise<string> {
     if (!options.token || options.token === "") {
       const error = this.i18nService.t("forwaderInvalidToken", this.serviceName);

@@ -26,13 +26,13 @@ describe("Addy.io Forwarder", () => {
             token,
             domain: "example.com",
             baseUrl: "https://api.example.com",
-          })
+          }),
       ).rejects.toEqual("forwaderInvalidToken");
 
       expect(apiService.nativeFetch).not.toHaveBeenCalled();
       expect(i18nService.t).toHaveBeenCalledWith(
         "forwaderInvalidToken",
-        "forwarder.serviceName.anonaddy"
+        "forwarder.serviceName.anonaddy",
       );
     });
 
@@ -50,15 +50,15 @@ describe("Addy.io Forwarder", () => {
               token: "token",
               domain,
               baseUrl: "https://api.example.com",
-            })
+            }),
         ).rejects.toEqual("forwarderNoDomain");
 
         expect(apiService.nativeFetch).not.toHaveBeenCalled();
         expect(i18nService.t).toHaveBeenCalledWith(
           "forwarderNoDomain",
-          "forwarder.serviceName.anonaddy"
+          "forwarder.serviceName.anonaddy",
         );
-      }
+      },
     );
 
     it.each([null, ""])(
@@ -75,15 +75,15 @@ describe("Addy.io Forwarder", () => {
               token: "token",
               domain: "example.com",
               baseUrl,
-            })
+            }),
         ).rejects.toEqual("forwarderNoUrl");
 
         expect(apiService.nativeFetch).not.toHaveBeenCalled();
         expect(i18nService.t).toHaveBeenCalledWith(
           "forwarderNoUrl",
-          "forwarder.serviceName.anonaddy"
+          "forwarder.serviceName.anonaddy",
         );
-      }
+      },
     );
 
     it.each([
@@ -107,7 +107,7 @@ describe("Addy.io Forwarder", () => {
 
         // counting instances is terribly flaky over changes, but jest doesn't have a better way to do this
         expect(i18nService.t).toHaveBeenNthCalledWith(2, translationKey, expectedWebsite);
-      }
+      },
     );
 
     it.each([
@@ -131,7 +131,7 @@ describe("Addy.io Forwarder", () => {
 
         expect(result).toEqual(email);
         expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
-      }
+      },
     );
 
     it("throws an invalid token error if the request fails with a 401", async () => {
@@ -146,7 +146,7 @@ describe("Addy.io Forwarder", () => {
             token: "token",
             domain: "example.com",
             baseUrl: "https://api.example.com",
-          })
+          }),
       ).rejects.toEqual("forwaderInvalidToken");
 
       expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
@@ -154,7 +154,7 @@ describe("Addy.io Forwarder", () => {
       expect(i18nService.t).toHaveBeenNthCalledWith(
         3,
         "forwaderInvalidToken",
-        "forwarder.serviceName.anonaddy"
+        "forwarder.serviceName.anonaddy",
       );
     });
 
@@ -170,7 +170,7 @@ describe("Addy.io Forwarder", () => {
             token: "token",
             domain: "example.com",
             baseUrl: "https://api.example.com",
-          })
+          }),
       ).rejects.toEqual("forwarderUnknownError");
 
       expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
@@ -178,7 +178,7 @@ describe("Addy.io Forwarder", () => {
       expect(i18nService.t).toHaveBeenNthCalledWith(
         3,
         "forwarderUnknownError",
-        "forwarder.serviceName.anonaddy"
+        "forwarder.serviceName.anonaddy",
       );
     });
 
@@ -203,7 +203,7 @@ describe("Addy.io Forwarder", () => {
               token: "token",
               domain: "example.com",
               baseUrl: "https://api.example.com",
-            })
+            }),
         ).rejects.toEqual("forwarderError");
 
         expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
@@ -212,9 +212,9 @@ describe("Addy.io Forwarder", () => {
           3,
           "forwarderError",
           "forwarder.serviceName.anonaddy",
-          statusText
+          statusText,
         );
-      }
+      },
     );
   });
 });

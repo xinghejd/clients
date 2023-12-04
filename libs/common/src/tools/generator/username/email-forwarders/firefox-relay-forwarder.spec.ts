@@ -24,13 +24,13 @@ describe("Firefox Relay Forwarder", () => {
         async () =>
           await forwarder.generate(null, {
             token,
-          })
+          }),
       ).rejects.toEqual("forwaderInvalidToken");
 
       expect(apiService.nativeFetch).not.toHaveBeenCalled();
       expect(i18nService.t).toHaveBeenCalledWith(
         "forwaderInvalidToken",
-        "forwarder.serviceName.firefoxrelay"
+        "forwarder.serviceName.firefoxrelay",
       );
     });
 
@@ -53,7 +53,7 @@ describe("Firefox Relay Forwarder", () => {
 
         // counting instances is terribly flaky over changes, but jest doesn't have a better way to do this
         expect(i18nService.t).toHaveBeenNthCalledWith(2, translationKey, expectedWebsite);
-      }
+      },
     );
 
     it.each([
@@ -75,7 +75,7 @@ describe("Firefox Relay Forwarder", () => {
 
         expect(result).toEqual(full_address);
         expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
-      }
+      },
     );
 
     it("throws an invalid token error if the request fails with a 401", async () => {
@@ -88,7 +88,7 @@ describe("Firefox Relay Forwarder", () => {
         async () =>
           await forwarder.generate(null, {
             token: "token",
-          })
+          }),
       ).rejects.toEqual("forwaderInvalidToken");
 
       expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
@@ -96,7 +96,7 @@ describe("Firefox Relay Forwarder", () => {
       expect(i18nService.t).toHaveBeenNthCalledWith(
         3,
         "forwaderInvalidToken",
-        "forwarder.serviceName.firefoxrelay"
+        "forwarder.serviceName.firefoxrelay",
       );
     });
 
@@ -112,7 +112,7 @@ describe("Firefox Relay Forwarder", () => {
           async () =>
             await forwarder.generate(null, {
               token: "token",
-            })
+            }),
         ).rejects.toEqual("forwarderUnknownError");
 
         expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
@@ -120,9 +120,9 @@ describe("Firefox Relay Forwarder", () => {
         expect(i18nService.t).toHaveBeenNthCalledWith(
           3,
           "forwarderUnknownError",
-          "forwarder.serviceName.firefoxrelay"
+          "forwarder.serviceName.firefoxrelay",
         );
-      }
+      },
     );
   });
 });

@@ -173,7 +173,7 @@ export const DefaultOptions: UsernameGeneratorOptions = Object.freeze({
 /** runs the callback on each forwarder configuration */
 export function forAllForwarders<T>(
   options: UsernameGeneratorOptions,
-  callback: (options: ApiOptions) => T
+  callback: (options: ApiOptions) => T,
 ) {
   const results = [];
   for (const forwarder of Object.values(ForwarderIds)) {
@@ -193,37 +193,37 @@ export function forAllForwarders<T>(
  */
 export function getForwarderOptions(
   service: string,
-  options: UsernameGeneratorOptions
+  options: UsernameGeneratorOptions,
 ): ApiOptions & MaybeLeakedOptions {
   if (service === ForwarderIds.AddyIo) {
     return Object.assign(
       structuredClone(DefaultOptions.forwarders.addyIo),
-      options.forwarders.addyIo
+      options.forwarders.addyIo,
     );
   } else if (service === ForwarderIds.DuckDuckGo) {
     return Object.assign(
       structuredClone(DefaultOptions.forwarders.duckDuckGo),
-      options.forwarders.duckDuckGo
+      options.forwarders.duckDuckGo,
     );
   } else if (service === ForwarderIds.FastMail) {
     return Object.assign(
       structuredClone(DefaultOptions.forwarders.fastMail),
-      options.forwarders.fastMail
+      options.forwarders.fastMail,
     );
   } else if (service === ForwarderIds.FirefoxRelay) {
     return Object.assign(
       structuredClone(DefaultOptions.forwarders.firefoxRelay),
-      options.forwarders.firefoxRelay
+      options.forwarders.firefoxRelay,
     );
   } else if (service === ForwarderIds.ForwardEmail) {
     return Object.assign(
       structuredClone(DefaultOptions.forwarders.forwardEmail),
-      options.forwarders.forwardEmail
+      options.forwarders.forwardEmail,
     );
   } else if (service === ForwarderIds.SimpleLogin) {
     return Object.assign(
       structuredClone(DefaultOptions.forwarders.simpleLogin),
-      options.forwarders.simpleLogin
+      options.forwarders.simpleLogin,
     );
   } else {
     return null;
@@ -256,7 +256,7 @@ const SecretPadding = Object.freeze({
 export async function encryptInPlace(
   encryptService: EncryptService,
   key: SymmetricCryptoKey,
-  options: ApiOptions & MaybeLeakedOptions
+  options: ApiOptions & MaybeLeakedOptions,
 ) {
   if (!options.token) {
     return;
@@ -272,7 +272,7 @@ export async function encryptInPlace(
   // encrypted by checking the length of the encrypted string.
   const toEncrypt = JSON.stringify(encryptOptions).padEnd(
     SecretPadding.length,
-    SecretPadding.character
+    SecretPadding.character,
   );
 
   const encrypted = await encryptService.encrypt(toEncrypt, key);
@@ -294,7 +294,7 @@ export async function encryptInPlace(
 export async function decryptInPlace(
   encryptService: EncryptService,
   key: SymmetricCryptoKey,
-  options: ApiOptions & MaybeLeakedOptions
+  options: ApiOptions & MaybeLeakedOptions,
 ) {
   if (!options.encryptedToken) {
     return "missing encryptedToken";

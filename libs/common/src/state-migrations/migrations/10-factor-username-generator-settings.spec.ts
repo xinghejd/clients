@@ -5,7 +5,7 @@ describe("mapAccount", () => {
     "should return nothing if the settings are empty (= %p)",
     (account) => {
       expect(mapAccount(account)).toBeUndefined();
-    }
+    },
   );
 
   it.each([
@@ -25,7 +25,7 @@ describe("mapAccount", () => {
 
     expect(result.settings.usernameGenerationOptions.type).toEqual(usernameGenerationOptions.type);
     expect(result.settings.usernameGenerationOptions.website).toEqual(
-      usernameGenerationOptions.website
+      usernameGenerationOptions.website,
     );
     expect(result.settings.usernameGenerationOptions.saveOnLoad).toEqual(true);
   });
@@ -48,10 +48,10 @@ describe("mapAccount", () => {
     const result = mapAccount(account);
 
     expect(result.settings.usernameGenerationOptions.word.capitalize).toEqual(
-      usernameGenerationOptions.wordCapitalize
+      usernameGenerationOptions.wordCapitalize,
     );
     expect(result.settings.usernameGenerationOptions.word.includeNumber).toEqual(
-      usernameGenerationOptions.wordIncludeNumber
+      usernameGenerationOptions.wordIncludeNumber,
     );
   });
 
@@ -63,7 +63,7 @@ describe("mapAccount", () => {
     {
       subaddressType?: "random" | "website-name";
       subaddressEmail?: string;
-    }
+    },
   ][])("should map subaddress settings (= %p)", (_description, usernameGenerationOptions) => {
     const account: LegacyAccountType = {
       settings: {
@@ -74,10 +74,10 @@ describe("mapAccount", () => {
     const result = mapAccount(account);
 
     expect(result.settings.usernameGenerationOptions.subaddress.algorithm).toEqual(
-      usernameGenerationOptions.subaddressType
+      usernameGenerationOptions.subaddressType,
     );
     expect(result.settings.usernameGenerationOptions.subaddress.email).toEqual(
-      usernameGenerationOptions.subaddressEmail
+      usernameGenerationOptions.subaddressEmail,
     );
   });
 
@@ -89,7 +89,7 @@ describe("mapAccount", () => {
     {
       catchallType?: "random" | "website-name";
       catchallDomain?: string;
-    }
+    },
   ][])("should map catchall settings (= %p)", (_description, usernameGenerationOptions) => {
     const account: LegacyAccountType = {
       settings: {
@@ -100,10 +100,10 @@ describe("mapAccount", () => {
     const result = mapAccount(account);
 
     expect(result.settings.usernameGenerationOptions.catchall.algorithm).toEqual(
-      usernameGenerationOptions.catchallType
+      usernameGenerationOptions.catchallType,
     );
     expect(result.settings.usernameGenerationOptions.catchall.domain).toEqual(
-      usernameGenerationOptions.catchallDomain
+      usernameGenerationOptions.catchallDomain,
     );
   });
 
@@ -121,9 +121,9 @@ describe("mapAccount", () => {
       const result = mapAccount(account);
 
       expect(result.settings.usernameGenerationOptions.forwarders.service).toEqual(
-        forwardedService
+        forwardedService,
       );
-    }
+    },
   );
 
   it.each(["mitmuremail", "invalidforwarder"])(
@@ -140,7 +140,7 @@ describe("mapAccount", () => {
       const result = mapAccount(account);
 
       expect(result.settings.usernameGenerationOptions.forwarders.service).toEqual("fastmail");
-    }
+    },
   );
 
   it.each([
@@ -166,7 +166,7 @@ describe("mapAccount", () => {
       forwardedAnonAddyApiToken?: string;
       forwardedAnonAddyDomain?: string;
       forwardedAnonAddyBaseUrl?: string;
-    }
+    },
   ][])(
     "should map addyIo '%s' settings without a token (= %s)",
     (_description, usernameGenerationOptions) => {
@@ -179,18 +179,18 @@ describe("mapAccount", () => {
       const result = mapAccount(account);
 
       expect(result.settings.usernameGenerationOptions.forwarders.addyIo.baseUrl).toEqual(
-        usernameGenerationOptions.forwardedAnonAddyBaseUrl
+        usernameGenerationOptions.forwardedAnonAddyBaseUrl,
       );
       expect(result.settings.usernameGenerationOptions.forwarders.addyIo.domain).toEqual(
-        usernameGenerationOptions.forwardedAnonAddyDomain
+        usernameGenerationOptions.forwardedAnonAddyDomain,
       );
       expect(result.settings.usernameGenerationOptions.forwarders.addyIo.token).toEqual(
-        usernameGenerationOptions.forwardedAnonAddyApiToken
+        usernameGenerationOptions.forwardedAnonAddyApiToken,
       );
       expect(
-        result.settings.usernameGenerationOptions.forwarders.addyIo.wasPlainText
+        result.settings.usernameGenerationOptions.forwarders.addyIo.wasPlainText,
       ).not.toBeDefined();
-    }
+    },
   );
 
   it.each([
@@ -216,7 +216,7 @@ describe("mapAccount", () => {
       forwardedAnonAddyApiToken?: string;
       forwardedAnonAddyDomain?: string;
       forwardedAnonAddyBaseUrl?: string;
-    }
+    },
   ][])(
     "should map addyIo settings with a token (= %s)",
     (_description, usernameGenerationOptions) => {
@@ -229,18 +229,18 @@ describe("mapAccount", () => {
       const result = mapAccount(account);
 
       expect(result.settings.usernameGenerationOptions.forwarders.addyIo.baseUrl).toEqual(
-        usernameGenerationOptions.forwardedAnonAddyBaseUrl
+        usernameGenerationOptions.forwardedAnonAddyBaseUrl,
       );
       expect(result.settings.usernameGenerationOptions.forwarders.addyIo.domain).toEqual(
-        usernameGenerationOptions.forwardedAnonAddyDomain
+        usernameGenerationOptions.forwardedAnonAddyDomain,
       );
       expect(result.settings.usernameGenerationOptions.forwarders.addyIo.token).toEqual(
-        usernameGenerationOptions.forwardedAnonAddyApiToken
+        usernameGenerationOptions.forwardedAnonAddyApiToken,
       );
       expect(result.settings.usernameGenerationOptions.forwarders.addyIo.wasPlainText).toEqual(
-        true
+        true,
       );
-    }
+    },
   );
 
   it.each([
@@ -257,7 +257,7 @@ describe("mapAccount", () => {
     {
       forwardedForwardEmailApiToken?: string;
       forwardedForwardEmailDomain?: string;
-    }
+    },
   ][])(
     "should map forwardEmail settings without a token (= %s)",
     (_description, usernameGenerationOptions) => {
@@ -270,15 +270,15 @@ describe("mapAccount", () => {
       const result = mapAccount(account);
 
       expect(result.settings.usernameGenerationOptions.forwarders.forwardEmail.domain).toEqual(
-        usernameGenerationOptions.forwardedForwardEmailDomain
+        usernameGenerationOptions.forwardedForwardEmailDomain,
       );
       expect(result.settings.usernameGenerationOptions.forwarders.forwardEmail.token).toEqual(
-        usernameGenerationOptions.forwardedForwardEmailApiToken
+        usernameGenerationOptions.forwardedForwardEmailApiToken,
       );
       expect(
-        result.settings.usernameGenerationOptions.forwarders.forwardEmail.wasPlainText
+        result.settings.usernameGenerationOptions.forwarders.forwardEmail.wasPlainText,
       ).not.toBeDefined();
-    }
+    },
   );
 
   it.each([
@@ -301,7 +301,7 @@ describe("mapAccount", () => {
     {
       forwardedForwardEmailApiToken?: string;
       forwardedForwardEmailDomain?: string;
-    }
+    },
   ][])(
     "should map forwardEmail settings with a token (= %s)",
     (_description, usernameGenerationOptions) => {
@@ -314,15 +314,15 @@ describe("mapAccount", () => {
       const result = mapAccount(account);
 
       expect(result.settings.usernameGenerationOptions.forwarders.forwardEmail.domain).toEqual(
-        usernameGenerationOptions.forwardedForwardEmailDomain
+        usernameGenerationOptions.forwardedForwardEmailDomain,
       );
       expect(result.settings.usernameGenerationOptions.forwarders.forwardEmail.token).toEqual(
-        usernameGenerationOptions.forwardedForwardEmailApiToken
+        usernameGenerationOptions.forwardedForwardEmailApiToken,
       );
       expect(
-        result.settings.usernameGenerationOptions.forwarders.forwardEmail.wasPlainText
+        result.settings.usernameGenerationOptions.forwarders.forwardEmail.wasPlainText,
       ).toEqual(true);
-    }
+    },
   );
 
   it.each([
@@ -345,7 +345,7 @@ describe("mapAccount", () => {
     {
       forwardedSimpleLoginApiKey?: string;
       forwardedSimpleLoginBaseUrl?: string;
-    }
+    },
   ][])(
     "should map simpleLogin settings without a token (= %s)",
     (_description, usernameGenerationOptions) => {
@@ -358,15 +358,15 @@ describe("mapAccount", () => {
       const result = mapAccount(account);
 
       expect(result.settings.usernameGenerationOptions.forwarders.simpleLogin.baseUrl).toEqual(
-        usernameGenerationOptions.forwardedSimpleLoginBaseUrl
+        usernameGenerationOptions.forwardedSimpleLoginBaseUrl,
       );
       expect(result.settings.usernameGenerationOptions.forwarders.simpleLogin.token).toEqual(
-        usernameGenerationOptions.forwardedSimpleLoginApiKey
+        usernameGenerationOptions.forwardedSimpleLoginApiKey,
       );
       expect(
-        result.settings.usernameGenerationOptions.forwarders.simpleLogin.wasPlainText
+        result.settings.usernameGenerationOptions.forwarders.simpleLogin.wasPlainText,
       ).not.toBeDefined();
-    }
+    },
   );
 
   it.each([
@@ -389,7 +389,7 @@ describe("mapAccount", () => {
     {
       forwardedSimpleLoginApiKey?: string;
       forwardedSimpleLoginBaseUrl?: string;
-    }
+    },
   ][])(
     "should map simpleLogin settings with a token (= %s)",
     (_description, usernameGenerationOptions) => {
@@ -402,15 +402,15 @@ describe("mapAccount", () => {
       const result = mapAccount(account);
 
       expect(result.settings.usernameGenerationOptions.forwarders.simpleLogin.baseUrl).toEqual(
-        usernameGenerationOptions.forwardedSimpleLoginBaseUrl
+        usernameGenerationOptions.forwardedSimpleLoginBaseUrl,
       );
       expect(result.settings.usernameGenerationOptions.forwarders.simpleLogin.token).toEqual(
-        usernameGenerationOptions.forwardedSimpleLoginApiKey
+        usernameGenerationOptions.forwardedSimpleLoginApiKey,
       );
       expect(result.settings.usernameGenerationOptions.forwarders.simpleLogin.wasPlainText).toEqual(
-        true
+        true,
       );
-    }
+    },
   );
 
   it("should map duckDuckGo settings without a token", () => {
@@ -423,7 +423,7 @@ describe("mapAccount", () => {
     const result = mapAccount(account);
 
     expect(
-      result.settings.usernameGenerationOptions.forwarders.duckDuckGo.wasPlainText
+      result.settings.usernameGenerationOptions.forwarders.duckDuckGo.wasPlainText,
     ).not.toBeDefined();
   });
 
@@ -442,10 +442,10 @@ describe("mapAccount", () => {
     const result = mapAccount(account);
 
     expect(result.settings.usernameGenerationOptions.forwarders.duckDuckGo.token).toEqual(
-      usernameGenerationOptions.forwardedDuckDuckGoToken
+      usernameGenerationOptions.forwardedDuckDuckGoToken,
     );
     expect(result.settings.usernameGenerationOptions.forwarders.duckDuckGo.wasPlainText).toEqual(
-      true
+      true,
     );
   });
 
@@ -459,7 +459,7 @@ describe("mapAccount", () => {
     const result = mapAccount(account);
 
     expect(
-      result.settings.usernameGenerationOptions.forwarders.firefoxRelay.wasPlainText
+      result.settings.usernameGenerationOptions.forwarders.firefoxRelay.wasPlainText,
     ).not.toBeDefined();
   });
 
@@ -478,10 +478,10 @@ describe("mapAccount", () => {
     const result = mapAccount(account);
 
     expect(result.settings.usernameGenerationOptions.forwarders.firefoxRelay.token).toEqual(
-      usernameGenerationOptions.forwardedFirefoxApiToken
+      usernameGenerationOptions.forwardedFirefoxApiToken,
     );
     expect(result.settings.usernameGenerationOptions.forwarders.firefoxRelay.wasPlainText).toEqual(
-      true
+      true,
     );
   });
 
@@ -496,7 +496,7 @@ describe("mapAccount", () => {
 
     expect(result.settings.usernameGenerationOptions.forwarders.fastMail.prefix).toEqual("");
     expect(
-      result.settings.usernameGenerationOptions.forwarders.fastMail.wasPlainText
+      result.settings.usernameGenerationOptions.forwarders.fastMail.wasPlainText,
     ).not.toBeDefined();
   });
 
@@ -516,10 +516,10 @@ describe("mapAccount", () => {
 
     expect(result.settings.usernameGenerationOptions.forwarders.fastMail.prefix).toEqual("");
     expect(result.settings.usernameGenerationOptions.forwarders.fastMail.token).toEqual(
-      usernameGenerationOptions.forwardedFastmailApiToken
+      usernameGenerationOptions.forwardedFastmailApiToken,
     );
     expect(result.settings.usernameGenerationOptions.forwarders.fastMail.wasPlainText).toEqual(
-      true
+      true,
     );
   });
 });

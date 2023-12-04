@@ -26,7 +26,7 @@ export {
 export function createForwarder(
   service: string,
   apiService: ApiService,
-  i18nService: I18nService
+  i18nService: I18nService,
 ): Forwarder {
   if (service === "anonaddy") {
     return new AnonAddyForwarder(apiService, i18nService);

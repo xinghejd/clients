@@ -6,13 +6,16 @@ import { EmailDomainOptions, Forwarder, SelfHostedApiOptions } from "./forwarder
 export class AnonAddyForwarder implements Forwarder {
   readonly serviceName: string;
 
-  constructor(private apiService: ApiService, private i18nService: I18nService) {
+  constructor(
+    private apiService: ApiService,
+    private i18nService: I18nService,
+  ) {
     this.serviceName = i18nService.t("forwarder.serviceName.anonaddy");
   }
 
   async generate(
     website: string | null,
-    options: SelfHostedApiOptions & EmailDomainOptions
+    options: SelfHostedApiOptions & EmailDomainOptions,
   ): Promise<string> {
     if (!options.token || options.token === "") {
       const error = this.i18nService.t("forwaderInvalidToken", this.serviceName);

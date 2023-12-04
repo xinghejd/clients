@@ -64,13 +64,13 @@ describe("Fastmail Forwarder", () => {
             token,
             domain: "example.com",
             prefix: "prefix",
-          })
+          }),
       ).rejects.toEqual("forwaderInvalidToken");
 
       expect(apiService.nativeFetch).not.toHaveBeenCalled();
       expect(i18nService.t).toHaveBeenCalledWith(
         "forwaderInvalidToken",
-        "forwarder.serviceName.fastmail"
+        "forwarder.serviceName.fastmail",
       );
     });
 
@@ -88,7 +88,7 @@ describe("Fastmail Forwarder", () => {
               token: "token",
               domain: "example.com",
               prefix: "prefix",
-            })
+            }),
         ).rejects.toEqual("forwarderNoAccountId");
 
         expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
@@ -96,9 +96,9 @@ describe("Fastmail Forwarder", () => {
         expect(i18nService.t).toHaveBeenNthCalledWith(
           2,
           "forwarderNoAccountId",
-          "forwarder.serviceName.fastmail"
+          "forwarder.serviceName.fastmail",
         );
-      }
+      },
     );
 
     it.each([
@@ -125,7 +125,7 @@ describe("Fastmail Forwarder", () => {
 
         expect(result).toEqual(email);
         expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
-      }
+      },
     );
 
     it.each([
@@ -156,7 +156,7 @@ describe("Fastmail Forwarder", () => {
               token: "token",
               domain: "example.com",
               prefix: "prefix",
-            })
+            }),
         ).rejects.toEqual("forwarderError");
 
         expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
@@ -165,9 +165,9 @@ describe("Fastmail Forwarder", () => {
           2,
           "forwarderError",
           "forwarder.serviceName.fastmail",
-          description
+          description,
         );
-      }
+      },
     );
 
     it.each([401, 403])(
@@ -184,7 +184,7 @@ describe("Fastmail Forwarder", () => {
               token: "token",
               domain: "example.com",
               prefix: "prefix",
-            })
+            }),
         ).rejects.toEqual("forwaderInvalidToken");
 
         expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
@@ -192,9 +192,9 @@ describe("Fastmail Forwarder", () => {
         expect(i18nService.t).toHaveBeenNthCalledWith(
           2,
           "forwaderInvalidToken",
-          "forwarder.serviceName.fastmail"
+          "forwarder.serviceName.fastmail",
         );
-      }
+      },
     );
 
     it.each([
@@ -226,7 +226,7 @@ describe("Fastmail Forwarder", () => {
               token: "token",
               domain: "example.com",
               prefix: "prefix",
-            })
+            }),
         ).rejects.toEqual("forwarderUnknownError");
 
         expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
@@ -234,9 +234,9 @@ describe("Fastmail Forwarder", () => {
         expect(i18nService.t).toHaveBeenNthCalledWith(
           2,
           "forwarderUnknownError",
-          "forwarder.serviceName.fastmail"
+          "forwarder.serviceName.fastmail",
         );
-      }
+      },
     );
 
     it.each([100, 202, 300, 418, 500, 600])(
@@ -253,7 +253,7 @@ describe("Fastmail Forwarder", () => {
               token: "token",
               domain: "example.com",
               prefix: "prefix",
-            })
+            }),
         ).rejects.toEqual("forwarderUnknownError");
 
         expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
@@ -261,9 +261,9 @@ describe("Fastmail Forwarder", () => {
         expect(i18nService.t).toHaveBeenNthCalledWith(
           2,
           "forwarderUnknownError",
-          "forwarder.serviceName.fastmail"
+          "forwarder.serviceName.fastmail",
         );
-      }
+      },
     );
   });
 });

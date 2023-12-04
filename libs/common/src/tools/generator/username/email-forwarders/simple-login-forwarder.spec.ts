@@ -25,13 +25,13 @@ describe("SimpleLogin Forwarder", () => {
           await forwarder.generate(null, {
             token,
             baseUrl: "https://api.example.com",
-          })
+          }),
       ).rejects.toEqual("forwaderInvalidToken");
 
       expect(apiService.nativeFetch).not.toHaveBeenCalled();
       expect(i18nService.t).toHaveBeenCalledWith(
         "forwaderInvalidToken",
-        "forwarder.serviceName.simplelogin"
+        "forwarder.serviceName.simplelogin",
       );
     });
 
@@ -48,15 +48,15 @@ describe("SimpleLogin Forwarder", () => {
             await forwarder.generate(null, {
               token: "token",
               baseUrl,
-            })
+            }),
         ).rejects.toEqual("forwarderNoUrl");
 
         expect(apiService.nativeFetch).not.toHaveBeenCalled();
         expect(i18nService.t).toHaveBeenCalledWith(
           "forwarderNoUrl",
-          "forwarder.serviceName.simplelogin"
+          "forwarder.serviceName.simplelogin",
         );
-      }
+      },
     );
 
     it.each([
@@ -79,7 +79,7 @@ describe("SimpleLogin Forwarder", () => {
 
         // counting instances is terribly flaky over changes, but jest doesn't have a better way to do this
         expect(i18nService.t).toHaveBeenNthCalledWith(2, translationKey, expectedWebsite);
-      }
+      },
     );
 
     it.each([
@@ -102,7 +102,7 @@ describe("SimpleLogin Forwarder", () => {
 
         expect(result).toEqual(alias);
         expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
-      }
+      },
     );
 
     it("throws an invalid token error if the request fails with a 401", async () => {
@@ -116,7 +116,7 @@ describe("SimpleLogin Forwarder", () => {
           await forwarder.generate(null, {
             token: "token",
             baseUrl: "https://api.example.com",
-          })
+          }),
       ).rejects.toEqual("forwaderInvalidToken");
 
       expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
@@ -124,7 +124,7 @@ describe("SimpleLogin Forwarder", () => {
       expect(i18nService.t).toHaveBeenNthCalledWith(
         3,
         "forwaderInvalidToken",
-        "forwarder.serviceName.simplelogin"
+        "forwarder.serviceName.simplelogin",
       );
     });
 
@@ -139,7 +139,7 @@ describe("SimpleLogin Forwarder", () => {
           await forwarder.generate(null, {
             token: "token",
             baseUrl: "https://api.example.com",
-          })
+          }),
       ).rejects.toEqual("forwarderUnknownError");
 
       expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
@@ -147,7 +147,7 @@ describe("SimpleLogin Forwarder", () => {
       expect(i18nService.t).toHaveBeenNthCalledWith(
         3,
         "forwarderUnknownError",
-        "forwarder.serviceName.simplelogin"
+        "forwarder.serviceName.simplelogin",
       );
     });
 
@@ -171,7 +171,7 @@ describe("SimpleLogin Forwarder", () => {
             await forwarder.generate(null, {
               token: "token",
               baseUrl: "https://api.example.com",
-            })
+            }),
         ).rejects.toEqual("forwarderError");
 
         expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
@@ -180,9 +180,9 @@ describe("SimpleLogin Forwarder", () => {
           3,
           "forwarderError",
           "forwarder.serviceName.simplelogin",
-          error
+          error,
         );
-      }
+      },
     );
   });
 });
