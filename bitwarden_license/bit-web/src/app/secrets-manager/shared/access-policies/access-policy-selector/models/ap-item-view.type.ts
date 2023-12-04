@@ -1,7 +1,10 @@
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SelectItemView } from "@bitwarden/components";
 
-import { ProjectPeopleAccessPoliciesView } from "../../../../models/view/access-policy.view";
+import {
+  ProjectPeopleAccessPoliciesView,
+  ProjectServiceAccountsAccessPoliciesView,
+} from "../../../../models/view/access-policy.view";
 import { PotentialGranteeView } from "../../../../models/view/potential-grantee.view";
 
 import { ApItemEnum, ApItemEnumUtil } from "./enums/ap-item.enum";
@@ -28,7 +31,7 @@ export type ApItemViewType = SelectItemView & {
       }
   );
 
-export function convertToAccessPolicyItemViews(
+export function convertToProjectPeopleAccessPolicyItemViews(
   value: ProjectPeopleAccessPoliciesView,
 ): ApItemViewType[] {
   const accessPolicies: ApItemViewType[] = [];
@@ -57,6 +60,26 @@ export function convertToAccessPolicyItemViews(
       listName: policy.groupName,
       permission: ApPermissionEnumUtil.toApPermissionEnum(policy.read, policy.write),
       currentUserInGroup: policy.currentUserInGroup,
+    });
+  });
+
+  return accessPolicies;
+}
+
+export function convertToProjectServiceAccountsAccessPolicyItemViews(
+  value: ProjectServiceAccountsAccessPoliciesView,
+): ApItemViewType[] {
+  const accessPolicies: ApItemViewType[] = [];
+
+  value.serviceAccountAccessPolicies.forEach((policy) => {
+    accessPolicies.push({
+      type: ApItemEnum.ServiceAccount,
+      icon: ApItemEnumUtil.itemIcon(ApItemEnum.User),
+      id: policy.serviceAccountId,
+      accessPolicyId: policy.id,
+      labelName: policy.serviceAccountName,
+      listName: policy.serviceAccountName,
+      permission: ApPermissionEnumUtil.toApPermissionEnum(policy.read, policy.write),
     });
   });
 

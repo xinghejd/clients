@@ -79,7 +79,7 @@ export class GroupServiceAccountAccessPolicyResponse extends BaseAccessPolicyRes
   }
 }
 
-export class ServiceAccountProjectAccessPolicyResponse extends BaseAccessPolicyResponse {
+export class ProjectServiceAccountsAccessPolicyResponse extends BaseAccessPolicyResponse {
   serviceAccountId: string;
   serviceAccountName: string;
   grantedProjectId: string;
