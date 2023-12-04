@@ -27,6 +27,7 @@ describe("mapAccount", () => {
     expect(result.settings.usernameGenerationOptions.website).toEqual(
       usernameGenerationOptions.website
     );
+    expect(result.settings.usernameGenerationOptions.saveOnLoad).toEqual(true);
   });
 
   it.each([

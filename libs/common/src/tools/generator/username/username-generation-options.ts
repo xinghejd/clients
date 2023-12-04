@@ -68,6 +68,11 @@ export type UsernameGeneratorOptions = {
    */
   website?: string;
 
+  /** When true, the username generator saves options immediately
+   * after they're loaded. Otherwise this option should not be defined.
+   * */
+  saveOnLoad?: true;
+
   /* Configures generation of a username from the EFF word list */
   word: {
     /** when true, the word is capitalized */

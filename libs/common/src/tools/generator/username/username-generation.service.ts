@@ -127,15 +127,25 @@ export class UsernameGenerationService implements UsernameGenerationServiceAbstr
   }
 
   async getOptions(): Promise<UsernameGeneratorOptions> {
-    let options = await this.stateService.getUsernameGenerationOptions();
+    const options = await this.stateService.getUsernameGenerationOptions();
+
+    // `options.saveOnLoad` is set by migrations when data needs to be
+    // re-saved to ensure they're encrypted at rest.
+    if (options.saveOnLoad) {
+      delete options.saveOnLoad;
+      await this.encryptKeys(options);
+      await this.stateService.setUsernameGenerationOptions(options);
+    }
+
     this.decryptKeys(options);
 
     // clone the assignment result because the default options are frozen and
     // assign aliases the frozen objects in `options`.
-    options = structuredClone(Object.assign(options ?? {}, DefaultOptions));
+    const initializedOptions = structuredClone(Object.assign(options ?? {}, DefaultOptions));
 
-    await this.stateService.setUsernameGenerationOptions(options);
-    return options;
+    await this.stateService.setUsernameGenerationOptions(initializedOptions);
+
+    return initializedOptions;
   }
 
   async saveOptions(options: UsernameGeneratorOptions) {

@@ -55,6 +55,7 @@ export type NewAccountType = {
     usernameGenerationOptions: {
       type: "word" | "subaddress" | "catchall" | "forwarded";
       website?: string;
+      saveOnLoad?: true;
       word: {
         capitalize: boolean;
         includeNumber: boolean;
@@ -133,13 +134,16 @@ export function mapAccount(account?: LegacyAccountType) {
     return;
   }
 
-  // default values inlined from `libs/common/src/tools/generator/username/username-generation-options.ts`
-  // as of the moment the migration was created.
+  // default values inlined from
+  // `libs/common/src/tools/generator/username/username-generation-options.ts`
+  // as of the moment the migration was created. `saveOnLoad` is set to ensure
+  // that the settings are encrypted when the user opens the generator.
   const mappedOptions = {
     settings: {
       usernameGenerationOptions: {
         type: legacy.type ?? "word",
         website: legacy.website,
+        saveOnLoad: true,
         word: {
           capitalize: legacy.wordCapitalize ?? false,
           includeNumber: legacy.wordIncludeNumber ?? false,
