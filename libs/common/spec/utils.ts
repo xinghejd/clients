@@ -17,7 +17,7 @@ export function GetUniqueString(prefix = "") {
 
 export function BuildTestObject<T, K extends keyof T = keyof T>(
   def: Partial<Pick<T, K>> | T,
-  constructor?: new () => T
+  constructor?: new () => T,
 ): T {
   return Object.assign(constructor === null ? {} : new constructor(), def) as T;
 }
@@ -82,5 +82,13 @@ function clone(value: any): any {
     return structuredClone(value);
   } else {
     return JSON.parse(JSON.stringify(value));
+  }
+}
+
+export async function awaitAsync(ms = 0) {
+  if (ms < 1) {
+    await Promise.resolve();
+  } else {
+    await new Promise((resolve) => setTimeout(resolve, ms));
   }
 }

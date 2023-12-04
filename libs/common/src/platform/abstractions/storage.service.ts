@@ -5,17 +5,20 @@ import { MemoryStorageOptions, StorageOptions } from "../models/domain/storage-o
 export type StorageUpdateType = "save" | "remove";
 export type StorageUpdate = {
   key: string;
-  value?: unknown;
   updateType: StorageUpdateType;
 };
 
-export abstract class AbstractStorageService {
+export interface ObservableStorageService {
   /**
    * Provides an {@link Observable} that represents a stream of updates that
    * have happened in this storage service or in the storage this service provides
    * an interface to.
    */
-  abstract get updates$(): Observable<StorageUpdate>;
+  get updates$(): Observable<StorageUpdate>;
+}
+
+export abstract class AbstractStorageService {
+  abstract get valuesRequireDeserialization(): boolean;
   abstract get<T>(key: string, options?: StorageOptions): Promise<T>;
   abstract has(key: string, options?: StorageOptions): Promise<boolean>;
   abstract save<T>(key: string, obj: T, options?: StorageOptions): Promise<void>;

@@ -1,7 +1,15 @@
 import { ipcRenderer } from "electron";
 
-import { DeviceType, ThemeType, KeySuffixOptions } from "@bitwarden/common/enums";
+import { DeviceType } from "@bitwarden/common/enums";
+import { ThemeType, KeySuffixOptions } from "@bitwarden/common/platform/enums";
+import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 
+import {
+  EncryptedMessageResponse,
+  LegacyMessageWrapper,
+  Message,
+  UnencryptedMessageResponse,
+} from "../models/native-messaging";
 import { BiometricMessage, BiometricAction } from "../types/biometric-message";
 import { isDev, isWindowsStore } from "../utils";
 
@@ -55,6 +63,23 @@ const webauthn = {
   create: (): Promise<string> => ipcRenderer.invoke("webauthn.create"),
 };
 
+const nativeMessaging = {
+  sendReply: (message: EncryptedMessageResponse | UnencryptedMessageResponse) => {
+    ipcRenderer.send("nativeMessagingReply", message);
+  },
+  sendMessage: (message: {
+    appId: string;
+    command?: string;
+    sharedSecret?: string;
+    message?: EncString;
+  }) => {
+    ipcRenderer.send("nativeMessagingReply", message);
+  },
+  onMessage: (callback: (message: LegacyMessageWrapper | Message) => void) => {
+    ipcRenderer.on("nativeMessaging", (_event, message) => callback(message));
+  },
+};
+
 export default {
   versions: {
     app: (): Promise<string> => ipcRenderer.invoke("appVersion"),
@@ -68,7 +93,7 @@ export default {
     menu: {
       label?: string;
       type?: "normal" | "separator" | "submenu" | "checkbox" | "radio";
-    }[]
+    }[],
   ): Promise<number> => ipcRenderer.invoke("openContextMenu", { menu }),
 
   getSystemTheme: (): Promise<ThemeType> => ipcRenderer.invoke("systemTheme"),
@@ -98,6 +123,7 @@ export default {
   biometric,
   clipboard,
   webauthn,
+  nativeMessaging,
 };
 
 function deviceType(): DeviceType {
