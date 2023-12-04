@@ -9,7 +9,6 @@ import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 
-
 import {
   BaseAccessPolicyView,
   GroupProjectAccessPolicyView,
@@ -25,7 +24,7 @@ import {
 import { PotentialGranteeView } from "../../models/view/potential-grantee.view";
 import { AccessPoliciesCreateRequest } from "../../shared/access-policies/models/requests/access-policies-create.request";
 import { PeopleAccessPoliciesRequest } from "../../shared/access-policies/models/requests/people-access-policies.request";
-import { ProjectServiceAccountsAccessPoliciesRequest } from "../../shared/access-policies/models/requests/project-service-accounts-access-policies.request"; //TODO naming
+import { ProjectServiceAccountsAccessPoliciesRequest } from "../../shared/access-policies/models/requests/project-service-accounts-access-policies.request";
 import { ProjectAccessPoliciesResponse } from "../../shared/access-policies/models/responses/project-access-policies.response";
 import { ServiceAccountAccessPoliciesResponse } from "../../shared/access-policies/models/responses/service-accounts-access-policies.response";
 
@@ -681,7 +680,7 @@ export class AccessPolicyService {
   private getProjectServiceAccountsAccessPoliciesRequest(
     projectServiceAccountsAccessPoliciesView: ProjectServiceAccountsAccessPoliciesView,
   ): ProjectServiceAccountsAccessPoliciesRequest {
-    const request = new ProjectServiceAccountsAccessPoliciesRequest(); //TODO ProjectServiceAccountsAccessPO?
+    const request = new ProjectServiceAccountsAccessPoliciesRequest();
 
     if (projectServiceAccountsAccessPoliciesView.serviceAccountAccessPolicies?.length > 0) {
       request.ProjectServiceAccountsAccessPolicyRequests =
