@@ -1,6 +1,6 @@
 import { DuckDuckGoForwarder } from "./duck-duck-go-forwarder";
 import { Forwarders } from "./metadata";
-import { mockApiService, mockI18nService } from "./mocks.spec";
+import { mockApiService, mockI18nService } from "./mocks.jest";
 
 describe("DuckDuckGo Forwarder", () => {
   describe("generate(string | null, SelfHostedApiOptions & EmailDomainOptions)", () => {

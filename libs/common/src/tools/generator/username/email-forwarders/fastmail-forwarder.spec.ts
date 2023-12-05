@@ -2,7 +2,7 @@ import { ApiService } from "../../../../abstractions/api.service";
 
 import { FastmailForwarder } from "./fastmail-forwarder";
 import { Forwarders } from "./metadata";
-import { mockI18nService } from "./mocks.spec";
+import { mockI18nService } from "./mocks.jest";
 
 type MockResponse = { status: number; body: any };
 

@@ -3,7 +3,7 @@ import { DuckDuckGoForwarder } from "./duck-duck-go-forwarder";
 import { FastmailForwarder } from "./fastmail-forwarder";
 import { FirefoxRelayForwarder } from "./firefox-relay-forwarder";
 import { ForwardEmailForwarder } from "./forward-email-forwarder";
-import { mockApiService, mockI18nService } from "./mocks.spec";
+import { mockApiService, mockI18nService } from "./mocks.jest";
 import { SimpleLoginForwarder } from "./simple-login-forwarder";
 
 import { createForwarder } from ".";

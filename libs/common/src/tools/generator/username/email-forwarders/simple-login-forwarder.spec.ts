@@ -1,5 +1,5 @@
 import { Forwarders } from "./metadata";
-import { mockApiService, mockI18nService } from "./mocks.spec";
+import { mockApiService, mockI18nService } from "./mocks.jest";
 import { SimpleLoginForwarder } from "./simple-login-forwarder";
 
 describe("SimpleLogin Forwarder", () => {

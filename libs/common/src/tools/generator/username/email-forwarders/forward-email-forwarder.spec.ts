@@ -1,6 +1,6 @@
 import { ForwardEmailForwarder } from "./forward-email-forwarder";
 import { Forwarders } from "./metadata";
-import { mockApiService, mockI18nService } from "./mocks.spec";
+import { mockApiService, mockI18nService } from "./mocks.jest";
 
 describe("ForwardEmail Forwarder", () => {
   describe("generate(string | null, SelfHostedApiOptions & EmailDomainOptions)", () => {

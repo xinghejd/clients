@@ -1,6 +1,6 @@
 import { AnonAddyForwarder } from "./anon-addy-forwarder";
 import { Forwarders } from "./metadata";
-import { mockApiService, mockI18nService } from "./mocks.spec";
+import { mockApiService, mockI18nService } from "./mocks.jest";
 
 describe("Addy.io Forwarder", () => {
   describe("generate(string | null, SelfHostedApiOptions & EmailDomainOptions)", () => {
