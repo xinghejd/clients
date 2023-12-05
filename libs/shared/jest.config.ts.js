@@ -13,8 +13,6 @@ module.exports = {
     "^.+\\.tsx?$": [
       "ts-jest",
       {
-        // adds missing JSDOM globals
-        testEnvironment: "./test.environment.ts",
         // Jest does not use tsconfig.spec.json by default
         tsconfig: "<rootDir>/tsconfig.spec.json",
         // Further workaround for memory leak, recommended here:
