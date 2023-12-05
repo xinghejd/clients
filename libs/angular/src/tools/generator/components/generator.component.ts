@@ -185,7 +185,7 @@ export class GeneratorComponent implements OnInit {
     }
   }
 
-  onApiKeyChanged(id: string, token: string, regenerate = true) {
+  onApiKeyChanged(id: string, token: string) {
     const updated = getForwarderOptions(id, this.usernameOptions);
     delete updated.wasPlainText;
     updated.token = token;
