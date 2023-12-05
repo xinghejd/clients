@@ -439,6 +439,12 @@ export class BrowserApi {
    * Identifies if the browser autofill settings are overridden by the extension.
    */
   static async browserAutofillSettingsOverridden(): Promise<boolean> {
+    const passwordSavingOverridden: boolean = await new Promise((resolve) =>
+      chrome.privacy.services.passwordSavingEnabled.get({}, (details) =>
+        resolve(details.levelOfControl === "controlled_by_this_extension" && !details.value),
+      ),
+    );
+
     const autofillAddressOverridden: boolean = await new Promise((resolve) =>
       chrome.privacy.services.autofillAddressEnabled.get({}, (details) =>
         resolve(details.levelOfControl === "controlled_by_this_extension" && !details.value),
@@ -451,7 +457,7 @@ export class BrowserApi {
       ),
     );
 
-    return autofillAddressOverridden && autofillCreditCardOverridden;
+    return passwordSavingOverridden && autofillAddressOverridden && autofillCreditCardOverridden;
   }
 
   /**
@@ -460,6 +466,7 @@ export class BrowserApi {
    * @param value - Determines whether to enable or disable the autofill settings.
    */
   static async updateDefaultBrowserAutofillSettings(value: boolean) {
+    chrome.privacy.services.passwordSavingEnabled.set({ value });
     chrome.privacy.services.autofillAddressEnabled.set({ value });
     chrome.privacy.services.autofillCreditCardEnabled.set({ value });
   }
