@@ -1,8 +1,6 @@
 extern crate napi_build;
 use std::{path::PathBuf, process::Command};
 
-mod target_build;
-
 pub fn target_specific_build() {
     // 1. Use `swift-bridge-build` to generate Swift/C FFI glue.
     //    You can also use the `swift-bridge` CLI.
