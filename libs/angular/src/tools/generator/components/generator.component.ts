@@ -166,8 +166,8 @@ export class GeneratorComponent implements OnInit {
     }
   }
 
-  async onForwarderChanged() {
-    this.saveUsernameOptions();
+  async onForwarderChanged(regenerate = true) {
+    this.saveUsernameOptions(regenerate);
     const forwarder = getForwarderOptions(
       this.usernameOptions.forwarders.service,
       this.usernameOptions,
@@ -183,6 +183,12 @@ export class GeneratorComponent implements OnInit {
     if (regenerate && this.regenerateWithoutButtonPress()) {
       await this.regenerateUsername();
     }
+  }
+
+  onApiKeyChanged(id: string, token: string, regenerate = true) {
+    const updated = getForwarderOptions(id, this.usernameOptions);
+    delete updated.wasPlainText;
+    updated.token = token;
   }
 
   async regeneratePassword() {

@@ -356,7 +356,8 @@
               id="simplelogin-apikey"
               type="password"
               name="SimpleLoginApiKey"
-              [(ngModel)]="usernameOptions.forwarders.simpleLogin.token"
+              [ngModel]="usernameOptions.forwarders.simpleLogin.token"
+              (ngModelChange)="onApiKeyChanged(forwarders.SimpleLogin.id, $event)"
               (blur)="saveUsernameOptions()"
             />
           </div>
@@ -378,7 +379,8 @@
               id="duckduckgo-apikey"
               type="password"
               name="DuckDuckGoApiKey"
-              [(ngModel)]="usernameOptions.forwarders.duckDuckGo.token"
+              [ngModel]="usernameOptions.forwarders.duckDuckGo.token"
+              (ngModelChange)="onApiKeyChanged(forwarders.DuckDuckGo.id, $event)"
               (blur)="saveUsernameOptions()"
             />
           </div>
@@ -390,7 +392,8 @@
               id="anonaddy-accessToken"
               type="password"
               name="AnonAddyAccessToken"
-              [(ngModel)]="usernameOptions.forwarders.addyIo.token"
+              [ngModel]="usernameOptions.forwarders.addyIo.token"
+              (ngModelChange)="onApiKeyChanged(forwarders.AddyIo.id, $event)"
               (blur)="saveUsernameOptions()"
             />
           </div>
@@ -422,7 +425,8 @@
               id="firefox-apikey"
               type="password"
               name="FirefoxApiKey"
-              [(ngModel)]="usernameOptions.forwarders.firefoxRelay.token"
+              [ngModel]="usernameOptions.forwarders.firefoxRelay.token"
+              (ngModelChange)="onApiKeyChanged(forwarders.FirefoxRelay.id, $event)"
               (blur)="saveUsernameOptions()"
             />
           </div>
@@ -434,7 +438,8 @@
               id="fastmail-apiToken"
               type="password"
               name="FastmailApiToken"
-              [(ngModel)]="usernameOptions.forwarders.fastMail.token"
+              [ngModel]="usernameOptions.forwarders.fastMail.token"
+              (ngModelChange)="onApiKeyChanged(forwarders.Fastmail.id, $event)"
               (blur)="saveUsernameOptions()"
             />
           </div>
@@ -446,7 +451,8 @@
               id="forwardemail-accessToken"
               type="password"
               name="ForwardEmailAccessToken"
-              [(ngModel)]="usernameOptions.forwarders.forwardEmail.token"
+              [ngModel]="usernameOptions.forwarders.forwardEmail.token"
+              (ngModelChange)="onApiKeyChanged(forwarders.ForwardEmail.id, $event)"
               (blur)="saveUsernameOptions()"
             />
           </div>
