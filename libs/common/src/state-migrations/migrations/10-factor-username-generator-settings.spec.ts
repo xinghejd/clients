@@ -1,12 +1,72 @@
-import { mapAccount, LegacyAccountType } from "./10-factor-username-generator-settings";
+import {
+  convertAccountInPlace,
+  AccountType,
+  NewGenerationOptions,
+} from "./10-factor-username-generator-settings";
 
-describe("mapAccount", () => {
+describe("convertAccountInPlace", () => {
   it.each([null, { settings: null }, { settings: { usernameGenerationOptions: null } }])(
     "should return nothing if the settings are empty (= %p)",
     (account) => {
-      expect(mapAccount(account)).toBeUndefined();
+      const result = convertAccountInPlace(account);
+      expect(result).toBeUndefined();
     },
   );
+
+  it("should return nothing if the settings are already converted (= %p)", () => {
+    // freeze ensures no changes are made to the object
+    const account = {
+      settings: {
+        usernameGenerationOptions: Object.freeze({
+          type: "word",
+          website: "",
+          word: Object.freeze({
+            capitalize: true,
+            includeNumber: true,
+          }),
+          subaddress: Object.freeze({
+            algorithm: "random",
+            email: "",
+          }),
+          catchall: Object.freeze({
+            algorithm: "random",
+            domain: "",
+          }),
+          forwarders: Object.freeze({
+            service: "fastmail",
+            fastMail: Object.freeze({
+              domain: "",
+              prefix: "",
+              token: "",
+            }),
+            addyIo: Object.freeze({
+              baseUrl: "https://app.addy.io",
+              domain: "",
+              token: "",
+            }),
+            forwardEmail: Object.freeze({
+              token: "",
+              domain: "",
+            }),
+            simpleLogin: Object.freeze({
+              baseUrl: "https://app.simplelogin.io",
+              token: "",
+            }),
+            duckDuckGo: Object.freeze({
+              token: "",
+            }),
+            firefoxRelay: Object.freeze({
+              token: "",
+            }),
+          }),
+        }),
+      },
+    };
+
+    const result = convertAccountInPlace(account);
+
+    expect(result).toBeUndefined();
+  });
 
   it.each([
     { type: "word", website: "example.com" },
@@ -15,19 +75,20 @@ describe("mapAccount", () => {
     type: "word" | "subaddress";
     website: string;
   }[])("should map root settings (= %p)", (usernameGenerationOptions) => {
-    const account: LegacyAccountType = {
+    const account: AccountType = {
       settings: {
         usernameGenerationOptions,
       },
     };
 
-    const result = mapAccount(account);
+    const {
+      settings: { usernameGenerationOptions: options },
+    } = convertAccountInPlace(account);
+    const newOptions = options as NewGenerationOptions;
 
-    expect(result.settings.usernameGenerationOptions.type).toEqual(usernameGenerationOptions.type);
-    expect(result.settings.usernameGenerationOptions.website).toEqual(
-      usernameGenerationOptions.website,
-    );
-    expect(result.settings.usernameGenerationOptions.saveOnLoad).toEqual(true);
+    expect(newOptions.type).toEqual(usernameGenerationOptions.type);
+    expect(newOptions.website).toEqual(usernameGenerationOptions.website);
+    expect(newOptions.saveOnLoad).toEqual(true);
   });
 
   it.each([
@@ -39,20 +100,19 @@ describe("mapAccount", () => {
     wordCapitalize?: boolean;
     wordIncludeNumber?: boolean;
   }[])("should map word settings (= %p)", (usernameGenerationOptions) => {
-    const account: LegacyAccountType = {
+    const account: AccountType = {
       settings: {
         usernameGenerationOptions,
       },
     };
 
-    const result = mapAccount(account);
+    const {
+      settings: { usernameGenerationOptions: options },
+    } = convertAccountInPlace(account);
+    const newOptions = options as NewGenerationOptions;
 
-    expect(result.settings.usernameGenerationOptions.word.capitalize).toEqual(
-      usernameGenerationOptions.wordCapitalize,
-    );
-    expect(result.settings.usernameGenerationOptions.word.includeNumber).toEqual(
-      usernameGenerationOptions.wordIncludeNumber,
-    );
+    expect(newOptions.word.capitalize).toEqual(usernameGenerationOptions.wordCapitalize);
+    expect(newOptions.word.includeNumber).toEqual(usernameGenerationOptions.wordIncludeNumber);
   });
 
   it.each([
@@ -65,20 +125,19 @@ describe("mapAccount", () => {
       subaddressEmail?: string;
     },
   ][])("should map subaddress settings (= %p)", (_description, usernameGenerationOptions) => {
-    const account: LegacyAccountType = {
+    const account: AccountType = {
       settings: {
         usernameGenerationOptions,
       },
     };
 
-    const result = mapAccount(account);
+    const {
+      settings: { usernameGenerationOptions: options },
+    } = convertAccountInPlace(account);
+    const newOptions = options as NewGenerationOptions;
 
-    expect(result.settings.usernameGenerationOptions.subaddress.algorithm).toEqual(
-      usernameGenerationOptions.subaddressType,
-    );
-    expect(result.settings.usernameGenerationOptions.subaddress.email).toEqual(
-      usernameGenerationOptions.subaddressEmail,
-    );
+    expect(newOptions.subaddress.algorithm).toEqual(usernameGenerationOptions.subaddressType);
+    expect(newOptions.subaddress.email).toEqual(usernameGenerationOptions.subaddressEmail);
   });
 
   it.each([
@@ -91,26 +150,25 @@ describe("mapAccount", () => {
       catchallDomain?: string;
     },
   ][])("should map catchall settings (= %p)", (_description, usernameGenerationOptions) => {
-    const account: LegacyAccountType = {
+    const account: AccountType = {
       settings: {
         usernameGenerationOptions,
       },
     };
 
-    const result = mapAccount(account);
+    const {
+      settings: { usernameGenerationOptions: options },
+    } = convertAccountInPlace(account);
+    const newOptions = options as NewGenerationOptions;
 
-    expect(result.settings.usernameGenerationOptions.catchall.algorithm).toEqual(
-      usernameGenerationOptions.catchallType,
-    );
-    expect(result.settings.usernameGenerationOptions.catchall.domain).toEqual(
-      usernameGenerationOptions.catchallDomain,
-    );
+    expect(newOptions.catchall.algorithm).toEqual(usernameGenerationOptions.catchallType);
+    expect(newOptions.catchall.domain).toEqual(usernameGenerationOptions.catchallDomain);
   });
 
   it.each(["fastmail", "anonaddy", "forwardemail", "simplelogin", "duckduckgo", "firefoxrelay"])(
     "should map forwarder service settings (= %s)",
     (forwardedService) => {
-      const account: LegacyAccountType = {
+      const account: AccountType = {
         settings: {
           usernameGenerationOptions: {
             forwardedService,
@@ -118,18 +176,19 @@ describe("mapAccount", () => {
         },
       };
 
-      const result = mapAccount(account);
+      const {
+        settings: { usernameGenerationOptions: options },
+      } = convertAccountInPlace(account);
+      const newOptions = options as NewGenerationOptions;
 
-      expect(result.settings.usernameGenerationOptions.forwarders.service).toEqual(
-        forwardedService,
-      );
+      expect(newOptions.forwarders.service).toEqual(forwardedService);
     },
   );
 
   it.each(["mitmuremail", "invalidforwarder"])(
     "should drop invalid forwarder service settings (= %s)",
     (forwardedService) => {
-      const account: LegacyAccountType = {
+      const account: AccountType = {
         settings: {
           usernameGenerationOptions: {
             forwardedService,
@@ -137,9 +196,12 @@ describe("mapAccount", () => {
         },
       };
 
-      const result = mapAccount(account);
+      const {
+        settings: { usernameGenerationOptions: options },
+      } = convertAccountInPlace(account);
+      const newOptions = options as NewGenerationOptions;
 
-      expect(result.settings.usernameGenerationOptions.forwarders.service).toEqual("fastmail");
+      expect(newOptions.forwarders.service).toEqual("fastmail");
     },
   );
 
@@ -170,26 +232,27 @@ describe("mapAccount", () => {
   ][])(
     "should map addyIo '%s' settings without a token (= %s)",
     (_description, usernameGenerationOptions) => {
-      const account: LegacyAccountType = {
+      const account: AccountType = {
         settings: {
           usernameGenerationOptions,
         },
       };
 
-      const result = mapAccount(account);
+      const {
+        settings: { usernameGenerationOptions: options },
+      } = convertAccountInPlace(account);
+      const newOptions = options as NewGenerationOptions;
 
-      expect(result.settings.usernameGenerationOptions.forwarders.addyIo.baseUrl).toEqual(
+      expect(newOptions.forwarders.addyIo.baseUrl).toEqual(
         usernameGenerationOptions.forwardedAnonAddyBaseUrl,
       );
-      expect(result.settings.usernameGenerationOptions.forwarders.addyIo.domain).toEqual(
+      expect(newOptions.forwarders.addyIo.domain).toEqual(
         usernameGenerationOptions.forwardedAnonAddyDomain,
       );
-      expect(result.settings.usernameGenerationOptions.forwarders.addyIo.token).toEqual(
+      expect(newOptions.forwarders.addyIo.token).toEqual(
         usernameGenerationOptions.forwardedAnonAddyApiToken,
       );
-      expect(
-        result.settings.usernameGenerationOptions.forwarders.addyIo.wasPlainText,
-      ).not.toBeDefined();
+      expect(newOptions.forwarders.addyIo.wasPlainText).not.toBeDefined();
     },
   );
 
@@ -220,26 +283,27 @@ describe("mapAccount", () => {
   ][])(
     "should map addyIo settings with a token (= %s)",
     (_description, usernameGenerationOptions) => {
-      const account: LegacyAccountType = {
+      const account: AccountType = {
         settings: {
           usernameGenerationOptions,
         },
       };
 
-      const result = mapAccount(account);
+      const {
+        settings: { usernameGenerationOptions: options },
+      } = convertAccountInPlace(account);
+      const newOptions = options as NewGenerationOptions;
 
-      expect(result.settings.usernameGenerationOptions.forwarders.addyIo.baseUrl).toEqual(
+      expect(newOptions.forwarders.addyIo.baseUrl).toEqual(
         usernameGenerationOptions.forwardedAnonAddyBaseUrl,
       );
-      expect(result.settings.usernameGenerationOptions.forwarders.addyIo.domain).toEqual(
+      expect(newOptions.forwarders.addyIo.domain).toEqual(
         usernameGenerationOptions.forwardedAnonAddyDomain,
       );
-      expect(result.settings.usernameGenerationOptions.forwarders.addyIo.token).toEqual(
+      expect(newOptions.forwarders.addyIo.token).toEqual(
         usernameGenerationOptions.forwardedAnonAddyApiToken,
       );
-      expect(result.settings.usernameGenerationOptions.forwarders.addyIo.wasPlainText).toEqual(
-        true,
-      );
+      expect(newOptions.forwarders.addyIo.wasPlainText).toEqual(true);
     },
   );
 
@@ -261,23 +325,24 @@ describe("mapAccount", () => {
   ][])(
     "should map forwardEmail settings without a token (= %s)",
     (_description, usernameGenerationOptions) => {
-      const account: LegacyAccountType = {
+      const account: AccountType = {
         settings: {
           usernameGenerationOptions,
         },
       };
 
-      const result = mapAccount(account);
+      const {
+        settings: { usernameGenerationOptions: options },
+      } = convertAccountInPlace(account);
+      const newOptions = options as NewGenerationOptions;
 
-      expect(result.settings.usernameGenerationOptions.forwarders.forwardEmail.domain).toEqual(
+      expect(newOptions.forwarders.forwardEmail.domain).toEqual(
         usernameGenerationOptions.forwardedForwardEmailDomain,
       );
-      expect(result.settings.usernameGenerationOptions.forwarders.forwardEmail.token).toEqual(
+      expect(newOptions.forwarders.forwardEmail.token).toEqual(
         usernameGenerationOptions.forwardedForwardEmailApiToken,
       );
-      expect(
-        result.settings.usernameGenerationOptions.forwarders.forwardEmail.wasPlainText,
-      ).not.toBeDefined();
+      expect(newOptions.forwarders.forwardEmail.wasPlainText).not.toBeDefined();
     },
   );
 
@@ -305,23 +370,24 @@ describe("mapAccount", () => {
   ][])(
     "should map forwardEmail settings with a token (= %s)",
     (_description, usernameGenerationOptions) => {
-      const account: LegacyAccountType = {
+      const account: AccountType = {
         settings: {
           usernameGenerationOptions,
         },
       };
 
-      const result = mapAccount(account);
+      const {
+        settings: { usernameGenerationOptions: options },
+      } = convertAccountInPlace(account);
+      const newOptions = options as NewGenerationOptions;
 
-      expect(result.settings.usernameGenerationOptions.forwarders.forwardEmail.domain).toEqual(
+      expect(newOptions.forwarders.forwardEmail.domain).toEqual(
         usernameGenerationOptions.forwardedForwardEmailDomain,
       );
-      expect(result.settings.usernameGenerationOptions.forwarders.forwardEmail.token).toEqual(
+      expect(newOptions.forwarders.forwardEmail.token).toEqual(
         usernameGenerationOptions.forwardedForwardEmailApiToken,
       );
-      expect(
-        result.settings.usernameGenerationOptions.forwarders.forwardEmail.wasPlainText,
-      ).toEqual(true);
+      expect(newOptions.forwarders.forwardEmail.wasPlainText).toEqual(true);
     },
   );
 
@@ -349,23 +415,24 @@ describe("mapAccount", () => {
   ][])(
     "should map simpleLogin settings without a token (= %s)",
     (_description, usernameGenerationOptions) => {
-      const account: LegacyAccountType = {
+      const account: AccountType = {
         settings: {
           usernameGenerationOptions,
         },
       };
 
-      const result = mapAccount(account);
+      const {
+        settings: { usernameGenerationOptions: options },
+      } = convertAccountInPlace(account);
+      const newOptions = options as NewGenerationOptions;
 
-      expect(result.settings.usernameGenerationOptions.forwarders.simpleLogin.baseUrl).toEqual(
+      expect(newOptions.forwarders.simpleLogin.baseUrl).toEqual(
         usernameGenerationOptions.forwardedSimpleLoginBaseUrl,
       );
-      expect(result.settings.usernameGenerationOptions.forwarders.simpleLogin.token).toEqual(
+      expect(newOptions.forwarders.simpleLogin.token).toEqual(
         usernameGenerationOptions.forwardedSimpleLoginApiKey,
       );
-      expect(
-        result.settings.usernameGenerationOptions.forwarders.simpleLogin.wasPlainText,
-      ).not.toBeDefined();
+      expect(newOptions.forwarders.simpleLogin.wasPlainText).not.toBeDefined();
     },
   );
 
@@ -393,38 +460,40 @@ describe("mapAccount", () => {
   ][])(
     "should map simpleLogin settings with a token (= %s)",
     (_description, usernameGenerationOptions) => {
-      const account: LegacyAccountType = {
+      const account: AccountType = {
         settings: {
           usernameGenerationOptions,
         },
       };
 
-      const result = mapAccount(account);
+      const {
+        settings: { usernameGenerationOptions: options },
+      } = convertAccountInPlace(account);
+      const newOptions = options as NewGenerationOptions;
 
-      expect(result.settings.usernameGenerationOptions.forwarders.simpleLogin.baseUrl).toEqual(
+      expect(newOptions.forwarders.simpleLogin.baseUrl).toEqual(
         usernameGenerationOptions.forwardedSimpleLoginBaseUrl,
       );
-      expect(result.settings.usernameGenerationOptions.forwarders.simpleLogin.token).toEqual(
+      expect(newOptions.forwarders.simpleLogin.token).toEqual(
         usernameGenerationOptions.forwardedSimpleLoginApiKey,
       );
-      expect(result.settings.usernameGenerationOptions.forwarders.simpleLogin.wasPlainText).toEqual(
-        true,
-      );
+      expect(newOptions.forwarders.simpleLogin.wasPlainText).toEqual(true);
     },
   );
 
   it("should map duckDuckGo settings without a token", () => {
-    const account: LegacyAccountType = {
+    const account: AccountType = {
       settings: {
         usernameGenerationOptions: { forwardedDuckDuckGoToken: "" },
       },
     };
 
-    const result = mapAccount(account);
+    const {
+      settings: { usernameGenerationOptions: options },
+    } = convertAccountInPlace(account);
+    const newOptions = options as NewGenerationOptions;
 
-    expect(
-      result.settings.usernameGenerationOptions.forwarders.duckDuckGo.wasPlainText,
-    ).not.toBeDefined();
+    expect(newOptions.forwarders.duckDuckGo.wasPlainText).not.toBeDefined();
   });
 
   it.each([
@@ -433,34 +502,36 @@ describe("mapAccount", () => {
   ] as {
     forwardedDuckDuckGoToken?: string;
   }[])("should map duckDuckGo settings with a token (= %p)", (usernameGenerationOptions) => {
-    const account: LegacyAccountType = {
+    const account: AccountType = {
       settings: {
         usernameGenerationOptions,
       },
     };
 
-    const result = mapAccount(account);
+    const {
+      settings: { usernameGenerationOptions: options },
+    } = convertAccountInPlace(account);
+    const newOptions = options as NewGenerationOptions;
 
-    expect(result.settings.usernameGenerationOptions.forwarders.duckDuckGo.token).toEqual(
+    expect(newOptions.forwarders.duckDuckGo.token).toEqual(
       usernameGenerationOptions.forwardedDuckDuckGoToken,
     );
-    expect(result.settings.usernameGenerationOptions.forwarders.duckDuckGo.wasPlainText).toEqual(
-      true,
-    );
+    expect(newOptions.forwarders.duckDuckGo.wasPlainText).toEqual(true);
   });
 
   it("should map firefoxRelay settings without a token", () => {
-    const account: LegacyAccountType = {
+    const account: AccountType = {
       settings: {
         usernameGenerationOptions: { forwardedFirefoxApiToken: "" },
       },
     };
 
-    const result = mapAccount(account);
+    const {
+      settings: { usernameGenerationOptions: options },
+    } = convertAccountInPlace(account);
+    const newOptions = options as NewGenerationOptions;
 
-    expect(
-      result.settings.usernameGenerationOptions.forwarders.firefoxRelay.wasPlainText,
-    ).not.toBeDefined();
+    expect(newOptions.forwarders.firefoxRelay.wasPlainText).not.toBeDefined();
   });
 
   it.each([
@@ -469,35 +540,37 @@ describe("mapAccount", () => {
   ] as {
     forwardedFirefoxApiToken?: string;
   }[])("should map firefoxRelay settings with a token (= %p)", (usernameGenerationOptions) => {
-    const account: LegacyAccountType = {
+    const account: AccountType = {
       settings: {
         usernameGenerationOptions,
       },
     };
 
-    const result = mapAccount(account);
+    const {
+      settings: { usernameGenerationOptions: options },
+    } = convertAccountInPlace(account);
+    const newOptions = options as NewGenerationOptions;
 
-    expect(result.settings.usernameGenerationOptions.forwarders.firefoxRelay.token).toEqual(
+    expect(newOptions.forwarders.firefoxRelay.token).toEqual(
       usernameGenerationOptions.forwardedFirefoxApiToken,
     );
-    expect(result.settings.usernameGenerationOptions.forwarders.firefoxRelay.wasPlainText).toEqual(
-      true,
-    );
+    expect(newOptions.forwarders.firefoxRelay.wasPlainText).toEqual(true);
   });
 
   it("should map fastMail settings without a token", () => {
-    const account: LegacyAccountType = {
+    const account: AccountType = {
       settings: {
         usernameGenerationOptions: { forwardedFastmailApiToken: "" },
       },
     };
 
-    const result = mapAccount(account);
+    const {
+      settings: { usernameGenerationOptions: options },
+    } = convertAccountInPlace(account);
+    const newOptions = options as NewGenerationOptions;
 
-    expect(result.settings.usernameGenerationOptions.forwarders.fastMail.prefix).toEqual("");
-    expect(
-      result.settings.usernameGenerationOptions.forwarders.fastMail.wasPlainText,
-    ).not.toBeDefined();
+    expect(newOptions.forwarders.fastMail.prefix).toEqual("");
+    expect(newOptions.forwarders.fastMail.wasPlainText).not.toBeDefined();
   });
 
   it.each([
@@ -506,20 +579,21 @@ describe("mapAccount", () => {
   ] as {
     forwardedFastmailApiToken?: string;
   }[])("should map fastMail settings with a token (= %p)", (usernameGenerationOptions) => {
-    const account: LegacyAccountType = {
+    const account: AccountType = {
       settings: {
         usernameGenerationOptions,
       },
     };
 
-    const result = mapAccount(account);
+    const {
+      settings: { usernameGenerationOptions: options },
+    } = convertAccountInPlace(account);
+    const newOptions = options as NewGenerationOptions;
 
-    expect(result.settings.usernameGenerationOptions.forwarders.fastMail.prefix).toEqual("");
-    expect(result.settings.usernameGenerationOptions.forwarders.fastMail.token).toEqual(
+    expect(newOptions.forwarders.fastMail.prefix).toEqual("");
+    expect(newOptions.forwarders.fastMail.token).toEqual(
       usernameGenerationOptions.forwardedFastmailApiToken,
     );
-    expect(result.settings.usernameGenerationOptions.forwarders.fastMail.wasPlainText).toEqual(
-      true,
-    );
+    expect(newOptions.forwarders.fastMail.wasPlainText).toEqual(true);
   });
 });
