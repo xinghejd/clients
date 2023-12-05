@@ -2562,18 +2562,6 @@
   "ignore": {
     "message": "Ignore"
   },
-  "overrideBrowserAutoFillSettings": {
-    "message": "Override browser auto-fill settings",
-    "description": "Label for the setting that allows overriding the default browser autofill settings"
-  },
-  "extensionPrivacyPermissionNotGrantedTitle": {
-    "message": "Unable to override browser auto-fill",
-    "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
-  },
-  "extensionPrivacyPermissionNotGrantedDescription": {
-    "message": "Bitwarden must have access to the extension's privacy permission to override browser auto-fill settings.",
-    "description": "Description for the dialog that appears when the user has not granted the extension permission to set privacy settings"
-  },
   "importData": {
     "message": "Import data",
     "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
