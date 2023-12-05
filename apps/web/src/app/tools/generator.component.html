@@ -272,6 +272,13 @@
         </option>
       </select>
     </div>
+    <ng-container *ngIf="displayReplaceTokenWarning">
+      <div class="box-content-row" appBoxRow>
+        <app-callout type="warning">
+          {{ "forwarderReplaceTokenWarning" | i18n }}
+        </app-callout>
+      </div>
+    </ng-container>
     <div class="row" *ngIf="usernameOptions.forwarders.service === forwarders.SimpleLogin.id">
       <div class="form-group col-4">
         <label for="simplelogin-apikey">{{ "apiKey" | i18n }}</label>

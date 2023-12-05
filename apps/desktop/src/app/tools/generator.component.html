@@ -369,6 +369,13 @@
                   </option>
                 </select>
               </div>
+              <ng-container *ngIf="displayReplaceTokenWarning">
+                <div class="box-content-row" appBoxRow>
+                  <app-callout type="warning">
+                    {{ "forwarderReplaceTokenWarning" | i18n }}
+                  </app-callout>
+                </div>
+              </ng-container>
               <ng-container
                 *ngIf="usernameOptions.forwarders.service === forwarders.SimpleLogin.id"
               >
