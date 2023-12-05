@@ -18,7 +18,7 @@ export type ForwarderMetadata = {
   /** The name of the service the forwarder queries. */
   name: string;
 
-  /** Whether the forwarder is valid for self-hosted instances. */
+  /** Whether the forwarder is valid for self-hosted instances of Bitwarden. */
   validForSelfHosted: boolean;
 };
 
