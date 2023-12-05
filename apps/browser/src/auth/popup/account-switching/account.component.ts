@@ -23,7 +23,7 @@ export class AccountComponent {
     private accountSwitcherService: AccountSwitcherService,
     private router: Router,
     private location: Location,
-    private i18nService: I18nService
+    private i18nService: I18nService,
   ) {}
 
   get specialAccountAddId() {

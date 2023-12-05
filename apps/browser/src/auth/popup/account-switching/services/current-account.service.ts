@@ -20,7 +20,10 @@ export type CurrentAccount = {
 export class CurrentAccountService {
   currentAccount$: Observable<CurrentAccount>;
 
-  constructor(private accountService: AccountService, private stateService: StateService) {
+  constructor(
+    private accountService: AccountService,
+    private stateService: StateService,
+  ) {
     this.currentAccount$ = this.accountService.activeAccount$.pipe(
       switchMap(async (account) => {
         if (account == null) {
@@ -35,7 +38,7 @@ export class CurrentAccountService {
         };
 
         return currentAccount;
-      })
+      }),
     );
   }
 }

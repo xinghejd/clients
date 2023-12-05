@@ -47,7 +47,7 @@ export class AccountSwitcherService {
     private stateService: StateService,
     private messagingService: MessagingService,
     private environmentService: EnvironmentService,
-    private logService: LogService
+    private logService: LogService,
   ) {
     this.availableAccounts$ = combineLatest([
       this.accountService.accounts$,
@@ -55,7 +55,7 @@ export class AccountSwitcherService {
     ]).pipe(
       switchMap(async ([accounts, activeAccount]) => {
         const accountEntries = Object.entries(accounts).filter(
-          ([_, account]) => account.status !== AuthenticationStatus.LoggedOut
+          ([_, account]) => account.status !== AuthenticationStatus.LoggedOut,
         );
         // Accounts shouldn't ever be more than ACCOUNT_LIMIT but just in case do a greater than
         const hasMaxAccounts = accountEntries.length >= this.ACCOUNT_LIMIT;
@@ -70,7 +70,7 @@ export class AccountSwitcherService {
               isActive: id === activeAccount?.id,
               avatarColor: await this.stateService.getAvatarColor({ userId: id }),
             };
-          })
+          }),
         );
 
         if (!hasMaxAccounts) {
@@ -82,15 +82,15 @@ export class AccountSwitcherService {
         }
 
         return options;
-      })
+      }),
     );
 
     // Create a reusable observable that listens to the the switchAccountFinish message and returns the userId from the message
     this.switchAccountFinished$ = fromChromeEvent<[message: { command: string; userId: string }]>(
-      chrome.runtime.onMessage
+      chrome.runtime.onMessage,
     ).pipe(
       filter(([message]) => message.command === "switchAccountFinish"),
-      map(([message]) => message.userId)
+      map(([message]) => message.userId),
     );
   }
 
@@ -116,8 +116,8 @@ export class AccountSwitcherService {
           first: 60_000,
           with: () =>
             throwError(() => new Error(AccountSwitcherService.incompleteAccountSwitchError)),
-        })
-      )
+        }),
+      ),
     );
 
     // Initiate the actions required to make account switching happen
