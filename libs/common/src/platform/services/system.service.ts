@@ -20,7 +20,7 @@ export class SystemService implements SystemServiceAbstraction {
     private platformUtilsService: PlatformUtilsService,
     private reloadCallback: () => Promise<void> = null,
     private stateService: StateService,
-    private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
+    private vaultTimeoutSettingsService: VaultTimeoutSettingsService
   ) {}
 
   async startProcessReload(authService: AuthService): Promise<void> {
@@ -58,13 +58,16 @@ export class SystemService implements SystemServiceAbstraction {
       clearInterval(this.reloadInterval);
       this.reloadInterval = null;
 
+      const currentUser = await firstValueFrom(this.stateService.activeAccount$.pipe(timeout(500)));
       // Replace current active user if they will be logged out on reload
-      const timeoutAction = await firstValueFrom(
-        this.vaultTimeoutSettingsService.vaultTimeoutAction$().pipe(timeout(500)),
-      );
-      if (timeoutAction === VaultTimeoutAction.LogOut) {
-        const nextUser = await this.stateService.nextUpActiveUser();
-        await this.stateService.setActiveUser(nextUser);
+      if (currentUser != null) {
+        const timeoutAction = await firstValueFrom(
+          this.vaultTimeoutSettingsService.vaultTimeoutAction$().pipe(timeout(500))
+        );
+        if (timeoutAction === VaultTimeoutAction.LogOut) {
+          const nextUser = await this.stateService.nextUpActiveUser();
+          await this.stateService.setActiveUser(nextUser);
+        }
       }
 
       this.messagingService.send("reloadProcess");
