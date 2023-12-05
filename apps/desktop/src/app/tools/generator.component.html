@@ -364,12 +364,14 @@
                   [(ngModel)]="usernameOptions.forwarders.service"
                   (change)="saveUsernameOptions()"
                 >
-                  <option *ngFor="let o of forwardOptions" [ngValue]="o.value" role="option">
+                  <option *ngFor="let o of forwardOptions" [ngValue]="o.id" role="option">
                     {{ o.name }}
                   </option>
                 </select>
               </div>
-              <ng-container *ngIf="usernameOptions.forwarders.service === forwarderIds.SimpleLogin">
+              <ng-container
+                *ngIf="usernameOptions.forwarders.service === forwarders.SimpleLogin.id"
+              >
                 <div class="box-content-row" appBoxRow>
                   <label for="simplelogin-apikey">{{ "apiKey" | i18n }}</label>
                   <input
@@ -391,7 +393,7 @@
                   />
                 </div>
               </ng-container>
-              <ng-container *ngIf="usernameOptions.forwarders.service === forwarderIds.DuckDuckGo">
+              <ng-container *ngIf="usernameOptions.forwarders.service === forwarders.DuckDuckGo.id">
                 <div class="box-content-row" appBoxRow>
                   <label for="duckduckgo-apikey">{{ "apiKey" | i18n }}</label>
                   <input
@@ -403,7 +405,7 @@
                   />
                 </div>
               </ng-container>
-              <ng-container *ngIf="usernameOptions.forwarders.service === forwarderIds.AddyIo">
+              <ng-container *ngIf="usernameOptions.forwarders.service === forwarders.AddyIo.id">
                 <div class="box-content-row" appBoxRow>
                   <label for="anonaddy-accessToken">{{ "apiAccessToken" | i18n }}</label>
                   <input
@@ -436,7 +438,7 @@
                 </div>
               </ng-container>
               <ng-container
-                *ngIf="usernameOptions.forwarders.service === forwarderIds.FirefoxRelay"
+                *ngIf="usernameOptions.forwarders.service === forwarders.FirefoxRelay.id"
               >
                 <div class="box-content-row" appBoxRow>
                   <label for="firefox-apikey">{{ "apiAccessToken" | i18n }}</label>
@@ -449,7 +451,7 @@
                   />
                 </div>
               </ng-container>
-              <ng-container *ngIf="usernameOptions.forwarders.service === forwarderIds.FastMail">
+              <ng-container *ngIf="usernameOptions.forwarders.service === forwarders.Fastmail.id">
                 <div class="box-content-row" appBoxRow>
                   <label for="fastmail-apiToken">{{ "apiAccessToken" | i18n }}</label>
                   <input
@@ -462,7 +464,7 @@
                 </div>
               </ng-container>
               <ng-container
-                *ngIf="usernameOptions.forwarders.service === forwarderIds.ForwardEmail"
+                *ngIf="usernameOptions.forwarders.service === forwarders.ForwardEmail.id"
               >
                 <div class="box-content-row" appBoxRow>
                   <label for="forwardemail-accessToken">{{ "apiAccessToken" | i18n }}</label>

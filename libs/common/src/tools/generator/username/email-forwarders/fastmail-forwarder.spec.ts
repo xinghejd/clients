@@ -1,6 +1,7 @@
 import { ApiService } from "../../../../abstractions/api.service";
 
 import { FastmailForwarder } from "./fastmail-forwarder";
+import { Forwarders } from "./metadata";
 import { mockI18nService } from "./mocks.spec";
 
 type MockResponse = { status: number; body: any };
@@ -40,17 +41,6 @@ const AccountIdSuccess: MockResponse = Object.freeze({
 
 // the tests
 describe("Fastmail Forwarder", () => {
-  describe("constructor(ApiService, I18nService)", () => {
-    it("looks up the service name from the i18nService", () => {
-      const apiService = mockApiService(AccountIdSuccess, EmptyResponse);
-      const i18nService = mockI18nService();
-
-      const forwarder = new FastmailForwarder(apiService, i18nService);
-
-      expect(forwarder.serviceName).toEqual("forwarder.serviceName.fastmail");
-    });
-  });
-
   describe("generate(string | null, SelfHostedApiOptions & EmailDomainOptions)", () => {
     it.each([null, ""])("throws an error if the token is missing (token = %p)", async (token) => {
       const apiService = mockApiService(AccountIdSuccess, EmptyResponse);
@@ -68,10 +58,7 @@ describe("Fastmail Forwarder", () => {
       ).rejects.toEqual("forwaderInvalidToken");
 
       expect(apiService.nativeFetch).not.toHaveBeenCalled();
-      expect(i18nService.t).toHaveBeenCalledWith(
-        "forwaderInvalidToken",
-        "forwarder.serviceName.fastmail",
-      );
+      expect(i18nService.t).toHaveBeenCalledWith("forwaderInvalidToken", Forwarders.Fastmail.name);
     });
 
     it.each([401, 403])(
@@ -93,10 +80,9 @@ describe("Fastmail Forwarder", () => {
 
         expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
         // counting instances is terribly flaky over changes, but jest doesn't have a better way to do this
-        expect(i18nService.t).toHaveBeenNthCalledWith(
-          2,
+        expect(i18nService.t).toHaveBeenCalledWith(
           "forwarderNoAccountId",
-          "forwarder.serviceName.fastmail",
+          Forwarders.Fastmail.name,
         );
       },
     );
@@ -161,10 +147,9 @@ describe("Fastmail Forwarder", () => {
 
         expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
         // counting instances is terribly flaky over changes, but jest doesn't have a better way to do this
-        expect(i18nService.t).toHaveBeenNthCalledWith(
-          2,
+        expect(i18nService.t).toHaveBeenCalledWith(
           "forwarderError",
-          "forwarder.serviceName.fastmail",
+          Forwarders.Fastmail.name,
           description,
         );
       },
@@ -189,10 +174,9 @@ describe("Fastmail Forwarder", () => {
 
         expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
         // counting instances is terribly flaky over changes, but jest doesn't have a better way to do this
-        expect(i18nService.t).toHaveBeenNthCalledWith(
-          2,
+        expect(i18nService.t).toHaveBeenCalledWith(
           "forwaderInvalidToken",
-          "forwarder.serviceName.fastmail",
+          Forwarders.Fastmail.name,
         );
       },
     );
@@ -231,10 +215,9 @@ describe("Fastmail Forwarder", () => {
 
         expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
         // counting instances is terribly flaky over changes, but jest doesn't have a better way to do this
-        expect(i18nService.t).toHaveBeenNthCalledWith(
-          2,
+        expect(i18nService.t).toHaveBeenCalledWith(
           "forwarderUnknownError",
-          "forwarder.serviceName.fastmail",
+          Forwarders.Fastmail.name,
         );
       },
     );
@@ -258,10 +241,9 @@ describe("Fastmail Forwarder", () => {
 
         expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
         // counting instances is terribly flaky over changes, but jest doesn't have a better way to do this
-        expect(i18nService.t).toHaveBeenNthCalledWith(
-          2,
+        expect(i18nService.t).toHaveBeenCalledWith(
           "forwarderUnknownError",
-          "forwarder.serviceName.fastmail",
+          Forwarders.Fastmail.name,
         );
       },
     );

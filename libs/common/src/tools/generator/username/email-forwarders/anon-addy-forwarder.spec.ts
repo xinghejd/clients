@@ -1,18 +1,8 @@
 import { AnonAddyForwarder } from "./anon-addy-forwarder";
+import { Forwarders } from "./metadata";
 import { mockApiService, mockI18nService } from "./mocks.spec";
 
 describe("Addy.io Forwarder", () => {
-  describe("constructor(ApiService, I18nService)", () => {
-    it("looks up the service name from the i18nService", () => {
-      const apiService = mockApiService(200, {});
-      const i18nService = mockI18nService();
-
-      const forwarder = new AnonAddyForwarder(apiService, i18nService);
-
-      expect(forwarder.serviceName).toEqual("forwarder.serviceName.anonaddy");
-    });
-  });
-
   describe("generate(string | null, SelfHostedApiOptions & EmailDomainOptions)", () => {
     it.each([null, ""])("throws an error if the token is missing (token = %p)", async (token) => {
       const apiService = mockApiService(200, {});
@@ -30,10 +20,7 @@ describe("Addy.io Forwarder", () => {
       ).rejects.toEqual("forwaderInvalidToken");
 
       expect(apiService.nativeFetch).not.toHaveBeenCalled();
-      expect(i18nService.t).toHaveBeenCalledWith(
-        "forwaderInvalidToken",
-        "forwarder.serviceName.anonaddy",
-      );
+      expect(i18nService.t).toHaveBeenCalledWith("forwaderInvalidToken", Forwarders.AddyIo.name);
     });
 
     it.each([null, ""])(
@@ -54,10 +41,7 @@ describe("Addy.io Forwarder", () => {
         ).rejects.toEqual("forwarderNoDomain");
 
         expect(apiService.nativeFetch).not.toHaveBeenCalled();
-        expect(i18nService.t).toHaveBeenCalledWith(
-          "forwarderNoDomain",
-          "forwarder.serviceName.anonaddy",
-        );
+        expect(i18nService.t).toHaveBeenCalledWith("forwarderNoDomain", Forwarders.AddyIo.name);
       },
     );
 
@@ -79,10 +63,7 @@ describe("Addy.io Forwarder", () => {
         ).rejects.toEqual("forwarderNoUrl");
 
         expect(apiService.nativeFetch).not.toHaveBeenCalled();
-        expect(i18nService.t).toHaveBeenCalledWith(
-          "forwarderNoUrl",
-          "forwarder.serviceName.anonaddy",
-        );
+        expect(i18nService.t).toHaveBeenCalledWith("forwarderNoUrl", Forwarders.AddyIo.name);
       },
     );
 
@@ -106,7 +87,7 @@ describe("Addy.io Forwarder", () => {
         });
 
         // counting instances is terribly flaky over changes, but jest doesn't have a better way to do this
-        expect(i18nService.t).toHaveBeenNthCalledWith(2, translationKey, expectedWebsite);
+        expect(i18nService.t).toHaveBeenCalledWith(translationKey, expectedWebsite);
       },
     );
 
@@ -152,9 +133,9 @@ describe("Addy.io Forwarder", () => {
       expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
       // counting instances is terribly flaky over changes, but jest doesn't have a better way to do this
       expect(i18nService.t).toHaveBeenNthCalledWith(
-        3,
+        2,
         "forwaderInvalidToken",
-        "forwarder.serviceName.anonaddy",
+        Forwarders.AddyIo.name,
       );
     });
 
@@ -176,9 +157,9 @@ describe("Addy.io Forwarder", () => {
       expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
       // counting instances is terribly flaky over changes, but jest doesn't have a better way to do this
       expect(i18nService.t).toHaveBeenNthCalledWith(
-        3,
+        2,
         "forwarderUnknownError",
-        "forwarder.serviceName.anonaddy",
+        Forwarders.AddyIo.name,
       );
     });
 
@@ -209,9 +190,9 @@ describe("Addy.io Forwarder", () => {
         expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
         // counting instances is terribly flaky over changes, but jest doesn't have a better way to do this
         expect(i18nService.t).toHaveBeenNthCalledWith(
-          3,
+          2,
           "forwarderError",
-          "forwarder.serviceName.anonaddy",
+          Forwarders.AddyIo.name,
           statusText,
         );
       },

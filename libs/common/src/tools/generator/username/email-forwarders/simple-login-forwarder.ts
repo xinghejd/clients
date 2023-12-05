@@ -2,24 +2,21 @@ import { ApiService } from "../../../../abstractions/api.service";
 import { I18nService } from "../../../../platform/abstractions/i18n.service";
 
 import { Forwarder, SelfHostedApiOptions } from "./forwarder";
+import { Forwarders } from "./metadata";
 
 export class SimpleLoginForwarder implements Forwarder {
-  readonly serviceName: string;
-
   constructor(
     private apiService: ApiService,
     private i18nService: I18nService,
-  ) {
-    this.serviceName = i18nService.t("forwarder.serviceName.simplelogin");
-  }
+  ) {}
 
   async generate(website: string, options: SelfHostedApiOptions): Promise<string> {
     if (!options.token || options.token === "") {
-      const error = this.i18nService.t("forwaderInvalidToken", this.serviceName);
+      const error = this.i18nService.t("forwaderInvalidToken", Forwarders.SimpleLogin.name);
       throw error;
     }
     if (!options.baseUrl || options.baseUrl === "") {
-      const error = this.i18nService.t("forwarderNoUrl", this.serviceName);
+      const error = this.i18nService.t("forwarderNoUrl", Forwarders.SimpleLogin.name);
       throw error;
     }
 
@@ -44,7 +41,7 @@ export class SimpleLoginForwarder implements Forwarder {
 
     const response = await this.apiService.nativeFetch(request);
     if (response.status === 401) {
-      const error = this.i18nService.t("forwaderInvalidToken", this.serviceName);
+      const error = this.i18nService.t("forwaderInvalidToken", Forwarders.SimpleLogin.name);
       throw error;
     }
 
@@ -52,10 +49,10 @@ export class SimpleLoginForwarder implements Forwarder {
     if (response.status === 200 || response.status === 201) {
       return json.alias;
     } else if (json?.error != null) {
-      const error = this.i18nService.t("forwarderError", this.serviceName, json.error);
+      const error = this.i18nService.t("forwarderError", Forwarders.SimpleLogin.name, json.error);
       throw error;
     } else {
-      const error = this.i18nService.t("forwarderUnknownError", this.serviceName);
+      const error = this.i18nService.t("forwarderUnknownError", Forwarders.SimpleLogin.name);
       throw error;
     }
   }

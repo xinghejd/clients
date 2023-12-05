@@ -6,32 +6,9 @@ import {
   SelfHostedApiOptions,
   EmailDomainOptions,
   EmailPrefixOptions,
+  ForwarderId,
+  Forwarders,
 } from "./email-forwarders";
-
-/** Identifiers for email forwarding services.
- *  @remarks These are used to select forwarder-specific options
- *  as well as translations for the forwarder's name.
- *  The must be kept in sync with the forwarder implementations.
- */
-export const ForwarderIds = Object.freeze({
-  /** For https://addy.io/ */
-  AddyIo: "anonaddy",
-
-  /** For https://duckduckgo.com/email/ */
-  DuckDuckGo: "duckduckgo",
-
-  /** For https://www.fastmail.com. */
-  FastMail: "fastmail",
-
-  /** For https://relay.firefox.com/ */
-  FirefoxRelay: "firefoxrelay",
-
-  /** For https://forwardemail.net/ */
-  ForwardEmail: "forwardemail",
-
-  /** For https://simplelogin.io/ */
-  SimpleLogin: "simplelogin",
-});
 
 /** Identifies encrypted options that could have leaked from the configuration. */
 export type MaybeLeakedOptions = {
@@ -102,24 +79,24 @@ export type UsernameGeneratorOptions = {
     /** The service to use for email forwarding.
      *  @remarks This determines which forwarder-specific options to use.
      */
-    service?: string;
+    service?: ForwarderId;
 
-    /** {@link ForwarderIds.AddyIo} */
+    /** {@link Forwarders.AddyIo} */
     addyIo: SelfHostedApiOptions & EmailDomainOptions & MaybeLeakedOptions;
 
-    /** {@link ForwarderIds.DuckDuckGo} */
+    /** {@link Forwarders.DuckDuckGo} */
     duckDuckGo: ApiOptions & MaybeLeakedOptions;
 
-    /** {@link ForwarderIds.FastMail} */
+    /** {@link Forwarders.FastMail} */
     fastMail: ApiOptions & EmailPrefixOptions & MaybeLeakedOptions;
 
-    /** {@link ForwarderIds.FireFoxRelay} */
+    /** {@link Forwarders.FireFoxRelay} */
     firefoxRelay: ApiOptions & MaybeLeakedOptions;
 
-    /** {@link ForwarderIds.ForwardEmail} */
+    /** {@link Forwarders.ForwardEmail} */
     forwardEmail: ApiOptions & EmailDomainOptions & MaybeLeakedOptions;
 
-    /** {@link forwarderIds.SimpleLogin} */
+    /** {@link forwarders.SimpleLogin} */
     simpleLogin: SelfHostedApiOptions & MaybeLeakedOptions;
   };
 };
@@ -142,7 +119,7 @@ export const DefaultOptions: UsernameGeneratorOptions = Object.freeze({
     domain: "",
   }),
   forwarders: Object.freeze({
-    service: ForwarderIds.FastMail,
+    service: Forwarders.Fastmail.id,
     fastMail: Object.freeze({
       domain: "",
       prefix: "",
@@ -176,7 +153,7 @@ export function forAllForwarders<T>(
   callback: (options: ApiOptions) => T,
 ) {
   const results = [];
-  for (const forwarder of Object.values(ForwarderIds)) {
+  for (const forwarder of Object.values(Forwarders).map((f) => f.id)) {
     const forwarderOptions = getForwarderOptions(forwarder, options);
     if (forwarderOptions) {
       results.push(callback(forwarderOptions));
@@ -195,32 +172,32 @@ export function getForwarderOptions(
   service: string,
   options: UsernameGeneratorOptions,
 ): ApiOptions & MaybeLeakedOptions {
-  if (service === ForwarderIds.AddyIo) {
+  if (service === Forwarders.AddyIo.id) {
     return Object.assign(
       structuredClone(DefaultOptions.forwarders.addyIo),
       options.forwarders.addyIo,
     );
-  } else if (service === ForwarderIds.DuckDuckGo) {
+  } else if (service === Forwarders.DuckDuckGo.id) {
     return Object.assign(
       structuredClone(DefaultOptions.forwarders.duckDuckGo),
       options.forwarders.duckDuckGo,
     );
-  } else if (service === ForwarderIds.FastMail) {
+  } else if (service === Forwarders.Fastmail.id) {
     return Object.assign(
       structuredClone(DefaultOptions.forwarders.fastMail),
       options.forwarders.fastMail,
     );
-  } else if (service === ForwarderIds.FirefoxRelay) {
+  } else if (service === Forwarders.FirefoxRelay.id) {
     return Object.assign(
       structuredClone(DefaultOptions.forwarders.firefoxRelay),
       options.forwarders.firefoxRelay,
     );
-  } else if (service === ForwarderIds.ForwardEmail) {
+  } else if (service === Forwarders.ForwardEmail.id) {
     return Object.assign(
       structuredClone(DefaultOptions.forwarders.forwardEmail),
       options.forwarders.forwardEmail,
     );
-  } else if (service === ForwarderIds.SimpleLogin) {
+  } else if (service === Forwarders.SimpleLogin.id) {
     return Object.assign(
       structuredClone(DefaultOptions.forwarders.simpleLogin),
       options.forwarders.simpleLogin,

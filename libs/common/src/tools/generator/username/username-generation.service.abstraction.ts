@@ -1,3 +1,4 @@
+import { ForwarderMetadata } from "./email-forwarders";
 import { UsernameGeneratorOptions } from "./username-generation-options";
 
 export abstract class UsernameGenerationServiceAbstraction {
@@ -8,4 +9,5 @@ export abstract class UsernameGenerationServiceAbstraction {
   generateForwarded: (options: UsernameGeneratorOptions) => Promise<string>;
   getOptions: () => Promise<UsernameGeneratorOptions>;
   saveOptions: (options: UsernameGeneratorOptions) => Promise<void>;
+  getForwarders: () => ForwarderMetadata[];
 }

@@ -1,18 +1,8 @@
 import { DuckDuckGoForwarder } from "./duck-duck-go-forwarder";
+import { Forwarders } from "./metadata";
 import { mockApiService, mockI18nService } from "./mocks.spec";
 
 describe("DuckDuckGo Forwarder", () => {
-  describe("constructor(ApiService, I18nService)", () => {
-    it("looks up the service name from the i18nService", () => {
-      const apiService = mockApiService(200, {});
-      const i18nService = mockI18nService();
-
-      const forwarder = new DuckDuckGoForwarder(apiService, i18nService);
-
-      expect(forwarder.serviceName).toEqual("forwarder.serviceName.duckduckgo");
-    });
-  });
-
   describe("generate(string | null, SelfHostedApiOptions & EmailDomainOptions)", () => {
     it.each([null, ""])("throws an error if the token is missing (token = %p)", async (token) => {
       const apiService = mockApiService(200, {});
@@ -30,7 +20,7 @@ describe("DuckDuckGo Forwarder", () => {
       expect(apiService.nativeFetch).not.toHaveBeenCalled();
       expect(i18nService.t).toHaveBeenCalledWith(
         "forwaderInvalidToken",
-        "forwarder.serviceName.duckduckgo",
+        Forwarders.DuckDuckGo.name,
       );
     });
 
@@ -71,10 +61,9 @@ describe("DuckDuckGo Forwarder", () => {
 
       expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
       // counting instances is terribly flaky over changes, but jest doesn't have a better way to do this
-      expect(i18nService.t).toHaveBeenNthCalledWith(
-        2,
+      expect(i18nService.t).toHaveBeenCalledWith(
         "forwaderInvalidToken",
-        "forwarder.serviceName.duckduckgo",
+        Forwarders.DuckDuckGo.name,
       );
     });
 
@@ -95,10 +84,9 @@ describe("DuckDuckGo Forwarder", () => {
 
         expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
         // counting instances is terribly flaky over changes, but jest doesn't have a better way to do this
-        expect(i18nService.t).toHaveBeenNthCalledWith(
-          2,
+        expect(i18nService.t).toHaveBeenCalledWith(
           "forwarderUnknownError",
-          "forwarder.serviceName.duckduckgo",
+          Forwarders.DuckDuckGo.name,
         );
       },
     );

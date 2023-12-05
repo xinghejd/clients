@@ -16,10 +16,12 @@ import {
   UsernameGenerationServiceAbstraction,
   UsernameGeneratorOptions,
   DefaultOptions,
-  ForwarderIds,
   getForwarderOptions,
 } from "@bitwarden/common/tools/generator/username";
-import { EmailForwarderOptions } from "@bitwarden/common/tools/models/domain/email-forwarder-options";
+import {
+  Forwarders,
+  ForwarderMetadata,
+} from "@bitwarden/common/tools/generator/username/email-forwarders";
 
 @Directive()
 export class GeneratorComponent implements OnInit {
@@ -33,7 +35,7 @@ export class GeneratorComponent implements OnInit {
   usernameTypeOptions: any[];
   subaddressOptions: any[];
   catchallOptions: any[];
-  forwardOptions: EmailForwarderOptions[];
+  forwardOptions: ForwarderMetadata[];
   usernameOptions: UsernameGeneratorOptions = structuredClone(DefaultOptions);
   passwordOptions: PasswordGeneratorOptions = {};
   username = "-";
@@ -43,7 +45,7 @@ export class GeneratorComponent implements OnInit {
   enforcedPasswordPolicyOptions: PasswordGeneratorPolicyOptions;
   usernameWebsite: string = null;
   displayReplaceTokenWarning = false;
-  readonly forwarderIds = ForwarderIds;
+  readonly forwarders = Forwarders;
 
   constructor(
     protected passwordGenerationService: PasswordGenerationServiceAbstraction,
@@ -258,26 +260,10 @@ export class GeneratorComponent implements OnInit {
   }
 
   private async initForwardOptions() {
-    const validForSelfHosted: string[] = [
-      ForwarderIds.AddyIo,
-      ForwarderIds.FastMail,
-      ForwarderIds.ForwardEmail,
-      ForwarderIds.SimpleLogin,
-    ];
-    this.forwardOptions = Object.values(ForwarderIds).map((v) => ({
-      name: this.i18nService.t(`forwarder.serviceName.${v}`),
-      value: v,
-      validForSelfHosted: validForSelfHosted.includes(v),
-    }));
+    this.forwardOptions = this.usernameGenerationService
+      .getForwarders()
+      .sort((a, b) => a.name.localeCompare(b.name));
 
     this.usernameOptions = await this.usernameGenerationService.getOptions();
-    if (
-      this.usernameOptions.forwarders.service == null ||
-      this.usernameOptions.forwarders.service === ""
-    ) {
-      this.forwardOptions.push({ name: "", value: null, validForSelfHosted: false });
-    }
-
-    this.forwardOptions = this.forwardOptions.sort((a, b) => a.name.localeCompare(b.name));
   }
 }

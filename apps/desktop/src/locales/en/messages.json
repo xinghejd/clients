@@ -2156,17 +2156,6 @@
       }
     }
   },
-
-  "forwarder": {
-    "serviceName": {
-      "anonaddy": "addy.io",
-      "duckduckgo": "DuckDuckGo",
-      "fastmail": "Fastmail",
-      "firefoxrelay": "Firefox Relay",
-      "forwardemail": "Forward Email",
-      "simplelogin": "SimpleLogin"
-    }
-  },
   "hostname": {
     "message": "Hostname",
     "description": "Part of a URL."

@@ -1,7 +1,6 @@
 export {
   UsernameGeneratorOptions,
   DefaultOptions,
-  ForwarderIds,
   getForwarderOptions,
 } from "./username-generation-options";
 export { UsernameGenerationServiceAbstraction } from "./username-generation.service.abstraction";

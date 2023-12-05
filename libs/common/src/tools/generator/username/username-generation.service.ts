@@ -5,7 +5,7 @@ import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { StateService } from "../../../platform/abstractions/state.service";
 import { EFFLongWordList } from "../../../platform/misc/wordlist";
 
-import { createForwarder } from "./email-forwarders";
+import { Forwarders, createForwarder } from "./email-forwarders";
 import {
   UsernameGeneratorOptions,
   DefaultOptions,
@@ -173,6 +173,10 @@ export class UsernameGenerationService implements UsernameGenerationServiceAbstr
       decryptInPlace(this.encryptService, key, opts),
     );
     await Promise.all(decryptions);
+  }
+
+  getForwarders() {
+    return Object.values(Forwarders);
   }
 
   private async randomString(length: number) {

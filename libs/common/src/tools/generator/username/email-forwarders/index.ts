@@ -7,6 +7,7 @@ import { FastmailForwarder } from "./fastmail-forwarder";
 import { FirefoxRelayForwarder } from "./firefox-relay-forwarder";
 import { ForwardEmailForwarder } from "./forward-email-forwarder";
 import { Forwarder } from "./forwarder";
+import { Forwarders } from "./metadata";
 import { SimpleLoginForwarder } from "./simple-login-forwarder";
 
 export {
@@ -16,6 +17,8 @@ export {
   EmailDomainOptions,
   EmailPrefixOptions,
 } from "./forwarder";
+
+export { Forwarders, ForwarderMetadata, ForwarderId } from "./metadata";
 
 /** Static factory for creating forwarders
  * @param service Identifies the service to create a forwarder for.
@@ -28,17 +31,17 @@ export function createForwarder(
   apiService: ApiService,
   i18nService: I18nService,
 ): Forwarder {
-  if (service === "anonaddy") {
+  if (service === Forwarders.AddyIo.id) {
     return new AnonAddyForwarder(apiService, i18nService);
-  } else if (service === "duckduckgo") {
+  } else if (service === Forwarders.DuckDuckGo.id) {
     return new DuckDuckGoForwarder(apiService, i18nService);
-  } else if (service === "fastmail") {
+  } else if (service === Forwarders.Fastmail.id) {
     return new FastmailForwarder(apiService, i18nService);
-  } else if (service === "firefoxrelay") {
+  } else if (service === Forwarders.FirefoxRelay.id) {
     return new FirefoxRelayForwarder(apiService, i18nService);
-  } else if (service === "forwardemail") {
+  } else if (service === Forwarders.ForwardEmail.id) {
     return new ForwardEmailForwarder(apiService, i18nService);
-  } else if (service === "simplelogin") {
+  } else if (service === Forwarders.SimpleLogin.id) {
     return new SimpleLoginForwarder(apiService, i18nService);
   } else {
     return null;

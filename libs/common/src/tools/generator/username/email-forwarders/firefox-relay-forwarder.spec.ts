@@ -1,18 +1,8 @@
 import { FirefoxRelayForwarder } from "./firefox-relay-forwarder";
+import { Forwarders } from "./metadata";
 import { mockApiService, mockI18nService } from "./mocks.spec";
 
 describe("Firefox Relay Forwarder", () => {
-  describe("constructor(ApiService, I18nService)", () => {
-    it("looks up the service name from the i18nService", () => {
-      const apiService = mockApiService(200, {});
-      const i18nService = mockI18nService();
-
-      const forwarder = new FirefoxRelayForwarder(apiService, i18nService);
-
-      expect(forwarder.serviceName).toEqual("forwarder.serviceName.firefoxrelay");
-    });
-  });
-
   describe("generate(string | null, SelfHostedApiOptions & EmailDomainOptions)", () => {
     it.each([null, ""])("throws an error if the token is missing (token = %p)", async (token) => {
       const apiService = mockApiService(200, {});
@@ -30,7 +20,7 @@ describe("Firefox Relay Forwarder", () => {
       expect(apiService.nativeFetch).not.toHaveBeenCalled();
       expect(i18nService.t).toHaveBeenCalledWith(
         "forwaderInvalidToken",
-        "forwarder.serviceName.firefoxrelay",
+        Forwarders.FirefoxRelay.name,
       );
     });
 
@@ -52,7 +42,7 @@ describe("Firefox Relay Forwarder", () => {
         });
 
         // counting instances is terribly flaky over changes, but jest doesn't have a better way to do this
-        expect(i18nService.t).toHaveBeenNthCalledWith(2, translationKey, expectedWebsite);
+        expect(i18nService.t).toHaveBeenCalledWith(translationKey, expectedWebsite);
       },
     );
 
@@ -94,9 +84,9 @@ describe("Firefox Relay Forwarder", () => {
       expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
       // counting instances is terribly flaky over changes, but jest doesn't have a better way to do this
       expect(i18nService.t).toHaveBeenNthCalledWith(
-        3,
+        2,
         "forwaderInvalidToken",
-        "forwarder.serviceName.firefoxrelay",
+        Forwarders.FirefoxRelay.name,
       );
     });
 
@@ -118,9 +108,9 @@ describe("Firefox Relay Forwarder", () => {
         expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
         // counting instances is terribly flaky over changes, but jest doesn't have a better way to do this
         expect(i18nService.t).toHaveBeenNthCalledWith(
-          3,
+          2,
           "forwarderUnknownError",
-          "forwarder.serviceName.firefoxrelay",
+          Forwarders.FirefoxRelay.name,
         );
       },
     );

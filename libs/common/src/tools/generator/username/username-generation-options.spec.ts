@@ -2,10 +2,9 @@ import { EncryptService } from "../../../platform/abstractions/encrypt.service";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 
-import { ApiOptions } from "./email-forwarders";
+import { ApiOptions, Forwarders } from "./email-forwarders";
 import {
   getForwarderOptions,
-  ForwarderIds,
   DefaultOptions,
   UsernameGeneratorOptions,
   encryptInPlace,
@@ -29,7 +28,7 @@ const TestOptions: UsernameGeneratorOptions = {
     domain: "example.com",
   },
   forwarders: {
-    service: ForwarderIds.FastMail,
+    service: Forwarders.Fastmail.id,
     fastMail: {
       domain: "httpbin.com",
       prefix: "foo",

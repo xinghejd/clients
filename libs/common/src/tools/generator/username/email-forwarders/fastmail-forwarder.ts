@@ -2,29 +2,26 @@ import { ApiService } from "../../../../abstractions/api.service";
 import { I18nService } from "../../../../platform/abstractions/i18n.service";
 
 import { ApiOptions, EmailPrefixOptions, Forwarder } from "./forwarder";
+import { Forwarders } from "./metadata";
 
 export class FastmailForwarder implements Forwarder {
-  readonly serviceName: string;
-
   constructor(
     private apiService: ApiService,
     private i18nService: I18nService,
-  ) {
-    this.serviceName = i18nService.t("forwarder.serviceName.fastmail");
-  }
+  ) {}
 
   async generate(
     website: string | null,
     options: ApiOptions & EmailPrefixOptions,
   ): Promise<string> {
     if (!options.token || options.token === "") {
-      const error = this.i18nService.t("forwaderInvalidToken", this.serviceName);
+      const error = this.i18nService.t("forwaderInvalidToken", Forwarders.Fastmail.name);
       throw error;
     }
 
     const accountId = await this.getAccountId(options);
     if (!accountId || accountId === "") {
-      const error = this.i18nService.t("forwarderNoAccountId", this.serviceName);
+      const error = this.i18nService.t("forwarderNoAccountId", Forwarders.Fastmail.name);
       throw error;
     }
 
@@ -78,21 +75,29 @@ export class FastmailForwarder implements Forwarder {
           if (json.methodResponses[0][1]?.notCreated?.["new-masked-email"] != null) {
             const errorDescription =
               json.methodResponses[0][1]?.notCreated?.["new-masked-email"]?.description;
-            const error = this.i18nService.t("forwarderError", this.serviceName, errorDescription);
+            const error = this.i18nService.t(
+              "forwarderError",
+              Forwarders.Fastmail.name,
+              errorDescription,
+            );
             throw error;
           }
         } else if (json.methodResponses[0][0] === "error") {
           const errorDescription = json.methodResponses[0][1]?.description;
-          const error = this.i18nService.t("forwarderError", this.serviceName, errorDescription);
+          const error = this.i18nService.t(
+            "forwarderError",
+            Forwarders.Fastmail.name,
+            errorDescription,
+          );
           throw error;
         }
       }
     } else if (response.status === 401 || response.status === 403) {
-      const error = this.i18nService.t("forwaderInvalidToken", this.serviceName);
+      const error = this.i18nService.t("forwaderInvalidToken", Forwarders.Fastmail.name);
       throw error;
     }
 
-    const error = this.i18nService.t("forwarderUnknownError", this.serviceName);
+    const error = this.i18nService.t("forwarderUnknownError", Forwarders.Fastmail.name);
     throw error;
   }
 

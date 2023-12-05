@@ -1,18 +1,8 @@
+import { Forwarders } from "./metadata";
 import { mockApiService, mockI18nService } from "./mocks.spec";
 import { SimpleLoginForwarder } from "./simple-login-forwarder";
 
 describe("SimpleLogin Forwarder", () => {
-  describe("constructor(ApiService, I18nService)", () => {
-    it("looks up the service name from the i18nService", () => {
-      const apiService = mockApiService(200, {});
-      const i18nService = mockI18nService();
-
-      const forwarder = new SimpleLoginForwarder(apiService, i18nService);
-
-      expect(forwarder.serviceName).toEqual("forwarder.serviceName.simplelogin");
-    });
-  });
-
   describe("generate(string | null, SelfHostedApiOptions & EmailDomainOptions)", () => {
     it.each([null, ""])("throws an error if the token is missing (token = %p)", async (token) => {
       const apiService = mockApiService(200, {});
@@ -31,7 +21,7 @@ describe("SimpleLogin Forwarder", () => {
       expect(apiService.nativeFetch).not.toHaveBeenCalled();
       expect(i18nService.t).toHaveBeenCalledWith(
         "forwaderInvalidToken",
-        "forwarder.serviceName.simplelogin",
+        Forwarders.SimpleLogin.name,
       );
     });
 
@@ -52,10 +42,7 @@ describe("SimpleLogin Forwarder", () => {
         ).rejects.toEqual("forwarderNoUrl");
 
         expect(apiService.nativeFetch).not.toHaveBeenCalled();
-        expect(i18nService.t).toHaveBeenCalledWith(
-          "forwarderNoUrl",
-          "forwarder.serviceName.simplelogin",
-        );
+        expect(i18nService.t).toHaveBeenCalledWith("forwarderNoUrl", Forwarders.SimpleLogin.name);
       },
     );
 
@@ -78,7 +65,7 @@ describe("SimpleLogin Forwarder", () => {
         });
 
         // counting instances is terribly flaky over changes, but jest doesn't have a better way to do this
-        expect(i18nService.t).toHaveBeenNthCalledWith(2, translationKey, expectedWebsite);
+        expect(i18nService.t).toHaveBeenCalledWith(translationKey, expectedWebsite);
       },
     );
 
@@ -122,9 +109,9 @@ describe("SimpleLogin Forwarder", () => {
       expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
       // counting instances is terribly flaky over changes, but jest doesn't have a better way to do this
       expect(i18nService.t).toHaveBeenNthCalledWith(
-        3,
+        2,
         "forwaderInvalidToken",
-        "forwarder.serviceName.simplelogin",
+        Forwarders.SimpleLogin.name,
       );
     });
 
@@ -145,9 +132,9 @@ describe("SimpleLogin Forwarder", () => {
       expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
       // counting instances is terribly flaky over changes, but jest doesn't have a better way to do this
       expect(i18nService.t).toHaveBeenNthCalledWith(
-        3,
+        2,
         "forwarderUnknownError",
-        "forwarder.serviceName.simplelogin",
+        Forwarders.SimpleLogin.name,
       );
     });
 
@@ -177,9 +164,9 @@ describe("SimpleLogin Forwarder", () => {
         expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
         // counting instances is terribly flaky over changes, but jest doesn't have a better way to do this
         expect(i18nService.t).toHaveBeenNthCalledWith(
-          3,
+          2,
           "forwarderError",
-          "forwarder.serviceName.simplelogin",
+          Forwarders.SimpleLogin.name,
           error,
         );
       },

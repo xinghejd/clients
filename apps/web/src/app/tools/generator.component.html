@@ -267,12 +267,12 @@
         (change)="saveUsernameOptions()"
         class="form-control w-auto"
       >
-        <option *ngFor="let o of forwardOptions" [ngValue]="o.value" role="option">
+        <option *ngFor="let o of forwardOptions" [ngValue]="o.id" role="option">
           {{ o.name }}
         </option>
       </select>
     </div>
-    <div class="row" *ngIf="usernameOptions.forwarders.service === forwarderIds.SimpleLogin">
+    <div class="row" *ngIf="usernameOptions.forwarders.service === forwarders.SimpleLogin.id">
       <div class="form-group col-4">
         <label for="simplelogin-apikey">{{ "apiKey" | i18n }}</label>
         <input
@@ -295,7 +295,7 @@
         />
       </div>
     </div>
-    <div class="row" *ngIf="usernameOptions.forwarders.service === forwarderIds.DuckDuckGo">
+    <div class="row" *ngIf="usernameOptions.forwarders.service === forwarders.DuckDuckGo.id">
       <div class="form-group col-4">
         <label for="duckduckgo-apikey">{{ "apiKey" | i18n }}</label>
         <input
@@ -308,7 +308,7 @@
         />
       </div>
     </div>
-    <div class="row" *ngIf="usernameOptions.forwarders.service === forwarderIds.AddyIo">
+    <div class="row" *ngIf="usernameOptions.forwarders.service === forwarders.AddyIo.id">
       <div class="form-group col-4">
         <label for="anonaddy-apikey">{{ "apiAccessToken" | i18n }}</label>
         <input
@@ -341,7 +341,7 @@
         />
       </div>
     </div>
-    <div class="row" *ngIf="usernameOptions.forwarders.service === forwarderIds.FirefoxRelay">
+    <div class="row" *ngIf="usernameOptions.forwarders.service === forwarders.FirefoxRelay.id">
       <div class="form-group col-4">
         <label for="firefox-apikey">{{ "apiAccessToken" | i18n }}</label>
         <input
@@ -353,7 +353,7 @@
         />
       </div>
     </div>
-    <div class="row" *ngIf="usernameOptions.forwarders.service === forwarderIds.FastMail">
+    <div class="row" *ngIf="usernameOptions.forwarders.service === forwarders.Fastmail.id">
       <div class="form-group col-4">
         <label for="fastmail-apiToken">{{ "apiAccessToken" | i18n }}</label>
         <input
@@ -365,7 +365,7 @@
         />
       </div>
     </div>
-    <div class="row" *ngIf="usernameOptions.forwarders.service === forwarderIds.ForwardEmail">
+    <div class="row" *ngIf="usernameOptions.forwarders.service === forwarders.ForwardEmail.id">
       <div class="form-group col-4">
         <label for="forwardemail-apikey">{{ "apiAccessToken" | i18n }}</label>
         <input
