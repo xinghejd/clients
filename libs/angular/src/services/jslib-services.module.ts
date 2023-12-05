@@ -402,7 +402,13 @@ import { ModalService } from "./modal.service";
     {
       provide: UsernameGenerationServiceAbstraction,
       useClass: UsernameGenerationService,
-      deps: [CryptoServiceAbstraction, StateServiceAbstraction, ApiServiceAbstraction],
+      deps: [
+        CryptoServiceAbstraction,
+        StateServiceAbstraction,
+        ApiServiceAbstraction,
+        I18nServiceAbstraction,
+        EncryptService,
+      ],
     },
     {
       provide: ApiServiceAbstraction,

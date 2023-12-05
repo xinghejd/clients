@@ -733,6 +733,8 @@ export default class MainBackground {
       this.cryptoService,
       this.stateService,
       this.apiService,
+      this.i18nService,
+      this.encryptService,
     );
 
     this.avatarUpdateService = new AvatarUpdateService(this.apiService, this.stateService);
