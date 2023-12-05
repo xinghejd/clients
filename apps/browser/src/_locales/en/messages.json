@@ -1027,6 +1027,12 @@
   "showAutoFillMenuOnFormFieldsDescAlt": {
     "message": "Applies to all logged in accounts."
   },
+  "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
+    "message": "Turn off your browser’s built in password manager settings"
+  },
+  "turnOffBrowserBuiltInPasswordManagerSettingsToAvoidConflicts": {
+    "message": "to avoid conflicts."
+  },
   "autofillOverlayVisibilityOff": {
     "message": "Off",
     "description": "Overlay setting select option for disabling autofill overlay"

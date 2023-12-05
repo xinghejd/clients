@@ -45,22 +45,19 @@
         <div class="box-footer" *ngIf="accountSwitcherEnabled">
           {{ "showAutoFillMenuOnFormFieldsDescAlt" | i18n }}
         </div>
+        <div class="box-footer">
+          <a
+            href="https://bitwarden.com/help/disable-browser-autofill/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {{ "turnOffBrowserBuiltInPasswordManagerSettingsLink" | i18n }}
+          </a>
+          {{ "turnOffBrowserBuiltInPasswordManagerSettingsToAvoidConflicts" | i18n }}
+        </div>
       </div>
     </div>
   </ng-container>
-  <div class="box tw-mt-4" *ngIf="canOverrideBrowserAutofillSetting">
-    <div class="box-content">
-      <div class="box-content-row box-content-row-checkbox" appBoxRow>
-        <label for="overrideBrowserAutofill">{{ "overrideBrowserAutoFillSettings" | i18n }}</label>
-        <input
-          id="overrideBrowserAutofill"
-          type="checkbox"
-          (change)="updateDefaultBrowserAutofillDisabled()"
-          [(ngModel)]="defaultBrowserAutofillDisabled"
-        />
-      </div>
-    </div>
-  </div>
   <div class="box tw-mt-4">
     <div class="box-content">
       <div class="box-content-row box-content-row-checkbox" appBoxRow>
