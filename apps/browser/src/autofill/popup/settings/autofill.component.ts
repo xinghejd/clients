@@ -20,6 +20,7 @@ export class AutofillComponent implements OnInit {
   protected isAutoFillOverlayFlagEnabled = false;
   protected autoFillOverlayVisibility: number;
   protected autoFillOverlayVisibilityOptions: any[];
+  protected disablePasswordManagerLink: string;
   enableAutoFillOnPageLoad = false;
   autoFillOnPageLoadDefault = false;
   autoFillOnPageLoadOptions: any[];
@@ -63,6 +64,7 @@ export class AutofillComponent implements OnInit {
     ];
 
     this.accountSwitcherEnabled = flagEnabled("accountSwitching");
+    this.disablePasswordManagerLink = this.getDisablePasswordManagerLink();
   }
 
   async ngOnInit() {
@@ -119,5 +121,27 @@ export class AutofillComponent implements OnInit {
     } else {
       BrowserApi.createNewTab("https://bitwarden.com/help/keyboard-shortcuts");
     }
+  }
+
+  private getDisablePasswordManagerLink(): string {
+    if (this.platformUtilsService.isChrome()) {
+      return "chrome://settings/autofill";
+    }
+    if (this.platformUtilsService.isOpera()) {
+      return "opera://settings/autofill";
+    }
+    if (this.platformUtilsService.isEdge()) {
+      return "edge://settings/passwords";
+    }
+    if (this.platformUtilsService.isVivaldi()) {
+      return "vivaldi://settings/autofill";
+    }
+
+    return "https://bitwarden.com/help/disable-browser-autofill/";
+  }
+
+  protected openDisablePasswordManagerLink(event: Event) {
+    event.preventDefault();
+    BrowserApi.createNewTab(this.disablePasswordManagerLink);
   }
 }

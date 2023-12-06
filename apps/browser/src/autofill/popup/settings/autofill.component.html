@@ -46,14 +46,15 @@
           {{ "showAutoFillMenuOnFormFieldsDescAlt" | i18n }}
         </div>
         <div class="box-footer">
+          {{ "turnOffBrowserBuiltInPasswordManagerSettings" | i18n }}
           <a
-            href="https://bitwarden.com/help/disable-browser-autofill/"
+            [attr.href]="disablePasswordManagerLink"
+            (click)="openDisablePasswordManagerLink($event)"
             target="_blank"
             rel="noopener noreferrer"
           >
             {{ "turnOffBrowserBuiltInPasswordManagerSettingsLink" | i18n }}
           </a>
-          {{ "turnOffBrowserBuiltInPasswordManagerSettingsToAvoidConflicts" | i18n }}
         </div>
       </div>
     </div>

@@ -1027,11 +1027,11 @@
   "showAutoFillMenuOnFormFieldsDescAlt": {
     "message": "Applies to all logged in accounts."
   },
-  "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
-    "message": "Turn off your browser’s built in password manager settings"
+  "turnOffBrowserBuiltInPasswordManagerSettings": {
+    "message": "Turn off your browser’s built in password manager settings to avoid conflicts."
   },
-  "turnOffBrowserBuiltInPasswordManagerSettingsToAvoidConflicts": {
-    "message": "to avoid conflicts."
+  "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
+    "message": "Edit browser settings."
   },
   "autofillOverlayVisibilityOff": {
     "message": "Off",
