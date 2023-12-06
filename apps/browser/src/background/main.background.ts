@@ -562,6 +562,7 @@ export default class MainBackground {
       this.logService,
       this.settingsService,
       this.userVerificationService,
+      this.configService,
     );
     this.auditService = new AuditService(this.cryptoFunctionService, this.apiService);
 

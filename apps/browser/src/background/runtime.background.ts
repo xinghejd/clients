@@ -1,5 +1,4 @@
 import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -95,9 +94,9 @@ export default class RuntimeBackground {
           await closeUnlockPopout();
         }
 
+        await this.notificationsService.updateConnection(msg.command === "loggedIn");
         await this.main.refreshBadge();
         await this.main.refreshMenu(false);
-        this.notificationsService.updateConnection(msg.command === "unlocked");
         this.systemService.cancelProcessReload();
 
         if (item) {
@@ -131,11 +130,7 @@ export default class RuntimeBackground {
         await this.main.openPopup();
         break;
       case "triggerAutofillScriptInjection":
-        await this.autofillService.injectAutofillScripts(
-          sender,
-          await this.configService.getFeatureFlag<boolean>(FeatureFlag.AutofillV2),
-          await this.configService.getFeatureFlag<boolean>(FeatureFlag.AutofillOverlay),
-        );
+        await this.autofillService.injectAutofillScripts(sender.tab, sender.frameId);
         break;
       case "bgCollectPageDetails":
         await this.main.collectPageDetailsForContentScript(sender.tab, msg.sender, sender.frameId);
@@ -320,6 +315,8 @@ export default class RuntimeBackground {
 
   private async checkOnInstalled() {
     setTimeout(async () => {
+      this.autofillService.loadAutofillScriptsOnInstall();
+
       if (this.onInstalledReason != null) {
         if (this.onInstalledReason === "install") {
           BrowserApi.createNewTab("https://bitwarden.com/browser-start/");

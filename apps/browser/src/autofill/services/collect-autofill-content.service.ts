@@ -1217,6 +1217,17 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
 
     return attributeValue;
   }
+
+  /**
+   * Destroys the CollectAutofillContentService. Clears all
+   * timeouts and disconnects the mutation observer.
+   */
+  destroy() {
+    if (this.updateAutofillElementsAfterMutationTimeout) {
+      clearTimeout(this.updateAutofillElementsAfterMutationTimeout);
+    }
+    this.mutationObserver?.disconnect();
+  }
 }
 
 export default CollectAutofillContentService;
