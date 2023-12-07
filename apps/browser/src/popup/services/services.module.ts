@@ -121,9 +121,8 @@ import { InitService } from "./init.service";
 import { PopupCloseWarningService } from "./popup-close-warning.service";
 import { PopupSearchService } from "./popup-search.service";
 
-const needsBackgroundInit = BrowserPopupUtils.backgroundInitializationRequired();
 const isPrivateMode = BrowserPopupUtils.inPrivateMode();
-const mainBackground: MainBackground = needsBackgroundInit
+const mainBackground: MainBackground = BrowserPopupUtils.backgroundInitializationRequired()
   ? createLocalBgService()
   : BrowserApi.getBackgroundPage().bitwardenMain;
 
@@ -162,7 +161,7 @@ function getBgService<T>(service: keyof MainBackground) {
     {
       provide: MessagingService,
       useFactory: () => {
-        return needsBackgroundInit
+        return BrowserPopupUtils.backgroundInitializationRequired()
           ? new BrowserMessagingPrivateModePopupService()
           : new BrowserMessagingService();
       },

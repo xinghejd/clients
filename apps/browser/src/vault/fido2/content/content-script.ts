@@ -10,7 +10,7 @@ function isFido2FeatureEnabled(): Promise<boolean> {
   return new Promise((resolve) => {
     chrome.runtime.sendMessage(
       { command: "checkFido2FeatureEnabled" },
-      (response: { result?: boolean }) => resolve(response.result),
+      (response: { result?: boolean }) => resolve(response?.result),
     );
   });
 }

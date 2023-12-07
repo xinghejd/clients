@@ -1,10 +1,8 @@
 import { Component } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
-import {
-  BrowserFido2UserInterfaceSession,
-  fido2PopoutSessionData$,
-} from "../../../fido2/browser-fido2-user-interface.service";
+import { BrowserFido2UserInterfaceSession } from "../../../fido2/browser-fido2-user-interface.service";
+import { fido2PopoutSessionData$ } from "../../../fido2/utils/fido2-popout-session-data";
 
 @Component({
   selector: "app-fido2-use-browser-link",
