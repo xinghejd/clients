@@ -1,17 +1,45 @@
 use anyhow::Result;
-use objc::{class, msg_send, sel, sel_impl};
+use icrate::{
+    ns_string,
+    objc2::ClassType,
+    AuthenticationServices::ASAuthorizationPlatformPublicKeyCredentialProvider,
+    Foundation::{NSData, NSDataBase64DecodingIgnoreUnknownCharacters, NSString},
+};
 
-pub fn create(window_handle: u64) -> Result<String> {
-    let nslog = sel!(NSLog);
+pub fn create(_window_handle: u64) -> Result<String> {
+    let rp_id = ns_string!("shiny.coroiu.com"); // Example of how to create static "string literal" NSString
+    let credential_provider = unsafe {
+        ASAuthorizationPlatformPublicKeyCredentialProvider::initWithRelyingPartyIdentifier(
+            ASAuthorizationPlatformPublicKeyCredentialProvider::alloc(),
+            rp_id,
+        )
+    };
 
-    println!("nslog: {:?}", nslog);
-    // msg_send![nslog, ]
-    // let cls = class!(NSLog);
-    // let obj: *mut Object = msg_send![cls, new];
-    // let hash: usize = msg_send![obj, hash];
-    // let is_kind: BOOL = msg_send![obj, isKindOfClass:cls];
-    // // Even void methods must have their return type annotated
-    // let _: () = msg_send![obj, release];
+    let user_name = NSString::from_str("user"); // Example of how to create dynamic NSString
+    let challenge = unsafe {
+        NSData::initWithBase64EncodedString_options(
+            NSData::alloc(),
+            ns_string!("YW5kcmVhcyBjb3JvaXUgd2FzIGhlcmU="),
+            NSDataBase64DecodingIgnoreUnknownCharacters,
+        )
+    };
+    let user_id = unsafe {
+        NSData::initWithBase64EncodedString_options(
+            NSData::alloc(),
+            ns_string!("6dnpKhnpRAS4diyuFwS+Rg=="), // e9d9e92a-19e9-4404-b876-2cae1704be46 in base64
+            NSDataBase64DecodingIgnoreUnknownCharacters,
+        )
+    };
+
+    let registration_request = unsafe {
+        credential_provider.createCredentialRegistrationRequestWithChallenge_name_userID(
+            challenge.unwrap().as_ref(),
+            user_name.as_ref(),
+            user_id.unwrap().as_ref(),
+        )
+    };
+
+    println!("registration_request: {:?}", registration_request);
 
     Ok("not implemented".to_owned())
 }
