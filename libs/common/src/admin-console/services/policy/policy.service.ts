@@ -1,8 +1,9 @@
-import { BehaviorSubject, concatMap, map, Observable, of } from "rxjs";
+import { concatMap, map, Observable, of } from "rxjs";
 
 import { ListResponse } from "../../../models/response/list.response";
 import { StateService } from "../../../platform/abstractions/state.service";
-import { Utils } from "../../../platform/misc/utils";
+import { KeyDefinition, POLICY_DISK, StateProvider } from "../../../platform/state";
+import { PolicyId, UserId } from "../../../types/guid";
 import { OrganizationService } from "../../abstractions/organization/organization.service.abstraction";
 import { InternalPolicyService as InternalPolicyServiceAbstraction } from "../../abstractions/policy/policy.service.abstraction";
 import { OrganizationUserStatusType, OrganizationUserType, PolicyType } from "../../enums";
@@ -13,34 +14,22 @@ import { Policy } from "../../models/domain/policy";
 import { ResetPasswordPolicyOptions } from "../../models/domain/reset-password-policy-options";
 import { PolicyResponse } from "../../models/response/policy.response";
 
-export class PolicyService implements InternalPolicyServiceAbstraction {
-  protected _policies: BehaviorSubject<Policy[]> = new BehaviorSubject([]);
+export const POLICY_POLICY = KeyDefinition.record<PolicyData, PolicyId>(POLICY_DISK, "policies", {
+  deserializer: (accountInfo) => accountInfo,
+});
 
-  policies$ = this._policies.asObservable();
+export class PolicyService implements InternalPolicyServiceAbstraction {
+  private policyState = this.stateProvider.getActive(POLICY_POLICY);
+
+  policies$ = this.policyState.state$.pipe(
+    map((policiesMap) => Object.values(policiesMap || {}).map((f) => new Policy(f))),
+  );
 
   constructor(
     protected stateService: StateService,
     private organizationService: OrganizationService,
-  ) {
-    this.stateService.activeAccountUnlocked$
-      .pipe(
-        concatMap(async (unlocked) => {
-          if (Utils.global.bitwardenContainerService == null) {
-            return;
-          }
-
-          if (!unlocked) {
-            this._policies.next([]);
-            return;
-          }
-
-          const data = await this.stateService.getEncryptedPolicies();
-
-          await this.updateObservables(data);
-        }),
-      )
-      .subscribe();
-  }
+    private stateProvider: StateProvider,
+  ) {}
 
   get$(policyType: PolicyType, policyFilter?: (policy: Policy) => boolean): Observable<Policy> {
     return this.policies$.pipe(
@@ -247,17 +236,19 @@ export class PolicyService implements InternalPolicyServiceAbstraction {
   }
 
   async replace(policies: { [id: string]: PolicyData }): Promise<void> {
-    await this.updateObservables(policies);
-    await this.stateService.setDecryptedPolicies(null);
-    await this.stateService.setEncryptedPolicies(policies);
+    await this.policyState.update(() => policies);
   }
 
-  async clear(userId?: string): Promise<void> {
-    if (userId == null || userId == (await this.stateService.getUserId())) {
-      this._policies.next([]);
-    }
-    await this.stateService.setDecryptedPolicies(null, { userId: userId });
-    await this.stateService.setEncryptedPolicies(null, { userId: userId });
+  async clear(userId: string): Promise<void> {
+    const user = this.stateProvider.getUser(userId as UserId, POLICY_POLICY);
+    await user.update(() => ({}));
+
+    // for example
+    await user.update((policies) => {
+      policies ??= {};
+      policies[key] = val;
+      return policies;
+    });
   }
 
   private isExemptFromPolicies(organization: Organization, policyType: PolicyType) {
@@ -266,12 +257,6 @@ export class PolicyService implements InternalPolicyServiceAbstraction {
     }
 
     return organization.isExemptFromPolicies;
-  }
-
-  private async updateObservables(policiesMap: { [id: string]: PolicyData }) {
-    const policies = Object.values(policiesMap || {}).map((f) => new Policy(f));
-
-    this._policies.next(policies);
   }
 
   private async checkPoliciesThatApplyToUser(
