@@ -1,0 +1,14 @@
+{
+  "name": "@bitwarden/browser-mv3",
+  "version": "2023.12.0",
+  "scripts": {
+    "build": "webpack",
+    "build:watch": "webpack --watch",
+    "build:prod": "cross-env NODE_ENV=production webpack",
+    "build:prod:watch": "cross-env NODE_ENV=production webpack --watch",
+    "test": "jest",
+    "test:coverage": "jest --coverage --coverageDirectory=coverage",
+    "test:watch": "jest --watch",
+    "test:watch:all": "jest --watchAll"
+  }
+}
