@@ -7434,8 +7434,5 @@
   },
   "seatLimitReachedContactYourProvider": {
     "message": "Seat limit has been reached. Contact your provider to purchase additional seats."
-  },
-  "collectionAccessRestricted": {
-    "message": "Collection access is restricted"
   }
 }
