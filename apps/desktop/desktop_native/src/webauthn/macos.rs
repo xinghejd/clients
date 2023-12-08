@@ -1,9 +1,14 @@
 use anyhow::Result;
 use icrate::{
-    ns_string,
-    objc2::ClassType,
+    objc2::{
+        declare_class, extern_methods, mutability::InteriorMutable, rc::Id, ClassType,
+        DeclaredClass,
+    },
+    AppKit::NSWindow,
     AuthenticationServices::ASAuthorizationPlatformPublicKeyCredentialProvider,
-    Foundation::{NSData, NSDataBase64DecodingIgnoreUnknownCharacters, NSString},
+    Foundation::{
+        ns_string, NSData, NSDataBase64DecodingIgnoreUnknownCharacters, NSObject, NSString,
+    },
 };
 
 pub fn create(_window_handle: u64) -> Result<String> {
@@ -43,3 +48,43 @@ pub fn create(_window_handle: u64) -> Result<String> {
 
     Ok("not implemented".to_owned())
 }
+
+struct AuthDelegateIvars {
+    window: Id<NSWindow>,
+}
+
+declare_class!(
+    struct AuthDelegate;
+
+    unsafe impl ClassType for AuthDelegate {
+        type Super = NSObject;
+        type Mutability = InteriorMutable;
+        const NAME: &'static str = "AuthDelegate";
+    }
+
+    impl DeclaredClass for AuthDelegate {
+        type Ivars = AuthDelegateIvars;
+    }
+
+//     unsafe impl MyObject {
+//         #[method_id(init)]
+//         pub fn init(this: Allocated<Self>) -> Option<Id<Self>> {
+//             let this = this.set_ivars(MyIvars {
+//                 object: NSObject::new(),
+//             });
+//             unsafe { msg_send_id![super(this), init] }
+//         }
+//     }
+);
+
+// extern_methods!(
+//     unsafe impl MyObject {
+//         #[method_id(new)]
+//         pub fn new() -> Id<Self>;
+//     }
+// );
+
+// fn main() {
+//     let obj = MyObject::new();
+//     println!("{:?}", obj.ivars().object);
+// }
