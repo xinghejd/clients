@@ -59,11 +59,17 @@ swift-bridge = "=0.1.52"
 icrate = { git = "https://github.com/madsmtm/objc2", rev = "8b04944ffde180e526a45fe154ee51c9ae14944f", features = [
   "Foundation_NSString",
   "Foundation_NSData",
+  "Foundation_NSArray",
+  "Foundation_NSThread",
+  "Foundation_NSError",
   "AuthenticationServices",
+  "AuthenticationServices_ASAuthorization",
+  "AuthenticationServices_ASAuthorizationController",
   "AuthenticationServices_ASAuthorizationPlatformPublicKeyCredentialProvider",
   "AuthenticationServices_ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest",
   "AppKit",
   "AppKit_NSWindow",
+  "dispatch",
 ] }
 # icrate = { version = "=0.1.0", features = [
 #   "Foundation_NSString",
