@@ -2,7 +2,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug Main Process",
+      "name": "Launch Main",
       "type": "node",
       "request": "launch",
       "cwd": "${workspaceRoot}/build",
@@ -11,6 +11,14 @@
         "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
       },
       "args": ["."]
+    },
+    {
+      "name": "Attach Renderer",
+      "type": "chrome",
+      "request": "attach",
+      "port": 8315,
+      "webRoot": "${workspaceRoot}",
+      "timeout": 30000
     }
   ]
 }

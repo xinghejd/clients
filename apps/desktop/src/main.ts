@@ -76,6 +76,7 @@ export class Main {
         electron: path.join(__dirname, "../../../", "node_modules", ".bin", execName),
         electronArgv: ["--inspect=5858", "--watch"],
       });
+      app.commandLine.appendSwitch("remote-debugging-port", "8315");
     }
 
     this.logService = new ElectronLogService(null, app.getPath("userData"));
