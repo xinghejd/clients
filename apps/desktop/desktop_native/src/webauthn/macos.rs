@@ -4,8 +4,8 @@ use icrate::{
         declare_class, msg_send_id,
         mutability::{self, InteriorMutable},
         rc::{Allocated, Id},
-        runtime::ProtocolObject,
-        ClassType, DeclaredClass, Encoding, RefEncode,
+        runtime::{AnyObject, ProtocolObject},
+        ClassType, DeclaredClass, Encode, Encoding, RefEncode,
     },
     AppKit::{NSApplication, NSWindow},
     AuthenticationServices::{
@@ -81,7 +81,23 @@ pub fn create(_window_handle: u64) -> Result<String> {
         unsafe { auth_controller.setDelegate(Some(auth_controller_delegate)) };
 
         let presentation_context_delegate = ProtocolObject::from_ref(&*unwrapperd_delegate);
-        unsafe { auth_controller.setPresentationContextProvider(presentation_context_delegate) };
+        unsafe {
+            auth_controller.setPresentationContextProvider(Some(presentation_context_delegate))
+        };
+
+        unsafe { auth_controller.performRequests() };
+        // dbg!(auth_controller);
+
+        unsafe {
+            // dbg!()auth_controller.performRequests();
+            // dbg!(auth_controller.presentationContextProvider());
+            let auth_controller_ref = auth_controller.as_ref();
+            let presentation_provider = auth_controller_ref.presentationContextProvider();
+            let anchor = presentation_provider
+                .unwrap()
+                .presentationAnchorForAuthorizationController(auth_controller_ref);
+            dbg!(anchor); // This correctly returns NSElectronWindow
+        }
     });
 
     Ok("not implemented".to_owned())
@@ -97,8 +113,8 @@ declare_class!(
 
     unsafe impl ClassType for AuthDelegate {
         type Super = NSObject;
-        // type Mutability = InteriorMutable;
-        type Mutability = mutability::MainThreadOnly;
+        type Mutability = InteriorMutable;
+        // type Mutability = mutability::MainThreadOnly;
         const NAME: &'static str = "AuthDelegate";
     }
 
@@ -136,8 +152,9 @@ declare_class!(
         unsafe fn presentationAnchorForAuthorizationController(
             &self,
             controller: &ASAuthorizationController,
-        ) -> Id<ASPresentationAnchor> {
-            self.ivars().window
+        ) -> *const NSWindow {
+            let ptr = Id::as_ptr(&self.ivars().window);
+            ptr
         }
     }
 );
