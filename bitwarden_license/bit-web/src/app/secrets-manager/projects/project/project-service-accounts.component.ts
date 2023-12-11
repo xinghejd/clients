@@ -104,6 +104,7 @@ export class ProjectServiceAccountsComponent implements OnInit, OnDestroy {
       const serviceAccountsPoliciesViews =
         await this.accessPolicyService.putProjectServiceAccountsAccessPolicies(
           projectServiceAccountPoliciesView,
+          this.projectId,
         );
 
       this.currentAccessPolicies = convertToProjectServiceAccountsAccessPolicyItemViews(
