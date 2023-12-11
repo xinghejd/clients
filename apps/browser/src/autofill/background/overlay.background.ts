@@ -16,8 +16,8 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import {
-  openViewVaultItemPopout,
   openAddEditVaultItemPopout,
+  openViewVaultItemPopout,
 } from "../../vault/popup/utils/vault-popout-window";
 import { SHOW_AUTOFILL_BUTTON } from "../constants";
 import LockedVaultPendingNotificationsItem from "../notification/models/locked-vault-pending-notifications-item";
@@ -26,14 +26,15 @@ import { AutofillOverlayElement, AutofillOverlayPort } from "../utils/autofill-o
 
 import {
   FocusedFieldData,
+  OverlayAddNewItemMessage,
+  OverlayBackground as OverlayBackgroundInterface,
+  OverlayBackgroundExtensionMessage,
   OverlayBackgroundExtensionMessageHandlers,
   OverlayButtonPortMessageHandlers,
   OverlayCipherData,
   OverlayListPortMessageHandlers,
-  OverlayBackground as OverlayBackgroundInterface,
-  OverlayBackgroundExtensionMessage,
-  OverlayAddNewItemMessage,
   OverlayPortMessage,
+  SubFrameData,
   WebsiteIconData,
 } from "./abstractions/overlay.background";
 
@@ -44,6 +45,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private overlayVisibility: number;
   private overlayLoginCiphers: Map<string, CipherView> = new Map();
   private pageDetailsForTab: Record<number, PageDetail[]> = {};
+  private subFrameDataForTab: Record<number, Record<string, SubFrameData>> = {};
   private userAuthStatus: AuthenticationStatus = AuthenticationStatus.LoggedOut;
   private overlayButtonPort: chrome.runtime.Port;
   private overlayListPort: chrome.runtime.Port;
@@ -57,9 +59,11 @@ class OverlayBackground implements OverlayBackgroundInterface {
     getAutofillOverlayVisibility: () => this.getOverlayVisibility(),
     checkAutofillOverlayFocused: () => this.checkOverlayFocused(),
     focusAutofillOverlayList: () => this.focusOverlayList(),
-    updateAutofillOverlayPosition: ({ message }) => this.updateOverlayPosition(message),
+    updateAutofillOverlayPosition: ({ message, sender }) =>
+      this.updateOverlayPosition(message, sender),
     updateAutofillOverlayHidden: ({ message }) => this.updateOverlayHidden(message),
     updateFocusedFieldData: ({ message }) => this.setFocusedFieldData(message),
+    updateSubFrameData: ({ message, sender }) => this.setSubFrameData(message, sender),
     collectPageDetailsResponse: ({ message, sender }) => this.storePageDetails(message, sender),
     unlockCompleted: ({ message }) => this.unlockCompleted(message),
     addEditCipherSubmitted: () => this.updateOverlayCiphers(),
@@ -101,6 +105,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
    */
   removePageDetails(tabId: number) {
     delete this.pageDetailsForTab[tabId];
+    delete this.subFrameDataForTab[tabId];
   }
 
   /**
@@ -296,8 +301,12 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * is based on the focused field's position and dimensions.
    *
    * @param overlayElement - The overlay element to update, either the list or button
+   * @param sender - The sender of the port message
    */
-  private updateOverlayPosition({ overlayElement }: { overlayElement?: string }) {
+  private updateOverlayPosition(
+    { overlayElement }: { overlayElement?: string },
+    sender: chrome.runtime.MessageSender,
+  ) {
     if (!overlayElement) {
       return;
     }
@@ -305,7 +314,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
     if (overlayElement === AutofillOverlayElement.Button) {
       this.overlayButtonPort?.postMessage({
         command: "updateIframePosition",
-        styles: this.getOverlayButtonPosition(),
+        styles: this.getOverlayButtonPosition(sender.tab),
       });
 
       return;
@@ -313,17 +322,29 @@ class OverlayBackground implements OverlayBackgroundInterface {
 
     this.overlayListPort?.postMessage({
       command: "updateIframePosition",
-      styles: this.getOverlayListPosition(),
+      styles: this.getOverlayListPosition(sender.tab),
     });
   }
 
   /**
    * Gets the position of the focused field and calculates the position
    * of the overlay button based on the focused field's position and dimensions.
+   *
+   * @param tab - The tab that the overlay button is in
    */
-  private getOverlayButtonPosition() {
+  private getOverlayButtonPosition(tab: chrome.tabs.Tab) {
     if (!this.focusedFieldData) {
       return;
+    }
+
+    let subFrameTopOffset = 0;
+    let subFrameLeftOffset = 0;
+
+    if (this.focusedFieldData.subFrameUrl) {
+      const tabSubFrames = this.subFrameDataForTab[tab.id];
+      const { subFrameRects } = tabSubFrames[this.focusedFieldData.subFrameUrl];
+      subFrameTopOffset = subFrameRects?.top || 0;
+      subFrameLeftOffset = subFrameRects?.left || 0;
     }
 
     const { top, left, width, height } = this.focusedFieldData.focusedFieldRects;
@@ -333,15 +354,15 @@ class OverlayBackground implements OverlayBackgroundInterface {
       elementOffset = height >= 50 ? height * 0.47 : height * 0.42;
     }
 
-    const elementHeight = height - elementOffset;
-    const elementTopPosition = top + elementOffset / 2;
-    let elementLeftPosition = left + width - height + elementOffset / 2;
-
     const fieldPaddingRight = parseInt(paddingRight, 10);
     const fieldPaddingLeft = parseInt(paddingLeft, 10);
-    if (fieldPaddingRight > fieldPaddingLeft) {
-      elementLeftPosition = left + width - height - (fieldPaddingRight - elementOffset + 2);
-    }
+    const elementHeight = height - elementOffset;
+
+    const elementTopPosition = subFrameTopOffset + top + elementOffset / 2;
+    const elementLeftPosition =
+      fieldPaddingRight > fieldPaddingLeft
+        ? subFrameLeftOffset + left + width - height - (fieldPaddingRight - elementOffset + 2)
+        : subFrameLeftOffset + left + width - height + elementOffset / 2;
 
     return {
       top: `${Math.round(elementTopPosition)}px`,
@@ -354,17 +375,29 @@ class OverlayBackground implements OverlayBackgroundInterface {
   /**
    * Gets the position of the focused field and calculates the position
    * of the overlay list based on the focused field's position and dimensions.
+   *
+   * @param tab - The tab that the overlay list is in
    */
-  private getOverlayListPosition() {
+  private getOverlayListPosition(tab: chrome.tabs.Tab) {
     if (!this.focusedFieldData) {
       return;
+    }
+
+    let subFrameTopOffset = 0;
+    let subFrameLeftOffset = 0;
+
+    if (this.focusedFieldData.subFrameUrl) {
+      const tabSubFrames = this.subFrameDataForTab[tab.id];
+      const { subFrameRects } = tabSubFrames[this.focusedFieldData.subFrameUrl];
+      subFrameTopOffset = subFrameRects?.top || 0;
+      subFrameLeftOffset = subFrameRects?.left || 0;
     }
 
     const { top, left, width, height } = this.focusedFieldData.focusedFieldRects;
     return {
       width: `${Math.round(width)}px`,
-      top: `${Math.round(top + height)}px`,
-      left: `${Math.round(left)}px`,
+      top: `${Math.round(top + height + subFrameTopOffset)}px`,
+      left: `${Math.round(left + subFrameLeftOffset)}px`,
     };
   }
 
@@ -375,6 +408,17 @@ class OverlayBackground implements OverlayBackgroundInterface {
    */
   private setFocusedFieldData({ focusedFieldData }: OverlayBackgroundExtensionMessage) {
     this.focusedFieldData = focusedFieldData;
+  }
+
+  private setSubFrameData(
+    { subFrameData }: OverlayBackgroundExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+  ) {
+    if (!subFrameData) {
+      return;
+    }
+
+    this.subFrameDataForTab[sender.tab.id] = { [subFrameData.frameUrl]: subFrameData };
   }
 
   /**
@@ -402,11 +446,18 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private async openOverlay(isFocusingFieldElement = false, isOpeningFullOverlay = false) {
     const currentTab = await BrowserApi.getTabFromCurrentWindowId();
 
-    await BrowserApi.tabSendMessageData(currentTab, "openAutofillOverlay", {
-      isFocusingFieldElement,
-      isOpeningFullOverlay,
-      authStatus: await this.getAuthStatus(),
-    });
+    await BrowserApi.tabSendMessageData(
+      currentTab,
+      "openAutofillOverlay",
+      {
+        isFocusingFieldElement,
+        isOpeningFullOverlay,
+        authStatus: await this.getAuthStatus(),
+      },
+      {
+        frameId: 0,
+      },
+    );
   }
 
   /**
@@ -727,11 +778,14 @@ class OverlayBackground implements OverlayBackgroundInterface {
       translations: this.getTranslations(),
       ciphers: isOverlayListPort ? this.getOverlayCipherData() : null,
     });
-    this.updateOverlayPosition({
-      overlayElement: isOverlayListPort
-        ? AutofillOverlayElement.List
-        : AutofillOverlayElement.Button,
-    });
+    this.updateOverlayPosition(
+      {
+        overlayElement: isOverlayListPort
+          ? AutofillOverlayElement.List
+          : AutofillOverlayElement.Button,
+      },
+      port.sender,
+    );
   };
 
   /**

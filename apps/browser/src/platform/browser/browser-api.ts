@@ -148,6 +148,7 @@ export class BrowserApi {
     tab: chrome.tabs.Tab,
     command: string,
     data: any = null,
+    options: chrome.tabs.MessageSendOptions = null,
   ): Promise<void> {
     const obj: any = {
       command: command,
@@ -157,7 +158,7 @@ export class BrowserApi {
       obj.data = data;
     }
 
-    return BrowserApi.tabSendMessage(tab, obj);
+    return BrowserApi.tabSendMessage(tab, obj, options);
   }
 
   static async tabSendMessage<T>(

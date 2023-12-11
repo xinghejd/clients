@@ -782,11 +782,15 @@ describe("OverlayBackground", () => {
 
         it("will post a message to the overlay list facilitating an update of the list's position", () => {
           const focusedFieldData = createFocusedFieldDataMock();
+          const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
           sendExtensionRuntimeMessage({ command: "updateFocusedFieldData", focusedFieldData });
 
-          overlayBackground["updateOverlayPosition"]({
-            overlayElement: AutofillOverlayElement.List,
-          });
+          overlayBackground["updateOverlayPosition"](
+            {
+              overlayElement: AutofillOverlayElement.List,
+            },
+            sender,
+          );
           sendExtensionRuntimeMessage({
             command: "updateAutofillOverlayPosition",
             overlayElement: AutofillOverlayElement.List,

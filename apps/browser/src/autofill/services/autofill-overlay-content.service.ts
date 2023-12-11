@@ -32,6 +32,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   isCurrentlyFilling = false;
   isOverlayCiphersPopulated = false;
   pageDetailsUpdateRequired = false;
+  private hasFrameBeenAggregated = false;
   private readonly findTabs = tabbable;
   private readonly sendExtensionMessage = sendExtensionMessage;
   private autofillOverlayVisibility: number;
@@ -86,6 +87,17 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       return;
     }
 
+    if (globalThis.window.self !== globalThis.window.top && !this.hasFrameBeenAggregated) {
+      globalThis.parent.postMessage(
+        {
+          command: "calculateSubFramePositioning",
+          subFrameData: { frameUrl: window.location.href, left: 0, top: 0 },
+        },
+        "*",
+      );
+      this.hasFrameBeenAggregated = true;
+    }
+
     if (!this.autofillOverlayVisibility) {
       await this.getAutofillOverlayVisibility();
     }
@@ -112,9 +124,9 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    */
   openAutofillOverlay(options: OpenAutofillOverlayOptions = {}) {
     const { isFocusingFieldElement, isOpeningFullOverlay, authStatus } = options;
-    if (!this.mostRecentlyFocusedField) {
-      return;
-    }
+    // if (!this.mostRecentlyFocusedField) {
+    //   return;
+    // }
 
     if (this.pageDetailsUpdateRequired) {
       this.sendExtensionMessage("bgCollectPageDetails", {
@@ -643,9 +655,15 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     const { paddingRight, paddingLeft } = globalThis.getComputedStyle(formFieldElement);
     const { width, height, top, left } =
       await this.getMostRecentlyFocusedFieldRects(formFieldElement);
+    let subFrameUrl = "";
+    if (globalThis.window.top !== globalThis.window.self) {
+      subFrameUrl = globalThis.document.location.href;
+    }
+
     this.focusedFieldData = {
       focusedFieldStyles: { paddingRight, paddingLeft },
       focusedFieldRects: { width, height, top, left },
+      subFrameUrl,
     };
 
     this.sendExtensionMessage("updateFocusedFieldData", {
@@ -680,7 +698,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * @param formFieldElement - The form field element that triggered the focus event.
    */
   private async getBoundingClientRectFromIntersectionObserver(
-    formFieldElement: ElementWithOpId<FormFieldElement>,
+    formFieldElement: HTMLElement,
   ): Promise<DOMRectReadOnly | null> {
     if (!("IntersectionObserver" in window) && !("IntersectionObserverEntry" in window)) {
       return null;
@@ -871,6 +889,54 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     globalThis.document.addEventListener(EVENTS.VISIBILITYCHANGE, this.handleVisibilityChangeEvent);
     globalThis.addEventListener(EVENTS.FOCUSOUT, this.handleFormFieldBlurEvent);
     this.setupMutationObserver();
+
+    globalThis.addEventListener(EVENTS.MESSAGE, async (event) => {
+      if (
+        event.source === window ||
+        !event.data ||
+        event.data.command !== "calculateSubFramePositioning"
+      ) {
+        return;
+      }
+
+      const subFrameData = event.data.subFrameData;
+      const iframes = document.querySelectorAll("iframe");
+      for (let i = 0; i < iframes.length; i++) {
+        if (iframes[i].contentWindow === event.source) {
+          const iframeElement = iframes[i];
+          const iframeRect =
+            await this.getBoundingClientRectFromIntersectionObserver(iframeElement);
+          const iframeStyles = globalThis.getComputedStyle(iframeElement);
+
+          const paddingLeft = parseInt(iframeStyles.getPropertyValue("padding-left"));
+          const paddingTop = parseInt(iframeStyles.getPropertyValue("padding-top"));
+          const borderWidthLeft = parseInt(iframeStyles.getPropertyValue("border-left-width"));
+          const borderWidthTop = parseInt(iframeStyles.getPropertyValue("border-top-width"));
+
+          subFrameData.left += iframeRect.left + paddingLeft + borderWidthLeft;
+          subFrameData.top += iframeRect.top + paddingTop + borderWidthTop;
+          break;
+        }
+      }
+
+      if (globalThis.window.self !== globalThis.window.top) {
+        globalThis.parent.postMessage(
+          { command: "calculateSubFramePositioning", subFrameData },
+          "*",
+        );
+        return;
+      }
+
+      this.sendExtensionMessage("updateSubFrameData", {
+        subFrameData: {
+          frameUrl: subFrameData.frameUrl,
+          subFrameRects: {
+            left: subFrameData.left,
+            top: subFrameData.top,
+          },
+        },
+      });
+    });
   };
 
   /**
@@ -1114,6 +1180,10 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * @param element - The element to get the root node active element for.
    */
   private getRootNodeActiveElement(element: Element): Element {
+    if (!element) {
+      return null;
+    }
+
     const documentRoot = element.getRootNode() as ShadowRoot | Document;
     return documentRoot?.activeElement;
   }

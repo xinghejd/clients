@@ -3,6 +3,20 @@ import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-repromp
 
 import AutofillPageDetails from "../../models/autofill-page-details";
 
+type FocusedFieldData = {
+  focusedFieldStyles: Partial<CSSStyleDeclaration>;
+  focusedFieldRects: Partial<DOMRect>;
+  subFrameUrl?: string;
+};
+
+type SubFrameData = {
+  frameUrl: string;
+  subFrameRects?: {
+    top: number;
+    left: number;
+  };
+};
+
 type WebsiteIconData = {
   imageEnabled: boolean;
   image: string;
@@ -27,6 +41,8 @@ type OverlayBackgroundExtensionMessage = {
   details?: AutofillPageDetails;
   overlayElement?: string;
   display?: string;
+  focusedFieldData?: FocusedFieldData;
+  subFrameData?: SubFrameData;
   data?: {
     commandToRetry?: {
       msg?: {
@@ -41,11 +57,6 @@ type OverlayPortMessage = {
   command: string;
   direction?: string;
   overlayCipherId?: string;
-};
-
-type FocusedFieldData = {
-  focusedFieldStyles: Partial<CSSStyleDeclaration>;
-  focusedFieldRects: Partial<DOMRect>;
 };
 
 type OverlayCipherData = {
@@ -75,9 +86,10 @@ type OverlayBackgroundExtensionMessageHandlers = {
   getAutofillOverlayVisibility: () => void;
   checkAutofillOverlayFocused: () => void;
   focusAutofillOverlayList: () => void;
-  updateAutofillOverlayPosition: ({ message }: BackgroundMessageParam) => void;
+  updateAutofillOverlayPosition: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   updateAutofillOverlayHidden: ({ message }: BackgroundMessageParam) => void;
   updateFocusedFieldData: ({ message }: BackgroundMessageParam) => void;
+  updateSubFrameData: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   collectPageDetailsResponse: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   unlockCompleted: ({ message }: BackgroundMessageParam) => void;
   addEditCipherSubmitted: () => void;
@@ -119,6 +131,7 @@ interface OverlayBackground {
 
 export {
   WebsiteIconData,
+  SubFrameData,
   OverlayBackgroundExtensionMessage,
   OverlayPortMessage,
   FocusedFieldData,
