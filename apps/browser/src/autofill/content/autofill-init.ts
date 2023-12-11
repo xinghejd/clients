@@ -21,6 +21,7 @@ class AutofillInit implements AutofillInitInterface {
     collectPageDetailsImmediately: ({ message }) => this.collectPageDetails(message, true),
     fillForm: ({ message }) => this.fillForm(message),
     openAutofillOverlay: ({ message }) => this.openAutofillOverlay(message),
+    updateOverlayButtonPosition: () => this.updateOverlayButtonPosition(),
     closeAutofillOverlay: () => this.removeAutofillOverlay(),
     updateOverlayIsCurrentlyFilling: ({ message }) => this.updateOverlayIsCurrentlyFilling(message),
     addNewVaultItemFromOverlay: () => this.addNewVaultItemFromOverlay(),
@@ -210,6 +211,14 @@ class AutofillInit implements AutofillInitInterface {
     this.autofillOverlayContentService.isOverlayCiphersPopulated = Boolean(
       data?.isOverlayCiphersPopulated,
     );
+  }
+
+  private updateOverlayButtonPosition() {
+    if (!this.autofillOverlayContentService) {
+      return;
+    }
+
+    this.autofillOverlayContentService.updateOverlayButtonPosition();
   }
 
   /**

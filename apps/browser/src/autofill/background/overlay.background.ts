@@ -55,6 +55,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private isFieldCurrentlyFocused = false;
   private readonly extensionMessageHandlers: OverlayBackgroundExtensionMessageHandlers = {
     openAutofillOverlay: () => this.openOverlay(false),
+    openAutofillOverlayButton: ({ sender }) => this.openAutofillOverlayButton(sender),
     autofillOverlayElementClosed: ({ message }) => this.overlayElementClosed(message),
     autofillOverlayAddNewVaultItem: ({ message, sender }) => this.addNewVaultItem(message, sender),
     getAutofillOverlayVisibility: () => this.getOverlayVisibility(),
@@ -481,6 +482,14 @@ class OverlayBackground implements OverlayBackgroundInterface {
       {
         frameId: 0,
       },
+    );
+  }
+
+  private async openAutofillOverlayButton(sender: chrome.runtime.MessageSender) {
+    await BrowserApi.tabSendMessage(
+      sender.tab,
+      { command: "updateOverlayButtonPosition" },
+      { frameId: 0 },
     );
   }
 

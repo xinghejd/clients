@@ -69,6 +69,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     }
 
     this.setupGlobalEventListeners();
+    this.setOverlayRepositionEventListeners();
   }
 
   /**
@@ -146,7 +147,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       this.autofillOverlayVisibility === AutofillOverlayVisibility.OnButtonClick &&
       !isOpeningFullOverlay
     ) {
-      this.updateOverlayButtonPosition();
+      this.sendExtensionMessage("openAutofillOverlayButton");
+      // this.updateOverlayButtonPosition();
       return;
     }
 
@@ -511,7 +513,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       return;
     }
 
-    this.updateOverlayButtonPosition();
+    this.sendExtensionMessage("openAutofillOverlayButton");
+    // this.updateOverlayButtonPosition();
   }
 
   /**
@@ -580,6 +583,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * Updates the position of both the overlay button and overlay list.
    */
   private updateOverlayElementsPosition() {
+    // this.sendExtensionMessage("openAutofillOverlayButton");
     this.updateOverlayButtonPosition();
     this.updateOverlayListPosition();
   }
@@ -587,7 +591,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   /**
    * Updates the position of the overlay button.
    */
-  private updateOverlayButtonPosition() {
+  updateOverlayButtonPosition() {
     if (!this.overlayButtonElement) {
       this.createAutofillOverlayButton();
     }
@@ -595,7 +599,6 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     if (!this.isOverlayButtonVisible) {
       this.appendOverlayElementToBody(this.overlayButtonElement);
       this.isOverlayButtonVisible = true;
-      this.setOverlayRepositionEventListeners();
     }
     this.sendExtensionMessage("updateAutofillOverlayPosition", {
       overlayElement: AutofillOverlayElement.Button,

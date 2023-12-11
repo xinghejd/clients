@@ -82,6 +82,7 @@ type BackgroundOnMessageHandlerParams = BackgroundMessageParam & BackgroundSende
 type OverlayBackgroundExtensionMessageHandlers = {
   [key: string]: CallableFunction;
   openAutofillOverlay: () => void;
+  openAutofillOverlayButton: ({ sender }: BackgroundOnMessageHandlerParams) => void;
   autofillOverlayElementClosed: ({ message }: BackgroundMessageParam) => void;
   autofillOverlayAddNewVaultItem: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   getAutofillOverlayVisibility: () => void;
