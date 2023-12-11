@@ -43,6 +43,7 @@ type OverlayBackgroundExtensionMessage = {
   display?: string;
   focusedFieldData?: FocusedFieldData;
   subFrameData?: SubFrameData;
+  isFieldCurrentlyFocused?: boolean;
   data?: {
     commandToRetry?: {
       msg?: {
@@ -89,6 +90,7 @@ type OverlayBackgroundExtensionMessageHandlers = {
   updateAutofillOverlayPosition: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   updateAutofillOverlayHidden: ({ message }: BackgroundMessageParam) => void;
   updateFocusedFieldData: ({ message }: BackgroundMessageParam) => void;
+  updateIsFieldCurrentlyFocused: ({ message }: BackgroundMessageParam) => void;
   updateSubFrameData: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   collectPageDetailsResponse: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   unlockCompleted: ({ message }: BackgroundMessageParam) => void;

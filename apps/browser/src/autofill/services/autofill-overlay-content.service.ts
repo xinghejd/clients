@@ -28,7 +28,6 @@ import {
 import { AutoFillConstants } from "./autofill-constants";
 
 class AutofillOverlayContentService implements AutofillOverlayContentServiceInterface {
-  isFieldCurrentlyFocused = false;
   isCurrentlyFilling = false;
   isOverlayCiphersPopulated = false;
   pageDetailsUpdateRequired = false;
@@ -336,9 +335,11 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * the field is focused and sends a message to check if the overlay itself
    * is currently focused.
    */
-  private handleFormFieldBlurEvent = () => {
-    this.isFieldCurrentlyFocused = false;
-    this.sendExtensionMessage("checkAutofillOverlayFocused");
+  private handleFormFieldBlurEvent = async () => {
+    await this.sendExtensionMessage("updateIsFieldCurrentlyFocused", {
+      isFieldCurrentlyFocused: false,
+    });
+    await this.sendExtensionMessage("checkAutofillOverlayFocused");
   };
 
   /**
@@ -490,7 +491,9 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       return;
     }
 
-    this.isFieldCurrentlyFocused = true;
+    await this.sendExtensionMessage("updateIsFieldCurrentlyFocused", {
+      isFieldCurrentlyFocused: true,
+    });
     this.clearUserInteractionEventTimeout();
     const initiallyFocusedField = this.mostRecentlyFocusedField;
     await this.updateMostRecentlyFocusedField(formFieldElement);

@@ -154,10 +154,7 @@ class AutofillInit implements AutofillInitInterface {
    * removed.
    */
   private removeAutofillOverlay() {
-    if (
-      !this.autofillOverlayContentService ||
-      this.autofillOverlayContentService.isFieldCurrentlyFocused
-    ) {
+    if (!this.autofillOverlayContentService) {
       return;
     }
 

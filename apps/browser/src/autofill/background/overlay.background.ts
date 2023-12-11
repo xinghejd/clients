@@ -52,6 +52,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private focusedFieldData: FocusedFieldData;
   private overlayPageTranslations: Record<string, string>;
   private readonly iconsServerUrl: string;
+  private isFieldCurrentlyFocused = false;
   private readonly extensionMessageHandlers: OverlayBackgroundExtensionMessageHandlers = {
     openAutofillOverlay: () => this.openOverlay(false),
     autofillOverlayElementClosed: ({ message }) => this.overlayElementClosed(message),
@@ -63,6 +64,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
       this.updateOverlayPosition(message, sender),
     updateAutofillOverlayHidden: ({ message }) => this.updateOverlayHidden(message),
     updateFocusedFieldData: ({ message }) => this.setFocusedFieldData(message),
+    updateIsFieldCurrentlyFocused: ({ message }) => this.setIsFieldCurrentlyFocused(message),
     updateSubFrameData: ({ message, sender }) => this.setSubFrameData(message, sender),
     collectPageDetailsResponse: ({ message, sender }) => this.storePageDetails(message, sender),
     unlockCompleted: ({ message }) => this.unlockCompleted(message),
@@ -275,6 +277,10 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * @param sender - The sender of the port message
    */
   private closeOverlay({ sender }: chrome.runtime.Port) {
+    if (this.isFieldCurrentlyFocused) {
+      return;
+    }
+
     BrowserApi.tabSendMessage(sender.tab, { command: "closeAutofillOverlay" });
   }
 
@@ -408,6 +414,12 @@ class OverlayBackground implements OverlayBackgroundInterface {
    */
   private setFocusedFieldData({ focusedFieldData }: OverlayBackgroundExtensionMessage) {
     this.focusedFieldData = focusedFieldData;
+  }
+
+  private setIsFieldCurrentlyFocused({
+    isFieldCurrentlyFocused,
+  }: OverlayBackgroundExtensionMessage) {
+    this.isFieldCurrentlyFocused = isFieldCurrentlyFocused;
   }
 
   private setSubFrameData(

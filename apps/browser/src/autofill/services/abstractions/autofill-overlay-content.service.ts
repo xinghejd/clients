@@ -10,7 +10,6 @@ type OpenAutofillOverlayOptions = {
 };
 
 interface AutofillOverlayContentService {
-  isFieldCurrentlyFocused: boolean;
   isCurrentlyFilling: boolean;
   isOverlayCiphersPopulated: boolean;
   pageDetailsUpdateRequired: boolean;

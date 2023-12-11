@@ -70,6 +70,7 @@ async function sendExtensionMessage(
   return new Promise((resolve) => {
     chrome.runtime.sendMessage(Object.assign({ command }, options), (response) => {
       if (chrome.runtime.lastError) {
+        resolve(undefined);
         return;
       }
 
