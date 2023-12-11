@@ -63,6 +63,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
     updateAutofillOverlayPosition: ({ message, sender }) =>
       this.updateOverlayPosition(message, sender),
     updateAutofillOverlayHidden: ({ message }) => this.updateOverlayHidden(message),
+    updateAutofillOverlayIsCurrentlyFilling: ({ message, sender }) =>
+      this.updateOverlayIsCurrentlyFilling(message, sender),
     updateFocusedFieldData: ({ message }) => this.setFocusedFieldData(message),
     updateIsFieldCurrentlyFocused: ({ message }) => this.setIsFieldCurrentlyFocused(message),
     updateSubFrameData: ({ message, sender }) => this.setSubFrameData(message, sender),
@@ -447,6 +449,16 @@ class OverlayBackground implements OverlayBackgroundInterface {
 
     this.overlayButtonPort?.postMessage(portMessage);
     this.overlayListPort?.postMessage(portMessage);
+  }
+
+  private updateOverlayIsCurrentlyFilling(
+    { isCurrentlyFilling }: OverlayBackgroundExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+  ) {
+    BrowserApi.tabSendMessage(sender.tab, {
+      command: "updateOverlayIsCurrentlyFilling",
+      isCurrentlyFilling,
+    });
   }
 
   /**

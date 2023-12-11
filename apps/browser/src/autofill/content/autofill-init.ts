@@ -3,6 +3,7 @@ import { AutofillOverlayContentService } from "../services/abstractions/autofill
 import CollectAutofillContentService from "../services/collect-autofill-content.service";
 import DomElementVisibilityService from "../services/dom-element-visibility.service";
 import InsertAutofillContentService from "../services/insert-autofill-content.service";
+import { sendExtensionMessage } from "../utils/utils";
 
 import {
   AutofillExtensionMessage,
@@ -21,6 +22,7 @@ class AutofillInit implements AutofillInitInterface {
     fillForm: ({ message }) => this.fillForm(message),
     openAutofillOverlay: ({ message }) => this.openAutofillOverlay(message),
     closeAutofillOverlay: () => this.removeAutofillOverlay(),
+    updateOverlayIsCurrentlyFilling: ({ message }) => this.updateOverlayIsCurrentlyFilling(message),
     addNewVaultItemFromOverlay: () => this.addNewVaultItemFromOverlay(),
     redirectOverlayFocusOut: ({ message }) => this.redirectOverlayFocusOut(message),
     updateIsOverlayCiphersPopulated: ({ message }) => this.updateIsOverlayCiphersPopulated(message),
@@ -95,15 +97,19 @@ class AutofillInit implements AutofillInitInterface {
       return;
     }
 
-    this.updateOverlayIsCurrentlyFilling(true);
+    await sendExtensionMessage("updateAutofillOverlayIsCurrentlyFilling", {
+      isCurrentlyFilling: true,
+    });
     await this.insertAutofillContentService.fillForm(fillScript);
 
     if (!this.autofillOverlayContentService) {
       return;
     }
 
-    setTimeout(() => {
-      this.updateOverlayIsCurrentlyFilling(false);
+    setTimeout(async () => {
+      await sendExtensionMessage("updateAutofillOverlayIsCurrentlyFilling", {
+        isCurrentlyFilling: false,
+      });
       this.autofillOverlayContentService.focusMostRecentOverlayField();
     }, 250);
   }
@@ -113,7 +119,7 @@ class AutofillInit implements AutofillInitInterface {
    *
    * @param isCurrentlyFilling - Indicates if the overlay is currently filling
    */
-  private updateOverlayIsCurrentlyFilling(isCurrentlyFilling: boolean) {
+  private updateOverlayIsCurrentlyFilling({ isCurrentlyFilling }: AutofillExtensionMessage) {
     if (!this.autofillOverlayContentService) {
       return;
     }

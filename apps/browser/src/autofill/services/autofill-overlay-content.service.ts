@@ -628,6 +628,10 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * @param element - The overlay element to append to the body element.
    */
   private appendOverlayElementToBody(element: HTMLElement) {
+    if (!element) {
+      return;
+    }
+
     this.observeBodyElement();
     globalThis.document.body.appendChild(element);
   }
@@ -759,7 +763,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * to create the element if it already exists in the DOM.
    */
   private createAutofillOverlayButton() {
-    if (this.overlayButtonElement) {
+    if (this.overlayButtonElement || globalThis.window.self !== globalThis.window.top) {
       return;
     }
 
@@ -776,7 +780,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * to create the element if it already exists in the DOM.
    */
   private createAutofillOverlayList() {
-    if (this.overlayListElement) {
+    if (this.overlayListElement || globalThis.window.self !== globalThis.window.top) {
       return;
     }
 

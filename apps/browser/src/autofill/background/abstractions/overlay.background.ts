@@ -89,6 +89,10 @@ type OverlayBackgroundExtensionMessageHandlers = {
   focusAutofillOverlayList: () => void;
   updateAutofillOverlayPosition: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   updateAutofillOverlayHidden: ({ message }: BackgroundMessageParam) => void;
+  updateAutofillOverlayIsCurrentlyFilling: ({
+    message,
+    sender,
+  }: BackgroundOnMessageHandlerParams) => void;
   updateFocusedFieldData: ({ message }: BackgroundMessageParam) => void;
   updateIsFieldCurrentlyFocused: ({ message }: BackgroundMessageParam) => void;
   updateSubFrameData: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;

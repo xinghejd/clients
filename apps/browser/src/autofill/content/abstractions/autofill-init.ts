@@ -10,6 +10,7 @@ type AutofillExtensionMessage = {
   url?: string;
   pageDetailsUrl?: string;
   ciphers?: any;
+  isCurrentlyFilling?: boolean;
   data?: {
     authStatus?: AuthenticationStatus;
     isFocusingFieldElement?: boolean;
@@ -28,6 +29,7 @@ type AutofillExtensionMessageHandlers = {
   fillForm: ({ message }: AutofillExtensionMessageParam) => void;
   openAutofillOverlay: ({ message }: AutofillExtensionMessageParam) => void;
   closeAutofillOverlay: () => void;
+  updateOverlayIsCurrentlyFilling: ({ message }: AutofillExtensionMessageParam) => void;
   addNewVaultItemFromOverlay: () => void;
   redirectOverlayFocusOut: ({ message }: AutofillExtensionMessageParam) => void;
   updateIsOverlayCiphersPopulated: ({ message }: AutofillExtensionMessageParam) => void;
