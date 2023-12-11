@@ -46,3 +46,21 @@ export function isSuccessfullyCompleted(
 ): syncEvent is SyncSuccessfullyCompletedEventArgs {
   return syncEvent.status === "Completed" && syncEvent.successfully;
 }
+
+/**
+ * Helper function to filter only on completed syncs
+ * @returns a function that can be used in a `.pipe(filter(...))` from an observable
+ * @example
+ * ```
+ * of<SyncEventArgs>({ status: "Completed", successfully: true, data: new SyncResponse() })
+ *  .pipe(filter(isCompleted))
+ *  .subscribe(event => {
+ *    console.log(event.successfully);
+ *  });
+ * ```
+ */
+export function isCompleted(
+  syncEvent: SyncEventArgs,
+): syncEvent is SyncSuccessfullyCompletedEventArgs | SyncUnsuccessfullyCompletedEventArgs {
+  return syncEvent.status === "Completed";
+}

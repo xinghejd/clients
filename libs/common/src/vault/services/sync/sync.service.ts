@@ -1,4 +1,4 @@
-import { BehaviorSubject, distinctUntilChanged, map, shareReplay } from "rxjs";
+import { filter, map, ReplaySubject } from "rxjs";
 
 import { ApiService } from "../../../abstractions/api.service";
 import { SettingsService } from "../../../abstractions/settings.service";
@@ -40,10 +40,10 @@ import { FolderResponse } from "../../../vault/models/response/folder.response";
 import { CollectionService } from "../../abstractions/collection.service";
 import { CollectionData } from "../../models/data/collection.data";
 import { CollectionDetailsResponse } from "../../models/response/collection.response";
-import { SyncEventArgs } from "../../types/sync-event-args";
+import { isCompleted, SyncEventArgs } from "../../types/sync-event-args";
 
 export class SyncService implements SyncServiceAbstraction {
-  private syncEventSubject = new BehaviorSubject<SyncEventArgs>(null);
+  private syncEventSubject = new ReplaySubject<SyncEventArgs>(1);
 
   /**
    * Observable that emits when a full sync event occurs. This includes when a sync starts, completes, or fails.
@@ -52,21 +52,18 @@ export class SyncService implements SyncServiceAbstraction {
   syncEvent$ = this.syncEventSubject.asObservable();
 
   /**
-   * Observable that emits when a full sync error occurs or when any prior error has been cleared.
-   * Defaults to null when no error has occurred and is cleared when a sync completes without error.
+   * Observable that emits whenever a full sync completes. If the sync completes with an error, the error will be emitted.
+   * Otherwise, null will be emitted.
    */
   syncError$ = this.syncEvent$.pipe(
+    filter(isCompleted),
     map((event) => {
-      if (event.status === "Completed") {
-        if (event.successfully === true) {
-          return null;
-        } else if (event.successfully === false) {
-          return event.error ? event.error : null;
-        }
+      if (event.successfully === true) {
+        return null;
+      } else {
+        return event.error ? event.error : null;
       }
     }),
-    distinctUntilChanged(),
-    shareReplay({ bufferSize: 1, refCount: true }),
   );
 
   syncInProgress = false;
