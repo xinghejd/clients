@@ -401,6 +401,35 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
 
     return false;
   }
+
+  /**
+   * Identifies if the mutation observer is triggering excessive iterations.
+   * Will remove the autofill overlay if any set mutation observer is
+   * triggering excessive iterations.
+   */
+  private isTriggeringExcessiveMutationObserverIterations() {
+    const resetCounters = () => {
+      this.mutationObserverIterations = 0;
+      this.foreignMutationsCount = 0;
+    };
+
+    if (this.mutationObserverIterationsResetTimeout) {
+      clearTimeout(this.mutationObserverIterationsResetTimeout);
+    }
+
+    this.mutationObserverIterations++;
+    this.mutationObserverIterationsResetTimeout = setTimeout(() => resetCounters(), 2000);
+
+    if (this.mutationObserverIterations > 20) {
+      clearTimeout(this.mutationObserverIterationsResetTimeout);
+      resetCounters();
+      this.port?.postMessage({ command: "forceCloseAutofillOverlay" });
+
+      return true;
+    }
+
+    return false;
+  }
 }
 
 export default AutofillOverlayIframeService;
