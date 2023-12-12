@@ -24,7 +24,7 @@ export class FailedSyncWarningComponent {
     if (error instanceof ErrorResponse) {
       this.icon = ServerError;
       this.title = this.i18nService.t("serverError", error.statusCode);
-      this.description = error.message;
+      this.description = error.message ? error.message : this.description;
     } else if (isNetworkError(error)) {
       this.icon = UnableToConnect;
       this.title = this.i18nService.t("unableToConnect");
