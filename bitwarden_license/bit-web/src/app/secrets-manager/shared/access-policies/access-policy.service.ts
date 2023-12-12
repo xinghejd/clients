@@ -620,6 +620,7 @@ export class AccessPolicyService {
 
   async getProjectServiceAccountsAccessPolicies(
     projectId: string,
+    organizationId: string,
   ): Promise<ProjectServiceAccountsAccessPoliciesView> {
     const r = await this.apiService.send(
       "GET",
@@ -630,12 +631,13 @@ export class AccessPolicyService {
     );
 
     const results = new ProjectServiceAccountsAccessPoliciesResponse(r);
-    return this.createProjectServiceAccountsAccessPoliciesView(results);
+    return this.createProjectServiceAccountsAccessPoliciesView(results, organizationId);
   }
 
   async putProjectServiceAccountsAccessPolicies(
     projectServiceAccountPoliciesView: ProjectServiceAccountsAccessPoliciesView,
     grantedProjectId: string,
+    organizationId: string,
   ): Promise<ProjectServiceAccountsAccessPoliciesView> {
     const request = this.getProjectServiceAccountsAccessPoliciesRequest(
       projectServiceAccountPoliciesView,
@@ -648,30 +650,21 @@ export class AccessPolicyService {
       true,
     );
     const results = new ProjectServiceAccountsAccessPoliciesResponse(r);
-    return this.createProjectServiceAccountsAccessPoliciesView(results);
+    return this.createProjectServiceAccountsAccessPoliciesView(results, organizationId);
   }
 
-  private createProjectServiceAccountAccessPolicyView(
-    response: ServiceAccountProjectAccessPolicyResponse,
-  ): ServiceAccountProjectAccessPolicyView {
-    return {
-      ...this.createBaseAccessPolicyView(response),
-      grantedProjectId: response.grantedProjectId,
-      grantedProjectName: response.grantedProjectName,
-      serviceAccountName: response.serviceAccountName,
-      serviceAccountId: response.serviceAccountId,
-    };
-  }
-
-  private createProjectServiceAccountsAccessPoliciesView(
+  private async createProjectServiceAccountsAccessPoliciesView(
     projectServiceAccountsAccessPoliciesResponse: ProjectServiceAccountsAccessPoliciesResponse,
-  ): ProjectServiceAccountsAccessPoliciesView {
+    organizationId: string,
+  ): Promise<ProjectServiceAccountsAccessPoliciesView> {
     const view = new ProjectServiceAccountsAccessPoliciesView();
+    const orgKey = await this.getOrganizationKey(organizationId);
 
-    view.serviceAccountAccessPolicies =
-      projectServiceAccountsAccessPoliciesResponse.serviceAccountAccessPolicies.map((ap) => {
-        return this.createProjectServiceAccountAccessPolicyView(ap);
-      });
+    view.serviceAccountAccessPolicies = await Promise.all(
+      projectServiceAccountsAccessPoliciesResponse.serviceAccountAccessPolicies.map(async (ap) => {
+        return await this.createServiceAccountProjectAccessPolicyView(orgKey, ap);
+      }),
+    );
 
     return view;
   }

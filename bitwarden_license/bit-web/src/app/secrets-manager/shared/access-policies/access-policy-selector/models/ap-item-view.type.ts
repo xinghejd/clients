@@ -31,7 +31,7 @@ export type ApItemViewType = SelectItemView & {
       }
   );
 
-export function convertToProjectPeopleAccessPolicyItemViews(
+export function convertPeoplePoliciesToApItemViewType(
   value: ProjectPeopleAccessPoliciesView,
 ): ApItemViewType[] {
   const accessPolicies: ApItemViewType[] = [];
@@ -66,7 +66,7 @@ export function convertToProjectPeopleAccessPolicyItemViews(
   return accessPolicies;
 }
 
-export function convertToProjectServiceAccountsAccessPolicyItemViews(
+export function convertPoliciesToApItemViewType(
   value: ProjectServiceAccountsAccessPoliciesView,
 ): ApItemViewType[] {
   const accessPolicies: ApItemViewType[] = [];

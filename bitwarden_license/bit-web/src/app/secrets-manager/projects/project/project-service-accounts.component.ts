@@ -14,7 +14,7 @@ import {
 import {
   ApItemViewType,
   convertPotentialGranteesToApItemViewType,
-  convertToProjectServiceAccountsAccessPolicyItemViews,
+  convertPoliciesToApItemViewType,
 } from "../../shared/access-policies/access-policy-selector/models/ap-item-view.type";
 import { AccessPolicyService } from "../../shared/access-policies/access-policy.service";
 
@@ -31,9 +31,9 @@ export class ProjectServiceAccountsComponent implements OnInit, OnDestroy {
   private currentAccessPolicies$ = combineLatest([this.route.params]).pipe(
     switchMap(([params]) =>
       this.accessPolicyService
-        .getProjectServiceAccountsAccessPolicies(params.projectId)
+        .getProjectServiceAccountsAccessPolicies(params.projectId, params.organizationId)
         .then((policies) => {
-          return convertToProjectServiceAccountsAccessPolicyItemViews(policies);
+          return convertPoliciesToApItemViewType(policies);
         }),
     ),
     catchError(() => {
@@ -105,11 +105,10 @@ export class ProjectServiceAccountsComponent implements OnInit, OnDestroy {
         await this.accessPolicyService.putProjectServiceAccountsAccessPolicies(
           projectServiceAccountPoliciesView,
           this.projectId,
+          this.organizationId,
         );
 
-      this.currentAccessPolicies = convertToProjectServiceAccountsAccessPolicyItemViews(
-        serviceAccountsPoliciesViews,
-      );
+      this.currentAccessPolicies = convertPoliciesToApItemViewType(serviceAccountsPoliciesViews);
 
       this.platformUtilsService.showToast(
         "success",
