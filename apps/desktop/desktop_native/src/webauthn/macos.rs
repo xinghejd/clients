@@ -2,18 +2,16 @@ use anyhow::Result;
 use icrate::{
     objc2::{
         declare_class, msg_send_id,
-        mutability::{self, InteriorMutable},
+        mutability::{self},
         rc::{Allocated, Id},
-        runtime::{AnyObject, ProtocolObject},
-        ClassType, DeclaredClass, Encode, Encoding, RefEncode,
-        __macro_helpers::Other,
+        runtime::ProtocolObject,
+        ClassType, DeclaredClass,
     },
     AppKit::{NSApplication, NSWindow},
     AuthenticationServices::{
         ASAuthorization, ASAuthorizationController, ASAuthorizationControllerDelegate,
         ASAuthorizationControllerPresentationContextProviding,
         ASAuthorizationPlatformPublicKeyCredentialProvider, ASAuthorizationRequest,
-        ASPresentationAnchor,
     },
     Foundation::{
         ns_string, MainThreadMarker, NSArray, NSData, NSDataBase64DecodingIgnoreUnknownCharacters,
@@ -85,19 +83,19 @@ pub fn create(_window_handle: u64) -> Result<String> {
         unsafe {
             auth_controller.setPresentationContextProvider(Some(presentation_context_delegate))
         };
-        dbg!(auth_controller.as_ref());
+        // dbg!(auth_controller.as_ref());
 
-        unsafe {
-            // dbg!()auth_controller.performRequests();
-            // dbg!(auth_controller.presentationContextProvider());
-            let auth_controller_ref = auth_controller.as_ref();
-            let presentation_provider = auth_controller_ref.presentationContextProvider();
-            let anchor = presentation_provider
-                .unwrap()
-                .presentationAnchorForAuthorizationController(auth_controller_ref);
-            dbg!(anchor); // This correctly returns NSElectronWindow
-        }
-
+        // unsafe {
+        //     // dbg!()auth_controller.performRequests();
+        //     // dbg!(auth_controller.presentationContextProvider());
+        //     let auth_controller_ref = auth_controller.as_ref();
+        //     let presentation_provider = auth_controller_ref.presentationContextProvider();
+        //     let anchor = presentation_provider
+        //         .unwrap()
+        //         .presentationAnchorForAuthorizationController(auth_controller_ref);
+        //     dbg!(anchor); // This correctly returns NSElectronWindow
+        // }
+        println!("Performing request");
         unsafe { auth_controller.performRequests() };
     });
 
@@ -156,9 +154,6 @@ declare_class!(
         ) -> Id<NSWindow> {
             println!("presentationAnchorForAuthorizationController CALLED!");
             Id::clone(&self.ivars().window)
-            // let ptr = Id::as_ptr(&self.ivars().window);
-            // let id = Id::new(ptr);
-            // Id::new(ptr)
         }
 
         // #[allow(non_snake_case)]
@@ -173,10 +168,6 @@ declare_class!(
     }
 );
 
-// unsafe impl RefEncode for Id<ASPresentationAnchor> {
-//     const ENCODING_REF: Encoding = Encoding::Object;
-// }
-
 impl AuthDelegate {
     pub fn new(mtm: MainThreadMarker, window: Id<NSWindow>) -> Id<Self> {
         let this = mtm.alloc();
@@ -188,15 +179,3 @@ impl AuthDelegate {
         unsafe { msg_send_id![super(this), init] }
     }
 }
-
-// extern_methods!(
-//     unsafe impl MyObject {
-//         #[method_id(new)]
-//         pub fn new() -> Id<Self>;
-//     }
-// );
-
-// fn main() {
-//     let obj = MyObject::new();
-//     println!("{:?}", obj.ivars().object);
-// }
