@@ -1,3 +1,5 @@
+import { firstValueFrom, timeout } from "rxjs";
+
 import { ApiService } from "../../abstractions/api.service";
 import { OrganizationService } from "../../admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserType } from "../../admin-console/enums";
@@ -8,6 +10,12 @@ import { LogService } from "../../platform/abstractions/log.service";
 import { StateService } from "../../platform/abstractions/state.service";
 import { Utils } from "../../platform/misc/utils";
 import { MasterKey, SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
+import {
+  ActiveUserState,
+  KEY_CONNECTOR_DISK,
+  KeyDefinition,
+  StateProvider,
+} from "../../platform/state";
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "../abstractions/key-connector.service";
 import { TokenService } from "../abstractions/token.service";
 import { KdfConfig } from "../models/domain/kdf-config";
@@ -15,7 +23,17 @@ import { KeyConnectorUserKeyRequest } from "../models/request/key-connector-user
 import { SetKeyConnectorKeyRequest } from "../models/request/set-key-connector-key.request";
 import { IdentityTokenResponse } from "../models/response/identity-token.response";
 
+export const USES_KEY_CONNECTOR = new KeyDefinition<boolean>(
+  KEY_CONNECTOR_DISK,
+  "usesKeyConnector",
+  {
+    deserializer: (s) => s,
+  },
+);
+
 export class KeyConnectorService implements KeyConnectorServiceAbstraction {
+  usesKeyConnector: ActiveUserState<boolean>;
+
   constructor(
     private stateService: StateService,
     private cryptoService: CryptoService,
@@ -25,14 +43,17 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     private organizationService: OrganizationService,
     private cryptoFunctionService: CryptoFunctionService,
     private logoutCallback: (expired: boolean, userId?: string) => Promise<void>,
-  ) {}
+    private stateProvider: StateProvider,
+  ) {
+    this.usesKeyConnector = this.stateProvider.getActive(USES_KEY_CONNECTOR);
+  }
 
-  setUsesKeyConnector(usesKeyConnector: boolean) {
-    return this.stateService.setUsesKeyConnector(usesKeyConnector);
+  async setUsesKeyConnector(usesKeyConnector: boolean) {
+    await this.usesKeyConnector.update(() => usesKeyConnector);
   }
 
   async getUsesKeyConnector(): Promise<boolean> {
-    return await this.stateService.getUsesKeyConnector();
+    return await firstValueFrom(this.usesKeyConnector.state$.pipe(timeout(500)));
   }
 
   async userNeedsMigration() {
