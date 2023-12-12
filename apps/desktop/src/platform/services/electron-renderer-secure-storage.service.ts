@@ -4,9 +4,12 @@ import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/
 import { StorageOptions } from "@bitwarden/common/platform/models/domain/storage-options";
 
 export class ElectronRendererSecureStorageService implements AbstractStorageService {
+  get valuesRequireDeserialization(): boolean {
+    return true;
+  }
   get updates$() {
     return throwError(
-      () => new Error("Secure storage implementations cannot have their updates subscribed to.")
+      () => new Error("Secure storage implementations cannot have their updates subscribed to."),
     );
   }
 

@@ -11,12 +11,16 @@ export class NodeEnvSecureStorageService implements AbstractStorageService {
   constructor(
     private storageService: AbstractStorageService,
     private logService: LogService,
-    private cryptoService: () => CryptoService
+    private cryptoService: () => CryptoService,
   ) {}
+
+  get valuesRequireDeserialization(): boolean {
+    return true;
+  }
 
   get updates$() {
     return throwError(
-      () => new Error("Secure storage implementations cannot have their updates subscribed to.")
+      () => new Error("Secure storage implementations cannot have their updates subscribed to."),
     );
   }
 
@@ -57,7 +61,7 @@ export class NodeEnvSecureStorageService implements AbstractStorageService {
     }
     const encValue = await this.cryptoService().encryptToBytes(
       Utils.fromB64ToArray(plainValue),
-      sessionKey
+      sessionKey,
     );
     if (encValue == null) {
       throw new Error("Value didn't encrypt.");

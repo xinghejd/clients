@@ -611,8 +611,23 @@
   "loginWithMasterPassword": {
     "message": "Logga in med huvudlösenord"
   },
+  "readingPasskeyLoading": {
+    "message": "Reading passkey..."
+  },
+  "readingPasskeyLoadingInfo": {
+    "message": "Keep this window open and follow prompts from your browser."
+  },
+  "useADifferentLogInMethod": {
+    "message": "Använd en annan inloggningsmetod"
+  },
   "loginWithPasskey": {
     "message": "Log in with passkey"
+  },
+  "invalidPasskeyPleaseTryAgain": {
+    "message": "Invalid Passkey. Please try again."
+  },
+  "twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn": {
+    "message": "2FA for passkeys is not supported. Update the app to log in."
   },
   "loginWithPasskeyInfo": {
     "message": "Use a generated passkey that will automatically log you in without a password. Biometrics, like facial recognition or fingerprint, or another FIDO2 security method will verify your identity."
@@ -4218,8 +4233,8 @@
     "message": "Denna Send är dold som standard. Du kan växla dess synlighet med hjälp av knappen nedan.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "downloadFile": {
-    "message": "Ladda ner fil"
+  "downloadAttachments": {
+    "message": "Ladda ner bilagor"
   },
   "sendAccessUnavailable": {
     "message": "Den Send du försöker komma åt finns inte eller är inte längre tillgänglig.",
@@ -4609,8 +4624,8 @@
     "message": "att prova det idag.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about Bitwarden Send or sign up to **try it today.**'"
   },
-  "sendCreatorIdentifier": {
-    "message": "Bitwarden-användaren $USER_IDENTIFIER$ delade följande med dig",
+  "sendAccessCreatorIdentifier": {
+    "message": "Bitwarden member $USER_IDENTIFIER$ shared the following with you",
     "placeholders": {
       "user_identifier": {
         "content": "$1",
@@ -7182,6 +7197,9 @@
   "next": {
     "message": "Nästa"
   },
+  "ssoLoginIsRequired": {
+    "message": "SSO login is required"
+  },
   "selectedRegionFlag": {
     "message": "Selected region flag"
   },
@@ -7304,6 +7322,9 @@
   "limitCollectionCreationDeletionDesc": {
     "message": "Limit collection creation and deletion to owners and admins"
   },
+  "allowAdminAccessToAllCollectionItemsDesc": {
+    "message": "Ägare och administratörer kan hantera alla samlingar och objekt"
+  },
   "collectionManagementUpdated": {
     "message": "Collection management behavior saved"
   },
@@ -7386,11 +7407,38 @@
   "passkeyNotCopiedAlert": {
     "message": "The passkey will not be copied to the cloned item. Do you want to continue cloning this item?"
   },
+  "modifiedCollectionManagement": {
+    "message": "Modified collection management setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "seeDetailedInstructions": {
     "message": "Se detaljerade instruktioner på vår hjälpsida på",
     "description": "This is followed a by a hyperlink to the help website."
   },
   "projectAccessUpdated": {
     "message": "Project access updated"
+  },
+  "unexpectedErrorSend": {
+    "message": "Ett oväntat fel inträffade när denna Send laddades. Försök igen senare."
+  },
+  "seatLimitReached": {
+    "message": "Seat limit has been reached"
+  },
+  "contactYourProvider": {
+    "message": "Contact your provider to purchase additional seats."
+  },
+  "seatLimitReachedContactYourProvider": {
+    "message": "Seat limit has been reached. Contact your provider to purchase additional seats."
+  },
+  "collectionAccessRestricted": {
+    "message": "Collection access is restricted"
+  },
+  "serviceAccountAccessUpdated": {
+    "message": "Service account access updated"
   }
 }

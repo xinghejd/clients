@@ -7,7 +7,6 @@ import * as lock from "proper-lockfile";
 import { OperationOptions } from "retry";
 import { Subject } from "rxjs";
 
-import { NodeUtils } from "@bitwarden/common/misc/nodeUtils";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
   AbstractStorageService,
@@ -15,6 +14,7 @@ import {
 } from "@bitwarden/common/platform/abstractions/storage.service";
 import { sequentialize } from "@bitwarden/common/platform/misc/sequentialize";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { NodeUtils } from "@bitwarden/node/node-utils";
 
 const retries: OperationOptions = {
   retries: 50,
@@ -29,15 +29,17 @@ export class LowdbStorageService implements AbstractStorageService {
   private defaults: any;
   private ready = false;
   private updatesSubject = new Subject<StorageUpdate>();
+  updates$;
 
   constructor(
     protected logService: LogService,
     defaults?: any,
     private dir?: string,
     private allowCache = false,
-    private requireLock = false
+    private requireLock = false,
   ) {
     this.defaults = defaults;
+    this.updates$ = this.updatesSubject.asObservable();
   }
 
   @sequentialize(() => "lowdbStorageInit")
@@ -57,7 +59,7 @@ export class LowdbStorageService implements AbstractStorageService {
       this.dataFilePath = path.join(this.dir, "data.json");
       if (!fs.existsSync(this.dataFilePath)) {
         this.logService.warning(
-          `Could not find data file, "${this.dataFilePath}"; creating it instead.`
+          `Could not find data file, "${this.dataFilePath}"; creating it instead.`,
         );
         fs.writeFileSync(this.dataFilePath, "", { mode: 0o600 });
         fs.chmodSync(this.dataFilePath, 0o600);
@@ -76,14 +78,14 @@ export class LowdbStorageService implements AbstractStorageService {
     } catch (e) {
       if (e instanceof SyntaxError) {
         this.logService.warning(
-          `Error creating lowdb storage adapter, "${e.message}"; emptying data file.`
+          `Error creating lowdb storage adapter, "${e.message}"; emptying data file.`,
         );
         if (fs.existsSync(this.dataFilePath)) {
           const backupPath = this.dataFilePath + ".bak";
           this.logService.warning(`Writing backup of data file to ${backupPath}`);
           await fs.copyFile(this.dataFilePath, backupPath, () => {
             this.logService.warning(
-              `Error while creating data file backup, "${e.message}". No backup may have been created.`
+              `Error while creating data file backup, "${e.message}". No backup may have been created.`,
             );
           });
         }
@@ -107,8 +109,8 @@ export class LowdbStorageService implements AbstractStorageService {
     this.ready = true;
   }
 
-  get updates$() {
-    return this.updatesSubject.asObservable();
+  get valuesRequireDeserialization(): boolean {
+    return true;
   }
 
   async get<T>(key: string): Promise<T> {
@@ -133,7 +135,7 @@ export class LowdbStorageService implements AbstractStorageService {
     return this.lockDbFile(() => {
       this.readForNoCache();
       this.db.set(key, obj).write();
-      this.updatesSubject.next({ key, value: obj, updateType: "save" });
+      this.updatesSubject.next({ key, updateType: "save" });
       this.logService.debug(`Successfully wrote ${key} to db`);
       return;
     });
@@ -144,7 +146,7 @@ export class LowdbStorageService implements AbstractStorageService {
     return this.lockDbFile(() => {
       this.readForNoCache();
       this.db.unset(key).write();
-      this.updatesSubject.next({ key, value: null, updateType: "remove" });
+      this.updatesSubject.next({ key, updateType: "remove" });
       this.logService.debug(`Successfully removed ${key} from db`);
       return;
     });

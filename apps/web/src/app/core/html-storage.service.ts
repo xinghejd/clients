@@ -1,11 +1,11 @@
 import { Injectable } from "@angular/core";
 import { Subject } from "rxjs";
 
-import { HtmlStorageLocation } from "@bitwarden/common/enums";
 import {
   AbstractStorageService,
   StorageUpdate,
 } from "@bitwarden/common/platform/abstractions/storage.service";
+import { HtmlStorageLocation } from "@bitwarden/common/platform/enums";
 import { StorageOptions } from "@bitwarden/common/platform/models/domain/storage-options";
 
 @Injectable()
@@ -16,8 +16,13 @@ export class HtmlStorageService implements AbstractStorageService {
     return { htmlStorageLocation: HtmlStorageLocation.Session };
   }
 
-  get updates$() {
-    return this.updatesSubject.asObservable();
+  get valuesRequireDeserialization(): boolean {
+    return true;
+  }
+  updates$;
+
+  constructor() {
+    this.updates$ = this.updatesSubject.asObservable();
   }
 
   get<T>(key: string, options: StorageOptions = this.defaultOptions): Promise<T> {
@@ -62,7 +67,7 @@ export class HtmlStorageService implements AbstractStorageService {
         window.sessionStorage.setItem(key, json);
         break;
     }
-    this.updatesSubject.next({ key, value: obj, updateType: "save" });
+    this.updatesSubject.next({ key, updateType: "save" });
     return Promise.resolve();
   }
 
@@ -76,7 +81,7 @@ export class HtmlStorageService implements AbstractStorageService {
         window.sessionStorage.removeItem(key);
         break;
     }
-    this.updatesSubject.next({ key, value: null, updateType: "remove" });
+    this.updatesSubject.next({ key, updateType: "remove" });
     return Promise.resolve();
   }
 }
