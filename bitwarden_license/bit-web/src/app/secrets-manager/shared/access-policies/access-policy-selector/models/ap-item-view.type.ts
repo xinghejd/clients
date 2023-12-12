@@ -3,6 +3,7 @@ import { SelectItemView } from "@bitwarden/components";
 
 import {
   ProjectPeopleAccessPoliciesView,
+  ServiceAccountPeopleAccessPoliciesView,
   ProjectServiceAccountsAccessPoliciesView,
 } from "../../../../models/view/access-policy.view";
 import { PotentialGranteeView } from "../../../../models/view/potential-grantee.view";
@@ -32,7 +33,7 @@ export type ApItemViewType = SelectItemView & {
   );
 
 export function convertPeoplePoliciesToApItemViewType(
-  value: ProjectPeopleAccessPoliciesView,
+  value: ProjectPeopleAccessPoliciesView | ServiceAccountPeopleAccessPoliciesView,
 ): ApItemViewType[] {
   const accessPolicies: ApItemViewType[] = [];
 

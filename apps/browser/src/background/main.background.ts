@@ -539,6 +539,7 @@ export default class MainBackground {
       this.folderApiService,
       this.organizationService,
       this.sendApiService,
+      this.configService,
       logoutCallback,
     );
     this.eventUploadService = new EventUploadService(
@@ -625,6 +626,7 @@ export default class MainBackground {
       this.platformUtilsService,
       systemUtilsServiceReloadCallback,
       this.stateService,
+      this.vaultTimeoutSettingsService,
     );
 
     // Other fields
@@ -832,28 +834,39 @@ export default class MainBackground {
     }
   }
 
+  /**
+   * Switch accounts to indicated userId -- null is no active user
+   */
   async switchAccount(userId: UserId) {
-    if (userId != null) {
+    try {
       await this.stateService.setActiveUser(userId);
-    }
 
-    const status = await this.authService.getAuthStatus(userId);
-    const forcePasswordReset =
-      (await this.stateService.getForceSetPasswordReason({ userId: userId })) !=
-      ForceSetPasswordReason.None;
+      if (userId == null) {
+        await this.stateService.setRememberedEmail(null);
+        await this.refreshBadge();
+        await this.refreshMenu();
+        return;
+      }
 
-    await this.systemService.clearPendingClipboard();
-    await this.notificationsService.updateConnection(false);
+      const status = await this.authService.getAuthStatus(userId);
+      const forcePasswordReset =
+        (await this.stateService.getForceSetPasswordReason({ userId: userId })) !=
+        ForceSetPasswordReason.None;
 
-    if (status === AuthenticationStatus.Locked) {
-      this.messagingService.send("locked", { userId: userId });
-    } else if (forcePasswordReset) {
-      this.messagingService.send("update-temp-password", { userId: userId });
-    } else {
-      this.messagingService.send("unlocked", { userId: userId });
-      await this.refreshBadge();
-      await this.refreshMenu();
-      await this.syncService.fullSync(false);
+      await this.systemService.clearPendingClipboard();
+      await this.notificationsService.updateConnection(false);
+
+      if (status === AuthenticationStatus.Locked) {
+        this.messagingService.send("locked", { userId: userId });
+      } else if (forcePasswordReset) {
+        this.messagingService.send("update-temp-password", { userId: userId });
+      } else {
+        this.messagingService.send("unlocked", { userId: userId });
+        await this.refreshBadge();
+        await this.refreshMenu();
+        await this.syncService.fullSync(false);
+      }
+    } finally {
       this.messagingService.send("switchAccountFinish", { userId: userId });
     }
   }
@@ -878,16 +891,16 @@ export default class MainBackground {
     //Needs to be checked before state is cleaned
     const needStorageReseed = await this.needsStorageReseed();
 
+    const currentUserId = await this.stateService.getUserId();
     const newActiveUser = await this.stateService.clean({ userId: userId });
 
     if (newActiveUser != null) {
       // we have a new active user, do not continue tearing down application
-      this.switchAccount(newActiveUser as UserId);
+      await this.switchAccount(newActiveUser as UserId);
       this.messagingService.send("switchAccountFinish");
-      return;
     }
 
-    if (userId == null || userId === (await this.stateService.getUserId())) {
+    if (userId == null || userId === currentUserId) {
       this.searchService.clearIndex();
       this.messagingService.send("doneLoggingOut", { expired: expired, userId: userId });
     }
