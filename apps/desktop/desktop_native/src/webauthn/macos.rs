@@ -6,6 +6,7 @@ use icrate::{
         rc::{Allocated, Id},
         runtime::{AnyObject, ProtocolObject},
         ClassType, DeclaredClass, Encode, Encoding, RefEncode,
+        __macro_helpers::Other,
     },
     AppKit::{NSApplication, NSWindow},
     AuthenticationServices::{
@@ -25,7 +26,7 @@ pub fn create(_window_handle: u64) -> Result<String> {
         let rp_id = ns_string!("shiny.coroiu.com"); // Example of how to create static "string literal" NSString
         let credential_provider = unsafe {
             ASAuthorizationPlatformPublicKeyCredentialProvider::initWithRelyingPartyIdentifier(
-                ASAuthorizationPlatformPublicKeyCredentialProvider::alloc(),
+                mtm.alloc(),
                 rp_id,
             )
         };
@@ -33,14 +34,14 @@ pub fn create(_window_handle: u64) -> Result<String> {
         let user_name = NSString::from_str("user"); // Example of how to create dynamic NSString
         let challenge = unsafe {
             NSData::initWithBase64EncodedString_options(
-                NSData::alloc(),
+                mtm.alloc(),
                 ns_string!("YW5kcmVhcyBjb3JvaXUgd2FzIGhlcmU="),
                 NSDataBase64DecodingIgnoreUnknownCharacters,
             )
         };
         let user_id = unsafe {
             NSData::initWithBase64EncodedString_options(
-                NSData::alloc(),
+                mtm.alloc(),
                 ns_string!("6dnpKhnpRAS4diyuFwS+Rg=="), // e9d9e92a-19e9-4404-b876-2cae1704be46 in base64
                 NSDataBase64DecodingIgnoreUnknownCharacters,
             )
@@ -61,7 +62,7 @@ pub fn create(_window_handle: u64) -> Result<String> {
                 .windows()
                 .objectAtIndex(0)
         };
-        let auth_delegate = AuthDelegate::init(AuthDelegate::alloc(), main_window);
+        let auth_delegate = AuthDelegate::new(mtm, main_window);
 
         // let authorization_requests = unsafe {
         //     NSArray::<Id<ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest>>::arrayWithObject(registration_request)
@@ -71,11 +72,11 @@ pub fn create(_window_handle: u64) -> Result<String> {
             NSArray::<ASAuthorizationRequest>::from_vec(vec![registration_request]);
         let auth_controller = unsafe {
             ASAuthorizationController::initWithAuthorizationRequests(
-                ASAuthorizationController::alloc(),
+                mtm.alloc(),
                 authorization_requests.as_ref(),
             )
         };
-        let unwrapperd_delegate = auth_delegate.unwrap();
+        let unwrapperd_delegate = auth_delegate;
 
         let auth_controller_delegate = ProtocolObject::from_ref(&*unwrapperd_delegate);
         unsafe { auth_controller.setDelegate(Some(auth_controller_delegate)) };
@@ -84,9 +85,7 @@ pub fn create(_window_handle: u64) -> Result<String> {
         unsafe {
             auth_controller.setPresentationContextProvider(Some(presentation_context_delegate))
         };
-
-        unsafe { auth_controller.performRequests() };
-        // dbg!(auth_controller);
+        dbg!(auth_controller.as_ref());
 
         unsafe {
             // dbg!()auth_controller.performRequests();
@@ -98,6 +97,8 @@ pub fn create(_window_handle: u64) -> Result<String> {
                 .presentationAnchorForAuthorizationController(auth_controller_ref);
             dbg!(anchor); // This correctly returns NSElectronWindow
         }
+
+        unsafe { auth_controller.performRequests() };
     });
 
     Ok("not implemented".to_owned())
@@ -113,8 +114,8 @@ declare_class!(
 
     unsafe impl ClassType for AuthDelegate {
         type Super = NSObject;
-        type Mutability = InteriorMutable;
-        // type Mutability = mutability::MainThreadOnly;
+        // type Mutability = InteriorMutable;
+        type Mutability = mutability::MainThreadOnly;
         const NAME: &'static str = "AuthDelegate";
     }
 
@@ -148,14 +149,27 @@ declare_class!(
 
     unsafe impl ASAuthorizationControllerPresentationContextProviding for AuthDelegate {
         #[allow(non_snake_case)]
-        #[method(presentationAnchorForAuthorizationController:)]
+        #[method_id(presentationAnchorForAuthorizationController:)]
         unsafe fn presentationAnchorForAuthorizationController(
             &self,
             controller: &ASAuthorizationController,
-        ) -> *const NSWindow {
-            let ptr = Id::as_ptr(&self.ivars().window);
-            ptr
+        ) -> Id<NSWindow> {
+            println!("presentationAnchorForAuthorizationController CALLED!");
+            Id::clone(&self.ivars().window)
+            // let ptr = Id::as_ptr(&self.ivars().window);
+            // let id = Id::new(ptr);
+            // Id::new(ptr)
         }
+
+        // #[allow(non_snake_case)]
+        // #[method(presentationAnchorForAuthorizationController:)]
+        // unsafe fn presentationAnchorForAuthorizationController(
+        //     &self,
+        //     controller: &ASAuthorizationController,
+        // ) -> *const NSWindow {
+        //     let ptr = Id::as_ptr(&self.ivars().window);
+        //     ptr
+        // }
     }
 );
 
@@ -164,7 +178,12 @@ declare_class!(
 // }
 
 impl AuthDelegate {
-    pub fn init(this: Allocated<Self>, window: Id<NSWindow>) -> Option<Id<Self>> {
+    pub fn new(mtm: MainThreadMarker, window: Id<NSWindow>) -> Id<Self> {
+        let this = mtm.alloc();
+        AuthDelegate::init(this, window)
+    }
+
+    pub fn init(this: Allocated<Self>, window: Id<NSWindow>) -> Id<Self> {
         let this = this.set_ivars(AuthDelegateIvars { window });
         unsafe { msg_send_id![super(this), init] }
     }
