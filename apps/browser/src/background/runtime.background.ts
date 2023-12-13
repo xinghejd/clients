@@ -19,6 +19,7 @@ import { BrowserStateService } from "../platform/services/abstractions/browser-s
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import BrowserPlatformUtilsService from "../platform/services/browser-platform-utils.service";
 import { AbortManager } from "../vault/background/abort-manager";
+import { Fido2Service } from "../vault/services/abstractions/fido2.service";
 
 import MainBackground from "./main.background";
 
@@ -41,6 +42,7 @@ export default class RuntimeBackground {
     private messagingService: MessagingService,
     private logService: LogService,
     private configService: ConfigServiceAbstraction,
+    private fido2Service: Fido2Service,
   ) {
     // onInstalled listener must be wired up before anything else, so we do it in the ctor
     chrome.runtime.onInstalled.addListener((details: any) => {
@@ -251,6 +253,9 @@ export default class RuntimeBackground {
         break;
       case "getClickedElementResponse":
         this.platformUtilsService.copyToClipboard(msg.identifier, { window: window });
+        break;
+      case "triggerFido2ContentScriptInjection":
+        await this.fido2Service.injectFido2ContentScripts(sender);
         break;
       case "fido2AbortRequest":
         this.abortManager.abort(msg.abortedRequestId);
