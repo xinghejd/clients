@@ -19,6 +19,17 @@ use icrate::{
     },
 };
 
+/*
+* This is a hack to store the delegate in a static variable, because the delegate is required to
+* live as long as the ASAuthorizationController. This is not possible to do as the function currently is
+* structured, because the delegate is created on the stack and the function returns before the
+* delegate is used. This is a problem because the delegate is dropped when the function returns.
+*
+* Proper fix:
+* We should be able to fix this by making the function async and await the delegate to be called.
+*/
+static mut AUTH_DELEGATE: Option<Id<AuthDelegate>> = None;
+
 pub fn create(_window_handle: u64) -> Result<String> {
     MainThreadMarker::run_on_main(|mtm| {
         let rp_id = ns_string!("shiny.coroiu.com"); // Example of how to create static "string literal" NSString
@@ -60,7 +71,7 @@ pub fn create(_window_handle: u64) -> Result<String> {
                 .windows()
                 .objectAtIndex(0)
         };
-        let auth_delegate = AuthDelegate::new(mtm, main_window);
+        unsafe { AUTH_DELEGATE = Some(AuthDelegate::new(mtm, main_window)) };
 
         // let authorization_requests = unsafe {
         //     NSArray::<Id<ASAuthorizationPlatformPublicKeyCredentialRegistrationRequest>>::arrayWithObject(registration_request)
@@ -74,12 +85,19 @@ pub fn create(_window_handle: u64) -> Result<String> {
                 authorization_requests.as_ref(),
             )
         };
-        let unwrapperd_delegate = auth_delegate;
 
-        let auth_controller_delegate = ProtocolObject::from_ref(&*unwrapperd_delegate);
+        let delegate_ref = unsafe {
+            match AUTH_DELEGATE {
+                None => panic!("auth_delegate is None"),
+                Some(ref x) => x,
+            }
+        };
+
+        let unwrapped_delegate = Id::clone(delegate_ref);
+        let auth_controller_delegate = ProtocolObject::from_ref(&*unwrapped_delegate);
         unsafe { auth_controller.setDelegate(Some(auth_controller_delegate)) };
 
-        let presentation_context_delegate = ProtocolObject::from_ref(&*unwrapperd_delegate);
+        let presentation_context_delegate = ProtocolObject::from_ref(&*unwrapped_delegate);
         unsafe {
             auth_controller.setPresentationContextProvider(Some(presentation_context_delegate))
         };
