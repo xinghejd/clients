@@ -9,14 +9,14 @@ export abstract class EncryptService {
   abstract encrypt(plainValue: string | Uint8Array, key: SymmetricCryptoKey): Promise<EncString>;
   abstract encryptToBytes: (
     plainValue: Uint8Array,
-    key?: SymmetricCryptoKey
+    key?: SymmetricCryptoKey,
   ) => Promise<EncArrayBuffer>;
   abstract decryptToUtf8: (encString: EncString, key: SymmetricCryptoKey) => Promise<string>;
   abstract decryptToBytes: (encThing: Encrypted, key: SymmetricCryptoKey) => Promise<Uint8Array>;
   abstract resolveLegacyKey: (key: SymmetricCryptoKey, encThing: Encrypted) => SymmetricCryptoKey;
   abstract decryptItems: <T extends InitializerMetadata>(
     items: Decryptable<T>[],
-    key: SymmetricCryptoKey
+    key: SymmetricCryptoKey,
   ) => Promise<T[]>;
   /**
    * Generates a base64-encoded hash of the given value

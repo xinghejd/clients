@@ -3,8 +3,8 @@ import "lit/polyfill-support.js";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
 import { EVENTS } from "../../../constants";
+import { buildSvgDomElement } from "../../../utils";
 import { logoIcon, logoLockedIcon } from "../../../utils/svg-icons";
-import { buildSvgDomElement } from "../../../utils/utils";
 import {
   InitAutofillOverlayButtonMessage,
   OverlayButtonWindowMessageHandlers,
@@ -58,7 +58,7 @@ class AutofillOverlayButton extends AutofillOverlayPageElement {
     this.buttonElement.classList.add("overlay-button");
     this.buttonElement.setAttribute(
       "aria-label",
-      this.getTranslation("toggleBitwardenVaultOverlay")
+      this.getTranslation("toggleBitwardenVaultOverlay"),
     );
     this.buttonElement.addEventListener(EVENTS.CLICK, this.handleButtonElementClick);
 

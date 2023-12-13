@@ -4,8 +4,8 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 
 import { OverlayCipherData } from "../../../background/abstractions/overlay.background";
 import { EVENTS } from "../../../constants";
+import { buildSvgDomElement } from "../../../utils";
 import { globeIcon, lockIcon, plusIcon, viewCipherIcon } from "../../../utils/svg-icons";
-import { buildSvgDomElement } from "../../../utils/utils";
 import {
   InitAutofillOverlayListMessage,
   OverlayListWindowMessageHandlers,
@@ -89,7 +89,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     unlockButtonElement.textContent = this.getTranslation("unlockAccount");
     unlockButtonElement.setAttribute(
       "aria-label",
-      `${this.getTranslation("unlockAccount")}, ${this.getTranslation("opensInANewWindow")}`
+      `${this.getTranslation("unlockAccount")}, ${this.getTranslation("opensInANewWindow")}`,
     );
     unlockButtonElement.prepend(buildSvgDomElement(lockIcon));
     unlockButtonElement.addEventListener(EVENTS.CLICK, this.handleUnlockButtonClick);
@@ -118,7 +118,9 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
   private updateListItems(ciphers: OverlayCipherData[]) {
     this.ciphers = ciphers;
     this.currentCipherIndex = 0;
-    this.overlayListContainer.innerHTML = "";
+    if (this.overlayListContainer) {
+      this.overlayListContainer.innerHTML = "";
+    }
 
     if (!ciphers?.length) {
       this.buildNoResultsOverlayList();
@@ -151,7 +153,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     newItemButton.textContent = this.getTranslation("newItem");
     newItemButton.setAttribute(
       "aria-label",
-      `${this.getTranslation("addNewVaultItem")}, ${this.getTranslation("opensInANewWindow")}`
+      `${this.getTranslation("addNewVaultItem")}, ${this.getTranslation("opensInANewWindow")}`,
     );
     newItemButton.prepend(buildSvgDomElement(plusIcon));
     newItemButton.addEventListener(EVENTS.CLICK, this.handeNewItemButtonClick);
@@ -177,7 +179,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
   private loadPageOfCiphers() {
     const lastIndex = Math.min(
       this.currentCipherIndex + this.showCiphersPerPage,
-      this.ciphers.length
+      this.ciphers.length,
     );
     for (let cipherIndex = this.currentCipherIndex; cipherIndex < lastIndex; cipherIndex++) {
       this.ciphersList.appendChild(this.buildOverlayActionsListItem(this.ciphers[cipherIndex]));
@@ -253,11 +255,11 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     fillCipherElement.classList.add("fill-cipher-button");
     fillCipherElement.setAttribute(
       "aria-label",
-      `${this.getTranslation("fillCredentialsFor")} ${cipher.name}`
+      `${this.getTranslation("fillCredentialsFor")} ${cipher.name}`,
     );
     fillCipherElement.setAttribute(
       "aria-description",
-      `${this.getTranslation("partialUsername")}, ${cipher.login.username}`
+      `${this.getTranslation("partialUsername")}, ${cipher.login.username}`,
     );
     fillCipherElement.append(cipherIcon, cipherDetailsElement);
     fillCipherElement.addEventListener(EVENTS.CLICK, this.handleFillCipherClickEvent(cipher));
@@ -279,7 +281,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
           command: "fillSelectedListItem",
           overlayCipherId: cipher.id,
         }),
-      `${cipher.id}-fill-cipher-button-click-handler`
+      `${cipher.id}-fill-cipher-button-click-handler`,
     );
   };
 
@@ -323,7 +325,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     viewCipherElement.classList.add("view-cipher-button");
     viewCipherElement.setAttribute(
       "aria-label",
-      `${this.getTranslation("view")} ${cipher.name}, ${this.getTranslation("opensInANewWindow")}`
+      `${this.getTranslation("view")} ${cipher.name}, ${this.getTranslation("opensInANewWindow")}`,
     );
     viewCipherElement.append(buildSvgDomElement(viewCipherIcon));
     viewCipherElement.addEventListener(EVENTS.CLICK, this.handleViewCipherClickEvent(cipher));
@@ -341,7 +343,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
   private handleViewCipherClickEvent = (cipher: OverlayCipherData) => {
     return this.useEventHandlersMemo(
       () => this.postMessageToParent({ command: "viewSelectedCipher", overlayCipherId: cipher.id }),
-      `${cipher.id}-view-cipher-button-click-handler`
+      `${cipher.id}-view-cipher-button-click-handler`,
     );
   };
 
@@ -485,7 +487,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
    */
   private focusOverlayList() {
     const unlockButtonElement = this.overlayListContainer.querySelector(
-      "#unlock-button"
+      "#unlock-button",
     ) as HTMLElement;
     if (unlockButtonElement) {
       unlockButtonElement.focus();
@@ -493,7 +495,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     }
 
     const newItemButtonElement = this.overlayListContainer.querySelector(
-      "#new-item-button"
+      "#new-item-button",
     ) as HTMLElement;
     if (newItemButtonElement) {
       newItemButtonElement.focus();
@@ -501,7 +503,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     }
 
     const firstCipherElement = this.overlayListContainer.querySelector(
-      ".fill-cipher-button"
+      ".fill-cipher-button",
     ) as HTMLElement;
     firstCipherElement?.focus();
   }

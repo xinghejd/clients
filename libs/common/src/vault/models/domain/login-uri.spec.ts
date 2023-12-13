@@ -2,9 +2,9 @@ import { MockProxy, mock } from "jest-mock-extended";
 import { Jsonify } from "type-fest";
 
 import { mockEnc, mockFromJson } from "../../../../spec";
-import { UriMatchType } from "../../../enums";
 import { EncryptService } from "../../../platform/abstractions/encrypt.service";
 import { EncString } from "../../../platform/models/domain/enc-string";
+import { UriMatchType } from "../../enums";
 import { LoginUriData } from "../data/login-uri.data";
 
 import { LoginUri } from "./login-uri";

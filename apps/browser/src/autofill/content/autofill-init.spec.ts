@@ -6,7 +6,7 @@ import { flushPromises, sendExtensionRuntimeMessage } from "../jest/testing-util
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
 import AutofillOverlayContentService from "../services/autofill-overlay-content.service";
-import { RedirectFocusDirection } from "../utils/autofill-overlay.enum";
+import { AutofillOverlayVisibility, RedirectFocusDirection } from "../utils/autofill-overlay.enum";
 
 import { AutofillExtensionMessage } from "./abstractions/autofill-init";
 import AutofillInit from "./autofill-init";
@@ -16,6 +16,11 @@ describe("AutofillInit", () => {
   const autofillOverlayContentService = mock<AutofillOverlayContentService>();
 
   beforeEach(() => {
+    chrome.runtime.connect = jest.fn().mockReturnValue({
+      onDisconnect: {
+        addListener: jest.fn(),
+      },
+    });
     autofillInit = new AutofillInit(autofillOverlayContentService);
   });
 
@@ -41,7 +46,7 @@ describe("AutofillInit", () => {
       autofillInit["setupExtensionMessageListeners"]();
 
       expect(chrome.runtime.onMessage.addListener).toHaveBeenCalledWith(
-        autofillInit["handleExtensionMessage"]
+        autofillInit["handleExtensionMessage"],
       );
     });
   });
@@ -157,7 +162,7 @@ describe("AutofillInit", () => {
           sendExtensionRuntimeMessage(
             { command: "collectPageDetailsImmediately" },
             sender,
-            sendResponse
+            sendResponse,
           );
           await flushPromises();
 
@@ -186,7 +191,7 @@ describe("AutofillInit", () => {
           await flushPromises();
 
           expect(autofillInit["insertAutofillContentService"].fillForm).not.toHaveBeenCalledWith(
-            fillScript
+            fillScript,
           );
         });
 
@@ -199,7 +204,7 @@ describe("AutofillInit", () => {
           await flushPromises();
 
           expect(autofillInit["insertAutofillContentService"].fillForm).toHaveBeenCalledWith(
-            fillScript
+            fillScript,
           );
         });
 
@@ -220,11 +225,11 @@ describe("AutofillInit", () => {
 
           expect(autofillInit["updateOverlayIsCurrentlyFilling"]).toHaveBeenNthCalledWith(1, true);
           expect(autofillInit["insertAutofillContentService"].fillForm).toHaveBeenCalledWith(
-            fillScript
+            fillScript,
           );
           expect(autofillInit["updateOverlayIsCurrentlyFilling"]).toHaveBeenNthCalledWith(2, false);
           expect(
-            autofillInit["autofillOverlayContentService"].focusMostRecentOverlayField
+            autofillInit["autofillOverlayContentService"].focusMostRecentOverlayField,
           ).toHaveBeenCalled();
         });
 
@@ -247,14 +252,14 @@ describe("AutofillInit", () => {
 
           expect(newAutofillInit["updateOverlayIsCurrentlyFilling"]).toHaveBeenNthCalledWith(
             1,
-            true
+            true,
           );
           expect(newAutofillInit["insertAutofillContentService"].fillForm).toHaveBeenCalledWith(
-            fillScript
+            fillScript,
           );
           expect(newAutofillInit["updateOverlayIsCurrentlyFilling"]).not.toHaveBeenNthCalledWith(
             2,
-            false
+            false,
           );
         });
       });
@@ -282,7 +287,7 @@ describe("AutofillInit", () => {
           sendExtensionRuntimeMessage(message);
 
           expect(
-            autofillInit["autofillOverlayContentService"].openAutofillOverlay
+            autofillInit["autofillOverlayContentService"].openAutofillOverlay,
           ).toHaveBeenCalledWith({
             isFocusingFieldElement: message.data.isFocusingFieldElement,
             isOpeningFullOverlay: message.data.isOpeningFullOverlay,
@@ -297,16 +302,40 @@ describe("AutofillInit", () => {
           autofillInit["autofillOverlayContentService"].isCurrentlyFilling = false;
         });
 
+        it("skips attempting to remove the overlay if the autofillOverlayContentService is not present", () => {
+          const newAutofillInit = new AutofillInit(undefined);
+          newAutofillInit.init();
+          jest.spyOn(newAutofillInit as any, "removeAutofillOverlay");
+
+          sendExtensionRuntimeMessage({
+            command: "closeAutofillOverlay",
+            data: { forceCloseOverlay: false },
+          });
+
+          expect(newAutofillInit["autofillOverlayContentService"]).toBe(undefined);
+        });
+
+        it("removes the autofill overlay if the message flags a forced closure", () => {
+          sendExtensionRuntimeMessage({
+            command: "closeAutofillOverlay",
+            data: { forceCloseOverlay: true },
+          });
+
+          expect(
+            autofillInit["autofillOverlayContentService"].removeAutofillOverlay,
+          ).toHaveBeenCalled();
+        });
+
         it("ignores the message if a field is currently focused", () => {
           autofillInit["autofillOverlayContentService"].isFieldCurrentlyFocused = true;
 
           sendExtensionRuntimeMessage({ command: "closeAutofillOverlay" });
 
           expect(
-            autofillInit["autofillOverlayContentService"].removeAutofillOverlayList
+            autofillInit["autofillOverlayContentService"].removeAutofillOverlayList,
           ).not.toHaveBeenCalled();
           expect(
-            autofillInit["autofillOverlayContentService"].removeAutofillOverlay
+            autofillInit["autofillOverlayContentService"].removeAutofillOverlay,
           ).not.toHaveBeenCalled();
         });
 
@@ -316,10 +345,10 @@ describe("AutofillInit", () => {
           sendExtensionRuntimeMessage({ command: "closeAutofillOverlay" });
 
           expect(
-            autofillInit["autofillOverlayContentService"].removeAutofillOverlayList
+            autofillInit["autofillOverlayContentService"].removeAutofillOverlayList,
           ).toHaveBeenCalled();
           expect(
-            autofillInit["autofillOverlayContentService"].removeAutofillOverlay
+            autofillInit["autofillOverlayContentService"].removeAutofillOverlay,
           ).not.toHaveBeenCalled();
         });
 
@@ -327,10 +356,10 @@ describe("AutofillInit", () => {
           sendExtensionRuntimeMessage({ command: "closeAutofillOverlay" });
 
           expect(
-            autofillInit["autofillOverlayContentService"].removeAutofillOverlayList
+            autofillInit["autofillOverlayContentService"].removeAutofillOverlayList,
           ).not.toHaveBeenCalled();
           expect(
-            autofillInit["autofillOverlayContentService"].removeAutofillOverlay
+            autofillInit["autofillOverlayContentService"].removeAutofillOverlay,
           ).toHaveBeenCalled();
         });
       });
@@ -373,7 +402,7 @@ describe("AutofillInit", () => {
           sendExtensionRuntimeMessage(message);
 
           expect(
-            autofillInit["autofillOverlayContentService"].redirectOverlayFocusOut
+            autofillInit["autofillOverlayContentService"].redirectOverlayFocusOut,
           ).toHaveBeenCalledWith(message.data.direction);
         });
       });
@@ -399,7 +428,7 @@ describe("AutofillInit", () => {
           sendExtensionRuntimeMessage(message);
 
           expect(autofillInit["autofillOverlayContentService"].isOverlayCiphersPopulated).toEqual(
-            message.data.isOverlayCiphersPopulated
+            message.data.isOverlayCiphersPopulated,
           );
         });
       });
@@ -423,7 +452,7 @@ describe("AutofillInit", () => {
           sendExtensionRuntimeMessage({ command: "bgUnlockPopoutOpened" });
 
           expect(
-            autofillInit["autofillOverlayContentService"].blurMostRecentOverlayField
+            autofillInit["autofillOverlayContentService"].blurMostRecentOverlayField,
           ).toHaveBeenCalled();
           expect(autofillInit["removeAutofillOverlay"]).toHaveBeenCalled();
         });
@@ -448,11 +477,62 @@ describe("AutofillInit", () => {
           sendExtensionRuntimeMessage({ command: "bgVaultItemRepromptPopoutOpened" });
 
           expect(
-            autofillInit["autofillOverlayContentService"].blurMostRecentOverlayField
+            autofillInit["autofillOverlayContentService"].blurMostRecentOverlayField,
           ).toHaveBeenCalled();
           expect(autofillInit["removeAutofillOverlay"]).toHaveBeenCalled();
         });
       });
+
+      describe("updateAutofillOverlayVisibility", () => {
+        beforeEach(() => {
+          autofillInit["autofillOverlayContentService"].autofillOverlayVisibility =
+            AutofillOverlayVisibility.OnButtonClick;
+        });
+
+        it("skips attempting to update the overlay visibility if the autofillOverlayVisibility data value is not present", () => {
+          sendExtensionRuntimeMessage({
+            command: "updateAutofillOverlayVisibility",
+            data: {},
+          });
+
+          expect(autofillInit["autofillOverlayContentService"].autofillOverlayVisibility).toEqual(
+            AutofillOverlayVisibility.OnButtonClick,
+          );
+        });
+
+        it("updates the overlay visibility value", () => {
+          const message = {
+            command: "updateAutofillOverlayVisibility",
+            data: {
+              autofillOverlayVisibility: AutofillOverlayVisibility.Off,
+            },
+          };
+
+          sendExtensionRuntimeMessage(message);
+
+          expect(autofillInit["autofillOverlayContentService"].autofillOverlayVisibility).toEqual(
+            message.data.autofillOverlayVisibility,
+          );
+        });
+      });
+    });
+  });
+
+  describe("destroy", () => {
+    it("removes the extension message listeners", () => {
+      autofillInit.destroy();
+
+      expect(chrome.runtime.onMessage.removeListener).toHaveBeenCalledWith(
+        autofillInit["handleExtensionMessage"],
+      );
+    });
+
+    it("destroys the collectAutofillContentService", () => {
+      jest.spyOn(autofillInit["collectAutofillContentService"], "destroy");
+
+      autofillInit.destroy();
+
+      expect(autofillInit["collectAutofillContentService"].destroy).toHaveBeenCalled();
     });
   });
 });

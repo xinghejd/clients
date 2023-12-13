@@ -1,5 +1,5 @@
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 
 import AutofillPageDetails from "../../models/autofill-page-details";
 
@@ -96,6 +96,7 @@ type OverlayButtonPortMessageHandlers = {
   [key: string]: CallableFunction;
   overlayButtonClicked: ({ port }: PortConnectionParam) => void;
   closeAutofillOverlay: ({ port }: PortConnectionParam) => void;
+  forceCloseAutofillOverlay: ({ port }: PortConnectionParam) => void;
   overlayPageBlurred: () => void;
   redirectOverlayFocusOut: ({ message, port }: PortOnMessageHandlerParams) => void;
 };
@@ -103,6 +104,7 @@ type OverlayButtonPortMessageHandlers = {
 type OverlayListPortMessageHandlers = {
   [key: string]: CallableFunction;
   checkAutofillOverlayButtonFocused: () => void;
+  forceCloseAutofillOverlay: ({ port }: PortConnectionParam) => void;
   overlayPageBlurred: () => void;
   unlockVault: ({ port }: PortConnectionParam) => void;
   fillSelectedListItem: ({ message, port }: PortOnMessageHandlerParams) => void;

@@ -35,7 +35,7 @@ export class Login extends Domain {
         password: null,
         totp: null,
       },
-      []
+      [],
     );
 
     if (obj.uris) {
@@ -53,7 +53,7 @@ export class Login extends Domain {
   async decrypt(
     orgId: string,
     bypassValidation: boolean,
-    encKey?: SymmetricCryptoKey
+    encKey?: SymmetricCryptoKey,
   ): Promise<LoginView> {
     const view = await this.decryptObj(
       new LoginView(this),
@@ -63,7 +63,7 @@ export class Login extends Domain {
         totp: null,
       },
       orgId,
-      encKey
+      encKey,
     );
 
     if (this.uris != null) {
@@ -83,7 +83,7 @@ export class Login extends Domain {
 
     if (this.fido2Credentials != null) {
       view.fido2Credentials = await Promise.all(
-        this.fido2Credentials.map((key) => key.decrypt(orgId, encKey))
+        this.fido2Credentials.map((key) => key.decrypt(orgId, encKey)),
       );
     }
 
