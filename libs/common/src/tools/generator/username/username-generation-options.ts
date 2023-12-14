@@ -314,23 +314,23 @@ function parseOptions(json: string) {
   try {
     decryptedOptions = JSON.parse(json);
   } catch {
-    return { decryptedOptions, error: "invalid json" };
+    return { decryptedOptions: undefined as string, error: "invalid json" };
   }
 
   // If the decrypted options contain any property that is not in the original
   // options, then the object could be used as a side channel for arbitrary data.
   if (Object.keys(decryptedOptions).some((key) => key !== "token" && key !== "wasPlainText")) {
-    return { decryptedOptions, error: "unknown keys" };
+    return { decryptedOptions: undefined as string, error: "unknown keys" };
   }
 
   // If the decrypted properties are not the expected type, then the object could
   // be compromised and shouldn't be trusted.
   if (typeof decryptedOptions.token !== "string") {
-    return { decryptedOptions, error: "invalid token" };
+    return { decryptedOptions: undefined as string, error: "invalid token" };
   }
   if (decryptedOptions.wasPlainText !== undefined && decryptedOptions.wasPlainText !== true) {
-    return { decryptedOptions, error: "invalid wasPlainText" };
+    return { decryptedOptions: undefined as string, error: "invalid wasPlainText" };
   }
 
-  return decryptedOptions;
+  return { decryptedOptions, error: undefined as string };
 }

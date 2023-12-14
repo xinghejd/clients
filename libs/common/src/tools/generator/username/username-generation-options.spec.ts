@@ -177,7 +177,7 @@ describe("Username Generation Options", () => {
       ],
     ] as [string, string, ApiOptions & MaybeLeakedOptions, string][])(
       "decrypts %s and removes encrypted values",
-      async (description, encryptedTokenString, options, keyString) => {
+      async (_description, encryptedTokenString, expectedOptions, keyString) => {
         const encryptService = mockEncryptService();
 
         // cast through unknown to avoid type errors; the mock doesn't need the real types
@@ -185,11 +185,13 @@ describe("Username Generation Options", () => {
         const key = keyString as unknown as SymmetricCryptoKey;
         const encryptedToken = encryptedTokenString as unknown as EncString;
 
-        await decryptInPlace(encryptService, key, { encryptedToken });
+        const actualOptions = { encryptedToken } as any;
 
-        expect(options.token).toEqual(options.token);
-        expect(options.wasPlainText).toEqual(options.wasPlainText);
-        expect(options).not.toHaveProperty("encryptedToken");
+        await decryptInPlace(encryptService, key, actualOptions);
+
+        expect(actualOptions.token).toEqual(expectedOptions.token);
+        expect(actualOptions.wasPlainText).toEqual(expectedOptions.wasPlainText);
+        expect(actualOptions).not.toHaveProperty("encryptedToken");
 
         // Why `encryptedToken`? The mock outputs its input without encryption.
         expect(encryptService.decryptToUtf8).toBeCalledWith(encryptedToken, key);
