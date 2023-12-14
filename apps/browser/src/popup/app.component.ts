@@ -93,14 +93,15 @@ export class AppComponent implements OnInit, OnDestroy {
             });
           }
 
-          if (this.activeUserId === null) {
-            this.router.navigate(["home"]);
-          }
+          this.router.navigate(["home"]);
         });
         this.changeDetectorRef.detectChanges();
       } else if (msg.command === "authBlocked") {
         this.router.navigate(["home"]);
-      } else if (msg.command === "locked" && msg.userId == null) {
+      } else if (
+        msg.command === "locked" &&
+        (msg.userId === null || msg.userId == this.activeUserId)
+      ) {
         this.router.navigate(["lock"]);
       } else if (msg.command === "showDialog") {
         this.showDialog(msg);
@@ -123,6 +124,11 @@ export class AppComponent implements OnInit, OnDestroy {
         this.router.navigate(["/"]);
       } else if (msg.command === "convertAccountToKeyConnector") {
         this.router.navigate(["/remove-password"]);
+      } else if (msg.command === "switchAccountFinish") {
+        // TODO: unset loading?
+        // this.loading = false;
+      } else if (msg.command == "update-temp-password") {
+        this.router.navigate(["/update-temp-password"]);
       } else {
         msg.webExtSender = sender;
         this.broadcasterService.send(msg);

@@ -1,4 +1,4 @@
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
@@ -11,6 +11,10 @@ class FakeBaseImporter extends BaseImporter {
 
   setCardExpiration(cipher: CipherView, expiration: string): boolean {
     return super.setCardExpiration(cipher, expiration);
+  }
+
+  parseXml(data: string): Document {
+    return super.parseXml(data);
   }
 }
 
@@ -103,5 +107,18 @@ describe("BaseImporter class", () => {
         expect(result).toBe(false);
       }
     );
+
+    it("parse XML should reject xml with external entities", async () => {
+      const xml = `<?xml version="1.0" encoding="ISO-8859-1"?>
+        <!DOCTYPE replace [
+        <!ELEMENT replace ANY>
+        <!ENTITY xxe "External entity">
+        ]>
+        <passwordsafe delimiter=";">
+        <entry><title>PoC XXE</title><username>&xxe;</username></entry>
+        </passwordsafe>`;
+      const result = importer.parseXml(xml);
+      expect(result).toBe(null);
+    });
   });
 });

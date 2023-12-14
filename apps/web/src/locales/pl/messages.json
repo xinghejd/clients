@@ -611,6 +611,15 @@
   "loginWithMasterPassword": {
     "message": "Logowanie hasłem głównym"
   },
+  "readingPasskeyLoading": {
+    "message": "Odczytywanie passkey..."
+  },
+  "readingPasskeyLoadingInfo": {
+    "message": "Pozostaw to okno otwarte i postępuj zgodnie z instrukcjami z przeglądarki."
+  },
+  "useADifferentLogInMethod": {
+    "message": "Użyj innej metody logowania"
+  },
   "loginWithPasskey": {
     "message": "Zaloguj się za pomocą passkey"
   },
@@ -7313,6 +7322,9 @@
   "limitCollectionCreationDeletionDesc": {
     "message": "Ogranicz tworzenie i usuwanie kolekcji dla właścicieli i administratorów"
   },
+  "allowAdminAccessToAllCollectionItemsDesc": {
+    "message": "Właściciele i administratorzy mogą zarządzać wszystkimi zbiorami i elementami"
+  },
   "collectionManagementUpdated": {
     "message": "Zachowanie zarządzania kolekcją zapisane"
   },
@@ -7395,6 +7407,15 @@
   "passkeyNotCopiedAlert": {
     "message": "Passkey nie zostanie skopiowane do sklonowanego elementu. Czy chcesz kontynuować klonowanie tego elementu?"
   },
+  "modifiedCollectionManagement": {
+    "message": "Zmodyfikowano ustawienia zarządzania zbiorem $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "seeDetailedInstructions": {
     "message": "Zobacz szczegółowe instrukcje na naszej stronie pomocy pod adresem",
     "description": "This is followed a by a hyperlink to the help website."
@@ -7413,5 +7434,11 @@
   },
   "seatLimitReachedContactYourProvider": {
     "message": "Seat limit has been reached. Contact your provider to purchase additional seats."
+  },
+  "collectionAccessRestricted": {
+    "message": "Dostęp do kolekcji jest ograniczony"
+  },
+  "serviceAccountAccessUpdated": {
+    "message": "Zaktualizowano dostęp do konta serwisowego"
   }
 }

@@ -1,8 +1,4 @@
 import {
-  TotpServiceInitOptions,
-  totpServiceFactory,
-} from "../../../auth/background/service-factories/totp-service.factory";
-import {
   UserVerificationServiceInitOptions,
   userVerificationServiceFactory,
 } from "../../../auth/background/service-factories/user-verification-service.factory";
@@ -14,6 +10,10 @@ import {
   settingsServiceFactory,
   SettingsServiceInitOptions,
 } from "../../../background/service-factories/settings-service.factory";
+import {
+  configServiceFactory,
+  ConfigServiceInitOptions,
+} from "../../../platform/background/service-factories/config-service.factory";
 import {
   CachedServices,
   factory,
@@ -31,6 +31,10 @@ import {
   cipherServiceFactory,
   CipherServiceInitOptions,
 } from "../../../vault/background/service_factories/cipher-service.factory";
+import {
+  TotpServiceInitOptions,
+  totpServiceFactory,
+} from "../../../vault/background/service_factories/totp-service.factory";
 import { AutofillService as AbstractAutoFillService } from "../../services/abstractions/autofill.service";
 import AutofillService from "../../services/autofill.service";
 
@@ -43,7 +47,8 @@ export type AutoFillServiceInitOptions = AutoFillServiceOptions &
   EventCollectionServiceInitOptions &
   LogServiceInitOptions &
   SettingsServiceInitOptions &
-  UserVerificationServiceInitOptions;
+  UserVerificationServiceInitOptions &
+  ConfigServiceInitOptions;
 
 export function autofillServiceFactory(
   cache: { autofillService?: AbstractAutoFillService } & CachedServices,
@@ -61,7 +66,8 @@ export function autofillServiceFactory(
         await eventCollectionServiceFactory(cache, opts),
         await logServiceFactory(cache, opts),
         await settingsServiceFactory(cache, opts),
-        await userVerificationServiceFactory(cache, opts)
+        await userVerificationServiceFactory(cache, opts),
+        await configServiceFactory(cache, opts)
       )
   );
 }

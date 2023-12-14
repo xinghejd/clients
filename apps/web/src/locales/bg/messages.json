@@ -611,6 +611,15 @@
   "loginWithMasterPassword": {
     "message": "Вписване с главната парола"
   },
+  "readingPasskeyLoading": {
+    "message": "Прочитане на секретния ключ…"
+  },
+  "readingPasskeyLoadingInfo": {
+    "message": "Дръжте този прозорец отворен и следвайте инструкциите в браузъра си."
+  },
+  "useADifferentLogInMethod": {
+    "message": "Използване на друг метод на вписване"
+  },
   "loginWithPasskey": {
     "message": "Вписване със секретен ключ"
   },
@@ -5826,7 +5835,7 @@
     "description": "the text, 'SCIM', is an acronymn and should not be translated."
   },
   "inputRequired": {
-    "message": "Полето е задължтелно да бъде попълнено."
+    "message": "Полето е задължително да бъде попълнено."
   },
   "inputEmail": {
     "message": "Въведеният в полето текст не е адрес на е-поща."
@@ -7313,6 +7322,9 @@
   "limitCollectionCreationDeletionDesc": {
     "message": "Ограничаване на създаването и изтриването на колекции, така че да може да се извършва само от собствениците и администраторите"
   },
+  "allowAdminAccessToAllCollectionItemsDesc": {
+    "message": "Собствениците и администраторите могат да управляват всички колекции и елементи"
+  },
   "collectionManagementUpdated": {
     "message": "Поведението за управлението на колекциите е запазено"
   },
@@ -7395,6 +7407,15 @@
   "passkeyNotCopiedAlert": {
     "message": "Секретният ключ няма да бъде копиран в клонирания елемент. Искате ли да продължите с клонирането на елемента?"
   },
+  "modifiedCollectionManagement": {
+    "message": "Настройката за управление на колекции е променена: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "seeDetailedInstructions": {
     "message": "Може да намерите подробни инструкции в помощния ни уеб сайт на адрес",
     "description": "This is followed a by a hyperlink to the help website."
@@ -7413,5 +7434,11 @@
   },
   "seatLimitReachedContactYourProvider": {
     "message": "Достигнат е максималният брой потребители. Свържете се с доставчика си, за да закупи допълнителни места."
+  },
+  "collectionAccessRestricted": {
+    "message": "Достъпът до колекцията е ограничен"
+  },
+  "serviceAccountAccessUpdated": {
+    "message": "Service account access updated"
   }
 }

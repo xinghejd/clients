@@ -14,13 +14,6 @@ import { EnvironmentUrls } from "../../auth/models/domain/environment-urls";
 import { ForceSetPasswordReason } from "../../auth/models/domain/force-set-password-reason";
 import { KdfConfig } from "../../auth/models/domain/kdf-config";
 import { BiometricKey } from "../../auth/types/biometric-key";
-import {
-  HtmlStorageLocation,
-  KdfType,
-  StorageLocation,
-  ThemeType,
-  UriMatchType,
-} from "../../enums";
 import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
 import { EventData } from "../../models/data/event.data";
 import { WindowState } from "../../models/domain/window-state";
@@ -31,6 +24,7 @@ import { UsernameGeneratorOptions } from "../../tools/generator/username";
 import { SendData } from "../../tools/send/models/data/send.data";
 import { SendView } from "../../tools/send/models/view/send.view";
 import { UserId } from "../../types/guid";
+import { UriMatchType } from "../../vault/enums";
 import { CipherData } from "../../vault/models/data/cipher.data";
 import { CollectionData } from "../../vault/models/data/collection.data";
 import { FolderData } from "../../vault/models/data/folder.data";
@@ -44,6 +38,7 @@ import {
   AbstractMemoryStorageService,
   AbstractStorageService,
 } from "../abstractions/storage.service";
+import { HtmlStorageLocation, KdfType, StorageLocation, ThemeType } from "../enums";
 import { StateFactory } from "../factories/state-factory";
 import { Utils } from "../misc/utils";
 import { ServerConfigData } from "../models/data/server-config.data";
@@ -101,7 +96,7 @@ export class StateService<
   activeAccountUnlocked$ = this.activeAccountUnlockedSubject.asObservable();
 
   private hasBeenInited = false;
-  private isRecoveredSession = false;
+  protected isRecoveredSession = false;
 
   protected accountDiskCache = new BehaviorSubject<Record<string, TAccount>>({});
 
@@ -164,7 +159,7 @@ export class StateService<
         (await this.storageService.get<string[]>(keys.authenticatedAccounts)) ?? [];
       for (const i in state.authenticatedAccounts) {
         if (i != null) {
-          await this.syncAccountFromDisk(state.authenticatedAccounts[i]);
+          state = await this.syncAccountFromDisk(state.authenticatedAccounts[i]);
         }
       }
       const storedActiveUser = await this.storageService.get<string>(keys.activeUserId);
@@ -178,38 +173,50 @@ export class StateService<
       // if it's not in the accounts list.
       if (state.activeUserId != null && this.accountsSubject.value[state.activeUserId] == null) {
         const activeDiskAccount = await this.getAccountFromDisk({ userId: state.activeUserId });
-        this.accountService.addAccount(state.activeUserId as UserId, {
+        await this.accountService.addAccount(state.activeUserId as UserId, {
           name: activeDiskAccount.profile.name,
           email: activeDiskAccount.profile.email,
           status: AuthenticationStatus.LoggedOut,
         });
       }
-      this.accountService.switchAccount(state.activeUserId as UserId);
+      await this.accountService.switchAccount(state.activeUserId as UserId);
       // End TODO
 
       return state;
     });
   }
 
-  async syncAccountFromDisk(userId: string) {
+  async syncAccountFromDisk(userId: string): Promise<State<TGlobalState, TAccount>> {
     if (userId == null) {
       return;
     }
-    await this.updateState(async (state) => {
+    const diskAccount = await this.getAccountFromDisk({ userId: userId });
+    const state = await this.updateState(async (state) => {
       if (state.accounts == null) {
         state.accounts = {};
       }
       state.accounts[userId] = this.createAccount();
-      const diskAccount = await this.getAccountFromDisk({ userId: userId });
       state.accounts[userId].profile = diskAccount.profile;
-      // TODO: Temporary update to avoid routing all account status changes through account service for now.
-      this.accountService.addAccount(userId as UserId, {
-        status: AuthenticationStatus.Locked,
-        name: diskAccount.profile.name,
-        email: diskAccount.profile.email,
-      });
       return state;
     });
+
+    // TODO: Temporary update to avoid routing all account status changes through account service for now.
+    // The determination of state should be handled by the various services that control those values.
+    const token = await this.getAccessToken({ userId: userId });
+    const autoKey = await this.getUserKeyAutoUnlock({ userId: userId });
+    const accountStatus =
+      token == null
+        ? AuthenticationStatus.LoggedOut
+        : autoKey == null
+        ? AuthenticationStatus.Locked
+        : AuthenticationStatus.Unlocked;
+    await this.accountService.addAccount(userId as UserId, {
+      status: accountStatus,
+      name: diskAccount.profile.name,
+      email: diskAccount.profile.email,
+    });
+
+    return state;
   }
 
   async addAccount(account: TAccount) {
@@ -223,23 +230,22 @@ export class StateService<
     await this.scaffoldNewAccountStorage(account);
     await this.setLastActive(new Date().getTime(), { userId: account.profile.userId });
     // TODO: Temporary update to avoid routing all account status changes through account service for now.
-    this.accountService.addAccount(account.profile.userId as UserId, {
+    await this.accountService.addAccount(account.profile.userId as UserId, {
       status: AuthenticationStatus.Locked,
       name: account.profile.name,
       email: account.profile.email,
     });
     await this.setActiveUser(account.profile.userId);
-    this.activeAccountSubject.next(account.profile.userId);
   }
 
   async setActiveUser(userId: string): Promise<void> {
-    this.clearDecryptedDataForActiveUser();
+    await this.clearDecryptedDataForActiveUser();
     await this.updateState(async (state) => {
       state.activeUserId = userId;
       await this.storageService.save(keys.activeUserId, userId);
       this.activeAccountSubject.next(state.activeUserId);
       // TODO: temporary update to avoid routing all account status changes through account service for now.
-      this.accountService.switchAccount(userId as UserId);
+      await this.accountService.switchAccount(userId as UserId);
 
       return state;
     });
@@ -247,16 +253,18 @@ export class StateService<
     await this.pushAccounts();
   }
 
-  async clean(options?: StorageOptions): Promise<void> {
+  async clean(options?: StorageOptions): Promise<UserId> {
     options = this.reconcileOptions(options, await this.defaultInMemoryOptions());
     await this.deAuthenticateAccount(options.userId);
-    if (options.userId === (await this.state())?.activeUserId) {
-      await this.dynamicallySetActiveUser();
+    let currentUser = (await this.state())?.activeUserId;
+    if (options.userId === currentUser) {
+      currentUser = await this.dynamicallySetActiveUser();
     }
 
     await this.removeAccountFromDisk(options?.userId);
-    this.removeAccountFromMemory(options?.userId);
+    await this.removeAccountFromMemory(options?.userId);
     await this.pushAccounts();
+    return currentUser as UserId;
   }
 
   async getAccessToken(options?: StorageOptions): Promise<string> {
@@ -582,7 +590,7 @@ export class StateService<
     );
 
     const nextStatus = value != null ? AuthenticationStatus.Unlocked : AuthenticationStatus.Locked;
-    this.accountService.setAccountStatus(options.userId as UserId, nextStatus);
+    await this.accountService.setAccountStatus(options.userId as UserId, nextStatus);
 
     if (options.userId == this.activeAccountSubject.getValue()) {
       const nextValue = value != null;
@@ -618,7 +626,7 @@ export class StateService<
     );
 
     const nextStatus = value != null ? AuthenticationStatus.Unlocked : AuthenticationStatus.Locked;
-    this.accountService.setAccountStatus(options.userId as UserId, nextStatus);
+    await this.accountService.setAccountStatus(options.userId as UserId, nextStatus);
 
     if (options?.userId == this.activeAccountSubject.getValue()) {
       const nextValue = value != null;
@@ -3037,7 +3045,7 @@ export class StateService<
   }
 
   protected async saveAccountToMemory(account: TAccount): Promise<void> {
-    if (this.getAccountFromMemory({ userId: account.profile.userId }) !== null) {
+    if ((await this.getAccountFromMemory({ userId: account.profile.userId })) !== null) {
       await this.updateState((state) => {
         return new Promise((resolve) => {
           state.accounts[account.profile.userId] = account;
@@ -3142,7 +3150,6 @@ export class StateService<
   }
 
   protected async pushAccounts(): Promise<void> {
-    await this.pruneInMemoryAccounts();
     await this.state().then((state) => {
       if (state.accounts == null || Object.keys(state.accounts).length < 1) {
         this.accountsSubject.next({});
@@ -3258,16 +3265,7 @@ export class StateService<
       return state;
     });
     // TODO: Invert this logic, we should remove accounts based on logged out emit
-    this.accountService.setAccountStatus(userId as UserId, AuthenticationStatus.LoggedOut);
-  }
-
-  protected async pruneInMemoryAccounts() {
-    // We preserve settings for logged out accounts, but we don't want to consider them when thinking about active account state
-    for (const userId in (await this.state())?.accounts) {
-      if (!(await this.getIsAuthenticated({ userId: userId }))) {
-        await this.removeAccountFromMemory(userId);
-      }
-    }
+    await this.accountService.setAccountStatus(userId as UserId, AuthenticationStatus.LoggedOut);
   }
 
   // settings persist even on reset, and are not affected by this method
@@ -3334,22 +3332,30 @@ export class StateService<
     await this.removeAccountFromSecureStorage(userId);
   }
 
-  protected async dynamicallySetActiveUser() {
+  async nextUpActiveUser() {
     const accounts = (await this.state())?.accounts;
     if (accounts == null || Object.keys(accounts).length < 1) {
-      await this.setActiveUser(null);
-      return;
+      return null;
     }
+
+    let newActiveUser;
     for (const userId in accounts) {
       if (userId == null) {
         continue;
       }
       if (await this.getIsAuthenticated({ userId: userId })) {
-        await this.setActiveUser(userId);
+        newActiveUser = userId;
         break;
       }
-      await this.setActiveUser(null);
+      newActiveUser = null;
     }
+    return newActiveUser as UserId;
+  }
+
+  protected async dynamicallySetActiveUser() {
+    const newActiveUser = await this.nextUpActiveUser();
+    await this.setActiveUser(newActiveUser);
+    return newActiveUser;
   }
 
   private async getTimeoutBasedStorageOptions(options?: StorageOptions): Promise<StorageOptions> {
@@ -3379,20 +3385,23 @@ export class StateService<
     return state;
   }
 
-  private async setState(state: State<TGlobalState, TAccount>): Promise<void> {
+  private async setState(
+    state: State<TGlobalState, TAccount>
+  ): Promise<State<TGlobalState, TAccount>> {
     await this.memoryStorageService.save(keys.state, state);
+    return state;
   }
 
   protected async updateState(
     stateUpdater: (state: State<TGlobalState, TAccount>) => Promise<State<TGlobalState, TAccount>>
-  ) {
-    await this.state().then(async (state) => {
+  ): Promise<State<TGlobalState, TAccount>> {
+    return await this.state().then(async (state) => {
       const updatedState = await stateUpdater(state);
       if (updatedState == null) {
         throw new Error("Attempted to update state to null value");
       }
 
-      await this.setState(updatedState);
+      return await this.setState(updatedState);
     });
   }
 

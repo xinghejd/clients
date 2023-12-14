@@ -611,6 +611,15 @@
   "loginWithMasterPassword": {
     "message": "Увійти з головним паролем"
   },
+  "readingPasskeyLoading": {
+    "message": "Читання ключа доступу..."
+  },
+  "readingPasskeyLoadingInfo": {
+    "message": "Не закривайте це вікно та дотримуйтесь підказок у браузері."
+  },
+  "useADifferentLogInMethod": {
+    "message": "Використати інший спосіб входу"
+  },
   "loginWithPasskey": {
     "message": "Увійти з ключем доступу"
   },
@@ -2326,7 +2335,7 @@
     "message": "Щоб оновити обліковий запис до Premium, вам необхідно вивантажити дійсний файл ліцензії."
   },
   "uploadLicenseFileOrg": {
-    "message": "Для створення організації, розміщеної на локальному хостингу, вам необхідно вивантажити дійсний файл ліцензії."
+    "message": "Для створення організації з локальним хостингом вам необхідно вивантажити дійсний файл ліцензії."
   },
   "accountEmailMustBeVerified": {
     "message": "Необхідно підтвердити адресу електронної пошти вашого облікового запису."
@@ -2481,7 +2490,7 @@
     }
   },
   "onPremHostingOptional": {
-    "message": "Попереднє розміщення (необов'язково)"
+    "message": "Локальний хостинг (необов'язково)"
   },
   "usersGetPremium": {
     "message": "Користувачі отримують доступ до можливостей Premium"
@@ -7313,6 +7322,9 @@
   "limitCollectionCreationDeletionDesc": {
     "message": "Дозволити створення та видалення збірок лише власникам та адміністраторам"
   },
+  "allowAdminAccessToAllCollectionItemsDesc": {
+    "message": "Власники та адміністратори можуть керувати всіма збірками та записами"
+  },
   "collectionManagementUpdated": {
     "message": "Налаштування керування збірками збережено"
   },
@@ -7395,6 +7407,15 @@
   "passkeyNotCopiedAlert": {
     "message": "Ключ доступу не буде скопійовано до клонованого запису. Хочете продовжити клонування цього запису?"
   },
+  "modifiedCollectionManagement": {
+    "message": "Змінено налаштування керування збіркою $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "seeDetailedInstructions": {
     "message": "Перегляньте докладні інструкції на нашому довідковому сайті",
     "description": "This is followed a by a hyperlink to the help website."
@@ -7413,5 +7434,11 @@
   },
   "seatLimitReachedContactYourProvider": {
     "message": "Досягнуто обмеження кількості місць. Зверніться до свого провайдера для придбання додаткових місць."
+  },
+  "collectionAccessRestricted": {
+    "message": "Доступ до збірки обмежено"
+  },
+  "serviceAccountAccessUpdated": {
+    "message": "Service account access updated"
   }
 }

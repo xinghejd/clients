@@ -2,7 +2,7 @@ import { ProfileOrganizationResponse } from "../../admin-console/models/response
 import { ProfileProviderOrganizationResponse } from "../../admin-console/models/response/profile-provider-organization.response";
 import { ProfileProviderResponse } from "../../admin-console/models/response/profile-provider.response";
 import { KdfConfig } from "../../auth/models/domain/kdf-config";
-import { KeySuffixOptions, KdfType, HashPurpose } from "../../enums";
+import { KeySuffixOptions, KdfType, HashPurpose } from "../enums";
 import { EncArrayBuffer } from "../models/domain/enc-array-buffer";
 import { EncString } from "../models/domain/enc-string";
 import {
@@ -389,6 +389,14 @@ export abstract class CryptoService {
     publicKey: string;
     privateKey: EncString;
   }>;
+
+  /**
+   * Validate that the KDF config follows the requirements for the given KDF type.
+   *
+   * @remarks
+   * Should always be called before updating a users KDF config.
+   */
+  validateKdfConfig: (kdf: KdfType, kdfConfig: KdfConfig) => void;
 
   /**
    * @deprecated Left for migration purposes. Use decryptUserKeyWithPin instead.

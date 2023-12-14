@@ -1,26 +1,26 @@
 import { SettingsService } from "@bitwarden/common/abstractions/settings.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { ThemeType } from "@bitwarden/common/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { ThemeType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { buildCipherIcon } from "@bitwarden/common/vault/icon/build-cipher-icon";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
-import LockedVaultPendingNotificationsItem from "../../background/models/lockedVaultPendingNotificationsItem";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import {
   openViewVaultItemPopout,
   openAddEditVaultItemPopout,
 } from "../../vault/popup/utils/vault-popout-window";
 import { SHOW_AUTOFILL_BUTTON } from "../constants";
+import LockedVaultPendingNotificationsItem from "../notification/models/locked-vault-pending-notifications-item";
 import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
 import { AutofillOverlayElement, AutofillOverlayPort } from "../utils/autofill-overlay.enum";
 
@@ -68,11 +68,13 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private readonly overlayButtonPortMessageHandlers: OverlayButtonPortMessageHandlers = {
     overlayButtonClicked: ({ port }) => this.handleOverlayButtonClicked(port),
     closeAutofillOverlay: ({ port }) => this.closeOverlay(port),
+    forceCloseAutofillOverlay: ({ port }) => this.closeOverlay(port, true),
     overlayPageBlurred: () => this.checkOverlayListFocused(),
     redirectOverlayFocusOut: ({ message, port }) => this.redirectOverlayFocusOut(message, port),
   };
   private readonly overlayListPortMessageHandlers: OverlayListPortMessageHandlers = {
     checkAutofillOverlayButtonFocused: () => this.checkOverlayButtonFocused(),
+    forceCloseAutofillOverlay: ({ port }) => this.closeOverlay(port, true),
     overlayPageBlurred: () => this.checkOverlayButtonFocused(),
     unlockVault: ({ port }) => this.unlockVault(port),
     fillSelectedListItem: ({ message, port }) => this.fillSelectedOverlayListItem(message, port),
@@ -268,9 +270,10 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * Sends a message to the sender tab to close the autofill overlay.
    *
    * @param sender - The sender of the port message
+   * @param forceCloseOverlay - Identifies whether the overlay should be force closed
    */
-  private closeOverlay({ sender }: chrome.runtime.Port) {
-    BrowserApi.tabSendMessage(sender.tab, { command: "closeAutofillOverlay" });
+  private closeOverlay({ sender }: chrome.runtime.Port, forceCloseOverlay = false) {
+    BrowserApi.tabSendMessageData(sender.tab, "closeAutofillOverlay", { forceCloseOverlay });
   }
 
   /**
@@ -670,7 +673,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
    */
   private setupExtensionMessageListeners() {
     BrowserApi.messageListener("overlay.background", this.handleExtensionMessage);
-    chrome.runtime.onConnect.addListener(this.handlePortOnConnect);
+    BrowserApi.addListener(chrome.runtime.onConnect, this.handlePortOnConnect);
   }
 
   /**

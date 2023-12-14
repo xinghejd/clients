@@ -1,9 +1,10 @@
-import AddLoginRuntimeMessage from "../../background/models/addLoginRuntimeMessage";
-import ChangePasswordRuntimeMessage from "../../background/models/changePasswordRuntimeMessage";
 import AutofillField from "../models/autofill-field";
 import { WatchedForm } from "../models/watched-form";
+import AddLoginRuntimeMessage from "../notification/models/add-login-runtime-message";
+import ChangePasswordRuntimeMessage from "../notification/models/change-password-runtime-message";
 import { FormData } from "../services/abstractions/autofill.service";
 import { GlobalSettings, UserSettings } from "../types";
+import { getFromLocalStorage, setupExtensionDisconnectAction } from "../utils";
 
 interface HTMLElementWithFormOpId extends HTMLElement {
   formOpId: string;
@@ -121,6 +122,8 @@ async function loadNotificationBar() {
       }
     }
   }
+
+  setupExtensionDisconnectAction(handleExtensionDisconnection);
 
   if (!showNotificationBar) {
     return;
@@ -999,11 +1002,23 @@ async function loadNotificationBar() {
     return theEl === document;
   }
 
-  // End Helper Functions
-}
+  function handleExtensionDisconnection(port: chrome.runtime.Port) {
+    closeBar(false);
+    clearTimeout(domObservationCollectTimeoutId);
+    clearTimeout(collectPageDetailsTimeoutId);
+    clearTimeout(handlePageChangeTimeoutId);
+    observer?.disconnect();
+    observer = null;
+    watchedForms.forEach((wf: WatchedForm) => {
+      const form = wf.formEl;
+      form.removeEventListener("submit", formSubmitted, false);
+      const submitButton = getSubmitButton(
+        form,
+        unionSets(logInButtonNames, changePasswordButtonNames)
+      );
+      submitButton?.removeEventListener("click", formSubmitted, false);
+    });
+  }
 
-async function getFromLocalStorage(keys: string | string[]): Promise<Record<string, any>> {
-  return new Promise((resolve) => {
-    chrome.storage.local.get(keys, (storage: Record<string, any>) => resolve(storage));
-  });
+  // End Helper Functions
 }

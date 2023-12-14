@@ -205,14 +205,12 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
               (u) => u.userId === this.organization?.userId
             )?.id;
             const initialSelection: AccessItemValue[] =
-              currentOrgUserId !== undefined
+              currentOrgUserId !== undefined && flexibleCollections
                 ? [
                     {
                       id: currentOrgUserId,
                       type: AccessItemType.Member,
-                      permission: flexibleCollections
-                        ? CollectionPermission.Manage
-                        : CollectionPermission.Edit,
+                      permission: CollectionPermission.Manage,
                     },
                   ]
                 : [];
@@ -315,6 +313,13 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
 
     this.close(CollectionDialogAction.Deleted, this.collection);
   };
+
+  protected canDelete$ = this.flexibleCollectionsEnabled$.pipe(
+    map(
+      (flexibleCollectionsEnabled) =>
+        this.editMode && this.collection.canDelete(this.organization, flexibleCollectionsEnabled)
+    )
+  );
 
   ngOnDestroy(): void {
     this.destroy$.next();

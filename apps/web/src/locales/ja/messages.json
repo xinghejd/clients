@@ -611,6 +611,15 @@
   "loginWithMasterPassword": {
     "message": "マスターパスワードでログイン"
   },
+  "readingPasskeyLoading": {
+    "message": "パスキーを読み込み中..."
+  },
+  "readingPasskeyLoadingInfo": {
+    "message": "このウィンドウを開いたままにして、ブラウザの指示に従ってください。"
+  },
+  "useADifferentLogInMethod": {
+    "message": "別のログイン方法を使用する"
+  },
   "loginWithPasskey": {
     "message": "パスキー でログイン"
   },
@@ -7313,6 +7322,9 @@
   "limitCollectionCreationDeletionDesc": {
     "message": "コレクションの作成・削除を所有者と管理者のみに制限"
   },
+  "allowAdminAccessToAllCollectionItemsDesc": {
+    "message": "所有者と管理者はすべてのコレクションとアイテムを管理できます"
+  },
   "collectionManagementUpdated": {
     "message": "コレクション管理の挙動を保存しました"
   },
@@ -7395,6 +7407,15 @@
   "passkeyNotCopiedAlert": {
     "message": "パスキーは複製されたアイテムにコピーされません。このアイテムを複製しますか？"
   },
+  "modifiedCollectionManagement": {
+    "message": "コレクション管理設定 $ID$ を変更しました。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "seeDetailedInstructions": {
     "message": "詳細な手順はこちらをご覧ください：",
     "description": "This is followed a by a hyperlink to the help website."
@@ -7413,5 +7434,11 @@
   },
   "seatLimitReachedContactYourProvider": {
     "message": "シート数の上限に達しました。追加のシートを購入するには、プロバイダに連絡してください。"
+  },
+  "collectionAccessRestricted": {
+    "message": "コレクションへのアクセスが制限されています"
+  },
+  "serviceAccountAccessUpdated": {
+    "message": "サービスアカウントへのアクセスが更新されました"
   }
 }

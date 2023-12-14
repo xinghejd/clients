@@ -611,6 +611,15 @@
   "loginWithMasterPassword": {
     "message": "Accedi con password principale"
   },
+  "readingPasskeyLoading": {
+    "message": "Lettura passkey..."
+  },
+  "readingPasskeyLoadingInfo": {
+    "message": "Mantieni questa finestra aperta e segui le istruzioni del tuo browser."
+  },
+  "useADifferentLogInMethod": {
+    "message": "Usa un altro metodo di accesso"
+  },
   "loginWithPasskey": {
     "message": "Accedi con passkey"
   },
@@ -7313,6 +7322,9 @@
   "limitCollectionCreationDeletionDesc": {
     "message": "Limita la creazione e l'eliminazione delle raccolte a proprietari e amministratori"
   },
+  "allowAdminAccessToAllCollectionItemsDesc": {
+    "message": "Proprietari e amministratori possono gestire tutte le collezioni e gli oggetti"
+  },
   "collectionManagementUpdated": {
     "message": "Gestione del comportamento delle raccolte salvato"
   },
@@ -7395,6 +7407,15 @@
   "passkeyNotCopiedAlert": {
     "message": "La passkey non sarà copiata nell'elemento clonato. Vuoi continuare a clonare questo elemento?"
   },
+  "modifiedCollectionManagement": {
+    "message": "Modificata l'impostazione di gestione della raccolta $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "seeDetailedInstructions": {
     "message": "Consulta le istruzioni dettagliate sul nostro sito di assistenza su",
     "description": "This is followed a by a hyperlink to the help website."
@@ -7413,5 +7434,11 @@
   },
   "seatLimitReachedContactYourProvider": {
     "message": "Il limite degli slot è stato raggiunto. Contatta il tuo fornitore per acquistare slot aggiuntivi."
+  },
+  "collectionAccessRestricted": {
+    "message": "L'accesso alla raccolta è limitato"
+  },
+  "serviceAccountAccessUpdated": {
+    "message": "Service account access updated"
   }
 }

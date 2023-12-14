@@ -15,6 +15,13 @@ export class WebAuthnLoginStrategy extends LoginStrategy {
   }
 
   protected override async setUserKey(idTokenResponse: IdentityTokenResponse) {
+    const masterKeyEncryptedUserKey = idTokenResponse.key;
+
+    if (masterKeyEncryptedUserKey) {
+      // set the master key encrypted user key if it exists
+      await this.cryptoService.setMasterKeyEncryptedUserKey(masterKeyEncryptedUserKey);
+    }
+
     const userDecryptionOptions = idTokenResponse?.userDecryptionOptions;
 
     if (userDecryptionOptions?.webAuthnPrfOption) {
@@ -54,7 +61,9 @@ export class WebAuthnLoginStrategy extends LoginStrategy {
   }
 
   async logIn(credentials: WebAuthnLoginCredentials) {
-    this.credentials = credentials;
+    // NOTE: To avoid DeadObject references on Firefox, do not set the credentials object directly
+    // Use deep copy in future if objects are added that were created in popup
+    this.credentials = { ...credentials };
 
     this.tokenRequest = new WebAuthnLoginTokenRequest(
       credentials.token,

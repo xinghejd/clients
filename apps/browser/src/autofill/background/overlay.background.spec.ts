@@ -2,12 +2,12 @@ import { mock, mockReset } from "jest-mock-extended";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
-import { ThemeType } from "@bitwarden/common/enums";
+import { ThemeType } from "@bitwarden/common/platform/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/services/environment.service";
 import { I18nService } from "@bitwarden/common/platform/services/i18n.service";
 import { SettingsService } from "@bitwarden/common/services/settings.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
 
@@ -1056,13 +1056,29 @@ describe("OverlayBackground", () => {
 
       describe("closeAutofillOverlay", () => {
         it("sends a `closeOverlay` message to the sender tab", () => {
-          jest.spyOn(BrowserApi, "tabSendMessage");
+          jest.spyOn(BrowserApi, "tabSendMessageData");
 
           sendPortMessage(buttonPortSpy, { command: "closeAutofillOverlay" });
 
-          expect(BrowserApi.tabSendMessage).toHaveBeenCalledWith(buttonPortSpy.sender.tab, {
-            command: "closeAutofillOverlay",
-          });
+          expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
+            buttonPortSpy.sender.tab,
+            "closeAutofillOverlay",
+            { forceCloseOverlay: false }
+          );
+        });
+      });
+
+      describe("forceCloseAutofillOverlay", () => {
+        it("sends a `closeOverlay` message to the sender tab with a `forceCloseOverlay` flag of `true` set", () => {
+          jest.spyOn(BrowserApi, "tabSendMessageData");
+
+          sendPortMessage(buttonPortSpy, { command: "forceCloseAutofillOverlay" });
+
+          expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
+            buttonPortSpy.sender.tab,
+            "closeAutofillOverlay",
+            { forceCloseOverlay: true }
+          );
         });
       });
 
@@ -1110,6 +1126,20 @@ describe("OverlayBackground", () => {
           sendPortMessage(listPortSpy, { command: "checkAutofillOverlayButtonFocused" });
 
           expect(overlayBackground["checkOverlayButtonFocused"]).toHaveBeenCalled();
+        });
+      });
+
+      describe("forceCloseAutofillOverlay", () => {
+        it("sends a `closeOverlay` message to the sender tab with a `forceCloseOverlay` flag of `true` set", () => {
+          jest.spyOn(BrowserApi, "tabSendMessageData");
+
+          sendPortMessage(listPortSpy, { command: "forceCloseAutofillOverlay" });
+
+          expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
+            listPortSpy.sender.tab,
+            "closeAutofillOverlay",
+            { forceCloseOverlay: true }
+          );
         });
       });
 

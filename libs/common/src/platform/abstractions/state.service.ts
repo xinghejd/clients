@@ -10,7 +10,6 @@ import { EnvironmentUrls } from "../../auth/models/domain/environment-urls";
 import { ForceSetPasswordReason } from "../../auth/models/domain/force-set-password-reason";
 import { KdfConfig } from "../../auth/models/domain/kdf-config";
 import { BiometricKey } from "../../auth/types/biometric-key";
-import { KdfType, ThemeType, UriMatchType } from "../../enums";
 import { EventData } from "../../models/data/event.data";
 import { WindowState } from "../../models/domain/window-state";
 import { GeneratorOptions } from "../../tools/generator/generator-options";
@@ -18,6 +17,8 @@ import { GeneratedPasswordHistory, PasswordGeneratorOptions } from "../../tools/
 import { UsernameGeneratorOptions } from "../../tools/generator/username";
 import { SendData } from "../../tools/send/models/data/send.data";
 import { SendView } from "../../tools/send/models/view/send.view";
+import { UserId } from "../../types/guid";
+import { UriMatchType } from "../../vault/enums";
 import { CipherData } from "../../vault/models/data/cipher.data";
 import { CollectionData } from "../../vault/models/data/collection.data";
 import { FolderData } from "../../vault/models/data/folder.data";
@@ -25,6 +26,7 @@ import { LocalData } from "../../vault/models/data/local.data";
 import { CipherView } from "../../vault/models/view/cipher.view";
 import { CollectionView } from "../../vault/models/view/collection.view";
 import { AddEditCipherInfo } from "../../vault/types/add-edit-cipher-info";
+import { KdfType, ThemeType } from "../enums";
 import { ServerConfigData } from "../models/data/server-config.data";
 import {
   Account,
@@ -47,7 +49,7 @@ export abstract class StateService<T extends Account = Account> {
 
   addAccount: (account: T) => Promise<void>;
   setActiveUser: (userId: string) => Promise<void>;
-  clean: (options?: StorageOptions) => Promise<void>;
+  clean: (options?: StorageOptions) => Promise<UserId>;
   init: () => Promise<void>;
 
   getAccessToken: (options?: StorageOptions) => Promise<string>;
@@ -545,4 +547,5 @@ export abstract class StateService<T extends Account = Account> {
    * @param options Defines the storage options for the URL; Defaults to session Storage.
    */
   setDeepLinkRedirectUrl: (url: string, options?: StorageOptions) => Promise<void>;
+  nextUpActiveUser: () => Promise<UserId>;
 }
