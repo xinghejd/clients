@@ -566,6 +566,7 @@ export default class MainBackground {
       this.logService,
       this.settingsService,
       this.userVerificationService,
+      this.configService,
     );
     this.auditService = new AuditService(this.cryptoFunctionService, this.apiService);
 
@@ -729,6 +730,7 @@ export default class MainBackground {
       this.vaultTimeoutService,
       this.stateService,
       this.notificationsService,
+      this.accountService,
     );
     this.webRequestBackground = new WebRequestBackground(
       this.platformUtilsService,
@@ -852,6 +854,7 @@ export default class MainBackground {
         await this.stateService.setRememberedEmail(null);
         await this.refreshBadge();
         await this.refreshMenu();
+        await this.overlayBackground.updateOverlayCiphers();
         return;
       }
 
@@ -871,6 +874,7 @@ export default class MainBackground {
         this.messagingService.send("unlocked", { userId: userId });
         await this.refreshBadge();
         await this.refreshMenu();
+        await this.overlayBackground.updateOverlayCiphers();
         await this.syncService.fullSync(false);
       }
     } finally {
