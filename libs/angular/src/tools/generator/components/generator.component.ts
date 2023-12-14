@@ -1,6 +1,7 @@
 import { Directive, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { first } from "rxjs/operators";
+import { BehaviorSubject } from "rxjs";
+import { debounceTime, first, map } from "rxjs/operators";
 
 import { PasswordGeneratorPolicyOptions } from "@bitwarden/common/admin-console/models/domain/password-generator-policy-options";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -12,6 +13,7 @@ import {
   PasswordGenerationServiceAbstraction,
   PasswordGeneratorOptions,
 } from "@bitwarden/common/tools/generator/password";
+import { DefaultBoundaries } from "@bitwarden/common/tools/generator/password/password-generator-options-evaluator";
 import {
   UsernameGenerationServiceAbstraction,
   UsernameGeneratorOptions,
@@ -46,6 +48,16 @@ export class GeneratorComponent implements OnInit {
   usernameWebsite: string = null;
   displayReplaceTokenWarning = false;
   readonly forwarders = Forwarders;
+
+  // update screen reader minimum password length with 500ms debounce
+  // so that the user isn't flooded with status updates
+  private _passwordOptionsMinLengthForReader = new BehaviorSubject<number>(
+    DefaultBoundaries.length.min,
+  );
+  protected passwordOptionsMinLengthForReader$ = this._passwordOptionsMinLengthForReader.pipe(
+    map((val) => val || DefaultBoundaries.length.min),
+    debounceTime(500),
+  );
 
   constructor(
     protected passwordGenerationService: PasswordGenerationServiceAbstraction,
@@ -150,6 +162,44 @@ export class GeneratorComponent implements OnInit {
   async sliderChanged() {
     this.savePasswordOptions(false);
     await this.passwordGenerationService.addHistory(this.password);
+  }
+
+  async onPasswordOptionsMinNumberInput($event: Event) {
+    // `savePasswordOptions()` replaces the null
+    this.passwordOptions.number = null;
+
+    await this.savePasswordOptions();
+
+    // fixes UI desync that occurs when minNumber has a fixed value
+    // that is reset through normalization
+    ($event.target as HTMLInputElement).value = `${this.passwordOptions.minNumber}`;
+  }
+
+  async setPasswordOptionsNumber($event: boolean) {
+    this.passwordOptions.number = $event;
+    // `savePasswordOptions()` replaces the null
+    this.passwordOptions.minNumber = null;
+
+    await this.savePasswordOptions();
+  }
+
+  async onPasswordOptionsMinSpecialInput($event: Event) {
+    // `savePasswordOptions()` replaces the null
+    this.passwordOptions.special = null;
+
+    await this.savePasswordOptions();
+
+    // fixes UI desync that occurs when minSpecial has a fixed value
+    // that is reset through normalization
+    ($event.target as HTMLInputElement).value = `${this.passwordOptions.minSpecial}`;
+  }
+
+  async setPasswordOptionsSpecial($event: boolean) {
+    this.passwordOptions.special = $event;
+    // `savePasswordOptions()` replaces the null
+    this.passwordOptions.minSpecial = null;
+
+    await this.savePasswordOptions();
   }
 
   async sliderInput() {
@@ -263,6 +313,8 @@ export class GeneratorComponent implements OnInit {
       this.passwordOptions,
       this.enforcedPasswordPolicyOptions,
     );
+
+    this._passwordOptionsMinLengthForReader.next(this.passwordOptions.minLength);
   }
 
   private async initForwardOptions() {
