@@ -132,12 +132,12 @@ export class UsernameGenerationService implements UsernameGenerationServiceAbstr
     // `options.saveOnLoad` is set by migrations when data needs to be
     // re-saved to ensure they're encrypted at rest.
     if (options.saveOnLoad) {
-      delete options.saveOnLoad;
       await this.encryptKeys(options);
       await this.stateService.setUsernameGenerationOptions(options);
+      delete options.saveOnLoad;
     }
 
-    this.decryptKeys(options);
+    await this.decryptKeys(options);
 
     // clone the assignment result because the default options are frozen and
     // assign aliases the frozen objects in `options`.
