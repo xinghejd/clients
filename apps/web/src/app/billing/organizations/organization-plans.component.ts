@@ -226,6 +226,11 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
 
   isProviderCreationDateValid() {
     const targetDate = new Date("2023-11-06");
+
+    if (!this.provider || !this.provider.creationDate) {
+      return false;
+    }
+
     const creationDate = new Date(this.provider.creationDate);
     return creationDate < targetDate;
   }
@@ -253,8 +258,8 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
           plan.product === ProductType.Teams ||
           plan.product === ProductType.Enterprise) &&
         (!this.providerId || plan.product !== ProductType.TeamsStarter) &&
-        this.isProviderCreationDateValid() &&
-        Allowed2020PlanTypes.includes(plan.type)
+        ((!this.isProviderCreationDateValid() && this.planIsEnabled(plan)) ||
+          (this.isProviderCreationDateValid() && Allowed2020PlanTypes.includes(plan.type)))
     );
 
     result.sort((planA, planB) => planA.displaySortOrder - planB.displaySortOrder);
@@ -265,7 +270,13 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
   get selectablePlans() {
     const selectedProductType = this.formGroup.controls.product.value;
     const result = this.passwordManagerPlans?.filter(
-      (plan) => this.planIsEnabled(plan) && plan.product === selectedProductType
+      (plan) =>
+        (!this.isProviderCreationDateValid() &&
+          this.planIsEnabled(plan) &&
+          plan.product === selectedProductType) ||
+        (this.isProviderCreationDateValid() &&
+          Allowed2020PlanTypes.includes(plan.type) &&
+          plan.product === selectedProductType)
     );
 
     result.sort((planA, planB) => planA.displaySortOrder - planB.displaySortOrder);
