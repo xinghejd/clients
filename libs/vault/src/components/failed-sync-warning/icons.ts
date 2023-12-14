@@ -1,13 +1,13 @@
 import { svgIcon } from "@bitwarden/components";
 
 export const FailedSync = svgIcon`
-<svg width="192" height="130" viewBox="0 0 192 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="120" viewBox="0 0 192 130" fill="none" xmlns="http://www.w3.org/2000/svg">
   <path d="M79.9761 121.282H146.799" class="tw-stroke-secondary-500" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
   <path d="M101.596 101.837V121.282" class="tw-stroke-secondary-500" stroke-width="4" stroke-linejoin="round"/>
   <path d="M123.216 101.837V121.282" class="tw-stroke-secondary-500" stroke-width="4" stroke-linejoin="round"/>
   <rect x="35.9668" y="2.64587" width="154.033" height="99.1916" rx="4" class="tw-stroke-secondary-500" stroke-width="4"/>
-  <rect x="47.5306" y="13.672" width="131.86" height="77.2973" rx="2" class="tw-fill-secondary-100"" class="tw-stroke-secondary-500" stroke-width="2"/>
-  <rect x="2" y="23.282" width="56" height="104.173" rx="7" class="tw-stroke-secondary-500 tw-fill-secondary-100" stroke-width="4"/>
+  <rect x="47.5306" y="13.672" width="131.86" height="77.2973" rx="2" class="tw-fill-secondary-100 tw-stroke-secondary-500" stroke-width="2"/>
+  <rect x="2" y="23.282" width="56" height="104.173" rx="7" class="tw-stroke-secondary-500 tw-fill-background" stroke-width="4"/>
   <rect x="3.63635" y="42.191" width="52.7273" height="69.0909" class="tw-fill-secondary-100""/>
   <line x1="17.0791" y1="33.394" x2="42.3486" y2="33.394" class="tw-stroke-secondary-500" stroke-width="2" stroke-linecap="round"/>
   <path d="M26.9879 118.528H31.351" class="tw-stroke-secondary-500" stroke-width="2" stroke-linecap="round"/>
@@ -26,7 +26,7 @@ export const FailedSync = svgIcon`
 `;
 
 export const UnableToConnect = svgIcon`
-<svg width="257" height="85" viewBox="0 0 257 85" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="200" viewBox="0 0 257 85" fill="none" xmlns="http://www.w3.org/2000/svg">
   <path d="M39.6226 3.07532C31.901 3.07532 24.7343 5.45429 18.8161 9.51938L18.7198 9.58552L18.7147 9.70222C18.6585 10.9724 18.4643 12.1175 18.2606 13.1513C18.2063 13.4274 18.1521 13.6917 18.0999 13.9468L18.0977 13.9576C17.9143 14.8531 17.7529 15.6417 17.6988 16.3827C17.6309 17.312 17.7413 18.0944 18.1764 18.8118C18.6165 19.5374 19.4239 20.2545 20.8654 20.9753C23.1578 22.1215 26.0067 21.9352 27.6785 21.4944C29.1402 21.109 29.7512 20.7774 30.7247 20.2483C31.1073 20.0404 31.5457 19.8021 32.1178 19.5161C32.1374 19.5062 32.1578 19.4978 32.1787 19.4908L37.5665 17.6882C37.598 17.6777 37.6305 17.6705 37.6635 17.6669C39.3394 17.4806 40.7149 17.7681 41.9498 18.0273L41.9512 18.0276C42.2184 18.0837 42.4805 18.1387 42.7361 18.1867C44.1759 18.4568 45.5703 18.5553 47.4385 17.706C47.4572 17.6975 47.4763 17.6903 47.4959 17.6843C47.8984 17.5617 48.1131 17.4075 48.226 17.268C48.3314 17.1377 48.3806 16.9804 48.3694 16.7694C48.3567 16.529 48.2689 16.2546 48.1293 15.9585C47.9883 15.6595 47.7873 15.3231 47.5329 14.9552C47.1743 14.4363 46.7626 13.9253 46.3712 13.4395L46.3679 13.4354C46.2232 13.2559 46.0814 13.0798 45.9449 12.9068C45.6988 12.5949 45.4714 12.2938 45.3044 12.0265C45.2206 11.8925 45.1456 11.7569 45.0903 11.6246C45.0371 11.4971 44.9895 11.343 44.9895 11.1801C44.9895 9.66481 46.1452 8.80485 47.2197 8.34658C48.3057 7.88346 49.4851 7.74511 49.9211 7.74511C50.0142 7.74511 50.1041 7.74518 50.1911 7.74525L50.2016 7.74526C50.83 7.74577 51.3143 7.74615 51.7152 7.71697C52.1681 7.68399 52.4605 7.61563 52.6864 7.49755C53.0441 7.31056 53.3214 6.95794 53.7156 6.13925L53.8235 5.91524L53.5935 5.82076C49.2854 4.05106 44.5676 3.07532 39.6226 3.07532Z" class="tw-fill-secondary-100"/>
   <path d="M70.1744 27.4973C68.5772 27.31 67.3513 27.3209 66.3433 27.6648C65.3581 28.001 64.5295 28.6741 63.7664 29.9272C63.1658 30.9134 62.3708 31.9271 61.5848 32.9289C61.4508 33.0997 61.317 33.2702 61.185 33.4397C60.2642 34.621 59.4002 35.7826 58.8425 36.9298C58.2865 38.0733 58.0622 39.1474 58.3454 40.1743C58.6285 41.2006 59.4465 42.2797 61.1924 43.3718C61.4417 43.5278 61.8092 43.6587 62.2884 43.829C62.7439 43.9908 63.2769 44.1815 63.7624 44.4536C64.2517 44.7278 64.7233 45.1007 65.0382 45.6462C65.3569 46.1981 65.4884 46.8805 65.3763 47.7225C65.1766 49.221 65.0965 50.5658 65.1619 51.6655C65.2282 52.7816 65.4412 53.5758 65.7667 54.0339C66.6958 55.3416 66.6468 57.0218 66.6022 58.3476L66.5974 58.492C66.5744 59.2002 66.5614 59.7885 66.6544 60.2528C66.698 60.47 66.7607 60.6442 66.8526 60.782C66.9477 60.9248 67.066 61.0162 67.1985 61.0783C68.2401 61.567 68.9204 61.5889 69.3368 61.4924L69.4225 61.4726L69.474 61.4013C73.8441 55.3488 76.4194 47.9139 76.4194 39.8781C76.4194 35.9034 75.7894 32.0754 74.6235 28.4889L74.5849 28.3702L74.465 28.3359C73.5185 28.0656 71.9998 27.7114 70.1744 27.4973Z" class="tw-fill-secondary-100"/>
   <path d="M22.9183 66.3183L22.4834 67.8962L22.4837 67.8955L22.4839 67.895L22.4853 67.8919C22.582 67.676 22.6692 67.4814 22.7398 67.3203C22.8239 67.1284 22.9125 66.9231 23.0052 66.7081C23.3734 65.855 23.8087 64.8464 24.3109 63.8654C24.9395 62.6377 25.6966 61.4037 26.6078 60.518C27.1332 60.0073 27.926 59.7143 28.817 59.5272C29.7202 59.3375 30.798 59.2426 31.9581 59.18C32.6564 59.1422 33.3813 59.116 34.1239 59.0891L34.1277 59.089L34.1329 59.0888C35.8911 59.0252 37.7468 58.958 39.5393 58.7257C40.7827 58.5645 41.5789 58.2682 42.078 57.9255C42.5627 57.5927 42.7808 57.2079 42.8629 56.8087C42.9487 56.3916 42.8928 55.9227 42.7578 55.4316C42.6354 54.9867 42.4598 54.5615 42.298 54.1699L42.2468 54.0457C42.0936 53.6736 41.9121 53.3212 41.7249 52.9579L41.7202 52.9487C41.1259 51.7951 40.426 50.4366 40.1597 47.5893C39.9764 45.6299 40.7087 43.6186 41.4361 41.9134C41.5873 41.5591 41.7345 41.2262 41.8754 40.9078L41.8762 40.9059L41.8764 40.9054L41.8769 40.9044C42.0867 40.4301 42.2831 39.9862 42.4533 39.5586C42.7361 38.8481 42.8961 38.298 42.8961 37.8969C42.8961 37.4918 42.7531 36.9379 42.4679 36.314C42.186 35.6976 41.7803 35.0458 41.2914 34.4519C40.2928 33.2386 39.0436 32.3769 37.888 32.3769C36.2714 32.3769 33.9892 32.9754 31.8893 33.7797L31.8117 34.0609C30.8368 34.4409 29.922 34.8579 29.1589 35.2646C28.3406 35.7007 27.7415 36.1016 27.4205 36.4088C23.204 40.4432 20.2066 42.1403 17.8485 42.2723C15.3823 42.4104 13.8519 40.8408 12.6301 39.1957C12.321 38.7795 12.0219 38.3447 11.7294 37.9187L11.7061 37.8848C11.4192 37.467 11.1381 37.0576 10.8476 36.6625C10.249 35.848 9.63962 35.135 8.94148 34.61C8.25507 34.0939 7.48158 33.7585 6.53524 33.7004C5.7092 33.6496 4.71167 33.8079 3.48327 34.2964C3.2046 36.1163 3.06006 37.9803 3.06006 39.8781C3.06006 53.2191 10.2031 64.8916 20.8727 71.2784C21.0376 70.7052 21.3091 70.0154 21.58 69.3726C21.8131 68.8192 22.0639 68.2594 22.2695 67.8004L22.2701 67.7991L22.2715 67.7961C22.3683 67.5799 22.455 67.3862 22.5251 67.2262C22.6089 67.035 22.6973 66.8303 22.7901 66.6153C22.8319 66.5183 22.8747 66.4192 22.9183 66.3183Z" class="tw-fill-secondary-100"/>
@@ -48,7 +48,7 @@ export const UnableToConnect = svgIcon`
 `;
 
 export const ServerError = svgIcon`
-<svg width="149" height="162" viewBox="0 0 149 162" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="120" viewBox="0 0 149 162" fill="none" xmlns="http://www.w3.org/2000/svg" class="tw-mr-8">
   <line class="tw-stroke-secondary-500" x1="56.5181" y1="81.3146" x2="56.5181" y2="125.848" stroke-width="4"/>
   <path class="tw-stroke-danger-500" d="M23.5707 27.723V137.964C23.5707 141.278 26.257 143.964 29.5707 143.964H46.215" stroke-width="4" stroke-dasharray="8 8"/>
   <path class="tw-stroke-danger-500" d="M23.5707 61.6895V61.6895C23.5707 63.3569 24.9224 64.7087 26.5899 64.7087H46.215" stroke-width="4" stroke-dasharray="8 8"/>
@@ -82,44 +82,4 @@ export const ServerError = svgIcon`
   <path class="tw-stroke-danger-500" d="M14.5129 14.1364L32.6284 32.2519" stroke-width="4" stroke-linecap="round"/>
   <path class="tw-stroke-danger-500" d="M32.6284 14.1364L14.5129 32.2519" stroke-width="4" stroke-linecap="round"/>
 </svg>
-
 `;
-
-/**
- * export const ServerError = svgIcon`
- * <svg width="149" height="162" viewBox="0 0 149 162" fill="none" xmlns="http://www.w3.org/2000/svg">
- *   <line x1="56.5181" y1="81.3146" x2="56.5181" y2="125.848" stroke-width="4"/>
- *   <path d="M23.5707 27.723V137.964C23.5707 141.278 26.257 143.964 29.5707 143.964H46.215"  stroke-width="4" stroke-dasharray="8 8"/>
- *   <path d="M23.5707 61.6895V61.6895C23.5707 63.3569 24.9224 64.7087 26.5899 64.7087H46.215"  stroke-width="4" stroke-dasharray="8 8"/>
- *   <path d="M23.5707 100.94V100.94C23.5707 102.607 24.9224 103.959 26.5899 103.959H46.215"  stroke-width="4" stroke-dasharray="8 8"/>
- *   <line x1="135.773" y1="81.3146" x2="135.773" y2="125.848" stroke-width="4"/>
- *   <rect class="tw-fill-secondary-100" x="45.1958" y="47.8385" width="100.919" height="31.4761" rx="2" stroke-width="4"/>
- *   <rect class="tw-fill-secondary-100" x="45.1958" y="87.8435" width="100.919" height="31.4761" rx="2" stroke-width="4"/>
- *   <rect class="tw-fill-secondary-100" x="45.1958" y="127.849" width="100.919" height="31.4761" rx="2" stroke-width="4"/>
- *   <line class="tw-stroke-secondary-500" x1="55.5181" y1="55.4058" x2="76.9172" y2="55.4058" stroke-width="2" stroke-linecap="round"/>
- *   <line class="tw-stroke-secondary-500" x1="55.5181" y1="62.9539" x2="76.9172" y2="62.9539" stroke-width="2" stroke-linecap="round"/>
- *   <line class="tw-stroke-secondary-500" x1="55.5181" y1="70.5021" x2="76.9172" y2="70.5021" stroke-width="2" stroke-linecap="round"/>
- *   <line class="tw-stroke-secondary-500" x1="55.5181" y1="95.4108" x2="76.9172" y2="95.4108" stroke-width="2" stroke-linecap="round"/>
- *   <line class="tw-stroke-secondary-500" x1="55.5181" y1="102.959" x2="76.9172" y2="102.959" stroke-width="2" stroke-linecap="round"/>
- *   <line class="tw-stroke-secondary-500" x1="55.5181" y1="110.507" x2="76.9172" y2="110.507" stroke-width="2" stroke-linecap="round"/>
- *   <line class="tw-stroke-secondary-500" x1="55.5181" y1="135.416" x2="76.9172" y2="135.416" stroke-width="2" stroke-linecap="round"/>
- *   <line class="tw-stroke-secondary-500" x1="55.5181" y1="142.964" x2="76.9172" y2="142.964" stroke-width="2" stroke-linecap="round"/>
- *   <line class="tw-stroke-secondary-500" x1="55.5181" y1="150.512" x2="76.9172" y2="150.512" stroke-width="2" stroke-linecap="round"/>
- *   <line class="tw-stroke-secondary-500" x1="84.9556" y1="55.4058" x2="106.355" y2="55.4058" stroke-width="2" stroke-linecap="round"/>
- *   <line class="tw-stroke-secondary-500" x1="84.9556" y1="62.9539" x2="106.355" y2="62.9539" stroke-width="2" stroke-linecap="round"/>
- *   <line class="tw-stroke-secondary-500" x1="84.9556" y1="70.5021" x2="106.355" y2="70.5021" stroke-width="2" stroke-linecap="round"/>
- *   <line class="tw-stroke-secondary-500" x1="84.9556" y1="95.4108" x2="106.355" y2="95.4108" stroke-width="2" stroke-linecap="round"/>
- *   <line class="tw-stroke-secondary-500" x1="84.9556" y1="102.959" x2="106.355" y2="102.959" stroke-width="2" stroke-linecap="round"/>
- *   <line class="tw-stroke-secondary-500" x1="84.9556" y1="110.507" x2="106.355" y2="110.507" stroke-width="2" stroke-linecap="round"/>
- *   <line class="tw-stroke-secondary-500" x1="84.9556" y1="135.416" x2="106.355" y2="135.416" stroke-width="2" stroke-linecap="round"/>
- *   <line class="tw-stroke-secondary-500" x1="84.9556" y1="142.964" x2="106.355" y2="142.964" stroke-width="2" stroke-linecap="round"/>
- *   <line class="tw-stroke-secondary-500" x1="84.9556" y1="150.512" x2="106.355" y2="150.512" stroke-width="2" stroke-linecap="round"/>
- *   <circle class="tw-stroke-secondary-500 tw-fill-danger-500" cx="130.754" cy="63.9539" r="5.54811"  stroke-width="4"/>
- *   <circle class="tw-stroke-secondary-500 tw-fill-danger-500" cx="130.754" cy="103.959" r="5.54811"  stroke-width="4"/>
- *   <circle class="tw-stroke-secondary-500 tw-fill-danger-500" cx="130.754" cy="143.964" r="5.54811"  stroke-width="4"/>
- *   <circle class="tw-stroke-danger-500" cx="23.5707" cy="23.1941" r="20.6443" fill="white"  stroke-width="4"/>
- *   <path class="tw-stroke-danger-500" d="M14.5129 14.1364L32.6284 32.2519" stroke-width="4" stroke-linecap="round"/>
- *   <path class="tw-stroke-danger-500" d="M32.6284 14.1364L14.5129 32.2519"  stroke-width="4" stroke-linecap="round"/>
- * </svg>
- * `;
- */
