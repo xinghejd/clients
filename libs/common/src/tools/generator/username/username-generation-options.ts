@@ -173,38 +173,37 @@ export function getForwarderOptions(
   options: UsernameGeneratorOptions,
 ): ApiOptions & MaybeLeakedOptions {
   if (service === Forwarders.AddyIo.id) {
-    return Object.assign(
-      structuredClone(DefaultOptions.forwarders.addyIo),
-      options.forwarders.addyIo,
-    );
+    return falsyDefault(options.forwarders.addyIo, DefaultOptions.forwarders.addyIo);
   } else if (service === Forwarders.DuckDuckGo.id) {
-    return Object.assign(
-      structuredClone(DefaultOptions.forwarders.duckDuckGo),
-      options.forwarders.duckDuckGo,
-    );
+    return falsyDefault(options.forwarders.duckDuckGo, DefaultOptions.forwarders.duckDuckGo);
   } else if (service === Forwarders.Fastmail.id) {
-    return Object.assign(
-      structuredClone(DefaultOptions.forwarders.fastMail),
-      options.forwarders.fastMail,
-    );
+    return falsyDefault(options.forwarders.fastMail, DefaultOptions.forwarders.fastMail);
   } else if (service === Forwarders.FirefoxRelay.id) {
-    return Object.assign(
-      structuredClone(DefaultOptions.forwarders.firefoxRelay),
-      options.forwarders.firefoxRelay,
-    );
+    return falsyDefault(options.forwarders.firefoxRelay, DefaultOptions.forwarders.firefoxRelay);
   } else if (service === Forwarders.ForwardEmail.id) {
-    return Object.assign(
-      structuredClone(DefaultOptions.forwarders.forwardEmail),
-      options.forwarders.forwardEmail,
-    );
+    return falsyDefault(options.forwarders.forwardEmail, DefaultOptions.forwarders.forwardEmail);
   } else if (service === Forwarders.SimpleLogin.id) {
-    return Object.assign(
-      structuredClone(DefaultOptions.forwarders.simpleLogin),
-      options.forwarders.simpleLogin,
-    );
+    return falsyDefault(options.forwarders.simpleLogin, DefaultOptions.forwarders.simpleLogin);
   } else {
     return null;
   }
+}
+
+function falsyDefault<T>(value: T, defaults: T): T {
+  // iterate keys in defaults because `value` may be missing keys
+  for (const key in defaults) {
+    if (value[key]) {
+      continue;
+    } else if (typeof defaults === "object") {
+      // any cast is required because typescript doesn't know that
+      // `value[key]` is an object.
+      value[key] = falsyDefault(value[key] ?? ({} as any), defaults[key]);
+    } else {
+      value[key] = defaults[key];
+    }
+  }
+
+  return value;
 }
 
 /** Padding values used to prevent leaking the length of the encrypted options. */

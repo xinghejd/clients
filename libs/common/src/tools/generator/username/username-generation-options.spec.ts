@@ -89,6 +89,11 @@ describe("Username Generation Options", () => {
       const forwarder = getForwarderOptions(service, options);
       expect(forwarder).toEqual(forwarderOptions);
     });
+
+    it("should return a reference to the forwarder", () => {
+      const forwarder = getForwarderOptions("anonaddy", options);
+      expect(forwarder).toBe(options.forwarders.addyIo);
+    });
   });
 
   describe("encryptInPlace", () => {
