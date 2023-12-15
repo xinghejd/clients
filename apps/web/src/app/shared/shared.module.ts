@@ -30,6 +30,7 @@ import {
   TabsModule,
   ToggleGroupModule,
   TypographyModule,
+  SectionComponent,
 } from "@bitwarden/components";
 
 // Register the locales for the application
@@ -72,6 +73,7 @@ import "./locales";
     MultiSelectModule,
     ProgressModule,
     RadioButtonModule,
+    SectionComponent,
     TableModule,
     TabsModule,
     ToggleGroupModule,
@@ -107,6 +109,7 @@ import "./locales";
     MultiSelectModule,
     ProgressModule,
     RadioButtonModule,
+    SectionComponent,
     SelectModule,
     TableModule,
     TabsModule,
