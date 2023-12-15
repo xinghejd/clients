@@ -401,9 +401,8 @@
                     id="simplelogin-apikey"
                     type="password"
                     name="SimpleLoginApiKey"
-                    [ngModel]="usernameOptions.forwarders.simpleLogin.token"
-                    (ngModelChange)="onApiKeyChanged(forwarders.SimpleLogin.id, $event)"
-                    (blur)="saveUsernameOptions()"
+                    [(ngModel)]="usernameOptions.forwarders.simpleLogin.token"
+                    (blur)="onApiKeyChanged(forwarders.SimpleLogin.id)"
                   />
                 </div>
                 <div class="box-content-row" appBoxRow>
@@ -424,9 +423,8 @@
                     id="duckduckgo-apikey"
                     type="password"
                     name="DuckDuckGoApiKey"
-                    [ngModel]="usernameOptions.forwarders.duckDuckGo.token"
-                    (ngModelChange)="onApiKeyChanged(forwarders.DuckDuckGo.id, $event)"
-                    (blur)="saveUsernameOptions()"
+                    [(ngModel)]="usernameOptions.forwarders.duckDuckGo.token"
+                    (blur)="onApiKeyChanged(forwarders.DuckDuckGo.id)"
                   />
                 </div>
               </ng-container>
@@ -437,9 +435,8 @@
                     id="anonaddy-accessToken"
                     type="password"
                     name="AnonAddyAccessToken"
-                    [ngModel]="usernameOptions.forwarders.addyIo.token"
-                    (ngModelChange)="onApiKeyChanged(forwarders.AddyIo.id, $event)"
-                    (blur)="saveUsernameOptions()"
+                    [(ngModel)]="usernameOptions.forwarders.addyIo.token"
+                    (blur)="onApiKeyChanged(forwarders.AddyIo.id)"
                   />
                 </div>
                 <div class="box-content-row" appBoxRow>
@@ -472,9 +469,8 @@
                     id="firefox-apikey"
                     type="password"
                     name="FirefoxApiKey"
-                    [ngModel]="usernameOptions.forwarders.firefoxRelay.token"
-                    (ngModelChange)="onApiKeyChanged(forwarders.FirefoxRelay.id, $event)"
-                    (blur)="saveUsernameOptions()"
+                    [(ngModel)]="usernameOptions.forwarders.firefoxRelay.token"
+                    (blur)="onApiKeyChanged(forwarders.FirefoxRelay.id)"
                   />
                 </div>
               </ng-container>
@@ -485,9 +481,8 @@
                     id="fastmail-apiToken"
                     type="password"
                     name="FastmailApiToken"
-                    [ngModel]="usernameOptions.forwarders.fastMail.token"
-                    (ngModelChange)="onApiKeyChanged(forwarders.Fastmail.id, $event)"
-                    (blur)="saveUsernameOptions()"
+                    [(ngModel)]="usernameOptions.forwarders.fastMail.token"
+                    (blur)="onApiKeyChanged(forwarders.Fastmail.id)"
                   />
                 </div>
               </ng-container>
@@ -500,9 +495,8 @@
                     id="forwardemail-accessToken"
                     type="password"
                     name="ForwardEmailAccessToken"
-                    [ngModel]="usernameOptions.forwarders.forwardEmail.token"
-                    (ngModelChange)="onApiKeyChanged(forwarders.ForwardEmail.id, $event)"
-                    (blur)="saveUsernameOptions()"
+                    [(ngModel)]="usernameOptions.forwarders.forwardEmail.token"
+                    (blur)="onApiKeyChanged(forwarders.ForwardEmail.id)"
                   />
                 </div>
                 <div class="box-content-row" appBoxRow>

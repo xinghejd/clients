@@ -305,9 +305,8 @@
           id="simplelogin-apikey"
           class="form-control"
           type="password"
-          [ngModel]="usernameOptions.forwarders.simpleLogin.token"
-          (ngModelChange)="onApiKeyChanged(forwarders.SimpleLogin.id, $event)"
-          (blur)="saveUsernameOptions()"
+          [(ngModel)]="usernameOptions.forwarders.simpleLogin.token"
+          (blur)="onApiKeyChanged(forwarders.SimpleLogin.id)"
         />
       </div>
       <div class="form-group col-4" *ngIf="isSelfHosted">
@@ -330,9 +329,8 @@
           class="form-control"
           type="password"
           name="DuckDuckGoApiKey"
-          [ngModel]="usernameOptions.forwarders.duckDuckGo.token"
-          (ngModelChange)="onApiKeyChanged(forwarders.DuckDuckGo.id, $event)"
-          (blur)="saveUsernameOptions()"
+          [(ngModel)]="usernameOptions.forwarders.duckDuckGo.token"
+          (blur)="onApiKeyChanged(forwarders.DuckDuckGo.id)"
         />
       </div>
     </div>
@@ -343,9 +341,8 @@
           id="anonaddy-apikey"
           class="form-control"
           type="password"
-          [ngModel]="usernameOptions.forwarders.addyIo.token"
-          (ngModelChange)="onApiKeyChanged(forwarders.AddyIo.id, $event)"
-          (blur)="saveUsernameOptions()"
+          [(ngModel)]="usernameOptions.forwarders.addyIo.token"
+          (blur)="onApiKeyChanged(forwarders.AddyIo.id)"
         />
       </div>
       <div class="form-group col-4">
@@ -377,9 +374,8 @@
           id="firefox-apikey"
           class="form-control"
           type="password"
-          [ngModel]="usernameOptions.forwarders.firefoxRelay.token"
-          (ngModelChange)="onApiKeyChanged(forwarders.FirefoxRelay.id, $event)"
-          (blur)="saveUsernameOptions()"
+          [(ngModel)]="usernameOptions.forwarders.firefoxRelay.token"
+          (blur)="onApiKeyChanged(forwarders.FirefoxRelay.id)"
         />
       </div>
     </div>
@@ -390,9 +386,8 @@
           id="fastmail-apiToken"
           class="form-control"
           type="password"
-          [ngModel]="usernameOptions.forwarders.fastMail.token"
-          (ngModelChange)="onApiKeyChanged(forwarders.Fastmail.id, $event)"
-          (blur)="saveUsernameOptions()"
+          [(ngModel)]="usernameOptions.forwarders.fastMail.token"
+          (blur)="onApiKeyChanged(forwarders.Fastmail.id)"
         />
       </div>
     </div>
@@ -404,7 +399,7 @@
           class="form-control"
           type="password"
           [(ngModel)]="usernameOptions.forwarders.forwardEmail.token"
-          (blur)="saveUsernameOptions()"
+          (blur)="onApiKeyChanged(forwarders.ForwardEmail.id)"
         />
       </div>
       <div class="form-group col-4">

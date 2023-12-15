@@ -235,10 +235,11 @@ export class GeneratorComponent implements OnInit {
     }
   }
 
-  onApiKeyChanged(id: string, token: string) {
+  async onApiKeyChanged(id: string) {
     const updated = getForwarderOptions(id, this.usernameOptions);
     delete updated.wasPlainText;
-    updated.token = token;
+
+    await this.saveUsernameOptions();
   }
 
   async regeneratePassword() {
