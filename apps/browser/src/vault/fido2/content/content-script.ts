@@ -23,8 +23,9 @@ async function getFromLocalStorage(keys: string | string[]): Promise<Record<stri
 
 async function getGlobalSettings() {
   const globalKey = "global";
-  const globalStorage: { neverDomains?: Record<string, never> } =
-    await getFromLocalStorage(globalKey);
+  const globalStorage: { neverDomains?: Record<string, never> } = (
+    await getFromLocalStorage(globalKey)
+  )[globalKey];
   return globalStorage;
 }
 
