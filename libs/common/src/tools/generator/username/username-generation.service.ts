@@ -10,6 +10,7 @@ import {
   UsernameGeneratorOptions,
   DefaultOptions,
   getForwarderOptions,
+  falsyDefault,
   encryptInPlace,
   decryptInPlace,
   forAllForwarders,
@@ -130,7 +131,8 @@ export class UsernameGenerationService implements UsernameGenerationServiceAbstr
     const options = await this.stateService.getUsernameGenerationOptions();
 
     // `options.saveOnLoad` is set by migrations when data needs to be
-    // re-saved to ensure they're encrypted at rest.
+    // re-saved to ensure they're encrypted at rest. This is inlined
+    // to avoid cloning the object twice.
     if (options.saveOnLoad) {
       await this.encryptKeys(options);
       await this.stateService.setUsernameGenerationOptions(options);
@@ -139,21 +141,21 @@ export class UsernameGenerationService implements UsernameGenerationServiceAbstr
 
     await this.decryptKeys(options);
 
-    // clone the assignment result because the default options are frozen and
-    // assign aliases the frozen objects in `options`.
-    const initializedOptions = structuredClone(Object.assign(options ?? {}, DefaultOptions));
-
+    // clone so that mutations applied by callers don't affect the stored options
+    const initializedOptions = falsyDefault(structuredClone(options), DefaultOptions);
     await this.stateService.setUsernameGenerationOptions(initializedOptions);
 
     return initializedOptions;
   }
 
   async saveOptions(options: UsernameGeneratorOptions) {
-    await this.encryptKeys(options);
-    await this.stateService.setUsernameGenerationOptions(options);
+    // copy options since they'll be encrypted in place
+    const encryptedOptions = structuredClone(options);
+    await this.encryptKeys(encryptedOptions);
+    await this.stateService.setUsernameGenerationOptions(encryptedOptions);
   }
 
-  async encryptKeys(options: UsernameGeneratorOptions) {
+  private async encryptKeys(options: UsernameGeneratorOptions) {
     const key = await this.cryptoService.getUserKey();
 
     // each `encryptInPlace` call must be passed an independent object, otherwise
@@ -164,7 +166,7 @@ export class UsernameGenerationService implements UsernameGenerationServiceAbstr
     await Promise.all(encryptions);
   }
 
-  async decryptKeys(options: UsernameGeneratorOptions) {
+  private async decryptKeys(options: UsernameGeneratorOptions) {
     const key = await this.cryptoService.getUserKey();
 
     // each `decryptInPlace` call must be passed an independent object, otherwise

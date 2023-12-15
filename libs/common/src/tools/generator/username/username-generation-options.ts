@@ -189,7 +189,19 @@ export function getForwarderOptions(
   }
 }
 
-function falsyDefault<T>(value: T, defaults: T): T {
+/**
+ * Recursively applies default values from `defaults` to falsy or
+ * missing properties in  `value`.
+ *
+ * @remarks This method is not aware of the
+ * object's prototype or metadata, such as readonly or frozen fields.
+ * It should only be used on plain objects.
+ *
+ * @param value - The value to fill in. This parameter is mutated.
+ * @param defaults - The default values to use.
+ * @returns the mutated `value`.
+ */
+export function falsyDefault<T>(value: T, defaults: Partial<T>): T {
   // iterate keys in defaults because `value` may be missing keys
   for (const key in defaults) {
     if (value[key]) {
