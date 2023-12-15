@@ -15,8 +15,8 @@ export class AppSettingsJsonSecretsManagerImporter extends JsonSecretsManagerImp
           key3: true,
         },
         null,
-        2
-      )
+        2,
+      ),
     );
   }
 
@@ -111,7 +111,9 @@ class Parser {
 
   private enterContext(context: string) {
     this.paths.push(
-      this.paths.length > 0 ? this.paths[this.paths.length - 1] + this.seperator + context : context
+      this.paths.length > 0
+        ? this.paths[this.paths.length - 1] + this.seperator + context
+        : context,
     );
   }
 

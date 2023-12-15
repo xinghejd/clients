@@ -37,7 +37,7 @@ export abstract class SecretsManagerImporter {
     readonly id: string,
     readonly displayInfo: string | Translation,
     readonly accept: string,
-    readonly placeholder: string = ""
+    readonly placeholder: string = "",
   ) {}
   buildOptions(organizationId: string): Promise<ImportOption[]> {
     return Promise.resolve([]);
@@ -52,7 +52,7 @@ export abstract class JsonSecretsManagerImporter extends SecretsManagerImporter 
 
   abstract createImportDataParsed(
     data: unknown,
-    options: Record<string, string>
+    options: Record<string, string>,
   ): Promise<ImportData>;
 
   override createImportData(data: string, options: Record<string, string>): Promise<ImportData> {

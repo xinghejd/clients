@@ -24,14 +24,14 @@ export class BitwardenJsonSecretsManagerImporter extends JsonSecretsManagerImpor
           ],
         },
         null,
-        2
-      )
+        2,
+      ),
     );
   }
 
   override createImportDataParsed(
     data: unknown,
-    _options: Record<string, string>
+    _options: Record<string, string>,
   ): Promise<ImportData> {
     return Promise.resolve(data as ImportData);
   }
