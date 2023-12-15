@@ -138,6 +138,9 @@ export class GeneratorComponent implements OnInit {
           this.type = generatorOptions?.type ?? "password";
         }
       }
+
+      this.checkDisplayReplaceTokenWarning();
+
       if (this.regenerateWithoutButtonPress()) {
         await this.regenerate();
       }
@@ -216,13 +219,16 @@ export class GeneratorComponent implements OnInit {
     }
   }
 
-  async onForwarderChanged(regenerate = true) {
-    this.saveUsernameOptions(regenerate);
-    const forwarder = getForwarderOptions(
-      this.usernameOptions.forwarders.service,
-      this.usernameOptions,
-    );
-    this.displayReplaceTokenWarning = forwarder.wasPlainText || false;
+  private checkDisplayReplaceTokenWarning() {
+    let display = false;
+
+    if (this.type === "username" && this.usernameOptions.type === "forwarded") {
+      display =
+        getForwarderOptions(this.usernameOptions.forwarders.service, this.usernameOptions)
+          ?.wasPlainText ?? false;
+    }
+
+    this.displayReplaceTokenWarning = display;
   }
 
   async saveUsernameOptions(regenerate = true) {
@@ -233,6 +239,8 @@ export class GeneratorComponent implements OnInit {
     if (regenerate && this.regenerateWithoutButtonPress()) {
       await this.regenerateUsername();
     }
+
+    this.checkDisplayReplaceTokenWarning();
   }
 
   async onApiKeyChanged(id: string) {
