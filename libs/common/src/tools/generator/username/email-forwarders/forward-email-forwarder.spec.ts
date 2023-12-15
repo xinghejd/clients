@@ -119,6 +119,31 @@ describe("ForwardEmail Forwarder", () => {
         2,
         "forwaderInvalidToken",
         Forwarders.ForwardEmail.name,
+        undefined,
+      );
+    });
+
+    it("throws an invalid token error with a message if the request fails with a 401 and message", async () => {
+      const apiService = mockApiService(401, { message: "A message" });
+      const i18nService = mockI18nService();
+
+      const forwarder = new ForwardEmailForwarder(apiService, i18nService);
+
+      await expect(
+        async () =>
+          await forwarder.generate(null, {
+            token: "token",
+            domain: "example.com",
+          }),
+      ).rejects.toEqual("forwaderInvalidTokenWithMessage");
+
+      expect(apiService.nativeFetch).toHaveBeenCalledWith(expect.any(Request));
+      // counting instances is terribly flaky over changes, but jest doesn't have a better way to do this
+      expect(i18nService.t).toHaveBeenNthCalledWith(
+        2,
+        "forwaderInvalidTokenWithMessage",
+        Forwarders.ForwardEmail.name,
+        "A message",
       );
     });
 

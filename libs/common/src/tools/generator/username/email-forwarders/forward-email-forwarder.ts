@@ -45,13 +45,14 @@ export class ForwardEmailForwarder implements Forwarder {
     });
 
     const response = await this.apiService.nativeFetch(request);
-    if (response.status === 401) {
-      const error = this.i18nService.t("forwaderInvalidToken", Forwarders.ForwardEmail.name);
-      throw error;
-    }
-
     const json = await response.json();
-    if (response.status === 200 || response.status === 201) {
+
+    if (response.status === 401) {
+      const messageKey =
+        "message" in json ? "forwaderInvalidTokenWithMessage" : "forwaderInvalidToken";
+      const error = this.i18nService.t(messageKey, Forwarders.ForwardEmail.name, json.message);
+      throw error;
+    } else if (response.status === 200 || response.status === 201) {
       const { name, domain } = await response.json();
       const domainPart = domain?.name || options.domain;
       return `${name}@${domainPart}`;
