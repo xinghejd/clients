@@ -1,7 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
-import { OrganizationUserService } from "../../abstractions/organization-user/organization-user.service";
 import { OrganizationApiServiceAbstraction } from "../../admin-console/abstractions/organization/organization-api.service.abstraction";
+import { OrganizationUserService } from "../../admin-console/abstractions/organization-user/organization-user.service";
 import { OrganizationAutoEnrollStatusResponse } from "../../admin-console/models/response/organization-auto-enroll-status.response";
 import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
@@ -28,7 +28,7 @@ describe("PasswordResetEnrollmentServiceImplementation", () => {
       stateService,
       cryptoService,
       organizationUserService,
-      i18nService
+      i18nService,
     );
   });
 
@@ -88,13 +88,13 @@ describe("PasswordResetEnrollmentServiceImplementation", () => {
       await service.enroll("orgId");
 
       expect(
-        organizationUserService.putOrganizationUserResetPasswordEnrollment
+        organizationUserService.putOrganizationUserResetPasswordEnrollment,
       ).toHaveBeenCalledWith(
         "orgId",
         "userId",
         expect.objectContaining({
           resetPasswordKey: encryptedKey.encryptedString,
-        })
+        }),
       );
     });
 
@@ -110,13 +110,13 @@ describe("PasswordResetEnrollmentServiceImplementation", () => {
       await service.enroll("orgId", "userId", { key: "key" } as any);
 
       expect(
-        organizationUserService.putOrganizationUserResetPasswordEnrollment
+        organizationUserService.putOrganizationUserResetPasswordEnrollment,
       ).toHaveBeenCalledWith(
         "orgId",
         "userId",
         expect.objectContaining({
           resetPasswordKey: encryptedKey.encryptedString,
-        })
+        }),
       );
     });
   });

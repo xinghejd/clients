@@ -18,26 +18,32 @@ import { TokenService } from "../abstractions/token.service";
 import { TwoFactorService } from "../abstractions/two-factor.service";
 import { TwoFactorProviderType } from "../enums/two-factor-provider-type";
 import { AuthResult } from "../models/domain/auth-result";
-import { ForceResetPasswordReason } from "../models/domain/force-reset-password-reason";
+import { ForceSetPasswordReason } from "../models/domain/force-set-password-reason";
 import {
-  PasswordlessLogInCredentials,
-  PasswordLogInCredentials,
-  SsoLogInCredentials,
-  UserApiLogInCredentials,
-} from "../models/domain/log-in-credentials";
+  AuthRequestLoginCredentials,
+  PasswordLoginCredentials,
+  SsoLoginCredentials,
+  UserApiLoginCredentials,
+  WebAuthnLoginCredentials,
+} from "../models/domain/login-credentials";
 import { DeviceRequest } from "../models/request/identity-token/device.request";
 import { PasswordTokenRequest } from "../models/request/identity-token/password-token.request";
 import { SsoTokenRequest } from "../models/request/identity-token/sso-token.request";
 import { TokenTwoFactorRequest } from "../models/request/identity-token/token-two-factor.request";
 import { UserApiTokenRequest } from "../models/request/identity-token/user-api-token.request";
+import { WebAuthnLoginTokenRequest } from "../models/request/identity-token/webauthn-login-token.request";
 import { IdentityCaptchaResponse } from "../models/response/identity-captcha.response";
 import { IdentityTokenResponse } from "../models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "../models/response/identity-two-factor.response";
 
 type IdentityResponse = IdentityTokenResponse | IdentityTwoFactorResponse | IdentityCaptchaResponse;
 
-export abstract class LogInStrategy {
-  protected abstract tokenRequest: UserApiTokenRequest | PasswordTokenRequest | SsoTokenRequest;
+export abstract class LoginStrategy {
+  protected abstract tokenRequest:
+    | UserApiTokenRequest
+    | PasswordTokenRequest
+    | SsoTokenRequest
+    | WebAuthnLoginTokenRequest;
   protected captchaBypassToken: string = null;
 
   constructor(
@@ -49,20 +55,21 @@ export abstract class LogInStrategy {
     protected messagingService: MessagingService,
     protected logService: LogService,
     protected stateService: StateService,
-    protected twoFactorService: TwoFactorService
+    protected twoFactorService: TwoFactorService,
   ) {}
 
   abstract logIn(
     credentials:
-      | UserApiLogInCredentials
-      | PasswordLogInCredentials
-      | SsoLogInCredentials
-      | PasswordlessLogInCredentials
+      | UserApiLoginCredentials
+      | PasswordLoginCredentials
+      | SsoLoginCredentials
+      | AuthRequestLoginCredentials
+      | WebAuthnLoginCredentials,
   ): Promise<AuthResult>;
 
   async logInTwoFactor(
     twoFactor: TokenTwoFactorRequest,
-    captchaResponse: string = null
+    captchaResponse: string = null,
   ): Promise<AuthResult> {
     this.tokenRequest.setTwoFactor(twoFactor);
     const [authResult] = await this.startLogIn();
@@ -146,7 +153,7 @@ export abstract class LogInStrategy {
         keys: accountKeys,
         decryptionOptions: AccountDecryptionOptions.fromResponse(tokenResponse),
         adminAuthRequest: adminAuthRequest?.toJSON(),
-      })
+      }),
     );
   }
 
@@ -166,7 +173,7 @@ export abstract class LogInStrategy {
 
     // Convert boolean to enum
     if (response.forcePasswordReset) {
-      result.forcePasswordReset = ForceResetPasswordReason.AdminForcePasswordReset;
+      result.forcePasswordReset = ForceSetPasswordReason.AdminForcePasswordReset;
     }
 
     // Must come before setting keys, user key needs email to update additional keys

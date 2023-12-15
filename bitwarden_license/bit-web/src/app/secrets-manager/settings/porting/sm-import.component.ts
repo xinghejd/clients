@@ -64,7 +64,7 @@ export class SecretsManagerImportComponent implements OnInit, OnDestroy {
     private secretsManagerPortingApiService: SecretsManagerPortingApiService,
     private dialogService: DialogService,
     private fb: FormBuilder,
-    @Inject(SecretsManagerImporter) private importers: SecretsManagerImporter[]
+    @Inject(SecretsManagerImporter) private importers: SecretsManagerImporter[],
   ) {
     this.formGroup = this.fb.group({
       selectedImporter: this.fb.control(""),
@@ -83,8 +83,8 @@ export class SecretsManagerImportComponent implements OnInit, OnDestroy {
     this.selectedImporter$ = concat(
       of(defaultImporter),
       this.formGroup.controls.selectedImporter.valueChanges.pipe(
-        map((importerId) => this.importers.find((i) => i.id === importerId) ?? defaultImporter)
-      )
+        map((importerId) => this.importers.find((i) => i.id === importerId) ?? defaultImporter),
+      ),
     );
 
     this.formGroup.controls.selectedImporter.setValue(defaultImporter.id);
@@ -96,14 +96,17 @@ export class SecretsManagerImportComponent implements OnInit, OnDestroy {
       concatMap(async ([importer, organizationId]) => {
         const options = await importer.buildOptions(organizationId);
         const importerOptionsGroup = this.fb.group(
-          options.reduce((agg, option) => {
-            agg[option.key] = this.fb.control(option.value);
-            return agg;
-          }, {} as Record<string, FormControl<string>>)
+          options.reduce(
+            (agg, option) => {
+              agg[option.key] = this.fb.control(option.value);
+              return agg;
+            },
+            {} as Record<string, FormControl<string>>,
+          ),
         );
         this.formGroup.controls.importerOptions = importerOptionsGroup;
         return options;
-      })
+      }),
     );
   }
 
@@ -116,20 +119,20 @@ export class SecretsManagerImportComponent implements OnInit, OnDestroy {
     const fileElement = document.getElementById("file") as HTMLInputElement;
     const importContents = await this.getImportContents(
       fileElement,
-      this.formGroup.get("pastedContents").value.trim()
+      this.formGroup.get("pastedContents").value.trim(),
     );
 
     if (importContents == null) {
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccurred"),
-        this.i18nService.t("selectFile")
+        this.i18nService.t("selectFile"),
       );
       return;
     }
 
     const importer = this.importers.find(
-      (i) => i.id === this.formGroup.controls.selectedImporter.value
+      (i) => i.id === this.formGroup.controls.selectedImporter.value,
     );
 
     if (importer == null) {
@@ -140,7 +143,7 @@ export class SecretsManagerImportComponent implements OnInit, OnDestroy {
     try {
       const importData = await importer.createImportData(
         importContents,
-        this.formGroup.controls.importerOptions.value
+        this.formGroup.controls.importerOptions.value,
       );
 
       const organizationId = await firstValueFrom(this.organizationId$);
@@ -154,14 +157,14 @@ export class SecretsManagerImportComponent implements OnInit, OnDestroy {
         this.platformUtilsService.showToast(
           "error",
           this.i18nService.t("errorOccurred"),
-          error.message
+          error.message,
         );
         return;
       } else if (error != null) {
         this.platformUtilsService.showToast(
           "error",
           this.i18nService.t("errorOccurred"),
-          this.i18nService.t("errorReadingImportFile")
+          this.i18nService.t("errorReadingImportFile"),
         );
         return;
       }
@@ -172,7 +175,7 @@ export class SecretsManagerImportComponent implements OnInit, OnDestroy {
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccurred"),
-        this.i18nService.t("errorReadingImportFile")
+        this.i18nService.t("errorReadingImportFile"),
       );
       this.logService.error(error);
     }
@@ -180,7 +183,7 @@ export class SecretsManagerImportComponent implements OnInit, OnDestroy {
 
   protected async getImportContents(
     fileElement: HTMLInputElement,
-    pastedContents: string
+    pastedContents: string,
   ): Promise<string> {
     const files = fileElement.files;
 
@@ -244,7 +247,7 @@ export class SecretsManagerImportComponent implements OnInit, OnDestroy {
         data: {
           error: error,
         },
-      }
+      },
     );
   }
 }

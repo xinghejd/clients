@@ -1,15 +1,16 @@
 import { Directive, ElementRef, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { Subject } from "rxjs";
+import { Observable, Subject } from "rxjs";
 import { take, takeUntil } from "rxjs/operators";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { LoginService } from "@bitwarden/common/auth/abstractions/login.service";
+import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
-import { ForceResetPasswordReason } from "@bitwarden/common/auth/models/domain/force-reset-password-reason";
-import { PasswordLogInCredentials } from "@bitwarden/common/auth/models/domain/log-in-credentials";
+import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
+import { PasswordLoginCredentials } from "@bitwarden/common/auth/models/domain/login-credentials";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -53,6 +54,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
   protected twoFactorRoute = "2fa";
   protected successRoute = "vault";
   protected forcePasswordResetRoute = "update-temp-password";
+  protected showWebauthnLogin$: Observable<boolean>;
 
   protected destroy$ = new Subject<void>();
 
@@ -76,7 +78,8 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
     protected formBuilder: FormBuilder,
     protected formValidationErrorService: FormValidationErrorsService,
     protected route: ActivatedRoute,
-    protected loginService: LoginService
+    protected loginService: LoginService,
+    protected webAuthnLoginService: WebAuthnLoginServiceAbstraction,
   ) {
     super(environmentService, i18nService, platformUtilsService);
   }
@@ -86,6 +89,8 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
   }
 
   async ngOnInit() {
+    this.showWebauthnLogin$ = this.webAuthnLoginService.enabled$;
+
     this.route?.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       if (!params) {
         return;
@@ -140,11 +145,11 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
     }
 
     try {
-      const credentials = new PasswordLogInCredentials(
+      const credentials = new PasswordLoginCredentials(
         data.email,
         data.masterPassword,
         this.captchaToken,
-        null
+        null,
       );
       this.formPromise = this.authService.logIn(credentials);
       const response = await this.formPromise;
@@ -160,7 +165,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
         } else {
           this.router.navigate([this.twoFactorRoute]);
         }
-      } else if (response.forcePasswordReset != ForceResetPasswordReason.None) {
+      } else if (response.forcePasswordReset != ForceSetPasswordReason.None) {
         if (this.onSuccessfulLoginForceResetNavigate != null) {
           this.onSuccessfulLoginForceResetNavigate();
         } else {
@@ -192,7 +197,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
     }
   }
 
-  async startPasswordlessLogin() {
+  async startAuthRequestLogin() {
     this.formGroup.get("masterPassword")?.clearValidators();
     this.formGroup.get("masterPassword")?.updateValueAndValidity();
 
@@ -239,7 +244,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
         "&codeChallenge=" +
         codeChallenge +
         "&email=" +
-        encodeURIComponent(this.formGroup.controls.email.value)
+        encodeURIComponent(this.formGroup.controls.email.value),
     );
   }
 
@@ -295,7 +300,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
     this.platformUtilsService.showToast(
       "error",
       this.i18nService.t("errorOccured"),
-      this.i18nService.t("encryptionKeyMigrationRequired")
+      this.i18nService.t("encryptionKeyMigrationRequired"),
     );
     return true;
   }
@@ -329,7 +334,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
       const deviceIdentifier = await this.appIdService.getAppId();
       this.showLoginWithDevice = await this.devicesApiService.getKnownDevice(
         email,
-        deviceIdentifier
+        deviceIdentifier,
       );
     } catch (e) {
       this.showLoginWithDevice = false;

@@ -17,6 +17,8 @@ import {
   throwError,
 } from "rxjs";
 
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { UserRequestedFallbackAbortReason } from "@bitwarden/common/vault/abstractions/fido2/fido2-client.service.abstraction";
 import {
@@ -27,7 +29,7 @@ import {
 } from "@bitwarden/common/vault/abstractions/fido2/fido2-user-interface.service.abstraction";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
-import { BrowserPopoutWindowService } from "../../platform/popup/abstractions/browser-popout-window.service";
+import { closeFido2Popout, openFido2Popout } from "../popup/utils/vault-popout-window";
 
 const BrowserFido2MessageName = "BrowserFido2UserInterfaceServiceMessage";
 
@@ -44,7 +46,7 @@ export function fido2PopoutSessionData$() {
       sessionId: queryParams.sessionId as string,
       fallbackSupported: queryParams.fallbackSupported === "true",
       userVerification: queryParams.userVerification === "true",
-    }))
+    })),
   );
 }
 
@@ -114,34 +116,34 @@ export type BrowserFido2Message = { sessionId: string } & (
  * The user interface is implemented as a popout and the service uses the browser's messaging API to communicate with it.
  */
 export class BrowserFido2UserInterfaceService implements Fido2UserInterfaceServiceAbstraction {
-  constructor(private browserPopoutWindowService: BrowserPopoutWindowService) {}
+  constructor(private authService: AuthService) {}
 
   async newSession(
     fallbackSupported: boolean,
     tab: chrome.tabs.Tab,
-    abortController?: AbortController
+    abortController?: AbortController,
   ): Promise<Fido2UserInterfaceSession> {
     return await BrowserFido2UserInterfaceSession.create(
-      this.browserPopoutWindowService,
+      this.authService,
       fallbackSupported,
       tab,
-      abortController
+      abortController,
     );
   }
 }
 
 export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSession {
   static async create(
-    browserPopoutWindowService: BrowserPopoutWindowService,
+    authService: AuthService,
     fallbackSupported: boolean,
     tab: chrome.tabs.Tab,
-    abortController?: AbortController
+    abortController?: AbortController,
   ): Promise<BrowserFido2UserInterfaceSession> {
     return new BrowserFido2UserInterfaceSession(
-      browserPopoutWindowService,
+      authService,
       fallbackSupported,
       tab,
-      abortController
+      abortController,
     );
   }
 
@@ -168,24 +170,24 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
 
   private closed = false;
   private messages$ = (BrowserApi.messageListener$() as Observable<BrowserFido2Message>).pipe(
-    filter((msg) => msg.sessionId === this.sessionId)
+    filter((msg) => msg.sessionId === this.sessionId),
   );
   private connected$ = new BehaviorSubject(false);
   private windowClosed$: Observable<number>;
   private destroy$ = new Subject<void>();
 
   private constructor(
-    private readonly browserPopoutWindowService: BrowserPopoutWindowService,
+    private readonly authService: AuthService,
     private readonly fallbackSupported: boolean,
     private readonly tab: chrome.tabs.Tab,
     readonly abortController = new AbortController(),
-    readonly sessionId = Utils.newGuid()
+    readonly sessionId = Utils.newGuid(),
   ) {
     this.messages$
       .pipe(
         filter((msg) => msg.type === "ConnectResponse"),
         take(1),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe(() => {
         this.connected$.next(true);
@@ -207,7 +209,7 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       .pipe(
         filter((msg) => msg.type === "AbortResponse"),
         take(1),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe((msg) => {
         if (msg.type === "AbortResponse") {
@@ -217,8 +219,11 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       });
 
     this.windowClosed$ = fromEventPattern(
+      // FIXME: Make sure that is does not cause a memory leak in Safari or use BrowserApi.AddListener
+      // and test that it doesn't break. Tracking Ticket: https://bitwarden.atlassian.net/browse/PM-4735
+      // eslint-disable-next-line no-restricted-syntax
       (handler: any) => chrome.windows.onRemoved.addListener(handler),
-      (handler: any) => chrome.windows.onRemoved.removeListener(handler)
+      (handler: any) => chrome.windows.onRemoved.removeListener(handler),
     );
 
     BrowserFido2UserInterfaceSession.sendMessage({
@@ -278,7 +283,9 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   }
 
   async ensureUnlockedVault(): Promise<void> {
-    await this.connect();
+    if ((await this.authService.getAuthStatus()) !== AuthenticationStatus.Unlocked) {
+      await this.connect();
+    }
   }
 
   async informCredentialNotFound(): Promise<void> {
@@ -293,7 +300,7 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   }
 
   async close() {
-    await this.browserPopoutWindowService.closeFido2Popout();
+    await closeFido2Popout(this.sessionId);
     this.closed = true;
     this.destroy$.next();
     this.destroy$.complete();
@@ -311,14 +318,14 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
   }
 
   private async receive<T extends BrowserFido2Message["type"]>(
-    type: T
+    type: T,
   ): Promise<BrowserFido2Message & { type: T }> {
     try {
       const response = await firstValueFrom(
         this.messages$.pipe(
           filter((msg) => msg.sessionId === this.sessionId && msg.type === type),
-          takeUntil(this.destroy$)
-        )
+          takeUntil(this.destroy$),
+        ),
       );
       return response as BrowserFido2Message & { type: T };
     } catch (error) {
@@ -338,14 +345,13 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
       merge(
         this.connected$.pipe(filter((connected) => connected === true)),
         fromEvent(this.abortController.signal, "abort").pipe(
-          switchMap(() => throwError(() => new SessionClosedError()))
-        )
-      )
+          switchMap(() => throwError(() => new SessionClosedError())),
+        ),
+      ),
     );
 
-    const popoutId = await this.browserPopoutWindowService.openFido2Popout(this.tab, {
+    const popoutId = await openFido2Popout(this.tab, {
       sessionId: this.sessionId,
-      senderTabId: this.tab.id,
       fallbackSupported: this.fallbackSupported,
     });
 
@@ -354,11 +360,11 @@ export class BrowserFido2UserInterfaceSession implements Fido2UserInterfaceSessi
         filter((windowId) => {
           return popoutId === windowId;
         }),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe(() => {
         this.close();
-        this.abort();
+        this.abort(true);
       });
 
     await connectPromise;

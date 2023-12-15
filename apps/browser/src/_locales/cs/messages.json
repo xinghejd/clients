@@ -365,6 +365,9 @@
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Nastavte metodu odemknutí, abyste změnili časový limit Vašeho trezoru."
   },
+  "unlockMethodNeeded": {
+    "message": "Nastavit metodu odemknutí v Nastavení"
+  },
   "rateExtension": {
     "message": "Ohodnotit rozšíření"
   },
@@ -404,6 +407,9 @@
   },
   "lockNow": {
     "message": "Zamknout nyní"
+  },
+  "lockAll": {
+    "message": "Zamknout vše"
   },
   "immediately": {
     "message": "Okamžitě"
@@ -619,6 +625,9 @@
   "addLoginNotificationDesc": {
     "message": "Zeptá se na uložení údajů, pokud nebyly v trezoru nalezeny."
   },
+  "addLoginNotificationDescAlt": {
+    "message": "Požádá o přidání položky, pokud nebyla nalezena v trezoru. Platí pro všechny přihlášené účty."
+  },
   "showCardsCurrentTab": {
     "message": "Zobrazit platební karty na obrazovce Karta"
   },
@@ -651,6 +660,15 @@
   "changedPasswordNotificationDesc": {
     "message": "Zeptat se na aktualizaci hesla pro přihlášení, pokud je na webové stránce zjištěno použití jiného hesla."
   },
+  "changedPasswordNotificationDescAlt": {
+    "message": "Vyžádá aktualizaci hesla k přihlášení, pokud je na webu zjištěna změna. Platí pro všechny přihlášené účty."
+  },
+  "enableUsePasskeys": {
+    "message": "Zeptat se na uložení a použití přístupových hesel"
+  },
+  "usePasskeysDesc": {
+    "message": "Zeptá se na uložení nového hesla nebo se přihlásí pomocí přístupových hesel uložených ve Vašem trezoru. Platí pro všechny přihlášené účty."
+  },
   "notificationChangeDesc": {
     "message": "Chcete aktualizovat toto heslo v Bitwardenu?"
   },
@@ -669,6 +687,9 @@
   "contextMenuItemDesc": {
     "message": "Použijte pravé tlačítko pro přístup k vytvoření hesla a odpovídajícímu přihlášení pro tuto stránku. "
   },
+  "contextMenuItemDescAlt": {
+    "message": "Použije pravé tlačítko pro přístup k vytvoření hesla a odpovídajícímu přihlášení pro tuto stránku. Platí pro všechny přihlášené účty."
+  },
   "defaultUriMatchDetection": {
     "message": "Výchozí zjišťování shody URI",
     "description": "Default URI match detection for auto-fill."
@@ -681,6 +702,9 @@
   },
   "themeDesc": {
     "message": "Změní barevný motiv aplikace."
+  },
+  "themeDescAlt": {
+    "message": "Změní barevný motiv aplikace. Platí pro všechny přihlášené účty."
   },
   "dark": {
     "message": "Tmavý",
@@ -1002,6 +1026,31 @@
   "environmentSaved": {
     "message": "URL adresy vlastního prostředí byly uloženy"
   },
+  "showAutoFillMenuOnFormFields": {
+    "message": "Zobrazit menu automatického vyplňování v polích formuláře",
+    "description": "Represents the message for allowing the user to enable the auto-fill overlay"
+  },
+  "showAutoFillMenuOnFormFieldsDescAlt": {
+    "message": "Použije se na všechny přihlášené účty."
+  },
+  "turnOffBrowserBuiltInPasswordManagerSettings": {
+    "message": "Abyste se vyhnuli konfliktům, vypněte v nastavení Vašeho prohlížeče zabudovaný správce hesel."
+  },
+  "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
+    "message": "Upravit nastavení prohlížeče"
+  },
+  "autofillOverlayVisibilityOff": {
+    "message": "VYP.",
+    "description": "Overlay setting select option for disabling autofill overlay"
+  },
+  "autofillOverlayVisibilityOnFieldFocus": {
+    "message": "Když je vybráno pole (zaměřeno)",
+    "description": "Overlay appearance select option for showing the field on focus of the input element"
+  },
+  "autofillOverlayVisibilityOnButtonClick": {
+    "message": "Když je vybrána ikona automatického vyplňování",
+    "description": "Overlay appearance select option for showing the field on click of the overlay icon"
+  },
   "enableAutoFillOnPageLoad": {
     "message": "Automaticky vyplnit údaje při načtení stránky"
   },
@@ -1093,6 +1142,9 @@
   },
   "faviconDesc": {
     "message": "Zobrazí rozeznatelný obrázek vedle každého přihlášení."
+  },
+  "faviconDescAlt": {
+    "message": "Zobrazí rozeznatelný obrázek vedle každého přihlášení. Platí pro všechny přihlášené účty."
   },
   "enableBadgeCounter": {
     "message": "Zobrazovat počet uložených přihlašovacích údajů na stránce"
@@ -1252,9 +1304,6 @@
   },
   "typeIdentity": {
     "message": "Identita"
-  },
-  "typePasskey": {
-    "message": "Přístupový klíč"
   },
   "passwordHistory": {
     "message": "Historie hesel"
@@ -1657,13 +1706,16 @@
     "message": "Zásady organizace ovlivňují možnosti vlastnictví."
   },
   "personalOwnershipPolicyInEffectImports": {
-    "message": "An organization policy has blocked importing items into your individual vault."
+    "message": "Zásady organizace zablokovaly importování položek do Vašeho osobního trezoru."
   },
   "excludedDomains": {
     "message": "Vyloučené domény"
   },
   "excludedDomainsDesc": {
     "message": "Bitwarden nebude žádat o uložení přihlašovacích údajů pro tyto domény. Aby se změny projevily, musíte stránku obnovit."
+  },
+  "excludedDomainsDescAlt": {
+    "message": "Bitwarden nebude žádat o uložení přihlašovacích údajů pro tyto domény pro všechny přihlášené účty. Aby se změny projevily, musíte stránku obnovit."
   },
   "excludedDomainsInvalidDomain": {
     "message": "$DOMAIN$ není platná doména",
@@ -1925,8 +1977,13 @@
   "selectFolder": {
     "message": "Vyberte složku..."
   },
-  "ssoCompleteRegistration": {
-    "message": "Chcete-li dokončit přihlášení pomocí SSO, nastavte hlavní přístupové heslo k Vašemu trezoru."
+  "orgPermissionsUpdatedMustSetPassword": {
+    "message": "Oprávnění Vaší organizace byla aktualizována. To vyžaduje nastavení hlavního hesla.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "orgRequiresYouToSetPassword": {
+    "message": "Vaše organizace vyžaduje nastavení hlavního hesla.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "hours": {
     "message": "hodin"
@@ -2222,7 +2279,7 @@
     "message": "Jak na automatické vyplňování"
   },
   "autofillSelectInfoWithCommand": {
-    "message": "Vyberte položku z této stránky nebo použijte zkratku: $COMMAND$",
+    "message": "Select an item from this screen, use the shortcut $COMMAND$, or explore other options in settings.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2231,7 +2288,7 @@
     }
   },
   "autofillSelectInfoWithoutCommand": {
-    "message": "Vyberte položku z této stránky nebo nastavte zkratku v nastavení."
+    "message": "Select an item from this screen, or explore other options in settings."
   },
   "gotIt": {
     "message": "Rozumím"
@@ -2452,27 +2509,77 @@
     "message": "Pro úpravu tohoto pole vypněte požadavek na hlavní heslo",
     "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
+  "bitwardenOverlayButton": {
+    "message": "Tlačítko nabídky automatického vyplňování Bitwardenu",
+    "description": "Page title for the iframe containing the overlay button"
+  },
+  "toggleBitwardenVaultOverlay": {
+    "message": "Přepnout nabídku automatického vyplňování Bitwardenu",
+    "description": "Screen reader and tool tip label for the overlay button"
+  },
+  "bitwardenVault": {
+    "message": "Nabídka automatického vyplňování Bitwardenu",
+    "description": "Page title in overlay"
+  },
+  "unlockYourAccountToViewMatchingLogins": {
+    "message": "Odemkněte Váš účet pro zobrazení odpovídajících přihlašovacích údajů",
+    "description": "Text to display in overlay when the account is locked."
+  },
+  "unlockAccount": {
+    "message": "Odemknout účet",
+    "description": "Button text to display in overlay when the account is locked."
+  },
+  "fillCredentialsFor": {
+    "message": "Vyplnit přihlašovací údaje pro",
+    "description": "Screen reader text for when overlay item is in focused"
+  },
+  "partialUsername": {
+    "message": "Částečné uživatelské jméno",
+    "description": "Screen reader text for when a login item is focused where a partial username is displayed. SR will announce this phrase before reading the text of the partial username"
+  },
+  "noItemsToShow": {
+    "message": "Žádné položky k zobrazení",
+    "description": "Text to show in overlay if there are no matching items"
+  },
+  "newItem": {
+    "message": "Nová položka",
+    "description": "Button text to display in overlay when there are no matching items"
+  },
+  "addNewVaultItem": {
+    "message": "Přidat novou položku trezoru",
+    "description": "Screen reader text (aria-label) for new item button in overlay"
+  },
+  "bitwardenOverlayMenuAvailable": {
+    "message": "Nabídka automatického vyplňování Bitwardenu. Pro výběr stiskněte šipku dolů.",
+    "description": "Screen reader text for announcing when the overlay opens on the page"
+  },
+  "turnOn": {
+    "message": "Zapnout"
+  },
+  "ignore": {
+    "message": "Ignorovat"
+  },
   "importData": {
-    "message": "Import data",
+    "message": "Importovat data",
     "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
   },
   "importError": {
-    "message": "Import error"
+    "message": "Chyba importu"
   },
   "importErrorDesc": {
-    "message": "There was a problem with the data you tried to import. Please resolve the errors listed below in your source file and try again."
+    "message": "Vyskytl se problém s daty, které jste se pokusili importovat. Vyřešte níže uvedené chyby ve zdrojovém souboru a zkuste to znovu."
   },
   "resolveTheErrorsBelowAndTryAgain": {
-    "message": "Resolve the errors below and try again."
+    "message": "Vyřešte chyby níže a zkuste to znovu."
   },
   "description": {
-    "message": "Description"
+    "message": "Popis"
   },
   "importSuccess": {
-    "message": "Data successfully imported"
+    "message": "Data byla úspěšně importována"
   },
   "importSuccessNumberOfItems": {
-    "message": "A total of $AMOUNT$ items were imported.",
+    "message": "Bylo importováno celkem $AMOUNT$ položek.",
     "placeholders": {
       "amount": {
         "content": "$1",
@@ -2481,10 +2588,10 @@
     }
   },
   "total": {
-    "message": "Total"
+    "message": "Celkem"
   },
   "importWarning": {
-    "message": "You are importing data to $ORGANIZATION$. Your data may be shared with members of this organization. Do you want to proceed?",
+    "message": "Importujete data do organizace $ORGANIZATION$. Vaše data mohou být sdílena s členy této organizace. Chcete pokračovat?",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -2493,28 +2600,31 @@
     }
   },
   "importFormatError": {
-    "message": "Data is not formatted correctly. Please check your import file and try again."
+    "message": "Data nemají správný formát. Zkontrolujte importovaný soubor a zkuste to znovu."
   },
   "importNothingError": {
-    "message": "Nothing was imported."
+    "message": "Nebylo nic importováno."
   },
   "importEncKeyError": {
-    "message": "Error decrypting the exported file. Your encryption key does not match the encryption key used export the data."
+    "message": "Chyba při dešifrování exportovaného souboru. Váš šifrovací klíč se neshoduje s klíčem použitým během exportu dat."
+  },
+  "invalidFilePassword": {
+    "message": "Neplatné heslo souboru, použijte heslo zadané při vytvoření souboru exportu."
   },
   "importDestination": {
-    "message": "Import destination"
+    "message": "Cíl importu"
   },
   "learnAboutImportOptions": {
-    "message": "Learn about your import options"
+    "message": "Více o volbách importu"
   },
   "selectImportFolder": {
-    "message": "Select a folder"
+    "message": "Zvolte složku"
   },
   "selectImportCollection": {
-    "message": "Select a collection"
+    "message": "Zvolte kolekci"
   },
   "importTargetHint": {
-    "message": "Select this option if you want the imported file contents moved to a $DESTINATION$",
+    "message": "Pokud chcete obsah importovaného souboru přesunout do složky $DESTINATION$, vyberte tuto volbu",
     "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
     "placeholders": {
       "destination": {
@@ -2524,25 +2634,25 @@
     }
   },
   "importUnassignedItemsError": {
-    "message": "File contains unassigned items."
+    "message": "Soubor obsahuje nepřiřazené položky."
   },
   "selectFormat": {
-    "message": "Select the format of the import file"
+    "message": "Vyberte formát importovaného souboru"
   },
   "selectImportFile": {
-    "message": "Select the import file"
+    "message": "Vyberte soubor pro import"
   },
   "chooseFile": {
-    "message": "Choose File"
+    "message": "Vybrat soubor"
   },
   "noFileChosen": {
-    "message": "No file chosen"
+    "message": "Není vybrán žádný soubor"
   },
   "orCopyPasteFileContents": {
-    "message": "or copy/paste the import file contents"
+    "message": "nebo zkopírujte a vložte obsah souboru"
   },
   "instructionsFor": {
-    "message": "$NAME$ Instructions",
+    "message": "Instrukce pro $NAME$",
     "description": "The title for the import tool instructions.",
     "placeholders": {
       "name": {
@@ -2552,13 +2662,16 @@
     }
   },
   "confirmVaultImport": {
-    "message": "Confirm vault import"
+    "message": "Potvrdit import trezoru"
   },
   "confirmVaultImportDesc": {
-    "message": "This file is password-protected. Please enter the file password to import data."
+    "message": "Tento soubor je chráněn heslem. Zadejte heslo souboru pro import dat."
   },
   "confirmFilePassword": {
-    "message": "Confirm file password"
+    "message": "Potvrzení hesla souboru"
+  },
+  "typePasskey": {
+    "message": "Přístupový klíč"
   },
   "passkeyNotCopied": {
     "message": "Přístupový klíč nebude zkopírován"
@@ -2610,5 +2723,99 @@
   },
   "useBrowserName": {
     "message": "Použít prohlížeč"
+  },
+  "multifactorAuthenticationCancelled": {
+    "message": "Vícefázové ověření zrušeno"
+  },
+  "noLastPassDataFound": {
+    "message": "Nebyla nalezena žádná data LastPass"
+  },
+  "incorrectUsernameOrPassword": {
+    "message": "Nesprávné uživatelské jméno nebo heslo"
+  },
+  "multifactorAuthenticationFailed": {
+    "message": "Vícefaktorové ověření se nezdařilo"
+  },
+  "includeSharedFolders": {
+    "message": "Zahrnout sdílené složky"
+  },
+  "lastPassEmail": {
+    "message": "E-mail LastPass"
+  },
+  "importingYourAccount": {
+    "message": "Importování Vašeho účtu..."
+  },
+  "lastPassMFARequired": {
+    "message": "Je vyžadováno vícefaktorové ověření LastPass"
+  },
+  "lastPassMFADesc": {
+    "message": "Zadejte jednorázový kód z Vaší ověřovací aplikace"
+  },
+  "lastPassOOBDesc": {
+    "message": "Schvalte žádost o přihlášení ve Vaší ověřovací aplikaci nebo zadejte jednorázové heslo."
+  },
+  "passcode": {
+    "message": "Heslo"
+  },
+  "lastPassMasterPassword": {
+    "message": "Hlavní heslo LastPass"
+  },
+  "lastPassAuthRequired": {
+    "message": "Je vyžadováno ověření LastPass"
+  },
+  "awaitingSSO": {
+    "message": "Čeká se na ověření SSO"
+  },
+  "awaitingSSODesc": {
+    "message": "Pokračujte v přihlášení pomocí přihlašovacích údajů Vaší společnosti."
+  },
+  "seeDetailedInstructions": {
+    "message": "Podívejte se na podrobné pokyny na našem webu s nápovědou na",
+    "description": "This is followed a by a hyperlink to the help website."
+  },
+  "importDirectlyFromLastPass": {
+    "message": "Importovat přímo z LastPass"
+  },
+  "importFromCSV": {
+    "message": "Importovat z CSV"
+  },
+  "lastPassTryAgainCheckEmail": {
+    "message": "Zkuste to znovu nebo vyhledejte e-mail od LastPass pro ověření, že jste to Vy."
+  },
+  "collection": {
+    "message": "Kolekce"
+  },
+  "lastPassYubikeyDesc": {
+    "message": "Vložte YubiKey spojený s Vaším účtem LastPass do USB portu Vašeho počítače a stiskněte jeho tlačítko."
+  },
+  "switchAccount": {
+    "message": "Přepnout účet"
+  },
+  "switchAccounts": {
+    "message": "Přepnout účty"
+  },
+  "switchToAccount": {
+    "message": "Přepnout na účet"
+  },
+  "activeAccount": {
+    "message": "Aktivní účet"
+  },
+  "accountLimitReached": {
+    "message": "Byl dosažen limit účtu. Pro přidání dalšího účtu se odhlaste."
+  },
+  "active": {
+    "message": "aktivní"
+  },
+  "locked": {
+    "message": "uzamčeno"
+  },
+  "unlocked": {
+    "message": "odemčeno"
+  },
+  "server": {
+    "message": "server"
+  },
+  "hostedAt": {
+    "message": "hostováno na"
   }
 }

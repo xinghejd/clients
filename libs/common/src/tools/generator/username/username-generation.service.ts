@@ -26,13 +26,14 @@ const DefaultOptions: UsernameGeneratorOptions = {
   forwardedAnonAddyDomain: "anonaddy.me",
   forwardedAnonAddyBaseUrl: "https://app.addy.io",
   forwardedForwardEmailDomain: "hideaddress.net",
+  forwardedSimpleLoginBaseUrl: "https://app.simplelogin.io",
 };
 
 export class UsernameGenerationService implements UsernameGenerationServiceAbstraction {
   constructor(
     private cryptoService: CryptoService,
     private stateService: StateService,
-    private apiService: ApiService
+    private apiService: ApiService,
   ) {}
 
   generateUsername(options: UsernameGeneratorOptions): Promise<string> {
@@ -128,6 +129,7 @@ export class UsernameGenerationService implements UsernameGenerationServiceAbstr
     if (o.forwardedService === "simplelogin") {
       forwarder = new SimpleLoginForwarder();
       forwarderOptions.apiKey = o.forwardedSimpleLoginApiKey;
+      forwarderOptions.simplelogin.baseUrl = o.forwardedSimpleLoginBaseUrl;
     } else if (o.forwardedService === "anonaddy") {
       forwarder = new AnonAddyForwarder();
       forwarderOptions.apiKey = o.forwardedAnonAddyApiToken;

@@ -1,5 +1,4 @@
 import { Injectable } from "@angular/core";
-import { ipcRenderer } from "electron";
 import { firstValueFrom } from "rxjs";
 
 import { NativeMessagingVersion } from "@bitwarden/common/enums";
@@ -36,7 +35,7 @@ export class NativeMessageHandlerService {
     private messagingService: MessagingService,
     private i18nService: I18nService,
     private encryptedMessageHandlerService: EncryptedMessageHandlerService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
   ) {}
 
   async handleMessage(message: Message) {
@@ -92,7 +91,7 @@ export class NativeMessageHandlerService {
       this.messagingService.send("setFocus");
 
       const nativeMessagingVerified = await firstValueFrom(
-        VerifyNativeMessagingDialogComponent.open(this.dialogService, { applicationName }).closed
+        VerifyNativeMessagingDialogComponent.open(this.dialogService, { applicationName }).closed,
       );
 
       if (nativeMessagingVerified !== true) {
@@ -115,7 +114,7 @@ export class NativeMessageHandlerService {
       const encryptedSecret = await this.cryptoFunctionService.rsaEncrypt(
         secret,
         remotePublicKey,
-        EncryptionAlgorithm
+        EncryptionAlgorithm,
       );
 
       this.sendResponse({
@@ -139,15 +138,14 @@ export class NativeMessageHandlerService {
 
   private async handleEncryptedMessage(message: EncryptedMessage) {
     message.encryptedCommand = EncString.fromJSON(
-      message.encryptedCommand.toString() as EncryptedString
+      message.encryptedCommand.toString() as EncryptedString,
     );
     const decryptedCommandData = await this.decryptPayload(message);
     const { command } = decryptedCommandData;
 
     try {
-      const responseData = await this.encryptedMessageHandlerService.responseDataForCommand(
-        decryptedCommandData
-      );
+      const responseData =
+        await this.encryptedMessageHandlerService.responseDataForCommand(decryptedCommandData);
 
       await this.sendEncryptedResponse(message, { command, payload: responseData });
     } catch (error) {
@@ -157,7 +155,7 @@ export class NativeMessageHandlerService {
 
   private async encryptPayload(
     payload: DecryptedCommandData,
-    key: SymmetricCryptoKey
+    key: SymmetricCryptoKey,
   ): Promise<EncString> {
     return await this.cryptoService.encrypt(JSON.stringify(payload), key);
   }
@@ -181,7 +179,7 @@ export class NativeMessageHandlerService {
     try {
       let decryptedResult = await this.cryptoService.decryptToUtf8(
         message.encryptedCommand as EncString,
-        this.ddgSharedSecret
+        this.ddgSharedSecret,
       );
 
       decryptedResult = this.trimNullCharsFromMessage(decryptedResult);
@@ -201,7 +199,7 @@ export class NativeMessageHandlerService {
 
   private async sendEncryptedResponse(
     originalMessage: EncryptedMessage,
-    response: DecryptedCommandData
+    response: DecryptedCommandData,
   ) {
     if (!this.ddgSharedSecret) {
       this.sendResponse({
@@ -225,7 +223,7 @@ export class NativeMessageHandlerService {
   }
 
   private sendResponse(response: EncryptedMessageResponse | UnencryptedMessageResponse) {
-    ipcRenderer.send("nativeMessagingReply", response);
+    ipc.platform.nativeMessaging.sendReply(response);
   }
 
   // Trim all null bytes padded at the end of messages. This happens with C encryption libraries.

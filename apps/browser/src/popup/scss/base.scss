@@ -176,15 +176,27 @@ cdk-virtual-scroll-viewport::-webkit-scrollbar-thumb,
 }
 
 header:not(bit-callout header) {
-  min-height: 44px;
-  max-height: 44px;
+  height: 44px;
   display: flex;
-  border-bottom: 1px solid #000000;
 
-  @include themify($themes) {
-    color: themed("headerColor");
-    background-color: themed("headerBackgroundColor");
-    border-bottom-color: themed("headerBorderColor");
+  &:not(.no-theme) {
+    border-bottom: 1px solid #000000;
+
+    @include themify($themes) {
+      color: themed("headerColor");
+      background-color: themed("headerBackgroundColor");
+      border-bottom-color: themed("headerBorderColor");
+    }
+  }
+
+  .header-content {
+    display: flex;
+    flex: 1 1 auto;
+  }
+
+  .header-content > .right,
+  .header-content > .right > .right {
+    height: 100%;
   }
 
   .left,
@@ -218,7 +230,7 @@ header:not(bit-callout header) {
   }
 
   app-pop-out > button,
-  div > button,
+  div > button:not(app-current-account button):not(.home-acc-switcher-btn),
   div > a {
     border: none;
     padding: 0 10px;
@@ -230,13 +242,8 @@ header:not(bit-callout header) {
     height: 100%;
     white-space: pre;
 
-    @include themify($themes) {
-      color: themed("headerColor");
-      background-color: themed("headerBackgroundColor");
-    }
-
-    &:hover,
-    &:focus {
+    &:not(.home-acc-switcher-btn):hover,
+    &:not(.home-acc-switcher-btn):focus {
       @include themify($themes) {
         background-color: themed("headerBackgroundHoverColor");
         color: themed("headerColor");

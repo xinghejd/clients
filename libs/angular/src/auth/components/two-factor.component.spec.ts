@@ -10,7 +10,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { LoginService } from "@bitwarden/common/auth/abstractions/login.service";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
-import { ForceResetPasswordReason } from "@bitwarden/common/auth/models/domain/force-reset-password-reason";
+import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { KeyConnectorUserDecryptionOption } from "@bitwarden/common/auth/models/domain/user-decryption-options/key-connector-user-decryption-option";
 import { TrustedDeviceUserDecryptionOption } from "@bitwarden/common/auth/models/domain/user-decryption-options/trusted-device-user-decryption-option";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
@@ -210,7 +210,7 @@ describe("TwoFactorComponent", () => {
         component.captchaToken = captchaToken;
 
         mockStateService.getAccountDecryptionOptions.mockResolvedValue(
-          mockAcctDecryptionOpts.withMasterPassword
+          mockAcctDecryptionOpts.withMasterPassword,
         );
       });
 
@@ -224,7 +224,7 @@ describe("TwoFactorComponent", () => {
         // Assert
         expect(mockAuthService.logInTwoFactor).toHaveBeenCalledWith(
           new TokenTwoFactorRequest(component.selectedProviderType, token, remember),
-          captchaToken
+          captchaToken,
         );
       });
 
@@ -286,7 +286,7 @@ describe("TwoFactorComponent", () => {
           beforeEach(() => {
             // Only need to test the case where the user has no master password to test the primary change mp flow here
             mockStateService.getAccountDecryptionOptions.mockResolvedValue(
-              mockAcctDecryptionOpts.noMasterPassword
+              mockAcctDecryptionOpts.noMasterPassword,
             );
           });
 
@@ -295,7 +295,7 @@ describe("TwoFactorComponent", () => {
 
         it("does not navigate to the change password route when the user has key connector even if user has no master password", async () => {
           mockStateService.getAccountDecryptionOptions.mockResolvedValue(
-            mockAcctDecryptionOpts.noMasterPasswordWithKeyConnector
+            mockAcctDecryptionOpts.noMasterPasswordWithKeyConnector,
           );
 
           await component.doSubmit();
@@ -310,15 +310,15 @@ describe("TwoFactorComponent", () => {
 
       describe("Force Master Password Reset scenarios", () => {
         [
-          ForceResetPasswordReason.AdminForcePasswordReset,
-          ForceResetPasswordReason.WeakMasterPassword,
+          ForceSetPasswordReason.AdminForcePasswordReset,
+          ForceSetPasswordReason.WeakMasterPassword,
         ].forEach((forceResetPasswordReason) => {
-          const reasonString = ForceResetPasswordReason[forceResetPasswordReason];
+          const reasonString = ForceSetPasswordReason[forceResetPasswordReason];
 
           beforeEach(() => {
             // use standard user with MP because this test is not concerned with password reset.
             mockStateService.getAccountDecryptionOptions.mockResolvedValue(
-              mockAcctDecryptionOpts.withMasterPassword
+              mockAcctDecryptionOpts.withMasterPassword,
             );
 
             const authResult = new AuthResult();
@@ -382,27 +382,42 @@ describe("TwoFactorComponent", () => {
         describe("Given Trusted Device Encryption is enabled and user needs to set a master password", () => {
           beforeEach(() => {
             mockStateService.getAccountDecryptionOptions.mockResolvedValue(
-              mockAcctDecryptionOpts.noMasterPasswordWithTrustedDeviceWithManageResetPassword
+              mockAcctDecryptionOpts.noMasterPasswordWithTrustedDeviceWithManageResetPassword,
             );
 
             const authResult = new AuthResult();
             mockAuthService.logInTwoFactor.mockResolvedValue(authResult);
           });
 
-          testChangePasswordOnSuccessfulLogin();
+          it("navigates to the component's defined trusted device encryption route and sets correct flag when user doesn't have a MP and key connector isn't enabled", async () => {
+            // Act
+            await component.doSubmit();
+
+            // Assert
+
+            expect(mockStateService.setForceSetPasswordReason).toHaveBeenCalledWith(
+              ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission,
+            );
+
+            expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
+            expect(mockRouter.navigate).toHaveBeenCalledWith(
+              [_component.trustedDeviceEncRoute],
+              undefined,
+            );
+          });
         });
 
         describe("Given Trusted Device Encryption is enabled, user doesn't need to set a MP, and forcePasswordReset is required", () => {
           [
-            ForceResetPasswordReason.AdminForcePasswordReset,
-            ForceResetPasswordReason.WeakMasterPassword,
+            ForceSetPasswordReason.AdminForcePasswordReset,
+            ForceSetPasswordReason.WeakMasterPassword,
           ].forEach((forceResetPasswordReason) => {
-            const reasonString = ForceResetPasswordReason[forceResetPasswordReason];
+            const reasonString = ForceSetPasswordReason[forceResetPasswordReason];
 
             beforeEach(() => {
               // use standard user with MP because this test is not concerned with password reset.
               mockStateService.getAccountDecryptionOptions.mockResolvedValue(
-                mockAcctDecryptionOpts.withMasterPasswordAndTrustedDevice
+                mockAcctDecryptionOpts.withMasterPasswordAndTrustedDevice,
               );
 
               const authResult = new AuthResult();
@@ -418,11 +433,11 @@ describe("TwoFactorComponent", () => {
           let authResult;
           beforeEach(() => {
             mockStateService.getAccountDecryptionOptions.mockResolvedValue(
-              mockAcctDecryptionOpts.withMasterPasswordAndTrustedDevice
+              mockAcctDecryptionOpts.withMasterPasswordAndTrustedDevice,
             );
 
             authResult = new AuthResult();
-            authResult.forcePasswordReset = ForceResetPasswordReason.None;
+            authResult.forcePasswordReset = ForceSetPasswordReason.None;
             mockAuthService.logInTwoFactor.mockResolvedValue(authResult);
           });
 
@@ -432,7 +447,7 @@ describe("TwoFactorComponent", () => {
             expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
             expect(mockRouter.navigate).toHaveBeenCalledWith(
               [_component.trustedDeviceEncRoute],
-              undefined
+              undefined,
             );
           });
 

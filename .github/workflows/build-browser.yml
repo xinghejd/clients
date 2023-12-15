@@ -10,19 +10,17 @@ on:
       - 'apps/browser/**'
       - 'libs/**'
       - '*'
-      - '!libs/importer'
       - '!*.md'
       - '!*.txt'
   push:
     branches:
-      - 'master'
+      - 'main'
       - 'rc'
       - 'hotfix-rc-browser'
     paths:
       - 'apps/browser/**'
       - 'libs/**'
       - '*'
-      - '!libs/importer'
       - '!*.md'
       - '!*.txt'
       - '.github/workflows/build-browser.yml'
@@ -138,16 +136,10 @@ jobs:
           cache-dependency-path: '**/package-lock.json'
           node-version: ${{ env._NODE_VERSION }}
 
-      - name: Install node-gyp
-        run: |
-          npm install -g node-gyp
-          node-gyp install $(node -v)
-
       - name: Print environment
         run: |
           node --version
           npm --version
-          node-gyp --version
 
       - name: Build sources for reviewers
         run: |
@@ -359,7 +351,7 @@ jobs:
 
   crowdin-push:
     name: Crowdin Push
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-22.04
     needs:
       - build
@@ -375,7 +367,7 @@ jobs:
 
       - name: Retrieve secrets
         id: retrieve-secrets
-        uses: bitwarden/gh-actions/get-keyvault-secrets@c970b0fb89bd966749280e832928db62040812bf
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: "bitwarden-ci"
           secrets: "crowdin-api-token"
@@ -388,7 +380,7 @@ jobs:
           CROWDIN_PROJECT_ID: "268134"
         with:
           config: apps/browser/crowdin.yml
-          crowdin_branch_name: master
+          crowdin_branch_name: main
           upload_sources: true
           upload_translations: false
 
@@ -405,7 +397,7 @@ jobs:
       - crowdin-push
     steps:
       - name: Check if any job failed
-        if: ${{ (github.ref == 'refs/heads/master') || (github.ref == 'refs/heads/rc') }}
+        if: ${{ (github.ref == 'refs/heads/main') || (github.ref == 'refs/heads/rc') }}
         env:
           CLOC_STATUS: ${{ needs.cloc.result }}
           SETUP_STATUS: ${{ needs.setup.result }}
@@ -437,7 +429,7 @@ jobs:
       - name: Retrieve secrets
         id: retrieve-secrets
         if: failure()
-        uses: bitwarden/gh-actions/get-keyvault-secrets@c970b0fb89bd966749280e832928db62040812bf
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
         with:
           keyvault: "bitwarden-ci"
           secrets: "devops-alerts-slack-webhook-url"

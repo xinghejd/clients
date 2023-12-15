@@ -2,17 +2,10 @@
 import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { OrganizationUserService } from "@bitwarden/common/abstractions/organization-user/organization-user.service";
-import { OrganizationUserResetPasswordEnrollmentRequest } from "@bitwarden/common/abstractions/organization-user/requests";
-import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { EmergencyAccessStatusType } from "@bitwarden/common/auth/enums/emergency-access-status-type";
-import { EmergencyAccessUpdateRequest } from "@bitwarden/common/auth/models/request/emergency-access-update.request";
 import { UpdateKeyRequest } from "@bitwarden/common/models/request/update-key.request";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncryptedString, EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { UserKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { SendWithIdRequest } from "@bitwarden/common/tools/send/models/request/send-with-id.request";
@@ -23,13 +16,15 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { CipherWithIdRequest } from "@bitwarden/common/vault/models/request/cipher-with-id.request";
 import { FolderWithIdRequest } from "@bitwarden/common/vault/models/request/folder-with-id.request";
 
+import { AccountRecoveryService } from "../../admin-console/organizations/members/services/account-recovery/account-recovery.service";
+import { EmergencyAccessService } from "../emergency-access";
+
 // TODO: PM-3797 - This service should be expanded and used for user key rotations in change-password.component.ts
 @Injectable()
 export class MigrateFromLegacyEncryptionService {
   constructor(
-    private organizationService: OrganizationService,
-    private organizationApiService: OrganizationApiServiceAbstraction,
-    private organizationUserService: OrganizationUserService,
+    private emergencyAccessService: EmergencyAccessService,
+    private accountRecoveryService: AccountRecoveryService,
     private apiService: ApiService,
     private cryptoService: CryptoService,
     private encryptService: EncryptService,
@@ -37,7 +32,7 @@ export class MigrateFromLegacyEncryptionService {
     private cipherService: CipherService,
     private folderService: FolderService,
     private sendService: SendService,
-    private stateService: StateService
+    private stateService: StateService,
   ) {}
 
   /**
@@ -50,7 +45,7 @@ export class MigrateFromLegacyEncryptionService {
       masterPassword,
       await this.stateService.getEmail(),
       await this.stateService.getKdfType(),
-      await this.stateService.getKdfConfig()
+      await this.stateService.getKdfConfig(),
     );
 
     if (!masterKey) {
@@ -76,14 +71,14 @@ export class MigrateFromLegacyEncryptionService {
   async updateKeysAndEncryptedData(
     masterPassword: string,
     newUserKey: UserKey,
-    newEncUserKey: EncString
+    newEncUserKey: EncString,
   ): Promise<void> {
     // Create new request and add master key and hash
     const request = new UpdateKeyRequest();
     request.key = newEncUserKey.encryptedString;
     request.masterPasswordHash = await this.cryptoService.hashMasterKey(
       masterPassword,
-      await this.cryptoService.getOrDeriveMasterKey(masterPassword)
+      await this.cryptoService.getOrDeriveMasterKey(masterPassword),
     );
 
     // Sync before encrypting to make sure we have latest data
@@ -102,31 +97,8 @@ export class MigrateFromLegacyEncryptionService {
    * on the server.
    * @param newUserKey The new user key
    */
-  async updateEmergencyAccesses(newUserKey: UserKey) {
-    const emergencyAccess = await this.apiService.getEmergencyAccessTrusted();
-    // Any Invited or Accepted requests won't have the key yet, so we don't need to update them
-    const allowedStatuses = new Set([
-      EmergencyAccessStatusType.Confirmed,
-      EmergencyAccessStatusType.RecoveryInitiated,
-      EmergencyAccessStatusType.RecoveryApproved,
-    ]);
-    const filteredAccesses = emergencyAccess.data.filter((d) => allowedStatuses.has(d.status));
-
-    for (const details of filteredAccesses) {
-      // Get public key of grantee
-      const publicKeyResponse = await this.apiService.getUserPublicKey(details.granteeId);
-      const publicKey = Utils.fromB64ToArray(publicKeyResponse.publicKey);
-
-      // Encrypt new user key with public key
-      const encryptedKey = await this.cryptoService.rsaEncrypt(newUserKey.key, publicKey);
-
-      const updateRequest = new EmergencyAccessUpdateRequest();
-      updateRequest.type = details.type;
-      updateRequest.waitTimeDays = details.waitTimeDays;
-      updateRequest.keyEncrypted = encryptedKey.encryptedString;
-
-      await this.apiService.putEmergencyAccess(details.id, updateRequest);
-    }
+  updateEmergencyAccesses(newUserKey: UserKey) {
+    return this.emergencyAccessService.rotate(newUserKey);
   }
 
   /** Updates all admin recovery keys on the server with the new user key
@@ -134,35 +106,11 @@ export class MigrateFromLegacyEncryptionService {
    * @param newUserKey The new user key
    */
   async updateAllAdminRecoveryKeys(masterPassword: string, newUserKey: UserKey) {
-    const allOrgs = await this.organizationService.getAll();
-
-    for (const org of allOrgs) {
-      // If not already enrolled, skip
-      if (!org.resetPasswordEnrolled) {
-        continue;
-      }
-
-      // Retrieve public key
-      const response = await this.organizationApiService.getKeys(org.id);
-      const publicKey = Utils.fromB64ToArray(response?.publicKey);
-
-      // Re-enroll - encrypt user key with organization public key
-      const encryptedKey = await this.cryptoService.rsaEncrypt(newUserKey.key, publicKey);
-
-      // Create/Execute request
-      const request = new OrganizationUserResetPasswordEnrollmentRequest();
-      request.resetPasswordKey = encryptedKey.encryptedString;
-      request.masterPasswordHash = await this.cryptoService.hashMasterKey(
-        masterPassword,
-        await this.cryptoService.getOrDeriveMasterKey(masterPassword)
-      );
-
-      await this.organizationUserService.putOrganizationUserResetPasswordEnrollment(
-        org.id,
-        org.userId,
-        request
-      );
-    }
+    const masterPasswordHash = await this.cryptoService.hashMasterKey(
+      masterPassword,
+      await this.cryptoService.getOrDeriveMasterKey(masterPassword),
+    );
+    await this.accountRecoveryService.rotate(newUserKey, masterPasswordHash);
   }
 
   private async encryptPrivateKey(newUserKey: UserKey): Promise<EncryptedString | null> {
@@ -182,7 +130,7 @@ export class MigrateFromLegacyEncryptionService {
       folders.map(async (folder) => {
         const encryptedFolder = await this.folderService.encrypt(folder, newUserKey);
         return new FolderWithIdRequest(encryptedFolder);
-      })
+      }),
     );
   }
 
@@ -195,7 +143,7 @@ export class MigrateFromLegacyEncryptionService {
       ciphers.map(async (cipher) => {
         const encryptedCipher = await this.cipherService.encrypt(cipher, newUserKey);
         return new CipherWithIdRequest(encryptedCipher);
-      })
+      }),
     );
   }
 
@@ -209,7 +157,7 @@ export class MigrateFromLegacyEncryptionService {
         const sendKey = await this.encryptService.decryptToBytes(send.key, null);
         send.key = (await this.encryptService.encrypt(sendKey, newUserKey)) ?? send.key;
         return new SendWithIdRequest(send);
-      })
+      }),
     );
   }
 }

@@ -20,17 +20,17 @@
                 (selectablePlan.PasswordManager.basePrice === 0
                   ? selectablePlan.PasswordManager.seatPrice
                   : selectablePlan.PasswordManager.basePrice
-                ) | currency : "$"
+                ) | currency: "$"
               }}
               /{{ "yr" | i18n }}
             </ng-container>
-            <ng-container *ngIf="selectablePlan.SecretsManager">
+            <ng-container *ngIf="!selectablePlan.PasswordManager && selectablePlan.SecretsManager">
               {{ "annual" | i18n }} -
               {{
                 (selectablePlan.SecretsManager.basePrice === 0
                   ? selectablePlan.SecretsManager.seatPrice
                   : selectablePlan.SecretsManager.basePrice
-                ) | currency : "$"
+                ) | currency: "$"
               }}
               /{{ "yr" | i18n }}
             </ng-container>
@@ -42,17 +42,17 @@
                 (selectablePlan.PasswordManager.basePrice === 0
                   ? selectablePlan.PasswordManager.seatPrice
                   : selectablePlan.PasswordManager.basePrice
-                ) | currency : "$"
+                ) | currency: "$"
               }}
               /{{ "monthAbbr" | i18n }}
             </ng-container>
-            <ng-container *ngIf="selectablePlan.SecretsManager">
+            <ng-container *ngIf="!selectablePlan.PasswordManager && selectablePlan.SecretsManager">
               {{ "monthly" | i18n }} -
               {{
                 (selectablePlan.SecretsManager.basePrice === 0
                   ? selectablePlan.SecretsManager.seatPrice
                   : selectablePlan.SecretsManager.basePrice
-                ) | currency : "$"
+                ) | currency: "$"
               }}
               /{{ "monthAbbr" | i18n }}
             </ng-container>
