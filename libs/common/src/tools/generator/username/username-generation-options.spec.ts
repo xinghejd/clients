@@ -7,6 +7,7 @@ import {
   getForwarderOptions,
   DefaultOptions,
   UsernameGeneratorOptions,
+  falsyDefault,
   encryptInPlace,
   decryptInPlace,
   MaybeLeakedOptions,
@@ -68,7 +69,7 @@ function mockEncryptService(): EncryptService {
 }
 
 describe("Username Generation Options", () => {
-  describe("createForwarder", () => {
+  describe("getForwarderOptions", () => {
     it("should return null for unsupported services", () => {
       expect(getForwarderOptions("unsupported", DefaultOptions)).toBeNull();
     });
@@ -93,6 +94,82 @@ describe("Username Generation Options", () => {
     it("should return a reference to the forwarder", () => {
       const forwarder = getForwarderOptions("anonaddy", options);
       expect(forwarder).toBe(options.forwarders.addyIo);
+    });
+  });
+
+  describe("falsyDefault", () => {
+    it("should not modify values with truthy items", () => {
+      const input = {
+        a: "a",
+        b: 1,
+        d: [1],
+      };
+
+      const output = falsyDefault(input, {
+        a: "b",
+        b: 2,
+        d: [2],
+      });
+
+      expect(output).toEqual(input);
+    });
+
+    it("should modify values with falsy items", () => {
+      const input = {
+        a: "",
+        b: 0,
+        c: false,
+        d: [] as number[],
+        e: [0] as number[],
+        f: null as string,
+        g: undefined as string,
+      };
+
+      const output = falsyDefault(input, {
+        a: "a",
+        b: 1,
+        c: true,
+        d: [1],
+        e: [1],
+        f: "a",
+        g: "a",
+      });
+
+      expect(output).toEqual({
+        a: "a",
+        b: 1,
+        c: true,
+        d: [1],
+        e: [1],
+        f: "a",
+        g: "a",
+      });
+    });
+
+    it("should traverse nested objects", () => {
+      const input = {
+        a: {
+          b: {
+            c: "",
+          },
+        },
+      };
+
+      const output = falsyDefault(input, {
+        a: {
+          b: {
+            c: "c",
+          },
+        },
+      });
+
+      expect(output).toEqual({
+        a: {
+          b: {
+            c: "c",
+          },
+        },
+      });
     });
   });
 
