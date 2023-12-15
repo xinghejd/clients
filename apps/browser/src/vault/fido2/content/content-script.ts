@@ -21,6 +21,13 @@ async function getFromLocalStorage(keys: string | string[]): Promise<Record<stri
   });
 }
 
+async function getGlobalSettings() {
+  const globalKey = "global";
+  const globalStorage: { neverDomains?: Record<string, never> } =
+    await getFromLocalStorage(globalKey);
+  return globalStorage;
+}
+
 async function getActiveUserSettings() {
   // TODO: This is code copied from `notification-bar.tsx`. We should refactor this into a shared function.
   // Look up the active user id from storage
@@ -38,8 +45,8 @@ async function getActiveUserSettings() {
   return settingsStorage?.[activeUserId]?.settings;
 }
 
-async function isDomainExcluded(activeUserSettings: Record<string, any>) {
-  const excludedDomains = activeUserSettings?.neverDomains;
+async function isDomainExcluded(globalSettings: { neverDomains?: Record<string, never> }) {
+  const excludedDomains = globalSettings?.neverDomains;
   return excludedDomains && window.location.hostname in excludedDomains;
 }
 
@@ -161,10 +168,11 @@ async function run() {
   }
 
   const activeUserSettings = await getActiveUserSettings();
+  const globalSettings = await getGlobalSettings();
   if (
     activeUserSettings == null ||
     !(await isFido2FeatureEnabled()) ||
-    (await isDomainExcluded(activeUserSettings)) ||
+    (await isDomainExcluded(globalSettings)) ||
     (await isLocationBitwardenVault(activeUserSettings))
   ) {
     return;
