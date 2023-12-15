@@ -2069,7 +2069,7 @@
     "message": "Generate an email alias with an external forwarding service."
   },
   "forwarderReplaceTokenWarning": {
-    "message": "API key was stored in an unencrypted format and should be replaced."
+    "message": "This API key was stored in an unencrypted format and should be replaced."
   },
   "forwarderError": {
     "message": "$SERVICENAME$ error: $ERRORMESSAGE$",
