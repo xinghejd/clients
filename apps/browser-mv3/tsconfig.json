@@ -9,6 +9,7 @@
     "allowJs": true,
     "sourceMap": true,
     "baseUrl": ".",
+    "lib": ["es6"],
     "paths": {
       "@bitwarden/angular/*": ["../../libs/angular/src/*"],
       "@bitwarden/auth": ["../../libs/auth/src"],

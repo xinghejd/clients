@@ -250,7 +250,7 @@ const backgroundConfig = {
   name: "background",
   mode: ENV,
   devtool: false,
-  entry: "./src/platform/background.ts",
+  entry: "./src/background/platform/main-background/main.background.ts",
   target: "webworker",
   output: {
     filename: "background.js",

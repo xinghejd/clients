@@ -1,6 +1,8 @@
+import { addRuntimeOnMessageListener } from "../../utils/browser-api/browser-api";
+
 import {
-  OnMessageHandlers,
   ExtensionRuntimeMessage,
+  OnMessageHandlers,
   RuntimeOnMessageListenerService as RuntimeOnMessageListenerServiceInterface,
 } from "./runtime-on-message-listener.abstractions";
 
@@ -8,7 +10,7 @@ class RuntimeOnMessageListenerService implements RuntimeOnMessageListenerService
   _onMessageListenerHandlers: OnMessageHandlers = {};
 
   constructor() {
-    this._setupListener();
+    this._setupListeners();
   }
 
   registerHandlers(handlers: OnMessageHandlers): void {
@@ -24,6 +26,10 @@ class RuntimeOnMessageListenerService implements RuntimeOnMessageListenerService
   }
 
   addHandler(command: string, handler: CallableFunction): void {
+    if (this._onMessageListenerHandlers[command]) {
+      throw new Error(`Handler for command ${command} already exists`);
+    }
+
     this._onMessageListenerHandlers[command] = handler;
   }
 
@@ -31,8 +37,8 @@ class RuntimeOnMessageListenerService implements RuntimeOnMessageListenerService
     delete this._onMessageListenerHandlers[command];
   }
 
-  private _setupListener(): void {
-    chrome.runtime.onMessage.addListener(this._handleOnMessageEvent);
+  private _setupListeners(): void {
+    addRuntimeOnMessageListener(this._handleOnMessageEvent);
   }
 
   private _handleOnMessageEvent = (

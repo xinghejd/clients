@@ -4,7 +4,6 @@ type ExtensionRuntimeMessage = {
   command: string;
   data?: Record<string, any>;
 };
-
 interface RuntimeOnMessageListenerService {
   registerHandlers(handlers: OnMessageHandlers): void;
   deregisterHandlers(handlers: OnMessageHandlers): void;
