@@ -18,3 +18,6 @@ import { StateDefinition } from "./state-definition";
  */
 
 export const ACCOUNT_MEMORY = new StateDefinition("account", "memory");
+
+export const FOLDER_MEMORY = new StateDefinition("folder", "memory");
+export const FOLDER_DISK = new StateDefinition("folder", "disk");

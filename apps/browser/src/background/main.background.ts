@@ -50,6 +50,7 @@ import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwar
 import {
   AbstractMemoryStorageService,
   AbstractStorageService,
+  ObservableStorageService,
 } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
@@ -63,9 +64,18 @@ import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/platf
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
 import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
-import { GlobalStateProvider } from "@bitwarden/common/platform/state";
-// eslint-disable-next-line import/no-restricted-paths -- We need the implementation to inject, but generally this should not be accessed
+import {
+  ActiveUserStateProvider,
+  GlobalStateProvider,
+  SingleUserStateProvider,
+  StateProvider,
+} from "@bitwarden/common/platform/state";
+/* eslint-disable import/no-restricted-paths -- We need the implementation to inject, but generally this should not be accessed */
+import { DefaultActiveUserStateProvider } from "@bitwarden/common/platform/state/implementations/default-active-user-state.provider";
 import { DefaultGlobalStateProvider } from "@bitwarden/common/platform/state/implementations/default-global-state.provider";
+import { DefaultSingleUserStateProvider } from "@bitwarden/common/platform/state/implementations/default-single-user-state.provider";
+import { DefaultStateProvider } from "@bitwarden/common/platform/state/implementations/default-state.provider";
+/* eslint-enable import/no-restricted-paths */
 import { AvatarUpdateService } from "@bitwarden/common/services/account/avatar-update.service";
 import { ApiService } from "@bitwarden/common/services/api.service";
 import { AuditService } from "@bitwarden/common/services/audit.service";
@@ -108,6 +118,7 @@ import { Fido2AuthenticatorService } from "@bitwarden/common/vault/services/fido
 import { Fido2ClientService } from "@bitwarden/common/vault/services/fido2/fido2-client.service";
 import { CipherFileUploadService } from "@bitwarden/common/vault/services/file-upload/cipher-file-upload.service";
 import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder-api.service";
+import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
 import { SyncNotifierService } from "@bitwarden/common/vault/services/sync/sync-notifier.service";
 import { SyncService } from "@bitwarden/common/vault/services/sync/sync.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
@@ -157,7 +168,6 @@ import { BrowserSettingsService } from "../services/browser-settings.service";
 import VaultTimeoutService from "../services/vault-timeout/vault-timeout.service";
 import { BrowserFido2UserInterfaceService } from "../vault/fido2/browser-fido2-user-interface.service";
 import { Fido2Service as Fido2ServiceAbstraction } from "../vault/services/abstractions/fido2.service";
-import { BrowserFolderService } from "../vault/services/browser-folder.service";
 import Fido2Service from "../vault/services/fido2.service";
 import { VaultFilterService } from "../vault/services/vault-filter.service";
 
@@ -168,9 +178,9 @@ import RuntimeBackground from "./runtime.background";
 
 export default class MainBackground {
   messagingService: MessagingServiceAbstraction;
-  storageService: AbstractStorageService;
+  storageService: AbstractStorageService & ObservableStorageService;
   secureStorageService: AbstractStorageService;
-  memoryStorageService: AbstractMemoryStorageService;
+  memoryStorageService: AbstractMemoryStorageService & ObservableStorageService;
   i18nService: I18nServiceAbstraction;
   platformUtilsService: PlatformUtilsServiceAbstraction;
   logService: LogServiceAbstraction;
@@ -234,6 +244,9 @@ export default class MainBackground {
   authRequestCryptoService: AuthRequestCryptoServiceAbstraction;
   accountService: AccountServiceAbstraction;
   globalStateProvider: GlobalStateProvider;
+  activeUserStateProvider: ActiveUserStateProvider;
+  singleUserStateProvider: SingleUserStateProvider;
+  stateProvider: StateProvider;
   fido2Service: Fido2ServiceAbstraction;
 
   // Passed to the popup for Safari to workaround issues with theming, downloading, etc.
@@ -281,6 +294,13 @@ export default class MainBackground {
       : new BrowserMessagingService();
     this.logService = new ConsoleLogService(false);
     this.cryptoFunctionService = new WebCryptoFunctionService(window);
+    this.encryptService = flagEnabled("multithreadDecryption")
+      ? new MultithreadEncryptServiceImplementation(
+          this.cryptoFunctionService,
+          this.logService,
+          true,
+        )
+      : new EncryptServiceImplementation(this.cryptoFunctionService, this.logService, true);
     this.storageService = new BrowserLocalStorageService();
     this.secureStorageService = new BrowserLocalStorageService();
     this.memoryStorageService =
@@ -294,9 +314,25 @@ export default class MainBackground {
       this.memoryStorageService as BackgroundMemoryStorageService,
       this.storageService as BrowserLocalStorageService,
     );
+    this.singleUserStateProvider = new DefaultSingleUserStateProvider(
+      this.encryptService,
+      this.memoryStorageService,
+      this.storageService,
+    );
     this.accountService = new AccountServiceImplementation(
       this.messagingService,
       this.logService,
+      this.globalStateProvider,
+    );
+    this.activeUserStateProvider = new DefaultActiveUserStateProvider(
+      this.accountService,
+      this.encryptService,
+      this.memoryStorageService,
+      this.storageService,
+    );
+    this.stateProvider = new DefaultStateProvider(
+      this.activeUserStateProvider,
+      this.singleUserStateProvider,
       this.globalStateProvider,
     );
     this.stateService = new BrowserStateService(
@@ -330,13 +366,6 @@ export default class MainBackground {
       window,
     );
     this.i18nService = new BrowserI18nService(BrowserApi.getUILanguage(), this.stateService);
-    this.encryptService = flagEnabled("multithreadDecryption")
-      ? new MultithreadEncryptServiceImplementation(
-          this.cryptoFunctionService,
-          this.logService,
-          true,
-        )
-      : new EncryptServiceImplementation(this.cryptoFunctionService, this.logService, true);
     this.cryptoService = new BrowserCryptoService(
       this.cryptoFunctionService,
       this.encryptService,
@@ -473,11 +502,12 @@ export default class MainBackground {
       this.cipherFileUploadService,
       this.configService,
     );
-    this.folderService = new BrowserFolderService(
+    this.folderService = new FolderService(
       this.cryptoService,
       this.i18nService,
       this.cipherService,
       this.stateService,
+      this.stateProvider,
     );
     this.folderApiService = new FolderApiService(this.folderService, this.apiService);
 

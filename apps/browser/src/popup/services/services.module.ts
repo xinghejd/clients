@@ -113,7 +113,6 @@ import { ForegroundMemoryStorageService } from "../../platform/storage/foregroun
 import { BrowserSendService } from "../../services/browser-send.service";
 import { BrowserSettingsService } from "../../services/browser-settings.service";
 import { FilePopoutUtilsService } from "../../tools/popup/services/file-popout-utils.service";
-import { BrowserFolderService } from "../../vault/services/browser-folder.service";
 import { VaultFilterService } from "../../vault/services/vault-filter.service";
 
 import { DebounceNavigationService } from "./debounce-navigation.service";
@@ -203,18 +202,6 @@ function getBgService<T>(service: keyof MainBackground) {
     {
       provide: FileUploadService,
       useFactory: getBgService<FileUploadService>("fileUploadService"),
-    },
-    {
-      provide: FolderService,
-      useFactory: (
-        cryptoService: CryptoService,
-        i18nService: I18nServiceAbstraction,
-        cipherService: CipherService,
-        stateService: StateServiceAbstraction,
-      ) => {
-        return new BrowserFolderService(cryptoService, i18nService, cipherService, stateService);
-      },
-      deps: [CryptoService, I18nServiceAbstraction, CipherService, StateServiceAbstraction],
     },
     {
       provide: InternalFolderService,
