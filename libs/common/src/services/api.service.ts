@@ -917,9 +917,11 @@ export class ApiService implements ApiServiceAbstraction {
 
   // Sync APIs
 
-  async getSync(): Promise<SyncResponse> {
+  async getSync(purpose: string): Promise<SyncResponse> {
     const path = this.isDesktopClient || this.isWebClient ? "/sync?excludeDomains=true" : "/sync";
-    const r = await this.send("GET", path, null, true, true);
+    const r = await this.send("GET", path, null, true, true, undefined, (headers) => {
+      headers.set("Bitwarden-Sync-Purpose", purpose);
+    });
     return new SyncResponse(r);
   }
 

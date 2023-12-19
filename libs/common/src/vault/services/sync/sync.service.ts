@@ -83,7 +83,7 @@ export class SyncService implements SyncServiceAbstraction {
   }
 
   @sequentialize(() => "fullSync")
-  async fullSync(forceSync: boolean, allowThrowOnError = false): Promise<boolean> {
+  async fullSync(forceSync: boolean, purpose: string, allowThrowOnError = false): Promise<boolean> {
     this.syncStarted();
     const isAuthenticated = await this.stateService.getIsAuthenticated();
     if (!isAuthenticated) {
@@ -107,7 +107,7 @@ export class SyncService implements SyncServiceAbstraction {
 
     try {
       await this.apiService.refreshIdentityToken();
-      const response = await this.apiService.getSync();
+      const response = await this.apiService.getSync(purpose);
 
       await this.syncProfile(response.profile);
       await this.syncFolders(response.folders);

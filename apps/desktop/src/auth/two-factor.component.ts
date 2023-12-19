@@ -66,11 +66,11 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
       configService,
     );
     super.onSuccessfulLogin = async () => {
-      syncService.fullSync(true);
+      syncService.fullSync(true, "desktop-successful-login-post-2fa");
     };
 
     super.onSuccessfulLoginTde = async () => {
-      syncService.fullSync(true);
+      syncService.fullSync(true, "desktop-successful-tde-login-post-2fa");
     };
   }
 
