@@ -14,13 +14,12 @@ import {
 
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { SettingsService } from "@bitwarden/common/abstractions/settings.service";
-import { SecureNoteType } from "@bitwarden/common/enums";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
@@ -35,6 +34,7 @@ import {
   BrowserFido2Message,
   BrowserFido2UserInterfaceSession,
 } from "../../../fido2/browser-fido2-user-interface.service";
+import { VaultPopoutType } from "../../utils/vault-popout-window";
 
 interface ViewData {
   message: BrowserFido2Message;
@@ -79,7 +79,7 @@ export class Fido2Component implements OnInit, OnDestroy {
     private searchService: SearchService,
     private logService: LogService,
     private dialogService: DialogService,
-    private browserMessagingApi: ZonedMessageListenerService
+    private browserMessagingApi: ZonedMessageListenerService,
   ) {}
 
   ngOnInit() {
@@ -91,7 +91,7 @@ export class Fido2Component implements OnInit, OnDestroy {
         sessionId: queryParamMap.get("sessionId"),
         senderTabId: queryParamMap.get("senderTabId"),
         senderUrl: queryParamMap.get("senderUrl"),
-      }))
+      })),
     );
 
     combineLatest([
@@ -125,7 +125,7 @@ export class Fido2Component implements OnInit, OnDestroy {
           return message;
         }),
         filter((message) => !!message),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe((message) => {
         this.message$.next(message);
@@ -139,10 +139,10 @@ export class Fido2Component implements OnInit, OnDestroy {
             const equivalentDomains = this.settingsService.getEquivalentDomains(this.url);
 
             this.ciphers = (await this.cipherService.getAllDecrypted()).filter(
-              (cipher) => cipher.type === CipherType.Login && !cipher.isDeleted
+              (cipher) => cipher.type === CipherType.Login && !cipher.isDeleted,
             );
             this.displayedCiphers = this.ciphers.filter((cipher) =>
-              cipher.login.matchesUri(this.url, equivalentDomains)
+              cipher.login.matchesUri(this.url, equivalentDomains),
             );
 
             if (this.displayedCiphers.length > 0) {
@@ -156,9 +156,9 @@ export class Fido2Component implements OnInit, OnDestroy {
               message.cipherIds.map(async (cipherId) => {
                 const cipher = await this.cipherService.get(cipherId);
                 return cipher.decrypt(
-                  await this.cipherService.getKeyForCipherKeyDecryption(cipher)
+                  await this.cipherService.getKeyForCipherKeyDecryption(cipher),
                 );
-              })
+              }),
             );
             this.displayedCiphers = [...this.ciphers];
             if (this.displayedCiphers.length > 0) {
@@ -172,9 +172,9 @@ export class Fido2Component implements OnInit, OnDestroy {
               message.existingCipherIds.map(async (cipherId) => {
                 const cipher = await this.cipherService.get(cipherId);
                 return cipher.decrypt(
-                  await this.cipherService.getKeyForCipherKeyDecryption(cipher)
+                  await this.cipherService.getKeyForCipherKeyDecryption(cipher),
                 );
-              })
+              }),
             );
             this.displayedCiphers = [...this.ciphers];
 
@@ -196,7 +196,7 @@ export class Fido2Component implements OnInit, OnDestroy {
           fallbackSupported: "fallbackSupported" in message && message.fallbackSupported,
         };
       }),
-      takeUntil(this.destroy$)
+      takeUntil(this.destroy$),
     );
 
     queryParams$.pipe(takeUntil(this.destroy$)).subscribe((queryParams) => {
@@ -280,6 +280,7 @@ export class Fido2Component implements OnInit, OnDestroy {
         uilocation: "popout",
         senderTabId: this.senderTabId,
         sessionId: this.sessionId,
+        singleActionPopout: `${VaultPopoutType.fido2Popout}_${this.sessionId}`,
       },
     });
   }
@@ -299,6 +300,7 @@ export class Fido2Component implements OnInit, OnDestroy {
         senderTabId: this.senderTabId,
         sessionId: this.sessionId,
         userVerification: data.userVerification,
+        singleActionPopout: `${VaultPopoutType.fido2Popout}_${this.sessionId}`,
       },
     });
   }
@@ -310,12 +312,12 @@ export class Fido2Component implements OnInit, OnDestroy {
       this.displayedCiphers = await this.searchService.searchCiphers(
         this.searchText,
         null,
-        this.ciphers
+        this.ciphers,
       );
     } else {
       const equivalentDomains = this.settingsService.getEquivalentDomains(this.url);
       this.displayedCiphers = this.ciphers.filter((cipher) =>
-        cipher.login.matchesUri(this.url, equivalentDomains)
+        cipher.login.matchesUri(this.url, equivalentDomains),
       );
     }
     this.searchPending = false;
@@ -367,7 +369,7 @@ export class Fido2Component implements OnInit, OnDestroy {
 
   private async handleUserVerification(
     userVerificationRequested: boolean,
-    cipher: CipherView
+    cipher: CipherView,
   ): Promise<boolean> {
     const masterPasswordRepromptRequired = cipher && cipher.reprompt !== 0;
 

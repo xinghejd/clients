@@ -403,6 +403,9 @@
   "length": {
     "message": "אורך"
   },
+  "passwordMinLength": {
+    "message": "Minimum password length"
+  },
   "uppercase": {
     "message": "אותיות גדולות (A-Z)"
   },
@@ -1533,8 +1536,13 @@
   "setMasterPassword": {
     "message": "הגדרת סיסמה ראשית"
   },
-  "ssoCompleteRegistration": {
-    "message": "כדי להשלים את הכניסה עם SSO, נא להגדיר סיסמה ראשית כדי לגשת ולהגן על הכספת שלך."
+  "orgPermissionsUpdatedMustSetPassword": {
+    "message": "Your organization permissions were updated, requiring you to set a master password.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "orgRequiresYouToSetPassword": {
+    "message": "Your organization requires you to set a master password.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "currentMasterPass": {
     "message": "Current master password"

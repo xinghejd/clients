@@ -34,7 +34,7 @@ export class CollectionsComponent extends BaseCollectionsComponent {
     private apiService: ApiService,
     logService: LogService,
     protected dialogRef: DialogRef,
-    @Inject(DIALOG_DATA) params: OrgVaultCollectionsDialogParams
+    @Inject(DIALOG_DATA) params: OrgVaultCollectionsDialogParams,
   ) {
     super(
       collectionService,
@@ -43,7 +43,7 @@ export class CollectionsComponent extends BaseCollectionsComponent {
       cipherService,
       logService,
       dialogRef,
-      params
+      params,
     );
     this.allowSelectNone = true;
     this.collectionIds = params?.collectionIds;
@@ -98,10 +98,10 @@ export interface OrgVaultCollectionsDialogParams {
  */
 export function openOrgVaultCollectionsDialog(
   dialogService: DialogService,
-  config?: DialogConfig<OrgVaultCollectionsDialogParams>
+  config?: DialogConfig<OrgVaultCollectionsDialogParams>,
 ) {
   return dialogService.open<CollectionsDialogResult, OrgVaultCollectionsDialogParams>(
     CollectionsComponent,
-    config
+    config,
   );
 }

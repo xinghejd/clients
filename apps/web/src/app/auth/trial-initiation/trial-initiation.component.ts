@@ -3,7 +3,7 @@ import { TitleCasePipe } from "@angular/common";
 import { Component, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { UntypedFormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { first, Subject, takeUntil } from "rxjs";
+import { Subject, takeUntil } from "rxjs";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -52,6 +52,7 @@ enum ValidLayoutParams {
 })
 export class TrialInitiationComponent implements OnInit, OnDestroy {
   email = "";
+  fromOrgInvite = false;
   org = "";
   orgInfoSubLabel = "";
   orgId = "";
@@ -119,15 +120,15 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
     private policyApiService: PolicyApiServiceAbstraction,
     private policyService: PolicyService,
     private i18nService: I18nService,
-    private routerService: RouterService
+    private routerService: RouterService,
   ) {}
 
   async ngOnInit(): Promise<void> {
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    this.route.queryParams.pipe(first()).subscribe((qParams) => {
+    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((qParams) => {
       this.referenceData = new ReferenceEventRequest();
       if (qParams.email != null && qParams.email.indexOf("@") > -1) {
         this.email = qParams.email;
+        this.fromOrgInvite = qParams.fromOrgInvite === "true";
       }
 
       this.referenceDataId = qParams.reference;
@@ -176,7 +177,7 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
           invite.organizationId,
           invite.token,
           invite.email,
-          invite.organizationUserId
+          invite.organizationUserId,
         );
         if (policies.data != null) {
           const policiesData = policies.data.map((p) => new PolicyData(p));

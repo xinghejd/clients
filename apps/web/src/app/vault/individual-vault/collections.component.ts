@@ -22,7 +22,7 @@ export class CollectionsComponent extends BaseCollectionsComponent implements On
     cipherService: CipherService,
     logService: LogService,
     protected dialogRef: DialogRef,
-    @Inject(DIALOG_DATA) params: CollectionsDialogParams
+    @Inject(DIALOG_DATA) params: CollectionsDialogParams,
   ) {
     super(collectionService, platformUtilsService, i18nService, cipherService, logService);
     this.cipherId = params?.cipherId;
@@ -61,10 +61,10 @@ export enum CollectionsDialogResult {
  */
 export function openIndividualVaultCollectionsDialog(
   dialogService: DialogService,
-  config?: DialogConfig<CollectionsDialogParams>
+  config?: DialogConfig<CollectionsDialogParams>,
 ) {
   return dialogService.open<CollectionsDialogResult, CollectionsDialogParams>(
     CollectionsComponent,
-    config
+    config,
   );
 }

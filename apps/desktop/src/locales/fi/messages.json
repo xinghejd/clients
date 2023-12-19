@@ -403,6 +403,9 @@
   "length": {
     "message": "Pituus"
   },
+  "passwordMinLength": {
+    "message": "Salasanan vähimmäispituus"
+  },
   "uppercase": {
     "message": "Isot kirjaimet (A-Z)"
   },
@@ -1248,7 +1251,7 @@
     "description": "URI match detection for auto-fill."
   },
   "defaultMatchDetection": {
-    "message": "Tunnistuksen oletustapa",
+    "message": "Oletusarvoinen tunnistustapa",
     "description": "Default URI match detection for auto-fill."
   },
   "toggleOptions": {
@@ -1533,8 +1536,13 @@
   "setMasterPassword": {
     "message": "Aseta pääsalasana"
   },
-  "ssoCompleteRegistration": {
-    "message": "Kirjautuaksesi sisään käyttäen kertakirjautumista (SSO), ole hyvä ja aseta holvillesi pääsalasana."
+  "orgPermissionsUpdatedMustSetPassword": {
+    "message": "Organisaatiosi käyttöoikeuksia muutettiin ja tämän seurauksena sinun on asetettava pääsalasana.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "orgRequiresYouToSetPassword": {
+    "message": "Organisaatiosi edellyttää, että asetat pääsalasanan.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "currentMasterPass": {
     "message": "Nykyinen pääsalasana"
@@ -2061,7 +2069,7 @@
     "message": "Luo sähköpostialias ulkoisella ohjauspalvelulla."
   },
   "hostname": {
-    "message": "Osoite",
+    "message": "Isäntä",
     "description": "Part of a URL."
   },
   "apiAccessToken": {

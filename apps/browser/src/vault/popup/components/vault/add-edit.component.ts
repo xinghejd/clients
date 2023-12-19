@@ -18,17 +18,19 @@ import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.s
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { DialogService } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { BrowserApi } from "../../../../platform/browser/browser-api";
-import { PopupUtilsService } from "../../../../popup/services/popup-utils.service";
+import BrowserPopupUtils from "../../../../platform/popup/browser-popup-utils";
+import { PopupCloseWarningService } from "../../../../popup/services/popup-close-warning.service";
 import {
   BrowserFido2UserInterfaceSession,
   fido2PopoutSessionData$,
 } from "../../../fido2/browser-fido2-user-interface.service";
+import { VaultPopoutType, closeAddEditVaultItemPopout } from "../../utils/vault-popout-window";
 
 @Component({
   selector: "app-vault-add-edit",
@@ -40,9 +42,7 @@ export class AddEditComponent extends BaseAddEditComponent {
   showAttachments = true;
   openAttachmentsInPopup: boolean;
   showAutoFillOnPageLoadOptions: boolean;
-  senderTabId?: number;
-  uilocation?: "popout" | "popup" | "sidebar" | "tab";
-  inPopout = false;
+  private singleActionKey: string;
 
   private fido2PopoutSessionData$ = fido2PopoutSessionData$();
 
@@ -60,12 +60,12 @@ export class AddEditComponent extends BaseAddEditComponent {
     private location: Location,
     eventCollectionService: EventCollectionService,
     policyService: PolicyService,
-    private popupUtilsService: PopupUtilsService,
+    private popupCloseWarningService: PopupCloseWarningService,
     organizationService: OrganizationService,
     passwordRepromptService: PasswordRepromptService,
     logService: LogService,
     sendApiService: SendApiService,
-    dialogService: DialogService
+    dialogService: DialogService,
   ) {
     super(
       cipherService,
@@ -82,7 +82,7 @@ export class AddEditComponent extends BaseAddEditComponent {
       passwordRepromptService,
       organizationService,
       sendApiService,
-      dialogService
+      dialogService,
     );
   }
 
@@ -91,9 +91,6 @@ export class AddEditComponent extends BaseAddEditComponent {
 
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     this.route.queryParams.pipe(first()).subscribe(async (params) => {
-      this.senderTabId = parseInt(params?.senderTabId, 10) || undefined;
-      this.uilocation = params?.uilocation;
-
       if (params.cipherId) {
         this.cipherId = params.cipherId;
       }
@@ -119,18 +116,16 @@ export class AddEditComponent extends BaseAddEditComponent {
       if (params.selectedVault) {
         this.organizationId = params.selectedVault;
       }
+      if (params.singleActionKey) {
+        this.singleActionKey = params.singleActionKey;
+      }
       await this.load();
 
       if (!this.editMode || this.cloneMode) {
-        if (
-          !this.popupUtilsService.inPopout(window) &&
-          params.name &&
-          (this.cipher.name == null || this.cipher.name === "")
-        ) {
+        if (params.name && (this.cipher.name == null || this.cipher.name === "")) {
           this.cipher.name = params.name;
         }
         if (
-          !this.popupUtilsService.inPopout(window) &&
           params.uri &&
           (this.cipher.login.uris[0].uri == null || this.cipher.login.uris[0].uri === "")
         ) {
@@ -138,10 +133,8 @@ export class AddEditComponent extends BaseAddEditComponent {
         }
       }
 
-      this.openAttachmentsInPopup = this.popupUtilsService.inPopup(window);
+      this.openAttachmentsInPopup = BrowserPopupUtils.inPopup(window);
     });
-
-    this.inPopout = this.uilocation === "popout" || this.popupUtilsService.inPopout(window);
 
     if (!this.editMode) {
       const tabs = await BrowserApi.tabsQuery({ windowType: "normal" });
@@ -153,8 +146,8 @@ export class AddEditComponent extends BaseAddEditComponent {
 
     this.setFocus();
 
-    if (this.popupUtilsService.inTab(window)) {
-      this.popupUtilsService.enableCloseTabWarning();
+    if (BrowserPopupUtils.inPopout(window)) {
+      this.popupCloseWarningService.enable();
     }
   }
 
@@ -167,12 +160,10 @@ export class AddEditComponent extends BaseAddEditComponent {
 
   async submit(): Promise<boolean> {
     const fido2SessionData = await firstValueFrom(this.fido2PopoutSessionData$);
-    // Would be refactored after rework is done on the windows popout service
-
     const { isFido2Session, sessionId, userVerification } = fido2SessionData;
+    const inFido2PopoutWindow = BrowserPopupUtils.inPopout(window) && isFido2Session;
     if (
-      this.inPopout &&
-      isFido2Session &&
+      inFido2PopoutWindow &&
       !(await this.handleFido2UserVerification(sessionId, userVerification))
     ) {
       return false;
@@ -183,23 +174,22 @@ export class AddEditComponent extends BaseAddEditComponent {
       return false;
     }
 
-    if (this.inPopout && isFido2Session) {
+    if (BrowserPopupUtils.inPopout(window)) {
+      this.popupCloseWarningService.disable();
+    }
+
+    if (inFido2PopoutWindow) {
       BrowserFido2UserInterfaceSession.confirmNewCredentialResponse(
         sessionId,
         this.cipher.id,
-        userVerification
+        userVerification,
       );
       return true;
     }
 
-    if (this.popupUtilsService.inTab(window)) {
-      this.popupUtilsService.disableCloseTabWarning();
-      this.messagingService.send("closeTab", { delay: 1000 });
-      return true;
-    }
-
-    if (this.senderTabId && this.inPopout) {
-      setTimeout(() => this.close(), 1000);
+    if (this.inAddEditPopoutWindow()) {
+      this.messagingService.send("addEditCipherSubmitted");
+      await closeAddEditVaultItemPopout(1000);
       return true;
     }
 
@@ -219,7 +209,7 @@ export class AddEditComponent extends BaseAddEditComponent {
         .createUrlTree(["/attachments"], { queryParams: { cipherId: this.cipher.id } })
         .toString();
       const currentBaseUrl = window.location.href.replace(this.router.url, "");
-      this.popupUtilsService.popOut(window, currentBaseUrl + destinationUrl);
+      BrowserPopupUtils.openCurrentPagePopout(window, currentBaseUrl + destinationUrl);
     } else {
       this.router.navigate(["/attachments"], { queryParams: { cipherId: this.cipher.id } });
     }
@@ -235,32 +225,19 @@ export class AddEditComponent extends BaseAddEditComponent {
   async cancel() {
     super.cancel();
 
-    // Would be refactored after rework is done on the windows popout service
     const sessionData = await firstValueFrom(this.fido2PopoutSessionData$);
-    if (this.inPopout && sessionData.isFido2Session) {
+    if (BrowserPopupUtils.inPopout(window) && sessionData.isFido2Session) {
+      this.popupCloseWarningService.disable();
       BrowserFido2UserInterfaceSession.abortPopout(sessionData.sessionId);
       return;
     }
 
-    if (this.senderTabId && this.inPopout) {
-      this.close();
-      return;
-    }
-
-    if (this.popupUtilsService.inTab(window)) {
-      this.messagingService.send("closeTab");
+    if (this.inAddEditPopoutWindow()) {
+      closeAddEditVaultItemPopout();
       return;
     }
 
     this.location.back();
-  }
-
-  // Used for closing single-action views
-  close() {
-    BrowserApi.focusTab(this.senderTabId);
-    window.close();
-
-    return;
   }
 
   async generateUsername(): Promise<boolean> {
@@ -328,7 +305,7 @@ export class AddEditComponent extends BaseAddEditComponent {
 
   private async handleFido2UserVerification(
     sessionId: string,
-    userVerification: boolean
+    userVerification: boolean,
   ): Promise<boolean> {
     // We are bypassing user verification pending implementation of PIN and biometric support.
     return true;
@@ -345,7 +322,7 @@ export class AddEditComponent extends BaseAddEditComponent {
       this.platformUtilsService.showToast(
         "info",
         null,
-        this.i18nService.t("passwordRepromptDisabledAutofillOnPageLoad")
+        this.i18nService.t("passwordRepromptDisabledAutofillOnPageLoad"),
       );
       return;
     }
@@ -353,7 +330,14 @@ export class AddEditComponent extends BaseAddEditComponent {
     this.platformUtilsService.showToast(
       "info",
       null,
-      this.i18nService.t("autofillOnPageLoadSetToDefault")
+      this.i18nService.t("autofillOnPageLoadSetToDefault"),
+    );
+  }
+
+  private inAddEditPopoutWindow() {
+    return BrowserPopupUtils.inSingleActionPopout(
+      window,
+      this.singleActionKey || VaultPopoutType.addEditVaultItem,
     );
   }
 }

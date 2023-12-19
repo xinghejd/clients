@@ -611,8 +611,23 @@
   "loginWithMasterPassword": {
     "message": "Пријавите се са главном лозинком"
   },
+  "readingPasskeyLoading": {
+    "message": "Читање притупачног кључа..."
+  },
+  "readingPasskeyLoadingInfo": {
+    "message": "Држите овај прозор отворен и пратите упутства из прегледача."
+  },
+  "useADifferentLogInMethod": {
+    "message": "Користи други начин пријављивања"
+  },
   "loginWithPasskey": {
     "message": "Пријавите се са приступачним кључем"
+  },
+  "invalidPasskeyPleaseTryAgain": {
+    "message": "Неважећи приступни кључ. Молим вас, покушајте поново."
+  },
+  "twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn": {
+    "message": "2FA за приступни кључ није подржано. Надоградити апликацјиу за пријаву."
   },
   "loginWithPasskeyInfo": {
     "message": "Користите генерисан passkey који ће вас аутоматски пријавити без лозинке. Биометрија, као што је препознавање лица или отисак прста, или неки други FIDO2 метод за проверу идентитета."
@@ -647,8 +662,23 @@
   "customPasskeyNameInfo": {
     "message": "Именујте Ваш приступачни кључ за лакшу идентификацију."
   },
+  "useForVaultEncryption": {
+    "message": "Користи се за шифровање сефа"
+  },
+  "useForVaultEncryptionInfo": {
+    "message": "Пријавите се и откључајте на подржаним уређајима без ваше главне лозинке. Пратите упутства из прегледача да бисте завршили подешавање."
+  },
+  "useForVaultEncryptionErrorReadingPasskey": {
+    "message": "Грешка при читању кључа. Покушајте поново или опозовите избор ове опције."
+  },
   "encryptionNotSupported": {
     "message": "Шифровање није подржано"
+  },
+  "enablePasskeyEncryption": {
+    "message": "Set up encryption"
+  },
+  "usedForEncryption": {
+    "message": "Употребљено за шифровање"
   },
   "loginWithPasskeyEnabled": {
     "message": "Пријављивање са упаљеним приступчним кључем"
@@ -1044,6 +1074,9 @@
   "export": {
     "message": "Извези"
   },
+  "exportFrom": {
+    "message": "Export from"
+  },
   "exportVault": {
     "message": "Извоз сефа"
   },
@@ -1119,6 +1152,9 @@
   },
   "length": {
     "message": "Дужина"
+  },
+  "passwordMinLength": {
+    "message": "Минимална дужина лозинке"
   },
   "uppercase": {
     "message": "Велика слова (A-Z)",
@@ -1546,7 +1582,7 @@
     "message": "Управљати"
   },
   "canManage": {
-    "message": "Can manage"
+    "message": "Може управљати"
   },
   "disable": {
     "message": "Онемогући"
@@ -2280,6 +2316,9 @@
   "contactSupport": {
     "message": "Обратите се корисничкој подршци"
   },
+  "contactSupportShort": {
+    "message": "Контактирај подршку"
+  },
   "updatedPaymentMethod": {
     "message": "Ажуриран начин плаћања."
   },
@@ -2380,6 +2419,9 @@
   },
   "planDescTeams": {
     "message": "За предузећа и друге тимске организације."
+  },
+  "planNameTeamsStarter": {
+    "message": "Teams Starter"
   },
   "planNameEnterprise": {
     "message": "Предузећа"
@@ -2740,6 +2782,9 @@
   },
   "webVault": {
     "message": "Интернет Сеф"
+  },
+  "cli": {
+    "message": "CLI"
   },
   "bitWebVault": {
     "message": "Bitwarden Интернет Сеф"
@@ -3465,7 +3510,7 @@
     "message": "Претплата је ажурирана"
   },
   "subscribedToSecretsManager": {
-    "message": "Subscription updated. You now have access to Secrets Manager."
+    "message": "Претплата је ажурирана. Сада имате приступ Secrets Manager-у."
   },
   "additionalOptions": {
     "message": "Додатне опције"
@@ -3482,6 +3527,15 @@
       "max": {
         "content": "$1",
         "example": "50"
+      }
+    }
+  },
+  "subscriptionUserSeatsWithoutAdditionalSeatsOption": {
+    "message": "Можете позвати до $COUNT$ чланова без додатне накнаде. Контактирајте корисничку подршку да надоградите свој план и позовете још чланова.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
       }
     }
   },
@@ -3965,9 +4019,6 @@
   "setMasterPassword": {
     "message": "Постави Главну Лозинку"
   },
-  "ssoCompleteRegistration": {
-    "message": "Да бисте довршили пријављивање помоћу SSO, молимо да поставите главну лозинку за приступ и заштиту вашег сефа."
-  },
   "identifier": {
     "message": "Идентификатор"
   },
@@ -3985,6 +4036,21 @@
   },
   "includeAllTeamsFeatures": {
     "message": "Све функције тима, плус:"
+  },
+  "includeAllTeamsStarterFeatures": {
+    "message": "Све функције Teams Starter, плус:"
+  },
+  "chooseMonthlyOrAnnualBilling": {
+    "message": "Изаберите месечни или годишњи обрачун"
+  },
+  "abilityToAddMoreThanNMembers": {
+    "message": "Могућност додавања више од $COUNT$ члана",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "includeSsoAuthentication": {
     "message": "SSO аутентификација преко SAML2.0 и OpenID везу"
@@ -4173,8 +4239,8 @@
     "message": "Ово Слање је подразумевано скривено. Можете да пребацујете његову видљивост помоћу дугмета испод.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "downloadFile": {
-    "message": "Преузми датотеку"
+  "downloadAttachments": {
+    "message": "Преузмите прилоге"
   },
   "sendAccessUnavailable": {
     "message": "„Send“ које покушавате да приступите не постоји или више није доступан.",
@@ -4564,8 +4630,8 @@
     "message": "да пробаш одмах.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about Bitwarden Send or sign up to **try it today.**'"
   },
-  "sendCreatorIdentifier": {
-    "message": "Bitwarden корисник $USER_IDENTIFIER$ је поделио следеће са тобом",
+  "sendAccessCreatorIdentifier": {
+    "message": "Bitwarden члан $USER_IDENTIFIER$ је поделио следеће са тобом",
     "placeholders": {
       "user_identifier": {
         "content": "$1",
@@ -6601,6 +6667,24 @@
       }
     }
   },
+  "teamsStarterPlanInvLimitReachedManageBilling": {
+    "message": "Teams Starter планови могу имати до $SEATCOUNT$ чланова. Контактирајте корисничку подршку да надоградите свој план и позовете још чланова.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "teamsStarterPlanInvLimitReachedNoManageBilling": {
+    "message": "Teams Starter планови могу имати до $SEATCOUNT$ чланова. Контактирајте влацника ваше организације да надоградите свој план и позовете још чланова.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "freeOrgMaxCollectionReachedManageBilling": {
     "message": "Free organizations may have up to $COLLECTIONCOUNT$ collections. Upgrade to a paid plan to add more collections.",
     "placeholders": {
@@ -6991,6 +7075,14 @@
     "message": "полисе са аутоматским уписом ће се укључити када се користи ова опција.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
+  "orgPermissionsUpdatedMustSetPassword": {
+    "message": "Дозволе за вашу организацију су ажуриране, што захтева да поставите главну лозинку.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "orgRequiresYouToSetPassword": {
+    "message": "Ваша организација захтева да поставите главну лозинку.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
   "notFound": {
     "message": "$RESOURCE$ није нађено/а",
     "placeholders": {
@@ -7111,6 +7203,9 @@
   "next": {
     "message": "Следеће"
   },
+  "ssoLoginIsRequired": {
+    "message": "SSO пријава је потребна"
+  },
   "selectedRegionFlag": {
     "message": "Одабрана застава"
   },
@@ -7225,16 +7320,19 @@
     }
   },
   "collectionManagement": {
-    "message": "Collection management"
+    "message": "Управљање збирке"
   },
   "collectionManagementDesc": {
-    "message": "Manage the collection behavior for the organization"
+    "message": "Управљајте понашањем збирке за организацију"
   },
   "limitCollectionCreationDeletionDesc": {
-    "message": "Limit collection creation and deletion to owners and admins"
+    "message": "Ограничите креирање и брисање збирке на власнике и администраторе"
+  },
+  "allowAdminAccessToAllCollectionItemsDesc": {
+    "message": "Власници и администратори могу да управљају свим колекцијама и ставкама"
   },
   "collectionManagementUpdated": {
-    "message": "Collection management behavior saved"
+    "message": "Понашање управљања збирке је сачувано"
   },
   "passwordManagerPlanPrice": {
     "message": "Цена плана менаџера лозинки"
@@ -7283,10 +7381,10 @@
     "message": "Бета"
   },
   "assignCollectionAccess": {
-    "message": "Assign collection access"
+    "message": "Додели приступ збирке"
   },
   "editedCollections": {
-    "message": "Edited collections"
+    "message": "Уређене колекције"
   },
   "baseUrl": {
     "message": "УРЛ Сервера"
@@ -7298,13 +7396,13 @@
     "message": "Већ имате налог?"
   },
   "customBillingStart": {
-    "message": "Custom billing is not reflected. Visit the "
+    "message": "Прилагођени обрачун се не одражава. Посетите "
   },
   "customBillingEnd": {
-    "message": " page for latest invoicing."
+    "message": " страницу за најновије фактуре."
   },
   "managePermissionRequired": {
-    "message": "At least one member or group must have can manage permission."
+    "message": "Најмање један члан или група мора имати могућност управљања дозволом."
   },
   "typePasskey": {
     "message": "Приступачни кључ"
@@ -7315,8 +7413,38 @@
   "passkeyNotCopiedAlert": {
     "message": "Приступачни кључ неће бити копиран на клонирану ставку. Да ли желите да наставите са клонирањем ставке?"
   },
+  "modifiedCollectionManagement": {
+    "message": "Измењено подешавање управљања колекцијом $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "seeDetailedInstructions": {
     "message": "Погледајте детаљна упутства на нашој веб локацији за помоћ на",
     "description": "This is followed a by a hyperlink to the help website."
+  },
+  "projectAccessUpdated": {
+    "message": "Приступ пројекту је ажуриран"
+  },
+  "unexpectedErrorSend": {
+    "message": "Дошло је до неочекиване грешке при учитавању овога Send. Покушати поново касније."
+  },
+  "seatLimitReached": {
+    "message": "Достигнуто је ограничење броја места"
+  },
+  "contactYourProvider": {
+    "message": "Обратите се свом провајдеру да бисте купили додатна места."
+  },
+  "seatLimitReachedContactYourProvider": {
+    "message": "Достигнуто је ограничење броја места. Обратите се свом провајдеру да бисте купили додатна места."
+  },
+  "collectionAccessRestricted": {
+    "message": "Приступ колекцији је ограничен"
+  },
+  "serviceAccountAccessUpdated": {
+    "message": "Приступ услужног налога ажуриран"
   }
 }

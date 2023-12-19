@@ -606,55 +606,85 @@
     "message": "Logga in med enhet"
   },
   "loginWithDeviceEnabledNote": {
-    "message": "Log in with device must be set up in the settings of the Bitwarden app. Need another option?"
+    "message": "\"Logga in med enhet\" måste ställas in i inställningarna i Bitwardens app. Behöver du ett annat alternativ?"
   },
   "loginWithMasterPassword": {
     "message": "Logga in med huvudlösenord"
   },
+  "readingPasskeyLoading": {
+    "message": "Läser nyckel..."
+  },
+  "readingPasskeyLoadingInfo": {
+    "message": "Håll det här fönstret öppet och följ anvisningarna från din webbläsare."
+  },
+  "useADifferentLogInMethod": {
+    "message": "Använd en annan inloggningsmetod"
+  },
   "loginWithPasskey": {
-    "message": "Log in with passkey"
+    "message": "Logga in med nyckel"
+  },
+  "invalidPasskeyPleaseTryAgain": {
+    "message": "Ogiltig nyckel. Vänligen försök igen."
+  },
+  "twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn": {
+    "message": "Tvåstegsverifiering stöds inte för nycklar. Uppdatera appen för att logga in."
   },
   "loginWithPasskeyInfo": {
-    "message": "Use a generated passkey that will automatically log you in without a password. Biometrics, like facial recognition or fingerprint, or another FIDO2 security method will verify your identity."
+    "message": "Använd en genererad nyckel som automatiskt loggar in dig utan lösenord. Din identitet verifieras med biometri, såsom ansiktsigenkänning eller fingeravtryck, eller en annan FIDO2-säkerhetsmetod."
   },
   "newPasskey": {
-    "message": "New passkey"
+    "message": "Ny nyckel"
   },
   "learnMoreAboutPasswordless": {
-    "message": "Learn more about passwordless"
+    "message": "Läs mer om lösenordsfri inloggning"
   },
   "passkeyEnterMasterPassword": {
-    "message": "Enter your master password to modify log in with passkey settings."
+    "message": "Ange ditt huvudlösenord för att ändra inställningar för inloggning med nyckel."
   },
   "creatingPasskeyLoading": {
-    "message": "Creating passkey..."
+    "message": "Skapar nyckel..."
   },
   "creatingPasskeyLoadingInfo": {
-    "message": "Keep this window open and follow prompts from your browser."
+    "message": "Håll det här fönstret öppet och följ anvisningarna från din webbläsare."
   },
   "errorCreatingPasskey": {
-    "message": "Error creating passkey"
+    "message": "Fel vid skapande av nyckel"
   },
   "errorCreatingPasskeyInfo": {
-    "message": "There was a problem creating your passkey."
+    "message": "Det uppstod ett problem med att skapa nyckeln."
   },
   "passkeySuccessfullyCreated": {
-    "message": "Passkey successfully created!"
+    "message": "Nyckeln har skapats!"
   },
   "customName": {
     "message": "Anpassat namn"
   },
   "customPasskeyNameInfo": {
-    "message": "Name your passkey to help you identify it."
+    "message": "Namnge din nyckel för att hjälpa dig att identifiera den."
+  },
+  "useForVaultEncryption": {
+    "message": "Använd för valvkryptering"
+  },
+  "useForVaultEncryptionInfo": {
+    "message": "Logga in och lås upp utan ditt huvudlösenord på enheter som stöds. Följ anvisningarna från din webbläsare för att slutföra konfigurationen."
+  },
+  "useForVaultEncryptionErrorReadingPasskey": {
+    "message": "Fel när nyckeln skulle läsas. Försök igen eller avmarkera det här alternativet."
   },
   "encryptionNotSupported": {
-    "message": "Encryption not supported"
+    "message": "Kryptering stöds inte"
+  },
+  "enablePasskeyEncryption": {
+    "message": "Set up encryption"
+  },
+  "usedForEncryption": {
+    "message": "Används för kryptering"
   },
   "loginWithPasskeyEnabled": {
-    "message": "Log in with passkey turned on"
+    "message": "Inloggning med nyckel är aktiverad"
   },
   "passkeySaved": {
-    "message": "$NAME$ saved",
+    "message": "$NAME$ sparad",
     "placeholders": {
       "name": {
         "content": "$1",
@@ -663,16 +693,16 @@
     }
   },
   "passkeyRemoved": {
-    "message": "Passkey removed"
+    "message": "Nyckel borttagen"
   },
   "removePasskey": {
-    "message": "Remove passkey"
+    "message": "Ta bort nyckel"
   },
   "removePasskeyInfo": {
-    "message": "If all passkeys are removed, you will be unable to log into new devices without your master password."
+    "message": "Om alla nycklar tas bort kommer du inte kunna logga in på nya enheter utan ditt huvudlösenord."
   },
   "passkeyLimitReachedInfo": {
-    "message": "Passkey limit reached. Remove a passkey to add another."
+    "message": "Gränsen för antal nycklar har uppnåtts. Ta bort en nyckel innan du lägger till en ny."
   },
   "tryAgain": {
     "message": "Försök igen"
@@ -775,7 +805,7 @@
     "message": "Ett oväntat fel har inträffat."
   },
   "expirationDateError": {
-    "message": "Please select an expiration date that is in the future."
+    "message": "Välj ett utgångsdatum som är i framtiden."
   },
   "emailAddress": {
     "message": "E-postadress"
@@ -1027,7 +1057,7 @@
     "message": "Bekräfta export av valv"
   },
   "confirmSecretsExport": {
-    "message": "Confirm secrets export"
+    "message": "Bekräfta exportering av hemligheter"
   },
   "exportWarningDesc": {
     "message": "Denna export innehåller ditt valv i ett okrypterat format. Du bör inte lagra eller skicka den exporterade filen över osäkra kanaler (t.ex. e-post). Radera den omedelbart när du är färdig med den."
@@ -1044,11 +1074,14 @@
   "export": {
     "message": "Exportera"
   },
+  "exportFrom": {
+    "message": "Export from"
+  },
   "exportVault": {
     "message": "Exportera valv"
   },
   "exportSecrets": {
-    "message": "Export secrets"
+    "message": "Exportera hemligheter"
   },
   "fileFormat": {
     "message": "Filformat"
@@ -1119,6 +1152,9 @@
   },
   "length": {
     "message": "Längd"
+  },
+  "passwordMinLength": {
+    "message": "Minimum password length"
   },
   "uppercase": {
     "message": "Versaler (A-Ö)",
@@ -1489,10 +1525,10 @@
     "message": "Säkra ditt konto genom att kräva ett ytterligare steg vid inloggning."
   },
   "twoStepLoginTeamsDesc": {
-    "message": "Enable two-step login for your organization."
+    "message": "Aktivera tvåstegsverifiering för din organisation."
   },
   "twoStepLoginEnterpriseDescStart": {
-    "message": "Enforce Bitwarden Two-step Login options for members by using the ",
+    "message": "Kräv att medlemmar använder tvåstegsverifiering med hjälp av ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Enforce Bitwarden Two-step Login options for members by using the Two-step Login Policy.'"
   },
   "twoStepLoginPolicy": {
@@ -1994,7 +2030,7 @@
     "message": "1 GB krypterad lagring."
   },
   "premiumSignUpTwoStepOptions": {
-    "message": "Proprietary two-step login options such as YubiKey and Duo."
+    "message": "Premium-alternativ för tvåstegsverifiering, såsom YubiKey och Duo."
   },
   "premiumSignUpEmergency": {
     "message": "Nödåtkomst"
@@ -2134,7 +2170,7 @@
     "message": "Avsluta prenumeration"
   },
   "subscriptionExpiration": {
-    "message": "Subscription expiration"
+    "message": "Förfallodatum för prenumeration"
   },
   "subscriptionCanceled": {
     "message": "Prenumerationen har avslutats."
@@ -2280,6 +2316,9 @@
   "contactSupport": {
     "message": "Kontakta kundservice"
   },
+  "contactSupportShort": {
+    "message": "Kontakta support"
+  },
   "updatedPaymentMethod": {
     "message": "Betalningsmetod uppdaterades."
   },
@@ -2380,6 +2419,9 @@
   },
   "planDescTeams": {
     "message": "För företag och andra organisationer med team."
+  },
+  "planNameTeamsStarter": {
+    "message": "Teams Starter"
   },
   "planNameEnterprise": {
     "message": "Företag"
@@ -2637,7 +2679,7 @@
     "message": "Redigera medlem"
   },
   "fieldOnTabRequiresAttention": {
-    "message": "A field on the '$TAB$' tab requires your attention.",
+    "message": "Ett fält på fliken '$TAB$' kräver din uppmärksamhet.",
     "placeholders": {
       "tab": {
         "content": "$1",
@@ -2741,6 +2783,9 @@
   "webVault": {
     "message": "Webbvalv"
   },
+  "cli": {
+    "message": "CLI"
+  },
   "bitWebVault": {
     "message": "Bitwarden Webbvalv"
   },
@@ -2754,7 +2799,7 @@
     "message": "Ändrade kontolösenord"
   },
   "enabledUpdated2fa": {
-    "message": "Two-step login saved"
+    "message": "Tvåstegsverifiering sparad"
   },
   "disabled2fa": {
     "message": "Inaktiverade tvåstegsverifiering"
@@ -3485,6 +3530,15 @@
       }
     }
   },
+  "subscriptionUserSeatsWithoutAdditionalSeatsOption": {
+    "message": "You can invite up to $COUNT$ members for no additional charge. Contact Customer Support to upgrade your plan and invite more members.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "subscriptionFreePlan": {
     "message": "Du kan inte bjuda in fler än $COUNT$ användare utan att uppgradera din plan.",
     "placeholders": {
@@ -3965,9 +4019,6 @@
   "setMasterPassword": {
     "message": "Ange huvudlösenord"
   },
-  "ssoCompleteRegistration": {
-    "message": "För att slutföra inloggning med SSO, ange ett huvudlösenord för att komma åt och skydda ditt valv."
-  },
   "identifier": {
     "message": "Identifierare"
   },
@@ -3985,6 +4036,21 @@
   },
   "includeAllTeamsFeatures": {
     "message": "Alla funktioner för team, plus:"
+  },
+  "includeAllTeamsStarterFeatures": {
+    "message": "All Teams Starter features, plus:"
+  },
+  "chooseMonthlyOrAnnualBilling": {
+    "message": "Välj månadsvis eller årlig fakturering"
+  },
+  "abilityToAddMoreThanNMembers": {
+    "message": "Ability to add more than $COUNT$ members",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "includeSsoAuthentication": {
     "message": "SSO-autentisering via SAML2.0 och OpenID Connect"
@@ -4173,8 +4239,8 @@
     "message": "Denna Send är dold som standard. Du kan växla dess synlighet med hjälp av knappen nedan.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "downloadFile": {
-    "message": "Ladda ner fil"
+  "downloadAttachments": {
+    "message": "Ladda ner bilagor"
   },
   "sendAccessUnavailable": {
     "message": "Den Send du försöker komma åt finns inte eller är inte längre tillgänglig.",
@@ -4564,8 +4630,8 @@
     "message": "att prova det idag.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about Bitwarden Send or sign up to **try it today.**'"
   },
-  "sendCreatorIdentifier": {
-    "message": "Bitwarden-användaren $USER_IDENTIFIER$ delade följande med dig",
+  "sendAccessCreatorIdentifier": {
+    "message": "Bitwarden member $USER_IDENTIFIER$ shared the following with you",
     "placeholders": {
       "user_identifier": {
         "content": "$1",
@@ -5468,7 +5534,7 @@
     "message": "Requested"
   },
   "formErrorSummaryPlural": {
-    "message": "$COUNT$ fields above need your attention.",
+    "message": "$COUNT$ fält ovan kräver din uppmärksamhet.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5477,7 +5543,7 @@
     }
   },
   "formErrorSummarySingle": {
-    "message": "1 field above needs your attention."
+    "message": "1 fält ovan kräver din uppmärksamhet."
   },
   "fieldRequiredError": {
     "message": "$FIELDNAME$ is required.",
@@ -5853,7 +5919,7 @@
     "message": "På"
   },
   "off": {
-    "message": "Off"
+    "message": "Av"
   },
   "members": {
     "message": "Medlemmar"
@@ -5982,7 +6048,7 @@
     "description": "A label for a type-to-filter input field to choose projects."
   },
   "searchProjects": {
-    "message": "Search projects",
+    "message": "Sök i projekt",
     "description": "Label for the search bar used to search projects."
   },
   "project": {
@@ -6601,6 +6667,24 @@
       }
     }
   },
+  "teamsStarterPlanInvLimitReachedManageBilling": {
+    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Contact Customer Support to upgrade your plan and invite more members.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "teamsStarterPlanInvLimitReachedNoManageBilling": {
+    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade your plan and invite more members.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "freeOrgMaxCollectionReachedManageBilling": {
     "message": "Free organizations may have up to $COLLECTIONCOUNT$ collections. Upgrade to a paid plan to add more collections.",
     "placeholders": {
@@ -6991,6 +7075,14 @@
     "message": "policy with automatic enrollment will turn on when this option is used.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
+  "orgPermissionsUpdatedMustSetPassword": {
+    "message": "Your organization permissions were updated, requiring you to set a master password.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "orgRequiresYouToSetPassword": {
+    "message": "Your organization requires you to set a master password.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
   "notFound": {
     "message": "$RESOURCE$ not found",
     "placeholders": {
@@ -7110,6 +7202,9 @@
   },
   "next": {
     "message": "Nästa"
+  },
+  "ssoLoginIsRequired": {
+    "message": "SSO login is required"
   },
   "selectedRegionFlag": {
     "message": "Selected region flag"
@@ -7233,6 +7328,9 @@
   "limitCollectionCreationDeletionDesc": {
     "message": "Limit collection creation and deletion to owners and admins"
   },
+  "allowAdminAccessToAllCollectionItemsDesc": {
+    "message": "Ägare och administratörer kan hantera alla samlingar och objekt"
+  },
   "collectionManagementUpdated": {
     "message": "Collection management behavior saved"
   },
@@ -7243,7 +7341,7 @@
     "message": "Secrets Manager plan price"
   },
   "passwordManager": {
-    "message": "Password Manager"
+    "message": "Lösenordshanterare"
   },
   "freeOrganization": {
     "message": "Gratis organisation"
@@ -7315,8 +7413,38 @@
   "passkeyNotCopiedAlert": {
     "message": "The passkey will not be copied to the cloned item. Do you want to continue cloning this item?"
   },
+  "modifiedCollectionManagement": {
+    "message": "Modified collection management setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "seeDetailedInstructions": {
     "message": "Se detaljerade instruktioner på vår hjälpsida på",
     "description": "This is followed a by a hyperlink to the help website."
+  },
+  "projectAccessUpdated": {
+    "message": "Project access updated"
+  },
+  "unexpectedErrorSend": {
+    "message": "Ett oväntat fel inträffade när denna Send laddades. Försök igen senare."
+  },
+  "seatLimitReached": {
+    "message": "Seat limit has been reached"
+  },
+  "contactYourProvider": {
+    "message": "Contact your provider to purchase additional seats."
+  },
+  "seatLimitReachedContactYourProvider": {
+    "message": "Seat limit has been reached. Contact your provider to purchase additional seats."
+  },
+  "collectionAccessRestricted": {
+    "message": "Collection access is restricted"
+  },
+  "serviceAccountAccessUpdated": {
+    "message": "Service account access updated"
   }
 }

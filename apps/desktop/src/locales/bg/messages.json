@@ -403,6 +403,9 @@
   "length": {
     "message": "Дължина"
   },
+  "passwordMinLength": {
+    "message": "Минимална дължина на паролата"
+  },
   "uppercase": {
     "message": "Главни букви (A-Z)"
   },
@@ -1533,8 +1536,13 @@
   "setMasterPassword": {
     "message": "Задаване на главна парола"
   },
-  "ssoCompleteRegistration": {
-    "message": "За да завършите настройките за еднократна идентификация, трябва да зададете главна парола за трезора."
+  "orgPermissionsUpdatedMustSetPassword": {
+    "message": "Правата Ви в организацията бяха променени, необходимо е да зададете главна парола.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "orgRequiresYouToSetPassword": {
+    "message": "Организацията Ви изисква да зададете главна парола.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "currentMasterPass": {
     "message": "Текуща главна парола"
@@ -2320,7 +2328,7 @@
     "message": "Устройството е доверено"
   },
   "inputRequired": {
-    "message": "Полето е задължтелно да бъде попълнено."
+    "message": "Полето е задължително да бъде попълнено."
   },
   "required": {
     "message": "задължително"

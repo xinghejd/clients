@@ -33,15 +33,12 @@ import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
-import { TotpService } from "@bitwarden/common/abstractions/totp.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
-import { DEFAULT_PBKDF2_ITERATIONS, EventType, KdfType } from "@bitwarden/common/enums";
+import { EventType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ServiceUtils } from "@bitwarden/common/misc/serviceUtils";
-import { TreeNode } from "@bitwarden/common/models/domain/tree-node";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
@@ -50,15 +47,19 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { KdfType, PBKDF2_ITERATIONS } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CollectionData } from "@bitwarden/common/vault/models/data/collection.data";
+import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CollectionDetailsResponse } from "@bitwarden/common/vault/models/response/collection.response";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
+import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { DialogService, Icons } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
@@ -146,7 +147,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected currentSearchText$: Observable<string>;
   protected showBulkCollectionAccess$ = this.configService.getFeatureFlag$(
     FeatureFlag.BulkCollectionAccess,
-    false
+    false,
   );
 
   private searchText$ = new Subject<string>();
@@ -182,7 +183,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     private searchPipe: SearchPipe,
     private configService: ConfigServiceAbstraction,
     private apiService: ApiService,
-    private userVerificationService: UserVerificationService
+    private userVerificationService: UserVerificationService,
   ) {}
 
   async ngOnInit() {
@@ -190,7 +191,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.trashCleanupWarning = this.i18nService.t(
       this.platformUtilsService.isSelfHost()
         ? "trashCleanupWarningSelfHosted"
-        : "trashCleanupWarning"
+        : "trashCleanupWarning",
     );
 
     const firstSetup$ = this.route.queryParams.pipe(
@@ -218,7 +219,7 @@ export class VaultComponent implements OnInit, OnDestroy {
           await this.editCipher(cipherView);
         }
       }),
-      shareReplay({ refCount: true, bufferSize: 1 })
+      shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
@@ -242,11 +243,11 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     const filter$ = this.routedVaultFilterService.filter$;
     const canAccessPremium$ = Utils.asyncToObservable(() =>
-      this.stateService.getCanAccessPremium()
+      this.stateService.getCanAccessPremium(),
     ).pipe(shareReplay({ refCount: true, bufferSize: 1 }));
     const allCollections$ = Utils.asyncToObservable(() => this.collectionService.getAllDecrypted());
     const nestedCollections$ = allCollections$.pipe(
-      map((collections) => getNestedCollectionTree(collections))
+      map((collections) => getNestedCollectionTree(collections)),
     );
 
     this.searchText$
@@ -256,7 +257,7 @@ export class VaultComponent implements OnInit, OnDestroy {
           queryParams: { search: Utils.isNullOrEmpty(searchText) ? null : searchText },
           queryParamsHandling: "merge",
           replaceUrl: true,
-        })
+        }),
       );
 
     this.currentSearchText$ = this.route.queryParams.pipe(map((queryParams) => queryParams.search));
@@ -276,7 +277,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
         return ciphers.filter(filterFunction);
       }),
-      shareReplay({ refCount: true, bufferSize: 1 })
+      shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
     const collections$ = combineLatest([nestedCollections$, filter$, this.currentSearchText$]).pipe(
@@ -296,7 +297,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         } else {
           const selectedCollection = ServiceUtils.getTreeNodeObjectFromList(
             collections,
-            filter.collectionId
+            filter.collectionId,
           );
           collectionsToReturn = selectedCollection?.children.map((c) => c.node) ?? [];
         }
@@ -306,13 +307,13 @@ export class VaultComponent implements OnInit, OnDestroy {
             collectionsToReturn,
             searchText,
             (collection) => collection.name,
-            (collection) => collection.id
+            (collection) => collection.id,
           );
         }
 
         return collectionsToReturn;
       }),
-      shareReplay({ refCount: true, bufferSize: 1 })
+      shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
     const selectedCollection$ = combineLatest([nestedCollections$, filter$]).pipe(
@@ -328,7 +329,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
         return ServiceUtils.getTreeNodeObjectFromList(collections, filter.collectionId);
       }),
-      shareReplay({ refCount: true, bufferSize: 1 })
+      shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
     firstSetup$
@@ -343,7 +344,7 @@ export class VaultComponent implements OnInit, OnDestroy {
               this.platformUtilsService.showToast(
                 "error",
                 this.i18nService.t("errorOccurred"),
-                this.i18nService.t("unknownCipher")
+                this.i18nService.t("unknownCipher"),
               );
               this.router.navigate([], {
                 queryParams: { itemId: null, cipherId: null },
@@ -352,7 +353,7 @@ export class VaultComponent implements OnInit, OnDestroy {
             }
           }
         }),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe();
 
@@ -369,9 +370,9 @@ export class VaultComponent implements OnInit, OnDestroy {
             ciphers$,
             collections$,
             selectedCollection$,
-          ])
+          ]),
         ),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe(
         ([
@@ -392,7 +393,7 @@ export class VaultComponent implements OnInit, OnDestroy {
           this.selectedCollection = selectedCollection;
 
           this.canCreateCollections = allOrganizations?.some(
-            (o) => o.canCreateNewCollections && !o.isProviderUser
+            (o) => o.canCreateNewCollections && !o.isProviderUser,
           );
 
           this.showBulkMove =
@@ -406,7 +407,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
           this.performingInitialLoad = false;
           this.refreshing = false;
-        }
+        },
       );
   }
 
@@ -533,7 +534,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         comp.onReuploadedAttachment
           .pipe(takeUntil(this.destroy$))
           .subscribe(() => (madeAttachmentChanges = true));
-      }
+      },
     );
 
     modal.onClosed.pipe(takeUntil(this.destroy$)).subscribe(() => {
@@ -558,7 +559,7 @@ export class VaultComponent implements OnInit, OnDestroy {
           modal.close();
           this.refresh();
         });
-      }
+      },
     );
   }
 
@@ -578,7 +579,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     const selectedColId = this.activeFilter.collectionId;
     if (selectedColId !== "AllCollections") {
       component.organizationId = component.collections.find(
-        (collection) => collection.id === selectedColId
+        (collection) => collection.id === selectedColId,
       )?.organizationId;
       component.collectionIds = [selectedColId];
     }
@@ -624,7 +625,7 @@ export class VaultComponent implements OnInit, OnDestroy {
           modal.close();
           this.refresh();
         });
-      }
+      },
     );
 
     modal.onClosedPromise().then(() => {
@@ -677,11 +678,15 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   async deleteCollection(collection: CollectionView): Promise<void> {
     const organization = this.organizationService.get(collection.organizationId);
-    if (!organization.canDeleteAssignedCollections && !organization.canDeleteAnyCollection) {
+    const flexibleCollectionsEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.FlexibleCollections,
+      false,
+    );
+    if (!collection.canDelete(organization, flexibleCollectionsEnabled)) {
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccurred"),
-        this.i18nService.t("missingPermissions")
+        this.i18nService.t("missingPermissions"),
       );
       return;
     }
@@ -699,7 +704,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.platformUtilsService.showToast(
         "success",
         null,
-        this.i18nService.t("deletedCollectionId", collection.name)
+        this.i18nService.t("deletedCollectionId", collection.name),
       );
       // Navigate away if we deleted the collection we were viewing
       if (this.selectedCollection?.node.id === collection.id) {
@@ -760,7 +765,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccurred"),
-        this.i18nService.t("nothingSelected")
+        this.i18nService.t("nothingSelected"),
       );
       return;
     }
@@ -783,8 +788,8 @@ export class VaultComponent implements OnInit, OnDestroy {
         .map((i) => i.collection.organizationId);
       const orgs = await firstValueFrom(
         this.organizationService.organizations$.pipe(
-          map((orgs) => orgs.filter((o) => orgIds.includes(o.id)))
-        )
+          map((orgs) => orgs.filter((o) => orgIds.includes(o.id))),
+        ),
       );
       await this.bulkDelete(ciphers, collections, orgs);
     }
@@ -812,7 +817,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.platformUtilsService.showToast(
         "success",
         null,
-        this.i18nService.t(permanent ? "permanentlyDeletedItem" : "deletedItem")
+        this.i18nService.t(permanent ? "permanentlyDeletedItem" : "deletedItem"),
       );
       this.refresh();
     } catch (e) {
@@ -823,7 +828,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   async bulkDelete(
     ciphers: CipherView[],
     collections: CollectionView[],
-    organizations: Organization[]
+    organizations: Organization[],
   ) {
     if (!(await this.repromptCipher(ciphers))) {
       return;
@@ -833,7 +838,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccurred"),
-        this.i18nService.t("nothingSelected")
+        this.i18nService.t("nothingSelected"),
       );
       return;
     }
@@ -863,7 +868,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccurred"),
-        this.i18nService.t("nothingSelected")
+        this.i18nService.t("nothingSelected"),
       );
       return;
     }
@@ -915,7 +920,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.platformUtilsService.showToast(
       "info",
       null,
-      this.i18nService.t("valueCopied", this.i18nService.t(typeI18nKey))
+      this.i18nService.t("valueCopied", this.i18nService.t(typeI18nKey)),
     );
 
     if (field === "password") {
@@ -934,7 +939,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccurred"),
-        this.i18nService.t("nothingSelected")
+        this.i18nService.t("nothingSelected"),
       );
       return;
     }
@@ -956,7 +961,9 @@ export class VaultComponent implements OnInit, OnDestroy {
   async isLowKdfIteration() {
     const kdfType = await this.stateService.getKdfType();
     const kdfOptions = await this.stateService.getKdfConfig();
-    return kdfType === KdfType.PBKDF2_SHA256 && kdfOptions.iterations < DEFAULT_PBKDF2_ITERATIONS;
+    return (
+      kdfType === KdfType.PBKDF2_SHA256 && kdfOptions.iterations < PBKDF2_ITERATIONS.defaultValue
+    );
   }
 
   protected async repromptCipher(ciphers: CipherView[]) {

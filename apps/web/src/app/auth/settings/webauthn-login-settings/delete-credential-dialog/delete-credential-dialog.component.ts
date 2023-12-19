@@ -3,15 +3,15 @@ import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { Subject, takeUntil } from "rxjs";
 
+import { Verification } from "@bitwarden/common/auth/types/verification";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { Verification } from "@bitwarden/common/types/verification";
 import { DialogService } from "@bitwarden/components";
 
-import { WebauthnLoginService } from "../../../core";
-import { WebauthnCredentialView } from "../../../core/views/webauth-credential.view";
+import { WebauthnLoginAdminService } from "../../../core";
+import { WebauthnLoginCredentialView } from "../../../core/views/webauthn-login-credential.view";
 
 export interface DeleteCredentialDialogParams {
   credentialId: string;
@@ -27,17 +27,17 @@ export class DeleteCredentialDialogComponent implements OnInit, OnDestroy {
   protected formGroup = this.formBuilder.group({
     secret: null as Verification | null,
   });
-  protected credential?: WebauthnCredentialView;
+  protected credential?: WebauthnLoginCredentialView;
   protected loading$ = this.webauthnService.loading$;
 
   constructor(
     @Inject(DIALOG_DATA) private params: DeleteCredentialDialogParams,
     private formBuilder: FormBuilder,
     private dialogRef: DialogRef,
-    private webauthnService: WebauthnLoginService,
+    private webauthnService: WebauthnLoginAdminService,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
-    private logService: LogService
+    private logService: LogService,
   ) {}
 
   ngOnInit(): void {
@@ -64,7 +64,7 @@ export class DeleteCredentialDialogComponent implements OnInit, OnDestroy {
         this.platformUtilsService.showToast(
           "error",
           this.i18nService.t("unexpectedError"),
-          error.message
+          error.message,
         );
       }
       return false;
@@ -88,7 +88,7 @@ export class DeleteCredentialDialogComponent implements OnInit, OnDestroy {
  */
 export const openDeleteCredentialDialogComponent = (
   dialogService: DialogService,
-  config: DialogConfig<DeleteCredentialDialogParams>
+  config: DialogConfig<DeleteCredentialDialogParams>,
 ) => {
   return dialogService.open<unknown>(DeleteCredentialDialogComponent, config);
 };

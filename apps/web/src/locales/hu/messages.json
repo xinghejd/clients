@@ -611,8 +611,23 @@
   "loginWithMasterPassword": {
     "message": "Bejelentkezés mesterjelszóval"
   },
+  "readingPasskeyLoading": {
+    "message": "Jelszó beolvasása..."
+  },
+  "readingPasskeyLoadingInfo": {
+    "message": "Tartsuk nyitva ezt az ablakot és kövessük a böngésző utasításait."
+  },
+  "useADifferentLogInMethod": {
+    "message": "Más bejelentkezési mód használata"
+  },
   "loginWithPasskey": {
     "message": "Bejelentkezés jelszóval"
+  },
+  "invalidPasskeyPleaseTryAgain": {
+    "message": "Érvénytelen jelszó. Próbálja újra."
+  },
+  "twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn": {
+    "message": "A 2FA a jelszónál nem támogatott. A bejelentkezéshez frissítsük az alkalmazást."
   },
   "loginWithPasskeyInfo": {
     "message": "Használjunk generált jelszót, amely automatikusan, jelszó nélkül bejelentkeztet. A biometrikus adatok, például az arcfelismerés vagy az ujjlenyomat, vagy más FIDO2 biztonsági módszer igazolja személyazonosságot."
@@ -647,8 +662,23 @@
   "customPasskeyNameInfo": {
     "message": "Nevezzük el a jelszót a könnyebb azonosítshoz."
   },
+  "useForVaultEncryption": {
+    "message": "Használat széf titkosításhoz"
+  },
+  "useForVaultEncryptionInfo": {
+    "message": "Jelentkezzünk be és oldjuk fel a támogatott eszközökön mesterjelszó nélkül. Kövessük a böngésző utasításait a beállítás befejezéséhez."
+  },
+  "useForVaultEncryptionErrorReadingPasskey": {
+    "message": "Hiba történt a jelszó olvasásakor. Próbáljuk újra vagy töröljük a jelölést ebből az opcióból."
+  },
   "encryptionNotSupported": {
     "message": "A titkosítás nem támogatott."
+  },
+  "enablePasskeyEncryption": {
+    "message": "Titkosítás beállítása"
+  },
+  "usedForEncryption": {
+    "message": "Használat titkosításhoz"
   },
   "loginWithPasskeyEnabled": {
     "message": "Jelentkezzünk be bekapcsolt jelszóval"
@@ -1044,6 +1074,9 @@
   "export": {
     "message": "Exportálás"
   },
+  "exportFrom": {
+    "message": "Exportálás innen:"
+  },
   "exportVault": {
     "message": "Széf exportálása"
   },
@@ -1119,6 +1152,9 @@
   },
   "length": {
     "message": "Hossz"
+  },
+  "passwordMinLength": {
+    "message": "Minimum jelszó hosszúság"
   },
   "uppercase": {
     "message": "Nagybetűs (A-Z)",
@@ -2280,6 +2316,9 @@
   "contactSupport": {
     "message": "Ügyfélszolgálat elérése"
   },
+  "contactSupportShort": {
+    "message": "Kapcsolat támogatás"
+  },
   "updatedPaymentMethod": {
     "message": "A fizetési mód frissítésre került."
   },
@@ -2380,6 +2419,9 @@
   },
   "planDescTeams": {
     "message": "Vállalkozásoknak és más szervezeti csoportoknak."
+  },
+  "planNameTeamsStarter": {
+    "message": "Teams Starter"
   },
   "planNameEnterprise": {
     "message": "Vállalatok"
@@ -2740,6 +2782,9 @@
   },
   "webVault": {
     "message": "Webes széf"
+  },
+  "cli": {
+    "message": "CLI"
   },
   "bitWebVault": {
     "message": "Bitwarden webes széf"
@@ -3485,6 +3530,15 @@
       }
     }
   },
+  "subscriptionUserSeatsWithoutAdditionalSeatsOption": {
+    "message": "Maximum $COUNT$ tag hívható meg további díjak nélkül. Lépjünk kapcsolatba az ügyfélszolgálattal a csomag frissítéséhez és további tagok meghívásához.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "subscriptionFreePlan": {
     "message": "$COUNT$ felhasználónál több nem hívható meg magasabb szintű előfizetés nélkül.",
     "placeholders": {
@@ -3965,9 +4019,6 @@
   "setMasterPassword": {
     "message": "Mesterjelszó beállítása"
   },
-  "ssoCompleteRegistration": {
-    "message": "Az SSO-val történő bejelentkezés befejezéséhez mesterjelszót kell beállítani a széf eléréséhez és védelméhez."
-  },
   "identifier": {
     "message": "Azonosító"
   },
@@ -3985,6 +4036,21 @@
   },
   "includeAllTeamsFeatures": {
     "message": "Összes Csapat funkció, továbbá:"
+  },
+  "includeAllTeamsStarterFeatures": {
+    "message": "Összes Teams Starter funkció, ezenkívük:"
+  },
+  "chooseMonthlyOrAnnualBilling": {
+    "message": "Havi vagy éves számlázás választása"
+  },
+  "abilityToAddMoreThanNMembers": {
+    "message": "Több, mint $COUNT$ tag hozzáadásának lehetősége",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "includeSsoAuthentication": {
     "message": "SSO hitelesítés SAML2.0 és OpenID Connect kapcsolaton keresztül"
@@ -4173,8 +4239,8 @@
     "message": "Ez a Send alapértelmezésben rejtett. Az alábbi gombbal átváltható a láthatósága.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "downloadFile": {
-    "message": "Fájl letöltése"
+  "downloadAttachments": {
+    "message": "Mellékletek letöltése"
   },
   "sendAccessUnavailable": {
     "message": "Az elérendő küldés nem létezik vagy már nem elérhető.",
@@ -4564,7 +4630,7 @@
     "message": "próbáljuk ki még ma.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about Bitwarden Send or sign up to **try it today.**'"
   },
-  "sendCreatorIdentifier": {
+  "sendAccessCreatorIdentifier": {
     "message": "$USER_IDENTIFIER$ Bitwarden felhasználó megosztotta a következőket",
     "placeholders": {
       "user_identifier": {
@@ -6601,6 +6667,24 @@
       }
     }
   },
+  "teamsStarterPlanInvLimitReachedManageBilling": {
+    "message": "A Teams Starter csomagok legfeljebb $SEATCOUNT$ tagot tartalmazhatnak. Lépjünk kapcsolatba az ügyfélszolgálattal a csomag frissítéséhez és további tagok meghívásához.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "teamsStarterPlanInvLimitReachedNoManageBilling": {
+    "message": "A Teams Starter csomagok legfeljebb $SEATCOUNT$ tagot tartalmazhatnak. Lépjünk kapcsolatba a szervezet tulajdonosával a csomag frissítéséhez és további tagok meghívásához.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "freeOrgMaxCollectionReachedManageBilling": {
     "message": "Az ingyenes szervezeteknek legfeljebb $COLLECTIONCOUNT$ gyűjteményei is lehetnek. Térjünk át egy fizetett csomagra további gyűjtemények hozzáadásához.",
     "placeholders": {
@@ -6991,6 +7075,14 @@
     "message": "automatikus regisztrációval rendelkező rendszabály kerül bekapcsolásra, ha ezt az opció van használatban.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
+  "orgPermissionsUpdatedMustSetPassword": {
+    "message": "A szervezeti engedélyek frissítésre kerültek, ezért be kell állítani egy mesterjelszót.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "orgRequiresYouToSetPassword": {
+    "message": "A szervezet megköveteli egy mesterjelszó beállítását.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
   "notFound": {
     "message": "$RESOURCE$ nem található.",
     "placeholders": {
@@ -7110,6 +7202,9 @@
   },
   "next": {
     "message": "Következő"
+  },
+  "ssoLoginIsRequired": {
+    "message": "SSO bejelentkezés szükséges"
   },
   "selectedRegionFlag": {
     "message": "Kiválasztott régió zászló"
@@ -7233,6 +7328,9 @@
   "limitCollectionCreationDeletionDesc": {
     "message": "A gyűjtemény létrehozásának és törlésének korlátozása tulajdonosokra és adminisztrátorokra"
   },
+  "allowAdminAccessToAllCollectionItemsDesc": {
+    "message": "Owners and admins can manage all collections and items"
+  },
   "collectionManagementUpdated": {
     "message": "A gyűjtemény kezelési viselkedés mentésre került."
   },
@@ -7315,8 +7413,38 @@
   "passkeyNotCopiedAlert": {
     "message": "A hozzáférési kulcs nem kerül másolásra a klónozott elembe. Folytatjuk ennek az elemnek a klónozását?"
   },
+  "modifiedCollectionManagement": {
+    "message": "Módosított gyűjteménykezelési beállítás: $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "seeDetailedInstructions": {
     "message": "Tekintsük meg a részletes utasításokat a súgó oldalon:",
     "description": "This is followed a by a hyperlink to the help website."
+  },
+  "projectAccessUpdated": {
+    "message": "A projekt elérés frissítésre került."
+  },
+  "unexpectedErrorSend": {
+    "message": "Váratlan hiba történt a Send betöltésekor. Próbáljuk újra később."
+  },
+  "seatLimitReached": {
+    "message": "A hely korlát elérésre került."
+  },
+  "contactYourProvider": {
+    "message": "További helyek vásárlásához forduljunk a  szolgáltatóhoz."
+  },
+  "seatLimitReachedContactYourProvider": {
+    "message": "A helyek száma elérésre került.  További helyek vásárlásához forduljunk a szolgáltatóhoz."
+  },
+  "collectionAccessRestricted": {
+    "message": "A gyűjtemény elérése korlátozott."
+  },
+  "serviceAccountAccessUpdated": {
+    "message": "A szolgáltatás fiók elérése frissítésre került."
   }
 }

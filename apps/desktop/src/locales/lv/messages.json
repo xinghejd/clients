@@ -403,6 +403,9 @@
   "length": {
     "message": "Garums"
   },
+  "passwordMinLength": {
+    "message": "Mazākais pieļaujamais paroles garums"
+  },
   "uppercase": {
     "message": "Lielie burti (A-Z)"
   },
@@ -1533,8 +1536,13 @@
   "setMasterPassword": {
     "message": "Uzstādīt galveno paroli"
   },
-  "ssoCompleteRegistration": {
-    "message": "Lai pabeigtu vienotās pieteikšanās uzstādīšanu, ir jānorāda galvenā parole, lai piekļūtu glabātavai un aizsargātu to."
+  "orgPermissionsUpdatedMustSetPassword": {
+    "message": "Apvienības atļaujas tika atjauninātas, un tās pieprasa iestatīt galveno paroli.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "orgRequiresYouToSetPassword": {
+    "message": "Apvienība pieprasa iestatīt galveno paroli.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "currentMasterPass": {
     "message": "Pašreizējā galvenā parole"
@@ -1964,7 +1972,7 @@
     "message": "Lietotnes iestatījumi (visi konti)"
   },
   "accountSwitcherLimitReached": {
-    "message": "Sasniegti konta ierobežojumi. Atteikties, lai pievienotu citu."
+    "message": "Sasniegti konta ierobežojumi. Jāizrakstās no konta, lai pievienotu citu."
   },
   "settingsTitle": {
     "message": "Lietotnes iestatījumi kontam $EMAIL$",
@@ -1997,10 +2005,10 @@
     }
   },
   "locked": {
-    "message": "Slēgts"
+    "message": "Aizslēgta"
   },
   "unlocked": {
-    "message": "Atslēgts"
+    "message": "Atslēgta"
   },
   "generator": {
     "message": "Veidotājs"

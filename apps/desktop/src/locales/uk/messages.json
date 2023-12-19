@@ -403,6 +403,9 @@
   "length": {
     "message": "Довжина"
   },
+  "passwordMinLength": {
+    "message": "Мінімальна довжина пароля"
+  },
   "uppercase": {
     "message": "Верхній регістр (A-Z)"
   },
@@ -684,7 +687,7 @@
     "message": "Середовище власного хостингу"
   },
   "selfHostedEnvironmentFooter": {
-    "message": "Вкажіть основну URL-адресу вашого локально розміщеного встановлення Bitwarden."
+    "message": "Вкажіть основну URL-адресу Bitwarden, встановленого на локальному хостингу."
   },
   "customEnvironment": {
     "message": "Власне середовище"
@@ -1533,8 +1536,13 @@
   "setMasterPassword": {
     "message": "Встановити головний пароль"
   },
-  "ssoCompleteRegistration": {
-    "message": "Щоб завершити налаштування входу з SSO, встановіть головний пароль для доступу і захисту сховища."
+  "orgPermissionsUpdatedMustSetPassword": {
+    "message": "Оновлено дозволи вашої організації – вимагається встановлення головного пароля.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "orgRequiresYouToSetPassword": {
+    "message": "Ваша організація вимагає, щоб ви встановили головний пароль.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "currentMasterPass": {
     "message": "Поточний головний пароль"
@@ -2202,7 +2210,7 @@
     "message": "Цей запит більше недійсний."
   },
   "approveLoginRequestDesc": {
-    "message": "Використовувати цей пристрій для схвалення запитів на вхід, виконаних з інших пристроїв."
+    "message": "Схвалювати запити на вхід, виконані з інших пристроїв."
   },
   "confirmLoginAtemptForMail": {
     "message": "Підтвердити спробу входу для $EMAIL$",

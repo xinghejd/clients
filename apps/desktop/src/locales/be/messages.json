@@ -403,6 +403,9 @@
   "length": {
     "message": "Даўжыня"
   },
+  "passwordMinLength": {
+    "message": "Minimum password length"
+  },
   "uppercase": {
     "message": "Вялікія літары (A-Z)"
   },
@@ -1533,8 +1536,13 @@
   "setMasterPassword": {
     "message": "Прызначыць асноўны пароль"
   },
-  "ssoCompleteRegistration": {
-    "message": "Для завяршэння працэсу ўваходу з дапамогай SSO, прызначце асноўны пароль для доступу да вашага сховішча і яго абароны."
+  "orgPermissionsUpdatedMustSetPassword": {
+    "message": "Your organization permissions were updated, requiring you to set a master password.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "orgRequiresYouToSetPassword": {
+    "message": "Your organization requires you to set a master password.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "currentMasterPass": {
     "message": "Бягучы асноўны пароль"
