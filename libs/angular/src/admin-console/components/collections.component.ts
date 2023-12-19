@@ -1,3 +1,4 @@
+import { DialogConfig, DialogRef } from "@angular/cdk/dialog";
 import { Directive, EventEmitter, Input, OnInit, Output } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -8,6 +9,7 @@ import { CollectionService } from "@bitwarden/common/vault/abstractions/collecti
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
+import { DialogService } from "@bitwarden/components";
 
 @Directive()
 export class CollectionsComponent implements OnInit {
@@ -28,6 +30,7 @@ export class CollectionsComponent implements OnInit {
     protected i18nService: I18nService,
     protected cipherService: CipherService,
     private logService: LogService,
+    protected dialogRef?: DialogRef,
   ) {}
 
   async ngOnInit() {
@@ -67,6 +70,7 @@ export class CollectionsComponent implements OnInit {
       this.formPromise = this.saveCollections();
       await this.formPromise;
       this.onSavedCollections.emit();
+      this.dialogRef?.close(CollectionsDialogResult.Saved);
       this.platformUtilsService.showToast("success", null, this.i18nService.t("editedItem"));
     } catch (e) {
       this.logService.error(e);
@@ -91,4 +95,27 @@ export class CollectionsComponent implements OnInit {
   protected saveCollections() {
     return this.cipherService.saveCollectionsWithServer(this.cipherDomain);
   }
+}
+
+export interface CollectionsDialogParams {
+  cipherId: string;
+}
+
+export enum CollectionsDialogResult {
+  Saved = "saved",
+}
+
+/**
+ * Strongly typed helper to open a Collections dialog
+ * @param dialogService Instance of the dialog service that will be used to open the dialog
+ * @param config Optional configuration for the dialog
+ */
+export function openIndividualVaultCollectionsDialog(
+  dialogService: DialogService,
+  config?: DialogConfig<CollectionsDialogParams>,
+) {
+  return dialogService.open<CollectionsDialogResult, CollectionsDialogParams>(
+    CollectionsComponent,
+    config,
+  );
 }

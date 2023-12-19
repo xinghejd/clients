@@ -24,13 +24,15 @@ export class CollectionsComponent extends BaseCollectionsComponent implements On
     protected dialogRef: DialogRef,
     @Inject(DIALOG_DATA) params: CollectionsDialogParams,
   ) {
-    super(collectionService, platformUtilsService, i18nService, cipherService, logService);
+    super(
+      collectionService,
+      platformUtilsService,
+      i18nService,
+      cipherService,
+      logService,
+      dialogRef,
+    );
     this.cipherId = params?.cipherId;
-  }
-
-  override async submit() {
-    await super.submit();
-    this.dialogRef.close(CollectionsDialogResult.Saved);
   }
 
   check(c: CollectionView, select?: boolean) {
