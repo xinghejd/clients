@@ -16,6 +16,21 @@ async function run(context) {
   const appPath = `${context.appOutDir}/${appName}.app`;
   const macBuild = context.electronPlatformName === "darwin";
   const copyPlugIn = ["darwin", "mas"].includes(context.electronPlatformName);
+  const copyExtension = true;
+
+  let shouldResign = false;
+
+  if (copyExtension) {
+    const extensionPath = path.join(
+      __dirname,
+      "../src/macos/build/Release/provider-extension.appex",
+    );
+    if (fse.existsSync(extensionPath)) {
+      fse.mkdirSync(path.join(appPath, "Contents/PlugIns"));
+      fse.copySync(extensionPath, path.join(appPath, "Contents/PlugIns/provider-extension.appex"));
+    }
+    shouldResign = true;
+  }
 
   if (copyPlugIn) {
     // Copy Safari plugin to work-around https://github.com/electron-userland/electron-builder/issues/5552
@@ -26,25 +41,28 @@ async function run(context) {
         path.join(plugIn, "safari.appex"),
         path.join(appPath, "Contents/PlugIns/safari.appex"),
       );
+      shouldResign = true;
+    }
+  }
 
-      // Resign to sign safari extension
-      if (context.electronPlatformName === "mas") {
-        const masBuildOptions = deepAssign(
-          {},
-          context.packager.platformSpecificBuildOptions,
-          context.packager.config.mas,
-        );
-        if (context.targets.some((e) => e.name === "mas-dev")) {
-          deepAssign(masBuildOptions, {
-            type: "development",
-          });
-        }
-        if (context.packager.packagerOptions.prepackaged == null) {
-          await context.packager.sign(appPath, context.appOutDir, masBuildOptions, context.arch);
-        }
-      } else {
-        await context.packager.signApp(context, true);
+  if (shouldResign) {
+    // Resign to sign safari extension
+    if (context.electronPlatformName === "mas") {
+      const masBuildOptions = deepAssign(
+        {},
+        context.packager.platformSpecificBuildOptions,
+        context.packager.config.mas,
+      );
+      if (context.targets.some((e) => e.name === "mas-dev")) {
+        deepAssign(masBuildOptions, {
+          type: "development",
+        });
       }
+      if (context.packager.packagerOptions.prepackaged == null) {
+        await context.packager.sign(appPath, context.appOutDir, masBuildOptions, context.arch);
+      }
+    } else {
+      await context.packager.signApp(context, true);
     }
   }
 
