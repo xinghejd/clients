@@ -357,8 +357,18 @@ export class ApiService implements ApiServiceAbstraction {
     return this.send("POST", "/accounts/security-stamp", request, true, false);
   }
 
-  async getAccountRevisionDate(): Promise<number> {
-    const r = await this.send("GET", "/accounts/revision-date", null, true, true);
+  async getAccountRevisionDate(purpose: Lowercase<string>): Promise<number> {
+    const r = await this.send(
+      "GET",
+      "/accounts/revision-date",
+      null,
+      true,
+      true,
+      undefined,
+      (headers) => {
+        headers.set("Bitwarden-Sync-Purpose", purpose);
+      },
+    );
     return r as number;
   }
 
@@ -917,7 +927,7 @@ export class ApiService implements ApiServiceAbstraction {
 
   // Sync APIs
 
-  async getSync(purpose: string): Promise<SyncResponse> {
+  async getSync(purpose: Lowercase<string>): Promise<SyncResponse> {
     const path = this.isDesktopClient || this.isWebClient ? "/sync?excludeDomains=true" : "/sync";
     const r = await this.send("GET", path, null, true, true, undefined, (headers) => {
       headers.set("Bitwarden-Sync-Purpose", purpose);

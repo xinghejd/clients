@@ -166,7 +166,7 @@ export abstract class ApiService {
   setPassword: (request: SetPasswordRequest) => Promise<any>;
   postSetKeyConnectorKey: (request: SetKeyConnectorKeyRequest) => Promise<any>;
   postSecurityStamp: (request: SecretVerificationRequest) => Promise<any>;
-  getAccountRevisionDate: () => Promise<number>;
+  getAccountRevisionDate: (purpose: Lowercase<string>) => Promise<number>;
   postPasswordHint: (request: PasswordHintRequest) => Promise<any>;
   postRegister: (request: RegisterRequest) => Promise<RegisterResponse>;
   postPremium: (data: FormData) => Promise<PaymentResponse>;
