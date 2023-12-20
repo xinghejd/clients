@@ -1,4 +1,8 @@
-export type CachedServices = Record<string, unknown>;
+import { ApplicationLifetimeService } from "@bitwarden/common/platform/abstractions/application-lifetime.service";
+
+export type CachedServices = Record<string, unknown> & {
+  lifetimeServices?: ApplicationLifetimeService[];
+};
 
 export type FactoryOptions = {
   alwaysInitializeNewService?: boolean;

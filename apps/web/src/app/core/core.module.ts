@@ -1,6 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { APP_INITIALIZER, NgModule, Optional, SkipSelf } from "@angular/core";
 
+import { AngularApplicationLifetimeHandler } from "@bitwarden/angular/platform/services/angular-application-lifetime.handler";
 import {
   SECURE_STORAGE,
   STATE_FACTORY,
@@ -15,13 +16,17 @@ import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.
 import { ModalService as ModalServiceAbstraction } from "@bitwarden/angular/services/modal.service";
 import { LoginService as LoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/login.service";
 import { LoginService } from "@bitwarden/common/auth/services/login.service";
+import { ApplicationLifetimeService } from "@bitwarden/common/platform/abstractions/application-lifetime.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService as MessagingServiceAbstraction } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService as BaseStateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
+import { ApplicationLifetimeHandler } from "@bitwarden/common/platform/services/application-lifetime.handler";
+import { LoggingLifetimeService } from "@bitwarden/common/platform/services/logging-lifetime.service";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 
 import { PolicyListService } from "../admin-console/core/policy-list.service";
@@ -99,6 +104,16 @@ import { WebPlatformUtilsService } from "./web-platform-utils.service";
       deps: [StateService],
     },
     CollectionAdminService,
+    {
+      provide: ApplicationLifetimeHandler,
+      useClass: AngularApplicationLifetimeHandler,
+    },
+    {
+      provide: ApplicationLifetimeService,
+      useClass: LoggingLifetimeService,
+      deps: [LogService],
+      multi: true,
+    },
   ],
 })
 export class CoreModule {

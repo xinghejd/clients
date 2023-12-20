@@ -1,5 +1,6 @@
 import { APP_INITIALIZER, InjectionToken, NgModule } from "@angular/core";
 
+import { AngularApplicationLifetimeHandler } from "@bitwarden/angular/platform/services/angular-application-lifetime.handler";
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import {
   SECURE_STORAGE,
@@ -18,6 +19,7 @@ import { AccountService as AccountServiceAbstraction } from "@bitwarden/common/a
 import { AuthService as AuthServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth.service";
 import { LoginService as LoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/login.service";
 import { LoginService } from "@bitwarden/common/auth/services/login.service";
+import { ApplicationLifetimeService } from "@bitwarden/common/platform/abstractions/application-lifetime.service";
 import { BroadcasterService as BroadcasterServiceAbstraction } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { CryptoService as CryptoServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto.service";
@@ -35,6 +37,8 @@ import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
+import { ApplicationLifetimeHandler } from "@bitwarden/common/platform/services/application-lifetime.handler";
+import { LoggingLifetimeService } from "@bitwarden/common/platform/services/logging-lifetime.service";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
@@ -181,6 +185,16 @@ const RELOAD_CALLBACK = new InjectionToken<() => any>("RELOAD_CALLBACK");
         LogService,
         StateServiceAbstraction,
       ],
+    },
+    {
+      provide: ApplicationLifetimeHandler,
+      useClass: AngularApplicationLifetimeHandler,
+    },
+    {
+      provide: ApplicationLifetimeService,
+      useClass: LoggingLifetimeService,
+      deps: [LogService],
+      multi: true,
     },
   ],
 })

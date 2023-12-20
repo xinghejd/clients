@@ -13,6 +13,7 @@ import {
 } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
+import { ApplicationLifetimeHandler } from "@bitwarden/common/platform/services/application-lifetime.handler";
 import { ConfigService } from "@bitwarden/common/platform/services/config/config.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
@@ -35,6 +36,7 @@ export class InitService {
     private themingService: AbstractThemingService,
     private encryptService: EncryptService,
     private configService: ConfigService,
+    private angularApplicationLifetimeHandler: ApplicationLifetimeHandler,
   ) {}
 
   init() {
@@ -61,6 +63,7 @@ export class InitService {
       containerService.attachToGlobal(this.win);
 
       this.configService.init();
+      await this.angularApplicationLifetimeHandler.runOnStart();
     };
   }
 }

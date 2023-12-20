@@ -1,5 +1,6 @@
 import { Inject, Injectable } from "@angular/core";
 
+import { AngularApplicationLifetimeHandler } from "@bitwarden/angular/platform/services/angular-application-lifetime.handler";
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
@@ -38,6 +39,7 @@ export class InitService {
     private themingService: AbstractThemingService,
     private encryptService: EncryptService,
     private configService: ConfigService,
+    private angularApplicationLifetimeHandler: AngularApplicationLifetimeHandler,
   ) {}
 
   init() {
@@ -75,6 +77,8 @@ export class InitService {
       containerService.attachToGlobal(this.win);
 
       this.configService.init();
+
+      await this.angularApplicationLifetimeHandler.runOnStart();
     };
   }
 }

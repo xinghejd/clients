@@ -38,6 +38,7 @@ import { TwoFactorService } from "@bitwarden/common/auth/services/two-factor.ser
 import { UserVerificationApiService } from "@bitwarden/common/auth/services/user-verification/user-verification-api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/services/user-verification/user-verification.service";
 import { AppIdService as AppIdServiceAbstraction } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { ApplicationLifetimeService } from "@bitwarden/common/platform/abstractions/application-lifetime.service";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { CryptoService as CryptoServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto.service";
@@ -55,12 +56,14 @@ import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/pla
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { AppIdService } from "@bitwarden/common/platform/services/app-id.service";
+import { ApplicationLifetimeHandler } from "@bitwarden/common/platform/services/application-lifetime.handler";
 import { ConfigApiService } from "@bitwarden/common/platform/services/config/config-api.service";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { EncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/encrypt.service.implementation";
 import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/multithread-encrypt.service.implementation";
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
+import { LoggingLifetimeService } from "@bitwarden/common/platform/services/logging-lifetime.service";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
 import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
 import { GlobalStateProvider } from "@bitwarden/common/platform/state";
@@ -235,6 +238,7 @@ export default class MainBackground {
   accountService: AccountServiceAbstraction;
   globalStateProvider: GlobalStateProvider;
   fido2Service: Fido2ServiceAbstraction;
+  applicationLifetimeServices: ApplicationLifetimeService[];
 
   // Passed to the popup for Safari to workaround issues with theming, downloading, etc.
   backgroundWindow = window;
@@ -258,6 +262,7 @@ export default class MainBackground {
   popupOnlyContext: boolean;
 
   constructor(public isPrivateMode: boolean = false) {
+    this.applicationLifetimeServices = [];
     this.popupOnlyContext = isPrivateMode || BrowserApi.manifestVersion === 3;
 
     // Services
@@ -280,6 +285,7 @@ export default class MainBackground {
       ? new BrowserMessagingPrivateModeBackgroundService()
       : new BrowserMessagingService();
     this.logService = new ConsoleLogService(false);
+    this.applicationLifetimeServices.push(new LoggingLifetimeService(this.logService));
     this.cryptoFunctionService = new WebCryptoFunctionService(window);
     this.storageService = new BrowserLocalStorageService();
     this.secureStorageService = new BrowserLocalStorageService();
@@ -801,6 +807,9 @@ export default class MainBackground {
         }
       });
     }
+
+    const lifetimeHandler = new ApplicationLifetimeHandler(this.applicationLifetimeServices);
+    await lifetimeHandler.runOnStart();
 
     return new Promise<void>((resolve) => {
       setTimeout(async () => {
