@@ -1,8 +1,8 @@
 //
 //  AppDelegate.swift
-//  passkey-provider-swift
+//  desktop
 //
-//  Created by Andreas Coroiu on 2023-12-13.
+//  Created by Andreas Coroiu on 2023-12-21.
 //
 
 import Cocoa

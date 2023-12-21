@@ -4,7 +4,7 @@ const paths = {
   build: "./build/",
   dist: "./dist/",
   node_modules: "./node_modules/",
-  macOsProject: "./src/macos/Bitwarden.xcodeproj",
+  macOsProject: "./src/macos/desktop.xcodeproj",
   macOsBuild: "./build-macos",
 };
 

@@ -1,27 +1,15 @@
 //
 //  CredentialProviderViewController.swift
-//  provider-extension
+//  autofill-extension
 //
-//  Created by Andreas Coroiu on 2023-12-13.
+//  Created by Andreas Coroiu on 2023-12-21.
 //
 
-import os
 import AuthenticationServices
-
-enum ExampleError : Error {
-    case nope
-}
+import os
 
 class CredentialProviderViewController: ASCredentialProviderViewController {
-    let logger = Logger();
-
-    /*
-     Prepare your UI to list available credentials for the user to choose from. The items in
-     'serviceIdentifiers' describe the service the user is logging in to, so your extension can
-     prioritize the most relevant credentials in the list.
-    */
-//    override func prepareCredentialList(for serviceIdentifiers: [ASCredentialServiceIdentifier]) {
-//    }
+    let logger = Logger()
 
     /*
      Implement this method if your extension supports showing credentials in the QuickType bar.
@@ -60,23 +48,28 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
         let passwordCredential = ASPasswordCredential(user: "j_appleseed", password: "apple1234")
         self.extensionContext.completeRequest(withSelectedCredential: passwordCredential, completionHandler: nil)
     }
-
+    
     override func prepareInterfaceForExtensionConfiguration() {
-        logger.log("[provider-extension] prepareInterfaceForExtensionConfiguration called")
+        logger.log("[autofill-extension] prepareInterfaceForExtensionConfiguration called")
     }
 
     override func prepareInterface(forPasskeyRegistration registrationRequest: ASCredentialRequest) {
-        logger.log("[provider-extension] prepare interface for registration request \(registrationRequest.description)")
+        logger.log("[autofill-extension] prepare interface for registration request \(registrationRequest.description)")
 
 //        self.extensionContext.cancelRequest(withError: ExampleError.nope)
     }
 
     override func prepareInterfaceToProvideCredential(for credentialRequest: ASCredentialRequest) {
-        logger.log("[provider-extension] prepare interface for credential request \(credentialRequest.description)")
+        logger.log("[autofill-extension] prepare interface for credential request \(credentialRequest.description)")
     }
 
+    /*
+     Prepare your UI to list available credentials for the user to choose from. The items in
+     'serviceIdentifiers' describe the service the user is logging in to, so your extension can
+     prioritize the most relevant credentials in the list.
+    */
     override func prepareCredentialList(for serviceIdentifiers: [ASCredentialServiceIdentifier]) {
-        logger.log("[provider-extension] prepareCredentialList for serviceIdentifiers: \(serviceIdentifiers.count)")
+        logger.log("[autofill-extension] prepareCredentialList for serviceIdentifiers: \(serviceIdentifiers.count)")
 
         for serviceIdentifier in serviceIdentifiers {
             logger.log("     service: \(serviceIdentifier.identifier)")
@@ -84,11 +77,11 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
     }
 
     override func prepareInterfaceToProvideCredential(for credentialIdentity: ASPasswordCredentialIdentity) {
-        logger.log("[provider-extension] prepareInterfaceToProvideCredential for credentialIdentity: \(credentialIdentity.user)")
+        logger.log("[autofill-extension] prepareInterfaceToProvideCredential for credentialIdentity: \(credentialIdentity.user)")
     }
 
     override func prepareCredentialList(for serviceIdentifiers: [ASCredentialServiceIdentifier], requestParameters: ASPasskeyCredentialRequestParameters) {
-        logger.log("[provider-extension] prepareCredentialList(passkey) for serviceIdentifiers: \(serviceIdentifiers.count)")
+        logger.log("[autofill-extension] prepareCredentialList(passkey) for serviceIdentifiers: \(serviceIdentifiers.count)")
 
         for serviceIdentifier in serviceIdentifiers {
             logger.log("     service: \(serviceIdentifier.identifier)")
@@ -96,4 +89,5 @@ class CredentialProviderViewController: ASCredentialProviderViewController {
 
         logger.log("request parameters: \(requestParameters.relyingPartyIdentifier)")
     }
+
 }

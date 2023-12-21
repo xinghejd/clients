@@ -23,11 +23,11 @@ async function run(context) {
   if (copyExtension) {
     const extensionPath = path.join(
       __dirname,
-      "../src/macos/build/Release/provider-extension.appex",
+      "../src/macos/build/Release/autofill-extension.appex",
     );
     if (fse.existsSync(extensionPath)) {
       fse.mkdirSync(path.join(appPath, "Contents/PlugIns"));
-      fse.copySync(extensionPath, path.join(appPath, "Contents/PlugIns/provider-extension.appex"));
+      fse.copySync(extensionPath, path.join(appPath, "Contents/PlugIns/autofill-extension.appex"));
     }
     shouldResign = true;
   }
