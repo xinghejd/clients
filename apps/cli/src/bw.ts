@@ -30,12 +30,14 @@ import { TwoFactorService } from "@bitwarden/common/auth/services/two-factor.ser
 import { UserVerificationApiService } from "@bitwarden/common/auth/services/user-verification/user-verification-api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/services/user-verification/user-verification.service";
 import { ClientType } from "@bitwarden/common/enums";
+import { ApplicationLifetimeService } from "@bitwarden/common/platform/abstractions/application-lifetime.service";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
 import { KeySuffixOptions, LogLevelType } from "@bitwarden/common/platform/enums";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { Account } from "@bitwarden/common/platform/models/domain/account";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { AppIdService } from "@bitwarden/common/platform/services/app-id.service";
+import { ApplicationLifetimeHandler } from "@bitwarden/common/platform/services/application-lifetime.handler";
 import { BroadcasterService } from "@bitwarden/common/platform/services/broadcaster.service";
 import { ConfigApiService } from "@bitwarden/common/platform/services/config/config-api.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
@@ -166,6 +168,7 @@ export class Main {
   configService: CliConfigService;
   accountService: AccountService;
   globalStateProvider: GlobalStateProvider;
+  applicationLifetimeServices: ApplicationLifetimeService[] = [];
 
   constructor() {
     let p = null;
@@ -537,6 +540,11 @@ export class Main {
     if (installedVersion == null || installedVersion !== currentVersion) {
       await this.stateService.setInstalledVersion(currentVersion);
     }
+
+    const applicationLifetimeHandler = new ApplicationLifetimeHandler(
+      this.applicationLifetimeServices,
+    );
+    await applicationLifetimeHandler.runOnStart();
   }
 }
 

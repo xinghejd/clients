@@ -36,7 +36,7 @@ export class InitService {
     private themingService: AbstractThemingService,
     private encryptService: EncryptService,
     private configService: ConfigService,
-    private angularApplicationLifetimeHandler: ApplicationLifetimeHandler,
+    private applicationLifetimeHandler: ApplicationLifetimeHandler,
   ) {}
 
   init() {
@@ -63,7 +63,7 @@ export class InitService {
       containerService.attachToGlobal(this.win);
 
       this.configService.init();
-      await this.angularApplicationLifetimeHandler.runOnStart();
+      await this.applicationLifetimeHandler.runOnStart();
     };
   }
 }
