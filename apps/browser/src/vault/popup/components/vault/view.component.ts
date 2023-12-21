@@ -1,4 +1,4 @@
-import { Location } from "@angular/common";
+import { DatePipe, Location } from "@angular/common";
 import { ChangeDetectorRef, Component, NgZone } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Subject, firstValueFrom, takeUntil } from "rxjs";
@@ -94,6 +94,7 @@ export class ViewComponent extends BaseViewComponent {
     logService: LogService,
     fileDownloadService: FileDownloadService,
     dialogService: DialogService,
+    datePipe: DatePipe,
   ) {
     super(
       cipherService,
@@ -115,6 +116,7 @@ export class ViewComponent extends BaseViewComponent {
       stateService,
       fileDownloadService,
       dialogService,
+      datePipe,
     );
   }
 
