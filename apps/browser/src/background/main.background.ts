@@ -238,7 +238,7 @@ export default class MainBackground {
   accountService: AccountServiceAbstraction;
   globalStateProvider: GlobalStateProvider;
   fido2Service: Fido2ServiceAbstraction;
-  applicationLifetimeServices: ApplicationLifetimeService[];
+  applicationLifetimeServices: ApplicationLifetimeService[] = [];
 
   // Passed to the popup for Safari to workaround issues with theming, downloading, etc.
   backgroundWindow = window;
@@ -262,7 +262,6 @@ export default class MainBackground {
   popupOnlyContext: boolean;
 
   constructor(public isPrivateMode: boolean = false) {
-    this.applicationLifetimeServices = [];
     this.popupOnlyContext = isPrivateMode || BrowserApi.manifestVersion === 3;
 
     // Services
