@@ -43,6 +43,10 @@ export class LoginUri extends Domain {
   }
 
   async validateChecksum(clearTextUri: string, orgId: string, encKey: SymmetricCryptoKey) {
+    if (this.uriChecksum == null) {
+      return false;
+    }
+
     const cryptoService = Utils.getContainerService().getEncryptService();
     const localChecksum = await cryptoService.hash(clearTextUri, "sha256");
 
