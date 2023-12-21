@@ -1074,6 +1074,9 @@
   "export": {
     "message": "Export"
   },
+  "exportFrom": {
+    "message": "Export from"
+  },
   "exportVault": {
     "message": "Export vault"
   },
@@ -7391,6 +7394,9 @@
   },
   "alreadyHaveAccount": {
     "message": "Already have an account?"
+  },
+  "skipToContent": {
+    "message": "Skip to content"
   },
   "customBillingStart": {
     "message": "Custom billing is not reflected. Visit the "
