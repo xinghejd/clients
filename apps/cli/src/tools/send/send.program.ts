@@ -196,6 +196,7 @@ export class SendProgram extends Program {
           this.main.environmentService,
           this.main.searchService,
           this.main.cryptoService,
+          this.main.apiService,
         );
         const response = await cmd.run(id, options);
         this.processResponse(response);
@@ -263,6 +264,7 @@ export class SendProgram extends Program {
           this.main.environmentService,
           this.main.searchService,
           this.main.cryptoService,
+          this.main.apiService,
         );
         const cmd = new SendEditCommand(
           this.main.sendService,

@@ -1,5 +1,4 @@
-import * as fet from "node-fetch";
-
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncArrayBuffer } from "@bitwarden/common/platform/models/domain/enc-array-buffer";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
@@ -9,7 +8,10 @@ import { FileResponse } from "../models/response/file.response";
 import { CliUtils } from "../utils";
 
 export abstract class DownloadCommand {
-  constructor(protected cryptoService: CryptoService) {}
+  constructor(
+    protected cryptoService: CryptoService,
+    protected apiService: ApiService,
+  ) {}
 
   protected async saveAttachmentToFile(
     url: string,
@@ -17,7 +19,9 @@ export abstract class DownloadCommand {
     fileName: string,
     output?: string,
   ) {
-    const response = await fet.default(new fet.Request(url, { headers: { cache: "no-cache" } }));
+    const response = await this.apiService.nativeFetch(
+      new Request(url, { headers: { cache: "no-cache" } }),
+    );
     if (response.status !== 200) {
       return Response.error(
         "A " + response.status + " error occurred while downloading the attachment.",

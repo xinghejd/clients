@@ -1,5 +1,6 @@
 import * as program from "commander";
 
+import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -17,8 +18,9 @@ export class SendGetCommand extends DownloadCommand {
     private environmentService: EnvironmentService,
     private searchService: SearchService,
     cryptoService: CryptoService,
+    apiService: ApiService,
   ) {
-    super(cryptoService);
+    super(cryptoService, apiService);
   }
 
   async run(id: string, options: program.OptionValues) {
