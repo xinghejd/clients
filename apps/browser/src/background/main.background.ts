@@ -154,7 +154,9 @@ import { BrowserSendService } from "../services/browser-send.service";
 import { BrowserSettingsService } from "../services/browser-settings.service";
 import VaultTimeoutService from "../services/vault-timeout/vault-timeout.service";
 import { BrowserFido2UserInterfaceService } from "../vault/fido2/browser-fido2-user-interface.service";
+import { Fido2Service as Fido2ServiceAbstraction } from "../vault/services/abstractions/fido2.service";
 import { BrowserFolderService } from "../vault/services/browser-folder.service";
+import Fido2Service from "../vault/services/fido2.service";
 import { VaultFilterService } from "../vault/services/vault-filter.service";
 
 import CommandsBackground from "./commands.background";
@@ -229,6 +231,7 @@ export default class MainBackground {
   authRequestCryptoService: AuthRequestCryptoServiceAbstraction;
   accountService: AccountServiceAbstraction;
   globalStateProvider: GlobalStateProvider;
+  fido2Service: Fido2ServiceAbstraction;
 
   // Passed to the popup for Safari to workaround issues with theming, downloading, etc.
   backgroundWindow = window;
@@ -559,6 +562,7 @@ export default class MainBackground {
       this.logService,
       this.settingsService,
       this.userVerificationService,
+      this.configService,
     );
     this.auditService = new AuditService(this.cryptoFunctionService, this.apiService);
 
@@ -593,6 +597,7 @@ export default class MainBackground {
       this.messagingService,
     );
 
+    this.fido2Service = new Fido2Service();
     this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService(this.authService);
     this.fido2AuthenticatorService = new Fido2AuthenticatorService(
       this.cipherService,
@@ -641,6 +646,7 @@ export default class MainBackground {
       this.messagingService,
       this.logService,
       this.configService,
+      this.fido2Service,
     );
     this.nativeMessagingBackground = new NativeMessagingBackground(
       this.cryptoService,
@@ -720,6 +726,7 @@ export default class MainBackground {
       this.vaultTimeoutService,
       this.stateService,
       this.notificationsService,
+      this.accountService,
     );
     this.webRequestBackground = new WebRequestBackground(
       this.platformUtilsService,
@@ -773,6 +780,8 @@ export default class MainBackground {
     }
     await this.idleBackground.init();
     await this.webRequestBackground.init();
+
+    await this.fido2Service.init();
 
     if (this.platformUtilsService.isFirefox() && !this.isPrivateMode) {
       // Set Private Mode windows to the default icon - they do not share state with the background page
