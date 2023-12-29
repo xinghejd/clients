@@ -79,6 +79,7 @@ export class SecretMoveProjectComponent implements OnInit, OnDestroy {
   }
 
   move = async () => {
+    this.formGroup.markAllAsTouched();
     if (this.formGroup.invalid) {
       return;
     }
