@@ -3,7 +3,6 @@ import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
 import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { Observable, Subject, takeUntil } from "rxjs";
 
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { TableDataSource } from "@bitwarden/components";
 
@@ -38,7 +37,6 @@ export class SecretMoveProjectComponent implements OnInit, OnDestroy {
     @Inject(DIALOG_DATA) private data: SecretMoveProjectOperation,
     private projectService: ProjectService,
     private secretService: SecretService,
-    private i18nService: I18nService,
   ) {
     this.secretsCount = data.secrets.length;
     this.selectedProjectId$ = this.formGroup.controls.project.valueChanges;
@@ -87,7 +85,7 @@ export class SecretMoveProjectComponent implements OnInit, OnDestroy {
     await this.secretService.bulkMoveToProject(
       this.data.organizationId,
       this.data.secrets.map((s) => s.id),
-      [this.formGroup.controls.project.value],
+      this.formGroup.controls.project.value,
     );
 
     this.dialogRef.close();
