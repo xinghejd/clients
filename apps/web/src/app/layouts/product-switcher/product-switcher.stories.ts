@@ -59,9 +59,6 @@ export default {
             return new I18nMockService({
               moreFromBitwarden: "More from Bitwarden",
               switchProducts: "Switch Products",
-              passwordManager: "Password Manager",
-              secretsManager: "Secrets Manager",
-              organizations: "Organizations",
             });
           },
         },
@@ -92,8 +89,8 @@ export default {
                 ],
               },
             ],
-            { useHash: true }
-          )
+            { useHash: true },
+          ),
         ),
       ],
     }),
@@ -134,5 +131,5 @@ OrgWithoutSecretsManager.args = {
 
 export const OrgWithSecretsManager = Template.bind({});
 OrgWithSecretsManager.args = {
-  mockOrgs: [{ id: "b", canAccessSecretsManager: true }],
+  mockOrgs: [{ id: "b", canAccessSecretsManager: true, enabled: true }],
 };

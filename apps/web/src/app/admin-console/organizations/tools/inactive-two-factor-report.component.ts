@@ -4,39 +4,37 @@ import { ActivatedRoute } from "@angular/router";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 // eslint-disable-next-line no-restricted-imports
 import { ReportsApiServiceAbstraction } from "@bitwarden/common/tools/reports/reports-api.service.abstraction";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { PasswordRepromptService } from "@bitwarden/common/vault/abstractions/password-reprompt.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { PasswordRepromptService } from "@bitwarden/vault";
 
 // eslint-disable-next-line no-restricted-imports
-import { InactiveTwoFactorReportComponent as BaseInactiveTwoFactorReportComponent } from "../../../reports/pages/inactive-two-factor-report.component";
+import { InactiveTwoFactorReportComponent as BaseInactiveTwoFactorReportComponent } from "../../../tools/reports/pages/inactive-two-factor-report.component";
 
 @Component({
   selector: "app-inactive-two-factor-report",
-  templateUrl: "../../../reports/pages/inactive-two-factor-report.component.html",
+  templateUrl: "../../../tools/reports/pages/inactive-two-factor-report.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class InactiveTwoFactorReportComponent extends BaseInactiveTwoFactorReportComponent {
   constructor(
     cipherService: CipherService,
     modalService: ModalService,
-    messagingService: MessagingService,
     private route: ActivatedRoute,
     logService: LogService,
     passwordRepromptService: PasswordRepromptService,
-    private organizationService: OrganizationService,
-    reportsApiService: ReportsApiServiceAbstraction
+    organizationService: OrganizationService,
+    reportsApiService: ReportsApiServiceAbstraction,
   ) {
     super(
       cipherService,
+      organizationService,
       modalService,
-      messagingService,
       logService,
       passwordRepromptService,
-      reportsApiService
+      reportsApiService,
     );
   }
 
