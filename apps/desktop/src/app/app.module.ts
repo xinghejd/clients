@@ -3,14 +3,13 @@ import "zone.js";
 // Register the locales for the application
 import "../platform/app/locales";
 
-import { DialogModule } from "@angular/cdk/dialog";
 import { NgModule } from "@angular/core";
 
 import { ColorPasswordCountPipe } from "@bitwarden/angular/pipes/color-password-count.pipe";
 import { ColorPasswordPipe } from "@bitwarden/angular/pipes/color-password.pipe";
+import { DialogModule } from "@bitwarden/components";
 
 import { AccessibilityCookieComponent } from "../auth/accessibility-cookie.component";
-import { SetPinComponent } from "../auth/components/set-pin.component";
 import { DeleteAccountComponent } from "../auth/delete-account.component";
 import { EnvironmentComponent } from "../auth/environment.component";
 import { HintComponent } from "../auth/hint.component";
@@ -55,7 +54,15 @@ import { AddEditComponent as SendAddEditComponent } from "./tools/send/add-edit.
 import { SendComponent } from "./tools/send/send.component";
 
 @NgModule({
-  imports: [SharedModule, DialogModule, AppRoutingModule, VaultFilterModule, LoginModule],
+  imports: [
+    SharedModule,
+    AppRoutingModule,
+    VaultFilterModule,
+    LoginModule,
+    DialogModule,
+    DeleteAccountComponent,
+    UserVerificationComponent,
+  ],
   declarations: [
     AccessibilityCookieComponent,
     AccountSwitcherComponent,
@@ -67,7 +74,6 @@ import { SendComponent } from "./tools/send/send.component";
     CollectionsComponent,
     ColorPasswordPipe,
     ColorPasswordCountPipe,
-    DeleteAccountComponent,
     EnvironmentComponent,
     ExportComponent,
     FolderAddEditComponent,
@@ -85,14 +91,12 @@ import { SendComponent } from "./tools/send/send.component";
     SendAddEditComponent,
     SendComponent,
     SetPasswordComponent,
-    SetPinComponent,
     SettingsComponent,
     ShareComponent,
     SsoComponent,
     TwoFactorComponent,
     TwoFactorOptionsComponent,
     UpdateTempPasswordComponent,
-    UserVerificationComponent,
     VaultComponent,
     VaultTimeoutInputComponent,
     ViewComponent,

@@ -674,8 +674,8 @@
   "encryptionNotSupported": {
     "message": "暗号化はサポートされていません"
   },
-  "encryptionNotEnabled": {
-    "message": "暗号化が有効ではありません"
+  "enablePasskeyEncryption": {
+    "message": "暗号化の設定"
   },
   "usedForEncryption": {
     "message": "暗号化に使用中"
@@ -1074,6 +1074,9 @@
   "export": {
     "message": "エクスポート"
   },
+  "exportFrom": {
+    "message": "エクスポート元"
+  },
   "exportVault": {
     "message": "保管庫のエクスポート"
   },
@@ -1149,6 +1152,9 @@
   },
   "length": {
     "message": "長さ"
+  },
+  "passwordMinLength": {
+    "message": "パスワードの最低文字数"
   },
   "uppercase": {
     "message": "大文字（A-Z）",
@@ -3542,12 +3548,12 @@
       }
     }
   },
-  "subscriptionFamiliesPlan": {
-    "message": "プランをアップグレードしないと $COUNT$ 名以上のユーザーを招待することはできません。アップグレードをご希望の場合は、カスタマーサポートまでご連絡ください。",
+  "subscriptionUpgrade": {
+    "message": "プランをアップグレードしないと、$COUNT$ 名以上のメンバーを招待することはできません。",
     "placeholders": {
       "count": {
         "content": "$1",
-        "example": "6"
+        "example": "2"
       }
     }
   },
@@ -6662,7 +6668,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "Teams Starter プランは $SEATCOUNT$ 人のメンバーまでです。さらにメンバーを招待するには、カスタマーサポートに連絡してプランをアップグレードしてください。",
+    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Upgrade to your plan to invite more members.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -7388,6 +7394,9 @@
   },
   "alreadyHaveAccount": {
     "message": "既にアカウントをお持ちですか？"
+  },
+  "skipToContent": {
+    "message": "コンテンツへ移動"
   },
   "customBillingStart": {
     "message": "カスタム請求は反映されていません。"

@@ -674,8 +674,8 @@
   "encryptionNotSupported": {
     "message": "A titkosítás nem támogatott."
   },
-  "encryptionNotEnabled": {
-    "message": "A titkosítás nem engedélyezett."
+  "enablePasskeyEncryption": {
+    "message": "Titkosítás beállítása"
   },
   "usedForEncryption": {
     "message": "Használat titkosításhoz"
@@ -1074,6 +1074,9 @@
   "export": {
     "message": "Exportálás"
   },
+  "exportFrom": {
+    "message": "Exportálás innen:"
+  },
   "exportVault": {
     "message": "Széf exportálása"
   },
@@ -1149,6 +1152,9 @@
   },
   "length": {
     "message": "Hossz"
+  },
+  "passwordMinLength": {
+    "message": "Minimum jelszó hosszúság"
   },
   "uppercase": {
     "message": "Nagybetűs (A-Z)",
@@ -3542,12 +3548,12 @@
       }
     }
   },
-  "subscriptionFamiliesPlan": {
-    "message": "$COUNT$ felhasználónál több nem hívható meg magasabb szintű előfizetés nélkül. Az áttéréshez vegyük fel a kapcsolatot a vevőszolgálattal.",
+  "subscriptionUpgrade": {
+    "message": "$COUNT$ tagnál több nem hívható meg a magasabb szintű csomag nélkül.",
     "placeholders": {
       "count": {
         "content": "$1",
-        "example": "6"
+        "example": "2"
       }
     }
   },
@@ -6662,7 +6668,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "A Teams Starter csomagok legfeljebb $SEATCOUNT$ tagot tartalmazhatnak. Lépjünk kapcsolatba az ügyfélszolgálattal a csomag frissítéséhez és további tagok meghívásához.",
+    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Upgrade to your plan to invite more members.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -7389,6 +7395,9 @@
   "alreadyHaveAccount": {
     "message": "Van már saját fiók?"
   },
+  "skipToContent": {
+    "message": "Ugrás a tartalomra"
+  },
   "customBillingStart": {
     "message": "Az egyedi számlázás nem jelenik meg. Keressük fel "
   },
@@ -7439,6 +7448,6 @@
     "message": "A gyűjtemény elérése korlátozott."
   },
   "serviceAccountAccessUpdated": {
-    "message": "Service account access updated"
+    "message": "A szolgáltatás fiók elérése frissítésre került."
   }
 }

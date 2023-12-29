@@ -674,8 +674,8 @@
   "encryptionNotSupported": {
     "message": "رمزگذاری پشتیبانی نمی‌شود"
   },
-  "encryptionNotEnabled": {
-    "message": "Encryption not enabled"
+  "enablePasskeyEncryption": {
+    "message": "Set up encryption"
   },
   "usedForEncryption": {
     "message": "Used for encryption"
@@ -1074,6 +1074,9 @@
   "export": {
     "message": "برون ریزی"
   },
+  "exportFrom": {
+    "message": "Export from"
+  },
   "exportVault": {
     "message": "برون ریزی گاوصندوق"
   },
@@ -1149,6 +1152,9 @@
   },
   "length": {
     "message": "طول"
+  },
+  "passwordMinLength": {
+    "message": "Minimum password length"
   },
   "uppercase": {
     "message": "حروف بزرگ (A-Z)",
@@ -3542,12 +3548,12 @@
       }
     }
   },
-  "subscriptionFamiliesPlan": {
-    "message": "بدون ارتقای طرح خود نمی‌توانید بیش از $COUNT$ عضو دعوت کنید. لطفاً برای ارتقاء با پشتیبانی مشتری تماس بگیرید.",
+  "subscriptionUpgrade": {
+    "message": "You cannot invite more than $COUNT$ members without upgrading your plan.",
     "placeholders": {
       "count": {
         "content": "$1",
-        "example": "6"
+        "example": "2"
       }
     }
   },
@@ -6662,7 +6668,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Contact Customer Support to upgrade your plan and invite more members.",
+    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Upgrade to your plan to invite more members.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -7388,6 +7394,9 @@
   },
   "alreadyHaveAccount": {
     "message": "پیشتر حساب کاربری داشته اید؟"
+  },
+  "skipToContent": {
+    "message": "Skip to content"
   },
   "customBillingStart": {
     "message": "Custom billing is not reflected. Visit the "

@@ -674,8 +674,8 @@
   "encryptionNotSupported": {
     "message": "Chiffrement non pris en charge"
   },
-  "encryptionNotEnabled": {
-    "message": "Chiffrement non activé"
+  "enablePasskeyEncryption": {
+    "message": "Configurer le chiffrement"
   },
   "usedForEncryption": {
     "message": "Utilisé pour le chiffrement"
@@ -1074,6 +1074,9 @@
   "export": {
     "message": "Exporter"
   },
+  "exportFrom": {
+    "message": "Exporter à partir de"
+  },
   "exportVault": {
     "message": "Exporter le coffre"
   },
@@ -1149,6 +1152,9 @@
   },
   "length": {
     "message": "Longueur"
+  },
+  "passwordMinLength": {
+    "message": "Longueur minimale du mot de passe"
   },
   "uppercase": {
     "message": "Majuscule (A-Z)",
@@ -3542,12 +3548,12 @@
       }
     }
   },
-  "subscriptionFamiliesPlan": {
-    "message": "Vous ne pouvez pas inviter plus de $COUNT$ utilisateurs sans mettre votre offre à niveau. Veuillez contacter le support client pour mettre à niveau.",
+  "subscriptionUpgrade": {
+    "message": "Vous ne pouvez pas inviter plus de $COUNT$ membres sans passer à une offre supérieure.",
     "placeholders": {
       "count": {
         "content": "$1",
-        "example": "6"
+        "example": "2"
       }
     }
   },
@@ -6662,7 +6668,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "Les abonnements Teams Starter peuvent compter jusqu'à $SEATCOUNT$ membres. Contacter le Support Client pour améliorer votre abonnements et inviter plus de membres.",
+    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Upgrade to your plan to invite more members.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -7389,6 +7395,9 @@
   "alreadyHaveAccount": {
     "message": "Vous avez déjà un compte ?"
   },
+  "skipToContent": {
+    "message": "Sauter directement au contenu"
+  },
   "customBillingStart": {
     "message": "La facturation personnalisée n'est pas reflétée. Visitez la "
   },
@@ -7439,6 +7448,6 @@
     "message": "L'accès à la collection est restreint"
   },
   "serviceAccountAccessUpdated": {
-    "message": "Service account access updated"
+    "message": "Accès au compte de service mis à jour"
   }
 }
