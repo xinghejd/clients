@@ -31,8 +31,8 @@ export class MemoryStorageService extends AbstractMemoryStorageService {
     }
     // TODO: Remove once foreground/background contexts are separated in browser
     // Needed to ensure ownership of all memory by the context running the storage service
-    obj = structuredClone(obj);
-    this.store.set(key, obj);
+    const toStore = clone(obj);
+    this.store.set(key, toStore);
     this.updatesSubject.next({ key, updateType: "save" });
     return Promise.resolve();
   }
@@ -46,4 +46,29 @@ export class MemoryStorageService extends AbstractMemoryStorageService {
   getBypassCache<T>(key: string): Promise<T> {
     return this.get<T>(key);
   }
+}
+
+function clone<T>(obj: T): T {
+  const clone = structuredClone(obj);
+  return setPrototypes(obj, clone);
+}
+
+function setPrototypes<T>(original: T, clone: T): T {
+  if (typeof original !== "object" || original == null) {
+    return clone;
+  }
+
+  // return if prototype is already set
+  if (Object.getPrototypeOf(clone) === Object.getPrototypeOf(original)) {
+    return clone;
+  }
+
+  Object.setPrototypeOf(clone, Object.getPrototypeOf(original));
+  // recurse into properties to set prototypes
+  for (const prop in original) {
+    if (Object.prototype.hasOwnProperty.call(original, prop)) {
+      clone[prop] = setPrototypes(original[prop], clone[prop]);
+    }
+  }
+  return clone;
 }
