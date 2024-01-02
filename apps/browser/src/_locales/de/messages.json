@@ -2835,6 +2835,9 @@
   "activeAccount": {
     "message": "Aktives Konto"
   },
+  "availableAccounts": {
+    "message": "Verfügbare Konten"
+  },
   "accountLimitReached": {
     "message": "Kontolimit erreicht. Von einem Konto abmelden, um ein anderes hinzuzufügen."
   },

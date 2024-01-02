@@ -2835,6 +2835,9 @@
   "activeAccount": {
     "message": "Aktívny účet"
   },
+  "availableAccounts": {
+    "message": "Dostupné účty"
+  },
   "accountLimitReached": {
     "message": "Dosiahnutý limit účtu. Odhláste sa z účtu, ak chcete pridať ďalší."
   },
