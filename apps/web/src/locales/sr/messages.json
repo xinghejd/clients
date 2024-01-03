@@ -675,7 +675,7 @@
     "message": "Шифровање није подржано"
   },
   "enablePasskeyEncryption": {
-    "message": "Set up encryption"
+    "message": "Подесити шифровање"
   },
   "usedForEncryption": {
     "message": "Употребљено за шифровање"
@@ -1075,7 +1075,7 @@
     "message": "Извези"
   },
   "exportFrom": {
-    "message": "Export from"
+    "message": "Извоз од"
   },
   "exportVault": {
     "message": "Извоз сефа"
@@ -3548,12 +3548,12 @@
       }
     }
   },
-  "subscriptionFamiliesPlan": {
-    "message": "Не можете позвати више од $COUNT$ корисника без надоградње претплате. Молимо контактирајте корисничку подршку за надоградњу.",
+  "subscriptionUpgrade": {
+    "message": "Не можете позвати више од $COUNT$ чланова без надоградње претплате.",
     "placeholders": {
       "count": {
         "content": "$1",
-        "example": "6"
+        "example": "2"
       }
     }
   },
@@ -6668,7 +6668,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "Teams Starter планови могу имати до $SEATCOUNT$ чланова. Контактирајте корисничку подршку да надоградите свој план и позовете још чланова.",
+    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Upgrade to your plan to invite more members.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -7394,6 +7394,9 @@
   },
   "alreadyHaveAccount": {
     "message": "Већ имате налог?"
+  },
+  "skipToContent": {
+    "message": "Прескочи на садржај"
   },
   "customBillingStart": {
     "message": "Прилагођени обрачун се не одражава. Посетите "
