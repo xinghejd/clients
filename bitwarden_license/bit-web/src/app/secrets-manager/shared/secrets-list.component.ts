@@ -1,6 +1,6 @@
 import { SelectionModel } from "@angular/cdk/collections";
 import { Component, EventEmitter, Input, OnDestroy, Output } from "@angular/core";
-import { Subject, takeUntil } from "rxjs";
+import { Subject, map, takeUntil } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -129,6 +129,18 @@ export class SecretsListComponent implements OnDestroy {
 
     return aProjects[0]?.name.localeCompare(bProjects[0].name);
   };
+
+  protected hasWriteAccessOnSelected$ = this.selection.changed.pipe(
+    map(() => this.selectedHasWriteAccess()),
+  );
+
+  private selectedHasWriteAccess() {
+    const selectedSecrets = this.secrets.filter((secret) => this.selection.isSelected(secret.id));
+    if (selectedSecrets.some((secret) => secret.write)) {
+      return true;
+    }
+    return false;
+  }
 
   /**
    * TODO: Refactor to smart component and remove
