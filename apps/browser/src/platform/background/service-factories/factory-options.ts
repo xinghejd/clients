@@ -16,8 +16,8 @@ export async function factory<
   UNUSED_cachedServices: TCache, // TODO: CG - This needs to be removed and updated within all calls to the factory method
   name: TName,
   opts: TOpts,
-  factory: () => CachedServices[TName] | Promise<CachedServices[TName]>,
-): Promise<CachedServices[TName]> {
+  factory: () => TCache[TName] | Promise<TCache[TName]>,
+): Promise<TCache[TName]> {
   let instance = cachedServices[name];
   const instancePreviouslyInitialized = !!instance;
   if (opts.alwaysInitializeNewService || !instance) {
