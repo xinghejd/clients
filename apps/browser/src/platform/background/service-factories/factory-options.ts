@@ -8,6 +8,7 @@ export type FactoryOptions = {
 
 const cachedServices: CachedServices = {};
 
+// TODO: CG - Revert all of this back to the original code
 export async function factory<
   TCache extends CachedServices,
   TName extends keyof CachedServices,
