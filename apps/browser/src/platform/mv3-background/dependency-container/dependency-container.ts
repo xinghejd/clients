@@ -7,8 +7,10 @@ class DependencyContainer {
 
   static register<T>(target: DependencyConstructor<T>, factory: () => T) {
     if (DependencyContainer.factories.has(target)) {
+      // throw new Error(`Factory already registered for ${target.name}`);
       return;
     }
+
     DependencyContainer.factories.set(target, factory);
   }
 

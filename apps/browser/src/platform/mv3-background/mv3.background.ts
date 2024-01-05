@@ -39,6 +39,8 @@ import {
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
+import { EncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/encrypt.service.implementation";
+import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/multithread-encrypt.service.implementation";
 import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
 import {
   ActiveUserStateProvider,
@@ -92,11 +94,14 @@ import BrowserMessagingService from "../services/browser-messaging.service";
 import { LocalBackedSessionStorageService } from "../services/local-backed-session-storage.service";
 
 import DependencyContainer from "./dependency-container/dependency-container";
+import { DependencyConstructor } from "./dependency-container/dependency-container.abstractions";
 import {
   browserMessagingServiceFactory,
   consoleLogServiceFactory,
   defaultGlobalStateProviderFactory,
+  encryptServiceImplementationFactory,
   localBackedSessionStorageServiceFactory,
+  multithreadEncryptServiceImplementationFactory,
   webCryptoFunctionServiceFactory,
 } from "./dependency-container/dependency-factories";
 
@@ -193,10 +198,7 @@ class ManifestV3Background {
   private syncTimeout: any;
   private isSafari: boolean;
 
-  constructor() {
-    this.storageService = new BrowserLocalStorageService();
-    this.secureStorageService = new BrowserLocalStorageService();
-  }
+  constructor() {}
 
   init() {
     this._initDependencies();
@@ -210,17 +212,22 @@ class ManifestV3Background {
   }
 
   private _registerLazyLoadedDependencies() {
-    DependencyContainer.register(BrowserMessagingService, browserMessagingServiceFactory);
-    DependencyContainer.register(ConsoleLogService, consoleLogServiceFactory(false));
-    DependencyContainer.register(WebCryptoFunctionService, webCryptoFunctionServiceFactory);
-    DependencyContainer.register(
-      LocalBackedSessionStorageService,
-      localBackedSessionStorageServiceFactory,
-    );
-    DependencyContainer.register(
-      DefaultGlobalStateProvider,
-      defaultGlobalStateProviderFactory(this.storageService),
-    );
+    const dependencies = new Map<DependencyConstructor<any>, () => any>([
+      [BrowserMessagingService, () => browserMessagingServiceFactory],
+      [ConsoleLogService, () => consoleLogServiceFactory(false)],
+      [WebCryptoFunctionService, () => webCryptoFunctionServiceFactory],
+      [LocalBackedSessionStorageService, () => localBackedSessionStorageServiceFactory],
+      [DefaultGlobalStateProvider, () => defaultGlobalStateProviderFactory(this.storageService)],
+      [
+        MultithreadEncryptServiceImplementation,
+        () => multithreadEncryptServiceImplementationFactory,
+      ],
+      [EncryptServiceImplementation, () => encryptServiceImplementationFactory],
+    ]);
+
+    for (const [dependency, factory] of dependencies) {
+      DependencyContainer.register(dependency, factory());
+    }
   }
 
   private _setupListeners() {}
