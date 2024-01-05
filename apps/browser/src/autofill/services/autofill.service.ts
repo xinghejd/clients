@@ -1279,7 +1279,7 @@ export default class AutofillService implements AutofillServiceInterface {
     let filledCountry = false;
     if (fillFields.country && identity.country && identity.country.length > 2) {
       const countryLower = identity.country.toLowerCase();
-      const isoCountry = IdentityAutoFillConstants.IsoCountries[countryLower];
+      const isoCountry = IdentityAutoFillConstants.IsoCountriesByAliases[countryLower];
       if (isoCountry) {
         filledCountry = true;
         this.makeScriptActionWithValue(fillScript, isoCountry, fillFields.country, filledFields);

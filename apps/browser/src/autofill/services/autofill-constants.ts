@@ -461,7 +461,8 @@ export class IdentityAutoFillConstants {
     "firma",
   ];
 
-  static readonly IsoCountries: { [id: string]: string } = {
+  // @TODO include and/or refactor to use localized values (what users will enter in their vaults)
+  static readonly IsoCountriesByAliases: { [id: string]: string } = {
     afghanistan: "AF",
     "aland islands": "AX",
     albania: "AL",
@@ -696,8 +697,10 @@ export class IdentityAutoFillConstants {
     ukraine: "UA",
     "united arab emirates": "AE",
     "united kingdom": "GB",
-    "united states": "US",
+    "united states of america": "US",
     "united states outlying islands": "UM",
+    "united states": "US",
+    usa: "US",
     uruguay: "UY",
     uzbekistan: "UZ",
     vanuatu: "VU",
