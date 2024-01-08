@@ -93,8 +93,6 @@ import BrowserLocalStorageService from "../services/browser-local-storage.servic
 import BrowserMessagingService from "../services/browser-messaging.service";
 import { LocalBackedSessionStorageService } from "../services/local-backed-session-storage.service";
 
-import DependencyContainer from "./dependency-container/dependency-container";
-import { DependencyConstructor } from "./dependency-container/dependency-container.abstractions";
 import {
   browserMessagingServiceFactory,
   consoleLogServiceFactory,
@@ -103,7 +101,9 @@ import {
   localBackedSessionStorageServiceFactory,
   multithreadEncryptServiceImplementationFactory,
   webCryptoFunctionServiceFactory,
-} from "./dependency-container/dependency-factories";
+} from "./dependency-injection/dependency-factories";
+import DIContainer from "./dependency-injection/dependency-injection-container";
+import { DependencyConstructor } from "./dependency-injection/dependency-injection.abstractions";
 
 class ManifestV3Background {
   // Dependencies
@@ -226,7 +226,7 @@ class ManifestV3Background {
     ]);
 
     for (const [dependency, factory] of dependencies) {
-      DependencyContainer.register(dependency, factory());
+      DIContainer.register(dependency, factory());
     }
   }
 

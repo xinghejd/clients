@@ -11,7 +11,7 @@ import BrowserMessagingService from "../../services/browser-messaging.service";
 import { KeyGenerationService } from "../../services/key-generation.service";
 import { LocalBackedSessionStorageService } from "../../services/local-backed-session-storage.service";
 
-import DependencyContainer from "./dependency-container";
+import DIContainer from "./dependency-injection-container";
 
 export const browserMessagingServiceFactory = () => new BrowserMessagingService();
 
@@ -20,8 +20,8 @@ export const consoleLogServiceFactory = (isDev: boolean) => () => new ConsoleLog
 export const webCryptoFunctionServiceFactory = () => new WebCryptoFunctionService(globalThis);
 
 export const localBackedSessionStorageServiceFactory = () => {
-  const webCryptoFunctionService = DependencyContainer.resolve(WebCryptoFunctionService);
-  const consoleLogService = DependencyContainer.resolve(ConsoleLogService);
+  const webCryptoFunctionService = DIContainer.resolve(WebCryptoFunctionService);
+  const consoleLogService = DIContainer.resolve(ConsoleLogService);
   const encryptService = new EncryptServiceImplementation(
     webCryptoFunctionService,
     consoleLogService,
@@ -33,9 +33,7 @@ export const localBackedSessionStorageServiceFactory = () => {
 };
 
 export const defaultGlobalStateProviderFactory = (storageService: AbstractStorageService) => {
-  const localBackedSessionStorageService = DependencyContainer.resolve(
-    LocalBackedSessionStorageService,
-  );
+  const localBackedSessionStorageService = DIContainer.resolve(LocalBackedSessionStorageService);
 
   return () =>
     new DefaultGlobalStateProvider(
@@ -45,16 +43,16 @@ export const defaultGlobalStateProviderFactory = (storageService: AbstractStorag
 };
 
 export const multithreadEncryptServiceImplementationFactory = () => {
-  const webCryptoFunctionService = DependencyContainer.resolve(WebCryptoFunctionService);
-  const consoleLogService = DependencyContainer.resolve(ConsoleLogService);
+  const webCryptoFunctionService = DIContainer.resolve(WebCryptoFunctionService);
+  const consoleLogService = DIContainer.resolve(ConsoleLogService);
 
   return () =>
     new MultithreadEncryptServiceImplementation(webCryptoFunctionService, consoleLogService, false);
 };
 
 export const encryptServiceImplementationFactory = () => {
-  const webCryptoFunctionService = DependencyContainer.resolve(WebCryptoFunctionService);
-  const consoleLogService = DependencyContainer.resolve(ConsoleLogService);
+  const webCryptoFunctionService = DIContainer.resolve(WebCryptoFunctionService);
+  const consoleLogService = DIContainer.resolve(ConsoleLogService);
 
   return () => new EncryptServiceImplementation(webCryptoFunctionService, consoleLogService, true);
 };

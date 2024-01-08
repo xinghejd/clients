@@ -27,6 +27,7 @@ export async function factory<
   }
 
   if (!opts.doNotStoreInitializedService && !instancePreviouslyInitialized) {
+    // if (!opts.doNotStoreInitializedService) {
     cachedServices[name] = instance;
   }
 

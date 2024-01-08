@@ -6,7 +6,4 @@ const DependencyLifecycle = {
 
 type DependencyLifecycleType = (typeof DependencyLifecycle)[keyof typeof DependencyLifecycle];
 
-export {
-  DependencyLifecycle as DependencyLifecycle,
-  DependencyLifecycleType as DependencyLifecycleType,
-};
+export { DependencyLifecycle, DependencyLifecycleType };
