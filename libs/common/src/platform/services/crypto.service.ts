@@ -81,7 +81,7 @@ export class CryptoService implements CryptoServiceAbstraction {
 
   async isLegacyUser(masterKey?: MasterKey, userId?: string): Promise<boolean> {
     return await this.validateUserKey(
-      (masterKey ?? (await this.getMasterKey(userId))) as unknown as UserKey,
+      (masterKey ?? (await this.getMasterKey(userId)), userId) as unknown as UserKey,
     );
   }
 
@@ -99,7 +99,7 @@ export class CryptoService implements CryptoServiceAbstraction {
   async getUserKeyFromStorage(keySuffix: KeySuffixOptions, userId?: string): Promise<UserKey> {
     const userKey = await this.getKeyFromStorage(keySuffix, userId);
     if (userKey) {
-      if (!(await this.validateUserKey(userKey))) {
+      if (!(await this.validateUserKey(userKey, userId))) {
         this.logService.warning("Invalid key, throwing away stored keys");
         await this.clearAllStoredUserKeys(userId);
       }
@@ -723,13 +723,13 @@ export class CryptoService implements CryptoServiceAbstraction {
   }
 
   // ---HELPERS---
-  protected async validateUserKey(key: UserKey): Promise<boolean> {
+  protected async validateUserKey(key: UserKey, userId?: string): Promise<boolean> {
     if (!key) {
       return false;
     }
 
     try {
-      const encPrivateKey = await this.stateService.getEncryptedPrivateKey();
+      const encPrivateKey = await this.stateService.getEncryptedPrivateKey({ userId: userId });
       if (encPrivateKey == null) {
         return false;
       }
