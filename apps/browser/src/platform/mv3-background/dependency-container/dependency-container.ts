@@ -1,4 +1,3 @@
-import "reflect-metadata";
 import { DependencyConstructor } from "./dependency-container.abstractions";
 
 class DependencyContainer {
@@ -24,6 +23,10 @@ class DependencyContainer {
 
     DependencyContainer.instances.set(target, DependencyContainer.factories.get(target)!());
     return DependencyContainer.instances.get(target);
+  }
+
+  static remove<T>(target: DependencyConstructor<T>) {
+    DependencyContainer.instances.delete(target);
   }
 }
 
