@@ -1,8 +1,0 @@
-{
-  "dev_flags": {},
-  "flags": {
-    "showPasswordless": true,
-    "enableCipherKeyEncryption": false,
-    "accountSwitching": false
-  }
-}
