@@ -21,10 +21,10 @@ import {
   openAddEditVaultItemPopout,
 } from "../../vault/popup/utils/vault-popout-window";
 import { SHOW_AUTOFILL_BUTTON } from "../constants";
-import LockedVaultPendingNotificationsItem from "../notification/models/locked-vault-pending-notifications-item";
 import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
 import { AutofillOverlayElement, AutofillOverlayPort } from "../utils/autofill-overlay.enum";
 
+import { LockedVaultPendingNotificationsItem } from "./abstractions/notification.background";
 import {
   FocusedFieldData,
   OverlayBackgroundExtensionMessageHandlers,

@@ -1,6 +1,7 @@
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { ContextMenuClickedHandler } from "../browser/context-menu-clicked-handler";
-import LockedVaultPendingNotificationsItem from "../notification/models/locked-vault-pending-notifications-item";
+
+import { LockedVaultPendingNotificationsItem } from "./abstractions/notification.background";
 
 export default class ContextMenusBackground {
   private contextMenus: typeof chrome.contextMenus;

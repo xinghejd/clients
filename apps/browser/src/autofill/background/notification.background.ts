@@ -11,26 +11,27 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
+import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserStateService } from "../../platform/services/abstractions/browser-state.service";
 import { openAddEditVaultItemPopout } from "../../vault/popup/utils/vault-popout-window";
 import { NOTIFICATION_BAR_LIFESPAN_MS } from "../constants";
-import AddChangePasswordQueueMessage from "../notification/models/add-change-password-queue-message";
-import AddLoginQueueMessage from "../notification/models/add-login-queue-message";
-import AddLoginRuntimeMessage from "../notification/models/add-login-runtime-message";
-import AddRequestFilelessImportQueueMessage from "../notification/models/add-request-fileless-import-queue-message";
-import AddUnlockVaultQueueMessage from "../notification/models/add-unlock-vault-queue-message";
-import ChangePasswordRuntimeMessage from "../notification/models/change-password-runtime-message";
-import LockedVaultPendingNotificationsItem from "../notification/models/locked-vault-pending-notifications-item";
-import {
-  NotificationQueueMessageType,
-  NotificationTypes,
-} from "../notification/models/notification-queue-message-type";
+import { NotificationQueueMessageType } from "../enums/notification-queue-message-type.enum";
 import { AutofillService } from "../services/abstractions/autofill.service";
 
-import { NotificationQueueMessageItem } from "./abstractions/notification.background";
+import {
+  AddChangePasswordQueueMessage,
+  AddLoginQueueMessage,
+  AddRequestFilelessImportQueueMessage,
+  AddUnlockVaultQueueMessage,
+  ChangePasswordRuntimeMessage,
+  AddLoginRuntimeMessage,
+  NotificationQueueMessageItem,
+  LockedVaultPendingNotificationsItem,
+} from "./abstractions/notification.background";
 
 export default class NotificationBackground {
   private notificationQueue: NotificationQueueMessageItem[] = [];
@@ -204,7 +205,7 @@ export default class NotificationBackground {
     }
 
     await BrowserApi.tabSendMessageData(tab, "openNotificationBar", {
-      type: NotificationTypes[notificationType],
+      type: notificationType,
       typeData,
     });
   }
@@ -438,7 +439,11 @@ export default class NotificationBackground {
   private async saveOrUpdateCredentials(tab: chrome.tabs.Tab, edit: boolean, folderId?: string) {
     for (let i = this.notificationQueue.length - 1; i >= 0; i--) {
       const queueMessage = this.notificationQueue[i];
-      if (queueMessage.tab.id !== tab.id || !(queueMessage.type in NotificationQueueMessageType)) {
+      if (
+        queueMessage.tab.id !== tab.id ||
+        (queueMessage.type !== NotificationQueueMessageType.AddLogin &&
+          queueMessage.type !== NotificationQueueMessageType.ChangePassword)
+      ) {
         continue;
       }
 
@@ -472,7 +477,7 @@ export default class NotificationBackground {
         }
 
         folderId = (await this.folderExists(folderId)) ? folderId : null;
-        const newCipher = AddLoginQueueMessage.toCipherView(queueMessage, folderId);
+        const newCipher = this.toCipherView(queueMessage, folderId);
 
         if (edit) {
           await this.editItem(newCipher, tab);
@@ -586,5 +591,23 @@ export default class NotificationBackground {
       messageData.commandToRetry.msg.command,
       messageData.commandToRetry.sender,
     );
+  }
+
+  private toCipherView(message: AddLoginQueueMessage, folderId?: string): CipherView {
+    const uriView = new LoginUriView();
+    uriView.uri = message.uri;
+
+    const loginView = new LoginView();
+    loginView.uris = [uriView];
+    loginView.username = message.username;
+    loginView.password = message.password;
+
+    const cipherView = new CipherView();
+    cipherView.name = (Utils.getHostname(message.uri) || message.domain).replace(/^www\./, "");
+    cipherView.folderId = folderId;
+    cipherView.type = CipherType.Login;
+    cipherView.login = loginView;
+
+    return cipherView;
   }
 }

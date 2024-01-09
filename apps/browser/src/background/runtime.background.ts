@@ -13,7 +13,7 @@ import {
   openSsoAuthResultPopout,
   openTwoFactorAuthPopout,
 } from "../auth/popup/utils/auth-popout-window";
-import LockedVaultPendingNotificationsItem from "../autofill/notification/models/locked-vault-pending-notifications-item";
+import { LockedVaultPendingNotificationsItem } from "../autofill/background/abstractions/notification.background";
 import { AutofillService } from "../autofill/services/abstractions/autofill.service";
 import { AutofillOverlayVisibility } from "../autofill/utils/autofill-overlay.enum";
 import { BrowserApi } from "../platform/browser/browser-api";

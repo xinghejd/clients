@@ -1,7 +1,9 @@
+import {
+  AddLoginRuntimeMessage,
+  ChangePasswordRuntimeMessage,
+} from "../background/abstractions/notification.background";
 import AutofillField from "../models/autofill-field";
 import { WatchedForm } from "../models/watched-form";
-import AddLoginRuntimeMessage from "../notification/models/add-login-runtime-message";
-import ChangePasswordRuntimeMessage from "../notification/models/change-password-runtime-message";
 import { FormData } from "../services/abstractions/autofill.service";
 import { GlobalSettings, UserSettings } from "../types";
 import { getFromLocalStorage, setupExtensionDisconnectAction } from "../utils";
@@ -622,7 +624,7 @@ async function loadNotificationBar() {
           processedForm(form);
           sendPlatformMessage({
             command: "bgAddLogin",
-            login: login,
+            login,
           });
           break;
         } else if (

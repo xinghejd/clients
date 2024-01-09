@@ -33,6 +33,7 @@ import {
   openAddEditVaultItemPopout,
   openVaultItemPasswordRepromptPopout,
 } from "../../vault/popup/utils/vault-popout-window";
+import { LockedVaultPendingNotificationsItem } from "../background/abstractions/notification.background";
 import { autofillServiceFactory } from "../background/service_factories/autofill-service.factory";
 import { copyToClipboard, GeneratePasswordToClipboardCommand } from "../clipboard";
 import { AutofillTabCommand } from "../commands/autofill-tab-command";
@@ -50,7 +51,6 @@ import {
   GENERATE_PASSWORD_ID,
   NOOP_COMMAND_SUFFIX,
 } from "../constants";
-import LockedVaultPendingNotificationsItem from "../notification/models/locked-vault-pending-notifications-item";
 import { AutofillCipherTypeId } from "../types";
 
 export type CopyToClipboardOptions = { text: string; tab: chrome.tabs.Tab };

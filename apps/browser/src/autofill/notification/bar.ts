@@ -281,8 +281,15 @@ function setContent(template: HTMLTemplateElement) {
   content.appendChild(newElement);
 }
 
-function sendPlatformMessage(msg: Record<string, unknown>) {
-  chrome.runtime.sendMessage(msg);
+function sendPlatformMessage(
+  msg: Record<string, unknown>,
+  responseCallback?: (response: any) => void,
+) {
+  chrome.runtime.sendMessage(msg, (response) => {
+    if (responseCallback) {
+      responseCallback(response);
+    }
+  });
 }
 
 function loadFolderSelector() {
@@ -302,10 +309,15 @@ function loadFolderSelector() {
     });
   });
 
-  sendPlatformMessage({
-    command: "bgGetDataForTab",
-    responseCommand: responseFoldersCommand,
-  });
+  sendPlatformMessage(
+    {
+      command: "bgGetDataForTab",
+      responseCommand: responseFoldersCommand,
+    },
+    (response) => {
+      // console.log(response);
+    },
+  );
 }
 
 function getSelectedFolder(): string {
