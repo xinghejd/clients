@@ -403,6 +403,9 @@
   "length": {
     "message": "Longitud"
   },
+  "passwordMinLength": {
+    "message": "Longitud mínima de la contrasenya"
+  },
   "uppercase": {
     "message": "Majúscules (A-Z)"
   },
@@ -2423,6 +2426,9 @@
   },
   "submenu": {
     "message": "Submenú"
+  },
+  "skipToContent": {
+    "message": "Vés al contingut"
   },
   "typePasskey": {
     "message": "Clau de pas"

@@ -268,6 +268,9 @@
   "length": {
     "message": "Дължина"
   },
+  "passwordMinLength": {
+    "message": "Минимална дължина на паролата"
+  },
   "uppercase": {
     "message": "Главни букви (A-Z)"
   },
@@ -322,6 +325,9 @@
   },
   "password": {
     "message": "Парола"
+  },
+  "totp": {
+    "message": "Тайна за удостоверяване"
   },
   "passphrase": {
     "message": "Парола-фраза"
@@ -508,6 +514,18 @@
   },
   "autofillError": {
     "message": "Неуспешно автоматично попълване. Вместо това копирайте и поставете данните."
+  },
+  "totpCaptureError": {
+    "message": "QR-кодът от текущата страница не може да бъде сканиран"
+  },
+  "totpCaptureSuccess": {
+    "message": "Удостоверителният ключ е добавен"
+  },
+  "totpCapture": {
+    "message": "Сканирайте QR-кода за удостоверяване от текущата страница"
+  },
+  "copyTOTP": {
+    "message": "Копиране на удостоверителния ключ (TOTP)"
   },
   "loggedOut": {
     "message": "Бяхте отписани"
@@ -1034,10 +1052,10 @@
     "message": "Прилага се за всички регистрации, в които сте вписан(а)."
   },
   "turnOffBrowserBuiltInPasswordManagerSettings": {
-    "message": "Turn off your browser’s built in password manager settings to avoid conflicts."
+    "message": "Изключете вграденото управление на пароли на браузъра си, за да избегнете конфликтите."
   },
   "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
-    "message": "Edit browser settings."
+    "message": "Редактиране на настройките на браузъра."
   },
   "autofillOverlayVisibilityOff": {
     "message": "Изключено",
@@ -1722,7 +1740,7 @@
     "placeholders": {
       "domain": {
         "content": "$1",
-        "example": "googlecom"
+        "example": "google.com"
       }
     }
   },
@@ -2494,6 +2512,38 @@
     "message": "Превключване на свиването",
     "description": "Toggling an expand/collapse state."
   },
+  "filelessImport": {
+    "message": "Внасяне на данните Ви в Битуорден?",
+    "description": "Default notification title for triggering a fileless import."
+  },
+  "lpFilelessImport": {
+    "message": "Защитаване на данните Ви от LastPass и внасяне в Битуорден?",
+    "description": "LastPass specific notification title for triggering a fileless import."
+  },
+  "lpCancelFilelessImport": {
+    "message": "Запазване като нешифрован файл",
+    "description": "LastPass specific notification button text for cancelling a fileless import."
+  },
+  "startFilelessImport": {
+    "message": "Внасяне в Битуорден",
+    "description": "Notification button text for starting a fileless import."
+  },
+  "importing": {
+    "message": "Внасяне…",
+    "description": "Notification message for when an import is in progress."
+  },
+  "dataSuccessfullyImported": {
+    "message": "Данните бяха внесени успешно!",
+    "description": "Notification message for when an import has completed successfully."
+  },
+  "dataImportFailed": {
+    "message": "Грешка при внасянето. Вижте конзолата за подробности.",
+    "description": "Notification message for when an import has failed."
+  },
+  "importNetworkError": {
+    "message": "По време на внасянето възникна мрежова грешка.",
+    "description": "Notification message for when an import has failed due to a network error."
+  },
   "aliasDomain": {
     "message": "Псевдонимен домейн"
   },
@@ -2508,6 +2558,9 @@
   "turnOffMasterPasswordPromptToEditField": {
     "message": "Изключете повторното въвеждане на главната парола, за да редактирате това поле",
     "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
+  },
+  "skipToContent": {
+    "message": "Прескачане към съдържанието"
   },
   "bitwardenOverlayButton": {
     "message": "Бутон на менюто за авт. попълване на Битуорден",
@@ -2721,9 +2774,6 @@
   "yourPasskeyIsLocked": {
     "message": "За да се ползва секретният ключ, е необходимо удостоверяване. Потвърдете самоличността си, за да продължите."
   },
-  "useBrowserName": {
-    "message": "Използване на браузъра"
-  },
   "multifactorAuthenticationCancelled": {
     "message": "Многостъпковото удостоверяване е отменено"
   },
@@ -2800,6 +2850,9 @@
   "activeAccount": {
     "message": "Активиране на регистрацията"
   },
+  "availableAccounts": {
+    "message": "Налични регистрации"
+  },
   "accountLimitReached": {
     "message": "Достигнато е ограничението на броя регистрации. Излезте от някоя, за да добавите друга."
   },
@@ -2817,5 +2870,23 @@
   },
   "hostedAt": {
     "message": "hosted at"
+  },
+  "useDeviceOrHardwareKey": {
+    "message": "Използвайте своето устройство или хардуерен ключ"
+  },
+  "justOnce": {
+    "message": "Само веднъж"
+  },
+  "alwaysForThisSite": {
+    "message": "Винаги за този уеб сайт"
+  },
+  "domainAddedToExcludedDomains": {
+    "message": "$DOMAIN$ беше добавено към изключените домейни.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "google.com"
+      }
+    }
   }
 }

@@ -268,6 +268,9 @@
   "length": {
     "message": "Длина"
   },
+  "passwordMinLength": {
+    "message": "Минимальная длина пароля"
+  },
   "uppercase": {
     "message": "Прописные буквы (A-Z)"
   },
@@ -322,6 +325,9 @@
   },
   "password": {
     "message": "Пароль"
+  },
+  "totp": {
+    "message": "Секрет аутентификатора"
   },
   "passphrase": {
     "message": "Парольная фраза"
@@ -508,6 +514,18 @@
   },
   "autofillError": {
     "message": "Не удалось автоматически заполнить выбранный элемент на этой странице. Скопируйте и вставьте логин/пароль из своего хранилища."
+  },
+  "totpCaptureError": {
+    "message": "Не удается сосканировать QR-код с текущей веб-страницы"
+  },
+  "totpCaptureSuccess": {
+    "message": "Ключ аутентификатора добавлен"
+  },
+  "totpCapture": {
+    "message": "Сканировать QR-код аутентификатора с текущей веб-страницы"
+  },
+  "copyTOTP": {
+    "message": "Скопировать ключ аутентификатора (TOTP)"
   },
   "loggedOut": {
     "message": "Вы вышли из хранилища"
@@ -1034,10 +1052,10 @@
     "message": "Применяется ко всем авторизованным аккаунтам."
   },
   "turnOffBrowserBuiltInPasswordManagerSettings": {
-    "message": "Turn off your browser’s built in password manager settings to avoid conflicts."
+    "message": "Отключите встроенный в браузер менеджер паролей, чтобы избежать конфликтов."
   },
   "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
-    "message": "Edit browser settings."
+    "message": "Изменить настройки браузера."
   },
   "autofillOverlayVisibilityOff": {
     "message": "Выкл",
@@ -1722,7 +1740,7 @@
     "placeholders": {
       "domain": {
         "content": "$1",
-        "example": "googlecom"
+        "example": "google.com"
       }
     }
   },
@@ -2494,6 +2512,38 @@
     "message": "Свернуть/развернуть",
     "description": "Toggling an expand/collapse state."
   },
+  "filelessImport": {
+    "message": "Импортировать данные в Bitwarden?",
+    "description": "Default notification title for triggering a fileless import."
+  },
+  "lpFilelessImport": {
+    "message": "Защитить данные LastPass и импортировать их в Bitwarden?",
+    "description": "LastPass specific notification title for triggering a fileless import."
+  },
+  "lpCancelFilelessImport": {
+    "message": "Сохранить как незашифрованный файл",
+    "description": "LastPass specific notification button text for cancelling a fileless import."
+  },
+  "startFilelessImport": {
+    "message": "Импортировать в Bitwarden",
+    "description": "Notification button text for starting a fileless import."
+  },
+  "importing": {
+    "message": "Импорт...",
+    "description": "Notification message for when an import is in progress."
+  },
+  "dataSuccessfullyImported": {
+    "message": "Данные успешно импортированы!",
+    "description": "Notification message for when an import has completed successfully."
+  },
+  "dataImportFailed": {
+    "message": "Ошибка импорта. Проверьте консоль для получения подробной информации.",
+    "description": "Notification message for when an import has failed."
+  },
+  "importNetworkError": {
+    "message": "Во время импорта возникла сетевая ошибка.",
+    "description": "Notification message for when an import has failed due to a network error."
+  },
   "aliasDomain": {
     "message": "Псевдоним домена"
   },
@@ -2508,6 +2558,9 @@
   "turnOffMasterPasswordPromptToEditField": {
     "message": "Для редактирования этого поля отключите повторный запрос мастер-пароля",
     "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
+  },
+  "skipToContent": {
+    "message": "Перейти к содержимому"
   },
   "bitwardenOverlayButton": {
     "message": "Кнопка меню автозаполнения Bitwarden",
@@ -2721,9 +2774,6 @@
   "yourPasskeyIsLocked": {
     "message": "Для использования ключа доступа необходима аутентификация. Для продолжения работы подтвердите свою личность."
   },
-  "useBrowserName": {
-    "message": "Использовать браузер"
-  },
   "multifactorAuthenticationCancelled": {
     "message": "Многофакторная аутентификация отменена"
   },
@@ -2800,6 +2850,9 @@
   "activeAccount": {
     "message": "Активный аккаунт"
   },
+  "availableAccounts": {
+    "message": "Доступные аккаунты"
+  },
   "accountLimitReached": {
     "message": "Достигнут лимит аккаунтов. Выйдите, чтобы добавить другой."
   },
@@ -2817,5 +2870,23 @@
   },
   "hostedAt": {
     "message": "под управлением"
+  },
+  "useDeviceOrHardwareKey": {
+    "message": "Используйте ваше устройство или аппаратный ключ"
+  },
+  "justOnce": {
+    "message": "Только сейчас"
+  },
+  "alwaysForThisSite": {
+    "message": "Всегда для этого сайта"
+  },
+  "domainAddedToExcludedDomains": {
+    "message": "$DOMAIN$ добавлен в исключенные домены.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "google.com"
+      }
+    }
   }
 }

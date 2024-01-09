@@ -674,8 +674,8 @@
   "encryptionNotSupported": {
     "message": "El xifratge no és compatible"
   },
-  "encryptionNotEnabled": {
-    "message": "Xifratge no habilitat"
+  "enablePasskeyEncryption": {
+    "message": "Configura el xifratge"
   },
   "usedForEncryption": {
     "message": "S'utilitza per al xifratge"
@@ -1074,6 +1074,9 @@
   "export": {
     "message": "Exporta"
   },
+  "exportFrom": {
+    "message": "Exporta des de"
+  },
   "exportVault": {
     "message": "Exporta la caixa forta"
   },
@@ -1149,6 +1152,9 @@
   },
   "length": {
     "message": "Longitud"
+  },
+  "passwordMinLength": {
+    "message": "Longitud mínima de la contrasenya"
   },
   "uppercase": {
     "message": "Majúscula (A-Z)",
@@ -3542,12 +3548,12 @@
       }
     }
   },
-  "subscriptionFamiliesPlan": {
-    "message": "No podeu convidar més de $COUNT$ usuaris sense actualitzar el vostre pla. Poseu-vos en contacte amb el servei d'assistència al client per actualitzar.",
+  "subscriptionUpgrade": {
+    "message": "No podeu convidar més de $COUNT$ membres sense actualitzar el vostre pla.",
     "placeholders": {
       "count": {
         "content": "$1",
-        "example": "6"
+        "example": "2"
       }
     }
   },
@@ -6662,7 +6668,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "Els plans de Teams Starter poden tenir fins a $SEATCOUNT$ membres. Poseu-vos en contacte amb el servei d'atenció al client per actualitzar el vostre pla i convidar més membres.",
+    "message": "Els plans Teams Starter poden tenir fins a $SEATCOUNT$ membres. Actualitza el teu pla per convidar més membres.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -7389,6 +7395,9 @@
   "alreadyHaveAccount": {
     "message": "Ja tens un compte?"
   },
+  "skipToContent": {
+    "message": "Vés al contingut"
+  },
   "customBillingStart": {
     "message": "La facturació personalitzada no es reflecteix. Visita la "
   },
@@ -7436,9 +7445,9 @@
     "message": "S'ha arribat al límit de places. Contacta amb el teu proveïdor per comprar places addicionals."
   },
   "collectionAccessRestricted": {
-    "message": "Collection access is restricted"
+    "message": "L'accés a la col·lecció està restringit"
   },
   "serviceAccountAccessUpdated": {
-    "message": "Service account access updated"
+    "message": "Accés al compte del servei actualitzat"
   }
 }

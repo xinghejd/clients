@@ -674,8 +674,8 @@
   "encryptionNotSupported": {
     "message": "Crittografia non supportata"
   },
-  "encryptionNotEnabled": {
-    "message": "Crittografia non attivata"
+  "enablePasskeyEncryption": {
+    "message": "Configura crittografia"
   },
   "usedForEncryption": {
     "message": "Usata per la crittografia"
@@ -1074,6 +1074,9 @@
   "export": {
     "message": "Esporta"
   },
+  "exportFrom": {
+    "message": "Esporta da"
+  },
   "exportVault": {
     "message": "Esporta cassaforte"
   },
@@ -1149,6 +1152,9 @@
   },
   "length": {
     "message": "Lunghezza"
+  },
+  "passwordMinLength": {
+    "message": "Lunghezza minima della password"
   },
   "uppercase": {
     "message": "Maiuscole (A-Z)",
@@ -3542,12 +3548,12 @@
       }
     }
   },
-  "subscriptionFamiliesPlan": {
-    "message": "Non puoi invitare più di $COUNT$ utenti senza aggiornare il tuo piano. Contatta l'assistenza clienti per aggiornare.",
+  "subscriptionUpgrade": {
+    "message": "Non puoi invitare più di $COUNT$ utenti senza aggiornare il tuo piano.",
     "placeholders": {
       "count": {
         "content": "$1",
-        "example": "6"
+        "example": "2"
       }
     }
   },
@@ -6662,7 +6668,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "I piani Teams Starter possono avere fino a $SEATCOUNT$ membri. Contatta l'assistenza clienti per aggiornare il tuo piano e invitare più membri.",
+    "message": "I piani Teams Starter possono avere fino a $SEATCOUNT$ members. Aggiorna il tuo piano per invitare più membri.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -7389,6 +7395,9 @@
   "alreadyHaveAccount": {
     "message": "Hai già un account?"
   },
+  "skipToContent": {
+    "message": "Vai al contenuto"
+  },
   "customBillingStart": {
     "message": "La fatturazione personalizzata non è contabilizzata. Visita la "
   },
@@ -7439,6 +7448,6 @@
     "message": "L'accesso alla raccolta è limitato"
   },
   "serviceAccountAccessUpdated": {
-    "message": "Service account access updated"
+    "message": "Accesso all'account di servizio aggiornato"
   }
 }

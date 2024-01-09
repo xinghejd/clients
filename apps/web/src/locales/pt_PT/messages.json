@@ -674,8 +674,8 @@
   "encryptionNotSupported": {
     "message": "Encriptação não suportada"
   },
-  "encryptionNotEnabled": {
-    "message": "Encriptação não ativada"
+  "enablePasskeyEncryption": {
+    "message": "Configurar a encriptação"
   },
   "usedForEncryption": {
     "message": "Utilizado para encriptação"
@@ -1074,6 +1074,9 @@
   "export": {
     "message": "Exportar"
   },
+  "exportFrom": {
+    "message": "Exportar de"
+  },
   "exportVault": {
     "message": "Exportar cofre"
   },
@@ -1149,6 +1152,9 @@
   },
   "length": {
     "message": "Comprimento"
+  },
+  "passwordMinLength": {
+    "message": "Comprimento mínimo da palavra-passe"
   },
   "uppercase": {
     "message": "Maiúsculas (A-Z)",
@@ -3542,12 +3548,12 @@
       }
     }
   },
-  "subscriptionFamiliesPlan": {
-    "message": "Não pode convidar mais do que $COUNT$ membros sem atualizar o seu plano. Contacte o Apoio ao cliente para atualizar.",
+  "subscriptionUpgrade": {
+    "message": "Não pode convidar mais do que $COUNT$ membros sem atualizar o seu plano.",
     "placeholders": {
       "count": {
         "content": "$1",
-        "example": "6"
+        "example": "2"
       }
     }
   },
@@ -6662,7 +6668,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "Os planos Teams Starter podem ter até $SEATCOUNT$ membros. Contacte o Apoio ao Cliente para atualizar o seu plano e convidar mais membros.",
+    "message": "Os planos Teams Starter podem ter até $SEATCOUNT$ membros. Atualize o seu plano para convidar mais membros.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -7389,6 +7395,9 @@
   "alreadyHaveAccount": {
     "message": "Já tem uma conta?"
   },
+  "skipToContent": {
+    "message": "Avançar para o conteúdo"
+  },
   "customBillingStart": {
     "message": "A faturação personalizada não é refletida. Visite a "
   },
@@ -7439,6 +7448,6 @@
     "message": "O acesso à coleção é restrito"
   },
   "serviceAccountAccessUpdated": {
-    "message": "Service account access updated"
+    "message": "Acesso à conta de serviço atualizado"
   }
 }
