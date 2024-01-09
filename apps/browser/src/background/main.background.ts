@@ -154,7 +154,6 @@ import { BrowserConfigService } from "../platform/services/browser-config.servic
 import { BrowserCryptoService } from "../platform/services/browser-crypto.service";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import { BrowserI18nService } from "../platform/services/browser-i18n.service";
-import BrowserLocalSecureStorageService from "../platform/services/browser-local-secure-storage.service";
 import BrowserLocalStorageService from "../platform/services/browser-local-storage.service";
 import BrowserMessagingPrivateModeBackgroundService from "../platform/services/browser-messaging-private-mode-background.service";
 import BrowserMessagingService from "../platform/services/browser-messaging.service";
@@ -300,7 +299,7 @@ export default class MainBackground {
     this.logService = new ConsoleLogService(false);
     this.cryptoFunctionService = new WebCryptoFunctionService(window);
     this.storageService = new BrowserLocalStorageService();
-    this.secureStorageService = new BrowserLocalSecureStorageService();
+    this.secureStorageService = new BrowserLocalStorageService();
     this.memoryStorageService =
       BrowserApi.manifestVersion === 3
         ? new LocalBackedSessionStorageService(

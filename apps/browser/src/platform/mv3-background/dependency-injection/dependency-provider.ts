@@ -2,7 +2,6 @@ import { ConsoleLogService } from "@bitwarden/common/platform/services/console-l
 import { EncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/encrypt.service.implementation";
 import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
 
-import BrowserLocalSecureStorageService from "../../services/browser-local-secure-storage.service";
 import BrowserLocalStorageService from "../../services/browser-local-storage.service";
 import BrowserMessagingPrivateModeBackgroundService from "../../services/browser-messaging-private-mode-background.service";
 import BrowserMessagingService from "../../services/browser-messaging.service";
@@ -33,10 +32,6 @@ class DependencyProvider {
     {
       provide: BrowserLocalStorageService,
       useFactory: () => new BrowserLocalStorageService(),
-    },
-    {
-      provide: BrowserLocalSecureStorageService,
-      useFactory: () => new BrowserLocalSecureStorageService(),
     },
     {
       provide: EncryptServiceImplementation,
