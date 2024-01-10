@@ -10,6 +10,7 @@ import { BrowserStateService } from "../../platform/services/browser-state.servi
 import { createChromeTabMock } from "../jest/autofill-mocks";
 import AutofillService from "../services/autofill.service";
 
+import { NotificationBackgroundExtensionMessage } from "./abstractions/notification.background";
 import NotificationBackground from "./notification.background";
 
 describe("NotificationBackground", () => {
@@ -41,7 +42,10 @@ describe("NotificationBackground", () => {
   describe("unlockVault", () => {
     it("returns early if the message indicates that the notification should be skipped", async () => {
       const tabMock = createChromeTabMock();
-      const message = { data: { skipNotification: true } };
+      const message: NotificationBackgroundExtensionMessage = {
+        command: "bgUnlockPopoutOpened",
+        data: { skipNotification: true },
+      };
       jest.spyOn(notificationBackground["authService"], "getAuthStatus");
       jest.spyOn(notificationBackground as any, "pushUnlockVaultToQueue");
 

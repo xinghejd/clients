@@ -1,4 +1,5 @@
 import { NotificationQueueMessageTypes } from "../../enums/notification-queue-message-type.enum";
+import AutofillPageDetails from "../../models/autofill-page-details";
 
 interface NotificationQueueMessage {
   type: NotificationQueueMessageTypes;
@@ -63,15 +64,26 @@ type AddLoginMessageData = {
   url: string;
 };
 
+type UnlockVaultMessageData = {
+  skipNotification?: boolean;
+};
+
 type NotificationBackgroundExtensionMessage = {
   [key: string]: any;
   command: string;
-  data?:
-    | LockedVaultPendingNotificationsData
-    | AdjustNotificationBarMessageData
-    | ChangePasswordMessageData;
+  data?: Partial<
+    LockedVaultPendingNotificationsData &
+      AdjustNotificationBarMessageData &
+      ChangePasswordMessageData &
+      UnlockVaultMessageData
+  >;
   login?: AddLoginMessageData;
   responseCommand?: string;
+  folder?: string;
+  edit?: boolean;
+  details?: AutofillPageDetails;
+  tab?: chrome.tabs.Tab;
+  sender?: chrome.runtime.MessageSender;
 };
 
 export {
@@ -81,8 +93,9 @@ export {
   AddRequestFilelessImportQueueMessage,
   NotificationQueueMessageItem,
   LockedVaultPendingNotificationsData,
-  AddLoginMessageData,
   AdjustNotificationBarMessageData,
   ChangePasswordMessageData,
+  UnlockVaultMessageData,
+  AddLoginMessageData,
   NotificationBackgroundExtensionMessage,
 };

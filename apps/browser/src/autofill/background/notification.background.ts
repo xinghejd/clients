@@ -31,6 +31,7 @@ import {
   AddLoginMessageData,
   NotificationQueueMessageItem,
   LockedVaultPendingNotificationsData,
+  NotificationBackgroundExtensionMessage,
 } from "./abstractions/notification.background";
 
 export default class NotificationBackground {
@@ -336,10 +337,7 @@ export default class NotificationBackground {
    * @param message - Extension message, determines if the notification should be skipped
    * @param tab - The tab that the message was sent from
    */
-  private async unlockVault(
-    message: { data?: { skipNotification?: boolean } },
-    tab: chrome.tabs.Tab,
-  ) {
+  private async unlockVault(message: NotificationBackgroundExtensionMessage, tab: chrome.tabs.Tab) {
     if (message.data?.skipNotification) {
       return;
     }
