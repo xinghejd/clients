@@ -62,7 +62,7 @@ export class SyncService implements SyncServiceAbstraction {
     map((event) => {
       if (event.successfully === true) {
         return null;
-      } else {
+      } else if (event.reason === "error") {
         return event.error ? event.error : null;
       }
     }),
@@ -115,6 +115,7 @@ export class SyncService implements SyncServiceAbstraction {
       this.syncEventSubject.next({
         status: "Completed",
         successfully: false,
+        reason: "not-authenticated",
       });
       return this.syncCompleted(false);
     }
@@ -127,6 +128,7 @@ export class SyncService implements SyncServiceAbstraction {
       this.syncEventSubject.next({
         status: "Completed",
         successfully: false,
+        reason: "error",
         error: e,
       });
       if (allowThrowOnError) {
@@ -141,6 +143,7 @@ export class SyncService implements SyncServiceAbstraction {
       this.syncEventSubject.next({
         status: "Completed",
         successfully: false,
+        reason: "unneeded",
       });
       return this.syncCompleted(false);
     }
@@ -170,6 +173,7 @@ export class SyncService implements SyncServiceAbstraction {
       this.syncEventSubject.next({
         status: "Completed",
         successfully: false,
+        reason: "error",
         error: e,
       });
       if (allowThrowOnError) {
