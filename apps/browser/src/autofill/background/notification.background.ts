@@ -41,7 +41,7 @@ export default class NotificationBackground {
   private notificationQueue: NotificationQueueMessageItem[] = [];
   private readonly extensionMessageHandlers: NotificationBackgroundExtensionMessageHandlers = {
     unlockCompleted: ({ message, sender }) => this.handleUnlockCompleted(message, sender),
-    bgGetFolderData: () => this.getDataForTab(),
+    bgGetFolderData: () => this.getFolderData(),
     bgCloseNotificationBar: ({ sender }) => this.handleCloseNotificationBarMessage(sender),
     bgAdjustNotificationBar: ({ message, sender }) =>
       this.bgAdjustNotificationBarMessage(message, sender),
@@ -547,14 +547,8 @@ export default class NotificationBackground {
     }
   }
 
-  private async getDataForTab() {
+  private async getFolderData() {
     return await firstValueFrom(this.folderService.folderViews$);
-
-    // const responseData: any = {};
-    // responseData.folders = await firstValueFrom(this.folderService.folderViews$);
-
-    // TODO - This needs to be sent back as a response to the message, return the data instead of sending it in a message
-    // await BrowserApi.tabSendMessageData(sender.tab, responseCommand, responseData);
   }
 
   private async removeIndividualVault(): Promise<boolean> {

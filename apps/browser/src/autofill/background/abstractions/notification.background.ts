@@ -84,7 +84,7 @@ type NotificationBackgroundExtensionMessage = {
   edit?: boolean;
   details?: AutofillPageDetails;
   tab?: chrome.tabs.Tab;
-  sender?: chrome.runtime.MessageSender | string;
+  sender?: string;
 };
 
 type BackgroundMessageParam = { message: NotificationBackgroundExtensionMessage };
