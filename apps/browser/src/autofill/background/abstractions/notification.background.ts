@@ -38,9 +38,9 @@ type NotificationQueueMessageItem =
 
 type LockedVaultPendingNotificationsItem = {
   commandToRetry: {
-    msg: {
+    message: {
       command: string;
-      data?: any;
+      contextMenuOnClickData?: chrome.contextMenus.OnClickData;
     };
     sender: chrome.runtime.MessageSender;
   };

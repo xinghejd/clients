@@ -151,7 +151,7 @@ export class ContextMenuClickedHandler {
 
     const contextMenuClickedHandler = await ContextMenuClickedHandler.mv3Create(cachedServices);
     await contextMenuClickedHandler.run(
-      message.data.commandToRetry.msg.data,
+      message.data.commandToRetry.message.contextMenuOnClickData,
       message.data.commandToRetry.sender.tab,
     );
   }
@@ -181,7 +181,7 @@ export class ContextMenuClickedHandler {
     if ((await this.authService.getAuthStatus()) < AuthenticationStatus.Unlocked) {
       const retryMessage: LockedVaultPendingNotificationsItem = {
         commandToRetry: {
-          msg: { command: NOOP_COMMAND_SUFFIX, data: info },
+          message: { command: NOOP_COMMAND_SUFFIX, contextMenuOnClickData: info },
           sender: { tab: tab },
         },
         target: "contextmenus.background",

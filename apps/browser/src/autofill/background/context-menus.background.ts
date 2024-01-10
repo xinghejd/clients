@@ -27,7 +27,10 @@ export default class ContextMenusBackground {
       ) => {
         if (msg.command === "unlockCompleted" && msg.data.target === "contextmenus.background") {
           this.contextMenuClickedHandler
-            .cipherAction(msg.data.commandToRetry.msg.data, msg.data.commandToRetry.sender.tab)
+            .cipherAction(
+              msg.data.commandToRetry.message.contextMenuOnClickData,
+              msg.data.commandToRetry.sender.tab,
+            )
             .then(() => {
               BrowserApi.tabSendMessageData(sender.tab, "closeNotificationBar");
             });

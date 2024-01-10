@@ -90,7 +90,7 @@ export default class NotificationBackground {
         if ((await this.authService.getAuthStatus()) < AuthenticationStatus.Unlocked) {
           const retryMessage: LockedVaultPendingNotificationsItem = {
             commandToRetry: {
-              msg: {
+              message: {
                 command: msg,
               },
               sender: sender,
@@ -579,7 +579,7 @@ export default class NotificationBackground {
     messageData: LockedVaultPendingNotificationsItem,
     sender: chrome.runtime.MessageSender,
   ): Promise<void> {
-    if (messageData.commandToRetry.msg.command === "autofill_login") {
+    if (messageData.commandToRetry.message.command === "autofill_login") {
       await BrowserApi.tabSendMessageData(sender.tab, "closeNotificationBar");
     }
 
@@ -588,7 +588,7 @@ export default class NotificationBackground {
     }
 
     await this.processMessage(
-      messageData.commandToRetry.msg.command,
+      messageData.commandToRetry.message.command,
       messageData.commandToRetry.sender,
     );
   }

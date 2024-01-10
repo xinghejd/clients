@@ -28,7 +28,10 @@ export default class CommandsBackground {
   async init() {
     BrowserApi.messageListener("commands.background", (msg: any) => {
       if (msg.command === "unlockCompleted" && msg.data.target === "commands.background") {
-        this.processCommand(msg.data.commandToRetry.msg.command, msg.data.commandToRetry.sender);
+        this.processCommand(
+          msg.data.commandToRetry.message.command,
+          msg.data.commandToRetry.sender,
+        );
       }
     });
 
@@ -77,7 +80,7 @@ export default class CommandsBackground {
     if ((await this.authService.getAuthStatus()) < AuthenticationStatus.Unlocked) {
       const retryMessage: LockedVaultPendingNotificationsItem = {
         commandToRetry: {
-          msg: { command: "autofill_login" },
+          message: { command: "autofill_login" },
           sender: { tab: tab },
         },
         target: "commands.background",

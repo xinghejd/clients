@@ -531,7 +531,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
 
     this.closeOverlay(port);
     const retryMessage: LockedVaultPendingNotificationsItem = {
-      commandToRetry: { msg: { command: "openAutofillOverlay" }, sender },
+      commandToRetry: { message: { command: "openAutofillOverlay" }, sender },
       target: "overlay.background",
     };
     await BrowserApi.tabSendMessageData(
@@ -579,7 +579,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private async unlockCompleted(message: OverlayBackgroundExtensionMessage) {
     await this.getAuthStatus();
 
-    if (message.data?.commandToRetry?.msg?.command === "openAutofillOverlay") {
+    if (message.data?.commandToRetry?.message?.command === "openAutofillOverlay") {
       await this.openOverlay(true);
     }
   }
