@@ -40,22 +40,22 @@ export default class NotificationBackground {
   private openUnlockPopout = openUnlockPopout;
   private notificationQueue: NotificationQueueMessageItem[] = [];
   private readonly extensionMessageHandlers: NotificationBackgroundExtensionMessageHandlers = {
-    unlockCompleted: async ({ message, sender }) => this.handleUnlockCompleted(message, sender),
-    bgGetDataForTab: async ({ message, sender }) => this.getDataForTab(message, sender),
-    bgCloseNotificationBar: async ({ sender }) => this.handleCloseNotificationBarMessage(sender),
-    bgAdjustNotificationBar: async ({ message, sender }) =>
+    unlockCompleted: ({ message, sender }) => this.handleUnlockCompleted(message, sender),
+    bgGetFolderData: () => this.getDataForTab(),
+    bgCloseNotificationBar: ({ sender }) => this.handleCloseNotificationBarMessage(sender),
+    bgAdjustNotificationBar: ({ message, sender }) =>
       this.bgAdjustNotificationBarMessage(message, sender),
-    bgAddLogin: async ({ message, sender }) => this.addLogin(message, sender),
-    bgChangedPassword: async ({ message, sender }) => this.changedPassword(message, sender),
-    bgRemoveTabFromNotificationQueue: async ({ sender }) =>
+    bgAddLogin: ({ message, sender }) => this.addLogin(message, sender),
+    bgChangedPassword: ({ message, sender }) => this.changedPassword(message, sender),
+    bgRemoveTabFromNotificationQueue: ({ sender }) =>
       this.removeTabFromNotificationQueue(sender.tab),
-    bgSaveCipher: async ({ message, sender }) => this.handleSaveCipherMessage(message, sender),
-    bgNeverSave: async ({ sender }) => this.saveNever(sender.tab),
-    collectPageDetailsResponse: async ({ message }) =>
+    bgSaveCipher: ({ message, sender }) => this.handleSaveCipherMessage(message, sender),
+    bgNeverSave: ({ sender }) => this.saveNever(sender.tab),
+    collectPageDetailsResponse: ({ message }) =>
       this.handleCollectPageDetailsResponseMessage(message),
-    bgUnlockPopoutOpened: async ({ message, sender }) => this.unlockVault(message, sender.tab),
-    checkNotificationQueue: async ({ sender }) => this.checkNotificationQueue(sender.tab),
-    bgReopenUnlockPopout: async ({ sender }) => this.openUnlockPopout(sender.tab),
+    bgUnlockPopoutOpened: ({ message, sender }) => this.unlockVault(message, sender.tab),
+    checkNotificationQueue: ({ sender }) => this.checkNotificationQueue(sender.tab),
+    bgReopenUnlockPopout: ({ sender }) => this.openUnlockPopout(sender.tab),
   };
 
   constructor(
@@ -405,20 +405,17 @@ export default class NotificationBackground {
     sender: chrome.runtime.MessageSender,
   ) {
     if ((await this.authService.getAuthStatus()) < AuthenticationStatus.Unlocked) {
-      const retryMessage: LockedVaultPendingNotificationsData = {
+      await BrowserApi.tabSendMessageData(sender.tab, "addToLockedVaultPendingNotifications", {
         commandToRetry: {
           message: {
-            command: message.command, // TODO - Check that this still works, we're switching from a full object to a string
+            command: message.command,
+            edit: message.edit,
+            folder: message.folder,
           },
           sender: sender,
         },
         target: "notification.background",
-      };
-      await BrowserApi.tabSendMessageData(
-        sender.tab,
-        "addToLockedVaultPendingNotifications",
-        retryMessage,
-      );
+      } as LockedVaultPendingNotificationsData);
       await this.openUnlockPopout(sender.tab);
       return;
     }
@@ -550,18 +547,14 @@ export default class NotificationBackground {
     }
   }
 
-  private async getDataForTab(
-    message: NotificationBackgroundExtensionMessage,
-    sender: chrome.runtime.MessageSender,
-  ) {
-    const responseData: any = {};
-    const responseCommand = message.responseCommand;
-    if (responseCommand === "notificationBarGetFoldersList") {
-      responseData.folders = await firstValueFrom(this.folderService.folderViews$);
-    }
+  private async getDataForTab() {
+    return await firstValueFrom(this.folderService.folderViews$);
+
+    // const responseData: any = {};
+    // responseData.folders = await firstValueFrom(this.folderService.folderViews$);
 
     // TODO - This needs to be sent back as a response to the message, return the data instead of sending it in a message
-    await BrowserApi.tabSendMessageData(sender.tab, responseCommand, responseData);
+    // await BrowserApi.tabSendMessageData(sender.tab, responseCommand, responseData);
   }
 
   private async removeIndividualVault(): Promise<boolean> {
@@ -590,7 +583,7 @@ export default class NotificationBackground {
     }
 
     retryHandler({
-      message: messageData.commandToRetry,
+      message: messageData.commandToRetry.message,
       sender: messageData.commandToRetry.sender,
     });
   }

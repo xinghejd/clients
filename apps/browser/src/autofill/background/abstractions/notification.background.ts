@@ -1,3 +1,5 @@
+import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+
 import { NotificationQueueMessageTypes } from "../../enums/notification-queue-message-type.enum";
 import AutofillPageDetails from "../../models/autofill-page-details";
 
@@ -42,6 +44,8 @@ type LockedVaultPendingNotificationsData = {
     message: {
       command: string;
       contextMenuOnClickData?: chrome.contextMenus.OnClickData;
+      folder?: string;
+      edit?: boolean;
     };
     sender: chrome.runtime.MessageSender;
   };
@@ -76,7 +80,6 @@ type NotificationBackgroundExtensionMessage = {
     Partial<ChangePasswordMessageData> &
     Partial<UnlockVaultMessageData>;
   login?: AddLoginMessageData;
-  responseCommand?: string;
   folder?: string;
   edit?: boolean;
   details?: AutofillPageDetails;
@@ -91,12 +94,12 @@ type BackgroundOnMessageHandlerParams = BackgroundMessageParam & BackgroundSende
 type NotificationBackgroundExtensionMessageHandlers = {
   [key: string]: CallableFunction;
   unlockCompleted: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
-  bgGetDataForTab: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
+  bgGetFolderData: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<FolderView[]>;
   bgCloseNotificationBar: ({ sender }: BackgroundSenderParam) => Promise<void>;
   bgAdjustNotificationBar: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgAddLogin: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgChangedPassword: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
-  bgRemoveTabFromNotificationQueue: ({ sender }: BackgroundSenderParam) => Promise<void>;
+  bgRemoveTabFromNotificationQueue: ({ sender }: BackgroundSenderParam) => void;
   bgSaveCipher: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgNeverSave: ({ sender }: BackgroundSenderParam) => Promise<void>;
   bgUnlockPopoutOpened: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;

@@ -1,5 +1,3 @@
-import type { Jsonify } from "type-fest";
-
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import type { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
@@ -294,31 +292,22 @@ function sendPlatformMessage(
 }
 
 function loadFolderSelector() {
-  const responseFoldersCommand = "notificationBarGetFoldersList";
-
-  chrome.runtime.onMessage.addListener((msg) => {
-    if (msg.command !== responseFoldersCommand || msg.data == null) {
+  const populateFolderData = (folderData: FolderView[]) => {
+    const select = document.getElementById("select-folder");
+    if (!folderData?.length) {
+      select.appendChild(new Option(chrome.i18n.getMessage("noFoldersFound"), null, true));
+      select.setAttribute("disabled", "true");
       return;
     }
 
-    const folders = msg.data.folders as Jsonify<FolderView[]>;
-    const select = document.getElementById("select-folder");
     select.appendChild(new Option(chrome.i18n.getMessage("selectFolder"), null, true));
-    folders.forEach((folder) => {
+    folderData.forEach((folder: FolderView) => {
       // Select "No Folder" (id=null) folder by default
       select.appendChild(new Option(folder.name, folder.id || "", false));
     });
-  });
+  };
 
-  sendPlatformMessage(
-    {
-      command: "bgGetDataForTab",
-      responseCommand: responseFoldersCommand,
-    },
-    (response) => {
-      // console.log(response); TODO - This needs to trigger the folder update and we need to remove the chrome.runtime.onMessage.addListener
-    },
-  );
+  sendPlatformMessage({ command: "bgGetFolderData" }, populateFolderData);
 }
 
 function getSelectedFolder(): string {
