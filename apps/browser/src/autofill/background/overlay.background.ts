@@ -24,7 +24,7 @@ import { SHOW_AUTOFILL_BUTTON } from "../constants";
 import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
 import { AutofillOverlayElement, AutofillOverlayPort } from "../utils/autofill-overlay.enum";
 
-import { LockedVaultPendingNotificationsItem } from "./abstractions/notification.background";
+import { LockedVaultPendingNotificationsData } from "./abstractions/notification.background";
 import {
   FocusedFieldData,
   OverlayBackgroundExtensionMessageHandlers,
@@ -530,7 +530,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
     const { sender } = port;
 
     this.closeOverlay(port);
-    const retryMessage: LockedVaultPendingNotificationsItem = {
+    const retryMessage: LockedVaultPendingNotificationsData = {
       commandToRetry: { message: { command: "openAutofillOverlay" }, sender },
       target: "overlay.background",
     };

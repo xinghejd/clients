@@ -4,6 +4,7 @@ import { ConsoleLogService } from "@bitwarden/common/platform/services/console-l
 import type { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
 import { FilelessImportPort, FilelessImportType } from "../../tools/enums/fileless-import.enums";
+import { AdjustNotificationBarMessageData } from "../background/abstractions/notification.background";
 
 require("./bar.scss");
 
@@ -315,7 +316,7 @@ function loadFolderSelector() {
       responseCommand: responseFoldersCommand,
     },
     (response) => {
-      // console.log(response);
+      // console.log(response); TODO - This needs to trigger the folder update and we need to remove the chrome.runtime.onMessage.addListener
     },
   );
 }
@@ -329,10 +330,11 @@ function removeIndividualVault(): boolean {
 }
 
 function adjustHeight() {
+  const data: AdjustNotificationBarMessageData = {
+    height: document.querySelector("body").scrollHeight,
+  };
   sendPlatformMessage({
     command: "bgAdjustNotificationBar",
-    data: {
-      height: document.querySelector("body").scrollHeight,
-    },
+    data,
   });
 }

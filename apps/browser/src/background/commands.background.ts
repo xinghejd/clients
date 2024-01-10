@@ -5,7 +5,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 
 import { openUnlockPopout } from "../auth/popup/utils/auth-popout-window";
-import { LockedVaultPendingNotificationsItem } from "../autofill/background/abstractions/notification.background";
+import { LockedVaultPendingNotificationsData } from "../autofill/background/abstractions/notification.background";
 import { BrowserApi } from "../platform/browser/browser-api";
 
 import MainBackground from "./main.background";
@@ -78,7 +78,7 @@ export default class CommandsBackground {
     }
 
     if ((await this.authService.getAuthStatus()) < AuthenticationStatus.Unlocked) {
-      const retryMessage: LockedVaultPendingNotificationsItem = {
+      const retryMessage: LockedVaultPendingNotificationsData = {
         commandToRetry: {
           message: { command: "autofill_login" },
           sender: { tab: tab },

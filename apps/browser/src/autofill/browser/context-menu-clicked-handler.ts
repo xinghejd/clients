@@ -33,7 +33,7 @@ import {
   openAddEditVaultItemPopout,
   openVaultItemPasswordRepromptPopout,
 } from "../../vault/popup/utils/vault-popout-window";
-import { LockedVaultPendingNotificationsItem } from "../background/abstractions/notification.background";
+import { LockedVaultPendingNotificationsData } from "../background/abstractions/notification.background";
 import { autofillServiceFactory } from "../background/service_factories/autofill-service.factory";
 import { copyToClipboard, GeneratePasswordToClipboardCommand } from "../clipboard";
 import { AutofillTabCommand } from "../commands/autofill-tab-command";
@@ -138,7 +138,7 @@ export class ContextMenuClickedHandler {
   }
 
   static async messageListener(
-    message: { command: string; data: LockedVaultPendingNotificationsItem },
+    message: { command: string; data: LockedVaultPendingNotificationsData },
     sender: chrome.runtime.MessageSender,
     cachedServices: CachedServices,
   ) {
@@ -179,7 +179,7 @@ export class ContextMenuClickedHandler {
     }
 
     if ((await this.authService.getAuthStatus()) < AuthenticationStatus.Unlocked) {
-      const retryMessage: LockedVaultPendingNotificationsItem = {
+      const retryMessage: LockedVaultPendingNotificationsData = {
         commandToRetry: {
           message: { command: NOOP_COMMAND_SUFFIX, contextMenuOnClickData: info },
           sender: { tab: tab },

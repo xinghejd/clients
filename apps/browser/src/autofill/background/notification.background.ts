@@ -27,10 +27,10 @@ import {
   AddLoginQueueMessage,
   AddRequestFilelessImportQueueMessage,
   AddUnlockVaultQueueMessage,
-  ChangePasswordRuntimeMessage,
-  AddLoginRuntimeMessage,
+  ChangePasswordMessageData,
+  AddLoginMessageData,
   NotificationQueueMessageItem,
-  LockedVaultPendingNotificationsItem,
+  LockedVaultPendingNotificationsData,
 } from "./abstractions/notification.background";
 
 export default class NotificationBackground {
@@ -88,7 +88,7 @@ export default class NotificationBackground {
       case "bgAddSave":
       case "bgChangeSave":
         if ((await this.authService.getAuthStatus()) < AuthenticationStatus.Unlocked) {
-          const retryMessage: LockedVaultPendingNotificationsItem = {
+          const retryMessage: LockedVaultPendingNotificationsData = {
             commandToRetry: {
               message: {
                 command: msg,
@@ -230,7 +230,7 @@ export default class NotificationBackground {
     }
   }
 
-  private async addLogin(loginInfo: AddLoginRuntimeMessage, tab: chrome.tabs.Tab) {
+  private async addLogin(loginInfo: AddLoginMessageData, tab: chrome.tabs.Tab) {
     const authStatus = await this.authService.getAuthStatus();
     if (authStatus === AuthenticationStatus.LoggedOut) {
       return;
@@ -281,7 +281,7 @@ export default class NotificationBackground {
 
   private async pushAddLoginToQueue(
     loginDomain: string,
-    loginInfo: AddLoginRuntimeMessage,
+    loginInfo: AddLoginMessageData,
     tab: chrome.tabs.Tab,
     isVaultLocked = false,
   ) {
@@ -301,7 +301,7 @@ export default class NotificationBackground {
     await this.checkNotificationQueue(tab);
   }
 
-  private async changedPassword(changeData: ChangePasswordRuntimeMessage, tab: chrome.tabs.Tab) {
+  private async changedPassword(changeData: ChangePasswordMessageData, tab: chrome.tabs.Tab) {
     const loginDomain = Utils.getDomain(changeData.url);
     if (loginDomain == null) {
       return;
@@ -576,7 +576,7 @@ export default class NotificationBackground {
   }
 
   private async handleUnlockCompleted(
-    messageData: LockedVaultPendingNotificationsItem,
+    messageData: LockedVaultPendingNotificationsData,
     sender: chrome.runtime.MessageSender,
   ): Promise<void> {
     if (messageData.commandToRetry.message.command === "autofill_login") {

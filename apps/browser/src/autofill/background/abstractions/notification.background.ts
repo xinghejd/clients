@@ -36,7 +36,7 @@ type NotificationQueueMessageItem =
   | AddUnlockVaultQueueMessage
   | AddRequestFilelessImportQueueMessage;
 
-type LockedVaultPendingNotificationsItem = {
+type LockedVaultPendingNotificationsData = {
   commandToRetry: {
     message: {
       command: string;
@@ -47,15 +47,19 @@ type LockedVaultPendingNotificationsItem = {
   target: string;
 };
 
-type AddLoginRuntimeMessage = {
-  username: string;
-  password: string;
+type AdjustNotificationBarMessageData = {
+  height: number;
+};
+
+type ChangePasswordMessageData = {
+  currentPassword: string;
+  newPassword: string;
   url: string;
 };
 
-type ChangePasswordRuntimeMessage = {
-  currentPassword: string;
-  newPassword: string;
+type AddLoginMessageData = {
+  username: string;
+  password: string;
   url: string;
 };
 
@@ -63,12 +67,11 @@ type NotificationBackgroundExtensionMessage = {
   [key: string]: any;
   command: string;
   data?:
-    | {
-        height?: number;
-      }
-    | LockedVaultPendingNotificationsItem
-    | ChangePasswordRuntimeMessage;
-  login?: AddLoginRuntimeMessage;
+    | LockedVaultPendingNotificationsData
+    | AdjustNotificationBarMessageData
+    | ChangePasswordMessageData;
+  login?: AddLoginMessageData;
+  responseCommand?: string;
 };
 
 export {
@@ -77,8 +80,9 @@ export {
   AddUnlockVaultQueueMessage,
   AddRequestFilelessImportQueueMessage,
   NotificationQueueMessageItem,
-  LockedVaultPendingNotificationsItem,
-  AddLoginRuntimeMessage,
-  ChangePasswordRuntimeMessage,
+  LockedVaultPendingNotificationsData,
+  AddLoginMessageData,
+  AdjustNotificationBarMessageData,
+  ChangePasswordMessageData,
   NotificationBackgroundExtensionMessage,
 };
