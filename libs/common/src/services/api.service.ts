@@ -1000,7 +1000,7 @@ export class ApiService implements ApiServiceAbstraction {
     return new TwoFactorAuthenticatorResponse(r);
   }
 
-  // test 2
+  // test 3
   async putTwoFactorEmail(request: UpdateTwoFactorEmailRequest): Promise<TwoFactorEmailResponse> {
     const r = await this.send("PUT", "/two-factor/email", request, true, true);
     return new TwoFactorEmailResponse(r);
