@@ -107,7 +107,7 @@ type NotificationBackgroundExtensionMessageHandlers = {
   bgReopenUnlockPopout: ({ sender }: BackgroundSenderParam) => Promise<void>;
   checkNotificationQueue: ({ sender }: BackgroundSenderParam) => Promise<void>;
   collectPageDetailsResponse: ({ message }: BackgroundMessageParam) => Promise<void>;
-  getWebVaultUrlForNotification: ({ message }: BackgroundMessageParam) => string | null;
+  getWebVaultUrlForNotification: () => string;
 };
 
 export {

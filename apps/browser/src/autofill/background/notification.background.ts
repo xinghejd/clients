@@ -56,7 +56,7 @@ export default class NotificationBackground {
     bgUnlockPopoutOpened: ({ message, sender }) => this.unlockVault(message, sender.tab),
     checkNotificationQueue: ({ sender }) => this.checkNotificationQueue(sender.tab),
     bgReopenUnlockPopout: ({ sender }) => this.openUnlockPopout(sender.tab),
-    getWebVaultUrlForNotification: ({ message }) => this.getWebVaultUrl(message),
+    getWebVaultUrlForNotification: () => this.getWebVaultUrl(),
   };
 
   constructor(
@@ -547,10 +547,8 @@ export default class NotificationBackground {
     return await firstValueFrom(this.folderService.folderViews$);
   }
 
-  private getWebVaultUrl(message: NotificationBackgroundExtensionMessage): string | null {
-    return message.notificationType !== NotificationQueueMessageType.UnlockVault
-      ? this.environmentService.getWebVaultUrl()
-      : null;
+  private getWebVaultUrl(): string {
+    return this.environmentService.getWebVaultUrl();
   }
 
   private async removeIndividualVault(): Promise<boolean> {

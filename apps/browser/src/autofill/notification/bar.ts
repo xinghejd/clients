@@ -323,17 +323,11 @@ function setupLogoLink(i18n: Record<string, string>) {
   const logoLink = document.getElementById("logo-link") as HTMLAnchorElement;
   logoLink.title = i18n.appName;
 
-  sendPlatformMessage(
-    {
-      command: "getWebVaultUrlForNotification",
-      notificationType: getQueryVariable("type"),
-    },
-    (webVaultURL) => {
-      const newVaultURL = webVaultURL && decodeURIComponent(webVaultURL);
+  sendPlatformMessage({ command: "getWebVaultUrlForNotification" }, (webVaultURL) => {
+    const newVaultURL = webVaultURL && decodeURIComponent(webVaultURL);
 
-      if (newVaultURL && newVaultURL !== logoLink.href) {
-        logoLink.href = newVaultURL;
-      }
-    },
-  );
+    if (newVaultURL && newVaultURL !== logoLink.href) {
+      logoLink.href = newVaultURL;
+    }
+  });
 }
