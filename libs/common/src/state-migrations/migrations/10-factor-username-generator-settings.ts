@@ -31,16 +31,8 @@ export type LegacyGenerationOptions = {
   forwardedSimpleLoginBaseUrl?: string;
 };
 
-/** valid forwarders as a type. Keep in sync with `ValidForwarderServices` */
-type ForwarderService =
-  | "fastmail"
-  | "anonaddy"
-  | "forwardemail"
-  | "simplelogin"
-  | "duckduckgo"
-  | "firefoxrelay";
+type ForwarderService = (typeof ValidForwarderServices)[number];
 
-/** valid forwarders as an array. Keep in sync with `ForwarderService`. */
 const ValidForwarderServices = Object.freeze([
   "fastmail",
   "anonaddy",
@@ -48,7 +40,7 @@ const ValidForwarderServices = Object.freeze([
   "simplelogin",
   "duckduckgo",
   "firefoxrelay",
-]);
+] as const);
 
 /** username generation options after refactoring.
  * @remarks Starting at `settings.usernameGenerationOptions`, this is a
@@ -207,8 +199,10 @@ function configureForwarderService(
   options: NewGenerationOptions,
   service: string,
 ): NewGenerationOptions {
-  if (Object.values(ValidForwarderServices).includes(service)) {
-    options.forwarders.service = service as ForwarderService;
+  // `find` avoids a fight between the typechecker and prettier
+  const validService = ValidForwarderServices.find((s) => s === service);
+  if (validService) {
+    options.forwarders.service = validService;
   }
 
   return options;
