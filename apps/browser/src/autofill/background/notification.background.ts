@@ -477,7 +477,7 @@ export default class NotificationBackground {
         }
 
         folderId = (await this.folderExists(folderId)) ? folderId : null;
-        const newCipher = this.toCipherView(queueMessage, folderId);
+        const newCipher = this.convertAddLoginQueueMessageToCipherView(queueMessage, folderId);
 
         if (edit) {
           await this.editItem(newCipher, tab);
@@ -593,7 +593,10 @@ export default class NotificationBackground {
     );
   }
 
-  private toCipherView(message: AddLoginQueueMessage, folderId?: string): CipherView {
+  private convertAddLoginQueueMessageToCipherView(
+    message: AddLoginQueueMessage,
+    folderId?: string,
+  ): CipherView {
     const uriView = new LoginUriView();
     uriView.uri = message.uri;
 
