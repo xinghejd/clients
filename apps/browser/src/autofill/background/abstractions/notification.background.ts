@@ -71,19 +71,38 @@ type UnlockVaultMessageData = {
 type NotificationBackgroundExtensionMessage = {
   [key: string]: any;
   command: string;
-  data?: Partial<
-    LockedVaultPendingNotificationsData &
-      AdjustNotificationBarMessageData &
-      ChangePasswordMessageData &
-      UnlockVaultMessageData
-  >;
+  data?: Partial<LockedVaultPendingNotificationsData> &
+    Partial<AdjustNotificationBarMessageData> &
+    Partial<ChangePasswordMessageData> &
+    Partial<UnlockVaultMessageData>;
   login?: AddLoginMessageData;
   responseCommand?: string;
   folder?: string;
   edit?: boolean;
   details?: AutofillPageDetails;
   tab?: chrome.tabs.Tab;
-  sender?: chrome.runtime.MessageSender;
+  sender?: chrome.runtime.MessageSender | string;
+};
+
+type BackgroundMessageParam = { message: NotificationBackgroundExtensionMessage };
+type BackgroundSenderParam = { sender: chrome.runtime.MessageSender };
+type BackgroundOnMessageHandlerParams = BackgroundMessageParam & BackgroundSenderParam;
+
+type NotificationBackgroundExtensionMessageHandlers = {
+  [key: string]: CallableFunction;
+  unlockCompleted: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
+  bgGetDataForTab: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
+  bgCloseNotificationBar: ({ sender }: BackgroundSenderParam) => Promise<void>;
+  bgAdjustNotificationBar: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
+  bgAddLogin: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
+  bgChangedPassword: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
+  bgRemoveTabFromNotificationQueue: ({ sender }: BackgroundSenderParam) => Promise<void>;
+  bgSaveOrUpdateCipher: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
+  bgNeverSave: ({ sender }: BackgroundSenderParam) => Promise<void>;
+  bgUnlockPopoutOpened: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
+  bgReopenUnlockPopout: ({ sender }: BackgroundSenderParam) => Promise<void>;
+  checkNotificationQueue: ({ sender }: BackgroundSenderParam) => Promise<void>;
+  collectPageDetailsResponse: ({ message }: BackgroundMessageParam) => Promise<void>;
 };
 
 export {
@@ -98,4 +117,5 @@ export {
   UnlockVaultMessageData,
   AddLoginMessageData,
   NotificationBackgroundExtensionMessage,
+  NotificationBackgroundExtensionMessageHandlers,
 };

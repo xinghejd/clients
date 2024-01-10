@@ -157,7 +157,7 @@ function handleTypeAdd() {
 
     // If Remove Individual Vault policy applies, "Add" opens the edit tab
     sendPlatformMessage({
-      command: "bgAddSave",
+      command: "bgSaveOrUpdateCipher",
       folder: getSelectedFolder(),
       edit: removeIndividualVault(),
     });
@@ -173,7 +173,7 @@ function handleTypeAdd() {
     e.preventDefault();
 
     sendPlatformMessage({
-      command: "bgAddSave",
+      command: "bgSaveOrUpdateCipher",
       folder: getSelectedFolder(),
       edit: true,
     });
@@ -197,7 +197,7 @@ function handleTypeChange() {
     e.preventDefault();
 
     sendPlatformMessage({
-      command: "bgChangeSave",
+      command: "bgSaveOrUpdateCipher",
       edit: false,
     });
   });
@@ -207,7 +207,7 @@ function handleTypeChange() {
     e.preventDefault();
 
     sendPlatformMessage({
-      command: "bgChangeSave",
+      command: "bgSaveOrUpdateCipher",
       edit: true,
     });
   });

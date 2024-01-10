@@ -908,13 +908,9 @@ async function loadNotificationBar() {
 
     switch (barType) {
       case "add":
-        sendPlatformMessage({
-          command: "bgAddClose",
-        });
-        break;
       case "change":
         sendPlatformMessage({
-          command: "bgChangeClose",
+          command: "bgRemoveTabFromNotificationQueue",
         });
         break;
       default:

@@ -32,10 +32,32 @@ import {
   NotificationQueueMessageItem,
   LockedVaultPendingNotificationsData,
   NotificationBackgroundExtensionMessage,
+  NotificationBackgroundExtensionMessageHandlers,
 } from "./abstractions/notification.background";
+import { OverlayBackgroundExtensionMessage } from "./abstractions/overlay.background";
 
 export default class NotificationBackground {
   private notificationQueue: NotificationQueueMessageItem[] = [];
+  private readonly extensionMessageHandlers: NotificationBackgroundExtensionMessageHandlers = {
+    unlockCompleted: async ({ message, sender }) => this.handleUnlockCompleted(message, sender),
+    bgGetDataForTab: async ({ message, sender }) => this.getDataForTab(message, sender),
+    bgCloseNotificationBar: async ({ sender }) =>
+      BrowserApi.tabSendMessage(sender.tab, "closeNotificationBar"),
+    bgAdjustNotificationBar: async ({ message, sender }) =>
+      BrowserApi.tabSendMessageData(sender.tab, "adjustNotificationBar", message.data),
+    bgAddLogin: async ({ message, sender }) => this.addLogin(message, sender),
+    bgChangedPassword: async ({ message, sender }) => this.changedPassword(message, sender),
+    bgRemoveTabFromNotificationQueue: async ({ sender }) =>
+      this.removeTabFromNotificationQueue(sender.tab),
+    bgSaveOrUpdateCipher: async ({ message, sender }) =>
+      this.handleSaveOrUpdateCredentialsMessage(message, sender),
+    bgNeverSave: async ({ sender }) => this.saveNever(sender.tab),
+    collectPageDetailsResponse: async ({ message }) =>
+      this.handleCollectPageDetailsResponseMessage(message),
+    bgUnlockPopoutOpened: async ({ message, sender }) => this.unlockVault(message, sender.tab),
+    checkNotificationQueue: async ({ sender }) => this.checkNotificationQueue(sender.tab),
+    bgReopenUnlockPopout: async ({ sender }) => openUnlockPopout(sender.tab),
+  };
 
   constructor(
     private autofillService: AutofillService,
@@ -52,12 +74,7 @@ export default class NotificationBackground {
       return;
     }
 
-    BrowserApi.messageListener(
-      "notification.background",
-      (msg: any, sender: chrome.runtime.MessageSender) => {
-        this.processMessage(msg, sender);
-      },
-    );
+    this.setupExtensionMessageListener();
 
     this.cleanupNotificationQueue();
   }
@@ -68,7 +85,7 @@ export default class NotificationBackground {
         await this.handleUnlockCompleted(msg.data, sender);
         break;
       case "bgGetDataForTab":
-        await this.getDataForTab(sender.tab, msg.responseCommand);
+        // await this.getDataForTab(sender.tab, msg.responseCommand);
         break;
       case "bgCloseNotificationBar":
         await BrowserApi.tabSendMessageData(sender.tab, "closeNotificationBar");
@@ -77,17 +94,15 @@ export default class NotificationBackground {
         await BrowserApi.tabSendMessageData(sender.tab, "adjustNotificationBar", msg.data);
         break;
       case "bgAddLogin":
-        await this.addLogin(msg.login, sender.tab);
+        // await this.addLogin(msg.login, sender.tab);
         break;
       case "bgChangedPassword":
-        await this.changedPassword(msg.data, sender.tab);
+        // await this.changedPassword(msg.data, sender.tab);
         break;
-      case "bgAddClose":
-      case "bgChangeClose":
+      case "bgRemoveTabFromNotificationQueue":
         this.removeTabFromNotificationQueue(sender.tab);
         break;
-      case "bgAddSave":
-      case "bgChangeSave":
+      case "bgSaveOrUpdateCipher":
         if ((await this.authService.getAuthStatus()) < AuthenticationStatus.Unlocked) {
           const retryMessage: LockedVaultPendingNotificationsData = {
             commandToRetry: {
@@ -231,7 +246,11 @@ export default class NotificationBackground {
     }
   }
 
-  private async addLogin(loginInfo: AddLoginMessageData, tab: chrome.tabs.Tab) {
+  private async addLogin(
+    message: NotificationBackgroundExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+  ) {
+    const loginInfo = message.login;
     const authStatus = await this.authService.getAuthStatus();
     if (authStatus === AuthenticationStatus.LoggedOut) {
       return;
@@ -253,7 +272,7 @@ export default class NotificationBackground {
         return;
       }
 
-      this.pushAddLoginToQueue(loginDomain, loginInfo, tab, true);
+      this.pushAddLoginToQueue(loginDomain, loginInfo, sender.tab, true);
       return;
     }
 
@@ -266,7 +285,7 @@ export default class NotificationBackground {
         return;
       }
 
-      this.pushAddLoginToQueue(loginDomain, loginInfo, tab);
+      this.pushAddLoginToQueue(loginDomain, loginInfo, sender.tab);
     } else if (
       usernameMatches.length === 1 &&
       usernameMatches[0].login.password !== loginInfo.password
@@ -276,7 +295,12 @@ export default class NotificationBackground {
       if (disabledChangePassword) {
         return;
       }
-      this.pushChangePasswordToQueue(usernameMatches[0].id, loginDomain, loginInfo.password, tab);
+      this.pushChangePasswordToQueue(
+        usernameMatches[0].id,
+        loginDomain,
+        loginInfo.password,
+        sender.tab,
+      );
     }
   }
 
@@ -302,14 +326,18 @@ export default class NotificationBackground {
     await this.checkNotificationQueue(tab);
   }
 
-  private async changedPassword(changeData: ChangePasswordMessageData, tab: chrome.tabs.Tab) {
+  private async changedPassword(
+    message: NotificationBackgroundExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+  ) {
+    const changeData = message.data as ChangePasswordMessageData;
     const loginDomain = Utils.getDomain(changeData.url);
     if (loginDomain == null) {
       return;
     }
 
     if ((await this.authService.getAuthStatus()) < AuthenticationStatus.Unlocked) {
-      this.pushChangePasswordToQueue(null, loginDomain, changeData.newPassword, tab, true);
+      this.pushChangePasswordToQueue(null, loginDomain, changeData.newPassword, sender.tab, true);
       return;
     }
 
@@ -326,8 +354,22 @@ export default class NotificationBackground {
       id = ciphers[0].id;
     }
     if (id != null) {
-      this.pushChangePasswordToQueue(id, loginDomain, changeData.newPassword, tab);
+      this.pushChangePasswordToQueue(id, loginDomain, changeData.newPassword, sender.tab);
     }
+  }
+
+  private async handleCollectPageDetailsResponseMessage(
+    message: NotificationBackgroundExtensionMessage,
+  ) {
+    if (message.sender !== "notificationBar") {
+      return;
+    }
+
+    const forms = this.autofillService.getFormsWithPasswordFields(message.details);
+    await BrowserApi.tabSendMessageData(message.tab, "notificationBarPageDetails", {
+      details: message.details,
+      forms: forms,
+    });
   }
 
   /**
@@ -432,6 +474,32 @@ export default class NotificationBackground {
     this.notificationQueue.push(message);
     await this.checkNotificationQueue(tab);
     this.removeTabFromNotificationQueue(tab);
+  }
+
+  private async handleSaveOrUpdateCredentialsMessage(
+    message: NotificationBackgroundExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+  ) {
+    if ((await this.authService.getAuthStatus()) < AuthenticationStatus.Unlocked) {
+      const retryMessage: LockedVaultPendingNotificationsData = {
+        commandToRetry: {
+          message: {
+            command: message.command, // TODO - Check that this still works, we're switching from a full object to a string
+          },
+          sender: sender,
+        },
+        target: "notification.background",
+      };
+      await BrowserApi.tabSendMessageData(
+        sender.tab,
+        "addToLockedVaultPendingNotifications",
+        retryMessage,
+      );
+      await openUnlockPopout(sender.tab);
+      return;
+    }
+
+    await this.saveOrUpdateCredentials(sender.tab, message.edit, message.folder);
   }
 
   private async saveOrUpdateCredentials(tab: chrome.tabs.Tab, edit: boolean, folderId?: string) {
@@ -558,13 +626,18 @@ export default class NotificationBackground {
     }
   }
 
-  private async getDataForTab(tab: chrome.tabs.Tab, responseCommand: string) {
+  private async getDataForTab(
+    message: NotificationBackgroundExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+  ) {
     const responseData: any = {};
+    const responseCommand = message.responseCommand;
     if (responseCommand === "notificationBarGetFoldersList") {
       responseData.folders = await firstValueFrom(this.folderService.folderViews$);
     }
 
-    await BrowserApi.tabSendMessageData(tab, responseCommand, responseData);
+    // TODO - This needs to be sent back as a response to the message, return the data instead of sending it in a message
+    await BrowserApi.tabSendMessageData(sender.tab, responseCommand, responseData);
   }
 
   private async removeIndividualVault(): Promise<boolean> {
@@ -574,9 +647,10 @@ export default class NotificationBackground {
   }
 
   private async handleUnlockCompleted(
-    messageData: LockedVaultPendingNotificationsData,
+    message: NotificationBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ): Promise<void> {
+    const messageData = message.data as LockedVaultPendingNotificationsData;
     if (messageData.commandToRetry.message.command === "autofill_login") {
       await BrowserApi.tabSendMessageData(sender.tab, "closeNotificationBar");
     }
@@ -585,10 +659,11 @@ export default class NotificationBackground {
       return;
     }
 
-    await this.processMessage(
-      messageData.commandToRetry.message.command,
-      messageData.commandToRetry.sender,
-    );
+    // TODO - I think this is how we were originally saving the login, but it's not working with the type changes
+    // await this.processMessage(
+    //   messageData.commandToRetry.message.command,
+    //   messageData.commandToRetry.sender,
+    // );
   }
 
   private convertAddLoginQueueMessageToCipherView(
@@ -611,4 +686,27 @@ export default class NotificationBackground {
 
     return cipherView;
   }
+
+  private setupExtensionMessageListener() {
+    BrowserApi.messageListener("notification.background", this.handleExtensionMessage);
+  }
+
+  private handleExtensionMessage = (
+    message: OverlayBackgroundExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+    sendResponse: (response?: any) => void,
+  ) => {
+    const handler: CallableFunction | undefined = this.extensionMessageHandlers[message?.command];
+    if (!handler) {
+      return;
+    }
+
+    const messageResponse = handler({ message, sender });
+    if (!messageResponse) {
+      return;
+    }
+
+    Promise.resolve(messageResponse).then((response) => sendResponse(response));
+    return true;
+  };
 }
