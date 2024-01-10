@@ -85,6 +85,7 @@ type NotificationBackgroundExtensionMessage = {
   details?: AutofillPageDetails;
   tab?: chrome.tabs.Tab;
   sender?: string;
+  notificationType?: string;
 };
 
 type BackgroundMessageParam = { message: NotificationBackgroundExtensionMessage };
@@ -106,6 +107,7 @@ type NotificationBackgroundExtensionMessageHandlers = {
   bgReopenUnlockPopout: ({ sender }: BackgroundSenderParam) => Promise<void>;
   checkNotificationQueue: ({ sender }: BackgroundSenderParam) => Promise<void>;
   collectPageDetailsResponse: ({ message }: BackgroundMessageParam) => Promise<void>;
+  getWebVaultUrlForNotification: ({ message }: BackgroundMessageParam) => string | null;
 };
 
 export {
