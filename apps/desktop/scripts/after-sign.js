@@ -16,21 +16,22 @@ async function run(context) {
   const appPath = `${context.appOutDir}/${appName}.app`;
   const macBuild = context.electronPlatformName === "darwin";
   const copyPlugIn = ["darwin", "mas"].includes(context.electronPlatformName);
-  const copyExtension = true;
+  // const copyExtension = true;
 
   let shouldResign = false;
 
-  if (copyExtension) {
-    const extensionPath = path.join(
-      __dirname,
-      "../src/macos/build/Release/autofill-extension.appex",
-    );
-    if (fse.existsSync(extensionPath)) {
-      fse.mkdirSync(path.join(appPath, "Contents/PlugIns"));
-      fse.copySync(extensionPath, path.join(appPath, "Contents/PlugIns/autofill-extension.appex"));
-    }
-    shouldResign = true;
-  }
+  // skip manual plugin copy, added using extraFiles instead
+  // if (copyExtension) {
+  //   const extensionPath = path.join(
+  //     __dirname,
+  //     "../src/macos/build/Release/autofill-extension.appex",
+  //   );
+  //   if (fse.existsSync(extensionPath)) {
+  //     fse.mkdirSync(path.join(appPath, "Contents/PlugIns"));
+  //     fse.copySync(extensionPath, path.join(appPath, "Contents/PlugIns/autofill-extension.appex"));
+  //   }
+  //   shouldResign = true;
+  // }
 
   if (copyPlugIn) {
     // Copy Safari plugin to work-around https://github.com/electron-userland/electron-builder/issues/5552
