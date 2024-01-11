@@ -1,4 +1,4 @@
-import { filter, map, ReplaySubject } from "rxjs";
+import { BehaviorSubject, distinctUntilChanged, skip } from "rxjs";
 
 import { ApiService } from "../../../abstractions/api.service";
 import { SettingsService } from "../../../abstractions/settings.service";
@@ -42,31 +42,13 @@ import { FolderResponse } from "../../../vault/models/response/folder.response";
 import { CollectionService } from "../../abstractions/collection.service";
 import { CollectionData } from "../../models/data/collection.data";
 import { CollectionDetailsResponse } from "../../models/response/collection.response";
-import { isCompleted, SyncEventArgs } from "../../types/sync-event-args";
+import { SyncEventArgs } from "../../types/sync-event-args";
 
 export class SyncService implements SyncServiceAbstraction {
-  private syncEventSubject = new ReplaySubject<SyncEventArgs>(1);
+  private lastSyncEventSubject = new BehaviorSubject<SyncEventArgs | null>(null);
 
-  /**
-   * Observable that emits when a full sync event occurs. This includes when a sync starts, completes, or fails.
-   * @see SyncEventArgs
-   */
-  syncEvent$ = this.syncEventSubject.asObservable();
-
-  /**
-   * Observable that emits whenever a full sync completes. If the sync completes with an error, the error will be emitted.
-   * Otherwise, null will be emitted.
-   */
-  syncError$ = this.syncEvent$.pipe(
-    filter(isCompleted),
-    map((event) => {
-      if (event.successfully === true) {
-        return null;
-      } else if (event.reason === "error") {
-        return event.error ? event.error : null;
-      }
-    }),
-  );
+  syncEvent$ = this.lastSyncEventSubject.pipe(skip(1), distinctUntilChanged());
+  lastSyncEvent$ = this.lastSyncEventSubject.asObservable();
 
   syncInProgress = false;
 
@@ -109,10 +91,10 @@ export class SyncService implements SyncServiceAbstraction {
   @sequentialize(() => "fullSync")
   async fullSync(forceSync: boolean, allowThrowOnError = false): Promise<boolean> {
     this.syncStarted();
-    this.syncEventSubject.next({ status: "Started" });
+    this.lastSyncEventSubject.next({ status: "Started" });
     const isAuthenticated = await this.stateService.getIsAuthenticated();
     if (!isAuthenticated) {
-      this.syncEventSubject.next({
+      this.lastSyncEventSubject.next({
         status: "Completed",
         successfully: false,
         reason: "not-authenticated",
@@ -125,7 +107,7 @@ export class SyncService implements SyncServiceAbstraction {
     try {
       needsSync = await this.needsSyncing(forceSync);
     } catch (e) {
-      this.syncEventSubject.next({
+      this.lastSyncEventSubject.next({
         status: "Completed",
         successfully: false,
         reason: "error",
@@ -140,7 +122,7 @@ export class SyncService implements SyncServiceAbstraction {
 
     if (!needsSync) {
       await this.setLastSync(now);
-      this.syncEventSubject.next({
+      this.lastSyncEventSubject.next({
         status: "Completed",
         successfully: false,
         reason: "unneeded",
@@ -162,7 +144,7 @@ export class SyncService implements SyncServiceAbstraction {
 
       await this.setLastSync(now);
 
-      this.syncEventSubject.next({
+      this.lastSyncEventSubject.next({
         status: "Completed",
         successfully: true,
         data: response,
@@ -170,7 +152,7 @@ export class SyncService implements SyncServiceAbstraction {
 
       return this.syncCompleted(true);
     } catch (e) {
-      this.syncEventSubject.next({
+      this.lastSyncEventSubject.next({
         status: "Completed",
         successfully: false,
         reason: "error",
