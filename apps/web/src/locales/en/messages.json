@@ -7456,6 +7456,10 @@
   "serviceAccountAccessUpdated": {
     "message": "Service account access updated"
   },
+  "commonImportFormats": {
+    "message": "Common formats",
+    "description": "Label indicating the most common import formats"
+  },
   "unableToConnect": {
     "message": "Unable to connect"
   },
