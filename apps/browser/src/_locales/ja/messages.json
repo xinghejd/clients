@@ -326,6 +326,9 @@
   "password": {
     "message": "パスワード"
   },
+  "totp": {
+    "message": "認証シークレット"
+  },
   "passphrase": {
     "message": "パスフレーズ"
   },
@@ -511,6 +514,18 @@
   },
   "autofillError": {
     "message": "選択したアイテムをこのページで自動入力できませんでした。コピーして貼り付けてください。"
+  },
+  "totpCaptureError": {
+    "message": "現在のウェブページから QR コードをスキャンできません"
+  },
+  "totpCaptureSuccess": {
+    "message": "認証キーを追加しました"
+  },
+  "totpCapture": {
+    "message": "現在のウェブページから認証 QR コードをスキャンする"
+  },
+  "copyTOTP": {
+    "message": "認証キーのコピー (TOTP)"
   },
   "loggedOut": {
     "message": "ログアウトしました"
@@ -1725,7 +1740,7 @@
     "placeholders": {
       "domain": {
         "content": "$1",
-        "example": "googlecom"
+        "example": "google.com"
       }
     }
   },
@@ -2282,7 +2297,7 @@
     "message": "自動入力する方法"
   },
   "autofillSelectInfoWithCommand": {
-    "message": "Select an item from this screen, use the shortcut $COMMAND$, or explore other options in settings.",
+    "message": "この画面からアイテムを選択するか、ショートカット $COMMAND$を使用するか、設定で他のオプションを確認してください。",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2291,7 +2306,7 @@
     }
   },
   "autofillSelectInfoWithoutCommand": {
-    "message": "Select an item from this screen, or explore other options in settings."
+    "message": "この画面からアイテムを選択するか、設定で他のオプションを確認してください。"
   },
   "gotIt": {
     "message": "了解"
@@ -2497,6 +2512,38 @@
     "message": "開く/閉じる",
     "description": "Toggling an expand/collapse state."
   },
+  "filelessImport": {
+    "message": "Bitwarden にデータをインポートしますか？",
+    "description": "Default notification title for triggering a fileless import."
+  },
+  "lpFilelessImport": {
+    "message": "LastPass データを Bitwarden にインポートしますか？",
+    "description": "LastPass specific notification title for triggering a fileless import."
+  },
+  "lpCancelFilelessImport": {
+    "message": "暗号化されていないファイルとして保存",
+    "description": "LastPass specific notification button text for cancelling a fileless import."
+  },
+  "startFilelessImport": {
+    "message": "Bitwarden にインポート",
+    "description": "Notification button text for starting a fileless import."
+  },
+  "importing": {
+    "message": "インポート中...",
+    "description": "Notification message for when an import is in progress."
+  },
+  "dataSuccessfullyImported": {
+    "message": "データをインポートしました！",
+    "description": "Notification message for when an import has completed successfully."
+  },
+  "dataImportFailed": {
+    "message": "インポート中にエラーが発生しました。詳細はコンソールを確認してください。",
+    "description": "Notification message for when an import has failed."
+  },
+  "importNetworkError": {
+    "message": "インポート中にネットワークエラーが発生しました。",
+    "description": "Notification message for when an import has failed due to a network error."
+  },
   "aliasDomain": {
     "message": "エイリアスドメイン"
   },
@@ -2511,6 +2558,9 @@
   "turnOffMasterPasswordPromptToEditField": {
     "message": "このフィールドを編集するには、マスターパスワードの再入力をオフにしてください",
     "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
+  },
+  "skipToContent": {
+    "message": "コンテンツへ移動"
   },
   "bitwardenOverlayButton": {
     "message": "Bitwarden 自動入力メニューボタン",
@@ -2724,9 +2774,6 @@
   "yourPasskeyIsLocked": {
     "message": "パスキーを使用するには認証が必要です。続行するには本人確認を行ってください。"
   },
-  "useBrowserName": {
-    "message": "ブラウザーを使用"
-  },
   "multifactorAuthenticationCancelled": {
     "message": "多要素認証がキャンセルされました"
   },
@@ -2803,6 +2850,9 @@
   "activeAccount": {
     "message": "アクティブなアカウント"
   },
+  "availableAccounts": {
+    "message": "利用可能なアカウント"
+  },
   "accountLimitReached": {
     "message": "アカウントの制限に達しました。別のアカウントを追加するにはまずログアウトしてください。"
   },
@@ -2820,5 +2870,23 @@
   },
   "hostedAt": {
     "message": "ホスト"
+  },
+  "useDeviceOrHardwareKey": {
+    "message": "デバイスまたはハードウェアキーを使用してください"
+  },
+  "justOnce": {
+    "message": "今回だけ"
+  },
+  "alwaysForThisSite": {
+    "message": "このサイトでは常に"
+  },
+  "domainAddedToExcludedDomains": {
+    "message": "$DOMAIN$ を除外ドメインに追加しました。",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "google.com"
+      }
+    }
   }
 }

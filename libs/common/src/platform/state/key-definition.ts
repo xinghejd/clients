@@ -1,6 +1,7 @@
-import { Jsonify, Opaque } from "type-fest";
+import { Jsonify } from "type-fest";
 
 import { UserId } from "../../types/guid";
+import { StorageKey } from "../../types/state";
 import { Utils } from "../misc/utils";
 
 import { StateDefinition } from "./state-definition";
@@ -150,16 +151,14 @@ export class KeyDefinition<T> {
       throw new Error("You must provide a userId when building a user scoped cache key.");
     }
     return userId === null
-      ? `${scope}_${userId}_${this.stateDefinition.name}_${this.key}`
-      : `${scope}_${this.stateDefinition.name}_${this.key}`;
+      ? `${this.stateDefinition.storageLocation}_${scope}_${userId}_${this.stateDefinition.name}_${this.key}`
+      : `${this.stateDefinition.storageLocation}_${scope}_${this.stateDefinition.name}_${this.key}`;
   }
 
   private get errorKeyName() {
     return `${this.stateDefinition.name} > ${this.key}`;
   }
 }
-
-export type StorageKey = Opaque<string, "StorageKey">;
 
 /**
  * Creates a {@link StorageKey} that points to the data at the given key definition for the specified user.

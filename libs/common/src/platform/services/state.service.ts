@@ -280,9 +280,20 @@ export class StateService<
   }
 
   async getAddEditCipherInfo(options?: StorageOptions): Promise<AddEditCipherInfo> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultInMemoryOptions()))
-    )?.data?.addEditCipherInfo;
+    const account = await this.getAccount(
+      this.reconcileOptions(options, await this.defaultInMemoryOptions()),
+    );
+    // ensure prototype on cipher
+    const raw = account?.data?.addEditCipherInfo;
+    return raw == null
+      ? null
+      : {
+          cipher:
+            raw?.cipher.toJSON != null
+              ? raw.cipher
+              : CipherView.fromJSON(raw?.cipher as Jsonify<CipherView>),
+          collectionIds: raw?.collectionIds,
+        };
   }
 
   async setAddEditCipherInfo(value: AddEditCipherInfo, options?: StorageOptions): Promise<void> {
@@ -2076,24 +2087,6 @@ export class StateService<
       this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
     account.data.eventCollection = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
-  async getEverHadUserKey(options?: StorageOptions): Promise<boolean> {
-    return (
-      (await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions())))
-        ?.profile?.everHadUserKey ?? false
-    );
-  }
-
-  async setEverHadUserKey(value: boolean, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.profile.everHadUserKey = value;
     await this.saveAccount(
       account,
       this.reconcileOptions(options, await this.defaultOnDiskOptions()),

@@ -326,6 +326,9 @@
   "password": {
     "message": "Jelszó"
   },
+  "totp": {
+    "message": "Hitelesítő titkos kulcs"
+  },
   "passphrase": {
     "message": "Kulcskifejezés"
   },
@@ -511,6 +514,18 @@
   },
   "autofillError": {
     "message": "Nem sikerült automatikusan kitölteni a bejelentkezést ezen a weboldalon. Helyette másold/illeszt be a felhasználóneved és/vagy a jelszavadat."
+  },
+  "totpCaptureError": {
+    "message": "Az aktuális weboldalól nem lehet szkennelni a QR kódot."
+  },
+  "totpCaptureSuccess": {
+    "message": "A hitelesítő kulcs hozzáadásra került."
+  },
+  "totpCapture": {
+    "message": "Hitelesítő QR kód szkennelése az aktuális weboldalról"
+  },
+  "copyTOTP": {
+    "message": "Hitelesítő kód másolása (TOTP)"
   },
   "loggedOut": {
     "message": "Kijelentkezett"
@@ -1725,7 +1740,7 @@
     "placeholders": {
       "domain": {
         "content": "$1",
-        "example": "googlecom"
+        "example": "google.com"
       }
     }
   },
@@ -2497,6 +2512,38 @@
     "message": "Összezárás váltás",
     "description": "Toggling an expand/collapse state."
   },
+  "filelessImport": {
+    "message": "Adatok importálása a Bitwardenbe?",
+    "description": "Default notification title for triggering a fileless import."
+  },
+  "lpFilelessImport": {
+    "message": "A LastPass adatok megvédése és importálása a Bitwardenbe?",
+    "description": "LastPass specific notification title for triggering a fileless import."
+  },
+  "lpCancelFilelessImport": {
+    "message": "Mentés titkosítatlan fájlként",
+    "description": "LastPass specific notification button text for cancelling a fileless import."
+  },
+  "startFilelessImport": {
+    "message": "Importálás a Bitwardenbe",
+    "description": "Notification button text for starting a fileless import."
+  },
+  "importing": {
+    "message": "Importálás...",
+    "description": "Notification message for when an import is in progress."
+  },
+  "dataSuccessfullyImported": {
+    "message": "Az adatok sikeresen importálásra kerültek.",
+    "description": "Notification message for when an import has completed successfully."
+  },
+  "dataImportFailed": {
+    "message": "Hiba történt az importálás során. A részletekért ellenőrizzük a konzolt.",
+    "description": "Notification message for when an import has failed."
+  },
+  "importNetworkError": {
+    "message": "Hálózati hiba történt az importálás során.",
+    "description": "Notification message for when an import has failed due to a network error."
+  },
   "aliasDomain": {
     "message": "Áldomain"
   },
@@ -2511,6 +2558,9 @@
   "turnOffMasterPasswordPromptToEditField": {
     "message": "Kapcsoljuk ki a mesterjelszó újbóli bekérését a mező szerkesztéséhez.",
     "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
+  },
+  "skipToContent": {
+    "message": "Ugrás a tartalomra"
   },
   "bitwardenOverlayButton": {
     "message": "Bitwarden auto-fill menu button",
@@ -2724,9 +2774,6 @@
   "yourPasskeyIsLocked": {
     "message": "A hozzáférési kulcs használatához hitelesítés szükséges. A személyazonosság ellenőrzése szükséges a folytatáshoz."
   },
-  "useBrowserName": {
-    "message": "Böngésző használata"
-  },
   "multifactorAuthenticationCancelled": {
     "message": "A többtényezős hitelesítés megszakításra került."
   },
@@ -2803,6 +2850,9 @@
   "activeAccount": {
     "message": "Aktív fiók"
   },
+  "availableAccounts": {
+    "message": "Elérhető fiókok"
+  },
   "accountLimitReached": {
     "message": "A fiók korlát elérésre került. Jelentkezzünk ki egy fiókból egy másik hozzáadásához."
   },
@@ -2820,5 +2870,23 @@
   },
   "hostedAt": {
     "message": "tárolva:"
+  },
+  "useDeviceOrHardwareKey": {
+    "message": "Saját eszköz vagy hardverkulcs használata"
+  },
+  "justOnce": {
+    "message": "Csak egyszer"
+  },
+  "alwaysForThisSite": {
+    "message": "Ennél a webhelynél mindig"
+  },
+  "domainAddedToExcludedDomains": {
+    "message": "$DOMAIN$ bekerült a kizárt tartományokba.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "google.com"
+      }
+    }
   }
 }

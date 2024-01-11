@@ -649,7 +649,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     const dialog = openCollectionDialog(this.dialogService, {
       data: {
         organizationId: this.allOrganizations
-          .filter((o) => o.canCreateNewCollections)
+          .filter((o) => o.canCreateNewCollections && !o.isProviderUser)
           .sort(Utils.getSortFunction(this.i18nService, "name"))[0].id,
         parentCollectionId: this.filter.collectionId,
         showOrgSelector: true,
@@ -856,7 +856,6 @@ export class VaultComponent implements OnInit, OnDestroy {
       data: {
         permanent: this.filter.type === "trash",
         cipherIds: ciphers.map((c) => c.id),
-        collectionIds: collections.map((c) => c.id),
         organizations: organizations,
         collections: collections,
       },
