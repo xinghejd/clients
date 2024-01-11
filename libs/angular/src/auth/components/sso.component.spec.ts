@@ -8,7 +8,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
-import { ForceResetPasswordReason } from "@bitwarden/common/auth/models/domain/force-reset-password-reason";
+import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { KeyConnectorUserDecryptionOption } from "@bitwarden/common/auth/models/domain/user-decryption-options/key-connector-user-decryption-option";
 import { TrustedDeviceUserDecryptionOption } from "@bitwarden/common/auth/models/domain/user-decryption-options/trusted-device-user-decryption-option";
 import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
@@ -227,7 +227,7 @@ describe("SsoComponent", () => {
 
         // use standard user with MP because this test is not concerned with password reset.
         mockStateService.getAccountDecryptionOptions.mockResolvedValue(
-          mockAcctDecryptionOpts.withMasterPassword
+          mockAcctDecryptionOpts.withMasterPassword,
         );
 
         mockAuthService.logIn.mockResolvedValue(authResult);
@@ -331,38 +331,54 @@ describe("SsoComponent", () => {
 
     describe("Trusted Device Encryption scenarios", () => {
       beforeEach(() => {
-        mockConfigService.getFeatureFlagBool.mockResolvedValue(true); // TDE enabled
+        mockConfigService.getFeatureFlag.mockResolvedValue(true); // TDE enabled
       });
 
       describe("Given Trusted Device Encryption is enabled and user needs to set a master password", () => {
         let authResult;
         beforeEach(() => {
           mockStateService.getAccountDecryptionOptions.mockResolvedValue(
-            mockAcctDecryptionOpts.noMasterPasswordWithTrustedDeviceWithManageResetPassword
+            mockAcctDecryptionOpts.noMasterPasswordWithTrustedDeviceWithManageResetPassword,
           );
 
           authResult = new AuthResult();
           mockAuthService.logIn.mockResolvedValue(authResult);
         });
 
-        testChangePasswordOnSuccessfulLogin();
-        testOnSuccessfulLoginChangePasswordNavigate();
+        it("navigates to the component's defined trustedDeviceEncRoute route and sets correct flag when onSuccessfulLoginTdeNavigate is undefined ", async () => {
+          await _component.logIn(code, codeVerifier, orgIdFromState);
+          expect(mockAuthService.logIn).toHaveBeenCalledTimes(1);
+
+          expect(mockStateService.setForceSetPasswordReason).toHaveBeenCalledWith(
+            ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission,
+          );
+
+          expect(mockOnSuccessfulLoginTdeNavigate).not.toHaveBeenCalled();
+
+          expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
+          expect(mockRouter.navigate).toHaveBeenCalledWith(
+            [_component.trustedDeviceEncRoute],
+            undefined,
+          );
+
+          expect(mockLogService.error).not.toHaveBeenCalled();
+        });
       });
 
       describe("Given Trusted Device Encryption is enabled, user doesn't need to set a MP, and forcePasswordReset is required", () => {
         [
-          ForceResetPasswordReason.AdminForcePasswordReset,
-          ForceResetPasswordReason.WeakMasterPassword,
+          ForceSetPasswordReason.AdminForcePasswordReset,
+          // ForceResetPasswordReason.WeakMasterPassword, -- not possible in SSO flow as set client side
         ].forEach((forceResetPasswordReason) => {
-          const reasonString = ForceResetPasswordReason[forceResetPasswordReason];
+          const reasonString = ForceSetPasswordReason[forceResetPasswordReason];
           let authResult;
           beforeEach(() => {
             mockStateService.getAccountDecryptionOptions.mockResolvedValue(
-              mockAcctDecryptionOpts.withMasterPasswordAndTrustedDevice
+              mockAcctDecryptionOpts.withMasterPasswordAndTrustedDevice,
             );
 
             authResult = new AuthResult();
-            authResult.forcePasswordReset = ForceResetPasswordReason.AdminForcePasswordReset;
+            authResult.forcePasswordReset = ForceSetPasswordReason.AdminForcePasswordReset;
             mockAuthService.logIn.mockResolvedValue(authResult);
           });
 
@@ -375,11 +391,11 @@ describe("SsoComponent", () => {
         let authResult;
         beforeEach(() => {
           mockStateService.getAccountDecryptionOptions.mockResolvedValue(
-            mockAcctDecryptionOpts.withMasterPasswordAndTrustedDevice
+            mockAcctDecryptionOpts.withMasterPasswordAndTrustedDevice,
           );
 
           authResult = new AuthResult();
-          authResult.forcePasswordReset = ForceResetPasswordReason.None;
+          authResult.forcePasswordReset = ForceSetPasswordReason.None;
           mockAuthService.logIn.mockResolvedValue(authResult);
         });
 
@@ -390,7 +406,7 @@ describe("SsoComponent", () => {
           expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
           expect(mockRouter.navigate).toHaveBeenCalledWith(
             [_component.trustedDeviceEncRoute],
-            undefined
+            undefined,
           );
           expect(mockLogService.error).not.toHaveBeenCalled();
         });
@@ -421,7 +437,7 @@ describe("SsoComponent", () => {
         beforeEach(() => {
           // Only need to test the case where the user has no master password to test the primary change mp flow here
           mockStateService.getAccountDecryptionOptions.mockResolvedValue(
-            mockAcctDecryptionOpts.noMasterPassword
+            mockAcctDecryptionOpts.noMasterPassword,
           );
         });
 
@@ -431,7 +447,7 @@ describe("SsoComponent", () => {
 
       it("does not navigate to the change password route when the user has key connector even if user has no master password", async () => {
         mockStateService.getAccountDecryptionOptions.mockResolvedValue(
-          mockAcctDecryptionOpts.noMasterPasswordWithKeyConnector
+          mockAcctDecryptionOpts.noMasterPasswordWithKeyConnector,
         );
 
         await _component.logIn(code, codeVerifier, orgIdFromState);
@@ -448,15 +464,15 @@ describe("SsoComponent", () => {
 
     describe("Force Master Password Reset scenarios", () => {
       [
-        ForceResetPasswordReason.AdminForcePasswordReset,
-        ForceResetPasswordReason.WeakMasterPassword,
+        ForceSetPasswordReason.AdminForcePasswordReset,
+        // ForceResetPasswordReason.WeakMasterPassword, -- not possible in SSO flow as set client side
       ].forEach((forceResetPasswordReason) => {
-        const reasonString = ForceResetPasswordReason[forceResetPasswordReason];
+        const reasonString = ForceSetPasswordReason[forceResetPasswordReason];
 
         beforeEach(() => {
           // use standard user with MP because this test is not concerned with password reset.
           mockStateService.getAccountDecryptionOptions.mockResolvedValue(
-            mockAcctDecryptionOpts.withMasterPassword
+            mockAcctDecryptionOpts.withMasterPassword,
           );
 
           const authResult = new AuthResult();
@@ -475,9 +491,9 @@ describe("SsoComponent", () => {
         authResult.twoFactorProviders = null;
         // use standard user with MP because this test is not concerned with password reset.
         mockStateService.getAccountDecryptionOptions.mockResolvedValue(
-          mockAcctDecryptionOpts.withMasterPassword
+          mockAcctDecryptionOpts.withMasterPassword,
         );
-        authResult.forcePasswordReset = ForceResetPasswordReason.None;
+        authResult.forcePasswordReset = ForceSetPasswordReason.None;
         mockAuthService.logIn.mockResolvedValue(authResult);
       });
 
@@ -558,7 +574,7 @@ describe("SsoComponent", () => {
       expect(mockPlatformUtilsService.showToast).toHaveBeenCalledWith(
         "error",
         null,
-        "ssoKeyConnectorError"
+        "ssoKeyConnectorError",
       );
 
       expect(mockRouter.navigate).not.toHaveBeenCalled();

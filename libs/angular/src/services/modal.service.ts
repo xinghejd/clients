@@ -35,7 +35,7 @@ export class ModalService {
   constructor(
     private componentFactoryResolver: ComponentFactoryResolver,
     private applicationRef: ApplicationRef,
-    private injector: Injector
+    private injector: Injector,
   ) {
     document.addEventListener("keyup", (event) => {
       if (event.key === "Escape" && this.modalCount > 0) {
@@ -60,7 +60,7 @@ export class ModalService {
   async openViewRef<T>(
     componentType: Type<T>,
     viewContainerRef: ViewContainerRef,
-    setComponentParameters: (component: T) => void = null
+    setComponentParameters: (component: T) => void = null,
   ): Promise<[ModalRef, T]> {
     const [modalRef, modalComponentRef] = this.openInternal(componentType, null, false);
     modalComponentRef.instance.setComponentParameters = setComponentParameters;
@@ -88,13 +88,6 @@ export class ModalService {
     return modalRef;
   }
 
-  registerComponentFactoryResolver<T>(
-    componentType: Type<T>,
-    componentFactoryResolver: ComponentFactoryResolver
-  ): void {
-    this.factoryResolvers.set(componentType, componentFactoryResolver);
-  }
-
   resolveComponentFactory<T>(componentType: Type<T>): ComponentFactory<T> {
     if (this.factoryResolvers.has(componentType)) {
       return this.factoryResolvers.get(componentType).resolveComponentFactory(componentType);
@@ -110,7 +103,7 @@ export class ModalService {
   protected openInternal(
     componentType: Type<any>,
     config?: ModalConfig,
-    attachToDom?: boolean
+    attachToDom?: boolean,
   ): [ModalRef, ComponentRef<DynamicModalComponent>] {
     const [modalRef, componentRef] = this.createModalComponent(config);
     componentRef.instance.childComponentType = componentType;
@@ -161,7 +154,7 @@ export class ModalService {
       dialogEl.style.zIndex = `${this.modalCount}050`;
 
       const modals = Array.from(
-        el.querySelectorAll('.modal-backdrop, .modal *[data-dismiss="modal"]')
+        el.querySelectorAll('.modal-backdrop, .modal *[data-dismiss="modal"]'),
       );
       for (const closeElement of modals) {
         closeElement.addEventListener("click", () => {
@@ -181,7 +174,7 @@ export class ModalService {
   }
 
   protected createModalComponent(
-    config: ModalConfig
+    config: ModalConfig,
   ): [ModalRef, ComponentRef<DynamicModalComponent>] {
     const modalRef = new ModalRef();
 

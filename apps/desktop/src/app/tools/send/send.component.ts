@@ -48,7 +48,7 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
     private searchBarService: SearchBarService,
     logService: LogService,
     sendApiService: SendApiService,
-    dialogService: DialogService
+    dialogService: DialogService,
   ) {
     super(
       sendService,
@@ -60,7 +60,7 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
       policyService,
       logService,
       sendApiService,
-      dialogService
+      dialogService,
     );
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil
     this.searchBarService.searchText$.subscribe((searchText) => {
@@ -91,12 +91,10 @@ export class SendComponent extends BaseSendComponent implements OnInit, OnDestro
     this.searchBarService.setEnabled(false);
   }
 
-  addSend() {
+  async addSend() {
     this.action = Action.Add;
     if (this.addEditComponent != null) {
-      this.addEditComponent.sendId = null;
-      this.addEditComponent.send = null;
-      this.addEditComponent.load();
+      await this.addEditComponent.resetAndLoad();
     }
   }
 

@@ -20,8 +20,9 @@
       [routerLink]="[]"
       [queryParams]="{ itemId: cipher.id }"
       queryParamsHandling="merge"
-      title="{{ 'editItemWithName' | i18n : cipher.name }}"
+      title="{{ 'editItemWithName' | i18n: cipher.name }}"
       type="button"
+      appStopProp
     >
       {{ cipher.name }}
     </button>
@@ -51,7 +52,7 @@
   <app-org-badge
     [disabled]="disabled"
     [organizationId]="cipher.organizationId"
-    [organizationName]="cipher.organizationId | orgNameFromId : organizations"
+    [organizationName]="cipher.organizationId | orgNameFromId: organizations"
     appStopProp
   >
   </app-org-badge>
@@ -64,6 +65,7 @@
   ></app-collection-badge>
 </td>
 <td bitCell [ngClass]="RowHeightClass" *ngIf="showGroups"></td>
+<td bitCell [ngClass]="RowHeightClass" *ngIf="!showCollections"></td>
 <td bitCell [ngClass]="RowHeightClass" class="tw-text-right">
   <button
     [disabled]="disabled"
@@ -99,6 +101,7 @@
         {{ "launch" | i18n }}
       </a>
     </ng-container>
+
     <button bitMenuItem type="button" (click)="attachments()">
       <i class="bwi bwi-fw bwi-paperclip" aria-hidden="true"></i>
       {{ "attachments" | i18n }}

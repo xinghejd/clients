@@ -81,7 +81,7 @@ export class NativeMessagingBackground {
     private platformUtilsService: PlatformUtilsService,
     private stateService: StateService,
     private logService: LogService,
-    private authService: AuthService
+    private authService: AuthService,
   ) {
     this.stateService.setBiometricFingerprintValidated(false);
 
@@ -136,7 +136,7 @@ export class NativeMessagingBackground {
             const decrypted = await this.cryptoFunctionService.rsaDecrypt(
               encrypted,
               this.privateKey,
-              EncryptionAlgorithm
+              EncryptionAlgorithm,
             );
 
             if (this.validatingFingerprint) {
@@ -278,7 +278,7 @@ export class NativeMessagingBackground {
     let message = rawMessage as ReceiveMessage;
     if (!this.platformUtilsService.isSafari()) {
       message = JSON.parse(
-        await this.cryptoService.decryptToUtf8(rawMessage as EncString, this.sharedSecret)
+        await this.cryptoService.decryptToUtf8(rawMessage as EncString, this.sharedSecret),
       );
     }
 
@@ -328,7 +328,7 @@ export class NativeMessagingBackground {
           try {
             if (message.userKeyB64) {
               const userKey = new SymmetricCryptoKey(
-                Utils.fromB64ToArray(message.userKeyB64)
+                Utils.fromB64ToArray(message.userKeyB64),
               ) as UserKey;
               await this.cryptoService.setUserKey(userKey);
             } else if (message.keyB64) {
@@ -340,11 +340,11 @@ export class NativeMessagingBackground {
                 throw new Error("No encrypted user key found");
               }
               const masterKey = new SymmetricCryptoKey(
-                Utils.fromB64ToArray(message.keyB64)
+                Utils.fromB64ToArray(message.keyB64),
               ) as MasterKey;
               const userKey = await this.cryptoService.decryptUserKeyWithMasterKey(
                 masterKey,
-                new EncString(encUserKey)
+                new EncString(encUserKey),
               );
               await this.cryptoService.setMasterKey(masterKey);
               await this.cryptoService.setUserKey(userKey);
@@ -383,7 +383,7 @@ export class NativeMessagingBackground {
             return;
           }
 
-          this.runtimeBackground.processMessage({ command: "unlocked" }, null, null);
+          this.runtimeBackground.processMessage({ command: "unlocked" }, null);
         }
         break;
       }
@@ -422,9 +422,10 @@ export class NativeMessagingBackground {
   }
 
   private async showFingerprintDialog() {
-    const fingerprint = (
-      await this.cryptoService.getFingerprint(await this.stateService.getUserId(), this.publicKey)
-    ).join(" ");
+    const fingerprint = await this.cryptoService.getFingerprint(
+      await this.stateService.getUserId(),
+      this.publicKey,
+    );
 
     this.messagingService.send("showNativeMessagingFinterprintDialog", {
       fingerprint: fingerprint,

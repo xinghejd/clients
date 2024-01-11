@@ -5,7 +5,6 @@ import { NavigationEnd, Router } from "@angular/router";
 import * as jq from "jquery";
 import { IndividualConfig, ToastrService } from "ngx-toastr";
 import { Subject, takeUntil } from "rxjs";
-import Swal from "sweetalert2";
 
 import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
@@ -82,7 +81,7 @@ export class AppComponent implements OnDestroy, OnInit {
     protected policyListService: PolicyListService,
     private keyConnectorService: KeyConnectorService,
     private configService: ConfigServiceAbstraction,
-    private dialogService: DialogService
+    private dialogService: DialogService,
   ) {}
 
   ngOnInit() {
@@ -112,14 +111,12 @@ export class AppComponent implements OnDestroy, OnInit {
             this.notificationsService.updateConnection(false);
             break;
           case "loggedOut":
-            this.routerService.setPreviousUrl(null);
             this.notificationsService.updateConnection(false);
             break;
           case "unlocked":
             this.notificationsService.updateConnection(false);
             break;
           case "authBlocked":
-            this.routerService.setPreviousUrl(message.url);
             this.router.navigate(["/"]);
             break;
           case "logout":
@@ -133,12 +130,13 @@ export class AppComponent implements OnDestroy, OnInit {
             this.router.navigate(["lock"]);
             break;
           case "lockedUrl":
-            this.routerService.setPreviousUrl(message.url);
             break;
           case "syncStarted":
             break;
           case "syncCompleted":
-            await this.configService.fetchServerConfig();
+            if (message.successfully) {
+              this.configService.triggerServerConfigFetch();
+            }
             break;
           case "upgradeOrganization": {
             const upgradeConfirmed = await this.dialogService.openSimpleDialog({
@@ -178,7 +176,7 @@ export class AppComponent implements OnDestroy, OnInit {
             });
             if (emailVerificationConfirmed) {
               this.platformUtilsService.launchUri(
-                "https://bitwarden.com/help/create-bitwarden-account/"
+                "https://bitwarden.com/help/create-bitwarden-account/",
               );
             }
             break;
@@ -203,10 +201,6 @@ export class AppComponent implements OnDestroy, OnInit {
         const modals = Array.from(document.querySelectorAll(".modal"));
         for (const modal of modals) {
           (jq(modal) as any).modal("hide");
-        }
-
-        if (document.querySelector(".swal-modal") != null) {
-          Swal.close(undefined);
         }
       }
     });
@@ -253,12 +247,11 @@ export class AppComponent implements OnDestroy, OnInit {
         this.platformUtilsService.showToast(
           "warning",
           this.i18nService.t("loggedOut"),
-          this.i18nService.t("loginExpired")
+          this.i18nService.t("loginExpired"),
         );
       }
 
       await this.stateService.clean({ userId: userId });
-      Swal.close();
       if (redirect) {
         this.router.navigate(["/"]);
       }
@@ -302,7 +295,7 @@ export class AppComponent implements OnDestroy, OnInit {
     } else {
       msg.text.forEach(
         (t: string) =>
-          (message += "<p>" + this.sanitizer.sanitize(SecurityContext.HTML, t) + "</p>")
+          (message += "<p>" + this.sanitizer.sanitize(SecurityContext.HTML, t) + "</p>"),
       );
       options.enableHtml = true;
     }

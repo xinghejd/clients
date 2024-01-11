@@ -1,7 +1,7 @@
 import { Jsonify, Opaque } from "type-fest";
 
-import { EncryptionType } from "../../../enums";
 import { Utils } from "../../../platform/misc/utils";
+import { EncryptionType } from "../../enums";
 
 export class SymmetricCryptoKey {
   key: Uint8Array;
@@ -78,8 +78,10 @@ export class SymmetricCryptoKey {
 
 // Setup all separate key types as opaque types
 export type DeviceKey = Opaque<SymmetricCryptoKey, "DeviceKey">;
+export type PrfKey = Opaque<SymmetricCryptoKey, "PrfKey">;
 export type UserKey = Opaque<SymmetricCryptoKey, "UserKey">;
 export type MasterKey = Opaque<SymmetricCryptoKey, "MasterKey">;
 export type PinKey = Opaque<SymmetricCryptoKey, "PinKey">;
 export type OrgKey = Opaque<SymmetricCryptoKey, "OrgKey">;
 export type ProviderKey = Opaque<SymmetricCryptoKey, "ProviderKey">;
+export type CipherKey = Opaque<SymmetricCryptoKey, "CipherKey">;

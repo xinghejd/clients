@@ -508,9 +508,6 @@
   "maxFileSize": {
     "message": "Maksimum lêergrootte is 500 MB."
   },
-  "updateKey": {
-    "message": "U kan eers hierdie funksie gebruik wanneer u u enkripsiesleutel bygewerk het."
-  },
   "addedItem": {
     "message": "Toegevoegde item"
   },
@@ -613,6 +610,102 @@
   },
   "loginWithMasterPassword": {
     "message": "Teken aan met hoofwagwoord"
+  },
+  "readingPasskeyLoading": {
+    "message": "Reading passkey..."
+  },
+  "readingPasskeyLoadingInfo": {
+    "message": "Keep this window open and follow prompts from your browser."
+  },
+  "useADifferentLogInMethod": {
+    "message": "Use a different log in method"
+  },
+  "loginWithPasskey": {
+    "message": "Log in with passkey"
+  },
+  "invalidPasskeyPleaseTryAgain": {
+    "message": "Invalid Passkey. Please try again."
+  },
+  "twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn": {
+    "message": "2FA for passkeys is not supported. Update the app to log in."
+  },
+  "loginWithPasskeyInfo": {
+    "message": "Use a generated passkey that will automatically log you in without a password. Biometrics, like facial recognition or fingerprint, or another FIDO2 security method will verify your identity."
+  },
+  "newPasskey": {
+    "message": "New passkey"
+  },
+  "learnMoreAboutPasswordless": {
+    "message": "Learn more about passwordless"
+  },
+  "passkeyEnterMasterPassword": {
+    "message": "Enter your master password to modify log in with passkey settings."
+  },
+  "creatingPasskeyLoading": {
+    "message": "Creating passkey..."
+  },
+  "creatingPasskeyLoadingInfo": {
+    "message": "Keep this window open and follow prompts from your browser."
+  },
+  "errorCreatingPasskey": {
+    "message": "Error creating passkey"
+  },
+  "errorCreatingPasskeyInfo": {
+    "message": "There was a problem creating your passkey."
+  },
+  "passkeySuccessfullyCreated": {
+    "message": "Passkey successfully created!"
+  },
+  "customName": {
+    "message": "Custom name"
+  },
+  "customPasskeyNameInfo": {
+    "message": "Name your passkey to help you identify it."
+  },
+  "useForVaultEncryption": {
+    "message": "Use for vault encryption"
+  },
+  "useForVaultEncryptionInfo": {
+    "message": "Log in and unlock on supported devices without your master password. Follow the prompts from your browser to finalize setup."
+  },
+  "useForVaultEncryptionErrorReadingPasskey": {
+    "message": "Error reading passkey. Try again or uncheck this option."
+  },
+  "encryptionNotSupported": {
+    "message": "Encryption not supported"
+  },
+  "enablePasskeyEncryption": {
+    "message": "Set up encryption"
+  },
+  "usedForEncryption": {
+    "message": "Used for encryption"
+  },
+  "loginWithPasskeyEnabled": {
+    "message": "Log in with passkey turned on"
+  },
+  "passkeySaved": {
+    "message": "$NAME$ saved",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Personal yubikey"
+      }
+    }
+  },
+  "passkeyRemoved": {
+    "message": "Passkey removed"
+  },
+  "removePasskey": {
+    "message": "Remove passkey"
+  },
+  "removePasskeyInfo": {
+    "message": "If all passkeys are removed, you will be unable to log into new devices without your master password."
+  },
+  "passkeyLimitReachedInfo": {
+    "message": "Passkey limit reached. Remove a passkey to add another."
+  },
+  "tryAgain": {
+    "message": "Try again"
   },
   "createAccount": {
     "message": "Skep rekening"
@@ -981,6 +1074,9 @@
   "export": {
     "message": "Uitstuur"
   },
+  "exportFrom": {
+    "message": "Export from"
+  },
   "exportVault": {
     "message": "Stuur kluis uit"
   },
@@ -1056,6 +1152,9 @@
   },
   "length": {
     "message": "Lengte"
+  },
+  "passwordMinLength": {
+    "message": "Minimum password length"
   },
   "uppercase": {
     "message": "Hoofletters (A-Z)",
@@ -1425,7 +1524,10 @@
   "twoStepLoginDesc": {
     "message": "Beveilig u rekening deur ’n bykomende stap te vereis wanneer u aanteken."
   },
-  "twoStepLoginOrganizationDescStart": {
+  "twoStepLoginTeamsDesc": {
+    "message": "Enable two-step login for your organization."
+  },
+  "twoStepLoginEnterpriseDescStart": {
     "message": "Enforce Bitwarden Two-step Login options for members by using the ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Enforce Bitwarden Two-step Login options for members by using the Two-step Login Policy.'"
   },
@@ -1478,6 +1580,9 @@
   },
   "manage": {
     "message": "Bestuur"
+  },
+  "canManage": {
+    "message": "Can manage"
   },
   "disable": {
     "message": "Deaktiveer"
@@ -1924,8 +2029,8 @@
   "premiumSignUpStorage": {
     "message": "1 GG geënkripteerde berging vir lêeraanhegsels."
   },
-  "premiumSignUpTwoStep": {
-    "message": "Bykomende tweestapaantekenopsies soos YubiKey, FIDO U2F en Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Proprietary two-step login options such as YubiKey and Duo."
   },
   "premiumSignUpEmergency": {
     "message": "Noodtoegang"
@@ -2039,6 +2144,9 @@
         "example": "month or year"
       }
     }
+  },
+  "paymentChargedWithUnpaidSubscription": {
+    "message": "Your payment method will be charged for any unpaid subscriptions."
   },
   "paymentChargedWithTrial": {
     "message": "Your plan comes with a free 7 day trial. Your payment method will not be charged until the trial has ended. You may cancel at any time."
@@ -2208,6 +2316,9 @@
   "contactSupport": {
     "message": "Contact customer support"
   },
+  "contactSupportShort": {
+    "message": "Contact Support"
+  },
   "updatedPaymentMethod": {
     "message": "Betalingsmetode is bygewerk."
   },
@@ -2309,6 +2420,9 @@
   "planDescTeams": {
     "message": "Vir sake- en ander spanorganisasies."
   },
+  "planNameTeamsStarter": {
+    "message": "Teams Starter"
+  },
   "planNameEnterprise": {
     "message": "Onderneming"
   },
@@ -2382,7 +2496,7 @@
     }
   },
   "onPremHostingOptional": {
-    "message": "On-premise hosting (optional)"
+    "message": "On-premises hosting (optional)"
   },
   "usersGetPremium": {
     "message": "Users get access to Premium features"
@@ -2668,6 +2782,9 @@
   },
   "webVault": {
     "message": "Webkluis"
+  },
+  "cli": {
+    "message": "CLI"
   },
   "bitWebVault": {
     "message": "Bitwarden Web vault"
@@ -3392,6 +3509,9 @@
   "subscriptionUpdated": {
     "message": "Subscription updated"
   },
+  "subscribedToSecretsManager": {
+    "message": "Subscription updated. You now have access to Secrets Manager."
+  },
   "additionalOptions": {
     "message": "Bykomende opsies"
   },
@@ -3410,6 +3530,15 @@
       }
     }
   },
+  "subscriptionUserSeatsWithoutAdditionalSeatsOption": {
+    "message": "You can invite up to $COUNT$ members for no additional charge. Contact Customer Support to upgrade your plan and invite more members.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "subscriptionFreePlan": {
     "message": "You cannot invite more than $COUNT$ members without upgrading your plan.",
     "placeholders": {
@@ -3419,12 +3548,12 @@
       }
     }
   },
-  "subscriptionFamiliesPlan": {
-    "message": "You cannot invite more than $COUNT$ members without upgrading your plan. Please contact Customer Support to upgrade.",
+  "subscriptionUpgrade": {
+    "message": "You cannot invite more than $COUNT$ members without upgrading your plan.",
     "placeholders": {
       "count": {
         "content": "$1",
-        "example": "6"
+        "example": "2"
       }
     }
   },
@@ -3470,17 +3599,11 @@
   "keyUpdated": {
     "message": "Sleutel bygewerk"
   },
-  "updateKeyTitle": {
-    "message": "Werk sleutel by"
-  },
   "updateEncryptionKey": {
     "message": "Werk enkripsiesleutel by"
   },
-  "updateEncryptionKeyShortDesc": {
-    "message": "U gebruik tans ’n verouderde enkripsieskema."
-  },
-  "updateEncryptionKeyDesc": {
-    "message": "We've moved to larger encryption keys that provide better security and access to newer features. Updating your encryption key is quick and easy. Just type your master password below. This update will eventually become mandatory."
+  "updateEncryptionSchemeDesc": {
+    "message": "We've changed the encryption scheme to provide better security. Update your encryption key now by entering your master password below."
   },
   "updateEncryptionKeyWarning": {
     "message": "After updating your encryption key, you are required to log out and back in to all Bitwarden applications that you are currently using (such as the mobile app or browser extensions). Failure to log out and back in (which downloads your new encryption key) may result in data corruption. We will attempt to log you out automatically, however, it may be delayed."
@@ -3574,6 +3697,18 @@
   },
   "organizationIsDisabled": {
     "message": "Organisasie is gedeaktiveer."
+  },
+  "secretsAccessSuspended": {
+    "message": "Suspended organizations cannot be accessed. Please contact your organization owner for assistance."
+  },
+  "secretsCannotCreate": {
+    "message": "Secrets cannot be created in suspended organizations. Please contact your organization owner for assistance."
+  },
+  "projectsCannotCreate": {
+    "message": "Projects cannot be created in suspended organizations. Please contact your organization owner for assistance."
+  },
+  "serviceAccountsCannotCreate": {
+    "message": "Service accounts cannot be created in suspended organizations. Please contact your organization owner for assistance."
   },
   "disabledOrganizationFilterError": {
     "message": "Items in suspended organizations cannot be accessed. Contact your organization owner for assistance."
@@ -3884,9 +4019,6 @@
   "setMasterPassword": {
     "message": "Stel Hoofwagwoord"
   },
-  "ssoCompleteRegistration": {
-    "message": "Om aantekening met SSO te voltooi moet u ’n hoofwagwoord instel vir toegang tot en beskerming van u kluis."
-  },
   "identifier": {
     "message": "Identifiseerder"
   },
@@ -3905,6 +4037,21 @@
   "includeAllTeamsFeatures": {
     "message": "Alle Spanne-funksies, plus:"
   },
+  "includeAllTeamsStarterFeatures": {
+    "message": "All Teams Starter features, plus:"
+  },
+  "chooseMonthlyOrAnnualBilling": {
+    "message": "Choose monthly or annual billing"
+  },
+  "abilityToAddMoreThanNMembers": {
+    "message": "Ability to add more than $COUNT$ members",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "includeSsoAuthentication": {
     "message": "SSO waarmerking d.m.v. SAML2.0 en OpenID Connect"
   },
@@ -3920,8 +4067,9 @@
   "ssoIdentifier": {
     "message": "SSO-identifiseerder"
   },
-  "ssoIdentifierHint": {
-    "message": "Provide this ID to your members to login with SSO."
+  "ssoIdentifierHintPartOne": {
+    "message": "Provide this ID to your members to login with SSO. To bypass this step, set up ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
   },
   "unlinkSso": {
     "message": "Unlink SSO"
@@ -4091,8 +4239,8 @@
     "message": "Hierdie send is by verstek versteek. U kan sy sigbaarheid wissel deur die knop hier onder.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "downloadFile": {
-    "message": "Laai lêer af"
+  "downloadAttachments": {
+    "message": "Download attachments"
   },
   "sendAccessUnavailable": {
     "message": "The Send you are trying to access does not exist or is no longer available.",
@@ -4482,8 +4630,8 @@
     "message": "om dit vandag te probeer.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about Bitwarden Send or sign up to **try it today.**'"
   },
-  "sendCreatorIdentifier": {
-    "message": "Bitwarden-gebruiker $USER_IDENTIFIER$ het die volgende met u gedeel",
+  "sendAccessCreatorIdentifier": {
+    "message": "Bitwarden member $USER_IDENTIFIER$ shared the following with you",
     "placeholders": {
       "user_identifier": {
         "content": "$1",
@@ -5409,6 +5557,19 @@
   "required": {
     "message": "vereis"
   },
+  "charactersCurrentAndMaximum": {
+    "message": "$CURRENT$/$MAX$ character maximum",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "0"
+      },
+      "max": {
+        "content": "$2",
+        "example": "100"
+      }
+    }
+  },
   "characterMaximum": {
     "message": "Maksimum $MAX$ karakters",
     "placeholders": {
@@ -5756,6 +5917,9 @@
   },
   "on": {
     "message": "Aan"
+  },
+  "off": {
+    "message": "Off"
   },
   "members": {
     "message": "Lede"
@@ -6503,6 +6667,24 @@
       }
     }
   },
+  "teamsStarterPlanInvLimitReachedManageBilling": {
+    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Upgrade to your plan to invite more members.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "teamsStarterPlanInvLimitReachedNoManageBilling": {
+    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade your plan and invite more members.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "freeOrgMaxCollectionReachedManageBilling": {
     "message": "Gratis organisasies kan tot $COLLECTIONCOUNT$ versamelings hê. Gradeer op na ’n betaalde plan om nog versamelings toe te voeg.",
     "placeholders": {
@@ -6893,6 +7075,14 @@
     "message": "policy with automatic enrollment will turn on when this option is used.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
+  "orgPermissionsUpdatedMustSetPassword": {
+    "message": "Your organization permissions were updated, requiring you to set a master password.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "orgRequiresYouToSetPassword": {
+    "message": "Your organization requires you to set a master password.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
   "notFound": {
     "message": "$RESOURCE$ nie gevind nie",
     "placeholders": {
@@ -7013,11 +7203,8 @@
   "next": {
     "message": "Volgende"
   },
-  "usFlag": {
-    "message": "VS-vlag"
-  },
-  "euFlag": {
-    "message": "EU-vlag"
+  "ssoLoginIsRequired": {
+    "message": "SSO login is required"
   },
   "selectedRegionFlag": {
     "message": "Gekose streekvlag"
@@ -7105,8 +7292,8 @@
       }
     }
   },
-  "addSecretsManager": {
-    "message": "Add Secrets Manager"
+  "subscribeToSecretsManager": {
+    "message": "Subscribe to Secrets Manager"
   },
   "addSecretsManagerUpgradeDesc": {
     "message": "Add Secrets Manager to your upgraded plan to maintain access to any secrets created with your previous plan."
@@ -7131,6 +7318,21 @@
         "example": "$0.50"
       }
     }
+  },
+  "collectionManagement": {
+    "message": "Collection management"
+  },
+  "collectionManagementDesc": {
+    "message": "Manage the collection behavior for the organization"
+  },
+  "limitCollectionCreationDeletionDesc": {
+    "message": "Limit collection creation and deletion to owners and admins"
+  },
+  "allowAdminAccessToAllCollectionItemsDesc": {
+    "message": "Owners and admins can manage all collections and items"
+  },
+  "collectionManagementUpdated": {
+    "message": "Collection management behavior saved"
   },
   "passwordManagerPlanPrice": {
     "message": "Password Manager plan price"
@@ -7178,7 +7380,74 @@
   "beta": {
     "message": "Beta"
   },
+  "assignCollectionAccess": {
+    "message": "Assign collection access"
+  },
+  "editedCollections": {
+    "message": "Edited collections"
+  },
+  "baseUrl": {
+    "message": "Server URL"
+  },
+  "aliasDomain": {
+    "message": "Alias domain"
+  },
   "alreadyHaveAccount": {
     "message": "Already have an account?"
+  },
+  "skipToContent": {
+    "message": "Skip to content"
+  },
+  "customBillingStart": {
+    "message": "Custom billing is not reflected. Visit the "
+  },
+  "customBillingEnd": {
+    "message": " page for latest invoicing."
+  },
+  "managePermissionRequired": {
+    "message": "At least one member or group must have can manage permission."
+  },
+  "typePasskey": {
+    "message": "Passkey"
+  },
+  "passkeyNotCopied": {
+    "message": "Passkey will not be copied"
+  },
+  "passkeyNotCopiedAlert": {
+    "message": "The passkey will not be copied to the cloned item. Do you want to continue cloning this item?"
+  },
+  "modifiedCollectionManagement": {
+    "message": "Modified collection management setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "seeDetailedInstructions": {
+    "message": "Consulteu les instruccions detallades del nostre lloc d'ajuda a",
+    "description": "This is followed a by a hyperlink to the help website."
+  },
+  "projectAccessUpdated": {
+    "message": "Project access updated"
+  },
+  "unexpectedErrorSend": {
+    "message": "An unexpected error has occurred while loading this Send. Try again later."
+  },
+  "seatLimitReached": {
+    "message": "Seat limit has been reached"
+  },
+  "contactYourProvider": {
+    "message": "Contact your provider to purchase additional seats."
+  },
+  "seatLimitReachedContactYourProvider": {
+    "message": "Seat limit has been reached. Contact your provider to purchase additional seats."
+  },
+  "collectionAccessRestricted": {
+    "message": "Collection access is restricted"
+  },
+  "serviceAccountAccessUpdated": {
+    "message": "Service account access updated"
   }
 }

@@ -9,13 +9,13 @@ import { MessagingService } from "../../platform/abstractions/messaging.service"
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { StateService } from "../../platform/abstractions/state.service";
 import { KeyConnectorService } from "../abstractions/key-connector.service";
-import { UserApiLogInCredentials } from "../models/domain/log-in-credentials";
+import { UserApiLoginCredentials } from "../models/domain/login-credentials";
 import { UserApiTokenRequest } from "../models/request/identity-token/user-api-token.request";
 import { IdentityTokenResponse } from "../models/response/identity-token.response";
 
-import { LogInStrategy } from "./login.strategy";
+import { LoginStrategy } from "./login.strategy";
 
-export class UserApiLogInStrategy extends LogInStrategy {
+export class UserApiLoginStrategy extends LoginStrategy {
   tokenRequest: UserApiTokenRequest;
 
   constructor(
@@ -29,7 +29,7 @@ export class UserApiLogInStrategy extends LogInStrategy {
     stateService: StateService,
     twoFactorService: TwoFactorService,
     private environmentService: EnvironmentService,
-    private keyConnectorService: KeyConnectorService
+    private keyConnectorService: KeyConnectorService,
   ) {
     super(
       cryptoService,
@@ -40,16 +40,16 @@ export class UserApiLogInStrategy extends LogInStrategy {
       messagingService,
       logService,
       stateService,
-      twoFactorService
+      twoFactorService,
     );
   }
 
-  override async logIn(credentials: UserApiLogInCredentials) {
+  override async logIn(credentials: UserApiLoginCredentials) {
     this.tokenRequest = new UserApiTokenRequest(
       credentials.clientId,
       credentials.clientSecret,
       await this.buildTwoFactor(),
-      await this.buildDeviceRequest()
+      await this.buildDeviceRequest(),
     );
 
     const [authResult] = await this.startLogIn();
@@ -77,7 +77,7 @@ export class UserApiLogInStrategy extends LogInStrategy {
 
   protected override async setPrivateKey(response: IdentityTokenResponse): Promise<void> {
     await this.cryptoService.setPrivateKey(
-      response.privateKey ?? (await this.createKeyPairForOldAccount())
+      response.privateKey ?? (await this.createKeyPairForOldAccount()),
     );
   }
 

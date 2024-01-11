@@ -3,19 +3,18 @@ import { ActivatedRoute } from "@angular/router";
 
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { PasswordRepromptService } from "@bitwarden/common/vault/abstractions/password-reprompt.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { PasswordRepromptService } from "@bitwarden/vault";
 
 // eslint-disable-next-line no-restricted-imports
-import { WeakPasswordsReportComponent as BaseWeakPasswordsReportComponent } from "../../../reports/pages/weak-passwords-report.component";
+import { WeakPasswordsReportComponent as BaseWeakPasswordsReportComponent } from "../../../tools/reports/pages/weak-passwords-report.component";
 
 @Component({
   selector: "app-weak-passwords-report",
-  templateUrl: "../../../reports/pages/weak-passwords-report.component.html",
+  templateUrl: "../../../tools/reports/pages/weak-passwords-report.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class WeakPasswordsReportComponent extends BaseWeakPasswordsReportComponent {
@@ -25,17 +24,16 @@ export class WeakPasswordsReportComponent extends BaseWeakPasswordsReportCompone
     cipherService: CipherService,
     passwordStrengthService: PasswordStrengthServiceAbstraction,
     modalService: ModalService,
-    messagingService: MessagingService,
     private route: ActivatedRoute,
-    private organizationService: OrganizationService,
-    passwordRepromptService: PasswordRepromptService
+    organizationService: OrganizationService,
+    passwordRepromptService: PasswordRepromptService,
   ) {
     super(
       cipherService,
       passwordStrengthService,
+      organizationService,
       modalService,
-      messagingService,
-      passwordRepromptService
+      passwordRepromptService,
     );
   }
 

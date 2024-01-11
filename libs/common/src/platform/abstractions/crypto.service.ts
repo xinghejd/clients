@@ -1,11 +1,14 @@
+import { Observable } from "rxjs";
+
 import { ProfileOrganizationResponse } from "../../admin-console/models/response/profile-organization.response";
 import { ProfileProviderOrganizationResponse } from "../../admin-console/models/response/profile-provider-organization.response";
 import { ProfileProviderResponse } from "../../admin-console/models/response/profile-provider.response";
 import { KdfConfig } from "../../auth/models/domain/kdf-config";
-import { KeySuffixOptions, KdfType, HashPurpose } from "../../enums";
+import { KeySuffixOptions, KdfType, HashPurpose } from "../enums";
 import { EncArrayBuffer } from "../models/domain/enc-array-buffer";
 import { EncString } from "../models/domain/enc-string";
 import {
+  CipherKey,
   MasterKey,
   OrgKey,
   PinKey,
@@ -28,20 +31,24 @@ export abstract class CryptoService {
    * kicking off a refresh of any additional keys
    * (such as auto, biometrics, or pin)
    */
-  /**
-   * Check if the current sessions has ever had a user key, i.e. has ever been unlocked/decrypted.
-   * This is key for differentiating between TDE locked and standard locked states.
-   * @param userId The desired user
-   * @returns True if the current session has ever had a user key
-   */
-  getEverHadUserKey: (userId?: string) => Promise<boolean>;
   refreshAdditionalKeys: () => Promise<void>;
+  /**
+   * Observable value that returns whether or not the currently active user has ever had auser key,
+   * i.e. has ever been unlocked/decrypted. This is key for differentiating between TDE locked and standard locked states.
+   */
+  everHadUserKey$: Observable<boolean>;
   /**
    * Retrieves the user key
    * @param userId The desired user
    * @returns The user key
    */
   getUserKey: (userId?: string) => Promise<UserKey>;
+
+  /**
+   * Checks if the user is using an old encryption scheme that used the master key
+   * for encryption of data instead of the user key.
+   */
+  isLegacyUser: (masterKey?: MasterKey, userId?: string) => Promise<boolean>;
   /**
    * Use for encryption/decryption of data in order to support legacy
    * encryption models. It will return the user key if available,
@@ -126,7 +133,7 @@ export abstract class CryptoService {
     password: string,
     email: string,
     kdf: KdfType,
-    KdfConfig: KdfConfig
+    KdfConfig: KdfConfig,
   ) => Promise<MasterKey>;
   /**
    * Clears the user's master key
@@ -142,7 +149,7 @@ export abstract class CryptoService {
    */
   encryptUserKeyWithMasterKey: (
     masterKey: MasterKey,
-    userKey?: UserKey
+    userKey?: UserKey,
   ) => Promise<[UserKey, EncString]>;
   /**
    * Decrypts the user key with the provided master key
@@ -154,7 +161,7 @@ export abstract class CryptoService {
   decryptUserKeyWithMasterKey: (
     masterKey: MasterKey,
     userKey?: EncString,
-    userId?: string
+    userId?: string,
   ) => Promise<UserKey>;
   /**
    * Creates a master password hash from the user's master password. Can
@@ -197,7 +204,7 @@ export abstract class CryptoService {
    */
   setOrgKeys: (
     orgs: ProfileOrganizationResponse[],
-    providerOrgs: ProfileProviderOrganizationResponse[]
+    providerOrgs: ProfileProviderOrganizationResponse[],
   ) => Promise<void>;
   /**
    * Returns the organization's symmetric key
@@ -315,7 +322,7 @@ export abstract class CryptoService {
     salt: string,
     kdf: KdfType,
     kdfConfig: KdfConfig,
-    protectedKeyCs?: EncString
+    protectedKeyCs?: EncString,
   ) => Promise<UserKey>;
   /**
    * Creates a new Pin key that encrypts the user key instead of the
@@ -335,7 +342,7 @@ export abstract class CryptoService {
     email: string,
     kdf: KdfType,
     kdfConfig: KdfConfig,
-    oldPinKey: EncString
+    oldPinKey: EncString,
   ) => Promise<UserKey>;
   /**
    * Replaces old master auto keys with new user auto keys
@@ -366,6 +373,11 @@ export abstract class CryptoService {
    */
   rsaDecrypt: (encValue: string, privateKeyValue?: Uint8Array) => Promise<Uint8Array>;
   randomNumber: (min: number, max: number) => Promise<number>;
+  /**
+   * Generates a new cipher key
+   * @returns A new cipher key
+   */
+  makeCipherKey: () => Promise<CipherKey>;
 
   /**
    * Initialize all necessary crypto keys needed for a new account.
@@ -379,6 +391,14 @@ export abstract class CryptoService {
   }>;
 
   /**
+   * Validate that the KDF config follows the requirements for the given KDF type.
+   *
+   * @remarks
+   * Should always be called before updating a users KDF config.
+   */
+  validateKdfConfig: (kdf: KdfType, kdfConfig: KdfConfig) => void;
+
+  /**
    * @deprecated Left for migration purposes. Use decryptUserKeyWithPin instead.
    */
   decryptMasterKeyWithPin: (
@@ -386,7 +406,7 @@ export abstract class CryptoService {
     salt: string,
     kdf: KdfType,
     kdfConfig: KdfConfig,
-    protectedKeyCs?: EncString
+    protectedKeyCs?: EncString,
   ) => Promise<MasterKey>;
   /**
    * Previously, the master key was used for any additional key like the biometrics or pin key.

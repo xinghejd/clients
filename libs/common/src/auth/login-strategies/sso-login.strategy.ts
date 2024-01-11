@@ -14,13 +14,14 @@ import { DeviceTrustCryptoServiceAbstraction } from "../abstractions/device-trus
 import { KeyConnectorService } from "../abstractions/key-connector.service";
 import { TokenService } from "../abstractions/token.service";
 import { TwoFactorService } from "../abstractions/two-factor.service";
-import { SsoLogInCredentials } from "../models/domain/log-in-credentials";
+import { ForceSetPasswordReason } from "../models/domain/force-set-password-reason";
+import { SsoLoginCredentials } from "../models/domain/login-credentials";
 import { SsoTokenRequest } from "../models/request/identity-token/sso-token.request";
 import { IdentityTokenResponse } from "../models/response/identity-token.response";
 
-import { LogInStrategy } from "./login.strategy";
+import { LoginStrategy } from "./login.strategy";
 
-export class SsoLogInStrategy extends LogInStrategy {
+export class SsoLoginStrategy extends LoginStrategy {
   tokenRequest: SsoTokenRequest;
   orgId: string;
 
@@ -43,7 +44,7 @@ export class SsoLogInStrategy extends LogInStrategy {
     private keyConnectorService: KeyConnectorService,
     private deviceTrustCryptoService: DeviceTrustCryptoServiceAbstraction,
     private authReqCryptoService: AuthRequestCryptoServiceAbstraction,
-    private i18nService: I18nService
+    private i18nService: I18nService,
   ) {
     super(
       cryptoService,
@@ -54,24 +55,29 @@ export class SsoLogInStrategy extends LogInStrategy {
       messagingService,
       logService,
       stateService,
-      twoFactorService
+      twoFactorService,
     );
   }
 
-  async logIn(credentials: SsoLogInCredentials) {
+  async logIn(credentials: SsoLoginCredentials) {
     this.orgId = credentials.orgId;
     this.tokenRequest = new SsoTokenRequest(
       credentials.code,
       credentials.codeVerifier,
       credentials.redirectUrl,
       await this.buildTwoFactor(credentials.twoFactor),
-      await this.buildDeviceRequest()
+      await this.buildDeviceRequest(),
     );
 
     const [ssoAuthResult] = await this.startLogIn();
 
     this.email = ssoAuthResult.email;
     this.ssoEmail2FaSessionToken = ssoAuthResult.ssoEmail2FaSessionToken;
+
+    // Auth guard currently handles redirects for this.
+    if (ssoAuthResult.forcePasswordReset == ForceSetPasswordReason.AdminForcePasswordReset) {
+      await this.stateService.setForceSetPasswordReason(ssoAuthResult.forcePasswordReset);
+    }
 
     return ssoAuthResult;
   }
@@ -101,16 +107,22 @@ export class SsoLogInStrategy extends LogInStrategy {
   private shouldSetMasterKeyFromKeyConnector(tokenResponse: IdentityTokenResponse): boolean {
     const userDecryptionOptions = tokenResponse?.userDecryptionOptions;
 
-    // If the user has a master password, this means that they need to migrate to Key Connector, so we won't set the key here.
-    // We default to false here because old server versions won't have hasMasterPassword and in that case we want to rely solely on the keyConnectorUrl.
-    // TODO: remove null default after 2023.10 release (https://bitwarden.atlassian.net/browse/PM-3537)
-    const userHasMasterPassword = userDecryptionOptions?.hasMasterPassword ?? false;
+    if (userDecryptionOptions != null) {
+      const userHasMasterPassword = userDecryptionOptions.hasMasterPassword;
+      const userHasKeyConnectorUrl =
+        userDecryptionOptions.keyConnectorOption?.keyConnectorUrl != null;
 
-    const keyConnectorUrl = this.getKeyConnectorUrl(tokenResponse);
-
-    // In order for us to set the master key from Key Connector, we need to have a Key Connector URL
-    // and the user must not have a master password.
-    return keyConnectorUrl != null && !userHasMasterPassword;
+      // In order for us to set the master key from Key Connector, we need to have a Key Connector URL
+      // and the user must not have a master password.
+      return userHasKeyConnectorUrl && !userHasMasterPassword;
+    } else {
+      // In pre-TDE versions of the server, the userDecryptionOptions will not be present.
+      // In this case, we can determine if the user has a master password and has a Key Connector URL by
+      // just checking the keyConnectorUrl property. This is because the server short-circuits on the response
+      // and will not pass back the URL in the response if the user has a master password.
+      // TODO: remove compatibility check after 2023.10 release (https://bitwarden.atlassian.net/browse/PM-3537)
+      return tokenResponse.keyConnectorUrl != null;
+    }
   }
 
   private getKeyConnectorUrl(tokenResponse: IdentityTokenResponse): string {
@@ -188,14 +200,14 @@ export class SsoLogInStrategy extends LogInStrategy {
       if (adminAuthReqResponse.masterPasswordHash) {
         await this.authReqCryptoService.setKeysAfterDecryptingSharedMasterKeyAndHash(
           adminAuthReqResponse,
-          adminAuthReqStorable.privateKey
+          adminAuthReqStorable.privateKey,
         );
       } else {
         // if masterPasswordHash is null, we will always receive authReqResponse.key
         // as authRequestPublicKey(userKey)
         await this.authReqCryptoService.setUserKeyAfterDecryptingSharedUserKey(
           adminAuthReqResponse,
-          adminAuthReqStorable.privateKey
+          adminAuthReqStorable.privateKey,
         );
       }
 
@@ -227,7 +239,7 @@ export class SsoLogInStrategy extends LogInStrategy {
     const userKey = await this.deviceTrustCryptoService.decryptUserKeyWithDeviceKey(
       encDevicePrivateKey,
       encUserKey,
-      deviceKey
+      deviceKey,
     );
 
     if (userKey) {
@@ -255,7 +267,7 @@ export class SsoLogInStrategy extends LogInStrategy {
 
     if (!newSsoUser) {
       await this.cryptoService.setPrivateKey(
-        tokenResponse.privateKey ?? (await this.createKeyPairForOldAccount())
+        tokenResponse.privateKey ?? (await this.createKeyPairForOldAccount()),
       );
     }
   }

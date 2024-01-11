@@ -6,9 +6,10 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
-import { ForceResetPasswordReason } from "@bitwarden/common/auth/models/domain/force-reset-password-reason";
+import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
 import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request/update-temp-password.request";
+import { Verification } from "@bitwarden/common/auth/types/verification";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -18,7 +19,6 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { MasterKey, UserKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
-import { Verification } from "@bitwarden/common/types/verification";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService } from "@bitwarden/components";
 
@@ -30,7 +30,7 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent {
   key: string;
   enforcedPolicyOptions: MasterPasswordPolicyOptions;
   showPassword = false;
-  reason: ForceResetPasswordReason = ForceResetPasswordReason.None;
+  reason: ForceSetPasswordReason = ForceSetPasswordReason.None;
   verification: Verification = {
     type: VerificationType.MasterPassword,
     secret: "",
@@ -39,7 +39,7 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent {
   onSuccessfulChangePassword: () => Promise<any>;
 
   get requireCurrentPassword(): boolean {
-    return this.reason === ForceResetPasswordReason.WeakMasterPassword;
+    return this.reason === ForceSetPasswordReason.WeakMasterPassword;
   }
 
   constructor(
@@ -54,8 +54,8 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent {
     private syncService: SyncService,
     private logService: LogService,
     private userVerificationService: UserVerificationService,
-    private router: Router,
-    dialogService: DialogService
+    protected router: Router,
+    dialogService: DialogService,
   ) {
     super(
       i18nService,
@@ -65,17 +65,17 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent {
       platformUtilsService,
       policyService,
       stateService,
-      dialogService
+      dialogService,
     );
   }
 
   async ngOnInit() {
     await this.syncService.fullSync(true);
 
-    this.reason = await this.stateService.getForcePasswordResetReason();
+    this.reason = await this.stateService.getForceSetPasswordReason();
 
     // If we somehow end up here without a reason, go back to the home page
-    if (this.reason == ForceResetPasswordReason.None) {
+    if (this.reason == ForceSetPasswordReason.None) {
       this.router.navigate(["/"]);
       return;
     }
@@ -84,7 +84,7 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent {
   }
 
   get masterPasswordWarningText(): string {
-    return this.reason == ForceResetPasswordReason.WeakMasterPassword
+    return this.reason == ForceSetPasswordReason.WeakMasterPassword
       ? this.i18nService.t("updateWeakMasterPasswordWarning")
       : this.i18nService.t("updateMasterPasswordWarning");
   }
@@ -117,11 +117,11 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent {
         this.masterPassword,
         this.email.trim().toLowerCase(),
         this.kdf,
-        this.kdfConfig
+        this.kdfConfig,
       );
       const newPasswordHash = await this.cryptoService.hashMasterKey(
         this.masterPassword,
-        newMasterKey
+        newMasterKey,
       );
 
       // Grab user key
@@ -130,7 +130,7 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent {
       // Encrypt user key with new master key
       const newProtectedUserKey = await this.cryptoService.encryptUserKeyWithMasterKey(
         newMasterKey,
-        userKey
+        userKey,
       );
 
       await this.performSubmitActions(newPasswordHash, newMasterKey, newProtectedUserKey);
@@ -142,14 +142,14 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent {
   async performSubmitActions(
     masterPasswordHash: string,
     masterKey: MasterKey,
-    userKey: [UserKey, EncString]
+    userKey: [UserKey, EncString],
   ) {
     try {
       switch (this.reason) {
-        case ForceResetPasswordReason.AdminForcePasswordReset:
+        case ForceSetPasswordReason.AdminForcePasswordReset:
           this.formPromise = this.updateTempPassword(masterPasswordHash, userKey);
           break;
-        case ForceResetPasswordReason.WeakMasterPassword:
+        case ForceSetPasswordReason.WeakMasterPassword:
           this.formPromise = this.updatePassword(masterPasswordHash, userKey);
           break;
       }
@@ -158,10 +158,10 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent {
       this.platformUtilsService.showToast(
         "success",
         null,
-        this.i18nService.t("updatedMasterPassword")
+        this.i18nService.t("updatedMasterPassword"),
       );
 
-      await this.stateService.setForcePasswordResetReason(ForceResetPasswordReason.None);
+      await this.stateService.setForceSetPasswordReason(ForceSetPasswordReason.None);
 
       if (this.onSuccessfulChangePassword != null) {
         this.onSuccessfulChangePassword();
@@ -184,7 +184,7 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent {
   private async updatePassword(newMasterPasswordHash: string, userKey: [UserKey, EncString]) {
     const request = await this.userVerificationService.buildRequest(
       this.verification,
-      PasswordRequest
+      PasswordRequest,
     );
     request.masterPasswordHint = this.hint;
     request.newMasterPasswordHash = newMasterPasswordHash;

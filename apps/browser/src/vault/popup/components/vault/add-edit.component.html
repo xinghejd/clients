@@ -129,20 +129,62 @@
               </button>
             </div>
           </div>
-          <div class="box-content-row" appBoxRow>
-            <label for="loginTotp">{{ "authenticatorKeyTotp" | i18n }}</label>
-            <input
-              id="loginTotp"
-              type="{{ cipher.viewPassword ? 'text' : 'password' }}"
-              name="Login.Totp"
-              class="monospaced"
-              [(ngModel)]="cipher.login.totp"
-              appInputVerbatim
-              [disabled]="!cipher.viewPassword"
-              [readonly]="!cipher.edit && editMode"
-            />
+
+          <!--Passkey-->
+          <div
+            class="box"
+            *ngIf="cipher.login.hasFido2Credentials && !cloneMode"
+            tabindex="0"
+            attr.aria-label="{{ 'typePasskey' | i18n }} {{ fido2CredentialCreationDateValue }}"
+          >
+            <div class="box-content">
+              <div class="box-content-row text-muted">
+                <span class="row-label">{{ "typePasskey" | i18n }}</span>
+                {{ "dateCreated" | i18n }}
+                {{ cipher.login.fido2Credentials[0].creationDate | date: "short" }}
+              </div>
+            </div>
+          </div>
+
+          <div class="box-content-row box-content-row-flex" appBoxRow>
+            <div class="row-main">
+              <label for="loginTotp">{{ "authenticatorKeyTotp" | i18n }}</label>
+              <input
+                id="loginTotp"
+                type="{{ cipher.viewPassword ? 'text' : 'password' }}"
+                name="Login.Totp"
+                class="monospaced"
+                [(ngModel)]="cipher.login.totp"
+                appInputVerbatim
+                [disabled]="!cipher.viewPassword"
+                [readonly]="!cipher.edit && editMode"
+              />
+            </div>
+            <div class="action-buttons">
+              <button
+                type="button"
+                class="row-btn"
+                appStopClick
+                appA11yTitle="{{ 'copyTOTP' | i18n }}"
+                (click)="copy(cipher.login.totp, 'totp', 'TOTP')"
+                *ngIf="cipher.viewPassword"
+              >
+                <i class="bwi bwi-lg bwi-clone" aria-hidden="true"></i>
+              </button>
+              <button
+                type="button"
+                class="row-btn"
+                appStopClick
+                appA11yTitle="{{ 'totpCapture' | i18n }}"
+                (click)="captureTOTPFromTab()"
+                *ngIf="!(!cipher.edit && editMode)"
+              >
+                <i class="bwi bwi-lg bwi-camera" aria-hidden="true"></i>
+              </button>
+            </div>
           </div>
         </div>
+
         <!-- Card -->
         <div *ngIf="cipher.type === cipherType.Card">
           <div class="box-content-row" appBoxRow>
@@ -229,7 +271,7 @@
               type="text"
               name="Card.ExpYear"
               [(ngModel)]="cipher.card.expYear"
-              placeholder="{{ 'ex' | i18n }} {{ currentDate | date : 'yyyy' }}"
+              placeholder="{{ 'ex' | i18n }} {{ currentDate | date: 'yyyy' }}"
               [readonly]="!cipher.edit && editMode"
             />
           </div>
@@ -471,7 +513,7 @@
             class="box-content-row box-content-row-multi"
             appBoxRow
             *ngFor="let u of cipher.login.uris; let i = index; trackBy: trackByFunction"
-            attr.aria-label="{{ 'uriPosition' | i18n : i + 1 }}"
+            attr.aria-label="{{ 'uriPosition' | i18n: i + 1 }}"
           >
             <button
               type="button"
@@ -482,7 +524,7 @@
               <i class="bwi bwi-minus-circle bwi-lg" aria-hidden="true"></i>
             </button>
             <div class="row-main">
-              <label for="loginUri{{ i }}">{{ "uriPosition" | i18n : i + 1 }}</label>
+              <label for="loginUri{{ i }}">{{ "uriPosition" | i18n: i + 1 }}</label>
               <input
                 id="loginUri{{ i }}"
                 type="text"
@@ -564,6 +606,7 @@
           <select
             id="autofillOnPageLoad"
             name="AutofillOnPageLoad"
+            [disabled]="reprompt"
             [(ngModel)]="cipher.login.autofillOnPageLoad"
           >
             <option *ngFor="let o of autofillOnPageLoadOptions" [ngValue]="o.value">
@@ -571,6 +614,9 @@
             </option>
           </select>
         </div>
+      </div>
+      <div class="box-footer !tw-mb-0 !tw-pb-0" *ngIf="reprompt">
+        {{ "turnOffMasterPasswordPromptToEditField" | i18n }}
       </div>
     </div>
     <div class="box">

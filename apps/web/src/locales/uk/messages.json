@@ -392,7 +392,7 @@
     "message": "Редагування"
   },
   "viewItem": {
-    "message": "Перегляд запису"
+    "message": "Переглянути запис"
   },
   "new": {
     "message": "Новий",
@@ -508,9 +508,6 @@
   "maxFileSize": {
     "message": "Максимальний розмір файлу 500 Мб."
   },
-  "updateKey": {
-    "message": "Ви не можете використовувати цю функцію доки не оновите свій ключ шифрування."
-  },
   "addedItem": {
     "message": "Запис додано"
   },
@@ -613,6 +610,102 @@
   },
   "loginWithMasterPassword": {
     "message": "Увійти з головним паролем"
+  },
+  "readingPasskeyLoading": {
+    "message": "Читання ключа доступу..."
+  },
+  "readingPasskeyLoadingInfo": {
+    "message": "Не закривайте це вікно та дотримуйтесь підказок у браузері."
+  },
+  "useADifferentLogInMethod": {
+    "message": "Використати інший спосіб входу"
+  },
+  "loginWithPasskey": {
+    "message": "Увійти з ключем доступу"
+  },
+  "invalidPasskeyPleaseTryAgain": {
+    "message": "Недійсний ключ доступу. Повторіть спробу."
+  },
+  "twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn": {
+    "message": "2FA для ключів доступу не підтримується. Оновіть програму, щоб увійти."
+  },
+  "loginWithPasskeyInfo": {
+    "message": "Використовуйте згенерований ключ доступу для автоматичного входу без пароля. Ваша авторизація відбуватиметься з використанням біометрії, як-от розпізнавання обличчя чи відбитків пальців, або іншого методу безпеки FIDO2."
+  },
+  "newPasskey": {
+    "message": "Новий ключ доступу"
+  },
+  "learnMoreAboutPasswordless": {
+    "message": "Докладніше про безпарольну авторизацію"
+  },
+  "passkeyEnterMasterPassword": {
+    "message": "Введіть головний пароль, щоб змінити налаштування входу з ключем доступу."
+  },
+  "creatingPasskeyLoading": {
+    "message": "Створення ключа доступу..."
+  },
+  "creatingPasskeyLoadingInfo": {
+    "message": "Не закривайте це вікно та дотримуйтесь підказок у браузері."
+  },
+  "errorCreatingPasskey": {
+    "message": "Помилка створення ключа доступу"
+  },
+  "errorCreatingPasskeyInfo": {
+    "message": "Під час створення вашого ключа доступу виникла проблема."
+  },
+  "passkeySuccessfullyCreated": {
+    "message": "Ключ доступу успішно створено!"
+  },
+  "customName": {
+    "message": "Власна назва"
+  },
+  "customPasskeyNameInfo": {
+    "message": "Назвіть свій ключ доступу для полегшення розпізнавання."
+  },
+  "useForVaultEncryption": {
+    "message": "Використовувати для шифрування сховища"
+  },
+  "useForVaultEncryptionInfo": {
+    "message": "Виконуйте вхід і розблокування на підтримуваних пристроях без головного пароля. Дотримуйтесь підказок вашого браузера для завершення налаштування."
+  },
+  "useForVaultEncryptionErrorReadingPasskey": {
+    "message": "Помилка читання ключа доступу. Повторіть спробу або приберіть цю опцію."
+  },
+  "encryptionNotSupported": {
+    "message": "Шифрування не підтримується"
+  },
+  "enablePasskeyEncryption": {
+    "message": "Налаштувати шифрування"
+  },
+  "usedForEncryption": {
+    "message": "Використовується для шифрування"
+  },
+  "loginWithPasskeyEnabled": {
+    "message": "Увійдіть з активованим ключем доступу"
+  },
+  "passkeySaved": {
+    "message": "$NAME$ збережено",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Personal yubikey"
+      }
+    }
+  },
+  "passkeyRemoved": {
+    "message": "Ключ доступу вилучено"
+  },
+  "removePasskey": {
+    "message": "Вилучити ключ доступу"
+  },
+  "removePasskeyInfo": {
+    "message": "Якщо всі ключі доступу вилучено, ви не зможете увійти на нових пристроях без головного пароля."
+  },
+  "passkeyLimitReachedInfo": {
+    "message": "Досягнуто обмеження ключів доступу. Вилучіть один ключ, щоб додати інший."
+  },
+  "tryAgain": {
+    "message": "Спробуйте знову"
   },
   "createAccount": {
     "message": "Створити обліковий запис"
@@ -981,6 +1074,9 @@
   "export": {
     "message": "Експорт"
   },
+  "exportFrom": {
+    "message": "Експортувати з"
+  },
   "exportVault": {
     "message": "Експортувати сховище"
   },
@@ -1056,6 +1152,9 @@
   },
   "length": {
     "message": "Довжина"
+  },
+  "passwordMinLength": {
+    "message": "Мінімальна довжина пароля"
   },
   "uppercase": {
     "message": "Верхній регістр (A-Z)",
@@ -1276,7 +1375,7 @@
     "message": "Дані успішно експортовано"
   },
   "importWarning": {
-    "message": "Ви імпортуєте дані до $ORGANIZATION$. Ваші дані можуть бути доступними учасникам цієї організації. Ви хочете продовжити?",
+    "message": "Ви імпортуєте дані до $ORGANIZATION$. Ваші дані можуть бути доступні учасникам цієї організації. Хочете продовжити?",
     "placeholders": {
       "organization": {
         "content": "$1",
@@ -1425,7 +1524,10 @@
   "twoStepLoginDesc": {
     "message": "Захистіть обліковий запис, вимагаючи додатковий крок перевірки під час входу."
   },
-  "twoStepLoginOrganizationDescStart": {
+  "twoStepLoginTeamsDesc": {
+    "message": "Увімкніть двоетапну перевірку для вашої організації."
+  },
+  "twoStepLoginEnterpriseDescStart": {
     "message": "Зобов'язувати учасників використовувати двоетапну перевірку Bitwarden за допомогою ",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Enforce Bitwarden Two-step Login options for members by using the Two-step Login Policy.'"
   },
@@ -1478,6 +1580,9 @@
   },
   "manage": {
     "message": "Керувати"
+  },
+  "canManage": {
+    "message": "Може керувати"
   },
   "disable": {
     "message": "Вимкнути"
@@ -1924,8 +2029,8 @@
   "premiumSignUpStorage": {
     "message": "1 ГБ зашифрованого сховища для файлів."
   },
-  "premiumSignUpTwoStep": {
-    "message": "Додаткові можливості двоетапної перевірки, наприклад, YubiKey, FIDO U2F та Duo."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Додаткові можливості двоетапної авторизації, як-от YubiKey та Duo."
   },
   "premiumSignUpEmergency": {
     "message": "Екстрений доступ"
@@ -2039,6 +2144,9 @@
         "example": "month or year"
       }
     }
+  },
+  "paymentChargedWithUnpaidSubscription": {
+    "message": "Ваш спосіб оплати буди використано для платежів за будь-які несплачені передплати."
   },
   "paymentChargedWithTrial": {
     "message": "Ваш тарифний план має 7 днів безплатного пробного періоду. З вас не буде стягнуто плату до завершення цього періоду. Ви можете скасувати це в будь-який час."
@@ -2208,6 +2316,9 @@
   "contactSupport": {
     "message": "Звернутися до служби підтримки клієнтів"
   },
+  "contactSupportShort": {
+    "message": "Звернутися до служби підтримки"
+  },
   "updatedPaymentMethod": {
     "message": "Спосіб оплати оновлено."
   },
@@ -2230,7 +2341,7 @@
     "message": "Щоб оновити обліковий запис до Premium, вам необхідно вивантажити дійсний файл ліцензії."
   },
   "uploadLicenseFileOrg": {
-    "message": "Для створення організації, розміщеної на локальному хостингу, вам необхідно вивантажити дійсний файл ліцензії."
+    "message": "Для створення організації з локальним хостингом вам необхідно вивантажити дійсний файл ліцензії."
   },
   "accountEmailMustBeVerified": {
     "message": "Необхідно підтвердити адресу електронної пошти вашого облікового запису."
@@ -2309,6 +2420,9 @@
   "planDescTeams": {
     "message": "Для компаній та інших командних організацій."
   },
+  "planNameTeamsStarter": {
+    "message": "Teams Starter"
+  },
   "planNameEnterprise": {
     "message": "Компанія"
   },
@@ -2382,7 +2496,7 @@
     }
   },
   "onPremHostingOptional": {
-    "message": "Попереднє розміщення (необов'язково)"
+    "message": "Локальний хостинг (необов'язково)"
   },
   "usersGetPremium": {
     "message": "Користувачі отримують доступ до можливостей Premium"
@@ -2668,6 +2782,9 @@
   },
   "webVault": {
     "message": "Веб сховище"
+  },
+  "cli": {
+    "message": "CLI"
   },
   "bitWebVault": {
     "message": "Веб сховище Bitwarden"
@@ -3081,7 +3198,7 @@
     "message": "Пристрій"
   },
   "view": {
-    "message": "Перегляд"
+    "message": "Переглянути"
   },
   "invalidDateRange": {
     "message": "Недійсний проміжок часу."
@@ -3392,6 +3509,9 @@
   "subscriptionUpdated": {
     "message": "Передплату оновлено"
   },
+  "subscribedToSecretsManager": {
+    "message": "Передплату оновлено. Тепер ви маєте доступ до менеджера секретів."
+  },
   "additionalOptions": {
     "message": "Додаткові налаштування"
   },
@@ -3410,6 +3530,15 @@
       }
     }
   },
+  "subscriptionUserSeatsWithoutAdditionalSeatsOption": {
+    "message": "Ви можете запросити до $COUNT$ користувачів без додаткової оплати. Зверніться до служби підтримки, щоб підвищити рівень вашого тарифного плану та запросити більше учасників.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "subscriptionFreePlan": {
     "message": "Ви не можете запросити більш як $COUNT$ учасників, не підвищивши свій тарифний план.",
     "placeholders": {
@@ -3419,12 +3548,12 @@
       }
     }
   },
-  "subscriptionFamiliesPlan": {
-    "message": "Ви не можете запросити більш як $COUNT$ учасників, не підвищивши свій тарифний план. Будь ласка, зверніться до служби підтримки для оновлення.",
+  "subscriptionUpgrade": {
+    "message": "Ви не можете запросити більш як $COUNT$ учасників, не підвищивши свій тарифний план.",
     "placeholders": {
       "count": {
         "content": "$1",
-        "example": "6"
+        "example": "2"
       }
     }
   },
@@ -3470,17 +3599,11 @@
   "keyUpdated": {
     "message": "Ключ оновлено"
   },
-  "updateKeyTitle": {
-    "message": "Оновити ключ"
-  },
   "updateEncryptionKey": {
     "message": "Оновити ключ шифрування"
   },
-  "updateEncryptionKeyShortDesc": {
-    "message": "Зараз ви використовуєте застарілу схему шифрування."
-  },
-  "updateEncryptionKeyDesc": {
-    "message": "Ми перейшли на більші ключі шифрування, що гарантує кращу безпеку і доступ до новіших функцій. Оновлення вашого ключа шифрування є швидким і простим процесом. Просто введіть свій головний пароль внизу. Це оновлення невдовзі стане обов'язковою вимогою."
+  "updateEncryptionSchemeDesc": {
+    "message": "Ми змінили схему шифрування для кращої безпеки. Введіть головний пароль нижче, щоб оновити свій ключ шифрування."
   },
   "updateEncryptionKeyWarning": {
     "message": "Після оновлення вашого ключа шифрування вам необхідно вийти з системи і потім виконати повторний вхід у всіх програмах Bitwarden, які ви використовуєте. Збій при виході та повторному вході може призвести до пошкодження даних. Ми спробуємо завершити ваші сеанси автоматично, однак, цей процес може відбутися із затримкою."
@@ -3574,6 +3697,18 @@
   },
   "organizationIsDisabled": {
     "message": "Організацію призупинено"
+  },
+  "secretsAccessSuspended": {
+    "message": "До призупинених організацій не можна отримати доступ. Зверніться до власника вашої організації для отримання допомоги."
+  },
+  "secretsCannotCreate": {
+    "message": "У призупинених організаціях не можна створювати секрети. Зверніться до власника вашої організації для отримання допомоги."
+  },
+  "projectsCannotCreate": {
+    "message": "У призупинених організаціях не можна створювати проєкти. Зверніться до власника вашої організації для отримання допомоги."
+  },
+  "serviceAccountsCannotCreate": {
+    "message": "У призупинених організаціях не можна створювати службові облікові записи. Зверніться до власника вашої організації для отримання допомоги."
   },
   "disabledOrganizationFilterError": {
     "message": "Записи у призупинених організаціях недоступні. Зверніться до власника вашої організації для отримання допомоги."
@@ -3884,9 +4019,6 @@
   "setMasterPassword": {
     "message": "Встановити головний пароль"
   },
-  "ssoCompleteRegistration": {
-    "message": "Щоб завершити налаштування входу з SSO, встановіть головний пароль для доступу і захисту сховища."
-  },
   "identifier": {
     "message": "Ідентифікатор"
   },
@@ -3905,6 +4037,21 @@
   "includeAllTeamsFeatures": {
     "message": "Усі функції команд, плюс:"
   },
+  "includeAllTeamsStarterFeatures": {
+    "message": "Усі функції Teams Starter, а також:"
+  },
+  "chooseMonthlyOrAnnualBilling": {
+    "message": "Виберіть місячну або річну оплату"
+  },
+  "abilityToAddMoreThanNMembers": {
+    "message": "Можливість додати понад $COUNT$ учасників",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "includeSsoAuthentication": {
     "message": "SSO автентифікація через SAML2.0 та OpenID Connect"
   },
@@ -3920,8 +4067,9 @@
   "ssoIdentifier": {
     "message": "SSO-ідентифікатор"
   },
-  "ssoIdentifierHint": {
-    "message": "Надайте цей ID своїм учасникам для входу з використанням SSO."
+  "ssoIdentifierHintPartOne": {
+    "message": "Надайте цей ID своїм учасникам для входу з використанням SSO. Щоб обійти цей крок, налаштуйте ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
   },
   "unlinkSso": {
     "message": "Від'єднати SSO"
@@ -4091,8 +4239,8 @@
     "message": "Це відправлення типово приховане. Ви можете змінити його видимість кнопкою нижче.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "downloadFile": {
-    "message": "Завантажити файл"
+  "downloadAttachments": {
+    "message": "Завантажити вкладення"
   },
   "sendAccessUnavailable": {
     "message": "Відправлення, до якого ви намагаєтесь отримати доступ, не існує, або більше недоступне.",
@@ -4482,8 +4630,8 @@
     "message": "щоб спробувати.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about Bitwarden Send or sign up to **try it today.**'"
   },
-  "sendCreatorIdentifier": {
-    "message": "Користувач Bitwarden $USER_IDENTIFIER$ ділиться з вами таким",
+  "sendAccessCreatorIdentifier": {
+    "message": "Учасник Bitwarden $USER_IDENTIFIER$ ділиться з вами таким",
     "placeholders": {
       "user_identifier": {
         "content": "$1",
@@ -5409,6 +5557,19 @@
   "required": {
     "message": "обов'язково"
   },
+  "charactersCurrentAndMaximum": {
+    "message": "Використано $CURRENT$ (максимум $MAX$)",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "0"
+      },
+      "max": {
+        "content": "$2",
+        "example": "100"
+      }
+    }
+  },
   "characterMaximum": {
     "message": "Максимум $MAX$ символів",
     "placeholders": {
@@ -5756,6 +5917,9 @@
   },
   "on": {
     "message": "Увімкнено"
+  },
+  "off": {
+    "message": "Вимк"
   },
   "members": {
     "message": "Учасники"
@@ -6503,6 +6667,24 @@
       }
     }
   },
+  "teamsStarterPlanInvLimitReachedManageBilling": {
+    "message": "Плани Teams Starter можуть мати до $SEATCOUNT$ учасників. Передплатіть тарифний план вищого рівня, щоб запросити більше учасників.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "teamsStarterPlanInvLimitReachedNoManageBilling": {
+    "message": "Плани Teams Starter можуть мати до $SEATCOUNT$ учасників. Зверніться до власника вашої організації, щоб підвищити рівень тарифного плану та запросити більше учасників.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "freeOrgMaxCollectionReachedManageBilling": {
     "message": "Безплатні організації можуть мати до $COLLECTIONCOUNT$ збірок. Передплатіть тарифний план, щоб додати більше збірок.",
     "placeholders": {
@@ -6893,6 +7075,14 @@
     "message": "запису з автоматичним розгортанням буде увімкнено, якщо використовується ця опція.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
+  "orgPermissionsUpdatedMustSetPassword": {
+    "message": "Оновлено дозволи вашої організації – вимагається встановлення головного пароля.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "orgRequiresYouToSetPassword": {
+    "message": "Ваша організація вимагає, щоб ви встановили головний пароль.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
   "notFound": {
     "message": "$RESOURCE$ не знайдено",
     "placeholders": {
@@ -7013,11 +7203,8 @@
   "next": {
     "message": "Далі"
   },
-  "usFlag": {
-    "message": "Прапор США"
-  },
-  "euFlag": {
-    "message": "Прапор ЄС"
+  "ssoLoginIsRequired": {
+    "message": "Потрібно увійти через SSO"
   },
   "selectedRegionFlag": {
     "message": "Прапор вибраного регіону"
@@ -7105,8 +7292,8 @@
       }
     }
   },
-  "addSecretsManager": {
-    "message": "Додати менеджер секретів"
+  "subscribeToSecretsManager": {
+    "message": "Передплатити менеджер секретів"
   },
   "addSecretsManagerUpgradeDesc": {
     "message": "Додайте менеджер секретів до свого оновленого плану, щоб підтримувати доступ до будь-яких секретів, створених у вашому минулому плані."
@@ -7131,6 +7318,21 @@
         "example": "$0.50"
       }
     }
+  },
+  "collectionManagement": {
+    "message": "Керування збіркою"
+  },
+  "collectionManagementDesc": {
+    "message": "Керувати налаштуваннями збірок для організації"
+  },
+  "limitCollectionCreationDeletionDesc": {
+    "message": "Дозволити створення та видалення збірок лише власникам та адміністраторам"
+  },
+  "allowAdminAccessToAllCollectionItemsDesc": {
+    "message": "Власники та адміністратори можуть керувати всіма збірками та записами"
+  },
+  "collectionManagementUpdated": {
+    "message": "Налаштування керування збірками збережено"
   },
   "passwordManagerPlanPrice": {
     "message": "Ціна плану менеджера паролів"
@@ -7178,7 +7380,74 @@
   "beta": {
     "message": "Бета"
   },
+  "assignCollectionAccess": {
+    "message": "Призначити доступ до збірки"
+  },
+  "editedCollections": {
+    "message": "Відредаговані збірки"
+  },
+  "baseUrl": {
+    "message": "URL-адреса сервера"
+  },
+  "aliasDomain": {
+    "message": "Псевдонім домену"
+  },
   "alreadyHaveAccount": {
     "message": "Вже маєте обліковий запис?"
+  },
+  "skipToContent": {
+    "message": "Перейти до вмісту"
+  },
+  "customBillingStart": {
+    "message": "Власний рахунок не відображений. Відвідайте "
+  },
+  "customBillingEnd": {
+    "message": " для отримання останнього рахунку."
+  },
+  "managePermissionRequired": {
+    "message": "Принаймні один учасник або група повинні мати можливість керувати дозволами."
+  },
+  "typePasskey": {
+    "message": "Ключ доступу"
+  },
+  "passkeyNotCopied": {
+    "message": "Ключ доступу не буде скопійовано"
+  },
+  "passkeyNotCopiedAlert": {
+    "message": "Ключ доступу не буде скопійовано до клонованого запису. Хочете продовжити клонування цього запису?"
+  },
+  "modifiedCollectionManagement": {
+    "message": "Змінено налаштування керування збіркою $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "seeDetailedInstructions": {
+    "message": "Перегляньте докладні інструкції на нашому довідковому сайті",
+    "description": "This is followed a by a hyperlink to the help website."
+  },
+  "projectAccessUpdated": {
+    "message": "Доступ до проєкту оновлено"
+  },
+  "unexpectedErrorSend": {
+    "message": "Під час завантаження цього відправлення сталася неочікувана помилка. Повторіть спробу пізніше."
+  },
+  "seatLimitReached": {
+    "message": "Досягнуто обмеження кількості місць"
+  },
+  "contactYourProvider": {
+    "message": "Зверніться до свого провайдера для придбання додаткових місць."
+  },
+  "seatLimitReachedContactYourProvider": {
+    "message": "Досягнуто обмеження кількості місць. Зверніться до свого провайдера для придбання додаткових місць."
+  },
+  "collectionAccessRestricted": {
+    "message": "Доступ до збірки обмежено"
+  },
+  "serviceAccountAccessUpdated": {
+    "message": "Доступ до службового облікового запису оновлено"
   }
 }

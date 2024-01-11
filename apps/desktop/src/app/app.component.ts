@@ -10,12 +10,12 @@ import {
 } from "@angular/core";
 import { DomSanitizer } from "@angular/platform-browser";
 import { Router } from "@angular/router";
-import { ipcRenderer } from "electron";
 import { IndividualConfig, ToastrService } from "ngx-toastr";
 import { firstValueFrom, Subject, takeUntil } from "rxjs";
 
 import { ModalRef } from "@bitwarden/angular/components/modal/modal.ref";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
+import { FingerprintDialogComponent } from "@bitwarden/auth";
 import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
@@ -27,7 +27,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { ForceResetPasswordReason } from "@bitwarden/common/auth/models/domain/force-reset-password-reason";
+import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
@@ -43,7 +43,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { DialogService } from "@bitwarden/components";
 
 import { DeleteAccountComponent } from "../auth/delete-account.component";
@@ -55,6 +55,7 @@ import { FolderAddEditComponent } from "../vault/app/vault/folder-add-edit.compo
 import { SettingsComponent } from "./accounts/settings.component";
 import { ExportComponent } from "./tools/export/export.component";
 import { GeneratorComponent } from "./tools/generator.component";
+import { ImportDesktopComponent } from "./tools/import/import-desktop.component";
 import { PasswordGeneratorHistoryComponent } from "./tools/password-generator-history.component";
 
 const BroadcasterSubscriptionId = "AppComponent";
@@ -112,6 +113,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
+  private accountCleanUpInProgress: { [userId: string]: boolean } = {};
+
   constructor(
     private broadcasterService: BroadcasterService,
     private folderService: InternalFolderService,
@@ -142,7 +145,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private keyConnectorService: KeyConnectorService,
     private userVerificationService: UserVerificationService,
     private configService: ConfigServiceAbstraction,
-    private dialogService: DialogService
+    private dialogService: DialogService,
   ) {}
 
   ngOnInit() {
@@ -202,7 +205,7 @@ export class AppComponent implements OnInit, OnDestroy {
             Promise.all(
               Object.keys(accounts)
                 .filter((u) => u !== currentUser)
-                .map((u) => this.vaultTimeoutService.lock(u))
+                .map((u) => this.vaultTimeoutService.lock(u)),
             );
             break;
           }
@@ -226,13 +229,15 @@ export class AppComponent implements OnInit, OnDestroy {
             this.systemService.cancelProcessReload();
             break;
           case "reloadProcess":
-            ipcRenderer.send("reload-process");
+            ipc.platform.reloadProcess();
             break;
           case "syncStarted":
             break;
           case "syncCompleted":
-            await this.updateAppMenu();
-            await this.configService.fetchServerConfig();
+            if (message.successfully) {
+              this.updateAppMenu();
+              this.configService.triggerServerConfigFetch();
+            }
             break;
           case "openSettings":
             await this.openModal<SettingsComponent>(SettingsComponent, this.settingsRef);
@@ -242,29 +247,19 @@ export class AppComponent implements OnInit, OnDestroy {
             break;
           case "showFingerprintPhrase": {
             const fingerprint = await this.cryptoService.getFingerprint(
-              await this.stateService.getUserId()
+              await this.stateService.getUserId(),
             );
-            const result = await this.dialogService.openSimpleDialog({
-              title: { key: "fingerprintPhrase" },
-              content:
-                this.i18nService.t("yourAccountsFingerprint") + ":\n" + fingerprint.join("-"),
-              acceptButtonText: { key: "learnMore" },
-              cancelButtonText: { key: "close" },
-              type: "info",
-            });
-
-            if (result) {
-              this.platformUtilsService.launchUri("https://bitwarden.com/help/fingerprint-phrase/");
-            }
+            const dialogRef = FingerprintDialogComponent.open(this.dialogService, { fingerprint });
+            await firstValueFrom(dialogRef.closed);
             break;
           }
           case "deleteAccount":
-            this.modalService.open(DeleteAccountComponent, { replaceTopModal: true });
+            DeleteAccountComponent.open(this.dialogService);
             break;
           case "openPasswordHistory":
             await this.openModal<PasswordGeneratorHistoryComponent>(
               PasswordGeneratorHistoryComponent,
-              this.passwordHistoryRef
+              this.passwordHistoryRef,
             );
             break;
           case "showToast":
@@ -301,7 +296,7 @@ export class AppComponent implements OnInit, OnDestroy {
             });
             if (emailVerificationConfirmed) {
               this.platformUtilsService.launchUri(
-                "https://bitwarden.com/help/create-bitwarden-account/"
+                "https://bitwarden.com/help/create-bitwarden-account/",
               );
             }
             break;
@@ -312,13 +307,13 @@ export class AppComponent implements OnInit, OnDestroy {
               this.platformUtilsService.showToast(
                 "success",
                 null,
-                this.i18nService.t("syncingComplete")
+                this.i18nService.t("syncingComplete"),
               );
             } catch {
               this.platformUtilsService.showToast(
                 "error",
                 null,
-                this.i18nService.t("syncingFailed")
+                this.i18nService.t("syncingFailed"),
               );
             }
             break;
@@ -337,6 +332,9 @@ export class AppComponent implements OnInit, OnDestroy {
               this.logService.error(e);
             }
             this.messagingService.send("scheduleNextSync");
+            break;
+          case "importVault":
+            await this.dialogService.open(ImportDesktopComponent);
             break;
           case "exportVault":
             await this.openExportVault();
@@ -375,8 +373,8 @@ export class AppComponent implements OnInit, OnDestroy {
               (await this.authService.getAuthStatus(message.userId)) ===
               AuthenticationStatus.Locked;
             const forcedPasswordReset =
-              (await this.stateService.getForcePasswordResetReason({ userId: message.userId })) !=
-              ForceResetPasswordReason.None;
+              (await this.stateService.getForceSetPasswordReason({ userId: message.userId })) !=
+              ForceSetPasswordReason.None;
             if (locked) {
               this.messagingService.send("locked", { userId: message.userId });
             } else if (forcedPasswordReset) {
@@ -401,7 +399,11 @@ export class AppComponent implements OnInit, OnDestroy {
             break;
           case "openLoginApproval":
             if (message.notificationId != null) {
-              await this.openLoginApproval(message.notificationId);
+              this.dialogService.closeAll();
+              const dialogRef = LoginApprovalComponent.open(this.dialogService, {
+                notificationId: message.notificationId,
+              });
+              await firstValueFrom(dialogRef.closed);
             }
             break;
           case "redrawMenu":
@@ -423,7 +425,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     const [modal, childComponent] = await this.modalService.openViewRef(
       ExportComponent,
-      this.exportVaultModalRef
+      this.exportVaultModalRef,
     );
     this.modal = modal;
 
@@ -444,7 +446,7 @@ export class AppComponent implements OnInit, OnDestroy {
     const [modal, childComponent] = await this.modalService.openViewRef(
       FolderAddEditComponent,
       this.folderAddEditModalRef,
-      (comp) => (comp.folderId = null)
+      (comp) => (comp.folderId = null),
     );
     this.modal = modal;
 
@@ -466,21 +468,8 @@ export class AppComponent implements OnInit, OnDestroy {
     [this.modal] = await this.modalService.openViewRef(
       GeneratorComponent,
       this.generatorModalRef,
-      (comp) => (comp.comingFromAddEdit = false)
+      (comp) => (comp.comingFromAddEdit = false),
     );
-
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    this.modal.onClosed.subscribe(() => {
-      this.modal = null;
-    });
-  }
-
-  async openLoginApproval(notificationId: string) {
-    this.modalService.closeAll();
-
-    this.modal = await this.modalService.open(LoginApprovalComponent, {
-      data: { notificationId: notificationId },
-    });
 
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil
     this.modal.onClosed.subscribe(() => {
@@ -499,10 +488,14 @@ export class AppComponent implements OnInit, OnDestroy {
     } else {
       const accounts: { [userId: string]: MenuAccount } = {};
       for (const i in stateAccounts) {
-        if (i != null && stateAccounts[i]?.profile?.userId != null) {
+        if (
+          i != null &&
+          stateAccounts[i]?.profile?.userId != null &&
+          !this.isAccountCleanUpInProgress(stateAccounts[i].profile.userId) // skip accounts that are being cleaned up
+        ) {
           const userId = stateAccounts[i].profile.userId;
           const availableTimeoutActions = await firstValueFrom(
-            this.vaultTimeoutSettingsService.availableVaultTimeoutActions$(userId)
+            this.vaultTimeoutSettingsService.availableVaultTimeoutActions$(userId),
           );
 
           accounts[userId] = {
@@ -529,35 +522,31 @@ export class AppComponent implements OnInit, OnDestroy {
 
   private async logOut(expired: boolean, userId?: string) {
     const userBeingLoggedOut = await this.stateService.getUserId({ userId: userId });
-    await Promise.all([
-      this.eventUploadService.uploadEvents(userBeingLoggedOut),
-      this.syncService.setLastSync(new Date(0), userBeingLoggedOut),
-      this.cryptoService.clearKeys(userBeingLoggedOut),
-      this.settingsService.clear(userBeingLoggedOut),
-      this.cipherService.clear(userBeingLoggedOut),
-      this.folderService.clear(userBeingLoggedOut),
-      this.collectionService.clear(userBeingLoggedOut),
-      this.passwordGenerationService.clear(userBeingLoggedOut),
-      this.vaultTimeoutSettingsService.clear(userBeingLoggedOut),
-      this.policyService.clear(userBeingLoggedOut),
-      this.keyConnectorService.clear(),
-    ]);
 
-    if (userBeingLoggedOut === this.activeUserId) {
-      this.searchService.clearIndex();
-      this.authService.logOut(async () => {
-        if (expired) {
-          this.platformUtilsService.showToast(
-            "warning",
-            this.i18nService.t("loggedOut"),
-            this.i18nService.t("loginExpired")
-          );
-        }
-      });
+    // Mark account as being cleaned up so that the updateAppMenu logic (executed on syncCompleted)
+    // doesn't attempt to update a user that is being logged out as we will manually
+    // call updateAppMenu when the logout is complete.
+    this.startAccountCleanUp(userBeingLoggedOut);
+
+    let preLogoutActiveUserId;
+    try {
+      await this.eventUploadService.uploadEvents(userBeingLoggedOut);
+      await this.syncService.setLastSync(new Date(0), userBeingLoggedOut);
+      await this.cryptoService.clearKeys(userBeingLoggedOut);
+      await this.settingsService.clear(userBeingLoggedOut);
+      await this.cipherService.clear(userBeingLoggedOut);
+      await this.folderService.clear(userBeingLoggedOut);
+      await this.collectionService.clear(userBeingLoggedOut);
+      await this.passwordGenerationService.clear(userBeingLoggedOut);
+      await this.vaultTimeoutSettingsService.clear(userBeingLoggedOut);
+      await this.policyService.clear(userBeingLoggedOut);
+      await this.keyConnectorService.clear();
+
+      preLogoutActiveUserId = this.activeUserId;
+      await this.stateService.clean({ userId: userBeingLoggedOut });
+    } finally {
+      this.finishAccountCleanUp(userBeingLoggedOut);
     }
-
-    const preLogoutActiveUserId = this.activeUserId;
-    await this.stateService.clean({ userId: userBeingLoggedOut });
 
     if (this.activeUserId == null) {
       this.router.navigate(["login"]);
@@ -566,6 +555,21 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     await this.updateAppMenu();
+
+    // This must come last otherwise the logout will prematurely trigger
+    // a process reload before all the state service user data can be cleaned up
+    if (userBeingLoggedOut === this.activeUserId) {
+      this.searchService.clearIndex();
+      this.authService.logOut(async () => {
+        if (expired) {
+          this.platformUtilsService.showToast(
+            "warning",
+            this.i18nService.t("loggedOut"),
+            this.i18nService.t("loginExpired"),
+          );
+        }
+      });
+    }
   }
 
   private async recordActivity() {
@@ -629,7 +633,7 @@ export class AppComponent implements OnInit, OnDestroy {
     } else {
       msg.text.forEach(
         (t: string) =>
-          (message += "<p>" + this.sanitizer.sanitize(SecurityContext.HTML, t) + "</p>")
+          (message += "<p>" + this.sanitizer.sanitize(SecurityContext.HTML, t) + "</p>"),
       );
       options.enableHtml = true;
     }
@@ -676,5 +680,20 @@ export class AppComponent implements OnInit, OnDestroy {
     const timeout = await this.stateService.getVaultTimeout({ userId: userId });
     const action = await this.stateService.getVaultTimeoutAction({ userId: userId });
     return [timeout, action];
+  }
+
+  // Mark an account's clean up as started
+  private startAccountCleanUp(userId: string): void {
+    this.accountCleanUpInProgress[userId] = true;
+  }
+
+  // Mark an account's clean up as finished
+  private finishAccountCleanUp(userId: string): void {
+    this.accountCleanUpInProgress[userId] = false;
+  }
+
+  // Check if an account's clean up is in progress
+  private isAccountCleanUpInProgress(userId: string): boolean {
+    return this.accountCleanUpInProgress[userId] === true;
   }
 }

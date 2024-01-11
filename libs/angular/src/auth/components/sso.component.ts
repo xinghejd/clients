@@ -5,11 +5,10 @@ import { first } from "rxjs/operators";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
-import { ForceResetPasswordReason } from "@bitwarden/common/auth/models/domain/force-reset-password-reason";
-import { SsoLogInCredentials } from "@bitwarden/common/auth/models/domain/log-in-credentials";
+import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
+import { SsoLoginCredentials } from "@bitwarden/common/auth/models/domain/login-credentials";
 import { TrustedDeviceUserDecryptionOption } from "@bitwarden/common/auth/models/domain/user-decryption-options/trusted-device-user-decryption-option";
 import { SsoPreValidateResponse } from "@bitwarden/common/auth/models/response/sso-pre-validate.response";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -59,7 +58,7 @@ export class SsoComponent {
     protected environmentService: EnvironmentService,
     protected passwordGenerationService: PasswordGenerationServiceAbstraction,
     protected logService: LogService,
-    protected configService: ConfigServiceAbstraction
+    protected configService: ConfigServiceAbstraction,
   ) {}
 
   async ngOnInit() {
@@ -76,12 +75,8 @@ export class SsoComponent {
           state != null &&
           this.checkState(state, qParams.state)
         ) {
-          // We are not using a query param to pass org identifier around specifically
-          // for the browser SSO case when it needs it on extension open after SSO success
-          // on the TDE login decryption options component
           const ssoOrganizationIdentifier = this.getOrgIdentifierFromState(qParams.state);
           await this.logIn(qParams.code, codeVerifier, ssoOrganizationIdentifier);
-          await this.stateService.setUserSsoOrganizationIdentifier(ssoOrganizationIdentifier);
         }
       } else if (
         qParams.clientId != null &&
@@ -102,7 +97,7 @@ export class SsoComponent {
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("ssoValidationFailed"),
-        this.i18nService.t("ssoIdentifierRequired")
+        this.i18nService.t("ssoIdentifierRequired"),
       );
       return;
     }
@@ -113,7 +108,7 @@ export class SsoComponent {
     const authorizeUrl = await this.buildAuthorizeUrl(
       returnUri,
       includeUserIdentifier,
-      response.token
+      response.token,
     );
     this.platformUtilsService.launchUri(authorizeUrl, { sameWindow: true });
   }
@@ -121,7 +116,7 @@ export class SsoComponent {
   protected async buildAuthorizeUrl(
     returnUri?: string,
     includeUserIdentifier?: boolean,
-    token?: string
+    token?: string,
   ): Promise<string> {
     let codeChallenge = this.codeChallenge;
     let state = this.state;
@@ -183,14 +178,14 @@ export class SsoComponent {
     return authorizeUrl;
   }
 
-  private async logIn(code: string, codeVerifier: string, orgIdentifier: string) {
+  private async logIn(code: string, codeVerifier: string, orgSsoIdentifier: string): Promise<void> {
     this.loggingIn = true;
     try {
-      const credentials = new SsoLogInCredentials(
+      const credentials = new SsoLoginCredentials(
         code,
         codeVerifier,
         this.redirectUri,
-        orgIdentifier
+        orgSsoIdentifier,
       );
       this.formPromise = this.authService.logIn(credentials);
       const authResult = await this.formPromise;
@@ -199,18 +194,34 @@ export class SsoComponent {
         await this.stateService.getAccountDecryptionOptions();
 
       if (authResult.requiresTwoFactor) {
-        return await this.handleTwoFactorRequired(orgIdentifier);
+        return await this.handleTwoFactorRequired(orgSsoIdentifier);
+      }
+
+      // Everything after the 2FA check is considered a successful login
+      // Just have to figure out where to send the user
+
+      // Save off the OrgSsoIdentifier for use in the TDE flows (or elsewhere)
+      // - TDE login decryption options component
+      // - Browser SSO on extension open
+      // Note: you cannot set this in state before 2FA b/c there won't be an account in state.
+      await this.stateService.setUserSsoOrganizationIdentifier(orgSsoIdentifier);
+
+      // Users enrolled in admin acct recovery can be forced to set a new password after
+      // having the admin set a temp password for them (affects TDE & standard users)
+      if (authResult.forcePasswordReset == ForceSetPasswordReason.AdminForcePasswordReset) {
+        // Weak password is not a valid scenario here b/c we cannot have evaluated a MP yet
+        return await this.handleForcePasswordReset(orgSsoIdentifier);
       }
 
       const tdeEnabled = await this.isTrustedDeviceEncEnabled(
-        acctDecryptionOpts.trustedDeviceOption
+        acctDecryptionOpts.trustedDeviceOption,
       );
 
       if (tdeEnabled) {
         return await this.handleTrustedDeviceEncryptionEnabled(
           authResult,
-          orgIdentifier,
-          acctDecryptionOpts
+          orgSsoIdentifier,
+          acctDecryptionOpts,
         );
       }
 
@@ -223,13 +234,7 @@ export class SsoComponent {
 
       if (requireSetPassword || authResult.resetMasterPassword) {
         // Change implies going no password -> password in this case
-        return await this.handleChangePasswordRequired(orgIdentifier);
-      }
-
-      // Users can be forced to reset their password via an admin or org policy
-      // disallowing weak passwords
-      if (authResult.forcePasswordReset !== ForceResetPasswordReason.None) {
-        return await this.handleForcePasswordReset(orgIdentifier);
+        return await this.handleChangePasswordRequired(orgSsoIdentifier);
       }
 
       // Standard SSO login success case
@@ -240,13 +245,9 @@ export class SsoComponent {
   }
 
   private async isTrustedDeviceEncEnabled(
-    trustedDeviceOption: TrustedDeviceUserDecryptionOption
+    trustedDeviceOption: TrustedDeviceUserDecryptionOption,
   ): Promise<boolean> {
-    const trustedDeviceEncryptionFeatureActive = await this.configService.getFeatureFlagBool(
-      FeatureFlag.TrustedDeviceEncryption
-    );
-
-    return trustedDeviceEncryptionFeatureActive && trustedDeviceOption !== undefined;
+    return trustedDeviceOption !== undefined;
   }
 
   private async handleTwoFactorRequired(orgIdentifier: string) {
@@ -258,26 +259,26 @@ export class SsoComponent {
           identifier: orgIdentifier,
           sso: "true",
         },
-      }
+      },
     );
   }
 
   private async handleTrustedDeviceEncryptionEnabled(
     authResult: AuthResult,
     orgIdentifier: string,
-    acctDecryptionOpts: AccountDecryptionOptions
+    acctDecryptionOpts: AccountDecryptionOptions,
   ): Promise<void> {
     // If user doesn't have a MP, but has reset password permission, they must set a MP
     if (
       !acctDecryptionOpts.hasMasterPassword &&
       acctDecryptionOpts.trustedDeviceOption.hasManageResetPasswordPermission
     ) {
-      // Change implies going no password -> password in this case
-      return await this.handleChangePasswordRequired(orgIdentifier);
-    }
-
-    if (authResult.forcePasswordReset !== ForceResetPasswordReason.None) {
-      return await this.handleForcePasswordReset(orgIdentifier);
+      // Set flag so that auth guard can redirect to set password screen after decryption (trusted or untrusted device)
+      // Note: we cannot directly navigate in this scenario as we are in a pre-decryption state, and
+      // if you try to set a new MP before decrypting, you will invalidate the user's data by making a new user key.
+      await this.stateService.setForceSetPasswordReason(
+        ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission,
+      );
     }
 
     if (this.onSuccessfulLoginTde != null) {
@@ -289,7 +290,7 @@ export class SsoComponent {
       this.onSuccessfulLoginTdeNavigate,
       // Navigate to TDE page (if user was on trusted device and TDE has decrypted
       //  their user key, the login-initiated guard will redirect them to the vault)
-      [this.trustedDeviceEncRoute]
+      [this.trustedDeviceEncRoute],
     );
   }
 
@@ -301,7 +302,7 @@ export class SsoComponent {
         queryParams: {
           identifier: orgIdentifier,
         },
-      }
+      },
     );
   }
 
@@ -313,7 +314,7 @@ export class SsoComponent {
         queryParams: {
           identifier: orgIdentifier,
         },
-      }
+      },
     );
   }
 
@@ -334,7 +335,7 @@ export class SsoComponent {
       this.platformUtilsService.showToast(
         "error",
         null,
-        this.i18nService.t("ssoKeyConnectorError")
+        this.i18nService.t("ssoKeyConnectorError"),
       );
     }
   }
@@ -342,7 +343,7 @@ export class SsoComponent {
   private async navigateViaCallbackOrRoute(
     callback: () => Promise<unknown>,
     commands: unknown[],
-    extras?: NavigationExtras
+    extras?: NavigationExtras,
   ): Promise<void> {
     if (callback) {
       await callback();

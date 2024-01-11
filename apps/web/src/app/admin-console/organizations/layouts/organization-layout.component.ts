@@ -13,6 +13,8 @@ import {
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 
 @Component({
   selector: "app-organization-layout",
@@ -23,9 +25,18 @@ export class OrganizationLayoutComponent implements OnInit, OnDestroy {
 
   private _destroy = new Subject<void>();
 
-  constructor(private route: ActivatedRoute, private organizationService: OrganizationService) {}
+  protected flexibleCollectionsEnabled$ = this.configService.getFeatureFlag$(
+    FeatureFlag.FlexibleCollections,
+    false,
+  );
 
-  ngOnInit() {
+  constructor(
+    private route: ActivatedRoute,
+    private organizationService: OrganizationService,
+    private configService: ConfigServiceAbstraction,
+  ) {}
+
+  async ngOnInit() {
     document.body.classList.remove("layout_frontend");
 
     this.organization$ = this.route.params
@@ -36,7 +47,7 @@ export class OrganizationLayoutComponent implements OnInit, OnDestroy {
           return this.organizationService.organizations$
             .pipe(takeUntil(this._destroy))
             .pipe(getOrganizationById(id));
-        })
+        }),
       );
   }
 

@@ -1,6 +1,6 @@
-import { OrganizationUserService } from "../../abstractions/organization-user/organization-user.service";
-import { OrganizationUserResetPasswordEnrollmentRequest } from "../../abstractions/organization-user/requests";
 import { OrganizationApiServiceAbstraction } from "../../admin-console/abstractions/organization/organization-api.service.abstraction";
+import { OrganizationUserService } from "../../admin-console/abstractions/organization-user/organization-user.service";
+import { OrganizationUserResetPasswordEnrollmentRequest } from "../../admin-console/abstractions/organization-user/requests";
 import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { StateService } from "../../platform/abstractions/state.service";
@@ -16,13 +16,12 @@ export class PasswordResetEnrollmentServiceImplementation
     protected stateService: StateService,
     protected cryptoService: CryptoService,
     protected organizationUserService: OrganizationUserService,
-    protected i18nService: I18nService
+    protected i18nService: I18nService,
   ) {}
 
   async enrollIfRequired(organizationSsoIdentifier: string): Promise<void> {
-    const orgAutoEnrollStatusResponse = await this.organizationApiService.getAutoEnrollStatus(
-      organizationSsoIdentifier
-    );
+    const orgAutoEnrollStatusResponse =
+      await this.organizationApiService.getAutoEnrollStatus(organizationSsoIdentifier);
 
     if (!orgAutoEnrollStatusResponse.resetPasswordEnabled) {
       await this.enroll(orgAutoEnrollStatusResponse.id, null, null);
@@ -50,7 +49,7 @@ export class PasswordResetEnrollmentServiceImplementation
     await this.organizationUserService.putOrganizationUserResetPasswordEnrollment(
       organizationId,
       userId,
-      resetRequest
+      resetRequest,
     );
   }
 }

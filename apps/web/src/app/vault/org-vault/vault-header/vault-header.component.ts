@@ -5,8 +5,10 @@ import { firstValueFrom } from "rxjs";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ProductType } from "@bitwarden/common/enums";
-import { TreeNode } from "@bitwarden/common/models/domain/tree-node";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { DialogService, SimpleDialogOptions } from "@bitwarden/components";
 
 import { CollectionAdminView } from "../../../vault/core/views/collection-admin.view";
@@ -56,15 +58,28 @@ export class VaultHeaderComponent {
   protected CollectionDialogTabType = CollectionDialogTabType;
   protected organizations$ = this.organizationService.organizations$;
 
+  private flexibleCollectionsEnabled: boolean;
+
   constructor(
     private organizationService: OrganizationService,
     private i18nService: I18nService,
     private dialogService: DialogService,
     private collectionAdminService: CollectionAdminService,
-    private router: Router
+    private router: Router,
+    private configService: ConfigServiceAbstraction,
   ) {}
 
+  async ngOnInit() {
+    this.flexibleCollectionsEnabled = await this.configService.getFeatureFlag(
+      FeatureFlag.FlexibleCollections,
+    );
+  }
+
   get title() {
+    const headerType = this.flexibleCollectionsEnabled
+      ? this.i18nService.t("collections").toLowerCase()
+      : this.i18nService.t("vault").toLowerCase();
+
     if (this.collection !== undefined) {
       return this.collection.node.name;
     }
@@ -73,7 +88,7 @@ export class VaultHeaderComponent {
       return this.i18nService.t("unassigned");
     }
 
-    return `${this.organization.name} ${this.i18nService.t("vault").toLowerCase()}`;
+    return `${this.organization.name} ${headerType}`;
   }
 
   protected get showBreadcrumbs() {
@@ -107,7 +122,7 @@ export class VaultHeaderComponent {
         this.organization.canEditSubscription
           ? "freeOrgMaxCollectionReachedManageBilling"
           : "freeOrgMaxCollectionReachedNoManageBilling",
-        this.organization.maxCollections
+        this.organization.maxCollections,
       ),
       type: "primary",
     };
@@ -141,10 +156,7 @@ export class VaultHeaderComponent {
     }
 
     // Otherwise, check if we can edit the specified collection
-    return (
-      this.organization.canEditAnyCollection ||
-      (this.organization.canEditAssignedCollections && this.collection?.node.assigned)
-    );
+    return this.collection.node.canEdit(this.organization, this.flexibleCollectionsEnabled);
   }
 
   addCipher() {
@@ -174,10 +186,7 @@ export class VaultHeaderComponent {
     }
 
     // Otherwise, check if we can delete the specified collection
-    return (
-      this.organization?.canDeleteAnyCollection ||
-      (this.organization?.canDeleteAssignedCollections && this.collection.node.assigned)
-    );
+    return this.collection.node.canDelete(this.organization, this.flexibleCollectionsEnabled);
   }
 
   deleteCollection() {
