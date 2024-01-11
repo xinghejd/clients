@@ -909,6 +909,7 @@ async function loadNotificationBar() {
     const barEl = document.getElementById("bit-notification-bar");
     if (barEl != null) {
       barEl.parentElement.removeChild(barEl);
+      notificationBarIframe = null;
     }
 
     const spacerEl = document.getElementById("bit-notification-bar-spacer");
