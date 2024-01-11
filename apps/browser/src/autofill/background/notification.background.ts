@@ -33,7 +33,6 @@ import {
   LockedVaultPendingNotificationsData,
   NotificationBackgroundExtensionMessage,
   NotificationBackgroundExtensionMessageHandlers,
-  SaveOrUpdateCipherResult,
 } from "./abstractions/notification.background";
 import { OverlayBackgroundExtensionMessage } from "./abstractions/overlay.background";
 
@@ -400,7 +399,7 @@ export default class NotificationBackground {
   private async handleSaveCipherMessage(
     message: NotificationBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
-  ): Promise<SaveOrUpdateCipherResult> {
+  ) {
     if ((await this.authService.getAuthStatus()) < AuthenticationStatus.Unlocked) {
       await BrowserApi.tabSendMessageData(sender.tab, "addToLockedVaultPendingNotifications", {
         commandToRetry: {
@@ -417,14 +416,10 @@ export default class NotificationBackground {
       return;
     }
 
-    return await this.saveOrUpdateCredentials(sender.tab, message.edit, message.folder);
+    await this.saveOrUpdateCredentials(sender.tab, message.edit, message.folder);
   }
 
-  private async saveOrUpdateCredentials(
-    tab: chrome.tabs.Tab,
-    edit: boolean,
-    folderId?: string,
-  ): Promise<SaveOrUpdateCipherResult> {
+  private async saveOrUpdateCredentials(tab: chrome.tabs.Tab, edit: boolean, folderId?: string) {
     for (let i = this.notificationQueue.length - 1; i >= 0; i--) {
       const queueMessage = this.notificationQueue[i];
       if (
@@ -444,7 +439,8 @@ export default class NotificationBackground {
 
       if (queueMessage.type === NotificationQueueMessageType.ChangePassword) {
         const cipherView = await this.getDecryptedCipherById(queueMessage.cipherId);
-        return await this.updatePassword(cipherView, queueMessage.newPassword, edit, tab);
+        await this.updatePassword(cipherView, queueMessage.newPassword, edit, tab);
+        return;
       }
 
       // If the vault was locked, check if a cipher needs updating instead of creating a new one
@@ -456,7 +452,8 @@ export default class NotificationBackground {
         );
 
         if (existingCipher != null) {
-          return await this.updatePassword(existingCipher, queueMessage.password, edit, tab);
+          await this.updatePassword(existingCipher, queueMessage.password, edit, tab);
+          return;
         }
       }
 
@@ -472,10 +469,12 @@ export default class NotificationBackground {
       const cipher = await this.cipherService.encrypt(newCipher);
       try {
         await this.cipherService.createWithServer(cipher);
-        BrowserApi.tabSendMessage(tab, { command: "closeNotificationBar" });
+        BrowserApi.tabSendMessage(tab, { command: "saveCipherAttemptCompleted" });
         BrowserApi.tabSendMessage(tab, { command: "addedCipher" });
       } catch (error) {
-        return { error: String(error.message) };
+        BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
+          error: String(error.message),
+        });
       }
     }
   }
@@ -485,7 +484,7 @@ export default class NotificationBackground {
     newPassword: string,
     edit: boolean,
     tab: chrome.tabs.Tab,
-  ): Promise<SaveOrUpdateCipherResult> {
+  ) {
     cipherView.login.password = newPassword;
 
     if (edit) {
@@ -499,9 +498,11 @@ export default class NotificationBackground {
     try {
       // We've only updated the password, no need to broadcast editedCipher message
       await this.cipherService.updateWithServer(cipher);
-      BrowserApi.tabSendMessage(tab, { command: "closeNotificationBar" });
+      BrowserApi.tabSendMessage(tab, { command: "saveCipherAttemptCompleted" });
     } catch (error) {
-      return { error: String(error.message) };
+      BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
+        error: String(error.message),
+      });
     }
   }
 
