@@ -88,6 +88,8 @@ type NotificationBackgroundExtensionMessage = {
   notificationType?: string;
 };
 
+type SaveOrUpdateCipherResult = undefined | { error: string };
+
 type BackgroundMessageParam = { message: NotificationBackgroundExtensionMessage };
 type BackgroundSenderParam = { sender: chrome.runtime.MessageSender };
 type BackgroundOnMessageHandlerParams = BackgroundMessageParam & BackgroundSenderParam;
@@ -101,7 +103,10 @@ type NotificationBackgroundExtensionMessageHandlers = {
   bgAddLogin: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgChangedPassword: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgRemoveTabFromNotificationQueue: ({ sender }: BackgroundSenderParam) => void;
-  bgSaveCipher: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
+  bgSaveCipher: ({
+    message,
+    sender,
+  }: BackgroundOnMessageHandlerParams) => Promise<SaveOrUpdateCipherResult>;
   bgNeverSave: ({ sender }: BackgroundSenderParam) => Promise<void>;
   bgUnlockPopoutOpened: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
   bgReopenUnlockPopout: ({ sender }: BackgroundSenderParam) => Promise<void>;
@@ -121,6 +126,7 @@ export {
   ChangePasswordMessageData,
   UnlockVaultMessageData,
   AddLoginMessageData,
+  SaveOrUpdateCipherResult,
   NotificationBackgroundExtensionMessage,
   NotificationBackgroundExtensionMessageHandlers,
 };

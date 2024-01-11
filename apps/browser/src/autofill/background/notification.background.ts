@@ -33,6 +33,7 @@ import {
   LockedVaultPendingNotificationsData,
   NotificationBackgroundExtensionMessage,
   NotificationBackgroundExtensionMessageHandlers,
+  SaveOrUpdateCipherResult,
 } from "./abstractions/notification.background";
 import { OverlayBackgroundExtensionMessage } from "./abstractions/overlay.background";
 
@@ -399,7 +400,7 @@ export default class NotificationBackground {
   private async handleSaveCipherMessage(
     message: NotificationBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
-  ) {
+  ): Promise<SaveOrUpdateCipherResult> {
     if ((await this.authService.getAuthStatus()) < AuthenticationStatus.Unlocked) {
       await BrowserApi.tabSendMessageData(sender.tab, "addToLockedVaultPendingNotifications", {
         commandToRetry: {
@@ -416,10 +417,14 @@ export default class NotificationBackground {
       return;
     }
 
-    await this.saveOrUpdateCredentials(sender.tab, message.edit, message.folder);
+    return await this.saveOrUpdateCredentials(sender.tab, message.edit, message.folder);
   }
 
-  private async saveOrUpdateCredentials(tab: chrome.tabs.Tab, edit: boolean, folderId?: string) {
+  private async saveOrUpdateCredentials(
+    tab: chrome.tabs.Tab,
+    edit: boolean,
+    folderId?: string,
+  ): Promise<SaveOrUpdateCipherResult> {
     for (let i = this.notificationQueue.length - 1; i >= 0; i--) {
       const queueMessage = this.notificationQueue[i];
       if (
@@ -436,40 +441,41 @@ export default class NotificationBackground {
       }
 
       this.notificationQueue.splice(i, 1);
-      BrowserApi.tabSendMessageData(tab, "closeNotificationBar");
 
       if (queueMessage.type === NotificationQueueMessageType.ChangePassword) {
         const cipherView = await this.getDecryptedCipherById(queueMessage.cipherId);
-        await this.updatePassword(cipherView, queueMessage.newPassword, edit, tab);
+        return await this.updatePassword(cipherView, queueMessage.newPassword, edit, tab);
+      }
+
+      // If the vault was locked, check if a cipher needs updating instead of creating a new one
+      if (queueMessage.wasVaultLocked) {
+        const allCiphers = await this.cipherService.getAllDecryptedForUrl(queueMessage.uri);
+        const existingCipher = allCiphers.find(
+          (c) =>
+            c.login.username != null && c.login.username.toLowerCase() === queueMessage.username,
+        );
+
+        if (existingCipher != null) {
+          return await this.updatePassword(existingCipher, queueMessage.password, edit, tab);
+        }
+      }
+
+      folderId = (await this.folderExists(folderId)) ? folderId : null;
+      const newCipher = this.convertAddLoginQueueMessageToCipherView(queueMessage, folderId);
+
+      if (edit) {
+        await this.editItem(newCipher, tab);
+        BrowserApi.tabSendMessage(tab, { command: "closeNotificationBar" });
         return;
       }
 
-      if (queueMessage.type === NotificationQueueMessageType.AddLogin) {
-        // If the vault was locked, check if a cipher needs updating instead of creating a new one
-        if (queueMessage.wasVaultLocked) {
-          const allCiphers = await this.cipherService.getAllDecryptedForUrl(queueMessage.uri);
-          const existingCipher = allCiphers.find(
-            (c) =>
-              c.login.username != null && c.login.username.toLowerCase() === queueMessage.username,
-          );
-
-          if (existingCipher != null) {
-            await this.updatePassword(existingCipher, queueMessage.password, edit, tab);
-            return;
-          }
-        }
-
-        folderId = (await this.folderExists(folderId)) ? folderId : null;
-        const newCipher = this.convertAddLoginQueueMessageToCipherView(queueMessage, folderId);
-
-        if (edit) {
-          await this.editItem(newCipher, tab);
-          return;
-        }
-
-        const cipher = await this.cipherService.encrypt(newCipher);
+      const cipher = await this.cipherService.encrypt(newCipher);
+      try {
         await this.cipherService.createWithServer(cipher);
-        BrowserApi.tabSendMessageData(tab, "addedCipher");
+        BrowserApi.tabSendMessage(tab, { command: "closeNotificationBar" });
+        BrowserApi.tabSendMessage(tab, { command: "addedCipher" });
+      } catch (error) {
+        return { error: String(error.message) };
       }
     }
   }
@@ -479,19 +485,24 @@ export default class NotificationBackground {
     newPassword: string,
     edit: boolean,
     tab: chrome.tabs.Tab,
-  ) {
+  ): Promise<SaveOrUpdateCipherResult> {
     cipherView.login.password = newPassword;
 
     if (edit) {
       await this.editItem(cipherView, tab);
-      BrowserApi.tabSendMessage(tab, "editedCipher");
+      BrowserApi.tabSendMessage(tab, { command: "closeNotificationBar" });
+      BrowserApi.tabSendMessage(tab, { command: "editedCipher" });
       return;
     }
 
     const cipher = await this.cipherService.encrypt(cipherView);
-    await this.cipherService.updateWithServer(cipher);
-    // We've only updated the password, no need to broadcast editedCipher message
-    return;
+    try {
+      // We've only updated the password, no need to broadcast editedCipher message
+      await this.cipherService.updateWithServer(cipher);
+      BrowserApi.tabSendMessage(tab, { command: "closeNotificationBar" });
+    } catch (error) {
+      return { error: String(error.message) };
+    }
   }
 
   private async editItem(cipherView: CipherView, senderTab: chrome.tabs.Tab) {

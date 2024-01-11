@@ -145,11 +145,7 @@ function handleTypeAdd() {
     e.preventDefault();
 
     // If Remove Individual Vault policy applies, "Add" opens the edit tab
-    sendPlatformMessage({
-      command: "bgSaveCipher",
-      folder: getSelectedFolder(),
-      edit: removeIndividualVault(),
-    });
+    sendSaveCipherMessage(removeIndividualVault(), getSelectedFolder());
   });
 
   if (removeIndividualVault()) {
@@ -161,11 +157,7 @@ function handleTypeAdd() {
   editButton.addEventListener("click", (e) => {
     e.preventDefault();
 
-    sendPlatformMessage({
-      command: "bgSaveCipher",
-      folder: getSelectedFolder(),
-      edit: true,
-    });
+    sendSaveCipherMessage(true, getSelectedFolder());
   });
 
   const neverButton = document.getElementById("never-save");
@@ -185,21 +177,38 @@ function handleTypeChange() {
   changeButton.addEventListener("click", (e) => {
     e.preventDefault();
 
-    sendPlatformMessage({
-      command: "bgSaveCipher",
-      edit: false,
-    });
+    sendSaveCipherMessage(false);
   });
 
   const editButton = document.getElementById("change-edit");
   editButton.addEventListener("click", (e) => {
     e.preventDefault();
 
-    sendPlatformMessage({
-      command: "bgSaveCipher",
-      edit: true,
-    });
+    sendSaveCipherMessage(true);
   });
+}
+
+function sendSaveCipherMessage(edit: boolean, folder?: string) {
+  sendPlatformMessage(
+    {
+      command: "bgSaveCipher",
+      folder,
+      edit,
+    },
+    (saveResult: undefined | { error: string }) => {
+      if (!saveResult?.error) {
+        return;
+      }
+
+      const addSaveButtonContainers = document.querySelectorAll(".add-change-cipher-buttons");
+      addSaveButtonContainers.forEach((element) => {
+        element.textContent = chrome.i18n.getMessage("credentialSaveFailed");
+        element.classList.add("error-message");
+      });
+
+      logService.error(`Error encountered when saving credentials: ${saveResult.error}`);
+    },
+  );
 }
 
 function handleTypeUnlock() {
