@@ -60,6 +60,7 @@ import { CollectionDetailsResponse } from "@bitwarden/common/vault/models/respon
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
+import { isCompletedWithError } from "@bitwarden/common/vault/types/sync-event-args";
 import { DialogService, Icons } from "@bitwarden/components";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
@@ -149,15 +150,21 @@ export class VaultComponent implements OnInit, OnDestroy {
     FeatureFlag.BulkCollectionAccess,
     false,
   );
-  protected syncError$ = this.syncService.syncError$;
 
-  protected showFailedSyncWarning$ = this.syncService.syncError$.pipe(
+  protected syncError$ = this.syncService.lastSyncEvent$.pipe(
+    filter(isCompletedWithError),
+    map((event) => event.error),
+    shareReplay({ refCount: true, bufferSize: 1 }),
+  );
+
+  protected showFailedSyncWarning$ = this.syncError$.pipe(
     concatMap(async (syncError) => {
       const lastSync = await this.syncService.getLastSync();
 
       // Show warning when there is a sync error and we have never successfully synced.
       return syncError != null && lastSync == null;
-    })
+    }),
+    shareReplay({ refCount: true, bufferSize: 1 }),
   );
 
   private searchText$ = new Subject<string>();
