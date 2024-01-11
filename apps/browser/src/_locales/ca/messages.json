@@ -268,6 +268,9 @@
   "length": {
     "message": "Longitud"
   },
+  "passwordMinLength": {
+    "message": "Longitud mínima de la contrasenya"
+  },
   "uppercase": {
     "message": "Majúscula (A-Z)"
   },
@@ -323,6 +326,9 @@
   "password": {
     "message": "Contrasenya"
   },
+  "totp": {
+    "message": "Secret de l'autenticador"
+  },
   "passphrase": {
     "message": "Frase de pas"
   },
@@ -366,7 +372,7 @@
     "message": "Configura un mètode de desbloqueig per canviar l'acció del temps d'espera de la caixa forta."
   },
   "unlockMethodNeeded": {
-    "message": "Set up an unlock method in Settings"
+    "message": "Configura un mètode de desbloqueig a Configuració"
   },
   "rateExtension": {
     "message": "Valora aquesta extensió"
@@ -409,7 +415,7 @@
     "message": "Bloqueja ara"
   },
   "lockAll": {
-    "message": "Lock all"
+    "message": "Bloqueja-ho tot"
   },
   "immediately": {
     "message": "Immediatament"
@@ -508,6 +514,18 @@
   },
   "autofillError": {
     "message": "No es pot omplir automàticament l'element seleccionat en aquesta pàgina. Com a alternativa, copieu i enganxeu la informació."
+  },
+  "totpCaptureError": {
+    "message": "No es pot escanejar el codi QR des de la pàgina web actual"
+  },
+  "totpCaptureSuccess": {
+    "message": "S'ha afegit la clau de l'autenticador"
+  },
+  "totpCapture": {
+    "message": "Escaneja el codi QR de l'autenticador des de la pàgina web actual"
+  },
+  "copyTOTP": {
+    "message": "Copia la clau de l'autenticador (TOTP)"
   },
   "loggedOut": {
     "message": "Sessió tancada"
@@ -1034,10 +1052,10 @@
     "message": "S'aplica a tots els comptes connectats."
   },
   "turnOffBrowserBuiltInPasswordManagerSettings": {
-    "message": "Turn off your browser’s built in password manager settings to avoid conflicts."
+    "message": "Desactiveu la configuració integrada del gestor de contrasenyes del vostre navegador per evitar conflictes."
   },
   "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
-    "message": "Edit browser settings."
+    "message": "Edita la configuració del navegador."
   },
   "autofillOverlayVisibilityOff": {
     "message": "Desactivat",
@@ -1144,7 +1162,7 @@
     "message": "Mostra una imatge reconeixible al costat de cada inici de sessió."
   },
   "faviconDescAlt": {
-    "message": "Show a recognizable image next to each login. Applies to all logged in accounts."
+    "message": "Mostra una imatge reconeixible al costat de cada sessió. S'aplica a tots els comptes connectats."
   },
   "enableBadgeCounter": {
     "message": "Mostra el comptador insígnia"
@@ -1722,7 +1740,7 @@
     "placeholders": {
       "domain": {
         "content": "$1",
-        "example": "googlecom"
+        "example": "google.com"
       }
     }
   },
@@ -2494,6 +2512,38 @@
     "message": "Redueix/Amplia",
     "description": "Toggling an expand/collapse state."
   },
+  "filelessImport": {
+    "message": "Voleu importar les vostres dades a Bitwarden?",
+    "description": "Default notification title for triggering a fileless import."
+  },
+  "lpFilelessImport": {
+    "message": "Protegiu les vostres dades de LastPass i importeu-les a Bitwarden?",
+    "description": "LastPass specific notification title for triggering a fileless import."
+  },
+  "lpCancelFilelessImport": {
+    "message": "Guarda com a fitxer sense xifrar",
+    "description": "LastPass specific notification button text for cancelling a fileless import."
+  },
+  "startFilelessImport": {
+    "message": "Importa a Bitwarden",
+    "description": "Notification button text for starting a fileless import."
+  },
+  "importing": {
+    "message": "S'està important...",
+    "description": "Notification message for when an import is in progress."
+  },
+  "dataSuccessfullyImported": {
+    "message": "Les dades s'han importat correctament!",
+    "description": "Notification message for when an import has completed successfully."
+  },
+  "dataImportFailed": {
+    "message": "S'ha produït un error en importar. Consulteu la consola per obtenir més informació.",
+    "description": "Notification message for when an import has failed."
+  },
+  "importNetworkError": {
+    "message": "S'ha trobat un error de xarxa durant la importació.",
+    "description": "Notification message for when an import has failed due to a network error."
+  },
   "aliasDomain": {
     "message": "Alies de domini"
   },
@@ -2508,6 +2558,9 @@
   "turnOffMasterPasswordPromptToEditField": {
     "message": "Desactiveu la sol·licitud de nova contrasenya mestra per editar aquest camp",
     "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
+  },
+  "skipToContent": {
+    "message": "Vés al contingut"
   },
   "bitwardenOverlayButton": {
     "message": "Botó de menú d'emplenament automàtic de Bitwarden",
@@ -2721,9 +2774,6 @@
   "yourPasskeyIsLocked": {
     "message": "Es requereix autenticació per utilitzar la clau de pas. Verifiqueu la vostra identitat per continuar."
   },
-  "useBrowserName": {
-    "message": "Utilitza navegador"
-  },
   "multifactorAuthenticationCancelled": {
     "message": "S'ha cancel·lat l'autenticació multifactor"
   },
@@ -2789,33 +2839,54 @@
     "message": "Inseriu la YubiKey associada al compte del LastPass al port USB de l'ordinador i, després, toqueu-ne el botó."
   },
   "switchAccount": {
-    "message": "Switch account"
+    "message": "Canvia de compte"
   },
   "switchAccounts": {
-    "message": "Switch accounts"
+    "message": "Canvia de comptes"
   },
   "switchToAccount": {
-    "message": "Switch to account"
+    "message": "Canvia al compte"
   },
   "activeAccount": {
-    "message": "Active account"
+    "message": "Activa el compte"
+  },
+  "availableAccounts": {
+    "message": "Comptes disponibles"
   },
   "accountLimitReached": {
-    "message": "Account limit reached. Log out of an account to add another."
+    "message": "S'ha arribat al límit del compte. Tanqueu la sessió d'un compte per afegir-ne un altre."
   },
   "active": {
-    "message": "active"
+    "message": "activa"
   },
   "locked": {
-    "message": "locked"
+    "message": "bloquejat"
   },
   "unlocked": {
-    "message": "unlocked"
+    "message": "desbloquejat"
   },
   "server": {
-    "message": "server"
+    "message": "servidor"
   },
   "hostedAt": {
-    "message": "hosted at"
+    "message": "allotjat a"
+  },
+  "useDeviceOrHardwareKey": {
+    "message": "Utilitzeu el vostre dispositiu o la clau de maquinari"
+  },
+  "justOnce": {
+    "message": "Només una vegada"
+  },
+  "alwaysForThisSite": {
+    "message": "Sempre per aquest lloc"
+  },
+  "domainAddedToExcludedDomains": {
+    "message": "$DOMAIN$ afegit als dominis exclosos.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "google.com"
+      }
+    }
   }
 }

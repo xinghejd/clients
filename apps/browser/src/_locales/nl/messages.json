@@ -268,6 +268,9 @@
   "length": {
     "message": "Lengte"
   },
+  "passwordMinLength": {
+    "message": "Minimale wachtwoordlengte"
+  },
   "uppercase": {
     "message": "Hoofdletters (A-Z)"
   },
@@ -322,6 +325,9 @@
   },
   "password": {
     "message": "Wachtwoord"
+  },
+  "totp": {
+    "message": "Authenticatie-geheim"
   },
   "passphrase": {
     "message": "Wachtwoordzin"
@@ -508,6 +514,18 @@
   },
   "autofillError": {
     "message": "Automatisch invullen mislukt; kopieer en plak je inloggegevens handmatig."
+  },
+  "totpCaptureError": {
+    "message": "Kan de QR-code van de huidige webpagina niet scannen"
+  },
+  "totpCaptureSuccess": {
+    "message": "Authenticatie-sleutel toegevoegd"
+  },
+  "totpCapture": {
+    "message": "Scan de authenticatie-QR-code van de huidige webpagina"
+  },
+  "copyTOTP": {
+    "message": "Authenticatie-sleutel (TOTP) kopiëren"
   },
   "loggedOut": {
     "message": "Uitgelogd"
@@ -1722,7 +1740,7 @@
     "placeholders": {
       "domain": {
         "content": "$1",
-        "example": "googlecom"
+        "example": "google.com"
       }
     }
   },
@@ -2494,6 +2512,38 @@
     "message": "In-/Uitklappen",
     "description": "Toggling an expand/collapse state."
   },
+  "filelessImport": {
+    "message": "Gegevens importeren naar Bitwarden?",
+    "description": "Default notification title for triggering a fileless import."
+  },
+  "lpFilelessImport": {
+    "message": "Je LastPass-gegevens beschermen en naar Bitwarden importeren?",
+    "description": "LastPass specific notification title for triggering a fileless import."
+  },
+  "lpCancelFilelessImport": {
+    "message": "Als niet-versleuteld bestand opslaan",
+    "description": "LastPass specific notification button text for cancelling a fileless import."
+  },
+  "startFilelessImport": {
+    "message": "Naar Bitwarden importeren",
+    "description": "Notification button text for starting a fileless import."
+  },
+  "importing": {
+    "message": "Importeren...",
+    "description": "Notification message for when an import is in progress."
+  },
+  "dataSuccessfullyImported": {
+    "message": "Gegevens succesvol geïmporteerd!",
+    "description": "Notification message for when an import has completed successfully."
+  },
+  "dataImportFailed": {
+    "message": "Fout bij importeren. Controleer console voor meer informatie.",
+    "description": "Notification message for when an import has failed."
+  },
+  "importNetworkError": {
+    "message": "Netwerkfout opgetreden tijdens het importeren.",
+    "description": "Notification message for when an import has failed due to a network error."
+  },
   "aliasDomain": {
     "message": "Aliasdomein"
   },
@@ -2508,6 +2558,9 @@
   "turnOffMasterPasswordPromptToEditField": {
     "message": "Turn off master password re-prompt to edit this field",
     "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
+  },
+  "skipToContent": {
+    "message": "Skip to content"
   },
   "bitwardenOverlayButton": {
     "message": "Menuknop Bitwarden automatisch invullen",
@@ -2721,9 +2774,6 @@
   "yourPasskeyIsLocked": {
     "message": "Authenticatie vereist om passkey te gebruiken. Verifieer je identiteit om door te gaan."
   },
-  "useBrowserName": {
-    "message": "Browser gebruiken"
-  },
   "multifactorAuthenticationCancelled": {
     "message": "Multifactor-authenticatie geannuleerd"
   },
@@ -2800,6 +2850,9 @@
   "activeAccount": {
     "message": "Active account"
   },
+  "availableAccounts": {
+    "message": "Beschikbare accounts"
+  },
   "accountLimitReached": {
     "message": "Account limit reached. Log out of an account to add another."
   },
@@ -2817,5 +2870,23 @@
   },
   "hostedAt": {
     "message": "hosted at"
+  },
+  "useDeviceOrHardwareKey": {
+    "message": "Use your device or hardware key"
+  },
+  "justOnce": {
+    "message": "Just once"
+  },
+  "alwaysForThisSite": {
+    "message": "Always for this site"
+  },
+  "domainAddedToExcludedDomains": {
+    "message": "$DOMAIN$ added to excluded domains.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "google.com"
+      }
+    }
   }
 }

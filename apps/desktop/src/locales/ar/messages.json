@@ -403,6 +403,9 @@
   "length": {
     "message": "الطول"
   },
+  "passwordMinLength": {
+    "message": "Minimum password length"
+  },
   "uppercase": {
     "message": "أحرف كبيرة (A-Z)"
   },
@@ -2423,6 +2426,9 @@
   },
   "submenu": {
     "message": "قائمة فرعية"
+  },
+  "skipToContent": {
+    "message": "Skip to content"
   },
   "typePasskey": {
     "message": "مفتاح المرور"

@@ -268,6 +268,9 @@
   "length": {
     "message": "الطول"
   },
+  "passwordMinLength": {
+    "message": "الحد الأدنى لطول كلمة السر"
+  },
   "uppercase": {
     "message": "أحرف كبيرة (من A إلى Z)"
   },
@@ -323,6 +326,9 @@
   "password": {
     "message": "كلمة المرور"
   },
+  "totp": {
+    "message": "Authenticator secret"
+  },
   "passphrase": {
     "message": "العبارة السرية"
   },
@@ -366,7 +372,7 @@
     "message": "أعدنّ طريقة إلغاء القُفْل لتغيير إجراء مهلة المخزن الخاص بك."
   },
   "unlockMethodNeeded": {
-    "message": "Set up an unlock method in Settings"
+    "message": "إعداد طريقة إلغاء القفل في الإعدادات"
   },
   "rateExtension": {
     "message": "قيِّم هذه الإضافة"
@@ -409,7 +415,7 @@
     "message": "إقفل الآن"
   },
   "lockAll": {
-    "message": "Lock all"
+    "message": "قفل الكل"
   },
   "immediately": {
     "message": "حالاً"
@@ -508,6 +514,18 @@
   },
   "autofillError": {
     "message": "غير قادر على ملء العنصر المحدد تلقائياً في هذه الصفحة. يرجى نسخ ولصق المعلومات يدوياً."
+  },
+  "totpCaptureError": {
+    "message": "Unable to scan QR code from the current webpage"
+  },
+  "totpCaptureSuccess": {
+    "message": "Authenticator key added"
+  },
+  "totpCapture": {
+    "message": "Scan authenticator QR code from current webpage"
+  },
+  "copyTOTP": {
+    "message": "Copy Authenticator key (TOTP)"
   },
   "loggedOut": {
     "message": "تم تسجيل الخروج"
@@ -626,7 +644,7 @@
     "message": "اطلب إضافة عنصر إذا لم يُعثر عليه في خزنتك."
   },
   "addLoginNotificationDescAlt": {
-    "message": "Ask to add an item if one isn't found in your vault. Applies to all logged in accounts."
+    "message": "اطلب إضافة عنصر إذا لم يتم العثور على عنصر في المخزن الخاص بك. ينطبق على جميع حسابات تسجيل الدخول."
   },
   "showCardsCurrentTab": {
     "message": "أظهر البطاقات في صفحة التبويبات"
@@ -661,13 +679,13 @@
     "message": "اسأل عن تحديث كلمة السر عند اكتشاف تغيير على الموقع الإلكتروني."
   },
   "changedPasswordNotificationDescAlt": {
-    "message": "Ask to update a login's password when a change is detected on a website. Applies to all logged in accounts."
+    "message": "اطلب تحديث كلمة مرور تسجيل الدخول عندما يتم اكتشاف تغيير على موقع. ينطبق على جميع حسابات تسجيل الدخول."
   },
   "enableUsePasskeys": {
-    "message": "Ask to save and use passkeys"
+    "message": "اطلب حفظ واستخدام مفاتيح المرور"
   },
   "usePasskeysDesc": {
-    "message": "Ask to save new passkeys or log in with passkeys stored in your vault. Applies to all logged in accounts."
+    "message": "اطلب حفظ مفاتيح المرور الجديدة أو تسجيل الدخول باستخدام مفاتيح المرور المخزنة في مستودع التخزين الخاص بك. ينطبق هذا على جميع الحسابات المسجل الدخول بها."
   },
   "notificationChangeDesc": {
     "message": "هل تريد تحديث كلمة المرور هذه في Bitwarden؟"
@@ -688,7 +706,7 @@
     "message": "استخدم نقرة ثانوية للوصول إلى توليد كلمة المرور ومطابقة تسجيلات الدخول للموقع. "
   },
   "contextMenuItemDescAlt": {
-    "message": "Use a secondary click to access password generation and matching logins for the website. Applies to all logged in accounts."
+    "message": "استخدم نقرة ثانوية للوصول إلى قسم توليد كلمة المرور ومطابقة تسجيلات الدخول للموقع. ينطبق هذا على جميع الحسابات المسجل الدخول بها."
   },
   "defaultUriMatchDetection": {
     "message": "الكشف الافتراضي عن تطابق URI",
@@ -704,7 +722,7 @@
     "message": "تغيير سمة لون التطبيق."
   },
   "themeDescAlt": {
-    "message": "Change the application's color theme. Applies to all logged in accounts."
+    "message": "تغيير سمة لون التطبيق. ينطبق على جميع الحسابات المسجل الدخول بها."
   },
   "dark": {
     "message": "داكن",
@@ -820,7 +838,7 @@
     "message": "الميزة غير متوفرة"
   },
   "encryptionKeyMigrationRequired": {
-    "message": "Encryption key migration required. Please login through the web vault to update your encryption key."
+    "message": "مطلوب نقل مفتاح التشفير. الرجاء تسجيل الدخول بواسطة مخزن الويب لتحديث مفتاح التشفير الخاص بك."
   },
   "premiumMembership": {
     "message": "العضوية المميزة"
@@ -844,7 +862,7 @@
     "message": "1 جيغابايت وحدة تخزين مشفرة لمرفقات الملفات."
   },
   "premiumSignUpTwoStepOptions": {
-    "message": "Proprietary two-step login options such as YubiKey and Duo."
+    "message": "خيارات تسجيل الدخول بخطوتين المملوكة لجهات اخرى مثل YubiKey و Duo."
   },
   "ppremiumSignUpReports": {
     "message": "نظافة كلمة المرور، صحة الحساب، وتقارير خرق البيانات للحفاظ على سلامة خزنتك."
@@ -1027,28 +1045,28 @@
     "message": "روابط البيئة المحفوظة"
   },
   "showAutoFillMenuOnFormFields": {
-    "message": "Show auto-fill menu on form fields",
+    "message": "إظهار قائمة الملء التلقائي في حقول النموذج",
     "description": "Represents the message for allowing the user to enable the auto-fill overlay"
   },
   "showAutoFillMenuOnFormFieldsDescAlt": {
-    "message": "Applies to all logged in accounts."
+    "message": "ينطبق على جميع الحسابات المسجل الدخول بها."
   },
   "turnOffBrowserBuiltInPasswordManagerSettings": {
-    "message": "Turn off your browser’s built in password manager settings to avoid conflicts."
+    "message": "إيقاف تشغيل إعدادات مدير كلمات المرور الافتراضي في متصفحك لتجنب التضارب."
   },
   "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
-    "message": "Edit browser settings."
+    "message": "تعديل إعدادات المتصفح."
   },
   "autofillOverlayVisibilityOff": {
-    "message": "Off",
+    "message": "إيقاف",
     "description": "Overlay setting select option for disabling autofill overlay"
   },
   "autofillOverlayVisibilityOnFieldFocus": {
-    "message": "When field is selected (on focus)",
+    "message": "عندما يتم تحديد الحقل (على التركيز)",
     "description": "Overlay appearance select option for showing the field on focus of the input element"
   },
   "autofillOverlayVisibilityOnButtonClick": {
-    "message": "When auto-fill icon is selected",
+    "message": "عندما يتم اختيار ايقونة الملء التلقائي",
     "description": "Overlay appearance select option for showing the field on click of the overlay icon"
   },
   "enableAutoFillOnPageLoad": {
@@ -1722,7 +1740,7 @@
     "placeholders": {
       "domain": {
         "content": "$1",
-        "example": "googlecom"
+        "example": "google.com"
       }
     }
   },
@@ -2494,6 +2512,38 @@
     "message": "Toggle collapse",
     "description": "Toggling an expand/collapse state."
   },
+  "filelessImport": {
+    "message": "Import your data to Bitwarden?",
+    "description": "Default notification title for triggering a fileless import."
+  },
+  "lpFilelessImport": {
+    "message": "Protect your LastPass data and import to Bitwarden?",
+    "description": "LastPass specific notification title for triggering a fileless import."
+  },
+  "lpCancelFilelessImport": {
+    "message": "Save as unencrypted file",
+    "description": "LastPass specific notification button text for cancelling a fileless import."
+  },
+  "startFilelessImport": {
+    "message": "Import to Bitwarden",
+    "description": "Notification button text for starting a fileless import."
+  },
+  "importing": {
+    "message": "Importing...",
+    "description": "Notification message for when an import is in progress."
+  },
+  "dataSuccessfullyImported": {
+    "message": "Data successfully imported!",
+    "description": "Notification message for when an import has completed successfully."
+  },
+  "dataImportFailed": {
+    "message": "Error importing. Check console for details.",
+    "description": "Notification message for when an import has failed."
+  },
+  "importNetworkError": {
+    "message": "Network error encountered during import.",
+    "description": "Notification message for when an import has failed due to a network error."
+  },
   "aliasDomain": {
     "message": "Alias domain"
   },
@@ -2508,6 +2558,9 @@
   "turnOffMasterPasswordPromptToEditField": {
     "message": "Turn off master password re-prompt to edit this field",
     "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
+  },
+  "skipToContent": {
+    "message": "Skip to content"
   },
   "bitwardenOverlayButton": {
     "message": "Bitwarden auto-fill menu button",
@@ -2721,9 +2774,6 @@
   "yourPasskeyIsLocked": {
     "message": "Authentication required to use passkey. Verify your identity to continue."
   },
-  "useBrowserName": {
-    "message": "Use browser"
-  },
   "multifactorAuthenticationCancelled": {
     "message": "Multifactor authentication cancelled"
   },
@@ -2800,6 +2850,9 @@
   "activeAccount": {
     "message": "Active account"
   },
+  "availableAccounts": {
+    "message": "Available accounts"
+  },
   "accountLimitReached": {
     "message": "Account limit reached. Log out of an account to add another."
   },
@@ -2817,5 +2870,23 @@
   },
   "hostedAt": {
     "message": "hosted at"
+  },
+  "useDeviceOrHardwareKey": {
+    "message": "Use your device or hardware key"
+  },
+  "justOnce": {
+    "message": "Just once"
+  },
+  "alwaysForThisSite": {
+    "message": "Always for this site"
+  },
+  "domainAddedToExcludedDomains": {
+    "message": "$DOMAIN$ added to excluded domains.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "google.com"
+      }
+    }
   }
 }

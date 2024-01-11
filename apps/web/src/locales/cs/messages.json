@@ -674,8 +674,8 @@
   "encryptionNotSupported": {
     "message": "Šifrování není podporováno"
   },
-  "encryptionNotEnabled": {
-    "message": "Šifrování nebylo zapnuto"
+  "enablePasskeyEncryption": {
+    "message": "Nastavit šifrování"
   },
   "usedForEncryption": {
     "message": "Použito pro šifrování"
@@ -1074,6 +1074,9 @@
   "export": {
     "message": "Exportovat"
   },
+  "exportFrom": {
+    "message": "Exportovat z"
+  },
   "exportVault": {
     "message": "Exportovat trezor"
   },
@@ -1149,6 +1152,9 @@
   },
   "length": {
     "message": "Délka"
+  },
+  "passwordMinLength": {
+    "message": "Minimální délka hesla"
   },
   "uppercase": {
     "message": "Velká písmena (A-Z)",
@@ -3542,12 +3548,12 @@
       }
     }
   },
-  "subscriptionFamiliesPlan": {
-    "message": "Bez aktualizace Vašeho plánu nemůžete pozvat více než $COUNT$ členů. Kontaktujte zákaznickou podporu pro aktualizaci.",
+  "subscriptionUpgrade": {
+    "message": "Bez aktualizace Vašeho plánu nemůžete pozvat více než $COUNT$ členů.",
     "placeholders": {
       "count": {
         "content": "$1",
-        "example": "6"
+        "example": "2"
       }
     }
   },
@@ -6662,7 +6668,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "Plány Teams Starter mohou mít až $SEATCOUNT$ členů. Obraťte se na zákaznickou podporu a aktualizujte Váš plán a pozvěte více členů.",
+    "message": "Plány Teams Starter mohou mít až $SEATCOUNT$ členů. Chcete-li pozvat více členů, přejděte na placený plán.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -7389,6 +7395,9 @@
   "alreadyHaveAccount": {
     "message": "Už máte účet?"
   },
+  "skipToContent": {
+    "message": "Přeskočit na obsah"
+  },
   "customBillingStart": {
     "message": "Vlastní fakturace není zahrnuta. Navštivte stránku "
   },
@@ -7439,6 +7448,6 @@
     "message": "Přístup ke kolekci je omezen"
   },
   "serviceAccountAccessUpdated": {
-    "message": "Service account access updated"
+    "message": "Přístup účtu služby byl aktualizován"
   }
 }

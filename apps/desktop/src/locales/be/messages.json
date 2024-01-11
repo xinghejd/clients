@@ -403,6 +403,9 @@
   "length": {
     "message": "Даўжыня"
   },
+  "passwordMinLength": {
+    "message": "Minimum password length"
+  },
   "uppercase": {
     "message": "Вялікія літары (A-Z)"
   },
@@ -2423,6 +2426,9 @@
   },
   "submenu": {
     "message": "Падменю"
+  },
+  "skipToContent": {
+    "message": "Skip to content"
   },
   "typePasskey": {
     "message": "Passkey"

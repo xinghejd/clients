@@ -674,8 +674,8 @@
   "encryptionNotSupported": {
     "message": "Şifreleme desteklenmiyor"
   },
-  "encryptionNotEnabled": {
-    "message": "Şifreleme etkin değil"
+  "enablePasskeyEncryption": {
+    "message": "Şifreleme ayarla"
   },
   "usedForEncryption": {
     "message": "Şifreleme için kullanılır"
@@ -1074,6 +1074,9 @@
   "export": {
     "message": "Dışarı aktar"
   },
+  "exportFrom": {
+    "message": "Dışa aktarılacak konum"
+  },
   "exportVault": {
     "message": "Kasayı dışa aktar"
   },
@@ -1149,6 +1152,9 @@
   },
   "length": {
     "message": "Uzunluk"
+  },
+  "passwordMinLength": {
+    "message": "Minimum parola uzunluğu"
   },
   "uppercase": {
     "message": "Büyük harf (A-Z)",
@@ -3542,12 +3548,12 @@
       }
     }
   },
-  "subscriptionFamiliesPlan": {
-    "message": "Paketinizi yükseltmeden en fazla $COUNT$ üye davet edebilirsiniz. Yükseltme yapmak için lütfen müşteri hizmetleri ile iletişime geçin.",
+  "subscriptionUpgrade": {
+    "message": "Paketinizi yükseltmeden $COUNT$ üyeden fazlasını davet edemezsiniz.",
     "placeholders": {
       "count": {
         "content": "$1",
-        "example": "6"
+        "example": "2"
       }
     }
   },
@@ -6662,7 +6668,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Contact Customer Support to upgrade your plan and invite more members.",
+    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Upgrade to your plan to invite more members.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -7389,6 +7395,9 @@
   "alreadyHaveAccount": {
     "message": "Zaten hesabınız var mı?"
   },
+  "skipToContent": {
+    "message": "İçeriğe geç"
+  },
   "customBillingStart": {
     "message": "Özel faturalandırma yansıtılmıyor. Ziyaret edin "
   },
@@ -7439,6 +7448,6 @@
     "message": "Koleksiyona erişim kısıtlı"
   },
   "serviceAccountAccessUpdated": {
-    "message": "Service account access updated"
+    "message": "Hizmet hesabı erişimi güncellendi"
   }
 }

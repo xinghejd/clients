@@ -403,6 +403,9 @@
   "length": {
     "message": "Uzunluq"
   },
+  "passwordMinLength": {
+    "message": "Minimal parol uzunluğu"
+  },
   "uppercase": {
     "message": "Böyük hərf (A-Z)"
   },
@@ -2423,6 +2426,9 @@
   },
   "submenu": {
     "message": "Alt menyu"
+  },
+  "skipToContent": {
+    "message": "Məzmunu ötür"
   },
   "typePasskey": {
     "message": "Keçid açarı"

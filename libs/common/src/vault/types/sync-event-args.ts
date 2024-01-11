@@ -3,6 +3,14 @@ import { SyncResponse } from "../models/response/sync.response";
 
 type SyncStatus = "Started" | "Completed";
 
+/**
+ * The reason why a sync completed unsuccessfully
+ * - `error`: an un-expected error occurred during the sync
+ * - `unneeded`: the sync was not needed due to the vault being up-to-date
+ * - `not-authenticated`: the user was not authenticated
+ */
+type SyncFailedReason = "error" | "unneeded" | "not-authenticated";
+
 type SyncEventArgsBase<T extends SyncStatus> = {
   status: T;
 };
@@ -15,14 +23,24 @@ type SyncSuccessfullyCompletedEventArgs = SyncCompletedEventArgsBase<true> & {
   data: SyncResponse;
 };
 
+type SyncUnsuccessfullyCompletedEventArgsBase<T extends SyncFailedReason> =
+  SyncCompletedEventArgsBase<false> & {
+    reason: T;
+  };
+
 export type SyncError = Error | ErrorResponse;
 
-type SyncUnsuccessfullyCompletedEventArgs = SyncCompletedEventArgsBase<false> & {
+type SyncErrorEventArgs = SyncUnsuccessfullyCompletedEventArgsBase<"error"> & {
   /**
-   * Optional error that caused the sync to complete unsuccessfully
+   * Error that caused the sync to complete unsuccessfully
    */
-  error?: SyncError;
+  error: SyncError;
 };
+
+type SyncUnsuccessfullyCompletedEventArgs =
+  | SyncUnsuccessfullyCompletedEventArgsBase<"unneeded">
+  | SyncUnsuccessfullyCompletedEventArgsBase<"not-authenticated">
+  | SyncErrorEventArgs;
 
 export type SyncEventArgs =
   | SyncSuccessfullyCompletedEventArgs
@@ -63,4 +81,24 @@ export function isCompleted(
   syncEvent: SyncEventArgs,
 ): syncEvent is SyncSuccessfullyCompletedEventArgs | SyncUnsuccessfullyCompletedEventArgs {
   return syncEvent.status === "Completed";
+}
+
+/**
+ * Helper function to filter only on syncs that complete with an error
+ * @returns a function that can be used in a `.pipe(filter(...))` from an observable
+ * @example
+ * ```
+ * of<SyncEventArgs>({ status: "Completed", successfully: false, error: new Error()})
+ *  .pipe(filter(isCompletedWithError))
+ *  .subscribe(event => {
+ *    console.log(event.successfully);
+ *  });
+ * ```
+ */
+export function isCompletedWithError(syncEvent: SyncEventArgs): syncEvent is SyncErrorEventArgs {
+  return (
+    syncEvent.status === "Completed" &&
+    syncEvent.successfully === false &&
+    syncEvent.reason === "error"
+  );
 }

@@ -43,15 +43,6 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
   protected totpInterval: number;
   protected override componentName = "app-vault-add-edit";
 
-  get fido2CredentialCreationDateValue(): string {
-    const dateCreated = this.i18nService.t("dateCreated");
-    const creationDate = this.datePipe.transform(
-      this.cipher?.login?.fido2Credentials?.[0]?.creationDate,
-      "short",
-    );
-    return `${dateCreated} ${creationDate}`;
-  }
-
   constructor(
     cipherService: CipherService,
     folderService: FolderService,
@@ -70,7 +61,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     passwordRepromptService: PasswordRepromptService,
     sendApiService: SendApiService,
     dialogService: DialogService,
-    private datePipe: DatePipe,
+    datePipe: DatePipe,
   ) {
     super(
       cipherService,
@@ -88,6 +79,8 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
       organizationService,
       sendApiService,
       dialogService,
+      window,
+      datePipe,
     );
   }
 
@@ -150,9 +143,9 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     this.platformUtilsService.launchUri(uri.launchUri);
   }
 
-  copy(value: string, typeI18nKey: string, aType: string) {
+  async copy(value: string, typeI18nKey: string, aType: string): Promise<boolean> {
     if (value == null) {
-      return;
+      return false;
     }
 
     this.platformUtilsService.copyToClipboard(value, { window: window });
@@ -174,6 +167,8 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
         );
       }
     }
+
+    return true;
   }
 
   async generatePassword(): Promise<boolean> {

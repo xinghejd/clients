@@ -268,6 +268,9 @@
   "length": {
     "message": "Dĺžka"
   },
+  "passwordMinLength": {
+    "message": "Minimálna dĺžka hesla"
+  },
   "uppercase": {
     "message": "Veľké písmená (A-Z)"
   },
@@ -322,6 +325,9 @@
   },
   "password": {
     "message": "Heslo"
+  },
+  "totp": {
+    "message": "Kľúč z aplikácie Authenticator"
   },
   "passphrase": {
     "message": "Prístupová fráza"
@@ -508,6 +514,18 @@
   },
   "autofillError": {
     "message": "Na tejto stránke sa nedajú automaticky vyplniť prihlasovacie údaje. Namiesto toho skopírujte/vložte prihlasovacie údaje manuálne."
+  },
+  "totpCaptureError": {
+    "message": "Nie je možné naskenovať QR kód z aktuálnej webovej stránky"
+  },
+  "totpCaptureSuccess": {
+    "message": "Kľúč overovateľa pridaný"
+  },
+  "totpCapture": {
+    "message": "Naskenovať QR kód overovateľa z aktuálnej webovej stránky"
+  },
+  "copyTOTP": {
+    "message": "Kopírovať kľúč overovateľa (TOTP)"
   },
   "loggedOut": {
     "message": "Odhlásený"
@@ -1034,10 +1052,10 @@
     "message": "Platí pre všetky prihlásené účty."
   },
   "turnOffBrowserBuiltInPasswordManagerSettings": {
-    "message": "Turn off your browser’s built in password manager settings to avoid conflicts."
+    "message": "Aby sa predišlo konfliktom, vypnite vstavaného správcu hesiel."
   },
   "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
-    "message": "Edit browser settings."
+    "message": "Upraviť nastavenia prehliadača."
   },
   "autofillOverlayVisibilityOff": {
     "message": "Vypnuté",
@@ -1722,7 +1740,7 @@
     "placeholders": {
       "domain": {
         "content": "$1",
-        "example": "googlecom"
+        "example": "google.com"
       }
     }
   },
@@ -2279,7 +2297,7 @@
     "message": "Ako používať automatické vypĺňanie"
   },
   "autofillSelectInfoWithCommand": {
-    "message": "Select an item from this screen, use the shortcut $COMMAND$, or explore other options in settings.",
+    "message": "Vyberte položku z ponuky, použite klávesovú skratku $COMMAND$, alebo preskúmajte ďalšie možnosti nastavenia.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2288,7 +2306,7 @@
     }
   },
   "autofillSelectInfoWithoutCommand": {
-    "message": "Select an item from this screen, or explore other options in settings."
+    "message": "Vyberte položku z ponuky alebo preskúmajte ďalšie možnosti nastavenia."
   },
   "gotIt": {
     "message": "Chápem"
@@ -2494,6 +2512,38 @@
     "message": "Prepnúť zbalenie",
     "description": "Toggling an expand/collapse state."
   },
+  "filelessImport": {
+    "message": "Importovať údaje do Bitwardenu?",
+    "description": "Default notification title for triggering a fileless import."
+  },
+  "lpFilelessImport": {
+    "message": "Ochrániť údaje z LastPassu a importovať ich do Bitwardenu?",
+    "description": "LastPass specific notification title for triggering a fileless import."
+  },
+  "lpCancelFilelessImport": {
+    "message": "Uložiť ako nezašifrovaný súbor",
+    "description": "LastPass specific notification button text for cancelling a fileless import."
+  },
+  "startFilelessImport": {
+    "message": "Importovať do Bitwardenu",
+    "description": "Notification button text for starting a fileless import."
+  },
+  "importing": {
+    "message": "Importovanie...",
+    "description": "Notification message for when an import is in progress."
+  },
+  "dataSuccessfullyImported": {
+    "message": "Import údajov prebehol úspešne!",
+    "description": "Notification message for when an import has completed successfully."
+  },
+  "dataImportFailed": {
+    "message": "Chyba pri importovaní. Podrobnosti nájdete v konzole.",
+    "description": "Notification message for when an import has failed."
+  },
+  "importNetworkError": {
+    "message": "Počas importu sa vyskytla chyba siete.",
+    "description": "Notification message for when an import has failed due to a network error."
+  },
   "aliasDomain": {
     "message": "Alias doména"
   },
@@ -2508,6 +2558,9 @@
   "turnOffMasterPasswordPromptToEditField": {
     "message": "Vypnite výzvu na opätovné zadanie hlavného hesla na úpravu tohto poľa",
     "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
+  },
+  "skipToContent": {
+    "message": "Preskočiť na obsah"
   },
   "bitwardenOverlayButton": {
     "message": "Tlačidlo ponuky automatického vypĺňania Bitwardenu",
@@ -2721,9 +2774,6 @@
   "yourPasskeyIsLocked": {
     "message": "Na použitie prístupového kľúča sa vyžaduje overenie. Ak chcete pokračovať, overte svoju totožnosť."
   },
-  "useBrowserName": {
-    "message": "Použiť webový prehliadač"
-  },
   "multifactorAuthenticationCancelled": {
     "message": "Viacfaktorové overenie zrušené"
   },
@@ -2800,6 +2850,9 @@
   "activeAccount": {
     "message": "Aktívny účet"
   },
+  "availableAccounts": {
+    "message": "Dostupné účty"
+  },
   "accountLimitReached": {
     "message": "Dosiahnutý limit účtu. Odhláste sa z účtu, ak chcete pridať ďalší."
   },
@@ -2817,5 +2870,23 @@
   },
   "hostedAt": {
     "message": "hotované na"
+  },
+  "useDeviceOrHardwareKey": {
+    "message": "Použiť vaše zariadenie alebo hardvérový kľúč"
+  },
+  "justOnce": {
+    "message": "Iba raz"
+  },
+  "alwaysForThisSite": {
+    "message": "Vždy pre túto stránku"
+  },
+  "domainAddedToExcludedDomains": {
+    "message": "$DOMAIN$ pridaná do vylúčených domén.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "google.com"
+      }
+    }
   }
 }

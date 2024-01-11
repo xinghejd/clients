@@ -674,8 +674,8 @@
   "encryptionNotSupported": {
     "message": "Şifrələmə dəstəklənmir"
   },
-  "encryptionNotEnabled": {
-    "message": "Şifrələmə fəal deyil"
+  "enablePasskeyEncryption": {
+    "message": "Şifrələməni qur"
   },
   "usedForEncryption": {
     "message": "Şifrələmə üçün istifadə edilir"
@@ -1074,6 +1074,9 @@
   "export": {
     "message": "İxrac et"
   },
+  "exportFrom": {
+    "message": "Buradan xaricə köçür"
+  },
   "exportVault": {
     "message": "Anbarı ixrac et"
   },
@@ -1149,6 +1152,9 @@
   },
   "length": {
     "message": "Uzunluq"
+  },
+  "passwordMinLength": {
+    "message": "Minimal parol uzunluğu"
   },
   "uppercase": {
     "message": "Böyük hərf (A-Z)",
@@ -3542,12 +3548,12 @@
       }
     }
   },
-  "subscriptionFamiliesPlan": {
-    "message": "Planınızı yüksəltmədən $COUNT$ istifadəçidən çoxunu dəvət edə bilməzsiniz. Lütfən yüksəltmək üçün Müştəri Dəstəyi ilə əlaqə saxlayın.",
+  "subscriptionUpgrade": {
+    "message": "Planınızı yüksəltmədən $COUNT$ üzvdən çoxunu dəvət edə bilməzsiniz.",
     "placeholders": {
       "count": {
         "content": "$1",
-        "example": "6"
+        "example": "2"
       }
     }
   },
@@ -6662,7 +6668,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "Teams Starter planlarında ən çox $SEATCOUNT$ üzv ola bilər. Planınızı yüksəltmək və daha çox üzv dəvət etmək üçün Müştəri Dəstəyi ilə əlaqə saxlayın.",
+    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Upgrade to your plan to invite more members.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -7389,6 +7395,9 @@
   "alreadyHaveAccount": {
     "message": "Artıq bir hesabınız var?"
   },
+  "skipToContent": {
+    "message": "Məzmunu ötür"
+  },
   "customBillingStart": {
     "message": "Özəl faktura əks olunmur. Son faktura üçün "
   },
@@ -7439,6 +7448,6 @@
     "message": "Kolleksiya müraciəti məhdudlaşdırıldı"
   },
   "serviceAccountAccessUpdated": {
-    "message": "Service account access updated"
+    "message": "Xidmət hesabına müraciət güncəlləndi"
   }
 }
