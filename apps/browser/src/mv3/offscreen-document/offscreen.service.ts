@@ -1,0 +1,5 @@
+class OffscreenDocument {}
+
+(() => {
+  new OffscreenDocument();
+})();

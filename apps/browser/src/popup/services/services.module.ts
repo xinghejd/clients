@@ -521,15 +521,14 @@ function getBgService<T>(service: keyof MainBackground) {
     },
     {
       provide: AbstractThemingService,
-      useFactory: (
-        stateService: StateServiceAbstraction,
-        platformUtilsService: PlatformUtilsService,
-      ) => {
+      useFactory: (stateService: StateServiceAbstraction) => {
         return new ThemingService(
           stateService,
           // Safari doesn't properly handle the (prefers-color-scheme) media query in the popup window, it always returns light.
           // In Safari we have to use the background page instead, which comes with limitations like not dynamically changing the extension theme when the system theme is changed.
-          platformUtilsService.isSafari() ? getBgService<Window>("backgroundWindow")() : window,
+
+          // platformUtilsService.isSafari() ? getBgService<Window>("backgroundWindow")() : window,
+          window, // TODO CG - Re-test and address the issue we are seeing with Safari's popout window. This is a temporary fix to get mv3 to work.
           document,
         );
       },
