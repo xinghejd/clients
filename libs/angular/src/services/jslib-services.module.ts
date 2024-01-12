@@ -176,8 +176,7 @@ import {
   ImportService,
   ImportServiceAbstraction,
 } from "@bitwarden/importer/core";
-import { BannerService } from "@bitwarden/platform";
-import { DefaultBannerService } from "@bitwarden/platform/src/banner/implementation/default-banner.service";
+import { BannerService, DefaultBannerService } from "@bitwarden/platform";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { AuthGuard } from "../auth/guards/auth.guard";
