@@ -1,0 +1,13 @@
+<ng-container *ngIf="routeData$ | async as routeData">
+  <div #titleContainer [ngClass]="{ 'tw-hidden': titleContainer.childElementCount === 0 }">
+    <ng-content select="[slot=title]"></ng-content>
+  </div>
+  <h1
+    *ngIf="titleContainer.childElementCount === 0"
+    bitTypography="h1"
+    class="tw-pb-2.5"
+    [title]="title || (routeData.titleId | i18n)"
+  >
+    {{ title || (routeData.titleId | i18n) }}
+  </h1>
+</ng-container>

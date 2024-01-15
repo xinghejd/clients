@@ -64,6 +64,7 @@ import { SelectableAvatarComponent } from "../components/selectable-avatar.compo
 import { FooterComponent } from "../layouts/footer.component";
 import { FrontendLayoutComponent } from "../layouts/frontend-layout.component";
 import { NavbarComponent } from "../layouts/navbar.component";
+import { OldHeaderModule } from "../layouts/old-header/old-header.module";
 import { ProductSwitcherModule } from "../layouts/product-switcher/product-switcher.module";
 import { UserLayoutComponent } from "../layouts/user-layout.component";
 import { DomainRulesComponent } from "../settings/domain-rules.component";
@@ -109,6 +110,7 @@ import { SharedModule } from "./shared.module";
     PipesModule,
     PasswordCalloutComponent,
     DangerZoneComponent,
+    OldHeaderModule,
   ],
   declarations: [
     AcceptFamilySponsorshipComponent,
@@ -274,6 +276,7 @@ import { SharedModule } from "./shared.module";
     VerifyRecoverDeleteComponent,
     LowKdfComponent,
     DangerZoneComponent,
+    OldHeaderModule,
   ],
 })
 export class LooseComponentsModule {}

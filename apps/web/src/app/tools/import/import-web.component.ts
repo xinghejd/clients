@@ -8,12 +8,13 @@ import {
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { ImportComponent } from "@bitwarden/importer/ui";
 
+import { OldHeaderModule } from "../../layouts/old-header/old-header.module";
 import { SharedModule } from "../../shared";
 
 @Component({
   templateUrl: "import-web.component.html",
   standalone: true,
-  imports: [SharedModule, ImportComponent],
+  imports: [SharedModule, ImportComponent, OldHeaderModule],
 })
 export class ImportWebComponent implements OnInit {
   protected routeOrgId: string = null;

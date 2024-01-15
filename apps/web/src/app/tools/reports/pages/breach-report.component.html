@@ -1,6 +1,5 @@
-<div class="page-header">
-  <h1>{{ "dataBreachReport" | i18n }}</h1>
-</div>
+<app-header></app-header>
+
 <p>{{ "breachDesc" | i18n }}</p>
 <form #form (ngSubmit)="submit()" [appApiAction]="formPromise" ngNativeValidate>
   <div class="row">
