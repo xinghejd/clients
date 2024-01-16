@@ -255,6 +255,7 @@ export default class MainBackground {
   // Passed to the popup for Safari to workaround issues with theming, downloading, etc.
   // TODO CG - Remove this when Safari supports manifest v3. The window object is not available in manifest v3.
   // backgroundWindow = window;
+  backgroundWindow = this.getGlobalContext();
 
   onUpdatedRan: boolean;
   onReplacedRan: boolean;
@@ -372,7 +373,7 @@ export default class MainBackground {
           return promise.then((result) => result.response === "unlocked");
         }
       },
-      window, // CG - Window is not available in manifest v3 service worker.
+      this.getGlobalContext(), // CG - Window is not available in manifest v3 service worker. This will currently break the background entirely.
     );
     this.i18nService = new BrowserI18nService(BrowserApi.getUILanguage(), this.stateService);
     this.cryptoService = new BrowserCryptoService(
@@ -662,7 +663,9 @@ export default class MainBackground {
         this.platformUtilsService.isSafari() ||
         this.platformUtilsService.isFirefox() ||
         this.platformUtilsService.isOpera();
-      BrowserApi.reloadExtension(forceWindowReload ? window : null);
+      BrowserApi.reloadExtension(
+        forceWindowReload ? this.getGlobalContext() : null, // TODO CG - This will likely break entirely in manifest v3. The window object is not available in service workers.
+      );
       return Promise.resolve();
     };
 
@@ -750,7 +753,9 @@ export default class MainBackground {
         async (_tab) => {
           const options = (await this.passwordGenerationService.getOptions())?.[0] ?? {};
           const password = await this.passwordGenerationService.generatePassword(options);
-          this.platformUtilsService.copyToClipboard(password, { window: window });
+          this.platformUtilsService.copyToClipboard(password, {
+            window: this.getGlobalContext(),
+          });
           this.passwordGenerationService.addHistory(password);
         },
         async (tab, cipher) => {
@@ -812,7 +817,7 @@ export default class MainBackground {
   }
 
   async bootstrap() {
-    this.containerService.attachToGlobal(window);
+    this.containerService.attachToGlobal(this.getGlobalContext());
 
     await this.stateService.init();
 
@@ -1072,5 +1077,13 @@ export default class MainBackground {
     }
 
     this.syncTimeout = setTimeout(async () => await this.fullSync(), 5 * 60 * 1000); // check every 5 minutes
+  }
+
+  private isManifestV3(): boolean {
+    return BrowserApi.manifestVersion === 3;
+  }
+
+  private getGlobalContext(): Window & typeof globalThis {
+    return (this.isManifestV3() ? globalThis : window) as Window & typeof globalThis;
   }
 }

@@ -490,9 +490,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
       return theme;
     }
 
-    return window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? ThemeType.Dark
-      : ThemeType.Light;
+    return null;
   }
 
   /**
@@ -727,12 +725,13 @@ class OverlayBackground implements OverlayBackgroundInterface {
       this.overlayButtonPort = port;
     }
 
+    const theme = await this.getCurrentTheme();
     port.onMessage.addListener(this.handleOverlayElementPortMessage);
     port.postMessage({
       command: `initAutofillOverlay${isOverlayListPort ? "List" : "Button"}`,
       authStatus: await this.getAuthStatus(),
       styleSheetUrl: chrome.runtime.getURL(`overlay/${isOverlayListPort ? "list" : "button"}.css`),
-      theme: `theme_${await this.getCurrentTheme()}`,
+      theme: theme ? `theme_${theme}` : null,
       translations: this.getTranslations(),
       ciphers: isOverlayListPort ? this.getOverlayCipherData() : null,
     });

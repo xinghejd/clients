@@ -1,3 +1,5 @@
+import { ThemeType } from "@bitwarden/common/platform/enums";
+
 import { EVENTS } from "../../constants";
 import { setElementStyles } from "../../utils";
 import {
@@ -206,14 +208,17 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
    */
   private initAutofillOverlayList(message: AutofillOverlayIframeExtensionMessage) {
     const { theme } = message;
+    const themeClass = this.getThemeClass(theme); // TODO CG - All of this can be done more effectively.
+    message.theme = themeClass;
+
     let borderColor: string;
-    if (theme === "theme_dark") {
+    if (themeClass === "theme_dark") {
       borderColor = "#4c525f";
     }
-    if (theme === "theme_nord") {
+    if (themeClass === "theme_nord") {
       borderColor = "#2E3440";
     }
-    if (theme === "theme_solarizedDark") {
+    if (themeClass === "theme_solarizedDark") {
       borderColor = "#073642";
     }
     if (borderColor) {
@@ -221,6 +226,18 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
     }
 
     this.iframe.contentWindow?.postMessage(message, "*");
+  }
+
+  // TODO CG - This likely can be simplified. The theme is being called from the overlay background.
+  private getThemeClass(theme: string) {
+    if (theme) {
+      return theme;
+    }
+
+    const matchedTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? ThemeType.Dark
+      : ThemeType.Light;
+    return `theme_${matchedTheme}`;
   }
 
   /**

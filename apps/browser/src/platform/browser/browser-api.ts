@@ -212,7 +212,9 @@ export class BrowserApi {
   }
 
   static async isPopupOpen(): Promise<boolean> {
-    return Promise.resolve(chrome.extension.getViews({ type: "popup" }).length > 0);
+    return Promise.resolve(
+      chrome.extension.getViews && chrome.extension.getViews({ type: "popup" }).length > 0,
+    ); // CG - chrome.extension.getViews is not available within the service worker
   }
 
   static createNewTab(url: string, active = true): Promise<chrome.tabs.Tab> {
@@ -353,7 +355,11 @@ export class BrowserApi {
 
   static reloadOpenWindows(exemptCurrentHref = false) {
     const currentHref = window.location.href;
-    const views = chrome.extension.getViews() as Window[];
+    const views = chrome.extension.getViews && (chrome.extension.getViews() as Window[]); // CG - chrome.extension.getViews is not available within the service worker
+    if (!views) {
+      return;
+    }
+
     views
       .filter((w) => w.location.href != null && !w.location.href.includes("background.html"))
       .filter((w) => !exemptCurrentHref || w.location.href !== currentHref)

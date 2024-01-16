@@ -181,7 +181,7 @@ const mainConfig = {
     "overlay/list": "./src/autofill/overlay/pages/list/bootstrap-autofill-overlay-list.ts",
     "encrypt-worker": "../../libs/common/src/platform/services/cryptography/encrypt.worker.ts",
     "content/lp-fileless-importer": "./src/tools/content/lp-fileless-importer.ts",
-    "offscreen/offscreen-service": "./src/mv3/offscreen-document/offscreen-service.ts",
+    "offscreen/offscreen-service": "./src/mv3/offscreen-document/offscreen.service.ts",
   },
   optimization: {
     minimize: ENV !== "development",

@@ -84,7 +84,8 @@ export default class RuntimeBackground {
 
     BrowserApi.messageListener("runtime.background", backgroundMessageListener);
     if (this.main.popupOnlyContext) {
-      (window as any).bitwardenBackgroundMessageListener = backgroundMessageListener;
+      (this.getGlobalContext() as any).bitwardenBackgroundMessageListener =
+        backgroundMessageListener;
     }
   }
 
@@ -166,7 +167,9 @@ export default class RuntimeBackground {
               msg.sender === "autofill_cmd",
             );
             if (totpCode != null) {
-              this.platformUtilsService.copyToClipboard(totpCode, { window: window });
+              this.platformUtilsService.copyToClipboard(totpCode, {
+                window: this.getGlobalContext(),
+              });
             }
             break;
           }
@@ -255,7 +258,9 @@ export default class RuntimeBackground {
         });
         break;
       case "getClickedElementResponse":
-        this.platformUtilsService.copyToClipboard(msg.identifier, { window: window });
+        this.platformUtilsService.copyToClipboard(msg.identifier, {
+          window: this.getGlobalContext(),
+        });
         break;
       case "triggerFido2ContentScriptInjection":
         await this.fido2Service.injectFido2ContentScripts(sender);
@@ -313,7 +318,7 @@ export default class RuntimeBackground {
     });
 
     if (totpCode != null) {
-      this.platformUtilsService.copyToClipboard(totpCode, { window: window });
+      this.platformUtilsService.copyToClipboard(totpCode, { window: this.getGlobalContext() });
     }
 
     // reset
@@ -340,5 +345,13 @@ export default class RuntimeBackground {
         this.onInstalledReason = null;
       }
     }, 100);
+  }
+
+  private isManifestV3(): boolean {
+    return BrowserApi.manifestVersion === 3;
+  }
+
+  private getGlobalContext(): Window & typeof globalThis {
+    return (this.isManifestV3() ? globalThis : window) as Window & typeof globalThis;
   }
 }
