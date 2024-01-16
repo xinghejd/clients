@@ -1,0 +1,41 @@
+<form [formGroup]="formGroup" [bitSubmit]="submit">
+  <bit-dialog>
+    <span bitDialogTitle>
+      {{ "Select Import Items" }}
+    </span>
+    <div bitDialogContent>
+      <bit-table [dataSource]="dataSource">
+        <ng-container header>
+          <tr>
+            <th bitCell>
+              <input type="checkbox" bitCheckbox id="checkAll" (change)="toggleAll($event)" />
+            </th>
+            <th bitCell>{{ "type" | i18n }}</th>
+            <th bitCell>{{ "Name" }}</th>
+          </tr>
+        </ng-container>
+        <ng-template body let-rows$>
+          <tr bitRow *ngFor="let r of rows$ | async">
+            <td bitCell>
+              <input
+                type="checkbox"
+                formControlName="importSelection"
+                (change)="this.importItemSelected(r)"
+              />
+            </td>
+            <td bitCell>
+              <i class="bwi bwi-fw bwi-{{ r.icon }}" aria-hidden="true"></i>
+              {{ r.type | i18n }}
+            </td>
+            <td bitCell>{{ r.name }}</td>
+          </tr>
+        </ng-template>
+      </bit-table>
+    </div>
+    <ng-container bitDialogFooter>
+      <button bitButton buttonType="primary" bitFormButton type="submit">
+        {{ "save" | i18n }}
+      </button>
+    </ng-container>
+  </bit-dialog>
+</form>

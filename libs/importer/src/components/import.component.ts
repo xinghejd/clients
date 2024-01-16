@@ -58,6 +58,7 @@ import {
   FilePasswordPromptComponent,
   ImportErrorDialogComponent,
   ImportSuccessDialogComponent,
+  ImportSelectionDialogComponent,
 } from "./dialog";
 import { ImportLastPassComponent } from "./lastpass";
 
@@ -370,7 +371,7 @@ export class ImportComponent implements OnInit, OnDestroy {
     }
 
     try {
-      const result = await this.importService.import(
+      const prepResults = await this.importService.prepareImport(
         importer,
         fileContents,
         this.organizationId,
@@ -379,9 +380,23 @@ export class ImportComponent implements OnInit, OnDestroy {
       );
 
       //No errors, display success message
-      this.dialogService.open<unknown, ImportResult>(ImportSuccessDialogComponent, {
-        data: result,
+      const importDialog = this.dialogService.open<ImportResult>(ImportSelectionDialogComponent, {
+        data: prepResults,
       });
+
+      const selectedResults = await lastValueFrom(importDialog.closed);
+
+      const importResult = await this.importService.importResults(
+        selectedResults,
+        this.organizationId,
+        this.formGroup.controls.targetSelector.value,
+      );
+
+      this.dialogService.open<ImportResult>(ImportSuccessDialogComponent, {
+        data: importResult,
+      });
+
+      this.dialogService.afterAllClosed;
 
       this.syncService.fullSync(true);
       this.onSuccessfulImport.emit(this._organizationId);
@@ -392,6 +407,8 @@ export class ImportComponent implements OnInit, OnDestroy {
       this.logService.error(e);
     }
   }
+
+  protected async finalizeImport() {}
 
   private isUserAdmin(organizationId?: string): boolean {
     if (!organizationId) {
@@ -505,6 +522,10 @@ export class ImportComponent implements OnInit, OnDestroy {
     });
 
     return await lastValueFrom(dialog.closed);
+  }
+
+  async getSelectedImportItems(): Promise<string> {
+    return "fun";
   }
 
   ngOnDestroy(): void {
