@@ -176,7 +176,7 @@ import {
   ImportService,
   ImportServiceAbstraction,
 } from "@bitwarden/importer/core";
-import { BannerService, DefaultBannerService } from "@bitwarden/platform";
+import { BannerService } from "@bitwarden/platform";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { AuthGuard } from "../auth/guards/auth.guard";
@@ -824,7 +824,7 @@ import { ModalService } from "./modal.service";
     },
     {
       provide: BannerService,
-      useClass: DefaultBannerService,
+      useClass: BannerService,
       deps: [StateProvider],
     },
   ],
