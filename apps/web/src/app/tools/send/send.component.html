@@ -65,18 +65,16 @@
     <div class="tw-col-span-9">
       <div class="tw-flex">
         <app-header>
-          <ng-container slot="title-suffix">
-            <small #actionSpinner [appApiAction]="actionPromise">
-              <ng-container *ngIf="$any(actionSpinner).loading">
-                <i
-                  class="bwi bwi-spinner bwi-spin text-muted"
-                  title="{{ 'loading' | i18n }}"
-                  aria-hidden="true"
-                ></i>
-                <span class="sr-only">{{ "loading" | i18n }}</span>
-              </ng-container>
-            </small>
-          </ng-container>
+          <small #actionSpinner [appApiAction]="actionPromise" slot="title-suffix">
+            <ng-container *ngIf="$any(actionSpinner).loading">
+              <i
+                class="bwi bwi-spinner bwi-spin text-muted"
+                title="{{ 'loading' | i18n }}"
+                aria-hidden="true"
+              ></i>
+              <span class="sr-only">{{ "loading" | i18n }}</span>
+            </ng-container>
+          </small>
         </app-header>
         <div class="tw-ml-auto">
           <button
