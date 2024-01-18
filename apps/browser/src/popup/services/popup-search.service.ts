@@ -4,22 +4,23 @@ import { SearchService } from "@bitwarden/common/services/search.service";
 
 export class PopupSearchService extends SearchService {
   constructor(
-    private mainSearchService: SearchService,
+    // private mainSearchService: SearchService,
     consoleLogService: ConsoleLogService,
     i18nService: I18nService,
   ) {
     super(consoleLogService, i18nService);
   }
 
-  clearIndex() {
-    throw new Error("Not available.");
-  }
+  // clearIndex() {
+  //   throw new Error("Not available.");
+  // }
+  //
+  // indexCiphers(): Promise<void> {
+  //   throw new Error("Not available.");
+  // }
 
-  indexCiphers(): Promise<void> {
-    throw new Error("Not available.");
-  }
-
-  getIndexForSearch() {
-    return this.mainSearchService.getIndexForSearch();
-  }
+  // TODO CG - Need to investigate how the popup might be triggering marshalling within the background script
+  // getIndexForSearch() {
+  //   return this.mainSearchService.getIndexForSearch();
+  // }
 }

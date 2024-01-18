@@ -39,6 +39,8 @@ import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { LoginService } from "@bitwarden/common/auth/services/login.service";
+import { TokenService as TokenServiceImplementation } from "@bitwarden/common/auth/services/token.service";
+import { TwoFactorService as TwoFactorServiceImplementation } from "@bitwarden/common/auth/services/two-factor.service";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
@@ -67,8 +69,10 @@ import { GlobalState } from "@bitwarden/common/platform/models/domain/global-sta
 import { ConfigService } from "@bitwarden/common/platform/services/config/config.service";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
+import { FileUploadService as FileUploadServiceImplementation } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
+import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
 import { DerivedStateProvider } from "@bitwarden/common/platform/state";
-import { SearchService } from "@bitwarden/common/services/search.service";
+import { AuditService as AuditServiceImplementation } from "@bitwarden/common/services/audit.service";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 import { UsernameGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/username";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
@@ -88,7 +92,11 @@ import {
 } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
+import { CipherService as CipherServiceImplementation } from "@bitwarden/common/vault/services/cipher.service";
+import { CollectionService as CollectionServiceImplementation } from "@bitwarden/common/vault/services/collection.service";
+import { CipherFileUploadService as CipherFileUploadServiceImplementation } from "@bitwarden/common/vault/services/file-upload/cipher-file-upload.service";
 import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder-api.service";
+import { TotpService as TotpServiceImplementation } from "@bitwarden/common/vault/services/totp.service";
 import { DialogService } from "@bitwarden/components";
 import { VaultExportServiceAbstraction } from "@bitwarden/exporter/vault-export";
 import { ImportServiceAbstraction } from "@bitwarden/importer/core";
@@ -107,7 +115,6 @@ import { BrowserEnvironmentService } from "../../platform/services/browser-envir
 import { BrowserFileDownloadService } from "../../platform/services/browser-file-download.service";
 import { BrowserI18nService } from "../../platform/services/browser-i18n.service";
 import BrowserLocalStorageService from "../../platform/services/browser-local-storage.service";
-import BrowserMessagingPrivateModePopupService from "../../platform/services/browser-messaging-private-mode-popup.service";
 import BrowserMessagingService from "../../platform/services/browser-messaging.service";
 import { BrowserStateService } from "../../platform/services/browser-state.service";
 import { ForegroundDerivedStateProvider } from "../../platform/state/foreground-derived-state.provider";
@@ -148,10 +155,15 @@ function getBgService<T>(service: keyof MainBackground) {
     DebounceNavigationService,
     DialogService,
     PopupCloseWarningService,
+    // {
+    //   provide: LOCALE_ID,
+    //   useFactory: () => getBgService<I18nServiceAbstraction>("i18nService")().translationLocale,
+    //   deps: [],
+    // },
     {
       provide: LOCALE_ID,
-      useFactory: () => getBgService<I18nServiceAbstraction>("i18nService")().translationLocale,
-      deps: [],
+      useFactory: (i18nService: I18nServiceAbstraction) => i18nService.translationLocale,
+      deps: [I18nServiceAbstraction],
     },
     {
       provide: APP_INITIALIZER,
@@ -160,51 +172,144 @@ function getBgService<T>(service: keyof MainBackground) {
       multi: true,
     },
     { provide: BaseUnauthGuardService, useClass: UnauthGuardService },
+    // {
+    //   provide: MessagingService,
+    //   useFactory: () => {
+    //     return BrowserPopupUtils.backgroundInitializationRequired()
+    //       ? new BrowserMessagingPrivateModePopupService()
+    //       : new BrowserMessagingService();
+    //   },
+    // },
+    BrowserMessagingService,
     {
       provide: MessagingService,
-      useFactory: () => {
-        return BrowserPopupUtils.backgroundInitializationRequired()
-          ? new BrowserMessagingPrivateModePopupService()
-          : new BrowserMessagingService();
-      },
+      useExisting: BrowserMessagingService,
+    },
+    // {
+    //   provide: TwoFactorService,
+    //   useFactory: getBgService<TwoFactorService>("twoFactorService"),
+    //   deps: [],
+    // },
+    {
+      provide: TwoFactorServiceImplementation,
+      deps: [I18nServiceAbstraction, PlatformUtilsService],
     },
     {
       provide: TwoFactorService,
-      useFactory: getBgService<TwoFactorService>("twoFactorService"),
-      deps: [],
+      useExisting: TwoFactorServiceImplementation,
+    },
+    // {
+    //   provide: AuthServiceAbstraction,
+    //   useFactory: getBgService<AuthService>("authService"),
+    //   deps: [],
+    // },
+    {
+      provide: AuthService,
+      deps: [
+        CryptoService,
+        ApiService,
+        TokenService,
+        AppIdService,
+        PlatformUtilsService,
+        MessagingService,
+        LogService,
+        KeyConnectorService,
+        EnvironmentService,
+        StateServiceAbstraction,
+        TwoFactorService,
+        I18nServiceAbstraction,
+        EncryptService,
+        PasswordStrengthServiceAbstraction,
+        PolicyService,
+        DeviceTrustCryptoServiceAbstraction,
+        AuthRequestCryptoServiceAbstraction,
+      ],
     },
     {
       provide: AuthServiceAbstraction,
-      useFactory: getBgService<AuthService>("authService"),
-      deps: [],
+      useExisting: AuthService,
+    },
+    // {
+    //   provide: SearchServiceAbstraction,
+    //   useFactory: (logService: ConsoleLogService, i18nService: I18nServiceAbstraction) => {
+    //     return new PopupSearchService(
+    //       getBgService<SearchService>("searchService")(),
+    //       logService,
+    //       i18nService,
+    //     );
+    //   },
+    //   deps: [LogServiceAbstraction, I18nServiceAbstraction],
+    // },
+    // {
+    //   provide: SearchServiceAbstraction,
+    //   useFactory: (logService: ConsoleLogService, i18nService: I18nServiceAbstraction) => {
+    //     return new PopupSearchService(
+    //       getBgService<SearchService>("searchService")(),
+    //       logService,
+    //       i18nService,
+    //     );
+    //   },
+    //   deps: [LogServiceAbstraction, I18nServiceAbstraction],
+    // },
+    {
+      provide: PopupSearchService,
+      deps: [LogServiceAbstraction, I18nServiceAbstraction],
     },
     {
       provide: SearchServiceAbstraction,
-      useFactory: (logService: ConsoleLogService, i18nService: I18nServiceAbstraction) => {
-        return new PopupSearchService(
-          getBgService<SearchService>("searchService")(),
-          logService,
-          i18nService,
-        );
-      },
-      deps: [LogServiceAbstraction, I18nServiceAbstraction],
+      useExisting: PopupSearchService,
     },
-    { provide: AuditService, useFactory: getBgService<AuditService>("auditService"), deps: [] },
+    // { provide: AuditService, useFactory: getBgService<AuditService>("auditService"), deps: [] },
+    {
+      provide: AuditServiceImplementation,
+      deps: [CryptoFunctionService, ApiService],
+    },
+    {
+      provide: AuditService,
+      useExisting: AuditServiceImplementation,
+    },
+    // {
+    //   provide: CipherFileUploadService,
+    //   useFactory: getBgService<CipherFileUploadService>("cipherFileUploadService"),
+    //   deps: [],
+    // },
+    {
+      provide: CipherFileUploadServiceImplementation,
+      deps: [ApiService, FileUploadService],
+    },
     {
       provide: CipherFileUploadService,
-      useFactory: getBgService<CipherFileUploadService>("cipherFileUploadService"),
-      deps: [],
+      useExisting: CipherFileUploadServiceImplementation,
     },
-    { provide: CipherService, useFactory: getBgService<CipherService>("cipherService"), deps: [] },
+    // { provide: CipherService, useFactory: getBgService<CipherService>("cipherService"), deps: [] },
     {
-      provide: CryptoFunctionService,
-      useFactory: getBgService<CryptoFunctionService>("cryptoFunctionService"),
-      deps: [],
+      provide: CipherServiceImplementation,
+      deps: [
+        CryptoService,
+        SettingsService,
+        ApiService,
+        I18nServiceAbstraction,
+        SearchServiceAbstraction,
+        StateServiceAbstraction,
+        EncryptService,
+        CipherFileUploadService,
+        ConfigService,
+      ],
     },
-    {
-      provide: FileUploadService,
-      useFactory: getBgService<FileUploadService>("fileUploadService"),
-    },
+    { provide: CipherService, useExisting: CipherServiceImplementation },
+    // {
+    //   provide: CryptoFunctionService,
+    //   useFactory: getBgService<CryptoFunctionService>("cryptoFunctionService"),
+    //   deps: [],
+    // },
+    { provide: WebCryptoFunctionService, deps: [] },
+    { provide: CryptoFunctionService, useExisting: WebCryptoFunctionService },
+    // {
+    //   provide: FileUploadService,
+    //   useFactory: getBgService<FileUploadService>("fileUploadService"),
+    // },
+    { provide: FileUploadServiceImplementation, deps: [LogServiceAbstraction] },
+    { provide: FileUploadService, useExisting: FileUploadServiceImplementation },
     {
       provide: FolderService,
       useFactory: (
@@ -217,10 +322,7 @@ function getBgService<T>(service: keyof MainBackground) {
       },
       deps: [CryptoService, I18nServiceAbstraction, CipherService, StateServiceAbstraction],
     },
-    {
-      provide: InternalFolderService,
-      useExisting: FolderService,
-    },
+    { provide: InternalFolderService, useExisting: FolderService },
     {
       provide: FolderApiServiceAbstraction,
       useFactory: (folderService: InternalFolderService, apiService: ApiService) => {
@@ -228,27 +330,45 @@ function getBgService<T>(service: keyof MainBackground) {
       },
       deps: [InternalFolderService, ApiService],
     },
+    // {
+    //   provide: CollectionService,
+    //   useFactory: getBgService<CollectionService>("collectionService"),
+    //   deps: [],
+    // },
+    //CollectionServiceImplementation
     {
-      provide: CollectionService,
-      useFactory: getBgService<CollectionService>("collectionService"),
-      deps: [],
+      provide: CollectionServiceImplementation,
+      deps: [CryptoService, I18nServiceAbstraction, StateServiceAbstraction],
     },
-    {
-      provide: LogServiceAbstraction,
-      useFactory: getBgService<ConsoleLogService>("logService"),
-      deps: [],
-    },
+    { provide: CollectionService, useExisting: CollectionServiceImplementation },
+    // {
+    //   provide: LogServiceAbstraction,
+    //   useFactory: getBgService<ConsoleLogService>("logService"),
+    //   deps: [],
+    // },
+    { provide: ConsoleLogService, useFactory: () => new ConsoleLogService(false) },
+    { provide: LogServiceAbstraction, useExisting: ConsoleLogService },
+    // {
+    //   provide: BrowserEnvironmentService,
+    //   useExisting: EnvironmentService,
+    // },
+    // {
+    //   provide: EnvironmentService,
+    //   useFactory: getBgService<EnvironmentService>("environmentService"),
+    //   deps: [],
+    // },
     {
       provide: BrowserEnvironmentService,
-      useExisting: EnvironmentService,
+      deps: [StateServiceAbstraction, LoginServiceAbstraction],
     },
-    {
-      provide: EnvironmentService,
-      useFactory: getBgService<EnvironmentService>("environmentService"),
-      deps: [],
-    },
-    { provide: TotpService, useFactory: getBgService<TotpService>("totpService"), deps: [] },
-    { provide: TokenService, useFactory: getBgService<TokenService>("tokenService"), deps: [] },
+    { provide: EnvironmentService, useExisting: BrowserEnvironmentService },
+    // { provide: TotpService, useFactory: getBgService<TotpService>("totpService"), deps: [] },
+    { provide: TotpServiceImplementation, deps: [CryptoFunctionService, LoginServiceAbstraction] },
+    { provide: TotpService, useExisting: TotpServiceImplementation },
+    // { provide: TokenService, useFactory: getBgService<TokenService>("tokenService"), deps: [] },
+    // TokenServiceImplementation
+    { provide: TokenServiceImplementation, deps: [StateService] },
+    { provide: TokenService, useExisting: TokenServiceImplementation },
     {
       provide: I18nServiceAbstraction,
       useFactory: (stateService: BrowserStateService) => {
@@ -265,6 +385,43 @@ function getBgService<T>(service: keyof MainBackground) {
       },
       deps: [EncryptService],
     },
+    // {
+    //   provide: CryptoService,
+    //   useFactory: (
+    //     cryptoFunctionService: CryptoFunctionService,
+    //     encryptService: EncryptService,
+    //     platformUtilsService: PlatformUtilsService,
+    //     logServiceAbstraction: LogServiceAbstraction,
+    //     stateServiceAbstraction: StateServiceAbstraction,
+    //     accountServiceAbstraction: AccountServiceAbstraction,
+    //     derivedStateProvider: DerivedStateProvider,
+    //   ) => {
+    //     const cryptoService = new BrowserCryptoService(
+    //       cryptoFunctionService,
+    //       encryptService,
+    //       platformUtilsService,
+    //       logServiceAbstraction,
+    //       stateServiceAbstraction,
+    //       accountServiceAbstraction,
+    //       new DefaultStateProvider(
+    //         new ActiveUserStateProvider(
+    //
+    //         )
+    //       ),
+    //     );
+    //     new ContainerService(cryptoService, encryptService).attachToGlobal(self);
+    //     return cryptoService;
+    //   },
+    //   deps: [
+    //     CryptoFunctionService,
+    //     EncryptService,
+    //     PlatformUtilsService,
+    //     LogServiceAbstraction,
+    //     StateServiceAbstraction,
+    //     AccountServiceAbstraction,
+    //     DerivedStateProvider,
+    //   ],
+    // },
     {
       provide: AuthRequestCryptoServiceAbstraction,
       useFactory: getBgService<AuthRequestCryptoServiceAbstraction>("authRequestCryptoService"),
@@ -413,11 +570,12 @@ function getBgService<T>(service: keyof MainBackground) {
       useFactory: getBgService<NotificationsService>("notificationsService"),
       deps: [],
     },
-    {
-      provide: LogServiceAbstraction,
-      useFactory: getBgService<ConsoleLogService>("logService"),
-      deps: [],
-    },
+    // TODO CG - This seems to be a duplicate provider instance
+    // {
+    //   provide: LogServiceAbstraction,
+    //   useFactory: getBgService<ConsoleLogService>("logService"),
+    //   deps: [],
+    // },
     {
       provide: OrganizationService,
       useFactory: (stateService: StateServiceAbstraction) => {
