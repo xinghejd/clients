@@ -7476,7 +7476,7 @@
     "message": "Sync unsuccessful"
   },
   "noNetworkConnectionDesc": {
-    "message": "Unable to connect to server. Please check you internet connection and try again."
+    "message": "Unable to connect to server. Please check your internet connection and try again."
   },
   "unknownSyncErrorDesc": {
     "message": "Unable to complete vault sync at this time. Please try again later."
