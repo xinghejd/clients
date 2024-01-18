@@ -64,19 +64,20 @@
     </div>
     <div class="tw-col-span-9">
       <div class="tw-flex">
-        <h1 bitTypography="h1">
-          {{ "send" | i18n }}
-          <small #actionSpinner [appApiAction]="actionPromise">
-            <ng-container *ngIf="$any(actionSpinner).loading">
-              <i
-                class="bwi bwi-spinner bwi-spin text-muted"
-                title="{{ 'loading' | i18n }}"
-                aria-hidden="true"
-              ></i>
-              <span class="sr-only">{{ "loading" | i18n }}</span>
-            </ng-container>
-          </small>
-        </h1>
+        <app-header>
+          <ng-container slot="title-suffix">
+            <small #actionSpinner [appApiAction]="actionPromise">
+              <ng-container *ngIf="$any(actionSpinner).loading">
+                <i
+                  class="bwi bwi-spinner bwi-spin text-muted"
+                  title="{{ 'loading' | i18n }}"
+                  aria-hidden="true"
+                ></i>
+                <span class="sr-only">{{ "loading" | i18n }}</span>
+              </ng-container>
+            </small>
+          </ng-container>
+        </app-header>
         <div class="tw-ml-auto">
           <button
             type="button"

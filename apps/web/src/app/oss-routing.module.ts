@@ -199,7 +199,7 @@ const routes: Routes = [
         path: "vault",
         loadChildren: () => VaultModule,
       },
-      { path: "sends", component: SendComponent, data: { title: "Send" } },
+      { path: "sends", component: SendComponent, data: { titleId: "send" } },
       {
         path: "create-organization",
         component: CreateOrganizationComponent,
