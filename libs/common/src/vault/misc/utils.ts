@@ -14,7 +14,6 @@ const fetchNetworkErrorMessages = new Set([
  */
 export function isNetworkError(error: Error): boolean {
   return (
-    error != null &&
     error instanceof TypeError &&
     typeof error.message == "string" &&
     fetchNetworkErrorMessages.has(error.message)
