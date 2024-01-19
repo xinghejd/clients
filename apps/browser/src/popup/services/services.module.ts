@@ -169,6 +169,7 @@ import { BrowserStateService } from "../../platform/services/browser-state.servi
 import { KeyGenerationService } from "../../platform/services/key-generation.service";
 import { LocalBackedSessionStorageService } from "../../platform/services/local-backed-session-storage.service";
 import { ForegroundDerivedStateProvider } from "../../platform/state/foreground-derived-state.provider";
+import { BackgroundMemoryStorageService } from "../../platform/storage/background-memory-storage.service";
 import { ForegroundMemoryStorageService } from "../../platform/storage/foreground-memory-storage.service";
 import { BrowserSendService } from "../../services/browser-send.service";
 import { BrowserSettingsService } from "../../services/browser-settings.service";
@@ -1179,20 +1180,23 @@ import { PopupSearchService } from "./popup-search.service";
     //   useFactory: getBgService<AbstractStorageService>("memoryStorageService"),
     // },
     {
-      provide: LocalBackedSessionStorageService,
+      provide: BackgroundMemoryStorageService,
       useFactory: (
         cryptoFunctionService: CryptoFunctionService,
         logServiceAbstraction: LogServiceAbstraction,
-      ) =>
-        new LocalBackedSessionStorageService(
-          new EncryptServiceImplementation(cryptoFunctionService, logServiceAbstraction, false),
-          new KeyGenerationService(cryptoFunctionService),
-        ),
+      ) => {
+        return BrowserApi.manifestVersion === 3
+          ? new LocalBackedSessionStorageService(
+              new EncryptServiceImplementation(cryptoFunctionService, logServiceAbstraction, false),
+              new KeyGenerationService(cryptoFunctionService),
+            )
+          : new BackgroundMemoryStorageService();
+      },
       deps: [CryptoFunctionService, LogServiceAbstraction],
     },
     {
       provide: MEMORY_STORAGE,
-      useExisting: LocalBackedSessionStorageService,
+      useExisting: BackgroundMemoryStorageService,
     },
     ForegroundMemoryStorageService,
     {
