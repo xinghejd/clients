@@ -656,9 +656,6 @@
   "passkeySuccessfullyCreated": {
     "message": "Passkey successfully created!"
   },
-  "customName": {
-    "message": "Custom name"
-  },
   "customPasskeyNameInfo": {
     "message": "Name your passkey to help you identify it."
   },
@@ -3828,15 +3825,6 @@
   "couldNotChargeCardPayInvoice": {
     "message": "Ezin izan dugu zure txartelean kargatu. Mesedez, ikusi eta ordaindu ondoren agertzen den ordaindu gabeko faktura."
   },
-  "inAppPurchase": {
-    "message": "Aplikaziotik ordaindu"
-  },
-  "cannotPerformInAppPurchase": {
-    "message": "Ezin da ekintza hau egin aplikaziotik erosketa ordaintzeko modu bat erabiltzen ari zaren bitartean."
-  },
-  "manageSubscriptionFromStore": {
-    "message": "Aplikaziotik erosketa egin zenuen gunetik kudeatu behar duzu harpidetza."
-  },
   "minLength": {
     "message": "Gutxieneko luzera"
   },
@@ -5187,6 +5175,12 @@
   },
   "spValidateCertificates": {
     "message": "Balioztatu ziurtagiriak"
+  },
+  "spUniqueEntityId": {
+    "message": "Set a unique SP entity ID"
+  },
+  "spUniqueEntityIdDesc": {
+    "message": "Generate an identifier that is unique to your organization"
   },
   "idpEntityId": {
     "message": "Entitatearen ID-a"
@@ -7447,7 +7441,17 @@
   "collectionAccessRestricted": {
     "message": "Collection access is restricted"
   },
+  "grantCollectionAccess": {
+    "message": "Grant groups or members access to this collection."
+  },
+  "adminCollectionAccess": {
+    "message": "Administrators can access and manage collections."
+  },
   "serviceAccountAccessUpdated": {
     "message": "Service account access updated"
+  },
+  "commonImportFormats": {
+    "message": "Common formats",
+    "description": "Label indicating the most common import formats"
   }
 }

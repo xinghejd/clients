@@ -21,6 +21,7 @@ import { UsernameGeneratorOptions } from "../../../tools/generator/username/user
 import { SendData } from "../../../tools/send/models/data/send.data";
 import { SendView } from "../../../tools/send/models/view/send.view";
 import { DeepJsonify } from "../../../types/deep-jsonify";
+import { UserKey, MasterKey } from "../../../types/key";
 import { UriMatchType } from "../../../vault/enums";
 import { CipherData } from "../../../vault/models/data/cipher.data";
 import { CollectionData } from "../../../vault/models/data/collection.data";
@@ -33,7 +34,7 @@ import { Utils } from "../../misc/utils";
 import { ServerConfigData } from "../../models/data/server-config.data";
 
 import { EncryptedString, EncString } from "./enc-string";
-import { MasterKey, SymmetricCryptoKey, UserKey } from "./symmetric-crypto-key";
+import { SymmetricCryptoKey } from "./symmetric-crypto-key";
 
 export class EncryptionPair<TEncrypted, TDecrypted> {
   encrypted?: TEncrypted;
@@ -266,6 +267,7 @@ export class AccountSettings {
   region?: string;
   smOnboardingTasks?: Record<string, Record<string, boolean>>;
   trustDeviceChoiceForDecryption?: boolean;
+  biometricPromptCancelled?: boolean;
 
   /** @deprecated July 2023, left for migration purposes*/
   pinProtected?: EncryptionPair<string, EncString> = new EncryptionPair<string, EncString>();

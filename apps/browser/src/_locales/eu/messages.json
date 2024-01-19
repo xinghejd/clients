@@ -1493,6 +1493,9 @@
   "invalidPin": {
     "message": "PIN baliogabea."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Too many invalid PIN entry attempts. Logging out."
+  },
   "unlockWithBiometrics": {
     "message": "Desblokeatu biometria erabiliz"
   },
@@ -2888,5 +2891,9 @@
         "example": "google.com"
       }
     }
+  },
+  "commonImportFormats": {
+    "message": "Common formats",
+    "description": "Label indicating the most common import formats"
   }
 }

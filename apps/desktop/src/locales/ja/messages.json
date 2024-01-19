@@ -1392,6 +1392,9 @@
   "invalidPin": {
     "message": "PIN コードが間違っています。"
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "無効な PIN 入力の試行回数が多すぎます。ログアウトします。"
+  },
   "unlockWithWindowsHello": {
     "message": "Windows Hello でロック解除"
   },
@@ -2616,5 +2619,9 @@
   },
   "lastPassYubikeyDesc": {
     "message": "LastPass アカウントに関連付けられた YubiKey を USB ポートに挿入し、ボタンをタッチしてください。"
+  },
+  "commonImportFormats": {
+    "message": "一般的な形式",
+    "description": "Label indicating the most common import formats"
   }
 }

@@ -1493,6 +1493,9 @@
   "invalidPin": {
     "message": "Ugyldig pinkode."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "For mange ugyldige PIN-koder indtastet. Logger ud."
+  },
   "unlockWithBiometrics": {
     "message": "Lås op med biometri"
   },
@@ -2888,5 +2891,9 @@
         "example": "google.com"
       }
     }
+  },
+  "commonImportFormats": {
+    "message": "Almindelige formater",
+    "description": "Label indicating the most common import formats"
   }
 }

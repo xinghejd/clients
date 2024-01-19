@@ -656,9 +656,6 @@
   "passkeySuccessfullyCreated": {
     "message": "Passkey erfolgreich erstellt!"
   },
-  "customName": {
-    "message": "Benutzerdefinierter Name"
-  },
   "customPasskeyNameInfo": {
     "message": "Benenne deinen Passkey, um ihn zu identifizieren."
   },
@@ -3828,15 +3825,6 @@
   "couldNotChargeCardPayInvoice": {
     "message": "Wir konnten deine Karte nicht belasten. Bitte sieh dir die unten aufgeführte unbezahlte Rechnung an und begleiche sie."
   },
-  "inAppPurchase": {
-    "message": "In-App-Kauf"
-  },
-  "cannotPerformInAppPurchase": {
-    "message": "Du kannst diese Aktion nicht durchführen, wenn du eine In-App-Kauf Zahlungsmethode nutzt."
-  },
-  "manageSubscriptionFromStore": {
-    "message": "Du musst dein Abonnement im entsprechenden App Store verwalten, über den der In-App-Kauf getätigt wurde."
-  },
   "minLength": {
     "message": "Mindestlänge"
   },
@@ -5187,6 +5175,12 @@
   },
   "spValidateCertificates": {
     "message": "Zertifikate validieren"
+  },
+  "spUniqueEntityId": {
+    "message": "Set a unique SP entity ID"
+  },
+  "spUniqueEntityIdDesc": {
+    "message": "Generate an identifier that is unique to your organization"
   },
   "idpEntityId": {
     "message": "Entitäts-ID"
@@ -7447,7 +7441,17 @@
   "collectionAccessRestricted": {
     "message": "Zugriff auf Sammlungen ist eingeschränkt"
   },
+  "grantCollectionAccess": {
+    "message": "Grant groups or members access to this collection."
+  },
+  "adminCollectionAccess": {
+    "message": "Administrators can access and manage collections."
+  },
   "serviceAccountAccessUpdated": {
     "message": "Zugriff zum Dienstkonto aktualisiert"
+  },
+  "commonImportFormats": {
+    "message": "Gängigste Formate",
+    "description": "Label indicating the most common import formats"
   }
 }

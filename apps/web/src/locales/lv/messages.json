@@ -656,9 +656,6 @@
   "passkeySuccessfullyCreated": {
     "message": "Piekļuves atslēga tika veiksmīgi izveidota."
   },
-  "customName": {
-    "message": "Pielāgots nosaukums"
-  },
   "customPasskeyNameInfo": {
     "message": "Nosaukuma piešķiršana piekļuves atslēgai palīdz to atpazīt."
   },
@@ -3828,15 +3825,6 @@
   "couldNotChargeCardPayInvoice": {
     "message": "Nebija iespējams veikt apmaksu ar norādīto karti. Lūgums apskatīt un apmaksāt zemāk norādīto rēķinu."
   },
-  "inAppPurchase": {
-    "message": "Pirkšana lietotnē"
-  },
-  "cannotPerformInAppPurchase": {
-    "message": "Šī darbība nevar tikt veikta, izmantojot pirkšana lietotnē apmaksas veidu."
-  },
-  "manageSubscriptionFromStore": {
-    "message": "Abonements ir jāpārvalda veikalā, kurā tika veikts pirkums lietotnē."
-  },
   "minLength": {
     "message": "Mazākais pieļaujamais garums"
   },
@@ -5187,6 +5175,12 @@
   },
   "spValidateCertificates": {
     "message": "Pārbaudīt sertifikātus"
+  },
+  "spUniqueEntityId": {
+    "message": "Set a unique SP entity ID"
+  },
+  "spUniqueEntityIdDesc": {
+    "message": "Generate an identifier that is unique to your organization"
   },
   "idpEntityId": {
     "message": "Vienības Id"
@@ -7447,7 +7441,17 @@
   "collectionAccessRestricted": {
     "message": "Piekļuve krājumam ir ierobežota"
   },
+  "grantCollectionAccess": {
+    "message": "Piešķirt kopām vai dalībniekiem piekļuvi šim krājumam."
+  },
+  "adminCollectionAccess": {
+    "message": "Pārvaldnieki var piekļūt krājumiem un pārvaldīt tos."
+  },
   "serviceAccountAccessUpdated": {
     "message": "Pakalpojuma konta piekļuve ir atjaunināta"
+  },
+  "commonImportFormats": {
+    "message": "Izplatīti veidoli",
+    "description": "Label indicating the most common import formats"
   }
 }

@@ -656,9 +656,6 @@
   "passkeySuccessfullyCreated": {
     "message": "Passkey succesvol aangemaakt!"
   },
-  "customName": {
-    "message": "Aangepaste naam"
-  },
   "customPasskeyNameInfo": {
     "message": "Geef je passkey een naam om deze later te herkennen."
   },
@@ -3828,15 +3825,6 @@
   "couldNotChargeCardPayInvoice": {
     "message": "We konden geen kosten op je kaart in rekening brengen. Bekijk en betaal onderstaande openstaande factuur."
   },
-  "inAppPurchase": {
-    "message": "In-app aankoop"
-  },
-  "cannotPerformInAppPurchase": {
-    "message": "Je kunt deze actie niet uitvoeren tijdens de uitvoering van een in-app aankoop."
-  },
-  "manageSubscriptionFromStore": {
-    "message": "Je moet je abonnement beheren vanuit de winkel waar je in-app aankoop is gemaakt."
-  },
   "minLength": {
     "message": "Minimale lengte"
   },
@@ -5187,6 +5175,12 @@
   },
   "spValidateCertificates": {
     "message": "Validate Certificates"
+  },
+  "spUniqueEntityId": {
+    "message": "Een unieke SP-entiteit-ID instellen"
+  },
+  "spUniqueEntityIdDesc": {
+    "message": "Identificatie die uniek is voor je organisatie genereren"
   },
   "idpEntityId": {
     "message": "Entity ID"
@@ -7447,7 +7441,17 @@
   "collectionAccessRestricted": {
     "message": "Collectietoegang is beperkt"
   },
+  "grantCollectionAccess": {
+    "message": "Groepen of mensen toegang tot deze collectie geven."
+  },
+  "adminCollectionAccess": {
+    "message": "Beheerders hebben toegang tot collecties en kunnen deze beheren."
+  },
   "serviceAccountAccessUpdated": {
     "message": "Toegang tot serviceaccount bijgewerkt"
+  },
+  "commonImportFormats": {
+    "message": "Common formats",
+    "description": "Label indicating the most common import formats"
   }
 }

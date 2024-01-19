@@ -656,9 +656,6 @@
   "passkeySuccessfullyCreated": {
     "message": "Приступачни кључ је успешно креиран!"
   },
-  "customName": {
-    "message": "Прилагоди име"
-  },
   "customPasskeyNameInfo": {
     "message": "Именујте Ваш приступачни кључ за лакшу идентификацију."
   },
@@ -3828,15 +3825,6 @@
   "couldNotChargeCardPayInvoice": {
     "message": "Нисмо могли да наплатимо вашу картицу. Молимо погледајте и платите наведену неплаћену фактуру."
   },
-  "inAppPurchase": {
-    "message": "Куповина Унутар Апликације"
-  },
-  "cannotPerformInAppPurchase": {
-    "message": "Не можете да извршите ову радњу док користите начин плаћања за куповину у апликацији."
-  },
-  "manageSubscriptionFromStore": {
-    "message": "Морате управљати претплатом из продавнице у којој је обављена куповина у апликацији."
-  },
   "minLength": {
     "message": "Минимална Дужина"
   },
@@ -5187,6 +5175,12 @@
   },
   "spValidateCertificates": {
     "message": "Проверити цертификате"
+  },
+  "spUniqueEntityId": {
+    "message": "Set a unique SP entity ID"
+  },
+  "spUniqueEntityIdDesc": {
+    "message": "Generate an identifier that is unique to your organization"
   },
   "idpEntityId": {
     "message": "Id ентитета"
@@ -7447,7 +7441,17 @@
   "collectionAccessRestricted": {
     "message": "Приступ колекцији је ограничен"
   },
+  "grantCollectionAccess": {
+    "message": "Одобрите групама или члановима приступ овој колекцији."
+  },
+  "adminCollectionAccess": {
+    "message": "Администратори могу да приступе и управљају колекцијама."
+  },
   "serviceAccountAccessUpdated": {
     "message": "Приступ услужног налога ажуриран"
+  },
+  "commonImportFormats": {
+    "message": "Уобичајени формати",
+    "description": "Label indicating the most common import formats"
   }
 }

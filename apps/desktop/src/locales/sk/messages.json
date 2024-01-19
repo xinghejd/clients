@@ -33,7 +33,7 @@
     "message": "Zbierky"
   },
   "searchVault": {
-    "message": "Search vault"
+    "message": "Prehľadávať trezor"
   },
   "addItem": {
     "message": "Pridať položku"
@@ -1392,6 +1392,9 @@
   "invalidPin": {
     "message": "Neplatný PIN kód."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Príliš veľa neplatných pokusov o zadanie PIN kódu. Odhlasuje sa."
+  },
   "unlockWithWindowsHello": {
     "message": "Odomknúť pomocou Windows Hello"
   },
@@ -2616,5 +2619,9 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Vložte kľúč YubiKey priradený k vášmu účtu LastPass do USB portu počítača a potom sa dotknite jeho tlačidla."
+  },
+  "commonImportFormats": {
+    "message": "Bežné formáty",
+    "description": "Label indicating the most common import formats"
   }
 }

@@ -236,7 +236,7 @@
     "message": "السيدة"
   },
   "ms": {
-    "message": "آنسة"
+    "message": "الآنسة"
   },
   "mx": {
     "message": "ماكس"
@@ -269,7 +269,7 @@
     "message": "الاسم الأوسط"
   },
   "lastName": {
-    "message": "اسم العائلة"
+    "message": "اللقب"
   },
   "fullName": {
     "message": "الاسم الكامل"
@@ -404,7 +404,7 @@
     "message": "الطول"
   },
   "passwordMinLength": {
-    "message": "Minimum password length"
+    "message": "الحد الأدنى لطول كلمة المرور"
   },
   "uppercase": {
     "message": "أحرف كبيرة (A-Z)"
@@ -482,16 +482,16 @@
     "message": "مطلوب ترحيل مفتاح التشفير. الرجاء تسجيل الدخول بواسطة مخزن الويب لتحديث مفتاح التشفير الخاص بك."
   },
   "editedFolder": {
-    "message": "تم تعديل المجلد"
+    "message": "تم حفظ المجلد"
   },
   "addedFolder": {
-    "message": "مجلد مضاف"
+    "message": "تمت إضافة المجلد"
   },
   "deleteFolderConfirmation": {
     "message": "هل أنت متأكد من حذف هذا المجلد؟"
   },
   "deletedFolder": {
-    "message": "المجلد المحذوف"
+    "message": "تم حذف المجلد"
   },
   "loginOrCreateNewAccount": {
     "message": "قم بالتسجيل أو إنشاء حساب جديد للوصول إلى خزنتك الآمنة."
@@ -1391,6 +1391,9 @@
   },
   "invalidPin": {
     "message": "رمز PIN غير صالح."
+  },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Too many invalid PIN entry attempts. Logging out."
   },
   "unlockWithWindowsHello": {
     "message": "فتح مع Windows Hello"
@@ -2428,7 +2431,7 @@
     "message": "قائمة فرعية"
   },
   "skipToContent": {
-    "message": "Skip to content"
+    "message": "تخطي إلى المحتوى"
   },
   "typePasskey": {
     "message": "مفتاح المرور"
@@ -2616,5 +2619,9 @@
   },
   "lastPassYubikeyDesc": {
     "message": "أدخل YubiKey المرتبط بحسابك LastPass في منفذ USB الخاص بك، ثم المس الزر."
+  },
+  "commonImportFormats": {
+    "message": "Common formats",
+    "description": "Label indicating the most common import formats"
   }
 }

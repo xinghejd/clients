@@ -1392,6 +1392,9 @@
   "invalidPin": {
     "message": "Codice PIN non valido."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Troppi tentativi di inserimento del PIN falliti. Uscendo dall'account..."
+  },
   "unlockWithWindowsHello": {
     "message": "Sblocca con Windows Hello"
   },
@@ -2616,5 +2619,9 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Inserisci la tua YubiKey associata al tuo account LastPass nella porta USB del computer, poi premi il suo bottone."
+  },
+  "commonImportFormats": {
+    "message": "Formati comuni",
+    "description": "Label indicating the most common import formats"
   }
 }

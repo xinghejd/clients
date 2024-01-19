@@ -656,9 +656,6 @@
   "passkeySuccessfullyCreated": {
     "message": "Clau de pas creada correctament!"
   },
-  "customName": {
-    "message": "Nom personalitzat"
-  },
   "customPasskeyNameInfo": {
     "message": "Poseu un nom a la vostra clau per ajudar-vos a identificar-la."
   },
@@ -3828,15 +3825,6 @@
   "couldNotChargeCardPayInvoice": {
     "message": "No hem pogut carregar la vostra targeta. Consulteu i pagueu la factura pendent que es mostra a continuació."
   },
-  "inAppPurchase": {
-    "message": "Compra integrada a l'aplicació"
-  },
-  "cannotPerformInAppPurchase": {
-    "message": "No podeu realitzar aquesta acció mentre feu servir un mètode de pagament de compra a l’aplicació."
-  },
-  "manageSubscriptionFromStore": {
-    "message": "Heu de gestionar la vostra subscripció des de la botiga on s’ha realitzat la compra a l’aplicació."
-  },
   "minLength": {
     "message": "Longitud mínima"
   },
@@ -5187,6 +5175,12 @@
   },
   "spValidateCertificates": {
     "message": "Valida certificats"
+  },
+  "spUniqueEntityId": {
+    "message": "Set a unique SP entity ID"
+  },
+  "spUniqueEntityIdDesc": {
+    "message": "Generate an identifier that is unique to your organization"
   },
   "idpEntityId": {
     "message": "Identificador de l'entitat"
@@ -7447,7 +7441,17 @@
   "collectionAccessRestricted": {
     "message": "L'accés a la col·lecció està restringit"
   },
+  "grantCollectionAccess": {
+    "message": "Concedeix als grups o membres l'accés a aquesta col·lecció."
+  },
+  "adminCollectionAccess": {
+    "message": "Els administradors poden accedir i gestionar les col·leccions."
+  },
   "serviceAccountAccessUpdated": {
     "message": "Accés al compte del servei actualitzat"
+  },
+  "commonImportFormats": {
+    "message": "Formats comuns",
+    "description": "Label indicating the most common import formats"
   }
 }
