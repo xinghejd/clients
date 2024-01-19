@@ -403,6 +403,9 @@
   "length": {
     "message": "Ilgis"
   },
+  "passwordMinLength": {
+    "message": "Minimalus slaptažodžio ilgis"
+  },
   "uppercase": {
     "message": "Didžiosiomis (A-Z)"
   },
@@ -1388,6 +1391,9 @@
   },
   "invalidPin": {
     "message": "Neteisingas PIN kodas."
+  },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Too many invalid PIN entry attempts. Logging out."
   },
   "unlockWithWindowsHello": {
     "message": "Atrakinti naudojant Windows Hello"
@@ -2424,6 +2430,9 @@
   "submenu": {
     "message": "Submeniu"
   },
+  "skipToContent": {
+    "message": "Pereiti prie turinio"
+  },
   "typePasskey": {
     "message": "Prieigos raktas"
   },
@@ -2610,5 +2619,9 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Įkiškite su LastPass paskyra susietą YubiKey į kompiuterio USB jungtį, tada palieskite jo mygtuką."
+  },
+  "commonImportFormats": {
+    "message": "Common formats",
+    "description": "Label indicating the most common import formats"
   }
 }

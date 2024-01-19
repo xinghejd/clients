@@ -24,6 +24,7 @@ import { UsernameGeneratorOptions } from "../../tools/generator/username";
 import { SendData } from "../../tools/send/models/data/send.data";
 import { SendView } from "../../tools/send/models/view/send.view";
 import { UserId } from "../../types/guid";
+import { UserKey, MasterKey, DeviceKey } from "../../types/key";
 import { UriMatchType } from "../../vault/enums";
 import { CipherData } from "../../vault/models/data/cipher.data";
 import { CollectionData } from "../../vault/models/data/collection.data";
@@ -53,12 +54,7 @@ import { EncString } from "../models/domain/enc-string";
 import { GlobalState } from "../models/domain/global-state";
 import { State } from "../models/domain/state";
 import { StorageOptions } from "../models/domain/storage-options";
-import {
-  DeviceKey,
-  MasterKey,
-  SymmetricCryptoKey,
-  UserKey,
-} from "../models/domain/symmetric-crypto-key";
+import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
 
 const keys = {
   state: "state",
@@ -280,9 +276,20 @@ export class StateService<
   }
 
   async getAddEditCipherInfo(options?: StorageOptions): Promise<AddEditCipherInfo> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultInMemoryOptions()))
-    )?.data?.addEditCipherInfo;
+    const account = await this.getAccount(
+      this.reconcileOptions(options, await this.defaultInMemoryOptions()),
+    );
+    // ensure prototype on cipher
+    const raw = account?.data?.addEditCipherInfo;
+    return raw == null
+      ? null
+      : {
+          cipher:
+            raw?.cipher.toJSON != null
+              ? raw.cipher
+              : CipherView.fromJSON(raw?.cipher as Jsonify<CipherView>),
+          collectionIds: raw?.collectionIds,
+        };
   }
 
   async setAddEditCipherInfo(value: AddEditCipherInfo, options?: StorageOptions): Promise<void> {
@@ -1554,13 +1561,11 @@ export class StateService<
   }
 
   async getAutoFillOverlayVisibility(options?: StorageOptions): Promise<number> {
-    return (
-      (
-        await this.getGlobals(
-          this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()),
-        )
-      )?.autoFillOverlayVisibility ?? AutofillOverlayVisibility.OnFieldFocus
-    );
+    const locallyStoredOptions = await this.defaultOnDiskLocalOptions();
+    const reconciledOptions = this.reconcileOptions(options, locallyStoredOptions);
+    const globals = await this.getGlobals(reconciledOptions);
+
+    return globals?.autoFillOverlayVisibility ?? AutofillOverlayVisibility.Off;
   }
 
   async setAutoFillOverlayVisibility(value: number, options?: StorageOptions): Promise<void> {
@@ -2078,24 +2083,6 @@ export class StateService<
       this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
     account.data.eventCollection = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
-  async getEverHadUserKey(options?: StorageOptions): Promise<boolean> {
-    return (
-      (await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions())))
-        ?.profile?.everHadUserKey ?? false
-    );
-  }
-
-  async setEverHadUserKey(value: boolean, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.profile.everHadUserKey = value;
     await this.saveAccount(
       account,
       this.reconcileOptions(options, await this.defaultOnDiskOptions()),

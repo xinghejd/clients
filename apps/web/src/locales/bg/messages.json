@@ -656,9 +656,6 @@
   "passkeySuccessfullyCreated": {
     "message": "Секретният ключ е създаден успешно!"
   },
-  "customName": {
-    "message": "Персонализирано име"
-  },
   "customPasskeyNameInfo": {
     "message": "Изберете име за секретния си ключ, за да го разпознавате по-лесно."
   },
@@ -674,8 +671,8 @@
   "encryptionNotSupported": {
     "message": "Шифроването не се поддържа"
   },
-  "encryptionNotEnabled": {
-    "message": "Шифроването не е включено"
+  "enablePasskeyEncryption": {
+    "message": "Настройване на шифроването"
   },
   "usedForEncryption": {
     "message": "Използва се за шифроване"
@@ -1074,6 +1071,9 @@
   "export": {
     "message": "Изнасяне"
   },
+  "exportFrom": {
+    "message": "Изнасяне от"
+  },
   "exportVault": {
     "message": "Изнасяне на трезора"
   },
@@ -1149,6 +1149,9 @@
   },
   "length": {
     "message": "Дължина"
+  },
+  "passwordMinLength": {
+    "message": "Минимална дължина на паролата"
   },
   "uppercase": {
     "message": "Главни букви (A-Z)",
@@ -3542,12 +3545,12 @@
       }
     }
   },
-  "subscriptionFamiliesPlan": {
-    "message": "Не можете да поканите повече от $COUNT$ потребители без да надградите плана си. Свържете се с поддръжката за надграждане.",
+  "subscriptionUpgrade": {
+    "message": "Не можете да поканите повече от $COUNT$ членове без да надградите плана си.",
     "placeholders": {
       "count": {
         "content": "$1",
-        "example": "6"
+        "example": "2"
       }
     }
   },
@@ -3821,15 +3824,6 @@
   },
   "couldNotChargeCardPayInvoice": {
     "message": "Не можем да сменим картата ви. Разгледайте и платете по неплатените фактури по-долу."
-  },
-  "inAppPurchase": {
-    "message": "Покупка в приложение"
-  },
-  "cannotPerformInAppPurchase": {
-    "message": "Не може да извършите това действие, като ползвате метод за плащане за покупка в приложение."
-  },
-  "manageSubscriptionFromStore": {
-    "message": "Може да управлявате абонамента си от електронния магазин, от който сте го купили."
   },
   "minLength": {
     "message": "Минимална дължина"
@@ -5181,6 +5175,12 @@
   },
   "spValidateCertificates": {
     "message": "Проверка на сертификатите"
+  },
+  "spUniqueEntityId": {
+    "message": "Set a unique SP entity ID"
+  },
+  "spUniqueEntityIdDesc": {
+    "message": "Generate an identifier that is unique to your organization"
   },
   "idpEntityId": {
     "message": "Entity ID"
@@ -6662,7 +6662,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "Стартовите екипни планове може да имат не повече от $SEATCOUNT$ членове. Свържете се с поддръжката, ако искате да надградите плана си и да каните повече членове.",
+    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Upgrade to your plan to invite more members.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -7389,6 +7389,9 @@
   "alreadyHaveAccount": {
     "message": "Вече имате регистрация?"
   },
+  "skipToContent": {
+    "message": "Прескачане към съдържанието"
+  },
   "customBillingStart": {
     "message": "Персонализираното таксуване не е отразено. Посетете страницата за "
   },
@@ -7438,7 +7441,17 @@
   "collectionAccessRestricted": {
     "message": "Достъпът до колекцията е ограничен"
   },
+  "grantCollectionAccess": {
+    "message": "Дайте права на групи и членове до тази колекция."
+  },
+  "adminCollectionAccess": {
+    "message": "Администраторите имат достъп до и могат да управляват колекциите."
+  },
   "serviceAccountAccessUpdated": {
-    "message": "Service account access updated"
+    "message": "Достъпът на сервизния акаунт е променен"
+  },
+  "commonImportFormats": {
+    "message": "Често използвани формати",
+    "description": "Label indicating the most common import formats"
   }
 }

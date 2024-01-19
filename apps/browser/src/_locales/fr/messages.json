@@ -268,6 +268,9 @@
   "length": {
     "message": "Longueur"
   },
+  "passwordMinLength": {
+    "message": "Longueur minimale du mot de passe"
+  },
   "uppercase": {
     "message": "Majuscules (A-Z)"
   },
@@ -322,6 +325,9 @@
   },
   "password": {
     "message": "Mot de passe"
+  },
+  "totp": {
+    "message": "Authenticator secret"
   },
   "passphrase": {
     "message": "Phrase de passe"
@@ -509,6 +515,18 @@
   "autofillError": {
     "message": "Impossible de saisir automatiquement l'élément sélectionné sur cette page. Copiez-collez plutôt l'information."
   },
+  "totpCaptureError": {
+    "message": "Impossible de scanner le code QR à partir de la page web actuelle"
+  },
+  "totpCaptureSuccess": {
+    "message": "Authenticator key added"
+  },
+  "totpCapture": {
+    "message": "Scan authenticator QR code from current webpage"
+  },
+  "copyTOTP": {
+    "message": "Copier la clé TOTP"
+  },
   "loggedOut": {
     "message": "Déconnecté"
   },
@@ -626,7 +644,7 @@
     "message": "Demander à ajouter un élément si aucun n'est trouvé dans votre coffre."
   },
   "addLoginNotificationDescAlt": {
-    "message": "Ask to add an item if one isn't found in your vault. Applies to all logged in accounts."
+    "message": "Demander d'ajouter un élément s'il n'est pas présent dans le coffre. S'applique à tous les comptes connectés."
   },
   "showCardsCurrentTab": {
     "message": "Afficher les cartes sur la page de l'onglet"
@@ -661,13 +679,13 @@
     "message": "Demander à mettre à jour le mot de passe d'un identifiant lorsqu'un changement est détecté sur un site Web."
   },
   "changedPasswordNotificationDescAlt": {
-    "message": "Ask to update a login's password when a change is detected on a website. Applies to all logged in accounts."
+    "message": "Proposer de mettre à jour le mot de passe quand un changement est détecté sur un site web. S'appliquer à tous les comptes connectés."
   },
   "enableUsePasskeys": {
     "message": "Demander à enregistrer et utiliser les mots de passe"
   },
   "usePasskeysDesc": {
-    "message": "Ask to save new passkeys or log in with passkeys stored in your vault. Applies to all logged in accounts."
+    "message": "Proposer d'enregistrer de nouvelles clés d'accès ou bien de se connecter à l'aide de clés déjà stockées dans votre coffre-fort. S'applique à tous les comptes connectés."
   },
   "notificationChangeDesc": {
     "message": "Souhaitez-vous mettre à jour ce mot de passe dans Bitwarden ?"
@@ -688,7 +706,7 @@
     "message": "Utilisez un clic secondaire pour accéder à la génération de mots de passe et les identifiants correspondants pour le site Web. "
   },
   "contextMenuItemDescAlt": {
-    "message": "Use a secondary click to access password generation and matching logins for the website. Applies to all logged in accounts."
+    "message": "Utilisez un clic secondaire pour accéder à la génération de mot de passe et aux identifiants correspondants au site Web. S'applique à tous les comptes connectés."
   },
   "defaultUriMatchDetection": {
     "message": "Détection de correspondance URI par défaut",
@@ -1034,17 +1052,17 @@
     "message": "Appliquer à tous les comptes connectés."
   },
   "turnOffBrowserBuiltInPasswordManagerSettings": {
-    "message": "Turn off your browser’s built in password manager settings to avoid conflicts."
+    "message": "Désactivez les paramètres du gestionnaire de mots de passe intégré à votre navigateur pour éviter les conflits."
   },
   "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
-    "message": "Edit browser settings."
+    "message": "Éditer les paramètres du navigateur."
   },
   "autofillOverlayVisibilityOff": {
-    "message": "Off",
+    "message": "Arrêt",
     "description": "Overlay setting select option for disabling autofill overlay"
   },
   "autofillOverlayVisibilityOnFieldFocus": {
-    "message": "When field is selected (on focus)",
+    "message": "Quand le champ est sélectionné (a le focus)",
     "description": "Overlay appearance select option for showing the field on focus of the input element"
   },
   "autofillOverlayVisibilityOnButtonClick": {
@@ -1144,7 +1162,7 @@
     "message": "Afficher une image reconnaissable à côté de chaque identifiant."
   },
   "faviconDescAlt": {
-    "message": "Show a recognizable image next to each login. Applies to all logged in accounts."
+    "message": "Afficher une image reconnaissable à côté de chaque identifiant. S'applique à tous les comptes connectés."
   },
   "enableBadgeCounter": {
     "message": "Afficher le compteur de badge"
@@ -1475,6 +1493,9 @@
   "invalidPin": {
     "message": "Code PIN invalide."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Too many invalid PIN entry attempts. Logging out."
+  },
   "unlockWithBiometrics": {
     "message": "Déverrouiller par biométrie"
   },
@@ -1706,7 +1727,7 @@
     "message": "Une politique d'organisation affecte vos options de propriété."
   },
   "personalOwnershipPolicyInEffectImports": {
-    "message": "An organization policy has blocked importing items into your individual vault."
+    "message": "Une politique d'organisation a bloqué l'import d'éléments dans votre coffre personel."
   },
   "excludedDomains": {
     "message": "Domaines exclus"
@@ -1715,14 +1736,14 @@
     "message": "Bitwarden ne proposera pas d'enregistrer les informations de connexion pour ces domaines. Vous devez actualiser la page pour que les modifications prennent effet."
   },
   "excludedDomainsDescAlt": {
-    "message": "Bitwarden will not ask to save login details for these domains for all logged in accounts. You must refresh the page for changes to take effect."
+    "message": "Bitwarden ne proposera pas d'enregistrer les informations de connexion pour ces domaines pour tous les comptes connectés. Vous devez rafraîchir la page pour appliquer les changements."
   },
   "excludedDomainsInvalidDomain": {
     "message": "$DOMAIN$ n'est pas un domaine valide",
     "placeholders": {
       "domain": {
         "content": "$1",
-        "example": "googlecom"
+        "example": "google.com"
       }
     }
   },
@@ -1978,11 +1999,11 @@
     "message": "Sélectionnez un dossier..."
   },
   "orgPermissionsUpdatedMustSetPassword": {
-    "message": "Your organization permissions were updated, requiring you to set a master password.",
+    "message": "Les autorisations de votre organisation ont été mises à jour, vous obligeant à définir un mot de passe principal.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "orgRequiresYouToSetPassword": {
-    "message": "Your organization requires you to set a master password.",
+    "message": "Votre organisation exige que vous définissiez un mot de passe principal.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "hours": {
@@ -2279,7 +2300,7 @@
     "message": "Comment saisir automatiquement"
   },
   "autofillSelectInfoWithCommand": {
-    "message": "Select an item from this screen, use the shortcut $COMMAND$, or explore other options in settings.",
+    "message": "Sélectionnez un élément à partir de cet écran, utilisez le raccourci $COMMAND$ ou explorez d'autres options dans les paramètres.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2288,7 +2309,7 @@
     }
   },
   "autofillSelectInfoWithoutCommand": {
-    "message": "Select an item from this screen, or explore other options in settings."
+    "message": "Sélectionnez un élément à partir de cet écran ou explorez d'autres options dans les paramètres."
   },
   "gotIt": {
     "message": "Compris"
@@ -2494,6 +2515,38 @@
     "message": "Déplier/Replier",
     "description": "Toggling an expand/collapse state."
   },
+  "filelessImport": {
+    "message": "Importer vos données dans Bitwarden ?",
+    "description": "Default notification title for triggering a fileless import."
+  },
+  "lpFilelessImport": {
+    "message": "Protéger vos données LastPass et importer dans Bitwarden ?",
+    "description": "LastPass specific notification title for triggering a fileless import."
+  },
+  "lpCancelFilelessImport": {
+    "message": "Enregistrer en tant que fichier non chiffré",
+    "description": "LastPass specific notification button text for cancelling a fileless import."
+  },
+  "startFilelessImport": {
+    "message": "Importer vers Bitwarden",
+    "description": "Notification button text for starting a fileless import."
+  },
+  "importing": {
+    "message": "Importation en cours...",
+    "description": "Notification message for when an import is in progress."
+  },
+  "dataSuccessfullyImported": {
+    "message": "Données importées avec succès !",
+    "description": "Notification message for when an import has completed successfully."
+  },
+  "dataImportFailed": {
+    "message": "Erreur lors de l'importation. Consultez la console pour plus de détails.",
+    "description": "Notification message for when an import has failed."
+  },
+  "importNetworkError": {
+    "message": "Une erreur réseau s'est produite lors de l'importation.",
+    "description": "Notification message for when an import has failed due to a network error."
+  },
   "aliasDomain": {
     "message": "Domaine de l'alias"
   },
@@ -2509,20 +2562,23 @@
     "message": "Désactivez la resaisie du mot de passe maître pour éditer ce champ",
     "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
+  "skipToContent": {
+    "message": "Accéder directement au contenu"
+  },
   "bitwardenOverlayButton": {
     "message": "Bouton menu de saisie automatique Bitwarden",
     "description": "Page title for the iframe containing the overlay button"
   },
   "toggleBitwardenVaultOverlay": {
-    "message": "Toggle Bitwarden auto-fill menu",
+    "message": "(Dés)activer le menu de saisie automatique de Bitwarden",
     "description": "Screen reader and tool tip label for the overlay button"
   },
   "bitwardenVault": {
-    "message": "Bitwarden auto-fill menu",
+    "message": "Menu de saisie automatique Bitwarden",
     "description": "Page title in overlay"
   },
   "unlockYourAccountToViewMatchingLogins": {
-    "message": "Unlock your account to view matching logins",
+    "message": "Déverrouillez votre compte pour afficher les identifiants correspondants",
     "description": "Text to display in overlay when the account is locked."
   },
   "unlockAccount": {
@@ -2546,11 +2602,11 @@
     "description": "Button text to display in overlay when there are no matching items"
   },
   "addNewVaultItem": {
-    "message": "Add new vault item",
+    "message": "Ajouter un nouvel élément de coffre",
     "description": "Screen reader text (aria-label) for new item button in overlay"
   },
   "bitwardenOverlayMenuAvailable": {
-    "message": "Bitwarden auto-fill menu available. Press the down arrow key to select.",
+    "message": "Menu de saisie automatique de Bitwarden disponible. Appuyez sur la touche Flèche bas pour sélectionner.",
     "description": "Screen reader text for announcing when the overlay opens on the page"
   },
   "turnOn": {
@@ -2560,7 +2616,7 @@
     "message": "Ignorer"
   },
   "importData": {
-    "message": "Import data",
+    "message": "Importer des données",
     "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
   },
   "importError": {
@@ -2606,13 +2662,13 @@
     "message": "Rien n'a été importé."
   },
   "importEncKeyError": {
-    "message": "Error decrypting the exported file. Your encryption key does not match the encryption key used export the data."
+    "message": "Erreur lors du déchiffrement du fichier exporté. Votre clé de chiffrement ne correspond pas à la clé utilisée pour exporter les données."
   },
   "invalidFilePassword": {
-    "message": "Invalid file password, please use the password you entered when you created the export file."
+    "message": "Mot de passe du fichier incorrect, veuillez utiliser le mot de passe saisi lors de l'exportation du fichier."
   },
   "importDestination": {
-    "message": "Import destination"
+    "message": "Importer la destination"
   },
   "learnAboutImportOptions": {
     "message": "En savoir plus sur vos options d'importation"
@@ -2634,13 +2690,13 @@
     }
   },
   "importUnassignedItemsError": {
-    "message": "File contains unassigned items."
+    "message": "Le fichier contient des éléments non assignés."
   },
   "selectFormat": {
-    "message": "Select the format of the import file"
+    "message": "Sélectionnez le format du fichier d'import"
   },
   "selectImportFile": {
-    "message": "Select the import file"
+    "message": "Sélectionnez le fichier d'import"
   },
   "chooseFile": {
     "message": "Choisir le fichier"
@@ -2649,7 +2705,7 @@
     "message": "Aucun fichier choisi"
   },
   "orCopyPasteFileContents": {
-    "message": "or copy/paste the import file contents"
+    "message": "ou copiez/collez les contenus du fichier d'importation"
   },
   "instructionsFor": {
     "message": "Instructions $NAME$",
@@ -2721,9 +2777,6 @@
   "yourPasskeyIsLocked": {
     "message": "Authentification requise pour utiliser cette clé d'accès. Veuillez vérifier votre identité pour continuer."
   },
-  "useBrowserName": {
-    "message": "Utiliser le navigateur"
-  },
   "multifactorAuthenticationCancelled": {
     "message": "Authentification multi-facteurs annulée"
   },
@@ -2767,7 +2820,7 @@
     "message": "En attente de l'authentification SSO"
   },
   "awaitingSSODesc": {
-    "message": "Please continue to log in using your company credentials."
+    "message": "Veuillez continuer à vous connecter en utilisant les identifiants de votre entreprise."
   },
   "seeDetailedInstructions": {
     "message": "Consultez les instructions détaillées sur notre site d'aide à",
@@ -2789,33 +2842,58 @@
     "message": "Insérez la YubiKey associée à votre compte LastPass dans le port USB de votre ordinateur, puis appuyez sur son bouton."
   },
   "switchAccount": {
-    "message": "Switch account"
+    "message": "Basculer le compte"
   },
   "switchAccounts": {
-    "message": "Switch accounts"
+    "message": "Basculer les comptes"
   },
   "switchToAccount": {
-    "message": "Switch to account"
+    "message": "Basculer vers le compte"
   },
   "activeAccount": {
-    "message": "Active account"
+    "message": "Compte actif"
+  },
+  "availableAccounts": {
+    "message": "Comptes disponibles"
   },
   "accountLimitReached": {
-    "message": "Account limit reached. Log out of an account to add another."
+    "message": "Limite du compte atteinte. Déconnectez-vous d'un compte pour en ajouter un autre."
   },
   "active": {
-    "message": "active"
+    "message": "actif"
   },
   "locked": {
-    "message": "locked"
+    "message": "verrouillé"
   },
   "unlocked": {
-    "message": "unlocked"
+    "message": "déverrouillé"
   },
   "server": {
-    "message": "server"
+    "message": "serveur"
   },
   "hostedAt": {
-    "message": "hosted at"
+    "message": "hébergé sur"
+  },
+  "useDeviceOrHardwareKey": {
+    "message": "Utilisez votre appareil ou votre clé matérielle"
+  },
+  "justOnce": {
+    "message": "Une seule fois"
+  },
+  "alwaysForThisSite": {
+    "message": "Toujours pour ce site"
+  },
+  "domainAddedToExcludedDomains": {
+    "message": "$DOMAIN$ a été ajouté à la liste des domaines exclus.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "google.com"
+      }
+    }
+  },
+  "commonImportFormats": {
+    "message": "Formats communs",
+    "description": "Label indicating the most common import formats"
   }
 }

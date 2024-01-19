@@ -17,7 +17,7 @@ import {
 } from "rxjs";
 
 import { ModalService } from "@bitwarden/angular/services/modal.service";
-import { FingerprintDialogComponent } from "@bitwarden/auth";
+import { FingerprintDialogComponent } from "@bitwarden/auth/angular";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -36,7 +36,7 @@ import { DialogService } from "@bitwarden/components";
 import { SetPinComponent } from "../../auth/popup/components/set-pin.component";
 import { BiometricErrors, BiometricErrorTypes } from "../../models/biometricErrors";
 import { BrowserApi } from "../../platform/browser/browser-api";
-import { flagEnabled } from "../../platform/flags";
+import { enableAccountSwitching } from "../../platform/flags";
 import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
 
 import { AboutComponent } from "./about.component";
@@ -44,7 +44,7 @@ import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
 
 const RateUrls = {
   [DeviceType.ChromeExtension]:
-    "https://chrome.google.com/webstore/detail/bitwarden-free-password-m/nngceckbapebfimnlniiiahkandclblb/reviews",
+    "https://chromewebstore.google.com/detail/bitwarden-free-password-m/nngceckbapebfimnlniiiahkandclblb/reviews",
   [DeviceType.FirefoxExtension]:
     "https://addons.mozilla.org/en-US/firefox/addon/bitwarden-password-manager/#reviews",
   [DeviceType.OperaExtension]:
@@ -52,7 +52,7 @@ const RateUrls = {
   [DeviceType.EdgeExtension]:
     "https://microsoftedge.microsoft.com/addons/detail/jbkfoedolllekgbhcbcoahefnbanhhlh",
   [DeviceType.VivaldiExtension]:
-    "https://chrome.google.com/webstore/detail/bitwarden-free-password-m/nngceckbapebfimnlniiiahkandclblb/reviews",
+    "https://chromewebstore.google.com/detail/bitwarden-free-password-m/nngceckbapebfimnlniiiahkandclblb/reviews",
   [DeviceType.SafariExtension]: "https://apps.apple.com/app/bitwarden/id1352778147",
 };
 
@@ -102,7 +102,7 @@ export class SettingsComponent implements OnInit {
     private dialogService: DialogService,
     private changeDetectorRef: ChangeDetectorRef,
   ) {
-    this.accountSwitcherEnabled = flagEnabled("accountSwitching");
+    this.accountSwitcherEnabled = enableAccountSwitching();
   }
 
   async ngOnInit() {
@@ -316,14 +316,15 @@ export class SettingsComponent implements OnInit {
 
   async updatePin(value: boolean) {
     if (value) {
-      const ref = this.modalService.open(SetPinComponent, { allowMultipleModals: true });
+      const dialogRef = SetPinComponent.open(this.dialogService);
 
-      if (ref == null) {
+      if (dialogRef == null) {
         this.form.controls.pin.setValue(false, { emitEvent: false });
         return;
       }
 
-      this.form.controls.pin.setValue(await ref.onClosedPromise(), { emitEvent: false });
+      const userHasPinSet = await firstValueFrom(dialogRef.closed);
+      this.form.controls.pin.setValue(userHasPinSet, { emitEvent: false });
     } else {
       await this.vaultTimeoutSettingsService.clear();
     }

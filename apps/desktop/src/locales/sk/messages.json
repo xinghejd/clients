@@ -33,7 +33,7 @@
     "message": "Zbierky"
   },
   "searchVault": {
-    "message": "Search vault"
+    "message": "Prehľadávať trezor"
   },
   "addItem": {
     "message": "Pridať položku"
@@ -403,6 +403,9 @@
   "length": {
     "message": "Dĺžka"
   },
+  "passwordMinLength": {
+    "message": "Minimálna dĺžka hesla"
+  },
   "uppercase": {
     "message": "Veľké písmená (A-Z)"
   },
@@ -542,7 +545,7 @@
     "message": "Vyžaduje sa opätovné zadanie hlavného hesla."
   },
   "masterPasswordMinlength": {
-    "message": "Master password must be at least $VALUE$ characters long.",
+    "message": "Hlavné heslo musí mať aspoň $VALUE$ znakov.",
     "description": "The Master Password must be at least a specific number of characters long.",
     "placeholders": {
       "value": {
@@ -1388,6 +1391,9 @@
   },
   "invalidPin": {
     "message": "Neplatný PIN kód."
+  },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Príliš veľa neplatných pokusov o zadanie PIN kódu. Odhlasuje sa."
   },
   "unlockWithWindowsHello": {
     "message": "Odomknúť pomocou Windows Hello"
@@ -2424,6 +2430,9 @@
   "submenu": {
     "message": "Podponuka"
   },
+  "skipToContent": {
+    "message": "Preskočiť na obsah"
+  },
   "typePasskey": {
     "message": "Prístupový kľúč"
   },
@@ -2610,5 +2619,9 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Vložte kľúč YubiKey priradený k vášmu účtu LastPass do USB portu počítača a potom sa dotknite jeho tlačidla."
+  },
+  "commonImportFormats": {
+    "message": "Bežné formáty",
+    "description": "Label indicating the most common import formats"
   }
 }

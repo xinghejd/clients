@@ -403,6 +403,9 @@
   "length": {
     "message": "Длина"
   },
+  "passwordMinLength": {
+    "message": "Минимальная длина пароля"
+  },
   "uppercase": {
     "message": "Прописные буквы (A-Z)"
   },
@@ -1388,6 +1391,9 @@
   },
   "invalidPin": {
     "message": "Неверный PIN-код."
+  },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Слишком много неверных попыток ввода PIN-кода. Выполняется выход."
   },
   "unlockWithWindowsHello": {
     "message": "Разблокировать с Windows Hello"
@@ -2424,6 +2430,9 @@
   "submenu": {
     "message": "Подменю"
   },
+  "skipToContent": {
+    "message": "Перейти к содержимому"
+  },
   "typePasskey": {
     "message": "Ключ доступа"
   },
@@ -2610,5 +2619,9 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Вставьте YubiKey, связанный с аккаунтом LastPass, в USB-порт компьютера и нажмите на его кнопку."
+  },
+  "commonImportFormats": {
+    "message": "Основные форматы",
+    "description": "Label indicating the most common import formats"
   }
 }

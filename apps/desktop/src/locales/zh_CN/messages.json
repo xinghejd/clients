@@ -403,6 +403,9 @@
   "length": {
     "message": "长度"
   },
+  "passwordMinLength": {
+    "message": "最小密码长度"
+  },
   "uppercase": {
     "message": "大写 (A-Z)"
   },
@@ -1388,6 +1391,9 @@
   },
   "invalidPin": {
     "message": "无效的 PIN 码。"
+  },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "无效的 PIN 输入尝试次数过多，正在注销。"
   },
   "unlockWithWindowsHello": {
     "message": "使用 Windows Hello 解锁"
@@ -2424,6 +2430,9 @@
   "submenu": {
     "message": "子菜单"
   },
+  "skipToContent": {
+    "message": "跳转到内容"
+  },
   "typePasskey": {
     "message": "通行密钥"
   },
@@ -2610,5 +2619,9 @@
   },
   "lastPassYubikeyDesc": {
     "message": "将与您的 LastPass 账户关联的 YubiKey 插入计算机的 USB 端口，然后触摸其按钮。"
+  },
+  "commonImportFormats": {
+    "message": "Common formats",
+    "description": "Label indicating the most common import formats"
   }
 }

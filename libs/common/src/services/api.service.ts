@@ -96,7 +96,6 @@ import { DeviceType } from "../enums";
 import { CollectionBulkDeleteRequest } from "../models/request/collection-bulk-delete.request";
 import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
 import { EventRequest } from "../models/request/event.request";
-import { IapCheckRequest } from "../models/request/iap-check.request";
 import { KdfRequest } from "../models/request/kdf.request";
 import { KeysRequest } from "../models/request/keys.request";
 import { OrganizationImportRequest } from "../models/request/organization-import.request";
@@ -105,7 +104,6 @@ import { RegisterRequest } from "../models/request/register.request";
 import { StorageRequest } from "../models/request/storage.request";
 import { UpdateAvatarRequest } from "../models/request/update-avatar.request";
 import { UpdateDomainsRequest } from "../models/request/update-domains.request";
-import { UpdateKeyRequest } from "../models/request/update-key.request";
 import { VerifyDeleteRecoverRequest } from "../models/request/verify-delete-recover.request";
 import { VerifyEmailRequest } from "../models/request/verify-email.request";
 import { BreachAccountResponse } from "../models/response/breach-account.response";
@@ -383,10 +381,6 @@ export class ApiService implements ApiServiceAbstraction {
     return new PaymentResponse(r);
   }
 
-  async postIapCheck(request: IapCheckRequest): Promise<any> {
-    return this.send("POST", "/accounts/iap-check", request, true, false);
-  }
-
   postReinstatePremium(): Promise<any> {
     return this.send("POST", "/accounts/reinstate-premium", null, true, false);
   }
@@ -410,10 +404,6 @@ export class ApiService implements ApiServiceAbstraction {
 
   postAccountKeys(request: KeysRequest): Promise<any> {
     return this.send("POST", "/accounts/keys", request, true, false);
-  }
-
-  postAccountKey(request: UpdateKeyRequest): Promise<any> {
-    return this.send("POST", "/accounts/key", request, true, false);
   }
 
   postAccountVerifyEmail(): Promise<any> {
@@ -1624,7 +1614,7 @@ export class ApiService implements ApiServiceAbstraction {
       headers.set("User-Agent", this.customUserAgent);
     }
 
-    const path = `/account/prevalidate?domainHint=${encodeURIComponent(identifier)}`;
+    const path = `/sso/prevalidate?domainHint=${encodeURIComponent(identifier)}`;
     const response = await this.fetch(
       new Request(this.environmentService.getIdentityUrl() + path, {
         cache: "no-store",

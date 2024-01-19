@@ -1,37 +1,24 @@
 <div class="page-header">
   <h1>{{ "myAccount" | i18n }}</h1>
 </div>
+<app-profile></app-profile>
 
-<bit-section variant="two-col">
-  <app-profile></app-profile>
-</bit-section>
-
-<bit-section variant="two-col" *ngIf="showChangeEmail">
-  <div class="secondary-header">
-    <h1>{{ "changeEmail" | i18n }}</h1>
-  </div>
+<div *ngIf="showChangeEmail" class="tw-mt-16">
+  <h1 bitTypography="h1">{{ "changeEmail" | i18n }}</h1>
   <app-change-email></app-change-email>
-</bit-section>
+</div>
 
-<bit-section variant="two-col">
-  <div class="secondary-header text-danger border-0 mb-0">
-    <h1>{{ "dangerZone" | i18n }}</h1>
-  </div>
-  <div class="card border-danger">
-    <div class="card-body">
-      <p>{{ "dangerZoneDesc" | i18n }}</p>
-      <button type="button" bitButton buttonType="danger" (click)="deauthorizeSessions()">
-        {{ "deauthorizeSessions" | i18n }}
-      </button>
-      <button type="button" bitButton buttonType="danger" (click)="purgeVault()">
-        {{ "purgeVault" | i18n }}
-      </button>
-      <button type="button" bitButton buttonType="danger" (click)="deleteAccount()">
-        {{ "deleteAccount" | i18n }}
-      </button>
-    </div>
-  </div>
-</bit-section>
+<app-danger-zone>
+  <button type="button" bitButton buttonType="danger" (click)="deauthorizeSessions()">
+    {{ "deauthorizeSessions" | i18n }}
+  </button>
+  <button type="button" bitButton buttonType="danger" (click)="purgeVault()">
+    {{ "purgeVault" | i18n }}
+  </button>
+  <button type="button" bitButton buttonType="danger" (click)="deleteAccount()">
+    {{ "deleteAccount" | i18n }}
+  </button>
+</app-danger-zone>
 
 <ng-template #deauthorizeSessionsTemplate></ng-template>
 <ng-template #purgeVaultTemplate></ng-template>

@@ -1,3 +1,4 @@
+import { DatePipe } from "@angular/common";
 import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { Observable, Subject, takeUntil, concatMap } from "rxjs";
 
@@ -63,6 +64,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
   restorePromise: Promise<any>;
   checkPasswordPromise: Promise<number>;
   showPassword = false;
+  showTotpSeed = false;
   showCardNumber = false;
   showCardCode = false;
   cipherType = CipherType;
@@ -85,6 +87,15 @@ export class AddEditComponent implements OnInit, OnDestroy {
   private personalOwnershipPolicyAppliesToActiveUser: boolean;
   private previousCipherId: string;
 
+  get fido2CredentialCreationDateValue(): string {
+    const dateCreated = this.i18nService.t("dateCreated");
+    const creationDate = this.datePipe.transform(
+      this.cipher?.login?.fido2Credentials?.[0]?.creationDate,
+      "short",
+    );
+    return `${dateCreated} ${creationDate}`;
+  }
+
   constructor(
     protected cipherService: CipherService,
     protected folderService: FolderService,
@@ -101,6 +112,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
     private organizationService: OrganizationService,
     protected sendApiService: SendApiService,
     protected dialogService: DialogService,
+    protected win: Window,
+    protected datePipe: DatePipe,
   ) {
     this.typeOptions = [
       { name: i18nService.t("typeLogin"), value: CipherType.Login },
@@ -204,6 +217,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
     if (!this.allowPersonal && this.organizationId == undefined) {
       this.organizationId = this.defaultOwnerId;
     }
+
+    this.resetMaskState();
   }
 
   async load() {
@@ -250,6 +265,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
         this.cipher.secureNote.type = SecureNoteType.Generic;
         this.cipher.reprompt = CipherRepromptType.None;
       }
+
+      this.resetMaskState();
     }
 
     if (this.cipher != null && (!this.editMode || loadedAddEditCipherInfo || this.cloneMode)) {
@@ -318,7 +335,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
       this.cipher.login.uris.length === 1 &&
       (this.cipher.login.uris[0].uri == null || this.cipher.login.uris[0].uri === "")
     ) {
-      this.cipher.login.uris = null;
+      this.cipher.login.uris = [];
     }
 
     // Allows saving of selected collections during "Add" and "Clone" flows
@@ -489,12 +506,33 @@ export class AddEditComponent implements OnInit, OnDestroy {
     return true;
   }
 
+  resetMaskState() {
+    // toggle masks off for maskable login properties with no value on init/load
+    this.showTotpSeed = !this.cipher.login?.totp;
+    this.showPassword = !this.cipher.login?.password;
+  }
+
   togglePassword() {
     this.showPassword = !this.showPassword;
-    document.getElementById("loginPassword").focus();
+
     if (this.editMode && this.showPassword) {
+      document.getElementById("loginPassword")?.focus();
+
       this.eventCollectionService.collect(
         EventType.Cipher_ClientToggledPasswordVisible,
+        this.cipherId,
+      );
+    }
+  }
+
+  toggleTotpSeed() {
+    this.showTotpSeed = !this.showTotpSeed;
+
+    if (this.editMode && this.showTotpSeed) {
+      document.getElementById("loginTotp")?.focus();
+
+      this.eventCollectionService.collect(
+        EventType.Cipher_ClientToggledTOTPSeedVisible,
         this.cipherId,
       );
     }
@@ -641,5 +679,29 @@ export class AddEditComponent implements OnInit, OnDestroy {
     await this.stateService.setAddEditCipherInfo(null);
 
     return loadedSavedInfo;
+  }
+
+  async copy(value: string, typeI18nKey: string, aType: string): Promise<boolean> {
+    if (value == null) {
+      return false;
+    }
+
+    const copyOptions = this.win != null ? { window: this.win } : null;
+    this.platformUtilsService.copyToClipboard(value, copyOptions);
+    this.platformUtilsService.showToast(
+      "info",
+      null,
+      this.i18nService.t("valueCopied", this.i18nService.t(typeI18nKey)),
+    );
+
+    if (typeI18nKey === "password") {
+      this.eventCollectionService.collect(EventType.Cipher_ClientCopiedPassword, this.cipherId);
+    } else if (typeI18nKey === "securityCode") {
+      this.eventCollectionService.collect(EventType.Cipher_ClientCopiedCardCode, this.cipherId);
+    } else if (aType === "H_Field") {
+      this.eventCollectionService.collect(EventType.Cipher_ClientCopiedHiddenField, this.cipherId);
+    }
+
+    return true;
   }
 }

@@ -1,13 +1,12 @@
 import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import {
-  SymmetricCryptoKey,
-  UserKey,
-} from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CryptoService } from "@bitwarden/common/platform/services/crypto.service";
+import { UserId } from "@bitwarden/common/types/guid";
+import { UserKey } from "@bitwarden/common/types/key";
 
 export class BrowserCryptoService extends CryptoService {
-  override async hasUserKeyStored(keySuffix: KeySuffixOptions, userId?: string): Promise<boolean> {
+  override async hasUserKeyStored(keySuffix: KeySuffixOptions, userId?: UserId): Promise<boolean> {
     if (keySuffix === KeySuffixOptions.Biometric) {
       return await this.stateService.getBiometricUnlock({ userId: userId });
     }
@@ -20,7 +19,7 @@ export class BrowserCryptoService extends CryptoService {
    */
   protected override async getKeyFromStorage(
     keySuffix: KeySuffixOptions,
-    userId?: string,
+    userId?: UserId,
   ): Promise<UserKey> {
     if (keySuffix === KeySuffixOptions.Biometric) {
       await this.platformUtilService.authenticateBiometric();

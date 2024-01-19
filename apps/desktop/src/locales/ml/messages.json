@@ -403,6 +403,9 @@
   "length": {
     "message": "ദൈര്‍ഘ്യം"
   },
+  "passwordMinLength": {
+    "message": "Minimum password length"
+  },
   "uppercase": {
     "message": "Uppercase (A-Z)"
   },
@@ -1388,6 +1391,9 @@
   },
   "invalidPin": {
     "message": "അസാധുവായ പിൻ കോഡ്."
+  },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Too many invalid PIN entry attempts. Logging out."
   },
   "unlockWithWindowsHello": {
     "message": "Windows Hello ഉപയോഗിച്ച് അൺലോക്കുചെയ്യുക"
@@ -2424,6 +2430,9 @@
   "submenu": {
     "message": "Submenu"
   },
+  "skipToContent": {
+    "message": "Skip to content"
+  },
   "typePasskey": {
     "message": "Passkey"
   },
@@ -2610,5 +2619,9 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Insert the YubiKey associated with your LastPass account into your computer's USB port, then touch its button."
+  },
+  "commonImportFormats": {
+    "message": "Common formats",
+    "description": "Label indicating the most common import formats"
   }
 }

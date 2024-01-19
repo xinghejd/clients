@@ -656,9 +656,6 @@
   "passkeySuccessfullyCreated": {
     "message": "A jelszó sikeresen létrehozásra került!"
   },
-  "customName": {
-    "message": "Egyedi név"
-  },
   "customPasskeyNameInfo": {
     "message": "Nevezzük el a jelszót a könnyebb azonosítshoz."
   },
@@ -674,8 +671,8 @@
   "encryptionNotSupported": {
     "message": "A titkosítás nem támogatott."
   },
-  "encryptionNotEnabled": {
-    "message": "A titkosítás nem engedélyezett."
+  "enablePasskeyEncryption": {
+    "message": "Titkosítás beállítása"
   },
   "usedForEncryption": {
     "message": "Használat titkosításhoz"
@@ -1074,6 +1071,9 @@
   "export": {
     "message": "Exportálás"
   },
+  "exportFrom": {
+    "message": "Exportálás innen:"
+  },
   "exportVault": {
     "message": "Széf exportálása"
   },
@@ -1149,6 +1149,9 @@
   },
   "length": {
     "message": "Hossz"
+  },
+  "passwordMinLength": {
+    "message": "Minimum jelszó hosszúság"
   },
   "uppercase": {
     "message": "Nagybetűs (A-Z)",
@@ -3542,12 +3545,12 @@
       }
     }
   },
-  "subscriptionFamiliesPlan": {
-    "message": "$COUNT$ felhasználónál több nem hívható meg magasabb szintű előfizetés nélkül. Az áttéréshez vegyük fel a kapcsolatot a vevőszolgálattal.",
+  "subscriptionUpgrade": {
+    "message": "$COUNT$ tagnál több nem hívható meg a magasabb szintű csomag nélkül.",
     "placeholders": {
       "count": {
         "content": "$1",
-        "example": "6"
+        "example": "2"
       }
     }
   },
@@ -3821,15 +3824,6 @@
   },
   "couldNotChargeCardPayInvoice": {
     "message": "Nem lehet megterhelni a kártyát.  Nézzük át és fizessük ki az alább felsorolt kifizetés nélküli számlát."
-  },
-  "inAppPurchase": {
-    "message": "Alkalmazáson belüli vásárlás"
-  },
-  "cannotPerformInAppPurchase": {
-    "message": "Nem hajtható végre ez a művelet az alkalmazáson belüli vásárlás fizetési módjának használatával."
-  },
-  "manageSubscriptionFromStore": {
-    "message": "Az előfizetés annál az üzletnél kell kezelni, ahol az alkalmazáson belüli vásárlás történt."
   },
   "minLength": {
     "message": "Minimális hossz"
@@ -5181,6 +5175,12 @@
   },
   "spValidateCertificates": {
     "message": "Tanúsítványok ellenőrzése"
+  },
+  "spUniqueEntityId": {
+    "message": "Set a unique SP entity ID"
+  },
+  "spUniqueEntityIdDesc": {
+    "message": "Generate an identifier that is unique to your organization"
   },
   "idpEntityId": {
     "message": "Szervezeti ID"
@@ -6662,7 +6662,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "A Teams Starter csomagok legfeljebb $SEATCOUNT$ tagot tartalmazhatnak. Lépjünk kapcsolatba az ügyfélszolgálattal a csomag frissítéséhez és további tagok meghívásához.",
+    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Upgrade to your plan to invite more members.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -7389,6 +7389,9 @@
   "alreadyHaveAccount": {
     "message": "Van már saját fiók?"
   },
+  "skipToContent": {
+    "message": "Ugrás a tartalomra"
+  },
   "customBillingStart": {
     "message": "Az egyedi számlázás nem jelenik meg. Keressük fel "
   },
@@ -7438,7 +7441,17 @@
   "collectionAccessRestricted": {
     "message": "A gyűjtemény elérése korlátozott."
   },
+  "grantCollectionAccess": {
+    "message": "Adjunk hozzáférést csoportoknak vagy személyeknek eennél a gyűjteménynél."
+  },
+  "adminCollectionAccess": {
+    "message": "Az adminisztrátorok elérhetik és kezelhetik a gyűjteményeket."
+  },
   "serviceAccountAccessUpdated": {
-    "message": "Service account access updated"
+    "message": "A szolgáltatás fiók elérése frissítésre került."
+  },
+  "commonImportFormats": {
+    "message": "Általános formátumok",
+    "description": "Label indicating the most common import formats"
   }
 }

@@ -403,6 +403,9 @@
   "length": {
     "message": "Lengte"
   },
+  "passwordMinLength": {
+    "message": "Minimale wachtwoordlengte"
+  },
   "uppercase": {
     "message": "Hoofdletters (A-Z)"
   },
@@ -1388,6 +1391,9 @@
   },
   "invalidPin": {
     "message": "Ongeldige PIN-code."
+  },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "PIN te vaak verkeerd ingevuld. Bezig met uitloggen."
   },
   "unlockWithWindowsHello": {
     "message": "Ontgrendelen met Windows Hello"
@@ -2424,6 +2430,9 @@
   "submenu": {
     "message": "Submenu"
   },
+  "skipToContent": {
+    "message": "Ga naar de inhoud"
+  },
   "typePasskey": {
     "message": "Passkey"
   },
@@ -2610,5 +2619,9 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Plaats de YubiKey die gekoppeld is aan je LastPass-account in de USB-poort van je computer en druk vervolgens op de knop."
+  },
+  "commonImportFormats": {
+    "message": "Veelvoorkomende formaten",
+    "description": "Label indicating the most common import formats"
   }
 }

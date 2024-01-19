@@ -656,9 +656,6 @@
   "passkeySuccessfullyCreated": {
     "message": "کلید عبور با موفقیت ایجاد شد!"
   },
-  "customName": {
-    "message": "نام سفارشی"
-  },
   "customPasskeyNameInfo": {
     "message": "کلید عبور خود را برای کمک به شناسایی آن نام ببرید."
   },
@@ -674,8 +671,8 @@
   "encryptionNotSupported": {
     "message": "رمزگذاری پشتیبانی نمی‌شود"
   },
-  "encryptionNotEnabled": {
-    "message": "Encryption not enabled"
+  "enablePasskeyEncryption": {
+    "message": "Set up encryption"
   },
   "usedForEncryption": {
     "message": "Used for encryption"
@@ -1074,6 +1071,9 @@
   "export": {
     "message": "برون ریزی"
   },
+  "exportFrom": {
+    "message": "Export from"
+  },
   "exportVault": {
     "message": "برون ریزی گاوصندوق"
   },
@@ -1149,6 +1149,9 @@
   },
   "length": {
     "message": "طول"
+  },
+  "passwordMinLength": {
+    "message": "Minimum password length"
   },
   "uppercase": {
     "message": "حروف بزرگ (A-Z)",
@@ -3542,12 +3545,12 @@
       }
     }
   },
-  "subscriptionFamiliesPlan": {
-    "message": "بدون ارتقای طرح خود نمی‌توانید بیش از $COUNT$ عضو دعوت کنید. لطفاً برای ارتقاء با پشتیبانی مشتری تماس بگیرید.",
+  "subscriptionUpgrade": {
+    "message": "You cannot invite more than $COUNT$ members without upgrading your plan.",
     "placeholders": {
       "count": {
         "content": "$1",
-        "example": "6"
+        "example": "2"
       }
     }
   },
@@ -3821,15 +3824,6 @@
   },
   "couldNotChargeCardPayInvoice": {
     "message": "ما نتوانستیم کارت شما را شارژ کنیم. لطفاً فاکتور پرداخت نشده ذکر شده در زیر را مشاهده و پرداخت کنید."
-  },
-  "inAppPurchase": {
-    "message": "پرداخت درون برنامه ای"
-  },
-  "cannotPerformInAppPurchase": {
-    "message": "هنگام استفاده از روش پرداخت خرید درون برنامه ای، نمی‌توانید این عمل را انجام دهید."
-  },
-  "manageSubscriptionFromStore": {
-    "message": "باید اشتراک خود را از فروشگاهی که خرید درون برنامه ای شما انجام شده است مدیریت کنید."
   },
   "minLength": {
     "message": "حداقل طول"
@@ -5181,6 +5175,12 @@
   },
   "spValidateCertificates": {
     "message": "اعتبارسنجی گواهینامه‌ها"
+  },
+  "spUniqueEntityId": {
+    "message": "Set a unique SP entity ID"
+  },
+  "spUniqueEntityIdDesc": {
+    "message": "Generate an identifier that is unique to your organization"
   },
   "idpEntityId": {
     "message": "شناسه موجودیت"
@@ -6662,7 +6662,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Contact Customer Support to upgrade your plan and invite more members.",
+    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Upgrade to your plan to invite more members.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -7389,6 +7389,9 @@
   "alreadyHaveAccount": {
     "message": "پیشتر حساب کاربری داشته اید؟"
   },
+  "skipToContent": {
+    "message": "Skip to content"
+  },
   "customBillingStart": {
     "message": "Custom billing is not reflected. Visit the "
   },
@@ -7438,7 +7441,17 @@
   "collectionAccessRestricted": {
     "message": "Collection access is restricted"
   },
+  "grantCollectionAccess": {
+    "message": "Grant groups or members access to this collection."
+  },
+  "adminCollectionAccess": {
+    "message": "Administrators can access and manage collections."
+  },
   "serviceAccountAccessUpdated": {
     "message": "Service account access updated"
+  },
+  "commonImportFormats": {
+    "message": "Common formats",
+    "description": "Label indicating the most common import formats"
   }
 }

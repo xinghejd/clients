@@ -403,6 +403,9 @@
   "length": {
     "message": "Comprimento"
   },
+  "passwordMinLength": {
+    "message": "Comprimento mínimo da palavra-passe"
+  },
   "uppercase": {
     "message": "Maiúsculas (A-Z)"
   },
@@ -1388,6 +1391,9 @@
   },
   "invalidPin": {
     "message": "Código PIN inválido."
+  },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Demasiadas tentativas de introdução de PINs inválidos. A terminar a sessão."
   },
   "unlockWithWindowsHello": {
     "message": "Desbloquear com o Windows Hello"
@@ -2424,6 +2430,9 @@
   "submenu": {
     "message": "Submenu"
   },
+  "skipToContent": {
+    "message": "Avançar para o conteúdo"
+  },
   "typePasskey": {
     "message": "Chave de acesso"
   },
@@ -2610,5 +2619,9 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Insira a YubiKey associada à sua conta LastPass na porta USB do seu computador e, em seguida, toque no respetivo botão."
+  },
+  "commonImportFormats": {
+    "message": "Formatos comuns",
+    "description": "Label indicating the most common import formats"
   }
 }

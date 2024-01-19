@@ -656,9 +656,6 @@
   "passkeySuccessfullyCreated": {
     "message": "Chave de acesso criada com sucesso!"
   },
-  "customName": {
-    "message": "Nome personalizado"
-  },
   "customPasskeyNameInfo": {
     "message": "Dê um nome à sua chave de acesso para o ajudar a identificá-la."
   },
@@ -674,8 +671,8 @@
   "encryptionNotSupported": {
     "message": "Encriptação não suportada"
   },
-  "encryptionNotEnabled": {
-    "message": "Encriptação não ativada"
+  "enablePasskeyEncryption": {
+    "message": "Configurar a encriptação"
   },
   "usedForEncryption": {
     "message": "Utilizado para encriptação"
@@ -1074,6 +1071,9 @@
   "export": {
     "message": "Exportar"
   },
+  "exportFrom": {
+    "message": "Exportar de"
+  },
   "exportVault": {
     "message": "Exportar cofre"
   },
@@ -1149,6 +1149,9 @@
   },
   "length": {
     "message": "Comprimento"
+  },
+  "passwordMinLength": {
+    "message": "Comprimento mínimo da palavra-passe"
   },
   "uppercase": {
     "message": "Maiúsculas (A-Z)",
@@ -3210,7 +3213,7 @@
     "message": "Acesso do grupo"
   },
   "groupAccessUserDesc": {
-    "message": "Conceda aos membros acesso às coleções, adicionando-os a 1 ou mais grupos."
+    "message": "Conceder aos membros acesso às coleções, adicionando-os a 1 ou mais grupos."
   },
   "invitedUsers": {
     "message": "Utilizador(es) convidado(s)"
@@ -3542,12 +3545,12 @@
       }
     }
   },
-  "subscriptionFamiliesPlan": {
-    "message": "Não pode convidar mais do que $COUNT$ membros sem atualizar o seu plano. Contacte o Apoio ao cliente para atualizar.",
+  "subscriptionUpgrade": {
+    "message": "Não pode convidar mais do que $COUNT$ membros sem atualizar o seu plano.",
     "placeholders": {
       "count": {
         "content": "$1",
-        "example": "6"
+        "example": "2"
       }
     }
   },
@@ -3821,15 +3824,6 @@
   },
   "couldNotChargeCardPayInvoice": {
     "message": "Não foi possível concluir a transação. Por favor, verifique e efetue o pagamento da fatura por pagar indicada abaixo."
-  },
-  "inAppPurchase": {
-    "message": "Compras na aplicação"
-  },
-  "cannotPerformInAppPurchase": {
-    "message": "Não é possível executar esta ação enquanto estiver a utilizar um método de pagamento dentro da aplicação."
-  },
-  "manageSubscriptionFromStore": {
-    "message": "Deve gerir a sua subscrição a partir da loja onde foi efetuada a compra na aplicação."
   },
   "minLength": {
     "message": "Comprimento mínimo"
@@ -5181,6 +5175,12 @@
   },
   "spValidateCertificates": {
     "message": "Validar certificados"
+  },
+  "spUniqueEntityId": {
+    "message": "Set a unique SP entity ID"
+  },
+  "spUniqueEntityIdDesc": {
+    "message": "Generate an identifier that is unique to your organization"
   },
   "idpEntityId": {
     "message": "ID da entidade"
@@ -6662,7 +6662,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "Os planos Teams Starter podem ter até $SEATCOUNT$ membros. Contacte o Apoio ao Cliente para atualizar o seu plano e convidar mais membros.",
+    "message": "Os planos Teams Starter podem ter até $SEATCOUNT$ membros. Atualize o seu plano para convidar mais membros.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -6770,7 +6770,7 @@
     "message": "Carregar licença"
   },
   "projectPeopleDescription": {
-    "message": "Conceder acesso a este projeto a grupos ou pessoas."
+    "message": "Conceder a grupos ou pessoas acesso a este projeto."
   },
   "projectPeopleSelectHint": {
     "message": "Escreva ou selecione pessoas ou grupos"
@@ -7389,6 +7389,9 @@
   "alreadyHaveAccount": {
     "message": "Já tem uma conta?"
   },
+  "skipToContent": {
+    "message": "Avançar para o conteúdo"
+  },
   "customBillingStart": {
     "message": "A faturação personalizada não é refletida. Visite a "
   },
@@ -7438,7 +7441,17 @@
   "collectionAccessRestricted": {
     "message": "O acesso à coleção é restrito"
   },
+  "grantCollectionAccess": {
+    "message": "Conceder a grupos ou membros acesso a esta coleção."
+  },
+  "adminCollectionAccess": {
+    "message": "Os administradores podem aceder e gerir coleções."
+  },
   "serviceAccountAccessUpdated": {
-    "message": "Service account access updated"
+    "message": "Acesso à conta de serviço atualizado"
+  },
+  "commonImportFormats": {
+    "message": "Formatos comuns",
+    "description": "Label indicating the most common import formats"
   }
 }

@@ -3,7 +3,6 @@ import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from "@angula
 import { AbstractControl, FormBuilder, Validators } from "@angular/forms";
 import {
   combineLatest,
-  firstValueFrom,
   from,
   map,
   Observable,
@@ -70,8 +69,12 @@ export enum CollectionDialogAction {
   templateUrl: "collection-dialog.component.html",
 })
 export class CollectionDialogComponent implements OnInit, OnDestroy {
-  protected flexibleCollectionsEnabled$ = this.configService.getFeatureFlag$(
-    FeatureFlag.FlexibleCollections,
+  protected flexibleCollectionsEnabled$ = this.organizationService
+    .get$(this.params.organizationId)
+    .pipe(map((o) => o?.flexibleCollections));
+
+  protected flexibleCollectionsV1Enabled$ = this.configService.getFeatureFlag$(
+    FeatureFlag.FlexibleCollectionsV1,
     false,
   );
 
@@ -94,6 +97,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     selectedOrg: "",
   });
   protected PermissionMode = PermissionMode;
+  protected showDeleteButton = false;
 
   constructor(
     @Inject(DIALOG_DATA) private params: CollectionDialogParams,
@@ -105,9 +109,9 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private organizationUserService: OrganizationUserService,
+    private configService: ConfigServiceAbstraction,
     private dialogService: DialogService,
     private changeDetectorRef: ChangeDetectorRef,
-    private configService: ConfigServiceAbstraction,
   ) {
     this.tabIndex = params.initialTab ?? CollectionDialogTabType.Info;
   }
@@ -133,10 +137,6 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       this.formGroup.patchValue({ selectedOrg: this.params.organizationId });
       await this.loadOrg(this.params.organizationId, this.params.collectionIds);
     }
-
-    if (await firstValueFrom(this.flexibleCollectionsEnabled$)) {
-      this.formGroup.controls.access.addValidators(validateCanManagePermission);
-    }
   }
 
   async loadOrg(orgId: string, collectionIds: string[]) {
@@ -161,10 +161,19 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       groups: groups$,
       users: this.organizationUserService.getAllUsers(orgId),
       flexibleCollections: this.flexibleCollectionsEnabled$,
+      flexibleCollectionsV1: this.flexibleCollectionsV1Enabled$,
     })
       .pipe(takeUntil(this.formGroup.controls.selectedOrg.valueChanges), takeUntil(this.destroy$))
       .subscribe(
-        ({ organization, collections, collectionDetails, groups, users, flexibleCollections }) => {
+        ({
+          organization,
+          collections,
+          collectionDetails,
+          groups,
+          users,
+          flexibleCollections,
+          flexibleCollectionsV1,
+        }) => {
           this.organization = organization;
           this.accessItems = [].concat(
             groups.map(mapGroupToAccessItemView),
@@ -198,6 +207,8 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
               parent,
               access: accessSelections,
             });
+
+            this.showDeleteButton = this.collection.canDelete(organization);
           } else {
             this.nestOptions = collections;
             const parent = collections.find((c) => c.id === this.params.parentCollectionId);
@@ -219,6 +230,13 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
               access: initialSelection,
             });
           }
+
+          if (flexibleCollectionsV1 && !organization.allowAdminAccessToAllCollectionItems) {
+            this.formGroup.controls.access.addValidators(validateCanManagePermission);
+          } else {
+            this.formGroup.controls.access.removeValidators(validateCanManagePermission);
+          }
+          this.formGroup.controls.access.updateValueAndValidity();
 
           this.loading = false;
         },
@@ -312,13 +330,6 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
 
     this.close(CollectionDialogAction.Deleted, this.collection);
   };
-
-  protected canDelete$ = this.flexibleCollectionsEnabled$.pipe(
-    map(
-      (flexibleCollectionsEnabled) =>
-        this.editMode && this.collection.canDelete(this.organization, flexibleCollectionsEnabled),
-    ),
-  );
 
   ngOnDestroy(): void {
     this.destroy$.next();

@@ -403,6 +403,9 @@
   "length": {
     "message": "Garums"
   },
+  "passwordMinLength": {
+    "message": "Mazākais pieļaujamais paroles garums"
+  },
   "uppercase": {
     "message": "Lielie burti (A-Z)"
   },
@@ -1388,6 +1391,9 @@
   },
   "invalidPin": {
     "message": "Nederīgs PIN kods."
+  },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Pārāk daudz nederīgu PIN ievadīšanas mēģinājumu. Atsakās."
   },
   "unlockWithWindowsHello": {
     "message": "Atslēgt ar Windows Hello"
@@ -2424,6 +2430,9 @@
   "submenu": {
     "message": "Apakšizvēlne"
   },
+  "skipToContent": {
+    "message": "Pāriet uz saturu"
+  },
   "typePasskey": {
     "message": "Piekļuves atslēga"
   },
@@ -2610,5 +2619,9 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Jāievieto ar LastPass kontu sasaistītā YubiKey datora USB ligzdā, tad jāpieskaras tās pogai."
+  },
+  "commonImportFormats": {
+    "message": "Izplatīti veidoli",
+    "description": "Label indicating the most common import formats"
   }
 }

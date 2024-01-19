@@ -268,6 +268,9 @@
   "length": {
     "message": "Довжина"
   },
+  "passwordMinLength": {
+    "message": "Мінімальна довжина пароля"
+  },
   "uppercase": {
     "message": "Верхній регістр (A-Z)"
   },
@@ -322,6 +325,9 @@
   },
   "password": {
     "message": "Пароль"
+  },
+  "totp": {
+    "message": "Секретний ключ автентифікації"
   },
   "passphrase": {
     "message": "Парольна фраза"
@@ -509,6 +515,18 @@
   "autofillError": {
     "message": "Не вдається заповнити пароль на цій сторінці. Скопіюйте і вставте ім'я користувача та/або пароль."
   },
+  "totpCaptureError": {
+    "message": "Неможливо сканувати QR-код з поточної сторінки"
+  },
+  "totpCaptureSuccess": {
+    "message": "Ключ автентифікації додано"
+  },
+  "totpCapture": {
+    "message": "Скануйте QR-код програмою автентифікації"
+  },
+  "copyTOTP": {
+    "message": "Скопіюйте ключ автентифікації (TOTP)"
+  },
   "loggedOut": {
     "message": "Ви вийшли"
   },
@@ -540,7 +558,7 @@
     "message": "Ви можете змінити головний пароль в сховищі на bitwarden.com. Хочете перейти на вебсайт зараз?"
   },
   "twoStepLoginConfirmation": {
-    "message": "Двоетапна перевірка дає змогу надійніше захистити ваш обліковий запис, вимагаючи підтвердження входу з використанням іншого пристрою, наприклад, за допомогою коду безпеки, програми авторизації, SMS, телефонного виклику, або е-пошти. Ви можете налаштувати двоетапну перевірку в сховищі на bitwarden.com. Хочете перейти на вебсайт зараз?"
+    "message": "Двоетапна перевірка дає змогу надійніше захистити ваш обліковий запис, вимагаючи підтвердження входу з використанням іншого пристрою, наприклад, за допомогою ключа безпеки, програми автентифікації, SMS, телефонного виклику, або е-пошти. Ви можете налаштувати двоетапну перевірку в сховищі на bitwarden.com. Хочете перейти на вебсайт зараз?"
   },
   "editedFolder": {
     "message": "Теку збережено"
@@ -778,7 +796,7 @@
     "message": "Докладніше"
   },
   "authenticatorKeyTotp": {
-    "message": "Ключ авторизації (TOTP)"
+    "message": "Ключ автентифікації (TOTP)"
   },
   "verificationCodeTotp": {
     "message": "Код підтвердження (TOTP)"
@@ -886,7 +904,7 @@
     "message": "Автоматично копіювати коди TOTP"
   },
   "disableAutoTotpCopyDesc": {
-    "message": "Якщо запис має ключ авторизації, копіювати код підтвердження TOTP до буфера обміну під час автозаповнення."
+    "message": "Якщо запис має ключ автентифікації, копіювати код підтвердження TOTP до буфера обміну під час автозаповнення."
   },
   "enableAutoBiometricsPrompt": {
     "message": "Запитувати біометрію під час запуску"
@@ -898,7 +916,7 @@
     "message": "Для використання цієї функції необхідна передплата преміум."
   },
   "enterVerificationCodeApp": {
-    "message": "Введіть 6-значний код підтвердження з програми авторизації."
+    "message": "Введіть 6-значний код підтвердження з програми автентифікації."
   },
   "enterVerificationCodeEmail": {
     "message": "Введіть 6-значний код підтвердження, надісланий на $EMAIL$.",
@@ -940,7 +958,7 @@
     "message": "Відкрити нову вкладку"
   },
   "webAuthnAuthenticate": {
-    "message": "Авторизація WebAuthn"
+    "message": "Автентифікація WebAuthn"
   },
   "loginUnavailable": {
     "message": "Вхід недоступний"
@@ -949,7 +967,7 @@
     "message": "Для цього облікового запису увімкнено двоетапну перевірку. Однак, жоден із налаштованих провайдерів не підтримується цим браузером."
   },
   "noTwoStepProviders2": {
-    "message": "Будь ласка, скористайтеся підтримуваним браузером (наприклад, Chrome) та/або іншими провайдерами, що краще підтримуються браузерами (наприклад, програма авторизації)."
+    "message": "Будь ласка, скористайтеся підтримуваним браузером (наприклад, Chrome) та/або іншими провайдерами, що краще підтримуються браузерами (як-от програма автентифікації)."
   },
   "twoStepOptions": {
     "message": "Налаштування двоетапної перевірки"
@@ -961,10 +979,10 @@
     "message": "Код відновлення"
   },
   "authenticatorAppTitle": {
-    "message": "Програма авторизації"
+    "message": "Програма автентифікації"
   },
   "authenticatorAppDesc": {
-    "message": "Використовуйте програму авторизації (наприклад, Authy або Google Authenticator), щоб генерувати тимчасові коди підтвердження.",
+    "message": "Використовуйте програму автентифікації (наприклад, Authy або Google Authenticator), щоб генерувати тимчасові коди підтвердження.",
     "description": "'Authy' and 'Google Authenticator' are product names and should not be translated."
   },
   "yubiKeyTitle": {
@@ -1034,10 +1052,10 @@
     "message": "Застосовується для всіх облікових записів, до яких виконано вхід."
   },
   "turnOffBrowserBuiltInPasswordManagerSettings": {
-    "message": "Turn off your browser’s built in password manager settings to avoid conflicts."
+    "message": "Для уникнення конфліктів вимкніть вбудований у браузер менеджер паролів."
   },
   "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
-    "message": "Edit browser settings."
+    "message": "Зміна налаштувань браузера."
   },
   "autofillOverlayVisibilityOff": {
     "message": "Вимк",
@@ -1475,6 +1493,9 @@
   "invalidPin": {
     "message": "Неправильний PIN-код."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Забагато невдалих спроб введення PIN-коду. Вихід з системи."
+  },
   "unlockWithBiometrics": {
     "message": "Розблокувати з біометрією"
   },
@@ -1529,7 +1550,7 @@
     "message": "Запис відновлено"
   },
   "vaultTimeoutLogOutConfirmation": {
-    "message": "Вихід скасує всі права доступу до вашого сховища і вимагатиме авторизації після завершення часу очікування. Ви дійсно хочете використати цей параметр?"
+    "message": "Вихід скасує всі права доступу до вашого сховища і вимагатиме автентифікацію після завершення часу очікування. Ви дійсно хочете використати цей параметр?"
   },
   "vaultTimeoutLogOutConfirmationTitle": {
     "message": "Підтвердження дії часу очікування"
@@ -1722,7 +1743,7 @@
     "placeholders": {
       "domain": {
         "content": "$1",
-        "example": "googlecom"
+        "example": "google.com"
       }
     }
   },
@@ -2494,6 +2515,38 @@
     "message": "Згорнути/розгорнути",
     "description": "Toggling an expand/collapse state."
   },
+  "filelessImport": {
+    "message": "Імпортувати ваші дані до Bitwarden?",
+    "description": "Default notification title for triggering a fileless import."
+  },
+  "lpFilelessImport": {
+    "message": "Захистити ваші дані LastPass та імпортувати до Bitwarden?",
+    "description": "LastPass specific notification title for triggering a fileless import."
+  },
+  "lpCancelFilelessImport": {
+    "message": "Зберегти незашифрований файл",
+    "description": "LastPass specific notification button text for cancelling a fileless import."
+  },
+  "startFilelessImport": {
+    "message": "Імпортувати до Bitwarden",
+    "description": "Notification button text for starting a fileless import."
+  },
+  "importing": {
+    "message": "Триває імпортування...",
+    "description": "Notification message for when an import is in progress."
+  },
+  "dataSuccessfullyImported": {
+    "message": "Дані успішно імпортовано!",
+    "description": "Notification message for when an import has completed successfully."
+  },
+  "dataImportFailed": {
+    "message": "Помилка імпортування. Перевірте консоль для перегляду подробиць.",
+    "description": "Notification message for when an import has failed."
+  },
+  "importNetworkError": {
+    "message": "Під час імпортування сталася мережева помилка.",
+    "description": "Notification message for when an import has failed due to a network error."
+  },
   "aliasDomain": {
     "message": "Псевдонім домену"
   },
@@ -2508,6 +2561,9 @@
   "turnOffMasterPasswordPromptToEditField": {
     "message": "Вимкніть повторний запит головного пароля, щоб редагувати це поле",
     "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
+  },
+  "skipToContent": {
+    "message": "Перейти до вмісту"
   },
   "bitwardenOverlayButton": {
     "message": "Кнопка меню автозаповнення Bitwarden",
@@ -2721,9 +2777,6 @@
   "yourPasskeyIsLocked": {
     "message": "Для використання ключа доступу потрібна автентифікація. Пройдіть перевірку, щоб продовжити."
   },
-  "useBrowserName": {
-    "message": "Скористатися браузером"
-  },
   "multifactorAuthenticationCancelled": {
     "message": "Багатофакторну автентифікацію скасовано"
   },
@@ -2749,10 +2802,10 @@
     "message": "Необхідно пройти багатофакторну автентифікацію LastPass"
   },
   "lastPassMFADesc": {
-    "message": "Введіть одноразовий код з програми для автентифікації"
+    "message": "Введіть одноразовий код з програми автентифікації"
   },
   "lastPassOOBDesc": {
-    "message": "Схваліть запит входу в програмі для автентифікації або введіть одноразовий код."
+    "message": "Схваліть запит входу в програмі автентифікації або введіть одноразовий код."
   },
   "passcode": {
     "message": "Код"
@@ -2800,6 +2853,9 @@
   "activeAccount": {
     "message": "Активний обліковий запис"
   },
+  "availableAccounts": {
+    "message": "Доступні облікові записи"
+  },
   "accountLimitReached": {
     "message": "Досягнуто обмеження облікового запису. Вийдіть, щоб додати інший обліковий запис."
   },
@@ -2817,5 +2873,27 @@
   },
   "hostedAt": {
     "message": "розміщений на"
+  },
+  "useDeviceOrHardwareKey": {
+    "message": "Скористайтеся своїм пристроєм або апаратним ключем"
+  },
+  "justOnce": {
+    "message": "Лише раз"
+  },
+  "alwaysForThisSite": {
+    "message": "Завжди для цього сайту"
+  },
+  "domainAddedToExcludedDomains": {
+    "message": "$DOMAIN$ додано до винятків.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "google.com"
+      }
+    }
+  },
+  "commonImportFormats": {
+    "message": "Поширені формати",
+    "description": "Label indicating the most common import formats"
   }
 }

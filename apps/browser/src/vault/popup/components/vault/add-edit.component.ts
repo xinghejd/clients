@@ -1,6 +1,7 @@
-import { Location } from "@angular/common";
+import { DatePipe, Location } from "@angular/common";
 import { Component } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
+import qrcodeParser from "qrcode-parser";
 import { firstValueFrom } from "rxjs";
 import { first } from "rxjs/operators";
 
@@ -66,6 +67,7 @@ export class AddEditComponent extends BaseAddEditComponent {
     logService: LogService,
     sendApiService: SendApiService,
     dialogService: DialogService,
+    datePipe: DatePipe,
   ) {
     super(
       cipherService,
@@ -83,6 +85,8 @@ export class AddEditComponent extends BaseAddEditComponent {
       organizationService,
       sendApiService,
       dialogService,
+      window,
+      datePipe,
     );
   }
 
@@ -339,5 +343,27 @@ export class AddEditComponent extends BaseAddEditComponent {
       window,
       this.singleActionKey || VaultPopoutType.addEditVaultItem,
     );
+  }
+
+  async captureTOTPFromTab() {
+    try {
+      const screenshot = await BrowserApi.captureVisibleTab();
+      const data = await qrcodeParser(screenshot);
+      const url = new URL(data.toString());
+      if (url.protocol == "otpauth:" && url.searchParams.has("secret")) {
+        this.cipher.login.totp = data.toString();
+        this.platformUtilsService.showToast(
+          "success",
+          null,
+          this.i18nService.t("totpCaptureSuccess"),
+        );
+      }
+    } catch (e) {
+      this.platformUtilsService.showToast(
+        "error",
+        this.i18nService.t("errorOccurred"),
+        this.i18nService.t("totpCaptureError"),
+      );
+    }
   }
 }

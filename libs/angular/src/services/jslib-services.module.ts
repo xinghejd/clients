@@ -1,5 +1,6 @@
 import { LOCALE_ID, NgModule } from "@angular/core";
 
+import { PinCryptoServiceAbstraction, PinCryptoService } from "@bitwarden/auth/common";
 import { AvatarUpdateService as AccountUpdateServiceAbstraction } from "@bitwarden/common/abstractions/account/avatar-update.service";
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
 import { AuditService as AuditServiceAbstraction } from "@bitwarden/common/abstractions/audit.service";
@@ -112,9 +113,11 @@ import {
   GlobalStateProvider,
   SingleUserStateProvider,
   StateProvider,
+  DerivedStateProvider,
 } from "@bitwarden/common/platform/state";
 /* eslint-disable import/no-restricted-paths -- We need the implementations to inject, but generally these should not be accessed */
 import { DefaultActiveUserStateProvider } from "@bitwarden/common/platform/state/implementations/default-active-user-state.provider";
+import { DefaultDerivedStateProvider } from "@bitwarden/common/platform/state/implementations/default-derived-state.provider";
 import { DefaultGlobalStateProvider } from "@bitwarden/common/platform/state/implementations/default-global-state.provider";
 import { DefaultSingleUserStateProvider } from "@bitwarden/common/platform/state/implementations/default-single-user-state.provider";
 import { DefaultStateProvider } from "@bitwarden/common/platform/state/implementations/default-state.provider";
@@ -394,8 +397,8 @@ import { ModalService } from "./modal.service";
         PlatformUtilsServiceAbstraction,
         LogService,
         StateServiceAbstraction,
-        AppIdServiceAbstraction,
-        DevicesApiServiceAbstraction,
+        AccountServiceAbstraction,
+        StateProvider,
       ],
     },
     {
@@ -459,7 +462,6 @@ import { ModalService } from "./modal.service";
         FolderApiServiceAbstraction,
         OrganizationServiceAbstraction,
         SendApiServiceAbstraction,
-        ConfigServiceAbstraction,
         LOGOUT_CALLBACK,
       ],
     },
@@ -477,7 +479,6 @@ import { ModalService } from "./modal.service";
         TokenServiceAbstraction,
         PolicyServiceAbstraction,
         StateServiceAbstraction,
-        UserVerificationServiceAbstraction,
       ],
     },
     {
@@ -627,6 +628,8 @@ import { ModalService } from "./modal.service";
         CryptoServiceAbstraction,
         I18nServiceAbstraction,
         UserVerificationApiServiceAbstraction,
+        PinCryptoServiceAbstraction,
+        LogService,
       ],
     },
     {
@@ -769,6 +772,17 @@ import { ModalService } from "./modal.service";
       deps: [CryptoServiceAbstraction],
     },
     {
+      provide: PinCryptoServiceAbstraction,
+      useClass: PinCryptoService,
+      deps: [
+        StateServiceAbstraction,
+        CryptoServiceAbstraction,
+        VaultTimeoutSettingsServiceAbstraction,
+        LogService,
+      ],
+    },
+
+    {
       provide: WebAuthnLoginPrfCryptoServiceAbstraction,
       useClass: WebAuthnLoginPrfCryptoService,
       deps: [CryptoFunctionServiceAbstraction],
@@ -798,22 +812,27 @@ import { ModalService } from "./modal.service";
     {
       provide: ActiveUserStateProvider,
       useClass: DefaultActiveUserStateProvider,
-      deps: [
-        AccountServiceAbstraction,
-        EncryptService,
-        OBSERVABLE_MEMORY_STORAGE,
-        OBSERVABLE_DISK_STORAGE,
-      ],
+      deps: [AccountServiceAbstraction, OBSERVABLE_MEMORY_STORAGE, OBSERVABLE_DISK_STORAGE],
     },
     {
       provide: SingleUserStateProvider,
       useClass: DefaultSingleUserStateProvider,
-      deps: [EncryptService, OBSERVABLE_MEMORY_STORAGE, OBSERVABLE_DISK_STORAGE],
+      deps: [OBSERVABLE_MEMORY_STORAGE, OBSERVABLE_DISK_STORAGE],
+    },
+    {
+      provide: DerivedStateProvider,
+      useClass: DefaultDerivedStateProvider,
+      deps: [OBSERVABLE_MEMORY_STORAGE],
     },
     {
       provide: StateProvider,
       useClass: DefaultStateProvider,
-      deps: [ActiveUserStateProvider, SingleUserStateProvider, GlobalStateProvider],
+      deps: [
+        ActiveUserStateProvider,
+        SingleUserStateProvider,
+        GlobalStateProvider,
+        DerivedStateProvider,
+      ],
     },
   ],
 })

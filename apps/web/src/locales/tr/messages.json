@@ -656,9 +656,6 @@
   "passkeySuccessfullyCreated": {
     "message": "Geçiş anahtarı başarıyla oluşturuldu."
   },
-  "customName": {
-    "message": "Özel ad"
-  },
   "customPasskeyNameInfo": {
     "message": "Name your passkey to help you identify it."
   },
@@ -674,8 +671,8 @@
   "encryptionNotSupported": {
     "message": "Şifreleme desteklenmiyor"
   },
-  "encryptionNotEnabled": {
-    "message": "Şifreleme etkin değil"
+  "enablePasskeyEncryption": {
+    "message": "Şifreleme ayarla"
   },
   "usedForEncryption": {
     "message": "Şifreleme için kullanılır"
@@ -1074,6 +1071,9 @@
   "export": {
     "message": "Dışarı aktar"
   },
+  "exportFrom": {
+    "message": "Dışa aktarılacak konum"
+  },
   "exportVault": {
     "message": "Kasayı dışa aktar"
   },
@@ -1149,6 +1149,9 @@
   },
   "length": {
     "message": "Uzunluk"
+  },
+  "passwordMinLength": {
+    "message": "Minimum parola uzunluğu"
   },
   "uppercase": {
     "message": "Büyük harf (A-Z)",
@@ -3542,12 +3545,12 @@
       }
     }
   },
-  "subscriptionFamiliesPlan": {
-    "message": "Paketinizi yükseltmeden en fazla $COUNT$ üye davet edebilirsiniz. Yükseltme yapmak için lütfen müşteri hizmetleri ile iletişime geçin.",
+  "subscriptionUpgrade": {
+    "message": "Paketinizi yükseltmeden $COUNT$ üyeden fazlasını davet edemezsiniz.",
     "placeholders": {
       "count": {
         "content": "$1",
-        "example": "6"
+        "example": "2"
       }
     }
   },
@@ -3821,15 +3824,6 @@
   },
   "couldNotChargeCardPayInvoice": {
     "message": "Kartınızdan ödeme alamadık. Lütfen aşağıda listelenen ödenmemiş faturanızı görüntüleyin ve ödeme yapın."
-  },
-  "inAppPurchase": {
-    "message": "Uygulama içi satın alma"
-  },
-  "cannotPerformInAppPurchase": {
-    "message": "Uygulama içi satın alma ödeme yöntemi kullanırken bu işlemi gerçekleştiremezsiniz."
-  },
-  "manageSubscriptionFromStore": {
-    "message": "Aboneliğinizi uygulama içi satın alımınızın yapıldığı mağazadan yönetmelisiniz."
   },
   "minLength": {
     "message": "Minimum uzunluk"
@@ -5181,6 +5175,12 @@
   },
   "spValidateCertificates": {
     "message": "Sertifikaları doğrula"
+  },
+  "spUniqueEntityId": {
+    "message": "Set a unique SP entity ID"
+  },
+  "spUniqueEntityIdDesc": {
+    "message": "Generate an identifier that is unique to your organization"
   },
   "idpEntityId": {
     "message": "Varlık kimliği"
@@ -6662,7 +6662,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Contact Customer Support to upgrade your plan and invite more members.",
+    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Upgrade to your plan to invite more members.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -7389,6 +7389,9 @@
   "alreadyHaveAccount": {
     "message": "Zaten hesabınız var mı?"
   },
+  "skipToContent": {
+    "message": "İçeriğe geç"
+  },
   "customBillingStart": {
     "message": "Özel faturalandırma yansıtılmıyor. Ziyaret edin "
   },
@@ -7438,7 +7441,17 @@
   "collectionAccessRestricted": {
     "message": "Koleksiyona erişim kısıtlı"
   },
+  "grantCollectionAccess": {
+    "message": "Gruplara veya üyelere bu koleksiyona erişim izni verin."
+  },
+  "adminCollectionAccess": {
+    "message": "Yöneticiler koleksiyonlara erişebilir ve bunları yönetebilir."
+  },
   "serviceAccountAccessUpdated": {
-    "message": "Service account access updated"
+    "message": "Hizmet hesabı erişimi güncellendi"
+  },
+  "commonImportFormats": {
+    "message": "Common formats",
+    "description": "Label indicating the most common import formats"
   }
 }
