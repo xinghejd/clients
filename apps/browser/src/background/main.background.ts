@@ -159,6 +159,7 @@ import BrowserLocalStorageService from "../platform/services/browser-local-stora
 import BrowserMessagingPrivateModeBackgroundService from "../platform/services/browser-messaging-private-mode-background.service";
 import BrowserMessagingService from "../platform/services/browser-messaging.service";
 import BrowserPlatformUtilsService from "../platform/services/browser-platform-utils.service";
+import BrowserSecureLocalStorageService from "../platform/services/browser-secure-local-storage.service";
 import { BrowserStateService } from "../platform/services/browser-state.service";
 import { KeyGenerationService } from "../platform/services/key-generation.service";
 import { LocalBackedSessionStorageService } from "../platform/services/local-backed-session-storage.service";
@@ -303,7 +304,7 @@ export default class MainBackground {
     this.logService = new ConsoleLogService(false);
     this.cryptoFunctionService = new WebCryptoFunctionService(globalThis); // CG - Service workers have access to crypto, but on the global scope. Not necessarily the window.
     this.storageService = new BrowserLocalStorageService();
-    this.secureStorageService = new BrowserLocalStorageService();
+    this.secureStorageService = new BrowserSecureLocalStorageService();
     this.memoryStorageService =
       BrowserApi.manifestVersion === 3
         ? new LocalBackedSessionStorageService(

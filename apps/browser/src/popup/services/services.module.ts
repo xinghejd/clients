@@ -21,10 +21,7 @@ import { SearchService as SearchServiceAbstraction } from "@bitwarden/common/abs
 import { SettingsService } from "@bitwarden/common/abstractions/settings.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
-import {
-  InternalOrganizationServiceAbstraction,
-  OrganizationService,
-} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { InternalOrganizationServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import {
   InternalPolicyService,
@@ -50,6 +47,7 @@ import { AuthRequestCryptoServiceImplementation } from "@bitwarden/common/auth/s
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { DeviceTrustCryptoService } from "@bitwarden/common/auth/services/device-trust-crypto.service.implementation";
 import { DevicesServiceImplementation } from "@bitwarden/common/auth/services/devices/devices.service.implementation";
+import { DevicesApiServiceImplementation } from "@bitwarden/common/auth/services/devices-api.service.implementation";
 import { KeyConnectorService as KeyConnectorServiceImplementation } from "@bitwarden/common/auth/services/key-connector.service";
 import { LoginService } from "@bitwarden/common/auth/services/login.service";
 import { TokenService as TokenServiceImplementation } from "@bitwarden/common/auth/services/token.service";
@@ -65,20 +63,12 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { FileUploadService } from "@bitwarden/common/platform/abstractions/file-upload/file-upload.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
-import {
-  LogService,
-  LogService as LogServiceAbstraction,
-} from "@bitwarden/common/platform/abstractions/log.service";
+import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import {
-  StateService as BaseStateServiceAbstraction,
-  StateService,
-} from "@bitwarden/common/platform/abstractions/state.service";
-import {
-  AbstractMemoryStorageService,
-  AbstractStorageService,
-} from "@bitwarden/common/platform/abstractions/storage.service";
+import { StateService as BaseStateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
+import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
+import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { AppIdService as AppIdServiceImplementation } from "@bitwarden/common/platform/services/app-id.service";
@@ -90,7 +80,13 @@ import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/platf
 import { FileUploadService as FileUploadServiceImplementation } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
 import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
-import { DerivedStateProvider, GlobalStateProvider } from "@bitwarden/common/platform/state";
+import {
+  ActiveUserStateProvider,
+  DerivedStateProvider,
+  GlobalStateProvider,
+  SingleUserStateProvider,
+  StateProvider,
+} from "@bitwarden/common/platform/state";
 /* eslint-disable import/no-restricted-paths */
 import { DefaultActiveUserStateProvider } from "@bitwarden/common/platform/state/implementations/default-active-user-state.provider";
 import { DefaultGlobalStateProvider } from "@bitwarden/common/platform/state/implementations/default-global-state.provider";
@@ -144,6 +140,7 @@ import {
 } from "@bitwarden/exporter/vault-export";
 import {
   ImportApiService,
+  ImportApiServiceAbstraction,
   ImportService,
   ImportServiceAbstraction,
 } from "@bitwarden/importer/core";
@@ -167,6 +164,7 @@ import { BrowserI18nService } from "../../platform/services/browser-i18n.service
 import BrowserLocalStorageService from "../../platform/services/browser-local-storage.service";
 import BrowserMessagingService from "../../platform/services/browser-messaging.service";
 import BrowserPlatformUtilsService from "../../platform/services/browser-platform-utils.service";
+import BrowserSecureLocalStorageService from "../../platform/services/browser-secure-local-storage.service";
 import { BrowserStateService } from "../../platform/services/browser-state.service";
 import { KeyGenerationService } from "../../platform/services/key-generation.service";
 import { LocalBackedSessionStorageService } from "../../platform/services/local-backed-session-storage.service";
@@ -176,8 +174,9 @@ import { BrowserSendService } from "../../services/browser-send.service";
 import { BrowserSettingsService } from "../../services/browser-settings.service";
 import VaultTimeoutServiceImplementation from "../../services/vault-timeout/vault-timeout.service";
 import { FilePopoutUtilsService } from "../../tools/popup/services/file-popout-utils.service";
+import { VaultFilterServiceAbstraction as VaultFilterService } from "../../vault/services/abstractions/vault-filter.service";
 import { BrowserFolderService } from "../../vault/services/browser-folder.service";
-import { VaultFilterService } from "../../vault/services/vault-filter.service";
+import { VaultFilterService as VaultFilterServiceImplementation } from "../../vault/services/vault-filter.service";
 
 import { DebounceNavigationService } from "./debounce-navigation.service";
 import { InitService } from "./init.service";
@@ -266,7 +265,7 @@ import { PopupSearchService } from "./popup-search.service";
         AppIdService,
         PlatformUtilsService,
         MessagingService,
-        LogService,
+        LogServiceAbstraction,
         KeyConnectorService,
         EnvironmentService,
         StateServiceAbstraction,
@@ -283,17 +282,6 @@ import { PopupSearchService } from "./popup-search.service";
       provide: AuthServiceAbstraction,
       useExisting: AuthService,
     },
-    // {
-    //   provide: SearchServiceAbstraction,
-    //   useFactory: (logService: ConsoleLogService, i18nService: I18nServiceAbstraction) => {
-    //     return new PopupSearchService(
-    //       getBgService<SearchService>("searchService")(),
-    //       logService,
-    //       i18nService,
-    //     );
-    //   },
-    //   deps: [LogServiceAbstraction, I18nServiceAbstraction],
-    // },
     // {
     //   provide: SearchServiceAbstraction,
     //   useFactory: (logService: ConsoleLogService, i18nService: I18nServiceAbstraction) => {
@@ -378,11 +366,15 @@ import { PopupSearchService } from "./popup-search.service";
     },
     { provide: InternalFolderService, useExisting: FolderService },
     {
-      provide: FolderApiServiceAbstraction,
+      provide: FolderApiService,
       useFactory: (folderService: InternalFolderService, apiService: ApiService) => {
         return new FolderApiService(folderService, apiService);
       },
       deps: [InternalFolderService, ApiService],
+    },
+    {
+      provide: FolderApiServiceAbstraction,
+      useExisting: FolderApiService,
     },
     // {
     //   provide: CollectionService,
@@ -424,11 +416,15 @@ import { PopupSearchService } from "./popup-search.service";
     { provide: TokenServiceImplementation, deps: [StateServiceAbstraction] },
     { provide: TokenService, useExisting: TokenServiceImplementation },
     {
-      provide: I18nServiceAbstraction,
+      provide: BrowserI18nService,
       useFactory: (stateService: BrowserStateService) => {
         return new BrowserI18nService(BrowserApi.getUILanguage(), stateService);
       },
       deps: [StateServiceAbstraction],
+    },
+    {
+      provide: I18nServiceAbstraction,
+      useExisting: BrowserI18nService,
     },
     // {
     //   provide: CryptoService,
@@ -460,8 +456,16 @@ import { PopupSearchService } from "./popup-search.service";
       deps: [AccountServiceAbstraction, MEMORY_STORAGE, LOCAL_STORAGE],
     },
     {
+      provide: ActiveUserStateProvider,
+      useExisting: DefaultActiveUserStateProvider,
+    },
+    {
       provide: DefaultSingleUserStateProvider,
       deps: [MEMORY_STORAGE, LOCAL_STORAGE],
+    },
+    {
+      provide: SingleUserStateProvider,
+      useExisting: DefaultSingleUserStateProvider,
     },
     {
       provide: DefaultGlobalStateProvider,
@@ -474,11 +478,15 @@ import { PopupSearchService } from "./popup-search.service";
     {
       provide: DefaultStateProvider,
       deps: [
-        DefaultActiveUserStateProvider,
-        DefaultSingleUserStateProvider,
+        ActiveUserStateProvider,
+        SingleUserStateProvider,
         GlobalStateProvider,
         DerivedStateProvider,
       ],
+    },
+    {
+      provide: StateProvider,
+      useExisting: DefaultStateProvider,
     },
     {
       provide: AccountServiceImplementation,
@@ -497,7 +505,7 @@ import { PopupSearchService } from "./popup-search.service";
         LogService: LogServiceAbstraction,
         stateService: StateServiceAbstraction,
         accountService: AccountServiceAbstraction,
-        stateProvider: DefaultStateProvider,
+        stateProvider: StateProvider,
       ) => {
         const cryptoService = new BrowserCryptoService(
           cryptoFunctionService,
@@ -518,7 +526,7 @@ import { PopupSearchService } from "./popup-search.service";
         LogServiceAbstraction,
         StateServiceAbstraction,
         AccountServiceAbstraction,
-        DefaultStateProvider,
+        StateProvider,
       ],
     },
     {
@@ -556,13 +564,20 @@ import { PopupSearchService } from "./popup-search.service";
     {
       provide: DeviceTrustCryptoServiceAbstraction,
       useExisting: DeviceTrustCryptoService,
-      deps: [],
     },
     // {
     //   provide: DevicesServiceAbstraction,
     //   useFactory: getBgService<DevicesServiceAbstraction>("devicesService"),
     //   deps: [],
     // },
+    {
+      provide: DevicesApiServiceImplementation,
+      deps: [ApiService],
+    },
+    {
+      provide: DevicesApiServiceAbstraction,
+      useExisting: DevicesApiServiceImplementation,
+    },
     { provide: DevicesServiceImplementation, deps: [DevicesApiServiceAbstraction] },
     { provide: DevicesServiceAbstraction, useExisting: DevicesServiceImplementation },
     // {
@@ -585,32 +600,36 @@ import { PopupSearchService } from "./popup-search.service";
     // },
     {
       provide: EventCollectionServiceImplementation,
-      deps: [CipherService, StateServiceAbstraction, OrganizationService, EventUploadService],
+      deps: [
+        CipherService,
+        StateServiceAbstraction,
+        InternalOrganizationServiceAbstraction,
+        EventUploadService,
+      ],
     },
     {
       provide: EventCollectionService,
       useExisting: EventCollectionServiceImplementation,
     },
     {
+      provide: BrowserPolicyService,
+      deps: [StateServiceAbstraction, InternalOrganizationServiceAbstraction],
+    },
+    {
       provide: PolicyService,
-      useFactory: (
-        stateService: StateServiceAbstraction,
-        organizationService: OrganizationService,
-      ) => {
-        return new BrowserPolicyService(stateService, organizationService);
-      },
-      deps: [StateServiceAbstraction, OrganizationService],
+      useExisting: BrowserPolicyService,
+    },
+    {
+      provide: InternalPolicyService,
+      useExisting: BrowserPolicyService,
+    },
+    {
+      provide: PolicyApiService,
+      deps: [InternalPolicyService, ApiService, StateServiceAbstraction],
     },
     {
       provide: PolicyApiServiceAbstraction,
-      useFactory: (
-        policyService: InternalPolicyService,
-        apiService: ApiService,
-        stateService: StateService,
-      ) => {
-        return new PolicyApiService(policyService, apiService, stateService);
-      },
-      deps: [InternalPolicyService, ApiService, StateServiceAbstraction],
+      useExisting: PolicyApiService,
     },
     // {
     //   provide: PlatformUtilsService,
@@ -648,6 +667,10 @@ import { PopupSearchService } from "./popup-search.service";
         StateServiceAbstraction,
         VaultTimeoutSettingsService,
       ],
+    },
+    {
+      provide: SystemServiceAbstraction,
+      useExisting: SystemService,
     },
     {
       provide: BrowserPlatformUtilsService,
@@ -692,7 +715,6 @@ import { PopupSearchService } from "./popup-search.service";
     {
       provide: PasswordGenerationServiceAbstraction,
       useExisting: PasswordGenerationService,
-      deps: [],
     },
     // ApiServiceImplementation
     // { provide: ApiService, useFactory: getBgService<ApiService>("apiService"), deps: [] },
@@ -783,7 +805,7 @@ import { PopupSearchService } from "./popup-search.service";
         CollectionService,
         MessagingService,
         InternalPolicyService,
-        SendService,
+        InternalSendServiceAbstraction,
         LogServiceAbstraction,
         KeyConnectorService,
         StateServiceAbstraction,
@@ -793,21 +815,21 @@ import { PopupSearchService } from "./popup-search.service";
         SendApiServiceAbstraction,
       ],
     },
-    { provide: SyncService, useExisting: SyncServiceImplementation, deps: [] },
+    { provide: SyncService, useExisting: SyncServiceImplementation },
     {
-      provide: SettingsService,
+      provide: BrowserSettingsService,
       useFactory: (stateService: StateServiceAbstraction) => {
         return new BrowserSettingsService(stateService);
       },
       deps: [StateServiceAbstraction],
     },
     {
-      provide: AbstractStorageService,
-      useClass: BrowserLocalStorageService,
-      deps: [],
+      provide: SettingsService,
+      useExisting: BrowserSettingsService,
     },
+
     // { provide: AppIdService, useFactory: getBgService<AppIdService>("appIdService"), deps: [] },
-    { provide: AppIdServiceImplementation, deps: [AbstractStorageService] }, // TODO CG - We need to create a singleton provider for each storage service.
+    { provide: AppIdServiceImplementation, deps: [LOCAL_STORAGE] }, // TODO CG - We need to create a singleton provider for each storage service.
     { provide: AppIdService, useExisting: AppIdServiceImplementation },
     // {
     //   provide: AutofillService,
@@ -838,11 +860,19 @@ import { PopupSearchService } from "./popup-search.service";
     //   deps: [],
     // },
     {
+      provide: ImportApiService,
+      deps: [ApiService],
+    },
+    {
+      provide: ImportApiServiceAbstraction,
+      useExisting: ImportApiService,
+    },
+    {
       provide: ImportService,
       deps: [
         CipherService,
-        FolderService,
-        ImportApiService,
+        InternalFolderService,
+        ImportApiServiceAbstraction,
         I18nServiceAbstraction,
         CollectionService,
         CryptoService,
@@ -861,7 +891,7 @@ import { PopupSearchService } from "./popup-search.service";
     {
       provide: VaultExportService,
       deps: [
-        FolderService,
+        InternalFolderService,
         CipherService,
         ApiService,
         CryptoService,
@@ -887,7 +917,7 @@ import { PopupSearchService } from "./popup-search.service";
         apiService: ApiService,
         tokenService: TokenService,
         logService: LogServiceAbstraction,
-        organizationService: OrganizationService,
+        organizationService: InternalOrganizationServiceAbstraction,
         cryptoFunctionService: CryptoFunctionService,
       ) => {
         const logoutCallback = async (expired: boolean) => {};
@@ -908,7 +938,7 @@ import { PopupSearchService } from "./popup-search.service";
         ApiService,
         TokenService,
         LogServiceAbstraction,
-        OrganizationService,
+        InternalOrganizationServiceAbstraction,
         CryptoFunctionService,
       ],
     },
@@ -969,7 +999,6 @@ import { PopupSearchService } from "./popup-search.service";
     {
       provide: VaultTimeoutSettingsService,
       useExisting: VaultTimeoutSettingsServiceImplementation,
-      deps: [],
     },
     // {
     //   provide: VaultTimeoutService,
@@ -1016,7 +1045,7 @@ import { PopupSearchService } from "./popup-search.service";
         MessagingService,
         SearchServiceAbstraction,
         StateServiceAbstraction,
-        AuthService,
+        AuthServiceAbstraction,
         VaultTimeoutSettingsService,
       ],
     },
@@ -1068,7 +1097,6 @@ import { PopupSearchService } from "./popup-search.service";
     {
       provide: NotificationsService,
       useExisting: NotificationsServiceImplementation,
-      deps: [],
     },
     // TODO CG - This seems to be a duplicate provider instance
     // {
@@ -1077,28 +1105,25 @@ import { PopupSearchService } from "./popup-search.service";
     //   deps: [],
     // },
     {
-      provide: OrganizationService,
-      useFactory: (stateService: StateServiceAbstraction) => {
-        return new BrowserOrganizationService(stateService);
-      },
+      provide: BrowserOrganizationService,
       deps: [StateServiceAbstraction],
     },
     {
       provide: InternalOrganizationServiceAbstraction,
-      useExisting: OrganizationService,
+      useExisting: BrowserOrganizationService,
     },
     {
-      provide: VaultFilterService,
+      provide: VaultFilterServiceImplementation,
       useFactory: (
         stateService: StateServiceAbstraction,
-        organizationService: OrganizationService,
-        folderService: FolderService,
+        organizationService: InternalOrganizationServiceAbstraction,
+        folderService: InternalFolderService,
         cipherService: CipherService,
         collectionService: CollectionService,
-        policyService: PolicyService,
+        policyService: InternalPolicyService,
         accountService: AccountServiceAbstraction,
       ) => {
-        return new VaultFilterService(
+        return new VaultFilterServiceImplementation(
           stateService,
           organizationService,
           folderService,
@@ -1110,13 +1135,17 @@ import { PopupSearchService } from "./popup-search.service";
       },
       deps: [
         StateServiceAbstraction,
-        OrganizationService,
-        FolderService,
+        InternalOrganizationServiceAbstraction,
+        InternalFolderService,
         CipherService,
         CollectionService,
-        PolicyService,
+        InternalPolicyService,
         AccountServiceAbstraction,
       ],
+    },
+    {
+      provide: VaultFilterService,
+      useExisting: VaultFilterServiceImplementation,
     },
     // {
     //   provide: ProviderService,
@@ -1131,17 +1160,19 @@ import { PopupSearchService } from "./popup-search.service";
       provide: ProviderService,
       useExisting: ProviderServiceImplementation,
     },
+    BrowserLocalStorageService,
     {
       provide: LOCAL_STORAGE,
-      useFactory: () => new BrowserLocalStorageService(),
+      useExisting: BrowserLocalStorageService,
     },
     // {
     //   provide: SECURE_STORAGE,
     //   useFactory: getBgService<AbstractStorageService>("secureStorageService"),
     // },
+    BrowserSecureLocalStorageService,
     {
       provide: SECURE_STORAGE,
-      useFactory: () => new BrowserLocalStorageService(),
+      useExisting: BrowserSecureLocalStorageService,
     },
     // {
     //   provide: MEMORY_STORAGE,
@@ -1163,9 +1194,14 @@ import { PopupSearchService } from "./popup-search.service";
       provide: MEMORY_STORAGE,
       useExisting: LocalBackedSessionStorageService,
     },
+    ForegroundMemoryStorageService,
     {
       provide: OBSERVABLE_MEMORY_STORAGE,
-      useClass: ForegroundMemoryStorageService,
+      useExisting: ForegroundMemoryStorageService,
+    },
+    {
+      provide: AbstractStorageService,
+      useClass: BrowserLocalStorageService,
       deps: [],
     },
     {
@@ -1173,11 +1209,11 @@ import { PopupSearchService } from "./popup-search.service";
       useExisting: AbstractStorageService,
     },
     {
-      provide: StateServiceAbstraction,
+      provide: BrowserStateService,
       useFactory: (
-        storageService: AbstractStorageService,
-        secureStorageService: AbstractStorageService,
-        memoryStorageService: AbstractMemoryStorageService,
+        storageService: BrowserLocalStorageService,
+        secureStorageService: BrowserSecureLocalStorageService,
+        memoryStorageService: LocalBackedSessionStorageService,
         logService: LogServiceAbstraction,
         accountService: AccountServiceAbstraction,
       ) => {
@@ -1191,12 +1227,16 @@ import { PopupSearchService } from "./popup-search.service";
         );
       },
       deps: [
-        AbstractStorageService,
+        LOCAL_STORAGE,
         SECURE_STORAGE,
         MEMORY_STORAGE,
         LogServiceAbstraction,
         AccountServiceAbstraction,
       ],
+    },
+    {
+      provide: StateServiceAbstraction,
+      useExisting: BrowserStateService,
     },
     // {
     //   provide: UsernameGenerationServiceAbstraction,
@@ -1214,16 +1254,19 @@ import { PopupSearchService } from "./popup-search.service";
     {
       provide: BaseStateServiceAbstraction,
       useExisting: StateServiceAbstraction,
-      deps: [],
     },
+    BrowserFileDownloadService,
     {
       provide: FileDownloadService,
-      useClass: BrowserFileDownloadService,
+      useExisting: BrowserFileDownloadService,
+    },
+    {
+      provide: LoginService,
+      deps: [StateServiceAbstraction],
     },
     {
       provide: LoginServiceAbstraction,
-      useClass: LoginService,
-      deps: [StateServiceAbstraction],
+      useExisting: LoginService,
     },
     {
       provide: AbstractThemingService,
@@ -1241,15 +1284,18 @@ import { PopupSearchService } from "./popup-search.service";
       deps: [StateServiceAbstraction, PlatformUtilsService],
     },
     {
-      provide: ConfigService,
-      useClass: BrowserConfigService,
+      provide: BrowserConfigService,
       deps: [
         StateServiceAbstraction,
         ConfigApiServiceAbstraction,
         AuthServiceAbstraction,
         EnvironmentService,
-        LogService,
+        LogServiceAbstraction,
       ],
+    },
+    {
+      provide: ConfigService,
+      useExisting: BrowserConfigService,
     },
     {
       provide: FilePopoutUtilsService,
@@ -1259,9 +1305,12 @@ import { PopupSearchService } from "./popup-search.service";
       deps: [PlatformUtilsService],
     },
     {
-      provide: DerivedStateProvider,
-      useClass: ForegroundDerivedStateProvider,
+      provide: ForegroundDerivedStateProvider,
       deps: [OBSERVABLE_MEMORY_STORAGE],
+    },
+    {
+      provide: DerivedStateProvider,
+      useExisting: ForegroundDerivedStateProvider,
     },
   ],
 })
