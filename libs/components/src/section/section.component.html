@@ -1,0 +1,7 @@
+<div #titleContainer [ngClass]="{ 'tw-hidden': titleContainer.childElementCount === 0 }">
+  <ng-content select="[slot=title]"></ng-content>
+</div>
+
+<div [ngClass]="classList">
+  <ng-content></ng-content>
+</div>
