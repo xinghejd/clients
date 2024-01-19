@@ -21,7 +21,10 @@ import { SearchService as SearchServiceAbstraction } from "@bitwarden/common/abs
 import { SettingsService } from "@bitwarden/common/abstractions/settings.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
-import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  InternalOrganizationServiceAbstraction,
+  OrganizationService,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import {
   InternalPolicyService,
@@ -47,6 +50,7 @@ import { AuthRequestCryptoServiceImplementation } from "@bitwarden/common/auth/s
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { DeviceTrustCryptoService } from "@bitwarden/common/auth/services/device-trust-crypto.service.implementation";
 import { DevicesServiceImplementation } from "@bitwarden/common/auth/services/devices/devices.service.implementation";
+import { KeyConnectorService as KeyConnectorServiceImplementation } from "@bitwarden/common/auth/services/key-connector.service";
 import { LoginService } from "@bitwarden/common/auth/services/login.service";
 import { TokenService as TokenServiceImplementation } from "@bitwarden/common/auth/services/token.service";
 import { TwoFactorService as TwoFactorServiceImplementation } from "@bitwarden/common/auth/services/two-factor.service";
@@ -84,6 +88,7 @@ import { ContainerService } from "@bitwarden/common/platform/services/container.
 import { EncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/encrypt.service.implementation";
 import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/multithread-encrypt.service.implementation";
 import { FileUploadService as FileUploadServiceImplementation } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
+import { SystemService } from "@bitwarden/common/platform/services/system.service";
 import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
 import { DerivedStateProvider, GlobalStateProvider } from "@bitwarden/common/platform/state";
 /* eslint-disable import/no-restricted-paths */
@@ -96,6 +101,7 @@ import { ApiService as ApiServiceImplementation } from "@bitwarden/common/servic
 import { AuditService as AuditServiceImplementation } from "@bitwarden/common/services/audit.service";
 import { EventCollectionService as EventCollectionServiceImplementation } from "@bitwarden/common/services/event/event-collection.service";
 import { EventUploadService as EventUploadServiceImplementation } from "@bitwarden/common/services/event/event-upload.service";
+import { NotificationsService as NotificationsServiceImplementation } from "@bitwarden/common/services/notifications.service";
 import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceImplementation } from "@bitwarden/common/services/vault-timeout/vault-timeout-settings.service";
 import {
   PasswordGenerationService,
@@ -129,6 +135,7 @@ import { CipherService as CipherServiceImplementation } from "@bitwarden/common/
 import { CollectionService as CollectionServiceImplementation } from "@bitwarden/common/vault/services/collection.service";
 import { CipherFileUploadService as CipherFileUploadServiceImplementation } from "@bitwarden/common/vault/services/file-upload/cipher-file-upload.service";
 import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder-api.service";
+import { SyncService as SyncServiceImplementation } from "@bitwarden/common/vault/services/sync/sync.service";
 import { TotpService as TotpServiceImplementation } from "@bitwarden/common/vault/services/totp.service";
 import { DialogService } from "@bitwarden/components";
 import {
@@ -146,11 +153,11 @@ import { BrowserPolicyService } from "../../admin-console/services/browser-polic
 import { UnauthGuardService } from "../../auth/popup/services";
 import { AutofillService } from "../../autofill/services/abstractions/autofill.service";
 import AutofillServiceImplementation from "../../autofill/services/autofill.service";
-import MainBackground from "../../background/main.background";
+// import MainBackground from "../../background/main.background";
 import { Account } from "../../models/account";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { flagEnabled } from "../../platform/flags";
-import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
+// import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
 import { BrowserStateService as StateServiceAbstraction } from "../../platform/services/abstractions/browser-state.service";
 import { BrowserConfigService } from "../../platform/services/browser-config.service";
 import { BrowserCryptoService } from "../../platform/services/browser-crypto.service";
@@ -159,6 +166,7 @@ import { BrowserFileDownloadService } from "../../platform/services/browser-file
 import { BrowserI18nService } from "../../platform/services/browser-i18n.service";
 import BrowserLocalStorageService from "../../platform/services/browser-local-storage.service";
 import BrowserMessagingService from "../../platform/services/browser-messaging.service";
+import BrowserPlatformUtilsService from "../../platform/services/browser-platform-utils.service";
 import { BrowserStateService } from "../../platform/services/browser-state.service";
 import { KeyGenerationService } from "../../platform/services/key-generation.service";
 import { LocalBackedSessionStorageService } from "../../platform/services/local-backed-session-storage.service";
@@ -166,6 +174,7 @@ import { ForegroundDerivedStateProvider } from "../../platform/state/foreground-
 import { ForegroundMemoryStorageService } from "../../platform/storage/foreground-memory-storage.service";
 import { BrowserSendService } from "../../services/browser-send.service";
 import { BrowserSettingsService } from "../../services/browser-settings.service";
+import VaultTimeoutServiceImplementation from "../../services/vault-timeout/vault-timeout.service";
 import { FilePopoutUtilsService } from "../../tools/popup/services/file-popout-utils.service";
 import { BrowserFolderService } from "../../vault/services/browser-folder.service";
 import { VaultFilterService } from "../../vault/services/vault-filter.service";
@@ -175,22 +184,22 @@ import { InitService } from "./init.service";
 import { PopupCloseWarningService } from "./popup-close-warning.service";
 import { PopupSearchService } from "./popup-search.service";
 
-const isPrivateMode = BrowserPopupUtils.inPrivateMode();
-const mainBackground: MainBackground = BrowserPopupUtils.backgroundInitializationRequired()
-  ? createLocalBgService()
-  : BrowserApi.getBackgroundPage().bitwardenMain;
+// const isPrivateMode = BrowserPopupUtils.inPrivateMode();
+// const mainBackground: MainBackground = BrowserPopupUtils.backgroundInitializationRequired()
+//   ? createLocalBgService()
+//   : BrowserApi.getBackgroundPage().bitwardenMain;
 
-function createLocalBgService() {
-  const localBgService = new MainBackground(isPrivateMode);
-  localBgService.bootstrap();
-  return localBgService;
-}
+// function createLocalBgService() {
+//   const localBgService = new MainBackground(isPrivateMode);
+//   localBgService.bootstrap();
+//   return localBgService;
+// }
 
-function getBgService<T>(service: keyof MainBackground) {
-  return (): T => {
-    return mainBackground ? (mainBackground[service] as any as T) : null;
-  };
-}
+// function getBgService<T>(service: keyof MainBackground) {
+//   return (): T => {
+//     return mainBackground ? (mainBackground[service] as any as T) : null;
+//   };
+// }
 
 @NgModule({
   imports: [JslibServicesModule],
@@ -603,10 +612,63 @@ function getBgService<T>(service: keyof MainBackground) {
       },
       deps: [InternalPolicyService, ApiService, StateServiceAbstraction],
     },
+    // {
+    //   provide: PlatformUtilsService,
+    //   useFactory: getBgService<PlatformUtilsService>("platformUtilsService"),
+    //   deps: [],
+    // },
+    {
+      provide: SystemService,
+      useFactory: (
+        messagingService: MessagingService,
+        platformUtilsService: PlatformUtilsService,
+        stateService: StateServiceAbstraction,
+        vaultTimeoutSettingsService: VaultTimeoutSettingsService,
+      ) => {
+        const reloadCallback = async () => {
+          const forceWindowReload =
+            platformUtilsService.isSafari() ||
+            platformUtilsService.isFirefox() ||
+            platformUtilsService.isOpera();
+          BrowserApi.reloadExtension(forceWindowReload ? window : null);
+          return Promise.resolve();
+        };
+
+        return new SystemService(
+          messagingService,
+          platformUtilsService,
+          reloadCallback,
+          stateService,
+          vaultTimeoutSettingsService,
+        );
+      },
+      deps: [
+        MessagingService,
+        PlatformUtilsService,
+        StateServiceAbstraction,
+        VaultTimeoutSettingsService,
+      ],
+    },
+    {
+      provide: BrowserPlatformUtilsService,
+      useFactory: (messagingService: MessagingService) => {
+        // TODO CG - Implementing this here presents as a circular dependency, with the ClipboardService depending on the PlatformUtilsService, and the PlatformUtilsService depending on the ClipboardService. We need to find a way to break this circular dependency. Maybe we just implement the clipboard clearing directly? Does this need to be here?
+        const clipboardWriteCallback = (clipboardValue: string, clearMs: number) => {};
+
+        // TODO CG - Consider whether this is appropriate or not. The NativeMessagingBackground class doesn't seem to apply to the popup directly... or at least it shouldn't. It's a "Background" service.
+        const biometricCallback = async () => false;
+        return new BrowserPlatformUtilsService(
+          messagingService,
+          clipboardWriteCallback,
+          biometricCallback,
+          window,
+        );
+      },
+      deps: [MessagingService],
+    },
     {
       provide: PlatformUtilsService,
-      useFactory: getBgService<PlatformUtilsService>("platformUtilsService"),
-      deps: [],
+      useExisting: BrowserPlatformUtilsService,
     },
     // {
     //   provide: PasswordStrengthServiceAbstraction,
@@ -661,17 +723,77 @@ function getBgService<T>(service: keyof MainBackground) {
       useExisting: SendService,
     },
     {
-      provide: SendApiServiceAbstraction,
-      useFactory: (
-        apiService: ApiService,
-        fileUploadService: FileUploadService,
-        sendService: InternalSendServiceAbstraction,
-      ) => {
-        return new SendApiService(apiService, fileUploadService, sendService);
-      },
+      provide: SendApiService,
       deps: [ApiService, FileUploadService, InternalSendServiceAbstraction],
     },
-    { provide: SyncService, useFactory: getBgService<SyncService>("syncService"), deps: [] },
+    {
+      provide: SendApiServiceAbstraction,
+      useExisting: SendApiService,
+    },
+    // { provide: SyncService, useFactory: getBgService<SyncService>("syncService"), deps: [] },
+    {
+      provide: SyncServiceImplementation,
+      useFactory: (
+        apiService: ApiService,
+        settingsService: SettingsService,
+        folderService: InternalFolderService,
+        cipherService: CipherService,
+        cryptoService: CryptoService,
+        collectionService: CollectionService,
+        messagingService: MessagingService,
+        policyService: InternalPolicyService,
+        sendService: InternalSendServiceAbstraction,
+        logService: LogServiceAbstraction,
+        keyConnectorService: KeyConnectorService,
+        stateService: StateServiceAbstraction,
+        providerService: ProviderService,
+        folderApiService: FolderApiServiceAbstraction,
+        organizationService: InternalOrganizationServiceAbstraction,
+        sendApiService: SendApiServiceAbstraction,
+      ) => {
+        // TODO CG - Should this callback be doing anything?
+        const logoutCallback = async (expired: boolean) => {};
+
+        return new SyncServiceImplementation(
+          apiService,
+          settingsService,
+          folderService,
+          cipherService,
+          cryptoService,
+          collectionService,
+          messagingService,
+          policyService,
+          sendService,
+          logService,
+          keyConnectorService,
+          stateService,
+          providerService,
+          folderApiService,
+          organizationService,
+          sendApiService,
+          logoutCallback,
+        );
+      },
+      deps: [
+        ApiService,
+        SettingsService,
+        InternalFolderService,
+        CipherService,
+        CryptoService,
+        CollectionService,
+        MessagingService,
+        InternalPolicyService,
+        SendService,
+        LogServiceAbstraction,
+        KeyConnectorService,
+        StateServiceAbstraction,
+        ProviderService,
+        FolderApiServiceAbstraction,
+        InternalOrganizationServiceAbstraction,
+        SendApiServiceAbstraction,
+      ],
+    },
+    { provide: SyncService, useExisting: SyncServiceImplementation, deps: [] },
     {
       provide: SettingsService,
       useFactory: (stateService: StateServiceAbstraction) => {
@@ -752,10 +874,47 @@ function getBgService<T>(service: keyof MainBackground) {
       useExisting: VaultExportService,
       deps: [],
     },
+    // {
+    //   provide: KeyConnectorService,
+    //   useFactory: getBgService<KeyConnectorService>("keyConnectorService"),
+    //   deps: [],
+    // },
+    {
+      provide: KeyConnectorServiceImplementation,
+      useFactory: (
+        stateService: StateServiceAbstraction,
+        cryptoService: CryptoService,
+        apiService: ApiService,
+        tokenService: TokenService,
+        logService: LogServiceAbstraction,
+        organizationService: OrganizationService,
+        cryptoFunctionService: CryptoFunctionService,
+      ) => {
+        const logoutCallback = async (expired: boolean) => {};
+        return new KeyConnectorServiceImplementation(
+          stateService,
+          cryptoService,
+          apiService,
+          tokenService,
+          logService,
+          organizationService,
+          cryptoFunctionService,
+          logoutCallback,
+        );
+      },
+      deps: [
+        StateServiceAbstraction,
+        CryptoService,
+        ApiService,
+        TokenService,
+        LogServiceAbstraction,
+        OrganizationService,
+        CryptoFunctionService,
+      ],
+    },
     {
       provide: KeyConnectorService,
-      useFactory: getBgService<KeyConnectorService>("keyConnectorService"),
-      deps: [],
+      useExisting: KeyConnectorServiceImplementation,
     },
     // {
     //   provide: UserVerificationService,
@@ -812,14 +971,103 @@ function getBgService<T>(service: keyof MainBackground) {
       useExisting: VaultTimeoutSettingsServiceImplementation,
       deps: [],
     },
+    // {
+    //   provide: VaultTimeoutService,
+    //   useFactory: getBgService<VaultTimeoutService>("vaultTimeoutService"),
+    //   deps: [],
+    // },
+    {
+      provide: VaultTimeoutServiceImplementation,
+      useFactory: (
+        cipherService: CipherService,
+        folderService: InternalFolderService,
+        collectionService: CollectionService,
+        cryptoService: CryptoService,
+        platformUtilsService: PlatformUtilsService,
+        messagingService: MessagingService,
+        searchService: SearchServiceAbstraction,
+        stateService: StateServiceAbstraction,
+        authService: AuthService,
+        vaultTimeoutSettingsService: VaultTimeoutSettingsService,
+      ) => {
+        const lockedCallback = async () => {};
+        const logoutCallback = async (expired: boolean) => {};
+        return new VaultTimeoutServiceImplementation(
+          cipherService,
+          folderService,
+          collectionService,
+          cryptoService,
+          platformUtilsService,
+          messagingService,
+          searchService,
+          stateService,
+          authService,
+          vaultTimeoutSettingsService,
+          lockedCallback,
+          logoutCallback,
+        );
+      },
+      deps: [
+        CipherService,
+        InternalFolderService,
+        CollectionService,
+        CryptoService,
+        PlatformUtilsService,
+        MessagingService,
+        SearchServiceAbstraction,
+        StateServiceAbstraction,
+        AuthService,
+        VaultTimeoutSettingsService,
+      ],
+    },
     {
       provide: VaultTimeoutService,
-      useFactory: getBgService<VaultTimeoutService>("vaultTimeoutService"),
-      deps: [],
+      useExisting: VaultTimeoutServiceImplementation,
+    },
+    // {
+    //   provide: NotificationsService,
+    //   useFactory: getBgService<NotificationsService>("notificationsService"),
+    //   deps: [],
+    // },
+    {
+      provide: NotificationsServiceImplementation,
+      useFactory: (
+        logService: LogServiceAbstraction,
+        syncService: SyncService,
+        appIdService: AppIdService,
+        apiService: ApiService,
+        environmentService: EnvironmentService,
+        stateService: StateServiceAbstraction,
+        authService: AuthServiceAbstraction,
+        messagingService: MessagingService,
+      ) => {
+        const logoutCallback = async (expired: boolean) => {};
+        return new NotificationsServiceImplementation(
+          logService,
+          syncService,
+          appIdService,
+          apiService,
+          environmentService,
+          logoutCallback,
+          stateService,
+          authService,
+          messagingService,
+        );
+      },
+      deps: [
+        LogServiceAbstraction,
+        SyncService,
+        AppIdService,
+        ApiService,
+        EnvironmentService,
+        StateServiceAbstraction,
+        AuthServiceAbstraction,
+        MessagingService,
+      ],
     },
     {
       provide: NotificationsService,
-      useFactory: getBgService<NotificationsService>("notificationsService"),
+      useExisting: NotificationsServiceImplementation,
       deps: [],
     },
     // TODO CG - This seems to be a duplicate provider instance
@@ -834,6 +1082,10 @@ function getBgService<T>(service: keyof MainBackground) {
         return new BrowserOrganizationService(stateService);
       },
       deps: [StateServiceAbstraction],
+    },
+    {
+      provide: InternalOrganizationServiceAbstraction,
+      useExisting: OrganizationService,
     },
     {
       provide: VaultFilterService,
