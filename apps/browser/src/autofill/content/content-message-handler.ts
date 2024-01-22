@@ -14,8 +14,6 @@ class ContentMessageHandler implements ContentMessageHandlerInterface {
    * message listener.
    */
   init() {
-    // eslint-disable-next-line no-console -- In content script
-    console.debug("Attaching message event listener.");
     window.addEventListener("message", this.handleWindowMessage, false);
     chrome.runtime.onMessage.addListener(this.handleExtensionMessage);
   }
@@ -28,13 +26,9 @@ class ContentMessageHandler implements ContentMessageHandlerInterface {
    * @param event - The message event.
    */
   private handleWindowMessage = (event: MessageEvent) => {
-    // eslint-disable-next-line no-console -- In content script
-    console.debug("Handling window message");
     const { source, data } = event;
 
     if (source !== window || !data?.command) {
-      // eslint-disable-next-line no-console -- We are in a content script without our services
-      console.debug("Bad source or badly formatted message, skipping.");
       return;
     }
 
