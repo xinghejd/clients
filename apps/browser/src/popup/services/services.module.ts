@@ -354,23 +354,16 @@ import { PopupSearchService } from "./popup-search.service";
     { provide: FileUploadServiceImplementation, deps: [LogServiceAbstraction] },
     { provide: FileUploadService, useExisting: FileUploadServiceImplementation },
     {
-      provide: FolderService,
-      useFactory: (
-        cryptoService: CryptoService,
-        i18nService: I18nServiceAbstraction,
-        cipherService: CipherService,
-        stateService: StateServiceAbstraction,
-      ) => {
-        return new BrowserFolderService(cryptoService, i18nService, cipherService, stateService);
-      },
+      provide: BrowserFolderService,
       deps: [CryptoService, I18nServiceAbstraction, CipherService, StateServiceAbstraction],
+    },
+    {
+      provide: FolderService,
+      useExisting: BrowserFolderService,
     },
     { provide: InternalFolderService, useExisting: FolderService },
     {
       provide: FolderApiService,
-      useFactory: (folderService: InternalFolderService, apiService: ApiService) => {
-        return new FolderApiService(folderService, apiService);
-      },
       deps: [InternalFolderService, ApiService],
     },
     {
@@ -725,21 +718,12 @@ import { PopupSearchService } from "./popup-search.service";
     },
     { provide: ApiService, useExisting: ApiServiceImplementation },
     {
-      provide: SendService,
-      useFactory: (
-        cryptoService: CryptoService,
-        i18nService: I18nServiceAbstraction,
-        cryptoFunctionService: CryptoFunctionService,
-        stateServiceAbstraction: StateServiceAbstraction,
-      ) => {
-        return new BrowserSendService(
-          cryptoService,
-          i18nService,
-          cryptoFunctionService,
-          stateServiceAbstraction,
-        );
-      },
+      provide: BrowserSendService,
       deps: [CryptoService, I18nServiceAbstraction, CryptoFunctionService, StateServiceAbstraction],
+    },
+    {
+      provide: SendService,
+      useExisting: BrowserSendService,
     },
     {
       provide: InternalSendServiceAbstraction,
@@ -819,9 +803,6 @@ import { PopupSearchService } from "./popup-search.service";
     { provide: SyncService, useExisting: SyncServiceImplementation },
     {
       provide: BrowserSettingsService,
-      useFactory: (stateService: StateServiceAbstraction) => {
-        return new BrowserSettingsService(stateService);
-      },
       deps: [StateServiceAbstraction],
     },
     {

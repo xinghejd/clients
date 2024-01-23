@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
+import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -8,6 +9,8 @@ import { ConfigService } from "@bitwarden/common/platform/services/config/config
 
 import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
 import { BrowserStateService as StateServiceAbstraction } from "../../platform/services/abstractions/browser-state.service";
+import { BrowserI18nService } from "../../platform/services/browser-i18n.service";
+import VaultTimeoutService from "../../services/vault-timeout/vault-timeout.service";
 
 @Injectable()
 export class InitService {
@@ -18,11 +21,16 @@ export class InitService {
     private logService: LogServiceAbstraction,
     private themingService: AbstractThemingService,
     private configService: ConfigService,
+    private vaultTimeoutService: VaultTimeoutService,
+    private twoFactorService: TwoFactorService,
   ) {}
 
   init() {
     return async () => {
       await this.stateService.init();
+
+      await this.vaultTimeoutService.init(true);
+      await (this.i18nService as BrowserI18nService).init();
 
       if (!BrowserPopupUtils.inPopup(window)) {
         window.document.body.classList.add("body-full");
@@ -52,6 +60,7 @@ export class InitService {
       }
 
       this.configService.init();
+      this.twoFactorService.init();
     };
   }
 }
