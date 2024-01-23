@@ -1127,6 +1127,7 @@ export class CipherService implements CipherServiceAbstraction {
 
         if (model.login.uris != null) {
           cipher.login.uris = [];
+          model.login.uris = model.login.uris.filter((u) => u.uri != null);
           for (let i = 0; i < model.login.uris.length; i++) {
             const loginUri = new LoginUri();
             loginUri.match = model.login.uris[i].match;
