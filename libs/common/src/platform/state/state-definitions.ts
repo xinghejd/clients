@@ -22,6 +22,8 @@ export const ACCOUNT_MEMORY = new StateDefinition("account", "memory");
 export const BILLING_BANNERS_DISK = new StateDefinition("billingBanners", "disk");
 
 export const CRYPTO_DISK = new StateDefinition("crypto", "disk");
+export const CRYPTO_MEMORY = new StateDefinition("crypto", "memory");
+
 export const ENVIRONMENT_DISK = new StateDefinition("environment", "disk");
 
 export const GENERATOR_DISK = new StateDefinition("generator", "disk");
