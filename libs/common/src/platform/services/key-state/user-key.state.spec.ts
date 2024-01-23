@@ -1,7 +1,8 @@
 import { mock } from "jest-mock-extended";
 
 import { makeStaticByteArray } from "../../../../spec";
-import { UserKey } from "../../../types/key";
+import { UserKey, UserPrivateKey, UserPublicKey } from "../../../types/key";
+import { CryptoFunctionService } from "../../abstractions/crypto-function.service";
 import { EncryptService } from "../../abstractions/encrypt.service";
 import { EncryptionType } from "../../enums";
 import { Utils } from "../../misc/utils";
@@ -46,11 +47,22 @@ describe("Encrypted private key", () => {
 
 describe("User public key", () => {
   const sut = USER_PUBLIC_KEY;
+  const userPrivateKey = makeStaticByteArray(64, 1) as UserPrivateKey;
+  const userPublicKey = makeStaticByteArray(64, 2) as UserPublicKey;
 
   it("should deserialize user public key", () => {
     const userPublicKey = makeStaticByteArray(64, 1);
 
-    const result = sut.deserializer(JSON.parse(JSON.stringify(userPublicKey)));
+    const result = sut.deserialize(JSON.parse(JSON.stringify(userPublicKey)));
+
+    expect(result).toEqual(userPublicKey);
+  });
+
+  it("should derive user public key", async () => {
+    const cryptoFunctionService = mock<CryptoFunctionService>();
+    cryptoFunctionService.rsaExtractPublicKey.mockResolvedValue(userPublicKey);
+
+    const result = await sut.derive(userPrivateKey, { cryptoFunctionService });
 
     expect(result).toEqual(userPublicKey);
   });
