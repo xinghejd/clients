@@ -71,8 +71,10 @@ export class LocalBackedSessionStorageService extends AbstractMemoryStorageServi
   async save<T>(key: string, obj: T): Promise<void> {
     if (obj == null) {
       this.cache.delete(key);
+      this.updatesSubject.next({ key, updateType: "remove" });
     } else {
       this.cache.set(key, obj);
+      this.updatesSubject.next({ key, updateType: "save" });
     }
 
     const sessionEncKey = await this.getSessionEncKey();
