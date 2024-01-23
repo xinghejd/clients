@@ -1055,23 +1055,6 @@ export class StateService<
     );
   }
 
-  async getDecryptedPrivateKey(options?: StorageOptions): Promise<Uint8Array> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultInMemoryOptions()))
-    )?.keys?.privateKey.decrypted;
-  }
-
-  async setDecryptedPrivateKey(value: Uint8Array, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultInMemoryOptions()),
-    );
-    account.keys.privateKey.decrypted = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultInMemoryOptions()),
-    );
-  }
-
   @withPrototypeForArrayMembers(SendView)
   async getDecryptedSends(options?: StorageOptions): Promise<SendView[]> {
     return (
@@ -1871,24 +1854,6 @@ export class StateService<
     );
   }
 
-  async getEncryptedPrivateKey(options?: StorageOptions): Promise<string> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    return account?.keys?.privateKey?.encrypted;
-  }
-
-  async setEncryptedPrivateKey(value: string, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.keys.privateKey.encrypted = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
   @withPrototypeForObjectValues(SendData)
   async getEncryptedSends(options?: StorageOptions): Promise<{ [id: string]: SendData }> {
     return (
@@ -2407,24 +2372,6 @@ export class StateService<
     await this.saveAccount(
       account,
       this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
-  async getPublicKey(options?: StorageOptions): Promise<Uint8Array> {
-    const keys = (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultInMemoryOptions()))
-    )?.keys;
-    return keys?.publicKey;
-  }
-
-  async setPublicKey(value: Uint8Array, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultInMemoryOptions()),
-    );
-    account.keys.publicKey = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultInMemoryOptions()),
     );
   }
 
