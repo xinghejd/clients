@@ -1,11 +1,15 @@
 import { Injectable } from "@angular/core";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
+import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
+import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ConfigService } from "@bitwarden/common/platform/services/config/config.service";
+import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
 
 import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
 import { BrowserStateService as StateServiceAbstraction } from "../../platform/services/abstractions/browser-state.service";
@@ -23,6 +27,9 @@ export class InitService {
     private configService: ConfigService,
     private vaultTimeoutService: VaultTimeoutService,
     private twoFactorService: TwoFactorService,
+    private environmentService: EnvironmentService,
+    private eventUploadService: EventUploadServiceAbstraction,
+    private notificationsService: NotificationsService,
   ) {}
 
   init() {
@@ -31,6 +38,7 @@ export class InitService {
 
       await this.vaultTimeoutService.init(true);
       await (this.i18nService as BrowserI18nService).init();
+      (this.eventUploadService as EventUploadService).init(true);
 
       if (!BrowserPopupUtils.inPopup(window)) {
         window.document.body.classList.add("body-full");
@@ -61,6 +69,9 @@ export class InitService {
 
       this.configService.init();
       this.twoFactorService.init();
+      await this.environmentService.setUrlsFromStorage();
+      this.environmentService.initialized = true;
+      setTimeout(() => this.notificationsService.init(), 2500);
     };
   }
 }
