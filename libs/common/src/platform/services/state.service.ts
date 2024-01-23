@@ -285,7 +285,7 @@ export class StateService<
       ? null
       : {
           cipher:
-            raw?.cipher.toJSON != null
+            raw?.cipher?.toJSON != null
               ? raw.cipher
               : CipherView.fromJSON(raw?.cipher as Jsonify<CipherView>),
           collectionIds: raw?.collectionIds,
