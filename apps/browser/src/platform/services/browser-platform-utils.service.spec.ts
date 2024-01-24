@@ -11,7 +11,6 @@ describe("Browser Utils Service", () => {
 
   describe("getBrowser", () => {
     const originalUserAgent = navigator.userAgent;
-
     // Reset the userAgent.
     afterAll(() => {
       Object.defineProperty(navigator, "userAgent", {
@@ -103,11 +102,10 @@ describe("Browser Utils Service", () => {
     });
 
     it("returns true if the user is on Firefox and the sidebar is open", async () => {
-      Object.defineProperty(navigator, "userAgent", {
-        value: "some Firefox/1.0 user agent",
-        writable: true,
-      });
       chrome.extension.getViews = jest.fn().mockReturnValueOnce([window]);
+      jest
+        .spyOn(browserPlatformUtilsService, "getDevice")
+        .mockReturnValueOnce(DeviceType.FirefoxExtension);
 
       const result = await browserPlatformUtilsService.isViewOpen();
 
