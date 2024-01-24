@@ -36,7 +36,7 @@ import { fido2PopoutSessionData$ } from "../../../fido2/utils/fido2-popout-sessi
   ],
 })
 export class Fido2UseBrowserLinkComponent {
-  showOverlay: boolean = false;
+  showOverlay = false;
   isOpen = false;
   overlayPosition: ConnectedPosition[] = [
     {
