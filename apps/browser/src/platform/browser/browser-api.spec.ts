@@ -92,6 +92,43 @@ describe("BrowserApi", () => {
     });
   });
 
+  describe("getBackgroundPage", () => {
+    it("returns a null value if the `getBackgroundPage` method is not available", () => {
+      chrome.extension.getBackgroundPage = undefined;
+
+      const result = BrowserApi.getBackgroundPage();
+
+      expect(result).toBeNull();
+    });
+
+    it("returns the background page if the `getBackgroundPage` method is available", () => {
+      chrome.extension.getBackgroundPage = jest.fn().mockReturnValue(window);
+
+      const result = BrowserApi.getBackgroundPage();
+
+      expect(result).toEqual(window);
+    });
+  });
+
+  describe("getExtensionViews", () => {
+    it("returns an empty array if the `getViews` method is not available", () => {
+      chrome.extension.getViews = undefined;
+
+      const result = BrowserApi.getExtensionViews();
+
+      expect(result).toEqual([]);
+    });
+
+    it("returns the extension views if the `getViews` method is available", () => {
+      const views = [window];
+      chrome.extension.getViews = jest.fn().mockReturnValue(views);
+
+      const result = BrowserApi.getExtensionViews();
+
+      expect(result).toEqual(views);
+    });
+  });
+
   describe("executeScriptInTab", () => {
     it("calls to the extension api to execute a script within the give tabId", async () => {
       const tabId = 1;

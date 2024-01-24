@@ -199,6 +199,11 @@ export class BrowserApi {
     return chrome.windows.onCreated.addListener(callback);
   }
 
+  /**
+   * Gets the background page for the extension. This method is
+   * not valid within manifest v3 background service workers. As
+   * a result, it will return null when called from that context.
+   */
   static getBackgroundPage(): any {
     if (typeof chrome.extension.getBackgroundPage === "undefined") {
       return null;
@@ -215,6 +220,13 @@ export class BrowserApi {
     return chrome.runtime.getManifest().version;
   }
 
+  /**
+   * Gets the extension views that match the given properties. This method is not
+   * available within background service worker. As a result, it will return an
+   * empty array when called from that context.
+   *
+   * @param fetchProperties - The properties used to filter extension views.
+   */
   static getExtensionViews(fetchProperties?: chrome.extension.FetchProperties): Window[] {
     if (typeof chrome.extension.getViews === "undefined") {
       return [];
