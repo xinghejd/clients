@@ -151,22 +151,7 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
   }
 
   async isViewOpen(): Promise<boolean> {
-    if (await BrowserApi.isPopupOpen()) {
-      return true;
-    }
-
-    if (this.isSafari()) {
-      return false;
-    }
-
-    // Opera has "sidebar_panel" as a ViewType but doesn't currently work
-    if (this.isFirefox() && BrowserApi.getExtensionViews({ type: "sidebar" }).length > 0) {
-      return true;
-    }
-
-    // Opera sidebar has type of "tab" (will stick around for a while after closing sidebar)
-    const tabOpen = BrowserApi.getExtensionViews({ type: "tab" }).length > 0;
-    return tabOpen;
+    return Boolean(await BrowserApi.sendMessage("isVaultPopupOpen"));
   }
 
   lockTimeout(): number {

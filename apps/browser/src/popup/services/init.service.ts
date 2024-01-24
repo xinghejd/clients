@@ -6,11 +6,19 @@ import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ConfigService } from "@bitwarden/common/platform/services/config/config.service";
 
+import { OverlayBackgroundExtensionMessage } from "../../autofill/background/abstractions/overlay.background";
+import { BrowserApi } from "../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
 import { BrowserStateService as StateServiceAbstraction } from "../../platform/services/abstractions/browser-state.service";
 
 @Injectable()
 export class InitService {
+  private extensionMessageHandlers: {
+    [key: string]: ({ message, sender }: { message: any; sender: any }) => Promise<any>;
+  } = {
+    isVaultPopupOpen: async () => true,
+  };
+
   constructor(
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
@@ -52,6 +60,28 @@ export class InitService {
       }
 
       this.configService.init();
+      if (!chrome.runtime.onMessage.hasListener(this.handleExtensionMessage)) {
+        BrowserApi.messageListener("init-service", this.handleExtensionMessage.bind(this));
+      }
     };
   }
+
+  private handleExtensionMessage = (
+    message: OverlayBackgroundExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+    sendResponse: (response?: any) => void,
+  ) => {
+    const handler: CallableFunction | undefined = this.extensionMessageHandlers[message?.command];
+    if (!handler) {
+      return;
+    }
+
+    const messageResponse = handler({ message, sender });
+    if (!messageResponse) {
+      return;
+    }
+
+    Promise.resolve(messageResponse).then((response) => sendResponse(response));
+    return true;
+  };
 }
