@@ -346,9 +346,7 @@ export class BrowserApi {
 
   static async sendMessage(subscriber: string, arg: any = {}) {
     const message = Object.assign({}, { command: subscriber }, arg);
-    return new Promise((resolve) => {
-      chrome.runtime.sendMessage(message, (response) => resolve(response));
-    });
+    return chrome.runtime.sendMessage(message);
   }
 
   static sendMessageWithResponse<TResponse>(subscriber: string, arg: any = {}) {

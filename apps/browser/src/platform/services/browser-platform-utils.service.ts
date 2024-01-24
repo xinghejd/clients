@@ -151,7 +151,7 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
   }
 
   async isViewOpen(): Promise<boolean> {
-    return Boolean(await BrowserApi.sendMessage("isVaultPopupOpen"));
+    return Boolean(await BrowserApi.sendMessageWithResponse("isVaultPopupOpen"));
   }
 
   lockTimeout(): number {
