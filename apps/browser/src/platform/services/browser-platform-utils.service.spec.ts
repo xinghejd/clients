@@ -92,6 +92,16 @@ describe("Browser Utils Service", () => {
   });
 
   describe("isViewOpen", () => {
+    beforeEach(() => {
+      globalThis.chrome = {
+        // eslint-disable-next-line
+        // @ts-ignore
+        extension: {
+          getViews: jest.fn(),
+        },
+      };
+    });
+
     it("returns true if the user is on Firefox and the sidebar is open", async () => {
       Object.defineProperty(navigator, "userAgent", {
         value: "some Firefox/1.0 user agent",
