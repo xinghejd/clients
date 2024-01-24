@@ -155,7 +155,17 @@ export class EncryptServiceImplementation implements EncryptService {
       return [];
     }
 
-    return await Promise.all(items.map((item) => item.decrypt(key)));
+    // don't use promise.all because this task is not io bound
+    let results = [];
+    for (let i = 0; i < items.length; i++) {
+      results.push(await items[i].decrypt(key));
+    }
+    return results;
+  }
+
+  async hash(value: string | Uint8Array, algorithm: "sha1" | "sha256" | "sha512"): Promise<string> {
+    const hashArray = await this.cryptoFunctionService.hash(value, algorithm);
+    return Utils.fromBufferToB64(hashArray);
   }
 
   private async aesEncrypt(data: Uint8Array, key: SymmetricCryptoKey): Promise<EncryptedObject> {
