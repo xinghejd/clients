@@ -2,7 +2,7 @@ import { UserPrivateKey, UserPublicKey } from "../../../types/key";
 import { CryptoFunctionService } from "../../abstractions/crypto-function.service";
 import { EncryptService } from "../../abstractions/encrypt.service";
 import { EncString, EncryptedString } from "../../models/domain/enc-string";
-import { KeyDefinition, CRYPTO_DISK, DeriveDefinition, CRYPTO_MEMORY } from "../../state";
+import { KeyDefinition, CRYPTO_DISK, DeriveDefinition } from "../../state";
 import { CryptoService } from "../crypto.service";
 
 export const USER_EVER_HAD_USER_KEY = new KeyDefinition<boolean>(CRYPTO_DISK, "everHadUserKey", {
@@ -16,21 +16,6 @@ export const USER_ENCRYPTED_PRIVATE_KEY = new KeyDefinition<EncryptedString>(
     deserializer: (obj) => obj,
   },
 );
-
-export const USER_PUBLIC_KEY = new DeriveDefinition<
-  UserPrivateKey,
-  UserPublicKey,
-  { cryptoFunctionService: CryptoFunctionService }
->(CRYPTO_MEMORY, "publicKey", {
-  deserializer: (obj) => new Uint8Array(Object.values(obj)) as UserPublicKey,
-  derive: async (privateKey, { cryptoFunctionService }) => {
-    if (privateKey == null) {
-      return null;
-    }
-
-    return (await cryptoFunctionService.rsaExtractPublicKey(privateKey)) as UserPublicKey;
-  },
-});
 
 export const USER_PRIVATE_KEY = DeriveDefinition.from<
   EncryptedString,
@@ -55,5 +40,20 @@ export const USER_PRIVATE_KEY = DeriveDefinition.from<
       userKey,
     )) as UserPrivateKey;
     return privateKey;
+  },
+});
+
+export const USER_PUBLIC_KEY = DeriveDefinition.from<
+  UserPrivateKey,
+  UserPublicKey,
+  { cryptoFunctionService: CryptoFunctionService }
+>([USER_PRIVATE_KEY, "publicKey"], {
+  deserializer: (obj) => new Uint8Array(Object.values(obj)) as UserPublicKey,
+  derive: async (privateKey, { cryptoFunctionService }) => {
+    if (privateKey == null) {
+      return null;
+    }
+
+    return (await cryptoFunctionService.rsaExtractPublicKey(privateKey)) as UserPublicKey;
   },
 });
