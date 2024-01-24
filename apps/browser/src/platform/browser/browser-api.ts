@@ -200,19 +200,31 @@ export class BrowserApi {
   }
 
   static getBackgroundPage(): any {
+    if (typeof chrome.extension.getBackgroundPage === "undefined") {
+      return null;
+    }
+
     return chrome.extension.getBackgroundPage();
   }
 
   static isBackgroundPage(window: Window & typeof globalThis): boolean {
-    return window === chrome.extension.getBackgroundPage();
+    return window === BrowserApi.getBackgroundPage();
   }
 
   static getApplicationVersion(): string {
     return chrome.runtime.getManifest().version;
   }
 
+  static getExtensionViews(fetchProperties?: chrome.extension.FetchProperties): Window[] {
+    if (typeof chrome.extension.getViews === "undefined") {
+      return [];
+    }
+
+    return chrome.extension.getViews(fetchProperties);
+  }
+
   static async isPopupOpen(): Promise<boolean> {
-    return Promise.resolve(chrome.extension.getViews({ type: "popup" }).length > 0);
+    return Promise.resolve(BrowserApi.getExtensionViews({ type: "popup" }).length > 0);
   }
 
   static createNewTab(url: string, active = true): Promise<chrome.tabs.Tab> {
@@ -353,7 +365,7 @@ export class BrowserApi {
 
   static reloadOpenWindows(exemptCurrentHref = false) {
     const currentHref = window.location.href;
-    const views = chrome.extension.getViews() as Window[];
+    const views = BrowserApi.getExtensionViews();
     views
       .filter((w) => w.location.href != null && !w.location.href.includes("background.html"))
       .filter((w) => !exemptCurrentHref || w.location.href !== currentHref)
