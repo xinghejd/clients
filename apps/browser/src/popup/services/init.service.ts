@@ -6,7 +6,6 @@ import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ConfigService } from "@bitwarden/common/platform/services/config/config.service";
 
-import { OverlayBackgroundExtensionMessage } from "../../autofill/background/abstractions/overlay.background";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
 import { BrowserStateService as StateServiceAbstraction } from "../../platform/services/abstractions/browser-state.service";
@@ -67,7 +66,7 @@ export class InitService {
   }
 
   private handleExtensionMessage = (
-    message: OverlayBackgroundExtensionMessage,
+    message: any,
     sender: chrome.runtime.MessageSender,
     sendResponse: (response?: any) => void,
   ) => {
