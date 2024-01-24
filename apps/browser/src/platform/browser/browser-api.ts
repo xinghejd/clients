@@ -212,8 +212,14 @@ export class BrowserApi {
     return chrome.extension.getBackgroundPage();
   }
 
+  /**
+   * Accepts a window object and determines if it is
+   * associated with the background page of the extension.
+   *
+   * @param window - The window to check.
+   */
   static isBackgroundPage(window: Window & typeof globalThis): boolean {
-    return window === BrowserApi.getBackgroundPage();
+    return typeof window !== "undefined" && window === BrowserApi.getBackgroundPage();
   }
 
   static getApplicationVersion(): string {
@@ -235,6 +241,10 @@ export class BrowserApi {
     return chrome.extension.getViews(fetchProperties);
   }
 
+  /**
+   * Queries all extension views that are of type `popup`
+   * and returns whether any are currently open.
+   */
   static async isPopupOpen(): Promise<boolean> {
     return Promise.resolve(BrowserApi.getExtensionViews({ type: "popup" }).length > 0);
   }
@@ -375,15 +385,19 @@ export class BrowserApi {
     }
   }
 
+  /**
+   * Reloads all open extension views, except the background page. Will also
+   * skip reloading the current window location if exemptCurrentHref is true.
+   *
+   * @param exemptCurrentHref - Whether to exempt the current window location from the reload.
+   */
   static reloadOpenWindows(exemptCurrentHref = false) {
-    const currentHref = window.location.href;
+    const currentHref = window?.location.href;
     const views = BrowserApi.getExtensionViews();
     views
       .filter((w) => w.location.href != null && !w.location.href.includes("background.html"))
       .filter((w) => !exemptCurrentHref || w.location.href !== currentHref)
-      .forEach((w) => {
-        w.location.reload();
-      });
+      .forEach((w) => w.location.reload());
   }
 
   static connectNative(application: string): browser.runtime.Port | chrome.runtime.Port {

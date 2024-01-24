@@ -3,6 +3,12 @@ import { DeviceType } from "@bitwarden/common/enums";
 import BrowserPlatformUtilsService from "./browser-platform-utils.service";
 
 describe("Browser Utils Service", () => {
+  let browserPlatformUtilsService: BrowserPlatformUtilsService;
+  beforeEach(() => {
+    (window as any).matchMedia = jest.fn().mockReturnValueOnce({});
+    browserPlatformUtilsService = new BrowserPlatformUtilsService(null, null, null, window);
+  });
+
   describe("getBrowser", () => {
     const originalUserAgent = navigator.userAgent;
 
@@ -13,10 +19,8 @@ describe("Browser Utils Service", () => {
       });
     });
 
-    let browserPlatformUtilsService: BrowserPlatformUtilsService;
     beforeEach(() => {
       (window as any).matchMedia = jest.fn().mockReturnValueOnce({});
-      browserPlatformUtilsService = new BrowserPlatformUtilsService(null, null, null, window);
     });
 
     afterEach(() => {
@@ -84,6 +88,36 @@ describe("Browser Utils Service", () => {
       });
 
       expect(browserPlatformUtilsService.getDevice()).toBe(DeviceType.VivaldiExtension);
+    });
+  });
+
+  describe("isViewOpen", () => {
+    it("returns true if the user is on Firefox and the sidebar is open", async () => {
+      Object.defineProperty(navigator, "userAgent", {
+        value: "some Firefox/1.0 user agent",
+        writable: true,
+      });
+      chrome.extension.getViews = jest.fn().mockReturnValueOnce([window]);
+
+      const result = await browserPlatformUtilsService.isViewOpen();
+
+      expect(result).toBe(true);
+    });
+
+    it("returns true if a extension view is open as a tab", async () => {
+      chrome.extension.getViews = jest.fn().mockReturnValueOnce([window]);
+
+      const result = await browserPlatformUtilsService.isViewOpen();
+
+      expect(result).toBe(true);
+    });
+
+    it("returns false if no extension view is open", async () => {
+      chrome.extension.getViews = jest.fn().mockReturnValue([]);
+
+      const result = await browserPlatformUtilsService.isViewOpen();
+
+      expect(result).toBe(false);
     });
   });
 });
