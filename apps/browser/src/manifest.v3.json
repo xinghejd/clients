@@ -33,13 +33,8 @@
     },
     {
       "all_frames": true,
-      "css": ["content/autofill.css"],
-      "matches": ["http://*/*", "https://*/*", "file:///*"],
-      "run_at": "document_end"
-    },
-    {
-      "all_frames": true,
       "js": ["content/misc-utils.js"],
+      "css": ["content/autofill.css"],
       "matches": ["http://*/*", "https://*/*", "file:///*"],
       "run_at": "document_end"
     }
