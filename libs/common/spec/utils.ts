@@ -3,6 +3,8 @@ import { Observable } from "rxjs";
 
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 
+import { EncryptionType } from "../src/platform/enums";
+
 function newGuid() {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
     const r = (Math.random() * 16) | 0;
@@ -35,6 +37,11 @@ export function makeStaticByteArray(length: number, start = 0) {
     arr[i] = start + i;
   }
   return arr;
+}
+
+export function makeEncString(data?: string) {
+  data ??= newGuid();
+  return new EncString(EncryptionType.AesCbc256_HmacSha256_B64, data, "test", "test");
 }
 
 /**
