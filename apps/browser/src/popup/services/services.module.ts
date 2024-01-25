@@ -244,6 +244,7 @@ function getBgService<T>(service: keyof MainBackground) {
     // },
     {
       provide: TwoFactorServiceImplementation,
+      useClass: TwoFactorServiceImplementation,
       deps: [I18nServiceAbstraction, PlatformUtilsService],
     },
     {
