@@ -4,7 +4,7 @@ import { AbstractThemingService } from "@bitwarden/angular/platform/services/the
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
-import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+// import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -14,7 +14,7 @@ import { EventUploadService } from "@bitwarden/common/services/event/event-uploa
 import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
 import { BrowserStateService as StateServiceAbstraction } from "../../platform/services/abstractions/browser-state.service";
 import { BrowserI18nService } from "../../platform/services/browser-i18n.service";
-import VaultTimeoutService from "../../services/vault-timeout/vault-timeout.service";
+// import VaultTimeoutService from "../../services/vault-timeout/vault-timeout.service";
 
 @Injectable()
 export class InitService {
@@ -25,9 +25,9 @@ export class InitService {
     private logService: LogServiceAbstraction,
     private themingService: AbstractThemingService,
     private configService: ConfigService,
-    private vaultTimeoutService: VaultTimeoutService,
+    // private vaultTimeoutService: VaultTimeoutService,
     private twoFactorService: TwoFactorService,
-    private environmentService: EnvironmentService,
+    // private environmentService: EnvironmentService,
     private eventUploadService: EventUploadServiceAbstraction,
     private notificationsService: NotificationsService,
   ) {}
@@ -36,7 +36,7 @@ export class InitService {
     return async () => {
       await this.stateService.init();
 
-      await this.vaultTimeoutService.init(true);
+      // await this.vaultTimeoutService.init(true);
       await (this.i18nService as BrowserI18nService).init();
       (this.eventUploadService as EventUploadService).init(true);
 
@@ -69,8 +69,8 @@ export class InitService {
 
       this.configService.init();
       this.twoFactorService.init();
-      await this.environmentService.setUrlsFromStorage();
-      this.environmentService.initialized = true;
+      // await this.environmentService.setUrlsFromStorage();
+      // this.environmentService.initialized = true;
       setTimeout(() => this.notificationsService.init(), 2500);
     };
   }
