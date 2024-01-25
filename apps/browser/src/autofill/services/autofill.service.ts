@@ -445,19 +445,19 @@ export default class AutofillService implements AutofillServiceInterface {
 
     let fillScript = new AutofillScript();
     const filledFields: { [id: string]: AutofillField } = {};
-    const fields = options.cipher.fields;
+    const cipherFields = options.cipher.fields;
+    let qualifiedPageFields: AutofillField[] = [];
 
-    if (fields && fields.length) {
-      const fieldNames: string[] = [];
+    if (cipherFields && cipherFields.length) {
+      const cipherFieldNames: string[] = [];
 
-      fields.forEach((f) => {
-        if (AutofillService.hasValue(f.name)) {
-          fieldNames.push(f.name.toLowerCase());
+      cipherFields.forEach(({ name }) => {
+        if (AutofillService.hasValue(name)) {
+          cipherFieldNames.push(name.toLowerCase());
         }
       });
 
       pageDetails.fields.forEach((field) => {
-        // eslint-disable-next-line
         if (filledFields.hasOwnProperty(field.opid)) {
           return;
         }
@@ -466,15 +466,18 @@ export default class AutofillService implements AutofillServiceInterface {
           return;
         }
 
-        // Check if the input is an untyped/mistyped search input
-        if (AutofillService.isSearchField(field)) {
+        if (AutofillService.isExcludedFieldType(field, AutoFillConstants.ExcludedAutofillTypes)) {
           return;
         }
 
-        const matchingIndex = this.findMatchingFieldIndex(field, fieldNames);
+        qualifiedPageFields = [...qualifiedPageFields, field];
+
+        const matchingIndex = this.findMatchingFieldIndex(field, cipherFieldNames);
+
         if (matchingIndex > -1) {
-          const matchingField: FieldView = fields[matchingIndex];
+          const matchingField: FieldView = cipherFields[matchingIndex];
           let val: string;
+
           if (matchingField.type === FieldType.Linked) {
             // Assumption: Linked Field is not being used to autofill a boolean value
             val = options.cipher.linkedFieldValue(matchingField.linkedId) as string;
@@ -491,22 +494,33 @@ export default class AutofillService implements AutofillServiceInterface {
       });
     }
 
+      console.log('qualifiedPageFields:', qualifiedPageFields);
+    const updatedPageDetails = {
+      ...pageDetails,
+      fields: qualifiedPageFields.length ? qualifiedPageFields : pageDetails.fields,
+    };
+
     switch (options.cipher.type) {
       case CipherType.Login:
         fillScript = await this.generateLoginFillScript(
           fillScript,
-          pageDetails,
+          updatedPageDetails,
           filledFields,
           options,
         );
         break;
       case CipherType.Card:
-        fillScript = this.generateCardFillScript(fillScript, pageDetails, filledFields, options);
+        fillScript = this.generateCardFillScript(
+          fillScript,
+          updatedPageDetails,
+          filledFields,
+          options,
+        );
         break;
       case CipherType.Identity:
         fillScript = this.generateIdentityFillScript(
           fillScript,
-          pageDetails,
+          updatedPageDetails,
           filledFields,
           options,
         );
@@ -638,6 +652,7 @@ export default class AutofillService implements AutofillServiceInterface {
         }
       }
     }
+    console.log('usernames:', usernames);
 
     if (!passwordFields.length) {
       // No password fields on this page. Let's try to just fuzzy fill the username.
@@ -648,6 +663,7 @@ export default class AutofillService implements AutofillServiceInterface {
           (f.type === "text" || f.type === "email" || f.type === "tel") &&
           AutofillService.fieldIsFuzzyMatch(f, AutoFillConstants.UsernameFieldNames)
         ) {
+          console.log('f:', f);
           usernames.push(f);
         }
 
@@ -663,15 +679,16 @@ export default class AutofillService implements AutofillServiceInterface {
       });
     }
 
-    usernames.forEach((u) => {
-      // eslint-disable-next-line
-      if (filledFields.hasOwnProperty(u.opid)) {
-        return;
-      }
+    // usernames.forEach((u) => {
+    //   console.log('u:', u);
+    //   // eslint-disable-next-line
+    //   if (filledFields.hasOwnProperty(u.opid)) {
+    //     return;
+    //   }
 
-      filledFields[u.opid] = u;
-      AutofillService.fillByOpid(fillScript, u, login.username);
-    });
+    //   filledFields[u.opid] = u;
+    //   AutofillService.fillByOpid(fillScript, u, login.username);
+    // });
 
     passwords.forEach((p) => {
       // eslint-disable-next-line
@@ -697,6 +714,7 @@ export default class AutofillService implements AutofillServiceInterface {
       );
     }
 
+    console.log('filledFields:', filledFields);
     fillScript = AutofillService.setFillScriptForFocus(filledFields, fillScript);
     return fillScript;
   }
@@ -1348,6 +1366,7 @@ export default class AutofillService implements AutofillServiceInterface {
 
     // Check if the input is an untyped/mistyped search input
     if (this.isSearchField(field)) {
+      // console.log("this.isSearchField(field):", field.htmlID, this.isSearchField(field));
       return true;
     }
 
@@ -1607,6 +1626,7 @@ export default class AutofillService implements AutofillServiceInterface {
         usernameField = f;
 
         if (this.findMatchingFieldIndex(f, AutoFillConstants.UsernameFieldNames) > -1) {
+          console.log('usernameField:', f.htmlID);
           // We found an exact match. No need to keep looking.
           break;
         }
