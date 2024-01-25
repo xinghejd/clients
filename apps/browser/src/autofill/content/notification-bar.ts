@@ -179,6 +179,15 @@ async function loadNotificationBar() {
       adjustBar(msg.data);
       sendResponse();
       return true;
+    } else if (msg.command === "updateBarWebVaultURL") {
+      // `bar.js : window resize` > `notification.background.ts : processMessage(...)`
+      // sends a message to the content script to adjust the notification bar
+      if (inIframe) {
+        return;
+      }
+      updateBarWebVaultURL(msg.data);
+      sendResponse();
+      return true;
     } else if (msg.command === "notificationBarPageDetails") {
       // Note: we deliberately do not check for inIframe here because a lot of websites
       // embed their login forms into iframes
@@ -929,6 +938,16 @@ async function loadNotificationBar() {
       doHeightAdjustment("bit-notification-bar-iframe", newHeight);
       doHeightAdjustment("bit-notification-bar", newHeight);
       doHeightAdjustment("bit-notification-bar-spacer", newHeight);
+    }
+  }
+
+  function updateBarWebVaultURL(data: any) {
+    console.log('data:', data);
+    // const {webVaultURL: string} = data;
+    const logoLink = document.getElementById("logo-link") as HTMLAnchorElement;
+
+    if (data.webVaultURL && data.webVaultURL !== logoLink.href) {
+      logoLink.href = data.webVaultURL+'/test';
     }
   }
 

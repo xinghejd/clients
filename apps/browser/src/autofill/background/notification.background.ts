@@ -74,6 +74,12 @@ export default class NotificationBackground {
       case "bgAdjustNotificationBar":
         await BrowserApi.tabSendMessageData(sender.tab, "adjustNotificationBar", msg.data);
         break;
+      case "bgGetWebVaultURL":
+        await BrowserApi.tabSendMessageData(sender.tab, "updateBarWebVaultURL", {
+          ...msg.data,
+          webVaultURL: await this.environmentService.getWebVaultUrl(),
+        });
+        break;
       case "bgAddLogin":
         await this.addLogin(msg.login, sender.tab);
         break;
