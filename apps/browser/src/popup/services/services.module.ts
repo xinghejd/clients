@@ -1201,6 +1201,7 @@ import { PopupSearchService } from "./popup-search.service";
         memoryStorageService: LocalBackedSessionStorageService,
         logService: LogServiceAbstraction,
         accountService: AccountServiceAbstraction,
+        environmentService: EnvironmentService,
       ) => {
         return new BrowserStateService(
           storageService,
@@ -1209,6 +1210,7 @@ import { PopupSearchService } from "./popup-search.service";
           logService,
           new StateFactory(GlobalState, Account),
           accountService,
+          environmentService,
         );
       },
       deps: [
@@ -1217,6 +1219,7 @@ import { PopupSearchService } from "./popup-search.service";
         MEMORY_STORAGE,
         LogServiceAbstraction,
         AccountServiceAbstraction,
+        EnvironmentService,
       ],
     },
     {

@@ -347,6 +347,11 @@ export default class MainBackground {
       this.globalStateProvider,
       this.derivedStateProvider,
     );
+    this.environmentService = new BrowserEnvironmentService(
+      this.logService,
+      this.stateProvider,
+      this.accountService,
+    );
     this.stateService = new BrowserStateService(
       this.storageService,
       this.secureStorageService,
@@ -354,6 +359,7 @@ export default class MainBackground {
       this.logService,
       new StateFactory(GlobalState, Account),
       this.accountService,
+      this.environmentService,
     );
     // TODO CG - BrowserPlatformUtilsService should not be used in the background. It depends too heavily on the window object. Migration to usage of the chrome.offscreen should be done.
     this.platformUtilsService = new BrowserPlatformUtilsService(
@@ -390,7 +396,6 @@ export default class MainBackground {
     );
     this.tokenService = new TokenService(this.stateService);
     this.appIdService = new AppIdService(this.storageService);
-    this.environmentService = new BrowserEnvironmentService(this.stateService, this.logService);
     this.apiService = new ApiService(
       this.tokenService,
       this.platformUtilsService,
