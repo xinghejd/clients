@@ -20,10 +20,15 @@ import { ConfigServiceAbstraction } from "../../abstractions/config/config.servi
 import { ServerConfig } from "../../abstractions/config/server-config";
 import { EnvironmentService, Region } from "../../abstractions/environment.service";
 import { LogService } from "../../abstractions/log.service";
-import { StateService } from "../../abstractions/state.service";
 import { ServerConfigData } from "../../models/data/server-config.data";
+import { ActiveUserState, CONFIG_DISK, KeyDefinition, StateProvider } from "../../state";
 
 const ONE_HOUR_IN_MILLISECONDS = 1000 * 3600;
+
+// QUESTION: Just server and not repeat "config"?
+export const SERVER_CONFIG_KEY = new KeyDefinition<ServerConfigData>(CONFIG_DISK, "serverConfig", {
+  deserializer: (jsonValue) => ServerConfigData.fromJSON(jsonValue),
+});
 
 export class ConfigService implements ConfigServiceAbstraction {
   private inited = false;
@@ -38,8 +43,10 @@ export class ConfigService implements ConfigServiceAbstraction {
     map((config) => config?.environment?.cloudRegion ?? Region.US),
   );
 
+  private readonly serverConfigState: ActiveUserState<ServerConfigData>;
+
   constructor(
-    private stateService: StateService,
+    private stateProvider: StateProvider,
     private configApiService: ConfigApiServiceAbstraction,
     private authService: AuthService,
     private environmentService: EnvironmentService,
@@ -47,7 +54,9 @@ export class ConfigService implements ConfigServiceAbstraction {
 
     // Used to avoid duplicate subscriptions, e.g. in browser between the background and popup
     private subscribe = true,
-  ) {}
+  ) {
+    this.serverConfigState = this.stateProvider.getActive(SERVER_CONFIG_KEY);
+  }
 
   init() {
     if (!this.subscribe || this.inited) {
@@ -60,7 +69,7 @@ export class ConfigService implements ConfigServiceAbstraction {
       catchError((e: unknown) => {
         // fall back to stored ServerConfig (if any)
         this.logService.error("Unable to fetch ServerConfig: " + (e as Error)?.message);
-        return this.stateService.getServerConfig();
+        return firstValueFrom(this.serverConfigState.state$);
       }),
     );
 
@@ -104,7 +113,7 @@ export class ConfigService implements ConfigServiceAbstraction {
       return;
     }
 
-    await this.stateService.setServerConfig(data);
+    await this.serverConfigState.update(() => data);
     this.environmentService.setCloudWebVaultUrl(data.environment?.cloudRegion);
   }
 

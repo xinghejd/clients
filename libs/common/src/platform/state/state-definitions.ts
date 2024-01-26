@@ -23,6 +23,8 @@ export const BILLING_BANNERS_DISK = new StateDefinition("billingBanners", "disk"
 
 export const CRYPTO_DISK = new StateDefinition("crypto", "disk");
 export const ENVIRONMENT_DISK = new StateDefinition("environment", "disk");
+// TODO: Use disk-local for web
+export const CONFIG_DISK = new StateDefinition("config", "disk");
 
 export const GENERATOR_DISK = new StateDefinition("generator", "disk");
 export const GENERATOR_MEMORY = new StateDefinition("generator", "memory");

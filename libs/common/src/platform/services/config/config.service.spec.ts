@@ -1,13 +1,14 @@
 import { MockProxy, mock } from "jest-mock-extended";
 import { ReplaySubject, skip, take } from "rxjs";
 
+import { FakeStateProvider, mockAccountServiceWith } from "../../../../spec";
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
+import { UserId } from "../../../types/guid";
 import { ConfigApiServiceAbstraction } from "../../abstractions/config/config-api.service.abstraction";
 import { ServerConfig } from "../../abstractions/config/server-config";
 import { EnvironmentService } from "../../abstractions/environment.service";
 import { LogService } from "../../abstractions/log.service";
-import { StateService } from "../../abstractions/state.service";
 import { ServerConfigData } from "../../models/data/server-config.data";
 import {
   EnvironmentServerConfigResponse,
@@ -15,10 +16,10 @@ import {
   ThirdPartyServerConfigResponse,
 } from "../../models/response/server-config.response";
 
-import { ConfigService } from "./config.service";
+import { ConfigService, SERVER_CONFIG_KEY } from "./config.service";
 
 describe("ConfigService", () => {
-  let stateService: MockProxy<StateService>;
+  let stateProvider: FakeStateProvider;
   let configApiService: MockProxy<ConfigApiServiceAbstraction>;
   let authService: MockProxy<AuthService>;
   let environmentService: MockProxy<EnvironmentService>;
@@ -30,7 +31,7 @@ describe("ConfigService", () => {
   // after everything is mocked
   const configServiceFactory = () => {
     const configService = new ConfigService(
-      stateService,
+      stateProvider,
       configApiService,
       authService,
       environmentService,
@@ -41,7 +42,7 @@ describe("ConfigService", () => {
   };
 
   beforeEach(() => {
-    stateService = mock();
+    stateProvider = new FakeStateProvider(mockAccountServiceWith("testUser" as UserId));
     configApiService = mock();
     authService = mock();
     environmentService = mock();
@@ -63,7 +64,8 @@ describe("ConfigService", () => {
 
   it("Uses storage as fallback", (done) => {
     const storedConfigData = serverConfigDataFactory("storedConfig");
-    stateService.getServerConfig.mockResolvedValueOnce(storedConfigData);
+    const configFake = stateProvider.activeUser.getFake(SERVER_CONFIG_KEY);
+    configFake.nextState(storedConfigData);
 
     configApiService.get.mockRejectedValueOnce(new Error("Unable to fetch"));
 
@@ -71,8 +73,7 @@ describe("ConfigService", () => {
 
     configService.serverConfig$.pipe(take(1)).subscribe((config) => {
       expect(config).toEqual(new ServerConfig(storedConfigData));
-      expect(stateService.getServerConfig).toHaveBeenCalledTimes(1);
-      expect(stateService.setServerConfig).not.toHaveBeenCalled();
+      expect(configFake.nextMock).not.toHaveBeenCalled();
       done();
     });
 
@@ -81,7 +82,8 @@ describe("ConfigService", () => {
 
   it("Stream does not error out if fetch fails", (done) => {
     const storedConfigData = serverConfigDataFactory("storedConfig");
-    stateService.getServerConfig.mockResolvedValueOnce(storedConfigData);
+    const configFake = stateProvider.activeUser.getFake(SERVER_CONFIG_KEY);
+    configFake.nextState(storedConfigData);
 
     const configService = configServiceFactory();
 
@@ -103,7 +105,8 @@ describe("ConfigService", () => {
 
   describe("Fetches config from server", () => {
     beforeEach(() => {
-      stateService.getServerConfig.mockResolvedValueOnce(null);
+      const configFake = stateProvider.activeUser.getFake(SERVER_CONFIG_KEY);
+      configFake.nextState(null);
     });
 
     it.each<number | jest.DoneCallback>([1, 2, 3])(
@@ -159,13 +162,15 @@ describe("ConfigService", () => {
   });
 
   it("Saves server config to storage when the user is logged in", (done) => {
-    stateService.getServerConfig.mockResolvedValueOnce(null);
+    const configFake = stateProvider.activeUser.getFake(SERVER_CONFIG_KEY);
+    configFake.nextState(null);
     authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.Locked);
     const configService = configServiceFactory();
 
     configService.serverConfig$.pipe(take(1)).subscribe(() => {
       try {
-        expect(stateService.setServerConfig).toHaveBeenCalledWith(
+        expect(configFake.nextMock).toHaveBeenCalledWith(
+          "testUser",
           expect.objectContaining({ gitHash: "server1" }),
         );
         done();
