@@ -92,13 +92,13 @@
     "message": "Tự động điền"
   },
   "autoFillLogin": {
-    "message": "Auto-fill login"
+    "message": "Tự động điền thông tin đăng nhập"
   },
   "autoFillCard": {
-    "message": "Auto-fill card"
+    "message": "Tự động điền thẻ"
   },
   "autoFillIdentity": {
-    "message": "Auto-fill identity"
+    "message": "Tự động điền danh tính"
   },
   "generatePasswordCopied": {
     "message": "Tạo mật khẩu (đã sao chép)"
@@ -110,19 +110,19 @@
     "message": "Không có thông tin đăng nhập phù hợp."
   },
   "noCards": {
-    "message": "No cards"
+    "message": "Không có thẻ"
   },
   "noIdentities": {
-    "message": "No identities"
+    "message": "Không có danh tính"
   },
   "addLoginMenu": {
-    "message": "Add login"
+    "message": "Thêm thông tin đăng nhập"
   },
   "addCardMenu": {
-    "message": "Add card"
+    "message": "Thêm thẻ"
   },
   "addIdentityMenu": {
-    "message": "Add identity"
+    "message": "Thêm danh tính"
   },
   "unlockVaultMenu": {
     "message": "Mở khoá kho lưu trữ của bạn"
@@ -269,7 +269,7 @@
     "message": "Độ dài"
   },
   "passwordMinLength": {
-    "message": "Minimum password length"
+    "message": "Độ dài mật khẩu tối thiểu"
   },
   "uppercase": {
     "message": "Chữ in hoa (A-Z)"
@@ -326,6 +326,9 @@
   "password": {
     "message": "Mật khẩu"
   },
+  "totp": {
+    "message": "Khóa xác thực"
+  },
   "passphrase": {
     "message": "Cụm từ mật khẩu"
   },
@@ -366,10 +369,10 @@
     "message": "Khác"
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Set up an unlock method to change your vault timeout action."
+    "message": "Thiết lập phương thức mở khóa để thay đổi hành động hết thời gian chờ của vault."
   },
   "unlockMethodNeeded": {
-    "message": "Set up an unlock method in Settings"
+    "message": "Thiết lập phương pháp mở khóa trong Cài đặt"
   },
   "rateExtension": {
     "message": "Đánh giá tiện ích mở rộng"
@@ -511,6 +514,18 @@
   },
   "autofillError": {
     "message": "Không thể tự động điền mục đã chọn trên trang này. Hãy thực hiện sao chép và dán thông tin một cách thủ công."
+  },
+  "totpCaptureError": {
+    "message": "Unable to scan QR code from the current webpage"
+  },
+  "totpCaptureSuccess": {
+    "message": "Authenticator key added"
+  },
+  "totpCapture": {
+    "message": "Scan authenticator QR code from current webpage"
+  },
+  "copyTOTP": {
+    "message": "Copy Authenticator key (TOTP)"
   },
   "loggedOut": {
     "message": "Đã đăng xuất"
@@ -1030,14 +1045,14 @@
     "message": "Địa chỉ môi trường đã được lưu."
   },
   "showAutoFillMenuOnFormFields": {
-    "message": "Show auto-fill menu on form fields",
+    "message": "Hiển thị menu tự động điền trên các trường biểu mẫu",
     "description": "Represents the message for allowing the user to enable the auto-fill overlay"
   },
   "showAutoFillMenuOnFormFieldsDescAlt": {
-    "message": "Applies to all logged in accounts."
+    "message": "Áp dụng cho tất cả tài khoản đã đăng nhập."
   },
   "turnOffBrowserBuiltInPasswordManagerSettings": {
-    "message": "Turn off your browser’s built in password manager settings to avoid conflicts."
+    "message": "Tắt cài đặt trình quản lý mật khẩu tích hợp trong trình duyệt của bạn để tránh xung đột."
   },
   "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
     "message": "Edit browser settings."
@@ -1051,7 +1066,7 @@
     "description": "Overlay appearance select option for showing the field on focus of the input element"
   },
   "autofillOverlayVisibilityOnButtonClick": {
-    "message": "When auto-fill icon is selected",
+    "message": "Khi chọn biểu tượng tự động điền",
     "description": "Overlay appearance select option for showing the field on click of the overlay icon"
   },
   "enableAutoFillOnPageLoad": {
@@ -1477,6 +1492,9 @@
   },
   "invalidPin": {
     "message": "Mã PIN không hợp lệ."
+  },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Too many invalid PIN entry attempts. Logging out."
   },
   "unlockWithBiometrics": {
     "message": "Mở khóa bằng sinh trắc học"
@@ -1987,6 +2005,10 @@
   "orgRequiresYouToSetPassword": {
     "message": "Your organization requires you to set a master password.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "verificationRequired": {
+    "message": "Verification required",
+    "description": "Default title for the user verification dialog."
   },
   "hours": {
     "message": "Giờ"
@@ -2625,6 +2647,42 @@
       }
     }
   },
+  "tryAgain": {
+    "message": "Try again"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Verification required for this action. Set a PIN to continue."
+  },
+  "setPin": {
+    "message": "Set PIN"
+  },
+  "verifyWithBiometrics": {
+    "message": "Verify with biometrics"
+  },
+  "awaitingConfirmation": {
+    "message": "Awaiting confirmation"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Could not complete biometrics."
+  },
+  "needADifferentMethod": {
+    "message": "Need a different method?"
+  },
+  "useMasterPassword": {
+    "message": "Use master password"
+  },
+  "usePin": {
+    "message": "Use PIN"
+  },
+  "useBiometrics": {
+    "message": "Use biometrics"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Enter the verification code that was sent to your email."
+  },
+  "resendCode": {
+    "message": "Resend code"
+  },
   "total": {
     "message": "Total"
   },
@@ -2768,6 +2826,15 @@
   "incorrectUsernameOrPassword": {
     "message": "Incorrect username or password"
   },
+  "incorrectPassword": {
+    "message": "Incorrect password"
+  },
+  "incorrectCode": {
+    "message": "Incorrect code"
+  },
+  "incorrectPin": {
+    "message": "Incorrect PIN"
+  },
   "multifactorAuthenticationFailed": {
     "message": "Multifactor authentication failed"
   },
@@ -2835,6 +2902,9 @@
   "activeAccount": {
     "message": "Active account"
   },
+  "availableAccounts": {
+    "message": "Available accounts"
+  },
   "accountLimitReached": {
     "message": "Account limit reached. Log out of an account to add another."
   },
@@ -2870,5 +2940,37 @@
         "example": "google.com"
       }
     }
+  },
+  "commonImportFormats": {
+    "message": "Common formats",
+    "description": "Label indicating the most common import formats"
+  },
+  "overrideDefaultBrowserAutofillTitle": {
+    "message": "Make Bitwarden your default password manager?",
+    "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutofillDescription": {
+    "message": "Ignoring this option may cause conflicts between the Bitwarden auto-fill menu and your browser's.",
+    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutofillPrivacyRequiredDescription": {
+    "message": "This action will restart the Bitwarden extension. Ignoring this option may cause conflicts between the Bitwarden auto-fill menu and your browser's.",
+    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutoFillSettings": {
+    "message": "Make Bitwarden your default password manager",
+    "description": "Label for the setting that allows overriding the default browser autofill settings"
+  },
+  "privacyPermissionAdditionNotGrantedTitle": {
+    "message": "Unable to set Bitwarden as the default password manager",
+    "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "privacyPermissionAdditionNotGrantedDescription": {
+    "message": "You must grant browser privacy permissions to Bitwarden to set it as the default password manager.",
+    "description": "Description for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "makeDefault": {
+    "message": "Make default",
+    "description": "Button text for the setting that allows overriding the default browser autofill settings"
   }
 }

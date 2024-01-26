@@ -656,9 +656,6 @@
   "passkeySuccessfullyCreated": {
     "message": "Chave de acesso criada com sucesso!"
   },
-  "customName": {
-    "message": "Nome personalizado"
-  },
   "customPasskeyNameInfo": {
     "message": "Dê um nome à sua chave de acesso para o ajudar a identificá-la."
   },
@@ -2819,6 +2816,9 @@
   "incorrectCode": {
     "message": "Código incorreto"
   },
+  "incorrectPin": {
+    "message": "PIN incorreto"
+  },
   "exportedVault": {
     "message": "Cofre exportado"
   },
@@ -3216,7 +3216,7 @@
     "message": "Acesso do grupo"
   },
   "groupAccessUserDesc": {
-    "message": "Conceda aos membros acesso às coleções, adicionando-os a 1 ou mais grupos."
+    "message": "Conceder aos membros acesso às coleções, adicionando-os a 1 ou mais grupos."
   },
   "invitedUsers": {
     "message": "Utilizador(es) convidado(s)"
@@ -3827,15 +3827,6 @@
   },
   "couldNotChargeCardPayInvoice": {
     "message": "Não foi possível concluir a transação. Por favor, verifique e efetue o pagamento da fatura por pagar indicada abaixo."
-  },
-  "inAppPurchase": {
-    "message": "Compras na aplicação"
-  },
-  "cannotPerformInAppPurchase": {
-    "message": "Não é possível executar esta ação enquanto estiver a utilizar um método de pagamento dentro da aplicação."
-  },
-  "manageSubscriptionFromStore": {
-    "message": "Deve gerir a sua subscrição a partir da loja onde foi efetuada a compra na aplicação."
   },
   "minLength": {
     "message": "Comprimento mínimo"
@@ -5187,6 +5178,12 @@
   },
   "spValidateCertificates": {
     "message": "Validar certificados"
+  },
+  "spUniqueEntityId": {
+    "message": "Configurar um ID de entidade SP único"
+  },
+  "spUniqueEntityIdDesc": {
+    "message": "Gerar um identificador que seja exclusivo da sua organização"
   },
   "idpEntityId": {
     "message": "ID da entidade"
@@ -6610,6 +6607,39 @@
       }
     }
   },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "É necessária uma verificação para esta ação. Defina um PIN para continuar."
+  },
+  "setPin": {
+    "message": "Definir PIN"
+  },
+  "verifyWithBiometrics": {
+    "message": "Verificar com biometria"
+  },
+  "awaitingConfirmation": {
+    "message": "A aguardar confirmação"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Não foi possível concluir a biometria."
+  },
+  "needADifferentMethod": {
+    "message": "Precisa de um método diferente?"
+  },
+  "useMasterPassword": {
+    "message": "Utilizar a palavra-passe mestra"
+  },
+  "usePin": {
+    "message": "Utilizar PIN"
+  },
+  "useBiometrics": {
+    "message": "Utilizar biometria"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Introduza o código de verificação que foi enviado para o seu e-mail."
+  },
+  "resendCode": {
+    "message": "Reenviar código"
+  },
   "membersColumnHeader": {
     "message": "Membro/Grupo"
   },
@@ -6776,7 +6806,7 @@
     "message": "Carregar licença"
   },
   "projectPeopleDescription": {
-    "message": "Conceder acesso a este projeto a grupos ou pessoas."
+    "message": "Conceder a grupos ou pessoas acesso a este projeto."
   },
   "projectPeopleSelectHint": {
     "message": "Escreva ou selecione pessoas ou grupos"
@@ -7092,6 +7122,10 @@
       }
     }
   },
+  "verificationRequired": {
+    "message": "Verificação necessária",
+    "description": "Default title for the user verification dialog."
+  },
   "recoverAccount": {
     "message": "Recuperar conta"
   },
@@ -7331,8 +7365,8 @@
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Os proprietários e administradores podem gerir todas as coleções e itens"
   },
-  "collectionManagementUpdated": {
-    "message": "Comportamento de gestão de coleções guardado"
+  "updatedCollectionManagement": {
+    "message": "Definição de gestão de coleções atualizada"
   },
   "passwordManagerPlanPrice": {
     "message": "Preço do plano do Gestor de Palavras-passe"
@@ -7398,12 +7432,6 @@
   "skipToContent": {
     "message": "Avançar para o conteúdo"
   },
-  "customBillingStart": {
-    "message": "A faturação personalizada não é refletida. Visite a "
-  },
-  "customBillingEnd": {
-    "message": " página para a faturação mais recente."
-  },
   "managePermissionRequired": {
     "message": "Pelo menos um membro ou grupo tem de ter permissão para gerir."
   },
@@ -7447,7 +7475,38 @@
   "collectionAccessRestricted": {
     "message": "O acesso à coleção é restrito"
   },
+  "grantCollectionAccess": {
+    "message": "Conceder a grupos ou membros acesso a esta coleção."
+  },
+  "adminCollectionAccess": {
+    "message": "Os administradores podem aceder e gerir coleções."
+  },
   "serviceAccountAccessUpdated": {
     "message": "Acesso à conta de serviço atualizado"
+  },
+  "commonImportFormats": {
+    "message": "Formatos comuns",
+    "description": "Label indicating the most common import formats"
+  },
+  "maintainYourSubscription": {
+    "message": "Para manter a sua subscrição para a $ORG$, ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Example Inc."
+      }
+    }
+  },
+  "addAPaymentMethod": {
+    "message": "adicione um método de pagamento",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
+  },
+  "collectionEnhancementsDesc": {
+    "message": "Adicione novas definições e permissões para maior flexibilidade. Substitua a função de Gestor pela permissão \"pode gerir\" e introduza opções que permitam aos utilizadores criar coleções, bem como restringir o acesso administrativo às coleções.",
+    "description": "This describes new features and improvements for user roles and collections"
+  },
+  "collectionEnhancementsLearnMore": {
+    "message": "Saiba mais sobre a gestão de coleções"
   }
 }

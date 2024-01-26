@@ -1392,6 +1392,9 @@
   "invalidPin": {
     "message": "Ungültiger PIN-Code."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Zu viele ungültige PIN Eingabeversuche. Wird abgemeldet."
+  },
   "unlockWithWindowsHello": {
     "message": "Mit Windows Hello entsperren"
   },
@@ -1543,6 +1546,10 @@
   "orgRequiresYouToSetPassword": {
     "message": "Deine Organisation verlangt, dass du ein Master-Passwort festlegen musst.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "verificationRequired": {
+    "message": "Verifizierung erforderlich",
+    "description": "Default title for the user verification dialog."
   },
   "currentMasterPass": {
     "message": "Aktuelles Master-Passwort"
@@ -1868,6 +1875,42 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Dein Master-Passwort entspricht nicht einer oder mehreren Richtlinien deiner Organisation. Um auf den Tresor zugreifen zu können, musst du dein Master-Passwort jetzt aktualisieren. Wenn du fortfährst, wirst du von deiner aktuellen Sitzung abgemeldet und musst dich erneut anmelden. Aktive Sitzungen auf anderen Geräten können noch bis zu einer Stunde lang aktiv bleiben."
+  },
+  "tryAgain": {
+    "message": "Erneut versuchen"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Für diese Aktion ist eine Verifizierung erforderlich. Lege eine PIN fest, um fortzufahren."
+  },
+  "setPin": {
+    "message": "PIN festlegen"
+  },
+  "verifyWithBiometrics": {
+    "message": "Mit Biometrie verifizieren"
+  },
+  "awaitingConfirmation": {
+    "message": "Warten auf Bestätigung"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Biometrische Verifizierung konnte nicht abgeschlossen werden."
+  },
+  "needADifferentMethod": {
+    "message": "Brauchst du eine andere Methode?"
+  },
+  "useMasterPassword": {
+    "message": "Master-Passwort verwenden"
+  },
+  "usePin": {
+    "message": "PIN verwenden"
+  },
+  "useBiometrics": {
+    "message": "Biometrie verwenden"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Gib den Verifizierungscode ein, der an deine E-Mail-Adresse gesendet wurde."
+  },
+  "resendCode": {
+    "message": "Code erneut senden"
   },
   "hours": {
     "message": "Stunden"
@@ -2562,6 +2605,15 @@
   "incorrectUsernameOrPassword": {
     "message": "Falscher Benutzername oder Passwort"
   },
+  "incorrectPassword": {
+    "message": "Falsches Passwort"
+  },
+  "incorrectCode": {
+    "message": "Falscher Code"
+  },
+  "incorrectPin": {
+    "message": "Falsche PIN"
+  },
   "multifactorAuthenticationFailed": {
     "message": "Multifaktor-Authentifizierung fehlgeschlagen"
   },
@@ -2616,5 +2668,9 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Stecke den YubiKey, der mit deinem LastPass Konto verknüpft ist, in den USB-Port deines Computers und drücke dann den Knopf des YubiKey."
+  },
+  "commonImportFormats": {
+    "message": "Gängigste Formate",
+    "description": "Label indicating the most common import formats"
   }
 }

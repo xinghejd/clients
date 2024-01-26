@@ -41,10 +41,12 @@ export class AccountComponent {
   canUseApi = false;
   org: OrganizationResponse;
   taxFormPromise: Promise<unknown>;
-  flexibleCollectionsEnabled$ = this.configService.getFeatureFlag$(
-    FeatureFlag.FlexibleCollections,
+
+  protected flexibleCollectionsMigrationEnabled$ = this.configService.getFeatureFlag$(
+    FeatureFlag.FlexibleCollectionsMigration,
     false,
   );
+
   flexibleCollectionsV1Enabled$ = this.configService.getFeatureFlag$(
     FeatureFlag.FlexibleCollectionsV1,
     false,
@@ -181,6 +183,16 @@ export class AccountComponent {
     this.platformUtilsService.showToast("success", null, this.i18nService.t("organizationUpdated"));
   };
 
+  enableCollectionEnhancements = async () => {
+    await this.organizationApiService.enableCollectionEnhancements(this.organizationId);
+
+    this.platformUtilsService.showToast(
+      "success",
+      null,
+      this.i18nService.t("updatedCollectionManagement"),
+    );
+  };
+
   submitCollectionManagement = async () => {
     // Early exit if self-hosted
     if (this.selfHosted) {
@@ -198,7 +210,7 @@ export class AccountComponent {
     this.platformUtilsService.showToast(
       "success",
       null,
-      this.i18nService.t("collectionManagementUpdated"),
+      this.i18nService.t("updatedCollectionManagement"),
     );
   };
 

@@ -326,6 +326,9 @@
   "password": {
     "message": "Heslo"
   },
+  "totp": {
+    "message": "Kľúč z aplikácie Authenticator"
+  },
   "passphrase": {
     "message": "Prístupová fráza"
   },
@@ -511,6 +514,18 @@
   },
   "autofillError": {
     "message": "Na tejto stránke sa nedajú automaticky vyplniť prihlasovacie údaje. Namiesto toho skopírujte/vložte prihlasovacie údaje manuálne."
+  },
+  "totpCaptureError": {
+    "message": "Nie je možné naskenovať QR kód z aktuálnej webovej stránky"
+  },
+  "totpCaptureSuccess": {
+    "message": "Kľúč overovateľa pridaný"
+  },
+  "totpCapture": {
+    "message": "Naskenovať QR kód overovateľa z aktuálnej webovej stránky"
+  },
+  "copyTOTP": {
+    "message": "Kopírovať kľúč overovateľa (TOTP)"
   },
   "loggedOut": {
     "message": "Odhlásený"
@@ -1478,6 +1493,9 @@
   "invalidPin": {
     "message": "Neplatný PIN kód."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Príliš veľa neplatných pokusov o zadanie PIN kódu. Odhlasuje sa."
+  },
   "unlockWithBiometrics": {
     "message": "Odomknúť pomocou biometrie"
   },
@@ -1987,6 +2005,10 @@
   "orgRequiresYouToSetPassword": {
     "message": "Vaša organizácia vyžaduje, aby ste nastavili hlavné heslo.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "verificationRequired": {
+    "message": "Verification required",
+    "description": "Default title for the user verification dialog."
   },
   "hours": {
     "message": "Hodiny"
@@ -2625,6 +2647,42 @@
       }
     }
   },
+  "tryAgain": {
+    "message": "Try again"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Verification required for this action. Set a PIN to continue."
+  },
+  "setPin": {
+    "message": "Set PIN"
+  },
+  "verifyWithBiometrics": {
+    "message": "Verify with biometrics"
+  },
+  "awaitingConfirmation": {
+    "message": "Awaiting confirmation"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Could not complete biometrics."
+  },
+  "needADifferentMethod": {
+    "message": "Need a different method?"
+  },
+  "useMasterPassword": {
+    "message": "Use master password"
+  },
+  "usePin": {
+    "message": "Use PIN"
+  },
+  "useBiometrics": {
+    "message": "Use biometrics"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Enter the verification code that was sent to your email."
+  },
+  "resendCode": {
+    "message": "Resend code"
+  },
   "total": {
     "message": "Celkom"
   },
@@ -2768,6 +2826,15 @@
   "incorrectUsernameOrPassword": {
     "message": "Nesprávne používateľské meno alebo heslo"
   },
+  "incorrectPassword": {
+    "message": "Incorrect password"
+  },
+  "incorrectCode": {
+    "message": "Incorrect code"
+  },
+  "incorrectPin": {
+    "message": "Incorrect PIN"
+  },
   "multifactorAuthenticationFailed": {
     "message": "Viacfaktorové overenie zlyhalo"
   },
@@ -2835,6 +2902,9 @@
   "activeAccount": {
     "message": "Aktívny účet"
   },
+  "availableAccounts": {
+    "message": "Dostupné účty"
+  },
   "accountLimitReached": {
     "message": "Dosiahnutý limit účtu. Odhláste sa z účtu, ak chcete pridať ďalší."
   },
@@ -2870,5 +2940,37 @@
         "example": "google.com"
       }
     }
+  },
+  "commonImportFormats": {
+    "message": "Bežné formáty",
+    "description": "Label indicating the most common import formats"
+  },
+  "overrideDefaultBrowserAutofillTitle": {
+    "message": "Nastaviť Bitwarden ako predvoleného správcu hesiel?",
+    "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutofillDescription": {
+    "message": "Ak nenastavíte túto možnosť, môže to spôsobiť konflikty medzi ponukou automatického vypĺňania Bitwardenu a ponukou vášho prehliadača.",
+    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutofillPrivacyRequiredDescription": {
+    "message": "Táto akcia reštartuje rozšírenie Bitwarden. Ignorovanie tejto možnosti môže spôsobiť konflikty medzi ponukou automatického vypĺňania Bitwarden a ponukou prehliadača.",
+    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutoFillSettings": {
+    "message": "Nastaviť Bitwarden ako predvolený správca hesiel",
+    "description": "Label for the setting that allows overriding the default browser autofill settings"
+  },
+  "privacyPermissionAdditionNotGrantedTitle": {
+    "message": "Nie je možné nastaviť Bitwarden ako predvoleného správcu hesiel",
+    "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "privacyPermissionAdditionNotGrantedDescription": {
+    "message": "Ak chcete nastaviť Bitwarden ako predvoleného správcu hesiel, musíte mu udeliť oprávnenia na ochranu súkromia v prehliadači.",
+    "description": "Description for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "makeDefault": {
+    "message": "Nastaviť ako predvolený",
+    "description": "Button text for the setting that allows overriding the default browser autofill settings"
   }
 }

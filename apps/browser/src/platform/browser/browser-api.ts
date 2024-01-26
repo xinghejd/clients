@@ -413,6 +413,12 @@ export class BrowserApi {
     return win.opr?.sidebarAction || browser.sidebarAction;
   }
 
+  static captureVisibleTab(): Promise<string> {
+    return new Promise((resolve) => {
+      chrome.tabs.captureVisibleTab(null, { format: "png" }, resolve);
+    });
+  }
+
   /**
    * Extension API helper method used to execute a script in a tab.
    * @see https://developer.chrome.com/docs/extensions/reference/tabs/#method-executeScript
@@ -438,5 +444,44 @@ export class BrowserApi {
         resolve(result);
       });
     });
+  }
+
+  /**
+   * Identifies if the browser autofill settings are overridden by the extension.
+   */
+  static async browserAutofillSettingsOverridden(): Promise<boolean> {
+    const checkOverrideStatus = (details: chrome.types.ChromeSettingGetResultDetails) =>
+      details.levelOfControl === "controlled_by_this_extension" && !details.value;
+
+    const autofillAddressOverridden: boolean = await new Promise((resolve) =>
+      chrome.privacy.services.autofillAddressEnabled.get({}, (details) =>
+        resolve(checkOverrideStatus(details)),
+      ),
+    );
+
+    const autofillCreditCardOverridden: boolean = await new Promise((resolve) =>
+      chrome.privacy.services.autofillCreditCardEnabled.get({}, (details) =>
+        resolve(checkOverrideStatus(details)),
+      ),
+    );
+
+    const passwordSavingOverridden: boolean = await new Promise((resolve) =>
+      chrome.privacy.services.passwordSavingEnabled.get({}, (details) =>
+        resolve(checkOverrideStatus(details)),
+      ),
+    );
+
+    return autofillAddressOverridden && autofillCreditCardOverridden && passwordSavingOverridden;
+  }
+
+  /**
+   * Updates the browser autofill settings to the given value.
+   *
+   * @param value - Determines whether to enable or disable the autofill settings.
+   */
+  static updateDefaultBrowserAutofillSettings(value: boolean) {
+    chrome.privacy.services.autofillAddressEnabled.set({ value });
+    chrome.privacy.services.autofillCreditCardEnabled.set({ value });
+    chrome.privacy.services.passwordSavingEnabled.set({ value });
   }
 }

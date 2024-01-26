@@ -1,8 +1,8 @@
+import { firstValueFrom } from "rxjs";
 import { parse } from "tldts";
 
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
-import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { ConfigServiceAbstraction } from "../../../platform/abstractions/config/config.service.abstraction";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { StateService } from "../../../platform/abstractions/state.service";
@@ -45,12 +45,20 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     private logService?: LogService,
   ) {}
 
-  async isFido2FeatureEnabled(): Promise<boolean> {
-    const featureFlagEnabled = await this.configService.getFeatureFlag<boolean>(
-      FeatureFlag.Fido2VaultCredentials,
-    );
+  async isFido2FeatureEnabled(hostname: string, origin: string): Promise<boolean> {
     const userEnabledPasskeys = await this.stateService.getEnablePasskeys();
-    return featureFlagEnabled && userEnabledPasskeys;
+    const isUserLoggedIn =
+      (await this.authService.getAuthStatus()) !== AuthenticationStatus.LoggedOut;
+
+    const neverDomains = await this.stateService.getNeverDomains();
+    const isExcludedDomain = neverDomains != null && hostname in neverDomains;
+
+    const serverConfig = await firstValueFrom(this.configService.serverConfig$);
+    const isOriginEqualBitwardenVault = origin === serverConfig.environment?.vault;
+
+    return (
+      userEnabledPasskeys && isUserLoggedIn && !isExcludedDomain && !isOriginEqualBitwardenVault
+    );
   }
 
   async createCredential(
@@ -58,16 +66,13 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     tab: chrome.tabs.Tab,
     abortController = new AbortController(),
   ): Promise<CreateCredentialResult> {
-    const enableFido2VaultCredentials = await this.isFido2FeatureEnabled();
+    const parsedOrigin = parse(params.origin, { allowPrivateDomains: true });
+    const enableFido2VaultCredentials = await this.isFido2FeatureEnabled(
+      parsedOrigin.hostname,
+      params.origin,
+    );
 
     if (!enableFido2VaultCredentials) {
-      this.logService?.warning(`[Fido2Client] Fido2VaultCredential is not enabled`);
-      throw new FallbackRequestedError();
-    }
-
-    const authStatus = await this.authService.getAuthStatus();
-
-    if (authStatus === AuthenticationStatus.LoggedOut) {
       this.logService?.warning(`[Fido2Client] Fido2VaultCredential is not enabled`);
       throw new FallbackRequestedError();
     }
@@ -87,15 +92,7 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
       throw new TypeError("Invalid 'user.id' length");
     }
 
-    const parsedOrigin = parse(params.origin, { allowPrivateDomains: true });
     params.rp.id = params.rp.id ?? parsedOrigin.hostname;
-
-    const neverDomains = await this.stateService.getNeverDomains();
-    if (neverDomains != null && parsedOrigin.hostname in neverDomains) {
-      this.logService?.warning(`[Fido2Client] Excluded domain`);
-      throw new FallbackRequestedError();
-    }
-
     if (parsedOrigin.hostname == undefined || !params.origin.startsWith("https://")) {
       this.logService?.warning(`[Fido2Client] Invalid https origin: ${params.origin}`);
       throw new DOMException("'origin' is not a valid https origin", "SecurityError");
@@ -210,28 +207,18 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     tab: chrome.tabs.Tab,
     abortController = new AbortController(),
   ): Promise<AssertCredentialResult> {
-    const enableFido2VaultCredentials = await this.isFido2FeatureEnabled();
+    const parsedOrigin = parse(params.origin, { allowPrivateDomains: true });
+    const enableFido2VaultCredentials = await this.isFido2FeatureEnabled(
+      parsedOrigin.hostname,
+      params.origin,
+    );
 
     if (!enableFido2VaultCredentials) {
       this.logService?.warning(`[Fido2Client] Fido2VaultCredential is not enabled`);
       throw new FallbackRequestedError();
     }
 
-    const authStatus = await this.authService.getAuthStatus();
-
-    if (authStatus === AuthenticationStatus.LoggedOut) {
-      this.logService?.warning(`[Fido2Client] Fido2VaultCredential is not enabled`);
-      throw new FallbackRequestedError();
-    }
-
-    const parsedOrigin = parse(params.origin, { allowPrivateDomains: true });
     params.rpId = params.rpId ?? parsedOrigin.hostname;
-
-    const neverDomains = await this.stateService.getNeverDomains();
-    if (neverDomains != null && parsedOrigin.hostname in neverDomains) {
-      this.logService?.warning(`[Fido2Client] Excluded domain`);
-      throw new FallbackRequestedError();
-    }
 
     if (parsedOrigin.hostname == undefined || !params.origin.startsWith("https://")) {
       this.logService?.warning(`[Fido2Client] Invalid https origin: ${params.origin}`);

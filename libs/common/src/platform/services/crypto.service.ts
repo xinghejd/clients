@@ -1,12 +1,15 @@
 import * as bigInt from "big-integer";
+import { Observable, firstValueFrom, map } from "rxjs";
 
 import { EncryptedOrganizationKeyData } from "../../admin-console/models/data/encrypted-organization-key.data";
-import { BaseEncryptedOrganizationKey } from "../../admin-console/models/domain/encrypted-organization-key";
 import { ProfileOrganizationResponse } from "../../admin-console/models/response/profile-organization.response";
 import { ProfileProviderOrganizationResponse } from "../../admin-console/models/response/profile-provider-organization.response";
 import { ProfileProviderResponse } from "../../admin-console/models/response/profile-provider.response";
+import { AccountService } from "../../auth/abstractions/account.service";
 import { KdfConfig } from "../../auth/models/domain/kdf-config";
 import { Utils } from "../../platform/misc/utils";
+import { OrganizationId, UserId } from "../../types/guid";
+import { UserKey, MasterKey, OrgKey, ProviderKey, PinKey, CipherKey } from "../../types/key";
 import { CryptoFunctionService } from "../abstractions/crypto-function.service";
 import { CryptoService as CryptoServiceAbstraction } from "../abstractions/crypto.service";
 import { EncryptService } from "../abstractions/encrypt.service";
@@ -27,35 +30,58 @@ import { sequentialize } from "../misc/sequentialize";
 import { EFFLongWordList } from "../misc/wordlist";
 import { EncArrayBuffer } from "../models/domain/enc-array-buffer";
 import { EncString } from "../models/domain/enc-string";
+import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
+import { ActiveUserState, DerivedState, StateProvider } from "../state";
+
 import {
-  CipherKey,
-  MasterKey,
-  OrgKey,
-  PinKey,
-  ProviderKey,
-  SymmetricCryptoKey,
-  UserKey,
-} from "../models/domain/symmetric-crypto-key";
+  USER_ENCRYPTED_ORGANIZATION_KEYS,
+  USER_ORGANIZATION_KEYS,
+} from "./key-state/org-keys.state";
+import { USER_EVER_HAD_USER_KEY } from "./key-state/user-key.state";
 
 export class CryptoService implements CryptoServiceAbstraction {
+  private readonly activeUserEverHadUserKey: ActiveUserState<boolean>;
+  private readonly activeUserEncryptedOrgKeysState: ActiveUserState<
+    Record<OrganizationId, EncryptedOrganizationKeyData>
+  >;
+  private readonly activeUserOrgKeysState: DerivedState<Record<OrganizationId, OrgKey>>;
+
+  readonly activeUserOrgKeys$: Observable<Record<OrganizationId, OrgKey>>;
+
+  readonly everHadUserKey$;
+
   constructor(
     protected cryptoFunctionService: CryptoFunctionService,
     protected encryptService: EncryptService,
     protected platformUtilService: PlatformUtilsService,
     protected logService: LogService,
     protected stateService: StateService,
-  ) {}
+    protected accountService: AccountService,
+    protected stateProvider: StateProvider,
+  ) {
+    this.activeUserEverHadUserKey = stateProvider.getActive(USER_EVER_HAD_USER_KEY);
+    this.activeUserEncryptedOrgKeysState = stateProvider.getActive(
+      USER_ENCRYPTED_ORGANIZATION_KEYS,
+    );
+    this.activeUserOrgKeysState = stateProvider.getDerived(
+      this.activeUserEncryptedOrgKeysState.state$,
+      USER_ORGANIZATION_KEYS,
+      { cryptoService: this },
+    );
 
-  async setUserKey(key: UserKey, userId?: string): Promise<void> {
+    this.everHadUserKey$ = this.activeUserEverHadUserKey.state$.pipe(map((x) => x ?? false));
+    this.activeUserOrgKeys$ = this.activeUserOrgKeysState.state$; // null handled by `derive` function
+  }
+
+  async setUserKey(key: UserKey, userId?: UserId): Promise<void> {
+    // TODO: make this non-nullable in signature
+    userId ??= (await firstValueFrom(this.accountService.activeAccount$))?.id;
     if (key != null) {
-      await this.stateService.setEverHadUserKey(true, { userId: userId });
+      // Key should never be null anyway
+      await this.stateProvider.getUser(userId, USER_EVER_HAD_USER_KEY).update(() => true);
     }
     await this.stateService.setUserKey(key, { userId: userId });
     await this.storeAdditionalKeys(key, userId);
-  }
-
-  async getEverHadUserKey(userId?: string): Promise<boolean> {
-    return await this.stateService.getEverHadUserKey({ userId: userId });
   }
 
   async refreshAdditionalKeys(): Promise<void> {
@@ -63,7 +89,7 @@ export class CryptoService implements CryptoServiceAbstraction {
     await this.setUserKey(key);
   }
 
-  async getUserKey(userId?: string): Promise<UserKey> {
+  async getUserKey(userId?: UserId): Promise<UserKey> {
     let userKey = await this.stateService.getUserKey({ userId: userId });
     if (userKey) {
       return userKey;
@@ -79,13 +105,13 @@ export class CryptoService implements CryptoServiceAbstraction {
     }
   }
 
-  async isLegacyUser(masterKey?: MasterKey, userId?: string): Promise<boolean> {
+  async isLegacyUser(masterKey?: MasterKey, userId?: UserId): Promise<boolean> {
     return await this.validateUserKey(
       (masterKey ?? (await this.getMasterKey(userId))) as unknown as UserKey,
     );
   }
 
-  async getUserKeyWithLegacySupport(userId?: string): Promise<UserKey> {
+  async getUserKeyWithLegacySupport(userId?: UserId): Promise<UserKey> {
     const userKey = await this.getUserKey(userId);
     if (userKey) {
       return userKey;
@@ -96,7 +122,7 @@ export class CryptoService implements CryptoServiceAbstraction {
     return (await this.getMasterKey(userId)) as unknown as UserKey;
   }
 
-  async getUserKeyFromStorage(keySuffix: KeySuffixOptions, userId?: string): Promise<UserKey> {
+  async getUserKeyFromStorage(keySuffix: KeySuffixOptions, userId?: UserId): Promise<UserKey> {
     const userKey = await this.getKeyFromStorage(keySuffix, userId);
     if (userKey) {
       if (!(await this.validateUserKey(userKey))) {
@@ -113,11 +139,11 @@ export class CryptoService implements CryptoServiceAbstraction {
     );
   }
 
-  async hasUserKeyInMemory(userId?: string): Promise<boolean> {
+  async hasUserKeyInMemory(userId?: UserId): Promise<boolean> {
     return (await this.stateService.getUserKey({ userId: userId })) != null;
   }
 
-  async hasUserKeyStored(keySuffix: KeySuffixOptions, userId?: string): Promise<boolean> {
+  async hasUserKeyStored(keySuffix: KeySuffixOptions, userId?: UserId): Promise<boolean> {
     return (await this.getKeyFromStorage(keySuffix, userId)) != null;
   }
 
@@ -131,14 +157,14 @@ export class CryptoService implements CryptoServiceAbstraction {
     return this.buildProtectedSymmetricKey(masterKey, newUserKey);
   }
 
-  async clearUserKey(clearStoredKeys = true, userId?: string): Promise<void> {
+  async clearUserKey(clearStoredKeys = true, userId?: UserId): Promise<void> {
     await this.stateService.setUserKey(null, { userId: userId });
     if (clearStoredKeys) {
       await this.clearAllStoredUserKeys(userId);
     }
   }
 
-  async clearStoredUserKey(keySuffix: KeySuffixOptions, userId?: string): Promise<void> {
+  async clearStoredUserKey(keySuffix: KeySuffixOptions, userId?: UserId): Promise<void> {
     if (keySuffix === KeySuffixOptions.Auto) {
       this.stateService.setUserKeyAutoUnlock(null, { userId: userId });
       this.clearDeprecatedKeys(KeySuffixOptions.Auto, userId);
@@ -149,24 +175,28 @@ export class CryptoService implements CryptoServiceAbstraction {
     }
   }
 
-  async setMasterKeyEncryptedUserKey(userKeyMasterKey: string, userId?: string): Promise<void> {
+  async setMasterKeyEncryptedUserKey(userKeyMasterKey: string, userId?: UserId): Promise<void> {
     await this.stateService.setMasterKeyEncryptedUserKey(userKeyMasterKey, { userId: userId });
   }
 
-  async setMasterKey(key: MasterKey, userId?: string): Promise<void> {
+  async setMasterKey(key: MasterKey, userId?: UserId): Promise<void> {
     await this.stateService.setMasterKey(key, { userId: userId });
   }
 
-  async getMasterKey(userId?: string): Promise<MasterKey> {
+  async getMasterKey(userId?: UserId): Promise<MasterKey> {
     let masterKey = await this.stateService.getMasterKey({ userId: userId });
     if (!masterKey) {
       masterKey = (await this.stateService.getCryptoMasterKey({ userId: userId })) as MasterKey;
-      await this.setMasterKey(masterKey, userId);
+      // if master key was null/undefined and getCryptoMasterKey also returned null/undefined,
+      // don't set master key as it is unnecessary
+      if (masterKey) {
+        await this.setMasterKey(masterKey, userId);
+      }
     }
     return masterKey;
   }
 
-  async getOrDeriveMasterKey(password: string, userId?: string) {
+  async getOrDeriveMasterKey(password: string, userId?: UserId) {
     let masterKey = await this.getMasterKey(userId);
     return (masterKey ||= await this.makeMasterKey(
       password,
@@ -191,7 +221,7 @@ export class CryptoService implements CryptoServiceAbstraction {
     return (await this.makeKey(password, email, kdf, KdfConfig)) as MasterKey;
   }
 
-  async clearMasterKey(userId?: string): Promise<void> {
+  async clearMasterKey(userId?: UserId): Promise<void> {
     await this.stateService.setMasterKey(null, { userId: userId });
   }
 
@@ -206,7 +236,7 @@ export class CryptoService implements CryptoServiceAbstraction {
   async decryptUserKeyWithMasterKey(
     masterKey: MasterKey,
     userKey?: EncString,
-    userId?: string,
+    userId?: UserId,
   ): Promise<UserKey> {
     masterKey ||= await this.getMasterKey(userId);
     if (masterKey == null) {
@@ -271,7 +301,7 @@ export class CryptoService implements CryptoServiceAbstraction {
     return await this.stateService.getKeyHash();
   }
 
-  async clearMasterKeyHash(userId?: string): Promise<void> {
+  async clearMasterKeyHash(userId?: UserId): Promise<void> {
     return await this.stateService.setKeyHash(null, { userId: userId });
   }
 
@@ -306,72 +336,35 @@ export class CryptoService implements CryptoServiceAbstraction {
     orgs: ProfileOrganizationResponse[] = [],
     providerOrgs: ProfileProviderOrganizationResponse[] = [],
   ): Promise<void> {
-    const encOrgKeyData: { [orgId: string]: EncryptedOrganizationKeyData } = {};
+    this.activeUserEncryptedOrgKeysState.update((_) => {
+      const encOrgKeyData: { [orgId: string]: EncryptedOrganizationKeyData } = {};
 
-    orgs.forEach((org) => {
-      encOrgKeyData[org.id] = {
-        type: "organization",
-        key: org.key,
-      };
+      orgs.forEach((org) => {
+        encOrgKeyData[org.id] = {
+          type: "organization",
+          key: org.key,
+        };
+      });
+
+      providerOrgs.forEach((org) => {
+        encOrgKeyData[org.id] = {
+          type: "provider",
+          providerId: org.providerId,
+          key: org.key,
+        };
+      });
+
+      return encOrgKeyData;
     });
-
-    providerOrgs.forEach((org) => {
-      encOrgKeyData[org.id] = {
-        type: "provider",
-        providerId: org.providerId,
-        key: org.key,
-      };
-    });
-
-    await this.stateService.setDecryptedOrganizationKeys(null);
-    return await this.stateService.setEncryptedOrganizationKeys(encOrgKeyData);
   }
 
-  async getOrgKey(orgId: string): Promise<OrgKey> {
-    if (orgId == null) {
-      return null;
-    }
-
-    const orgKeys = await this.getOrgKeys();
-    if (orgKeys == null || !orgKeys.has(orgId)) {
-      return null;
-    }
-
-    return orgKeys.get(orgId);
+  async getOrgKey(orgId: OrganizationId): Promise<OrgKey> {
+    return (await firstValueFrom(this.activeUserOrgKeys$))[orgId];
   }
 
   @sequentialize(() => "getOrgKeys")
-  async getOrgKeys(): Promise<Map<string, OrgKey>> {
-    const result: Map<string, OrgKey> = new Map<string, OrgKey>();
-    const decryptedOrganizationKeys = await this.stateService.getDecryptedOrganizationKeys();
-    if (decryptedOrganizationKeys != null && decryptedOrganizationKeys.size > 0) {
-      return decryptedOrganizationKeys as Map<string, OrgKey>;
-    }
-
-    const encOrgKeyData = await this.stateService.getEncryptedOrganizationKeys();
-    if (encOrgKeyData == null) {
-      return result;
-    }
-
-    let setKey = false;
-
-    for (const orgId of Object.keys(encOrgKeyData)) {
-      if (result.has(orgId)) {
-        continue;
-      }
-
-      const encOrgKey = BaseEncryptedOrganizationKey.fromData(encOrgKeyData[orgId]);
-      const decOrgKey = (await encOrgKey.decrypt(this)) as OrgKey;
-      result.set(orgId, decOrgKey);
-
-      setKey = true;
-    }
-
-    if (setKey) {
-      await this.stateService.setDecryptedOrganizationKeys(result);
-    }
-
-    return result;
+  async getOrgKeys(): Promise<Record<string, OrgKey>> {
+    return await firstValueFrom(this.activeUserOrgKeys$);
   }
 
   async makeDataEncKey<T extends OrgKey | UserKey>(
@@ -385,10 +378,20 @@ export class CryptoService implements CryptoServiceAbstraction {
     return this.buildProtectedSymmetricKey(key, newSymKey);
   }
 
-  async clearOrgKeys(memoryOnly?: boolean, userId?: string): Promise<void> {
-    await this.stateService.setDecryptedOrganizationKeys(null, { userId: userId });
-    if (!memoryOnly) {
-      await this.stateService.setEncryptedOrganizationKeys(null, { userId: userId });
+  async clearOrgKeys(memoryOnly?: boolean, userId?: UserId): Promise<void> {
+    const activeUserId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+    const userIdIsActive = userId == null || userId === activeUserId;
+    if (memoryOnly && userIdIsActive) {
+      // org keys are only cached for active users
+      await this.activeUserOrgKeysState.forceValue({});
+    } else {
+      if (userId == null && activeUserId == null) {
+        // nothing to do
+        return;
+      }
+      await this.stateProvider
+        .getUser(userId ?? activeUserId, USER_ENCRYPTED_ORGANIZATION_KEYS)
+        .update(() => null);
     }
   }
 
@@ -448,7 +451,7 @@ export class CryptoService implements CryptoServiceAbstraction {
     return providerKeys;
   }
 
-  async clearProviderKeys(memoryOnly?: boolean, userId?: string): Promise<void> {
+  async clearProviderKeys(memoryOnly?: boolean, userId?: UserId): Promise<void> {
     await this.stateService.setDecryptedProviderKeys(null, { userId: userId });
     if (!memoryOnly) {
       await this.stateService.setEncryptedProviderKeys(null, { userId: userId });
@@ -533,7 +536,7 @@ export class CryptoService implements CryptoServiceAbstraction {
     return [publicB64, privateEnc];
   }
 
-  async clearKeyPair(memoryOnly?: boolean, userId?: string): Promise<void[]> {
+  async clearKeyPair(memoryOnly?: boolean, userId?: UserId): Promise<void[]> {
     const keysToClear: Promise<void>[] = [
       this.stateService.setDecryptedPrivateKey(null, { userId: userId }),
       this.stateService.setPublicKey(null, { userId: userId }),
@@ -549,7 +552,7 @@ export class CryptoService implements CryptoServiceAbstraction {
     return (await this.stretchKey(pinKey)) as PinKey;
   }
 
-  async clearPinKeys(userId?: string): Promise<void> {
+  async clearPinKeys(userId?: UserId): Promise<void> {
     await this.stateService.setPinKeyEncryptedUserKey(null, { userId: userId });
     await this.stateService.setPinKeyEncryptedUserKeyEphemeral(null, { userId: userId });
     await this.stateService.setProtectedPin(null, { userId: userId });
@@ -609,7 +612,7 @@ export class CryptoService implements CryptoServiceAbstraction {
     return new SymmetricCryptoKey(randomBytes) as CipherKey;
   }
 
-  async clearKeys(userId?: string): Promise<any> {
+  async clearKeys(userId?: UserId): Promise<any> {
     await this.clearUserKey(true, userId);
     await this.clearMasterKeyHash(userId);
     await this.clearOrgKeys(false, userId);
@@ -772,7 +775,7 @@ export class CryptoService implements CryptoServiceAbstraction {
    * @param key The user key
    * @param userId The desired user
    */
-  protected async storeAdditionalKeys(key: UserKey, userId?: string) {
+  protected async storeAdditionalKeys(key: UserKey, userId?: UserId) {
     const storeAuto = await this.shouldStoreKey(KeySuffixOptions.Auto, userId);
     if (storeAuto) {
       await this.stateService.setUserKeyAutoUnlock(key.keyB64, { userId: userId });
@@ -798,7 +801,7 @@ export class CryptoService implements CryptoServiceAbstraction {
    * ephemeral version.
    * @param key The user key
    */
-  protected async storePinKey(key: UserKey, userId?: string) {
+  protected async storePinKey(key: UserKey, userId?: UserId) {
     const pin = await this.encryptService.decryptToUtf8(
       new EncString(await this.stateService.getProtectedPin({ userId: userId })),
       key,
@@ -818,7 +821,7 @@ export class CryptoService implements CryptoServiceAbstraction {
     }
   }
 
-  protected async shouldStoreKey(keySuffix: KeySuffixOptions, userId?: string) {
+  protected async shouldStoreKey(keySuffix: KeySuffixOptions, userId?: UserId) {
     let shouldStoreKey = false;
     switch (keySuffix) {
       case KeySuffixOptions.Auto: {
@@ -837,7 +840,7 @@ export class CryptoService implements CryptoServiceAbstraction {
 
   protected async getKeyFromStorage(
     keySuffix: KeySuffixOptions,
-    userId?: string,
+    userId?: UserId,
   ): Promise<UserKey> {
     if (keySuffix === KeySuffixOptions.Auto) {
       const userKey = await this.stateService.getUserKeyAutoUnlock({ userId: userId });
@@ -885,7 +888,7 @@ export class CryptoService implements CryptoServiceAbstraction {
     }
   }
 
-  protected async clearAllStoredUserKeys(userId?: string): Promise<void> {
+  protected async clearAllStoredUserKeys(userId?: UserId): Promise<void> {
     await this.stateService.setUserKeyAutoUnlock(null, { userId: userId });
     await this.stateService.setPinKeyEncryptedUserKeyEphemeral(null, { userId: userId });
   }
@@ -980,7 +983,7 @@ export class CryptoService implements CryptoServiceAbstraction {
   // These methods support migrating the old keys to the new ones.
   // TODO: Remove after 2023.10 release (https://bitwarden.atlassian.net/browse/PM-3475)
 
-  async clearDeprecatedKeys(keySuffix: KeySuffixOptions, userId?: string) {
+  async clearDeprecatedKeys(keySuffix: KeySuffixOptions, userId?: UserId) {
     if (keySuffix === KeySuffixOptions.Auto) {
       await this.stateService.setCryptoMasterKeyAuto(null, { userId: userId });
     } else if (keySuffix === KeySuffixOptions.Pin) {
@@ -989,7 +992,7 @@ export class CryptoService implements CryptoServiceAbstraction {
     }
   }
 
-  async migrateAutoKeyIfNeeded(userId?: string) {
+  async migrateAutoKeyIfNeeded(userId?: UserId) {
     const oldAutoKey = await this.stateService.getCryptoMasterKeyAuto({ userId: userId });
     if (!oldAutoKey) {
       return;

@@ -2,7 +2,6 @@ import { BehaviorSubject, concatMap } from "rxjs";
 import { Jsonify, JsonValue } from "type-fest";
 
 import { AutofillOverlayVisibility } from "../../../../../apps/browser/src/autofill/utils/autofill-overlay.enum";
-import { EncryptedOrganizationKeyData } from "../../admin-console/models/data/encrypted-organization-key.data";
 import { OrganizationData } from "../../admin-console/models/data/organization.data";
 import { PolicyData } from "../../admin-console/models/data/policy.data";
 import { ProviderData } from "../../admin-console/models/data/provider.data";
@@ -10,7 +9,6 @@ import { Policy } from "../../admin-console/models/domain/policy";
 import { AccountService } from "../../auth/abstractions/account.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { AdminAuthRequestStorable } from "../../auth/models/domain/admin-auth-req-storable";
-import { EnvironmentUrls } from "../../auth/models/domain/environment-urls";
 import { ForceSetPasswordReason } from "../../auth/models/domain/force-set-password-reason";
 import { KdfConfig } from "../../auth/models/domain/kdf-config";
 import { BiometricKey } from "../../auth/types/biometric-key";
@@ -24,6 +22,7 @@ import { UsernameGeneratorOptions } from "../../tools/generator/username";
 import { SendData } from "../../tools/send/models/data/send.data";
 import { SendView } from "../../tools/send/models/view/send.view";
 import { UserId } from "../../types/guid";
+import { UserKey, MasterKey, DeviceKey } from "../../types/key";
 import { UriMatchType } from "../../vault/enums";
 import { CipherData } from "../../vault/models/data/cipher.data";
 import { CollectionData } from "../../vault/models/data/collection.data";
@@ -32,6 +31,7 @@ import { LocalData } from "../../vault/models/data/local.data";
 import { CipherView } from "../../vault/models/view/cipher.view";
 import { CollectionView } from "../../vault/models/view/collection.view";
 import { AddEditCipherInfo } from "../../vault/types/add-edit-cipher-info";
+import { EnvironmentService } from "../abstractions/environment.service";
 import { LogService } from "../abstractions/log.service";
 import { StateService as StateServiceAbstraction } from "../abstractions/state.service";
 import {
@@ -53,12 +53,7 @@ import { EncString } from "../models/domain/enc-string";
 import { GlobalState } from "../models/domain/global-state";
 import { State } from "../models/domain/state";
 import { StorageOptions } from "../models/domain/storage-options";
-import {
-  DeviceKey,
-  MasterKey,
-  SymmetricCryptoKey,
-  UserKey,
-} from "../models/domain/symmetric-crypto-key";
+import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
 
 const keys = {
   state: "state",
@@ -110,6 +105,7 @@ export class StateService<
     protected logService: LogService,
     protected stateFactory: StateFactory<TGlobalState, TAccount>,
     protected accountService: AccountService,
+    protected environmentService: EnvironmentService,
     protected useAccountCache: boolean = true,
   ) {
     // If the account gets changed, verify the new account is unlocked
@@ -220,7 +216,7 @@ export class StateService<
   }
 
   async addAccount(account: TAccount) {
-    account = await this.setAccountEnvironment(account);
+    await this.environmentService.seedUserEnvironment(account.profile.userId as UserId);
     await this.updateState(async (state) => {
       state.authenticatedAccounts.push(account.profile.userId);
       await this.storageService.save(keys.authenticatedAccounts, state.authenticatedAccounts);
@@ -280,9 +276,20 @@ export class StateService<
   }
 
   async getAddEditCipherInfo(options?: StorageOptions): Promise<AddEditCipherInfo> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultInMemoryOptions()))
-    )?.data?.addEditCipherInfo;
+    const account = await this.getAccount(
+      this.reconcileOptions(options, await this.defaultInMemoryOptions()),
+    );
+    // ensure prototype on cipher
+    const raw = account?.data?.addEditCipherInfo;
+    return raw == null
+      ? null
+      : {
+          cipher:
+            raw?.cipher.toJSON != null
+              ? raw.cipher
+              : CipherView.fromJSON(raw?.cipher as Jsonify<CipherView>),
+          collectionIds: raw?.collectionIds,
+        };
   }
 
   async setAddEditCipherInfo(value: AddEditCipherInfo, options?: StorageOptions): Promise<void> {
@@ -903,6 +910,24 @@ export class StateService<
     await this.saveSecureStorageKey(partialKeys.biometricKey, value, options);
   }
 
+  async getBiometricPromptCancelled(options?: StorageOptions): Promise<boolean> {
+    const account = await this.getAccount(
+      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
+    );
+    return account?.settings?.biometricPromptCancelled;
+  }
+
+  async setBiometricPromptCancelled(value: boolean, options?: StorageOptions): Promise<void> {
+    const account = await this.getAccount(
+      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
+    );
+    account.settings.biometricPromptCancelled = value;
+    await this.saveAccount(
+      account,
+      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
+    );
+  }
+
   @withPrototypeForArrayMembers(CipherView, CipherView.fromJSON)
   async getDecryptedCiphers(options?: StorageOptions): Promise<CipherView[]> {
     return (
@@ -960,29 +985,6 @@ export class StateService<
       this.reconcileOptions(options, await this.defaultInMemoryOptions()),
     );
     account.keys.cryptoSymmetricKey.decrypted = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultInMemoryOptions()),
-    );
-  }
-
-  async getDecryptedOrganizationKeys(
-    options?: StorageOptions,
-  ): Promise<Map<string, SymmetricCryptoKey>> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultInMemoryOptions()),
-    );
-    return Utils.recordToMap(account?.keys?.organizationKeys?.decrypted);
-  }
-
-  async setDecryptedOrganizationKeys(
-    value: Map<string, SymmetricCryptoKey>,
-    options?: StorageOptions,
-  ): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultInMemoryOptions()),
-    );
-    account.keys.organizationKeys.decrypted = Utils.mapToRecord(value);
     await this.saveAccount(
       account,
       this.reconcileOptions(options, await this.defaultInMemoryOptions()),
@@ -1831,28 +1833,6 @@ export class StateService<
     );
   }
 
-  async getEncryptedOrganizationKeys(
-    options?: StorageOptions,
-  ): Promise<{ [orgId: string]: EncryptedOrganizationKeyData }> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
-    )?.keys?.organizationKeys.encrypted;
-  }
-
-  async setEncryptedOrganizationKeys(
-    value: { [orgId: string]: EncryptedOrganizationKeyData },
-    options?: StorageOptions,
-  ): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.keys.organizationKeys.encrypted = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
   @withPrototypeForArrayMembers(GeneratedPasswordHistory)
   async getEncryptedPasswordGenerationHistory(
     options?: StorageOptions,
@@ -2004,49 +1984,6 @@ export class StateService<
     );
   }
 
-  async getEnvironmentUrls(options?: StorageOptions): Promise<EnvironmentUrls> {
-    if ((await this.state())?.activeUserId == null) {
-      return await this.getGlobalEnvironmentUrls(options);
-    }
-    options = this.reconcileOptions(options, await this.defaultOnDiskOptions());
-    return (await this.getAccount(options))?.settings?.environmentUrls ?? new EnvironmentUrls();
-  }
-
-  async setEnvironmentUrls(value: EnvironmentUrls, options?: StorageOptions): Promise<void> {
-    // Global values are set on each change and the current global settings are passed to any newly authed accounts.
-    // This is to allow setting environment values before an account is active, while still allowing individual accounts to have their own environments.
-    const globals = await this.getGlobals(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    globals.environmentUrls = value;
-    await this.saveGlobals(
-      globals,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
-  async getRegion(options?: StorageOptions): Promise<string> {
-    if ((await this.state())?.activeUserId == null) {
-      options = this.reconcileOptions(options, await this.defaultOnDiskOptions());
-      return (await this.getGlobals(options)).region ?? null;
-    }
-    options = this.reconcileOptions(options, await this.defaultOnDiskOptions());
-    return (await this.getAccount(options))?.settings?.region ?? null;
-  }
-
-  async setRegion(value: string, options?: StorageOptions): Promise<void> {
-    // Global values are set on each change and the current global settings are passed to any newly authed accounts.
-    // This is to allow setting region values before an account is active, while still allowing individual accounts to have their own region.
-    const globals = await this.getGlobals(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    globals.region = value;
-    await this.saveGlobals(
-      globals,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
   async getEquivalentDomains(options?: StorageOptions): Promise<string[][]> {
     return (
       await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
@@ -2076,24 +2013,6 @@ export class StateService<
       this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
     account.data.eventCollection = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
-  async getEverHadUserKey(options?: StorageOptions): Promise<boolean> {
-    return (
-      (await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions())))
-        ?.profile?.everHadUserKey ?? false
-    );
-  }
-
-  async setEverHadUserKey(value: boolean, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.profile.everHadUserKey = value;
     await this.saveAccount(
       account,
       this.reconcileOptions(options, await this.defaultOnDiskOptions()),
@@ -3071,17 +2990,12 @@ export class StateService<
         await this.defaultOnDiskLocalOptions(),
       ),
     );
-    // EnvironmentUrls and region are set before authenticating and should override whatever is stored from any previous session
-    const environmentUrls = account.settings.environmentUrls;
-    const region = account.settings.region;
     if (storedAccount?.settings != null) {
       account.settings = storedAccount.settings;
     } else if (await this.storageService.has(keys.tempAccountSettings)) {
       account.settings = await this.storageService.get<AccountSettings>(keys.tempAccountSettings);
       await this.storageService.remove(keys.tempAccountSettings);
     }
-    account.settings.environmentUrls = environmentUrls;
-    account.settings.region = region;
 
     if (
       account.settings.vaultTimeoutAction === VaultTimeoutAction.LogOut &&
@@ -3109,8 +3023,6 @@ export class StateService<
       ),
     );
     if (storedAccount?.settings != null) {
-      storedAccount.settings.environmentUrls = account.settings.environmentUrls;
-      storedAccount.settings.region = account.settings.region;
       account.settings = storedAccount.settings;
     }
     await this.storageService.save(
@@ -3132,8 +3044,6 @@ export class StateService<
       this.reconcileOptions({ userId: account.profile.userId }, await this.defaultOnDiskOptions()),
     );
     if (storedAccount?.settings != null) {
-      storedAccount.settings.environmentUrls = account.settings.environmentUrls;
-      storedAccount.settings.region = account.settings.region;
       account.settings = storedAccount.settings;
     }
     await this.storageService.save(
@@ -3274,23 +3184,6 @@ export class StateService<
       adminAuthRequest: account.adminAuthRequest,
     };
     return Object.assign(this.createAccount(), persistentAccountInformation);
-  }
-
-  // The environment urls and region are selected before login and are transferred here to an authenticated account
-  protected async setAccountEnvironment(account: TAccount): Promise<TAccount> {
-    account.settings.region = await this.getGlobalRegion();
-    account.settings.environmentUrls = await this.getGlobalEnvironmentUrls();
-    return account;
-  }
-
-  protected async getGlobalEnvironmentUrls(options?: StorageOptions): Promise<EnvironmentUrls> {
-    options = this.reconcileOptions(options, await this.defaultOnDiskOptions());
-    return (await this.getGlobals(options)).environmentUrls ?? new EnvironmentUrls();
-  }
-
-  protected async getGlobalRegion(options?: StorageOptions): Promise<string> {
-    options = this.reconcileOptions(options, await this.defaultOnDiskOptions());
-    return (await this.getGlobals(options)).region ?? null;
   }
 
   protected async clearDecryptedDataForActiveUser(): Promise<void> {
