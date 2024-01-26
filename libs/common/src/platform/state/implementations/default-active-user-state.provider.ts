@@ -1,12 +1,11 @@
 import { AccountService } from "../../../auth/abstractions/account.service";
-import { EncryptService } from "../../abstractions/encrypt.service";
 import {
   AbstractMemoryStorageService,
   AbstractStorageService,
   ObservableStorageService,
 } from "../../abstractions/storage.service";
 import { KeyDefinition } from "../key-definition";
-import { StorageLocation } from "../state-definition";
+import { StateDefinition } from "../state-definition";
 import { ActiveUserState } from "../user-state";
 import { ActiveUserStateProvider } from "../user-state.provider";
 
@@ -16,14 +15,13 @@ export class DefaultActiveUserStateProvider implements ActiveUserStateProvider {
   private cache: Record<string, ActiveUserState<unknown>> = {};
 
   constructor(
-    protected accountService: AccountService,
-    protected encryptService: EncryptService,
-    protected memoryStorage: AbstractMemoryStorageService & ObservableStorageService,
-    protected diskStorage: AbstractStorageService & ObservableStorageService,
+    protected readonly accountService: AccountService,
+    protected readonly memoryStorage: AbstractMemoryStorageService & ObservableStorageService,
+    protected readonly diskStorage: AbstractStorageService & ObservableStorageService,
   ) {}
 
   get<T>(keyDefinition: KeyDefinition<T>): ActiveUserState<T> {
-    const cacheKey = keyDefinition.buildCacheKey("user", "active");
+    const cacheKey = this.buildCacheKey(keyDefinition);
     const existingUserState = this.cache[cacheKey];
     if (existingUserState != null) {
       // I have to cast out of the unknown generic but this should be safe if rules
@@ -36,16 +34,26 @@ export class DefaultActiveUserStateProvider implements ActiveUserStateProvider {
     return newUserState;
   }
 
+  private buildCacheKey(keyDefinition: KeyDefinition<unknown>) {
+    return `${this.getLocationString(keyDefinition)}_${keyDefinition.fullName}`;
+  }
+
   protected buildActiveUserState<T>(keyDefinition: KeyDefinition<T>): ActiveUserState<T> {
     return new DefaultActiveUserState<T>(
       keyDefinition,
       this.accountService,
-      this.encryptService,
-      this.getLocation(keyDefinition.stateDefinition.storageLocation),
+      this.getLocation(keyDefinition.stateDefinition),
     );
   }
 
-  private getLocation(location: StorageLocation) {
+  protected getLocationString(keyDefinition: KeyDefinition<unknown>): string {
+    return keyDefinition.stateDefinition.defaultStorageLocation;
+  }
+
+  protected getLocation(stateDefinition: StateDefinition) {
+    // The default implementations don't support the client overrides
+    // it is up to the client to extend this class and add that support
+    const location = stateDefinition.defaultStorageLocation;
     switch (location) {
       case "disk":
         return this.diskStorage;

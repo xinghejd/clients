@@ -1,6 +1,7 @@
-import { Jsonify, Opaque } from "type-fest";
+import { Jsonify } from "type-fest";
 
 import { UserId } from "../../types/guid";
+import { StorageKey } from "../../types/state";
 import { Utils } from "../misc/utils";
 
 import { StateDefinition } from "./state-definition";
@@ -141,25 +142,14 @@ export class KeyDefinition<T> {
     });
   }
 
-  /**
-   * Create a string that should be unique across the entire application.
-   * @returns A string that can be used to cache instances created via this key.
-   */
-  buildCacheKey(scope: "user" | "global", userId?: "active" | UserId): string {
-    if (scope === "user" && userId == null) {
-      throw new Error("You must provide a userId when building a user scoped cache key.");
-    }
-    return userId === null
-      ? `${scope}_${userId}_${this.stateDefinition.name}_${this.key}`
-      : `${scope}_${this.stateDefinition.name}_${this.key}`;
+  get fullName() {
+    return `${this.stateDefinition.name}_${this.key}`;
   }
 
   private get errorKeyName() {
     return `${this.stateDefinition.name} > ${this.key}`;
   }
 }
-
-export type StorageKey = Opaque<string, "StorageKey">;
 
 /**
  * Creates a {@link StorageKey} that points to the data at the given key definition for the specified user.

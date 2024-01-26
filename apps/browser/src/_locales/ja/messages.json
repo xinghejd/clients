@@ -326,6 +326,9 @@
   "password": {
     "message": "パスワード"
   },
+  "totp": {
+    "message": "認証シークレット"
+  },
   "passphrase": {
     "message": "パスフレーズ"
   },
@@ -511,6 +514,18 @@
   },
   "autofillError": {
     "message": "選択したアイテムをこのページで自動入力できませんでした。コピーして貼り付けてください。"
+  },
+  "totpCaptureError": {
+    "message": "現在のウェブページから QR コードをスキャンできません"
+  },
+  "totpCaptureSuccess": {
+    "message": "認証キーを追加しました"
+  },
+  "totpCapture": {
+    "message": "現在のウェブページから認証 QR コードをスキャンする"
+  },
+  "copyTOTP": {
+    "message": "認証キーのコピー (TOTP)"
   },
   "loggedOut": {
     "message": "ログアウトしました"
@@ -1478,6 +1493,9 @@
   "invalidPin": {
     "message": "PIN コードが間違っています。"
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "無効な PIN 入力の試行回数が多すぎます。ログアウトします。"
+  },
   "unlockWithBiometrics": {
     "message": "生体認証でロック解除"
   },
@@ -1988,6 +2006,10 @@
     "message": "あなたの組織では、マスターパスワードの設定を義務付けています。",
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
+  "verificationRequired": {
+    "message": "認証が必要です",
+    "description": "Default title for the user verification dialog."
+  },
   "hours": {
     "message": "時間"
   },
@@ -2282,7 +2304,7 @@
     "message": "自動入力する方法"
   },
   "autofillSelectInfoWithCommand": {
-    "message": "Select an item from this screen, use the shortcut $COMMAND$, or explore other options in settings.",
+    "message": "この画面からアイテムを選択するか、ショートカット $COMMAND$を使用するか、設定で他のオプションを確認してください。",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2291,7 +2313,7 @@
     }
   },
   "autofillSelectInfoWithoutCommand": {
-    "message": "Select an item from this screen, or explore other options in settings."
+    "message": "この画面からアイテムを選択するか、設定で他のオプションを確認してください。"
   },
   "gotIt": {
     "message": "了解"
@@ -2625,6 +2647,42 @@
       }
     }
   },
+  "tryAgain": {
+    "message": "再試行"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "この操作には認証が必要です。続行するには PIN を設定してください。"
+  },
+  "setPin": {
+    "message": "PIN を設定"
+  },
+  "verifyWithBiometrics": {
+    "message": "生体認証による確認"
+  },
+  "awaitingConfirmation": {
+    "message": "確認中"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "生体認証を完了できませんでした。"
+  },
+  "needADifferentMethod": {
+    "message": "別の方法が必要ですか？"
+  },
+  "useMasterPassword": {
+    "message": "マスターパスワードを使用"
+  },
+  "usePin": {
+    "message": "PIN を使用"
+  },
+  "useBiometrics": {
+    "message": "生体認証を使用"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "メールアドレスに送信された認証コードを入力してください。"
+  },
+  "resendCode": {
+    "message": "コードを再送信する"
+  },
   "total": {
     "message": "合計"
   },
@@ -2768,6 +2826,15 @@
   "incorrectUsernameOrPassword": {
     "message": "ユーザー名またはパスワードが間違っています"
   },
+  "incorrectPassword": {
+    "message": "パスワードが違います"
+  },
+  "incorrectCode": {
+    "message": "コードが違います"
+  },
+  "incorrectPin": {
+    "message": "PIN が正しくありません"
+  },
   "multifactorAuthenticationFailed": {
     "message": "多要素認証に失敗しました"
   },
@@ -2835,6 +2902,9 @@
   "activeAccount": {
     "message": "アクティブなアカウント"
   },
+  "availableAccounts": {
+    "message": "利用可能なアカウント"
+  },
   "accountLimitReached": {
     "message": "アカウントの制限に達しました。別のアカウントを追加するにはまずログアウトしてください。"
   },
@@ -2870,5 +2940,37 @@
         "example": "google.com"
       }
     }
+  },
+  "commonImportFormats": {
+    "message": "一般的な形式",
+    "description": "Label indicating the most common import formats"
+  },
+  "overrideDefaultBrowserAutofillTitle": {
+    "message": "Bitwarden をデフォルトのパスワードマネージャーにしますか？",
+    "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutofillDescription": {
+    "message": "このオプションを無視すると、Bitwarden の自動入力メニューとブラウザの自動入力メニューが競合する可能性があります。",
+    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutofillPrivacyRequiredDescription": {
+    "message": "この操作は Bitwarden 拡張機能を再起動します。このオプションを無視すると、Bitwarden の自動入力メニューとブラウザの自動入力メニューが競合する可能性があります。",
+    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutoFillSettings": {
+    "message": "Bitwarden をデフォルトのパスワードマネージャーにする",
+    "description": "Label for the setting that allows overriding the default browser autofill settings"
+  },
+  "privacyPermissionAdditionNotGrantedTitle": {
+    "message": "Bitwarden をデフォルトのパスワードマネージャーとして設定できません",
+    "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "privacyPermissionAdditionNotGrantedDescription": {
+    "message": "Bitwarden をデフォルトのパスワードマネージャーとして設定するには、ブラウザのプライバシー権限を付与する必要があります。",
+    "description": "Description for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "makeDefault": {
+    "message": "デフォルトにする",
+    "description": "Button text for the setting that allows overriding the default browser autofill settings"
   }
 }

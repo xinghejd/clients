@@ -72,6 +72,11 @@ export class Organization {
    * Refers to the ability for an owner/admin to access all collection items, regardless of assigned collections
    */
   allowAdminAccessToAllCollectionItems: boolean;
+  /**
+   * Returns true if this organization has enabled Flexible Collections (MVP) and their data has been migrated.
+   * Generally, you should use this as the feature flag to gate Flexible Collections features.
+   */
+  flexibleCollections: boolean;
 
   constructor(obj?: OrganizationData) {
     if (obj == null) {
@@ -125,6 +130,7 @@ export class Organization {
     this.accessSecretsManager = obj.accessSecretsManager;
     this.limitCollectionCreationDeletion = obj.limitCollectionCreationDeletion;
     this.allowAdminAccessToAllCollectionItems = obj.allowAdminAccessToAllCollectionItems;
+    this.flexibleCollections = obj.flexibleCollections;
   }
 
   get canAccess() {
@@ -171,11 +177,15 @@ export class Organization {
   }
 
   get canCreateNewCollections() {
-    return (
-      !this.limitCollectionCreationDeletion ||
-      this.isManager ||
-      this.permissions.createNewCollections
-    );
+    if (this.flexibleCollections) {
+      return (
+        !this.limitCollectionCreationDeletion ||
+        this.isAdmin ||
+        this.permissions.createNewCollections
+      );
+    }
+
+    return this.isManager || this.permissions.createNewCollections;
   }
 
   get canEditAnyCollection() {

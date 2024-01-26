@@ -236,7 +236,7 @@
     "message": "السيدة"
   },
   "ms": {
-    "message": "آنسة"
+    "message": "الآنسة"
   },
   "mx": {
     "message": "ماكس"
@@ -269,7 +269,7 @@
     "message": "الاسم الأوسط"
   },
   "lastName": {
-    "message": "اسم العائلة"
+    "message": "اللقب"
   },
   "fullName": {
     "message": "الاسم الكامل"
@@ -404,7 +404,7 @@
     "message": "الطول"
   },
   "passwordMinLength": {
-    "message": "Minimum password length"
+    "message": "الحد الأدنى لطول كلمة المرور"
   },
   "uppercase": {
     "message": "أحرف كبيرة (A-Z)"
@@ -482,16 +482,16 @@
     "message": "مطلوب ترحيل مفتاح التشفير. الرجاء تسجيل الدخول بواسطة مخزن الويب لتحديث مفتاح التشفير الخاص بك."
   },
   "editedFolder": {
-    "message": "تم تعديل المجلد"
+    "message": "تم حفظ المجلد"
   },
   "addedFolder": {
-    "message": "مجلد مضاف"
+    "message": "تمت إضافة المجلد"
   },
   "deleteFolderConfirmation": {
     "message": "هل أنت متأكد من حذف هذا المجلد؟"
   },
   "deletedFolder": {
-    "message": "المجلد المحذوف"
+    "message": "تم حذف المجلد"
   },
   "loginOrCreateNewAccount": {
     "message": "قم بالتسجيل أو إنشاء حساب جديد للوصول إلى خزنتك الآمنة."
@@ -1392,6 +1392,9 @@
   "invalidPin": {
     "message": "رمز PIN غير صالح."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "العديد من محاولات إدخال رقم التعريف الشخصي غير الصالحة. تسجيل الخروج."
+  },
   "unlockWithWindowsHello": {
     "message": "فتح مع Windows Hello"
   },
@@ -1543,6 +1546,10 @@
   "orgRequiresYouToSetPassword": {
     "message": "تتطلب مؤسستك تعيين كلمة مرور رئيسية.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "verificationRequired": {
+    "message": "Verification required",
+    "description": "Default title for the user verification dialog."
   },
   "currentMasterPass": {
     "message": "كلمة المرور الرئيسية الحالية"
@@ -1868,6 +1875,42 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "كلمة المرور الرئيسية الخاصة بك لا تفي بواحدة أو أكثر من سياسات مؤسستك. من أجل الوصول إلى الخزنة، يجب عليك تحديث كلمة المرور الرئيسية الآن. سيتم تسجيل خروجك من الجلسة الحالية، مما يتطلب منك تسجيل الدخول مرة أخرى. وقد تظل الجلسات النشطة على أجهزة أخرى نشطة لمدة تصل إلى ساعة واحدة."
+  },
+  "tryAgain": {
+    "message": "Try again"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Verification required for this action. Set a PIN to continue."
+  },
+  "setPin": {
+    "message": "Set PIN"
+  },
+  "verifyWithBiometrics": {
+    "message": "Verify with biometrics"
+  },
+  "awaitingConfirmation": {
+    "message": "Awaiting confirmation"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Could not complete biometrics."
+  },
+  "needADifferentMethod": {
+    "message": "Need a different method?"
+  },
+  "useMasterPassword": {
+    "message": "Use master password"
+  },
+  "usePin": {
+    "message": "Use PIN"
+  },
+  "useBiometrics": {
+    "message": "Use biometrics"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Enter the verification code that was sent to your email."
+  },
+  "resendCode": {
+    "message": "Resend code"
   },
   "hours": {
     "message": "ساعات"
@@ -2428,7 +2471,7 @@
     "message": "قائمة فرعية"
   },
   "skipToContent": {
-    "message": "Skip to content"
+    "message": "تخطي إلى المحتوى"
   },
   "typePasskey": {
     "message": "مفتاح المرور"
@@ -2562,6 +2605,15 @@
   "incorrectUsernameOrPassword": {
     "message": "اسم المستخدم أو كلمة المرور غير صحيحة"
   },
+  "incorrectPassword": {
+    "message": "Incorrect password"
+  },
+  "incorrectCode": {
+    "message": "Incorrect code"
+  },
+  "incorrectPin": {
+    "message": "Incorrect PIN"
+  },
   "multifactorAuthenticationFailed": {
     "message": "فشلت المصادقة المتعددة العوامل"
   },
@@ -2616,5 +2668,9 @@
   },
   "lastPassYubikeyDesc": {
     "message": "أدخل YubiKey المرتبط بحسابك LastPass في منفذ USB الخاص بك، ثم المس الزر."
+  },
+  "commonImportFormats": {
+    "message": "تنسيقات مشتركة",
+    "description": "Label indicating the most common import formats"
   }
 }

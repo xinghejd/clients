@@ -28,7 +28,7 @@ export class OrganizationLayoutComponent implements OnInit, OnDestroy {
     private organizationService: OrganizationService,
   ) {}
 
-  ngOnInit() {
+  async ngOnInit() {
     document.body.classList.remove("layout_frontend");
 
     this.organization$ = this.route.params
