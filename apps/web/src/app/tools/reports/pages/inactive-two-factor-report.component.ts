@@ -15,7 +15,6 @@ import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { CipherReportComponent } from "./cipher-report.component";
 
-
 @Component({
   selector: "app-inactive-two-factor-report",
   templateUrl: "inactive-two-factor-report.component.html",
