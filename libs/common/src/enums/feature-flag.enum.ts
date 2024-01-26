@@ -7,6 +7,7 @@ export enum FeatureFlag {
   GeneratorToolsModernization = "generator-tools-modernization",
   KeyRotationImprovements = "key-rotation-improvements",
   FlexibleCollectionsMigration = "flexible-collections-migration",
+  MigrateTwoFactorDirectory = "migrate-two-factor-directory",
 }
 
 // Replace this with a type safe lookup of the feature flag values in PM-2282
