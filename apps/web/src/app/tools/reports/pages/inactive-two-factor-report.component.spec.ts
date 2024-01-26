@@ -5,8 +5,11 @@ import { mock } from "jest-mock-extended";
 import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+// eslint-disable-next-line no-restricted-imports
+import { ReportsApiServiceAbstraction } from "@bitwarden/common/tools/reports/reports-api.service.abstraction";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
@@ -30,6 +33,10 @@ describe("InactiveTwoFactorReportComponent", () => {
           useValue: mock<OrganizationService>(),
         },
         {
+          provide: ConfigServiceAbstraction,
+          useValue: mock<ConfigServiceAbstraction>(),
+        },
+        {
           provide: ModalService,
           useValue: mock<ModalService>(),
         },
@@ -44,6 +51,10 @@ describe("InactiveTwoFactorReportComponent", () => {
         {
           provide: I18nService,
           useValue: mock<I18nService>(),
+        },
+        {
+          provide: ReportsApiServiceAbstraction,
+          useValue: mock<ReportsApiServiceAbstraction>(),
         },
       ],
       schemas: [],
