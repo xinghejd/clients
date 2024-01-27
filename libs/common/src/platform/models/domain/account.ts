@@ -223,7 +223,6 @@ export class AccountProfile {
 export class AccountSettings {
   autoConfirmFingerPrints?: boolean;
   autoFillOnPageLoadDefault?: boolean;
-  biometricUnlock?: boolean;
   clearClipboard?: number;
   collapsedGroupings?: string[];
   defaultUriMatch?: UriMatchType;
