@@ -24,3 +24,19 @@ export const ENCRYPTED_CLIENT_KEY_HALF = new KeyDefinition<EncryptedString>(
     deserializer: (obj) => obj,
   },
 );
+
+export const BIOMETRIC_TEXT = new KeyDefinition<string>(
+  DESKTOP_BIOMETRIC_SETTINGS_DISK,
+  "biometricText",
+  {
+    deserializer: (obj) => obj,
+  },
+);
+
+export const BIOMETRIC_NO_AUTO_PROMPT_TEXT = new KeyDefinition<string>(
+  DESKTOP_BIOMETRIC_SETTINGS_DISK,
+  "biometricNoAutoPromptText",
+  {
+    deserializer: (obj) => obj,
+  },
+);

@@ -38,3 +38,25 @@ describe("encrypted client key half", () => {
     expect(result).toEqual(encryptedClientKeyHalf);
   });
 });
+
+describe("biometric text", () => {
+  it("should deserialize biometric text state", () => {
+    const sut = DISMISSED_BIOMETRIC_REQUIRE_PASSWORD_ON_START_CALLOUT;
+    const biometricText = "biometricText";
+
+    const result = sut.deserializer(JSON.parse(JSON.stringify(biometricText)));
+
+    expect(result).toEqual(biometricText);
+  });
+});
+
+describe("biometric no auto prompt text", () => {
+  it("should deserialize biometric no auto prompt text state", () => {
+    const sut = DISMISSED_BIOMETRIC_REQUIRE_PASSWORD_ON_START_CALLOUT;
+    const biometricNoAutoPromptText = "biometricNoAutoPromptText";
+
+    const result = sut.deserializer(JSON.parse(JSON.stringify(biometricNoAutoPromptText)));
+
+    expect(result).toEqual(biometricNoAutoPromptText);
+  });
+});

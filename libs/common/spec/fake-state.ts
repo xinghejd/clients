@@ -70,6 +70,10 @@ export class FakeGlobalState<T> implements GlobalState<T> {
     return this.stateSubject.asObservable();
   }
 
+  nextState(state: T) {
+    this.stateSubject.next(state);
+  }
+
   private _keyDefinition: KeyDefinition<T> | null = null;
   get keyDefinition() {
     if (this._keyDefinition == null) {

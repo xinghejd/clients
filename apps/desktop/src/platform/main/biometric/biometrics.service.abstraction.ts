@@ -26,7 +26,6 @@ export abstract class BiometricsServiceAbstraction {
 }
 
 export interface OsBiometricService {
-  init: () => Promise<void>;
   osSupportsBiometric: () => Promise<boolean>;
   authenticateBiometric: () => Promise<boolean>;
   getBiometricKey: (
