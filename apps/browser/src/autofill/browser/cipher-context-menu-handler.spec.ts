@@ -30,6 +30,14 @@ describe("CipherContextMenuHandler", () => {
   afterEach(() => jest.resetAllMocks());
 
   describe("update", () => {
+    it("skips updating if the init process for the mainContextMenuHandler is running", () => {
+      mainContextMenuHandler.initRunning = true;
+
+      sut.update("https://test.com");
+
+      expect(authService.getAuthStatus).not.toHaveBeenCalled();
+    });
+
     it("locked, updates for no access", async () => {
       authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.Locked);
 
