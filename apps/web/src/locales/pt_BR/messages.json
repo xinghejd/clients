@@ -656,9 +656,6 @@
   "passkeySuccessfullyCreated": {
     "message": "Chave de acesso criada com sucesso!"
   },
-  "customName": {
-    "message": "Nome personalizado"
-  },
   "customPasskeyNameInfo": {
     "message": "Nomeie sua chave de acesso para ajudá-lo a identificá-la."
   },
@@ -2819,6 +2816,9 @@
   "incorrectCode": {
     "message": "Código incorreto"
   },
+  "incorrectPin": {
+    "message": "PIN incorreto"
+  },
   "exportedVault": {
     "message": "Cofre exportado."
   },
@@ -3827,15 +3827,6 @@
   },
   "couldNotChargeCardPayInvoice": {
     "message": "Não foi possível cobrar no seu cartão. Por favor, veja e pague a fatura pendente listada abaixo."
-  },
-  "inAppPurchase": {
-    "message": "Compra no Aplicativo"
-  },
-  "cannotPerformInAppPurchase": {
-    "message": "Você não pode executar esta ação enquanto usa um método de pagamento de compra dentro do aplicativo."
-  },
-  "manageSubscriptionFromStore": {
-    "message": "Você deve gerenciar sua assinatura na loja onde sua compra pelo aplicativo foi feita."
   },
   "minLength": {
     "message": "Comprimento Mínimo"
@@ -5187,6 +5178,12 @@
   },
   "spValidateCertificates": {
     "message": "Validar Certificados"
+  },
+  "spUniqueEntityId": {
+    "message": "Defina um ID único de entidade SP"
+  },
+  "spUniqueEntityIdDesc": {
+    "message": "Gerar um identificador que seja exclusivo para sua organização"
   },
   "idpEntityId": {
     "message": "ID da Entidade"
@@ -6610,6 +6607,39 @@
       }
     }
   },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Verificação necessária para esta ação. Defina um PIN para continuar."
+  },
+  "setPin": {
+    "message": "Definir PIN"
+  },
+  "verifyWithBiometrics": {
+    "message": "Desbloquear com a biometria"
+  },
+  "awaitingConfirmation": {
+    "message": "Aguardando confirmação"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Não foi possível completar a biometria."
+  },
+  "needADifferentMethod": {
+    "message": "Precisa de um método diferente?"
+  },
+  "useMasterPassword": {
+    "message": "Usar a senha mestra"
+  },
+  "usePin": {
+    "message": "Usar PIN"
+  },
+  "useBiometrics": {
+    "message": "Usar biometria"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Digite o código de verificação que foi enviado para o seu e-mail."
+  },
+  "resendCode": {
+    "message": "Reenviar código"
+  },
   "membersColumnHeader": {
     "message": "Membro/Grupo"
   },
@@ -7092,6 +7122,10 @@
       }
     }
   },
+  "verificationRequired": {
+    "message": "Verificação necessária",
+    "description": "Default title for the user verification dialog."
+  },
   "recoverAccount": {
     "message": "Recover account"
   },
@@ -7331,8 +7365,8 @@
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Proprietários e administradores podem gerenciar todas as coleções e itens"
   },
-  "collectionManagementUpdated": {
-    "message": "Comportamento de Gerenciamento de Coleção salvo"
+  "updatedCollectionManagement": {
+    "message": "Configuração da gestão de coleção atualizada"
   },
   "passwordManagerPlanPrice": {
     "message": "Password Manager plan price"
@@ -7398,12 +7432,6 @@
   "skipToContent": {
     "message": "Skip to content"
   },
-  "customBillingStart": {
-    "message": "O faturamento personalizado não é refletido. Visite o "
-  },
-  "customBillingEnd": {
-    "message": " página para faturamento mais recente."
-  },
   "managePermissionRequired": {
     "message": "Pelo menos um membro ou grupo deve ter poder gerenciar a permissão."
   },
@@ -7447,7 +7475,38 @@
   "collectionAccessRestricted": {
     "message": "O acesso à coleção está restrito"
   },
+  "grantCollectionAccess": {
+    "message": "Grant groups or members access to this collection."
+  },
+  "adminCollectionAccess": {
+    "message": "Administrators can access and manage collections."
+  },
   "serviceAccountAccessUpdated": {
     "message": "Acesso à conta de serviço atualizado"
+  },
+  "commonImportFormats": {
+    "message": "Common formats",
+    "description": "Label indicating the most common import formats"
+  },
+  "maintainYourSubscription": {
+    "message": "Para manter sua assinatura para $ORG$, ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Example Inc."
+      }
+    }
+  },
+  "addAPaymentMethod": {
+    "message": "adicione um método de pagamento",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
+  },
+  "collectionEnhancementsDesc": {
+    "message": "Adicione novas configurações e permissões para mais flexibilidade. Substitua a função Gestor pela permissão \"pode gerenciar\", e introduza opções para permitir que os usuários possam criar coleções, bem como restringir o acesso administrativo a coleções.",
+    "description": "This describes new features and improvements for user roles and collections"
+  },
+  "collectionEnhancementsLearnMore": {
+    "message": "Saiba mais sobre o gerenciamento de coleção"
   }
 }

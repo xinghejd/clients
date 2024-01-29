@@ -656,9 +656,6 @@
   "passkeySuccessfullyCreated": {
     "message": "Passkey succesvol aangemaakt!"
   },
-  "customName": {
-    "message": "Aangepaste naam"
-  },
   "customPasskeyNameInfo": {
     "message": "Geef je passkey een naam om deze later te herkennen."
   },
@@ -2819,6 +2816,9 @@
   "incorrectCode": {
     "message": "Onjuiste code"
   },
+  "incorrectPin": {
+    "message": "Pincode onjuist"
+  },
   "exportedVault": {
     "message": "Kluis geëxporteerd."
   },
@@ -3827,15 +3827,6 @@
   },
   "couldNotChargeCardPayInvoice": {
     "message": "We konden geen kosten op je kaart in rekening brengen. Bekijk en betaal onderstaande openstaande factuur."
-  },
-  "inAppPurchase": {
-    "message": "In-app aankoop"
-  },
-  "cannotPerformInAppPurchase": {
-    "message": "Je kunt deze actie niet uitvoeren tijdens de uitvoering van een in-app aankoop."
-  },
-  "manageSubscriptionFromStore": {
-    "message": "Je moet je abonnement beheren vanuit de winkel waar je in-app aankoop is gemaakt."
   },
   "minLength": {
     "message": "Minimale lengte"
@@ -5187,6 +5178,12 @@
   },
   "spValidateCertificates": {
     "message": "Validate Certificates"
+  },
+  "spUniqueEntityId": {
+    "message": "Een unieke SP-entiteit-ID instellen"
+  },
+  "spUniqueEntityIdDesc": {
+    "message": "Identificatie die uniek is voor je organisatie genereren"
   },
   "idpEntityId": {
     "message": "Entity ID"
@@ -6610,6 +6607,39 @@
       }
     }
   },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Deze actie vereist verificatie actie. Stel een pincode in om door te gaan."
+  },
+  "setPin": {
+    "message": "Pincode instellen"
+  },
+  "verifyWithBiometrics": {
+    "message": "Biometrisch ontgrendelen"
+  },
+  "awaitingConfirmation": {
+    "message": "Wacht op bevestiging"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Kon biometrie niet afronden."
+  },
+  "needADifferentMethod": {
+    "message": "Een andere methode proberen?"
+  },
+  "useMasterPassword": {
+    "message": "Hoofdwachtwoord gebruiken"
+  },
+  "usePin": {
+    "message": "Pincode gebruiken"
+  },
+  "useBiometrics": {
+    "message": "Biometrie gebruiken"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Voer de verificatiecode in die naar je e-mail is gestuurd."
+  },
+  "resendCode": {
+    "message": "Code opnieuw sturen"
+  },
   "membersColumnHeader": {
     "message": "Lid/Groep"
   },
@@ -7092,6 +7122,10 @@
       }
     }
   },
+  "verificationRequired": {
+    "message": "Verificatie vereist",
+    "description": "Default title for the user verification dialog."
+  },
   "recoverAccount": {
     "message": "Account herstellen"
   },
@@ -7331,8 +7365,8 @@
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Eigenaren en beheerders kunnen alle collecties en items beheren"
   },
-  "collectionManagementUpdated": {
-    "message": "Collectiebeheergedrag opgeslagen"
+  "updatedCollectionManagement": {
+    "message": "Instelling collectiebeheer bijgewerkt"
   },
   "passwordManagerPlanPrice": {
     "message": "Abonnementskosten wachtwoordbeheerder"
@@ -7398,12 +7432,6 @@
   "skipToContent": {
     "message": "Ga naar de inhoud"
   },
-  "customBillingStart": {
-    "message": "Aangepaste facturering is niet weergeven. Bezoek de "
-  },
-  "customBillingEnd": {
-    "message": " pagina voor de laatste factuur."
-  },
   "managePermissionRequired": {
     "message": "Minimaal één lid of groep moet permissies kunnen beheren."
   },
@@ -7447,7 +7475,38 @@
   "collectionAccessRestricted": {
     "message": "Collectietoegang is beperkt"
   },
+  "grantCollectionAccess": {
+    "message": "Groepen of mensen toegang tot deze collectie geven."
+  },
+  "adminCollectionAccess": {
+    "message": "Beheerders hebben toegang tot collecties en kunnen deze beheren."
+  },
   "serviceAccountAccessUpdated": {
     "message": "Toegang tot serviceaccount bijgewerkt"
+  },
+  "commonImportFormats": {
+    "message": "Common formats",
+    "description": "Label indicating the most common import formats"
+  },
+  "maintainYourSubscription": {
+    "message": "Om je abonnement voor $ORG$ te behouden, ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Example Inc."
+      }
+    }
+  },
+  "addAPaymentMethod": {
+    "message": "moet je een betaalmethode toevoegen",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
+  },
+  "collectionEnhancementsDesc": {
+    "message": "Voeg nieuwe instellingen en machtigingen toe voor extra flexibiliteit. Vervang de rol Beheerder door het recht \"mag beheren\" en introduceer opties die gebruikers toestaan collecties te maken en beheerderstoegang tot collecties te beperken.",
+    "description": "This describes new features and improvements for user roles and collections"
+  },
+  "collectionEnhancementsLearnMore": {
+    "message": "Meer informatie over collectiemanagement"
   }
 }

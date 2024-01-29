@@ -1,3 +1,4 @@
+import { PinCryptoServiceAbstraction, PinCryptoService } from "@bitwarden/auth/common";
 import { AvatarUpdateService as AvatarUpdateServiceAbstraction } from "@bitwarden/common/abstractions/account/avatar-update.service";
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
 import { AuditService as AuditServiceAbstraction } from "@bitwarden/common/abstractions/audit.service";
@@ -122,6 +123,10 @@ import { SyncNotifierService } from "@bitwarden/common/vault/services/sync/sync-
 import { SyncService } from "@bitwarden/common/vault/services/sync/sync.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import {
+  IndividualVaultExportService,
+  IndividualVaultExportServiceAbstraction,
+  OrganizationVaultExportService,
+  OrganizationVaultExportServiceAbstraction,
   VaultExportService,
   VaultExportServiceAbstraction,
 } from "@bitwarden/exporter/vault-export";
@@ -246,11 +251,14 @@ export default class MainBackground {
   authRequestCryptoService: AuthRequestCryptoServiceAbstraction;
   accountService: AccountServiceAbstraction;
   globalStateProvider: GlobalStateProvider;
+  pinCryptoService: PinCryptoServiceAbstraction;
   singleUserStateProvider: SingleUserStateProvider;
   activeUserStateProvider: ActiveUserStateProvider;
   derivedStateProvider: DerivedStateProvider;
   stateProvider: StateProvider;
   fido2Service: Fido2ServiceAbstraction;
+  individualVaultExportService: IndividualVaultExportServiceAbstraction;
+  organizationVaultExportService: OrganizationVaultExportServiceAbstraction;
 
   // Passed to the popup for Safari to workaround issues with theming, downloading, etc.
   backgroundWindow = window;
@@ -342,6 +350,11 @@ export default class MainBackground {
       this.globalStateProvider,
       this.derivedStateProvider,
     );
+    this.environmentService = new BrowserEnvironmentService(
+      this.logService,
+      this.stateProvider,
+      this.accountService,
+    );
     this.stateService = new BrowserStateService(
       this.storageService,
       this.secureStorageService,
@@ -349,6 +362,7 @@ export default class MainBackground {
       this.logService,
       new StateFactory(GlobalState, Account),
       this.accountService,
+      this.environmentService,
     );
     this.platformUtilsService = new BrowserPlatformUtilsService(
       this.messagingService,
@@ -384,7 +398,6 @@ export default class MainBackground {
     );
     this.tokenService = new TokenService(this.stateService);
     this.appIdService = new AppIdService(this.storageService);
-    this.environmentService = new BrowserEnvironmentService(this.stateService, this.logService);
     this.apiService = new ApiService(
       this.tokenService,
       this.platformUtilsService,
@@ -482,13 +495,6 @@ export default class MainBackground {
 
     this.userVerificationApiService = new UserVerificationApiService(this.apiService);
 
-    this.userVerificationService = new UserVerificationService(
-      this.stateService,
-      this.cryptoService,
-      this.i18nService,
-      this.userVerificationApiService,
-    );
-
     this.configApiService = new ConfigApiService(this.apiService, this.authService);
 
     this.configService = new BrowserConfigService(
@@ -524,7 +530,24 @@ export default class MainBackground {
       this.tokenService,
       this.policyService,
       this.stateService,
-      this.userVerificationService,
+    );
+
+    this.pinCryptoService = new PinCryptoService(
+      this.stateService,
+      this.cryptoService,
+      this.vaultTimeoutSettingsService,
+      this.logService,
+    );
+
+    this.userVerificationService = new UserVerificationService(
+      this.stateService,
+      this.cryptoService,
+      this.i18nService,
+      this.userVerificationApiService,
+      this.pinCryptoService,
+      this.logService,
+      this.vaultTimeoutSettingsService,
+      this.platformUtilsService,
     );
 
     this.vaultFilterService = new VaultFilterService(
@@ -581,7 +604,6 @@ export default class MainBackground {
       this.folderApiService,
       this.organizationService,
       this.sendApiService,
-      this.configService,
       logoutCallback,
     );
     this.eventUploadService = new EventUploadService(
@@ -605,7 +627,6 @@ export default class MainBackground {
       this.logService,
       this.settingsService,
       this.userVerificationService,
-      this.configService,
     );
     this.auditService = new AuditService(this.cryptoFunctionService, this.apiService);
 
@@ -620,14 +641,28 @@ export default class MainBackground {
       this.cryptoService,
     );
 
-    this.exportService = new VaultExportService(
+    this.individualVaultExportService = new IndividualVaultExportService(
       this.folderService,
+      this.cipherService,
+      this.cryptoService,
+      this.cryptoFunctionService,
+      this.stateService,
+    );
+
+    this.organizationVaultExportService = new OrganizationVaultExportService(
       this.cipherService,
       this.apiService,
       this.cryptoService,
       this.cryptoFunctionService,
       this.stateService,
+      this.collectionService,
     );
+
+    this.exportService = new VaultExportService(
+      this.individualVaultExportService,
+      this.organizationVaultExportService,
+    );
+
     this.notificationsService = new NotificationsService(
       this.logService,
       this.syncService,

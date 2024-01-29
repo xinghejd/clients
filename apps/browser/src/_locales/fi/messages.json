@@ -11,7 +11,7 @@
     "description": "Extension description"
   },
   "loginOrCreateNewAccount": {
-    "message": "Kirjaudu tai luo uusi tili käyttääksesi salattua holviasi."
+    "message": "Käytä salattua holviasi kirjautumalla sisään tai tai luo uusi tili."
   },
   "createAccount": {
     "message": "Luo tili"
@@ -327,7 +327,7 @@
     "message": "Salasana"
   },
   "totp": {
-    "message": "Authenticator secret"
+    "message": "Todennuksen salaisuus"
   },
   "passphrase": {
     "message": "Salauslauseke"
@@ -516,16 +516,16 @@
     "message": "Valittua kohdetta ei voitu täyttää tälle sivulle automaattisesti. Kopioi ja liitä tiedot itse."
   },
   "totpCaptureError": {
-    "message": "Unable to scan QR code from the current webpage"
+    "message": "QR-koodin skannaus nykyiseltä sivulta ei onnistu."
   },
   "totpCaptureSuccess": {
-    "message": "Authenticator key added"
+    "message": "Todennusavain on lisätty"
   },
   "totpCapture": {
-    "message": "Scan authenticator QR code from current webpage"
+    "message": "Skannaa todennusavaimen QR-koodi nykyiseltä verkkosivulta"
   },
   "copyTOTP": {
-    "message": "Copy Authenticator key (TOTP)"
+    "message": "Kopioi todennusavain (TOTP)"
   },
   "loggedOut": {
     "message": "Kirjauduttu ulos"
@@ -796,7 +796,7 @@
     "message": "Lue lisää"
   },
   "authenticatorKeyTotp": {
-    "message": "Todennusmenetelmän avain (TOTP)"
+    "message": "Todennusaavain (TOTP)"
   },
   "verificationCodeTotp": {
     "message": "Todennuskoodi (TOTP)"
@@ -904,7 +904,7 @@
     "message": "Kopioi TOTP-koodi automaattisesti"
   },
   "disableAutoTotpCopyDesc": {
-    "message": "Jos kirjautumistieto sisältää kaksivaiheisen todennusmenetelmän avaimen, kopioidaan TOTP-todennuskoodi leikepöydälle kohteen automaattisen täytön yhteydessä."
+    "message": "Jos kirjautumistieto sisältää kaksivaiheisen todennuksen avaimen, kopioidaan TOTP-todennuskoodi leikepöydälle kohteen automaattisen täytön yhteydessä."
   },
   "enableAutoBiometricsPrompt": {
     "message": "Pyydä Biometristä todennusta käynnistettäessä"
@@ -1493,6 +1493,9 @@
   "invalidPin": {
     "message": "Virheellinen PIN-koodi."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Liian monta epäonnistunutta PIN-yritystä. Kirjaudutaan ulos."
+  },
   "unlockWithBiometrics": {
     "message": "Avaa biometrialla"
   },
@@ -1718,7 +1721,7 @@
     "message": "Toimintoa ei voi suorittaa sivupalkissa, yritä toimintoa uudelleen ponnahdusvalikossa tai ponnahdusikkunassa."
   },
   "personalOwnershipSubmitError": {
-    "message": "Yrityskäytännön johdosta kohteiden tallennus henkilökohtaiseen holviin ei ole mahdollista. Muuta omistusasetus organisaatiolle ja valitse käytettävissä olevista kokoelmista."
+    "message": "Yrityskäytännön vuoksi kohteiden tallennus henkilökohtaiseen holviin ei ole mahdollista. Muuta omistusasetus organisaatiolle ja valitse käytettävissä olevista kokoelmista."
   },
   "personalOwnershipPolicyInEffect": {
     "message": "Organisaatiokäytäntö vaikuttaa omistajuusvalintoihisi."
@@ -1990,7 +1993,7 @@
     "message": "Automaattinen liitos"
   },
   "resetPasswordAutoEnrollInviteWarning": {
-    "message": "Organisaatiolla on käytäntö, joka liittää tilisi automaattisesti salasanan palautusapuun. Liitos sallii organisaation ylläpitäjien vaihtaa pääsalasanasi."
+    "message": "Organisaatiolla on yrityskäytäntö, joka liittää tilisi automaattisesti salasanan palautusapuun. Liitos sallii organisaation ylläpitäjien vaihtaa pääsalasanasi."
   },
   "selectFolder": {
     "message": "Valitse kansio..."
@@ -2002,6 +2005,10 @@
   "orgRequiresYouToSetPassword": {
     "message": "Organisaatiosi edellyttää, että asetat pääsalasanan.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "verificationRequired": {
+    "message": "Vahvistus vaaditaan",
+    "description": "Default title for the user verification dialog."
   },
   "hours": {
     "message": "Tuntia"
@@ -2513,7 +2520,7 @@
     "description": "Toggling an expand/collapse state."
   },
   "filelessImport": {
-    "message": "Haluatko tuoda tietosi Bitwardeniin?",
+    "message": "Tuodaanko tiedot Bitwardeniin?",
     "description": "Default notification title for triggering a fileless import."
   },
   "lpFilelessImport": {
@@ -2639,6 +2646,42 @@
         "example": "2"
       }
     }
+  },
+  "tryAgain": {
+    "message": "Yritä uudelleen"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Toiminto vaatii vahvistuksen. Jatka asettamalla PIN-koodi."
+  },
+  "setPin": {
+    "message": "Aseta PIN-koodi"
+  },
+  "verifyWithBiometrics": {
+    "message": "Vahvista biometrialla"
+  },
+  "awaitingConfirmation": {
+    "message": "Odottaa vahvistusta"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Biometrinen todennus ei onnistunut."
+  },
+  "needADifferentMethod": {
+    "message": "Tarvitsetko eri menetelmän?"
+  },
+  "useMasterPassword": {
+    "message": "Käytä pääsalasanaa"
+  },
+  "usePin": {
+    "message": "Käytä PIN-koodia"
+  },
+  "useBiometrics": {
+    "message": "Käytä biometriaa"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Syötä sähköpostiosoitteeseesi lähetetty vahvistuskoodi."
+  },
+  "resendCode": {
+    "message": "Lähetä koodi uudelleen"
   },
   "total": {
     "message": "Yhteensä"
@@ -2783,6 +2826,15 @@
   "incorrectUsernameOrPassword": {
     "message": "Virheellinen käyttäjätunnus tai salasana"
   },
+  "incorrectPassword": {
+    "message": "Virheellinen salasana"
+  },
+  "incorrectCode": {
+    "message": "Virheellinen koodi"
+  },
+  "incorrectPin": {
+    "message": "Virheellinen PIN-koodi"
+  },
   "multifactorAuthenticationFailed": {
     "message": "Monivaiheinen todennus epäonnistui"
   },
@@ -2842,7 +2894,7 @@
     "message": "Vaihda tiliä"
   },
   "switchAccounts": {
-    "message": "Vaihda tilejä"
+    "message": "Vaihda tiliä"
   },
   "switchToAccount": {
     "message": "Vaihda tiliin"
@@ -2851,7 +2903,7 @@
     "message": "Aktiivinen tili"
   },
   "availableAccounts": {
-    "message": "Available accounts"
+    "message": "Käytettävissä olevat tilit"
   },
   "accountLimitReached": {
     "message": "Tilien enimmäismäärä on saavutettu. Kirjaa jokin niistä ulos lisätäksesi tilin."
@@ -2881,12 +2933,44 @@
     "message": "Aina tällä sivustolla"
   },
   "domainAddedToExcludedDomains": {
-    "message": "$DOMAIN$ lisättiin verkkotunnuspoikkeuksiin.",
+    "message": "$DOMAIN$ lisättiin ohitettaviin verkkotunnuksiin.",
     "placeholders": {
       "domain": {
         "content": "$1",
         "example": "google.com"
       }
     }
+  },
+  "commonImportFormats": {
+    "message": "Yleiset muodot",
+    "description": "Label indicating the most common import formats"
+  },
+  "overrideDefaultBrowserAutofillTitle": {
+    "message": "Määritetäänkö Bitwarden oletusarvoiseksi salasanahallinnaksi?",
+    "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutofillDescription": {
+    "message": "Tämän huomiotta jättäminen voi aiheuttaa ongelmia Bitwardenin automaattitäytön valikon ja selaimen välisessä toiminnassa.",
+    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutofillPrivacyRequiredDescription": {
+    "message": "Tämä toiminto käynnistää Bitwarden-laajennuksen uudelleen ja sen huomiotta jättäminen voi aiheuttaa ongelmia Bitwardenin automaattitäytön valikon ja selaimen välisessä toiminnassa.",
+    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutoFillSettings": {
+    "message": "Määritä Bitwarden oletusarvoiseksi salasanahallinnaksi",
+    "description": "Label for the setting that allows overriding the default browser autofill settings"
+  },
+  "privacyPermissionAdditionNotGrantedTitle": {
+    "message": "Bitwardenia ei voida määrittää oletusarvoiseksi salasanahallinnaksi",
+    "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "privacyPermissionAdditionNotGrantedDescription": {
+    "message": "Jotta Bitwarden voidaan määrittää oletusarvoiseksi salasanahallinnaksi, on sille myönettävä oikeus käsitellä yksityisiä tietoja selaimessa.",
+    "description": "Description for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "makeDefault": {
+    "message": "Määritä oletukseksi",
+    "description": "Button text for the setting that allows overriding the default browser autofill settings"
   }
 }

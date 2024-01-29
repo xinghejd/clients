@@ -55,7 +55,10 @@
         [cloneableOrganizationCiphers]="true"
         [showAdminActions]="true"
         (onEvent)="onVaultItemsEvent($event)"
-        [showBulkEditCollectionAccess]="showBulkEditCollectionAccess$ | async"
+        [showBulkEditCollectionAccess]="
+          (showBulkEditCollectionAccess$ | async) && organization?.flexibleCollections
+        "
+        [viewingOrgVault]="true"
       >
       </app-vault-items>
       <div

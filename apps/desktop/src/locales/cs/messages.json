@@ -1392,6 +1392,9 @@
   "invalidPin": {
     "message": "Neplatný PIN kód."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Příliš mnoho neplatných pokusů o zadání PINu. Odhlášeno."
+  },
   "unlockWithWindowsHello": {
     "message": "Odemknout pomocí Windows Hello"
   },
@@ -1543,6 +1546,10 @@
   "orgRequiresYouToSetPassword": {
     "message": "Vaše organizace vyžaduje nastavení hlavního hesla.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "verificationRequired": {
+    "message": "Je vyžadováno ověření",
+    "description": "Default title for the user verification dialog."
   },
   "currentMasterPass": {
     "message": "Aktuální hlavní heslo"
@@ -1868,6 +1875,42 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Vaše hlavní heslo nesplňuje jednu nebo více zásad Vaší organizace. Pro přístup k trezoru musíte nyní aktualizovat své hlavní heslo. Pokračování Vás odhlásí z Vaší aktuální relace a bude nutné se přihlásit. Aktivní relace na jiných zařízeních mohou zůstat aktivní až po dobu jedné hodiny."
+  },
+  "tryAgain": {
+    "message": "Zkusit znovu"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Pro tuto akci je vyžadováno ověření. Nastavte PIN kód pro pokračování."
+  },
+  "setPin": {
+    "message": "Nastavit PIN"
+  },
+  "verifyWithBiometrics": {
+    "message": "Ověřit pomocí biometrie"
+  },
+  "awaitingConfirmation": {
+    "message": "Čeká na potvrzení"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Nelze dokončit biometrii."
+  },
+  "needADifferentMethod": {
+    "message": "Potřebujete jinou metodu?"
+  },
+  "useMasterPassword": {
+    "message": "Použít hlavní heslo"
+  },
+  "usePin": {
+    "message": "Použít PIN"
+  },
+  "useBiometrics": {
+    "message": "Použít biometrii"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Zadejte ověřovací kód, který byl odeslán do Vašeho e-mailu."
+  },
+  "resendCode": {
+    "message": "Znovu odeslat kód"
   },
   "hours": {
     "message": "hodin"
@@ -2562,6 +2605,15 @@
   "incorrectUsernameOrPassword": {
     "message": "Nesprávné uživatelské jméno nebo heslo"
   },
+  "incorrectPassword": {
+    "message": "Nesprávné heslo"
+  },
+  "incorrectCode": {
+    "message": "Nesprávný kód"
+  },
+  "incorrectPin": {
+    "message": "Nesprávný PIN"
+  },
   "multifactorAuthenticationFailed": {
     "message": "Vícefaktorové ověření se nezdařilo"
   },
@@ -2616,5 +2668,9 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Vložte YubiKey spojený s Vaším účtem LastPass do USB portu Vašeho počítače a stiskněte jeho tlačítko."
+  },
+  "commonImportFormats": {
+    "message": "Společné formáty",
+    "description": "Label indicating the most common import formats"
   }
 }

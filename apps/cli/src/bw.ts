@@ -4,6 +4,7 @@ import * as path from "path";
 import * as program from "commander";
 import * as jsdom from "jsdom";
 
+import { PinCryptoServiceAbstraction, PinCryptoService } from "@bitwarden/auth/common";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -87,6 +88,10 @@ import { SyncNotifierService } from "@bitwarden/common/vault/services/sync/sync-
 import { SyncService } from "@bitwarden/common/vault/services/sync/sync.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import {
+  IndividualVaultExportService,
+  IndividualVaultExportServiceAbstraction,
+  OrganizationVaultExportService,
+  OrganizationVaultExportServiceAbstraction,
   VaultExportService,
   VaultExportServiceAbstraction,
 } from "@bitwarden/exporter/vault-export";
@@ -145,6 +150,8 @@ export class Main {
   importService: ImportServiceAbstraction;
   importApiService: ImportApiServiceAbstraction;
   exportService: VaultExportServiceAbstraction;
+  individualExportService: IndividualVaultExportServiceAbstraction;
+  organizationExportService: OrganizationVaultExportServiceAbstraction;
   searchService: SearchService;
   cryptoFunctionService: NodeCryptoFunctionService;
   encryptService: EncryptServiceImplementation;
@@ -160,6 +167,7 @@ export class Main {
   cipherFileUploadService: CipherFileUploadService;
   keyConnectorService: KeyConnectorService;
   userVerificationService: UserVerificationService;
+  pinCryptoService: PinCryptoServiceAbstraction;
   stateService: StateService;
   organizationService: OrganizationService;
   providerService: ProviderService;
@@ -253,6 +261,8 @@ export class Main {
       this.derivedStateProvider,
     );
 
+    this.environmentService = new EnvironmentService(this.stateProvider, this.accountService);
+
     this.stateService = new StateService(
       this.storageService,
       this.secureStorageService,
@@ -260,6 +270,7 @@ export class Main {
       this.logService,
       new StateFactory(GlobalState, Account),
       this.accountService,
+      this.environmentService,
     );
 
     this.cryptoService = new CryptoService(
@@ -274,7 +285,6 @@ export class Main {
 
     this.appIdService = new AppIdService(this.storageService);
     this.tokenService = new TokenService(this.stateService);
-    this.environmentService = new EnvironmentService(this.stateService);
 
     const customUserAgent =
       "Bitwarden_CLI/" +
@@ -433,19 +443,29 @@ export class Main {
     const lockedCallback = async (userId?: string) =>
       await this.cryptoService.clearStoredUserKey(KeySuffixOptions.Auto);
 
-    this.userVerificationService = new UserVerificationService(
-      this.stateService,
-      this.cryptoService,
-      this.i18nService,
-      this.userVerificationApiService,
-    );
-
     this.vaultTimeoutSettingsService = new VaultTimeoutSettingsService(
       this.cryptoService,
       this.tokenService,
       this.policyService,
       this.stateService,
-      this.userVerificationService,
+    );
+
+    this.pinCryptoService = new PinCryptoService(
+      this.stateService,
+      this.cryptoService,
+      this.vaultTimeoutSettingsService,
+      this.logService,
+    );
+
+    this.userVerificationService = new UserVerificationService(
+      this.stateService,
+      this.cryptoService,
+      this.i18nService,
+      this.userVerificationApiService,
+      this.pinCryptoService,
+      this.logService,
+      this.vaultTimeoutSettingsService,
+      this.platformUtilsService,
     );
 
     this.vaultTimeoutService = new VaultTimeoutService(
@@ -480,7 +500,6 @@ export class Main {
       this.folderApiService,
       this.organizationService,
       this.sendApiService,
-      this.configService,
       async (expired: boolean) => await this.logout(),
     );
 
@@ -496,13 +515,27 @@ export class Main {
       this.collectionService,
       this.cryptoService,
     );
-    this.exportService = new VaultExportService(
+
+    this.individualExportService = new IndividualVaultExportService(
       this.folderService,
+      this.cipherService,
+      this.cryptoService,
+      this.cryptoFunctionService,
+      this.stateService,
+    );
+
+    this.organizationExportService = new OrganizationVaultExportService(
       this.cipherService,
       this.apiService,
       this.cryptoService,
       this.cryptoFunctionService,
       this.stateService,
+      this.collectionService,
+    );
+
+    this.exportService = new VaultExportService(
+      this.individualExportService,
+      this.organizationExportService,
     );
 
     this.auditService = new AuditService(this.cryptoFunctionService, this.apiService);

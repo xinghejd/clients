@@ -1392,6 +1392,9 @@
   "invalidPin": {
     "message": "Ugyldig PIN-kode."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "For mange ugyldige PIN-kodeforsøg. Logger ud."
+  },
   "unlockWithWindowsHello": {
     "message": "Oplås med Windows Hello"
   },
@@ -1543,6 +1546,10 @@
   "orgRequiresYouToSetPassword": {
     "message": "Organisationen kræver, at der oprettes en hovedadgangskode.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "verificationRequired": {
+    "message": "Bekræftelse kræves",
+    "description": "Default title for the user verification dialog."
   },
   "currentMasterPass": {
     "message": "Aktuel hovedadgangskode"
@@ -1868,6 +1875,42 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Din hovedadgangskode overholder ikke en eller flere organisationspolitikker. For at få adgang til boksen skal hovedadgangskode opdateres nu. Fortsættes, logges du ud af den nuværende session og vil skulle logger ind igen. Aktive sessioner på andre enheder kan forblive aktive i op til én time."
+  },
+  "tryAgain": {
+    "message": "Forsøg igen"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Bekræftelse kræves for denne handling. Opsæt en PIN-kode for at fortsætte."
+  },
+  "setPin": {
+    "message": "Opsæt PIN-kode"
+  },
+  "verifyWithBiometrics": {
+    "message": "Bekræft med biometri"
+  },
+  "awaitingConfirmation": {
+    "message": "Afventer bekræftelse"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Kunne ikke færdiggøre biometri."
+  },
+  "needADifferentMethod": {
+    "message": "Brug for en anden metode?"
+  },
+  "useMasterPassword": {
+    "message": "Brug hovedadgangskode"
+  },
+  "usePin": {
+    "message": "Brug PIN-kode"
+  },
+  "useBiometrics": {
+    "message": "Brug biometri"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Angiv bekræftelseskoden tilsendt pr. e-mail."
+  },
+  "resendCode": {
+    "message": "Send kode igen"
   },
   "hours": {
     "message": "Timer"
@@ -2562,6 +2605,15 @@
   "incorrectUsernameOrPassword": {
     "message": "Forkert brugernavn eller adgangskode"
   },
+  "incorrectPassword": {
+    "message": "Forkert adgangskode"
+  },
+  "incorrectCode": {
+    "message": "Forkert kode"
+  },
+  "incorrectPin": {
+    "message": "Forkert PIN-kode"
+  },
   "multifactorAuthenticationFailed": {
     "message": "Multifaktorgodkendelse mislykkedes"
   },
@@ -2616,5 +2668,9 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Indsæt den til LastPass-kontoen tilknyttede YubiKey i computers USB-port, og tryk dernæst på dens knap."
+  },
+  "commonImportFormats": {
+    "message": "Almindelige formater",
+    "description": "Label indicating the most common import formats"
   }
 }
