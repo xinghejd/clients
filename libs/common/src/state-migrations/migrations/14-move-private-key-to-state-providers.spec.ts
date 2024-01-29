@@ -3,7 +3,7 @@ import { MockProxy, any } from "jest-mock-extended";
 import { MigrationHelper } from "../migration-helper";
 import { mockMigrationHelper } from "../migration-helper.spec";
 
-import { PrivateKeyMigrator } from "./13-move-private-key-to-state-providers";
+import { PrivateKeyMigrator } from "./14-move-private-key-to-state-providers";
 
 function exampleJSON() {
   return {
@@ -64,8 +64,8 @@ describe("privateKeyMigrator", () => {
 
   describe("migrate", () => {
     beforeEach(() => {
-      helper = mockMigrationHelper(exampleJSON(), 11);
-      sut = new PrivateKeyMigrator(12, 13);
+      helper = mockMigrationHelper(exampleJSON(), 13);
+      sut = new PrivateKeyMigrator(13, 14);
     });
 
     it("should remove privateKey from all accounts", async () => {
@@ -93,8 +93,8 @@ describe("privateKeyMigrator", () => {
 
   describe("rollback", () => {
     beforeEach(() => {
-      helper = mockMigrationHelper(rollbackJSON(), 11);
-      sut = new PrivateKeyMigrator(12, 13);
+      helper = mockMigrationHelper(rollbackJSON(), 13);
+      sut = new PrivateKeyMigrator(13, 14);
     });
 
     it.each(["user-1", "user-2", "user-3"])("should null out new values %s", async (userId) => {
