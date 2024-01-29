@@ -41,7 +41,16 @@ function load() {
     startFilelessImport: chrome.i18n.getMessage("startFilelessImport"),
   };
 
-  setupLogoLink(i18n);
+  const logoLink = document.getElementById("logo-link") as HTMLAnchorElement;
+  logoLink.title = i18n.appName;
+
+  // Update logo link to user's regional domain
+  const webVaultURL = getQueryVariable("webVaultURL");
+  const newVaultURL = webVaultURL && decodeURIComponent(webVaultURL);
+
+  if (newVaultURL && newVaultURL !== logoLink.href) {
+    logoLink.href = newVaultURL;
+  }
 
   // i18n for "Add" template
   const addTemplate = document.getElementById("template-add") as HTMLTemplateElement;
@@ -310,18 +319,5 @@ function adjustHeight() {
   sendPlatformMessage({
     command: "bgAdjustNotificationBar",
     data,
-  });
-}
-
-function setupLogoLink(i18n: Record<string, string>) {
-  const logoLink = document.getElementById("logo-link") as HTMLAnchorElement;
-  logoLink.title = i18n.appName;
-
-  sendPlatformMessage({ command: "getWebVaultUrlForNotification" }, (webVaultURL) => {
-    const newVaultURL = webVaultURL && decodeURIComponent(webVaultURL);
-
-    if (newVaultURL && newVaultURL !== logoLink.href) {
-      logoLink.href = newVaultURL;
-    }
   });
 }
