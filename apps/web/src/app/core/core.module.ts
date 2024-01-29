@@ -30,6 +30,8 @@ import {
   GlobalStateProvider,
   SingleUserStateProvider,
 } from "@bitwarden/common/platform/state";
+// eslint-disable-next-line import/no-restricted-paths -- Implementation for memory storage
+import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@bitwarden/common/platform/state/storage/memory-storage.service";
 
 import { PolicyListService } from "../admin-console/core/policy-list.service";
 import { HtmlStorageService } from "../core/html-storage.service";
@@ -87,7 +89,7 @@ import { WebPlatformUtilsService } from "./web-platform-utils.service";
       provide: MEMORY_STORAGE,
       useClass: MemoryStorageService,
     },
-    { provide: OBSERVABLE_MEMORY_STORAGE, useExisting: MEMORY_STORAGE },
+    { provide: OBSERVABLE_MEMORY_STORAGE, useClass: MemoryStorageServiceForStateProviders },
     {
       provide: OBSERVABLE_DISK_STORAGE,
       useFactory: () => new WindowStorageService(window.sessionStorage),
@@ -120,14 +122,14 @@ import { WebPlatformUtilsService } from "./web-platform-utils.service";
     {
       provide: SingleUserStateProvider,
       useClass: WebSingleUserStateProvider,
-      deps: [MEMORY_STORAGE, OBSERVABLE_DISK_STORAGE, OBSERVABLE_DISK_LOCAL_STORAGE],
+      deps: [OBSERVABLE_MEMORY_STORAGE, OBSERVABLE_DISK_STORAGE, OBSERVABLE_DISK_LOCAL_STORAGE],
     },
     {
       provide: ActiveUserStateProvider,
       useClass: WebActiveUserStateProvider,
       deps: [
         AccountService,
-        MEMORY_STORAGE,
+        OBSERVABLE_MEMORY_STORAGE,
         OBSERVABLE_DISK_STORAGE,
         OBSERVABLE_DISK_LOCAL_STORAGE,
       ],
@@ -135,7 +137,7 @@ import { WebPlatformUtilsService } from "./web-platform-utils.service";
     {
       provide: GlobalStateProvider,
       useClass: WebGlobalStateProvider,
-      deps: [MEMORY_STORAGE, OBSERVABLE_DISK_STORAGE, OBSERVABLE_DISK_LOCAL_STORAGE],
+      deps: [OBSERVABLE_MEMORY_STORAGE, OBSERVABLE_DISK_STORAGE, OBSERVABLE_DISK_LOCAL_STORAGE],
     },
   ],
 })
