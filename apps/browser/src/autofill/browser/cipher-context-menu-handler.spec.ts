@@ -18,6 +18,7 @@ describe("CipherContextMenuHandler", () => {
 
   beforeEach(() => {
     mainContextMenuHandler = mock();
+    mainContextMenuHandler.initRunning = false;
     authService = mock();
     cipherService = mock();
 
