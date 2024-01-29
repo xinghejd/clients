@@ -221,6 +221,11 @@ export class MainContextMenuHandler {
     return true;
   }
 
+  /**
+   * Creates a context menu item
+   *
+   * @param options - the options for the context menu item
+   */
   private static create = (options: chrome.contextMenus.CreateProperties) => {
     if (!chrome.contextMenus) {
       return Promise.resolve();
