@@ -859,6 +859,7 @@ async function loadNotificationBar() {
       isVaultLocked: typeData.isVaultLocked,
       theme: typeData.theme,
       removeIndividualVault: typeData.removeIndividualVault,
+      webVaultURL: typeData.webVaultURL,
       importType: typeData.importType,
     };
     const barQueryString = new URLSearchParams(barQueryParams).toString();
