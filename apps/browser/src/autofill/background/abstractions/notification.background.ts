@@ -88,8 +88,6 @@ type NotificationBackgroundExtensionMessage = {
   notificationType?: string;
 };
 
-type SaveOrUpdateCipherResult = undefined | { error: string };
-
 type BackgroundMessageParam = { message: NotificationBackgroundExtensionMessage };
 type BackgroundSenderParam = { sender: chrome.runtime.MessageSender };
 type BackgroundOnMessageHandlerParams = BackgroundMessageParam & BackgroundSenderParam;
@@ -123,7 +121,6 @@ export {
   ChangePasswordMessageData,
   UnlockVaultMessageData,
   AddLoginMessageData,
-  SaveOrUpdateCipherResult,
   NotificationBackgroundExtensionMessage,
   NotificationBackgroundExtensionMessageHandlers,
 };
