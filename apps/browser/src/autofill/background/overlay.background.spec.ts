@@ -901,7 +901,7 @@ describe("OverlayBackground", () => {
           const message = {
             command: "unlockCompleted",
             data: {
-              commandToRetry: { msg: { command: "" } },
+              commandToRetry: { message: { command: "" } },
             },
           };
 
