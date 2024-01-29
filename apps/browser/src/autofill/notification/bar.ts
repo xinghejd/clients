@@ -2,11 +2,23 @@ import { ConsoleLogService } from "@bitwarden/common/platform/services/console-l
 import type { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
 import { FilelessImportPort, FilelessImportType } from "../../tools/enums/fileless-import.enums";
-import { AdjustNotificationBarMessageData } from "../background/abstractions/notification.background";
+import {
+  AdjustNotificationBarMessageData,
+  SaveOrUpdateCipherResult,
+} from "../background/abstractions/notification.background";
+
+import {
+  NotificationBarWindowMessageHandlers,
+  NotificationBarWindowMessage,
+} from "./abstractions/notification-bar";
 
 require("./bar.scss");
 
 const logService = new ConsoleLogService(false);
+let windowMessageOrigin: string;
+const notificationBarWindowMessageHandlers: NotificationBarWindowMessageHandlers = {
+  saveCipherAttemptCompleted: ({ message }) => handleSaveCipherAttemptCompletedMessage(message),
+};
 
 document.addEventListener("DOMContentLoaded", () => {
   // delay 50ms so that we get proper body dimensions
@@ -14,6 +26,8 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function load() {
+  setupWindowMessageListener();
+
   const theme = getQueryVariable("theme");
   document.documentElement.classList.add("theme_" + theme);
 
@@ -196,6 +210,27 @@ function sendSaveCipherMessage(edit: boolean, folder?: string) {
   });
 }
 
+function handleSaveCipherAttemptCompletedMessage(message: SaveOrUpdateCipherResult) {
+  const addSaveButtonContainers = document.querySelectorAll(".add-change-cipher-buttons");
+  if (message?.error) {
+    addSaveButtonContainers.forEach((element) => {
+      element.textContent = chrome.i18n.getMessage("saveCipherAttemptFailed");
+      element.classList.add("error-message");
+    });
+
+    logService.error(`Error encountered when saving credentials: ${message.error}`);
+    return;
+  }
+  const messageName =
+    getQueryVariable("type") === "add" ? "saveCipherAttemptSuccess" : "updateCipherAttemptSuccess";
+
+  addSaveButtonContainers.forEach((element) => {
+    element.textContent = chrome.i18n.getMessage(messageName);
+    element.classList.add("success-message");
+  });
+  setTimeout(() => sendPlatformMessage({ command: "bgCloseNotificationBar" }), 1250);
+}
+
 function handleTypeUnlock() {
   setContent(document.getElementById("template-unlock") as HTMLTemplateElement);
 
@@ -324,4 +359,26 @@ function setupLogoLink(i18n: Record<string, string>) {
       logoLink.href = newVaultURL;
     }
   });
+}
+
+function setupWindowMessageListener() {
+  globalThis.addEventListener("message", handleWindowMessage);
+}
+
+function handleWindowMessage(event: MessageEvent) {
+  if (!windowMessageOrigin) {
+    windowMessageOrigin = event.origin;
+  }
+
+  if (event.origin !== windowMessageOrigin) {
+    return;
+  }
+
+  const message = event.data as NotificationBarWindowMessage;
+  const handler = notificationBarWindowMessageHandlers[message.command];
+  if (!handler) {
+    return;
+  }
+
+  handler({ message });
 }
