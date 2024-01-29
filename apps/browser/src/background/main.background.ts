@@ -51,6 +51,7 @@ import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwar
 import {
   AbstractMemoryStorageService,
   AbstractStorageService,
+  ObservableStorageService,
 } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
@@ -63,6 +64,7 @@ import { ContainerService } from "@bitwarden/common/platform/services/container.
 import { EncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/encrypt.service.implementation";
 import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/multithread-encrypt.service.implementation";
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
+import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
 import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
 import {
@@ -124,6 +126,10 @@ import { SyncNotifierService } from "@bitwarden/common/vault/services/sync/sync-
 import { SyncService } from "@bitwarden/common/vault/services/sync/sync.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import {
+  IndividualVaultExportService,
+  IndividualVaultExportServiceAbstraction,
+  OrganizationVaultExportService,
+  OrganizationVaultExportServiceAbstraction,
   VaultExportService,
   VaultExportServiceAbstraction,
 } from "@bitwarden/exporter/vault-export";
@@ -184,6 +190,7 @@ export default class MainBackground {
   storageService: AbstractStorageService;
   secureStorageService: AbstractStorageService;
   memoryStorageService: AbstractMemoryStorageService;
+  memoryStorageForStateProviders: AbstractMemoryStorageService & ObservableStorageService;
   i18nService: I18nServiceAbstraction;
   platformUtilsService: PlatformUtilsServiceAbstraction;
   logService: LogServiceAbstraction;
@@ -253,6 +260,8 @@ export default class MainBackground {
   derivedStateProvider: DerivedStateProvider;
   stateProvider: StateProvider;
   fido2Service: Fido2ServiceAbstraction;
+  individualVaultExportService: IndividualVaultExportServiceAbstraction;
+  organizationVaultExportService: OrganizationVaultExportServiceAbstraction;
 
   // Passed to the popup for Safari to workaround issues with theming, downloading, etc.
   backgroundWindow = window;
@@ -308,9 +317,16 @@ export default class MainBackground {
             new EncryptServiceImplementation(this.cryptoFunctionService, this.logService, false),
             new KeyGenerationService(this.cryptoFunctionService),
           )
+        : new MemoryStorageService();
+    this.memoryStorageForStateProviders =
+      BrowserApi.manifestVersion === 3
+        ? new LocalBackedSessionStorageService(
+            new EncryptServiceImplementation(this.cryptoFunctionService, this.logService, false),
+            new KeyGenerationService(this.cryptoFunctionService),
+          )
         : new BackgroundMemoryStorageService();
     this.globalStateProvider = new DefaultGlobalStateProvider(
-      this.memoryStorageService as BackgroundMemoryStorageService,
+      this.memoryStorageForStateProviders,
       this.storageService as BrowserLocalStorageService,
     );
     this.encryptService = flagEnabled("multithreadDecryption")
@@ -322,7 +338,7 @@ export default class MainBackground {
       : new EncryptServiceImplementation(this.cryptoFunctionService, this.logService, true);
 
     this.singleUserStateProvider = new DefaultSingleUserStateProvider(
-      this.memoryStorageService as BackgroundMemoryStorageService,
+      this.memoryStorageForStateProviders,
       this.storageService as BrowserLocalStorageService,
     );
     this.accountService = new AccountServiceImplementation(
@@ -332,11 +348,11 @@ export default class MainBackground {
     );
     this.activeUserStateProvider = new DefaultActiveUserStateProvider(
       this.accountService,
-      this.memoryStorageService as BackgroundMemoryStorageService,
+      this.memoryStorageForStateProviders,
       this.storageService as BrowserLocalStorageService,
     );
     this.derivedStateProvider = new BackgroundDerivedStateProvider(
-      this.memoryStorageService as BackgroundMemoryStorageService,
+      this.memoryStorageForStateProviders,
     );
     this.stateProvider = new DefaultStateProvider(
       this.activeUserStateProvider,
@@ -489,22 +505,6 @@ export default class MainBackground {
 
     this.userVerificationApiService = new UserVerificationApiService(this.apiService);
 
-    this.pinCryptoService = new PinCryptoService(
-      this.stateService,
-      this.cryptoService,
-      this.vaultTimeoutSettingsService,
-      this.logService,
-    );
-
-    this.userVerificationService = new UserVerificationService(
-      this.stateService,
-      this.cryptoService,
-      this.i18nService,
-      this.userVerificationApiService,
-      this.pinCryptoService,
-      this.logService,
-    );
-
     this.configApiService = new ConfigApiService(this.apiService, this.authService);
 
     this.configService = new ConfigService(
@@ -540,6 +540,24 @@ export default class MainBackground {
       this.tokenService,
       this.policyService,
       this.stateService,
+    );
+
+    this.pinCryptoService = new PinCryptoService(
+      this.stateService,
+      this.cryptoService,
+      this.vaultTimeoutSettingsService,
+      this.logService,
+    );
+
+    this.userVerificationService = new UserVerificationService(
+      this.stateService,
+      this.cryptoService,
+      this.i18nService,
+      this.userVerificationApiService,
+      this.pinCryptoService,
+      this.logService,
+      this.vaultTimeoutSettingsService,
+      this.platformUtilsService,
     );
 
     this.vaultFilterService = new VaultFilterService(
@@ -633,14 +651,28 @@ export default class MainBackground {
       this.cryptoService,
     );
 
-    this.exportService = new VaultExportService(
+    this.individualVaultExportService = new IndividualVaultExportService(
       this.folderService,
+      this.cipherService,
+      this.cryptoService,
+      this.cryptoFunctionService,
+      this.stateService,
+    );
+
+    this.organizationVaultExportService = new OrganizationVaultExportService(
       this.cipherService,
       this.apiService,
       this.cryptoService,
       this.cryptoFunctionService,
       this.stateService,
+      this.collectionService,
     );
+
+    this.exportService = new VaultExportService(
+      this.individualVaultExportService,
+      this.organizationVaultExportService,
+    );
+
     this.notificationsService = new NotificationsService(
       this.logService,
       this.syncService,

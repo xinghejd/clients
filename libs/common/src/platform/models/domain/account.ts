@@ -124,10 +124,6 @@ export class AccountKeys {
   masterKey?: MasterKey;
   masterKeyEncryptedUserKey?: string;
   deviceKey?: ReturnType<SymmetricCryptoKey["toJSON"]>;
-  providerKeys?: EncryptionPair<any, Record<string, SymmetricCryptoKey>> = new EncryptionPair<
-    any,
-    Record<string, SymmetricCryptoKey>
-  >();
   privateKey?: EncryptionPair<string, Uint8Array> = new EncryptionPair<string, Uint8Array>();
   publicKey?: Uint8Array;
   apiKeyClientSecret?: string;
@@ -166,7 +162,6 @@ export class AccountKeys {
         obj?.cryptoSymmetricKey,
         SymmetricCryptoKey.fromJSON,
       ),
-      providerKeys: AccountKeys.initRecordEncryptionPairsFromJSON(obj?.providerKeys),
       privateKey: EncryptionPair.fromJSON<string, Uint8Array>(obj?.privateKey, (decObj: string) =>
         Utils.fromByteStringToArray(decObj),
       ),
