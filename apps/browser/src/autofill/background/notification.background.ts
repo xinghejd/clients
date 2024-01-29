@@ -605,6 +605,13 @@ export default class NotificationBackground {
     await BrowserApi.tabSendMessageData(sender.tab, "adjustNotificationBar", message.data);
   }
 
+  /**
+   * Accepts a login queue message and converts it into a
+   * login uri view, login view, and cipher view.
+   *
+   * @param message - The message to convert to a cipher view
+   * @param folderId - The folder to add the cipher to
+   */
   private convertAddLoginQueueMessageToCipherView(
     message: AddLoginQueueMessage,
     folderId?: string,
