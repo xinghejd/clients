@@ -193,14 +193,14 @@ describe("Password generator options builder", () => {
       expect(sanitizedOptions).toEqual(options);
     });
 
-    it("should set `wordSeparator` to '-' when it isn't supplied and there is no policy override", () => {
+    it("should set `wordSeparator` to '' when it isn't supplied and there is no policy override", () => {
       const policy = new PasswordGeneratorPolicyOptions();
       const builder = new PassphraseGeneratorOptionsEvaluator(policy);
       const options = Object.freeze({});
 
       const sanitizedOptions = builder.sanitize(options);
 
-      expect(sanitizedOptions.wordSeparator).toEqual("-");
+      expect(sanitizedOptions.wordSeparator).toEqual("");
     });
 
     it("should preserve unknown properties", () => {

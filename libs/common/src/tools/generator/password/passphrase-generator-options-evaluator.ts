@@ -95,7 +95,7 @@ export class PassphraseGeneratorOptionsEvaluator {
    */
   sanitize(options: PassphraseGenerationOptions): PassphraseGenerationOptions {
     // ensure words are separated by a single character
-    const wordSeparator = options.wordSeparator?.[0] ?? "-";
+    const wordSeparator = options.wordSeparator?.[0] ?? "";
 
     return {
       ...options,
