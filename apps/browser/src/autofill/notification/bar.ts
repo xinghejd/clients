@@ -373,10 +373,11 @@ function handleWindowMessage(event: MessageEvent) {
 function setupLogoLink(i18n: Record<string, string>) {
   const logoLink = document.getElementById("logo-link") as HTMLAnchorElement;
   logoLink.title = i18n.appName;
-  sendPlatformMessage({ command: "getWebVaultUrlForNotification" }, (webVaultURL) => {
+  const setWebVaultUrlLink = (webVaultURL: string) => {
     const newVaultURL = webVaultURL && decodeURIComponent(webVaultURL);
     if (newVaultURL && newVaultURL !== logoLink.href) {
       logoLink.href = newVaultURL;
     }
-  });
+  };
+  sendPlatformMessage({ command: "getWebVaultUrlForNotification" }, setWebVaultUrlLink);
 }
