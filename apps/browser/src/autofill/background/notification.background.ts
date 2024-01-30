@@ -548,6 +548,14 @@ export default class NotificationBackground {
     );
   }
 
+  /**
+   * Handles the unlockCompleted extension message. Will close the notification bar
+   * after an attempted autofill action, and retry the autofill action if the message
+   * contains a follow-up command.
+   *
+   * @param message - The extension message
+   * @param sender - The contextual sender of the message
+   */
   private async handleUnlockCompleted(
     message: NotificationBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
@@ -563,14 +571,12 @@ export default class NotificationBackground {
     }
 
     const retryHandler: CallableFunction | undefined = this.extensionMessageHandlers[retryCommand];
-    if (!retryHandler) {
-      return;
+    if (retryHandler) {
+      retryHandler({
+        message: messageData.commandToRetry.message,
+        sender: messageData.commandToRetry.sender,
+      });
     }
-
-    retryHandler({
-      message: messageData.commandToRetry.message,
-      sender: messageData.commandToRetry.sender,
-    });
   }
 
   private async handleCloseNotificationBarMessage(sender: chrome.runtime.MessageSender) {

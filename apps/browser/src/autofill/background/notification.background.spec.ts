@@ -6,12 +6,15 @@ import { EnvironmentService } from "@bitwarden/common/platform/services/environm
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
 
+import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserStateService } from "../../platform/services/browser-state.service";
 import { createChromeTabMock } from "../jest/autofill-mocks";
+import { flushPromises, sendExtensionRuntimeMessage } from "../jest/testing-utils";
 import AutofillService from "../services/autofill.service";
 
 import {
   AddLoginQueueMessage,
+  LockedVaultPendingNotificationsData,
   NotificationBackgroundExtensionMessage,
 } from "./abstractions/notification.background";
 import NotificationBackground from "./notification.background";
@@ -112,6 +115,52 @@ describe("NotificationBackground", () => {
       );
 
       expect(cipherView.folderId).toEqual(folderId);
+    });
+  });
+
+  describe("notification bar extension message handlers", () => {
+    beforeEach(async () => {
+      await notificationBackground.init();
+    });
+
+    describe("unlockCompleted message handler", () => {
+      it("sends a `closeNotificationBar` message if the retryCommand is for `autofill_login", async () => {
+        const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
+        const message: NotificationBackgroundExtensionMessage = {
+          command: "unlockCompleted",
+          data: {
+            commandToRetry: { message: { command: "autofill_login" } },
+          } as LockedVaultPendingNotificationsData,
+        };
+        jest.spyOn(BrowserApi, "tabSendMessageData").mockImplementation();
+
+        sendExtensionRuntimeMessage(message, sender);
+        await flushPromises();
+
+        expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
+          sender.tab,
+          "closeNotificationBar",
+        );
+      });
+
+      it("triggers a retryHandler if the message target is `notification.background` and a handler exists", async () => {
+        const message: NotificationBackgroundExtensionMessage = {
+          command: "unlockCompleted",
+          data: {
+            commandToRetry: { message: { command: "bgSaveCipher" } },
+            target: "notification.background",
+          } as LockedVaultPendingNotificationsData,
+        };
+        jest.spyOn(notificationBackground as any, "handleSaveCipherMessage").mockImplementation();
+
+        sendExtensionRuntimeMessage(message);
+        await flushPromises();
+
+        expect(notificationBackground["handleSaveCipherMessage"]).toHaveBeenCalledWith(
+          message.data.commandToRetry.message,
+          message.data.commandToRetry.sender,
+        );
+      });
     });
   });
 });
