@@ -416,7 +416,7 @@ export class Main {
     this.configApiService = new ConfigApiService(this.apiService, this.authService);
 
     this.configService = new CliConfigService(
-      this.stateService,
+      this.stateProvider,
       this.configApiService,
       this.authService,
       this.environmentService,
