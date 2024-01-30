@@ -94,7 +94,7 @@ export class PassphraseGeneratorOptionsEvaluator {
    *  @returns A passphrase generation request with cascade applied.
    */
   sanitize(options: PassphraseGenerationOptions): PassphraseGenerationOptions {
-    // ensure words are separated by a single character
+    // ensure words are separated by a single character or the empty string
     const wordSeparator = options.wordSeparator?.[0] ?? "";
 
     return {
