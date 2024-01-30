@@ -1,7 +1,7 @@
 import { Component, Input } from "@angular/core";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { OrganizationUserService } from "@bitwarden/common/abstractions/organization-user/organization-user.service";
+import { OrganizationUserService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
 import { BulkUserDetails } from "./bulk-status.component";
@@ -12,18 +12,28 @@ import { BulkUserDetails } from "./bulk-status.component";
 })
 export class BulkRemoveComponent {
   @Input() organizationId: string;
-  @Input() users: BulkUserDetails[];
+  @Input() set users(value: BulkUserDetails[]) {
+    this._users = value;
+    this.showNoMasterPasswordWarning = this._users.some((u) => u.hasMasterPassword === false);
+  }
+
+  get users(): BulkUserDetails[] {
+    return this._users;
+  }
+
+  private _users: BulkUserDetails[];
 
   statuses: Map<string, string> = new Map();
 
   loading = false;
   done = false;
   error: string;
+  showNoMasterPasswordWarning = false;
 
   constructor(
     protected apiService: ApiService,
     protected i18nService: I18nService,
-    private organizationUserService: OrganizationUserService
+    private organizationUserService: OrganizationUserService,
   ) {}
 
   async submit() {
@@ -46,7 +56,7 @@ export class BulkRemoveComponent {
   protected async deleteUsers() {
     return await this.organizationUserService.deleteManyOrganizationUsers(
       this.organizationId,
-      this.users.map((user) => user.id)
+      this.users.map((user) => user.id),
     );
   }
 

@@ -1,5 +1,5 @@
-import { SecureNoteType } from "@bitwarden/common/enums";
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+import { SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
+import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
@@ -66,7 +66,7 @@ export class NordPassCsvImporter extends BaseImporter implements Importer {
           cipher.card.cardholderName = this.getValueOrDefault(record.cardholdername);
           cipher.card.number = this.getValueOrDefault(record.cardnumber);
           cipher.card.code = this.getValueOrDefault(record.cvc);
-          cipher.card.brand = this.getCardBrand(cipher.card.number);
+          cipher.card.brand = CardView.getCardBrandByPatterns(cipher.card.number);
           this.setCardExpiration(cipher, record.expirydate);
           break;
 

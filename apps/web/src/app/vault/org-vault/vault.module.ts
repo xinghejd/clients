@@ -6,8 +6,10 @@ import { LooseComponentsModule } from "../../shared/loose-components.module";
 import { SharedModule } from "../../shared/shared.module";
 import { OrganizationBadgeModule } from "../../vault/individual-vault/organization-badge/organization-badge.module";
 import { PipesModule } from "../../vault/individual-vault/pipes/pipes.module";
+import { CollectionDialogModule } from "../components/collection-dialog";
 import { VaultItemsModule } from "../components/vault-items/vault-items.module";
 
+import { CollectionAccessRestrictedComponent } from "./collection-access-restricted.component";
 import { CollectionBadgeModule } from "./collection-badge/collection-badge.module";
 import { GroupBadgeModule } from "./group-badge/group-badge.module";
 import { VaultFilterModule } from "./vault-filter/vault-filter.module";
@@ -27,6 +29,8 @@ import { VaultComponent } from "./vault.component";
     PipesModule,
     BreadcrumbsModule,
     VaultItemsModule,
+    CollectionDialogModule,
+    CollectionAccessRestrictedComponent,
   ],
   declarations: [VaultComponent, VaultHeaderComponent],
   exports: [VaultComponent],

@@ -5,12 +5,12 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { CollectionView } from "@bitwarden/common/admin-console/models/view/collection.view";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
 import { VaultFilterService } from "./vault-filter.service";
@@ -39,7 +39,7 @@ describe("vault filter service", () => {
     organizations = new ReplaySubject<Organization[]>(1);
     folderViews = new ReplaySubject<FolderView[]>(1);
 
-    organizationService.organizations$ = organizations;
+    organizationService.memberOrganizations$ = organizations;
     folderService.folderViews$ = folderViews;
 
     vaultFilterService = new VaultFilterService(
@@ -48,7 +48,7 @@ describe("vault filter service", () => {
       folderService,
       cipherService,
       policyService,
-      i18nService
+      i18nService,
     );
   });
 
@@ -68,7 +68,7 @@ describe("vault filter service", () => {
       stateService.getCollapsedGroupings.mockResolvedValue(["1", "2"]);
 
       await expect(firstValueFrom(vaultFilterService.collapsedFilterNodes$)).resolves.toEqual(
-        nodes
+        nodes,
       );
     });
   });
@@ -143,6 +143,13 @@ describe("vault filter service", () => {
         await expect(firstValueFrom(vaultFilterService.filteredFolders$)).resolves.toEqual([
           createFolderView("folder test id", "test"),
         ]);
+      });
+
+      it("returns current organization", () => {
+        vaultFilterService.getOrganizationFilter().subscribe((org) => {
+          expect(org.id).toEqual("org test id");
+          expect(org.identifier).toEqual("Test Org");
+        });
       });
     });
 

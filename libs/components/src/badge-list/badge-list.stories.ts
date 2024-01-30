@@ -28,7 +28,8 @@ export default {
     }),
   ],
   args: {
-    badgeType: "primary",
+    variant: "primary",
+    truncate: false,
   },
   parameters: {
     design: {
@@ -44,13 +45,24 @@ export const Default: Story = {
   render: (args) => ({
     props: args,
     template: `
-      <bit-badge-list [badgeType]="badgeType" [maxItems]="maxItems" [items]="items"></bit-badge-list>
+      <bit-badge-list [variant]="variant" [maxItems]="maxItems" [items]="items" [truncate]="truncate"></bit-badge-list>
     `,
   }),
 
   args: {
-    badgeType: "info",
+    variant: "info",
     maxItems: 3,
     items: ["Badge 1", "Badge 2", "Badge 3", "Badge 4", "Badge 5"],
+    truncate: false,
+  },
+};
+
+export const Truncated: Story = {
+  ...Default,
+  args: {
+    variant: "info",
+    maxItems: 3,
+    items: ["Badge 1", "Badge 2 containing lengthy text", "Badge 3", "Badge 4", "Badge 5"],
+    truncate: true,
   },
 };

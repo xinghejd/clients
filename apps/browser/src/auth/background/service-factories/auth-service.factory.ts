@@ -6,10 +6,6 @@ import {
   PolicyServiceInitOptions,
 } from "../../../admin-console/background/service-factories/policy-service.factory";
 import {
-  passwordGenerationServiceFactory,
-  PasswordGenerationServiceInitOptions,
-} from "../../../background/service-factories/password-generation-service.factory";
-import {
   apiServiceFactory,
   ApiServiceInitOptions,
 } from "../../../platform/background/service-factories/api-service.factory";
@@ -51,7 +47,19 @@ import {
   stateServiceFactory,
   StateServiceInitOptions,
 } from "../../../platform/background/service-factories/state-service.factory";
+import {
+  passwordStrengthServiceFactory,
+  PasswordStrengthServiceInitOptions,
+} from "../../../tools/background/service_factories/password-strength-service.factory";
 
+import {
+  authRequestCryptoServiceFactory,
+  AuthRequestCryptoServiceInitOptions,
+} from "./auth-request-crypto-service.factory";
+import {
+  deviceTrustCryptoServiceFactory,
+  DeviceTrustCryptoServiceInitOptions,
+} from "./device-trust-crypto-service.factory";
 import {
   keyConnectorServiceFactory,
   KeyConnectorServiceInitOptions,
@@ -75,11 +83,13 @@ export type AuthServiceInitOptions = AuthServiceFactoyOptions &
   I18nServiceInitOptions &
   EncryptServiceInitOptions &
   PolicyServiceInitOptions &
-  PasswordGenerationServiceInitOptions;
+  PasswordStrengthServiceInitOptions &
+  DeviceTrustCryptoServiceInitOptions &
+  AuthRequestCryptoServiceInitOptions;
 
 export function authServiceFactory(
   cache: { authService?: AbstractAuthService } & CachedServices,
-  opts: AuthServiceInitOptions
+  opts: AuthServiceInitOptions,
 ): Promise<AbstractAuthService> {
   return factory(
     cache,
@@ -100,8 +110,10 @@ export function authServiceFactory(
         await twoFactorServiceFactory(cache, opts),
         await i18nServiceFactory(cache, opts),
         await encryptServiceFactory(cache, opts),
-        await passwordGenerationServiceFactory(cache, opts),
-        await policyServiceFactory(cache, opts)
-      )
+        await passwordStrengthServiceFactory(cache, opts),
+        await policyServiceFactory(cache, opts),
+        await deviceTrustCryptoServiceFactory(cache, opts),
+        await authRequestCryptoServiceFactory(cache, opts),
+      ),
   );
 }

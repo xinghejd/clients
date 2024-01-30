@@ -23,4 +23,9 @@ export class OrganizationCreateRequest {
   billingAddressState: string;
   billingAddressPostalCode: string;
   billingAddressCountry: string;
+
+  useSecretsManager: boolean;
+  additionalSmSeats: number;
+  additionalServiceAccounts: number;
+  isFromSecretsManagerTrial: boolean;
 }

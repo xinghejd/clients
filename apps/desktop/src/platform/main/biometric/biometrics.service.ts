@@ -17,7 +17,7 @@ export class BiometricsService implements BiometricsServiceAbstraction {
     private stateService: ElectronStateService,
     private logService: LogService,
     private messagingService: MessagingService,
-    private platform: NodeJS.Platform
+    private platform: NodeJS.Platform,
   ) {
     this.loadPlatformSpecificService(this.platform);
   }
@@ -27,6 +27,8 @@ export class BiometricsService implements BiometricsServiceAbstraction {
       this.loadWindowsHelloService();
     } else if (platform === "darwin") {
       this.loadMacOSService();
+    } else {
+      this.loadNoopBiometricsService();
     }
   }
 
@@ -37,7 +39,7 @@ export class BiometricsService implements BiometricsServiceAbstraction {
       this.i18nService,
       this.windowMain,
       this.stateService,
-      this.logService
+      this.logService,
     );
   }
 
@@ -45,6 +47,12 @@ export class BiometricsService implements BiometricsServiceAbstraction {
     // eslint-disable-next-line
     const BiometricDarwinMain = require("./biometric.darwin.main").default;
     this.platformSpecificService = new BiometricDarwinMain(this.i18nService, this.stateService);
+  }
+
+  private loadNoopBiometricsService() {
+    // eslint-disable-next-line
+    const NoopBiometricsService = require("./biometric.noop.main").default;
+    this.platformSpecificService = new NoopBiometricsService();
   }
 
   async init() {
@@ -81,7 +89,7 @@ export class BiometricsService implements BiometricsServiceAbstraction {
       (response) => {
         result = response;
         return !response;
-      }
+      },
     );
     return result;
   }
@@ -93,7 +101,7 @@ export class BiometricsService implements BiometricsServiceAbstraction {
       return await this.platformSpecificService.getBiometricKey(
         service,
         storageKey,
-        this.getClientKeyHalf(service, storageKey)
+        this.getClientKeyHalf(service, storageKey),
       );
     });
   }
@@ -105,7 +113,7 @@ export class BiometricsService implements BiometricsServiceAbstraction {
       service,
       storageKey,
       value,
-      this.getClientKeyHalf(service, storageKey)
+      this.getClientKeyHalf(service, storageKey),
     );
   }
 
@@ -133,7 +141,7 @@ export class BiometricsService implements BiometricsServiceAbstraction {
 
   private async interruptProcessReload<T>(
     callback: () => Promise<T>,
-    restartReloadCallback: (arg: T) => boolean = () => false
+    restartReloadCallback: (arg: T) => boolean = () => false,
   ): Promise<T> {
     this.messagingService.send("cancelProcessReload");
     let restartReload = false;

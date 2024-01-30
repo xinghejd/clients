@@ -8,22 +8,22 @@
         [attr.aria-label]="'memberStatusFilter' | i18n"
       >
         <bit-toggle [value]="null">
-          {{ "all" | i18n }} <span bitBadge badgeType="info" *ngIf="allCount">{{ allCount }}</span>
+          {{ "all" | i18n }} <span bitBadge variant="info" *ngIf="allCount">{{ allCount }}</span>
         </bit-toggle>
 
         <bit-toggle [value]="userStatusType.Invited">
           {{ "invited" | i18n }}
-          <span bitBadge badgeType="info" *ngIf="invitedCount">{{ invitedCount }}</span>
+          <span bitBadge variant="info" *ngIf="invitedCount">{{ invitedCount }}</span>
         </bit-toggle>
 
         <bit-toggle [value]="userStatusType.Accepted">
           {{ "needsConfirmation" | i18n }}
-          <span bitBadge badgeType="info" *ngIf="acceptedCount">{{ acceptedCount }}</span>
+          <span bitBadge variant="info" *ngIf="acceptedCount">{{ acceptedCount }}</span>
         </bit-toggle>
 
         <bit-toggle [value]="userStatusType.Revoked">
           {{ "revoked" | i18n }}
-          <span bitBadge badgeType="info" *ngIf="revokedCount">{{ revokedCount }}</span>
+          <span bitBadge variant="info" *ngIf="revokedCount">{{ revokedCount }}</span>
         </bit-toggle>
       </bit-toggle-group>
 
@@ -52,7 +52,7 @@
       !loading &&
       (isPaging()
         ? pagedUsers
-        : (users | search : searchText : 'name' : 'email' : 'id')) as searchedUsers
+        : (users | search: searchText : 'name' : 'email' : 'id')) as searchedUsers
     "
   >
     <p *ngIf="!searchedUsers.length">{{ "noMembersInList" | i18n }}</p>
@@ -99,6 +99,12 @@
               ></button>
 
               <bit-menu #headerMenu>
+                <ng-container *ngIf="canUseSecretsManager$ | async">
+                  <button type="button" bitMenuItem (click)="bulkEnableSM()">
+                    {{ "activateSecretsManager" | i18n }}
+                  </button>
+                  <bit-menu-divider></bit-menu-divider>
+                </ng-container>
                 <button type="button" bitMenuItem (click)="bulkReinvite()">
                   <i class="bwi bwi-fw bwi-envelope" aria-hidden="true"></i>
                   {{ "reinviteSelected" | i18n }}
@@ -154,21 +160,21 @@
                     <span
                       bitBadge
                       class="tw-text-xs"
-                      badgeType="secondary"
+                      variant="secondary"
                       *ngIf="u.status === userStatusType.Invited"
                       >{{ "invited" | i18n }}</span
                     >
                     <span
                       bitBadge
                       class="tw-text-xs"
-                      badgeType="warning"
+                      variant="warning"
                       *ngIf="u.status === userStatusType.Accepted"
                       >{{ "needsConfirmation" | i18n }}</span
                     >
                     <span
                       bitBadge
                       class="tw-text-xs"
-                      badgeType="secondary"
+                      variant="secondary"
                       *ngIf="u.status === userStatusType.Revoked"
                       >{{ "revoked" | i18n }}</span
                     >
@@ -189,7 +195,7 @@
                 *ngIf="organization.useGroups || !u.accessAll"
                 [items]="organization.useGroups ? u.groupNames : u.collectionNames"
                 [maxItems]="3"
-                badgeType="secondary"
+                variant="secondary"
               ></bit-badge-list>
               <span *ngIf="!organization.useGroups && u.accessAll">{{ "all" | i18n }}</span>
             </td>
@@ -317,7 +323,6 @@
   </ng-container>
   <ng-template #addEdit></ng-template>
   <ng-template #groupsTemplate></ng-template>
-  <ng-template #eventsTemplate></ng-template>
   <ng-template #confirmTemplate></ng-template>
   <ng-template #resetPasswordTemplate></ng-template>
   <ng-template #bulkStatusTemplate></ng-template>

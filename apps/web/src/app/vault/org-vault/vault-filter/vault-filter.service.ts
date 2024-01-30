@@ -3,16 +3,14 @@ import { map, Observable, ReplaySubject, Subject } from "rxjs";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { TreeNode } from "@bitwarden/common/models/domain/tree-node";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 
-import {
-  CollectionAdminService,
-  CollectionAdminView,
-} from "../../../admin-console/organizations/core";
 import { StateService } from "../../../core";
+import { CollectionAdminView } from "../../../vault/core/views/collection-admin.view";
+import { CollectionAdminService } from "../../core/collection-admin.service";
 import { VaultFilterService as BaseVaultFilterService } from "../../individual-vault/vault-filter/services/vault-filter.service";
 import { CollectionFilter } from "../../individual-vault/vault-filter/shared/models/vault-filter.type";
 
@@ -24,7 +22,7 @@ export class VaultFilterService extends BaseVaultFilterService implements OnDest
   filteredCollections$: Observable<CollectionAdminView[]> = this._collections.asObservable();
 
   collectionTree$: Observable<TreeNode<CollectionFilter>> = this.filteredCollections$.pipe(
-    map((collections) => this.buildCollectionTree(collections))
+    map((collections) => this.buildCollectionTree(collections)),
   );
 
   constructor(
@@ -34,7 +32,7 @@ export class VaultFilterService extends BaseVaultFilterService implements OnDest
     cipherService: CipherService,
     policyService: PolicyService,
     i18nService: I18nService,
-    protected collectionAdminService: CollectionAdminService
+    protected collectionAdminService: CollectionAdminService,
   ) {
     super(
       stateService,
@@ -42,7 +40,7 @@ export class VaultFilterService extends BaseVaultFilterService implements OnDest
       folderService,
       cipherService,
       policyService,
-      i18nService
+      i18nService,
     );
   }
 

@@ -28,7 +28,7 @@ export class ProjectServiceAccountsComponent implements OnInit, OnDestroy {
     this.accessPolicyService.projectAccessPolicyChanges$.pipe(
       startWith(null),
       switchMap(() =>
-        this.accessPolicyService.getProjectAccessPolicies(this.organizationId, this.projectId)
+        this.accessPolicyService.getProjectAccessPolicies(this.organizationId, this.projectId),
       ),
       map((policies) =>
         policies.serviceAccountAccessPolicies.map((policy) => ({
@@ -39,16 +39,26 @@ export class ProjectServiceAccountsComponent implements OnInit, OnDestroy {
           read: policy.read,
           write: policy.write,
           icon: AccessSelectorComponent.serviceAccountIcon,
-          static: true,
-        }))
-      )
+          static: false,
+        })),
+      ),
     );
+
+  protected async handleUpdateAccessPolicy(policy: AccessSelectorRowView) {
+    try {
+      return await this.accessPolicyService.updateAccessPolicy(
+        AccessSelectorComponent.getBaseAccessPolicyView(policy),
+      );
+    } catch (e) {
+      this.validationService.showError(e);
+    }
+  }
 
   protected handleCreateAccessPolicies(selected: SelectItemView[]) {
     const projectAccessPoliciesView = new ProjectAccessPoliciesView();
     projectAccessPoliciesView.serviceAccountAccessPolicies = selected
       .filter(
-        (selection) => AccessSelectorComponent.getAccessItemType(selection) === "serviceAccount"
+        (selection) => AccessSelectorComponent.getAccessItemType(selection) === "serviceAccount",
       )
       .map((filtered) => {
         const view = new ServiceAccountProjectAccessPolicyView();
@@ -62,7 +72,7 @@ export class ProjectServiceAccountsComponent implements OnInit, OnDestroy {
     return this.accessPolicyService.createProjectAccessPolicies(
       this.organizationId,
       this.projectId,
-      projectAccessPoliciesView
+      projectAccessPoliciesView,
     );
   }
 
@@ -77,7 +87,7 @@ export class ProjectServiceAccountsComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private validationService: ValidationService,
-    private accessPolicyService: AccessPolicyService
+    private accessPolicyService: AccessPolicyService,
   ) {}
 
   ngOnInit(): void {

@@ -1,6 +1,5 @@
 import { BehaviorSubject, concatMap } from "rxjs";
 
-import { SEND_KDF_ITERATIONS } from "../../../enums";
 import { CryptoFunctionService } from "../../../platform/abstractions/crypto-function.service";
 import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
@@ -9,12 +8,15 @@ import { Utils } from "../../../platform/misc/utils";
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { UserKey } from "../../../types/key";
 import { SendType } from "../enums/send-type";
 import { SendData } from "../models/data/send.data";
 import { Send } from "../models/domain/send";
 import { SendFile } from "../models/domain/send-file";
 import { SendText } from "../models/domain/send-text";
+import { SendWithIdRequest } from "../models/request/send-with-id.request";
 import { SendView } from "../models/view/send.view";
+import { SEND_KDF_ITERATIONS } from "../send-kdf";
 
 import { InternalSendService as InternalSendServiceAbstraction } from "./send.service.abstraction";
 
@@ -29,7 +31,7 @@ export class SendService implements InternalSendServiceAbstraction {
     private cryptoService: CryptoService,
     private i18nService: I18nService,
     private cryptoFunctionService: CryptoFunctionService,
-    private stateService: StateService
+    private stateService: StateService,
   ) {
     this.stateService.activeAccountUnlocked$
       .pipe(
@@ -47,7 +49,7 @@ export class SendService implements InternalSendServiceAbstraction {
           const data = await this.stateService.getEncryptedSends();
 
           await this.updateObservables(data);
-        })
+        }),
       )
       .subscribe();
   }
@@ -60,7 +62,7 @@ export class SendService implements InternalSendServiceAbstraction {
     model: SendView,
     file: File | ArrayBuffer,
     password: string,
-    key?: SymmetricCryptoKey
+    key?: SymmetricCryptoKey,
   ): Promise<[Send, EncArrayBuffer]> {
     let fileData: EncArrayBuffer = null;
     const send = new Send();
@@ -70,7 +72,7 @@ export class SendService implements InternalSendServiceAbstraction {
     send.hideEmail = model.hideEmail;
     send.maxAccessCount = model.maxAccessCount;
     if (model.key == null) {
-      model.key = await this.cryptoFunctionService.randomBytes(16);
+      model.key = await this.cryptoFunctionService.aesGenerateKey(128);
       model.cryptoKey = await this.cryptoService.makeSendKey(model.key);
     }
     if (password != null) {
@@ -78,7 +80,7 @@ export class SendService implements InternalSendServiceAbstraction {
         password,
         model.key,
         "sha256",
-        SEND_KDF_ITERATIONS
+        SEND_KDF_ITERATIONS,
       );
       send.password = Utils.fromBufferToB64(passwordHash);
     }
@@ -96,7 +98,7 @@ export class SendService implements InternalSendServiceAbstraction {
           const [name, data] = await this.encryptFileData(
             model.file.fileName,
             file,
-            model.cryptoKey
+            model.cryptoKey,
           );
           send.file.fileName = name;
           fileData = data;
@@ -143,9 +145,9 @@ export class SendService implements InternalSendServiceAbstraction {
     }
 
     decSends = [];
-    const hasKey = await this.cryptoService.hasKey();
+    const hasKey = await this.cryptoService.hasUserKey();
     if (!hasKey) {
-      throw new Error("No key.");
+      throw new Error("No user key found.");
     }
 
     const promises: Promise<any>[] = [];
@@ -212,6 +214,22 @@ export class SendService implements InternalSendServiceAbstraction {
     await this.stateService.setEncryptedSends(sends);
   }
 
+  async getRotatedKeys(newUserKey: UserKey): Promise<SendWithIdRequest[]> {
+    if (newUserKey == null) {
+      throw new Error("New user key is required for rotation.");
+    }
+
+    const requests = await Promise.all(
+      this._sends.value.map(async (send) => {
+        const sendKey = await this.cryptoService.decryptToBytes(send.key);
+        send.key = await this.cryptoService.encrypt(sendKey, newUserKey);
+        return new SendWithIdRequest(send);
+      }),
+    );
+    // separate return for easier debugging
+    return requests;
+  }
+
   private parseFile(send: Send, file: File, key: SymmetricCryptoKey): Promise<EncArrayBuffer> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -221,7 +239,7 @@ export class SendService implements InternalSendServiceAbstraction {
           const [name, data] = await this.encryptFileData(
             file.name,
             evt.target.result as ArrayBuffer,
-            key
+            key,
           );
           send.file.fileName = name;
           resolve(data);
@@ -238,10 +256,10 @@ export class SendService implements InternalSendServiceAbstraction {
   private async encryptFileData(
     fileName: string,
     data: ArrayBuffer,
-    key: SymmetricCryptoKey
+    key: SymmetricCryptoKey,
   ): Promise<[EncString, EncArrayBuffer]> {
     const encFileName = await this.cryptoService.encrypt(fileName, key);
-    const encFileData = await this.cryptoService.encryptToBytes(data, key);
+    const encFileData = await this.cryptoService.encryptToBytes(new Uint8Array(data), key);
     return [encFileName, encFileData];
   }
 
@@ -249,7 +267,7 @@ export class SendService implements InternalSendServiceAbstraction {
     const sends = Object.values(sendsMap || {}).map((f) => new Send(f));
     this._sends.next(sends);
 
-    if (await this.cryptoService.hasKey()) {
+    if (await this.cryptoService.hasUserKey()) {
       this._sendViews.next(await this.decryptSends(sends));
     }
   }

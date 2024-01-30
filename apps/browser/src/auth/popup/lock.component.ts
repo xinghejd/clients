@@ -2,14 +2,15 @@ import { Component, NgZone } from "@angular/core";
 import { Router } from "@angular/router";
 
 import { LockComponent as BaseLockComponent } from "@bitwarden/angular/auth/components/lock.component";
-import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
+import { PinCryptoServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { VaultTimeoutService } from "@bitwarden/common/abstractions/vaultTimeout/vaultTimeout.service";
-import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vaultTimeout/vaultTimeoutSettings.service";
+import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
+import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
+import { DeviceTrustCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust-crypto.service.abstraction";
+import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -18,9 +19,12 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
+import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
+import { DialogService } from "@bitwarden/components";
 
 import { BiometricErrors, BiometricErrorTypes } from "../../models/biometricErrors";
+import { BrowserRouterService } from "../../platform/popup/services/browser-router.service";
+import { fido2PopoutSessionData$ } from "../../vault/fido2/browser-fido2-user-interface.service";
 
 @Component({
   selector: "app-lock",
@@ -31,6 +35,7 @@ export class LockComponent extends BaseLockComponent {
 
   biometricError: string;
   pendingBiometric = false;
+  fido2PopoutSessionData$ = fido2PopoutSessionData$();
 
   constructor(
     router: Router,
@@ -44,13 +49,16 @@ export class LockComponent extends BaseLockComponent {
     stateService: StateService,
     apiService: ApiService,
     logService: LogService,
-    keyConnectorService: KeyConnectorService,
     ngZone: NgZone,
     policyApiService: PolicyApiServiceAbstraction,
     policyService: InternalPolicyService,
-    passwordGenerationService: PasswordGenerationServiceAbstraction,
+    passwordStrengthService: PasswordStrengthServiceAbstraction,
     private authService: AuthService,
-    dialogService: DialogServiceAbstraction
+    dialogService: DialogService,
+    deviceTrustCryptoService: DeviceTrustCryptoServiceAbstraction,
+    userVerificationService: UserVerificationService,
+    pinCryptoService: PinCryptoServiceAbstraction,
+    private routerService: BrowserRouterService,
   ) {
     super(
       router,
@@ -64,15 +72,26 @@ export class LockComponent extends BaseLockComponent {
       stateService,
       apiService,
       logService,
-      keyConnectorService,
       ngZone,
       policyApiService,
       policyService,
-      passwordGenerationService,
-      dialogService
+      passwordStrengthService,
+      dialogService,
+      deviceTrustCryptoService,
+      userVerificationService,
+      pinCryptoService,
     );
     this.successRoute = "/tabs/current";
     this.isInitialLockScreen = (window as any).previousPopupUrl == null;
+
+    super.onSuccessfulSubmit = async () => {
+      const previousUrl = this.routerService.getPreviousUrl();
+      if (previousUrl) {
+        this.router.navigateByUrl(previousUrl);
+      } else {
+        this.router.navigate([this.successRoute]);
+      }
+    };
   }
 
   async ngOnInit() {
@@ -81,7 +100,7 @@ export class LockComponent extends BaseLockComponent {
       (await this.stateService.getDisableAutoBiometricsPrompt()) ?? true;
 
     window.setTimeout(async () => {
-      document.getElementById(this.pinLock ? "pin" : "masterPassword").focus();
+      document.getElementById(this.pinEnabled ? "pin" : "masterPassword")?.focus();
       if (
         this.biometricLock &&
         !disableAutoBiometricsPrompt &&
@@ -93,7 +112,7 @@ export class LockComponent extends BaseLockComponent {
     }, 100);
   }
 
-  async unlockBiometric(): Promise<boolean> {
+  override async unlockBiometric(): Promise<boolean> {
     if (!this.biometricLock) {
       return;
     }

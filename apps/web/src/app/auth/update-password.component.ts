@@ -2,10 +2,9 @@ import { Component } from "@angular/core";
 import { Router } from "@angular/router";
 
 import { UpdatePasswordComponent as BaseUpdatePasswordComponent } from "@bitwarden/angular/auth/components/update-password.component";
-import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { UserVerificationService } from "@bitwarden/common/abstractions/userVerification/userVerification.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -13,6 +12,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
+import { DialogService } from "@bitwarden/components";
 
 @Component({
   selector: "app-update-password",
@@ -31,7 +31,7 @@ export class UpdatePasswordComponent extends BaseUpdatePasswordComponent {
     logService: LogService,
     stateService: StateService,
     userVerificationService: UserVerificationService,
-    dialogService: DialogServiceAbstraction
+    dialogService: DialogService,
   ) {
     super(
       router,
@@ -45,7 +45,7 @@ export class UpdatePasswordComponent extends BaseUpdatePasswordComponent {
       stateService,
       userVerificationService,
       logService,
-      dialogService
+      dialogService,
     );
   }
 }

@@ -11,8 +11,6 @@ import {
   ViewContainerRef,
 } from "@angular/core";
 
-import { ModalService } from "../../services/modal.service";
-
 import { ModalRef } from "./modal.ref";
 
 @Component({
@@ -31,11 +29,10 @@ export class DynamicModalComponent implements AfterViewInit, OnDestroy {
   private focusTrap: ConfigurableFocusTrap;
 
   constructor(
-    private modalService: ModalService,
     private cd: ChangeDetectorRef,
     private el: ElementRef<HTMLElement>,
     private focusTrapFactory: ConfigurableFocusTrapFactory,
-    public modalRef: ModalRef
+    public modalRef: ModalRef,
   ) {}
 
   ngAfterViewInit() {
@@ -47,7 +44,7 @@ export class DynamicModalComponent implements AfterViewInit, OnDestroy {
 
     this.modalRef.created(this.el.nativeElement);
     this.focusTrap = this.focusTrapFactory.create(
-      this.el.nativeElement.querySelector(".modal-dialog")
+      this.el.nativeElement.querySelector(".modal-dialog"),
     );
     if (this.el.nativeElement.querySelector("[appAutoFocus]") == null) {
       this.focusTrap.focusFirstTabbableElementWhenReady();
@@ -55,10 +52,8 @@ export class DynamicModalComponent implements AfterViewInit, OnDestroy {
   }
 
   loadChildComponent(componentType: Type<any>) {
-    const componentFactory = this.modalService.resolveComponentFactory(componentType);
-
     this.modalContentRef.clear();
-    this.componentRef = this.modalContentRef.createComponent(componentFactory);
+    this.componentRef = this.modalContentRef.createComponent(componentType);
   }
 
   ngOnDestroy() {

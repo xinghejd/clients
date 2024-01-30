@@ -41,6 +41,7 @@
         [allGroups]="allGroups"
         [disabled]="loading"
         [showOwner]="false"
+        [showPermissionsColumn]="true"
         [showCollections]="filter.type !== undefined"
         [showGroups]="
           organization?.useGroups &&
@@ -51,9 +52,13 @@
         [showBulkMove]="false"
         [showBulkTrashOptions]="filter.type === 'trash'"
         [useEvents]="organization?.useEvents"
-        [editableCollections]="true"
         [cloneableOrganizationCiphers]="true"
+        [showAdminActions]="true"
         (onEvent)="onVaultItemsEvent($event)"
+        [showBulkEditCollectionAccess]="
+          (showBulkEditCollectionAccess$ | async) && organization?.flexibleCollections
+        "
+        [viewingOrgVault]="true"
       >
       </app-vault-items>
       <div
@@ -96,5 +101,4 @@
   <ng-template #attachments></ng-template>
   <ng-template #cipherAddEdit></ng-template>
   <ng-template #collectionsModal></ng-template>
-  <ng-template #eventsTemplate></ng-template>
 </div>

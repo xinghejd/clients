@@ -1,12 +1,12 @@
 import { Component, OnDestroy } from "@angular/core";
 
 import { CollectionsComponent as BaseCollectionsComponent } from "@bitwarden/angular/admin-console/components/collections.component";
-import { CollectionService } from "@bitwarden/common/admin-console/abstractions/collection.service";
-import { CollectionView } from "@bitwarden/common/admin-console/models/view/collection.view";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
+import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 
 @Component({
   selector: "app-vault-collections",
@@ -18,7 +18,7 @@ export class CollectionsComponent extends BaseCollectionsComponent implements On
     platformUtilsService: PlatformUtilsService,
     i18nService: I18nService,
     cipherService: CipherService,
-    logService: LogService
+    logService: LogService,
   ) {
     super(collectionService, platformUtilsService, i18nService, cipherService, logService);
   }

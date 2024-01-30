@@ -1,13 +1,11 @@
 const child = require("child_process");
 const fs = require("fs");
 
-const del = require("del");
+const { rimraf } = require("rimraf");
 const gulp = require("gulp");
-const filter = require("gulp-filter");
 const gulpif = require("gulp-if");
 const jeditor = require("gulp-json-editor");
 const replace = require("gulp-replace");
-const zip = require("gulp-zip");
 
 const manifest = require("./src/manifest.json");
 
@@ -47,7 +45,10 @@ function distFileName(browserName, ext) {
   return `dist-${browserName}${buildString()}.${ext}`;
 }
 
-function dist(browserName, manifest) {
+async function dist(browserName, manifest) {
+  const { default: zip } = await import("gulp-zip");
+  const { default: filter } = await import("gulp-filter");
+
   return gulp
     .src(paths.build + "**/*")
     .pipe(filter(["**"].concat(filters.fonts).concat(filters.safari)))
@@ -60,6 +61,10 @@ function dist(browserName, manifest) {
 function distFirefox() {
   return dist("firefox", (manifest) => {
     delete manifest.storage;
+    delete manifest.sandbox;
+    manifest.optional_permissions = manifest.optional_permissions.filter(
+      (permission) => permission !== "privacy",
+    );
     return manifest;
   });
 }
@@ -129,7 +134,7 @@ function distSafariApp(cb, subBuildPath) {
     ];
   }
 
-  return del([buildPath + "**/*"])
+  return rimraf([buildPath + "**/*"], { glob: true })
     .then(() => safariCopyAssets(paths.safari + "**/*", buildPath))
     .then(() => safariCopyBuild(paths.build + "**/*", buildPath + "safari/app"))
     .then(() => {
@@ -143,7 +148,9 @@ function distSafariApp(cb, subBuildPath) {
       stdOutProc(proc);
       return new Promise((resolve) => proc.on("close", resolve));
     })
-    .then(() => {
+    .then(async () => {
+      const { default: filter } = await import("gulp-filter");
+
       const libs = fs
         .readdirSync(builtAppexFrameworkPath)
         .filter((p) => p.endsWith(".dylib"))
@@ -167,7 +174,7 @@ function distSafariApp(cb, subBuildPath) {
       },
       () => {
         return cb;
-      }
+      },
     );
 }
 
@@ -178,7 +185,7 @@ function safariCopyAssets(source, dest) {
       .on("error", reject)
       .pipe(gulpif("safari/Info.plist", replace("0.0.1", manifest.version)))
       .pipe(
-        gulpif("safari/Info.plist", replace("0.0.2", process.env.BUILD_NUMBER || manifest.version))
+        gulpif("safari/Info.plist", replace("0.0.2", process.env.BUILD_NUMBER || manifest.version)),
       )
       .pipe(gulpif("desktop.xcodeproj/project.pbxproj", replace("../../../build", "../safari/app")))
       .pipe(gulp.dest(dest))
@@ -186,7 +193,9 @@ function safariCopyAssets(source, dest) {
   });
 }
 
-function safariCopyBuild(source, dest) {
+async function safariCopyBuild(source, dest) {
+  const { default: filter } = await import("gulp-filter");
+
   return new Promise((resolve, reject) => {
     gulp
       .src(source)
@@ -202,8 +211,8 @@ function safariCopyBuild(source, dest) {
             delete manifest.optional_permissions;
             manifest.permissions.push("nativeMessaging");
             return manifest;
-          })
-        )
+          }),
+        ),
       )
       .pipe(gulp.dest(dest))
       .on("end", resolve);
@@ -215,7 +224,10 @@ function stdOutProc(proc) {
   proc.stderr.on("data", (data) => console.error(data.toString()));
 }
 
-function ciCoverage(cb) {
+async function ciCoverage(cb) {
+  const { default: zip } = await import("gulp-zip");
+  const { default: filter } = await import("gulp-filter");
+
   return gulp
     .src(paths.coverage + "**/*")
     .pipe(filter(["**", "!coverage/coverage*.zip"]))

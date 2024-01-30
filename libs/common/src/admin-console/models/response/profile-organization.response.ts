@@ -1,6 +1,6 @@
-import { ProductType, ProviderType } from "../../../enums";
+import { ProductType } from "../../../enums";
 import { BaseResponse } from "../../../models/response/base.response";
-import { OrganizationUserStatusType, OrganizationUserType } from "../../enums";
+import { OrganizationUserStatusType, OrganizationUserType, ProviderType } from "../../enums";
 import { PermissionsApi } from "../api/permissions.api";
 
 export class ProfileOrganizationResponse extends BaseResponse {
@@ -19,6 +19,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
   useCustomPermissions: boolean;
   useResetPassword: boolean;
   useSecretsManager: boolean;
+  usePasswordManager: boolean;
   useActivateAutofillPolicy: boolean;
   selfHost: boolean;
   usersGetPremium: boolean;
@@ -47,6 +48,9 @@ export class ProfileOrganizationResponse extends BaseResponse {
   familySponsorshipValidUntil?: Date;
   familySponsorshipToDelete?: boolean;
   accessSecretsManager: boolean;
+  limitCollectionCreationDeletion: boolean;
+  allowAdminAccessToAllCollectionItems: boolean;
+  flexibleCollections: boolean;
 
   constructor(response: any) {
     super(response);
@@ -65,6 +69,7 @@ export class ProfileOrganizationResponse extends BaseResponse {
     this.useCustomPermissions = this.getResponseProperty("UseCustomPermissions") ?? false;
     this.useResetPassword = this.getResponseProperty("UseResetPassword");
     this.useSecretsManager = this.getResponseProperty("UseSecretsManager");
+    this.usePasswordManager = this.getResponseProperty("UsePasswordManager");
     this.useActivateAutofillPolicy = this.getResponseProperty("UseActivateAutofillPolicy");
     this.selfHost = this.getResponseProperty("SelfHost");
     this.usersGetPremium = this.getResponseProperty("UsersGetPremium");
@@ -90,18 +95,25 @@ export class ProfileOrganizationResponse extends BaseResponse {
     this.keyConnectorEnabled = this.getResponseProperty("KeyConnectorEnabled") ?? false;
     this.keyConnectorUrl = this.getResponseProperty("KeyConnectorUrl");
     const familySponsorshipLastSyncDateString = this.getResponseProperty(
-      "FamilySponsorshipLastSyncDate"
+      "FamilySponsorshipLastSyncDate",
     );
     if (familySponsorshipLastSyncDateString) {
       this.familySponsorshipLastSyncDate = new Date(familySponsorshipLastSyncDateString);
     }
     const familySponsorshipValidUntilString = this.getResponseProperty(
-      "FamilySponsorshipValidUntil"
+      "FamilySponsorshipValidUntil",
     );
     if (familySponsorshipValidUntilString) {
       this.familySponsorshipValidUntil = new Date(familySponsorshipValidUntilString);
     }
     this.familySponsorshipToDelete = this.getResponseProperty("FamilySponsorshipToDelete");
     this.accessSecretsManager = this.getResponseProperty("AccessSecretsManager");
+    this.limitCollectionCreationDeletion = this.getResponseProperty(
+      "LimitCollectionCreationDeletion",
+    );
+    this.allowAdminAccessToAllCollectionItems = this.getResponseProperty(
+      "AllowAdminAccessToAllCollectionItems",
+    );
+    this.flexibleCollections = this.getResponseProperty("FlexibleCollections");
   }
 }

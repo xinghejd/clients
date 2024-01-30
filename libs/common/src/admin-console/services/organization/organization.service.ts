@@ -2,7 +2,7 @@ import { BehaviorSubject, concatMap, map, Observable } from "rxjs";
 
 import { StateService } from "../../../platform/abstractions/state.service";
 import {
-  InternalOrganizationService as InternalOrganizationServiceAbstraction,
+  InternalOrganizationServiceAbstraction,
   isMember,
 } from "../../abstractions/organization/organization.service.abstraction";
 import { OrganizationData } from "../../models/data/organization.data";
@@ -25,7 +25,7 @@ export class OrganizationService implements InternalOrganizationServiceAbstracti
 
           const data = await this.stateService.getOrganizations();
           this.updateObservables(data);
-        })
+        }),
       )
       .subscribe();
   }
@@ -42,7 +42,7 @@ export class OrganizationService implements InternalOrganizationServiceAbstracti
   async canManageSponsorships(): Promise<boolean> {
     const organizations = this._organizations.getValue();
     return organizations.some(
-      (o) => o.familySponsorshipAvailable || o.familySponsorshipFriendlyName !== null
+      (o) => o.familySponsorshipAvailable || o.familySponsorshipFriendlyName !== null,
     );
   }
 

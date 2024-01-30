@@ -1,5 +1,4 @@
-import { SecureNoteType } from "@bitwarden/common/enums";
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+import { SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
@@ -12,10 +11,10 @@ import { Importer } from "./importer";
 
 const mappedBaseColumns = ["nickname", "additionalInfo"];
 const _mappedUserAccountColumns = new Set(
-  mappedBaseColumns.concat(["url", "username", "password", "twofaSecret"])
+  mappedBaseColumns.concat(["url", "username", "password", "twofaSecret"]),
 );
 const _mappedCreditCardColumns = new Set(
-  mappedBaseColumns.concat(["cardNumber", "cardName", "exp_month", "exp_year", "cvv"])
+  mappedBaseColumns.concat(["cardNumber", "cardName", "exp_month", "exp_year", "cvv"]),
 );
 
 const _mappedIdentityColumns = new Set(
@@ -30,7 +29,7 @@ const _mappedIdentityColumns = new Set(
     "city",
     "country",
     "zipCode",
-  ])
+  ]),
 );
 
 const _mappedIdCardColumns = new Set(mappedBaseColumns.concat(["idName", "idNumber", "idCountry"]));
@@ -72,7 +71,7 @@ export class MykiCsvImporter extends BaseImporter implements Importer {
         cipher.type = CipherType.Card;
         cipher.card.cardholderName = this.getValueOrDefault(value.cardName);
         cipher.card.number = this.getValueOrDefault(value.cardNumber);
-        cipher.card.brand = this.getCardBrand(cipher.card.number);
+        cipher.card.brand = CardView.getCardBrandByPatterns(cipher.card.number);
         cipher.card.expMonth = this.getValueOrDefault(value.exp_month);
         cipher.card.expYear = this.getValueOrDefault(value.exp_year);
         cipher.card.code = this.getValueOrDefault(value.cvv);

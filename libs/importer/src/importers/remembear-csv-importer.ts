@@ -1,4 +1,4 @@
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 
 import { ImportResult } from "../models/import-result";
@@ -31,7 +31,7 @@ export class RememBearCsvImporter extends BaseImporter implements Importer {
         cipher.card = new CardView();
         cipher.card.cardholderName = this.getValueOrDefault(value.cardholder);
         cipher.card.number = this.getValueOrDefault(value.number);
-        cipher.card.brand = this.getCardBrand(cipher.card.number);
+        cipher.card.brand = CardView.getCardBrandByPatterns(cipher.card.number);
         cipher.card.code = this.getValueOrDefault(value.verification);
 
         try {
