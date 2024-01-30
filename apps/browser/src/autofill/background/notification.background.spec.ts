@@ -1,8 +1,10 @@
 import { mock } from "jest-mock-extended";
+import { firstValueFrom } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/services/policy/policy.service";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { EnvironmentService } from "@bitwarden/common/platform/services/environment.service";
+import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
 
@@ -18,6 +20,15 @@ import {
   NotificationBackgroundExtensionMessage,
 } from "./abstractions/notification.background";
 import NotificationBackground from "./notification.background";
+
+jest.mock("rxjs", () => {
+  const rxjs = jest.requireActual("rxjs");
+  const { firstValueFrom } = rxjs;
+  return {
+    ...rxjs,
+    firstValueFrom: jest.fn(firstValueFrom),
+  };
+});
 
 describe("NotificationBackground", () => {
   let notificationBackground: NotificationBackground;
@@ -160,6 +171,24 @@ describe("NotificationBackground", () => {
           message.data.commandToRetry.message,
           message.data.commandToRetry.sender,
         );
+      });
+    });
+
+    describe("bgGetFolderData message hander", () => {
+      it("returns a list of folders", async () => {
+        const folderView = mock<FolderView>({ id: "folder-id" });
+        const folderViews = [folderView];
+        const message: NotificationBackgroundExtensionMessage = {
+          command: "bgGetFolderData",
+        };
+        jest.spyOn(notificationBackground as any, "getFolderData");
+        (firstValueFrom as jest.Mock).mockResolvedValueOnce(folderViews);
+
+        sendExtensionRuntimeMessage(message);
+        await flushPromises();
+
+        expect(notificationBackground["getFolderData"]).toHaveBeenCalled();
+        expect(firstValueFrom).toHaveBeenCalled();
       });
     });
   });

@@ -538,6 +538,9 @@ export default class NotificationBackground {
     }
   }
 
+  /**
+   * Returns the first value found from the folder service's folderViews$ observable.
+   */
   private async getFolderData() {
     return await firstValueFrom(this.folderService.folderViews$);
   }
