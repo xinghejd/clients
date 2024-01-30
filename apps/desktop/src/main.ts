@@ -5,10 +5,17 @@ import { app } from "electron";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
+import { EnvironmentService } from "@bitwarden/common/platform/services/environment.service";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { NoopMessagingService } from "@bitwarden/common/platform/services/noop-messaging.service";
-// eslint-disable-next-line import/no-restricted-paths -- We need the implementation to inject, but generally this should not be accessed
+/* eslint-disable import/no-restricted-paths -- We need the implementation to inject, but generally this should not be accessed */
+import { DefaultActiveUserStateProvider } from "@bitwarden/common/platform/state/implementations/default-active-user-state.provider";
+import { DefaultDerivedStateProvider } from "@bitwarden/common/platform/state/implementations/default-derived-state.provider";
 import { DefaultGlobalStateProvider } from "@bitwarden/common/platform/state/implementations/default-global-state.provider";
+import { DefaultSingleUserStateProvider } from "@bitwarden/common/platform/state/implementations/default-single-user-state.provider";
+import { DefaultStateProvider } from "@bitwarden/common/platform/state/implementations/default-state.provider";
+import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@bitwarden/common/platform/state/storage/memory-storage.service";
+/*/ eslint-enable import/no-restricted-paths */
 
 import { MenuMain } from "./main/menu/menu.main";
 import { MessagingMain } from "./main/messaging.main";
@@ -32,8 +39,10 @@ export class Main {
   i18nService: I18nMainService;
   storageService: ElectronStorageService;
   memoryStorageService: MemoryStorageService;
+  memoryStorageForStateProviders: MemoryStorageServiceForStateProviders;
   messagingService: ElectronMainMessagingService;
   stateService: ElectronStateService;
+  environmentService: EnvironmentService;
   desktopCredentialStorageListener: DesktopCredentialStorageListener;
 
   windowMain: WindowMain;
@@ -88,10 +97,30 @@ export class Main {
     storageDefaults["global.vaultTimeoutAction"] = "lock";
     this.storageService = new ElectronStorageService(app.getPath("userData"), storageDefaults);
     this.memoryStorageService = new MemoryStorageService();
+    this.memoryStorageForStateProviders = new MemoryStorageServiceForStateProviders();
     const globalStateProvider = new DefaultGlobalStateProvider(
-      this.memoryStorageService,
+      this.memoryStorageForStateProviders,
       this.storageService,
     );
+
+    const accountService = new AccountServiceImplementation(
+      new NoopMessagingService(),
+      this.logService,
+      globalStateProvider,
+    );
+
+    const stateProvider = new DefaultStateProvider(
+      new DefaultActiveUserStateProvider(
+        accountService,
+        this.memoryStorageForStateProviders,
+        this.storageService,
+      ),
+      new DefaultSingleUserStateProvider(this.memoryStorageForStateProviders, this.storageService),
+      globalStateProvider,
+      new DefaultDerivedStateProvider(this.memoryStorageForStateProviders),
+    );
+
+    this.environmentService = new EnvironmentService(stateProvider, accountService);
 
     // TODO: this state service will have access to on disk storage, but not in memory storage.
     // If we could get this to work using the stateService singleton that the rest of the app uses we could save
@@ -102,11 +131,8 @@ export class Main {
       this.memoryStorageService,
       this.logService,
       new StateFactory(GlobalState, Account),
-      new AccountServiceImplementation(
-        new NoopMessagingService(),
-        this.logService,
-        globalStateProvider,
-      ), // will not broadcast logouts. This is a hack until we can remove messaging dependency
+      accountService, // will not broadcast logouts. This is a hack until we can remove messaging dependency
+      this.environmentService,
       false, // Do not use disk caching because this will get out of sync with the renderer service
     );
 
@@ -128,7 +154,7 @@ export class Main {
     this.menuMain = new MenuMain(
       this.i18nService,
       this.messagingService,
-      this.stateService,
+      this.environmentService,
       this.windowMain,
       this.updaterMain,
     );

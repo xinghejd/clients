@@ -5,7 +5,6 @@ import { PolicyData } from "../../admin-console/models/data/policy.data";
 import { ProviderData } from "../../admin-console/models/data/provider.data";
 import { Policy } from "../../admin-console/models/domain/policy";
 import { AdminAuthRequestStorable } from "../../auth/models/domain/admin-auth-req-storable";
-import { EnvironmentUrls } from "../../auth/models/domain/environment-urls";
 import { ForceSetPasswordReason } from "../../auth/models/domain/force-set-password-reason";
 import { KdfConfig } from "../../auth/models/domain/kdf-config";
 import { BiometricKey } from "../../auth/types/biometric-key";
@@ -217,11 +216,6 @@ export abstract class StateService<T extends Account = Account> {
   setDecryptedPolicies: (value: Policy[], options?: StorageOptions) => Promise<void>;
   getDecryptedPrivateKey: (options?: StorageOptions) => Promise<Uint8Array>;
   setDecryptedPrivateKey: (value: Uint8Array, options?: StorageOptions) => Promise<void>;
-  getDecryptedProviderKeys: (options?: StorageOptions) => Promise<Map<string, SymmetricCryptoKey>>;
-  setDecryptedProviderKeys: (
-    value: Map<string, SymmetricCryptoKey>,
-    options?: StorageOptions,
-  ) => Promise<void>;
   /**
    * @deprecated Do not call this directly, use SendService
    */
@@ -364,8 +358,6 @@ export abstract class StateService<T extends Account = Account> {
   ) => Promise<void>;
   getEncryptedPrivateKey: (options?: StorageOptions) => Promise<string>;
   setEncryptedPrivateKey: (value: string, options?: StorageOptions) => Promise<void>;
-  getEncryptedProviderKeys: (options?: StorageOptions) => Promise<any>;
-  setEncryptedProviderKeys: (value: any, options?: StorageOptions) => Promise<void>;
   /**
    * @deprecated Do not call this directly, use SendService
    */
@@ -378,10 +370,6 @@ export abstract class StateService<T extends Account = Account> {
   setEntityId: (value: string, options?: StorageOptions) => Promise<void>;
   getEntityType: (options?: StorageOptions) => Promise<any>;
   setEntityType: (value: string, options?: StorageOptions) => Promise<void>;
-  getEnvironmentUrls: (options?: StorageOptions) => Promise<EnvironmentUrls>;
-  setEnvironmentUrls: (value: EnvironmentUrls, options?: StorageOptions) => Promise<void>;
-  getRegion: (options?: StorageOptions) => Promise<string>;
-  setRegion: (value: string, options?: StorageOptions) => Promise<void>;
   getEquivalentDomains: (options?: StorageOptions) => Promise<string[][]>;
   setEquivalentDomains: (value: string, options?: StorageOptions) => Promise<void>;
   getEventCollection: (options?: StorageOptions) => Promise<EventData[]>;

@@ -2816,6 +2816,9 @@
   "incorrectCode": {
     "message": "Code incorrect"
   },
+  "incorrectPin": {
+    "message": "Code PIN incorrect"
+  },
   "exportedVault": {
     "message": "Le coffre a été exporté."
   },
@@ -6604,6 +6607,39 @@
       }
     }
   },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Vérification requise pour cette action. Définissez un code PIN pour continuer."
+  },
+  "setPin": {
+    "message": "Définir le code PIN"
+  },
+  "verifyWithBiometrics": {
+    "message": "Vérifier par biométrie"
+  },
+  "awaitingConfirmation": {
+    "message": "En attente de confirmation"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Impossible de compléter la biométrie."
+  },
+  "needADifferentMethod": {
+    "message": "Besoin d'une méthode différente ?"
+  },
+  "useMasterPassword": {
+    "message": "Utiliser le mot de passe principal"
+  },
+  "usePin": {
+    "message": "Utiliser le code PIN"
+  },
+  "useBiometrics": {
+    "message": "Utiliser la biométrie"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Entrez le code de vérification qui a été envoyé à votre adresse courriel."
+  },
+  "resendCode": {
+    "message": "Renvoyer le code"
+  },
   "membersColumnHeader": {
     "message": "Membre/Groupe"
   },
@@ -7086,6 +7122,10 @@
       }
     }
   },
+  "verificationRequired": {
+    "message": "Vérification requise",
+    "description": "Default title for the user verification dialog."
+  },
   "recoverAccount": {
     "message": "Récupérer le compte"
   },
@@ -7325,8 +7365,8 @@
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Les propriétaires et les administrateurs peuvent gérer toutes les collections et tous les éléments"
   },
-  "collectionManagementUpdated": {
-    "message": "Comportement de gestion de la collection enregistré"
+  "updatedCollectionManagement": {
+    "message": "Paramètre de gestion de la collection mis à jour"
   },
   "passwordManagerPlanPrice": {
     "message": "Prix du plan du Gestionnaire de Mots de Passe"
@@ -7392,12 +7432,6 @@
   "skipToContent": {
     "message": "Sauter directement au contenu"
   },
-  "customBillingStart": {
-    "message": "La facturation personnalisée n'est pas reflétée. Visitez la "
-  },
-  "customBillingEnd": {
-    "message": " page pour la dernière facturation."
-  },
   "managePermissionRequired": {
     "message": "Au moins un membre ou un groupe doit avoir la permission peut gérer."
   },
@@ -7453,5 +7487,26 @@
   "commonImportFormats": {
     "message": "Formats communs",
     "description": "Label indicating the most common import formats"
+  },
+  "maintainYourSubscription": {
+    "message": "Afin de maintenir votre abonnement pour $ORG$, ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Example Inc."
+      }
+    }
+  },
+  "addAPaymentMethod": {
+    "message": "ajouter un moyen de paiement",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
+  },
+  "collectionEnhancementsDesc": {
+    "message": "Ajoutez de nouveaux paramètres et autorisations pour une flexibilité additionnelle. Remplacez le rôle de Gestionnaire avec l'autorisation \"peut gérer\", et introduisez des options pour autoriser les utilisateurs à créer des collections tout comme à restreindre l'accès administratif aux collections.",
+    "description": "This describes new features and improvements for user roles and collections"
+  },
+  "collectionEnhancementsLearnMore": {
+    "message": "En savoir plus sur la gestion des collections"
   }
 }
