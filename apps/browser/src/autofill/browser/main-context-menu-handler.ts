@@ -226,9 +226,9 @@ export class MainContextMenuHandler {
    *
    * @param options - the options for the context menu item
    */
-  private static create = (options: chrome.contextMenus.CreateProperties) => {
+  private static create = async (options: chrome.contextMenus.CreateProperties) => {
     if (!chrome.contextMenus) {
-      return Promise.resolve();
+      return;
     }
 
     return new Promise<void>((resolve, reject) => {
