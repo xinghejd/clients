@@ -13,7 +13,7 @@ import {
 } from "./environment-service.factory";
 import { FactoryOptions, CachedServices, factory } from "./factory-options";
 import { logServiceFactory, LogServiceInitOptions } from "./log-service.factory";
-import { stateServiceFactory, StateServiceInitOptions } from "./state-service.factory";
+import { stateProviderFactory, StateProviderInitOptions } from "./state-provider.factory";
 
 type ConfigServiceFactoryOptions = FactoryOptions & {
   configServiceOptions?: {
@@ -22,7 +22,7 @@ type ConfigServiceFactoryOptions = FactoryOptions & {
 };
 
 export type ConfigServiceInitOptions = ConfigServiceFactoryOptions &
-  StateServiceInitOptions &
+  StateProviderInitOptions &
   ConfigApiServiceInitOptions &
   AuthServiceInitOptions &
   EnvironmentServiceInitOptions &
@@ -38,7 +38,7 @@ export function configServiceFactory(
     opts,
     async () =>
       new ConfigService(
-        await stateServiceFactory(cache, opts),
+        await stateProviderFactory(cache, opts),
         await configApiServiceFactory(cache, opts),
         await authServiceFactory(cache, opts),
         await environmentServiceFactory(cache, opts),
