@@ -16,7 +16,7 @@ import {
   ThirdPartyServerConfigResponse,
 } from "../../models/response/server-config.response";
 
-import { ConfigService, SERVER_CONFIG_KEY } from "./config.service";
+import { ConfigService, SERVER } from "./config.service";
 
 describe("ConfigService", () => {
   let stateProvider: FakeStateProvider;
@@ -64,7 +64,7 @@ describe("ConfigService", () => {
 
   it("Uses storage as fallback", (done) => {
     const storedConfigData = serverConfigDataFactory("storedConfig");
-    const configFake = stateProvider.activeUser.getFake(SERVER_CONFIG_KEY);
+    const configFake = stateProvider.activeUser.getFake(SERVER);
     configFake.nextState(storedConfigData);
 
     configApiService.get.mockRejectedValueOnce(new Error("Unable to fetch"));
@@ -82,7 +82,7 @@ describe("ConfigService", () => {
 
   it("Stream does not error out if fetch fails", (done) => {
     const storedConfigData = serverConfigDataFactory("storedConfig");
-    const configFake = stateProvider.activeUser.getFake(SERVER_CONFIG_KEY);
+    const configFake = stateProvider.activeUser.getFake(SERVER);
     configFake.nextState(storedConfigData);
 
     const configService = configServiceFactory();
@@ -105,7 +105,7 @@ describe("ConfigService", () => {
 
   describe("Fetches config from server", () => {
     beforeEach(() => {
-      const configFake = stateProvider.activeUser.getFake(SERVER_CONFIG_KEY);
+      const configFake = stateProvider.activeUser.getFake(SERVER);
       configFake.nextState(null);
     });
 
@@ -162,7 +162,7 @@ describe("ConfigService", () => {
   });
 
   it("Saves server config to storage when the user is logged in", (done) => {
-    const configFake = stateProvider.activeUser.getFake(SERVER_CONFIG_KEY);
+    const configFake = stateProvider.activeUser.getFake(SERVER);
     configFake.nextState(null);
     authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.Locked);
     const configService = configServiceFactory();

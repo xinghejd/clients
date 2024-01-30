@@ -25,8 +25,7 @@ import { ActiveUserState, CONFIG_DISK, KeyDefinition, StateProvider } from "../.
 
 const ONE_HOUR_IN_MILLISECONDS = 1000 * 3600;
 
-// QUESTION: Just server and not repeat "config"?
-export const SERVER_CONFIG_KEY = new KeyDefinition<ServerConfigData>(CONFIG_DISK, "serverConfig", {
+export const SERVER = new KeyDefinition<ServerConfigData>(CONFIG_DISK, "server", {
   deserializer: (jsonValue) => ServerConfigData.fromJSON(jsonValue),
 });
 
@@ -55,7 +54,7 @@ export class ConfigService implements ConfigServiceAbstraction {
     // Used to avoid duplicate subscriptions, e.g. in browser between the background and popup
     private subscribe = true,
   ) {
-    this.serverConfigState = this.stateProvider.getActive(SERVER_CONFIG_KEY);
+    this.serverConfigState = this.stateProvider.getActive(SERVER);
   }
 
   init() {

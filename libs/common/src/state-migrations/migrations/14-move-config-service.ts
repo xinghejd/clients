@@ -4,7 +4,7 @@ import { Migrator } from "../migrator";
 type ExpectedAccountType = { settings?: { serverConfig?: unknown } };
 
 const SERVER_CONFIG_KEY: KeyDefinitionLike = {
-  key: "serverConfig",
+  key: "server",
   stateDefinition: { name: "config" },
 };
 

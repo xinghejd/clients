@@ -40,7 +40,7 @@ describe("MoveConfigService", () => {
           foo: "Bar",
         },
       },
-      user_user1_config_serverConfig: {
+      user_user1_config_server: {
         featureStates: {
           "trusted-device-encryption": true,
           "fido2-vault-credentials": true,
@@ -137,7 +137,7 @@ describe("MoveConfigService", () => {
       authenticatedAccounts: ["user1", "user2"],
       user1: { settings: {} },
       user2: { settings: {} },
-      user_user1_config_serverConfig: {
+      user_user1_config_server: {
         featureStates: {
           "trusted-device-encryption": true,
           "fido2-vault-credentials": true,
@@ -155,7 +155,7 @@ describe("MoveConfigService", () => {
           sso: "http://127.0.0.1:51822",
         },
       },
-      user_user2_config_serverConfig: {
+      user_user2_config_server: {
         featureStates: {
           "trusted-device-encryption": false,
           "fido2-vault-credentials": false,
@@ -185,8 +185,8 @@ describe("MoveConfigService", () => {
         user1: null,
         user2: { settings: null },
         user3: { settings: { foo: "bar" } },
-        user_user1_config_serverConfig: {},
-        user_user2_config_serverConfig: {
+        user_user1_config_server: {},
+        user_user2_config_server: {
           featureStates: {
             "trusted-device-encryption": false,
             "fido2-vault-credentials": false,
@@ -205,7 +205,7 @@ describe("MoveConfigService", () => {
             sso: "http://localhost:51822",
           },
         },
-        user_user3_config_serverConfig: null,
+        user_user3_config_server: null,
       },
       "rollback",
     );
@@ -241,9 +241,9 @@ describe("MoveConfigService", () => {
         },
       },
       user3: { settings: { foo: "bar" } },
-      user_user1_config_serverConfig: null,
-      user_user2_config_serverConfig: null,
-      user_user3_config_serverConfig: null,
+      user_user1_config_server: null,
+      user_user2_config_server: null,
+      user_user3_config_server: null,
     });
   });
 });
