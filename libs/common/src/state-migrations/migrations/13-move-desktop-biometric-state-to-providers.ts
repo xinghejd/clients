@@ -3,25 +3,31 @@ import { Migrator } from "../migrator";
 
 type ExpectedAccountType = {
   settings?: {
+    disableAutoBiometricsPrompt?: boolean;
     biometricUnlock?: boolean;
     dismissedBiometricRequirePasswordOnStartCallout?: boolean;
   };
   keys?: { biometricEncryptionClientKeyHalf?: string };
 };
 
-// Biometric text and no auto prompt text is refreshed on every app start, so we don't need to migrate it
+// Biometric text, no auto prompt text, fingerprint validated, and prompt cancelled are refreshed on every app start, so we don't need to migrate them
 
 export const BIOMETRIC_UNLOCK_ENABLED: KeyDefinitionLike = {
   key: "biometricUnlockEnabled",
-  stateDefinition: { name: "desktopBiometricSettings" },
+  stateDefinition: { name: "biometricSettings" },
 };
 export const DISMISSED_BIOMETRIC_REQUIRE_PASSWORD_ON_START_CALLOUT: KeyDefinitionLike = {
   key: "dismissedBiometricRequirePasswordOnStartCallout",
-  stateDefinition: { name: "desktopBiometricSettings" },
+  stateDefinition: { name: "biometricSettings" },
 };
 export const ENCRYPTED_CLIENT_KEY_HALF: KeyDefinitionLike = {
   key: "clientKeyHalf",
-  stateDefinition: { name: "desktopBiometricSettings" },
+  stateDefinition: { name: "biometricSettings" },
+};
+
+export const PROMPT_AUTOMATICALLY: KeyDefinitionLike = {
+  key: "promptAutomatically",
+  stateDefinition: { name: "biometricSettings" },
 };
 
 export class MoveDesktopBiometricStateToProviders extends Migrator<12, 13> {
@@ -58,10 +64,19 @@ export class MoveDesktopBiometricStateToProviders extends Migrator<12, 13> {
           );
         }
 
+        if (account?.settings?.disableAutoBiometricsPrompt != null) {
+          await helper.setToUser(
+            userId,
+            PROMPT_AUTOMATICALLY,
+            !account.settings.disableAutoBiometricsPrompt,
+          );
+        }
+
         // Delete old account data
         delete account?.settings?.biometricUnlock;
         delete account?.settings?.dismissedBiometricRequirePasswordOnStartCallout;
         delete account?.keys?.biometricEncryptionClientKeyHalf;
+        delete account?.settings?.disableAutoBiometricsPrompt;
         await helper.set(userId, account);
       }),
     );
@@ -104,6 +119,20 @@ export class MoveDesktopBiometricStateToProviders extends Migrator<12, 13> {
         updatedAccount = true;
         account.keys.biometricEncryptionClientKeyHalf = userKeyHalf;
         await helper.setToUser(userId, ENCRYPTED_CLIENT_KEY_HALF, null);
+      }
+
+      const userPromptAutomatically = await helper.getFromUser<boolean>(
+        userId,
+        PROMPT_AUTOMATICALLY,
+      );
+
+      if (userPromptAutomatically != null) {
+        account ??= {};
+        account.settings ??= {};
+
+        updatedAccount = true;
+        account.settings.disableAutoBiometricsPrompt = !userPromptAutomatically;
+        await helper.setToUser(userId, PROMPT_AUTOMATICALLY, null);
       }
 
       if (updatedAccount) {

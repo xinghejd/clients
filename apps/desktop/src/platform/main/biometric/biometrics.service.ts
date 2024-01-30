@@ -3,11 +3,11 @@ import { firstValueFrom } from "rxjs";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { WindowMain } from "../../../main/window.main";
 
-import { BiometricStateService } from "./biometric-state.service";
 import { BiometricsServiceAbstraction, OsBiometricService } from "./biometrics.service.abstraction";
 
 export class BiometricsService implements BiometricsServiceAbstraction {

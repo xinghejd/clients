@@ -1,17 +1,16 @@
 import { firstValueFrom } from "rxjs";
 
-import { makeEncString } from "@bitwarden/common/spec";
-import { UserId } from "@bitwarden/common/types/guid";
-
-import { mockAccountServiceWith } from "../../../../../../libs/common/spec/fake-account-service";
-import { FakeStateProvider } from "../../../../../../libs/common/spec/fake-state-provider";
+import { makeEncString } from "../../../spec";
+import { mockAccountServiceWith } from "../../../spec/fake-account-service";
+import { FakeStateProvider } from "../../../spec/fake-state-provider";
+import { UserId } from "../../types/guid";
 
 import { BiometricStateService, DefaultBiometricStateService } from "./biometric-state.service";
 import {
-  BIOMETRIC_NO_AUTO_PROMPT_TEXT,
+  NO_AUTO_PROMPT_TEXT,
   BIOMETRIC_TEXT,
   BIOMETRIC_UNLOCK_ENABLED,
-  DISMISSED_BIOMETRIC_REQUIRE_PASSWORD_ON_START_CALLOUT,
+  DISMISSED_REQUIRE_PASSWORD_ON_START_CALLOUT,
   ENCRYPTED_CLIENT_KEY_HALF,
 } from "./biometric.state";
 
@@ -73,9 +72,7 @@ describe("BiometricStateService", () => {
 
   describe("dismissedBiometricRequirePasswordOnStartCallout$", () => {
     it("should track the dismissedBiometricRequirePasswordOnStartCallout state", async () => {
-      const state = stateProvider.activeUser.getFake(
-        DISMISSED_BIOMETRIC_REQUIRE_PASSWORD_ON_START_CALLOUT,
-      );
+      const state = stateProvider.activeUser.getFake(DISMISSED_REQUIRE_PASSWORD_ON_START_CALLOUT);
       state.nextState(undefined);
 
       expect(await firstValueFrom(sut.dismissedBiometricRequirePasswordOnStartCallout$)).toBe(
@@ -103,7 +100,7 @@ describe("BiometricStateService", () => {
 
   describe("biometricNoAutoPromptText$", () => {
     it("should track the biometricNoAutoPromptText state", async () => {
-      const state = stateProvider.global.getFake(BIOMETRIC_NO_AUTO_PROMPT_TEXT);
+      const state = stateProvider.global.getFake(NO_AUTO_PROMPT_TEXT);
       state.nextState(undefined);
 
       expect(await firstValueFrom(sut.biometricNoAutoPromptText$)).toBe(undefined);

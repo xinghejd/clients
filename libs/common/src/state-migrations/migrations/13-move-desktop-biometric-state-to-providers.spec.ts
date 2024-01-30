@@ -4,10 +4,10 @@ import { MigrationHelper } from "../migration-helper";
 import { mockMigrationHelper } from "../migration-helper.spec";
 
 import {
+  MoveDesktopBiometricStateToProviders,
   BIOMETRIC_UNLOCK_ENABLED,
   DISMISSED_BIOMETRIC_REQUIRE_PASSWORD_ON_START_CALLOUT,
   ENCRYPTED_CLIENT_KEY_HALF,
-  MoveDesktopBiometricStateToProviders,
 } from "./13-move-desktop-biometric-state-to-providers";
 
 function exampleJSON() {
@@ -18,6 +18,7 @@ function exampleJSON() {
     authenticatedAccounts: ["user-1", "user-2", "user-3"],
     "user-1": {
       settings: {
+        disableAutoBiometricsPrompt: false,
         biometricUnlock: true,
         dismissedBiometricRequirePasswordOnStartCallout: true,
         otherStuff: "otherStuff2",
@@ -39,9 +40,10 @@ function exampleJSON() {
 
 function rollbackJSON() {
   return {
-    "user_user-1_biometric_biometricUnlockEnabled": true,
-    "user_user-1_biometric_dismissedBiometricRequirePasswordOnStartCallout": true,
-    "user_user-1_biometric_clientKeyHalf": "user1-key-half",
+    "user_user-1_biometricSettings_biometricUnlockEnabled": true,
+    "user_user-1_biometricSettings_dismissedBiometricRequirePasswordOnStartCallout": true,
+    "user_user-1_biometricSettings_clientKeyHalf": "user1-key-half",
+    "user_user-1_biometricSettings_promptAutomatically": "false",
     global: {
       otherStuff: "otherStuff1",
     },
@@ -70,7 +72,7 @@ describe("DesktopBiometricState migrator", () => {
 
   describe("migrate", () => {
     beforeEach(() => {
-      helper = mockMigrationHelper(exampleJSON(), 10);
+      helper = mockMigrationHelper(exampleJSON(), 12);
       sut = new MoveDesktopBiometricStateToProviders(12, 13);
     });
 
@@ -123,13 +125,13 @@ describe("DesktopBiometricState migrator", () => {
     it("should not call extra setToUser", async () => {
       await sut.migrate(helper);
 
-      expect(helper.setToUser).toHaveBeenCalledTimes(3);
+      expect(helper.setToUser).toHaveBeenCalledTimes(4);
     });
   });
 
   describe("rollback", () => {
     beforeEach(() => {
-      helper = mockMigrationHelper(rollbackJSON(), 10);
+      helper = mockMigrationHelper(rollbackJSON(), 13);
       sut = new MoveDesktopBiometricStateToProviders(12, 13);
     });
 
@@ -149,6 +151,7 @@ describe("DesktopBiometricState migrator", () => {
       expect(helper.set).toHaveBeenCalledTimes(1);
       expect(helper.set).toHaveBeenCalledWith("user-1", {
         settings: {
+          disableAutoBiometricsPrompt: false,
           biometricUnlock: true,
           dismissedBiometricRequirePasswordOnStartCallout: true,
           otherStuff: "otherStuff2",
