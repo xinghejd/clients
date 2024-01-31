@@ -78,6 +78,12 @@ export default class NotificationBackground {
     this.cleanupNotificationQueue();
   }
 
+  /**
+   * Checks the notification queue for any messages that need to be sent to the
+   * specified tab. If no tab is specified, the current tab will be used.
+   *
+   * @param tab - The tab to check the notification queue for
+   */
   async checkNotificationQueue(tab: chrome.tabs.Tab = null): Promise<void> {
     if (this.notificationQueue.length === 0) {
       return;
@@ -159,6 +165,12 @@ export default class NotificationBackground {
       : ThemeType.Light;
   }
 
+  /**
+   * Removes any login messages from the notification queue that
+   * are associated with the specified tab.
+   *
+   * @param tab - The tab to remove messages for
+   */
   private removeTabFromNotificationQueue(tab: chrome.tabs.Tab) {
     for (let i = this.notificationQueue.length - 1; i >= 0; i--) {
       if (this.notificationQueue[i].tab.id === tab.id) {
@@ -246,6 +258,13 @@ export default class NotificationBackground {
     await this.checkNotificationQueue(tab);
   }
 
+  /**
+   * Adds a change password message to the notification queue, prompting the user
+   * to update the password for a login that has changed.
+   *
+   * @param message - The message to add to the queue
+   * @param sender - The contextual sender of the message
+   */
   private async changedPassword(
     message: NotificationBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
@@ -278,6 +297,12 @@ export default class NotificationBackground {
     }
   }
 
+  /**
+   * Sends the page details to the notification bar. Will query all
+   * forms with a password field and pass them to the notification bar.
+   *
+   * @param message - The extension message
+   */
   private async handleCollectPageDetailsResponseMessage(
     message: NotificationBackgroundExtensionMessage,
   ) {
@@ -514,6 +539,11 @@ export default class NotificationBackground {
     return null;
   }
 
+  /**
+   * Saves the current tab's domain to the never save list.
+   *
+   * @param tab - The tab that sent the neverSave message
+   */
   private async saveNever(tab: chrome.tabs.Tab) {
     for (let i = this.notificationQueue.length - 1; i >= 0; i--) {
       const queueMessage = this.notificationQueue[i];

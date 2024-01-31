@@ -12,12 +12,15 @@ import { FolderService } from "@bitwarden/common/vault/services/folder/folder.se
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserStateService } from "../../platform/services/browser-state.service";
-import { createChromeTabMock } from "../jest/autofill-mocks";
+import { NotificationQueueMessageType } from "../enums/notification-queue-message-type.enum";
+import { createAutofillPageDetailsMock, createChromeTabMock } from "../jest/autofill-mocks";
 import { flushPromises, sendExtensionRuntimeMessage } from "../jest/testing-utils";
+import { FormData } from "../services/abstractions/autofill.service";
 import AutofillService from "../services/autofill.service";
 
 import {
   AddLoginQueueMessage,
+  AddUnlockVaultQueueMessage,
   LockedVaultPendingNotificationsData,
   NotificationBackgroundExtensionMessage,
 } from "./abstractions/notification.background";
@@ -56,23 +59,6 @@ describe("NotificationBackground", () => {
 
   afterEach(() => {
     jest.clearAllMocks();
-  });
-
-  describe("unlockVault", () => {
-    it("returns early if the message indicates that the notification should be skipped", async () => {
-      const tabMock = createChromeTabMock();
-      const message: NotificationBackgroundExtensionMessage = {
-        command: "bgUnlockPopoutOpened",
-        data: { skipNotification: true },
-      };
-      jest.spyOn(notificationBackground["authService"], "getAuthStatus");
-      jest.spyOn(notificationBackground as any, "pushUnlockVaultToQueue");
-
-      await notificationBackground["unlockVault"](message, tabMock);
-
-      expect(notificationBackground["authService"].getAuthStatus).not.toHaveBeenCalled();
-      expect(notificationBackground["pushUnlockVaultToQueue"]).not.toHaveBeenCalled();
-    });
   });
 
   describe("convertAddLoginQueueMessageToCipherView", () => {
@@ -134,6 +120,15 @@ describe("NotificationBackground", () => {
   describe("notification bar extension message handlers", () => {
     beforeEach(async () => {
       await notificationBackground.init();
+    });
+
+    it("ignores messages whose command does not match the expected handlers", () => {
+      const message: NotificationBackgroundExtensionMessage = { command: "unknown" };
+      jest.spyOn(notificationBackground as any, "handleSaveCipherMessage");
+
+      sendExtensionRuntimeMessage(message);
+
+      expect(notificationBackground["handleSaveCipherMessage"]).not.toHaveBeenCalled();
     });
 
     describe("unlockCompleted message handler", () => {
@@ -427,6 +422,491 @@ describe("NotificationBackground", () => {
           login.password,
           sender.tab,
         );
+      });
+    });
+
+    describe("bgChangedPassword message handler", () => {
+      let tab: chrome.tabs.Tab;
+      let sender: chrome.runtime.MessageSender;
+      let getAuthStatusSpy: jest.SpyInstance;
+      let pushChangePasswordToQueueSpy: jest.SpyInstance;
+      let getAllDecryptedForUrlSpy: jest.SpyInstance;
+
+      beforeEach(() => {
+        tab = createChromeTabMock();
+        sender = mock<chrome.runtime.MessageSender>({ tab });
+        getAuthStatusSpy = jest.spyOn(authService, "getAuthStatus");
+        pushChangePasswordToQueueSpy = jest.spyOn(
+          notificationBackground as any,
+          "pushChangePasswordToQueue",
+        );
+        getAllDecryptedForUrlSpy = jest.spyOn(cipherService, "getAllDecryptedForUrl");
+      });
+
+      it("skips attempting to add the change password message to the queue if the passed url is not valid", async () => {
+        const message: NotificationBackgroundExtensionMessage = {
+          command: "bgChangedPassword",
+          data: { newPassword: "newPassword", currentPassword: "currentPassword", url: "" },
+        };
+
+        sendExtensionRuntimeMessage(message);
+        await flushPromises();
+
+        expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
+      });
+
+      it("adds a change password message to the queue if the user does not have an unlocked account", async () => {
+        const message: NotificationBackgroundExtensionMessage = {
+          command: "bgChangedPassword",
+          data: {
+            newPassword: "newPassword",
+            currentPassword: "currentPassword",
+            url: "https://example.com",
+          },
+        };
+        getAuthStatusSpy.mockResolvedValueOnce(AuthenticationStatus.Locked);
+
+        sendExtensionRuntimeMessage(message, sender);
+        await flushPromises();
+
+        expect(getAuthStatusSpy).toHaveBeenCalled();
+        expect(pushChangePasswordToQueueSpy).toHaveBeenCalledWith(
+          null,
+          "example.com",
+          message.data.newPassword,
+          sender.tab,
+          true,
+        );
+      });
+
+      it("skips adding a change password message to the queue if the multiple ciphers exist for the passed URL and the current password is not found within the list of ciphers", async () => {
+        const message: NotificationBackgroundExtensionMessage = {
+          command: "bgChangedPassword",
+          data: {
+            newPassword: "newPassword",
+            currentPassword: "currentPassword",
+            url: "https://example.com",
+          },
+        };
+        getAuthStatusSpy.mockResolvedValueOnce(AuthenticationStatus.Unlocked);
+        getAllDecryptedForUrlSpy.mockResolvedValueOnce([
+          mock<CipherView>({ login: { username: "test", password: "password" } }),
+        ]);
+
+        sendExtensionRuntimeMessage(message, sender);
+        await flushPromises();
+
+        expect(getAuthStatusSpy).toHaveBeenCalled();
+        expect(getAllDecryptedForUrlSpy).toHaveBeenCalled();
+        expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
+      });
+
+      it("skips adding a change password message if more than one existing cipher is found with a matching password ", async () => {
+        const message: NotificationBackgroundExtensionMessage = {
+          command: "bgChangedPassword",
+          data: {
+            newPassword: "newPassword",
+            currentPassword: "currentPassword",
+            url: "https://example.com",
+          },
+        };
+        getAuthStatusSpy.mockResolvedValueOnce(AuthenticationStatus.Unlocked);
+        getAllDecryptedForUrlSpy.mockResolvedValueOnce([
+          mock<CipherView>({ login: { username: "test", password: "password" } }),
+          mock<CipherView>({ login: { username: "test2", password: "password" } }),
+        ]);
+
+        sendExtensionRuntimeMessage(message, sender);
+        await flushPromises();
+
+        expect(getAuthStatusSpy).toHaveBeenCalled();
+        expect(getAllDecryptedForUrlSpy).toHaveBeenCalled();
+        expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
+      });
+
+      it("adds a change password message to the queue if a single cipher matches the passed current password", async () => {
+        const message: NotificationBackgroundExtensionMessage = {
+          command: "bgChangedPassword",
+          data: {
+            newPassword: "newPassword",
+            currentPassword: "currentPassword",
+            url: "https://example.com",
+          },
+        };
+        getAuthStatusSpy.mockResolvedValueOnce(AuthenticationStatus.Unlocked);
+        getAllDecryptedForUrlSpy.mockResolvedValueOnce([
+          mock<CipherView>({
+            id: "cipher-id",
+            login: { username: "test", password: "currentPassword" },
+          }),
+        ]);
+
+        sendExtensionRuntimeMessage(message, sender);
+        await flushPromises();
+
+        expect(pushChangePasswordToQueueSpy).toHaveBeenCalledWith(
+          "cipher-id",
+          "example.com",
+          message.data.newPassword,
+          sender.tab,
+        );
+      });
+
+      it("skips adding a change password message if no current password is passed in the message and more than one cipher is found for a url", async () => {
+        const message: NotificationBackgroundExtensionMessage = {
+          command: "bgChangedPassword",
+          data: {
+            newPassword: "newPassword",
+            url: "https://example.com",
+          },
+        };
+        getAuthStatusSpy.mockResolvedValueOnce(AuthenticationStatus.Unlocked);
+        getAllDecryptedForUrlSpy.mockResolvedValueOnce([
+          mock<CipherView>({ login: { username: "test", password: "password" } }),
+          mock<CipherView>({ login: { username: "test2", password: "password" } }),
+        ]);
+
+        sendExtensionRuntimeMessage(message, sender);
+        await flushPromises();
+
+        expect(getAuthStatusSpy).toHaveBeenCalled();
+        expect(getAllDecryptedForUrlSpy).toHaveBeenCalled();
+        expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
+      });
+
+      it("adds a change password message to the queue if no current password is passed with the message, but a single cipher is matched for the uri", async () => {
+        const message: NotificationBackgroundExtensionMessage = {
+          command: "bgChangedPassword",
+          data: {
+            newPassword: "newPassword",
+            url: "https://example.com",
+          },
+        };
+        getAuthStatusSpy.mockResolvedValueOnce(AuthenticationStatus.Unlocked);
+        getAllDecryptedForUrlSpy.mockResolvedValueOnce([
+          mock<CipherView>({
+            id: "cipher-id",
+            login: { username: "test", password: "password" },
+          }),
+        ]);
+
+        sendExtensionRuntimeMessage(message, sender);
+        await flushPromises();
+
+        expect(pushChangePasswordToQueueSpy).toHaveBeenCalledWith(
+          "cipher-id",
+          "example.com",
+          message.data.newPassword,
+          sender.tab,
+        );
+      });
+    });
+
+    describe("bgRemoveTabFromNotificationQueue message handler", () => {
+      it("splices a notification queue item based on the passed tab", async () => {
+        const tab = createChromeTabMock({ id: 2 });
+        const sender = mock<chrome.runtime.MessageSender>({ tab });
+        const message: NotificationBackgroundExtensionMessage = {
+          command: "bgRemoveTabFromNotificationQueue",
+        };
+        const removeTabFromNotificationQueueSpy = jest.spyOn(
+          notificationBackground as any,
+          "removeTabFromNotificationQueue",
+        );
+        const firstQueueMessage = mock<AddLoginQueueMessage>({
+          tab: createChromeTabMock({ id: 1 }),
+        });
+        const secondQueueMessage = mock<AddLoginQueueMessage>({ tab });
+        const thirdQueueMessage = mock<AddLoginQueueMessage>({
+          tab: createChromeTabMock({ id: 3 }),
+        });
+        notificationBackground["notificationQueue"] = [
+          firstQueueMessage,
+          secondQueueMessage,
+          thirdQueueMessage,
+        ];
+
+        sendExtensionRuntimeMessage(message, sender);
+        await flushPromises();
+
+        expect(removeTabFromNotificationQueueSpy).toHaveBeenCalledWith(tab);
+        expect(notificationBackground["notificationQueue"]).toEqual([
+          firstQueueMessage,
+          thirdQueueMessage,
+        ]);
+      });
+    });
+
+    describe("bgNeverSave message handler", () => {
+      let tabSendMessageDataSpy: jest.SpyInstance;
+
+      beforeEach(() => {
+        tabSendMessageDataSpy = jest.spyOn(BrowserApi, "tabSendMessageData");
+      });
+
+      it("skips saving the domain as a never value if the passed tab does not exist within the notification queue", async () => {
+        const tab = createChromeTabMock({ id: 2 });
+        const sender = mock<chrome.runtime.MessageSender>({ tab });
+        const message: NotificationBackgroundExtensionMessage = { command: "bgNeverSave" };
+        notificationBackground["notificationQueue"] = [
+          mock<AddLoginQueueMessage>({
+            tab: createChromeTabMock({ id: 1 }),
+          }),
+          mock<AddLoginQueueMessage>({
+            tab: createChromeTabMock({ id: 3 }),
+          }),
+        ];
+
+        sendExtensionRuntimeMessage(message, sender);
+        await flushPromises();
+
+        expect(tabSendMessageDataSpy).not.toHaveBeenCalled();
+      });
+
+      it("skips saving the domain as a never value if the tab does not contain an addLogin message within the NotificationQueue", async () => {
+        const tab = createChromeTabMock({ id: 2 });
+        const sender = mock<chrome.runtime.MessageSender>({ tab });
+        const message: NotificationBackgroundExtensionMessage = { command: "bgNeverSave" };
+        notificationBackground["notificationQueue"] = [
+          mock<AddUnlockVaultQueueMessage>({ type: NotificationQueueMessageType.UnlockVault, tab }),
+        ];
+
+        sendExtensionRuntimeMessage(message, sender);
+        await flushPromises();
+
+        expect(tabSendMessageDataSpy).not.toHaveBeenCalled();
+      });
+
+      it("skips saving the domain as a never value if the tab url does not match the queue message domain", async () => {
+        const tab = createChromeTabMock({ id: 2, url: "https://example.com" });
+        const sender = mock<chrome.runtime.MessageSender>({ tab });
+        const message: NotificationBackgroundExtensionMessage = { command: "bgNeverSave" };
+        notificationBackground["notificationQueue"] = [
+          mock<AddLoginQueueMessage>({
+            type: NotificationQueueMessageType.AddLogin,
+            tab,
+            domain: "another.com",
+          }),
+        ];
+
+        sendExtensionRuntimeMessage(message, sender);
+        await flushPromises();
+
+        expect(tabSendMessageDataSpy).not.toHaveBeenCalled();
+      });
+
+      it("saves the tabs domain as a never value and closes the notification bar", async () => {
+        const tab = createChromeTabMock({ id: 2, url: "https://example.com" });
+        const sender = mock<chrome.runtime.MessageSender>({ tab });
+        const message: NotificationBackgroundExtensionMessage = { command: "bgNeverSave" };
+        const firstNotification = mock<AddLoginQueueMessage>({
+          type: NotificationQueueMessageType.AddLogin,
+          tab,
+          domain: "example.com",
+        });
+        const secondNotification = mock<AddLoginQueueMessage>({
+          type: NotificationQueueMessageType.AddLogin,
+          tab: createChromeTabMock({ id: 3 }),
+          domain: "another.com",
+        });
+        notificationBackground["notificationQueue"] = [firstNotification, secondNotification];
+        jest.spyOn(cipherService, "saveNeverDomain").mockImplementation();
+
+        sendExtensionRuntimeMessage(message, sender);
+        await flushPromises();
+
+        expect(tabSendMessageDataSpy).toHaveBeenCalledWith(tab, "closeNotificationBar");
+        expect(cipherService.saveNeverDomain).toHaveBeenCalledWith("example.com");
+        expect(notificationBackground["notificationQueue"]).toEqual([secondNotification]);
+      });
+    });
+
+    describe("collectPageDetailsResponse", () => {
+      let tabSendMessageDataSpy: jest.SpyInstance;
+
+      beforeEach(() => {
+        tabSendMessageDataSpy = jest.spyOn(BrowserApi, "tabSendMessageData");
+      });
+
+      it("skips sending the `notificationBarPageDetails` message if the message sender is not `notificationBar`", async () => {
+        const message: NotificationBackgroundExtensionMessage = {
+          command: "collectPageDetailsResponse",
+          sender: "not-notificationBar",
+        };
+
+        sendExtensionRuntimeMessage(message);
+        await flushPromises();
+
+        expect(tabSendMessageDataSpy).not.toHaveBeenCalled();
+      });
+
+      it("sends a `notificationBarPageDetails` message with the forms with password fields", async () => {
+        const tab = createChromeTabMock();
+        const message: NotificationBackgroundExtensionMessage = {
+          command: "collectPageDetailsResponse",
+          sender: "notificationBar",
+          details: createAutofillPageDetailsMock(),
+          tab,
+        };
+        const formData = [mock<FormData>()];
+        jest.spyOn(autofillService, "getFormsWithPasswordFields").mockReturnValueOnce(formData);
+
+        sendExtensionRuntimeMessage(message);
+        await flushPromises();
+
+        expect(tabSendMessageDataSpy).toHaveBeenCalledWith(
+          message.tab,
+          "notificationBarPageDetails",
+          {
+            details: message.details,
+            forms: formData,
+          },
+        );
+      });
+    });
+
+    describe("bgUnlockPopoutOpened message handler", () => {
+      let getAuthStatusSpy: jest.SpyInstance;
+      let pushUnlockVaultToQueueSpy: jest.SpyInstance;
+
+      beforeEach(() => {
+        getAuthStatusSpy = jest.spyOn(authService, "getAuthStatus");
+        pushUnlockVaultToQueueSpy = jest.spyOn(
+          notificationBackground as any,
+          "pushUnlockVaultToQueue",
+        );
+      });
+
+      it("skips pushing the unlock vault message to the queue if the message indicates that the notification should be skipped", async () => {
+        const tabMock = createChromeTabMock();
+        const sender = mock<chrome.runtime.MessageSender>({ tab: tabMock });
+        const message: NotificationBackgroundExtensionMessage = {
+          command: "bgUnlockPopoutOpened",
+          data: { skipNotification: true },
+        };
+
+        sendExtensionRuntimeMessage(message, sender);
+        await flushPromises();
+
+        expect(getAuthStatusSpy).not.toHaveBeenCalled();
+        expect(pushUnlockVaultToQueueSpy).not.toHaveBeenCalled();
+      });
+
+      it("skips pushing the unlock vault message to the queue if the auth status is not `Locked`", async () => {
+        const tabMock = createChromeTabMock();
+        const sender = mock<chrome.runtime.MessageSender>({ tab: tabMock });
+        const message: NotificationBackgroundExtensionMessage = {
+          command: "bgUnlockPopoutOpened",
+        };
+        getAuthStatusSpy.mockResolvedValueOnce(AuthenticationStatus.LoggedOut);
+
+        sendExtensionRuntimeMessage(message, sender);
+        await flushPromises();
+
+        expect(getAuthStatusSpy).toHaveBeenCalled();
+        expect(pushUnlockVaultToQueueSpy).not.toHaveBeenCalled();
+      });
+
+      it("skips pushing the unlock vault message to the queue if the notification queue already has an item", async () => {
+        const tabMock = createChromeTabMock();
+        const sender = mock<chrome.runtime.MessageSender>({ tab: tabMock });
+        const message: NotificationBackgroundExtensionMessage = {
+          command: "bgUnlockPopoutOpened",
+        };
+        getAuthStatusSpy.mockResolvedValueOnce(AuthenticationStatus.Locked);
+        notificationBackground["notificationQueue"] = [mock<AddLoginQueueMessage>()];
+
+        sendExtensionRuntimeMessage(message, sender);
+        await flushPromises();
+
+        expect(pushUnlockVaultToQueueSpy).not.toHaveBeenCalled();
+      });
+
+      it("sends an unlock vault message to the queue if the user has a locked vault", async () => {
+        const tabMock = createChromeTabMock({ url: "https://example.com" });
+        const sender = mock<chrome.runtime.MessageSender>({ tab: tabMock });
+        const message: NotificationBackgroundExtensionMessage = {
+          command: "bgUnlockPopoutOpened",
+        };
+        getAuthStatusSpy.mockResolvedValueOnce(AuthenticationStatus.Locked);
+
+        sendExtensionRuntimeMessage(message, sender);
+        await flushPromises();
+
+        expect(pushUnlockVaultToQueueSpy).toHaveBeenCalledWith("example.com", sender.tab);
+      });
+    });
+
+    describe("checkNotificationQueue", () => {
+      let doNotificationQueueCheckSpy: jest.SpyInstance;
+      let getTabFromCurrentWindowSpy: jest.SpyInstance;
+
+      beforeEach(() => {
+        doNotificationQueueCheckSpy = jest.spyOn(
+          notificationBackground as any,
+          "doNotificationQueueCheck",
+        );
+        getTabFromCurrentWindowSpy = jest.spyOn(BrowserApi, "getTabFromCurrentWindow");
+      });
+
+      it("skips checking the notification queue if the queue does not contain any items", async () => {
+        const message: NotificationBackgroundExtensionMessage = {
+          command: "checkNotificationQueue",
+        };
+        notificationBackground["notificationQueue"] = [];
+
+        sendExtensionRuntimeMessage(message);
+        await flushPromises();
+
+        expect(doNotificationQueueCheckSpy).not.toHaveBeenCalled();
+      });
+
+      it("checks the notification queue for the sender tab", async () => {
+        const tab = createChromeTabMock();
+        const sender = mock<chrome.runtime.MessageSender>({ tab });
+        const message: NotificationBackgroundExtensionMessage = {
+          command: "checkNotificationQueue",
+        };
+        notificationBackground["notificationQueue"] = [
+          mock<AddLoginQueueMessage>({ tab }),
+          mock<AddLoginQueueMessage>({ tab: createChromeTabMock({ id: 2 }) }),
+        ];
+
+        sendExtensionRuntimeMessage(message, sender);
+        await flushPromises();
+
+        expect(doNotificationQueueCheckSpy).toHaveBeenCalledWith(tab);
+      });
+
+      it("checks the notification queue for the current tab if the sender does not send a tab", async () => {
+        const message: NotificationBackgroundExtensionMessage = {
+          command: "checkNotificationQueue",
+        };
+        const currenTab = createChromeTabMock({ id: 2 });
+        notificationBackground["notificationQueue"] = [
+          mock<AddLoginQueueMessage>({ tab: currenTab }),
+        ];
+        getTabFromCurrentWindowSpy.mockResolvedValueOnce(currenTab);
+
+        sendExtensionRuntimeMessage(message, mock<chrome.runtime.MessageSender>({ tab: null }));
+        await flushPromises();
+
+        expect(getTabFromCurrentWindowSpy).toHaveBeenCalledWith();
+        expect(doNotificationQueueCheckSpy).toHaveBeenCalledWith(currenTab);
+      });
+    });
+
+    describe("bgReopenUnlockPopout message handler", () => {
+      it("opens the unlock popout window", async () => {
+        const message: NotificationBackgroundExtensionMessage = {
+          command: "bgReopenUnlockPopout",
+        };
+        const openUnlockWindowSpy = jest.spyOn(notificationBackground as any, "openUnlockPopout");
+
+        sendExtensionRuntimeMessage(message);
+        await flushPromises();
+
+        expect(openUnlockWindowSpy).toHaveBeenCalled();
       });
     });
   });
