@@ -44,7 +44,7 @@ export default class NotificationBackground {
     bgGetFolderData: () => this.getFolderData(),
     bgCloseNotificationBar: ({ sender }) => this.handleCloseNotificationBarMessage(sender),
     bgAdjustNotificationBar: ({ message, sender }) =>
-      this.bgAdjustNotificationBarMessage(message, sender),
+      this.handleAdjustNotificationBarMessage(message, sender),
     bgAddLogin: ({ message, sender }) => this.addLogin(message, sender),
     bgChangedPassword: ({ message, sender }) => this.changedPassword(message, sender),
     bgRemoveTabFromNotificationQueue: ({ sender }) =>
@@ -167,33 +167,36 @@ export default class NotificationBackground {
     }
   }
 
+  /**
+   * Adds a login message to the notification queue, prompting the user to save
+   * the login if it does not already exist in the vault. If the cipher exists
+   * but the password has changed, the user will be prompted to update the password.
+   *
+   * @param message - The message to add to the queue
+   * @param sender - The contextual sender of the message
+   */
   private async addLogin(
     message: NotificationBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
-    const loginInfo = message.login;
     const authStatus = await this.authService.getAuthStatus();
     if (authStatus === AuthenticationStatus.LoggedOut) {
       return;
     }
 
+    const loginInfo = message.login;
+    const normalizedUsername = loginInfo.username ? loginInfo.username.toLowerCase() : "";
     const loginDomain = Utils.getDomain(loginInfo.url);
     if (loginDomain == null) {
       return;
     }
 
-    let normalizedUsername = loginInfo.username;
-    if (normalizedUsername != null) {
-      normalizedUsername = normalizedUsername.toLowerCase();
-    }
-
     const disabledAddLogin = await this.stateService.getDisableAddLoginNotification();
     if (authStatus === AuthenticationStatus.Locked) {
-      if (disabledAddLogin) {
-        return;
+      if (!disabledAddLogin) {
+        this.pushAddLoginToQueue(loginDomain, loginInfo, sender.tab, true);
       }
 
-      this.pushAddLoginToQueue(loginDomain, loginInfo, sender.tab, true);
       return;
     }
 
@@ -201,21 +204,17 @@ export default class NotificationBackground {
     const usernameMatches = ciphers.filter(
       (c) => c.login.username != null && c.login.username.toLowerCase() === normalizedUsername,
     );
-    if (usernameMatches.length === 0) {
-      if (disabledAddLogin) {
-        return;
-      }
-
+    if (!disabledAddLogin && usernameMatches.length === 0) {
       this.pushAddLoginToQueue(loginDomain, loginInfo, sender.tab);
-    } else if (
+      return;
+    }
+
+    const disabledChangePassword = await this.stateService.getDisableChangedPasswordNotification();
+    if (
+      !disabledChangePassword &&
       usernameMatches.length === 1 &&
       usernameMatches[0].login.password !== loginInfo.password
     ) {
-      const disabledChangePassword =
-        await this.stateService.getDisableChangedPasswordNotification();
-      if (disabledChangePassword) {
-        return;
-      }
       this.pushChangePasswordToQueue(
         usernameMatches[0].id,
         loginDomain,
@@ -582,11 +581,24 @@ export default class NotificationBackground {
     }
   }
 
+  /**
+   * Sends a message back to the sender tab which
+   * triggers closure of the notification bar.
+   *
+   * @param sender - The contextual sender of the message
+   */
   private async handleCloseNotificationBarMessage(sender: chrome.runtime.MessageSender) {
     await BrowserApi.tabSendMessageData(sender.tab, "closeNotificationBar");
   }
 
-  private async bgAdjustNotificationBarMessage(
+  /**
+   * Sends a message back to the sender tab which triggers
+   * an CSS adjustment of the notification bar.
+   *
+   * @param message - The extension message
+   * @param sender - The contextual sender of the message
+   */
+  private async handleAdjustNotificationBarMessage(
     message: NotificationBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
