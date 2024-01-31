@@ -38,6 +38,7 @@ import { OverlayBackgroundExtensionMessage } from "./abstractions/overlay.backgr
 
 export default class NotificationBackground {
   private openUnlockPopout = openUnlockPopout;
+  private openAddEditVaultItemPopout = openAddEditVaultItemPopout;
   private notificationQueue: NotificationQueueMessageItem[] = [];
   private readonly extensionMessageHandlers: NotificationBackgroundExtensionMessageHandlers = {
     unlockCompleted: ({ message, sender }) => this.handleUnlockCompleted(message, sender),
@@ -420,6 +421,14 @@ export default class NotificationBackground {
     this.removeTabFromNotificationQueue(tab);
   }
 
+  /**
+   * Saves a cipher based on the message sent from the notification bar. If the vault
+   * is locked, the message will be added to the notification queue and the unlock
+   * popout will be opened.
+   *
+   * @param message - The extension message
+   * @param sender - The contextual sender of the message
+   */
   private async handleSaveCipherMessage(
     message: NotificationBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
@@ -443,6 +452,14 @@ export default class NotificationBackground {
     await this.saveOrUpdateCredentials(sender.tab, message.edit, message.folder);
   }
 
+  /**
+   * Saves or updates credentials based on the message within the
+   * notification queue that is associated with the specified tab.
+   *
+   * @param tab - The tab to save or update credentials for
+   * @param edit - Identifies if the credentials should be edited or simply added
+   * @param folderId - The folder to add the cipher to
+   */
   private async saveOrUpdateCredentials(tab: chrome.tabs.Tab, edit: boolean, folderId?: string) {
     for (let i = this.notificationQueue.length - 1; i >= 0; i--) {
       const queueMessage = this.notificationQueue[i];
@@ -503,6 +520,16 @@ export default class NotificationBackground {
     }
   }
 
+  /**
+   * Handles updating an existing cipher's password. If the cipher
+   * is being edited, a popup will be opened to allow the user to
+   * edit the cipher.
+   *
+   * @param cipherView - The cipher to update
+   * @param newPassword - The new password to update the cipher with
+   * @param edit - Identifies if the cipher should be edited or simply updated
+   * @param tab - The tab that the message was sent from
+   */
   private async updatePassword(
     cipherView: CipherView,
     newPassword: string,
@@ -530,13 +557,20 @@ export default class NotificationBackground {
     }
   }
 
+  /**
+   * Sets the add/edit cipher info in the state service
+   * and opens the add/edit vault item popout.
+   *
+   * @param cipherView - The cipher to edit
+   * @param senderTab - The tab that the message was sent from
+   */
   private async editItem(cipherView: CipherView, senderTab: chrome.tabs.Tab) {
     await this.stateService.setAddEditCipherInfo({
       cipher: cipherView,
       collectionIds: cipherView.collectionIds,
     });
 
-    await openAddEditVaultItemPopout(senderTab, { cipherId: cipherView.id });
+    await this.openAddEditVaultItemPopout(senderTab, { cipherId: cipherView.id });
   }
 
   private async folderExists(folderId: string) {
