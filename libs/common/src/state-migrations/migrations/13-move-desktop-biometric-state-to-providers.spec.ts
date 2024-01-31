@@ -7,7 +7,7 @@ import {
   MoveDesktopBiometricStateToProviders,
   BIOMETRIC_UNLOCK_ENABLED,
   DISMISSED_BIOMETRIC_REQUIRE_PASSWORD_ON_START_CALLOUT,
-  ENCRYPTED_CLIENT_KEY_HALF,
+  CLIENT_KEY_HALF,
 } from "./13-move-desktop-biometric-state-to-providers";
 
 function exampleJSON() {
@@ -115,11 +115,7 @@ describe("DesktopBiometricState migrator", () => {
     it("should set biometricEncryptionClientKeyHalf value for account that have it", async () => {
       await sut.migrate(helper);
 
-      expect(helper.setToUser).toHaveBeenCalledWith(
-        "user-1",
-        ENCRYPTED_CLIENT_KEY_HALF,
-        "user1-key-half",
-      );
+      expect(helper.setToUser).toHaveBeenCalledWith("user-1", CLIENT_KEY_HALF, "user1-key-half");
     });
 
     it("should not call extra setToUser", async () => {
@@ -138,7 +134,7 @@ describe("DesktopBiometricState migrator", () => {
     it.each([
       BIOMETRIC_UNLOCK_ENABLED,
       DISMISSED_BIOMETRIC_REQUIRE_PASSWORD_ON_START_CALLOUT,
-      ENCRYPTED_CLIENT_KEY_HALF,
+      CLIENT_KEY_HALF,
     ])("should null out new values %s", async (keyDefinition) => {
       await sut.rollback(helper);
 

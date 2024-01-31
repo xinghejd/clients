@@ -7,8 +7,6 @@ import { UserId } from "../../types/guid";
 
 import { BiometricStateService, DefaultBiometricStateService } from "./biometric-state.service";
 import {
-  NO_AUTO_PROMPT_TEXT,
-  BIOMETRIC_TEXT,
   BIOMETRIC_UNLOCK_ENABLED,
   DISMISSED_REQUIRE_PASSWORD_ON_START_CALLOUT,
   ENCRYPTED_CLIENT_KEY_HALF,
@@ -49,11 +47,11 @@ describe("BiometricStateService", () => {
       const state = stateProvider.activeUser.getFake(ENCRYPTED_CLIENT_KEY_HALF);
       state.nextState(undefined);
 
-      expect(await firstValueFrom(sut.encryptedClientKeyHalf$)).toBe(undefined);
+      expect(await firstValueFrom(sut.encryptedClientKeyHalf$)).toBe(null);
 
       state.nextState(encryptedClientKeyHalf);
 
-      expect(await firstValueFrom(sut.encryptedClientKeyHalf$)).toBe(encryptedClientKeyHalf);
+      expect(await firstValueFrom(sut.encryptedClientKeyHalf$)).toEqual(encClientKeyHalf);
     });
   });
 
@@ -85,45 +83,17 @@ describe("BiometricStateService", () => {
     });
   });
 
-  describe("biometricText$", () => {
-    it("should track the biometricText state", async () => {
-      const state = stateProvider.global.getFake(BIOMETRIC_TEXT);
-      state.nextState(undefined);
-
-      expect(await firstValueFrom(sut.biometricText$)).toBe(undefined);
-
-      state.nextState("biometricText");
-
-      expect(await firstValueFrom(sut.biometricText$)).toBe("biometricText");
-    });
-  });
-
-  describe("biometricNoAutoPromptText$", () => {
-    it("should track the biometricNoAutoPromptText state", async () => {
-      const state = stateProvider.global.getFake(NO_AUTO_PROMPT_TEXT);
-      state.nextState(undefined);
-
-      expect(await firstValueFrom(sut.biometricNoAutoPromptText$)).toBe(undefined);
-
-      state.nextState("biometricNoAutoPromptText");
-
-      expect(await firstValueFrom(sut.biometricNoAutoPromptText$)).toBe(
-        "biometricNoAutoPromptText",
-      );
-    });
-  });
-
   describe("setEncryptedClientKeyHalf", () => {
     it("should update the encryptedClientKeyHalf$", async () => {
       await sut.setEncryptedClientKeyHalf(encClientKeyHalf);
 
-      expect(await firstValueFrom(sut.encryptedClientKeyHalf$)).toBe(encryptedClientKeyHalf);
+      expect(await firstValueFrom(sut.encryptedClientKeyHalf$)).toEqual(encClientKeyHalf);
     });
   });
 
   describe("setDismissedBiometricRequirePasswordOnStartCallout", () => {
     it("should update the dismissedBiometricRequirePasswordOnStartCallout$", async () => {
-      await sut.setDismissedBiometricRequirePasswordOnStartCallout(true);
+      await sut.setDismissedBiometricRequirePasswordOnStartCallout();
 
       expect(await firstValueFrom(sut.dismissedBiometricRequirePasswordOnStartCallout$)).toBe(true);
     });

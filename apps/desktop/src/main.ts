@@ -3,6 +3,10 @@ import * as path from "path";
 import { app } from "electron";
 
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
+import {
+  BiometricStateService,
+  DefaultBiometricStateService,
+} from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { EnvironmentService } from "@bitwarden/common/platform/services/environment.service";
@@ -49,6 +53,7 @@ export class Main {
   menuMain: MenuMain;
   powerMonitorMain: PowerMonitorMain;
   trayMain: TrayMain;
+  biometricStateService: BiometricStateService;
   biometricsService: BiometricsServiceAbstraction;
   nativeMessagingMain: NativeMessagingMain;
   clipboardMain: ClipboardMain;
@@ -156,13 +161,15 @@ export class Main {
       this.updaterMain,
     );
 
+    this.biometricStateService = new DefaultBiometricStateService(stateProvider);
+
     this.biometricsService = new BiometricsService(
       this.i18nService,
       this.windowMain,
-      this.stateService,
       this.logService,
       this.messagingService,
       process.platform,
+      this.biometricStateService,
     );
 
     this.desktopCredentialStorageListener = new DesktopCredentialStorageListener(
@@ -203,9 +210,6 @@ export class Main {
         }
         this.powerMonitorMain.init();
         await this.updaterMain.init();
-        if (this.biometricsService != null) {
-          await this.biometricsService.init();
-        }
 
         if (
           (await this.stateService.getEnableBrowserIntegration()) ||

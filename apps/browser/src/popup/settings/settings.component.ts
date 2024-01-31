@@ -31,6 +31,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { DialogService } from "@bitwarden/components";
 
 import { SetPinComponent } from "../../auth/popup/components/set-pin.component";
@@ -101,6 +102,7 @@ export class SettingsComponent implements OnInit {
     private userVerificationService: UserVerificationService,
     private dialogService: DialogService,
     private changeDetectorRef: ChangeDetectorRef,
+    private biometricStateService: BiometricStateService,
   ) {
     this.accountSwitcherEnabled = enableAccountSwitching();
   }
@@ -410,8 +412,8 @@ export class SettingsComponent implements OnInit {
           }),
       ]);
     } else {
-      await this.stateService.setBiometricUnlock(null);
-      await this.stateService.setBiometricFingerprintValidated(false);
+      await this.biometricStateService.setBiometricUnlockEnabled(false);
+      await this.biometricStateService.setFingerprintValidated(false);
     }
   }
 

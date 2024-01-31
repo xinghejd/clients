@@ -5,8 +5,6 @@ import { EncryptedString, EncString } from "../models/domain/enc-string";
 import { ActiveUserState, GlobalState, StateProvider } from "../state";
 
 import {
-  NO_AUTO_PROMPT_TEXT,
-  BIOMETRIC_TEXT,
   BIOMETRIC_UNLOCK_ENABLED,
   DISMISSED_REQUIRE_PASSWORD_ON_START_CALLOUT,
   ENCRYPTED_CLIENT_KEY_HALF,
@@ -22,7 +20,7 @@ export abstract class BiometricStateService {
    *
    * Tracks the currently active user
    */
-  encryptedClientKeyHalf$: Observable<EncryptedString | undefined>;
+  encryptedClientKeyHalf$: Observable<EncString | undefined>;
   /**
    * Whether the currently active user has elected to store a biometric key to unlock their vault.
    */
@@ -40,18 +38,11 @@ export abstract class BiometricStateService {
    */
   dismissedBiometricRequirePasswordOnStartCallout$: Observable<boolean>;
   /**
-   * The text to display as a title to the biometric setting.
-   */
-  biometricText$: Observable<string>;
-  /**
-   * The text to display as a description to the disable biometric auto prompt setting.
-   */
-  biometricNoAutoPromptText$: Observable<string>;
-  /**
+   * TODO: move to memory? if I do, remove initialization in `nativeMessaging.background` constructor
    * TODO: verify this
    * Whether the browser fingerprint has been validated this session.
    *
-   * Tracks the currently active user
+   * globally scoped
    */
   fingerprintValidated$: Observable<boolean>;
   /**
@@ -68,29 +59,28 @@ export abstract class BiometricStateService {
   promptAutomatically$: Observable<boolean>;
 
   abstract setEncryptedClientKeyHalf(encryptedKeyHalf: EncString): Promise<void>;
-  abstract setDismissedBiometricRequirePasswordOnStartCallout(value: boolean): Promise<void>;
+  abstract setDismissedBiometricRequirePasswordOnStartCallout(): Promise<void>;
   abstract getRequirePasswordOnStart(userId: UserId): Promise<boolean>;
-
-  abstract setBiometricText(text: string): Promise<void>;
-  abstract setNoAutoPromptBiometricsText(text: string): Promise<void>;
+  abstract setFingerprintValidated(validated: boolean): Promise<void>;
+  abstract setPromptCancelled(cancelled: boolean): Promise<void>;
+  abstract setPromptAutomatically(prompt: boolean): Promise<void>;
+  abstract setBiometricUnlockEnabled(enabled: boolean): Promise<void>;
+  abstract getBiometricUnlockEnabled(userId: UserId): Promise<boolean>;
+  abstract getEncryptedClientKeyHalf(userId: UserId): Promise<EncString>;
 }
 
 export class DefaultBiometricStateService implements BiometricStateService {
   private biometricUnlockEnabledState: ActiveUserState<boolean>;
   private dismissedBiometricRequirePasswordOnStartCalloutState: ActiveUserState<boolean>;
   private encryptedClientKeyHalfState: ActiveUserState<EncryptedString | undefined>;
-  private biometricTextState: GlobalState<string>;
-  private biometricNoAutoPromptTextState: GlobalState<string>;
-  private fingerprintValidatedState: ActiveUserState<boolean>;
+  private fingerprintValidatedState: GlobalState<boolean>;
   private promptCancelledState: ActiveUserState<boolean>;
   private promptAutomaticallyState: ActiveUserState<boolean>;
 
   biometricUnlockEnabled$: Observable<boolean>;
   dismissedBiometricRequirePasswordOnStartCallout$: Observable<boolean>;
-  encryptedClientKeyHalf$: Observable<EncryptedString | undefined>;
+  encryptedClientKeyHalf$: Observable<EncString | undefined>;
   requirePasswordOnStart$: Observable<boolean>;
-  biometricText$: Observable<string>;
-  biometricNoAutoPromptText$: Observable<string>;
   fingerprintValidated$: Observable<boolean>;
   promptCancelled$: Observable<boolean>;
   promptAutomatically$: Observable<boolean>;
@@ -102,14 +92,13 @@ export class DefaultBiometricStateService implements BiometricStateService {
       DISMISSED_REQUIRE_PASSWORD_ON_START_CALLOUT,
     );
 
-    this.biometricTextState = this.stateProvider.getGlobal(BIOMETRIC_TEXT);
-    this.biometricNoAutoPromptTextState = this.stateProvider.getGlobal(NO_AUTO_PROMPT_TEXT);
-
-    this.fingerprintValidatedState = this.stateProvider.getActive(FINGERPRINT_VALIDATED);
+    this.fingerprintValidatedState = this.stateProvider.getGlobal(FINGERPRINT_VALIDATED);
     this.promptCancelledState = this.stateProvider.getActive(PROMPT_CANCELLED);
     this.promptAutomaticallyState = this.stateProvider.getActive(PROMPT_AUTOMATICALLY);
 
-    this.encryptedClientKeyHalf$ = this.encryptedClientKeyHalfState.state$;
+    this.encryptedClientKeyHalf$ = this.encryptedClientKeyHalfState.state$.pipe(
+      map((s) => (s == null ? null : new EncString(s))),
+    );
     this.requirePasswordOnStart$ = this.encryptedClientKeyHalf$.pipe(map((keyHalf) => !!keyHalf));
     this.biometricUnlockEnabled$ = this.biometricUnlockEnabledState.state$.pipe(
       map((enabled) => !!enabled),
@@ -119,8 +108,6 @@ export class DefaultBiometricStateService implements BiometricStateService {
         map((dismissed) => !!dismissed),
       );
 
-    this.biometricText$ = this.biometricTextState.state$;
-    this.biometricNoAutoPromptText$ = this.biometricNoAutoPromptTextState.state$;
     this.fingerprintValidated$ = this.fingerprintValidatedState.state$.pipe(
       map((validated) => !!validated),
     );
@@ -134,8 +121,8 @@ export class DefaultBiometricStateService implements BiometricStateService {
     await this.encryptedClientKeyHalfState.update(() => encryptedKeyHalf?.encryptedString);
   }
 
-  async setDismissedBiometricRequirePasswordOnStartCallout(value: boolean): Promise<void> {
-    await this.dismissedBiometricRequirePasswordOnStartCalloutState.update(() => value);
+  async setDismissedBiometricRequirePasswordOnStartCallout(): Promise<void> {
+    await this.dismissedBiometricRequirePasswordOnStartCalloutState.update(() => true);
   }
 
   async getRequirePasswordOnStart(userId: UserId): Promise<boolean> {
@@ -144,14 +131,6 @@ export class DefaultBiometricStateService implements BiometricStateService {
     }
     const state = this.stateProvider.getUser(userId, ENCRYPTED_CLIENT_KEY_HALF);
     return !!(await firstValueFrom(state.state$));
-  }
-
-  async setBiometricText(text: string): Promise<void> {
-    await this.biometricTextState.update(() => text);
-  }
-
-  async setNoAutoPromptBiometricsText(text: string): Promise<void> {
-    await this.biometricNoAutoPromptTextState.update(() => text);
   }
 
   async setFingerprintValidated(validated: boolean): Promise<void> {
@@ -168,5 +147,19 @@ export class DefaultBiometricStateService implements BiometricStateService {
 
   async setBiometricUnlockEnabled(enabled: boolean): Promise<void> {
     await this.biometricUnlockEnabledState.update(() => enabled);
+  }
+
+  async getBiometricUnlockEnabled(userId: UserId): Promise<boolean> {
+    return await firstValueFrom(
+      this.stateProvider.getUser(userId, BIOMETRIC_UNLOCK_ENABLED).state$,
+    );
+  }
+
+  async getEncryptedClientKeyHalf(userId: UserId): Promise<EncString> {
+    return await firstValueFrom(
+      this.stateProvider
+        .getUser(userId, ENCRYPTED_CLIENT_KEY_HALF)
+        .state$.pipe(map((s) => new EncString(s))),
+    );
   }
 }

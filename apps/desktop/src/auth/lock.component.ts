@@ -1,6 +1,6 @@
 import { Component, NgZone } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { switchMap } from "rxjs";
+import { firstValueFrom, switchMap } from "rxjs";
 
 import { LockComponent as BaseLockComponent } from "@bitwarden/angular/auth/components/lock.component";
 import { PinCryptoServiceAbstraction } from "@bitwarden/auth/common";
@@ -19,10 +19,12 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { DialogService } from "@bitwarden/components";
 
 import { ElectronStateService } from "../platform/services/electron-state.service.abstraction";
+import { getPlatform } from "../utils";
 
 const BroadcasterSubscriptionId = "LockComponent";
 
@@ -58,6 +60,7 @@ export class LockComponent extends BaseLockComponent {
     deviceTrustCryptoService: DeviceTrustCryptoServiceAbstraction,
     userVerificationService: UserVerificationService,
     pinCryptoService: PinCryptoServiceAbstraction,
+    private biometricStateService: BiometricStateService,
   ) {
     super(
       router,
@@ -156,7 +159,11 @@ export class LockComponent extends BaseLockComponent {
   }
 
   private async displayBiometricUpdateWarning(): Promise<void> {
-    if (await this.stateService.getDismissedBiometricRequirePasswordOnStart()) {
+    if (
+      await firstValueFrom(
+        this.biometricStateService.dismissedBiometricRequirePasswordOnStartCallout$,
+      )
+    ) {
       return;
     }
 
@@ -164,7 +171,7 @@ export class LockComponent extends BaseLockComponent {
       return;
     }
 
-    if (await this.stateService.getBiometricUnlock()) {
+    if (await firstValueFrom(this.biometricStateService.biometricUnlockEnabled$)) {
       const response = await this.dialogService.openSimpleDialog({
         title: { key: "windowsBiometricUpdateWarningTitle" },
         content: { key: "windowsBiometricUpdateWarning" },
@@ -176,7 +183,18 @@ export class LockComponent extends BaseLockComponent {
         await this.stateService.setDisableAutoBiometricsPrompt(true);
       }
       this.supportsBiometric = await this.canUseBiometric();
-      await this.stateService.setDismissedBiometricRequirePasswordOnStart();
+      await this.biometricStateService.setDismissedBiometricRequirePasswordOnStartCallout();
+    }
+  }
+
+  get biometricText() {
+    switch (getPlatform()) {
+      case "windows":
+        return "unlockWithWindowsHello";
+      case "mac":
+        return "unlockWithTouchId";
+      case "linux":
+        throw new Error("unsupported platform");
     }
   }
 }

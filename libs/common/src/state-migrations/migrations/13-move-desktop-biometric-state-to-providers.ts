@@ -20,7 +20,7 @@ export const DISMISSED_BIOMETRIC_REQUIRE_PASSWORD_ON_START_CALLOUT: KeyDefinitio
   key: "dismissedBiometricRequirePasswordOnStartCallout",
   stateDefinition: { name: "biometricSettings" },
 };
-export const ENCRYPTED_CLIENT_KEY_HALF: KeyDefinitionLike = {
+export const CLIENT_KEY_HALF: KeyDefinitionLike = {
   key: "clientKeyHalf",
   stateDefinition: { name: "biometricSettings" },
 };
@@ -59,7 +59,7 @@ export class MoveDesktopBiometricStateToProviders extends Migrator<12, 13> {
         if (account?.keys?.biometricEncryptionClientKeyHalf != null) {
           await helper.setToUser(
             userId,
-            ENCRYPTED_CLIENT_KEY_HALF,
+            CLIENT_KEY_HALF,
             account.keys.biometricEncryptionClientKeyHalf,
           );
         }
@@ -110,7 +110,7 @@ export class MoveDesktopBiometricStateToProviders extends Migrator<12, 13> {
         await helper.setToUser(userId, DISMISSED_BIOMETRIC_REQUIRE_PASSWORD_ON_START_CALLOUT, null);
       }
 
-      const userKeyHalf = await helper.getFromUser<string>(userId, ENCRYPTED_CLIENT_KEY_HALF);
+      const userKeyHalf = await helper.getFromUser<string>(userId, CLIENT_KEY_HALF);
 
       if (userKeyHalf) {
         account ??= {};
@@ -118,7 +118,7 @@ export class MoveDesktopBiometricStateToProviders extends Migrator<12, 13> {
 
         updatedAccount = true;
         account.keys.biometricEncryptionClientKeyHalf = userKeyHalf;
-        await helper.setToUser(userId, ENCRYPTED_CLIENT_KEY_HALF, null);
+        await helper.setToUser(userId, CLIENT_KEY_HALF, null);
       }
 
       const userPromptAutomatically = await helper.getFromUser<boolean>(

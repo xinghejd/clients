@@ -23,6 +23,19 @@ export function isDev() {
   return process.defaultApp || /node_modules[\\/]electron[\\/]/.test(process.execPath);
 }
 
+export function getPlatform() {
+  switch (process.platform) {
+    case "darwin":
+      return "mac";
+    case "win32":
+      return "windows";
+    case "linux":
+      return "linux";
+    default:
+      throw new Error("Unsupported platform");
+  }
+}
+
 export function isLinux() {
   return process.platform === "linux";
 }

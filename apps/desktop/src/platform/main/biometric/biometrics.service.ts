@@ -49,19 +49,6 @@ export class BiometricsService implements BiometricsServiceAbstraction {
     this.platformSpecificService = new BiometricDarwinMain(this.i18nService);
   }
 
-  async init() {
-    switch (this.platform) {
-      case "win32":
-        this.biometricStateService.setBiometricText("unlockWithWindowsHello");
-        this.biometricStateService.setNoAutoPromptBiometricsText("autoPromptWindowsHello");
-        break;
-      case "darwin":
-        this.biometricStateService.setBiometricText("unlockWithTouchId");
-        this.biometricStateService.setNoAutoPromptBiometricsText("autoPromptTouchId");
-        break;
-    }
-  }
-
   async osSupportsBiometric() {
     return await this.platformSpecificService.osSupportsBiometric();
   }

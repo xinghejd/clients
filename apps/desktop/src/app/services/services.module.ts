@@ -45,7 +45,7 @@ import { DialogService } from "@bitwarden/components";
 
 import { LoginGuard } from "../../auth/guards/login.guard";
 import { Account } from "../../models/account";
-import { ElectronCryptoService } from "../../platform/services/electron-crypto.service";
+import { DefaultElectronCryptoService } from "../../platform/services/electron-crypto.service";
 import { ElectronLogService } from "../../platform/services/electron-log.service";
 import { ElectronPlatformUtilsService } from "../../platform/services/electron-platform-utils.service";
 import { ElectronRendererMessagingService } from "../../platform/services/electron-renderer-messaging.service";
@@ -176,7 +176,7 @@ const RELOAD_CALLBACK = new InjectionToken<() => any>("RELOAD_CALLBACK");
     },
     {
       provide: CryptoServiceAbstraction,
-      useClass: ElectronCryptoService,
+      useClass: DefaultElectronCryptoService,
       deps: [
         CryptoFunctionServiceAbstraction,
         EncryptService,

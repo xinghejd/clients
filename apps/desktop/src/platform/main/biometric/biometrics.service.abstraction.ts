@@ -1,5 +1,4 @@
 export abstract class BiometricsServiceAbstraction {
-  init: () => Promise<void>;
   osSupportsBiometric: () => Promise<boolean>;
   canAuthBiometric: ({
     service,
