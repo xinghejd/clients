@@ -682,6 +682,8 @@ describe("NotificationBackground", () => {
         let convertAddLoginQueueMessageToCipherViewSpy: jest.SpyInstance;
         let tabSendMessageSpy: jest.SpyInstance;
         let editItemSpy: jest.SpyInstance;
+        let setAddEditCipherInfoSpy: jest.SpyInstance;
+        let openAddEditVaultItemPopoutSpy: jest.SpyInstance;
         let createWithServerSpy: jest.SpyInstance;
         let updateWithServerSpy: jest.SpyInstance;
         let folderExistsSpy: jest.SpyInstance;
@@ -701,6 +703,11 @@ describe("NotificationBackground", () => {
           );
           tabSendMessageSpy = jest.spyOn(BrowserApi, "tabSendMessage").mockImplementation();
           editItemSpy = jest.spyOn(notificationBackground as any, "editItem");
+          setAddEditCipherInfoSpy = jest.spyOn(stateService, "setAddEditCipherInfo");
+          openAddEditVaultItemPopoutSpy = jest.spyOn(
+            notificationBackground as any,
+            "openAddEditVaultItemPopout",
+          );
           createWithServerSpy = jest.spyOn(cipherService, "createWithServer");
           updateWithServerSpy = jest.spyOn(cipherService, "updateWithServer");
           folderExistsSpy = jest.spyOn(notificationBackground as any, "folderExists");
@@ -860,7 +867,8 @@ describe("NotificationBackground", () => {
           notificationBackground["notificationQueue"] = [queueMessage];
           const cipherView = mock<CipherView>();
           getDecryptedCipherByIdSpy.mockResolvedValueOnce(cipherView);
-          editItemSpy.mockResolvedValueOnce(undefined);
+          setAddEditCipherInfoSpy.mockResolvedValue(undefined);
+          openAddEditVaultItemPopoutSpy.mockResolvedValue(undefined);
 
           sendExtensionRuntimeMessage(message, sender);
           await flushPromises();
@@ -878,6 +886,13 @@ describe("NotificationBackground", () => {
           });
           expect(tabSendMessageSpy).toHaveBeenCalledWith(sender.tab, {
             command: "editedCipher",
+          });
+          expect(setAddEditCipherInfoSpy).toHaveBeenCalledWith({
+            cipher: cipherView,
+            collectionIds: cipherView.collectionIds,
+          });
+          expect(openAddEditVaultItemPopoutSpy).toHaveBeenCalledWith(sender.tab, {
+            cipherId: cipherView.id,
           });
         });
 
