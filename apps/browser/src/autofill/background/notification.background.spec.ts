@@ -683,6 +683,7 @@ describe("NotificationBackground", () => {
         let tabSendMessageSpy: jest.SpyInstance;
         let editItemSpy: jest.SpyInstance;
         let createWithServerSpy: jest.SpyInstance;
+        let updateWithServerSpy: jest.SpyInstance;
         let folderExistsSpy: jest.SpyInstance;
         let cipherEncryptSpy: jest.SpyInstance;
 
@@ -701,6 +702,7 @@ describe("NotificationBackground", () => {
           tabSendMessageSpy = jest.spyOn(BrowserApi, "tabSendMessage").mockImplementation();
           editItemSpy = jest.spyOn(notificationBackground as any, "editItem");
           createWithServerSpy = jest.spyOn(cipherService, "createWithServer");
+          updateWithServerSpy = jest.spyOn(cipherService, "updateWithServer");
           folderExistsSpy = jest.spyOn(notificationBackground as any, "folderExists");
           cipherEncryptSpy = jest.spyOn(cipherService, "encrypt");
         });
@@ -792,14 +794,18 @@ describe("NotificationBackground", () => {
           sendExtensionRuntimeMessage(message, sender);
           await flushPromises();
 
+          expect(editItemSpy).not.toHaveBeenCalled();
+          expect(createWithServerSpy).not.toHaveBeenCalled();
           expect(updatePasswordSpy).toHaveBeenCalledWith(
             cipherView,
             queueMessage.newPassword,
             message.edit,
             sender.tab,
           );
-          expect(editItemSpy).not.toHaveBeenCalled();
-          expect(createWithServerSpy).not.toHaveBeenCalled();
+          expect(updateWithServerSpy).toHaveBeenCalled();
+          expect(tabSendMessageSpy).toHaveBeenCalledWith(sender.tab, {
+            command: "saveCipherAttemptCompleted",
+          });
         });
 
         it("updates the cipher password if the queue message was locked and an existing cipher has the same username as the message", async () => {
@@ -837,7 +843,45 @@ describe("NotificationBackground", () => {
           expect(createWithServerSpy).not.toHaveBeenCalled();
         });
 
-        it("opens an editItem window and closes the notification bar if the edit value is within the passed message", async () => {
+        it("opens an editItem window and closes the notification bar if the edit value is within the passed message when attempting to update an existing cipher", async () => {
+          const tab = createChromeTabMock({ id: 1, url: "https://example.com" });
+          const sender = mock<chrome.runtime.MessageSender>({ tab });
+          const message: NotificationBackgroundExtensionMessage = {
+            command: "bgSaveCipher",
+            edit: true,
+            folder: "folder-id",
+          };
+          const queueMessage = mock<AddChangePasswordQueueMessage>({
+            type: NotificationQueueMessageType.ChangePassword,
+            tab,
+            domain: "example.com",
+            newPassword: "newPassword",
+          });
+          notificationBackground["notificationQueue"] = [queueMessage];
+          const cipherView = mock<CipherView>();
+          getDecryptedCipherByIdSpy.mockResolvedValueOnce(cipherView);
+          editItemSpy.mockResolvedValueOnce(undefined);
+
+          sendExtensionRuntimeMessage(message, sender);
+          await flushPromises();
+
+          expect(updatePasswordSpy).toHaveBeenCalledWith(
+            cipherView,
+            queueMessage.newPassword,
+            message.edit,
+            sender.tab,
+          );
+          expect(editItemSpy).toHaveBeenCalled();
+          expect(updateWithServerSpy).not.toHaveBeenCalled();
+          expect(tabSendMessageSpy).toHaveBeenCalledWith(sender.tab, {
+            command: "closeNotificationBar",
+          });
+          expect(tabSendMessageSpy).toHaveBeenCalledWith(sender.tab, {
+            command: "editedCipher",
+          });
+        });
+
+        it("opens an editItem window and closes the notification bar if the edit value is within the passed message when attempting to save the cipher", async () => {
           const tab = createChromeTabMock({ id: 1, url: "https://example.com" });
           const sender = mock<chrome.runtime.MessageSender>({ tab });
           const message: NotificationBackgroundExtensionMessage = {
@@ -947,6 +991,41 @@ describe("NotificationBackground", () => {
           expect(tabSendMessageSpy).not.toHaveBeenCalledWith(sender.tab, {
             command: "addedCipher",
           });
+          expect(tabSendMessageDataSpy).toHaveBeenCalledWith(
+            sender.tab,
+            "saveCipherAttemptCompleted",
+            {
+              error: errorMessage,
+            },
+          );
+        });
+
+        it("sends an error message within the `saveCipherAttemptCompleted` message if the cipher cannot be updated within the server", async () => {
+          const tab = createChromeTabMock({ id: 1, url: "https://example.com" });
+          const sender = mock<chrome.runtime.MessageSender>({ tab });
+          const message: NotificationBackgroundExtensionMessage = {
+            command: "bgSaveCipher",
+            edit: false,
+            folder: "folder-id",
+          };
+          const queueMessage = mock<AddChangePasswordQueueMessage>({
+            type: NotificationQueueMessageType.ChangePassword,
+            tab,
+            domain: "example.com",
+            newPassword: "newPassword",
+          });
+          notificationBackground["notificationQueue"] = [queueMessage];
+          const cipherView = mock<CipherView>();
+          getDecryptedCipherByIdSpy.mockResolvedValueOnce(cipherView);
+          const errorMessage = "fetch error";
+          updateWithServerSpy.mockImplementation(() => {
+            throw new Error(errorMessage);
+          });
+
+          sendExtensionRuntimeMessage(message, sender);
+          await flushPromises();
+
+          expect(updateWithServerSpy).toThrow(errorMessage);
           expect(tabSendMessageDataSpy).toHaveBeenCalledWith(
             sender.tab,
             "saveCipherAttemptCompleted",
