@@ -7,12 +7,27 @@ import { Response } from "../models/response";
 import { FileResponse } from "../models/response/file.response";
 import { CliUtils } from "../utils";
 
+/**
+ * Used to download and save attachments
+ */
 export abstract class DownloadCommand {
+  /**
+   * @param cryptoService - Needed for decryption of the retrieved attachment
+   * @param apiService - Needed to override the existing nativeFetch which is available as of Node 18, to support proxies
+   */
   constructor(
     protected cryptoService: CryptoService,
     protected apiService: ApiService,
   ) {}
 
+  /**
+   * Fetches an attachment via the url, decrypts it's content and saves it to a file
+   * @param url - url used to retrieve the attachment
+   * @param key - SymmetricCryptoKey to decrypt the file contents
+   * @param fileName - filename used when written to disk
+   * @param output - If output is empty or `--raw` was passed to the initial command the content is output onto stdout
+   * @returns Promise<FileResponse>
+   */
   protected async saveAttachmentToFile(
     url: string,
     key: SymmetricCryptoKey,
