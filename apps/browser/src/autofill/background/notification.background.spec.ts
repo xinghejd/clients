@@ -955,13 +955,17 @@ describe("NotificationBackground", () => {
           const cipherView = mock<CipherView>({
             login: { username: "test", password: "password" },
           });
-          folderExistsSpy.mockResolvedValueOnce(true);
+          folderExistsSpy.mockResolvedValueOnce(false);
           convertAddLoginQueueMessageToCipherViewSpy.mockReturnValueOnce(cipherView);
           editItemSpy.mockResolvedValueOnce(undefined);
 
           sendExtensionRuntimeMessage(message, sender);
           await flushPromises();
 
+          expect(convertAddLoginQueueMessageToCipherViewSpy).toHaveBeenCalledWith(
+            queueMessage,
+            null,
+          );
           expect(cipherEncryptSpy).toHaveBeenCalledWith(cipherView);
           expect(createWithServerSpy).toHaveBeenCalled();
           expect(tabSendMessageSpy).toHaveBeenCalledWith(sender.tab, {
