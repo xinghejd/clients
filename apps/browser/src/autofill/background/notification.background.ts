@@ -421,6 +421,14 @@ export default class NotificationBackground {
     this.removeTabFromNotificationQueue(tab);
   }
 
+  /**
+   * Saves a cipher based on the message sent from the notification bar. If the vault
+   * is locked, the message will be added to the notification queue and the unlock
+   * popout will be opened.
+   *
+   * @param message - The extension message
+   * @param sender - The contextual sender of the message
+   */
   private async handleSaveCipherMessage(
     message: NotificationBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
@@ -444,6 +452,14 @@ export default class NotificationBackground {
     await this.saveOrUpdateCredentials(sender.tab, message.edit, message.folder);
   }
 
+  /**
+   * Saves or updates credentials based on the message within the
+   * notification queue that is associated with the specified tab.
+   *
+   * @param tab - The tab to save or update credentials for
+   * @param edit - Identifies if the credentials should be edited or simply added
+   * @param folderId - The folder to add the cipher to
+   */
   private async saveOrUpdateCredentials(tab: chrome.tabs.Tab, edit: boolean, folderId?: string) {
     for (let i = this.notificationQueue.length - 1; i >= 0; i--) {
       const queueMessage = this.notificationQueue[i];
