@@ -212,10 +212,12 @@ function sendSaveCipherMessage(edit: boolean, folder?: string) {
 
 function handleSaveCipherAttemptCompletedMessage(message: SaveOrUpdateCipherResult) {
   const addSaveButtonContainers = document.querySelectorAll(".add-change-cipher-buttons");
+  const notificationBarOuterWrapper = document.getElementById("notification-bar-outer-wrapper");
   if (message?.error) {
     addSaveButtonContainers.forEach((element) => {
       element.textContent = chrome.i18n.getMessage("saveCipherAttemptFailed");
       element.classList.add("error-message");
+      notificationBarOuterWrapper.classList.add("error-event");
     });
 
     logService.error(`Error encountered when saving credentials: ${message.error}`);
@@ -227,6 +229,7 @@ function handleSaveCipherAttemptCompletedMessage(message: SaveOrUpdateCipherResu
   addSaveButtonContainers.forEach((element) => {
     element.textContent = chrome.i18n.getMessage(messageName);
     element.classList.add("success-message");
+    notificationBarOuterWrapper.classList.add("success-event");
   });
   setTimeout(() => sendPlatformMessage({ command: "bgCloseNotificationBar" }), 1250);
 }
@@ -274,17 +277,19 @@ function handleTypeFilelessImport() {
 
     port.disconnect();
 
+    const filelessImportButtons = document.getElementById("fileless-import-buttons");
+    const notificationBarOuterWrapper = document.getElementById("notification-bar-outer-wrapper");
+
     if (msg.command === "filelessImportCompleted") {
-      document.getElementById("fileless-import-buttons").textContent = chrome.i18n.getMessage(
-        "dataSuccessfullyImported",
-      );
-      document.getElementById("fileless-import-buttons").classList.add("success-message");
+      filelessImportButtons.textContent = chrome.i18n.getMessage("dataSuccessfullyImported");
+      filelessImportButtons.classList.add("success-message");
+      notificationBarOuterWrapper.classList.add("success-event");
       return;
     }
 
-    document.getElementById("fileless-import-buttons").textContent =
-      chrome.i18n.getMessage("dataImportFailed");
-    document.getElementById("fileless-import-buttons").classList.add("error-message");
+    filelessImportButtons.textContent = chrome.i18n.getMessage("dataImportFailed");
+    filelessImportButtons.classList.add("error-message");
+    notificationBarOuterWrapper.classList.add("error-event");
     logService.error(`Error Encountered During Import: ${msg.importErrorMessage}`);
   };
   port.onMessage.addListener(handlePortMessage);
