@@ -180,6 +180,9 @@ const mainConfig = {
     "overlay/list": "./src/autofill/overlay/pages/list/bootstrap-autofill-overlay-list.ts",
     "encrypt-worker": "../../libs/common/src/platform/services/cryptography/encrypt.worker.ts",
     "content/lp-fileless-importer": "./src/tools/content/lp-fileless-importer.ts",
+    "content/lp-suppress-import-download": "./src/tools/content/lp-suppress-import-download.ts",
+    "content/lp-suppress-import-download-mv2":
+      "./src/tools/content/lp-suppress-import-download.mv2.ts",
   },
   optimization: {
     minimize: ENV !== "development",

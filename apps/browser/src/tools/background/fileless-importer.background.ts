@@ -200,12 +200,29 @@ class FilelessImporterBackground implements FilelessImporterBackgroundInterface 
     switch (port.name) {
       case FilelessImportPort.LpImporter:
         this.lpImporterPort = port;
+        await this.injectLpSuppressImportDownloadScript(port.sender);
         break;
       case FilelessImportPort.NotificationBar:
         this.importNotificationsPort = port;
         break;
     }
   };
+
+  private async injectLpSuppressImportDownloadScript(sender: chrome.runtime.MessageSender) {
+    if (BrowserApi.isManifestV3()) {
+      await BrowserApi.executeScriptInTab(
+        sender.tab.id,
+        { file: "content/lp-suppress-import-download.js", runAt: "document_start" },
+        { world: "MAIN" },
+      );
+      return;
+    }
+
+    await BrowserApi.executeScriptInTab(sender.tab.id, {
+      file: "content/lp-suppress-import-download-mv2.js",
+      runAt: "document_start",
+    });
+  }
 
   /**
    * Handles messages that are sent from fileless importer content scripts.
