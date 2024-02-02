@@ -1,3 +1,9 @@
+/**
+ * Handles intercepting the injection of the CSV download link, and ensures the
+ * download of the script is suppressed until the user opts to download the file.
+ * The download is triggered by a window message sent from the LpFilelessImporter
+ * content script.
+ */
 (function (globalContext) {
   let csvDownload = "";
   let csvHref = "";
@@ -14,7 +20,7 @@
     return defaultAppendChild.call(this, newChild);
   };
 
-  globalContext.addEventListener("message", (event) => {
+  const handleWindowMessage = (event: MessageEvent) => {
     const command = event.data?.command;
     if (event.source !== globalContext || command !== "triggerCsvDownload") {
       return;
@@ -26,5 +32,8 @@
     globalContext.document.body.appendChild(anchor);
     anchor.click();
     globalContext.document.body.removeChild(anchor);
-  });
+    globalContext.removeEventListener("message", handleWindowMessage);
+  };
+
+  globalContext.addEventListener("message", handleWindowMessage);
 })(window);
