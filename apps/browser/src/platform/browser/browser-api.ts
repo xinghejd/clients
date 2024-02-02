@@ -421,11 +421,11 @@ export class BrowserApi {
 
   /**
    * Extension API helper method used to execute a script in a tab.
+   *
    * @see https://developer.chrome.com/docs/extensions/reference/tabs/#method-executeScript
-   * @param {number} tabId
-   * @param {chrome.tabs.InjectDetails} details
-   * @param scriptingApiDetails
-   * @returns {Promise<unknown>}
+   * @param tabId - The id of the tab to execute the script in.
+   * @param details - Injection details for the script.
+   * @param scriptingApiDetails - API options specific to manifest v3 and the chrome.scripting.executeScript method.
    */
   static executeScriptInTab(
     tabId: number,
