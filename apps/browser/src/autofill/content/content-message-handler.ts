@@ -35,6 +35,10 @@ class ContentMessageHandler implements ContentMessageHandlerInterface {
     const { command } = data;
     const referrer = source.location.hostname;
 
+    if (command === "checkIfReadyForAuthResult") {
+      window.postMessage({ command: "readyToReceiveAuthResult" }, "*");
+    }
+
     if (command === "authResult") {
       const { lastpass, code, state } = data;
       chrome.runtime.sendMessage({ command, code, state, lastpass, referrer });
