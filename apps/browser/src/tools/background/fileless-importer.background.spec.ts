@@ -1,4 +1,5 @@
 import { mock } from "jest-mock-extended";
+import { firstValueFrom } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/services/policy/policy.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -18,6 +19,15 @@ import { BrowserApi } from "../../platform/browser/browser-api";
 import { FilelessImportPort, FilelessImportType } from "../enums/fileless-import.enums";
 
 import FilelessImporterBackground from "./fileless-importer.background";
+
+jest.mock("rxjs", () => {
+  const rxjs = jest.requireActual("rxjs");
+  const { firstValueFrom } = rxjs;
+  return {
+    ...rxjs,
+    firstValueFrom: jest.fn(firstValueFrom),
+  };
+});
 
 describe("FilelessImporterBackground ", () => {
   let filelessImporterBackground: FilelessImporterBackground;
@@ -58,12 +68,11 @@ describe("FilelessImporterBackground ", () => {
     beforeEach(() => {
       lpImporterPort = createPortSpyMock(FilelessImportPort.LpImporter);
       manifestVersionSpy = jest.spyOn(BrowserApi, "manifestVersion", "get");
-      executeScriptInTabSpy = jest.spyOn(BrowserApi, "executeScriptInTab");
+      executeScriptInTabSpy = jest.spyOn(BrowserApi, "executeScriptInTab").mockResolvedValue(null);
       jest.spyOn(authService, "getAuthStatus").mockResolvedValue(AuthenticationStatus.Unlocked);
       jest.spyOn(configService, "getFeatureFlag").mockResolvedValue(true);
-      jest
-        .spyOn(filelessImporterBackground as any, "removeIndividualVault")
-        .mockResolvedValue(false);
+      jest.spyOn(filelessImporterBackground as any, "removeIndividualVault");
+      (firstValueFrom as jest.Mock).mockResolvedValue(false);
     });
 
     it("ignores the port connection if the port name is not present in the set of filelessImportNames", async () => {
@@ -88,9 +97,7 @@ describe("FilelessImporterBackground ", () => {
     });
 
     it("posts a message to the port indicating that the fileless import feature is disabled if the user's policy removes individual vaults", async () => {
-      jest
-        .spyOn(filelessImporterBackground as any, "removeIndividualVault")
-        .mockResolvedValue(true);
+      (firstValueFrom as jest.Mock).mockResolvedValue(true);
 
       triggerRuntimeOnConnectEvent(lpImporterPort);
       await flushPromises();
@@ -156,9 +163,7 @@ describe("FilelessImporterBackground ", () => {
     beforeEach(async () => {
       jest.spyOn(authService, "getAuthStatus").mockResolvedValue(AuthenticationStatus.Unlocked);
       jest.spyOn(configService, "getFeatureFlag").mockResolvedValue(true);
-      jest
-        .spyOn(filelessImporterBackground as any, "removeIndividualVault")
-        .mockResolvedValue(false);
+      (firstValueFrom as jest.Mock).mockResolvedValue(false);
       triggerRuntimeOnConnectEvent(createPortSpyMock(FilelessImportPort.NotificationBar));
       triggerRuntimeOnConnectEvent(createPortSpyMock(FilelessImportPort.LpImporter));
       await flushPromises();
