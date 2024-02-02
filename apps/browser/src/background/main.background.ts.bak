@@ -264,8 +264,7 @@ export default class MainBackground {
   organizationVaultExportService: OrganizationVaultExportServiceAbstraction;
 
   // Passed to the popup for Safari to workaround issues with theming, downloading, etc.
-  backgroundWindow = typeof window !== "undefined" ? window : null;
-  // backgroundWindow = window;
+  backgroundWindow = window;
 
   onUpdatedRan: boolean;
   onReplacedRan: boolean;
@@ -395,8 +394,7 @@ export default class MainBackground {
           return promise.then((result) => result.response === "unlocked");
         }
       },
-      self,
-      // window,
+      window,
     );
     this.i18nService = new BrowserI18nService(BrowserApi.getUILanguage(), this.stateService);
     this.cryptoService = new BrowserCryptoService(
@@ -708,10 +706,7 @@ export default class MainBackground {
         this.platformUtilsService.isSafari() ||
         this.platformUtilsService.isFirefox() ||
         this.platformUtilsService.isOpera();
-      BrowserApi.reloadExtension(
-        forceWindowReload && typeof window !== "undefined" ? window : null,
-      );
-      // BrowserApi.reloadExtension(forceWindowReload ? window : null);
+      BrowserApi.reloadExtension(forceWindowReload ? window : null);
       return Promise.resolve();
     };
 
@@ -799,8 +794,7 @@ export default class MainBackground {
         async (_tab) => {
           const options = (await this.passwordGenerationService.getOptions())?.[0] ?? {};
           const password = await this.passwordGenerationService.generatePassword(options);
-          this.platformUtilsService.copyToClipboard(password, { window: self });
-          // this.platformUtilsService.copyToClipboard(password, { window: window });
+          this.platformUtilsService.copyToClipboard(password, { window: window });
           this.passwordGenerationService.addHistory(password);
         },
         async (tab, cipher) => {
@@ -862,8 +856,7 @@ export default class MainBackground {
   }
 
   async bootstrap() {
-    this.containerService.attachToGlobal(self);
-    // this.containerService.attachToGlobal(window);
+    this.containerService.attachToGlobal(window);
 
     await this.stateService.init();
 

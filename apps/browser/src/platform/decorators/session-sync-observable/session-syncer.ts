@@ -110,6 +110,7 @@ export class SessionSyncer {
   }
 
   private get updateMessageCommand() {
+    // console.log("sessnion-syncer.ts: updateMessageCommand");
     return `${this.metaData.sessionKey}_update`;
   }
 }

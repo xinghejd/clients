@@ -1,4 +1,4 @@
-import { Subject, combineLatestWith, map, distinctUntilChanged, shareReplay } from "rxjs";
+import { Subject, combineLatestWith, map, distinctUntilChanged, shareReplay, tap } from "rxjs";
 
 import {
   AccountInfo,
@@ -51,10 +51,31 @@ export class AccountServiceImplementation implements InternalAccountService {
       map((accounts) => (accounts == null ? {} : accounts)),
     );
     this.activeAccount$ = this.activeAccountIdState.state$.pipe(
+      tap((id) => {
+        console.log("activeaccount", id);
+      }),
       combineLatestWith(this.accounts$),
+      // tap({
+      //   subscribe: () => console.log("unauthGuard sub after combine"),
+      //   unsubscribe: () => console.log("unauthGuard unsub after combine"),
+      //   next: (v) => console.log("unauthGuard next after combine", v),
+      // }),
+      tap((id) => {
+        console.log("aftercombine", id);
+      }),
       map(([id, accounts]) => (id ? { id, ...accounts[id] } : undefined)),
       distinctUntilChanged((a, b) => a?.id === b?.id && accountInfoEqual(a, b)),
-      shareReplay({ bufferSize: 1, refCount: false }),
+      // tap({
+      //   subscribe: () => console.log("unauthGuard sub after distinctUntilChanged"),
+      //   unsubscribe: () => console.log("unauthGuard unsub after distinctUntilChanged"),
+      //   next: (v) => console.log("unauthGuard next after distinctUntilChanged", v),
+      // }),
+      shareReplay({ bufferSize: 1, refCount: true }),
+      tap({
+        subscribe: () => console.log("sub after share replay"),
+        unsubscribe: () => console.log("unsub after share replay"),
+        next: (v) => console.log("next after share replay", v),
+      }),
     );
   }
 

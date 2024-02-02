@@ -1,6 +1,7 @@
 import { Injectable, inject } from "@angular/core";
 import { CanActivate, CanActivateFn, Router, UrlTree } from "@angular/router";
 import { Observable, map } from "rxjs";
+import { tap } from "rxjs/operators";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -46,8 +47,16 @@ function unauthGuard(routes: UnauthRoutes): Observable<boolean | UrlTree> {
   const accountService = inject(AccountService);
   const router = inject(Router);
 
+  console.log("unauthGuard -> accountService", accountService);
   return accountService.activeAccount$.pipe(
+    tap({
+      subscribe: () => console.log("before map unauthGuard sub"),
+      unsubscribe: () => console.log("before map unauthGuard unsub"),
+      next: (v) => console.log("before map unauthGuard next", v),
+    }),
     map((accountData) => {
+      console.log("unauthGuard -> accountData", accountData);
+
       if (accountData == null || accountData.status === AuthenticationStatus.LoggedOut) {
         return true;
       } else if (accountData.status === AuthenticationStatus.Locked) {
@@ -55,6 +64,11 @@ function unauthGuard(routes: UnauthRoutes): Observable<boolean | UrlTree> {
       } else {
         return router.createUrlTree([routes.homepage()]);
       }
+    }),
+    tap({
+      subscribe: () => console.log("unauthGuard sub"),
+      unsubscribe: () => console.log("unauthGuard unsub"),
+      next: (v) => console.log("unauthGuard next", v),
     }),
   );
 }

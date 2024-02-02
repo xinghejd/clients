@@ -58,6 +58,6 @@ export async function stateServiceFactory(
         opts.stateServiceOptions.useAccountCache,
       ),
   );
-  service.init();
+  await service.init();
   return service;
 }
