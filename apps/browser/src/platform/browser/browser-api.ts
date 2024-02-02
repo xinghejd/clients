@@ -19,10 +19,6 @@ export class BrowserApi {
     return chrome.runtime.getManifest().manifest_version;
   }
 
-  static isManifestV3() {
-    return BrowserApi.manifestVersion === 3;
-  }
-
   /**
    * Gets the current window or the window with the given id.
    *
@@ -107,7 +103,7 @@ export class BrowserApi {
       return null;
     }
 
-    if (BrowserApi.isManifestV3()) {
+    if (BrowserApi.manifestVersion === 3) {
       return await chrome.tabs.get(tabId);
     }
 
@@ -404,7 +400,7 @@ export class BrowserApi {
   }
 
   static getBrowserAction() {
-    return BrowserApi.isManifestV3() ? chrome.action : chrome.browserAction;
+    return BrowserApi.manifestVersion === 3 ? chrome.action : chrome.browserAction;
   }
 
   static getSidebarAction(
@@ -438,7 +434,7 @@ export class BrowserApi {
       world: chrome.scripting.ExecutionWorld;
     },
   ): Promise<unknown> {
-    if (BrowserApi.isManifestV3()) {
+    if (BrowserApi.manifestVersion === 3) {
       return chrome.scripting.executeScript({
         target: {
           tabId: tabId,

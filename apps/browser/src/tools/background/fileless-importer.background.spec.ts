@@ -14,6 +14,7 @@ import {
   sendPortMessage,
   triggerRuntimeOnConnectEvent,
 } from "../../autofill/jest/testing-utils";
+import { BrowserApi } from "../../platform/browser/browser-api";
 import { FilelessImportPort, FilelessImportType } from "../enums/fileless-import.enums";
 
 import FilelessImporterBackground from "./fileless-importer.background";
@@ -51,9 +52,13 @@ describe("FilelessImporterBackground ", () => {
 
   describe("handle ports onConnect", () => {
     let lpImporterPort: chrome.runtime.Port;
+    let manifestVersionSpy: jest.SpyInstance;
+    let executeScriptInTabSpy: jest.SpyInstance;
 
     beforeEach(() => {
       lpImporterPort = createPortSpyMock(FilelessImportPort.LpImporter);
+      manifestVersionSpy = jest.spyOn(BrowserApi, "manifestVersion", "get");
+      executeScriptInTabSpy = jest.spyOn(BrowserApi, "executeScriptInTab");
       jest.spyOn(authService, "getAuthStatus").mockResolvedValue(AuthenticationStatus.Unlocked);
       jest.spyOn(configService, "getFeatureFlag").mockResolvedValue(true);
       jest
@@ -115,6 +120,31 @@ describe("FilelessImporterBackground ", () => {
       expect(lpImporterPort.postMessage).toHaveBeenCalledWith({
         command: "verifyFeatureFlag",
         filelessImportEnabled: true,
+      });
+    });
+
+    it("triggers an injection of the `lp-suppress-import-download.js` script in manifest v3", async () => {
+      manifestVersionSpy.mockReturnValueOnce(3);
+
+      triggerRuntimeOnConnectEvent(lpImporterPort);
+      await flushPromises();
+
+      expect(executeScriptInTabSpy).toHaveBeenCalledWith(
+        lpImporterPort.sender.tab.id,
+        { file: "content/lp-suppress-import-download.js", runAt: "document_start" },
+        { world: "MAIN" },
+      );
+    });
+
+    it("triggers an injection of the `lp-suppress-import-download-mv2.js` script in manifest v2", async () => {
+      manifestVersionSpy.mockReturnValueOnce(2);
+
+      triggerRuntimeOnConnectEvent(lpImporterPort);
+      await flushPromises();
+
+      expect(executeScriptInTabSpy).toHaveBeenCalledWith(lpImporterPort.sender.tab.id, {
+        file: "content/lp-suppress-import-download-mv2.js",
+        runAt: "document_start",
       });
     });
   });

@@ -132,6 +132,7 @@ describe("BrowserApi", () => {
         },
         files: [injectDetails.file],
         injectImmediately: true,
+        world: "ISOLATED",
       });
       expect(result).toEqual(executeScriptResult);
     });
