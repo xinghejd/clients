@@ -181,8 +181,6 @@ const mainConfig = {
     "encrypt-worker": "../../libs/common/src/platform/services/cryptography/encrypt.worker.ts",
     "content/lp-fileless-importer": "./src/tools/content/lp-fileless-importer.ts",
     "content/lp-suppress-import-download": "./src/tools/content/lp-suppress-import-download.ts",
-    "content/lp-suppress-import-download-mv2":
-      "./src/tools/content/lp-suppress-import-download.mv2.ts",
   },
   optimization: {
     minimize: ENV !== "development",
@@ -280,6 +278,8 @@ if (manifestVersion == 2) {
   // Manifest V2 background pages can be run through the regular build pipeline.
   // Since it's a standard webpage.
   mainConfig.entry.background = "./src/platform/background.ts";
+  mainConfig.entry["content/lp-suppress-import-download-mv2"] =
+    "./src/tools/content/lp-suppress-import-download.mv2.ts";
 
   configs.push(mainConfig);
 } else {
