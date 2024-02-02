@@ -607,6 +607,8 @@ describe("OverlayBackground", () => {
         });
 
         it("will open the add edit popout window after creating a new cipher", async () => {
+          jest.spyOn(BrowserApi, "sendMessage");
+
           sendExtensionRuntimeMessage(
             {
               command: "autofillOverlayAddNewVaultItem",
@@ -622,6 +624,9 @@ describe("OverlayBackground", () => {
           await flushPromises();
 
           expect(overlayBackground["stateService"].setAddEditCipherInfo).toHaveBeenCalled();
+          expect(BrowserApi.sendMessage).toHaveBeenCalledWith(
+            "inlineAutofillMenuRefreshAddEditCipher",
+          );
           expect(overlayBackground["openAddEditVaultItemPopout"]).toHaveBeenCalled();
         });
       });
