@@ -459,12 +459,19 @@ export class BrowserApi {
 
   /**
    * Extension API helper method used to execute a script in a tab.
+   *
    * @see https://developer.chrome.com/docs/extensions/reference/tabs/#method-executeScript
-   * @param {number} tabId
-   * @param {chrome.tabs.InjectDetails} details
-   * @returns {Promise<unknown>}
+   * @param tabId - The id of the tab to execute the script in.
+   * @param details - Injection details for the script.
+   * @param scriptingApiDetails - API options specific to manifest v3 and the chrome.scripting.executeScript method.
    */
-  static executeScriptInTab(tabId: number, details: chrome.tabs.InjectDetails) {
+  static executeScriptInTab(
+    tabId: number,
+    details: chrome.tabs.InjectDetails,
+    scriptingApiDetails?: {
+      world: chrome.scripting.ExecutionWorld;
+    },
+  ): Promise<unknown> {
     if (BrowserApi.manifestVersion === 3) {
       return chrome.scripting.executeScript({
         target: {
@@ -474,6 +481,7 @@ export class BrowserApi {
         },
         files: details.file ? [details.file] : null,
         injectImmediately: details.runAt === "document_start",
+        world: scriptingApiDetails?.world || "ISOLATED",
       });
     }
 

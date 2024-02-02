@@ -109,6 +109,27 @@ class FilelessImporterBackground implements FilelessImporterBackgroundInterface 
   }
 
   /**
+   * Injects the script used to suppress the download of the LP importer export file.
+   *
+   * @param sender - The sender of the message.
+   */
+  private async injectLpSuppressImportDownloadScript(sender: chrome.runtime.MessageSender) {
+    if (BrowserApi.manifestVersion === 3) {
+      await BrowserApi.executeScriptInTab(
+        sender.tab.id,
+        { file: "content/lp-suppress-import-download.js", runAt: "document_start" },
+        { world: "MAIN" },
+      );
+      return;
+    }
+
+    await BrowserApi.executeScriptInTab(sender.tab.id, {
+      file: "content/lp-suppress-import-download-mv2.js",
+      runAt: "document_start",
+    });
+  }
+
+  /**
    * Triggers the download of the CSV file from the LP importer. This is triggered
    * when the user opts to not save the export to Bitwarden within the notification bar.
    */
@@ -200,6 +221,7 @@ class FilelessImporterBackground implements FilelessImporterBackgroundInterface 
     switch (port.name) {
       case FilelessImportPort.LpImporter:
         this.lpImporterPort = port;
+        await this.injectLpSuppressImportDownloadScript(port.sender);
         break;
       case FilelessImportPort.NotificationBar:
         this.importNotificationsPort = port;
