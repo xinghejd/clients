@@ -5,7 +5,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 
 import { openUnlockPopout } from "../auth/popup/utils/auth-popout-window";
-import LockedVaultPendingNotificationsItem from "../autofill/notification/models/locked-vault-pending-notifications-item";
+import { LockedVaultPendingNotificationsData } from "../autofill/background/abstractions/notification.background";
 import { BrowserApi } from "../platform/browser/browser-api";
 
 import MainBackground from "./main.background";
@@ -28,7 +28,10 @@ export default class CommandsBackground {
   async init() {
     BrowserApi.messageListener("commands.background", (msg: any) => {
       if (msg.command === "unlockCompleted" && msg.data.target === "commands.background") {
-        this.processCommand(msg.data.commandToRetry.msg.command, msg.data.commandToRetry.sender);
+        this.processCommand(
+          msg.data.commandToRetry.message.command,
+          msg.data.commandToRetry.sender,
+        );
       }
     });
 
@@ -75,9 +78,9 @@ export default class CommandsBackground {
     }
 
     if ((await this.authService.getAuthStatus()) < AuthenticationStatus.Unlocked) {
-      const retryMessage: LockedVaultPendingNotificationsItem = {
+      const retryMessage: LockedVaultPendingNotificationsData = {
         commandToRetry: {
-          msg: { command: "autofill_login" },
+          message: { command: "autofill_login" },
           sender: { tab: tab },
         },
         target: "commands.background",

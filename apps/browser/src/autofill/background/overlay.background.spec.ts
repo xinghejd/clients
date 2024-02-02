@@ -901,7 +901,7 @@ describe("OverlayBackground", () => {
           const message = {
             command: "unlockCompleted",
             data: {
-              commandToRetry: { msg: { command: "" } },
+              commandToRetry: { message: { command: "" } },
             },
           };
 
@@ -917,7 +917,7 @@ describe("OverlayBackground", () => {
           const message = {
             command: "unlockCompleted",
             data: {
-              commandToRetry: { msg: { command: "openAutofillOverlay" } },
+              commandToRetry: { message: { command: "openAutofillOverlay" } },
             },
           };
           jest.spyOn(BrowserApi, "getTabFromCurrentWindowId").mockResolvedValueOnce(sender.tab);
@@ -1171,7 +1171,7 @@ describe("OverlayBackground", () => {
             "addToLockedVaultPendingNotifications",
             {
               commandToRetry: {
-                msg: { command: "openAutofillOverlay" },
+                message: { command: "openAutofillOverlay" },
                 sender: listPortSpy.sender,
               },
               target: "overlay.background",
