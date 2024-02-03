@@ -88,8 +88,6 @@ describe("session syncer", () => {
       // block observing the subject
       jest.spyOn(sut as any, "observe").mockImplementation();
 
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       sut.init();
 
       expect(sut["ignoreNUpdates"]).toBe(3);
@@ -101,8 +99,6 @@ describe("session syncer", () => {
       // block observing the subject
       jest.spyOn(sut as any, "observe").mockImplementation();
 
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       sut.init();
 
       expect(sut["ignoreNUpdates"]).toBe(1);
@@ -113,8 +109,6 @@ describe("session syncer", () => {
       //Block a call to update
       const updateSpy = jest.spyOn(sut as any, "updateFromMemory").mockImplementation();
 
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       sut.init();
       await awaitAsync();
 
@@ -126,8 +120,6 @@ describe("session syncer", () => {
       //Block a call to update
       const updateSpy = jest.spyOn(sut as any, "update").mockImplementation();
 
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       sut.init();
       await awaitAsync();
 
@@ -143,8 +135,6 @@ describe("session syncer", () => {
     beforeEach(() => {
       sendMessageSpy = jest.spyOn(BrowserApi, "sendMessage");
 
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       sut.init();
 
       behaviorSubject.next(value);
@@ -170,8 +160,6 @@ describe("session syncer", () => {
       nextSpy = jest.spyOn(behaviorSubject, "next");
       sendMessageSpy = jest.spyOn(BrowserApi, "sendMessage");
 
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       sut.init();
     });
 
@@ -234,8 +222,6 @@ describe("session syncer", () => {
       jest.spyOn(SyncedItemMetadata, "builder").mockReturnValue(builder);
       saveSpy = jest.spyOn(storageService, "save");
 
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       sut.init();
       await awaitAsync();
     });

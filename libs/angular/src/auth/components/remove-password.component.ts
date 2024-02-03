@@ -50,8 +50,6 @@ export class RemovePasswordComponent implements OnInit {
         this.i18nService.t("removedMasterPassword"),
       );
       await this.keyConnectorService.removeConvertAccountRequired();
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate([""]);
     } catch (e) {
       this.platformUtilsService.showToast("error", this.i18nService.t("errorOccurred"), e.message);
@@ -75,8 +73,6 @@ export class RemovePasswordComponent implements OnInit {
       await this.actionPromise;
       this.platformUtilsService.showToast("success", null, this.i18nService.t("leftOrganization"));
       await this.keyConnectorService.removeConvertAccountRequired();
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate([""]);
     } catch (e) {
       this.platformUtilsService.showToast("error", this.i18nService.t("errorOccurred"), e);

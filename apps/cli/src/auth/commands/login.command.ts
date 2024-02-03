@@ -1,6 +1,6 @@
 import * as http from "http";
 
-import { OptionValues } from "commander";
+import * as program from "commander";
 import * as inquirer from "inquirer";
 import Separator from "inquirer/lib/objects/separator";
 import { firstValueFrom } from "rxjs";
@@ -47,7 +47,7 @@ export class LoginCommand {
   protected email: string;
 
   private ssoRedirectUri: string = null;
-  private options: OptionValues;
+  private options: program.OptionValues;
 
   constructor(
     protected authService: AuthService,
@@ -68,7 +68,7 @@ export class LoginCommand {
     protected logoutCallback: () => Promise<void>,
   ) {}
 
-  async run(email: string, password: string, options: OptionValues) {
+  async run(email: string, password: string, options: program.OptionValues) {
     this.options = options;
     this.email = email;
 

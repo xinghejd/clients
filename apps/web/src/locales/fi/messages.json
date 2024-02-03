@@ -2531,15 +2531,6 @@
       }
     }
   },
-  "trialSecretsManagerThankYou": {
-    "message": "Kiitos kun hankit Bitwarden Salaisuushallinnan $PLAN$-tilaukseen!",
-    "placeholders": {
-      "plan": {
-        "content": "$1",
-        "example": "Teams"
-      }
-    }
-  },
   "trialPaidInfoMessage": {
     "message": "$PLAN$-tilauksesi 7 päivän kokeilujakso muutetaan 7 päivän kuluttua maksulliseksi tilaukseksi.",
     "placeholders": {
@@ -6859,6 +6850,9 @@
   "secretsManager": {
     "message": "Salaisuushallinta"
   },
+  "secretsManagerBeta": {
+    "message": "Salaisuushallinta Beta"
+  },
   "secretsManagerAccessDescription": {
     "message": "Aktivoi käyttäjälle pääsy Salaisuushallintaan."
   },
@@ -6961,6 +6955,12 @@
   },
   "selectionIsRequired": {
     "message": "Valinta vaaditaan."
+  },
+  "secretsManagerSubscriptionDesc": {
+    "message": "Ota Salaisuushallinta käyttöön organisaatiossasi veloituksetta sen Beta-vaiheen aikana. Käyttäjäkohtaiset käyttöoikeudet voidaan myöntää jäsenhallinan kautta."
+  },
+  "secretsManagerEnable": {
+    "message": "Käytä Salaisuushallinnan Beta-versiota"
   },
   "saPeopleWarningTitle": {
     "message": "Käyttöoikeustunnisteet ovat edelleen käytettävissä"
@@ -7234,15 +7234,6 @@
       }
     }
   },
-  "startYour7DayFreeTrialOfBitwardenSecretsManagerFor": {
-    "message": "Aloita seitsemän päivän ilmainen Bitwarden Salaisuushallinnan kokeilu organisaatiolle $ORG$",
-    "placeholders": {
-      "org": {
-        "content": "$1",
-        "example": "Organization name"
-      }
-    }
-  },
   "next": {
     "message": "Seuraava"
   },
@@ -7404,6 +7395,22 @@
   "loggedInExclamation": {
     "message": "Kirjautuminen onnistui"
   },
+  "smBetaEndedDesc": {
+    "message": "Salaisuushallinnan beta päättyi $BETA_ENDING_DATE$. Sinulla on $DAYS$ päivää aikaa lisätä Salaisuushallinta maksulliseen tilaukseesi säilyttääksesi Salaisuushallinnassa olevien tietojesi käyttöoikeuden. Lisää Salaisuushallinta tilaukseesi olemalla yhteydessä asiakaspalveluun.",
+    "placeholders": {
+      "beta_ending_date": {
+        "content": "$1",
+        "example": "August 1, 2023"
+      },
+      "days": {
+        "content": "$2",
+        "example": "11"
+      }
+    }
+  },
+  "betaEnding": {
+    "message": "Beta on päättynyt"
+  },
   "beta": {
     "message": "Beta"
   },
@@ -7501,17 +7508,5 @@
   },
   "collectionEnhancementsLearnMore": {
     "message": "Lisätietoja kokoelmien hallinnasta"
-  },
-  "organizationInformation": {
-    "message": "Organisaation tiedot"
-  },
-  "confirmationDetails": {
-    "message": "Vahvistuksen tiedot"
-  },
-  "smFreeTrialThankYou": {
-    "message": "Kiitos kun hankit Bitwarden Salaisuushallinnan!"
-  },
-  "smFreeTrialConfirmationEmail": {
-    "message": "Sähköpostivahvistus lähetettiin osoitteeseen "
   }
 }

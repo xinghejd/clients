@@ -108,8 +108,6 @@ export class VaultComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     this.userHasPremiumAccess = await this.stateService.getCanAccessPremium();
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.ngZone.run(async () => {
         let detectChanges = true;
 
@@ -139,8 +137,6 @@ export class VaultComponent implements OnInit, OnDestroy {
             await this.vaultFilterComponent.reloadOrganizations();
             break;
           case "refreshCiphers":
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.vaultItemsComponent.refresh();
             break;
           case "modalShown":
@@ -246,8 +242,6 @@ export class VaultComponent implements OnInit, OnDestroy {
         }
       } else if (params.action === "add") {
         this.addType = Number(params.addType);
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.addCipher(this.addType);
       }
 
@@ -280,8 +274,6 @@ export class VaultComponent implements OnInit, OnDestroy {
         label: this.i18nService.t("view"),
         click: () =>
           this.functionWithChangeDetection(() => {
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.viewCipher(cipher);
           }),
       },
@@ -291,8 +283,6 @@ export class VaultComponent implements OnInit, OnDestroy {
         label: this.i18nService.t("edit"),
         click: () =>
           this.functionWithChangeDetection(() => {
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.editCipher(cipher);
           }),
       });
@@ -301,8 +291,6 @@ export class VaultComponent implements OnInit, OnDestroy {
           label: this.i18nService.t("clone"),
           click: () =>
             this.functionWithChangeDetection(() => {
-              // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
               this.cloneCipher(cipher);
             }),
         });
@@ -335,8 +323,6 @@ export class VaultComponent implements OnInit, OnDestroy {
             label: this.i18nService.t("copyPassword"),
             click: () => {
               this.copyValue(cipher, cipher.login.password, "password", "Password");
-              // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
               this.eventCollectionService.collect(EventType.Cipher_ClientCopiedPassword, cipher.id);
             },
           });
@@ -366,8 +352,6 @@ export class VaultComponent implements OnInit, OnDestroy {
             label: this.i18nService.t("copySecurityCode"),
             click: () => {
               this.copyValue(cipher, cipher.card.code, "securityCode", "Security Code");
-              // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
               this.eventCollectionService.collect(EventType.Cipher_ClientCopiedCardCode, cipher.id);
             },
           });
@@ -519,8 +503,6 @@ export class VaultComponent implements OnInit, OnDestroy {
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     childComponent.onSharedCipher.subscribe(async () => {
       this.modal.close();
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.viewCipher(cipher);
       await this.vaultItemsComponent.refresh();
     });
@@ -545,8 +527,6 @@ export class VaultComponent implements OnInit, OnDestroy {
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil
     childComponent.onSavedCollections.subscribe(() => {
       this.modal.close();
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.viewCipher(cipher);
     });
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
@@ -722,8 +702,6 @@ export class VaultComponent implements OnInit, OnDestroy {
       };
     }
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: queryParams,

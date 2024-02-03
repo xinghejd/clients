@@ -291,8 +291,6 @@ export class LockComponent implements OnInit, OnDestroy {
           await this.stateService.setForceSetPasswordReason(
             ForceSetPasswordReason.WeakMasterPassword,
           );
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.router.navigate([this.forcePasswordResetRoute]);
           return;
         }
@@ -305,8 +303,6 @@ export class LockComponent implements OnInit, OnDestroy {
     if (this.onSuccessfulSubmit != null) {
       await this.onSuccessfulSubmit();
     } else if (this.router != null) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate([this.successRoute]);
     }
   }

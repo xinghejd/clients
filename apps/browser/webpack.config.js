@@ -318,7 +318,7 @@ if (manifestVersion == 2) {
       plugins: [new TsconfigPathsPlugin()],
       fallback: {
         fs: false,
-        path: require.resolve("path-browserify"),
+        path: false,
       },
     },
     dependencies: ["main"],

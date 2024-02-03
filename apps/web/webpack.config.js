@@ -172,7 +172,6 @@ const plugins = [
     BRAINTREE_KEY: envConfig["braintreeKey"] ?? "",
     PAYPAL_CONFIG: envConfig["paypal"] ?? {},
     FLAGS: envConfig["flags"] ?? {},
-    DEV_FLAGS: NODE_ENV === "development" ? envConfig["devFlags"] : {},
   }),
   new AngularWebpackPlugin({
     tsConfigPath: "tsconfig.json",

@@ -100,8 +100,6 @@ export class LoginViaAuthRequestComponent
       .pipe(takeUntil(this.destroy$))
       .subscribe((id) => {
         // Only fires on approval currently
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.verifyAndHandleApprovedAuthReq(id);
       });
   }
@@ -128,8 +126,6 @@ export class LoginViaAuthRequestComponent
 
       if (!this.email) {
         this.platformUtilsService.showToast("error", null, this.i18nService.t("userEmailMissing"));
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.router.navigate(["/login-initiated"]);
         return;
       }
@@ -151,8 +147,6 @@ export class LoginViaAuthRequestComponent
 
       if (!this.email) {
         this.platformUtilsService.showToast("error", null, this.i18nService.t("userEmailMissing"));
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.router.navigate(["/login"]);
         return;
       }
@@ -218,8 +212,6 @@ export class LoginViaAuthRequestComponent
     await this.stateService.setAdminAuthRequest(null);
 
     // start new auth request
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.startAuthRequestLogin();
   }
 
@@ -343,8 +335,6 @@ export class LoginViaAuthRequestComponent
           errorRoute = "/login-initiated";
         }
 
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.router.navigate([errorRoute]);
         this.validationService.showError(error);
         return;
@@ -445,22 +435,14 @@ export class LoginViaAuthRequestComponent
   private async handlePostLoginNavigation(loginResponse: AuthResult) {
     if (loginResponse.requiresTwoFactor) {
       if (this.onSuccessfulLoginTwoFactorNavigate != null) {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.onSuccessfulLoginTwoFactorNavigate();
       } else {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.router.navigate([this.twoFactorRoute]);
       }
     } else if (loginResponse.forcePasswordReset != ForceSetPasswordReason.None) {
       if (this.onSuccessfulLoginForceResetNavigate != null) {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.onSuccessfulLoginForceResetNavigate();
       } else {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.router.navigate([this.forcePasswordResetRoute]);
       }
     } else {
@@ -482,18 +464,12 @@ export class LoginViaAuthRequestComponent
     }
 
     if (this.onSuccessfulLogin != null) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.onSuccessfulLogin();
     }
 
     if (this.onSuccessfulLoginNavigate != null) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.onSuccessfulLoginNavigate();
     } else {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate([this.successRoute]);
     }
   }

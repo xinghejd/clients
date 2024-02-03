@@ -198,8 +198,6 @@ export class AddEditComponent extends BaseAddEditComponent {
     }
 
     if (this.cloneMode) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["/tabs/vault"]);
     } else {
       this.location.back();
@@ -215,12 +213,8 @@ export class AddEditComponent extends BaseAddEditComponent {
         .createUrlTree(["/attachments"], { queryParams: { cipherId: this.cipher.id } })
         .toString();
       const currentBaseUrl = window.location.href.replace(this.router.url, "");
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       BrowserPopupUtils.openCurrentPagePopout(window, currentBaseUrl + destinationUrl);
     } else {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["/attachments"], { queryParams: { cipherId: this.cipher.id } });
     }
   }
@@ -228,8 +222,6 @@ export class AddEditComponent extends BaseAddEditComponent {
   editCollections() {
     super.editCollections();
     if (this.cipher.organizationId != null) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["/collections"], { queryParams: { cipherId: this.cipher.id } });
     }
   }
@@ -245,8 +237,6 @@ export class AddEditComponent extends BaseAddEditComponent {
     }
 
     if (this.inAddEditPopoutWindow()) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       closeAddEditVaultItemPopout();
       return;
     }
@@ -258,8 +248,6 @@ export class AddEditComponent extends BaseAddEditComponent {
     const confirmed = await super.generateUsername();
     if (confirmed) {
       await this.saveCipherState();
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["generator"], { queryParams: { type: "username" } });
     }
     return confirmed;
@@ -269,8 +257,6 @@ export class AddEditComponent extends BaseAddEditComponent {
     const confirmed = await super.generatePassword();
     if (confirmed) {
       await this.saveCipherState();
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["generator"], { queryParams: { type: "password" } });
     }
     return confirmed;
@@ -279,8 +265,6 @@ export class AddEditComponent extends BaseAddEditComponent {
   async delete(): Promise<boolean> {
     const confirmed = await super.delete();
     if (confirmed) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["/tabs/vault"]);
     }
     return confirmed;

@@ -22,13 +22,9 @@ export class MessagingMain {
   init() {
     this.scheduleNextSync();
     if (process.platform === "linux") {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.stateService.setOpenAtLogin(fs.existsSync(this.linuxStartupFile()));
     } else {
       const loginSettings = app.getLoginItemSettings();
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.stateService.setOpenAtLogin(loginSettings.openAtLogin);
     }
     ipcMain.on("messagingService", async (event: any, message: any) => this.onMessage(message));
@@ -40,14 +36,10 @@ export class MessagingMain {
         this.scheduleNextSync();
         break;
       case "updateAppMenu":
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.main.menuMain.updateApplicationMenuState(message.updateRequest);
         this.updateTrayMenu(message.updateRequest);
         break;
       case "minimizeOnCopy":
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.stateService.getMinimizeOnCopyToClipboard().then((shouldMinimize) => {
           if (shouldMinimize && this.main.windowMain.win !== null) {
             this.main.windowMain.win.minimize();
@@ -61,8 +53,6 @@ export class MessagingMain {
         this.main.trayMain.removeTray();
         break;
       case "hideToTray":
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.main.trayMain.hideToTray();
         break;
       case "addOpenAtLogin":
@@ -79,14 +69,10 @@ export class MessagingMain {
         break;
       case "enableBrowserIntegration":
         this.main.nativeMessagingMain.generateManifests();
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.main.nativeMessagingMain.listen();
         break;
       case "enableDuckDuckGoBrowserIntegration":
         this.main.nativeMessagingMain.generateDdgManifests();
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.main.nativeMessagingMain.listen();
         break;
       case "disableBrowserIntegration":

@@ -19,7 +19,7 @@
       [ariaLabel]="['organization' | i18n, org.name].join(' ')"
       [route]="['../', org.id]"
       (mainContentClicked)="toggle()"
-      [exactMatch]="true"
+      [hideActiveStyles]="true"
     >
       <i
         slot="end"

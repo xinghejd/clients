@@ -75,15 +75,11 @@ export class CurrentTabComponent implements OnInit, OnDestroy {
     this.inSidebar = BrowserPopupUtils.inSidebar(window);
 
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.ngZone.run(async () => {
         switch (message.command) {
           case "syncCompleted":
             if (this.isLoading) {
               window.setTimeout(() => {
-                // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-                // eslint-disable-next-line @typescript-eslint/no-floating-promises
                 this.load();
               }, 500);
             }
@@ -146,8 +142,6 @@ export class CurrentTabComponent implements OnInit, OnDestroy {
   }
 
   addCipher() {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["/add-cipher"], {
       queryParams: {
         name: this.hostname,
@@ -158,8 +152,6 @@ export class CurrentTabComponent implements OnInit, OnDestroy {
   }
 
   viewCipher(cipher: CipherView) {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["/view-cipher"], { queryParams: { cipherId: cipher.id } });
   }
 
@@ -218,8 +210,6 @@ export class CurrentTabComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["/tabs/vault"], { queryParams: { searchText: this.searchText } });
   }
 
@@ -243,8 +233,6 @@ export class CurrentTabComponent implements OnInit, OnDestroy {
 
     this.hostname = Utils.getHostname(this.url);
     this.pageDetails = [];
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     BrowserApi.tabSendMessage(this.tab, {
       command: "collectPageDetails",
       tab: this.tab,
@@ -296,8 +284,6 @@ export class CurrentTabComponent implements OnInit, OnDestroy {
   }
 
   async goToSettings() {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["autofill"]);
   }
 

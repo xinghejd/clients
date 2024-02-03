@@ -167,8 +167,6 @@ export class UpdateBadge {
 
   setBadgeBackgroundColor(color = "#294e5f") {
     if (this.badgeAction?.setBadgeBackgroundColor) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.badgeAction.setBadgeBackgroundColor({ color });
     }
     if (this.isOperaSidebar(this.sidebarAction)) {
@@ -198,8 +196,6 @@ export class UpdateBadge {
 
   private setActionText(text: string, tabId?: number) {
     if (this.badgeAction?.setBadgeText) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.badgeAction.setBadgeText({ text, tabId });
     }
   }
@@ -210,8 +206,6 @@ export class UpdateBadge {
     } else if (this.sidebarAction) {
       // Firefox
       const title = `Bitwarden${Utils.isNullOrEmpty(text) ? "" : ` [${text}]`}`;
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.sidebarAction.setTitle({ title, tabId });
     }
   }
@@ -222,8 +216,6 @@ export class UpdateBadge {
     }
 
     if (this.useSyncApiCalls) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.badgeAction.setIcon(options);
     } else {
       await new Promise<void>((resolve) => this.badgeAction.setIcon(options, () => resolve()));

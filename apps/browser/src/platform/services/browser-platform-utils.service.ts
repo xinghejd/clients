@@ -174,8 +174,6 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
   }
 
   launchUri(uri: string, options?: any): void {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     BrowserApi.createNewTab(uri, options && options.extensionPage === true);
   }
 
@@ -230,8 +228,6 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
     const clearMs: number = options && options.clearMs ? options.clearMs : null;
 
     if (this.isSafari()) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       SafariApp.sendMessageToApp("copyToClipboard", text).then(() => {
         if (!clearing && this.clipboardWriteCallback != null) {
           this.clipboardWriteCallback(text, clearMs);

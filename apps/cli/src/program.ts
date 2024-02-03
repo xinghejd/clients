@@ -1,5 +1,5 @@
 import * as chalk from "chalk";
-import { program, Command, OptionValues } from "commander";
+import * as program from "commander";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
@@ -135,7 +135,7 @@ export class Program {
         writeLn("    bw login --sso");
         writeLn("", true);
       })
-      .action(async (email: string, password: string, options: OptionValues) => {
+      .action(async (email: string, password: string, options: program.OptionValues) => {
         if (!options.check) {
           await this.exitIfAuthed();
           const command = new LoginCommand(
@@ -427,7 +427,7 @@ export class Program {
         writeLn("    bw completion --shell zsh");
         writeLn("", true);
       })
-      .action(async (options: OptionValues, cmd: Command) => {
+      .action(async (options: program.OptionValues, cmd: program.Command) => {
         const command = new CompletionCommand();
         const response = await command.run(options);
         this.processResponse(response);

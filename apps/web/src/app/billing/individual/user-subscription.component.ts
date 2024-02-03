@@ -57,8 +57,6 @@ export class UserSubscriptionComponent implements OnInit {
       this.loading = true;
       this.sub = await this.apiService.getUserSubscription();
     } else {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["/settings/subscription/premium"]);
       return;
     }
@@ -85,8 +83,6 @@ export class UserSubscriptionComponent implements OnInit {
       this.reinstatePromise = this.apiService.postReinstatePremium();
       await this.reinstatePromise;
       this.platformUtilsService.showToast("success", null, this.i18nService.t("reinstated"));
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.load();
     } catch (e) {
       this.logService.error(e);
@@ -116,8 +112,6 @@ export class UserSubscriptionComponent implements OnInit {
         null,
         this.i18nService.t("canceledSubscription"),
       );
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.load();
     } catch (e) {
       this.logService.error(e);
@@ -146,8 +140,6 @@ export class UserSubscriptionComponent implements OnInit {
   closeUpdateLicense(load: boolean) {
     this.showUpdateLicense = false;
     if (load) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.load();
     }
   }
@@ -160,8 +152,6 @@ export class UserSubscriptionComponent implements OnInit {
   closeStorage(load: boolean) {
     this.showAdjustStorage = false;
     if (load) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.load();
     }
   }

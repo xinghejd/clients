@@ -37,8 +37,6 @@ export class VerifyEmailTokenComponent implements OnInit {
             await this.apiService.refreshIdentityToken();
           }
           this.platformUtilsService.showToast("success", null, this.i18nService.t("emailVerified"));
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.router.navigate(["/"]);
           return;
         } catch (e) {
@@ -46,8 +44,6 @@ export class VerifyEmailTokenComponent implements OnInit {
         }
       }
       this.platformUtilsService.showToast("error", null, this.i18nService.t("emailVerifiedFailed"));
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["/"]);
     });
   }

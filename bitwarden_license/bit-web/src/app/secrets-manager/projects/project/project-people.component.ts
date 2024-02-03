@@ -38,8 +38,6 @@ export class ProjectPeopleComponent implements OnInit, OnDestroy {
       }),
     ),
     catchError(() => {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["/sm", this.organizationId, "projects"]);
       return EMPTY;
     }),
@@ -126,8 +124,6 @@ export class ProjectPeopleComponent implements OnInit, OnDestroy {
       this.currentAccessPolicies = convertToAccessPolicyItemViews(peoplePoliciesViews);
 
       if (showAccessRemovalWarning) {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.router.navigate(["sm", this.organizationId, "projects"]);
       }
       this.platformUtilsService.showToast(

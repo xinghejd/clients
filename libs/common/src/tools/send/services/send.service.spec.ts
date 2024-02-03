@@ -110,8 +110,6 @@ describe("SendService", () => {
     });
 
     it("returns null if there are no sends", async () => {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       sendService.replace(null);
 
       const newUserKey = new SymmetricCryptoKey(new Uint8Array(32)) as UserKey;
@@ -159,8 +157,6 @@ describe("SendService", () => {
     });
 
     it("does not exist", async () => {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       sendService.delete("1");
 
       expect(stateService.getEncryptedSends).toHaveBeenCalledTimes(2);

@@ -242,14 +242,10 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
   }
 
   navigateToOrgVault() {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["organizations", this.orgId, "vault"]);
   }
 
   navigateToOrgInvite() {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["organizations", this.orgId, "members"]);
   }
 

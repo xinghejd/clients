@@ -189,8 +189,6 @@ export class UserVerificationFormInputComponent implements ControlValueAccessor,
     } else {
       if (this.userVerificationOptions.server.otp) {
         // New design requires requesting on load to prevent user from having to click send code
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.requestOTP();
       }
     }
@@ -222,8 +220,6 @@ export class UserVerificationFormInputComponent implements ControlValueAccessor,
     this.activeClientVerificationOption$
       .pipe(takeUntil(this.destroy$))
       .subscribe((activeClientVerificationOption: ActiveClientVerificationOption) => {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.handleActiveClientVerificationOptionChange(activeClientVerificationOption);
       });
   }

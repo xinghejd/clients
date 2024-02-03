@@ -2609,7 +2609,7 @@
     "message": "Погрешна лозинка"
   },
   "incorrectCode": {
-    "message": "Погрешан кôд"
+    "message": "Погрешан код"
   },
   "incorrectPin": {
     "message": "Нетачан PIN"

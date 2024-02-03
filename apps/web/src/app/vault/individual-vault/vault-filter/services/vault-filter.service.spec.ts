@@ -61,8 +61,6 @@ describe("vault filter service", () => {
         }
       });
 
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       vaultFilterService.setCollapsedFilterNodes(nodes);
     });
 
@@ -182,8 +180,6 @@ describe("vault filter service", () => {
           createCollectionView("1", "collection 1", "org test id"),
           createCollectionView("2", "collection 2", "non matching org id"),
         ];
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         vaultFilterService.reloadCollections(storedCollections);
 
         await expect(firstValueFrom(vaultFilterService.filteredCollections$)).resolves.toEqual([
@@ -199,8 +195,6 @@ describe("vault filter service", () => {
           createCollectionView("id-2", "Collection 1/Collection 2", "org test id"),
           createCollectionView("id-3", "Collection 1/Collection 3", "org test id"),
         ];
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         vaultFilterService.reloadCollections(storedCollections);
 
         const result = await firstValueFrom(vaultFilterService.collectionTree$);
@@ -214,8 +208,6 @@ describe("vault filter service", () => {
           createCollectionView("id-1", "Collection 1", "org test id"),
           createCollectionView("id-3", "Collection 1/Collection 2/Collection 3", "org test id"),
         ];
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         vaultFilterService.reloadCollections(storedCollections);
 
         const result = await firstValueFrom(vaultFilterService.collectionTree$);
@@ -232,8 +224,6 @@ describe("vault filter service", () => {
           createCollectionView("id-3", "Collection 1/Collection 2/Collection 3", "org test id"),
           createCollectionView("id-4", "Collection 1/Collection 4", "org test id"),
         ];
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         vaultFilterService.reloadCollections(storedCollections);
 
         const result = await firstValueFrom(vaultFilterService.collectionTree$);
@@ -252,8 +242,6 @@ describe("vault filter service", () => {
           createCollectionView("id-1", "Collection 1", "org test id"),
           createCollectionView("id-3", "Collection 1/Collection 2/Collection 3", "org test id"),
         ];
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         vaultFilterService.reloadCollections(storedCollections);
 
         const result = await firstValueFrom(vaultFilterService.collectionTree$);

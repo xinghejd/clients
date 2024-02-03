@@ -1,12 +1,25 @@
-import { program, OptionValues, Command } from "commander";
+import * as program from "commander";
 
 import { Response } from "../models/response";
 import { MessageResponse } from "../models/response/message.response";
 
+interface IOption {
+  long?: string;
+  short?: string;
+  description: string;
+}
+
+interface ICommand {
+  commands?: ICommand[];
+  options?: IOption[];
+  _name: string;
+  _description: string;
+}
+
 const validShells = ["zsh"];
 
 export class CompletionCommand {
-  async run(options: OptionValues) {
+  async run(options: program.OptionValues) {
     const shell: (typeof validShells)[number] = options.shell;
 
     if (!shell) {
@@ -20,14 +33,14 @@ export class CompletionCommand {
     let content = "";
 
     if (shell === "zsh") {
-      content = this.zshCompletion("bw", program).render();
+      content = this.zshCompletion("bw", program as any as ICommand).render();
     }
 
     const res = new MessageResponse(content, null);
     return Response.success(res);
   }
 
-  private zshCompletion(rootName: string, rootCommand: Command) {
+  private zshCompletion(rootName: string, rootCommand: ICommand) {
     return {
       render: () => {
         return [
@@ -39,7 +52,7 @@ export class CompletionCommand {
     };
   }
 
-  private renderCommandBlock(name: string, command: Command): string {
+  private renderCommandBlock(name: string, command: ICommand): string {
     const { commands = [], options = [] } = command;
     const hasOptions = options.length > 0;
     const hasCommands = commands.length > 0;
@@ -76,19 +89,18 @@ export class CompletionCommand {
     cmnds)
       commands=(
         ${commands
-          .map((command) => `"${command.name().split(" ")[0]}:${command.description()}"`)
+          .map(({ _name, _description }) => `"${_name}:${_description}"`)
           .join("\n        ")}
       )
       _describe "command" commands
-      ;;\n  esac
+      ;;
+  esac
 
   case "$words[1]" in
     ${commands
-      .map((command) => {
-        const commandName = command.name().split(" ")[0];
-        return [`${commandName})`, `_${name}_${commandName}`, ";;"].join("\n      ");
-      })
-      .join("\n    ")}\n  esac`,
+      .map(({ _name }) => [`${_name})`, `_${name}_${_name}`, ";;"].join("\n      "))
+      .join("\n    ")}
+  esac`,
       );
     }
 
@@ -98,7 +110,7 @@ export class CompletionCommand {
 
     if (hasCommands) {
       commandBlocParts.push(
-        commands.map((c) => this.renderCommandBlock(`${name}_${c.name()}`, c)).join("\n\n"),
+        commands.map((c) => this.renderCommandBlock(`${name}_${c._name}`, c)).join("\n\n"),
       );
     }
 

@@ -63,8 +63,6 @@ export class TrayMain {
     win.on("minimize", async (e: Event) => {
       if (await this.stateService.getEnableMinimizeToTray()) {
         e.preventDefault();
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.hideToTray();
       }
     });
@@ -73,8 +71,6 @@ export class TrayMain {
       if (await this.stateService.getEnableCloseToTray()) {
         if (!this.windowMain.isQuitting) {
           e.preventDefault();
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.hideToTray();
         }
       }
@@ -113,8 +109,6 @@ export class TrayMain {
 
   restoreFromTray() {
     if (this.windowMain.win == null || !this.windowMain.win.isVisible()) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.toggleWindow();
     }
   }
@@ -148,8 +142,6 @@ export class TrayMain {
   }
 
   private showDock() {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     app.dock.show();
   }
 
@@ -165,8 +157,6 @@ export class TrayMain {
     if (this.windowMain.win == null) {
       if (this.isDarwin()) {
         // On MacOS, closing the window via the red button destroys the BrowserWindow instance.
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.windowMain.createWindow().then(() => {
           this.windowMain.win.show();
           this.showDock();

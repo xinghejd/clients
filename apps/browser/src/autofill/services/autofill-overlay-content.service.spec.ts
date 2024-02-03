@@ -165,8 +165,6 @@ describe("AutofillOverlayContentService", () => {
       it("ignores fields that are readonly", () => {
         autofillFieldData.readonly = true;
 
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
           autofillFieldData,
@@ -178,8 +176,6 @@ describe("AutofillOverlayContentService", () => {
       it("ignores fields that contain a disabled attribute", () => {
         autofillFieldData.disabled = true;
 
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
           autofillFieldData,
@@ -191,8 +187,6 @@ describe("AutofillOverlayContentService", () => {
       it("ignores fields that are not viewable", () => {
         autofillFieldData.viewable = false;
 
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
           autofillFieldData,
@@ -205,8 +199,6 @@ describe("AutofillOverlayContentService", () => {
         AutoFillConstants.ExcludedOverlayTypes.forEach((excludedType) => {
           autofillFieldData.type = excludedType;
 
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
             autofillFieldData,
@@ -219,8 +211,6 @@ describe("AutofillOverlayContentService", () => {
       it("ignores fields that contain the keyword `search`", () => {
         autofillFieldData.placeholder = "search";
 
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
           autofillFieldData,
@@ -232,8 +222,6 @@ describe("AutofillOverlayContentService", () => {
       it("ignores fields that contain the keyword `captcha` ", () => {
         autofillFieldData.placeholder = "captcha";
 
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
           autofillFieldData,
@@ -245,8 +233,6 @@ describe("AutofillOverlayContentService", () => {
       it("ignores fields that do not appear as a login field", () => {
         autofillFieldData.placeholder = "not-a-login-field";
 
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
           autofillFieldData,
@@ -1538,8 +1524,6 @@ describe("AutofillOverlayContentService", () => {
         placeholder: "username",
         elementNumber: 1,
       });
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       autofillOverlayContentService.setupAutofillOverlayListenerOnField(
         autofillFieldElement,
         autofillFieldData,

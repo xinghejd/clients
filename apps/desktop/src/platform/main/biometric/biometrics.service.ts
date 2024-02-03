@@ -82,8 +82,6 @@ export class BiometricsService implements BiometricsServiceAbstraction {
 
   async authenticateBiometric(): Promise<boolean> {
     let result = false;
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.interruptProcessReload(
       () => {
         return this.platformSpecificService.authenticateBiometric();

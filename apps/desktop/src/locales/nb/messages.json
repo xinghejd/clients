@@ -1892,7 +1892,7 @@
     "message": "Avventer bekreftelse"
   },
   "couldNotCompleteBiometrics": {
-    "message": "Kunne ikke fullføre biometri."
+    "message": "Could not complete biometrics."
   },
   "needADifferentMethod": {
     "message": "Trenger du en annen metode?"
@@ -2192,7 +2192,7 @@
     "message": "Prøver du å logge på?"
   },
   "logInAttemptBy": {
-    "message": "Påloggingsforsøk av $EMAIL$",
+    "message": "Login attempt by $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2256,7 +2256,7 @@
     "message": "Use this device to approve login requests made from other devices."
   },
   "confirmLoginAtemptForMail": {
-    "message": "Bekreft påloggingsforsøket til $EMAIL$",
+    "message": "Confirm login attempt for $EMAIL$",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2268,7 +2268,7 @@
     "message": "Log in requested"
   },
   "exposedMasterPassword": {
-    "message": "Eksponert hovedpassord"
+    "message": "Exposed Master Password"
   },
   "exposedMasterPasswordDesc": {
     "message": "Password found in a data breach. Use a unique password to protect your account. Are you sure you want to use an exposed password?"
@@ -2313,10 +2313,10 @@
     "message": "Uncheck if using a public device"
   },
   "approveFromYourOtherDevice": {
-    "message": "Godkjenn fra en av dine andre enheter"
+    "message": "Approve from your other device"
   },
   "requestAdminApproval": {
-    "message": "Be om administratorgodkjennelse"
+    "message": "Request admin approval"
   },
   "approveWithMasterPassword": {
     "message": "Godkjenn med hovedpassord"
@@ -2356,13 +2356,13 @@
     "message": "Forespørselen din har blitt sendt til administratoren din."
   },
   "youWillBeNotifiedOnceApproved": {
-    "message": "Du vil bli varslet når det er godkjent."
+    "message": "You will be notified once approved."
   },
   "troubleLoggingIn": {
     "message": "Problemer med å logge inn?"
   },
   "loginApproved": {
-    "message": "Innlogging godkjent"
+    "message": "Login approved"
   },
   "userEmailMissing": {
     "message": "User email missing"
@@ -2407,7 +2407,7 @@
     }
   },
   "inputMinValue": {
-    "message": "Inndataverdien må være minst $MIN$.",
+    "message": "Input value must be at least $MIN$.",
     "placeholders": {
       "min": {
         "content": "$1",
@@ -2416,7 +2416,7 @@
     }
   },
   "inputMaxValue": {
-    "message": "Inndataverdien kan ikke være mer enn $MAX$.",
+    "message": "Input value must not exceed $MAX$.",
     "placeholders": {
       "max": {
         "content": "$1",
@@ -2447,10 +2447,10 @@
     "message": "-- Velg --"
   },
   "multiSelectPlaceholder": {
-    "message": "— Skriv for å filtrere —"
+    "message": "-- Type to filter --"
   },
   "multiSelectLoading": {
-    "message": "Innhenter alternativer..."
+    "message": "Retrieving options..."
   },
   "multiSelectNotFound": {
     "message": "Ingen gjenstander funnet"
@@ -2471,7 +2471,7 @@
     "message": "Undermeny"
   },
   "skipToContent": {
-    "message": "Hopp frem til innholdet"
+    "message": "Skip to content"
   },
   "typePasskey": {
     "message": "Passkey"
@@ -2496,16 +2496,16 @@
     "message": "There was a problem with the data you tried to import. Please resolve the errors listed below in your source file and try again."
   },
   "resolveTheErrorsBelowAndTryAgain": {
-    "message": "Fiks feilene nedenfor og prøv igjen."
+    "message": "Resolve the errors below and try again."
   },
   "description": {
     "message": "Beskrivelse"
   },
   "importSuccess": {
-    "message": "Dataene ble vellykket importert"
+    "message": "Data successfully imported"
   },
   "importSuccessNumberOfItems": {
-    "message": "$AMOUNT$ gjenstander totalt ble importert.",
+    "message": "A total of $AMOUNT$ items were imported.",
     "placeholders": {
       "amount": {
         "content": "$1",
@@ -2541,7 +2541,7 @@
     "message": "Import destination"
   },
   "learnAboutImportOptions": {
-    "message": "Lær mer om importalternativene dine"
+    "message": "Learn about your import options"
   },
   "selectImportFolder": {
     "message": "Velg en mappe"
@@ -2560,7 +2560,7 @@
     }
   },
   "importUnassignedItemsError": {
-    "message": "Filen inneholder utildelte elementer."
+    "message": "File contains unassigned items."
   },
   "selectFormat": {
     "message": "Velg formatet til importfilen"
@@ -2575,7 +2575,7 @@
     "message": "Ingen fil er valgt"
   },
   "orCopyPasteFileContents": {
-    "message": "eller kopier/lim inn importfilens innhold"
+    "message": "or copy/paste the import file contents"
   },
   "instructionsFor": {
     "message": "$NAME$-instruksjoner",
@@ -2597,13 +2597,13 @@
     "message": "Bekreft filpassord"
   },
   "multifactorAuthenticationCancelled": {
-    "message": "Multifaktorautentisering ble avbrutt"
+    "message": "Multifactor authentication cancelled"
   },
   "noLastPassDataFound": {
-    "message": "Ingen LastPass-data ble funnet"
+    "message": "No LastPass data found"
   },
   "incorrectUsernameOrPassword": {
-    "message": "Feil brukernavn eller passord"
+    "message": "Incorrect username or password"
   },
   "incorrectPassword": {
     "message": "Feil passord"
@@ -2615,19 +2615,19 @@
     "message": "Feil PIN-kode"
   },
   "multifactorAuthenticationFailed": {
-    "message": "Multifaktorautentisering mislyktes"
+    "message": "Multifactor authentication failed"
   },
   "includeSharedFolders": {
     "message": "Inkluder delte mapper"
   },
   "lastPassEmail": {
-    "message": "LastPass-E-postadresse"
+    "message": "LastPass Email"
   },
   "importingYourAccount": {
     "message": "Importerer kontoen din…"
   },
   "lastPassMFARequired": {
-    "message": "LastPass-multifaktorautentisering kreves"
+    "message": "LastPass multifactor authentication required"
   },
   "lastPassMFADesc": {
     "message": "Enter your one-time passcode from your authentication app"
@@ -2639,10 +2639,10 @@
     "message": "Passcode"
   },
   "lastPassMasterPassword": {
-    "message": "LastPass-hovedpassord"
+    "message": "LastPass master password"
   },
   "lastPassAuthRequired": {
-    "message": "LastPass-autentisering kreves"
+    "message": "LastPass authentication required"
   },
   "awaitingSSO": {
     "message": "Avventer SSO-autentisering"
@@ -2651,7 +2651,7 @@
     "message": "Please continue to log in using your company credentials."
   },
   "seeDetailedInstructions": {
-    "message": "Se detaljerte instruksjoner på hjelpesidene våre på",
+    "message": "See detailed instructions on our help site at",
     "description": "This is followed a by a hyperlink to the help website."
   },
   "importDirectlyFromLastPass": {

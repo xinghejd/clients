@@ -9,8 +9,6 @@ if (window.location.pathname.includes("mobile")) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
   init();
 });
 
@@ -77,8 +75,6 @@ async function start() {
       callback: "captchaSuccess",
       "error-callback": "captchaError",
     });
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     watchHeight();
   });
   document.head.appendChild(script);
@@ -105,8 +101,6 @@ function onMessage() {
       }
 
       if (event.data === "start") {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         start();
       }
     },

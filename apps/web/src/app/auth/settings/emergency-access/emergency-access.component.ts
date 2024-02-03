@@ -60,8 +60,6 @@ export class EmergencyAccessComponent implements OnInit {
     this.canAccessPremium = await this.stateService.getCanAccessPremium();
     const orgs = await this.organizationService.getAll();
     this.isOrganizationOwner = orgs.some((o) => o.isOwner);
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.load();
   }
 
@@ -89,15 +87,11 @@ export class EmergencyAccessComponent implements OnInit {
         // eslint-disable-next-line rxjs-angular/prefer-takeuntil
         comp.onSaved.subscribe(() => {
           modal.close();
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.load();
         });
         // eslint-disable-next-line rxjs-angular/prefer-takeuntil
         comp.onDeleted.subscribe(() => {
           modal.close();
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.remove(details);
         });
       },
@@ -105,8 +99,6 @@ export class EmergencyAccessComponent implements OnInit {
   }
 
   invite() {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.edit(null);
   }
 

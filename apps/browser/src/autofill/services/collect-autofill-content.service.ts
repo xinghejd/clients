@@ -349,8 +349,6 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
 
     if (element.tagName.toLowerCase() === "span") {
       this.cacheAutofillFieldElement(index, element, autofillFieldBase);
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.autofillOverlayContentService?.setupAutofillOverlayListenerOnField(
         element,
         autofillFieldBase,
@@ -395,8 +393,6 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
     };
 
     this.cacheAutofillFieldElement(index, element, autofillField);
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.autofillOverlayContentService?.setupAutofillOverlayListenerOnField(element, autofillField);
     return autofillField;
   };
@@ -1099,8 +1095,6 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
       ) {
         // We are setting this item to a -1 index because we do not know its position in the DOM.
         // This value should be updated with the next call to collect page details.
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.buildAutofillFieldItem(node as ElementWithOpId<FormFieldElement>, -1);
       }
     }
@@ -1177,8 +1171,6 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
       return;
     }
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.updateAutofillFieldElementData(
       attributeName,
       targetElement as ElementWithOpId<FormFieldElement>,
