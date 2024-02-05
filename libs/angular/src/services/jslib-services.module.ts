@@ -75,7 +75,10 @@ import { UserVerificationService } from "@bitwarden/common/auth/services/user-ve
 import { WebAuthnLoginApiService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login-api.service";
 import { WebAuthnLoginPrfCryptoService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login-prf-crypto.service";
 import { WebAuthnLoginService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login.service";
-import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import {
+  AutofillSettingsServiceAbstraction,
+  AutofillSettingsService,
+} from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BillingBannerServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-banner.service.abstraction";
 import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-billing.service";
 import { BillingBannerService } from "@bitwarden/common/billing/services/billing-banner.service";
@@ -883,6 +886,11 @@ import { ModalService } from "./modal.service";
         I18nServiceAbstraction,
         OrganizationApiServiceAbstraction,
       ],
+    },
+    {
+      provide: AutofillSettingsServiceAbstraction,
+      useClass: AutofillSettingsService,
+      deps: [StateProvider],
     },
     {
       provide: BiometricStateService,
