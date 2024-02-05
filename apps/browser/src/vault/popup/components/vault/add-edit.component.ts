@@ -383,7 +383,7 @@ export class AddEditComponent extends BaseAddEditComponent {
 
   private handleExtensionMessage(message: { [key: string]: any; command: string }) {
     if (message.command === "inlineAutofillMenuRefreshAddEditCipher") {
-      this.load();
+      this.load().catch((error) => this.logService.error(error));
     }
   }
 }
