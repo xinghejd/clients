@@ -30,10 +30,10 @@ describe("CipherContextMenuHandler", () => {
   afterEach(() => jest.resetAllMocks());
 
   describe("update", () => {
-    it("skips updating if the init process for the mainContextMenuHandler is running", () => {
+    it("skips updating if the init process for the mainContextMenuHandler is running", async () => {
       mainContextMenuHandler.initRunning = true;
 
-      sut.update("https://test.com");
+      await sut.update("https://test.com");
 
       expect(authService.getAuthStatus).not.toHaveBeenCalled();
     });
