@@ -4,6 +4,7 @@ import { firstValueFrom } from "rxjs";
 import { PolicyService } from "@bitwarden/common/admin-console/services/policy/policy.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { EnvironmentService } from "@bitwarden/common/platform/services/environment.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
@@ -45,6 +46,7 @@ describe("NotificationBackground", () => {
   const folderService = mock<FolderService>();
   const stateService = mock<BrowserStateService>();
   const environmentService = mock<EnvironmentService>();
+  const logService = mock<LogService>();
 
   beforeEach(() => {
     notificationBackground = new NotificationBackground(
@@ -55,6 +57,7 @@ describe("NotificationBackground", () => {
       folderService,
       stateService,
       environmentService,
+      logService,
     );
   });
 
@@ -1130,6 +1133,7 @@ describe("NotificationBackground", () => {
         });
         notificationBackground["notificationQueue"] = [firstNotification, secondNotification];
         jest.spyOn(cipherService, "saveNeverDomain").mockImplementation();
+        jest.spyOn(BrowserApi, "tabSendMessageData").mockImplementation();
 
         sendExtensionRuntimeMessage(message, sender);
         await flushPromises();
