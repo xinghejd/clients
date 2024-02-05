@@ -2531,6 +2531,15 @@
       }
     }
   },
+  "trialSecretsManagerThankYou": {
+    "message": "Спасибо, что подписались на менеджер секретов Bitwarden для $PLAN$!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
   "trialPaidInfoMessage": {
     "message": "Ваша 7-дневная бесплатная пробная версия $PLAN$ будет преобразована в платную подписку через 7 дней.",
     "placeholders": {
@@ -2817,7 +2826,7 @@
     "message": "Неверный код"
   },
   "incorrectPin": {
-    "message": "Incorrect PIN"
+    "message": "Неверный PIN-код"
   },
   "exportedVault": {
     "message": "Хранилище экспортировано."
@@ -5180,7 +5189,7 @@
     "message": "Проверка сертификатов"
   },
   "spUniqueEntityId": {
-    "message": "Установить уникальный идентификатор объекта SP"
+    "message": "Установить уникальный ID объекта SP"
   },
   "spUniqueEntityIdDesc": {
     "message": "Создать уникальный для вашей организации идентификатор"
@@ -6608,37 +6617,37 @@
     }
   },
   "verificationRequiredForActionSetPinToContinue": {
-    "message": "Verification required for this action. Set a PIN to continue."
+    "message": "Для этого действия требуется верификация. Для продолжения введите PIN-код."
   },
   "setPin": {
-    "message": "Set PIN"
+    "message": "Задать PIN-код"
   },
   "verifyWithBiometrics": {
-    "message": "Verify with biometrics"
+    "message": "Верифицировать с помощью биометрии"
   },
   "awaitingConfirmation": {
-    "message": "Awaiting confirmation"
+    "message": "Ожидание подтверждения"
   },
   "couldNotCompleteBiometrics": {
-    "message": "Could not complete biometrics."
+    "message": "Не удалось выполнить верификацию биометрией."
   },
   "needADifferentMethod": {
-    "message": "Need a different method?"
+    "message": "Нужен другой метод?"
   },
   "useMasterPassword": {
-    "message": "Use master password"
+    "message": "Использовать мастер-пароль"
   },
   "usePin": {
-    "message": "Use PIN"
+    "message": "Использовать PIN-код"
   },
   "useBiometrics": {
-    "message": "Use biometrics"
+    "message": "Использовать биометрию"
   },
   "enterVerificationCodeSentToEmail": {
-    "message": "Enter the verification code that was sent to your email."
+    "message": "Введите код подтверждения, отправленный вам на почту."
   },
   "resendCode": {
-    "message": "Resend code"
+    "message": "Отправить код повторно"
   },
   "membersColumnHeader": {
     "message": "Участник/Группа"
@@ -6850,9 +6859,6 @@
   "secretsManager": {
     "message": "Менеджер секретов"
   },
-  "secretsManagerBeta": {
-    "message": "Менеджер секретов Beta"
-  },
   "secretsManagerAccessDescription": {
     "message": "Активировать доступ пользователей к менеджеру секретов."
   },
@@ -6955,12 +6961,6 @@
   },
   "selectionIsRequired": {
     "message": "Требуется выбор."
-  },
-  "secretsManagerSubscriptionDesc": {
-    "message": "Включите доступ организации к Менеджеру секретов бесплатно во время программы бета-тестирования. Пользователям может быть предоставлен доступ к бета-версии в разделе Участники."
-  },
-  "secretsManagerEnable": {
-    "message": "Менеджер секретов Бета"
   },
   "saPeopleWarningTitle": {
     "message": "Токены доступа по-прежнему доступны"
@@ -7123,7 +7123,7 @@
     }
   },
   "verificationRequired": {
-    "message": "Verification required",
+    "message": "Требуется верификация",
     "description": "Default title for the user verification dialog."
   },
   "recoverAccount": {
@@ -7227,6 +7227,15 @@
   },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Начните 7-дневную бесплатную пробную версию Bitwarden для $ORG$",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerFor": {
+    "message": "Начните 7-дневную бесплатную пробную версию менеджера секретов Bitwarden для $ORG$",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -7395,22 +7404,6 @@
   "loggedInExclamation": {
     "message": "Вход выполнен!"
   },
-  "smBetaEndedDesc": {
-    "message": "Бета-версия Менеджера секретов завершилась $BETA_ENDING_DATE$. У вас осталось $DAYS$ дней, чтобы добавить его к своей платной подписке и сохранить доступ к данным. Чтобы добавить Менеджер секретов к подписке, обратитесь в службу поддержки клиентов.",
-    "placeholders": {
-      "beta_ending_date": {
-        "content": "$1",
-        "example": "August 1, 2023"
-      },
-      "days": {
-        "content": "$2",
-        "example": "11"
-      }
-    }
-  },
-  "betaEnding": {
-    "message": "Окончание бета-версии"
-  },
   "beta": {
     "message": "Beta"
   },
@@ -7508,5 +7501,17 @@
   },
   "collectionEnhancementsLearnMore": {
     "message": "Узнайте больше об управлении коллекциями"
+  },
+  "organizationInformation": {
+    "message": "Информация об организации"
+  },
+  "confirmationDetails": {
+    "message": "Детали подтверждения"
+  },
+  "smFreeTrialThankYou": {
+    "message": "Спасибо, что подписались на менеджер секретов Bitwarden!"
+  },
+  "smFreeTrialConfirmationEmail": {
+    "message": "Мы отправили письмо с подтверждением на "
   }
 }
