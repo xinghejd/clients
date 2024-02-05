@@ -54,6 +54,8 @@ export default class NotificationBackground {
     BrowserApi.messageListener(
       "notification.background",
       (msg: any, sender: chrome.runtime.MessageSender) => {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.processMessage(msg, sender);
       },
     );
@@ -157,6 +159,8 @@ export default class NotificationBackground {
   private cleanupNotificationQueue() {
     for (let i = this.notificationQueue.length - 1; i >= 0; i--) {
       if (this.notificationQueue[i].expires < new Date()) {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         BrowserApi.tabSendMessageData(this.notificationQueue[i].tab, "closeNotificationBar");
         this.notificationQueue.splice(i, 1);
       }
@@ -174,6 +178,8 @@ export default class NotificationBackground {
       (message) => message.tab.id === tab.id && message.domain === tabDomain,
     );
     if (queueMessage) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.sendNotificationQueueMessage(tab, queueMessage);
     }
   }
@@ -249,6 +255,8 @@ export default class NotificationBackground {
         return;
       }
 
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.pushAddLoginToQueue(loginDomain, loginInfo, tab, true);
       return;
     }
@@ -262,6 +270,8 @@ export default class NotificationBackground {
         return;
       }
 
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.pushAddLoginToQueue(loginDomain, loginInfo, tab);
     } else if (
       usernameMatches.length === 1 &&
@@ -272,6 +282,8 @@ export default class NotificationBackground {
       if (disabledChangePassword) {
         return;
       }
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.pushChangePasswordToQueue(usernameMatches[0].id, loginDomain, loginInfo.password, tab);
     }
   }
@@ -305,6 +317,8 @@ export default class NotificationBackground {
     }
 
     if ((await this.authService.getAuthStatus()) < AuthenticationStatus.Unlocked) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.pushChangePasswordToQueue(null, loginDomain, changeData.newPassword, tab, true);
       return;
     }
@@ -322,6 +336,8 @@ export default class NotificationBackground {
       id = ciphers[0].id;
     }
     if (id != null) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.pushChangePasswordToQueue(id, loginDomain, changeData.newPassword, tab);
     }
   }
@@ -348,6 +364,8 @@ export default class NotificationBackground {
 
     const loginDomain = Utils.getDomain(tab.url);
     if (loginDomain) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.pushUnlockVaultToQueue(loginDomain, tab);
     }
   }
@@ -367,6 +385,8 @@ export default class NotificationBackground {
 
     const loginDomain = Utils.getDomain(tab.url);
     if (loginDomain) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.pushRequestFilelessImportToQueue(loginDomain, tab, importType);
     }
   }
@@ -450,6 +470,8 @@ export default class NotificationBackground {
       }
 
       this.notificationQueue.splice(i, 1);
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       BrowserApi.tabSendMessageData(tab, "closeNotificationBar");
 
       if (queueMessage.type === NotificationQueueMessageType.ChangePassword) {
@@ -483,6 +505,8 @@ export default class NotificationBackground {
 
         const cipher = await this.cipherService.encrypt(newCipher);
         await this.cipherService.createWithServer(cipher);
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         BrowserApi.tabSendMessageData(tab, "addedCipher");
       }
     }
@@ -498,6 +522,8 @@ export default class NotificationBackground {
 
     if (edit) {
       await this.editItem(cipherView, tab);
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       BrowserApi.tabSendMessage(tab, "editedCipher");
       return;
     }
@@ -550,6 +576,8 @@ export default class NotificationBackground {
       }
 
       this.notificationQueue.splice(i, 1);
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       BrowserApi.tabSendMessageData(tab, "closeNotificationBar");
 
       const hostname = Utils.getHostname(tab.url);

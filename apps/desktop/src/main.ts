@@ -3,6 +3,7 @@ import * as path from "path";
 import { app } from "electron";
 
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
+import { DefaultBiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { EnvironmentService } from "@bitwarden/common/platform/services/environment.service";
@@ -159,6 +160,8 @@ export class Main {
       this.updaterMain,
     );
 
+    const biometricStateService = new DefaultBiometricStateService(stateProvider);
+
     this.biometricsService = new BiometricsService(
       this.i18nService,
       this.windowMain,
@@ -166,6 +169,7 @@ export class Main {
       this.logService,
       this.messagingService,
       process.platform,
+      biometricStateService,
     );
 
     this.desktopCredentialStorageListener = new DesktopCredentialStorageListener(
@@ -192,6 +196,8 @@ export class Main {
         const locale = await this.stateService.getLocale();
         await this.i18nService.init(locale != null ? locale : app.getLocale());
         this.messagingMain.init();
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.menuMain.init();
         await this.trayMain.init("Bitwarden", [
           {
@@ -202,6 +208,8 @@ export class Main {
           },
         ]);
         if (await this.stateService.getEnableStartToTray()) {
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.trayMain.hideToTray();
         }
         this.powerMonitorMain.init();
@@ -214,6 +222,8 @@ export class Main {
           (await this.stateService.getEnableBrowserIntegration()) ||
           (await this.stateService.getEnableDuckDuckGoBrowserIntegration())
         ) {
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.nativeMessagingMain.listen();
         }
 

@@ -31,7 +31,7 @@ export default class CommandsBackground {
         this.processCommand(
           msg.data.commandToRetry.message.command,
           msg.data.commandToRetry.sender,
-        );
+        ).catch((error) => this.main.logService.error(error));
       }
     });
 
@@ -65,7 +65,7 @@ export default class CommandsBackground {
     const options = (await this.passwordGenerationService.getOptions())?.[0] ?? {};
     const password = await this.passwordGenerationService.generatePassword(options);
     this.platformUtilsService.copyToClipboard(password, { window: window });
-    this.passwordGenerationService.addHistory(password);
+    await this.passwordGenerationService.addHistory(password);
   }
 
   private async autoFillLogin(tab?: chrome.tabs.Tab) {
@@ -104,6 +104,6 @@ export default class CommandsBackground {
       return;
     }
 
-    this.main.openPopup();
+    await this.main.openPopup();
   }
 }
