@@ -107,9 +107,9 @@ export default class NotificationBackground {
   private cleanupNotificationQueue() {
     for (let i = this.notificationQueue.length - 1; i >= 0; i--) {
       if (this.notificationQueue[i].expires < new Date()) {
-        BrowserApi.tabSendMessageData(this.notificationQueue[i].tab, "closeNotificationBar").catch(
-          (error) => this.logService.error(error),
-        );
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        BrowserApi.tabSendMessageData(this.notificationQueue[i].tab, "closeNotificationBar");
         this.notificationQueue.splice(i, 1);
       }
     }
@@ -513,25 +513,19 @@ export default class NotificationBackground {
 
       if (edit) {
         await this.editItem(newCipher, tab);
-        BrowserApi.tabSendMessage(tab, { command: "closeNotificationBar" }).catch((error) =>
-          this.logService.error(error),
-        );
+        await BrowserApi.tabSendMessage(tab, { command: "closeNotificationBar" });
         return;
       }
 
       const cipher = await this.cipherService.encrypt(newCipher);
       try {
         await this.cipherService.createWithServer(cipher);
-        BrowserApi.tabSendMessage(tab, { command: "saveCipherAttemptCompleted" }).catch((error) =>
-          this.logService.error(error),
-        );
-        BrowserApi.tabSendMessage(tab, { command: "addedCipher" }).catch((error) =>
-          this.logService.error(error),
-        );
+        await BrowserApi.tabSendMessage(tab, { command: "saveCipherAttemptCompleted" });
+        await BrowserApi.tabSendMessage(tab, { command: "addedCipher" });
       } catch (error) {
-        BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
+        await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
           error: String(error.message),
-        }).catch((error) => this.logService.error(error));
+        });
       }
     }
   }
@@ -556,12 +550,8 @@ export default class NotificationBackground {
 
     if (edit) {
       await this.editItem(cipherView, tab);
-      BrowserApi.tabSendMessage(tab, { command: "closeNotificationBar" }).catch((error) =>
-        this.logService.error(error),
-      );
-      BrowserApi.tabSendMessage(tab, { command: "editedCipher" }).catch((error) =>
-        this.logService.error(error),
-      );
+      await BrowserApi.tabSendMessage(tab, { command: "closeNotificationBar" });
+      await BrowserApi.tabSendMessage(tab, { command: "editedCipher" });
       return;
     }
 
@@ -569,13 +559,11 @@ export default class NotificationBackground {
     try {
       // We've only updated the password, no need to broadcast editedCipher message
       await this.cipherService.updateWithServer(cipher);
-      BrowserApi.tabSendMessage(tab, { command: "saveCipherAttemptCompleted" }).catch((error) =>
-        this.logService.error(error),
-      );
+      await BrowserApi.tabSendMessage(tab, { command: "saveCipherAttemptCompleted" });
     } catch (error) {
-      BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
+      await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
         error: String(error.message),
-      }).catch((error) => this.logService.error(error));
+      });
     }
   }
 
