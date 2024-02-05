@@ -5,6 +5,7 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -68,6 +69,7 @@ export default class NotificationBackground {
     private folderService: FolderService,
     private stateService: BrowserStateService,
     private environmentService: EnvironmentService,
+    private logService: LogService,
   ) {}
 
   async init() {
@@ -105,7 +107,9 @@ export default class NotificationBackground {
   private cleanupNotificationQueue() {
     for (let i = this.notificationQueue.length - 1; i >= 0; i--) {
       if (this.notificationQueue[i].expires < new Date()) {
-        BrowserApi.tabSendMessageData(this.notificationQueue[i].tab, "closeNotificationBar");
+        BrowserApi.tabSendMessageData(this.notificationQueue[i].tab, "closeNotificationBar").catch(
+          (error) => this.logService.error(error),
+        );
         this.notificationQueue.splice(i, 1);
       }
     }
@@ -122,7 +126,7 @@ export default class NotificationBackground {
       (message) => message.tab.id === tab.id && message.domain === tabDomain,
     );
     if (queueMessage) {
-      this.sendNotificationQueueMessage(tab, queueMessage);
+      await this.sendNotificationQueueMessage(tab, queueMessage);
     }
   }
 
@@ -206,7 +210,7 @@ export default class NotificationBackground {
     const disabledAddLogin = await this.stateService.getDisableAddLoginNotification();
     if (authStatus === AuthenticationStatus.Locked) {
       if (!disabledAddLogin) {
-        this.pushAddLoginToQueue(loginDomain, loginInfo, sender.tab, true);
+        await this.pushAddLoginToQueue(loginDomain, loginInfo, sender.tab, true);
       }
 
       return;
@@ -217,7 +221,7 @@ export default class NotificationBackground {
       (c) => c.login.username != null && c.login.username.toLowerCase() === normalizedUsername,
     );
     if (!disabledAddLogin && usernameMatches.length === 0) {
-      this.pushAddLoginToQueue(loginDomain, loginInfo, sender.tab);
+      await this.pushAddLoginToQueue(loginDomain, loginInfo, sender.tab);
       return;
     }
 
@@ -227,7 +231,7 @@ export default class NotificationBackground {
       usernameMatches.length === 1 &&
       usernameMatches[0].login.password !== loginInfo.password
     ) {
-      this.pushChangePasswordToQueue(
+      await this.pushChangePasswordToQueue(
         usernameMatches[0].id,
         loginDomain,
         loginInfo.password,
@@ -276,7 +280,13 @@ export default class NotificationBackground {
     }
 
     if ((await this.authService.getAuthStatus()) < AuthenticationStatus.Unlocked) {
-      this.pushChangePasswordToQueue(null, loginDomain, changeData.newPassword, sender.tab, true);
+      await this.pushChangePasswordToQueue(
+        null,
+        loginDomain,
+        changeData.newPassword,
+        sender.tab,
+        true,
+      );
       return;
     }
 
@@ -293,7 +303,7 @@ export default class NotificationBackground {
       id = ciphers[0].id;
     }
     if (id != null) {
-      this.pushChangePasswordToQueue(id, loginDomain, changeData.newPassword, sender.tab);
+      await this.pushChangePasswordToQueue(id, loginDomain, changeData.newPassword, sender.tab);
     }
   }
 
@@ -336,7 +346,7 @@ export default class NotificationBackground {
 
     const loginDomain = Utils.getDomain(tab.url);
     if (loginDomain) {
-      this.pushUnlockVaultToQueue(loginDomain, tab);
+      await this.pushUnlockVaultToQueue(loginDomain, tab);
     }
   }
 
@@ -355,7 +365,7 @@ export default class NotificationBackground {
 
     const loginDomain = Utils.getDomain(tab.url);
     if (loginDomain) {
-      this.pushRequestFilelessImportToQueue(loginDomain, tab, importType);
+      await this.pushRequestFilelessImportToQueue(loginDomain, tab, importType);
     }
   }
 
@@ -503,19 +513,25 @@ export default class NotificationBackground {
 
       if (edit) {
         await this.editItem(newCipher, tab);
-        BrowserApi.tabSendMessage(tab, { command: "closeNotificationBar" });
+        BrowserApi.tabSendMessage(tab, { command: "closeNotificationBar" }).catch((error) =>
+          this.logService.error(error),
+        );
         return;
       }
 
       const cipher = await this.cipherService.encrypt(newCipher);
       try {
         await this.cipherService.createWithServer(cipher);
-        BrowserApi.tabSendMessage(tab, { command: "saveCipherAttemptCompleted" });
-        BrowserApi.tabSendMessage(tab, { command: "addedCipher" });
+        BrowserApi.tabSendMessage(tab, { command: "saveCipherAttemptCompleted" }).catch((error) =>
+          this.logService.error(error),
+        );
+        BrowserApi.tabSendMessage(tab, { command: "addedCipher" }).catch((error) =>
+          this.logService.error(error),
+        );
       } catch (error) {
         BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
           error: String(error.message),
-        });
+        }).catch((error) => this.logService.error(error));
       }
     }
   }
@@ -540,8 +556,12 @@ export default class NotificationBackground {
 
     if (edit) {
       await this.editItem(cipherView, tab);
-      BrowserApi.tabSendMessage(tab, { command: "closeNotificationBar" });
-      BrowserApi.tabSendMessage(tab, { command: "editedCipher" });
+      BrowserApi.tabSendMessage(tab, { command: "closeNotificationBar" }).catch((error) =>
+        this.logService.error(error),
+      );
+      BrowserApi.tabSendMessage(tab, { command: "editedCipher" }).catch((error) =>
+        this.logService.error(error),
+      );
       return;
     }
 
@@ -549,11 +569,13 @@ export default class NotificationBackground {
     try {
       // We've only updated the password, no need to broadcast editedCipher message
       await this.cipherService.updateWithServer(cipher);
-      BrowserApi.tabSendMessage(tab, { command: "saveCipherAttemptCompleted" });
+      BrowserApi.tabSendMessage(tab, { command: "saveCipherAttemptCompleted" }).catch((error) =>
+        this.logService.error(error),
+      );
     } catch (error) {
       BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
         error: String(error.message),
-      });
+      }).catch((error) => this.logService.error(error));
     }
   }
 
@@ -611,7 +633,9 @@ export default class NotificationBackground {
       }
 
       this.notificationQueue.splice(i, 1);
-      BrowserApi.tabSendMessageData(tab, "closeNotificationBar");
+      BrowserApi.tabSendMessageData(tab, "closeNotificationBar").catch((error) =>
+        this.logService.error(error),
+      );
 
       const hostname = Utils.getHostname(tab.url);
       await this.cipherService.saveNeverDomain(hostname);
@@ -737,7 +761,9 @@ export default class NotificationBackground {
       return;
     }
 
-    Promise.resolve(messageResponse).then((response) => sendResponse(response));
+    Promise.resolve(messageResponse)
+      .then((response) => sendResponse(response))
+      .catch((error) => this.logService.error(error));
     return true;
   };
 }

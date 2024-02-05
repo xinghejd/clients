@@ -44,6 +44,11 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
   formPromise: Promise<any>;
   emailPromise: Promise<any>;
   orgIdentifier: string = null;
+
+  duoFrameless = false;
+  duoFramelessUrl: string = null;
+  duoResultListenerInitialized = false;
+
   onSuccessfulLogin: () => Promise<void>;
   onSuccessfulLoginNavigate: () => Promise<void>;
 
@@ -56,6 +61,13 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
   protected changePasswordRoute = "set-password";
   protected forcePasswordResetRoute = "update-temp-password";
   protected successRoute = "vault";
+
+  get isDuoProvider(): boolean {
+    return (
+      this.selectedProviderType === TwoFactorProviderType.Duo ||
+      this.selectedProviderType === TwoFactorProviderType.OrganizationDuo
+    );
+  }
 
   constructor(
     protected authService: AuthService,
@@ -79,6 +91,8 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
 
   async ngOnInit() {
     if (!this.authing || this.twoFactorService.getProviders() == null) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate([this.loginRoute]);
       return;
     }
@@ -103,6 +117,8 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
         this.i18nService,
         (token: string) => {
           this.token = token;
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.submit();
         },
         (error: string) => {
@@ -144,20 +160,42 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
         break;
       case TwoFactorProviderType.Duo:
       case TwoFactorProviderType.OrganizationDuo:
-        setTimeout(() => {
-          DuoWebSDK.init({
-            iframe: undefined,
-            host: providerData.Host,
-            sig_request: providerData.Signature,
-            submit_callback: async (f: HTMLFormElement) => {
-              const sig = f.querySelector('input[name="sig_response"]') as HTMLInputElement;
-              if (sig != null) {
-                this.token = sig.value;
-                await this.submit();
-              }
-            },
-          });
-        }, 0);
+        // 2 Duo 2FA flows available
+        // 1. Duo Web SDK (iframe) - existing, to be deprecated
+        // 2. Duo Frameless (new tab) - new
+
+        // AuthUrl only exists for new Duo Frameless flow
+        if (providerData.AuthUrl) {
+          this.duoFrameless = true;
+          // Setup listener for duo-redirect.ts connector to send back the code
+
+          if (!this.duoResultListenerInitialized) {
+            // setup client specific duo result listener
+            this.setupDuoResultListener();
+            this.duoResultListenerInitialized = true;
+          }
+
+          // flow must be launched by user so they can choose to remember the device or not.
+          this.duoFramelessUrl = providerData.AuthUrl;
+        } else {
+          // Duo Web SDK (iframe) flow
+          // TODO: remove when we remove the "duo-redirect" feature flag
+          setTimeout(() => {
+            DuoWebSDK.init({
+              iframe: undefined,
+              host: providerData.Host,
+              sig_request: providerData.Signature,
+              submit_callback: async (f: HTMLFormElement) => {
+                const sig = f.querySelector('input[name="sig_response"]') as HTMLInputElement;
+                if (sig != null) {
+                  this.token = sig.value;
+                  await this.submit();
+                }
+              },
+            });
+          }, 0);
+        }
+
         break;
       case TwoFactorProviderType.Email:
         this.twoFactorEmail = providerData.Email;
@@ -226,6 +264,9 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
     );
     return true;
   }
+
+  // Each client will have own implementation
+  protected setupDuoResultListener(): void {}
 
   private async handleLoginResponse(authResult: AuthResult) {
     if (this.handleCaptchaRequired(authResult)) {
@@ -299,9 +340,13 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
     if (this.onSuccessfulLoginTde != null) {
       // Note: awaiting this will currently cause a hang on desktop & browser as they will wait for a full sync to complete
       // before navigating to the success route.
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.onSuccessfulLoginTde();
     }
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.navigateViaCallbackOrRoute(
       this.onSuccessfulLoginTdeNavigate,
       // Navigate to TDE page (if user was on trusted device and TDE has decrypted
@@ -338,6 +383,8 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
   }
 
   private async handleForcePasswordReset(orgIdentifier: string) {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate([this.forcePasswordResetRoute], {
       queryParams: {
         identifier: orgIdentifier,
@@ -349,6 +396,8 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
     if (this.onSuccessfulLogin != null) {
       // Note: awaiting this will currently cause a hang on desktop & browser as they will wait for a full sync to complete
       // before navigating to the success route.
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.onSuccessfulLogin();
     }
     await this.navigateViaCallbackOrRoute(this.onSuccessfulLoginNavigate, [this.successRoute]);
@@ -436,5 +485,10 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
 
   get needsLock(): boolean {
     return this.authService.authingWithSso() || this.authService.authingWithUserApiKey();
+  }
+
+  launchDuoFrameless() {
+    // Launch Duo Frameless flow in new tab
+    this.platformUtilsService.launchUri(this.duoFramelessUrl);
   }
 }
