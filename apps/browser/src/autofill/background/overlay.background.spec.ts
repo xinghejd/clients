@@ -51,19 +51,15 @@ describe("OverlayBackground", () => {
   const autofillSettingsService = mock<AutofillSettingsService>();
   const i18nService = mock<I18nService>();
   const platformUtilsService = mock<BrowserPlatformUtilsService>();
-  const initOverlayElementPorts = (options = { initList: true, initButton: true }) => {
+  const initOverlayElementPorts = async (options = { initList: true, initButton: true }) => {
     const { initList, initButton } = options;
     if (initButton) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      overlayBackground["handlePortOnConnect"](createPortSpyMock(AutofillOverlayPort.Button));
+      await overlayBackground["handlePortOnConnect"](createPortSpyMock(AutofillOverlayPort.Button));
       buttonPortSpy = overlayBackground["overlayButtonPort"];
     }
 
     if (initList) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      overlayBackground["handlePortOnConnect"](createPortSpyMock(AutofillOverlayPort.List));
+      await overlayBackground["handlePortOnConnect"](createPortSpyMock(AutofillOverlayPort.List));
       listPortSpy = overlayBackground["overlayListPort"];
     }
 
@@ -83,13 +79,11 @@ describe("OverlayBackground", () => {
       platformUtilsService,
     );
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     jest
       .spyOn(overlayBackground as any, "getOverlayVisibility")
       .mockResolvedValue(AutofillOverlayVisibility.OnFieldFocus);
 
-    overlayBackground.init();
+    void overlayBackground.init();
   });
 
   afterEach(() => {
@@ -578,8 +572,8 @@ describe("OverlayBackground", () => {
       });
 
       describe("autofillOverlayElementClosed message handler", () => {
-        beforeEach(() => {
-          initOverlayElementPorts();
+        beforeEach(async () => {
+          await initOverlayElementPorts();
         });
 
         it("disconnects the button element port", () => {
@@ -671,8 +665,8 @@ describe("OverlayBackground", () => {
       });
 
       describe("checkAutofillOverlayFocused message handler", () => {
-        beforeEach(() => {
-          initOverlayElementPorts();
+        beforeEach(async () => {
+          await initOverlayElementPorts();
         });
 
         it("will check if the overlay list is focused if the list port is open", () => {
@@ -701,8 +695,8 @@ describe("OverlayBackground", () => {
       });
 
       describe("focusAutofillOverlayList message handler", () => {
-        it("will send a `focusOverlayList` message to the overlay list port", () => {
-          initOverlayElementPorts({ initList: true, initButton: false });
+        it("will send a `focusOverlayList` message to the overlay list port", async () => {
+          await initOverlayElementPorts({ initList: true, initButton: false });
 
           sendExtensionRuntimeMessage({ command: "focusAutofillOverlayList" });
 
@@ -711,14 +705,15 @@ describe("OverlayBackground", () => {
       });
 
       describe("updateAutofillOverlayPosition message handler", () => {
-        beforeEach(() => {
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          overlayBackground["handlePortOnConnect"](createPortSpyMock(AutofillOverlayPort.List));
+        beforeEach(async () => {
+          await overlayBackground["handlePortOnConnect"](
+            createPortSpyMock(AutofillOverlayPort.List),
+          );
           listPortSpy = overlayBackground["overlayListPort"];
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          overlayBackground["handlePortOnConnect"](createPortSpyMock(AutofillOverlayPort.Button));
+
+          await overlayBackground["handlePortOnConnect"](
+            createPortSpyMock(AutofillOverlayPort.Button),
+          );
           buttonPortSpy = overlayBackground["overlayButtonPort"];
         });
 
@@ -821,8 +816,8 @@ describe("OverlayBackground", () => {
       });
 
       describe("updateOverlayHidden", () => {
-        beforeEach(() => {
-          initOverlayElementPorts();
+        beforeEach(async () => {
+          await initOverlayElementPorts();
         });
 
         it("returns early if the display value is not provided", () => {
@@ -992,19 +987,17 @@ describe("OverlayBackground", () => {
       jest.spyOn(overlayBackground as any, "getOverlayCipherData").mockImplementation();
     });
 
-    it("skips setting up the overlay port if the port connection is not for an overlay element", () => {
+    it("skips setting up the overlay port if the port connection is not for an overlay element", async () => {
       const port = createPortSpyMock("not-an-overlay-element");
 
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      overlayBackground["handlePortOnConnect"](port);
+      await overlayBackground["handlePortOnConnect"](port);
 
       expect(port.onMessage.addListener).not.toHaveBeenCalled();
       expect(port.postMessage).not.toHaveBeenCalled();
     });
 
     it("sets up the overlay list port if the port connection is for the overlay list", async () => {
-      initOverlayElementPorts({ initList: true, initButton: false });
+      await initOverlayElementPorts({ initList: true, initButton: false });
       await flushPromises();
 
       expect(overlayBackground["overlayButtonPort"]).toBeUndefined();
@@ -1020,7 +1013,7 @@ describe("OverlayBackground", () => {
     });
 
     it("sets up the overlay button port if the port connection is for the overlay button", async () => {
-      initOverlayElementPorts({ initList: false, initButton: true });
+      await initOverlayElementPorts({ initList: false, initButton: true });
       await flushPromises();
 
       expect(overlayBackground["overlayListPort"]).toBeUndefined();
@@ -1038,7 +1031,7 @@ describe("OverlayBackground", () => {
       jest.spyOn(overlayBackground["stateService"], "getTheme").mockResolvedValue(ThemeType.System);
       window.matchMedia = jest.fn(() => mock<MediaQueryList>({ matches: true }));
 
-      initOverlayElementPorts({ initList: true, initButton: false });
+      await initOverlayElementPorts({ initList: true, initButton: false });
       await flushPromises();
 
       expect(window.matchMedia).toHaveBeenCalledWith("(prefers-color-scheme: dark)");
@@ -1046,8 +1039,8 @@ describe("OverlayBackground", () => {
   });
 
   describe("handleOverlayElementPortMessage", () => {
-    beforeEach(() => {
-      initOverlayElementPorts();
+    beforeEach(async () => {
+      await initOverlayElementPorts();
       overlayBackground["userAuthStatus"] = AuthenticationStatus.Unlocked;
     });
 
