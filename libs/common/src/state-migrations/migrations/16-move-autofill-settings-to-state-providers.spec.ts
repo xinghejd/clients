@@ -4,7 +4,7 @@ import { AutofillOverlayVisibility } from "../../../../../apps/browser/src/autof
 import { StateDefinitionLike, MigrationHelper } from "../migration-helper";
 import { mockMigrationHelper } from "../migration-helper.spec";
 
-import { AutofillSettingsKeyMigrator } from "./15-move-autofill-settings-to-state-providers";
+import { AutofillSettingsKeyMigrator } from "./16-move-autofill-settings-to-state-providers";
 
 function exampleJSON() {
   return {

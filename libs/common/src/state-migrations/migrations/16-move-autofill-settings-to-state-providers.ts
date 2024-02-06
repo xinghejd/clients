@@ -22,7 +22,7 @@ const autofillSettingsStateDefinition: {
   },
 };
 
-export class AutofillSettingsKeyMigrator extends Migrator<14, 15> {
+export class AutofillSettingsKeyMigrator extends Migrator<15, 16> {
   async migrate(helper: MigrationHelper): Promise<void> {
     // global state (e.g. "autoFillOverlayVisibility -> inlineMenuVisibility")
     const globalState = await helper.get<ExpectedGlobalState>("global");

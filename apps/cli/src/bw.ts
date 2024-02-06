@@ -461,6 +461,7 @@ export class Main {
       this.i18nService,
       this.cipherService,
       this.stateService,
+      this.stateProvider,
     );
 
     this.folderApiService = new FolderApiService(this.folderService, this.apiService);
