@@ -4,7 +4,7 @@
  */
 export type PassphraseGenerationOptions = {
   /** The number of words to include in the passphrase.
-   * This value defaults to 4.
+   * This value defaults to 3.
    */
   numWords?: number;
 
@@ -28,7 +28,7 @@ export type PassphraseGenerationOptions = {
 /** The default options for passphrase generation. */
 export const DefaultPassphraseGenerationOptions: Partial<PassphraseGenerationOptions> =
   Object.freeze({
-    numWords: 4,
+    numWords: 3,
     wordSeparator: "-",
     capitalize: false,
     includeNumber: false,
