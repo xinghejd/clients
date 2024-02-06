@@ -38,6 +38,10 @@ import { TokenService } from "@bitwarden/common/auth/services/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/services/two-factor.service";
 import { UserVerificationApiService } from "@bitwarden/common/auth/services/user-verification/user-verification-api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/services/user-verification/user-verification.service";
+import {
+  AutofillSettingsServiceAbstraction,
+  AutofillSettingsService,
+} from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { AppIdService as AppIdServiceAbstraction } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto-function.service";
@@ -220,6 +224,7 @@ export default class MainBackground {
   searchService: SearchServiceAbstraction;
   notificationsService: NotificationsServiceAbstraction;
   stateService: StateServiceAbstraction;
+  autofillSettingsService: AutofillSettingsServiceAbstraction;
   systemService: SystemServiceAbstraction;
   eventCollectionService: EventCollectionServiceAbstraction;
   eventUploadService: EventUploadServiceAbstraction;
@@ -377,6 +382,7 @@ export default class MainBackground {
       this.accountService,
       this.environmentService,
     );
+    this.autofillSettingsService = new AutofillSettingsService(this.stateProvider);
     this.platformUtilsService = new BrowserPlatformUtilsService(
       this.messagingService,
       (clipboardValue, clearMs) => {
@@ -436,7 +442,11 @@ export default class MainBackground {
     );
     this.syncNotifierService = new SyncNotifierService();
     this.organizationService = new BrowserOrganizationService(this.stateService);
-    this.policyService = new BrowserPolicyService(this.stateService, this.organizationService);
+    this.policyService = new BrowserPolicyService(
+      this.stateService,
+      this.organizationService,
+      this.autofillSettingsService,
+    );
     this.policyApiService = new PolicyApiService(
       this.policyService,
       this.apiService,
@@ -531,6 +541,7 @@ export default class MainBackground {
       this.i18nService,
       this.searchService,
       this.stateService,
+      this.autofillSettingsService,
       this.encryptService,
       this.cipherFileUploadService,
       this.configService,
@@ -640,6 +651,7 @@ export default class MainBackground {
     this.autofillService = new AutofillService(
       this.cipherService,
       this.stateService,
+      this.autofillSettingsService,
       this.totpService,
       this.eventCollectionService,
       this.logService,
@@ -740,13 +752,13 @@ export default class MainBackground {
       this.i18nService,
       this.notificationsService,
       this.stateService,
+      this.autofillSettingsService,
       this.systemService,
       this.environmentService,
       this.messagingService,
       this.logService,
       this.configService,
       this.fido2Service,
-      this.settingsService,
     );
     this.nativeMessagingBackground = new NativeMessagingBackground(
       this.cryptoService,
@@ -784,6 +796,7 @@ export default class MainBackground {
       this.environmentService,
       this.settingsService,
       this.stateService,
+      this.autofillSettingsService,
       this.i18nService,
       this.platformUtilsService,
     );

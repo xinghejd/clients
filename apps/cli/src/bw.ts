@@ -30,6 +30,7 @@ import { TokenService } from "@bitwarden/common/auth/services/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/services/two-factor.service";
 import { UserVerificationApiService } from "@bitwarden/common/auth/services/user-verification/user-verification-api.service";
 import { UserVerificationService } from "@bitwarden/common/auth/services/user-verification/user-verification.service";
+import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
 import { KeySuffixOptions, LogLevelType } from "@bitwarden/common/platform/enums";
@@ -171,6 +172,7 @@ export class Main {
   userVerificationService: UserVerificationService;
   pinCryptoService: PinCryptoServiceAbstraction;
   stateService: StateService;
+  autofillSettingsService: AutofillSettingsServiceAbstraction;
   organizationService: OrganizationService;
   providerService: ProviderService;
   twoFactorService: TwoFactorService;
@@ -350,7 +352,11 @@ export class Main {
 
     this.organizationUserService = new OrganizationUserServiceImplementation(this.apiService);
 
-    this.policyService = new PolicyService(this.stateService, this.organizationService);
+    this.policyService = new PolicyService(
+      this.stateService,
+      this.organizationService,
+      this.autofillSettingsService,
+    );
 
     this.policyApiService = new PolicyApiService(
       this.policyService,
@@ -431,6 +437,7 @@ export class Main {
       this.i18nService,
       this.searchService,
       this.stateService,
+      this.autofillSettingsService,
       this.encryptService,
       this.cipherFileUploadService,
       this.configService,
