@@ -1,6 +1,11 @@
 import { LOCALE_ID, NgModule } from "@angular/core";
 
-import { PinCryptoServiceAbstraction, PinCryptoService } from "@bitwarden/auth/common";
+import {
+  PinCryptoServiceAbstraction,
+  PinCryptoService,
+  LoginStrategyServiceAbstraction,
+  LoginStrategyService,
+} from "@bitwarden/auth/common";
 import { AvatarUpdateService as AccountUpdateServiceAbstraction } from "@bitwarden/common/abstractions/account/avatar-update.service";
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
 import { AuditService as AuditServiceAbstraction } from "@bitwarden/common/abstractions/audit.service";
@@ -95,6 +100,10 @@ import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwar
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { ValidationService as ValidationServiceAbstraction } from "@bitwarden/common/platform/abstractions/validation.service";
+import {
+  BiometricStateService,
+  DefaultBiometricStateService,
+} from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { devFlagEnabled, flagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { Account } from "@bitwarden/common/platform/models/domain/account";
@@ -270,6 +279,16 @@ import { ModalService } from "./modal.service";
     {
       provide: AuthServiceAbstraction,
       useClass: AuthService,
+      deps: [
+        MessagingServiceAbstraction,
+        CryptoServiceAbstraction,
+        ApiServiceAbstraction,
+        StateServiceAbstraction,
+      ],
+    },
+    {
+      provide: LoginStrategyServiceAbstraction,
+      useClass: LoginStrategyService,
       deps: [
         CryptoServiceAbstraction,
         ApiServiceAbstraction,
@@ -743,7 +762,7 @@ import { ModalService } from "./modal.service";
     {
       provide: AnonymousHubServiceAbstraction,
       useClass: AnonymousHubService,
-      deps: [EnvironmentServiceAbstraction, AuthServiceAbstraction, LogService],
+      deps: [EnvironmentServiceAbstraction, LoginStrategyServiceAbstraction, LogService],
     },
     {
       provide: ValidationServiceAbstraction,
@@ -824,7 +843,7 @@ import { ModalService } from "./modal.service";
       useClass: WebAuthnLoginService,
       deps: [
         WebAuthnLoginApiServiceAbstraction,
-        AuthServiceAbstraction,
+        LoginStrategyServiceAbstraction,
         ConfigServiceAbstraction,
         WebAuthnLoginPrfCryptoServiceAbstraction,
         WINDOW,
@@ -875,6 +894,11 @@ import { ModalService } from "./modal.service";
         I18nServiceAbstraction,
         OrganizationApiServiceAbstraction,
       ],
+    },
+    {
+      provide: BiometricStateService,
+      useClass: DefaultBiometricStateService,
+      deps: [StateProvider],
     },
   ],
 })

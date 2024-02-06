@@ -1,10 +1,15 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import * as program from "commander";
+import { program } from "commander";
 import * as jsdom from "jsdom";
 
-import { PinCryptoServiceAbstraction, PinCryptoService } from "@bitwarden/auth/common";
+import {
+  LoginStrategyService,
+  LoginStrategyServiceAbstraction,
+  PinCryptoService,
+  PinCryptoServiceAbstraction,
+} from "@bitwarden/auth/common";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -191,6 +196,7 @@ export class Main {
   activeUserStateProvider: ActiveUserStateProvider;
   derivedStateProvider: DerivedStateProvider;
   stateProvider: StateProvider;
+  loginStrategyService: LoginStrategyServiceAbstraction;
 
   constructor() {
     let p = null;
@@ -393,7 +399,7 @@ export class Main {
 
     this.authRequestCryptoService = new AuthRequestCryptoServiceImplementation(this.cryptoService);
 
-    this.authService = new AuthService(
+    this.loginStrategyService = new LoginStrategyService(
       this.cryptoService,
       this.apiService,
       this.tokenService,
@@ -411,6 +417,13 @@ export class Main {
       this.policyService,
       this.deviceTrustCryptoService,
       this.authRequestCryptoService,
+    );
+
+    this.authService = new AuthService(
+      this.messagingService,
+      this.cryptoService,
+      this.apiService,
+      this.stateService,
     );
 
     this.configApiService = new ConfigApiService(this.apiService, this.authService);
@@ -616,4 +629,6 @@ export class Main {
 }
 
 const main = new Main();
+// FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 main.run();

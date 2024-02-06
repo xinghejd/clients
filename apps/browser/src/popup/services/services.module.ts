@@ -10,6 +10,7 @@ import {
   OBSERVABLE_MEMORY_STORAGE,
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
+import { LoginStrategyServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -131,6 +132,8 @@ const mainBackground: MainBackground = needsBackgroundInit
 
 function createLocalBgService() {
   const localBgService = new MainBackground(isPrivateMode);
+  // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
   localBgService.bootstrap();
   return localBgService;
 }
@@ -178,6 +181,10 @@ function getBgService<T>(service: keyof MainBackground) {
       provide: AuthServiceAbstraction,
       useFactory: getBgService<AuthService>("authService"),
       deps: [],
+    },
+    {
+      provide: LoginStrategyServiceAbstraction,
+      useFactory: getBgService<LoginStrategyServiceAbstraction>("loginStrategyService"),
     },
     {
       provide: SearchServiceAbstraction,
