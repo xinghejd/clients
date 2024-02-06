@@ -24,3 +24,12 @@ export type PassphraseGenerationOptions = {
    */
   includeNumber?: boolean;
 };
+
+/** The default options for passphrase generation. */
+export const DefaultPassphraseGenerationOptions: Partial<PassphraseGenerationOptions> =
+  Object.freeze({
+    numWords: 4,
+    wordSeparator: "-",
+    capitalize: false,
+    includeNumber: false,
+  });
