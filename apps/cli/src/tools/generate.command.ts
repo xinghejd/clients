@@ -87,6 +87,8 @@ class Options {
     }
     if (this.separator === "space") {
       this.separator = " ";
+    } else if (this.separator === "empty") {
+      this.separator = "";
     } else if (this.separator != null && this.separator.length > 1) {
       this.separator = this.separator[0];
     }
