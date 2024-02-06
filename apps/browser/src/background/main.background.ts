@@ -264,7 +264,8 @@ export default class MainBackground {
   organizationVaultExportService: OrganizationVaultExportServiceAbstraction;
 
   // Passed to the popup for Safari to workaround issues with theming, downloading, etc.
-  backgroundWindow = window;
+  // backgroundWindow = window;
+  backgroundWindow = typeof window !== "undefined" ? window : self;
 
   onUpdatedRan: boolean;
   onReplacedRan: boolean;
@@ -398,7 +399,8 @@ export default class MainBackground {
           return promise.then((result) => result.response === "unlocked");
         }
       },
-      window,
+      // window,
+      typeof window !== "undefined" ? window : self,
     );
     this.i18nService = new BrowserI18nService(BrowserApi.getUILanguage(), this.stateService);
     this.cryptoService = new BrowserCryptoService(
@@ -712,7 +714,10 @@ export default class MainBackground {
         this.platformUtilsService.isSafari() ||
         this.platformUtilsService.isFirefox() ||
         this.platformUtilsService.isOpera();
-      BrowserApi.reloadExtension(forceWindowReload ? window : null);
+      // BrowserApi.reloadExtension(forceWindowReload ? window : null);
+      BrowserApi.reloadExtension(
+        forceWindowReload ? (typeof window !== "undefined" ? window : self) : null,
+      );
       return Promise.resolve();
     };
 
@@ -801,7 +806,10 @@ export default class MainBackground {
         async (_tab) => {
           const options = (await this.passwordGenerationService.getOptions())?.[0] ?? {};
           const password = await this.passwordGenerationService.generatePassword(options);
-          this.platformUtilsService.copyToClipboard(password, { window: window });
+          // this.platformUtilsService.copyToClipboard(password, { window: window });
+          this.platformUtilsService.copyToClipboard(password, {
+            window: typeof window !== "undefined" ? window : self,
+          });
           // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.passwordGenerationService.addHistory(password);
@@ -867,7 +875,8 @@ export default class MainBackground {
   }
 
   async bootstrap() {
-    this.containerService.attachToGlobal(window);
+    // this.containerService.attachToGlobal(window);
+    this.containerService.attachToGlobal(typeof window !== "undefined" ? window : self);
 
     await this.stateService.init();
 

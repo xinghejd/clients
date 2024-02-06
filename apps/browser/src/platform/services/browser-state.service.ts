@@ -89,7 +89,10 @@ export class BrowserStateService
       // request cache initialization
 
       const response = await BrowserApi.sendMessageWithResponse<string>("initializeDiskCache");
-      this.accountDiskCache.next(JSON.parse(response));
+      // this.accountDiskCache.next(JSON.parse(response));
+      if (response) {
+        this.accountDiskCache.next(JSON.parse(response));
+      }
 
       return;
     }
