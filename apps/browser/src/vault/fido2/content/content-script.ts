@@ -14,7 +14,7 @@ function isFido2FeatureEnabled(): Promise<boolean> {
         hostname: window.location.hostname,
         origin: window.location.origin,
       },
-      (response: { result?: boolean }) => resolve(response.result),
+      (response: { result?: boolean }) => resolve(Boolean(response?.result)),
     );
   });
 }
