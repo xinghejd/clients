@@ -70,7 +70,10 @@ class Options {
       passedOptions?.separator,
       DefaultPassphraseGenerationOptions.wordSeparator,
     );
-    this.words = CliUtils.convertNumberOption(passedOptions?.words, 3);
+    this.words = CliUtils.convertNumberOption(
+      passedOptions?.words,
+      DefaultPassphraseGenerationOptions.numWords,
+    );
     this.minNumber = CliUtils.convertNumberOption(passedOptions?.minNumber, 1);
     this.minSpecial = CliUtils.convertNumberOption(passedOptions?.minSpecial, 1);
 
