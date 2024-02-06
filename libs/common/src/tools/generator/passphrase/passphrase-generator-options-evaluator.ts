@@ -1,6 +1,9 @@
 import { PolicyEvaluator } from "../abstractions/policy-evaluator.abstraction";
 
-import { PassphraseGenerationOptions } from "./passphrase-generation-options";
+import {
+  DefaultPassphraseGenerationOptions,
+  PassphraseGenerationOptions,
+} from "./passphrase-generation-options";
 import { PassphraseGeneratorPolicy } from "./passphrase-generator-policy";
 
 type Boundary = {
@@ -109,7 +112,10 @@ export class PassphraseGeneratorOptionsEvaluator
    */
   sanitize(options: PassphraseGenerationOptions): PassphraseGenerationOptions {
     // ensure words are separated by a single character or the empty string
-    const wordSeparator = options.wordSeparator?.[0] ?? "";
+    const wordSeparator =
+      options.wordSeparator === ""
+        ? ""
+        : options.wordSeparator?.[0] ?? DefaultPassphraseGenerationOptions.wordSeparator;
 
     return {
       ...options,
