@@ -8,7 +8,6 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-// eslint-disable-next-line no-restricted-imports
 import { ReportsApiServiceAbstraction } from "@bitwarden/common/tools/reports/reports-api.service.abstraction";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { PasswordRepromptService } from "@bitwarden/vault";

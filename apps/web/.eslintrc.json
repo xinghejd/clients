@@ -8,8 +8,8 @@
       {
         "patterns": [
           "**/app/core/*",
-          "**/reports/*",
           "**/app/shared/*",
+          "app/tools/reports",
           "**/organizations/settings/*",
           "**/organizations/policies/*",
           "@bitwarden/web-vault/*",
