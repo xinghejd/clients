@@ -16,24 +16,27 @@ import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
 import { EventData } from "../../models/data/event.data";
 import { WindowState } from "../../models/domain/window-state";
 import { migrate } from "../../state-migrations";
+import { waitForMigrations } from "../../state-migrations/migrate";
 import { GeneratorOptions } from "../../tools/generator/generator-options";
 import { GeneratedPasswordHistory, PasswordGeneratorOptions } from "../../tools/generator/password";
 import { UsernameGeneratorOptions } from "../../tools/generator/username";
 import { SendData } from "../../tools/send/models/data/send.data";
 import { SendView } from "../../tools/send/models/view/send.view";
 import { UserId } from "../../types/guid";
-import { UserKey, MasterKey, DeviceKey } from "../../types/key";
+import { DeviceKey, MasterKey, UserKey } from "../../types/key";
 import { UriMatchType } from "../../vault/enums";
 import { CipherData } from "../../vault/models/data/cipher.data";
 import { CollectionData } from "../../vault/models/data/collection.data";
-import { FolderData } from "../../vault/models/data/folder.data";
 import { LocalData } from "../../vault/models/data/local.data";
 import { CipherView } from "../../vault/models/view/cipher.view";
 import { CollectionView } from "../../vault/models/view/collection.view";
 import { AddEditCipherInfo } from "../../vault/types/add-edit-cipher-info";
 import { EnvironmentService } from "../abstractions/environment.service";
 import { LogService } from "../abstractions/log.service";
-import { StateService as StateServiceAbstraction } from "../abstractions/state.service";
+import {
+  InitOptions,
+  StateService as StateServiceAbstraction,
+} from "../abstractions/state.service";
 import {
   AbstractMemoryStorageService,
   AbstractStorageService,
@@ -126,12 +129,20 @@ export class StateService<
       .subscribe();
   }
 
-  async init(): Promise<void> {
+  async init(initOptions: InitOptions = {}): Promise<void> {
+    // Deconstruct and apply defaults
+    const { runMigrations = true } = initOptions;
     if (this.hasBeenInited) {
       return;
     }
 
-    await migrate(this.storageService, this.logService);
+    if (runMigrations) {
+      await migrate(this.storageService, this.logService);
+    } else {
+      // It may have been requested to not run the migrations but we should defensively not
+      // continue this method until migrations have a chance to be completed elsewhere.
+      await waitForMigrations(this.storageService, this.logService);
+    }
 
     await this.state().then(async (state) => {
       if (state == null) {
@@ -1200,24 +1211,6 @@ export class StateService<
     );
   }
 
-  async getEnablePasskeys(options?: StorageOptions): Promise<boolean> {
-    return (
-      (await this.getGlobals(this.reconcileOptions(options, await this.defaultOnDiskOptions())))
-        ?.enablePasskeys ?? true
-    );
-  }
-
-  async setEnablePasskeys(value: boolean, options?: StorageOptions): Promise<void> {
-    const globals = await this.getGlobals(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    globals.enablePasskeys = value;
-    await this.saveGlobals(
-      globals,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
   async getDisableContextMenuItem(options?: StorageOptions): Promise<boolean> {
     return (
       (await this.getGlobals(this.reconcileOptions(options, await this.defaultOnDiskOptions())))
@@ -1789,27 +1782,6 @@ export class StateService<
     );
   }
 
-  @withPrototypeForObjectValues(FolderData)
-  async getEncryptedFolders(options?: StorageOptions): Promise<{ [id: string]: FolderData }> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions()))
-    )?.data?.folders?.encrypted;
-  }
-
-  async setEncryptedFolders(
-    value: { [id: string]: FolderData },
-    options?: StorageOptions,
-  ): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions()),
-    );
-    account.data.folders.encrypted = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions()),
-    );
-  }
-
   @withPrototypeForArrayMembers(GeneratedPasswordHistory)
   async getEncryptedPasswordGenerationHistory(
     options?: StorageOptions,
@@ -2129,23 +2101,6 @@ export class StateService<
       )) ?? {};
     accountActivity[options.userId] = value;
     await this.storageService.save(keys.accountActivity, accountActivity, options);
-  }
-
-  async getLastSync(options?: StorageOptions): Promise<string> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions()))
-    )?.profile?.lastSync;
-  }
-
-  async setLastSync(value: string, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions()),
-    );
-    account.profile.lastSync = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions()),
-    );
   }
 
   async getLocalData(options?: StorageOptions): Promise<{ [cipherId: string]: LocalData }> {
