@@ -273,6 +273,8 @@ export default class MainBackground {
   vaultSettingsService: VaultSettingsServiceAbstraction;
 
   // Passed to the popup for Safari to workaround issues with theming, downloading, etc.
+  // FIXME-MV3-REQ: [PM-5879] Need to remove window usage after investigating issues with using window.matchMedia in Safari's popup
+  // eslint-disable-next-line no-restricted-globals
   backgroundWindow = window;
 
   onUpdatedRan: boolean;
@@ -407,6 +409,8 @@ export default class MainBackground {
           return promise.then((result) => result.response === "unlocked");
         }
       },
+      // FIXME-MV3-REQ: [PM-5880] Usage of `window` will be reworked with the refactor of BrowserPlatformUtilsService
+      // eslint-disable-next-line no-restricted-globals
       window,
     );
     this.i18nService = new BrowserI18nService(BrowserApi.getUILanguage(), this.stateService);
@@ -736,6 +740,8 @@ export default class MainBackground {
         this.platformUtilsService.isSafari() ||
         this.platformUtilsService.isFirefox() ||
         this.platformUtilsService.isOpera();
+      // FIXME-MV3-REQ: [PM-5741] Usage of `window` will be reworked when refactoring the BrowserApi.reloadExtension method
+      // eslint-disable-next-line no-restricted-globals
       BrowserApi.reloadExtension(forceWindowReload ? window : null);
       return Promise.resolve();
     };
@@ -824,7 +830,9 @@ export default class MainBackground {
         async (_tab) => {
           const options = (await this.passwordGenerationService.getOptions())?.[0] ?? {};
           const password = await this.passwordGenerationService.generatePassword(options);
-          this.platformUtilsService.copyToClipboard(password, { window: window });
+          // FIXME-MV3-REQ: [PM-5880] Usage of `window` will be removed when the copyToClipboard method is refactored for mv3
+          // eslint-disable-next-line no-restricted-globals
+          this.platformUtilsService.copyToClipboard(password, { window });
           // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.passwordGenerationService.addHistory(password);
@@ -890,7 +898,7 @@ export default class MainBackground {
   }
 
   async bootstrap() {
-    this.containerService.attachToGlobal(window);
+    this.containerService.attachToGlobal(self);
 
     await this.stateService.init();
 

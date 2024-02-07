@@ -306,7 +306,7 @@ export class BrowserApi {
   ) {
     event.addListener(callback);
 
-    if (BrowserApi.isSafariApi && !BrowserApi.isBackgroundPage(window)) {
+    if (BrowserApi.isSafariApi && !BrowserApi.isBackgroundPage(self)) {
       BrowserApi.trackedChromeEventListeners.push([event, callback]);
       BrowserApi.setupUnloadListeners();
     }
@@ -323,7 +323,7 @@ export class BrowserApi {
   ) {
     event.removeListener(callback);
 
-    if (BrowserApi.isSafariApi && !BrowserApi.isBackgroundPage(window)) {
+    if (BrowserApi.isSafariApi && !BrowserApi.isBackgroundPage(self)) {
       const index = BrowserApi.trackedChromeEventListeners.findIndex(([_event, eventListener]) => {
         return eventListener == callback;
       });
@@ -337,11 +337,11 @@ export class BrowserApi {
   private static setupUnloadListeners() {
     // The MDN recommend using 'visibilitychange' but that event is fired any time the popup window is obscured as well
     // 'pagehide' works just like 'unload' but is compatible with the back/forward cache, so we prefer using that one
-    window.onpagehide = () => {
+    self.addEventListener("pagehide", () => {
       for (const [event, callback] of BrowserApi.trackedChromeEventListeners) {
         event.removeListener(callback);
       }
-    };
+    });
   }
 
   static sendMessage(subscriber: string, arg: any = {}) {
@@ -401,7 +401,7 @@ export class BrowserApi {
       return;
     }
 
-    const currentHref = window.location.href;
+    const currentHref = self.location.href;
     views
       .filter((w) => w.location.href != null && !w.location.href.includes("background.html"))
       .filter((w) => !exemptCurrentHref || w.location.href !== currentHref)
