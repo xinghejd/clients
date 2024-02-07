@@ -16,7 +16,7 @@ import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.se
 @Component({
   selector: "app-folders",
   templateUrl: "folders.component.html",
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.Default,
 })
 export class FoldersComponent implements OnInit {
   folders$: Observable<FolderView[]>;
