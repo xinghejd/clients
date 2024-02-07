@@ -22,8 +22,6 @@ describe("DeriveDefinition", () => {
         deserializer,
       });
 
-      expect;
-
       expect(result).toEqual(TEST_DERIVE);
     });
 
