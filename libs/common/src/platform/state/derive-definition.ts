@@ -1,5 +1,6 @@
 import { Jsonify } from "type-fest";
 
+import { UserId } from "../../types/guid";
 import { DerivedStateDependencies, StorageKey } from "../../types/state";
 
 import { KeyDefinition } from "./key-definition";
@@ -126,6 +127,19 @@ export class DeriveDefinition<TFrom, TTo, TDeps extends DerivedStateDependencies
       | KeyDefinition<TFrom>
       | [DeriveDefinition<unknown, TFrom, DerivedStateDependencies>, string],
     options: DeriveDefinitionOptions<TFrom, TTo, TDeps>,
+  ) {
+    if (isKeyDefinition(definition)) {
+      return new DeriveDefinition(definition.stateDefinition, definition.key, options);
+    } else {
+      return new DeriveDefinition(definition[0].stateDefinition, definition[1], options);
+    }
+  }
+
+  static fromWithUserId<TKeyDef, TTo, TDeps extends DerivedStateDependencies = never>(
+    definition:
+      | KeyDefinition<TKeyDef>
+      | [DeriveDefinition<unknown, TKeyDef, DerivedStateDependencies>, string],
+    options: DeriveDefinitionOptions<[UserId, TKeyDef], TTo, TDeps>,
   ) {
     if (isKeyDefinition(definition)) {
       return new DeriveDefinition(definition.stateDefinition, definition.key, options);

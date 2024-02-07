@@ -90,7 +90,7 @@ export class CryptoService implements CryptoServiceAbstraction {
     // User Asymmetric Key Pair
     this.activeUserEncryptedPrivateKeyState = stateProvider.getActive(USER_ENCRYPTED_PRIVATE_KEY);
     this.activeUserPrivateKeyState = stateProvider.getDerived(
-      this.activeUserEncryptedPrivateKeyState.state$,
+      this.activeUserEncryptedPrivateKeyState.combinedState$,
       USER_PRIVATE_KEY,
       {
         encryptService: this.encryptService,
@@ -745,13 +745,15 @@ export class CryptoService implements CryptoServiceAbstraction {
     }
 
     try {
-      const encPrivateKey = await firstValueFrom(this.activeUserEncryptedPrivateKeyState.state$);
+      const [userId, encPrivateKey] = await firstValueFrom(
+        this.activeUserEncryptedPrivateKeyState.combinedState$,
+      );
       if (encPrivateKey == null) {
         return false;
       }
 
       // Can decrypt private key
-      const privateKey = await USER_PRIVATE_KEY.derive(encPrivateKey, {
+      const privateKey = await USER_PRIVATE_KEY.derive([userId, encPrivateKey], {
         encryptService: this.encryptService,
         cryptoService: this,
       });

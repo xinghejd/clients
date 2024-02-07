@@ -17,19 +17,19 @@ export const USER_ENCRYPTED_PRIVATE_KEY = new KeyDefinition<EncryptedString>(
   },
 );
 
-export const USER_PRIVATE_KEY = DeriveDefinition.from<
+export const USER_PRIVATE_KEY = DeriveDefinition.fromWithUserId<
   EncryptedString,
   UserPrivateKey,
   // TODO: update cryptoService to user key directly
   { encryptService: EncryptService; cryptoService: CryptoService }
 >(USER_ENCRYPTED_PRIVATE_KEY, {
   deserializer: (obj) => new Uint8Array(Object.values(obj)) as UserPrivateKey,
-  derive: async (encPrivateKeyString, { encryptService, cryptoService }) => {
+  derive: async ([userId, encPrivateKeyString], { encryptService, cryptoService }) => {
     if (encPrivateKeyString == null) {
       return null;
     }
 
-    const userKey = await cryptoService.getUserKey();
+    const userKey = await cryptoService.getUserKey(userId);
     if (userKey == null) {
       return null;
     }
