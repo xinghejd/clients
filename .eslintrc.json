@@ -234,6 +234,22 @@
           }
         ]
       }
+    },
+    {
+      "files": ["apps/browser/src/**/*.ts"],
+      "excludedFiles": [
+        "apps/browser/src/**/{content,popup,jest}/**/*.ts",
+        "apps/browser/src/**/*.spec.ts"
+      ],
+      "rules": {
+        "no-restricted-globals": [
+          "error",
+          {
+            "name": "window",
+            "message": "The `window` object is not available in service workers and may not be available within the background script. Consider using `self` or another global property instead."
+          }
+        ]
+      }
     }
   ]
 }
