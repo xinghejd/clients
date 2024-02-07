@@ -1,5 +1,6 @@
 import type { Jsonify } from "type-fest";
 
+import { ThemeType } from "@bitwarden/common/platform/enums";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import type { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
@@ -15,8 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 function load() {
-  const theme = getQueryVariable("theme");
-  document.documentElement.classList.add("theme_" + theme);
+  setNotificationBarTheme();
 
   const isVaultLocked = getQueryVariable("isVaultLocked") == "true";
   (document.getElementById("logo") as HTMLImageElement).src = isVaultLocked
@@ -325,4 +325,15 @@ function adjustHeight() {
       height: document.querySelector("body").scrollHeight,
     },
   });
+}
+
+function setNotificationBarTheme() {
+  let theme = getQueryVariable("theme");
+  if (theme === ThemeType.System) {
+    theme = window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? ThemeType.Dark
+      : ThemeType.Light;
+  }
+
+  document.documentElement.classList.add(`theme_${theme}`);
 }
