@@ -1,6 +1,7 @@
 import { mock } from "jest-mock-extended";
 
 import { makeStaticByteArray } from "../../../../spec";
+import { UserId } from "../../../types/guid";
 import { UserKey, UserPrivateKey, UserPublicKey } from "../../../types/key";
 import { CryptoFunctionService } from "../../abstractions/crypto-function.service";
 import { EncryptService } from "../../abstractions/encrypt.service";
@@ -70,6 +71,7 @@ describe("User public key", () => {
 
 describe("Derived decrypted private key", () => {
   const sut = USER_PRIVATE_KEY;
+  const userId = "userId" as UserId;
   const userKey = mock<UserKey>();
   const encryptedPrivateKey = makeEncString().encryptedString;
   const decryptedPrivateKey = makeStaticByteArray(64, 1);
@@ -92,7 +94,7 @@ describe("Derived decrypted private key", () => {
     const encryptService = mock<EncryptService>();
     encryptService.decryptToBytes.mockResolvedValue(decryptedPrivateKey);
 
-    const result = await sut.derive(encryptedPrivateKey, {
+    const result = await sut.derive([userId, encryptedPrivateKey], {
       encryptService,
       cryptoService,
     });
@@ -105,7 +107,7 @@ describe("Derived decrypted private key", () => {
     cryptoService.getUserKey.mockResolvedValue(userKey);
     const encryptService = mock<EncryptService>();
 
-    const result = await sut.derive(null, {
+    const result = await sut.derive([userId, null], {
       encryptService,
       cryptoService,
     });
@@ -118,7 +120,7 @@ describe("Derived decrypted private key", () => {
     cryptoService.getUserKey.mockResolvedValue(null);
     const encryptService = mock<EncryptService>();
 
-    const result = await sut.derive(encryptedPrivateKey, {
+    const result = await sut.derive([userId, encryptedPrivateKey], {
       encryptService,
       cryptoService,
     });
