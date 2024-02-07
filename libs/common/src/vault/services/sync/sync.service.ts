@@ -1,3 +1,5 @@
+import { firstValueFrom, map } from "rxjs";
+
 import { ApiService } from "../../../abstractions/api.service";
 import { SettingsService } from "../../../abstractions/settings.service";
 import { InternalOrganizationServiceAbstraction } from "../../../admin-console/abstractions/organization/organization.service.abstraction";
@@ -10,7 +12,6 @@ import { ProviderData } from "../../../admin-console/models/data/provider.data";
 import { PolicyResponse } from "../../../admin-console/models/response/policy.response";
 import { KeyConnectorService } from "../../../auth/abstractions/key-connector.service";
 import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
-import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { DomainsResponse } from "../../../models/response/domains.response";
 import {
   SyncCipherNotification,
@@ -18,17 +19,18 @@ import {
   SyncSendNotification,
 } from "../../../models/response/notification.response";
 import { ProfileResponse } from "../../../models/response/profile.response";
-import { ConfigServiceAbstraction } from "../../../platform/abstractions/config/config.service.abstraction";
 import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { MessagingService } from "../../../platform/abstractions/messaging.service";
 import { StateService } from "../../../platform/abstractions/state.service";
 import { sequentialize } from "../../../platform/misc/sequentialize";
 import { AccountDecryptionOptions } from "../../../platform/models/domain/account";
+import { KeyDefinition, StateProvider, SYNC_STATE } from "../../../platform/state";
 import { SendData } from "../../../tools/send/models/data/send.data";
 import { SendResponse } from "../../../tools/send/models/response/send.response";
 import { SendApiService } from "../../../tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "../../../tools/send/services/send.service.abstraction";
+import { UserId } from "../../../types/guid";
 import { CipherService } from "../../../vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "../../../vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService } from "../../../vault/abstractions/folder/folder.service.abstraction";
@@ -41,8 +43,22 @@ import { CollectionService } from "../../abstractions/collection.service";
 import { CollectionData } from "../../models/data/collection.data";
 import { CollectionDetailsResponse } from "../../models/response/collection.response";
 
+const LAST_SYNC_KEY = new KeyDefinition<string | null>(SYNC_STATE, "lastSync", {
+  deserializer: (value) => value,
+});
+
 export class SyncService implements SyncServiceAbstraction {
+  private lastSyncState = this.stateProvider.getActive(LAST_SYNC_KEY);
+
   syncInProgress = false;
+  lastSync$ = this.lastSyncState.state$.pipe(
+    map((value) => {
+      if (value == null) {
+        return null;
+      }
+      return new Date(value);
+    }),
+  );
 
   constructor(
     private apiService: ApiService,
@@ -61,25 +77,20 @@ export class SyncService implements SyncServiceAbstraction {
     private folderApiService: FolderApiServiceAbstraction,
     private organizationService: InternalOrganizationServiceAbstraction,
     private sendApiService: SendApiService,
-    private configService: ConfigServiceAbstraction,
+    private stateProvider: StateProvider,
     private logoutCallback: (expired: boolean) => Promise<void>,
   ) {}
 
-  async getLastSync(): Promise<Date> {
-    if ((await this.stateService.getUserId()) == null) {
-      return null;
-    }
-
-    const lastSync = await this.stateService.getLastSync();
-    if (lastSync) {
-      return new Date(lastSync);
-    }
-
-    return null;
+  async getLastSync(): Promise<Date | null> {
+    return await firstValueFrom(this.lastSync$);
   }
 
-  async setLastSync(date: Date, userId?: string): Promise<any> {
-    await this.stateService.setLastSync(date.toJSON(), { userId: userId });
+  async setLastSync(date: Date, userId?: UserId): Promise<any> {
+    if (userId !== undefined) {
+      await this.stateProvider.getUser(userId, LAST_SYNC_KEY).update(() => date.toJSON());
+    } else {
+      await this.lastSyncState.update(() => date.toJSON());
+    }
   }
 
   @sequentialize(() => "fullSync")
@@ -321,11 +332,7 @@ export class SyncService implements SyncServiceAbstraction {
 
     await this.setForceSetPasswordReasonIfNeeded(response);
 
-    const flexibleCollectionsEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.FlexibleCollections,
-      false,
-    );
-    await this.syncProfileOrganizations(response, flexibleCollectionsEnabled);
+    await this.syncProfileOrganizations(response);
 
     const providers: { [id: string]: ProviderData } = {};
     response.providers.forEach((p) => {
@@ -338,6 +345,8 @@ export class SyncService implements SyncServiceAbstraction {
       await this.keyConnectorService.setConvertAccountRequired(true);
       this.messagingService.send("convertAccountToKeyConnector");
     } else {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.keyConnectorService.removeConvertAccountRequired();
     }
   }
@@ -393,10 +402,7 @@ export class SyncService implements SyncServiceAbstraction {
     }
   }
 
-  private async syncProfileOrganizations(
-    response: ProfileResponse,
-    flexibleCollectionsEnabled: boolean,
-  ) {
+  private async syncProfileOrganizations(response: ProfileResponse) {
     const organizations: { [id: string]: OrganizationData } = {};
     response.organizations.forEach((o) => {
       organizations[o.id] = new OrganizationData(o, {
@@ -416,7 +422,7 @@ export class SyncService implements SyncServiceAbstraction {
       }
     });
 
-    await this.organizationService.replace(organizations, flexibleCollectionsEnabled);
+    await this.organizationService.replace(organizations);
   }
 
   private async syncFolders(response: FolderResponse[]) {

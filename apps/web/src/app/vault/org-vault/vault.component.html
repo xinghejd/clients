@@ -41,6 +41,7 @@
         [allGroups]="allGroups"
         [disabled]="loading"
         [showOwner]="false"
+        [showPermissionsColumn]="true"
         [showCollections]="filter.type !== undefined"
         [showGroups]="
           organization?.useGroups &&
@@ -54,7 +55,10 @@
         [cloneableOrganizationCiphers]="true"
         [showAdminActions]="true"
         (onEvent)="onVaultItemsEvent($event)"
-        [showBulkEditCollectionAccess]="showBulkEditCollectionAccess$ | async"
+        [showBulkEditCollectionAccess]="
+          (showBulkEditCollectionAccess$ | async) && organization?.flexibleCollections
+        "
+        [viewingOrgVault]="true"
       >
       </app-vault-items>
       <div

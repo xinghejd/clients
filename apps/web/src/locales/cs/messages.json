@@ -656,9 +656,6 @@
   "passkeySuccessfullyCreated": {
     "message": "Přístupový klíč byl úspěšně vytvořen!"
   },
-  "customName": {
-    "message": "Vlastní název"
-  },
   "customPasskeyNameInfo": {
     "message": "Pojmenujte Váš přístupový klíč, abyste jej mohli snáze identifikovat."
   },
@@ -2534,6 +2531,15 @@
       }
     }
   },
+  "trialSecretsManagerThankYou": {
+    "message": "Děkujeme za registraci do Správce klíčů Bitwardenu s plánem $PLAN$!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
   "trialPaidInfoMessage": {
     "message": "Po 7 dnech bude bezplatná zkušební doba překlopena do placeného předplatného $PLAN$.",
     "placeholders": {
@@ -2818,6 +2824,9 @@
   },
   "incorrectCode": {
     "message": "Nesprávný kód"
+  },
+  "incorrectPin": {
+    "message": "Nesprávný PIN"
   },
   "exportedVault": {
     "message": "Trezor byl exportován"
@@ -3828,15 +3837,6 @@
   "couldNotChargeCardPayInvoice": {
     "message": "Nepodařilo se nám strhnout platbu z Vaší karty. Prohlédněte si a zaplaťte nezaplacenou fakturu uvedenou níže."
   },
-  "inAppPurchase": {
-    "message": "Nákup v aplikaci"
-  },
-  "cannotPerformInAppPurchase": {
-    "message": "Tuto akci nelze provést při použití platební metody \"Nákup v aplikaci\"."
-  },
-  "manageSubscriptionFromStore": {
-    "message": "Své předplatné musíte spravovat z obchodu, pomocí kterého byl nákup v aplikaci proveden."
-  },
   "minLength": {
     "message": "Minimální délka"
   },
@@ -4403,7 +4403,7 @@
     "message": "Bude vyžadovat, aby členové ukládali položky do organizace tím, že odeberete možnost osobního trezoru."
   },
   "personalOwnershipExemption": {
-    "message": "Majitelé a administrátoři organizací jsou od prosazování těchto zásad osvobozeni."
+    "message": "Majitelé a správci organizací jsou od prosazování těchto zásad osvobozeni."
   },
   "personalOwnershipSubmitError": {
     "message": "Z důvodu podnikových zásad nemůžete ukládat položky do svého osobního trezoru. Změňte vlastnictví položky na organizaci a poté si vyberte z dostupných kolekcí."
@@ -4776,7 +4776,7 @@
     "message": "Automaticky zaregistrovat nové uživatele"
   },
   "resetPasswordAutoEnrollInviteWarning": {
-    "message": "Tato organizace má podnikové zásady, které Vás automaticky zaregistrují k obnovení hesla. Registrace umožní administrátorům organizace změnit Vaše hlavní heslo."
+    "message": "Tato organizace má podnikové zásady, které Vás automaticky zaregistrují k obnovení hesla. Registrace umožní správcům organizace změnit Vaše hlavní heslo."
   },
   "resetPasswordOrgKeysError": {
     "message": "Odpověď klíčů organizace je prázdná"
@@ -4921,7 +4921,7 @@
     "message": "Nelze přijmout pozvánku. Požádejte administrátora poskytovatele o zaslání nové pozvánky."
   },
   "providerInviteAcceptedDesc": {
-    "message": "K tomuto poskytovateli můžete přistupovat jakmile administrátor potvrdí Vaše členství. Až se tak stane, pošleme Vám e-mail."
+    "message": "K tomuto poskytovateli můžete přistupovat jakmile správce potvrdí Vaše členství. Až se tak stane, pošleme Vám e-mail."
   },
   "providerUsersNeedConfirmed": {
     "message": "Někteří uživatelé přijali pozvánku, ale nejdříve musí být potvrzeni. Dokud nedojde k potvrzení, nebudou mít tito uživatelé přístup k poskytovateli."
@@ -5003,7 +5003,7 @@
     "message": "Aktualizovat hlavní heslo"
   },
   "updateMasterPasswordWarning": {
-    "message": "Administrátor v organizaci nedávno změnil Vaše hlavní heslo. Pro přístup k trezoru jej nyní musíte změnit. Pokračování Vás odhlásí z Vaší aktuální relace a bude nutné se znovu přihlásit. Aktivní relace na jiných zařízeních mohou zůstat aktivní až po dobu jedné hodiny."
+    "message": "Správce v organizaci nedávno změnil Vaše hlavní heslo. Pro přístup k trezoru jej nyní musíte změnit. Pokračování Vás odhlásí z Vaší aktuální relace a bude nutné se znovu přihlásit. Aktivní relace na jiných zařízeních mohou zůstat aktivní až po dobu jedné hodiny."
   },
   "masterPasswordInvalidWarning": {
     "message": "Vaše hlavní heslo nesplňuje zásady Vaší organizace. Pro přístup k organizaci musíte nyní aktualizovat své hlavní heslo. Pokračování Vás odhlásí z Vaší aktuální relace a bude nutné se přihlásit. Aktivní relace na jiných zařízeních mohou zůstat aktivní až po dobu jedné hodiny."
@@ -5187,6 +5187,12 @@
   },
   "spValidateCertificates": {
     "message": "Ověřit certifikáty"
+  },
+  "spUniqueEntityId": {
+    "message": "Nastavit jedinečné ID SP entity"
+  },
+  "spUniqueEntityIdDesc": {
+    "message": "Vygeneruje identifikátor jedinečný pro vaši organizaci."
   },
   "idpEntityId": {
     "message": "ID entity"
@@ -6610,6 +6616,39 @@
       }
     }
   },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Pro tuto akci je vyžadováno ověření. Nastavte PIN kód pro pokračování."
+  },
+  "setPin": {
+    "message": "Nastavit PIN"
+  },
+  "verifyWithBiometrics": {
+    "message": "Ověřit pomocí biometrie"
+  },
+  "awaitingConfirmation": {
+    "message": "Čeká na potvrzení"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Nelze dokončit biometrii."
+  },
+  "needADifferentMethod": {
+    "message": "Potřebujete jinou metodu?"
+  },
+  "useMasterPassword": {
+    "message": "Použít hlavní heslo"
+  },
+  "usePin": {
+    "message": "Použít PIN"
+  },
+  "useBiometrics": {
+    "message": "Použít biometrii"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Zadejte ověřovací kód, který byl odeslán do Vašeho e-mailu."
+  },
+  "resendCode": {
+    "message": "Znovu odeslat kód"
+  },
   "membersColumnHeader": {
     "message": "Člen/Skupina"
   },
@@ -6820,9 +6859,6 @@
   "secretsManager": {
     "message": "Správce tajných klíčů"
   },
-  "secretsManagerBeta": {
-    "message": "Správce tajných klíčů v programu Beta"
-  },
   "secretsManagerAccessDescription": {
     "message": "Aktivuje přístup uživatele ke správci tajných klíčů."
   },
@@ -6925,12 +6961,6 @@
   },
   "selectionIsRequired": {
     "message": "Je vyžadován výběr."
-  },
-  "secretsManagerSubscriptionDesc": {
-    "message": "Zapněte přístup organizace ke správci tajných klíčů zdarma během programu Beta. Uživatelé mohou získat přístup k betaverzi v sekci Členové."
-  },
-  "secretsManagerEnable": {
-    "message": "Povolit program Beta pro správce tajných klíčů"
   },
   "saPeopleWarningTitle": {
     "message": "Přístupové tokeny jsou stále k dispozici"
@@ -7092,6 +7122,10 @@
       }
     }
   },
+  "verificationRequired": {
+    "message": "Je vyžadováno ověření",
+    "description": "Default title for the user verification dialog."
+  },
   "recoverAccount": {
     "message": "Obnovit účet"
   },
@@ -7193,6 +7227,15 @@
   },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Začněte 7denní bezplatnou zkušební verzi Bitwardenu pro $ORG$",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerFor": {
+    "message": "Začněte 7denní bezplatnou zkušební verzi Správce klíšu Bitwardenu pro $ORG$",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -7331,8 +7374,8 @@
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Vlastníci a správci mohou spravovat všechny kolekce a předměty"
   },
-  "collectionManagementUpdated": {
-    "message": "Chování správy kolekce bylo uloženo"
+  "updatedCollectionManagement": {
+    "message": "Aktualizované nastavení správy kolekce"
   },
   "passwordManagerPlanPrice": {
     "message": "Cena předplatného správce hesel"
@@ -7361,22 +7404,6 @@
   "loggedInExclamation": {
     "message": "Přihlášeno!"
   },
-  "smBetaEndedDesc": {
-    "message": "Správce klíčů beta skončil $BETA_ENDING_DATE$. Zbývá $DAYS$ dní na to, abyste si přidali aplikaci správce klíčů k placenému předplatnému a zachovali si přístup k datům správce klíčů. Kontaktujte oddělení Customer Success a přidejte si aplikaci správce klíčů do svého předplatného.",
-    "placeholders": {
-      "beta_ending_date": {
-        "content": "$1",
-        "example": "August 1, 2023"
-      },
-      "days": {
-        "content": "$2",
-        "example": "11"
-      }
-    }
-  },
-  "betaEnding": {
-    "message": "Beta končí"
-  },
   "beta": {
     "message": "Beta"
   },
@@ -7397,12 +7424,6 @@
   },
   "skipToContent": {
     "message": "Přeskočit na obsah"
-  },
-  "customBillingStart": {
-    "message": "Vlastní fakturace není zahrnuta. Navštivte stránku "
-  },
-  "customBillingEnd": {
-    "message": " pro nejnovější faktury."
   },
   "managePermissionRequired": {
     "message": "Alespoň jeden člen nebo skupina musí mít možnost spravovat oprávnění."
@@ -7447,7 +7468,50 @@
   "collectionAccessRestricted": {
     "message": "Přístup ke kolekci je omezen"
   },
+  "grantCollectionAccess": {
+    "message": "Udělí skupinám nebo členům přístup k této kolekci."
+  },
+  "adminCollectionAccess": {
+    "message": "Správci mohou přistupovat ke kolekcím a spravovat je."
+  },
   "serviceAccountAccessUpdated": {
     "message": "Přístup účtu služby byl aktualizován"
+  },
+  "commonImportFormats": {
+    "message": "Společné formáty",
+    "description": "Label indicating the most common import formats"
+  },
+  "maintainYourSubscription": {
+    "message": "Pro správu předplatného pro $ORG$, ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Example Inc."
+      }
+    }
+  },
+  "addAPaymentMethod": {
+    "message": "přidejte platební metodu",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
+  },
+  "collectionEnhancementsDesc": {
+    "message": "Přidá nová nastavení a oprávnění pro další flexibilitu. Nahradí roli správce oprávněním \"can manage\" a zavede volby, které umožní uživatelům vytvářet kolekce a také omezovat přístup ke kolekcím pro správce.",
+    "description": "This describes new features and improvements for user roles and collections"
+  },
+  "collectionEnhancementsLearnMore": {
+    "message": "Více o správě kolekce"
+  },
+  "organizationInformation": {
+    "message": "Informace o organizaci"
+  },
+  "confirmationDetails": {
+    "message": "Detaily potvrzení"
+  },
+  "smFreeTrialThankYou": {
+    "message": "Děkujeme za registraci do Správce klíčů Bitwardenu!"
+  },
+  "smFreeTrialConfirmationEmail": {
+    "message": "Potvrzovací e-mail byl odeslán na "
   }
 }

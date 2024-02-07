@@ -656,9 +656,6 @@
   "passkeySuccessfullyCreated": {
     "message": "Clau de pas creada correctament!"
   },
-  "customName": {
-    "message": "Nom personalitzat"
-  },
   "customPasskeyNameInfo": {
     "message": "Poseu un nom a la vostra clau per ajudar-vos a identificar-la."
   },
@@ -2534,6 +2531,15 @@
       }
     }
   },
+  "trialSecretsManagerThankYou": {
+    "message": "Gràcies per registrar-vos a Bitwarden Secrets Manager per $PLAN$!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
   "trialPaidInfoMessage": {
     "message": "La vostra prova gratuïta de $PLAN$ de 7 dies es convertirà en una subscripció de pagament al cap de 7 dies.",
     "placeholders": {
@@ -2818,6 +2824,9 @@
   },
   "incorrectCode": {
     "message": "Codi incorrecte"
+  },
+  "incorrectPin": {
+    "message": "PIN incorrecte"
   },
   "exportedVault": {
     "message": "S'ha exportat la caixa forta"
@@ -3827,15 +3836,6 @@
   },
   "couldNotChargeCardPayInvoice": {
     "message": "No hem pogut carregar la vostra targeta. Consulteu i pagueu la factura pendent que es mostra a continuació."
-  },
-  "inAppPurchase": {
-    "message": "Compra integrada a l'aplicació"
-  },
-  "cannotPerformInAppPurchase": {
-    "message": "No podeu realitzar aquesta acció mentre feu servir un mètode de pagament de compra a l’aplicació."
-  },
-  "manageSubscriptionFromStore": {
-    "message": "Heu de gestionar la vostra subscripció des de la botiga on s’ha realitzat la compra a l’aplicació."
   },
   "minLength": {
     "message": "Longitud mínima"
@@ -5187,6 +5187,12 @@
   },
   "spValidateCertificates": {
     "message": "Valida certificats"
+  },
+  "spUniqueEntityId": {
+    "message": "Estableix un ID d'entitat SP únic"
+  },
+  "spUniqueEntityIdDesc": {
+    "message": "Genereu un identificador únic per a la vostra organització"
   },
   "idpEntityId": {
     "message": "Identificador de l'entitat"
@@ -6610,6 +6616,39 @@
       }
     }
   },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Es requereix verificació per a aquesta acció. Estableix un PIN per continuar."
+  },
+  "setPin": {
+    "message": "Estableix el PIN"
+  },
+  "verifyWithBiometrics": {
+    "message": "Verifica amb biomètrica"
+  },
+  "awaitingConfirmation": {
+    "message": "S'està esperant la confirmació"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "No s'ha pogut completar la biomètrica."
+  },
+  "needADifferentMethod": {
+    "message": "Necessita un mètode diferent?"
+  },
+  "useMasterPassword": {
+    "message": "Utilitza contrasenya mestra"
+  },
+  "usePin": {
+    "message": "Utilitza el PIN"
+  },
+  "useBiometrics": {
+    "message": "Utilitza la biometria"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Introduïu el codi de verificació que s’ha enviat al vostre correu electrònic."
+  },
+  "resendCode": {
+    "message": "Reenvia el codi"
+  },
   "membersColumnHeader": {
     "message": "Membre/grup"
   },
@@ -6820,9 +6859,6 @@
   "secretsManager": {
     "message": "Administrador de secrets"
   },
-  "secretsManagerBeta": {
-    "message": "Administrador de secrets Beta"
-  },
   "secretsManagerAccessDescription": {
     "message": "Activa l'accés dels usuaris a l'administrador de secrets."
   },
@@ -6925,12 +6961,6 @@
   },
   "selectionIsRequired": {
     "message": "La selecció és necessària."
-  },
-  "secretsManagerSubscriptionDesc": {
-    "message": "Activeu l’accés a l’organització al Gestor de secrets sense cap càrrec durant el programa beta. Els usuaris poden rebre accés a la beta en membres."
-  },
-  "secretsManagerEnable": {
-    "message": "Habilita l'administrador de secrets Beta"
   },
   "saPeopleWarningTitle": {
     "message": "Els tokens d'accés encara estan disponibles"
@@ -7092,6 +7122,10 @@
       }
     }
   },
+  "verificationRequired": {
+    "message": "Es requereix verificació",
+    "description": "Default title for the user verification dialog."
+  },
   "recoverAccount": {
     "message": "Recupera el compte"
   },
@@ -7193,6 +7227,15 @@
   },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Inicieu la vostra prova gratuïta de 7 dies de Bitwarden per a $ORG$",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerFor": {
+    "message": "Inicieu la vostra prova gratuïta de 7 dies de Bitwarden Secrets Manager per a $ORG$",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -7331,8 +7374,8 @@
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Els propietaris i els administradors poden gestionar totes les col·leccions i articles"
   },
-  "collectionManagementUpdated": {
-    "message": "S'ha guardat el comportament d'administració de la col·lecció"
+  "updatedCollectionManagement": {
+    "message": "S'ha actualitzat la configuració de gestió de col·leccions"
   },
   "passwordManagerPlanPrice": {
     "message": "Preu del pla Administrador de contrasenyes"
@@ -7361,22 +7404,6 @@
   "loggedInExclamation": {
     "message": "Connectat!"
   },
-  "smBetaEndedDesc": {
-    "message": "La beta de l'administrador de secrets va finalitzar el dia $BETA_ENDING_DATE$. Et queden $DAYS$ dies per afegir l'administrador de secrets a la teua subscripció de pagament i mantindre l'accés a les dades de l'administrador de secrets. Contacteu amb Customer Success per afegir l'administrador de secrets a la vostra subscripció.",
-    "placeholders": {
-      "beta_ending_date": {
-        "content": "$1",
-        "example": "August 1, 2023"
-      },
-      "days": {
-        "content": "$2",
-        "example": "11"
-      }
-    }
-  },
-  "betaEnding": {
-    "message": "Beta final"
-  },
   "beta": {
     "message": "Beta"
   },
@@ -7397,12 +7424,6 @@
   },
   "skipToContent": {
     "message": "Vés al contingut"
-  },
-  "customBillingStart": {
-    "message": "La facturació personalitzada no es reflecteix. Visita la "
-  },
-  "customBillingEnd": {
-    "message": " pàgina per a la facturació més recent."
   },
   "managePermissionRequired": {
     "message": "Com a mínim un membre o grup ha de tindre permís de gestió."
@@ -7447,7 +7468,50 @@
   "collectionAccessRestricted": {
     "message": "L'accés a la col·lecció està restringit"
   },
+  "grantCollectionAccess": {
+    "message": "Concedeix als grups o membres l'accés a aquesta col·lecció."
+  },
+  "adminCollectionAccess": {
+    "message": "Els administradors poden accedir i gestionar les col·leccions."
+  },
   "serviceAccountAccessUpdated": {
     "message": "Accés al compte del servei actualitzat"
+  },
+  "commonImportFormats": {
+    "message": "Formats comuns",
+    "description": "Label indicating the most common import formats"
+  },
+  "maintainYourSubscription": {
+    "message": "Per mantenir la teua subscripció per $ORG$, ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Example Inc."
+      }
+    }
+  },
+  "addAPaymentMethod": {
+    "message": "afig mètode de pagament",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
+  },
+  "collectionEnhancementsDesc": {
+    "message": "Afegiu nous paràmetres i permisos per obtenir més flexibilitat. Substituïu la funció de gestor pel permís \"pot gestionar\" i introduïu opcions per permetre als usuaris crear col·leccions i restringir l'accés administratiu a les col·leccions.",
+    "description": "This describes new features and improvements for user roles and collections"
+  },
+  "collectionEnhancementsLearnMore": {
+    "message": "Més informació sobre gestió de col·leccions"
+  },
+  "organizationInformation": {
+    "message": "Informació de l'organització"
+  },
+  "confirmationDetails": {
+    "message": "Detall de confirmació"
+  },
+  "smFreeTrialThankYou": {
+    "message": "Gràcies per registrar-vos a Bitwarden Secrets Manager!"
+  },
+  "smFreeTrialConfirmationEmail": {
+    "message": "Hem enviat un correu electrònic de confirmació al vostre correu electrònic a "
   }
 }

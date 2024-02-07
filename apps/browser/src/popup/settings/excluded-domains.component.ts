@@ -8,7 +8,7 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
-import { flagEnabled } from "../../platform/flags";
+import { enableAccountSwitching } from "../../platform/flags";
 
 interface ExcludedDomain {
   uri: string;
@@ -36,7 +36,7 @@ export class ExcludedDomainsComponent implements OnInit, OnDestroy {
     private ngZone: NgZone,
     private platformUtilsService: PlatformUtilsService,
   ) {
-    this.accountSwitcherEnabled = flagEnabled("accountSwitching");
+    this.accountSwitcherEnabled = enableAccountSwitching();
   }
 
   async ngOnInit() {
@@ -51,6 +51,8 @@ export class ExcludedDomainsComponent implements OnInit, OnDestroy {
     await this.loadCurrentUris();
 
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.ngZone.run(async () => {
         switch (message.command) {
           case "tabChanged":
@@ -106,6 +108,8 @@ export class ExcludedDomainsComponent implements OnInit, OnDestroy {
     }
 
     await this.stateService.setNeverDomains(savedDomains);
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["/tabs/settings"]);
   }
 

@@ -17,7 +17,7 @@ import {
 } from "rxjs";
 
 import { ModalService } from "@bitwarden/angular/services/modal.service";
-import { FingerprintDialogComponent } from "@bitwarden/auth";
+import { FingerprintDialogComponent } from "@bitwarden/auth/angular";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -36,7 +36,7 @@ import { DialogService } from "@bitwarden/components";
 import { SetPinComponent } from "../../auth/popup/components/set-pin.component";
 import { BiometricErrors, BiometricErrorTypes } from "../../models/biometricErrors";
 import { BrowserApi } from "../../platform/browser/browser-api";
-import { flagEnabled } from "../../platform/flags";
+import { enableAccountSwitching } from "../../platform/flags";
 import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
 
 import { AboutComponent } from "./about.component";
@@ -102,7 +102,7 @@ export class SettingsComponent implements OnInit {
     private dialogService: DialogService,
     private changeDetectorRef: ChangeDetectorRef,
   ) {
-    this.accountSwitcherEnabled = flagEnabled("accountSwitching");
+    this.accountSwitcherEnabled = enableAccountSwitching();
   }
 
   async ngOnInit() {
@@ -397,6 +397,8 @@ export class SettingsComponent implements OnInit {
 
             const error = BiometricErrors[e as BiometricErrorTypes];
 
+            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.dialogService.openSimpleDialog({
               title: { key: error.title },
               content: { key: error.description },
@@ -444,6 +446,8 @@ export class SettingsComponent implements OnInit {
       type: "info",
     });
     if (confirmed) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       BrowserApi.createNewTab(this.environmentService.getWebVaultUrl());
     }
   }
@@ -455,6 +459,8 @@ export class SettingsComponent implements OnInit {
       type: "info",
     });
     if (confirmed) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       BrowserApi.createNewTab("https://bitwarden.com/help/setup-two-step-login/");
     }
   }
@@ -466,23 +472,31 @@ export class SettingsComponent implements OnInit {
       type: "info",
     });
     if (confirmed) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       BrowserApi.createNewTab("https://bitwarden.com/help/about-organizations/");
     }
   }
 
   async webVault() {
     const url = this.environmentService.getWebVaultUrl();
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     BrowserApi.createNewTab(url);
   }
 
   async import() {
     await this.router.navigate(["/import"]);
     if (await BrowserApi.isPopupOpen()) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       BrowserPopupUtils.openCurrentPagePopout(window);
     }
   }
 
   export() {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["/export"]);
   }
 
@@ -504,6 +518,8 @@ export class SettingsComponent implements OnInit {
 
   rate() {
     const deviceType = this.platformUtilsService.getDevice();
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     BrowserApi.createNewTab((RateUrls as any)[deviceType]);
   }
 

@@ -7,8 +7,9 @@ import { EncryptService } from "../../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { StateService } from "../../../platform/abstractions/state.service";
 import { EncString } from "../../../platform/models/domain/enc-string";
-import { SymmetricCryptoKey, UserKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "../../../platform/services/container.service";
+import { UserKey } from "../../../types/key";
 import { SendData } from "../models/data/send.data";
 import { Send } from "../models/domain/send";
 import { SendView } from "../models/view/send.view";
@@ -109,6 +110,8 @@ describe("SendService", () => {
     });
 
     it("returns null if there are no sends", async () => {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       sendService.replace(null);
 
       const newUserKey = new SymmetricCryptoKey(new Uint8Array(32)) as UserKey;
@@ -156,6 +159,8 @@ describe("SendService", () => {
     });
 
     it("does not exist", async () => {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       sendService.delete("1");
 
       expect(stateService.getEncryptedSends).toHaveBeenCalledTimes(2);

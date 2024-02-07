@@ -64,6 +64,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
   restorePromise: Promise<any>;
   checkPasswordPromise: Promise<number>;
   showPassword = false;
+  showTotpSeed = false;
   showCardNumber = false;
   showCardCode = false;
   cipherType = CipherType;
@@ -216,6 +217,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
     if (!this.allowPersonal && this.organizationId == undefined) {
       this.organizationId = this.defaultOwnerId;
     }
+
+    this.resetMaskState();
   }
 
   async load() {
@@ -262,6 +265,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
         this.cipher.secureNote.type = SecureNoteType.Generic;
         this.cipher.reprompt = CipherRepromptType.None;
       }
+
+      this.resetMaskState();
     }
 
     if (this.cipher != null && (!this.editMode || loadedAddEditCipherInfo || this.cloneMode)) {
@@ -287,6 +292,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
     this.folders$ = this.folderService.folderViews$;
 
     if (this.editMode && this.previousCipherId !== this.cipherId) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.eventCollectionService.collect(EventType.Cipher_ClientViewed, this.cipherId);
     }
     this.previousCipherId = this.cipherId;
@@ -330,7 +337,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
       this.cipher.login.uris.length === 1 &&
       (this.cipher.login.uris[0].uri == null || this.cipher.login.uris[0].uri === "")
     ) {
-      this.cipher.login.uris = null;
+      this.cipher.login.uris = [];
     }
 
     // Allows saving of selected collections during "Add" and "Clone" flows
@@ -501,12 +508,37 @@ export class AddEditComponent implements OnInit, OnDestroy {
     return true;
   }
 
+  resetMaskState() {
+    // toggle masks off for maskable login properties with no value on init/load
+    this.showTotpSeed = !this.cipher?.login?.totp;
+    this.showPassword = !this.cipher?.login?.password;
+  }
+
   togglePassword() {
     this.showPassword = !this.showPassword;
-    document.getElementById("loginPassword").focus();
+
     if (this.editMode && this.showPassword) {
+      document.getElementById("loginPassword")?.focus();
+
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.eventCollectionService.collect(
         EventType.Cipher_ClientToggledPasswordVisible,
+        this.cipherId,
+      );
+    }
+  }
+
+  toggleTotpSeed() {
+    this.showTotpSeed = !this.showTotpSeed;
+
+    if (this.editMode && this.showTotpSeed) {
+      document.getElementById("loginTotp")?.focus();
+
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.eventCollectionService.collect(
+        EventType.Cipher_ClientToggledTOTPSeedVisible,
         this.cipherId,
       );
     }
@@ -515,6 +547,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
   async toggleCardNumber() {
     this.showCardNumber = !this.showCardNumber;
     if (this.showCardNumber) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.eventCollectionService.collect(
         EventType.Cipher_ClientToggledCardNumberVisible,
         this.cipherId,
@@ -526,6 +560,8 @@ export class AddEditComponent implements OnInit, OnDestroy {
     this.showCardCode = !this.showCardCode;
     document.getElementById("cardCode").focus();
     if (this.editMode && this.showCardCode) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.eventCollectionService.collect(
         EventType.Cipher_ClientToggledCardCodeVisible,
         this.cipherId,
@@ -669,10 +705,16 @@ export class AddEditComponent implements OnInit, OnDestroy {
     );
 
     if (typeI18nKey === "password") {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.eventCollectionService.collect(EventType.Cipher_ClientCopiedPassword, this.cipherId);
     } else if (typeI18nKey === "securityCode") {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.eventCollectionService.collect(EventType.Cipher_ClientCopiedCardCode, this.cipherId);
     } else if (aType === "H_Field") {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.eventCollectionService.collect(EventType.Cipher_ClientCopiedHiddenField, this.cipherId);
     }
 

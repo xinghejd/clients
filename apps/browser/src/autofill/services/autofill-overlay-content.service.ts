@@ -32,6 +32,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   private readonly findTabs = tabbable;
   private readonly sendExtensionMessage = sendExtensionMessage;
   private formFieldElements: Set<ElementWithOpId<FormFieldElement>> = new Set([]);
+  private ignoredFieldTypes: Set<string> = new Set(AutoFillConstants.ExcludedOverlayTypes);
   private userFilledFields: Record<string, FillableFormFieldElement> = {};
   private authStatus: AuthenticationStatus;
   private focusableElements: FocusableElement[] = [];
@@ -117,6 +118,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     }
 
     if (this.pageDetailsUpdateRequired) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.sendExtensionMessage("bgCollectPageDetails", {
         sender: "autofillOverlayContentService",
       });
@@ -178,6 +181,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
 
     this.overlayButtonElement.remove();
     this.isOverlayButtonVisible = false;
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.sendExtensionMessage("autofillOverlayElementClosed", {
       overlayElement: AutofillOverlayElement.Button,
     });
@@ -194,6 +199,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
 
     this.overlayListElement.remove();
     this.isOverlayListVisible = false;
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.sendExtensionMessage("autofillOverlayElementClosed", {
       overlayElement: AutofillOverlayElement.List,
     });
@@ -215,6 +222,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       hostname: globalThis.document.location.hostname,
     };
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.sendExtensionMessage("autofillOverlayAddNewVaultItem", { login });
   }
 
@@ -326,6 +335,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    */
   private handleFormFieldBlurEvent = () => {
     this.isFieldCurrentlyFocused = false;
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.sendExtensionMessage("checkAutofillOverlayFocused");
   };
 
@@ -353,6 +364,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       event.preventDefault();
       event.stopPropagation();
 
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.focusOverlayList();
     }
   };
@@ -370,6 +383,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       return;
     }
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.sendExtensionMessage("focusAutofillOverlayList");
   }
 
@@ -492,6 +507,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     }
 
     if (!formElementHasValue || (!this.isOverlayCiphersPopulated && this.isUserAuthed())) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.sendExtensionMessage("openAutofillOverlay");
       return;
     }
@@ -582,6 +599,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       this.isOverlayButtonVisible = true;
       this.setOverlayRepositionEventListeners();
     }
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.sendExtensionMessage("updateAutofillOverlayPosition", {
       overlayElement: AutofillOverlayElement.Button,
     });
@@ -600,6 +619,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       this.isOverlayListVisible = true;
     }
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.sendExtensionMessage("updateAutofillOverlayPosition", {
       overlayElement: AutofillOverlayElement.List,
     });
@@ -624,6 +645,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    */
   private toggleOverlayHidden(isHidden: boolean) {
     const displayValue = isHidden ? "none" : "block";
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.sendExtensionMessage("updateAutofillOverlayHidden", { display: displayValue });
 
     this.isOverlayButtonVisible = !isHidden;
@@ -648,6 +671,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       focusedFieldRects: { width, height, top, left },
     };
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.sendExtensionMessage("updateFocusedFieldData", {
       focusedFieldData: this.focusedFieldData,
     });
@@ -715,12 +740,11 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * @param autofillFieldData - Autofill field data captured from the form field element.
    */
   private isIgnoredField(autofillFieldData: AutofillField): boolean {
-    const ignoredFieldTypes = new Set(AutoFillConstants.ExcludedAutofillTypes);
     if (
       autofillFieldData.readonly ||
       autofillFieldData.disabled ||
       !autofillFieldData.viewable ||
-      ignoredFieldTypes.has(autofillFieldData.type) ||
+      this.ignoredFieldTypes.has(autofillFieldData.type) ||
       this.keywordsFoundInFieldData(autofillFieldData, ["search", "captcha"])
     ) {
       return true;
@@ -747,7 +771,6 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     this.overlayButtonElement = globalThis.document.createElement(customElementName);
 
     this.updateCustomElementDefaultStyles(this.overlayButtonElement);
-    this.moveDocumentElementChildrenToBody(globalThis.document.documentElement.childNodes);
   }
 
   /**
@@ -900,13 +923,6 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     this.bodyElementMutationObserver = new MutationObserver(
       this.handleBodyElementMutationObserverUpdate,
     );
-
-    this.documentElementMutationObserver = new MutationObserver(
-      this.handleDocumentElementMutationObserverUpdate,
-    );
-    this.documentElementMutationObserver.observe(globalThis.document.documentElement, {
-      childList: true,
-    });
   };
 
   /**
@@ -1033,51 +1049,6 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
 
     globalThis.document.body.insertBefore(lastChild, this.overlayButtonElement);
   };
-
-  /**
-   * Handles the mutation observer update for the document element. This
-   * method will ensure that any elements added to the document element
-   * are appended to the body element.
-   *
-   * @param mutationRecords - The mutation records that triggered the update.
-   */
-  private handleDocumentElementMutationObserverUpdate = (mutationRecords: MutationRecord[]) => {
-    if (
-      (!this.overlayButtonElement && !this.overlayListElement) ||
-      this.isTriggeringExcessiveMutationObserverIterations()
-    ) {
-      return;
-    }
-
-    for (const record of mutationRecords) {
-      if (record.type !== "childList" || record.addedNodes.length === 0) {
-        continue;
-      }
-
-      this.moveDocumentElementChildrenToBody(record.addedNodes);
-    }
-  };
-
-  /**
-   * Moves the passed nodes to the body element. This method is used to ensure that
-   * any elements added to the document element are higher in the DOM than the overlay
-   * elements.
-   *
-   * @param nodes - The nodes to move to the body element.
-   */
-  private moveDocumentElementChildrenToBody(nodes: NodeList) {
-    const ignoredElements = new Set([globalThis.document.body, globalThis.document.head]);
-    for (const node of nodes) {
-      if (ignoredElements.has(node as HTMLElement)) {
-        continue;
-      }
-
-      // This is a workaround for an issue where the document element's children
-      // are not appended to the body element. This forces the children to be
-      // appended on the next tick of the event loop.
-      setTimeout(() => globalThis.document.body.appendChild(node), 0);
-    }
-  }
 
   /**
    * Identifies if the mutation observer is triggering excessive iterations.

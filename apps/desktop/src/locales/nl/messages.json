@@ -1392,6 +1392,9 @@
   "invalidPin": {
     "message": "Ongeldige PIN-code."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "PIN te vaak verkeerd ingevuld. Bezig met uitloggen."
+  },
   "unlockWithWindowsHello": {
     "message": "Ontgrendelen met Windows Hello"
   },
@@ -1543,6 +1546,10 @@
   "orgRequiresYouToSetPassword": {
     "message": "Je organisatie vereist dat je een hoofdwachtwoord instelt.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "verificationRequired": {
+    "message": "Verificatie vereist",
+    "description": "Default title for the user verification dialog."
   },
   "currentMasterPass": {
     "message": "Huidig hoofdwachtwoord"
@@ -1868,6 +1875,42 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Je hoofdwachtwoord voldoet niet aan en of meerdere oganisatiebeleidsonderdelen. Om toegang te krijgen tot de kluis, moet je je hoofdwachtwoord nu bijwerken. Doorgaan zal je huidige sessie uitloggen, waarna je opnieuw moet inloggen. Actieve sessies op andere apparaten blijven mogelijk nog een uur actief."
+  },
+  "tryAgain": {
+    "message": "Opnieuw proberen"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Deze actie vereist verificatie actie. Stel een pincode in om door te gaan."
+  },
+  "setPin": {
+    "message": "Pincode instellen"
+  },
+  "verifyWithBiometrics": {
+    "message": "Biometrisch ontgrendelen"
+  },
+  "awaitingConfirmation": {
+    "message": "Wacht op bevestiging"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Kon biometrie niet afronden."
+  },
+  "needADifferentMethod": {
+    "message": "Een andere methode proberen?"
+  },
+  "useMasterPassword": {
+    "message": "Hoofdwachtwoord gebruiken"
+  },
+  "usePin": {
+    "message": "Pincode gebruiken"
+  },
+  "useBiometrics": {
+    "message": "Biometrie gebruiken"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Voer de verificatiecode in die naar je e-mail is gestuurd."
+  },
+  "resendCode": {
+    "message": "Code opnieuw sturen"
   },
   "hours": {
     "message": "Uren"
@@ -2562,6 +2605,15 @@
   "incorrectUsernameOrPassword": {
     "message": "Onjuiste gebruikersnaam of wachtwoord"
   },
+  "incorrectPassword": {
+    "message": "Wachtwoord onjuist"
+  },
+  "incorrectCode": {
+    "message": "Code onjuist"
+  },
+  "incorrectPin": {
+    "message": "Pincode onjuist"
+  },
   "multifactorAuthenticationFailed": {
     "message": "Multifactor-authenticatie mislukt"
   },
@@ -2616,5 +2668,9 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Plaats de YubiKey die gekoppeld is aan je LastPass-account in de USB-poort van je computer en druk vervolgens op de knop."
+  },
+  "commonImportFormats": {
+    "message": "Veelvoorkomende formaten",
+    "description": "Label indicating the most common import formats"
   }
 }

@@ -3,12 +3,21 @@ import * as path from "path";
 import { app } from "electron";
 
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
+import { DefaultBiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
+import { EnvironmentService } from "@bitwarden/common/platform/services/environment.service";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { NoopMessagingService } from "@bitwarden/common/platform/services/noop-messaging.service";
-// eslint-disable-next-line import/no-restricted-paths -- We need the implementation to inject, but generally this should not be accessed
+/* eslint-disable import/no-restricted-paths -- We need the implementation to inject, but generally this should not be accessed */
+import { DefaultActiveUserStateProvider } from "@bitwarden/common/platform/state/implementations/default-active-user-state.provider";
+import { DefaultDerivedStateProvider } from "@bitwarden/common/platform/state/implementations/default-derived-state.provider";
 import { DefaultGlobalStateProvider } from "@bitwarden/common/platform/state/implementations/default-global-state.provider";
+import { DefaultSingleUserStateProvider } from "@bitwarden/common/platform/state/implementations/default-single-user-state.provider";
+import { DefaultStateProvider } from "@bitwarden/common/platform/state/implementations/default-state.provider";
+import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@bitwarden/common/platform/state/storage/memory-storage.service";
+/* eslint-enable import/no-restricted-paths */
+import { migrate } from "@bitwarden/common/state-migrations";
 
 import { MenuMain } from "./main/menu/menu.main";
 import { MessagingMain } from "./main/messaging.main";
@@ -32,8 +41,10 @@ export class Main {
   i18nService: I18nMainService;
   storageService: ElectronStorageService;
   memoryStorageService: MemoryStorageService;
+  memoryStorageForStateProviders: MemoryStorageServiceForStateProviders;
   messagingService: ElectronMainMessagingService;
   stateService: ElectronStateService;
+  environmentService: EnvironmentService;
   desktopCredentialStorageListener: DesktopCredentialStorageListener;
 
   windowMain: WindowMain;
@@ -88,10 +99,30 @@ export class Main {
     storageDefaults["global.vaultTimeoutAction"] = "lock";
     this.storageService = new ElectronStorageService(app.getPath("userData"), storageDefaults);
     this.memoryStorageService = new MemoryStorageService();
+    this.memoryStorageForStateProviders = new MemoryStorageServiceForStateProviders();
     const globalStateProvider = new DefaultGlobalStateProvider(
-      this.memoryStorageService,
+      this.memoryStorageForStateProviders,
       this.storageService,
     );
+
+    const accountService = new AccountServiceImplementation(
+      new NoopMessagingService(),
+      this.logService,
+      globalStateProvider,
+    );
+
+    const stateProvider = new DefaultStateProvider(
+      new DefaultActiveUserStateProvider(
+        accountService,
+        this.memoryStorageForStateProviders,
+        this.storageService,
+      ),
+      new DefaultSingleUserStateProvider(this.memoryStorageForStateProviders, this.storageService),
+      globalStateProvider,
+      new DefaultDerivedStateProvider(this.memoryStorageForStateProviders),
+    );
+
+    this.environmentService = new EnvironmentService(stateProvider, accountService);
 
     // TODO: this state service will have access to on disk storage, but not in memory storage.
     // If we could get this to work using the stateService singleton that the rest of the app uses we could save
@@ -102,11 +133,8 @@ export class Main {
       this.memoryStorageService,
       this.logService,
       new StateFactory(GlobalState, Account),
-      new AccountServiceImplementation(
-        new NoopMessagingService(),
-        this.logService,
-        globalStateProvider,
-      ), // will not broadcast logouts. This is a hack until we can remove messaging dependency
+      accountService, // will not broadcast logouts. This is a hack until we can remove messaging dependency
+      this.environmentService,
       false, // Do not use disk caching because this will get out of sync with the renderer service
     );
 
@@ -128,10 +156,12 @@ export class Main {
     this.menuMain = new MenuMain(
       this.i18nService,
       this.messagingService,
-      this.stateService,
+      this.environmentService,
       this.windowMain,
       this.updaterMain,
     );
+
+    const biometricStateService = new DefaultBiometricStateService(stateProvider);
 
     this.biometricsService = new BiometricsService(
       this.i18nService,
@@ -140,6 +170,7 @@ export class Main {
       this.logService,
       this.messagingService,
       process.platform,
+      biometricStateService,
     );
 
     this.desktopCredentialStorageListener = new DesktopCredentialStorageListener(
@@ -161,11 +192,15 @@ export class Main {
 
   bootstrap() {
     this.desktopCredentialStorageListener.init();
-    this.windowMain.init().then(
+    // Run migrations first, then other things
+    migrate(this.storageService, this.logService).then(
       async () => {
+        await this.windowMain.init();
         const locale = await this.stateService.getLocale();
         await this.i18nService.init(locale != null ? locale : app.getLocale());
         this.messagingMain.init();
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.menuMain.init();
         await this.trayMain.init("Bitwarden", [
           {
@@ -176,6 +211,8 @@ export class Main {
           },
         ]);
         if (await this.stateService.getEnableStartToTray()) {
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.trayMain.hideToTray();
         }
         this.powerMonitorMain.init();
@@ -188,6 +225,8 @@ export class Main {
           (await this.stateService.getEnableBrowserIntegration()) ||
           (await this.stateService.getEnableDuckDuckGoBrowserIntegration())
         ) {
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.nativeMessagingMain.listen();
         }
 

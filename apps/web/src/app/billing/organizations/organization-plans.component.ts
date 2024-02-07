@@ -34,10 +34,8 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import {
-  OrgKey,
-  SymmetricCryptoKey,
-} from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { OrgKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 
 import { OrganizationCreateModule } from "../../admin-console/organizations/create/organization-create.module";
@@ -203,7 +201,10 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         this.singleOrgPolicyAppliesToActiveUser = policyAppliesToActiveUser;
       });
 
-    this.changedProduct();
+    if (!this.selfHosted) {
+      this.changedProduct();
+    }
+
     this.loading = false;
   }
 
@@ -564,6 +565,8 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         await this.syncService.fullSync(true);
 
         if (!this.acceptingSponsorship && !this.isInTrialFlow) {
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.router.navigate(["/organizations/" + orgId]);
         }
 

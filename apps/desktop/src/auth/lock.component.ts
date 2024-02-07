@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { switchMap } from "rxjs";
 
 import { LockComponent as BaseLockComponent } from "@bitwarden/angular/auth/components/lock.component";
+import { PinCryptoServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
@@ -18,6 +19,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { DialogService } from "@bitwarden/components";
 
@@ -56,6 +58,8 @@ export class LockComponent extends BaseLockComponent {
     dialogService: DialogService,
     deviceTrustCryptoService: DeviceTrustCryptoServiceAbstraction,
     userVerificationService: UserVerificationService,
+    pinCryptoService: PinCryptoServiceAbstraction,
+    private biometricStateService: BiometricStateService,
   ) {
     super(
       router,
@@ -76,6 +80,7 @@ export class LockComponent extends BaseLockComponent {
       dialogService,
       deviceTrustCryptoService,
       userVerificationService,
+      pinCryptoService,
     );
   }
 
@@ -86,6 +91,8 @@ export class LockComponent extends BaseLockComponent {
 
     await this.displayBiometricUpdateWarning();
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.delayedAskForBiometric(500);
     this.route.queryParams.pipe(switchMap((params) => this.delayedAskForBiometric(500, params)));
 
@@ -133,8 +140,14 @@ export class LockComponent extends BaseLockComponent {
       return;
     }
 
+    if (await this.stateService.getBiometricPromptCancelled()) {
+      return;
+    }
+
     this.biometricAsked = true;
     if (await ipc.platform.isWindowVisible()) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.unlockBiometric();
     }
   }
@@ -164,7 +177,7 @@ export class LockComponent extends BaseLockComponent {
         type: "warning",
       });
 
-      await this.stateService.setBiometricRequirePasswordOnStart(response);
+      await this.biometricStateService.setRequirePasswordOnStart(response);
       if (response) {
         await this.stateService.setDisableAutoBiometricsPrompt(true);
       }

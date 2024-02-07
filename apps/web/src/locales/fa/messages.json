@@ -656,9 +656,6 @@
   "passkeySuccessfullyCreated": {
     "message": "کلید عبور با موفقیت ایجاد شد!"
   },
-  "customName": {
-    "message": "نام سفارشی"
-  },
   "customPasskeyNameInfo": {
     "message": "کلید عبور خود را برای کمک به شناسایی آن نام ببرید."
   },
@@ -2534,6 +2531,15 @@
       }
     }
   },
+  "trialSecretsManagerThankYou": {
+    "message": "Thanks for signing up for Bitwarden Secrets Manager for $PLAN$!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
   "trialPaidInfoMessage": {
     "message": "نسخه آزمایشی رایگان ۷ روزه $PLAN$ شما پس از ۷ روز به اشتراک پولی تبدیل می‌شود.",
     "placeholders": {
@@ -2818,6 +2824,9 @@
   },
   "incorrectCode": {
     "message": "کد اشتباه"
+  },
+  "incorrectPin": {
+    "message": "Incorrect PIN"
   },
   "exportedVault": {
     "message": "گاوصندوق برون ریزی شد"
@@ -3827,15 +3836,6 @@
   },
   "couldNotChargeCardPayInvoice": {
     "message": "ما نتوانستیم کارت شما را شارژ کنیم. لطفاً فاکتور پرداخت نشده ذکر شده در زیر را مشاهده و پرداخت کنید."
-  },
-  "inAppPurchase": {
-    "message": "پرداخت درون برنامه ای"
-  },
-  "cannotPerformInAppPurchase": {
-    "message": "هنگام استفاده از روش پرداخت خرید درون برنامه ای، نمی‌توانید این عمل را انجام دهید."
-  },
-  "manageSubscriptionFromStore": {
-    "message": "باید اشتراک خود را از فروشگاهی که خرید درون برنامه ای شما انجام شده است مدیریت کنید."
   },
   "minLength": {
     "message": "حداقل طول"
@@ -5187,6 +5187,12 @@
   },
   "spValidateCertificates": {
     "message": "اعتبارسنجی گواهینامه‌ها"
+  },
+  "spUniqueEntityId": {
+    "message": "Set a unique SP entity ID"
+  },
+  "spUniqueEntityIdDesc": {
+    "message": "Generate an identifier that is unique to your organization"
   },
   "idpEntityId": {
     "message": "شناسه موجودیت"
@@ -6610,6 +6616,39 @@
       }
     }
   },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Verification required for this action. Set a PIN to continue."
+  },
+  "setPin": {
+    "message": "Set PIN"
+  },
+  "verifyWithBiometrics": {
+    "message": "Verify with biometrics"
+  },
+  "awaitingConfirmation": {
+    "message": "Awaiting confirmation"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Could not complete biometrics."
+  },
+  "needADifferentMethod": {
+    "message": "Need a different method?"
+  },
+  "useMasterPassword": {
+    "message": "Use master password"
+  },
+  "usePin": {
+    "message": "Use PIN"
+  },
+  "useBiometrics": {
+    "message": "Use biometrics"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Enter the verification code that was sent to your email."
+  },
+  "resendCode": {
+    "message": "Resend code"
+  },
   "membersColumnHeader": {
     "message": "عضو/گروه"
   },
@@ -6820,9 +6859,6 @@
   "secretsManager": {
     "message": "مدیر رازها"
   },
-  "secretsManagerBeta": {
-    "message": "بتا مدیر اسرار"
-  },
   "secretsManagerAccessDescription": {
     "message": "دسترسی کاربر به مدیر رازها را فعال کنید."
   },
@@ -6925,12 +6961,6 @@
   },
   "selectionIsRequired": {
     "message": "انتخاب الزامی است."
-  },
-  "secretsManagerSubscriptionDesc": {
-    "message": "در طول برنامه بتا، دسترسی سازمان به مدیر رازها را بدون هزینه فعال کنید. کاربران می‌توانند به نسخه بتا در اعضا دسترسی داشته باشند."
-  },
-  "secretsManagerEnable": {
-    "message": "بتا مدیر رازها را فعال کنید"
   },
   "saPeopleWarningTitle": {
     "message": "توکن‌های دسترسی هنوز در دسترس هستند"
@@ -7092,6 +7122,10 @@
       }
     }
   },
+  "verificationRequired": {
+    "message": "Verification required",
+    "description": "Default title for the user verification dialog."
+  },
   "recoverAccount": {
     "message": "بازیابی حساب کاربری"
   },
@@ -7193,6 +7227,15 @@
   },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "نسخه آزمایشی رایگان ۷ روزه Bitwarden را با $ORG$ شروع کنید",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerFor": {
+    "message": "Start your 7-Day free trial of Bitwarden Secrets Manager for $ORG$",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -7331,8 +7374,8 @@
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Owners and admins can manage all collections and items"
   },
-  "collectionManagementUpdated": {
-    "message": "Collection management behavior saved"
+  "updatedCollectionManagement": {
+    "message": "Updated collection management setting"
   },
   "passwordManagerPlanPrice": {
     "message": "قیمت طرح مدیریت کلمه عبور"
@@ -7361,22 +7404,6 @@
   "loggedInExclamation": {
     "message": "وارد شده!"
   },
-  "smBetaEndedDesc": {
-    "message": "بتای مدیر اسرار $BETA_ENDING_DATE$ به پایان رسید. $DAYS$ روز فرصت دارید تا بتا مدیر اسرار را به اشتراک پولی خود اضافه کنید و دسترسی به داده‌های مدیر اسرار را حفظ کنید. برای افزودن مدیر اسرار به اشتراک خود، با پشتیبانی مشتری تماس بگیرید.",
-    "placeholders": {
-      "beta_ending_date": {
-        "content": "$1",
-        "example": "August 1, 2023"
-      },
-      "days": {
-        "content": "$2",
-        "example": "11"
-      }
-    }
-  },
-  "betaEnding": {
-    "message": "آزمایشی در حال اتمام است"
-  },
   "beta": {
     "message": "آزمایشی"
   },
@@ -7397,12 +7424,6 @@
   },
   "skipToContent": {
     "message": "Skip to content"
-  },
-  "customBillingStart": {
-    "message": "Custom billing is not reflected. Visit the "
-  },
-  "customBillingEnd": {
-    "message": " page for latest invoicing."
   },
   "managePermissionRequired": {
     "message": "At least one member or group must have can manage permission."
@@ -7447,7 +7468,50 @@
   "collectionAccessRestricted": {
     "message": "Collection access is restricted"
   },
+  "grantCollectionAccess": {
+    "message": "Grant groups or members access to this collection."
+  },
+  "adminCollectionAccess": {
+    "message": "Administrators can access and manage collections."
+  },
   "serviceAccountAccessUpdated": {
     "message": "Service account access updated"
+  },
+  "commonImportFormats": {
+    "message": "Common formats",
+    "description": "Label indicating the most common import formats"
+  },
+  "maintainYourSubscription": {
+    "message": "To maintain your subscription for $ORG$, ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Example Inc."
+      }
+    }
+  },
+  "addAPaymentMethod": {
+    "message": "add a payment method",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
+  },
+  "collectionEnhancementsDesc": {
+    "message": "Add new settings and permissions for additional flexibility. Replace the Manager role with the \"can manage\" permission, and introduce options to allow users to create collections as well as restrict administrative access to collections.",
+    "description": "This describes new features and improvements for user roles and collections"
+  },
+  "collectionEnhancementsLearnMore": {
+    "message": "Learn more about collection management"
+  },
+  "organizationInformation": {
+    "message": "Organization information"
+  },
+  "confirmationDetails": {
+    "message": "Confirmation details"
+  },
+  "smFreeTrialThankYou": {
+    "message": "Thank you for signing up for Bitwarden Secrets Manager!"
+  },
+  "smFreeTrialConfirmationEmail": {
+    "message": "We've sent a confirmation email to your email at "
   }
 }

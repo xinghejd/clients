@@ -106,7 +106,7 @@ describe("AutofillOverlayContentService", () => {
       expect(window.addEventListener).toHaveBeenCalledWith("focusout", handleFormFieldBlurEventSpy);
     });
 
-    it("sets up mutation observers for the body and html element", () => {
+    it("sets up mutation observers for the body element", () => {
       jest
         .spyOn(globalThis, "MutationObserver")
         .mockImplementation(() => mock<MutationObserver>({ observe: jest.fn() }));
@@ -118,11 +118,6 @@ describe("AutofillOverlayContentService", () => {
         autofillOverlayContentService as any,
         "handleBodyElementMutationObserverUpdate",
       );
-      const handleDocumentElementMutationObserverUpdateSpy = jest.spyOn(
-        autofillOverlayContentService as any,
-        "handleDocumentElementMutationObserverUpdate",
-      );
-
       autofillOverlayContentService.init();
 
       expect(setupMutationObserverSpy).toHaveBeenCalledTimes(1);
@@ -133,10 +128,6 @@ describe("AutofillOverlayContentService", () => {
       expect(globalThis.MutationObserver).toHaveBeenNthCalledWith(
         2,
         handleBodyElementMutationObserverUpdateSpy,
-      );
-      expect(globalThis.MutationObserver).toHaveBeenNthCalledWith(
-        3,
-        handleDocumentElementMutationObserverUpdateSpy,
       );
     });
   });
@@ -174,6 +165,8 @@ describe("AutofillOverlayContentService", () => {
       it("ignores fields that are readonly", () => {
         autofillFieldData.readonly = true;
 
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
           autofillFieldData,
@@ -185,6 +178,8 @@ describe("AutofillOverlayContentService", () => {
       it("ignores fields that contain a disabled attribute", () => {
         autofillFieldData.disabled = true;
 
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
           autofillFieldData,
@@ -196,6 +191,8 @@ describe("AutofillOverlayContentService", () => {
       it("ignores fields that are not viewable", () => {
         autofillFieldData.viewable = false;
 
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
           autofillFieldData,
@@ -204,10 +201,12 @@ describe("AutofillOverlayContentService", () => {
         expect(autofillFieldElement.addEventListener).not.toHaveBeenCalled();
       });
 
-      it("ignores fields that are part of the ExcludedAutofillTypes", () => {
-        AutoFillConstants.ExcludedAutofillTypes.forEach((excludedType) => {
+      it("ignores fields that are part of the ExcludedOverlayTypes", () => {
+        AutoFillConstants.ExcludedOverlayTypes.forEach((excludedType) => {
           autofillFieldData.type = excludedType;
 
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
             autofillFieldData,
@@ -220,6 +219,8 @@ describe("AutofillOverlayContentService", () => {
       it("ignores fields that contain the keyword `search`", () => {
         autofillFieldData.placeholder = "search";
 
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
           autofillFieldData,
@@ -231,6 +232,8 @@ describe("AutofillOverlayContentService", () => {
       it("ignores fields that contain the keyword `captcha` ", () => {
         autofillFieldData.placeholder = "captcha";
 
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
           autofillFieldData,
@@ -242,6 +245,8 @@ describe("AutofillOverlayContentService", () => {
       it("ignores fields that do not appear as a login field", () => {
         autofillFieldData.placeholder = "not-a-login-field";
 
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
           autofillFieldData,
@@ -1446,105 +1451,6 @@ describe("AutofillOverlayContentService", () => {
     });
   });
 
-  describe("handleDocumentElementMutationObserverUpdate", () => {
-    let overlayButtonElement: HTMLElement;
-    let overlayListElement: HTMLElement;
-
-    beforeEach(() => {
-      document.body.innerHTML = `
-      <div class="overlay-button"></div>
-      <div class="overlay-list"></div>
-      `;
-      document.head.innerHTML = `<title>test</title>`;
-      overlayButtonElement = document.querySelector(".overlay-button") as HTMLElement;
-      overlayListElement = document.querySelector(".overlay-list") as HTMLElement;
-      autofillOverlayContentService["overlayButtonElement"] = overlayButtonElement;
-      autofillOverlayContentService["overlayListElement"] = overlayListElement;
-      autofillOverlayContentService["isOverlayListVisible"] = true;
-      jest.spyOn(globalThis.document.body, "appendChild");
-      jest
-        .spyOn(
-          autofillOverlayContentService as any,
-          "isTriggeringExcessiveMutationObserverIterations",
-        )
-        .mockReturnValue(false);
-    });
-
-    it("skips modification of the DOM if the overlay button and list elements are not present", () => {
-      autofillOverlayContentService["overlayButtonElement"] = undefined;
-      autofillOverlayContentService["overlayListElement"] = undefined;
-
-      autofillOverlayContentService["handleDocumentElementMutationObserverUpdate"]([
-        mock<MutationRecord>(),
-      ]);
-
-      expect(globalThis.document.body.appendChild).not.toHaveBeenCalled();
-    });
-
-    it("skips modification of the DOM if excessive mutation events are being triggered", () => {
-      jest
-        .spyOn(
-          autofillOverlayContentService as any,
-          "isTriggeringExcessiveMutationObserverIterations",
-        )
-        .mockReturnValue(true);
-
-      autofillOverlayContentService["handleDocumentElementMutationObserverUpdate"]([
-        mock<MutationRecord>(),
-      ]);
-
-      expect(globalThis.document.body.appendChild).not.toHaveBeenCalled();
-    });
-
-    it("ignores the mutation record if the record is not of type `childlist`", () => {
-      autofillOverlayContentService["handleDocumentElementMutationObserverUpdate"]([
-        mock<MutationRecord>({
-          type: "attributes",
-        }),
-      ]);
-
-      expect(globalThis.document.body.appendChild).not.toHaveBeenCalled();
-    });
-
-    it("ignores the mutation record if the record does not contain any added nodes", () => {
-      autofillOverlayContentService["handleDocumentElementMutationObserverUpdate"]([
-        mock<MutationRecord>({
-          type: "childList",
-          addedNodes: mock<NodeList>({ length: 0 }),
-        }),
-      ]);
-
-      expect(globalThis.document.body.appendChild).not.toHaveBeenCalled();
-    });
-
-    it("ignores mutations for the document body and head", () => {
-      autofillOverlayContentService["handleDocumentElementMutationObserverUpdate"]([
-        {
-          type: "childList",
-          addedNodes: document.querySelectorAll("body, head"),
-        } as unknown as MutationRecord,
-      ]);
-
-      expect(globalThis.document.body.appendChild).not.toHaveBeenCalled();
-    });
-
-    it("appends the identified node to the body", async () => {
-      jest.useFakeTimers();
-      const injectedElement = document.createElement("div");
-      injectedElement.id = "test";
-      document.documentElement.appendChild(injectedElement);
-      autofillOverlayContentService["handleDocumentElementMutationObserverUpdate"]([
-        {
-          type: "childList",
-          addedNodes: document.querySelectorAll("#test"),
-        } as unknown as MutationRecord,
-      ]);
-      jest.advanceTimersByTime(10);
-
-      expect(globalThis.document.body.appendChild).toHaveBeenCalledWith(injectedElement);
-    });
-  });
-
   describe("isTriggeringExcessiveMutationObserverIterations", () => {
     it("clears any existing reset timeout", () => {
       jest.useFakeTimers();
@@ -1632,6 +1538,8 @@ describe("AutofillOverlayContentService", () => {
         placeholder: "username",
         elementNumber: 1,
       });
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       autofillOverlayContentService.setupAutofillOverlayListenerOnField(
         autofillFieldElement,
         autofillFieldData,
@@ -1642,13 +1550,9 @@ describe("AutofillOverlayContentService", () => {
     it("disconnects all mutation observers", () => {
       autofillOverlayContentService["setupMutationObserver"]();
       jest.spyOn(autofillOverlayContentService["bodyElementMutationObserver"], "disconnect");
-      jest.spyOn(autofillOverlayContentService["documentElementMutationObserver"], "disconnect");
 
       autofillOverlayContentService.destroy();
 
-      expect(
-        autofillOverlayContentService["documentElementMutationObserver"].disconnect,
-      ).toHaveBeenCalled();
       expect(
         autofillOverlayContentService["bodyElementMutationObserver"].disconnect,
       ).toHaveBeenCalled();

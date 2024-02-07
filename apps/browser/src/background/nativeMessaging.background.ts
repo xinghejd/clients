@@ -10,11 +10,8 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import {
-  MasterKey,
-  SymmetricCryptoKey,
-  UserKey,
-} from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { UserKey, MasterKey } from "@bitwarden/common/types/key";
 
 import { BrowserApi } from "../platform/browser/browser-api";
 
@@ -83,6 +80,8 @@ export class NativeMessagingBackground {
     private logService: LogService,
     private authService: AuthService,
   ) {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.stateService.setBiometricFingerprintValidated(false);
 
     if (chrome?.permissions?.onAdded) {
@@ -95,6 +94,8 @@ export class NativeMessagingBackground {
 
   async connect() {
     this.appId = await this.appIdService.getAppId();
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.stateService.setBiometricFingerprintValidated(false);
 
     return new Promise<void>((resolve, reject) => {
@@ -141,6 +142,8 @@ export class NativeMessagingBackground {
 
             if (this.validatingFingerprint) {
               this.validatingFingerprint = false;
+              // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+              // eslint-disable-next-line @typescript-eslint/no-floating-promises
               this.stateService.setBiometricFingerprintValidated(true);
             }
             this.sharedSecret = new SymmetricCryptoKey(decrypted);
@@ -168,6 +171,8 @@ export class NativeMessagingBackground {
           case "verifyFingerprint": {
             if (this.sharedSecret == null) {
               this.validatingFingerprint = true;
+              // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+              // eslint-disable-next-line @typescript-eslint/no-floating-promises
               this.showFingerprintDialog();
             }
             break;
@@ -181,6 +186,8 @@ export class NativeMessagingBackground {
               return;
             }
 
+            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.onMessage(message.message);
         }
       });
@@ -309,8 +316,11 @@ export class NativeMessagingBackground {
             type: "danger",
           });
           break;
+        } else if (message.response === "canceled") {
+          break;
         }
 
+        // Check for initial setup of biometric unlock
         const enabled = await this.stateService.getBiometricUnlock();
         if (enabled === null || enabled === false) {
           if (message.response === "unlocked") {
@@ -383,6 +393,8 @@ export class NativeMessagingBackground {
             return;
           }
 
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.runtimeBackground.processMessage({ command: "unlocked" }, null);
         }
         break;
@@ -402,6 +414,8 @@ export class NativeMessagingBackground {
     this.publicKey = publicKey;
     this.privateKey = privateKey;
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.sendUnencrypted({
       command: "setupEncryption",
       publicKey: Utils.fromBufferToB64(publicKey),

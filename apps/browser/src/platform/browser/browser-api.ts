@@ -321,6 +321,8 @@ export class BrowserApi {
   }
 
   static async focusTab(tabId: number) {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     chrome.tabs.update(tabId, { active: true, highlighted: true });
   }
 
@@ -329,6 +331,8 @@ export class BrowserApi {
       // Reactivating the active tab dismisses the popup tab. The promise final
       // condition is only called if the popup wasn't already dismissed (future proofing).
       // ref: https://bugzilla.mozilla.org/show_bug.cgi?id=1433604
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       browser.tabs.update({ active: true }).finally(win.close);
     } else {
       win.close();
@@ -444,5 +448,44 @@ export class BrowserApi {
         resolve(result);
       });
     });
+  }
+
+  /**
+   * Identifies if the browser autofill settings are overridden by the extension.
+   */
+  static async browserAutofillSettingsOverridden(): Promise<boolean> {
+    const checkOverrideStatus = (details: chrome.types.ChromeSettingGetResultDetails) =>
+      details.levelOfControl === "controlled_by_this_extension" && !details.value;
+
+    const autofillAddressOverridden: boolean = await new Promise((resolve) =>
+      chrome.privacy.services.autofillAddressEnabled.get({}, (details) =>
+        resolve(checkOverrideStatus(details)),
+      ),
+    );
+
+    const autofillCreditCardOverridden: boolean = await new Promise((resolve) =>
+      chrome.privacy.services.autofillCreditCardEnabled.get({}, (details) =>
+        resolve(checkOverrideStatus(details)),
+      ),
+    );
+
+    const passwordSavingOverridden: boolean = await new Promise((resolve) =>
+      chrome.privacy.services.passwordSavingEnabled.get({}, (details) =>
+        resolve(checkOverrideStatus(details)),
+      ),
+    );
+
+    return autofillAddressOverridden && autofillCreditCardOverridden && passwordSavingOverridden;
+  }
+
+  /**
+   * Updates the browser autofill settings to the given value.
+   *
+   * @param value - Determines whether to enable or disable the autofill settings.
+   */
+  static updateDefaultBrowserAutofillSettings(value: boolean) {
+    chrome.privacy.services.autofillAddressEnabled.set({ value });
+    chrome.privacy.services.autofillCreditCardEnabled.set({ value });
+    chrome.privacy.services.passwordSavingEnabled.set({ value });
   }
 }

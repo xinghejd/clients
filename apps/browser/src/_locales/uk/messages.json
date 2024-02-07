@@ -525,7 +525,7 @@
     "message": "Скануйте QR-код програмою автентифікації"
   },
   "copyTOTP": {
-    "message": "Скопіюйте одноразовий код (TOTP)"
+    "message": "Скопіюйте ключ автентифікації (TOTP)"
   },
   "loggedOut": {
     "message": "Ви вийшли"
@@ -558,7 +558,7 @@
     "message": "Ви можете змінити головний пароль в сховищі на bitwarden.com. Хочете перейти на вебсайт зараз?"
   },
   "twoStepLoginConfirmation": {
-    "message": "Двоетапна перевірка дає змогу надійніше захистити ваш обліковий запис, вимагаючи підтвердження входу з використанням іншого пристрою, наприклад, за допомогою коду безпеки, програми авторизації, SMS, телефонного виклику, або е-пошти. Ви можете налаштувати двоетапну перевірку в сховищі на bitwarden.com. Хочете перейти на вебсайт зараз?"
+    "message": "Двоетапна перевірка дає змогу надійніше захистити ваш обліковий запис, вимагаючи підтвердження входу з використанням іншого пристрою, наприклад, за допомогою ключа безпеки, програми автентифікації, SMS, телефонного виклику, або е-пошти. Ви можете налаштувати двоетапну перевірку в сховищі на bitwarden.com. Хочете перейти на вебсайт зараз?"
   },
   "editedFolder": {
     "message": "Теку збережено"
@@ -796,7 +796,7 @@
     "message": "Докладніше"
   },
   "authenticatorKeyTotp": {
-    "message": "Ключ авторизації (TOTP)"
+    "message": "Ключ автентифікації (TOTP)"
   },
   "verificationCodeTotp": {
     "message": "Код підтвердження (TOTP)"
@@ -904,7 +904,7 @@
     "message": "Автоматично копіювати коди TOTP"
   },
   "disableAutoTotpCopyDesc": {
-    "message": "Якщо запис має ключ авторизації, копіювати код підтвердження TOTP до буфера обміну під час автозаповнення."
+    "message": "Якщо запис має ключ автентифікації, копіювати код підтвердження TOTP до буфера обміну під час автозаповнення."
   },
   "enableAutoBiometricsPrompt": {
     "message": "Запитувати біометрію під час запуску"
@@ -916,7 +916,7 @@
     "message": "Для використання цієї функції необхідна передплата преміум."
   },
   "enterVerificationCodeApp": {
-    "message": "Введіть 6-значний код підтвердження з програми авторизації."
+    "message": "Введіть 6-значний код підтвердження з програми автентифікації."
   },
   "enterVerificationCodeEmail": {
     "message": "Введіть 6-значний код підтвердження, надісланий на $EMAIL$.",
@@ -958,7 +958,7 @@
     "message": "Відкрити нову вкладку"
   },
   "webAuthnAuthenticate": {
-    "message": "Авторизація WebAuthn"
+    "message": "Автентифікація WebAuthn"
   },
   "loginUnavailable": {
     "message": "Вхід недоступний"
@@ -967,7 +967,7 @@
     "message": "Для цього облікового запису увімкнено двоетапну перевірку. Однак, жоден із налаштованих провайдерів не підтримується цим браузером."
   },
   "noTwoStepProviders2": {
-    "message": "Будь ласка, скористайтеся підтримуваним браузером (наприклад, Chrome) та/або іншими провайдерами, що краще підтримуються браузерами (наприклад, програма авторизації)."
+    "message": "Будь ласка, скористайтеся підтримуваним браузером (наприклад, Chrome) та/або іншими провайдерами, що краще підтримуються браузерами (як-от програма автентифікації)."
   },
   "twoStepOptions": {
     "message": "Налаштування двоетапної перевірки"
@@ -979,10 +979,10 @@
     "message": "Код відновлення"
   },
   "authenticatorAppTitle": {
-    "message": "Програма авторизації"
+    "message": "Програма автентифікації"
   },
   "authenticatorAppDesc": {
-    "message": "Використовуйте програму авторизації (наприклад, Authy або Google Authenticator), щоб генерувати тимчасові коди підтвердження.",
+    "message": "Використовуйте програму автентифікації (наприклад, Authy або Google Authenticator), щоб генерувати тимчасові коди підтвердження.",
     "description": "'Authy' and 'Google Authenticator' are product names and should not be translated."
   },
   "yubiKeyTitle": {
@@ -1493,6 +1493,9 @@
   "invalidPin": {
     "message": "Неправильний PIN-код."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Забагато невдалих спроб введення PIN-коду. Вихід з системи."
+  },
   "unlockWithBiometrics": {
     "message": "Розблокувати з біометрією"
   },
@@ -1547,7 +1550,7 @@
     "message": "Запис відновлено"
   },
   "vaultTimeoutLogOutConfirmation": {
-    "message": "Вихід скасує всі права доступу до вашого сховища і вимагатиме авторизації після завершення часу очікування. Ви дійсно хочете використати цей параметр?"
+    "message": "Вихід скасує всі права доступу до вашого сховища і вимагатиме автентифікацію після завершення часу очікування. Ви дійсно хочете використати цей параметр?"
   },
   "vaultTimeoutLogOutConfirmationTitle": {
     "message": "Підтвердження дії часу очікування"
@@ -2002,6 +2005,10 @@
   "orgRequiresYouToSetPassword": {
     "message": "Ваша організація вимагає, щоб ви встановили головний пароль.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "verificationRequired": {
+    "message": "Потрібне підтвердження",
+    "description": "Default title for the user verification dialog."
   },
   "hours": {
     "message": "Годин"
@@ -2640,6 +2647,42 @@
       }
     }
   },
+  "tryAgain": {
+    "message": "Спробуйте знову"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Ця дія потребує підтвердження. Встановіть PIN-код, щоб продовжити."
+  },
+  "setPin": {
+    "message": "Встановити PIN-код"
+  },
+  "verifyWithBiometrics": {
+    "message": "Підтвердити з біометрією"
+  },
+  "awaitingConfirmation": {
+    "message": "Очікується підтвердження"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Не вдалося виконати біометричну перевірку."
+  },
+  "needADifferentMethod": {
+    "message": "Потрібен інший спосіб?"
+  },
+  "useMasterPassword": {
+    "message": "Використати головний пароль"
+  },
+  "usePin": {
+    "message": "Використати PIN-код"
+  },
+  "useBiometrics": {
+    "message": "Використати біометрію"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Введіть код підтвердження, надісланий на вашу електронну пошту."
+  },
+  "resendCode": {
+    "message": "Надіслати новий код"
+  },
   "total": {
     "message": "Всього"
   },
@@ -2783,6 +2826,15 @@
   "incorrectUsernameOrPassword": {
     "message": "Неправильне ім'я користувача або пароль"
   },
+  "incorrectPassword": {
+    "message": "Неправильний пароль"
+  },
+  "incorrectCode": {
+    "message": "Неправильний код"
+  },
+  "incorrectPin": {
+    "message": "Неправильний PIN-код"
+  },
   "multifactorAuthenticationFailed": {
     "message": "Збій багатофакторної автентифікації"
   },
@@ -2799,10 +2851,10 @@
     "message": "Необхідно пройти багатофакторну автентифікацію LastPass"
   },
   "lastPassMFADesc": {
-    "message": "Введіть одноразовий код з програми для автентифікації"
+    "message": "Введіть одноразовий код з програми автентифікації"
   },
   "lastPassOOBDesc": {
-    "message": "Схваліть запит входу в програмі для автентифікації або введіть одноразовий код."
+    "message": "Схваліть запит входу в програмі автентифікації або введіть одноразовий код."
   },
   "passcode": {
     "message": "Код"
@@ -2888,5 +2940,37 @@
         "example": "google.com"
       }
     }
+  },
+  "commonImportFormats": {
+    "message": "Поширені формати",
+    "description": "Label indicating the most common import formats"
+  },
+  "overrideDefaultBrowserAutofillTitle": {
+    "message": "Зробити Bitwarden типовим менеджером паролів?",
+    "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutofillDescription": {
+    "message": "Якщо ігнорувати цей параметр, можуть виникнути конфлікти автозаповнення між Bitwarden і браузером.",
+    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutofillPrivacyRequiredDescription": {
+    "message": "Ця дія призведе до перезапуску розширення Bitwarden. Якщо ігнорувати цей параметр, можуть виникнути конфлікти автозаповнення між Bitwarden і браузером.",
+    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutoFillSettings": {
+    "message": "Зробити Bitwarden типовим менеджером паролів",
+    "description": "Label for the setting that allows overriding the default browser autofill settings"
+  },
+  "privacyPermissionAdditionNotGrantedTitle": {
+    "message": "Неможливо зробити Bitwarden типовим менеджером паролів",
+    "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "privacyPermissionAdditionNotGrantedDescription": {
+    "message": "Щоб зробити Bitwarden типовим менеджером паролів, ви маєте надати дозволи приватності у налаштуваннях розширень браузера.",
+    "description": "Description for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "makeDefault": {
+    "message": "Зробити типовим",
+    "description": "Button text for the setting that allows overriding the default browser autofill settings"
   }
 }

@@ -656,9 +656,6 @@
   "passkeySuccessfullyCreated": {
     "message": "通行密钥创建成功！"
   },
-  "customName": {
-    "message": "自定义名称"
-  },
   "customPasskeyNameInfo": {
     "message": "为您的通行密钥命名以帮助您识别它。"
   },
@@ -2534,6 +2531,15 @@
       }
     }
   },
+  "trialSecretsManagerThankYou": {
+    "message": "Thanks for signing up for Bitwarden Secrets Manager for $PLAN$!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
   "trialPaidInfoMessage": {
     "message": "您的 $PLAN$ 7 天免费试用将在 7 天后转换成付费订阅。",
     "placeholders": {
@@ -2818,6 +2824,9 @@
   },
   "incorrectCode": {
     "message": "验证码不正确"
+  },
+  "incorrectPin": {
+    "message": "PIN 码不正确"
   },
   "exportedVault": {
     "message": "导出了密码库"
@@ -3827,15 +3836,6 @@
   },
   "couldNotChargeCardPayInvoice": {
     "message": "我们无法从您的支付卡中扣款。请查看并支付下面列出的待支付账单。"
-  },
-  "inAppPurchase": {
-    "message": "应用内购买"
-  },
-  "cannotPerformInAppPurchase": {
-    "message": "使用应用内购买这种付款方式时，您不能执行此操作。"
-  },
-  "manageSubscriptionFromStore": {
-    "message": "您必须在进行应用内购买的商店中管理订阅。"
   },
   "minLength": {
     "message": "最小长度"
@@ -5187,6 +5187,12 @@
   },
   "spValidateCertificates": {
     "message": "验证证书"
+  },
+  "spUniqueEntityId": {
+    "message": "设置一个唯一的 SP 实体 ID"
+  },
+  "spUniqueEntityIdDesc": {
+    "message": "Generate an identifier that is unique to your organization"
   },
   "idpEntityId": {
     "message": "实体 ID"
@@ -6610,6 +6616,39 @@
       }
     }
   },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "此操作需要验证。设置一个 PIN 码以继续。"
+  },
+  "setPin": {
+    "message": "设置 PIN 码"
+  },
+  "verifyWithBiometrics": {
+    "message": "使用生物识别验证"
+  },
+  "awaitingConfirmation": {
+    "message": "等待确认"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "无法完成生物识别。"
+  },
+  "needADifferentMethod": {
+    "message": "Need a different method?"
+  },
+  "useMasterPassword": {
+    "message": "使用主密码"
+  },
+  "usePin": {
+    "message": "使用 PIN 码"
+  },
+  "useBiometrics": {
+    "message": "使用生物识别"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "输入发送到您电子邮箱的验证码。"
+  },
+  "resendCode": {
+    "message": "重新发送代码"
+  },
   "membersColumnHeader": {
     "message": "成员/群组"
   },
@@ -6820,9 +6859,6 @@
   "secretsManager": {
     "message": "机密管理器"
   },
-  "secretsManagerBeta": {
-    "message": "机密管理器 Beta 版"
-  },
   "secretsManagerAccessDescription": {
     "message": "激活用户对机密管理器的访问权限。"
   },
@@ -6925,12 +6961,6 @@
   },
   "selectionIsRequired": {
     "message": "必须选择。"
-  },
-  "secretsManagerSubscriptionDesc": {
-    "message": "在 Beta 计划期间，开启组织对机密管理器的访问是免费的。成员中的用户会被授予对 Beta 版的访问权限。"
-  },
-  "secretsManagerEnable": {
-    "message": "启用机密管理器 Beta 版"
   },
   "saPeopleWarningTitle": {
     "message": "访问令牌仍然可用"
@@ -7092,6 +7122,10 @@
       }
     }
   },
+  "verificationRequired": {
+    "message": "需要验证",
+    "description": "Default title for the user verification dialog."
+  },
   "recoverAccount": {
     "message": "恢复账户"
   },
@@ -7193,6 +7227,15 @@
   },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "为 $ORG$ 开始您的 Bitwarden 7 天免费试用",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerFor": {
+    "message": "Start your 7-Day free trial of Bitwarden Secrets Manager for $ORG$",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -7331,8 +7374,8 @@
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "所有者和管理员可以管理所有集合和项目"
   },
-  "collectionManagementUpdated": {
-    "message": "集合管理行为已保存"
+  "updatedCollectionManagement": {
+    "message": "更新了集合管理设置"
   },
   "passwordManagerPlanPrice": {
     "message": "密码管理器计划价格"
@@ -7361,22 +7404,6 @@
   "loggedInExclamation": {
     "message": "已登录！"
   },
-  "smBetaEndedDesc": {
-    "message": "机密管理器 Beta 版将于 $BETA_ENDING_DATE$ 结束。您还剩余 $DAYS$ 天时间将机密管理器添加到您的付费订阅中，以保持对其数据的访问权限。联系客户成功团队将机密管理器添加到您的订阅中。",
-    "placeholders": {
-      "beta_ending_date": {
-        "content": "$1",
-        "example": "August 1, 2023"
-      },
-      "days": {
-        "content": "$2",
-        "example": "11"
-      }
-    }
-  },
-  "betaEnding": {
-    "message": "Beta 版即将结束"
-  },
   "beta": {
     "message": "Beta"
   },
@@ -7397,12 +7424,6 @@
   },
   "skipToContent": {
     "message": "跳转到内容"
-  },
-  "customBillingStart": {
-    "message": "Custom billing is not reflected. Visit the "
-  },
-  "customBillingEnd": {
-    "message": " page for latest invoicing."
   },
   "managePermissionRequired": {
     "message": "必须至少有一个成员或群组拥有「可以管理」的权限。"
@@ -7447,7 +7468,50 @@
   "collectionAccessRestricted": {
     "message": "集合访问权限受限"
   },
+  "grantCollectionAccess": {
+    "message": "授予群组或成员对此集合的访问权限。"
+  },
+  "adminCollectionAccess": {
+    "message": "管理员可以访问和管理集合。"
+  },
   "serviceAccountAccessUpdated": {
     "message": "服务账户访问权限已更新"
+  },
+  "commonImportFormats": {
+    "message": "通用格式",
+    "description": "Label indicating the most common import formats"
+  },
+  "maintainYourSubscription": {
+    "message": "要维护 $ORG$ 的订阅，",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Example Inc."
+      }
+    }
+  },
+  "addAPaymentMethod": {
+    "message": "请添加一个付款方式。",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
+  },
+  "collectionEnhancementsDesc": {
+    "message": "为额外的灵活性添加新的设置和权限。 将管理员角色替换为“可以管理”权限。 并引入选项以允许用户创建集合，并限制对集合的管理访问。",
+    "description": "This describes new features and improvements for user roles and collections"
+  },
+  "collectionEnhancementsLearnMore": {
+    "message": "了解集合管理"
+  },
+  "organizationInformation": {
+    "message": "Organization information"
+  },
+  "confirmationDetails": {
+    "message": "Confirmation details"
+  },
+  "smFreeTrialThankYou": {
+    "message": "Thank you for signing up for Bitwarden Secrets Manager!"
+  },
+  "smFreeTrialConfirmationEmail": {
+    "message": "We've sent a confirmation email to your email at "
   }
 }

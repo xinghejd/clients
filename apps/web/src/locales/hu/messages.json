@@ -656,9 +656,6 @@
   "passkeySuccessfullyCreated": {
     "message": "A jelszó sikeresen létrehozásra került!"
   },
-  "customName": {
-    "message": "Egyedi név"
-  },
   "customPasskeyNameInfo": {
     "message": "Nevezzük el a jelszót a könnyebb azonosítshoz."
   },
@@ -2534,6 +2531,15 @@
       }
     }
   },
+  "trialSecretsManagerThankYou": {
+    "message": "Köszönet a regisztrációért a Bitwarden Titkos Kód Kezelő $PLAN$ csomagjára!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
   "trialPaidInfoMessage": {
     "message": "$PLAN$ csomag 7 napos ingyenes próbaverziója fizetős feliratkozássá válik 7 nap után.",
     "placeholders": {
@@ -2818,6 +2824,9 @@
   },
   "incorrectCode": {
     "message": "Helytelen kód"
+  },
+  "incorrectPin": {
+    "message": "Helytelen PIN kód"
   },
   "exportedVault": {
     "message": "A széf exportálásra került."
@@ -3827,15 +3836,6 @@
   },
   "couldNotChargeCardPayInvoice": {
     "message": "Nem lehet megterhelni a kártyát.  Nézzük át és fizessük ki az alább felsorolt kifizetés nélküli számlát."
-  },
-  "inAppPurchase": {
-    "message": "Alkalmazáson belüli vásárlás"
-  },
-  "cannotPerformInAppPurchase": {
-    "message": "Nem hajtható végre ez a művelet az alkalmazáson belüli vásárlás fizetési módjának használatával."
-  },
-  "manageSubscriptionFromStore": {
-    "message": "Az előfizetés annál az üzletnél kell kezelni, ahol az alkalmazáson belüli vásárlás történt."
   },
   "minLength": {
     "message": "Minimális hossz"
@@ -5187,6 +5187,12 @@
   },
   "spValidateCertificates": {
     "message": "Tanúsítványok ellenőrzése"
+  },
+  "spUniqueEntityId": {
+    "message": "Egyedi SP entitás azonosító beállítása"
+  },
+  "spUniqueEntityIdDesc": {
+    "message": "Egyedi azonosító létrehozása a szervezetre vonatkozóan"
   },
   "idpEntityId": {
     "message": "Szervezeti ID"
@@ -6610,6 +6616,39 @@
       }
     }
   },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Ehhez a művelethez ellenőrzés szükséges. A folytatáshoz állítsunk be egy PIN kódot."
+  },
+  "setPin": {
+    "message": "PIN kód beállítása"
+  },
+  "verifyWithBiometrics": {
+    "message": "Ellenőrzés biometrikusan"
+  },
+  "awaitingConfirmation": {
+    "message": "Várakozás megerősítésre"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Nem sikerült kitölteni a biometrikus adatokat."
+  },
+  "needADifferentMethod": {
+    "message": "Más módszerre van szükség?"
+  },
+  "useMasterPassword": {
+    "message": "Mesterjelszó használata"
+  },
+  "usePin": {
+    "message": "PIN kód használata"
+  },
+  "useBiometrics": {
+    "message": "Biometria használata"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Az emailben elküldött ellenőrző kód megadása."
+  },
+  "resendCode": {
+    "message": "Kód újraküldése"
+  },
   "membersColumnHeader": {
     "message": "Tag/Csoport"
   },
@@ -6820,9 +6859,6 @@
   "secretsManager": {
     "message": "Titkos kód kezelő"
   },
-  "secretsManagerBeta": {
-    "message": "Titkos kód kezelő béta"
-  },
   "secretsManagerAccessDescription": {
     "message": "A felhasználói hozzáférés bekapcsolása a Titkos kód kezelőhöz."
   },
@@ -6925,12 +6961,6 @@
   },
   "selectionIsRequired": {
     "message": "A kiválasztás szükséges."
-  },
-  "secretsManagerSubscriptionDesc": {
-    "message": "A bétaprogram alatt díjmentesen engedélyezzük a szervezeti hozzáférést a Titkos kód kezelőhöz. A felhasználók hozzáférést kaphatnak a bétá verzióhoz a Tagok részben."
-  },
-  "secretsManagerEnable": {
-    "message": "A Titkos kód kezelő engedélyezése"
   },
   "saPeopleWarningTitle": {
     "message": "Az eléréi vezérjel még minig elérhető."
@@ -7092,6 +7122,10 @@
       }
     }
   },
+  "verificationRequired": {
+    "message": "Ellenőrzés szükséges",
+    "description": "Default title for the user verification dialog."
+  },
   "recoverAccount": {
     "message": "Fiók helyreállítás"
   },
@@ -7193,6 +7227,15 @@
   },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Kezdjük el a Bitwarden 7 napos ingyenes próbaverzió használatát $ORG$ áron",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerFor": {
+    "message": "Kezdjük el a Bitwarden Titkos Kód Kezelő $ORG$ 7 napos ingyenes próbaverzió használatát",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -7331,8 +7374,8 @@
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Owners and admins can manage all collections and items"
   },
-  "collectionManagementUpdated": {
-    "message": "A gyűjtemény kezelési viselkedés mentésre került."
+  "updatedCollectionManagement": {
+    "message": "Frissített gyűjteménykezelési beállítás"
   },
   "passwordManagerPlanPrice": {
     "message": "Jelszókezelő csomag ár"
@@ -7361,22 +7404,6 @@
   "loggedInExclamation": {
     "message": "Megtörtént a bejelentkezés."
   },
-  "smBetaEndedDesc": {
-    "message": "A Titkós kód kezelő bétaverziója $BETA_ENDING_DATE$ időpontban befejeződött. Még $DAYS$ napig lehetőség van a Titkos kód kezelő szolgáltatás hozzáadásához a fizetett előfizetéshez és a hozzáférés fenntartásához a Titkos kód kezelő adataihoz. Lépjünk kapcsolatba az Ügyfél szolgálattal aTitkos kód kezelő hozzáadásához az előfizetéshez.",
-    "placeholders": {
-      "beta_ending_date": {
-        "content": "$1",
-        "example": "August 1, 2023"
-      },
-      "days": {
-        "content": "$2",
-        "example": "11"
-      }
-    }
-  },
-  "betaEnding": {
-    "message": "Béta vezió befejezés"
-  },
   "beta": {
     "message": "Béta"
   },
@@ -7397,12 +7424,6 @@
   },
   "skipToContent": {
     "message": "Ugrás a tartalomra"
-  },
-  "customBillingStart": {
-    "message": "Az egyedi számlázás nem jelenik meg. Keressük fel "
-  },
-  "customBillingEnd": {
-    "message": " oldalt a legújabb számlázásért."
   },
   "managePermissionRequired": {
     "message": "Legalább egy tagnak vagy csoportnak rendelkeznie kell kezelési engedéllyel."
@@ -7447,7 +7468,50 @@
   "collectionAccessRestricted": {
     "message": "A gyűjtemény elérése korlátozott."
   },
+  "grantCollectionAccess": {
+    "message": "Adjunk hozzáférést csoportoknak vagy személyeknek eennél a gyűjteménynél."
+  },
+  "adminCollectionAccess": {
+    "message": "Az adminisztrátorok elérhetik és kezelhetik a gyűjteményeket."
+  },
   "serviceAccountAccessUpdated": {
     "message": "A szolgáltatás fiók elérése frissítésre került."
+  },
+  "commonImportFormats": {
+    "message": "Általános formátumok",
+    "description": "Label indicating the most common import formats"
+  },
+  "maintainYourSubscription": {
+    "message": "$ORG$ előfizetés fenntartásához, ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Example Inc."
+      }
+    }
+  },
+  "addAPaymentMethod": {
+    "message": "fitetési metódus hozzáadása",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
+  },
+  "collectionEnhancementsDesc": {
+    "message": "Adjunk hozzá új beállításokat és jogosultságokat a nagyobb rugalmasság érdekében. Cseréljük le a Kezelő szerepet a \"kezelheti\" jogosultsággal és vezessünk be olyan opciókat, amelyek lehetővé teszik a felhasználók számára gyűjtemények létrehozását, valamint a gyűjtemények adminisztrátori hozzáférésének korlátozását.",
+    "description": "This describes new features and improvements for user roles and collections"
+  },
+  "collectionEnhancementsLearnMore": {
+    "message": "További információ a gyűjteménykezelésről"
+  },
+  "organizationInformation": {
+    "message": "Szervezeti információ"
+  },
+  "confirmationDetails": {
+    "message": "Megerősítő adatok"
+  },
+  "smFreeTrialThankYou": {
+    "message": "Köszönet a Bitwarden Titkos Kód Kezelő regisztrációért!"
+  },
+  "smFreeTrialConfirmationEmail": {
+    "message": "A megerősítő email elküldésre került az email címre:"
   }
 }

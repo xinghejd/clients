@@ -656,9 +656,6 @@
   "passkeySuccessfullyCreated": {
     "message": "Ключ доступа успешно создан!"
   },
-  "customName": {
-    "message": "Имя"
-  },
   "customPasskeyNameInfo": {
     "message": "Назовите ключ доступа так, чтобы вы могли его идентифицировать."
   },
@@ -2534,6 +2531,15 @@
       }
     }
   },
+  "trialSecretsManagerThankYou": {
+    "message": "Спасибо, что подписались на менеджер секретов Bitwarden для $PLAN$!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
   "trialPaidInfoMessage": {
     "message": "Ваша 7-дневная бесплатная пробная версия $PLAN$ будет преобразована в платную подписку через 7 дней.",
     "placeholders": {
@@ -2818,6 +2824,9 @@
   },
   "incorrectCode": {
     "message": "Неверный код"
+  },
+  "incorrectPin": {
+    "message": "Неверный PIN-код"
   },
   "exportedVault": {
     "message": "Хранилище экспортировано."
@@ -3827,15 +3836,6 @@
   },
   "couldNotChargeCardPayInvoice": {
     "message": "Мы не смогли списать деньги с вашей карты. Пожалуйста, просмотрите и оплатите неоплаченный счет, указанный ниже."
-  },
-  "inAppPurchase": {
-    "message": "Покупка в приложении"
-  },
-  "cannotPerformInAppPurchase": {
-    "message": "Вы не можете выполнить это действие при использовании оплаты из приложения."
-  },
-  "manageSubscriptionFromStore": {
-    "message": "Вы должны управлять своей подпиской в том ​​магазине, в котором была совершена покупка в приложении."
   },
   "minLength": {
     "message": "Минимальная длина"
@@ -5187,6 +5187,12 @@
   },
   "spValidateCertificates": {
     "message": "Проверка сертификатов"
+  },
+  "spUniqueEntityId": {
+    "message": "Установить уникальный ID объекта SP"
+  },
+  "spUniqueEntityIdDesc": {
+    "message": "Создать уникальный для вашей организации идентификатор"
   },
   "idpEntityId": {
     "message": "ID субъекта"
@@ -6610,6 +6616,39 @@
       }
     }
   },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Для этого действия требуется верификация. Для продолжения введите PIN-код."
+  },
+  "setPin": {
+    "message": "Задать PIN-код"
+  },
+  "verifyWithBiometrics": {
+    "message": "Верифицировать с помощью биометрии"
+  },
+  "awaitingConfirmation": {
+    "message": "Ожидание подтверждения"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Не удалось выполнить верификацию биометрией."
+  },
+  "needADifferentMethod": {
+    "message": "Нужен другой метод?"
+  },
+  "useMasterPassword": {
+    "message": "Использовать мастер-пароль"
+  },
+  "usePin": {
+    "message": "Использовать PIN-код"
+  },
+  "useBiometrics": {
+    "message": "Использовать биометрию"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Введите код подтверждения, отправленный вам на почту."
+  },
+  "resendCode": {
+    "message": "Отправить код повторно"
+  },
   "membersColumnHeader": {
     "message": "Участник/Группа"
   },
@@ -6668,7 +6707,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Upgrade to your plan to invite more members.",
+    "message": "На тарифных планах Teams Starter может быть до $SEATCOUNT$ участников. Перейдите на новый тарифный план, чтобы пригласить больше участников.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -6820,9 +6859,6 @@
   "secretsManager": {
     "message": "Менеджер секретов"
   },
-  "secretsManagerBeta": {
-    "message": "Менеджер секретов Beta"
-  },
   "secretsManagerAccessDescription": {
     "message": "Активировать доступ пользователей к менеджеру секретов."
   },
@@ -6925,12 +6961,6 @@
   },
   "selectionIsRequired": {
     "message": "Требуется выбор."
-  },
-  "secretsManagerSubscriptionDesc": {
-    "message": "Включите доступ организации к Менеджеру секретов бесплатно во время программы бета-тестирования. Пользователям может быть предоставлен доступ к бета-версии в разделе Участники."
-  },
-  "secretsManagerEnable": {
-    "message": "Менеджер секретов Бета"
   },
   "saPeopleWarningTitle": {
     "message": "Токены доступа по-прежнему доступны"
@@ -7092,6 +7122,10 @@
       }
     }
   },
+  "verificationRequired": {
+    "message": "Требуется верификация",
+    "description": "Default title for the user verification dialog."
+  },
   "recoverAccount": {
     "message": "Восстановить аккаунт"
   },
@@ -7193,6 +7227,15 @@
   },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Начните 7-дневную бесплатную пробную версию Bitwarden для $ORG$",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerFor": {
+    "message": "Начните 7-дневную бесплатную пробную версию менеджера секретов Bitwarden для $ORG$",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -7331,8 +7374,8 @@
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Владельцы и администраторы могут управлять всеми коллекциями и элементами"
   },
-  "collectionManagementUpdated": {
-    "message": "Настройки управления коллекциями сохранены"
+  "updatedCollectionManagement": {
+    "message": "Настройки управления коллекцией обновлены"
   },
   "passwordManagerPlanPrice": {
     "message": "Стоимость плана Менеджер паролей"
@@ -7361,22 +7404,6 @@
   "loggedInExclamation": {
     "message": "Вход выполнен!"
   },
-  "smBetaEndedDesc": {
-    "message": "Бета-версия Менеджера секретов завершилась $BETA_ENDING_DATE$. У вас осталось $DAYS$ дней, чтобы добавить его к своей платной подписке и сохранить доступ к данным. Чтобы добавить Менеджер секретов к подписке, обратитесь в службу поддержки клиентов.",
-    "placeholders": {
-      "beta_ending_date": {
-        "content": "$1",
-        "example": "August 1, 2023"
-      },
-      "days": {
-        "content": "$2",
-        "example": "11"
-      }
-    }
-  },
-  "betaEnding": {
-    "message": "Окончание бета-версии"
-  },
   "beta": {
     "message": "Beta"
   },
@@ -7397,12 +7424,6 @@
   },
   "skipToContent": {
     "message": "Перейти к содержимому"
-  },
-  "customBillingStart": {
-    "message": "Пользовательские счета не отображаются. Посетите страницу "
-  },
-  "customBillingEnd": {
-    "message": " для получения последней информации о выставлении счетов."
   },
   "managePermissionRequired": {
     "message": "Как минимум один участник или группа должны иметь разрешение 'Может управлять'."
@@ -7447,7 +7468,50 @@
   "collectionAccessRestricted": {
     "message": "Доступ к коллекции ограничен"
   },
+  "grantCollectionAccess": {
+    "message": "Предоставить группам или участникам доступ к этой коллекции."
+  },
+  "adminCollectionAccess": {
+    "message": "Администраторы могут получать доступ к коллекциям и управлять ими."
+  },
   "serviceAccountAccessUpdated": {
     "message": "Доступ сервисного аккаунта изменен"
+  },
+  "commonImportFormats": {
+    "message": "Основные форматы",
+    "description": "Label indicating the most common import formats"
+  },
+  "maintainYourSubscription": {
+    "message": "Для сохранения подписки на $ORG$ ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Example Inc."
+      }
+    }
+  },
+  "addAPaymentMethod": {
+    "message": "добавьте способ оплаты",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
+  },
+  "collectionEnhancementsDesc": {
+    "message": "Добавьте новые настройки и разрешения для обеспечения дополнительной гибкости. Замените роль менеджера разрешением \"может управлять\" и введите опции, позволяющие пользователям создавать коллекции, а также ограничивающие административный доступ к коллекциям.",
+    "description": "This describes new features and improvements for user roles and collections"
+  },
+  "collectionEnhancementsLearnMore": {
+    "message": "Узнайте больше об управлении коллекциями"
+  },
+  "organizationInformation": {
+    "message": "Информация об организации"
+  },
+  "confirmationDetails": {
+    "message": "Детали подтверждения"
+  },
+  "smFreeTrialThankYou": {
+    "message": "Спасибо, что подписались на менеджер секретов Bitwarden!"
+  },
+  "smFreeTrialConfirmationEmail": {
+    "message": "Мы отправили письмо с подтверждением на "
   }
 }

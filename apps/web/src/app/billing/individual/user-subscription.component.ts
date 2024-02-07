@@ -57,6 +57,8 @@ export class UserSubscriptionComponent implements OnInit {
       this.loading = true;
       this.sub = await this.apiService.getUserSubscription();
     } else {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["/settings/subscription/premium"]);
       return;
     }
@@ -66,18 +68,6 @@ export class UserSubscriptionComponent implements OnInit {
 
   async reinstate() {
     if (this.loading) {
-      return;
-    }
-
-    if (this.usingInAppPurchase) {
-      this.dialogService.openSimpleDialog({
-        title: { key: "cancelSubscription" },
-        content: { key: "manageSubscriptionFromStore" },
-        acceptButtonText: { key: "ok" },
-        cancelButtonText: null,
-        type: "warning",
-      });
-
       return;
     }
 
@@ -95,6 +85,8 @@ export class UserSubscriptionComponent implements OnInit {
       this.reinstatePromise = this.apiService.postReinstatePremium();
       await this.reinstatePromise;
       this.platformUtilsService.showToast("success", null, this.i18nService.t("reinstated"));
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.load();
     } catch (e) {
       this.logService.error(e);
@@ -103,18 +95,6 @@ export class UserSubscriptionComponent implements OnInit {
 
   async cancel() {
     if (this.loading) {
-      return;
-    }
-
-    if (this.usingInAppPurchase) {
-      this.dialogService.openSimpleDialog({
-        title: { key: "cancelSubscription" },
-        content: { key: "manageSubscriptionFromStore" },
-        acceptButtonText: { key: "ok" },
-        cancelButtonText: null,
-        type: "warning",
-      });
-
       return;
     }
 
@@ -136,6 +116,8 @@ export class UserSubscriptionComponent implements OnInit {
         null,
         this.i18nService.t("canceledSubscription"),
       );
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.load();
     } catch (e) {
       this.logService.error(e);
@@ -164,22 +146,13 @@ export class UserSubscriptionComponent implements OnInit {
   closeUpdateLicense(load: boolean) {
     this.showUpdateLicense = false;
     if (load) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.load();
     }
   }
 
   adjustStorage(add: boolean) {
-    if (this.usingInAppPurchase) {
-      this.dialogService.openSimpleDialog({
-        title: { key: add ? "addStorage" : "removeStorage" },
-        content: { key: "cannotPerformInAppPurchase" },
-        acceptButtonText: { key: "ok" },
-        cancelButtonText: null,
-        type: "warning",
-      });
-
-      return;
-    }
     this.adjustStorageAdd = add;
     this.showAdjustStorage = true;
   }
@@ -187,6 +160,8 @@ export class UserSubscriptionComponent implements OnInit {
   closeStorage(load: boolean) {
     this.showAdjustStorage = false;
     if (load) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.load();
     }
   }
@@ -213,10 +188,6 @@ export class UserSubscriptionComponent implements OnInit {
 
   get storageProgressWidth() {
     return this.storagePercentage < 5 ? 5 : 0;
-  }
-
-  get usingInAppPurchase() {
-    return this.sub != null ? this.sub.usingInAppPurchase : false;
   }
 
   get title(): string {

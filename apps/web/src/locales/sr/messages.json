@@ -656,9 +656,6 @@
   "passkeySuccessfullyCreated": {
     "message": "Приступачни кључ је успешно креиран!"
   },
-  "customName": {
-    "message": "Прилагоди име"
-  },
   "customPasskeyNameInfo": {
     "message": "Именујте Ваш приступачни кључ за лакшу идентификацију."
   },
@@ -2534,6 +2531,15 @@
       }
     }
   },
+  "trialSecretsManagerThankYou": {
+    "message": "Хвала што сте се пријавили за Bitwarden Secrets Manager за $PLAN$!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
   "trialPaidInfoMessage": {
     "message": "Када се заврши бесплатни период плана $PLAN$ (7 дана), биће претворен у плаћеном плану.",
     "placeholders": {
@@ -2818,6 +2824,9 @@
   },
   "incorrectCode": {
     "message": "Погрешан код"
+  },
+  "incorrectPin": {
+    "message": "Нетачан PIN"
   },
   "exportedVault": {
     "message": "Сеф извежен."
@@ -3827,15 +3836,6 @@
   },
   "couldNotChargeCardPayInvoice": {
     "message": "Нисмо могли да наплатимо вашу картицу. Молимо погледајте и платите наведену неплаћену фактуру."
-  },
-  "inAppPurchase": {
-    "message": "Куповина Унутар Апликације"
-  },
-  "cannotPerformInAppPurchase": {
-    "message": "Не можете да извршите ову радњу док користите начин плаћања за куповину у апликацији."
-  },
-  "manageSubscriptionFromStore": {
-    "message": "Морате управљати претплатом из продавнице у којој је обављена куповина у апликацији."
   },
   "minLength": {
     "message": "Минимална Дужина"
@@ -5187,6 +5187,12 @@
   },
   "spValidateCertificates": {
     "message": "Проверити цертификате"
+  },
+  "spUniqueEntityId": {
+    "message": "Постави уникатни ИД провајдера сервиса"
+  },
+  "spUniqueEntityIdDesc": {
+    "message": "Генерише идентификатор који је јединствен за вашу организацију"
   },
   "idpEntityId": {
     "message": "Id ентитета"
@@ -6610,6 +6616,39 @@
       }
     }
   },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "За ову радњу је потребна верификација. Подесите ПИН да бисте наставили."
+  },
+  "setPin": {
+    "message": "Поставите PIN"
+  },
+  "verifyWithBiometrics": {
+    "message": "Верификујте помоћу биометрије"
+  },
+  "awaitingConfirmation": {
+    "message": "Чека се потврда"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Није могуће завршити биометрију."
+  },
+  "needADifferentMethod": {
+    "message": "Потребан вам је други начин?"
+  },
+  "useMasterPassword": {
+    "message": "Користите главну лозинку"
+  },
+  "usePin": {
+    "message": "Користите ПИН"
+  },
+  "useBiometrics": {
+    "message": "Користите биометрију"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Унесите верификациони кôд који је послат на Вашу е-адресу."
+  },
+  "resendCode": {
+    "message": "Поново послати кôд"
+  },
   "membersColumnHeader": {
     "message": "Члан/Група"
   },
@@ -6820,9 +6859,6 @@
   "secretsManager": {
     "message": "Менаџер тајни"
   },
-  "secretsManagerBeta": {
-    "message": "Secrets Manager Beta"
-  },
   "secretsManagerAccessDescription": {
     "message": "Activate user access to Secrets Manager."
   },
@@ -6925,12 +6961,6 @@
   },
   "selectionIsRequired": {
     "message": "Потребно је да изаберете нешто."
-  },
-  "secretsManagerSubscriptionDesc": {
-    "message": "Укључите приступ организације за Secrets Manager бесплатно током Бета програма. Корисницима се може одобрити приступ Бета у Члановима."
-  },
-  "secretsManagerEnable": {
-    "message": "Омогућити Secrets Manager Бета"
   },
   "saPeopleWarningTitle": {
     "message": "Приступни токени су и даље доступни"
@@ -7092,6 +7122,10 @@
       }
     }
   },
+  "verificationRequired": {
+    "message": "Потребдна верификација",
+    "description": "Default title for the user verification dialog."
+  },
   "recoverAccount": {
     "message": "Опоравак налога"
   },
@@ -7193,6 +7227,15 @@
   },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Започните своју 7-дневну бесплатну пробну Bitwarden-а за $ORG$",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerFor": {
+    "message": "Започните своју 7-дневну бесплатну пробну Bitwarden Secrets Manager за $ORG$",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -7331,8 +7374,8 @@
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Власници и администратори могу да управљају свим колекцијама и ставкама"
   },
-  "collectionManagementUpdated": {
-    "message": "Понашање управљања збирке је сачувано"
+  "updatedCollectionManagement": {
+    "message": "Ажурирано подешавање управљања колекцијом"
   },
   "passwordManagerPlanPrice": {
     "message": "Цена плана менаџера лозинки"
@@ -7361,22 +7404,6 @@
   "loggedInExclamation": {
     "message": "Пријављено!"
   },
-  "smBetaEndedDesc": {
-    "message": "Бета менаџера тајни се завршио $BETA_ENDING_DATE$. Остало вам је $DAYS$ дана да додате Менаџер тајни у вашу претплату и да задржите приступ подацима Манагера тајни. Контактирајте подршку да додате Менаџер тајни у своју претплату.",
-    "placeholders": {
-      "beta_ending_date": {
-        "content": "$1",
-        "example": "August 1, 2023"
-      },
-      "days": {
-        "content": "$2",
-        "example": "11"
-      }
-    }
-  },
-  "betaEnding": {
-    "message": "Крај бета"
-  },
   "beta": {
     "message": "Бета"
   },
@@ -7397,12 +7424,6 @@
   },
   "skipToContent": {
     "message": "Прескочи на садржај"
-  },
-  "customBillingStart": {
-    "message": "Прилагођени обрачун се не одражава. Посетите "
-  },
-  "customBillingEnd": {
-    "message": " страницу за најновије фактуре."
   },
   "managePermissionRequired": {
     "message": "Најмање један члан или група мора имати могућност управљања дозволом."
@@ -7447,7 +7468,50 @@
   "collectionAccessRestricted": {
     "message": "Приступ колекцији је ограничен"
   },
+  "grantCollectionAccess": {
+    "message": "Одобрите групама или члановима приступ овој колекцији."
+  },
+  "adminCollectionAccess": {
+    "message": "Администратори могу да приступе и управљају колекцијама."
+  },
   "serviceAccountAccessUpdated": {
     "message": "Приступ услужног налога ажуриран"
+  },
+  "commonImportFormats": {
+    "message": "Уобичајени формати",
+    "description": "Label indicating the most common import formats"
+  },
+  "maintainYourSubscription": {
+    "message": "Да бисте одржали своју претплату за $ORG$, ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Example Inc."
+      }
+    }
+  },
+  "addAPaymentMethod": {
+    "message": "додајте начин плаћања",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
+  },
+  "collectionEnhancementsDesc": {
+    "message": "Додајте нова подешавања и дозволе за додатну флексибилност. Замените улогу менаџера са дозволом „може да управља“ и уведите опције које омогућавају корисницима да креирају колекције, као и ограничавање административног приступа збиркама.",
+    "description": "This describes new features and improvements for user roles and collections"
+  },
+  "collectionEnhancementsLearnMore": {
+    "message": "Сазнајте више о управљању колекцијом"
+  },
+  "organizationInformation": {
+    "message": "Информације о организацији"
+  },
+  "confirmationDetails": {
+    "message": "Детаљи потврде"
+  },
+  "smFreeTrialThankYou": {
+    "message": "Хвала што сте се пријавили за Bitwarden Secrets Manager!"
+  },
+  "smFreeTrialConfirmationEmail": {
+    "message": "Послали смо е-поруку са потврдом на ваш имејл на "
   }
 }
