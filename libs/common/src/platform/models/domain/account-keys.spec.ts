@@ -1,9 +1,10 @@
 import { makeStaticByteArray } from "../../../../spec";
 import { CsprngArray } from "../../../types/csprng";
+import { DeviceKey } from "../../../types/key";
 import { Utils } from "../../misc/utils";
 
 import { AccountKeys, EncryptionPair } from "./account";
-import { DeviceKey, SymmetricCryptoKey } from "./symmetric-crypto-key";
+import { SymmetricCryptoKey } from "./symmetric-crypto-key";
 
 describe("AccountKeys", () => {
   describe("toJSON", () => {
@@ -53,18 +54,6 @@ describe("AccountKeys", () => {
     it("should deserialize cryptoMasterKey", () => {
       const spy = jest.spyOn(SymmetricCryptoKey, "fromJSON");
       AccountKeys.fromJSON({} as any);
-      expect(spy).toHaveBeenCalled();
-    });
-
-    it("should deserialize organizationKeys", () => {
-      const spy = jest.spyOn(SymmetricCryptoKey, "fromJSON");
-      AccountKeys.fromJSON({ organizationKeys: [{ orgId: "keyJSON" }] } as any);
-      expect(spy).toHaveBeenCalled();
-    });
-
-    it("should deserialize providerKeys", () => {
-      const spy = jest.spyOn(SymmetricCryptoKey, "fromJSON");
-      AccountKeys.fromJSON({ providerKeys: [{ providerId: "keyJSON" }] } as any);
       expect(spy).toHaveBeenCalled();
     });
 

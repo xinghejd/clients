@@ -326,6 +326,9 @@
   "password": {
     "message": "Пароль"
   },
+  "totp": {
+    "message": "Секрет аутентификатора"
+  },
   "passphrase": {
     "message": "Парольная фраза"
   },
@@ -511,6 +514,18 @@
   },
   "autofillError": {
     "message": "Не удалось автоматически заполнить выбранный элемент на этой странице. Скопируйте и вставьте логин/пароль из своего хранилища."
+  },
+  "totpCaptureError": {
+    "message": "Не удается сосканировать QR-код с текущей веб-страницы"
+  },
+  "totpCaptureSuccess": {
+    "message": "Ключ аутентификатора добавлен"
+  },
+  "totpCapture": {
+    "message": "Сканировать QR-код аутентификатора с текущей веб-страницы"
+  },
+  "copyTOTP": {
+    "message": "Скопировать ключ аутентификатора (TOTP)"
   },
   "loggedOut": {
     "message": "Вы вышли из хранилища"
@@ -1478,6 +1493,9 @@
   "invalidPin": {
     "message": "Неверный PIN-код."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Слишком много неверных попыток ввода PIN-кода. Выполняется выход."
+  },
   "unlockWithBiometrics": {
     "message": "Разблокировать с помощью биометрии"
   },
@@ -1988,6 +2006,10 @@
     "message": "Необходимо установить мастер-пароль для организации.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
+  "verificationRequired": {
+    "message": "Требуется верификация",
+    "description": "Default title for the user verification dialog."
+  },
   "hours": {
     "message": "Час."
   },
@@ -2497,6 +2519,38 @@
     "message": "Свернуть/развернуть",
     "description": "Toggling an expand/collapse state."
   },
+  "filelessImport": {
+    "message": "Импортировать данные в Bitwarden?",
+    "description": "Default notification title for triggering a fileless import."
+  },
+  "lpFilelessImport": {
+    "message": "Защитить данные LastPass и импортировать их в Bitwarden?",
+    "description": "LastPass specific notification title for triggering a fileless import."
+  },
+  "lpCancelFilelessImport": {
+    "message": "Сохранить как незашифрованный файл",
+    "description": "LastPass specific notification button text for cancelling a fileless import."
+  },
+  "startFilelessImport": {
+    "message": "Импортировать в Bitwarden",
+    "description": "Notification button text for starting a fileless import."
+  },
+  "importing": {
+    "message": "Импорт...",
+    "description": "Notification message for when an import is in progress."
+  },
+  "dataSuccessfullyImported": {
+    "message": "Данные успешно импортированы!",
+    "description": "Notification message for when an import has completed successfully."
+  },
+  "dataImportFailed": {
+    "message": "Ошибка импорта. Проверьте консоль для получения подробной информации.",
+    "description": "Notification message for when an import has failed."
+  },
+  "importNetworkError": {
+    "message": "Во время импорта возникла сетевая ошибка.",
+    "description": "Notification message for when an import has failed due to a network error."
+  },
   "aliasDomain": {
     "message": "Псевдоним домена"
   },
@@ -2592,6 +2646,42 @@
         "example": "2"
       }
     }
+  },
+  "tryAgain": {
+    "message": "Попробуйте снова"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Для этого действия требуется верификация. Для продолжения введите PIN-код."
+  },
+  "setPin": {
+    "message": "Задать PIN-код"
+  },
+  "verifyWithBiometrics": {
+    "message": "Верифицировать с помощью биометрии"
+  },
+  "awaitingConfirmation": {
+    "message": "Ожидание подтверждения"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Не удалось выполнить верификацию биометрией."
+  },
+  "needADifferentMethod": {
+    "message": "Нужен другой метод?"
+  },
+  "useMasterPassword": {
+    "message": "Использовать мастер-пароль"
+  },
+  "usePin": {
+    "message": "Использовать PIN-код"
+  },
+  "useBiometrics": {
+    "message": "Использовать биометрию"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Введите код подтверждения, отправленный вам на почту."
+  },
+  "resendCode": {
+    "message": "Отправить код повторно"
   },
   "total": {
     "message": "Всего"
@@ -2736,6 +2826,15 @@
   "incorrectUsernameOrPassword": {
     "message": "Неверное имя пользователя или пароль"
   },
+  "incorrectPassword": {
+    "message": "Неверный пароль"
+  },
+  "incorrectCode": {
+    "message": "Неверный код"
+  },
+  "incorrectPin": {
+    "message": "Неверный PIN-код"
+  },
   "multifactorAuthenticationFailed": {
     "message": "Сбой многофакторной аутентификации"
   },
@@ -2803,6 +2902,9 @@
   "activeAccount": {
     "message": "Активный аккаунт"
   },
+  "availableAccounts": {
+    "message": "Доступные аккаунты"
+  },
   "accountLimitReached": {
     "message": "Достигнут лимит аккаунтов. Выйдите, чтобы добавить другой."
   },
@@ -2838,5 +2940,37 @@
         "example": "google.com"
       }
     }
+  },
+  "commonImportFormats": {
+    "message": "Основные форматы",
+    "description": "Label indicating the most common import formats"
+  },
+  "overrideDefaultBrowserAutofillTitle": {
+    "message": "Сделать Bitwarden менеджером паролей по умолчанию?",
+    "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutofillDescription": {
+    "message": "Отключение этого параметра может привести к конфликту между меню автозаполнения Bitwarden и вашим браузером.",
+    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutofillPrivacyRequiredDescription": {
+    "message": "Это действие перезапустит расширение Bitwarden. Игнорирование этой опции может привести к конфликту между меню автозаполнения Bitwarden и вашим браузером.",
+    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutoFillSettings": {
+    "message": "Сделать Bitwarden менеджером паролей по умолчанию",
+    "description": "Label for the setting that allows overriding the default browser autofill settings"
+  },
+  "privacyPermissionAdditionNotGrantedTitle": {
+    "message": "Невозможно установить Bitwarden в качестве менеджера паролей по умолчанию",
+    "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "privacyPermissionAdditionNotGrantedDescription": {
+    "message": "Чтобы установить Bitwarden в качестве менеджера паролей по умолчанию, необходимо предоставить Bitwarden права доступа к конфиденциальности браузера.",
+    "description": "Description for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "makeDefault": {
+    "message": "Установить по умолчанию",
+    "description": "Button text for the setting that allows overriding the default browser autofill settings"
   }
 }

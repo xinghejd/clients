@@ -8,7 +8,7 @@ import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.se
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
-import { ProviderKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { ProviderKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 
 @Component({
@@ -51,6 +51,8 @@ export class SetupComponent implements OnInit {
           this.i18nService.t("emergencyInviteAcceptFailed"),
           { timeout: 10000 },
         );
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.router.navigate(["/"]);
         return;
       }
@@ -62,10 +64,14 @@ export class SetupComponent implements OnInit {
       try {
         const provider = await this.apiService.getProvider(this.providerId);
         if (provider.name != null) {
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.router.navigate(["/providers", provider.id], { replaceUrl: true });
         }
       } catch (e) {
         this.validationService.showError(e);
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.router.navigate(["/"]);
       }
     });
@@ -92,6 +98,8 @@ export class SetupComponent implements OnInit {
       this.platformUtilsService.showToast("success", null, this.i18nService.t("providerSetup"));
       await this.syncService.fullSync(true);
 
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["/providers", provider.id]);
     } catch (e) {
       this.validationService.showError(e);

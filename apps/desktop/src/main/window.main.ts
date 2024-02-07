@@ -57,6 +57,8 @@ export class WindowMain {
       }
 
       this.win.webContents.reloadIgnoringCache();
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.session.clearCache();
     });
 
@@ -89,6 +91,10 @@ export class WindowMain {
         // This method will be called when Electron is shutting
         // down the application.
         app.on("before-quit", () => {
+          // Allow biometric to auto-prompt on reload
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+          this.stateService.setBiometricPromptCancelled(false);
           this.isQuitting = true;
         });
 
@@ -175,6 +181,8 @@ export class WindowMain {
     this.win.show();
 
     // and load the index.html of the app.
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.win.loadURL(
       url.format({
         protocol: "file:",

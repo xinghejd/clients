@@ -16,6 +16,7 @@ import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.se
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { ThemeType, KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DialogService } from "@bitwarden/components";
@@ -118,6 +119,7 @@ export class SettingsComponent implements OnInit {
     private settingsService: SettingsService,
     private dialogService: DialogService,
     private userVerificationService: UserVerificationServiceAbstraction,
+    private biometricStateService: BiometricStateService,
   ) {
     const isMac = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
 
@@ -242,8 +244,9 @@ export class SettingsComponent implements OnInit {
       pin: this.userHasPinSet,
       biometric: await this.vaultTimeoutSettingsService.isBiometricLockSet(),
       autoPromptBiometrics: !(await this.stateService.getDisableAutoBiometricsPrompt()),
-      requirePasswordOnStart:
-        (await this.stateService.getBiometricRequirePasswordOnStart()) ?? false,
+      requirePasswordOnStart: await firstValueFrom(
+        this.biometricStateService.requirePasswordOnStart$,
+      ),
       approveLoginRequests: (await this.stateService.getApproveLoginRequests()) ?? false,
       clearClipboard: await this.stateService.getClearClipboard(),
       minimizeOnCopyToClipboard: await this.stateService.getMinimizeOnCopyToClipboard(),
@@ -409,16 +412,17 @@ export class SettingsComponent implements OnInit {
 
   async updatePin(value: boolean) {
     if (value) {
-      const ref = this.modalService.open(SetPinComponent, { allowMultipleModals: true });
+      const dialogRef = SetPinComponent.open(this.dialogService);
 
-      if (ref == null) {
+      if (dialogRef == null) {
         this.form.controls.pin.setValue(false, { emitEvent: false });
         return;
       }
 
-      this.userHasPinSet = await ref.onClosedPromise();
+      this.userHasPinSet = await firstValueFrom(dialogRef.closed);
       this.form.controls.pin.setValue(this.userHasPinSet, { emitEvent: false });
     }
+
     if (!value) {
       // If user turned off PIN without having a MP and has biometric + require MP/PIN on restart enabled
       if (this.form.value.requirePasswordOnStart && !this.userHasMasterPassword) {
@@ -429,6 +433,7 @@ export class SettingsComponent implements OnInit {
 
       await this.vaultTimeoutSettingsService.clear();
     }
+
     this.messagingService.send("redrawMenu");
   }
 
@@ -452,7 +457,7 @@ export class SettingsComponent implements OnInit {
         this.form.controls.requirePasswordOnStart.setValue(true);
         this.form.controls.autoPromptBiometrics.setValue(false);
         await this.stateService.setDisableAutoBiometricsPrompt(true);
-        await this.stateService.setBiometricRequirePasswordOnStart(true);
+        await this.biometricStateService.setRequirePasswordOnStart(true);
         await this.stateService.setDismissedBiometricRequirePasswordOnStart();
       }
       await this.cryptoService.refreshAdditionalKeys();
@@ -486,10 +491,9 @@ export class SettingsComponent implements OnInit {
       this.form.controls.autoPromptBiometrics.setValue(false);
       await this.updateAutoPromptBiometrics();
 
-      await this.stateService.setBiometricRequirePasswordOnStart(true);
+      await this.biometricStateService.setRequirePasswordOnStart(true);
     } else {
-      await this.stateService.setBiometricRequirePasswordOnStart(false);
-      await this.stateService.setBiometricEncryptionClientKeyHalf(null);
+      await this.biometricStateService.setRequirePasswordOnStart(false);
     }
     await this.stateService.setDismissedBiometricRequirePasswordOnStart();
     await this.cryptoService.refreshAdditionalKeys();
@@ -571,6 +575,8 @@ export class SettingsComponent implements OnInit {
   }
 
   async saveOpenAtLogin() {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.stateService.setOpenAtLogin(this.form.value.openAtLogin);
     this.messagingService.send(
       this.form.value.openAtLogin ? "addOpenAtLogin" : "removeOpenAtLogin",
@@ -622,6 +628,8 @@ export class SettingsComponent implements OnInit {
 
     if (!this.form.value.enableBrowserIntegration) {
       this.form.controls.enableBrowserIntegrationFingerprint.setValue(false);
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.saveBrowserIntegrationFingerprint();
     }
   }

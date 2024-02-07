@@ -7,7 +7,8 @@ import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { StateService } from "../../platform/abstractions/state.service";
 import { Utils } from "../../platform/misc/utils";
-import { MasterKey, SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
+import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
+import { MasterKey } from "../../types/key";
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "../abstractions/key-connector.service";
 import { TokenService } from "../abstractions/token.service";
 import { KdfConfig } from "../models/domain/kdf-config";
@@ -149,6 +150,8 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
   private handleKeyConnectorError(e: any) {
     this.logService.error(e);
     if (this.logoutCallback != null) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.logoutCallback(false);
     }
     throw new Error("Key Connector error");

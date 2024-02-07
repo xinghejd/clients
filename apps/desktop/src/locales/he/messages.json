@@ -404,7 +404,7 @@
     "message": "אורך"
   },
   "passwordMinLength": {
-    "message": "Minimum password length"
+    "message": "אורך סיסמה מזערי"
   },
   "uppercase": {
     "message": "אותיות גדולות (A-Z)"
@@ -479,7 +479,7 @@
     "message": "גודל הקובץ המירבי הוא 500 מגה."
   },
   "encryptionKeyMigrationRequired": {
-    "message": "Encryption key migration required. Please login through the web vault to update your encryption key."
+    "message": "נדרשת הסבת מפתח הצפנה. נא להיכנס דרך הכספת לאתרים כדי לעדכן את מפתח ההצפנה שלך."
   },
   "editedFolder": {
     "message": "תיקייה שנשמרה"
@@ -1392,11 +1392,14 @@
   "invalidPin": {
     "message": "קוד PIN לא תקין."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "יותר מדי ניסיונות שגויים להקלדת קוד אישי. יצאת מהמערכת."
+  },
   "unlockWithWindowsHello": {
     "message": "שחרור נעילה עם Windows Hello"
   },
   "additionalWindowsHelloSettings": {
-    "message": "Additional Windows Hello settings"
+    "message": "הגדרות נוספות של Windows Hello"
   },
   "windowsHelloConsentMessage": {
     "message": "אימות עבור Bitwarden."
@@ -1405,7 +1408,7 @@
     "message": "שחרור נעילה עם Touch ID"
   },
   "additionalTouchIdSettings": {
-    "message": "Additional Touch ID settings"
+    "message": "הגדרות Touch ID נוספות"
   },
   "touchIdConsentMessage": {
     "message": "פתח את הכספת שלך"
@@ -1417,10 +1420,10 @@
     "message": "הצג בקשה של Touch ID בפתיחת האפליקציה"
   },
   "requirePasswordOnStart": {
-    "message": "Require password or PIN on app start"
+    "message": "לדרוש סיסמה או קוד אישי עם הפעלת היישום"
   },
   "recommendedForSecurity": {
-    "message": "Recommended for security."
+    "message": "מומלץ לשיפור אבטחת מידע."
   },
   "lockWithMasterPassOnRestart": {
     "message": "נעל בעזרת הסיסמה הראשית בהפעלה מחדש"
@@ -1543,6 +1546,10 @@
   "orgRequiresYouToSetPassword": {
     "message": "Your organization requires you to set a master password.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "verificationRequired": {
+    "message": "נדרש אימות",
+    "description": "Default title for the user verification dialog."
   },
   "currentMasterPass": {
     "message": "Current master password"
@@ -1868,6 +1875,42 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Your master password does not meet one or more of your organization policies. In order to access the vault, you must update your master password now. Proceeding will log you out of your current session, requiring you to log back in. Active sessions on other devices may continue to remain active for up to one hour."
+  },
+  "tryAgain": {
+    "message": "לנסות שוב"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "צריך אימות לביצוע הפעולה הזאת. נא להגדיר קוד אישי כדי להמשיך."
+  },
+  "setPin": {
+    "message": "הגדרת קוד אישי"
+  },
+  "verifyWithBiometrics": {
+    "message": "אימות עם זיהוי ביומטרי"
+  },
+  "awaitingConfirmation": {
+    "message": "בהמתנה לאישור"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "לא ניתן להשלים את האימות הביומטרי."
+  },
+  "needADifferentMethod": {
+    "message": "עדיף שיטה אחרת?"
+  },
+  "useMasterPassword": {
+    "message": "להשתמש בסיסמה ראשית"
+  },
+  "usePin": {
+    "message": "להשתמש בקוד אישי"
+  },
+  "useBiometrics": {
+    "message": "להשתמש בזיהוי ביומטרי"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "נא למלא את קוד האימות שנשלח לכתובת הדוא״ל שלך."
+  },
+  "resendCode": {
+    "message": "שליחת הקוד מחדש"
   },
   "hours": {
     "message": "שעות"
@@ -2562,6 +2605,15 @@
   "incorrectUsernameOrPassword": {
     "message": "Incorrect username or password"
   },
+  "incorrectPassword": {
+    "message": "סיסמה שגויה"
+  },
+  "incorrectCode": {
+    "message": "קוד שגוי"
+  },
+  "incorrectPin": {
+    "message": "קוד אישי שגוי"
+  },
   "multifactorAuthenticationFailed": {
     "message": "Multifactor authentication failed"
   },
@@ -2616,5 +2668,9 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Insert the YubiKey associated with your LastPass account into your computer's USB port, then touch its button."
+  },
+  "commonImportFormats": {
+    "message": "תסדירים נפוצים",
+    "description": "Label indicating the most common import formats"
   }
 }

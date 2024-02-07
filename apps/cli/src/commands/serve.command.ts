@@ -1,6 +1,6 @@
 import * as koaMulter from "@koa/multer";
 import * as koaRouter from "@koa/router";
-import * as program from "commander";
+import { OptionValues } from "commander";
 import * as koa from "koa";
 import * as koaBodyParser from "koa-bodyparser";
 import * as koaJson from "koa-json";
@@ -160,10 +160,11 @@ export class ServeCommand {
     this.sendRemovePasswordCommand = new SendRemovePasswordCommand(
       this.main.sendService,
       this.main.sendApiService,
+      this.main.environmentService,
     );
   }
 
-  async run(options: program.OptionValues) {
+  async run(options: OptionValues) {
     const protectOrigin = !options.disableOriginProtection;
     const port = options.port || 8087;
     const hostname = options.hostname || "localhost";

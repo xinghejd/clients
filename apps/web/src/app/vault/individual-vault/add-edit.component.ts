@@ -79,6 +79,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
       organizationService,
       sendApiService,
       dialogService,
+      window,
       datePipe,
     );
   }
@@ -127,6 +128,8 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     this.showPasswordCount = !this.showPasswordCount;
 
     if (this.editMode && this.showPasswordCount) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.eventCollectionService.collect(
         EventType.Cipher_ClientToggledPasswordVisible,
         this.cipherId,
@@ -142,9 +145,9 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
     this.platformUtilsService.launchUri(uri.launchUri);
   }
 
-  copy(value: string, typeI18nKey: string, aType: string) {
+  async copy(value: string, typeI18nKey: string, aType: string): Promise<boolean> {
     if (value == null) {
-      return;
+      return false;
     }
 
     this.platformUtilsService.copyToClipboard(value, { window: window });
@@ -156,16 +159,24 @@ export class AddEditComponent extends BaseAddEditComponent implements OnInit, On
 
     if (this.editMode) {
       if (typeI18nKey === "password") {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.eventCollectionService.collect(EventType.Cipher_ClientCopiedPassword, this.cipherId);
       } else if (typeI18nKey === "securityCode") {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.eventCollectionService.collect(EventType.Cipher_ClientCopiedCardCode, this.cipherId);
       } else if (aType === "H_Field") {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.eventCollectionService.collect(
           EventType.Cipher_ClientCopiedHiddenField,
           this.cipherId,
         );
       }
     }
+
+    return true;
   }
 
   async generatePassword(): Promise<boolean> {

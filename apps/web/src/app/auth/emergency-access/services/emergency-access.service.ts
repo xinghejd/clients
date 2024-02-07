@@ -9,10 +9,8 @@ import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncryptedString } from "@bitwarden/common/platform/models/domain/enc-string";
-import {
-  SymmetricCryptoKey,
-  UserKey,
-} from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -24,7 +22,10 @@ import { EmergencyAccessAcceptRequest } from "../request/emergency-access-accept
 import { EmergencyAccessConfirmRequest } from "../request/emergency-access-confirm.request";
 import { EmergencyAccessInviteRequest } from "../request/emergency-access-invite.request";
 import { EmergencyAccessPasswordRequest } from "../request/emergency-access-password.request";
-import { EmergencyAccessUpdateRequest } from "../request/emergency-access-update.request";
+import {
+  EmergencyAccessUpdateRequest,
+  EmergencyAccessWithIdRequest,
+} from "../request/emergency-access-update.request";
 
 import { EmergencyAccessApiService } from "./emergency-access-api.service";
 
@@ -248,17 +249,25 @@ export class EmergencyAccessService {
     request.newMasterPasswordHash = masterKeyHash;
     request.key = encKey[1].encryptedString;
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.emergencyAccessApiService.postEmergencyAccessPassword(id, request);
   }
 
   /**
-   * Rotates the user key for all existing emergency access.
+   * Returns existing emergency access keys re-encrypted with new user key.
    * Intended for grantor.
    * @param newUserKey the new user key
    */
-  async rotate(newUserKey: UserKey): Promise<void> {
+  async getRotatedKeys(newUserKey: UserKey): Promise<EmergencyAccessWithIdRequest[]> {
+    const requests: EmergencyAccessWithIdRequest[] = [];
     const existingEmergencyAccess =
       await this.emergencyAccessApiService.getEmergencyAccessTrusted();
+
+    if (!existingEmergencyAccess || existingEmergencyAccess.data.length === 0) {
+      return requests;
+    }
+
     // Any Invited or Accepted requests won't have the key yet, so we don't need to update them
     const allowedStatuses = new Set([
       EmergencyAccessStatusType.Confirmed,
@@ -277,16 +286,29 @@ export class EmergencyAccessService {
       // Encrypt new user key with public key
       const encryptedKey = await this.encryptKey(newUserKey, publicKey);
 
-      const updateRequest = new EmergencyAccessUpdateRequest();
+      const updateRequest = new EmergencyAccessWithIdRequest();
+      updateRequest.id = details.id;
       updateRequest.type = details.type;
       updateRequest.waitTimeDays = details.waitTimeDays;
       updateRequest.keyEncrypted = encryptedKey;
-
-      await this.emergencyAccessApiService.putEmergencyAccess(details.id, updateRequest);
+      requests.push(updateRequest);
     }
+    return requests;
   }
 
   private async encryptKey(userKey: UserKey, publicKey: Uint8Array): Promise<EncryptedString> {
     return (await this.cryptoService.rsaEncrypt(userKey.key, publicKey)).encryptedString;
+  }
+
+  /**
+   * @deprecated Nov 6, 2023: Use new Key Rotation Service for posting rotated data.
+   */
+  async postLegacyRotation(requests: EmergencyAccessWithIdRequest[]): Promise<void> {
+    if (requests == null) {
+      return;
+    }
+    for (const request of requests) {
+      await this.emergencyAccessApiService.putEmergencyAccess(request.id, request);
+    }
   }
 }

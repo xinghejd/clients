@@ -17,11 +17,8 @@ import { Utils } from "../../platform/misc/utils";
 import Domain from "../../platform/models/domain/domain-base";
 import { EncArrayBuffer } from "../../platform/models/domain/enc-array-buffer";
 import { EncString } from "../../platform/models/domain/enc-string";
-import {
-  OrgKey,
-  SymmetricCryptoKey,
-  UserKey,
-} from "../../platform/models/domain/symmetric-crypto-key";
+import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
+import { UserKey, OrgKey } from "../../types/key";
 import { CipherService as CipherServiceAbstraction } from "../abstractions/cipher.service";
 import { CipherFileUploadService } from "../abstractions/file-upload/cipher-file-upload.service";
 import { FieldType, UriMatchType } from "../enums";
@@ -53,7 +50,7 @@ import { CipherView } from "../models/view/cipher.view";
 import { FieldView } from "../models/view/field.view";
 import { PasswordHistoryView } from "../models/view/password-history.view";
 
-const CIPHER_KEY_ENC_MIN_SERVER_VER = new SemVer("2023.9.1");
+const CIPHER_KEY_ENC_MIN_SERVER_VER = new SemVer("2024.2.0");
 
 export class CipherService implements CipherServiceAbstraction {
   private sortedCiphersCache: SortedCiphersCache = new SortedCiphersCache(
@@ -293,7 +290,7 @@ export class CipherService implements CipherServiceAbstraction {
     const ciphers = await this.getAll();
     const orgKeys = await this.cryptoService.getOrgKeys();
     const userKey = await this.cryptoService.getUserKeyWithLegacySupport();
-    if (orgKeys?.size === 0 && userKey == null) {
+    if (Object.keys(orgKeys).length === 0 && userKey == null) {
       // return early if there are no keys to decrypt with
       return;
     }
@@ -311,7 +308,7 @@ export class CipherService implements CipherServiceAbstraction {
     const decCiphers = (
       await Promise.all(
         Object.entries(grouped).map(([orgId, groupedCiphers]) =>
-          this.encryptService.decryptItems(groupedCiphers, orgKeys.get(orgId) ?? userKey),
+          this.encryptService.decryptItems(groupedCiphers, orgKeys[orgId] ?? userKey),
         ),
       )
     )
@@ -1130,6 +1127,7 @@ export class CipherService implements CipherServiceAbstraction {
 
         if (model.login.uris != null) {
           cipher.login.uris = [];
+          model.login.uris = model.login.uris.filter((u) => u.uri != null);
           for (let i = 0; i < model.login.uris.length; i++) {
             const loginUri = new LoginUri();
             loginUri.match = model.login.uris[i].match;
@@ -1141,6 +1139,8 @@ export class CipherService implements CipherServiceAbstraction {
               },
               key,
             );
+            const uriHash = await this.encryptService.hash(model.login.uris[i].uri, "sha256");
+            loginUri.uriChecksum = await this.cryptoService.encrypt(uriHash, key);
             cipher.login.uris.push(loginUri);
           }
         }

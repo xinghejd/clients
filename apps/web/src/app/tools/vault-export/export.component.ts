@@ -7,8 +7,6 @@ import { EventCollectionService } from "@bitwarden/common/abstractions/event/eve
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -27,11 +25,6 @@ export class ExportComponent extends BaseExportComponent {
   encryptedExportType = EncryptedExportType;
   protected showFilePassword: boolean;
 
-  protected flexibleCollectionsEnabled$ = this.configService.getFeatureFlag$(
-    FeatureFlag.FlexibleCollections,
-    false,
-  );
-
   constructor(
     i18nService: I18nService,
     platformUtilsService: PlatformUtilsService,
@@ -44,7 +37,6 @@ export class ExportComponent extends BaseExportComponent {
     fileDownloadService: FileDownloadService,
     dialogService: DialogService,
     organizationService: OrganizationService,
-    protected configService: ConfigServiceAbstraction,
   ) {
     super(
       i18nService,
@@ -90,6 +82,8 @@ export class ExportComponent extends BaseExportComponent {
       return;
     }
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.doExport();
   }
 

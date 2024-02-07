@@ -20,18 +20,20 @@ import { NOTIFICATION_BAR_LIFESPAN_MS } from "../constants";
 import AddChangePasswordQueueMessage from "../notification/models/add-change-password-queue-message";
 import AddLoginQueueMessage from "../notification/models/add-login-queue-message";
 import AddLoginRuntimeMessage from "../notification/models/add-login-runtime-message";
+import AddRequestFilelessImportQueueMessage from "../notification/models/add-request-fileless-import-queue-message";
 import AddUnlockVaultQueueMessage from "../notification/models/add-unlock-vault-queue-message";
 import ChangePasswordRuntimeMessage from "../notification/models/change-password-runtime-message";
 import LockedVaultPendingNotificationsItem from "../notification/models/locked-vault-pending-notifications-item";
-import { NotificationQueueMessageType } from "../notification/models/notification-queue-message-type";
+import {
+  NotificationQueueMessageType,
+  NotificationTypes,
+} from "../notification/models/notification-queue-message-type";
 import { AutofillService } from "../services/abstractions/autofill.service";
 
+import { NotificationQueueMessageItem } from "./abstractions/notification.background";
+
 export default class NotificationBackground {
-  private notificationQueue: (
-    | AddLoginQueueMessage
-    | AddChangePasswordQueueMessage
-    | AddUnlockVaultQueueMessage
-  )[] = [];
+  private notificationQueue: NotificationQueueMessageItem[] = [];
 
   constructor(
     private autofillService: AutofillService,
@@ -51,6 +53,8 @@ export default class NotificationBackground {
     BrowserApi.messageListener(
       "notification.background",
       (msg: any, sender: chrome.runtime.MessageSender) => {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.processMessage(msg, sender);
       },
     );
@@ -154,6 +158,8 @@ export default class NotificationBackground {
   private cleanupNotificationQueue() {
     for (let i = this.notificationQueue.length - 1; i >= 0; i--) {
       if (this.notificationQueue[i].expires < new Date()) {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         BrowserApi.tabSendMessageData(this.notificationQueue[i].tab, "closeNotificationBar");
         this.notificationQueue.splice(i, 1);
       }
@@ -162,53 +168,51 @@ export default class NotificationBackground {
   }
 
   private async doNotificationQueueCheck(tab: chrome.tabs.Tab): Promise<void> {
-    if (tab == null) {
+    const tabDomain = Utils.getDomain(tab?.url);
+    if (!tabDomain) {
       return;
     }
 
-    const tabDomain = Utils.getDomain(tab.url);
-    if (tabDomain == null) {
-      return;
+    const queueMessage = this.notificationQueue.find(
+      (message) => message.tab.id === tab.id && message.domain === tabDomain,
+    );
+    if (queueMessage) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.sendNotificationQueueMessage(tab, queueMessage);
+    }
+  }
+
+  private async sendNotificationQueueMessage(
+    tab: chrome.tabs.Tab,
+    notificationQueueMessage: NotificationQueueMessageItem,
+  ) {
+    const notificationType = notificationQueueMessage.type;
+    const webVaultURL =
+      notificationType !== NotificationQueueMessageType.UnlockVault
+        ? this.environmentService.getWebVaultUrl()
+        : null;
+    const typeData: Record<string, any> = {
+      isVaultLocked: notificationQueueMessage.wasVaultLocked,
+      theme: await this.getCurrentTheme(),
+      webVaultURL,
+    };
+
+    switch (notificationType) {
+      case NotificationQueueMessageType.AddLogin:
+        typeData.removeIndividualVault = await this.removeIndividualVault();
+        break;
+      case NotificationQueueMessageType.RequestFilelessImport:
+        typeData.importType = (
+          notificationQueueMessage as AddRequestFilelessImportQueueMessage
+        ).importType;
+        break;
     }
 
-    for (let i = 0; i < this.notificationQueue.length; i++) {
-      if (
-        this.notificationQueue[i].tab.id !== tab.id ||
-        this.notificationQueue[i].domain !== tabDomain
-      ) {
-        continue;
-      }
-
-      if (this.notificationQueue[i].type === NotificationQueueMessageType.AddLogin) {
-        BrowserApi.tabSendMessageData(tab, "openNotificationBar", {
-          type: "add",
-          typeData: {
-            isVaultLocked: this.notificationQueue[i].wasVaultLocked,
-            theme: await this.getCurrentTheme(),
-            removeIndividualVault: await this.removeIndividualVault(),
-            webVaultURL: await this.environmentService.getWebVaultUrl(),
-          },
-        });
-      } else if (this.notificationQueue[i].type === NotificationQueueMessageType.ChangePassword) {
-        BrowserApi.tabSendMessageData(tab, "openNotificationBar", {
-          type: "change",
-          typeData: {
-            isVaultLocked: this.notificationQueue[i].wasVaultLocked,
-            theme: await this.getCurrentTheme(),
-            webVaultURL: await this.environmentService.getWebVaultUrl(),
-          },
-        });
-      } else if (this.notificationQueue[i].type === NotificationQueueMessageType.UnlockVault) {
-        BrowserApi.tabSendMessageData(tab, "openNotificationBar", {
-          type: "unlock",
-          typeData: {
-            isVaultLocked: this.notificationQueue[i].wasVaultLocked,
-            theme: await this.getCurrentTheme(),
-          },
-        });
-      }
-      break;
-    }
+    await BrowserApi.tabSendMessageData(tab, "openNotificationBar", {
+      type: NotificationTypes[notificationType],
+      typeData,
+    });
   }
 
   private async getCurrentTheme() {
@@ -253,6 +257,8 @@ export default class NotificationBackground {
         return;
       }
 
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.pushAddLoginToQueue(loginDomain, loginInfo, tab, true);
       return;
     }
@@ -266,6 +272,8 @@ export default class NotificationBackground {
         return;
       }
 
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.pushAddLoginToQueue(loginDomain, loginInfo, tab);
     } else if (
       usernameMatches.length === 1 &&
@@ -276,6 +284,8 @@ export default class NotificationBackground {
       if (disabledChangePassword) {
         return;
       }
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.pushChangePasswordToQueue(usernameMatches[0].id, loginDomain, loginInfo.password, tab);
     }
   }
@@ -309,6 +319,8 @@ export default class NotificationBackground {
     }
 
     if ((await this.authService.getAuthStatus()) < AuthenticationStatus.Unlocked) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.pushChangePasswordToQueue(null, loginDomain, changeData.newPassword, tab, true);
       return;
     }
@@ -326,6 +338,8 @@ export default class NotificationBackground {
       id = ciphers[0].id;
     }
     if (id != null) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.pushChangePasswordToQueue(id, loginDomain, changeData.newPassword, tab);
     }
   }
@@ -351,11 +365,32 @@ export default class NotificationBackground {
     }
 
     const loginDomain = Utils.getDomain(tab.url);
-    if (!loginDomain) {
+    if (loginDomain) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.pushUnlockVaultToQueue(loginDomain, tab);
+    }
+  }
+
+  /**
+   * Sets up a notification to request a fileless import when the user
+   * attempts to trigger an import from a third party website.
+   *
+   * @param tab - The tab that we are sending the notification to
+   * @param importType - The type of import that is being requested
+   */
+  async requestFilelessImport(tab: chrome.tabs.Tab, importType: string) {
+    const currentAuthStatus = await this.authService.getAuthStatus();
+    if (currentAuthStatus !== AuthenticationStatus.Unlocked || this.notificationQueue.length) {
       return;
     }
 
-    this.pushUnlockVaultToQueue(loginDomain, tab);
+    const loginDomain = Utils.getDomain(tab.url);
+    if (loginDomain) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.pushRequestFilelessImportToQueue(loginDomain, tab, importType);
+    }
   }
 
   private async pushChangePasswordToQueue(
@@ -389,6 +424,32 @@ export default class NotificationBackground {
       expires: new Date(new Date().getTime() + 0.5 * 60000), // 30 seconds
       wasVaultLocked: true,
     };
+    await this.sendNotificationQueueMessage(tab, message);
+  }
+
+  /**
+   * Pushes a request to start a fileless import to the notification queue.
+   * This will display a notification bar to the user, prompting them to
+   * start the import.
+   *
+   * @param loginDomain - The domain of the tab that we are sending the notification to
+   * @param tab - The tab that we are sending the notification to
+   * @param importType - The type of import that is being requested
+   */
+  private async pushRequestFilelessImportToQueue(
+    loginDomain: string,
+    tab: chrome.tabs.Tab,
+    importType?: string,
+  ) {
+    this.removeTabFromNotificationQueue(tab);
+    const message: AddRequestFilelessImportQueueMessage = {
+      type: NotificationQueueMessageType.RequestFilelessImport,
+      domain: loginDomain,
+      tab,
+      expires: new Date(new Date().getTime() + 0.5 * 60000), // 30 seconds
+      wasVaultLocked: false,
+      importType,
+    };
     this.notificationQueue.push(message);
     await this.checkNotificationQueue(tab);
     this.removeTabFromNotificationQueue(tab);
@@ -407,6 +468,8 @@ export default class NotificationBackground {
       }
 
       this.notificationQueue.splice(i, 1);
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       BrowserApi.tabSendMessageData(tab, "closeNotificationBar");
 
       if (queueMessage.type === NotificationQueueMessageType.ChangePassword) {
@@ -440,6 +503,8 @@ export default class NotificationBackground {
 
         const cipher = await this.cipherService.encrypt(newCipher);
         await this.cipherService.createWithServer(cipher);
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         BrowserApi.tabSendMessageData(tab, "addedCipher");
       }
     }
@@ -455,6 +520,8 @@ export default class NotificationBackground {
 
     if (edit) {
       await this.editItem(cipherView, tab);
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       BrowserApi.tabSendMessage(tab, "editedCipher");
       return;
     }
@@ -507,6 +574,8 @@ export default class NotificationBackground {
       }
 
       this.notificationQueue.splice(i, 1);
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       BrowserApi.tabSendMessageData(tab, "closeNotificationBar");
 
       const hostname = Utils.getHostname(tab.url);

@@ -36,8 +36,6 @@ describe("accountService", () => {
     sut = new AccountServiceImplementation(messagingService, logService, globalStateProvider);
 
     accountsState = globalStateProvider.getFake(ACCOUNT_ACCOUNTS);
-    // initialize to empty
-    accountsState.stateSubject.next({});
     activeAccountIdState = globalStateProvider.getFake(ACCOUNT_ACTIVE_ACCOUNT_ID);
   });
 
@@ -57,7 +55,10 @@ describe("accountService", () => {
       accountsState.stateSubject.next({ [userId]: userInfo(AuthenticationStatus.Unlocked) });
       activeAccountIdState.stateSubject.next(userId);
 
-      expect(emissions).toEqual([{ id: userId, ...userInfo(AuthenticationStatus.Unlocked) }]);
+      expect(emissions).toEqual([
+        undefined, // initial value
+        { id: userId, ...userInfo(AuthenticationStatus.Unlocked) },
+      ]);
     });
 
     it("should update the status if the account status changes", async () => {
@@ -201,6 +202,8 @@ describe("accountService", () => {
     });
 
     it("should throw if the account does not exist", () => {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       expect(sut.switchAccount("unknown" as UserId)).rejects.toThrowError("Account does not exist");
     });
   });

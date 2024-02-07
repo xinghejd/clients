@@ -1,19 +1,15 @@
+import { Observable } from "rxjs";
+
 import { ProfileOrganizationResponse } from "../../admin-console/models/response/profile-organization.response";
 import { ProfileProviderOrganizationResponse } from "../../admin-console/models/response/profile-provider-organization.response";
 import { ProfileProviderResponse } from "../../admin-console/models/response/profile-provider.response";
 import { KdfConfig } from "../../auth/models/domain/kdf-config";
+import { OrganizationId, ProviderId } from "../../types/guid";
+import { UserKey, MasterKey, OrgKey, ProviderKey, PinKey, CipherKey } from "../../types/key";
 import { KeySuffixOptions, KdfType, HashPurpose } from "../enums";
 import { EncArrayBuffer } from "../models/domain/enc-array-buffer";
 import { EncString } from "../models/domain/enc-string";
-import {
-  CipherKey,
-  MasterKey,
-  OrgKey,
-  PinKey,
-  ProviderKey,
-  SymmetricCryptoKey,
-  UserKey,
-} from "../models/domain/symmetric-crypto-key";
+import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
 
 export abstract class CryptoService {
   /**
@@ -29,14 +25,12 @@ export abstract class CryptoService {
    * kicking off a refresh of any additional keys
    * (such as auto, biometrics, or pin)
    */
-  /**
-   * Check if the current sessions has ever had a user key, i.e. has ever been unlocked/decrypted.
-   * This is key for differentiating between TDE locked and standard locked states.
-   * @param userId The desired user
-   * @returns True if the current session has ever had a user key
-   */
-  getEverHadUserKey: (userId?: string) => Promise<boolean>;
   refreshAdditionalKeys: () => Promise<void>;
+  /**
+   * Observable value that returns whether or not the currently active user has ever had auser key,
+   * i.e. has ever been unlocked/decrypted. This is key for differentiating between TDE locked and standard locked states.
+   */
+  everHadUserKey$: Observable<boolean>;
   /**
    * Retrieves the user key
    * @param userId The desired user
@@ -206,16 +200,19 @@ export abstract class CryptoService {
     orgs: ProfileOrganizationResponse[],
     providerOrgs: ProfileProviderOrganizationResponse[],
   ) => Promise<void>;
+  activeUserOrgKeys$: Observable<Record<OrganizationId, OrgKey>>;
   /**
    * Returns the organization's symmetric key
+   * @deprecated Use the observable activeUserOrgKeys$ and `map` to the desired orgKey instead
    * @param orgId The desired organization
    * @returns The organization's symmetric key
    */
   getOrgKey: (orgId: string) => Promise<OrgKey>;
   /**
-   * @returns A map of the organization Ids to their symmetric keys
+   * @deprecated Use the observable activeUserOrgKeys$ instead
+   * @returns A record of the organization Ids to their symmetric keys
    */
-  getOrgKeys: () => Promise<Map<string, SymmetricCryptoKey>>;
+  getOrgKeys: () => Promise<Record<string, SymmetricCryptoKey>>;
   /**
    * Uses the org key to derive a new symmetric key for encrypting data
    * @param orgKey The organization's symmetric key
@@ -232,6 +229,7 @@ export abstract class CryptoService {
    * provider keys currently in memory
    * @param providers The providers to set keys for
    */
+  activeUserProviderKeys$: Observable<Record<ProviderId, ProviderKey>>;
   setProviderKeys: (orgs: ProfileProviderResponse[]) => Promise<void>;
   /**
    * @param providerId The desired provider
@@ -239,9 +237,9 @@ export abstract class CryptoService {
    */
   getProviderKey: (providerId: string) => Promise<ProviderKey>;
   /**
-   * @returns A map of the provider Ids to their symmetric keys
+   * @returns A record of the provider Ids to their symmetric keys
    */
-  getProviderKeys: () => Promise<Map<string, ProviderKey>>;
+  getProviderKeys: () => Promise<Record<ProviderId, ProviderKey>>;
   /**
    * @param memoryOnly Clear only the in-memory keys
    * @param userId The desired user

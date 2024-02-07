@@ -656,9 +656,6 @@
   "passkeySuccessfullyCreated": {
     "message": "Passkey erfolgreich erstellt!"
   },
-  "customName": {
-    "message": "Benutzerdefinierter Name"
-  },
   "customPasskeyNameInfo": {
     "message": "Benenne deinen Passkey, um ihn zu identifizieren."
   },
@@ -675,7 +672,7 @@
     "message": "Verschlüsselung nicht unterstützt"
   },
   "enablePasskeyEncryption": {
-    "message": "Set up encryption"
+    "message": "Verschlüsselung einrichten"
   },
   "usedForEncryption": {
     "message": "Wird für die Verschlüsselung verwendet"
@@ -1075,7 +1072,7 @@
     "message": "Exportieren"
   },
   "exportFrom": {
-    "message": "Export from"
+    "message": "Exportieren ab"
   },
   "exportVault": {
     "message": "Tresor exportieren"
@@ -1582,7 +1579,7 @@
     "message": "Verwalten"
   },
   "canManage": {
-    "message": "Can manage"
+    "message": "Darf verwalten"
   },
   "disable": {
     "message": "Deaktivieren"
@@ -2317,7 +2314,7 @@
     "message": "Kundensupport kontaktieren"
   },
   "contactSupportShort": {
-    "message": "Contact Support"
+    "message": "Support kontaktieren"
   },
   "updatedPaymentMethod": {
     "message": "Zahlungsart aktualisiert."
@@ -2527,6 +2524,15 @@
   },
   "trialThankYou": {
     "message": "Vielen Dank, dass du dich bei Bitwarden für $PLAN$ angemeldet hast!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "trialSecretsManagerThankYou": {
+    "message": "Danke für die Anmeldung beim Bitwarden Secrets Manager für $PLAN$!",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -2818,6 +2824,9 @@
   },
   "incorrectCode": {
     "message": "Falscher Code"
+  },
+  "incorrectPin": {
+    "message": "Falsche PIN"
   },
   "exportedVault": {
     "message": "Tresor exportiert."
@@ -3531,7 +3540,7 @@
     }
   },
   "subscriptionUserSeatsWithoutAdditionalSeatsOption": {
-    "message": "You can invite up to $COUNT$ members for no additional charge. Contact Customer Support to upgrade your plan and invite more members.",
+    "message": "Du kannst bis zu $COUNT$ Mitglieder ohne zusätzliche Kosten einladen. Wende dich an den Kundensupport, um dein Abonnement zu erweitern und mehr Mitglieder einzuladen.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -3548,12 +3557,12 @@
       }
     }
   },
-  "subscriptionFamiliesPlan": {
-    "message": "Du kannst nicht mehr als $COUNT$ Benutzer einladen ohne dein Abonnement zu upgraden. Bitte kontaktiere dafür den Kundensupport.",
+  "subscriptionUpgrade": {
+    "message": "Du kannst nicht mehr als $COUNT$ Mitglieder einladen ohne dein Abonnement upzugraden.",
     "placeholders": {
       "count": {
         "content": "$1",
-        "example": "6"
+        "example": "2"
       }
     }
   },
@@ -3828,15 +3837,6 @@
   "couldNotChargeCardPayInvoice": {
     "message": "Wir konnten deine Karte nicht belasten. Bitte sieh dir die unten aufgeführte unbezahlte Rechnung an und begleiche sie."
   },
-  "inAppPurchase": {
-    "message": "In-App-Kauf"
-  },
-  "cannotPerformInAppPurchase": {
-    "message": "Du kannst diese Aktion nicht durchführen, wenn du eine In-App-Kauf Zahlungsmethode nutzt."
-  },
-  "manageSubscriptionFromStore": {
-    "message": "Du musst dein Abonnement im entsprechenden App Store verwalten, über den der In-App-Kauf getätigt wurde."
-  },
   "minLength": {
     "message": "Mindestlänge"
   },
@@ -4038,13 +4038,13 @@
     "message": "Alle Teams-Funktionen, plus:"
   },
   "includeAllTeamsStarterFeatures": {
-    "message": "All Teams Starter features, plus:"
+    "message": "Alle Teams Starter-Funktionen, plus:"
   },
   "chooseMonthlyOrAnnualBilling": {
     "message": "Monatliche oder jährliche Abrechnung wählen"
   },
   "abilityToAddMoreThanNMembers": {
-    "message": "Ability to add more than $COUNT$ members",
+    "message": "Möglichkeit mehr als $COUNT$ Mitglieder hinzuzufügen",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -5187,6 +5187,12 @@
   },
   "spValidateCertificates": {
     "message": "Zertifikate validieren"
+  },
+  "spUniqueEntityId": {
+    "message": "Lege eine eindeutige SP-Entitäts-ID fest"
+  },
+  "spUniqueEntityIdDesc": {
+    "message": "Generiere eine Kennung, die eindeutig für deine Organisation ist"
   },
   "idpEntityId": {
     "message": "Entitäts-ID"
@@ -6610,6 +6616,39 @@
       }
     }
   },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Für diese Aktion ist eine Verifizierung erforderlich. Lege eine PIN fest, um fortzufahren."
+  },
+  "setPin": {
+    "message": "PIN festlegen"
+  },
+  "verifyWithBiometrics": {
+    "message": "Mit Biometrie verifizieren"
+  },
+  "awaitingConfirmation": {
+    "message": "Warten auf Bestätigung"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Biometrische Verifizierung konnte nicht abgeschlossen werden."
+  },
+  "needADifferentMethod": {
+    "message": "Brauchst du eine andere Methode?"
+  },
+  "useMasterPassword": {
+    "message": "Master-Passwort verwenden"
+  },
+  "usePin": {
+    "message": "PIN verwenden"
+  },
+  "useBiometrics": {
+    "message": "Biometrie verwenden"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Gib den Verifizierungscode ein, der an deine E-Mail-Adresse gesendet wurde."
+  },
+  "resendCode": {
+    "message": "Code erneut senden"
+  },
   "membersColumnHeader": {
     "message": "Mitglied/Gruppe"
   },
@@ -6668,7 +6707,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Contact Customer Support to upgrade your plan and invite more members.",
+    "message": "Teams Starter-Abonnements können bis zu $SEATCOUNT$ Mitglieder enthalten. Upgrade, um mehr Mitglieder einzuladen.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -6677,7 +6716,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedNoManageBilling": {
-    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade your plan and invite more members.",
+    "message": "Teams Starter-Abonnements können bis zu $SEATCOUNT$ Mitglieder haben. Kontaktiere deinen Organisationseigentümer, um dein Abonnement zu aktualisieren und mehr Mitglieder einzuladen.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -6820,9 +6859,6 @@
   "secretsManager": {
     "message": "Secrets Manager"
   },
-  "secretsManagerBeta": {
-    "message": "Secrets Manager Beta"
-  },
   "secretsManagerAccessDescription": {
     "message": "Benutzerzugriff zum Secrets Manager aktivieren"
   },
@@ -6925,12 +6961,6 @@
   },
   "selectionIsRequired": {
     "message": "Auswahl ist erforderlich."
-  },
-  "secretsManagerSubscriptionDesc": {
-    "message": "Aktiviere den Organisationszugriff auf den Secrets Manager kostenlos während des Beta-Programms. Benutzer können in \"Mitglieder\" Zugriff auf die Beta erhalten."
-  },
-  "secretsManagerEnable": {
-    "message": "Secrets Manager Beta aktivieren"
   },
   "saPeopleWarningTitle": {
     "message": "Zugriffstoken weiterhin verfügbar"
@@ -7092,6 +7122,10 @@
       }
     }
   },
+  "verificationRequired": {
+    "message": "Verifizierung erforderlich",
+    "description": "Default title for the user verification dialog."
+  },
   "recoverAccount": {
     "message": "Konto wiederherstellen"
   },
@@ -7200,6 +7234,15 @@
       }
     }
   },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerFor": {
+    "message": "Starte deine 7-tägige kostenlose Testversion des Bitwarden Secrets Managers für $ORG$",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
   "next": {
     "message": "Weiter"
   },
@@ -7257,7 +7300,7 @@
     "message": "Für Entwicklungs- und DevOps-Teams zur Verwaltung von Geheimnissen während des gesamten Softwareentwicklungszyklus."
   },
   "free2PersonOrganization": {
-    "message": "Free 2-person Organizations"
+    "message": "Kostenlose Organisationen mit 2 Personen"
   },
   "unlimitedSecrets": {
     "message": "Unbegrenzte Geheimnisse"
@@ -7320,19 +7363,19 @@
     }
   },
   "collectionManagement": {
-    "message": "Collection management"
+    "message": "Verwaltung der Sammlungen"
   },
   "collectionManagementDesc": {
-    "message": "Manage the collection behavior for the organization"
+    "message": "Verwalte das Sammlungsverhalten für die Organisation"
   },
   "limitCollectionCreationDeletionDesc": {
     "message": "Sammlungserstellung und -löschung auf Eigentümer und Administratoren beschränken"
   },
   "allowAdminAccessToAllCollectionItemsDesc": {
-    "message": "Owners and admins can manage all collections and items"
+    "message": "Besitzer und Administratoren können alle Sammlungen und Einträge verwalten"
   },
-  "collectionManagementUpdated": {
-    "message": "Collection management behavior saved"
+  "updatedCollectionManagement": {
+    "message": "Einstellung für die Verwaltung der Sammlungen aktualisiert"
   },
   "passwordManagerPlanPrice": {
     "message": "Passwort-Manager Abonnementpreis"
@@ -7344,7 +7387,7 @@
     "message": "Passwort-Manager"
   },
   "freeOrganization": {
-    "message": "Free Organization"
+    "message": "Kostenlose Organisation"
   },
   "limitServiceAccounts": {
     "message": "Dienstkonten beschränken (optional)"
@@ -7360,22 +7403,6 @@
   },
   "loggedInExclamation": {
     "message": "Angemeldet!"
-  },
-  "smBetaEndedDesc": {
-    "message": "Die Secrets Manager Beta endete am $BETA_ENDING_DATE$. Du hast $DAYS$ Tage Zeit, um den Secrets Manager zu deinem kostenpflichtigen Abonnement hinzuzufügen und den Zugriff auf die Daten des Secrets Manager zu erhalten. Kontaktiere den Kundensupport, um den Secrets Manager zu deinem Abonnement hinzuzufügen.",
-    "placeholders": {
-      "beta_ending_date": {
-        "content": "$1",
-        "example": "August 1, 2023"
-      },
-      "days": {
-        "content": "$2",
-        "example": "11"
-      }
-    }
-  },
-  "betaEnding": {
-    "message": "Beta-Ende"
   },
   "beta": {
     "message": "Beta"
@@ -7396,16 +7423,10 @@
     "message": "Hast du bereits ein Konto?"
   },
   "skipToContent": {
-    "message": "Skip to content"
-  },
-  "customBillingStart": {
-    "message": "Custom billing is not reflected. Visit the "
-  },
-  "customBillingEnd": {
-    "message": " page for latest invoicing."
+    "message": "Zum Inhalt wechseln"
   },
   "managePermissionRequired": {
-    "message": "At least one member or group must have can manage permission."
+    "message": "Mindestens ein Mitglied oder eine Gruppe muss die \"Darf verwalten\"-Berechtigung besitzen."
   },
   "typePasskey": {
     "message": "Passkey"
@@ -7417,7 +7438,7 @@
     "message": "Der Passkey wird nicht in den duplizierten Eintrag kopiert. Möchtest du mit dem Duplizieren dieses Eintrags fortfahren?"
   },
   "modifiedCollectionManagement": {
-    "message": "Modified collection management setting $ID$.",
+    "message": "Sammlungsverwaltungs-Einstellung bearbeitet $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -7447,7 +7468,50 @@
   "collectionAccessRestricted": {
     "message": "Zugriff auf Sammlungen ist eingeschränkt"
   },
+  "grantCollectionAccess": {
+    "message": "Gewähre Gruppen oder Mitgliedern Zugriff auf diese Sammlung."
+  },
+  "adminCollectionAccess": {
+    "message": "Administratoren können auf Sammlungen zugreifen und diese verwalten."
+  },
   "serviceAccountAccessUpdated": {
     "message": "Zugriff zum Dienstkonto aktualisiert"
+  },
+  "commonImportFormats": {
+    "message": "Gängigste Formate",
+    "description": "Label indicating the most common import formats"
+  },
+  "maintainYourSubscription": {
+    "message": "Um dein Abonnement für $ORG$ zu erhalten, ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Example Inc."
+      }
+    }
+  },
+  "addAPaymentMethod": {
+    "message": "füge eine Zahlungsmethode hinzu",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
+  },
+  "collectionEnhancementsDesc": {
+    "message": "Füge neue Einstellungen und Berechtigungen für zusätzliche Flexibilität hinzu. Ersetze die Rolle des Managers durch die Berechtigung \"kann verwalten\" und führe Optionen ein, die es Benutzern ermöglichen, Sammlungen zu erstellen sowie den administrativen Zugriff auf Sammlungen zu beschränken.",
+    "description": "This describes new features and improvements for user roles and collections"
+  },
+  "collectionEnhancementsLearnMore": {
+    "message": "Erfahre mehr über die Verwaltung der Sammlungen"
+  },
+  "organizationInformation": {
+    "message": "Organisationsinformationen"
+  },
+  "confirmationDetails": {
+    "message": "Details zur Bestätigung"
+  },
+  "smFreeTrialThankYou": {
+    "message": "Vielen Dank, dass du dich für den Bitwarden Secrets Manager angemeldet hast!"
+  },
+  "smFreeTrialConfirmationEmail": {
+    "message": "Wir haben eine Bestätigungs-E-Mail an deine E-Mail-Adresse gesendet an "
   }
 }

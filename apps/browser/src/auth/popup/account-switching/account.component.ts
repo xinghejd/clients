@@ -35,6 +35,8 @@ export class AccountComponent {
     await this.accountSwitcherService.selectAccount(id);
 
     if (id === this.specialAccountAddId) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["home"]);
     } else {
       this.location.back();
@@ -42,7 +44,7 @@ export class AccountComponent {
   }
 
   get status() {
-    if (this.account.isActive && this.account.status !== AuthenticationStatus.Locked) {
+    if (this.account.isActive) {
       return { text: this.i18nService.t("active"), icon: "bwi-check-circle" };
     }
 
