@@ -1,6 +1,7 @@
 import {
   Observable,
   ReplaySubject,
+  Subject,
   defer,
   filter,
   firstValueFrom,
@@ -58,11 +59,15 @@ export class ForegroundDerivedState<TTo> implements DerivedState<TTo> {
 
     this.port = chrome.runtime.connect({ name: this.deriveDefinition.buildCacheKey() });
 
-    this.backgroundResponses$ = fromChromeEvent(this.port.onMessage).pipe(
-      map(([message]) => message as DerivedStateMessage),
+    const backgroundResponses = new Subject<DerivedStateMessage>();
+    this.port.onMessage.addListener((message) => {
+      backgroundResponses.next(message as DerivedStateMessage);
+    });
+
+    return backgroundResponses.asObservable().pipe(
+      map((message) => message as DerivedStateMessage),
       filter((message) => message.originator === "background"),
     );
-    return this.backgroundResponses$;
   }
 
   private async delegateToBackground(action: DerivedStateActions, data: TTo): Promise<void> {

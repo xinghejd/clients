@@ -1,4 +1,4 @@
-import { Observable, firstValueFrom, map } from "rxjs";
+import { Observable, firstValueFrom, map, tap } from "rxjs";
 
 import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
@@ -31,7 +31,16 @@ export class FolderService implements InternalFolderServiceAbstraction {
   ) {
     this.encryptedFoldersState = this.stateProvider.getActive(FOLDER_ENCRYPTED_FOLDERS);
     this.decryptedFoldersState = this.stateProvider.getDerived(
-      this.encryptedFoldersState.state$,
+      this.encryptedFoldersState.state$.pipe(
+        tap({
+          subscribe: () => console.log("encrypted Folders subscribe"),
+          next: (folders) => console.log("encrypted Folders next", folders),
+          unsubscribe: () => console.log("encrypted Folders unsubscribed"),
+          complete: () => console.log("encrypted Folders complete"),
+          finalize: () => console.log("encrypted Folders finalize"),
+          error: (err) => console.error("encrypted Folders error", err),
+        }),
+      ),
       FOLDER_DECRYPTED_FOLDERS,
       { folderService: this, cryptoService: this.cryptoService },
     );
