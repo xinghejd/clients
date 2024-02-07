@@ -17,7 +17,7 @@ export default class WebRequestBackground {
     private authService: AuthService,
   ) {
     if (BrowserApi.manifestVersion === 2) {
-      this.webRequest = (window as any).chrome.webRequest;
+      this.webRequest = chrome.webRequest;
     }
     this.isFirefox = platformUtilsService.isFirefox();
   }
