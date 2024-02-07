@@ -1,11 +1,18 @@
 import { DeviceType } from "@bitwarden/common/enums";
 
+import { BrowserApi } from "../browser/browser-api";
+
 import BrowserPlatformUtilsService from "./browser-platform-utils.service";
 
 describe("Browser Utils Service", () => {
+  let browserPlatformUtilsService: BrowserPlatformUtilsService;
+  beforeEach(() => {
+    (window as any).matchMedia = jest.fn().mockReturnValueOnce({});
+    browserPlatformUtilsService = new BrowserPlatformUtilsService(null, null, null, window);
+  });
+
   describe("getBrowser", () => {
     const originalUserAgent = navigator.userAgent;
-
     // Reset the userAgent.
     afterAll(() => {
       Object.defineProperty(navigator, "userAgent", {
@@ -13,10 +20,8 @@ describe("Browser Utils Service", () => {
       });
     });
 
-    let browserPlatformUtilsService: BrowserPlatformUtilsService;
     beforeEach(() => {
       (window as any).matchMedia = jest.fn().mockReturnValueOnce({});
-      browserPlatformUtilsService = new BrowserPlatformUtilsService(null, null, null, window);
     });
 
     afterEach(() => {
@@ -84,6 +89,28 @@ describe("Browser Utils Service", () => {
       });
 
       expect(browserPlatformUtilsService.getDevice()).toBe(DeviceType.VivaldiExtension);
+    });
+  });
+
+  describe("isViewOpen", () => {
+    it("returns false if a heartbeat response is not received", async () => {
+      BrowserApi.sendMessageWithResponse = jest.fn().mockResolvedValueOnce(undefined);
+
+      const isViewOpen = await browserPlatformUtilsService.isViewOpen();
+
+      expect(isViewOpen).toBe(false);
+    });
+
+    it("returns true if a heartbeat response is received", async () => {
+      BrowserApi.sendMessageWithResponse = jest
+        .fn()
+        .mockImplementationOnce((subscriber) =>
+          Promise.resolve((subscriber === "checkVaultPopupHeartbeat") as any),
+        );
+
+      const isViewOpen = await browserPlatformUtilsService.isViewOpen();
+
+      expect(isViewOpen).toBe(true);
     });
   });
 });
