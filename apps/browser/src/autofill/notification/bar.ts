@@ -129,12 +129,12 @@ function load() {
     });
   });
 
-  window.addEventListener("resize", adjustHeight);
+  globalThis.addEventListener("resize", adjustHeight);
   adjustHeight();
 }
 
 function getQueryVariable(variable: string) {
-  const query = window.location.search.substring(1);
+  const query = globalThis.location.search.substring(1);
   const vars = query.split("&");
 
   for (let i = 0; i < vars.length; i++) {
@@ -330,7 +330,7 @@ function adjustHeight() {
 function setNotificationBarTheme() {
   let theme = getQueryVariable("theme");
   if (theme === ThemeType.System) {
-    theme = window.matchMedia("(prefers-color-scheme: dark)").matches
+    theme = globalThis.matchMedia("(prefers-color-scheme: dark)").matches
       ? ThemeType.Dark
       : ThemeType.Light;
   }

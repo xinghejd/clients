@@ -246,7 +246,7 @@
           "error",
           {
             "name": "window",
-            "message": "The `window` object is not available in service workers and may not be available within the background script. Consider using `self` or another global property instead."
+            "message": "The `window` object is not available in service workers and may not be available within the background script. Consider using `self`, `globalThis`, or another global property instead."
           }
         ]
       }

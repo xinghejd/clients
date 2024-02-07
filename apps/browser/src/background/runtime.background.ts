@@ -86,7 +86,7 @@ export default class RuntimeBackground {
 
     BrowserApi.messageListener("runtime.background", backgroundMessageListener);
     if (this.main.popupOnlyContext) {
-      (window as any).bitwardenBackgroundMessageListener = backgroundMessageListener;
+      (globalThis as any).bitwardenBackgroundMessageListener = backgroundMessageListener;
     }
   }
 
@@ -172,6 +172,8 @@ export default class RuntimeBackground {
               msg.sender === "autofill_cmd",
             );
             if (totpCode != null) {
+              // FIXME: Usage of `window` will be removed the copyToClipboard method is refactored for mv3 - PM-5880
+              // eslint-disable-next-line no-restricted-globals
               this.platformUtilsService.copyToClipboard(totpCode, { window: window });
             }
             break;
@@ -261,6 +263,8 @@ export default class RuntimeBackground {
         });
         break;
       case "getClickedElementResponse":
+        // FIXME: Usage of `window` will be removed the copyToClipboard method is refactored for mv3 - PM-5880
+        // eslint-disable-next-line no-restricted-globals
         this.platformUtilsService.copyToClipboard(msg.identifier, { window: window });
         break;
       case "triggerFido2ContentScriptInjection":
@@ -319,6 +323,8 @@ export default class RuntimeBackground {
     });
 
     if (totpCode != null) {
+      // FIXME: Usage of `window` will be removed the copyToClipboard method is refactored for mv3 - PM-5880
+      // eslint-disable-next-line no-restricted-globals
       this.platformUtilsService.copyToClipboard(totpCode, { window: window });
     }
 

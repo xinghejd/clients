@@ -63,6 +63,8 @@ export default class CommandsBackground {
   private async generatePasswordToClipboard() {
     const options = (await this.passwordGenerationService.getOptions())?.[0] ?? {};
     const password = await this.passwordGenerationService.generatePassword(options);
+    // FIXME: Usage of `window` will be removed the copyToClipboard method is refactored for mv3 - PM-5880
+    // eslint-disable-next-line no-restricted-globals
     this.platformUtilsService.copyToClipboard(password, { window: window });
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises

@@ -167,7 +167,7 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
   ): AutofillPageDetails {
     return {
       title: document.title,
-      url: (document.defaultView || window).location.href,
+      url: (document.defaultView || globalThis).location.href,
       documentUrl: document.location.href,
       forms: autofillFormsData,
       fields: autofillFieldsData,
@@ -227,7 +227,7 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
    * @private
    */
   private getFormActionAttribute(element: ElementWithOpId<HTMLFormElement>): string {
-    return new URL(this.getPropertyOrAttribute(element, "action"), window.location.href).href;
+    return new URL(this.getPropertyOrAttribute(element, "action"), globalThis.location.href).href;
   }
 
   /**
