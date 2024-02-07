@@ -13,6 +13,6 @@ export class ForegroundDerivedStateProvider extends DefaultDerivedStateProvider 
     deriveDefinition: DeriveDefinition<TFrom, TTo, TDeps>,
     _dependencies: TDeps,
   ): DerivedState<TTo> {
-    return new ForegroundDerivedState(deriveDefinition);
+    return new ForegroundDerivedState(deriveDefinition, this.memoryStorage);
   }
 }

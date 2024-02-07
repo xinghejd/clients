@@ -73,12 +73,12 @@ describe("DefaultDerivedState", () => {
     await awaitAsync();
 
     expect(memoryStorage.internalStore[deriveDefinition.buildCacheKey()]).toEqual(
-      new Date(dateString),
+      derivedValue(new Date(dateString)),
     );
     const calls = memoryStorage.mock.save.mock.calls;
     expect(calls.length).toBe(1);
     expect(calls[0][0]).toBe(deriveDefinition.buildCacheKey());
-    expect(calls[0][1]).toEqual(new Date(dateString));
+    expect(calls[0][1]).toEqual(derivedValue(new Date(dateString)));
   });
 
   describe("forceValue", () => {
@@ -94,7 +94,9 @@ describe("DefaultDerivedState", () => {
 
       it("should store the forced value", async () => {
         await sut.forceValue(forced);
-        expect(memoryStorage.internalStore[deriveDefinition.buildCacheKey()]).toEqual(forced);
+        expect(memoryStorage.internalStore[deriveDefinition.buildCacheKey()]).toEqual(
+          derivedValue(forced),
+        );
       });
     });
 
@@ -107,7 +109,9 @@ describe("DefaultDerivedState", () => {
 
       it("should store the forced value", async () => {
         await sut.forceValue(forced);
-        expect(memoryStorage.internalStore[deriveDefinition.buildCacheKey()]).toEqual(forced);
+        expect(memoryStorage.internalStore[deriveDefinition.buildCacheKey()]).toEqual(
+          derivedValue(forced),
+        );
       });
 
       it("should force the value", async () => {
@@ -220,3 +224,7 @@ describe("DefaultDerivedState", () => {
     });
   });
 });
+
+function derivedValue<T>(value: T) {
+  return { derived: true, value };
+}

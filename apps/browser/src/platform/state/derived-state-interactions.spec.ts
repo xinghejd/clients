@@ -35,7 +35,7 @@ describe("foreground background derived state interactions", () => {
     memoryStorage = new FakeStorageService();
 
     background = new BackgroundDerivedState(parentState$, deriveDefinition, memoryStorage, {});
-    foreground = new ForegroundDerivedState(deriveDefinition);
+    foreground = new ForegroundDerivedState(deriveDefinition, memoryStorage);
   });
 
   afterEach(() => {
@@ -50,12 +50,12 @@ describe("foreground background derived state interactions", () => {
     parentState$.next(initialParent);
     await awaitAsync(10);
 
-    expect(foregroundEmissions).toEqual([new Date(initialParent)]);
     expect(backgroundEmissions).toEqual([new Date(initialParent)]);
+    expect(foregroundEmissions).toEqual([new Date(initialParent)]);
   });
 
   it("should initialize a late-connected foreground", async () => {
-    const newForeground = new ForegroundDerivedState(deriveDefinition);
+    const newForeground = new ForegroundDerivedState(deriveDefinition, memoryStorage);
     const backgroundEmissions = trackEmissions(background.state$);
     parentState$.next(initialParent);
     await awaitAsync();
@@ -74,7 +74,7 @@ describe("foreground background derived state interactions", () => {
 
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      foreground.forceValue(new Date(dateString));
+      await foreground.forceValue(new Date(dateString));
       await awaitAsync();
 
       expect(emissions).toEqual([new Date(dateString)]);

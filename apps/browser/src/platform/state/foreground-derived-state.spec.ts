@@ -1,4 +1,10 @@
-import { awaitAsync } from "@bitwarden/common/../spec/utils";
+/**
+ * need to update test environment so structuredClone works appropriately
+ * @jest-environment ../../libs/shared/test.environment.ts
+ */
+
+import { awaitAsync, trackEmissions } from "@bitwarden/common/../spec";
+import { FakeStorageService } from "@bitwarden/common/../spec/fake-storage.service";
 
 import { DeriveDefinition } from "@bitwarden/common/platform/state";
 // eslint-disable-next-line import/no-restricted-paths -- needed to define a derive definition
@@ -17,10 +23,13 @@ const deriveDefinition = new DeriveDefinition(stateDefinition, "test", {
 
 describe("ForegroundDerivedState", () => {
   let sut: ForegroundDerivedState<Date>;
+  let memoryStorage: FakeStorageService;
 
   beforeEach(() => {
+    memoryStorage = new FakeStorageService();
+    memoryStorage.internalUpdateValuesRequireDeserialization(true);
     mockPorts();
-    sut = new ForegroundDerivedState(deriveDefinition);
+    sut = new ForegroundDerivedState(deriveDefinition, memoryStorage);
   });
 
   afterEach(() => {
@@ -48,14 +57,17 @@ describe("ForegroundDerivedState", () => {
     expect(sut["port"]).toBeNull();
   });
 
-  it("should complete its replay subject when torn down", async () => {
-    const subscription = sut.state$.subscribe();
+  it("should emit when the memory storage updates", async () => {
+    const dateString = "2020-01-01";
+    const emissions = trackEmissions(sut.state$);
 
-    const completeSpy = jest.spyOn(sut["replaySubject"], "complete");
-    subscription.unsubscribe();
-    // wait for the cleanup delay
-    await awaitAsync(deriveDefinition.cleanupDelayMs * 2);
+    await memoryStorage.save(deriveDefinition.storageKey, {
+      derived: true,
+      value: new Date(dateString),
+    });
 
-    expect(completeSpy).toHaveBeenCalled();
+    await awaitAsync();
+
+    expect(emissions).toEqual([new Date(dateString)]);
   });
 });
