@@ -1,8 +1,9 @@
 import { Injectable, NgZone } from "@angular/core";
 import { Observable } from "rxjs";
 
+import { runInsideAngular } from "@bitwarden/angular/platform/rx-operators/run-inside-angular.operator";
+
 import { BrowserApi } from "./browser-api";
-import { runInsideAngular } from "./run-inside-angular.operator";
 
 /**
  * This service is used for listening to messages from the background script.

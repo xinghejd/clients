@@ -16,6 +16,7 @@ import {
 } from "rxjs";
 import { Jsonify, JsonObject } from "type-fest";
 
+import { runInsideAngular } from "@bitwarden/angular/platform/rx-operators/run-inside-angular.operator";
 import {
   AbstractStorageService,
   ObservableStorageService,
@@ -42,7 +43,6 @@ export class ForegroundDerivedState<TTo> implements DerivedState<TTo> {
     }).pipe(
       filter((s) => s.derived),
       map((s) => s.value),
-      (source) => ngZoneObservable(source, this.ngZone),
     );
 
     const latestStorage$ = this.memoryStorage.updates$.pipe(
@@ -65,6 +65,7 @@ export class ForegroundDerivedState<TTo> implements DerivedState<TTo> {
         resetOnRefCountZero: () =>
           timer(this.deriveDefinition.cleanupDelayMs).pipe(tap(() => this.tearDownPort())),
       }),
+      runInsideAngular(this.ngZone),
     );
   }
 
@@ -155,26 +156,4 @@ export class ForegroundDerivedState<TTo> implements DerivedState<TTo> {
       return { derived: true, value: stored.value };
     }
   }
-}
-
-function ngZoneObservable<T>(source: Observable<T>, ngZone: NgZone) {
-  return new Observable<T>((destination) => {
-    source.subscribe({
-      next: (value) => {
-        this.ngZone.run(() => {
-          destination.next(value);
-        });
-      },
-      error: (err) => {
-        this.ngZone.run(() => {
-          destination.error(err);
-        });
-      },
-      complete: () => {
-        this.ngZone.run(() => {
-          destination.complete();
-        });
-      },
-    });
-  });
 }
