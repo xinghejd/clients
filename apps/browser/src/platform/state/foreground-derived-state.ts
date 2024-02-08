@@ -1,3 +1,4 @@
+import { NgZone } from "@angular/core";
 import {
   Observable,
   ReplaySubject,
@@ -23,8 +24,6 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DeriveDefinition, DerivedState } from "@bitwarden/common/platform/state";
 import { DerivedStateDependencies } from "@bitwarden/common/types/state";
 
-import { fromChromeEvent } from "../browser/from-chrome-event";
-
 export class ForegroundDerivedState<TTo> implements DerivedState<TTo> {
   private storageKey: string;
   private port: chrome.runtime.Port;
@@ -34,6 +33,7 @@ export class ForegroundDerivedState<TTo> implements DerivedState<TTo> {
   constructor(
     private deriveDefinition: DeriveDefinition<unknown, TTo, DerivedStateDependencies>,
     private memoryStorage: AbstractStorageService & ObservableStorageService,
+    private ngZone: NgZone,
   ) {
     this.storageKey = deriveDefinition.storageKey;
 
@@ -42,6 +42,7 @@ export class ForegroundDerivedState<TTo> implements DerivedState<TTo> {
     }).pipe(
       filter((s) => s.derived),
       map((s) => s.value),
+      (source) => ngZoneObservable(source, this.ngZone),
     );
 
     const latestStorage$ = this.memoryStorage.updates$.pipe(
@@ -154,4 +155,26 @@ export class ForegroundDerivedState<TTo> implements DerivedState<TTo> {
       return { derived: true, value: stored.value };
     }
   }
+}
+
+function ngZoneObservable<T>(source: Observable<T>, ngZone: NgZone) {
+  return new Observable<T>((destination) => {
+    source.subscribe({
+      next: (value) => {
+        this.ngZone.run(() => {
+          destination.next(value);
+        });
+      },
+      error: (err) => {
+        this.ngZone.run(() => {
+          destination.error(err);
+        });
+      },
+      complete: () => {
+        this.ngZone.run(() => {
+          destination.complete();
+        });
+      },
+    });
+  });
 }

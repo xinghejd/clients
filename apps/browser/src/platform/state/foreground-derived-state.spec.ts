@@ -29,7 +29,7 @@ describe("ForegroundDerivedState", () => {
     memoryStorage = new FakeStorageService();
     memoryStorage.internalUpdateValuesRequireDeserialization(true);
     mockPorts();
-    sut = new ForegroundDerivedState(deriveDefinition, memoryStorage);
+    sut = new ForegroundDerivedState(deriveDefinition, memoryStorage, null);
   });
 
   afterEach(() => {

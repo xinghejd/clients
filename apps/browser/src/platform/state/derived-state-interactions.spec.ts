@@ -35,7 +35,7 @@ describe("foreground background derived state interactions", () => {
     memoryStorage = new FakeStorageService();
 
     background = new BackgroundDerivedState(parentState$, deriveDefinition, memoryStorage, {});
-    foreground = new ForegroundDerivedState(deriveDefinition, memoryStorage);
+    foreground = new ForegroundDerivedState(deriveDefinition, memoryStorage, null);
   });
 
   afterEach(() => {
@@ -55,7 +55,7 @@ describe("foreground background derived state interactions", () => {
   });
 
   it("should initialize a late-connected foreground", async () => {
-    const newForeground = new ForegroundDerivedState(deriveDefinition, memoryStorage);
+    const newForeground = new ForegroundDerivedState(deriveDefinition, memoryStorage, null);
     const backgroundEmissions = trackEmissions(background.state$);
     parentState$.next(initialParent);
     await awaitAsync();

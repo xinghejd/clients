@@ -54,7 +54,6 @@ export class FoldersComponent implements OnInit {
 
         return folders;
       }),
-      delay(1000),
       tap({
         subscribe: () => console.log("Folders subscribe"),
         next: (folders) => console.log("Folders next", folders),
