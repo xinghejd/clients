@@ -272,11 +272,6 @@ export default class MainBackground {
   organizationVaultExportService: OrganizationVaultExportServiceAbstraction;
   vaultSettingsService: VaultSettingsServiceAbstraction;
 
-  // Passed to the popup for Safari to workaround issues with theming, downloading, etc.
-  // FIXME-MV3-REQ: [PM-5879] Need to remove window usage after investigating issues with using window.matchMedia in Safari's popup
-  // eslint-disable-next-line no-restricted-globals
-  backgroundWindow = window;
-
   onUpdatedRan: boolean;
   onReplacedRan: boolean;
   loginToAutoFill: CipherView = null;
