@@ -19,7 +19,7 @@ import { UsernameGeneratorOptions } from "../../../tools/generator/username/user
 import { SendData } from "../../../tools/send/models/data/send.data";
 import { SendView } from "../../../tools/send/models/view/send.view";
 import { DeepJsonify } from "../../../types/deep-jsonify";
-import { UserKey, MasterKey } from "../../../types/key";
+import { MasterKey, UserKey } from "../../../types/key";
 import { UriMatchType } from "../../../vault/enums";
 import { CipherData } from "../../../vault/models/data/cipher.data";
 import { CollectionData } from "../../../vault/models/data/collection.data";
@@ -197,7 +197,6 @@ export class AccountProfile {
   forceSetPasswordReason?: ForceSetPasswordReason;
   hasPremiumPersonally?: boolean;
   hasPremiumFromOrganization?: boolean;
-  lastSync?: string;
   userId?: string;
   usesKeyConnector?: boolean;
   keyHash?: string;
@@ -378,25 +377,6 @@ export class AccountDecryptionOptions {
   }
 }
 
-export class LoginState {
-  ssoOrganizationIdentifier?: string;
-
-  constructor(init?: Partial<LoginState>) {
-    if (init) {
-      Object.assign(this, init);
-    }
-  }
-
-  static fromJSON(obj: Jsonify<LoginState>): LoginState {
-    if (obj == null) {
-      return null;
-    }
-
-    const loginState = Object.assign(new LoginState(), obj);
-    return loginState;
-  }
-}
-
 export class Account {
   data?: AccountData = new AccountData();
   keys?: AccountKeys = new AccountKeys();
@@ -404,7 +384,6 @@ export class Account {
   settings?: AccountSettings = new AccountSettings();
   tokens?: AccountTokens = new AccountTokens();
   decryptionOptions?: AccountDecryptionOptions = new AccountDecryptionOptions();
-  loginState?: LoginState = new LoginState();
   adminAuthRequest?: Jsonify<AdminAuthRequestStorable> = null;
 
   constructor(init: Partial<Account>) {
@@ -433,10 +412,6 @@ export class Account {
         ...new AccountDecryptionOptions(),
         ...init?.decryptionOptions,
       },
-      loginState: {
-        ...new LoginState(),
-        ...init?.loginState,
-      },
       adminAuthRequest: init?.adminAuthRequest,
     });
   }
@@ -453,7 +428,6 @@ export class Account {
       settings: AccountSettings.fromJSON(json?.settings),
       tokens: AccountTokens.fromJSON(json?.tokens),
       decryptionOptions: AccountDecryptionOptions.fromJSON(json?.decryptionOptions),
-      loginState: LoginState.fromJSON(json?.loginState),
       adminAuthRequest: AdminAuthRequestStorable.fromJSON(json?.adminAuthRequest),
     });
   }

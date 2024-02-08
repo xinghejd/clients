@@ -23,6 +23,8 @@ export const BILLING_BANNERS_DISK = new StateDefinition("billingBanners", "disk"
 
 export const CRYPTO_DISK = new StateDefinition("crypto", "disk");
 
+export const SSO_DISK = new StateDefinition("ssoLogin", "disk");
+
 export const ENVIRONMENT_DISK = new StateDefinition("environment", "disk");
 
 export const GENERATOR_DISK = new StateDefinition("generator", "disk");
@@ -35,3 +37,11 @@ export const ORGANIZATIONS_DISK = new StateDefinition("organizations", "disk");
 export const POLICIES_DISK = new StateDefinition("policies", "disk");
 export const POLICIES_MEMORY = new StateDefinition("policies", "memory");
 export const PROVIDERS_DISK = new StateDefinition("providers", "disk");
+
+export const FOLDER_DISK = new StateDefinition("folder", "disk", { web: "memory" });
+
+export const SYNC_STATE = new StateDefinition("sync", "disk", { web: "memory" });
+
+export const VAULT_SETTINGS_DISK = new StateDefinition("vaultSettings", "disk", {
+  web: "disk-local",
+});
