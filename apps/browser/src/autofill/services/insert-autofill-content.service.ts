@@ -83,7 +83,7 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
       chrome.i18n.getMessage("insecurePageWarningFillPrompt", [globalThis.location.hostname]),
     ].join("\n\n");
 
-    return !confirm(confirmationWarning);
+    return !globalThis.confirm(confirmationWarning);
   }
 
   /**
@@ -124,7 +124,7 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
       chrome.i18n.getMessage("autofillIframeWarningTip", [globalThis.location.hostname]),
     ].join("\n\n");
 
-    return !confirm(confirmationWarning);
+    return !globalThis.confirm(confirmationWarning);
   }
 
   /**
