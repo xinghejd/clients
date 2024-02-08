@@ -523,11 +523,13 @@ function getBgService<T>(service: keyof MainBackground) {
         stateService: StateServiceAbstraction,
         platformUtilsService: PlatformUtilsService,
       ) => {
+        const backgroundPage = BrowserApi.getBackgroundPage();
+
         return new ThemingService(
           stateService,
           // Safari doesn't properly handle the (prefers-color-scheme) media query in the popup window, it always returns light.
           // In Safari we have to use the background page instead, which comes with limitations like not dynamically changing the extension theme when the system theme is changed.
-          platformUtilsService.isSafari() ? getBgService<Window>("backgroundWindow")() : window,
+          platformUtilsService.isSafari() && backgroundPage ? backgroundPage : window,
           document,
         );
       },
