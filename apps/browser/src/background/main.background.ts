@@ -295,7 +295,7 @@ export default class MainBackground {
   popupOnlyContext: boolean;
 
   constructor(public isPrivateMode: boolean = false) {
-    this.popupOnlyContext = isPrivateMode || BrowserApi.manifestVersion === 3;
+    this.popupOnlyContext = isPrivateMode || BrowserApi.isManifestVersion(3);
 
     // Services
     const lockedCallback = async (userId?: string) => {
@@ -322,20 +322,18 @@ export default class MainBackground {
     this.cryptoFunctionService = new WebCryptoFunctionService(window);
     this.storageService = new BrowserLocalStorageService();
     this.secureStorageService = new BrowserLocalStorageService();
-    this.memoryStorageService =
-      BrowserApi.manifestVersion === 3
-        ? new LocalBackedSessionStorageService(
-            new EncryptServiceImplementation(this.cryptoFunctionService, this.logService, false),
-            new KeyGenerationService(this.cryptoFunctionService),
-          )
-        : new MemoryStorageService();
-    this.memoryStorageForStateProviders =
-      BrowserApi.manifestVersion === 3
-        ? new LocalBackedSessionStorageService(
-            new EncryptServiceImplementation(this.cryptoFunctionService, this.logService, false),
-            new KeyGenerationService(this.cryptoFunctionService),
-          )
-        : new BackgroundMemoryStorageService();
+    this.memoryStorageService = BrowserApi.isManifestVersion(3)
+      ? new LocalBackedSessionStorageService(
+          new EncryptServiceImplementation(this.cryptoFunctionService, this.logService, false),
+          new KeyGenerationService(this.cryptoFunctionService),
+        )
+      : new MemoryStorageService();
+    this.memoryStorageForStateProviders = BrowserApi.isManifestVersion(3)
+      ? new LocalBackedSessionStorageService(
+          new EncryptServiceImplementation(this.cryptoFunctionService, this.logService, false),
+          new KeyGenerationService(this.cryptoFunctionService),
+        )
+      : new BackgroundMemoryStorageService();
     this.globalStateProvider = new DefaultGlobalStateProvider(
       this.memoryStorageForStateProviders,
       this.storageService as BrowserLocalStorageService,
@@ -1054,7 +1052,7 @@ export default class MainBackground {
       await this.reseedStorage();
     }
 
-    if (BrowserApi.manifestVersion === 3) {
+    if (BrowserApi.isManifestVersion(3)) {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       BrowserApi.sendMessage("updateBadge");

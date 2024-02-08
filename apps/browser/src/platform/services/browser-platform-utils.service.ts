@@ -12,7 +12,7 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
     private messagingService: MessagingService,
     private clipboardWriteCallback: (clipboardValue: string, clearMs: number) => void,
     private biometricCallback: () => Promise<boolean>,
-    private win: Window & typeof globalThis,
+    private globalContext: Window & typeof globalThis,
   ) {}
 
   static getDevice(win: Window & typeof globalThis): DeviceType {
@@ -38,7 +38,7 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
   }
 
   getDevice(): DeviceType {
-    return BrowserPlatformUtilsService.getDevice(this.win);
+    return BrowserPlatformUtilsService.getDevice(this.globalContext);
   }
 
   getDeviceString(): string {
@@ -218,8 +218,8 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
   }
 
   copyToClipboard(text: string, options?: any): void {
-    let win = this.win;
-    let doc = this.win.document;
+    let win = this.globalContext;
+    let doc = this.globalContext.document;
     if (options && (options.window || options.win)) {
       win = options.window || options.win;
       doc = win.document;
@@ -274,8 +274,8 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
   }
 
   async readFromClipboard(options?: any): Promise<string> {
-    let win = this.win;
-    let doc = this.win.document;
+    let win = this.globalContext;
+    let doc = this.globalContext.document;
     if (options && (options.window || options.win)) {
       win = options.window || options.win;
       doc = win.document;
