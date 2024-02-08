@@ -5,6 +5,8 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { SafariApp } from "../../browser/safariApp";
 import { BrowserApi } from "../browser/browser-api";
 
+import BrowserClipboardService from "./browser-clipboard.service";
+
 export default class BrowserPlatformUtilsService implements PlatformUtilsService {
   private static deviceCache: DeviceType = null;
 
@@ -219,97 +221,47 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
 
   copyToClipboard(text: string, options?: any): void {
     let win = this.globalContext;
-    let doc = this.globalContext.document;
     if (options && (options.window || options.win)) {
       win = options.window || options.win;
-      doc = win.document;
-    } else if (options && options.doc) {
-      doc = options.doc;
     }
     const clearing = options ? !!options.clearing : false;
     const clearMs: number = options && options.clearMs ? options.clearMs : null;
 
     if (this.isSafari()) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      SafariApp.sendMessageToApp("copyToClipboard", text).then(() => {
-        if (!clearing && this.clipboardWriteCallback != null) {
-          this.clipboardWriteCallback(text, clearMs);
-        }
-      });
-    } else if (
-      this.isFirefox() &&
-      (win as any).navigator.clipboard &&
-      (win as any).navigator.clipboard.writeText
-    ) {
-      (win as any).navigator.clipboard.writeText(text).then(() => {
-        if (!clearing && this.clipboardWriteCallback != null) {
-          this.clipboardWriteCallback(text, clearMs);
-        }
-      });
-    } else if (doc.queryCommandSupported && doc.queryCommandSupported("copy")) {
-      if (this.isChrome() && text === "") {
-        text = "\u0000";
-      }
-
-      const textarea = doc.createElement("textarea");
-      textarea.textContent = text == null || text === "" ? " " : text;
-      // Prevent scrolling to bottom of page in MS Edge.
-      textarea.style.position = "fixed";
-      doc.body.appendChild(textarea);
-      textarea.select();
-
-      try {
-        // Security exception may be thrown by some browsers.
-        if (doc.execCommand("copy") && !clearing && this.clipboardWriteCallback != null) {
-          this.clipboardWriteCallback(text, clearMs);
-        }
-      } catch (e) {
-        // eslint-disable-next-line
-        console.warn("Copy to clipboard failed.", e);
-      } finally {
-        doc.body.removeChild(textarea);
-      }
+      SafariApp.sendMessageToApp("copyToClipboard", text)
+        .then(() => {
+          if (!clearing && this.clipboardWriteCallback != null) {
+            this.clipboardWriteCallback(text, clearMs);
+          }
+        })
+        .catch(() => {});
+      return;
     }
+
+    if (this.isChrome() && text === "") {
+      text = "\u0000";
+    }
+
+    BrowserClipboardService.copy(win, text)
+      .then(() => {
+        if (!clearing && this.clipboardWriteCallback != null) {
+          this.clipboardWriteCallback(text, clearMs);
+        }
+      })
+      .catch(() => {});
   }
 
   async readFromClipboard(options?: any): Promise<string> {
     let win = this.globalContext;
-    let doc = this.globalContext.document;
     if (options && (options.window || options.win)) {
       win = options.window || options.win;
-      doc = win.document;
-    } else if (options && options.doc) {
-      doc = options.doc;
     }
 
     if (this.isSafari()) {
       return await SafariApp.sendMessageToApp("readFromClipboard");
-    } else if (
-      this.isFirefox() &&
-      (win as any).navigator.clipboard &&
-      (win as any).navigator.clipboard.readText
-    ) {
-      return await (win as any).navigator.clipboard.readText();
-    } else if (doc.queryCommandSupported && doc.queryCommandSupported("paste")) {
-      const textarea = doc.createElement("textarea");
-      // Prevent scrolling to bottom of page in MS Edge.
-      textarea.style.position = "fixed";
-      doc.body.appendChild(textarea);
-      textarea.focus();
-      try {
-        // Security exception may be thrown by some browsers.
-        if (doc.execCommand("paste")) {
-          return textarea.value;
-        }
-      } catch (e) {
-        // eslint-disable-next-line
-        console.warn("Read from clipboard failed.", e);
-      } finally {
-        doc.body.removeChild(textarea);
-      }
     }
-    return null;
+
+    return await BrowserClipboardService.read(win);
   }
 
   async supportsBiometric() {
