@@ -55,6 +55,7 @@ import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstraction
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "@bitwarden/common/auth/abstractions/key-connector.service";
 import { LoginService as LoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/login.service";
 import { PasswordResetEnrollmentServiceAbstraction } from "@bitwarden/common/auth/abstractions/password-reset-enrollment.service.abstraction";
+import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TokenService as TokenServiceAbstraction } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService as TwoFactorServiceAbstraction } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { UserVerificationApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification-api.service.abstraction";
@@ -73,6 +74,7 @@ import { DevicesApiServiceImplementation } from "@bitwarden/common/auth/services
 import { KeyConnectorService } from "@bitwarden/common/auth/services/key-connector.service";
 import { LoginService } from "@bitwarden/common/auth/services/login.service";
 import { PasswordResetEnrollmentServiceImplementation } from "@bitwarden/common/auth/services/password-reset-enrollment.service.implementation";
+import { SsoLoginService } from "@bitwarden/common/auth/services/sso-login.service";
 import { TokenService } from "@bitwarden/common/auth/services/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/services/two-factor.service";
 import { UserVerificationApiService } from "@bitwarden/common/auth/services/user-verification/user-verification-api.service";
@@ -80,8 +82,10 @@ import { UserVerificationService } from "@bitwarden/common/auth/services/user-ve
 import { WebAuthnLoginApiService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login-api.service";
 import { WebAuthnLoginPrfCryptoService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login-prf-crypto.service";
 import { WebAuthnLoginService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login.service";
+import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billilng-api.service.abstraction";
 import { BillingBannerServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-banner.service.abstraction";
 import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-billing.service";
+import { BillingApiService } from "@bitwarden/common/billing/services/billing-api.service";
 import { BillingBannerService } from "@bitwarden/common/billing/services/billing-banner.service";
 import { OrganizationBillingService } from "@bitwarden/common/billing/services/organization-billing.service";
 import { AppIdService as AppIdServiceAbstraction } from "@bitwarden/common/platform/abstractions/app-id.service";
@@ -535,6 +539,11 @@ import { ModalService } from "./modal.service";
       useExisting: VaultTimeoutService,
     },
     {
+      provide: SsoLoginServiceAbstraction,
+      useClass: SsoLoginService,
+      deps: [StateProvider],
+    },
+    {
       provide: StateServiceAbstraction,
       useClass: StateService,
       deps: [
@@ -908,6 +917,11 @@ import { ModalService } from "./modal.service";
       provide: VaultSettingsServiceAbstraction,
       useClass: VaultSettingsService,
       deps: [StateProvider],
+    },
+    {
+      provide: BillingApiServiceAbstraction,
+      useClass: BillingApiService,
+      deps: [ApiServiceAbstraction],
     },
   ],
 })
