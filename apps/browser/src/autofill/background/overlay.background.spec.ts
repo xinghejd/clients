@@ -911,7 +911,7 @@ describe("OverlayBackground", () => {
           const message = {
             command: "unlockCompleted",
             data: {
-              commandToRetry: { msg: { command: "" } },
+              commandToRetry: { message: { command: "" } },
             },
           };
 
@@ -927,7 +927,7 @@ describe("OverlayBackground", () => {
           const message = {
             command: "unlockCompleted",
             data: {
-              commandToRetry: { msg: { command: "openAutofillOverlay" } },
+              commandToRetry: { message: { command: "openAutofillOverlay" } },
             },
           };
           jest.spyOn(BrowserApi, "getTabFromCurrentWindowId").mockResolvedValueOnce(sender.tab);
@@ -1028,12 +1028,13 @@ describe("OverlayBackground", () => {
 
     it("gets the system theme", async () => {
       jest.spyOn(overlayBackground["stateService"], "getTheme").mockResolvedValue(ThemeType.System);
-      window.matchMedia = jest.fn(() => mock<MediaQueryList>({ matches: true }));
 
       initOverlayElementPorts({ initList: true, initButton: false });
       await flushPromises();
 
-      expect(window.matchMedia).toHaveBeenCalledWith("(prefers-color-scheme: dark)");
+      expect(listPortSpy.postMessage).toHaveBeenCalledWith(
+        expect.objectContaining({ theme: ThemeType.System }),
+      );
     });
   });
 
@@ -1183,7 +1184,7 @@ describe("OverlayBackground", () => {
             "addToLockedVaultPendingNotifications",
             {
               commandToRetry: {
-                msg: { command: "openAutofillOverlay" },
+                message: { command: "openAutofillOverlay" },
                 sender: listPortSpy.sender,
               },
               target: "overlay.background",

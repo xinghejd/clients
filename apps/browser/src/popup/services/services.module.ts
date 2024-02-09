@@ -1,4 +1,4 @@
-import { APP_INITIALIZER, LOCALE_ID, NgModule } from "@angular/core";
+import { APP_INITIALIZER, LOCALE_ID, NgModule, NgZone } from "@angular/core";
 
 import { UnauthGuard as BaseUnauthGuardService } from "@bitwarden/angular/auth/guards";
 import { ThemingService } from "@bitwarden/angular/platform/services/theming/theming.service";
@@ -418,7 +418,7 @@ function getBgService<T>(service: keyof MainBackground) {
       useFactory: (stateService: StateServiceAbstraction, stateProvider: StateProvider) => {
         return new BrowserOrganizationService(stateService, stateProvider);
       },
-      deps: [StateServiceAbstraction],
+      deps: [StateServiceAbstraction, StateProvider],
     },
     {
       provide: VaultFilterService,
@@ -554,7 +554,7 @@ function getBgService<T>(service: keyof MainBackground) {
     {
       provide: DerivedStateProvider,
       useClass: ForegroundDerivedStateProvider,
-      deps: [OBSERVABLE_MEMORY_STORAGE],
+      deps: [OBSERVABLE_MEMORY_STORAGE, NgZone],
     },
   ],
 })
