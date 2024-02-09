@@ -228,10 +228,22 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
         throw new Fido2AuthenticatorError(Fido2AuthenticatorErrorCode.NotAllowed);
       }
 
-      const response = await userInterfaceSession.pickCredential({
-        cipherIds: cipherOptions.map((cipher) => cipher.id),
-        userVerification: params.requireUserVerification,
-      });
+      // TODO: We need to check for PasswordReprompt here, but we can only
+      // do that if there is a single credential to choose from.
+      let response;
+      if (
+        params.requireUserVerification ||
+        !params.assumeUserPresence ||
+        cipherOptions.length > 1 ||
+        cipherOptions.length === 0
+      ) {
+        response = await userInterfaceSession.pickCredential({
+          cipherIds: cipherOptions.map((cipher) => cipher.id),
+          userVerification: params.requireUserVerification,
+        });
+      } else {
+        response = { cipherId: cipherOptions[0].id, userVerified: false };
+      }
       const selectedCipherId = response.cipherId;
       const userVerified = response.userVerified;
       const selectedCipher = cipherOptions.find((c) => c.id === selectedCipherId);

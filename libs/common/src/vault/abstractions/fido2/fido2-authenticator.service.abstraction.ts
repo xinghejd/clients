@@ -142,6 +142,9 @@ export interface Fido2AuthenticatorGetAssertionParams {
   extensions: unknown;
   /** Forwarded to user interface */
   fallbackSupported: boolean;
+
+  // Bypass the UI and assume that the user has already interacted with the authenticator
+  assumeUserPresence: boolean;
 }
 
 export interface Fido2AuthenticatorGetAssertionResult {

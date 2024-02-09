@@ -40,6 +40,7 @@ import { Fido2CredentialView } from "../../models/view/fido2-credential.view";
 
 import { isValidRpId } from "./domain-utils";
 import { Fido2Utils } from "./fido2-utils";
+import { guidToRawFormat } from "./guid-utils";
 
 type RequestCollection = Readonly<{ [tabId: number]: ActiveRequest }>;
 
@@ -53,6 +54,10 @@ class ActiveRequestManager {
       shareReplay({ bufferSize: 1, refCount: true }),
       startWith(undefined),
     );
+  }
+
+  getActiveRequest(tabId: number): ActiveRequest | undefined {
+    return this.activeRequests$.value[tabId];
   }
 
   async newActiveRequest(
@@ -142,6 +147,11 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     return this.requestManager
       .getActiveRequest$(tabId)
       .pipe(map((request) => request?.credentials ?? []));
+  }
+
+  async autofillCredential(tabId: number, credentialId: string) {
+    const request = this.requestManager.getActiveRequest(tabId);
+    request.subject.next(credentialId);
   }
 
   async createCredential(
@@ -315,6 +325,7 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
       throw new DOMException("'rp.id' cannot be used with the current origin", "SecurityError");
     }
 
+    let assumeUserPresence = false;
     if (params.mediation === "conditional") {
       const availableCredentials = await this.authenticator.silentCredentialDiscovery(params.rpId);
       this.logService?.info(
@@ -325,7 +336,8 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
         availableCredentials,
         abortController,
       );
-      params.allowedCredentialIds = [credentialId];
+      params.allowedCredentialIds = [Fido2Utils.bufferToString(guidToRawFormat(credentialId))];
+      assumeUserPresence = true;
     }
 
     const collectedClientData = {
@@ -338,7 +350,11 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     const clientDataJSON = JSON.stringify(collectedClientData);
     const clientDataJSONBytes = Utils.fromByteStringToArray(clientDataJSON);
     const clientDataHash = await crypto.subtle.digest({ name: "SHA-256" }, clientDataJSONBytes);
-    const getAssertionParams = mapToGetAssertionParams({ params, clientDataHash });
+    const getAssertionParams = mapToGetAssertionParams({
+      params,
+      clientDataHash,
+      assumeUserPresence,
+    });
 
     if (abortController.signal.aborted) {
       this.logService?.info(`[Fido2Client] Aborted with AbortController`);
@@ -490,9 +506,11 @@ function mapToMakeCredentialParams({
 function mapToGetAssertionParams({
   params,
   clientDataHash,
+  assumeUserPresence,
 }: {
   params: AssertCredentialParams;
   clientDataHash: ArrayBuffer;
+  assumeUserPresence?: boolean;
 }): Fido2AuthenticatorGetAssertionParams {
   const allowCredentialDescriptorList: PublicKeyCredentialDescriptor[] =
     params.allowedCredentialIds.map((id) => ({
@@ -512,5 +530,6 @@ function mapToGetAssertionParams({
     allowCredentialDescriptorList,
     extensions: {},
     fallbackSupported: params.fallbackSupported,
+    assumeUserPresence,
   };
 }

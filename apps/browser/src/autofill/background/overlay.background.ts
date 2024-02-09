@@ -256,6 +256,14 @@ class OverlayBackground implements OverlayBackgroundInterface {
 
     const cipher = this.overlayLoginCiphers.get(overlayCipherId);
 
+    if (cipher.login?.hasFido2Credentials) {
+      await this.fido2Client.autofillCredential(
+        sender.tab.id,
+        cipher.login.fido2Credentials[0].credentialId,
+      );
+      return;
+    }
+
     if (await this.autofillService.isPasswordRepromptRequired(cipher, sender.tab)) {
       return;
     }

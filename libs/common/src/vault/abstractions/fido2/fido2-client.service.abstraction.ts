@@ -22,6 +22,8 @@ export abstract class Fido2ClientService {
 
   availableAutofillCredentials$: (tabId: number) => Observable<Fido2CredentialView[]>;
 
+  autofillCredential: (tabId: number, credentialId: string) => Promise<void>;
+
   /**
    * Allows WebAuthn Relying Party scripts to request the creation of a new public key credential source.
    * For more information please see: https://www.w3.org/TR/webauthn-3/#sctn-createCredential
