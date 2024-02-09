@@ -25,17 +25,15 @@ class BrowserClipboardService {
       return this.useLegacyReadMethod(globalContext);
     }
 
-    let readText = "";
     try {
-      readText = await globalContext.navigator.clipboard.readText();
+      return await globalContext.navigator.clipboard.readText();
     } catch (error) {
       BrowserClipboardService.consoleLogService.debug(
         `Error reading from clipboard using the clipboard API, attempting legacy method: ${error}`,
       );
-      readText = this.useLegacyReadMethod(globalContext);
-    }
 
-    return readText;
+      return this.useLegacyReadMethod(globalContext);
+    }
   }
 
   private static useLegacyCopyMethod(globalContext: Window, text: string) {
@@ -68,16 +66,15 @@ class BrowserClipboardService {
     globalContext.document.body.appendChild(textareaElement);
     textareaElement.focus();
 
-    let readText = "";
     try {
-      readText = globalContext.document.execCommand("paste") ? textareaElement.value : "";
+      return globalContext.document.execCommand("paste") ? textareaElement.value : "";
     } catch (error) {
       BrowserClipboardService.consoleLogService.error(`Error reading from clipboard: ${error}`);
     } finally {
       globalContext.document.body.removeChild(textareaElement);
     }
 
-    return readText;
+    return "";
   }
 
   private static isClipboardApiSupported(globalContext: Window, method: "writeText" | "readText") {
