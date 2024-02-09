@@ -883,7 +883,7 @@ async function loadNotificationBar() {
       return;
     }
 
-    const barPageUrl: string = chrome.extension.getURL(barPage);
+    const barPageUrl: string = chrome.runtime.getURL(barPage);
 
     notificationBarIframe = document.createElement("iframe");
     notificationBarIframe.style.cssText =
