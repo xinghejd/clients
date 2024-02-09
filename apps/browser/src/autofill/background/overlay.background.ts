@@ -5,7 +5,6 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { ThemeType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -21,10 +20,10 @@ import {
   openAddEditVaultItemPopout,
 } from "../../vault/popup/utils/vault-popout-window";
 import { SHOW_AUTOFILL_BUTTON } from "../constants";
-import LockedVaultPendingNotificationsItem from "../notification/models/locked-vault-pending-notifications-item";
 import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
 import { AutofillOverlayElement, AutofillOverlayPort } from "../utils/autofill-overlay.enum";
 
+import { LockedVaultPendingNotificationsData } from "./abstractions/notification.background";
 import {
   FocusedFieldData,
   OverlayBackgroundExtensionMessageHandlers,
@@ -483,21 +482,6 @@ class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
-   * Gets the currently set theme for the user.
-   */
-  private async getCurrentTheme() {
-    const theme = await this.stateService.getTheme();
-
-    if (theme !== ThemeType.System) {
-      return theme;
-    }
-
-    return window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? ThemeType.Dark
-      : ThemeType.Light;
-  }
-
-  /**
    * Sends a message to the overlay button to update its authentication status.
    */
   private updateOverlayButtonAuthStatus() {
@@ -536,8 +520,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
     const { sender } = port;
 
     this.closeOverlay(port);
-    const retryMessage: LockedVaultPendingNotificationsItem = {
-      commandToRetry: { msg: { command: "openAutofillOverlay" }, sender },
+    const retryMessage: LockedVaultPendingNotificationsData = {
+      commandToRetry: { message: { command: "openAutofillOverlay" }, sender },
       target: "overlay.background",
     };
     await BrowserApi.tabSendMessageData(
@@ -585,7 +569,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private async unlockCompleted(message: OverlayBackgroundExtensionMessage) {
     await this.getAuthStatus();
 
-    if (message.data?.commandToRetry?.msg?.command === "openAutofillOverlay") {
+    if (message.data?.commandToRetry?.message?.command === "openAutofillOverlay") {
       await this.openOverlay(true);
     }
   }
@@ -744,7 +728,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
       command: `initAutofillOverlay${isOverlayListPort ? "List" : "Button"}`,
       authStatus: await this.getAuthStatus(),
       styleSheetUrl: chrome.runtime.getURL(`overlay/${isOverlayListPort ? "list" : "button"}.css`),
-      theme: `theme_${await this.getCurrentTheme()}`,
+      theme: await this.stateService.getTheme(),
       translations: this.getTranslations(),
       ciphers: isOverlayListPort ? this.getOverlayCipherData() : null,
     });

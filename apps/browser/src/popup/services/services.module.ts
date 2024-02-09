@@ -1,4 +1,4 @@
-import { APP_INITIALIZER, LOCALE_ID, NgModule } from "@angular/core";
+import { APP_INITIALIZER, LOCALE_ID, NgModule, NgZone } from "@angular/core";
 
 import { UnauthGuard as BaseUnauthGuardService } from "@bitwarden/angular/auth/guards";
 import { ThemingService } from "@bitwarden/angular/platform/services/theming/theming.service";
@@ -68,7 +68,7 @@ import { GlobalState } from "@bitwarden/common/platform/models/domain/global-sta
 import { ConfigService } from "@bitwarden/common/platform/services/config/config.service";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
-import { DerivedStateProvider } from "@bitwarden/common/platform/state";
+import { DerivedStateProvider, StateProvider } from "@bitwarden/common/platform/state";
 import { SearchService } from "@bitwarden/common/services/search.service";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 import { UsernameGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/username";
@@ -415,10 +415,10 @@ function getBgService<T>(service: keyof MainBackground) {
     },
     {
       provide: OrganizationService,
-      useFactory: (stateService: StateServiceAbstraction) => {
-        return new BrowserOrganizationService(stateService);
+      useFactory: (stateService: StateServiceAbstraction, stateProvider: StateProvider) => {
+        return new BrowserOrganizationService(stateService, stateProvider);
       },
-      deps: [StateServiceAbstraction],
+      deps: [StateServiceAbstraction, StateProvider],
     },
     {
       provide: VaultFilterService,
@@ -554,7 +554,7 @@ function getBgService<T>(service: keyof MainBackground) {
     {
       provide: DerivedStateProvider,
       useClass: ForegroundDerivedStateProvider,
-      deps: [OBSERVABLE_MEMORY_STORAGE],
+      deps: [OBSERVABLE_MEMORY_STORAGE, NgZone],
     },
   ],
 })
