@@ -1,5 +1,3 @@
-import { FallbackRequestedError } from "@bitwarden/common/vault/abstractions/fido2/fido2-client.service.abstraction";
-
 import { WebauthnUtils } from "../webauthn-utils";
 
 import { MessageType } from "./messaging/message";
@@ -120,31 +118,69 @@ async function getWebAuthnCredential(
 
   const fallbackSupported = browserNativeWebauthnSupport;
 
-  try {
-    if (options?.mediation && options.mediation !== "optional") {
-      throw new FallbackRequestedError();
+  if (options?.mediation && options.mediation !== "optional") {
+    // Mediated flow
+    const bitwardenResponse = async (internalAbortController: AbortController) => {
+      try {
+        const response = await messenger.request(
+          {
+            type: MessageType.CredentialGetRequest,
+            data: WebauthnUtils.mapCredentialRequestOptions(options, fallbackSupported),
+          },
+          internalAbortController,
+        );
+
+        if (response.type !== MessageType.CredentialGetResponse) {
+          throw new Error("Something went wrong.");
+        }
+
+        return WebauthnUtils.mapCredentialAssertResult(response.result);
+      } catch {
+        // Ignoring errors
+      }
+    };
+    const browserResponse = (internalAbortController: AbortController) =>
+      browserCredentials.get({ ...options, signal: internalAbortController.signal });
+
+    const abortListener = () => {
+      internalAbortControllers.forEach((controller) => controller.abort());
+    };
+    abortController.signal.addEventListener("abort", abortListener);
+
+    const internalAbortControllers = [new AbortController(), new AbortController()];
+    const requests = [
+      bitwardenResponse(internalAbortControllers[0]),
+      browserResponse(internalAbortControllers[1]),
+    ];
+    const response = Promise.race(requests);
+    abortController.signal.removeEventListener("abort", abortListener);
+    internalAbortControllers.forEach((controller) => controller.abort());
+
+    return response;
+  } else {
+    // Regular explicit flow
+    try {
+      const response = await messenger.request(
+        {
+          type: MessageType.CredentialGetRequest,
+          data: WebauthnUtils.mapCredentialRequestOptions(options, fallbackSupported),
+        },
+        abortController,
+      );
+
+      if (response.type !== MessageType.CredentialGetResponse) {
+        throw new Error("Something went wrong.");
+      }
+
+      return WebauthnUtils.mapCredentialAssertResult(response.result);
+    } catch (error) {
+      if (error && error.fallbackRequested && fallbackSupported) {
+        await waitForFocus();
+        return await browserCredentials.get(options);
+      }
+
+      throw error;
     }
-
-    const response = await messenger.request(
-      {
-        type: MessageType.CredentialGetRequest,
-        data: WebauthnUtils.mapCredentialRequestOptions(options, fallbackSupported),
-      },
-      abortController,
-    );
-
-    if (response.type !== MessageType.CredentialGetResponse) {
-      throw new Error("Something went wrong.");
-    }
-
-    return WebauthnUtils.mapCredentialAssertResult(response.result);
-  } catch (error) {
-    if (error && error.fallbackRequested && fallbackSupported) {
-      await waitForFocus();
-      return await browserCredentials.get(options);
-    }
-
-    throw error;
   }
 }
 
