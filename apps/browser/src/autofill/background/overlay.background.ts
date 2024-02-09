@@ -10,6 +10,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { buildCipherIcon } from "@bitwarden/common/vault/icon/build-cipher-icon";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 
@@ -43,6 +44,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private readonly openAddEditVaultItemPopout = openAddEditVaultItemPopout;
   private overlayVisibility: number;
   private overlayLoginCiphers: Map<string, CipherView> = new Map();
+  private fido2CredentialsForTab: Map<number, Fido2CredentialView[]> = new Map();
   private pageDetailsForTab: Record<number, PageDetail[]> = {};
   private userAuthStatus: AuthenticationStatus = AuthenticationStatus.LoggedOut;
   private overlayButtonPort: chrome.runtime.Port;
@@ -106,6 +108,10 @@ class OverlayBackground implements OverlayBackgroundInterface {
     delete this.pageDetailsForTab[tabId];
   }
 
+  setFido2Credentials(tabId: number, credentials: Fido2CredentialView[]) {
+    this.fido2CredentialsForTab.set(tabId, credentials);
+  }
+
   /**
    * Sets up the extension message listeners and gets the settings for the
    * overlay's visibility and the user's authentication status.
@@ -132,9 +138,16 @@ class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     this.overlayLoginCiphers = new Map();
-    const ciphersViews = (await this.cipherService.getAllDecryptedForUrl(currentTab.url)).sort(
-      (a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b),
+    const tabFido2CredentialIds = this.fido2CredentialsForTab
+      .get(currentTab.id)
+      ?.map((c) => c.credentialId);
+    const loginCipherViews = await this.cipherService.getAllDecryptedForUrl(currentTab.url);
+    const fido2CipherViews = (await this.cipherService.getAllDecrypted()).filter((c) =>
+      tabFido2CredentialIds?.includes(c.login?.fido2Credentials?.[0]?.credentialId),
     );
+    const ciphersViews = loginCipherViews
+      .concat(fido2CipherViews)
+      .sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
     for (let cipherIndex = 0; cipherIndex < ciphersViews.length; cipherIndex++) {
       this.overlayLoginCiphers.set(`overlay-cipher-${cipherIndex}`, ciphersViews[cipherIndex]);
     }
