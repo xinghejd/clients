@@ -1,6 +1,5 @@
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
-import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
 
 import AutofillPageDetails from "../../models/autofill-page-details";
 
@@ -117,8 +116,8 @@ type OverlayListPortMessageHandlers = {
 interface OverlayBackground {
   init(): Promise<void>;
   removePageDetails(tabId: number): void;
+  handleTabChanged(newTabId: number): Promise<void>;
   updateOverlayCiphers(): void;
-  setFido2Credentials(tabId: number, credentials: Fido2CredentialView[]): void;
 }
 
 export {

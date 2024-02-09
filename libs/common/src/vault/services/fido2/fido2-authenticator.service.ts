@@ -299,6 +299,11 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
     }
   }
 
+  async silentCredentialDiscovery(rpId: string): Promise<Fido2CredentialView[]> {
+    const credentials = await this.findCredentialsByRp(rpId);
+    return credentials.map((c) => c.login.fido2Credentials[0]);
+  }
+
   /** Finds existing crendetials and returns the `cipherId` for each one */
   private async findExcludedCredentials(
     credentials: PublicKeyCredentialDescriptor[],

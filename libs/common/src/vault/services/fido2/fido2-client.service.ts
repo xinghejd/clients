@@ -1,4 +1,13 @@
-import { firstValueFrom } from "rxjs";
+import {
+  BehaviorSubject,
+  distinctUntilChanged,
+  firstValueFrom,
+  map,
+  Observable,
+  shareReplay,
+  startWith,
+  Subject,
+} from "rxjs";
 import { parse } from "tldts";
 
 import { AuthService } from "../../../auth/abstractions/auth.service";
@@ -27,9 +36,73 @@ import {
   UserVerification,
 } from "../../abstractions/fido2/fido2-client.service.abstraction";
 import { VaultSettingsService } from "../../abstractions/vault-settings/vault-settings.service";
+import { Fido2CredentialView } from "../../models/view/fido2-credential.view";
 
 import { isValidRpId } from "./domain-utils";
 import { Fido2Utils } from "./fido2-utils";
+
+type RequestCollection = Readonly<{ [tabId: number]: ActiveRequest }>;
+
+class ActiveRequestManager {
+  private activeRequests$: BehaviorSubject<RequestCollection> = new BehaviorSubject({});
+
+  getActiveRequest$(tabId: number): Observable<ActiveRequest | undefined> {
+    return this.activeRequests$.pipe(
+      map((requests) => requests[tabId]),
+      distinctUntilChanged(),
+      shareReplay({ bufferSize: 1, refCount: true }),
+      startWith(undefined),
+    );
+  }
+
+  async newActiveRequest(
+    tabId: number,
+    credentials: Fido2CredentialView[],
+    abortController: AbortController,
+  ): Promise<string> {
+    const newRequest: ActiveRequest = {
+      credentials,
+      subject: new Subject(),
+    };
+    await this.updateRequests((existingRequests) => ({
+      ...existingRequests,
+      [tabId]: newRequest,
+    }));
+
+    const abortListener = () => this.abortActiveRequest(tabId);
+    abortController.signal.addEventListener("abort", abortListener);
+    const credentialId = firstValueFrom(newRequest.subject);
+    abortController.signal.removeEventListener("abort", abortListener);
+
+    return credentialId;
+  }
+
+  removeActiveRequest(tabId: number) {
+    this.abortActiveRequest(tabId);
+    this.updateRequests((existingRequests) => {
+      const newRequests = { ...existingRequests };
+      delete newRequests[tabId];
+      return newRequests;
+    });
+  }
+
+  private abortActiveRequest(tabId: number): void {
+    this.activeRequests$.value[tabId]?.subject.error(
+      new DOMException("The operation either timed out or was not allowed.", "AbortError"),
+    );
+  }
+
+  private updateRequests(
+    updateFunction: (existingRequests: RequestCollection) => RequestCollection,
+  ) {
+    this.activeRequests$.next(updateFunction(this.activeRequests$.value));
+  }
+}
+
+interface ActiveRequest {
+  credentials: Fido2CredentialView[];
+  subject: Subject<string>;
+}
 
 /**
  * Bitwarden implementation of the Web Authentication API as described by W3C
@@ -38,6 +111,8 @@ import { Fido2Utils } from "./fido2-utils";
  * It is highly recommended that the W3C specification is used a reference when reading this code.
  */
 export class Fido2ClientService implements Fido2ClientServiceAbstraction {
+  private requestManager = new ActiveRequestManager();
+
   constructor(
     private authenticator: Fido2AuthenticatorService,
     private configService: ConfigServiceAbstraction,
@@ -232,6 +307,19 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
         `[Fido2Client] 'rp.id' cannot be used with the current origin: rp.id = ${params.rpId}; origin = ${params.origin}`,
       );
       throw new DOMException("'rp.id' cannot be used with the current origin", "SecurityError");
+    }
+
+    if (params.mediation === "conditional") {
+      const availableCredentials = await this.authenticator.silentCredentialDiscovery(params.rpId);
+      this.logService?.info(
+        `[Fido2Client] started mediated request, available credentials: ${availableCredentials.length}`,
+      );
+      const credentialId = await this.requestManager.newActiveRequest(
+        tab.id,
+        availableCredentials,
+        abortController,
+      );
+      params.allowedCredentialIds = [credentialId];
     }
 
     const collectedClientData = {

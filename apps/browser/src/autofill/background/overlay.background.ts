@@ -44,7 +44,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private readonly openAddEditVaultItemPopout = openAddEditVaultItemPopout;
   private overlayVisibility: number;
   private overlayLoginCiphers: Map<string, CipherView> = new Map();
-  private fido2CredentialsForTab: Map<number, Fido2CredentialView[]> = new Map();
+  private overlayFido2Credentials: Fido2CredentialView[] = [];
   private pageDetailsForTab: Record<number, PageDetail[]> = {};
   private userAuthStatus: AuthenticationStatus = AuthenticationStatus.LoggedOut;
   private overlayButtonPort: chrome.runtime.Port;
@@ -98,6 +98,10 @@ class OverlayBackground implements OverlayBackgroundInterface {
     this.iconsServerUrl = this.environmentService.getIconsUrl();
   }
 
+  async handleTabChanged(): Promise<void> {
+    await this.updateOverlayCiphers();
+  }
+
   /**
    * Removes cached page details for a tab
    * based on the passed tabId.
@@ -106,10 +110,6 @@ class OverlayBackground implements OverlayBackgroundInterface {
    */
   removePageDetails(tabId: number) {
     delete this.pageDetailsForTab[tabId];
-  }
-
-  setFido2Credentials(tabId: number, credentials: Fido2CredentialView[]) {
-    this.fido2CredentialsForTab.set(tabId, credentials);
   }
 
   /**
@@ -138,9 +138,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     this.overlayLoginCiphers = new Map();
-    const tabFido2CredentialIds = this.fido2CredentialsForTab
-      .get(currentTab.id)
-      ?.map((c) => c.credentialId);
+    const tabFido2CredentialIds = this.overlayFido2Credentials.map((c) => c.credentialId);
     const loginCipherViews = await this.cipherService.getAllDecryptedForUrl(currentTab.url);
     const fido2CipherViews = (await this.cipherService.getAllDecrypted()).filter((c) =>
       tabFido2CredentialIds?.includes(c.login?.fido2Credentials?.[0]?.credentialId),
