@@ -50,7 +50,7 @@ class BrowserClipboardService {
     try {
       globalContext.document.execCommand("copy");
     } catch (error) {
-      BrowserClipboardService.consoleLogService.error(`Error writing to clipboard: ${error}`);
+      BrowserClipboardService.consoleLogService.warning(`Error writing to clipboard: ${error}`);
     } finally {
       globalContext.document.body.removeChild(textareaElement);
     }
@@ -69,7 +69,7 @@ class BrowserClipboardService {
     try {
       return globalContext.document.execCommand("paste") ? textareaElement.value : "";
     } catch (error) {
-      BrowserClipboardService.consoleLogService.error(`Error reading from clipboard: ${error}`);
+      BrowserClipboardService.consoleLogService.warning(`Error reading from clipboard: ${error}`);
     } finally {
       globalContext.document.body.removeChild(textareaElement);
     }
@@ -82,10 +82,9 @@ class BrowserClipboardService {
   }
 
   private static isLegacyClipboardMethodSupported(globalContext: Window, method: "copy" | "paste") {
-    const documentContext = globalContext.document;
-
     return (
-      "queryCommandSupported" in documentContext && documentContext.queryCommandSupported(method)
+      "queryCommandSupported" in globalContext.document &&
+      globalContext.document.queryCommandSupported(method)
     );
   }
 }

@@ -1,6 +1,7 @@
 type OffscreenMainExtensionMessage = {
   [key: string]: any;
   command: string;
+  text?: string;
 };
 
 type OffscreenExtensionMessageEventParams = {
@@ -10,5 +11,7 @@ type OffscreenExtensionMessageEventParams = {
 
 type OffscreenMainExtensionMessageHandlers = {
   [key: string]: ({ message, sender }: OffscreenExtensionMessageEventParams) => any;
+  offscreenCopyToClipboard: ({ message }: OffscreenExtensionMessageEventParams) => any;
+  offscreenReadFromClipboard: () => any;
 };
 export { OffscreenMainExtensionMessage, OffscreenMainExtensionMessageHandlers };

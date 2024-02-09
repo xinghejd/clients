@@ -226,15 +226,17 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
     }
     const clearing = options ? !!options.clearing : false;
     const clearMs: number = options && options.clearMs ? options.clearMs : null;
+    const handleClipboardWriteCallback = () => {
+      if (!clearing && this.clipboardWriteCallback != null) {
+        this.clipboardWriteCallback(text, clearMs);
+      }
+    };
 
     if (this.isSafari()) {
       SafariApp.sendMessageToApp("copyToClipboard", text)
-        .then(() => {
-          if (!clearing && this.clipboardWriteCallback != null) {
-            this.clipboardWriteCallback(text, clearMs);
-          }
-        })
+        .then(handleClipboardWriteCallback)
         .catch(() => {});
+
       return;
     }
 
@@ -242,12 +244,16 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
       text = "\u0000";
     }
 
+    if (BrowserApi.isManifestVersion(3)) {
+      this.triggerOffscreenCopyToClipboard(text)
+        .then(handleClipboardWriteCallback)
+        .catch(() => {});
+
+      return;
+    }
+
     BrowserClipboardService.copy(win, text)
-      .then(() => {
-        if (!clearing && this.clipboardWriteCallback != null) {
-          this.clipboardWriteCallback(text, clearMs);
-        }
-      })
+      .then(handleClipboardWriteCallback)
       .catch(() => {});
   }
 
@@ -259,6 +265,10 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
 
     if (this.isSafari()) {
       return await SafariApp.sendMessageToApp("readFromClipboard");
+    }
+
+    if (BrowserApi.isManifestVersion(3)) {
+      return await this.triggerOffscreenReadFromClipboard();
     }
 
     return await BrowserClipboardService.read(win);
@@ -306,5 +316,28 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
       );
     }
     return autofillCommand;
+  }
+
+  private async triggerOffscreenCopyToClipboard(text: string) {
+    await BrowserApi.createOffscreenDocument(
+      [chrome.offscreen.Reason.CLIPBOARD],
+      "Write text to the clipboard.",
+    );
+    await BrowserApi.sendMessageWithResponse("offscreenCopyToClipboard", { text });
+    BrowserApi.closeOffscreenDocument();
+  }
+
+  private async triggerOffscreenReadFromClipboard() {
+    await BrowserApi.createOffscreenDocument(
+      [chrome.offscreen.Reason.CLIPBOARD],
+      "Read text from the clipboard.",
+    );
+    const response = await BrowserApi.sendMessageWithResponse("offscreenReadFromClipboard");
+    BrowserApi.closeOffscreenDocument();
+    if (typeof response === "string") {
+      return response;
+    }
+
+    return "";
   }
 }

@@ -1,3 +1,6 @@
+import { BrowserApi } from "../browser/browser-api";
+import BrowserClipboardService from "../services/browser-clipboard.service";
+
 import {
   OffscreenMainExtensionMessage,
   OffscreenMainExtensionMessageHandlers,
@@ -6,14 +9,24 @@ import {
 class OffscreenMain {
   extensionMessageHandlers: OffscreenMainExtensionMessageHandlers = {
     offscreenCopyToClipboard: ({ message }) => this.handleOffscreenCopyToClipboard(message),
-    offscreenReadFromClipboard: ({ message }) => this.handleOffscreenReadFromClipboard(message),
+    offscreenReadFromClipboard: () => this.handleOffscreenReadFromClipboard(),
   };
 
-  constructor() {}
+  constructor() {
+    this.setupExtensionMessageListener();
+  }
 
-  handleOffscreenCopyToClipboard(message: OffscreenMainExtensionMessage) {}
+  async handleOffscreenCopyToClipboard(message: OffscreenMainExtensionMessage) {
+    await BrowserClipboardService.copy(window, message.text);
+  }
 
-  handleOffscreenReadFromClipboard(message: OffscreenMainExtensionMessage) {}
+  async handleOffscreenReadFromClipboard() {
+    return await BrowserClipboardService.read(window);
+  }
+
+  private setupExtensionMessageListener() {
+    BrowserApi.messageListener("offscreen-document", this.handleExtensionMessage);
+  }
 
   /**
    * Handles extension messages sent to the extension background.

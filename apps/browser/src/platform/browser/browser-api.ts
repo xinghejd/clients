@@ -530,4 +530,20 @@ export class BrowserApi {
     chrome.privacy.services.autofillCreditCardEnabled.set({ value });
     chrome.privacy.services.passwordSavingEnabled.set({ value });
   }
+
+  static async createOffscreenDocument(reasons: chrome.offscreen.Reason[], justification: string) {
+    await chrome.offscreen.createDocument({
+      url: "offscreen/index.html",
+      reasons,
+      justification,
+    });
+  }
+
+  static closeOffscreenDocument(callback?: () => void) {
+    chrome.offscreen.closeDocument(() => {
+      if (callback) {
+        callback();
+      }
+    });
+  }
 }
