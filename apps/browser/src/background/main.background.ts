@@ -804,6 +804,7 @@ export default class MainBackground {
       this.stateService,
       this.i18nService,
       this.platformUtilsService,
+      this.fido2ClientService,
     );
     this.filelessImporterBackground = new FilelessImporterBackground(
       this.configService,

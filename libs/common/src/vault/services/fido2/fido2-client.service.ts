@@ -138,6 +138,12 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     );
   }
 
+  availableAutofillCredentials$(tabId: number): Observable<Fido2CredentialView[]> {
+    return this.requestManager
+      .getActiveRequest$(tabId)
+      .pipe(map((request) => request?.credentials ?? []));
+  }
+
   async createCredential(
     params: CreateCredentialParams,
     tab: chrome.tabs.Tab,
