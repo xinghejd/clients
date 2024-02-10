@@ -12,7 +12,7 @@
     ></i>
     <span class="sr-only">{{ "loading" | i18n }}</span>
   </p>
-  <ng-container *ngIf="!loading">
+  <ng-container *ngIf="loading">
     <div class="form-group d-flex" *ngFor="let d of custom; let i = index; trackBy: indexTrackBy">
       <div class="flex-fill">
         <label for="customDomain_{{ i }}" class="sr-only">{{
