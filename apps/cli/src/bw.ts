@@ -606,7 +606,6 @@ export class Main {
     const userId = await this.stateService.getUserId();
     await this.lifeCycleService.logout(userId as UserId);
     await Promise.all([
-      this.cryptoService.clearKeys(),
       this.settingsService.clear(userId),
       this.cipherService.clear(userId),
       this.folderService.clear(userId),
