@@ -9,6 +9,24 @@ describe("BrowserApi", () => {
     jest.clearAllMocks();
   });
 
+  describe("isManifestVersion", () => {
+    beforeEach(() => {
+      jest.spyOn(BrowserApi, "manifestVersion", "get").mockReturnValue(3);
+    });
+
+    it("returns true if the manifest version matches the provided version", () => {
+      const result = BrowserApi.isManifestVersion(3);
+
+      expect(result).toBe(true);
+    });
+
+    it("returns false if the manifest version does not match the provided version", () => {
+      const result = BrowserApi.isManifestVersion(2);
+
+      expect(result).toBe(false);
+    });
+  });
+
   describe("getWindow", () => {
     it("will get the current window if a window id is not provided", () => {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
@@ -363,6 +381,32 @@ describe("BrowserApi", () => {
       expect(chrome.privacy.services.passwordSavingEnabled.set).toHaveBeenCalledWith({
         value: false,
       });
+    });
+  });
+
+  describe("createOffscreenDocument", () => {
+    it("creates the offscreen document with the supplied reasons and justification", async () => {
+      const reasons = [chrome.offscreen.Reason.CLIPBOARD];
+      const justification = "justification";
+
+      await BrowserApi.createOffscreenDocument(reasons, justification);
+
+      expect(chrome.offscreen.createDocument).toHaveBeenCalledWith({
+        url: "offscreen-document/index.html",
+        reasons,
+        justification,
+      });
+    });
+  });
+
+  describe("closeOffscreenDocument", () => {
+    it("closes the offscreen document", () => {
+      const callbackMock = jest.fn();
+
+      BrowserApi.closeOffscreenDocument(callbackMock);
+
+      expect(chrome.offscreen.closeDocument).toHaveBeenCalled();
+      expect(callbackMock).toHaveBeenCalled();
     });
   });
 });

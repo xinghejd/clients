@@ -19,6 +19,11 @@ export class BrowserApi {
     return chrome.runtime.getManifest().manifest_version;
   }
 
+  /**
+   * Determines if the extension manifest version is the given version.
+   *
+   * @param expectedVersion - The expected manifest version to check against.
+   */
   static isManifestVersion(expectedVersion: 2 | 3) {
     return BrowserApi.manifestVersion === expectedVersion;
   }
@@ -531,14 +536,26 @@ export class BrowserApi {
     chrome.privacy.services.passwordSavingEnabled.set({ value });
   }
 
+  /**
+   * Opens the offscreen document with the given reasons and justification.
+   *
+   * @param reasons - List of reasons for opening the offscreen document.
+   * @see https://developer.chrome.com/docs/extensions/reference/api/offscreen#type-Reason
+   * @param justification - Custom written justification for opening the offscreen document.
+   */
   static async createOffscreenDocument(reasons: chrome.offscreen.Reason[], justification: string) {
     await chrome.offscreen.createDocument({
-      url: "offscreen/index.html",
+      url: "offscreen-document/index.html",
       reasons,
       justification,
     });
   }
 
+  /**
+   * Closes the offscreen document.
+   *
+   * @param callback - Optional callback to execute after the offscreen document is closed.
+   */
   static closeOffscreenDocument(callback?: () => void) {
     chrome.offscreen.closeDocument(() => {
       if (callback) {

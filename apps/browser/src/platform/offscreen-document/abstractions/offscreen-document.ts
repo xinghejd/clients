@@ -1,17 +1,17 @@
-type OffscreenMainExtensionMessage = {
+type OffscreenDocumentExtensionMessage = {
   [key: string]: any;
   command: string;
   text?: string;
 };
 
 type OffscreenExtensionMessageEventParams = {
-  message: OffscreenMainExtensionMessage;
+  message: OffscreenDocumentExtensionMessage;
   sender: chrome.runtime.MessageSender;
 };
 
-type OffscreenMainExtensionMessageHandlers = {
+type OffscreenDocumentExtensionMessageHandlers = {
   [key: string]: ({ message, sender }: OffscreenExtensionMessageEventParams) => any;
   offscreenCopyToClipboard: ({ message }: OffscreenExtensionMessageEventParams) => any;
   offscreenReadFromClipboard: () => any;
 };
-export { OffscreenMainExtensionMessage, OffscreenMainExtensionMessageHandlers };
+export { OffscreenDocumentExtensionMessage, OffscreenDocumentExtensionMessageHandlers };

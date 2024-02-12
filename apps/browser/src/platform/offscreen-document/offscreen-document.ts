@@ -2,12 +2,12 @@ import { BrowserApi } from "../browser/browser-api";
 import BrowserClipboardService from "../services/browser-clipboard.service";
 
 import {
-  OffscreenMainExtensionMessage,
-  OffscreenMainExtensionMessageHandlers,
-} from "./abstractions/offscreen.main";
+  OffscreenDocumentExtensionMessage,
+  OffscreenDocumentExtensionMessageHandlers,
+} from "./abstractions/offscreen-document";
 
-class OffscreenMain {
-  extensionMessageHandlers: OffscreenMainExtensionMessageHandlers = {
+class OffscreenDocument {
+  extensionMessageHandlers: OffscreenDocumentExtensionMessageHandlers = {
     offscreenCopyToClipboard: ({ message }) => this.handleOffscreenCopyToClipboard(message),
     offscreenReadFromClipboard: () => this.handleOffscreenReadFromClipboard(),
   };
@@ -16,7 +16,7 @@ class OffscreenMain {
     this.setupExtensionMessageListener();
   }
 
-  async handleOffscreenCopyToClipboard(message: OffscreenMainExtensionMessage) {
+  async handleOffscreenCopyToClipboard(message: OffscreenDocumentExtensionMessage) {
     await BrowserClipboardService.copy(window, message.text);
   }
 
@@ -36,7 +36,7 @@ class OffscreenMain {
    * @param sendResponse - The response to send back to the sender
    */
   private handleExtensionMessage = (
-    message: OffscreenMainExtensionMessage,
+    message: OffscreenDocumentExtensionMessage,
     sender: chrome.runtime.MessageSender,
     sendResponse: (response?: any) => void,
   ) => {
@@ -57,4 +57,4 @@ class OffscreenMain {
   };
 }
 
-new OffscreenMain();
+new OffscreenDocument();
