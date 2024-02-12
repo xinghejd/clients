@@ -8,7 +8,7 @@ const REGISTRATION_TARGETS = Object.freeze(["lock", "logout"] as const);
 export type RegistrationTarget = (typeof REGISTRATION_TARGETS)[number];
 
 export type LifeCycleInterface<T extends RegistrationTarget> = {
-  [K in `on${Capitalize<T>}`]: (userId?: UserId) => void | Promise<void>;
+  [K in `on${Capitalize<T>}`]: (userId: UserId) => void | Promise<void>;
 };
 
 export function operationNameFor(target: RegistrationTarget) {
