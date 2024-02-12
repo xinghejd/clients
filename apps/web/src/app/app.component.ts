@@ -256,7 +256,6 @@ export class AppComponent implements OnDestroy, OnInit {
   }
 
   private async logOut(expired: boolean, redirect = true) {
-    await this.eventUploadService.uploadEvents();
     const userId = await this.stateService.getUserId();
     await this.lifeCycleService.logout(userId as UserId);
 

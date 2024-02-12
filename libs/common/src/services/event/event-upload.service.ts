@@ -3,7 +3,9 @@ import { EventUploadService as EventUploadServiceAbstraction } from "../../abstr
 import { EventRequest } from "../../models/request/event.request";
 import { LogService } from "../../platform/abstractions/log.service";
 import { StateService } from "../../platform/abstractions/state.service";
+import { register } from "../../platform/lifecycle";
 
+@register("logout")
 export class EventUploadService implements EventUploadServiceAbstraction {
   private inited = false;
   constructor(
@@ -11,6 +13,10 @@ export class EventUploadService implements EventUploadServiceAbstraction {
     private stateService: StateService,
     private logService: LogService,
   ) {}
+
+  async onLogout(userId: string) {
+    await this.uploadEvents(userId);
+  }
 
   init(checkOnInterval: boolean) {
     if (this.inited) {

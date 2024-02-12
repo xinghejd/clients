@@ -1020,8 +1020,6 @@ export default class MainBackground {
   }
 
   async logout(expired: boolean, userId?: string) {
-    await this.eventUploadService.uploadEvents(userId);
-
     await this.lifeCycleService.logout(userId as UserId);
     await Promise.all([this.vaultFilterService.clear()]);
 

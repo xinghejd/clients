@@ -568,7 +568,6 @@ export class AppComponent implements OnInit, OnDestroy {
     let preLogoutActiveUserId;
     try {
       await this.lifeCycleService.logout(userBeingLoggedOut as UserId);
-      await this.eventUploadService.uploadEvents(userBeingLoggedOut);
 
       preLogoutActiveUserId = this.activeUserId;
       await this.stateService.clean({ userId: userBeingLoggedOut });
