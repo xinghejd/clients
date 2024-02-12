@@ -1024,7 +1024,6 @@ export default class MainBackground {
 
     await this.lifeCycleService.logout(userId as UserId);
     await Promise.all([
-      this.syncService.setLastSync(new Date(0), userId as UserId),
       this.cryptoService.clearKeys(userId),
       this.settingsService.clear(userId),
       this.cipherService.clear(userId),
