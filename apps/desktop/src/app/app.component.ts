@@ -571,7 +571,6 @@ export class AppComponent implements OnInit, OnDestroy {
       await this.eventUploadService.uploadEvents(userBeingLoggedOut);
       await this.passwordGenerationService.clear(userBeingLoggedOut);
       await this.vaultTimeoutSettingsService.clear(userBeingLoggedOut);
-      await this.policyService.clear(userBeingLoggedOut);
       await this.keyConnectorService.clear();
 
       preLogoutActiveUserId = this.activeUserId;

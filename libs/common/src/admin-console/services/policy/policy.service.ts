@@ -2,7 +2,9 @@ import { BehaviorSubject, concatMap, map, Observable, of } from "rxjs";
 
 import { ListResponse } from "../../../models/response/list.response";
 import { StateService } from "../../../platform/abstractions/state.service";
+import { register } from "../../../platform/lifecycle";
 import { Utils } from "../../../platform/misc/utils";
+import { UserId } from "../../../types/guid";
 import { OrganizationService } from "../../abstractions/organization/organization.service.abstraction";
 import { InternalPolicyService as InternalPolicyServiceAbstraction } from "../../abstractions/policy/policy.service.abstraction";
 import { OrganizationUserStatusType, OrganizationUserType, PolicyType } from "../../enums";
@@ -13,6 +15,7 @@ import { Policy } from "../../models/domain/policy";
 import { ResetPasswordPolicyOptions } from "../../models/domain/reset-password-policy-options";
 import { PolicyResponse } from "../../models/response/policy.response";
 
+@register("logout")
 export class PolicyService implements InternalPolicyServiceAbstraction {
   protected _policies: BehaviorSubject<Policy[]> = new BehaviorSubject([]);
 
@@ -40,6 +43,10 @@ export class PolicyService implements InternalPolicyServiceAbstraction {
         }),
       )
       .subscribe();
+  }
+
+  async onLogout(userId: UserId) {
+    await this.clear(userId);
   }
 
   get$(policyType: PolicyType, policyFilter?: (policy: Policy) => boolean): Observable<Policy> {

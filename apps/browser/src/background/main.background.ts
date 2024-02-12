@@ -1024,7 +1024,6 @@ export default class MainBackground {
 
     await this.lifeCycleService.logout(userId as UserId);
     await Promise.all([
-      this.policyService.clear(userId),
       this.passwordGenerationService.clear(userId),
       this.vaultTimeoutSettingsService.clear(userId),
       this.keyConnectorService.clear(),
