@@ -260,7 +260,6 @@ export class AppComponent implements OnDestroy, OnInit {
     const userId = await this.stateService.getUserId();
     await this.lifeCycleSerivce.logout(userId as UserId);
     await Promise.all([
-      this.settingsService.clear(userId),
       this.cipherService.clear(userId),
       this.folderService.clear(userId),
       this.collectionService.clear(userId),

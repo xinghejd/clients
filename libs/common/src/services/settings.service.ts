@@ -2,9 +2,12 @@ import { BehaviorSubject, concatMap } from "rxjs";
 
 import { SettingsService as SettingsServiceAbstraction } from "../abstractions/settings.service";
 import { StateService } from "../platform/abstractions/state.service";
+import { register } from "../platform/lifecycle";
 import { Utils } from "../platform/misc/utils";
 import { AccountSettingsSettings } from "../platform/models/domain/account";
+import { UserId } from "../types/guid";
 
+@register("logout")
 export class SettingsService implements SettingsServiceAbstraction {
   protected _settings: BehaviorSubject<AccountSettingsSettings> = new BehaviorSubject({});
   protected _disableFavicon = new BehaviorSubject<boolean>(null);
@@ -33,6 +36,10 @@ export class SettingsService implements SettingsServiceAbstraction {
         }),
       )
       .subscribe();
+  }
+
+  async onLogout(userId: UserId) {
+    await this.clear(userId);
   }
 
   async setEquivalentDomains(equivalentDomains: string[][]): Promise<void> {
