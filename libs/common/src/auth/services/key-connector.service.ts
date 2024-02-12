@@ -6,8 +6,10 @@ import { CryptoFunctionService } from "../../platform/abstractions/crypto-functi
 import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { StateService } from "../../platform/abstractions/state.service";
+import { register } from "../../platform/lifecycle";
 import { Utils } from "../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
+import { UserId } from "../../types/guid";
 import { MasterKey } from "../../types/key";
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "../abstractions/key-connector.service";
 import { TokenService } from "../abstractions/token.service";
@@ -16,6 +18,7 @@ import { KeyConnectorUserKeyRequest } from "../models/request/key-connector-user
 import { SetKeyConnectorKeyRequest } from "../models/request/set-key-connector-key.request";
 import { IdentityTokenResponse } from "../models/response/identity-token.response";
 
+@register("logout")
 export class KeyConnectorService implements KeyConnectorServiceAbstraction {
   constructor(
     private stateService: StateService,
@@ -27,6 +30,11 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     private cryptoFunctionService: CryptoFunctionService,
     private logoutCallback: (expired: boolean, userId?: string) => Promise<void>,
   ) {}
+
+  async onLogout(_: UserId) {
+    // TODO: This should probably take a userId
+    await this.clear();
+  }
 
   setUsesKeyConnector(usesKeyConnector: boolean) {
     return this.stateService.setUsesKeyConnector(usesKeyConnector);
