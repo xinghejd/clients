@@ -84,7 +84,7 @@ export class AppComponent implements OnDestroy, OnInit {
     private keyConnectorService: KeyConnectorService,
     private configService: ConfigServiceAbstraction,
     private dialogService: DialogService,
-    private lifeCycleSerivce: LifeCycleService,
+    private lifeCycleService: LifeCycleService,
   ) {}
 
   ngOnInit() {
@@ -258,7 +258,7 @@ export class AppComponent implements OnDestroy, OnInit {
   private async logOut(expired: boolean, redirect = true) {
     await this.eventUploadService.uploadEvents();
     const userId = await this.stateService.getUserId();
-    await this.lifeCycleSerivce.logout(userId as UserId);
+    await this.lifeCycleService.logout(userId as UserId);
 
     this.searchService.clearIndex();
     this.authService.logOut(async () => {
