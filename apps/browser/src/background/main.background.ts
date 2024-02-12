@@ -1021,7 +1021,6 @@ export default class MainBackground {
 
   async logout(expired: boolean, userId?: string) {
     await this.lifeCycleService.logout(userId as UserId);
-    await Promise.all([this.vaultFilterService.clear()]);
 
     //Needs to be checked before state is cleaned
     const needStorageReseed = await this.needsStorageReseed();
