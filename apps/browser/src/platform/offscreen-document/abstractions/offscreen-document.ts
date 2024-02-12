@@ -14,4 +14,13 @@ type OffscreenDocumentExtensionMessageHandlers = {
   offscreenCopyToClipboard: ({ message }: OffscreenExtensionMessageEventParams) => any;
   offscreenReadFromClipboard: () => any;
 };
-export { OffscreenDocumentExtensionMessage, OffscreenDocumentExtensionMessageHandlers };
+
+interface OffscreenDocument {
+  init(): void;
+}
+
+export {
+  OffscreenDocumentExtensionMessage,
+  OffscreenDocumentExtensionMessageHandlers,
+  OffscreenDocument,
+};

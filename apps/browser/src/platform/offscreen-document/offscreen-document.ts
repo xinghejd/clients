@@ -1,29 +1,47 @@
+import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
+
 import { BrowserApi } from "../browser/browser-api";
 import BrowserClipboardService from "../services/browser-clipboard.service";
 
 import {
   OffscreenDocumentExtensionMessage,
   OffscreenDocumentExtensionMessageHandlers,
+  OffscreenDocument as OffscreenDocumentInterface,
 } from "./abstractions/offscreen-document";
 
-class OffscreenDocument {
-  extensionMessageHandlers: OffscreenDocumentExtensionMessageHandlers = {
+class OffscreenDocument implements OffscreenDocumentInterface {
+  private consoleLogService: ConsoleLogService = new ConsoleLogService(false);
+  private readonly extensionMessageHandlers: OffscreenDocumentExtensionMessageHandlers = {
     offscreenCopyToClipboard: ({ message }) => this.handleOffscreenCopyToClipboard(message),
     offscreenReadFromClipboard: () => this.handleOffscreenReadFromClipboard(),
   };
 
-  constructor() {
+  /**
+   * Initializes the offscreen document extension.
+   */
+  init() {
     this.setupExtensionMessageListener();
   }
 
-  async handleOffscreenCopyToClipboard(message: OffscreenDocumentExtensionMessage) {
+  /**
+   * Copies the given text to the user's clipboard.
+   *
+   * @param message - The extension message containing the text to copy
+   */
+  private async handleOffscreenCopyToClipboard(message: OffscreenDocumentExtensionMessage) {
     await BrowserClipboardService.copy(window, message.text);
   }
 
-  async handleOffscreenReadFromClipboard() {
+  /**
+   * Reads the user's clipboard and returns the text.
+   */
+  private async handleOffscreenReadFromClipboard() {
     return await BrowserClipboardService.read(window);
   }
 
+  /**
+   * Sets up the listener for extension messages.
+   */
   private setupExtensionMessageListener() {
     BrowserApi.messageListener("offscreen-document", this.handleExtensionMessage);
   }
@@ -52,9 +70,14 @@ class OffscreenDocument {
 
     Promise.resolve(messageResponse)
       .then((response) => sendResponse(response))
-      .catch(() => {});
+      .catch((error) =>
+        this.consoleLogService.error(`Error resolving extension message response: ${error}`),
+      );
     return true;
   };
 }
 
-new OffscreenDocument();
+(() => {
+  const offscreenDocument = new OffscreenDocument();
+  offscreenDocument.init();
+})();
