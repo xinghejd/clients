@@ -1,5 +1,5 @@
 import { StateService } from "../../platform/abstractions/state.service";
-import { KeyDefinition, PROVIDERS_DISK } from "../../platform/state";
+import { KeyDefinition, PROVIDERS_DISK, StateProvider } from "../../platform/state";
 import { ProviderService as ProviderServiceAbstraction } from "../abstractions/provider.service";
 import { ProviderData } from "../models/data/provider.data";
 import { Provider } from "../models/domain/provider";
@@ -9,7 +9,10 @@ export const PROVIDERS = KeyDefinition.record<ProviderData>(PROVIDERS_DISK, "pro
 });
 
 export class ProviderService implements ProviderServiceAbstraction {
-  constructor(private stateService: StateService) {}
+  constructor(
+    private stateService: StateService,
+    private stateProvider: StateProvider,
+  ) {}
 
   async get(id: string): Promise<Provider> {
     const providers = await this.stateService.getProviders();
