@@ -109,6 +109,8 @@ import {
   DefaultBiometricStateService,
 } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
+import { LifeCycleService } from "@bitwarden/common/platform/lifecycle";
+import { DefaultLifeCycleService } from "@bitwarden/common/platform/lifecycle/lifecycle.service";
 import { devFlagEnabled, flagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { Account } from "@bitwarden/common/platform/models/domain/account";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
@@ -922,6 +924,11 @@ import { ModalService } from "./modal.service";
       provide: BillingApiServiceAbstraction,
       useClass: BillingApiService,
       deps: [ApiServiceAbstraction],
+    },
+    {
+      provide: LifeCycleService,
+      useClass: DefaultLifeCycleService,
+      deps: [AccountServiceAbstraction],
     },
   ],
 })
