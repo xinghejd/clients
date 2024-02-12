@@ -1,19 +1,19 @@
 import { mockAccountServiceWith } from "../../../spec";
 import { UserId } from "../../types/guid";
 
-import { DefaultLifecycleService, LifecycleService } from "./lifecycle.service";
+import { DefaultLifeCycleService, LifeCycleService } from "./lifecycle.service";
 import {
   register,
   REGISTERED_TARGETS,
-  LifecycleInterface,
+  LifeCycleInterface,
   RegistrationTarget,
 } from "./register.decorator";
 import { clearRegisteredTargets } from "./register.decorator.spec";
 
-describe("LifecycleService", () => {
-  let sut: LifecycleService;
-  let onLogouts: LifecycleInterface<"logout">[];
-  let onLocks: LifecycleInterface<"lock">[];
+describe("LifeCycleService", () => {
+  let sut: LifeCycleService;
+  let onLogouts: LifeCycleInterface<"logout">[];
+  let onLocks: LifeCycleInterface<"lock">[];
   const userId = "userId" as UserId;
   const accountService = mockAccountServiceWith(userId);
 
@@ -26,7 +26,7 @@ describe("LifecycleService", () => {
     }
     onLocks = onLogouts = [new TestLogout(), new TestLogout(), new TestLogout()];
 
-    sut = new DefaultLifecycleService(accountService);
+    sut = new DefaultLifeCycleService(accountService);
   });
 
   afterEach(() => {
@@ -79,10 +79,10 @@ describe("LifecycleService", () => {
       ["logout" as RegistrationTarget, {}],
     ])("should register the target", (target, service) => {
       if (target === "lock") {
-        LifecycleService.register(target, service as LifecycleInterface<"lock">);
+        LifeCycleService.register(target, service as LifeCycleInterface<"lock">);
         expect(REGISTERED_TARGETS.lock).toEqual([...onLocks, service]);
       } else if (target === "logout") {
-        LifecycleService.register(target, service as LifecycleInterface<"logout">);
+        LifeCycleService.register(target, service as LifeCycleInterface<"logout">);
         expect(REGISTERED_TARGETS.logout).toEqual([...onLogouts, service]);
       } else {
         throw new Error("Invalid target");

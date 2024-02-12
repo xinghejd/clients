@@ -2,12 +2,12 @@ import { Constructor } from "type-fest";
 
 import { UserId } from "../../types/guid";
 
-import { LifecycleService } from "./lifecycle.service";
+import { LifeCycleService } from "./lifecycle.service";
 
 const REGISTRATION_TARGETS = Object.freeze(["lock", "logout"] as const);
 export type RegistrationTarget = (typeof REGISTRATION_TARGETS)[number];
 
-export type LifecycleInterface<T extends RegistrationTarget> = {
+export type LifeCycleInterface<T extends RegistrationTarget> = {
   [K in `on${Capitalize<T>}`]: (userId?: UserId) => void | Promise<void>;
 };
 
@@ -20,10 +20,10 @@ export const REGISTERED_TARGETS = Object.freeze(
     (acc, target) => {
       return {
         ...acc,
-        [target]: [] as LifecycleInterface<RegistrationTarget>[],
+        [target]: [] as LifeCycleInterface<RegistrationTarget>[],
       };
     },
-    {} as Record<RegistrationTarget, LifecycleInterface<RegistrationTarget>[]>,
+    {} as Record<RegistrationTarget, LifeCycleInterface<RegistrationTarget>[]>,
   ),
 );
 
@@ -37,7 +37,7 @@ export const REGISTERED_TARGETS = Object.freeze(
 export function register<TRegistrationTarget extends RegistrationTarget>(
   target: TRegistrationTarget,
 ) {
-  return <TCtor extends Constructor<LifecycleInterface<TRegistrationTarget>>>(
+  return <TCtor extends Constructor<LifeCycleInterface<TRegistrationTarget>>>(
     constructor: TCtor,
   ) => {
     // `TRegistrationInterface`, and therefore the constructor's return type, aren't statically known. We need to cast to any.
@@ -47,7 +47,7 @@ export function register<TRegistrationTarget extends RegistrationTarget>(
       constructor(...args: any[]) {
         super(...args);
         if (isRegistrationTarget(target, this)) {
-          LifecycleService.register(target, this);
+          LifeCycleService.register(target, this);
         }
       }
     } as TCtor; // This cast is safe because the adhoc constructor inherits from the passed in constructor.
@@ -57,6 +57,6 @@ export function register<TRegistrationTarget extends RegistrationTarget>(
 function isRegistrationTarget<T extends RegistrationTarget>(
   target: RegistrationTarget,
   instance: any,
-): instance is LifecycleInterface<T> {
+): instance is LifeCycleInterface<T> {
   return typeof instance[operationNameFor(target)] === "function";
 }

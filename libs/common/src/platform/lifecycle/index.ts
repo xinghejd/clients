@@ -1,2 +1,2 @@
-export { LifecycleService } from "./lifecycle.service";
+export { LifeCycleService } from "./lifecycle.service";
 export { register } from "./register.decorator";

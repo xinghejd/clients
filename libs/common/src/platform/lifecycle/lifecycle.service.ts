@@ -5,24 +5,24 @@ import { UserId } from "../../types/guid";
 
 import {
   REGISTERED_TARGETS,
-  LifecycleInterface,
+  LifeCycleInterface,
   RegistrationTarget,
   operationNameFor,
 } from "./register.decorator";
 
-export abstract class LifecycleService {
+export abstract class LifeCycleService {
   static register<TTarget extends RegistrationTarget>(
     target: TTarget,
-    service: LifecycleInterface<TTarget>,
+    service: LifeCycleInterface<TTarget>,
   ) {
-    REGISTERED_TARGETS[target].push(service as LifecycleInterface<RegistrationTarget>); // Meaningless cast
+    REGISTERED_TARGETS[target].push(service as LifeCycleInterface<RegistrationTarget>); // Meaningless cast
   }
 
   abstract lock(userId?: UserId): Promise<void>;
   abstract logout(userId?: UserId): Promise<void>;
 }
 
-export class DefaultLifecycleService {
+export class DefaultLifeCycleService {
   constructor(private accountService: AccountService) {}
 
   async lock(userId?: UserId) {
