@@ -3,8 +3,10 @@ import { PolicyType } from "../../../admin-console/enums";
 import { PasswordGeneratorPolicyOptions } from "../../../admin-console/models/domain/password-generator-policy-options";
 import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { StateService } from "../../../platform/abstractions/state.service";
+import { register } from "../../../platform/lifecycle";
 import { EFFLongWordList } from "../../../platform/misc/wordlist";
 import { EncString } from "../../../platform/models/domain/enc-string";
+import { UserId } from "../../../types/guid";
 import { PassphraseGeneratorOptionsEvaluator } from "../passphrase/passphrase-generator-options-evaluator";
 
 import { GeneratedPasswordHistory } from "./generated-password-history";
@@ -35,12 +37,17 @@ const DefaultPolicy = new PasswordGeneratorPolicyOptions();
 
 const MaxPasswordsInHistory = 100;
 
+@register("logout")
 export class PasswordGenerationService implements PasswordGenerationServiceAbstraction {
   constructor(
     private cryptoService: CryptoService,
     private policyService: PolicyService,
     private stateService: StateService,
   ) {}
+
+  async onLogout(userId: UserId) {
+    await this.clear(userId);
+  }
 
   async generatePassword(options: PasswordGeneratorOptions): Promise<string> {
     if ((options.type ?? DefaultOptions.type) === "passphrase") {
