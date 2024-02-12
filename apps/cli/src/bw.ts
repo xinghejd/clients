@@ -605,11 +605,7 @@ export class Main {
     });
     const userId = await this.stateService.getUserId();
     await this.lifeCycleService.logout(userId as UserId);
-    await Promise.all([
-      this.collectionService.clear(userId),
-      this.policyService.clear(userId),
-      this.passwordGenerationService.clear(),
-    ]);
+    await Promise.all([this.policyService.clear(userId), this.passwordGenerationService.clear()]);
     await this.stateService.clean();
     process.env.BW_SESSION = null;
   }

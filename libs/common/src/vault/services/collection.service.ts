@@ -1,7 +1,9 @@
 import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { StateService } from "../../platform/abstractions/state.service";
+import { register } from "../../platform/lifecycle";
 import { Utils } from "../../platform/misc/utils";
+import { UserId } from "../../types/guid";
 import { CollectionService as CollectionServiceAbstraction } from "../../vault/abstractions/collection.service";
 import { CollectionData } from "../models/data/collection.data";
 import { Collection } from "../models/domain/collection";
@@ -11,12 +13,17 @@ import { ServiceUtils } from "../service-utils";
 
 const NestingDelimiter = "/";
 
+@register("logout")
 export class CollectionService implements CollectionServiceAbstraction {
   constructor(
     private cryptoService: CryptoService,
     private i18nService: I18nService,
     private stateService: StateService,
   ) {}
+
+  async onLogout(userId: UserId) {
+    await this.clear(userId);
+  }
 
   async clearCache(userId?: string): Promise<void> {
     await this.stateService.setDecryptedCollections(null, { userId: userId });
