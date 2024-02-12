@@ -60,6 +60,8 @@ import {
 } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
+import { LifeCycleService } from "@bitwarden/common/platform/lifecycle";
+import { DefaultLifeCycleService } from "@bitwarden/common/platform/lifecycle/lifecycle.service";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { AppIdService } from "@bitwarden/common/platform/services/app-id.service";
 import { ConfigApiService } from "@bitwarden/common/platform/services/config/config-api.service";
@@ -271,6 +273,7 @@ export default class MainBackground {
   individualVaultExportService: IndividualVaultExportServiceAbstraction;
   organizationVaultExportService: OrganizationVaultExportServiceAbstraction;
   vaultSettingsService: VaultSettingsServiceAbstraction;
+  lifeCycleService: LifeCycleService;
 
   // Passed to the popup for Safari to workaround issues with theming, downloading, etc.
   backgroundWindow = window;
@@ -357,6 +360,7 @@ export default class MainBackground {
       this.logService,
       this.globalStateProvider,
     );
+    this.lifeCycleService = new DefaultLifeCycleService(this.accountService);
     this.activeUserStateProvider = new DefaultActiveUserStateProvider(
       this.accountService,
       this.memoryStorageForStateProviders,
@@ -1018,6 +1022,7 @@ export default class MainBackground {
   async logout(expired: boolean, userId?: string) {
     await this.eventUploadService.uploadEvents(userId);
 
+    await this.lifeCycleService.logout(userId as UserId);
     await Promise.all([
       this.syncService.setLastSync(new Date(0), userId as UserId),
       this.cryptoService.clearKeys(userId),

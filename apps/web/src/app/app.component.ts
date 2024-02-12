@@ -20,7 +20,9 @@ import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.se
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { LifeCycleService } from "@bitwarden/common/platform/lifecycle";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -82,6 +84,7 @@ export class AppComponent implements OnDestroy, OnInit {
     private keyConnectorService: KeyConnectorService,
     private configService: ConfigServiceAbstraction,
     private dialogService: DialogService,
+    private lifeCycleSerivce: LifeCycleService,
   ) {}
 
   ngOnInit() {
@@ -255,6 +258,7 @@ export class AppComponent implements OnDestroy, OnInit {
   private async logOut(expired: boolean, redirect = true) {
     await this.eventUploadService.uploadEvents();
     const userId = await this.stateService.getUserId();
+    await this.lifeCycleSerivce.logout(userId as UserId);
     await Promise.all([
       this.syncService.setLastSync(new Date(0)),
       this.cryptoService.clearKeys(),

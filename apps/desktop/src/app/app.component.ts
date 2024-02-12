@@ -38,6 +38,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
+import { LifeCycleService } from "@bitwarden/common/platform/lifecycle";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -147,6 +148,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private userVerificationService: UserVerificationService,
     private configService: ConfigServiceAbstraction,
     private dialogService: DialogService,
+    private lifeCycleService: LifeCycleService,
   ) {}
 
   ngOnInit() {
@@ -565,6 +567,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
     let preLogoutActiveUserId;
     try {
+      await this.lifeCycleService.logout(userBeingLoggedOut as UserId);
       await this.eventUploadService.uploadEvents(userBeingLoggedOut);
       await this.syncService.setLastSync(new Date(0), userBeingLoggedOut as UserId);
       await this.cryptoService.clearKeys(userBeingLoggedOut);
