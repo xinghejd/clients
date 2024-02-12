@@ -12,6 +12,7 @@ import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { StateService } from "../../platform/abstractions/state.service";
+import { register } from "../../platform/lifecycle";
 import { flagEnabled } from "../../platform/misc/flags";
 import { sequentialize } from "../../platform/misc/sequentialize";
 import { Utils } from "../../platform/misc/utils";
@@ -19,6 +20,7 @@ import Domain from "../../platform/models/domain/domain-base";
 import { EncArrayBuffer } from "../../platform/models/domain/enc-array-buffer";
 import { EncString } from "../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
+import { UserId } from "../../types/guid";
 import { UserKey, OrgKey } from "../../types/key";
 import { CipherService as CipherServiceAbstraction } from "../abstractions/cipher.service";
 import { CipherFileUploadService } from "../abstractions/file-upload/cipher-file-upload.service";
@@ -53,6 +55,7 @@ import { PasswordHistoryView } from "../models/view/password-history.view";
 
 const CIPHER_KEY_ENC_MIN_SERVER_VER = new SemVer("2024.2.0");
 
+@register("logout")
 export class CipherService implements CipherServiceAbstraction {
   private sortedCiphersCache: SortedCiphersCache = new SortedCiphersCache(
     this.sortCiphersByLastUsed,
@@ -69,6 +72,10 @@ export class CipherService implements CipherServiceAbstraction {
     private cipherFileUploadService: CipherFileUploadService,
     private configService: ConfigServiceAbstraction,
   ) {}
+
+  async onLogout(userId: UserId) {
+    await this.clear(userId);
+  }
 
   async getDecryptedCipherCache(): Promise<CipherView[]> {
     const decryptedCiphers = await this.stateService.getDecryptedCiphers();
