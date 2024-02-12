@@ -1023,10 +1023,7 @@ export default class MainBackground {
     await this.eventUploadService.uploadEvents(userId);
 
     await this.lifeCycleService.logout(userId as UserId);
-    await Promise.all([
-      this.vaultTimeoutSettingsService.clear(userId),
-      this.vaultFilterService.clear(),
-    ]);
+    await Promise.all([this.vaultFilterService.clear()]);
 
     //Needs to be checked before state is cleaned
     const needStorageReseed = await this.needsStorageReseed();

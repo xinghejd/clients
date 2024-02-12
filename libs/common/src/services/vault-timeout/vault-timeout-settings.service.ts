@@ -7,6 +7,8 @@ import { TokenService } from "../../auth/abstractions/token.service";
 import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
 import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { StateService } from "../../platform/abstractions/state.service";
+import { register } from "../../platform/lifecycle";
+import { UserId } from "../../types/guid";
 
 /**
  * - DISABLED: No Pin set
@@ -15,6 +17,7 @@ import { StateService } from "../../platform/abstractions/state.service";
  */
 export type PinLockType = "DISABLED" | "PERSISTANT" | "TRANSIENT";
 
+@register("logout")
 export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceAbstraction {
   constructor(
     private cryptoService: CryptoService,
@@ -22,6 +25,10 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
     private policyService: PolicyService,
     private stateService: StateService,
   ) {}
+
+  async onLogout(userId: UserId) {
+    await this.clear(userId);
+  }
 
   async setVaultTimeoutOptions(timeout: number, action: VaultTimeoutAction): Promise<void> {
     // We swap these tokens from being on disk for lock actions, and in memory for logout actions
