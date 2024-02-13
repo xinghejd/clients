@@ -3,7 +3,7 @@ import { Observable, firstValueFrom, map } from "rxjs";
 import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { StateService } from "../../../platform/abstractions/state.service";
-import { register } from "../../../platform/lifecycle";
+import { respondsTo } from "../../../platform/lifecycle";
 import { Utils } from "../../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { ActiveUserState, DerivedState, StateProvider } from "../../../platform/state";
@@ -16,7 +16,7 @@ import { Folder } from "../../../vault/models/domain/folder";
 import { FolderView } from "../../../vault/models/view/folder.view";
 import { FOLDER_DECRYPTED_FOLDERS, FOLDER_ENCRYPTED_FOLDERS } from "../key-state/folder.state";
 
-@register("logout")
+@respondsTo("logout")
 export class FolderService implements InternalFolderServiceAbstraction {
   folders$: Observable<Folder[]>;
   folderViews$: Observable<FolderView[]>;

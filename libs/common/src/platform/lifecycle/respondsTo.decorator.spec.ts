@@ -1,4 +1,4 @@
-import { REGISTERED_TARGETS, register } from "./register.decorator";
+import { REGISTERED_EVENT_HANDLERS, respondsTo } from "./respondsTo.decorator";
 
 describe("register", () => {
   afterEach(() => {
@@ -6,47 +6,47 @@ describe("register", () => {
   });
 
   it("should register a class for onLock", () => {
-    @register("lock")
+    @respondsTo("lock")
     class TestClass {
       onLock() {}
     }
     const testClass = new TestClass();
-    expect(REGISTERED_TARGETS.lock).toEqual([testClass]);
+    expect(REGISTERED_EVENT_HANDLERS.lock).toEqual([testClass]);
   });
 
   it("should register a class for onLogout", () => {
-    @register("logout")
+    @respondsTo("logout")
     class TestClass {
       onLogout() {}
     }
     const testClass = new TestClass();
-    expect(REGISTERED_TARGETS.logout).toEqual([testClass]);
+    expect(REGISTERED_EVENT_HANDLERS.logout).toEqual([testClass]);
   });
 
   it("should register for both onLock and onLogout", () => {
-    @register("logout")
-    @register("lock")
+    @respondsTo("logout")
+    @respondsTo("lock")
     class TestClass {
       onLock() {}
       onLogout() {}
     }
     const testClass = new TestClass();
-    expect(REGISTERED_TARGETS.lock).toEqual([testClass]);
-    expect(REGISTERED_TARGETS.logout).toEqual([testClass]);
+    expect(REGISTERED_EVENT_HANDLERS.lock).toEqual([testClass]);
+    expect(REGISTERED_EVENT_HANDLERS.logout).toEqual([testClass]);
   });
 
   it("should register multiple instances of a class", () => {
-    @register("lock")
+    @respondsTo("lock")
     class TestClass {
       onLock() {}
     }
     const testClass1 = new TestClass();
     const testClass2 = new TestClass();
-    expect(REGISTERED_TARGETS.lock).toEqual([testClass1, testClass2]);
+    expect(REGISTERED_EVENT_HANDLERS.lock).toEqual([testClass1, testClass2]);
   });
 });
 
 export function clearRegisteredTargets() {
-  REGISTERED_TARGETS.lock.splice(0, REGISTERED_TARGETS.lock.length);
-  REGISTERED_TARGETS.logout.splice(0, REGISTERED_TARGETS.logout.length);
+  REGISTERED_EVENT_HANDLERS.lock.splice(0, REGISTERED_EVENT_HANDLERS.lock.length);
+  REGISTERED_EVENT_HANDLERS.logout.splice(0, REGISTERED_EVENT_HANDLERS.logout.length);
 }

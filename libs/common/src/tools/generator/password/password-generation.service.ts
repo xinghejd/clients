@@ -3,7 +3,7 @@ import { PolicyType } from "../../../admin-console/enums";
 import { PasswordGeneratorPolicyOptions } from "../../../admin-console/models/domain/password-generator-policy-options";
 import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { StateService } from "../../../platform/abstractions/state.service";
-import { register } from "../../../platform/lifecycle";
+import { respondsTo } from "../../../platform/lifecycle";
 import { EFFLongWordList } from "../../../platform/misc/wordlist";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { UserId } from "../../../types/guid";
@@ -37,7 +37,7 @@ const DefaultPolicy = new PasswordGeneratorPolicyOptions();
 
 const MaxPasswordsInHistory = 100;
 
-@register("logout")
+@respondsTo("logout")
 export class PasswordGenerationService implements PasswordGenerationServiceAbstraction {
   constructor(
     private cryptoService: CryptoService,

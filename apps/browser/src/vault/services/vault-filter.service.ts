@@ -4,14 +4,14 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { register } from "@bitwarden/common/platform/lifecycle";
+import { respondsTo } from "@bitwarden/common/platform/lifecycle";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-@register("logout")
+@respondsTo("logout")
 export class VaultFilterService extends BaseVaultFilterService {
   vaultFilter: VaultFilter = new VaultFilter();
 

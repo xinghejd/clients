@@ -12,7 +12,7 @@ import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { StateService } from "../../platform/abstractions/state.service";
-import { register } from "../../platform/lifecycle";
+import { respondsTo } from "../../platform/lifecycle";
 import { flagEnabled } from "../../platform/misc/flags";
 import { sequentialize } from "../../platform/misc/sequentialize";
 import { Utils } from "../../platform/misc/utils";
@@ -55,7 +55,7 @@ import { PasswordHistoryView } from "../models/view/password-history.view";
 
 const CIPHER_KEY_ENC_MIN_SERVER_VER = new SemVer("2024.2.0");
 
-@register("logout")
+@respondsTo("logout")
 export class CipherService implements CipherServiceAbstraction {
   private sortedCiphersCache: SortedCiphersCache = new SortedCiphersCache(
     this.sortCiphersByLastUsed,

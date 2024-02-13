@@ -4,21 +4,36 @@ import { AccountService } from "../../auth/abstractions/account.service";
 import { UserId } from "../../types/guid";
 
 import {
-  REGISTERED_TARGETS,
+  REGISTERED_EVENT_HANDLERS,
   LifeCycleInterface,
-  RegistrationTarget,
+  LifeCycleEvent,
   operationNameFor,
-} from "./register.decorator";
+} from "./respondsTo.decorator";
 
 export abstract class LifeCycleService {
-  static register<TTarget extends RegistrationTarget>(
+  /**
+   * Register a service as a handler for a specific event. All services that are registered for a specific event will be
+   * called when that event is triggered.
+   *
+   * @param target the event to register a service for. @see {@link LIFE_CYCLE_EVENTS} for valid events and descriptions.
+   * @param service the service to register as a handler for the event.
+   */
+  static register<TTarget extends LifeCycleEvent>(
     target: TTarget,
     service: LifeCycleInterface<TTarget>,
   ) {
-    REGISTERED_TARGETS[target].push(service as LifeCycleInterface<RegistrationTarget>); // Meaningless cast
+    REGISTERED_EVENT_HANDLERS[target].push(service as LifeCycleInterface<LifeCycleEvent>); // Meaningless cast
   }
 
+  /**
+   * Perform a lock operation on all registered services.
+   * @param userId The user id to lock. If not provided, the active user id will be used.
+   */
   abstract lock(userId?: UserId): Promise<void>;
+  /**
+   * Perform a logout operation on all registered services.
+   * @param userId The user id to logout. If not provided, the active user id will be used.
+   */
   abstract logout(userId?: UserId): Promise<void>;
 }
 
@@ -33,13 +48,13 @@ export class DefaultLifeCycleService {
     await this.performOperation("logout", userId);
   }
 
-  async performOperation<TTarget extends RegistrationTarget>(
+  async performOperation<TTarget extends LifeCycleEvent>(
     target: TTarget,
     userId?: UserId,
   ): Promise<void> {
     userId = await this.resolveUserId(userId);
     const operation = operationNameFor(target);
-    const operations = REGISTERED_TARGETS[target].map((service) => {
+    const operations = REGISTERED_EVENT_HANDLERS[target].map((service) => {
       const resultOrPromise = service[operation](userId);
       if (resultOrPromise instanceof Promise) {
         return resultOrPromise;

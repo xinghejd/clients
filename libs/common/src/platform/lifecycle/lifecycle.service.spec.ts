@@ -3,12 +3,12 @@ import { UserId } from "../../types/guid";
 
 import { DefaultLifeCycleService, LifeCycleService } from "./lifecycle.service";
 import {
-  register,
-  REGISTERED_TARGETS,
+  respondsTo,
+  REGISTERED_EVENT_HANDLERS,
   LifeCycleInterface,
-  RegistrationTarget,
-} from "./register.decorator";
-import { clearRegisteredTargets } from "./register.decorator.spec";
+  LifeCycleEvent,
+} from "./respondsTo.decorator";
+import { clearRegisteredTargets } from "./respondsTo.decorator.spec";
 
 describe("LifeCycleService", () => {
   let sut: LifeCycleService;
@@ -18,8 +18,8 @@ describe("LifeCycleService", () => {
   const accountService = mockAccountServiceWith(userId);
 
   beforeEach(() => {
-    @register("logout")
-    @register("lock")
+    @respondsTo("logout")
+    @respondsTo("lock")
     class TestLogout {
       onLogout = jest.fn();
       onLock = jest.fn();
@@ -75,15 +75,15 @@ describe("LifeCycleService", () => {
 
   describe("register", () => {
     it.each([
-      ["lock" as RegistrationTarget, {}],
-      ["logout" as RegistrationTarget, {}],
+      ["lock" as LifeCycleEvent, {}],
+      ["logout" as LifeCycleEvent, {}],
     ])("should register the target", (target, service) => {
       if (target === "lock") {
         LifeCycleService.register(target, service as LifeCycleInterface<"lock">);
-        expect(REGISTERED_TARGETS.lock).toEqual([...onLocks, service]);
+        expect(REGISTERED_EVENT_HANDLERS.lock).toEqual([...onLocks, service]);
       } else if (target === "logout") {
         LifeCycleService.register(target, service as LifeCycleInterface<"logout">);
-        expect(REGISTERED_TARGETS.logout).toEqual([...onLogouts, service]);
+        expect(REGISTERED_EVENT_HANDLERS.logout).toEqual([...onLogouts, service]);
       } else {
         throw new Error("Invalid target");
       }

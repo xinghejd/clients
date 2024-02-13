@@ -7,7 +7,7 @@ import { TokenService } from "../../auth/abstractions/token.service";
 import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
 import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { StateService } from "../../platform/abstractions/state.service";
-import { register } from "../../platform/lifecycle";
+import { respondsTo } from "../../platform/lifecycle";
 import { UserId } from "../../types/guid";
 
 /**
@@ -17,7 +17,7 @@ import { UserId } from "../../types/guid";
  */
 export type PinLockType = "DISABLED" | "PERSISTANT" | "TRANSIENT";
 
-@register("logout")
+@respondsTo("logout")
 export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceAbstraction {
   constructor(
     private cryptoService: CryptoService,

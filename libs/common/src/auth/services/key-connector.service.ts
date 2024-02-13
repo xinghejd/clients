@@ -6,7 +6,7 @@ import { CryptoFunctionService } from "../../platform/abstractions/crypto-functi
 import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { StateService } from "../../platform/abstractions/state.service";
-import { register } from "../../platform/lifecycle";
+import { respondsTo } from "../../platform/lifecycle";
 import { Utils } from "../../platform/misc/utils";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { UserId } from "../../types/guid";
@@ -18,7 +18,7 @@ import { KeyConnectorUserKeyRequest } from "../models/request/key-connector-user
 import { SetKeyConnectorKeyRequest } from "../models/request/set-key-connector-key.request";
 import { IdentityTokenResponse } from "../models/response/identity-token.response";
 
-@register("logout")
+@respondsTo("logout")
 export class KeyConnectorService implements KeyConnectorServiceAbstraction {
   constructor(
     private stateService: StateService,

@@ -1,7 +1,7 @@
 import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { StateService } from "../../platform/abstractions/state.service";
-import { register } from "../../platform/lifecycle";
+import { respondsTo } from "../../platform/lifecycle";
 import { Utils } from "../../platform/misc/utils";
 import { UserId } from "../../types/guid";
 import { CollectionService as CollectionServiceAbstraction } from "../../vault/abstractions/collection.service";
@@ -13,7 +13,7 @@ import { ServiceUtils } from "../service-utils";
 
 const NestingDelimiter = "/";
 
-@register("logout")
+@respondsTo("logout")
 export class CollectionService implements CollectionServiceAbstraction {
   constructor(
     private cryptoService: CryptoService,

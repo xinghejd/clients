@@ -3,9 +3,9 @@ import { EventUploadService as EventUploadServiceAbstraction } from "../../abstr
 import { EventRequest } from "../../models/request/event.request";
 import { LogService } from "../../platform/abstractions/log.service";
 import { StateService } from "../../platform/abstractions/state.service";
-import { register } from "../../platform/lifecycle";
+import { respondsTo } from "../../platform/lifecycle";
 
-@register("logout")
+@respondsTo("logout")
 export class EventUploadService implements EventUploadServiceAbstraction {
   private inited = false;
   constructor(

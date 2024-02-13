@@ -26,7 +26,7 @@ import {
   EncryptionType,
   PBKDF2_ITERATIONS,
 } from "../enums";
-import { register } from "../lifecycle/register.decorator";
+import { respondsTo } from "../lifecycle";
 import { sequentialize } from "../misc/sequentialize";
 import { EFFLongWordList } from "../misc/wordlist";
 import { EncArrayBuffer } from "../models/domain/enc-array-buffer";
@@ -41,7 +41,7 @@ import {
 import { USER_ENCRYPTED_PROVIDER_KEYS, USER_PROVIDER_KEYS } from "./key-state/provider-keys.state";
 import { USER_EVER_HAD_USER_KEY } from "./key-state/user-key.state";
 
-@register("logout")
+@respondsTo("logout")
 export class CryptoService implements CryptoServiceAbstraction {
   private readonly activeUserEverHadUserKey: ActiveUserState<boolean>;
   private readonly activeUserEncryptedOrgKeysState: ActiveUserState<

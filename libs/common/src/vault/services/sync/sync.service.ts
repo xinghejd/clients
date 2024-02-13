@@ -23,7 +23,7 @@ import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { MessagingService } from "../../../platform/abstractions/messaging.service";
 import { StateService } from "../../../platform/abstractions/state.service";
-import { register } from "../../../platform/lifecycle";
+import { respondsTo } from "../../../platform/lifecycle";
 import { sequentialize } from "../../../platform/misc/sequentialize";
 import { AccountDecryptionOptions } from "../../../platform/models/domain/account";
 import { KeyDefinition, StateProvider, SYNC_STATE } from "../../../platform/state";
@@ -48,7 +48,7 @@ const LAST_SYNC_KEY = new KeyDefinition<string | null>(SYNC_STATE, "lastSync", {
   deserializer: (value) => value,
 });
 
-@register("logout")
+@respondsTo("logout")
 export class SyncService implements SyncServiceAbstraction {
   private lastSyncState = this.stateProvider.getActive(LAST_SYNC_KEY);
 
