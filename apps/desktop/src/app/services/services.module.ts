@@ -48,11 +48,8 @@ import { DialogService } from "@bitwarden/components";
 
 import { LoginGuard } from "../../auth/guards/login.guard";
 import { Account } from "../../models/account";
-import {
-  DefaultElectronCryptoService,
-  ElectronCryptoService,
-} from "../../platform/services/electron-crypto.service";
-import { ElectronLogService } from "../../platform/services/electron-log.service";
+import { ElectronCryptoService } from "../../platform/services/electron-crypto.service";
+import { ElectronLogRendererService } from "../../platform/services/electron-log.renderer.service";
 import { ElectronPlatformUtilsService } from "../../platform/services/electron-platform-utils.service";
 import { ElectronRendererMessagingService } from "../../platform/services/electron-renderer-messaging.service";
 import { ElectronRendererSecureStorageService } from "../../platform/services/electron-renderer-secure-storage.service";
@@ -94,7 +91,7 @@ const RELOAD_CALLBACK = new InjectionToken<() => any>("RELOAD_CALLBACK");
       provide: RELOAD_CALLBACK,
       useValue: null,
     },
-    { provide: LogServiceAbstraction, useClass: ElectronLogService, deps: [] },
+    { provide: LogServiceAbstraction, useClass: ElectronLogRendererService, deps: [] },
     {
       provide: PlatformUtilsServiceAbstraction,
       useClass: ElectronPlatformUtilsService,
@@ -182,11 +179,7 @@ const RELOAD_CALLBACK = new InjectionToken<() => any>("RELOAD_CALLBACK");
     },
     {
       provide: CryptoServiceAbstraction,
-      useExisting: ElectronCryptoService,
-    },
-    {
-      provide: ElectronCryptoService,
-      useClass: DefaultElectronCryptoService,
+      useClass: ElectronCryptoService,
       deps: [
         CryptoFunctionServiceAbstraction,
         EncryptService,

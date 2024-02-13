@@ -147,11 +147,15 @@ export class FakeStateProvider implements StateProvider {
     return this.getActive<T>(keyDefinition).state$;
   }
 
-  async setUserState<T>(keyDefinition: KeyDefinition<T>, value: T, userId?: UserId): Promise<void> {
+  async setUserState<T>(
+    keyDefinition: KeyDefinition<T>,
+    value: T,
+    userId?: UserId,
+  ): Promise<[UserId, T]> {
     if (userId) {
-      await this.getUser(userId, keyDefinition).update(() => value);
+      return [userId, await this.getUser(userId, keyDefinition).update(() => value)];
     } else {
-      await this.getActive(keyDefinition).update(() => value);
+      return await this.getActive(keyDefinition).update(() => value);
     }
   }
 
@@ -194,7 +198,7 @@ export class FakeDerivedStateProvider implements DerivedStateProvider {
     let result = this.states.get(deriveDefinition.buildCacheKey()) as DerivedState<TTo>;
 
     if (result == null) {
-      result = new FakeDerivedState<TTo>();
+      result = new FakeDerivedState(parentState$, deriveDefinition, dependencies);
       this.states.set(deriveDefinition.buildCacheKey(), result);
     }
     return result;

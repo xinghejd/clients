@@ -71,8 +71,6 @@ export abstract class StateService<T extends Account = Account> {
   setApiKeyClientSecret: (value: string, options?: StorageOptions) => Promise<void>;
   getAutoConfirmFingerPrints: (options?: StorageOptions) => Promise<boolean>;
   setAutoConfirmFingerprints: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getAutoFillOnPageLoadDefault: (options?: StorageOptions) => Promise<boolean>;
-  setAutoFillOnPageLoadDefault: (value: boolean, options?: StorageOptions) => Promise<void>;
   getBiometricAwaitingAcceptance: (options?: StorageOptions) => Promise<boolean>;
   setBiometricAwaitingAcceptance: (value: boolean, options?: StorageOptions) => Promise<void>;
   getBiometricFingerprintValidated: (options?: StorageOptions) => Promise<boolean>;
@@ -241,8 +239,6 @@ export abstract class StateService<T extends Account = Account> {
   setDisableAddLoginNotification: (value: boolean, options?: StorageOptions) => Promise<void>;
   getDisableAutoBiometricsPrompt: (options?: StorageOptions) => Promise<boolean>;
   setDisableAutoBiometricsPrompt: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getDisableAutoTotpCopy: (options?: StorageOptions) => Promise<boolean>;
-  setDisableAutoTotpCopy: (value: boolean, options?: StorageOptions) => Promise<void>;
   getDisableBadgeCounter: (options?: StorageOptions) => Promise<boolean>;
   setDisableBadgeCounter: (value: boolean, options?: StorageOptions) => Promise<void>;
   getDisableChangedPasswordNotification: (options?: StorageOptions) => Promise<boolean>;
@@ -262,8 +258,6 @@ export abstract class StateService<T extends Account = Account> {
   setDisableFavicon: (value: boolean, options?: StorageOptions) => Promise<void>;
   getDisableGa: (options?: StorageOptions) => Promise<boolean>;
   setDisableGa: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getDismissedAutofillCallout: (options?: StorageOptions) => Promise<boolean>;
-  setDismissedAutofillCallout: (value: boolean, options?: StorageOptions) => Promise<void>;
   getDontShowCardsCurrentTab: (options?: StorageOptions) => Promise<boolean>;
   setDontShowCardsCurrentTab: (value: boolean, options?: StorageOptions) => Promise<void>;
   getDontShowIdentitiesCurrentTab: (options?: StorageOptions) => Promise<boolean>;
@@ -292,10 +286,6 @@ export abstract class StateService<T extends Account = Account> {
   setEmailVerified: (value: boolean, options?: StorageOptions) => Promise<void>;
   getEnableAlwaysOnTop: (options?: StorageOptions) => Promise<boolean>;
   setEnableAlwaysOnTop: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getAutoFillOverlayVisibility: (options?: StorageOptions) => Promise<number>;
-  setAutoFillOverlayVisibility: (value: number, options?: StorageOptions) => Promise<void>;
-  getEnableAutoFillOnPageLoad: (options?: StorageOptions) => Promise<boolean>;
-  setEnableAutoFillOnPageLoad: (value: boolean, options?: StorageOptions) => Promise<void>;
   getEnableBrowserIntegration: (options?: StorageOptions) => Promise<boolean>;
   setEnableBrowserIntegration: (value: boolean, options?: StorageOptions) => Promise<void>;
   getEnableBrowserIntegrationFingerprint: (options?: StorageOptions) => Promise<boolean>;
@@ -454,17 +444,6 @@ export abstract class StateService<T extends Account = Account> {
    * @deprecated Do not call this directly, use SettingsService
    */
   setSettings: (value: AccountSettingsSettings, options?: StorageOptions) => Promise<void>;
-  getSsoCodeVerifier: (options?: StorageOptions) => Promise<string>;
-  setSsoCodeVerifier: (value: string, options?: StorageOptions) => Promise<void>;
-  getSsoOrgIdentifier: (options?: StorageOptions) => Promise<string>;
-  setSsoOrganizationIdentifier: (value: string, options?: StorageOptions) => Promise<void>;
-  getSsoState: (options?: StorageOptions) => Promise<string>;
-  setSsoState: (value: string, options?: StorageOptions) => Promise<void>;
-  getUserSsoOrganizationIdentifier: (options?: StorageOptions) => Promise<string>;
-  setUserSsoOrganizationIdentifier: (
-    value: string | null,
-    options?: StorageOptions,
-  ) => Promise<void>;
   getTheme: (options?: StorageOptions) => Promise<ThemeType>;
   setTheme: (value: ThemeType, options?: StorageOptions) => Promise<void>;
   getTwoFactorToken: (options?: StorageOptions) => Promise<string>;
@@ -491,13 +470,6 @@ export abstract class StateService<T extends Account = Account> {
 
   getAvatarColor: (options?: StorageOptions) => Promise<string | null | undefined>;
   setAvatarColor: (value: string, options?: StorageOptions) => Promise<void>;
-  getActivateAutoFillOnPageLoadFromPolicy: (
-    options?: StorageOptions,
-  ) => Promise<boolean | undefined>;
-  setActivateAutoFillOnPageLoadFromPolicy: (
-    value: boolean,
-    options?: StorageOptions,
-  ) => Promise<void>;
   getSMOnboardingTasks: (
     options?: StorageOptions,
   ) => Promise<Record<string, Record<string, boolean>>>;

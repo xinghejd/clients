@@ -6,9 +6,6 @@ export class GlobalState {
   installedVersion?: string;
   locale?: string;
   organizationInvitation?: any;
-  ssoCodeVerifier?: string;
-  ssoOrganizationIdentifier?: string;
-  ssoState?: string;
   rememberedEmail?: string;
   theme?: ThemeType = ThemeType.System;
   window?: WindowState = new WindowState();
@@ -37,6 +34,5 @@ export class GlobalState {
   disableAddLoginNotification?: boolean;
   disableChangedPasswordNotification?: boolean;
   disableContextMenuItem?: boolean;
-  autoFillOverlayVisibility?: number;
   deepLinkRedirectUrl?: string;
 }
