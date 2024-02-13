@@ -53,7 +53,7 @@ export class DefaultLifeCycleService {
     await this.performOperation("logout", userId);
   }
 
-  async performOperation<TTarget extends LifeCycleEvent>(
+  private async performOperation<TTarget extends LifeCycleEvent>(
     target: TTarget,
     userId?: UserId,
   ): Promise<void> {

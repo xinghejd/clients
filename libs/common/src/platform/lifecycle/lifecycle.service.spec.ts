@@ -20,11 +20,16 @@ describe("LifeCycleService", () => {
   beforeEach(() => {
     @respondsTo("logout")
     @respondsTo("lock")
-    class TestLogout {
+    class TestClass {
       onLogout = jest.fn();
       onLock = jest.fn();
     }
-    onLocks = onLogouts = [new TestLogout(), new TestLogout(), new TestLogout()];
+    onLocks = onLogouts = [new TestClass(), new TestClass(), new TestClass()];
+
+    // Update a test class to exercise promise handling
+    const promiseTest = onLocks[0] as TestClass;
+    promiseTest.onLock.mockImplementation(() => Promise.resolve());
+    promiseTest.onLogout.mockImplementation(() => Promise.resolve());
 
     sut = new DefaultLifeCycleService(accountService);
   });
