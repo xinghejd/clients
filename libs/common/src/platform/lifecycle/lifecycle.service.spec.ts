@@ -7,8 +7,8 @@ import {
   REGISTERED_EVENT_HANDLERS,
   LifeCycleInterface,
   LifeCycleEvent,
-} from "./respondsTo.decorator";
-import { clearRegisteredTargets } from "./respondsTo.decorator.spec";
+} from "./responds-to.decorator";
+import { clearRegisteredTargets } from "./responds-to.decorator.spec";
 
 describe("LifeCycleService", () => {
   let sut: LifeCycleService;

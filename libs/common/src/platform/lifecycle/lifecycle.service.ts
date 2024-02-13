@@ -8,7 +8,7 @@ import {
   LifeCycleInterface,
   LifeCycleEvent,
   operationNameFor,
-} from "./respondsTo.decorator";
+} from "./responds-to.decorator";
 
 export abstract class LifeCycleService {
   /**

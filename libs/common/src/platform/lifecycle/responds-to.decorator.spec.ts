@@ -1,4 +1,4 @@
-import { REGISTERED_EVENT_HANDLERS, respondsTo } from "./respondsTo.decorator";
+import { REGISTERED_EVENT_HANDLERS, respondsTo } from "./responds-to.decorator";
 
 describe("register", () => {
   afterEach(() => {

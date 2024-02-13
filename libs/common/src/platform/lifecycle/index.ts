@@ -1,2 +1,2 @@
 export { LifeCycleService } from "./lifecycle.service";
-export { respondsTo } from "./respondsTo.decorator";
+export { respondsTo } from "./responds-to.decorator";
