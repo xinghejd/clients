@@ -11,6 +11,8 @@ import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { MessagingService } from "../../platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { StateService } from "../../platform/abstractions/state.service";
+import { LifeCycleService } from "../../platform/lifecycle";
+import { UserId } from "../../types/guid";
 import { CipherService } from "../../vault/abstractions/cipher.service";
 import { CollectionService } from "../../vault/abstractions/collection.service";
 import { FolderService } from "../../vault/abstractions/folder/folder.service.abstraction";
@@ -29,6 +31,7 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     private stateService: StateService,
     private authService: AuthService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
+    private lifeCycleService: LifeCycleService,
     private lockedCallback: (userId?: string) => Promise<void> = null,
     private loggedOutCallback: (expired: boolean, userId?: string) => Promise<void> = null,
   ) {}
@@ -80,6 +83,8 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     if (!supportsLock) {
       await this.logOut(userId);
     }
+
+    await this.lifeCycleService.lock(userId as UserId);
 
     if (userId == null || userId === (await this.stateService.getUserId())) {
       this.searchService.clearIndex();

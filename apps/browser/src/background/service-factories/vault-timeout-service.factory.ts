@@ -14,6 +14,10 @@ import {
   FactoryOptions,
 } from "../../platform/background/service-factories/factory-options";
 import {
+  lifeCycleServiceFactory,
+  LifeCycleServiceInitOptions,
+} from "../../platform/background/service-factories/life-cycle-service.factory";
+import {
   messagingServiceFactory,
   MessagingServiceInitOptions,
 } from "../../platform/background/service-factories/messaging-service.factory";
@@ -62,7 +66,8 @@ export type VaultTimeoutServiceInitOptions = VaultTimeoutServiceFactoryOptions &
   SearchServiceInitOptions &
   StateServiceInitOptions &
   AuthServiceInitOptions &
-  VaultTimeoutSettingsServiceInitOptions;
+  VaultTimeoutSettingsServiceInitOptions &
+  LifeCycleServiceInitOptions;
 
 export function vaultTimeoutServiceFactory(
   cache: { vaultTimeoutService?: AbstractVaultTimeoutService } & CachedServices,
@@ -84,6 +89,7 @@ export function vaultTimeoutServiceFactory(
         await stateServiceFactory(cache, opts),
         await authServiceFactory(cache, opts),
         await vaultTimeoutSettingsServiceFactory(cache, opts),
+        await lifeCycleServiceFactory(cache, opts),
         opts.vaultTimeoutServiceOptions.lockedCallback,
         opts.vaultTimeoutServiceOptions.loggedOutCallback,
       ),

@@ -532,6 +532,7 @@ import { ModalService } from "./modal.service";
         StateServiceAbstraction,
         AuthServiceAbstraction,
         VaultTimeoutSettingsServiceAbstraction,
+        LifeCycleService,
         LOCKED_CALLBACK,
         LOGOUT_CALLBACK,
       ],

@@ -10,6 +10,7 @@ import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { MessagingService } from "../../platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { StateService } from "../../platform/abstractions/state.service";
+import { LifeCycleService } from "../../platform/lifecycle";
 import { Account } from "../../platform/models/domain/account";
 import { CipherService } from "../../vault/abstractions/cipher.service";
 import { CollectionService } from "../../vault/abstractions/collection.service";
@@ -28,6 +29,7 @@ describe("VaultTimeoutService", () => {
   let stateService: MockProxy<StateService>;
   let authService: MockProxy<AuthService>;
   let vaultTimeoutSettingsService: MockProxy<VaultTimeoutSettingsService>;
+  let lifeCycleService: MockProxy<LifeCycleService>;
   let lockedCallback: jest.Mock<Promise<void>, [userId: string]>;
   let loggedOutCallback: jest.Mock<Promise<void>, [expired: boolean, userId?: string]>;
 
@@ -48,6 +50,7 @@ describe("VaultTimeoutService", () => {
     stateService = mock();
     authService = mock();
     vaultTimeoutSettingsService = mock();
+    lifeCycleService = mock();
 
     lockedCallback = jest.fn();
     loggedOutCallback = jest.fn();
@@ -73,6 +76,7 @@ describe("VaultTimeoutService", () => {
       stateService,
       authService,
       vaultTimeoutSettingsService,
+      lifeCycleService,
       lockedCallback,
       loggedOutCallback,
     );
@@ -335,6 +339,23 @@ describe("VaultTimeoutService", () => {
       await vaultTimeoutService.checkVaultTimeout();
 
       expectNoAction("1");
+    });
+  });
+
+  describe("lock", () => {
+    beforeEach(() => {
+      setupAccounts({
+        userId: {
+          authStatus: AuthenticationStatus.Unlocked,
+          isAuthenticated: true,
+        },
+      });
+    });
+
+    it("should execute life cycle hook for lock", async () => {
+      await vaultTimeoutService.lock("userId");
+
+      expect(lifeCycleService.lock).toHaveBeenCalledWith("userId");
     });
   });
 });
