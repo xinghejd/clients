@@ -15,6 +15,11 @@ export abstract class LifeCycleService {
    * Register a service as a handler for a specific event. All services that are registered for a specific event will be
    * called when that event is triggered.
    *
+   * @remarks Event handling interfaces should be idempotent, such that they are callable multiple times without throwing
+   * or performing unintended side effects.
+   *
+   * @remarks No guarantees are made about the order in which event handlers are called.
+   *
    * @param target the event to register a service for. @see {@link LIFE_CYCLE_EVENTS} for valid events and descriptions.
    * @param service the service to register as a handler for the event.
    */

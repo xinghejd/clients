@@ -39,6 +39,15 @@ export const REGISTERED_EVENT_HANDLERS = Object.freeze(
  * Class decorator to register a service as a handler for a specific event. All services that are registered for a
  * specific event will be called when that event is triggered.
  *
+ * @remarks This decorator extends your constructor to register itself for the specified life cycle event with the {@link LifeCycleService}.
+ * An important caveat is that your class _must be instantiated_ for the registration to occur. If your event hook is
+ * critical to be called, make sure your class is instantiated at application start.
+ *
+ * @remarks Event handling interfaces should be idempotent, such that they are callable multiple times without throwing
+ * or performing unintended side effects.
+ *
+ * @remarks No guarantees are made about the order in which event handlers are called.
+ *
  * @param target The event to register a service for. @see {@link LIFE_CYCLE_EVENTS} for valid events and descriptions.
  */
 export function respondsTo<TEvent extends LifeCycleEvent>(target: TEvent) {
