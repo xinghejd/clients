@@ -507,6 +507,7 @@ export class Main {
       this.stateService,
       this.authService,
       this.vaultTimeoutSettingsService,
+      this.lifeCycleService,
       lockedCallback,
       null,
     );
