@@ -59,7 +59,7 @@ describe("BrowserClipboardService", () => {
         throw new Error("test");
       });
 
-      await BrowserClipboardService.copy(windowMock as Window, "test");
+      await BrowserClipboardService.copy(windowMock as Window, "");
 
       expect(consoleWarnSpy).toHaveBeenCalled();
     });
