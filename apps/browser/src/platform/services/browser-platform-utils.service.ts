@@ -17,25 +17,25 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
     private messagingService: MessagingService,
     private clipboardWriteCallback: (clipboardValue: string, clearMs: number) => void,
     private biometricCallback: () => Promise<boolean>,
-    private globalContext: Window & typeof globalThis,
+    private globalContext: Window | ServiceWorkerGlobalScope,
   ) {}
 
-  static getDevice(win: Window & typeof globalThis): DeviceType {
+  static getDevice(globalContext: Window | ServiceWorkerGlobalScope): DeviceType {
     if (this.deviceCache) {
       return this.deviceCache;
     }
 
     if (BrowserPlatformUtilsService.isFirefox()) {
       this.deviceCache = DeviceType.FirefoxExtension;
-    } else if (BrowserPlatformUtilsService.isOpera(win)) {
+    } else if (BrowserPlatformUtilsService.isOpera(globalContext)) {
       this.deviceCache = DeviceType.OperaExtension;
     } else if (BrowserPlatformUtilsService.isEdge()) {
       this.deviceCache = DeviceType.EdgeExtension;
     } else if (BrowserPlatformUtilsService.isVivaldi()) {
       this.deviceCache = DeviceType.VivaldiExtension;
-    } else if (BrowserPlatformUtilsService.isChrome(win)) {
+    } else if (BrowserPlatformUtilsService.isChrome(globalContext)) {
       this.deviceCache = DeviceType.ChromeExtension;
-    } else if (BrowserPlatformUtilsService.isSafari(win)) {
+    } else if (BrowserPlatformUtilsService.isSafari(globalContext)) {
       this.deviceCache = DeviceType.SafariExtension;
     }
 
@@ -72,7 +72,7 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
   /**
    * @deprecated Do not call this directly, use getDevice() instead
    */
-  private static isChrome(win: Window & typeof globalThis): boolean {
+  private static isChrome(win: Window | ServiceWorkerGlobalScope): boolean {
     return win.chrome && navigator.userAgent.indexOf(" Chrome/") !== -1;
   }
 
@@ -94,7 +94,7 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
   /**
    * @deprecated Do not call this directly, use getDevice() instead
    */
-  private static isOpera(win: Window & typeof globalThis): boolean {
+  private static isOpera(win: Window | ServiceWorkerGlobalScope): boolean {
     return (
       (!!win.opr && !!win.opr.addons) || !!win.opera || navigator.userAgent.indexOf(" OPR/") >= 0
     );
@@ -118,7 +118,7 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
   /**
    * @deprecated Do not call this directly, use getDevice() instead
    */
-  static isSafari(win: Window & typeof globalThis): boolean {
+  static isSafari(win: Window | ServiceWorkerGlobalScope): boolean {
     // Opera masquerades as Safari, so make sure we're not there first
     return (
       !BrowserPlatformUtilsService.isOpera(win) && navigator.userAgent.indexOf(" Safari/") !== -1
@@ -223,7 +223,7 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
   }
 
   copyToClipboard(text: string, options?: ClipboardOptions): void {
-    const windowContext = options?.window || this.globalContext;
+    const windowContext = options?.window || (this.globalContext as Window);
     const clearing = Boolean(options?.clearing);
     const clearMs: number = options?.clearMs || null;
     const handleClipboardWriteCallback = () => {
@@ -258,7 +258,7 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
   }
 
   async readFromClipboard(options?: ClipboardOptions): Promise<string> {
-    const windowContext = options?.window || this.globalContext;
+    const windowContext = options?.window || (this.globalContext as Window);
 
     if (this.isSafari()) {
       return await SafariApp.sendMessageToApp("readFromClipboard");
