@@ -118,9 +118,9 @@ interface Window {
 }
 
 interface ServiceWorkerGlobalScope {
-  chrome: typeof chrome;
-  opr: Opera | undefined;
-  opera: unknown;
+  chrome?: typeof chrome;
+  opr?: Opera | undefined;
+  opera?: unknown;
 }
 
 declare let opr: Opera | undefined;
