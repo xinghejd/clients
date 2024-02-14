@@ -1,6 +1,9 @@
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import {
+  ClipboardOptions,
+  PlatformUtilsService,
+} from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 import { SafariApp } from "../../browser/safariApp";
 import { BrowserApi } from "../browser/browser-api";
@@ -219,13 +222,10 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
     return false;
   }
 
-  copyToClipboard(text: string, options?: any): void {
-    let win = this.globalContext;
-    if (options && (options.window || options.win)) {
-      win = options.window || options.win;
-    }
-    const clearing = options ? !!options.clearing : false;
-    const clearMs: number = options && options.clearMs ? options.clearMs : null;
+  copyToClipboard(text: string, options?: ClipboardOptions): void {
+    const windowContext = options?.window || this.globalContext;
+    const clearing = Boolean(options?.clearing);
+    const clearMs: number = options?.clearMs || null;
     const handleClipboardWriteCallback = () => {
       if (!clearing && this.clipboardWriteCallback != null) {
         this.clipboardWriteCallback(text, clearMs);
@@ -252,16 +252,13 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
       return;
     }
 
-    BrowserClipboardService.copy(win, text)
+    BrowserClipboardService.copy(windowContext, text)
       .then(handleClipboardWriteCallback)
       .catch(() => {});
   }
 
-  async readFromClipboard(options?: any): Promise<string> {
-    let win = this.globalContext;
-    if (options && (options.window || options.win)) {
-      win = options.window || options.win;
-    }
+  async readFromClipboard(options?: ClipboardOptions): Promise<string> {
+    const windowContext = options?.window || this.globalContext;
 
     if (this.isSafari()) {
       return await SafariApp.sendMessageToApp("readFromClipboard");
@@ -271,7 +268,7 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
       return await this.triggerOffscreenReadFromClipboard();
     }
 
-    return await BrowserClipboardService.read(win);
+    return await BrowserClipboardService.read(windowContext);
   }
 
   async supportsBiometric() {
