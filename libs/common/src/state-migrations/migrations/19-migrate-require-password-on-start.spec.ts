@@ -3,7 +3,10 @@ import { MockProxy, any } from "jest-mock-extended";
 import { MigrationHelper } from "../migration-helper";
 import { mockMigrationHelper } from "../migration-helper.spec";
 
-import { PrivateKeyMigrator } from "./19-move-private-key-to-state-providers";
+import {
+  REQUIRE_PASSWORD_ON_START,
+  RequirePasswordOnStartMigrator,
+} from "./19-migrate-require-password-on-start";
 
 function exampleJSON() {
   return {
@@ -12,10 +15,8 @@ function exampleJSON() {
     },
     authenticatedAccounts: ["user-1", "user-2", "user-3"],
     "user-1": {
-      keys: {
-        privateKey: {
-          encrypted: "user-1-encrypted-private-key",
-        },
+      settings: {
+        requirePasswordOnStart: true,
         otherStuff: "overStuff2",
       },
       otherStuff: "otherStuff3",
@@ -31,14 +32,13 @@ function exampleJSON() {
 
 function rollbackJSON() {
   return {
-    "user_user-1_crypto_privateKey": "encrypted-private-key",
-    "user_user-2_crypto_privateKey": null as any,
+    "user_user-1_biometricSettings_requirePasswordOnStart": true,
     global: {
       otherStuff: "otherStuff1",
     },
     authenticatedAccounts: ["user-1", "user-2", "user-3"],
     "user-1": {
-      keys: {
+      settings: {
         otherStuff: "overStuff2",
       },
       otherStuff: "otherStuff3",
@@ -52,55 +52,50 @@ function rollbackJSON() {
   };
 }
 
-describe("privateKeyMigrator", () => {
+describe("DesktopBiometricState migrator", () => {
   let helper: MockProxy<MigrationHelper>;
-  let sut: PrivateKeyMigrator;
-  const keyDefinitionLike = {
-    key: "privateKey",
-    stateDefinition: {
-      name: "crypto",
-    },
-  };
+  let sut: RequirePasswordOnStartMigrator;
 
   describe("migrate", () => {
     beforeEach(() => {
       helper = mockMigrationHelper(exampleJSON(), 18);
-      sut = new PrivateKeyMigrator(18, 19);
+      sut = new RequirePasswordOnStartMigrator(18, 19);
     });
 
-    it("should remove privateKey from all accounts", async () => {
+    it("should remove biometricEncryptionClientKeyHalf from all accounts", async () => {
       await sut.migrate(helper);
       expect(helper.set).toHaveBeenCalledTimes(1);
       expect(helper.set).toHaveBeenCalledWith("user-1", {
-        keys: {
+        settings: {
           otherStuff: "overStuff2",
         },
         otherStuff: "otherStuff3",
       });
     });
 
-    it("should set privateKey value for each account", async () => {
+    it("should set biometricEncryptionClientKeyHalf value for account that have it", async () => {
+      await sut.migrate(helper);
+
+      expect(helper.setToUser).toHaveBeenCalledWith("user-1", REQUIRE_PASSWORD_ON_START, true);
+    });
+
+    it("should not call extra setToUser", async () => {
       await sut.migrate(helper);
 
       expect(helper.setToUser).toHaveBeenCalledTimes(1);
-      expect(helper.setToUser).toHaveBeenCalledWith(
-        "user-1",
-        keyDefinitionLike,
-        "user-1-encrypted-private-key",
-      );
     });
   });
 
   describe("rollback", () => {
     beforeEach(() => {
       helper = mockMigrationHelper(rollbackJSON(), 19);
-      sut = new PrivateKeyMigrator(18, 19);
+      sut = new RequirePasswordOnStartMigrator(18, 19);
     });
 
-    it.each(["user-1", "user-2", "user-3"])("should null out new values %s", async (userId) => {
+    it("should null out new values", async () => {
       await sut.rollback(helper);
 
-      expect(helper.setToUser).toHaveBeenCalledWith(userId, keyDefinitionLike, null);
+      expect(helper.setToUser).toHaveBeenCalledWith("user-1", REQUIRE_PASSWORD_ON_START, null);
     });
 
     it("should add explicit value back to accounts", async () => {
@@ -108,20 +103,21 @@ describe("privateKeyMigrator", () => {
 
       expect(helper.set).toHaveBeenCalledTimes(1);
       expect(helper.set).toHaveBeenCalledWith("user-1", {
-        keys: {
-          privateKey: {
-            encrypted: "encrypted-private-key",
-          },
+        settings: {
+          requirePasswordOnStart: true,
           otherStuff: "overStuff2",
         },
         otherStuff: "otherStuff3",
       });
     });
 
-    it("should not try to restore values to missing accounts", async () => {
-      await sut.rollback(helper);
+    it.each(["user-2", "user-3"])(
+      "should not try to restore values to missing accounts",
+      async (userId) => {
+        await sut.rollback(helper);
 
-      expect(helper.set).not.toHaveBeenCalledWith("user-3", any());
-    });
+        expect(helper.set).not.toHaveBeenCalledWith(userId, any());
+      },
+    );
   });
 });

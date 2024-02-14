@@ -16,7 +16,7 @@ const USER_ENCRYPTED_PRIVATE_KEY: KeyDefinitionLike = {
   },
 };
 
-export class PrivateKeyMigrator extends Migrator<18, 19> {
+export class PrivateKeyMigrator extends Migrator<19, 20> {
   async migrate(helper: MigrationHelper): Promise<void> {
     const accounts = await helper.getAccounts<ExpectedAccountType>();
     async function migrateAccount(userId: string, account: ExpectedAccountType): Promise<void> {
