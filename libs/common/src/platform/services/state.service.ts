@@ -1,4 +1,4 @@
-import { BehaviorSubject, concatMap } from "rxjs";
+import { BehaviorSubject, map } from "rxjs";
 import { Jsonify, JsonValue } from "type-fest";
 
 import { OrganizationData } from "../../admin-console/models/data/organization.data";
@@ -90,6 +90,9 @@ export class StateService<
   activeAccount$ = this.activeAccountSubject.asObservable();
 
   protected activeAccountUnlockedSubject = new BehaviorSubject<boolean>(false);
+  /**
+   * @deprecated use accountService.activeAccount$ instead
+   */
   activeAccountUnlocked$ = this.activeAccountUnlockedSubject.asObservable();
 
   private hasBeenInited = false;
@@ -111,22 +114,11 @@ export class StateService<
     private migrationRunner: MigrationRunner,
     protected useAccountCache: boolean = true,
   ) {
-    // If the account gets changed, verify the new account is unlocked
-    this.activeAccountSubject
-      .pipe(
-        concatMap(async (userId) => {
-          if (userId == null && this.activeAccountUnlockedSubject.getValue() == false) {
-            return;
-          } else if (userId == null) {
-            this.activeAccountUnlockedSubject.next(false);
-          }
-          // FIXME: This should be refactored into AuthService or a similar service,
-          //  as checking for the existence of the crypto key is a low level
-          //  implementation detail.
-          this.activeAccountUnlockedSubject.next((await this.getUserKey()) != null);
-        }),
-      )
-      .subscribe();
+    this.activeAccountUnlocked$ = this.accountService.activeAccount$.pipe(
+      map((a) => {
+        return a?.status === AuthenticationStatus.Unlocked;
+      }),
+    );
   }
 
   async init(initOptions: InitOptions = {}): Promise<void> {
