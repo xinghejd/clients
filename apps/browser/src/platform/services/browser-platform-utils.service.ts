@@ -72,8 +72,8 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
   /**
    * @deprecated Do not call this directly, use getDevice() instead
    */
-  private static isChrome(win: Window | ServiceWorkerGlobalScope): boolean {
-    return win.chrome && navigator.userAgent.indexOf(" Chrome/") !== -1;
+  private static isChrome(globalContext: Window | ServiceWorkerGlobalScope): boolean {
+    return globalContext.chrome && navigator.userAgent.indexOf(" Chrome/") !== -1;
   }
 
   isChrome(): boolean {
@@ -94,9 +94,11 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
   /**
    * @deprecated Do not call this directly, use getDevice() instead
    */
-  private static isOpera(win: Window | ServiceWorkerGlobalScope): boolean {
+  private static isOpera(globalContext: Window | ServiceWorkerGlobalScope): boolean {
     return (
-      (!!win.opr && !!win.opr.addons) || !!win.opera || navigator.userAgent.indexOf(" OPR/") >= 0
+      !!globalContext.opr?.addons ||
+      !!globalContext.opera ||
+      navigator.userAgent.indexOf(" OPR/") >= 0
     );
   }
 
@@ -118,10 +120,11 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
   /**
    * @deprecated Do not call this directly, use getDevice() instead
    */
-  static isSafari(win: Window | ServiceWorkerGlobalScope): boolean {
+  static isSafari(globalContext: Window | ServiceWorkerGlobalScope): boolean {
     // Opera masquerades as Safari, so make sure we're not there first
     return (
-      !BrowserPlatformUtilsService.isOpera(win) && navigator.userAgent.indexOf(" Safari/") !== -1
+      !BrowserPlatformUtilsService.isOpera(globalContext) &&
+      navigator.userAgent.indexOf(" Safari/") !== -1
     );
   }
 
@@ -133,8 +136,8 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
    * Safari previous to version 16.1 had a bug which caused artifacts on hover in large extension popups.
    * https://bugs.webkit.org/show_bug.cgi?id=218704
    */
-  static shouldApplySafariHeightFix(win: Window & typeof globalThis): boolean {
-    if (BrowserPlatformUtilsService.getDevice(win) !== DeviceType.SafariExtension) {
+  static shouldApplySafariHeightFix(globalContext: Window | ServiceWorkerGlobalScope): boolean {
+    if (BrowserPlatformUtilsService.getDevice(globalContext) !== DeviceType.SafariExtension) {
       return false;
     }
 
