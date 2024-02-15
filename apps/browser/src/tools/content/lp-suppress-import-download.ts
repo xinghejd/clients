@@ -7,24 +7,36 @@
 (function (globalContext) {
   let csvDownload = "";
   let csvHref = "";
+  let isCsvDownloadTriggered = false;
   const defaultAppendChild = Element.prototype.appendChild;
   Element.prototype.appendChild = function (newChild: Node) {
-    if (newChild.nodeName.toLowerCase() === "a" && (newChild as HTMLAnchorElement).download) {
-      csvDownload = (newChild as HTMLAnchorElement).download;
-      csvHref = (newChild as HTMLAnchorElement).href;
-      (newChild as HTMLAnchorElement).setAttribute("href", "javascript:void(0)");
-      (newChild as HTMLAnchorElement).setAttribute("download", "");
+    if (isAnchorElement(newChild) && newChild.download) {
+      csvDownload = newChild.download;
+      csvHref = newChild.href;
+      newChild.setAttribute("href", "javascript:void(0)");
+      newChild.setAttribute("download", "");
       Element.prototype.appendChild = defaultAppendChild;
     }
 
     return defaultAppendChild.call(this, newChild);
   };
 
+  function isAnchorElement(node: Node): node is HTMLAnchorElement {
+    return node.nodeName.toLowerCase() === "a";
+  }
+
   const handleWindowMessage = (event: MessageEvent) => {
     const command = event.data?.command;
-    if (event.source !== globalContext || command !== "triggerCsvDownload") {
+    if (
+      event.source !== globalContext ||
+      command !== "triggerCsvDownload" ||
+      isCsvDownloadTriggered
+    ) {
       return;
     }
+
+    isCsvDownloadTriggered = true;
+    globalContext.removeEventListener("message", handleWindowMessage);
 
     const anchor = globalContext.document.createElement("a");
     anchor.setAttribute("href", csvHref);
@@ -32,7 +44,6 @@
     globalContext.document.body.appendChild(anchor);
     anchor.click();
     globalContext.document.body.removeChild(anchor);
-    globalContext.removeEventListener("message", handleWindowMessage);
   };
 
   globalContext.addEventListener("message", handleWindowMessage);

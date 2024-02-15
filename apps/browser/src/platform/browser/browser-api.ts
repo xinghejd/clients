@@ -466,8 +466,8 @@ export class BrowserApi {
    *
    * @see https://developer.chrome.com/docs/extensions/reference/tabs/#method-executeScript
    * @param tabId - The id of the tab to execute the script in.
-   * @param details - Injection details for the script.
-   * @param scriptingApiDetails - API options specific to manifest v3 and the chrome.scripting.executeScript method.
+   * @param details {@link "InjectDetails" https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/extensionTypes/InjectDetails}
+   * @param scriptingApiDetails {@link "ExecutionWorld" https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/scripting/ExecutionWorld}
    */
   static executeScriptInTab(
     tabId: number,

@@ -23,7 +23,7 @@ describe("LP Suppress Import Download", () => {
     jest.clearAllMocks();
   });
 
-  it("replaces the attributes of an anchor element that triggers a download", () => {
+  it("disables the automatic download anchor", () => {
     document.body.appendChild(anchor);
 
     expect(anchor.href).toBe(overridenHrefAttribute);
@@ -36,6 +36,7 @@ describe("LP Suppress Import Download", () => {
 
     document.body.appendChild(anchor);
 
+    // Precondition - Ensure the anchor in the document has overridden href and download attributes
     expect(anchor.href).toBe(overridenHrefAttribute);
     expect(anchor.download).toBe("");
 
@@ -46,6 +47,20 @@ describe("LP Suppress Import Download", () => {
     expect(anchor.href).toEqual(hrefAttribute);
     expect(anchor.download).toEqual(downloadAttribute);
     expect(window.removeEventListener).toHaveBeenCalledWith("message", expect.any(Function));
+  });
+
+  it("skips subsequent calls to trigger a CSVDownload", async () => {
+    window.document.createElement = jest.fn(() => anchor);
+
+    document.body.appendChild(anchor);
+
+    postWindowMessage({ command: "triggerCsvDownload" });
+    await flushPromises();
+
+    postWindowMessage({ command: "triggerCsvDownload" });
+    await flushPromises();
+
+    expect(anchor.click).toHaveBeenCalledTimes(1);
   });
 
   it("skips triggering the CSV download for window messages that do not have the correct command", () => {
@@ -60,5 +75,7 @@ describe("LP Suppress Import Download", () => {
     document.body.appendChild(anchor);
 
     postWindowMessage(null);
+
+    expect(anchor.click).not.toHaveBeenCalled();
   });
 });
