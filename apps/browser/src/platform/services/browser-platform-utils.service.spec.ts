@@ -1,12 +1,24 @@
 import { DeviceType } from "@bitwarden/common/enums";
 
+import { flushPromises } from "../../autofill/jest/testing-utils";
+import { SafariApp } from "../../browser/safariApp";
+import { BrowserApi } from "../browser/browser-api";
+
+import BrowserClipboardService from "./browser-clipboard.service";
 import BrowserPlatformUtilsService from "./browser-platform-utils.service";
 
 describe("Browser Utils Service", () => {
   let browserPlatformUtilsService: BrowserPlatformUtilsService;
+  const clipboardWriteCallbackSpy = jest.fn();
+
   beforeEach(() => {
     (window as any).matchMedia = jest.fn().mockReturnValueOnce({});
-    browserPlatformUtilsService = new BrowserPlatformUtilsService(null, null, null, window);
+    browserPlatformUtilsService = new BrowserPlatformUtilsService(
+      null,
+      clipboardWriteCallbackSpy,
+      null,
+      window,
+    );
   });
 
   describe("getBrowser", () => {
@@ -24,7 +36,6 @@ describe("Browser Utils Service", () => {
 
     afterEach(() => {
       window.matchMedia = undefined;
-      (window as any).chrome = undefined;
       (BrowserPlatformUtilsService as any).deviceCache = null;
     });
 
@@ -34,8 +45,6 @@ describe("Browser Utils Service", () => {
         value:
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36",
       });
-
-      (window as any).chrome = {};
 
       expect(browserPlatformUtilsService.getDevice()).toBe(DeviceType.ChromeExtension);
     });
@@ -88,19 +97,32 @@ describe("Browser Utils Service", () => {
 
       expect(browserPlatformUtilsService.getDevice()).toBe(DeviceType.VivaldiExtension);
     });
+
+    it("returns a previously determined device using a cached value", () => {
+      Object.defineProperty(navigator, "userAgent", {
+        configurable: true,
+        value: "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:58.0) Gecko/20100101 Firefox/58.0",
+      });
+      jest.spyOn(BrowserPlatformUtilsService, "isFirefox");
+
+      browserPlatformUtilsService.getDevice();
+
+      expect(browserPlatformUtilsService.getDevice()).toBe(DeviceType.FirefoxExtension);
+      expect(BrowserPlatformUtilsService.isFirefox).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("getDeviceString", () => {
+    it("returns a string value indicating the device type", () => {
+      jest
+        .spyOn(browserPlatformUtilsService, "getDevice")
+        .mockReturnValue(DeviceType.ChromeExtension);
+
+      expect(browserPlatformUtilsService.getDeviceString()).toBe("chrome");
+    });
   });
 
   describe("isViewOpen", () => {
-    beforeEach(() => {
-      globalThis.chrome = {
-        // eslint-disable-next-line
-        // @ts-ignore
-        extension: {
-          getViews: jest.fn(),
-        },
-      };
-    });
-
     it("returns true if the user is on Firefox and the sidebar is open", async () => {
       chrome.extension.getViews = jest.fn().mockReturnValueOnce([window]);
       jest
@@ -126,6 +148,106 @@ describe("Browser Utils Service", () => {
       const result = await browserPlatformUtilsService.isViewOpen();
 
       expect(result).toBe(false);
+    });
+  });
+
+  describe("copyToClipboard", () => {
+    const getManifestVersionSpy = jest.spyOn(BrowserApi, "manifestVersion", "get");
+    const sendMessageToAppSpy = jest.spyOn(SafariApp, "sendMessageToApp");
+    const clipboardServiceCopySpy = jest.spyOn(BrowserClipboardService, "copy");
+    let triggerOffscreenCopyToClipboardSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+      triggerOffscreenCopyToClipboardSpy = jest.spyOn(
+        browserPlatformUtilsService as any,
+        "triggerOffscreenCopyToClipboard",
+      );
+    });
+
+    afterEach(() => {
+      jest.resetAllMocks();
+    });
+
+    it("sends a message to the desktop application if a user is using the safari browser", async () => {
+      const text = "test";
+      const clearMs = 1000;
+      getManifestVersionSpy.mockReturnValue(2);
+      sendMessageToAppSpy.mockResolvedValueOnce("success");
+      jest
+        .spyOn(browserPlatformUtilsService, "getDevice")
+        .mockReturnValue(DeviceType.SafariExtension);
+
+      browserPlatformUtilsService.copyToClipboard(text, { clearMs });
+      await flushPromises();
+
+      expect(sendMessageToAppSpy).toHaveBeenCalledWith("copyToClipboard", text);
+      expect(clipboardWriteCallbackSpy).toHaveBeenCalledWith(text, clearMs);
+      expect(clipboardServiceCopySpy).not.toHaveBeenCalled();
+      expect(triggerOffscreenCopyToClipboardSpy).not.toHaveBeenCalled();
+    });
+
+    it("sets the copied text to a unicode placeholder when the user is using Chrome if the passed text is an empty string", async () => {
+      const text = "";
+      getManifestVersionSpy.mockReturnValue(2);
+      jest
+        .spyOn(browserPlatformUtilsService, "getDevice")
+        .mockReturnValue(DeviceType.ChromeExtension);
+
+      browserPlatformUtilsService.copyToClipboard(text);
+      await flushPromises();
+
+      expect(clipboardServiceCopySpy).toHaveBeenCalledWith(window, "\u0000");
+    });
+
+    it("copies the passed text using the BrowserClipboardService", async () => {
+      const text = "test";
+      getManifestVersionSpy.mockReturnValue(2);
+      jest
+        .spyOn(browserPlatformUtilsService, "getDevice")
+        .mockReturnValue(DeviceType.ChromeExtension);
+
+      browserPlatformUtilsService.copyToClipboard(text, { window: self });
+      await flushPromises();
+
+      expect(clipboardServiceCopySpy).toHaveBeenCalledWith(self, text);
+      expect(triggerOffscreenCopyToClipboardSpy).not.toHaveBeenCalled();
+    });
+
+    it("copies the passed text using the offscreen document if the extension is using manifest v3", async () => {
+      const text = "test";
+      jest
+        .spyOn(browserPlatformUtilsService, "getDevice")
+        .mockReturnValue(DeviceType.ChromeExtension);
+      getManifestVersionSpy.mockReturnValue(3);
+      jest.spyOn(BrowserApi, "createOffscreenDocument");
+      jest.spyOn(BrowserApi, "sendMessageWithResponse").mockResolvedValue(undefined);
+      jest.spyOn(BrowserApi, "closeOffscreenDocument");
+
+      browserPlatformUtilsService.copyToClipboard(text);
+      await flushPromises();
+
+      expect(triggerOffscreenCopyToClipboardSpy).toHaveBeenCalledWith(text);
+      expect(clipboardServiceCopySpy).not.toHaveBeenCalled();
+      expect(BrowserApi.createOffscreenDocument).toHaveBeenCalledWith(
+        ["clipboard"],
+        "Write text to the clipboard.",
+      );
+      expect(BrowserApi.sendMessageWithResponse).toHaveBeenCalledWith("offscreenCopyToClipboard", {
+        text,
+      });
+      expect(BrowserApi.closeOffscreenDocument).toHaveBeenCalled();
+    });
+
+    it("skips the clipboardWriteCallback if the clipboard is clearing", async () => {
+      getManifestVersionSpy.mockReturnValue(2);
+      jest
+        .spyOn(browserPlatformUtilsService, "getDevice")
+        .mockReturnValue(DeviceType.ChromeExtension);
+
+      browserPlatformUtilsService.copyToClipboard("test", { window: self, clearing: true });
+      await flushPromises();
+
+      expect(clipboardWriteCallbackSpy).not.toHaveBeenCalled();
     });
   });
 });

@@ -225,6 +225,16 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
     return false;
   }
 
+  /**
+   * Copies the passed text to the clipboard. For Safari, this will use
+   * the native messaging API to send the text to the Bitwarden app. If
+   * the extension is using manifest v3, the offscreen document API will
+   * be used to copy the text to the clipboard. Otherwise, the browser's
+   * clipboard API will be used.
+   *
+   * @param text - The text to copy to the clipboard.
+   * @param options - Options for the clipboard operation.
+   */
   copyToClipboard(text: string, options?: ClipboardOptions): void {
     const windowContext = options?.window || (this.globalContext as Window);
     const clearing = Boolean(options?.clearing);
