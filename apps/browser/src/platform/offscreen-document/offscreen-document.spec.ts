@@ -6,6 +6,7 @@ describe("OffscreenDocument", () => {
   const browserApiMessageListenerSpy = jest.spyOn(BrowserApi, "messageListener");
   const browserClipboardServiceCopySpy = jest.spyOn(BrowserClipboardService, "copy");
   const browserClipboardServiceReadSpy = jest.spyOn(BrowserClipboardService, "read");
+  const consoleErrorSpy = jest.spyOn(console, "error");
 
   require("../offscreen-document/offscreen-document");
 
@@ -19,6 +20,25 @@ describe("OffscreenDocument", () => {
   });
 
   describe("extension message handlers", () => {
+    it("ignores messages that do not have a handler registered with the corresponding command", () => {
+      sendExtensionRuntimeMessage({ command: "notAValidCommand" });
+
+      expect(browserClipboardServiceCopySpy).not.toHaveBeenCalled();
+      expect(browserClipboardServiceReadSpy).not.toHaveBeenCalled();
+    });
+
+    it("shows a console message if the handler throws an error", async () => {
+      browserClipboardServiceCopySpy.mockRejectedValueOnce(new Error("test error"));
+
+      sendExtensionRuntimeMessage({ command: "offscreenCopyToClipboard", text: "test" });
+      await flushPromises();
+
+      expect(browserClipboardServiceCopySpy).toHaveBeenCalled();
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        "Error resolving extension message response: Error: test error",
+      );
+    });
+
     describe("handleOffscreenCopyToClipboard", () => {
       it("copies the message text", async () => {
         const text = "test";
