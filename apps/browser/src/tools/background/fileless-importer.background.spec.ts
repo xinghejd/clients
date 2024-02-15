@@ -131,7 +131,7 @@ describe("FilelessImporterBackground ", () => {
     });
 
     it("triggers an injection of the `lp-suppress-import-download.js` script in manifest v3", async () => {
-      manifestVersionSpy.mockReturnValueOnce(3);
+      manifestVersionSpy.mockReturnValue(3);
 
       triggerRuntimeOnConnectEvent(lpImporterPort);
       await flushPromises();
@@ -144,15 +144,19 @@ describe("FilelessImporterBackground ", () => {
     });
 
     it("triggers an injection of the `lp-suppress-import-download-script-append-mv2.js` script in manifest v2", async () => {
-      manifestVersionSpy.mockReturnValueOnce(2);
+      manifestVersionSpy.mockReturnValue(2);
 
       triggerRuntimeOnConnectEvent(lpImporterPort);
       await flushPromises();
 
-      expect(executeScriptInTabSpy).toHaveBeenCalledWith(lpImporterPort.sender.tab.id, {
-        file: "content/lp-suppress-import-download-script-append-mv2.js",
-        runAt: "document_start",
-      });
+      expect(executeScriptInTabSpy).toHaveBeenCalledWith(
+        lpImporterPort.sender.tab.id,
+        {
+          file: "content/lp-suppress-import-download-script-append-mv2.js",
+          runAt: "document_start",
+        },
+        null,
+      );
     });
   });
 

@@ -22,6 +22,7 @@ import {
   LpImporterMessageHandlers,
   FilelessImporterBackground as FilelessImporterBackgroundInterface,
   FilelessImportPortMessage,
+  SuppressDownloadScriptInjectionConfig,
 } from "./abstractions/fileless-importer.background";
 
 class FilelessImporterBackground implements FilelessImporterBackgroundInterface {
@@ -112,24 +113,17 @@ class FilelessImporterBackground implements FilelessImporterBackgroundInterface 
    * Injects the script used to suppress the download of the LP importer export file.
    *
    * @param sender - The sender of the message.
+   * @param injectionConfig - The configuration for the injection.
    */
-  private async injectLpSuppressImportDownloadScript(sender: chrome.runtime.MessageSender) {
-    if (BrowserApi.manifestVersion === 3) {
-      await BrowserApi.executeScriptInTab(
-        sender.tab.id,
-        { file: "content/lp-suppress-import-download.js", runAt: "document_start" },
-        { world: "MAIN" },
-      );
-      return;
-    }
-
-    // Manifest v2 uses lp-suppress-import-download-script-append-mv2.js to bootstrap the main
-    // lp-suppress-import-download.js script. This is done by appending the script
-    // as a DOM element to the page.
-    await BrowserApi.executeScriptInTab(sender.tab.id, {
-      file: "content/lp-suppress-import-download-script-append-mv2.js",
-      runAt: "document_start",
-    });
+  private async injectSuppressImportDownloadScript(
+    sender: chrome.runtime.MessageSender,
+    injectionConfig: SuppressDownloadScriptInjectionConfig,
+  ) {
+    await BrowserApi.executeScriptInTab(
+      sender.tab.id,
+      { file: injectionConfig.suppressionFile, runAt: "document_start" },
+      injectionConfig.mv3Args,
+    );
   }
 
   /**
@@ -224,7 +218,16 @@ class FilelessImporterBackground implements FilelessImporterBackgroundInterface 
     switch (port.name) {
       case FilelessImportPort.LpImporter:
         this.lpImporterPort = port;
-        await this.injectLpSuppressImportDownloadScript(port.sender);
+        await this.injectSuppressImportDownloadScript(port.sender, {
+          suppressionFile:
+            // Manifest v2 uses lp-suppress-import-download-script-append-mv2.js to bootstrap
+            // the main lp-suppress-import-download.js script. This is done by appending
+            // the script as a DOM element to the page.
+            BrowserApi.manifestVersion === 3
+              ? "content/lp-suppress-import-download.js"
+              : "content/lp-suppress-import-download-script-append-mv2.js",
+          mv3Args: BrowserApi.manifestVersion === 3 ? { world: "MAIN" } : null,
+        });
         break;
       case FilelessImportPort.NotificationBar:
         this.importNotificationsPort = port;
