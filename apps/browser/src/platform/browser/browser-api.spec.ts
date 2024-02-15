@@ -124,6 +124,38 @@ describe("BrowserApi", () => {
     });
   });
 
+  describe("getTab", () => {
+    it("returns `null` if the tabId is a falsy value", async () => {
+      const result = await BrowserApi.getTab(null);
+
+      expect(result).toBeNull();
+    });
+
+    it("returns the tab within manifest v3", async () => {
+      const tabId = 1;
+      jest.spyOn(BrowserApi, "manifestVersion", "get").mockReturnValue(3);
+      (chrome.tabs.get as jest.Mock).mockImplementation(
+        (tabId) => ({ id: tabId }) as chrome.tabs.Tab,
+      );
+
+      const result = await BrowserApi.getTab(tabId);
+
+      expect(result).toEqual({ id: tabId });
+    });
+
+    it("returns the tab within manifest v2", async () => {
+      const tabId = 1;
+      jest.spyOn(BrowserApi, "manifestVersion", "get").mockReturnValue(2);
+      (chrome.tabs.get as jest.Mock).mockImplementation((tabId, callback) =>
+        callback({ id: tabId } as chrome.tabs.Tab),
+      );
+
+      const result = BrowserApi.getTab(tabId);
+
+      await expect(result).resolves.toEqual({ id: tabId });
+    });
+  });
+
   describe("getBackgroundPage", () => {
     it("returns a null value if the `getBackgroundPage` method is not available", () => {
       chrome.extension.getBackgroundPage = undefined;
@@ -258,6 +290,24 @@ describe("BrowserApi", () => {
 
       expect(window.location.reload).toHaveBeenCalledTimes(0);
       expect(mockWindow.location.reload).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("getBrowserAction", () => {
+    it("returns the `chrome.action` API if the extension manifest is for version 3", () => {
+      jest.spyOn(BrowserApi, "manifestVersion", "get").mockReturnValue(3);
+
+      const result = BrowserApi.getBrowserAction();
+
+      expect(result).toEqual(chrome.action);
+    });
+
+    it("returns the `chrome.browserAction` API if the extension manifest is for version 2", () => {
+      jest.spyOn(BrowserApi, "manifestVersion", "get").mockReturnValue(2);
+
+      const result = BrowserApi.getBrowserAction();
+
+      expect(result).toEqual(chrome.browserAction);
     });
   });
 

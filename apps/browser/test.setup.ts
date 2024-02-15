@@ -43,6 +43,7 @@ const i18n = {
 };
 
 const tabs = {
+  get: jest.fn(),
   executeScript: jest.fn(),
   sendMessage: jest.fn(),
   query: jest.fn(),

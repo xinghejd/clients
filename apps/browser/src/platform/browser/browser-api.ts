@@ -107,6 +107,11 @@ export class BrowserApi {
     });
   }
 
+  /**
+   * Gets the tab with the given id.
+   *
+   * @param tabId - The id of the tab to get.
+   */
   static async getTab(tabId: number): Promise<chrome.tabs.Tab> | null {
     if (!tabId) {
       return null;
@@ -450,6 +455,9 @@ export class BrowserApi {
     });
   }
 
+  /**
+   * Returns the supported BrowserAction API based on the manifest version.
+   */
   static getBrowserAction() {
     return BrowserApi.isManifestVersion(3) ? chrome.action : chrome.browserAction;
   }
