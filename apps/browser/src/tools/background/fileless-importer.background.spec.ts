@@ -143,14 +143,14 @@ describe("FilelessImporterBackground ", () => {
       );
     });
 
-    it("triggers an injection of the `lp-suppress-import-download-mv2.js` script in manifest v2", async () => {
+    it("triggers an injection of the `lp-suppress-import-download-script-append-mv2.js` script in manifest v2", async () => {
       manifestVersionSpy.mockReturnValueOnce(2);
 
       triggerRuntimeOnConnectEvent(lpImporterPort);
       await flushPromises();
 
       expect(executeScriptInTabSpy).toHaveBeenCalledWith(lpImporterPort.sender.tab.id, {
-        file: "content/lp-suppress-import-download-mv2.js",
+        file: "content/lp-suppress-import-download-script-append-mv2.js",
         runAt: "document_start",
       });
     });

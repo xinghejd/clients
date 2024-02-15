@@ -277,8 +277,8 @@ if (manifestVersion == 2) {
   // Manifest V2 background pages can be run through the regular build pipeline.
   // Since it's a standard webpage.
   mainConfig.entry.background = "./src/platform/background.ts";
-  mainConfig.entry["content/lp-suppress-import-download-mv2"] =
-    "./src/tools/content/lp-suppress-import-download.mv2.ts";
+  mainConfig.entry["content/lp-suppress-import-download-script-append-mv2"] =
+    "./src/tools/content/lp-suppress-import-download-script-append.mv2.ts";
 
   configs.push(mainConfig);
 } else {

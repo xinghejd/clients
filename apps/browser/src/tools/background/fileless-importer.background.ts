@@ -123,11 +123,11 @@ class FilelessImporterBackground implements FilelessImporterBackgroundInterface 
       return;
     }
 
-    // Manifest v2 uses lp-suppress-import-download-mv2.js to bootstrap the main
+    // Manifest v2 uses lp-suppress-import-download-script-append-mv2.js to bootstrap the main
     // lp-suppress-import-download.js script. This is done by appending the script
     // as a DOM element to the page.
     await BrowserApi.executeScriptInTab(sender.tab.id, {
-      file: "content/lp-suppress-import-download-mv2.js",
+      file: "content/lp-suppress-import-download-script-append-mv2.js",
       runAt: "document_start",
     });
   }

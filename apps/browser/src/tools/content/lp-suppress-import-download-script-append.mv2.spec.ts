@@ -7,7 +7,7 @@ describe("LP Suppress Import Download for Manifest v2", () => {
       return node;
     });
 
-    require("./lp-suppress-import-download.mv2");
+    require("./lp-suppress-import-download-script-append.mv2");
 
     expect(window.document.createElement).toHaveBeenCalledWith("script");
     expect(chrome.runtime.getURL).toHaveBeenCalledWith("content/lp-suppress-import-download.js");
