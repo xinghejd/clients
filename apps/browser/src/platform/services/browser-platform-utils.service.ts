@@ -264,6 +264,15 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
     void BrowserClipboardService.copy(windowContext, text).then(handleClipboardWriteCallback);
   }
 
+  /**
+   * Reads the text from the clipboard. For Safari, this will use the
+   * native messaging API to request the text from the Bitwarden app. If
+   * the extension is using manifest v3, the offscreen document API will
+   * be used to read the text from the clipboard. Otherwise, the browser's
+   * clipboard API will be used.
+   *
+   * @param options - Options for the clipboard operation.
+   */
   async readFromClipboard(options?: ClipboardOptions): Promise<string> {
     const windowContext = options?.window || (this.globalContext as Window);
 
@@ -322,6 +331,9 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
     return autofillCommand;
   }
 
+  /**
+   * Triggers the offscreen document API to copy the text to the clipboard.
+   */
   private async triggerOffscreenCopyToClipboard(text: string) {
     await BrowserApi.createOffscreenDocument(
       [chrome.offscreen.Reason.CLIPBOARD],
@@ -331,6 +343,9 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
     BrowserApi.closeOffscreenDocument();
   }
 
+  /**
+   * Triggers the offscreen document API to read the text from the clipboard.
+   */
   private async triggerOffscreenReadFromClipboard() {
     await BrowserApi.createOffscreenDocument(
       [chrome.offscreen.Reason.CLIPBOARD],
