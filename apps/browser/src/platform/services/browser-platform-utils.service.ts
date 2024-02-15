@@ -255,7 +255,7 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
       text = "\u0000";
     }
 
-    if (BrowserApi.isManifestVersion(3)) {
+    if (this.isChrome() && BrowserApi.isManifestVersion(3)) {
       void this.triggerOffscreenCopyToClipboard(text).then(handleClipboardWriteCallback);
 
       return;
@@ -280,7 +280,7 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
       return await SafariApp.sendMessageToApp("readFromClipboard");
     }
 
-    if (BrowserApi.isManifestVersion(3)) {
+    if (this.isChrome() && BrowserApi.isManifestVersion(3)) {
       return await this.triggerOffscreenReadFromClipboard();
     }
 
