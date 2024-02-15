@@ -246,9 +246,7 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
     };
 
     if (this.isSafari()) {
-      SafariApp.sendMessageToApp("copyToClipboard", text)
-        .then(handleClipboardWriteCallback)
-        .catch(() => {});
+      void SafariApp.sendMessageToApp("copyToClipboard", text).then(handleClipboardWriteCallback);
 
       return;
     }
@@ -258,16 +256,12 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
     }
 
     if (BrowserApi.isManifestVersion(3)) {
-      this.triggerOffscreenCopyToClipboard(text)
-        .then(handleClipboardWriteCallback)
-        .catch(() => {});
+      void this.triggerOffscreenCopyToClipboard(text).then(handleClipboardWriteCallback);
 
       return;
     }
 
-    BrowserClipboardService.copy(windowContext, text)
-      .then(handleClipboardWriteCallback)
-      .catch(() => {});
+    void BrowserClipboardService.copy(windowContext, text).then(handleClipboardWriteCallback);
   }
 
   async readFromClipboard(options?: ClipboardOptions): Promise<string> {
