@@ -43,6 +43,7 @@ import { UserLayoutComponent } from "./layouts/user-layout.component";
 import { DomainRulesComponent } from "./settings/domain-rules.component";
 import { PreferencesComponent } from "./settings/preferences.component";
 import { SettingsComponent } from "./settings/settings.component";
+import { CredentialGeneratorComponent } from "./tools/generator/credential-generator.component";
 import { GeneratorComponent } from "./tools/generator.component";
 import { ReportsModule } from "./tools/reports";
 import { AccessComponent } from "./tools/send/access.component";
@@ -277,6 +278,11 @@ const routes: Routes = [
             path: "generator",
             component: GeneratorComponent,
             data: { titleId: "generator" },
+          },
+          {
+            path: "generator-v2",
+            component: CredentialGeneratorComponent,
+            data: { titleId: "generator-v2" },
           },
         ],
       },
