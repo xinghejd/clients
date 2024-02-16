@@ -475,6 +475,12 @@ export default class NotificationBackground {
         this.logService.error(error),
       );
 
+      if (queueMessage.type === NotificationQueueMessageType.ChangePassword) {
+        const cipherView = await this.getDecryptedCipherById(queueMessage.cipherId);
+        await this.updatePassword(cipherView, queueMessage.newPassword, edit, tab);
+        return;
+      }
+
       if (queueMessage.type === NotificationQueueMessageType.AddLogin) {
         // If the vault was locked, check if a cipher needs updating instead of creating a new one
         if (queueMessage.wasVaultLocked) {
