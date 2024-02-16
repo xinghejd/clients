@@ -28,7 +28,13 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
    */
   @Input() ariaDebounceMs = 500;
 
-  // initialize the component
+  /** initializes the component
+   * @param passwordGeneratorService applies password generation logic
+   * @param platformUtilsService clipboard access and toast display
+   * @param i18nService internationalize toast messages
+   * @param formBuilder reactive options binding
+   * @param win clipboard access
+   */
   constructor(
     @Inject(PASSWORD_GENERATOR) private passwordGeneratorService: PasswordGenerator,
     private platformUtilsService: PlatformUtilsService,
