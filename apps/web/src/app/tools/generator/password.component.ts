@@ -12,6 +12,7 @@ import {
 
 import { PASSWORD_GENERATOR, PasswordGenerator, DependenciesModule } from "./dependencies.module";
 
+/** Form for generating randomized passwords */
 @Component({
   standalone: true,
   selector: "bit-password-generator",
@@ -19,7 +20,12 @@ import { PASSWORD_GENERATOR, PasswordGenerator, DependenciesModule } from "./dep
   imports: [DependenciesModule],
 })
 export class PasswordGeneratorComponent implements OnInit, OnDestroy {
+  /** Emits a password each time one is generated */
   @Output() onGeneration = new EventEmitter<string>();
+
+  /** Length of time to wait in milliseconds before telling the user
+   *  a rapidly-updating field has changed.
+   */
   @Input() ariaDebounceMs = 500;
 
   // initialize the component
@@ -34,7 +40,7 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
   // cancels subscriptions when the component is destroyed
   private destroy$ = new BehaviorSubject<boolean>(false);
 
-  // reactive form bindings
+  /** reactive form bindings */
   protected optionsGroup = this.formBuilder.group({
     length: this.formBuilder.control(DefaultPasswordGenerationOptions.length),
     avoidAmbiguous: this.formBuilder.control(!DefaultPasswordGenerationOptions.ambiguous),
@@ -46,17 +52,20 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
     minSpecial: this.formBuilder.control(DefaultPasswordGenerationOptions.minSpecial),
   });
 
-  // screen reader bindings
   private optionsMinLength = new BehaviorSubject<number>(
     DefaultPasswordGenerationOptions.minLength,
   );
+
+  /** the minimum length allowed for the password */
   protected optionsMinLength$ = this.optionsMinLength.asObservable();
+
+  /** the minimum length allowed for the password that emits after `areaDebounceMs` */
   protected optionsMinLengthForScreenReader$ = this.optionsMinLength$.pipe(
     debounceTime(this.ariaDebounceMs),
     takeUntil(this.destroy$),
   );
 
-  // policy bindings
+  /** Emits `true` when a policy is active and `false` otherwise. */
   protected get policyInEffect$() {
     return this.passwordGeneratorService.policy$.pipe(
       map((policy) => policy.policyInEffect),
@@ -64,6 +73,9 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
     );
   }
 
+  /** Emits `true` when the password must contain an uppercase character
+   *  and `false` otherwise.
+   */
   protected get useUppercaseInEffect$() {
     return this.passwordGeneratorService.policy$.pipe(
       map((policy) => policy.policy.useUppercase),
@@ -71,6 +83,9 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
     );
   }
 
+  /** Emits `true` when the password must contain a lowercase character
+   *  and `false` otherwise.
+   */
   protected get useLowercaseInEffect$() {
     return this.passwordGeneratorService.policy$.pipe(
       map((policy) => policy.policy.useLowercase),
@@ -78,6 +93,9 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
     );
   }
 
+  /** Emits `true` when the password must contain a digit
+   *  and `false` otherwise.
+   */
   protected get useNumbersInEffect$() {
     return this.passwordGeneratorService.policy$.pipe(
       map((policy) => policy.policy.useNumbers),
@@ -85,6 +103,9 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
     );
   }
 
+  /** Emits `true` when the password must contain a special character
+   *  and `false` otherwise.
+   */
   protected get useSpecialInEffect$() {
     return this.passwordGeneratorService.policy$.pipe(
       map((policy) => policy.policy.useSpecial),
@@ -92,10 +113,12 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
     );
   }
 
-  // password bindings
   private password = new BehaviorSubject<string>("-");
+  /** Emits the latest generated password.
+   */
   protected password$ = this.password.asObservable();
 
+  /** {@link OnInit.ngOnInit} */
   async ngOnInit() {
     // synchronize password generation options with reactive form fields
     this.passwordGeneratorService.options$.pipe(takeUntil(this.destroy$)).subscribe((options) =>
@@ -124,8 +147,6 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
       .subscribe(this.password);
 
     // emit the generated password when it changes.
-    // FIXME: this should be used for a wrapping component to add the history
-    // entry instead of this component doing a tap (see above).
     this.password.pipe(takeUntil(this.destroy$)).subscribe(this.onGeneration);
 
     // clear dependent properties so that they're recalculated
@@ -157,16 +178,19 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
       .subscribe();
   }
 
+  /** {@link OnDestroy.ngOnDestroy} */
   ngOnDestroy() {
     this.destroy$.next(true);
     this.destroy$.complete();
   }
 
+  /** Moves the caret to a control when it emits an event */
   focusEventTarget($event: Event) {
     const target = $event.target as HTMLInputElement;
     target.focus();
   }
 
+  /** Copies the last generated password to the clipboard */
   async copy() {
     const value = await firstValueFrom(this.password$);
     const toast = this.i18nService.t("valueCopied", this.i18nService.t("password"));
