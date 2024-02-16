@@ -84,7 +84,6 @@ export class GroupsComponent implements OnInit, OnDestroy {
   organizationId: string;
   groups: GroupDetailsRow[];
 
-  protected didScroll = false;
   protected ModalTabType = GroupAddEditTabType;
 
   private searchedGroups: GroupDetailsRow[];

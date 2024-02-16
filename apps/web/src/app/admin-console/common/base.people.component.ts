@@ -92,8 +92,6 @@ export abstract class BasePeopleComponent<
   protected allUsers: UserType[] = [];
   protected activeUsers: UserType[] = [];
 
-  protected didScroll = false;
-
   constructor(
     protected apiService: ApiService,
     private searchService: SearchService,
