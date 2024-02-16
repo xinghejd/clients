@@ -309,7 +309,7 @@ export class StateService<
         return;
       }
       await this.saveSecureStorageKey(partialKeys.accessToken, value, options);
-      // 2023-02-16: Cleanup current value from the global account. Remove after a few releases.
+      // 2024-02-16: Cleanup current value from the global account. Remove after a few releases.
       value = null;
     }
     const account = await this.getAccount(options);
@@ -2224,7 +2224,7 @@ export class StateService<
         return;
       }
       await this.saveSecureStorageKey(partialKeys.refreshToken, value, options);
-      // 2023-02-16: Cleanup current value from the global account. Remove after a few releases.
+      // 2024-02-16: Cleanup current value from the global account. Remove after a few releases.
       value = null;
     }
     const account = await this.getAccount(options);
