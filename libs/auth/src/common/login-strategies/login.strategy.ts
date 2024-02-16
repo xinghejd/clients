@@ -146,16 +146,15 @@ export abstract class LoginStrategy {
         },
         tokens: {
           ...new AccountTokens(),
-          ...{
-            accessToken: tokenResponse.accessToken,
-            refreshToken: tokenResponse.refreshToken,
-          },
         },
         keys: accountKeys,
         decryptionOptions: AccountDecryptionOptions.fromResponse(tokenResponse),
         adminAuthRequest: adminAuthRequest?.toJSON(),
       }),
     );
+
+    await this.stateService.setAccessToken(tokenResponse.accessToken);
+    await this.stateService.setRefreshToken(tokenResponse.refreshToken);
   }
 
   protected async processTokenResponse(response: IdentityTokenResponse): Promise<AuthResult> {

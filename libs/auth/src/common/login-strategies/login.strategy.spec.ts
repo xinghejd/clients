@@ -181,10 +181,6 @@ describe("LoginStrategy", () => {
           },
           tokens: {
             ...new AccountTokens(),
-            ...{
-              accessToken: accessToken,
-              refreshToken: refreshToken,
-            },
           },
           keys: new AccountKeys(),
           decryptionOptions: AccountDecryptionOptions.fromResponse(idTokenResponse),

@@ -72,6 +72,9 @@ const partialKeys = {
   autoKey: "_masterkey_auto",
   biometricKey: "_masterkey_biometric",
   masterKey: "_masterkey",
+
+  accessToken: "_access_token",
+  refreshToken: "_refresh_token",
 };
 
 const DDG_SHARED_KEY = "DuckDuckGoSharedKey";
@@ -266,6 +269,11 @@ export class StateService<
       currentUser = await this.dynamicallySetActiveUser();
     }
 
+    // Clear secret storage data
+    const tokenOptions = this.reconcileOptions(options, await this.defaultSecureStorageOptions());
+    await this.setAccessToken(null, tokenOptions);
+    await this.setRefreshToken(null, tokenOptions);
+
     await this.removeAccountFromDisk(options?.userId);
     await this.removeAccountFromMemory(options?.userId);
     await this.pushAccounts();
@@ -273,12 +281,37 @@ export class StateService<
   }
 
   async getAccessToken(options?: StorageOptions): Promise<string> {
-    options = await this.getTimeoutBasedStorageOptions(options);
-    return (await this.getAccount(options))?.tokens?.accessToken;
+    options = await this.getTimeoutBasedSecureStorageOptions(options);
+
+    // Since we previously stored the access token in the account, we should check there first.
+    const v = (await this.getAccount(options))?.tokens?.accessToken;
+    if (v != null) {
+      return v;
+    }
+
+    if (options.useSecureStorage) {
+      if (options.userId == null) {
+        return null;
+      }
+      return await this.secureStorageService.get<string>(
+        `${options.userId}${partialKeys.accessToken}`,
+        options,
+      );
+    }
+
+    return null;
   }
 
   async setAccessToken(value: string, options?: StorageOptions): Promise<void> {
-    options = await this.getTimeoutBasedStorageOptions(options);
+    options = await this.getTimeoutBasedSecureStorageOptions(options);
+    if (options.useSecureStorage) {
+      if (options?.userId == null) {
+        return;
+      }
+      await this.saveSecureStorageKey(partialKeys.accessToken, value, options);
+      // 2023-02-16: Cleanup current value from the global account. Remove after a few releases.
+      value = null;
+    }
     const account = await this.getAccount(options);
     account.tokens.accessToken = value;
     await this.saveAccount(account, options);
@@ -2163,12 +2196,37 @@ export class StateService<
   }
 
   async getRefreshToken(options?: StorageOptions): Promise<string> {
-    options = await this.getTimeoutBasedStorageOptions(options);
-    return (await this.getAccount(options))?.tokens?.refreshToken;
+    options = await this.getTimeoutBasedSecureStorageOptions(options);
+
+    // Since we previously stored the access token in the account, we should check there first.
+    const v = (await this.getAccount(options))?.tokens?.refreshToken;
+    if (v != null) {
+      return v;
+    }
+
+    if (options.useSecureStorage) {
+      if (options.userId == null) {
+        return null;
+      }
+      return await this.secureStorageService.get<string>(
+        `${options.userId}${partialKeys.refreshToken}`,
+        options,
+      );
+    }
+
+    return null;
   }
 
   async setRefreshToken(value: string, options?: StorageOptions): Promise<void> {
-    options = await this.getTimeoutBasedStorageOptions(options);
+    options = await this.getTimeoutBasedSecureStorageOptions(options);
+    if (options.useSecureStorage) {
+      if (options?.userId == null) {
+        return;
+      }
+      await this.saveSecureStorageKey(partialKeys.refreshToken, value, options);
+      // 2023-02-16: Cleanup current value from the global account. Remove after a few releases.
+      value = null;
+    }
     const account = await this.getAccount(options);
     account.tokens.refreshToken = value;
     await this.saveAccount(account, options);
@@ -2859,6 +2917,18 @@ export class StateService<
       timeoutAction === VaultTimeoutAction.LogOut && timeout != null
         ? await this.defaultInMemoryOptions()
         : await this.defaultOnDiskOptions();
+    return this.reconcileOptions(options, defaultOptions);
+  }
+
+  private async getTimeoutBasedSecureStorageOptions(
+    options?: StorageOptions,
+  ): Promise<StorageOptions> {
+    const timeoutAction = await this.getVaultTimeoutAction({ userId: options?.userId });
+    const timeout = await this.getVaultTimeout({ userId: options?.userId });
+    const defaultOptions =
+      timeoutAction === VaultTimeoutAction.LogOut && timeout != null
+        ? await this.defaultInMemoryOptions()
+        : await this.defaultSecureStorageOptions();
     return this.reconcileOptions(options, defaultOptions);
   }
 
