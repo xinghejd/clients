@@ -50,7 +50,14 @@ export const VAULT_SETTINGS_DISK = new StateDefinition("vaultSettings", "disk", 
   web: "disk-local",
 });
 
+export const COLLECTION_DATA = new StateDefinition("collection", "disk", {
+  web: "memory",
+});
 export const AUTOFILL_SETTINGS_DISK = new StateDefinition("autofillSettings", "disk");
 export const AUTOFILL_SETTINGS_DISK_LOCAL = new StateDefinition("autofillSettingsLocal", "disk", {
+  web: "disk-local",
+});
+
+export const VAULT_FILTER_DISK = new StateDefinition("vaultFilter", "disk", {
   web: "disk-local",
 });
