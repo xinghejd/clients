@@ -453,7 +453,7 @@ export default class MainBackground {
     this.collectionService = new CollectionService(
       this.cryptoService,
       this.i18nService,
-      this.stateService,
+      this.stateProvider,
     );
     this.syncNotifierService = new SyncNotifierService();
     this.organizationService = new BrowserOrganizationService(
@@ -606,12 +606,12 @@ export default class MainBackground {
     );
 
     this.vaultFilterService = new VaultFilterService(
-      this.stateService,
       this.organizationService,
       this.folderService,
       this.cipherService,
       this.collectionService,
       this.policyService,
+      this.stateProvider,
       this.accountService,
     );
 
