@@ -155,7 +155,7 @@ describe("FilelessImporterBackground ", () => {
           file: "content/lp-suppress-import-download-script-append-mv2.js",
           runAt: "document_start",
         },
-        null,
+        undefined,
       );
     });
   });

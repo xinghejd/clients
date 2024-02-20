@@ -11,6 +11,7 @@ import { ImportServiceAbstraction } from "@bitwarden/importer/core";
 
 import NotificationBackground from "../../autofill/background/notification.background";
 import { BrowserApi } from "../../platform/browser/browser-api";
+import { FilelessImporterInjectedScriptsConfig } from "../config/fileless-importer-injected-scripts";
 import {
   FilelessImportPort,
   FilelessImportType,
@@ -115,14 +116,14 @@ class FilelessImporterBackground implements FilelessImporterBackgroundInterface 
    * @param sender - The sender of the message.
    * @param injectionConfig - The configuration for the injection.
    */
-  private async injectSuppressImportDownloadScript(
+  private async injectScriptConfig(
     sender: chrome.runtime.MessageSender,
     injectionConfig: SuppressDownloadScriptInjectionConfig,
   ) {
     await BrowserApi.executeScriptInTab(
       sender.tab.id,
-      { file: injectionConfig.suppressionFile, runAt: "document_start" },
-      injectionConfig.mv3Args,
+      { file: injectionConfig.file, runAt: "document_start" },
+      injectionConfig.scriptingApiDetails,
     );
   }
 
@@ -218,16 +219,12 @@ class FilelessImporterBackground implements FilelessImporterBackgroundInterface 
     switch (port.name) {
       case FilelessImportPort.LpImporter:
         this.lpImporterPort = port;
-        await this.injectSuppressImportDownloadScript(port.sender, {
-          suppressionFile:
-            // Manifest v2 uses lp-suppress-import-download-script-append-mv2.js to bootstrap
-            // the main lp-suppress-import-download.js script. This is done by appending
-            // the script as a DOM element to the page.
-            BrowserApi.manifestVersion === 3
-              ? "content/lp-suppress-import-download.js"
-              : "content/lp-suppress-import-download-script-append-mv2.js",
-          mv3Args: BrowserApi.manifestVersion === 3 ? { world: "MAIN" } : null,
-        });
+        await this.injectScriptConfig(
+          port.sender,
+          BrowserApi.manifestVersion === 3
+            ? FilelessImporterInjectedScriptsConfig.LpSuppressImportDownload.mv3
+            : FilelessImporterInjectedScriptsConfig.LpSuppressImportDownload.mv2,
+        );
         break;
       case FilelessImportPort.NotificationBar:
         this.importNotificationsPort = port;

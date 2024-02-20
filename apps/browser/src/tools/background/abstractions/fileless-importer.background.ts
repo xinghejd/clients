@@ -1,8 +1,8 @@
 import { FilelessImportTypeKeys } from "../../enums/fileless-import.enums";
 
 type SuppressDownloadScriptInjectionConfig = {
-  suppressionFile: string;
-  mv3Args?: { world: chrome.scripting.ExecutionWorld };
+  file: string;
+  scriptingApiDetails?: { world: chrome.scripting.ExecutionWorld };
 };
 
 type FilelessImportPortMessage = {
