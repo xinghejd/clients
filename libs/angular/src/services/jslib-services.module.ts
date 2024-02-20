@@ -125,6 +125,8 @@ import { EncryptServiceImplementation } from "@bitwarden/common/platform/service
 import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/multithread-encrypt.service.implementation";
 import { EnvironmentService } from "@bitwarden/common/platform/services/environment.service";
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
+import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
+import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { NoopNotificationsService } from "@bitwarden/common/platform/services/noop-notifications.service";
 import { StateService } from "@bitwarden/common/platform/services/state.service";
 import { ValidationService } from "@bitwarden/common/platform/services/validation.service";
@@ -191,20 +193,20 @@ import { SyncService } from "@bitwarden/common/vault/services/sync/sync.service"
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/services/vault-settings/vault-settings.service";
 import {
-  VaultExportService,
-  VaultExportServiceAbstraction,
-  OrganizationVaultExportService,
-  OrganizationVaultExportServiceAbstraction,
-  IndividualVaultExportService,
-  IndividualVaultExportServiceAbstraction,
-} from "@bitwarden/exporter/vault-export";
-import {
   ImportApiService,
   ImportApiServiceAbstraction,
   ImportService,
   ImportServiceAbstraction,
 } from "@bitwarden/importer/core";
 import { PasswordRepromptService } from "@bitwarden/vault";
+import {
+  VaultExportService,
+  VaultExportServiceAbstraction,
+  OrganizationVaultExportService,
+  OrganizationVaultExportServiceAbstraction,
+  IndividualVaultExportService,
+  IndividualVaultExportServiceAbstraction,
+} from "@bitwarden/vault-export-core";
 
 import { AuthGuard } from "../auth/guards/auth.guard";
 import { UnauthGuard } from "../auth/guards/unauth.guard";
@@ -416,7 +418,7 @@ import { ModalService } from "./modal.service";
     {
       provide: CollectionServiceAbstraction,
       useClass: CollectionService,
-      deps: [CryptoServiceAbstraction, I18nServiceAbstraction, StateServiceAbstraction],
+      deps: [CryptoServiceAbstraction, I18nServiceAbstraction, StateProvider],
     },
     {
       provide: EnvironmentServiceAbstraction,
@@ -561,6 +563,7 @@ import { ModalService } from "./modal.service";
         STATE_FACTORY,
         AccountServiceAbstraction,
         EnvironmentServiceAbstraction,
+        MigrationRunner,
         STATE_SERVICE_USE_CACHE,
       ],
     },
@@ -864,7 +867,6 @@ import { ModalService } from "./modal.service";
       deps: [
         WebAuthnLoginApiServiceAbstraction,
         LoginStrategyServiceAbstraction,
-        ConfigServiceAbstraction,
         WebAuthnLoginPrfCryptoServiceAbstraction,
         WINDOW,
         LogService,
@@ -929,6 +931,15 @@ import { ModalService } from "./modal.service";
       provide: VaultSettingsServiceAbstraction,
       useClass: VaultSettingsService,
       deps: [StateProvider],
+    },
+    {
+      provide: MigrationRunner,
+      useClass: MigrationRunner,
+      deps: [AbstractStorageService, LogService, MigrationBuilderService],
+    },
+    {
+      provide: MigrationBuilderService,
+      useClass: MigrationBuilderService,
     },
     {
       provide: BillingApiServiceAbstraction,

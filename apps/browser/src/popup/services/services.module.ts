@@ -72,6 +72,7 @@ import { GlobalState } from "@bitwarden/common/platform/models/domain/global-sta
 import { ConfigService } from "@bitwarden/common/platform/services/config/config.service";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
+import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { DerivedStateProvider, StateProvider } from "@bitwarden/common/platform/state";
 import { SearchService } from "@bitwarden/common/services/search.service";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
@@ -95,8 +96,8 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder-api.service";
 import { DialogService } from "@bitwarden/components";
-import { VaultExportServiceAbstraction } from "@bitwarden/exporter/vault-export";
 import { ImportServiceAbstraction } from "@bitwarden/importer/core";
+import { VaultExportServiceAbstraction } from "@bitwarden/vault-export-core";
 
 import { BrowserOrganizationService } from "../../admin-console/services/browser-organization.service";
 import { BrowserPolicyService } from "../../admin-console/services/browser-policy.service";
@@ -426,28 +427,14 @@ function getBgService<T>(service: keyof MainBackground) {
     },
     {
       provide: VaultFilterService,
-      useFactory: (
-        stateService: StateServiceAbstraction,
-        organizationService: OrganizationService,
-        folderService: FolderServiceAbstraction,
-        policyService: PolicyService,
-        accountService: AccountServiceAbstraction,
-      ) => {
-        return new VaultFilterService(
-          stateService,
-          organizationService,
-          folderService,
-          getBgService<CipherService>("cipherService")(),
-          getBgService<CollectionService>("collectionService")(),
-          policyService,
-          accountService,
-        );
-      },
+      useClass: VaultFilterService,
       deps: [
-        StateServiceAbstraction,
         OrganizationService,
         FolderServiceAbstraction,
+        CipherService,
+        CollectionService,
         PolicyService,
+        StateProvider,
         AccountServiceAbstraction,
       ],
     },
@@ -482,6 +469,7 @@ function getBgService<T>(service: keyof MainBackground) {
         logService: LogServiceAbstraction,
         accountService: AccountServiceAbstraction,
         environmentService: EnvironmentService,
+        migrationRunner: MigrationRunner,
       ) => {
         return new BrowserStateService(
           storageService,
@@ -491,6 +479,7 @@ function getBgService<T>(service: keyof MainBackground) {
           new StateFactory(GlobalState, Account),
           accountService,
           environmentService,
+          migrationRunner,
         );
       },
       deps: [
@@ -500,6 +489,7 @@ function getBgService<T>(service: keyof MainBackground) {
         LogServiceAbstraction,
         AccountServiceAbstraction,
         EnvironmentService,
+        MigrationRunner,
       ],
     },
     {
