@@ -1,6 +1,6 @@
 import { DeviceType } from "@bitwarden/common/enums";
 
-import { flushPromises } from "../../autofill/jest/testing-utils";
+import { flushPromises } from "../../autofill/spec/testing-utils";
 import { SafariApp } from "../../browser/safariApp";
 import { BrowserApi } from "../browser/browser-api";
 

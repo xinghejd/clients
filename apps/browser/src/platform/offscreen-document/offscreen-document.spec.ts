@@ -1,4 +1,4 @@
-import { flushPromises, sendExtensionRuntimeMessage } from "../../autofill/jest/testing-utils";
+import { flushPromises, sendExtensionRuntimeMessage } from "../../autofill/spec/testing-utils";
 import { BrowserApi } from "../browser/browser-api";
 import BrowserClipboardService from "../services/browser-clipboard.service";
 
