@@ -2,6 +2,7 @@ import { mock, mockReset } from "jest-mock-extended";
 
 import { UserVerificationService } from "@bitwarden/common/auth/services/user-verification/user-verification.service";
 import { AutofillSettingsService } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { UserNotificationSettingsService } from "@bitwarden/common/autofill/services/user-notification-settings.service";
 import { EventType } from "@bitwarden/common/enums";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { EventCollectionService } from "@bitwarden/common/services/event/event-collection.service";
@@ -57,6 +58,7 @@ describe("AutofillService", () => {
   const logService = mock<LogService>();
   const settingsService = mock<SettingsService>();
   const userVerificationService = mock<UserVerificationService>();
+  const userNotificationSettingsService = mock<UserNotificationSettingsService>();
 
   beforeEach(() => {
     autofillService = new AutofillService(
@@ -68,6 +70,7 @@ describe("AutofillService", () => {
       logService,
       settingsService,
       userVerificationService,
+      userNotificationSettingsService,
     );
   });
 
@@ -166,11 +169,12 @@ describe("AutofillService", () => {
       jest
         .spyOn(autofillService, "getOverlayVisibility")
         .mockResolvedValue(AutofillOverlayVisibility.OnFieldFocus);
+      jest.spyOn(autofillService, "getAutofillOnPageLoad").mockResolvedValue(true);
+      jest.spyOn(autofillService, "getEnableChangedPasswordPrompt").mockResolvedValue(true);
+      jest.spyOn(autofillService, "getEnableAddedLoginPrompt").mockResolvedValue(true);
     });
 
     it("accepts an extension message sender and injects the autofill scripts into the tab of the sender", async () => {
-      jest.spyOn(autofillService, "getAutofillOnPageLoad").mockResolvedValue(true);
-
       await autofillService.injectAutofillScripts(sender.tab, sender.frameId, true);
 
       [autofillOverlayBootstrapScript, ...defaultAutofillScripts].forEach((scriptName) => {
@@ -194,12 +198,20 @@ describe("AutofillService", () => {
       });
     });
 
-    it("will inject the bootstrap-autofill-overlay script if the user has the autofill overlay enabled", async () => {
-      jest
-        .spyOn(autofillService, "getOverlayVisibility")
-        .mockResolvedValue(AutofillOverlayVisibility.OnFieldFocus);
-      jest.spyOn(autofillService, "getAutofillOnPageLoad").mockResolvedValue(true);
+    it("skips injecting notification bar script when both notification prompts are disabled", async () => {
+      jest.spyOn(autofillService, "getEnableChangedPasswordPrompt").mockResolvedValue(false);
+      jest.spyOn(autofillService, "getEnableAddedLoginPrompt").mockResolvedValue(false);
 
+      await autofillService.injectAutofillScripts(sender.tab, sender.frameId, true);
+
+      expect(BrowserApi.executeScriptInTab).not.toHaveBeenCalledWith(tabMock.id, {
+        file: "content/notificationBar.js",
+        frameId: sender.frameId,
+        ...defaultExecuteScriptOptions,
+      });
+    });
+
+    it("will inject the bootstrap-autofill-overlay script if the user has the autofill overlay enabled", async () => {
       await autofillService.injectAutofillScripts(sender.tab, sender.frameId);
 
       expect(BrowserApi.executeScriptInTab).toHaveBeenCalledWith(tabMock.id, {
@@ -218,7 +230,6 @@ describe("AutofillService", () => {
       jest
         .spyOn(autofillService, "getOverlayVisibility")
         .mockResolvedValue(AutofillOverlayVisibility.Off);
-      jest.spyOn(autofillService, "getAutofillOnPageLoad").mockResolvedValue(true);
 
       await autofillService.injectAutofillScripts(sender.tab, sender.frameId);
 
@@ -235,8 +246,6 @@ describe("AutofillService", () => {
     });
 
     it("injects the content-message-handler script if not injecting on page load", async () => {
-      jest.spyOn(autofillService, "getAutofillOnPageLoad").mockResolvedValue(true);
-
       await autofillService.injectAutofillScripts(sender.tab, sender.frameId, false);
 
       expect(BrowserApi.executeScriptInTab).toHaveBeenCalledWith(tabMock.id, {

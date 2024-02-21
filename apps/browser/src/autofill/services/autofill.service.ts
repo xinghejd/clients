@@ -4,6 +4,7 @@ import { EventCollectionService } from "@bitwarden/common/abstractions/event/eve
 import { SettingsService } from "@bitwarden/common/abstractions/settings.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/user-notification-settings.service";
 import { EventType } from "@bitwarden/common/enums";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -50,6 +51,7 @@ export default class AutofillService implements AutofillServiceInterface {
     private logService: LogService,
     private settingsService: SettingsService,
     private userVerificationService: UserVerificationService,
+    private userNotificationSettingsService: UserNotificationSettingsServiceAbstraction,
   ) {}
 
   /**
@@ -114,7 +116,17 @@ export default class AutofillService implements AutofillServiceInterface {
       });
     }
 
-    injectedScripts.push("notificationBar.js", "contextMenuHandler.js");
+    // If the user has not disabled both notifications, the notification bar script should be injected
+    const shouldInjectNotificationBar = [
+      await this.getEnableChangedPasswordPrompt(),
+      await this.getEnableAddedLoginPrompt(),
+    ].some((value) => value === true);
+
+    if (shouldInjectNotificationBar) {
+      injectedScripts.push("notificationBar.js");
+    }
+
+    injectedScripts.push("contextMenuHandler.js");
 
     for (const injectedScript of injectedScripts) {
       await BrowserApi.executeScriptInTab(tab.id, {
@@ -213,6 +225,22 @@ export default class AutofillService implements AutofillServiceInterface {
    */
   async getAutofillOnPageLoad(): Promise<boolean> {
     return await firstValueFrom(this.autofillSettingsService.autofillOnPageLoad$);
+  }
+
+  /**
+   * Gets the enableChangedPasswordPrompt setting from the user notification settings service.
+   * @return {Promise<boolean>}
+   */
+  async getEnableChangedPasswordPrompt(): Promise<boolean> {
+    return await firstValueFrom(this.userNotificationSettingsService.enableChangedPasswordPrompt$);
+  }
+
+  /**
+   * Gets the enableAddedLoginPrompt setting from the user notification settings service.
+   * @return {Promise<boolean>}
+   */
+  async getEnableAddedLoginPrompt(): Promise<boolean> {
+    return await firstValueFrom(this.userNotificationSettingsService.enableAddedLoginPrompt$);
   }
 
   /**

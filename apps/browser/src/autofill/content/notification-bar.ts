@@ -85,10 +85,8 @@ async function loadNotificationBar() {
   ]);
   const changePasswordButtonContainsNames = new Set(["pass", "change", "contras", "senha"]);
 
-  // These are preferences for whether to show the notification bar based on the user's settings
-  // and they are set in the Settings > Options page in the browser extension.
-  let disabledAddLoginNotification = false;
-  let disabledChangedPasswordNotification = false;
+  // @TODO this needs to update for subsequent checks
+  const disabledChangedPasswordNotification = false;
   let showNotificationBar = true;
 
   // Look up the active user id from storage
@@ -120,14 +118,8 @@ async function loadNotificationBar() {
       // Example: '{"bitwarden.com":null}'
       const excludedDomainsDict = globalSettings.neverDomains;
       if (!excludedDomainsDict || !(window.location.hostname in excludedDomainsDict)) {
-        // Set local disabled preferences
-        disabledAddLoginNotification = globalSettings.disableAddLoginNotification;
-        disabledChangedPasswordNotification = globalSettings.disableChangedPasswordNotification;
-
-        if (!disabledAddLoginNotification || !disabledChangedPasswordNotification) {
-          // If the user has not disabled both notifications, then handle the initial page change (null -> actual page)
-          handlePageChange();
-        }
+        // handle the initial page change (null -> actual page)
+        handlePageChange();
       }
     }
   }
@@ -619,13 +611,8 @@ async function loadNotificationBar() {
         continue;
       }
 
-      const disabledBoth = disabledChangedPasswordNotification && disabledAddLoginNotification;
-      // if user has not disabled both notifications and we have a username and password field,
-      if (
-        !disabledBoth &&
-        watchedForms[i].usernameEl != null &&
-        watchedForms[i].passwordEl != null
-      ) {
+      // if we have a username and password field,
+      if (watchedForms[i].usernameEl != null && watchedForms[i].passwordEl != null) {
         // Create a login object from the form data
         const login: AddLoginMessageData = {
           username: watchedForms[i].usernameEl.value,

@@ -86,6 +86,10 @@ import {
   AutofillSettingsServiceAbstraction,
   AutofillSettingsService,
 } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import {
+  UserNotificationSettingsServiceAbstraction,
+  UserNotificationSettingsService,
+} from "@bitwarden/common/autofill/services/user-notification-settings.service";
 import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billilng-api.service.abstraction";
 import { BillingBannerServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-banner.service.abstraction";
 import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-billing.service";
@@ -935,6 +939,11 @@ import { ModalService } from "./modal.service";
       provide: AutofillSettingsServiceAbstraction,
       useClass: AutofillSettingsService,
       deps: [StateProvider, PolicyServiceAbstraction],
+    },
+    {
+      provide: UserNotificationSettingsServiceAbstraction,
+      useClass: UserNotificationSettingsService,
+      deps: [StateProvider],
     },
     {
       provide: BiometricStateService,

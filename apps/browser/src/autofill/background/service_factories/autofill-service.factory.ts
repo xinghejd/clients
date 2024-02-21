@@ -38,6 +38,10 @@ import {
   AutofillSettingsServiceInitOptions,
   autofillSettingsServiceFactory,
 } from "./autofill-settings-service.factory";
+import {
+  UserNotificationSettingsServiceInitOptions,
+  userNotificationSettingsServiceFactory,
+} from "./user-notification-settings-service.factory";
 
 type AutoFillServiceOptions = FactoryOptions;
 
@@ -49,7 +53,8 @@ export type AutoFillServiceInitOptions = AutoFillServiceOptions &
   EventCollectionServiceInitOptions &
   LogServiceInitOptions &
   SettingsServiceInitOptions &
-  UserVerificationServiceInitOptions;
+  UserVerificationServiceInitOptions &
+  UserNotificationSettingsServiceInitOptions;
 
 export function autofillServiceFactory(
   cache: { autofillService?: AbstractAutoFillService } & CachedServices,
@@ -69,6 +74,7 @@ export function autofillServiceFactory(
         await logServiceFactory(cache, opts),
         await settingsServiceFactory(cache, opts),
         await userVerificationServiceFactory(cache, opts),
+        await userNotificationSettingsServiceFactory(cache, opts),
       ),
   );
 }
