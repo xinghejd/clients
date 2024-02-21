@@ -106,9 +106,9 @@ export default class NotificationBackground {
   private cleanupNotificationQueue() {
     for (let i = this.notificationQueue.length - 1; i >= 0; i--) {
       if (this.notificationQueue[i].expires < new Date()) {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        BrowserApi.tabSendMessageData(this.notificationQueue[i].tab, "closeNotificationBar");
+        BrowserApi.tabSendMessageData(this.notificationQueue[i].tab, "closeNotificationBar").catch(
+          (error) => this.logService.error(error),
+        );
         this.notificationQueue.splice(i, 1);
       }
     }
