@@ -1,4 +1,4 @@
-import { flushPromises, postWindowMessage } from "../../autofill/jest/testing-utils";
+import { flushPromises, postWindowMessage } from "../../autofill/spec/testing-utils";
 
 describe("LP Suppress Import Download", () => {
   const downloadAttribute = "file.csv";
