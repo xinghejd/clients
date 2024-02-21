@@ -18,6 +18,7 @@ import { createAutofillPageDetailsMock, createChromeTabMock } from "../jest/auto
 import { flushPromises, sendExtensionRuntimeMessage } from "../jest/testing-utils";
 import { FormData } from "../services/abstractions/autofill.service";
 import AutofillService from "../services/autofill.service";
+import { createChromeTabMock } from "../spec/autofill-mocks";
 
 import {
   AddLoginQueueMessage,
