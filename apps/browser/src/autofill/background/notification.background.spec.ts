@@ -14,10 +14,10 @@ import { FolderService } from "@bitwarden/common/vault/services/folder/folder.se
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserStateService } from "../../platform/services/browser-state.service";
 import { NotificationQueueMessageType } from "../enums/notification-queue-message-type.enum";
-import { createAutofillPageDetailsMock, createChromeTabMock } from "../jest/autofill-mocks";
-import { flushPromises, sendExtensionRuntimeMessage } from "../jest/testing-utils";
 import { FormData } from "../services/abstractions/autofill.service";
 import AutofillService from "../services/autofill.service";
+import { createAutofillPageDetailsMock, createChromeTabMock } from "../spec/autofill-mocks";
+import { flushPromises, sendExtensionRuntimeMessage } from "../spec/testing-utils";
 
 import {
   AddChangePasswordQueueMessage,
