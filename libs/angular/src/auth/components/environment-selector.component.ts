@@ -6,8 +6,10 @@ import { Subject, takeUntil } from "rxjs";
 
 import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import {
+  AVAILABLE_REGIONS,
   EnvironmentService as EnvironmentServiceAbstraction,
   Region,
+  SelectableRegion,
 } from "@bitwarden/common/platform/abstractions/environment.service";
 
 @Component({
@@ -49,6 +51,9 @@ export class EnvironmentSelectorComponent implements OnInit, OnDestroy {
     },
   ];
   protected componentDestroyed$: Subject<void> = new Subject();
+
+  protected AvailableRegions = AVAILABLE_REGIONS;
+  protected selectedRegion?: SelectableRegion;
 
   constructor(
     protected environmentService: EnvironmentServiceAbstraction,
@@ -95,6 +100,7 @@ export class EnvironmentSelectorComponent implements OnInit, OnDestroy {
 
   async updateEnvironmentInfo() {
     this.selectedEnvironment = this.environmentService.selectedRegion;
+    this.selectedRegion = this.AvailableRegions.find((r) => r.key === this.selectedEnvironment);
   }
 
   close() {

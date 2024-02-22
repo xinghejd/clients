@@ -31,6 +31,31 @@ export enum RegionDomain {
   USQA = "bitwarden.pw",
 }
 
+export type SelectableRegion = {
+  key: Region | string;
+  domain: string;
+  urls: {
+    vault: string;
+  };
+};
+
+export const AVAILABLE_REGIONS: SelectableRegion[] = [
+  {
+    key: Region.US,
+    domain: "bitwarden.com",
+    urls: {
+      vault: "https://vault.bitwarden.com",
+    },
+  },
+  {
+    key: Region.EU,
+    domain: "bitwarden.eu",
+    urls: {
+      vault: "https://vault.bitwarden.eu",
+    },
+  },
+];
+
 export abstract class EnvironmentService {
   urls: Observable<void>;
   usUrls: Urls;

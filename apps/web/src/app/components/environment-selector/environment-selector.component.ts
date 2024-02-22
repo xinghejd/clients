@@ -1,9 +1,21 @@
 import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 
-import { RegionDomain } from "@bitwarden/common/platform/abstractions/environment.service";
+import { AVAILABLE_REGIONS } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+
+const REGIONS = [...AVAILABLE_REGIONS];
+
+if (process.env.NODE_ENV === "development") {
+  REGIONS.push({
+    key: "LOCALHOST",
+    domain: "localhost",
+    urls: {
+      vault: "https://localhost:8080",
+    },
+  });
+}
 
 @Component({
   selector: "environment-selector",
@@ -15,16 +27,18 @@ export class EnvironmentSelectorComponent implements OnInit {
     private router: Router,
   ) {}
 
-  isEuServer: boolean;
-  isUsServer: boolean;
-  showRegionSelector = false;
-  routeAndParams: string;
+  protected AvailableRegions = REGIONS;
+  protected currentRegion = REGIONS[0];
+
+  protected showRegionSelector = false;
+  protected routeAndParams: string;
 
   async ngOnInit() {
-    const domain = Utils.getDomain(window.location.href);
-    this.isEuServer = domain.includes(RegionDomain.EU);
-    this.isUsServer = domain.includes(RegionDomain.US) || domain.includes(RegionDomain.USQA);
     this.showRegionSelector = !this.platformUtilsService.isSelfHost();
     this.routeAndParams = `/#${this.router.url}`;
+
+    const domain = Utils.getDomain(window.location.href);
+    this.currentRegion =
+      this.AvailableRegions.find((r) => r.domain === domain) ?? this.AvailableRegions[0];
   }
 }
