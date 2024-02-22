@@ -756,9 +756,7 @@ export default class MainBackground {
         this.platformUtilsService.isSafari() ||
         this.platformUtilsService.isFirefox() ||
         this.platformUtilsService.isOpera();
-      // FIXME-MV3-REQ: [PM-5741] Usage of `window` will be reworked when refactoring the BrowserApi.reloadExtension method
-      // eslint-disable-next-line no-restricted-globals
-      BrowserApi.reloadExtension(forceWindowReload ? window : null);
+      BrowserApi.reloadExtension(forceWindowReload ? self : null);
       return Promise.resolve();
     };
 
