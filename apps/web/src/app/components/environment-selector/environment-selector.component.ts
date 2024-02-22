@@ -1,21 +1,9 @@
 import { Component, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 
-import { AVAILABLE_REGIONS } from "@bitwarden/common/platform/abstractions/environment.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-
-const REGIONS = [...AVAILABLE_REGIONS];
-
-if (process.env.NODE_ENV === "development") {
-  REGIONS.push({
-    key: "LOCALHOST",
-    domain: "localhost",
-    urls: {
-      vault: "https://localhost:8080",
-    },
-  });
-}
 
 @Component({
   selector: "environment-selector",
@@ -24,11 +12,12 @@ if (process.env.NODE_ENV === "development") {
 export class EnvironmentSelectorComponent implements OnInit {
   constructor(
     private platformUtilsService: PlatformUtilsService,
+    private environmentService: EnvironmentService,
     private router: Router,
   ) {}
 
-  protected AvailableRegions = REGIONS;
-  protected currentRegion = REGIONS[0];
+  protected AvailableRegions = this.environmentService.availableRegions();
+  protected currentRegion = this.AvailableRegions[0];
 
   protected showRegionSelector = false;
   protected routeAndParams: string;

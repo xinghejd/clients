@@ -14,6 +14,7 @@ import {
   EnvironmentService as EnvironmentServiceAbstraction,
   Region,
   RegionDomain,
+  SelectableRegion,
   Urls,
 } from "../abstractions/environment.service";
 import { Utils } from "../misc/utils";
@@ -26,6 +27,23 @@ const REGION_KEY = new KeyDefinition<Region>(ENVIRONMENT_DISK, "region", {
 const URLS_KEY = new KeyDefinition<EnvironmentUrls>(ENVIRONMENT_DISK, "urls", {
   deserializer: EnvironmentUrls.fromJSON,
 });
+
+export const PRODUCTION_REGIONS: SelectableRegion[] = [
+  {
+    key: Region.US,
+    domain: "bitwarden.com",
+    urls: {
+      vault: "https://vault.bitwarden.com",
+    },
+  },
+  {
+    key: Region.EU,
+    domain: "bitwarden.eu",
+    urls: {
+      vault: "https://vault.bitwarden.eu",
+    },
+  },
+];
 
 export class EnvironmentService implements EnvironmentServiceAbstraction {
   private readonly urlsSubject = new ReplaySubject<void>(1);
@@ -94,6 +112,12 @@ export class EnvironmentService implements EnvironmentServiceAbstraction {
 
     this.regionGlobalState = this.stateProvider.getGlobal(REGION_KEY);
     this.urlsGlobalState = this.stateProvider.getGlobal(URLS_KEY);
+  }
+
+  availableRegions(): SelectableRegion[] {
+    const additionalRegions =
+      (process.env.ADDITIONAL_REGIONS as unknown as SelectableRegion[]) ?? [];
+    return PRODUCTION_REGIONS.concat(additionalRegions);
   }
 
   hasBaseUrl() {

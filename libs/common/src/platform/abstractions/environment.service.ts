@@ -32,29 +32,14 @@ export enum RegionDomain {
 }
 
 export type SelectableRegion = {
-  key: Region | string;
+  // Beware this isn't completely true, it's actually a string for custom environments,
+  // which are currently only supported in web where it doesn't matter.
+  key: Region;
   domain: string;
   urls: {
     vault: string;
   };
 };
-
-export const AVAILABLE_REGIONS: SelectableRegion[] = [
-  {
-    key: Region.US,
-    domain: "bitwarden.com",
-    urls: {
-      vault: "https://vault.bitwarden.com",
-    },
-  },
-  {
-    key: Region.EU,
-    domain: "bitwarden.eu",
-    urls: {
-      vault: "https://vault.bitwarden.eu",
-    },
-  },
-];
 
 export abstract class EnvironmentService {
   urls: Observable<void>;
@@ -62,6 +47,15 @@ export abstract class EnvironmentService {
   euUrls: Urls;
   selectedRegion?: Region;
   initialized = true;
+
+  /**
+   * Retrieve all the available regions for environment selectors.
+   *
+   * This currently relies on compile time provided constants, and will not change at runtime.
+   * Expect all builds to include production environments, QA builds to also include QA
+   * environments and dev builds to include localhost.
+   */
+  availableRegions: () => SelectableRegion[];
 
   hasBaseUrl: () => boolean;
   getNotificationsUrl: () => string;

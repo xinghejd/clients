@@ -10,6 +10,13 @@
     "proxyNotifications": "http://localhost:61840",
     "wsConnectSrc": "ws://localhost:61840"
   },
+  "additionalRegions": {
+    "key": "LOCAL",
+    "domain": "localhost",
+    "urls": {
+      "vault": "https://localhost:8080"
+    }
+  },
   "flags": {
     "secretsManager": true,
     "showPasswordless": true,
