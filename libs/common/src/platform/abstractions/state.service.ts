@@ -169,18 +169,6 @@ export abstract class StateService<T extends Account = Account> {
    * @deprecated For migration purposes only, use setUserKeyBiometric instead
    */
   setCryptoMasterKeyBiometric: (value: BiometricKey, options?: StorageOptions) => Promise<void>;
-  /**
-   * Gets a flag for if the biometrics process has been cancelled.
-   * Process reload occurs when biometrics is cancelled, so we store to disk to prevent
-   * it from reprompting and creating a loop.
-   */
-  getBiometricPromptCancelled: (options?: StorageOptions) => Promise<boolean>;
-  /**
-   * Sets a flag for if the biometrics process has been cancelled.
-   * Process reload occurs when biometrics is cancelled, so we store to disk to prevent
-   * it from reprompting and creating a loop.
-   */
-  setBiometricPromptCancelled: (value: boolean, options?: StorageOptions) => Promise<void>;
   getDecryptedCiphers: (options?: StorageOptions) => Promise<CipherView[]>;
   setDecryptedCiphers: (value: CipherView[], options?: StorageOptions) => Promise<void>;
   getDecryptedPasswordGenerationHistory: (
@@ -218,8 +206,6 @@ export abstract class StateService<T extends Account = Account> {
   setDefaultUriMatch: (value: UriMatchType, options?: StorageOptions) => Promise<void>;
   getDisableAddLoginNotification: (options?: StorageOptions) => Promise<boolean>;
   setDisableAddLoginNotification: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getDisableAutoBiometricsPrompt: (options?: StorageOptions) => Promise<boolean>;
-  setDisableAutoBiometricsPrompt: (value: boolean, options?: StorageOptions) => Promise<void>;
   getDisableBadgeCounter: (options?: StorageOptions) => Promise<boolean>;
   setDisableBadgeCounter: (value: boolean, options?: StorageOptions) => Promise<void>;
   getDisableChangedPasswordNotification: (options?: StorageOptions) => Promise<boolean>;
@@ -281,8 +267,6 @@ export abstract class StateService<T extends Account = Account> {
     value: boolean,
     options?: StorageOptions,
   ) => Promise<void>;
-  getEnableFullWidth: (options?: StorageOptions) => Promise<boolean>;
-  setEnableFullWidth: (value: boolean, options?: StorageOptions) => Promise<void>;
   getEnableMinimizeToTray: (options?: StorageOptions) => Promise<boolean>;
   setEnableMinimizeToTray: (value: boolean, options?: StorageOptions) => Promise<void>;
   getEnableStartToTray: (options?: StorageOptions) => Promise<boolean>;
@@ -440,13 +424,6 @@ export abstract class StateService<T extends Account = Account> {
 
   getAvatarColor: (options?: StorageOptions) => Promise<string | null | undefined>;
   setAvatarColor: (value: string, options?: StorageOptions) => Promise<void>;
-  getSMOnboardingTasks: (
-    options?: StorageOptions,
-  ) => Promise<Record<string, Record<string, boolean>>>;
-  setSMOnboardingTasks: (
-    value: Record<string, Record<string, boolean>>,
-    options?: StorageOptions,
-  ) => Promise<void>;
   /**
    * fetches string value of URL user tried to navigate to while unauthenticated.
    * @param options Defines the storage options for the URL; Defaults to session Storage.
