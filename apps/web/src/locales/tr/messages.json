@@ -638,9 +638,6 @@
   "learnMoreAboutPasswordless": {
     "message": "Parolasız giriş hakkında bilgi alın"
   },
-  "passkeyEnterMasterPassword": {
-    "message": "Parola anahtarıyla giriş ayarlarını değiştirmek için ana parolanızı girin."
-  },
   "creatingPasskeyLoading": {
     "message": "Geçiş anahtarı oluşturuluyor..."
   },
@@ -1349,6 +1346,18 @@
   },
   "importData": {
     "message": "Verileri içe aktar"
+  },
+  "onboardingImportDataDetailsPartOne": {
+    "message": "İçe aktarılacak veriniz yoksa bir tane oluşturun ",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+  },
+  "onboardingImportDataDetailsLink": {
+    "message": "yeni öge",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+  },
+  "onboardingImportDataDetailsPartTwo": {
+    "message": " onun yerine. Yöneticiniz kuruluş üyeliğinizi onaylayana kadar beklemeniz gerekebilir.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
   },
   "importError": {
     "message": "İçe aktarma hatası"
@@ -3772,7 +3781,7 @@
     "message": "Bu kayıtta düzeltilmesi gereken eski dosya ekleri bulunuyor."
   },
   "attachmentFixDescription": {
-    "message": "This attachment uses outdated encryption. Select 'Fix' to download, re-encrypt, and re-upload the attachment."
+    "message": "Bu ek eski şifreleme kullanıyor. Eki indirmek, yeniden şifrelemek ve yeniden yüklemek için 'Düzelt'i seçin."
   },
   "fix": {
     "message": "Düzelt",
@@ -4033,6 +4042,12 @@
   },
   "ssoHandOff": {
     "message": "Şimdi bu sekmeyi kapatıp uzantı üzerinden devam edebilirsiniz."
+  },
+  "youSuccessfullyLoggedIn": {
+    "message": "Başarıyla giriş yaptınız"
+  },
+  "thisWindowWillCloseIn5Seconds": {
+    "message": "Bu pencere 5 saniye içinde otomatik olarak kapanacaktır"
   },
   "includeAllTeamsFeatures": {
     "message": "Ekip paketi özelliklerinin yanı sıra:"
@@ -5918,6 +5933,15 @@
       }
     }
   },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "DUO'yu başlatın ve oturum açmayı tamamlamak için adımları izleyin."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "Hesabınız için DUO iki adımlı giriş gereklidir."
+  },
+  "launchDuo": {
+    "message": "DUO'yu başlat"
+  },
   "turnOn": {
     "message": "Aç"
   },
@@ -6629,16 +6653,16 @@
     "message": "Awaiting confirmation"
   },
   "couldNotCompleteBiometrics": {
-    "message": "Could not complete biometrics."
+    "message": "Biyometri işlemi tamamlanamadı."
   },
   "needADifferentMethod": {
-    "message": "Need a different method?"
+    "message": "Farklı bir yönteme mi ihtiyacınız var?"
   },
   "useMasterPassword": {
-    "message": "Use master password"
+    "message": "Ana parolayı kullanın"
   },
   "usePin": {
-    "message": "Use PIN"
+    "message": "PIN kullan"
   },
   "useBiometrics": {
     "message": "Use biometrics"
@@ -6647,7 +6671,7 @@
     "message": "Enter the verification code that was sent to your email."
   },
   "resendCode": {
-    "message": "Resend code"
+    "message": "Kodu yeniden gönder"
   },
   "membersColumnHeader": {
     "message": "Üye/Grup"
@@ -6905,6 +6929,9 @@
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
+  },
+  "createAnAccount": {
+    "message": "Bir hesap oluşturun"
   },
   "createSecret": {
     "message": "Sır oluştur"
@@ -7450,6 +7477,12 @@
     "message": "Ayrıntılı talimatları yardım sitemizde bulabilirsiniz:",
     "description": "This is followed a by a hyperlink to the help website."
   },
+  "installBrowserExtension": {
+    "message": "Tarayıcı uzantısını yükle"
+  },
+  "installBrowserExtensionDetails": {
+    "message": "Web uygulamasını açmadan oturum açma bilgilerini hızlı bir şekilde kaydetmek ve formları otomatik doldurmak için uzantıyı kullanın."
+  },
   "projectAccessUpdated": {
     "message": "Proje erişimi güncellendi"
   },
@@ -7513,5 +7546,46 @@
   },
   "smFreeTrialConfirmationEmail": {
     "message": "E-posta adresinize bir onay e-postası gönderdik:"
+  },
+  "confirmCollectionEnhancementsDialogTitle": {
+    "message": "Bu eylem geri alınamaz"
+  },
+  "confirmCollectionEnhancementsDialogContent": {
+    "message": "Bu özelliğin etkinleştirilmesi, yönetici rolünün kullanımdan kaldırılmasına ve onun yerine Yönetebilir izninin getirilmesine neden olur. Bu birkaç dakika sürecektir. Tamamlanana kadar herhangi bir organizasyon değişikliği yapmayın. Devam etmek istediğinizden emin misiniz?"
+  },
+  "sorryToSeeYouGo": {
+    "message": "Gittiğini görmek üzücü! Neden iptal ettiğinizi paylaşarak Bitwarden'ın iyileştirilmesine yardımcı olun.",
+    "description": "A message shown to users as part of an offboarding survey asking them to provide more information on their subscription cancelation."
+  },
+  "selectCancellationReason": {
+    "message": "İptal etmek için bir neden seçin",
+    "description": "Used as a form field label for a select input on the offboarding survey."
+  },
+  "anyOtherFeedback": {
+    "message": "Paylaşmak istediğiniz başka geri bildirimleriniz var mı?",
+    "description": "Used as a form field label for a textarea input on the offboarding survey."
+  },
+  "missingFeatures": {
+    "message": "Eksik özellikler",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "movingToAnotherTool": {
+    "message": "Moving to another tool",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooDifficultToUse": {
+    "message": "Kullanılması zor",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "notUsingEnough": {
+    "message": "Yeterince kullanılmama",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooExpensive": {
+    "message": "Çok pahalı",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "freeForOneYear": {
+    "message": "Free for 1 year"
   }
 }

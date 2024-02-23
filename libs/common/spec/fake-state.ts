@@ -1,4 +1,4 @@
-import { Observable, ReplaySubject, firstValueFrom, map, timeout } from "rxjs";
+import { Observable, ReplaySubject, concatMap, firstValueFrom, map, timeout } from "rxjs";
 
 import {
   DerivedState,
@@ -6,12 +6,14 @@ import {
   SingleUserState,
   ActiveUserState,
   KeyDefinition,
+  DeriveDefinition,
 } from "../src/platform/state";
 // eslint-disable-next-line import/no-restricted-paths -- using unexposed options for clean typing in test class
 import { StateUpdateOptions } from "../src/platform/state/state-update-options";
 // eslint-disable-next-line import/no-restricted-paths -- using unexposed options for clean typing in test class
 import { CombinedState, activeMarker } from "../src/platform/state/user-state";
 import { UserId } from "../src/types/guid";
+import { DerivedStateDependencies } from "../src/types/state";
 
 import { FakeAccountService } from "./fake-account-service";
 
@@ -64,6 +66,7 @@ export class FakeGlobalState<T> implements GlobalState<T> {
   });
 
   updateMock = this.update as jest.MockedFunction<typeof this.update>;
+  /** Tracks update values resolved by `FakeState.update` */
   nextMock = jest.fn<void, [T]>();
 
   get state$() {
@@ -126,6 +129,7 @@ export class FakeSingleUserState<T> implements SingleUserState<T> {
 
   updateMock = this.update as jest.MockedFunction<typeof this.update>;
 
+  /** Tracks update values resolved by `FakeState.update` */
   nextMock = jest.fn<void, [T]>();
   private _keyDefinition: KeyDefinition<T> | null = null;
   get keyDefinition() {
@@ -188,6 +192,7 @@ export class FakeActiveUserState<T> implements ActiveUserState<T> {
 
   updateMock = this.update as jest.MockedFunction<typeof this.update>;
 
+  /** Tracks update values resolved by `FakeState.update` */
   nextMock = jest.fn<void, [[UserId, T]]>();
 
   private _keyDefinition: KeyDefinition<T> | null = null;
@@ -204,11 +209,33 @@ export class FakeActiveUserState<T> implements ActiveUserState<T> {
   }
 }
 
-export class FakeDerivedState<T> implements DerivedState<T> {
+export class FakeDerivedState<TFrom, TTo, TDeps extends DerivedStateDependencies>
+  implements DerivedState<TTo>
+{
   // eslint-disable-next-line rxjs/no-exposed-subjects -- exposed for testing setup
-  stateSubject = new ReplaySubject<T>(1);
+  stateSubject = new ReplaySubject<TTo>(1);
 
-  forceValue(value: T): Promise<T> {
+  constructor(
+    parentState$: Observable<TFrom>,
+    deriveDefinition: DeriveDefinition<TFrom, TTo, TDeps>,
+    dependencies: TDeps,
+  ) {
+    parentState$
+      .pipe(
+        concatMap(async (v) => {
+          const newState = deriveDefinition.derive(v, dependencies);
+          if (newState instanceof Promise) {
+            return newState;
+          }
+          return Promise.resolve(newState);
+        }),
+      )
+      .subscribe((newState) => {
+        this.stateSubject.next(newState);
+      });
+  }
+
+  forceValue(value: TTo): Promise<TTo> {
     this.stateSubject.next(value);
     return Promise.resolve(value);
   }

@@ -638,9 +638,6 @@
   "learnMoreAboutPasswordless": {
     "message": "További információ a jelszó nélküli használatról"
   },
-  "passkeyEnterMasterPassword": {
-    "message": "Adjuk meg a mesterjelszót a belépési jelszó beállításainak módosításához."
-  },
   "creatingPasskeyLoading": {
     "message": "Jelszó létrehozása..."
   },
@@ -1349,6 +1346,18 @@
   },
   "importData": {
     "message": "Adatok importálása"
+  },
+  "onboardingImportDataDetailsPartOne": {
+    "message": "Ha nincsenek importálandó adatok, létrehozhatunk egy",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+  },
+  "onboardingImportDataDetailsLink": {
+    "message": "új elemet",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+  },
+  "onboardingImportDataDetailsPartTwo": {
+    "message": "helyette. Előfordulhat, hogy meg kell várni, amíg az adminisztrátor megerősíti szervezeti tagságot.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
   },
   "importError": {
     "message": "Importálási hiba"
@@ -4034,6 +4043,12 @@
   "ssoHandOff": {
     "message": "Bezárható ez a fül és folytatás a bővítményben."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "A bejelentkezés sikeres volt."
+  },
+  "thisWindowWillCloseIn5Seconds": {
+    "message": "Ez az ablak 5 másodpercen belül automatikusan bezárul."
+  },
   "includeAllTeamsFeatures": {
     "message": "Összes Csapat funkció, továbbá:"
   },
@@ -5918,6 +5933,15 @@
       }
     }
   },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Indítsuk el a DUO-t és kövessük a lépéseket a bejelentkezés befejezéséhez."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "A fiókhoz kétlépcsős DUO bejelentkezés szükséges."
+  },
+  "launchDuo": {
+    "message": "DUO indítása"
+  },
   "turnOn": {
     "message": "Bekapcsolás"
   },
@@ -6906,6 +6930,9 @@
     "message": "SDK",
     "description": "Software Development Kit"
   },
+  "createAnAccount": {
+    "message": "Fiók létrehozása"
+  },
   "createSecret": {
     "message": "Titkos kód létrehozása"
   },
@@ -7450,6 +7477,12 @@
     "message": "Tekintsük meg a részletes utasításokat a súgó oldalon:",
     "description": "This is followed a by a hyperlink to the help website."
   },
+  "installBrowserExtension": {
+    "message": "Böngésző bővítmény telepítése"
+  },
+  "installBrowserExtensionDetails": {
+    "message": "A bővítmény segítségével gyorsan elmenthetők a bejelentkezések és automatikusan kitölthetők az űrlapok a webalkalmazás megnyitása nélkül."
+  },
   "projectAccessUpdated": {
     "message": "A projekt elérés frissítésre került."
   },
@@ -7513,5 +7546,46 @@
   },
   "smFreeTrialConfirmationEmail": {
     "message": "A megerősítő email elküldésre került az email címre:"
+  },
+  "confirmCollectionEnhancementsDialogTitle": {
+    "message": "Ez a művelet visszavonhatatlan."
+  },
+  "confirmCollectionEnhancementsDialogContent": {
+    "message": "Ezt a funkciót bekapcsolva a kezelői szerepkör elavul és az egy Kezelheti jogosultsággal kerül felváltásra. Ez eltart néhány pillanatig. Ne hajtsunk végre semmilyen szervezeti változtatást, amíg az be nem fejeződött. Biztosan folytatjuk?"
+  },
+  "sorryToSeeYouGo": {
+    "message": "Sorry to see you go! Help improve Bitwarden by sharing why you're canceling.",
+    "description": "A message shown to users as part of an offboarding survey asking them to provide more information on their subscription cancelation."
+  },
+  "selectCancellationReason": {
+    "message": "Select a reason for canceling",
+    "description": "Used as a form field label for a select input on the offboarding survey."
+  },
+  "anyOtherFeedback": {
+    "message": "Is there any other feedback you'd like to share?",
+    "description": "Used as a form field label for a textarea input on the offboarding survey."
+  },
+  "missingFeatures": {
+    "message": "Missing features",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "movingToAnotherTool": {
+    "message": "Moving to another tool",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooDifficultToUse": {
+    "message": "Too difficult to use",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "notUsingEnough": {
+    "message": "Not using enough",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooExpensive": {
+    "message": "Too expensive",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "freeForOneYear": {
+    "message": "Free for 1 year"
   }
 }

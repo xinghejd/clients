@@ -387,7 +387,7 @@
     "message": "Gwirio'ch hunaniaeth"
   },
   "yourVaultIsLocked": {
-    "message": "Mae eich cell dan glo. Gwiriwch eich hunaniaeth i barhau."
+    "message": "Mae eich cell ar glo. Gwiriwch eich hunaniaeth i barhau."
   },
   "unlock": {
     "message": "Datgloi"
@@ -454,10 +454,10 @@
     "message": "On system lock"
   },
   "onRestart": {
-    "message": "On browser restart"
+    "message": "wrth ailgychwyn y porwr"
   },
   "never": {
-    "message": "byth"
+    "message": "Byth"
   },
   "security": {
     "message": "Diogelwch"
@@ -492,6 +492,12 @@
   },
   "newAccountCreated": {
     "message": "Mae eich cyfrif newydd wedi cael ei greu! Gallwch bellach fewngofnodi."
+  },
+  "youSuccessfullyLoggedIn": {
+    "message": "You successfully logged in"
+  },
+  "youMayCloseThisWindow": {
+    "message": "You may close this window"
   },
   "masterPassSent": {
     "message": "Rydym ni wedi anfon ebost atoch gydag awgrym ar gyfer eich prif gyfrinair."
@@ -667,7 +673,7 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "notificationAddDesc": {
-    "message": "Should Bitwarden remember this password for you?"
+    "message": "A ddylai Bitwarden gofio'r cyfrinair hwn i chi?"
   },
   "notificationAddSave": {
     "message": "Cadw"
@@ -1963,7 +1969,7 @@
     "message": "One or more organization policies are affecting your Send options."
   },
   "passwordPrompt": {
-    "message": "Master password re-prompt"
+    "message": "Ailofyn am y prif gyfrinair"
   },
   "passwordConfirmation": {
     "message": "Master password confirmation"
@@ -1997,6 +2003,10 @@
   },
   "selectFolder": {
     "message": "Dewis ffolder..."
+  },
+  "noFoldersFound": {
+    "message": "No folders found",
+    "description": "Used as a message within the notification bar when no folders are found"
   },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "Your organization permissions were updated, requiring you to set a master password.",
@@ -2695,6 +2705,21 @@
       }
     }
   },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Launch Duo and follow the steps to finish logging in."
+  },
+  "duoRequiredForAccount": {
+    "message": "Duo two-step login is required for your account."
+  },
+  "popoutTheExtensionToCompleteLogin": {
+    "message": "Popout the extension to complete login."
+  },
+  "popoutExtension": {
+    "message": "Popout extension"
+  },
+  "launchDuo": {
+    "message": "Launch Duo"
+  },
   "importFormatError": {
     "message": "Data is not formatted correctly. Please check your import file and try again."
   },
@@ -2951,10 +2976,6 @@
   },
   "overrideDefaultBrowserAutofillDescription": {
     "message": "Ignoring this option may cause conflicts between the Bitwarden auto-fill menu and your browser's.",
-    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
-  },
-  "overrideDefaultBrowserAutofillPrivacyRequiredDescription": {
-    "message": "This action will restart the Bitwarden extension. Ignoring this option may cause conflicts between the Bitwarden auto-fill menu and your browser's.",
     "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
   },
   "overrideDefaultBrowserAutoFillSettings": {

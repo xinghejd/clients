@@ -1,8 +1,9 @@
-import { ReplaySubject, switchMap } from "rxjs";
+import { firstValueFrom, ReplaySubject, switchMap } from "rxjs";
 
 import { SettingsService } from "@bitwarden/common/abstractions/settings.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -24,10 +25,14 @@ import {
   openAddEditVaultItemPopout,
 } from "../../vault/popup/utils/vault-popout-window";
 import { SHOW_AUTOFILL_BUTTON } from "../constants";
-import LockedVaultPendingNotificationsItem from "../notification/models/locked-vault-pending-notifications-item";
 import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
-import { AutofillOverlayElement, AutofillOverlayPort } from "../utils/autofill-overlay.enum";
+import {
+  InlineMenuVisibilitySetting,
+  AutofillOverlayElement,
+  AutofillOverlayPort,
+} from "../utils/autofill-overlay.enum";
 
+import { LockedVaultPendingNotificationsData } from "./abstractions/notification.background";
 import {
   FocusedFieldData,
   OverlayBackgroundExtensionMessageHandlers,
@@ -47,7 +52,6 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private readonly openUnlockPopout = openUnlockPopout;
   private readonly openViewVaultItemPopout = openViewVaultItemPopout;
   private readonly openAddEditVaultItemPopout = openAddEditVaultItemPopout;
-  private overlayVisibility: number;
   private overlayLoginCiphers: Map<string, CipherView> = new Map();
   private overlayFido2Credentials: Fido2CredentialView[] = [];
   private pageDetailsForTab: Record<number, PageDetail[]> = {};
@@ -97,6 +101,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
     private environmentService: EnvironmentService,
     private settingsService: SettingsService,
     private stateService: StateService,
+    private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private fido2Client: Fido2ClientService,
@@ -494,10 +499,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
   /**
    * Gets the overlay's visibility setting from the settings service.
    */
-  private async getOverlayVisibility(): Promise<number> {
-    this.overlayVisibility = await this.settingsService.getAutoFillOverlayVisibility();
-
-    return this.overlayVisibility;
+  private async getOverlayVisibility(): Promise<InlineMenuVisibilitySetting> {
+    return await firstValueFrom(this.autofillSettingsService.inlineMenuVisibility$);
   }
 
   /**
@@ -559,8 +562,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
     const { sender } = port;
 
     this.closeOverlay(port);
-    const retryMessage: LockedVaultPendingNotificationsItem = {
-      commandToRetry: { msg: { command: "openAutofillOverlay" }, sender },
+    const retryMessage: LockedVaultPendingNotificationsData = {
+      commandToRetry: { message: { command: "openAutofillOverlay" }, sender },
       target: "overlay.background",
     };
     await BrowserApi.tabSendMessageData(
@@ -608,7 +611,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private async unlockCompleted(message: OverlayBackgroundExtensionMessage) {
     await this.getAuthStatus();
 
-    if (message.data?.commandToRetry?.msg?.command === "openAutofillOverlay") {
+    if (message.data?.commandToRetry?.message?.command === "openAutofillOverlay") {
       await this.openOverlay(true);
     }
   }

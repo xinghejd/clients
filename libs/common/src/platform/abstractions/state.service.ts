@@ -16,13 +16,11 @@ import { UsernameGeneratorOptions } from "../../tools/generator/username";
 import { SendData } from "../../tools/send/models/data/send.data";
 import { SendView } from "../../tools/send/models/view/send.view";
 import { UserId } from "../../types/guid";
-import { DeviceKey, MasterKey, UserKey } from "../../types/key";
+import { DeviceKey, MasterKey } from "../../types/key";
 import { UriMatchType } from "../../vault/enums";
 import { CipherData } from "../../vault/models/data/cipher.data";
-import { CollectionData } from "../../vault/models/data/collection.data";
 import { LocalData } from "../../vault/models/data/local.data";
 import { CipherView } from "../../vault/models/view/cipher.view";
-import { CollectionView } from "../../vault/models/view/collection.view";
 import { AddEditCipherInfo } from "../../vault/types/add-edit-cipher-info";
 import { KdfType, ThemeType } from "../enums";
 import { ServerConfigData } from "../models/data/server-config.data";
@@ -52,6 +50,9 @@ export type InitOptions = {
 export abstract class StateService<T extends Account = Account> {
   accounts$: Observable<{ [userId: string]: T }>;
   activeAccount$: Observable<string>;
+  /**
+   * @deprecated use accountService.activeAccount$ instead
+   */
   activeAccountUnlocked$: Observable<boolean>;
 
   addAccount: (account: T) => Promise<void>;
@@ -71,14 +72,8 @@ export abstract class StateService<T extends Account = Account> {
   setApiKeyClientSecret: (value: string, options?: StorageOptions) => Promise<void>;
   getAutoConfirmFingerPrints: (options?: StorageOptions) => Promise<boolean>;
   setAutoConfirmFingerprints: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getAutoFillOnPageLoadDefault: (options?: StorageOptions) => Promise<boolean>;
-  setAutoFillOnPageLoadDefault: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getBiometricAwaitingAcceptance: (options?: StorageOptions) => Promise<boolean>;
-  setBiometricAwaitingAcceptance: (value: boolean, options?: StorageOptions) => Promise<void>;
   getBiometricFingerprintValidated: (options?: StorageOptions) => Promise<boolean>;
   setBiometricFingerprintValidated: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getBiometricText: (options?: StorageOptions) => Promise<string>;
-  setBiometricText: (value: string, options?: StorageOptions) => Promise<void>;
   getBiometricUnlock: (options?: StorageOptions) => Promise<boolean>;
   setBiometricUnlock: (value: boolean, options?: StorageOptions) => Promise<void>;
   getCanAccessPremium: (options?: StorageOptions) => Promise<boolean>;
@@ -88,18 +83,8 @@ export abstract class StateService<T extends Account = Account> {
   getHasPremiumFromOrganization: (options?: StorageOptions) => Promise<boolean>;
   getClearClipboard: (options?: StorageOptions) => Promise<number>;
   setClearClipboard: (value: number, options?: StorageOptions) => Promise<void>;
-  getCollapsedGroupings: (options?: StorageOptions) => Promise<string[]>;
-  setCollapsedGroupings: (value: string[], options?: StorageOptions) => Promise<void>;
   getConvertAccountToKeyConnector: (options?: StorageOptions) => Promise<boolean>;
   setConvertAccountToKeyConnector: (value: boolean, options?: StorageOptions) => Promise<void>;
-  /**
-   * gets the user key
-   */
-  getUserKey: (options?: StorageOptions) => Promise<UserKey>;
-  /**
-   * Sets the user key
-   */
-  setUserKey: (value: UserKey, options?: StorageOptions) => Promise<void>;
   /**
    * Gets the user's master key
    */
@@ -161,10 +146,6 @@ export abstract class StateService<T extends Account = Account> {
    */
   getEncryptedCryptoSymmetricKey: (options?: StorageOptions) => Promise<string>;
   /**
-   * @deprecated For migration purposes only, use setUserKeyMasterKey instead
-   */
-  setEncryptedCryptoSymmetricKey: (value: string, options?: StorageOptions) => Promise<void>;
-  /**
    * @deprecated For legacy purposes only, use getMasterKey instead
    */
   getCryptoMasterKey: (options?: StorageOptions) => Promise<SymmetricCryptoKey>;
@@ -188,22 +169,8 @@ export abstract class StateService<T extends Account = Account> {
    * @deprecated For migration purposes only, use setUserKeyBiometric instead
    */
   setCryptoMasterKeyBiometric: (value: BiometricKey, options?: StorageOptions) => Promise<void>;
-  /**
-   * Gets a flag for if the biometrics process has been cancelled.
-   * Process reload occurs when biometrics is cancelled, so we store to disk to prevent
-   * it from reprompting and creating a loop.
-   */
-  getBiometricPromptCancelled: (options?: StorageOptions) => Promise<boolean>;
-  /**
-   * Sets a flag for if the biometrics process has been cancelled.
-   * Process reload occurs when biometrics is cancelled, so we store to disk to prevent
-   * it from reprompting and creating a loop.
-   */
-  setBiometricPromptCancelled: (value: boolean, options?: StorageOptions) => Promise<void>;
   getDecryptedCiphers: (options?: StorageOptions) => Promise<CipherView[]>;
   setDecryptedCiphers: (value: CipherView[], options?: StorageOptions) => Promise<void>;
-  getDecryptedCollections: (options?: StorageOptions) => Promise<CollectionView[]>;
-  setDecryptedCollections: (value: CollectionView[], options?: StorageOptions) => Promise<void>;
   getDecryptedPasswordGenerationHistory: (
     options?: StorageOptions,
   ) => Promise<GeneratedPasswordHistory[]>;
@@ -227,8 +194,6 @@ export abstract class StateService<T extends Account = Account> {
    * @deprecated Do not call this, use PolicyService
    */
   setDecryptedPolicies: (value: Policy[], options?: StorageOptions) => Promise<void>;
-  getDecryptedPrivateKey: (options?: StorageOptions) => Promise<Uint8Array>;
-  setDecryptedPrivateKey: (value: Uint8Array, options?: StorageOptions) => Promise<void>;
   /**
    * @deprecated Do not call this directly, use SendService
    */
@@ -241,10 +206,6 @@ export abstract class StateService<T extends Account = Account> {
   setDefaultUriMatch: (value: UriMatchType, options?: StorageOptions) => Promise<void>;
   getDisableAddLoginNotification: (options?: StorageOptions) => Promise<boolean>;
   setDisableAddLoginNotification: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getDisableAutoBiometricsPrompt: (options?: StorageOptions) => Promise<boolean>;
-  setDisableAutoBiometricsPrompt: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getDisableAutoTotpCopy: (options?: StorageOptions) => Promise<boolean>;
-  setDisableAutoTotpCopy: (value: boolean, options?: StorageOptions) => Promise<void>;
   getDisableBadgeCounter: (options?: StorageOptions) => Promise<boolean>;
   setDisableBadgeCounter: (value: boolean, options?: StorageOptions) => Promise<void>;
   getDisableChangedPasswordNotification: (options?: StorageOptions) => Promise<boolean>;
@@ -264,8 +225,6 @@ export abstract class StateService<T extends Account = Account> {
   setDisableFavicon: (value: boolean, options?: StorageOptions) => Promise<void>;
   getDisableGa: (options?: StorageOptions) => Promise<boolean>;
   setDisableGa: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getDismissedAutofillCallout: (options?: StorageOptions) => Promise<boolean>;
-  setDismissedAutofillCallout: (value: boolean, options?: StorageOptions) => Promise<void>;
   getDontShowCardsCurrentTab: (options?: StorageOptions) => Promise<boolean>;
   setDontShowCardsCurrentTab: (value: boolean, options?: StorageOptions) => Promise<void>;
   getDontShowIdentitiesCurrentTab: (options?: StorageOptions) => Promise<boolean>;
@@ -294,10 +253,6 @@ export abstract class StateService<T extends Account = Account> {
   setEmailVerified: (value: boolean, options?: StorageOptions) => Promise<void>;
   getEnableAlwaysOnTop: (options?: StorageOptions) => Promise<boolean>;
   setEnableAlwaysOnTop: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getAutoFillOverlayVisibility: (options?: StorageOptions) => Promise<number>;
-  setAutoFillOverlayVisibility: (value: number, options?: StorageOptions) => Promise<void>;
-  getEnableAutoFillOnPageLoad: (options?: StorageOptions) => Promise<boolean>;
-  setEnableAutoFillOnPageLoad: (value: boolean, options?: StorageOptions) => Promise<void>;
   getEnableBrowserIntegration: (options?: StorageOptions) => Promise<boolean>;
   setEnableBrowserIntegration: (value: boolean, options?: StorageOptions) => Promise<void>;
   getEnableBrowserIntegrationFingerprint: (options?: StorageOptions) => Promise<boolean>;
@@ -312,8 +267,6 @@ export abstract class StateService<T extends Account = Account> {
     value: boolean,
     options?: StorageOptions,
   ) => Promise<void>;
-  getEnableFullWidth: (options?: StorageOptions) => Promise<boolean>;
-  setEnableFullWidth: (value: boolean, options?: StorageOptions) => Promise<void>;
   getEnableMinimizeToTray: (options?: StorageOptions) => Promise<boolean>;
   setEnableMinimizeToTray: (value: boolean, options?: StorageOptions) => Promise<void>;
   getEnableStartToTray: (options?: StorageOptions) => Promise<boolean>;
@@ -323,11 +276,6 @@ export abstract class StateService<T extends Account = Account> {
   getEncryptedCiphers: (options?: StorageOptions) => Promise<{ [id: string]: CipherData }>;
   setEncryptedCiphers: (
     value: { [id: string]: CipherData },
-    options?: StorageOptions,
-  ) => Promise<void>;
-  getEncryptedCollections: (options?: StorageOptions) => Promise<{ [id: string]: CollectionData }>;
-  setEncryptedCollections: (
-    value: { [id: string]: CollectionData },
     options?: StorageOptions,
   ) => Promise<void>;
   getEncryptedPasswordGenerationHistory: (
@@ -356,8 +304,6 @@ export abstract class StateService<T extends Account = Account> {
     value: { [id: string]: PolicyData },
     options?: StorageOptions,
   ) => Promise<void>;
-  getEncryptedPrivateKey: (options?: StorageOptions) => Promise<string>;
-  setEncryptedPrivateKey: (value: string, options?: StorageOptions) => Promise<void>;
   /**
    * @deprecated Do not call this directly, use SendService
    */
@@ -366,10 +312,6 @@ export abstract class StateService<T extends Account = Account> {
    * @deprecated Do not call this directly, use SendService
    */
   setEncryptedSends: (value: { [id: string]: SendData }, options?: StorageOptions) => Promise<void>;
-  getEntityId: (options?: StorageOptions) => Promise<string>;
-  setEntityId: (value: string, options?: StorageOptions) => Promise<void>;
-  getEntityType: (options?: StorageOptions) => Promise<any>;
-  setEntityType: (value: string, options?: StorageOptions) => Promise<void>;
   getEquivalentDomains: (options?: StorageOptions) => Promise<string[][]>;
   setEquivalentDomains: (value: string, options?: StorageOptions) => Promise<void>;
   getEventCollection: (options?: StorageOptions) => Promise<EventData[]>;
@@ -405,8 +347,6 @@ export abstract class StateService<T extends Account = Account> {
   setMinimizeOnCopyToClipboard: (value: boolean, options?: StorageOptions) => Promise<void>;
   getNeverDomains: (options?: StorageOptions) => Promise<{ [id: string]: unknown }>;
   setNeverDomains: (value: { [id: string]: unknown }, options?: StorageOptions) => Promise<void>;
-  getNoAutoPromptBiometricsText: (options?: StorageOptions) => Promise<string>;
-  setNoAutoPromptBiometricsText: (value: string, options?: StorageOptions) => Promise<void>;
   getOpenAtLogin: (options?: StorageOptions) => Promise<boolean>;
   setOpenAtLogin: (value: boolean, options?: StorageOptions) => Promise<void>;
   getOrganizationInvitation: (options?: StorageOptions) => Promise<any>;
@@ -444,8 +384,6 @@ export abstract class StateService<T extends Account = Account> {
   setProtectedPin: (value: string, options?: StorageOptions) => Promise<void>;
   getProviders: (options?: StorageOptions) => Promise<{ [id: string]: ProviderData }>;
   setProviders: (value: { [id: string]: ProviderData }, options?: StorageOptions) => Promise<void>;
-  getPublicKey: (options?: StorageOptions) => Promise<Uint8Array>;
-  setPublicKey: (value: Uint8Array, options?: StorageOptions) => Promise<void>;
   getRefreshToken: (options?: StorageOptions) => Promise<string>;
   setRefreshToken: (value: string, options?: StorageOptions) => Promise<void>;
   getRememberedEmail: (options?: StorageOptions) => Promise<string>;
@@ -486,13 +424,6 @@ export abstract class StateService<T extends Account = Account> {
 
   getAvatarColor: (options?: StorageOptions) => Promise<string | null | undefined>;
   setAvatarColor: (value: string, options?: StorageOptions) => Promise<void>;
-  getActivateAutoFillOnPageLoadFromPolicy: (
-    options?: StorageOptions,
-  ) => Promise<boolean | undefined>;
-  setActivateAutoFillOnPageLoadFromPolicy: (
-    value: boolean,
-    options?: StorageOptions,
-  ) => Promise<void>;
   getSMOnboardingTasks: (
     options?: StorageOptions,
   ) => Promise<Record<string, Record<string, boolean>>>;
