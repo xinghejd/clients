@@ -69,7 +69,7 @@ class ActiveRequestManager {
       credentials,
       subject: new Subject(),
     };
-    await this.updateRequests((existingRequests) => ({
+    this.updateRequests((existingRequests) => ({
       ...existingRequests,
       [tabId]: newRequest,
     }));
@@ -335,7 +335,11 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
 
     let assumeUserPresence = false;
     if (params.mediation === "conditional") {
-      const availableCredentials = await this.authenticator.silentCredentialDiscovery(params.rpId);
+      const authStatus = await this.authService.getAuthStatus();
+      const availableCredentials =
+        authStatus === AuthenticationStatus.Unlocked
+          ? await this.authenticator.silentCredentialDiscovery(params.rpId)
+          : [];
       this.logService?.info(
         `[Fido2Client] started mediated request, available credentials: ${availableCredentials.length}`,
       );

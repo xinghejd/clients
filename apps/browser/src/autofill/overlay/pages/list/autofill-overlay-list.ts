@@ -445,7 +445,9 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
 
     const cipherNameElement = globalThis.document.createElement("span");
     cipherNameElement.classList.add("cipher-name");
-    cipherNameElement.textContent = cipher.name;
+    cipherNameElement.textContent = cipher.login?.hasPasskey
+      ? `Passkey: ${cipher.name}`
+      : cipher.name;
     cipherNameElement.setAttribute("title", cipher.name);
 
     return cipherNameElement;

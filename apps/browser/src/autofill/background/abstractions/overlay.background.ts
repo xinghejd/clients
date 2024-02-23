@@ -51,7 +51,7 @@ type OverlayCipherData = {
   reprompt: CipherRepromptType;
   favorite: boolean;
   icon: { imageEnabled: boolean; image: string; fallbackImage: string; icon: string };
-  login?: { username: string };
+  login?: { username: string; hasPasskey: boolean };
   card?: string;
 };
 
@@ -112,7 +112,6 @@ type OverlayListPortMessageHandlers = {
 interface OverlayBackground {
   init(): Promise<void>;
   removePageDetails(tabId: number): void;
-  handleTabChanged(newTabId: number): Promise<void>;
   updateOverlayCiphers(): void;
 }
 

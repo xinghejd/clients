@@ -113,12 +113,6 @@ class OverlayBackground implements OverlayBackgroundInterface {
       .subscribe((credentials) => (this.overlayFido2Credentials = credentials));
   }
 
-  async handleTabChanged(): Promise<void> {
-    this.overlayFido2Credentials = [];
-    this.currentTab$.next((await BrowserApi.getTabFromCurrentWindowId())?.id);
-    await this.updateOverlayCiphers();
-  }
-
   /**
    * Removes cached page details for a tab
    * based on the passed tabId.
@@ -154,23 +148,12 @@ class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
+    this.overlayFido2Credentials = [];
+    this.currentTab$.next(currentTab.id);
     this.overlayLoginCiphers = new Map();
-    const tabFido2CredentialIds = this.overlayFido2Credentials.map((c) => c.credentialId);
-    const fido2CipherViews = (await this.cipherService.getAllDecrypted())
-      .filter((c) => tabFido2CredentialIds?.includes(c.login?.fido2Credentials?.[0]?.credentialId))
-      .sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
-    fido2CipherViews.forEach((c) => {
-      // TODO: Fix this hacky hack
-      if (c.name.startsWith("Passkey: ")) {
-        return;
-      }
-
-      c.name = `Passkey: ${c.name}`;
-    });
-    const loginCipherViews = (await this.cipherService.getAllDecryptedForUrl(currentTab.url)).sort(
+    const ciphersViews = (await this.cipherService.getAllDecryptedForUrl(currentTab.url)).sort(
       (a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b),
     );
-    const ciphersViews = fido2CipherViews.concat(loginCipherViews);
     for (let cipherIndex = 0; cipherIndex < ciphersViews.length; cipherIndex++) {
       this.overlayLoginCiphers.set(`overlay-cipher-${cipherIndex}`, ciphersViews[cipherIndex]);
     }
@@ -210,7 +193,10 @@ class OverlayBackground implements OverlayBackgroundInterface {
             : buildCipherIcon(this.iconsServerUrl, cipher, isFaviconDisabled),
         login:
           cipher.type === CipherType.Login
-            ? { username: this.obscureName(cipher.login.username) }
+            ? {
+                username: this.obscureName(cipher.login.username),
+                hasPasskey: Boolean(cipher.login.fido2Credentials?.[0]?.credentialId),
+              }
             : null,
         card: cipher.type === CipherType.Card ? cipher.card.subTitle : null,
       });

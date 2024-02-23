@@ -124,9 +124,9 @@ function initializeFido2ContentScript() {
 
 async function run() {
   // Injection is too slow with this enabled
-  // if (!(await isFido2FeatureEnabled())) {
-  //   return;
-  // }
+  if (!(await isFido2FeatureEnabled())) {
+    return;
+  }
 
   initializeFido2ContentScript();
 
