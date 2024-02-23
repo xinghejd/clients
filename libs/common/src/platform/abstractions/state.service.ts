@@ -81,8 +81,6 @@ export abstract class StateService<T extends Account = Account> {
   setHasPremiumPersonally: (value: boolean, options?: StorageOptions) => Promise<void>;
   setHasPremiumFromOrganization: (value: boolean, options?: StorageOptions) => Promise<void>;
   getHasPremiumFromOrganization: (options?: StorageOptions) => Promise<boolean>;
-  getClearClipboard: (options?: StorageOptions) => Promise<number>;
-  setClearClipboard: (value: number, options?: StorageOptions) => Promise<void>;
   getConvertAccountToKeyConnector: (options?: StorageOptions) => Promise<boolean>;
   setConvertAccountToKeyConnector: (value: boolean, options?: StorageOptions) => Promise<void>;
   /**
@@ -267,8 +265,6 @@ export abstract class StateService<T extends Account = Account> {
     value: boolean,
     options?: StorageOptions,
   ) => Promise<void>;
-  getEnableFullWidth: (options?: StorageOptions) => Promise<boolean>;
-  setEnableFullWidth: (value: boolean, options?: StorageOptions) => Promise<void>;
   getEnableMinimizeToTray: (options?: StorageOptions) => Promise<boolean>;
   setEnableMinimizeToTray: (value: boolean, options?: StorageOptions) => Promise<void>;
   getEnableStartToTray: (options?: StorageOptions) => Promise<boolean>;
@@ -426,13 +422,6 @@ export abstract class StateService<T extends Account = Account> {
 
   getAvatarColor: (options?: StorageOptions) => Promise<string | null | undefined>;
   setAvatarColor: (value: string, options?: StorageOptions) => Promise<void>;
-  getSMOnboardingTasks: (
-    options?: StorageOptions,
-  ) => Promise<Record<string, Record<string, boolean>>>;
-  setSMOnboardingTasks: (
-    value: Record<string, Record<string, boolean>>,
-    options?: StorageOptions,
-  ) => Promise<void>;
   /**
    * fetches string value of URL user tried to navigate to while unauthenticated.
    * @param options Defines the storage options for the URL; Defaults to session Storage.

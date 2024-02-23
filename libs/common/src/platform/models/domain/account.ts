@@ -201,7 +201,6 @@ export class AccountProfile {
 export class AccountSettings {
   autoConfirmFingerPrints?: boolean;
   biometricUnlock?: boolean;
-  clearClipboard?: number;
   defaultUriMatch?: UriMatchType;
   disableBadgeCounter?: boolean;
   disableGa?: boolean;
@@ -209,7 +208,6 @@ export class AccountSettings {
   dontShowIdentitiesCurrentTab?: boolean;
   enableAlwaysOnTop?: boolean;
   enableBiometric?: boolean;
-  enableFullWidth?: boolean;
   equivalentDomains?: any;
   minimizeOnCopyToClipboard?: boolean;
   passwordGenerationOptions?: PasswordGeneratorOptions;
@@ -224,7 +222,6 @@ export class AccountSettings {
   serverConfig?: ServerConfigData;
   approveLoginRequests?: boolean;
   avatarColor?: string;
-  smOnboardingTasks?: Record<string, Record<string, boolean>>;
   trustDeviceChoiceForDecryption?: boolean;
 
   /** @deprecated July 2023, left for migration purposes*/
