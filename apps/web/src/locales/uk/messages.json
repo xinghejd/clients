@@ -638,9 +638,6 @@
   "learnMoreAboutPasswordless": {
     "message": "Докладніше про безпарольну авторизацію"
   },
-  "passkeyEnterMasterPassword": {
-    "message": "Введіть головний пароль, щоб змінити налаштування входу з ключем доступу."
-  },
   "creatingPasskeyLoading": {
     "message": "Створення ключа доступу..."
   },
@@ -1349,6 +1346,18 @@
   },
   "importData": {
     "message": "Імпортувати дані"
+  },
+  "onboardingImportDataDetailsPartOne": {
+    "message": "Якщо у вас немає даних для імпорту, можете створити ",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+  },
+  "onboardingImportDataDetailsLink": {
+    "message": "новий елемент",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+  },
+  "onboardingImportDataDetailsPartTwo": {
+    "message": " натомість. Можливо, доведеться зачекати доки адміністратор підтвердить вашу участь в організації.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
   },
   "importError": {
     "message": "Помилка імпорту"
@@ -4034,6 +4043,12 @@
   "ssoHandOff": {
     "message": "Тепер ви можете закрити цю вкладку і продовжити в розширенні."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "You successfully logged in"
+  },
+  "thisWindowWillCloseIn5Seconds": {
+    "message": "This window will automatically close in 5 seconds"
+  },
   "includeAllTeamsFeatures": {
     "message": "Усі функції команд, плюс:"
   },
@@ -5918,6 +5933,15 @@
       }
     }
   },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Запустіть DUO і виконайте дії для завершення входу."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "Для вашого облікового запису необхідна двоетапна перевірка з DUO."
+  },
+  "launchDuo": {
+    "message": "Запустити DUO"
+  },
   "turnOn": {
     "message": "Увімкнути"
   },
@@ -6906,6 +6930,9 @@
     "message": "SDK",
     "description": "Software Development Kit"
   },
+  "createAnAccount": {
+    "message": "Створити обліковий запис"
+  },
   "createSecret": {
     "message": "Створити секрет"
   },
@@ -7450,6 +7477,12 @@
     "message": "Перегляньте докладні інструкції на нашому довідковому сайті",
     "description": "This is followed a by a hyperlink to the help website."
   },
+  "installBrowserExtension": {
+    "message": "Встановити розширення браузера"
+  },
+  "installBrowserExtensionDetails": {
+    "message": "Використовуйте розширення, щоб швидко зберігати паролі й автоматично заповнювати форми без відкриття вебверсії."
+  },
   "projectAccessUpdated": {
     "message": "Доступ до проєкту оновлено"
   },
@@ -7513,5 +7546,46 @@
   },
   "smFreeTrialConfirmationEmail": {
     "message": "Ми надіслали лист з підтвердженням на вашу електронну пошту "
+  },
+  "confirmCollectionEnhancementsDialogTitle": {
+    "message": "Це незворотна дія"
+  },
+  "confirmCollectionEnhancementsDialogContent": {
+    "message": "Увімкнення цієї функції замінить роль менеджера на можливість керування дозволами. Цей процес триватиме кілька секунд. Не робіть жодних змін в організації доки процес не завершиться. Ви дійсно хочете продовжити?"
+  },
+  "sorryToSeeYouGo": {
+    "message": "Нам шкода, що ви нас покидаєте! Допоможіть вдосконалити Bitwarden, повідомивши причину.",
+    "description": "A message shown to users as part of an offboarding survey asking them to provide more information on their subscription cancelation."
+  },
+  "selectCancellationReason": {
+    "message": "Виберіть причину скасування",
+    "description": "Used as a form field label for a select input on the offboarding survey."
+  },
+  "anyOtherFeedback": {
+    "message": "Чи бажаєте поділитися своїм відгуком?",
+    "description": "Used as a form field label for a textarea input on the offboarding survey."
+  },
+  "missingFeatures": {
+    "message": "Відсутні функції",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "movingToAnotherTool": {
+    "message": "Переходжу на інший інструмент",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooDifficultToUse": {
+    "message": "Складний у користуванні",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "notUsingEnough": {
+    "message": "Майже не користуюся",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooExpensive": {
+    "message": "Висока ціна",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "freeForOneYear": {
+    "message": "Free for 1 year"
   }
 }

@@ -461,6 +461,8 @@ async function generateAuthData(params: AuthDataParams) {
   const flags = authDataFlags({
     extensionData: false,
     attestationData: params.keyPair != undefined,
+    backupEligibility: true,
+    backupState: true, // Credentials are always synced
     userVerification: params.userVerification,
     userPresence: params.userPresence,
   });
@@ -539,6 +541,8 @@ async function generateSignature(params: SignatureParams) {
 interface Flags {
   extensionData: boolean;
   attestationData: boolean;
+  backupEligibility: boolean;
+  backupState: boolean;
   userVerification: boolean;
   userPresence: boolean;
 }
@@ -552,6 +556,14 @@ function authDataFlags(options: Flags): number {
 
   if (options.attestationData) {
     flags |= 0b01000000;
+  }
+
+  if (options.backupEligibility) {
+    flags |= 0b00001000;
+  }
+
+  if (options.backupState) {
+    flags |= 0b00010000;
   }
 
   if (options.userVerification) {

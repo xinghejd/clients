@@ -1,7 +1,37 @@
-import AddChangePasswordQueueMessage from "../../notification/models/add-change-password-queue-message";
-import AddLoginQueueMessage from "../../notification/models/add-login-queue-message";
-import AddRequestFilelessImportQueueMessage from "../../notification/models/add-request-fileless-import-queue-message";
-import AddUnlockVaultQueueMessage from "../../notification/models/add-unlock-vault-queue-message";
+import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
+
+import { NotificationQueueMessageTypes } from "../../enums/notification-queue-message-type.enum";
+import AutofillPageDetails from "../../models/autofill-page-details";
+
+interface NotificationQueueMessage {
+  type: NotificationQueueMessageTypes;
+  domain: string;
+  tab: chrome.tabs.Tab;
+  expires: Date;
+  wasVaultLocked: boolean;
+}
+
+interface AddChangePasswordQueueMessage extends NotificationQueueMessage {
+  type: "change";
+  cipherId: string;
+  newPassword: string;
+}
+
+interface AddLoginQueueMessage extends NotificationQueueMessage {
+  type: "add";
+  username: string;
+  password: string;
+  uri: string;
+}
+
+interface AddUnlockVaultQueueMessage extends NotificationQueueMessage {
+  type: "unlock";
+}
+
+interface AddRequestFilelessImportQueueMessage extends NotificationQueueMessage {
+  type: "fileless-import";
+  importType?: string;
+}
 
 type NotificationQueueMessageItem =
   | AddLoginQueueMessage
@@ -9,4 +39,90 @@ type NotificationQueueMessageItem =
   | AddUnlockVaultQueueMessage
   | AddRequestFilelessImportQueueMessage;
 
-export { NotificationQueueMessageItem };
+type LockedVaultPendingNotificationsData = {
+  commandToRetry: {
+    message: {
+      command: string;
+      contextMenuOnClickData?: chrome.contextMenus.OnClickData;
+      folder?: string;
+      edit?: boolean;
+    };
+    sender: chrome.runtime.MessageSender;
+  };
+  target: string;
+};
+
+type AdjustNotificationBarMessageData = {
+  height: number;
+};
+
+type ChangePasswordMessageData = {
+  currentPassword: string;
+  newPassword: string;
+  url: string;
+};
+
+type AddLoginMessageData = {
+  username: string;
+  password: string;
+  url: string;
+};
+
+type UnlockVaultMessageData = {
+  skipNotification?: boolean;
+};
+
+type NotificationBackgroundExtensionMessage = {
+  [key: string]: any;
+  command: string;
+  data?: Partial<LockedVaultPendingNotificationsData> &
+    Partial<AdjustNotificationBarMessageData> &
+    Partial<ChangePasswordMessageData> &
+    Partial<UnlockVaultMessageData>;
+  login?: AddLoginMessageData;
+  folder?: string;
+  edit?: boolean;
+  details?: AutofillPageDetails;
+  tab?: chrome.tabs.Tab;
+  sender?: string;
+  notificationType?: string;
+};
+
+type SaveOrUpdateCipherResult = undefined | { error: string };
+
+type BackgroundMessageParam = { message: NotificationBackgroundExtensionMessage };
+type BackgroundSenderParam = { sender: chrome.runtime.MessageSender };
+type BackgroundOnMessageHandlerParams = BackgroundMessageParam & BackgroundSenderParam;
+
+type NotificationBackgroundExtensionMessageHandlers = {
+  [key: string]: CallableFunction;
+  unlockCompleted: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
+  bgGetFolderData: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<FolderView[]>;
+  bgCloseNotificationBar: ({ sender }: BackgroundSenderParam) => Promise<void>;
+  bgAdjustNotificationBar: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
+  bgAddLogin: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
+  bgChangedPassword: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
+  bgRemoveTabFromNotificationQueue: ({ sender }: BackgroundSenderParam) => void;
+  bgSaveCipher: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
+  bgNeverSave: ({ sender }: BackgroundSenderParam) => Promise<void>;
+  bgUnlockPopoutOpened: ({ message, sender }: BackgroundOnMessageHandlerParams) => Promise<void>;
+  bgReopenUnlockPopout: ({ sender }: BackgroundSenderParam) => Promise<void>;
+  checkNotificationQueue: ({ sender }: BackgroundSenderParam) => Promise<void>;
+  collectPageDetailsResponse: ({ message }: BackgroundMessageParam) => Promise<void>;
+};
+
+export {
+  AddChangePasswordQueueMessage,
+  AddLoginQueueMessage,
+  AddUnlockVaultQueueMessage,
+  AddRequestFilelessImportQueueMessage,
+  NotificationQueueMessageItem,
+  LockedVaultPendingNotificationsData,
+  AdjustNotificationBarMessageData,
+  ChangePasswordMessageData,
+  UnlockVaultMessageData,
+  AddLoginMessageData,
+  SaveOrUpdateCipherResult,
+  NotificationBackgroundExtensionMessage,
+  NotificationBackgroundExtensionMessageHandlers,
+};

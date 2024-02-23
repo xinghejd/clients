@@ -638,9 +638,6 @@
   "learnMoreAboutPasswordless": {
     "message": "Més informació sobre sense contrasenyes"
   },
-  "passkeyEnterMasterPassword": {
-    "message": "Introduïu la vostra contrasenya mestra per modificar l'inici de sessió amb la configuració de la clau de pas."
-  },
   "creatingPasskeyLoading": {
     "message": "S'està creant la clau de pas..."
   },
@@ -1349,6 +1346,18 @@
   },
   "importData": {
     "message": "Importa dades"
+  },
+  "onboardingImportDataDetailsPartOne": {
+    "message": "Si no teniu cap dada per importar, podeu crear un ",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+  },
+  "onboardingImportDataDetailsLink": {
+    "message": "element nou.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+  },
+  "onboardingImportDataDetailsPartTwo": {
+    "message": " És possible que hàgeu d'esperar fins que l'administrador confirme la vostra pertinença a l'organització.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
   },
   "importError": {
     "message": "Error d'importació"
@@ -4034,6 +4043,12 @@
   "ssoHandOff": {
     "message": "Ara podeu tancar aquesta pestanya i continuar a l'extensió."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "Heu iniciat sessió correctament"
+  },
+  "thisWindowWillCloseIn5Seconds": {
+    "message": "Aquesta finestra es tancarà automàticament en 5 segons"
+  },
   "includeAllTeamsFeatures": {
     "message": "Característiques de tots els equips, a més de:"
   },
@@ -5918,6 +5933,15 @@
       }
     }
   },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Inicieu DUO i seguiu els passos per finalitzar la sessió."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "Es requereix l'inici de sessió en dos passos de DUO al vostre compte."
+  },
+  "launchDuo": {
+    "message": "Inicia DUO"
+  },
   "turnOn": {
     "message": "Activa"
   },
@@ -6906,6 +6930,9 @@
     "message": "SDK",
     "description": "Software Development Kit"
   },
+  "createAnAccount": {
+    "message": "Crea un compte"
+  },
   "createSecret": {
     "message": "Crea un secret"
   },
@@ -7450,6 +7477,12 @@
     "message": "Consulteu les instruccions detallades al nostre lloc d'ajuda a",
     "description": "This is followed a by a hyperlink to the help website."
   },
+  "installBrowserExtension": {
+    "message": "Instal·la extension del navegador"
+  },
+  "installBrowserExtensionDetails": {
+    "message": "Utilitza l'extensió per guardar ràpidament els inicis de sessió i emplenar formularis automàticament sense obrir l'aplicació web."
+  },
   "projectAccessUpdated": {
     "message": "S'ha actualitzat l'accés al projecte"
   },
@@ -7513,5 +7546,46 @@
   },
   "smFreeTrialConfirmationEmail": {
     "message": "Hem enviat un correu electrònic de confirmació al vostre correu electrònic a "
+  },
+  "confirmCollectionEnhancementsDialogTitle": {
+    "message": "Aquesta acció és irreversible"
+  },
+  "confirmCollectionEnhancementsDialogContent": {
+    "message": "En activar aquesta característica, la funció de gestor quedarà obsoleta i se substituirà per Pot gestionar permís. Això tardarà un moment. No feu cap canvi a l'organització fins que no s'haja completat. Esteu segur que voleu continuar?"
+  },
+  "sorryToSeeYouGo": {
+    "message": "Sentim que te'n vages! Ajuda a millorar Bitwarden compartint per què estàs donant-te de baixa.",
+    "description": "A message shown to users as part of an offboarding survey asking them to provide more information on their subscription cancelation."
+  },
+  "selectCancellationReason": {
+    "message": "Seleccioneu un motiu per cancel·lar-lo",
+    "description": "Used as a form field label for a select input on the offboarding survey."
+  },
+  "anyOtherFeedback": {
+    "message": "Hi ha algun altre comentari que voldríeu compartir?",
+    "description": "Used as a form field label for a textarea input on the offboarding survey."
+  },
+  "missingFeatures": {
+    "message": "Característiques que falten",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "movingToAnotherTool": {
+    "message": "Passem a una altra eina",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooDifficultToUse": {
+    "message": "És difícil d'utilitzar",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "notUsingEnough": {
+    "message": "No l'utilitzem prou",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooExpensive": {
+    "message": "Massa car",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "freeForOneYear": {
+    "message": "Free for 1 year"
   }
 }

@@ -638,9 +638,6 @@
   "learnMoreAboutPasswordless": {
     "message": "了解更多关于无密码登录的信息"
   },
-  "passkeyEnterMasterPassword": {
-    "message": "输入您的主密码以修改通行密钥登录设置。"
-  },
   "creatingPasskeyLoading": {
     "message": "正在创建通行密钥..."
   },
@@ -1349,6 +1346,18 @@
   },
   "importData": {
     "message": "导入数据"
+  },
+  "onboardingImportDataDetailsPartOne": {
+    "message": "如果您没有任何数据要导入，您可以创建一个 ",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+  },
+  "onboardingImportDataDetailsLink": {
+    "message": "新项目",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+  },
+  "onboardingImportDataDetailsPartTwo": {
+    "message": " 。您可能需要等待您的管理员确认您的组织成员资格。",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
   },
   "importError": {
     "message": "导入出错"
@@ -4034,6 +4043,12 @@
   "ssoHandOff": {
     "message": "您现在可以在扩展中关闭此标签页并继续。"
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "您已成功登录"
+  },
+  "thisWindowWillCloseIn5Seconds": {
+    "message": "此窗口将在 5 秒后自动关闭"
+  },
   "includeAllTeamsFeatures": {
     "message": "所有团队版功能，以及："
   },
@@ -5918,6 +5933,15 @@
       }
     }
   },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Launch Duo and follow the steps to finish logging in."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "Duo two-step login is required for your account."
+  },
+  "launchDuo": {
+    "message": "Launch Duo"
+  },
   "turnOn": {
     "message": "开启"
   },
@@ -6906,6 +6930,9 @@
     "message": "SDK",
     "description": "Software Development Kit"
   },
+  "createAnAccount": {
+    "message": "创建账户"
+  },
   "createSecret": {
     "message": "创建一个机密"
   },
@@ -7450,6 +7477,12 @@
     "message": "请参阅我们的帮助网站上的详细说明：",
     "description": "This is followed a by a hyperlink to the help website."
   },
+  "installBrowserExtension": {
+    "message": "安装浏览器扩展"
+  },
+  "installBrowserExtensionDetails": {
+    "message": "使用扩展快速保存登录信息和自动填充表单，无需打开网页应用程序。"
+  },
   "projectAccessUpdated": {
     "message": "工程访问权限已更新"
   },
@@ -7513,5 +7546,46 @@
   },
   "smFreeTrialConfirmationEmail": {
     "message": "We've sent a confirmation email to your email at "
+  },
+  "confirmCollectionEnhancementsDialogTitle": {
+    "message": "This action is irreversible"
+  },
+  "confirmCollectionEnhancementsDialogContent": {
+    "message": "Turning on this feature will deprecate the manager role and replace it with a Can manage permission. This will take a few moments. Do not make any organization changes until it is complete. Are you sure you want to proceed?"
+  },
+  "sorryToSeeYouGo": {
+    "message": "很遗憾看到您离开！通过分享您取消的原因，帮助改进 Bitwarden。",
+    "description": "A message shown to users as part of an offboarding survey asking them to provide more information on their subscription cancelation."
+  },
+  "selectCancellationReason": {
+    "message": "选择取消的原因",
+    "description": "Used as a form field label for a select input on the offboarding survey."
+  },
+  "anyOtherFeedback": {
+    "message": "是否有其他您想要分享的反馈？",
+    "description": "Used as a form field label for a textarea input on the offboarding survey."
+  },
+  "missingFeatures": {
+    "message": "功能缺失",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "movingToAnotherTool": {
+    "message": "迁移到另一个工具",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooDifficultToUse": {
+    "message": "太难使用",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "notUsingEnough": {
+    "message": "未充分使用",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooExpensive": {
+    "message": "太贵了",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "freeForOneYear": {
+    "message": "Free for 1 year"
   }
 }

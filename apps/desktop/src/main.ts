@@ -3,11 +3,14 @@ import * as path from "path";
 import { app } from "electron";
 
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
+import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { DefaultBiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { EnvironmentService } from "@bitwarden/common/platform/services/environment.service";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
+import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
+import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { NoopMessagingService } from "@bitwarden/common/platform/services/noop-messaging.service";
 /* eslint-disable import/no-restricted-paths -- We need the implementation to inject, but generally this should not be accessed */
 import { DefaultActiveUserStateProvider } from "@bitwarden/common/platform/state/implementations/default-active-user-state.provider";
@@ -17,7 +20,6 @@ import { DefaultSingleUserStateProvider } from "@bitwarden/common/platform/state
 import { DefaultStateProvider } from "@bitwarden/common/platform/state/implementations/default-state.provider";
 import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@bitwarden/common/platform/state/storage/memory-storage.service";
 /* eslint-enable import/no-restricted-paths */
-import { migrate } from "@bitwarden/common/state-migrations";
 
 import { MenuMain } from "./main/menu/menu.main";
 import { MessagingMain } from "./main/messaging.main";
@@ -43,9 +45,10 @@ export class Main {
   memoryStorageService: MemoryStorageService;
   memoryStorageForStateProviders: MemoryStorageServiceForStateProviders;
   messagingService: ElectronMainMessagingService;
-  stateService: ElectronStateService;
+  stateService: StateService;
   environmentService: EnvironmentService;
   desktopCredentialStorageListener: DesktopCredentialStorageListener;
+  migrationRunner: MigrationRunner;
 
   windowMain: WindowMain;
   messagingMain: MessagingMain;
@@ -123,6 +126,12 @@ export class Main {
 
     this.environmentService = new EnvironmentService(stateProvider, accountService);
 
+    this.migrationRunner = new MigrationRunner(
+      this.storageService,
+      this.logService,
+      new MigrationBuilderService(),
+    );
+
     // TODO: this state service will have access to on disk storage, but not in memory storage.
     // If we could get this to work using the stateService singleton that the rest of the app uses we could save
     // ourselves from some hacks, like having to manually update the app menu vs. the menu subscribing to events.
@@ -134,11 +143,15 @@ export class Main {
       new StateFactory(GlobalState, Account),
       accountService, // will not broadcast logouts. This is a hack until we can remove messaging dependency
       this.environmentService,
+      this.migrationRunner,
       false, // Do not use disk caching because this will get out of sync with the renderer service
     );
 
+    const biometricStateService = new DefaultBiometricStateService(stateProvider);
+
     this.windowMain = new WindowMain(
       this.stateService,
+      biometricStateService,
       this.logService,
       this.storageService,
       (arg) => this.processDeepLink(arg),
@@ -159,8 +172,6 @@ export class Main {
       this.windowMain,
       this.updaterMain,
     );
-
-    const biometricStateService = new DefaultBiometricStateService(stateProvider);
 
     this.biometricsService = new BiometricsService(
       this.i18nService,
@@ -192,7 +203,7 @@ export class Main {
   bootstrap() {
     this.desktopCredentialStorageListener.init();
     // Run migrations first, then other things
-    migrate(this.storageService, this.logService).then(
+    this.migrationRunner.run().then(
       async () => {
         await this.windowMain.init();
         const locale = await this.stateService.getLocale();
@@ -216,9 +227,6 @@ export class Main {
         }
         this.powerMonitorMain.init();
         await this.updaterMain.init();
-        if (this.biometricsService != null) {
-          await this.biometricsService.init();
-        }
 
         if (
           (await this.stateService.getEnableBrowserIntegration()) ||
@@ -265,19 +273,7 @@ export class Main {
     argv
       .filter((s) => s.indexOf("bitwarden://") === 0)
       .forEach((s) => {
-        const url = new URL(s);
-        const code = url.searchParams.get("code");
-        const receivedState = url.searchParams.get("state");
-
-        if (code == null || receivedState == null) {
-          return;
-        }
-
-        const message =
-          s.indexOf("bitwarden://import-callback-lp") === 0
-            ? "importCallbackLastPass"
-            : "ssoCallback";
-        this.messagingService.send(message, { code: code, state: receivedState });
+        this.messagingService.send("deepLink", { urlString: s });
       });
   }
 }

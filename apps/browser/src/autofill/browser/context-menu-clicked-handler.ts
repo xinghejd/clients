@@ -18,6 +18,7 @@ import {
 } from "../../auth/background/service-factories/auth-service.factory";
 import { userVerificationServiceFactory } from "../../auth/background/service-factories/user-verification-service.factory";
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
+import { autofillSettingsServiceFactory } from "../../autofill/background/service_factories/autofill-settings-service.factory";
 import { eventCollectionServiceFactory } from "../../background/service-factories/event-collection-service.factory";
 import { Account } from "../../models/account";
 import { CachedServices } from "../../platform/background/service-factories/factory-options";
@@ -33,6 +34,7 @@ import {
   openAddEditVaultItemPopout,
   openVaultItemPasswordRepromptPopout,
 } from "../../vault/popup/utils/vault-popout-window";
+import { LockedVaultPendingNotificationsData } from "../background/abstractions/notification.background";
 import { autofillServiceFactory } from "../background/service_factories/autofill-service.factory";
 import { copyToClipboard, GeneratePasswordToClipboardCommand } from "../clipboard";
 import { AutofillTabCommand } from "../commands/autofill-tab-command";
@@ -50,7 +52,6 @@ import {
   GENERATE_PASSWORD_ID,
   NOOP_COMMAND_SUFFIX,
 } from "../constants";
-import LockedVaultPendingNotificationsItem from "../notification/models/locked-vault-pending-notifications-item";
 import { AutofillCipherTypeId } from "../types";
 
 export type CopyToClipboardOptions = { text: string; tab: chrome.tabs.Tab };
@@ -104,11 +105,14 @@ export class ContextMenuClickedHandler {
       stateServiceOptions: {
         stateFactory: stateFactory,
       },
+      autofillSettingsServiceOptions: {
+        stateFactory: autofillSettingsServiceFactory,
+      },
     };
 
     const generatePasswordToClipboardCommand = new GeneratePasswordToClipboardCommand(
       await passwordGenerationServiceFactory(cachedServices, serviceOptions),
-      await stateServiceFactory(cachedServices, serviceOptions),
+      await autofillSettingsServiceFactory(cachedServices, serviceOptions),
     );
 
     const autofillCommand = new AutofillTabCommand(
@@ -138,7 +142,7 @@ export class ContextMenuClickedHandler {
   }
 
   static async messageListener(
-    message: { command: string; data: LockedVaultPendingNotificationsItem },
+    message: { command: string; data: LockedVaultPendingNotificationsData },
     sender: chrome.runtime.MessageSender,
     cachedServices: CachedServices,
   ) {
@@ -151,7 +155,7 @@ export class ContextMenuClickedHandler {
 
     const contextMenuClickedHandler = await ContextMenuClickedHandler.mv3Create(cachedServices);
     await contextMenuClickedHandler.run(
-      message.data.commandToRetry.msg.data,
+      message.data.commandToRetry.message.contextMenuOnClickData,
       message.data.commandToRetry.sender.tab,
     );
   }
@@ -179,9 +183,9 @@ export class ContextMenuClickedHandler {
     }
 
     if ((await this.authService.getAuthStatus()) < AuthenticationStatus.Unlocked) {
-      const retryMessage: LockedVaultPendingNotificationsItem = {
+      const retryMessage: LockedVaultPendingNotificationsData = {
         commandToRetry: {
-          msg: { command: NOOP_COMMAND_SUFFIX, data: info },
+          message: { command: NOOP_COMMAND_SUFFIX, contextMenuOnClickData: info },
           sender: { tab: tab },
         },
         target: "contextmenus.background",
