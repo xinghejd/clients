@@ -776,6 +776,7 @@ export default class MainBackground {
       this.platformUtilsService,
       systemUtilsServiceReloadCallback,
       this.stateService,
+      this.autofillSettingsService,
       this.vaultTimeoutSettingsService,
     );
 
