@@ -123,31 +123,24 @@ describe("Browser Utils Service", () => {
   });
 
   describe("isViewOpen", () => {
-    it("returns true if the user is on Firefox and the sidebar is open", async () => {
-      chrome.extension.getViews = jest.fn().mockReturnValueOnce([window]);
-      jest
-        .spyOn(browserPlatformUtilsService, "getDevice")
-        .mockReturnValueOnce(DeviceType.FirefoxExtension);
+    it("returns false if a heartbeat response is not received", async () => {
+      BrowserApi.sendMessageWithResponse = jest.fn().mockResolvedValueOnce(undefined);
 
-      const result = await browserPlatformUtilsService.isViewOpen();
+      const isViewOpen = await browserPlatformUtilsService.isViewOpen();
 
-      expect(result).toBe(true);
+      expect(isViewOpen).toBe(false);
     });
 
-    it("returns true if a extension view is open as a tab", async () => {
-      chrome.extension.getViews = jest.fn().mockReturnValueOnce([window]);
+    it("returns true if a heartbeat response is received", async () => {
+      BrowserApi.sendMessageWithResponse = jest
+        .fn()
+        .mockImplementationOnce((subscriber) =>
+          Promise.resolve((subscriber === "checkVaultPopupHeartbeat") as any),
+        );
 
-      const result = await browserPlatformUtilsService.isViewOpen();
+      const isViewOpen = await browserPlatformUtilsService.isViewOpen();
 
-      expect(result).toBe(true);
-    });
-
-    it("returns false if no extension view is open", async () => {
-      chrome.extension.getViews = jest.fn().mockReturnValue([]);
-
-      const result = await browserPlatformUtilsService.isViewOpen();
-
-      expect(result).toBe(false);
+      expect(isViewOpen).toBe(true);
     });
   });
 
