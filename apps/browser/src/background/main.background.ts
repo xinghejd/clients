@@ -326,7 +326,7 @@ export default class MainBackground {
       ? new BrowserMessagingPrivateModeBackgroundService()
       : new BrowserMessagingService();
     this.logService = new ConsoleLogService(false);
-    this.cryptoFunctionService = new WebCryptoFunctionService(window);
+    this.cryptoFunctionService = new WebCryptoFunctionService(self);
     this.storageService = new BrowserLocalStorageService();
     this.secureStorageService = new BrowserLocalStorageService();
     this.memoryStorageService =
@@ -607,12 +607,12 @@ export default class MainBackground {
     );
 
     this.vaultFilterService = new VaultFilterService(
-      this.stateService,
       this.organizationService,
       this.folderService,
       this.cipherService,
       this.collectionService,
       this.policyService,
+      this.stateProvider,
       this.accountService,
     );
 
@@ -757,7 +757,7 @@ export default class MainBackground {
         this.platformUtilsService.isSafari() ||
         this.platformUtilsService.isFirefox() ||
         this.platformUtilsService.isOpera();
-      BrowserApi.reloadExtension(forceWindowReload ? window : null);
+      BrowserApi.reloadExtension(forceWindowReload ? self : null);
       return Promise.resolve();
     };
 
@@ -815,6 +815,7 @@ export default class MainBackground {
       this.folderService,
       this.stateService,
       this.environmentService,
+      this.logService,
     );
     this.overlayBackground = new OverlayBackground(
       this.cipherService,
