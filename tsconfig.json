@@ -33,6 +33,10 @@
     "plugins": [
       {
         "transform": "typescript-transform-paths"
+      },
+      {
+        "name": "typescript-strict-plugin",
+        "paths": ["./libs/common"]
       }
     ],
     "useDefineForClassFields": false

@@ -1,5 +1,12 @@
 {
   "extends": "../shared/tsconfig.libs",
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "typescript-strict-plugin"
+      }
+    ]
+  },
   "include": ["src", "spec", "./custom-matchers.d.ts"],
   "exclude": ["node_modules", "dist"]
 }
