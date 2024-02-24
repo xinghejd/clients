@@ -1,6 +1,6 @@
 import { Observable } from "rxjs";
 
-export class BillingBannerServiceAbstraction {
-  paymentMethodBannerStates$: Observable<{ organizationId: string; visible: boolean }[]>;
-  setPaymentMethodBannerState: (organizationId: string, visible: boolean) => Promise<void>;
+export abstract class BillingBannerServiceAbstraction {
+  abstract paymentMethodBannerStates$: Observable<{ organizationId: string; visible: boolean }[]>;
+  abstract setPaymentMethodBannerState(organizationId: string, visible: boolean): Promise<void>;
 }

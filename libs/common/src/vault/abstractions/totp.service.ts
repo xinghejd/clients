@@ -1,4 +1,4 @@
 export abstract class TotpService {
-  getCode: (key: string) => Promise<string>;
-  getTimeInterval: (key: string) => number;
+  abstract getCode(key: string): Promise<string>;
+  abstract getTimeInterval(key: string): number;
 }

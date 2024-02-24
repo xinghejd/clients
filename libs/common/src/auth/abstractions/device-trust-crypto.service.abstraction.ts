@@ -7,19 +7,19 @@ export abstract class DeviceTrustCryptoServiceAbstraction {
    * @description Retrieves the users choice to trust the device which can only happen after decryption
    * Note: this value should only be used once and then reset
    */
-  getShouldTrustDevice: () => Promise<boolean | null>;
-  setShouldTrustDevice: (value: boolean) => Promise<void>;
+  abstract getShouldTrustDevice(): Promise<boolean | null>;
+  abstract setShouldTrustDevice(value: boolean): Promise<void>;
 
-  trustDeviceIfRequired: () => Promise<void>;
+  abstract trustDeviceIfRequired(): Promise<void>;
 
-  trustDevice: () => Promise<DeviceResponse>;
-  getDeviceKey: () => Promise<DeviceKey>;
-  decryptUserKeyWithDeviceKey: (
+  abstract trustDevice(): Promise<DeviceResponse>;
+  abstract getDeviceKey(): Promise<DeviceKey>;
+  abstract decryptUserKeyWithDeviceKey(
     encryptedDevicePrivateKey: EncString,
     encryptedUserKey: EncString,
     deviceKey?: DeviceKey,
-  ) => Promise<UserKey | null>;
-  rotateDevicesTrust: (newUserKey: UserKey, masterPasswordHash: string) => Promise<void>;
+  ): Promise<UserKey | null>;
+  abstract rotateDevicesTrust(newUserKey: UserKey, masterPasswordHash: string): Promise<void>;
 
-  supportsDeviceTrust: () => Promise<boolean>;
+  abstract supportsDeviceTrust(): Promise<boolean>;
 }

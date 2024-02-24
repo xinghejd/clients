@@ -13,11 +13,11 @@ export abstract class Fido2AuthenticatorService {
    * @param abortController An AbortController that can be used to abort the operation.
    * @returns A promise that resolves with the new credential and an attestation signature.
    **/
-  makeCredential: (
+  abstract makeCredential(
     params: Fido2AuthenticatorMakeCredentialsParams,
     tab: chrome.tabs.Tab,
     abortController?: AbortController,
-  ) => Promise<Fido2AuthenticatorMakeCredentialResult>;
+  ): Promise<Fido2AuthenticatorMakeCredentialResult>;
 
   /**
    * Generate an assertion using an existing credential as describe in:
@@ -27,11 +27,11 @@ export abstract class Fido2AuthenticatorService {
    * @param abortController An AbortController that can be used to abort the operation.
    * @returns A promise that resolves with the asserted credential and an assertion signature.
    */
-  getAssertion: (
+  abstract getAssertion(
     params: Fido2AuthenticatorGetAssertionParams,
     tab: chrome.tabs.Tab,
     abortController?: AbortController,
-  ) => Promise<Fido2AuthenticatorGetAssertionResult>;
+  ): Promise<Fido2AuthenticatorGetAssertionResult>;
 }
 
 export enum Fido2AlgorithmIdentifier {

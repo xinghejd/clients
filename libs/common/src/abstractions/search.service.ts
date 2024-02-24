@@ -3,14 +3,18 @@ import { CipherView } from "../vault/models/view/cipher.view";
 
 export abstract class SearchService {
   indexedEntityId?: string = null;
-  clearIndex: () => void;
-  isSearchable: (query: string) => boolean;
-  indexCiphers: (ciphersToIndex: CipherView[], indexedEntityGuid?: string) => void;
-  searchCiphers: (
+  abstract clearIndex(): void;
+  abstract isSearchable(query: string): boolean;
+  abstract indexCiphers(ciphersToIndex: CipherView[], indexedEntityGuid?: string): void;
+  abstract searchCiphers(
     query: string,
     filter?: ((cipher: CipherView) => boolean) | ((cipher: CipherView) => boolean)[],
     ciphers?: CipherView[],
-  ) => Promise<CipherView[]>;
-  searchCiphersBasic: (ciphers: CipherView[], query: string, deleted?: boolean) => CipherView[];
-  searchSends: (sends: SendView[], query: string) => SendView[];
+  ): Promise<CipherView[]>;
+  abstract searchCiphersBasic(
+    ciphers: CipherView[],
+    query: string,
+    deleted?: boolean,
+  ): CipherView[];
+  abstract searchSends(sends: SendView[], query: string): SendView[];
 }

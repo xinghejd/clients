@@ -11,13 +11,13 @@ export interface TwoFactorProviderDetails {
 }
 
 export abstract class TwoFactorService {
-  init: () => void;
-  getSupportedProviders: (win: Window) => TwoFactorProviderDetails[];
-  getDefaultProvider: (webAuthnSupported: boolean) => TwoFactorProviderType;
-  setSelectedProvider: (type: TwoFactorProviderType) => void;
-  clearSelectedProvider: () => void;
+  abstract init(): void;
+  abstract getSupportedProviders(win: Window): TwoFactorProviderDetails[];
+  abstract getDefaultProvider(webAuthnSupported: boolean): TwoFactorProviderType;
+  abstract setSelectedProvider(type: TwoFactorProviderType): void;
+  abstract clearSelectedProvider(): void;
 
-  setProviders: (response: IdentityTwoFactorResponse) => void;
-  clearProviders: () => void;
-  getProviders: () => Map<TwoFactorProviderType, { [key: string]: string }>;
+  abstract setProviders(response: IdentityTwoFactorResponse): void;
+  abstract clearProviders(): void;
+  abstract getProviders(): Map<TwoFactorProviderType, { [key: string]: string }>;
 }

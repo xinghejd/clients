@@ -1,8 +1,8 @@
 export abstract class LoginService {
-  getEmail: () => string;
-  getRememberEmail: () => boolean;
-  setEmail: (value: string) => void;
-  setRememberEmail: (value: boolean) => void;
-  clearValues: () => void;
-  saveEmailSettings: () => Promise<void>;
+  abstract getEmail(): string;
+  abstract getRememberEmail(): boolean;
+  abstract setEmail(value: string): void;
+  abstract setRememberEmail(value: boolean): void;
+  abstract clearValues(): void;
+  abstract saveEmailSettings(): Promise<void>;
 }

@@ -1,6 +1,6 @@
 export abstract class NotificationsService {
-  init: () => Promise<void>;
-  updateConnection: (sync?: boolean) => Promise<void>;
-  reconnectFromActivity: () => Promise<void>;
-  disconnectFromInactivity: () => Promise<void>;
+  abstract init: () => Promise<void>;
+  abstract updateConnection: (sync?: boolean) => Promise<void>;
+  abstract reconnectFromActivity: () => Promise<void>;
+  abstract disconnectFromInactivity: () => Promise<void>;
 }

@@ -18,10 +18,10 @@ export function accountInfoEqual(a: AccountInfo, b: AccountInfo) {
 }
 
 export abstract class AccountService {
-  accounts$: Observable<Record<UserId, AccountInfo>>;
-  activeAccount$: Observable<{ id: UserId | undefined } & AccountInfo>;
-  accountLock$: Observable<UserId>;
-  accountLogout$: Observable<UserId>;
+  abstract accounts$: Observable<Record<UserId, AccountInfo>>;
+  abstract activeAccount$: Observable<{ id: UserId | undefined } & AccountInfo>;
+  abstract accountLock$: Observable<UserId>;
+  abstract accountLogout$: Observable<UserId>;
   /**
    * Updates the `accounts$` observable with the new account data.
    * @param userId
