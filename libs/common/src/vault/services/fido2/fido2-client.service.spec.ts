@@ -1,4 +1,5 @@
 import { mock, MockProxy } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
@@ -16,6 +17,7 @@ import {
   CreateCredentialParams,
   FallbackRequestedError,
 } from "../../abstractions/fido2/fido2-client.service.abstraction";
+import { VaultSettingsService } from "../../abstractions/vault-settings/vault-settings.service";
 
 import { Fido2AuthenticatorService } from "./fido2-authenticator.service";
 import { Fido2ClientService } from "./fido2-client.service";
@@ -23,12 +25,15 @@ import { Fido2Utils } from "./fido2-utils";
 import { guidToRawFormat } from "./guid-utils";
 
 const RpId = "bitwarden.com";
+const Origin = "https://bitwarden.com";
+const VaultUrl = "https://vault.bitwarden.com";
 
 describe("FidoAuthenticatorService", () => {
   let authenticator!: MockProxy<Fido2AuthenticatorService>;
   let configService!: MockProxy<ConfigServiceAbstraction>;
   let authService!: MockProxy<AuthService>;
   let stateService!: MockProxy<StateService>;
+  let vaultSettingsService: MockProxy<VaultSettingsService>;
   let client!: Fido2ClientService;
   let tab!: chrome.tabs.Tab;
 
@@ -37,10 +42,18 @@ describe("FidoAuthenticatorService", () => {
     configService = mock<ConfigServiceAbstraction>();
     authService = mock<AuthService>();
     stateService = mock<StateService>();
+    vaultSettingsService = mock<VaultSettingsService>();
 
-    client = new Fido2ClientService(authenticator, configService, authService, stateService);
-    configService.getFeatureFlag.mockResolvedValue(true);
-    stateService.getEnablePasskeys.mockResolvedValue(true);
+    client = new Fido2ClientService(
+      authenticator,
+      configService,
+      authService,
+      stateService,
+      vaultSettingsService,
+    );
+    configService.serverConfig$ = of({ environment: { vault: VaultUrl } } as any);
+    vaultSettingsService.enablePasskeys$ = of(true);
+    authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.Unlocked);
     tab = { id: 123, windowId: 456 } as chrome.tabs.Tab;
   });
 
@@ -190,15 +203,51 @@ describe("FidoAuthenticatorService", () => {
             }),
           }),
           tab,
-          expect.anything()
+          expect.anything(),
         );
+      });
+
+      it("should return credProps.rk = true when creating a discoverable credential", async () => {
+        const params = createParams({
+          authenticatorSelection: { residentKey: "required", userVerification: "required" },
+          extensions: { credProps: true },
+        });
+        authenticator.makeCredential.mockResolvedValue(createAuthenticatorMakeResult());
+
+        const result = await client.createCredential(params, tab);
+
+        expect(result.extensions.credProps?.rk).toBe(true);
+      });
+
+      it("should return credProps.rk = false when creating a non-discoverable credential", async () => {
+        const params = createParams({
+          authenticatorSelection: { residentKey: "discouraged", userVerification: "required" },
+          extensions: { credProps: true },
+        });
+        authenticator.makeCredential.mockResolvedValue(createAuthenticatorMakeResult());
+
+        const result = await client.createCredential(params, tab);
+
+        expect(result.extensions.credProps?.rk).toBe(false);
+      });
+
+      it("should return credProps = undefiend when the extension is not requested", async () => {
+        const params = createParams({
+          authenticatorSelection: { residentKey: "required", userVerification: "required" },
+          extensions: {},
+        });
+        authenticator.makeCredential.mockResolvedValue(createAuthenticatorMakeResult());
+
+        const result = await client.createCredential(params, tab);
+
+        expect(result.extensions.credProps).toBeUndefined();
       });
 
       // Spec: If any authenticator returns an error status equivalent to "InvalidStateError", Return a DOMException whose name is "InvalidStateError" and terminate this algorithm.
       it("should throw error if authenticator throws InvalidState", async () => {
         const params = createParams();
         authenticator.makeCredential.mockRejectedValue(
-          new Fido2AuthenticatorError(Fido2AuthenticatorErrorCode.InvalidState)
+          new Fido2AuthenticatorError(Fido2AuthenticatorErrorCode.InvalidState),
         );
 
         const result = async () => await client.createCredential(params, tab);
@@ -220,19 +269,9 @@ describe("FidoAuthenticatorService", () => {
         await rejects.toBeInstanceOf(DOMException);
       });
 
-      it("should throw FallbackRequestedError if feature flag is not enabled", async () => {
-        const params = createParams();
-        configService.getFeatureFlag.mockResolvedValue(false);
-
-        const result = async () => await client.createCredential(params, tab);
-
-        const rejects = expect(result).rejects;
-        await rejects.toThrow(FallbackRequestedError);
-      });
-
       it("should throw FallbackRequestedError if passkeys state is not enabled", async () => {
         const params = createParams();
-        stateService.getEnablePasskeys.mockResolvedValue(false);
+        vaultSettingsService.enablePasskeys$ = of(false);
 
         const result = async () => await client.createCredential(params, tab);
 
@@ -243,6 +282,15 @@ describe("FidoAuthenticatorService", () => {
       it("should throw FallbackRequestedError if user is logged out", async () => {
         const params = createParams();
         authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.LoggedOut);
+
+        const result = async () => await client.createCredential(params, tab);
+
+        const rejects = expect(result).rejects;
+        await rejects.toThrow(FallbackRequestedError);
+      });
+
+      it("should throw FallbackRequestedError if origin equals the bitwarden vault", async () => {
+        const params = createParams({ origin: VaultUrl });
 
         const result = async () => await client.createCredential(params, tab);
 
@@ -285,6 +333,7 @@ describe("FidoAuthenticatorService", () => {
         credentialId: guidToRawFormat(Utils.newGuid()),
         attestationObject: randomBytes(128),
         authData: randomBytes(64),
+        publicKey: randomBytes(64),
         publicKeyAlgorithm: -7,
       };
     }
@@ -368,7 +417,7 @@ describe("FidoAuthenticatorService", () => {
       it("should throw error if authenticator throws InvalidState", async () => {
         const params = createParams();
         authenticator.getAssertion.mockRejectedValue(
-          new Fido2AuthenticatorError(Fido2AuthenticatorErrorCode.InvalidState)
+          new Fido2AuthenticatorError(Fido2AuthenticatorErrorCode.InvalidState),
         );
 
         const result = async () => await client.assertCredential(params, tab);
@@ -390,19 +439,9 @@ describe("FidoAuthenticatorService", () => {
         await rejects.toBeInstanceOf(DOMException);
       });
 
-      it("should throw FallbackRequestedError if feature flag is not enabled", async () => {
-        const params = createParams();
-        configService.getFeatureFlag.mockResolvedValue(false);
-
-        const result = async () => await client.assertCredential(params, tab);
-
-        const rejects = expect(result).rejects;
-        await rejects.toThrow(FallbackRequestedError);
-      });
-
       it("should throw FallbackRequestedError if passkeys state is not enabled", async () => {
         const params = createParams();
-        stateService.getEnablePasskeys.mockResolvedValue(false);
+        vaultSettingsService.enablePasskeys$ = of(false);
 
         const result = async () => await client.assertCredential(params, tab);
 
@@ -413,6 +452,15 @@ describe("FidoAuthenticatorService", () => {
       it("should throw FallbackRequestedError if user is logged out", async () => {
         const params = createParams();
         authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.LoggedOut);
+
+        const result = async () => await client.assertCredential(params, tab);
+
+        const rejects = expect(result).rejects;
+        await rejects.toThrow(FallbackRequestedError);
+      });
+
+      it("should throw FallbackRequestedError if origin equals the bitwarden vault", async () => {
+        const params = createParams({ origin: VaultUrl });
 
         const result = async () => await client.assertCredential(params, tab);
 
@@ -453,7 +501,7 @@ describe("FidoAuthenticatorService", () => {
             ],
           }),
           tab,
-          expect.anything()
+          expect.anything(),
         );
       });
     });
@@ -475,7 +523,7 @@ describe("FidoAuthenticatorService", () => {
             allowCredentialDescriptorList: [],
           }),
           tab,
-          expect.anything()
+          expect.anything(),
         );
       });
     });
@@ -484,7 +532,7 @@ describe("FidoAuthenticatorService", () => {
       return {
         allowedCredentialIds: params.allowedCredentialIds ?? [],
         challenge: params.challenge ?? Fido2Utils.bufferToString(randomBytes(16)),
-        origin: params.origin ?? "https://bitwarden.com",
+        origin: params.origin ?? Origin,
         rpId: params.rpId ?? RpId,
         timeout: params.timeout,
         userVerification: params.userVerification,

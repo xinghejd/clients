@@ -1,17 +1,20 @@
 import { Injectable, Optional } from "@angular/core";
 import { BehaviorSubject, filter, from, map, Observable, shareReplay, switchMap, tap } from "rxjs";
 
-import { PrfKeySet } from "@bitwarden/auth";
+import { PrfKeySet } from "@bitwarden/auth/common";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { WebAuthnLoginPrfCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login-prf-crypto.service.abstraction";
+import { WebAuthnLoginCredentialAssertionOptionsView } from "@bitwarden/common/auth/models/view/webauthn-login/webauthn-login-credential-assertion-options.view";
+import { WebAuthnLoginCredentialAssertionView } from "@bitwarden/common/auth/models/view/webauthn-login/webauthn-login-credential-assertion.view";
+import { Verification } from "@bitwarden/common/auth/types/verification";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { Verification } from "@bitwarden/common/types/verification";
 
 import { CredentialCreateOptionsView } from "../../views/credential-create-options.view";
 import { PendingWebauthnLoginCredentialView } from "../../views/pending-webauthn-login-credential.view";
 import { WebauthnLoginCredentialView } from "../../views/webauthn-login-credential.view";
 import { RotateableKeySetService } from "../rotateable-key-set.service";
 
+import { EnableCredentialEncryptionRequest } from "./request/enable-credential-encryption.request";
 import { SaveCredentialRequest } from "./request/save-credential.request";
 import { WebauthnLoginAttestationResponseRequest } from "./request/webauthn-login-attestation-response.request";
 import { WebAuthnLoginAdminApiService } from "./webauthn-login-admin-api.service";
@@ -30,7 +33,7 @@ export class WebauthnLoginAdminService {
     tap(() => this._loading$.next(true)),
     switchMap(() => this.fetchCredentials$()),
     tap(() => this._loading$.next(false)),
-    shareReplay({ bufferSize: 1, refCount: true })
+    shareReplay({ bufferSize: 1, refCount: true }),
   );
 
   /**
@@ -45,22 +48,39 @@ export class WebauthnLoginAdminService {
     private rotateableKeySetService: RotateableKeySetService,
     private webAuthnLoginPrfCryptoService: WebAuthnLoginPrfCryptoServiceAbstraction,
     @Optional() navigatorCredentials?: CredentialsContainer,
-    @Optional() private logService?: LogService
+    @Optional() private logService?: LogService,
   ) {
     // Default parameters don't work when used with Angular DI
     this.navigatorCredentials = navigatorCredentials ?? navigator.credentials;
   }
 
   /**
-   * Get the credential attestation options needed for initiating the WebAuthnLogin credentail creation process.
+   * Get the credential assertion options needed for initiating the WebAuthnLogin credential update process.
+   * The options contains assertion options and other data for the authenticator.
+   * This method requires user verification.
+   *
+   * @param verification User verification data to be used for the request.
+   * @returns The credential assertion options and a token to be used for the credential update request.
+   */
+  async getCredentialAssertOptions(
+    verification: Verification,
+  ): Promise<WebAuthnLoginCredentialAssertionOptionsView> {
+    const request = await this.userVerificationService.buildRequest(verification);
+    const response = await this.apiService.getCredentialAssertionOptions(request);
+    return new WebAuthnLoginCredentialAssertionOptionsView(response.options, response.token);
+  }
+
+  /**
+   * Get the credential attestation options needed for initiating the WebAuthnLogin credential creation process.
    * The options contains a challenge and other data for the authenticator.
    * This method requires user verification.
    *
    * @param verification User verification data to be used for the request.
    * @returns The credential attestation options and a token to be used for the credential creation request.
    */
-  async getCredentialCreateOptions(
-    verification: Verification
+
+  async getCredentialAttestationOptions(
+    verification: Verification,
   ): Promise<CredentialCreateOptionsView> {
     const request = await this.userVerificationService.buildRequest(verification);
     const response = await this.apiService.getCredentialCreateOptions(request);
@@ -74,7 +94,7 @@ export class WebauthnLoginAdminService {
    * @returns A pending credential that can be saved to server directly or be used to create a key set.
    */
   async createCredential(
-    credentialOptions: CredentialCreateOptionsView
+    credentialOptions: CredentialCreateOptionsView,
   ): Promise<PendingWebauthnLoginCredentialView | undefined> {
     const nativeOptions: CredentialCreationOptions = {
       publicKey: credentialOptions.options,
@@ -106,7 +126,7 @@ export class WebauthnLoginAdminService {
    * @returns A key set that can be saved to the server. Undefined is returned if the credential doesn't support PRF.
    */
   async createKeySet(
-    pendingCredential: PendingWebauthnLoginCredentialView
+    pendingCredential: PendingWebauthnLoginCredentialView,
   ): Promise<PrfKeySet | undefined> {
     const nativeOptions: CredentialRequestOptions = {
       publicKey: {
@@ -136,9 +156,8 @@ export class WebauthnLoginAdminService {
         return undefined;
       }
 
-      const symmetricPrfKey = await this.webAuthnLoginPrfCryptoService.createSymmetricKeyFromPrf(
-        prfResult
-      );
+      const symmetricPrfKey =
+        await this.webAuthnLoginPrfCryptoService.createSymmetricKeyFromPrf(prfResult);
       return await this.rotateableKeySetService.createKeySet(symmetricPrfKey);
     } catch (error) {
       this.logService?.error(error);
@@ -156,7 +175,7 @@ export class WebauthnLoginAdminService {
   async saveCredential(
     name: string,
     credential: PendingWebauthnLoginCredentialView,
-    prfKeySet?: PrfKeySet
+    prfKeySet?: PrfKeySet,
   ) {
     const request = new SaveCredentialRequest();
     request.deviceResponse = new WebauthnLoginAttestationResponseRequest(credential.deviceResponse);
@@ -167,6 +186,36 @@ export class WebauthnLoginAdminService {
     request.encryptedPublicKey = prfKeySet?.encryptedPublicKey.encryptedString;
     request.encryptedPrivateKey = prfKeySet?.encryptedPrivateKey.encryptedString;
     await this.apiService.saveCredential(request);
+    this.refresh();
+  }
+
+  /**
+   * Enable encryption for a credential that has already been saved to the server.
+   * This will update the KeySet associated with the credential in the database.
+   * We short circuit the process here incase the WebAuthnLoginCredential doesn't support PRF or
+   * if there was a problem with the Credential Assertion.
+   *
+   * @param assertionOptions Options received from the server using `getCredentialAssertOptions`.
+   * @returns void
+   */
+  async enableCredentialEncryption(
+    assertionOptions: WebAuthnLoginCredentialAssertionView,
+  ): Promise<void> {
+    if (assertionOptions === undefined || assertionOptions?.prfKey === undefined) {
+      throw new Error("invalid credential");
+    }
+
+    const prfKeySet: PrfKeySet = await this.rotateableKeySetService.createKeySet(
+      assertionOptions.prfKey,
+    );
+
+    const request = new EnableCredentialEncryptionRequest();
+    request.token = assertionOptions.token;
+    request.deviceResponse = assertionOptions.deviceResponse;
+    request.encryptedUserKey = prfKeySet.encryptedUserKey.encryptedString;
+    request.encryptedPublicKey = prfKeySet.encryptedPublicKey.encryptedString;
+    request.encryptedPrivateKey = prfKeySet.encryptedPrivateKey.encryptedString;
+    await this.apiService.updateCredential(request);
     this.refresh();
   }
 
@@ -193,7 +242,7 @@ export class WebauthnLoginAdminService {
   getCredential$(credentialId: string): Observable<WebauthnLoginCredentialView> {
     return this.credentials$.pipe(
       map((credentials) => credentials.find((c) => c.id === credentialId)),
-      filter((c) => c !== undefined)
+      filter((c) => c !== undefined),
     );
   }
 
@@ -215,9 +264,9 @@ export class WebauthnLoginAdminService {
       map((response) =>
         response.data.map(
           (credential) =>
-            new WebauthnLoginCredentialView(credential.id, credential.name, credential.prfStatus)
-        )
-      )
+            new WebauthnLoginCredentialView(credential.id, credential.name, credential.prfStatus),
+        ),
+      ),
     );
   }
 

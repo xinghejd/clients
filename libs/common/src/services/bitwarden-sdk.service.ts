@@ -8,10 +8,10 @@ import {
 import { BitwardenSdkServiceAbstraction } from "../abstractions/bitwarden-sdk.service.abstraction";
 import { TokenService } from "../auth/abstractions/token.service";
 import { DeviceType } from "../enums/device-type.enum";
-import { KdfType } from "../enums/kdf-type.enum";
 import { EnvironmentService } from "../platform/abstractions/environment.service";
 import { PlatformUtilsService } from "../platform/abstractions/platform-utils.service";
 import { StateService } from "../platform/abstractions/state.service";
+import { KdfType } from "../platform/enums";
 
 export class BitwardenSdkService implements BitwardenSdkServiceAbstraction {
   private client: BitwardenClient;
@@ -21,7 +21,7 @@ export class BitwardenSdkService implements BitwardenSdkServiceAbstraction {
     private environmentService: EnvironmentService,
     private platformUtilsService: PlatformUtilsService,
     private stateService: StateService,
-    private userAgent: string = null
+    private userAgent: string = null,
   ) {}
 
   async init(): Promise<void> {

@@ -611,8 +611,23 @@
   "loginWithMasterPassword": {
     "message": "Accedi con password principale"
   },
+  "readingPasskeyLoading": {
+    "message": "Lettura passkey..."
+  },
+  "readingPasskeyLoadingInfo": {
+    "message": "Mantieni questa finestra aperta e segui le istruzioni del tuo browser."
+  },
+  "useADifferentLogInMethod": {
+    "message": "Usa un altro metodo di accesso"
+  },
   "loginWithPasskey": {
     "message": "Accedi con passkey"
+  },
+  "invalidPasskeyPleaseTryAgain": {
+    "message": "Passkey non valida. Riprova."
+  },
+  "twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn": {
+    "message": "La 2FA per le passkey non è supportata. Aggiorna l'app per accedere."
   },
   "loginWithPasskeyInfo": {
     "message": "Usa una passkey che ti farà accedere automaticamente senza una password. L'autenticazione biometrica, come il riconoscimento facciale o l'impronta digitale, o un altro metodo di sicurezza FIDO2 verificherà la tua identità."
@@ -622,9 +637,6 @@
   },
   "learnMoreAboutPasswordless": {
     "message": "Ulteriori informazioni sull'autenticazione senza password"
-  },
-  "passkeyEnterMasterPassword": {
-    "message": "Inserisci la tua password principale per modificare le impostazioni di accesso con le passkey."
   },
   "creatingPasskeyLoading": {
     "message": "Creando la passkey..."
@@ -641,9 +653,6 @@
   "passkeySuccessfullyCreated": {
     "message": "Passkey creata!"
   },
-  "customName": {
-    "message": "Nome personalizzato"
-  },
   "customPasskeyNameInfo": {
     "message": "Dai un nome alla tua passkey per aiutarti a riconoscerla."
   },
@@ -659,8 +668,8 @@
   "encryptionNotSupported": {
     "message": "Crittografia non supportata"
   },
-  "encryptionNotEnabled": {
-    "message": "Crittografia non attivata"
+  "enablePasskeyEncryption": {
+    "message": "Configura crittografia"
   },
   "usedForEncryption": {
     "message": "Usata per la crittografia"
@@ -1059,6 +1068,9 @@
   "export": {
     "message": "Esporta"
   },
+  "exportFrom": {
+    "message": "Esporta da"
+  },
   "exportVault": {
     "message": "Esporta cassaforte"
   },
@@ -1134,6 +1146,9 @@
   },
   "length": {
     "message": "Lunghezza"
+  },
+  "passwordMinLength": {
+    "message": "Lunghezza minima della password"
   },
   "uppercase": {
     "message": "Maiuscole (A-Z)",
@@ -1331,6 +1346,18 @@
   },
   "importData": {
     "message": "Importa dati"
+  },
+  "onboardingImportDataDetailsPartOne": {
+    "message": "Se non hai dati da importare, puoi invece creare un ",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+  },
+  "onboardingImportDataDetailsLink": {
+    "message": "nuovo elemento",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+  },
+  "onboardingImportDataDetailsPartTwo": {
+    "message": ". Potresti dover attendere finché l'amministratore non conferma l'appartenenza all'organizzazione.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
   },
   "importError": {
     "message": "Errore di importazione"
@@ -2036,7 +2063,7 @@
     }
   },
   "premiumPriceWithFamilyPlan": {
-    "message": "Passa a Premium per solo $PRICE$/anno, o condividi Premium con $FAMILYPLANUSERCOUNT$ utenti e ottieni condivisione in famiglia illimitata con il ",
+    "message": "Passa a Premium per soli $PRICE$ /anno o ottieni un account Premium per $FAMILYPLANUSERCOUNT$ utenti e condivisione in famiglia senza limiti con il ",
     "placeholders": {
       "price": {
         "content": "$1",
@@ -2513,6 +2540,15 @@
       }
     }
   },
+  "trialSecretsManagerThankYou": {
+    "message": "Grazie per esserti iscritto al Secrets Manager di Bitwarden con il piano $PLAN$!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
   "trialPaidInfoMessage": {
     "message": "Quando la tua prova gratis di 7 giorni del piano $PLAN$ scade, sarà convertita in un abbonamento a pagamento.",
     "placeholders": {
@@ -2797,6 +2833,9 @@
   },
   "incorrectCode": {
     "message": "Codice errato"
+  },
+  "incorrectPin": {
+    "message": "PIN errato"
   },
   "exportedVault": {
     "message": "Cassaforte esportata"
@@ -3527,12 +3566,12 @@
       }
     }
   },
-  "subscriptionFamiliesPlan": {
-    "message": "Non puoi invitare più di $COUNT$ utenti senza aggiornare il tuo piano. Contatta l'assistenza clienti per aggiornare.",
+  "subscriptionUpgrade": {
+    "message": "Non puoi invitare più di $COUNT$ utenti senza aggiornare il tuo piano.",
     "placeholders": {
       "count": {
         "content": "$1",
-        "example": "6"
+        "example": "2"
       }
     }
   },
@@ -3807,15 +3846,6 @@
   "couldNotChargeCardPayInvoice": {
     "message": "Non siamo riusciti ad addebitare la tua carta. Visualizza e paga la fattura non pagata qui sotto."
   },
-  "inAppPurchase": {
-    "message": "Acquisto in-app"
-  },
-  "cannotPerformInAppPurchase": {
-    "message": "Non puoi eseguire questa azione usando un metodo di acquisto in-app."
-  },
-  "manageSubscriptionFromStore": {
-    "message": "Devi gestire il tuo abbonamento dall'app dove hai effettuato l'acquisto in-app."
-  },
   "minLength": {
     "message": "Lunghezza minima"
   },
@@ -4012,6 +4042,12 @@
   },
   "ssoHandOff": {
     "message": "Ora puoi chiudere questa scheda e continuare nell'estensione."
+  },
+  "youSuccessfullyLoggedIn": {
+    "message": "Hai effettuato l'accesso"
+  },
+  "thisWindowWillCloseIn5Seconds": {
+    "message": "Questa finestra si chiuderà automaticamente tra 5 secondi"
   },
   "includeAllTeamsFeatures": {
     "message": "Tutte le funzionalità Teams e in più:"
@@ -5167,6 +5203,12 @@
   "spValidateCertificates": {
     "message": "Convalida certificati"
   },
+  "spUniqueEntityId": {
+    "message": "Imposta un ID entità SP univoco"
+  },
+  "spUniqueEntityIdDesc": {
+    "message": "Genera un identificatore univoco per la tua organizzazione"
+  },
   "idpEntityId": {
     "message": "ID entità"
   },
@@ -5891,6 +5933,15 @@
       }
     }
   },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Avvia DUO e segui i passaggi per finire di accedere."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "Per il tuo account è richiesta la verifica in due passaggi DUO."
+  },
+  "launchDuo": {
+    "message": "Avvia DUO"
+  },
   "turnOn": {
     "message": "Attiva"
   },
@@ -6589,6 +6640,39 @@
       }
     }
   },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Verifica necessaria per questa azione. Imposta un PIN per continuare."
+  },
+  "setPin": {
+    "message": "Imposta PIN"
+  },
+  "verifyWithBiometrics": {
+    "message": "Verifica con i dati biometrici"
+  },
+  "awaitingConfirmation": {
+    "message": "In attesa di conferma"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Impossibile completare i dati biometrici."
+  },
+  "needADifferentMethod": {
+    "message": "Usa un altro metodo?"
+  },
+  "useMasterPassword": {
+    "message": "Usa password principale"
+  },
+  "usePin": {
+    "message": "Usa PIN"
+  },
+  "useBiometrics": {
+    "message": "Usa dati biometrici"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Inserisci il codice di verifica che è stato inviato alla tua email."
+  },
+  "resendCode": {
+    "message": "Invia codice di nuovo"
+  },
   "membersColumnHeader": {
     "message": "Membro/gruppo"
   },
@@ -6647,7 +6731,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "I piani Teams Starter possono avere fino a $SEATCOUNT$ membri. Contatta l'assistenza clienti per aggiornare il tuo piano e invitare più membri.",
+    "message": "I piani Teams Starter possono avere fino a $SEATCOUNT$ membri. Aggiorna il tuo piano per invitare più membri.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -6799,9 +6883,6 @@
   "secretsManager": {
     "message": "Secrets Manager"
   },
-  "secretsManagerBeta": {
-    "message": "Secrets Manager Beta"
-  },
   "secretsManagerAccessDescription": {
     "message": "Attiva l'accesso dell'utente al Secrets Manager."
   },
@@ -6848,6 +6929,9 @@
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
+  },
+  "createAnAccount": {
+    "message": "Crea un account"
   },
   "createSecret": {
     "message": "Crea un segreto"
@@ -6904,12 +6988,6 @@
   },
   "selectionIsRequired": {
     "message": "Selezione obbligatoria."
-  },
-  "secretsManagerSubscriptionDesc": {
-    "message": "Abilita l'accesso degli utenti al Secrets Manager gratis durante il programma beta. Puoi concedere agli utenti l'accesso alla beta da Membri."
-  },
-  "secretsManagerEnable": {
-    "message": "Abilita la beta del Secrets Manager"
   },
   "saPeopleWarningTitle": {
     "message": "Token di accesso ancora disponibili"
@@ -7071,6 +7149,10 @@
       }
     }
   },
+  "verificationRequired": {
+    "message": "Verifica necessaria",
+    "description": "Default title for the user verification dialog."
+  },
   "recoverAccount": {
     "message": "Recupera account"
   },
@@ -7172,6 +7254,15 @@
   },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Inizia la tua prova gratis di 7 giorni di Bitwarden per $ORG$",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerFor": {
+    "message": "Inizia la tua prova gratis di 7 giorni del Secrets Manager di Bitwarden per $ORG$",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -7307,8 +7398,11 @@
   "limitCollectionCreationDeletionDesc": {
     "message": "Limita la creazione e l'eliminazione delle raccolte a proprietari e amministratori"
   },
-  "collectionManagementUpdated": {
-    "message": "Gestione del comportamento delle raccolte salvato"
+  "allowAdminAccessToAllCollectionItemsDesc": {
+    "message": "Proprietari e amministratori possono gestire tutte le raccolte e gli elementi"
+  },
+  "updatedCollectionManagement": {
+    "message": "Impostazione di gestione della raccolta aggiornata"
   },
   "passwordManagerPlanPrice": {
     "message": "Prezzo del piano del Password Manager"
@@ -7337,22 +7431,6 @@
   "loggedInExclamation": {
     "message": "Accesso effettuato!"
   },
-  "smBetaEndedDesc": {
-    "message": "La beta del Secrets Manager è terminata in $BETA_ENDING_DATE$. Ti rimangono $DAYS$ giorni per aggiungere il Secrets Manager al tuo abbonamento a pagamento e mantenere l'accesso ai dati del Secrets Manager. Contatta l'assistenza per aggiungere il Secrets Manager al tuo abbonamento.",
-    "placeholders": {
-      "beta_ending_date": {
-        "content": "$1",
-        "example": "August 1, 2023"
-      },
-      "days": {
-        "content": "$2",
-        "example": "11"
-      }
-    }
-  },
-  "betaEnding": {
-    "message": "Termine della beta"
-  },
   "beta": {
     "message": "Beta"
   },
@@ -7371,11 +7449,8 @@
   "alreadyHaveAccount": {
     "message": "Hai già un account?"
   },
-  "customBillingStart": {
-    "message": "La fatturazione personalizzata non è contabilizzata. Visita la "
-  },
-  "customBillingEnd": {
-    "message": " pagina per l'ultima fatturazione."
+  "skipToContent": {
+    "message": "Vai al contenuto"
   },
   "managePermissionRequired": {
     "message": "Almeno un membro o gruppo deve avere l'autorizzazione \"può gestire\"."
@@ -7389,14 +7464,125 @@
   "passkeyNotCopiedAlert": {
     "message": "La passkey non sarà copiata nell'elemento clonato. Vuoi continuare a clonare questo elemento?"
   },
+  "modifiedCollectionManagement": {
+    "message": "Modificata l'impostazione di gestione della raccolta $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "seeDetailedInstructions": {
     "message": "Consulta le istruzioni dettagliate sul nostro sito di assistenza su",
     "description": "This is followed a by a hyperlink to the help website."
+  },
+  "installBrowserExtension": {
+    "message": "Installa estensione per browser"
+  },
+  "installBrowserExtensionDetails": {
+    "message": "Usa l'estensione per salvare rapidamente gli accessi e riempire automaticamente i moduli senza aprire il sito web."
   },
   "projectAccessUpdated": {
     "message": "Accesso al progetto aggiornato"
   },
   "unexpectedErrorSend": {
     "message": "Si è verificato un errore imprevisto durante il caricamento di questo Send. Riprova più tardi."
+  },
+  "seatLimitReached": {
+    "message": "Il limite degli slot è stato raggiunto"
+  },
+  "contactYourProvider": {
+    "message": "Contatta il tuo fornitore per acquistare slot aggiuntivi."
+  },
+  "seatLimitReachedContactYourProvider": {
+    "message": "Il limite degli slot è stato raggiunto. Contatta il tuo fornitore per acquistare slot aggiuntivi."
+  },
+  "collectionAccessRestricted": {
+    "message": "L'accesso alla raccolta è limitato"
+  },
+  "grantCollectionAccess": {
+    "message": "Consenti a gruppi o membri di accedere a questa raccolta."
+  },
+  "adminCollectionAccess": {
+    "message": "Gli amministratori possono accedere e gestire le raccolte."
+  },
+  "serviceAccountAccessUpdated": {
+    "message": "Accesso all'account di servizio aggiornato"
+  },
+  "commonImportFormats": {
+    "message": "Formati comuni",
+    "description": "Label indicating the most common import formats"
+  },
+  "maintainYourSubscription": {
+    "message": "Per mantenere il tuo abbonamento a $ORG$, ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Example Inc."
+      }
+    }
+  },
+  "addAPaymentMethod": {
+    "message": "aggiungi un metodo di pagamento",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
+  },
+  "collectionEnhancementsDesc": {
+    "message": "Aggiungi nuove impostazioni e autorizzazioni per una maggiore flessibilità. Sostituisci il ruolo di Manager con l'autorizzazione \"può gestire\" e introduci opzioni per consentire agli utenti di creare raccolte e limitare l'accesso alle raccolte agli amministratori.",
+    "description": "This describes new features and improvements for user roles and collections"
+  },
+  "collectionEnhancementsLearnMore": {
+    "message": "Ulteriori informazioni sulla gestione delle raccolte"
+  },
+  "organizationInformation": {
+    "message": "Informazioni sull'organizzazione"
+  },
+  "confirmationDetails": {
+    "message": "Dettagli di conferma"
+  },
+  "smFreeTrialThankYou": {
+    "message": "Grazie per esserti iscritto al Secrets Manager di Bitwarden!"
+  },
+  "smFreeTrialConfirmationEmail": {
+    "message": "Abbiamo inviato un'email di conferma al tuo indirizzo email: "
+  },
+  "confirmCollectionEnhancementsDialogTitle": {
+    "message": "Questa azione è irreversibile"
+  },
+  "confirmCollectionEnhancementsDialogContent": {
+    "message": "Attivando questa funzionalità, il ruolo di manager sarà sostituito dall'autorizzazione Può gestire. L'operazione richiederà alcuni istanti. Non apportare modifiche all'organizzazione fino a quando non è finita. Sei sicuro di voler procedere?"
+  },
+  "sorryToSeeYouGo": {
+    "message": "Siamo spiacenti di vederti andare! Aiutaci a migliorare Bitwarden condividendo il motivo per cui stai annullando.",
+    "description": "A message shown to users as part of an offboarding survey asking them to provide more information on their subscription cancelation."
+  },
+  "selectCancellationReason": {
+    "message": "Seleziona un motivo per l'annullamento",
+    "description": "Used as a form field label for a select input on the offboarding survey."
+  },
+  "anyOtherFeedback": {
+    "message": "C'è qualche altro feedback che vorresti condividere?",
+    "description": "Used as a form field label for a textarea input on the offboarding survey."
+  },
+  "missingFeatures": {
+    "message": "Funzionalità mancanti",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "movingToAnotherTool": {
+    "message": "Passo a un altro strumento",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooDifficultToUse": {
+    "message": "Troppo difficile da usare",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "notUsingEnough": {
+    "message": "Non lo uso abbastanza",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooExpensive": {
+    "message": "Troppo costoso",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
   }
 }

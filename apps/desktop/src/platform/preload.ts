@@ -1,6 +1,7 @@
 import { ipcRenderer } from "electron";
 
-import { DeviceType, ThemeType, KeySuffixOptions } from "@bitwarden/common/enums";
+import { DeviceType } from "@bitwarden/common/enums";
+import { ThemeType, KeySuffixOptions, LogLevelType } from "@bitwarden/common/platform/enums";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 
 import {
@@ -10,7 +11,7 @@ import {
   UnencryptedMessageResponse,
 } from "../models/native-messaging";
 import { BiometricMessage, BiometricAction } from "../types/biometric-message";
-import { isDev, isWindowsStore } from "../utils";
+import { isDev, isMacAppStore, isWindowsStore } from "../utils";
 
 import { ClipboardWriteMessage } from "./types/clipboard";
 
@@ -81,14 +82,16 @@ export default {
   },
   deviceType: deviceType(),
   isDev: isDev(),
+  isMacAppStore: isMacAppStore(),
   isWindowsStore: isWindowsStore(),
   reloadProcess: () => ipcRenderer.send("reload-process"),
+  log: (level: LogLevelType, message: string) => ipcRenderer.invoke("ipc.log", { level, message }),
 
   openContextMenu: (
     menu: {
       label?: string;
       type?: "normal" | "separator" | "submenu" | "checkbox" | "radio";
-    }[]
+    }[],
   ): Promise<number> => ipcRenderer.invoke("openContextMenu", { menu }),
 
   getSystemTheme: (): Promise<ThemeType> => ipcRenderer.invoke("systemTheme"),

@@ -1,14 +1,11 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { makeStaticByteArray } from "../../../../spec";
-import { EncryptionType } from "../../../enums";
 import { EncryptService } from "../../../platform/abstractions/encrypt.service";
-import {
-  OrgKey,
-  SymmetricCryptoKey,
-  UserKey,
-} from "../../../platform/models/domain/symmetric-crypto-key";
+import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { UserKey, OrgKey } from "../../../types/key";
 import { CryptoService } from "../../abstractions/crypto.service";
+import { EncryptionType } from "../../enums";
 import { ContainerService } from "../../services/container.service";
 
 import { EncString } from "./enc-string";
@@ -66,7 +63,7 @@ describe("EncString", () => {
       const cryptoService = mock<CryptoService>();
       cryptoService.hasUserKey.mockResolvedValue(true);
       cryptoService.getUserKeyWithLegacySupport.mockResolvedValue(
-        new SymmetricCryptoKey(makeStaticByteArray(32)) as UserKey
+        new SymmetricCryptoKey(makeStaticByteArray(32)) as UserKey,
       );
 
       const encryptService = mock<EncryptService>();
@@ -77,7 +74,7 @@ describe("EncString", () => {
       beforeEach(() => {
         (window as any).bitwardenContainerService = new ContainerService(
           cryptoService,
-          encryptService
+          encryptService,
         );
       });
 
@@ -206,7 +203,7 @@ describe("EncString", () => {
 
       (window as any).bitwardenContainerService = new ContainerService(
         cryptoService,
-        encryptService
+        encryptService,
       );
     });
 
@@ -215,7 +212,7 @@ describe("EncString", () => {
 
       (window as any).bitwardenContainerService = new ContainerService(
         cryptoService,
-        encryptService
+        encryptService,
       );
 
       const decrypted = await encString.decrypt(null);

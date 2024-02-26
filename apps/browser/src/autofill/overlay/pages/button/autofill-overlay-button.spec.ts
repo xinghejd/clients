@@ -1,7 +1,7 @@
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
-import { createInitAutofillOverlayButtonMessageMock } from "../../../jest/autofill-mocks";
-import { postWindowMessage } from "../../../jest/testing-utils";
+import { createInitAutofillOverlayButtonMessageMock } from "../../../spec/autofill-mocks";
+import { postWindowMessage } from "../../../spec/testing-utils";
 
 import AutofillOverlayButton from "./autofill-overlay-button";
 
@@ -25,12 +25,12 @@ describe("AutofillOverlayButton", () => {
   describe("initAutofillOverlayButton", () => {
     it("creates the button element with the locked icon when the user's auth status is not Unlocked", () => {
       postWindowMessage(
-        createInitAutofillOverlayButtonMessageMock({ authStatus: AuthenticationStatus.Locked })
+        createInitAutofillOverlayButtonMessageMock({ authStatus: AuthenticationStatus.Locked }),
       );
 
       expect(autofillOverlayButton["buttonElement"]).toMatchSnapshot();
       expect(autofillOverlayButton["buttonElement"].querySelector("svg")).toBe(
-        autofillOverlayButton["logoLockedIconElement"]
+        autofillOverlayButton["logoLockedIconElement"],
       );
     });
 
@@ -39,7 +39,7 @@ describe("AutofillOverlayButton", () => {
 
       expect(autofillOverlayButton["buttonElement"]).toMatchSnapshot();
       expect(autofillOverlayButton["buttonElement"].querySelector("svg")).toBe(
-        autofillOverlayButton["logoIconElement"]
+        autofillOverlayButton["logoIconElement"],
       );
     });
 
@@ -49,7 +49,7 @@ describe("AutofillOverlayButton", () => {
 
       expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
         { command: "overlayButtonClicked" },
-        "https://localhost/"
+        "https://localhost/",
       );
     });
   });
@@ -64,7 +64,9 @@ describe("AutofillOverlayButton", () => {
 
       postWindowMessage({ command: "checkAutofillOverlayButtonFocused" });
 
-      expect(globalThis.parent.postMessage).not.toHaveBeenCalled();
+      expect(globalThis.parent.postMessage).not.toHaveBeenCalledWith({
+        command: "closeAutofillOverlay",
+      });
     });
 
     it("posts a message to close the autofill overlay if the element is not focused during the focus check", () => {
@@ -74,7 +76,7 @@ describe("AutofillOverlayButton", () => {
 
       expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
         { command: "closeAutofillOverlay" },
-        "https://localhost/"
+        "https://localhost/",
       );
     });
 
@@ -87,6 +89,20 @@ describe("AutofillOverlayButton", () => {
       });
 
       expect(autofillOverlayButton["authStatus"]).toBe(AuthenticationStatus.Unlocked);
+    });
+
+    it("updates the page color scheme meta tag", () => {
+      const colorSchemeMetaTag = globalThis.document.createElement("meta");
+      colorSchemeMetaTag.setAttribute("name", "color-scheme");
+      colorSchemeMetaTag.setAttribute("content", "light");
+      globalThis.document.head.append(colorSchemeMetaTag);
+
+      postWindowMessage({
+        command: "updateOverlayPageColorScheme",
+        colorScheme: "dark",
+      });
+
+      expect(colorSchemeMetaTag.getAttribute("content")).toBe("dark");
     });
   });
 });

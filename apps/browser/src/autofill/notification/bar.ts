@@ -1,8 +1,12 @@
-import type { Jsonify } from "type-fest";
-
+import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import type { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 
+import { FilelessImportPort, FilelessImportType } from "../../tools/enums/fileless-import.enums";
+import { AdjustNotificationBarMessageData } from "../background/abstractions/notification.background";
+
 require("./bar.scss");
+
+const logService = new ConsoleLogService(false);
 
 document.addEventListener("DOMContentLoaded", () => {
   // delay 50ms so that we get proper body dimensions
@@ -30,6 +34,11 @@ function load() {
     notificationChangeDesc: chrome.i18n.getMessage("notificationChangeDesc"),
     notificationUnlock: chrome.i18n.getMessage("notificationUnlock"),
     notificationUnlockDesc: chrome.i18n.getMessage("notificationUnlockDesc"),
+    filelessImport: chrome.i18n.getMessage("filelessImport"),
+    lpFilelessImport: chrome.i18n.getMessage("lpFilelessImport"),
+    cancelFilelessImport: chrome.i18n.getMessage("no"),
+    lpCancelFilelessImport: chrome.i18n.getMessage("lpCancelFilelessImport"),
+    startFilelessImport: chrome.i18n.getMessage("startFilelessImport"),
   };
 
   const logoLink = document.getElementById("logo-link") as HTMLAnchorElement;
@@ -74,12 +83,29 @@ function load() {
 
   changeTemplate.content.getElementById("change-text").textContent = i18n.notificationChangeDesc;
 
+  // i18n for "Unlock" (unlock extension) template
   const unlockTemplate = document.getElementById("template-unlock") as HTMLTemplateElement;
 
   const unlockButton = unlockTemplate.content.getElementById("unlock-vault");
   unlockButton.textContent = i18n.notificationUnlock;
 
   unlockTemplate.content.getElementById("unlock-text").textContent = i18n.notificationUnlockDesc;
+
+  // i18n for "Fileless Import" (fileless-import) template
+  const isLpImport = getQueryVariable("importType") === FilelessImportType.LP;
+  const importTemplate = document.getElementById("template-fileless-import") as HTMLTemplateElement;
+
+  const startImportButton = importTemplate.content.getElementById("start-fileless-import");
+  startImportButton.textContent = i18n.startFilelessImport;
+
+  const cancelImportButton = importTemplate.content.getElementById("cancel-fileless-import");
+  cancelImportButton.textContent = isLpImport
+    ? i18n.lpCancelFilelessImport
+    : i18n.cancelFilelessImport;
+
+  importTemplate.content.getElementById("fileless-import-text").textContent = isLpImport
+    ? i18n.lpFilelessImport
+    : i18n.filelessImport;
 
   // i18n for body content
   const closeButton = document.getElementById("close-button");
@@ -91,6 +117,8 @@ function load() {
     handleTypeChange();
   } else if (getQueryVariable("type") === "unlock") {
     handleTypeUnlock();
+  } else if (getQueryVariable("type") === "fileless-import") {
+    handleTypeFilelessImport();
   }
 
   closeButton.addEventListener("click", (e) => {
@@ -126,11 +154,7 @@ function handleTypeAdd() {
     e.preventDefault();
 
     // If Remove Individual Vault policy applies, "Add" opens the edit tab
-    sendPlatformMessage({
-      command: "bgAddSave",
-      folder: getSelectedFolder(),
-      edit: removeIndividualVault(),
-    });
+    sendSaveCipherMessage(removeIndividualVault(), getSelectedFolder());
   });
 
   if (removeIndividualVault()) {
@@ -142,11 +166,7 @@ function handleTypeAdd() {
   editButton.addEventListener("click", (e) => {
     e.preventDefault();
 
-    sendPlatformMessage({
-      command: "bgAddSave",
-      folder: getSelectedFolder(),
-      edit: true,
-    });
+    sendSaveCipherMessage(true, getSelectedFolder());
   });
 
   const neverButton = document.getElementById("never-save");
@@ -166,20 +186,22 @@ function handleTypeChange() {
   changeButton.addEventListener("click", (e) => {
     e.preventDefault();
 
-    sendPlatformMessage({
-      command: "bgChangeSave",
-      edit: false,
-    });
+    sendSaveCipherMessage(false);
   });
 
   const editButton = document.getElementById("change-edit");
   editButton.addEventListener("click", (e) => {
     e.preventDefault();
 
-    sendPlatformMessage({
-      command: "bgChangeSave",
-      edit: true,
-    });
+    sendSaveCipherMessage(true);
+  });
+}
+
+function sendSaveCipherMessage(edit: boolean, folder?: string) {
+  sendPlatformMessage({
+    command: "bgSaveCipher",
+    folder,
+    edit,
   });
 }
 
@@ -194,6 +216,54 @@ function handleTypeUnlock() {
   });
 }
 
+/**
+ * Sets up a port to communicate with the fileless importer content script.
+ * This connection to the background script is used to trigger the action of
+ * downloading the CSV file from the LP importer or importing the data into
+ * the Bitwarden vault.
+ */
+function handleTypeFilelessImport() {
+  const importType = getQueryVariable("importType");
+  const port = chrome.runtime.connect({ name: FilelessImportPort.NotificationBar });
+  setContent(document.getElementById("template-fileless-import") as HTMLTemplateElement);
+
+  const startFilelessImportButton = document.getElementById("start-fileless-import");
+  const startFilelessImport = () => {
+    port.postMessage({ command: "startFilelessImport", importType });
+    document.getElementById("fileless-import-buttons").textContent =
+      chrome.i18n.getMessage("importing");
+    startFilelessImportButton.removeEventListener("click", startFilelessImport);
+  };
+  startFilelessImportButton.addEventListener("click", startFilelessImport);
+
+  const cancelFilelessImportButton = document.getElementById("cancel-fileless-import");
+  cancelFilelessImportButton.addEventListener("click", () => {
+    port.postMessage({ command: "cancelFilelessImport", importType });
+  });
+
+  const handlePortMessage = (msg: any) => {
+    if (msg.command !== "filelessImportCompleted" && msg.command !== "filelessImportFailed") {
+      return;
+    }
+
+    port.disconnect();
+
+    if (msg.command === "filelessImportCompleted") {
+      document.getElementById("fileless-import-buttons").textContent = chrome.i18n.getMessage(
+        "dataSuccessfullyImported",
+      );
+      document.getElementById("fileless-import-buttons").classList.add("success-message");
+      return;
+    }
+
+    document.getElementById("fileless-import-buttons").textContent =
+      chrome.i18n.getMessage("dataImportFailed");
+    document.getElementById("fileless-import-buttons").classList.add("error-message");
+    logService.error(`Error Encountered During Import: ${msg.importErrorMessage}`);
+  };
+  port.onMessage.addListener(handlePortMessage);
+}
+
 function setContent(template: HTMLTemplateElement) {
   const content = document.getElementById("content");
   while (content.firstChild) {
@@ -204,31 +274,34 @@ function setContent(template: HTMLTemplateElement) {
   content.appendChild(newElement);
 }
 
-function sendPlatformMessage(msg: Record<string, unknown>) {
-  chrome.runtime.sendMessage(msg);
+function sendPlatformMessage(
+  msg: Record<string, unknown>,
+  responseCallback?: (response: any) => void,
+) {
+  chrome.runtime.sendMessage(msg, (response) => {
+    if (responseCallback) {
+      responseCallback(response);
+    }
+  });
 }
 
 function loadFolderSelector() {
-  const responseFoldersCommand = "notificationBarGetFoldersList";
-
-  chrome.runtime.onMessage.addListener((msg) => {
-    if (msg.command !== responseFoldersCommand || msg.data == null) {
+  const populateFolderData = (folderData: FolderView[]) => {
+    const select = document.getElementById("select-folder");
+    if (!folderData?.length) {
+      select.appendChild(new Option(chrome.i18n.getMessage("noFoldersFound"), null, true));
+      select.setAttribute("disabled", "true");
       return;
     }
 
-    const folders = msg.data.folders as Jsonify<FolderView[]>;
-    const select = document.getElementById("select-folder");
     select.appendChild(new Option(chrome.i18n.getMessage("selectFolder"), null, true));
-    folders.forEach((folder) => {
+    folderData.forEach((folder: FolderView) => {
       // Select "No Folder" (id=null) folder by default
       select.appendChild(new Option(folder.name, folder.id || "", false));
     });
-  });
+  };
 
-  sendPlatformMessage({
-    command: "bgGetDataForTab",
-    responseCommand: responseFoldersCommand,
-  });
+  sendPlatformMessage({ command: "bgGetFolderData" }, populateFolderData);
 }
 
 function getSelectedFolder(): string {
@@ -240,10 +313,11 @@ function removeIndividualVault(): boolean {
 }
 
 function adjustHeight() {
+  const data: AdjustNotificationBarMessageData = {
+    height: document.querySelector("body").scrollHeight,
+  };
   sendPlatformMessage({
     command: "bgAdjustNotificationBar",
-    data: {
-      height: document.querySelector("body").scrollHeight,
-    },
+    data,
   });
 }

@@ -3,6 +3,9 @@ import { Observable } from "rxjs";
 
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 
+import { EncryptionType } from "../src/platform/enums";
+import { Utils } from "../src/platform/misc/utils";
+
 function newGuid() {
   return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
     const r = (Math.random() * 16) | 0;
@@ -17,7 +20,7 @@ export function GetUniqueString(prefix = "") {
 
 export function BuildTestObject<T, K extends keyof T = keyof T>(
   def: Partial<Pick<T, K>> | T,
-  constructor?: new () => T
+  constructor?: new () => T,
 ): T {
   return Object.assign(constructor === null ? {} : new constructor(), def) as T;
 }
@@ -27,6 +30,11 @@ export function mockEnc(s: string): MockProxy<EncString> {
   mocked.decrypt.mockResolvedValue(s);
 
   return mocked;
+}
+
+export function makeEncString(data?: string) {
+  data ??= Utils.newGuid();
+  return new EncString(EncryptionType.AesCbc256_HmacSha256_B64, data, "test", "test");
 }
 
 export function makeStaticByteArray(length: number, start = 0) {
@@ -69,6 +77,10 @@ export function trackEmissions<T>(observable: Observable<T>): T[] {
       case "boolean":
         emissions.push(value);
         break;
+      case "symbol":
+        // Cheating types to make symbols work at all
+        emissions.push(value.toString() as T);
+        break;
       default: {
         emissions.push(clone(value));
       }
@@ -85,7 +97,7 @@ function clone(value: any): any {
   }
 }
 
-export async function awaitAsync(ms = 0) {
+export async function awaitAsync(ms = 1) {
   if (ms < 1) {
     await Promise.resolve();
   } else {

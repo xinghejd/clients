@@ -29,7 +29,7 @@
     <ng-container *ngIf="billingSyncSetUp">
       <dt>{{ "lastLicenseSync" | i18n }}</dt>
       <dd>
-        {{ lastLicenseSync != null ? (lastLicenseSync | date : "medium") : ("never" | i18n) }}
+        {{ lastLicenseSync != null ? (lastLicenseSync | date: "medium") : ("never" | i18n) }}
       </dd>
     </ng-container>
     <dt>
@@ -40,7 +40,7 @@
         href="https://bitwarden.com/help/licensing-on-premise/#update-organization-license"
         target="_blank"
         [appA11yTitle]="'licensePaidFeaturesHelp' | i18n"
-        rel="noopener"
+        rel="noreferrer"
       >
         <i class="bwi bwi-question-circle" aria-hidden="true"></i>
         <span class="sr-only">{{ "licensePaidFeaturesHelp" | i18n }}</span>
@@ -51,12 +51,12 @@
         (subscription.hasSeparateGracePeriod
           ? subscription.expirationWithoutGracePeriod
           : subscription.expirationWithGracePeriod
-        ) | date : "mediumDate"
+        ) | date: "mediumDate"
       }}
       <div *ngIf="subscription.hasSeparateGracePeriod" class="tw-text-muted">
         {{
           "selfHostGracePeriodHelp"
-            | i18n : (subscription.expirationWithGracePeriod | date : "mediumDate")
+            | i18n: (subscription.expirationWithGracePeriod | date: "mediumDate")
         }}
       </div>
     </dd>
@@ -68,7 +68,7 @@
     buttonType="secondary"
     href="{{ this.cloudWebVaultUrl }}"
     target="_blank"
-    rel="noopener"
+    rel="noreferrer"
   >
     {{ "launchCloudSubscription" | i18n }}
   </a>
@@ -88,7 +88,7 @@
           <a
             href="https://bitwarden.com/help/families-for-enterprise-self-hosted/"
             target="_blank"
-            rel="noopener"
+            rel="noreferrer"
           >
             <i class="bwi bwi-question-circle" aria-hidden="true"></i>
             <span class="sr-only">{{ "billingSyncHelp" | i18n }}</span>

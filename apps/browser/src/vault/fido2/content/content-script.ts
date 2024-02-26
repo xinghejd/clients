@@ -1,51 +1,55 @@
+import {
+  AssertCredentialParams,
+  CreateCredentialParams,
+} from "@bitwarden/common/vault/abstractions/fido2/fido2-client.service.abstraction";
+
 import { Message, MessageType } from "./messaging/message";
 import { Messenger } from "./messaging/messenger";
 
 function isFido2FeatureEnabled(): Promise<boolean> {
   return new Promise((resolve) => {
     chrome.runtime.sendMessage(
-      { command: "checkFido2FeatureEnabled" },
-      (response: { result?: boolean }) => resolve(response.result)
+      {
+        command: "checkFido2FeatureEnabled",
+        hostname: window.location.hostname,
+        origin: window.location.origin,
+      },
+      (response: { result?: boolean }) => resolve(response.result),
     );
   });
 }
 
-async function getFromLocalStorage(keys: string | string[]): Promise<Record<string, any>> {
-  return new Promise((resolve) => {
-    chrome.storage.local.get(keys, (storage: Record<string, any>) => resolve(storage));
-  });
+function isSameOriginWithAncestors() {
+  try {
+    return window.self === window.top;
+  } catch {
+    return false;
+  }
 }
+const messenger = Messenger.forDOMCommunication(window);
 
-async function isDomainExcluded() {
-  // TODO: This is code copied from `notification-bar.tsx`. We should refactor this into a shared function.
-  // Look up the active user id from storage
-  const activeUserIdKey = "activeUserId";
-  let activeUserId: string;
+function injectPageScript() {
+  // Locate an existing page-script on the page
+  const existingPageScript = document.getElementById("bw-fido2-page-script");
 
-  const activeUserStorageValue = await getFromLocalStorage(activeUserIdKey);
-  if (activeUserStorageValue[activeUserIdKey]) {
-    activeUserId = activeUserStorageValue[activeUserIdKey];
+  // Inject the page-script if it doesn't exist
+  if (!existingPageScript) {
+    const s = document.createElement("script");
+    s.src = chrome.runtime.getURL("content/fido2/page-script.js");
+    s.id = "bw-fido2-page-script";
+    (document.head || document.documentElement).appendChild(s);
+
+    return;
   }
 
-  // Look up the user's settings from storage
-  const userSettingsStorageValue = await getFromLocalStorage(activeUserId);
-
-  const excludedDomains = userSettingsStorageValue[activeUserId]?.settings?.neverDomains;
-  return excludedDomains && window.location.hostname in excludedDomains;
-}
-
-async function hasActiveUser() {
-  const activeUserIdKey = "activeUserId";
-  const activeUserStorageValue = await getFromLocalStorage(activeUserIdKey);
-  return activeUserStorageValue[activeUserIdKey] !== undefined;
+  // If the page-script already exists, send a reconnect message to the page-script
+  // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+  messenger.sendReconnectCommand();
 }
 
 function initializeFido2ContentScript() {
-  const s = document.createElement("script");
-  s.src = chrome.runtime.getURL("content/fido2/page-script.js");
-  (document.head || document.documentElement).appendChild(s);
-
-  const messenger = Messenger.forDOMCommunication(window);
+  injectPageScript();
 
   messenger.handler = async (message, abortController) => {
     const requestId = Date.now().toString();
@@ -57,15 +61,21 @@ function initializeFido2ContentScript() {
     abortController.signal.addEventListener("abort", abortHandler);
 
     if (message.type === MessageType.CredentialCreationRequest) {
-      return new Promise((resolve, reject) => {
+      return new Promise<Message | undefined>((resolve, reject) => {
+        const data: CreateCredentialParams = {
+          ...message.data,
+          origin: window.location.origin,
+          sameOriginWithAncestors: isSameOriginWithAncestors(),
+        };
+
         chrome.runtime.sendMessage(
           {
             command: "fido2RegisterCredentialRequest",
-            data: message.data,
+            data,
             requestId: requestId,
           },
           (response) => {
-            if (response.error !== undefined) {
+            if (response && response.error !== undefined) {
               return reject(response.error);
             }
 
@@ -73,21 +83,27 @@ function initializeFido2ContentScript() {
               type: MessageType.CredentialCreationResponse,
               result: response.result,
             });
-          }
+          },
         );
       });
     }
 
     if (message.type === MessageType.CredentialGetRequest) {
-      return new Promise((resolve, reject) => {
+      return new Promise<Message | undefined>((resolve, reject) => {
+        const data: AssertCredentialParams = {
+          ...message.data,
+          origin: window.location.origin,
+          sameOriginWithAncestors: isSameOriginWithAncestors(),
+        };
+
         chrome.runtime.sendMessage(
           {
             command: "fido2GetCredentialRequest",
-            data: message.data,
+            data,
             requestId: requestId,
           },
           (response) => {
-            if (response.error !== undefined) {
+            if (response && response.error !== undefined) {
               return reject(response.error);
             }
 
@@ -95,10 +111,10 @@ function initializeFido2ContentScript() {
               type: MessageType.CredentialGetResponse,
               result: response.result,
             });
-          }
+          },
         );
       }).finally(() =>
-        abortController.signal.removeEventListener("abort", abortHandler)
+        abortController.signal.removeEventListener("abort", abortHandler),
       ) as Promise<Message>;
     }
 
@@ -107,9 +123,21 @@ function initializeFido2ContentScript() {
 }
 
 async function run() {
-  if ((await hasActiveUser()) && (await isFido2FeatureEnabled()) && !(await isDomainExcluded())) {
-    initializeFido2ContentScript();
+  if (!(await isFido2FeatureEnabled())) {
+    return;
   }
+
+  initializeFido2ContentScript();
+
+  const port = chrome.runtime.connect({ name: "fido2ContentScriptReady" });
+  port.onDisconnect.addListener(() => {
+    // Cleanup the messenger and remove the event listener
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    messenger.destroy();
+  });
 }
 
+// FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 run();

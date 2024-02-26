@@ -1,6 +1,6 @@
 import { inject, Injectable } from "@angular/core";
 
-import { RotateableKeySet } from "@bitwarden/auth";
+import { RotateableKeySet } from "@bitwarden/auth/common";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -19,7 +19,7 @@ export class RotateableKeySetService {
    * @returns RotateableKeySet containing the current users `UserKey`
    */
   async createKeySet<ExternalKey extends SymmetricCryptoKey>(
-    externalKey: ExternalKey
+    externalKey: ExternalKey,
   ): Promise<RotateableKeySet<ExternalKey>> {
     const [publicKey, encryptedPrivateKey] = await this.cryptoService.makeKeyPair(externalKey);
 

@@ -40,7 +40,7 @@ export class ProjectDialogComponent implements OnInit {
     private projectService: ProjectService,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
-    private router: Router
+    private router: Router,
   ) {}
 
   async ngOnInit() {
@@ -68,7 +68,7 @@ export class ProjectDialogComponent implements OnInit {
       this.platformUtilsService.showToast(
         "error",
         null,
-        this.i18nService.t("projectsCannotCreate")
+        this.i18nService.t("projectsCannotCreate"),
       );
       return;
     }
@@ -82,6 +82,8 @@ export class ProjectDialogComponent implements OnInit {
     const projectView = this.getProjectView();
     if (this.data.operation === OperationType.Add) {
       const newProject = await this.createProject(projectView);
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["sm", this.data.organizationId, "projects", newProject.id]);
     } else {
       projectView.id = this.data.projectId;

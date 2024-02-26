@@ -403,6 +403,9 @@
   "length": {
     "message": "Longueur"
   },
+  "passwordMinLength": {
+    "message": "Longueur minimale du mot de passe"
+  },
   "uppercase": {
     "message": "Majuscules (A-Z)"
   },
@@ -470,7 +473,7 @@
     "message": "Fichier"
   },
   "selectFile": {
-    "message": "Sélectionnez un fichier."
+    "message": "Sélectionnez un fichier"
   },
   "maxFileSize": {
     "message": "La taille maximale du fichier est de 500 Mo."
@@ -556,6 +559,12 @@
   },
   "newAccountCreated": {
     "message": "Votre nouveau compte a été créé ! Vous pouvez maintenant vous authentifier."
+  },
+  "youSuccessfullyLoggedIn": {
+    "message": "Vous vous êtes connecté avec succès"
+  },
+  "youMayCloseThisWindow": {
+    "message": "Vous pouvez fermer cette fenêtre"
   },
   "masterPassSent": {
     "message": "Nous vous avons envoyé un courriel avec votre indice de mot de passe principal."
@@ -711,7 +720,7 @@
     "message": "URL du serveur d’icônes"
   },
   "environmentSaved": {
-    "message": "Les URLs d'environnement ont été enregistrées."
+    "message": "Les URL d'environnement ont été enregistrées"
   },
   "ok": {
     "message": "Ok"
@@ -786,7 +795,7 @@
     "message": "Suivez-nous"
   },
   "syncVault": {
-    "message": "Synchroniser le coffre maintenant"
+    "message": "Synchroniser le coffre"
   },
   "changeMasterPass": {
     "message": "Changer le mot de passe principal"
@@ -1389,6 +1398,9 @@
   "invalidPin": {
     "message": "Code PIN invalide."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Trop de tentatives de saisie du code PIN incorrectes. Déconnexion."
+  },
   "unlockWithWindowsHello": {
     "message": "Déverrouiller avec Windows Hello"
   },
@@ -1534,12 +1546,16 @@
     "message": "Définir le mot de passe principal"
   },
   "orgPermissionsUpdatedMustSetPassword": {
-    "message": "Your organization permissions were updated, requiring you to set a master password.",
+    "message": "Les autorisations de votre organisation ont été mises à jour, vous obligeant à définir un mot de passe principal.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "orgRequiresYouToSetPassword": {
-    "message": "Your organization requires you to set a master password.",
+    "message": "Votre organisation exige que vous définissiez un mot de passe principal.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "verificationRequired": {
+    "message": "Vérification requise",
+    "description": "Default title for the user verification dialog."
   },
   "currentMasterPass": {
     "message": "Mot de passe principal actuel"
@@ -1866,6 +1882,42 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Votre mot de passe principal ne répond pas aux exigences de politique de sécurité de cette organisation. Pour pouvoir accéder au coffre, vous devez mettre à jour votre mot de passe principal dès maintenant. En poursuivant, vous serez déconnecté de votre session actuelle et vous devrez vous reconnecter. Les sessions actives sur d'autres appareils peuver rester actives pendant encore une heure."
   },
+  "tryAgain": {
+    "message": "Essayez de nouveau"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Vérification requise pour cette action. Définissez un code PIN pour continuer."
+  },
+  "setPin": {
+    "message": "Définir un code PIN"
+  },
+  "verifyWithBiometrics": {
+    "message": "Vérifier par biométrie"
+  },
+  "awaitingConfirmation": {
+    "message": "En attente de confirmation"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Impossible de compléter la biométrie."
+  },
+  "needADifferentMethod": {
+    "message": "Besoin d'une méthode différente ?"
+  },
+  "useMasterPassword": {
+    "message": "Utiliser le mot de passe principal"
+  },
+  "usePin": {
+    "message": "Utiliser le code PIN"
+  },
+  "useBiometrics": {
+    "message": "Utiliser la biométrie"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Saisissez le code de vérification qui vous a été envoyé par courriel."
+  },
+  "resendCode": {
+    "message": "Renvoyer le code"
+  },
   "hours": {
     "message": "Heures"
   },
@@ -2079,7 +2131,7 @@
     "message": "Abonnement Premium requis"
   },
   "organizationIsDisabled": {
-    "message": "L'organisation est désactivée."
+    "message": "L'organisation est désactivée"
   },
   "disabledOrganizationFilterError": {
     "message": "Les éléments des Organisations désactivées ne sont pas accessibles. Contactez le propriétaire de votre Organisation pour obtenir de l'aide."
@@ -2424,6 +2476,9 @@
   "submenu": {
     "message": "Sous-menu"
   },
+  "skipToContent": {
+    "message": "Accéder au contenu"
+  },
   "typePasskey": {
     "message": "Clé d'accès"
   },
@@ -2475,6 +2530,15 @@
         "example": "My Org Name"
       }
     }
+  },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Lancez Duo et suivez les étapes pour terminer la connexion."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "L'authentification à double facteur Duo est requise pour votre compte."
+  },
+  "launchDuo": {
+    "message": "Lancer Duo dans le navigateur"
   },
   "importFormatError": {
     "message": "Les données ne sont pas correctement mises en forme. Veuillez vérifier le fichier importé et réessayer."
@@ -2556,11 +2620,20 @@
   "incorrectUsernameOrPassword": {
     "message": "Nom d'utilisateur ou mot de passe incorrect"
   },
+  "incorrectPassword": {
+    "message": "Mot de passe incorrect"
+  },
+  "incorrectCode": {
+    "message": "Code incorrect"
+  },
+  "incorrectPin": {
+    "message": "Code PIN incorrect"
+  },
   "multifactorAuthenticationFailed": {
-    "message": "Multifactor authentication failed"
+    "message": "Authentification multifacteur échouée"
   },
   "includeSharedFolders": {
-    "message": "Include shared folders"
+    "message": "Inclure les dossiers partagés"
   },
   "lastPassEmail": {
     "message": "Courriel LastPass"
@@ -2569,28 +2642,28 @@
     "message": "Importation de votre compte..."
   },
   "lastPassMFARequired": {
-    "message": "LastPass multifactor authentication required"
+    "message": "Authentification multifacteur LastPass requise"
   },
   "lastPassMFADesc": {
-    "message": "Enter your one-time passcode from your authentication app"
+    "message": "Entrez votre code d'accès unique depuis votre application d'authentification"
   },
   "lastPassOOBDesc": {
-    "message": "Approve the login request in your authentication app or enter a one-time passcode."
+    "message": "Approuvez la demande de connexion dans votre application d'authentification ou saisissez le code d'accès à usage unique."
   },
   "passcode": {
-    "message": "Passcode"
+    "message": "Code d'accès"
   },
   "lastPassMasterPassword": {
     "message": "Mot de passe principal LastPass"
   },
   "lastPassAuthRequired": {
-    "message": "LastPass authentication required"
+    "message": "Authentification LastPass requise"
   },
   "awaitingSSO": {
     "message": "En attente de l'authentification SSO"
   },
   "awaitingSSODesc": {
-    "message": "Please continue to log in using your company credentials."
+    "message": "Veuillez continuer à vous connecter en utilisant les identifiants de votre entreprise."
   },
   "seeDetailedInstructions": {
     "message": "Consultez les instructions détaillées sur notre site d'aide à",
@@ -2603,12 +2676,16 @@
     "message": "Importer depuis un fichier CSV"
   },
   "lastPassTryAgainCheckEmail": {
-    "message": "Try again or look for an email from LastPass to verify it's you."
+    "message": "Essayez à nouveau ou cherchez un courriel de LastPass pour vérifier que c'est vous."
   },
   "collection": {
     "message": "Collection"
   },
   "lastPassYubikeyDesc": {
-    "message": "Insert the YubiKey associated with your LastPass account into your computer's USB port, then touch its button."
+    "message": "Insérez la YubiKey associée à votre compte LastPass dans le port USB de votre ordinateur, puis appuyez sur son bouton."
+  },
+  "commonImportFormats": {
+    "message": "Formats communs",
+    "description": "Label indicating the most common import formats"
   }
 }

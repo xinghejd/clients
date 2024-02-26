@@ -14,7 +14,7 @@ import { ProductType } from "@bitwarden/common/enums";
 export function orgWithoutAdditionalSeatLimitReachedWithUpgradePathValidator(
   organization: Organization,
   allOrganizationUserEmails: string[],
-  errorMessage: string
+  errorMessage: string,
 ): ValidatorFn {
   return (control: AbstractControl): ValidationErrors | null => {
     if (control.value === "" || !control.value) {
@@ -30,15 +30,20 @@ export function orgWithoutAdditionalSeatLimitReachedWithUpgradePathValidator(
               newEmailToAdd &&
               newEmailToAdd.trim() !== "" &&
               !allOrganizationUserEmails.some(
-                (existingEmail) => existingEmail === newEmailToAdd.trim()
-              )
-          )
-      )
+                (existingEmail) => existingEmail === newEmailToAdd.trim(),
+              ),
+          ),
+      ),
     );
 
-    return organization.planProductType === ProductType.Free &&
+    const productHasAdditionalSeatsOption =
+      organization.planProductType !== ProductType.Free &&
+      organization.planProductType !== ProductType.Families &&
+      organization.planProductType !== ProductType.TeamsStarter;
+
+    return !productHasAdditionalSeatsOption &&
       allOrganizationUserEmails.length + newEmailsToAdd.length > organization.seats
-      ? { freePlanLimitReached: { message: errorMessage } }
+      ? { seatLimitReached: { message: errorMessage } }
       : null;
   };
 }

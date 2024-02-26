@@ -29,7 +29,10 @@ export class MemoryStorageService extends AbstractMemoryStorageService {
     if (obj == null) {
       return this.remove(key);
     }
-    this.store.set(key, obj);
+    // TODO: Remove once foreground/background contexts are separated in browser
+    // Needed to ensure ownership of all memory by the context running the storage service
+    const toStore = structuredClone(obj);
+    this.store.set(key, toStore);
     this.updatesSubject.next({ key, updateType: "save" });
     return Promise.resolve();
   }

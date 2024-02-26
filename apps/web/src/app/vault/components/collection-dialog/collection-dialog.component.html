@@ -64,6 +64,16 @@
           </bit-form-field>
         </bit-tab>
         <bit-tab label="{{ 'access' | i18n }}">
+          <div class="tw-mb-3" *ngIf="organization.flexibleCollections">
+            {{ "grantCollectionAccess" | i18n }}
+            <span
+              *ngIf="
+                (flexibleCollectionsV1Enabled$ | async) &&
+                organization.allowAdminAccessToAllCollectionItems
+              "
+              >{{ " " + ("adminCollectionAccess" | i18n) }}</span
+            >
+          </div>
           <div
             class="tw-mb-3 tw-text-danger"
             *ngIf="formGroup.controls.access.hasError('managePermissionRequired')"
@@ -79,7 +89,7 @@
             [selectorLabelText]="'selectGroupsAndMembers' | i18n"
             [selectorHelpText]="'userPermissionOverrideHelper' | i18n"
             [emptySelectionText]="'noMembersOrGroupsAdded' | i18n"
-            [flexibleCollectionsEnabled]="flexibleCollectionsEnabled$ | async"
+            [flexibleCollectionsEnabled]="organization.flexibleCollections"
           ></bit-access-selector>
           <bit-access-selector
             *ngIf="!organization.useGroups"
@@ -89,7 +99,7 @@
             [columnHeader]="'memberColumnHeader' | i18n"
             [selectorLabelText]="'selectMembers' | i18n"
             [emptySelectionText]="'noMembersAdded' | i18n"
-            [flexibleCollectionsEnabled]="flexibleCollectionsEnabled$ | async"
+            [flexibleCollectionsEnabled]="organization.flexibleCollections"
           ></bit-access-selector>
         </bit-tab>
       </bit-tab-group>
@@ -109,7 +119,7 @@
         {{ "cancel" | i18n }}
       </button>
       <button
-        *ngIf="editMode && organization?.canDeleteAssignedCollections"
+        *ngIf="showDeleteButton"
         type="button"
         bitIconButton="bwi-trash"
         buttonType="danger"

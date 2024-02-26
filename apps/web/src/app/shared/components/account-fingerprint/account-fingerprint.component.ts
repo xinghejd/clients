@@ -1,6 +1,8 @@
 import { Component, Input, OnInit } from "@angular/core";
 
+import { BitwardenSdkServiceAbstraction } from "@bitwarden/common/abstractions/bitwarden-sdk.service.abstraction";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { SharedModule } from "../../shared.module";
 
@@ -19,7 +21,7 @@ export class AccountFingerprintComponent implements OnInit {
 
   constructor(
     private cryptoService: CryptoService,
-    private bitwardenSdkService: BitwardenSdkServiceAbstraction
+    private bitwardenSdkService: BitwardenSdkServiceAbstraction,
   ) {}
 
   async ngOnInit() {
@@ -29,7 +31,7 @@ export class AccountFingerprintComponent implements OnInit {
     // TODO - In the future, remove this code and use the fingerprint pipe once merged
     this.fingerprint = await client.fingerprint(
       this.fingerprintMaterial,
-      Utils.fromBufferToB64(pubKey)
+      Utils.fromBufferToB64(pubKey),
     );
   }
 }

@@ -10,6 +10,7 @@ import { OrganizationTaxInfoUpdateRequest } from "../../../billing/models/reques
 import { PaymentRequest } from "../../../billing/models/request/payment.request";
 import { SecretsManagerSubscribeRequest } from "../../../billing/models/request/sm-subscribe.request";
 import { BillingResponse } from "../../../billing/models/response/billing.response";
+import { OrganizationRisksSubscriptionFailureResponse } from "../../../billing/models/response/organization-risks-subscription-failure.response";
 import { OrganizationSubscriptionResponse } from "../../../billing/models/response/organization-subscription.response";
 import { PaymentResponse } from "../../../billing/models/response/payment.response";
 import { TaxInfoResponse } from "../../../billing/models/response/tax-info.response";
@@ -33,7 +34,10 @@ import { OrganizationResponse } from "../../models/response/organization.respons
 import { ProfileOrganizationResponse } from "../../models/response/profile-organization.response";
 
 export class OrganizationApiService implements OrganizationApiServiceAbstraction {
-  constructor(private apiService: ApiService, private syncService: SyncService) {}
+  constructor(
+    private apiService: ApiService,
+    private syncService: SyncService,
+  ) {}
 
   async get(id: string): Promise<OrganizationResponse> {
     const r = await this.apiService.send("GET", "/organizations/" + id, null, true, true);
@@ -46,7 +50,7 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
       "/organizations/" + id + "/billing",
       null,
       true,
-      true
+      true,
     );
     return new BillingResponse(r);
   }
@@ -57,7 +61,7 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
       "/organizations/" + id + "/subscription",
       null,
       true,
-      true
+      true,
     );
     return new OrganizationSubscriptionResponse(r);
   }
@@ -68,7 +72,7 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
       "/organizations/" + id + "/license?installationId=" + installationId,
       null,
       true,
-      true
+      true,
     );
   }
 
@@ -78,7 +82,7 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
       "/organizations/" + identifier + "/auto-enroll-status",
       null,
       true,
-      true
+      true,
     );
     return new OrganizationAutoEnrollStatusResponse(r);
   }
@@ -96,7 +100,7 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
       "/organizations/licenses/self-hosted",
       data,
       true,
-      true
+      true,
     );
     return new OrganizationResponse(r);
   }
@@ -118,34 +122,34 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
       "/organizations/" + id + "/upgrade",
       request,
       true,
-      true
+      true,
     );
     return new PaymentResponse(r);
   }
 
   async updatePasswordManagerSeats(
     id: string,
-    request: OrganizationSubscriptionUpdateRequest
+    request: OrganizationSubscriptionUpdateRequest,
   ): Promise<void> {
     return this.apiService.send(
       "POST",
       "/organizations/" + id + "/subscription",
       request,
       true,
-      false
+      false,
     );
   }
 
   async updateSecretsManagerSubscription(
     id: string,
-    request: OrganizationSmSubscriptionUpdateRequest
+    request: OrganizationSmSubscriptionUpdateRequest,
   ): Promise<void> {
     return this.apiService.send(
       "POST",
       "/organizations/" + id + "/sm-subscription",
       request,
       true,
-      false
+      false,
     );
   }
 
@@ -155,7 +159,7 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
       "/organizations/" + id + "/seat",
       request,
       true,
-      true
+      true,
     );
     return new PaymentResponse(r);
   }
@@ -166,7 +170,7 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
       "/organizations/" + id + "/storage",
       request,
       true,
-      true
+      true,
     );
     return new PaymentResponse(r);
   }
@@ -177,7 +181,7 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
       "/organizations/" + id + "/verify-bank",
       request,
       true,
-      false
+      false,
     );
   }
 
@@ -205,7 +209,7 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
       "/organizations/licenses/self-hosted/" + id,
       data,
       true,
-      false
+      false,
     );
   }
 
@@ -215,7 +219,7 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
       "/organizations/" + organizationId + "/import",
       request,
       true,
-      false
+      false,
     );
   }
 
@@ -225,14 +229,14 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
       "/organizations/" + id + "/api-key",
       request,
       true,
-      true
+      true,
     );
     return new ApiKeyResponse(r);
   }
 
   async getApiKeyInformation(
     id: string,
-    organizationApiKeyType: OrganizationApiKeyType = null
+    organizationApiKeyType: OrganizationApiKeyType = null,
   ): Promise<ListResponse<OrganizationApiKeyInformationResponse>> {
     const uri =
       organizationApiKeyType === null
@@ -248,7 +252,7 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
       "/organizations/" + id + "/rotate-api-key",
       request,
       true,
-      true
+      true,
     );
     return new ApiKeyResponse(r);
   }
@@ -270,14 +274,14 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
 
   async updateKeys(
     id: string,
-    request: OrganizationKeysRequest
+    request: OrganizationKeysRequest,
   ): Promise<OrganizationKeysResponse> {
     const r = await this.apiService.send(
       "POST",
       "/organizations/" + id + "/keys",
       request,
       true,
-      true
+      true,
     );
     // Not broadcasting anything because data on this response doesn't correspond to `Organization`
     return new OrganizationKeysResponse(r);
@@ -294,7 +298,7 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
       "/organizations/" + id + "/sso",
       request,
       true,
-      true
+      true,
     );
     // Not broadcasting anything because data on this response doesn't correspond to `Organization`
     return new OrganizationSsoResponse(r);
@@ -306,37 +310,62 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
       "/organizations/licenses/self-hosted/" + id + "/sync/",
       null,
       true,
-      false
+      false,
     );
   }
 
   async subscribeToSecretsManager(
     id: string,
-    request: SecretsManagerSubscribeRequest
+    request: SecretsManagerSubscribeRequest,
   ): Promise<ProfileOrganizationResponse> {
     const r = await this.apiService.send(
       "POST",
       "/organizations/" + id + "/subscribe-secrets-manager",
       request,
       true,
-      true
+      true,
     );
     return new ProfileOrganizationResponse(r);
   }
 
   async updateCollectionManagement(
     id: string,
-    request: OrganizationCollectionManagementUpdateRequest
+    request: OrganizationCollectionManagementUpdateRequest,
   ): Promise<OrganizationResponse> {
     const r = await this.apiService.send(
       "PUT",
       "/organizations/" + id + "/collection-management",
       request,
       true,
-      true
+      true,
     );
     const data = new OrganizationResponse(r);
     await this.syncService.fullSync(true);
     return data;
+  }
+
+  async risksSubscriptionFailure(
+    id: string,
+  ): Promise<OrganizationRisksSubscriptionFailureResponse> {
+    const r = await this.apiService.send(
+      "GET",
+      "/organizations/" + id + "/risks-subscription-failure",
+      null,
+      true,
+      true,
+    );
+
+    return new OrganizationRisksSubscriptionFailureResponse(r);
+  }
+
+  async enableCollectionEnhancements(id: string): Promise<void> {
+    await this.apiService.send(
+      "POST",
+      "/organizations/" + id + "/enable-collection-enhancements",
+      null,
+      true,
+      false,
+    );
+    await this.syncService.fullSync(true);
   }
 }

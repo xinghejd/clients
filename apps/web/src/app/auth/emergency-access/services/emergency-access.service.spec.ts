@@ -2,25 +2,21 @@ import { MockProxy } from "jest-mock-extended";
 import mock from "jest-mock-extended/lib/Mock";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EncryptionType, KdfType } from "@bitwarden/common/enums";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { UserKeyResponse } from "@bitwarden/common/models/response/user-key.response";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { EncryptionType, KdfType } from "@bitwarden/common/platform/enums";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import {
-  UserKey,
-  SymmetricCryptoKey,
-  MasterKey,
-} from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
+import { UserKey, MasterKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
 import { EmergencyAccessStatusType } from "../enums/emergency-access-status-type";
 import { EmergencyAccessType } from "../enums/emergency-access-type";
 import { EmergencyAccessPasswordRequest } from "../request/emergency-access-password.request";
-import { EmergencyAccessUpdateRequest } from "../request/emergency-access-update.request";
 import {
   EmergencyAccessGranteeDetailsResponse,
   EmergencyAccessTakeoverResponse,
@@ -52,7 +48,7 @@ describe("EmergencyAccessService", () => {
       cryptoService,
       encryptService,
       cipherService,
-      logService
+      logService,
     );
   });
 
@@ -122,7 +118,7 @@ describe("EmergencyAccessService", () => {
 
         const mockUserPublicKeyEncryptedUserKey = new EncString(
           EncryptionType.AesCbc256_HmacSha256_B64,
-          "mockUserPublicKeyEncryptedUserKey"
+          "mockUserPublicKeyEncryptedUserKey",
         );
 
         cryptoService.getUserKey.mockResolvedValueOnce(mockUserKey);
@@ -170,7 +166,7 @@ describe("EmergencyAccessService", () => {
       // where UserKey is the decrypted grantor user key
       const mockMasterKeyEncryptedUserKey = new EncString(
         EncryptionType.AesCbc256_HmacSha256_B64,
-        "mockMasterKeyEncryptedUserKey"
+        "mockMasterKeyEncryptedUserKey",
       );
 
       const mockUserKey = new SymmetricCryptoKey(mockDecryptedGrantorUserKey) as UserKey;
@@ -190,7 +186,7 @@ describe("EmergencyAccessService", () => {
       // Assert
       expect(emergencyAccessApiService.postEmergencyAccessPassword).toHaveBeenCalledWith(
         mockId,
-        expectedEmergencyAccessPasswordRequest
+        expectedEmergencyAccessPasswordRequest,
       );
     });
 
@@ -203,14 +199,14 @@ describe("EmergencyAccessService", () => {
       } as EmergencyAccessTakeoverResponse);
 
       await expect(
-        emergencyAccessService.takeover(mockId, mockEmail, mockName)
+        emergencyAccessService.takeover(mockId, mockEmail, mockName),
       ).rejects.toThrowError("Failed to decrypt grantor key");
 
       expect(emergencyAccessApiService.postEmergencyAccessPassword).not.toHaveBeenCalled();
     });
   });
 
-  describe("rotate", () => {
+  describe("getRotatedKeys", () => {
     let mockUserKey: UserKey;
     const allowedStatuses = [
       EmergencyAccessStatusType.Confirmed,
@@ -240,31 +236,15 @@ describe("EmergencyAccessService", () => {
 
       cryptoService.rsaEncrypt.mockImplementation((plainValue, publicKey) => {
         return Promise.resolve(
-          new EncString(EncryptionType.Rsa2048_OaepSha1_B64, "Encrypted: " + plainValue)
+          new EncString(EncryptionType.Rsa2048_OaepSha1_B64, "Encrypted: " + plainValue),
         );
       });
     });
 
-    it("Only updates emergency accesses with allowed statuses", async () => {
-      await emergencyAccessService.rotate(mockUserKey);
+    it("Only returns emergency accesses with allowed statuses", async () => {
+      const result = await emergencyAccessService.getRotatedKeys(mockUserKey);
 
-      let expectedCallCount = 0;
-
-      mockEmergencyAccess.data.forEach((emergencyAccess) => {
-        if (allowedStatuses.includes(emergencyAccess.status)) {
-          expect(emergencyAccessApiService.putEmergencyAccess).toHaveBeenCalledWith(
-            emergencyAccess.id,
-            expect.any(EmergencyAccessUpdateRequest)
-          );
-          expectedCallCount++;
-        } else {
-          expect(emergencyAccessApiService.putEmergencyAccess).not.toHaveBeenCalledWith(
-            emergencyAccess.id,
-            expect.any(EmergencyAccessUpdateRequest)
-          );
-        }
-      });
-      expect(emergencyAccessApiService.putEmergencyAccess).toHaveBeenCalledTimes(expectedCallCount);
+      expect(result).toHaveLength(allowedStatuses.length);
     });
   });
 });
@@ -272,7 +252,7 @@ describe("EmergencyAccessService", () => {
 function createMockEmergencyAccess(
   id: string,
   name: string,
-  status: EmergencyAccessStatusType
+  status: EmergencyAccessStatusType,
 ): EmergencyAccessGranteeDetailsResponse {
   const emergencyAccess = new EmergencyAccessGranteeDetailsResponse({});
   emergencyAccess.id = id;

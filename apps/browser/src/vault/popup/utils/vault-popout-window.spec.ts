@@ -1,16 +1,18 @@
 import { mock } from "jest-mock-extended";
 
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+import { CipherType } from "@bitwarden/common/vault/enums";
 
 import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
 
 import {
+  openViewVaultItemPopout,
   closeAddEditVaultItemPopout,
   closeFido2Popout,
   openAddEditVaultItemPopout,
   openFido2Popout,
   openVaultItemPasswordRepromptPopout,
   VaultPopoutType,
+  closeViewVaultItemPopout,
 } from "./vault-popout-window";
 
 describe("VaultPopoutWindow", () => {
@@ -25,6 +27,34 @@ describe("VaultPopoutWindow", () => {
     jest.clearAllMocks();
   });
 
+  describe("openViewVaultItemPopout", () => {
+    it("opens a popout window that contains a sender tab id query param reference", async () => {
+      const senderTab = { id: 1, windowId: 2 } as chrome.tabs.Tab;
+
+      await openViewVaultItemPopout(senderTab, {
+        cipherId: "cipherId",
+        action: "action",
+      });
+
+      expect(openPopoutSpy).toHaveBeenCalledWith(
+        "popup/index.html#/view-cipher?cipherId=cipherId&senderTabId=1&action=action",
+        {
+          singleActionKey: `${VaultPopoutType.viewVaultItem}_cipherId`,
+          senderWindowId: 2,
+          forceCloseExistingWindows: undefined,
+        },
+      );
+    });
+  });
+
+  describe("closeViewVaultItemPopout", () => {
+    it("closes the view vault item popout window", async () => {
+      await closeViewVaultItemPopout("cipherId");
+
+      expect(closeSingleActionPopoutSpy).toHaveBeenCalledWith(`cipherId`, 0);
+    });
+  });
+
   describe("openVaultItemPasswordRepromptPopout", () => {
     it("opens a popout window that facilitates re-prompting for the password of a vault item", async () => {
       const senderTab = { windowId: 1 } as chrome.tabs.Tab;
@@ -35,12 +65,12 @@ describe("VaultPopoutWindow", () => {
       });
 
       expect(openPopoutSpy).toHaveBeenCalledWith(
-        "popup/index.html#/view-cipher?uilocation=popout&cipherId=cipherId&action=action",
+        "popup/index.html#/view-cipher?cipherId=cipherId&action=action",
         {
           singleActionKey: `${VaultPopoutType.viewVaultItem}_cipherId`,
           senderWindowId: 1,
           forceCloseExistingWindows: true,
-        }
+        },
       );
     });
   });
@@ -48,15 +78,15 @@ describe("VaultPopoutWindow", () => {
   describe("openAddEditVaultItemPopout", () => {
     it("opens a popout window that facilitates adding a vault item", async () => {
       await openAddEditVaultItemPopout(
-        mock<chrome.tabs.Tab>({ windowId: 1, url: "https://jest-testing-website.com" })
+        mock<chrome.tabs.Tab>({ windowId: 1, url: "https://jest-testing-website.com" }),
       );
 
       expect(openPopoutSpy).toHaveBeenCalledWith(
-        "popup/index.html#/edit-cipher?uilocation=popout&uri=https://jest-testing-website.com",
+        "popup/index.html#/edit-cipher?uri=https://jest-testing-website.com",
         {
           singleActionKey: VaultPopoutType.addEditVaultItem,
           senderWindowId: 1,
-        }
+        },
       );
     });
 
@@ -65,15 +95,15 @@ describe("VaultPopoutWindow", () => {
         mock<chrome.tabs.Tab>({ windowId: 1, url: "https://jest-testing-website.com" }),
         {
           cipherType: CipherType.Identity,
-        }
+        },
       );
 
       expect(openPopoutSpy).toHaveBeenCalledWith(
-        `popup/index.html#/edit-cipher?uilocation=popout&type=${CipherType.Identity}&uri=https://jest-testing-website.com`,
+        `popup/index.html#/edit-cipher?type=${CipherType.Identity}&uri=https://jest-testing-website.com`,
         {
           singleActionKey: `${VaultPopoutType.addEditVaultItem}_${CipherType.Identity}`,
           senderWindowId: 1,
-        }
+        },
       );
     });
 
@@ -82,15 +112,15 @@ describe("VaultPopoutWindow", () => {
         mock<chrome.tabs.Tab>({ windowId: 1, url: "https://jest-testing-website.com" }),
         {
           cipherId: "cipherId",
-        }
+        },
       );
 
       expect(openPopoutSpy).toHaveBeenCalledWith(
-        "popup/index.html#/edit-cipher?uilocation=popout&cipherId=cipherId&uri=https://jest-testing-website.com",
+        "popup/index.html#/edit-cipher?cipherId=cipherId&uri=https://jest-testing-website.com",
         {
           singleActionKey: `${VaultPopoutType.addEditVaultItem}_cipherId`,
           senderWindowId: 1,
-        }
+        },
       );
     });
   });
@@ -107,7 +137,7 @@ describe("VaultPopoutWindow", () => {
 
       expect(closeSingleActionPopoutSpy).toHaveBeenCalledWith(
         VaultPopoutType.addEditVaultItem,
-        1000
+        1000,
       );
     });
   });
@@ -131,8 +161,8 @@ describe("VaultPopoutWindow", () => {
           singleActionKey: `${VaultPopoutType.fido2Popout}_sessionId`,
           senderWindowId: 1,
           forceCloseExistingWindows: true,
-          windowOptions: { height: 450 },
-        }
+          windowOptions: { height: 570 },
+        },
       );
       expect(returnedWindowId).toEqual(10);
     });
@@ -145,7 +175,7 @@ describe("VaultPopoutWindow", () => {
       await closeFido2Popout(sessionId);
 
       expect(closeSingleActionPopoutSpy).toHaveBeenCalledWith(
-        `${VaultPopoutType.fido2Popout}_${sessionId}`
+        `${VaultPopoutType.fido2Popout}_${sessionId}`,
       );
     });
   });

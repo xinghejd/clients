@@ -1,10 +1,8 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from "@angular/core";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { TreeNode } from "@bitwarden/common/models/domain/tree-node";
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 
 import { CollectionDialogTabType } from "../../components/collection-dialog";
@@ -23,8 +21,6 @@ export class VaultHeaderComponent {
   protected Unassigned = Unassigned;
   protected All = All;
   protected CollectionDialogTabType = CollectionDialogTabType;
-
-  private flexibleCollectionsEnabled: boolean;
 
   /**
    * Boolean to determine the loading state of the header.
@@ -59,13 +55,7 @@ export class VaultHeaderComponent {
   /** Emits an event when the delete collection button is clicked in the header */
   @Output() onDeleteCollection = new EventEmitter<void>();
 
-  constructor(private i18nService: I18nService, private configService: ConfigServiceAbstraction) {}
-
-  async ngOnInit() {
-    this.flexibleCollectionsEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.FlexibleCollections
-    );
-  }
+  constructor(private i18nService: I18nService) {}
 
   /**
    * The id of the organization that is currently being filtered on.
@@ -135,13 +125,13 @@ export class VaultHeaderComponent {
 
   get canEditCollection(): boolean {
     // Only edit collections if not editing "Unassigned"
-    if (this.collection === undefined) {
+    if (this.collection == null) {
       return false;
     }
 
     // Otherwise, check if we can edit the specified collection
     const organization = this.organizations.find(
-      (o) => o.id === this.collection?.node.organizationId
+      (o) => o.id === this.collection?.node.organizationId,
     );
     return this.collection.node.canEdit(organization);
   }
@@ -158,10 +148,10 @@ export class VaultHeaderComponent {
 
     // Otherwise, check if we can delete the specified collection
     const organization = this.organizations.find(
-      (o) => o.id === this.collection?.node.organizationId
+      (o) => o.id === this.collection?.node.organizationId,
     );
 
-    return this.collection.node.canDelete(organization, this.flexibleCollectionsEnabled);
+    return this.collection.node.canDelete(organization);
   }
 
   deleteCollection() {

@@ -1,18 +1,19 @@
 import {
-  CreateCredentialParams,
   CreateCredentialResult,
-  AssertCredentialParams,
   AssertCredentialResult,
 } from "@bitwarden/common/vault/abstractions/fido2/fido2-client.service.abstraction";
 import { Fido2Utils } from "@bitwarden/common/vault/services/fido2/fido2-utils";
 
+import {
+  InsecureAssertCredentialParams,
+  InsecureCreateCredentialParams,
+} from "./content/messaging/message";
+
 export class WebauthnUtils {
   static mapCredentialCreationOptions(
     options: CredentialCreationOptions,
-    origin: string,
-    sameOriginWithAncestors: boolean,
-    fallbackSupported: boolean
-  ): CreateCredentialParams {
+    fallbackSupported: boolean,
+  ): InsecureCreateCredentialParams {
     const keyOptions = options.publicKey;
 
     if (keyOptions == undefined) {
@@ -20,7 +21,6 @@ export class WebauthnUtils {
     }
 
     return {
-      origin,
       attestation: keyOptions.attestation,
       authenticatorSelection: {
         requireResidentKey: keyOptions.authenticatorSelection?.requireResidentKey,
@@ -33,7 +33,9 @@ export class WebauthnUtils {
         transports: credential.transports,
         type: credential.type,
       })),
-      extensions: undefined, // extensions not currently supported
+      extensions: {
+        credProps: keyOptions.extensions?.credProps,
+      },
       pubKeyCredParams: keyOptions.pubKeyCredParams.map((params) => ({
         alg: params.alg,
         type: params.type,
@@ -48,7 +50,6 @@ export class WebauthnUtils {
         name: keyOptions.user.name,
       },
       timeout: keyOptions.timeout,
-      sameOriginWithAncestors,
       fallbackSupported,
     };
   }
@@ -58,7 +59,7 @@ export class WebauthnUtils {
       id: result.credentialId,
       rawId: Fido2Utils.stringToBuffer(result.credentialId),
       type: "public-key",
-      authenticatorAttachment: "cross-platform",
+      authenticatorAttachment: "platform",
       response: {
         clientDataJSON: Fido2Utils.stringToBuffer(result.clientDataJSON),
         attestationObject: Fido2Utils.stringToBuffer(result.attestationObject),
@@ -68,7 +69,7 @@ export class WebauthnUtils {
         },
 
         getPublicKey(): ArrayBuffer {
-          return null;
+          return Fido2Utils.stringToBuffer(result.publicKey);
         },
 
         getPublicKeyAlgorithm(): number {
@@ -79,7 +80,9 @@ export class WebauthnUtils {
           return result.transports;
         },
       } as AuthenticatorAttestationResponse,
-      getClientExtensionResults: () => ({}),
+      getClientExtensionResults: () => ({
+        credProps: result.extensions.credProps,
+      }),
     } as PublicKeyCredential;
 
     // Modify prototype chains to fix `instanceof` calls.
@@ -93,10 +96,8 @@ export class WebauthnUtils {
 
   static mapCredentialRequestOptions(
     options: CredentialRequestOptions,
-    origin: string,
-    sameOriginWithAncestors: boolean,
-    fallbackSupported: boolean
-  ): AssertCredentialParams {
+    fallbackSupported: boolean,
+  ): InsecureAssertCredentialParams {
     const keyOptions = options.publicKey;
 
     if (keyOptions == undefined) {
@@ -104,14 +105,12 @@ export class WebauthnUtils {
     }
 
     return {
-      origin,
       allowedCredentialIds:
         keyOptions.allowCredentials?.map((c) => Fido2Utils.bufferToString(c.id)) ?? [],
       challenge: Fido2Utils.bufferToString(keyOptions.challenge),
       rpId: keyOptions.rpId,
       userVerification: keyOptions.userVerification,
       timeout: keyOptions.timeout,
-      sameOriginWithAncestors,
       fallbackSupported,
     };
   }
@@ -128,7 +127,7 @@ export class WebauthnUtils {
         userHandle: Fido2Utils.stringToBuffer(result.userHandle),
       } as AuthenticatorAssertionResponse,
       getClientExtensionResults: () => ({}),
-      authenticatorAttachment: "cross-platform",
+      authenticatorAttachment: "platform",
     } as PublicKeyCredential;
 
     // Modify prototype chains to fix `instanceof` calls.

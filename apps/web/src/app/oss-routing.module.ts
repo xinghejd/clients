@@ -8,8 +8,6 @@ import {
   tdeDecryptionRequiredGuard,
   UnauthGuard,
 } from "@bitwarden/angular/auth/guards";
-import { canAccessFeature } from "@bitwarden/angular/guard/feature-flag.guard";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 import { flagEnabled, Flags } from "../utils/flags";
 
@@ -29,8 +27,10 @@ import { RecoverDeleteComponent } from "./auth/recover-delete.component";
 import { RecoverTwoFactorComponent } from "./auth/recover-two-factor.component";
 import { RemovePasswordComponent } from "./auth/remove-password.component";
 import { SetPasswordComponent } from "./auth/set-password.component";
+import { AccountComponent } from "./auth/settings/account/account.component";
 import { EmergencyAccessComponent } from "./auth/settings/emergency-access/emergency-access.component";
 import { EmergencyAccessViewComponent } from "./auth/settings/emergency-access/view/emergency-access-view.component";
+import { SecurityRoutingModule } from "./auth/settings/security/security-routing.module";
 import { SsoComponent } from "./auth/sso.component";
 import { TrialInitiationComponent } from "./auth/trial-initiation/trial-initiation.component";
 import { TwoFactorComponent } from "./auth/two-factor.component";
@@ -40,13 +40,11 @@ import { VerifyEmailTokenComponent } from "./auth/verify-email-token.component";
 import { VerifyRecoverDeleteComponent } from "./auth/verify-recover-delete.component";
 import { FrontendLayoutComponent } from "./layouts/frontend-layout.component";
 import { UserLayoutComponent } from "./layouts/user-layout.component";
-import { ReportsModule } from "./reports";
-import { AccountComponent } from "./settings/account.component";
 import { DomainRulesComponent } from "./settings/domain-rules.component";
 import { PreferencesComponent } from "./settings/preferences.component";
-import { SecurityRoutingModule } from "./settings/security-routing.module";
 import { SettingsComponent } from "./settings/settings.component";
 import { GeneratorComponent } from "./tools/generator.component";
+import { ReportsModule } from "./tools/reports";
 import { AccessComponent } from "./tools/send/access.component";
 import { SendComponent } from "./tools/send/send.component";
 import { ToolsComponent } from "./tools/tools.component";
@@ -84,10 +82,7 @@ const routes: Routes = [
       {
         path: "login-initiated",
         component: LoginDecryptionOptionsComponent,
-        canActivate: [
-          tdeDecryptionRequiredGuard(),
-          canAccessFeature(FeatureFlag.TrustedDeviceEncryption),
-        ],
+        canActivate: [tdeDecryptionRequiredGuard()],
       },
       {
         path: "register",
@@ -135,7 +130,7 @@ const routes: Routes = [
         data: { titleId: "acceptEmergency", doNotSaveUrl: false },
         loadComponent: () =>
           import("./auth/emergency-access/accept/accept-emergency.component").then(
-            (mod) => mod.AcceptEmergencyComponent
+            (mod) => mod.AcceptEmergencyComponent,
           ),
       },
       {
@@ -190,7 +185,7 @@ const routes: Routes = [
         path: "migrate-legacy-encryption",
         loadComponent: () =>
           import("./auth/migrate-encryption/migrate-legacy-encryption.component").then(
-            (mod) => mod.MigrateFromLegacyEncryptionComponent
+            (mod) => mod.MigrateFromLegacyEncryptionComponent,
           ),
       },
     ],
@@ -234,7 +229,7 @@ const routes: Routes = [
             path: "subscription",
             loadChildren: () =>
               import("./billing/individual/individual-billing.module").then(
-                (m) => m.IndividualBillingModule
+                (m) => m.IndividualBillingModule,
               ),
           },
           {

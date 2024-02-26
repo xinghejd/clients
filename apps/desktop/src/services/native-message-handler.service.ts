@@ -35,7 +35,7 @@ export class NativeMessageHandlerService {
     private messagingService: MessagingService,
     private i18nService: I18nService,
     private encryptedMessageHandlerService: EncryptedMessageHandlerService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
   ) {}
 
   async handleMessage(message: Message) {
@@ -91,7 +91,7 @@ export class NativeMessageHandlerService {
       this.messagingService.send("setFocus");
 
       const nativeMessagingVerified = await firstValueFrom(
-        VerifyNativeMessagingDialogComponent.open(this.dialogService, { applicationName }).closed
+        VerifyNativeMessagingDialogComponent.open(this.dialogService, { applicationName }).closed,
       );
 
       if (nativeMessagingVerified !== true) {
@@ -114,7 +114,7 @@ export class NativeMessageHandlerService {
       const encryptedSecret = await this.cryptoFunctionService.rsaEncrypt(
         secret,
         remotePublicKey,
-        EncryptionAlgorithm
+        EncryptionAlgorithm,
       );
 
       this.sendResponse({
@@ -138,25 +138,26 @@ export class NativeMessageHandlerService {
 
   private async handleEncryptedMessage(message: EncryptedMessage) {
     message.encryptedCommand = EncString.fromJSON(
-      message.encryptedCommand.toString() as EncryptedString
+      message.encryptedCommand.toString() as EncryptedString,
     );
     const decryptedCommandData = await this.decryptPayload(message);
     const { command } = decryptedCommandData;
 
     try {
-      const responseData = await this.encryptedMessageHandlerService.responseDataForCommand(
-        decryptedCommandData
-      );
+      const responseData =
+        await this.encryptedMessageHandlerService.responseDataForCommand(decryptedCommandData);
 
       await this.sendEncryptedResponse(message, { command, payload: responseData });
     } catch (error) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.sendEncryptedResponse(message, { command, payload: {} });
     }
   }
 
   private async encryptPayload(
     payload: DecryptedCommandData,
-    key: SymmetricCryptoKey
+    key: SymmetricCryptoKey,
   ): Promise<EncString> {
     return await this.cryptoService.encrypt(JSON.stringify(payload), key);
   }
@@ -180,7 +181,7 @@ export class NativeMessageHandlerService {
     try {
       let decryptedResult = await this.cryptoService.decryptToUtf8(
         message.encryptedCommand as EncString,
-        this.ddgSharedSecret
+        this.ddgSharedSecret,
       );
 
       decryptedResult = this.trimNullCharsFromMessage(decryptedResult);
@@ -200,7 +201,7 @@ export class NativeMessageHandlerService {
 
   private async sendEncryptedResponse(
     originalMessage: EncryptedMessage,
-    response: DecryptedCommandData
+    response: DecryptedCommandData,
   ) {
     if (!this.ddgSharedSecret) {
       this.sendResponse({

@@ -611,8 +611,23 @@
   "loginWithMasterPassword": {
     "message": "使用主密码登录"
   },
+  "readingPasskeyLoading": {
+    "message": "正在读取通行密钥..."
+  },
+  "readingPasskeyLoadingInfo": {
+    "message": "保持此窗口打开然后按照浏览器的提示操作。"
+  },
+  "useADifferentLogInMethod": {
+    "message": "使用不同的登录方式"
+  },
   "loginWithPasskey": {
     "message": "使用通行密钥登录"
+  },
+  "invalidPasskeyPleaseTryAgain": {
+    "message": "通行密钥无效。请重试。"
+  },
+  "twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn": {
+    "message": "不支持通行密钥 2FA。请更新 App 以登录。"
   },
   "loginWithPasskeyInfo": {
     "message": "使用已生成的通行密钥，无需密码即可自动登录。生物识别（例如面部识别或指纹）或其他 FIDO2 安全方法将用于验证您的身份。"
@@ -622,9 +637,6 @@
   },
   "learnMoreAboutPasswordless": {
     "message": "了解更多关于无密码登录的信息"
-  },
-  "passkeyEnterMasterPassword": {
-    "message": "输入您的主密码以修改通行密钥登录设置。"
   },
   "creatingPasskeyLoading": {
     "message": "正在创建通行密钥..."
@@ -641,9 +653,6 @@
   "passkeySuccessfullyCreated": {
     "message": "通行密钥创建成功！"
   },
-  "customName": {
-    "message": "自定义名称"
-  },
   "customPasskeyNameInfo": {
     "message": "为您的通行密钥命名以帮助您识别它。"
   },
@@ -659,8 +668,8 @@
   "encryptionNotSupported": {
     "message": "不支持加密"
   },
-  "encryptionNotEnabled": {
-    "message": "未启用加密"
+  "enablePasskeyEncryption": {
+    "message": "设置加密"
   },
   "usedForEncryption": {
     "message": "用于加密"
@@ -1059,6 +1068,9 @@
   "export": {
     "message": "导出"
   },
+  "exportFrom": {
+    "message": "导出自"
+  },
   "exportVault": {
     "message": "导出密码库"
   },
@@ -1134,6 +1146,9 @@
   },
   "length": {
     "message": "长度"
+  },
+  "passwordMinLength": {
+    "message": "最小密码长度"
   },
   "uppercase": {
     "message": "大写 (A-Z)",
@@ -1331,6 +1346,18 @@
   },
   "importData": {
     "message": "导入数据"
+  },
+  "onboardingImportDataDetailsPartOne": {
+    "message": "If you don't have any data to import, you can create a ",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+  },
+  "onboardingImportDataDetailsLink": {
+    "message": "new item",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+  },
+  "onboardingImportDataDetailsPartTwo": {
+    "message": " instead. You may need to wait until your administrator confirms your organization membership.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
   },
   "importError": {
     "message": "导入出错"
@@ -2513,6 +2540,15 @@
       }
     }
   },
+  "trialSecretsManagerThankYou": {
+    "message": "Thanks for signing up for Bitwarden Secrets Manager for $PLAN$!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
   "trialPaidInfoMessage": {
     "message": "您的 $PLAN$ 7 天免费试用将在 7 天后转换成付费订阅。",
     "placeholders": {
@@ -2797,6 +2833,9 @@
   },
   "incorrectCode": {
     "message": "验证码不正确"
+  },
+  "incorrectPin": {
+    "message": "PIN 码不正确"
   },
   "exportedVault": {
     "message": "导出了密码库"
@@ -3527,12 +3566,12 @@
       }
     }
   },
-  "subscriptionFamiliesPlan": {
-    "message": "如果不升级您的计划，您最多只能邀请 $COUNT$ 位成员。请联系客户支持进行升级。",
+  "subscriptionUpgrade": {
+    "message": "如果不升级您的计划，您最多只能邀请 $COUNT$ 位成员。",
     "placeholders": {
       "count": {
         "content": "$1",
-        "example": "6"
+        "example": "2"
       }
     }
   },
@@ -3807,15 +3846,6 @@
   "couldNotChargeCardPayInvoice": {
     "message": "我们无法从您的支付卡中扣款。请查看并支付下面列出的待支付账单。"
   },
-  "inAppPurchase": {
-    "message": "应用内购买"
-  },
-  "cannotPerformInAppPurchase": {
-    "message": "使用应用内购买这种付款方式时，您不能执行此操作。"
-  },
-  "manageSubscriptionFromStore": {
-    "message": "您必须在进行应用内购买的商店中管理订阅。"
-  },
   "minLength": {
     "message": "最小长度"
   },
@@ -4012,6 +4042,12 @@
   },
   "ssoHandOff": {
     "message": "您现在可以在扩展中关闭此标签页并继续。"
+  },
+  "youSuccessfullyLoggedIn": {
+    "message": "您已成功登录"
+  },
+  "thisWindowWillCloseIn5Seconds": {
+    "message": "此窗口将在5秒后自动关闭"
   },
   "includeAllTeamsFeatures": {
     "message": "所有团队版功能，以及："
@@ -4219,7 +4255,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "downloadAttachments": {
-    "message": "Download attachments"
+    "message": "下载附件"
   },
   "sendAccessUnavailable": {
     "message": "您尝试访问的 Send 不存在或不再可用。",
@@ -4610,7 +4646,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about Bitwarden Send or sign up to **try it today.**'"
   },
   "sendAccessCreatorIdentifier": {
-    "message": "Bitwarden member $USER_IDENTIFIER$ shared the following with you",
+    "message": "Bitwarden 成员 $USER_IDENTIFIER$ 与您分享了以下内容",
     "placeholders": {
       "user_identifier": {
         "content": "$1",
@@ -5166,6 +5202,12 @@
   },
   "spValidateCertificates": {
     "message": "验证证书"
+  },
+  "spUniqueEntityId": {
+    "message": "设置一个唯一的 SP 实体 ID"
+  },
+  "spUniqueEntityIdDesc": {
+    "message": "Generate an identifier that is unique to your organization"
   },
   "idpEntityId": {
     "message": "实体 ID"
@@ -5891,6 +5933,15 @@
       }
     }
   },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Launch Duo and follow the steps to finish logging in."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "Duo two-step login is required for your account."
+  },
+  "launchDuo": {
+    "message": "Launch Duo"
+  },
   "turnOn": {
     "message": "开启"
   },
@@ -6589,6 +6640,39 @@
       }
     }
   },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "此操作需要验证。设置一个 PIN 码以继续。"
+  },
+  "setPin": {
+    "message": "设置 PIN 码"
+  },
+  "verifyWithBiometrics": {
+    "message": "使用生物识别验证"
+  },
+  "awaitingConfirmation": {
+    "message": "等待确认"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "无法完成生物识别。"
+  },
+  "needADifferentMethod": {
+    "message": "Need a different method?"
+  },
+  "useMasterPassword": {
+    "message": "使用主密码"
+  },
+  "usePin": {
+    "message": "使用 PIN 码"
+  },
+  "useBiometrics": {
+    "message": "使用生物识别"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "输入发送到您电子邮箱的验证码。"
+  },
+  "resendCode": {
+    "message": "重新发送代码"
+  },
   "membersColumnHeader": {
     "message": "成员/群组"
   },
@@ -6629,7 +6713,7 @@
     "message": "切换产品"
   },
   "freeOrgInvLimitReachedManageBilling": {
-    "message": "免费组织最多拥有 $SEATCOUNT$ 个成员。升级到付费计划以邀请更多成员。",
+    "message": "免费组织最多拥有 $SEATCOUNT$ 位成员。升级到付费计划以邀请更多成员。",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -6638,7 +6722,7 @@
     }
   },
   "freeOrgInvLimitReachedNoManageBilling": {
-    "message": "免费组织最多拥有 $SEATCOUNT$ 个成员。请联系您的组织所有者升级。",
+    "message": "免费组织最多拥有 $SEATCOUNT$ 位成员。请联系您的组织所有者升级。",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -6647,7 +6731,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "团队入门版计划最多拥有 $SEATCOUNT$ 个成员。请联系客户支持升级您的计划并邀请更多成员。",
+    "message": "团队入门版计划最多拥有 $SEATCOUNT$ 位成员。升级您的计划并以邀请更多成员。",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -6656,7 +6740,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedNoManageBilling": {
-    "message": "团队入门版计划最多拥有 $SEATCOUNT$ 个成员。请联系您的组织所有者升级您的计划并邀请更多成员。",
+    "message": "团队入门版计划最多拥有 $SEATCOUNT$ 位成员。请联系您的组织所有者升级您的计划以邀请更多成员。",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -6799,9 +6883,6 @@
   "secretsManager": {
     "message": "机密管理器"
   },
-  "secretsManagerBeta": {
-    "message": "机密管理器 Beta 版"
-  },
   "secretsManagerAccessDescription": {
     "message": "激活用户对机密管理器的访问权限。"
   },
@@ -6848,6 +6929,9 @@
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
+  },
+  "createAnAccount": {
+    "message": "Create an account"
   },
   "createSecret": {
     "message": "创建一个机密"
@@ -6904,12 +6988,6 @@
   },
   "selectionIsRequired": {
     "message": "必须选择。"
-  },
-  "secretsManagerSubscriptionDesc": {
-    "message": "在 Beta 计划期间，开启组织对机密管理器的访问是免费的。成员中的用户会被授予对 Beta 版的访问权限。"
-  },
-  "secretsManagerEnable": {
-    "message": "启用机密管理器 Beta 版"
   },
   "saPeopleWarningTitle": {
     "message": "访问令牌仍然可用"
@@ -7071,6 +7149,10 @@
       }
     }
   },
+  "verificationRequired": {
+    "message": "需要验证",
+    "description": "Default title for the user verification dialog."
+  },
   "recoverAccount": {
     "message": "恢复账户"
   },
@@ -7179,11 +7261,20 @@
       }
     }
   },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerFor": {
+    "message": "Start your 7-Day free trial of Bitwarden Secrets Manager for $ORG$",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
   "next": {
     "message": "下一步"
   },
   "ssoLoginIsRequired": {
-    "message": "SSO login is required"
+    "message": "要求 SSO 登录"
   },
   "selectedRegionFlag": {
     "message": "选择的区域旗帜"
@@ -7307,8 +7398,11 @@
   "limitCollectionCreationDeletionDesc": {
     "message": "对所有者和管理员限制集合的创建和删除"
   },
-  "collectionManagementUpdated": {
-    "message": "集合管理行为已保存"
+  "allowAdminAccessToAllCollectionItemsDesc": {
+    "message": "所有者和管理员可以管理所有集合和项目"
+  },
+  "updatedCollectionManagement": {
+    "message": "更新了集合管理设置"
   },
   "passwordManagerPlanPrice": {
     "message": "密码管理器计划价格"
@@ -7337,22 +7431,6 @@
   "loggedInExclamation": {
     "message": "已登录！"
   },
-  "smBetaEndedDesc": {
-    "message": "机密管理器 Beta 版将于 $BETA_ENDING_DATE$ 结束。您还剩余 $DAYS$ 天时间将机密管理器添加到您的付费订阅中，以保持对其数据的访问权限。联系客户成功团队将机密管理器添加到您的订阅中。",
-    "placeholders": {
-      "beta_ending_date": {
-        "content": "$1",
-        "example": "August 1, 2023"
-      },
-      "days": {
-        "content": "$2",
-        "example": "11"
-      }
-    }
-  },
-  "betaEnding": {
-    "message": "Beta 版即将结束"
-  },
   "beta": {
     "message": "Beta"
   },
@@ -7371,11 +7449,8 @@
   "alreadyHaveAccount": {
     "message": "已经有一个账户？"
   },
-  "customBillingStart": {
-    "message": "Custom billing is not reflected. Visit the "
-  },
-  "customBillingEnd": {
-    "message": " page for latest invoicing."
+  "skipToContent": {
+    "message": "跳转到内容"
   },
   "managePermissionRequired": {
     "message": "必须至少有一个成员或群组拥有「可以管理」的权限。"
@@ -7389,14 +7464,125 @@
   "passkeyNotCopiedAlert": {
     "message": "通行密钥将不会被复制到克隆的项目。要继续克隆这个项目吗？"
   },
+  "modifiedCollectionManagement": {
+    "message": "修改了集合管理设置 $ID$。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "seeDetailedInstructions": {
     "message": "请参阅我们的帮助网站上的详细说明：",
     "description": "This is followed a by a hyperlink to the help website."
+  },
+  "installBrowserExtension": {
+    "message": "Install browser extension"
+  },
+  "installBrowserExtensionDetails": {
+    "message": "Use the extension to quickly save logins and auto-fill forms without opening the web app."
   },
   "projectAccessUpdated": {
     "message": "工程访问权限已更新"
   },
   "unexpectedErrorSend": {
-    "message": "An unexpected error has occurred while loading this Send. Try again later."
+    "message": "加载此 Send 时发生意外错误。请稍后再试。"
+  },
+  "seatLimitReached": {
+    "message": "已达到席位限制"
+  },
+  "contactYourProvider": {
+    "message": "请联系您的提供商购买更多席位。"
+  },
+  "seatLimitReachedContactYourProvider": {
+    "message": "已达到席位限制。请联系您的提供商购买更多席位。"
+  },
+  "collectionAccessRestricted": {
+    "message": "集合访问权限受限"
+  },
+  "grantCollectionAccess": {
+    "message": "授予群组或成员对此集合的访问权限。"
+  },
+  "adminCollectionAccess": {
+    "message": "管理员可以访问和管理集合。"
+  },
+  "serviceAccountAccessUpdated": {
+    "message": "服务账户访问权限已更新"
+  },
+  "commonImportFormats": {
+    "message": "通用格式",
+    "description": "Label indicating the most common import formats"
+  },
+  "maintainYourSubscription": {
+    "message": "要维护 $ORG$ 的订阅，",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Example Inc."
+      }
+    }
+  },
+  "addAPaymentMethod": {
+    "message": "请添加一个付款方式。",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
+  },
+  "collectionEnhancementsDesc": {
+    "message": "为额外的灵活性添加新的设置和权限。 将管理员角色替换为“可以管理”权限。 并引入选项以允许用户创建集合，并限制对集合的管理访问。",
+    "description": "This describes new features and improvements for user roles and collections"
+  },
+  "collectionEnhancementsLearnMore": {
+    "message": "了解集合管理"
+  },
+  "organizationInformation": {
+    "message": "Organization information"
+  },
+  "confirmationDetails": {
+    "message": "Confirmation details"
+  },
+  "smFreeTrialThankYou": {
+    "message": "Thank you for signing up for Bitwarden Secrets Manager!"
+  },
+  "smFreeTrialConfirmationEmail": {
+    "message": "We've sent a confirmation email to your email at "
+  },
+  "confirmCollectionEnhancementsDialogTitle": {
+    "message": "This action is irreversible"
+  },
+  "confirmCollectionEnhancementsDialogContent": {
+    "message": "Turning on this feature will deprecate the manager role and replace it with a Can manage permission. This will take a few moments. Do not make any organization changes until it is complete. Are you sure you want to proceed?"
+  },
+  "sorryToSeeYouGo": {
+    "message": "很遗憾看到您离开！通过分享您取消的原因，帮助改进 Bitwarden。",
+    "description": "A message shown to users as part of an offboarding survey asking them to provide more information on their subscription cancelation."
+  },
+  "selectCancellationReason": {
+    "message": "选择取消的原因",
+    "description": "Used as a form field label for a select input on the offboarding survey."
+  },
+  "anyOtherFeedback": {
+    "message": "是否有其他您想要分享的反馈？",
+    "description": "Used as a form field label for a textarea input on the offboarding survey."
+  },
+  "missingFeatures": {
+    "message": "功能缺失",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "movingToAnotherTool": {
+    "message": "迁移到另一个工具",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooDifficultToUse": {
+    "message": "太难使用",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "notUsingEnough": {
+    "message": "未充分使用",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooExpensive": {
+    "message": "太贵了",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
   }
 }

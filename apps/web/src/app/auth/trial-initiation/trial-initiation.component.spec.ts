@@ -42,6 +42,8 @@ describe("TrialInitiationComponent", () => {
     policyApiServiceMock = mock<PolicyApiServiceAbstraction>();
     policyServiceMock = mock<PolicyService>();
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     TestBed.configureTestingModule({
       imports: [
         RouterTestingModule.withRoutes([
@@ -113,7 +115,7 @@ describe("TrialInitiationComponent", () => {
           token: "token",
           email: "testEmail",
           organizationUserId: "123",
-        })
+        }),
       );
       policyApiServiceMock.getPoliciesByToken.mockReturnValueOnce(
         Promise.resolve({
@@ -135,7 +137,7 @@ describe("TrialInitiationComponent", () => {
               enabled: true,
             },
           ],
-        } as ListResponse<PolicyResponse>)
+        } as ListResponse<PolicyResponse>),
       );
       policyServiceMock.masterPasswordPolicyOptions$.mockReturnValue(
         of({
@@ -145,7 +147,7 @@ describe("TrialInitiationComponent", () => {
           requireNumbers: null,
           requireSpecial: null,
           requireUpper: null,
-        } as MasterPasswordPolicyOptions)
+        } as MasterPasswordPolicyOptions),
       );
 
       // Need to recreate component with new service mocks
@@ -207,6 +209,8 @@ describe("TrialInitiationComponent", () => {
       fixture = TestBed.createComponent(TrialInitiationComponent);
       component = fixture.componentInstance;
       fixture.detectChanges();
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       component.ngOnInit();
       expect(component.layout).toBe("default");
       expect(component.accountCreateOnly).toBe(true);

@@ -45,7 +45,7 @@
           type="button"
           [bitMenuTriggerFor]="accountMenu"
           class="tw-border-0 tw-bg-transparent tw-text-alt2 tw-opacity-70 hover:tw-opacity-90"
-          attr.aria-label="{{ 'accountLoggedInAsName' | i18n : name }}"
+          attr.aria-label="{{ 'accountLoggedInAsName' | i18n: name }}"
         >
           <dynamic-avatar
             [text]="name"
@@ -75,11 +75,11 @@
               <i class="bwi bwi-fw bwi-user" aria-hidden="true"></i>
               {{ "accountSettings" | i18n }}
             </a>
-            <a bitMenuItem href="https://bitwarden.com/help/" target="_blank" rel="noopener">
+            <a bitMenuItem href="https://bitwarden.com/help/" target="_blank" rel="noreferrer">
               <i class="bwi bwi-fw bwi-question-circle" aria-hidden="true"></i>
               {{ "getHelp" | i18n }}
             </a>
-            <a bitMenuItem href="https://bitwarden.com/download/" target="_blank" rel="noopener">
+            <a bitMenuItem href="https://bitwarden.com/download/" target="_blank" rel="noreferrer">
               <i class="bwi bwi-fw bwi-download" aria-hidden="true"></i>
               {{ "getApps" | i18n }}
             </a>

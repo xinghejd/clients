@@ -23,11 +23,12 @@ const runtime = {
     removeListener: jest.fn(),
   },
   sendMessage: jest.fn(),
-  getManifest: jest.fn(),
+  getManifest: jest.fn(() => ({ version: 2 })),
   getURL: jest.fn((path) => `chrome-extension://id/${path}`),
   connect: jest.fn(),
   onConnect: {
     addListener: jest.fn(),
+    removeListener: jest.fn(),
   },
 };
 
@@ -87,6 +88,28 @@ const port = {
   postMessage: jest.fn(),
 };
 
+const privacy = {
+  services: {
+    autofillAddressEnabled: {
+      get: jest.fn(),
+      set: jest.fn(),
+    },
+    autofillCreditCardEnabled: {
+      get: jest.fn(),
+      set: jest.fn(),
+    },
+    passwordSavingEnabled: {
+      get: jest.fn(),
+      set: jest.fn(),
+    },
+  },
+};
+
+const extension = {
+  getBackgroundPage: jest.fn(),
+  getViews: jest.fn(),
+};
+
 // set chrome
 global.chrome = {
   i18n,
@@ -97,4 +120,6 @@ global.chrome = {
   scripting,
   windows,
   port,
+  privacy,
+  extension,
 } as any;

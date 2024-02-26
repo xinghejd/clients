@@ -52,7 +52,7 @@ export class BrowserApi {
     return new Promise((resolve) =>
       chrome.windows.create(options, (window) => {
         resolve(window);
-      })
+      }),
     );
   }
 
@@ -73,12 +73,12 @@ export class BrowserApi {
    */
   static async updateWindowProperties(
     windowId: number,
-    options: chrome.windows.UpdateInfo
+    options: chrome.windows.UpdateInfo,
   ): Promise<void> {
     return new Promise((resolve) =>
       chrome.windows.update(windowId, options, () => {
         resolve();
-      })
+      }),
     );
   }
 
@@ -110,7 +110,7 @@ export class BrowserApi {
     return new Promise((resolve) =>
       chrome.tabs.get(tabId, (tab) => {
         resolve(tab);
-      })
+      }),
     );
   }
 
@@ -147,7 +147,7 @@ export class BrowserApi {
   static tabSendMessageData(
     tab: chrome.tabs.Tab,
     command: string,
-    data: any = null
+    data: any = null,
   ): Promise<void> {
     const obj: any = {
       command: command,
@@ -163,7 +163,7 @@ export class BrowserApi {
   static async tabSendMessage<T>(
     tab: chrome.tabs.Tab,
     obj: T,
-    options: chrome.tabs.MessageSendOptions = null
+    options: chrome.tabs.MessageSendOptions = null,
   ): Promise<void> {
     if (!tab || !tab.id) {
       return;
@@ -183,7 +183,7 @@ export class BrowserApi {
     tabId: number,
     message: TabMessage,
     options?: chrome.tabs.MessageSendOptions,
-    responseCallback?: (response: T) => void
+    responseCallback?: (response: T) => void,
   ) {
     chrome.tabs.sendMessage<TabMessage, T>(tabId, message, options, responseCallback);
   }
@@ -199,25 +199,59 @@ export class BrowserApi {
     return chrome.windows.onCreated.addListener(callback);
   }
 
+  /**
+   * Gets the background page for the extension. This method is
+   * not valid within manifest v3 background service workers. As
+   * a result, it will return null when called from that context.
+   */
   static getBackgroundPage(): any {
+    if (typeof chrome.extension.getBackgroundPage === "undefined") {
+      return null;
+    }
+
     return chrome.extension.getBackgroundPage();
   }
 
+  /**
+   * Accepts a window object and determines if it is
+   * associated with the background page of the extension.
+   *
+   * @param window - The window to check.
+   */
   static isBackgroundPage(window: Window & typeof globalThis): boolean {
-    return window === chrome.extension.getBackgroundPage();
+    return typeof window !== "undefined" && window === BrowserApi.getBackgroundPage();
   }
 
   static getApplicationVersion(): string {
     return chrome.runtime.getManifest().version;
   }
 
+  /**
+   * Gets the extension views that match the given properties. This method is not
+   * available within background service worker. As a result, it will return an
+   * empty array when called from that context.
+   *
+   * @param fetchProperties - The properties used to filter extension views.
+   */
+  static getExtensionViews(fetchProperties?: chrome.extension.FetchProperties): Window[] {
+    if (typeof chrome.extension.getViews === "undefined") {
+      return [];
+    }
+
+    return chrome.extension.getViews(fetchProperties);
+  }
+
+  /**
+   * Queries all extension views that are of type `popup`
+   * and returns whether any are currently open.
+   */
   static async isPopupOpen(): Promise<boolean> {
-    return Promise.resolve(chrome.extension.getViews({ type: "popup" }).length > 0);
+    return Promise.resolve(BrowserApi.getExtensionViews({ type: "popup" }).length > 0);
   }
 
   static createNewTab(url: string, active = true): Promise<chrome.tabs.Tab> {
     return new Promise((resolve) =>
-      chrome.tabs.create({ url: url, active: active }, (tab) => resolve(tab))
+      chrome.tabs.create({ url: url, active: active }, (tab) => resolve(tab)),
     );
   }
 
@@ -225,7 +259,7 @@ export class BrowserApi {
   // them when the popup gets unloaded, otherwise we cause a memory leak
   private static trackedChromeEventListeners: [
     event: chrome.events.Event<(...args: unknown[]) => unknown>,
-    callback: (...args: unknown[]) => unknown
+    callback: (...args: unknown[]) => unknown,
   ][] = [];
 
   static messageListener(
@@ -233,8 +267,8 @@ export class BrowserApi {
     callback: (
       message: any,
       sender: chrome.runtime.MessageSender,
-      sendResponse: any
-    ) => boolean | void
+      sendResponse: any,
+    ) => boolean | void,
   ) {
     BrowserApi.addListener(chrome.runtime.onMessage, callback);
   }
@@ -252,7 +286,7 @@ export class BrowserApi {
   }
 
   static storageChangeListener(
-    callback: Parameters<typeof chrome.storage.onChanged.addListener>[0]
+    callback: Parameters<typeof chrome.storage.onChanged.addListener>[0],
   ) {
     BrowserApi.addListener(chrome.storage.onChanged, callback);
   }
@@ -268,7 +302,7 @@ export class BrowserApi {
    */
   static addListener<T extends (...args: readonly unknown[]) => unknown>(
     event: chrome.events.Event<T>,
-    callback: T
+    callback: T,
   ) {
     event.addListener(callback);
 
@@ -285,7 +319,7 @@ export class BrowserApi {
    */
   static removeListener<T extends (...args: readonly unknown[]) => unknown>(
     event: chrome.events.Event<T>,
-    callback: T
+    callback: T,
   ) {
     event.removeListener(callback);
 
@@ -315,7 +349,14 @@ export class BrowserApi {
     return chrome.runtime.sendMessage(message);
   }
 
+  static sendMessageWithResponse<TResponse>(subscriber: string, arg: any = {}) {
+    const message = Object.assign({}, { command: subscriber }, arg);
+    return new Promise<TResponse>((resolve) => chrome.runtime.sendMessage(message, resolve));
+  }
+
   static async focusTab(tabId: number) {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     chrome.tabs.update(tabId, { active: true, highlighted: true });
   }
 
@@ -324,6 +365,8 @@ export class BrowserApi {
       // Reactivating the active tab dismisses the popup tab. The promise final
       // condition is only called if the popup wasn't already dismissed (future proofing).
       // ref: https://bugzilla.mozilla.org/show_bug.cgi?id=1433604
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       browser.tabs.update({ active: true }).finally(win.close);
     } else {
       win.close();
@@ -346,15 +389,19 @@ export class BrowserApi {
     }
   }
 
+  /**
+   * Reloads all open extension views, except the background page. Will also
+   * skip reloading the current window location if exemptCurrentHref is true.
+   *
+   * @param exemptCurrentHref - Whether to exempt the current window location from the reload.
+   */
   static reloadOpenWindows(exemptCurrentHref = false) {
-    const currentHref = window.location.href;
-    const views = chrome.extension.getViews() as Window[];
+    const currentHref = window?.location.href;
+    const views = BrowserApi.getExtensionViews();
     views
       .filter((w) => w.location.href != null && !w.location.href.includes("background.html"))
       .filter((w) => !exemptCurrentHref || w.location.href !== currentHref)
-      .forEach((w) => {
-        w.location.reload();
-      });
+      .forEach((w) => w.location.reload());
   }
 
   static connectNative(application: string): browser.runtime.Port | chrome.runtime.Port {
@@ -381,7 +428,7 @@ export class BrowserApi {
    */
   static async permissionsGranted(permissions: string[]): Promise<boolean> {
     return new Promise((resolve) =>
-      chrome.permissions.contains({ permissions }, (result) => resolve(result))
+      chrome.permissions.contains({ permissions }, (result) => resolve(result)),
     );
   }
 
@@ -399,13 +446,19 @@ export class BrowserApi {
   }
 
   static getSidebarAction(
-    win: Window & typeof globalThis
+    win: Window & typeof globalThis,
   ): OperaSidebarAction | FirefoxSidebarAction | null {
     const deviceType = BrowserPlatformUtilsService.getDevice(win);
     if (deviceType !== DeviceType.FirefoxExtension && deviceType !== DeviceType.OperaExtension) {
       return null;
     }
     return win.opr?.sidebarAction || browser.sidebarAction;
+  }
+
+  static captureVisibleTab(): Promise<string> {
+    return new Promise((resolve) => {
+      chrome.tabs.captureVisibleTab(null, { format: "png" }, resolve);
+    });
   }
 
   /**
@@ -439,19 +492,28 @@ export class BrowserApi {
    * Identifies if the browser autofill settings are overridden by the extension.
    */
   static async browserAutofillSettingsOverridden(): Promise<boolean> {
+    const checkOverrideStatus = (details: chrome.types.ChromeSettingGetResultDetails) =>
+      details.levelOfControl === "controlled_by_this_extension" && !details.value;
+
     const autofillAddressOverridden: boolean = await new Promise((resolve) =>
       chrome.privacy.services.autofillAddressEnabled.get({}, (details) =>
-        resolve(details.levelOfControl === "controlled_by_this_extension" && !details.value)
-      )
+        resolve(checkOverrideStatus(details)),
+      ),
     );
 
     const autofillCreditCardOverridden: boolean = await new Promise((resolve) =>
       chrome.privacy.services.autofillCreditCardEnabled.get({}, (details) =>
-        resolve(details.levelOfControl === "controlled_by_this_extension" && !details.value)
-      )
+        resolve(checkOverrideStatus(details)),
+      ),
     );
 
-    return autofillAddressOverridden && autofillCreditCardOverridden;
+    const passwordSavingOverridden: boolean = await new Promise((resolve) =>
+      chrome.privacy.services.passwordSavingEnabled.get({}, (details) =>
+        resolve(checkOverrideStatus(details)),
+      ),
+    );
+
+    return autofillAddressOverridden && autofillCreditCardOverridden && passwordSavingOverridden;
   }
 
   /**
@@ -459,8 +521,9 @@ export class BrowserApi {
    *
    * @param value - Determines whether to enable or disable the autofill settings.
    */
-  static async updateDefaultBrowserAutofillSettings(value: boolean) {
+  static updateDefaultBrowserAutofillSettings(value: boolean) {
     chrome.privacy.services.autofillAddressEnabled.set({ value });
     chrome.privacy.services.autofillCreditCardEnabled.set({ value });
+    chrome.privacy.services.passwordSavingEnabled.set({ value });
   }
 }

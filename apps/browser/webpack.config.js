@@ -164,19 +164,21 @@ const mainConfig = {
     "popup/main": "./src/popup/main.ts",
     "content/trigger-autofill-script-injection":
       "./src/autofill/content/trigger-autofill-script-injection.ts",
-    "content/autofill": "./src/autofill/content/autofill.js",
     "content/bootstrap-autofill": "./src/autofill/content/bootstrap-autofill.ts",
     "content/bootstrap-autofill-overlay": "./src/autofill/content/bootstrap-autofill-overlay.ts",
     "content/autofiller": "./src/autofill/content/autofiller.ts",
     "content/notificationBar": "./src/autofill/content/notification-bar.ts",
     "content/contextMenuHandler": "./src/autofill/content/context-menu-handler.ts",
-    "content/message_handler": "./src/autofill/content/message_handler.ts",
+    "content/content-message-handler": "./src/autofill/content/content-message-handler.ts",
+    "content/fido2/trigger-fido2-content-script-injection":
+      "./src/vault/fido2/content/trigger-fido2-content-script-injection.ts",
     "content/fido2/content-script": "./src/vault/fido2/content/content-script.ts",
     "content/fido2/page-script": "./src/vault/fido2/content/page-script.ts",
     "notification/bar": "./src/autofill/notification/bar.ts",
     "overlay/button": "./src/autofill/overlay/pages/button/bootstrap-autofill-overlay-button.ts",
     "overlay/list": "./src/autofill/overlay/pages/list/bootstrap-autofill-overlay-list.ts",
     "encrypt-worker": "../../libs/common/src/platform/services/cryptography/encrypt.worker.ts",
+    "content/lp-fileless-importer": "./src/tools/content/lp-fileless-importer.ts",
   },
   optimization: {
     minimize: ENV !== "development",
@@ -271,7 +273,7 @@ if (manifestVersion == 2) {
       template: "./src/platform/background.html",
       filename: "background.html",
       chunks: ["vendor", "background"],
-    })
+    }),
   );
 
   // Manifest V2 background pages can be run through the regular build pipeline.
@@ -321,7 +323,7 @@ if (manifestVersion == 2) {
       plugins: [new TsconfigPathsPlugin()],
       fallback: {
         fs: false,
-        path: false,
+        path: require.resolve("path-browserify"),
       },
     },
     dependencies: ["main"],

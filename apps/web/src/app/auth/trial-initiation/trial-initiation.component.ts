@@ -18,6 +18,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 
 import { RouterService } from "./../../core/router.service";
+import { SubscriptionType } from "./secrets-manager/secrets-manager-trial-billing-step.component";
 import { VerticalStepperComponent } from "./vertical-stepper/vertical-stepper.component";
 
 enum ValidOrgParams {
@@ -44,6 +45,7 @@ enum ValidLayoutParams {
   cnetcmpgnteams = "cnetcmpgnteams",
   abmenterprise = "abmenterprise",
   abmteams = "abmteams",
+  secretsManager = "secretsManager",
 }
 
 @Component({
@@ -52,6 +54,7 @@ enum ValidLayoutParams {
 })
 export class TrialInitiationComponent implements OnInit, OnDestroy {
   email = "";
+  fromOrgInvite = false;
   org = "";
   orgInfoSubLabel = "";
   orgId = "";
@@ -76,6 +79,7 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
     ValidOrgParams.individual,
   ];
   layouts = ValidLayoutParams;
+  orgTypes = ValidOrgParams;
   referenceData: ReferenceEventRequest;
   @ViewChild("stepper", { static: false }) verticalStepper: VerticalStepperComponent;
 
@@ -119,7 +123,7 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
     private policyApiService: PolicyApiServiceAbstraction,
     private policyService: PolicyService,
     private i18nService: I18nService,
-    private routerService: RouterService
+    private routerService: RouterService,
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -127,6 +131,7 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
       this.referenceData = new ReferenceEventRequest();
       if (qParams.email != null && qParams.email.indexOf("@") > -1) {
         this.email = qParams.email;
+        this.fromOrgInvite = qParams.fromOrgInvite === "true";
       }
 
       this.referenceDataId = qParams.reference;
@@ -175,7 +180,7 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
           invite.organizationId,
           invite.token,
           invite.email,
-          invite.organizationUserId
+          invite.organizationUserId,
         );
         if (policies.data != null) {
           const policiesData = policies.data.map((p) => new PolicyData(p));
@@ -237,10 +242,14 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
   }
 
   navigateToOrgVault() {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["organizations", this.orgId, "vault"]);
   }
 
   navigateToOrgInvite() {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["organizations", this.orgId, "members"]);
   }
 
@@ -256,6 +265,15 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
     return this.org;
   }
 
+  get freeTrialText() {
+    const translationKey =
+      this.layout === this.layouts.secretsManager
+        ? "startYour7DayFreeTrialOfBitwardenSecretsManagerFor"
+        : "startYour7DayFreeTrialOfBitwardenFor";
+
+    return this.i18nService.t(translationKey, this.org);
+  }
+
   private setupFamilySponsorship(sponsorshipToken: string) {
     if (sponsorshipToken != null) {
       const route = this.router.createUrlTree(["setup/families-for-enterprise"], {
@@ -264,4 +282,6 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
       this.routerService.setPreviousUrl(route.toString());
     }
   }
+
+  protected readonly SubscriptionType = SubscriptionType;
 }

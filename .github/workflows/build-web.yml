@@ -15,7 +15,7 @@ on:
       - '.github/workflows/build-web.yml'
   push:
     branches:
-      - 'master'
+      - 'main'
       - 'rc'
       - 'hotfix-rc-web'
     paths:
@@ -25,6 +25,8 @@ on:
       - '!*.md'
       - '!*.txt'
       - '.github/workflows/build-web.yml'
+  release:
+    types: [published]
   workflow_dispatch:
     inputs:
       custom_tag_extension:
@@ -35,23 +37,6 @@ env:
   _AZ_REGISTRY: bitwardenprod.azurecr.io
 
 jobs:
-  cloc:
-    name: CLOC
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
-
-      - name: Set up cloc
-        run: |
-          sudo apt update
-          sudo apt -y install cloc
-
-      - name: Print lines of code
-        working-directory: apps/web
-        run: cloc --include-lang TypeScript,JavaScript,HTML,Sass,CSS --vcs git
-
-
   setup:
     name: Setup
     runs-on: ubuntu-22.04
@@ -60,7 +45,7 @@ jobs:
       node_version: ${{ steps.retrieve-node-version.outputs.node_version }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Get GitHub sha as version
         id: version
@@ -97,13 +82,15 @@ jobs:
             npm_command: "build:bit:euprd"
           - name: "cloud-euqa"
             npm_command: "build:bit:euqa"
+          - name: "cloud-usdev"
+            npm_command: "build:bit:usdev"
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Set up Node
-        uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c # v3.6.0
+        uses: actions/setup-node@60edb5dd545a775178f52524783378180af0d1f8 # v4.0.2
         with:
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json'
@@ -139,7 +126,7 @@ jobs:
         run: zip -r web-${{ env._VERSION }}-${{ matrix.name }}.zip build
 
       - name: Upload ${{ matrix.name }} artifact
-        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce # v3.1.2
+        uses: actions/upload-artifact@5d5d22a31266ced268874388b861e4b58bb5c2f3 # v4.3.1
         with:
           name: web-${{ env._VERSION }}-${{ matrix.name }}.zip
           path: apps/web/web-${{ env._VERSION }}-${{ matrix.name }}.zip
@@ -166,11 +153,11 @@ jobs:
       _VERSION: ${{ needs.setup.outputs.version }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Check Branch to Publish
         env:
-          PUBLISH_BRANCHES: "master,rc,hotfix-rc-web"
+          PUBLISH_BRANCHES: "main,rc,hotfix-rc-web"
         id: publish-branch-check
         run: |
           IFS="," read -a publish_branches <<< $PUBLISH_BRANCHES
@@ -183,7 +170,7 @@ jobs:
 
       ########## ACRs ##########
       - name: Login to Prod Azure
-        uses: Azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2 # v1.4.7
+        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
         with:
           creds: ${{ secrets.AZURE_PROD_KV_CREDENTIALS }}
 
@@ -191,7 +178,7 @@ jobs:
         run: az acr login -n bitwardenprod
 
       - name: Login to Azure - CI Subscription
-        uses: Azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2 # v1.4.7
+        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
         with:
           creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
 
@@ -203,7 +190,7 @@ jobs:
           secrets: "github-pat-bitwarden-devops-bot-repo-scope"
 
       - name: Download ${{ matrix.artifact_name }} artifact
-        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
+        uses: actions/download-artifact@eaceaf801fd36c7dee90939fad912460b18a1ffe # v4.1.2
         with:
           name: web-${{ env._VERSION }}-${{ matrix.artifact_name }}.zip
           path: apps/web
@@ -215,10 +202,10 @@ jobs:
           if [[ $(grep "pull" <<< "${GITHUB_REF}") ]]; then
             IMAGE_TAG=$(echo "${GITHUB_HEAD_REF}" | sed "s#/#-#g")
           else
-            IMAGE_TAG=$(echo "${GITHUB_REF:11}" | sed "s#/#-#g")
+            IMAGE_TAG=$(echo "${GITHUB_REF_NAME}" | sed "s#/#-#g")
           fi
 
-          if [[ "$IMAGE_TAG" == "master" ]]; then
+          if [[ "$IMAGE_TAG" == "main" ]]; then
             IMAGE_TAG=dev
           fi
 
@@ -243,7 +230,7 @@ jobs:
         run: echo "name=$_AZ_REGISTRY/${PROJECT_NAME}:${IMAGE_TAG}" >> $GITHUB_OUTPUT
 
       - name: Build Docker image
-        uses: docker/build-push-action@2eb1c1961a95fc15694676618e422e8ba1d63825 # v4.1.1
+        uses: docker/build-push-action@4a13e500e55cf31b7a5d59a38ab2040ab0f42f56 # v5.1.0
         with:
           context: apps/web
           file: apps/web/Dockerfile
@@ -259,15 +246,15 @@ jobs:
 
   crowdin-push:
     name: Crowdin Push
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     needs: build-artifacts
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout repo
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Login to Azure
-        uses: Azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2 # v1.4.7
+        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
         with:
           creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
 
@@ -279,41 +266,72 @@ jobs:
           secrets: "crowdin-api-token"
 
       - name: Upload Sources
-        uses: crowdin/github-action@ee4ab4ea2feadc0fdc3b200729c7b1c4cf4b38f3 # v1.11.0
+        uses: crowdin/github-action@198daeb2d30636c4608d6a6bb96c009dbefc02a2 # v1.18.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           CROWDIN_API_TOKEN: ${{ steps.retrieve-secrets.outputs.crowdin-api-token }}
           CROWDIN_PROJECT_ID: "308189"
         with:
           config: apps/web/crowdin.yml
-          crowdin_branch_name: master
+          crowdin_branch_name: main
           upload_sources: true
           upload_translations: false
 
+  trigger-web-vault-deploy:
+    name: Trigger web vault deploy
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-22.04
+    needs: build-artifacts
+    steps:
+      - name: Login to Azure - CI Subscription
+        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
+        with:
+          creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}
+
+      - name: Retrieve github PAT secrets
+        id: retrieve-secret-pat
+        uses: bitwarden/gh-actions/get-keyvault-secrets@main
+        with:
+          keyvault: "bitwarden-ci"
+          secrets: "github-pat-bitwarden-devops-bot-repo-scope"
+
+      - name: Trigger web vault deploy
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea # v7.0.1
+        with:
+          github-token: ${{ steps.retrieve-secret-pat.outputs.github-pat-bitwarden-devops-bot-repo-scope }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: 'bitwarden',
+              repo: 'clients',
+              workflow_id: 'deploy-web.yml',
+              ref: 'main',
+              inputs: {
+                'environment': 'USDEV',
+                'branch-or-tag': 'main'
+              }
+            })
 
   check-failures:
     name: Check for failures
     if: always()
     runs-on: ubuntu-22.04
     needs:
-      - cloc
       - setup
       - build-artifacts
       - build-containers
       - crowdin-push
+      - trigger-web-vault-deploy
     steps:
       - name: Check if any job failed
-        if: ${{ (github.ref == 'refs/heads/master') || (github.ref == 'refs/heads/rc') }}
+        if: ${{ (github.ref == 'refs/heads/main') || (github.ref == 'refs/heads/rc') }}
         env:
-          CLOC_STATUS: ${{ needs.cloc.result }}
           SETUP_STATUS: ${{ needs.setup.result }}
           ARTIFACT_STATUS: ${{ needs.build-artifacts.result }}
           BUILD_CONTAINERS_STATUS: ${{ needs.build-containers.result }}
           CROWDIN_PUSH_STATUS: ${{ needs.crowdin-push.result }}
+          TRIGGER_WEB_VAULT_DEPLOY_STATUS: ${{ needs.trigger-web-vault-deploy.result }}
         run: |
-          if [ "$CLOC_STATUS" = "failure" ]; then
-              exit 1
-          elif [ "$SETUP_STATUS" = "failure" ]; then
+          if [ "$SETUP_STATUS" = "failure" ]; then
               exit 1
           elif [ "$ARTIFACT_STATUS" = "failure" ]; then
               exit 1
@@ -323,10 +341,12 @@ jobs:
               exit 1
           elif [ "$CROWDIN_PUSH_STATUS" = "failure" ]; then
               exit 1
+          elif [ "$TRIGGER_WEB_VAULT_DEPLOY_STATUS" = "failure" ]; then
+              exit 1
           fi
 
       - name: Login to Azure - Prod Subscription
-        uses: Azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2 # v1.4.7
+        uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
         if: failure()
         with:
           creds: ${{ secrets.AZURE_KV_CI_SERVICE_PRINCIPAL }}

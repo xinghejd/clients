@@ -10,16 +10,12 @@ import AutofillField from "../models/autofill-field";
 import AutofillOverlayButtonIframe from "../overlay/iframe-content/autofill-overlay-button-iframe";
 import AutofillOverlayListIframe from "../overlay/iframe-content/autofill-overlay-list-iframe";
 import { ElementWithOpId, FillableFormFieldElement, FormFieldElement } from "../types";
+import { generateRandomCustomElementName, sendExtensionMessage, setElementStyles } from "../utils";
 import {
   AutofillOverlayElement,
   RedirectFocusDirection,
   AutofillOverlayVisibility,
 } from "../utils/autofill-overlay.enum";
-import {
-  generateRandomCustomElementName,
-  sendExtensionMessage,
-  setElementStyles,
-} from "../utils/utils";
 
 import {
   AutofillOverlayContentService as AutofillOverlayContentServiceInterface,
@@ -32,9 +28,11 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   isCurrentlyFilling = false;
   isOverlayCiphersPopulated = false;
   pageDetailsUpdateRequired = false;
+  autofillOverlayVisibility: number;
   private readonly findTabs = tabbable;
   private readonly sendExtensionMessage = sendExtensionMessage;
-  private autofillOverlayVisibility: number;
+  private formFieldElements: Set<ElementWithOpId<FormFieldElement>> = new Set([]);
+  private ignoredFieldTypes: Set<string> = new Set(AutoFillConstants.ExcludedOverlayTypes);
   private userFilledFields: Record<string, FillableFormFieldElement> = {};
   private authStatus: AuthenticationStatus;
   private focusableElements: FocusableElement[] = [];
@@ -44,11 +42,12 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   private overlayListElement: HTMLElement;
   private mostRecentlyFocusedField: ElementWithOpId<FormFieldElement>;
   private focusedFieldData: FocusedFieldData;
-  private userInteractionEventTimeout: NodeJS.Timeout;
+  private userInteractionEventTimeout: number | NodeJS.Timeout;
   private overlayElementsMutationObserver: MutationObserver;
   private bodyElementMutationObserver: MutationObserver;
+  private documentElementMutationObserver: MutationObserver;
   private mutationObserverIterations = 0;
-  private mutationObserverIterationsResetTimeout: NodeJS.Timeout;
+  private mutationObserverIterationsResetTimeout: number | NodeJS.Timeout;
   private autofillFieldKeywordsMap: WeakMap<AutofillField, string> = new WeakMap();
   private eventHandlersMemo: { [key: string]: EventListener } = {};
   private readonly customElementDefaultStyles: Partial<CSSStyleDeclaration> = {
@@ -80,11 +79,13 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    */
   async setupAutofillOverlayListenerOnField(
     formFieldElement: ElementWithOpId<FormFieldElement>,
-    autofillFieldData: AutofillField
+    autofillFieldData: AutofillField,
   ) {
     if (this.isIgnoredField(autofillFieldData)) {
       return;
     }
+
+    this.formFieldElements.add(formFieldElement);
 
     if (!this.autofillOverlayVisibility) {
       await this.getAutofillOverlayVisibility();
@@ -117,6 +118,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     }
 
     if (this.pageDetailsUpdateRequired) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.sendExtensionMessage("bgCollectPageDetails", {
         sender: "autofillOverlayContentService",
       });
@@ -178,6 +181,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
 
     this.overlayButtonElement.remove();
     this.isOverlayButtonVisible = false;
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.sendExtensionMessage("autofillOverlayElementClosed", {
       overlayElement: AutofillOverlayElement.Button,
     });
@@ -194,6 +199,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
 
     this.overlayListElement.remove();
     this.isOverlayListVisible = false;
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.sendExtensionMessage("autofillOverlayElementClosed", {
       overlayElement: AutofillOverlayElement.List,
     });
@@ -215,6 +222,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       hostname: globalThis.document.location.hostname,
     };
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.sendExtensionMessage("autofillOverlayAddNewVaultItem", { login });
   }
 
@@ -241,7 +250,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     }
 
     const focusedElementIndex = this.focusableElements.findIndex(
-      (element) => element === this.mostRecentlyFocusedField
+      (element) => element === this.mostRecentlyFocusedField,
     );
 
     const indexOffset = direction === RedirectFocusDirection.Previous ? -1 : 1;
@@ -263,15 +272,15 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     formFieldElement.addEventListener(EVENTS.KEYUP, this.handleFormFieldKeyupEvent);
     formFieldElement.addEventListener(
       EVENTS.INPUT,
-      this.handleFormFieldInputEvent(formFieldElement)
+      this.handleFormFieldInputEvent(formFieldElement),
     );
     formFieldElement.addEventListener(
       EVENTS.CLICK,
-      this.handleFormFieldClickEvent(formFieldElement)
+      this.handleFormFieldClickEvent(formFieldElement),
     );
     formFieldElement.addEventListener(
       EVENTS.FOCUS,
-      this.handleFormFieldFocusEvent(formFieldElement)
+      this.handleFormFieldFocusEvent(formFieldElement),
     );
   }
 
@@ -314,7 +323,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    */
   private getFormFieldHandlerMemoIndex(
     formFieldElement: ElementWithOpId<FormFieldElement>,
-    event: string
+    event: string,
   ) {
     return `${formFieldElement.opid}-${formFieldElement.id}-${event}-handler`;
   }
@@ -326,6 +335,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    */
   private handleFormFieldBlurEvent = () => {
     this.isFieldCurrentlyFocused = false;
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.sendExtensionMessage("checkAutofillOverlayFocused");
   };
 
@@ -353,6 +364,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       event.preventDefault();
       event.stopPropagation();
 
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.focusOverlayList();
     }
   };
@@ -370,6 +383,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       return;
     }
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.sendExtensionMessage("focusAutofillOverlayList");
   }
 
@@ -381,7 +396,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   private handleFormFieldInputEvent = (formFieldElement: ElementWithOpId<FormFieldElement>) => {
     return this.useEventHandlersMemo(
       () => this.triggerFormFieldInput(formFieldElement),
-      this.getFormFieldHandlerMemoIndex(formFieldElement, EVENTS.INPUT)
+      this.getFormFieldHandlerMemoIndex(formFieldElement, EVENTS.INPUT),
     );
   };
 
@@ -436,7 +451,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   private handleFormFieldClickEvent = (formFieldElement: ElementWithOpId<FormFieldElement>) => {
     return this.useEventHandlersMemo(
       () => this.triggerFormFieldClickedAction(formFieldElement),
-      this.getFormFieldHandlerMemoIndex(formFieldElement, EVENTS.CLICK)
+      this.getFormFieldHandlerMemoIndex(formFieldElement, EVENTS.CLICK),
     );
   };
 
@@ -462,7 +477,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   private handleFormFieldFocusEvent = (formFieldElement: ElementWithOpId<FormFieldElement>) => {
     return this.useEventHandlersMemo(
       () => this.triggerFormFieldFocusedAction(formFieldElement),
-      this.getFormFieldHandlerMemoIndex(formFieldElement, EVENTS.FOCUS)
+      this.getFormFieldHandlerMemoIndex(formFieldElement, EVENTS.FOCUS),
     );
   };
 
@@ -492,6 +507,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     }
 
     if (!formElementHasValue || (!this.isOverlayCiphersPopulated && this.isUserAuthed())) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.sendExtensionMessage("openAutofillOverlay");
       return;
     }
@@ -582,6 +599,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       this.isOverlayButtonVisible = true;
       this.setOverlayRepositionEventListeners();
     }
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.sendExtensionMessage("updateAutofillOverlayPosition", {
       overlayElement: AutofillOverlayElement.Button,
     });
@@ -600,6 +619,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       this.isOverlayListVisible = true;
     }
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.sendExtensionMessage("updateAutofillOverlayPosition", {
       overlayElement: AutofillOverlayElement.List,
     });
@@ -624,6 +645,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    */
   private toggleOverlayHidden(isHidden: boolean) {
     const displayValue = isHidden ? "none" : "block";
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.sendExtensionMessage("updateAutofillOverlayHidden", { display: displayValue });
 
     this.isOverlayButtonVisible = !isHidden;
@@ -637,18 +660,19 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * @param formFieldElement - The form field element that triggered the focus event.
    */
   private async updateMostRecentlyFocusedField(
-    formFieldElement: ElementWithOpId<FormFieldElement>
+    formFieldElement: ElementWithOpId<FormFieldElement>,
   ) {
     this.mostRecentlyFocusedField = formFieldElement;
     const { paddingRight, paddingLeft } = globalThis.getComputedStyle(formFieldElement);
-    const { width, height, top, left } = await this.getMostRecentlyFocusedFieldRects(
-      formFieldElement
-    );
+    const { width, height, top, left } =
+      await this.getMostRecentlyFocusedFieldRects(formFieldElement);
     this.focusedFieldData = {
       focusedFieldStyles: { paddingRight, paddingLeft },
       focusedFieldRects: { width, height, top, left },
     };
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.sendExtensionMessage("updateFocusedFieldData", {
       focusedFieldData: this.focusedFieldData,
     });
@@ -664,11 +688,10 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * @param formFieldElement - The form field element that triggered the focus event.
    */
   private async getMostRecentlyFocusedFieldRects(
-    formFieldElement: ElementWithOpId<FormFieldElement>
+    formFieldElement: ElementWithOpId<FormFieldElement>,
   ) {
-    const focusedFieldRects = await this.getBoundingClientRectFromIntersectionObserver(
-      formFieldElement
-    );
+    const focusedFieldRects =
+      await this.getBoundingClientRectFromIntersectionObserver(formFieldElement);
     if (focusedFieldRects) {
       return focusedFieldRects;
     }
@@ -682,7 +705,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * @param formFieldElement - The form field element that triggered the focus event.
    */
   private async getBoundingClientRectFromIntersectionObserver(
-    formFieldElement: ElementWithOpId<FormFieldElement>
+    formFieldElement: ElementWithOpId<FormFieldElement>,
   ): Promise<DOMRectReadOnly | null> {
     if (!("IntersectionObserver" in window) && !("IntersectionObserverEntry" in window)) {
       return null;
@@ -703,7 +726,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
           root: globalThis.document.body,
           rootMargin: "0px",
           threshold: 0.9999, // Safari doesn't seem to function properly with a threshold of 1
-        }
+        },
       );
       intersectionObserver.observe(formFieldElement);
     });
@@ -717,12 +740,11 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * @param autofillFieldData - Autofill field data captured from the form field element.
    */
   private isIgnoredField(autofillFieldData: AutofillField): boolean {
-    const ignoredFieldTypes = new Set(AutoFillConstants.ExcludedAutofillTypes);
     if (
       autofillFieldData.readonly ||
       autofillFieldData.disabled ||
       !autofillFieldData.viewable ||
-      ignoredFieldTypes.has(autofillFieldData.type) ||
+      this.ignoredFieldTypes.has(autofillFieldData.type) ||
       this.keywordsFoundInFieldData(autofillFieldData, ["search", "captcha"])
     ) {
       return true;
@@ -749,7 +771,6 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     this.overlayButtonElement = globalThis.document.createElement(customElementName);
 
     this.updateCustomElementDefaultStyles(this.overlayButtonElement);
-    this.moveDocumentElementChildrenToBody(globalThis.document.documentElement.childNodes);
   }
 
   /**
@@ -825,7 +846,10 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
 
     this.toggleOverlayHidden(true);
     this.clearUserInteractionEventTimeout();
-    this.userInteractionEventTimeout = setTimeout(this.triggerOverlayRepositionUpdates, 750);
+    this.userInteractionEventTimeout = setTimeout(
+      this.triggerOverlayRepositionUpdates,
+      750,
+    ) as unknown as number;
   };
 
   /**
@@ -896,19 +920,12 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    */
   private setupMutationObserver = () => {
     this.overlayElementsMutationObserver = new MutationObserver(
-      this.handleOverlayElementMutationObserverUpdate
+      this.handleOverlayElementMutationObserverUpdate,
     );
 
     this.bodyElementMutationObserver = new MutationObserver(
-      this.handleBodyElementMutationObserverUpdate
+      this.handleBodyElementMutationObserverUpdate,
     );
-
-    const documentElementMutationObserver = new MutationObserver(
-      this.handleDocumentElementMutationObserverUpdate
-    );
-    documentElementMutationObserver.observe(globalThis.document.documentElement, {
-      childList: true,
-    });
   };
 
   /**
@@ -1037,51 +1054,6 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   };
 
   /**
-   * Handles the mutation observer update for the document element. This
-   * method will ensure that any elements added to the document element
-   * are appended to the body element.
-   *
-   * @param mutationRecords - The mutation records that triggered the update.
-   */
-  private handleDocumentElementMutationObserverUpdate = (mutationRecords: MutationRecord[]) => {
-    if (
-      (!this.overlayButtonElement && !this.overlayListElement) ||
-      this.isTriggeringExcessiveMutationObserverIterations()
-    ) {
-      return;
-    }
-
-    for (const record of mutationRecords) {
-      if (record.type !== "childList" || record.addedNodes.length === 0) {
-        continue;
-      }
-
-      this.moveDocumentElementChildrenToBody(record.addedNodes);
-    }
-  };
-
-  /**
-   * Moves the passed nodes to the body element. This method is used to ensure that
-   * any elements added to the document element are higher in the DOM than the overlay
-   * elements.
-   *
-   * @param nodes - The nodes to move to the body element.
-   */
-  private moveDocumentElementChildrenToBody(nodes: NodeList) {
-    const ignoredElements = new Set([globalThis.document.body, globalThis.document.head]);
-    for (const node of nodes) {
-      if (ignoredElements.has(node as HTMLElement)) {
-        continue;
-      }
-
-      // This is a workaround for an issue where the document element's children
-      // are not appended to the body element. This forces the children to be
-      // appended on the next tick of the event loop.
-      setTimeout(() => globalThis.document.body.appendChild(node), 0);
-    }
-  }
-
-  /**
    * Identifies if the mutation observer is triggering excessive iterations.
    * Will trigger a blur of the most recently focused field and remove the
    * autofill overlay if any set mutation observer is triggering
@@ -1095,7 +1067,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     this.mutationObserverIterations++;
     this.mutationObserverIterationsResetTimeout = setTimeout(
       () => (this.mutationObserverIterations = 0),
-      2000
+      2000,
     );
 
     if (this.mutationObserverIterations > 100) {
@@ -1118,6 +1090,28 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   private getRootNodeActiveElement(element: Element): Element {
     const documentRoot = element.getRootNode() as ShadowRoot | Document;
     return documentRoot?.activeElement;
+  }
+
+  /**
+   * Destroys the autofill overlay content service. This method will
+   * disconnect the mutation observers and remove all event listeners.
+   */
+  destroy() {
+    this.documentElementMutationObserver?.disconnect();
+    this.clearUserInteractionEventTimeout();
+    this.formFieldElements.forEach((formFieldElement) => {
+      this.removeCachedFormFieldEventListeners(formFieldElement);
+      formFieldElement.removeEventListener(EVENTS.BLUR, this.handleFormFieldBlurEvent);
+      formFieldElement.removeEventListener(EVENTS.KEYUP, this.handleFormFieldKeyupEvent);
+      this.formFieldElements.delete(formFieldElement);
+    });
+    globalThis.document.removeEventListener(
+      EVENTS.VISIBILITYCHANGE,
+      this.handleVisibilityChangeEvent,
+    );
+    globalThis.removeEventListener(EVENTS.FOCUSOUT, this.handleFormFieldBlurEvent);
+    this.removeAutofillOverlay();
+    this.removeOverlayRepositionEventListeners();
   }
 }
 

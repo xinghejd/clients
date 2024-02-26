@@ -7,6 +7,7 @@ import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-conso
 import { OrganizationUserService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user.service";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -14,8 +15,8 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { MasterKey, UserKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
+import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService } from "@bitwarden/components";
 
@@ -43,7 +44,8 @@ export class SetPasswordComponent extends BaseSetPasswordComponent implements On
     stateService: StateService,
     organizationApiService: OrganizationApiServiceAbstraction,
     organizationUserService: OrganizationUserService,
-    dialogService: DialogService
+    ssoLoginService: SsoLoginServiceAbstraction,
+    dialogService: DialogService,
   ) {
     super(
       i18nService,
@@ -60,7 +62,8 @@ export class SetPasswordComponent extends BaseSetPasswordComponent implements On
       stateService,
       organizationApiService,
       organizationUserService,
-      dialogService
+      ssoLoginService,
+      dialogService,
     );
   }
 
@@ -89,7 +92,7 @@ export class SetPasswordComponent extends BaseSetPasswordComponent implements On
   protected async onSetPasswordSuccess(
     masterKey: MasterKey,
     userKey: [UserKey, EncString],
-    keyPair: [string, EncString]
+    keyPair: [string, EncString],
   ): Promise<void> {
     await super.onSetPasswordSuccess(masterKey, userKey, keyPair);
     this.messagingService.send("redrawMenu");

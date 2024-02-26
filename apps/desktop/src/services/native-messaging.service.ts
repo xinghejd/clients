@@ -1,7 +1,6 @@
 import { Injectable, NgZone } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
-import { KeySuffixOptions } from "@bitwarden/common/enums";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -9,6 +8,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
@@ -38,7 +38,7 @@ export class NativeMessagingService {
     private stateService: StateService,
     private nativeMessageHandler: NativeMessageHandlerService,
     private dialogService: DialogService,
-    private ngZone: NgZone
+    private ngZone: NgZone,
   ) {}
 
   init() {
@@ -48,6 +48,8 @@ export class NativeMessagingService {
   private async messageHandler(msg: LegacyMessageWrapper | Message) {
     const outerMessage = msg as Message;
     if (outerMessage.version) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.nativeMessageHandler.handleMessage(outerMessage);
       return;
     }
@@ -77,13 +79,13 @@ export class NativeMessagingService {
 
         const fingerprint = await this.cryptoService.getFingerprint(
           await this.stateService.getUserId(),
-          remotePublicKey
+          remotePublicKey,
         );
 
         this.messagingService.send("setFocus");
 
         const dialogRef = this.ngZone.run(() =>
-          BrowserSyncVerificationDialogComponent.open(this.dialogService, { fingerprint })
+          BrowserSyncVerificationDialogComponent.open(this.dialogService, { fingerprint }),
         );
 
         const browserSyncVerified = await firstValueFrom(dialogRef.closed);
@@ -93,6 +95,8 @@ export class NativeMessagingService {
         }
       }
 
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.secureCommunication(remotePublicKey, appId);
       return;
     }
@@ -106,7 +110,10 @@ export class NativeMessagingService {
     }
 
     const message: LegacyMessage = JSON.parse(
-      await this.cryptoService.decryptToUtf8(rawMessage as EncString, this.sharedSecrets.get(appId))
+      await this.cryptoService.decryptToUtf8(
+        rawMessage as EncString,
+        this.sharedSecrets.get(appId),
+      ),
     );
 
     // Shared secret is invalidated, force re-authentication
@@ -130,6 +137,8 @@ export class NativeMessagingService {
         }
 
         if (!(await this.stateService.getBiometricUnlock({ userId: message.userId }))) {
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.send({ command: "biometricUnlock", response: "not enabled" }, appId);
 
           return this.ngZone.run(() =>
@@ -139,30 +148,40 @@ export class NativeMessagingService {
               content: { key: "biometricsNotEnabledDesc" },
               cancelButtonText: null,
               acceptButtonText: { key: "cancel" },
-            })
+            }),
           );
         }
 
-        const userKey = await this.cryptoService.getUserKeyFromStorage(
-          KeySuffixOptions.Biometric,
-          message.userId
-        );
-        const masterKey = await this.cryptoService.getMasterKey(message.userId);
-
-        if (userKey != null) {
-          // we send the master key still for backwards compatibility
-          // with older browser extensions
-          // TODO: Remove after 2023.10 release (https://bitwarden.atlassian.net/browse/PM-3472)
-          this.send(
-            {
-              command: "biometricUnlock",
-              response: "unlocked",
-              keyB64: masterKey?.keyB64,
-              userKeyB64: userKey.keyB64,
-            },
-            appId
+        try {
+          const userKey = await this.cryptoService.getUserKeyFromStorage(
+            KeySuffixOptions.Biometric,
+            message.userId,
           );
-        } else {
+          const masterKey = await this.cryptoService.getMasterKey(message.userId);
+
+          if (userKey != null) {
+            // we send the master key still for backwards compatibility
+            // with older browser extensions
+            // TODO: Remove after 2023.10 release (https://bitwarden.atlassian.net/browse/PM-3472)
+            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            this.send(
+              {
+                command: "biometricUnlock",
+                response: "unlocked",
+                keyB64: masterKey?.keyB64,
+                userKeyB64: userKey.keyB64,
+              },
+              appId,
+            );
+          } else {
+            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            this.send({ command: "biometricUnlock", response: "canceled" }, appId);
+          }
+        } catch (e) {
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.send({ command: "biometricUnlock", response: "canceled" }, appId);
         }
 
@@ -179,7 +198,7 @@ export class NativeMessagingService {
 
     const encrypted = await this.cryptoService.encrypt(
       JSON.stringify(message),
-      this.sharedSecrets.get(appId)
+      this.sharedSecrets.get(appId),
     );
 
     ipc.platform.nativeMessaging.sendMessage({ appId: appId, message: encrypted });
@@ -192,7 +211,7 @@ export class NativeMessagingService {
     const encryptedSecret = await this.cryptoFunctionService.rsaEncrypt(
       secret,
       remotePublicKey,
-      EncryptionAlgorithm
+      EncryptionAlgorithm,
     );
     ipc.platform.nativeMessaging.sendMessage({
       appId: appId,

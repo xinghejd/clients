@@ -2,11 +2,8 @@ import { mock } from "jest-mock-extended";
 
 import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { Utils } from "../../platform/misc/utils";
-import {
-  MasterKey,
-  SymmetricCryptoKey,
-  UserKey,
-} from "../../platform/models/domain/symmetric-crypto-key";
+import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
+import { UserKey, MasterKey } from "../../types/key";
 import { AuthRequestCryptoServiceAbstraction } from "../abstractions/auth-request-crypto.service.abstraction";
 import { AuthRequestResponse } from "../models/response/auth-request.response";
 
@@ -47,13 +44,13 @@ describe("AuthRequestCryptoService", () => {
       // Act
       await authReqCryptoService.setUserKeyAfterDecryptingSharedUserKey(
         mockAuthReqResponse,
-        mockPrivateKey
+        mockPrivateKey,
       );
 
       // Assert
       expect(authReqCryptoService.decryptPubKeyEncryptedUserKey).toBeCalledWith(
         mockAuthReqResponse.key,
-        mockPrivateKey
+        mockPrivateKey,
       );
       expect(cryptoService.setUserKey).toBeCalledWith(mockDecryptedUserKey);
     });
@@ -86,14 +83,14 @@ describe("AuthRequestCryptoService", () => {
       // Act
       await authReqCryptoService.setKeysAfterDecryptingSharedMasterKeyAndHash(
         mockAuthReqResponse,
-        mockPrivateKey
+        mockPrivateKey,
       );
 
       // Assert
       expect(authReqCryptoService.decryptPubKeyEncryptedMasterKeyAndHash).toBeCalledWith(
         mockAuthReqResponse.key,
         mockAuthReqResponse.masterPasswordHash,
-        mockPrivateKey
+        mockPrivateKey,
       );
       expect(cryptoService.setMasterKey).toBeCalledWith(mockDecryptedMasterKey);
       expect(cryptoService.setMasterKeyHash).toBeCalledWith(mockDecryptedMasterKeyHash);
@@ -114,7 +111,7 @@ describe("AuthRequestCryptoService", () => {
       // Act
       const result = await authReqCryptoService.decryptPubKeyEncryptedUserKey(
         mockPubKeyEncryptedUserKey,
-        mockPrivateKey
+        mockPrivateKey,
       );
 
       // Assert
@@ -131,7 +128,7 @@ describe("AuthRequestCryptoService", () => {
 
       const mockDecryptedMasterKeyBytes = new Uint8Array(64);
       const mockDecryptedMasterKey = new SymmetricCryptoKey(
-        mockDecryptedMasterKeyBytes
+        mockDecryptedMasterKeyBytes,
       ) as MasterKey;
       const mockDecryptedMasterKeyHashBytes = new Uint8Array(64);
       const mockDecryptedMasterKeyHash = Utils.fromBufferToUtf8(mockDecryptedMasterKeyHashBytes);
@@ -144,19 +141,19 @@ describe("AuthRequestCryptoService", () => {
       const result = await authReqCryptoService.decryptPubKeyEncryptedMasterKeyAndHash(
         mockPubKeyEncryptedMasterKey,
         mockPubKeyEncryptedMasterKeyHash,
-        mockPrivateKey
+        mockPrivateKey,
       );
 
       // Assert
       expect(cryptoService.rsaDecrypt).toHaveBeenNthCalledWith(
         1,
         mockPubKeyEncryptedMasterKey,
-        mockPrivateKey
+        mockPrivateKey,
       );
       expect(cryptoService.rsaDecrypt).toHaveBeenNthCalledWith(
         2,
         mockPubKeyEncryptedMasterKeyHash,
-        mockPrivateKey
+        mockPrivateKey,
       );
       expect(result.masterKey).toEqual(mockDecryptedMasterKey);
       expect(result.masterKeyHash).toEqual(mockDecryptedMasterKeyHash);

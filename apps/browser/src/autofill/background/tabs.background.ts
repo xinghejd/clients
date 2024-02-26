@@ -7,7 +7,7 @@ export default class TabsBackground {
   constructor(
     private main: MainBackground,
     private notificationBackground: NotificationBackground,
-    private overlayBackground: OverlayBackground
+    private overlayBackground: OverlayBackground,
   ) {}
 
   private focusedWindowId: number;
@@ -20,6 +20,16 @@ export default class TabsBackground {
       return;
     }
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    this.updateCurrentTabData();
+    this.setupTabEventListeners();
+  }
+
+  /**
+   * Sets up the tab and window event listeners.
+   */
+  private setupTabEventListeners() {
     chrome.windows.onFocusChanged.addListener(this.handleWindowOnFocusChanged);
     chrome.tabs.onActivated.addListener(this.handleTabOnActivated);
     chrome.tabs.onReplaced.addListener(this.handleTabOnReplaced);
@@ -33,7 +43,7 @@ export default class TabsBackground {
    * @param windowId - The ID of the window that was focused.
    */
   private handleWindowOnFocusChanged = async (windowId: number) => {
-    if (!windowId) {
+    if (windowId == null || windowId < 0) {
       return;
     }
 
@@ -74,7 +84,7 @@ export default class TabsBackground {
   private handleTabOnUpdated = async (
     tabId: number,
     changeInfo: chrome.tabs.TabChangeInfo,
-    tab: chrome.tabs.Tab
+    tab: chrome.tabs.Tab,
   ) => {
     const removePageDetailsStatus = new Set(["loading", "unloaded"]);
     if (removePageDetailsStatus.has(changeInfo.status)) {
@@ -116,8 +126,10 @@ export default class TabsBackground {
    * for the current tab. Also updates the overlay ciphers.
    */
   private updateCurrentTabData = async () => {
-    await this.main.refreshBadge();
-    await this.main.refreshMenu();
-    await this.overlayBackground.updateOverlayCiphers();
+    await Promise.all([
+      this.main.refreshBadge(),
+      this.main.refreshMenu(),
+      this.overlayBackground.updateOverlayCiphers(),
+    ]);
   };
 }

@@ -7,7 +7,8 @@ import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { LogService } from "../../platform/abstractions/log.service";
 import { StateService } from "../../platform/abstractions/state.service";
 import { Utils } from "../../platform/misc/utils";
-import { MasterKey, SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
+import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
+import { MasterKey } from "../../types/key";
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "../abstractions/key-connector.service";
 import { TokenService } from "../abstractions/token.service";
 import { KdfConfig } from "../models/domain/kdf-config";
@@ -24,7 +25,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     private logService: LogService,
     private organizationService: OrganizationService,
     private cryptoFunctionService: CryptoFunctionService,
-    private logoutCallback: (expired: boolean, userId?: string) => Promise<void>
+    private logoutCallback: (expired: boolean, userId?: string) => Promise<void>,
   ) {}
 
   setUsesKeyConnector(usesKeyConnector: boolean) {
@@ -51,7 +52,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
     try {
       await this.apiService.postUserKeyToKeyConnector(
         organization.keyConnectorUrl,
-        keyConnectorRequest
+        keyConnectorRequest,
       );
     } catch (e) {
       this.handleKeyConnectorError(e);
@@ -79,7 +80,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
         o.keyConnectorEnabled &&
         o.type !== OrganizationUserType.Admin &&
         o.type !== OrganizationUserType.Owner &&
-        !o.isProviderUser
+        !o.isProviderUser,
     );
   }
 
@@ -100,7 +101,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
       Utils.fromBufferToB64(password),
       await this.tokenService.getEmail(),
       kdf,
-      kdfConfig
+      kdfConfig,
     );
     const keyConnectorRequest = new KeyConnectorUserKeyRequest(masterKey.encKeyB64);
     await this.cryptoService.setMasterKey(masterKey);
@@ -125,7 +126,7 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
       kdf,
       kdfConfig,
       orgId,
-      keys
+      keys,
     );
     await this.apiService.postSetKeyConnectorKey(setPasswordRequest);
   }
@@ -149,6 +150,8 @@ export class KeyConnectorService implements KeyConnectorServiceAbstraction {
   private handleKeyConnectorError(e: any) {
     this.logService.error(e);
     if (this.logoutCallback != null) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.logoutCallback(false);
     }
     throw new Error("Key Connector error");

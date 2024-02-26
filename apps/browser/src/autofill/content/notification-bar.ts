@@ -1,9 +1,12 @@
-import AddLoginRuntimeMessage from "../../background/models/addLoginRuntimeMessage";
-import ChangePasswordRuntimeMessage from "../../background/models/changePasswordRuntimeMessage";
+import {
+  AddLoginMessageData,
+  ChangePasswordMessageData,
+} from "../background/abstractions/notification.background";
 import AutofillField from "../models/autofill-field";
 import { WatchedForm } from "../models/watched-form";
 import { FormData } from "../services/abstractions/autofill.service";
 import { GlobalSettings, UserSettings } from "../types";
+import { getFromLocalStorage, setupExtensionDisconnectAction } from "../utils";
 
 interface HTMLElementWithFormOpId extends HTMLElement {
   formOpId: string;
@@ -27,9 +30,13 @@ interface HTMLElementWithFormOpId extends HTMLElement {
  * and async scripts to finish loading.
  * https://developer.mozilla.org/en-US/docs/Web/API/Window/DOMContentLoaded_event
  */
+let notificationBarIframe: HTMLIFrameElement = null;
+
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", loadNotificationBar);
 } else {
+  // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
   loadNotificationBar();
 }
 
@@ -86,6 +93,7 @@ async function loadNotificationBar() {
 
   // Look up the active user id from storage
   const activeUserIdKey = "activeUserId";
+  const globalStorageKey = "global";
   let activeUserId: string;
 
   const activeUserStorageValue = await getFromLocalStorage(activeUserIdKey);
@@ -97,7 +105,9 @@ async function loadNotificationBar() {
   const userSettingsStorageValue = await getFromLocalStorage(activeUserId);
   if (userSettingsStorageValue[activeUserId]) {
     const userSettings: UserSettings = userSettingsStorageValue[activeUserId].settings;
-    const globalSettings: GlobalSettings = await getFromLocalStorage("global");
+    const globalSettings: GlobalSettings = (await getFromLocalStorage(globalStorageKey))[
+      globalStorageKey
+    ];
 
     // Do not show the notification bar on the Bitwarden vault
     // because they can add logins and change passwords there
@@ -121,6 +131,8 @@ async function loadNotificationBar() {
       }
     }
   }
+
+  setupExtensionDisconnectAction(handleExtensionDisconnection);
 
   if (!showNotificationBar) {
     return;
@@ -357,9 +369,9 @@ async function loadNotificationBar() {
    * `main.background.ts : collectPageDetailsForContentScript`
    *
    * (3) `main.background.ts : collectPageDetailsForContentScript`
-   * sends a message with command `collectPageDetails` to the `autofill.js` content script
+   * sends a message with command `collectPageDetails` to the `autofill-init.js` content script
    *
-   * (4) `autofill.js` content script runs a `collect(document)` method.
+   * (4) `autofill-init.js` content script runs a `collect(document)` method.
    * The result is sent via message with command `collectPageDetailsResponse` to `notification.background.ts : processMessage(...)`
    *
    * (5) `notification.background.ts : processMessage(...)` gathers forms with password fields and passes them and the page details
@@ -404,7 +416,7 @@ async function loadNotificationBar() {
       // If the form could not be retrieved by its HTML ID, retrieve it by its index pulled from the opid
       if (formEl == null) {
         // opid stands for OnePassword ID - uniquely ID's an element on a page
-        // and is generated in `autofill.js`
+        // and is generated in `autofill-init.js`
         // Each form has an opid and each element has an opid and its parent form opid
         const index = parseInt(f.form.opid.split("__")[2], null);
         formEl = document.getElementsByTagName("form")[index];
@@ -445,7 +457,7 @@ async function loadNotificationBar() {
     // know what type of form we are watching
     const submitButton = getSubmitButton(
       form,
-      unionSets(logInButtonNames, changePasswordButtonNames)
+      unionSets(logInButtonNames, changePasswordButtonNames),
     );
 
     if (submitButton != null) {
@@ -475,7 +487,7 @@ async function loadNotificationBar() {
         watchedForm.formEl,
         watchedForm.data.password,
         inputs,
-        true // Only do fallback if we have expect to find a single password field
+        true, // Only do fallback if we have expect to find a single password field
       );
     } else if (watchedForm.data.passwords != null) {
       // if we didn't find a username field, try to locate multiple password fields
@@ -499,7 +511,7 @@ async function loadNotificationBar() {
     form: HTMLFormElement,
     passwordData: AutofillField,
     inputs: HTMLInputElement[],
-    doLastFallback: boolean
+    doLastFallback: boolean,
   ): HTMLInputElement {
     let el = locateField(form, passwordData, inputs);
     if (el != null && el.type !== "password") {
@@ -521,7 +533,7 @@ async function loadNotificationBar() {
   function locateField(
     form: HTMLFormElement,
     fieldData: AutofillField,
-    inputs: HTMLInputElement[]
+    inputs: HTMLInputElement[],
   ): HTMLInputElement | null {
     // If we have no field data, we cannot locate the field
     if (fieldData == null) {
@@ -603,7 +615,7 @@ async function loadNotificationBar() {
         watchedForms[i].passwordEl != null
       ) {
         // Create a login object from the form data
-        const login: AddLoginRuntimeMessage = {
+        const login: AddLoginMessageData = {
           username: watchedForms[i].usernameEl.value,
           password: watchedForms[i].passwordEl.value,
           url: document.URL,
@@ -616,7 +628,7 @@ async function loadNotificationBar() {
           processedForm(form);
           sendPlatformMessage({
             command: "bgAddLogin",
-            login: login,
+            login,
           });
           break;
         } else if (
@@ -667,7 +679,7 @@ async function loadNotificationBar() {
             // Check if the submit button contains any of the change password button names as a safeguard
             const buttonText = getButtonText(getSubmitButton(form, changePasswordButtonNames));
             const matches = Array.from(changePasswordButtonContainsNames).filter(
-              (n) => buttonText.indexOf(n) > -1
+              (n) => buttonText.indexOf(n) > -1,
             );
 
             if (matches.length > 0) {
@@ -686,15 +698,12 @@ async function loadNotificationBar() {
 
           // Send a message to the `notification.background.ts` background script to notify the user that their password has changed
           // which eventually calls the `processMessage(...)` method in this script with command `openNotificationBar`
-          const changePasswordRuntimeMessage: ChangePasswordRuntimeMessage = {
+          const data: ChangePasswordMessageData = {
             newPassword: newPass,
             currentPassword: curPass,
             url: document.URL,
           };
-          sendPlatformMessage({
-            command: "bgChangedPassword",
-            data: changePasswordRuntimeMessage,
-          });
+          sendPlatformMessage({ command: "bgChangedPassword", data });
           break;
         }
       }
@@ -744,8 +753,8 @@ async function loadNotificationBar() {
     if (submitButton == null) {
       const possibleSubmitButtons = Array.from(
         wrappingEl.querySelectorAll(
-          'a, span, button[type="button"], ' + 'input[type="button"], button:not([type])'
-        )
+          'a, span, button[type="button"], ' + 'input[type="button"], button:not([type])',
+        ),
       ) as HTMLElement[];
       let typelessButton: HTMLElement = null;
       // Loop through all possible submit buttons and find the first one that matches a submit button name
@@ -841,6 +850,7 @@ async function loadNotificationBar() {
       theme: typeData.theme,
       removeIndividualVault: typeData.removeIndividualVault,
       webVaultURL: typeData.webVaultURL,
+      importType: typeData.importType,
     };
     const barQueryString = new URLSearchParams(barQueryParams).toString();
     const barPage = "notification/bar.html?" + barQueryString;
@@ -861,12 +871,13 @@ async function loadNotificationBar() {
       return;
     }
 
-    const barPageUrl: string = chrome.extension.getURL(barPage);
+    const barPageUrl: string = chrome.runtime.getURL(barPage);
 
-    const iframe = document.createElement("iframe");
-    iframe.style.cssText = "height: 42px; width: 100%; border: 0; min-height: initial;";
-    iframe.id = "bit-notification-bar-iframe";
-    iframe.src = barPageUrl;
+    notificationBarIframe = document.createElement("iframe");
+    notificationBarIframe.style.cssText =
+      "height: 42px; width: 100%; border: 0; min-height: initial;";
+    notificationBarIframe.id = "bit-notification-bar-iframe";
+    notificationBarIframe.src = barPageUrl;
 
     const frameDiv = document.createElement("div");
     frameDiv.setAttribute("aria-live", "polite");
@@ -874,10 +885,10 @@ async function loadNotificationBar() {
     frameDiv.style.cssText =
       "height: 42px; width: 100%; top: 0; left: 0; padding: 0; position: fixed; " +
       "z-index: 2147483647; visibility: visible;";
-    frameDiv.appendChild(iframe);
+    frameDiv.appendChild(notificationBarIframe);
     document.body.appendChild(frameDiv);
 
-    (iframe.contentWindow.location as any) = barPageUrl;
+    (notificationBarIframe.contentWindow.location as any) = barPageUrl;
 
     const spacer = document.createElement("div");
     spacer.id = "bit-notification-bar-spacer";
@@ -889,6 +900,7 @@ async function loadNotificationBar() {
     const barEl = document.getElementById("bit-notification-bar");
     if (barEl != null) {
       barEl.parentElement.removeChild(barEl);
+      notificationBarIframe = null;
     }
 
     const spacerEl = document.getElementById("bit-notification-bar-spacer");
@@ -902,13 +914,9 @@ async function loadNotificationBar() {
 
     switch (barType) {
       case "add":
-        sendPlatformMessage({
-          command: "bgAddClose",
-        });
-        break;
       case "change":
         sendPlatformMessage({
-          command: "bgChangeClose",
+          command: "bgRemoveTabFromNotificationQueue",
         });
         break;
       default:
@@ -935,6 +943,8 @@ async function loadNotificationBar() {
 
   // Helper Functions
   function sendPlatformMessage(msg: any) {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     chrome.runtime.sendMessage(msg);
   }
 
@@ -965,8 +975,8 @@ async function loadNotificationBar() {
    * @param {HTMLElement} el
    * @returns {boolean} Returns `true` if the element is visible and `false` otherwise
    *
-   * Copied from autofill.js and converted to TypeScript;
-   * TODO: could be refactored to be in a shared location if autofill.js is converted to TS
+   * Copied from autofill-init.js and converted to TypeScript;
+   * TODO: could be refactored to be in a shared location if autofill-init.js is converted to TS
    */
   function isElementVisible(el: HTMLElement): boolean {
     let theEl: Node | null = el;
@@ -999,11 +1009,23 @@ async function loadNotificationBar() {
     return theEl === document;
   }
 
-  // End Helper Functions
-}
+  function handleExtensionDisconnection(port: chrome.runtime.Port) {
+    closeBar(false);
+    clearTimeout(domObservationCollectTimeoutId);
+    clearTimeout(collectPageDetailsTimeoutId);
+    clearTimeout(handlePageChangeTimeoutId);
+    observer?.disconnect();
+    observer = null;
+    watchedForms.forEach((wf: WatchedForm) => {
+      const form = wf.formEl;
+      form.removeEventListener("submit", formSubmitted, false);
+      const submitButton = getSubmitButton(
+        form,
+        unionSets(logInButtonNames, changePasswordButtonNames),
+      );
+      submitButton?.removeEventListener("click", formSubmitted, false);
+    });
+  }
 
-async function getFromLocalStorage(keys: string | string[]): Promise<Record<string, any>> {
-  return new Promise((resolve) => {
-    chrome.storage.local.get(keys, (storage: Record<string, any>) => resolve(storage));
-  });
+  // End Helper Functions
 }

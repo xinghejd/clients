@@ -11,7 +11,7 @@
     "description": "Extension description"
   },
   "loginOrCreateNewAccount": {
-    "message": "Kirjaudu tai luo uusi tili käyttääksesi salattua holviasi."
+    "message": "Käytä salattua holviasi kirjautumalla sisään tai tai luo uusi tili."
   },
   "createAccount": {
     "message": "Luo tili"
@@ -89,16 +89,16 @@
     "message": "Kopioi turvakoodi"
   },
   "autoFill": {
-    "message": "Automaattinen täyttö"
+    "message": "Automaattitäyttö"
   },
   "autoFillLogin": {
-    "message": "Täytä kirjautumistieto automaattisesti"
+    "message": "Automaattitäytä kirjautumistieto"
   },
   "autoFillCard": {
-    "message": "Täytä kortti automaattisesti"
+    "message": "Automaattitäytä kortti"
   },
   "autoFillIdentity": {
-    "message": "Täytä identiteetti automaattisesti"
+    "message": "Automaattitäytä identiteetti"
   },
   "generatePasswordCopied": {
     "message": "Luo salasana (leikepöydälle)"
@@ -268,6 +268,9 @@
   "length": {
     "message": "Pituus"
   },
+  "passwordMinLength": {
+    "message": "Salasanan vähimmäispituus"
+  },
   "uppercase": {
     "message": "Isot kirjaimet (A-Z)"
   },
@@ -323,6 +326,9 @@
   "password": {
     "message": "Salasana"
   },
+  "totp": {
+    "message": "Todennuksen salaisuus"
+  },
   "passphrase": {
     "message": "Salauslauseke"
   },
@@ -365,6 +371,9 @@
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Muuta holvisi aikakatkaisutoimintoa määrittämällä lukituksen avaustapa."
   },
+  "unlockMethodNeeded": {
+    "message": "Määritä avaustapa asetuksista"
+  },
   "rateExtension": {
     "message": "Arvioi laajennus"
   },
@@ -404,6 +413,9 @@
   },
   "lockNow": {
     "message": "Lukitse nyt"
+  },
+  "lockAll": {
+    "message": "Lukitse kaikki"
   },
   "immediately": {
     "message": "Välittömästi"
@@ -481,6 +493,12 @@
   "newAccountCreated": {
     "message": "Uusi käyttäjätilisi on luotu! Voit nyt kirjautua sisään."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "You successfully logged in"
+  },
+  "youMayCloseThisWindow": {
+    "message": "You may close this window"
+  },
   "masterPassSent": {
     "message": "Lähetimme pääsalasanasi vihjeen sähköpostitse."
   },
@@ -502,6 +520,18 @@
   },
   "autofillError": {
     "message": "Valittua kohdetta ei voitu täyttää tälle sivulle automaattisesti. Kopioi ja liitä tiedot itse."
+  },
+  "totpCaptureError": {
+    "message": "QR-koodin skannaus nykyiseltä sivulta ei onnistu."
+  },
+  "totpCaptureSuccess": {
+    "message": "Todennusavain on lisätty"
+  },
+  "totpCapture": {
+    "message": "Skannaa todennusavaimen QR-koodi nykyiseltä verkkosivulta"
+  },
+  "copyTOTP": {
+    "message": "Kopioi todennusavain (TOTP)"
   },
   "loggedOut": {
     "message": "Kirjauduttu ulos"
@@ -619,6 +649,9 @@
   "addLoginNotificationDesc": {
     "message": "Kysy lisätäänkö uusi kohde, jos holvissa ei vielä ole sopivaa kohdetta."
   },
+  "addLoginNotificationDescAlt": {
+    "message": "Ehdota kohteen tallennusta, jos holvistasi ei vielä löydy vastaavaa kohdetta. Koskee kaikkia kirjautuneita tilejä."
+  },
   "showCardsCurrentTab": {
     "message": "Näytä kortit välilehtiosiossa"
   },
@@ -629,7 +662,7 @@
     "message": "Näytä henkilöllisyydet välilehtiosiossa"
   },
   "showIdentitiesCurrentTabDesc": {
-    "message": "Henkilöllisyydet näytetään laajennuksen välilehtisivulla niiden automaattisen täytön helpottamiseksi."
+    "message": "Henkilöllisyydet näytetään laajennuksen Välilehti-sivulla niiden automaattisen täytön helpottamiseksi."
   },
   "clearClipboard": {
     "message": "Tyhjennä leikepöytä",
@@ -651,6 +684,15 @@
   "changedPasswordNotificationDesc": {
     "message": "Kysy päivitetäänkö kirjautumistiedon salasana sivustolla havaittua muutosta vastaavaksi."
   },
+  "changedPasswordNotificationDescAlt": {
+    "message": "Tarjoa kirjautumistiedon salasanan päivitystä, kun verkkosivustolla havaitaan uusi salasana. Koskee kaikkia kirjautuneita tilejä."
+  },
+  "enableUsePasskeys": {
+    "message": "Tarjoa salausavainten tallennusta ja käyttöä"
+  },
+  "usePasskeysDesc": {
+    "message": "Tarjoa tallennusta uusille salausavaimille tai kirjautumista holvissasi olevilla salausavaimilla. Koskee kaikkia kirjautuneita tilejä."
+  },
   "notificationChangeDesc": {
     "message": "Haluatko päivittää salasanan Bitwardeniin?"
   },
@@ -667,20 +709,26 @@
     "message": "Näytä sisältövalikon valinnat"
   },
   "contextMenuItemDesc": {
-    "message": "Käytä salasanageneraattoria ja avoimelle sivulle soveltuvia kirjautumistietoja hiiren kakkospainikkeella avattavasta valikosta."
+    "message": "Käytä salasanageneraattoria ja avoimelle sivulle soveltuvia kirjautumistietoja hiiren kakkospainikkeella."
+  },
+  "contextMenuItemDescAlt": {
+    "message": "Käytä salasanageneraattoria ja avoimelle sivulle soveltuvia kirjautumistietoja hiiren kakkospainikkeella avattavasta valikosta. Koskee kaikkia kirjautuneita tilejä."
   },
   "defaultUriMatchDetection": {
-    "message": "URI:n oletusarvoinen täsmäystapa",
+    "message": "URI:n oletuarvoinen tunnistustapa",
     "description": "Default URI match detection for auto-fill."
   },
   "defaultUriMatchDetectionDesc": {
-    "message": "Valitse oletustapa, jolla URI tunnistetaan esimerkiksi automaattisen täytön yhteydessä."
+    "message": "Valitse kirjautumistietojen URI:en oletusarvoinen tunnistustapa suoritettaessa automaattisen täytön kaltaisia toimintoja."
   },
   "theme": {
     "message": "Teema"
   },
   "themeDesc": {
     "message": "Vaihda sovelluksen väriteemaa."
+  },
+  "themeDescAlt": {
+    "message": "Muuta laajennujksen väriteemaa. Koskee kaikkia kirjautuneita tilejä."
   },
   "dark": {
     "message": "Tumma",
@@ -754,7 +802,7 @@
     "message": "Lue lisää"
   },
   "authenticatorKeyTotp": {
-    "message": "Todennusmenetelmän avain (TOTP)"
+    "message": "Todennusaavain (TOTP)"
   },
   "verificationCodeTotp": {
     "message": "Todennuskoodi (TOTP)"
@@ -796,7 +844,7 @@
     "message": "Ominaisuus ei ole käytettävissä"
   },
   "encryptionKeyMigrationRequired": {
-    "message": "Tarvitaan salausavaimen siirto. Kirjaudu verkkoholvin kautta päivittääksesi salausavaimesi."
+    "message": "Salausavaimen siirto vaaditaan. Päivitä salausavaimesi kirjautumalla verkkoholviin."
   },
   "premiumMembership": {
     "message": "Premium-jäsenyys"
@@ -862,7 +910,7 @@
     "message": "Kopioi TOTP-koodi automaattisesti"
   },
   "disableAutoTotpCopyDesc": {
-    "message": "Jos kirjautumistieto sisältää kaksivaiheisen todennusmenetelmän avaimen, kopioidaan TOTP-todennuskoodi leikepöydälle kohteen automaattisen täytön yhteydessä."
+    "message": "Jos kirjautumistieto sisältää kaksivaiheisen todennuksen avaimen, kopioidaan TOTP-todennuskoodi leikepöydälle kohteen automaattisen täytön yhteydessä."
   },
   "enableAutoBiometricsPrompt": {
     "message": "Pyydä Biometristä todennusta käynnistettäessä"
@@ -1002,35 +1050,60 @@
   "environmentSaved": {
     "message": "Palvelinympäristön URL-osoitteet tallennettiin"
   },
+  "showAutoFillMenuOnFormFields": {
+    "message": "Näytä automaattitäytön valikko lomakekentissä",
+    "description": "Represents the message for allowing the user to enable the auto-fill overlay"
+  },
+  "showAutoFillMenuOnFormFieldsDescAlt": {
+    "message": "Koskee kaikkia kirjautuneita tilejä."
+  },
+  "turnOffBrowserBuiltInPasswordManagerSettings": {
+    "message": "Poista selaimesi sisäänrakennettu salasanahallinta käytöstä sen asetuksista ristiriitojen välttämiseksi."
+  },
+  "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
+    "message": "Muokkaa selaimen asetuksia"
+  },
+  "autofillOverlayVisibilityOff": {
+    "message": "Ei käytössä",
+    "description": "Overlay setting select option for disabling autofill overlay"
+  },
+  "autofillOverlayVisibilityOnFieldFocus": {
+    "message": "Kun kenttä valitaan (kohdistetaan)",
+    "description": "Overlay appearance select option for showing the field on focus of the input element"
+  },
+  "autofillOverlayVisibilityOnButtonClick": {
+    "message": "Kun automaattitäytön kuvaketta painetaan",
+    "description": "Overlay appearance select option for showing the field on click of the overlay icon"
+  },
   "enableAutoFillOnPageLoad": {
-    "message": "Automaattinen täyttö sivun avautuessa"
+    "message": "Automaattitäyttö sivun avautuessa"
   },
   "enableAutoFillOnPageLoadDesc": {
-    "message": "Jos havaitaan kirjautumislomake, suorita automaattinen täyttö sivun avautuessa."
+    "message": "Automaattinen täyttö suoritetaan sivun avautuessa, jos sivulla havaitaan kirjautumislomake."
   },
   "experimentalFeature": {
     "message": "Vaarantuneet tai epäluotettavat sivustot voivat väärinkäyttää sivun avautuessa suoritettavaa automaattista täyttöä."
   },
   "learnMoreAboutAutofill": {
-    "message": "Lisätietoja automaattisesta täytöstä"
+    "message": "Lisätietoja automaattitäytöstä"
   },
   "defaultAutoFillOnPageLoad": {
-    "message": "Automaattisen täytön oletusasetus kirjautumistiedoille"
+    "message": "Automaattitäytön oletusasetus kirjautumistiedoille"
   },
   "defaultAutoFillOnPageLoadDesc": {
-    "message": "Voit ottaa automaattisen täytön käyttöön tai poistaa sen käytöstä kirjautumistietokohtaisesti muokkaamalla kirjautumistetoa."
+    "message": "Automaattinen täyttö on mahdollista ottaa käyttöön tai poistaa käytöstä kirjautumistietokohtaisesti kirjautumistetoa muokkaamalla."
   },
   "itemAutoFillOnPageLoad": {
-    "message": "Automaattinen täyttö sivun avautuessa (jos määritetty asetuksista)"
+    "message": "Automaattitäyttö sivun avautuessa (jos määritetty asetuksista)"
   },
   "autoFillOnPageLoadUseDefault": {
     "message": "Käytä oletusasetusta"
   },
   "autoFillOnPageLoadYes": {
-    "message": "Täytä automaattisesti sivun avautuessa"
+    "message": "Automaattitäyttö sivun avautuessa"
   },
   "autoFillOnPageLoadNo": {
-    "message": "Älä täytä automaattisesti sivun avautuessa"
+    "message": "Ei automaattitäyttöä sivun avautuessa"
   },
   "commandOpenPopup": {
     "message": "Avaa holvin ponnahdusikkuna"
@@ -1039,7 +1112,7 @@
     "message": "Avaa holvi sivupalkissa"
   },
   "commandAutofillDesc": {
-    "message": "Täytä automaattisesti viimeisin nykyisellä sivustolla käytetty kirjautumistieto"
+    "message": "Täytä edellinen nykyisellä sivustolla käytetty kirjautumistieto automaattisesti."
   },
   "commandGeneratePasswordDesc": {
     "message": "Luo uusi satunnainen salasana ja kopioi se leikepöydälle."
@@ -1093,6 +1166,9 @@
   },
   "faviconDesc": {
     "message": "Näytä tunnistettava kuva jokaiselle kirjautumistiedolle."
+  },
+  "faviconDescAlt": {
+    "message": "Näytä tunnistettava kuva jokaisen kirjautumistiedon vieressä. Koskee kaikkia kirjautuneita tilejä."
   },
   "enableBadgeCounter": {
     "message": "Näytä laskuri"
@@ -1253,9 +1329,6 @@
   "typeIdentity": {
     "message": "Henkilöllisyys"
   },
-  "typePasskey": {
-    "message": "Suojausavain"
-  },
   "passwordHistory": {
     "message": "Salasanahistoria"
   },
@@ -1332,7 +1405,7 @@
     "description": "URI match detection for auto-fill."
   },
   "defaultMatchDetection": {
-    "message": "Tunnistuksen oletustapa",
+    "message": "Oletusarvoinen tunnistustapa",
     "description": "Default URI match detection for auto-fill."
   },
   "toggleOptions": {
@@ -1426,6 +1499,9 @@
   "invalidPin": {
     "message": "Virheellinen PIN-koodi."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Liian monta epäonnistunutta PIN-yritystä. Kirjaudutaan ulos."
+  },
   "unlockWithBiometrics": {
     "message": "Avaa biometrialla"
   },
@@ -1486,7 +1562,7 @@
     "message": "Aikakatkaisutoiminnon vahvistus"
   },
   "autoFillAndSave": {
-    "message": "Täytä automaattisesti ja tallenna"
+    "message": "Automaattitäytä ja tallenna"
   },
   "autoFillSuccessAndSavedUri": {
     "message": "Kohde täytettiin automaattisesti ja URI tallennettiin"
@@ -1501,7 +1577,7 @@
     "message": "Haluatko silti täyttää kirjautumistiedot?"
   },
   "autofillIframeWarning": {
-    "message": "Lomakkeen URI-osoite poikkeaa kirjautumistietoon tallennetusta osoitteesta. Täytä se siitä huolimatta valitsemalla OK tai peru täyttö valitsemalla Peruuta."
+    "message": "Lomakkeen URI-osoite poikkeaa kirjautumistietoon tallennetusta osoitteesta. Salli sen automaattinen täyttö siitä huolimatta valitsemalla OK tai estä se valitsemalla Peruuta."
   },
   "autofillIframeWarningTip": {
     "message": "Välttyäksesi varoitukselta jatkossa, tallenna URI $HOSTNAME$ sivustolle tallennettuun Bitwarden-kirjautumistietoosi.",
@@ -1651,7 +1727,7 @@
     "message": "Toimintoa ei voi suorittaa sivupalkissa, yritä toimintoa uudelleen ponnahdusvalikossa tai ponnahdusikkunassa."
   },
   "personalOwnershipSubmitError": {
-    "message": "Yrityskäytännön johdosta kohteiden tallennus henkilökohtaiseen holviin ei ole mahdollista. Muuta omistusasetus organisaatiolle ja valitse käytettävissä olevista kokoelmista."
+    "message": "Yrityskäytännön vuoksi kohteiden tallennus henkilökohtaiseen holviin ei ole mahdollista. Muuta omistusasetus organisaatiolle ja valitse käytettävissä olevista kokoelmista."
   },
   "personalOwnershipPolicyInEffect": {
     "message": "Organisaatiokäytäntö vaikuttaa omistajuusvalintoihisi."
@@ -1665,12 +1741,15 @@
   "excludedDomainsDesc": {
     "message": "Bitwarden ei pyydä kirjautumistietojen tallennusta näille verkkotunnuksille. Päivitä sivu ottaaksesi muutokset käyttöön."
   },
+  "excludedDomainsDescAlt": {
+    "message": "Bitwarden ei pyydä kirjautumistietojen tallennusta näillä verkkotunnuksilla. Koskee kaikkia kirjautuneita tilejä. Ota muutokset käyttöön päivittämällä sivu."
+  },
   "excludedDomainsInvalidDomain": {
     "message": "$DOMAIN$ ei ole kelvollinen verkkotunnus",
     "placeholders": {
       "domain": {
         "content": "$1",
-        "example": "googlecom"
+        "example": "google.com"
       }
     }
   },
@@ -1920,7 +1999,7 @@
     "message": "Automaattinen liitos"
   },
   "resetPasswordAutoEnrollInviteWarning": {
-    "message": "Organisaatiolla on käytäntö, joka liittää tilisi automaattisesti salasanan palautusapuun. Liitos sallii organisaation ylläpitäjien vaihtaa pääsalasanasi."
+    "message": "Organisaatiolla on yrityskäytäntö, joka liittää tilisi automaattisesti salasanan palautusapuun. Liitos sallii organisaation ylläpitäjien vaihtaa pääsalasanasi."
   },
   "selectFolder": {
     "message": "Valitse kansio..."
@@ -1932,6 +2011,10 @@
   "orgRequiresYouToSetPassword": {
     "message": "Organisaatiosi edellyttää, että asetat pääsalasanan.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "verificationRequired": {
+    "message": "Vahvistus vaaditaan",
+    "description": "Default title for the user verification dialog."
   },
   "hours": {
     "message": "Tuntia"
@@ -2085,7 +2168,7 @@
     "message": "Luo sähköpostialias ulkoisella ohjauspalvelulla."
   },
   "hostname": {
-    "message": "Osoite",
+    "message": "Isäntä",
     "description": "Part of a URL."
   },
   "apiAccessToken": {
@@ -2221,13 +2304,13 @@
     }
   },
   "autofillPageLoadPolicyActivated": {
-    "message": "Organisaatiokäytännöt ovat poistaneet käytöstä automaattisen täytön sivun avautuessa."
+    "message": "Organisaatiokäytännöt ovat poistaneet käytöstä avautuessa suoritettavan automaattisen täytön."
   },
   "howToAutofill": {
-    "message": "Miten täytetään automaattisesti"
+    "message": "Miten automaattitäyttöä käytetään"
   },
   "autofillSelectInfoWithCommand": {
-    "message": "Valitse tälle sivulle sopiva kohde tai käytä pikanäppäintä $COMMAND$.",
+    "message": "Valitse kohde tästä ruudusta, käytä pikanäppäintä $COMMAND$ tai tutustu muihin vaihtoehtoihin asetuksissa.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2236,16 +2319,16 @@
     }
   },
   "autofillSelectInfoWithoutCommand": {
-    "message": "Valitse tälle sivulle sopiva kohde tai määritä pikanäppäin asetuksista."
+    "message": "Valitse kohde tästä ruudusta tai tutustu muihin vaihtoehtoihin asetuksissa."
   },
   "gotIt": {
     "message": "Selvä"
   },
   "autofillSettings": {
-    "message": "Täytön asetukset"
+    "message": "Automaattitäytön asetukset"
   },
   "autofillShortcut": {
-    "message": "Automaattisen täytön pikanäppäin"
+    "message": "Automaattitäytön pikanäppäin"
   },
   "autofillShortcutNotSet": {
     "message": "Automaattisen täytön pikanäppäintä ei ole määritetty. Määritä se selaimen asetuksista."
@@ -2284,7 +2367,7 @@
     "message": "Poista valinta julkisilla laitteilla"
   },
   "approveFromYourOtherDevice": {
-    "message": "Hyväksy toiselta laitteiltasi"
+    "message": "Hyväksy muilta laitteiltasi"
   },
   "requestAdminApproval": {
     "message": "Pyydä hyväksyntää ylläpidolta"
@@ -2442,20 +2525,105 @@
     "message": "Laajenna tai supista",
     "description": "Toggling an expand/collapse state."
   },
+  "filelessImport": {
+    "message": "Tuodaanko tiedot Bitwardeniin?",
+    "description": "Default notification title for triggering a fileless import."
+  },
+  "lpFilelessImport": {
+    "message": "Haluatko suojata LastPass-tietosi tuomalla ne Bitwardeniin?",
+    "description": "LastPass specific notification title for triggering a fileless import."
+  },
+  "lpCancelFilelessImport": {
+    "message": "Tallenna salaamattomana tiedostona",
+    "description": "LastPass specific notification button text for cancelling a fileless import."
+  },
+  "startFilelessImport": {
+    "message": "Tuo Bitwardeniin",
+    "description": "Notification button text for starting a fileless import."
+  },
+  "importing": {
+    "message": "Tuodaan...",
+    "description": "Notification message for when an import is in progress."
+  },
+  "dataSuccessfullyImported": {
+    "message": "Tietojen tuonti onnistui.",
+    "description": "Notification message for when an import has completed successfully."
+  },
+  "dataImportFailed": {
+    "message": "Tuontivirhe. Näet isätietoja hallinnasta.",
+    "description": "Notification message for when an import has failed."
+  },
+  "importNetworkError": {
+    "message": "Verkkovirhe tuonnin aikana.",
+    "description": "Notification message for when an import has failed due to a network error."
+  },
   "aliasDomain": {
-    "message": "Alias-verkkotunnus"
+    "message": "Aliaksen verkkotunnus"
   },
   "passwordRepromptDisabledAutofillOnPageLoad": {
-    "message": "Kohteita, joille pääsalasanan uudelleenkysely on käytössä, ei voida täyttää automaattisesti sivujen avautuessa. Automaattinen täyttö sivujen avautuessa poistettiin käytöstä.",
+    "message": "Kohteille, joille on määritetty pääsalasanan uudelleenkysely, ei voida suorittaa automaattista täyttöä sivun avautuessa. Automaattitäyttö sivun avautuessa poistettiin käytöstä. avautuessa suoritettavan",
     "description": "Toast message for describing that master password re-prompt cannot be auto-filled on page load."
   },
   "autofillOnPageLoadSetToDefault": {
-    "message": "Automaattinen täyttö sivun avautuessa käyttää oletusasetusta.",
+    "message": "Automaattitäyttö sivun avautuessa käyttää oletusasetusta.",
     "description": "Toast message for informing the user that auto-fill on page load has been set to the default setting."
   },
   "turnOffMasterPasswordPromptToEditField": {
     "message": "Poista pääsalasanan uudelleenkysely käytöstä muokataksesi kenttää",
     "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
+  },
+  "skipToContent": {
+    "message": "Siirry sisältöön"
+  },
+  "bitwardenOverlayButton": {
+    "message": "Bitwardenin automaattitäytön painike",
+    "description": "Page title for the iframe containing the overlay button"
+  },
+  "toggleBitwardenVaultOverlay": {
+    "message": "Kytke Bitwardenin automaattitäytön valikko",
+    "description": "Screen reader and tool tip label for the overlay button"
+  },
+  "bitwardenVault": {
+    "message": "Bitwardenin automaattitäytön valikko",
+    "description": "Page title in overlay"
+  },
+  "unlockYourAccountToViewMatchingLogins": {
+    "message": "Näytä sopivat kirjautumistiedot avaamalla tilisi lukitus",
+    "description": "Text to display in overlay when the account is locked."
+  },
+  "unlockAccount": {
+    "message": "Avaa tili",
+    "description": "Button text to display in overlay when the account is locked."
+  },
+  "fillCredentialsFor": {
+    "message": "Täytä kirjautumistiedot kohteesta",
+    "description": "Screen reader text for when overlay item is in focused"
+  },
+  "partialUsername": {
+    "message": "Osittainen käyttäjätunnus",
+    "description": "Screen reader text for when a login item is focused where a partial username is displayed. SR will announce this phrase before reading the text of the partial username"
+  },
+  "noItemsToShow": {
+    "message": "Näytettäviä kohteita ei ole",
+    "description": "Text to show in overlay if there are no matching items"
+  },
+  "newItem": {
+    "message": "Uusi kohde",
+    "description": "Button text to display in overlay when there are no matching items"
+  },
+  "addNewVaultItem": {
+    "message": "Lisää holviin uusi kohde",
+    "description": "Screen reader text (aria-label) for new item button in overlay"
+  },
+  "bitwardenOverlayMenuAvailable": {
+    "message": "Bitwardenin automaattisen täytön valikko on käytettävissä. Valitse painamalla alas-nuolinäppäintä.",
+    "description": "Screen reader text for announcing when the overlay opens on the page"
+  },
+  "turnOn": {
+    "message": "Ota käyttöön"
+  },
+  "ignore": {
+    "message": "Ohita"
   },
   "importData": {
     "message": "Tuo tietoja",
@@ -2485,6 +2653,42 @@
       }
     }
   },
+  "tryAgain": {
+    "message": "Yritä uudelleen"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Toiminto vaatii vahvistuksen. Jatka asettamalla PIN-koodi."
+  },
+  "setPin": {
+    "message": "Aseta PIN-koodi"
+  },
+  "verifyWithBiometrics": {
+    "message": "Vahvista biometrialla"
+  },
+  "awaitingConfirmation": {
+    "message": "Odottaa vahvistusta"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Biometrinen todennus ei onnistunut."
+  },
+  "needADifferentMethod": {
+    "message": "Tarvitsetko eri menetelmän?"
+  },
+  "useMasterPassword": {
+    "message": "Käytä pääsalasanaa"
+  },
+  "usePin": {
+    "message": "Käytä PIN-koodia"
+  },
+  "useBiometrics": {
+    "message": "Käytä biometriaa"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Syötä sähköpostiosoitteeseesi lähetetty vahvistuskoodi."
+  },
+  "resendCode": {
+    "message": "Lähetä koodi uudelleen"
+  },
   "total": {
     "message": "Yhteensä"
   },
@@ -2496,6 +2700,21 @@
         "example": "My Org Name"
       }
     }
+  },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Avaa DUO ja viimeistele kirjautuminen seuraamalla ohjeita."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "Tilisi vaatii kaksivaiheisen DUO-kirjautumisen."
+  },
+  "openExtensionInNewWindowToCompleteLogin": {
+    "message": "Viimeistele kirjautuminen avaamalla laajennus erilliseen ikkunaan."
+  },
+  "popoutExtension": {
+    "message": "Irrota laajennus"
+  },
+  "launchDuo": {
+    "message": "Avaa DUO"
   },
   "importFormatError": {
     "message": "Tietoja ei ole muotoiltu oikein. Tarkista tuotava tiedosto ja yritä uudelleen."
@@ -2568,6 +2787,9 @@
   "confirmFilePassword": {
     "message": "Vahvista tiedoston salasana"
   },
+  "typePasskey": {
+    "message": "Suojausavain"
+  },
   "passkeyNotCopied": {
     "message": "Suojausavainta ei kopioida"
   },
@@ -2578,7 +2800,7 @@
     "message": "Käynnistävä sivusto edellyttää todennusta. Ominaisuutta ei ole vielä toteutettu tileille, joilla ei ole pääsalasanaa."
   },
   "logInWithPasskey": {
-    "message": "Kirjaudu suojausavaimella?"
+    "message": "Kirjaudutaanko suojausavaimella?"
   },
   "passkeyAlreadyExists": {
     "message": "Tälle sovellukselle on jo tallennettu suojausavain."
@@ -2602,7 +2824,7 @@
     "message": "Valitse kirjautumistieto, johon suojausavain tallennetaan"
   },
   "passkeyItem": {
-    "message": "Suojausavaimen kohde"
+    "message": "Suojausavainkohde"
   },
   "overwritePasskey": {
     "message": "Korvataanko suojausavain?"
@@ -2616,9 +2838,6 @@
   "yourPasskeyIsLocked": {
     "message": "Salausavaimen käyttö edellyttää todennusta. Jatka vahvistamalla henkilöllisyytesi."
   },
-  "useBrowserName": {
-    "message": "Käytä verkkoselainta"
-  },
   "multifactorAuthenticationCancelled": {
     "message": "Monivaiheinen todennus peruttiin"
   },
@@ -2627,6 +2846,15 @@
   },
   "incorrectUsernameOrPassword": {
     "message": "Virheellinen käyttäjätunnus tai salasana"
+  },
+  "incorrectPassword": {
+    "message": "Virheellinen salasana"
+  },
+  "incorrectCode": {
+    "message": "Virheellinen koodi"
+  },
+  "incorrectPin": {
+    "message": "Virheellinen PIN-koodi"
   },
   "multifactorAuthenticationFailed": {
     "message": "Monivaiheinen todennus epäonnistui"
@@ -2682,5 +2910,88 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Kytke LastPass-tiliisi liitetty YubiKey tietokoneen USB-porttiin ja kosketa sen painiketta."
+  },
+  "switchAccount": {
+    "message": "Vaihda tiliä"
+  },
+  "switchAccounts": {
+    "message": "Vaihda tiliä"
+  },
+  "switchToAccount": {
+    "message": "Vaihda tiliin"
+  },
+  "activeAccount": {
+    "message": "Aktiivinen tili"
+  },
+  "availableAccounts": {
+    "message": "Käytettävissä olevat tilit"
+  },
+  "accountLimitReached": {
+    "message": "Tilien enimmäismäärä on saavutettu. Kirjaa jokin niistä ulos lisätäksesi tilin."
+  },
+  "active": {
+    "message": "aktiivinen"
+  },
+  "locked": {
+    "message": "lukittu"
+  },
+  "unlocked": {
+    "message": "avoin"
+  },
+  "server": {
+    "message": "palvelin"
+  },
+  "hostedAt": {
+    "message": "palvelimelta"
+  },
+  "useDeviceOrHardwareKey": {
+    "message": "Käytä laittettasi tai fyysistä suojausavainta"
+  },
+  "justOnce": {
+    "message": "Vain kerran"
+  },
+  "alwaysForThisSite": {
+    "message": "Aina tällä sivustolla"
+  },
+  "domainAddedToExcludedDomains": {
+    "message": "$DOMAIN$ lisättiin ohitettaviin verkkotunnuksiin.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "google.com"
+      }
+    }
+  },
+  "commonImportFormats": {
+    "message": "Yleiset muodot",
+    "description": "Label indicating the most common import formats"
+  },
+  "overrideDefaultBrowserAutofillTitle": {
+    "message": "Määritetäänkö Bitwarden oletusarvoiseksi salasanahallinnaksi?",
+    "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutofillDescription": {
+    "message": "Tämän huomiotta jättäminen voi aiheuttaa ongelmia Bitwardenin automaattitäytön valikon ja selaimen välisessä toiminnassa.",
+    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutofillPrivacyRequiredDescription": {
+    "message": "Tämä toiminto käynnistää Bitwarden-laajennuksen uudelleen ja sen huomiotta jättäminen voi aiheuttaa ongelmia Bitwardenin automaattitäytön valikon ja selaimen välisessä toiminnassa.",
+    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutoFillSettings": {
+    "message": "Määritä Bitwarden oletusarvoiseksi salasanahallinnaksi",
+    "description": "Label for the setting that allows overriding the default browser autofill settings"
+  },
+  "privacyPermissionAdditionNotGrantedTitle": {
+    "message": "Bitwardenia ei voida määrittää oletusarvoiseksi salasanahallinnaksi",
+    "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "privacyPermissionAdditionNotGrantedDescription": {
+    "message": "Jotta Bitwarden voidaan määrittää oletusarvoiseksi salasanahallinnaksi, on sille myönettävä oikeus käsitellä yksityisiä tietoja selaimessa.",
+    "description": "Description for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "makeDefault": {
+    "message": "Määritä oletukseksi",
+    "description": "Button text for the setting that allows overriding the default browser autofill settings"
   }
 }

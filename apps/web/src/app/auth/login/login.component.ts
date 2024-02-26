@@ -6,15 +6,16 @@ import { first } from "rxjs/operators";
 
 import { LoginComponent as BaseLoginComponent } from "@bitwarden/angular/auth/components/login.component";
 import { FormValidationErrorsService } from "@bitwarden/angular/platform/abstractions/form-validation-errors.service";
+import { LoginStrategyServiceAbstraction } from "@bitwarden/auth/common";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { PolicyResponse } from "@bitwarden/common/admin-console/models/response/policy.response";
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { LoginService } from "@bitwarden/common/auth/abstractions/login.service";
+import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
@@ -45,7 +46,7 @@ export class LoginComponent extends BaseLoginComponent implements OnInit {
   constructor(
     devicesApiService: DevicesApiServiceAbstraction,
     appIdService: AppIdService,
-    authService: AuthService,
+    loginStrategyService: LoginStrategyServiceAbstraction,
     router: Router,
     i18nService: I18nService,
     route: ActivatedRoute,
@@ -64,12 +65,13 @@ export class LoginComponent extends BaseLoginComponent implements OnInit {
     formBuilder: FormBuilder,
     formValidationErrorService: FormValidationErrorsService,
     loginService: LoginService,
-    webAuthnLoginService: WebAuthnLoginServiceAbstraction
+    ssoLoginService: SsoLoginServiceAbstraction,
+    webAuthnLoginService: WebAuthnLoginServiceAbstraction,
   ) {
     super(
       devicesApiService,
       appIdService,
-      authService,
+      loginStrategyService,
       router,
       platformUtilsService,
       i18nService,
@@ -83,7 +85,8 @@ export class LoginComponent extends BaseLoginComponent implements OnInit {
       formValidationErrorService,
       route,
       loginService,
-      webAuthnLoginService
+      ssoLoginService,
+      webAuthnLoginService,
     );
     this.onSuccessfulLogin = async () => {
       this.messagingService.send("setFullWidth");
@@ -95,9 +98,7 @@ export class LoginComponent extends BaseLoginComponent implements OnInit {
   async ngOnInit() {
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     this.route.queryParams.pipe(first()).subscribe(async (qParams) => {
-      if (qParams.premium != null) {
-        this.routerService.setPreviousUrl("/settings/premium");
-      } else if (qParams.org != null) {
+      if (qParams.org != null) {
         const route = this.router.createUrlTree(["create-organization"], {
           queryParams: { plan: qParams.org },
         });
@@ -122,7 +123,7 @@ export class LoginComponent extends BaseLoginComponent implements OnInit {
           invite.organizationId,
           invite.token,
           invite.email,
-          invite.organizationUserId
+          invite.organizationUserId,
         );
         policyList = this.policyService.mapPoliciesFromToken(this.policies);
       } catch (e) {
@@ -132,7 +133,7 @@ export class LoginComponent extends BaseLoginComponent implements OnInit {
       if (policyList != null) {
         const resetPasswordPolicy = this.policyService.getResetPasswordPolicyOptions(
           policyList,
-          invite.organizationId
+          invite.organizationId,
         );
         // Set to true if policy enabled and auto-enroll enabled
         this.showResetPasswordAutoEnrollWarning =
@@ -155,7 +156,7 @@ export class LoginComponent extends BaseLoginComponent implements OnInit {
     if (this.enforcedPasswordPolicyOptions != null) {
       const strengthResult = this.passwordStrengthService.getPasswordStrength(
         masterPassword,
-        this.formGroup.value.email
+        this.formGroup.value.email,
       );
       const masterPasswordScore = strengthResult == null ? null : strengthResult.score;
 
@@ -164,23 +165,29 @@ export class LoginComponent extends BaseLoginComponent implements OnInit {
         !this.policyService.evaluateMasterPassword(
           masterPasswordScore,
           masterPassword,
-          this.enforcedPasswordPolicyOptions
+          this.enforcedPasswordPolicyOptions,
         )
       ) {
         const policiesData: { [id: string]: PolicyData } = {};
         this.policies.data.map((p) => (policiesData[p.id] = new PolicyData(p)));
         await this.policyService.replace(policiesData);
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.router.navigate(["update-password"]);
         return;
       }
     }
 
     this.loginService.clearValues();
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate([this.successRoute]);
   }
 
   goToHint() {
     this.setFormValues();
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigateByUrl("/hint");
   }
 
@@ -188,10 +195,14 @@ export class LoginComponent extends BaseLoginComponent implements OnInit {
     const email = this.formGroup.value.email;
 
     if (email) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["/register"], { queryParams: { email: email } });
       return;
     }
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["/register"]);
   }
 
@@ -208,6 +219,8 @@ export class LoginComponent extends BaseLoginComponent implements OnInit {
     if (!result.requiresEncryptionKeyMigration) {
       return false;
     }
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["migrate-legacy-encryption"]);
     return true;
   }

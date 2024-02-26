@@ -39,6 +39,7 @@
           { "accessibility": "no-public" }
         ],
         "@typescript-eslint/no-explicit-any": "off", // TODO: This should be re-enabled
+        "@typescript-eslint/no-floating-promises": "error",
         "@typescript-eslint/no-misused-promises": ["error", { "checksVoidReturn": false }],
         "@typescript-eslint/no-this-alias": ["error", { "allowedNames": ["self"] }],
         "@typescript-eslint/no-unused-vars": ["error", { "args": "none" }],
@@ -98,7 +99,7 @@
 
                   // Import/export
                   "./libs/importer/**/*",
-                  "./libs/exporter/**/*"
+                  "./libs/tools/export/vault-export/vault-export-core/**/*"
                 ]
               },
               {
@@ -140,6 +141,15 @@
       }
     },
     {
+      "files": ["libs/admin-console/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          { "patterns": ["@bitwarden/admin-console/*", "src/**/*"] }
+        ]
+      }
+    },
+    {
       "files": ["libs/angular/src/**/*.ts"],
       "rules": {
         "no-restricted-imports": ["error", { "patterns": ["@bitwarden/angular/*", "src/**/*"] }]
@@ -149,6 +159,12 @@
       "files": ["libs/auth/src/**/*.ts"],
       "rules": {
         "no-restricted-imports": ["error", { "patterns": ["@bitwarden/auth/*", "src/**/*"] }]
+      }
+    },
+    {
+      "files": ["libs/billing/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": ["error", { "patterns": ["@bitwarden/billing/*", "src/**/*"] }]
       }
     },
     {
@@ -167,9 +183,12 @@
       }
     },
     {
-      "files": ["libs/exporter/src/**/*.ts"],
+      "files": ["libs/tools/export/vault-export/vault-export-core/src/**/*.ts"],
       "rules": {
-        "no-restricted-imports": ["error", { "patterns": ["@bitwarden/exporter/*", "src/**/*"] }]
+        "no-restricted-imports": [
+          "error",
+          { "patterns": ["@bitwarden/vault-export-core/*", "src/**/*"] }
+        ]
       }
     },
     {
@@ -182,6 +201,12 @@
       "files": ["libs/node/src/**/*.ts"],
       "rules": {
         "no-restricted-imports": ["error", { "patterns": ["@bitwarden/node/*", "src/**/*"] }]
+      }
+    },
+    {
+      "files": ["libs/platform/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": ["error", { "patterns": ["@bitwarden/platform/*", "src/**/*"] }]
       }
     },
     {

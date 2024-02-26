@@ -3,7 +3,6 @@ import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { BitwardenSdkServiceAbstraction } from "@bitwarden/common/abstractions/bitwarden-sdk.service.abstraction";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
-import { TotpService } from "@bitwarden/common/abstractions/totp.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { EventType } from "@bitwarden/common/enums";
@@ -25,7 +24,8 @@ import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
@@ -58,7 +58,7 @@ export class GetCommand extends DownloadCommand {
     private apiService: ApiService,
     private organizationService: OrganizationService,
     private eventCollectionService: EventCollectionService,
-    private bitwardenSdkService: BitwardenSdkServiceAbstraction
+    private bitwardenSdkService: BitwardenSdkServiceAbstraction,
   ) {
     super(cryptoService);
   }
@@ -109,7 +109,7 @@ export class GetCommand extends DownloadCommand {
       const cipher = await this.cipherService.get(id);
       if (cipher != null) {
         decCipher = await cipher.decrypt(
-          await this.cipherService.getKeyForCipherKeyDecryption(cipher)
+          await this.cipherService.getKeyForCipherKeyDecryption(cipher),
         );
       }
     } else if (id.trim() !== "") {
@@ -143,11 +143,13 @@ export class GetCommand extends DownloadCommand {
       }
     }
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.eventCollectionService.collect(
       EventType.Cipher_ClientViewed,
       id,
       true,
-      decCipher.organizationId
+      decCipher.organizationId,
     );
 
     const res = new CipherResponse(decCipher);
@@ -157,7 +159,7 @@ export class GetCommand extends DownloadCommand {
   private async getUsername(id: string) {
     const cipherResponse = await this.getCipher(
       id,
-      (c) => c.type === CipherType.Login && !Utils.isNullOrWhitespace(c.login.username)
+      (c) => c.type === CipherType.Login && !Utils.isNullOrWhitespace(c.login.username),
     );
     if (!cipherResponse.success) {
       return cipherResponse;
@@ -179,7 +181,7 @@ export class GetCommand extends DownloadCommand {
   private async getPassword(id: string) {
     const cipherResponse = await this.getCipher(
       id,
-      (c) => c.type === CipherType.Login && !Utils.isNullOrWhitespace(c.login.password)
+      (c) => c.type === CipherType.Login && !Utils.isNullOrWhitespace(c.login.password),
     );
     if (!cipherResponse.success) {
       return cipherResponse;
@@ -205,7 +207,7 @@ export class GetCommand extends DownloadCommand {
         c.type === CipherType.Login &&
         c.login.uris != null &&
         c.login.uris.length > 0 &&
-        c.login.uris[0].uri !== ""
+        c.login.uris[0].uri !== "",
     );
     if (!cipherResponse.success) {
       return cipherResponse;
@@ -231,7 +233,7 @@ export class GetCommand extends DownloadCommand {
   private async getTotp(id: string) {
     const cipherResponse = await this.getCipher(
       id,
-      (c) => c.type === CipherType.Login && !Utils.isNullOrWhitespace(c.login.totp)
+      (c) => c.type === CipherType.Login && !Utils.isNullOrWhitespace(c.login.totp),
     );
     if (!cipherResponse.success) {
       return cipherResponse;
@@ -289,7 +291,7 @@ export class GetCommand extends DownloadCommand {
     }
 
     const exposedNumber = await this.auditService.passwordLeaked(
-      (passwordResponse.data as StringResponse).data
+      (passwordResponse.data as StringResponse).data,
     );
     const res = new StringResponse(exposedNumber.toString());
     return Response.success(res);
@@ -319,7 +321,7 @@ export class GetCommand extends DownloadCommand {
     let attachments = cipher.attachments.filter(
       (a) =>
         a.id.toLowerCase() === id ||
-        (a.fileName != null && a.fileName.toLowerCase().indexOf(id) > -1)
+        (a.fileName != null && a.fileName.toLowerCase().indexOf(id) > -1),
     );
     if (attachments.length === 0) {
       return Response.error("Attachment `" + id + "` was not found.");
@@ -345,7 +347,7 @@ export class GetCommand extends DownloadCommand {
     try {
       const attachmentDownloadResponse = await this.apiService.getAttachmentData(
         cipher.id,
-        attachments[0].id
+        attachments[0].id,
       );
       url = attachmentDownloadResponse.url;
     } catch (e) {
@@ -435,13 +437,13 @@ export class GetCommand extends DownloadCommand {
       const decCollection = new CollectionView(response);
       decCollection.name = await this.cryptoService.decryptToUtf8(
         new EncString(response.name),
-        orgKey
+        orgKey,
       );
       const groups =
         response.groups == null
           ? null
           : response.groups.map(
-              (g) => new SelectionReadOnly(g.id, g.readOnly, g.hidePasswords, g.manage)
+              (g) => new SelectionReadOnly(g.id, g.readOnly, g.hidePasswords, g.manage),
             );
       const res = new OrganizationCollectionResponse(decCollection, groups);
       return Response.success(res);
@@ -528,7 +530,7 @@ export class GetCommand extends DownloadCommand {
       const client = await this.bitwardenSdkService.getClient();
       fingerprint = await client.fingerprint(
         await this.stateService.getUserId(),
-        Utils.fromBufferToB64(await this.cryptoService.getPublicKey())
+        Utils.fromBufferToB64(await this.cryptoService.getPublicKey()),
       );
     } else if (Utils.isGuid(id)) {
       try {

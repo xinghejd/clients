@@ -4,8 +4,9 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { MockProxy, mock } from "jest-mock-extended";
 import { Observable, of } from "rxjs";
 
+import { LoginStrategyServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
@@ -46,13 +47,14 @@ describe("SsoComponent", () => {
   let fixture: ComponentFixture<TestSsoComponent>;
 
   // Mock Services
-  let mockAuthService: MockProxy<AuthService>;
+  let mockLoginStrategyService: MockProxy<LoginStrategyServiceAbstraction>;
   let mockRouter: MockProxy<Router>;
   let mockI18nService: MockProxy<I18nService>;
 
   let mockQueryParams: Observable<any>;
   let mockActivatedRoute: ActivatedRoute;
 
+  let mockSsoLoginService: MockProxy<SsoLoginServiceAbstraction>;
   let mockStateService: MockProxy<StateService>;
   let mockPlatformUtilsService: MockProxy<PlatformUtilsService>;
   let mockApiService: MockProxy<ApiService>;
@@ -88,7 +90,7 @@ describe("SsoComponent", () => {
 
   beforeEach(() => {
     // Mock Services
-    mockAuthService = mock<AuthService>();
+    mockLoginStrategyService = mock<LoginStrategyServiceAbstraction>();
     mockRouter = mock<Router>();
     mockI18nService = mock<I18nService>();
 
@@ -99,6 +101,7 @@ describe("SsoComponent", () => {
       queryParams: mockQueryParams,
     } as any as ActivatedRoute;
 
+    mockSsoLoginService = mock<SsoLoginServiceAbstraction>();
     mockStateService = mock<StateService>();
     mockPlatformUtilsService = mock<PlatformUtilsService>();
     mockApiService = mock<ApiService>();
@@ -108,7 +111,7 @@ describe("SsoComponent", () => {
     mockLogService = mock<LogService>();
     mockConfigService = mock<ConfigServiceAbstraction>();
 
-    // Mock authService.logIn params
+    // Mock loginStrategyService.logIn params
     code = "code";
     codeVerifier = "codeVerifier";
     orgIdFromState = "orgIdFromState";
@@ -167,7 +170,8 @@ describe("SsoComponent", () => {
     TestBed.configureTestingModule({
       declarations: [TestSsoComponent],
       providers: [
-        { provide: AuthService, useValue: mockAuthService },
+        { provide: SsoLoginServiceAbstraction, useValue: mockSsoLoginService },
+        { provide: LoginStrategyServiceAbstraction, useValue: mockLoginStrategyService },
         { provide: Router, useValue: mockRouter },
         { provide: I18nService, useValue: mockI18nService },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
@@ -227,15 +231,15 @@ describe("SsoComponent", () => {
 
         // use standard user with MP because this test is not concerned with password reset.
         mockStateService.getAccountDecryptionOptions.mockResolvedValue(
-          mockAcctDecryptionOpts.withMasterPassword
+          mockAcctDecryptionOpts.withMasterPassword,
         );
 
-        mockAuthService.logIn.mockResolvedValue(authResult);
+        mockLoginStrategyService.logIn.mockResolvedValue(authResult);
       });
 
       it("calls authService.logIn and navigates to the component's defined 2FA route when the auth result requires 2FA and onSuccessfulLoginTwoFactorNavigate is not defined", async () => {
         await _component.logIn(code, codeVerifier, orgIdFromState);
-        expect(mockAuthService.logIn).toHaveBeenCalledTimes(1);
+        expect(mockLoginStrategyService.logIn).toHaveBeenCalledTimes(1);
 
         expect(mockOnSuccessfulLoginTwoFactorNavigate).not.toHaveBeenCalled();
 
@@ -256,7 +260,7 @@ describe("SsoComponent", () => {
 
         await _component.logIn(code, codeVerifier, orgIdFromState);
 
-        expect(mockAuthService.logIn).toHaveBeenCalledTimes(1);
+        expect(mockLoginStrategyService.logIn).toHaveBeenCalledTimes(1);
         expect(mockOnSuccessfulLoginTwoFactorNavigate).toHaveBeenCalledTimes(1);
         expect(mockRouter.navigate).not.toHaveBeenCalled();
         expect(mockLogService.error).not.toHaveBeenCalled();
@@ -267,7 +271,7 @@ describe("SsoComponent", () => {
     const testChangePasswordOnSuccessfulLogin = () => {
       it("navigates to the component's defined change password route when onSuccessfulLoginChangePasswordNavigate callback is undefined", async () => {
         await _component.logIn(code, codeVerifier, orgIdFromState);
-        expect(mockAuthService.logIn).toHaveBeenCalledTimes(1);
+        expect(mockLoginStrategyService.logIn).toHaveBeenCalledTimes(1);
 
         expect(mockOnSuccessfulLoginChangePasswordNavigate).not.toHaveBeenCalled();
 
@@ -290,7 +294,7 @@ describe("SsoComponent", () => {
 
         await _component.logIn(code, codeVerifier, orgIdFromState);
 
-        expect(mockAuthService.logIn).toHaveBeenCalledTimes(1);
+        expect(mockLoginStrategyService.logIn).toHaveBeenCalledTimes(1);
         expect(mockOnSuccessfulLoginChangePasswordNavigate).toHaveBeenCalledTimes(1);
         expect(mockRouter.navigate).not.toHaveBeenCalled();
         expect(mockLogService.error).not.toHaveBeenCalled();
@@ -301,7 +305,7 @@ describe("SsoComponent", () => {
       it(`navigates to the component's defined forcePasswordResetRoute when response.forcePasswordReset is ${reasonString}`, async () => {
         await _component.logIn(code, codeVerifier, orgIdFromState);
 
-        expect(mockAuthService.logIn).toHaveBeenCalledTimes(1);
+        expect(mockLoginStrategyService.logIn).toHaveBeenCalledTimes(1);
 
         expect(mockOnSuccessfulLoginForceResetNavigate).not.toHaveBeenCalled();
 
@@ -322,7 +326,7 @@ describe("SsoComponent", () => {
 
         await _component.logIn(code, codeVerifier, orgIdFromState);
 
-        expect(mockAuthService.logIn).toHaveBeenCalledTimes(1);
+        expect(mockLoginStrategyService.logIn).toHaveBeenCalledTimes(1);
         expect(mockOnSuccessfulLoginForceResetNavigate).toHaveBeenCalledTimes(1);
         expect(mockRouter.navigate).not.toHaveBeenCalled();
         expect(mockLogService.error).not.toHaveBeenCalled();
@@ -338,19 +342,19 @@ describe("SsoComponent", () => {
         let authResult;
         beforeEach(() => {
           mockStateService.getAccountDecryptionOptions.mockResolvedValue(
-            mockAcctDecryptionOpts.noMasterPasswordWithTrustedDeviceWithManageResetPassword
+            mockAcctDecryptionOpts.noMasterPasswordWithTrustedDeviceWithManageResetPassword,
           );
 
           authResult = new AuthResult();
-          mockAuthService.logIn.mockResolvedValue(authResult);
+          mockLoginStrategyService.logIn.mockResolvedValue(authResult);
         });
 
         it("navigates to the component's defined trustedDeviceEncRoute route and sets correct flag when onSuccessfulLoginTdeNavigate is undefined ", async () => {
           await _component.logIn(code, codeVerifier, orgIdFromState);
-          expect(mockAuthService.logIn).toHaveBeenCalledTimes(1);
+          expect(mockLoginStrategyService.logIn).toHaveBeenCalledTimes(1);
 
           expect(mockStateService.setForceSetPasswordReason).toHaveBeenCalledWith(
-            ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission
+            ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission,
           );
 
           expect(mockOnSuccessfulLoginTdeNavigate).not.toHaveBeenCalled();
@@ -358,7 +362,7 @@ describe("SsoComponent", () => {
           expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
           expect(mockRouter.navigate).toHaveBeenCalledWith(
             [_component.trustedDeviceEncRoute],
-            undefined
+            undefined,
           );
 
           expect(mockLogService.error).not.toHaveBeenCalled();
@@ -374,12 +378,12 @@ describe("SsoComponent", () => {
           let authResult;
           beforeEach(() => {
             mockStateService.getAccountDecryptionOptions.mockResolvedValue(
-              mockAcctDecryptionOpts.withMasterPasswordAndTrustedDevice
+              mockAcctDecryptionOpts.withMasterPasswordAndTrustedDevice,
             );
 
             authResult = new AuthResult();
             authResult.forcePasswordReset = ForceSetPasswordReason.AdminForcePasswordReset;
-            mockAuthService.logIn.mockResolvedValue(authResult);
+            mockLoginStrategyService.logIn.mockResolvedValue(authResult);
           });
 
           testForceResetOnSuccessfulLogin(reasonString);
@@ -391,22 +395,22 @@ describe("SsoComponent", () => {
         let authResult;
         beforeEach(() => {
           mockStateService.getAccountDecryptionOptions.mockResolvedValue(
-            mockAcctDecryptionOpts.withMasterPasswordAndTrustedDevice
+            mockAcctDecryptionOpts.withMasterPasswordAndTrustedDevice,
           );
 
           authResult = new AuthResult();
           authResult.forcePasswordReset = ForceSetPasswordReason.None;
-          mockAuthService.logIn.mockResolvedValue(authResult);
+          mockLoginStrategyService.logIn.mockResolvedValue(authResult);
         });
 
         it("navigates to the component's defined trusted device encryption route when login is successful and no callback is defined", async () => {
           await _component.logIn(code, codeVerifier, orgIdFromState);
 
-          expect(mockAuthService.logIn).toHaveBeenCalledTimes(1);
+          expect(mockLoginStrategyService.logIn).toHaveBeenCalledTimes(1);
           expect(mockRouter.navigate).toHaveBeenCalledTimes(1);
           expect(mockRouter.navigate).toHaveBeenCalledWith(
             [_component.trustedDeviceEncRoute],
-            undefined
+            undefined,
           );
           expect(mockLogService.error).not.toHaveBeenCalled();
         });
@@ -417,7 +421,7 @@ describe("SsoComponent", () => {
 
           await _component.logIn(code, codeVerifier, orgIdFromState);
 
-          expect(mockAuthService.logIn).toHaveBeenCalledTimes(1);
+          expect(mockLoginStrategyService.logIn).toHaveBeenCalledTimes(1);
 
           expect(mockOnSuccessfulLoginTdeNavigate).toHaveBeenCalledTimes(1);
 
@@ -430,14 +434,14 @@ describe("SsoComponent", () => {
     describe("Set Master Password scenarios", () => {
       beforeEach(() => {
         const authResult = new AuthResult();
-        mockAuthService.logIn.mockResolvedValue(authResult);
+        mockLoginStrategyService.logIn.mockResolvedValue(authResult);
       });
 
       describe("Given user needs to set a master password", () => {
         beforeEach(() => {
           // Only need to test the case where the user has no master password to test the primary change mp flow here
           mockStateService.getAccountDecryptionOptions.mockResolvedValue(
-            mockAcctDecryptionOpts.noMasterPassword
+            mockAcctDecryptionOpts.noMasterPassword,
           );
         });
 
@@ -447,11 +451,11 @@ describe("SsoComponent", () => {
 
       it("does not navigate to the change password route when the user has key connector even if user has no master password", async () => {
         mockStateService.getAccountDecryptionOptions.mockResolvedValue(
-          mockAcctDecryptionOpts.noMasterPasswordWithKeyConnector
+          mockAcctDecryptionOpts.noMasterPasswordWithKeyConnector,
         );
 
         await _component.logIn(code, codeVerifier, orgIdFromState);
-        expect(mockAuthService.logIn).toHaveBeenCalledTimes(1);
+        expect(mockLoginStrategyService.logIn).toHaveBeenCalledTimes(1);
 
         expect(mockOnSuccessfulLoginChangePasswordNavigate).not.toHaveBeenCalled();
         expect(mockRouter.navigate).not.toHaveBeenCalledWith([_component.changePasswordRoute], {
@@ -472,12 +476,12 @@ describe("SsoComponent", () => {
         beforeEach(() => {
           // use standard user with MP because this test is not concerned with password reset.
           mockStateService.getAccountDecryptionOptions.mockResolvedValue(
-            mockAcctDecryptionOpts.withMasterPassword
+            mockAcctDecryptionOpts.withMasterPassword,
           );
 
           const authResult = new AuthResult();
           authResult.forcePasswordReset = forceResetPasswordReason;
-          mockAuthService.logIn.mockResolvedValue(authResult);
+          mockLoginStrategyService.logIn.mockResolvedValue(authResult);
         });
 
         testForceResetOnSuccessfulLogin(reasonString);
@@ -491,16 +495,16 @@ describe("SsoComponent", () => {
         authResult.twoFactorProviders = null;
         // use standard user with MP because this test is not concerned with password reset.
         mockStateService.getAccountDecryptionOptions.mockResolvedValue(
-          mockAcctDecryptionOpts.withMasterPassword
+          mockAcctDecryptionOpts.withMasterPassword,
         );
         authResult.forcePasswordReset = ForceSetPasswordReason.None;
-        mockAuthService.logIn.mockResolvedValue(authResult);
+        mockLoginStrategyService.logIn.mockResolvedValue(authResult);
       });
 
       it("calls authService.logIn and navigates to the component's defined success route when the login is successful", async () => {
         await _component.logIn(code, codeVerifier, orgIdFromState);
 
-        expect(mockAuthService.logIn).toHaveBeenCalled();
+        expect(mockLoginStrategyService.logIn).toHaveBeenCalled();
 
         expect(mockOnSuccessfulLoginNavigate).not.toHaveBeenCalled();
         expect(mockOnSuccessfulLogin).not.toHaveBeenCalled();
@@ -516,7 +520,7 @@ describe("SsoComponent", () => {
 
         await _component.logIn(code, codeVerifier, orgIdFromState);
 
-        expect(mockAuthService.logIn).toHaveBeenCalled();
+        expect(mockLoginStrategyService.logIn).toHaveBeenCalled();
         expect(mockOnSuccessfulLogin).toHaveBeenCalledTimes(1);
 
         expect(mockOnSuccessfulLoginNavigate).not.toHaveBeenCalled();
@@ -533,7 +537,7 @@ describe("SsoComponent", () => {
 
         await _component.logIn(code, codeVerifier, orgIdFromState);
 
-        expect(mockAuthService.logIn).toHaveBeenCalled();
+        expect(mockLoginStrategyService.logIn).toHaveBeenCalled();
 
         expect(mockOnSuccessfulLoginNavigate).toHaveBeenCalledTimes(1);
 
@@ -547,7 +551,7 @@ describe("SsoComponent", () => {
       it("calls handleLoginError when an error is thrown during logIn", async () => {
         const errorMessage = "Key Connector error";
         const error = new Error(errorMessage);
-        mockAuthService.logIn.mockRejectedValue(error);
+        mockLoginStrategyService.logIn.mockRejectedValue(error);
 
         const handleLoginErrorSpy = jest.spyOn(_component, "handleLoginError");
 
@@ -574,7 +578,7 @@ describe("SsoComponent", () => {
       expect(mockPlatformUtilsService.showToast).toHaveBeenCalledWith(
         "error",
         null,
-        "ssoKeyConnectorError"
+        "ssoKeyConnectorError",
       );
 
       expect(mockRouter.navigate).not.toHaveBeenCalled();

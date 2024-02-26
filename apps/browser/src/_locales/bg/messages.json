@@ -268,6 +268,9 @@
   "length": {
     "message": "Дължина"
   },
+  "passwordMinLength": {
+    "message": "Минимална дължина на паролата"
+  },
   "uppercase": {
     "message": "Главни букви (A-Z)"
   },
@@ -323,6 +326,9 @@
   "password": {
     "message": "Парола"
   },
+  "totp": {
+    "message": "Тайна за удостоверяване"
+  },
   "passphrase": {
     "message": "Парола-фраза"
   },
@@ -365,6 +371,9 @@
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Задайте метод за отключване, за да може да промените действието при изтичане на времето за достъп до трезора."
   },
+  "unlockMethodNeeded": {
+    "message": "Задайте метод за отключване в Настройките"
+  },
   "rateExtension": {
     "message": "Оценяване на разширението"
   },
@@ -404,6 +413,9 @@
   },
   "lockNow": {
     "message": "Заключване сега"
+  },
+  "lockAll": {
+    "message": "Заключване на всички"
   },
   "immediately": {
     "message": "Незабавно"
@@ -481,6 +493,12 @@
   "newAccountCreated": {
     "message": "Абонаментът ви бе създаден. Вече можете да се впишете."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "You successfully logged in"
+  },
+  "youMayCloseThisWindow": {
+    "message": "You may close this window"
+  },
   "masterPassSent": {
     "message": "Изпратихме ви писмо с подсказка за главната ви парола."
   },
@@ -502,6 +520,18 @@
   },
   "autofillError": {
     "message": "Неуспешно автоматично попълване. Вместо това копирайте и поставете данните."
+  },
+  "totpCaptureError": {
+    "message": "QR-кодът от текущата страница не може да бъде сканиран"
+  },
+  "totpCaptureSuccess": {
+    "message": "Удостоверителният ключ е добавен"
+  },
+  "totpCapture": {
+    "message": "Сканирайте QR-кода за удостоверяване от текущата страница"
+  },
+  "copyTOTP": {
+    "message": "Копиране на удостоверителния ключ (TOTP)"
   },
   "loggedOut": {
     "message": "Бяхте отписани"
@@ -619,6 +649,9 @@
   "addLoginNotificationDesc": {
     "message": "Известията за запазване на регистрации автоматично ви подканят да запазите новите регистрации в трезора при първото ви вписване в тях."
   },
+  "addLoginNotificationDescAlt": {
+    "message": "Питане за добавяне на елемент, ако такъв не бъде намерен в трезора. Прилага се за всички регистрации, в които сте вписан(а)."
+  },
   "showCardsCurrentTab": {
     "message": "Показване на карти в страницата с разделите"
   },
@@ -651,6 +684,15 @@
   "changedPasswordNotificationDesc": {
     "message": "Питане за обновяване на паролата към даден запис, когато бъде засечена промяна в съответния уеб сайт."
   },
+  "changedPasswordNotificationDescAlt": {
+    "message": "Питане за обновяване на паролата за дадена регистрация, ако бъде засечена промяна в съответния уеб сайт. Прилага се за всички регистрации, в които сте вписан(а)."
+  },
+  "enableUsePasskeys": {
+    "message": "Питане за запазване и ползване на секретни ключове"
+  },
+  "usePasskeysDesc": {
+    "message": "Питане за запазване на нови секретни ключове или за вписване чрез секретни ключове, пазени в трезора. Прилага се за всички регистрации, в които сте вписан(а)."
+  },
   "notificationChangeDesc": {
     "message": "Да се обнови ли паролата в Bitwarden?"
   },
@@ -669,6 +711,9 @@
   "contextMenuItemDesc": {
     "message": "Щракване с десния бутон на мишката дава достъп до генератора на пароли и съответстващите за уеб сайта записи. "
   },
+  "contextMenuItemDescAlt": {
+    "message": "Щракване с десния бутон на мишката дава достъп до генератора на пароли и съответстващите за уеб сайта записи. Прилага се за всички регистрации, в които сте вписан(а)."
+  },
   "defaultUriMatchDetection": {
     "message": "Стандартно засичане на адреси",
     "description": "Default URI match detection for auto-fill."
@@ -681,6 +726,9 @@
   },
   "themeDesc": {
     "message": "Промяна на цветовия облик на програмата."
+  },
+  "themeDescAlt": {
+    "message": "Промяна на цветовата тема на приложението. Прилага се за всички регистрации, в които сте вписан(а)."
   },
   "dark": {
     "message": "Тъмен",
@@ -1002,6 +1050,31 @@
   "environmentSaved": {
     "message": "Средата с адресите е запазена."
   },
+  "showAutoFillMenuOnFormFields": {
+    "message": "Показване на меню за авт. попълване при полетата на формулярите",
+    "description": "Represents the message for allowing the user to enable the auto-fill overlay"
+  },
+  "showAutoFillMenuOnFormFieldsDescAlt": {
+    "message": "Прилага се за всички регистрации, в които сте вписан(а)."
+  },
+  "turnOffBrowserBuiltInPasswordManagerSettings": {
+    "message": "Изключете вграденото управление на пароли на браузъра си, за да избегнете конфликтите."
+  },
+  "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
+    "message": "Редактиране на настройките на браузъра."
+  },
+  "autofillOverlayVisibilityOff": {
+    "message": "Изключено",
+    "description": "Overlay setting select option for disabling autofill overlay"
+  },
+  "autofillOverlayVisibilityOnFieldFocus": {
+    "message": "Когато полето бъде избрано (на фокус)",
+    "description": "Overlay appearance select option for showing the field on focus of the input element"
+  },
+  "autofillOverlayVisibilityOnButtonClick": {
+    "message": "Когато бъде избрана иконката за авт. попълване",
+    "description": "Overlay appearance select option for showing the field on click of the overlay icon"
+  },
   "enableAutoFillOnPageLoad": {
     "message": "Включване на автоматичното попълване"
   },
@@ -1093,6 +1166,9 @@
   },
   "faviconDesc": {
     "message": "Показване на разпознаваемо изображение до всеки запис."
+  },
+  "faviconDescAlt": {
+    "message": "Показване на разпознаваемо изображение до всеки елемент. Прилага се към всички акаунти, в които сте Вписан(а)."
   },
   "enableBadgeCounter": {
     "message": "Показване на брояч в значка"
@@ -1252,9 +1328,6 @@
   },
   "typeIdentity": {
     "message": "Самоличност"
-  },
-  "typePasskey": {
-    "message": "Секретен ключ"
   },
   "passwordHistory": {
     "message": "Хронология на паролата"
@@ -1425,6 +1498,9 @@
   },
   "invalidPin": {
     "message": "Неправилен ПИН."
+  },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Направили сте твърде много опити с неправилен ПИН код. Отписване…"
   },
   "unlockWithBiometrics": {
     "message": "Отключване с биометрични данни"
@@ -1665,12 +1741,15 @@
   "excludedDomainsDesc": {
     "message": "Битуорден няма да пита дали да запазва данните за вход в тези сайтове. За да влезе правилото в сила, презаредете страницата."
   },
+  "excludedDomainsDescAlt": {
+    "message": "Битуорден няма да пита дали да запазва данните за вход в тези сайтове за всички регистрации, в които сте вписан(а). За да влезе правилото в сила, презаредете страницата."
+  },
   "excludedDomainsInvalidDomain": {
     "message": "$DOMAIN$ не е валиден домейн",
     "placeholders": {
       "domain": {
         "content": "$1",
-        "example": "googlecom"
+        "example": "google.com"
       }
     }
   },
@@ -1933,6 +2012,10 @@
     "message": "Организацията Ви изисква да зададете главна парола.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
+  "verificationRequired": {
+    "message": "Изисква се потвърждение",
+    "description": "Default title for the user verification dialog."
+  },
   "hours": {
     "message": "Часа"
   },
@@ -2134,7 +2217,7 @@
     "message": "Трета страна"
   },
   "thirdPartyServerMessage": {
-    "message": "Connected to third-party server implementation, $SERVERNAME$. Please verify bugs using the official server, or report them to the third-party server.",
+    "message": "Свързан(а) сте със сървърна имплементация от трета страна — $SERVERNAME$. Ако се сблъскате с проблем, може да проверите официалния сървър, или да го докладвате в сървъра на третата страна.",
     "placeholders": {
       "servername": {
         "content": "$1",
@@ -2227,7 +2310,7 @@
     "message": "Как се ползва автоматичното попълване"
   },
   "autofillSelectInfoWithCommand": {
-    "message": "Изберете елемент от тази страница или използвайте следната комбинация: $COMMAND$",
+    "message": "Изберете елемент на този екран, използвайте комбинацията $COMMAND$ или разгледайте други опции в настройките.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2236,7 +2319,7 @@
     }
   },
   "autofillSelectInfoWithoutCommand": {
-    "message": "Изберете елемент от тази страница или задайте клавишна комбинация в настройките."
+    "message": "Изберете елемент на този екран или разгледайте други опции в настройките."
   },
   "gotIt": {
     "message": "Разбрано"
@@ -2339,7 +2422,7 @@
     "message": "Устройството е доверено"
   },
   "inputRequired": {
-    "message": "Полето е задължтелно да бъде попълнено."
+    "message": "Полето е задължително да бъде попълнено."
   },
   "required": {
     "message": "задължително"
@@ -2442,6 +2525,38 @@
     "message": "Превключване на свиването",
     "description": "Toggling an expand/collapse state."
   },
+  "filelessImport": {
+    "message": "Внасяне на данните Ви в Битуорден?",
+    "description": "Default notification title for triggering a fileless import."
+  },
+  "lpFilelessImport": {
+    "message": "Защитаване на данните Ви от LastPass и внасяне в Битуорден?",
+    "description": "LastPass specific notification title for triggering a fileless import."
+  },
+  "lpCancelFilelessImport": {
+    "message": "Запазване като нешифрован файл",
+    "description": "LastPass specific notification button text for cancelling a fileless import."
+  },
+  "startFilelessImport": {
+    "message": "Внасяне в Битуорден",
+    "description": "Notification button text for starting a fileless import."
+  },
+  "importing": {
+    "message": "Внасяне…",
+    "description": "Notification message for when an import is in progress."
+  },
+  "dataSuccessfullyImported": {
+    "message": "Данните бяха внесени успешно!",
+    "description": "Notification message for when an import has completed successfully."
+  },
+  "dataImportFailed": {
+    "message": "Грешка при внасянето. Вижте конзолата за подробности.",
+    "description": "Notification message for when an import has failed."
+  },
+  "importNetworkError": {
+    "message": "По време на внасянето възникна мрежова грешка.",
+    "description": "Notification message for when an import has failed due to a network error."
+  },
   "aliasDomain": {
     "message": "Псевдонимен домейн"
   },
@@ -2456,6 +2571,59 @@
   "turnOffMasterPasswordPromptToEditField": {
     "message": "Изключете повторното въвеждане на главната парола, за да редактирате това поле",
     "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
+  },
+  "skipToContent": {
+    "message": "Прескачане към съдържанието"
+  },
+  "bitwardenOverlayButton": {
+    "message": "Бутон на менюто за авт. попълване на Битуорден",
+    "description": "Page title for the iframe containing the overlay button"
+  },
+  "toggleBitwardenVaultOverlay": {
+    "message": "Превключване на менюто за авт. попълване на Битуорден",
+    "description": "Screen reader and tool tip label for the overlay button"
+  },
+  "bitwardenVault": {
+    "message": "Меню за авт. попълване на Битуорден",
+    "description": "Page title in overlay"
+  },
+  "unlockYourAccountToViewMatchingLogins": {
+    "message": "Отключете регистрацията си, за да видите съвпадащите записи за вписване",
+    "description": "Text to display in overlay when the account is locked."
+  },
+  "unlockAccount": {
+    "message": "Отключване на регистрацията",
+    "description": "Button text to display in overlay when the account is locked."
+  },
+  "fillCredentialsFor": {
+    "message": "Попълване на данните за",
+    "description": "Screen reader text for when overlay item is in focused"
+  },
+  "partialUsername": {
+    "message": "Частично потребителско име",
+    "description": "Screen reader text for when a login item is focused where a partial username is displayed. SR will announce this phrase before reading the text of the partial username"
+  },
+  "noItemsToShow": {
+    "message": "Няма елементи за показване",
+    "description": "Text to show in overlay if there are no matching items"
+  },
+  "newItem": {
+    "message": "Нов елемент",
+    "description": "Button text to display in overlay when there are no matching items"
+  },
+  "addNewVaultItem": {
+    "message": "Добавяне на нов елемент в трезора",
+    "description": "Screen reader text (aria-label) for new item button in overlay"
+  },
+  "bitwardenOverlayMenuAvailable": {
+    "message": "Има налично меню за авт. попълване на Битуорден. Натиснете стрелката надолу, за да го изберете.",
+    "description": "Screen reader text for announcing when the overlay opens on the page"
+  },
+  "turnOn": {
+    "message": "Включване"
+  },
+  "ignore": {
+    "message": "Пренебрегване"
   },
   "importData": {
     "message": "Внасяне на данни",
@@ -2485,6 +2653,42 @@
       }
     }
   },
+  "tryAgain": {
+    "message": "Нов опит"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Това действие изисква потвърждаване. Задайте ПИН, за да продължите."
+  },
+  "setPin": {
+    "message": "Задаване на ПИН"
+  },
+  "verifyWithBiometrics": {
+    "message": "Потвърждаване с биометрични данни"
+  },
+  "awaitingConfirmation": {
+    "message": "Изчаква се потвърждение"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Действието с биометрични данни не може да бъде завършено."
+  },
+  "needADifferentMethod": {
+    "message": "Искате ли да опитате друг метод?"
+  },
+  "useMasterPassword": {
+    "message": "Използване на главната парола"
+  },
+  "usePin": {
+    "message": "Използване на ПИН"
+  },
+  "useBiometrics": {
+    "message": "Използване на биометрични данни"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Въведете кода за потвърждаване, който беше изпратен на Вашата е-поща."
+  },
+  "resendCode": {
+    "message": "Повторно изпращане на кода"
+  },
   "total": {
     "message": "Общо"
   },
@@ -2496,6 +2700,21 @@
         "example": "My Org Name"
       }
     }
+  },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Стартирайте DUO и следвайте инструкциите, за да завършите вписването."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "Вашата регистрация изисква двустепенно удостоверяване чрез DUO."
+  },
+  "openExtensionInNewWindowToCompleteLogin": {
+    "message": "Отворете разширението в нов прозорец, за да завършите вписването"
+  },
+  "popoutExtension": {
+    "message": "Отваряне на разширението в нов прозорец"
+  },
+  "launchDuo": {
+    "message": "Стартиране на DUO"
   },
   "importFormatError": {
     "message": "Данните са в неправилен формат. Проверете файла за внасяне и пробвайте отново."
@@ -2568,6 +2787,9 @@
   "confirmFilePassword": {
     "message": "Потвърждаване на паролата на файла"
   },
+  "typePasskey": {
+    "message": "Секретен ключ"
+  },
   "passkeyNotCopied": {
     "message": "Секретният ключ няма да бъде копиран"
   },
@@ -2602,7 +2824,7 @@
     "message": "Изберете елемент, в който да запазите този секретен ключ"
   },
   "passkeyItem": {
-    "message": "Passkey Item"
+    "message": "Секретен ключ"
   },
   "overwritePasskey": {
     "message": "Да се замени ли секретният ключ?"
@@ -2616,9 +2838,6 @@
   "yourPasskeyIsLocked": {
     "message": "За да се ползва секретният ключ, е необходимо удостоверяване. Потвърдете самоличността си, за да продължите."
   },
-  "useBrowserName": {
-    "message": "Използване на браузъра"
-  },
   "multifactorAuthenticationCancelled": {
     "message": "Многостъпковото удостоверяване е отменено"
   },
@@ -2627,6 +2846,15 @@
   },
   "incorrectUsernameOrPassword": {
     "message": "Неправилно потребителско име или парола"
+  },
+  "incorrectPassword": {
+    "message": "Неправилна парола"
+  },
+  "incorrectCode": {
+    "message": "Неправилен код"
+  },
+  "incorrectPin": {
+    "message": "Неправилен ПИН"
   },
   "multifactorAuthenticationFailed": {
     "message": "Многостъпковото удостоверяване беше неуспешно"
@@ -2682,5 +2910,88 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Поставете устройството на YubiKey, което е свързано с регистрацията Ви в LastPass, в USB порт и натиснете бутона на устройството."
+  },
+  "switchAccount": {
+    "message": "Превключване на регистрацията"
+  },
+  "switchAccounts": {
+    "message": "Превключване на регистрациите"
+  },
+  "switchToAccount": {
+    "message": "Превключване към регистрацията"
+  },
+  "activeAccount": {
+    "message": "Активиране на регистрацията"
+  },
+  "availableAccounts": {
+    "message": "Налични регистрации"
+  },
+  "accountLimitReached": {
+    "message": "Достигнато е ограничението на броя регистрации. Излезте от някоя, за да добавите друга."
+  },
+  "active": {
+    "message": "активно"
+  },
+  "locked": {
+    "message": "заключено"
+  },
+  "unlocked": {
+    "message": "отключено"
+  },
+  "server": {
+    "message": "сървър"
+  },
+  "hostedAt": {
+    "message": "hosted at"
+  },
+  "useDeviceOrHardwareKey": {
+    "message": "Използвайте своето устройство или хардуерен ключ"
+  },
+  "justOnce": {
+    "message": "Само веднъж"
+  },
+  "alwaysForThisSite": {
+    "message": "Винаги за този уеб сайт"
+  },
+  "domainAddedToExcludedDomains": {
+    "message": "$DOMAIN$ беше добавено към изключените домейни.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "google.com"
+      }
+    }
+  },
+  "commonImportFormats": {
+    "message": "Често използвани формати",
+    "description": "Label indicating the most common import formats"
+  },
+  "overrideDefaultBrowserAutofillTitle": {
+    "message": "Искате ли да направите Битуорден своя управител на пароли по подразбиране?",
+    "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutofillDescription": {
+    "message": "Ако пренебрегнете тази настройка, може да има конфликт между менюто за автоматично попълване на Битуорден и това на браузъра.",
+    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutofillPrivacyRequiredDescription": {
+    "message": "Това действие ще рестартира добавката на Битуорден. Ако пренебрегнете тази настройка, може да има конфликт между менюто за автоматично попълване на Битуорден и това на браузъра.",
+    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutoFillSettings": {
+    "message": "Направете Битуорден своя управител на пароли по подразбиране",
+    "description": "Label for the setting that allows overriding the default browser autofill settings"
+  },
+  "privacyPermissionAdditionNotGrantedTitle": {
+    "message": "Битуорден не може да бъде зададен като управител на пароли по подразбиране",
+    "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "privacyPermissionAdditionNotGrantedDescription": {
+    "message": "Трябва да дадете на Битуорден разрешение за ползване в поверителни прозорци, ако искате да го зададете като управител на пароли по подразбиране.",
+    "description": "Description for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "makeDefault": {
+    "message": "Задаване по подразбиране",
+    "description": "Button text for the setting that allows overriding the default browser autofill settings"
   }
 }

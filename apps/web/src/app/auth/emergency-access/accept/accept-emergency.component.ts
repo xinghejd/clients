@@ -28,7 +28,7 @@ export class AcceptEmergencyComponent extends BaseAcceptComponent {
     i18nService: I18nService,
     route: ActivatedRoute,
     stateService: StateService,
-    private emergencyAccessService: EmergencyAccessService
+    private emergencyAccessService: EmergencyAccessService,
   ) {
     super(router, platformUtilsService, i18nService, route, stateService);
   }
@@ -40,8 +40,10 @@ export class AcceptEmergencyComponent extends BaseAcceptComponent {
       "success",
       this.i18nService.t("inviteAccepted"),
       this.i18nService.t("emergencyInviteAcceptedDesc"),
-      { timeout: 10000 }
+      { timeout: 10000 },
     );
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["/vault"]);
   }
 

@@ -311,7 +311,7 @@
     "message": "Змінити"
   },
   "authenticatorKeyTotp": {
-    "message": "Ключ авторизації (TOTP)"
+    "message": "Ключ автентифікації (TOTP)"
   },
   "folder": {
     "message": "Тека"
@@ -402,6 +402,9 @@
   },
   "length": {
     "message": "Довжина"
+  },
+  "passwordMinLength": {
+    "message": "Мінімальна довжина пароля"
   },
   "uppercase": {
     "message": "Верхній регістр (A-Z)"
@@ -557,6 +560,12 @@
   "newAccountCreated": {
     "message": "Ваш обліковий запис створений! Тепер ви можете увійти."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "You successfully logged in"
+  },
+  "youMayCloseThisWindow": {
+    "message": "You may close this window"
+  },
   "masterPassSent": {
     "message": "Ми надіслали вам лист з підказкою для головного пароля."
   },
@@ -594,7 +603,7 @@
     "message": "Продовжити"
   },
   "enterVerificationCodeApp": {
-    "message": "Введіть 6-значний код підтвердження з програми авторизації."
+    "message": "Введіть 6-значний код підтвердження з програми автентифікації."
   },
   "enterVerificationCodeEmail": {
     "message": "Введіть 6-значний код підтвердження, надісланий на $EMAIL$.",
@@ -636,10 +645,10 @@
     "message": "Код відновлення"
   },
   "authenticatorAppTitle": {
-    "message": "Програма авторизації"
+    "message": "Програма автентифікації"
   },
   "authenticatorAppDesc": {
-    "message": "Використовуйте програму авторизації (наприклад, Authy або Google Authenticator), щоб генерувати тимчасові коди підтвердження.",
+    "message": "Використовуйте програму автентифікації (наприклад, Authy або Google Authenticator), щоб генерувати тимчасові коди підтвердження.",
     "description": "'Authy' and 'Google Authenticator' are product names and should not be translated."
   },
   "yubiKeyTitle": {
@@ -675,7 +684,7 @@
     "message": "Для цього облікового запису налаштовано двоетапну перевірку. Однак, жоден із налаштованих провайдерів двоетапної перевірки не підтримується цим пристроєм."
   },
   "noTwoStepProviders2": {
-    "message": "Додайте інших провайдерів, які краще підтримуються різними пристроями, наприклад програма авторизації."
+    "message": "Додайте інших провайдерів, які краще підтримуються різними пристроями, як-от програма автентифікації."
   },
   "twoStepOptions": {
     "message": "Налаштування двоетапної перевірки"
@@ -684,7 +693,7 @@
     "message": "Середовище власного хостингу"
   },
   "selfHostedEnvironmentFooter": {
-    "message": "Вкажіть основну URL-адресу вашого локально розміщеного встановлення Bitwarden."
+    "message": "Вкажіть основну URL-адресу Bitwarden, встановленого на локальному хостингу."
   },
   "customEnvironment": {
     "message": "Власне середовище"
@@ -840,7 +849,7 @@
     "message": "Неправильний головний пароль"
   },
   "twoStepLoginConfirmation": {
-    "message": "Двоетапна перевірка дає змогу надійніше захистити ваш обліковий запис, вимагаючи підтвердження входу з використанням іншого пристрою, наприклад, за допомогою коду безпеки, програми авторизації, SMS, телефонного виклику, або е-пошти. Ви можете налаштувати двоетапну перевірку в сховищі на bitwarden.com. Хочете перейти на вебсайт зараз?"
+    "message": "Двоетапна перевірка дає змогу надійніше захистити ваш обліковий запис, вимагаючи підтвердження входу з використанням іншого пристрою, наприклад, за допомогою ключа безпеки, програми автентифікації, SMS, телефонного виклику, або е-пошти. Ви можете налаштувати двоетапну перевірку в сховищі на bitwarden.com. Хочете перейти на вебсайт зараз?"
   },
   "twoStepLogin": {
     "message": "Двоетапна перевірка"
@@ -1389,6 +1398,9 @@
   "invalidPin": {
     "message": "Неправильний PIN-код."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Забагато невдалих спроб введення PIN-коду. Вихід з системи."
+  },
   "unlockWithWindowsHello": {
     "message": "Розблокувати з Windows Hello"
   },
@@ -1490,7 +1502,7 @@
     "message": "Щоб відновити доступ до сховища, необхідно ввести головний пароль або скористатись іншим способом розблокування."
   },
   "vaultTimeoutActionLogOutDesc": {
-    "message": "Щоб відновити доступ до сховища, необхідно повторно авторизуватись."
+    "message": "Щоб відновити доступ до сховища, необхідно пройти повторну автентифікацію."
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Налаштуйте спосіб розблокування, щоб змінити час очікування сховища."
@@ -1522,7 +1534,7 @@
     "message": "Остаточно видалити"
   },
   "vaultTimeoutLogOutConfirmation": {
-    "message": "Вихід скасує всі права доступу до вашого сховища і вимагатиме авторизації після завершення часу очікування. Ви дійсно хочете використати цей параметр?"
+    "message": "Вихід скасує всі права доступу до вашого сховища і вимагатиме автентифікацію після завершення часу очікування. Ви дійсно хочете використати цей параметр?"
   },
   "vaultTimeoutLogOutConfirmationTitle": {
     "message": "Підтвердження дії часу очікування"
@@ -1540,6 +1552,10 @@
   "orgRequiresYouToSetPassword": {
     "message": "Ваша організація вимагає, щоб ви встановили головний пароль.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "verificationRequired": {
+    "message": "Потрібне підтвердження",
+    "description": "Default title for the user verification dialog."
   },
   "currentMasterPass": {
     "message": "Поточний головний пароль"
@@ -1831,7 +1847,7 @@
     "message": "Очікується видалення"
   },
   "webAuthnAuthenticate": {
-    "message": "Авторизація WebAuthn"
+    "message": "Автентифікація WebAuthn"
   },
   "hideEmail": {
     "message": "Приховувати мою адресу електронної пошти від отримувачів."
@@ -1865,6 +1881,42 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Ваш головний пароль не відповідає одній або більше політикам вашої організації. Щоб отримати доступ до сховища, вам необхідно оновити свій головний пароль зараз. Продовживши, ви вийдете з поточного сеансу, після чого потрібно буде повторно виконати вхід. Сеанси на інших пристроях можуть залишатися активними протягом однієї години."
+  },
+  "tryAgain": {
+    "message": "Спробуйте знову"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Ця дія потребує підтвердження. Встановіть PIN-код, щоб продовжити."
+  },
+  "setPin": {
+    "message": "Встановити PIN-код"
+  },
+  "verifyWithBiometrics": {
+    "message": "Підтвердити з біометрією"
+  },
+  "awaitingConfirmation": {
+    "message": "Очікується підтвердження"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Не вдалося виконати біометричну перевірку."
+  },
+  "needADifferentMethod": {
+    "message": "Потрібен інший спосіб?"
+  },
+  "useMasterPassword": {
+    "message": "Використати головний пароль"
+  },
+  "usePin": {
+    "message": "Використати PIN-код"
+  },
+  "useBiometrics": {
+    "message": "Використати біометрію"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Введіть код підтвердження, надісланий на вашу електронну пошту."
+  },
+  "resendCode": {
+    "message": "Надіслати новий код"
   },
   "hours": {
     "message": "Годин"
@@ -2207,7 +2259,7 @@
     "message": "Цей запит більше недійсний."
   },
   "approveLoginRequestDesc": {
-    "message": "Використовувати цей пристрій для схвалення запитів на вхід, виконаних з інших пристроїв."
+    "message": "Схвалювати запити на вхід, виконані з інших пристроїв."
   },
   "confirmLoginAtemptForMail": {
     "message": "Підтвердити спробу входу для $EMAIL$",
@@ -2424,6 +2476,9 @@
   "submenu": {
     "message": "Підменю"
   },
+  "skipToContent": {
+    "message": "Перейти до вмісту"
+  },
   "typePasskey": {
     "message": "Ключ доступу"
   },
@@ -2475,6 +2530,15 @@
         "example": "My Org Name"
       }
     }
+  },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Launch Duo and follow the steps to finish logging in."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "Duo two-step login is required for your account."
+  },
+  "launchDuo": {
+    "message": "Launch Duo in Browser"
   },
   "importFormatError": {
     "message": "Дані мають некоректне форматування. Перевірте файл імпорту і спробуйте знову."
@@ -2556,6 +2620,15 @@
   "incorrectUsernameOrPassword": {
     "message": "Неправильне ім'я користувача або пароль"
   },
+  "incorrectPassword": {
+    "message": "Неправильний пароль"
+  },
+  "incorrectCode": {
+    "message": "Неправильний код"
+  },
+  "incorrectPin": {
+    "message": "Неправильний PIN-код"
+  },
   "multifactorAuthenticationFailed": {
     "message": "Збій багатофакторної автентифікації"
   },
@@ -2572,10 +2645,10 @@
     "message": "Необхідно пройти багатофакторну автентифікацію LastPass"
   },
   "lastPassMFADesc": {
-    "message": "Введіть одноразовий код з програми для автентифікації"
+    "message": "Введіть одноразовий код з програми автентифікації"
   },
   "lastPassOOBDesc": {
-    "message": "Схваліть запит входу в програмі для автентифікації або введіть одноразовий код."
+    "message": "Схваліть запит входу в програмі автентифікації або введіть одноразовий код."
   },
   "passcode": {
     "message": "Код"
@@ -2610,5 +2683,9 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Вставте YubiKey пов'язаний з обліковим записом LastPass в USB порт вашого комп'ютера, потім торкніться його кнопки."
+  },
+  "commonImportFormats": {
+    "message": "Поширені формати",
+    "description": "Label indicating the most common import formats"
   }
 }

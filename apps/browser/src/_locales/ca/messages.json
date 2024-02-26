@@ -268,6 +268,9 @@
   "length": {
     "message": "Longitud"
   },
+  "passwordMinLength": {
+    "message": "Longitud mínima de la contrasenya"
+  },
   "uppercase": {
     "message": "Majúscula (A-Z)"
   },
@@ -323,6 +326,9 @@
   "password": {
     "message": "Contrasenya"
   },
+  "totp": {
+    "message": "Secret de l'autenticador"
+  },
   "passphrase": {
     "message": "Frase de pas"
   },
@@ -365,6 +371,9 @@
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Configura un mètode de desbloqueig per canviar l'acció del temps d'espera de la caixa forta."
   },
+  "unlockMethodNeeded": {
+    "message": "Configura un mètode de desbloqueig a Configuració"
+  },
   "rateExtension": {
     "message": "Valora aquesta extensió"
   },
@@ -404,6 +413,9 @@
   },
   "lockNow": {
     "message": "Bloqueja ara"
+  },
+  "lockAll": {
+    "message": "Bloqueja-ho tot"
   },
   "immediately": {
     "message": "Immediatament"
@@ -481,6 +493,12 @@
   "newAccountCreated": {
     "message": "El vostre compte s'ha creat correctament. Ara ja podeu iniciar sessió."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "Heu iniciat sessió correctament"
+  },
+  "youMayCloseThisWindow": {
+    "message": "Podeu tancar aquesta finestra"
+  },
   "masterPassSent": {
     "message": "Hem enviat un correu electrònic amb la vostra contrasenya mestra."
   },
@@ -502,6 +520,18 @@
   },
   "autofillError": {
     "message": "No es pot omplir automàticament l'element seleccionat en aquesta pàgina. Com a alternativa, copieu i enganxeu la informació."
+  },
+  "totpCaptureError": {
+    "message": "No es pot escanejar el codi QR des de la pàgina web actual"
+  },
+  "totpCaptureSuccess": {
+    "message": "S'ha afegit la clau de l'autenticador"
+  },
+  "totpCapture": {
+    "message": "Escaneja el codi QR de l'autenticador des de la pàgina web actual"
+  },
+  "copyTOTP": {
+    "message": "Copia la clau de l'autenticador (TOTP)"
   },
   "loggedOut": {
     "message": "Sessió tancada"
@@ -619,6 +649,9 @@
   "addLoginNotificationDesc": {
     "message": "La \"Notificació per afegir inicis de sessió\" demana automàticament que guardeu els nous inicis de sessió a la vostra caixa forta quan inicieu la sessió per primera vegada."
   },
+  "addLoginNotificationDescAlt": {
+    "message": "Demana afegir un element si no se'n troba cap a la caixa forta. S'aplica a tots els comptes connectats."
+  },
   "showCardsCurrentTab": {
     "message": "Mostra les targetes a la pàgina de pestanya"
   },
@@ -651,6 +684,15 @@
   "changedPasswordNotificationDesc": {
     "message": "Demana actualitzar la contrasenya d'inici de sessió quan es detecte un canvi en un lloc web."
   },
+  "changedPasswordNotificationDescAlt": {
+    "message": "Demana actualitzar la contrasenya d'inici de sessió quan es detecte un canvi en un lloc web. S'aplica a tots els comptes connectats."
+  },
+  "enableUsePasskeys": {
+    "message": "Demana guardar i utilitzar claus de pas"
+  },
+  "usePasskeysDesc": {
+    "message": "Demana que guardeu les contrasenyes noves o inicieu sessió amb les claus emmagatzemades a la vostra caixa forta. S'aplica a tots els comptes connectats."
+  },
   "notificationChangeDesc": {
     "message": "Voleu actualitzar aquesta contrasenya a Bitwarden?"
   },
@@ -669,6 +711,9 @@
   "contextMenuItemDesc": {
     "message": "Utilitza un clic secundari per accedir a la generació de contrasenyes i als inicis de sessió coincidents per al lloc web. "
   },
+  "contextMenuItemDescAlt": {
+    "message": "Fa servir un clic secundari per accedir a la generació de contrasenyes i als inicis de sessió coincidents per al lloc web. S'aplica a tots els comptes connectats."
+  },
   "defaultUriMatchDetection": {
     "message": "Detecció de coincidències URI per defecte",
     "description": "Default URI match detection for auto-fill."
@@ -681,6 +726,9 @@
   },
   "themeDesc": {
     "message": "Canvia el color del tema de l'aplicació."
+  },
+  "themeDescAlt": {
+    "message": "Canvia el tema de color de l'aplicació. S'aplica a tots els comptes connectats."
   },
   "dark": {
     "message": "Fosc",
@@ -1002,6 +1050,31 @@
   "environmentSaved": {
     "message": "S'han guardat les URL de l'entorn"
   },
+  "showAutoFillMenuOnFormFields": {
+    "message": "Mostra el menú d'emplenament automàtic als camps del formulari",
+    "description": "Represents the message for allowing the user to enable the auto-fill overlay"
+  },
+  "showAutoFillMenuOnFormFieldsDescAlt": {
+    "message": "S'aplica a tots els comptes connectats."
+  },
+  "turnOffBrowserBuiltInPasswordManagerSettings": {
+    "message": "Desactiveu la configuració integrada del gestor de contrasenyes del vostre navegador per evitar conflictes."
+  },
+  "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
+    "message": "Edita la configuració del navegador."
+  },
+  "autofillOverlayVisibilityOff": {
+    "message": "Desactivat",
+    "description": "Overlay setting select option for disabling autofill overlay"
+  },
+  "autofillOverlayVisibilityOnFieldFocus": {
+    "message": "Quan el camp està seleccionat (en el focus)",
+    "description": "Overlay appearance select option for showing the field on focus of the input element"
+  },
+  "autofillOverlayVisibilityOnButtonClick": {
+    "message": "Quan la icona d'emplenament automàtic està seleccionada",
+    "description": "Overlay appearance select option for showing the field on click of the overlay icon"
+  },
   "enableAutoFillOnPageLoad": {
     "message": "Habilita l'emplenament automàtic en carregar la pàgina"
   },
@@ -1093,6 +1166,9 @@
   },
   "faviconDesc": {
     "message": "Mostra una imatge reconeixible al costat de cada inici de sessió."
+  },
+  "faviconDescAlt": {
+    "message": "Mostra una imatge reconeixible al costat de cada sessió. S'aplica a tots els comptes connectats."
   },
   "enableBadgeCounter": {
     "message": "Mostra el comptador insígnia"
@@ -1252,9 +1328,6 @@
   },
   "typeIdentity": {
     "message": "Identitat"
-  },
-  "typePasskey": {
-    "message": "Clau de pas"
   },
   "passwordHistory": {
     "message": "Historial de les contrasenyes"
@@ -1425,6 +1498,9 @@
   },
   "invalidPin": {
     "message": "El codi PIN no és vàlid."
+  },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Hi ha massa intents d'introducció de PIN no vàlids. S'està tancant sessió."
   },
   "unlockWithBiometrics": {
     "message": "Desbloqueja amb biomètrica"
@@ -1665,12 +1741,15 @@
   "excludedDomainsDesc": {
     "message": "Bitwarden no demanarà que es guarden les dades d’inici de sessió d’aquests dominis. Heu d'actualitzar la pàgina perquè els canvis tinguen efecte."
   },
+  "excludedDomainsDescAlt": {
+    "message": "Bitwarden no demanarà que es guarden les dades d'inici de sessió d'aquests dominis per a tots els comptes iniciats. Heu d'actualitzar la pàgina perquè els canvis tinguen efecte."
+  },
   "excludedDomainsInvalidDomain": {
     "message": "$DOMAIN$ no és un domini vàlid",
     "placeholders": {
       "domain": {
         "content": "$1",
-        "example": "googlecom"
+        "example": "google.com"
       }
     }
   },
@@ -1932,6 +2011,10 @@
   "orgRequiresYouToSetPassword": {
     "message": "La vostra organització requereix que establiu una contrasenya mestra.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "verificationRequired": {
+    "message": "Es requereix verificació",
+    "description": "Default title for the user verification dialog."
   },
   "hours": {
     "message": "Hores"
@@ -2227,7 +2310,7 @@
     "message": "Com emplenar automàticament"
   },
   "autofillSelectInfoWithCommand": {
-    "message": "Seleccioneu un element d'aquesta pàgina o utilitzeu la drecera: $COMMAND$",
+    "message": "Seleccioneu un element d'aquesta pantalla, utilitzeu la drecera $COMMAND$ o exploreu altres opcions a la configuració.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2236,7 +2319,7 @@
     }
   },
   "autofillSelectInfoWithoutCommand": {
-    "message": "Seleccioneu un element d'aquesta pàgina o definiu una drecera a la configuració."
+    "message": "Seleccioneu un element d'aquesta pantalla, o exploreu altres opcions a la configuració."
   },
   "gotIt": {
     "message": "D'acord"
@@ -2442,6 +2525,38 @@
     "message": "Redueix/Amplia",
     "description": "Toggling an expand/collapse state."
   },
+  "filelessImport": {
+    "message": "Voleu importar les vostres dades a Bitwarden?",
+    "description": "Default notification title for triggering a fileless import."
+  },
+  "lpFilelessImport": {
+    "message": "Protegiu les vostres dades de LastPass i importeu-les a Bitwarden?",
+    "description": "LastPass specific notification title for triggering a fileless import."
+  },
+  "lpCancelFilelessImport": {
+    "message": "Guarda com a fitxer sense xifrar",
+    "description": "LastPass specific notification button text for cancelling a fileless import."
+  },
+  "startFilelessImport": {
+    "message": "Importa a Bitwarden",
+    "description": "Notification button text for starting a fileless import."
+  },
+  "importing": {
+    "message": "S'està important...",
+    "description": "Notification message for when an import is in progress."
+  },
+  "dataSuccessfullyImported": {
+    "message": "Les dades s'han importat correctament!",
+    "description": "Notification message for when an import has completed successfully."
+  },
+  "dataImportFailed": {
+    "message": "S'ha produït un error en importar. Consulteu la consola per obtenir més informació.",
+    "description": "Notification message for when an import has failed."
+  },
+  "importNetworkError": {
+    "message": "S'ha trobat un error de xarxa durant la importació.",
+    "description": "Notification message for when an import has failed due to a network error."
+  },
   "aliasDomain": {
     "message": "Alies de domini"
   },
@@ -2456,6 +2571,59 @@
   "turnOffMasterPasswordPromptToEditField": {
     "message": "Desactiveu la sol·licitud de nova contrasenya mestra per editar aquest camp",
     "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
+  },
+  "skipToContent": {
+    "message": "Vés al contingut"
+  },
+  "bitwardenOverlayButton": {
+    "message": "Botó de menú d'emplenament automàtic de Bitwarden",
+    "description": "Page title for the iframe containing the overlay button"
+  },
+  "toggleBitwardenVaultOverlay": {
+    "message": "Commuta el menú d'emplenament automàtic de Bitwarden",
+    "description": "Screen reader and tool tip label for the overlay button"
+  },
+  "bitwardenVault": {
+    "message": "Menú d'emplenament automàtic de Bitwarden",
+    "description": "Page title in overlay"
+  },
+  "unlockYourAccountToViewMatchingLogins": {
+    "message": "Desbloqueja el compte per veure els inicis de sessió coincidents",
+    "description": "Text to display in overlay when the account is locked."
+  },
+  "unlockAccount": {
+    "message": "Desbloqueja el compte",
+    "description": "Button text to display in overlay when the account is locked."
+  },
+  "fillCredentialsFor": {
+    "message": "Ompliu les credencials per a",
+    "description": "Screen reader text for when overlay item is in focused"
+  },
+  "partialUsername": {
+    "message": "Nom d'usuari parcial",
+    "description": "Screen reader text for when a login item is focused where a partial username is displayed. SR will announce this phrase before reading the text of the partial username"
+  },
+  "noItemsToShow": {
+    "message": "No hi ha cap element per mostrar",
+    "description": "Text to show in overlay if there are no matching items"
+  },
+  "newItem": {
+    "message": "Element nou",
+    "description": "Button text to display in overlay when there are no matching items"
+  },
+  "addNewVaultItem": {
+    "message": "Afegeix un nou element a la caixa forta",
+    "description": "Screen reader text (aria-label) for new item button in overlay"
+  },
+  "bitwardenOverlayMenuAvailable": {
+    "message": "El menú d'emplenament automàtic de Bitwarden està disponible. Premeu la tecla de fletxa avall per seleccionar-lo.",
+    "description": "Screen reader text for announcing when the overlay opens on the page"
+  },
+  "turnOn": {
+    "message": "Activa"
+  },
+  "ignore": {
+    "message": "Ignora"
   },
   "importData": {
     "message": "Importa dades",
@@ -2485,6 +2653,42 @@
       }
     }
   },
+  "tryAgain": {
+    "message": "Torneu-ho a provar"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Es requereix verificació per a aquesta acció. Estableix un PIN per continuar."
+  },
+  "setPin": {
+    "message": "Estableix el PIN"
+  },
+  "verifyWithBiometrics": {
+    "message": "Verifica amb biomètrica"
+  },
+  "awaitingConfirmation": {
+    "message": "S'està esperant la confirmació"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "No s'ha pogut completar la biomètrica."
+  },
+  "needADifferentMethod": {
+    "message": "Necessita un mètode diferent?"
+  },
+  "useMasterPassword": {
+    "message": "Utilitza contrasenya mestra"
+  },
+  "usePin": {
+    "message": "Utilitza el PIN"
+  },
+  "useBiometrics": {
+    "message": "Utilitza la biometria"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Introduïu el codi de verificació que s’ha enviat al vostre correu electrònic."
+  },
+  "resendCode": {
+    "message": "Reenvia el codi"
+  },
   "total": {
     "message": "Total"
   },
@@ -2496,6 +2700,21 @@
         "example": "My Org Name"
       }
     }
+  },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Inicieu DUO i seguiu els passos per finalitzar la sessió."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "Es requereix l'inici de sessió en dos passos de DUO al vostre compte."
+  },
+  "openExtensionInNewWindowToCompleteLogin": {
+    "message": "Obriu l'extensió en una finestra nova per completar l'inici de sessió"
+  },
+  "popoutExtension": {
+    "message": "Extensió emergent"
+  },
+  "launchDuo": {
+    "message": "Inicia DUO"
   },
   "importFormatError": {
     "message": "Les dades no estan formatades correctament. Comproveu el fitxer d'importació i torneu-ho a provar."
@@ -2568,6 +2787,9 @@
   "confirmFilePassword": {
     "message": "Confirma la contrasenya del fitxer"
   },
+  "typePasskey": {
+    "message": "Clau de pas"
+  },
   "passkeyNotCopied": {
     "message": "La clau de pas no es copiarà"
   },
@@ -2616,9 +2838,6 @@
   "yourPasskeyIsLocked": {
     "message": "Es requereix autenticació per utilitzar la clau de pas. Verifiqueu la vostra identitat per continuar."
   },
-  "useBrowserName": {
-    "message": "Utilitza navegador"
-  },
   "multifactorAuthenticationCancelled": {
     "message": "S'ha cancel·lat l'autenticació multifactor"
   },
@@ -2627,6 +2846,15 @@
   },
   "incorrectUsernameOrPassword": {
     "message": "Nom d'usuari o contrasenya incorrectes"
+  },
+  "incorrectPassword": {
+    "message": "Contrasenya incorrecta"
+  },
+  "incorrectCode": {
+    "message": "Codi incorrecte"
+  },
+  "incorrectPin": {
+    "message": "PIN incorrecte"
   },
   "multifactorAuthenticationFailed": {
     "message": "L'autenticació multifactor ha fallat"
@@ -2682,5 +2910,88 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Inseriu la YubiKey associada al compte del LastPass al port USB de l'ordinador i, després, toqueu-ne el botó."
+  },
+  "switchAccount": {
+    "message": "Canvia de compte"
+  },
+  "switchAccounts": {
+    "message": "Canvia de comptes"
+  },
+  "switchToAccount": {
+    "message": "Canvia al compte"
+  },
+  "activeAccount": {
+    "message": "Activa el compte"
+  },
+  "availableAccounts": {
+    "message": "Comptes disponibles"
+  },
+  "accountLimitReached": {
+    "message": "S'ha arribat al límit del compte. Tanqueu la sessió d'un compte per afegir-ne un altre."
+  },
+  "active": {
+    "message": "activa"
+  },
+  "locked": {
+    "message": "bloquejat"
+  },
+  "unlocked": {
+    "message": "desbloquejat"
+  },
+  "server": {
+    "message": "servidor"
+  },
+  "hostedAt": {
+    "message": "allotjat a"
+  },
+  "useDeviceOrHardwareKey": {
+    "message": "Utilitzeu el vostre dispositiu o la clau de maquinari"
+  },
+  "justOnce": {
+    "message": "Només una vegada"
+  },
+  "alwaysForThisSite": {
+    "message": "Sempre per aquest lloc"
+  },
+  "domainAddedToExcludedDomains": {
+    "message": "$DOMAIN$ afegit als dominis exclosos.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "google.com"
+      }
+    }
+  },
+  "commonImportFormats": {
+    "message": "Formats comuns",
+    "description": "Label indicating the most common import formats"
+  },
+  "overrideDefaultBrowserAutofillTitle": {
+    "message": "Fer que Bitwarden siga el gestor de contrasenyes predeterminat?",
+    "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutofillDescription": {
+    "message": "Si ignoreu aquesta opció pot provocar conflictes entre el menú d'emplenament automàtic de Bitwarden i el del navegador.",
+    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutofillPrivacyRequiredDescription": {
+    "message": "Aquesta acció reiniciarà l'extensió Bitwarden. Si ignoreu aquesta opció pot provocar conflictes entre el menú d'emplenament automàtic de Bitwarden i el del vostre navegador.",
+    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutoFillSettings": {
+    "message": "Feu que Bitwarden siga el vostre gestor de contrasenyes predeterminat",
+    "description": "Label for the setting that allows overriding the default browser autofill settings"
+  },
+  "privacyPermissionAdditionNotGrantedTitle": {
+    "message": "No es pot establir Bitwarden com a gestor de contrasenyes predeterminat",
+    "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "privacyPermissionAdditionNotGrantedDescription": {
+    "message": "Heu de concedir permisos de privadesa del navegador a Bitwarden per establir-lo com a gestor de contrasenyes predeterminat.",
+    "description": "Description for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "makeDefault": {
+    "message": "Estableix per defecte",
+    "description": "Button text for the setting that allows overriding the default browser autofill settings"
   }
 }

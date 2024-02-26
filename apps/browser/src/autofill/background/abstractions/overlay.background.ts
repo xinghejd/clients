@@ -1,7 +1,9 @@
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
 
 import AutofillPageDetails from "../../models/autofill-page-details";
+
+import { LockedVaultPendingNotificationsData } from "./notification.background";
 
 type WebsiteIconData = {
   imageEnabled: boolean;
@@ -27,13 +29,7 @@ type OverlayBackgroundExtensionMessage = {
   details?: AutofillPageDetails;
   overlayElement?: string;
   display?: string;
-  data?: {
-    commandToRetry?: {
-      msg?: {
-        command?: string;
-      };
-    };
-  };
+  data?: LockedVaultPendingNotificationsData;
 } & OverlayAddNewItemMessage;
 
 type OverlayPortMessage = {
@@ -96,6 +92,7 @@ type OverlayButtonPortMessageHandlers = {
   [key: string]: CallableFunction;
   overlayButtonClicked: ({ port }: PortConnectionParam) => void;
   closeAutofillOverlay: ({ port }: PortConnectionParam) => void;
+  forceCloseAutofillOverlay: ({ port }: PortConnectionParam) => void;
   overlayPageBlurred: () => void;
   redirectOverlayFocusOut: ({ message, port }: PortOnMessageHandlerParams) => void;
 };
@@ -103,6 +100,7 @@ type OverlayButtonPortMessageHandlers = {
 type OverlayListPortMessageHandlers = {
   [key: string]: CallableFunction;
   checkAutofillOverlayButtonFocused: () => void;
+  forceCloseAutofillOverlay: ({ port }: PortConnectionParam) => void;
   overlayPageBlurred: () => void;
   unlockVault: ({ port }: PortConnectionParam) => void;
   fillSelectedListItem: ({ message, port }: PortOnMessageHandlerParams) => void;

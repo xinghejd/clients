@@ -403,6 +403,9 @@
   "length": {
     "message": "Длина"
   },
+  "passwordMinLength": {
+    "message": "Минимальная длина пароля"
+  },
   "uppercase": {
     "message": "Прописные буквы (A-Z)"
   },
@@ -556,6 +559,12 @@
   },
   "newAccountCreated": {
     "message": "Аккаунт создан! Теперь вы можете войти в систему."
+  },
+  "youSuccessfullyLoggedIn": {
+    "message": "You successfully logged in"
+  },
+  "youMayCloseThisWindow": {
+    "message": "You may close this window"
   },
   "masterPassSent": {
     "message": "Мы отправили вам письмо с подсказкой к мастер-паролю."
@@ -1389,6 +1398,9 @@
   "invalidPin": {
     "message": "Неверный PIN-код."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Слишком много неверных попыток ввода PIN-кода. Выполняется выход."
+  },
   "unlockWithWindowsHello": {
     "message": "Разблокировать с Windows Hello"
   },
@@ -1540,6 +1552,10 @@
   "orgRequiresYouToSetPassword": {
     "message": "Необходимо установить мастер-пароль для организации.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "verificationRequired": {
+    "message": "Требуется верификация",
+    "description": "Default title for the user verification dialog."
   },
   "currentMasterPass": {
     "message": "Текущий мастер-пароль"
@@ -1865,6 +1881,42 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Ваш мастер-пароль не соответствует требованиям политики вашей организации. Для доступа к хранилищу вы должны обновить свой мастер-пароль прямо сейчас. При этом текущий сеанс будет завершен и потребуется повторная авторизация. Сеансы на других устройствах могут оставаться активными в течение часа."
+  },
+  "tryAgain": {
+    "message": "Попробуйте снова"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Для этого действия требуется верификация. Для продолжения введите PIN-код."
+  },
+  "setPin": {
+    "message": "Задать PIN-код"
+  },
+  "verifyWithBiometrics": {
+    "message": "Верифицировать с помощью биометрии"
+  },
+  "awaitingConfirmation": {
+    "message": "Ожидание подтверждения"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Не удалось выполнить верификацию биометрией."
+  },
+  "needADifferentMethod": {
+    "message": "Нужен другой метод?"
+  },
+  "useMasterPassword": {
+    "message": "Использовать мастер-пароль"
+  },
+  "usePin": {
+    "message": "Использовать PIN-код"
+  },
+  "useBiometrics": {
+    "message": "Использовать биометрию"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Введите код подтверждения, отправленный вам на почту."
+  },
+  "resendCode": {
+    "message": "Отправить код повторно"
   },
   "hours": {
     "message": "Час."
@@ -2424,6 +2476,9 @@
   "submenu": {
     "message": "Подменю"
   },
+  "skipToContent": {
+    "message": "Перейти к содержимому"
+  },
   "typePasskey": {
     "message": "Ключ доступа"
   },
@@ -2475,6 +2530,15 @@
         "example": "My Org Name"
       }
     }
+  },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Launch Duo and follow the steps to finish logging in."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "Duo two-step login is required for your account."
+  },
+  "launchDuo": {
+    "message": "Launch Duo in Browser"
   },
   "importFormatError": {
     "message": "Формат данных некорректен. Проверьте импортируемый файл и повторите попытку."
@@ -2556,6 +2620,15 @@
   "incorrectUsernameOrPassword": {
     "message": "Неверное имя пользователя или пароль"
   },
+  "incorrectPassword": {
+    "message": "Неверный пароль"
+  },
+  "incorrectCode": {
+    "message": "Неверный код"
+  },
+  "incorrectPin": {
+    "message": "Неверный PIN-код"
+  },
   "multifactorAuthenticationFailed": {
     "message": "Сбой многофакторной аутентификации"
   },
@@ -2610,5 +2683,9 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Вставьте YubiKey, связанный с аккаунтом LastPass, в USB-порт компьютера и нажмите на его кнопку."
+  },
+  "commonImportFormats": {
+    "message": "Основные форматы",
+    "description": "Label indicating the most common import formats"
   }
 }

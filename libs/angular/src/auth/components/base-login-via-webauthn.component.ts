@@ -23,15 +23,19 @@ export class BaseLoginViaWebAuthnComponent implements OnInit {
     private router: Router,
     private logService: LogService,
     private validationService: ValidationService,
-    private i18nService: I18nService
+    private i18nService: I18nService,
   ) {}
 
   ngOnInit(): void {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.authenticate();
   }
 
   protected retry() {
     this.currentState = "assert";
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.authenticate();
   }
 
@@ -50,7 +54,7 @@ export class BaseLoginViaWebAuthnComponent implements OnInit {
 
       if (authResult.requiresTwoFactor) {
         this.validationService.showError(
-          this.i18nService.t("twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn")
+          this.i18nService.t("twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn"),
         );
         this.currentState = "assertFailed";
       } else if (authResult.forcePasswordReset == ForceSetPasswordReason.AdminForcePasswordReset) {

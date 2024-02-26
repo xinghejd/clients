@@ -13,7 +13,6 @@ import { DialogService } from "@bitwarden/components";
 
 export interface BulkDeleteDialogParams {
   cipherIds?: string[];
-  collectionIds?: string[];
   permanent?: boolean;
   organization?: Organization;
   organizations?: Organization[];
@@ -32,11 +31,11 @@ export enum BulkDeleteDialogResult {
  */
 export const openBulkDeleteDialog = (
   dialogService: DialogService,
-  config: DialogConfig<BulkDeleteDialogParams>
+  config: DialogConfig<BulkDeleteDialogParams>,
 ) => {
   return dialogService.open<BulkDeleteDialogResult, BulkDeleteDialogParams>(
     BulkDeleteDialogComponent,
-    config
+    config,
   );
 };
 
@@ -45,7 +44,6 @@ export const openBulkDeleteDialog = (
 })
 export class BulkDeleteDialogComponent {
   cipherIds: string[];
-  collectionIds: string[];
   permanent = false;
   organization: Organization;
   organizations: Organization[];
@@ -58,10 +56,9 @@ export class BulkDeleteDialogComponent {
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
     private apiService: ApiService,
-    private collectionService: CollectionService
+    private collectionService: CollectionService,
   ) {
     this.cipherIds = params.cipherIds ?? [];
-    this.collectionIds = params.collectionIds ?? [];
     this.permanent = params.permanent;
     this.organization = params.organization;
     this.organizations = params.organizations;
@@ -82,7 +79,7 @@ export class BulkDeleteDialogComponent {
       }
     }
 
-    if (this.collectionIds.length) {
+    if (this.collections.length) {
       deletePromises.push(this.deleteCollections());
     }
 
@@ -92,15 +89,15 @@ export class BulkDeleteDialogComponent {
       this.platformUtilsService.showToast(
         "success",
         null,
-        this.i18nService.t(this.permanent ? "permanentlyDeletedItems" : "deletedItems")
+        this.i18nService.t(this.permanent ? "permanentlyDeletedItems" : "deletedItems"),
       );
     }
-    if (this.collectionIds.length) {
-      await this.collectionService.delete(this.collectionIds);
+    if (this.collections.length) {
+      await this.collectionService.delete(this.collections.map((c) => c.id));
       this.platformUtilsService.showToast(
         "success",
         null,
-        this.i18nService.t("deletedCollections")
+        this.i18nService.t("deletedCollections"),
       );
     }
     this.close(BulkDeleteDialogResult.Deleted);
@@ -127,35 +124,34 @@ export class BulkDeleteDialogComponent {
   private async deleteCollections(): Promise<any> {
     // From org vault
     if (this.organization) {
-      if (
-        !this.organization.canDeleteAssignedCollections &&
-        !this.organization.canDeleteAnyCollection
-      ) {
+      if (this.collections.some((c) => !c.canDelete(this.organization))) {
         this.platformUtilsService.showToast(
           "error",
           this.i18nService.t("errorOccurred"),
-          this.i18nService.t("missingPermissions")
+          this.i18nService.t("missingPermissions"),
         );
         return;
       }
-      return await this.apiService.deleteManyCollections(this.organization.id, this.collectionIds);
+      return await this.apiService.deleteManyCollections(
+        this.organization.id,
+        this.collections.map((c) => c.id),
+      );
       // From individual vault, so there can be multiple organizations
     } else if (this.organizations && this.collections) {
       const deletePromises: Promise<any>[] = [];
       for (const organization of this.organizations) {
-        if (!organization.canDeleteAssignedCollections && !organization.canDeleteAnyCollection) {
+        const orgCollections = this.collections.filter((o) => o.organizationId === organization.id);
+        if (orgCollections.some((c) => !c.canDelete(organization))) {
           this.platformUtilsService.showToast(
             "error",
             this.i18nService.t("errorOccurred"),
-            this.i18nService.t("missingPermissions")
+            this.i18nService.t("missingPermissions"),
           );
           return;
         }
-        const orgCollections = this.collections
-          .filter((o) => o.organizationId === organization.id)
-          .map((c) => c.id);
+        const orgCollectionIds = orgCollections.map((c) => c.id);
         deletePromises.push(
-          this.apiService.deleteManyCollections(this.organization.id, orgCollections)
+          this.apiService.deleteManyCollections(organization.id, orgCollectionIds),
         );
       }
       return await Promise.all(deletePromises);

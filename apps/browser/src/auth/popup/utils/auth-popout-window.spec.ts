@@ -1,4 +1,4 @@
-import { createChromeTabMock } from "../../../autofill/jest/autofill-mocks";
+import { createChromeTabMock } from "../../../autofill/spec/autofill-mocks";
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
 
@@ -103,7 +103,7 @@ describe("AuthPopoutWindow", () => {
 
       expect(openPopoutSpy).toHaveBeenCalledWith(
         "popup/index.html#/2fa;webAuthnResponse=data;remember=remember",
-        { singleActionKey: AuthPopoutType.twoFactorAuth }
+        { singleActionKey: AuthPopoutType.twoFactorAuth },
       );
     });
   });

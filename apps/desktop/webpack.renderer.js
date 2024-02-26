@@ -54,6 +54,10 @@ const common = {
     extensions: [".tsx", ".ts", ".js"],
     symlinks: false,
     modules: [path.resolve("../../node_modules")],
+    fallback: {
+      path: require.resolve("path-browserify"),
+      fs: false,
+    },
   },
   output: {
     filename: "[name].js",
@@ -64,9 +68,7 @@ const common = {
 const renderer = {
   mode: NODE_ENV,
   devtool: "source-map",
-  // TODO: Replace this with web.
-  // target: "web",
-  target: "electron-renderer",
+  target: "web",
   node: {
     __dirname: false,
   },
@@ -160,7 +162,7 @@ const renderer = {
     // ref: https://github.com/angular/angular/issues/20357
     new webpack.ContextReplacementPlugin(
       /\@angular(\\|\/)core(\\|\/)fesm5/,
-      path.resolve(__dirname, "./src")
+      path.resolve(__dirname, "./src"),
     ),
     new HtmlWebpackPlugin({
       template: "./src/index.html",

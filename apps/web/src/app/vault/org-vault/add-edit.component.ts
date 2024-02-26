@@ -4,9 +4,9 @@ import { Component } from "@angular/core";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { TotpService } from "@bitwarden/common/abstractions/totp.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -17,6 +17,7 @@ import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.s
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { DialogService } from "@bitwarden/components";
@@ -51,7 +52,8 @@ export class AddEditComponent extends BaseAddEditComponent {
     organizationService: OrganizationService,
     sendApiService: SendApiService,
     dialogService: DialogService,
-    datePipe: DatePipe
+    datePipe: DatePipe,
+    configService: ConfigServiceAbstraction,
   ) {
     super(
       cipherService,
@@ -71,7 +73,8 @@ export class AddEditComponent extends BaseAddEditComponent {
       passwordRepromptService,
       sendApiService,
       dialogService,
-      datePipe
+      datePipe,
+      configService,
     );
   }
 
@@ -81,7 +84,9 @@ export class AddEditComponent extends BaseAddEditComponent {
       (this.ownershipOptions.length > 1 || !this.allowPersonal)
     ) {
       if (this.organization != null) {
-        return this.cloneMode && this.organization.canEditAnyCollection;
+        return (
+          this.cloneMode && this.organization.canEditAllCiphers(this.flexibleCollectionsV1Enabled)
+        );
       } else {
         return !this.editMode || this.cloneMode;
       }
@@ -90,14 +95,14 @@ export class AddEditComponent extends BaseAddEditComponent {
   }
 
   protected loadCollections() {
-    if (!this.organization.canEditAnyCollection) {
+    if (!this.organization.canEditAllCiphers(this.flexibleCollectionsV1Enabled)) {
       return super.loadCollections();
     }
     return Promise.resolve(this.collections);
   }
 
   protected async loadCipher() {
-    if (!this.organization.canEditAnyCollection) {
+    if (!this.organization.canEditAllCiphers(this.flexibleCollectionsV1Enabled)) {
       return await super.loadCipher();
     }
     const response = await this.apiService.getCipherAdmin(this.cipherId);
@@ -110,14 +115,14 @@ export class AddEditComponent extends BaseAddEditComponent {
   }
 
   protected encryptCipher() {
-    if (!this.organization.canEditAnyCollection) {
+    if (!this.organization.canEditAllCiphers(this.flexibleCollectionsV1Enabled)) {
       return super.encryptCipher();
     }
     return this.cipherService.encrypt(this.cipher, null, null, this.originalCipher);
   }
 
   protected async deleteCipher() {
-    if (!this.organization.canEditAnyCollection) {
+    if (!this.organization.canEditAllCiphers(this.flexibleCollectionsV1Enabled)) {
       return super.deleteCipher();
     }
     return this.cipher.isDeleted

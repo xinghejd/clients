@@ -107,7 +107,7 @@
     "message": "Apstiprinājuma kods (TOTP)"
   },
   "website": {
-    "message": "Tīmekļa vietne"
+    "message": "Tīmekļvietne"
   },
   "notes": {
     "message": "Piezīmes"
@@ -181,7 +181,7 @@
     "message": "Ir nepieciešama Premium dalība, lai izmantotu šo iespēju."
   },
   "errorOccurred": {
-    "message": "Radusies kļūda."
+    "message": "Atgadījās kļūda."
   },
   "error": {
     "message": "Kļūda"
@@ -403,6 +403,9 @@
   "length": {
     "message": "Garums"
   },
+  "passwordMinLength": {
+    "message": "Mazākais pieļaujamais paroles garums"
+  },
   "uppercase": {
     "message": "Lielie burti (A-Z)"
   },
@@ -557,11 +560,17 @@
   "newAccountCreated": {
     "message": "Jaunais konts ir izveidots. Tagad vari pieteikties."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "You successfully logged in"
+  },
+  "youMayCloseThisWindow": {
+    "message": "You may close this window"
+  },
   "masterPassSent": {
     "message": "Mēs nosūtījām galvenās paroles norādi e-pastā."
   },
   "unexpectedError": {
-    "message": "Ir radusies neparedzēta kļūda."
+    "message": "Atgadījās neparedzēta kļūda."
   },
   "itemInformation": {
     "message": "Vienuma informācija"
@@ -792,7 +801,7 @@
     "message": "Mainīt galveno paroli"
   },
   "changeMasterPasswordConfirmation": {
-    "message": "Galveno paroli ir iespējams mainīt bitwarden.com tīmekļa glabātavā. Vai apmeklēt tīmekļa vietni?"
+    "message": "Galveno paroli ir iespējams mainīt bitwarden.com tīmekļa glabātavā. Vai tagad apmeklēt tīmekļvietni?"
   },
   "fingerprintPhrase": {
     "message": "Atpazīšanas vārdkopa",
@@ -840,7 +849,7 @@
     "message": "Nederīga galvenā parole"
   },
   "twoStepLoginConfirmation": {
-    "message": "Divpakāpju pieteikšanās padara kontu krietni drošāku, pieprasot apstiprināt pieteikšanos ar tādu citu ierīču vai pakalpojumu starpniecību kā drošības atslēga, autentificētāja lietotne, īsziņa, tālruņa zvans vai e-pasts. Divpakāpju pieteikšanos var iespējot bitwarden.com tīmekļa glabātavā. Vai apmeklēt tīmekļa vietni?"
+    "message": "Divpakāpju pieteikšanās padara kontu krietni drošāku, pieprasot apstiprināt pieteikšanos ar tādu citu ierīču vai pakalpojumu starpniecību kā drošības atslēga, autentificētāja lietotne, īsziņa, tālruņa zvans vai e-pasts. Divpakāpju pieteikšanos var iespējot bitwarden.com tīmekļa glabātavā. Vai tagad apmeklēt tīmekļvietni?"
   },
   "twoStepLogin": {
     "message": "Divpakāpju pieteikšanās"
@@ -911,7 +920,7 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "enableFavicon": {
-    "message": "Rādīt vietņu ikonas"
+    "message": "Rādīt tīmekļvietņu ikonas"
   },
   "faviconDesc": {
     "message": "Attēlot atpazīstamu attēlu pie katra pieteikšanās vienuma."
@@ -1063,7 +1072,7 @@
     "message": "Pārvaldīt dalību"
   },
   "premiumManageAlert": {
-    "message": "Dalību ir iespējams pārvaldīt bitwarden.com tīmekļa glabātavā. Vai apmeklēt tīmekļa vietni?"
+    "message": "Dalību ir iespējams pārvaldīt bitwarden.com tīmekļa glabātavā. Vai tagad apmeklēt tīmekļvietni?"
   },
   "premiumRefresh": {
     "message": "Atjaunot dalību"
@@ -1096,7 +1105,7 @@
     "message": "Iegādāties Premium"
   },
   "premiumPurchaseAlert": {
-    "message": "Premium dalību ir iespējams iegādāties bitwarden.com tīmekļa glabātavā. Vai apmeklēt tīmekļa vietni?"
+    "message": "Premium dalību ir iespējams iegādāties bitwarden.com tīmekļa glabātavā. Vai tagad apmeklēt tīmekļvietni?"
   },
   "premiumCurrentMember": {
     "message": "Jūs esat premium dalībnieks!"
@@ -1389,6 +1398,9 @@
   "invalidPin": {
     "message": "Nederīgs PIN kods."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Pārāk daudz nederīgu PIN ievadīšanas mēģinājumu. Atsakās."
+  },
   "unlockWithWindowsHello": {
     "message": "Atslēgt ar Windows Hello"
   },
@@ -1540,6 +1552,10 @@
   "orgRequiresYouToSetPassword": {
     "message": "Apvienība pieprasa iestatīt galveno paroli.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "verificationRequired": {
+    "message": "Nepieciešams apliecinājums",
+    "description": "Default title for the user verification dialog."
   },
   "currentMasterPass": {
     "message": "Pašreizējā galvenā parole"
@@ -1866,6 +1882,42 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Galvenā parole neatbilst vienam vai vairākiem apvienības nosacījumiem. Ir jāatjaunina galvenā parole, lai varētu piekļūt glabātavai. Turpinot notiks atteikšanās no pašreizējās sesijas, un būs nepieciešams pieteikties no jauna. Citās ierīcēs esošās sesijas var turpināt darboties līdz vienai stundai."
   },
+  "tryAgain": {
+    "message": "Jāmēģina vēlreiz"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Šai darbībai ir nepieciešama apliecināšana. Jāiestata PIN, lai turpinātu."
+  },
+  "setPin": {
+    "message": "Iestatīt PIN"
+  },
+  "verifyWithBiometrics": {
+    "message": "Apliecināt ar biometriju"
+  },
+  "awaitingConfirmation": {
+    "message": "Gaida apstiprinājumu"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Nevarēja pabeigt biometriju."
+  },
+  "needADifferentMethod": {
+    "message": "Nepieciešams cits veids?"
+  },
+  "useMasterPassword": {
+    "message": "Izmantot galveno paroli"
+  },
+  "usePin": {
+    "message": "Izmantot PIN"
+  },
+  "useBiometrics": {
+    "message": "Izmantot biometriju"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Jāievada apliecinājuma kods, kas tika nosūtīts e-pastā."
+  },
+  "resendCode": {
+    "message": "Atkārtoti nosūtīt kodu"
+  },
   "hours": {
     "message": "Stundas"
   },
@@ -1969,7 +2021,7 @@
     "message": "Lietotnes iestatījumi (visi konti)"
   },
   "accountSwitcherLimitReached": {
-    "message": "Sasniegti konta ierobežojumi. Atteikties, lai pievienotu citu."
+    "message": "Sasniegti konta ierobežojumi. Jāizrakstās no konta, lai pievienotu citu."
   },
   "settingsTitle": {
     "message": "Lietotnes iestatījumi kontam $EMAIL$",
@@ -2002,10 +2054,10 @@
     }
   },
   "locked": {
-    "message": "Slēgts"
+    "message": "Aizslēgta"
   },
   "unlocked": {
-    "message": "Atslēgts"
+    "message": "Atslēgta"
   },
   "generator": {
     "message": "Veidotājs"
@@ -2045,7 +2097,7 @@
     "message": "Nejaušs vārds"
   },
   "websiteName": {
-    "message": "Tīmekļa vietnes nosaukums"
+    "message": "Tīmekļvietnes nosaukums"
   },
   "service": {
     "message": "Pakalpojums"
@@ -2424,6 +2476,9 @@
   "submenu": {
     "message": "Apakšizvēlne"
   },
+  "skipToContent": {
+    "message": "Pāriet uz saturu"
+  },
   "typePasskey": {
     "message": "Piekļuves atslēga"
   },
@@ -2475,6 +2530,15 @@
         "example": "My Org Name"
       }
     }
+  },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Launch Duo and follow the steps to finish logging in."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "Duo two-step login is required for your account."
+  },
+  "launchDuo": {
+    "message": "Launch Duo in Browser"
   },
   "importFormatError": {
     "message": "Dati nav pareizi formatēti. Lūgums pārbaudīt ievietošanas datni un mēģināt vēlreiz."
@@ -2556,6 +2620,15 @@
   "incorrectUsernameOrPassword": {
     "message": "Nepareizs lietotājvārds vai parole"
   },
+  "incorrectPassword": {
+    "message": "Nepareiza parole"
+  },
+  "incorrectCode": {
+    "message": "Nepareizs kods"
+  },
+  "incorrectPin": {
+    "message": "Nepareizs PIN"
+  },
   "multifactorAuthenticationFailed": {
     "message": "Daudzpakāpju pieteikšanās neizdevās"
   },
@@ -2610,5 +2683,9 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Jāievieto ar LastPass kontu sasaistītā YubiKey datora USB ligzdā, tad jāpieskaras tās pogai."
+  },
+  "commonImportFormats": {
+    "message": "Izplatīti veidoli",
+    "description": "Label indicating the most common import formats"
   }
 }

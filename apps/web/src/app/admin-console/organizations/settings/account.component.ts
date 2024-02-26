@@ -1,7 +1,7 @@
 import { Component, ViewChild, ViewContainerRef } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { combineLatest, lastValueFrom, Subject, switchMap, takeUntil, from, of } from "rxjs";
+import { combineLatest, from, lastValueFrom, of, Subject, switchMap, takeUntil } from "rxjs";
 
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -16,10 +16,10 @@ import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.se
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { DialogService } from "@bitwarden/components";
+import { DialogService, SimpleDialogOptions } from "@bitwarden/components";
 
-import { ApiKeyComponent } from "../../../settings/api-key.component";
-import { PurgeVaultComponent } from "../../../settings/purge-vault.component";
+import { ApiKeyComponent } from "../../../auth/settings/security/api-key.component";
+import { PurgeVaultComponent } from "../../../vault/settings/purge-vault.component";
 
 import { DeleteOrganizationDialogResult, openDeleteOrganizationDialog } from "./components";
 
@@ -41,9 +41,15 @@ export class AccountComponent {
   canUseApi = false;
   org: OrganizationResponse;
   taxFormPromise: Promise<unknown>;
-  showCollectionManagementSettings$ = this.configService.getFeatureFlag$(
-    FeatureFlag.FlexibleCollections,
-    false
+
+  protected flexibleCollectionsMigrationEnabled$ = this.configService.getFeatureFlag$(
+    FeatureFlag.FlexibleCollectionsMigration,
+    false,
+  );
+
+  flexibleCollectionsV1Enabled$ = this.configService.getFeatureFlag$(
+    FeatureFlag.FlexibleCollectionsV1,
+    false,
   );
 
   // FormGroup validators taken from server Organization domain object
@@ -53,20 +59,24 @@ export class AccountComponent {
       {
         validators: [Validators.required, Validators.maxLength(50)],
         updateOn: "change",
-      }
+      },
     ),
     billingEmail: this.formBuilder.control(
       { value: "", disabled: true },
-      { validators: [Validators.required, Validators.email, Validators.maxLength(256)] }
+      { validators: [Validators.required, Validators.email, Validators.maxLength(256)] },
     ),
     businessName: this.formBuilder.control(
       { value: "", disabled: true },
-      { validators: [Validators.maxLength(50)] }
+      { validators: [Validators.maxLength(50)] },
     ),
   });
 
   protected collectionManagementFormGroup = this.formBuilder.group({
-    limitCollectionCreationDeletion: [false],
+    limitCollectionCreationDeletion: this.formBuilder.control({ value: false, disabled: true }),
+    allowAdminAccessToAllCollectionItems: this.formBuilder.control({
+      value: false,
+      disabled: true,
+    }),
   });
 
   protected organizationId: string;
@@ -85,7 +95,7 @@ export class AccountComponent {
     private organizationApiService: OrganizationApiServiceAbstraction,
     private dialogService: DialogService,
     private formBuilder: FormBuilder,
-    private configService: ConfigServiceAbstraction
+    private configService: ConfigServiceAbstraction,
   ) {}
 
   async ngOnInit() {
@@ -103,7 +113,7 @@ export class AccountComponent {
             from(this.organizationApiService.getKeys(organization.id)),
           ]);
         }),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe(([organization, orgResponse, orgKeys]) => {
         // Set domain level organization variables
@@ -114,11 +124,13 @@ export class AccountComponent {
         // Update disabled states - reactive forms prefers not using disabled attribute
         if (!this.selfHosted) {
           this.formGroup.get("orgName").enable();
+          this.formGroup.get("businessName").enable();
+          this.collectionManagementFormGroup.get("limitCollectionCreationDeletion").enable();
+          this.collectionManagementFormGroup.get("allowAdminAccessToAllCollectionItems").enable();
         }
 
-        if (!this.selfHosted || this.canEditSubscription) {
+        if (!this.selfHosted && this.canEditSubscription) {
           this.formGroup.get("billingEmail").enable();
-          this.formGroup.get("businessName").enable();
         }
 
         // Org Response
@@ -135,6 +147,7 @@ export class AccountComponent {
         });
         this.collectionManagementFormGroup.patchValue({
           limitCollectionCreationDeletion: this.org.limitCollectionCreationDeletion,
+          allowAdminAccessToAllCollectionItems: this.org.allowAdminAccessToAllCollectionItems,
         });
 
         this.loading = false;
@@ -170,17 +183,44 @@ export class AccountComponent {
     this.platformUtilsService.showToast("success", null, this.i18nService.t("organizationUpdated"));
   };
 
+  async showConfirmCollectionEnhancementsDialog() {
+    const collectionEnhancementsDialogOptions: SimpleDialogOptions = {
+      title: this.i18nService.t("confirmCollectionEnhancementsDialogTitle"),
+      content: this.i18nService.t("confirmCollectionEnhancementsDialogContent"),
+      type: "warning",
+      acceptButtonText: this.i18nService.t("continue"),
+      acceptAction: async () => {
+        await this.organizationApiService.enableCollectionEnhancements(this.organizationId);
+
+        this.platformUtilsService.showToast(
+          "success",
+          null,
+          this.i18nService.t("updatedCollectionManagement"),
+        );
+      },
+    };
+
+    await this.dialogService.openSimpleDialog(collectionEnhancementsDialogOptions);
+  }
+
   submitCollectionManagement = async () => {
+    // Early exit if self-hosted
+    if (this.selfHosted) {
+      return;
+    }
+
     const request = new OrganizationCollectionManagementUpdateRequest();
     request.limitCreateDeleteOwnerAdmin =
       this.collectionManagementFormGroup.value.limitCollectionCreationDeletion;
+    request.allowAdminAccessToAllCollectionItems =
+      this.collectionManagementFormGroup.value.allowAdminAccessToAllCollectionItems;
 
     await this.organizationApiService.updateCollectionManagement(this.organizationId, request);
 
     this.platformUtilsService.showToast(
       "success",
       null,
-      this.i18nService.t("collectionManagementUpdated")
+      this.i18nService.t("updatedCollectionManagement"),
     );
   };
 
@@ -195,6 +235,8 @@ export class AccountComponent {
     const result = await lastValueFrom(dialog.closed);
 
     if (result === DeleteOrganizationDialogResult.Deleted) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["/"]);
     }
   }
@@ -210,7 +252,7 @@ export class AccountComponent {
       comp.keyType = "organization";
       comp.entityId = this.organizationId;
       comp.postKey = this.organizationApiService.getOrCreateApiKey.bind(
-        this.organizationApiService
+        this.organizationApiService,
       );
       comp.scope = "api.organization";
       comp.grantType = "client_credentials";

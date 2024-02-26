@@ -1,10 +1,14 @@
+import { mock } from "jest-mock-extended";
+
+import { ThemeType } from "@bitwarden/common/platform/enums";
+
 import { EVENTS } from "../../constants";
-import { createPortSpyMock } from "../../jest/autofill-mocks";
+import { createPortSpyMock } from "../../spec/autofill-mocks";
 import {
   flushPromises,
   sendPortMessage,
   triggerPortOnDisconnectEvent,
-} from "../../jest/testing-utils";
+} from "../../spec/testing-utils";
 import { AutofillOverlayPort } from "../../utils/autofill-overlay.enum";
 
 import AutofillOverlayIframeService from "./autofill-overlay-iframe.service";
@@ -23,17 +27,17 @@ describe("AutofillOverlayIframeService", () => {
     autofillOverlayIframeService = new AutofillOverlayIframeService(
       iframePath,
       AutofillOverlayPort.Button,
-      shadow
+      shadow,
     );
     shadowAppendSpy = jest.spyOn(shadow, "appendChild");
     handlePortDisconnectSpy = jest.spyOn(
       autofillOverlayIframeService as any,
-      "handlePortDisconnect"
+      "handlePortDisconnect",
     );
     handlePortMessageSpy = jest.spyOn(autofillOverlayIframeService as any, "handlePortMessage");
     handleWindowMessageSpy = jest.spyOn(autofillOverlayIframeService as any, "handleWindowMessage");
     chrome.runtime.connect = jest.fn((connectInfo: chrome.runtime.ConnectInfo) =>
-      createPortSpyMock(connectInfo.name)
+      createPortSpyMock(connectInfo.name),
     ) as unknown as typeof chrome.runtime.connect;
   });
 
@@ -54,7 +58,7 @@ describe("AutofillOverlayIframeService", () => {
       autofillOverlayIframeService.initOverlayIframe({}, "title");
 
       expect(autofillOverlayIframeService["shadow"].appendChild).toBeCalledWith(
-        autofillOverlayIframeService["iframe"]
+        autofillOverlayIframeService["iframe"],
       );
     });
 
@@ -147,7 +151,7 @@ describe("AutofillOverlayIframeService", () => {
 
         expect(globalThis.removeEventListener).toBeCalledWith(
           EVENTS.MESSAGE,
-          handleWindowMessageSpy
+          handleWindowMessageSpy,
         );
       });
 
@@ -186,7 +190,7 @@ describe("AutofillOverlayIframeService", () => {
 
         expect(autofillOverlayIframeService["iframe"].contentWindow.postMessage).toBeCalledWith(
           message,
-          "*"
+          "*",
         );
       });
 
@@ -204,14 +208,14 @@ describe("AutofillOverlayIframeService", () => {
         beforeEach(() => {
           updateElementStylesSpy = jest.spyOn(
             autofillOverlayIframeService as any,
-            "updateElementStyles"
+            "updateElementStyles",
           );
         });
 
-        it("passed the message on to the iframe element", () => {
+        it("passes the message on to the iframe element", () => {
           const message = {
             command: "initAutofillOverlayList",
-            theme: "theme_light",
+            theme: ThemeType.Light,
           };
 
           sendPortMessage(portSpy, message);
@@ -219,14 +223,52 @@ describe("AutofillOverlayIframeService", () => {
           expect(updateElementStylesSpy).not.toBeCalled();
           expect(autofillOverlayIframeService["iframe"].contentWindow.postMessage).toBeCalledWith(
             message,
-            "*"
+            "*",
+          );
+        });
+
+        it("sets a light theme based on the user's system preferences", () => {
+          window.matchMedia = jest.fn(() => mock<MediaQueryList>({ matches: false }));
+          const message = {
+            command: "initAutofillOverlayList",
+            theme: ThemeType.System,
+          };
+
+          sendPortMessage(portSpy, message);
+
+          expect(window.matchMedia).toHaveBeenCalledWith("(prefers-color-scheme: dark)");
+          expect(autofillOverlayIframeService["iframe"].contentWindow.postMessage).toBeCalledWith(
+            {
+              command: "initAutofillOverlayList",
+              theme: ThemeType.Light,
+            },
+            "*",
+          );
+        });
+
+        it("sets a dark theme based on the user's system preferences", () => {
+          window.matchMedia = jest.fn(() => mock<MediaQueryList>({ matches: true }));
+          const message = {
+            command: "initAutofillOverlayList",
+            theme: ThemeType.System,
+          };
+
+          sendPortMessage(portSpy, message);
+
+          expect(window.matchMedia).toHaveBeenCalledWith("(prefers-color-scheme: dark)");
+          expect(autofillOverlayIframeService["iframe"].contentWindow.postMessage).toBeCalledWith(
+            {
+              command: "initAutofillOverlayList",
+              theme: ThemeType.Dark,
+            },
+            "*",
           );
         });
 
         it("updates the border to match the `dark` theme", () => {
           const message = {
             command: "initAutofillOverlayList",
-            theme: "theme_dark",
+            theme: ThemeType.Dark,
           };
 
           sendPortMessage(portSpy, message);
@@ -239,7 +281,7 @@ describe("AutofillOverlayIframeService", () => {
         it("updates the border to match the `nord` theme", () => {
           const message = {
             command: "initAutofillOverlayList",
-            theme: "theme_nord",
+            theme: ThemeType.Nord,
           };
 
           sendPortMessage(portSpy, message);
@@ -252,7 +294,7 @@ describe("AutofillOverlayIframeService", () => {
         it("updates the border to match the `solarizedDark` theme", () => {
           const message = {
             command: "initAutofillOverlayList",
-            theme: "theme_solarizedDark",
+            theme: ThemeType.SolarizedDark,
           };
 
           sendPortMessage(portSpy, message);
@@ -344,7 +386,7 @@ describe("AutofillOverlayIframeService", () => {
           new MessageEvent("message", {
             data: {},
             source: window,
-          })
+          }),
         );
 
         expect(portSpy.postMessage).not.toBeCalled();
@@ -356,7 +398,7 @@ describe("AutofillOverlayIframeService", () => {
             data: {},
             source: autofillOverlayIframeService["iframe"].contentWindow,
             origin: "https://www.google.com",
-          })
+          }),
         );
 
         expect(portSpy.postMessage).not.toBeCalled();
@@ -368,7 +410,7 @@ describe("AutofillOverlayIframeService", () => {
             data: { command: "not-a-handled-command" },
             source: autofillOverlayIframeService["iframe"].contentWindow,
             origin: "chrome-extension://id",
-          })
+          }),
         );
 
         expect(portSpy.postMessage).toBeCalledWith({ command: "not-a-handled-command" });
@@ -380,10 +422,50 @@ describe("AutofillOverlayIframeService", () => {
             data: { command: "updateAutofillOverlayListHeight", styles: { height: "300px" } },
             source: autofillOverlayIframeService["iframe"].contentWindow,
             origin: "chrome-extension://id",
-          })
+          }),
         );
 
         expect(autofillOverlayIframeService["iframe"].style.height).toBe("300px");
+      });
+
+      describe("getPageColorScheme window message", () => {
+        afterEach(() => {
+          globalThis.document.head.innerHTML = "";
+        });
+
+        it("gets and updates the overlay page color scheme", () => {
+          const colorSchemeMetaTag = globalThis.document.createElement("meta");
+          colorSchemeMetaTag.setAttribute("name", "color-scheme");
+          colorSchemeMetaTag.setAttribute("content", "dark");
+          globalThis.document.head.append(colorSchemeMetaTag);
+          globalThis.dispatchEvent(
+            new MessageEvent("message", {
+              data: { command: "getPageColorScheme" },
+              source: autofillOverlayIframeService["iframe"].contentWindow,
+              origin: "chrome-extension://id",
+            }),
+          );
+
+          expect(autofillOverlayIframeService["iframe"].contentWindow.postMessage).toBeCalledWith(
+            { command: "updateOverlayPageColorScheme", colorScheme: "dark" },
+            "*",
+          );
+        });
+
+        it("sends a normal color scheme if the color scheme meta tag is not present", () => {
+          globalThis.dispatchEvent(
+            new MessageEvent("message", {
+              data: { command: "getPageColorScheme" },
+              source: autofillOverlayIframeService["iframe"].contentWindow,
+              origin: "chrome-extension://id",
+            }),
+          );
+
+          expect(autofillOverlayIframeService["iframe"].contentWindow.postMessage).toBeCalledWith(
+            { command: "updateOverlayPageColorScheme", colorScheme: "normal" },
+            "*",
+          );
+        });
       });
     });
   });
@@ -392,6 +474,23 @@ describe("AutofillOverlayIframeService", () => {
     beforeEach(() => {
       autofillOverlayIframeService.initOverlayIframe({ height: "0px" }, "title", "ariaAlert");
       autofillOverlayIframeService["iframe"].dispatchEvent(new Event(EVENTS.LOAD));
+      portSpy = autofillOverlayIframeService["port"];
+    });
+
+    it("skips handling found mutations if excessive mutations are triggering", async () => {
+      jest.useFakeTimers();
+      jest
+        .spyOn(
+          autofillOverlayIframeService as any,
+          "isTriggeringExcessiveMutationObserverIterations",
+        )
+        .mockReturnValue(true);
+      jest.spyOn(autofillOverlayIframeService as any, "updateElementStyles");
+
+      autofillOverlayIframeService["iframe"].style.visibility = "hidden";
+      await flushPromises();
+
+      expect(autofillOverlayIframeService["updateElementStyles"]).not.toBeCalled();
     });
 
     it("reverts any styles changes made directly to the iframe", async () => {
@@ -401,6 +500,48 @@ describe("AutofillOverlayIframeService", () => {
       await flushPromises();
 
       expect(autofillOverlayIframeService["iframe"].style.visibility).toBe("visible");
+    });
+
+    it("force closes the autofill overlay if more than 9 foreign mutations are triggered", async () => {
+      jest.useFakeTimers();
+      autofillOverlayIframeService["foreignMutationsCount"] = 10;
+
+      autofillOverlayIframeService["iframe"].src = "http://malicious-site.com";
+      await flushPromises();
+
+      expect(portSpy.postMessage).toBeCalledWith({ command: "forceCloseAutofillOverlay" });
+    });
+
+    it("force closes the autofill overlay if excessive mutations are being triggered", async () => {
+      jest.useFakeTimers();
+      autofillOverlayIframeService["mutationObserverIterations"] = 20;
+
+      autofillOverlayIframeService["iframe"].src = "http://malicious-site.com";
+      await flushPromises();
+
+      expect(portSpy.postMessage).toBeCalledWith({ command: "forceCloseAutofillOverlay" });
+    });
+
+    it("resets the excessive mutations and foreign mutation counters", async () => {
+      jest.useFakeTimers();
+      autofillOverlayIframeService["foreignMutationsCount"] = 9;
+      autofillOverlayIframeService["mutationObserverIterations"] = 19;
+
+      autofillOverlayIframeService["iframe"].src = "http://malicious-site.com";
+      jest.advanceTimersByTime(2001);
+      await flushPromises();
+
+      expect(autofillOverlayIframeService["foreignMutationsCount"]).toBe(0);
+      expect(autofillOverlayIframeService["mutationObserverIterations"]).toBe(0);
+    });
+
+    it("resets any mutated default attributes for the iframe", async () => {
+      jest.useFakeTimers();
+
+      autofillOverlayIframeService["iframe"].title = "some-other-title";
+      await flushPromises();
+
+      expect(autofillOverlayIframeService["iframe"].title).toBe("title");
     });
   });
 });

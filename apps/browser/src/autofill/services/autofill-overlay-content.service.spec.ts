@@ -3,9 +3,9 @@ import { mock } from "jest-mock-extended";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
 import { EVENTS } from "../constants";
-import { createAutofillFieldMock } from "../jest/autofill-mocks";
-import { flushPromises } from "../jest/testing-utils";
 import AutofillField from "../models/autofill-field";
+import { createAutofillFieldMock } from "../spec/autofill-mocks";
+import { flushPromises } from "../spec/testing-utils";
 import { ElementWithOpId, FormFieldElement } from "../types";
 import {
   AutofillOverlayElement,
@@ -15,6 +15,21 @@ import {
 
 import { AutoFillConstants } from "./autofill-constants";
 import AutofillOverlayContentService from "./autofill-overlay-content.service";
+
+function createMutationRecordMock(customFields = {}): MutationRecord {
+  return {
+    addedNodes: mock<NodeList>(),
+    attributeName: "default-attributeName",
+    attributeNamespace: "default-attributeNamespace",
+    nextSibling: null,
+    oldValue: "default-oldValue",
+    previousSibling: null,
+    removedNodes: mock<NodeList>(),
+    target: null,
+    type: "attributes",
+    ...customFields,
+  };
+}
 
 const defaultWindowReadyState = document.readyState;
 const defaultDocumentVisibilityState = document.visibilityState;
@@ -58,11 +73,11 @@ describe("AutofillOverlayContentService", () => {
       jest.spyOn(window, "addEventListener");
       setupGlobalEventListenersSpy = jest.spyOn(
         autofillOverlayContentService as any,
-        "setupGlobalEventListeners"
+        "setupGlobalEventListeners",
       );
       setupMutationObserverSpy = jest.spyOn(
         autofillOverlayContentService as any,
-        "setupMutationObserver"
+        "setupMutationObserver",
       );
     });
 
@@ -76,7 +91,7 @@ describe("AutofillOverlayContentService", () => {
 
       expect(document.addEventListener).toHaveBeenCalledWith(
         "DOMContentLoaded",
-        setupGlobalEventListenersSpy
+        setupGlobalEventListenersSpy,
       );
       expect(setupGlobalEventListenersSpy).not.toHaveBeenCalled();
     });
@@ -84,21 +99,21 @@ describe("AutofillOverlayContentService", () => {
     it("sets up a visibility change listener for the DOM", () => {
       const handleVisibilityChangeEventSpy = jest.spyOn(
         autofillOverlayContentService as any,
-        "handleVisibilityChangeEvent"
+        "handleVisibilityChangeEvent",
       );
 
       autofillOverlayContentService.init();
 
       expect(document.addEventListener).toHaveBeenCalledWith(
         "visibilitychange",
-        handleVisibilityChangeEventSpy
+        handleVisibilityChangeEventSpy,
       );
     });
 
     it("sets up a focus out listener for the window", () => {
       const handleFormFieldBlurEventSpy = jest.spyOn(
         autofillOverlayContentService as any,
-        "handleFormFieldBlurEvent"
+        "handleFormFieldBlurEvent",
       );
 
       autofillOverlayContentService.init();
@@ -106,37 +121,28 @@ describe("AutofillOverlayContentService", () => {
       expect(window.addEventListener).toHaveBeenCalledWith("focusout", handleFormFieldBlurEventSpy);
     });
 
-    it("sets up mutation observers for the body and html element", () => {
+    it("sets up mutation observers for the body element", () => {
       jest
         .spyOn(globalThis, "MutationObserver")
         .mockImplementation(() => mock<MutationObserver>({ observe: jest.fn() }));
       const handleOverlayElementMutationObserverUpdateSpy = jest.spyOn(
         autofillOverlayContentService as any,
-        "handleOverlayElementMutationObserverUpdate"
+        "handleOverlayElementMutationObserverUpdate",
       );
       const handleBodyElementMutationObserverUpdateSpy = jest.spyOn(
         autofillOverlayContentService as any,
-        "handleBodyElementMutationObserverUpdate"
+        "handleBodyElementMutationObserverUpdate",
       );
-      const handleDocumentElementMutationObserverUpdateSpy = jest.spyOn(
-        autofillOverlayContentService as any,
-        "handleDocumentElementMutationObserverUpdate"
-      );
-
       autofillOverlayContentService.init();
 
       expect(setupMutationObserverSpy).toHaveBeenCalledTimes(1);
       expect(globalThis.MutationObserver).toHaveBeenNthCalledWith(
         1,
-        handleOverlayElementMutationObserverUpdateSpy
+        handleOverlayElementMutationObserverUpdateSpy,
       );
       expect(globalThis.MutationObserver).toHaveBeenNthCalledWith(
         2,
-        handleBodyElementMutationObserverUpdateSpy
-      );
-      expect(globalThis.MutationObserver).toHaveBeenNthCalledWith(
-        3,
-        handleDocumentElementMutationObserverUpdateSpy
+        handleBodyElementMutationObserverUpdateSpy,
       );
     });
   });
@@ -154,7 +160,7 @@ describe("AutofillOverlayContentService", () => {
       `;
 
       autofillFieldElement = document.getElementById(
-        "username-field"
+        "username-field",
       ) as ElementWithOpId<FormFieldElement>;
       autofillFieldElement.opid = "op-1";
       jest.spyOn(autofillFieldElement, "addEventListener");
@@ -174,9 +180,11 @@ describe("AutofillOverlayContentService", () => {
       it("ignores fields that are readonly", () => {
         autofillFieldData.readonly = true;
 
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
-          autofillFieldData
+          autofillFieldData,
         );
 
         expect(autofillFieldElement.addEventListener).not.toHaveBeenCalled();
@@ -185,9 +193,11 @@ describe("AutofillOverlayContentService", () => {
       it("ignores fields that contain a disabled attribute", () => {
         autofillFieldData.disabled = true;
 
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
-          autofillFieldData
+          autofillFieldData,
         );
 
         expect(autofillFieldElement.addEventListener).not.toHaveBeenCalled();
@@ -196,21 +206,25 @@ describe("AutofillOverlayContentService", () => {
       it("ignores fields that are not viewable", () => {
         autofillFieldData.viewable = false;
 
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
-          autofillFieldData
+          autofillFieldData,
         );
 
         expect(autofillFieldElement.addEventListener).not.toHaveBeenCalled();
       });
 
-      it("ignores fields that are part of the ExcludedAutofillTypes", () => {
-        AutoFillConstants.ExcludedAutofillTypes.forEach((excludedType) => {
+      it("ignores fields that are part of the ExcludedOverlayTypes", () => {
+        AutoFillConstants.ExcludedOverlayTypes.forEach((excludedType) => {
           autofillFieldData.type = excludedType;
 
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
-            autofillFieldData
+            autofillFieldData,
           );
 
           expect(autofillFieldElement.addEventListener).not.toHaveBeenCalled();
@@ -220,9 +234,11 @@ describe("AutofillOverlayContentService", () => {
       it("ignores fields that contain the keyword `search`", () => {
         autofillFieldData.placeholder = "search";
 
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
-          autofillFieldData
+          autofillFieldData,
         );
 
         expect(autofillFieldElement.addEventListener).not.toHaveBeenCalled();
@@ -231,9 +247,11 @@ describe("AutofillOverlayContentService", () => {
       it("ignores fields that contain the keyword `captcha` ", () => {
         autofillFieldData.placeholder = "captcha";
 
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
-          autofillFieldData
+          autofillFieldData,
         );
 
         expect(autofillFieldElement.addEventListener).not.toHaveBeenCalled();
@@ -242,9 +260,11 @@ describe("AutofillOverlayContentService", () => {
       it("ignores fields that do not appear as a login field", () => {
         autofillFieldData.placeholder = "not-a-login-field";
 
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
-          autofillFieldData
+          autofillFieldData,
         );
 
         expect(autofillFieldElement.addEventListener).not.toHaveBeenCalled();
@@ -258,12 +278,12 @@ describe("AutofillOverlayContentService", () => {
 
         await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
-          autofillFieldData
+          autofillFieldData,
         );
 
         expect(sendExtensionMessageSpy).toHaveBeenCalledWith("getAutofillOverlayVisibility");
         expect(autofillOverlayContentService["autofillOverlayVisibility"]).toEqual(
-          AutofillOverlayVisibility.OnFieldFocus
+          AutofillOverlayVisibility.OnFieldFocus,
         );
       });
 
@@ -273,11 +293,11 @@ describe("AutofillOverlayContentService", () => {
 
         await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
-          autofillFieldData
+          autofillFieldData,
         );
 
         expect(autofillOverlayContentService["autofillOverlayVisibility"]).toEqual(
-          AutofillOverlayVisibility.OnFieldFocus
+          AutofillOverlayVisibility.OnFieldFocus,
         );
       });
     });
@@ -296,23 +316,23 @@ describe("AutofillOverlayContentService", () => {
 
         await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
-          autofillFieldData
+          autofillFieldData,
         );
 
         expect(autofillFieldElement.removeEventListener).toHaveBeenNthCalledWith(
           1,
           "input",
-          inputHandler
+          inputHandler,
         );
         expect(autofillFieldElement.removeEventListener).toHaveBeenNthCalledWith(
           2,
           "click",
-          clickHandler
+          clickHandler,
         );
         expect(autofillFieldElement.removeEventListener).toHaveBeenNthCalledWith(
           3,
           "focus",
-          focusHandler
+          focusHandler,
         );
       });
 
@@ -320,7 +340,7 @@ describe("AutofillOverlayContentService", () => {
         beforeEach(async () => {
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
-            autofillFieldData
+            autofillFieldData,
           );
         });
 
@@ -343,7 +363,7 @@ describe("AutofillOverlayContentService", () => {
         beforeEach(async () => {
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
-            autofillFieldData
+            autofillFieldData,
           );
           jest.spyOn(globalThis.customElements, "define").mockImplementation();
         });
@@ -359,7 +379,7 @@ describe("AutofillOverlayContentService", () => {
         it("repositions the overlay if autofill is not currently filling when the `Enter` key is pressed", () => {
           const handleOverlayRepositionEventSpy = jest.spyOn(
             autofillOverlayContentService as any,
-            "handleOverlayRepositionEvent"
+            "handleOverlayRepositionEvent",
           );
           autofillOverlayContentService["isCurrentlyFilling"] = false;
 
@@ -371,7 +391,7 @@ describe("AutofillOverlayContentService", () => {
         it("skips repositioning the overlay if autofill is currently filling when the `Enter` key is pressed", () => {
           const handleOverlayRepositionEventSpy = jest.spyOn(
             autofillOverlayContentService as any,
-            "handleOverlayRepositionEvent"
+            "handleOverlayRepositionEvent",
           );
           autofillOverlayContentService["isCurrentlyFilling"] = true;
 
@@ -384,11 +404,11 @@ describe("AutofillOverlayContentService", () => {
           jest.useFakeTimers();
           const updateMostRecentlyFocusedFieldSpy = jest.spyOn(
             autofillOverlayContentService as any,
-            "updateMostRecentlyFocusedField"
+            "updateMostRecentlyFocusedField",
           );
           const openAutofillOverlaySpy = jest.spyOn(
             autofillOverlayContentService as any,
-            "openAutofillOverlay"
+            "openAutofillOverlay",
           );
           autofillOverlayContentService["isOverlayListVisible"] = false;
 
@@ -420,13 +440,13 @@ describe("AutofillOverlayContentService", () => {
 
         it("ignores span elements that trigger the listener", async () => {
           const spanAutofillFieldElement = document.createElement(
-            "span"
+            "span",
           ) as ElementWithOpId<HTMLSpanElement>;
           jest.spyOn(autofillOverlayContentService as any, "storeModifiedFormElement");
 
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             spanAutofillFieldElement,
-            autofillFieldData
+            autofillFieldData,
           );
 
           spanAutofillFieldElement.dispatchEvent(new Event("input"));
@@ -437,28 +457,28 @@ describe("AutofillOverlayContentService", () => {
         it("stores the field as a user filled field if the form field data indicates that it is for a username", async () => {
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
-            autofillFieldData
+            autofillFieldData,
           );
           autofillFieldElement.dispatchEvent(new Event("input"));
 
           expect(autofillOverlayContentService["userFilledFields"].username).toEqual(
-            autofillFieldElement
+            autofillFieldElement,
           );
         });
 
         it("stores the field as a user filled field if the form field is of type password", async () => {
           const passwordFieldElement = document.getElementById(
-            "password-field"
+            "password-field",
           ) as ElementWithOpId<FormFieldElement>;
 
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             passwordFieldElement,
-            autofillFieldData
+            autofillFieldData,
           );
           passwordFieldElement.dispatchEvent(new Event("input"));
 
           expect(autofillOverlayContentService["userFilledFields"].password).toEqual(
-            passwordFieldElement
+            passwordFieldElement,
           );
         });
 
@@ -466,13 +486,13 @@ describe("AutofillOverlayContentService", () => {
           jest.spyOn(autofillOverlayContentService as any, "isUserAuthed").mockReturnValue(false);
           const removeAutofillOverlayListSpy = jest.spyOn(
             autofillOverlayContentService as any,
-            "removeAutofillOverlayList"
+            "removeAutofillOverlayList",
           );
           (autofillFieldElement as HTMLInputElement).value = "test";
 
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
-            autofillFieldData
+            autofillFieldData,
           );
           autofillFieldElement.dispatchEvent(new Event("input"));
 
@@ -484,13 +504,13 @@ describe("AutofillOverlayContentService", () => {
           autofillOverlayContentService["isOverlayCiphersPopulated"] = true;
           const removeAutofillOverlayListSpy = jest.spyOn(
             autofillOverlayContentService as any,
-            "removeAutofillOverlayList"
+            "removeAutofillOverlayList",
           );
           (autofillFieldElement as HTMLInputElement).value = "test";
 
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
-            autofillFieldData
+            autofillFieldData,
           );
           autofillFieldElement.dispatchEvent(new Event("input"));
 
@@ -503,7 +523,7 @@ describe("AutofillOverlayContentService", () => {
 
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
-            autofillFieldData
+            autofillFieldData,
           );
           autofillFieldElement.dispatchEvent(new Event("input"));
 
@@ -517,7 +537,7 @@ describe("AutofillOverlayContentService", () => {
 
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
-            autofillFieldData
+            autofillFieldData,
           );
           autofillFieldElement.dispatchEvent(new Event("input"));
 
@@ -532,7 +552,7 @@ describe("AutofillOverlayContentService", () => {
 
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
-            autofillFieldData
+            autofillFieldData,
           );
           autofillFieldElement.dispatchEvent(new Event("input"));
 
@@ -549,7 +569,7 @@ describe("AutofillOverlayContentService", () => {
           autofillOverlayContentService["isOverlayListVisible"] = false;
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
-            autofillFieldData
+            autofillFieldData,
           );
         });
 
@@ -565,7 +585,7 @@ describe("AutofillOverlayContentService", () => {
           autofillFieldElement.dispatchEvent(new Event("click"));
 
           expect(
-            autofillOverlayContentService["triggerFormFieldFocusedAction"]
+            autofillOverlayContentService["triggerFormFieldFocusedAction"],
           ).not.toHaveBeenCalled();
         });
 
@@ -575,7 +595,7 @@ describe("AutofillOverlayContentService", () => {
           autofillFieldElement.dispatchEvent(new Event("click"));
 
           expect(
-            autofillOverlayContentService["triggerFormFieldFocusedAction"]
+            autofillOverlayContentService["triggerFormFieldFocusedAction"],
           ).not.toHaveBeenCalled();
         });
       });
@@ -587,7 +607,7 @@ describe("AutofillOverlayContentService", () => {
           jest.spyOn(globalThis.customElements, "define").mockImplementation();
           updateMostRecentlyFocusedFieldSpy = jest.spyOn(
             autofillOverlayContentService as any,
-            "updateMostRecentlyFocusedField"
+            "updateMostRecentlyFocusedField",
           );
           autofillOverlayContentService["isCurrentlyFilling"] = false;
         });
@@ -599,7 +619,7 @@ describe("AutofillOverlayContentService", () => {
             AutofillOverlayVisibility.OnFieldFocus;
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
-            autofillFieldData
+            autofillFieldData,
           );
 
           autofillFieldElement.dispatchEvent(new Event("focus"));
@@ -610,14 +630,14 @@ describe("AutofillOverlayContentService", () => {
         it("updates the most recently focused field", async () => {
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
-            autofillFieldData
+            autofillFieldData,
           );
 
           autofillFieldElement.dispatchEvent(new Event("focus"));
 
           expect(updateMostRecentlyFocusedFieldSpy).toHaveBeenCalledWith(autofillFieldElement);
           expect(autofillOverlayContentService["mostRecentlyFocusedField"]).toEqual(
-            autofillFieldElement
+            autofillFieldElement,
           );
         });
 
@@ -627,7 +647,7 @@ describe("AutofillOverlayContentService", () => {
             AutofillOverlayVisibility.OnButtonClick;
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
-            autofillFieldData
+            autofillFieldData,
           );
 
           autofillFieldElement.dispatchEvent(new Event("focus"));
@@ -641,12 +661,12 @@ describe("AutofillOverlayContentService", () => {
         it("removes the overlay list if the form element has a value and the focused field is newly focused", async () => {
           autofillOverlayContentService["overlayListElement"] = document.createElement("div");
           autofillOverlayContentService["mostRecentlyFocusedField"] = document.createElement(
-            "input"
+            "input",
           ) as ElementWithOpId<HTMLInputElement>;
           (autofillFieldElement as HTMLInputElement).value = "test";
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
-            autofillFieldData
+            autofillFieldData,
           );
 
           autofillFieldElement.dispatchEvent(new Event("focus"));
@@ -664,7 +684,7 @@ describe("AutofillOverlayContentService", () => {
             AutofillOverlayVisibility.OnFieldFocus;
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
-            autofillFieldData
+            autofillFieldData,
           );
 
           autofillFieldElement.dispatchEvent(new Event("focus"));
@@ -681,7 +701,7 @@ describe("AutofillOverlayContentService", () => {
           jest.spyOn(autofillOverlayContentService as any, "isUserAuthed").mockReturnValue(true);
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
-            autofillFieldData
+            autofillFieldData,
           );
 
           autofillFieldElement.dispatchEvent(new Event("focus"));
@@ -697,7 +717,7 @@ describe("AutofillOverlayContentService", () => {
           autofillOverlayContentService["isOverlayCiphersPopulated"] = true;
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
-            autofillFieldData
+            autofillFieldData,
           );
 
           autofillFieldElement.dispatchEvent(new Event("focus"));
@@ -719,12 +739,12 @@ describe("AutofillOverlayContentService", () => {
 
       await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
         autofillFieldElement,
-        autofillFieldData
+        autofillFieldData,
       );
 
       expect(sendExtensionMessageSpy).toHaveBeenCalledWith("openAutofillOverlay");
       expect(autofillOverlayContentService["mostRecentlyFocusedField"]).toEqual(
-        autofillFieldElement
+        autofillFieldElement,
       );
     });
 
@@ -733,11 +753,11 @@ describe("AutofillOverlayContentService", () => {
 
       await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
         autofillFieldElement,
-        autofillFieldData
+        autofillFieldData,
       );
 
       expect(autofillOverlayContentService["mostRecentlyFocusedField"]).toEqual(
-        autofillFieldElement
+        autofillFieldElement,
       );
     });
   });
@@ -754,7 +774,7 @@ describe("AutofillOverlayContentService", () => {
       `;
 
       autofillFieldElement = document.getElementById(
-        "username-field"
+        "username-field",
       ) as ElementWithOpId<FormFieldElement>;
       autofillFieldElement.opid = "op-1";
       autofillOverlayContentService["mostRecentlyFocusedField"] = autofillFieldElement;
@@ -776,7 +796,7 @@ describe("AutofillOverlayContentService", () => {
       });
       const focusMostRecentOverlayFieldSpy = jest.spyOn(
         autofillOverlayContentService as any,
-        "focusMostRecentOverlayField"
+        "focusMostRecentOverlayField",
       );
 
       autofillOverlayContentService["openAutofillOverlay"]({ isFocusingFieldElement: true });
@@ -792,7 +812,7 @@ describe("AutofillOverlayContentService", () => {
       });
       const focusMostRecentOverlayFieldSpy = jest.spyOn(
         autofillOverlayContentService as any,
-        "focusMostRecentOverlayField"
+        "focusMostRecentOverlayField",
       );
 
       autofillOverlayContentService["openAutofillOverlay"]({ isFocusingFieldElement: true });
@@ -866,7 +886,7 @@ describe("AutofillOverlayContentService", () => {
   describe("focusMostRecentOverlayField", () => {
     it("focuses the most recently focused overlay field", () => {
       const mostRecentlyFocusedField = document.createElement(
-        "input"
+        "input",
       ) as ElementWithOpId<HTMLInputElement>;
       autofillOverlayContentService["mostRecentlyFocusedField"] = mostRecentlyFocusedField;
       jest.spyOn(mostRecentlyFocusedField, "focus");
@@ -880,7 +900,7 @@ describe("AutofillOverlayContentService", () => {
   describe("blurMostRecentOverlayField", () => {
     it("removes focus from the most recently focused overlay field", () => {
       const mostRecentlyFocusedField = document.createElement(
-        "input"
+        "input",
       ) as ElementWithOpId<HTMLInputElement>;
       autofillOverlayContentService["mostRecentlyFocusedField"] = mostRecentlyFocusedField;
       jest.spyOn(mostRecentlyFocusedField, "blur");
@@ -906,7 +926,7 @@ describe("AutofillOverlayContentService", () => {
     beforeEach(() => {
       document.body.innerHTML = `<div class="overlay-button"></div>`;
       autofillOverlayContentService["overlayButtonElement"] = document.querySelector(
-        ".overlay-button"
+        ".overlay-button",
       ) as HTMLElement;
     });
 
@@ -933,7 +953,7 @@ describe("AutofillOverlayContentService", () => {
       jest.spyOn(globalThis, "removeEventListener");
       const handleOverlayRepositionEventSpy = jest.spyOn(
         autofillOverlayContentService as any,
-        "handleOverlayRepositionEvent"
+        "handleOverlayRepositionEvent",
       );
 
       autofillOverlayContentService.removeAutofillOverlay();
@@ -943,11 +963,11 @@ describe("AutofillOverlayContentService", () => {
         handleOverlayRepositionEventSpy,
         {
           capture: true,
-        }
+        },
       );
       expect(globalThis.removeEventListener).toHaveBeenCalledWith(
         EVENTS.RESIZE,
-        handleOverlayRepositionEventSpy
+        handleOverlayRepositionEventSpy,
       );
     });
   });
@@ -956,7 +976,7 @@ describe("AutofillOverlayContentService", () => {
     beforeEach(() => {
       document.body.innerHTML = `<div class="overlay-list"></div>`;
       autofillOverlayContentService["overlayListElement"] = document.querySelector(
-        ".overlay-list"
+        ".overlay-list",
       ) as HTMLElement;
     });
 
@@ -1011,10 +1031,10 @@ describe("AutofillOverlayContentService", () => {
       </form>
       `;
       const usernameField = document.getElementById(
-        "username-field"
+        "username-field",
       ) as ElementWithOpId<HTMLInputElement>;
       const passwordField = document.getElementById(
-        "password-field"
+        "password-field",
       ) as ElementWithOpId<HTMLInputElement>;
       usernameField.value = "test-username";
       passwordField.value = "test-password";
@@ -1054,11 +1074,11 @@ describe("AutofillOverlayContentService", () => {
       <div class="next-focusable-element" tabindex="0"></div>
       `;
       autofillFieldElement = document.getElementById(
-        "username-field"
+        "username-field",
       ) as ElementWithOpId<FormFieldElement>;
       autofillFieldElement.opid = "op-1";
       previousFocusableElement = document.querySelector(
-        ".previous-focusable-element"
+        ".previous-focusable-element",
       ) as HTMLElement;
       nextFocusableElement = document.querySelector(".next-focusable-element") as HTMLElement;
       autofillFieldFocusSpy = jest.spyOn(autofillFieldElement, "focus");
@@ -1099,7 +1119,7 @@ describe("AutofillOverlayContentService", () => {
       jest.useFakeTimers();
       const removeAutofillOverlaySpy = jest.spyOn(
         autofillOverlayContentService as any,
-        "removeAutofillOverlay"
+        "removeAutofillOverlay",
       );
 
       autofillOverlayContentService.redirectOverlayFocusOut(RedirectFocusDirection.Current);
@@ -1149,7 +1169,7 @@ describe("AutofillOverlayContentService", () => {
       </form>
       `;
       const usernameField = document.getElementById(
-        "username-field"
+        "username-field",
       ) as ElementWithOpId<HTMLInputElement>;
       autofillOverlayContentService["mostRecentlyFocusedField"] = usernameField;
       autofillOverlayContentService["setOverlayRepositionEventListeners"]();
@@ -1196,7 +1216,7 @@ describe("AutofillOverlayContentService", () => {
         .mockReturnValue(false);
       const removeAutofillOverlaySpy = jest.spyOn(
         autofillOverlayContentService as any,
-        "removeAutofillOverlay"
+        "removeAutofillOverlay",
       );
       autofillOverlayContentService["mostRecentlyFocusedField"] = undefined;
 
@@ -1225,7 +1245,7 @@ describe("AutofillOverlayContentService", () => {
         });
       const clearUserInteractionEventTimeoutSpy = jest.spyOn(
         autofillOverlayContentService as any,
-        "clearUserInteractionEventTimeout"
+        "clearUserInteractionEventTimeout",
       );
 
       globalThis.dispatchEvent(new Event(EVENTS.SCROLL));
@@ -1255,7 +1275,7 @@ describe("AutofillOverlayContentService", () => {
         });
       const removeAutofillOverlaySpy = jest.spyOn(
         autofillOverlayContentService as any,
-        "removeAutofillOverlay"
+        "removeAutofillOverlay",
       );
 
       globalThis.dispatchEvent(new Event(EVENTS.SCROLL));
@@ -1277,7 +1297,7 @@ describe("AutofillOverlayContentService", () => {
       </form>
       `;
       usernameField = document.getElementById(
-        "username-field"
+        "username-field",
       ) as ElementWithOpId<HTMLInputElement>;
       usernameField.style.setProperty("display", "block", "important");
       jest.spyOn(usernameField, "removeAttribute");
@@ -1285,7 +1305,7 @@ describe("AutofillOverlayContentService", () => {
       jest
         .spyOn(
           autofillOverlayContentService as any,
-          "isTriggeringExcessiveMutationObserverIterations"
+          "isTriggeringExcessiveMutationObserverIterations",
         )
         .mockReturnValue(false);
     });
@@ -1294,14 +1314,12 @@ describe("AutofillOverlayContentService", () => {
       jest
         .spyOn(
           autofillOverlayContentService as any,
-          "isTriggeringExcessiveMutationObserverIterations"
+          "isTriggeringExcessiveMutationObserverIterations",
         )
         .mockReturnValue(true);
 
       autofillOverlayContentService["handleOverlayElementMutationObserverUpdate"]([
-        mock<MutationRecord>({
-          target: usernameField,
-        }),
+        createMutationRecordMock({ target: usernameField }),
       ]);
 
       expect(usernameField.removeAttribute).not.toHaveBeenCalled();
@@ -1309,10 +1327,7 @@ describe("AutofillOverlayContentService", () => {
 
     it("skips handling the mutation if the record type is not for `attributes`", () => {
       autofillOverlayContentService["handleOverlayElementMutationObserverUpdate"]([
-        mock<MutationRecord>({
-          target: usernameField,
-          type: "childList",
-        }),
+        createMutationRecordMock({ target: usernameField, type: "childList" }),
       ]);
 
       expect(usernameField.removeAttribute).not.toHaveBeenCalled();
@@ -1320,7 +1335,7 @@ describe("AutofillOverlayContentService", () => {
 
     it("removes all element attributes that are not the style attribute", () => {
       autofillOverlayContentService["handleOverlayElementMutationObserverUpdate"]([
-        mock<MutationRecord>({
+        createMutationRecordMock({
           target: usernameField,
           type: "attributes",
           attributeName: "placeholder",
@@ -1332,7 +1347,7 @@ describe("AutofillOverlayContentService", () => {
 
     it("removes all attached style attributes and sets the default styles", () => {
       autofillOverlayContentService["handleOverlayElementMutationObserverUpdate"]([
-        mock<MutationRecord>({
+        createMutationRecordMock({
           target: usernameField,
           type: "attributes",
           attributeName: "style",
@@ -1344,7 +1359,7 @@ describe("AutofillOverlayContentService", () => {
       expect(usernameField.style.setProperty).toHaveBeenCalledWith(
         "position",
         "fixed",
-        "important"
+        "important",
       );
       expect(usernameField.style.setProperty).toHaveBeenCalledWith("display", "block", "important");
     });
@@ -1368,7 +1383,7 @@ describe("AutofillOverlayContentService", () => {
       jest
         .spyOn(
           autofillOverlayContentService as any,
-          "isTriggeringExcessiveMutationObserverIterations"
+          "isTriggeringExcessiveMutationObserverIterations",
         )
         .mockReturnValue(false);
     });
@@ -1386,7 +1401,7 @@ describe("AutofillOverlayContentService", () => {
       jest
         .spyOn(
           autofillOverlayContentService as any,
-          "isTriggeringExcessiveMutationObserverIterations"
+          "isTriggeringExcessiveMutationObserverIterations",
         )
         .mockReturnValue(true);
 
@@ -1418,7 +1433,7 @@ describe("AutofillOverlayContentService", () => {
 
       expect(globalThis.document.body.insertBefore).toHaveBeenCalledWith(
         overlayButtonElement,
-        overlayListElement
+        overlayListElement,
       );
     });
 
@@ -1429,7 +1444,7 @@ describe("AutofillOverlayContentService", () => {
 
       expect(globalThis.document.body.insertBefore).toHaveBeenCalledWith(
         overlayButtonElement,
-        overlayListElement
+        overlayListElement,
       );
     });
 
@@ -1441,107 +1456,8 @@ describe("AutofillOverlayContentService", () => {
 
       expect(globalThis.document.body.insertBefore).toHaveBeenCalledWith(
         injectedElement,
-        overlayButtonElement
+        overlayButtonElement,
       );
-    });
-  });
-
-  describe("handleDocumentElementMutationObserverUpdate", () => {
-    let overlayButtonElement: HTMLElement;
-    let overlayListElement: HTMLElement;
-
-    beforeEach(() => {
-      document.body.innerHTML = `
-      <div class="overlay-button"></div>
-      <div class="overlay-list"></div>
-      `;
-      document.head.innerHTML = `<title>test</title>`;
-      overlayButtonElement = document.querySelector(".overlay-button") as HTMLElement;
-      overlayListElement = document.querySelector(".overlay-list") as HTMLElement;
-      autofillOverlayContentService["overlayButtonElement"] = overlayButtonElement;
-      autofillOverlayContentService["overlayListElement"] = overlayListElement;
-      autofillOverlayContentService["isOverlayListVisible"] = true;
-      jest.spyOn(globalThis.document.body, "appendChild");
-      jest
-        .spyOn(
-          autofillOverlayContentService as any,
-          "isTriggeringExcessiveMutationObserverIterations"
-        )
-        .mockReturnValue(false);
-    });
-
-    it("skips modification of the DOM if the overlay button and list elements are not present", () => {
-      autofillOverlayContentService["overlayButtonElement"] = undefined;
-      autofillOverlayContentService["overlayListElement"] = undefined;
-
-      autofillOverlayContentService["handleDocumentElementMutationObserverUpdate"]([
-        mock<MutationRecord>(),
-      ]);
-
-      expect(globalThis.document.body.appendChild).not.toHaveBeenCalled();
-    });
-
-    it("skips modification of the DOM if excessive mutation events are being triggered", () => {
-      jest
-        .spyOn(
-          autofillOverlayContentService as any,
-          "isTriggeringExcessiveMutationObserverIterations"
-        )
-        .mockReturnValue(true);
-
-      autofillOverlayContentService["handleDocumentElementMutationObserverUpdate"]([
-        mock<MutationRecord>(),
-      ]);
-
-      expect(globalThis.document.body.appendChild).not.toHaveBeenCalled();
-    });
-
-    it("ignores the mutation record if the record is not of type `childlist`", () => {
-      autofillOverlayContentService["handleDocumentElementMutationObserverUpdate"]([
-        mock<MutationRecord>({
-          type: "attributes",
-        }),
-      ]);
-
-      expect(globalThis.document.body.appendChild).not.toHaveBeenCalled();
-    });
-
-    it("ignores the mutation record if the record does not contain any added nodes", () => {
-      autofillOverlayContentService["handleDocumentElementMutationObserverUpdate"]([
-        mock<MutationRecord>({
-          type: "childList",
-          addedNodes: mock<NodeList>({ length: 0 }),
-        }),
-      ]);
-
-      expect(globalThis.document.body.appendChild).not.toHaveBeenCalled();
-    });
-
-    it("ignores mutations for the document body and head", () => {
-      autofillOverlayContentService["handleDocumentElementMutationObserverUpdate"]([
-        {
-          type: "childList",
-          addedNodes: document.querySelectorAll("body, head"),
-        } as unknown as MutationRecord,
-      ]);
-
-      expect(globalThis.document.body.appendChild).not.toHaveBeenCalled();
-    });
-
-    it("appends the identified node to the body", async () => {
-      jest.useFakeTimers();
-      const injectedElement = document.createElement("div");
-      injectedElement.id = "test";
-      document.documentElement.appendChild(injectedElement);
-      autofillOverlayContentService["handleDocumentElementMutationObserverUpdate"]([
-        {
-          type: "childList",
-          addedNodes: document.querySelectorAll("#test"),
-        } as unknown as MutationRecord,
-      ]);
-      jest.advanceTimersByTime(10);
-
-      expect(globalThis.document.body.appendChild).toHaveBeenCalledWith(injectedElement);
     });
   });
 
@@ -1551,7 +1467,7 @@ describe("AutofillOverlayContentService", () => {
       const clearTimeoutSpy = jest.spyOn(globalThis, "clearTimeout");
       autofillOverlayContentService["mutationObserverIterationsResetTimeout"] = setTimeout(
         jest.fn(),
-        123
+        123,
       );
 
       autofillOverlayContentService["isTriggeringExcessiveMutationObserverIterations"]();
@@ -1573,11 +1489,11 @@ describe("AutofillOverlayContentService", () => {
       autofillOverlayContentService["mutationObserverIterations"] = 101;
       const blurMostRecentOverlayFieldSpy = jest.spyOn(
         autofillOverlayContentService as any,
-        "blurMostRecentOverlayField"
+        "blurMostRecentOverlayField",
       );
       const removeAutofillOverlaySpy = jest.spyOn(
         autofillOverlayContentService as any,
-        "removeAutofillOverlay"
+        "removeAutofillOverlay",
       );
 
       autofillOverlayContentService["isTriggeringExcessiveMutationObserverIterations"]();
@@ -1607,6 +1523,100 @@ describe("AutofillOverlayContentService", () => {
       autofillOverlayContentService["handleVisibilityChangeEvent"]();
 
       expect(autofillOverlayContentService["removeAutofillOverlay"]).toHaveBeenCalled();
+    });
+  });
+
+  describe("destroy", () => {
+    let autofillFieldElement: ElementWithOpId<FormFieldElement>;
+    let autofillFieldData: AutofillField;
+
+    beforeEach(() => {
+      document.body.innerHTML = `
+      <form id="validFormId">
+        <input type="text" id="username-field" placeholder="username" />
+        <input type="password" id="password-field" placeholder="password" />
+      </form>
+      `;
+
+      autofillFieldElement = document.getElementById(
+        "username-field",
+      ) as ElementWithOpId<FormFieldElement>;
+      autofillFieldElement.opid = "op-1";
+      autofillFieldData = createAutofillFieldMock({
+        opid: "username-field",
+        form: "validFormId",
+        placeholder: "username",
+        elementNumber: 1,
+      });
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+        autofillFieldElement,
+        autofillFieldData,
+      );
+      autofillOverlayContentService["mostRecentlyFocusedField"] = autofillFieldElement;
+    });
+
+    it("disconnects all mutation observers", () => {
+      autofillOverlayContentService["setupMutationObserver"]();
+      jest.spyOn(autofillOverlayContentService["bodyElementMutationObserver"], "disconnect");
+
+      autofillOverlayContentService.destroy();
+
+      expect(
+        autofillOverlayContentService["bodyElementMutationObserver"].disconnect,
+      ).toHaveBeenCalled();
+    });
+
+    it("clears the user interaction event timeout", () => {
+      jest.spyOn(autofillOverlayContentService as any, "clearUserInteractionEventTimeout");
+
+      autofillOverlayContentService.destroy();
+
+      expect(autofillOverlayContentService["clearUserInteractionEventTimeout"]).toHaveBeenCalled();
+    });
+
+    it("de-registers all global event listeners", () => {
+      jest.spyOn(globalThis.document, "removeEventListener");
+      jest.spyOn(globalThis, "removeEventListener");
+      jest.spyOn(autofillOverlayContentService as any, "removeOverlayRepositionEventListeners");
+
+      autofillOverlayContentService.destroy();
+
+      expect(globalThis.document.removeEventListener).toHaveBeenCalledWith(
+        EVENTS.VISIBILITYCHANGE,
+        autofillOverlayContentService["handleVisibilityChangeEvent"],
+      );
+      expect(globalThis.removeEventListener).toHaveBeenCalledWith(
+        EVENTS.FOCUSOUT,
+        autofillOverlayContentService["handleFormFieldBlurEvent"],
+      );
+      expect(
+        autofillOverlayContentService["removeOverlayRepositionEventListeners"],
+      ).toHaveBeenCalled();
+    });
+
+    it("de-registers any event listeners that are attached to the form field elements", () => {
+      jest.spyOn(autofillOverlayContentService as any, "removeCachedFormFieldEventListeners");
+      jest.spyOn(autofillFieldElement, "removeEventListener");
+      jest.spyOn(autofillOverlayContentService["formFieldElements"], "delete");
+
+      autofillOverlayContentService.destroy();
+
+      expect(
+        autofillOverlayContentService["removeCachedFormFieldEventListeners"],
+      ).toHaveBeenCalledWith(autofillFieldElement);
+      expect(autofillFieldElement.removeEventListener).toHaveBeenCalledWith(
+        EVENTS.BLUR,
+        autofillOverlayContentService["handleFormFieldBlurEvent"],
+      );
+      expect(autofillFieldElement.removeEventListener).toHaveBeenCalledWith(
+        EVENTS.KEYUP,
+        autofillOverlayContentService["handleFormFieldKeyupEvent"],
+      );
+      expect(autofillOverlayContentService["formFieldElements"].delete).toHaveBeenCalledWith(
+        autofillFieldElement,
+      );
     });
   });
 });

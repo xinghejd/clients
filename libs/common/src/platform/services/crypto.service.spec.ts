@@ -1,19 +1,23 @@
-import { mock, mockReset } from "jest-mock-extended";
+import { mock } from "jest-mock-extended";
+import { firstValueFrom } from "rxjs";
 
+import { FakeAccountService, mockAccountServiceWith } from "../../../spec/fake-account-service";
+import { FakeActiveUserState, FakeSingleUserState } from "../../../spec/fake-state";
+import { FakeStateProvider } from "../../../spec/fake-state-provider";
 import { CsprngArray } from "../../types/csprng";
+import { UserId } from "../../types/guid";
+import { UserKey, MasterKey, PinKey } from "../../types/key";
 import { CryptoFunctionService } from "../abstractions/crypto-function.service";
 import { EncryptService } from "../abstractions/encrypt.service";
 import { LogService } from "../abstractions/log.service";
 import { PlatformUtilsService } from "../abstractions/platform-utils.service";
 import { StateService } from "../abstractions/state.service";
+import { Utils } from "../misc/utils";
 import { EncString } from "../models/domain/enc-string";
-import {
-  MasterKey,
-  PinKey,
-  SymmetricCryptoKey,
-  UserKey,
-} from "../models/domain/symmetric-crypto-key";
+import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
 import { CryptoService } from "../services/crypto.service";
+
+import { USER_EVER_HAD_USER_KEY } from "./key-state/user-key.state";
 
 describe("cryptoService", () => {
   let cryptoService: CryptoService;
@@ -23,23 +27,28 @@ describe("cryptoService", () => {
   const platformUtilService = mock<PlatformUtilsService>();
   const logService = mock<LogService>();
   const stateService = mock<StateService>();
+  let stateProvider: FakeStateProvider;
 
-  const mockUserId = "mock user id";
+  const mockUserId = Utils.newGuid() as UserId;
+  let accountService: FakeAccountService;
 
   beforeEach(() => {
-    mockReset(cryptoFunctionService);
-    mockReset(encryptService);
-    mockReset(platformUtilService);
-    mockReset(logService);
-    mockReset(stateService);
+    accountService = mockAccountServiceWith(mockUserId);
+    stateProvider = new FakeStateProvider(accountService);
 
     cryptoService = new CryptoService(
       cryptoFunctionService,
       encryptService,
       platformUtilService,
       logService,
-      stateService
+      stateService,
+      accountService,
+      stateProvider,
     );
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
   });
 
   it("instantiates", () => {
@@ -117,12 +126,49 @@ describe("cryptoService", () => {
     });
   });
 
+  describe("everHadUserKey$", () => {
+    let everHadUserKeyState: FakeActiveUserState<boolean>;
+
+    beforeEach(() => {
+      everHadUserKeyState = stateProvider.activeUser.getFake(USER_EVER_HAD_USER_KEY);
+    });
+
+    it("should return true when stored value is true", async () => {
+      everHadUserKeyState.nextState(true);
+
+      expect(await firstValueFrom(cryptoService.everHadUserKey$)).toBe(true);
+    });
+
+    it("should return false when stored value is false", async () => {
+      everHadUserKeyState.nextState(false);
+
+      expect(await firstValueFrom(cryptoService.everHadUserKey$)).toBe(false);
+    });
+
+    it("should return false when stored value is null", async () => {
+      everHadUserKeyState.nextState(null);
+
+      expect(await firstValueFrom(cryptoService.everHadUserKey$)).toBe(false);
+    });
+  });
+
   describe("setUserKey", () => {
     let mockUserKey: UserKey;
+    let everHadUserKeyState: FakeSingleUserState<boolean>;
 
     beforeEach(() => {
       const mockRandomBytes = new Uint8Array(64) as CsprngArray;
       mockUserKey = new SymmetricCryptoKey(mockRandomBytes) as UserKey;
+      everHadUserKeyState = stateProvider.singleUser.getFake(mockUserId, USER_EVER_HAD_USER_KEY);
+
+      // Initialize storage
+      everHadUserKeyState.nextState(null);
+    });
+
+    it("should set everHadUserKey if key is not null to true", async () => {
+      await cryptoService.setUserKey(mockUserKey, mockUserId);
+
+      expect(await firstValueFrom(everHadUserKeyState.state$)).toBe(true);
     });
 
     describe("Auto Key refresh", () => {
@@ -165,7 +211,7 @@ describe("cryptoService", () => {
         cryptoSvcMakePinKey = jest.spyOn(cryptoService, "makePinKey");
         cryptoSvcMakePinKey.mockResolvedValue(new SymmetricCryptoKey(new Uint8Array(64)) as PinKey);
         encPin = new EncString(
-          "2.jcow2vTUePO+CCyokcIfVw==|DTBNlJ5yVsV2Bsk3UU3H6Q==|YvFBff5gxWqM+UsFB6BKimKxhC32AtjF3IStpU1Ijwg="
+          "2.jcow2vTUePO+CCyokcIfVw==|DTBNlJ5yVsV2Bsk3UU3H6Q==|YvFBff5gxWqM+UsFB6BKimKxhC32AtjF3IStpU1Ijwg=",
         );
         encryptService.encrypt.mockResolvedValue(encPin);
       });
@@ -174,8 +220,8 @@ describe("cryptoService", () => {
         stateService.getProtectedPin.mockResolvedValue(protectedPin);
         stateService.getPinKeyEncryptedUserKey.mockResolvedValue(
           new EncString(
-            "2.OdGNE3L23GaDZGvu9h2Brw==|/OAcNnrYwu0rjiv8+RUr3Tc+Ef8fV035Tm1rbTxfEuC+2LZtiCAoIvHIZCrM/V1PWnb/pHO2gh9+Koks04YhX8K29ED4FzjeYP8+YQD/dWo=|+12xTcIK/UVRsOyawYudPMHb6+lCHeR2Peq1pQhPm0A="
-          )
+            "2.OdGNE3L23GaDZGvu9h2Brw==|/OAcNnrYwu0rjiv8+RUr3Tc+Ef8fV035Tm1rbTxfEuC+2LZtiCAoIvHIZCrM/V1PWnb/pHO2gh9+Koks04YhX8K29ED4FzjeYP8+YQD/dWo=|+12xTcIK/UVRsOyawYudPMHb6+lCHeR2Peq1pQhPm0A=",
+          ),
         );
 
         await cryptoService.setUserKey(mockUserKey, mockUserId);
@@ -195,7 +241,7 @@ describe("cryptoService", () => {
           expect.any(EncString),
           {
             userId: mockUserId,
-          }
+          },
         );
       });
 

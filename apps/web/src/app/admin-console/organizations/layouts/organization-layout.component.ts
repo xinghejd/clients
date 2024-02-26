@@ -23,9 +23,12 @@ export class OrganizationLayoutComponent implements OnInit, OnDestroy {
 
   private _destroy = new Subject<void>();
 
-  constructor(private route: ActivatedRoute, private organizationService: OrganizationService) {}
+  constructor(
+    private route: ActivatedRoute,
+    private organizationService: OrganizationService,
+  ) {}
 
-  ngOnInit() {
+  async ngOnInit() {
     document.body.classList.remove("layout_frontend");
 
     this.organization$ = this.route.params
@@ -36,7 +39,7 @@ export class OrganizationLayoutComponent implements OnInit, OnDestroy {
           return this.organizationService.organizations$
             .pipe(takeUntil(this._destroy))
             .pipe(getOrganizationById(id));
-        })
+        }),
       );
   }
 

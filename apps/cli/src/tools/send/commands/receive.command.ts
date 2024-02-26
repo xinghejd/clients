@@ -1,8 +1,7 @@
-import * as program from "commander";
+import { OptionValues } from "commander";
 import * as inquirer from "inquirer";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { NodeUtils } from "@bitwarden/common/misc/nodeUtils";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
@@ -15,6 +14,7 @@ import { SendAccess } from "@bitwarden/common/tools/send/models/domain/send-acce
 import { SendAccessRequest } from "@bitwarden/common/tools/send/models/request/send-access.request";
 import { SendAccessView } from "@bitwarden/common/tools/send/models/view/send-access.view";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { NodeUtils } from "@bitwarden/node/node-utils";
 
 import { DownloadCommand } from "../../../commands/download.command";
 import { Response } from "../../../models/response";
@@ -31,12 +31,12 @@ export class SendReceiveCommand extends DownloadCommand {
     private cryptoFunctionService: CryptoFunctionService,
     private platformUtilsService: PlatformUtilsService,
     private environmentService: EnvironmentService,
-    private sendApiService: SendApiService
+    private sendApiService: SendApiService,
   ) {
     super(cryptoService);
   }
 
-  async run(url: string, options: program.OptionValues): Promise<Response> {
+  async run(url: string, options: OptionValues): Promise<Response> {
     this.canInteract = process.env.BW_NOINTERACTION !== "true";
 
     let urlObject: URL;
@@ -89,13 +89,13 @@ export class SendReceiveCommand extends DownloadCommand {
         const downloadData = await this.sendApiService.getSendFileDownloadData(
           response,
           this.sendAccessRequest,
-          apiUrl
+          apiUrl,
         );
         return await this.saveAttachmentToFile(
           downloadData.url,
           this.decKey,
           response?.file?.fileName,
-          options.output
+          options.output,
         );
       }
       default:
@@ -126,7 +126,7 @@ export class SendReceiveCommand extends DownloadCommand {
       password,
       keyArray,
       "sha256",
-      100000
+      100000,
     );
     return Utils.fromBufferToB64(passwordHash);
   }
@@ -134,13 +134,13 @@ export class SendReceiveCommand extends DownloadCommand {
   private async sendRequest(
     url: string,
     id: string,
-    key: Uint8Array
+    key: Uint8Array,
   ): Promise<Response | SendAccessView> {
     try {
       const sendResponse = await this.sendApiService.postSendAccess(
         id,
         this.sendAccessRequest,
-        url
+        url,
       );
 
       const sendAccess = new SendAccess(sendResponse);

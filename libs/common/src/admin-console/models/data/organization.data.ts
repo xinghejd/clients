@@ -1,5 +1,7 @@
-import { ProductType, ProviderType } from "../../../enums";
-import { OrganizationUserStatusType, OrganizationUserType } from "../../enums";
+import { Jsonify } from "type-fest";
+
+import { ProductType } from "../../../enums";
+import { OrganizationUserStatusType, OrganizationUserType, ProviderType } from "../../enums";
 import { PermissionsApi } from "../api/permissions.api";
 import { ProfileOrganizationResponse } from "../response/profile-organization.response";
 
@@ -50,14 +52,20 @@ export class OrganizationData {
   familySponsorshipToDelete?: boolean;
   accessSecretsManager: boolean;
   limitCollectionCreationDeletion: boolean;
+  allowAdminAccessToAllCollectionItems: boolean;
+  flexibleCollections: boolean;
 
   constructor(
-    response: ProfileOrganizationResponse,
-    options: {
+    response?: ProfileOrganizationResponse,
+    options?: {
       isMember: boolean;
       isProviderUser: boolean;
-    }
+    },
   ) {
+    if (response == null) {
+      return;
+    }
+
     this.id = response.id;
     this.name = response.name;
     this.status = response.status;
@@ -102,8 +110,23 @@ export class OrganizationData {
     this.familySponsorshipToDelete = response.familySponsorshipToDelete;
     this.accessSecretsManager = response.accessSecretsManager;
     this.limitCollectionCreationDeletion = response.limitCollectionCreationDeletion;
+    this.allowAdminAccessToAllCollectionItems = response.allowAdminAccessToAllCollectionItems;
+    this.flexibleCollections = response.flexibleCollections;
 
     this.isMember = options.isMember;
     this.isProviderUser = options.isProviderUser;
+  }
+
+  static fromJSON(obj: Jsonify<OrganizationData>) {
+    return Object.assign(new OrganizationData(), obj, {
+      familySponsorshipLastSyncDate:
+        obj.familySponsorshipLastSyncDate != null
+          ? new Date(obj.familySponsorshipLastSyncDate)
+          : obj.familySponsorshipLastSyncDate,
+      familySponsorshipValidUntil:
+        obj.familySponsorshipValidUntil != null
+          ? new Date(obj.familySponsorshipValidUntil)
+          : obj.familySponsorshipValidUntil,
+    });
   }
 }

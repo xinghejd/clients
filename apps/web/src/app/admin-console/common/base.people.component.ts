@@ -31,7 +31,7 @@ const MaxCheckedCount = 500;
 
 @Directive()
 export abstract class BasePeopleComponent<
-  UserType extends ProviderUserUserDetailsResponse | OrganizationUserView
+  UserType extends ProviderUserUserDetailsResponse | OrganizationUserView,
 > {
   @ViewChild("confirmTemplate", { read: ViewContainerRef, static: true })
   confirmModalRef: ViewContainerRef;
@@ -110,7 +110,7 @@ export abstract class BasePeopleComponent<
     private searchPipe: SearchPipe,
     protected userNamePipe: UserNamePipe,
     protected stateService: StateService,
-    protected dialogService: DialogService
+    protected dialogService: DialogService,
   ) {}
 
   abstract edit(user: UserType): void;
@@ -138,8 +138,8 @@ export abstract class BasePeopleComponent<
     this.allUsers.sort(
       Utils.getSortFunction<ProviderUserUserDetailsResponse | OrganizationUserView>(
         this.i18nService,
-        "email"
-      )
+        "email",
+      ),
     );
     this.allUsers.forEach((u) => {
       if (!this.statusMap.has(u.status)) {
@@ -164,6 +164,8 @@ export abstract class BasePeopleComponent<
     }
     // Reset checkbox selecton
     this.selectAll(false);
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.resetPaging();
   }
 
@@ -178,7 +180,7 @@ export abstract class BasePeopleComponent<
     }
     if (this.users.length > pagedLength) {
       this.pagedUsers = this.pagedUsers.concat(
-        this.users.slice(pagedLength, pagedLength + pagedSize)
+        this.users.slice(pagedLength, pagedLength + pagedSize),
       );
     }
     this.pagedUsersCount = this.pagedUsers.length;
@@ -199,7 +201,7 @@ export abstract class BasePeopleComponent<
       this.searchText,
       "name",
       "email",
-      "id"
+      "id",
     );
 
     const selectCount =
@@ -238,7 +240,7 @@ export abstract class BasePeopleComponent<
       this.platformUtilsService.showToast(
         "success",
         null,
-        this.i18nService.t("removedUserId", this.userNamePipe.transform(user))
+        this.i18nService.t("removedUserId", this.userNamePipe.transform(user)),
       );
       this.removeUser(user);
     } catch (e) {
@@ -269,7 +271,7 @@ export abstract class BasePeopleComponent<
       this.platformUtilsService.showToast(
         "success",
         null,
-        this.i18nService.t("revokedUserId", this.userNamePipe.transform(user))
+        this.i18nService.t("revokedUserId", this.userNamePipe.transform(user)),
       );
       await this.load();
     } catch (e) {
@@ -285,7 +287,7 @@ export abstract class BasePeopleComponent<
       this.platformUtilsService.showToast(
         "success",
         null,
-        this.i18nService.t("restoredUserId", this.userNamePipe.transform(user))
+        this.i18nService.t("restoredUserId", this.userNamePipe.transform(user)),
       );
       await this.load();
     } catch (e) {
@@ -305,7 +307,7 @@ export abstract class BasePeopleComponent<
       this.platformUtilsService.showToast(
         "success",
         null,
-        this.i18nService.t("hasBeenReinvited", this.userNamePipe.transform(user))
+        this.i18nService.t("hasBeenReinvited", this.userNamePipe.transform(user)),
       );
     } catch (e) {
       this.validationService.showError(e);
@@ -331,7 +333,7 @@ export abstract class BasePeopleComponent<
         this.platformUtilsService.showToast(
           "success",
           null,
-          this.i18nService.t("hasBeenConfirmed", this.userNamePipe.transform(user))
+          this.i18nService.t("hasBeenConfirmed", this.userNamePipe.transform(user)),
         );
       } catch (e) {
         this.validationService.showError(e);
@@ -368,7 +370,7 @@ export abstract class BasePeopleComponent<
                 this.logService.error(e);
               }
             });
-          }
+          },
         );
         return;
       }
@@ -392,6 +394,8 @@ export abstract class BasePeopleComponent<
   isPaging() {
     const searching = this.isSearching();
     if (searching && this.didScroll) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.resetPaging();
     }
     return !searching && this.users && this.users.length > this.pageSize;
@@ -409,6 +413,8 @@ export abstract class BasePeopleComponent<
     let index = this.users.indexOf(user);
     if (index > -1) {
       this.users.splice(index, 1);
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.resetPaging();
     }
 

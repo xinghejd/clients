@@ -3,8 +3,9 @@ import { Component, OnDestroy, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
 
 import { LoginViaAuthRequestComponent as BaseLoginWithDeviceComponent } from "@bitwarden/angular/auth/components/login-via-auth-request.component";
-import { AnonymousHubService } from "@bitwarden/common/abstractions/anonymousHub.service";
+import { LoginStrategyServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AnonymousHubService } from "@bitwarden/common/auth/abstractions/anonymous-hub.service";
 import { AuthRequestCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-crypto.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { DeviceTrustCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust-crypto.service.abstraction";
@@ -48,7 +49,8 @@ export class LoginViaAuthRequestComponent
     syncService: SyncService,
     deviceTrustCryptoService: DeviceTrustCryptoServiceAbstraction,
     authReqCryptoService: AuthRequestCryptoServiceAbstraction,
-    private location: Location
+    loginStrategyService: LoginStrategyServiceAbstraction,
+    private location: Location,
   ) {
     super(
       router,
@@ -67,7 +69,8 @@ export class LoginViaAuthRequestComponent
       stateService,
       loginService,
       deviceTrustCryptoService,
-      authReqCryptoService
+      authReqCryptoService,
+      loginStrategyService,
     );
     super.onSuccessfulLogin = async () => {
       await syncService.fullSync(true);

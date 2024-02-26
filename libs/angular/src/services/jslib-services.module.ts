@@ -1,7 +1,12 @@
 import { LOCALE_ID, NgModule } from "@angular/core";
 
+import {
+  PinCryptoServiceAbstraction,
+  PinCryptoService,
+  LoginStrategyServiceAbstraction,
+  LoginStrategyService,
+} from "@bitwarden/auth/common";
 import { AvatarUpdateService as AccountUpdateServiceAbstraction } from "@bitwarden/common/abstractions/account/avatar-update.service";
-import { AnonymousHubService as AnonymousHubServiceAbstraction } from "@bitwarden/common/abstractions/anonymousHub.service";
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
 import { AuditService as AuditServiceAbstraction } from "@bitwarden/common/abstractions/audit.service";
 import { BitwardenSdkServiceAbstraction } from "@bitwarden/common/abstractions/bitwarden-sdk.service.abstraction";
@@ -10,7 +15,6 @@ import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/
 import { NotificationsService as NotificationsServiceAbstraction } from "@bitwarden/common/abstractions/notifications.service";
 import { SearchService as SearchServiceAbstraction } from "@bitwarden/common/abstractions/search.service";
 import { SettingsService as SettingsServiceAbstraction } from "@bitwarden/common/abstractions/settings.service";
-import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/abstractions/totp.service";
 import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { VaultTimeoutService as VaultTimeoutServiceAbstraction } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -43,6 +47,7 @@ import {
   AccountService as AccountServiceAbstraction,
   InternalAccountService,
 } from "@bitwarden/common/auth/abstractions/account.service";
+import { AnonymousHubService as AnonymousHubServiceAbstraction } from "@bitwarden/common/auth/abstractions/anonymous-hub.service";
 import { AuthRequestCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-crypto.service.abstraction";
 import { AuthService as AuthServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth.service";
 import { DeviceTrustCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust-crypto.service.abstraction";
@@ -51,6 +56,7 @@ import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstraction
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "@bitwarden/common/auth/abstractions/key-connector.service";
 import { LoginService as LoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/login.service";
 import { PasswordResetEnrollmentServiceAbstraction } from "@bitwarden/common/auth/abstractions/password-reset-enrollment.service.abstraction";
+import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TokenService as TokenServiceAbstraction } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService as TwoFactorServiceAbstraction } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { UserVerificationApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification-api.service.abstraction";
@@ -60,6 +66,7 @@ import { WebAuthnLoginPrfCryptoServiceAbstraction } from "@bitwarden/common/auth
 import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
 import { AccountApiServiceImplementation } from "@bitwarden/common/auth/services/account-api.service";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
+import { AnonymousHubService } from "@bitwarden/common/auth/services/anonymous-hub.service";
 import { AuthRequestCryptoServiceImplementation } from "@bitwarden/common/auth/services/auth-request-crypto.service.implementation";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { DeviceTrustCryptoService } from "@bitwarden/common/auth/services/device-trust-crypto.service.implementation";
@@ -68,6 +75,7 @@ import { DevicesApiServiceImplementation } from "@bitwarden/common/auth/services
 import { KeyConnectorService } from "@bitwarden/common/auth/services/key-connector.service";
 import { LoginService } from "@bitwarden/common/auth/services/login.service";
 import { PasswordResetEnrollmentServiceImplementation } from "@bitwarden/common/auth/services/password-reset-enrollment.service.implementation";
+import { SsoLoginService } from "@bitwarden/common/auth/services/sso-login.service";
 import { TokenService } from "@bitwarden/common/auth/services/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/services/two-factor.service";
 import { UserVerificationApiService } from "@bitwarden/common/auth/services/user-verification/user-verification-api.service";
@@ -75,6 +83,16 @@ import { UserVerificationService } from "@bitwarden/common/auth/services/user-ve
 import { WebAuthnLoginApiService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login-api.service";
 import { WebAuthnLoginPrfCryptoService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login-prf-crypto.service";
 import { WebAuthnLoginService } from "@bitwarden/common/auth/services/webauthn-login/webauthn-login.service";
+import {
+  AutofillSettingsServiceAbstraction,
+  AutofillSettingsService,
+} from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { BillingApiServiceAbstraction } from "@bitwarden/common/billing/abstractions/billilng-api.service.abstraction";
+import { BillingBannerServiceAbstraction } from "@bitwarden/common/billing/abstractions/billing-banner.service.abstraction";
+import { OrganizationBillingServiceAbstraction } from "@bitwarden/common/billing/abstractions/organization-billing.service";
+import { BillingApiService } from "@bitwarden/common/billing/services/billing-api.service";
+import { BillingBannerService } from "@bitwarden/common/billing/services/billing-banner.service";
+import { OrganizationBillingService } from "@bitwarden/common/billing/services/organization-billing.service";
 import { AppIdService as AppIdServiceAbstraction } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService as BroadcasterServiceAbstraction } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
@@ -91,6 +109,10 @@ import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwar
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { ValidationService as ValidationServiceAbstraction } from "@bitwarden/common/platform/abstractions/validation.service";
+import {
+  BiometricStateService,
+  DefaultBiometricStateService,
+} from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { devFlagEnabled, flagEnabled } from "@bitwarden/common/platform/misc/flags";
 import { Account } from "@bitwarden/common/platform/models/domain/account";
@@ -104,15 +126,27 @@ import { EncryptServiceImplementation } from "@bitwarden/common/platform/service
 import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/multithread-encrypt.service.implementation";
 import { EnvironmentService } from "@bitwarden/common/platform/services/environment.service";
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
+import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
+import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { NoopNotificationsService } from "@bitwarden/common/platform/services/noop-notifications.service";
 import { StateService } from "@bitwarden/common/platform/services/state.service";
 import { ValidationService } from "@bitwarden/common/platform/services/validation.service";
 import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
-import { GlobalStateProvider } from "@bitwarden/common/platform/state";
-// eslint-disable-next-line import/no-restricted-paths -- We need the implementation to inject, but generally this should not be accessed
+import {
+  ActiveUserStateProvider,
+  DerivedStateProvider,
+  GlobalStateProvider,
+  SingleUserStateProvider,
+  StateProvider,
+} from "@bitwarden/common/platform/state";
+/* eslint-disable import/no-restricted-paths -- We need the implementations to inject, but generally these should not be accessed */
+import { DefaultActiveUserStateProvider } from "@bitwarden/common/platform/state/implementations/default-active-user-state.provider";
+import { DefaultDerivedStateProvider } from "@bitwarden/common/platform/state/implementations/default-derived-state.provider";
 import { DefaultGlobalStateProvider } from "@bitwarden/common/platform/state/implementations/default-global-state.provider";
+import { DefaultSingleUserStateProvider } from "@bitwarden/common/platform/state/implementations/default-single-user-state.provider";
+import { DefaultStateProvider } from "@bitwarden/common/platform/state/implementations/default-state.provider";
+/* eslint-enable import/no-restricted-paths */
 import { AvatarUpdateService } from "@bitwarden/common/services/account/avatar-update.service";
-import { AnonymousHubService } from "@bitwarden/common/services/anonymousHub.service";
 import { ApiService } from "@bitwarden/common/services/api.service";
 import { AuditService } from "@bitwarden/common/services/audit.service";
 import { BitwardenSdkService } from "@bitwarden/common/services/bitwarden-sdk.service";
@@ -121,7 +155,6 @@ import { EventUploadService } from "@bitwarden/common/services/event/event-uploa
 import { NotificationsService } from "@bitwarden/common/services/notifications.service";
 import { SearchService } from "@bitwarden/common/services/search.service";
 import { SettingsService } from "@bitwarden/common/services/settings.service";
-import { TotpService } from "@bitwarden/common/services/totp.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/services/vault-timeout/vault-timeout-settings.service";
 import { VaultTimeoutService } from "@bitwarden/common/services/vault-timeout/vault-timeout.service";
 import {
@@ -150,6 +183,8 @@ import {
 } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { SyncNotifierService as SyncNotifierServiceAbstraction } from "@bitwarden/common/vault/abstractions/sync/sync-notifier.service.abstraction";
 import { SyncService as SyncServiceAbstraction } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/abstractions/totp.service";
+import { VaultSettingsService as VaultSettingsServiceAbstraction } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/services/collection.service";
 import { CipherFileUploadService } from "@bitwarden/common/vault/services/file-upload/cipher-file-upload.service";
@@ -157,10 +192,8 @@ import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
 import { SyncNotifierService } from "@bitwarden/common/vault/services/sync/sync-notifier.service";
 import { SyncService } from "@bitwarden/common/vault/services/sync/sync.service";
-import {
-  VaultExportService,
-  VaultExportServiceAbstraction,
-} from "@bitwarden/exporter/vault-export";
+import { TotpService } from "@bitwarden/common/vault/services/totp.service";
+import { VaultSettingsService } from "@bitwarden/common/vault/services/vault-settings/vault-settings.service";
 import {
   ImportApiService,
   ImportApiServiceAbstraction,
@@ -168,12 +201,22 @@ import {
   ImportServiceAbstraction,
 } from "@bitwarden/importer/core";
 import { PasswordRepromptService } from "@bitwarden/vault";
+import {
+  VaultExportService,
+  VaultExportServiceAbstraction,
+  OrganizationVaultExportService,
+  OrganizationVaultExportServiceAbstraction,
+  IndividualVaultExportService,
+  IndividualVaultExportServiceAbstraction,
+} from "@bitwarden/vault-export-core";
 
 import { AuthGuard } from "../auth/guards/auth.guard";
 import { UnauthGuard } from "../auth/guards/unauth.guard";
 import { FormValidationErrorsService as FormValidationErrorsServiceAbstraction } from "../platform/abstractions/form-validation-errors.service";
 import { BroadcasterService } from "../platform/services/broadcaster.service";
 import { FormValidationErrorsService } from "../platform/services/form-validation-errors.service";
+import { ThemingService } from "../platform/services/theming/theming.service";
+import { AbstractThemingService } from "../platform/services/theming/theming.service.abstraction";
 
 import {
   LOCALES_DIRECTORY,
@@ -190,8 +233,6 @@ import {
   WINDOW,
 } from "./injection-tokens";
 import { ModalService } from "./modal.service";
-import { ThemingService } from "./theming/theming.service";
-import { AbstractThemingService } from "./theming/theming.service.abstraction";
 
 @NgModule({
   declarations: [],
@@ -253,6 +294,16 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
       provide: AuthServiceAbstraction,
       useClass: AuthService,
       deps: [
+        MessagingServiceAbstraction,
+        CryptoServiceAbstraction,
+        ApiServiceAbstraction,
+        StateServiceAbstraction,
+      ],
+    },
+    {
+      provide: LoginStrategyServiceAbstraction,
+      useClass: LoginStrategyService,
+      deps: [
         CryptoServiceAbstraction,
         ApiServiceAbstraction,
         TokenServiceAbstraction,
@@ -291,9 +342,10 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
         i18nService: I18nServiceAbstraction,
         searchService: SearchServiceAbstraction,
         stateService: StateServiceAbstraction,
+        autofillSettingsService: AutofillSettingsServiceAbstraction,
         encryptService: EncryptService,
         fileUploadService: CipherFileUploadServiceAbstraction,
-        configService: ConfigServiceAbstraction
+        configService: ConfigServiceAbstraction,
       ) =>
         new CipherService(
           cryptoService,
@@ -302,9 +354,10 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
           i18nService,
           searchService,
           stateService,
+          autofillSettingsService,
           encryptService,
           fileUploadService,
-          configService
+          configService,
         ),
       deps: [
         CryptoServiceAbstraction,
@@ -313,6 +366,7 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
         I18nServiceAbstraction,
         SearchServiceAbstraction,
         StateServiceAbstraction,
+        AutofillSettingsServiceAbstraction,
         EncryptService,
         CipherFileUploadServiceAbstraction,
         ConfigServiceAbstraction,
@@ -326,6 +380,7 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
         I18nServiceAbstraction,
         CipherServiceAbstraction,
         StateServiceAbstraction,
+        StateProvider,
       ],
     },
     {
@@ -365,12 +420,12 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
     {
       provide: CollectionServiceAbstraction,
       useClass: CollectionService,
-      deps: [CryptoServiceAbstraction, I18nServiceAbstraction, StateServiceAbstraction],
+      deps: [CryptoServiceAbstraction, I18nServiceAbstraction, StateProvider],
     },
     {
       provide: EnvironmentServiceAbstraction,
       useClass: EnvironmentService,
-      deps: [StateServiceAbstraction],
+      deps: [StateProvider, AccountServiceAbstraction],
     },
     {
       provide: TotpServiceAbstraction,
@@ -387,8 +442,8 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
         PlatformUtilsServiceAbstraction,
         LogService,
         StateServiceAbstraction,
-        AppIdServiceAbstraction,
-        DevicesApiServiceAbstraction,
+        AccountServiceAbstraction,
+        StateProvider,
       ],
     },
     {
@@ -452,6 +507,7 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
         FolderApiServiceAbstraction,
         OrganizationServiceAbstraction,
         SendApiServiceAbstraction,
+        StateProvider,
         LOGOUT_CALLBACK,
       ],
     },
@@ -469,7 +525,6 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
         TokenServiceAbstraction,
         PolicyServiceAbstraction,
         StateServiceAbstraction,
-        UserVerificationServiceAbstraction,
       ],
     },
     {
@@ -495,6 +550,11 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
       useExisting: VaultTimeoutService,
     },
     {
+      provide: SsoLoginServiceAbstraction,
+      useClass: SsoLoginService,
+      deps: [StateProvider],
+    },
+    {
       provide: StateServiceAbstraction,
       useClass: StateService,
       deps: [
@@ -504,6 +564,8 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
         LogService,
         STATE_FACTORY,
         AccountServiceAbstraction,
+        EnvironmentServiceAbstraction,
+        MigrationRunner,
         STATE_SERVICE_USE_CACHE,
       ],
     },
@@ -525,16 +587,32 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
       ],
     },
     {
-      provide: VaultExportServiceAbstraction,
-      useClass: VaultExportService,
+      provide: IndividualVaultExportServiceAbstraction,
+      useClass: IndividualVaultExportService,
       deps: [
         FolderServiceAbstraction,
+        CipherServiceAbstraction,
+        CryptoServiceAbstraction,
+        CryptoFunctionServiceAbstraction,
+        StateServiceAbstraction,
+      ],
+    },
+    {
+      provide: OrganizationVaultExportServiceAbstraction,
+      useClass: OrganizationVaultExportService,
+      deps: [
         CipherServiceAbstraction,
         ApiServiceAbstraction,
         CryptoServiceAbstraction,
         CryptoFunctionServiceAbstraction,
         StateServiceAbstraction,
+        CollectionServiceAbstraction,
       ],
+    },
+    {
+      provide: VaultExportServiceAbstraction,
+      useClass: VaultExportService,
+      deps: [IndividualVaultExportServiceAbstraction, OrganizationVaultExportServiceAbstraction],
     },
     {
       provide: SearchServiceAbstraction,
@@ -619,12 +697,16 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
         CryptoServiceAbstraction,
         I18nServiceAbstraction,
         UserVerificationApiServiceAbstraction,
+        PinCryptoServiceAbstraction,
+        LogService,
+        VaultTimeoutSettingsServiceAbstraction,
+        PlatformUtilsServiceAbstraction,
       ],
     },
     {
       provide: OrganizationServiceAbstraction,
       useClass: OrganizationService,
-      deps: [StateServiceAbstraction],
+      deps: [StateServiceAbstraction, StateProvider],
     },
     {
       provide: InternalOrganizationServiceAbstraction,
@@ -705,7 +787,7 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
     {
       provide: AnonymousHubServiceAbstraction,
       useClass: AnonymousHubService,
-      deps: [EnvironmentServiceAbstraction, AuthServiceAbstraction, LogService],
+      deps: [EnvironmentServiceAbstraction, LoginStrategyServiceAbstraction, LogService],
     },
     {
       provide: ValidationServiceAbstraction,
@@ -771,6 +853,17 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
       deps: [CryptoServiceAbstraction],
     },
     {
+      provide: PinCryptoServiceAbstraction,
+      useClass: PinCryptoService,
+      deps: [
+        StateServiceAbstraction,
+        CryptoServiceAbstraction,
+        VaultTimeoutSettingsServiceAbstraction,
+        LogService,
+      ],
+    },
+
+    {
       provide: WebAuthnLoginPrfCryptoServiceAbstraction,
       useClass: WebAuthnLoginPrfCryptoService,
       deps: [CryptoFunctionServiceAbstraction],
@@ -785,8 +878,7 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
       useClass: WebAuthnLoginService,
       deps: [
         WebAuthnLoginApiServiceAbstraction,
-        AuthServiceAbstraction,
-        ConfigServiceAbstraction,
+        LoginStrategyServiceAbstraction,
         WebAuthnLoginPrfCryptoServiceAbstraction,
         WINDOW,
         LogService,
@@ -797,6 +889,75 @@ import { AbstractThemingService } from "./theming/theming.service.abstraction";
       useClass: DefaultGlobalStateProvider,
       deps: [OBSERVABLE_MEMORY_STORAGE, OBSERVABLE_DISK_STORAGE],
     },
+    {
+      provide: ActiveUserStateProvider,
+      useClass: DefaultActiveUserStateProvider,
+      deps: [AccountServiceAbstraction, OBSERVABLE_MEMORY_STORAGE, OBSERVABLE_DISK_STORAGE],
+    },
+    {
+      provide: SingleUserStateProvider,
+      useClass: DefaultSingleUserStateProvider,
+      deps: [OBSERVABLE_MEMORY_STORAGE, OBSERVABLE_DISK_STORAGE],
+    },
+    {
+      provide: DerivedStateProvider,
+      useClass: DefaultDerivedStateProvider,
+      deps: [OBSERVABLE_MEMORY_STORAGE],
+    },
+    {
+      provide: StateProvider,
+      useClass: DefaultStateProvider,
+      deps: [
+        ActiveUserStateProvider,
+        SingleUserStateProvider,
+        GlobalStateProvider,
+        DerivedStateProvider,
+      ],
+    },
+    {
+      provide: BillingBannerServiceAbstraction,
+      useClass: BillingBannerService,
+      deps: [StateProvider],
+    },
+    {
+      provide: OrganizationBillingServiceAbstraction,
+      useClass: OrganizationBillingService,
+      deps: [
+        CryptoServiceAbstraction,
+        EncryptService,
+        I18nServiceAbstraction,
+        OrganizationApiServiceAbstraction,
+      ],
+    },
+    {
+      provide: AutofillSettingsServiceAbstraction,
+      useClass: AutofillSettingsService,
+      deps: [StateProvider, PolicyServiceAbstraction],
+    },
+    {
+      provide: BiometricStateService,
+      useClass: DefaultBiometricStateService,
+      deps: [StateProvider],
+    },
+    {
+      provide: VaultSettingsServiceAbstraction,
+      useClass: VaultSettingsService,
+      deps: [StateProvider],
+    },
+    {
+      provide: MigrationRunner,
+      useClass: MigrationRunner,
+      deps: [AbstractStorageService, LogService, MigrationBuilderService],
+    },
+    {
+      provide: MigrationBuilderService,
+      useClass: MigrationBuilderService,
+    },
+    {
+      provide: BillingApiServiceAbstraction,
+      useClass: BillingApiService,
+      deps: [ApiServiceAbstraction],
+    },
   ],
 })
 export class JslibServicesModule {}
@@ -804,7 +965,7 @@ export class JslibServicesModule {}
 function encryptServiceFactory(
   cryptoFunctionservice: CryptoFunctionServiceAbstraction,
   logService: LogService,
-  logMacFailures: boolean
+  logMacFailures: boolean,
 ): EncryptService {
   return flagEnabled("multithreadDecryption")
     ? new MultithreadEncryptServiceImplementation(cryptoFunctionservice, logService, logMacFailures)

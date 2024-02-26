@@ -9,6 +9,7 @@ import { VerificationType } from "@bitwarden/common/auth/enums/verification-type
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
 import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request/update-temp-password.request";
+import { MasterPasswordVerification } from "@bitwarden/common/auth/types/verification";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -16,9 +17,8 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { MasterKey, UserKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
-import { Verification } from "@bitwarden/common/types/verification";
+import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService } from "@bitwarden/components";
 
@@ -31,7 +31,7 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent {
   enforcedPolicyOptions: MasterPasswordPolicyOptions;
   showPassword = false;
   reason: ForceSetPasswordReason = ForceSetPasswordReason.None;
-  verification: Verification = {
+  verification: MasterPasswordVerification = {
     type: VerificationType.MasterPassword,
     secret: "",
   };
@@ -54,8 +54,8 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent {
     private syncService: SyncService,
     private logService: LogService,
     private userVerificationService: UserVerificationService,
-    private router: Router,
-    dialogService: DialogService
+    protected router: Router,
+    dialogService: DialogService,
   ) {
     super(
       i18nService,
@@ -65,7 +65,7 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent {
       platformUtilsService,
       policyService,
       stateService,
-      dialogService
+      dialogService,
     );
   }
 
@@ -76,6 +76,8 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent {
 
     // If we somehow end up here without a reason, go back to the home page
     if (this.reason == ForceSetPasswordReason.None) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["/"]);
       return;
     }
@@ -117,11 +119,11 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent {
         this.masterPassword,
         this.email.trim().toLowerCase(),
         this.kdf,
-        this.kdfConfig
+        this.kdfConfig,
       );
       const newPasswordHash = await this.cryptoService.hashMasterKey(
         this.masterPassword,
-        newMasterKey
+        newMasterKey,
       );
 
       // Grab user key
@@ -130,7 +132,7 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent {
       // Encrypt user key with new master key
       const newProtectedUserKey = await this.cryptoService.encryptUserKeyWithMasterKey(
         newMasterKey,
-        userKey
+        userKey,
       );
 
       await this.performSubmitActions(newPasswordHash, newMasterKey, newProtectedUserKey);
@@ -142,7 +144,7 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent {
   async performSubmitActions(
     masterPasswordHash: string,
     masterKey: MasterKey,
-    userKey: [UserKey, EncString]
+    userKey: [UserKey, EncString],
   ) {
     try {
       switch (this.reason) {
@@ -158,12 +160,14 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent {
       this.platformUtilsService.showToast(
         "success",
         null,
-        this.i18nService.t("updatedMasterPassword")
+        this.i18nService.t("updatedMasterPassword"),
       );
 
       await this.stateService.setForceSetPasswordReason(ForceSetPasswordReason.None);
 
       if (this.onSuccessfulChangePassword != null) {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.onSuccessfulChangePassword();
       } else {
         this.messagingService.send("logout");
@@ -184,7 +188,7 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent {
   private async updatePassword(newMasterPasswordHash: string, userKey: [UserKey, EncString]) {
     const request = await this.userVerificationService.buildRequest(
       this.verification,
-      PasswordRequest
+      PasswordRequest,
     );
     request.masterPasswordHint = this.hint;
     request.newMasterPasswordHash = newMasterPasswordHash;

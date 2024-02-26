@@ -6,13 +6,13 @@ import { first } from "rxjs/operators";
 
 import { VaultFilter } from "@bitwarden/angular/vault/vault-filter/models/vault-filter.model";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
-import { TreeNode } from "@bitwarden/common/models/domain/tree-node";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+import { CipherType } from "@bitwarden/common/vault/enums";
+import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
@@ -85,7 +85,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     private searchService: SearchService,
     private location: Location,
     private browserStateService: BrowserStateService,
-    private vaultFilterService: VaultFilterService
+    private vaultFilterService: VaultFilterService,
   ) {
     this.noFolderListSize = 100;
   }
@@ -98,10 +98,14 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     await this.browserStateService.setBrowserVaultItemsComponentState(null);
 
     this.broadcasterService.subscribe(ComponentId, (message: any) => {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.ngZone.run(async () => {
         switch (message.command) {
           case "syncCompleted":
             window.setTimeout(() => {
+              // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+              // eslint-disable-next-line @typescript-eslint/no-floating-promises
               this.load();
             }, 500);
             break;
@@ -125,16 +129,22 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       }
 
       if (!this.syncService.syncInProgress) {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.load();
       } else {
         this.loadedTimeout = window.setTimeout(() => {
           if (!this.loaded) {
+            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.load();
           }
         }, 5000);
       }
 
       if (!this.syncService.syncInProgress || restoredScopeState) {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         BrowserPopupUtils.setContentScrollY(window, this.state?.scrollY);
       }
     });
@@ -147,6 +157,8 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     if (this.selectedTimeout != null) {
       window.clearTimeout(this.selectedTimeout);
     }
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.saveState();
     this.broadcasterService.unsubscribe(ComponentId);
   }
@@ -177,7 +189,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
 
   async loadCollections() {
     const allCollections = await this.vaultFilterService.buildCollections(
-      this.selectedOrganization
+      this.selectedOrganization,
     );
     this.collections = allCollections.fullList;
     this.nestedCollections = allCollections.nestedList;
@@ -185,7 +197,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
 
   async loadFolders() {
     const allFolders = await firstValueFrom(
-      this.vaultFilterService.buildNestedFolders(this.selectedOrganization)
+      this.vaultFilterService.buildNestedFolders(this.selectedOrganization),
     );
     this.folders = allFolders.fullList;
     this.nestedFolders = allFolders.nestedList;
@@ -202,10 +214,10 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       this.ciphers = await this.searchService.searchCiphers(
         this.searchText,
         filterDeleted,
-        this.allCiphers
+        this.allCiphers,
       );
       this.ciphers = this.ciphers.filter(
-        (c) => !this.vaultFilterService.filterCipherForSelectedVault(c)
+        (c) => !this.vaultFilterService.filterCipherForSelectedVault(c),
       );
       return;
     }
@@ -218,35 +230,45 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
         this.ciphers = await this.searchService.searchCiphers(
           this.searchText,
           filterDeleted,
-          this.allCiphers
+          this.allCiphers,
         );
       }
       this.ciphers = this.ciphers.filter(
-        (c) => !this.vaultFilterService.filterCipherForSelectedVault(c)
+        (c) => !this.vaultFilterService.filterCipherForSelectedVault(c),
       );
       this.searchPending = false;
     }, timeout);
   }
 
   async selectType(type: CipherType) {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["/ciphers"], { queryParams: { type: type } });
   }
 
   async selectFolder(folder: FolderView) {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["/ciphers"], { queryParams: { folderId: folder.id || "none" } });
   }
 
   async selectCollection(collection: CollectionView) {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["/ciphers"], { queryParams: { collectionId: collection.id } });
   }
 
   async selectTrash() {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["/ciphers"], { queryParams: { deleted: true } });
   }
 
   async selectCipher(cipher: CipherView) {
     this.selectedTimeout = window.setTimeout(() => {
       if (!this.preventSelected) {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.router.navigate(["/view-cipher"], { queryParams: { cipherId: cipher.id } });
       }
       this.preventSelected = false;
@@ -263,6 +285,8 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     }
     this.preventSelected = true;
     await this.cipherService.updateLastLaunchedDate(cipher.id);
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     BrowserApi.createNewTab(cipher.login.launchUri);
     if (BrowserPopupUtils.inPopup(window)) {
       BrowserApi.closePopup(window);
@@ -270,6 +294,8 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
   }
 
   async addCipher() {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["/add-cipher"], {
       queryParams: { selectedVault: this.vaultFilter.selectedOrganizationId },
     });
@@ -301,7 +327,7 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
     const typeCounts = new Map<CipherType, number>();
 
     this.deletedCount = this.allCiphers.filter(
-      (c) => c.isDeleted && !this.vaultFilterService.filterCipherForSelectedVault(c)
+      (c) => c.isDeleted && !this.vaultFilterService.filterCipherForSelectedVault(c),
     ).length;
 
     this.ciphers?.forEach((c) => {

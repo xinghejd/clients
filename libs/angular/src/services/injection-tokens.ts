@@ -14,6 +14,9 @@ export const OBSERVABLE_MEMORY_STORAGE = new InjectionToken<
 export const OBSERVABLE_DISK_STORAGE = new InjectionToken<
   AbstractStorageService & ObservableStorageService
 >("OBSERVABLE_DISK_STORAGE");
+export const OBSERVABLE_DISK_LOCAL_STORAGE = new InjectionToken<
+  AbstractStorageService & ObservableStorageService
+>("OBSERVABLE_DISK_LOCAL_STORAGE");
 export const MEMORY_STORAGE = new InjectionToken<AbstractMemoryStorageService>("MEMORY_STORAGE");
 export const SECURE_STORAGE = new InjectionToken<AbstractStorageService>("SECURE_STORAGE");
 export const STATE_FACTORY = new InjectionToken<StateFactory>("STATE_FACTORY");
@@ -22,7 +25,7 @@ export const LOGOUT_CALLBACK = new InjectionToken<
   (expired: boolean, userId?: string) => Promise<void>
 >("LOGOUT_CALLBACK");
 export const LOCKED_CALLBACK = new InjectionToken<(userId?: string) => Promise<void>>(
-  "LOCKED_CALLBACK"
+  "LOCKED_CALLBACK",
 );
 export const LOCALES_DIRECTORY = new InjectionToken<string>("LOCALES_DIRECTORY");
 export const SYSTEM_LANGUAGE = new InjectionToken<string>("SYSTEM_LANGUAGE");

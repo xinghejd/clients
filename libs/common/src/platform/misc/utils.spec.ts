@@ -49,13 +49,13 @@ describe("Utils Service", () => {
       expect(Utils.getDomain("https://www.vault.bitwarden.com")).toBe("bitwarden.com");
 
       expect(
-        Utils.getDomain("user:password@bitwarden.com:8080/password/sites?and&query#hash")
+        Utils.getDomain("user:password@bitwarden.com:8080/password/sites?and&query#hash"),
       ).toBe("bitwarden.com");
       expect(
-        Utils.getDomain("http://user:password@bitwarden.com:8080/password/sites?and&query#hash")
+        Utils.getDomain("http://user:password@bitwarden.com:8080/password/sites?and&query#hash"),
       ).toBe("bitwarden.com");
       expect(
-        Utils.getDomain("https://user:password@bitwarden.com:8080/password/sites?and&query#hash")
+        Utils.getDomain("https://user:password@bitwarden.com:8080/password/sites?and&query#hash"),
       ).toBe("bitwarden.com");
 
       expect(Utils.getDomain("bitwarden.unknown")).toBe("bitwarden.unknown");
@@ -87,7 +87,7 @@ describe("Utils Service", () => {
       expect(Utils.getDomain("subdomain.xn--btwarden-65a.com")).toBe("xn--btwarden-65a.com");
       expect(Utils.getDomain("http://subdomain.xn--btwarden-65a.com")).toBe("xn--btwarden-65a.com");
       expect(Utils.getDomain("https://subdomain.xn--btwarden-65a.com")).toBe(
-        "xn--btwarden-65a.com"
+        "xn--btwarden-65a.com",
       );
     });
 
@@ -165,10 +165,10 @@ describe("Utils Service", () => {
       expect(Utils.getHostname("https://www.vault.bitwarden.com")).toBe("www.vault.bitwarden.com");
 
       expect(
-        Utils.getHostname("user:password@bitwarden.com:8080/password/sites?and&query#hash")
+        Utils.getHostname("user:password@bitwarden.com:8080/password/sites?and&query#hash"),
       ).toBe("bitwarden.com");
       expect(
-        Utils.getHostname("https://user:password@bitwarden.com:8080/password/sites?and&query#hash")
+        Utils.getHostname("https://user:password@bitwarden.com:8080/password/sites?and&query#hash"),
       ).toBe("bitwarden.com");
       expect(Utils.getHostname("https://bitwarden.unknown")).toBe("bitwarden.unknown");
     });
@@ -195,13 +195,13 @@ describe("Utils Service", () => {
       expect(Utils.getHostname("xn--btwarden-65a.com")).toBe("xn--btwarden-65a.com");
 
       expect(Utils.getHostname("subdomain.xn--btwarden-65a.com")).toBe(
-        "subdomain.xn--btwarden-65a.com"
+        "subdomain.xn--btwarden-65a.com",
       );
       expect(Utils.getHostname("http://subdomain.xn--btwarden-65a.com")).toBe(
-        "subdomain.xn--btwarden-65a.com"
+        "subdomain.xn--btwarden-65a.com",
       );
       expect(Utils.getHostname("https://subdomain.xn--btwarden-65a.com")).toBe(
-        "subdomain.xn--btwarden-65a.com"
+        "subdomain.xn--btwarden-65a.com",
       );
     });
 
@@ -258,6 +258,7 @@ describe("Utils Service", () => {
     });
   }
 
+  const asciiHelloWorld = "hello world";
   const asciiHelloWorldArray = [104, 101, 108, 108, 111, 32, 119, 111, 114, 108, 100];
   const b64HelloWorldString = "aGVsbG8gd29ybGQ=";
 
@@ -337,7 +338,7 @@ describe("Utils Service", () => {
 
         // Compare the original ArrayBuffer with the round-tripped ArrayBuffer
         expect(roundTrippedArray).toEqual(originalArray);
-      }
+      },
     );
 
     runInBothEnvironments(
@@ -351,7 +352,7 @@ describe("Utils Service", () => {
 
         // Compare the original base64 string with the round-tripped base64 string
         expect(roundTrippedB64String).toBe(b64HelloWorldString);
-      }
+      },
     );
   });
 
@@ -402,7 +403,7 @@ describe("Utils Service", () => {
         const hexString = Utils.fromBufferToHex(largeBuffer);
         const expectedHexString = createSequentialHexByteString(256).repeat(4);
         expect(hexString).toBe(expectedHexString);
-      }
+      },
     );
 
     runInBothEnvironments("should correctly convert a buffer with a single byte to hex", () => {
@@ -417,7 +418,7 @@ describe("Utils Service", () => {
         const oddByteBuffer = new Uint8Array([0x01, 0x23, 0x45, 0x67, 0x89]).buffer;
         const hexString = Utils.fromBufferToHex(oddByteBuffer);
         expect(hexString).toBe("0123456789");
-      }
+      },
     );
   });
 
@@ -467,7 +468,7 @@ describe("Utils Service", () => {
         const hexString = Utils.fromBufferToHex(originalBuffer);
         const roundTripBuffer = Utils.hexStringToArrayBuffer(hexString);
         expect(new Uint8Array(roundTripBuffer)).toEqual(new Uint8Array(originalBuffer));
-      }
+      },
     );
 
     runInBothEnvironments(
@@ -477,7 +478,7 @@ describe("Utils Service", () => {
         const bufferFromHex = Utils.hexStringToArrayBuffer(hexString);
         const roundTripHexString = Utils.fromBufferToHex(bufferFromHex);
         expect(roundTripHexString).toBe(hexString);
-      }
+      },
     );
   });
 
@@ -535,7 +536,7 @@ describe("Utils Service", () => {
         new Map([
           [1, "value1"],
           [2, "value2"],
-        ])
+        ]),
       );
       expect(Utils.mapToRecord(result)).toEqual(record);
     });
@@ -552,16 +553,16 @@ describe("Utils Service", () => {
   describe("encodeRFC3986URIComponent", () => {
     it("returns input string with expected encoded chars", () => {
       expect(Utils.encodeRFC3986URIComponent("test'user@example.com")).toBe(
-        "test%27user%40example.com"
+        "test%27user%40example.com",
       );
       expect(Utils.encodeRFC3986URIComponent("(test)user@example.com")).toBe(
-        "%28test%29user%40example.com"
+        "%28test%29user%40example.com",
       );
       expect(Utils.encodeRFC3986URIComponent("testuser!@example.com")).toBe(
-        "testuser%21%40example.com"
+        "testuser%21%40example.com",
       );
       expect(Utils.encodeRFC3986URIComponent("Test*User@example.com")).toBe(
-        "Test%2AUser%40example.com"
+        "Test%2AUser%40example.com",
       );
     });
   });
@@ -581,7 +582,7 @@ describe("Utils Service", () => {
 
     it("removes multiple encoded traversals", () => {
       expect(
-        Utils.normalizePath("api/sends/access/..%2f..%2f..%2fapi%2fsends%2faccess%2fsendkey")
+        Utils.normalizePath("api/sends/access/..%2f..%2f..%2fapi%2fsends%2faccess%2fsendkey"),
       ).toBe(path.normalize("api/sends/access/sendkey"));
     });
   });
@@ -621,6 +622,61 @@ describe("Utils Service", () => {
       expect(Utils.daysRemaining(new Date(2023, 10, 12, 10))).toBe(41);
       // leap year
       expect(Utils.daysRemaining(new Date(2024, 9, 2, 10))).toBe(366);
+    });
+  });
+
+  describe("fromBufferToUtf8(...)", () => {
+    const originalIsNode = Utils.isNode;
+
+    afterEach(() => {
+      Utils.isNode = originalIsNode;
+    });
+
+    runInBothEnvironments("should convert an ArrayBuffer to a utf8 string", () => {
+      const buffer = new Uint8Array(asciiHelloWorldArray).buffer;
+      const str = Utils.fromBufferToUtf8(buffer);
+      expect(str).toBe(asciiHelloWorld);
+    });
+
+    runInBothEnvironments("should handle an empty buffer", () => {
+      const buffer = new ArrayBuffer(0);
+      const str = Utils.fromBufferToUtf8(buffer);
+      expect(str).toBe("");
+    });
+
+    runInBothEnvironments("should convert a binary ArrayBuffer to a binary string", () => {
+      const cases = [
+        {
+          input: [
+            174, 21, 17, 79, 39, 130, 132, 173, 49, 180, 113, 118, 160, 15, 47, 99, 57, 208, 141,
+            187, 54, 194, 153, 12, 37, 130, 155, 213, 125, 196, 241, 101,
+          ],
+          output: "�O'���1�qv�/c9Ѝ�6%���}��e",
+        },
+        {
+          input: [
+            88, 17, 69, 41, 75, 69, 128, 225, 252, 219, 146, 72, 162, 14, 139, 120, 30, 239, 105,
+            229, 14, 131, 174, 119, 61, 88, 108, 135, 60, 88, 120, 145,
+          ],
+          output: "XE)KE���ےH��x�i���w=Xl�<Xx�",
+        },
+        {
+          input: [
+            121, 110, 81, 148, 48, 67, 209, 43, 3, 39, 143, 184, 237, 184, 213, 183, 84, 157, 47, 6,
+            31, 183, 99, 142, 155, 156, 192, 107, 118, 64, 176, 36,
+          ],
+          output: "ynQ�0C�+'����շT�/�c����kv@�$",
+        },
+      ];
+
+      cases.forEach((c) => {
+        const buffer = new Uint8Array(c.input).buffer;
+        const str = Utils.fromBufferToUtf8(buffer);
+        // Match the expected output
+        expect(str).toBe(c.output);
+        // Make sure it matches with the Node.js Buffer output
+        expect(str).toBe(Buffer.from(buffer).toString("utf8"));
+      });
     });
   });
 });

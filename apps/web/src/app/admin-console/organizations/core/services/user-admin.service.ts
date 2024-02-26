@@ -6,24 +6,28 @@ import {
   OrganizationUserUpdateRequest,
 } from "@bitwarden/common/admin-console/abstractions/organization-user/requests";
 import { OrganizationUserDetailsResponse } from "@bitwarden/common/admin-console/abstractions/organization-user/responses";
+import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 
 import { CoreOrganizationModule } from "../core-organization.module";
 import { OrganizationUserAdminView } from "../views/organization-user-admin-view";
 
 @Injectable({ providedIn: CoreOrganizationModule })
 export class UserAdminService {
-  constructor(private organizationUserService: OrganizationUserService) {}
+  constructor(
+    private configService: ConfigServiceAbstraction,
+    private organizationUserService: OrganizationUserService,
+  ) {}
 
   async get(
     organizationId: string,
-    organizationUserId: string
+    organizationUserId: string,
   ): Promise<OrganizationUserAdminView | undefined> {
     const userResponse = await this.organizationUserService.getOrganizationUser(
       organizationId,
       organizationUserId,
       {
         includeGroups: true,
-      }
+      },
     );
 
     if (userResponse == null) {
@@ -62,7 +66,7 @@ export class UserAdminService {
 
   private async decryptMany(
     organizationId: string,
-    users: OrganizationUserDetailsResponse[]
+    users: OrganizationUserDetailsResponse[],
   ): Promise<OrganizationUserAdminView[]> {
     const promises = users.map(async (u) => {
       const view = new OrganizationUserAdminView();

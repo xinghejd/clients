@@ -611,8 +611,23 @@
   "loginWithMasterPassword": {
     "message": "マスターパスワードでログイン"
   },
+  "readingPasskeyLoading": {
+    "message": "パスキーを読み込み中..."
+  },
+  "readingPasskeyLoadingInfo": {
+    "message": "このウィンドウを開いたままにして、ブラウザの指示に従ってください。"
+  },
+  "useADifferentLogInMethod": {
+    "message": "別のログイン方法を使用する"
+  },
   "loginWithPasskey": {
     "message": "パスキー でログイン"
+  },
+  "invalidPasskeyPleaseTryAgain": {
+    "message": "無効なパスキーです。もう一度やり直してください。"
+  },
+  "twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn": {
+    "message": "パスキーの2段階認証はサポートされていません。ログインするにはアプリを更新してください。"
   },
   "loginWithPasskeyInfo": {
     "message": "パスワードなしで自動的にログインできる、生成されたパスキーを使用します。顔や指紋などの生体認証、または他の FIDO2 認証方式で本人確認を行います。"
@@ -622,9 +637,6 @@
   },
   "learnMoreAboutPasswordless": {
     "message": "パスワードレスの詳細"
-  },
-  "passkeyEnterMasterPassword": {
-    "message": "パスキー設定でのログインを変更するには、マスターパスワードを入力してください。"
   },
   "creatingPasskeyLoading": {
     "message": "パスキーを作成中..."
@@ -641,9 +653,6 @@
   "passkeySuccessfullyCreated": {
     "message": "パスキーを作成しました！"
   },
-  "customName": {
-    "message": "カスタム名"
-  },
   "customPasskeyNameInfo": {
     "message": "パスキーに名前を付けて、識別しやすいようにしましょう。"
   },
@@ -659,8 +668,8 @@
   "encryptionNotSupported": {
     "message": "暗号化はサポートされていません"
   },
-  "encryptionNotEnabled": {
-    "message": "暗号化が有効ではありません"
+  "enablePasskeyEncryption": {
+    "message": "暗号化の設定"
   },
   "usedForEncryption": {
     "message": "暗号化に使用中"
@@ -1059,6 +1068,9 @@
   "export": {
     "message": "エクスポート"
   },
+  "exportFrom": {
+    "message": "エクスポート元"
+  },
   "exportVault": {
     "message": "保管庫のエクスポート"
   },
@@ -1134,6 +1146,9 @@
   },
   "length": {
     "message": "長さ"
+  },
+  "passwordMinLength": {
+    "message": "パスワードの最低文字数"
   },
   "uppercase": {
     "message": "大文字（A-Z）",
@@ -1331,6 +1346,18 @@
   },
   "importData": {
     "message": "データをインポート"
+  },
+  "onboardingImportDataDetailsPartOne": {
+    "message": "インポートするデータがない場合は、 ",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+  },
+  "onboardingImportDataDetailsLink": {
+    "message": "新しいアイテム",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+  },
+  "onboardingImportDataDetailsPartTwo": {
+    "message": "を作成できます。管理者が組織のメンバーシップを確認するまで待つ必要があります。",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
   },
   "importError": {
     "message": "インポートエラー"
@@ -2513,6 +2540,15 @@
       }
     }
   },
+  "trialSecretsManagerThankYou": {
+    "message": "$PLAN$ の Bitwarden シークレットマネージャーに登録していただきありがとうございます！",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
   "trialPaidInfoMessage": {
     "message": "$PLAN$ の7日間の無料トライアルは、7日後に有料サブスクリプションに変換されます。",
     "placeholders": {
@@ -2797,6 +2833,9 @@
   },
   "incorrectCode": {
     "message": "コードが違います"
+  },
+  "incorrectPin": {
+    "message": "PIN が正しくありません"
   },
   "exportedVault": {
     "message": "保管庫をエクスポートしました。"
@@ -3527,12 +3566,12 @@
       }
     }
   },
-  "subscriptionFamiliesPlan": {
-    "message": "プランをアップグレードしないと $COUNT$ 名以上のユーザーを招待することはできません。アップグレードをご希望の場合は、カスタマーサポートまでご連絡ください。",
+  "subscriptionUpgrade": {
+    "message": "プランをアップグレードしないと、$COUNT$ 名以上のメンバーを招待することはできません。",
     "placeholders": {
       "count": {
         "content": "$1",
-        "example": "6"
+        "example": "2"
       }
     }
   },
@@ -3807,15 +3846,6 @@
   "couldNotChargeCardPayInvoice": {
     "message": "あなたのカードで決済することができませんでした。以下の未払いの請求書をご確認いただき、お支払いください。"
   },
-  "inAppPurchase": {
-    "message": "アプリ内購入"
-  },
-  "cannotPerformInAppPurchase": {
-    "message": "アプリ内購入を使用している間はこのアクションはできません。"
-  },
-  "manageSubscriptionFromStore": {
-    "message": "アプリ内購入したストアでサブスクリプションを管理してください。"
-  },
   "minLength": {
     "message": "最小文字数"
   },
@@ -4012,6 +4042,12 @@
   },
   "ssoHandOff": {
     "message": "このタブを閉じて拡張機能で続けられます。"
+  },
+  "youSuccessfullyLoggedIn": {
+    "message": "ログインに成功しました"
+  },
+  "thisWindowWillCloseIn5Seconds": {
+    "message": "このウィンドウは5秒後に自動的に閉じます"
   },
   "includeAllTeamsFeatures": {
     "message": "すべてのチームの機能に加えて:"
@@ -5167,6 +5203,12 @@
   "spValidateCertificates": {
     "message": "証明書を検証する"
   },
+  "spUniqueEntityId": {
+    "message": "固有の SP エンティティ ID を設定する"
+  },
+  "spUniqueEntityIdDesc": {
+    "message": "組織固有の識別子を生成します"
+  },
   "idpEntityId": {
     "message": "エンティティID"
   },
@@ -5891,6 +5933,15 @@
       }
     }
   },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "ログインを完了するには DUO を起動し手順に従ってください。"
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "アカウントには DUO 二段階認証が必要です。"
+  },
+  "launchDuo": {
+    "message": "DUO を起動"
+  },
   "turnOn": {
     "message": "オンにする"
   },
@@ -6416,7 +6467,7 @@
     "message": "コレクションを選択"
   },
   "role": {
-    "message": "役割"
+    "message": "ロール"
   },
   "removeMember": {
     "message": "メンバーを削除"
@@ -6589,6 +6640,39 @@
       }
     }
   },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "この操作には認証が必要です。続行するには PIN を設定してください。"
+  },
+  "setPin": {
+    "message": "PIN を設定"
+  },
+  "verifyWithBiometrics": {
+    "message": "生体認証による確認"
+  },
+  "awaitingConfirmation": {
+    "message": "確認中"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "生体認証を完了できませんでした。"
+  },
+  "needADifferentMethod": {
+    "message": "別の方法が必要ですか？"
+  },
+  "useMasterPassword": {
+    "message": "マスターパスワードを使用"
+  },
+  "usePin": {
+    "message": "PIN を使用"
+  },
+  "useBiometrics": {
+    "message": "生体認証を使用"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "メールアドレスに送信された認証コードを入力してください。"
+  },
+  "resendCode": {
+    "message": "コードを再送信する"
+  },
   "membersColumnHeader": {
     "message": "メンバー/グループ"
   },
@@ -6647,7 +6731,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "Teams Starter プランは $SEATCOUNT$ 人のメンバーまでです。さらにメンバーを招待するには、カスタマーサポートに連絡してプランをアップグレードしてください。",
+    "message": "Teams Starter プランで登録できるのは $SEATCOUNT$ メンバーまでです。より多くのメンバーを招待するには、プランをアップグレードしてください。",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -6799,9 +6883,6 @@
   "secretsManager": {
     "message": "シークレットマネージャー"
   },
-  "secretsManagerBeta": {
-    "message": "ベータ版シークレットマネージャー"
-  },
   "secretsManagerAccessDescription": {
     "message": "シークレットマネージャーへのユーザーのアクセスを有効にします。"
   },
@@ -6848,6 +6929,9 @@
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
+  },
+  "createAnAccount": {
+    "message": "アカウントを作成"
   },
   "createSecret": {
     "message": "シークレットを作成"
@@ -6904,12 +6988,6 @@
   },
   "selectionIsRequired": {
     "message": "選択が必要です。"
-  },
-  "secretsManagerSubscriptionDesc": {
-    "message": "ベータプログラム中はシークレットマネージャーへの組織アクセスを無償で有効にします。ユーザーはメンバーのベータ版へのアクセスを許可できます。"
-  },
-  "secretsManagerEnable": {
-    "message": "ベータ版のシークレットマネージャーを有効化"
   },
   "saPeopleWarningTitle": {
     "message": "アクセストークンはまだ利用可能です"
@@ -7071,6 +7149,10 @@
       }
     }
   },
+  "verificationRequired": {
+    "message": "認証が必要です",
+    "description": "Default title for the user verification dialog."
+  },
   "recoverAccount": {
     "message": "アカウント回復"
   },
@@ -7085,7 +7167,7 @@
     "message": "アクセスを有効化"
   },
   "bulkEnableSecretsManagerDescription": {
-    "message": "次のメンバーへシークレットマネージャーへのアクセスを許可します。パスワードマネージャーに与えられた役割はシークレットマネージャーに適用されます。",
+    "message": "次のメンバーへシークレットマネージャーへのアクセスを許可します。パスワードマネージャーに与えられたロールはシークレットマネージャーに適用されます。",
     "description": "This description is shown to an admin when they are attempting to add more users to Secrets Manager."
   },
   "activateSecretsManager": {
@@ -7172,6 +7254,15 @@
   },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "$ORG$ 向けの Bitwarden 7日間無料トライアルを開始",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerFor": {
+    "message": "$ORG$ での Bitwarden シークレットマネージャーの 7 日間無料トライアルを開始",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -7307,8 +7398,11 @@
   "limitCollectionCreationDeletionDesc": {
     "message": "コレクションの作成・削除を所有者と管理者のみに制限"
   },
-  "collectionManagementUpdated": {
-    "message": "コレクション管理の挙動を保存しました"
+  "allowAdminAccessToAllCollectionItemsDesc": {
+    "message": "所有者と管理者はすべてのコレクションとアイテムを管理できます"
+  },
+  "updatedCollectionManagement": {
+    "message": "コレクション管理設定を更新しました"
   },
   "passwordManagerPlanPrice": {
     "message": "パスワードマネージャーのプラン価格"
@@ -7337,22 +7431,6 @@
   "loggedInExclamation": {
     "message": "ログインしました!"
   },
-  "smBetaEndedDesc": {
-    "message": "シークレットマネージャーベータは$BETA_ENDING_DATE$で終了しました。シークレットマネージャーを有料サブスクリプションに追加し、シークレットマネージャーのデータへのアクセスを維持するには、$DAYS$日間の猶予があります。シークレットマネージャーをサブスクリプションに追加するには、カスタマーサクセスまでお問い合わせください。",
-    "placeholders": {
-      "beta_ending_date": {
-        "content": "$1",
-        "example": "August 1, 2023"
-      },
-      "days": {
-        "content": "$2",
-        "example": "11"
-      }
-    }
-  },
-  "betaEnding": {
-    "message": "ベータ終了"
-  },
   "beta": {
     "message": "ベータ"
   },
@@ -7371,11 +7449,8 @@
   "alreadyHaveAccount": {
     "message": "既にアカウントをお持ちですか？"
   },
-  "customBillingStart": {
-    "message": "カスタム請求は反映されていません。"
-  },
-  "customBillingEnd": {
-    "message": "のページで最新の請求書をご覧いただけます。"
+  "skipToContent": {
+    "message": "コンテンツへ移動"
   },
   "managePermissionRequired": {
     "message": "少なくとも1人のメンバーまたはグループに「管理可能」権限を与えてください。"
@@ -7389,14 +7464,125 @@
   "passkeyNotCopiedAlert": {
     "message": "パスキーは複製されたアイテムにコピーされません。このアイテムを複製しますか？"
   },
+  "modifiedCollectionManagement": {
+    "message": "コレクション管理設定 $ID$ を変更しました。",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
   "seeDetailedInstructions": {
     "message": "詳細な手順はこちらをご覧ください：",
     "description": "This is followed a by a hyperlink to the help website."
+  },
+  "installBrowserExtension": {
+    "message": "ブラウザ拡張機能をインストール"
+  },
+  "installBrowserExtensionDetails": {
+    "message": "拡張機能を使用すると、ウェブアプリを開かずにログインや自動入力フォームをすばやく保存できます。"
   },
   "projectAccessUpdated": {
     "message": "プロジェクトへのアクセスを更新しました"
   },
   "unexpectedErrorSend": {
     "message": "この Send の読み込み中に予期しないエラーが発生しました。後でもう一度お試しください。"
+  },
+  "seatLimitReached": {
+    "message": "シート数の上限に達しました"
+  },
+  "contactYourProvider": {
+    "message": "追加のシートを購入するには、プロバイダに連絡してください。"
+  },
+  "seatLimitReachedContactYourProvider": {
+    "message": "シート数の上限に達しました。追加のシートを購入するには、プロバイダに連絡してください。"
+  },
+  "collectionAccessRestricted": {
+    "message": "コレクションへのアクセスが制限されています"
+  },
+  "grantCollectionAccess": {
+    "message": "グループまたはメンバーにこのコレクションへのアクセスを許可します。"
+  },
+  "adminCollectionAccess": {
+    "message": "管理者はコレクションにアクセスし、管理することができます。"
+  },
+  "serviceAccountAccessUpdated": {
+    "message": "サービスアカウントへのアクセスが更新されました"
+  },
+  "commonImportFormats": {
+    "message": "一般的な形式",
+    "description": "Label indicating the most common import formats"
+  },
+  "maintainYourSubscription": {
+    "message": "$ORG$のサブスクリプションを維持するには、 ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Example Inc."
+      }
+    }
+  },
+  "addAPaymentMethod": {
+    "message": "支払い方法を追加してください",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
+  },
+  "collectionEnhancementsDesc": {
+    "message": "柔軟性を高めるために、新しい設定と権限を追加します。 マネージャーのロールを「管理可能」権限に置き換えます。 そして、ユーザーがコレクションを作成できるようにするオプションを導入し、コレクションへの管理者のアクセスを制限します。",
+    "description": "This describes new features and improvements for user roles and collections"
+  },
+  "collectionEnhancementsLearnMore": {
+    "message": "コレクション管理の詳細はこちら"
+  },
+  "organizationInformation": {
+    "message": "組織情報"
+  },
+  "confirmationDetails": {
+    "message": "詳細の確認"
+  },
+  "smFreeTrialThankYou": {
+    "message": "Bitwarden シークレットマネージャーに登録していただきありがとうございます！"
+  },
+  "smFreeTrialConfirmationEmail": {
+    "message": "あなたのメールアドレスに確認メールを送信しました："
+  },
+  "confirmCollectionEnhancementsDialogTitle": {
+    "message": "この操作は元に戻せません"
+  },
+  "confirmCollectionEnhancementsDialogContent": {
+    "message": "この機能を有効にすると、管理者ロールを非推奨にし、管理可能権限に置き換えます。 しばらく時間がかかります。完了するまで組織設定を変更しないでください。続行してもよろしいですか？"
+  },
+  "sorryToSeeYouGo": {
+    "message": "お別れするのは残念です！キャンセルする理由を共有して、Bitwarden の改善にご協力ください。",
+    "description": "A message shown to users as part of an offboarding survey asking them to provide more information on their subscription cancelation."
+  },
+  "selectCancellationReason": {
+    "message": "キャンセルする理由を選択",
+    "description": "Used as a form field label for a select input on the offboarding survey."
+  },
+  "anyOtherFeedback": {
+    "message": "他のフィードバックはありますか?",
+    "description": "Used as a form field label for a textarea input on the offboarding survey."
+  },
+  "missingFeatures": {
+    "message": "機能が不足している",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "movingToAnotherTool": {
+    "message": "別のツールに移行する",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooDifficultToUse": {
+    "message": "使用方法が難しすぎる",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "notUsingEnough": {
+    "message": "あまり使っていない",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooExpensive": {
+    "message": "料金が高すぎる",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
   }
 }

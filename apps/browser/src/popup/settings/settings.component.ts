@@ -17,7 +17,7 @@ import {
 } from "rxjs";
 
 import { ModalService } from "@bitwarden/angular/services/modal.service";
-import { FingerprintDialogComponent } from "@bitwarden/auth";
+import { FingerprintDialogComponent } from "@bitwarden/auth/angular";
 import { BitwardenSdkServiceAbstraction } from "@bitwarden/common/abstractions/bitwarden-sdk.service.abstraction";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
@@ -38,7 +38,7 @@ import { DialogService } from "@bitwarden/components";
 import { SetPinComponent } from "../../auth/popup/components/set-pin.component";
 import { BiometricErrors, BiometricErrorTypes } from "../../models/biometricErrors";
 import { BrowserApi } from "../../platform/browser/browser-api";
-import { flagEnabled } from "../../platform/flags";
+import { enableAccountSwitching } from "../../platform/flags";
 import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
 
 import { AboutComponent } from "./about.component";
@@ -46,7 +46,7 @@ import { AwaitDesktopDialogComponent } from "./await-desktop-dialog.component";
 
 const RateUrls = {
   [DeviceType.ChromeExtension]:
-    "https://chrome.google.com/webstore/detail/bitwarden-free-password-m/nngceckbapebfimnlniiiahkandclblb/reviews",
+    "https://chromewebstore.google.com/detail/bitwarden-free-password-m/nngceckbapebfimnlniiiahkandclblb/reviews",
   [DeviceType.FirefoxExtension]:
     "https://addons.mozilla.org/en-US/firefox/addon/bitwarden-password-manager/#reviews",
   [DeviceType.OperaExtension]:
@@ -54,7 +54,7 @@ const RateUrls = {
   [DeviceType.EdgeExtension]:
     "https://microsoftedge.microsoft.com/addons/detail/jbkfoedolllekgbhcbcoahefnbanhhlh",
   [DeviceType.VivaldiExtension]:
-    "https://chrome.google.com/webstore/detail/bitwarden-free-password-m/nngceckbapebfimnlniiiahkandclblb/reviews",
+    "https://chromewebstore.google.com/detail/bitwarden-free-password-m/nngceckbapebfimnlniiiahkandclblb/reviews",
   [DeviceType.SafariExtension]: "https://apps.apple.com/app/bitwarden/id1352778147",
 };
 
@@ -102,10 +102,10 @@ export class SettingsComponent implements OnInit {
     private modalService: ModalService,
     private userVerificationService: UserVerificationService,
     private dialogService: DialogService,
+    private bitwardenSdkService: BitwardenSdkServiceAbstraction,
     private changeDetectorRef: ChangeDetectorRef,
-    private bitwardenSdkService: BitwardenSdkServiceAbstraction
   ) {
-    this.accountSwitcherEnabled = flagEnabled("accountSwitching");
+    this.accountSwitcherEnabled = enableAccountSwitching();
   }
 
   async ngOnInit() {
@@ -121,7 +121,7 @@ export class SettingsComponent implements OnInit {
           };
         }
         return { timeout: timeout, action: policy.data?.action };
-      })
+      }),
     );
 
     const showOnLocked =
@@ -158,7 +158,7 @@ export class SettingsComponent implements OnInit {
         concatMap(async ([previousValue, newValue]) => {
           await this.saveVaultTimeout(previousValue, newValue);
         }),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe();
 
@@ -168,14 +168,14 @@ export class SettingsComponent implements OnInit {
         concatMap(async ([previousValue, newValue]) => {
           await this.saveVaultTimeoutAction(previousValue, newValue);
         }),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe();
 
     const initialValues = {
       vaultTimeout: timeout,
       vaultTimeoutAction: await firstValueFrom(
-        this.vaultTimeoutSettingsService.vaultTimeoutAction$()
+        this.vaultTimeoutSettingsService.vaultTimeoutAction$(),
       ),
       pin: pinStatus !== "DISABLED",
       biometric: await this.vaultTimeoutSettingsService.isBiometricLockSet(),
@@ -192,7 +192,7 @@ export class SettingsComponent implements OnInit {
           await this.updatePin(value);
           this.refreshTimeoutSettings$.next();
         }),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe();
 
@@ -208,7 +208,7 @@ export class SettingsComponent implements OnInit {
           }
           this.refreshTimeoutSettings$.next();
         }),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe();
 
@@ -218,9 +218,9 @@ export class SettingsComponent implements OnInit {
           combineLatest([
             this.vaultTimeoutSettingsService.availableVaultTimeoutActions$(),
             this.vaultTimeoutSettingsService.vaultTimeoutAction$(),
-          ])
+          ]),
         ),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe(([availableActions, action]) => {
         this.availableVaultTimeoutActions = availableActions;
@@ -238,9 +238,9 @@ export class SettingsComponent implements OnInit {
           combineLatest([
             this.vaultTimeoutSettingsService.availableVaultTimeoutActions$(),
             maximumVaultTimeoutPolicy,
-          ])
+          ]),
         ),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe(([availableActions, policy]) => {
         if (policy?.data?.action || availableActions.length <= 1) {
@@ -271,14 +271,14 @@ export class SettingsComponent implements OnInit {
       this.platformUtilsService.showToast(
         "error",
         null,
-        this.i18nService.t("vaultTimeoutTooLarge")
+        this.i18nService.t("vaultTimeoutTooLarge"),
       );
       return;
     }
 
     await this.vaultTimeoutSettingsService.setVaultTimeoutOptions(
       newValue,
-      await firstValueFrom(this.vaultTimeoutSettingsService.vaultTimeoutAction$())
+      await firstValueFrom(this.vaultTimeoutSettingsService.vaultTimeoutAction$()),
     );
     if (newValue == null) {
       this.messagingService.send("bgReseedStorage");
@@ -305,28 +305,29 @@ export class SettingsComponent implements OnInit {
       this.platformUtilsService.showToast(
         "error",
         null,
-        this.i18nService.t("vaultTimeoutTooLarge")
+        this.i18nService.t("vaultTimeoutTooLarge"),
       );
       return;
     }
 
     await this.vaultTimeoutSettingsService.setVaultTimeoutOptions(
       this.form.value.vaultTimeout,
-      newValue
+      newValue,
     );
     this.refreshTimeoutSettings$.next();
   }
 
   async updatePin(value: boolean) {
     if (value) {
-      const ref = this.modalService.open(SetPinComponent, { allowMultipleModals: true });
+      const dialogRef = SetPinComponent.open(this.dialogService);
 
-      if (ref == null) {
+      if (dialogRef == null) {
         this.form.controls.pin.setValue(false, { emitEvent: false });
         return;
       }
 
-      this.form.controls.pin.setValue(await ref.onClosedPromise(), { emitEvent: false });
+      const userHasPinSet = await firstValueFrom(dialogRef.closed);
+      this.form.controls.pin.setValue(userHasPinSet, { emitEvent: false });
     } else {
       await this.vaultTimeoutSettingsService.clear();
     }
@@ -371,14 +372,12 @@ export class SettingsComponent implements OnInit {
       const awaitDesktopDialogRef = AwaitDesktopDialogComponent.open(this.dialogService);
       const awaitDesktopDialogClosed = firstValueFrom(awaitDesktopDialogRef.closed);
 
-      await this.stateService.setBiometricAwaitingAcceptance(true);
       await this.cryptoService.refreshAdditionalKeys();
 
       await Promise.race([
         awaitDesktopDialogClosed.then(async (result) => {
           if (result !== true) {
             this.form.controls.biometric.setValue(false);
-            await this.stateService.setBiometricAwaitingAcceptance(null);
           }
         }),
         this.platformUtilsService
@@ -389,7 +388,7 @@ export class SettingsComponent implements OnInit {
               this.platformUtilsService.showToast(
                 "error",
                 this.i18nService.t("errorEnableBiometricTitle"),
-                this.i18nService.t("errorEnableBiometricDesc")
+                this.i18nService.t("errorEnableBiometricDesc"),
               );
             }
           })
@@ -399,6 +398,8 @@ export class SettingsComponent implements OnInit {
 
             const error = BiometricErrors[e as BiometricErrorTypes];
 
+            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.dialogService.openSimpleDialog({
               title: { key: error.title },
               content: { key: error.description },
@@ -419,7 +420,7 @@ export class SettingsComponent implements OnInit {
 
   async updateAutoBiometricsPrompt() {
     await this.stateService.setDisableAutoBiometricsPrompt(
-      !this.form.value.enableAutoBiometricsPrompt
+      !this.form.value.enableAutoBiometricsPrompt,
     );
   }
 
@@ -446,6 +447,8 @@ export class SettingsComponent implements OnInit {
       type: "info",
     });
     if (confirmed) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       BrowserApi.createNewTab(this.environmentService.getWebVaultUrl());
     }
   }
@@ -457,6 +460,8 @@ export class SettingsComponent implements OnInit {
       type: "info",
     });
     if (confirmed) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       BrowserApi.createNewTab("https://bitwarden.com/help/setup-two-step-login/");
     }
   }
@@ -468,23 +473,31 @@ export class SettingsComponent implements OnInit {
       type: "info",
     });
     if (confirmed) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       BrowserApi.createNewTab("https://bitwarden.com/help/about-organizations/");
     }
   }
 
   async webVault() {
     const url = this.environmentService.getWebVaultUrl();
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     BrowserApi.createNewTab(url);
   }
 
   async import() {
     await this.router.navigate(["/import"]);
     if (await BrowserApi.isPopupOpen()) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       BrowserPopupUtils.openCurrentPagePopout(window);
     }
   }
 
   export() {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["/export"]);
   }
 
@@ -496,8 +509,11 @@ export class SettingsComponent implements OnInit {
     const client = await this.bitwardenSdkService.getClient();
     const fingerprint = await client.fingerprint(
       await this.stateService.getUserId(),
-      Utils.fromBufferToB64(await this.cryptoService.getPublicKey())
+      Utils.fromBufferToB64(await this.cryptoService.getPublicKey()),
     );
+    // const fingerprint = await this.cryptoService.getFingerprint(
+    //   await this.stateService.getUserId(),
+    // );
 
     const dialogRef = FingerprintDialogComponent.open(this.dialogService, {
       fingerprint,
@@ -508,6 +524,8 @@ export class SettingsComponent implements OnInit {
 
   rate() {
     const deviceType = this.platformUtilsService.getDevice();
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     BrowserApi.createNewTab((RateUrls as any)[deviceType]);
   }
 

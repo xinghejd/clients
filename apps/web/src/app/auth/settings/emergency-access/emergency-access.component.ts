@@ -53,13 +53,15 @@ export class EmergencyAccessComponent implements OnInit {
     private logService: LogService,
     private stateService: StateService,
     private organizationService: OrganizationService,
-    protected dialogService: DialogService
+    protected dialogService: DialogService,
   ) {}
 
   async ngOnInit() {
     this.canAccessPremium = await this.stateService.getCanAccessPremium();
     const orgs = await this.organizationService.getAll();
     this.isOrganizationOwner = orgs.some((o) => o.isOwner);
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.load();
   }
 
@@ -87,18 +89,24 @@ export class EmergencyAccessComponent implements OnInit {
         // eslint-disable-next-line rxjs-angular/prefer-takeuntil
         comp.onSaved.subscribe(() => {
           modal.close();
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.load();
         });
         // eslint-disable-next-line rxjs-angular/prefer-takeuntil
         comp.onDeleted.subscribe(() => {
           modal.close();
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.remove(details);
         });
-      }
+      },
     );
   }
 
   invite() {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.edit(null);
   }
 
@@ -111,7 +119,7 @@ export class EmergencyAccessComponent implements OnInit {
     this.platformUtilsService.showToast(
       "success",
       null,
-      this.i18nService.t("hasBeenReinvited", contact.email)
+      this.i18nService.t("hasBeenReinvited", contact.email),
     );
     this.actionPromise = null;
   }
@@ -145,10 +153,10 @@ export class EmergencyAccessComponent implements OnInit {
             this.platformUtilsService.showToast(
               "success",
               null,
-              this.i18nService.t("hasBeenConfirmed", this.userNamePipe.transform(contact))
+              this.i18nService.t("hasBeenConfirmed", this.userNamePipe.transform(contact)),
             );
           });
-        }
+        },
       );
       return;
     }
@@ -160,7 +168,7 @@ export class EmergencyAccessComponent implements OnInit {
     this.platformUtilsService.showToast(
       "success",
       null,
-      this.i18nService.t("hasBeenConfirmed", this.userNamePipe.transform(contact))
+      this.i18nService.t("hasBeenConfirmed", this.userNamePipe.transform(contact)),
     );
     this.actionPromise = null;
   }
@@ -181,7 +189,7 @@ export class EmergencyAccessComponent implements OnInit {
       this.platformUtilsService.showToast(
         "success",
         null,
-        this.i18nService.t("removedUserId", this.userNamePipe.transform(details))
+        this.i18nService.t("removedUserId", this.userNamePipe.transform(details)),
       );
 
       if (details instanceof GranteeEmergencyAccess) {
@@ -215,13 +223,13 @@ export class EmergencyAccessComponent implements OnInit {
     this.platformUtilsService.showToast(
       "success",
       null,
-      this.i18nService.t("requestSent", this.userNamePipe.transform(details))
+      this.i18nService.t("requestSent", this.userNamePipe.transform(details)),
     );
   }
 
   async approve(details: GranteeEmergencyAccess) {
     const type = this.i18nService.t(
-      details.type === EmergencyAccessType.View ? "view" : "takeover"
+      details.type === EmergencyAccessType.View ? "view" : "takeover",
     );
 
     const confirmed = await this.dialogService.openSimpleDialog({
@@ -244,7 +252,7 @@ export class EmergencyAccessComponent implements OnInit {
     this.platformUtilsService.showToast(
       "success",
       null,
-      this.i18nService.t("emergencyApproved", this.userNamePipe.transform(details))
+      this.i18nService.t("emergencyApproved", this.userNamePipe.transform(details)),
     );
   }
 
@@ -255,7 +263,7 @@ export class EmergencyAccessComponent implements OnInit {
     this.platformUtilsService.showToast(
       "success",
       null,
-      this.i18nService.t("emergencyRejected", this.userNamePipe.transform(details))
+      this.i18nService.t("emergencyRejected", this.userNamePipe.transform(details)),
     );
   }
 
@@ -274,10 +282,10 @@ export class EmergencyAccessComponent implements OnInit {
           this.platformUtilsService.showToast(
             "success",
             null,
-            this.i18nService.t("passwordResetFor", this.userNamePipe.transform(details))
+            this.i18nService.t("passwordResetFor", this.userNamePipe.transform(details)),
           );
         });
-      }
+      },
     );
   }
 

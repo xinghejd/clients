@@ -3,16 +3,16 @@ import { UntypedFormBuilder } from "@angular/forms";
 import { ActivatedRoute } from "@angular/router";
 
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { EventType } from "@bitwarden/common/enums";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService } from "@bitwarden/components";
-import { VaultExportServiceAbstraction } from "@bitwarden/exporter/vault-export";
+import { VaultExportServiceAbstraction } from "@bitwarden/vault-export-core";
 
 import { ExportComponent } from "../../../../tools/vault-export/export.component";
 
@@ -23,7 +23,6 @@ import { ExportComponent } from "../../../../tools/vault-export/export.component
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class OrganizationVaultExportComponent extends ExportComponent {
   constructor(
-    cryptoService: CryptoService,
     i18nService: I18nService,
     platformUtilsService: PlatformUtilsService,
     exportService: VaultExportServiceAbstraction,
@@ -34,10 +33,10 @@ export class OrganizationVaultExportComponent extends ExportComponent {
     userVerificationService: UserVerificationService,
     formBuilder: UntypedFormBuilder,
     fileDownloadService: FileDownloadService,
-    dialogService: DialogService
+    dialogService: DialogService,
+    organizationService: OrganizationService,
   ) {
     super(
-      cryptoService,
       i18nService,
       platformUtilsService,
       exportService,
@@ -47,7 +46,8 @@ export class OrganizationVaultExportComponent extends ExportComponent {
       userVerificationService,
       formBuilder,
       fileDownloadService,
-      dialogService
+      dialogService,
+      organizationService,
     );
   }
 
@@ -60,15 +60,16 @@ export class OrganizationVaultExportComponent extends ExportComponent {
     this.route.parent.parent.params.subscribe(async (params) => {
       this.organizationId = params.organizationId;
     });
+
     await super.ngOnInit();
   }
 
   getExportData() {
-    if (this.isFileEncryptedExport) {
-      return this.exportService.getPasswordProtectedExport(this.filePassword, this.organizationId);
-    } else {
-      return this.exportService.getOrganizationExport(this.organizationId, this.format);
-    }
+    return this.exportService.getOrganizationExport(
+      this.organizationId,
+      this.format,
+      this.filePassword,
+    );
   }
 
   getFileName() {
@@ -80,7 +81,7 @@ export class OrganizationVaultExportComponent extends ExportComponent {
       EventType.Organization_ClientExportedVault,
       null,
       null,
-      this.organizationId
+      this.organizationId,
     );
   }
 }

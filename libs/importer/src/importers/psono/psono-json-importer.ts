@@ -1,5 +1,5 @@
-import { FieldType, SecureNoteType } from "@bitwarden/common/enums";
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { FieldType, SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
 
@@ -40,17 +40,28 @@ export class PsonoJsonImporter extends BaseImporter implements Importer {
     return Promise.resolve(result);
   }
 
-  private parseFolders(result: ImportResult, folders: FoldersEntity[]) {
+  private parseFolders(result: ImportResult, folders: FoldersEntity[], parentName?: string) {
     if (folders == null || folders.length === 0) {
       return;
     }
 
     folders.forEach((folder) => {
-      if (folder.items == null || folder.items.length == 0) {
+      const folderHasItems = folder.items != null && folder.items.length > 0;
+      const folderHasSubfolders = folder.folders != null && folder.folders.length > 0;
+
+      if (!folderHasItems && !folderHasSubfolders) {
         return;
       }
 
-      this.processFolder(result, folder.name);
+      if (!Utils.isNullOrWhitespace(parentName)) {
+        folder.name = parentName + "/" + folder.name;
+      }
+
+      if (folderHasSubfolders) {
+        this.parseFolders(result, folder.folders, folder.name);
+      }
+
+      this.processFolder(result, folder.name, folderHasItems);
 
       this.handleItemParsing(result, folder.items);
     });
@@ -132,7 +143,7 @@ export class PsonoJsonImporter extends BaseImporter implements Importer {
       cipher,
       "website_password_auto_submit",
       entry.website_password_auto_submit?.toString(),
-      FieldType.Boolean
+      FieldType.Boolean,
     );
 
     this.processKvp(cipher, "website_password_url_filter", entry.website_password_url_filter);
@@ -261,7 +272,7 @@ export class PsonoJsonImporter extends BaseImporter implements Importer {
       cipher,
       "mail_gpg_own_key_private",
       entry.mail_gpg_own_key_private,
-      FieldType.Hidden
+      FieldType.Hidden,
     );
 
     this.importUnmappedFields(cipher, entry, this.GPG_mappedValues);
@@ -270,7 +281,7 @@ export class PsonoJsonImporter extends BaseImporter implements Importer {
   private importUnmappedFields(
     cipher: CipherView,
     entry: PsonoItemTypes,
-    mappedValues: Set<string>
+    mappedValues: Set<string>,
   ) {
     const unmappedFields = Object.keys(entry).filter((x) => !mappedValues.has(x));
     unmappedFields.forEach((key) => {

@@ -28,7 +28,7 @@ export class AccessibilityCookieComponent {
     protected environmentService: EnvironmentService,
     protected i18nService: I18nService,
     private broadcasterService: BroadcasterService,
-    protected ngZone: NgZone
+    protected ngZone: NgZone,
   ) {}
 
   async ngOnInit() {
@@ -38,6 +38,8 @@ export class AccessibilityCookieComponent {
           case "windowIsFocused":
             if (this.listenForCookie) {
               this.listenForCookie = false;
+              // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+              // eslint-disable-next-line @typescript-eslint/no-floating-promises
               this.checkForCookie();
             }
             break;
@@ -65,7 +67,7 @@ export class AccessibilityCookieComponent {
     this.platformUtilsService.showToast(
       "success",
       null,
-      this.i18nService.t("accessibilityCookieSaved")
+      this.i18nService.t("accessibilityCookieSaved"),
     );
   }
 
@@ -73,7 +75,7 @@ export class AccessibilityCookieComponent {
     this.platformUtilsService.showToast(
       "error",
       null,
-      this.i18nService.t("noAccessibilityCookieSaved")
+      this.i18nService.t("noAccessibilityCookieSaved"),
     );
   }
 
@@ -82,7 +84,7 @@ export class AccessibilityCookieComponent {
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccurred"),
-        this.i18nService.t("invalidUrl")
+        this.i18nService.t("invalidUrl"),
       );
       return;
     }

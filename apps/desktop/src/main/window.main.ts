@@ -39,7 +39,7 @@ export class WindowMain {
     private logService: LogService,
     private storageService: AbstractStorageService,
     private argvCallback: (argv: string[]) => void = null,
-    private createWindowCallback: (win: BrowserWindow) => void
+    private createWindowCallback: (win: BrowserWindow) => void,
   ) {}
 
   init(): Promise<any> {
@@ -57,6 +57,8 @@ export class WindowMain {
       }
 
       this.win.webContents.reloadIgnoringCache();
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.session.clearCache();
     });
 
@@ -89,6 +91,10 @@ export class WindowMain {
         // This method will be called when Electron is shutting
         // down the application.
         app.on("before-quit", () => {
+          // Allow biometric to auto-prompt on reload
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+          this.stateService.setBiometricPromptCancelled(false);
           this.isQuitting = true;
         });
 
@@ -133,7 +139,7 @@ export class WindowMain {
   async createWindow(): Promise<void> {
     this.windowStates[mainWindowSizeKey] = await this.getWindowState(
       this.defaultWidth,
-      this.defaultHeight
+      this.defaultHeight,
     );
     this.enableAlwaysOnTop = await this.stateService.getEnableAlwaysOnTop();
 
@@ -154,12 +160,13 @@ export class WindowMain {
       backgroundColor: await this.getBackgroundColor(),
       alwaysOnTop: this.enableAlwaysOnTop,
       webPreferences: {
-        // preload: path.join(__dirname, "preload.js"),
+        preload: path.join(__dirname, "preload.js"),
         spellcheck: false,
-        nodeIntegration: true,
+        nodeIntegration: false,
         backgroundThrottling: false,
-        contextIsolation: false,
+        contextIsolation: true,
         session: this.session,
+        devTools: isDev(),
       },
     });
 
@@ -175,6 +182,8 @@ export class WindowMain {
     this.win.show();
 
     // and load the index.html of the app.
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.win.loadURL(
       url.format({
         protocol: "file:",
@@ -183,7 +192,7 @@ export class WindowMain {
       }),
       {
         userAgent: cleanUserAgent(this.win.webContents.userAgent),
-      }
+      },
     );
 
     // Open the DevTools.

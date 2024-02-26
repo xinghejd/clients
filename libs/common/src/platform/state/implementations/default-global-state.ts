@@ -1,13 +1,14 @@
 import {
-  BehaviorSubject,
   Observable,
+  ReplaySubject,
   defer,
   filter,
   firstValueFrom,
-  shareReplay,
+  merge,
+  share,
   switchMap,
-  tap,
   timeout,
+  timer,
 } from "rxjs";
 
 import {
@@ -19,73 +20,75 @@ import { KeyDefinition, globalKeyBuilder } from "../key-definition";
 import { StateUpdateOptions, populateOptionsWithDefault } from "../state-update-options";
 
 import { getStoredValue } from "./util";
-const FAKE_DEFAULT = Symbol("fakeDefault");
 
 export class DefaultGlobalState<T> implements GlobalState<T> {
   private storageKey: string;
+  private updatePromise: Promise<T> | null = null;
 
-  protected stateSubject: BehaviorSubject<T | typeof FAKE_DEFAULT> = new BehaviorSubject<
-    T | typeof FAKE_DEFAULT
-  >(FAKE_DEFAULT);
-
-  state$: Observable<T>;
+  readonly state$: Observable<T>;
 
   constructor(
     private keyDefinition: KeyDefinition<T>,
-    private chosenLocation: AbstractStorageService & ObservableStorageService
+    private chosenLocation: AbstractStorageService & ObservableStorageService,
   ) {
     this.storageKey = globalKeyBuilder(this.keyDefinition);
+    const initialStorageGet$ = defer(() => {
+      return getStoredValue(this.storageKey, this.chosenLocation, this.keyDefinition.deserializer);
+    });
 
-    const storageUpdates$ = this.chosenLocation.updates$.pipe(
-      filter((update) => update.key === this.storageKey),
-      switchMap(async (update) => {
-        if (update.updateType === "remove") {
+    const latestStorage$ = this.chosenLocation.updates$.pipe(
+      filter((s) => s.key === this.storageKey),
+      switchMap(async (storageUpdate) => {
+        if (storageUpdate.updateType === "remove") {
           return null;
         }
+
         return await getStoredValue(
           this.storageKey,
           this.chosenLocation,
-          this.keyDefinition.deserializer
+          this.keyDefinition.deserializer,
         );
       }),
-      shareReplay({ bufferSize: 1, refCount: false })
     );
 
-    this.state$ = defer(() => {
-      const storageUpdateSubscription = storageUpdates$.subscribe((value) => {
-        this.stateSubject.next(value);
-      });
-
-      this.getFromState().then((s) => {
-        this.stateSubject.next(s);
-      });
-
-      return this.stateSubject.pipe(
-        tap({
-          complete: () => {
-            storageUpdateSubscription.unsubscribe();
-          },
-        })
-      );
-    }).pipe(
-      shareReplay({ refCount: false, bufferSize: 1 }),
-      filter<T>((i) => i != FAKE_DEFAULT)
+    this.state$ = merge(initialStorageGet$, latestStorage$).pipe(
+      share({
+        connector: () => new ReplaySubject<T>(1),
+        resetOnRefCountZero: () => timer(this.keyDefinition.cleanupDelayMs),
+      }),
     );
   }
 
   async update<TCombine>(
     configureState: (state: T, dependency: TCombine) => T,
-    options: StateUpdateOptions<T, TCombine> = {}
+    options: StateUpdateOptions<T, TCombine> = {},
   ): Promise<T> {
     options = populateOptionsWithDefault(options);
-    const currentState = await this.getGuaranteedState();
+    if (this.updatePromise != null) {
+      await this.updatePromise;
+    }
+
+    try {
+      this.updatePromise = this.internalUpdate(configureState, options);
+      const newState = await this.updatePromise;
+      return newState;
+    } finally {
+      this.updatePromise = null;
+    }
+  }
+
+  private async internalUpdate<TCombine>(
+    configureState: (state: T, dependency: TCombine) => T,
+    options: StateUpdateOptions<T, TCombine>,
+  ): Promise<T> {
+    const currentState = await this.getStateForUpdate();
     const combinedDependencies =
       options.combineLatestWith != null
         ? await firstValueFrom(options.combineLatestWith.pipe(timeout(options.msTimeout)))
         : null;
 
     if (!options.shouldUpdate(currentState, combinedDependencies)) {
-      return;
+      return currentState;
     }
 
     const newState = configureState(currentState, combinedDependencies);
@@ -93,16 +96,25 @@ export class DefaultGlobalState<T> implements GlobalState<T> {
     return newState;
   }
 
-  private async getGuaranteedState() {
-    const currentValue = this.stateSubject.getValue();
-    return currentValue === FAKE_DEFAULT ? await this.getFromState() : currentValue;
-  }
-
-  async getFromState(): Promise<T> {
+  /** For use in update methods, does not wait for update to complete before yielding state.
+   * The expectation is that that await is already done
+   */
+  private async getStateForUpdate() {
     return await getStoredValue(
       this.storageKey,
       this.chosenLocation,
-      this.keyDefinition.deserializer
+      this.keyDefinition.deserializer,
+    );
+  }
+
+  async getFromState(): Promise<T> {
+    if (this.updatePromise != null) {
+      return await this.updatePromise;
+    }
+    return await getStoredValue(
+      this.storageKey,
+      this.chosenLocation,
+      this.keyDefinition.deserializer,
     );
   }
 }

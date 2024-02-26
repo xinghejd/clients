@@ -123,7 +123,7 @@ export class PeopleComponent
     dialogService: DialogService,
     private router: Router,
     private groupService: GroupService,
-    private collectionService: CollectionService
+    private collectionService: CollectionService,
   ) {
     super(
       apiService,
@@ -137,30 +137,30 @@ export class PeopleComponent
       searchPipe,
       userNamePipe,
       stateService,
-      dialogService
+      dialogService,
     );
   }
 
   async ngOnInit() {
     const organization$ = this.route.params.pipe(
       map((params) => this.organizationService.get(params.organizationId)),
-      shareReplay({ refCount: true, bufferSize: 1 })
+      shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
     this.canUseSecretsManager$ = organization$.pipe(
-      map((org) => org.useSecretsManager && flagEnabled("secretsManager"))
+      map((org) => org.useSecretsManager && flagEnabled("secretsManager")),
     );
 
     const policies$ = organization$.pipe(
       switchMap((organization) => {
         if (organization.isProviderUser) {
           return from(this.policyApiService.getPolicies(organization.id)).pipe(
-            map((response) => this.policyService.mapPoliciesFromToken(response))
+            map((response) => this.policyService.mapPoliciesFromToken(response)),
           );
         }
 
         return this.policyService.policies$;
-      })
+      }),
     );
 
     combineLatest([this.route.queryParams, policies$, organization$])
@@ -178,7 +178,7 @@ export class PeopleComponent
             const request = new OrganizationKeysRequest(orgKeys[0], orgKeys[1].encryptedString);
             const response = await this.organizationApiService.updateKeys(
               this.organization.id,
-              request
+              request,
             );
             if (response != null) {
               this.organization.hasPublicAndPrivateKeys =
@@ -200,11 +200,13 @@ export class PeopleComponent
           if (qParams.viewEvents != null) {
             const user = this.users.filter((u) => u.id === qParams.viewEvents);
             if (user.length > 0 && user[0].status === OrganizationUserStatusType.Confirmed) {
+              // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+              // eslint-disable-next-line @typescript-eslint/no-floating-promises
               this.events(user[0]);
             }
           }
         }),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe();
   }
@@ -270,7 +272,7 @@ export class PeopleComponent
     const response = await this.apiService.getCollections(this.organization.id);
 
     const collections = response.data.map(
-      (r) => new Collection(new CollectionData(r as CollectionDetailsResponse))
+      (r) => new Collection(new CollectionData(r as CollectionDetailsResponse)),
     );
     const decryptedCollections = await this.collectionService.decryptMany(collections);
 
@@ -303,7 +305,7 @@ export class PeopleComponent
     await this.organizationUserService.postOrganizationUserConfirm(
       this.organization.id,
       user.id,
-      request
+      request,
     );
   }
 
@@ -364,21 +366,10 @@ export class PeopleComponent
     return `${product}InvLimitReached${this.getManageBillingText()}`;
   }
 
-  private getDialogTitle(productType: ProductType): string {
-    switch (productType) {
-      case ProductType.Free:
-        return "upgrade";
-      case ProductType.TeamsStarter:
-        return "contactSupportShort";
-      default:
-        throw new Error(`Unsupported product type: ${productType}`);
-    }
-  }
-
   private getDialogContent(): string {
     return this.i18nService.t(
       this.getProductKey(this.organization.planProductType),
-      this.organization.seats
+      this.organization.seats,
     );
   }
 
@@ -387,7 +378,13 @@ export class PeopleComponent
       return this.i18nService.t("ok");
     }
 
-    return this.i18nService.t(this.getDialogTitle(this.organization.planProductType));
+    const productType = this.organization.planProductType;
+
+    if (productType !== ProductType.Free && productType !== ProductType.TeamsStarter) {
+      throw new Error(`Unsupported product type: ${productType}`);
+    }
+
+    return this.i18nService.t("upgrade");
   }
 
   private async handleDialogClose(result: boolean | undefined): Promise<void> {
@@ -395,19 +392,16 @@ export class PeopleComponent
       return;
     }
 
-    switch (this.organization.planProductType) {
-      case ProductType.Free:
-        await this.router.navigate(
-          ["/organizations", this.organization.id, "billing", "subscription"],
-          { queryParams: { upgrade: true } }
-        );
-        break;
-      case ProductType.TeamsStarter:
-        window.open("https://bitwarden.com/contact/", "_blank");
-        break;
-      default:
-        throw new Error(`Unsupported product type: ${this.organization.planProductType}`);
+    const productType = this.organization.planProductType;
+
+    if (productType !== ProductType.Free && productType !== ProductType.TeamsStarter) {
+      throw new Error(`Unsupported product type: ${this.organization.planProductType}`);
     }
+
+    await this.router.navigate(
+      ["/organizations", this.organization.id, "billing", "subscription"],
+      { queryParams: { upgrade: true } },
+    );
   }
 
   private async showSeatLimitReachedDialog(): Promise<void> {
@@ -423,6 +417,8 @@ export class PeopleComponent
     }
 
     const simpleDialog = this.dialogService.openSimpleDialogRef(orgUpgradeSimpleDialogOpts);
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     firstValueFrom(simpleDialog.closed).then(this.handleDialogClose.bind(this));
   }
 
@@ -431,7 +427,7 @@ export class PeopleComponent
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("seatLimitReached"),
-        this.i18nService.t("contactYourProvider")
+        this.i18nService.t("contactYourProvider"),
       );
       return;
     }
@@ -471,6 +467,8 @@ export class PeopleComponent
       case MemberDialogResult.Saved:
       case MemberDialogResult.Revoked:
       case MemberDialogResult.Restored:
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.load();
         break;
     }
@@ -487,7 +485,7 @@ export class PeopleComponent
       (comp) => {
         comp.organizationId = this.organization.id;
         comp.users = this.getCheckedUsers();
-      }
+      },
     );
 
     await modal.onClosedPromise();
@@ -529,7 +527,7 @@ export class PeopleComponent
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccurred"),
-        this.i18nService.t("noSelectedUsersApplicable")
+        this.i18nService.t("noSelectedUsersApplicable"),
       );
       return;
     }
@@ -537,13 +535,15 @@ export class PeopleComponent
     try {
       const response = this.organizationUserService.postManyOrganizationUserReinvite(
         this.organization.id,
-        filteredUsers.map((user) => user.id)
+        filteredUsers.map((user) => user.id),
       );
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.showBulkStatus(
         users,
         filteredUsers,
         response,
-        this.i18nService.t("bulkReinviteMessage")
+        this.i18nService.t("bulkReinviteMessage"),
       );
     } catch (e) {
       this.validationService.showError(e);
@@ -562,7 +562,7 @@ export class PeopleComponent
       (comp) => {
         comp.organizationId = this.organization.id;
         comp.users = this.getCheckedUsers();
-      }
+      },
     );
 
     await modal.onClosedPromise();
@@ -575,7 +575,7 @@ export class PeopleComponent
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccurred"),
-        this.i18nService.t("noSelectedUsersApplicable")
+        this.i18nService.t("noSelectedUsersApplicable"),
       );
       return;
     }
@@ -614,9 +614,11 @@ export class PeopleComponent
         // eslint-disable-next-line rxjs-angular/prefer-takeuntil
         comp.onPasswordReset.subscribe(() => {
           modal.close();
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.load();
         });
-      }
+      },
     );
   }
 
@@ -668,14 +670,14 @@ export class PeopleComponent
     users: OrganizationUserView[],
     filteredUsers: OrganizationUserView[],
     request: Promise<ListResponse<OrganizationUserBulkResponse>>,
-    successfullMessage: string
+    successfullMessage: string,
   ) {
     const [modal, childComponent] = await this.modalService.openViewRef(
       BulkStatusComponent,
       this.bulkStatusModalRef,
       (comp) => {
         comp.loading = true;
-      }
+      },
     );
 
     // Workaround to handle closing the modal shortly after it has been opened

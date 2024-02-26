@@ -4,16 +4,16 @@ import { firstValueFrom } from "rxjs";
 
 import { ExportComponent as BaseExportComponent } from "@bitwarden/angular/tools/export/components/export.component";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
+import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
-import { EncryptedExportType } from "@bitwarden/common/enums";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { EncryptedExportType } from "@bitwarden/common/tools/enums/encrypted-export-type.enum";
 import { DialogService } from "@bitwarden/components";
-import { VaultExportServiceAbstraction } from "@bitwarden/exporter/vault-export";
+import { VaultExportServiceAbstraction } from "@bitwarden/vault-export-core";
 
 import { openUserVerificationPrompt } from "../../auth/shared/components/user-verification";
 
@@ -22,12 +22,10 @@ import { openUserVerificationPrompt } from "../../auth/shared/components/user-ve
   templateUrl: "export.component.html",
 })
 export class ExportComponent extends BaseExportComponent {
-  organizationId: string;
   encryptedExportType = EncryptedExportType;
   protected showFilePassword: boolean;
 
   constructor(
-    cryptoService: CryptoService,
     i18nService: I18nService,
     platformUtilsService: PlatformUtilsService,
     exportService: VaultExportServiceAbstraction,
@@ -37,21 +35,21 @@ export class ExportComponent extends BaseExportComponent {
     userVerificationService: UserVerificationService,
     formBuilder: UntypedFormBuilder,
     fileDownloadService: FileDownloadService,
-    dialogService: DialogService
+    dialogService: DialogService,
+    organizationService: OrganizationService,
   ) {
     super(
-      cryptoService,
       i18nService,
       platformUtilsService,
       exportService,
       eventCollectionService,
       policyService,
-      window,
       logService,
       userVerificationService,
       formBuilder,
       fileDownloadService,
-      dialogService
+      dialogService,
+      organizationService,
     );
   }
 
@@ -60,7 +58,7 @@ export class ExportComponent extends BaseExportComponent {
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccurred"),
-        this.i18nService.t("filePasswordAndConfirmFilePasswordDoNotMatch")
+        this.i18nService.t("filePasswordAndConfirmFilePasswordDoNotMatch"),
       );
       return;
     }
@@ -74,7 +72,7 @@ export class ExportComponent extends BaseExportComponent {
       this.platformUtilsService.showToast(
         "error",
         null,
-        this.i18nService.t("personalVaultExportPolicyInEffect")
+        this.i18nService.t("personalVaultExportPolicyInEffect"),
       );
       return;
     }
@@ -84,6 +82,8 @@ export class ExportComponent extends BaseExportComponent {
       return;
     }
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.doExport();
   }
 
