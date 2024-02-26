@@ -166,6 +166,7 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
         await this.cryptoService.migrateAutoKeyIfNeeded(userId);
         // Legacy users should be logged out since we're not on the web vault and can't migrate.
         if (await this.cryptoService.isLegacyUser(null, userId)) {
+          // TODO CG - For some reason we are identifying users as legacy users within manifest v3, and triggering this logout. It's not clear why, but issues with migration of the user key seems to be a root cause.
           await this.logOut(userId);
         }
       }

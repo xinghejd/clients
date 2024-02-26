@@ -30,7 +30,11 @@ describe("Browser Session Storage Service", () => {
     encryptService = mock<EncryptService>();
     keyGenerationService = mock<KeyGenerationService>();
 
-    sut = new LocalBackedSessionStorageService(encryptService, keyGenerationService);
+    sut = new LocalBackedSessionStorageService(
+      encryptService,
+      keyGenerationService,
+      "local-backed-session-storage-spec",
+    );
 
     cache = sut["cache"];
     localStorage = sut["localStorage"];

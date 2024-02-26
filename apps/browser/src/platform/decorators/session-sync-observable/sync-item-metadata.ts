@@ -9,7 +9,13 @@ export class SyncedItemMetadata {
   static builder(metadata: SyncedItemMetadata): (o: any) => any {
     const itemBuilder = metadata.initializer;
     if (metadata.initializeAs === "array") {
-      return (keyValuePair: any) => keyValuePair.map((o: any) => itemBuilder(o));
+      return (keyValuePair: any) => {
+        if (!keyValuePair) {
+          return keyValuePair;
+        }
+
+        return keyValuePair.map((o: any) => itemBuilder(o));
+      };
     } else if (metadata.initializeAs === "record") {
       return (keyValuePair: any) => {
         const record: Record<any, any> = {};

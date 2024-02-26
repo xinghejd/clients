@@ -56,6 +56,7 @@ export function memoryStorageServiceFactory(
       return new LocalBackedSessionStorageService(
         await encryptServiceFactory(cache, opts),
         await keyGenerationServiceFactory(cache, opts),
+        "storage-service-factory",
       );
     }
     return new MemoryStorageService();

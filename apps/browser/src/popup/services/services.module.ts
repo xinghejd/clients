@@ -116,7 +116,7 @@ import { BrowserCryptoService } from "../../platform/services/browser-crypto.ser
 import { BrowserEnvironmentService } from "../../platform/services/browser-environment.service";
 import { BrowserI18nService } from "../../platform/services/browser-i18n.service";
 import BrowserLocalStorageService from "../../platform/services/browser-local-storage.service";
-import BrowserMessagingPrivateModePopupService from "../../platform/services/browser-messaging-private-mode-popup.service";
+// import BrowserMessagingPrivateModePopupService from "../../platform/services/browser-messaging-private-mode-popup.service";
 import BrowserMessagingService from "../../platform/services/browser-messaging.service";
 import { BrowserStateService } from "../../platform/services/browser-state.service";
 import { ForegroundDerivedStateProvider } from "../../platform/state/foreground-derived-state.provider";
@@ -138,7 +138,7 @@ const mainBackground: MainBackground = needsBackgroundInit
   : BrowserApi.getBackgroundPage().bitwardenMain;
 
 function createLocalBgService() {
-  const localBgService = new MainBackground(isPrivateMode);
+  const localBgService = new MainBackground(isPrivateMode, true);
   // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
   localBgService.bootstrap();
@@ -174,9 +174,10 @@ function getBgService<T>(service: keyof MainBackground) {
     {
       provide: MessagingService,
       useFactory: () => {
-        return needsBackgroundInit
-          ? new BrowserMessagingPrivateModePopupService()
-          : new BrowserMessagingService();
+        // return needsBackgroundInit
+        //   ? new BrowserMessagingPrivateModePopupService()
+        //   : new BrowserMessagingService();
+        return new BrowserMessagingService();
       },
     },
     {
