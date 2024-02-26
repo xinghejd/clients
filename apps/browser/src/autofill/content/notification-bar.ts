@@ -85,9 +85,12 @@ async function loadNotificationBar() {
   ]);
   const changePasswordButtonContainsNames = new Set(["pass", "change", "contras", "senha"]);
 
-  // @TODO this needs to update for subsequent checks
-  const disabledChangedPasswordNotification = false;
+  const enableChangedPasswordPrompt = true;
   let showNotificationBar = true;
+
+  sendPlatformMessage({
+    command: "bgGetEnableChangedPasswordPrompt",
+  });
 
   // Look up the active user id from storage
   const activeUserIdKey = "activeUserId";
@@ -198,6 +201,10 @@ async function loadNotificationBar() {
         },
         "*",
       );
+    } else if (msg.command === "setEnableChangedPasswordPrompt") {
+      this.enableChangedPasswordPrompt = msg.data.value;
+      sendResponse();
+      return true;
     }
   }
   // End Message Processing
@@ -645,7 +652,7 @@ async function loadNotificationBar() {
 
       // if user has not disabled the password changed notification and we have multiple password fields,
       // then check if the user has changed their password
-      if (!disabledChangedPasswordNotification && watchedForms[i].passwordEls != null) {
+      if (enableChangedPasswordPrompt && watchedForms[i].passwordEls != null) {
         // Get the values of the password fields
         const passwords: string[] = watchedForms[i].passwordEls
           .filter((el: HTMLInputElement) => el.value != null && el.value !== "")

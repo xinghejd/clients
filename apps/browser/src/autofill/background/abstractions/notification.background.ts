@@ -109,6 +109,7 @@ type NotificationBackgroundExtensionMessageHandlers = {
   bgReopenUnlockPopout: ({ sender }: BackgroundSenderParam) => Promise<void>;
   checkNotificationQueue: ({ sender }: BackgroundSenderParam) => Promise<void>;
   collectPageDetailsResponse: ({ message }: BackgroundMessageParam) => Promise<void>;
+  bgGetEnableChangedPasswordPrompt: ({ sender }: BackgroundSenderParam) => Promise<void>;
 };
 
 export {
