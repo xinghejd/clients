@@ -6,27 +6,27 @@ import { Folder } from "../../models/domain/folder";
 import { FolderView } from "../../models/view/folder.view";
 
 export abstract class FolderService {
-  folders$: Observable<Folder[]>;
-  folderViews$: Observable<FolderView[]>;
+  abstract folders$: Observable<Folder[]>;
+  abstract folderViews$: Observable<FolderView[]>;
 
-  clearCache: () => Promise<void>;
-  encrypt: (model: FolderView, key?: SymmetricCryptoKey) => Promise<Folder>;
-  get: (id: string) => Promise<Folder>;
-  getAllFromState: () => Promise<Folder[]>;
+  abstract clearCache(): Promise<void>;
+  abstract encrypt(model: FolderView, key?: SymmetricCryptoKey): Promise<Folder>;
+  abstract get(id: string): Promise<Folder>;
+  abstract getAllFromState(): Promise<Folder[]>;
   /**
    * @deprecated Only use in CLI!
    */
-  getFromState: (id: string) => Promise<Folder>;
+  abstract getFromState(id: string): Promise<Folder>;
   /**
    * @deprecated Only use in CLI!
    */
-  getAllDecryptedFromState: () => Promise<FolderView[]>;
-  decryptFolders: (folders: Folder[]) => Promise<FolderView[]>;
+  abstract getAllDecryptedFromState(): Promise<FolderView[]>;
+  abstract decryptFolders(folders: Folder[]): Promise<FolderView[]>;
 }
 
 export abstract class InternalFolderService extends FolderService {
-  upsert: (folder: FolderData | FolderData[]) => Promise<void>;
-  replace: (folders: { [id: string]: FolderData }) => Promise<void>;
-  clear: (userId: string) => Promise<any>;
-  delete: (id: string | string[]) => Promise<any>;
+  abstract upsert(folder: FolderData | FolderData[]): Promise<void>;
+  abstract replace(folders: { [id: string]: FolderData }): Promise<void>;
+  abstract clear(userId: string): Promise<any>;
+  abstract delete(id: string | string[]): Promise<any>;
 }

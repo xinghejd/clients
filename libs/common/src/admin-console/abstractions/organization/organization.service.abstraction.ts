@@ -89,27 +89,27 @@ export function isMember(org: Organization): boolean {
 }
 
 export abstract class OrganizationService {
-  organizations$: Observable<Organization[]>;
+  abstract organizations$: Observable<Organization[]>;
 
   /**
    * Organizations that the user is a member of (excludes organizations that they only have access to via a provider)
    */
-  memberOrganizations$: Observable<Organization[]>;
+  abstract memberOrganizations$: Observable<Organization[]>;
 
-  get$: (id: string) => Observable<Organization | undefined>;
-  get: (id: string) => Organization;
-  getByIdentifier: (identifier: string) => Organization;
-  getAll: (userId?: string) => Promise<Organization[]>;
+  abstract get$(id: string): Observable<Organization | undefined>;
+  abstract get(id: string): Organization;
+  abstract getByIdentifier(identifier: string): Organization;
+  abstract getAll(userId?: string): Promise<Organization[]>;
   /**
    * @deprecated For the CLI only
    * @param id id of the organization
    */
-  getFromState: (id: string) => Promise<Organization>;
-  canManageSponsorships: () => Promise<boolean>;
-  hasOrganizations: () => boolean;
+  abstract getFromState(id: string): Promise<Organization>;
+  abstract canManageSponsorships(): Promise<boolean>;
+  abstract hasOrganizations(): boolean;
 }
 
 export abstract class InternalOrganizationServiceAbstraction extends OrganizationService {
-  replace: (organizations: { [id: string]: OrganizationData }) => Promise<void>;
-  upsert: (OrganizationData: OrganizationData | OrganizationData[]) => Promise<void>;
+  abstract replace(organizations: { [id: string]: OrganizationData }): Promise<void>;
+  abstract upsert(OrganizationData: OrganizationData | OrganizationData[]): Promise<void>;
 }

@@ -1,31 +1,31 @@
 import { IdentityTokenResponse } from "../models/response/identity-token.response";
 
 export abstract class TokenService {
-  setTokens: (
+  abstract setTokens(
     accessToken: string,
     refreshToken: string,
     clientIdClientSecret: [string, string],
-  ) => Promise<any>;
-  setToken: (token: string) => Promise<any>;
-  getToken: () => Promise<string>;
-  setRefreshToken: (refreshToken: string) => Promise<any>;
-  getRefreshToken: () => Promise<string>;
-  setClientId: (clientId: string) => Promise<any>;
-  getClientId: () => Promise<string>;
-  setClientSecret: (clientSecret: string) => Promise<any>;
-  getClientSecret: () => Promise<string>;
-  setTwoFactorToken: (tokenResponse: IdentityTokenResponse) => Promise<any>;
-  getTwoFactorToken: () => Promise<string>;
-  clearTwoFactorToken: () => Promise<any>;
-  clearToken: (userId?: string) => Promise<any>;
-  decodeToken: (token?: string) => Promise<any>;
-  getTokenExpirationDate: () => Promise<Date>;
-  tokenSecondsRemaining: (offsetSeconds?: number) => Promise<number>;
-  tokenNeedsRefresh: (minutes?: number) => Promise<boolean>;
-  getUserId: () => Promise<string>;
-  getEmail: () => Promise<string>;
-  getEmailVerified: () => Promise<boolean>;
-  getName: () => Promise<string>;
-  getIssuer: () => Promise<string>;
-  getIsExternal: () => Promise<boolean>;
+  ): Promise<any>;
+  abstract setToken(token: string): Promise<any>;
+  abstract getToken(): Promise<string>;
+  abstract setRefreshToken(refreshToken: string): Promise<any>;
+  abstract getRefreshToken(): Promise<string>;
+  abstract setClientId(clientId: string): Promise<any>;
+  abstract getClientId(): Promise<string>;
+  abstract setClientSecret(clientSecret: string): Promise<any>;
+  abstract getClientSecret(): Promise<string>;
+  abstract setTwoFactorToken(tokenResponse: IdentityTokenResponse): Promise<any>;
+  abstract getTwoFactorToken(): Promise<string>;
+  abstract clearTwoFactorToken(): Promise<any>;
+  abstract clearToken(userId?: string): Promise<any>;
+  abstract decodeToken(token?: string): Promise<any>;
+  abstract getTokenExpirationDate(): Promise<Date>;
+  abstract tokenSecondsRemaining(offsetSeconds?: number): Promise<number>;
+  abstract tokenNeedsRefresh(minutes?: number): Promise<boolean>;
+  abstract getUserId(): Promise<string>;
+  abstract getEmail(): Promise<string>;
+  abstract getEmailVerified(): Promise<boolean>;
+  abstract getName(): Promise<string>;
+  abstract getIssuer(): Promise<string>;
+  abstract getIsExternal(): Promise<boolean>;
 }

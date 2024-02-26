@@ -30,55 +30,74 @@ import { OrganizationKeysResponse } from "../../models/response/organization-key
 import { OrganizationResponse } from "../../models/response/organization.response";
 import { ProfileOrganizationResponse } from "../../models/response/profile-organization.response";
 
-export class OrganizationApiServiceAbstraction {
-  get: (id: string) => Promise<OrganizationResponse>;
-  getBilling: (id: string) => Promise<BillingResponse>;
-  getSubscription: (id: string) => Promise<OrganizationSubscriptionResponse>;
-  getLicense: (id: string, installationId: string) => Promise<unknown>;
-  getAutoEnrollStatus: (identifier: string) => Promise<OrganizationAutoEnrollStatusResponse>;
-  create: (request: OrganizationCreateRequest) => Promise<OrganizationResponse>;
-  createLicense: (data: FormData) => Promise<OrganizationResponse>;
-  save: (id: string, request: OrganizationUpdateRequest) => Promise<OrganizationResponse>;
-  updatePayment: (id: string, request: PaymentRequest) => Promise<void>;
-  upgrade: (id: string, request: OrganizationUpgradeRequest) => Promise<PaymentResponse>;
-  updatePasswordManagerSeats: (
+export abstract class OrganizationApiServiceAbstraction {
+  abstract get: (id: string) => Promise<OrganizationResponse>;
+  abstract getBilling: (id: string) => Promise<BillingResponse>;
+  abstract getSubscription: (id: string) => Promise<OrganizationSubscriptionResponse>;
+  abstract getLicense: (id: string, installationId: string) => Promise<unknown>;
+  abstract getAutoEnrollStatus: (
+    identifier: string,
+  ) => Promise<OrganizationAutoEnrollStatusResponse>;
+  abstract create: (request: OrganizationCreateRequest) => Promise<OrganizationResponse>;
+  abstract createLicense: (data: FormData) => Promise<OrganizationResponse>;
+  abstract save: (id: string, request: OrganizationUpdateRequest) => Promise<OrganizationResponse>;
+  abstract updatePayment: (id: string, request: PaymentRequest) => Promise<void>;
+  abstract upgrade: (id: string, request: OrganizationUpgradeRequest) => Promise<PaymentResponse>;
+  abstract updatePasswordManagerSeats: (
     id: string,
     request: OrganizationSubscriptionUpdateRequest,
   ) => Promise<void>;
-  updateSecretsManagerSubscription: (
+  abstract updateSecretsManagerSubscription: (
     id: string,
     request: OrganizationSmSubscriptionUpdateRequest,
   ) => Promise<void>;
-  updateSeats: (id: string, request: SeatRequest) => Promise<PaymentResponse>;
-  updateStorage: (id: string, request: StorageRequest) => Promise<PaymentResponse>;
-  verifyBank: (id: string, request: VerifyBankRequest) => Promise<void>;
-  cancel: (id: string) => Promise<void>;
-  reinstate: (id: string) => Promise<void>;
-  leave: (id: string) => Promise<void>;
-  delete: (id: string, request: SecretVerificationRequest) => Promise<void>;
-  updateLicense: (id: string, data: FormData) => Promise<void>;
-  importDirectory: (organizationId: string, request: ImportDirectoryRequest) => Promise<void>;
-  getOrCreateApiKey: (id: string, request: OrganizationApiKeyRequest) => Promise<ApiKeyResponse>;
-  getApiKeyInformation: (
+  abstract updateSeats: (id: string, request: SeatRequest) => Promise<PaymentResponse>;
+  abstract updateStorage: (id: string, request: StorageRequest) => Promise<PaymentResponse>;
+  abstract verifyBank: (id: string, request: VerifyBankRequest) => Promise<void>;
+  abstract cancel: (id: string) => Promise<void>;
+  abstract reinstate: (id: string) => Promise<void>;
+  abstract leave: (id: string) => Promise<void>;
+  abstract delete: (id: string, request: SecretVerificationRequest) => Promise<void>;
+  abstract updateLicense: (id: string, data: FormData) => Promise<void>;
+  abstract importDirectory: (
+    organizationId: string,
+    request: ImportDirectoryRequest,
+  ) => Promise<void>;
+  abstract getOrCreateApiKey: (
+    id: string,
+    request: OrganizationApiKeyRequest,
+  ) => Promise<ApiKeyResponse>;
+  abstract getApiKeyInformation: (
     id: string,
     organizationApiKeyType?: OrganizationApiKeyType,
   ) => Promise<ListResponse<OrganizationApiKeyInformationResponse>>;
-  rotateApiKey: (id: string, request: OrganizationApiKeyRequest) => Promise<ApiKeyResponse>;
-  getTaxInfo: (id: string) => Promise<TaxInfoResponse>;
-  updateTaxInfo: (id: string, request: OrganizationTaxInfoUpdateRequest) => Promise<void>;
-  getKeys: (id: string) => Promise<OrganizationKeysResponse>;
-  updateKeys: (id: string, request: OrganizationKeysRequest) => Promise<OrganizationKeysResponse>;
-  getSso: (id: string) => Promise<OrganizationSsoResponse>;
-  updateSso: (id: string, request: OrganizationSsoRequest) => Promise<OrganizationSsoResponse>;
-  selfHostedSyncLicense: (id: string) => Promise<void>;
-  subscribeToSecretsManager: (
+  abstract rotateApiKey: (
+    id: string,
+    request: OrganizationApiKeyRequest,
+  ) => Promise<ApiKeyResponse>;
+  abstract getTaxInfo: (id: string) => Promise<TaxInfoResponse>;
+  abstract updateTaxInfo: (id: string, request: OrganizationTaxInfoUpdateRequest) => Promise<void>;
+  abstract getKeys: (id: string) => Promise<OrganizationKeysResponse>;
+  abstract updateKeys: (
+    id: string,
+    request: OrganizationKeysRequest,
+  ) => Promise<OrganizationKeysResponse>;
+  abstract getSso: (id: string) => Promise<OrganizationSsoResponse>;
+  abstract updateSso: (
+    id: string,
+    request: OrganizationSsoRequest,
+  ) => Promise<OrganizationSsoResponse>;
+  abstract selfHostedSyncLicense: (id: string) => Promise<void>;
+  abstract subscribeToSecretsManager: (
     id: string,
     request: SecretsManagerSubscribeRequest,
   ) => Promise<ProfileOrganizationResponse>;
-  updateCollectionManagement: (
+  abstract updateCollectionManagement: (
     id: string,
     request: OrganizationCollectionManagementUpdateRequest,
   ) => Promise<OrganizationResponse>;
-  risksSubscriptionFailure: (id: string) => Promise<OrganizationRisksSubscriptionFailureResponse>;
-  enableCollectionEnhancements: (id: string) => Promise<void>;
+  abstract risksSubscriptionFailure: (
+    id: string,
+  ) => Promise<OrganizationRisksSubscriptionFailureResponse>;
+  abstract enableCollectionEnhancements: (id: string) => Promise<void>;
 }

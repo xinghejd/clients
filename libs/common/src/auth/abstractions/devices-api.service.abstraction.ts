@@ -5,26 +5,26 @@ import { UpdateDevicesTrustRequest } from "../models/request/update-devices-trus
 import { ProtectedDeviceResponse } from "../models/response/protected-device.response";
 
 export abstract class DevicesApiServiceAbstraction {
-  getKnownDevice: (email: string, deviceIdentifier: string) => Promise<boolean>;
+  abstract getKnownDevice(email: string, deviceIdentifier: string): Promise<boolean>;
 
-  getDeviceByIdentifier: (deviceIdentifier: string) => Promise<DeviceResponse>;
+  abstract getDeviceByIdentifier(deviceIdentifier: string): Promise<DeviceResponse>;
 
-  getDevices: () => Promise<ListResponse<DeviceResponse>>;
+  abstract getDevices(): Promise<ListResponse<DeviceResponse>>;
 
-  updateTrustedDeviceKeys: (
+  abstract updateTrustedDeviceKeys(
     deviceIdentifier: string,
     devicePublicKeyEncryptedUserKey: string,
     userKeyEncryptedDevicePublicKey: string,
     deviceKeyEncryptedDevicePrivateKey: string,
-  ) => Promise<DeviceResponse>;
+  ): Promise<DeviceResponse>;
 
-  updateTrust: (
+  abstract updateTrust(
     updateDevicesTrustRequestModel: UpdateDevicesTrustRequest,
     deviceIdentifier: string,
-  ) => Promise<void>;
+  ): Promise<void>;
 
-  getDeviceKeys: (
+  abstract getDeviceKeys(
     deviceIdentifier: string,
     secretVerificationRequest: SecretVerificationRequest,
-  ) => Promise<ProtectedDeviceResponse>;
+  ): Promise<ProtectedDeviceResponse>;
 }
