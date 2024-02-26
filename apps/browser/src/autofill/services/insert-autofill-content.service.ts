@@ -64,8 +64,8 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
   private fillingWithinSandboxedIframe() {
     return (
       String(self.origin).toLowerCase() === "null" ||
-      window.frameElement?.hasAttribute("sandbox") ||
-      window.location.hostname === ""
+      globalThis.frameElement?.hasAttribute("sandbox") ||
+      globalThis.location.hostname === ""
     );
   }
 
@@ -78,8 +78,8 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    */
   private userCancelledInsecureUrlAutofill(savedUrls?: string[] | null): boolean {
     if (
-      !savedUrls?.some((url) => url.startsWith(`https://${window.location.hostname}`)) ||
-      window.location.protocol !== "http:" ||
+      !savedUrls?.some((url) => url.startsWith(`https://${globalThis.location.hostname}`)) ||
+      globalThis.location.protocol !== "http:" ||
       !this.isPasswordFieldWithinDocument()
     ) {
       return false;
@@ -87,10 +87,10 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
 
     const confirmationWarning = [
       chrome.i18n.getMessage("insecurePageWarning"),
-      chrome.i18n.getMessage("insecurePageWarningFillPrompt", [window.location.hostname]),
+      chrome.i18n.getMessage("insecurePageWarningFillPrompt", [globalThis.location.hostname]),
     ].join("\n\n");
 
-    return !confirm(confirmationWarning);
+    return !globalThis.confirm(confirmationWarning);
   }
 
   /**
@@ -128,10 +128,10 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
 
     const confirmationWarning = [
       chrome.i18n.getMessage("autofillIframeWarning"),
-      chrome.i18n.getMessage("autofillIframeWarningTip", [window.location.hostname]),
+      chrome.i18n.getMessage("autofillIframeWarningTip", [globalThis.location.hostname]),
     ].join("\n\n");
 
-    return !confirm(confirmationWarning);
+    return !globalThis.confirm(confirmationWarning);
   }
 
   /**

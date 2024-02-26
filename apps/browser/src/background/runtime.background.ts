@@ -86,7 +86,7 @@ export default class RuntimeBackground {
 
     BrowserApi.messageListener("runtime.background", backgroundMessageListener);
     if (this.main.popupOnlyContext) {
-      (window as any).bitwardenBackgroundMessageListener = backgroundMessageListener;
+      (self as any).bitwardenBackgroundMessageListener = backgroundMessageListener;
     }
   }
 
