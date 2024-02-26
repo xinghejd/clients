@@ -270,3 +270,16 @@ export const Textarea: Story = {
   }),
   args: {},
 };
+
+export const CopyText: Story = {
+  render: (args) => ({
+    props: args,
+    template: `
+      <bit-form-field>
+        <input bitInput readonly value="Foobar" class="!tw-font-mono" />
+        <button bitSuffix bitIconButton="bwi-clone"></button>
+      </bit-form-field>
+    `,
+  }),
+  args: {},
+};
