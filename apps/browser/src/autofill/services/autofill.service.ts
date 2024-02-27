@@ -1381,11 +1381,7 @@ export default class AutofillService implements AutofillServiceInterface {
     }
 
     // Check if the input is an untyped/mistyped search input
-    if (this.isSearchField(field)) {
-      return true;
-    }
-
-    return false;
+    return this.isSearchField(field);
   }
 
   /**
@@ -1509,11 +1505,7 @@ export default class AutofillService implements AutofillServiceInterface {
       return false;
     }
 
-    if (AutoFillConstants.PasswordFieldExcludeList.some((i) => cleanedValue.indexOf(i) > -1)) {
-      return false;
-    }
-
-    return true;
+    return !AutoFillConstants.PasswordFieldExcludeList.some((i) => cleanedValue.indexOf(i) > -1);
   }
 
   static fieldHasDisqualifyingAttributeValue(field: AutofillField) {
@@ -1556,7 +1548,11 @@ export default class AutofillService implements AutofillServiceInterface {
     const arr: AutofillField[] = [];
 
     pageDetails.fields.forEach((f) => {
-      if (AutofillService.isExcludedFieldType(f, AutoFillConstants.ExcludedAutofillLoginTypes)) {
+      const isPassword = f.type === "password";
+      if (
+        !isPassword &&
+        AutofillService.isExcludedFieldType(f, AutoFillConstants.ExcludedAutofillLoginTypes)
+      ) {
         return;
       }
 
@@ -1565,23 +1561,16 @@ export default class AutofillService implements AutofillServiceInterface {
         return;
       }
 
-      const isPassword = f.type === "password";
-
       const isLikePassword = () => {
         if (f.type !== "text") {
           return false;
         }
 
-        if (AutofillService.valueIsLikePassword(f.htmlID)) {
-          return true;
-        }
-
-        if (AutofillService.valueIsLikePassword(f.htmlName)) {
-          return true;
-        }
-
-        if (AutofillService.valueIsLikePassword(f.placeholder)) {
-          return true;
+        const testedValues = [f.htmlID, f.htmlName, f.placeholder];
+        for (let i = 0; i < testedValues.length; i++) {
+          if (AutofillService.valueIsLikePassword(testedValues[i])) {
+            return true;
+          }
         }
 
         return false;
