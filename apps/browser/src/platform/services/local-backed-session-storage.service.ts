@@ -34,7 +34,6 @@ export class LocalBackedSessionStorageService extends BackgroundMemoryStorageSer
   constructor(
     private encryptService: EncryptService,
     private keyGenerationService: KeyGenerationService,
-    private keyReference: string,
   ) {
     super();
     // this.updates$ = this.updatesSubject.asObservable();
@@ -78,16 +77,21 @@ export class LocalBackedSessionStorageService extends BackgroundMemoryStorageSer
     }
 
     this.cache.set(key, obj);
-    const sessionEncKey = await this.getSessionEncKey();
-    const localSession = (await this.getLocalSession(sessionEncKey)) ?? {};
-    localSession[key] = obj;
-    await this.setLocalSession(localSession, sessionEncKey);
+    await this.updateLocalSessionValue(key, obj);
     await super.save(key, obj);
   }
 
   async remove(key: string): Promise<void> {
     this.cache.delete(key);
+    await this.updateLocalSessionValue(key, null);
     await super.remove(key);
+  }
+
+  private async updateLocalSessionValue<T>(key: string, obj: T) {
+    const sessionEncKey = await this.getSessionEncKey();
+    const localSession = (await this.getLocalSession(sessionEncKey)) ?? {};
+    localSession[key] = obj;
+    await this.setLocalSession(localSession, sessionEncKey);
   }
 
   async getLocalSession(encKey: SymmetricCryptoKey): Promise<Record<string, unknown>> {

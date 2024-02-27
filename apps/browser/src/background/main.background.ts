@@ -342,14 +342,12 @@ export default class MainBackground {
       ? new LocalBackedSessionStorageService(
           new EncryptServiceImplementation(this.cryptoFunctionService, this.logService, false),
           this.keyGenerationService,
-          "main-background-memory-storage-service",
         )
       : new MemoryStorageService();
     this.memoryStorageForStateProviders = BrowserApi.isManifestVersion(3)
       ? new LocalBackedSessionStorageService(
           new EncryptServiceImplementation(this.cryptoFunctionService, this.logService, false),
           this.keyGenerationService,
-          "main-background-memory-storage-for-state-providers",
         )
       : new BackgroundMemoryStorageService();
     this.globalStateProvider = new DefaultGlobalStateProvider(
