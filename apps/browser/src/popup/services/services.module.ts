@@ -10,7 +10,10 @@ import {
   OBSERVABLE_MEMORY_STORAGE,
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
-import { LoginStrategyServiceAbstraction } from "@bitwarden/auth/common";
+import {
+  AuthRequestServiceAbstraction,
+  LoginStrategyServiceAbstraction,
+} from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { BitwardenSdkServiceAbstraction } from "@bitwarden/common/abstractions/bitwarden-sdk.service.abstraction";
@@ -30,7 +33,6 @@ import {
 import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { PolicyApiService } from "@bitwarden/common/admin-console/services/policy/policy-api.service";
 import { AccountService as AccountServiceAbstraction } from "@bitwarden/common/auth/abstractions/account.service";
-import { AuthRequestCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth-request-crypto.service.abstraction";
 import { AuthService as AuthServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth.service";
 import { DeviceTrustCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust-crypto.service.abstraction";
 import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
@@ -54,6 +56,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { FileUploadService } from "@bitwarden/common/platform/abstractions/file-upload/file-upload.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import {
   LogService,
   LogService as LogServiceAbstraction,
@@ -74,6 +77,7 @@ import { ConfigService } from "@bitwarden/common/platform/services/config/config
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
+import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
 import { DerivedStateProvider, StateProvider } from "@bitwarden/common/platform/state";
 import { SearchService } from "@bitwarden/common/services/search.service";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
@@ -110,6 +114,7 @@ import { BrowserApi } from "../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
 import { BrowserStateService as StateServiceAbstraction } from "../../platform/services/abstractions/browser-state.service";
 import { BrowserConfigService } from "../../platform/services/browser-config.service";
+import { BrowserCryptoService } from "../../platform/services/browser-crypto.service";
 import { BrowserEnvironmentService } from "../../platform/services/browser-environment.service";
 import { BrowserFileDownloadService } from "../../platform/services/browser-file-download.service";
 import { BrowserI18nService } from "../../platform/services/browser-i18n.service";
@@ -211,7 +216,7 @@ function getBgService<T>(service: keyof MainBackground) {
     { provide: CipherService, useFactory: getBgService<CipherService>("cipherService"), deps: [] },
     {
       provide: CryptoFunctionService,
-      useFactory: getBgService<CryptoFunctionService>("cryptoFunctionService"),
+      useFactory: () => new WebCryptoFunctionService(window),
       deps: [],
     },
     {
@@ -259,16 +264,43 @@ function getBgService<T>(service: keyof MainBackground) {
     },
     {
       provide: CryptoService,
-      useFactory: (encryptService: EncryptService) => {
-        const cryptoService = getBgService<CryptoService>("cryptoService")();
+      useFactory: (
+        keyGenerationService: KeyGenerationService,
+        cryptoFunctionService: CryptoFunctionService,
+        encryptService: EncryptService,
+        platformUtilsService: PlatformUtilsService,
+        logService: LogServiceAbstraction,
+        stateService: StateServiceAbstraction,
+        accountService: AccountServiceAbstraction,
+        stateProvider: StateProvider,
+      ) => {
+        const cryptoService = new BrowserCryptoService(
+          keyGenerationService,
+          cryptoFunctionService,
+          encryptService,
+          platformUtilsService,
+          logService,
+          stateService,
+          accountService,
+          stateProvider,
+        );
         new ContainerService(cryptoService, encryptService).attachToGlobal(self);
         return cryptoService;
       },
-      deps: [EncryptService],
+      deps: [
+        KeyGenerationService,
+        CryptoFunctionService,
+        EncryptService,
+        PlatformUtilsService,
+        LogServiceAbstraction,
+        StateServiceAbstraction,
+        AccountServiceAbstraction,
+        StateProvider,
+      ],
     },
     {
-      provide: AuthRequestCryptoServiceAbstraction,
-      useFactory: getBgService<AuthRequestCryptoServiceAbstraction>("authRequestCryptoService"),
+      provide: AuthRequestServiceAbstraction,
+      useFactory: getBgService<AuthRequestServiceAbstraction>("authRequestService"),
       deps: [],
     },
     {
@@ -295,11 +327,12 @@ function getBgService<T>(service: keyof MainBackground) {
       provide: PolicyService,
       useFactory: (
         stateService: StateServiceAbstraction,
+        stateProvider: StateProvider,
         organizationService: OrganizationService,
       ) => {
-        return new BrowserPolicyService(stateService, organizationService);
+        return new BrowserPolicyService(stateService, stateProvider, organizationService);
       },
-      deps: [StateServiceAbstraction, OrganizationService],
+      deps: [StateServiceAbstraction, StateProvider, OrganizationService],
     },
     {
       provide: PolicyApiServiceAbstraction,
@@ -333,13 +366,13 @@ function getBgService<T>(service: keyof MainBackground) {
       useFactory: (
         cryptoService: CryptoService,
         i18nService: I18nServiceAbstraction,
-        cryptoFunctionService: CryptoFunctionService,
+        keyGenerationService: KeyGenerationService,
         stateServiceAbstraction: StateServiceAbstraction,
       ) => {
         return new BrowserSendService(
           cryptoService,
           i18nService,
-          cryptoFunctionService,
+          keyGenerationService,
           stateServiceAbstraction,
         );
       },

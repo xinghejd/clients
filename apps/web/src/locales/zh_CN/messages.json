@@ -1348,15 +1348,15 @@
     "message": "导入数据"
   },
   "onboardingImportDataDetailsPartOne": {
-    "message": "If you don't have any data to import, you can create a ",
+    "message": "如果您没有任何数据要导入，您可以创建一个 ",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
   },
   "onboardingImportDataDetailsLink": {
-    "message": "new item",
+    "message": "新项目",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
   },
   "onboardingImportDataDetailsPartTwo": {
-    "message": " instead. You may need to wait until your administrator confirms your organization membership.",
+    "message": " 。您可能需要等待您的管理员确认您的组织成员资格。",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
   },
   "importError": {
@@ -1471,13 +1471,6 @@
   },
   "faviconDesc": {
     "message": "在每个登录项目旁边显示一个可识别的图像。"
-  },
-  "enableFullWidth": {
-    "message": "显示全宽布局",
-    "description": "Allows scaling the web vault UI's width"
-  },
-  "enableFullWidthDesc": {
-    "message": "允许网页密码库拓展到整个浏览器窗口宽度。"
   },
   "default": {
     "message": "默认"
@@ -4047,7 +4040,7 @@
     "message": "您已成功登录"
   },
   "thisWindowWillCloseIn5Seconds": {
-    "message": "此窗口将在5秒后自动关闭"
+    "message": "此窗口将在 5 秒后自动关闭"
   },
   "includeAllTeamsFeatures": {
     "message": "所有团队版功能，以及："
@@ -4949,6 +4942,9 @@
   },
   "newClientOrganizationDesc": {
     "message": "创建一个新的客户组织，该组织将作为提供商与你关联。您将可以访问和管理这个组织。"
+  },
+  "newClient": {
+    "message": "新客户端"
   },
   "addExistingOrganization": {
     "message": "添加现有组织"
@@ -6931,7 +6927,7 @@
     "description": "Software Development Kit"
   },
   "createAnAccount": {
-    "message": "Create an account"
+    "message": "创建账户"
   },
   "createSecret": {
     "message": "创建一个机密"
@@ -7478,10 +7474,10 @@
     "description": "This is followed a by a hyperlink to the help website."
   },
   "installBrowserExtension": {
-    "message": "Install browser extension"
+    "message": "安装浏览器扩展"
   },
   "installBrowserExtensionDetails": {
-    "message": "Use the extension to quickly save logins and auto-fill forms without opening the web app."
+    "message": "使用扩展快速保存登录信息和自动填充表单，无需打开网页应用程序。"
   },
   "projectAccessUpdated": {
     "message": "工程访问权限已更新"
@@ -7584,5 +7580,20 @@
   "tooExpensive": {
     "message": "太贵了",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "freeForOneYear": {
+    "message": "免费 1 年"
+  },
+  "newWebApp": {
+    "message": "欢迎来到全新改进的网页应用。了解更多更新信息。"
+  },
+  "releaseBlog": {
+    "message": "阅读发布博客"
+  },
+  "adminConsole": {
+    "message": "管理控制台"
+  },
+  "providerPortal": {
+    "message": "Provider Portal"
   }
 }
