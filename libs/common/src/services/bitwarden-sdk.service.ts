@@ -2,7 +2,7 @@ import {
   BitwardenClient,
   Convert,
   DeviceType as SdkDeviceType,
-  PasswordLoginKdf as SdkKdfType,
+  // PasswordLoginKdf as SdkKdfType,
 } from "@bitwarden/sdk-client";
 
 import { BitwardenSdkServiceAbstraction } from "../abstractions/bitwarden-sdk.service.abstraction";
@@ -11,7 +11,7 @@ import { DeviceType } from "../enums/device-type.enum";
 import { EnvironmentService } from "../platform/abstractions/environment.service";
 import { PlatformUtilsService } from "../platform/abstractions/platform-utils.service";
 import { StateService } from "../platform/abstractions/state.service";
-import { KdfType } from "../platform/enums";
+// import { KdfType } from "../platform/enums";
 
 export class BitwardenSdkService implements BitwardenSdkServiceAbstraction {
   private client: BitwardenClient;
@@ -89,24 +89,24 @@ export class BitwardenSdkService implements BitwardenSdkServiceAbstraction {
     }
   }
 
-  private toKdf(kdf: KdfType): SdkKdfType {
-    switch (kdf) {
-      case KdfType.PBKDF2_SHA256:
-        return {
-          pBKDF2: {
-            iterations: 0,
-          },
-        };
-      case KdfType.Argon2id:
-        return {
-          argon2id: {
-            iterations: 0,
-            memory: 0,
-            parallelism: 0,
-          },
-        };
-    }
-  }
+  // private toKdf(kdf: KdfType): SdkKdfType {
+  //   switch (kdf) {
+  //     case KdfType.PBKDF2_SHA256:
+  //       return {
+  //         pBKDF2: {
+  //           iterations: 0,
+  //         },
+  //       };
+  //     case KdfType.Argon2id:
+  //       return {
+  //         argon2id: {
+  //           iterations: 0,
+  //           memory: 0,
+  //           parallelism: 0,
+  //         },
+  //       };
+  //   }
+  // }
 
   async getClient(): Promise<BitwardenClient> {
     if (this.client == null) {

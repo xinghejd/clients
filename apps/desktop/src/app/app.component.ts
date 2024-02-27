@@ -283,7 +283,9 @@ export class AppComponent implements OnInit, OnDestroy {
             //               await this.stateService.getUserId(),
             //             );
 
-            const dialogRef = FingerprintDialogComponent.open(this.dialogService, { fingerprint });
+            const dialogRef = FingerprintDialogComponent.open(this.dialogService, {
+              fingerprint: [fingerprint],
+            });
             await firstValueFrom(dialogRef.closed);
             break;
           }

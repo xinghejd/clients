@@ -520,7 +520,7 @@ export class SettingsComponent implements OnInit {
     // );
 
     const dialogRef = FingerprintDialogComponent.open(this.dialogService, {
-      fingerprint,
+      fingerprint: [fingerprint],
     });
 
     return firstValueFrom(dialogRef.closed);
