@@ -86,9 +86,9 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
     const { formElements, formFieldElements } = this.queryAutofillFormAndFieldElements();
     const autofillFormsData: Record<string, AutofillForm> =
       this.buildAutofillFormsData(formElements);
-    const autofillFieldsData: AutofillField[] = await this.buildAutofillFieldsData(
-      formFieldElements as FormFieldElement[],
-    );
+    const autofillFieldsData: AutofillField[] = (
+      await this.buildAutofillFieldsData(formFieldElements as FormFieldElement[])
+    ).filter(Boolean);
     this.sortAutofillFieldElementsMap();
 
     if (!autofillFieldsData.length) {
@@ -183,7 +183,7 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
       url: (document.defaultView || window).location.href,
       documentUrl: document.location.href,
       forms: autofillFormsData,
-      fields: autofillFieldsData.filter(Boolean),
+      fields: autofillFieldsData,
       collectedTimestamp: Date.now(),
     };
   }
