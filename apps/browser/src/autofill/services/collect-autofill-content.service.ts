@@ -88,7 +88,7 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
       this.buildAutofillFormsData(formElements);
     const autofillFieldsData: AutofillField[] = (
       await this.buildAutofillFieldsData(formFieldElements as FormFieldElement[])
-    ).filter(Boolean);
+    ).filter((field) => !!field);
     this.sortAutofillFieldElementsMap();
 
     if (!autofillFieldsData.length) {
