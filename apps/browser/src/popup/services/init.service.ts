@@ -10,6 +10,7 @@ import { ConfigService } from "@bitwarden/common/platform/services/config/config
 import { BrowserApi } from "../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
 import { BrowserStateService as StateServiceAbstraction } from "../../platform/services/abstractions/browser-state.service";
+import { BrowserI18nService } from "../../platform/services/browser-i18n.service";
 
 @Injectable()
 export class InitService {
@@ -26,6 +27,7 @@ export class InitService {
   init() {
     return async () => {
       await this.stateService.init();
+      await (this.i18nService as BrowserI18nService).init();
 
       if (!BrowserPopupUtils.inPopup(window)) {
         window.document.body.classList.add("body-full");
