@@ -438,7 +438,10 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       this.folderCounts = this.state.folderCounts;
     }
     if (this.state.typeCounts != null) {
-      this.typeCounts = this.state.typeCounts;
+      this.typeCounts = new Map();
+      Object.entries(this.state.typeCounts).forEach(([key, value]) => {
+        this.typeCounts.set(Number(key), value);
+      });
     }
     if (this.state.folders != null) {
       this.folders = this.state.folders;
