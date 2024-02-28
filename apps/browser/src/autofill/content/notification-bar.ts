@@ -350,9 +350,7 @@ async function loadNotificationBar() {
       // to avoid missing any forms that are added after the page loads
       observeDom();
 
-      sendPlatformMessage({
-        command: "checkNotificationQueue",
-      });
+      void sendExtensionMessage("checkNotificationQueue");
     }
 
     // This is a safeguard in case the observer misses a SPA page change.
@@ -390,10 +388,7 @@ async function loadNotificationBar() {
    *
    * */
   function collectPageDetails() {
-    sendPlatformMessage({
-      command: "bgCollectPageDetails",
-      sender: "notificationBar",
-    });
+    void sendExtensionMessage("bgCollectPageDetails", { sender: "notificationBar" });
   }
 
   // End Page Detail Collection Methods
@@ -636,10 +631,7 @@ async function loadNotificationBar() {
         const passwordPopulated = login.password != null && login.password !== "";
         if (userNamePopulated && passwordPopulated) {
           processedForm(form);
-          sendPlatformMessage({
-            command: "bgAddLogin",
-            login,
-          });
+          void sendExtensionMessage("bgAddLogin", { login });
           break;
         } else if (
           userNamePopulated &&
@@ -713,7 +705,7 @@ async function loadNotificationBar() {
             currentPassword: curPass,
             url: document.URL,
           };
-          sendPlatformMessage({ command: "bgChangedPassword", data });
+          void sendExtensionMessage("bgChangedPassword", { data });
           break;
         }
       }
@@ -925,9 +917,7 @@ async function loadNotificationBar() {
     switch (barType) {
       case "add":
       case "change":
-        sendPlatformMessage({
-          command: "bgRemoveTabFromNotificationQueue",
-        });
+        void sendExtensionMessage("bgRemoveTabFromNotificationQueue");
         break;
       default:
         break;
@@ -952,12 +942,6 @@ async function loadNotificationBar() {
   // End Notification Bar Functions (open, close, height adjustment, etc.)
 
   // Helper Functions
-  function sendPlatformMessage(msg: any) {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    chrome.runtime.sendMessage(msg);
-  }
-
   function isInIframe() {
     try {
       return window.self !== window.top;
