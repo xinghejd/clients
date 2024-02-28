@@ -59,8 +59,8 @@ export default class NotificationBackground {
     bgUnlockPopoutOpened: ({ message, sender }) => this.unlockVault(message, sender.tab),
     checkNotificationQueue: ({ sender }) => this.checkNotificationQueue(sender.tab),
     bgReopenUnlockPopout: ({ sender }) => this.openUnlockPopout(sender.tab),
-    bgGetEnableChangedPasswordPrompt: ({ sender }) =>
-      this.handleGetEnableChangedPasswordPromptMessage(sender),
+    bgGetEnableChangedPasswordPrompt: () => this.getEnableChangedPasswordPrompt(),
+    bgGetEnableAddedLoginPrompt: () => this.getEnableAddedLoginPrompt(),
   };
 
   constructor(
@@ -717,22 +717,6 @@ export default class NotificationBackground {
     sender: chrome.runtime.MessageSender,
   ) {
     await BrowserApi.tabSendMessageData(sender.tab, "adjustNotificationBar", message.data);
-  }
-
-  /**
-   * Sends a message back to the sender tab with the value of the `enableChangedPasswordPrompt`
-   * settings from the UserNotificationSettingsService service.
-   * @param sender - The contextual sender of the message
-   * @return {Promise<void>}
-   */
-  async handleGetEnableChangedPasswordPromptMessage(sender: chrome.runtime.MessageSender) {
-    const enableChangedPasswordPrompt = await firstValueFrom(
-      this.userNotificationSettingsService.enableChangedPasswordPrompt$,
-    );
-
-    await BrowserApi.tabSendMessageData(sender.tab, "setEnableChangedPasswordPrompt", {
-      value: enableChangedPasswordPrompt,
-    }).catch((error) => this.logService.error(error));
   }
 
   /**

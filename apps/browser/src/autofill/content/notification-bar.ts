@@ -6,7 +6,11 @@ import AutofillField from "../models/autofill-field";
 import { WatchedForm } from "../models/watched-form";
 import { FormData } from "../services/abstractions/autofill.service";
 import { GlobalSettings, UserSettings } from "../types";
-import { getFromLocalStorage, setupExtensionDisconnectAction } from "../utils";
+import {
+  getFromLocalStorage,
+  sendExtensionMessage,
+  setupExtensionDisconnectAction,
+} from "../utils";
 
 interface HTMLElementWithFormOpId extends HTMLElement {
   formOpId: string;
@@ -85,13 +89,11 @@ async function loadNotificationBar() {
   ]);
   const changePasswordButtonContainsNames = new Set(["pass", "change", "contras", "senha"]);
 
-  const enableChangedPasswordPrompt = true;
+  const enableChangedPasswordPrompt = await sendExtensionMessage(
+    "bgGetEnableChangedPasswordPrompt",
+  );
+  const enableAddedLoginPrompt = await sendExtensionMessage("bgGetEnableAddedLoginPrompt");
   let showNotificationBar = true;
-
-  sendPlatformMessage({
-    command: "bgGetEnableChangedPasswordPrompt",
-  });
-
   // Look up the active user id from storage
   const activeUserIdKey = "activeUserId";
   const globalStorageKey = "global";
@@ -121,8 +123,10 @@ async function loadNotificationBar() {
       // Example: '{"bitwarden.com":null}'
       const excludedDomainsDict = globalSettings.neverDomains;
       if (!excludedDomainsDict || !(window.location.hostname in excludedDomainsDict)) {
-        // handle the initial page change (null -> actual page)
-        handlePageChange();
+        if (enableAddedLoginPrompt || enableChangedPasswordPrompt) {
+          // If the user has not disabled both notifications, then handle the initial page change (null -> actual page)
+          handlePageChange();
+        }
       }
     }
   }
@@ -201,10 +205,6 @@ async function loadNotificationBar() {
         },
         "*",
       );
-    } else if (msg.command === "setEnableChangedPasswordPrompt") {
-      this.enableChangedPasswordPrompt = msg.data.value;
-      sendResponse();
-      return true;
     }
   }
   // End Message Processing
@@ -618,8 +618,12 @@ async function loadNotificationBar() {
         continue;
       }
 
-      // if we have a username and password field,
-      if (watchedForms[i].usernameEl != null && watchedForms[i].passwordEl != null) {
+      // if user has enabled either add login or change password notification, and we have a username and password field
+      if (
+        (enableChangedPasswordPrompt || enableAddedLoginPrompt) &&
+        watchedForms[i].usernameEl != null &&
+        watchedForms[i].passwordEl != null
+      ) {
         // Create a login object from the form data
         const login: AddLoginMessageData = {
           username: watchedForms[i].usernameEl.value,
