@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 
 import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService as LogServiceAbstraction } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -19,6 +20,7 @@ export class InitService {
     private logService: LogServiceAbstraction,
     private themingService: AbstractThemingService,
     private configService: ConfigService,
+    private environmentService: EnvironmentService,
   ) {}
 
   init() {
@@ -53,6 +55,9 @@ export class InitService {
       }
 
       this.configService.init();
+      await this.environmentService.setUrlsFromStorage();
+      this.environmentService.initialized = true;
+
       this.setupVaultPopupHeartbeat();
     };
   }

@@ -245,13 +245,9 @@ function getBgService<T>(service: keyof MainBackground) {
       deps: [],
     },
     {
-      provide: BrowserEnvironmentService,
-      useExisting: EnvironmentService,
-    },
-    {
       provide: EnvironmentService,
-      useFactory: getBgService<EnvironmentService>("environmentService"),
-      deps: [],
+      useClass: BrowserEnvironmentService,
+      deps: [LogServiceAbstraction, StateProvider, AccountServiceAbstraction],
     },
     { provide: TotpService, useFactory: getBgService<TotpService>("totpService"), deps: [] },
     { provide: TokenService, useFactory: getBgService<TokenService>("tokenService"), deps: [] },
