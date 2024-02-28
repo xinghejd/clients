@@ -768,14 +768,6 @@ export default class MainBackground {
       this.syncService,
       this.logService,
     );
-    this.fido2ClientService = new Fido2ClientService(
-      this.fido2AuthenticatorService,
-      this.configService,
-      this.authService,
-      this.stateService,
-      this.vaultSettingsService,
-      this.logService,
-    );
 
     this.bitwardenSdkService = new BitwardenSdkService(
       this.tokenService,
@@ -783,6 +775,16 @@ export default class MainBackground {
       this.platformUtilsService,
       this.stateService,
     );
+
+    this.fido2ClientService = new Fido2ClientService(this.bitwardenSdkService);
+    // this.fido2ClientService = new Fido2ClientService(
+    //   this.fido2AuthenticatorService,
+    //   this.configService,
+    //   this.authService,
+    //   this.stateService,
+    //   this.vaultSettingsService,
+    //   this.logService,
+    // );
 
     const systemUtilsServiceReloadCallback = () => {
       const forceWindowReload =
