@@ -29,8 +29,9 @@ import {
   InternalPolicyService,
   PolicyService,
 } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
+import { ProviderService as ProviderServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { PolicyApiService } from "@bitwarden/common/admin-console/services/policy/policy-api.service";
+import { ProviderService } from "@bitwarden/common/admin-console/services/provider.service";
 import { AccountService as AccountServiceAbstraction } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService as AuthServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth.service";
 import { DeviceTrustCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust-crypto.service.abstraction";
@@ -76,6 +77,7 @@ import { GlobalState } from "@bitwarden/common/platform/models/domain/global-sta
 import { ConfigService } from "@bitwarden/common/platform/services/config/config.service";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
+// import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
 import { DerivedStateProvider, StateProvider } from "@bitwarden/common/platform/state";
@@ -118,11 +120,11 @@ import { BrowserConfigService } from "../../platform/services/browser-config.ser
 import { BrowserEnvironmentService } from "../../platform/services/browser-environment.service";
 import { BrowserI18nService } from "../../platform/services/browser-i18n.service";
 import BrowserLocalStorageService from "../../platform/services/browser-local-storage.service";
-// import BrowserMessagingPrivateModePopupService from "../../platform/services/browser-messaging-private-mode-popup.service";
 import BrowserMessagingService from "../../platform/services/browser-messaging.service";
 import { BrowserStateService } from "../../platform/services/browser-state.service";
 import { ForegroundDerivedStateProvider } from "../../platform/state/foreground-derived-state.provider";
 import { ForegroundMemoryStorageService } from "../../platform/storage/foreground-memory-storage.service";
+import { LocalBackedForegroundSessionStorageService } from "../../platform/storage/local-backed-foregrond-session-storage.service";
 import { BrowserSendService } from "../../services/browser-send.service";
 import { BrowserSettingsService } from "../../services/browser-settings.service";
 import { FilePopoutUtilsService } from "../../tools/popup/services/file-popout-utils.service";
@@ -449,16 +451,24 @@ function getBgService<T>(service: keyof MainBackground) {
     },
     {
       provide: ProviderService,
-      useFactory: getBgService<ProviderService>("providerService"),
-      deps: [],
+      deps: [StateServiceAbstraction],
     },
     {
+      provide: ProviderServiceAbstraction,
+      useExisting: ProviderService,
+    },
+    { provide: BrowserLocalStorageService, useClass: BrowserLocalStorageService },
+    {
       provide: SECURE_STORAGE,
-      useFactory: getBgService<AbstractStorageService>("secureStorageService"),
+      useFactory: () => new BrowserLocalStorageService(),
+    },
+    {
+      provide: LocalBackedForegroundSessionStorageService,
+      deps: [EncryptService, KeyGenerationService],
     },
     {
       provide: MEMORY_STORAGE,
-      useFactory: getBgService<AbstractStorageService>("memoryStorageService"),
+      useExisting: LocalBackedForegroundSessionStorageService,
     },
     {
       provide: OBSERVABLE_MEMORY_STORAGE,

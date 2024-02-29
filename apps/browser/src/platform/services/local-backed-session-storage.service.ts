@@ -10,10 +10,10 @@ import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/ke
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { MemoryStorageOptions } from "@bitwarden/common/platform/models/domain/storage-options";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 
 import { devFlag } from "../decorators/dev-flag.decorator";
 import { devFlagEnabled } from "../flags";
+import { BackgroundMemoryStorageService } from "../storage/background-memory-storage.service";
 
 import BrowserLocalStorageService from "./browser-local-storage.service";
 import BrowserMemoryStorageService from "./browser-memory-storage.service";
@@ -23,7 +23,7 @@ const keys = {
   sessionKey: "session",
 };
 
-export class LocalBackedSessionStorageService extends MemoryStorageService {
+export class LocalBackedSessionStorageService extends BackgroundMemoryStorageService {
   private cache = new Map<string, unknown>();
   private localStorage = new BrowserLocalStorageService();
   private sessionStorage = new BrowserMemoryStorageService();

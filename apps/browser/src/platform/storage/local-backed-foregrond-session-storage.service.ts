@@ -13,17 +13,17 @@ import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/sym
 
 import { devFlag } from "../decorators/dev-flag.decorator";
 import { devFlagEnabled } from "../flags";
-import { BackgroundMemoryStorageService } from "../storage/background-memory-storage.service";
+import BrowserLocalStorageService from "../services/browser-local-storage.service";
+import BrowserMemoryStorageService from "../services/browser-memory-storage.service";
 
-import BrowserLocalStorageService from "./browser-local-storage.service";
-import BrowserMemoryStorageService from "./browser-memory-storage.service";
+import { ForegroundMemoryStorageService } from "./foreground-memory-storage.service";
 
 const keys = {
-  encKey: "localEncryptionKey",
-  sessionKey: "session",
+  encKey: "foreground_localEncryptionKey",
+  sessionKey: "foreground_session",
 };
 
-export class LocalBackedProviderSessionStorageService extends BackgroundMemoryStorageService {
+export class LocalBackedForegroundSessionStorageService extends ForegroundMemoryStorageService {
   private cache = new Map<string, unknown>();
   private localStorage = new BrowserLocalStorageService();
   private sessionStorage = new BrowserMemoryStorageService();

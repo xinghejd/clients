@@ -194,7 +194,6 @@ import BrowserLocalStorageService from "../platform/services/browser-local-stora
 import BrowserMessagingService from "../platform/services/browser-messaging.service";
 import BrowserPlatformUtilsService from "../platform/services/browser-platform-utils.service";
 import { BrowserStateService } from "../platform/services/browser-state.service";
-import { LocalBackedProviderSessionStorageService } from "../platform/services/local-backed-provider-session-storage.service";
 import { LocalBackedSessionStorageService } from "../platform/services/local-backed-session-storage.service";
 import { BackgroundDerivedStateProvider } from "../platform/state/background-derived-state.provider";
 import { BackgroundMemoryStorageService } from "../platform/storage/background-memory-storage.service";
@@ -354,7 +353,7 @@ export default class MainBackground {
         )
       : new MemoryStorageService();
     this.memoryStorageForStateProviders = BrowserApi.isManifestVersion(3)
-      ? new LocalBackedProviderSessionStorageService(
+      ? new LocalBackedSessionStorageService(
           new EncryptServiceImplementation(this.cryptoFunctionService, this.logService, false),
           this.keyGenerationService,
         )
