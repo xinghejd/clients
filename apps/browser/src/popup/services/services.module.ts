@@ -77,7 +77,6 @@ import { ConfigService } from "@bitwarden/common/platform/services/config/config
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
-import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
 import { DerivedStateProvider, StateProvider } from "@bitwarden/common/platform/state";
 import { SearchService } from "@bitwarden/common/services/search.service";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
@@ -221,7 +220,7 @@ function getBgService<T>(service: keyof MainBackground) {
     { provide: CipherService, useFactory: getBgService<CipherService>("cipherService"), deps: [] },
     {
       provide: CryptoFunctionService,
-      useFactory: () => new WebCryptoFunctionService(window),
+      useFactory: getBgService<CryptoFunctionService>("cryptoFunctionService"),
       deps: [],
     },
     {
