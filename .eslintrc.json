@@ -241,7 +241,7 @@
     {
       "files": ["apps/browser/src/**/*.ts"],
       "excludedFiles": [
-        "apps/browser/src/**/{content,popup,spec}/**/*.ts",
+        "apps/browser/src/**/{content,popup,offscreen-document,spec}/**/*.ts",
         "apps/browser/src/**/*.spec.ts"
       ],
       "rules": {

@@ -64,9 +64,7 @@ export default class CommandsBackground {
   private async generatePasswordToClipboard() {
     const options = (await this.passwordGenerationService.getOptions())?.[0] ?? {};
     const password = await this.passwordGenerationService.generatePassword(options);
-    // FIXME-MV3-REQ: [PM-5880] Usage of `window` will be removed when the copyToClipboard method is refactored for mv3
-    // eslint-disable-next-line no-restricted-globals
-    this.platformUtilsService.copyToClipboard(password, { window });
+    this.platformUtilsService.copyToClipboard(password);
     await this.passwordGenerationService.addHistory(password);
   }
 
