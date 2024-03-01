@@ -241,6 +241,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
     });
 
     if (totpCode) {
+      // FIXME-MV3-REQ: [PM-5880] Usage of `window` will be removed when the copyToClipboard method is refactored for mv3
+      // eslint-disable-next-line no-restricted-globals
       this.platformUtilsService.copyToClipboard(totpCode, { window });
     }
 
