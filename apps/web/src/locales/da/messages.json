@@ -1349,13 +1349,17 @@
   },
   "onboardingImportDataDetailsPartOne": {
     "message": "Har man igen data at importere, kan man oprette et ",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
   "onboardingImportDataDetailsLink": {
     "message": "nyt emne",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
-  "onboardingImportDataDetailsPartTwo": {
+  "onboardingImportDataDetailsPartTwoNoOrgs": {
+    "message": " i stedet.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
+  },
+  "onboardingImportDataDetailsPartTwoWithOrgs": {
     "message": " i stedet. Man skal muligvis afvente, at administratoren bekræfter organisationsmedlemskabet.",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
   },
@@ -1471,13 +1475,6 @@
   },
   "faviconDesc": {
     "message": "Vis et genkendeligt billede ud for hvert login."
-  },
-  "enableFullWidth": {
-    "message": "Vis layout i fuld bredde",
-    "description": "Allows scaling the web vault UI's width"
-  },
-  "enableFullWidthDesc": {
-    "message": "Lad web-boksen udnytte browservinduets fulde bredde."
   },
   "default": {
     "message": "Standard"
@@ -4950,6 +4947,9 @@
   "newClientOrganizationDesc": {
     "message": "Opret en ny klientorganisation, der tilknyttes dig som udbyderen. Du vil kunne tilgå og håndtere denne organisation."
   },
+  "newClient": {
+    "message": "Ny klient"
+  },
   "addExistingOrganization": {
     "message": "Tilføj eksisterende organisation"
   },
@@ -6673,11 +6673,11 @@
   "resendCode": {
     "message": "Send kode igen"
   },
-  "membersColumnHeader": {
-    "message": "Medlem/Gruppe"
-  },
-  "groupAndMemberColumnHeader": {
+  "memberColumnHeader": {
     "message": "Medlem"
+  },
+  "groupSlashMemberColumnHeader": {
+    "message": "Gruppe/Medlem"
   },
   "selectGroupsAndMembers": {
     "message": "Vælg grupper og medlemmer"
@@ -7504,6 +7504,9 @@
   "grantCollectionAccess": {
     "message": "Tildel grupper eller medlemmer adgang til denne samling."
   },
+  "grantCollectionAccessMembersOnly": {
+    "message": "Tildel medlemmer adgang til denne samling."
+  },
   "adminCollectionAccess": {
     "message": "Administratorer kan tilgå og håndtere samlinger."
   },
@@ -7586,6 +7589,18 @@
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "freeForOneYear": {
-    "message": "Free for 1 year"
+    "message": "Gratis i 1 år"
+  },
+  "newWebApp": {
+    "message": "Velkommen til den nye og forbedrede web-app. Læs mere om, hvad der er ændret."
+  },
+  "releaseBlog": {
+    "message": "Læs udgivelsesblog"
+  },
+  "adminConsole": {
+    "message": "Admin-konsol"
+  },
+  "providerPortal": {
+    "message": "Udbyderportal"
   }
 }

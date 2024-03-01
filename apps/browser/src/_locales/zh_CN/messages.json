@@ -2709,16 +2709,16 @@
     "message": "启动 DUO 并按照步骤完成登录。"
   },
   "duoRequiredForAccount": {
-    "message": "Duo two-step login is required for your account."
+    "message": "您的账户要求使用 Duo 两步登录。"
   },
   "popoutTheExtensionToCompleteLogin": {
-    "message": "Popout the extension to complete login."
+    "message": "弹出扩展以完成登录。"
   },
   "popoutExtension": {
     "message": "弹出扩展"
   },
   "launchDuo": {
-    "message": "启动 DUO"
+    "message": "启动 Duo"
   },
   "importFormatError": {
     "message": "数据格式不正确。请检查您的导入文件然后重试。"
@@ -2971,7 +2971,7 @@
     "description": "Label indicating the most common import formats"
   },
   "overrideDefaultBrowserAutofillTitle": {
-    "message": "将 Bitwarden 设置为您的默认密码管理器？",
+    "message": "将 Bitwarden 设置为您的默认密码管理器吗？",
     "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"
   },
   "overrideDefaultBrowserAutofillDescription": {
@@ -2979,7 +2979,7 @@
     "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
   },
   "overrideDefaultBrowserAutoFillSettings": {
-    "message": "将 Bitwarden 设置为您的默认密码管理器？",
+    "message": "将 Bitwarden 设置为您的默认密码管理器",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
   },
   "privacyPermissionAdditionNotGrantedTitle": {
@@ -2993,5 +2993,17 @@
   "makeDefault": {
     "message": "设为默认",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "saveCipherAttemptSuccess": {
+    "message": "凭据保存成功！",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
+  "updateCipherAttemptSuccess": {
+    "message": "凭据更新成功！",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "saveCipherAttemptFailed": {
+    "message": "保存凭据时出错。检查控制台以获取详细信息。",
+    "description": "Notification message for when saving credentials has failed."
   }
 }

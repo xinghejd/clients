@@ -10,6 +10,7 @@ import {
   MEMORY_STORAGE,
   OBSERVABLE_MEMORY_STORAGE,
   OBSERVABLE_DISK_STORAGE,
+  WINDOW,
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
@@ -18,6 +19,7 @@ import { AccountService as AccountServiceAbstraction } from "@bitwarden/common/a
 import { AuthService as AuthServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth.service";
 import { LoginService as LoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/login.service";
 import { LoginService } from "@bitwarden/common/auth/services/login.service";
+import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { BroadcasterService as BroadcasterServiceAbstraction } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { CryptoService as CryptoServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto.service";
@@ -66,6 +68,7 @@ import { SearchBarService } from "../layout/search/search-bar.service";
 import { DesktopFileDownloadService } from "./desktop-file-download.service";
 import { DesktopThemingService } from "./desktop-theming.service";
 import { InitService } from "./init.service";
+import { RendererCryptoFunctionService } from "./renderer-crypto-function.service";
 
 const RELOAD_CALLBACK = new InjectionToken<() => any>("RELOAD_CALLBACK");
 
@@ -121,6 +124,7 @@ const RELOAD_CALLBACK = new InjectionToken<() => any>("RELOAD_CALLBACK");
         PlatformUtilsServiceAbstraction,
         RELOAD_CALLBACK,
         StateServiceAbstraction,
+        AutofillSettingsServiceAbstraction,
         VaultTimeoutSettingsService,
       ],
     },
@@ -174,6 +178,11 @@ const RELOAD_CALLBACK = new InjectionToken<() => any>("RELOAD_CALLBACK");
       provide: LoginServiceAbstraction,
       useClass: LoginService,
       deps: [StateServiceAbstraction],
+    },
+    {
+      provide: CryptoFunctionServiceAbstraction,
+      useClass: RendererCryptoFunctionService,
+      deps: [WINDOW],
     },
     {
       provide: CryptoServiceAbstraction,
