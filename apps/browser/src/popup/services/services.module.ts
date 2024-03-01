@@ -118,7 +118,7 @@ import { BrowserConfigService } from "../../platform/services/browser-config.ser
 import { BrowserEnvironmentService } from "../../platform/services/browser-environment.service";
 import { BrowserI18nService } from "../../platform/services/browser-i18n.service";
 import BrowserLocalStorageService from "../../platform/services/browser-local-storage.service";
-import BrowserMessagingPrivateModePopupService from "../../platform/services/browser-messaging-private-mode-popup.service";
+// import BrowserMessagingPrivateModePopupService from "../../platform/services/browser-messaging-private-mode-popup.service";
 import BrowserMessagingService from "../../platform/services/browser-messaging.service";
 import { BrowserStateService } from "../../platform/services/browser-state.service";
 import { ForegroundDerivedStateProvider } from "../../platform/state/foreground-derived-state.provider";
@@ -177,9 +177,10 @@ function getBgService<T>(service: keyof MainBackground) {
     {
       provide: MessagingService,
       useFactory: () => {
-        return needsBackgroundInit
-          ? new BrowserMessagingPrivateModePopupService()
-          : new BrowserMessagingService();
+        // return needsBackgroundInit
+        //   ? new BrowserMessagingPrivateModePopupService()
+        //   : new BrowserMessagingService();
+        return new BrowserMessagingService();
       },
     },
     {

@@ -190,7 +190,7 @@ import { BrowserCryptoService } from "../platform/services/browser-crypto.servic
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import { BrowserI18nService } from "../platform/services/browser-i18n.service";
 import BrowserLocalStorageService from "../platform/services/browser-local-storage.service";
-import BrowserMessagingPrivateModeBackgroundService from "../platform/services/browser-messaging-private-mode-background.service";
+// import BrowserMessagingPrivateModeBackgroundService from "../platform/services/browser-messaging-private-mode-background.service";
 import BrowserMessagingService from "../platform/services/browser-messaging.service";
 import BrowserPlatformUtilsService from "../platform/services/browser-platform-utils.service";
 import { BrowserStateService } from "../platform/services/browser-state.service";
@@ -336,9 +336,10 @@ export default class MainBackground {
     const logoutCallback = async (expired: boolean, userId?: UserId) =>
       await this.logout(expired, userId);
 
-    this.messagingService = this.popupOnlyContext
-      ? new BrowserMessagingPrivateModeBackgroundService()
-      : new BrowserMessagingService();
+    // this.messagingService = this.popupOnlyContext
+    //   ? new BrowserMessagingPrivateModeBackgroundService()
+    //   : new BrowserMessagingService();
+    this.messagingService = new BrowserMessagingService();
     this.logService = new ConsoleLogService(false);
     this.cryptoFunctionService = new WebCryptoFunctionService(self);
     this.keyGenerationService = new KeyGenerationService(this.cryptoFunctionService);
@@ -360,13 +361,14 @@ export default class MainBackground {
       this.memoryStorageForStateProviders,
       this.storageService as BrowserLocalStorageService,
     );
-    this.encryptService = flagEnabled("multithreadDecryption")
-      ? new MultithreadEncryptServiceImplementation(
-          this.cryptoFunctionService,
-          this.logService,
-          true,
-        )
-      : new EncryptServiceImplementation(this.cryptoFunctionService, this.logService, true);
+    this.encryptService =
+      flagEnabled("multithreadDecryption") && BrowserApi.isManifestVersion(2)
+        ? new MultithreadEncryptServiceImplementation(
+            this.cryptoFunctionService,
+            this.logService,
+            true,
+          )
+        : new EncryptServiceImplementation(this.cryptoFunctionService, this.logService, true);
 
     this.singleUserStateProvider = new DefaultSingleUserStateProvider(
       this.memoryStorageForStateProviders,
