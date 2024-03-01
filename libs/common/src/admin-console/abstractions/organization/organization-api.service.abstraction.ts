@@ -9,7 +9,6 @@ import { OrganizationTaxInfoUpdateRequest } from "../../../billing/models/reques
 import { PaymentRequest } from "../../../billing/models/request/payment.request";
 import { SecretsManagerSubscribeRequest } from "../../../billing/models/request/sm-subscribe.request";
 import { BillingResponse } from "../../../billing/models/response/billing.response";
-import { OrganizationRisksSubscriptionFailureResponse } from "../../../billing/models/response/organization-risks-subscription-failure.response";
 import { OrganizationSubscriptionResponse } from "../../../billing/models/response/organization-subscription.response";
 import { PaymentResponse } from "../../../billing/models/response/payment.response";
 import { TaxInfoResponse } from "../../../billing/models/response/tax-info.response";
@@ -96,8 +95,5 @@ export abstract class OrganizationApiServiceAbstraction {
     id: string,
     request: OrganizationCollectionManagementUpdateRequest,
   ) => Promise<OrganizationResponse>;
-  abstract risksSubscriptionFailure: (
-    id: string,
-  ) => Promise<OrganizationRisksSubscriptionFailureResponse>;
-  abstract enableCollectionEnhancements: (id: string) => Promise<void>;
+  abstract enableCollectionEnhancements(id: string): Promise<void>;
 }

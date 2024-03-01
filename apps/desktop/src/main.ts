@@ -32,6 +32,7 @@ import { Account } from "./models/account";
 import { BiometricsService, BiometricsServiceAbstraction } from "./platform/main/biometric/index";
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
+import { MainCryptoFunctionService } from "./platform/main/main-crypto-function.service";
 import { ElectronLogMainService } from "./platform/services/electron-log.main.service";
 import { ElectronStateService } from "./platform/services/electron-state.service";
 import { ElectronStorageService } from "./platform/services/electron-storage.service";
@@ -47,6 +48,7 @@ export class Main {
   messagingService: ElectronMainMessagingService;
   stateService: StateService;
   environmentService: EnvironmentService;
+  mainCryptoFunctionService: MainCryptoFunctionService;
   desktopCredentialStorageListener: DesktopCredentialStorageListener;
   migrationRunner: MigrationRunner;
 
@@ -176,7 +178,6 @@ export class Main {
     this.biometricsService = new BiometricsService(
       this.i18nService,
       this.windowMain,
-      this.stateService,
       this.logService,
       this.messagingService,
       process.platform,
@@ -198,6 +199,9 @@ export class Main {
 
     this.clipboardMain = new ClipboardMain();
     this.clipboardMain.init();
+
+    this.mainCryptoFunctionService = new MainCryptoFunctionService();
+    this.mainCryptoFunctionService.init();
   }
 
   bootstrap() {

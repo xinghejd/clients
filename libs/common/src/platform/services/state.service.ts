@@ -378,24 +378,6 @@ export class StateService<
     );
   }
 
-  async getBiometricUnlock(options?: StorageOptions): Promise<boolean> {
-    return (
-      (await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions())))
-        ?.settings?.biometricUnlock ?? false
-    );
-  }
-
-  async setBiometricUnlock(value: boolean, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.settings.biometricUnlock = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
   async getCanAccessPremium(options?: StorageOptions): Promise<boolean> {
     if (!(await this.getIsAuthenticated(options))) {
       return false;
@@ -885,24 +867,6 @@ export class StateService<
     globals.disableAddLoginNotification = value;
     await this.saveGlobals(
       globals,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
-  async getDisableBadgeCounter(options?: StorageOptions): Promise<boolean> {
-    return (
-      (await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions())))
-        ?.settings?.disableBadgeCounter ?? false
-    );
-  }
-
-  async setDisableBadgeCounter(value: boolean, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.settings.disableBadgeCounter = value;
-    await this.saveAccount(
-      account,
       this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
   }

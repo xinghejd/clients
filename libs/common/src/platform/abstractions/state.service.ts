@@ -74,8 +74,6 @@ export abstract class StateService<T extends Account = Account> {
   setAutoConfirmFingerprints: (value: boolean, options?: StorageOptions) => Promise<void>;
   getBiometricFingerprintValidated: (options?: StorageOptions) => Promise<boolean>;
   setBiometricFingerprintValidated: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getBiometricUnlock: (options?: StorageOptions) => Promise<boolean>;
-  setBiometricUnlock: (value: boolean, options?: StorageOptions) => Promise<void>;
   getCanAccessPremium: (options?: StorageOptions) => Promise<boolean>;
   getHasPremiumPersonally: (options?: StorageOptions) => Promise<boolean>;
   setHasPremiumPersonally: (value: boolean, options?: StorageOptions) => Promise<void>;
@@ -204,8 +202,6 @@ export abstract class StateService<T extends Account = Account> {
   setDefaultUriMatch: (value: UriMatchType, options?: StorageOptions) => Promise<void>;
   getDisableAddLoginNotification: (options?: StorageOptions) => Promise<boolean>;
   setDisableAddLoginNotification: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getDisableBadgeCounter: (options?: StorageOptions) => Promise<boolean>;
-  setDisableBadgeCounter: (value: boolean, options?: StorageOptions) => Promise<void>;
   getDisableChangedPasswordNotification: (options?: StorageOptions) => Promise<boolean>;
   setDisableChangedPasswordNotification: (
     value: boolean,
