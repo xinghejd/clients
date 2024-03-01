@@ -1218,7 +1218,10 @@ describe("AutofillOverlayContentService", () => {
         autofillOverlayContentService as any,
         "removeAutofillOverlay",
       );
+
       autofillOverlayContentService["mostRecentlyFocusedField"] = undefined;
+      autofillOverlayContentService["overlayButtonElement"] = document.createElement("div");
+      autofillOverlayContentService["overlayListElement"] = document.createElement("div");
 
       globalThis.dispatchEvent(new Event(EVENTS.SCROLL));
       jest.advanceTimersByTime(800);
@@ -1226,8 +1229,8 @@ describe("AutofillOverlayContentService", () => {
       expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayHidden", {
         display: "block",
       });
-      expect(autofillOverlayContentService["isOverlayButtonVisible"]).toEqual(true);
-      expect(autofillOverlayContentService["isOverlayListVisible"]).toEqual(true);
+      expect(autofillOverlayContentService["isOverlayButtonVisible"]).toEqual(false);
+      expect(autofillOverlayContentService["isOverlayListVisible"]).toEqual(false);
       expect(removeAutofillOverlaySpy).toHaveBeenCalled();
     });
 
@@ -1283,6 +1286,32 @@ describe("AutofillOverlayContentService", () => {
       await flushPromises();
 
       expect(removeAutofillOverlaySpy).toHaveBeenCalled();
+    });
+
+    it("defaults overlay elements to a visibility of `false` if the element is not rendered on the page", async () => {
+      jest.useFakeTimers();
+      jest
+        .spyOn(autofillOverlayContentService as any, "updateMostRecentlyFocusedField")
+        .mockImplementation(() => {
+          autofillOverlayContentService["focusedFieldData"] = {
+            focusedFieldRects: {
+              top: 100,
+            },
+            focusedFieldStyles: {},
+          };
+        });
+      jest
+        .spyOn(autofillOverlayContentService as any, "updateOverlayElementsPosition")
+        .mockImplementation();
+      autofillOverlayContentService["overlayButtonElement"] = document.createElement("div");
+      autofillOverlayContentService["overlayListElement"] = undefined;
+
+      globalThis.dispatchEvent(new Event(EVENTS.SCROLL));
+      jest.advanceTimersByTime(800);
+      await flushPromises();
+
+      expect(autofillOverlayContentService["isOverlayButtonVisible"]).toEqual(true);
+      expect(autofillOverlayContentService["isOverlayListVisible"]).toEqual(false);
     });
   });
 
