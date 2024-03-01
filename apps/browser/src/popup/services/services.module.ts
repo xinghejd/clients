@@ -76,6 +76,7 @@ import { GlobalState } from "@bitwarden/common/platform/models/domain/global-sta
 import { ConfigService } from "@bitwarden/common/platform/services/config/config.service";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
+import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
 import { DerivedStateProvider, StateProvider } from "@bitwarden/common/platform/state";
@@ -140,7 +141,7 @@ const mainBackground: MainBackground = needsBackgroundInit
   : BrowserApi.getBackgroundPage().bitwardenMain;
 
 function createLocalBgService() {
-  const localBgService = new MainBackground(isPrivateMode);
+  const localBgService = new MainBackground(isPrivateMode, true);
   // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
   localBgService.bootstrap();
@@ -247,7 +248,8 @@ function getBgService<T>(service: keyof MainBackground) {
     },
     {
       provide: LogServiceAbstraction,
-      useFactory: getBgService<ConsoleLogService>("logService"),
+      // useFactory: getBgService<ConsoleLogService>("logService"),
+      useClass: ConsoleLogService,
       deps: [],
     },
     {
@@ -426,16 +428,21 @@ function getBgService<T>(service: keyof MainBackground) {
       useFactory: getBgService<NotificationsService>("notificationsService"),
       deps: [],
     },
+    // {
+    //   provide: LogServiceAbstraction,
+    //   useFactory: getBgService<ConsoleLogService>("logService"),
+    //   deps: [],
+    // },
     {
-      provide: LogServiceAbstraction,
-      useFactory: getBgService<ConsoleLogService>("logService"),
-      deps: [],
+      provide: BrowserOrganizationService,
+      deps: [StateServiceAbstraction, StateProvider],
     },
     {
       provide: OrganizationService,
-      useFactory: (stateService: StateServiceAbstraction, stateProvider: StateProvider) => {
-        return new BrowserOrganizationService(stateService, stateProvider);
-      },
+      // useFactory: (stateService: StateServiceAbstraction, stateProvider: StateProvider) => {
+      //   return new BrowserOrganizationService(stateService, stateProvider);
+      // },
+      useExisting: BrowserOrganizationService,
       deps: [StateServiceAbstraction, StateProvider],
     },
     {
@@ -461,8 +468,13 @@ function getBgService<T>(service: keyof MainBackground) {
       useFactory: getBgService<AbstractStorageService>("secureStorageService"),
     },
     {
+      provide: MemoryStorageService,
+      deps: [],
+    },
+    {
       provide: MEMORY_STORAGE,
-      useFactory: getBgService<AbstractStorageService>("memoryStorageService"),
+      // useFactory: getBgService<AbstractStorageService>("memoryStorageService"),
+      useExisting: MemoryStorageService,
     },
     {
       provide: OBSERVABLE_MEMORY_STORAGE,

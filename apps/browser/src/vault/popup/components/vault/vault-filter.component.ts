@@ -432,13 +432,24 @@ export class VaultFilterComponent implements OnInit, OnDestroy {
       this.ciphers = this.state.ciphers;
     }
     if (this.state.collectionCounts != null) {
-      this.collectionCounts = this.state.collectionCounts;
+      // this.collectionCounts = this.state.collectionCounts;
+      this.collectionCounts = new Map();
+      Object.entries(this.state.collectionCounts).forEach(([key, value]) =>
+        this.collectionCounts.set(key, value),
+      );
     }
     if (this.state.folderCounts != null) {
-      this.folderCounts = this.state.folderCounts;
+      // this.folderCounts = this.state.folderCounts;
+      this.folderCounts = new Map();
+      Object.entries(this.state.folderCounts).forEach(([key, value]) =>
+        this.folderCounts.set(key, value),
+      );
     }
     if (this.state.typeCounts != null) {
-      this.typeCounts = this.state.typeCounts;
+      // this.typeCounts = this.state.typeCounts;
+      Object.entries(this.state.typeCounts).forEach(([key, value]) =>
+        this.typeCounts.set(Number(key), value),
+      );
     }
     if (this.state.folders != null) {
       this.folders = this.state.folders;

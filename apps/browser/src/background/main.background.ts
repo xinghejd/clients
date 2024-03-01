@@ -311,31 +311,13 @@ export default class MainBackground {
   private webRequestBackground: WebRequestBackground;
 
   private syncTimeout: any;
-  private isSafari: boolean;
   private nativeMessagingBackground: NativeMessagingBackground;
-  popupOnlyContext: boolean;
 
-  constructor(public isPrivateMode: boolean = false) {
-    this.popupOnlyContext = isPrivateMode || BrowserApi.isManifestVersion(3);
-
+  constructor(
+    public isPrivateMode: boolean = false,
+    public popupOnlyContext: boolean = false,
+  ) {
     // Services
-    const lockedCallback = async (userId?: string) => {
-      if (this.notificationsService != null) {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.notificationsService.updateConnection(false);
-      }
-      await this.refreshBadge();
-      await this.refreshMenu(true);
-      if (this.systemService != null) {
-        await this.systemService.clearPendingClipboard();
-        await this.systemService.startProcessReload(this.authService);
-      }
-    };
-
-    const logoutCallback = async (expired: boolean, userId?: UserId) =>
-      await this.logout(expired, userId);
-
     // this.messagingService = this.popupOnlyContext
     //   ? new BrowserMessagingPrivateModeBackgroundService()
     //   : new BrowserMessagingService();
@@ -501,7 +483,7 @@ export default class MainBackground {
       this.logService,
       this.organizationService,
       this.keyGenerationService,
-      logoutCallback,
+      this.logoutCallback,
     );
 
     this.passwordStrengthService = new PasswordStrengthService();
@@ -519,10 +501,12 @@ export default class MainBackground {
     const backgroundMessagingService = new (class extends MessagingServiceAbstraction {
       // AuthService should send the messages to the background not popup.
       send = (subscriber: string, arg: any = {}) => {
-        const message = Object.assign({}, { command: subscriber }, arg);
+        // const message = Object.assign({}, { command: subscriber }, arg);
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        that.runtimeBackground.processMessage(message, that as any);
+        // that.runtimeBackground.processMessage(message, that as any);
+
+        that.messagingService.send(subscriber, arg);
       };
     })();
 
@@ -659,8 +643,8 @@ export default class MainBackground {
       this.stateService,
       this.authService,
       this.vaultTimeoutSettingsService,
-      lockedCallback,
-      logoutCallback,
+      this.lockedCallback,
+      this.logoutCallback,
     );
     this.containerService = new ContainerService(this.cryptoService, this.encryptService);
     this.sendService = new BrowserSendService(
@@ -693,7 +677,7 @@ export default class MainBackground {
       this.organizationService,
       this.sendApiService,
       this.stateProvider,
-      logoutCallback,
+      this.logoutCallback,
     );
     this.eventUploadService = new EventUploadService(
       this.apiService,
@@ -759,7 +743,7 @@ export default class MainBackground {
       this.appIdService,
       this.apiService,
       this.environmentService,
-      logoutCallback,
+      this.logoutCallback,
       this.stateService,
       this.authService,
       this.messagingService,
@@ -800,79 +784,84 @@ export default class MainBackground {
       this.vaultTimeoutSettingsService,
     );
 
-    // Other fields
-    this.isSafari = this.platformUtilsService.isSafari();
+    this.usernameGenerationService = new UsernameGenerationService(
+      this.cryptoService,
+      this.stateService,
+      this.apiService,
+    );
+
+    this.avatarUpdateService = new AvatarUpdateService(this.apiService, this.stateService);
 
     // Background
-    this.runtimeBackground = new RuntimeBackground(
-      this,
-      this.autofillService,
-      this.platformUtilsService as BrowserPlatformUtilsService,
-      this.i18nService,
-      this.notificationsService,
-      this.stateService,
-      this.autofillSettingsService,
-      this.systemService,
-      this.environmentService,
-      this.messagingService,
-      this.logService,
-      this.configService,
-      this.fido2Service,
-    );
-    this.nativeMessagingBackground = new NativeMessagingBackground(
-      this.cryptoService,
-      this.cryptoFunctionService,
-      this.runtimeBackground,
-      this.i18nService,
-      this.messagingService,
-      this.appIdService,
-      this.platformUtilsService,
-      this.stateService,
-      this.logService,
-      this.authService,
-    );
-    this.commandsBackground = new CommandsBackground(
-      this,
-      this.passwordGenerationService,
-      this.platformUtilsService,
-      this.vaultTimeoutService,
-      this.authService,
-    );
-    this.notificationBackground = new NotificationBackground(
-      this.autofillService,
-      this.cipherService,
-      this.authService,
-      this.policyService,
-      this.folderService,
-      this.stateService,
-      this.environmentService,
-      this.logService,
-    );
-    this.overlayBackground = new OverlayBackground(
-      this.cipherService,
-      this.autofillService,
-      this.authService,
-      this.environmentService,
-      this.settingsService,
-      this.stateService,
-      this.autofillSettingsService,
-      this.i18nService,
-      this.platformUtilsService,
-    );
-    this.filelessImporterBackground = new FilelessImporterBackground(
-      this.configService,
-      this.authService,
-      this.policyService,
-      this.notificationBackground,
-      this.importService,
-      this.syncService,
-    );
-    this.tabsBackground = new TabsBackground(
-      this,
-      this.notificationBackground,
-      this.overlayBackground,
-    );
     if (!this.popupOnlyContext) {
+      this.runtimeBackground = new RuntimeBackground(
+        this,
+        this.autofillService,
+        this.platformUtilsService as BrowserPlatformUtilsService,
+        this.i18nService,
+        this.notificationsService,
+        this.stateService,
+        this.autofillSettingsService,
+        this.systemService,
+        this.environmentService,
+        this.messagingService,
+        this.logService,
+        this.configService,
+        this.fido2Service,
+      );
+      this.nativeMessagingBackground = new NativeMessagingBackground(
+        this.cryptoService,
+        this.cryptoFunctionService,
+        this.runtimeBackground,
+        this.i18nService,
+        this.messagingService,
+        this.appIdService,
+        this.platformUtilsService,
+        this.stateService,
+        this.logService,
+        this.authService,
+      );
+      this.commandsBackground = new CommandsBackground(
+        this,
+        this.passwordGenerationService,
+        this.platformUtilsService,
+        this.vaultTimeoutService,
+        this.authService,
+      );
+      this.notificationBackground = new NotificationBackground(
+        this.autofillService,
+        this.cipherService,
+        this.authService,
+        this.policyService,
+        this.folderService,
+        this.stateService,
+        this.environmentService,
+        this.logService,
+      );
+      this.overlayBackground = new OverlayBackground(
+        this.cipherService,
+        this.autofillService,
+        this.authService,
+        this.environmentService,
+        this.settingsService,
+        this.stateService,
+        this.autofillSettingsService,
+        this.i18nService,
+        this.platformUtilsService,
+      );
+      this.filelessImporterBackground = new FilelessImporterBackground(
+        this.configService,
+        this.authService,
+        this.policyService,
+        this.notificationBackground,
+        this.importService,
+        this.syncService,
+      );
+      this.tabsBackground = new TabsBackground(
+        this,
+        this.notificationBackground,
+        this.overlayBackground,
+      );
       const contextMenuClickedHandler = new ContextMenuClickedHandler(
         (options) => this.platformUtilsService.copyToClipboard(options.text),
         async (_tab) => {
@@ -906,29 +895,19 @@ export default class MainBackground {
       );
 
       this.contextMenusBackground = new ContextMenusBackground(contextMenuClickedHandler);
-    }
 
-    this.idleBackground = new IdleBackground(
-      this.vaultTimeoutService,
-      this.stateService,
-      this.notificationsService,
-      this.accountService,
-    );
-    this.webRequestBackground = new WebRequestBackground(
-      this.platformUtilsService,
-      this.cipherService,
-      this.authService,
-    );
+      this.idleBackground = new IdleBackground(
+        this.vaultTimeoutService,
+        this.stateService,
+        this.notificationsService,
+        this.accountService,
+      );
+      this.webRequestBackground = new WebRequestBackground(
+        this.platformUtilsService,
+        this.cipherService,
+        this.authService,
+      );
 
-    this.usernameGenerationService = new UsernameGenerationService(
-      this.cryptoService,
-      this.stateService,
-      this.apiService,
-    );
-
-    this.avatarUpdateService = new AvatarUpdateService(this.apiService, this.stateService);
-
-    if (!this.popupOnlyContext) {
       this.mainContextMenuHandler = new MainContextMenuHandler(
         this.stateService,
         this.i18nService,
@@ -943,32 +922,47 @@ export default class MainBackground {
     }
   }
 
+  lockedCallback = async () => {
+    if (this.notificationsService != null) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.notificationsService.updateConnection(false);
+    }
+    await this.refreshBadge();
+    await this.refreshMenu(true);
+    if (this.systemService != null) {
+      await this.systemService.clearPendingClipboard();
+      await this.systemService.startProcessReload(this.authService);
+    }
+  };
+
+  logoutCallback = async (expired: boolean, userId?: UserId) => {
+    await this.logout(expired, userId);
+  };
+
   async bootstrap() {
     this.containerService.attachToGlobal(self);
 
     await this.stateService.init();
 
-    await this.vaultTimeoutService.init(true);
     await (this.i18nService as BrowserI18nService).init();
     await (this.eventUploadService as EventUploadService).init(true);
-    await this.runtimeBackground.init();
-    await this.notificationBackground.init();
-    this.filelessImporterBackground.init();
-    await this.commandsBackground.init();
-
     this.configService.init();
     this.twoFactorService.init();
-
-    await this.overlayBackground.init();
-
-    await this.tabsBackground.init();
-    if (!this.popupOnlyContext) {
-      this.contextMenusBackground?.init();
-    }
-    await this.idleBackground.init();
-    await this.webRequestBackground.init();
-
     await this.fido2Service.init();
+
+    if (!this.popupOnlyContext) {
+      await this.vaultTimeoutService.init(true);
+      await this.runtimeBackground.init();
+      await this.notificationBackground.init();
+      this.filelessImporterBackground.init();
+      await this.commandsBackground.init();
+      await this.overlayBackground.init();
+      await this.tabsBackground.init();
+      this.contextMenusBackground?.init();
+      await this.idleBackground.init();
+      await this.webRequestBackground.init();
+    }
 
     if (this.platformUtilsService.isFirefox() && !this.isPrivateMode) {
       // Set Private Mode windows to the default icon - they do not share state with the background page
@@ -1161,7 +1155,7 @@ export default class MainBackground {
     // Chrome APIs cannot open popup
 
     // TODO: Do we need to open this popup?
-    if (!this.isSafari) {
+    if (!this.platformUtilsService.isSafari()) {
       return;
     }
     await SafariApp.sendMessageToApp("showPopover", null, true);
