@@ -345,7 +345,7 @@ function setAbortTimeout(
     );
   }
 
-  return window.setTimeout(() => abortController.abort(), clampedTimeout);
+  return globalThis.setTimeout(() => abortController.abort(), clampedTimeout) as unknown as number;
 }
 
 /**
