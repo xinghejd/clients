@@ -124,7 +124,7 @@ import BrowserMessagingService from "../../platform/services/browser-messaging.s
 import { BrowserStateService } from "../../platform/services/browser-state.service";
 import { ForegroundDerivedStateProvider } from "../../platform/state/foreground-derived-state.provider";
 import { ForegroundMemoryStorageService } from "../../platform/storage/foreground-memory-storage.service";
-import { LocalBackedForegroundSessionStorageService } from "../../platform/storage/local-backed-foregrond-session-storage.service";
+import { LocalBackedForegroundSessionStorageService } from "../../platform/storage/local-backed-foreground-session-storage.service";
 import { BrowserSendService } from "../../services/browser-send.service";
 import { BrowserSettingsService } from "../../services/browser-settings.service";
 import { FilePopoutUtilsService } from "../../tools/popup/services/file-popout-utils.service";
@@ -253,9 +253,12 @@ function getBgService<T>(service: keyof MainBackground) {
       deps: [],
     },
     {
-      provide: EnvironmentService,
-      useClass: BrowserEnvironmentService,
+      provide: BrowserEnvironmentService,
       deps: [LogServiceAbstraction, StateProvider, AccountServiceAbstraction],
+    },
+    {
+      provide: EnvironmentService,
+      useExisting: BrowserEnvironmentService,
     },
     { provide: TotpService, useFactory: getBgService<TotpService>("totpService"), deps: [] },
     { provide: TokenService, useFactory: getBgService<TokenService>("tokenService"), deps: [] },
