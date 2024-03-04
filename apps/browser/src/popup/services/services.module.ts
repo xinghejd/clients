@@ -12,6 +12,7 @@ import {
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
 import {
   AuthRequestServiceAbstraction,
+  LoginStrategyService,
   LoginStrategyServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -34,10 +35,11 @@ import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-con
 import { LoginService as LoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/login.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
-import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
+import { TwoFactorService as TwoFactorServiceAbstraction } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { LoginService } from "@bitwarden/common/auth/services/login.service";
+import { TwoFactorService } from "@bitwarden/common/auth/services/two-factor.service";
 import {
   AutofillSettingsService,
   AutofillSettingsServiceAbstraction,
@@ -182,9 +184,9 @@ function getBgService<T>(service: keyof MainBackground) {
       },
     },
     {
-      provide: TwoFactorService,
-      useFactory: getBgService<TwoFactorService>("twoFactorService"),
-      deps: [],
+      provide: TwoFactorServiceAbstraction,
+      useClass: TwoFactorService,
+      deps: [I18nServiceAbstraction, PlatformUtilsService],
     },
     {
       provide: AuthServiceAbstraction,
@@ -193,7 +195,26 @@ function getBgService<T>(service: keyof MainBackground) {
     },
     {
       provide: LoginStrategyServiceAbstraction,
-      useFactory: getBgService<LoginStrategyServiceAbstraction>("loginStrategyService"),
+      useClass: LoginStrategyService,
+      deps: [
+        CryptoService,
+        ApiService,
+        TokenService,
+        AppIdService,
+        PlatformUtilsService,
+        MessagingService,
+        LogServiceAbstraction,
+        KeyConnectorService,
+        EnvironmentService,
+        StateServiceAbstraction,
+        TwoFactorServiceAbstraction,
+        I18nServiceAbstraction,
+        EncryptService,
+        PasswordStrengthServiceAbstraction,
+        PolicyService,
+        DeviceTrustCryptoServiceAbstraction,
+        AuthRequestServiceAbstraction,
+      ],
     },
     {
       provide: SsoLoginServiceAbstraction,
