@@ -348,7 +348,6 @@ export default class MainBackground {
           this.keyGenerationService,
         )
       : new BackgroundMemoryStorageService();
-    this.globalStateProvider = new DefaultGlobalStateProvider(this.memoryStorageForStateProviders);
 
     const storageServiceProvider = new StorageServiceProvider(
       this.storageService as BrowserLocalStorageService,
