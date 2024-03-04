@@ -378,24 +378,6 @@ export class StateService<
     );
   }
 
-  async getBiometricUnlock(options?: StorageOptions): Promise<boolean> {
-    return (
-      (await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions())))
-        ?.settings?.biometricUnlock ?? false
-    );
-  }
-
-  async setBiometricUnlock(value: boolean, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.settings.biometricUnlock = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
   async getCanAccessPremium(options?: StorageOptions): Promise<boolean> {
     if (!(await this.getIsAuthenticated(options))) {
       return false;
@@ -1635,6 +1617,23 @@ export class StateService<
       )) ?? {};
     accountActivity[options.userId] = value;
     await this.storageService.save(keys.accountActivity, accountActivity, options);
+  }
+
+  async getLastSync(options?: StorageOptions): Promise<string> {
+    return (
+      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions()))
+    )?.profile?.lastSync;
+  }
+
+  async setLastSync(value: string, options?: StorageOptions): Promise<void> {
+    const account = await this.getAccount(
+      this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions()),
+    );
+    account.profile.lastSync = value;
+    await this.saveAccount(
+      account,
+      this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions()),
+    );
   }
 
   async getLocalData(options?: StorageOptions): Promise<{ [cipherId: string]: LocalData }> {

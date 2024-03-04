@@ -181,6 +181,7 @@ export class AccountProfile {
   forceSetPasswordReason?: ForceSetPasswordReason;
   hasPremiumPersonally?: boolean;
   hasPremiumFromOrganization?: boolean;
+  lastSync?: string;
   userId?: string;
   usesKeyConnector?: boolean;
   keyHash?: string;
@@ -200,7 +201,6 @@ export class AccountProfile {
 
 export class AccountSettings {
   autoConfirmFingerPrints?: boolean;
-  biometricUnlock?: boolean;
   defaultUriMatch?: UriMatchType;
   disableGa?: boolean;
   dontShowCardsCurrentTab?: boolean;
