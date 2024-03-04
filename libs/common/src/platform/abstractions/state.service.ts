@@ -74,8 +74,6 @@ export abstract class StateService<T extends Account = Account> {
   setAutoConfirmFingerprints: (value: boolean, options?: StorageOptions) => Promise<void>;
   getBiometricFingerprintValidated: (options?: StorageOptions) => Promise<boolean>;
   setBiometricFingerprintValidated: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getBiometricUnlock: (options?: StorageOptions) => Promise<boolean>;
-  setBiometricUnlock: (value: boolean, options?: StorageOptions) => Promise<void>;
   getCanAccessPremium: (options?: StorageOptions) => Promise<boolean>;
   getHasPremiumPersonally: (options?: StorageOptions) => Promise<boolean>;
   setHasPremiumPersonally: (value: boolean, options?: StorageOptions) => Promise<void>;
@@ -330,6 +328,8 @@ export abstract class StateService<T extends Account = Account> {
   setKeyHash: (value: string, options?: StorageOptions) => Promise<void>;
   getLastActive: (options?: StorageOptions) => Promise<number>;
   setLastActive: (value: number, options?: StorageOptions) => Promise<void>;
+  getLastSync: (options?: StorageOptions) => Promise<string>;
+  setLastSync: (value: string, options?: StorageOptions) => Promise<void>;
   getLocalData: (options?: StorageOptions) => Promise<{ [cipherId: string]: LocalData }>;
   setLocalData: (
     value: { [cipherId: string]: LocalData },
