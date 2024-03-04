@@ -38,7 +38,7 @@
     class="tw-w-1/2 tw-px-2.5 tw-relative"
     *ngIf="organizationId && taxInfo.country !== 'US' && countrySupportsTax(taxInfo.country)"
   >
-    <div class="tw-relative tw-mb-4 tw-pl-5">
+    <div class="tw-relative tw-mb-4">
       <bit-form-control>
         <input bitCheckbox type="checkbox" [(ngModel)]="taxInfo.includeTaxId" />
         <bit-label>{{ "includeVAT" | i18n }}</bit-label>
