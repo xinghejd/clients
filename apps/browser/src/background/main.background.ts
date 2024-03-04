@@ -984,7 +984,6 @@ export default class MainBackground {
     await this.commandsBackground.init();
 
     this.configService.init();
-    this.twoFactorService.init();
 
     await this.overlayBackground.init();
 

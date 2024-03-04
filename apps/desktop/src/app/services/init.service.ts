@@ -55,7 +55,6 @@ export class InitService {
       const locale = await this.stateService.getLocale();
       await (this.i18nService as I18nRendererService).init(locale);
       (this.eventUploadService as EventUploadService).init(true);
-      this.twoFactorService.init();
       setTimeout(() => this.notificationsService.init(), 3000);
       const htmlEl = this.win.document.documentElement;
       htmlEl.classList.add("os_" + this.platformUtilsService.getDeviceString());

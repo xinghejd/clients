@@ -11,7 +11,6 @@ export interface TwoFactorProviderDetails {
 }
 
 export abstract class TwoFactorService {
-  init: () => void;
   getSupportedProviders: (win: Window) => TwoFactorProviderDetails[];
   getDefaultProvider: (webAuthnSupported: boolean) => TwoFactorProviderType;
   setSelectedProvider: (type: TwoFactorProviderType) => void;

@@ -66,9 +66,7 @@ export class TwoFactorService implements TwoFactorServiceAbstraction {
   constructor(
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
-  ) {}
-
-  init() {
+  ) {
     TwoFactorProviders[TwoFactorProviderType.Email].name = this.i18nService.t("emailTitle");
     TwoFactorProviders[TwoFactorProviderType.Email].description = this.i18nService.t("emailDesc");
 

@@ -670,7 +670,6 @@ export class Main {
     await this.environmentService.setUrlsFromStorage();
     const locale = await this.stateService.getLocale();
     await this.i18nService.init(locale);
-    this.twoFactorService.init();
     this.configService.init();
 
     const installedVersion = await this.stateService.getInstalledVersion();

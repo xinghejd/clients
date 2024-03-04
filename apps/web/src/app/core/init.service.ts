@@ -53,7 +53,6 @@ export class InitService {
       const locale = await this.stateService.getLocale();
       await (this.i18nService as I18nService).init(locale);
       (this.eventUploadService as EventUploadService).init(true);
-      this.twoFactorService.init();
       const htmlEl = this.win.document.documentElement;
       htmlEl.classList.add("locale_" + this.i18nService.translationLocale);
       await this.themingService.monitorThemeChanges();
