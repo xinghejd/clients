@@ -384,11 +384,7 @@ export class Main {
       this.organizationService,
     );
 
-    this.policyApiService = new PolicyApiService(
-      this.policyService,
-      this.apiService,
-      this.stateService,
-    );
+    this.policyApiService = new PolicyApiService(this.policyService, this.apiService);
 
     this.keyConnectorService = new KeyConnectorService(
       this.stateService,
@@ -555,7 +551,6 @@ export class Main {
       this.folderApiService,
       this.organizationService,
       this.sendApiService,
-      this.stateProvider,
       async (expired: boolean) => await this.logout(),
     );
 
