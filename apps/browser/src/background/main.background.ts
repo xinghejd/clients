@@ -208,9 +208,9 @@ import { BrowserSendService } from "../services/browser-send.service";
 import { BrowserSettingsService } from "../services/browser-settings.service";
 import VaultTimeoutService from "../services/vault-timeout/vault-timeout.service";
 import FilelessImporterBackground from "../tools/background/fileless-importer.background";
+import { Fido2Background as Fido2ServiceAbstraction } from "../vault/fido2/background/abstractions/fido2.background";
+import Fido2Background from "../vault/fido2/background/fido2.background";
 import { BrowserFido2UserInterfaceService } from "../vault/fido2/browser-fido2-user-interface.service";
-import { Fido2Service as Fido2ServiceAbstraction } from "../vault/services/abstractions/fido2.service";
-import Fido2Service from "../vault/services/fido2.service";
 import { VaultFilterService } from "../vault/services/vault-filter.service";
 
 import CommandsBackground from "./commands.background";
@@ -787,7 +787,6 @@ export default class MainBackground {
       this.messagingService,
     );
 
-    this.fido2Service = new Fido2Service();
     this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService(this.authService);
     this.fido2AuthenticatorService = new Fido2AuthenticatorService(
       this.cipherService,
@@ -803,6 +802,7 @@ export default class MainBackground {
       this.vaultSettingsService,
       this.logService,
     );
+    this.fido2Service = new Fido2Background(this.logService, this.fido2ClientService);
 
     const systemUtilsServiceReloadCallback = () => {
       const forceWindowReload =

@@ -21,7 +21,7 @@ import { BrowserStateService } from "../platform/services/abstractions/browser-s
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import BrowserPlatformUtilsService from "../platform/services/browser-platform-utils.service";
 import { AbortManager } from "../vault/background/abort-manager";
-import { Fido2Service } from "../vault/services/abstractions/fido2.service";
+import { Fido2Background } from "../vault/fido2/background/abstractions/fido2.background";
 
 import MainBackground from "./main.background";
 
@@ -45,7 +45,7 @@ export default class RuntimeBackground {
     private messagingService: MessagingService,
     private logService: LogService,
     private configService: ConfigServiceAbstraction,
-    private fido2Service: Fido2Service,
+    private fido2Service: Fido2Background,
   ) {
     // onInstalled listener must be wired up before anything else, so we do it in the ctor
     chrome.runtime.onInstalled.addListener((details: any) => {
@@ -64,11 +64,7 @@ export default class RuntimeBackground {
       sender: chrome.runtime.MessageSender,
       sendResponse: any,
     ) => {
-      const messagesWithResponse = [
-        "checkFido2FeatureEnabled",
-        "fido2RegisterCredentialRequest",
-        "fido2GetCredentialRequest",
-      ];
+      const messagesWithResponse = ["fido2RegisterCredentialRequest", "fido2GetCredentialRequest"];
 
       if (messagesWithResponse.includes(msg.command)) {
         this.processMessage(msg, sender).then(
@@ -264,13 +260,19 @@ export default class RuntimeBackground {
         this.platformUtilsService.copyToClipboard(msg.identifier, { window: window });
         break;
       case "triggerFido2ContentScriptInjection":
-        await this.fido2Service.injectFido2ContentScripts(sender);
+        await this.fido2Service.injectFido2ContentScripts(
+          msg.hostname,
+          msg.origin,
+          sender.tab,
+          sender.frameId,
+        );
+        break;
+      case "reloadFido2ContentScripts":
+        this.fido2Service.reloadFido2ContentScripts();
         break;
       case "fido2AbortRequest":
         this.abortManager.abort(msg.abortedRequestId);
         break;
-      case "checkFido2FeatureEnabled":
-        return await this.main.fido2ClientService.isFido2FeatureEnabled(msg.hostname, msg.origin);
       case "fido2RegisterCredentialRequest":
         return await this.abortManager.runWithAbortController(
           msg.requestId,

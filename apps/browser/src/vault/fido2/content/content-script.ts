@@ -3,21 +3,10 @@ import {
   CreateCredentialParams,
 } from "@bitwarden/common/vault/abstractions/fido2/fido2-client.service.abstraction";
 
+import { Fido2Port } from "../enums/fido2-port.enum";
+
 import { Message, MessageType } from "./messaging/message";
 import { Messenger } from "./messaging/messenger";
-
-function isFido2FeatureEnabled(): Promise<boolean> {
-  return new Promise((resolve) => {
-    chrome.runtime.sendMessage(
-      {
-        command: "checkFido2FeatureEnabled",
-        hostname: window.location.hostname,
-        origin: window.location.origin,
-      },
-      (response: { result?: boolean }) => resolve(response.result),
-    );
-  });
-}
 
 function isSameOriginWithAncestors() {
   try {
@@ -123,18 +112,12 @@ function initializeFido2ContentScript() {
 }
 
 async function run() {
-  if (!(await isFido2FeatureEnabled())) {
-    return;
-  }
-
   initializeFido2ContentScript();
 
-  const port = chrome.runtime.connect({ name: "fido2ContentScriptReady" });
+  const port = chrome.runtime.connect({ name: Fido2Port.InjectedScript });
   port.onDisconnect.addListener(() => {
     // Cleanup the messenger and remove the event listener
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    messenger.destroy();
+    void messenger.destroy();
   });
 }
 

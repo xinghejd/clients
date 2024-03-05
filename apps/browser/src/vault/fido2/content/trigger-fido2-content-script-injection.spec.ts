@@ -10,6 +10,8 @@ describe("TriggerFido2ContentScriptInjection", () => {
 
       expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({
         command: "triggerFido2ContentScriptInjection",
+        hostname: window.location.hostname,
+        origin: window.location.origin,
       });
     });
   });
