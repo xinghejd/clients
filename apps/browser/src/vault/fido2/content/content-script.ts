@@ -1,4 +1,3 @@
-import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import {
   AssertCredentialParams,
   CreateCredentialParams,
@@ -141,6 +140,5 @@ async function run() {
 
 // Only run the script if the document is an HTML document
 if (document.contentType === "text/html") {
-  const logService = new ConsoleLogService(false);
-  run().catch((e) => logService.error(e));
+  void run();
 }

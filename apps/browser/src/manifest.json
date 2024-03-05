@@ -54,6 +54,7 @@
   },
   "permissions": [
     "<all_urls>",
+    "*://*/*",
     "tabs",
     "contextMenus",
     "storage",
@@ -61,8 +62,6 @@
     "clipboardRead",
     "clipboardWrite",
     "idle",
-    "http://*/*",
-    "https://*/*",
     "webRequest",
     "webRequestBlocking"
   ],
