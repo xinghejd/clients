@@ -2,7 +2,6 @@ import { Observable } from "rxjs";
 
 import { OrganizationData } from "../../admin-console/models/data/organization.data";
 import { PolicyData } from "../../admin-console/models/data/policy.data";
-import { ProviderData } from "../../admin-console/models/data/provider.data";
 import { Policy } from "../../admin-console/models/domain/policy";
 import { AdminAuthRequestStorable } from "../../auth/models/domain/admin-auth-req-storable";
 import { ForceSetPasswordReason } from "../../auth/models/domain/force-set-password-reason";
@@ -200,13 +199,6 @@ export abstract class StateService<T extends Account = Account> {
   setDecryptedSends: (value: SendView[], options?: StorageOptions) => Promise<void>;
   getDefaultUriMatch: (options?: StorageOptions) => Promise<UriMatchType>;
   setDefaultUriMatch: (value: UriMatchType, options?: StorageOptions) => Promise<void>;
-  getDisableAddLoginNotification: (options?: StorageOptions) => Promise<boolean>;
-  setDisableAddLoginNotification: (value: boolean, options?: StorageOptions) => Promise<void>;
-  getDisableChangedPasswordNotification: (options?: StorageOptions) => Promise<boolean>;
-  setDisableChangedPasswordNotification: (
-    value: boolean,
-    options?: StorageOptions,
-  ) => Promise<void>;
   getDisableContextMenuItem: (options?: StorageOptions) => Promise<boolean>;
   setDisableContextMenuItem: (value: boolean, options?: StorageOptions) => Promise<void>;
   /**
@@ -378,8 +370,6 @@ export abstract class StateService<T extends Account = Account> {
    * Sets the user's Pin, encrypted by the user key
    */
   setProtectedPin: (value: string, options?: StorageOptions) => Promise<void>;
-  getProviders: (options?: StorageOptions) => Promise<{ [id: string]: ProviderData }>;
-  setProviders: (value: { [id: string]: ProviderData }, options?: StorageOptions) => Promise<void>;
   getRefreshToken: (options?: StorageOptions) => Promise<string>;
   setRefreshToken: (value: string, options?: StorageOptions) => Promise<void>;
   getRememberedEmail: (options?: StorageOptions) => Promise<string>;
