@@ -1,3 +1,4 @@
+import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import {
   AssertCredentialParams,
   CreateCredentialParams,
@@ -138,6 +139,8 @@ async function run() {
   });
 }
 
-// FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
-run();
+// Only run the script if the document is an HTML document
+if (document.contentType === "text/html") {
+  const logService = new ConsoleLogService(false);
+  run().catch((e) => logService.error(e));
+}
