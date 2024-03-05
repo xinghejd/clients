@@ -24,6 +24,7 @@
     },
     {
       "all_frames": true,
+      "css": ["content/autofill.css"],
       "js": [
         "content/trigger-autofill-script-injection.js",
         "content/fido2/trigger-fido2-content-script-injection.js"
@@ -31,13 +32,6 @@
       "matches": ["*://*/*", "file:///*"],
       "exclude_matches": ["*://*/*.xml*", "file:///*.xml*"],
       "run_at": "document_start"
-    },
-    {
-      "all_frames": true,
-      "css": ["content/autofill.css"],
-      "matches": ["*://*/*", "file:///*"],
-      "exclude_matches": ["*://*/*.xml*", "file:///*.xml*"],
-      "run_at": "document_end"
     },
     {
       "all_frames": false,
