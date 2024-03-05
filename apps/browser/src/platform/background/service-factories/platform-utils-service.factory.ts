@@ -1,6 +1,6 @@
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
-import { BackgroundPlatformUtilsService } from "../../services/platfom-utils/background-platform-utils.service";
+import { BackgroundPlatformUtilsService } from "../../services/platform-utils/background-platform-utils.service";
 
 import { CachedServices, factory, FactoryOptions } from "./factory-options";
 import { MessagingServiceInitOptions, messagingServiceFactory } from "./messaging-service.factory";

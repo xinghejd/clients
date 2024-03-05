@@ -19,7 +19,7 @@ import { AutofillOverlayVisibility } from "../autofill/utils/autofill-overlay.en
 import { BrowserApi } from "../platform/browser/browser-api";
 import { BrowserStateService } from "../platform/services/abstractions/browser-state.service";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
-import { BrowserPlatformUtilsService } from "../platform/services/platfom-utils/browser-platform-utils.service";
+import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
 import { AbortManager } from "../vault/background/abort-manager";
 import { Fido2Service } from "../vault/services/abstractions/fido2.service";
 

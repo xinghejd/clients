@@ -14,7 +14,7 @@ import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserStateService } from "../../platform/services/browser-state.service";
-import { BrowserPlatformUtilsService } from "../../platform/services/platfom-utils/browser-platform-utils.service";
+import { BrowserPlatformUtilsService } from "../../platform/services/platform-utils/browser-platform-utils.service";
 import { SHOW_AUTOFILL_BUTTON } from "../constants";
 import { AutofillService } from "../services/abstractions/autofill.service";
 import {

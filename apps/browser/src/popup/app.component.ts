@@ -11,7 +11,7 @@ import { DialogService, SimpleDialogOptions } from "@bitwarden/components";
 import { BrowserApi } from "../platform/browser/browser-api";
 import { ZonedMessageListenerService } from "../platform/browser/zoned-message-listener.service";
 import { BrowserStateService } from "../platform/services/abstractions/browser-state.service";
-import { ForegroundPlatformUtilsService } from "../platform/services/platfom-utils/foreground-platform-utils.service";
+import { ForegroundPlatformUtilsService } from "../platform/services/platform-utils/foreground-platform-utils.service";
 
 import { routerTransition } from "./app-routing.animations";
 import { DesktopSyncVerificationDialogComponent } from "./components/desktop-sync-verification-dialog.component";

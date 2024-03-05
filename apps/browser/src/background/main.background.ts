@@ -201,8 +201,8 @@ import BrowserMessagingPrivateModeBackgroundService from "../platform/services/b
 import BrowserMessagingService from "../platform/services/browser-messaging.service";
 import { BrowserStateService } from "../platform/services/browser-state.service";
 import { LocalBackedSessionStorageService } from "../platform/services/local-backed-session-storage.service";
-import { BackgroundPlatformUtilsService } from "../platform/services/platfom-utils/background-platform-utils.service";
-import { BrowserPlatformUtilsService } from "../platform/services/platfom-utils/browser-platform-utils.service";
+import { BackgroundPlatformUtilsService } from "../platform/services/platform-utils/background-platform-utils.service";
+import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
 import { BackgroundDerivedStateProvider } from "../platform/state/background-derived-state.provider";
 import { BackgroundMemoryStorageService } from "../platform/storage/background-memory-storage.service";
 import { BrowserSendService } from "../services/browser-send.service";
