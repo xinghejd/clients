@@ -1,14 +1,29 @@
 import { DeviceType } from "@bitwarden/common/enums";
 
-import { BrowserApi } from "../browser/browser-api";
+import { BrowserApi } from "../../browser/browser-api";
 
-import BrowserPlatformUtilsService from "./browser-platform-utils.service";
+import { BrowserPlatformUtilsService } from "./browser-platform-utils.service";
+
+class TestBrowserPlatformUtilsService extends BrowserPlatformUtilsService {
+  constructor(win: Window & typeof globalThis) {
+    super(null, null, win);
+  }
+
+  showToast(
+    type: "error" | "success" | "warning" | "info",
+    title: string,
+    text: string | string[],
+    options?: any,
+  ): void {
+    throw new Error("Method not implemented.");
+  }
+}
 
 describe("Browser Utils Service", () => {
   let browserPlatformUtilsService: BrowserPlatformUtilsService;
   beforeEach(() => {
     (window as any).matchMedia = jest.fn().mockReturnValueOnce({});
-    browserPlatformUtilsService = new BrowserPlatformUtilsService(null, null, null, window);
+    browserPlatformUtilsService = new TestBrowserPlatformUtilsService(window);
   });
 
   describe("getBrowser", () => {
