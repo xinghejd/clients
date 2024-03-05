@@ -305,9 +305,6 @@ export default class MainBackground {
   stateEventRunnerService: StateEventRunnerService;
   ssoLoginService: SsoLoginServiceAbstraction;
 
-  // Passed to the popup for Safari to workaround issues with theming, downloading, etc.
-  backgroundWindow = window;
-
   onUpdatedRan: boolean;
   onReplacedRan: boolean;
   loginToAutoFill: CipherView = null;
@@ -700,7 +697,7 @@ export default class MainBackground {
       this.fileUploadService,
       this.sendService,
     );
-    this.providerService = new ProviderService(this.stateService);
+    this.providerService = new ProviderService(this.stateProvider);
     this.syncService = new SyncService(
       this.apiService,
       this.settingsService,
@@ -1114,12 +1111,12 @@ export default class MainBackground {
       this.keyConnectorService.clear(),
       this.vaultFilterService.clear(),
       this.biometricStateService.logout(userId),
-      /*
-      We intentionally do not clear:
-        - autofillSettingsService
-        - badgeSettingsService
-        - userNotificationSettingsService
-      */
+      this.providerService.save(null, userId),
+      /* We intentionally do not clear:
+       *  - autofillSettingsService
+       *  - badgeSettingsService
+       *  - userNotificationSettingsService
+       */
     ]);
 
     //Needs to be checked before state is cleaned
