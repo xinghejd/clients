@@ -345,10 +345,37 @@ export default class RuntimeBackground {
           if (await this.environmentService.hasManagedEnvironment()) {
             await this.environmentService.setUrlsToManagedEnvironment();
           }
+
+          // Trigger sending the BwInstalled message after environment URLs have been propagated
+          await this.sendBwInstalledMessageToVault();
         }
 
         this.onInstalledReason = null;
       }
     }, 100);
+  }
+
+  async sendBwInstalledMessageToVault() {
+    try {
+      // Query and parse the vaultURL
+      const vaultUrl = this.environmentService.getWebVaultUrl();
+      const urlObj = new URL(vaultUrl);
+
+      // Query all tabs that could be open in the current browsing session related to the vault URL
+      const tabs = await BrowserApi.tabsQuery({ url: `${urlObj.href}*` });
+      if (!tabs?.length) {
+        return;
+      }
+
+      // Iterate over the tabs and send the on installed message to the vault
+      for (const tab of tabs) {
+        await BrowserApi.executeScriptInTab(tab.id, {
+          file: "content/send-on-installed-message.js",
+          runAt: "document_end",
+        });
+      }
+    } catch (e) {
+      this.logService.error(`Error sending on installed message to vault: ${e}`);
+    }
   }
 }
