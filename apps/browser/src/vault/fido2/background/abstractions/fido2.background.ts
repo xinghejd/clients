@@ -1,5 +1,5 @@
 export abstract class Fido2Background {
-  init: () => Promise<void>;
+  loadAutofillScriptsOnInstall: () => Promise<void>;
   injectFido2ContentScripts: (
     hostname: string,
     origin: string,

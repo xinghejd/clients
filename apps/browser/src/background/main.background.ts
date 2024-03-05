@@ -208,7 +208,7 @@ import { BrowserSendService } from "../services/browser-send.service";
 import { BrowserSettingsService } from "../services/browser-settings.service";
 import VaultTimeoutService from "../services/vault-timeout/vault-timeout.service";
 import FilelessImporterBackground from "../tools/background/fileless-importer.background";
-import { Fido2Background as Fido2ServiceAbstraction } from "../vault/fido2/background/abstractions/fido2.background";
+import { Fido2Background as Fido2BackgroundAbstraction } from "../vault/fido2/background/abstractions/fido2.background";
 import Fido2Background from "../vault/fido2/background/fido2.background";
 import { BrowserFido2UserInterfaceService } from "../vault/fido2/browser-fido2-user-interface.service";
 import { VaultFilterService } from "../vault/services/vault-filter.service";
@@ -297,7 +297,7 @@ export default class MainBackground {
   activeUserStateProvider: ActiveUserStateProvider;
   derivedStateProvider: DerivedStateProvider;
   stateProvider: StateProvider;
-  fido2Service: Fido2ServiceAbstraction;
+  fido2Background: Fido2BackgroundAbstraction;
   individualVaultExportService: IndividualVaultExportServiceAbstraction;
   organizationVaultExportService: OrganizationVaultExportServiceAbstraction;
   vaultSettingsService: VaultSettingsServiceAbstraction;
@@ -802,7 +802,6 @@ export default class MainBackground {
       this.vaultSettingsService,
       this.logService,
     );
-    this.fido2Service = new Fido2Background(this.logService, this.fido2ClientService);
 
     const systemUtilsServiceReloadCallback = () => {
       const forceWindowReload =
@@ -826,6 +825,7 @@ export default class MainBackground {
     this.isSafari = this.platformUtilsService.isSafari();
 
     // Background
+    this.fido2Background = new Fido2Background(this.logService, this.fido2ClientService);
     this.runtimeBackground = new RuntimeBackground(
       this,
       this.autofillService,
@@ -839,7 +839,7 @@ export default class MainBackground {
       this.messagingService,
       this.logService,
       this.configService,
-      this.fido2Service,
+      this.fido2Background,
     );
     this.nativeMessagingBackground = new NativeMessagingBackground(
       this.cryptoService,
@@ -991,8 +991,6 @@ export default class MainBackground {
     }
     await this.idleBackground.init();
     await this.webRequestBackground.init();
-
-    await this.fido2Service.init();
 
     if (this.platformUtilsService.isFirefox() && !this.isPrivateMode) {
       // Set Private Mode windows to the default icon - they do not share state with the background page

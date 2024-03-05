@@ -4,9 +4,9 @@ import { Fido2ClientService } from "@bitwarden/common/vault/abstractions/fido2/f
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import { Fido2Port } from "../enums/fido2-port.enum";
 
-import { Fido2Background as Fido2ServiceInterface } from "./abstractions/fido2.background";
+import { Fido2Background as Fido2BackgroundInterface } from "./abstractions/fido2.background";
 
-export default class Fido2Background implements Fido2ServiceInterface {
+export default class Fido2Background implements Fido2BackgroundInterface {
   private fido2ContentScriptPortsSet = new Set<chrome.runtime.Port>();
 
   constructor(
@@ -14,7 +14,7 @@ export default class Fido2Background implements Fido2ServiceInterface {
     private fido2ClientService: Fido2ClientService,
   ) {}
 
-  async init() {
+  async loadAutofillScriptsOnInstall() {
     await this.injectFido2ContentScriptsInAllTabs();
     BrowserApi.addListener(chrome.runtime.onConnect, this.handleInjectedScriptPortConnection);
   }

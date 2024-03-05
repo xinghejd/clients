@@ -45,7 +45,7 @@ export default class RuntimeBackground {
     private messagingService: MessagingService,
     private logService: LogService,
     private configService: ConfigServiceAbstraction,
-    private fido2Service: Fido2Background,
+    private fido2Background: Fido2Background,
   ) {
     // onInstalled listener must be wired up before anything else, so we do it in the ctor
     chrome.runtime.onInstalled.addListener((details: any) => {
@@ -260,7 +260,7 @@ export default class RuntimeBackground {
         this.platformUtilsService.copyToClipboard(msg.identifier, { window: window });
         break;
       case "triggerFido2ContentScriptInjection":
-        await this.fido2Service.injectFido2ContentScripts(
+        await this.fido2Background.injectFido2ContentScripts(
           msg.hostname,
           msg.origin,
           sender.tab,
@@ -268,7 +268,7 @@ export default class RuntimeBackground {
         );
         break;
       case "reloadFido2ContentScripts":
-        this.fido2Service.reloadFido2ContentScripts();
+        this.fido2Background.reloadFido2ContentScripts();
         break;
       case "fido2AbortRequest":
         this.abortManager.abort(msg.abortedRequestId);
@@ -331,9 +331,8 @@ export default class RuntimeBackground {
 
   private async checkOnInstalled() {
     setTimeout(async () => {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.autofillService.loadAutofillScriptsOnInstall();
+      void this.fido2Background.loadAutofillScriptsOnInstall();
+      void this.autofillService.loadAutofillScriptsOnInstall();
 
       if (this.onInstalledReason != null) {
         if (this.onInstalledReason === "install") {
