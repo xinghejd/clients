@@ -1,8 +1,12 @@
 import { ClientType, DeviceType } from "@bitwarden/common/enums";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import {
+  ClipboardOptions,
+  PlatformUtilsService,
+} from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
 import { SafariApp } from "../../../browser/safariApp";
 import { BrowserApi } from "../../browser/browser-api";
+import BrowserClipboardService from "../browser-clipboard.service";
 
 export abstract class BrowserPlatformUtilsService implements PlatformUtilsService {
   private static deviceCache: DeviceType = null;
@@ -10,25 +14,25 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
   constructor(
     private clipboardWriteCallback: (clipboardValue: string, clearMs: number) => void,
     private biometricCallback: () => Promise<boolean>,
-    private win: Window & typeof globalThis,
+    private globalContext: Window | ServiceWorkerGlobalScope,
   ) {}
 
-  static getDevice(win: Window & typeof globalThis): DeviceType {
+  static getDevice(globalContext: Window | ServiceWorkerGlobalScope): DeviceType {
     if (this.deviceCache) {
       return this.deviceCache;
     }
 
     if (BrowserPlatformUtilsService.isFirefox()) {
       this.deviceCache = DeviceType.FirefoxExtension;
-    } else if (BrowserPlatformUtilsService.isOpera(win)) {
+    } else if (BrowserPlatformUtilsService.isOpera(globalContext)) {
       this.deviceCache = DeviceType.OperaExtension;
     } else if (BrowserPlatformUtilsService.isEdge()) {
       this.deviceCache = DeviceType.EdgeExtension;
     } else if (BrowserPlatformUtilsService.isVivaldi()) {
       this.deviceCache = DeviceType.VivaldiExtension;
-    } else if (BrowserPlatformUtilsService.isChrome(win)) {
+    } else if (BrowserPlatformUtilsService.isChrome(globalContext)) {
       this.deviceCache = DeviceType.ChromeExtension;
-    } else if (BrowserPlatformUtilsService.isSafari(win)) {
+    } else if (BrowserPlatformUtilsService.isSafari(globalContext)) {
       this.deviceCache = DeviceType.SafariExtension;
     }
 
@@ -36,7 +40,7 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
   }
 
   getDevice(): DeviceType {
-    return BrowserPlatformUtilsService.getDevice(this.win);
+    return BrowserPlatformUtilsService.getDevice(this.globalContext);
   }
 
   getDeviceString(): string {
@@ -65,8 +69,8 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
   /**
    * @deprecated Do not call this directly, use getDevice() instead
    */
-  private static isChrome(win: Window & typeof globalThis): boolean {
-    return win.chrome && navigator.userAgent.indexOf(" Chrome/") !== -1;
+  private static isChrome(globalContext: Window | ServiceWorkerGlobalScope): boolean {
+    return globalContext.chrome && navigator.userAgent.indexOf(" Chrome/") !== -1;
   }
 
   isChrome(): boolean {
@@ -87,9 +91,11 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
   /**
    * @deprecated Do not call this directly, use getDevice() instead
    */
-  private static isOpera(win: Window & typeof globalThis): boolean {
+  private static isOpera(globalContext: Window | ServiceWorkerGlobalScope): boolean {
     return (
-      (!!win.opr && !!win.opr.addons) || !!win.opera || navigator.userAgent.indexOf(" OPR/") >= 0
+      !!globalContext.opr?.addons ||
+      !!globalContext.opera ||
+      navigator.userAgent.indexOf(" OPR/") >= 0
     );
   }
 
@@ -111,10 +117,11 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
   /**
    * @deprecated Do not call this directly, use getDevice() instead
    */
-  static isSafari(win: Window & typeof globalThis): boolean {
+  static isSafari(globalContext: Window | ServiceWorkerGlobalScope): boolean {
     // Opera masquerades as Safari, so make sure we're not there first
     return (
-      !BrowserPlatformUtilsService.isOpera(win) && navigator.userAgent.indexOf(" Safari/") !== -1
+      !BrowserPlatformUtilsService.isOpera(globalContext) &&
+      navigator.userAgent.indexOf(" Safari/") !== -1
     );
   }
 
@@ -126,8 +133,8 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
    * Safari previous to version 16.1 had a bug which caused artifacts on hover in large extension popups.
    * https://bugs.webkit.org/show_bug.cgi?id=218704
    */
-  static shouldApplySafariHeightFix(win: Window & typeof globalThis): boolean {
-    if (BrowserPlatformUtilsService.getDevice(win) !== DeviceType.SafariExtension) {
+  static shouldApplySafariHeightFix(globalContext: Window | ServiceWorkerGlobalScope): boolean {
+    if (BrowserPlatformUtilsService.getDevice(globalContext) !== DeviceType.SafariExtension) {
       return false;
     }
 
@@ -198,99 +205,66 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     return false;
   }
 
-  copyToClipboard(text: string, options?: any): void {
-    let win = this.win;
-    let doc = this.win.document;
-    if (options && (options.window || options.win)) {
-      win = options.window || options.win;
-      doc = win.document;
-    } else if (options && options.doc) {
-      doc = options.doc;
-    }
-    const clearing = options ? !!options.clearing : false;
-    const clearMs: number = options && options.clearMs ? options.clearMs : null;
+  /**
+   * Copies the passed text to the clipboard. For Safari, this will use
+   * the native messaging API to send the text to the Bitwarden app. If
+   * the extension is using manifest v3, the offscreen document API will
+   * be used to copy the text to the clipboard. Otherwise, the browser's
+   * clipboard API will be used.
+   *
+   * @param text - The text to copy to the clipboard.
+   * @param options - Options for the clipboard operation.
+   */
+  copyToClipboard(text: string, options?: ClipboardOptions): void {
+    const windowContext = options?.window || (this.globalContext as Window);
+    const clearing = Boolean(options?.clearing);
+    const clearMs: number = options?.clearMs || null;
+    const handleClipboardWriteCallback = () => {
+      if (!clearing && this.clipboardWriteCallback != null) {
+        this.clipboardWriteCallback(text, clearMs);
+      }
+    };
 
     if (this.isSafari()) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      SafariApp.sendMessageToApp("copyToClipboard", text).then(() => {
-        if (!clearing && this.clipboardWriteCallback != null) {
-          this.clipboardWriteCallback(text, clearMs);
-        }
-      });
-    } else if (
-      this.isFirefox() &&
-      (win as any).navigator.clipboard &&
-      (win as any).navigator.clipboard.writeText
-    ) {
-      (win as any).navigator.clipboard.writeText(text).then(() => {
-        if (!clearing && this.clipboardWriteCallback != null) {
-          this.clipboardWriteCallback(text, clearMs);
-        }
-      });
-    } else if (doc.queryCommandSupported && doc.queryCommandSupported("copy")) {
-      if (this.isChrome() && text === "") {
-        text = "\u0000";
-      }
+      void SafariApp.sendMessageToApp("copyToClipboard", text).then(handleClipboardWriteCallback);
 
-      const textarea = doc.createElement("textarea");
-      textarea.textContent = text == null || text === "" ? " " : text;
-      // Prevent scrolling to bottom of page in MS Edge.
-      textarea.style.position = "fixed";
-      doc.body.appendChild(textarea);
-      textarea.select();
-
-      try {
-        // Security exception may be thrown by some browsers.
-        if (doc.execCommand("copy") && !clearing && this.clipboardWriteCallback != null) {
-          this.clipboardWriteCallback(text, clearMs);
-        }
-      } catch (e) {
-        // eslint-disable-next-line
-        console.warn("Copy to clipboard failed.", e);
-      } finally {
-        doc.body.removeChild(textarea);
-      }
+      return;
     }
+
+    if (this.isChrome() && text === "") {
+      text = "\u0000";
+    }
+
+    if (this.isChrome() && BrowserApi.isManifestVersion(3)) {
+      void this.triggerOffscreenCopyToClipboard(text).then(handleClipboardWriteCallback);
+
+      return;
+    }
+
+    void BrowserClipboardService.copy(windowContext, text).then(handleClipboardWriteCallback);
   }
 
-  async readFromClipboard(options?: any): Promise<string> {
-    let win = this.win;
-    let doc = this.win.document;
-    if (options && (options.window || options.win)) {
-      win = options.window || options.win;
-      doc = win.document;
-    } else if (options && options.doc) {
-      doc = options.doc;
-    }
+  /**
+   * Reads the text from the clipboard. For Safari, this will use the
+   * native messaging API to request the text from the Bitwarden app. If
+   * the extension is using manifest v3, the offscreen document API will
+   * be used to read the text from the clipboard. Otherwise, the browser's
+   * clipboard API will be used.
+   *
+   * @param options - Options for the clipboard operation.
+   */
+  async readFromClipboard(options?: ClipboardOptions): Promise<string> {
+    const windowContext = options?.window || (this.globalContext as Window);
 
     if (this.isSafari()) {
       return await SafariApp.sendMessageToApp("readFromClipboard");
-    } else if (
-      this.isFirefox() &&
-      (win as any).navigator.clipboard &&
-      (win as any).navigator.clipboard.readText
-    ) {
-      return await (win as any).navigator.clipboard.readText();
-    } else if (doc.queryCommandSupported && doc.queryCommandSupported("paste")) {
-      const textarea = doc.createElement("textarea");
-      // Prevent scrolling to bottom of page in MS Edge.
-      textarea.style.position = "fixed";
-      doc.body.appendChild(textarea);
-      textarea.focus();
-      try {
-        // Security exception may be thrown by some browsers.
-        if (doc.execCommand("paste")) {
-          return textarea.value;
-        }
-      } catch (e) {
-        // eslint-disable-next-line
-        console.warn("Read from clipboard failed.", e);
-      } finally {
-        doc.body.removeChild(textarea);
-      }
     }
-    return null;
+
+    if (this.isChrome() && BrowserApi.isManifestVersion(3)) {
+      return await this.triggerOffscreenReadFromClipboard();
+    }
+
+    return await BrowserClipboardService.read(windowContext);
   }
 
   async supportsBiometric() {
@@ -335,5 +309,34 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
       );
     }
     return autofillCommand;
+  }
+
+  /**
+   * Triggers the offscreen document API to copy the text to the clipboard.
+   */
+  private async triggerOffscreenCopyToClipboard(text: string) {
+    await BrowserApi.createOffscreenDocument(
+      [chrome.offscreen.Reason.CLIPBOARD],
+      "Write text to the clipboard.",
+    );
+    await BrowserApi.sendMessageWithResponse("offscreenCopyToClipboard", { text });
+    BrowserApi.closeOffscreenDocument();
+  }
+
+  /**
+   * Triggers the offscreen document API to read the text from the clipboard.
+   */
+  private async triggerOffscreenReadFromClipboard() {
+    await BrowserApi.createOffscreenDocument(
+      [chrome.offscreen.Reason.CLIPBOARD],
+      "Read text from the clipboard.",
+    );
+    const response = await BrowserApi.sendMessageWithResponse("offscreenReadFromClipboard");
+    BrowserApi.closeOffscreenDocument();
+    if (typeof response === "string") {
+      return response;
+    }
+
+    return "";
   }
 }
