@@ -15,7 +15,6 @@ import {
   LoginStrategyServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
@@ -25,7 +24,6 @@ import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vaul
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { AccountService as AccountServiceAbstraction } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService as AuthServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth.service";
 import { DeviceTrustCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust-crypto.service.abstraction";
@@ -213,7 +211,6 @@ function getBgService<T>(service: keyof MainBackground) {
       },
       deps: [LogServiceAbstraction, I18nServiceAbstraction],
     },
-    { provide: AuditService, useFactory: getBgService<AuditService>("auditService"), deps: [] },
     {
       provide: CipherFileUploadService,
       useFactory: getBgService<CipherFileUploadService>("cipherFileUploadService"),
@@ -445,11 +442,6 @@ function getBgService<T>(service: keyof MainBackground) {
         StateProvider,
         AccountServiceAbstraction,
       ],
-    },
-    {
-      provide: ProviderService,
-      useFactory: getBgService<ProviderService>("providerService"),
-      deps: [],
     },
     {
       provide: SECURE_STORAGE,
