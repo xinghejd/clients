@@ -259,18 +259,7 @@ export default class RuntimeBackground {
       case "getClickedElementResponse":
         this.platformUtilsService.copyToClipboard(msg.identifier, { window: window });
         break;
-      case "triggerFido2ContentScriptInjection":
-        await this.fido2Background.injectFido2ContentScripts(
-          msg.hostname,
-          msg.origin,
-          sender.tab,
-          sender.frameId,
-        );
-        break;
-      case "reloadFido2ContentScripts":
-        this.fido2Background.reloadFido2ContentScripts();
-        break;
-      case "fido2AbortRequest":
+      case "fido2AbortRequest1":
         this.abortManager.abort(msg.abortedRequestId);
         break;
       case "fido2RegisterCredentialRequest":

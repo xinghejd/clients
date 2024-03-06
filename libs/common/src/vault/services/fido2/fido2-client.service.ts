@@ -75,6 +75,7 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     abortController = new AbortController(),
   ): Promise<CreateCredentialResult> {
     const parsedOrigin = parse(params.origin, { allowPrivateDomains: true });
+
     const enableFido2VaultCredentials = await this.isFido2FeatureEnabled(
       parsedOrigin.hostname,
       params.origin,
