@@ -830,7 +830,6 @@ export default class MainBackground {
       this,
       this.autofillService,
       this.platformUtilsService as BrowserPlatformUtilsService,
-      this.i18nService,
       this.notificationsService,
       this.stateService,
       this.autofillSettingsService,
