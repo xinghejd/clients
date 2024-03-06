@@ -33,10 +33,12 @@ export default class Fido2Background implements Fido2BackgroundInterface {
     private fido2ClientService: Fido2ClientService,
   ) {}
 
-  async loadFido2ScriptsOnInstall() {
+  init() {
     BrowserApi.messageListener("fido2.background", this.handleExtensionMessage);
-    BrowserApi.addListener(chrome.runtime.onConnect, this.handleInjectedScriptPortConnection);
+  }
 
+  async loadFido2ScriptsOnInstall() {
+    BrowserApi.addListener(chrome.runtime.onConnect, this.handleInjectedScriptPortConnection);
     await this.injectFido2ContentScriptsInAllTabs();
   }
 

@@ -974,6 +974,7 @@ export default class MainBackground {
     await this.vaultTimeoutService.init(true);
     await (this.i18nService as BrowserI18nService).init();
     await (this.eventUploadService as EventUploadService).init(true);
+    this.fido2Background.init();
     await this.runtimeBackground.init();
     await this.notificationBackground.init();
     this.filelessImporterBackground.init();

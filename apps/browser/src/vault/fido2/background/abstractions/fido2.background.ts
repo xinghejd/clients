@@ -36,13 +36,14 @@ type Fido2BackgroundExtensionMessageHandlers = {
 };
 
 interface Fido2Background {
-  loadFido2ScriptsOnInstall: () => Promise<void>;
-  injectFido2ContentScripts: (
+  init(): void;
+  loadFido2ScriptsOnInstall(): Promise<void>;
+  injectFido2ContentScripts(
     hostname: string,
     origin: string,
     tab: chrome.tabs.Tab,
     frameId?: chrome.runtime.MessageSender["frameId"],
-  ) => Promise<void>;
+  ): Promise<void>;
 }
 
 export { Fido2ExtensionMessage, Fido2BackgroundExtensionMessageHandlers, Fido2Background };
