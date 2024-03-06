@@ -70,7 +70,8 @@
     "clipboardWrite",
     "idle",
     "alarms",
-    "scripting"
+    "scripting",
+    "offscreen"
   ],
   "optional_permissions": ["nativeMessaging", "privacy"],
   "host_permissions": ["*://*/*"],
