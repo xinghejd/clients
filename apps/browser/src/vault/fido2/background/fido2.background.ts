@@ -20,7 +20,9 @@ export default class Fido2Background implements Fido2BackgroundInterface {
   private fido2ContentScriptPortsSet = new Set<chrome.runtime.Port>();
   private extensionMessageHandlers: Fido2BackgroundExtensionMessageHandlers = {
     triggerFido2ContentScriptInjection: ({ message, sender }) =>
-      this.injectFido2ContentScripts(message.hostname, message.origin, sender.tab, sender.frameId),
+      this.injectFido2ContentScript(message.hostname, message.origin, sender.tab, sender.frameId),
+    triggerFido2PageScriptInjection: ({ message, sender }) =>
+      this.injectFido2PageScript(message, sender),
     reloadFido2ContentScripts: () => this.reloadFido2ContentScripts(),
     fido2AbortRequest: ({ message }) => this.abortRequest(message),
     fido2RegisterCredentialRequest: ({ message, sender }) =>
@@ -39,14 +41,14 @@ export default class Fido2Background implements Fido2BackgroundInterface {
 
   async loadFido2ScriptsOnInstall() {
     BrowserApi.addListener(chrome.runtime.onConnect, this.handleInjectedScriptPortConnection);
-    await this.injectFido2ContentScriptsInAllTabs();
+    await this.injectFido2ContentScriptInAllTabs();
   }
 
   /**
    * Injects the FIDO2 content script into the current tab.
    * @returns {Promise<void>}
    */
-  async injectFido2ContentScripts(
+  private async injectFido2ContentScript(
     hostname: string,
     origin: string,
     tab: chrome.tabs.Tab,
@@ -63,16 +65,35 @@ export default class Fido2Background implements Fido2BackgroundInterface {
     });
   }
 
+  private injectFido2PageScript(
+    message: Fido2ExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+  ) {
+    if (BrowserApi.manifestVersion === 3) {
+      void BrowserApi.executeScriptInTab(
+        sender.tab.id,
+        { file: "content/fido2/page-script.js", runAt: "document_start" },
+        { world: "MAIN" },
+      );
+      return;
+    }
+
+    void BrowserApi.executeScriptInTab(sender.tab.id, {
+      file: "content/fido2/page-script-append-mv2.js",
+      runAt: "document_start",
+    });
+  }
+
   private reloadFido2ContentScripts() {
     this.fido2ContentScriptPortsSet.forEach((port) => {
       port.disconnect();
       this.fido2ContentScriptPortsSet.delete(port);
     });
 
-    void this.injectFido2ContentScriptsInAllTabs();
+    void this.injectFido2ContentScriptInAllTabs();
   }
 
-  private async injectFido2ContentScriptsInAllTabs() {
+  private async injectFido2ContentScriptInAllTabs() {
     const tabs = await BrowserApi.tabsQuery({});
     for (let index = 0; index < tabs.length; index++) {
       const tab = tabs[index];
@@ -82,7 +103,7 @@ export default class Fido2Background implements Fido2BackgroundInterface {
 
       try {
         const parsedUrl = new URL(tab.url);
-        void this.injectFido2ContentScripts(parsedUrl.hostname, parsedUrl.origin, tab);
+        void this.injectFido2ContentScript(parsedUrl.hostname, parsedUrl.origin, tab);
       } catch (e) {
         this.logService.error(e);
       }

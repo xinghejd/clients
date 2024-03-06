@@ -23,6 +23,7 @@ type Fido2BackgroundExtensionMessageHandlers = {
     message,
     sender,
   }: Fido2ExtensionMessageEventParams) => Promise<void>;
+  triggerFido2PageScriptInjection: ({ message, sender }: Fido2ExtensionMessageEventParams) => void;
   reloadFido2ContentScripts: () => void;
   fido2AbortRequest: ({ message }: Fido2ExtensionMessageEventParams) => void;
   fido2RegisterCredentialRequest: ({
@@ -38,12 +39,6 @@ type Fido2BackgroundExtensionMessageHandlers = {
 interface Fido2Background {
   init(): void;
   loadFido2ScriptsOnInstall(): Promise<void>;
-  injectFido2ContentScripts(
-    hostname: string,
-    origin: string,
-    tab: chrome.tabs.Tab,
-    frameId?: chrome.runtime.MessageSender["frameId"],
-  ): Promise<void>;
 }
 
 export { Fido2ExtensionMessage, Fido2BackgroundExtensionMessageHandlers, Fido2Background };

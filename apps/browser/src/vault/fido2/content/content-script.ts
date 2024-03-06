@@ -3,6 +3,7 @@ import {
   CreateCredentialParams,
 } from "@bitwarden/common/vault/abstractions/fido2/fido2-client.service.abstraction";
 
+import { sendExtensionMessage } from "../../../autofill/utils";
 import { Fido2Port } from "../enums/fido2-port.enum";
 
 import { Message, MessageType } from "./messaging/message";
@@ -17,16 +18,8 @@ function isSameOriginWithAncestors() {
 }
 const messenger = Messenger.forDOMCommunication(window);
 
-function injectPageScript() {
-  const s = document.createElement("script");
-  s.src = chrome.runtime.getURL("content/fido2/page-script.js");
-  s.id = "bw-fido2-page-script";
-  (document.head || document.documentElement).appendChild(s);
-  s.onload = () => s.remove();
-}
-
 function initializeFido2ContentScript() {
-  injectPageScript();
+  void sendExtensionMessage("triggerFido2PageScriptInjection");
 
   messenger.handler = async (message, abortController) => {
     const requestId = Date.now().toString();

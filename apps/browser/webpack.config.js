@@ -279,6 +279,8 @@ if (manifestVersion == 2) {
   mainConfig.entry.background = "./src/platform/background.ts";
   mainConfig.entry["content/lp-suppress-import-download-script-append-mv2"] =
     "./src/tools/content/lp-suppress-import-download-script-append.mv2.ts";
+  mainConfig.entry["content/fido2/page-script-append-mv2"] =
+    "./src/vault/fido2/content/page-script-append.mv2.ts";
 
   configs.push(mainConfig);
 } else {
