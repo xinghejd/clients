@@ -278,6 +278,9 @@ jobs:
 
   snap:
     name: Build Snap
+    # Note, before updating the ubuntu version of the workflow, ensure the snap base image
+    # is equal or greater than the new version. Otherwise there might be GLIBC version issues.
+    # The snap base for CLI is defined in `apps/cli/stores/snap/snapcraft.yaml`
     runs-on: ubuntu-22.04
     needs: [setup, cli]
     env:
@@ -362,19 +365,8 @@ jobs:
     steps:
       - name: Check if any job failed
         working-directory: ${{ github.workspace }}
-        if: ${{ (github.ref == 'refs/heads/main') || (github.ref == 'refs/heads/rc') }}
-        env:
-          SETUP_STATUS: ${{ needs.setup.result }}
-          CLI_STATUS: ${{ needs.cli.result }}
-          SNAP_STATUS: ${{ needs.snap.result }}
-        run: |
-          if [ "$SETUP_STATUS" = "failure" ]; then
-              exit 1
-          elif [ "$CLI_STATUS" = "failure" ]; then
-              exit 1
-          elif [ "$SNAP_STATUS" = "failure" ]; then
-              exit 1
-          fi
+        if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/rc' || github.ref == 'refs/heads/hotfix-rc') && contains(needs.*.result, 'failure')
+        run: exit 1
 
       - name: Login to Azure - Prod Subscription
         uses: Azure/login@e15b166166a8746d1a47596803bd8c1b595455cf # v1.6.0
