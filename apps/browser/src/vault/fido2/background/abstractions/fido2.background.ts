@@ -23,7 +23,7 @@ type Fido2BackgroundExtensionMessageHandlers = {
 };
 
 interface Fido2Background {
-  loadAutofillScriptsOnInstall: () => Promise<void>;
+  loadFido2ScriptsOnInstall: () => Promise<void>;
   injectFido2ContentScripts: (
     hostname: string,
     origin: string,
