@@ -208,9 +208,9 @@ import { BrowserSendService } from "../services/browser-send.service";
 import { BrowserSettingsService } from "../services/browser-settings.service";
 import VaultTimeoutService from "../services/vault-timeout/vault-timeout.service";
 import FilelessImporterBackground from "../tools/background/fileless-importer.background";
+import { Fido2Background as Fido2BackgroundAbstraction } from "../vault/fido2/background/abstractions/fido2.background";
+import Fido2Background from "../vault/fido2/background/fido2.background";
 import { BrowserFido2UserInterfaceService } from "../vault/fido2/browser-fido2-user-interface.service";
-import { Fido2Service as Fido2ServiceAbstraction } from "../vault/services/abstractions/fido2.service";
-import Fido2Service from "../vault/services/fido2.service";
 import { VaultFilterService } from "../vault/services/vault-filter.service";
 
 import CommandsBackground from "./commands.background";
@@ -297,7 +297,7 @@ export default class MainBackground {
   activeUserStateProvider: ActiveUserStateProvider;
   derivedStateProvider: DerivedStateProvider;
   stateProvider: StateProvider;
-  fido2Service: Fido2ServiceAbstraction;
+  fido2Background: Fido2BackgroundAbstraction;
   individualVaultExportService: IndividualVaultExportServiceAbstraction;
   organizationVaultExportService: OrganizationVaultExportServiceAbstraction;
   vaultSettingsService: VaultSettingsServiceAbstraction;
@@ -771,7 +771,6 @@ export default class MainBackground {
       this.messagingService,
     );
 
-    this.fido2Service = new Fido2Service();
     this.fido2UserInterfaceService = new BrowserFido2UserInterfaceService(this.authService);
     this.fido2AuthenticatorService = new Fido2AuthenticatorService(
       this.cipherService,
@@ -816,11 +815,11 @@ export default class MainBackground {
 
     // Background
     if (!this.popupOnlyContext) {
+      this.fido2Background = new Fido2Background(this.logService, this.fido2ClientService);
       this.runtimeBackground = new RuntimeBackground(
         this,
         this.autofillService,
         this.platformUtilsService as BrowserPlatformUtilsService,
-        this.i18nService,
         this.notificationsService,
         this.stateService,
         this.autofillSettingsService,
@@ -829,7 +828,7 @@ export default class MainBackground {
         this.messagingService,
         this.logService,
         this.configService,
-        this.fido2Service,
+        this.fido2Background,
       );
       this.nativeMessagingBackground = new NativeMessagingBackground(
         this.cryptoService,
@@ -973,9 +972,9 @@ export default class MainBackground {
     await (this.eventUploadService as EventUploadService).init(true);
     this.configService.init();
     this.twoFactorService.init();
-    await this.fido2Service.init();
 
     if (!this.popupOnlyContext) {
+      this.fido2Background.init();
       await this.vaultTimeoutService.init(true);
       await this.runtimeBackground.init();
       await this.notificationBackground.init();
@@ -984,9 +983,9 @@ export default class MainBackground {
       await this.overlayBackground.init();
       await this.tabsBackground.init();
       this.contextMenusBackground?.init();
-      await this.idleBackground.init();
-      await this.webRequestBackground.init();
     }
+    await this.idleBackground.init();
+    await this.webRequestBackground.init();
 
     if (this.platformUtilsService.isFirefox() && !this.isPrivateMode) {
       // Set Private Mode windows to the default icon - they do not share state with the background page

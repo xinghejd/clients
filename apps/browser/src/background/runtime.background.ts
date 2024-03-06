@@ -1,7 +1,6 @@
 import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
@@ -20,8 +19,7 @@ import { BrowserApi } from "../platform/browser/browser-api";
 import { BrowserStateService } from "../platform/services/abstractions/browser-state.service";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import BrowserPlatformUtilsService from "../platform/services/browser-platform-utils.service";
-import { AbortManager } from "../vault/background/abort-manager";
-import { Fido2Service } from "../vault/services/abstractions/fido2.service";
+import { Fido2Background } from "../vault/fido2/background/abstractions/fido2.background";
 
 import MainBackground from "./main.background";
 
@@ -30,13 +28,11 @@ export default class RuntimeBackground {
   private pageDetailsToAutoFill: any[] = [];
   private onInstalledReason: string = null;
   private lockedVaultPendingNotifications: LockedVaultPendingNotificationsData[] = [];
-  private abortManager = new AbortManager();
 
   constructor(
     private main: MainBackground,
     private autofillService: AutofillService,
     private platformUtilsService: BrowserPlatformUtilsService,
-    private i18nService: I18nService,
     private notificationsService: NotificationsService,
     private stateService: BrowserStateService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
@@ -45,7 +41,7 @@ export default class RuntimeBackground {
     private messagingService: MessagingService,
     private logService: LogService,
     private configService: ConfigServiceAbstraction,
-    private fido2Service: Fido2Service,
+    private fido2Background: Fido2Background,
   ) {
     // onInstalled listener must be wired up before anything else, so we do it in the ctor
     chrome.runtime.onInstalled.addListener((details: any) => {
@@ -59,29 +55,8 @@ export default class RuntimeBackground {
     }
 
     await this.checkOnInstalled();
-    const backgroundMessageListener = (
-      msg: any,
-      sender: chrome.runtime.MessageSender,
-      sendResponse: any,
-    ) => {
-      const messagesWithResponse = [
-        "checkFido2FeatureEnabled",
-        "fido2RegisterCredentialRequest",
-        "fido2GetCredentialRequest",
-      ];
-
-      if (messagesWithResponse.includes(msg.command)) {
-        this.processMessage(msg, sender).then(
-          (value) => sendResponse({ result: value }),
-          (error) => sendResponse({ error: { ...error, message: error.message } }),
-        );
-        return true;
-      }
-
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.processMessage(msg, sender);
-      return false;
+    const backgroundMessageListener = (msg: any, sender: chrome.runtime.MessageSender) => {
+      this.processMessage(msg, sender).catch((e) => this.logService.error(e));
     };
 
     BrowserApi.messageListener("runtime.background", backgroundMessageListener);
@@ -263,46 +238,6 @@ export default class RuntimeBackground {
       case "getClickedElementResponse":
         this.platformUtilsService.copyToClipboard(msg.identifier);
         break;
-      case "triggerFido2ContentScriptInjection":
-        await this.fido2Service.injectFido2ContentScripts(sender);
-        break;
-      case "fido2AbortRequest":
-        this.abortManager.abort(msg.abortedRequestId);
-        break;
-      case "checkFido2FeatureEnabled":
-        return await this.main.fido2ClientService.isFido2FeatureEnabled(msg.hostname, msg.origin);
-      case "fido2RegisterCredentialRequest":
-        return await this.abortManager.runWithAbortController(
-          msg.requestId,
-          async (abortController) => {
-            try {
-              return await this.main.fido2ClientService.createCredential(
-                msg.data,
-                sender.tab,
-                abortController,
-              );
-            } finally {
-              await BrowserApi.focusTab(sender.tab.id);
-              await BrowserApi.focusWindow(sender.tab.windowId);
-            }
-          },
-        );
-      case "fido2GetCredentialRequest":
-        return await this.abortManager.runWithAbortController(
-          msg.requestId,
-          async (abortController) => {
-            try {
-              return await this.main.fido2ClientService.assertCredential(
-                msg.data,
-                sender.tab,
-                abortController,
-              );
-            } finally {
-              await BrowserApi.focusTab(sender.tab.id);
-              await BrowserApi.focusWindow(sender.tab.windowId);
-            }
-          },
-        );
       case "switchAccount": {
         await this.main.switchAccount(msg.userId);
       }
@@ -329,9 +264,8 @@ export default class RuntimeBackground {
 
   private async checkOnInstalled() {
     setTimeout(async () => {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.autofillService.loadAutofillScriptsOnInstall();
+      void this.fido2Background.loadFido2ScriptsOnInstall();
+      void this.autofillService.loadAutofillScriptsOnInstall();
 
       if (this.onInstalledReason != null) {
         if (this.onInstalledReason === "install") {

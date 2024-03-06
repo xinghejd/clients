@@ -167,10 +167,6 @@ export class Messenger {
     }
   }
 
-  async sendReconnectCommand() {
-    await this.request({ type: MessageType.ReconnectRequest });
-  }
-
   private async sendDisconnectCommand() {
     await this.request({ type: MessageType.DisconnectRequest });
   }

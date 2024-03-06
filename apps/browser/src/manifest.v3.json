@@ -19,16 +19,8 @@
     {
       "all_frames": false,
       "js": ["content/content-message-handler.js"],
-      "matches": ["http://*/*", "https://*/*", "file:///*"],
-      "run_at": "document_start"
-    },
-    {
-      "all_frames": true,
-      "js": [
-        "content/trigger-autofill-script-injection.js",
-        "content/fido2/trigger-fido2-content-script-injection.js"
-      ],
-      "matches": ["http://*/*", "https://*/*", "file:///*"],
+      "matches": ["*://*/*", "file:///*"],
+      "exclude_matches": ["*://*/*.xml*", "file:///*.xml*"],
       "run_at": "document_start"
     },
     {
@@ -40,14 +32,20 @@
     {
       "all_frames": true,
       "css": ["content/autofill.css"],
-      "matches": ["http://*/*", "https://*/*", "file:///*"],
-      "run_at": "document_end"
+      "js": [
+        "content/trigger-autofill-script-injection.js",
+        "content/fido2/trigger-fido2-content-script-injection.js",
+        "content/misc-utils.js"
+      ],
+      "matches": ["*://*/*", "file:///*"],
+      "exclude_matches": ["*://*/*.xml*", "file:///*.xml*"],
+      "run_at": "document_start"
     },
     {
-      "all_frames": true,
-      "js": ["content/misc-utils.js"],
-      "matches": ["http://*/*", "https://*/*", "file:///*"],
-      "run_at": "document_end"
+      "all_frames": false,
+      "js": ["content/lp-fileless-importer.js"],
+      "matches": ["https://lastpass.com/export.php"],
+      "run_at": "document_start"
     }
   ],
   "background": {
@@ -76,7 +74,7 @@
     "offscreen"
   ],
   "optional_permissions": ["nativeMessaging", "privacy"],
-  "host_permissions": ["http://*/*", "https://*/*"],
+  "host_permissions": ["*://*/*"],
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'",
     "sandbox": "sandbox allow-scripts; script-src 'self'"
