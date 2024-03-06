@@ -1,5 +1,9 @@
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { Fido2ClientService } from "@bitwarden/common/vault/abstractions/fido2/fido2-client.service.abstraction";
+import {
+  AssertCredentialResult,
+  CreateCredentialResult,
+  Fido2ClientService,
+} from "@bitwarden/common/vault/abstractions/fido2/fido2-client.service.abstraction";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import { AbortManager } from "../../background/abort-manager";
@@ -18,7 +22,10 @@ export default class Fido2Background implements Fido2BackgroundInterface {
     triggerFido2ContentScriptInjection: ({ message, sender }) =>
       this.injectFido2ContentScripts(message.hostname, message.origin, sender.tab, sender.frameId),
     reloadFido2ContentScripts: () => this.reloadFido2ContentScripts(),
-    fido2AbortRequest: ({ message }) => this.abortFido2Requests(message),
+    fido2AbortRequest: ({ message }) => this.abortRequest(message),
+    fido2RegisterCredentialRequest: ({ message, sender }) =>
+      this.registerCredentialRequest(message, sender),
+    fido2GetCredentialRequest: ({ message, sender }) => this.getCredentialRequest(message, sender),
   };
 
   constructor(
@@ -54,10 +61,6 @@ export default class Fido2Background implements Fido2BackgroundInterface {
     });
   }
 
-  private abortFido2Requests(message: Fido2ExtensionMessage) {
-    this.abortManager.abort(message.abortedRequestId);
-  }
-
   private reloadFido2ContentScripts() {
     this.fido2ContentScriptPortsSet.forEach((port) => {
       port.disconnect();
@@ -84,6 +87,52 @@ export default class Fido2Background implements Fido2BackgroundInterface {
     }
   }
 
+  private abortRequest(message: Fido2ExtensionMessage) {
+    this.abortManager.abort(message.abortedRequestId);
+  }
+
+  private async registerCredentialRequest(
+    message: Fido2ExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+  ): Promise<CreateCredentialResult> {
+    return await this.abortManager.runWithAbortController(
+      message.requestId,
+      async (abortController) => {
+        try {
+          return await this.fido2ClientService.createCredential(
+            message.data,
+            sender.tab,
+            abortController,
+          );
+        } finally {
+          await BrowserApi.focusTab(sender.tab.id);
+          await BrowserApi.focusWindow(sender.tab.windowId);
+        }
+      },
+    );
+  }
+
+  private async getCredentialRequest(
+    message: Fido2ExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+  ): Promise<AssertCredentialResult> {
+    return await this.abortManager.runWithAbortController(
+      message.requestId,
+      async (abortController) => {
+        try {
+          return await this.fido2ClientService.assertCredential(
+            message.data,
+            sender.tab,
+            abortController,
+          );
+        } finally {
+          await BrowserApi.focusTab(sender.tab.id);
+          await BrowserApi.focusWindow(sender.tab.windowId);
+        }
+      },
+    );
+  }
+
   private handleExtensionMessage = (
     message: Fido2ExtensionMessage,
     sender: chrome.runtime.MessageSender,
@@ -100,9 +149,11 @@ export default class Fido2Background implements Fido2BackgroundInterface {
     }
 
     Promise.resolve(messageResponse)
-      .then((response) => sendResponse(response))
+      .then(
+        (response) => sendResponse(response),
+        (error) => sendResponse({ error: { ...error, message: error.message } }),
+      )
       .catch(this.logService.error);
-
     return true;
   };
 

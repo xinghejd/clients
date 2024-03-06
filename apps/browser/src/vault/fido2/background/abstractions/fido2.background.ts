@@ -1,3 +1,8 @@
+import {
+  AssertCredentialResult,
+  CreateCredentialResult,
+} from "@bitwarden/common/vault/abstractions/fido2/fido2-client.service.abstraction";
+
 type Fido2ExtensionMessage = {
   [key: string]: any;
   command: string;
@@ -17,9 +22,17 @@ type Fido2BackgroundExtensionMessageHandlers = {
   triggerFido2ContentScriptInjection: ({
     message,
     sender,
-  }: Fido2ExtensionMessageEventParams) => any;
-  reloadFido2ContentScripts: () => any;
-  fido2AbortRequest: ({ message }: Fido2ExtensionMessageEventParams) => any;
+  }: Fido2ExtensionMessageEventParams) => Promise<void>;
+  reloadFido2ContentScripts: () => void;
+  fido2AbortRequest: ({ message }: Fido2ExtensionMessageEventParams) => void;
+  fido2RegisterCredentialRequest: ({
+    message,
+    sender,
+  }: Fido2ExtensionMessageEventParams) => Promise<CreateCredentialResult>;
+  fido2GetCredentialRequest: ({
+    message,
+    sender,
+  }: Fido2ExtensionMessageEventParams) => Promise<AssertCredentialResult>;
 };
 
 interface Fido2Background {

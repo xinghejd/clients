@@ -70,7 +70,7 @@ function initializeFido2ContentScript() {
 
             resolve({
               type: MessageType.CredentialCreationResponse,
-              result: response.result,
+              result: response,
             });
           },
         );
@@ -98,7 +98,7 @@ function initializeFido2ContentScript() {
 
             resolve({
               type: MessageType.CredentialGetResponse,
-              result: response.result,
+              result: response,
             });
           },
         );

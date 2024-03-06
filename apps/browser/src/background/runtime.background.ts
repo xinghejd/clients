@@ -59,25 +59,8 @@ export default class RuntimeBackground {
     }
 
     await this.checkOnInstalled();
-    const backgroundMessageListener = (
-      msg: any,
-      sender: chrome.runtime.MessageSender,
-      sendResponse: any,
-    ) => {
-      const messagesWithResponse = ["fido2RegisterCredentialRequest", "fido2GetCredentialRequest"];
-
-      if (messagesWithResponse.includes(msg.command)) {
-        this.processMessage(msg, sender).then(
-          (value) => sendResponse({ result: value }),
-          (error) => sendResponse({ error: { ...error, message: error.message } }),
-        );
-        return true;
-      }
-
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.processMessage(msg, sender);
-      return false;
+    const backgroundMessageListener = (msg: any, sender: chrome.runtime.MessageSender) => {
+      this.processMessage(msg, sender).catch((e) => this.logService.error(e));
     };
 
     BrowserApi.messageListener("runtime.background", backgroundMessageListener);
@@ -259,41 +242,6 @@ export default class RuntimeBackground {
       case "getClickedElementResponse":
         this.platformUtilsService.copyToClipboard(msg.identifier, { window: window });
         break;
-      case "fido2AbortRequest1":
-        this.abortManager.abort(msg.abortedRequestId);
-        break;
-      case "fido2RegisterCredentialRequest":
-        return await this.abortManager.runWithAbortController(
-          msg.requestId,
-          async (abortController) => {
-            try {
-              return await this.main.fido2ClientService.createCredential(
-                msg.data,
-                sender.tab,
-                abortController,
-              );
-            } finally {
-              await BrowserApi.focusTab(sender.tab.id);
-              await BrowserApi.focusWindow(sender.tab.windowId);
-            }
-          },
-        );
-      case "fido2GetCredentialRequest":
-        return await this.abortManager.runWithAbortController(
-          msg.requestId,
-          async (abortController) => {
-            try {
-              return await this.main.fido2ClientService.assertCredential(
-                msg.data,
-                sender.tab,
-                abortController,
-              );
-            } finally {
-              await BrowserApi.focusTab(sender.tab.id);
-              await BrowserApi.focusWindow(sender.tab.windowId);
-            }
-          },
-        );
       case "switchAccount": {
         await this.main.switchAccount(msg.userId);
       }
