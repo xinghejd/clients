@@ -6,6 +6,8 @@ import { MessageType } from "./messaging/message";
 import { Messenger } from "./messaging/messenger";
 
 const BrowserPublicKeyCredential = window.PublicKeyCredential;
+const BrowserNavigatorCredentials = navigator.credentials;
+const BrowserAuthenticatorAttestationResponse = window.AuthenticatorAttestationResponse;
 
 const browserNativeWebauthnSupport = window.PublicKeyCredential != undefined;
 let browserNativeWebauthnPlatformAuthenticatorSupport = false;
@@ -202,8 +204,19 @@ function clearWaitForFocus() {
 }
 
 function destroy() {
-  navigator.credentials.create = browserCredentials.create;
-  navigator.credentials.get = browserCredentials.get;
+  try {
+    if (browserNativeWebauthnSupport) {
+      navigator.credentials.create = browserCredentials.create;
+      navigator.credentials.get = browserCredentials.get;
+    } else {
+      (navigator as any).credentials = BrowserNavigatorCredentials;
+      window.PublicKeyCredential = BrowserPublicKeyCredential;
+      window.AuthenticatorAttestationResponse = BrowserAuthenticatorAttestationResponse;
+    }
+  } catch (e) {
+    /** empty */
+  }
+
   clearWaitForFocus();
   void messenger.destroy();
 }
@@ -216,7 +229,7 @@ messenger.handler = (message) => {
   const type = message.type;
 
   // Handle cleanup for disconnect request
-  if (type === MessageType.DisconnectRequest && browserNativeWebauthnSupport) {
+  if (type === MessageType.DisconnectRequest) {
     destroy();
   }
 };
