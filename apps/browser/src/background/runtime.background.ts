@@ -18,7 +18,7 @@ import { AutofillOverlayVisibility } from "../autofill/utils/autofill-overlay.en
 import { BrowserApi } from "../platform/browser/browser-api";
 import { BrowserStateService } from "../platform/services/abstractions/browser-state.service";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
-import BrowserPlatformUtilsService from "../platform/services/browser-platform-utils.service";
+import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
 import { Fido2Background } from "../vault/fido2/background/abstractions/fido2.background";
 
 import MainBackground from "./main.background";
@@ -55,8 +55,25 @@ export default class RuntimeBackground {
     }
 
     await this.checkOnInstalled();
-    const backgroundMessageListener = (msg: any, sender: chrome.runtime.MessageSender) => {
-      this.processMessage(msg, sender).catch((e) => this.logService.error(e));
+    const backgroundMessageListener = (
+      msg: any,
+      sender: chrome.runtime.MessageSender,
+      sendResponse: (response: Record<string, any>) => void,
+    ) => {
+      const messagesWithResponse = ["biometricUnlock"];
+
+      if (messagesWithResponse.includes(msg.command)) {
+        this.processMessage(msg, sender).then(
+          (value) => sendResponse({ result: value }),
+          (error) => sendResponse({ error: { ...error, message: error.message } }),
+        );
+        return true;
+      }
+
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.processMessage(msg, sender);
+      return false;
     };
 
     BrowserApi.messageListener("runtime.background", backgroundMessageListener);
@@ -65,7 +82,7 @@ export default class RuntimeBackground {
     }
   }
 
-  async processMessage(msg: any, sender: chrome.runtime.MessageSender) {
+  async processMessage(msg: any, sender: chrome.runtime.MessageSender): Promise<unknown> {
     switch (msg.command) {
       case "loggedIn":
       case "unlocked": {
@@ -240,6 +257,14 @@ export default class RuntimeBackground {
         break;
       case "switchAccount": {
         await this.main.switchAccount(msg.userId);
+        break;
+      }
+      case "clearClipboard": {
+        await this.main.clearClipboard(msg.clipboardValue, msg.timeoutMs);
+        break;
+      }
+      case "biometricUnlock": {
+        return await this.main.biometricUnlock();
       }
     }
   }
