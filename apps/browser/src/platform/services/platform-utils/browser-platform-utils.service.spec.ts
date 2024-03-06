@@ -1,10 +1,10 @@
 import { DeviceType } from "@bitwarden/common/enums";
 
-import { flushPromises } from "../../autofill/spec/testing-utils";
+import { flushPromises } from "../../../autofill/spec/testing-utils";
+import { SafariApp } from "../../../browser/safariApp";
 import { BrowserApi } from "../../browser/browser-api";
-import { SafariApp } from "../../browser/safariApp";
+import BrowserClipboardService from "../browser-clipboard.service";
 
-import BrowserClipboardService from "./browser-clipboard.service";
 import { BrowserPlatformUtilsService } from "./browser-platform-utils.service";
 
 class TestBrowserPlatformUtilsService extends BrowserPlatformUtilsService {
