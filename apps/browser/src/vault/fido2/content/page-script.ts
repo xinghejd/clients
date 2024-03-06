@@ -55,6 +55,8 @@ const browserCredentials = {
 };
 
 const messenger = ((window as any).messenger = Messenger.forDOMCommunication(window));
+let waitForFocusTimeout: number;
+let focusListenerHandler: () => void;
 
 navigator.credentials.create = createWebAuthnCredential;
 navigator.credentials.get = getWebAuthnCredential;
@@ -170,15 +172,13 @@ async function waitForFocus(fallbackWait = 500, timeout = 5 * 60 * 1000) {
     return await new Promise((resolve) => window.setTimeout(resolve, fallbackWait));
   }
 
-  let focusListener;
   const focusPromise = new Promise<void>((resolve) => {
-    focusListener = () => resolve();
-    window.top.addEventListener("focus", focusListener);
+    focusListenerHandler = () => resolve();
+    window.top.addEventListener("focus", focusListenerHandler);
   });
 
-  let timeoutId;
   const timeoutPromise = new Promise<void>((_, reject) => {
-    timeoutId = window.setTimeout(
+    waitForFocusTimeout = window.setTimeout(
       () =>
         reject(
           new DOMException("The operation either timed out or was not allowed.", "AbortError"),
@@ -190,27 +190,33 @@ async function waitForFocus(fallbackWait = 500, timeout = 5 * 60 * 1000) {
   try {
     await Promise.race([focusPromise, timeoutPromise]);
   } finally {
-    window.top.removeEventListener("focus", focusListener);
-    window.clearTimeout(timeoutId);
+    clearWaitForFocus();
   }
+}
+
+function clearWaitForFocus() {
+  window.top.removeEventListener("focus", focusListenerHandler);
+  if (waitForFocusTimeout) {
+    window.clearTimeout(waitForFocusTimeout);
+  }
+}
+
+function destroy() {
+  navigator.credentials.create = browserCredentials.create;
+  navigator.credentials.get = browserCredentials.get;
+  clearWaitForFocus();
+  void messenger.destroy();
 }
 
 /**
  * Sets up a listener to handle cleanup or reconnection when the extension's
  * context changes due to being reloaded or unloaded.
  */
-messenger.handler = (message, abortController) => {
+messenger.handler = (message) => {
   const type = message.type;
 
   // Handle cleanup for disconnect request
   if (type === MessageType.DisconnectRequest && browserNativeWebauthnSupport) {
-    navigator.credentials.create = browserCredentials.create;
-    navigator.credentials.get = browserCredentials.get;
-  }
-
-  // Handle reinitialization for reconnect request
-  if (type === MessageType.ReconnectRequest && browserNativeWebauthnSupport) {
-    navigator.credentials.create = createWebAuthnCredential;
-    navigator.credentials.get = getWebAuthnCredential;
+    destroy();
   }
 };

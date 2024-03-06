@@ -18,23 +18,11 @@ function isSameOriginWithAncestors() {
 const messenger = Messenger.forDOMCommunication(window);
 
 function injectPageScript() {
-  // Locate an existing page-script on the page
-  const existingPageScript = document.getElementById("bw-fido2-page-script");
-
-  // Inject the page-script if it doesn't exist
-  if (!existingPageScript) {
-    const s = document.createElement("script");
-    s.src = chrome.runtime.getURL("content/fido2/page-script.js");
-    s.id = "bw-fido2-page-script";
-    (document.head || document.documentElement).appendChild(s);
-
-    return;
-  }
-
-  // If the page-script already exists, send a reconnect message to the page-script
-  // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  messenger.sendReconnectCommand();
+  const s = document.createElement("script");
+  s.src = chrome.runtime.getURL("content/fido2/page-script.js");
+  s.id = "bw-fido2-page-script";
+  (document.head || document.documentElement).appendChild(s);
+  s.onload = () => s.remove();
 }
 
 function initializeFido2ContentScript() {
