@@ -983,9 +983,9 @@ export default class MainBackground {
       await this.overlayBackground.init();
       await this.tabsBackground.init();
       this.contextMenusBackground?.init();
+      await this.idleBackground.init();
+      await this.webRequestBackground.init();
     }
-    await this.idleBackground.init();
-    await this.webRequestBackground.init();
 
     if (this.platformUtilsService.isFirefox() && !this.isPrivateMode) {
       // Set Private Mode windows to the default icon - they do not share state with the background page
