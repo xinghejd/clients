@@ -123,7 +123,7 @@ describe("Browser Session Storage Service", () => {
 
   describe("remove", () => {
     it("should save null", async () => {
-      const spy = jest.spyOn(sut, "save");
+      const spy = jest.spyOn(sut as any, "updateLocalSessionValue");
       spy.mockResolvedValue(null);
       await sut.remove("test");
       expect(spy).toHaveBeenCalledWith("test", null);

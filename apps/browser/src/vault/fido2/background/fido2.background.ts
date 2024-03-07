@@ -1,9 +1,12 @@
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
+  AssertCredentialParams,
   AssertCredentialResult,
+  CreateCredentialParams,
   CreateCredentialResult,
   Fido2ClientService,
 } from "@bitwarden/common/vault/abstractions/fido2/fido2-client.service.abstraction";
+import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 
 import { BrowserApi } from "../../../platform/browser/browser-api";
 import { AbortManager } from "../../background/abort-manager";
@@ -18,12 +21,10 @@ import {
 export default class Fido2Background implements Fido2BackgroundInterface {
   private abortManager = new AbortManager();
   private fido2ContentScriptPortsSet = new Set<chrome.runtime.Port>();
+  private previousEnablePasskeys: boolean;
   private extensionMessageHandlers: Fido2BackgroundExtensionMessageHandlers = {
-    triggerFido2ContentScriptInjection: ({ message, sender }) =>
-      this.injectFido2ContentScript(message.hostname, message.origin, sender.tab, sender.frameId),
-    triggerFido2PageScriptInjection: ({ message, sender }) =>
-      this.injectFido2PageScript(message, sender),
-    reloadFido2ContentScripts: () => this.reloadFido2ContentScripts(),
+    triggerFido2ContentScriptsInjection: ({ message, sender }) =>
+      this.injectFido2ContentScripts(message.hostname, message.origin, sender.tab, sender.frameId),
     fido2AbortRequest: ({ message }) => this.abortRequest(message),
     fido2RegisterCredentialRequest: ({ message, sender }) =>
       this.registerCredentialRequest(message, sender),
@@ -33,22 +34,38 @@ export default class Fido2Background implements Fido2BackgroundInterface {
   constructor(
     private logService: LogService,
     private fido2ClientService: Fido2ClientService,
+    private vaultSettingsService: VaultSettingsService,
   ) {}
 
+  /**
+   * Initializes the FIDO2 background service. Sets up the extension message
+   * and port listeners. Subscribes to the enablePasskeys$ observable to
+   * handle passkey enable/disable events.
+   */
   init() {
     BrowserApi.messageListener("fido2.background", this.handleExtensionMessage);
+    BrowserApi.addListener(chrome.runtime.onConnect, this.handleInjectedScriptPortConnection);
+    this.vaultSettingsService.enablePasskeys$.subscribe(this.handleEnablePasskeysUpdate.bind(this));
   }
 
   async loadFido2ScriptsOnInstall() {
-    BrowserApi.addListener(chrome.runtime.onConnect, this.handleInjectedScriptPortConnection);
-    await this.injectFido2ContentScriptInAllTabs();
+    await this.injectFido2ContentScriptsInAllTabs();
+  }
+
+  private handleEnablePasskeysUpdate(enablePasskeys: boolean) {
+    if (enablePasskeys && this.previousEnablePasskeys === false) {
+      this.reloadFido2ContentScripts();
+    }
+
+    this.previousEnablePasskeys = enablePasskeys;
   }
 
   /**
    * Injects the FIDO2 content script into the current tab.
+   *
    * @returns {Promise<void>}
    */
-  private async injectFido2ContentScript(
+  private async injectFido2ContentScripts(
     hostname: string,
     origin: string,
     tab: chrome.tabs.Tab,
@@ -58,27 +75,25 @@ export default class Fido2Background implements Fido2BackgroundInterface {
       return;
     }
 
-    await BrowserApi.executeScriptInTab(tab.id, {
+    void BrowserApi.executeScriptInTab(tab.id, {
       file: "content/fido2/content-script.js",
       frameId: frameId || 0,
       runAt: "document_start",
     });
+    this.injectFido2PageScript(tab);
   }
 
-  private injectFido2PageScript(
-    message: Fido2ExtensionMessage,
-    sender: chrome.runtime.MessageSender,
-  ) {
+  private injectFido2PageScript(tab: chrome.tabs.Tab) {
     if (BrowserApi.manifestVersion === 3) {
       void BrowserApi.executeScriptInTab(
-        sender.tab.id,
+        tab.id,
         { file: "content/fido2/page-script.js", runAt: "document_start" },
         { world: "MAIN" },
       );
       return;
     }
 
-    void BrowserApi.executeScriptInTab(sender.tab.id, {
+    void BrowserApi.executeScriptInTab(tab.id, {
       file: "content/fido2/page-script-append-mv2.js",
       runAt: "document_start",
     });
@@ -90,10 +105,10 @@ export default class Fido2Background implements Fido2BackgroundInterface {
       this.fido2ContentScriptPortsSet.delete(port);
     });
 
-    void this.injectFido2ContentScriptInAllTabs();
+    void this.injectFido2ContentScriptsInAllTabs();
   }
 
-  private async injectFido2ContentScriptInAllTabs() {
+  private async injectFido2ContentScriptsInAllTabs() {
     const tabs = await BrowserApi.tabsQuery({});
     for (let index = 0; index < tabs.length; index++) {
       const tab = tabs[index];
@@ -103,7 +118,7 @@ export default class Fido2Background implements Fido2BackgroundInterface {
 
       try {
         const parsedUrl = new URL(tab.url);
-        void this.injectFido2ContentScript(parsedUrl.hostname, parsedUrl.origin, tab);
+        void this.injectFido2ContentScripts(parsedUrl.hostname, parsedUrl.origin, tab);
       } catch (e) {
         this.logService.error(e);
       }
@@ -118,20 +133,10 @@ export default class Fido2Background implements Fido2BackgroundInterface {
     message: Fido2ExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ): Promise<CreateCredentialResult> {
-    return await this.abortManager.runWithAbortController(
-      message.requestId,
-      async (abortController) => {
-        try {
-          return await this.fido2ClientService.createCredential(
-            message.data,
-            sender.tab,
-            abortController,
-          );
-        } finally {
-          await BrowserApi.focusTab(sender.tab.id);
-          await BrowserApi.focusWindow(sender.tab.windowId);
-        }
-      },
+    return await this.handleCredentialRequest<CreateCredentialResult>(
+      message,
+      sender.tab,
+      this.fido2ClientService.createCredential.bind(this.fido2ClientService),
     );
   }
 
@@ -139,22 +144,31 @@ export default class Fido2Background implements Fido2BackgroundInterface {
     message: Fido2ExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ): Promise<AssertCredentialResult> {
-    return await this.abortManager.runWithAbortController(
-      message.requestId,
-      async (abortController) => {
-        try {
-          return await this.fido2ClientService.assertCredential(
-            message.data,
-            sender.tab,
-            abortController,
-          );
-        } finally {
-          await BrowserApi.focusTab(sender.tab.id);
-          await BrowserApi.focusWindow(sender.tab.windowId);
-        }
-      },
+    return await this.handleCredentialRequest<AssertCredentialResult>(
+      message,
+      sender.tab,
+      this.fido2ClientService.assertCredential.bind(this.fido2ClientService),
     );
   }
+
+  private handleCredentialRequest = async <T>(
+    { requestId, data }: Fido2ExtensionMessage,
+    tab: chrome.tabs.Tab,
+    callback: (
+      data: AssertCredentialParams | CreateCredentialParams,
+      tab: chrome.tabs.Tab,
+      abortController: AbortController,
+    ) => Promise<T>,
+  ) => {
+    return await this.abortManager.runWithAbortController(requestId, async (abortController) => {
+      try {
+        return await callback(data, tab, abortController);
+      } finally {
+        await BrowserApi.focusTab(tab.id);
+        await BrowserApi.focusWindow(tab.windowId);
+      }
+    });
+  };
 
   private handleExtensionMessage = (
     message: Fido2ExtensionMessage,
@@ -177,6 +191,7 @@ export default class Fido2Background implements Fido2BackgroundInterface {
         (error) => sendResponse({ error: { ...error, message: error.message } }),
       )
       .catch(this.logService.error);
+
     return true;
   };
 

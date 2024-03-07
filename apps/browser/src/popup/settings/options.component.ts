@@ -139,9 +139,6 @@ export class OptionsComponent implements OnInit {
   }
 
   async updateEnablePasskeys() {
-    if (this.enablePasskeys) {
-      this.messagingService.send("reloadFido2ContentScripts");
-    }
     await this.vaultSettingsService.setEnablePasskeys(this.enablePasskeys);
   }
 

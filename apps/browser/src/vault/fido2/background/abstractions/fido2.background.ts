@@ -1,5 +1,7 @@
 import {
+  AssertCredentialParams,
   AssertCredentialResult,
+  CreateCredentialParams,
   CreateCredentialResult,
 } from "@bitwarden/common/vault/abstractions/fido2/fido2-client.service.abstraction";
 
@@ -10,6 +12,7 @@ type Fido2ExtensionMessage = {
   origin?: string;
   requestId?: string;
   abortedRequestId?: string;
+  data?: AssertCredentialParams | CreateCredentialParams;
 };
 
 type Fido2ExtensionMessageEventParams = {
@@ -19,12 +22,10 @@ type Fido2ExtensionMessageEventParams = {
 
 type Fido2BackgroundExtensionMessageHandlers = {
   [key: string]: CallableFunction;
-  triggerFido2ContentScriptInjection: ({
+  triggerFido2ContentScriptsInjection: ({
     message,
     sender,
   }: Fido2ExtensionMessageEventParams) => Promise<void>;
-  triggerFido2PageScriptInjection: ({ message, sender }: Fido2ExtensionMessageEventParams) => void;
-  reloadFido2ContentScripts: () => void;
   fido2AbortRequest: ({ message }: Fido2ExtensionMessageEventParams) => void;
   fido2RegisterCredentialRequest: ({
     message,

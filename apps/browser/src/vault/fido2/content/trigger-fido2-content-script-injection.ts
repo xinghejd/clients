@@ -1,6 +1,6 @@
 (function () {
   void chrome.runtime.sendMessage({
-    command: "triggerFido2ContentScriptInjection",
+    command: "triggerFido2ContentScriptsInjection",
     hostname: window.location.hostname,
     origin: window.location.origin,
   });
