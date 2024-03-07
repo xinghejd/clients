@@ -61,7 +61,13 @@ export default class Fido2Background implements Fido2BackgroundInterface {
   }
 
   /**
-   * Injects the FIDO2 content script into the current tab.
+   * Injects the FIDO2 content script into the current tab.\
+   *
+   * Note: Calls to this method should only happen through a
+   * received chrome runtime message with a command of
+   * `triggerFido2ContentScriptsInjection`. This ensures
+   * that we check the contentType of the document before
+   * attempting to inject the FIDO2 content scripts.
    *
    * @returns {Promise<void>}
    */
@@ -84,7 +90,7 @@ export default class Fido2Background implements Fido2BackgroundInterface {
   }
 
   private injectFido2PageScript(tab: chrome.tabs.Tab) {
-    if (BrowserApi.manifestVersion === 3) {
+    if (BrowserApi.isManifestVersion(3)) {
       void BrowserApi.executeScriptInTab(
         tab.id,
         { file: "content/fido2/page-script.js", runAt: "document_start" },
@@ -116,12 +122,11 @@ export default class Fido2Background implements Fido2BackgroundInterface {
         continue;
       }
 
-      try {
-        const parsedUrl = new URL(tab.url);
-        void this.injectFido2ContentScripts(parsedUrl.hostname, parsedUrl.origin, tab);
-      } catch (e) {
-        this.logService.error(e);
-      }
+      void BrowserApi.executeScriptInTab(tab.id, {
+        file: "content/fido2/trigger-fido2-content-script-injection.js",
+        allFrames: true,
+        runAt: "document_start",
+      });
     }
   }
 
