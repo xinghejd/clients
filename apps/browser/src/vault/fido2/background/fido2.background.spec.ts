@@ -37,7 +37,7 @@ describe("Fido2Background", () => {
       const hostname = "not-bitwarden.com";
       const origin = "https://not-bitwarden.com";
 
-      await fido2Background["injectFido2ContentScript"](hostname, origin, tabMock);
+      await fido2Background["injectFido2ContentScripts"](hostname, origin, tabMock);
 
       expect(BrowserApi.executeScriptInTab).toHaveBeenCalledWith(tabMock.id, {
         file: fido2ContentScript,

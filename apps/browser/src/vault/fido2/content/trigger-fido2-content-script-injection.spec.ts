@@ -1,4 +1,4 @@
-describe("TriggerFido2ContentScriptInjection", () => {
+describe("triggerFido2ContentScriptsInjection", () => {
   afterEach(() => {
     jest.resetModules();
     jest.clearAllMocks();
@@ -9,7 +9,7 @@ describe("TriggerFido2ContentScriptInjection", () => {
       require("../content/trigger-fido2-content-script-injection");
 
       expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({
-        command: "triggerFido2ContentScriptInjection",
+        command: "triggerFido2ContentScriptsInjection",
         hostname: window.location.hostname,
         origin: window.location.origin,
       });
