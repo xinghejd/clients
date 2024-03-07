@@ -164,14 +164,12 @@ const mainConfig = {
     "popup/main": "./src/popup/main.ts",
     "content/trigger-autofill-script-injection":
       "./src/autofill/content/trigger-autofill-script-injection.ts",
-    "content/autofill": "./src/autofill/content/autofill.js",
     "content/bootstrap-autofill": "./src/autofill/content/bootstrap-autofill.ts",
     "content/bootstrap-autofill-overlay": "./src/autofill/content/bootstrap-autofill-overlay.ts",
     "content/autofiller": "./src/autofill/content/autofiller.ts",
     "content/notificationBar": "./src/autofill/content/notification-bar.ts",
     "content/contextMenuHandler": "./src/autofill/content/context-menu-handler.ts",
-    "content/bootstrap-content-message-handler":
-      "./src/autofill/content/bootstrap-content-message-handler.ts",
+    "content/content-message-handler": "./src/autofill/content/content-message-handler.ts",
     "content/fido2/trigger-fido2-content-script-injection":
       "./src/vault/fido2/content/trigger-fido2-content-script-injection.ts",
     "content/fido2/content-script": "./src/vault/fido2/content/content-script.ts",
@@ -181,6 +179,8 @@ const mainConfig = {
     "overlay/list": "./src/autofill/overlay/pages/list/bootstrap-autofill-overlay-list.ts",
     "encrypt-worker": "../../libs/common/src/platform/services/cryptography/encrypt.worker.ts",
     "content/lp-fileless-importer": "./src/tools/content/lp-fileless-importer.ts",
+    "content/send-on-installed-message": "./src/vault/content/send-on-installed-message.ts",
+    "content/lp-suppress-import-download": "./src/tools/content/lp-suppress-import-download.ts",
   },
   optimization: {
     minimize: ENV !== "development",
@@ -278,12 +278,24 @@ if (manifestVersion == 2) {
   // Manifest V2 background pages can be run through the regular build pipeline.
   // Since it's a standard webpage.
   mainConfig.entry.background = "./src/platform/background.ts";
+  mainConfig.entry["content/lp-suppress-import-download-script-append-mv2"] =
+    "./src/tools/content/lp-suppress-import-download-script-append.mv2.ts";
 
   configs.push(mainConfig);
 } else {
   // Manifest v3 needs an extra helper for utilities in the content script.
   // The javascript output of this should be added to manifest.v3.json
   mainConfig.entry["content/misc-utils"] = "./src/autofill/content/misc-utils.ts";
+  mainConfig.entry["offscreen-document/offscreen-document"] =
+    "./src/platform/offscreen-document/offscreen-document.ts";
+
+  mainConfig.plugins.push(
+    new HtmlWebpackPlugin({
+      template: "./src/platform/offscreen-document/index.html",
+      filename: "offscreen-document/index.html",
+      chunks: ["offscreen-document/offscreen-document"],
+    }),
+  );
 
   /**
    * @type {import("webpack").Configuration}
@@ -319,7 +331,7 @@ if (manifestVersion == 2) {
       plugins: [new TsconfigPathsPlugin()],
       fallback: {
         fs: false,
-        path: false,
+        path: require.resolve("path-browserify"),
       },
     },
     dependencies: ["main"],

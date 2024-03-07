@@ -12,6 +12,7 @@ import {
   switchMap,
   takeUntil,
 } from "rxjs";
+import { first } from "rxjs/operators";
 
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { OrganizationUserService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user.service";
@@ -21,6 +22,7 @@ import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstraction
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { CollectionResponse } from "@bitwarden/common/vault/models/response/collection.response";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { BitValidators, DialogService } from "@bitwarden/components";
@@ -69,15 +71,9 @@ export enum CollectionDialogAction {
   templateUrl: "collection-dialog.component.html",
 })
 export class CollectionDialogComponent implements OnInit, OnDestroy {
-  protected flexibleCollectionsEnabled$ = this.configService.getFeatureFlag$(
-    FeatureFlag.FlexibleCollections,
-    false,
-  );
-
-  protected flexibleCollectionsV1Enabled$ = this.configService.getFeatureFlag$(
-    FeatureFlag.FlexibleCollectionsV1,
-    false,
-  );
+  protected flexibleCollectionsV1Enabled$ = this.configService
+    .getFeatureFlag$(FeatureFlag.FlexibleCollectionsV1, false)
+    .pipe(first());
 
   private destroy$ = new Subject<void>();
   protected organizations$: Observable<Organization[]>;
@@ -106,13 +102,14 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     private dialogRef: DialogRef<CollectionDialogResult>,
     private organizationService: OrganizationService,
     private groupService: GroupService,
-    private collectionService: CollectionAdminService,
+    private collectionAdminService: CollectionAdminService,
+    private collectionService: CollectionService,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private organizationUserService: OrganizationUserService,
+    private configService: ConfigServiceAbstraction,
     private dialogService: DialogService,
     private changeDetectorRef: ChangeDetectorRef,
-    private configService: ConfigServiceAbstraction,
   ) {
     this.tabIndex = params.initialTab ?? CollectionDialogTabType.Info;
   }
@@ -125,6 +122,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe((id) => this.loadOrg(id, this.params.collectionIds));
       this.organizations$ = this.organizationService.organizations$.pipe(
+        first(),
         map((orgs) =>
           orgs
             .filter((o) => o.canCreateNewCollections && !o.isProviderUser)
@@ -155,13 +153,15 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
     );
     combineLatest({
       organization: organization$,
-      collections: this.collectionService.getAll(orgId),
+      collections: this.collectionAdminService.getAll(orgId),
       collectionDetails: this.params.collectionId
-        ? from(this.collectionService.get(orgId, this.params.collectionId))
+        ? from(this.collectionAdminService.get(orgId, this.params.collectionId))
         : of(null),
       groups: groups$,
       users: this.organizationUserService.getAllUsers(orgId),
-      flexibleCollections: this.flexibleCollectionsEnabled$,
+      collection: this.params.collectionId
+        ? this.collectionService.get(this.params.collectionId)
+        : of(null),
       flexibleCollectionsV1: this.flexibleCollectionsV1Enabled$,
     })
       .pipe(takeUntil(this.formGroup.controls.selectedOrg.valueChanges), takeUntil(this.destroy$))
@@ -172,7 +172,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
           collectionDetails,
           groups,
           users,
-          flexibleCollections,
+          collection,
           flexibleCollectionsV1,
         }) => {
           this.organization = organization;
@@ -208,15 +208,16 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
               parent,
               access: accessSelections,
             });
-
-            this.showDeleteButton = this.collection.canDelete(organization, flexibleCollections);
+            this.collection.manage = collection?.manage ?? false; // Get manage flag from sync data collection
+            this.showDeleteButton = this.collection.canDelete(organization);
           } else {
             this.nestOptions = collections;
             const parent = collections.find((c) => c.id === this.params.parentCollectionId);
-            const currentOrgUserId = users.data.find((u) => u.userId === this.organization?.userId)
-              ?.id;
+            const currentOrgUserId = users.data.find(
+              (u) => u.userId === this.organization?.userId,
+            )?.id;
             const initialSelection: AccessItemValue[] =
-              currentOrgUserId !== undefined && flexibleCollections
+              currentOrgUserId !== undefined && organization.flexibleCollections
                 ? [
                     {
                       id: currentOrgUserId,
@@ -232,7 +233,11 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
             });
           }
 
-          if (flexibleCollectionsV1 && !organization.allowAdminAccessToAllCollectionItems) {
+          if (
+            organization.flexibleCollections &&
+            flexibleCollectionsV1 &&
+            !organization.allowAdminAccessToAllCollectionItems
+          ) {
             this.formGroup.controls.access.addValidators(validateCanManagePermission);
           } else {
             this.formGroup.controls.access.removeValidators(validateCanManagePermission);
@@ -296,7 +301,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       collectionView.name = this.formGroup.controls.name.value;
     }
 
-    const savedCollection = await this.collectionService.save(collectionView);
+    const savedCollection = await this.collectionAdminService.save(collectionView);
 
     this.platformUtilsService.showToast(
       "success",
@@ -321,7 +326,7 @@ export class CollectionDialogComponent implements OnInit, OnDestroy {
       return false;
     }
 
-    await this.collectionService.delete(this.params.organizationId, this.params.collectionId);
+    await this.collectionAdminService.delete(this.params.organizationId, this.params.collectionId);
 
     this.platformUtilsService.showToast(
       "success",

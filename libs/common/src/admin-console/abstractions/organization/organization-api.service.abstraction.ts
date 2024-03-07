@@ -78,4 +78,5 @@ export class OrganizationApiServiceAbstraction {
     id: string,
     request: OrganizationCollectionManagementUpdateRequest,
   ) => Promise<OrganizationResponse>;
+  enableCollectionEnhancements: (id: string) => Promise<void>;
 }

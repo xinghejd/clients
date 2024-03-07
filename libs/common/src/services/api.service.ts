@@ -96,7 +96,6 @@ import { DeviceType } from "../enums";
 import { CollectionBulkDeleteRequest } from "../models/request/collection-bulk-delete.request";
 import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
 import { EventRequest } from "../models/request/event.request";
-import { IapCheckRequest } from "../models/request/iap-check.request";
 import { KdfRequest } from "../models/request/kdf.request";
 import { KeysRequest } from "../models/request/keys.request";
 import { OrganizationImportRequest } from "../models/request/organization-import.request";
@@ -134,6 +133,7 @@ import { AttachmentResponse } from "../vault/models/response/attachment.response
 import { CipherResponse } from "../vault/models/response/cipher.response";
 import {
   CollectionAccessDetailsResponse,
+  CollectionDetailsResponse,
   CollectionResponse,
 } from "../vault/models/response/collection.response";
 import { SyncResponse } from "../vault/models/response/sync.response";
@@ -380,10 +380,6 @@ export class ApiService implements ApiServiceAbstraction {
   async postPremium(data: FormData): Promise<PaymentResponse> {
     const r = await this.send("POST", "/accounts/premium", data, true, true);
     return new PaymentResponse(r);
-  }
-
-  async postIapCheck(request: IapCheckRequest): Promise<any> {
-    return this.send("POST", "/accounts/iap-check", request, true, false);
   }
 
   postReinstatePremium(): Promise<any> {
@@ -775,7 +771,7 @@ export class ApiService implements ApiServiceAbstraction {
   async postCollection(
     organizationId: string,
     request: CollectionRequest,
-  ): Promise<CollectionResponse> {
+  ): Promise<CollectionDetailsResponse> {
     const r = await this.send(
       "POST",
       "/organizations/" + organizationId + "/collections",
@@ -783,14 +779,14 @@ export class ApiService implements ApiServiceAbstraction {
       true,
       true,
     );
-    return new CollectionResponse(r);
+    return new CollectionDetailsResponse(r);
   }
 
   async putCollection(
     organizationId: string,
     id: string,
     request: CollectionRequest,
-  ): Promise<CollectionResponse> {
+  ): Promise<CollectionDetailsResponse> {
     const r = await this.send(
       "PUT",
       "/organizations/" + organizationId + "/collections/" + id,
@@ -798,7 +794,7 @@ export class ApiService implements ApiServiceAbstraction {
       true,
       true,
     );
-    return new CollectionResponse(r);
+    return new CollectionDetailsResponse(r);
   }
 
   async putCollectionUsers(

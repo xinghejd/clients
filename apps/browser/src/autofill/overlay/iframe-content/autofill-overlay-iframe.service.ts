@@ -1,4 +1,6 @@
-import { EVENTS } from "../../constants";
+import { EVENTS } from "@bitwarden/common/autofill/constants";
+import { ThemeType } from "@bitwarden/common/platform/enums";
+
 import { setElementStyles } from "../../utils";
 import {
   BackgroundPortMessageHandlers,
@@ -13,7 +15,7 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
   private iframeMutationObserver: MutationObserver;
   private iframe: HTMLIFrameElement;
   private ariaAlertElement: HTMLDivElement;
-  private ariaAlertTimeout: NodeJS.Timeout;
+  private ariaAlertTimeout: number | NodeJS.Timeout;
   private iframeStyles: Partial<CSSStyleDeclaration> = {
     all: "initial",
     position: "fixed",
@@ -39,7 +41,7 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
   };
   private foreignMutationsCount = 0;
   private mutationObserverIterations = 0;
-  private mutationObserverIterationsResetTimeout: NodeJS.Timeout;
+  private mutationObserverIterationsResetTimeout: number | NodeJS.Timeout;
   private readonly windowMessageHandlers: AutofillOverlayIframeWindowMessageHandlers = {
     updateAutofillOverlayListHeight: (message) =>
       this.updateElementStyles(this.iframe, message.styles),
@@ -207,19 +209,27 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
   private initAutofillOverlayList(message: AutofillOverlayIframeExtensionMessage) {
     const { theme } = message;
     let borderColor: string;
-    if (theme === "theme_dark") {
+    let verifiedTheme = theme;
+    if (verifiedTheme === ThemeType.System) {
+      verifiedTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? ThemeType.Dark
+        : ThemeType.Light;
+    }
+
+    if (verifiedTheme === ThemeType.Dark) {
       borderColor = "#4c525f";
     }
-    if (theme === "theme_nord") {
+    if (theme === ThemeType.Nord) {
       borderColor = "#2E3440";
     }
-    if (theme === "theme_solarizedDark") {
+    if (theme === ThemeType.SolarizedDark) {
       borderColor = "#073642";
     }
     if (borderColor) {
       this.updateElementStyles(this.iframe, { borderColor });
     }
 
+    message.theme = verifiedTheme;
     this.iframe.contentWindow?.postMessage(message, "*");
   }
 

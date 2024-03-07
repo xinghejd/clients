@@ -107,7 +107,7 @@
     "message": "Copiar Nombre del campo personalizado"
   },
   "noMatchingLogins": {
-    "message": "Sin entradas coincidentes."
+    "message": "Sin entradas coincidentes"
   },
   "noCards": {
     "message": "No hay tarjetas"
@@ -493,6 +493,12 @@
   "newAccountCreated": {
     "message": "¡Tu nueva cuenta ha sido creada! Ahora puedes acceder."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "Accedió correctamente a su cuenta"
+  },
+  "youMayCloseThisWindow": {
+    "message": "Puede cerrar esta ventana"
+  },
   "masterPassSent": {
     "message": "Te hemos enviado un correo electrónico con la pista de tu contraseña maestra."
   },
@@ -607,7 +613,7 @@
     "message": "Elemento editado"
   },
   "deleteItemConfirmation": {
-    "message": "¿Estás seguro de que quieres eliminar este elemento?"
+    "message": "¿Seguro que quieres enviarlo a la papelera?"
   },
   "deletedItem": {
     "message": "Elemento enviado a la papelera"
@@ -1493,6 +1499,9 @@
   "invalidPin": {
     "message": "Código PIN inválido."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Demasiados intentos de entrada de PIN no válidos. Cerrando sesión."
+  },
   "unlockWithBiometrics": {
     "message": "Desbloquear con biométricos"
   },
@@ -1995,6 +2004,10 @@
   "selectFolder": {
     "message": "Seleccione carpeta..."
   },
+  "noFoldersFound": {
+    "message": "No folders found",
+    "description": "Used as a message within the notification bar when no folders are found"
+  },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "Los permisos de la organización se han actualizado y se requiere el establecimiento de una contraseña maestra.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
@@ -2002,6 +2015,10 @@
   "orgRequiresYouToSetPassword": {
     "message": "Su organización requiere que establezca una contraseña maestra.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "verificationRequired": {
+    "message": "Se requiere verificación",
+    "description": "Default title for the user verification dialog."
   },
   "hours": {
     "message": "Horas"
@@ -2640,6 +2657,42 @@
       }
     }
   },
+  "tryAgain": {
+    "message": "Intentar de nuevo"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Se requiere verificación para efectuar esta acción. Establezca un NIP para continuar."
+  },
+  "setPin": {
+    "message": "Establecer NIP"
+  },
+  "verifyWithBiometrics": {
+    "message": "Verificar biométricamente"
+  },
+  "awaitingConfirmation": {
+    "message": "Awaiting confirmation"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Could not complete biometrics."
+  },
+  "needADifferentMethod": {
+    "message": "¿Necesita un método distinto?"
+  },
+  "useMasterPassword": {
+    "message": "Use master password"
+  },
+  "usePin": {
+    "message": "Usar NIP"
+  },
+  "useBiometrics": {
+    "message": "Use biometrics"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Enter the verification code that was sent to your email."
+  },
+  "resendCode": {
+    "message": "Volver a enviar código"
+  },
   "total": {
     "message": "Total"
   },
@@ -2651,6 +2704,21 @@
         "example": "My Org Name"
       }
     }
+  },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Launch Duo and follow the steps to finish logging in."
+  },
+  "duoRequiredForAccount": {
+    "message": "Duo two-step login is required for your account."
+  },
+  "popoutTheExtensionToCompleteLogin": {
+    "message": "Popout the extension to complete login."
+  },
+  "popoutExtension": {
+    "message": "Popout extension"
+  },
+  "launchDuo": {
+    "message": "Launch Duo"
   },
   "importFormatError": {
     "message": "Los datos no están formateados correctamente. Por favor, comprueba tu archivo de importación e inténtalo de nuevo."
@@ -2783,6 +2851,15 @@
   "incorrectUsernameOrPassword": {
     "message": "El nombre de usuario o la contraseña no son correctos"
   },
+  "incorrectPassword": {
+    "message": "Contraseña incorrecta"
+  },
+  "incorrectCode": {
+    "message": "Código incorrecto"
+  },
+  "incorrectPin": {
+    "message": "NIP incorrecto"
+  },
   "multifactorAuthenticationFailed": {
     "message": "Falló la autenticación multifactor"
   },
@@ -2888,5 +2965,45 @@
         "example": "google.com"
       }
     }
+  },
+  "commonImportFormats": {
+    "message": "Formatos comunes",
+    "description": "Label indicating the most common import formats"
+  },
+  "overrideDefaultBrowserAutofillTitle": {
+    "message": "¿Quiere hacer de Bitwarden su gestor de contraseñas predeterminado?",
+    "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutofillDescription": {
+    "message": "Pasar por alto esta opción puede causar conflictos entre el menú de relleno automático de Bitwarden y el del navegador.",
+    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutoFillSettings": {
+    "message": "Hacer de Bitwarden su gestor de contraseñas predeterminado",
+    "description": "Label for the setting that allows overriding the default browser autofill settings"
+  },
+  "privacyPermissionAdditionNotGrantedTitle": {
+    "message": "No se pudo establecer Bitwarden como el gestor de contraseñas predeterminado",
+    "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "privacyPermissionAdditionNotGrantedDescription": {
+    "message": "Debe otorgar los permisos de privacidad del navegador a Bitwarden para establecerlo como gestor de contraseñas predeterminado.",
+    "description": "Description for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "makeDefault": {
+    "message": "Predeterminar",
+    "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "saveCipherAttemptSuccess": {
+    "message": "Credentials saved successfully!",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
+  "updateCipherAttemptSuccess": {
+    "message": "Credentials updated successfully!",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "saveCipherAttemptFailed": {
+    "message": "Error saving credentials. Check console for details.",
+    "description": "Notification message for when saving credentials has failed."
   }
 }

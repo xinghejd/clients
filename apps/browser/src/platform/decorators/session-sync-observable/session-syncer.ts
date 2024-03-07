@@ -74,6 +74,8 @@ export class SessionSyncer {
   private listenForUpdates() {
     // This is an unawaited promise, but it will be executed asynchronously in the background.
     BrowserApi.messageListener(this.updateMessageCommand, (message) => {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.updateFromMessage(message);
     });
   }
@@ -92,7 +94,7 @@ export class SessionSyncer {
 
   async update(serializedValue: any) {
     const unBuiltValue = JSON.parse(serializedValue);
-    if (BrowserApi.manifestVersion !== 3 && BrowserApi.isBackgroundPage(self)) {
+    if (!BrowserApi.isManifestVersion(3) && BrowserApi.isBackgroundPage(self)) {
       await this.memoryStorageService.save(this.metaData.sessionKey, serializedValue);
     }
     const builder = SyncedItemMetadata.builder(this.metaData);
@@ -103,7 +105,7 @@ export class SessionSyncer {
 
   private async updateSession(value: any) {
     const serializedValue = JSON.stringify(value);
-    if (BrowserApi.manifestVersion === 3 || BrowserApi.isBackgroundPage(self)) {
+    if (BrowserApi.isManifestVersion(3) || BrowserApi.isBackgroundPage(self)) {
       await this.memoryStorageService.save(this.metaData.sessionKey, serializedValue);
     }
     await BrowserApi.sendMessage(this.updateMessageCommand, { id: this.id, serializedValue });

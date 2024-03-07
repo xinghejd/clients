@@ -555,10 +555,16 @@
     }
   },
   "masterPassDoesntMatch": {
-    "message": "Ana parolun təsdiqi uyğun gəlmir."
+    "message": "Ana parolun təsdiqi uyuşmur."
   },
   "newAccountCreated": {
     "message": "Yeni hesabınız yaradıldı! İndi giriş edə bilərsiniz."
+  },
+  "youSuccessfullyLoggedIn": {
+    "message": "Uğurla giriş etdiniz"
+  },
+  "youMayCloseThisWindow": {
+    "message": "Bu pəncərəni bağlaya bilərsiniz"
   },
   "masterPassSent": {
     "message": "Ana parol məsləhətini ehtiva edən bir e-poçt göndərdik."
@@ -1247,11 +1253,11 @@
     "description": "A programming term, also known as 'RegEx'."
   },
   "matchDetection": {
-    "message": "Uyğunluq aşkarlaması",
+    "message": "Uyuşmanı aşkarlama",
     "description": "URI match detection for auto-fill."
   },
   "defaultMatchDetection": {
-    "message": "İlkin uyğunluq aşkarlaması",
+    "message": "İlkin uyuşma aşkarlaması",
     "description": "Default URI match detection for auto-fill."
   },
   "toggleOptions": {
@@ -1391,6 +1397,9 @@
   },
   "invalidPin": {
     "message": "Yararsız PIN kod."
+  },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Həddən artıq yararsız PIN giriş cəhdi. Çıxış edilir."
   },
   "unlockWithWindowsHello": {
     "message": "Windows Hello ilə kilidi aç"
@@ -1543,6 +1552,10 @@
   "orgRequiresYouToSetPassword": {
     "message": "Təşkilatınız bir ana parol ayarlamağı tələb edir.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "verificationRequired": {
+    "message": "Doğrulama tələb olunur",
+    "description": "Default title for the user verification dialog."
   },
   "currentMasterPass": {
     "message": "Hazırkı ana parol"
@@ -1869,6 +1882,42 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Ana parolunuz təşkilatınızdakı siyasətlərdən birinə və ya bir neçəsinə uyğun gəlmir. Anbara müraciət üçün ana parolunuzu indi güncəlləməlisiniz. Davam etsəniz, hazırkı seansdan çıxış etmiş və təkrar giriş etməli olacaqsınız. Digər cihazlardakı aktiv seanslar bir saata qədər aktiv qalmağa davam edə bilər."
   },
+  "tryAgain": {
+    "message": "Yenidən sına"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Bu əməliyyat üçün doğrulama tələb olunur. Davam etmək üçün bir PIN təyin edin."
+  },
+  "setPin": {
+    "message": "PIN təyin et"
+  },
+  "verifyWithBiometrics": {
+    "message": "Biometriklə doğrula"
+  },
+  "awaitingConfirmation": {
+    "message": "Təsdiq gözlənilir"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Biometrik tamamlana bilmədi."
+  },
+  "needADifferentMethod": {
+    "message": "Fərqli bir üsul lazımdır?"
+  },
+  "useMasterPassword": {
+    "message": "Ana parolu istifadə et"
+  },
+  "usePin": {
+    "message": "PIN-i istifadə et"
+  },
+  "useBiometrics": {
+    "message": "Biometrik istifadə et"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "E-poçtunuza göndərilmiş doğrulama kodunu daxil edin."
+  },
+  "resendCode": {
+    "message": "Kodu təkrar göndər"
+  },
   "hours": {
     "message": "Saat"
   },
@@ -2127,7 +2176,7 @@
     "message": "Cihazınıza bir bildiriş göndərildi."
   },
   "fingerprintMatchInfo": {
-    "message": "Lütfən anbarınızın kilidinin açıq olduğuna və Barmaq izi ifadəsinin digər cihazla uyğunlaşdığına əmin olun."
+    "message": "Lütfən anbarınızın kilidinin açıq olduğuna və Barmaq izi ifadəsinin digər cihazla uyuşduğuna əmin olun."
   },
   "fingerprintPhraseHeader": {
     "message": "Barmaq izi ifadəsi"
@@ -2482,6 +2531,15 @@
       }
     }
   },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Duo-nu başladın və giriş prosesini tamamlamaq üçün addımları izləyin."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "Hesabınız üçün Duo iki addımlı giriş tələb olunur."
+  },
+  "launchDuo": {
+    "message": "Duo-nu brauzerdə başlat"
+  },
   "importFormatError": {
     "message": "Data doğru format edilməyib. Lütfən daxilə köçürmə faylınızı yoxlayıb yenidən sınayın."
   },
@@ -2489,7 +2547,7 @@
     "message": "Heç nə daxilə köçürülmədi."
   },
   "importEncKeyError": {
-    "message": "Xaricə köçürülən faylın şifrəsi açılarkən xəta baş verdi. Şifrələmə açarınız, datanın xaricə köçürülməsi zamanı istifadə edilən şifrələmə açarı ilə uyğunlaşmır."
+    "message": "Xaricə köçürülən faylın şifrəsi açılarkən xəta baş verdi. Şifrələmə açarınız, datanı xaricə köçürmək üçün istifadə edilən şifrələmə açarı ilə uyuşmur."
   },
   "invalidFilePassword": {
     "message": "Yararsız fayl parolu, lütfən xaricə köçürmə faylını yaradarkən daxil etdiyiniz parolu istifadə edin."
@@ -2562,6 +2620,15 @@
   "incorrectUsernameOrPassword": {
     "message": "Yanlış istifadəçi adı və ya parol"
   },
+  "incorrectPassword": {
+    "message": "Yanlış parol"
+  },
+  "incorrectCode": {
+    "message": "Yanlış kod"
+  },
+  "incorrectPin": {
+    "message": "Yanlış PIN"
+  },
   "multifactorAuthenticationFailed": {
     "message": "Çox faktorlu kimlik doğrulama uğursuz oldu"
   },
@@ -2616,5 +2683,9 @@
   },
   "lastPassYubikeyDesc": {
     "message": "LastPass hesabınızla əlaqələndirilmiş \"YubiKey\"i kompüterinizin USB yuvasına taxın, daha sonra düyməsinə basın."
+  },
+  "commonImportFormats": {
+    "message": "Ortaq formatlar",
+    "description": "Label indicating the most common import formats"
   }
 }

@@ -3,6 +3,7 @@ import { AutofillOverlayContentService } from "../services/abstractions/autofill
 import CollectAutofillContentService from "../services/collect-autofill-content.service";
 import DomElementVisibilityService from "../services/dom-element-visibility.service";
 import InsertAutofillContentService from "../services/insert-autofill-content.service";
+import { sendExtensionMessage } from "../utils";
 
 import {
   AutofillExtensionMessage,
@@ -56,6 +57,26 @@ class AutofillInit implements AutofillInitInterface {
   init() {
     this.setupExtensionMessageListeners();
     this.autofillOverlayContentService?.init();
+    this.collectPageDetailsOnLoad();
+  }
+
+  /**
+   * Triggers a collection of the page details from the
+   * background script, ensuring that autofill is ready
+   * to act on the page.
+   */
+  private collectPageDetailsOnLoad() {
+    const sendCollectDetailsMessage = () =>
+      setTimeout(
+        () => sendExtensionMessage("bgCollectPageDetails", { sender: "autofillInit" }),
+        250,
+      );
+
+    if (document.readyState === "complete") {
+      sendCollectDetailsMessage();
+    }
+
+    window.addEventListener("load", sendCollectDetailsMessage);
   }
 
   /**
@@ -78,6 +99,8 @@ class AutofillInit implements AutofillInitInterface {
       return pageDetails;
     }
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     chrome.runtime.sendMessage({
       command: "collectPageDetailsResponse",
       tab: message.tab,
@@ -96,6 +119,7 @@ class AutofillInit implements AutofillInitInterface {
       return;
     }
 
+    this.blurAndRemoveOverlay();
     this.updateOverlayIsCurrentlyFilling(true);
     await this.insertAutofillContentService.fillForm(fillScript);
 
@@ -103,10 +127,7 @@ class AutofillInit implements AutofillInitInterface {
       return;
     }
 
-    setTimeout(() => {
-      this.updateOverlayIsCurrentlyFilling(false);
-      this.autofillOverlayContentService.focusMostRecentOverlayField();
-    }, 250);
+    setTimeout(() => this.updateOverlayIsCurrentlyFilling(false), 250);
   }
 
   /**
@@ -258,6 +279,8 @@ class AutofillInit implements AutofillInitInterface {
       return;
     }
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     Promise.resolve(messageResponse).then((response) => sendResponse(response));
     return true;
   };

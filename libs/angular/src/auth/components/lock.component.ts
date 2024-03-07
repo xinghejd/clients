@@ -3,6 +3,7 @@ import { Router } from "@angular/router";
 import { firstValueFrom, Subject } from "rxjs";
 import { concatMap, take, takeUntil } from "rxjs/operators";
 
+import { PinCryptoServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
@@ -22,11 +23,11 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { HashPurpose, KeySuffixOptions } from "@bitwarden/common/platform/enums";
-import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { UserKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { PinLockType } from "@bitwarden/common/services/vault-timeout/vault-timeout-settings.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
+import { UserKey } from "@bitwarden/common/types/key";
 import { DialogService } from "@bitwarden/components";
 
 @Directive()
@@ -41,7 +42,6 @@ export class LockComponent implements OnInit, OnDestroy {
   formPromise: Promise<MasterPasswordPolicyResponse>;
   supportsBiometric: boolean;
   biometricLock: boolean;
-  biometricText: string;
 
   protected successRoute = "vault";
   protected forcePasswordResetRoute = "update-temp-password";
@@ -73,6 +73,8 @@ export class LockComponent implements OnInit, OnDestroy {
     protected dialogService: DialogService,
     protected deviceTrustCryptoService: DeviceTrustCryptoServiceAbstraction,
     protected userVerificationService: UserVerificationService,
+    protected pinCryptoService: PinCryptoServiceAbstraction,
+    protected biometricStateService: BiometricStateService,
   ) {}
 
   async ngOnInit() {
@@ -117,6 +119,7 @@ export class LockComponent implements OnInit, OnDestroy {
       return;
     }
 
+    await this.biometricStateService.setPromptCancelled();
     const userKey = await this.cryptoService.getUserKeyFromStorage(KeySuffixOptions.Biometric);
 
     if (userKey) {
@@ -150,77 +153,40 @@ export class LockComponent implements OnInit, OnDestroy {
   }
 
   private async doUnlockWithPin() {
-    let failed = true;
+    const MAX_INVALID_PIN_ENTRY_ATTEMPTS = 5;
+
     try {
-      const kdf = await this.stateService.getKdfType();
-      const kdfConfig = await this.stateService.getKdfConfig();
-      let userKeyPin: EncString;
-      let oldPinKey: EncString;
-      switch (this.pinStatus) {
-        case "PERSISTANT": {
-          userKeyPin = await this.stateService.getPinKeyEncryptedUserKey();
-          const oldEncryptedPinKey = await this.stateService.getEncryptedPinProtected();
-          oldPinKey = oldEncryptedPinKey ? new EncString(oldEncryptedPinKey) : undefined;
-          break;
-        }
-        case "TRANSIENT": {
-          userKeyPin = await this.stateService.getPinKeyEncryptedUserKeyEphemeral();
-          oldPinKey = await this.stateService.getDecryptedPinProtected();
-          break;
-        }
-        case "DISABLED": {
-          throw new Error("Pin is disabled");
-        }
-        default: {
-          const _exhaustiveCheck: never = this.pinStatus;
-          return _exhaustiveCheck;
-        }
-      }
+      const userKey = await this.pinCryptoService.decryptUserKeyWithPin(this.pin);
 
-      let userKey: UserKey;
-      if (oldPinKey) {
-        userKey = await this.cryptoService.decryptAndMigrateOldPinKey(
-          this.pinStatus === "TRANSIENT",
-          this.pin,
-          this.email,
-          kdf,
-          kdfConfig,
-          oldPinKey,
-        );
-      } else {
-        userKey = await this.cryptoService.decryptUserKeyWithPin(
-          this.pin,
-          this.email,
-          kdf,
-          kdfConfig,
-          userKeyPin,
-        );
-      }
-
-      const protectedPin = await this.stateService.getProtectedPin();
-      const decryptedPin = await this.cryptoService.decryptToUtf8(
-        new EncString(protectedPin),
-        userKey,
-      );
-      failed = decryptedPin !== this.pin;
-
-      if (!failed) {
+      if (userKey) {
         await this.setUserKeyAndContinue(userKey);
+        return; // successfully unlocked
       }
-    } catch {
-      failed = true;
-    }
 
-    if (failed) {
+      // Failure state: invalid PIN or failed decryption
       this.invalidPinAttempts++;
-      if (this.invalidPinAttempts >= 5) {
+
+      // Log user out if they have entered an invalid PIN too many times
+      if (this.invalidPinAttempts >= MAX_INVALID_PIN_ENTRY_ATTEMPTS) {
+        this.platformUtilsService.showToast(
+          "error",
+          null,
+          this.i18nService.t("tooManyInvalidPinEntryAttemptsLoggingOut"),
+        );
         this.messagingService.send("logout");
         return;
       }
+
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccurred"),
         this.i18nService.t("invalidPin"),
+      );
+    } catch {
+      this.platformUtilsService.showToast(
+        "error",
+        this.i18nService.t("errorOccurred"),
+        this.i18nService.t("unexpectedError"),
       );
     }
   }
@@ -310,6 +276,7 @@ export class LockComponent implements OnInit, OnDestroy {
 
   private async doContinue(evaluatePasswordAfterUnlock: boolean) {
     await this.stateService.setEverBeenUnlocked(true);
+    await this.biometricStateService.resetPromptCancelled();
     this.messagingService.send("unlocked");
 
     if (evaluatePasswordAfterUnlock) {
@@ -325,6 +292,8 @@ export class LockComponent implements OnInit, OnDestroy {
           await this.stateService.setForceSetPasswordReason(
             ForceSetPasswordReason.WeakMasterPassword,
           );
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.router.navigate([this.forcePasswordResetRoute]);
           return;
         }
@@ -337,6 +306,8 @@ export class LockComponent implements OnInit, OnDestroy {
     if (this.onSuccessfulSubmit != null) {
       await this.onSuccessfulSubmit();
     } else if (this.router != null) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate([this.successRoute]);
     }
   }
@@ -373,7 +344,6 @@ export class LockComponent implements OnInit, OnDestroy {
       (await this.vaultTimeoutSettingsService.isBiometricLockSet()) &&
       ((await this.cryptoService.hasUserKeyStored(KeySuffixOptions.Biometric)) ||
         !this.platformUtilsService.supportsSecureStorage());
-    this.biometricText = await this.stateService.getBiometricText();
     this.email = await this.stateService.getEmail();
 
     this.webVaultHostname = await this.environmentService.getHost();

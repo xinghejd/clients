@@ -17,6 +17,7 @@ import {
   CreateCredentialParams,
   FallbackRequestedError,
 } from "../../abstractions/fido2/fido2-client.service.abstraction";
+import { VaultSettingsService } from "../../abstractions/vault-settings/vault-settings.service";
 
 import { Fido2AuthenticatorService } from "./fido2-authenticator.service";
 import { Fido2ClientService } from "./fido2-client.service";
@@ -32,6 +33,7 @@ describe("FidoAuthenticatorService", () => {
   let configService!: MockProxy<ConfigServiceAbstraction>;
   let authService!: MockProxy<AuthService>;
   let stateService!: MockProxy<StateService>;
+  let vaultSettingsService: MockProxy<VaultSettingsService>;
   let client!: Fido2ClientService;
   let tab!: chrome.tabs.Tab;
 
@@ -40,10 +42,17 @@ describe("FidoAuthenticatorService", () => {
     configService = mock<ConfigServiceAbstraction>();
     authService = mock<AuthService>();
     stateService = mock<StateService>();
+    vaultSettingsService = mock<VaultSettingsService>();
 
-    client = new Fido2ClientService(authenticator, configService, authService, stateService);
+    client = new Fido2ClientService(
+      authenticator,
+      configService,
+      authService,
+      stateService,
+      vaultSettingsService,
+    );
     configService.serverConfig$ = of({ environment: { vault: VaultUrl } } as any);
-    stateService.getEnablePasskeys.mockResolvedValue(true);
+    vaultSettingsService.enablePasskeys$ = of(true);
     authService.getAuthStatus.mockResolvedValue(AuthenticationStatus.Unlocked);
     tab = { id: 123, windowId: 456 } as chrome.tabs.Tab;
   });
@@ -198,6 +207,42 @@ describe("FidoAuthenticatorService", () => {
         );
       });
 
+      it("should return credProps.rk = true when creating a discoverable credential", async () => {
+        const params = createParams({
+          authenticatorSelection: { residentKey: "required", userVerification: "required" },
+          extensions: { credProps: true },
+        });
+        authenticator.makeCredential.mockResolvedValue(createAuthenticatorMakeResult());
+
+        const result = await client.createCredential(params, tab);
+
+        expect(result.extensions.credProps?.rk).toBe(true);
+      });
+
+      it("should return credProps.rk = false when creating a non-discoverable credential", async () => {
+        const params = createParams({
+          authenticatorSelection: { residentKey: "discouraged", userVerification: "required" },
+          extensions: { credProps: true },
+        });
+        authenticator.makeCredential.mockResolvedValue(createAuthenticatorMakeResult());
+
+        const result = await client.createCredential(params, tab);
+
+        expect(result.extensions.credProps?.rk).toBe(false);
+      });
+
+      it("should return credProps = undefiend when the extension is not requested", async () => {
+        const params = createParams({
+          authenticatorSelection: { residentKey: "required", userVerification: "required" },
+          extensions: {},
+        });
+        authenticator.makeCredential.mockResolvedValue(createAuthenticatorMakeResult());
+
+        const result = await client.createCredential(params, tab);
+
+        expect(result.extensions.credProps).toBeUndefined();
+      });
+
       // Spec: If any authenticator returns an error status equivalent to "InvalidStateError", Return a DOMException whose name is "InvalidStateError" and terminate this algorithm.
       it("should throw error if authenticator throws InvalidState", async () => {
         const params = createParams();
@@ -226,7 +271,7 @@ describe("FidoAuthenticatorService", () => {
 
       it("should throw FallbackRequestedError if passkeys state is not enabled", async () => {
         const params = createParams();
-        stateService.getEnablePasskeys.mockResolvedValue(false);
+        vaultSettingsService.enablePasskeys$ = of(false);
 
         const result = async () => await client.createCredential(params, tab);
 
@@ -396,7 +441,7 @@ describe("FidoAuthenticatorService", () => {
 
       it("should throw FallbackRequestedError if passkeys state is not enabled", async () => {
         const params = createParams();
-        stateService.getEnablePasskeys.mockResolvedValue(false);
+        vaultSettingsService.enablePasskeys$ = of(false);
 
         const result = async () => await client.assertCredential(params, tab);
 

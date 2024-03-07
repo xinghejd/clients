@@ -202,11 +202,11 @@
     "description": "A programming term, also known as 'RegEx'."
   },
   "matchDetection": {
-    "message": "Uyğunluq aşkarlaması",
+    "message": "Uyuşmanı aşkarlama",
     "description": "URI match detection for auto-fill."
   },
   "defaultMatchDetection": {
-    "message": "İlkin uyğunluq aşkarlaması",
+    "message": "İlkin uyuşma aşkarlaması",
     "description": "Default URI match detection for auto-fill."
   },
   "never": {
@@ -638,9 +638,6 @@
   "learnMoreAboutPasswordless": {
     "message": "Parolsuz haqqında daha ətraflı"
   },
-  "passkeyEnterMasterPassword": {
-    "message": "Parol ayarlarına sahib girişi dəyişdirmək üçün ana parolunuzu daxil edin."
-  },
   "creatingPasskeyLoading": {
     "message": "Keçid açarı yaradılır..."
   },
@@ -655,9 +652,6 @@
   },
   "passkeySuccessfullyCreated": {
     "message": "Keçid açarı uğurla yaradıldı!"
-  },
-  "customName": {
-    "message": "Özəl ad"
   },
   "customPasskeyNameInfo": {
     "message": "Müəyyənləşdirməyə kömək etmək üçün keçid açarınızı adlandırın."
@@ -790,7 +784,7 @@
     }
   },
   "masterPassDoesntMatch": {
-    "message": "Ana parolun təsdiqi uyğun gəlmir."
+    "message": "Ana parolun təsdiqi uyuşmur."
   },
   "newAccountCreated": {
     "message": "Yeni hesabınız yaradıldı! İndi giriş edə bilərsiniz."
@@ -1120,7 +1114,7 @@
     "message": "Parolla qorunur"
   },
   "filePasswordAndConfirmFilePasswordDoNotMatch": {
-    "message": "\"Fayl parolu\" və \"Fayl parolunu təsdiqlə\" uyğunlaşmır."
+    "message": "\"Fayl parolu\" və \"Fayl parolunu təsdiqlə\" uyuşmur."
   },
   "confirmVaultImport": {
     "message": "Anbarın daxilə köçürülməsini təsdiqlə"
@@ -1353,6 +1347,22 @@
   "importData": {
     "message": "Verilənləri idxal et"
   },
+  "onboardingImportDataDetailsPartOne": {
+    "message": "Daxilə köçürüləcək datanız yoxdursa, əvəzində yeni element yarada bilərsiniz.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsLink": {
+    "message": " ",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsPartTwoNoOrgs": {
+    "message": " instead.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
+  },
+  "onboardingImportDataDetailsPartTwoWithOrgs": {
+    "message": "Administratorunuz təşkilat üzvlüyünüzü təsdiqləyənə qədər gözləməli ola bilərsiniz.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+  },
   "importError": {
     "message": "İdxal xətası"
   },
@@ -1390,7 +1400,7 @@
     "message": "Heç nə idxal edilmədi."
   },
   "importEncKeyError": {
-    "message": "İxrac edilən faylın parolu açılarkən xəta baş verdi. Şifrələmə açarınız, verilənlərin ixracında istifadə olunan şifrələmə açarı ilə uyğunlaşmır."
+    "message": "Xaricə köçürülən faylın şifrəsi açılarkən xəta baş verdi. Şifrələmə açarınız, datanı xaricə köçürmək üçün istifadə edilən şifrələmə açarı ilə uyuşmur."
   },
   "importDestination": {
     "message": "Hədəfi daxilə köçür"
@@ -1465,13 +1475,6 @@
   },
   "faviconDesc": {
     "message": "Hər girişin yanında tanına bilən təsvir göstər."
-  },
-  "enableFullWidth": {
-    "message": "Tam en görünüşünü fəallaşdır",
-    "description": "Allows scaling the web vault UI's width"
-  },
-  "enableFullWidthDesc": {
-    "message": "Veb anbara, brauzer pəncərəsinin eninin tamamını istifadə etməsinə icazə ver."
   },
   "default": {
     "message": "İlkin"
@@ -2534,6 +2537,15 @@
       }
     }
   },
+  "trialSecretsManagerThankYou": {
+    "message": "$PLAN$ qarşılığında Bitwarden Sirr Menecerində qeydiyyatdan keçdiyiniz üçün təşəkkürlər!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
   "trialPaidInfoMessage": {
     "message": "7 gün ödənişsiz sınaq $PLAN$, 7 gün sonra ödənişli abunəliyə çevriləcək.",
     "placeholders": {
@@ -2646,7 +2658,7 @@
     "message": "Xarici kimlik, referans olaraq və ya bu mənbəni istifadəçi kataloqu kimi xarici bir sistemə bağlamaq üçün istifadə edilir."
   },
   "nestCollectionUnder": {
-    "message": "Nest collection under"
+    "message": "Kolleksiyanı bunun altında yerləşdir"
   },
   "accessControl": {
     "message": "Müraciət nəzarəti"
@@ -2818,6 +2830,9 @@
   },
   "incorrectCode": {
     "message": "Yanlış kod"
+  },
+  "incorrectPin": {
+    "message": "Yanlış PIN"
   },
   "exportedVault": {
     "message": "Anbar ixrac edildi."
@@ -3781,7 +3796,7 @@
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "fingerprintMatchInfo": {
-    "message": "Lütfən anbarınızın kilidinin açıq olduğuna və Barmaq izi ifadəsinin digər cihazla uyğunlaşdığına əmin olun."
+    "message": "Lütfən anbarınızın kilidinin açıq olduğuna və Barmaq izi ifadəsinin digər cihazla uyuşduğuna əmin olun."
   },
   "fingerprintPhraseHeader": {
     "message": "Barmaq izi ifadəsi"
@@ -3827,15 +3842,6 @@
   },
   "couldNotChargeCardPayInvoice": {
     "message": "Kartınızdan ödənişi ala bilmədik. Lütfən aşağıda sadalanan ödənilməmiş fakturanı göstərin və ödəyin."
-  },
-  "inAppPurchase": {
-    "message": "Tətbiq daxili satın alma"
-  },
-  "cannotPerformInAppPurchase": {
-    "message": "Tətbiq daxili satın alma metodunu istifadə edərkən bu əməliyyatı icra edə bilməzsiniz."
-  },
-  "manageSubscriptionFromStore": {
-    "message": "Abunəliyinizi tətbiq daxili satın almanı etdiyiniz mağazadan idarə etməlisiniz."
   },
   "minLength": {
     "message": "Minimal uzunluq"
@@ -4033,6 +4039,12 @@
   },
   "ssoHandOff": {
     "message": "Bu vərəqi indi bağlayıb uzantıda davam edə bilərsiniz."
+  },
+  "youSuccessfullyLoggedIn": {
+    "message": "Uğurla giriş etdiniz"
+  },
+  "thisWindowWillCloseIn5Seconds": {
+    "message": "Bu pəncərə 5 saniyəyə avtomatik bağlanacaq"
   },
   "includeAllTeamsFeatures": {
     "message": "Bütün komanda özəllikləri, əlavə olaraq:"
@@ -4935,6 +4947,9 @@
   "newClientOrganizationDesc": {
     "message": "Provayder kimi sizinlə əlaqə yaradılacaq yeni bir müştəri təşkilatı yaradın. Bu təşkilata müraciət edə və onu idarə edə biləcəksiniz."
   },
+  "newClient": {
+    "message": "Yeni müştəri"
+  },
   "addExistingOrganization": {
     "message": "Mövcud təşkilatı əlavə et"
   },
@@ -5187,6 +5202,12 @@
   },
   "spValidateCertificates": {
     "message": "Sertifikatları doğrula"
+  },
+  "spUniqueEntityId": {
+    "message": "Unikal bir SP varlıq kimliyi təyin et"
+  },
+  "spUniqueEntityIdDesc": {
+    "message": "Təşkilatınıza xas unikal bir identifikator yaradın"
   },
   "idpEntityId": {
     "message": "Varlıq kimliyi"
@@ -5912,6 +5933,15 @@
       }
     }
   },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "DUO-nu başladın və giriş prosesini tamamlamaq üçün addımları izləyin."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "Hesabınız üçün DUO iki addımlı giriş tələb olunur."
+  },
+  "launchDuo": {
+    "message": "DUO-nu başlat"
+  },
   "turnOn": {
     "message": "İşə sal"
   },
@@ -6610,11 +6640,44 @@
       }
     }
   },
-  "membersColumnHeader": {
-    "message": "Üzv/Qrup"
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Bu əməliyyat üçün doğrulama tələb olunur. Davam etmək üçün bir PIN təyin edin."
   },
-  "groupAndMemberColumnHeader": {
+  "setPin": {
+    "message": "PIN təyin et"
+  },
+  "verifyWithBiometrics": {
+    "message": "Biometriklə doğrula"
+  },
+  "awaitingConfirmation": {
+    "message": "Təsdiq gözlənilir"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Biometrik tamamlana bilmədi."
+  },
+  "needADifferentMethod": {
+    "message": "Fərqli bir üsul lazımdır?"
+  },
+  "useMasterPassword": {
+    "message": "Ana parolu istifadə et"
+  },
+  "usePin": {
+    "message": "PIN-i istifadə et"
+  },
+  "useBiometrics": {
+    "message": "Biometrik istifadə et"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "E-poçtunuza göndərilmiş doğrulama kodunu daxil edin."
+  },
+  "resendCode": {
+    "message": "Kodu təkrar göndər"
+  },
+  "memberColumnHeader": {
     "message": "Üzv"
+  },
+  "groupSlashMemberColumnHeader": {
+    "message": "Qrup/Üzv"
   },
   "selectGroupsAndMembers": {
     "message": "Qrup və üzv seç"
@@ -6668,7 +6731,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Upgrade to your plan to invite more members.",
+    "message": "Teams Starter planlarında ən çox $SEATCOUNT$ üzv ola bilər. Daha çox üzv dəvət etmək üçün planınızı yüksəldin.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -6820,9 +6883,6 @@
   "secretsManager": {
     "message": "Sirr Meneceri"
   },
-  "secretsManagerBeta": {
-    "message": "Sirr Meneceri Beta"
-  },
   "secretsManagerAccessDescription": {
     "message": "\"Sirr Meneceri\"nə istifadəçi müraciətini aktivləşdir."
   },
@@ -6869,6 +6929,9 @@
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
+  },
+  "createAnAccount": {
+    "message": "Bir hesab yarat"
   },
   "createSecret": {
     "message": "Bir sirr yarat"
@@ -6925,12 +6988,6 @@
   },
   "selectionIsRequired": {
     "message": "Seçim tələb olunur."
-  },
-  "secretsManagerSubscriptionDesc": {
-    "message": "Beta proqramı zamanı təşkilatın \"Sirr Meneceri\"nə müraciətini ödənişsiz olaraq işə salın. İstifadəçilərə, Üzvlərdə Betaya müraciət icazəsi verilə bilər."
-  },
-  "secretsManagerEnable": {
-    "message": "\"Sirr Meneceri Beta\"nı fəallaşdır"
   },
   "saPeopleWarningTitle": {
     "message": "Müraciət tokenləri hələ də əlçatandır"
@@ -7092,6 +7149,10 @@
       }
     }
   },
+  "verificationRequired": {
+    "message": "Doğrulama tələb olunur",
+    "description": "Default title for the user verification dialog."
+  },
   "recoverAccount": {
     "message": "Hesabı geri qaytar"
   },
@@ -7193,6 +7254,15 @@
   },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "$ORG$ üçün Bitwarden 7 günlük ödənişsiz sınağı başladın",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerFor": {
+    "message": "$ORG$ üçün Bitwarden Sirr Meneceri üzrə 7 günlük ödənişsiz sınağı başladın",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -7331,8 +7401,8 @@
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Sahiblər və adminlər bütün kolleksiyaları və elementləri idarə edə bilər"
   },
-  "collectionManagementUpdated": {
-    "message": "Kolleksiya idarəetmə davranışı saxlanıldı"
+  "updatedCollectionManagement": {
+    "message": "Güncəllənən kolleksiya idarəetmə ayarı"
   },
   "passwordManagerPlanPrice": {
     "message": "Parol Meneceri plan qiyməti"
@@ -7361,22 +7431,6 @@
   "loggedInExclamation": {
     "message": "Giriş edildi!"
   },
-  "smBetaEndedDesc": {
-    "message": "Sirr Meneceri Beta $BETA_ENDING_DATE$ tarixində bitir. \"Sirr Meneceri\"ni ödənişli abunəliyinizə əlavə etmək və Sirr Meneceri datalarına müraciəti davam etdirmək üçün $DAYS$ gününüz qaldı. \"Sirr Meneceri\"ni abunəliyinizə əlavə etmək üçün Müştəri Uğuru ilə əlaqə saxlayın.",
-    "placeholders": {
-      "beta_ending_date": {
-        "content": "$1",
-        "example": "August 1, 2023"
-      },
-      "days": {
-        "content": "$2",
-        "example": "11"
-      }
-    }
-  },
-  "betaEnding": {
-    "message": "Beta bitir"
-  },
   "beta": {
     "message": "Beta"
   },
@@ -7397,12 +7451,6 @@
   },
   "skipToContent": {
     "message": "Məzmunu ötür"
-  },
-  "customBillingStart": {
-    "message": "Özəl faktura əks olunmur. Son faktura üçün "
-  },
-  "customBillingEnd": {
-    "message": " səhifəsini ziyarət edin."
   },
   "managePermissionRequired": {
     "message": "Ən azı bir üzv və ya qrup idarə edə bilmə icazəsinə sahib olmalıdır."
@@ -7429,6 +7477,12 @@
     "message": "Kömək saytımızda detallı təlimatlara baxın",
     "description": "This is followed a by a hyperlink to the help website."
   },
+  "installBrowserExtension": {
+    "message": "Brauzer uzantısını quraşdır"
+  },
+  "installBrowserExtensionDetails": {
+    "message": "Veb tətbiqi açmadan giriş məlumatlarını cəld saxlamaq və formları avto-doldurmaq üçün uzantını istifadə edin."
+  },
   "projectAccessUpdated": {
     "message": "Layihə müraciəti güncəlləndi"
   },
@@ -7447,7 +7501,106 @@
   "collectionAccessRestricted": {
     "message": "Kolleksiya müraciəti məhdudlaşdırıldı"
   },
+  "grantCollectionAccess": {
+    "message": "Qrup və ya üzvlərin bu kolleksiyaya müraciətinə icazə verin."
+  },
+  "grantCollectionAccessMembersOnly": {
+    "message": "Üzvlərin bu kolleksiyaya müraciətinə icazə verin."
+  },
+  "adminCollectionAccess": {
+    "message": "Administratorlar kolleksiyalara müraciət edə və onları idarə edə bilər."
+  },
   "serviceAccountAccessUpdated": {
     "message": "Xidmət hesabına müraciət güncəlləndi"
+  },
+  "commonImportFormats": {
+    "message": "Ortaq formatlar",
+    "description": "Label indicating the most common import formats"
+  },
+  "maintainYourSubscription": {
+    "message": "$ORG$ abunəliyinizi davam etdirmək üçün, ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Example Inc."
+      }
+    }
+  },
+  "addAPaymentMethod": {
+    "message": "bir ödəniş üsulu əlavə edin",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
+  },
+  "collectionEnhancementsDesc": {
+    "message": "Əlavə rahatlıq üçün yeni ayarlar və icazələr əlavə edin. Menecer rolunu \"idarə edə bilər\" icazəsi ilə əvəz edin və istifadəçilərin kolleksiyalar yaratmasına imkan verən və kolleksiyalara administrativ müraciəti məhdudlaşdıran seçimlər təqdim edin.",
+    "description": "This describes new features and improvements for user roles and collections"
+  },
+  "collectionEnhancementsLearnMore": {
+    "message": "Kolleksiya idarəsi haqqında daha ətraflı"
+  },
+  "organizationInformation": {
+    "message": "Təşkilat məlumatları"
+  },
+  "confirmationDetails": {
+    "message": "Təsdiq detalları"
+  },
+  "smFreeTrialThankYou": {
+    "message": "Bitwarden Sirr Menecerində qeydiyyatdan keçdiyiniz üçün təşəkkürlər!"
+  },
+  "smFreeTrialConfirmationEmail": {
+    "message": "E-poçtunuza bir təsdiq məktubu göndərdik "
+  },
+  "confirmCollectionEnhancementsDialogTitle": {
+    "message": "Bu əməliyyatın geri dönüşü yoxdur"
+  },
+  "confirmCollectionEnhancementsDialogContent": {
+    "message": "Bu özəlliyin işə salınması, menecer rolunu ləğv edəcək və onu \"İdarə edə bilər\" icazəsi ilə əvəz edəcək. Bu bir neçə dəqiqə çəkəcək. Tamamlanana qədər heç bir təşkilat dəyişikliyi etməyin. Davam etmək istədiyinizə əminsiniz?"
+  },
+  "sorryToSeeYouGo": {
+    "message": "Getməyinizə məyus olduq! Nə üçün ləğv etdiyinizi paylaşmaqla Bitwarden-i təkmilləşdirməyə kömək edin.",
+    "description": "A message shown to users as part of an offboarding survey asking them to provide more information on their subscription cancelation."
+  },
+  "selectCancellationReason": {
+    "message": "Ləğv etmək üçün bir səbəb seçin",
+    "description": "Used as a form field label for a select input on the offboarding survey."
+  },
+  "anyOtherFeedback": {
+    "message": "Paylaşmaq istədiyiniz başqa nəsə var?",
+    "description": "Used as a form field label for a textarea input on the offboarding survey."
+  },
+  "missingFeatures": {
+    "message": "Əskik özəlliklər",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "movingToAnotherTool": {
+    "message": "Başqa bir alətə keçirəm",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooDifficultToUse": {
+    "message": "İstifadəsi çətindir",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "notUsingEnough": {
+    "message": "Yetərincə istifadə etmədim",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooExpensive": {
+    "message": "Çox bahadır",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "freeForOneYear": {
+    "message": "1 illik ödənişsiz"
+  },
+  "newWebApp": {
+    "message": "Yeni və təkmilləşdirilmiş veb tətbiqinə xoş gəlmisiniz. Nələr dəyişdiyi haqqqında daha ətraflı öyrənin."
+  },
+  "releaseBlog": {
+    "message": "Buraxılış bloqunu oxuyun"
+  },
+  "adminConsole": {
+    "message": "Admin Konsolu"
+  },
+  "providerPortal": {
+    "message": "Provayder Portal"
   }
 }

@@ -18,8 +18,9 @@ import {
   AbstractStorageService,
   ObservableStorageService,
 } from "../../abstractions/storage.service";
-import { KeyDefinition, userKeyBuilder } from "../key-definition";
+import { StateEventRegistrarService } from "../state-event-registrar.service";
 import { StateUpdateOptions, populateOptionsWithDefault } from "../state-update-options";
+import { UserKeyDefinition } from "../user-key-definition";
 import { CombinedState, SingleUserState } from "../user-state";
 
 import { getStoredValue } from "./util";
@@ -28,15 +29,16 @@ export class DefaultSingleUserState<T> implements SingleUserState<T> {
   private storageKey: string;
   private updatePromise: Promise<T> | null = null;
 
-  state$: Observable<T>;
-  combinedState$: Observable<CombinedState<T>>;
+  readonly state$: Observable<T>;
+  readonly combinedState$: Observable<CombinedState<T>>;
 
   constructor(
     readonly userId: UserId,
-    private keyDefinition: KeyDefinition<T>,
+    private keyDefinition: UserKeyDefinition<T>,
     private chosenLocation: AbstractStorageService & ObservableStorageService,
+    private stateEventRegistrarService: StateEventRegistrarService,
   ) {
-    this.storageKey = userKeyBuilder(this.userId, this.keyDefinition);
+    this.storageKey = this.keyDefinition.buildKey(this.userId);
     const initialStorageGet$ = defer(() => {
       return getStoredValue(this.storageKey, this.chosenLocation, this.keyDefinition.deserializer);
     });
@@ -100,6 +102,11 @@ export class DefaultSingleUserState<T> implements SingleUserState<T> {
 
     const newState = configureState(currentState, combinedDependencies);
     await this.chosenLocation.save(this.storageKey, newState);
+    if (newState != null && currentState == null) {
+      // Only register this state as something clearable on the first time it saves something
+      // worth deleting. This is helpful in making sure there is less of a race to adding events.
+      await this.stateEventRegistrarService.registerEvents(this.keyDefinition);
+    }
     return newState;
   }
 
@@ -107,6 +114,10 @@ export class DefaultSingleUserState<T> implements SingleUserState<T> {
    * The expectation is that that await is already done
    */
   private async getStateForUpdate() {
-    return await firstValueFrom(this.state$);
+    return await getStoredValue(
+      this.storageKey,
+      this.chosenLocation,
+      this.keyDefinition.deserializer,
+    );
   }
 }

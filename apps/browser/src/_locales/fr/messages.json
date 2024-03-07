@@ -107,7 +107,7 @@
     "message": "Copier le nom du champ personnalisé"
   },
   "noMatchingLogins": {
-    "message": "Aucun identifiant correspondant."
+    "message": "Aucun identifiant correspondant"
   },
   "noCards": {
     "message": "Aucune carte"
@@ -131,7 +131,7 @@
     "message": "Connectez-vous à votre coffre"
   },
   "autoFillInfo": {
-    "message": "Il n'y a pas d'identifiants disponibles à saisir automatiquement pour l'onglet actuel du navigateur."
+    "message": "Il n'y a pas d'identifiants disponibles pour la saisie automatique dans l'onglet actuel."
   },
   "addLogin": {
     "message": "Ajouter un identifiant"
@@ -140,7 +140,7 @@
     "message": "Ajouter un élément"
   },
   "passwordHint": {
-    "message": "Indice mot de passe"
+    "message": "Indice de mot de passe"
   },
   "enterEmailToGetHint": {
     "message": "Saisissez l'adresse électronique de votre compte pour recevoir l'indice de votre mot de passe principal."
@@ -177,7 +177,7 @@
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "yourAccountsFingerprint": {
-    "message": "La phrase d'empreinte de votre compte",
+    "message": "Phrase d'empreinte de votre compte",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "twoStepLogin": {
@@ -229,7 +229,7 @@
     "message": "Contacter le support Bitwarden"
   },
   "sync": {
-    "message": "Synchroniser"
+    "message": "Synchronisation"
   },
   "syncVaultNow": {
     "message": "Synchroniser le coffre maintenant"
@@ -327,7 +327,7 @@
     "message": "Mot de passe"
   },
   "totp": {
-    "message": "Authenticator secret"
+    "message": "Application d'authentification"
   },
   "passphrase": {
     "message": "Phrase de passe"
@@ -369,10 +369,10 @@
     "message": "Autre"
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Configurez une méthode de déverrouillage pour changer le délai d'attente de votre coffre."
+    "message": "Configurez une méthode de déverrouillage pour changer le délai d'expiration de votre coffre."
   },
   "unlockMethodNeeded": {
-    "message": "Configurer une méthode de déverrouillage dans Paramètres"
+    "message": "Configurer une méthode de déverrouillage dans les Paramètres"
   },
   "rateExtension": {
     "message": "Noter l'extension"
@@ -493,6 +493,12 @@
   "newAccountCreated": {
     "message": "Votre nouveau compte a été créé ! Vous pouvez maintenant vous authentifier."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "Vous vous êtes connecté avec succès"
+  },
+  "youMayCloseThisWindow": {
+    "message": "Vous pouvez fermer cette fenêtre"
+  },
   "masterPassSent": {
     "message": "Nous vous avons envoyé un courriel avec votre indice de mot de passe principal."
   },
@@ -513,19 +519,19 @@
     }
   },
   "autofillError": {
-    "message": "Impossible de saisir automatiquement l'élément sélectionné sur cette page. Copiez-collez plutôt l'information."
+    "message": "Impossible de saisir automatiquement l'élément sélectionné sur cette page. Essayez plutôt le copier-coller."
   },
   "totpCaptureError": {
-    "message": "Unable to scan QR code from the current webpage"
+    "message": "Impossible de scanner le code QR à partir de la page web actuelle"
   },
   "totpCaptureSuccess": {
-    "message": "Authenticator key added"
+    "message": "Clé d'authentification ajoutée"
   },
   "totpCapture": {
-    "message": "Scan authenticator QR code from current webpage"
+    "message": "Scanner le code QR à partir de la page web actuelle"
   },
   "copyTOTP": {
-    "message": "Copy Authenticator key (TOTP)"
+    "message": "Copier la clé TOTP"
   },
   "loggedOut": {
     "message": "Déconnecté"
@@ -558,7 +564,7 @@
     "message": "Vous pouvez changer votre mot de passe principal depuis le coffre web de bitwarden.com. Voulez-vous visiter le site web maintenant ?"
   },
   "twoStepLoginConfirmation": {
-    "message": "L'authentification à deux facteurs rend votre compte plus sûr en vous demandant de vérifier votre connexion avec un autre dispositif tel qu'une clé de sécurité, une application d'authentification, un SMS, un appel téléphonique ou un courriel. L'authentification à deux facteurs peut être configurée sur le coffre web de bitwarden.com. Voulez-vous visiter le site web maintenant ?"
+    "message": "L'authentification à deux facteurs rend votre compte plus sûr en vous demandant de vérifier votre connexion avec un autre dispositif tel qu'une clé de sécurité, une application d'authentification, un SMS, un appel téléphonique ou un courriel. L'authentification à deux facteurs peut être configurée dans le coffre web de bitwarden.com. Voulez-vous visiter le site web maintenant ?"
   },
   "editedFolder": {
     "message": "Dossier sauvegardé"
@@ -644,16 +650,16 @@
     "message": "Demander à ajouter un élément si aucun n'est trouvé dans votre coffre."
   },
   "addLoginNotificationDescAlt": {
-    "message": "Demander d'ajouter un élément s'il n'est pas présent dans le coffre. S'applique à tous les comptes connectés."
+    "message": "Demandez d'ajouter un élément s'il celui-ci n'est pas trouvé dans votre coffre. S'applique à tous les comptes connectés."
   },
   "showCardsCurrentTab": {
-    "message": "Afficher les cartes sur la page de l'onglet"
+    "message": "Afficher les cartes de paiement sur page d'Onglet"
   },
   "showCardsCurrentTabDesc": {
     "message": "Lister les éléments de la carte sur la page de l'onglet pour faciliter la saisie automatique."
   },
   "showIdentitiesCurrentTab": {
-    "message": "Afficher les identités sur la page Onglet courant"
+    "message": "Afficher les identités sur page d'Onglet"
   },
   "showIdentitiesCurrentTabDesc": {
     "message": "Lister les éléments d'identité sur la page de l'onglet pour faciliter la saisie automatique."
@@ -663,7 +669,7 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "clearClipboardDesc": {
-    "message": "Effacer automatiquement de votre presse-papiers les valeurs copiées.",
+    "message": "Efface automatiquement les valeurs copiées de votre presse-papiers.",
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "notificationAddDesc": {
@@ -673,19 +679,19 @@
     "message": "Enregistrer"
   },
   "enableChangedPasswordNotification": {
-    "message": "Demander à mettre à jour l'identifiant existant"
+    "message": "Demander à mettre à jour un identifiant existant"
   },
   "changedPasswordNotificationDesc": {
     "message": "Demander à mettre à jour le mot de passe d'un identifiant lorsqu'un changement est détecté sur un site Web."
   },
   "changedPasswordNotificationDescAlt": {
-    "message": "Ask to update a login's password when a change is detected on a website. Applies to all logged in accounts."
+    "message": "Demander à mettre à jour le mot de passe d'un identifiant lorsqu'un changement est détecté sur un site web. S'applique à tous les comptes connectés."
   },
   "enableUsePasskeys": {
-    "message": "Demander à enregistrer et utiliser les mots de passe"
+    "message": "Demander à enregistrer et utiliser les clés d'accès"
   },
   "usePasskeysDesc": {
-    "message": "Ask to save new passkeys or log in with passkeys stored in your vault. Applies to all logged in accounts."
+    "message": "Demander d'enregistrer de nouvelles clés d'accès ou bien de se connecter à l'aide de clés stockées dans votre coffre. S'applique à tous les comptes connectés."
   },
   "notificationChangeDesc": {
     "message": "Souhaitez-vous mettre à jour ce mot de passe dans Bitwarden ?"
@@ -703,10 +709,10 @@
     "message": "Afficher les options du menu contextuel"
   },
   "contextMenuItemDesc": {
-    "message": "Utilisez un clic secondaire pour accéder à la génération de mots de passe et les identifiants correspondants pour le site Web. "
+    "message": "Utilise un clic secondaire pour accéder à la génération de mots de passe et aux identifiants correspondants pour le site web."
   },
   "contextMenuItemDescAlt": {
-    "message": "Use a secondary click to access password generation and matching logins for the website. Applies to all logged in accounts."
+    "message": "Utilise un clic secondaire pour accéder à la génération de mot de passe et aux identifiants correspondants pour le site web. S'applique à tous les comptes connectés."
   },
   "defaultUriMatchDetection": {
     "message": "Détection de correspondance URI par défaut",
@@ -722,7 +728,7 @@
     "message": "Modifier le thème de couleur de l'application."
   },
   "themeDescAlt": {
-    "message": "Modifier le thème de couleur de l'application. S'applique à tous les comptes connectés."
+    "message": "Modifie le thème de couleur de l'application. S'applique à tous les comptes connectés."
   },
   "dark": {
     "message": "Sombre",
@@ -901,10 +907,10 @@
     "message": "Actualisation terminée"
   },
   "enableAutoTotpCopy": {
-    "message": "Copier le code TOTP automatiquement"
+    "message": "Copier TOTP automatiquement"
   },
   "disableAutoTotpCopyDesc": {
-    "message": "Si un identifiant possède une clé d'authentification, copiez le code de vérification TOTP dans votre presse-papiers lorsque vous saisissez automatiquement l'identifiant."
+    "message": "Si un identifiant possède une clé d'authentification, copie le code de vérification TOTP dans votre presse-papiers lorsque vous saisissez automatiquement l'identifiant."
   },
   "enableAutoBiometricsPrompt": {
     "message": "Demander la biométrie au lancement"
@@ -1045,11 +1051,11 @@
     "message": "Les URLs d'environnement ont été enregistrées."
   },
   "showAutoFillMenuOnFormFields": {
-    "message": "Afficher le menu de saisie automatique sur les champs du formulaire",
+    "message": "Afficher le menu de saisie automatique dans les champs d'un formulaire",
     "description": "Represents the message for allowing the user to enable the auto-fill overlay"
   },
   "showAutoFillMenuOnFormFieldsDescAlt": {
-    "message": "Appliquer à tous les comptes connectés."
+    "message": "S'applique à tous les comptes connectés."
   },
   "turnOffBrowserBuiltInPasswordManagerSettings": {
     "message": "Désactivez les paramètres du gestionnaire de mots de passe intégré à votre navigateur pour éviter les conflits."
@@ -1058,11 +1064,11 @@
     "message": "Éditer les paramètres du navigateur."
   },
   "autofillOverlayVisibilityOff": {
-    "message": "Arrêt",
+    "message": "Désactivé",
     "description": "Overlay setting select option for disabling autofill overlay"
   },
   "autofillOverlayVisibilityOnFieldFocus": {
-    "message": "When field is selected (on focus)",
+    "message": "Lorsque le champ est sélectionné (sur \"focus\")",
     "description": "Overlay appearance select option for showing the field on focus of the input element"
   },
   "autofillOverlayVisibilityOnButtonClick": {
@@ -1073,10 +1079,10 @@
     "message": "Saisir automatiquement au chargement de la page"
   },
   "enableAutoFillOnPageLoadDesc": {
-    "message": "Si un formulaire de connexion est détecté, saisir automatiquement lors du chargement de la page web."
+    "message": "Si un formulaire de connexion est détecté, il sera saisi automatiquement lors du chargement de la page web."
   },
   "experimentalFeature": {
-    "message": "Les sites web compromis ou non fiables peuvent exploiter la saisie automatique au chargement de la page."
+    "message": "les sites web compromis ou non fiables peuvent exploiter la saisie automatique au chargement de la page."
   },
   "learnMoreAboutAutofill": {
     "message": "En savoir plus sur la saisie automatique"
@@ -1159,16 +1165,16 @@
     "message": "Afficher les icônes des sites web"
   },
   "faviconDesc": {
-    "message": "Afficher une image reconnaissable à côté de chaque identifiant."
+    "message": "Affiche une image reconnaissable à côté de chaque identifiant."
   },
   "faviconDescAlt": {
-    "message": "Show a recognizable image next to each login. Applies to all logged in accounts."
+    "message": "Affiche une image reconnaissable à côté de chaque identifiant. S'applique à tous les comptes connectés."
   },
   "enableBadgeCounter": {
     "message": "Afficher le compteur de badge"
   },
   "badgeCounterDesc": {
-    "message": "Indique le nombre d'identifiants que vous avez pour la page web actuelle."
+    "message": "Indique le nombre d'identifiants dont vous disposez pour la page web en cours."
   },
   "cardholderName": {
     "message": "Nom du titulaire de la carte"
@@ -1273,7 +1279,7 @@
     "message": "Numéro de passeport"
   },
   "licenseNumber": {
-    "message": "Numéro de permis de Conduire"
+    "message": "Numéro de licence"
   },
   "email": {
     "message": "Courriel"
@@ -1493,6 +1499,9 @@
   "invalidPin": {
     "message": "Code PIN invalide."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Trop de tentatives de saisie du code PIN incorrectes. Déconnexion."
+  },
   "unlockWithBiometrics": {
     "message": "Déverrouiller par biométrie"
   },
@@ -1562,7 +1571,7 @@
     "message": "Élément saisi automatiquement"
   },
   "insecurePageWarning": {
-    "message": "Avertissement : il s'agit d'une page HTTP non sécurisée, et toute information que vous soumettez peut potentiellement être vue et modifiée par d'autres. À l'origine, cet identifiant a été enregistré sur une page sécurisée (HTTPS)."
+    "message": "Avertissement : il s'agit d'une page HTTP non sécurisée, et toute information que vous soumettez peut potentiellement être vue et modifiée par un tiers. À l'origine, cet identifiant a été enregistré sur une page sécurisée (HTTPS)."
   },
   "insecurePageWarningFillPrompt": {
     "message": "Voulez-vous toujours saisir automatiquement cet identifiant ?"
@@ -1730,10 +1739,10 @@
     "message": "Domaines exclus"
   },
   "excludedDomainsDesc": {
-    "message": "Bitwarden ne proposera pas d'enregistrer les informations de connexion pour ces domaines. Vous devez actualiser la page pour que les modifications prennent effet."
+    "message": "Bitwarden ne demandera pas d'enregistrer les détails de connexion pour ces domaines. Vous devez actualiser la page pour que les modifications prennent effet."
   },
   "excludedDomainsDescAlt": {
-    "message": "Bitwarden will not ask to save login details for these domains for all logged in accounts. You must refresh the page for changes to take effect."
+    "message": "Bitwarden ne demandera pas d'enregistrer les détails de connexion pour ces domaines pour tous les comptes connectés. Vous devez actualiser la page pour que les modifications prennent effet."
   },
   "excludedDomainsInvalidDomain": {
     "message": "$DOMAIN$ n'est pas un domaine valide",
@@ -1995,6 +2004,10 @@
   "selectFolder": {
     "message": "Sélectionnez un dossier..."
   },
+  "noFoldersFound": {
+    "message": "Aucun dossier trouvé",
+    "description": "Used as a message within the notification bar when no folders are found"
+  },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "Les autorisations de votre organisation ont été mises à jour, vous obligeant à définir un mot de passe principal.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
@@ -2002,6 +2015,10 @@
   "orgRequiresYouToSetPassword": {
     "message": "Votre organisation exige que vous définissiez un mot de passe principal.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "verificationRequired": {
+    "message": "Vérification requise",
+    "description": "Default title for the user verification dialog."
   },
   "hours": {
     "message": "Heures"
@@ -2297,7 +2314,7 @@
     "message": "Comment saisir automatiquement"
   },
   "autofillSelectInfoWithCommand": {
-    "message": "Select an item from this screen, use the shortcut $COMMAND$, or explore other options in settings.",
+    "message": "Sélectionnez un élément à partir de cet écran, utilisez le raccourci $COMMAND$ ou explorez d'autres options dans les paramètres.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2306,7 +2323,7 @@
     }
   },
   "autofillSelectInfoWithoutCommand": {
-    "message": "Select an item from this screen, or explore other options in settings."
+    "message": "Sélectionnez un élément à partir de cet écran ou explorez d'autres options dans les paramètres."
   },
   "gotIt": {
     "message": "Compris"
@@ -2513,11 +2530,11 @@
     "description": "Toggling an expand/collapse state."
   },
   "filelessImport": {
-    "message": "Import your data to Bitwarden?",
+    "message": "Importer vos données dans Bitwarden ?",
     "description": "Default notification title for triggering a fileless import."
   },
   "lpFilelessImport": {
-    "message": "Protect your LastPass data and import to Bitwarden?",
+    "message": "Protéger vos données LastPass et importer dans Bitwarden ?",
     "description": "LastPass specific notification title for triggering a fileless import."
   },
   "lpCancelFilelessImport": {
@@ -2537,11 +2554,11 @@
     "description": "Notification message for when an import has completed successfully."
   },
   "dataImportFailed": {
-    "message": "Error importing. Check console for details.",
+    "message": "Erreur lors de l'importation. Consultez la console pour plus de détails.",
     "description": "Notification message for when an import has failed."
   },
   "importNetworkError": {
-    "message": "Network error encountered during import.",
+    "message": "Une erreur réseau s'est produite lors de l'importation.",
     "description": "Notification message for when an import has failed due to a network error."
   },
   "aliasDomain": {
@@ -2567,7 +2584,7 @@
     "description": "Page title for the iframe containing the overlay button"
   },
   "toggleBitwardenVaultOverlay": {
-    "message": "Toggle Bitwarden auto-fill menu",
+    "message": "(Dés)activer le menu de saisie automatique de Bitwarden",
     "description": "Screen reader and tool tip label for the overlay button"
   },
   "bitwardenVault": {
@@ -2575,7 +2592,7 @@
     "description": "Page title in overlay"
   },
   "unlockYourAccountToViewMatchingLogins": {
-    "message": "Unlock your account to view matching logins",
+    "message": "Déverrouillez votre compte pour afficher les identifiants correspondants",
     "description": "Text to display in overlay when the account is locked."
   },
   "unlockAccount": {
@@ -2603,7 +2620,7 @@
     "description": "Screen reader text (aria-label) for new item button in overlay"
   },
   "bitwardenOverlayMenuAvailable": {
-    "message": "Bitwarden auto-fill menu available. Press the down arrow key to select.",
+    "message": "Menu de saisie automatique de Bitwarden disponible. Appuyez sur la touche Flèche bas pour sélectionner.",
     "description": "Screen reader text for announcing when the overlay opens on the page"
   },
   "turnOn": {
@@ -2613,7 +2630,7 @@
     "message": "Ignorer"
   },
   "importData": {
-    "message": "Import data",
+    "message": "Importer des données",
     "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
   },
   "importError": {
@@ -2640,6 +2657,42 @@
       }
     }
   },
+  "tryAgain": {
+    "message": "Essayez de nouveau"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Vérification requise pour cette action. Définissez un code PIN pour continuer."
+  },
+  "setPin": {
+    "message": "Définir le code PIN"
+  },
+  "verifyWithBiometrics": {
+    "message": "Vérifier par biométrie"
+  },
+  "awaitingConfirmation": {
+    "message": "En attente de confirmation"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Impossible de compléter la biométrie."
+  },
+  "needADifferentMethod": {
+    "message": "Besoin d'une méthode différente ?"
+  },
+  "useMasterPassword": {
+    "message": "Utiliser le mot de passe principal"
+  },
+  "usePin": {
+    "message": "Utiliser le code PIN"
+  },
+  "useBiometrics": {
+    "message": "Utiliser la biométrie"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Entrez le code de vérification qui a été envoyé à votre adresse de messagerie."
+  },
+  "resendCode": {
+    "message": "Renvoyer le code"
+  },
   "total": {
     "message": "Total"
   },
@@ -2652,6 +2705,21 @@
       }
     }
   },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Lancez DUO et suivez les étapes pour terminer la connexion."
+  },
+  "duoRequiredForAccount": {
+    "message": "L'authentification à deux facteurs Duo est requise pour votre compte."
+  },
+  "popoutTheExtensionToCompleteLogin": {
+    "message": "Faire apparaître l'extension pour terminer la connexion."
+  },
+  "popoutExtension": {
+    "message": "Détacher l'extension"
+  },
+  "launchDuo": {
+    "message": "Lancer DUO"
+  },
   "importFormatError": {
     "message": "Les données ne sont pas formatées correctement. Veuillez vérifier votre fichier d'origine et réessayer."
   },
@@ -2659,7 +2727,7 @@
     "message": "Rien n'a été importé."
   },
   "importEncKeyError": {
-    "message": "Error decrypting the exported file. Your encryption key does not match the encryption key used export the data."
+    "message": "Erreur lors du déchiffrement du fichier exporté. Votre clé de chiffrement ne correspond pas à la clé utilisée pour exporter les données."
   },
   "invalidFilePassword": {
     "message": "Mot de passe du fichier incorrect, veuillez utiliser le mot de passe saisi lors de l'exportation du fichier."
@@ -2783,6 +2851,15 @@
   "incorrectUsernameOrPassword": {
     "message": "Nom d'utilisateur ou mot de passe incorrect"
   },
+  "incorrectPassword": {
+    "message": "Mot de passe incorrect"
+  },
+  "incorrectCode": {
+    "message": "Code incorrect"
+  },
+  "incorrectPin": {
+    "message": "Code PIN incorrect"
+  },
   "multifactorAuthenticationFailed": {
     "message": "Authentification multifacteur échouée"
   },
@@ -2872,7 +2949,7 @@
     "message": "hébergé sur"
   },
   "useDeviceOrHardwareKey": {
-    "message": "Use your device or hardware key"
+    "message": "Utilisez votre appareil ou votre clé matérielle"
   },
   "justOnce": {
     "message": "Une seule fois"
@@ -2888,5 +2965,45 @@
         "example": "google.com"
       }
     }
+  },
+  "commonImportFormats": {
+    "message": "Formats communs",
+    "description": "Label indicating the most common import formats"
+  },
+  "overrideDefaultBrowserAutofillTitle": {
+    "message": "Faire de Bitwarden votre gestionnaire de mots de passe par défaut ?",
+    "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutofillDescription": {
+    "message": "Ignorer cette option peut causer des conflits entre le menu de saisie automatique de Bitwarden et celui de votre navigateur.",
+    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutoFillSettings": {
+    "message": "Faire de Bitwarden votre gestionnaire de mots de passe par défaut",
+    "description": "Label for the setting that allows overriding the default browser autofill settings"
+  },
+  "privacyPermissionAdditionNotGrantedTitle": {
+    "message": "Impossible de définir Bitwarden comme gestionnaire de mots de passe par défaut",
+    "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "privacyPermissionAdditionNotGrantedDescription": {
+    "message": "Vous devez accorder les permissions de confidentialité du navigateur à Bitwarden pour le définir comme gestionnaire de mots de passe par défaut.",
+    "description": "Description for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "makeDefault": {
+    "message": "Définir par défaut",
+    "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "saveCipherAttemptSuccess": {
+    "message": "Credentials saved successfully!",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
+  "updateCipherAttemptSuccess": {
+    "message": "Credentials updated successfully!",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "saveCipherAttemptFailed": {
+    "message": "Error saving credentials. Check console for details.",
+    "description": "Notification message for when saving credentials has failed."
   }
 }

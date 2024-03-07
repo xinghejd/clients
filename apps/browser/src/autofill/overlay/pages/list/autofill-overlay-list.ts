@@ -1,9 +1,9 @@
 import "@webcomponents/custom-elements";
 import "lit/polyfill-support.js";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { EVENTS } from "@bitwarden/common/autofill/constants";
 
 import { OverlayCipherData } from "../../../background/abstractions/overlay.background";
-import { EVENTS } from "../../../constants";
 import { buildSvgDomElement } from "../../../utils";
 import { globeIcon, lockIcon, plusIcon, viewCipherIcon } from "../../../utils/svg-icons";
 import {
@@ -54,10 +54,11 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
   }: InitAutofillOverlayListMessage) {
     const linkElement = this.initOverlayPage("button", styleSheetUrl, translations);
 
-    globalThis.document.documentElement.classList.add(theme);
+    const themeClass = `theme_${theme}`;
+    globalThis.document.documentElement.classList.add(themeClass);
 
     this.overlayListContainer = globalThis.document.createElement("div");
-    this.overlayListContainer.classList.add("overlay-list-container", theme);
+    this.overlayListContainer.classList.add("overlay-list-container", themeClass);
     this.overlayListContainer.setAttribute("role", "dialog");
     this.overlayListContainer.setAttribute("aria-modal", "true");
     this.resizeObserver.observe(this.overlayListContainer);

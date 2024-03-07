@@ -10,19 +10,22 @@ import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vaul
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { UserVerificationService as UserVerificationServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DeviceType } from "@bitwarden/common/enums";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { ThemeType, KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DialogService } from "@bitwarden/components";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { flagEnabled } from "../../platform/flags";
-import { ElectronStateService } from "../../platform/services/electron-state.service.abstraction";
+
 @Component({
   selector: "app-settings",
   templateUrl: "settings.component.html",
@@ -38,9 +41,7 @@ export class SettingsComponent implements OnInit {
   themeOptions: any[];
   clearClipboardOptions: any[];
   supportsBiometric: boolean;
-  biometricText: string;
   additionalBiometricSettingsText: string;
-  autoPromptBiometricsText: string;
   showAlwaysShowDock = false;
   requireEnableTray = false;
   showDuckDuckGoIntegrationOption = false;
@@ -81,7 +82,7 @@ export class SettingsComponent implements OnInit {
     requirePasswordOnStart: false,
     approveLoginRequests: false,
     // Account Preferences
-    clearClipboard: [null as number | null],
+    clearClipboard: [null],
     minimizeOnCopyToClipboard: false,
     enableFavicons: false,
     // App Settings
@@ -110,7 +111,8 @@ export class SettingsComponent implements OnInit {
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
-    private stateService: ElectronStateService,
+    private stateService: StateService,
+    private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private messagingService: MessagingService,
     private cryptoService: CryptoService,
     private modalService: ModalService,
@@ -118,6 +120,7 @@ export class SettingsComponent implements OnInit {
     private settingsService: SettingsService,
     private dialogService: DialogService,
     private userVerificationService: UserVerificationServiceAbstraction,
+    private biometricStateService: BiometricStateService,
   ) {
     const isMac = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
 
@@ -241,11 +244,12 @@ export class SettingsComponent implements OnInit {
       ),
       pin: this.userHasPinSet,
       biometric: await this.vaultTimeoutSettingsService.isBiometricLockSet(),
-      autoPromptBiometrics: !(await this.stateService.getDisableAutoBiometricsPrompt()),
-      requirePasswordOnStart:
-        (await this.stateService.getBiometricRequirePasswordOnStart()) ?? false,
+      autoPromptBiometrics: await firstValueFrom(this.biometricStateService.promptAutomatically$),
+      requirePasswordOnStart: await firstValueFrom(
+        this.biometricStateService.requirePasswordOnStart$,
+      ),
       approveLoginRequests: (await this.stateService.getApproveLoginRequests()) ?? false,
-      clearClipboard: await this.stateService.getClearClipboard(),
+      clearClipboard: await firstValueFrom(this.autofillSettingsService.clearClipboardDelay$),
       minimizeOnCopyToClipboard: await this.stateService.getMinimizeOnCopyToClipboard(),
       enableFavicons: !(await this.stateService.getDisableFavicon()),
       enableTray: await this.stateService.getEnableTray(),
@@ -272,12 +276,10 @@ export class SettingsComponent implements OnInit {
     this.showMinToTray = this.platformUtilsService.getDevice() !== DeviceType.LinuxDesktop;
     this.showAlwaysShowDock = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
     this.supportsBiometric = await this.platformUtilsService.supportsBiometric();
-    this.biometricText = await this.stateService.getBiometricText();
     this.additionalBiometricSettingsText =
       this.biometricText === "unlockWithTouchId"
         ? "additionalTouchIdSettings"
         : "additionalWindowsHelloSettings";
-    this.autoPromptBiometricsText = await this.stateService.getNoAutoPromptBiometricsText();
     this.previousVaultTimeout = this.form.value.vaultTimeout;
 
     this.refreshTimeoutSettings$
@@ -443,19 +445,19 @@ export class SettingsComponent implements OnInit {
     try {
       if (!enabled || !this.supportsBiometric) {
         this.form.controls.biometric.setValue(false, { emitEvent: false });
-        await this.stateService.setBiometricUnlock(null);
+        await this.biometricStateService.setBiometricUnlockEnabled(false);
         await this.cryptoService.refreshAdditionalKeys();
         return;
       }
 
-      await this.stateService.setBiometricUnlock(true);
+      await this.biometricStateService.setBiometricUnlockEnabled(true);
       if (this.isWindows) {
         // Recommended settings for Windows Hello
         this.form.controls.requirePasswordOnStart.setValue(true);
         this.form.controls.autoPromptBiometrics.setValue(false);
-        await this.stateService.setDisableAutoBiometricsPrompt(true);
-        await this.stateService.setBiometricRequirePasswordOnStart(true);
-        await this.stateService.setDismissedBiometricRequirePasswordOnStart();
+        await this.biometricStateService.setPromptAutomatically(false);
+        await this.biometricStateService.setRequirePasswordOnStart(true);
+        await this.biometricStateService.setDismissedRequirePasswordOnStartCallout();
       }
       await this.cryptoService.refreshAdditionalKeys();
 
@@ -463,7 +465,7 @@ export class SettingsComponent implements OnInit {
       const biometricSet = await this.cryptoService.hasUserKeyStored(KeySuffixOptions.Biometric);
       this.form.controls.biometric.setValue(biometricSet, { emitEvent: false });
       if (!biometricSet) {
-        await this.stateService.setBiometricUnlock(null);
+        await this.biometricStateService.setBiometricUnlockEnabled(false);
       }
     } finally {
       this.messagingService.send("redrawMenu");
@@ -475,10 +477,9 @@ export class SettingsComponent implements OnInit {
       // require password on start must be disabled if auto prompt biometrics is enabled
       this.form.controls.requirePasswordOnStart.setValue(false);
       await this.updateRequirePasswordOnStart();
-
-      await this.stateService.setDisableAutoBiometricsPrompt(null);
+      await this.biometricStateService.setPromptAutomatically(true);
     } else {
-      await this.stateService.setDisableAutoBiometricsPrompt(true);
+      await this.biometricStateService.setPromptAutomatically(false);
     }
   }
 
@@ -488,12 +489,11 @@ export class SettingsComponent implements OnInit {
       this.form.controls.autoPromptBiometrics.setValue(false);
       await this.updateAutoPromptBiometrics();
 
-      await this.stateService.setBiometricRequirePasswordOnStart(true);
+      await this.biometricStateService.setRequirePasswordOnStart(true);
     } else {
-      await this.stateService.setBiometricRequirePasswordOnStart(false);
-      await this.stateService.setBiometricEncryptionClientKeyHalf(null);
+      await this.biometricStateService.setRequirePasswordOnStart(false);
     }
-    await this.stateService.setDismissedBiometricRequirePasswordOnStart();
+    await this.biometricStateService.setDismissedRequirePasswordOnStartCallout();
     await this.cryptoService.refreshAdditionalKeys();
   }
 
@@ -565,7 +565,7 @@ export class SettingsComponent implements OnInit {
   }
 
   async saveClearClipboard() {
-    await this.stateService.setClearClipboard(this.form.value.clearClipboard);
+    await this.autofillSettingsService.setClearClipboardDelay(this.form.value.clearClipboard);
   }
 
   async saveAlwaysShowDock() {
@@ -573,6 +573,8 @@ export class SettingsComponent implements OnInit {
   }
 
   async saveOpenAtLogin() {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.stateService.setOpenAtLogin(this.form.value.openAtLogin);
     this.messagingService.send(
       this.form.value.openAtLogin ? "addOpenAtLogin" : "removeOpenAtLogin",
@@ -580,7 +582,10 @@ export class SettingsComponent implements OnInit {
   }
 
   async saveBrowserIntegration() {
-    if (process.platform === "darwin" && !this.platformUtilsService.isMacAppStore()) {
+    if (
+      ipc.platform.deviceType === DeviceType.MacOsDesktop &&
+      !this.platformUtilsService.isMacAppStore()
+    ) {
       await this.dialogService.openSimpleDialog({
         title: { key: "browserIntegrationUnsupportedTitle" },
         content: { key: "browserIntegrationMasOnlyDesc" },
@@ -602,7 +607,7 @@ export class SettingsComponent implements OnInit {
 
       this.form.controls.enableBrowserIntegration.setValue(false);
       return;
-    } else if (process.platform == "linux") {
+    } else if (ipc.platform.deviceType === DeviceType.LinuxDesktop) {
       await this.dialogService.openSimpleDialog({
         title: { key: "browserIntegrationUnsupportedTitle" },
         content: { key: "browserIntegrationLinuxDesc" },
@@ -624,6 +629,8 @@ export class SettingsComponent implements OnInit {
 
     if (!this.form.value.enableBrowserIntegration) {
       this.form.controls.enableBrowserIntegrationFingerprint.setValue(false);
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.saveBrowserIntegrationFingerprint();
     }
   }
@@ -657,5 +664,27 @@ export class SettingsComponent implements OnInit {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  get biometricText() {
+    switch (this.platformUtilsService.getDevice()) {
+      case DeviceType.MacOsDesktop:
+        return "unlockWithTouchId";
+      case DeviceType.WindowsDesktop:
+        return "unlockWithWindowsHello";
+      default:
+        throw new Error("Unsupported platform");
+    }
+  }
+
+  get autoPromptBiometricsText() {
+    switch (this.platformUtilsService.getDevice()) {
+      case DeviceType.MacOsDesktop:
+        return "autoPromptTouchId";
+      case DeviceType.WindowsDesktop:
+        return "autoPromptWindowsHello";
+      default:
+        throw new Error("Unsupported platform");
+    }
   }
 }

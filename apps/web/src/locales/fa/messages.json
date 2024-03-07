@@ -638,9 +638,6 @@
   "learnMoreAboutPasswordless": {
     "message": "درباره بدون کلمه عبور بیشتر بدانید"
   },
-  "passkeyEnterMasterPassword": {
-    "message": "کلمه عبور اصلی خود را برای تغییر ورود با تنظیمات کلید عبور وارد کنید."
-  },
   "creatingPasskeyLoading": {
     "message": "ایجاد کلید عبور..."
   },
@@ -655,9 +652,6 @@
   },
   "passkeySuccessfullyCreated": {
     "message": "کلید عبور با موفقیت ایجاد شد!"
-  },
-  "customName": {
-    "message": "نام سفارشی"
   },
   "customPasskeyNameInfo": {
     "message": "کلید عبور خود را برای کمک به شناسایی آن نام ببرید."
@@ -1353,6 +1347,22 @@
   "importData": {
     "message": "درون ریزی داده"
   },
+  "onboardingImportDataDetailsPartOne": {
+    "message": "If you don't have any data to import, you can create a ",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsLink": {
+    "message": "new item",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsPartTwoNoOrgs": {
+    "message": " instead.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
+  },
+  "onboardingImportDataDetailsPartTwoWithOrgs": {
+    "message": " instead. You may need to wait until your administrator confirms your organization membership.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+  },
   "importError": {
     "message": "خطای درون ریزی"
   },
@@ -1465,13 +1475,6 @@
   },
   "faviconDesc": {
     "message": "یک تصویر قابل تشخیص در کنار هر ورود نشان دهید."
-  },
-  "enableFullWidth": {
-    "message": "نمایش طرح با عرض کامل",
-    "description": "Allows scaling the web vault UI's width"
-  },
-  "enableFullWidthDesc": {
-    "message": "به گاوصندوق وب اجازه دهید تا تمام عرض پنجره مرورگر را گسترش دهد."
   },
   "default": {
     "message": "پیش‌فرض"
@@ -2534,6 +2537,15 @@
       }
     }
   },
+  "trialSecretsManagerThankYou": {
+    "message": "Thanks for signing up for Bitwarden Secrets Manager for $PLAN$!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
   "trialPaidInfoMessage": {
     "message": "نسخه آزمایشی رایگان ۷ روزه $PLAN$ شما پس از ۷ روز به اشتراک پولی تبدیل می‌شود.",
     "placeholders": {
@@ -2818,6 +2830,9 @@
   },
   "incorrectCode": {
     "message": "کد اشتباه"
+  },
+  "incorrectPin": {
+    "message": "Incorrect PIN"
   },
   "exportedVault": {
     "message": "گاوصندوق برون ریزی شد"
@@ -3828,15 +3843,6 @@
   "couldNotChargeCardPayInvoice": {
     "message": "ما نتوانستیم کارت شما را شارژ کنیم. لطفاً فاکتور پرداخت نشده ذکر شده در زیر را مشاهده و پرداخت کنید."
   },
-  "inAppPurchase": {
-    "message": "پرداخت درون برنامه ای"
-  },
-  "cannotPerformInAppPurchase": {
-    "message": "هنگام استفاده از روش پرداخت خرید درون برنامه ای، نمی‌توانید این عمل را انجام دهید."
-  },
-  "manageSubscriptionFromStore": {
-    "message": "باید اشتراک خود را از فروشگاهی که خرید درون برنامه ای شما انجام شده است مدیریت کنید."
-  },
   "minLength": {
     "message": "حداقل طول"
   },
@@ -4033,6 +4039,12 @@
   },
   "ssoHandOff": {
     "message": "اکنون می‌توانید این برگه را ببندید و در افزونه ادامه دهید."
+  },
+  "youSuccessfullyLoggedIn": {
+    "message": "You successfully logged in"
+  },
+  "thisWindowWillCloseIn5Seconds": {
+    "message": "This window will automatically close in 5 seconds"
   },
   "includeAllTeamsFeatures": {
     "message": "همه ویژگی های تیم، به علاوه:"
@@ -4935,6 +4947,9 @@
   "newClientOrganizationDesc": {
     "message": "یک سازمان مشتری جدید ایجاد کنید که با شما به عنوان ارائه دهنده مرتبط باشد. شما می توانید به این سازمان دسترسی داشته باشید و آن را مدیریت کنید."
   },
+  "newClient": {
+    "message": "New client"
+  },
   "addExistingOrganization": {
     "message": "سازمان موجود را اضافه کنید"
   },
@@ -5187,6 +5202,12 @@
   },
   "spValidateCertificates": {
     "message": "اعتبارسنجی گواهینامه‌ها"
+  },
+  "spUniqueEntityId": {
+    "message": "Set a unique SP entity ID"
+  },
+  "spUniqueEntityIdDesc": {
+    "message": "Generate an identifier that is unique to your organization"
   },
   "idpEntityId": {
     "message": "شناسه موجودیت"
@@ -5912,6 +5933,15 @@
       }
     }
   },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Launch Duo and follow the steps to finish logging in."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "Duo two-step login is required for your account."
+  },
+  "launchDuo": {
+    "message": "Launch Duo"
+  },
   "turnOn": {
     "message": "روشن"
   },
@@ -6610,11 +6640,44 @@
       }
     }
   },
-  "membersColumnHeader": {
-    "message": "عضو/گروه"
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Verification required for this action. Set a PIN to continue."
   },
-  "groupAndMemberColumnHeader": {
-    "message": "عضو"
+  "setPin": {
+    "message": "Set PIN"
+  },
+  "verifyWithBiometrics": {
+    "message": "Verify with biometrics"
+  },
+  "awaitingConfirmation": {
+    "message": "Awaiting confirmation"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Could not complete biometrics."
+  },
+  "needADifferentMethod": {
+    "message": "Need a different method?"
+  },
+  "useMasterPassword": {
+    "message": "Use master password"
+  },
+  "usePin": {
+    "message": "Use PIN"
+  },
+  "useBiometrics": {
+    "message": "Use biometrics"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Enter the verification code that was sent to your email."
+  },
+  "resendCode": {
+    "message": "Resend code"
+  },
+  "memberColumnHeader": {
+    "message": "Member"
+  },
+  "groupSlashMemberColumnHeader": {
+    "message": "Group/Member"
   },
   "selectGroupsAndMembers": {
     "message": "گروه‌ها و اعضا را انتخاب کنید"
@@ -6820,9 +6883,6 @@
   "secretsManager": {
     "message": "مدیر رازها"
   },
-  "secretsManagerBeta": {
-    "message": "بتا مدیر اسرار"
-  },
   "secretsManagerAccessDescription": {
     "message": "دسترسی کاربر به مدیر رازها را فعال کنید."
   },
@@ -6869,6 +6929,9 @@
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
+  },
+  "createAnAccount": {
+    "message": "Create an account"
   },
   "createSecret": {
     "message": "ساختن یک راز"
@@ -6925,12 +6988,6 @@
   },
   "selectionIsRequired": {
     "message": "انتخاب الزامی است."
-  },
-  "secretsManagerSubscriptionDesc": {
-    "message": "در طول برنامه بتا، دسترسی سازمان به مدیر رازها را بدون هزینه فعال کنید. کاربران می‌توانند به نسخه بتا در اعضا دسترسی داشته باشند."
-  },
-  "secretsManagerEnable": {
-    "message": "بتا مدیر رازها را فعال کنید"
   },
   "saPeopleWarningTitle": {
     "message": "توکن‌های دسترسی هنوز در دسترس هستند"
@@ -7092,6 +7149,10 @@
       }
     }
   },
+  "verificationRequired": {
+    "message": "Verification required",
+    "description": "Default title for the user verification dialog."
+  },
   "recoverAccount": {
     "message": "بازیابی حساب کاربری"
   },
@@ -7193,6 +7254,15 @@
   },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "نسخه آزمایشی رایگان ۷ روزه Bitwarden را با $ORG$ شروع کنید",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerFor": {
+    "message": "Start your 7-Day free trial of Bitwarden Secrets Manager for $ORG$",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -7331,8 +7401,8 @@
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Owners and admins can manage all collections and items"
   },
-  "collectionManagementUpdated": {
-    "message": "Collection management behavior saved"
+  "updatedCollectionManagement": {
+    "message": "Updated collection management setting"
   },
   "passwordManagerPlanPrice": {
     "message": "قیمت طرح مدیریت کلمه عبور"
@@ -7361,22 +7431,6 @@
   "loggedInExclamation": {
     "message": "وارد شده!"
   },
-  "smBetaEndedDesc": {
-    "message": "بتای مدیر اسرار $BETA_ENDING_DATE$ به پایان رسید. $DAYS$ روز فرصت دارید تا بتا مدیر اسرار را به اشتراک پولی خود اضافه کنید و دسترسی به داده‌های مدیر اسرار را حفظ کنید. برای افزودن مدیر اسرار به اشتراک خود، با پشتیبانی مشتری تماس بگیرید.",
-    "placeholders": {
-      "beta_ending_date": {
-        "content": "$1",
-        "example": "August 1, 2023"
-      },
-      "days": {
-        "content": "$2",
-        "example": "11"
-      }
-    }
-  },
-  "betaEnding": {
-    "message": "آزمایشی در حال اتمام است"
-  },
   "beta": {
     "message": "آزمایشی"
   },
@@ -7397,12 +7451,6 @@
   },
   "skipToContent": {
     "message": "Skip to content"
-  },
-  "customBillingStart": {
-    "message": "Custom billing is not reflected. Visit the "
-  },
-  "customBillingEnd": {
-    "message": " page for latest invoicing."
   },
   "managePermissionRequired": {
     "message": "At least one member or group must have can manage permission."
@@ -7429,6 +7477,12 @@
     "message": "See detailed instructions on our help site at",
     "description": "This is followed a by a hyperlink to the help website."
   },
+  "installBrowserExtension": {
+    "message": "Install browser extension"
+  },
+  "installBrowserExtensionDetails": {
+    "message": "Use the extension to quickly save logins and auto-fill forms without opening the web app."
+  },
   "projectAccessUpdated": {
     "message": "Project access updated"
   },
@@ -7447,7 +7501,106 @@
   "collectionAccessRestricted": {
     "message": "Collection access is restricted"
   },
+  "grantCollectionAccess": {
+    "message": "Grant groups or members access to this collection."
+  },
+  "grantCollectionAccessMembersOnly": {
+    "message": "Grant members access to this collection."
+  },
+  "adminCollectionAccess": {
+    "message": "Administrators can access and manage collections."
+  },
   "serviceAccountAccessUpdated": {
     "message": "Service account access updated"
+  },
+  "commonImportFormats": {
+    "message": "Common formats",
+    "description": "Label indicating the most common import formats"
+  },
+  "maintainYourSubscription": {
+    "message": "To maintain your subscription for $ORG$, ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Example Inc."
+      }
+    }
+  },
+  "addAPaymentMethod": {
+    "message": "add a payment method",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
+  },
+  "collectionEnhancementsDesc": {
+    "message": "Add new settings and permissions for additional flexibility. Replace the Manager role with the \"can manage\" permission, and introduce options to allow users to create collections as well as restrict administrative access to collections.",
+    "description": "This describes new features and improvements for user roles and collections"
+  },
+  "collectionEnhancementsLearnMore": {
+    "message": "Learn more about collection management"
+  },
+  "organizationInformation": {
+    "message": "Organization information"
+  },
+  "confirmationDetails": {
+    "message": "Confirmation details"
+  },
+  "smFreeTrialThankYou": {
+    "message": "Thank you for signing up for Bitwarden Secrets Manager!"
+  },
+  "smFreeTrialConfirmationEmail": {
+    "message": "We've sent a confirmation email to your email at "
+  },
+  "confirmCollectionEnhancementsDialogTitle": {
+    "message": "This action is irreversible"
+  },
+  "confirmCollectionEnhancementsDialogContent": {
+    "message": "Turning on this feature will deprecate the manager role and replace it with a Can manage permission. This will take a few moments. Do not make any organization changes until it is complete. Are you sure you want to proceed?"
+  },
+  "sorryToSeeYouGo": {
+    "message": "Sorry to see you go! Help improve Bitwarden by sharing why you're canceling.",
+    "description": "A message shown to users as part of an offboarding survey asking them to provide more information on their subscription cancelation."
+  },
+  "selectCancellationReason": {
+    "message": "Select a reason for canceling",
+    "description": "Used as a form field label for a select input on the offboarding survey."
+  },
+  "anyOtherFeedback": {
+    "message": "Is there any other feedback you'd like to share?",
+    "description": "Used as a form field label for a textarea input on the offboarding survey."
+  },
+  "missingFeatures": {
+    "message": "Missing features",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "movingToAnotherTool": {
+    "message": "Moving to another tool",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooDifficultToUse": {
+    "message": "Too difficult to use",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "notUsingEnough": {
+    "message": "Not using enough",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooExpensive": {
+    "message": "Too expensive",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "freeForOneYear": {
+    "message": "Free for 1 year"
+  },
+  "newWebApp": {
+    "message": "Welcome to the new and improved web app. Learn more about what’s changed."
+  },
+  "releaseBlog": {
+    "message": "Read release blog"
+  },
+  "adminConsole": {
+    "message": "Admin Console"
+  },
+  "providerPortal": {
+    "message": "Provider Portal"
   }
 }

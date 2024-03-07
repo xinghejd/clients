@@ -3,14 +3,16 @@ import { mock } from "jest-mock-extended";
 
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import {
-  SymmetricCryptoKey,
-  UserKey,
-} from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { makeEncString } from "@bitwarden/common/spec";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
+import { UserKey } from "@bitwarden/common/types/key";
 
 import {
   FakeAccountService,
@@ -18,18 +20,19 @@ import {
 } from "../../../../../libs/common/spec/fake-account-service";
 
 import { ElectronCryptoService } from "./electron-crypto.service";
-import { ElectronStateService } from "./electron-state.service.abstraction";
 
 describe("electronCryptoService", () => {
-  let electronCryptoService: ElectronCryptoService;
+  let sut: ElectronCryptoService;
 
+  const keyGenerationService = mock<KeyGenerationService>();
   const cryptoFunctionService = mock<CryptoFunctionService>();
   const encryptService = mock<EncryptService>();
   const platformUtilService = mock<PlatformUtilsService>();
   const logService = mock<LogService>();
-  const stateService = mock<ElectronStateService>();
+  const stateService = mock<StateService>();
   let accountService: FakeAccountService;
   let stateProvider: FakeStateProvider;
+  const biometricStateService = mock<BiometricStateService>();
 
   const mockUserId = "mock user id" as UserId;
 
@@ -37,7 +40,8 @@ describe("electronCryptoService", () => {
     accountService = mockAccountServiceWith("userId" as UserId);
     stateProvider = new FakeStateProvider(accountService);
 
-    electronCryptoService = new ElectronCryptoService(
+    sut = new ElectronCryptoService(
+      keyGenerationService,
       cryptoFunctionService,
       encryptService,
       platformUtilService,
@@ -45,15 +49,12 @@ describe("electronCryptoService", () => {
       stateService,
       accountService,
       stateProvider,
+      biometricStateService,
     );
   });
 
   afterEach(() => {
     jest.resetAllMocks();
-  });
-
-  it("instantiates", () => {
-    expect(electronCryptoService).not.toBeFalsy();
   });
 
   describe("setUserKey", () => {
@@ -65,15 +66,23 @@ describe("electronCryptoService", () => {
     });
 
     describe("Biometric Key refresh", () => {
-      it("sets an Biometric key if getBiometricUnlock is true and the platform supports secure storage", async () => {
-        stateService.getBiometricUnlock.mockResolvedValue(true);
-        platformUtilService.supportsSecureStorage.mockReturnValue(true);
-        stateService.getBiometricRequirePasswordOnStart.mockResolvedValue(false);
+      const encClientKeyHalf = makeEncString();
+      const decClientKeyHalf = "decrypted client key half";
 
-        await electronCryptoService.setUserKey(mockUserKey, mockUserId);
+      beforeEach(() => {
+        encClientKeyHalf.decrypt = jest.fn().mockResolvedValue(decClientKeyHalf);
+      });
+
+      it("sets a Biometric key if getBiometricUnlock is true and the platform supports secure storage", async () => {
+        biometricStateService.getBiometricUnlockEnabled.mockResolvedValue(true);
+        platformUtilService.supportsSecureStorage.mockReturnValue(true);
+        biometricStateService.getRequirePasswordOnStart.mockResolvedValue(true);
+        biometricStateService.getEncryptedClientKeyHalf.mockResolvedValue(encClientKeyHalf);
+
+        await sut.setUserKey(mockUserKey, mockUserId);
 
         expect(stateService.setUserKeyBiometric).toHaveBeenCalledWith(
-          expect.objectContaining({ key: expect.any(String), clientEncKeyHalf: null }),
+          expect.objectContaining({ key: expect.any(String), clientEncKeyHalf: decClientKeyHalf }),
           {
             userId: mockUserId,
           },
@@ -81,10 +90,10 @@ describe("electronCryptoService", () => {
       });
 
       it("clears the Biometric key if getBiometricUnlock is false or the platform does not support secure storage", async () => {
-        stateService.getBiometricUnlock.mockResolvedValue(true);
+        biometricStateService.getBiometricUnlockEnabled.mockResolvedValue(true);
         platformUtilService.supportsSecureStorage.mockReturnValue(false);
 
-        await electronCryptoService.setUserKey(mockUserKey, mockUserId);
+        await sut.setUserKey(mockUserKey, mockUserId);
 
         expect(stateService.setUserKeyBiometric).toHaveBeenCalledWith(null, {
           userId: mockUserId,
@@ -92,7 +101,7 @@ describe("electronCryptoService", () => {
       });
 
       it("clears the old deprecated Biometric key whenever a User Key is set", async () => {
-        await electronCryptoService.setUserKey(mockUserKey, mockUserId);
+        await sut.setUserKey(mockUserKey, mockUserId);
 
         expect(stateService.setCryptoMasterKeyBiometric).toHaveBeenCalledWith(null, {
           userId: mockUserId,

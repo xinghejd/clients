@@ -107,7 +107,7 @@
     "message": "Özəl sahə adını kopyala"
   },
   "noMatchingLogins": {
-    "message": "Uyğun gələn hesab yoxdur."
+    "message": "Uyuşan giriş məlumatları yoxdur"
   },
   "noCards": {
     "message": "Kart yoxdur"
@@ -488,10 +488,16 @@
     }
   },
   "masterPassDoesntMatch": {
-    "message": "Ana parolun təsdiqi uyğun gəlmir."
+    "message": "Ana parolun təsdiqi uyuşmur."
   },
   "newAccountCreated": {
     "message": "Yeni hesabınız yaradıldı! İndi giriş edə bilərsiniz."
+  },
+  "youSuccessfullyLoggedIn": {
+    "message": "Uğurla giriş etdiniz"
+  },
+  "youMayCloseThisWindow": {
+    "message": "Bu pəncərəni bağlaya bilərsiniz"
   },
   "masterPassSent": {
     "message": "Sizə ana parol ipucunuz olan bir e-poçt göndərdik."
@@ -703,17 +709,17 @@
     "message": "Konteks menyu seçimlərini göstər"
   },
   "contextMenuItemDesc": {
-    "message": "Veb sayt üçün parol yaratmaq və uyğunlaşan giriş məlumatlarına müraciət etmək üçün ikinci klikləməni istifadə edin. "
+    "message": "Veb sayt üçün parol yaratmaq və uyuşan giriş məlumatlarına müraciət etmək üçün sağ klikləməni istifadə edin."
   },
   "contextMenuItemDescAlt": {
-    "message": "Veb sayt üçün parol yaratmaq və uyğunlaşan giriş məlumatlarına müraciət etmək üçün ikinci klikləməni istifadə edin. Giriş etmiş bütün hesablara aiddir."
+    "message": "Veb sayt üçün parol yaratmaq və uyuşan giriş məlumatlarına müraciət etmək üçün sağ klikləməni istifadə edin. Giriş etmiş bütün hesablara aiddir."
   },
   "defaultUriMatchDetection": {
-    "message": "İlkin URI uyğunluq aşkarlaması",
+    "message": "İlkin URI uyuşma aşkarlaması",
     "description": "Default URI match detection for auto-fill."
   },
   "defaultUriMatchDetectionDesc": {
-    "message": "Avto-doldurma kimi əməliyyatları icra edərkən giriş etmə prosesi üçün URI uyğunluq aşkarlamasının ilkin yolunu seçin."
+    "message": "Avto-doldurma kimi əməliyyatları icra edərkən giriş etmə prosesi üçün URI uyuşma aşkarlamasının idarə edliəcəyi ilkin yolu seçin."
   },
   "theme": {
     "message": "Tema"
@@ -1395,11 +1401,11 @@
     "description": "A programming term, also known as 'RegEx'."
   },
   "matchDetection": {
-    "message": "Uyğunluq aşkarlaması",
+    "message": "Uyuşmanı aşkarlama",
     "description": "URI match detection for auto-fill."
   },
   "defaultMatchDetection": {
-    "message": "İlkin uyğunluq aşkarlaması",
+    "message": "İlkin uyuşma aşkarlaması",
     "description": "Default URI match detection for auto-fill."
   },
   "toggleOptions": {
@@ -1492,6 +1498,9 @@
   },
   "invalidPin": {
     "message": "Yararsız PIN kod."
+  },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Həddən artıq yararsız PIN giriş cəhdi. Çıxış edilir."
   },
   "unlockWithBiometrics": {
     "message": "Kilidi biometriklə açın"
@@ -1685,7 +1694,7 @@
     "message": "Masaüstü tətbiqdə fərqli bir hesaba giriş edilib. Lütfən hər iki tətbiqin eyni hesaba giriş etdiyinə əmin olun."
   },
   "nativeMessagingWrongUserTitle": {
-    "message": "Hesablar uyğunlaşmır"
+    "message": "Hesablar uyuşmur"
   },
   "biometricsNotEnabledTitle": {
     "message": "Biometriklər qurulmayıb"
@@ -1995,6 +2004,10 @@
   "selectFolder": {
     "message": "Qovluq seçin..."
   },
+  "noFoldersFound": {
+    "message": "Heç bir qovluq tapılmadı",
+    "description": "Used as a message within the notification bar when no folders are found"
+  },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "Təşkilatınızın icazələri güncəlləndi və bir ana parol ayarlamağınızı tələb edir.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
@@ -2002,6 +2015,10 @@
   "orgRequiresYouToSetPassword": {
     "message": "Təşkilatınız bir ana parol ayarlamağı tələb edir.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "verificationRequired": {
+    "message": "Doğrulama tələb olunur",
+    "description": "Default title for the user verification dialog."
   },
   "hours": {
     "message": "Saat"
@@ -2246,7 +2263,7 @@
     "message": "Barmaq izi ifadəsi"
   },
   "fingerprintMatchInfo": {
-    "message": "Lütfən anbarınızın kilidinin açıq olduğuna və Barmaq izi ifadəsinin digər cihazda uyğun gəldiyinə əmin olun."
+    "message": "Lütfən anbarınızın kilidinin açıq olduğuna və Barmaq izi ifadəsinin digər cihazla uyuşduğuna əmin olun."
   },
   "resendNotification": {
     "message": "Bildirişi təkrar göndər"
@@ -2575,7 +2592,7 @@
     "description": "Page title in overlay"
   },
   "unlockYourAccountToViewMatchingLogins": {
-    "message": "Uyğunlaşan giriş məlumatlarına baxmaq üçün hesabınızın kilidini açın",
+    "message": "Uyuşan giriş məlumatlarına baxmaq üçün hesabınızın kilidini açın",
     "description": "Text to display in overlay when the account is locked."
   },
   "unlockAccount": {
@@ -2640,6 +2657,42 @@
       }
     }
   },
+  "tryAgain": {
+    "message": "Yenidən sına"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Bu əməliyyat üçün doğrulama tələb olunur. Davam etmək üçün bir PIN təyin edin."
+  },
+  "setPin": {
+    "message": "PIN təyin et"
+  },
+  "verifyWithBiometrics": {
+    "message": "Biometriklə doğrula"
+  },
+  "awaitingConfirmation": {
+    "message": "Təsdiq gözlənilir"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Biometrik tamamlana bilmədi."
+  },
+  "needADifferentMethod": {
+    "message": "Fərqli bir üsul lazımdır?"
+  },
+  "useMasterPassword": {
+    "message": "Ana parolu istifadə et"
+  },
+  "usePin": {
+    "message": "PIN-i istifadə et"
+  },
+  "useBiometrics": {
+    "message": "Biometrik istifadə et"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "E-poçtunuza göndərilmiş doğrulama kodunu daxil edin."
+  },
+  "resendCode": {
+    "message": "Kodu təkrar göndər"
+  },
   "total": {
     "message": "Cəmi"
   },
@@ -2652,6 +2705,21 @@
       }
     }
   },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Duo-nu başladın və giriş prosesini tamamlamaq üçün addımları izləyin."
+  },
+  "duoRequiredForAccount": {
+    "message": "Hesabınız üçün Duo iki addımlı giriş tələb olunur."
+  },
+  "popoutTheExtensionToCompleteLogin": {
+    "message": "Popout the extension to complete login."
+  },
+  "popoutExtension": {
+    "message": "Popout uzantısı"
+  },
+  "launchDuo": {
+    "message": "Duo-nu başlat"
+  },
   "importFormatError": {
     "message": "Data doğru format edilməyib. Lütfən daxilə köçürmə faylınızı yoxlayıb yenidən sınayın."
   },
@@ -2659,7 +2727,7 @@
     "message": "Heç nə daxilə köçürülmədi."
   },
   "importEncKeyError": {
-    "message": "Xaricə köçürülən faylın şifrəsi açılarkən xəta baş verdi. Şifrələmə açarınız, datanı xaricə köçürmək üçün istifadə edilən şifrələmə açarı ilə uyğunlaşmır."
+    "message": "Xaricə köçürülən faylın şifrəsi açılarkən xəta baş verdi. Şifrələmə açarınız, datanı xaricə köçürmək üçün istifadə edilən şifrələmə açarı ilə uyuşmur."
   },
   "invalidFilePassword": {
     "message": "Yararsız fayl parolu, lütfən xaricə köçürmə faylını yaradarkən daxil etdiyiniz parolu istifadə edin."
@@ -2745,7 +2813,7 @@
     "message": "Bu tətbiq üçün heç bir keçid açarı tapılmadı."
   },
   "noMatchingPasskeyLogin": {
-    "message": "Bu sayt üçün uyğunlaşan bir giriş məlumatınız yoxdur."
+    "message": "Bu sayt üçün uyuşan bir giriş məlumatınız yoxdur."
   },
   "confirm": {
     "message": "Təsdiqlə"
@@ -2782,6 +2850,15 @@
   },
   "incorrectUsernameOrPassword": {
     "message": "Yanlış istifadəçi adı və ya parol"
+  },
+  "incorrectPassword": {
+    "message": "Yanlış parol"
+  },
+  "incorrectCode": {
+    "message": "Yanlış kod"
+  },
+  "incorrectPin": {
+    "message": "Yanlış PIN"
   },
   "multifactorAuthenticationFailed": {
     "message": "Çox faktorlu kimlik doğrulama uğursuz oldu"
@@ -2888,5 +2965,45 @@
         "example": "google.com"
       }
     }
+  },
+  "commonImportFormats": {
+    "message": "Ortaq formatlar",
+    "description": "Label indicating the most common import formats"
+  },
+  "overrideDefaultBrowserAutofillTitle": {
+    "message": "Bitwarden ilkin parol meneceriniz olaraq təyin edilsin?",
+    "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutofillDescription": {
+    "message": "Bu seçimin yox sayılması, \"Bitwarden\"in və brauzerinizin avto-doldurma menyuları arasında ziddiyyətlərə səbəb ola bilər.",
+    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutoFillSettings": {
+    "message": "\"Bitwarden\"i ilkin parol meneceriniz olaraq təyin edin",
+    "description": "Label for the setting that allows overriding the default browser autofill settings"
+  },
+  "privacyPermissionAdditionNotGrantedTitle": {
+    "message": "Bitwarden ilkin parol meneceri olaraq ayarlana bilmir",
+    "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "privacyPermissionAdditionNotGrantedDescription": {
+    "message": "Bitwarden-i ilkin parol meneceri olaraq ayarlamaq üçün ona brauzer gizlilik icazələrini verməlisiniz.",
+    "description": "Description for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "makeDefault": {
+    "message": "İlkin olaraq təyin et",
+    "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "saveCipherAttemptSuccess": {
+    "message": "Kimlik məlumatları uğurla saxlanıldı!",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
+  "updateCipherAttemptSuccess": {
+    "message": "Kimlik məlumatları uğurla güncəlləndi!",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "saveCipherAttemptFailed": {
+    "message": "Kimlik məlumatlarını saxlama xətası. Detallar üçün konsolu yoxlayın.",
+    "description": "Notification message for when saving credentials has failed."
   }
 }

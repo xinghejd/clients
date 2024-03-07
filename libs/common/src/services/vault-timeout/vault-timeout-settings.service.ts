@@ -1,13 +1,14 @@
-import { defer } from "rxjs";
+import { defer, firstValueFrom } from "rxjs";
 
 import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "../../abstractions/vault-timeout/vault-timeout-settings.service";
 import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "../../admin-console/enums";
 import { TokenService } from "../../auth/abstractions/token.service";
-import { UserVerificationService } from "../../auth/abstractions/user-verification/user-verification.service.abstraction";
 import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
 import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { StateService } from "../../platform/abstractions/state.service";
+import { BiometricStateService } from "../../platform/biometrics/biometric-state.service";
+import { UserId } from "../../types/guid";
 
 /**
  * - DISABLED: No Pin set
@@ -22,7 +23,7 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
     private tokenService: TokenService,
     private policyService: PolicyService,
     private stateService: StateService,
-    private userVerificationService: UserVerificationService,
+    private biometricStateService: BiometricStateService,
   ) {}
 
   async setVaultTimeoutOptions(timeout: number, action: VaultTimeoutAction): Promise<void> {
@@ -76,7 +77,11 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
   }
 
   async isBiometricLockSet(userId?: string): Promise<boolean> {
-    return await this.stateService.getBiometricUnlock({ userId });
+    const biometricUnlockPromise =
+      userId == null
+        ? firstValueFrom(this.biometricStateService.biometricUnlockEnabled$)
+        : this.biometricStateService.getBiometricUnlockEnabled(userId as UserId);
+    return await biometricUnlockPromise;
   }
 
   async getVaultTimeout(userId?: string): Promise<number> {
@@ -134,7 +139,7 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
 
     if (vaultTimeoutAction == null) {
       // Depends on whether or not the user has a master password
-      const defaultValue = (await this.userVerificationService.hasMasterPassword())
+      const defaultValue = (await this.userHasMasterPassword(userId))
         ? VaultTimeoutAction.Lock
         : VaultTimeoutAction.LogOut;
       // We really shouldn't need to set the value here, but multiple services relies on this value being correct.
@@ -151,7 +156,7 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
     const availableActions = [VaultTimeoutAction.LogOut];
 
     const canLock =
-      (await this.userVerificationService.hasMasterPassword(userId)) ||
+      (await this.userHasMasterPassword(userId)) ||
       (await this.isPinLockSet(userId)) !== "DISABLED" ||
       (await this.isBiometricLockSet(userId));
 
@@ -165,5 +170,15 @@ export class VaultTimeoutSettingsService implements VaultTimeoutSettingsServiceA
   async clear(userId?: string): Promise<void> {
     await this.stateService.setEverBeenUnlocked(false, { userId: userId });
     await this.cryptoService.clearPinKeys(userId);
+  }
+
+  private async userHasMasterPassword(userId: string): Promise<boolean> {
+    const acctDecryptionOpts = await this.stateService.getAccountDecryptionOptions({
+      userId: userId,
+    });
+
+    if (acctDecryptionOpts?.hasMasterPassword != undefined) {
+      return acctDecryptionOpts.hasMasterPassword;
+    }
   }
 }

@@ -1,11 +1,15 @@
+import { firstValueFrom } from "rxjs";
+
 import { SettingsService } from "@bitwarden/common/abstractions/settings.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { SHOW_AUTOFILL_BUTTON } from "@bitwarden/common/autofill/constants";
+import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { ThemeType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -20,11 +24,10 @@ import {
   openViewVaultItemPopout,
   openAddEditVaultItemPopout,
 } from "../../vault/popup/utils/vault-popout-window";
-import { SHOW_AUTOFILL_BUTTON } from "../constants";
-import LockedVaultPendingNotificationsItem from "../notification/models/locked-vault-pending-notifications-item";
 import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
 import { AutofillOverlayElement, AutofillOverlayPort } from "../utils/autofill-overlay.enum";
 
+import { LockedVaultPendingNotificationsData } from "./abstractions/notification.background";
 import {
   FocusedFieldData,
   OverlayBackgroundExtensionMessageHandlers,
@@ -42,7 +45,6 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private readonly openUnlockPopout = openUnlockPopout;
   private readonly openViewVaultItemPopout = openViewVaultItemPopout;
   private readonly openAddEditVaultItemPopout = openAddEditVaultItemPopout;
-  private overlayVisibility: number;
   private overlayLoginCiphers: Map<string, CipherView> = new Map();
   private pageDetailsForTab: Record<number, PageDetail[]> = {};
   private userAuthStatus: AuthenticationStatus = AuthenticationStatus.LoggedOut;
@@ -91,6 +93,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
     private environmentService: EnvironmentService,
     private settingsService: SettingsService,
     private stateService: StateService,
+    private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
   ) {
@@ -173,10 +176,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
           cipher.type === CipherType.Login
             ? loginCipherIcon
             : buildCipherIcon(this.iconsServerUrl, cipher, isFaviconDisabled),
-        login:
-          cipher.type === CipherType.Login
-            ? { username: this.obscureName(cipher.login.username) }
-            : null,
+        login: cipher.type === CipherType.Login ? { username: cipher.login.username } : null,
         card: cipher.type === CipherType.Card ? cipher.card.subTitle : null,
       });
     }
@@ -238,7 +238,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
     });
 
     if (totpCode) {
-      this.platformUtilsService.copyToClipboard(totpCode, { window });
+      this.platformUtilsService.copyToClipboard(totpCode);
     }
 
     this.overlayLoginCiphers = new Map([[overlayCipherId, cipher], ...this.overlayLoginCiphers]);
@@ -279,6 +279,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * @param forceCloseOverlay - Identifies whether the overlay should be force closed
    */
   private closeOverlay({ sender }: chrome.runtime.Port, forceCloseOverlay = false) {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     BrowserApi.tabSendMessageData(sender.tab, "closeAutofillOverlay", { forceCloseOverlay });
   }
 
@@ -419,45 +421,10 @@ class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
-   * Obscures the username by replacing all but the first and last characters with asterisks.
-   * If the username is less than 4 characters, only the first character will be shown.
-   * If the username is 6 or more characters, the first and last characters will be shown.
-   * The domain will not be obscured.
-   *
-   * @param name - The username to obscure
-   */
-  private obscureName(name: string): string {
-    if (!name) {
-      return "";
-    }
-
-    const [username, domain] = name.split("@");
-    const usernameLength = username?.length;
-    if (!usernameLength) {
-      return name;
-    }
-
-    const startingCharacters = username.slice(0, usernameLength > 4 ? 2 : 1);
-    let numberStars = usernameLength;
-    if (usernameLength > 4) {
-      numberStars = usernameLength < 6 ? numberStars - 1 : numberStars - 2;
-    }
-
-    let obscureName = `${startingCharacters}${new Array(numberStars).join("*")}`;
-    if (usernameLength >= 6) {
-      obscureName = `${obscureName}${username.slice(-1)}`;
-    }
-
-    return domain ? `${obscureName}@${domain}` : obscureName;
-  }
-
-  /**
    * Gets the overlay's visibility setting from the settings service.
    */
-  private async getOverlayVisibility(): Promise<number> {
-    this.overlayVisibility = await this.settingsService.getAutoFillOverlayVisibility();
-
-    return this.overlayVisibility;
+  private async getOverlayVisibility(): Promise<InlineMenuVisibilitySetting> {
+    return await firstValueFrom(this.autofillSettingsService.inlineMenuVisibility$);
   }
 
   /**
@@ -481,21 +448,6 @@ class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
-   * Gets the currently set theme for the user.
-   */
-  private async getCurrentTheme() {
-    const theme = await this.stateService.getTheme();
-
-    if (theme !== ThemeType.System) {
-      return theme;
-    }
-
-    return window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? ThemeType.Dark
-      : ThemeType.Light;
-  }
-
-  /**
    * Sends a message to the overlay button to update its authentication status.
    */
   private updateOverlayButtonAuthStatus() {
@@ -514,10 +466,14 @@ class OverlayBackground implements OverlayBackgroundInterface {
    */
   private handleOverlayButtonClicked(port: chrome.runtime.Port) {
     if (this.userAuthStatus !== AuthenticationStatus.Unlocked) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.unlockVault(port);
       return;
     }
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.openOverlay(false, true);
   }
 
@@ -530,8 +486,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
     const { sender } = port;
 
     this.closeOverlay(port);
-    const retryMessage: LockedVaultPendingNotificationsItem = {
-      commandToRetry: { msg: { command: "openAutofillOverlay" }, sender },
+    const retryMessage: LockedVaultPendingNotificationsData = {
+      commandToRetry: { message: { command: "openAutofillOverlay" }, sender },
       target: "overlay.background",
     };
     await BrowserApi.tabSendMessageData(
@@ -579,7 +535,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private async unlockCompleted(message: OverlayBackgroundExtensionMessage) {
     await this.getAuthStatus();
 
-    if (message.data?.commandToRetry?.msg?.command === "openAutofillOverlay") {
+    if (message.data?.commandToRetry?.message?.command === "openAutofillOverlay") {
       await this.openOverlay(true);
     }
   }
@@ -624,6 +580,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     BrowserApi.tabSendMessageData(sender.tab, "redirectOverlayFocusOut", { direction });
   }
 
@@ -634,6 +592,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * @param sender - The sender of the port message
    */
   private getNewVaultItemDetails({ sender }: chrome.runtime.Port) {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     BrowserApi.tabSendMessage(sender.tab, { command: "addNewVaultItemFromOverlay" });
   }
 
@@ -671,6 +631,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
       collectionIds: cipherView.collectionIds,
     });
 
+    await BrowserApi.sendMessage("inlineAutofillMenuRefreshAddEditCipher");
     await this.openAddEditVaultItemPopout(sender.tab, { cipherId: cipherView.id });
   }
 
@@ -704,6 +665,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     Promise.resolve(messageResponse).then((response) => sendResponse(response));
     return true;
   };
@@ -732,7 +695,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
       command: `initAutofillOverlay${isOverlayListPort ? "List" : "Button"}`,
       authStatus: await this.getAuthStatus(),
       styleSheetUrl: chrome.runtime.getURL(`overlay/${isOverlayListPort ? "list" : "button"}.css`),
-      theme: `theme_${await this.getCurrentTheme()}`,
+      theme: await this.stateService.getTheme(),
       translations: this.getTranslations(),
       ciphers: isOverlayListPort ? this.getOverlayCipherData() : null,
     });

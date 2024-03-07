@@ -1,4 +1,5 @@
-import { EVENTS } from "../constants";
+import { EVENTS } from "@bitwarden/common/autofill/constants";
+
 import AutofillScript, { FillScript, FillScriptActions } from "../models/autofill-script";
 import { FillableFormFieldElement, FormElementWithAttribute, FormFieldElement } from "../types";
 
@@ -428,6 +429,8 @@ describe("InsertAutofillContentService", () => {
           const scriptAction: FillScript = [action, opid, value];
           jest.spyOn(insertAutofillContentService["autofillInsertActions"], action);
 
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           insertAutofillContentService["runFillScriptAction"](scriptAction, 0);
           jest.advanceTimersByTime(20);
 

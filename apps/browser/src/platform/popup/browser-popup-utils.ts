@@ -86,14 +86,14 @@ class BrowserPopupUtils {
    * Identifies if the background page needs to be initialized.
    */
   static backgroundInitializationRequired() {
-    return BrowserApi.getBackgroundPage() === null;
+    return !BrowserApi.getBackgroundPage();
   }
 
   /**
    * Identifies if the popup is loading in private mode.
    */
   static inPrivateMode() {
-    return BrowserPopupUtils.backgroundInitializationRequired() && BrowserApi.manifestVersion !== 3;
+    return BrowserPopupUtils.backgroundInitializationRequired() && !BrowserApi.isManifestVersion(3);
   }
 
   /**
