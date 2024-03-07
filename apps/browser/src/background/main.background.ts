@@ -620,6 +620,7 @@ export default class MainBackground {
       this.encryptService,
       this.cipherFileUploadService,
       this.configService,
+      this.vaultSettingsService,
     );
     this.folderService = new FolderService(
       this.cryptoService,
@@ -737,6 +738,7 @@ export default class MainBackground {
       this.logService,
       this.settingsService,
       this.userVerificationService,
+      this.vaultSettingsService,
     );
     this.auditService = new AuditService(this.cryptoFunctionService, this.apiService);
 
@@ -880,6 +882,7 @@ export default class MainBackground {
       this.autofillSettingsService,
       this.i18nService,
       this.platformUtilsService,
+      this.vaultSettingsService,
     );
     this.filelessImporterBackground = new FilelessImporterBackground(
       this.configService,

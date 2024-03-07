@@ -8,6 +8,7 @@ import { EventType } from "@bitwarden/common/enums";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
+import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { FieldType, UriMatchType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -50,6 +51,7 @@ export default class AutofillService implements AutofillServiceInterface {
     private logService: LogService,
     private settingsService: SettingsService,
     private userVerificationService: UserVerificationService,
+    private vaultSettingsService: VaultSettingsService,
   ) {}
 
   /**
@@ -229,7 +231,7 @@ export default class AutofillService implements AutofillServiceInterface {
     let totp: string | null = null;
 
     const canAccessPremium = await this.stateService.getCanAccessPremium();
-    const defaultUriMatch = (await this.stateService.getDefaultUriMatch()) ?? UriMatchType.Domain;
+    const defaultUriMatch = await firstValueFrom(this.vaultSettingsService.defaultUriMatch$);
 
     if (!canAccessPremium) {
       options.cipher.login.totp = null;

@@ -11,6 +11,10 @@ import {
   SettingsServiceInitOptions,
 } from "../../../background/service-factories/settings-service.factory";
 import {
+  VaultSettingsServiceInitOptions,
+  vaultSettingsServiceFactory,
+} from "../../../background/service-factories/vault-settings-service.factory";
+import {
   CachedServices,
   factory,
   FactoryOptions,
@@ -49,7 +53,8 @@ export type AutoFillServiceInitOptions = AutoFillServiceOptions &
   EventCollectionServiceInitOptions &
   LogServiceInitOptions &
   SettingsServiceInitOptions &
-  UserVerificationServiceInitOptions;
+  UserVerificationServiceInitOptions &
+  VaultSettingsServiceInitOptions;
 
 export function autofillServiceFactory(
   cache: { autofillService?: AbstractAutoFillService } & CachedServices,
@@ -69,6 +74,7 @@ export function autofillServiceFactory(
         await logServiceFactory(cache, opts),
         await settingsServiceFactory(cache, opts),
         await userVerificationServiceFactory(cache, opts),
+        await vaultSettingsServiceFactory(cache, opts),
       ),
   );
 }

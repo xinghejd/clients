@@ -18,6 +18,10 @@ import {
   settingsServiceFactory,
 } from "../../../background/service-factories/settings-service.factory";
 import {
+  VaultSettingsServiceInitOptions,
+  vaultSettingsServiceFactory,
+} from "../../../background/service-factories/vault-settings-service.factory";
+import {
   apiServiceFactory,
   ApiServiceInitOptions,
 } from "../../../platform/background/service-factories/api-service.factory";
@@ -59,7 +63,8 @@ export type CipherServiceInitOptions = CipherServiceFactoryOptions &
   StateServiceInitOptions &
   AutofillSettingsServiceInitOptions &
   EncryptServiceInitOptions &
-  ConfigServiceInitOptions;
+  ConfigServiceInitOptions &
+  VaultSettingsServiceInitOptions;
 
 export function cipherServiceFactory(
   cache: { cipherService?: AbstractCipherService } & CachedServices,
@@ -81,6 +86,7 @@ export function cipherServiceFactory(
         await encryptServiceFactory(cache, opts),
         await cipherFileUploadServiceFactory(cache, opts),
         await configServiceFactory(cache, opts),
+        await vaultSettingsServiceFactory(cache, opts),
       ),
   );
 }

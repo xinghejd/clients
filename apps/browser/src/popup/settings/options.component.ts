@@ -107,12 +107,16 @@ export class OptionsComponent implements OnInit {
 
     this.enableContextMenuItem = !(await this.stateService.getDisableContextMenuItem());
 
-    this.showCardsCurrentTab = !(await this.stateService.getDontShowCardsCurrentTab());
-    this.showIdentitiesCurrentTab = !(await this.stateService.getDontShowIdentitiesCurrentTab());
+    this.showCardsCurrentTab = !(await firstValueFrom(
+      this.vaultSettingsService.dontShowCardsCurrentTab$,
+    ));
+    this.showIdentitiesCurrentTab = !(await firstValueFrom(
+      this.vaultSettingsService.dontShowIdentitiesCurrentTab$,
+    ));
 
     this.enableAutoTotpCopy = await firstValueFrom(this.autofillSettingsService.autoCopyTotp$);
 
-    this.enableFavicon = !this.settingsService.getDisableFavicon();
+    this.enableFavicon = !(await firstValueFrom(this.vaultSettingsService.disableFavicon$));
 
     this.enableBadgeCounter = await firstValueFrom(this.badgeSettingsService.enableBadgeCounter$);
 
@@ -120,7 +124,7 @@ export class OptionsComponent implements OnInit {
 
     this.theme = await this.stateService.getTheme();
 
-    const defaultUriMatch = await this.stateService.getDefaultUriMatch();
+    const defaultUriMatch = await firstValueFrom(this.vaultSettingsService.defaultUriMatch$);
     this.defaultUriMatch = defaultUriMatch == null ? UriMatchType.Domain : defaultUriMatch;
 
     this.clearClipboard = await firstValueFrom(this.autofillSettingsService.clearClipboardDelay$);
@@ -160,7 +164,7 @@ export class OptionsComponent implements OnInit {
   }
 
   async updateFavicon() {
-    await this.settingsService.setDisableFavicon(!this.enableFavicon);
+    await this.vaultSettingsService.setDisableFavicon(!this.enableFavicon);
   }
 
   async updateBadgeCounter() {
@@ -169,11 +173,11 @@ export class OptionsComponent implements OnInit {
   }
 
   async updateShowCardsCurrentTab() {
-    await this.stateService.setDontShowCardsCurrentTab(!this.showCardsCurrentTab);
+    await this.vaultSettingsService.setDontShowCardsCurrentTab(!this.showCardsCurrentTab);
   }
 
   async updateShowIdentitiesCurrentTab() {
-    await this.stateService.setDontShowIdentitiesCurrentTab(!this.showIdentitiesCurrentTab);
+    await this.vaultSettingsService.setDontShowIdentitiesCurrentTab(!this.showIdentitiesCurrentTab);
   }
 
   async saveTheme() {
@@ -181,7 +185,7 @@ export class OptionsComponent implements OnInit {
   }
 
   async saveDefaultUriMatch() {
-    await this.stateService.setDefaultUriMatch(this.defaultUriMatch);
+    await this.vaultSettingsService.setDefaultUriMatch(this.defaultUriMatch);
   }
 
   async saveClearClipboard() {

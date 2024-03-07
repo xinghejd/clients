@@ -17,6 +17,7 @@ import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypt
 import { ContainerService } from "../../platform/services/container.service";
 import { CipherKey, OrgKey } from "../../types/key";
 import { CipherFileUploadService } from "../abstractions/file-upload/cipher-file-upload.service";
+import { VaultSettingsService } from "../abstractions/vault-settings/vault-settings.service";
 import { UriMatchType, FieldType } from "../enums";
 import { CipherRepromptType } from "../enums/cipher-reprompt-type";
 import { CipherType } from "../enums/cipher-type";
@@ -106,6 +107,7 @@ describe("Cipher Service", () => {
   const searchService = mock<SearchService>();
   const encryptService = mock<EncryptService>();
   const configService = mock<ConfigServiceAbstraction>();
+  const vaultSettingsService = mock<VaultSettingsService>();
 
   let cipherService: CipherService;
   let cipherObj: Cipher;
@@ -127,6 +129,7 @@ describe("Cipher Service", () => {
       encryptService,
       cipherFileUploadService,
       configService,
+      vaultSettingsService,
     );
 
     cipherObj = new Cipher(cipherData);

@@ -21,6 +21,7 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { ThemeType, KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { DialogService } from "@bitwarden/components";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
@@ -121,6 +122,7 @@ export class SettingsComponent implements OnInit {
     private dialogService: DialogService,
     private userVerificationService: UserVerificationServiceAbstraction,
     private biometricStateService: BiometricStateService,
+    private vaultSettingsService: VaultSettingsService,
   ) {
     const isMac = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
 
@@ -251,7 +253,7 @@ export class SettingsComponent implements OnInit {
       approveLoginRequests: (await this.stateService.getApproveLoginRequests()) ?? false,
       clearClipboard: await firstValueFrom(this.autofillSettingsService.clearClipboardDelay$),
       minimizeOnCopyToClipboard: await this.stateService.getMinimizeOnCopyToClipboard(),
-      enableFavicons: !(await this.stateService.getDisableFavicon()),
+      enableFavicons: !(await firstValueFrom(this.vaultSettingsService.disableFavicon$)),
       enableTray: await this.stateService.getEnableTray(),
       enableMinToTray: await this.stateService.getEnableMinimizeToTray(),
       enableCloseToTray: await this.stateService.getEnableCloseToTray(),
@@ -498,7 +500,7 @@ export class SettingsComponent implements OnInit {
   }
 
   async saveFavicons() {
-    await this.settingsService.setDisableFavicon(!this.form.value.enableFavicons);
+    await this.vaultSettingsService.setDisableFavicon(!this.form.value.enableFavicons);
     this.messagingService.send("refreshCiphers");
   }
 

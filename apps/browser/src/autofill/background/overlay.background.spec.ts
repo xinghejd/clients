@@ -1,4 +1,5 @@
-import { mock, mockReset } from "jest-mock-extended";
+import { MockProxy, mock, mockReset } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
@@ -6,7 +7,7 @@ import { AutofillSettingsService } from "@bitwarden/common/autofill/services/aut
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/services/environment.service";
 import { I18nService } from "@bitwarden/common/platform/services/i18n.service";
-import { SettingsService } from "@bitwarden/common/services/settings.service";
+import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -40,13 +41,13 @@ describe("OverlayBackground", () => {
   let buttonPortSpy: chrome.runtime.Port;
   let listPortSpy: chrome.runtime.Port;
   let overlayBackground: OverlayBackground;
+  let vaultSettingsService: MockProxy<VaultSettingsService>;
   const cipherService = mock<CipherService>();
   const autofillService = mock<AutofillService>();
   const authService = mock<AuthService>();
   const environmentService = mock<EnvironmentService>({
     getIconsUrl: () => iconServerUrl,
   });
-  const settingsService = mock<SettingsService>();
   const stateService = mock<BrowserStateService>();
   const autofillSettingsService = mock<AutofillSettingsService>();
   const i18nService = mock<I18nService>();
@@ -67,21 +68,23 @@ describe("OverlayBackground", () => {
   };
 
   beforeEach(() => {
+    vaultSettingsService = mock<VaultSettingsService>();
     overlayBackground = new OverlayBackground(
       cipherService,
       autofillService,
       authService,
       environmentService,
-      settingsService,
       stateService,
       autofillSettingsService,
       i18nService,
       platformUtilsService,
+      vaultSettingsService,
     );
 
     jest
       .spyOn(overlayBackground as any, "getOverlayVisibility")
       .mockResolvedValue(AutofillOverlayVisibility.OnFieldFocus);
+    vaultSettingsService.disableFavicon$ = of(false);
 
     void overlayBackground.init();
   });
@@ -266,7 +269,7 @@ describe("OverlayBackground", () => {
       card: { subTitle: "Mastercard, *1234" },
     });
 
-    it("formats and returns the cipher data", () => {
+    it("formats and returns the cipher data", async () => {
       overlayBackground["overlayLoginCiphers"] = new Map([
         ["overlay-cipher-0", cipher2],
         ["overlay-cipher-1", cipher1],
@@ -274,7 +277,7 @@ describe("OverlayBackground", () => {
         ["overlay-cipher-3", cipher4],
       ]);
 
-      const overlayCipherData = overlayBackground["getOverlayCipherData"]();
+      const overlayCipherData = await overlayBackground["getOverlayCipherData"]();
 
       expect(overlayCipherData).toStrictEqual([
         {

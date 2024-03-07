@@ -8,8 +8,8 @@ import {
   Observable,
 } from "rxjs";
 
-import { SettingsService } from "@bitwarden/common/abstractions/settings.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { buildCipherIcon } from "@bitwarden/common/vault/icon/build-cipher-icon";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
@@ -35,14 +35,14 @@ export class IconComponent implements OnInit {
 
   constructor(
     private environmentService: EnvironmentService,
-    private settingsService: SettingsService,
+    private vaultSettingsService: VaultSettingsService,
   ) {}
 
   async ngOnInit() {
     const iconsUrl = this.environmentService.getIconsUrl();
 
     this.data$ = combineLatest([
-      this.settingsService.disableFavicon$.pipe(distinctUntilChanged()),
+      this.vaultSettingsService.disableFavicon$.pipe(distinctUntilChanged()),
       this.cipher$.pipe(filter((c) => c !== undefined)),
     ]).pipe(map(([disableFavicon, cipher]) => buildCipherIcon(iconsUrl, cipher, disableFavicon)));
   }

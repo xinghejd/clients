@@ -7,10 +7,8 @@ import { AccountSettingsSettings } from "../platform/models/domain/account";
 
 export class SettingsService implements SettingsServiceAbstraction {
   protected _settings: BehaviorSubject<AccountSettingsSettings> = new BehaviorSubject({});
-  protected _disableFavicon = new BehaviorSubject<boolean>(null);
 
   settings$ = this._settings.asObservable();
-  disableFavicon$ = this._disableFavicon.asObservable();
 
   constructor(private stateService: StateService) {
     this.stateService.activeAccountUnlocked$
@@ -26,10 +24,8 @@ export class SettingsService implements SettingsServiceAbstraction {
           }
 
           const data = await this.stateService.getSettings();
-          const disableFavicon = await this.stateService.getDisableFavicon();
 
           this._settings.next(data);
-          this._disableFavicon.next(disableFavicon);
         }),
       )
       .subscribe();
@@ -63,15 +59,6 @@ export class SettingsService implements SettingsServiceAbstraction {
     }
 
     return new Set(result);
-  }
-
-  async setDisableFavicon(value: boolean) {
-    this._disableFavicon.next(value);
-    await this.stateService.setDisableFavicon(value);
-  }
-
-  getDisableFavicon(): boolean {
-    return this._disableFavicon.getValue();
   }
 
   async clear(userId?: string): Promise<void> {

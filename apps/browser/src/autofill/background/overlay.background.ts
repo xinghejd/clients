@@ -1,6 +1,5 @@
 import { firstValueFrom } from "rxjs";
 
-import { SettingsService } from "@bitwarden/common/abstractions/settings.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
@@ -10,6 +9,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { buildCipherIcon } from "@bitwarden/common/vault/icon/build-cipher-icon";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -94,11 +94,11 @@ class OverlayBackground implements OverlayBackgroundInterface {
     private autofillService: AutofillService,
     private authService: AuthService,
     private environmentService: EnvironmentService,
-    private settingsService: SettingsService,
     private stateService: StateService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
+    private vaultSettingsService: VaultSettingsService,
   ) {
     this.iconsServerUrl = this.environmentService.getIconsUrl();
   }
@@ -146,7 +146,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
       this.overlayLoginCiphers.set(`overlay-cipher-${cipherIndex}`, ciphersViews[cipherIndex]);
     }
 
-    const ciphers = this.getOverlayCipherData();
+    const ciphers = await this.getOverlayCipherData();
     this.overlayListPort?.postMessage({ command: "updateOverlayListCiphers", ciphers });
     await BrowserApi.tabSendMessageData(currentTab, "updateIsOverlayCiphersPopulated", {
       isOverlayCiphersPopulated: Boolean(ciphers.length),
@@ -157,8 +157,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * Strips out unnecessary data from the ciphers and returns an array of
    * objects that contain the cipher data needed for the overlay list.
    */
-  private getOverlayCipherData(): OverlayCipherData[] {
-    const isFaviconDisabled = this.settingsService.getDisableFavicon();
+  private async getOverlayCipherData(): Promise<OverlayCipherData[]> {
+    const isFaviconDisabled = await firstValueFrom(this.vaultSettingsService.disableFavicon$);
     const overlayCiphersArray = Array.from(this.overlayLoginCiphers);
     const overlayCipherData = [];
     let loginCipherIcon: WebsiteIconData;

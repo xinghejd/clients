@@ -14,6 +14,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { DialogService } from "@bitwarden/components";
 
 @Component({
@@ -57,6 +58,7 @@ export class PreferencesComponent implements OnInit {
     private themingService: AbstractThemingService,
     private settingsService: SettingsService,
     private dialogService: DialogService,
+    private vaultSettingsService: VaultSettingsService,
   ) {
     this.vaultTimeoutOptions = [
       { name: i18nService.t("oneMinute"), value: 1 },
@@ -140,7 +142,7 @@ export class PreferencesComponent implements OnInit {
       vaultTimeoutAction: await firstValueFrom(
         this.vaultTimeoutSettingsService.vaultTimeoutAction$(),
       ),
-      enableFavicons: !(await this.settingsService.getDisableFavicon()),
+      enableFavicons: !(await firstValueFrom(this.vaultSettingsService.disableFavicon$)),
       theme: await this.stateService.getTheme(),
       locale: (await this.stateService.getLocale()) ?? null,
     };
@@ -164,7 +166,7 @@ export class PreferencesComponent implements OnInit {
       values.vaultTimeout,
       values.vaultTimeoutAction,
     );
-    await this.settingsService.setDisableFavicon(!values.enableFavicons);
+    await this.vaultSettingsService.setDisableFavicon(!values.enableFavicons);
     if (values.theme !== this.startingTheme) {
       await this.themingService.updateConfiguredTheme(values.theme);
       this.startingTheme = values.theme;

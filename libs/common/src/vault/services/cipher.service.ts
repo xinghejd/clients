@@ -23,6 +23,7 @@ import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypt
 import { UserKey, OrgKey } from "../../types/key";
 import { CipherService as CipherServiceAbstraction } from "../abstractions/cipher.service";
 import { CipherFileUploadService } from "../abstractions/file-upload/cipher-file-upload.service";
+import { VaultSettingsService } from "../abstractions/vault-settings/vault-settings.service";
 import { FieldType, UriMatchType } from "../enums";
 import { CipherType } from "../enums/cipher-type";
 import { CipherData } from "../models/data/cipher.data";
@@ -70,6 +71,7 @@ export class CipherService implements CipherServiceAbstraction {
     private encryptService: EncryptService,
     private cipherFileUploadService: CipherFileUploadService,
     private configService: ConfigServiceAbstraction,
+    private vaultSettingsService: VaultSettingsService,
   ) {}
 
   async getDecryptedCipherCache(): Promise<CipherView[]> {
@@ -363,7 +365,7 @@ export class CipherService implements CipherServiceAbstraction {
 
     const equivalentDomains = this.settingsService.getEquivalentDomains(url);
     const ciphers = await this.getAllDecrypted();
-    defaultMatch ??= await this.stateService.getDefaultUriMatch();
+    defaultMatch ??= await firstValueFrom(this.vaultSettingsService.defaultUriMatch$);
 
     return ciphers.filter((cipher) => {
       const cipherIsLogin = cipher.type === CipherType.Login && cipher.login !== null;
