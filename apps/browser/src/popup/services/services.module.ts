@@ -16,7 +16,6 @@ import {
   LoginStrategyServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
@@ -26,7 +25,6 @@ import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vaul
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { ProviderService } from "@bitwarden/common/admin-console/abstractions/provider.service";
 import { AccountService as AccountServiceAbstraction } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService as AuthServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth.service";
 import { DeviceTrustCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust-crypto.service.abstraction";
@@ -232,7 +230,6 @@ function getBgService<T>(service: keyof MainBackground) {
       },
       deps: [LogServiceAbstraction, I18nServiceAbstraction],
     },
-    { provide: AuditService, useFactory: getBgService<AuditService>("auditService"), deps: [] },
     {
       provide: CipherFileUploadService,
       useFactory: getBgService<CipherFileUploadService>("cipherFileUploadService"),
@@ -243,10 +240,6 @@ function getBgService<T>(service: keyof MainBackground) {
       provide: CryptoFunctionService,
       useFactory: () => new WebCryptoFunctionService(window),
       deps: [],
-    },
-    {
-      provide: FileUploadService,
-      useFactory: getBgService<FileUploadService>("fileUploadService"),
     },
     {
       provide: InternalFolderService,
@@ -347,7 +340,6 @@ function getBgService<T>(service: keyof MainBackground) {
       useFactory: getBgService<PasswordGenerationServiceAbstraction>("passwordGenerationService"),
       deps: [],
     },
-    { provide: ApiService, useFactory: getBgService<ApiService>("apiService"), deps: [] },
     {
       provide: SendService,
       useFactory: (
@@ -460,11 +452,6 @@ function getBgService<T>(service: keyof MainBackground) {
       ],
     },
     {
-      provide: ProviderService,
-      useFactory: getBgService<ProviderService>("providerService"),
-      deps: [],
-    },
-    {
       provide: SECURE_STORAGE,
       useFactory: getBgService<AbstractStorageService>("secureStorageService"),
     },
@@ -538,13 +525,15 @@ function getBgService<T>(service: keyof MainBackground) {
         stateService: StateServiceAbstraction,
         platformUtilsService: PlatformUtilsService,
       ) => {
-        return new ThemingService(
-          stateService,
-          // Safari doesn't properly handle the (prefers-color-scheme) media query in the popup window, it always returns light.
-          // In Safari we have to use the background page instead, which comes with limitations like not dynamically changing the extension theme when the system theme is changed.
-          platformUtilsService.isSafari() ? getBgService<Window>("backgroundWindow")() : window,
-          document,
-        );
+        // Safari doesn't properly handle the (prefers-color-scheme) media query in the popup window, it always returns light.
+        // In Safari, we have to use the background page instead, which comes with limitations like not dynamically changing the extension theme when the system theme is changed.
+        let windowContext = window;
+        const backgroundWindow = BrowserApi.getBackgroundPage();
+        if (platformUtilsService.isSafari() && backgroundWindow) {
+          windowContext = backgroundWindow;
+        }
+
+        return new ThemingService(stateService, windowContext, document);
       },
       deps: [StateServiceAbstraction, PlatformUtilsService],
     },
