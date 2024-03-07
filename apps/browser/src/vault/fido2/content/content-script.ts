@@ -7,8 +7,8 @@ import { sendExtensionMessage } from "../../../autofill/utils";
 import { Fido2Port } from "../enums/fido2-port.enum";
 
 import {
-  CredentialCreationRequest,
-  CredentialGetRequest,
+  InsecureAssertCredentialParams,
+  InsecureCreateCredentialParams,
   Message,
   MessageType,
 } from "./messaging/message";
@@ -41,14 +41,14 @@ import { MessageWithMetadata, Messenger } from "./messaging/messenger";
       if (message.type === MessageType.CredentialCreationRequest) {
         return handleCredentialCreationRequestMessage(
           requestId,
-          <CredentialCreationRequest & Metadata>(<unknown>message),
+          message.data as InsecureCreateCredentialParams,
         );
       }
 
       if (message.type === MessageType.CredentialGetRequest) {
         return handleCredentialGetRequestMessage(
           requestId,
-          <CredentialGetRequest & Metadata>(<unknown>message),
+          message.data as InsecureAssertCredentialParams,
         );
       }
     } finally {
@@ -60,57 +60,52 @@ import { MessageWithMetadata, Messenger } from "./messaging/messenger";
 
   async function handleCredentialCreationRequestMessage(
     requestId: string,
-    message: CredentialCreationRequest & Metadata,
+    data: InsecureCreateCredentialParams,
   ): Promise<Message | undefined> {
-    const data: CreateCredentialParams = {
-      ...message.data,
-      origin: window.location.origin,
-      sameOriginWithAncestors: isSameOriginWithAncestors(),
-    };
-
-    const registerCredentialResponse = await sendExtensionMessage(
+    return respondToCredentialRequest(
       "fido2RegisterCredentialRequest",
-      { data, requestId },
+      MessageType.CredentialCreationResponse,
+      requestId,
+      data,
     );
-
-    if (registerCredentialResponse && registerCredentialResponse.error !== undefined) {
-      return Promise.reject(registerCredentialResponse.error);
-    }
-
-    return Promise.resolve({
-      type: MessageType.CredentialCreationResponse,
-      result: registerCredentialResponse,
-    });
   }
 
   async function handleCredentialGetRequestMessage(
     requestId: string,
-    message: CredentialGetRequest & Metadata,
+    data: InsecureAssertCredentialParams,
   ): Promise<Message | undefined> {
-    const data: AssertCredentialParams = {
-      ...message.data,
-      origin: window.location.origin,
+    return respondToCredentialRequest(
+      "fido2GetCredentialRequest",
+      MessageType.CredentialGetResponse,
+      requestId,
+      data,
+    );
+  }
+
+  async function respondToCredentialRequest(
+    command: string,
+    type: MessageType.CredentialCreationResponse | MessageType.CredentialGetResponse,
+    requestId: string,
+    messageData: InsecureCreateCredentialParams | InsecureAssertCredentialParams,
+  ): Promise<Message | undefined> {
+    const data: CreateCredentialParams | AssertCredentialParams = {
+      ...messageData,
+      origin: globalContext.location.origin,
       sameOriginWithAncestors: isSameOriginWithAncestors(),
     };
 
-    const getCredentialResponse = await sendExtensionMessage("fido2GetCredentialRequest", {
-      data,
-      requestId,
-    });
+    const result = await sendExtensionMessage(command, { data, requestId });
 
-    if (getCredentialResponse && getCredentialResponse.error !== undefined) {
-      return Promise.reject(getCredentialResponse.error);
+    if (result && result.error !== undefined) {
+      return Promise.reject(result.error);
     }
 
-    return Promise.resolve({
-      type: MessageType.CredentialGetResponse,
-      result: getCredentialResponse,
-    });
+    return Promise.resolve({ type, result });
   }
 
   function isSameOriginWithAncestors() {
     try {
-      return window.self === window.top;
+      return globalContext.self === globalContext.top;
     } catch {
       return false;
     }
