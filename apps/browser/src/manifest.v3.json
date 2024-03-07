@@ -24,19 +24,16 @@
       "run_at": "document_start"
     },
     {
-      "all_frames": false,
-      "js": ["content/lp-fileless-importer.js"],
-      "matches": ["https://lastpass.com/export.php"],
+      "all_frames": true,
+      "js": ["content/fido2/trigger-fido2-content-script-injection.js"],
+      "matches": ["https://*/*"],
+      "exclude_matches": ["https://*/*.xml*"],
       "run_at": "document_start"
     },
     {
       "all_frames": true,
       "css": ["content/autofill.css"],
-      "js": [
-        "content/trigger-autofill-script-injection.js",
-        "content/fido2/trigger-fido2-content-script-injection.js",
-        "content/misc-utils.js"
-      ],
+      "js": ["content/trigger-autofill-script-injection.js", "content/misc-utils.js"],
       "matches": ["*://*/*", "file:///*"],
       "exclude_matches": ["*://*/*.xml*", "file:///*.xml*"],
       "run_at": "document_start"

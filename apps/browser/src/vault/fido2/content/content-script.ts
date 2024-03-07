@@ -6,22 +6,25 @@ import {
 import { sendExtensionMessage } from "../../../autofill/utils";
 import { Fido2Port } from "../enums/fido2-port.enum";
 
-import { Message, MessageType } from "./messaging/message";
-import { Messenger } from "./messaging/messenger";
+import {
+  InsecureAssertCredentialParams,
+  InsecureCreateCredentialParams,
+  Message,
+  MessageType,
+} from "./messaging/message";
+import { MessageWithMetadata, Messenger } from "./messaging/messenger";
 
-function isSameOriginWithAncestors() {
-  try {
-    return window.self === window.top;
-  } catch {
-    return false;
-  }
-}
-const messenger = Messenger.forDOMCommunication(window);
+(function (globalContext) {
+  const messenger = Messenger.forDOMCommunication(window);
+  messenger.handler = handleFido2Message;
 
-function initializeFido2ContentScript() {
-  void sendExtensionMessage("triggerFido2PageScriptInjection");
+  const port = chrome.runtime.connect({ name: Fido2Port.InjectedScript });
+  port.onDisconnect.addListener(handlePortOnDisconnect);
 
-  messenger.handler = async (message, abortController) => {
+  async function handleFido2Message(
+    message: MessageWithMetadata,
+    abortController: AbortController,
+  ) {
     const requestId = Date.now().toString();
     const abortHandler = () =>
       chrome.runtime.sendMessage({
@@ -30,79 +33,82 @@ function initializeFido2ContentScript() {
       });
     abortController.signal.addEventListener("abort", abortHandler);
 
-    if (message.type === MessageType.CredentialCreationRequest) {
-      return new Promise<Message | undefined>((resolve, reject) => {
-        const data: CreateCredentialParams = {
-          ...message.data,
-          origin: window.location.origin,
-          sameOriginWithAncestors: isSameOriginWithAncestors(),
-        };
-
-        chrome.runtime.sendMessage(
-          {
-            command: "fido2RegisterCredentialRequest",
-            data,
-            requestId: requestId,
-          },
-          (response) => {
-            if (response && response.error !== undefined) {
-              return reject(response.error);
-            }
-
-            resolve({
-              type: MessageType.CredentialCreationResponse,
-              result: response,
-            });
-          },
+    try {
+      if (message.type === MessageType.CredentialCreationRequest) {
+        return handleCredentialCreationRequestMessage(
+          requestId,
+          message.data as InsecureCreateCredentialParams,
         );
-      });
-    }
+      }
 
-    if (message.type === MessageType.CredentialGetRequest) {
-      return new Promise<Message | undefined>((resolve, reject) => {
-        const data: AssertCredentialParams = {
-          ...message.data,
-          origin: window.location.origin,
-          sameOriginWithAncestors: isSameOriginWithAncestors(),
-        };
-
-        chrome.runtime.sendMessage(
-          {
-            command: "fido2GetCredentialRequest",
-            data,
-            requestId: requestId,
-          },
-          (response) => {
-            if (response && response.error !== undefined) {
-              return reject(response.error);
-            }
-
-            resolve({
-              type: MessageType.CredentialGetResponse,
-              result: response,
-            });
-          },
+      if (message.type === MessageType.CredentialGetRequest) {
+        return handleCredentialGetRequestMessage(
+          requestId,
+          message.data as InsecureAssertCredentialParams,
         );
-      }).finally(() =>
-        abortController.signal.removeEventListener("abort", abortHandler),
-      ) as Promise<Message>;
+      }
+    } finally {
+      abortController.signal.removeEventListener("abort", abortHandler);
     }
 
     return undefined;
-  };
-}
+  }
 
-async function run() {
-  initializeFido2ContentScript();
+  async function handleCredentialCreationRequestMessage(
+    requestId: string,
+    data: InsecureCreateCredentialParams,
+  ): Promise<Message | undefined> {
+    return respondToCredentialRequest(
+      "fido2RegisterCredentialRequest",
+      MessageType.CredentialCreationResponse,
+      requestId,
+      data,
+    );
+  }
 
-  const port = chrome.runtime.connect({ name: Fido2Port.InjectedScript });
-  port.onDisconnect.addListener(() => {
-    // Cleanup the messenger and remove the event listener
+  async function handleCredentialGetRequestMessage(
+    requestId: string,
+    data: InsecureAssertCredentialParams,
+  ): Promise<Message | undefined> {
+    return respondToCredentialRequest(
+      "fido2GetCredentialRequest",
+      MessageType.CredentialGetResponse,
+      requestId,
+      data,
+    );
+  }
+
+  async function respondToCredentialRequest(
+    command: string,
+    type: MessageType.CredentialCreationResponse | MessageType.CredentialGetResponse,
+    requestId: string,
+    messageData: InsecureCreateCredentialParams | InsecureAssertCredentialParams,
+  ): Promise<Message | undefined> {
+    const data: CreateCredentialParams | AssertCredentialParams = {
+      ...messageData,
+      origin: globalContext.location.origin,
+      sameOriginWithAncestors: isSameOriginWithAncestors(),
+    };
+
+    const result = await sendExtensionMessage(command, { data, requestId });
+
+    if (result && result.error !== undefined) {
+      return Promise.reject(result.error);
+    }
+
+    return Promise.resolve({ type, result });
+  }
+
+  function isSameOriginWithAncestors() {
+    try {
+      return globalContext.self === globalContext.top;
+    } catch {
+      return false;
+    }
+  }
+
+  // Cleanup the messenger and remove the event listener
+  function handlePortOnDisconnect() {
     void messenger.destroy();
-  });
-}
-
-// Only run the script if the document is an HTML document
-if (document.contentType === "text/html") {
-  void run();
-}
+  }
+})(globalThis);

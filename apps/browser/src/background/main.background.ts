@@ -798,7 +798,11 @@ export default class MainBackground {
 
     // Background
     if (!this.popupOnlyContext) {
-      this.fido2Background = new Fido2Background(this.logService, this.fido2ClientService);
+      this.fido2Background = new Fido2Background(
+        this.logService,
+        this.fido2ClientService,
+        this.vaultSettingsService,
+      );
       this.runtimeBackground = new RuntimeBackground(
         this,
         this.autofillService,
