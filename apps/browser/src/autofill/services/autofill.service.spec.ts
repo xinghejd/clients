@@ -2,6 +2,7 @@ import { MockProxy, mock, mockReset } from "jest-mock-extended";
 import { of } from "rxjs";
 
 import { UserVerificationService } from "@bitwarden/common/auth/services/user-verification/user-verification.service";
+import { AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsService } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { EventType } from "@bitwarden/common/enums";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -39,7 +40,6 @@ import {
   createGenerateFillScriptOptionsMock,
 } from "../spec/autofill-mocks";
 import { triggerTestFailure } from "../spec/testing-utils";
-import { AutofillOverlayVisibility } from "../utils/autofill-overlay.enum";
 
 import {
   AutoFillOptions,
