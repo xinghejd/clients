@@ -221,10 +221,6 @@ function getBgService<T>(service: keyof MainBackground) {
       deps: [],
     },
     {
-      provide: FileUploadService,
-      useFactory: getBgService<FileUploadService>("fileUploadService"),
-    },
-    {
       provide: InternalFolderService,
       useExisting: FolderServiceAbstraction,
     },
@@ -323,7 +319,6 @@ function getBgService<T>(service: keyof MainBackground) {
       useFactory: getBgService<PasswordGenerationServiceAbstraction>("passwordGenerationService"),
       deps: [],
     },
-    { provide: ApiService, useFactory: getBgService<ApiService>("apiService"), deps: [] },
     {
       provide: SendService,
       useFactory: (
