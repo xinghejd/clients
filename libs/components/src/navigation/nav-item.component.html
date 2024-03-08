@@ -10,7 +10,6 @@
       'padding-left': (variant === 'tree' ? 2.5 : 1) + treeDepth * 1.5 + 'rem'
     }"
     class="tw-relative tw-flex tw-items-center tw-pr-4"
-    [ngClass]="[variant === 'tree' ? 'tw-py-1' : 'tw-py-2']"
   >
     <div
       #slotStart
@@ -38,10 +37,12 @@
 
     <!-- Main content of `NavItem` -->
     <ng-template #anchorAndButtonContent>
-      <i class="bwi bwi-fw tw-text-alt2 tw-mx-1 {{ icon }}"></i
-      ><span [title]="text" [ngClass]="showActiveStyles ? 'tw-font-bold' : 'tw-font-semibold'">{{
-        text
-      }}</span>
+      <div [ngClass]="[variant === 'tree' ? 'tw-py-1' : 'tw-py-2']">
+        <i class="bwi bwi-fw tw-text-alt2 tw-mx-1 {{ icon }}"></i
+        ><span [title]="text" [ngClass]="showActiveStyles ? 'tw-font-bold' : 'tw-font-semibold'">{{
+          text
+        }}</span>
+      </div>
     </ng-template>
 
     <!-- Show if a value was passed to `this.to` -->
