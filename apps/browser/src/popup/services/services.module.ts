@@ -8,6 +8,7 @@ import {
   SECURE_STORAGE,
   OBSERVABLE_DISK_STORAGE,
   OBSERVABLE_MEMORY_STORAGE,
+  AUTOFILL_KEYBOARD_SHORTCUT,
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
 import {
@@ -104,6 +105,7 @@ import { VaultExportServiceAbstraction } from "@bitwarden/vault-export-core";
 import { BrowserOrganizationService } from "../../admin-console/services/browser-organization.service";
 import { UnauthGuardService } from "../../auth/popup/services";
 import { AutofillService } from "../../autofill/services/abstractions/autofill.service";
+import { createAutofillKeyboardShortcutObservable } from "../../autofill/utils/autofill-keyboard-shortcut-creator";
 import MainBackground from "../../background/main.background";
 import { Account } from "../../models/account";
 import { BrowserApi } from "../../platform/browser/browser-api";
@@ -537,6 +539,12 @@ function getBgService<T>(service: keyof MainBackground) {
       provide: UserNotificationSettingsServiceAbstraction,
       useClass: UserNotificationSettingsService,
       deps: [StateProvider],
+    },
+    {
+      provide: AUTOFILL_KEYBOARD_SHORTCUT,
+      useFactory: (platformUtilsService: PlatformUtilsService) =>
+        createAutofillKeyboardShortcutObservable(platformUtilsService),
+      deps: [PlatformUtilsService],
     },
   ],
 })

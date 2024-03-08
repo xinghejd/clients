@@ -22,9 +22,14 @@
         <i class="bwi bwi-external-link bwi-lg bwi-fw" aria-hidden="true"></i>
       </button>
     </div>
-    <div id="autofillKeyboardHelp" class="box-footer">
-      {{ autofillKeyboardHelperText }}
+    <div
+      id="autofillKeyboardHelp"
+      class="box-footer"
+      *ngIf="autofillKeyboardShortcut$ | async as autofillKeyboardShortcut; else noShortcut"
+    >
+      {{ "autofillShortcutText" | i18n: autofillKeyboardShortcut }}
     </div>
+    <ng-template #noShortcut>{{ "autofillShortcutNotSet" | i18n }}</ng-template>
   </div>
   <div class="box">
     <div class="box-content">

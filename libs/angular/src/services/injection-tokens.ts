@@ -1,4 +1,5 @@
 import { InjectionToken } from "@angular/core";
+import { Observable } from "rxjs";
 
 import {
   AbstractMemoryStorageService,
@@ -30,3 +31,6 @@ export const LOCKED_CALLBACK = new InjectionToken<(userId?: string) => Promise<v
 export const LOCALES_DIRECTORY = new InjectionToken<string>("LOCALES_DIRECTORY");
 export const SYSTEM_LANGUAGE = new InjectionToken<string>("SYSTEM_LANGUAGE");
 export const LOG_MAC_FAILURES = new InjectionToken<string>("LOG_MAC_FAILURES");
+export const AUTOFILL_KEYBOARD_SHORTCUT = new InjectionToken<Observable<string>>(
+  "AUTOFILL_KEYBOARD_SHORTCUT",
+);
