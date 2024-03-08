@@ -69,21 +69,24 @@ export class I18nComponent implements AfterContentInit {
 
   protected translationParts: I18nStringPart[] = [];
 
-  constructor(private i18nService: I18nService, private logService: LogService) {}
+  constructor(
+    private i18nService: I18nService,
+    private logService: LogService,
+  ) {}
 
   ngAfterContentInit() {
     const translatedText = this.i18nService.t(
       this.translationKey,
       this.args[0],
       this.args[1],
-      this.args[2]
+      this.args[2],
     );
 
     this.translationParts = this.parseTranslatedString(translatedText);
 
     if (this.translationParts.length !== this.templateTags.length) {
       this.logService.warning(
-        `The translation for "${this.translationKey}" has ${this.translationParts.length} template tags(s), but ${this.templateTags.length} bit-i18n-part directive(s) were found.`
+        `The translation for "${this.translationKey}" has ${this.translationParts.length} template tags(s), but ${this.templateTags.length} bit-i18n-part directive(s) were found.`,
       );
     }
 
