@@ -1,5 +1,5 @@
-<div class="tw-flex tw-flex-wrap -tw-ml-2.5">
-  <div [ngClass]="trialFlow ? 'tw-w-7/12 tw-px-2.5 tw-relative' : 'tw-w-1/2 tw-px-2.5 tw-relative'">
+<div class="tw-grid tw-grid-cols-12 tw-gap-4">
+  <div [ngClass]="trialFlow ? 'tw-col-span-7' : 'tw-col-span-6'">
     <bit-form-field>
       <bit-label>{{ "country" | i18n }}</bit-label>
       <bit-select
@@ -20,37 +20,33 @@
       </bit-select>
     </bit-form-field>
   </div>
-  <div [ngClass]="trialFlow ? 'tw-w-5/12 tw-px-2.5 tw-relative' : 'tw-w-1/4 tw-px-2.5 tw-relative'">
-    <div class="tw-mb-4">
-      <bit-form-field>
-        <bit-label>{{ "zipPostalCode" | i18n }}</bit-label>
-        <input
-          bitInput
-          type="text"
-          [(ngModel)]="taxInfo.postalCode"
-          [required]="taxInfo.country === 'US'"
-          autocomplete="postal-code"
-        />
-      </bit-form-field>
-    </div>
+  <div [ngClass]="trialFlow ? 'tw-col-span-5' : 'tw-col-span-3'">
+    <bit-form-field>
+      <bit-label>{{ "zipPostalCode" | i18n }}</bit-label>
+      <input
+        bitInput
+        type="text"
+        [(ngModel)]="taxInfo.postalCode"
+        [required]="taxInfo.country === 'US'"
+        autocomplete="postal-code"
+      />
+    </bit-form-field>
   </div>
   <div
-    class="tw-w-1/2 tw-px-2.5 tw-relative"
+    class="tw-col-span-6"
     *ngIf="organizationId && taxInfo.country !== 'US' && countrySupportsTax(taxInfo.country)"
   >
-    <div class="tw-relative tw-mb-4">
-      <bit-form-control>
-        <input bitCheckbox type="checkbox" [(ngModel)]="taxInfo.includeTaxId" />
-        <bit-label>{{ "includeVAT" | i18n }}</bit-label>
-      </bit-form-control>
-    </div>
+    <bit-form-control>
+      <input bitCheckbox type="checkbox" [(ngModel)]="taxInfo.includeTaxId" />
+      <bit-label>{{ "includeVAT" | i18n }}</bit-label>
+    </bit-form-control>
   </div>
 </div>
 <div
-  class="tw-flex tw-flex-wrap -tw-ml-2.5"
+  class="tw-grid tw-grid-cols-12 tw-gap-4"
   *ngIf="organizationId && taxInfo.includeTaxId && countrySupportsTax(taxInfo.country)"
 >
-  <div class="tw-w-1/2 tw-px-2.5 tw-relative">
+  <div class="tw-col-span-6">
     <bit-form-field>
       <bit-label>{{ "taxIdNumber" | i18n }}</bit-label>
       <input bitInput type="text" [(ngModel)]="taxInfo.taxId" />
@@ -58,28 +54,28 @@
   </div>
 </div>
 <div
-  class="tw-flex tw-flex-wrap -tw-ml-2.5"
+  class="tw-grid tw-grid-cols-12 tw-gap-4"
   *ngIf="organizationId && taxInfo.includeTaxId && countrySupportsTax(taxInfo.country)"
 >
-  <div class="tw-w-1/2 tw-px-2.5 tw-relative">
+  <div class="tw-col-span-6">
     <bit-form-field>
       <bit-label>{{ "address1" | i18n }}</bit-label>
       <input bitInput type="text" [(ngModel)]="taxInfo.line1" autocomplete="address-line1" />
     </bit-form-field>
   </div>
-  <div class="tw-w-1/2 tw-px-2.5 tw-relative">
+  <div class="tw-col-span-6">
     <bit-form-field>
       <bit-label>{{ "address2" | i18n }}</bit-label>
       <input bitInput type="text" [(ngModel)]="taxInfo.line2" autocomplete="address-line2" />
     </bit-form-field>
   </div>
-  <div class="tw-w-1/2 tw-px-2.5 tw-relative">
+  <div class="tw-col-span-6">
     <bit-form-field>
       <bit-label for="addressCity">{{ "cityTown" | i18n }}</bit-label>
       <input bitInput type="text" [(ngModel)]="taxInfo.city" autocomplete="address-level2" />
     </bit-form-field>
   </div>
-  <div class="tw-w-1/2 tw-px-2.5 tw-relative">
+  <div class="tw-col-span-6">
     <bit-form-field>
       <bit-label>{{ "stateProvince" | i18n }}</bit-label>
       <input bitInput type="text" [(ngModel)]="taxInfo.state" autocomplete="address-level1" />
