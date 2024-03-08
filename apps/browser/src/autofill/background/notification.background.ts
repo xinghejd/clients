@@ -28,7 +28,6 @@ import {
   AddLoginQueueMessage,
   AddRequestFilelessImportQueueMessage,
   AddUnlockVaultQueueMessage,
-  ChangePasswordMessageData,
   AddLoginMessageData,
   NotificationQueueMessageItem,
   LockedVaultPendingNotificationsData,
@@ -280,7 +279,7 @@ export default class NotificationBackground {
     message: NotificationBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
-    const changeData = message.data as ChangePasswordMessageData;
+    const changeData = message;
     const loginDomain = Utils.getDomain(changeData.url);
     if (loginDomain == null) {
       return;
@@ -342,7 +341,7 @@ export default class NotificationBackground {
    * @param tab - The tab that the message was sent from
    */
   private async unlockVault(message: NotificationBackgroundExtensionMessage, tab: chrome.tabs.Tab) {
-    if (message.data?.skipNotification) {
+    if (message?.skipNotification) {
       return;
     }
 
@@ -666,7 +665,7 @@ export default class NotificationBackground {
     message: NotificationBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ): Promise<void> {
-    const messageData = message.data as LockedVaultPendingNotificationsData;
+    const messageData = message;
     const retryCommand = messageData.commandToRetry.message.command;
     if (retryCommand === "autofill_login") {
       await BrowserApi.sendTabMessage(sender.tab.id, "closeNotificationBar");
@@ -706,7 +705,7 @@ export default class NotificationBackground {
     message: NotificationBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
-    await BrowserApi.sendTabMessage(sender.tab.id, "adjustNotificationBar", message.data);
+    await BrowserApi.sendTabMessage(sender.tab.id, "adjustNotificationBar", message);
   }
 
   /**

@@ -144,7 +144,7 @@ describe("NotificationBackground", () => {
           command: "unlockCompleted",
           commandToRetry: { message: { command: "autofill_login" } },
         };
-        jest.spyOn(BrowserApi, "sendTabMessage").mockImplementation();
+        jest.spyOn(BrowserApi, "sendTabMessage").mockResolvedValue(undefined);
 
         sendExtensionRuntimeMessage(message, sender);
         await flushPromises();
@@ -197,7 +197,7 @@ describe("NotificationBackground", () => {
         const message: NotificationBackgroundExtensionMessage = {
           command: "bgCloseNotificationBar",
         };
-        jest.spyOn(BrowserApi, "sendTabMessage").mockImplementation();
+        jest.spyOn(BrowserApi, "sendTabMessage").mockImplementation(undefined);
 
         sendExtensionRuntimeMessage(message, sender);
         await flushPromises();
@@ -214,9 +214,9 @@ describe("NotificationBackground", () => {
         const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
         const message: NotificationBackgroundExtensionMessage = {
           command: "bgAdjustNotificationBar",
-          data: { height: 100 },
+          height: 100,
         };
-        jest.spyOn(BrowserApi, "sendTabMessage").mockImplementation();
+        jest.spyOn(BrowserApi, "sendTabMessage").mockImplementation(undefined);
 
         sendExtensionRuntimeMessage(message, sender);
         await flushPromises();
@@ -224,7 +224,7 @@ describe("NotificationBackground", () => {
         expect(BrowserApi.sendTabMessage).toHaveBeenCalledWith(
           sender.tab.id,
           "adjustNotificationBar",
-          message.data,
+          message,
         );
       });
     });
@@ -449,7 +449,9 @@ describe("NotificationBackground", () => {
       it("skips attempting to add the change password message to the queue if the passed url is not valid", async () => {
         const message: NotificationBackgroundExtensionMessage = {
           command: "bgChangedPassword",
-          data: { newPassword: "newPassword", currentPassword: "currentPassword", url: "" },
+          newPassword: "newPassword",
+          currentPassword: "currentPassword",
+          url: "",
         };
 
         sendExtensionRuntimeMessage(message);
@@ -461,11 +463,9 @@ describe("NotificationBackground", () => {
       it("adds a change password message to the queue if the user does not have an unlocked account", async () => {
         const message: NotificationBackgroundExtensionMessage = {
           command: "bgChangedPassword",
-          data: {
-            newPassword: "newPassword",
-            currentPassword: "currentPassword",
-            url: "https://example.com",
-          },
+          newPassword: "newPassword",
+          currentPassword: "currentPassword",
+          url: "https://example.com",
         };
         getAuthStatusSpy.mockResolvedValueOnce(AuthenticationStatus.Locked);
 
@@ -476,7 +476,7 @@ describe("NotificationBackground", () => {
         expect(pushChangePasswordToQueueSpy).toHaveBeenCalledWith(
           null,
           "example.com",
-          message.data.newPassword,
+          message.newPassword,
           sender.tab,
           true,
         );
@@ -485,11 +485,9 @@ describe("NotificationBackground", () => {
       it("skips adding a change password message to the queue if the multiple ciphers exist for the passed URL and the current password is not found within the list of ciphers", async () => {
         const message: NotificationBackgroundExtensionMessage = {
           command: "bgChangedPassword",
-          data: {
-            newPassword: "newPassword",
-            currentPassword: "currentPassword",
-            url: "https://example.com",
-          },
+          newPassword: "newPassword",
+          currentPassword: "currentPassword",
+          url: "https://example.com",
         };
         getAuthStatusSpy.mockResolvedValueOnce(AuthenticationStatus.Unlocked);
         getAllDecryptedForUrlSpy.mockResolvedValueOnce([
@@ -507,11 +505,9 @@ describe("NotificationBackground", () => {
       it("skips adding a change password message if more than one existing cipher is found with a matching password ", async () => {
         const message: NotificationBackgroundExtensionMessage = {
           command: "bgChangedPassword",
-          data: {
-            newPassword: "newPassword",
-            currentPassword: "currentPassword",
-            url: "https://example.com",
-          },
+          newPassword: "newPassword",
+          currentPassword: "currentPassword",
+          url: "https://example.com",
         };
         getAuthStatusSpy.mockResolvedValueOnce(AuthenticationStatus.Unlocked);
         getAllDecryptedForUrlSpy.mockResolvedValueOnce([
@@ -530,11 +526,9 @@ describe("NotificationBackground", () => {
       it("adds a change password message to the queue if a single cipher matches the passed current password", async () => {
         const message: NotificationBackgroundExtensionMessage = {
           command: "bgChangedPassword",
-          data: {
-            newPassword: "newPassword",
-            currentPassword: "currentPassword",
-            url: "https://example.com",
-          },
+          newPassword: "newPassword",
+          currentPassword: "currentPassword",
+          url: "https://example.com",
         };
         getAuthStatusSpy.mockResolvedValueOnce(AuthenticationStatus.Unlocked);
         getAllDecryptedForUrlSpy.mockResolvedValueOnce([
@@ -550,7 +544,7 @@ describe("NotificationBackground", () => {
         expect(pushChangePasswordToQueueSpy).toHaveBeenCalledWith(
           "cipher-id",
           "example.com",
-          message.data.newPassword,
+          message.newPassword,
           sender.tab,
         );
       });
@@ -558,10 +552,8 @@ describe("NotificationBackground", () => {
       it("skips adding a change password message if no current password is passed in the message and more than one cipher is found for a url", async () => {
         const message: NotificationBackgroundExtensionMessage = {
           command: "bgChangedPassword",
-          data: {
-            newPassword: "newPassword",
-            url: "https://example.com",
-          },
+          newPassword: "newPassword",
+          url: "https://example.com",
         };
         getAuthStatusSpy.mockResolvedValueOnce(AuthenticationStatus.Unlocked);
         getAllDecryptedForUrlSpy.mockResolvedValueOnce([
@@ -580,10 +572,8 @@ describe("NotificationBackground", () => {
       it("adds a change password message to the queue if no current password is passed with the message, but a single cipher is matched for the uri", async () => {
         const message: NotificationBackgroundExtensionMessage = {
           command: "bgChangedPassword",
-          data: {
-            newPassword: "newPassword",
-            url: "https://example.com",
-          },
+          newPassword: "newPassword",
+          url: "https://example.com",
         };
         getAuthStatusSpy.mockResolvedValueOnce(AuthenticationStatus.Unlocked);
         getAllDecryptedForUrlSpy.mockResolvedValueOnce([
@@ -599,7 +589,7 @@ describe("NotificationBackground", () => {
         expect(pushChangePasswordToQueueSpy).toHaveBeenCalledWith(
           "cipher-id",
           "example.com",
-          message.data.newPassword,
+          message.newPassword,
           sender.tab,
         );
       });
@@ -647,7 +637,7 @@ describe("NotificationBackground", () => {
 
       beforeEach(() => {
         getAuthStatusSpy = jest.spyOn(authService, "getAuthStatus");
-        sendTabMessageSpy = jest.spyOn(BrowserApi, "sendTabMessage").mockImplementation();
+        sendTabMessageSpy = jest.spyOn(BrowserApi, "sendTabMessage").mockImplementation(undefined);
         openUnlockPopoutSpy = jest
           .spyOn(notificationBackground as any, "openUnlockPopout")
           .mockImplementation();
@@ -703,7 +693,9 @@ describe("NotificationBackground", () => {
             notificationBackground as any,
             "convertAddLoginQueueMessageToCipherView",
           );
-          sendTabMessageSpy = jest.spyOn(BrowserApi, "sendTabMessage").mockImplementation();
+          sendTabMessageSpy = jest
+            .spyOn(BrowserApi, "sendTabMessage")
+            .mockImplementation(undefined);
           editItemSpy = jest.spyOn(notificationBackground as any, "editItem");
           setAddEditCipherInfoSpy = jest.spyOn(stateService, "setAddEditCipherInfo");
           openAddEditVaultItemPopoutSpy = jest.spyOn(
@@ -1124,7 +1116,7 @@ describe("NotificationBackground", () => {
         });
         notificationBackground["notificationQueue"] = [firstNotification, secondNotification];
         jest.spyOn(cipherService, "saveNeverDomain").mockImplementation();
-        jest.spyOn(BrowserApi, "sendTabMessage").mockImplementation();
+        jest.spyOn(BrowserApi, "sendTabMessage").mockImplementation(undefined);
 
         sendExtensionRuntimeMessage(message, sender);
         await flushPromises();
@@ -1192,7 +1184,7 @@ describe("NotificationBackground", () => {
         const sender = mock<chrome.runtime.MessageSender>({ tab: tabMock });
         const message: NotificationBackgroundExtensionMessage = {
           command: "bgUnlockPopoutOpened",
-          data: { skipNotification: true },
+          skipNotification: true,
         };
 
         sendExtensionRuntimeMessage(message, sender);
