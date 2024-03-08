@@ -2,17 +2,17 @@ import { Component, OnInit } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { concatMap, filter, firstValueFrom, map, Observable, Subject, takeUntil, tap } from "rxjs";
 
-import { AbstractThemingService } from "@bitwarden/angular/services/theming/theming.service.abstraction";
+import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { SettingsService } from "@bitwarden/common/abstractions/settings.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
-import { ThemeType } from "@bitwarden/common/enums";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { ThemeType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DialogService } from "@bitwarden/components";
 
@@ -42,7 +42,6 @@ export class PreferencesComponent implements OnInit {
     vaultTimeout: [null as number | null],
     vaultTimeoutAction: [VaultTimeoutAction.Lock],
     enableFavicons: true,
-    enableFullWidth: false,
     theme: [ThemeType.Light],
     locale: [null as string | null],
   });
@@ -57,7 +56,7 @@ export class PreferencesComponent implements OnInit {
     private messagingService: MessagingService,
     private themingService: AbstractThemingService,
     private settingsService: SettingsService,
-    private dialogService: DialogService
+    private dialogService: DialogService,
   ) {
     this.vaultTimeoutOptions = [
       { name: i18nService.t("oneMinute"), value: 1 },
@@ -112,7 +111,7 @@ export class PreferencesComponent implements OnInit {
         } else {
           this.form.controls.vaultTimeoutAction.enable({ emitEvent: false });
         }
-      })
+      }),
     );
 
     this.form.controls.vaultTimeoutAction.valueChanges
@@ -133,16 +132,15 @@ export class PreferencesComponent implements OnInit {
             }
           }
         }),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe();
     const initialFormValues = {
       vaultTimeout: await this.vaultTimeoutSettingsService.getVaultTimeout(),
       vaultTimeoutAction: await firstValueFrom(
-        this.vaultTimeoutSettingsService.vaultTimeoutAction$()
+        this.vaultTimeoutSettingsService.vaultTimeoutAction$(),
       ),
       enableFavicons: !(await this.settingsService.getDisableFavicon()),
-      enableFullWidth: await this.stateService.getEnableFullWidth(),
       theme: await this.stateService.getTheme(),
       locale: (await this.stateService.getLocale()) ?? null,
     };
@@ -156,7 +154,7 @@ export class PreferencesComponent implements OnInit {
       this.platformUtilsService.showToast(
         "error",
         null,
-        this.i18nService.t("vaultTimeoutRangeError")
+        this.i18nService.t("vaultTimeoutRangeError"),
       );
       return;
     }
@@ -164,11 +162,9 @@ export class PreferencesComponent implements OnInit {
 
     await this.vaultTimeoutSettingsService.setVaultTimeoutOptions(
       values.vaultTimeout,
-      values.vaultTimeoutAction
+      values.vaultTimeoutAction,
     );
     await this.settingsService.setDisableFavicon(!values.enableFavicons);
-    await this.stateService.setEnableFullWidth(values.enableFullWidth);
-    this.messagingService.send("setFullWidth");
     if (values.theme !== this.startingTheme) {
       await this.themingService.updateConfiguredTheme(values.theme);
       this.startingTheme = values.theme;
@@ -180,7 +176,7 @@ export class PreferencesComponent implements OnInit {
       this.platformUtilsService.showToast(
         "success",
         null,
-        this.i18nService.t("preferencesUpdated")
+        this.i18nService.t("preferencesUpdated"),
       );
     }
   }

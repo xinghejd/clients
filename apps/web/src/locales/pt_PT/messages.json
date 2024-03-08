@@ -49,7 +49,7 @@
     "message": "Marca"
   },
   "expiration": {
-    "message": "Expiração"
+    "message": "Prazo de validade"
   },
   "securityCode": {
     "message": "Código de segurança (CVV)"
@@ -611,6 +611,96 @@
   "loginWithMasterPassword": {
     "message": "Iniciar sessão com a palavra-passe mestra"
   },
+  "readingPasskeyLoading": {
+    "message": "A ler chave de acesso..."
+  },
+  "readingPasskeyLoadingInfo": {
+    "message": "Mantenha esta janela aberta e siga as indicações do seu navegador."
+  },
+  "useADifferentLogInMethod": {
+    "message": "Utilizar um método de início de sessão diferente"
+  },
+  "loginWithPasskey": {
+    "message": "Iniciar sessão com a chave de acesso"
+  },
+  "invalidPasskeyPleaseTryAgain": {
+    "message": "Chave de acesso inválida. Por favor, tente novamente."
+  },
+  "twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn": {
+    "message": "A 2FA para chaves de acesso não é suportada. Atualize a aplicação para iniciar sessão."
+  },
+  "loginWithPasskeyInfo": {
+    "message": "Utilize uma chave de acesso gerada que lhe permitirá iniciar sessão automaticamente sem uma palavra-passe. A biometria, como o reconhecimento facial ou a impressão digital ou outro método de segurança FIDO2, verificará a sua identidade."
+  },
+  "newPasskey": {
+    "message": "Nova chave de acesso"
+  },
+  "learnMoreAboutPasswordless": {
+    "message": "Saiba mais sobre a ausência de palavra-passe"
+  },
+  "creatingPasskeyLoading": {
+    "message": "A criar chave de acesso..."
+  },
+  "creatingPasskeyLoadingInfo": {
+    "message": "Mantenha esta janela aberta e siga as indicações do seu navegador."
+  },
+  "errorCreatingPasskey": {
+    "message": "Erro ao criar chave de acesso"
+  },
+  "errorCreatingPasskeyInfo": {
+    "message": "Houve um problema ao criar a sua chave de acesso."
+  },
+  "passkeySuccessfullyCreated": {
+    "message": "Chave de acesso criada com sucesso!"
+  },
+  "customPasskeyNameInfo": {
+    "message": "Dê um nome à sua chave de acesso para o ajudar a identificá-la."
+  },
+  "useForVaultEncryption": {
+    "message": "Utilizar para encriptação de cofre"
+  },
+  "useForVaultEncryptionInfo": {
+    "message": "Inicie sessão e desbloqueie em dispositivos suportados sem a sua palavra-passe mestra. Siga as instruções do seu navegador para finalizar a configuração."
+  },
+  "useForVaultEncryptionErrorReadingPasskey": {
+    "message": "Erro ao ler a chave de acesso. Tente novamente ou desmarque esta opção."
+  },
+  "encryptionNotSupported": {
+    "message": "Encriptação não suportada"
+  },
+  "enablePasskeyEncryption": {
+    "message": "Configurar a encriptação"
+  },
+  "usedForEncryption": {
+    "message": "Utilizado para encriptação"
+  },
+  "loginWithPasskeyEnabled": {
+    "message": "Iniciar sessão com a chave de acesso ativada"
+  },
+  "passkeySaved": {
+    "message": "$NAME$ guardada",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Personal yubikey"
+      }
+    }
+  },
+  "passkeyRemoved": {
+    "message": "Chave de acesso removida"
+  },
+  "removePasskey": {
+    "message": "Remover chave de acesso"
+  },
+  "removePasskeyInfo": {
+    "message": "Se todas as chaves de acesso forem removidas, não será possível iniciar sessão em novos dispositivos sem a sua palavra-passe mestra."
+  },
+  "passkeyLimitReachedInfo": {
+    "message": "O limite de chaves de acesso foi atingido. Remova uma chave de acesso para adicionar outra."
+  },
+  "tryAgain": {
+    "message": "Tentar novamente"
+  },
   "createAccount": {
     "message": "Criar conta"
   },
@@ -669,7 +759,7 @@
     "message": "Introduza o endereço de e-mail da sua conta para receber a dica da sua palavra-passe mestra."
   },
   "getMasterPasswordHint": {
-    "message": "Obter dica da palavra-passe mestra"
+    "message": "Obter a dica da palavra-passe mestra"
   },
   "emailRequired": {
     "message": "É necessário o endereço de e-mail."
@@ -709,7 +799,7 @@
     "message": "Ocorreu um erro inesperado."
   },
   "expirationDateError": {
-    "message": "Por favor, selecione uma data de expiração futura."
+    "message": "Por favor, selecione um prazo de validade futuro."
   },
   "emailAddress": {
     "message": "Endereço de e-mail"
@@ -978,6 +1068,9 @@
   "export": {
     "message": "Exportar"
   },
+  "exportFrom": {
+    "message": "Exportar de"
+  },
   "exportVault": {
     "message": "Exportar cofre"
   },
@@ -1053,6 +1146,9 @@
   },
   "length": {
     "message": "Comprimento"
+  },
+  "passwordMinLength": {
+    "message": "Comprimento mínimo da palavra-passe"
   },
   "uppercase": {
     "message": "Maiúsculas (A-Z)",
@@ -1161,7 +1257,7 @@
     }
   },
   "kdfIterationsWarning": {
-    "message": "Definir as suas iterações KDF muito altas pode resultar em desempenho fraco ao iniciar sessão (e desbloquear) o Bitwarden em dispositivos com CPUs mais lentos. Recomendamos que aumente o valor em incrementos de $INCREMENT$ e depois teste todos os seus dispositivos.",
+    "message": "Definir as suas iterações KDF muito altas pode resultar em fraco desempenho ao iniciar sessão (e desbloquear) o Bitwarden em dispositivos com CPUs mais lentos. Recomendamos que aumente o valor em incrementos de $INCREMENT$ e depois teste todos os seus dispositivos.",
     "placeholders": {
       "increment": {
         "content": "$1",
@@ -1192,7 +1288,7 @@
     "message": "Zona de perigo"
   },
   "dangerZoneDesc": {
-    "message": "Cuidado, estas ações não são reversíveis!"
+    "message": "Cuidado, estas ações são irreversíveis!"
   },
   "deauthorizeSessions": {
     "message": "Desautorizar sessões"
@@ -1250,6 +1346,22 @@
   },
   "importData": {
     "message": "Importar dados"
+  },
+  "onboardingImportDataDetailsPartOne": {
+    "message": "Se não tiver quaisquer dados para importar, pode criar um ",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsLink": {
+    "message": "novo item",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsPartTwoNoOrgs": {
+    "message": ".",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
+  },
+  "onboardingImportDataDetailsPartTwoWithOrgs": {
+    "message": " . Poderá ser necessário aguardar até que o administrador confirme a filiação da sua organização.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
   },
   "importError": {
     "message": "Erro de importação"
@@ -1328,7 +1440,7 @@
     "message": "Nenhum ficheiro escolhido"
   },
   "orCopyPasteFileContents": {
-    "message": "ou copie/cole o seu conteúdo"
+    "message": "ou faça copiar/colar o conteúdo do ficheiro de importação"
   },
   "instructionsFor": {
     "message": "Instruções para $NAME$",
@@ -1363,13 +1475,6 @@
   },
   "faviconDesc": {
     "message": "Mostrar uma imagem reconhecível junto a cada credencial."
-  },
-  "enableFullWidth": {
-    "message": "Apresentar o esquema de largura total",
-    "description": "Allows scaling the web vault UI's width"
-  },
-  "enableFullWidthDesc": {
-    "message": "Permitir que o cofre web expanda a largura total da janela do navegador."
   },
   "default": {
     "message": "Predefinido"
@@ -1478,6 +1583,9 @@
   },
   "manage": {
     "message": "Gerir"
+  },
+  "canManage": {
+    "message": "Pode gerir"
   },
   "disable": {
     "message": "Desativar"
@@ -2211,6 +2319,9 @@
   "contactSupport": {
     "message": "Contactar o apoio ao cliente"
   },
+  "contactSupportShort": {
+    "message": "Contactar Apoio ao Cliente"
+  },
   "updatedPaymentMethod": {
     "message": "Método de pagamento atualizado."
   },
@@ -2311,6 +2422,9 @@
   },
   "planDescTeams": {
     "message": "Para empresas e outras organizações de equipas."
+  },
+  "planNameTeamsStarter": {
+    "message": "Teams Starter"
   },
   "planNameEnterprise": {
     "message": "Empresarial"
@@ -2416,6 +2530,15 @@
   },
   "trialThankYou": {
     "message": "Obrigado por se inscrever no Bitwarden para $PLAN$!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "trialSecretsManagerThankYou": {
+    "message": "Obrigado por se inscrever no Gestor de Segredos Bitwarden para o plano $PLAN$!",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -2672,6 +2795,9 @@
   "webVault": {
     "message": "Cofre web"
   },
+  "cli": {
+    "message": "CLI"
+  },
   "bitWebVault": {
     "message": "Cofre web Bitwarden"
   },
@@ -2704,6 +2830,9 @@
   },
   "incorrectCode": {
     "message": "Código incorreto"
+  },
+  "incorrectPin": {
+    "message": "PIN incorreto"
   },
   "exportedVault": {
     "message": "Cofre exportado"
@@ -3102,7 +3231,7 @@
     "message": "Acesso do grupo"
   },
   "groupAccessUserDesc": {
-    "message": "Conceda aos membros acesso às coleções, adicionando-os a 1 ou mais grupos."
+    "message": "Conceder aos membros acesso às coleções, adicionando-os a 1 ou mais grupos."
   },
   "invitedUsers": {
     "message": "Utilizador(es) convidado(s)"
@@ -3357,7 +3486,7 @@
     "message": "Defina um limite de lugares para a sua subscrição. Quando este limite for atingido, não será possível convidar novos membros."
   },
   "limitSmSubscriptionDesc": {
-    "message": "Defina um limite de lugares para o seu Gestor de Segredos. Quando este limite for atingido, não será possível convidar novos membros."
+    "message": "Defina um limite de lugares para a sua subscrição do Gestor dos Segredos. Quando este limite for atingido, não será possível convidar novos membros."
   },
   "maxSeatLimit": {
     "message": "Limite de lugares (opcional)",
@@ -3395,6 +3524,9 @@
   "subscriptionUpdated": {
     "message": "Subscrição atualizada"
   },
+  "subscribedToSecretsManager": {
+    "message": "Subscrição atualizada. Tem agora acesso ao Gestor de Segredos."
+  },
   "additionalOptions": {
     "message": "Opções adicionais"
   },
@@ -3413,6 +3545,15 @@
       }
     }
   },
+  "subscriptionUserSeatsWithoutAdditionalSeatsOption": {
+    "message": "Pode convidar até $COUNT$ membros sem custos adicionais. Contacte o Apoio ao Cliente para atualizar o seu plano e convidar mais membros.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "subscriptionFreePlan": {
     "message": "Não pode convidar mais do que $COUNT$ membros sem atualizar o seu plano.",
     "placeholders": {
@@ -3422,12 +3563,12 @@
       }
     }
   },
-  "subscriptionFamiliesPlan": {
-    "message": "Não pode convidar mais do que $COUNT$ membros sem atualizar o seu plano. Contacte o Apoio ao cliente para atualizar.",
+  "subscriptionUpgrade": {
+    "message": "Não pode convidar mais do que $COUNT$ membros sem atualizar o seu plano.",
     "placeholders": {
       "count": {
         "content": "$1",
-        "example": "6"
+        "example": "2"
       }
     }
   },
@@ -3572,6 +3713,18 @@
   "organizationIsDisabled": {
     "message": "Organização suspensa"
   },
+  "secretsAccessSuspended": {
+    "message": "Não é possível aceder a organizações suspensas. Contacte o proprietário da organização para obter assistência."
+  },
+  "secretsCannotCreate": {
+    "message": "Os segredos não podem ser criados em organizações suspensas. Contacte o proprietário da organização para obter assistência."
+  },
+  "projectsCannotCreate": {
+    "message": "Os projetos não podem ser criados em organizações suspensas. Contacte o proprietário da organização para obter assistência."
+  },
+  "serviceAccountsCannotCreate": {
+    "message": "As contas de serviço não podem ser criadas em organizações suspensas. Contacte o proprietário da organização para obter assistência."
+  },
   "disabledOrganizationFilterError": {
     "message": "Não é possível aceder aos itens de organizações suspensas. Contacte o proprietário da organização para obter assistência."
   },
@@ -3689,15 +3842,6 @@
   },
   "couldNotChargeCardPayInvoice": {
     "message": "Não foi possível concluir a transação. Por favor, verifique e efetue o pagamento da fatura por pagar indicada abaixo."
-  },
-  "inAppPurchase": {
-    "message": "Compras na aplicação"
-  },
-  "cannotPerformInAppPurchase": {
-    "message": "Não é possível executar esta ação enquanto estiver a utilizar um método de pagamento dentro da aplicação."
-  },
-  "manageSubscriptionFromStore": {
-    "message": "Deve gerir a sua subscrição a partir da loja onde foi efetuada a compra na aplicação."
   },
   "minLength": {
     "message": "Comprimento mínimo"
@@ -3879,10 +4023,7 @@
     "message": "Informação fiscal atualizada."
   },
   "setMasterPassword": {
-    "message": "Definir palavra-passe mestra"
-  },
-  "ssoCompleteRegistration": {
-    "message": "Para concluir o início de sessão com SSO, por favor, defina uma palavra-passe mestra para aceder e proteger o seu cofre."
+    "message": "Definir a palavra-passe mestra"
   },
   "identifier": {
     "message": "Identificador"
@@ -3899,8 +4040,29 @@
   "ssoHandOff": {
     "message": "Pode agora fechar este separador e continuar na extensão."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "Iniciou sessão com sucesso"
+  },
+  "thisWindowWillCloseIn5Seconds": {
+    "message": "Esta janela fechar-se-á automaticamente em 5 segundos"
+  },
   "includeAllTeamsFeatures": {
     "message": "Todas as funcionalidades de Equipas, mais:"
+  },
+  "includeAllTeamsStarterFeatures": {
+    "message": "Todas as funcionalidades do Teams Starter, mais:"
+  },
+  "chooseMonthlyOrAnnualBilling": {
+    "message": "Escolha a faturação mensal ou anual"
+  },
+  "abilityToAddMoreThanNMembers": {
+    "message": "Capacidade de adicionar mais de $COUNT$ membros",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "includeSsoAuthentication": {
     "message": "Autenticação SSO via SAML2.0 e OpenID Connect"
@@ -3917,8 +4079,9 @@
   "ssoIdentifier": {
     "message": "Identificador SSO"
   },
-  "ssoIdentifierHint": {
-    "message": "Forneça este ID aos seus membros para iniciarem sessão com o SSO."
+  "ssoIdentifierHintPartOne": {
+    "message": "Forneça este ID aos seus membros para iniciarem sessão com o SSO. Para ignorar este passo, configure a ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
   },
   "unlinkSso": {
     "message": "Desativar SSO"
@@ -4005,7 +4168,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDate": {
-    "message": "Data de validade"
+    "message": "Prazo de validade"
   },
   "expirationDateDesc": {
     "message": "Se definido, o acesso a este Send expirará na data e hora especificadas.",
@@ -4050,7 +4213,7 @@
     "message": "Palavra-passe removida"
   },
   "removePasswordConfirmation": {
-    "message": "Tem a certeza de que pretende remover a palavras-passe?"
+    "message": "Tem a certeza de que pretende remover a palavra-passe?"
   },
   "hideEmail": {
     "message": "Ocultar o meu endereço de e-mail dos destinatários."
@@ -4088,8 +4251,8 @@
     "message": "Este Send está oculto por defeito. Pode alternar a sua visibilidade utilizando o botão abaixo.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "downloadFile": {
-    "message": "Transferir ficheiro"
+  "downloadAttachments": {
+    "message": "Transferir anexos"
   },
   "sendAccessUnavailable": {
     "message": "O Send a que está a tentar aceder não existe ou já não está disponível.",
@@ -4479,8 +4642,8 @@
     "message": "para o experimentar hoje.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about Bitwarden Send or sign up to **try it today.**'"
   },
-  "sendCreatorIdentifier": {
-    "message": "O utilizador $USER_IDENTIFIER$ do Bitwarden partilhou o seguinte consigo",
+  "sendAccessCreatorIdentifier": {
+    "message": "O membro $USER_IDENTIFIER$ do Bitwarden partilhou consigo o seguinte",
     "placeholders": {
       "user_identifier": {
         "content": "$1",
@@ -4493,19 +4656,19 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "expirationDateIsInvalid": {
-    "message": "A data de validade fornecida não é válida."
+    "message": "O prazo de validade fornecido não é válido."
   },
   "deletionDateIsInvalid": {
     "message": "A data de eliminação fornecida não é válida."
   },
   "expirationDateAndTimeRequired": {
-    "message": "São necessárias uma data e uma hora de expiração."
+    "message": "São necessárias uma data e uma hora de validade."
   },
   "deletionDateAndTimeRequired": {
     "message": "São necessárias uma data e uma hora de eliminação."
   },
   "dateParsingError": {
-    "message": "Ocorreu um erro ao guardar as suas datas de eliminação e expiração."
+    "message": "Ocorreu um erro ao guardar as suas datas de eliminação e validade."
   },
   "webAuthnFallbackMsg": {
     "message": "Para verificar a sua 2FA, por favor, clique no botão abaixo."
@@ -4784,6 +4947,9 @@
   "newClientOrganizationDesc": {
     "message": "Crie uma nova organização de clientes que será associada a si como fornecedor. Poderá aceder e gerir esta organização."
   },
+  "newClient": {
+    "message": "Novo cliente"
+  },
   "addExistingOrganization": {
     "message": "Adicionar organização existente"
   },
@@ -4849,7 +5015,7 @@
     "message": "Palavra-passe mestra guardada"
   },
   "updateMasterPassword": {
-    "message": "Atualizar palavra-passe mestra"
+    "message": "Atualizar a palavra-passe mestra"
   },
   "updateMasterPasswordWarning": {
     "message": "A sua palavra-passe mestra foi recentemente alterada por um administrador da sua organização. Para aceder ao cofre, tem de atualizar a sua palavra-passe mestra agora. Ao prosseguir, terminará a sua sessão atual e terá de iniciar sessão novamente. As sessões ativas noutros dispositivos poderão continuar ativas até uma hora."
@@ -4945,10 +5111,10 @@
     "message": "Ativar o preenchimento automático"
   },
   "activateAutofillPolicyDesc": {
-    "message": "Ative a definição do preenchimento automático no carregamento da página na extensão do navegador para todos os membros existentes e novos."
+    "message": "Ative a definição de preenchimento automático ao carregar a página na extensão do navegador para todos os membros existentes e novos."
   },
   "experimentalFeature": {
-    "message": "Os sites comprometidos ou não fiáveis podem explorar o preenchimento automático no carregamento da página."
+    "message": "Os sites comprometidos ou não fiáveis podem explorar o preenchimento automático ao carregar a página."
   },
   "learnMoreAboutAutofill": {
     "message": "Saber mais sobre o preenchimento automático"
@@ -5036,6 +5202,12 @@
   },
   "spValidateCertificates": {
     "message": "Validar certificados"
+  },
+  "spUniqueEntityId": {
+    "message": "Configurar um ID de entidade SP único"
+  },
+  "spUniqueEntityIdDesc": {
+    "message": "Gerar um identificador que seja exclusivo da sua organização"
   },
   "idpEntityId": {
     "message": "ID da entidade"
@@ -5406,6 +5578,19 @@
   "required": {
     "message": "necessário"
   },
+  "charactersCurrentAndMaximum": {
+    "message": "$CURRENT$/$MAX$ máximo de caracteres",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "0"
+      },
+      "max": {
+        "content": "$2",
+        "example": "100"
+      }
+    }
+  },
   "characterMaximum": {
     "message": "Máximo de $MAX$ caracteres",
     "placeholders": {
@@ -5748,11 +5933,23 @@
       }
     }
   },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Inicie o DUO e siga os passos para concluir o início de sessão."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "A verificação de dois passos Duo é necessária para a sua conta."
+  },
+  "launchDuo": {
+    "message": "Iniciar o DUO"
+  },
   "turnOn": {
     "message": "Ligar"
   },
   "on": {
     "message": "Ligado"
+  },
+  "off": {
+    "message": "Desligado"
   },
   "members": {
     "message": "Membros"
@@ -6199,7 +6396,7 @@
     "description": "A unique string that gives a client application (eg. CLI) access to a secret or set of secrets."
   },
   "accessTokenExpirationRequired": {
-    "message": "Data de validade necessária",
+    "message": "Prazo de validade necessário",
     "description": "Error message indicating that an expiration date for the access token must be set."
   },
   "accessTokenCreatedAndCopied": {
@@ -6443,11 +6640,44 @@
       }
     }
   },
-  "membersColumnHeader": {
-    "message": "Membro/Grupo"
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "É necessária uma verificação para esta ação. Defina um PIN para continuar."
   },
-  "groupAndMemberColumnHeader": {
+  "setPin": {
+    "message": "Definir PIN"
+  },
+  "verifyWithBiometrics": {
+    "message": "Verificar com biometria"
+  },
+  "awaitingConfirmation": {
+    "message": "A aguardar confirmação"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Não foi possível concluir a biometria."
+  },
+  "needADifferentMethod": {
+    "message": "Precisa de um método diferente?"
+  },
+  "useMasterPassword": {
+    "message": "Utilizar a palavra-passe mestra"
+  },
+  "usePin": {
+    "message": "Utilizar PIN"
+  },
+  "useBiometrics": {
+    "message": "Utilizar biometria"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Introduza o código de verificação que foi enviado para o seu e-mail."
+  },
+  "resendCode": {
+    "message": "Reenviar código"
+  },
+  "memberColumnHeader": {
     "message": "Membro"
+  },
+  "groupSlashMemberColumnHeader": {
+    "message": "Grupo/Membro"
   },
   "selectGroupsAndMembers": {
     "message": "Selecionar grupos e membros"
@@ -6497,6 +6727,24 @@
       "seatcount": {
         "content": "$1",
         "example": "2"
+      }
+    }
+  },
+  "teamsStarterPlanInvLimitReachedManageBilling": {
+    "message": "Os planos Teams Starter podem ter até $SEATCOUNT$ membros. Atualize o seu plano para convidar mais membros.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "teamsStarterPlanInvLimitReachedNoManageBilling": {
+    "message": "Os planos Teams Starter podem ter até $SEATCOUNT$ membros. Contacte o proprietário da sua organização para atualizar o seu plano e convidar mais membros.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
       }
     }
   },
@@ -6591,7 +6839,7 @@
     "message": "Carregar licença"
   },
   "projectPeopleDescription": {
-    "message": "Conceder acesso a este projeto a grupos ou pessoas."
+    "message": "Conceder a grupos ou pessoas acesso a este projeto."
   },
   "projectPeopleSelectHint": {
     "message": "Escreva ou selecione pessoas ou grupos"
@@ -6634,9 +6882,6 @@
   },
   "secretsManager": {
     "message": "Gestor de Segredos"
-  },
-  "secretsManagerBeta": {
-    "message": "Gestor de Segredos Beta"
   },
   "secretsManagerAccessDescription": {
     "message": "Ativar o acesso do utilizador ao Gestor de Segredos."
@@ -6684,6 +6929,9 @@
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
+  },
+  "createAnAccount": {
+    "message": "Criar uma conta"
   },
   "createSecret": {
     "message": "Criar um segredo"
@@ -6740,12 +6988,6 @@
   },
   "selectionIsRequired": {
     "message": "É necessária uma seleção."
-  },
-  "secretsManagerSubscriptionDesc": {
-    "message": "Ativar o acesso da organização ao Gestor de Segredos sem custos durante o programa Beta. Os utilizadores podem ter acesso ao Beta em Membros."
-  },
-  "secretsManagerEnable": {
-    "message": "Ativar o Gestor de Segredos Beta"
   },
   "saPeopleWarningTitle": {
     "message": "Tokens de acesso ainda disponíveis"
@@ -6890,6 +7132,14 @@
     "message": "com inscrição automática será ativada quando esta opção for utilizada.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
+  "orgPermissionsUpdatedMustSetPassword": {
+    "message": "As permissões da sua organização foram atualizadas, exigindo a definição de uma palavra-passe mestra.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "orgRequiresYouToSetPassword": {
+    "message": "A sua organização exige a definição de uma palavra-passe mestra.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
   "notFound": {
     "message": "$RESOURCE$ não encontrado(a)",
     "placeholders": {
@@ -6898,6 +7148,10 @@
         "example": "Service Account"
       }
     }
+  },
+  "verificationRequired": {
+    "message": "Verificação necessária",
+    "description": "Default title for the user verification dialog."
   },
   "recoverAccount": {
     "message": "Recuperar conta"
@@ -7007,8 +7261,20 @@
       }
     }
   },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerFor": {
+    "message": "Inicie a sua avaliação gratuita de 7 dias do Gestor de Segredos Bitwarden para $ORG$",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
   "next": {
     "message": "Avançar"
+  },
+  "ssoLoginIsRequired": {
+    "message": "É necessário um início de sessão SSO"
   },
   "selectedRegionFlag": {
     "message": "Bandeira da região selecionada"
@@ -7096,8 +7362,8 @@
       }
     }
   },
-  "addSecretsManager": {
-    "message": "Adicionar Gestor de Segredos"
+  "subscribeToSecretsManager": {
+    "message": "Subscrever o Gestor de Segredos"
   },
   "addSecretsManagerUpgradeDesc": {
     "message": "Adicione o Gestor de Segredos ao seu plano atualizado para manter o acesso a quaisquer segredos criados com o seu plano anterior."
@@ -7122,6 +7388,21 @@
         "example": "$0.50"
       }
     }
+  },
+  "collectionManagement": {
+    "message": "Gestão de coleções"
+  },
+  "collectionManagementDesc": {
+    "message": "Gerir o comportamento da coleção da organização"
+  },
+  "limitCollectionCreationDeletionDesc": {
+    "message": "Limitar a criação e eliminação de coleções aos proprietários e administradores"
+  },
+  "allowAdminAccessToAllCollectionItemsDesc": {
+    "message": "Os proprietários e administradores podem gerir todas as coleções e itens"
+  },
+  "updatedCollectionManagement": {
+    "message": "Definição de gestão de coleções atualizada"
   },
   "passwordManagerPlanPrice": {
     "message": "Preço do plano do Gestor de Palavras-passe"
@@ -7150,24 +7431,14 @@
   "loggedInExclamation": {
     "message": "Sessão iniciada!"
   },
-  "smBetaEndedDesc": {
-    "message": "O Gestor de Segredos Beta terminou a $BETA_ENDING_DATE$. Restam-lhe $DAYS$ dias para adicionar o Gestor de Segredos à sua subscrição paga e manter o acesso aos dados do Gestor de Segredos. Contacte o Serviço de Apoio ao Cliente para adicionar o Gestor de Segredos à sua subscrição.",
-    "placeholders": {
-      "beta_ending_date": {
-        "content": "$1",
-        "example": "August 1, 2023"
-      },
-      "days": {
-        "content": "$2",
-        "example": "11"
-      }
-    }
-  },
-  "betaEnding": {
-    "message": "Fim da versão Beta"
-  },
   "beta": {
     "message": "Beta"
+  },
+  "assignCollectionAccess": {
+    "message": "Atribuir acesso à coleção"
+  },
+  "editedCollections": {
+    "message": "Coleções editadas"
   },
   "baseUrl": {
     "message": "URL do servidor"
@@ -7178,10 +7449,158 @@
   "alreadyHaveAccount": {
     "message": "Já tem uma conta?"
   },
-  "customBillingStart": {
-    "message": "A faturação personalizada não é refletida. Visite a "
+  "skipToContent": {
+    "message": "Avançar para o conteúdo"
   },
-  "customBillingEnd": {
-    "message": " página para a faturação mais recente."
+  "managePermissionRequired": {
+    "message": "Pelo menos um membro ou grupo tem de ter permissão para gerir."
+  },
+  "typePasskey": {
+    "message": "Chave de acesso"
+  },
+  "passkeyNotCopied": {
+    "message": "A chave de acesso não será copiada"
+  },
+  "passkeyNotCopiedAlert": {
+    "message": "A chave de acesso não será copiada para o item duplicado. Pretende ainda assim duplicar este item?"
+  },
+  "modifiedCollectionManagement": {
+    "message": "Definição de gestão de coleções modificada $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "seeDetailedInstructions": {
+    "message": "Consulte as instruções detalhadas no nosso site de ajuda em",
+    "description": "This is followed a by a hyperlink to the help website."
+  },
+  "installBrowserExtension": {
+    "message": "Instalar a extensão do navegador"
+  },
+  "installBrowserExtensionDetails": {
+    "message": "Utilize a extensão para guardar rapidamente as credenciais e preencher automaticamente formulários sem abrir a aplicação Web."
+  },
+  "projectAccessUpdated": {
+    "message": "Acesso ao projeto atualizado"
+  },
+  "unexpectedErrorSend": {
+    "message": "Ocorreu um erro inesperado ao carregar este Send. Tente novamente mais tarde."
+  },
+  "seatLimitReached": {
+    "message": "O limite de lugares foi atingido"
+  },
+  "contactYourProvider": {
+    "message": "Contacte o seu fornecedor para adquirir lugares adicionais."
+  },
+  "seatLimitReachedContactYourProvider": {
+    "message": "O limite de lugares foi atingido. Contacte o seu fornecedor para adquirir lugares adicionais."
+  },
+  "collectionAccessRestricted": {
+    "message": "O acesso à coleção é restrito"
+  },
+  "grantCollectionAccess": {
+    "message": "Conceder a grupos ou membros acesso a esta coleção."
+  },
+  "grantCollectionAccessMembersOnly": {
+    "message": "Conceder a membros acesso a esta coleção."
+  },
+  "adminCollectionAccess": {
+    "message": "Os administradores podem aceder e gerir coleções."
+  },
+  "serviceAccountAccessUpdated": {
+    "message": "Acesso à conta de serviço atualizado"
+  },
+  "commonImportFormats": {
+    "message": "Formatos comuns",
+    "description": "Label indicating the most common import formats"
+  },
+  "maintainYourSubscription": {
+    "message": "Para manter a sua subscrição para a $ORG$, ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Example Inc."
+      }
+    }
+  },
+  "addAPaymentMethod": {
+    "message": "adicione um método de pagamento",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
+  },
+  "collectionEnhancementsDesc": {
+    "message": "Adicione novas definições e permissões para maior flexibilidade. Substitua a função de Gestor pela permissão \"pode gerir\" e introduza opções que permitam aos utilizadores criar coleções, bem como restringir o acesso administrativo às coleções.",
+    "description": "This describes new features and improvements for user roles and collections"
+  },
+  "collectionEnhancementsLearnMore": {
+    "message": "Saiba mais sobre a gestão de coleções"
+  },
+  "organizationInformation": {
+    "message": "Informações sobre a organização"
+  },
+  "confirmationDetails": {
+    "message": "Detalhes da confirmação"
+  },
+  "smFreeTrialThankYou": {
+    "message": "Obrigado por se inscrever no Gestor de Segredos Bitwarden!"
+  },
+  "smFreeTrialConfirmationEmail": {
+    "message": "Enviámos um e-mail de confirmação para o seu e-mail:"
+  },
+  "confirmCollectionEnhancementsDialogTitle": {
+    "message": "Esta ação é irreversível"
+  },
+  "confirmCollectionEnhancementsDialogContent": {
+    "message": "Ao ativar esta funcionalidade, o papel de gestor será descontinuado e substituído por uma permissão \"Pode gerir\". Isto demorará alguns momentos. Não efetue quaisquer alterações na organização até que esteja concluído. Tem a certeza de que pretende continuar?"
+  },
+  "sorryToSeeYouGo": {
+    "message": "Lamentamos vê-lo partir! Ajude a melhorar o Bitwarden partilhando o motivo do seu cancelamento.",
+    "description": "A message shown to users as part of an offboarding survey asking them to provide more information on their subscription cancelation."
+  },
+  "selectCancellationReason": {
+    "message": "Selecione um motivo para o cancelamento",
+    "description": "Used as a form field label for a select input on the offboarding survey."
+  },
+  "anyOtherFeedback": {
+    "message": "Há mais algum feedback que gostaria de partilhar?",
+    "description": "Used as a form field label for a textarea input on the offboarding survey."
+  },
+  "missingFeatures": {
+    "message": "Funcionalidades em falta",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "movingToAnotherTool": {
+    "message": "Estou a mudar-me para outra ferramenta",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooDifficultToUse": {
+    "message": "Demasiado difícil de utilizar",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "notUsingEnough": {
+    "message": "Não utilizar o suficiente",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooExpensive": {
+    "message": "Demasiado caro",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "freeForOneYear": {
+    "message": "Gratuito durante 1 ano"
+  },
+  "newWebApp": {
+    "message": "Bem-vindo à nova e melhorada aplicação Web. Saiba mais sobre o que mudou."
+  },
+  "releaseBlog": {
+    "message": "Ler o blogue de lançamento"
+  },
+  "adminConsole": {
+    "message": "Consola de administração"
+  },
+  "providerPortal": {
+    "message": "Portal do fornecedor"
   }
 }

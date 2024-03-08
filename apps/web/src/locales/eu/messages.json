@@ -611,6 +611,96 @@
   "loginWithMasterPassword": {
     "message": "Hasi saioa pasahitz nagusiarekin"
   },
+  "readingPasskeyLoading": {
+    "message": "Reading passkey..."
+  },
+  "readingPasskeyLoadingInfo": {
+    "message": "Keep this window open and follow prompts from your browser."
+  },
+  "useADifferentLogInMethod": {
+    "message": "Use a different log in method"
+  },
+  "loginWithPasskey": {
+    "message": "Log in with passkey"
+  },
+  "invalidPasskeyPleaseTryAgain": {
+    "message": "Invalid Passkey. Please try again."
+  },
+  "twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn": {
+    "message": "2FA for passkeys is not supported. Update the app to log in."
+  },
+  "loginWithPasskeyInfo": {
+    "message": "Use a generated passkey that will automatically log you in without a password. Biometrics, like facial recognition or fingerprint, or another FIDO2 security method will verify your identity."
+  },
+  "newPasskey": {
+    "message": "New passkey"
+  },
+  "learnMoreAboutPasswordless": {
+    "message": "Learn more about passwordless"
+  },
+  "creatingPasskeyLoading": {
+    "message": "Creating passkey..."
+  },
+  "creatingPasskeyLoadingInfo": {
+    "message": "Keep this window open and follow prompts from your browser."
+  },
+  "errorCreatingPasskey": {
+    "message": "Error creating passkey"
+  },
+  "errorCreatingPasskeyInfo": {
+    "message": "There was a problem creating your passkey."
+  },
+  "passkeySuccessfullyCreated": {
+    "message": "Passkey successfully created!"
+  },
+  "customPasskeyNameInfo": {
+    "message": "Name your passkey to help you identify it."
+  },
+  "useForVaultEncryption": {
+    "message": "Use for vault encryption"
+  },
+  "useForVaultEncryptionInfo": {
+    "message": "Log in and unlock on supported devices without your master password. Follow the prompts from your browser to finalize setup."
+  },
+  "useForVaultEncryptionErrorReadingPasskey": {
+    "message": "Error reading passkey. Try again or uncheck this option."
+  },
+  "encryptionNotSupported": {
+    "message": "Encryption not supported"
+  },
+  "enablePasskeyEncryption": {
+    "message": "Set up encryption"
+  },
+  "usedForEncryption": {
+    "message": "Used for encryption"
+  },
+  "loginWithPasskeyEnabled": {
+    "message": "Log in with passkey turned on"
+  },
+  "passkeySaved": {
+    "message": "$NAME$ saved",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Personal yubikey"
+      }
+    }
+  },
+  "passkeyRemoved": {
+    "message": "Passkey removed"
+  },
+  "removePasskey": {
+    "message": "Remove passkey"
+  },
+  "removePasskeyInfo": {
+    "message": "If all passkeys are removed, you will be unable to log into new devices without your master password."
+  },
+  "passkeyLimitReachedInfo": {
+    "message": "Passkey limit reached. Remove a passkey to add another."
+  },
+  "tryAgain": {
+    "message": "Try again"
+  },
   "createAccount": {
     "message": "Sortu kontua"
   },
@@ -978,6 +1068,9 @@
   "export": {
     "message": "Esportatu"
   },
+  "exportFrom": {
+    "message": "Export from"
+  },
   "exportVault": {
     "message": "Esportatu kutxa gotorra"
   },
@@ -1053,6 +1146,9 @@
   },
   "length": {
     "message": "Luzera"
+  },
+  "passwordMinLength": {
+    "message": "Minimum password length"
   },
   "uppercase": {
     "message": "Letra larria (A-Z)",
@@ -1251,6 +1347,22 @@
   "importData": {
     "message": "Inportatu datuak"
   },
+  "onboardingImportDataDetailsPartOne": {
+    "message": "If you don't have any data to import, you can create a ",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsLink": {
+    "message": "new item",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsPartTwoNoOrgs": {
+    "message": " instead.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
+  },
+  "onboardingImportDataDetailsPartTwoWithOrgs": {
+    "message": " instead. You may need to wait until your administrator confirms your organization membership.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+  },
   "importError": {
     "message": "Akatsa inportatzerakoan"
   },
@@ -1364,13 +1476,6 @@
   "faviconDesc": {
     "message": "Erakutsi irudi bat saio-hasiera bakoitzaren ondoan."
   },
-  "enableFullWidth": {
-    "message": "Erabili zabalera osoko diseinua",
-    "description": "Allows scaling the web vault UI's width"
-  },
-  "enableFullWidthDesc": {
-    "message": "Baimendu webguneko kutxa gotorrari nabigatzailearen leihoaren zabalera osoa hartzea."
-  },
   "default": {
     "message": "Lehenetsia"
   },
@@ -1478,6 +1583,9 @@
   },
   "manage": {
     "message": "Kudeatu"
+  },
+  "canManage": {
+    "message": "Can manage"
   },
   "disable": {
     "message": "Desgaitu"
@@ -2211,6 +2319,9 @@
   "contactSupport": {
     "message": "Jarri harremanetan bezeroarentzako arreta zerbitzuarekin"
   },
+  "contactSupportShort": {
+    "message": "Contact Support"
+  },
   "updatedPaymentMethod": {
     "message": "Ordainketa modua eguneratua."
   },
@@ -2311,6 +2422,9 @@
   },
   "planDescTeams": {
     "message": "Enpresa edo bestelako erakunde taldeentzako."
+  },
+  "planNameTeamsStarter": {
+    "message": "Teams Starter"
   },
   "planNameEnterprise": {
     "message": "Enpresa"
@@ -2416,6 +2530,15 @@
   },
   "trialThankYou": {
     "message": "Eskerrik asko Bitwarden $PLAN$-en erregistratzeagatik!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "trialSecretsManagerThankYou": {
+    "message": "Thanks for signing up for Bitwarden Secrets Manager for $PLAN$!",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -2672,6 +2795,9 @@
   "webVault": {
     "message": "Webguneko kutxa gotorra"
   },
+  "cli": {
+    "message": "CLI"
+  },
   "bitWebVault": {
     "message": "Bitwarden Web vault"
   },
@@ -2704,6 +2830,9 @@
   },
   "incorrectCode": {
     "message": "Incorrect code"
+  },
+  "incorrectPin": {
+    "message": "Incorrect PIN"
   },
   "exportedVault": {
     "message": "Kutxa gotorra esportatua."
@@ -2844,7 +2973,7 @@
     }
   },
   "autofilledItemId": {
-    "message": "$ID$ elementua auto-betea.",
+    "message": "$ID$ elementua automatikoki bete da.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -3357,7 +3486,7 @@
     "message": "Ezarri harpidetzarako postuen muga. Muga horretara iritsitakoan, ezingo dituzu erabiltzaile berriak gonbidatu."
   },
   "limitSmSubscriptionDesc": {
-    "message": "Set a seat limit for your Secrets Manger subscription. Once this limit is reached, you will not be able to invite new members."
+    "message": "Set a seat limit for your Secrets Manager subscription. Once this limit is reached, you will not be able to invite new members."
   },
   "maxSeatLimit": {
     "message": "Gehienezko postu kopurua (aukerakoa)",
@@ -3395,6 +3524,9 @@
   "subscriptionUpdated": {
     "message": "Harpidetza eguneratua"
   },
+  "subscribedToSecretsManager": {
+    "message": "Subscription updated. You now have access to Secrets Manager."
+  },
   "additionalOptions": {
     "message": "Aukera gehigarriak"
   },
@@ -3413,6 +3545,15 @@
       }
     }
   },
+  "subscriptionUserSeatsWithoutAdditionalSeatsOption": {
+    "message": "You can invite up to $COUNT$ members for no additional charge. Contact Customer Support to upgrade your plan and invite more members.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "subscriptionFreePlan": {
     "message": "Ezin dituzu $COUNT$ erabiltzaile baino gehiago gonbidatu zure plana aldatu gabe.",
     "placeholders": {
@@ -3422,12 +3563,12 @@
       }
     }
   },
-  "subscriptionFamiliesPlan": {
-    "message": "Ezin dituzu $COUNT$ erabiltzaile baino gehiago gonbidatu zure plana aldatu gabe. Mesedez, jarri bezeroaren arretarekin haremanetan.",
+  "subscriptionUpgrade": {
+    "message": "You cannot invite more than $COUNT$ members without upgrading your plan.",
     "placeholders": {
       "count": {
         "content": "$1",
-        "example": "6"
+        "example": "2"
       }
     }
   },
@@ -3572,6 +3713,18 @@
   "organizationIsDisabled": {
     "message": "Erakundea desgaituta dago."
   },
+  "secretsAccessSuspended": {
+    "message": "Suspended organizations cannot be accessed. Please contact your organization owner for assistance."
+  },
+  "secretsCannotCreate": {
+    "message": "Secrets cannot be created in suspended organizations. Please contact your organization owner for assistance."
+  },
+  "projectsCannotCreate": {
+    "message": "Projects cannot be created in suspended organizations. Please contact your organization owner for assistance."
+  },
+  "serviceAccountsCannotCreate": {
+    "message": "Service accounts cannot be created in suspended organizations. Please contact your organization owner for assistance."
+  },
   "disabledOrganizationFilterError": {
     "message": "Ezin da sartu desgaitutako erakundeetako elementuetara. Laguntza lortzeko, jarri harremanetan zure erakundearekin."
   },
@@ -3689,15 +3842,6 @@
   },
   "couldNotChargeCardPayInvoice": {
     "message": "Ezin izan dugu zure txartelean kargatu. Mesedez, ikusi eta ordaindu ondoren agertzen den ordaindu gabeko faktura."
-  },
-  "inAppPurchase": {
-    "message": "Aplikaziotik ordaindu"
-  },
-  "cannotPerformInAppPurchase": {
-    "message": "Ezin da ekintza hau egin aplikaziotik erosketa ordaintzeko modu bat erabiltzen ari zaren bitartean."
-  },
-  "manageSubscriptionFromStore": {
-    "message": "Aplikaziotik erosketa egin zenuen gunetik kudeatu behar duzu harpidetza."
   },
   "minLength": {
     "message": "Gutxieneko luzera"
@@ -3881,9 +4025,6 @@
   "setMasterPassword": {
     "message": "Ezarri pasahitz nagusia"
   },
-  "ssoCompleteRegistration": {
-    "message": "SSO-rekin saioa hasteko, mesedez, ezarri pasahitz nagusi bat kutxa gotorrera sartu eta babesteko."
-  },
   "identifier": {
     "message": "Identifikatzailea"
   },
@@ -3899,8 +4040,29 @@
   "ssoHandOff": {
     "message": "Orain, fitxa hau itxi eta gehigarrian jarrai dezakezu."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "You successfully logged in"
+  },
+  "thisWindowWillCloseIn5Seconds": {
+    "message": "This window will automatically close in 5 seconds"
+  },
   "includeAllTeamsFeatures": {
     "message": "Taldeen ezaugarriak guztiak, gehi:"
+  },
+  "includeAllTeamsStarterFeatures": {
+    "message": "All Teams Starter features, plus:"
+  },
+  "chooseMonthlyOrAnnualBilling": {
+    "message": "Choose monthly or annual billing"
+  },
+  "abilityToAddMoreThanNMembers": {
+    "message": "Ability to add more than $COUNT$ members",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "includeSsoAuthentication": {
     "message": "SAML2.0 eta OpenID Connect bidezko SSO autentifikazioa"
@@ -3917,8 +4079,9 @@
   "ssoIdentifier": {
     "message": "SSO identifikatzailea"
   },
-  "ssoIdentifierHint": {
-    "message": "Eman ID hau kideei, SSOrekin saioa hasteko."
+  "ssoIdentifierHintPartOne": {
+    "message": "Provide this ID to your members to login with SSO. To bypass this step, set up ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
   },
   "unlinkSso": {
     "message": "SSO deskonektatu"
@@ -4088,8 +4251,8 @@
     "message": "Send hau modu lehenetsian ezkutatuta dago. Beheko botoia sakatuz alda dezakezu ikusgarritasuna.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "downloadFile": {
-    "message": "Deskargatu fitxategia"
+  "downloadAttachments": {
+    "message": "Download attachments"
   },
   "sendAccessUnavailable": {
     "message": "Sartzen saiatzen ari zaren Send-a ez da existitzen edo ez dago erabilgarri.",
@@ -4479,8 +4642,8 @@
     "message": "gaur probatzeko.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about Bitwarden Send or sign up to **try it today.**'"
   },
-  "sendCreatorIdentifier": {
-    "message": "$USER_IDENTIFIER$ Bitwarden erabiltzaileak, ondorengoa zurekin partekatu du",
+  "sendAccessCreatorIdentifier": {
+    "message": "Bitwarden member $USER_IDENTIFIER$ shared the following with you",
     "placeholders": {
       "user_identifier": {
         "content": "$1",
@@ -4784,6 +4947,9 @@
   "newClientOrganizationDesc": {
     "message": "Sor ezazu hornitzaile gisa zurekin elkartuko den bezero erakunde berri bat. Erakunde honetara sartu eta kudeatu ahal izango duzu."
   },
+  "newClient": {
+    "message": "New client"
+  },
   "addExistingOrganization": {
     "message": "Gehitu existitzen den erakunde bat"
   },
@@ -4942,7 +5108,7 @@
     "message": "Erakundeko politika batek edo gehiagok kutxa gotorra esportatzea galarazten dute."
   },
   "activateAutofill": {
-    "message": "Activate auto-fill"
+    "message": "Gaitu betetze automatikoa"
   },
   "activateAutofillPolicyDesc": {
     "message": "Activate the auto-fill on page load setting on the browser extension for all existing and new members."
@@ -4951,7 +5117,7 @@
     "message": "Compromised or untrusted websites can exploit auto-fill on page load."
   },
   "learnMoreAboutAutofill": {
-    "message": "Learn more about auto-fill"
+    "message": "Automatikoki betetzeari buruzko informazio gehiago"
   },
   "selectType": {
     "message": "Aukeratu SSO mota"
@@ -5036,6 +5202,12 @@
   },
   "spValidateCertificates": {
     "message": "Balioztatu ziurtagiriak"
+  },
+  "spUniqueEntityId": {
+    "message": "Set a unique SP entity ID"
+  },
+  "spUniqueEntityIdDesc": {
+    "message": "Generate an identifier that is unique to your organization"
   },
   "idpEntityId": {
     "message": "Entitatearen ID-a"
@@ -5406,6 +5578,19 @@
   "required": {
     "message": "beharrezkoa"
   },
+  "charactersCurrentAndMaximum": {
+    "message": "$CURRENT$/$MAX$ character maximum",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "0"
+      },
+      "max": {
+        "content": "$2",
+        "example": "100"
+      }
+    }
+  },
   "characterMaximum": {
     "message": "$MAX$ character maximum",
     "placeholders": {
@@ -5748,11 +5933,23 @@
       }
     }
   },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Launch Duo and follow the steps to finish logging in."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "Duo two-step login is required for your account."
+  },
+  "launchDuo": {
+    "message": "Launch Duo"
+  },
   "turnOn": {
     "message": "Piztu"
   },
   "on": {
     "message": "Piztuta"
+  },
+  "off": {
+    "message": "Off"
   },
   "members": {
     "message": "Kideak"
@@ -6443,11 +6640,44 @@
       }
     }
   },
-  "membersColumnHeader": {
-    "message": "Member/Group"
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Verification required for this action. Set a PIN to continue."
   },
-  "groupAndMemberColumnHeader": {
+  "setPin": {
+    "message": "Set PIN"
+  },
+  "verifyWithBiometrics": {
+    "message": "Verify with biometrics"
+  },
+  "awaitingConfirmation": {
+    "message": "Awaiting confirmation"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Could not complete biometrics."
+  },
+  "needADifferentMethod": {
+    "message": "Need a different method?"
+  },
+  "useMasterPassword": {
+    "message": "Use master password"
+  },
+  "usePin": {
+    "message": "Use PIN"
+  },
+  "useBiometrics": {
+    "message": "Use biometrics"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Enter the verification code that was sent to your email."
+  },
+  "resendCode": {
+    "message": "Resend code"
+  },
+  "memberColumnHeader": {
     "message": "Member"
+  },
+  "groupSlashMemberColumnHeader": {
+    "message": "Group/Member"
   },
   "selectGroupsAndMembers": {
     "message": "Select groups and members"
@@ -6497,6 +6727,24 @@
       "seatcount": {
         "content": "$1",
         "example": "2"
+      }
+    }
+  },
+  "teamsStarterPlanInvLimitReachedManageBilling": {
+    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Upgrade to your plan to invite more members.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "teamsStarterPlanInvLimitReachedNoManageBilling": {
+    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Contact your organization owner to upgrade your plan and invite more members.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
       }
     }
   },
@@ -6635,9 +6883,6 @@
   "secretsManager": {
     "message": "Secrets Manager"
   },
-  "secretsManagerBeta": {
-    "message": "Secrets Manager Beta"
-  },
   "secretsManagerAccessDescription": {
     "message": "Activate user access to Secrets Manager."
   },
@@ -6684,6 +6929,9 @@
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
+  },
+  "createAnAccount": {
+    "message": "Create an account"
   },
   "createSecret": {
     "message": "Create a secret"
@@ -6740,12 +6988,6 @@
   },
   "selectionIsRequired": {
     "message": "Selection is required."
-  },
-  "secretsManagerSubscriptionDesc": {
-    "message": "Turn on organization access to the Secrets Manager at no charge during the Beta program. Users can be granted access to the Beta in Members."
-  },
-  "secretsManagerEnable": {
-    "message": "Enable Secrets Manager Beta"
   },
   "saPeopleWarningTitle": {
     "message": "Access tokens still available"
@@ -6890,6 +7132,14 @@
     "message": "policy with automatic enrollment will turn on when this option is used.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
+  "orgPermissionsUpdatedMustSetPassword": {
+    "message": "Your organization permissions were updated, requiring you to set a master password.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "orgRequiresYouToSetPassword": {
+    "message": "Your organization requires you to set a master password.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
   "notFound": {
     "message": "$RESOURCE$ not found",
     "placeholders": {
@@ -6898,6 +7148,10 @@
         "example": "Service Account"
       }
     }
+  },
+  "verificationRequired": {
+    "message": "Verification required",
+    "description": "Default title for the user verification dialog."
   },
   "recoverAccount": {
     "message": "Recover account"
@@ -7007,8 +7261,20 @@
       }
     }
   },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerFor": {
+    "message": "Start your 7-Day free trial of Bitwarden Secrets Manager for $ORG$",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
   "next": {
     "message": "Next"
+  },
+  "ssoLoginIsRequired": {
+    "message": "SSO login is required"
   },
   "selectedRegionFlag": {
     "message": "Selected region flag"
@@ -7096,8 +7362,8 @@
       }
     }
   },
-  "addSecretsManager": {
-    "message": "Add Secrets Manager"
+  "subscribeToSecretsManager": {
+    "message": "Subscribe to Secrets Manager"
   },
   "addSecretsManagerUpgradeDesc": {
     "message": "Add Secrets Manager to your upgraded plan to maintain access to any secrets created with your previous plan."
@@ -7122,6 +7388,21 @@
         "example": "$0.50"
       }
     }
+  },
+  "collectionManagement": {
+    "message": "Collection management"
+  },
+  "collectionManagementDesc": {
+    "message": "Manage the collection behavior for the organization"
+  },
+  "limitCollectionCreationDeletionDesc": {
+    "message": "Limit collection creation and deletion to owners and admins"
+  },
+  "allowAdminAccessToAllCollectionItemsDesc": {
+    "message": "Owners and admins can manage all collections and items"
+  },
+  "updatedCollectionManagement": {
+    "message": "Updated collection management setting"
   },
   "passwordManagerPlanPrice": {
     "message": "Password Manager plan price"
@@ -7150,24 +7431,14 @@
   "loggedInExclamation": {
     "message": "Logged in!"
   },
-  "smBetaEndedDesc": {
-    "message": "The Secrets Manager Beta ended $BETA_ENDING_DATE$. You have $DAYS$ days left to add Secrets Manager to your paid subscription and maintain access to Secrets Manager data. Contact Customer Success to add Secrets Manager to your subscription.",
-    "placeholders": {
-      "beta_ending_date": {
-        "content": "$1",
-        "example": "August 1, 2023"
-      },
-      "days": {
-        "content": "$2",
-        "example": "11"
-      }
-    }
-  },
-  "betaEnding": {
-    "message": "Beta Ending"
-  },
   "beta": {
     "message": "Beta"
+  },
+  "assignCollectionAccess": {
+    "message": "Assign collection access"
+  },
+  "editedCollections": {
+    "message": "Edited collections"
   },
   "baseUrl": {
     "message": "Server URL"
@@ -7178,10 +7449,158 @@
   "alreadyHaveAccount": {
     "message": "Already have an account?"
   },
-  "customBillingStart": {
-    "message": "Custom billing is not reflected. Visit the "
+  "skipToContent": {
+    "message": "Skip to content"
   },
-  "customBillingEnd": {
-    "message": " page for latest invoicing."
+  "managePermissionRequired": {
+    "message": "At least one member or group must have can manage permission."
+  },
+  "typePasskey": {
+    "message": "Passkey"
+  },
+  "passkeyNotCopied": {
+    "message": "Passkey will not be copied"
+  },
+  "passkeyNotCopiedAlert": {
+    "message": "The passkey will not be copied to the cloned item. Do you want to continue cloning this item?"
+  },
+  "modifiedCollectionManagement": {
+    "message": "Modified collection management setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "seeDetailedInstructions": {
+    "message": "See detailed instructions on our help site at",
+    "description": "This is followed a by a hyperlink to the help website."
+  },
+  "installBrowserExtension": {
+    "message": "Install browser extension"
+  },
+  "installBrowserExtensionDetails": {
+    "message": "Use the extension to quickly save logins and auto-fill forms without opening the web app."
+  },
+  "projectAccessUpdated": {
+    "message": "Project access updated"
+  },
+  "unexpectedErrorSend": {
+    "message": "An unexpected error has occurred while loading this Send. Try again later."
+  },
+  "seatLimitReached": {
+    "message": "Seat limit has been reached"
+  },
+  "contactYourProvider": {
+    "message": "Contact your provider to purchase additional seats."
+  },
+  "seatLimitReachedContactYourProvider": {
+    "message": "Seat limit has been reached. Contact your provider to purchase additional seats."
+  },
+  "collectionAccessRestricted": {
+    "message": "Collection access is restricted"
+  },
+  "grantCollectionAccess": {
+    "message": "Grant groups or members access to this collection."
+  },
+  "grantCollectionAccessMembersOnly": {
+    "message": "Grant members access to this collection."
+  },
+  "adminCollectionAccess": {
+    "message": "Administrators can access and manage collections."
+  },
+  "serviceAccountAccessUpdated": {
+    "message": "Service account access updated"
+  },
+  "commonImportFormats": {
+    "message": "Common formats",
+    "description": "Label indicating the most common import formats"
+  },
+  "maintainYourSubscription": {
+    "message": "To maintain your subscription for $ORG$, ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Example Inc."
+      }
+    }
+  },
+  "addAPaymentMethod": {
+    "message": "add a payment method",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
+  },
+  "collectionEnhancementsDesc": {
+    "message": "Add new settings and permissions for additional flexibility. Replace the Manager role with the \"can manage\" permission, and introduce options to allow users to create collections as well as restrict administrative access to collections.",
+    "description": "This describes new features and improvements for user roles and collections"
+  },
+  "collectionEnhancementsLearnMore": {
+    "message": "Learn more about collection management"
+  },
+  "organizationInformation": {
+    "message": "Organization information"
+  },
+  "confirmationDetails": {
+    "message": "Confirmation details"
+  },
+  "smFreeTrialThankYou": {
+    "message": "Thank you for signing up for Bitwarden Secrets Manager!"
+  },
+  "smFreeTrialConfirmationEmail": {
+    "message": "We've sent a confirmation email to your email at "
+  },
+  "confirmCollectionEnhancementsDialogTitle": {
+    "message": "This action is irreversible"
+  },
+  "confirmCollectionEnhancementsDialogContent": {
+    "message": "Turning on this feature will deprecate the manager role and replace it with a Can manage permission. This will take a few moments. Do not make any organization changes until it is complete. Are you sure you want to proceed?"
+  },
+  "sorryToSeeYouGo": {
+    "message": "Sorry to see you go! Help improve Bitwarden by sharing why you're canceling.",
+    "description": "A message shown to users as part of an offboarding survey asking them to provide more information on their subscription cancelation."
+  },
+  "selectCancellationReason": {
+    "message": "Select a reason for canceling",
+    "description": "Used as a form field label for a select input on the offboarding survey."
+  },
+  "anyOtherFeedback": {
+    "message": "Is there any other feedback you'd like to share?",
+    "description": "Used as a form field label for a textarea input on the offboarding survey."
+  },
+  "missingFeatures": {
+    "message": "Missing features",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "movingToAnotherTool": {
+    "message": "Moving to another tool",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooDifficultToUse": {
+    "message": "Too difficult to use",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "notUsingEnough": {
+    "message": "Not using enough",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooExpensive": {
+    "message": "Too expensive",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "freeForOneYear": {
+    "message": "Free for 1 year"
+  },
+  "newWebApp": {
+    "message": "Welcome to the new and improved web app. Learn more about what’s changed."
+  },
+  "releaseBlog": {
+    "message": "Read release blog"
+  },
+  "adminConsole": {
+    "message": "Admin Console"
+  },
+  "providerPortal": {
+    "message": "Provider Portal"
   }
 }

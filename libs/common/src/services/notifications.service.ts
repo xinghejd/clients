@@ -28,21 +28,23 @@ export class NotificationsService implements NotificationsServiceAbstraction {
   private reconnectTimer: any = null;
 
   constructor(
+    private logService: LogService,
     private syncService: SyncService,
     private appIdService: AppIdService,
     private apiService: ApiService,
     private environmentService: EnvironmentService,
     private logoutCallback: (expired: boolean) => Promise<void>,
-    private logService: LogService,
     private stateService: StateService,
     private authService: AuthService,
-    private messagingService: MessagingService
+    private messagingService: MessagingService,
   ) {
     this.environmentService.urls.subscribe(() => {
       if (!this.inited) {
         return;
       }
 
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.init();
     });
   }
@@ -76,7 +78,7 @@ export class NotificationsService implements NotificationsServiceAbstraction {
       .build();
 
     this.signalrConnection.on("ReceiveMessage", (data: any) =>
-      this.processNotification(new NotificationResponse(data))
+      this.processNotification(new NotificationResponse(data)),
     );
     // eslint-disable-next-line
     this.signalrConnection.on("Heartbeat", (data: any) => {
@@ -84,6 +86,8 @@ export class NotificationsService implements NotificationsServiceAbstraction {
     });
     this.signalrConnection.onclose(() => {
       this.connected = false;
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.reconnect(true);
     });
     this.inited = true;
@@ -139,7 +143,7 @@ export class NotificationsService implements NotificationsServiceAbstraction {
       case NotificationType.SyncCipherUpdate:
         await this.syncService.syncUpsertCipher(
           notification.payload as SyncCipherNotification,
-          notification.type === NotificationType.SyncCipherUpdate
+          notification.type === NotificationType.SyncCipherUpdate,
         );
         break;
       case NotificationType.SyncCipherDelete:
@@ -150,7 +154,7 @@ export class NotificationsService implements NotificationsServiceAbstraction {
       case NotificationType.SyncFolderUpdate:
         await this.syncService.syncUpsertFolder(
           notification.payload as SyncFolderNotification,
-          notification.type === NotificationType.SyncFolderUpdate
+          notification.type === NotificationType.SyncFolderUpdate,
         );
         break;
       case NotificationType.SyncFolderDelete:
@@ -163,6 +167,12 @@ export class NotificationsService implements NotificationsServiceAbstraction {
           await this.syncService.fullSync(false);
         }
         break;
+      case NotificationType.SyncOrganizations:
+        if (isAuthenticated) {
+          // An organization update may not have bumped the user's account revision date, so force a sync
+          await this.syncService.fullSync(true);
+        }
+        break;
       case NotificationType.SyncOrgKeys:
         if (isAuthenticated) {
           await this.syncService.fullSync(true);
@@ -172,6 +182,8 @@ export class NotificationsService implements NotificationsServiceAbstraction {
         break;
       case NotificationType.LogOut:
         if (isAuthenticated) {
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.logoutCallback(true);
         }
         break;
@@ -179,7 +191,7 @@ export class NotificationsService implements NotificationsServiceAbstraction {
       case NotificationType.SyncSendUpdate:
         await this.syncService.syncUpsertSend(
           notification.payload as SyncSendNotification,
-          notification.type === NotificationType.SyncSendUpdate
+          notification.type === NotificationType.SyncSendUpdate,
         );
         break;
       case NotificationType.SyncSendDelete:

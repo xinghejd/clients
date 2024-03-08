@@ -1,7 +1,7 @@
 import { Jsonify } from "type-fest";
 
-import { ProductType, ProviderType } from "../../../enums";
-import { OrganizationUserStatusType, OrganizationUserType } from "../../enums";
+import { ProductType } from "../../../enums";
+import { OrganizationUserStatusType, OrganizationUserType, ProviderType } from "../../enums";
 import { PermissionsApi } from "../api/permissions.api";
 import { OrganizationData } from "../data/organization.data";
 
@@ -64,6 +64,19 @@ export class Organization {
   familySponsorshipValidUntil?: Date;
   familySponsorshipToDelete?: boolean;
   accessSecretsManager: boolean;
+  /**
+   * Refers to the ability for an organization to limit collection creation and deletion to owners and admins only
+   */
+  limitCollectionCreationDeletion: boolean;
+  /**
+   * Refers to the ability for an owner/admin to access all collection items, regardless of assigned collections
+   */
+  allowAdminAccessToAllCollectionItems: boolean;
+  /**
+   * Returns true if this organization has enabled Flexible Collections (MVP) and their data has been migrated.
+   * Generally, you should use this as the feature flag to gate Flexible Collections features.
+   */
+  flexibleCollections: boolean;
 
   constructor(obj?: OrganizationData) {
     if (obj == null) {
@@ -115,6 +128,9 @@ export class Organization {
     this.familySponsorshipValidUntil = obj.familySponsorshipValidUntil;
     this.familySponsorshipToDelete = obj.familySponsorshipToDelete;
     this.accessSecretsManager = obj.accessSecretsManager;
+    this.limitCollectionCreationDeletion = obj.limitCollectionCreationDeletion;
+    this.allowAdminAccessToAllCollectionItems = obj.allowAdminAccessToAllCollectionItems;
+    this.flexibleCollections = obj.flexibleCollections;
   }
 
   get canAccess() {
@@ -126,6 +142,9 @@ export class Organization {
 
   /**
    * Whether a user has Manager permissions or greater
+   *
+   * @deprecated
+   * This is deprecated with the introduction of Flexible Collections.
    */
   get isManager() {
     return this.type === OrganizationUserType.Manager || this.isAdmin;
@@ -158,6 +177,14 @@ export class Organization {
   }
 
   get canCreateNewCollections() {
+    if (this.flexibleCollections) {
+      return (
+        !this.limitCollectionCreationDeletion ||
+        this.isAdmin ||
+        this.permissions.createNewCollections
+      );
+    }
+
     return this.isManager || this.permissions.createNewCollections;
   }
 
@@ -169,6 +196,20 @@ export class Organization {
     return this.canEditAnyCollection;
   }
 
+  canEditAllCiphers(flexibleCollectionsV1Enabled: boolean) {
+    // Before Flexible Collections, anyone with editAnyCollection permission could edit all ciphers
+    if (!flexibleCollectionsV1Enabled) {
+      return this.canEditAnyCollection;
+    }
+    // Post Flexible Collections V1, the allowAdminAccessToAllCollectionItems flag can restrict admins
+    // Providers and custom users with canEditAnyCollection are not affected by allowAdminAccessToAllCollectionItems flag
+    return (
+      this.isProviderUser ||
+      (this.type === OrganizationUserType.Custom && this.permissions.editAnyCollection) ||
+      (this.allowAdminAccessToAllCollectionItems && this.isAdmin)
+    );
+  }
+
   get canDeleteAnyCollection() {
     return this.isAdmin || this.permissions.deleteAnyCollection;
   }
@@ -177,14 +218,29 @@ export class Organization {
     return this.canEditAnyCollection || this.canDeleteAnyCollection;
   }
 
+  /**
+   * @deprecated
+   * This is deprecated with the introduction of Flexible Collections.
+   * This will always return false if FlexibleCollections flag is on.
+   */
   get canEditAssignedCollections() {
     return this.isManager || this.permissions.editAssignedCollections;
   }
 
+  /**
+   * @deprecated
+   * This is deprecated with the introduction of Flexible Collections.
+   * This will always return false if FlexibleCollections flag is on.
+   */
   get canDeleteAssignedCollections() {
     return this.isManager || this.permissions.deleteAssignedCollections;
   }
 
+  /**
+   * @deprecated
+   * This is deprecated with the introduction of Flexible Collections.
+   * This will always return false if FlexibleCollections flag is on.
+   */
   get canViewAssignedCollections() {
     return this.canDeleteAssignedCollections || this.canEditAssignedCollections;
   }
@@ -249,6 +305,10 @@ export class Organization {
 
   get hasProvider() {
     return this.providerId != null || this.providerName != null;
+  }
+
+  get hasReseller() {
+    return this.hasProvider && this.providerType === ProviderType.Reseller;
   }
 
   get canAccessSecretsManager() {

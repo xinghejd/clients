@@ -23,7 +23,7 @@ export function browserSession<TCtor extends Constructor<any>>(constructor: TCto
 
       // Require state service to be injected
       const storageService: AbstractMemoryStorageService = this.findStorageService(
-        [this as any].concat(args)
+        [this as any].concat(args),
       );
 
       if (this.__syncedItemMetadata == null || !(this.__syncedItemMetadata instanceof Array)) {
@@ -31,7 +31,7 @@ export function browserSession<TCtor extends Constructor<any>>(constructor: TCto
       }
 
       this.__sessionSyncers = this.__syncedItemMetadata.map((metadata) =>
-        this.buildSyncer(metadata, storageService)
+        this.buildSyncer(metadata, storageService),
       );
     }
 
@@ -39,8 +39,10 @@ export function browserSession<TCtor extends Constructor<any>>(constructor: TCto
       const syncer = new SessionSyncer(
         (this as any)[metadata.propertyKey],
         storageSerice,
-        metadata
+        metadata,
       );
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       syncer.init();
       return syncer;
     }
@@ -54,14 +56,15 @@ export function browserSession<TCtor extends Constructor<any>>(constructor: TCto
 
       const stateService = args.find(
         (arg) =>
-          arg?.memoryStorageService != null && this.isMemoryStorageService(arg.memoryStorageService)
+          arg?.memoryStorageService != null &&
+          this.isMemoryStorageService(arg.memoryStorageService),
       );
       if (stateService) {
         return stateService.memoryStorageService;
       }
 
       throw new Error(
-        `Cannot decorate ${constructor.name} with browserSession, Browser's AbstractMemoryStorageService must be accessible through the observed classes parameters`
+        `Cannot decorate ${constructor.name} with browserSession, Browser's AbstractMemoryStorageService must be accessible through the observed classes parameters`,
       );
     }
 

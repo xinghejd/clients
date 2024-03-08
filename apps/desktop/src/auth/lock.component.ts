@@ -1,8 +1,9 @@
 import { Component, NgZone } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { ipcRenderer } from "electron";
+import { firstValueFrom, switchMap } from "rxjs";
 
 import { LockComponent as BaseLockComponent } from "@bitwarden/angular/auth/components/lock.component";
+import { PinCryptoServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
@@ -10,7 +11,7 @@ import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abs
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { DeviceTrustCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust-crypto.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
-import { DeviceType, KeySuffixOptions } from "@bitwarden/common/enums";
+import { DeviceType } from "@bitwarden/common/enums";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -18,11 +19,10 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { DialogService } from "@bitwarden/components";
-
-import { ElectronStateService } from "../platform/services/electron-state.service.abstraction";
-import { BiometricStorageAction, BiometricMessage } from "../types/biometric-message";
 
 const BroadcasterSubscriptionId = "LockComponent";
 
@@ -33,6 +33,8 @@ const BroadcasterSubscriptionId = "LockComponent";
 export class LockComponent extends BaseLockComponent {
   private deferFocus: boolean = null;
   protected biometricReady = false;
+  private biometricAsked = false;
+  private autoPromptBiometric = false;
 
   constructor(
     router: Router,
@@ -43,7 +45,7 @@ export class LockComponent extends BaseLockComponent {
     vaultTimeoutService: VaultTimeoutService,
     vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     environmentService: EnvironmentService,
-    protected override stateService: ElectronStateService,
+    protected override stateService: StateService,
     apiService: ApiService,
     private route: ActivatedRoute,
     private broadcasterService: BroadcasterService,
@@ -54,7 +56,9 @@ export class LockComponent extends BaseLockComponent {
     logService: LogService,
     dialogService: DialogService,
     deviceTrustCryptoService: DeviceTrustCryptoServiceAbstraction,
-    userVerificationService: UserVerificationService
+    userVerificationService: UserVerificationService,
+    pinCryptoService: PinCryptoServiceAbstraction,
+    biometricStateService: BiometricStateService,
   ) {
     super(
       router,
@@ -74,29 +78,26 @@ export class LockComponent extends BaseLockComponent {
       passwordStrengthService,
       dialogService,
       deviceTrustCryptoService,
-      userVerificationService
+      userVerificationService,
+      pinCryptoService,
+      biometricStateService,
     );
   }
 
   async ngOnInit() {
     await super.ngOnInit();
-    const autoPromptBiometric = !(await this.stateService.getDisableAutoBiometricsPrompt());
+    this.autoPromptBiometric = await firstValueFrom(
+      this.biometricStateService.promptAutomatically$,
+    );
     this.biometricReady = await this.canUseBiometric();
 
     await this.displayBiometricUpdateWarning();
 
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    this.route.queryParams.subscribe((params) => {
-      setTimeout(async () => {
-        if (!params.promptBiometric || !this.supportsBiometric || !autoPromptBiometric) {
-          return;
-        }
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    this.delayedAskForBiometric(500);
+    this.route.queryParams.pipe(switchMap((params) => this.delayedAskForBiometric(500, params)));
 
-        if (await ipcRenderer.invoke("windowVisible")) {
-          this.unlockBiometric();
-        }
-      }, 1000);
-    });
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
       this.ngZone.run(() => {
         switch (message.command) {
@@ -130,15 +131,32 @@ export class LockComponent extends BaseLockComponent {
     this.showPassword = false;
   }
 
+  private async delayedAskForBiometric(delay: number, params?: any) {
+    await new Promise((resolve) => setTimeout(resolve, delay));
+
+    if (params && !params.promptBiometric) {
+      return;
+    }
+
+    if (!this.supportsBiometric || !this.autoPromptBiometric || this.biometricAsked) {
+      return;
+    }
+
+    if (await firstValueFrom(this.biometricStateService.promptCancelled$)) {
+      return;
+    }
+
+    this.biometricAsked = true;
+    if (await ipc.platform.isWindowVisible()) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.unlockBiometric();
+    }
+  }
+
   private async canUseBiometric() {
     const userId = await this.stateService.getUserId();
-    const val = await ipcRenderer.invoke("biometric", {
-      action: BiometricStorageAction.EnabledForUser,
-      key: `${userId}_user_biometric`,
-      keySuffix: KeySuffixOptions.Biometric,
-      userId: userId,
-    } as BiometricMessage);
-    return val != null ? (JSON.parse(val) as boolean) : null;
+    return await ipc.platform.biometric.enabled(userId);
   }
 
   private focusInput() {
@@ -146,7 +164,7 @@ export class LockComponent extends BaseLockComponent {
   }
 
   private async displayBiometricUpdateWarning(): Promise<void> {
-    if (await this.stateService.getDismissedBiometricRequirePasswordOnStart()) {
+    if (await firstValueFrom(this.biometricStateService.dismissedRequirePasswordOnStartCallout$)) {
       return;
     }
 
@@ -154,19 +172,30 @@ export class LockComponent extends BaseLockComponent {
       return;
     }
 
-    if (await this.stateService.getBiometricUnlock()) {
+    if (await firstValueFrom(this.biometricStateService.biometricUnlockEnabled$)) {
       const response = await this.dialogService.openSimpleDialog({
         title: { key: "windowsBiometricUpdateWarningTitle" },
         content: { key: "windowsBiometricUpdateWarning" },
         type: "warning",
       });
 
-      await this.stateService.setBiometricRequirePasswordOnStart(response);
+      await this.biometricStateService.setRequirePasswordOnStart(response);
       if (response) {
-        await this.stateService.setDisableAutoBiometricsPrompt(true);
+        await this.biometricStateService.setPromptAutomatically(false);
       }
       this.supportsBiometric = await this.canUseBiometric();
-      await this.stateService.setDismissedBiometricRequirePasswordOnStart();
+      await this.biometricStateService.setDismissedRequirePasswordOnStartCallout();
+    }
+  }
+
+  get biometricText() {
+    switch (this.platformUtilsService.getDevice()) {
+      case DeviceType.MacOsDesktop:
+        return "unlockWithTouchId";
+      case DeviceType.WindowsDesktop:
+        return "unlockWithWindowsHello";
+      default:
+        throw new Error("Unsupported platform");
     }
   }
 }

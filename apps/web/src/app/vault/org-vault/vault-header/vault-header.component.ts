@@ -5,8 +5,8 @@ import { firstValueFrom } from "rxjs";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ProductType } from "@bitwarden/common/enums";
-import { TreeNode } from "@bitwarden/common/models/domain/tree-node";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { DialogService, SimpleDialogOptions } from "@bitwarden/components";
 
 import { CollectionAdminView } from "../../../vault/core/views/collection-admin.view";
@@ -61,10 +61,14 @@ export class VaultHeaderComponent {
     private i18nService: I18nService,
     private dialogService: DialogService,
     private collectionAdminService: CollectionAdminService,
-    private router: Router
+    private router: Router,
   ) {}
 
   get title() {
+    const headerType = this.organization?.flexibleCollections
+      ? this.i18nService.t("collections").toLowerCase()
+      : this.i18nService.t("vault").toLowerCase();
+
     if (this.collection !== undefined) {
       return this.collection.node.name;
     }
@@ -73,7 +77,11 @@ export class VaultHeaderComponent {
       return this.i18nService.t("unassigned");
     }
 
-    return `${this.organization.name} ${this.i18nService.t("vault").toLowerCase()}`;
+    return `${this.organization?.name} ${headerType}`;
+  }
+
+  get icon() {
+    return this.filter.collectionId !== undefined ? "bwi-collection" : "";
   }
 
   protected get showBreadcrumbs() {
@@ -107,7 +115,7 @@ export class VaultHeaderComponent {
         this.organization.canEditSubscription
           ? "freeOrgMaxCollectionReachedManageBilling"
           : "freeOrgMaxCollectionReachedNoManageBilling",
-        this.organization.maxCollections
+        this.organization.maxCollections,
       ),
       type: "primary",
     };
@@ -121,12 +129,16 @@ export class VaultHeaderComponent {
 
     const simpleDialog = this.dialogService.openSimpleDialogRef(orgUpgradeSimpleDialogOpts);
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     firstValueFrom(simpleDialog.closed).then((result: boolean | undefined) => {
       if (!result) {
         return;
       }
 
       if (result && this.organization.canEditSubscription) {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.router.navigate(["/organizations", this.organization.id, "billing", "subscription"], {
           queryParams: { upgrade: true },
         });

@@ -21,7 +21,7 @@
     type="button"
     class="tw-w-full tw-truncate tw-text-start tw-leading-snug"
     linkType="secondary"
-    title="{{ 'viewCollectionWithName' | i18n : collection.name }}"
+    title="{{ 'viewCollectionWithName' | i18n: collection.name }}"
     [routerLink]="[]"
     [queryParams]="{ collectionId: collection.id }"
     queryParamsHandling="merge"
@@ -34,7 +34,7 @@
   <app-org-badge
     [disabled]="disabled"
     [organizationId]="collection.organizationId"
-    [organizationName]="collection.organizationId | orgNameFromId : organizations"
+    [organizationName]="collection.organizationId | orgNameFromId: organizations"
     appStopProp
   >
   </app-org-badge>
@@ -46,6 +46,11 @@
     [selectedGroups]="collectionGroups"
     [allGroups]="groups"
   ></app-group-badge>
+</td>
+<td bitCell [ngClass]="RowHeightClass" *ngIf="showPermissionsColumn">
+  <p class="tw-mb-0 tw-text-muted">
+    {{ permissionText }}
+  </p>
 </td>
 <td bitCell [ngClass]="RowHeightClass" class="tw-text-right">
   <button

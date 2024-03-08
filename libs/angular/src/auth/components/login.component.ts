@@ -1,14 +1,16 @@
-import { Directive, ElementRef, NgZone, OnInit, ViewChild } from "@angular/core";
+import { Directive, ElementRef, NgZone, OnDestroy, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
-import { take } from "rxjs/operators";
+import { Subject } from "rxjs";
+import { take, takeUntil } from "rxjs/operators";
 
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { LoginStrategyServiceAbstraction, PasswordLoginCredentials } from "@bitwarden/auth/common";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { LoginService } from "@bitwarden/common/auth/abstractions/login.service";
+import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
+import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
-import { ForceResetPasswordReason } from "@bitwarden/common/auth/models/domain/force-reset-password-reason";
-import { PasswordLogInCredentials } from "@bitwarden/common/auth/models/domain/log-in-credentials";
+import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -27,7 +29,7 @@ import {
 import { CaptchaProtectedComponent } from "./captcha-protected.component";
 
 @Directive()
-export class LoginComponent extends CaptchaProtectedComponent implements OnInit {
+export class LoginComponent extends CaptchaProtectedComponent implements OnInit, OnDestroy {
   @ViewChild("masterPasswordInput", { static: true }) masterPasswordInput: ElementRef;
 
   showPassword = false;
@@ -53,6 +55,8 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
   protected successRoute = "vault";
   protected forcePasswordResetRoute = "update-temp-password";
 
+  protected destroy$ = new Subject<void>();
+
   get loggedEmail() {
     return this.formGroup.value.email;
   }
@@ -60,7 +64,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
   constructor(
     protected devicesApiService: DevicesApiServiceAbstraction,
     protected appIdService: AppIdService,
-    protected authService: AuthService,
+    protected loginStrategyService: LoginStrategyServiceAbstraction,
     protected router: Router,
     platformUtilsService: PlatformUtilsService,
     i18nService: I18nService,
@@ -73,7 +77,9 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
     protected formBuilder: FormBuilder,
     protected formValidationErrorService: FormValidationErrorsService,
     protected route: ActivatedRoute,
-    protected loginService: LoginService
+    protected loginService: LoginService,
+    protected ssoLoginService: SsoLoginServiceAbstraction,
+    protected webAuthnLoginService: WebAuthnLoginServiceAbstraction,
   ) {
     super(environmentService, i18nService, platformUtilsService);
   }
@@ -83,14 +89,17 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
   }
 
   async ngOnInit() {
-    this.route?.queryParams.subscribe((params) => {
-      if (params != null) {
-        const queryParamsEmail = params["email"];
-        if (queryParamsEmail != null && queryParamsEmail.indexOf("@") > -1) {
-          this.formGroup.get("email").setValue(queryParamsEmail);
-          this.loginService.setEmail(queryParamsEmail);
-          this.paramEmailSet = true;
-        }
+    this.route?.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params) => {
+      if (!params) {
+        return;
+      }
+
+      const queryParamsEmail = params.email;
+
+      if (queryParamsEmail != null && queryParamsEmail.indexOf("@") > -1) {
+        this.formGroup.get("email").setValue(queryParamsEmail);
+        this.loginService.setEmail(queryParamsEmail);
+        this.paramEmailSet = true;
       }
     });
     let email = this.loginService.getEmail();
@@ -107,6 +116,11 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
       rememberEmail = (await this.stateService.getRememberedEmail()) != null;
     }
     this.formGroup.get("rememberEmail")?.setValue(rememberEmail);
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   async submit(showToast = true) {
@@ -129,13 +143,13 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
     }
 
     try {
-      const credentials = new PasswordLogInCredentials(
+      const credentials = new PasswordLoginCredentials(
         data.email,
         data.masterPassword,
         this.captchaToken,
-        null
+        null,
       );
-      this.formPromise = this.authService.logIn(credentials);
+      this.formPromise = this.loginStrategyService.logIn(credentials);
       const response = await this.formPromise;
       this.setFormValues();
       await this.loginService.saveEmailSettings();
@@ -145,23 +159,37 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
         return;
       } else if (response.requiresTwoFactor) {
         if (this.onSuccessfulLoginTwoFactorNavigate != null) {
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.onSuccessfulLoginTwoFactorNavigate();
         } else {
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.router.navigate([this.twoFactorRoute]);
         }
-      } else if (response.forcePasswordReset != ForceResetPasswordReason.None) {
+      } else if (response.forcePasswordReset != ForceSetPasswordReason.None) {
         if (this.onSuccessfulLoginForceResetNavigate != null) {
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.onSuccessfulLoginForceResetNavigate();
         } else {
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.router.navigate([this.forcePasswordResetRoute]);
         }
       } else {
         if (this.onSuccessfulLogin != null) {
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.onSuccessfulLogin();
         }
         if (this.onSuccessfulLoginNavigate != null) {
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.onSuccessfulLoginNavigate();
         } else {
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.router.navigate([this.successRoute]);
         }
       }
@@ -181,7 +209,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
     }
   }
 
-  async startPasswordlessLogin() {
+  async startAuthRequestLogin() {
     this.formGroup.get("masterPassword")?.clearValidators();
     this.formGroup.get("masterPassword")?.updateValueAndValidity();
 
@@ -190,6 +218,8 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
     }
 
     this.setFormValues();
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["/login-with-device"]);
   }
 
@@ -210,8 +240,8 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
     const codeChallenge = Utils.fromBufferToUrlB64(codeVerifierHash);
 
     // Save sso params
-    await this.stateService.setSsoState(state);
-    await this.stateService.setSsoCodeVerifier(ssoCodeVerifier);
+    await this.ssoLoginService.setSsoState(state);
+    await this.ssoLoginService.setCodeVerifier(ssoCodeVerifier);
 
     // Build URI
     const webUrl = this.environmentService.getWebVaultUrl();
@@ -228,7 +258,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
         "&codeChallenge=" +
         codeChallenge +
         "&email=" +
-        encodeURIComponent(this.formGroup.controls.email.value)
+        encodeURIComponent(this.formGroup.controls.email.value),
     );
   }
 
@@ -284,7 +314,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
     this.platformUtilsService.showToast(
       "error",
       this.i18nService.t("errorOccured"),
-      this.i18nService.t("encryptionKeyMigrationRequired")
+      this.i18nService.t("encryptionKeyMigrationRequired"),
     );
     return true;
   }
@@ -318,7 +348,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit 
       const deviceIdentifier = await this.appIdService.getAppId();
       this.showLoginWithDevice = await this.devicesApiService.getKnownDevice(
         email,
-        deviceIdentifier
+        deviceIdentifier,
       );
     } catch (e) {
       this.showLoginWithDevice = false;

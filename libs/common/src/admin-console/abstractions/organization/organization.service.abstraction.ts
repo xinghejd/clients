@@ -37,6 +37,10 @@ export function canAccessBillingTab(org: Organization): boolean {
 }
 
 export function canAccessOrgAdmin(org: Organization): boolean {
+  // Admin console can only be accessed by Owners for disabled organizations
+  if (!org.enabled && !org.isOwner) {
+    return false;
+  }
   return (
     canAccessMembersTab(org) ||
     canAccessGroupsTab(org) ||
@@ -53,13 +57,30 @@ export function getOrganizationById(id: string) {
 
 export function canAccessAdmin(i18nService: I18nService) {
   return map<Organization[], Organization[]>((orgs) =>
-    orgs.filter(canAccessOrgAdmin).sort(Utils.getSortFunction(i18nService, "name"))
+    orgs.filter(canAccessOrgAdmin).sort(Utils.getSortFunction(i18nService, "name")),
   );
 }
 
+/**
+ * @deprecated
+ * To be removed after Flexible Collections.
+ **/
 export function canAccessImportExport(i18nService: I18nService) {
   return map<Organization[], Organization[]>((orgs) =>
-    orgs.filter((org) => org.canAccessImportExport).sort(Utils.getSortFunction(i18nService, "name"))
+    orgs
+      .filter((org) => org.canAccessImportExport)
+      .sort(Utils.getSortFunction(i18nService, "name")),
+  );
+}
+
+export function canAccessImport(i18nService: I18nService) {
+  return map<Organization[], Organization[]>((orgs) =>
+    orgs
+      .filter(
+        (org) =>
+          org.canAccessImportExport || (org.canCreateNewCollections && org.flexibleCollections),
+      )
+      .sort(Utils.getSortFunction(i18nService, "name")),
   );
 }
 

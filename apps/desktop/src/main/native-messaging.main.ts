@@ -21,7 +21,7 @@ export class NativeMessagingMain {
     private logService: LogService,
     private windowMain: WindowMain,
     private userPath: string,
-    private exePath: string
+    private exePath: string,
   ) {}
 
   async listen() {
@@ -102,18 +102,26 @@ export class NativeMessagingMain {
     switch (process.platform) {
       case "win32": {
         const destination = path.join(this.userPath, "browsers");
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.writeManifest(path.join(destination, "firefox.json"), firefoxJson);
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.writeManifest(path.join(destination, "chrome.json"), chromeJson);
 
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.createWindowsRegistry(
           "HKLM\\SOFTWARE\\Mozilla\\Firefox",
           "HKCU\\SOFTWARE\\Mozilla\\NativeMessagingHosts\\com.8bit.bitwarden",
-          path.join(destination, "firefox.json")
+          path.join(destination, "firefox.json"),
         );
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.createWindowsRegistry(
           "HKCU\\SOFTWARE\\Google\\Chrome",
           "HKCU\\SOFTWARE\\Google\\Chrome\\NativeMessagingHosts\\com.8bit.bitwarden",
-          path.join(destination, "chrome.json")
+          path.join(destination, "chrome.json"),
         );
         break;
       }
@@ -129,7 +137,7 @@ export class NativeMessagingMain {
             }
 
             this.writeManifest(p, manifest).catch((e) =>
-              this.logService.error(`Error writing manifest for ${key}. ${e}`)
+              this.logService.error(`Error writing manifest for ${key}. ${e}`),
             );
           } else {
             this.logService.warning(`${key} not found skipping.`);
@@ -139,23 +147,29 @@ export class NativeMessagingMain {
       }
       case "linux":
         if (existsSync(`${this.homedir()}/.mozilla/`)) {
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.writeManifest(
             `${this.homedir()}/.mozilla/native-messaging-hosts/com.8bit.bitwarden.json`,
-            firefoxJson
+            firefoxJson,
           );
         }
 
         if (existsSync(`${this.homedir()}/.config/google-chrome/`)) {
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.writeManifest(
             `${this.homedir()}/.config/google-chrome/NativeMessagingHosts/com.8bit.bitwarden.json`,
-            chromeJson
+            chromeJson,
           );
         }
 
         if (existsSync(`${this.homedir()}/.config/microsoft-edge/`)) {
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.writeManifest(
             `${this.homedir()}/.config/microsoft-edge/NativeMessagingHosts/com.8bit.bitwarden.json`,
-            chromeJson
+            chromeJson,
           );
         }
         break;
@@ -176,7 +190,7 @@ export class NativeMessagingMain {
         /* eslint-disable-next-line no-useless-escape */
         const path = `${this.homedir()}/Library/Containers/com.duckduckgo.macos.browser/Data/Library/Application\ Support/NativeMessagingHosts/com.8bit.bitwarden.json`;
         this.writeManifest(path, manifest).catch((e) =>
-          this.logService.error(`Error writing manifest for DuckDuckGo. ${e}`)
+          this.logService.error(`Error writing manifest for DuckDuckGo. ${e}`),
         );
         break;
       }
@@ -188,13 +202,21 @@ export class NativeMessagingMain {
   removeManifests() {
     switch (process.platform) {
       case "win32":
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         fs.unlink(path.join(this.userPath, "browsers", "firefox.json"));
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         fs.unlink(path.join(this.userPath, "browsers", "chrome.json"));
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.deleteWindowsRegistry(
-          "HKCU\\SOFTWARE\\Mozilla\\NativeMessagingHosts\\com.8bit.bitwarden"
+          "HKCU\\SOFTWARE\\Mozilla\\NativeMessagingHosts\\com.8bit.bitwarden",
         );
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.deleteWindowsRegistry(
-          "HKCU\\SOFTWARE\\Google\\Chrome\\NativeMessagingHosts\\com.8bit.bitwarden"
+          "HKCU\\SOFTWARE\\Google\\Chrome\\NativeMessagingHosts\\com.8bit.bitwarden",
         );
         break;
       case "darwin": {
@@ -202,6 +224,8 @@ export class NativeMessagingMain {
         for (const [, value] of Object.entries(nmhs)) {
           const p = path.join(value, "NativeMessagingHosts", "com.8bit.bitwarden.json");
           if (existsSync(p)) {
+            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             fs.unlink(p);
           }
         }
@@ -211,26 +235,32 @@ export class NativeMessagingMain {
         if (
           existsSync(`${this.homedir()}/.mozilla/native-messaging-hosts/com.8bit.bitwarden.json`)
         ) {
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           fs.unlink(`${this.homedir()}/.mozilla/native-messaging-hosts/com.8bit.bitwarden.json`);
         }
 
         if (
           existsSync(
-            `${this.homedir()}/.config/google-chrome/NativeMessagingHosts/com.8bit.bitwarden.json`
+            `${this.homedir()}/.config/google-chrome/NativeMessagingHosts/com.8bit.bitwarden.json`,
           )
         ) {
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           fs.unlink(
-            `${this.homedir()}/.config/google-chrome/NativeMessagingHosts/com.8bit.bitwarden.json`
+            `${this.homedir()}/.config/google-chrome/NativeMessagingHosts/com.8bit.bitwarden.json`,
           );
         }
 
         if (
           existsSync(
-            `${this.homedir()}/.config/microsoft-edge/NativeMessagingHosts/com.8bit.bitwarden.json`
+            `${this.homedir()}/.config/microsoft-edge/NativeMessagingHosts/com.8bit.bitwarden.json`,
           )
         ) {
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           fs.unlink(
-            `${this.homedir()}/.config/microsoft-edge/NativeMessagingHosts/com.8bit.bitwarden.json`
+            `${this.homedir()}/.config/microsoft-edge/NativeMessagingHosts/com.8bit.bitwarden.json`,
           );
         }
         break;
@@ -245,6 +275,8 @@ export class NativeMessagingMain {
         /* eslint-disable-next-line no-useless-escape */
         const path = `${this.homedir()}/Library/Containers/com.duckduckgo.macos.browser/Data/Library/Application\ Support/NativeMessagingHosts/com.8bit.bitwarden.json`;
         if (existsSync(path)) {
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           fs.unlink(path);
         }
         break;

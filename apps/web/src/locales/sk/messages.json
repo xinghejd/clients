@@ -611,6 +611,96 @@
   "loginWithMasterPassword": {
     "message": "Prihlásenie pomocou hlavného hesla"
   },
+  "readingPasskeyLoading": {
+    "message": "Načítava sa prístupový kľúč..."
+  },
+  "readingPasskeyLoadingInfo": {
+    "message": "Ponechajte toto okno otvorené a nasledujte pokyny vášho prehliadača."
+  },
+  "useADifferentLogInMethod": {
+    "message": "Použiť iný spôsob prihlásenia"
+  },
+  "loginWithPasskey": {
+    "message": "Prihlásiť sa s prístupovým kľúčom"
+  },
+  "invalidPasskeyPleaseTryAgain": {
+    "message": "Nesprávne Passkey heslo. Prosím skúste to znovu."
+  },
+  "twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn": {
+    "message": "2FA pre Passkey nie je podporované. Pre prihlásenie aktualizujte aplikáciu."
+  },
+  "loginWithPasskeyInfo": {
+    "message": "Použite vygenerovaný prístupový kľúč, ktorý vás automaticky prihlási bez zadávania hesla. Vaša identita bude overená pomocou biometrie, ako napríklad rozpoznanie tváre alebo odtlačok prsta, alebo pomocou ďalšej FIDO2 bezpečnostnej metódy."
+  },
+  "newPasskey": {
+    "message": "Nový prístupový kľúč"
+  },
+  "learnMoreAboutPasswordless": {
+    "message": "Dozvedieť sa viac o automatickom prihlasovaní"
+  },
+  "creatingPasskeyLoading": {
+    "message": "Vytvára sa prístupový kľúč..."
+  },
+  "creatingPasskeyLoadingInfo": {
+    "message": "Ponechajte toto okno otvorené a nasledujte pokyny vášho prehliadača."
+  },
+  "errorCreatingPasskey": {
+    "message": "Chyba pri vytváraní prístupového kľúča"
+  },
+  "errorCreatingPasskeyInfo": {
+    "message": "Nastal problém pri vytváraní vášho prístupového kľúča."
+  },
+  "passkeySuccessfullyCreated": {
+    "message": "Prístupový kľúč bol úspešne vytvorený!"
+  },
+  "customPasskeyNameInfo": {
+    "message": "Dajte prístupovému kľúču názov aby ste ho mohli ľahšie identifikovať."
+  },
+  "useForVaultEncryption": {
+    "message": "Use for vault encryption"
+  },
+  "useForVaultEncryptionInfo": {
+    "message": "Log in and unlock on supported devices without your master password. Follow the prompts from your browser to finalize setup."
+  },
+  "useForVaultEncryptionErrorReadingPasskey": {
+    "message": "Error reading passkey. Try again or uncheck this option."
+  },
+  "encryptionNotSupported": {
+    "message": "Šifrovanie nie je podporované"
+  },
+  "enablePasskeyEncryption": {
+    "message": "Nastaviť šifrovanie"
+  },
+  "usedForEncryption": {
+    "message": "Used for encryption"
+  },
+  "loginWithPasskeyEnabled": {
+    "message": "Prihlásenie s prístupovým kľúčom zapnuté"
+  },
+  "passkeySaved": {
+    "message": "$NAME$ uložený",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Personal yubikey"
+      }
+    }
+  },
+  "passkeyRemoved": {
+    "message": "Prístupový kľúč bol odstránený"
+  },
+  "removePasskey": {
+    "message": "Odstrániť prístupový kľúč"
+  },
+  "removePasskeyInfo": {
+    "message": "Ak odstránite všetky prístupové kľúče, bez hlavného hesla sa nebudete môcť prihlásiť na nových zariadeniach."
+  },
+  "passkeyLimitReachedInfo": {
+    "message": "Dosiahnutý limit počtu prístupových kľúčov. Odstráňte prístupový kľuč, ak chcete pridať ďalší."
+  },
+  "tryAgain": {
+    "message": "Skúsiť znova"
+  },
   "createAccount": {
     "message": "Vytvoriť účet"
   },
@@ -978,6 +1068,9 @@
   "export": {
     "message": "Exportovať"
   },
+  "exportFrom": {
+    "message": "Exportovať z"
+  },
   "exportVault": {
     "message": "Export trezoru"
   },
@@ -1053,6 +1146,9 @@
   },
   "length": {
     "message": "Dĺžka"
+  },
+  "passwordMinLength": {
+    "message": "Minimálna dĺžka hesla"
   },
   "uppercase": {
     "message": "Veľké písmená (A-Z)",
@@ -1251,6 +1347,22 @@
   "importData": {
     "message": "Import dát"
   },
+  "onboardingImportDataDetailsPartOne": {
+    "message": "Ak nemáte žiadne dáta na import, môžete namiesto toho vytvoriť ",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsLink": {
+    "message": "novú položku",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsPartTwoNoOrgs": {
+    "message": "namiesto toho.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
+  },
+  "onboardingImportDataDetailsPartTwoWithOrgs": {
+    "message": ". Možno budete musieť počkať kým správca potvrdí vaše členstvo v organizácii.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+  },
   "importError": {
     "message": "Chyba importu"
   },
@@ -1364,13 +1476,6 @@
   "faviconDesc": {
     "message": "Pri každom prihlásení zobraziť rozpoznateľný obrázok."
   },
-  "enableFullWidth": {
-    "message": "Zapnúť vzhľad na celú šírku strany",
-    "description": "Allows scaling the web vault UI's width"
-  },
-  "enableFullWidthDesc": {
-    "message": "Povoliť webovému trezoru roztiahnúť sa na celú šírku okna."
-  },
   "default": {
     "message": "Predvolené"
   },
@@ -1478,6 +1583,9 @@
   },
   "manage": {
     "message": "Spravovať"
+  },
+  "canManage": {
+    "message": "Môže spravovať"
   },
   "disable": {
     "message": "Vypnúť"
@@ -2211,6 +2319,9 @@
   "contactSupport": {
     "message": "Kontaktujte zákaznícku podporu"
   },
+  "contactSupportShort": {
+    "message": "Kontaktovať podporu"
+  },
   "updatedPaymentMethod": {
     "message": "Aktualizovať spôsob platby."
   },
@@ -2311,6 +2422,9 @@
   },
   "planDescTeams": {
     "message": "Pre firmy a iné organizácie."
+  },
+  "planNameTeamsStarter": {
+    "message": "Teams Starter"
   },
   "planNameEnterprise": {
     "message": "Spoločnosť"
@@ -2416,6 +2530,15 @@
   },
   "trialThankYou": {
     "message": "Ďakujeme vám, že ste si predplatili $PLAN$!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "trialSecretsManagerThankYou": {
+    "message": "Ďakujeme vám, že ste si predplatili Bitwarden Secrets Manager predplatné $PLAN$!",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -2672,6 +2795,9 @@
   "webVault": {
     "message": "Webový trezor"
   },
+  "cli": {
+    "message": "CLI"
+  },
   "bitWebVault": {
     "message": "Webový trezor Bitwarden"
   },
@@ -2704,6 +2830,9 @@
   },
   "incorrectCode": {
     "message": "Nesprávny kód"
+  },
+  "incorrectPin": {
+    "message": "Nesprávny PIN"
   },
   "exportedVault": {
     "message": "Trezor exportovaný."
@@ -3395,6 +3524,9 @@
   "subscriptionUpdated": {
     "message": "Predplatené bolo aktualizované"
   },
+  "subscribedToSecretsManager": {
+    "message": "Predplatné aktualizované. Teraz máte prístup k Secrets Manager."
+  },
   "additionalOptions": {
     "message": "Ďalšie možnosti"
   },
@@ -3413,6 +3545,15 @@
       }
     }
   },
+  "subscriptionUserSeatsWithoutAdditionalSeatsOption": {
+    "message": "Bez dodatočných poplatkov môžete pozvať až $COUNT$ členov. Kontaktujte zákaznícku podporu pre navýšenie predplatného ak chcete pozvať viac členov.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "subscriptionFreePlan": {
     "message": "Nemôžete pozvať viac ako $COUNT$ používateľov bez navýšenia vášho plánu.",
     "placeholders": {
@@ -3422,12 +3563,12 @@
       }
     }
   },
-  "subscriptionFamiliesPlan": {
-    "message": "Nemôžete pozvať viac ako $COUNT$ používateľov bez navýšenia vášho plánu. Pre navýšenie plánu kontaktujte zákaznícku podporu.",
+  "subscriptionUpgrade": {
+    "message": "Nemôžete pozvať viac ako $COUNT$ používateľov bez navýšenia vášho plánu.",
     "placeholders": {
       "count": {
         "content": "$1",
-        "example": "6"
+        "example": "2"
       }
     }
   },
@@ -3572,6 +3713,18 @@
   "organizationIsDisabled": {
     "message": "Organizácia je vypnutá."
   },
+  "secretsAccessSuspended": {
+    "message": "K pozastaveným organizáciám nie je možné pristupovať. Požiadajte o pomoc vlastníka organizácie."
+  },
+  "secretsCannotCreate": {
+    "message": "V pozastavených organizáciám nie je možné pridávať položky. Požiadajte o pomoc vlastníka organizácie."
+  },
+  "projectsCannotCreate": {
+    "message": "V pozastavených organizáciám nie je možné vytvárať projekty. Požiadajte o pomoc vlastníka organizácie."
+  },
+  "serviceAccountsCannotCreate": {
+    "message": "V pozastavených organizáciám nie je možné vytvárať služobné kontá. Požiadajte o pomoc vlastníka organizácie."
+  },
   "disabledOrganizationFilterError": {
     "message": "K položkám vo vypnutej organizácii nie je možné pristupovať. Požiadajte o pomoc vlastníka organizácie."
   },
@@ -3689,15 +3842,6 @@
   },
   "couldNotChargeCardPayInvoice": {
     "message": "Nepodarilo sa nám vykonať platbu pomocou vašej karty. Prosím pozrite si a zaplaťte neuhradenú faktúru nižšie."
-  },
-  "inAppPurchase": {
-    "message": "Nákupy v aplikácii"
-  },
-  "cannotPerformInAppPurchase": {
-    "message": "Tato akcia sa nedá vykonať ak používate platbu pomocou nákupu v aplikácii."
-  },
-  "manageSubscriptionFromStore": {
-    "message": "Predplatné musíte spravovať v obchode kde ste vykonali nákup cez aplikáciu."
   },
   "minLength": {
     "message": "Minimálna dĺžka"
@@ -3881,9 +4025,6 @@
   "setMasterPassword": {
     "message": "Nastaviť hlavné heslo"
   },
-  "ssoCompleteRegistration": {
-    "message": "Aby ste dokončili nastavenie prihlasovacieho portálu (SSO), prosím nastavte hlavné heslo na prístup a ochranu vášho trezora."
-  },
   "identifier": {
     "message": "Identifikátor"
   },
@@ -3899,8 +4040,29 @@
   "ssoHandOff": {
     "message": "Teraz môžete zavrieť túto kartu a pokračovať v rozšírení."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "You successfully logged in"
+  },
+  "thisWindowWillCloseIn5Seconds": {
+    "message": "This window will automatically close in 5 seconds"
+  },
   "includeAllTeamsFeatures": {
     "message": "Všetky funkcie verzie pre Tímy, plus:"
+  },
+  "includeAllTeamsStarterFeatures": {
+    "message": "Všetky funkcie verzie Teams Starter, plus:"
+  },
+  "chooseMonthlyOrAnnualBilling": {
+    "message": "Vyberte mesačný alebo ročný plán fakturácie"
+  },
+  "abilityToAddMoreThanNMembers": {
+    "message": "Možnosť pridať viac než $COUNT$ členov",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "includeSsoAuthentication": {
     "message": "SSO prihlásenie cez SAML2.0 a OpenID Connect"
@@ -3917,8 +4079,9 @@
   "ssoIdentifier": {
     "message": "SSO identifikátor"
   },
-  "ssoIdentifierHint": {
-    "message": "Poskytnite toto ID vaším členom pre prihlásenie prostredníctvom SSO."
+  "ssoIdentifierHintPartOne": {
+    "message": "Provide this ID to your members to login with SSO. To bypass this step, set up ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
   },
   "unlinkSso": {
     "message": "Odpojiť SSO"
@@ -4088,8 +4251,8 @@
     "message": "Tento Send je normálne skrytý. Tlačidlom nižšie môžete prepnúť jeho viditeľnosť.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "downloadFile": {
-    "message": "Stiahnuť súbor"
+  "downloadAttachments": {
+    "message": "Stiahnuť prílohy"
   },
   "sendAccessUnavailable": {
     "message": "Odoslanie, ku ktorému sa pokúšate získať prístup, neexistuje alebo už nie je k dispozícii.",
@@ -4479,8 +4642,8 @@
     "message": "skúste to ešte dnes.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about Bitwarden Send or sign up to **try it today.**'"
   },
-  "sendCreatorIdentifier": {
-    "message": "Bitwarden používateľ $USER_IDENTIFIER$ zdieľal nasledujúce s vami",
+  "sendAccessCreatorIdentifier": {
+    "message": "Bitwarden člen $USER_IDENTIFIER$ zdieľal s vami nasledujúce",
     "placeholders": {
       "user_identifier": {
         "content": "$1",
@@ -4784,6 +4947,9 @@
   "newClientOrganizationDesc": {
     "message": "Vytvorí novú klientsku organizáciu, ktorá bude s vami spojená ako poskytovateľ. K tejto organizácii budete mať prístup a budete ju môcť spravovať."
   },
+  "newClient": {
+    "message": "New client"
+  },
   "addExistingOrganization": {
     "message": "Pridať existujúcu organizáciu"
   },
@@ -5036,6 +5202,12 @@
   },
   "spValidateCertificates": {
     "message": "Overiť certifikáty"
+  },
+  "spUniqueEntityId": {
+    "message": "Nastaviť unikátne ID poskytovateľa služby"
+  },
+  "spUniqueEntityIdDesc": {
+    "message": "Vygeneruj identifikátor, ktorý bude unikátny pre vašu organizáciu"
   },
   "idpEntityId": {
     "message": "ID subjektu"
@@ -5406,6 +5578,19 @@
   "required": {
     "message": "povinné"
   },
+  "charactersCurrentAndMaximum": {
+    "message": "$CURRENT$/$MAX$ maximálneho počtu znakov",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "0"
+      },
+      "max": {
+        "content": "$2",
+        "example": "100"
+      }
+    }
+  },
   "characterMaximum": {
     "message": "maximálne $MAX$ znakov",
     "placeholders": {
@@ -5748,11 +5933,23 @@
       }
     }
   },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Spustite DUO a postupujte podľa pokynov na dokončenie prihlásenia."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "Pre váš účet je potrebné dvojstupňové prihlásenie DUO."
+  },
+  "launchDuo": {
+    "message": "Spustiť DUO"
+  },
   "turnOn": {
     "message": "Zapnúť"
   },
   "on": {
     "message": "Zapnuté"
+  },
+  "off": {
+    "message": "Vypnuté"
   },
   "members": {
     "message": "Členovia"
@@ -6443,11 +6640,44 @@
       }
     }
   },
-  "membersColumnHeader": {
-    "message": "Člen/Skupina"
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Pre túto akciu sa vyžaduje overenie. Ak chcete pokračovať, nastavte PIN kód."
   },
-  "groupAndMemberColumnHeader": {
+  "setPin": {
+    "message": "Nastaviť PIN"
+  },
+  "verifyWithBiometrics": {
+    "message": "Overiť pomocou biometrie"
+  },
+  "awaitingConfirmation": {
+    "message": "Čaká sa na potvrdenie"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Overenie pomocou biometrie zlyhalo."
+  },
+  "needADifferentMethod": {
+    "message": "Potrebujete inú metódu?"
+  },
+  "useMasterPassword": {
+    "message": "Použiť hlavné heslo"
+  },
+  "usePin": {
+    "message": "Použiť PIN"
+  },
+  "useBiometrics": {
+    "message": "Použiť biometrické údaje"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Zadajte overovací kód, ktorý vám bol zaslaný na e-mail."
+  },
+  "resendCode": {
+    "message": "Znova odoslať kód"
+  },
+  "memberColumnHeader": {
     "message": "Člen"
+  },
+  "groupSlashMemberColumnHeader": {
+    "message": "Skupina/Člen"
   },
   "selectGroupsAndMembers": {
     "message": "Vyberte skupiny a členov"
@@ -6497,6 +6727,24 @@
       "seatcount": {
         "content": "$1",
         "example": "2"
+      }
+    }
+  },
+  "teamsStarterPlanInvLimitReachedManageBilling": {
+    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Upgrade to your plan to invite more members.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "teamsStarterPlanInvLimitReachedNoManageBilling": {
+    "message": "Plány Teams Starters môžu mať maximálne $SEATCOUNT$ členov. Kontaktujte vlastnika vašej organizácie pre navýšenie predplatného a pozvite ďalších členov.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
       }
     }
   },
@@ -6635,9 +6883,6 @@
   "secretsManager": {
     "message": "Secrets Manager"
   },
-  "secretsManagerBeta": {
-    "message": "Beta verzia Secrets Manager"
-  },
   "secretsManagerAccessDescription": {
     "message": "Aktivovať používateľovi prístup k Secrets Manager."
   },
@@ -6684,6 +6929,9 @@
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
+  },
+  "createAnAccount": {
+    "message": "Vytvoriť účet"
   },
   "createSecret": {
     "message": "Vytvoriť položku"
@@ -6740,12 +6988,6 @@
   },
   "selectionIsRequired": {
     "message": "Vyžaduje sa výber."
-  },
-  "secretsManagerSubscriptionDesc": {
-    "message": "Turn on organization access to the Secrets Manager at no charge during the Beta program. Users can be granted access to the Beta in Members."
-  },
-  "secretsManagerEnable": {
-    "message": "Enable Secrets Manager Beta"
   },
   "saPeopleWarningTitle": {
     "message": "Prístupové tokeny sú naďalej dostupné"
@@ -6890,6 +7132,14 @@
     "message": "policy with automatic enrollment will turn on when this option is used.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
+  "orgPermissionsUpdatedMustSetPassword": {
+    "message": "Povolenia vašej organizácie boli aktualizované, čo si vyžaduje nastavenie hlavného hesla.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "orgRequiresYouToSetPassword": {
+    "message": "Vaša organizácia vyžaduje, aby ste nastavili hlavné heslo.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
   "notFound": {
     "message": "$RESOURCE$ nenájdené",
     "placeholders": {
@@ -6898,6 +7148,10 @@
         "example": "Service Account"
       }
     }
+  },
+  "verificationRequired": {
+    "message": "Vyžaduje sa overenie",
+    "description": "Default title for the user verification dialog."
   },
   "recoverAccount": {
     "message": "Obnoviť účet"
@@ -7007,8 +7261,20 @@
       }
     }
   },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerFor": {
+    "message": "Začnite 7-dňovú skúšobnú dobu Bitwarden Secrets Manager zadarmo pre $ORG$",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
   "next": {
     "message": "Ďalej"
+  },
+  "ssoLoginIsRequired": {
+    "message": "Vyžaduje sa prihlásenie cez SSO"
   },
   "selectedRegionFlag": {
     "message": "Selected region flag"
@@ -7096,8 +7362,8 @@
       }
     }
   },
-  "addSecretsManager": {
-    "message": "Pridať Secrets Manager"
+  "subscribeToSecretsManager": {
+    "message": "Predplatiť Secrets Manager"
   },
   "addSecretsManagerUpgradeDesc": {
     "message": "Do aktualizovaného plánu pridajte Secret Manager, aby ste si zachovali prístup k všetkým tajomstvám vytvoreným v predchádzajúcom pláne."
@@ -7122,6 +7388,21 @@
         "example": "$0.50"
       }
     }
+  },
+  "collectionManagement": {
+    "message": "Správa zbierky"
+  },
+  "collectionManagementDesc": {
+    "message": "Spravovať správanie zbierky pre organizáciu"
+  },
+  "limitCollectionCreationDeletionDesc": {
+    "message": "Obmedziť vytváranie a vymazávanie zbierky len pre vlastníkov a administrátorov"
+  },
+  "allowAdminAccessToAllCollectionItemsDesc": {
+    "message": "Vlastníci a správcovia môžu spravovať všetky zbierky a položky"
+  },
+  "updatedCollectionManagement": {
+    "message": "Aktualizované nastavenia zbierky"
   },
   "passwordManagerPlanPrice": {
     "message": "Cena plánu Správcu Hesiel"
@@ -7150,24 +7431,14 @@
   "loggedInExclamation": {
     "message": "Prihlásený!"
   },
-  "smBetaEndedDesc": {
-    "message": "The Secrets Manager Beta ended $BETA_ENDING_DATE$. You have $DAYS$ days left to add Secrets Manager to your paid subscription and maintain access to Secrets Manager data. Contact Customer Success to add Secrets Manager to your subscription.",
-    "placeholders": {
-      "beta_ending_date": {
-        "content": "$1",
-        "example": "August 1, 2023"
-      },
-      "days": {
-        "content": "$2",
-        "example": "11"
-      }
-    }
-  },
-  "betaEnding": {
-    "message": "Beta Ending"
-  },
   "beta": {
     "message": "Beta"
+  },
+  "assignCollectionAccess": {
+    "message": "Udeliť prístup k zbierke"
+  },
+  "editedCollections": {
+    "message": "Zbierky upravené"
   },
   "baseUrl": {
     "message": "URL servera"
@@ -7178,10 +7449,158 @@
   "alreadyHaveAccount": {
     "message": "Už máte účet?"
   },
-  "customBillingStart": {
-    "message": "Custom billing is not reflected. Visit the "
+  "skipToContent": {
+    "message": "Preskočiť na obsah"
   },
-  "customBillingEnd": {
-    "message": " page for latest invoicing."
+  "managePermissionRequired": {
+    "message": "Aspoň jeden člen alebo skupina musí mať povolenie pre správu."
+  },
+  "typePasskey": {
+    "message": "Passkey"
+  },
+  "passkeyNotCopied": {
+    "message": "Passkey will not be copied"
+  },
+  "passkeyNotCopiedAlert": {
+    "message": "The passkey will not be copied to the cloned item. Do you want to continue cloning this item?"
+  },
+  "modifiedCollectionManagement": {
+    "message": "Modified collection management setting $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "seeDetailedInstructions": {
+    "message": "Podrobné pokyny nájdete na našej stránke pomoci na adrese",
+    "description": "This is followed a by a hyperlink to the help website."
+  },
+  "installBrowserExtension": {
+    "message": "Inštalovať rozšírenie prehliadača"
+  },
+  "installBrowserExtensionDetails": {
+    "message": "Použite rozšírenie na rýchle ukladanie prihlasovacích údajov a vypĺňanie formulárov bez nutnosti otvárania webovej aplikácie."
+  },
+  "projectAccessUpdated": {
+    "message": "Prístup k projektu aktualizovaný"
+  },
+  "unexpectedErrorSend": {
+    "message": "Nastal neočakávaný problém pri načítavaní tohto Sendu. Skúste to neskôr."
+  },
+  "seatLimitReached": {
+    "message": "Bol dosiahnutý limit počtu používateľských licencií"
+  },
+  "contactYourProvider": {
+    "message": "Kontaktujte vášho poskytovateľa pre zakúpenie dodatočných licencií."
+  },
+  "seatLimitReachedContactYourProvider": {
+    "message": "Bol dosiahnutý limit počtu používateľských licencií. Kontaktujte vášho poskytovateľa pre zakúpenie dodatočných licencií."
+  },
+  "collectionAccessRestricted": {
+    "message": "Collection access is restricted"
+  },
+  "grantCollectionAccess": {
+    "message": "Povoľte skupinám, alebo jednotlivcom prístup k tejto zbierke."
+  },
+  "grantCollectionAccessMembersOnly": {
+    "message": "Povoľte členom prístup k tejto zbierke."
+  },
+  "adminCollectionAccess": {
+    "message": "Správcovia môžu pristupovať k a spravovať zbierky."
+  },
+  "serviceAccountAccessUpdated": {
+    "message": "Prístup služobného konta aktualizovaný"
+  },
+  "commonImportFormats": {
+    "message": "Bežné formáty",
+    "description": "Label indicating the most common import formats"
+  },
+  "maintainYourSubscription": {
+    "message": "Aby ste udržali predplatné pre $ORG$, ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Example Inc."
+      }
+    }
+  },
+  "addAPaymentMethod": {
+    "message": "pridajte spôsob platby",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
+  },
+  "collectionEnhancementsDesc": {
+    "message": "Pridajte nové nastavenia a oprávnenia pre väčšiu flexibilitu. Nahraďte rolu Správca oprávnením \"môže spravovať\" a umožnite používateľom vytvárať zbierky, alebo obmedzte administratívny prístup k zbierkam.",
+    "description": "This describes new features and improvements for user roles and collections"
+  },
+  "collectionEnhancementsLearnMore": {
+    "message": "Naučiť sa viac o spravovaní zbierky"
+  },
+  "organizationInformation": {
+    "message": "Informácie o organizácii"
+  },
+  "confirmationDetails": {
+    "message": "Detaily potvrdenia"
+  },
+  "smFreeTrialThankYou": {
+    "message": "Ďakujeme vám, že ste si predplatili Bitwarden Secrets Manager!"
+  },
+  "smFreeTrialConfirmationEmail": {
+    "message": "Poslali sme potvrdzujúci e-mail na adresu "
+  },
+  "confirmCollectionEnhancementsDialogTitle": {
+    "message": "This action is irreversible"
+  },
+  "confirmCollectionEnhancementsDialogContent": {
+    "message": "Turning on this feature will deprecate the manager role and replace it with a Can manage permission. This will take a few moments. Do not make any organization changes until it is complete. Are you sure you want to proceed?"
+  },
+  "sorryToSeeYouGo": {
+    "message": "Sorry to see you go! Help improve Bitwarden by sharing why you're canceling.",
+    "description": "A message shown to users as part of an offboarding survey asking them to provide more information on their subscription cancelation."
+  },
+  "selectCancellationReason": {
+    "message": "Select a reason for canceling",
+    "description": "Used as a form field label for a select input on the offboarding survey."
+  },
+  "anyOtherFeedback": {
+    "message": "Is there any other feedback you'd like to share?",
+    "description": "Used as a form field label for a textarea input on the offboarding survey."
+  },
+  "missingFeatures": {
+    "message": "Missing features",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "movingToAnotherTool": {
+    "message": "Moving to another tool",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooDifficultToUse": {
+    "message": "Too difficult to use",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "notUsingEnough": {
+    "message": "Not using enough",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooExpensive": {
+    "message": "Too expensive",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "freeForOneYear": {
+    "message": "Free for 1 year"
+  },
+  "newWebApp": {
+    "message": "Welcome to the new and improved web app. Learn more about what’s changed."
+  },
+  "releaseBlog": {
+    "message": "Read release blog"
+  },
+  "adminConsole": {
+    "message": "Konzola správcu"
+  },
+  "providerPortal": {
+    "message": "Portál poskytovateľa"
   }
 }

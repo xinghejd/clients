@@ -1,7 +1,7 @@
-export type UsernameGeneratorOptions = {
+import { EffUsernameGenerationOptions } from "./eff-username-generator-options";
+
+export type UsernameGeneratorOptions = EffUsernameGenerationOptions & {
   type?: "word" | "subaddress" | "catchall" | "forwarded";
-  wordCapitalize?: boolean;
-  wordIncludeNumber?: boolean;
   subaddressType?: "random" | "website-name";
   subaddressEmail?: string;
   catchallType?: "random" | "website-name";
@@ -17,4 +17,5 @@ export type UsernameGeneratorOptions = {
   forwardedForwardEmailApiToken?: string;
   forwardedForwardEmailDomain?: string;
   forwardedSimpleLoginApiKey?: string;
+  forwardedSimpleLoginBaseUrl?: string;
 };

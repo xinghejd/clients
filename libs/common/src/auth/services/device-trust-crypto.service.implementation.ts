@@ -1,19 +1,18 @@
-import { DeviceResponse } from "../../abstractions/devices/responses/device.response";
+import { firstValueFrom } from "rxjs";
+
 import { AppIdService } from "../../platform/abstractions/app-id.service";
 import { CryptoFunctionService } from "../../platform/abstractions/crypto-function.service";
 import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
+import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { StateService } from "../../platform/abstractions/state.service";
 import { EncString } from "../../platform/models/domain/enc-string";
-import {
-  SymmetricCryptoKey,
-  DeviceKey,
-  UserKey,
-} from "../../platform/models/domain/symmetric-crypto-key";
-import { CsprngArray } from "../../types/csprng";
+import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
+import { UserKey, DeviceKey } from "../../types/key";
 import { DeviceTrustCryptoServiceAbstraction } from "../abstractions/device-trust-crypto.service.abstraction";
+import { DeviceResponse } from "../abstractions/devices/responses/device.response";
 import { DevicesApiServiceAbstraction } from "../abstractions/devices-api.service.abstraction";
 import { SecretVerificationRequest } from "../models/request/secret-verification.request";
 import {
@@ -23,6 +22,7 @@ import {
 
 export class DeviceTrustCryptoService implements DeviceTrustCryptoServiceAbstraction {
   constructor(
+    private keyGenerationService: KeyGenerationService,
     private cryptoFunctionService: CryptoFunctionService,
     private cryptoService: CryptoService,
     private encryptService: EncryptService,
@@ -30,7 +30,7 @@ export class DeviceTrustCryptoService implements DeviceTrustCryptoServiceAbstrac
     private appIdService: AppIdService,
     private devicesApiService: DevicesApiServiceAbstraction,
     private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService
+    private platformUtilsService: PlatformUtilsService,
   ) {}
 
   /**
@@ -67,9 +67,8 @@ export class DeviceTrustCryptoService implements DeviceTrustCryptoServiceAbstrac
     const deviceKey = await this.makeDeviceKey();
 
     // Generate asymmetric RSA key pair: devicePrivateKey, devicePublicKey
-    const [devicePublicKey, devicePrivateKey] = await this.cryptoFunctionService.rsaGenerateKeyPair(
-      2048
-    );
+    const [devicePublicKey, devicePrivateKey] =
+      await this.cryptoFunctionService.rsaGenerateKeyPair(2048);
 
     const [
       devicePublicKeyEncryptedUserKey,
@@ -92,7 +91,7 @@ export class DeviceTrustCryptoService implements DeviceTrustCryptoServiceAbstrac
       deviceIdentifier,
       devicePublicKeyEncryptedUserKey.encryptedString,
       userKeyEncryptedDevicePublicKey.encryptedString,
-      deviceKeyEncryptedDevicePrivateKey.encryptedString
+      deviceKeyEncryptedDevicePrivateKey.encryptedString,
     );
 
     // store device key in local/secure storage if enc keys posted to server successfully
@@ -112,7 +111,7 @@ export class DeviceTrustCryptoService implements DeviceTrustCryptoServiceAbstrac
     }
 
     // At this point of rotating their keys, they should still have their old user key in state
-    const oldUserKey = await this.stateService.getUserKey();
+    const oldUserKey = await firstValueFrom(this.cryptoService.activeUserKey$);
 
     const deviceIdentifier = await this.appIdService.getAppId();
     const secretVerificationRequest = new SecretVerificationRequest();
@@ -121,25 +120,25 @@ export class DeviceTrustCryptoService implements DeviceTrustCryptoServiceAbstrac
     // Get the keys that are used in rotating a devices keys from the server
     const currentDeviceKeys = await this.devicesApiService.getDeviceKeys(
       deviceIdentifier,
-      secretVerificationRequest
+      secretVerificationRequest,
     );
 
     // Decrypt the existing device public key with the old user key
     const decryptedDevicePublicKey = await this.encryptService.decryptToBytes(
       currentDeviceKeys.encryptedPublicKey,
-      oldUserKey
+      oldUserKey,
     );
 
     // Encrypt the brand new user key with the now-decrypted public key for the device
     const encryptedNewUserKey = await this.cryptoService.rsaEncrypt(
       newUserKey.key,
-      decryptedDevicePublicKey
+      decryptedDevicePublicKey,
     );
 
     // Re-encrypt the device public key with the new user key
     const encryptedDevicePublicKey = await this.encryptService.encrypt(
       decryptedDevicePublicKey,
-      newUserKey
+      newUserKey,
     );
 
     const currentDeviceUpdateRequest = new DeviceKeysUpdateRequest();
@@ -154,7 +153,7 @@ export class DeviceTrustCryptoService implements DeviceTrustCryptoServiceAbstrac
     trustRequest.currentDevice = currentDeviceUpdateRequest;
     trustRequest.otherDevices = [];
 
-    await this.devicesApiService.updateTrust(trustRequest);
+    await this.devicesApiService.updateTrust(trustRequest, deviceIdentifier);
   }
 
   async getDeviceKey(): Promise<DeviceKey> {
@@ -167,16 +166,13 @@ export class DeviceTrustCryptoService implements DeviceTrustCryptoServiceAbstrac
 
   private async makeDeviceKey(): Promise<DeviceKey> {
     // Create 512-bit device key
-    const randomBytes: CsprngArray = await this.cryptoFunctionService.aesGenerateKey(512);
-    const deviceKey = new SymmetricCryptoKey(randomBytes) as DeviceKey;
-
-    return deviceKey;
+    return (await this.keyGenerationService.createKey(512)) as DeviceKey;
   }
 
   async decryptUserKeyWithDeviceKey(
     encryptedDevicePrivateKey: EncString,
     encryptedUserKey: EncString,
-    deviceKey?: DeviceKey
+    deviceKey?: DeviceKey,
   ): Promise<UserKey | null> {
     // If device key provided use it, otherwise try to retrieve from storage
     deviceKey ||= await this.getDeviceKey();
@@ -190,13 +186,13 @@ export class DeviceTrustCryptoService implements DeviceTrustCryptoServiceAbstrac
       // attempt to decrypt encryptedDevicePrivateKey with device key
       const devicePrivateKey = await this.encryptService.decryptToBytes(
         encryptedDevicePrivateKey,
-        deviceKey
+        deviceKey,
       );
 
       // Attempt to decrypt encryptedUserDataKey with devicePrivateKey
       const userKey = await this.cryptoService.rsaDecrypt(
         encryptedUserKey.encryptedString,
-        devicePrivateKey
+        devicePrivateKey,
       );
 
       return new SymmetricCryptoKey(userKey) as UserKey;

@@ -74,7 +74,7 @@
     "message": "Copïo cyfrinair"
   },
   "copyNote": {
-    "message": "Copy note"
+    "message": "Copïo'r nodyn"
   },
   "copyUri": {
     "message": "Copïo URI"
@@ -92,13 +92,13 @@
     "message": "Llenwi'n awtomatig"
   },
   "autoFillLogin": {
-    "message": "Auto-fill login"
+    "message": "Llenwi manylion mewngofnodi"
   },
   "autoFillCard": {
-    "message": "Auto-fill card"
+    "message": "Llenwi manylion cerdyn"
   },
   "autoFillIdentity": {
-    "message": "Auto-fill identity"
+    "message": "Llenwi hunaniaeth"
   },
   "generatePasswordCopied": {
     "message": "Cynhyrchu cyfrinair (wedi'i gopïo)"
@@ -110,19 +110,19 @@
     "message": "No matching logins"
   },
   "noCards": {
-    "message": "No cards"
+    "message": "Dim cardiau"
   },
   "noIdentities": {
-    "message": "No identities"
+    "message": "Dim eitemau hunaniaeth"
   },
   "addLoginMenu": {
-    "message": "Add login"
+    "message": "Ychwanegu manylion mewngofnodi"
   },
   "addCardMenu": {
-    "message": "Add card"
+    "message": "Ychwanegu cerdyn"
   },
   "addIdentityMenu": {
-    "message": "Add identity"
+    "message": "Ychwanegu eitem hunaniaeth"
   },
   "unlockVaultMenu": {
     "message": "Datgloi'ch cell"
@@ -146,13 +146,13 @@
     "message": "Enter your account email address to receive your master password hint."
   },
   "getMasterPasswordHint": {
-    "message": "Get master password hint"
+    "message": "Anfon awgrym o'ch prif gyfrinair"
   },
   "continue": {
     "message": "Parhau"
   },
   "sendVerificationCode": {
-    "message": "Send a verification code to your email"
+    "message": "Anfon cod dilysu i'ch cyfeiriad ebost"
   },
   "sendCode": {
     "message": "Anfod cod"
@@ -170,18 +170,18 @@
     "message": "Cyfrif"
   },
   "changeMasterPassword": {
-    "message": "Change master password"
+    "message": "Newid y prif gyfrinair"
   },
   "fingerprintPhrase": {
-    "message": "Fingerprint phrase",
+    "message": "Ymadrodd unigryw",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "yourAccountsFingerprint": {
-    "message": "Your account's fingerprint phrase",
+    "message": "Ymadrodd unigryw eich cyfrif",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
   },
   "twoStepLogin": {
-    "message": "Two-step login"
+    "message": "Mewngofnodi dau agm"
   },
   "logOut": {
     "message": "Allgofnodi"
@@ -268,6 +268,9 @@
   "length": {
     "message": "Hyd"
   },
+  "passwordMinLength": {
+    "message": "Hyd lleiaf cyfrineiriau"
+  },
   "uppercase": {
     "message": "Priflythrennau (A-Z)"
   },
@@ -294,13 +297,13 @@
     "message": "Cynnwys rhif"
   },
   "minNumbers": {
-    "message": "Minimum numbers"
+    "message": "Isafswm rhifau"
   },
   "minSpecial": {
-    "message": "Minimum special"
+    "message": "Isafswm nodau arbennig"
   },
   "avoidAmbChar": {
-    "message": "Avoid ambiguous characters"
+    "message": "Osgoi nodau amwys"
   },
   "searchVault": {
     "message": "Chwilio'r gell"
@@ -315,13 +318,16 @@
     "message": "Does dim eitemau i'w rhestru."
   },
   "itemInformation": {
-    "message": "Item information"
+    "message": "Gwybodaeth am yr eitem"
   },
   "username": {
     "message": "Enw defnyddiwr"
   },
   "password": {
     "message": "Cyfrinair"
+  },
+  "totp": {
+    "message": "Authenticator secret"
   },
   "passphrase": {
     "message": "Cyfrinymadrodd"
@@ -336,16 +342,16 @@
     "message": "Nodyn"
   },
   "editItem": {
-    "message": "Edit item"
+    "message": "Golygu'r eitem"
   },
   "folder": {
     "message": "Ffolder"
   },
   "deleteItem": {
-    "message": "Delete item"
+    "message": "Dileu'r eitem"
   },
   "viewItem": {
-    "message": "View item"
+    "message": "Gweld yr eitem"
   },
   "launch": {
     "message": "Lansio"
@@ -360,13 +366,16 @@
     "message": "Rheoli"
   },
   "other": {
-    "message": "Other"
+    "message": "Gosodiadau eraill"
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Set up an unlock method to change your vault timeout action."
   },
+  "unlockMethodNeeded": {
+    "message": "Set up an unlock method in Settings"
+  },
   "rateExtension": {
-    "message": "Rate the extension"
+    "message": "Rhoi eich barn ar yr estyniad"
   },
   "rateExtensionDesc": {
     "message": "Ystyriwch ein helpu ni gydag adolygiad da!"
@@ -378,7 +387,7 @@
     "message": "Gwirio'ch hunaniaeth"
   },
   "yourVaultIsLocked": {
-    "message": "Mae eich cell dan glo. Gwiriwch eich hunaniaeth i barhau."
+    "message": "Mae eich cell ar glo. Gwiriwch eich hunaniaeth i barhau."
   },
   "unlock": {
     "message": "Datgloi"
@@ -404,6 +413,9 @@
   },
   "lockNow": {
     "message": "Cloi nawr"
+  },
+  "lockAll": {
+    "message": "Lock all"
   },
   "immediately": {
     "message": "ar unwaith"
@@ -442,10 +454,10 @@
     "message": "On system lock"
   },
   "onRestart": {
-    "message": "On browser restart"
+    "message": "wrth ailgychwyn y porwr"
   },
   "never": {
-    "message": "byth"
+    "message": "Byth"
   },
   "security": {
     "message": "Diogelwch"
@@ -481,6 +493,12 @@
   "newAccountCreated": {
     "message": "Mae eich cyfrif newydd wedi cael ei greu! Gallwch bellach fewngofnodi."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "You successfully logged in"
+  },
+  "youMayCloseThisWindow": {
+    "message": "You may close this window"
+  },
   "masterPassSent": {
     "message": "Rydym ni wedi anfon ebost atoch gydag awgrym ar gyfer eich prif gyfrinair."
   },
@@ -491,7 +509,7 @@
     "message": "Cod dilysu annilys"
   },
   "valueCopied": {
-    "message": "$VALUE$ copied",
+    "message": "$VALUE$ wedi'i gopïo",
     "description": "Value has been copied to the clipboard.",
     "placeholders": {
       "value": {
@@ -502,6 +520,18 @@
   },
   "autofillError": {
     "message": "Unable to auto-fill the selected item on this page. Copy and paste the information instead."
+  },
+  "totpCaptureError": {
+    "message": "Unable to scan QR code from the current webpage"
+  },
+  "totpCaptureSuccess": {
+    "message": "Authenticator key added"
+  },
+  "totpCapture": {
+    "message": "Scan authenticator QR code from current webpage"
+  },
+  "copyTOTP": {
+    "message": "Copy Authenticator key (TOTP)"
   },
   "loggedOut": {
     "message": "Logged out"
@@ -525,7 +555,7 @@
     "message": "Mae angen enw."
   },
   "addedFolder": {
-    "message": "Folder added"
+    "message": "Ffolder wedi'i hychwanegu"
   },
   "changeMasterPass": {
     "message": "Change master password"
@@ -552,10 +582,10 @@
     "message": "Watch our getting started tutorial to learn how to get the most out of the browser extension."
   },
   "syncingComplete": {
-    "message": "Syncing complete"
+    "message": "Cysoni wedi'i gwblhau"
   },
   "syncingFailed": {
-    "message": "Syncing failed"
+    "message": "Methwyd â chysoni"
   },
   "passwordCopied": {
     "message": "Cyfrinair wedi'i gopïo"
@@ -601,13 +631,13 @@
     "message": "Are you sure you want to overwrite the current username?"
   },
   "searchFolder": {
-    "message": "Search folder"
+    "message": "Chwilio drwy'r ffolder"
   },
   "searchCollection": {
-    "message": "Search collection"
+    "message": "Chwilio drwy'r casgliad"
   },
   "searchType": {
-    "message": "Search type"
+    "message": "Chwilio drwy'r math hwn"
   },
   "noneFolder": {
     "message": "Dim ffolder",
@@ -618,6 +648,9 @@
   },
   "addLoginNotificationDesc": {
     "message": "Ask to add an item if one isn't found in your vault."
+  },
+  "addLoginNotificationDescAlt": {
+    "message": "Ask to add an item if one isn't found in your vault. Applies to all logged in accounts."
   },
   "showCardsCurrentTab": {
     "message": "Show cards on Tab page"
@@ -640,7 +673,7 @@
     "description": "Clipboard is the operating system thing where you copy/paste data to on your device."
   },
   "notificationAddDesc": {
-    "message": "Should Bitwarden remember this password for you?"
+    "message": "A ddylai Bitwarden gofio'r cyfrinair hwn i chi?"
   },
   "notificationAddSave": {
     "message": "Cadw"
@@ -650,6 +683,15 @@
   },
   "changedPasswordNotificationDesc": {
     "message": "Ask to update a login's password when a change is detected on a website."
+  },
+  "changedPasswordNotificationDescAlt": {
+    "message": "Ask to update a login's password when a change is detected on a website. Applies to all logged in accounts."
+  },
+  "enableUsePasskeys": {
+    "message": "Ask to save and use passkeys"
+  },
+  "usePasskeysDesc": {
+    "message": "Ask to save new passkeys or log in with passkeys stored in your vault. Applies to all logged in accounts."
   },
   "notificationChangeDesc": {
     "message": "Do you want to update this password in Bitwarden?"
@@ -667,7 +709,10 @@
     "message": "Show context menu options"
   },
   "contextMenuItemDesc": {
-    "message": "Use a secondary click to access password generation and matching logins for the website. "
+    "message": "Use a secondary click to access password generation and matching logins for the website."
+  },
+  "contextMenuItemDescAlt": {
+    "message": "Use a secondary click to access password generation and matching logins for the website. Applies to all logged in accounts."
   },
   "defaultUriMatchDetection": {
     "message": "Default URI match detection",
@@ -681,6 +726,9 @@
   },
   "themeDesc": {
     "message": "Change the application's color theme."
+  },
+  "themeDescAlt": {
+    "message": "Change the application's color theme. Applies to all logged in accounts."
   },
   "dark": {
     "message": "Tywyll",
@@ -723,7 +771,7 @@
     "message": "Shared"
   },
   "learnOrg": {
-    "message": "Learn about organizations"
+    "message": "Dysgu am sefydliadau"
   },
   "learnOrgConfirmation": {
     "message": "Bitwarden allows you to share your vault items with others by using an organization. Would you like to visit the bitwarden.com website to learn more?"
@@ -886,7 +934,7 @@
     }
   },
   "verificationCodeEmailSent": {
-    "message": "Verification email sent to $EMAIL$.",
+    "message": "Anfonwyd ebost dilysu i $EMAIL$.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -898,13 +946,13 @@
     "message": "Fy nghofio i"
   },
   "sendVerificationCodeEmailAgain": {
-    "message": "Send verification code email again"
+    "message": "Anfon ebost â chod dilysu eto"
   },
   "useAnotherTwoStepMethod": {
     "message": "Use another two-step login method"
   },
   "insertYubiKey": {
-    "message": "Insert your YubiKey into your computer's USB port, then touch its button."
+    "message": "Rhowch eich YubiKey i mewn i borth USB eich cyfrifiadur, yna gwasgwch y botwm."
   },
   "insertU2f": {
     "message": "Insert your security key into your computer's USB port. If it has a button, touch it."
@@ -937,7 +985,7 @@
     "message": "Cod adfer"
   },
   "authenticatorAppTitle": {
-    "message": "Authenticator app"
+    "message": "Ap dilysu"
   },
   "authenticatorAppDesc": {
     "message": "Use an authenticator app (such as Authy or Google Authenticator) to generate time-based verification codes.",
@@ -1001,6 +1049,31 @@
   },
   "environmentSaved": {
     "message": "Environment URLs saved"
+  },
+  "showAutoFillMenuOnFormFields": {
+    "message": "Show auto-fill menu on form fields",
+    "description": "Represents the message for allowing the user to enable the auto-fill overlay"
+  },
+  "showAutoFillMenuOnFormFieldsDescAlt": {
+    "message": "Applies to all logged in accounts."
+  },
+  "turnOffBrowserBuiltInPasswordManagerSettings": {
+    "message": "Diffoddwch osodiadau rheolydd cyfrineiriau eich porwr er mwyn osgoi gwrthdaro."
+  },
+  "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
+    "message": "Edit browser settings."
+  },
+  "autofillOverlayVisibilityOff": {
+    "message": "Off",
+    "description": "Overlay setting select option for disabling autofill overlay"
+  },
+  "autofillOverlayVisibilityOnFieldFocus": {
+    "message": "When field is selected (on focus)",
+    "description": "Overlay appearance select option for showing the field on focus of the input element"
+  },
+  "autofillOverlayVisibilityOnButtonClick": {
+    "message": "When auto-fill icon is selected",
+    "description": "Overlay appearance select option for showing the field on click of the overlay icon"
   },
   "enableAutoFillOnPageLoad": {
     "message": "Auto-fill on page load"
@@ -1093,6 +1166,9 @@
   },
   "faviconDesc": {
     "message": "Dangos delwedd adnabyddadwy wrth ymyl pob eitem."
+  },
+  "faviconDescAlt": {
+    "message": "Show a recognizable image next to each login. Applies to all logged in accounts."
   },
   "enableBadgeCounter": {
     "message": "Show badge counter"
@@ -1254,7 +1330,7 @@
     "message": "Hunaniaeth"
   },
   "passwordHistory": {
-    "message": "Password history"
+    "message": "Hanes cyfrineiriau"
   },
   "back": {
     "message": "Yn ôl"
@@ -1269,7 +1345,7 @@
     "message": "Syumd i ffenestr newydd"
   },
   "refresh": {
-    "message": "Refresh"
+    "message": "Adnewyddu"
   },
   "cards": {
     "message": "Cardiau"
@@ -1315,17 +1391,17 @@
     "description": "A URL's host value. For example, the host of https://sub.domain.com:443 is 'sub.domain.com:443'."
   },
   "exact": {
-    "message": "Exact"
+    "message": "Union gywir"
   },
   "startsWith": {
-    "message": "Starts with"
+    "message": "Yn dechrau â"
   },
   "regEx": {
     "message": "Mynegiant rheolaidd",
     "description": "A programming term, also known as 'RegEx'."
   },
   "matchDetection": {
-    "message": "Match detection",
+    "message": "Cymharu URIs",
     "description": "URI match detection for auto-fill."
   },
   "defaultMatchDetection": {
@@ -1348,7 +1424,7 @@
     "description": "An entity of multiple related people (ex. a team or business organization)."
   },
   "types": {
-    "message": "Types"
+    "message": "Mathau"
   },
   "allItems": {
     "message": "Pob eitem"
@@ -1371,7 +1447,7 @@
     "description": "ex. Date this item was created"
   },
   "datePasswordUpdated": {
-    "message": "Password updated",
+    "message": "Cyfrinair wedi'i ddiweddaru",
     "description": "ex. Date this password was updated"
   },
   "neverLockWarning": {
@@ -1423,8 +1499,11 @@
   "invalidPin": {
     "message": "Cod PIN annilys."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Too many invalid PIN entry attempts. Logging out."
+  },
   "unlockWithBiometrics": {
-    "message": "Unlock with biometrics"
+    "message": "Datgloi â biometreg"
   },
   "awaitDesktop": {
     "message": "Awaiting confirmation from desktop"
@@ -1483,7 +1562,7 @@
     "message": "Timeout action confirmation"
   },
   "autoFillAndSave": {
-    "message": "Auto-fill and save"
+    "message": "Llenwi'n awtomatig a chadw"
   },
   "autoFillSuccessAndSavedUri": {
     "message": "Item auto-filled and URI saved"
@@ -1585,7 +1664,7 @@
     "message": "Desktop sync verification"
   },
   "desktopIntegrationVerificationText": {
-    "message": "Please verify that the desktop application shows this fingerprint: "
+    "message": "Gwiriwch fod y rhaglen bwrdd gwaith yn dangos yr ymadrodd hwn: "
   },
   "desktopIntegrationDisabledTitle": {
     "message": "Browser integration is not set up"
@@ -1653,18 +1732,24 @@
   "personalOwnershipPolicyInEffect": {
     "message": "An organization policy is affecting your ownership options."
   },
+  "personalOwnershipPolicyInEffectImports": {
+    "message": "An organization policy has blocked importing items into your individual vault."
+  },
   "excludedDomains": {
     "message": "Parthau wedi'u heithrio"
   },
   "excludedDomainsDesc": {
     "message": "Fydd Bitwarden ddim yn gofyn i gadw manylion mewngofnodi'r parthau hyn. Rhaid i chi ail-lwytho'r dudalen i newidiadau ddod i rym."
   },
+  "excludedDomainsDescAlt": {
+    "message": "Bitwarden will not ask to save login details for these domains for all logged in accounts. You must refresh the page for changes to take effect."
+  },
   "excludedDomainsInvalidDomain": {
     "message": "Dyw $DOMAIN$ ddim yn barth dilys",
     "placeholders": {
       "domain": {
         "content": "$1",
-        "example": "googlecom"
+        "example": "google.com"
       }
     }
   },
@@ -1820,7 +1905,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "newPassword": {
-    "message": "New password"
+    "message": "Cyfrinair newydd"
   },
   "sendDisabled": {
     "message": "Send removed",
@@ -1855,7 +1940,7 @@
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read '**To use a calendar style date picker ** click here to pop out your window.'"
   },
   "sendFirefoxCustomDatePopoutMessage2": {
-    "message": "click here",
+    "message": "cliciwch yma",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To use a calendar style date picker **click here** to pop out your window.'"
   },
   "sendFirefoxCustomDatePopoutMessage3": {
@@ -1884,7 +1969,7 @@
     "message": "One or more organization policies are affecting your Send options."
   },
   "passwordPrompt": {
-    "message": "Master password re-prompt"
+    "message": "Ailofyn am y prif gyfrinair"
   },
   "passwordConfirmation": {
     "message": "Master password confirmation"
@@ -1899,10 +1984,10 @@
     "message": "You must verify your email to use this feature. You can verify your email in the web vault."
   },
   "updatedMasterPassword": {
-    "message": "Updated master password"
+    "message": "Diweddarwyd y prif gyfrinair"
   },
   "updateMasterPassword": {
-    "message": "Update master password"
+    "message": "Diweddaru'r prif gyfrinair"
   },
   "updateMasterPasswordWarning": {
     "message": "Your master password was recently changed by an administrator in your organization. In order to access the vault, you must update it now. Proceeding will log you out of your current session, requiring you to log back in. Active sessions on other devices may continue to remain active for up to one hour."
@@ -1919,8 +2004,21 @@
   "selectFolder": {
     "message": "Dewis ffolder..."
   },
-  "ssoCompleteRegistration": {
-    "message": "In order to complete logging in with SSO, please set a master password to access and protect your vault."
+  "noFoldersFound": {
+    "message": "No folders found",
+    "description": "Used as a message within the notification bar when no folders are found"
+  },
+  "orgPermissionsUpdatedMustSetPassword": {
+    "message": "Your organization permissions were updated, requiring you to set a master password.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "orgRequiresYouToSetPassword": {
+    "message": "Your organization requires you to set a master password.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "verificationRequired": {
+    "message": "Verification required",
+    "description": "Default title for the user verification dialog."
   },
   "hours": {
     "message": "Hours"
@@ -2096,7 +2194,7 @@
     "message": "Items in suspended Organizations cannot be accessed. Contact your Organization owner for assistance."
   },
   "loggingInTo": {
-    "message": "Logging in to $DOMAIN$",
+    "message": "Yn mewngofnodi i $DOMAIN$",
     "placeholders": {
       "domain": {
         "content": "$1",
@@ -2108,13 +2206,13 @@
     "message": "Settings have been edited"
   },
   "environmentEditedClick": {
-    "message": "Click here"
+    "message": "Cliciwch yma"
   },
   "environmentEditedReset": {
     "message": "to reset to pre-configured settings"
   },
   "serverVersion": {
-    "message": "Server version"
+    "message": "Fersiwn y gweinydd"
   },
   "selfHostedServer": {
     "message": "self-hosted"
@@ -2132,7 +2230,7 @@
     }
   },
   "lastSeenOn": {
-    "message": "last seen on: $DATE$",
+    "message": "gwelwyd ddiwethaf: $DATE$",
     "placeholders": {
       "date": {
         "content": "$1",
@@ -2141,16 +2239,16 @@
     }
   },
   "loginWithMasterPassword": {
-    "message": "Log in with master password"
+    "message": "Mewngofnodi â'ch prif gyfrinair"
   },
   "loggingInAs": {
-    "message": "Logging in as"
+    "message": "Yn mewngofnodi fel"
   },
   "notYou": {
-    "message": "Not you?"
+    "message": "Nid chi?"
   },
   "newAroundHere": {
-    "message": "New around here?"
+    "message": "Ydych chi'n newydd?"
   },
   "rememberEmail": {
     "message": "Cofio'r ebost"
@@ -2162,10 +2260,10 @@
     "message": "Log in with device must be set up in the settings of the Bitwarden app. Need another option?"
   },
   "fingerprintPhraseHeader": {
-    "message": "Fingerprint phrase"
+    "message": "Ymadrodd unigryw"
   },
   "fingerprintMatchInfo": {
-    "message": "Please make sure your vault is unlocked and the Fingerprint phrase matches on the other device."
+    "message": "Sicrhewch fod eich cell wedi'i datgloi a bod yr ymadrodd unigryw yn cyfateb i'r un ar y ddyfais arall."
   },
   "resendNotification": {
     "message": "Resend notification"
@@ -2183,10 +2281,10 @@
     "message": "Exposed Master Password"
   },
   "exposedMasterPasswordDesc": {
-    "message": "Password found in a data breach. Use a unique password to protect your account. Are you sure you want to use an exposed password?"
+    "message": "Cafodd y cyfrinair ei ganfod mewn achos o ddatgelu data. Defnyddiwch gyfrinair unigryw i ddiogelu eich cyfrif. Ydych chi wir eisiau defnyddio cyfrinair sydd wedi'i ddatgelu?"
   },
   "weakAndExposedMasterPassword": {
-    "message": "Weak and Exposed Master Password"
+    "message": "Prif gyfrinair gwan ac wedi'i ddatgelu"
   },
   "weakAndBreachedMasterPasswordDesc": {
     "message": "Cyfrinair gwan a gafodd ei ganfod mewn achos o ddatgelu data. Defnyddiwch gyfrinair cryf ac unigryw i ddiogelu eich cyfrif. Ydych chi wir eisiau defnyddio cyfrinair sydd wedi'i ddatgelu?"
@@ -2216,7 +2314,7 @@
     "message": "Sut i lenwi'n awtomatig"
   },
   "autofillSelectInfoWithCommand": {
-    "message": "Dewiswch eitem o'r dudalen hon neu ddefnyddio'r llwybr byr: $COMMAND$",
+    "message": "Dewiswch eitem o'r sgrin hon, defnyddiwch y llwybr byr $COMMAND$, neu darganfyddwch ddewisiadau eraill yn y gosodiadau.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2225,7 +2323,7 @@
     }
   },
   "autofillSelectInfoWithoutCommand": {
-    "message": "Select an item from this page or set a shortcut in settings."
+    "message": "Select an item from this screen, or explore other options in settings."
   },
   "gotIt": {
     "message": "Iawn"
@@ -2258,7 +2356,7 @@
     }
   },
   "loggingInOn": {
-    "message": "Logging in on"
+    "message": "Mewngofnodi ar"
   },
   "opensInANewWindow": {
     "message": "Opens in a new window"
@@ -2316,7 +2414,7 @@
     "message": "You will be notified once approved."
   },
   "troubleLoggingIn": {
-    "message": "Trouble logging in?"
+    "message": "Trafferth mewngofnodi?"
   },
   "loginApproved": {
     "message": "Login approved"
@@ -2389,10 +2487,10 @@
     "description": "Notification to inform the user that a form's input can't contain only whitespace."
   },
   "inputEmail": {
-    "message": "Input is not an email address."
+    "message": "Dyw'r mewnbwn ddim yn gyfeiriad ebost."
   },
   "fieldsNeedAttention": {
-    "message": "$COUNT$ field(s) above need your attention.",
+    "message": "Mae $COUNT$ o feysydd uchod angen sylw.",
     "placeholders": {
       "count": {
         "content": "$1",
@@ -2431,6 +2529,38 @@
     "message": "Toggle collapse",
     "description": "Toggling an expand/collapse state."
   },
+  "filelessImport": {
+    "message": "Hoffech chi fewnforio'ch data i Bitwarden?",
+    "description": "Default notification title for triggering a fileless import."
+  },
+  "lpFilelessImport": {
+    "message": "Protect your LastPass data and import to Bitwarden?",
+    "description": "LastPass specific notification title for triggering a fileless import."
+  },
+  "lpCancelFilelessImport": {
+    "message": "Save as unencrypted file",
+    "description": "LastPass specific notification button text for cancelling a fileless import."
+  },
+  "startFilelessImport": {
+    "message": "Import to Bitwarden",
+    "description": "Notification button text for starting a fileless import."
+  },
+  "importing": {
+    "message": "Yn mewnforio...",
+    "description": "Notification message for when an import is in progress."
+  },
+  "dataSuccessfullyImported": {
+    "message": "Cafodd y data ei fewnforio'n llwyddiannus!",
+    "description": "Notification message for when an import has completed successfully."
+  },
+  "dataImportFailed": {
+    "message": "Error importing. Check console for details.",
+    "description": "Notification message for when an import has failed."
+  },
+  "importNetworkError": {
+    "message": "Network error encountered during import.",
+    "description": "Notification message for when an import has failed due to a network error."
+  },
   "aliasDomain": {
     "message": "Alias domain"
   },
@@ -2445,5 +2575,435 @@
   "turnOffMasterPasswordPromptToEditField": {
     "message": "Turn off master password re-prompt to edit this field",
     "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
+  },
+  "skipToContent": {
+    "message": "Neidio i'r cynnwys"
+  },
+  "bitwardenOverlayButton": {
+    "message": "Bitwarden auto-fill menu button",
+    "description": "Page title for the iframe containing the overlay button"
+  },
+  "toggleBitwardenVaultOverlay": {
+    "message": "Toggle Bitwarden auto-fill menu",
+    "description": "Screen reader and tool tip label for the overlay button"
+  },
+  "bitwardenVault": {
+    "message": "Bitwarden auto-fill menu",
+    "description": "Page title in overlay"
+  },
+  "unlockYourAccountToViewMatchingLogins": {
+    "message": "Unlock your account to view matching logins",
+    "description": "Text to display in overlay when the account is locked."
+  },
+  "unlockAccount": {
+    "message": "Unlock account",
+    "description": "Button text to display in overlay when the account is locked."
+  },
+  "fillCredentialsFor": {
+    "message": "Fill credentials for",
+    "description": "Screen reader text for when overlay item is in focused"
+  },
+  "partialUsername": {
+    "message": "Partial username",
+    "description": "Screen reader text for when a login item is focused where a partial username is displayed. SR will announce this phrase before reading the text of the partial username"
+  },
+  "noItemsToShow": {
+    "message": "Dim eitemau i'w dangos",
+    "description": "Text to show in overlay if there are no matching items"
+  },
+  "newItem": {
+    "message": "Eitem newydd",
+    "description": "Button text to display in overlay when there are no matching items"
+  },
+  "addNewVaultItem": {
+    "message": "Ychwanegu eitem newydd i'r gell",
+    "description": "Screen reader text (aria-label) for new item button in overlay"
+  },
+  "bitwardenOverlayMenuAvailable": {
+    "message": "Bitwarden auto-fill menu available. Press the down arrow key to select.",
+    "description": "Screen reader text for announcing when the overlay opens on the page"
+  },
+  "turnOn": {
+    "message": "Turn on"
+  },
+  "ignore": {
+    "message": "Anwybyddu"
+  },
+  "importData": {
+    "message": "Import data",
+    "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
+  },
+  "importError": {
+    "message": "Import error"
+  },
+  "importErrorDesc": {
+    "message": "There was a problem with the data you tried to import. Please resolve the errors listed below in your source file and try again."
+  },
+  "resolveTheErrorsBelowAndTryAgain": {
+    "message": "Resolve the errors below and try again."
+  },
+  "description": {
+    "message": "Disgrifiad"
+  },
+  "importSuccess": {
+    "message": "Data successfully imported"
+  },
+  "importSuccessNumberOfItems": {
+    "message": "Cafodd cyfanswm o $AMOUNT$ eitem eu mewnforio.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "tryAgain": {
+    "message": "Try again"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Verification required for this action. Set a PIN to continue."
+  },
+  "setPin": {
+    "message": "Set PIN"
+  },
+  "verifyWithBiometrics": {
+    "message": "Verify with biometrics"
+  },
+  "awaitingConfirmation": {
+    "message": "Awaiting confirmation"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Could not complete biometrics."
+  },
+  "needADifferentMethod": {
+    "message": "Need a different method?"
+  },
+  "useMasterPassword": {
+    "message": "Use master password"
+  },
+  "usePin": {
+    "message": "Use PIN"
+  },
+  "useBiometrics": {
+    "message": "Use biometrics"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Enter the verification code that was sent to your email."
+  },
+  "resendCode": {
+    "message": "Resend code"
+  },
+  "total": {
+    "message": "Cyfanswm"
+  },
+  "importWarning": {
+    "message": "You are importing data to $ORGANIZATION$. Your data may be shared with members of this organization. Do you want to proceed?",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Launch Duo and follow the steps to finish logging in."
+  },
+  "duoRequiredForAccount": {
+    "message": "Duo two-step login is required for your account."
+  },
+  "popoutTheExtensionToCompleteLogin": {
+    "message": "Popout the extension to complete login."
+  },
+  "popoutExtension": {
+    "message": "Popout extension"
+  },
+  "launchDuo": {
+    "message": "Launch Duo"
+  },
+  "importFormatError": {
+    "message": "Data is not formatted correctly. Please check your import file and try again."
+  },
+  "importNothingError": {
+    "message": "Chafodd dim ei fewnforio."
+  },
+  "importEncKeyError": {
+    "message": "Error decrypting the exported file. Your encryption key does not match the encryption key used export the data."
+  },
+  "invalidFilePassword": {
+    "message": "Invalid file password, please use the password you entered when you created the export file."
+  },
+  "importDestination": {
+    "message": "Import destination"
+  },
+  "learnAboutImportOptions": {
+    "message": "Learn about your import options"
+  },
+  "selectImportFolder": {
+    "message": "Select a folder"
+  },
+  "selectImportCollection": {
+    "message": "Select a collection"
+  },
+  "importTargetHint": {
+    "message": "Select this option if you want the imported file contents moved to a $DESTINATION$",
+    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
+    "placeholders": {
+      "destination": {
+        "content": "$1",
+        "example": "folder or collection"
+      }
+    }
+  },
+  "importUnassignedItemsError": {
+    "message": "File contains unassigned items."
+  },
+  "selectFormat": {
+    "message": "Select the format of the import file"
+  },
+  "selectImportFile": {
+    "message": "Select the import file"
+  },
+  "chooseFile": {
+    "message": "Choose File"
+  },
+  "noFileChosen": {
+    "message": "No file chosen"
+  },
+  "orCopyPasteFileContents": {
+    "message": "or copy/paste the import file contents"
+  },
+  "instructionsFor": {
+    "message": "$NAME$ Instructions",
+    "description": "The title for the import tool instructions.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "LastPass (csv)"
+      }
+    }
+  },
+  "confirmVaultImport": {
+    "message": "Confirm vault import"
+  },
+  "confirmVaultImportDesc": {
+    "message": "This file is password-protected. Please enter the file password to import data."
+  },
+  "confirmFilePassword": {
+    "message": "Confirm file password"
+  },
+  "typePasskey": {
+    "message": "Passkey"
+  },
+  "passkeyNotCopied": {
+    "message": "Passkey will not be copied"
+  },
+  "passkeyNotCopiedAlert": {
+    "message": "The passkey will not be copied to the cloned item. Do you want to continue cloning this item?"
+  },
+  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
+    "message": "Verification required by the initiating site. This feature is not yet implemented for accounts without master password."
+  },
+  "logInWithPasskey": {
+    "message": "Log in with passkey?"
+  },
+  "passkeyAlreadyExists": {
+    "message": "A passkey already exists for this application."
+  },
+  "noPasskeysFoundForThisApplication": {
+    "message": "No passkeys found for this application."
+  },
+  "noMatchingPasskeyLogin": {
+    "message": "You do not have a matching login for this site."
+  },
+  "confirm": {
+    "message": "Cadarnhau"
+  },
+  "savePasskey": {
+    "message": "Save passkey"
+  },
+  "savePasskeyNewLogin": {
+    "message": "Save passkey as new login"
+  },
+  "choosePasskey": {
+    "message": "Choose a login to save this passkey to"
+  },
+  "passkeyItem": {
+    "message": "Passkey Item"
+  },
+  "overwritePasskey": {
+    "message": "Overwrite passkey?"
+  },
+  "overwritePasskeyAlert": {
+    "message": "This item already contains a passkey. Are you sure you want to overwrite the current passkey?"
+  },
+  "featureNotSupported": {
+    "message": "Feature not yet supported"
+  },
+  "yourPasskeyIsLocked": {
+    "message": "Authentication required to use passkey. Verify your identity to continue."
+  },
+  "multifactorAuthenticationCancelled": {
+    "message": "Multifactor authentication cancelled"
+  },
+  "noLastPassDataFound": {
+    "message": "No LastPass data found"
+  },
+  "incorrectUsernameOrPassword": {
+    "message": "Enw defnyddiwr neu gyfrinair anghywir"
+  },
+  "incorrectPassword": {
+    "message": "Incorrect password"
+  },
+  "incorrectCode": {
+    "message": "Incorrect code"
+  },
+  "incorrectPin": {
+    "message": "Incorrect PIN"
+  },
+  "multifactorAuthenticationFailed": {
+    "message": "Multifactor authentication failed"
+  },
+  "includeSharedFolders": {
+    "message": "Include shared folders"
+  },
+  "lastPassEmail": {
+    "message": "Ebost LastPass"
+  },
+  "importingYourAccount": {
+    "message": "Yn mewnforio eich cyfrif..."
+  },
+  "lastPassMFARequired": {
+    "message": "LastPass multifactor authentication required"
+  },
+  "lastPassMFADesc": {
+    "message": "Enter your one-time passcode from your authentication app"
+  },
+  "lastPassOOBDesc": {
+    "message": "Approve the login request in your authentication app or enter a one-time passcode."
+  },
+  "passcode": {
+    "message": "Passcode"
+  },
+  "lastPassMasterPassword": {
+    "message": "Prif gyfrinair LastPass"
+  },
+  "lastPassAuthRequired": {
+    "message": "LastPass authentication required"
+  },
+  "awaitingSSO": {
+    "message": "Awaiting SSO authentication"
+  },
+  "awaitingSSODesc": {
+    "message": "Please continue to log in using your company credentials."
+  },
+  "seeDetailedInstructions": {
+    "message": "See detailed instructions on our help site at",
+    "description": "This is followed a by a hyperlink to the help website."
+  },
+  "importDirectlyFromLastPass": {
+    "message": "Mewnforio'n uniongyrchol o LastPass"
+  },
+  "importFromCSV": {
+    "message": "Mewnforio o CSV"
+  },
+  "lastPassTryAgainCheckEmail": {
+    "message": "Try again or look for an email from LastPass to verify it's you."
+  },
+  "collection": {
+    "message": "Casgliad"
+  },
+  "lastPassYubikeyDesc": {
+    "message": "Insert the YubiKey associated with your LastPass account into your computer's USB port, then touch its button."
+  },
+  "switchAccount": {
+    "message": "Newid cyfrif"
+  },
+  "switchAccounts": {
+    "message": "Newid cyfrif"
+  },
+  "switchToAccount": {
+    "message": "Newid i gyfrif"
+  },
+  "activeAccount": {
+    "message": "Active account"
+  },
+  "availableAccounts": {
+    "message": "Cyfrifon ar gael"
+  },
+  "accountLimitReached": {
+    "message": "Account limit reached. Log out of an account to add another."
+  },
+  "active": {
+    "message": "active"
+  },
+  "locked": {
+    "message": "locked"
+  },
+  "unlocked": {
+    "message": "unlocked"
+  },
+  "server": {
+    "message": "server"
+  },
+  "hostedAt": {
+    "message": "hosted at"
+  },
+  "useDeviceOrHardwareKey": {
+    "message": "Use your device or hardware key"
+  },
+  "justOnce": {
+    "message": "Just once"
+  },
+  "alwaysForThisSite": {
+    "message": "Always for this site"
+  },
+  "domainAddedToExcludedDomains": {
+    "message": "Ychwanegwyd $DOMAIN$ i'r parthau wedi'u heithrio.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "google.com"
+      }
+    }
+  },
+  "commonImportFormats": {
+    "message": "Fformatau cyffredin",
+    "description": "Label indicating the most common import formats"
+  },
+  "overrideDefaultBrowserAutofillTitle": {
+    "message": "Make Bitwarden your default password manager?",
+    "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutofillDescription": {
+    "message": "Ignoring this option may cause conflicts between the Bitwarden auto-fill menu and your browser's.",
+    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutoFillSettings": {
+    "message": "Make Bitwarden your default password manager",
+    "description": "Label for the setting that allows overriding the default browser autofill settings"
+  },
+  "privacyPermissionAdditionNotGrantedTitle": {
+    "message": "Unable to set Bitwarden as the default password manager",
+    "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "privacyPermissionAdditionNotGrantedDescription": {
+    "message": "You must grant browser privacy permissions to Bitwarden to set it as the default password manager.",
+    "description": "Description for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "makeDefault": {
+    "message": "Make default",
+    "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "saveCipherAttemptSuccess": {
+    "message": "Credentials saved successfully!",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
+  "updateCipherAttemptSuccess": {
+    "message": "Credentials updated successfully!",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "saveCipherAttemptFailed": {
+    "message": "Error saving credentials. Check console for details.",
+    "description": "Notification message for when saving credentials has failed."
   }
 }

@@ -10,9 +10,9 @@ import {
   TokenServiceInitOptions,
 } from "../../auth/background/service-factories/token-service.factory";
 import {
-  userVerificationServiceFactory,
-  UserVerificationServiceInitOptions,
-} from "../../auth/background/service-factories/user-verification-service.factory";
+  biometricStateServiceFactory,
+  BiometricStateServiceInitOptions,
+} from "../../platform/background/service-factories/biometric-state-service.factory";
 import {
   CryptoServiceInitOptions,
   cryptoServiceFactory,
@@ -34,11 +34,11 @@ export type VaultTimeoutSettingsServiceInitOptions = VaultTimeoutSettingsService
   TokenServiceInitOptions &
   PolicyServiceInitOptions &
   StateServiceInitOptions &
-  UserVerificationServiceInitOptions;
+  BiometricStateServiceInitOptions;
 
 export function vaultTimeoutSettingsServiceFactory(
   cache: { vaultTimeoutSettingsService?: AbstractVaultTimeoutSettingsService } & CachedServices,
-  opts: VaultTimeoutSettingsServiceInitOptions
+  opts: VaultTimeoutSettingsServiceInitOptions,
 ): Promise<AbstractVaultTimeoutSettingsService> {
   return factory(
     cache,
@@ -50,7 +50,7 @@ export function vaultTimeoutSettingsServiceFactory(
         await tokenServiceFactory(cache, opts),
         await policyServiceFactory(cache, opts),
         await stateServiceFactory(cache, opts),
-        await userVerificationServiceFactory(cache, opts)
-      )
+        await biometricStateServiceFactory(cache, opts),
+      ),
   );
 }

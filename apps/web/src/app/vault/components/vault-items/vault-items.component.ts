@@ -36,9 +36,14 @@ export class VaultItemsComponent {
   @Input() showPremiumFeatures: boolean;
   @Input() showBulkMove: boolean;
   @Input() showBulkTrashOptions: boolean;
+  // Encompasses functionality only available from the organization vault context
+  @Input() showAdminActions: boolean;
   @Input() allOrganizations: Organization[] = [];
   @Input() allCollections: CollectionView[] = [];
   @Input() allGroups: GroupView[] = [];
+  @Input() showBulkEditCollectionAccess = false;
+  @Input() showPermissionsColumn = false;
+  @Input() viewingOrgVault: boolean;
 
   private _ciphers?: CipherView[] = [];
   @Input() get ciphers(): CipherView[] {
@@ -148,6 +153,13 @@ export class VaultItemsComponent {
     });
   }
 
+  protected canClone(vaultItem: VaultItem) {
+    return (
+      (vaultItem.cipher.organizationId && this.cloneableOrganizationCiphers) ||
+      vaultItem.cipher.organizationId == null
+    );
+  }
+
   private refreshItems() {
     const collections: VaultItem[] = this.collections.map((collection) => ({ collection }));
     const ciphers: VaultItem[] = this.ciphers.map((cipher) => ({ cipher }));
@@ -157,8 +169,17 @@ export class VaultItemsComponent {
     this.editableItems = items.filter(
       (item) =>
         item.cipher !== undefined ||
-        (item.collection !== undefined && this.canDeleteCollection(item.collection))
+        (item.collection !== undefined && this.canDeleteCollection(item.collection)),
     );
     this.dataSource.data = items;
+  }
+
+  protected bulkEditCollectionAccess() {
+    this.event({
+      type: "bulkEditCollectionAccess",
+      items: this.selection.selected
+        .filter((item) => item.collection !== undefined)
+        .map((item) => item.collection),
+    });
   }
 }

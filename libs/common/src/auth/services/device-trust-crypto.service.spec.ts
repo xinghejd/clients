@@ -1,30 +1,31 @@
 import { matches, mock } from "jest-mock-extended";
+import { of } from "rxjs";
 
-import { DeviceResponse } from "../../abstractions/devices/responses/device.response";
 import { DeviceType } from "../../enums";
-import { EncryptionType } from "../../enums/encryption-type.enum";
 import { AppIdService } from "../../platform/abstractions/app-id.service";
 import { CryptoFunctionService } from "../../platform/abstractions/crypto-function.service";
 import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
+import { KeyGenerationService } from "../../platform/abstractions/key-generation.service";
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { StateService } from "../../platform/abstractions/state.service";
+import { EncryptionType } from "../../platform/enums/encryption-type.enum";
 import { EncString } from "../../platform/models/domain/enc-string";
-import {
-  SymmetricCryptoKey,
-  DeviceKey,
-  UserKey,
-} from "../../platform/models/domain/symmetric-crypto-key";
+import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "../../types/csprng";
+import { DeviceKey, UserKey } from "../../types/key";
+import { DeviceResponse } from "../abstractions/devices/responses/device.response";
 import { DevicesApiServiceAbstraction } from "../abstractions/devices-api.service.abstraction";
 import { UpdateDevicesTrustRequest } from "../models/request/update-devices-trust.request";
 import { ProtectedDeviceResponse } from "../models/response/protected-device.response";
 
 import { DeviceTrustCryptoService } from "./device-trust-crypto.service.implementation";
+
 describe("deviceTrustCryptoService", () => {
   let deviceTrustCryptoService: DeviceTrustCryptoService;
 
+  const keyGenerationService = mock<KeyGenerationService>();
   const cryptoFunctionService = mock<CryptoFunctionService>();
   const cryptoService = mock<CryptoService>();
   const encryptService = mock<EncryptService>();
@@ -38,6 +39,7 @@ describe("deviceTrustCryptoService", () => {
     jest.clearAllMocks();
 
     deviceTrustCryptoService = new DeviceTrustCryptoService(
+      keyGenerationService,
       cryptoFunctionService,
       cryptoService,
       encryptService,
@@ -45,7 +47,7 @@ describe("deviceTrustCryptoService", () => {
       appIdService,
       devicesApiService,
       i18nService,
-      platformUtilsService
+      platformUtilsService,
     );
   });
 
@@ -118,7 +120,7 @@ describe("deviceTrustCryptoService", () => {
 
       beforeEach(() => {
         existingDeviceKey = new SymmetricCryptoKey(
-          new Uint8Array(deviceKeyBytesLength) as CsprngArray
+          new Uint8Array(deviceKeyBytesLength) as CsprngArray,
         ) as DeviceKey;
 
         stateSvcGetDeviceKeySpy = jest.spyOn(stateService, "getDeviceKey");
@@ -152,7 +154,7 @@ describe("deviceTrustCryptoService", () => {
         const stateSvcSetDeviceKeySpy = jest.spyOn(stateService, "setDeviceKey");
 
         const deviceKey = new SymmetricCryptoKey(
-          new Uint8Array(deviceKeyBytesLength) as CsprngArray
+          new Uint8Array(deviceKeyBytesLength) as CsprngArray,
         ) as DeviceKey;
 
         // TypeScript will allow calling private methods if the object is of type 'any'
@@ -167,17 +169,18 @@ describe("deviceTrustCryptoService", () => {
     describe("makeDeviceKey", () => {
       it("creates a new non-null 64 byte device key, securely stores it, and returns it", async () => {
         const mockRandomBytes = new Uint8Array(deviceKeyBytesLength) as CsprngArray;
+        const mockDeviceKey = new SymmetricCryptoKey(mockRandomBytes) as DeviceKey;
 
-        const cryptoFuncSvcGenerateKeySpy = jest
-          .spyOn(cryptoFunctionService, "aesGenerateKey")
-          .mockResolvedValue(mockRandomBytes);
+        const keyGenSvcGenerateKeySpy = jest
+          .spyOn(keyGenerationService, "createKey")
+          .mockResolvedValue(mockDeviceKey);
 
         // TypeScript will allow calling private methods if the object is of type 'any'
         // This is a hacky workaround, but it allows for cleaner tests
         const deviceKey = await (deviceTrustCryptoService as any).makeDeviceKey();
 
-        expect(cryptoFuncSvcGenerateKeySpy).toHaveBeenCalledTimes(1);
-        expect(cryptoFuncSvcGenerateKeySpy).toHaveBeenCalledWith(deviceKeyBytesLength * 8);
+        expect(keyGenSvcGenerateKeySpy).toHaveBeenCalledTimes(1);
+        expect(keyGenSvcGenerateKeySpy).toHaveBeenCalledWith(deviceKeyBytesLength * 8);
 
         expect(deviceKey).not.toBeNull();
         expect(deviceKey).toBeInstanceOf(SymmetricCryptoKey);
@@ -236,17 +239,17 @@ describe("deviceTrustCryptoService", () => {
 
         mockDevicePublicKeyEncryptedUserKey = new EncString(
           EncryptionType.Rsa2048_OaepSha1_B64,
-          "mockDevicePublicKeyEncryptedUserKey"
+          "mockDevicePublicKeyEncryptedUserKey",
         );
 
         mockUserKeyEncryptedDevicePublicKey = new EncString(
           EncryptionType.AesCbc256_HmacSha256_B64,
-          "mockUserKeyEncryptedDevicePublicKey"
+          "mockUserKeyEncryptedDevicePublicKey",
         );
 
         mockDeviceKeyEncryptedDevicePrivateKey = new EncString(
           EncryptionType.AesCbc256_HmacSha256_B64,
-          "mockDeviceKeyEncryptedDevicePrivateKey"
+          "mockDeviceKeyEncryptedDevicePrivateKey",
         );
 
         // TypeScript will allow calling private methods if the object is of type 'any'
@@ -307,7 +310,7 @@ describe("deviceTrustCryptoService", () => {
           mockDeviceId,
           mockDevicePublicKeyEncryptedUserKey.encryptedString,
           mockUserKeyEncryptedDevicePublicKey.encryptedString,
-          mockDeviceKeyEncryptedDevicePrivateKey.encryptedString
+          mockDeviceKeyEncryptedDevicePrivateKey.encryptedString,
         );
 
         expect(response).toBeInstanceOf(DeviceResponse);
@@ -319,7 +322,7 @@ describe("deviceTrustCryptoService", () => {
         cryptoSvcGetUserKeySpy.mockResolvedValue(null);
         // check if the expected error is thrown
         await expect(deviceTrustCryptoService.trustDevice()).rejects.toThrow(
-          "User symmetric key not found"
+          "User symmetric key not found",
         );
 
         // reset the spy
@@ -329,7 +332,7 @@ describe("deviceTrustCryptoService", () => {
         cryptoSvcGetUserKeySpy.mockResolvedValue(undefined);
         // check if the expected error is thrown
         await expect(deviceTrustCryptoService.trustDevice()).rejects.toThrow(
-          "User symmetric key not found"
+          "User symmetric key not found",
         );
       });
 
@@ -377,9 +380,9 @@ describe("deviceTrustCryptoService", () => {
               const methodSpy = spy();
               methodSpy.mockResolvedValue(invalidValue);
               await expect(deviceTrustCryptoService.trustDevice()).rejects.toThrow();
-            }
+            },
           );
-        }
+        },
       );
     });
 
@@ -398,12 +401,12 @@ describe("deviceTrustCryptoService", () => {
 
         mockEncryptedDevicePrivateKey = new EncString(
           EncryptionType.AesCbc256_HmacSha256_B64,
-          "mockEncryptedDevicePrivateKey"
+          "mockEncryptedDevicePrivateKey",
         );
 
         mockEncryptedUserKey = new EncString(
           EncryptionType.AesCbc256_HmacSha256_B64,
-          "mockEncryptedUserKey"
+          "mockEncryptedUserKey",
         );
 
         jest.clearAllMocks();
@@ -416,7 +419,7 @@ describe("deviceTrustCryptoService", () => {
 
         const result = await deviceTrustCryptoService.decryptUserKeyWithDeviceKey(
           mockEncryptedDevicePrivateKey,
-          mockEncryptedUserKey
+          mockEncryptedUserKey,
         );
 
         expect(result).toBeNull();
@@ -435,7 +438,7 @@ describe("deviceTrustCryptoService", () => {
         const result = await deviceTrustCryptoService.decryptUserKeyWithDeviceKey(
           mockEncryptedDevicePrivateKey,
           mockEncryptedUserKey,
-          mockDeviceKey
+          mockDeviceKey,
         );
 
         expect(result).toEqual(mockUserKey);
@@ -458,7 +461,7 @@ describe("deviceTrustCryptoService", () => {
         // Call without providing a device key
         const result = await deviceTrustCryptoService.decryptUserKeyWithDeviceKey(
           mockEncryptedDevicePrivateKey,
-          mockEncryptedUserKey
+          mockEncryptedUserKey,
         );
 
         expect(getDeviceKeySpy).toHaveBeenCalledTimes(1);
@@ -477,7 +480,7 @@ describe("deviceTrustCryptoService", () => {
         const result = await deviceTrustCryptoService.decryptUserKeyWithDeviceKey(
           mockEncryptedDevicePrivateKey,
           mockEncryptedUserKey,
-          mockDeviceKey
+          mockDeviceKey,
         );
 
         expect(result).toBeNull();
@@ -498,6 +501,7 @@ describe("deviceTrustCryptoService", () => {
         const fakeNewUserKeyData = new Uint8Array(64);
         fakeNewUserKeyData.fill(FakeNewUserKeyMarker, 0, 1);
         fakeNewUserKey = new SymmetricCryptoKey(fakeNewUserKeyData) as UserKey;
+        cryptoService.activeUserKey$ = of(fakeNewUserKey);
       });
 
       it("does an early exit when the current device is not a trusted device", async () => {
@@ -505,13 +509,13 @@ describe("deviceTrustCryptoService", () => {
 
         await deviceTrustCryptoService.rotateDevicesTrust(fakeNewUserKey, "");
 
-        expect(devicesApiService.updateTrust).not.toBeCalled();
+        expect(devicesApiService.updateTrust).not.toHaveBeenCalled();
       });
 
       describe("is on a trusted device", () => {
         beforeEach(() => {
           stateService.getDeviceKey.mockResolvedValue(
-            new SymmetricCryptoKey(new Uint8Array(deviceKeyBytesLength)) as DeviceKey
+            new SymmetricCryptoKey(new Uint8Array(deviceKeyBytesLength)) as DeviceKey,
           );
         });
 
@@ -524,9 +528,7 @@ describe("deviceTrustCryptoService", () => {
           fakeOldUserKeyData.fill(FakeOldUserKeyMarker, 0, 1);
 
           // Mock the retrieval of a user key that differs from the new one passed into the method
-          stateService.getUserKey.mockResolvedValue(
-            new SymmetricCryptoKey(fakeOldUserKeyData) as UserKey
-          );
+          cryptoService.activeUserKey$ = of(new SymmetricCryptoKey(fakeOldUserKeyData) as UserKey);
 
           appIdService.getAppId.mockResolvedValue("test_device_identifier");
 
@@ -547,7 +549,7 @@ describe("deviceTrustCryptoService", () => {
                 type: DeviceType.FirefoxBrowser,
                 encryptedPublicKey: currentEncryptedPublicKey.encryptedString,
                 encryptedUserKey: currentEncryptedUserKey.encryptedString,
-              })
+              }),
             );
           });
 
@@ -576,20 +578,21 @@ describe("deviceTrustCryptoService", () => {
 
             expect(new Uint8Array(key.key)[0]).toBe(FakeNewUserKeyMarker);
             return Promise.resolve(
-              new EncString("2.ZW5jcnlwdGVkcHVibGlj|ZW5jcnlwdGVkcHVibGlj|ZW5jcnlwdGVkcHVibGlj")
+              new EncString("2.ZW5jcnlwdGVkcHVibGlj|ZW5jcnlwdGVkcHVibGlj|ZW5jcnlwdGVkcHVibGlj"),
             );
           });
 
           await deviceTrustCryptoService.rotateDevicesTrust(fakeNewUserKey, "my_password_hash");
 
-          expect(devicesApiService.updateTrust).toBeCalledWith(
+          expect(devicesApiService.updateTrust).toHaveBeenCalledWith(
             matches((updateTrustModel: UpdateDevicesTrustRequest) => {
               return (
                 updateTrustModel.currentDevice.encryptedPublicKey ===
                   "2.ZW5jcnlwdGVkcHVibGlj|ZW5jcnlwdGVkcHVibGlj|ZW5jcnlwdGVkcHVibGlj" &&
                 updateTrustModel.currentDevice.encryptedUserKey === "4.ZW5jcnlwdGVkdXNlcg=="
               );
-            })
+            }),
+            expect.stringMatching("test_device_identifier"),
           );
         });
       });

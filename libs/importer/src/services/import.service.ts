@@ -8,7 +8,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRequest } from "@bitwarden/common/vault/models/request/cipher.request";
 import { CollectionWithIdRequest } from "@bitwarden/common/vault/models/request/collection-with-id.request";
 import { FolderWithIdRequest } from "@bitwarden/common/vault/models/request/folder-with-id.request";
@@ -99,7 +99,7 @@ export class ImportService implements ImportServiceAbstraction {
     private importApiService: ImportApiServiceAbstraction,
     private i18nService: I18nService,
     private collectionService: CollectionService,
-    private cryptoService: CryptoService
+    private cryptoService: CryptoService,
   ) {}
 
   getImportOptions(): ImportOption[] {
@@ -111,7 +111,7 @@ export class ImportService implements ImportServiceAbstraction {
     fileContents: string,
     organizationId: string = null,
     selectedImportTarget: string = null,
-    isUserAdmin: boolean
+    canAccessImportExport: boolean,
   ): Promise<ImportResult> {
     let importResult: ImportResult;
     try {
@@ -147,10 +147,13 @@ export class ImportService implements ImportServiceAbstraction {
       }
     }
 
-    if (organizationId && Utils.isNullOrWhitespace(selectedImportTarget) && !isUserAdmin) {
-      const hasUnassignedCollections = importResult.ciphers.some(
-        (c) => !Array.isArray(c.collectionIds) || c.collectionIds.length == 0
-      );
+    if (
+      organizationId &&
+      Utils.isNullOrWhitespace(selectedImportTarget) &&
+      !canAccessImportExport
+    ) {
+      const hasUnassignedCollections =
+        importResult.collectionRelationships.length < importResult.ciphers.length;
       if (hasUnassignedCollections) {
         throw new Error(this.i18nService.t("importUnassignedItemsError"));
       }
@@ -173,7 +176,7 @@ export class ImportService implements ImportServiceAbstraction {
   getImporter(
     format: ImportType | "bitwardenpasswordprotected",
     promptForPassword_callback: () => Promise<string>,
-    organizationId: string = null
+    organizationId: string = null,
   ): Importer {
     if (promptForPassword_callback == null) {
       return null;
@@ -189,7 +192,7 @@ export class ImportService implements ImportServiceAbstraction {
 
   private getImporterInstance(
     format: ImportType | "bitwardenpasswordprotected",
-    promptForPassword_callback: () => Promise<string>
+    promptForPassword_callback: () => Promise<string>,
   ) {
     if (format == null) {
       return null;
@@ -204,7 +207,7 @@ export class ImportService implements ImportServiceAbstraction {
           this.cryptoService,
           this.i18nService,
           this.cipherService,
-          promptForPassword_callback
+          promptForPassword_callback,
         );
       case "lastpasscsv":
       case "passboltcsv":
@@ -342,7 +345,7 @@ export class ImportService implements ImportServiceAbstraction {
     }
     if (importResult.folderRelationships != null) {
       importResult.folderRelationships.forEach((r) =>
-        request.folderRelationships.push(new KvpRequest(r[0], r[1]))
+        request.folderRelationships.push(new KvpRequest(r[0], r[1])),
       );
     }
     return await this.importApiService.postImportCiphers(request);
@@ -364,7 +367,7 @@ export class ImportService implements ImportServiceAbstraction {
     }
     if (importResult.collectionRelationships != null) {
       importResult.collectionRelationships.forEach((r) =>
-        request.collectionRelationships.push(new KvpRequest(r[0], r[1]))
+        request.collectionRelationships.push(new KvpRequest(r[0], r[1])),
       );
     }
     return await this.importApiService.postImportOrganizationCiphers(organizationId, request);
@@ -425,7 +428,7 @@ export class ImportService implements ImportServiceAbstraction {
   private async setImportTarget(
     importResult: ImportResult,
     organizationId: string,
-    importTarget: string
+    importTarget: string,
   ) {
     if (Utils.isNullOrWhitespace(importTarget)) {
       return;

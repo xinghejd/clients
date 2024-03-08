@@ -1,8 +1,8 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from "@angular/core";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { TreeNode } from "@bitwarden/common/models/domain/tree-node";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 
 import { CollectionDialogTabType } from "../../components/collection-dialog";
@@ -103,6 +103,10 @@ export class VaultHeaderComponent {
     return this.i18nService.t("allVaults");
   }
 
+  protected get icon() {
+    return this.filter.collectionId && this.filter.collectionId !== All ? "bwi-collection" : "";
+  }
+
   /**
    * A list of collection filters that form a chain from the organization root to currently selected collection.
    * Begins from the organization root and excludes the currently selected collection.
@@ -125,13 +129,13 @@ export class VaultHeaderComponent {
 
   get canEditCollection(): boolean {
     // Only edit collections if not editing "Unassigned"
-    if (this.collection === undefined) {
+    if (this.collection == null) {
       return false;
     }
 
     // Otherwise, check if we can edit the specified collection
     const organization = this.organizations.find(
-      (o) => o.id === this.collection?.node.organizationId
+      (o) => o.id === this.collection?.node.organizationId,
     );
     return this.collection.node.canEdit(organization);
   }
@@ -146,10 +150,11 @@ export class VaultHeaderComponent {
       return false;
     }
 
-    // Otherwise, check if we can edit the specified collection
+    // Otherwise, check if we can delete the specified collection
     const organization = this.organizations.find(
-      (o) => o.id === this.collection?.node.organizationId
+      (o) => o.id === this.collection?.node.organizationId,
     );
+
     return this.collection.node.canDelete(organization);
   }
 

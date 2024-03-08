@@ -1,6 +1,14 @@
-import { EVENTS, TYPE_CHECK } from "../constants";
+import { EVENTS, TYPE_CHECK } from "@bitwarden/common/autofill/constants";
+
 import AutofillScript, { AutofillInsertActions, FillScript } from "../models/autofill-script";
 import { FormFieldElement } from "../types";
+import {
+  elementIsFillableFormField,
+  elementIsInputElement,
+  elementIsSelectElement,
+  elementIsTextAreaElement,
+  nodeIsInputElement,
+} from "../utils";
 
 import { InsertAutofillContentService as InsertAutofillContentServiceInterface } from "./abstractions/insert-autofill-content.service";
 import CollectAutofillContentService from "./collect-autofill-content.service";
@@ -21,7 +29,7 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    */
   constructor(
     domElementVisibilityService: DomElementVisibilityService,
-    collectAutofillContentService: CollectAutofillContentService
+    collectAutofillContentService: CollectAutofillContentService,
   ) {
     this.domElementVisibilityService = domElementVisibilityService;
     this.collectAutofillContentService = collectAutofillContentService;
@@ -31,30 +39,21 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    * Handles autofill of the forms on the current page based on the
    * data within the passed fill script object.
    * @param {AutofillScript} fillScript
+   * @returns {Promise<void>}
    * @public
    */
-  fillForm(fillScript: AutofillScript) {
+  async fillForm(fillScript: AutofillScript) {
     if (
       !fillScript.script?.length ||
       this.fillingWithinSandboxedIframe() ||
       this.userCancelledInsecureUrlAutofill(fillScript.savedUrls) ||
-      this.userCancelledUntrustedIframeAutofill(fillScript) ||
-      this.tabURLChanged(fillScript.savedUrls)
+      this.userCancelledUntrustedIframeAutofill(fillScript)
     ) {
       return;
     }
 
-    fillScript.script.forEach(this.runFillScriptAction);
-  }
-
-  /**
-   * Determines if the page URL no longer matches one of the cipher's savedURL domains
-   * @param {string[] | null} savedUrls
-   * @returns {boolean}
-   * @private
-   */
-  private tabURLChanged(savedUrls?: AutofillScript["savedUrls"]): boolean {
-    return savedUrls && !savedUrls.some((url) => url.startsWith(window.location.origin));
+    const fillActionPromises = fillScript.script.map(this.runFillScriptAction);
+    await Promise.all(fillActionPromises);
   }
 
   /**
@@ -105,9 +104,9 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
     return Boolean(
       this.collectAutofillContentService.queryAllTreeWalkerNodes(
         document.documentElement,
-        (node: Node) => node instanceof HTMLInputElement && node.type === "password",
-        false
-      )?.length
+        (node: Node) => nodeIsInputElement(node) && node.type === "password",
+        false,
+      )?.length,
     );
   }
 
@@ -139,20 +138,27 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
   /**
    * Runs the autofill action based on the action type and the opid.
    * Each action is subsequently delayed by 20 milliseconds.
-   * @param {FillScriptActions} action
+   * @param {"click_on_opid" | "focus_by_opid" | "fill_by_opid"} action
    * @param {string} opid
    * @param {string} value
    * @param {number} actionIndex
+   * @returns {Promise<void>}
+   * @private
    */
-  private runFillScriptAction = ([action, opid, value]: FillScript, actionIndex: number): void => {
+  private runFillScriptAction = (
+    [action, opid, value]: FillScript,
+    actionIndex: number,
+  ): Promise<void> => {
     if (!opid || !this.autofillInsertActions[action]) {
       return;
     }
 
     const delayActionsInMilliseconds = 20;
-    setTimeout(
-      () => this.autofillInsertActions[action]({ opid, value }),
-      delayActionsInMilliseconds * actionIndex
+    return new Promise((resolve) =>
+      setTimeout(() => {
+        this.autofillInsertActions[action]({ opid, value });
+        resolve();
+      }, delayActionsInMilliseconds * actionIndex),
     );
   };
 
@@ -197,8 +203,8 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    */
   private insertValueIntoField(element: FormFieldElement | null, value: string) {
     const elementCanBeReadonly =
-      element instanceof HTMLInputElement || element instanceof HTMLTextAreaElement;
-    const elementCanBeFilled = elementCanBeReadonly || element instanceof HTMLSelectElement;
+      elementIsInputElement(element) || elementIsTextAreaElement(element);
+    const elementCanBeFilled = elementCanBeReadonly || elementIsSelectElement(element);
 
     if (
       !element ||
@@ -209,13 +215,13 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
       return;
     }
 
-    if (element instanceof HTMLSpanElement) {
+    if (!elementIsFillableFormField(element)) {
       this.handleInsertValueAndTriggerSimulatedEvents(element, () => (element.innerText = value));
       return;
     }
 
     const isFillableCheckboxOrRadioElement =
-      element instanceof HTMLInputElement &&
+      elementIsInputElement(element) &&
       new Set(["checkbox", "radio"]).has(element.type) &&
       new Set(["true", "y", "1", "yes", "✓"]).has(String(value).toLowerCase());
     if (isFillableCheckboxOrRadioElement) {
@@ -235,7 +241,7 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    */
   private handleInsertValueAndTriggerSimulatedEvents(
     element: FormFieldElement,
-    valueChangeCallback: CallableFunction
+    valueChangeCallback: CallableFunction,
   ): void {
     this.triggerPreInsertEventsOnElement(element);
     valueChangeCallback();
@@ -287,7 +293,7 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    */
   private triggerFillAnimationOnElement(element: FormFieldElement): void {
     const skipAnimatingElement =
-      !(element instanceof HTMLSpanElement) &&
+      elementIsFillableFormField(element) &&
       !new Set(["email", "text", "password", "number", "tel", "url"]).has(element?.type);
 
     if (this.domElementVisibilityService.isElementHiddenByCss(element) || skipAnimatingElement) {
@@ -343,7 +349,7 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    */
   private simulateUserMouseClickAndFocusEventInteractions(
     element: FormFieldElement,
-    shouldResetValue = false
+    shouldResetValue = false,
   ): void {
     this.triggerClickOnElement(element);
     this.triggerFocusOnElement(element, shouldResetValue);
@@ -355,9 +361,10 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    * @private
    */
   private simulateUserKeyboardEventInteractions(element: FormFieldElement): void {
-    [EVENTS.KEYDOWN, EVENTS.KEYPRESS, EVENTS.KEYUP].forEach((eventType) =>
-      element.dispatchEvent(new KeyboardEvent(eventType, { bubbles: true }))
-    );
+    const simulatedKeyboardEvents = [EVENTS.KEYDOWN, EVENTS.KEYPRESS, EVENTS.KEYUP];
+    for (let index = 0; index < simulatedKeyboardEvents.length; index++) {
+      element.dispatchEvent(new KeyboardEvent(simulatedKeyboardEvents[index], { bubbles: true }));
+    }
   }
 
   /**
@@ -367,9 +374,14 @@ class InsertAutofillContentService implements InsertAutofillContentServiceInterf
    * @private
    */
   private simulateInputElementChangedEvent(element: FormFieldElement): void {
-    [EVENTS.INPUT, EVENTS.CHANGE].forEach((eventType) =>
-      element.dispatchEvent(new Event(eventType, { bubbles: true }))
-    );
+    const simulatedInputEvents = [EVENTS.INPUT, EVENTS.CHANGE];
+    for (let index = 0; index < simulatedInputEvents.length; index++) {
+      element.dispatchEvent(new Event(simulatedInputEvents[index], { bubbles: true }));
+    }
+  }
+
+  private nodeIsElement(node: Node): node is HTMLElement {
+    return node.nodeType === Node.ELEMENT_NODE;
   }
 }
 

@@ -1,5 +1,4 @@
 import { BaseResponse } from "../../../models/response/base.response";
-import { BitwardenProductType } from "../../enums";
 
 export class SubscriptionResponse extends BaseResponse {
   storageName: string;
@@ -7,10 +6,8 @@ export class SubscriptionResponse extends BaseResponse {
   maxStorageGb: number;
   subscription: BillingSubscriptionResponse;
   upcomingInvoice: BillingSubscriptionUpcomingInvoiceResponse;
-  discount: BillingCustomerDiscount;
   license: any;
   expiration: string;
-  usingInAppPurchase: boolean;
 
   constructor(response: any) {
     super(response);
@@ -19,16 +16,13 @@ export class SubscriptionResponse extends BaseResponse {
     this.maxStorageGb = this.getResponseProperty("MaxStorageGb");
     this.license = this.getResponseProperty("License");
     this.expiration = this.getResponseProperty("Expiration");
-    this.usingInAppPurchase = this.getResponseProperty("UsingInAppPurchase");
     const subscription = this.getResponseProperty("Subscription");
     const upcomingInvoice = this.getResponseProperty("UpcomingInvoice");
-    const discount = this.getResponseProperty("Discount");
     this.subscription = subscription == null ? null : new BillingSubscriptionResponse(subscription);
     this.upcomingInvoice =
       upcomingInvoice == null
         ? null
         : new BillingSubscriptionUpcomingInvoiceResponse(upcomingInvoice);
-    this.discount = discount == null ? null : new BillingCustomerDiscount(discount);
   }
 }
 
@@ -45,7 +39,7 @@ export class BillingSubscriptionResponse extends BaseResponse {
 
   constructor(response: any) {
     super(response);
-    this.trialEndDate = this.getResponseProperty("TrialStartDate");
+    this.trialStartDate = this.getResponseProperty("TrialStartDate");
     this.trialEndDate = this.getResponseProperty("TrialEndDate");
     this.periodStartDate = this.getResponseProperty("PeriodStartDate");
     this.periodEndDate = this.getResponseProperty("PeriodEndDate");
@@ -61,23 +55,24 @@ export class BillingSubscriptionResponse extends BaseResponse {
 }
 
 export class BillingSubscriptionItemResponse extends BaseResponse {
+  productId: string;
   name: string;
   amount: number;
   quantity: number;
   interval: string;
   sponsoredSubscriptionItem: boolean;
   addonSubscriptionItem: boolean;
-  bitwardenProduct: BitwardenProductType;
+  productName: string;
 
   constructor(response: any) {
     super(response);
+    this.productId = this.getResponseProperty("ProductId");
     this.name = this.getResponseProperty("Name");
     this.amount = this.getResponseProperty("Amount");
     this.quantity = this.getResponseProperty("Quantity");
     this.interval = this.getResponseProperty("Interval");
     this.sponsoredSubscriptionItem = this.getResponseProperty("SponsoredSubscriptionItem");
     this.addonSubscriptionItem = this.getResponseProperty("AddonSubscriptionItem");
-    this.bitwardenProduct = this.getResponseProperty("BitwardenProduct");
   }
 }
 
@@ -89,16 +84,5 @@ export class BillingSubscriptionUpcomingInvoiceResponse extends BaseResponse {
     super(response);
     this.date = this.getResponseProperty("Date");
     this.amount = this.getResponseProperty("Amount");
-  }
-}
-
-export class BillingCustomerDiscount extends BaseResponse {
-  id: string;
-  active: boolean;
-
-  constructor(response: any) {
-    super(response);
-    this.id = this.getResponseProperty("Id");
-    this.active = this.getResponseProperty("Active");
   }
 }

@@ -5,19 +5,19 @@ import { first } from "rxjs/operators";
 
 // eslint-disable-next-line no-restricted-imports
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
+import { LoginStrategyServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { LoginService } from "@bitwarden/common/auth/abstractions/login.service";
+import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
-import { ForceResetPasswordReason } from "@bitwarden/common/auth/models/domain/force-reset-password-reason";
+import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { TrustedDeviceUserDecryptionOption } from "@bitwarden/common/auth/models/domain/user-decryption-options/trusted-device-user-decryption-option";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
 import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two-factor-email.request";
 import { TwoFactorProviders } from "@bitwarden/common/auth/services/two-factor.service";
 import { WebAuthnIFrame } from "@bitwarden/common/auth/webauthn-iframe";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -45,6 +45,11 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
   formPromise: Promise<any>;
   emailPromise: Promise<any>;
   orgIdentifier: string = null;
+
+  duoFrameless = false;
+  duoFramelessUrl: string = null;
+  duoResultListenerInitialized = false;
+
   onSuccessfulLogin: () => Promise<void>;
   onSuccessfulLoginNavigate: () => Promise<void>;
 
@@ -58,8 +63,15 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
   protected forcePasswordResetRoute = "update-temp-password";
   protected successRoute = "vault";
 
+  get isDuoProvider(): boolean {
+    return (
+      this.selectedProviderType === TwoFactorProviderType.Duo ||
+      this.selectedProviderType === TwoFactorProviderType.OrganizationDuo
+    );
+  }
+
   constructor(
-    protected authService: AuthService,
+    protected loginStrategyService: LoginStrategyServiceAbstraction,
     protected router: Router,
     protected i18nService: I18nService,
     protected apiService: ApiService,
@@ -72,7 +84,8 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
     protected twoFactorService: TwoFactorService,
     protected appIdService: AppIdService,
     protected loginService: LoginService,
-    protected configService: ConfigServiceAbstraction
+    protected ssoLoginService: SsoLoginServiceAbstraction,
+    protected configService: ConfigServiceAbstraction,
   ) {
     super(environmentService, i18nService, platformUtilsService);
     this.webAuthnSupported = this.platformUtilsService.supportsWebAuthn(win);
@@ -80,6 +93,8 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
 
   async ngOnInit() {
     if (!this.authing || this.twoFactorService.getProviders() == null) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate([this.loginRoute]);
       return;
     }
@@ -104,6 +119,8 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
         this.i18nService,
         (token: string) => {
           this.token = token;
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.submit();
         },
         (error: string) => {
@@ -113,7 +130,7 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
           if (info === "ready") {
             this.webAuthnReady = true;
           }
-        }
+        },
       );
     }
 
@@ -145,20 +162,42 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
         break;
       case TwoFactorProviderType.Duo:
       case TwoFactorProviderType.OrganizationDuo:
-        setTimeout(() => {
-          DuoWebSDK.init({
-            iframe: undefined,
-            host: providerData.Host,
-            sig_request: providerData.Signature,
-            submit_callback: async (f: HTMLFormElement) => {
-              const sig = f.querySelector('input[name="sig_response"]') as HTMLInputElement;
-              if (sig != null) {
-                this.token = sig.value;
-                await this.submit();
-              }
-            },
-          });
-        }, 0);
+        // 2 Duo 2FA flows available
+        // 1. Duo Web SDK (iframe) - existing, to be deprecated
+        // 2. Duo Frameless (new tab) - new
+
+        // AuthUrl only exists for new Duo Frameless flow
+        if (providerData.AuthUrl) {
+          this.duoFrameless = true;
+          // Setup listener for duo-redirect.ts connector to send back the code
+
+          if (!this.duoResultListenerInitialized) {
+            // setup client specific duo result listener
+            this.setupDuoResultListener();
+            this.duoResultListenerInitialized = true;
+          }
+
+          // flow must be launched by user so they can choose to remember the device or not.
+          this.duoFramelessUrl = providerData.AuthUrl;
+        } else {
+          // Duo Web SDK (iframe) flow
+          // TODO: remove when we remove the "duo-redirect" feature flag
+          setTimeout(() => {
+            DuoWebSDK.init({
+              iframe: undefined,
+              host: providerData.Host,
+              sig_request: providerData.Signature,
+              submit_callback: async (f: HTMLFormElement) => {
+                const sig = f.querySelector('input[name="sig_response"]') as HTMLInputElement;
+                if (sig != null) {
+                  this.token = sig.value;
+                  await this.submit();
+                }
+              },
+            });
+          }, 0);
+        }
+
         break;
       case TwoFactorProviderType.Email:
         this.twoFactorEmail = providerData.Email;
@@ -178,7 +217,7 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccurred"),
-        this.i18nService.t("verificationCodeRequired")
+        this.i18nService.t("verificationCodeRequired"),
       );
       return;
     }
@@ -206,9 +245,9 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
   }
 
   async doSubmit() {
-    this.formPromise = this.authService.logInTwoFactor(
+    this.formPromise = this.loginStrategyService.logInTwoFactor(
       new TokenTwoFactorRequest(this.selectedProviderType, this.token, this.remember),
-      this.captchaToken
+      this.captchaToken,
     );
     const authResult: AuthResult = await this.formPromise;
 
@@ -223,10 +262,13 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
     this.platformUtilsService.showToast(
       "error",
       this.i18nService.t("errorOccured"),
-      this.i18nService.t("encryptionKeyMigrationRequired")
+      this.i18nService.t("encryptionKeyMigrationRequired"),
     );
     return true;
   }
+
+  // Each client will have own implementation
+  protected setupDuoResultListener(): void {}
 
   private async handleLoginResponse(authResult: AuthResult) {
     if (this.handleCaptchaRequired(authResult)) {
@@ -238,9 +280,13 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
     // Save off the OrgSsoIdentifier for use in the TDE flows
     // - TDE login decryption options component
     // - Browser SSO on extension open
-    await this.stateService.setUserSsoOrganizationIdentifier(this.orgIdentifier);
-
+    await this.ssoLoginService.setActiveUserOrganizationSsoIdentifier(this.orgIdentifier);
     this.loginService.clearValues();
+
+    // note: this flow affects both TDE & standard users
+    if (this.isForcePasswordResetRequired(authResult)) {
+      return await this.handleForcePasswordReset(this.orgIdentifier);
+    }
 
     const acctDecryptionOpts: AccountDecryptionOptions =
       await this.stateService.getAccountDecryptionOptions();
@@ -251,7 +297,7 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
       return await this.handleTrustedDeviceEncryptionEnabled(
         authResult,
         this.orgIdentifier,
-        acctDecryptionOpts
+        acctDecryptionOpts,
       );
     }
 
@@ -264,63 +310,50 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
       return await this.handleChangePasswordRequired(this.orgIdentifier);
     }
 
-    // Users can be forced to reset their password via an admin or org policy
-    // disallowing weak passwords
-    if (authResult.forcePasswordReset !== ForceResetPasswordReason.None) {
-      return await this.handleForcePasswordReset(this.orgIdentifier);
-    }
-
     return await this.handleSuccessfulLogin();
   }
 
   private async isTrustedDeviceEncEnabled(
-    trustedDeviceOption: TrustedDeviceUserDecryptionOption
+    trustedDeviceOption: TrustedDeviceUserDecryptionOption,
   ): Promise<boolean> {
     const ssoTo2faFlowActive = this.route.snapshot.queryParamMap.get("sso") === "true";
-    const trustedDeviceEncryptionFeatureActive = await this.configService.getFeatureFlag<boolean>(
-      FeatureFlag.TrustedDeviceEncryption
-    );
 
-    return (
-      ssoTo2faFlowActive &&
-      trustedDeviceEncryptionFeatureActive &&
-      trustedDeviceOption !== undefined
-    );
+    return ssoTo2faFlowActive && trustedDeviceOption !== undefined;
   }
 
   private async handleTrustedDeviceEncryptionEnabled(
     authResult: AuthResult,
     orgIdentifier: string,
-    acctDecryptionOpts: AccountDecryptionOptions
+    acctDecryptionOpts: AccountDecryptionOptions,
   ): Promise<void> {
     // If user doesn't have a MP, but has reset password permission, they must set a MP
     if (
       !acctDecryptionOpts.hasMasterPassword &&
       acctDecryptionOpts.trustedDeviceOption.hasManageResetPasswordPermission
     ) {
-      // Change implies going no password -> password in this case
-      return await this.handleChangePasswordRequired(orgIdentifier);
-    }
-
-    // Users can be forced to reset their password via an admin or org policy disallowing weak passwords
-    // Note: this is different from SSO component login flow as a user can
-    // login with MP and then have to pass 2FA to finish login and we can actually
-    // evaluate if they have a weak password at this time.
-    if (authResult.forcePasswordReset !== ForceResetPasswordReason.None) {
-      return await this.handleForcePasswordReset(orgIdentifier);
+      // Set flag so that auth guard can redirect to set password screen after decryption (trusted or untrusted device)
+      // Note: we cannot directly navigate to the set password screen in this scenario as we are in a pre-decryption state, and
+      // if you try to set a new MP before decrypting, you will invalidate the user's data by making a new user key.
+      await this.stateService.setForceSetPasswordReason(
+        ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission,
+      );
     }
 
     if (this.onSuccessfulLoginTde != null) {
       // Note: awaiting this will currently cause a hang on desktop & browser as they will wait for a full sync to complete
       // before navigating to the success route.
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.onSuccessfulLoginTde();
     }
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.navigateViaCallbackOrRoute(
       this.onSuccessfulLoginTdeNavigate,
       // Navigate to TDE page (if user was on trusted device and TDE has decrypted
       //  their user key, the login-initiated guard will redirect them to the vault)
-      [this.trustedDeviceEncRoute]
+      [this.trustedDeviceEncRoute],
     );
   }
 
@@ -332,7 +365,28 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
     });
   }
 
+  /**
+   * Determines if a user needs to reset their password based on certain conditions.
+   * Users can be forced to reset their password via an admin or org policy disallowing weak passwords.
+   * Note: this is different from the SSO component login flow as a user can
+   * login with MP and then have to pass 2FA to finish login and we can actually
+   * evaluate if they have a weak password at that time.
+   *
+   * @param {AuthResult} authResult - The authentication result.
+   * @returns {boolean} Returns true if a password reset is required, false otherwise.
+   */
+  private isForcePasswordResetRequired(authResult: AuthResult): boolean {
+    const forceResetReasons = [
+      ForceSetPasswordReason.AdminForcePasswordReset,
+      ForceSetPasswordReason.WeakMasterPassword,
+    ];
+
+    return forceResetReasons.includes(authResult.forcePasswordReset);
+  }
+
   private async handleForcePasswordReset(orgIdentifier: string) {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate([this.forcePasswordResetRoute], {
       queryParams: {
         identifier: orgIdentifier,
@@ -344,6 +398,8 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
     if (this.onSuccessfulLogin != null) {
       // Note: awaiting this will currently cause a hang on desktop & browser as they will wait for a full sync to complete
       // before navigating to the success route.
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.onSuccessfulLogin();
     }
     await this.navigateViaCallbackOrRoute(this.onSuccessfulLoginNavigate, [this.successRoute]);
@@ -352,7 +408,7 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
   private async navigateViaCallbackOrRoute(
     callback: () => Promise<unknown>,
     commands: unknown[],
-    extras?: NavigationExtras
+    extras?: NavigationExtras,
   ): Promise<void> {
     if (callback) {
       await callback();
@@ -370,30 +426,30 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
       return;
     }
 
-    if (this.authService.email == null) {
+    if (this.loginStrategyService.email == null) {
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccurred"),
-        this.i18nService.t("sessionTimeout")
+        this.i18nService.t("sessionTimeout"),
       );
       return;
     }
 
     try {
       const request = new TwoFactorEmailRequest();
-      request.email = this.authService.email;
-      request.masterPasswordHash = this.authService.masterPasswordHash;
-      request.ssoEmail2FaSessionToken = this.authService.ssoEmail2FaSessionToken;
+      request.email = this.loginStrategyService.email;
+      request.masterPasswordHash = this.loginStrategyService.masterPasswordHash;
+      request.ssoEmail2FaSessionToken = this.loginStrategyService.ssoEmail2FaSessionToken;
       request.deviceIdentifier = await this.appIdService.getAppId();
-      request.authRequestAccessCode = this.authService.accessCode;
-      request.authRequestId = this.authService.authRequestId;
+      request.authRequestAccessCode = this.loginStrategyService.accessCode;
+      request.authRequestId = this.loginStrategyService.authRequestId;
       this.emailPromise = this.apiService.postTwoFactorEmail(request);
       await this.emailPromise;
       if (doToast) {
         this.platformUtilsService.showToast(
           "success",
           null,
-          this.i18nService.t("verificationCodeEmailSent", this.twoFactorEmail)
+          this.i18nService.t("verificationCodeEmailSent", this.twoFactorEmail),
         );
       }
     } catch (e) {
@@ -422,14 +478,20 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
 
   get authing(): boolean {
     return (
-      this.authService.authingWithPassword() ||
-      this.authService.authingWithSso() ||
-      this.authService.authingWithUserApiKey() ||
-      this.authService.authingWithPasswordless()
+      this.loginStrategyService.authingWithPassword() ||
+      this.loginStrategyService.authingWithSso() ||
+      this.loginStrategyService.authingWithUserApiKey() ||
+      this.loginStrategyService.authingWithPasswordless()
     );
   }
 
   get needsLock(): boolean {
-    return this.authService.authingWithSso() || this.authService.authingWithUserApiKey();
+    return (
+      this.loginStrategyService.authingWithSso() ||
+      this.loginStrategyService.authingWithUserApiKey()
+    );
   }
+
+  // implemented in clients
+  launchDuoFrameless() {}
 }

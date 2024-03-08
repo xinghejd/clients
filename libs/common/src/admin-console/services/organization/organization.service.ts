@@ -1,6 +1,8 @@
 import { BehaviorSubject, concatMap, map, Observable } from "rxjs";
+import { Jsonify } from "type-fest";
 
 import { StateService } from "../../../platform/abstractions/state.service";
+import { KeyDefinition, ORGANIZATIONS_DISK, StateProvider } from "../../../platform/state";
 import {
   InternalOrganizationServiceAbstraction,
   isMember,
@@ -8,13 +10,37 @@ import {
 import { OrganizationData } from "../../models/data/organization.data";
 import { Organization } from "../../models/domain/organization";
 
-export class OrganizationService implements InternalOrganizationServiceAbstraction {
-  protected _organizations = new BehaviorSubject<Organization[]>([]);
+export const ORGANIZATIONS = KeyDefinition.record<OrganizationData>(
+  ORGANIZATIONS_DISK,
+  "organizations",
+  {
+    deserializer: (obj: Jsonify<OrganizationData>) => OrganizationData.fromJSON(obj),
+  },
+);
 
+export class OrganizationService implements InternalOrganizationServiceAbstraction {
+  // marked for removal during AC-2009
+  protected _organizations = new BehaviorSubject<Organization[]>([]);
+  // marked for removal during AC-2009
   organizations$ = this._organizations.asObservable();
+  // marked for removal during AC-2009
   memberOrganizations$ = this.organizations$.pipe(map((orgs) => orgs.filter(isMember)));
 
-  constructor(private stateService: StateService) {
+  activeUserOrganizations$: Observable<Organization[]>;
+  activeUserMemberOrganizations$: Observable<Organization[]>;
+
+  constructor(
+    private stateService: StateService,
+    private stateProvider: StateProvider,
+  ) {
+    this.activeUserOrganizations$ = this.stateProvider
+      .getActive(ORGANIZATIONS)
+      .state$.pipe(map((data) => Object.values(data).map((o) => new Organization(o))));
+
+    this.activeUserMemberOrganizations$ = this.activeUserOrganizations$.pipe(
+      map((orgs) => orgs.filter(isMember)),
+    );
+
     this.stateService.activeAccountUnlocked$
       .pipe(
         concatMap(async (unlocked) => {
@@ -25,7 +51,7 @@ export class OrganizationService implements InternalOrganizationServiceAbstracti
 
           const data = await this.stateService.getOrganizations();
           this.updateObservables(data);
-        })
+        }),
       )
       .subscribe();
   }
@@ -42,7 +68,7 @@ export class OrganizationService implements InternalOrganizationServiceAbstracti
   async canManageSponsorships(): Promise<boolean> {
     const organizations = this._organizations.getValue();
     return organizations.some(
-      (o) => o.familySponsorshipAvailable || o.familySponsorshipFriendlyName !== null
+      (o) => o.familySponsorshipAvailable || o.familySponsorshipFriendlyName !== null,
     );
   }
 

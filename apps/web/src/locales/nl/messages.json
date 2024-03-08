@@ -611,6 +611,96 @@
   "loginWithMasterPassword": {
     "message": "Inloggen met je hoofdwachtwoord"
   },
+  "readingPasskeyLoading": {
+    "message": "Passkey uitlezen..."
+  },
+  "readingPasskeyLoadingInfo": {
+    "message": "Houd dit venster open en volg de aanwijzingen van je browser."
+  },
+  "useADifferentLogInMethod": {
+    "message": "Gebruik een andere loginmethode"
+  },
+  "loginWithPasskey": {
+    "message": "Inloggen met passkey"
+  },
+  "invalidPasskeyPleaseTryAgain": {
+    "message": "Ongeldige passkey. Probeer het opnieuw."
+  },
+  "twoFactorForPasskeysNotSupportedOnClientUpdateToLogIn": {
+    "message": "2FA voor passkeys is niet ondersteund. Werk de app bij om in te loggen."
+  },
+  "loginWithPasskeyInfo": {
+    "message": "Gebruik een gegenereerde passkey die je automatisch inlogt zonder wachtwoord. Biometrie, zoals gezichtsherkenning of vingerafdruk, of een andere FIDO2-beveiligingsmethode controleren je identiteit."
+  },
+  "newPasskey": {
+    "message": "Nieuwe passkey"
+  },
+  "learnMoreAboutPasswordless": {
+    "message": "Meer lezen over wachtwoordloos"
+  },
+  "creatingPasskeyLoading": {
+    "message": "Passkey aanmaken..."
+  },
+  "creatingPasskeyLoadingInfo": {
+    "message": "Houd dit venster open en volg de aanwijzingen van je browser."
+  },
+  "errorCreatingPasskey": {
+    "message": "Fout bij het aanmaken van passkey"
+  },
+  "errorCreatingPasskeyInfo": {
+    "message": "Er ging iets mis met het aanmaken van je passkey."
+  },
+  "passkeySuccessfullyCreated": {
+    "message": "Passkey succesvol aangemaakt!"
+  },
+  "customPasskeyNameInfo": {
+    "message": "Geef je passkey een naam om deze later te herkennen."
+  },
+  "useForVaultEncryption": {
+    "message": "Use for vault encryption"
+  },
+  "useForVaultEncryptionInfo": {
+    "message": "Log in and unlock on supported devices without your master password. Follow the prompts from your browser to finalize setup."
+  },
+  "useForVaultEncryptionErrorReadingPasskey": {
+    "message": "Error reading passkey. Try again or uncheck this option."
+  },
+  "encryptionNotSupported": {
+    "message": "Encryptie niet ondersteund"
+  },
+  "enablePasskeyEncryption": {
+    "message": "Versleuteling instellen"
+  },
+  "usedForEncryption": {
+    "message": "Gebruikt voor versleuteling"
+  },
+  "loginWithPasskeyEnabled": {
+    "message": "Inloggen met passkey ingeschakeld"
+  },
+  "passkeySaved": {
+    "message": "$NAME$ opgeslagen",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Personal yubikey"
+      }
+    }
+  },
+  "passkeyRemoved": {
+    "message": "Passkey verwijderd"
+  },
+  "removePasskey": {
+    "message": "Passkey verwijderen"
+  },
+  "removePasskeyInfo": {
+    "message": "Als je alle passkeys verwijdert, heb je je hoofdwachtwoord nodig om op nieuwe apparaten in te loggen."
+  },
+  "passkeyLimitReachedInfo": {
+    "message": "Limiet van passkeys bereikt. Verwijder een passkey om een andere toe te voegen."
+  },
+  "tryAgain": {
+    "message": "Opnieuw proberen"
+  },
   "createAccount": {
     "message": "Account aanmaken"
   },
@@ -978,6 +1068,9 @@
   "export": {
     "message": "Exporteren"
   },
+  "exportFrom": {
+    "message": "Exporteren vanuit"
+  },
   "exportVault": {
     "message": "Kluis exporteren"
   },
@@ -1053,6 +1146,9 @@
   },
   "length": {
     "message": "Lengte"
+  },
+  "passwordMinLength": {
+    "message": "Minimale wachtwoordlengte"
   },
   "uppercase": {
     "message": "Hoofdletters (A-Z)",
@@ -1251,6 +1347,22 @@
   "importData": {
     "message": "Gegevens importeren"
   },
+  "onboardingImportDataDetailsPartOne": {
+    "message": "Als je geen gegevens om te importeren hebt, kun je een ",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsLink": {
+    "message": "nieuw item",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsPartTwoNoOrgs": {
+    "message": " aanmaken.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
+  },
+  "onboardingImportDataDetailsPartTwoWithOrgs": {
+    "message": " aanmaken. Je moet misschien wachten tot je beheerder je organisatielidmaatschap bevestigt.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+  },
   "importError": {
     "message": "Fout bij importeren"
   },
@@ -1364,13 +1476,6 @@
   "faviconDesc": {
     "message": "Een herkenbare afbeelding naast iedere login weergeven."
   },
-  "enableFullWidth": {
-    "message": "Weergave op volle breedte inschakelen",
-    "description": "Allows scaling the web vault UI's width"
-  },
-  "enableFullWidthDesc": {
-    "message": "Laat de webkluis de volledige breedte van het browservenster gebruiken."
-  },
   "default": {
     "message": "Standaard"
   },
@@ -1478,6 +1583,9 @@
   },
   "manage": {
     "message": "Beheren"
+  },
+  "canManage": {
+    "message": "Kan beheren"
   },
   "disable": {
     "message": "Uitschakelen"
@@ -2211,6 +2319,9 @@
   "contactSupport": {
     "message": "Neem contact op met de klantondersteuning"
   },
+  "contactSupportShort": {
+    "message": "Contact met ondersteuning"
+  },
   "updatedPaymentMethod": {
     "message": "Betaalmethode bijgewerkt."
   },
@@ -2311,6 +2422,9 @@
   },
   "planDescTeams": {
     "message": "Voor bedrijven en andere team-organisaties."
+  },
+  "planNameTeamsStarter": {
+    "message": "Teams Starter"
   },
   "planNameEnterprise": {
     "message": "Enterprise"
@@ -2416,6 +2530,15 @@
   },
   "trialThankYou": {
     "message": "Bedankt voor het aanmelden voor Bitwarden voor $PLAN$!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
+  "trialSecretsManagerThankYou": {
+    "message": "Bedankt voor het aanmelden voor Bitwarden Secrets Manager voor $PLAN$!",
     "placeholders": {
       "plan": {
         "content": "$1",
@@ -2672,6 +2795,9 @@
   "webVault": {
     "message": "Webkluis"
   },
+  "cli": {
+    "message": "CLI"
+  },
   "bitWebVault": {
     "message": "Bitwarden Webkluis"
   },
@@ -2704,6 +2830,9 @@
   },
   "incorrectCode": {
     "message": "Onjuiste code"
+  },
+  "incorrectPin": {
+    "message": "Pincode onjuist"
   },
   "exportedVault": {
     "message": "Kluis geëxporteerd."
@@ -3395,6 +3524,9 @@
   "subscriptionUpdated": {
     "message": "Abonnement bijgewerkt"
   },
+  "subscribedToSecretsManager": {
+    "message": "Abonnement bijgewerkt. Je heb nu toegang tot Secrets Manager."
+  },
   "additionalOptions": {
     "message": "Extra opties"
   },
@@ -3413,6 +3545,15 @@
       }
     }
   },
+  "subscriptionUserSeatsWithoutAdditionalSeatsOption": {
+    "message": "Je kunt zonder extra kosten tot $COUNT$ leden uitnodigen. Neem contact op met de klantenondersteuning voor uitbreiding van je abonnement om meer leden uit te nodigen.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
   "subscriptionFreePlan": {
     "message": "Je kunt niet meer dan $COUNT$ gebruikers uitnodigen zonder je abonnement te upgraden.",
     "placeholders": {
@@ -3422,12 +3563,12 @@
       }
     }
   },
-  "subscriptionFamiliesPlan": {
-    "message": "U kunt niet meer dan $COUNT$ leden uitnodigen zonder uw abonnement te upgraden. Neem contact op met Customer Support om te upgraden.",
+  "subscriptionUpgrade": {
+    "message": "Je kunt niet meer dan $COUNT$ gebruikers uitnodigen zonder je abonnement te upgraden.",
     "placeholders": {
       "count": {
         "content": "$1",
-        "example": "6"
+        "example": "2"
       }
     }
   },
@@ -3572,6 +3713,18 @@
   "organizationIsDisabled": {
     "message": "Organisatie uitgeschakeld."
   },
+  "secretsAccessSuspended": {
+    "message": "Opgeschorte organisaties zijn niet toegankelijk. Neem contact op met de eigenaar van je organisatie voor hulp."
+  },
+  "secretsCannotCreate": {
+    "message": "Je kunt geen secrets aanmaken in opgeschorte organisaties. Neem contact op met de eigenaar van je organisatie voor hulp."
+  },
+  "projectsCannotCreate": {
+    "message": "Je kunt geen projecten aanmaken in opgeschorte organisaties. Neem contact op met de eigenaar van je organisatie voor hulp."
+  },
+  "serviceAccountsCannotCreate": {
+    "message": "Je kunt geen service accounts aanmaken in opgeschorte organisaties. Neem contact op met de eigenaar van je organisatie voor hulp."
+  },
   "disabledOrganizationFilterError": {
     "message": "Je kunt uitgeschakelde items in een organisatie niet benaderen. Neem contact op met de eigenaar van je organisatie voor hulp."
   },
@@ -3689,15 +3842,6 @@
   },
   "couldNotChargeCardPayInvoice": {
     "message": "We konden geen kosten op je kaart in rekening brengen. Bekijk en betaal onderstaande openstaande factuur."
-  },
-  "inAppPurchase": {
-    "message": "In-app aankoop"
-  },
-  "cannotPerformInAppPurchase": {
-    "message": "Je kunt deze actie niet uitvoeren tijdens de uitvoering van een in-app aankoop."
-  },
-  "manageSubscriptionFromStore": {
-    "message": "Je moet je abonnement beheren vanuit de winkel waar je in-app aankoop is gemaakt."
   },
   "minLength": {
     "message": "Minimale lengte"
@@ -3881,9 +4025,6 @@
   "setMasterPassword": {
     "message": "Hoofdwachtwoord instellen"
   },
-  "ssoCompleteRegistration": {
-    "message": "Voor het inloggen met SSO moet je een hoofdwachtwoord instellen voor toegang tot en bescherming van je kluis."
-  },
   "identifier": {
     "message": "Identificatie"
   },
@@ -3899,8 +4040,29 @@
   "ssoHandOff": {
     "message": "Je kunt dit tabblad nu sluiten en doorgaan in de extensie."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "You successfully logged in"
+  },
+  "thisWindowWillCloseIn5Seconds": {
+    "message": "This window will automatically close in 5 seconds"
+  },
   "includeAllTeamsFeatures": {
     "message": "Alle functionaliteit van Teams plus:"
+  },
+  "includeAllTeamsStarterFeatures": {
+    "message": "Alle functionaliteit van Teams Starter, plus:"
+  },
+  "chooseMonthlyOrAnnualBilling": {
+    "message": "Maandelijkse of jaarlijkse betaling kiezen"
+  },
+  "abilityToAddMoreThanNMembers": {
+    "message": "Mogelijkheid voor het toevoegen van meer dan $COUNT$ leden",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
   },
   "includeSsoAuthentication": {
     "message": "SSO-authenticatie via SAML2.0 en OpenID Connect"
@@ -3917,8 +4079,9 @@
   "ssoIdentifier": {
     "message": "SSO Identifier"
   },
-  "ssoIdentifierHint": {
-    "message": "Geef dit ID aan je leden door voor het inloggen met SSO."
+  "ssoIdentifierHintPartOne": {
+    "message": "Geef dit ID aan je leden voor inloggen met SSO. Om deze stap te omzeilen, configureer je ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Provide this ID to your members to login with SSO. To bypass this step, set up Domain verification'"
   },
   "unlinkSso": {
     "message": "SSO ontkoppelen"
@@ -4088,8 +4251,8 @@
     "message": "Deze Send is standaard verborgen. Je kunt de zichtbaarheid ervan in- en uitschakelen met de knop hieronder.",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
-  "downloadFile": {
-    "message": "Bestand downloaden"
+  "downloadAttachments": {
+    "message": "Bijlagen downloaden"
   },
   "sendAccessUnavailable": {
     "message": "De Send die je probeert te benaderen is niet (langer) beschikbaar.",
@@ -4406,7 +4569,7 @@
     "message": "Een organisatiebeleid heeft invloed op je eigendomsopties."
   },
   "personalOwnershipPolicyInEffectImports": {
-    "message": "Een organisatiebeleid heeft het importeren van items in je persoonlijke kluis uitgeschakeld."
+    "message": "Organisatiebeleid heeft het importeren van items in je persoonlijke kluis geblokkeerd."
   },
   "personalOwnershipCheckboxDesc": {
     "message": "Schakel persoonlijke eigendom uit voor organisatiegebruikers"
@@ -4479,8 +4642,8 @@
     "message": "om het vandaag te proberen.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Learn more about Bitwarden Send or sign up to **try it today.**'"
   },
-  "sendCreatorIdentifier": {
-    "message": "Bitwarden-gebruiker $USER_IDENTIFIER$ heeft het volgende met je gedeeld",
+  "sendAccessCreatorIdentifier": {
+    "message": "Bitwarden-lid $USER_IDENTIFIER$ heeft het volgende met je gedeeld",
     "placeholders": {
       "user_identifier": {
         "content": "$1",
@@ -4784,6 +4947,9 @@
   "newClientOrganizationDesc": {
     "message": "Maak een nieuwe klantorganisatie aan die aan jou als provider zal worden gekoppeld. Je kunt toegang krijgen tot en deze organisatie beheren."
   },
+  "newClient": {
+    "message": "Nieuwe app"
+  },
   "addExistingOrganization": {
     "message": "Bestaande organisatie toevoegen"
   },
@@ -5036,6 +5202,12 @@
   },
   "spValidateCertificates": {
     "message": "Validate Certificates"
+  },
+  "spUniqueEntityId": {
+    "message": "Een unieke SP-entiteit-ID instellen"
+  },
+  "spUniqueEntityIdDesc": {
+    "message": "Identificatie die uniek is voor je organisatie genereren"
   },
   "idpEntityId": {
     "message": "Entity ID"
@@ -5406,6 +5578,19 @@
   "required": {
     "message": "vereist"
   },
+  "charactersCurrentAndMaximum": {
+    "message": "$CURRENT$/$MAX$ maximum aantal tekens",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "0"
+      },
+      "max": {
+        "content": "$2",
+        "example": "100"
+      }
+    }
+  },
   "characterMaximum": {
     "message": "Maximaal $MAX$ tekens",
     "placeholders": {
@@ -5748,11 +5933,23 @@
       }
     }
   },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Start DUO en volg de stappen om in te loggen."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "DUO tweestapsaanmelding is vereist voor jouw account."
+  },
+  "launchDuo": {
+    "message": "DUO starten"
+  },
   "turnOn": {
     "message": "Inschakelen"
   },
   "on": {
     "message": "Aan"
+  },
+  "off": {
+    "message": "Uit"
   },
   "members": {
     "message": "Leden"
@@ -6443,11 +6640,44 @@
       }
     }
   },
-  "membersColumnHeader": {
-    "message": "Lid/Groep"
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Deze actie vereist verificatie actie. Stel een pincode in om door te gaan."
   },
-  "groupAndMemberColumnHeader": {
+  "setPin": {
+    "message": "Pincode instellen"
+  },
+  "verifyWithBiometrics": {
+    "message": "Biometrisch ontgrendelen"
+  },
+  "awaitingConfirmation": {
+    "message": "Wacht op bevestiging"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Kon biometrie niet afronden."
+  },
+  "needADifferentMethod": {
+    "message": "Een andere methode proberen?"
+  },
+  "useMasterPassword": {
+    "message": "Hoofdwachtwoord gebruiken"
+  },
+  "usePin": {
+    "message": "Pincode gebruiken"
+  },
+  "useBiometrics": {
+    "message": "Biometrie gebruiken"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Voer de verificatiecode in die naar je e-mail is gestuurd."
+  },
+  "resendCode": {
+    "message": "Code opnieuw sturen"
+  },
+  "memberColumnHeader": {
     "message": "Lid"
+  },
+  "groupSlashMemberColumnHeader": {
+    "message": "Groep/Lid"
   },
   "selectGroupsAndMembers": {
     "message": "Groepen en leden selecteren"
@@ -6497,6 +6727,24 @@
       "seatcount": {
         "content": "$1",
         "example": "2"
+      }
+    }
+  },
+  "teamsStarterPlanInvLimitReachedManageBilling": {
+    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Upgrade to your plan to invite more members.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
+      }
+    }
+  },
+  "teamsStarterPlanInvLimitReachedNoManageBilling": {
+    "message": "Teams Starter-plannen gaan tot $SEATCOUNT$ leden. Neem contact op met de eigenaar van je organisatie voor het uitbreiden van je abonnement voor het uitnodigen van meer leden.",
+    "placeholders": {
+      "seatcount": {
+        "content": "$1",
+        "example": "10"
       }
     }
   },
@@ -6635,9 +6883,6 @@
   "secretsManager": {
     "message": "Secrets Manager"
   },
-  "secretsManagerBeta": {
-    "message": "Secrets Manager Bèta"
-  },
   "secretsManagerAccessDescription": {
     "message": "Gebruikerstoegang tot Secrets Manager inschakelen."
   },
@@ -6684,6 +6929,9 @@
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
+  },
+  "createAnAccount": {
+    "message": "Account aanmaken"
   },
   "createSecret": {
     "message": "Geheim aanmaken"
@@ -6740,12 +6988,6 @@
   },
   "selectionIsRequired": {
     "message": "Selectie vereist."
-  },
-  "secretsManagerSubscriptionDesc": {
-    "message": "Organisatietoegang tot de Secrets Manager inschakelen is gratis tijdens het bètaprogramma. Gebruikers kunnen toegang tot de Bèta krijgen in Leden."
-  },
-  "secretsManagerEnable": {
-    "message": "Secrets Manager Bèta inschakelen"
   },
   "saPeopleWarningTitle": {
     "message": "Toegangstokens nog beschikbaar"
@@ -6890,6 +7132,14 @@
     "message": "beleid met automatische inschrijving wordt ingeschakeld wanneer je deze optie gebruikt.",
     "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'Once authenticated, members will decrypt vault data using a key stored on their device. The single organization policy, SSO required policy, and account recovery administration policy with automatic enrollment will turn on when this option is used.'"
   },
+  "orgPermissionsUpdatedMustSetPassword": {
+    "message": "De organisatierechten zijn bijgewerkt, je moet een hoofdwachtwoord instellen.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "orgRequiresYouToSetPassword": {
+    "message": "Je organisatie vereist dat je een hoofdwachtwoord instelt.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
   "notFound": {
     "message": "$RESOURCE$ niet gevonden",
     "placeholders": {
@@ -6898,6 +7148,10 @@
         "example": "Service Account"
       }
     }
+  },
+  "verificationRequired": {
+    "message": "Verificatie vereist",
+    "description": "Default title for the user verification dialog."
   },
   "recoverAccount": {
     "message": "Account herstellen"
@@ -7007,8 +7261,20 @@
       }
     }
   },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerFor": {
+    "message": "Begin je gratis 7-daagse proefperiode van Bitwarden Secrets Manager voor $ORG$",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
   "next": {
     "message": "Volgende"
+  },
+  "ssoLoginIsRequired": {
+    "message": "SSO login is required"
   },
   "selectedRegionFlag": {
     "message": "Geselecteerde regionale vlag"
@@ -7096,8 +7362,8 @@
       }
     }
   },
-  "addSecretsManager": {
-    "message": "Secrets Manager toevoegen"
+  "subscribeToSecretsManager": {
+    "message": "Abonneren op Secrets Manager"
   },
   "addSecretsManagerUpgradeDesc": {
     "message": "Secrets Manager toevoegen aan je geüpgraded abonnement zodat je toegang houdt tot geheimen die met je vorige abonnement zijn aangemaakt."
@@ -7122,6 +7388,21 @@
         "example": "$0.50"
       }
     }
+  },
+  "collectionManagement": {
+    "message": "Collectiebeheer"
+  },
+  "collectionManagementDesc": {
+    "message": "Het gedrag van de collectie beheren voor de organisatie"
+  },
+  "limitCollectionCreationDeletionDesc": {
+    "message": "Aanmaken en verwijderen van collecties tot eigenaren en managers beperken"
+  },
+  "allowAdminAccessToAllCollectionItemsDesc": {
+    "message": "Eigenaren en beheerders kunnen alle collecties en items beheren"
+  },
+  "updatedCollectionManagement": {
+    "message": "Instelling collectiebeheer bijgewerkt"
   },
   "passwordManagerPlanPrice": {
     "message": "Abonnementskosten wachtwoordbeheerder"
@@ -7150,24 +7431,14 @@
   "loggedInExclamation": {
     "message": "Ingelogd!"
   },
-  "smBetaEndedDesc": {
-    "message": "De Secrets Manager Beta eindigde $BETA_ENDING_DATE$. Je hebt nog $DAYS$ dagen over voor het toevoegen van Secrets Manager aan je betaalde abonnement en toegang te houden tot de gegevens in Secrets Manager. Neem contact op met Customer Success voor het toevoegen van Secrets Manager aan je abonnement.",
-    "placeholders": {
-      "beta_ending_date": {
-        "content": "$1",
-        "example": "August 1, 2023"
-      },
-      "days": {
-        "content": "$2",
-        "example": "11"
-      }
-    }
-  },
-  "betaEnding": {
-    "message": "Beta beëindigd"
-  },
   "beta": {
     "message": "Beta"
+  },
+  "assignCollectionAccess": {
+    "message": "Toegang collectie toewijzen"
+  },
+  "editedCollections": {
+    "message": "Bewerkte collecties"
   },
   "baseUrl": {
     "message": "Server-URL"
@@ -7178,10 +7449,158 @@
   "alreadyHaveAccount": {
     "message": "Already have an account?"
   },
-  "customBillingStart": {
-    "message": "Aangepaste facturering is niet weergeven. Bezoek de "
+  "skipToContent": {
+    "message": "Ga naar de inhoud"
   },
-  "customBillingEnd": {
-    "message": " pagina voor laatste facturering."
+  "managePermissionRequired": {
+    "message": "Minimaal één lid of groep moet permissies kunnen beheren."
+  },
+  "typePasskey": {
+    "message": "Passkey"
+  },
+  "passkeyNotCopied": {
+    "message": "Passkey wordt niet gekopieerd"
+  },
+  "passkeyNotCopiedAlert": {
+    "message": "De passkey wordt niet gekopieerd naar het gekloonde item. Wil je doorgaan met het klonen van dit item?"
+  },
+  "modifiedCollectionManagement": {
+    "message": "Gewijzigde collectiebeheerinstelling $ID$.",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "Unique ID"
+      }
+    }
+  },
+  "seeDetailedInstructions": {
+    "message": "See detailed instructions on our help site at",
+    "description": "This is followed a by a hyperlink to the help website."
+  },
+  "installBrowserExtension": {
+    "message": "Browserextensie installeren"
+  },
+  "installBrowserExtensionDetails": {
+    "message": "Gebruik de extensie om snel logins en auto-invulformulieren op te slaan zonder de webapp te openen."
+  },
+  "projectAccessUpdated": {
+    "message": "Projecttoegang bijgewerkt"
+  },
+  "unexpectedErrorSend": {
+    "message": "Er is een onverwachte fout opgetreden tijdens het laden van deze Send. Probeer het later opnieuw."
+  },
+  "seatLimitReached": {
+    "message": "Seat limit has been reached"
+  },
+  "contactYourProvider": {
+    "message": "Contact your provider to purchase additional seats."
+  },
+  "seatLimitReachedContactYourProvider": {
+    "message": "Seat limit has been reached. Contact your provider to purchase additional seats."
+  },
+  "collectionAccessRestricted": {
+    "message": "Collectietoegang is beperkt"
+  },
+  "grantCollectionAccess": {
+    "message": "Groepen of mensen toegang tot deze collectie geven."
+  },
+  "grantCollectionAccessMembersOnly": {
+    "message": "Leden toegang tot deze collectie geven."
+  },
+  "adminCollectionAccess": {
+    "message": "Beheerders hebben toegang tot collecties en kunnen deze beheren."
+  },
+  "serviceAccountAccessUpdated": {
+    "message": "Toegang tot serviceaccount bijgewerkt"
+  },
+  "commonImportFormats": {
+    "message": "Common formats",
+    "description": "Label indicating the most common import formats"
+  },
+  "maintainYourSubscription": {
+    "message": "Om je abonnement voor $ORG$ te behouden, ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Example Inc."
+      }
+    }
+  },
+  "addAPaymentMethod": {
+    "message": "moet je een betaalmethode toevoegen",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
+  },
+  "collectionEnhancementsDesc": {
+    "message": "Voeg nieuwe instellingen en machtigingen toe voor extra flexibiliteit. Vervang de rol Beheerder door het recht \"mag beheren\" en introduceer opties die gebruikers toestaan collecties te maken en beheerderstoegang tot collecties te beperken.",
+    "description": "This describes new features and improvements for user roles and collections"
+  },
+  "collectionEnhancementsLearnMore": {
+    "message": "Meer informatie over collectiemanagement"
+  },
+  "organizationInformation": {
+    "message": "Organisatieinformatie"
+  },
+  "confirmationDetails": {
+    "message": "Bevestigingsdetails"
+  },
+  "smFreeTrialThankYou": {
+    "message": "Bedankt voor het aanmelden voor Bitwarden Secrets Manager!"
+  },
+  "smFreeTrialConfirmationEmail": {
+    "message": "We hebben een bevestiging gestuurd naar je e-mailadres "
+  },
+  "confirmCollectionEnhancementsDialogTitle": {
+    "message": "Deze actie is onomkeerbaar"
+  },
+  "confirmCollectionEnhancementsDialogContent": {
+    "message": "Als je deze functie inschakelt, vervang je de rol \"Beheerder\" door het recht \"Kan beheren\". Dit duurt eventjes. Maak geen wijzigingen aan de organisatie totdat het is afgerond. Weet je zeker dat je wilt doorgaan?"
+  },
+  "sorryToSeeYouGo": {
+    "message": "Jammer dat je weggaat! Help Bitwarden te verbeteren door te vertellen waarom je opzegt.",
+    "description": "A message shown to users as part of an offboarding survey asking them to provide more information on their subscription cancelation."
+  },
+  "selectCancellationReason": {
+    "message": "Kies een reden voor opzegging",
+    "description": "Used as a form field label for a select input on the offboarding survey."
+  },
+  "anyOtherFeedback": {
+    "message": "Wil je meer feedback geven?",
+    "description": "Used as a form field label for a textarea input on the offboarding survey."
+  },
+  "missingFeatures": {
+    "message": "Ontbrekende functies",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "movingToAnotherTool": {
+    "message": "Overstappen naar een andere tool",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooDifficultToUse": {
+    "message": "Te moeilijk te gebruiken",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "notUsingEnough": {
+    "message": "Ik gebruik het niet genoeg",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooExpensive": {
+    "message": "Te duur",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "freeForOneYear": {
+    "message": "1 jaar gratis"
+  },
+  "newWebApp": {
+    "message": "Welkom bij de nieuwe en verbeterde webapp. Meer informatie over wat er is veranderd."
+  },
+  "releaseBlog": {
+    "message": "Lees release blog"
+  },
+  "adminConsole": {
+    "message": "Beheerdersconsole"
+  },
+  "providerPortal": {
+    "message": "Providerportaal"
   }
 }

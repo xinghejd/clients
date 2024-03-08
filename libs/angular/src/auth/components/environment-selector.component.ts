@@ -4,7 +4,6 @@ import { Component, EventEmitter, OnDestroy, OnInit, Output } from "@angular/cor
 import { Router } from "@angular/router";
 import { Subject, takeUntil } from "rxjs";
 
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import {
   EnvironmentService as EnvironmentServiceAbstraction,
@@ -20,7 +19,7 @@ import {
         "void",
         style({
           opacity: 0,
-        })
+        }),
       ),
       transition(
         "void => open",
@@ -28,8 +27,8 @@ import {
           "100ms linear",
           style({
             opacity: 1,
-          })
-        )
+          }),
+        ),
       ),
       transition("* => void", animate("100ms linear", style({ opacity: 0 }))),
     ]),
@@ -37,7 +36,6 @@ import {
 })
 export class EnvironmentSelectorComponent implements OnInit, OnDestroy {
   @Output() onOpenSelfHostedSettings = new EventEmitter();
-  euServerFlagEnabled: boolean;
   isOpen = false;
   showingModal = false;
   selectedEnvironment: Region;
@@ -55,13 +53,17 @@ export class EnvironmentSelectorComponent implements OnInit, OnDestroy {
   constructor(
     protected environmentService: EnvironmentServiceAbstraction,
     protected configService: ConfigServiceAbstraction,
-    protected router: Router
+    protected router: Router,
   ) {}
 
   async ngOnInit() {
     this.configService.serverConfig$.pipe(takeUntil(this.componentDestroyed$)).subscribe(() => {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.updateEnvironmentInfo();
     });
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.updateEnvironmentInfo();
   }
 
@@ -76,6 +78,8 @@ export class EnvironmentSelectorComponent implements OnInit, OnDestroy {
       return;
     }
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.updateEnvironmentInfo();
 
     if (option === Region.SelfHosted) {
@@ -84,18 +88,19 @@ export class EnvironmentSelectorComponent implements OnInit, OnDestroy {
     }
 
     await this.environmentService.setRegion(option);
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.updateEnvironmentInfo();
   }
 
   async updateEnvironmentInfo() {
     this.selectedEnvironment = this.environmentService.selectedRegion;
-    this.euServerFlagEnabled = await this.configService.getFeatureFlag<boolean>(
-      FeatureFlag.DisplayEuEnvironmentFlag
-    );
   }
 
   close() {
     this.isOpen = false;
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.updateEnvironmentInfo();
   }
 }

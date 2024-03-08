@@ -1,7 +1,7 @@
 import { Inject, Injectable } from "@angular/core";
 
+import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
-import { AbstractThemingService } from "@bitwarden/angular/services/theming/theming.service.abstraction";
 import { EventUploadService as EventUploadServiceAbstraction } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { NotificationsService as NotificationsServiceAbstraction } from "@bitwarden/common/abstractions/notifications.service";
 import { TwoFactorService as TwoFactorServiceAbstraction } from "@bitwarden/common/auth/abstractions/two-factor.service";
@@ -17,7 +17,7 @@ import { EventUploadService } from "@bitwarden/common/services/event/event-uploa
 import { VaultTimeoutService } from "@bitwarden/common/services/vault-timeout/vault-timeout.service";
 import { SyncService as SyncServiceAbstraction } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 
-import { I18nService } from "../../platform/services/i18n.service";
+import { I18nRendererService } from "../../platform/services/i18n.renderer.service";
 import { NativeMessagingService } from "../../services/native-messaging.service";
 
 @Injectable()
@@ -37,21 +37,23 @@ export class InitService {
     private nativeMessagingService: NativeMessagingService,
     private themingService: AbstractThemingService,
     private encryptService: EncryptService,
-    private configService: ConfigService
+    private configService: ConfigService,
   ) {}
 
   init() {
     return async () => {
       this.nativeMessagingService.init();
-      await this.stateService.init();
+      await this.stateService.init({ runMigrations: false }); // Desktop will run them in main process
       await this.environmentService.setUrlsFromStorage();
       // Workaround to ignore stateService.activeAccount until URLs are set
       // TODO: Remove this when implementing ticket PM-2637
       this.environmentService.initialized = true;
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.syncService.fullSync(true);
       await this.vaultTimeoutService.init(true);
       const locale = await this.stateService.getLocale();
-      await (this.i18nService as I18nService).init(locale);
+      await (this.i18nService as I18nRendererService).init(locale);
       (this.eventUploadService as EventUploadService).init(true);
       this.twoFactorService.init();
       setTimeout(() => this.notificationsService.init(), 3000);

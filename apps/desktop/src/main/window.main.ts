@@ -8,8 +8,17 @@ import { WindowState } from "@bitwarden/common/models/domain/window-state";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
+import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 
-import { cleanUserAgent, isDev, isMacAppStore, isSnapStore } from "../utils";
+import {
+  cleanUserAgent,
+  isDev,
+  isLinux,
+  isMac,
+  isMacAppStore,
+  isSnapStore,
+  isWindows,
+} from "../utils";
 
 const mainWindowSizeKey = "mainWindowSize";
 const WindowEventHandlingDelay = 100;
@@ -18,20 +27,21 @@ export class WindowMain {
   isQuitting = false;
   isClosing = false;
 
-  private windowStateChangeTimer: NodeJS.Timer;
+  private windowStateChangeTimer: NodeJS.Timeout;
   private windowStates: { [key: string]: WindowState } = {};
   private enableAlwaysOnTop = false;
-  private session: Electron.Session;
+  session: Electron.Session;
 
   readonly defaultWidth = 950;
   readonly defaultHeight = 600;
 
   constructor(
     private stateService: StateService,
+    private biometricStateService: BiometricStateService,
     private logService: LogService,
     private storageService: AbstractStorageService,
     private argvCallback: (argv: string[]) => void = null,
-    private createWindowCallback: (win: BrowserWindow) => void
+    private createWindowCallback: (win: BrowserWindow) => void,
   ) {}
 
   init(): Promise<any> {
@@ -41,11 +51,16 @@ export class WindowMain {
       // User might have changed theme, ensure the window is updated.
       this.win.setBackgroundColor(await this.getBackgroundColor());
 
-      const crashEvent = once(this.win.webContents, "render-process-gone");
-      this.win.webContents.forcefullyCrashRenderer();
-      await crashEvent;
+      // By default some linux distro collect core dumps on crashes which gets written to disk.
+      if (!isLinux()) {
+        const crashEvent = once(this.win.webContents, "render-process-gone");
+        this.win.webContents.forcefullyCrashRenderer();
+        await crashEvent;
+      }
 
       this.win.webContents.reloadIgnoringCache();
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.session.clearCache();
     });
 
@@ -66,7 +81,7 @@ export class WindowMain {
                 }
                 this.win.focus();
               }
-              if (process.platform === "win32" || process.platform === "linux") {
+              if (isWindows() || isLinux()) {
                 if (this.argvCallback != null) {
                   this.argvCallback(argv);
                 }
@@ -77,7 +92,9 @@ export class WindowMain {
 
         // This method will be called when Electron is shutting
         // down the application.
-        app.on("before-quit", () => {
+        app.on("before-quit", async () => {
+          // Allow biometric to auto-prompt on reload
+          await this.biometricStateService.resetPromptCancelled();
           this.isQuitting = true;
         });
 
@@ -96,7 +113,7 @@ export class WindowMain {
         app.on("window-all-closed", () => {
           // On OS X it is common for applications and their menu bar
           // to stay active until the user quits explicitly with Cmd + Q
-          if (process.platform !== "darwin" || this.isQuitting || isMacAppStore()) {
+          if (!isMac() || this.isQuitting || isMacAppStore()) {
             app.quit();
           }
         });
@@ -122,7 +139,7 @@ export class WindowMain {
   async createWindow(): Promise<void> {
     this.windowStates[mainWindowSizeKey] = await this.getWindowState(
       this.defaultWidth,
-      this.defaultHeight
+      this.defaultHeight,
     );
     this.enableAlwaysOnTop = await this.stateService.getEnableAlwaysOnTop();
 
@@ -137,17 +154,19 @@ export class WindowMain {
       x: this.windowStates[mainWindowSizeKey].x,
       y: this.windowStates[mainWindowSizeKey].y,
       title: app.name,
-      icon: process.platform === "linux" ? path.join(__dirname, "/images/icon.png") : undefined,
-      titleBarStyle: process.platform === "darwin" ? "hiddenInset" : undefined,
+      icon: isLinux() ? path.join(__dirname, "/images/icon.png") : undefined,
+      titleBarStyle: isMac() ? "hiddenInset" : undefined,
       show: false,
       backgroundColor: await this.getBackgroundColor(),
       alwaysOnTop: this.enableAlwaysOnTop,
       webPreferences: {
+        preload: path.join(__dirname, "preload.js"),
         spellcheck: false,
-        nodeIntegration: true,
+        nodeIntegration: false,
         backgroundThrottling: false,
-        contextIsolation: false,
+        contextIsolation: true,
         session: this.session,
+        devTools: isDev(),
       },
     });
 
@@ -163,6 +182,8 @@ export class WindowMain {
     this.win.show();
 
     // and load the index.html of the app.
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.win.loadURL(
       url.format({
         protocol: "file:",
@@ -171,7 +192,7 @@ export class WindowMain {
       }),
       {
         userAgent: cleanUserAgent(this.win.webContents.userAgent),
-      }
+      },
     );
 
     // Open the DevTools.
