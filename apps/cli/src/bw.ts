@@ -388,17 +388,13 @@ export class Main {
       this.stateProvider,
     );
 
-    this.providerService = new ProviderService(this.stateService);
+    this.providerService = new ProviderService(this.stateProvider);
 
     this.organizationService = new OrganizationService(this.stateService, this.stateProvider);
 
     this.organizationUserService = new OrganizationUserServiceImplementation(this.apiService);
 
-    this.policyService = new PolicyService(
-      this.stateService,
-      this.stateProvider,
-      this.organizationService,
-    );
+    this.policyService = new PolicyService(this.stateProvider, this.organizationService);
 
     this.policyApiService = new PolicyApiService(this.policyService, this.apiService);
 
@@ -653,8 +649,9 @@ export class Main {
       this.cipherService.clear(userId),
       this.folderService.clear(userId),
       this.collectionService.clear(userId as UserId),
-      this.policyService.clear(userId),
+      this.policyService.clear(userId as UserId),
       this.passwordGenerationService.clear(),
+      this.providerService.save(null, userId as UserId),
     ]);
 
     await this.stateEventRunnerService.handleEvent("logout", userId as UserId);
