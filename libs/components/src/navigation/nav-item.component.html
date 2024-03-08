@@ -11,26 +11,28 @@
     }"
     class="tw-relative tw-flex tw-items-center tw-pr-4"
   >
-    <div
-      #slotStart
-      class="[&>*:focus-visible::before]:!tw-ring-text-alt2 [&>*:hover]:!tw-border-text-alt2 [&>*]:!tw-text-alt2"
-    >
-      <ng-content select="[slot=start]"></ng-content>
-    </div>
-    <!-- Default content for #slotStart (for consistent sizing) -->
-    <div
-      *ngIf="slotStart.childElementCount === 0"
-      [ngClass]="{
-        'tw-w-0': variant !== 'tree'
-      }"
-    >
-      <button
-        type="button"
-        class="tw-invisible"
-        [bitIconButton]="'bwi-angle-down'"
-        size="small"
-        aria-hidden="true"
-      ></button>
+    <div [ngClass]="[variant === 'tree' ? 'tw-py-1' : 'tw-py-2']">
+      <div
+        #slotStart
+        class="[&>*:focus-visible::before]:!tw-ring-text-alt2 [&>*:hover]:!tw-border-text-alt2 [&>*]:!tw-text-alt2"
+      >
+        <ng-content select="[slot=start]"></ng-content>
+      </div>
+      <!-- Default content for #slotStart (for consistent sizing) -->
+      <div
+        *ngIf="slotStart.childElementCount === 0"
+        [ngClass]="{
+          'tw-w-0': variant !== 'tree'
+        }"
+      >
+        <button
+          type="button"
+          class="tw-invisible"
+          [bitIconButton]="'bwi-angle-down'"
+          size="small"
+          aria-hidden="true"
+        ></button>
+      </div>
     </div>
 
     <ng-container *ngIf="route; then isAnchor; else isButton"></ng-container>
@@ -77,6 +79,7 @@
     </ng-template>
 
     <div
+      [ngClass]="[variant === 'tree' ? 'tw-py-1' : 'tw-py-2']"
       class="tw-flex tw-gap-1 [&>*:focus-visible::before]:!tw-ring-text-alt2 [&>*:hover]:!tw-border-text-alt2 [&>*]:tw-text-alt2"
     >
       <ng-content select="[slot=end]"></ng-content>
