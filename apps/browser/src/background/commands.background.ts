@@ -27,11 +27,10 @@ export default class CommandsBackground {
 
   async init() {
     BrowserApi.messageListener("commands.background", (msg: any) => {
-      if (msg.command === "unlockCompleted" && msg.data.target === "commands.background") {
-        this.processCommand(
-          msg.data.commandToRetry.message.command,
-          msg.data.commandToRetry.sender,
-        ).catch((error) => this.main.logService.error(error));
+      if (msg.command === "unlockCompleted" && msg.target === "commands.background") {
+        this.processCommand(msg.commandToRetry.message.command, msg.commandToRetry.sender).catch(
+          (error) => this.main.logService.error(error),
+        );
       }
     });
 
@@ -85,11 +84,7 @@ export default class CommandsBackground {
         },
         target: "commands.background",
       };
-      await BrowserApi.tabSendMessageData(
-        tab,
-        "addToLockedVaultPendingNotifications",
-        retryMessage,
-      );
+      await BrowserApi.sendTabMessage(tab.id, "addToLockedVaultPendingNotifications", retryMessage);
 
       await openUnlockPopout(tab);
       return;

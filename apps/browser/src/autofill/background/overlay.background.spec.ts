@@ -164,7 +164,7 @@ describe("OverlayBackground", () => {
       jest.spyOn(BrowserApi, "getTabFromCurrentWindowId").mockResolvedValueOnce(tab);
       cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher1, cipher2]);
       cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
-      jest.spyOn(BrowserApi, "tabSendMessageData").mockImplementation();
+      jest.spyOn(BrowserApi, "sendTabMessage").mockImplementation();
       jest.spyOn(overlayBackground as any, "getOverlayCipherData");
 
       await overlayBackground.updateOverlayCiphers();
@@ -186,7 +186,7 @@ describe("OverlayBackground", () => {
       cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher1, cipher2]);
       cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
       jest.spyOn(BrowserApi, "getTabFromCurrentWindowId").mockResolvedValueOnce(tab);
-      jest.spyOn(BrowserApi, "tabSendMessageData").mockImplementation();
+      jest.spyOn(BrowserApi, "sendTabMessage").mockImplementation();
 
       await overlayBackground.updateOverlayCiphers();
 
@@ -229,7 +229,7 @@ describe("OverlayBackground", () => {
           },
         ],
       });
-      expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
+      expect(BrowserApi.sendTabMessage).toHaveBeenCalledWith(
         tab,
         "updateIsOverlayCiphersPopulated",
         { isOverlayCiphersPopulated: true },
@@ -514,13 +514,13 @@ describe("OverlayBackground", () => {
         it("opens the autofill overlay by sending a message to the current tab", async () => {
           const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
           jest.spyOn(BrowserApi, "getTabFromCurrentWindowId").mockResolvedValueOnce(sender.tab);
-          jest.spyOn(BrowserApi, "tabSendMessageData").mockImplementation();
+          jest.spyOn(BrowserApi, "sendTabMessage").mockImplementation();
 
           sendExtensionRuntimeMessage({ command: "openAutofillOverlay" });
           await flushPromises();
 
-          expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
-            sender.tab,
+          expect(BrowserApi.sendTabMessage).toHaveBeenCalledWith(
+            sender.tab.id,
             "openAutofillOverlay",
             {
               isFocusingFieldElement: false,
@@ -575,7 +575,7 @@ describe("OverlayBackground", () => {
         });
 
         it("will open the add edit popout window after creating a new cipher", async () => {
-          jest.spyOn(BrowserApi, "sendMessage");
+          jest.spyOn(BrowserApi, "sendMessage").mockResolvedValue(undefined);
 
           sendExtensionRuntimeMessage(
             {
@@ -866,7 +866,7 @@ describe("OverlayBackground", () => {
 
         beforeEach(() => {
           overlayBackground["userAuthStatus"] = AuthenticationStatus.LoggedOut;
-          jest.spyOn(BrowserApi, "tabSendMessageData");
+          jest.spyOn(BrowserApi, "sendTabMessage");
           getAuthStatusSpy = jest
             .spyOn(overlayBackground as any, "getAuthStatus")
             .mockImplementation(() => {
@@ -878,25 +878,21 @@ describe("OverlayBackground", () => {
         it("updates the user's auth status but does not open the overlay", async () => {
           const message = {
             command: "unlockCompleted",
-            data: {
-              commandToRetry: { message: { command: "" } },
-            },
+            commandToRetry: { message: { command: "" } },
           };
 
           sendExtensionRuntimeMessage(message);
           await flushPromises();
 
           expect(getAuthStatusSpy).toHaveBeenCalled();
-          expect(BrowserApi.tabSendMessageData).not.toHaveBeenCalled();
+          expect(BrowserApi.sendTabMessage).not.toHaveBeenCalled();
         });
 
         it("updates user's auth status and opens the overlay if a follow up command is provided", async () => {
           const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
           const message = {
             command: "unlockCompleted",
-            data: {
-              commandToRetry: { message: { command: "openAutofillOverlay" } },
-            },
+            commandToRetry: { message: { command: "openAutofillOverlay" } },
           };
           jest.spyOn(BrowserApi, "getTabFromCurrentWindowId").mockResolvedValueOnce(sender.tab);
 
@@ -904,7 +900,7 @@ describe("OverlayBackground", () => {
           await flushPromises();
 
           expect(getAuthStatusSpy).toHaveBeenCalled();
-          expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
+          expect(BrowserApi.sendTabMessage).toHaveBeenCalledWith(
             sender.tab,
             "openAutofillOverlay",
             {
@@ -1038,11 +1034,11 @@ describe("OverlayBackground", () => {
 
       describe("closeAutofillOverlay", () => {
         it("sends a `closeOverlay` message to the sender tab", () => {
-          jest.spyOn(BrowserApi, "tabSendMessageData");
+          jest.spyOn(BrowserApi, "sendTabMessage");
 
           sendPortMessage(buttonPortSpy, { command: "closeAutofillOverlay" });
 
-          expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
+          expect(BrowserApi.sendTabMessage).toHaveBeenCalledWith(
             buttonPortSpy.sender.tab,
             "closeAutofillOverlay",
             { forceCloseOverlay: false },
@@ -1052,11 +1048,11 @@ describe("OverlayBackground", () => {
 
       describe("forceCloseAutofillOverlay", () => {
         it("sends a `closeOverlay` message to the sender tab with a `forceCloseOverlay` flag of `true` set", () => {
-          jest.spyOn(BrowserApi, "tabSendMessageData");
+          jest.spyOn(BrowserApi, "sendTabMessage");
 
           sendPortMessage(buttonPortSpy, { command: "forceCloseAutofillOverlay" });
 
-          expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
+          expect(BrowserApi.sendTabMessage).toHaveBeenCalledWith(
             buttonPortSpy.sender.tab,
             "closeAutofillOverlay",
             { forceCloseOverlay: true },
@@ -1076,13 +1072,13 @@ describe("OverlayBackground", () => {
 
       describe("redirectOverlayFocusOut", () => {
         beforeEach(() => {
-          jest.spyOn(BrowserApi, "tabSendMessageData");
+          jest.spyOn(BrowserApi, "sendTabMessage");
         });
 
         it("ignores the redirect message if the direction is not provided", () => {
           sendPortMessage(buttonPortSpy, { command: "redirectOverlayFocusOut" });
 
-          expect(BrowserApi.tabSendMessageData).not.toHaveBeenCalled();
+          expect(BrowserApi.sendTabMessage).not.toHaveBeenCalled();
         });
 
         it("sends the redirect message if the direction is provided", () => {
@@ -1091,8 +1087,8 @@ describe("OverlayBackground", () => {
             direction: RedirectFocusDirection.Next,
           });
 
-          expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
-            buttonPortSpy.sender.tab,
+          expect(BrowserApi.sendTabMessage).toHaveBeenCalledWith(
+            buttonPortSpy.sender.tab.id,
             "redirectOverlayFocusOut",
             { direction: RedirectFocusDirection.Next },
           );
@@ -1113,12 +1109,12 @@ describe("OverlayBackground", () => {
 
       describe("forceCloseAutofillOverlay", () => {
         it("sends a `closeOverlay` message to the sender tab with a `forceCloseOverlay` flag of `true` set", () => {
-          jest.spyOn(BrowserApi, "tabSendMessageData");
+          jest.spyOn(BrowserApi, "sendTabMessage");
 
           sendPortMessage(listPortSpy, { command: "forceCloseAutofillOverlay" });
 
-          expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
-            listPortSpy.sender.tab,
+          expect(BrowserApi.sendTabMessage).toHaveBeenCalledWith(
+            listPortSpy.sender.tab.id,
             "closeAutofillOverlay",
             { forceCloseOverlay: true },
           );
@@ -1139,14 +1135,14 @@ describe("OverlayBackground", () => {
         it("closes the autofill overlay and opens the unlock popout", async () => {
           jest.spyOn(overlayBackground as any, "closeOverlay").mockImplementation();
           jest.spyOn(overlayBackground as any, "openUnlockPopout").mockImplementation();
-          jest.spyOn(BrowserApi, "tabSendMessageData").mockImplementation();
+          jest.spyOn(BrowserApi, "sendTabMessage").mockImplementation();
 
           sendPortMessage(listPortSpy, { command: "unlockVault" });
           await flushPromises();
 
           expect(overlayBackground["closeOverlay"]).toHaveBeenCalledWith(listPortSpy);
-          expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
-            listPortSpy.sender.tab,
+          expect(BrowserApi.sendTabMessage).toHaveBeenCalledWith(
+            listPortSpy.sender.tab.id,
             "addToLockedVaultPendingNotifications",
             {
               commandToRetry: {
@@ -1267,14 +1263,15 @@ describe("OverlayBackground", () => {
 
       describe("getNewVaultItemDetails", () => {
         it("will send an addNewVaultItemFromOverlay message", async () => {
-          jest.spyOn(BrowserApi, "tabSendMessage");
+          jest.spyOn(BrowserApi, "sendTabMessage");
 
           sendPortMessage(listPortSpy, { command: "addNewVaultItem" });
           await flushPromises();
 
-          expect(BrowserApi.tabSendMessage).toHaveBeenCalledWith(listPortSpy.sender.tab, {
-            command: "addNewVaultItemFromOverlay",
-          });
+          expect(BrowserApi.sendTabMessage).toHaveBeenCalledWith(
+            listPortSpy.sender.tab.id,
+            "addNewVaultItemFromOverlay",
+          );
         });
       });
 

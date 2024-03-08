@@ -31,7 +31,7 @@ async function openUnlockPopout(senderTab: chrome.tabs.Tab, skipNotification = f
     singleActionKey: AuthPopoutType.unlockExtension,
     senderWindowId: senderTab.windowId,
   });
-  await BrowserApi.tabSendMessageData(senderTab, "bgUnlockPopoutOpened", { skipNotification });
+  await BrowserApi.sendTabMessage(senderTab.id, "bgUnlockPopoutOpened", { skipNotification });
 }
 
 /**

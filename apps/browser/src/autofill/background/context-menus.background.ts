@@ -22,21 +22,19 @@ export default class ContextMenusBackground {
     BrowserApi.messageListener(
       "contextmenus.background",
       (
-        msg: { command: string; data: LockedVaultPendingNotificationsData },
+        msg: LockedVaultPendingNotificationsData & { command: string },
         sender: chrome.runtime.MessageSender,
       ) => {
-        if (msg.command === "unlockCompleted" && msg.data.target === "contextmenus.background") {
+        if (msg.command === "unlockCompleted" && msg.target === "contextmenus.background") {
           // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.contextMenuClickedHandler
             .cipherAction(
-              msg.data.commandToRetry.message.contextMenuOnClickData,
-              msg.data.commandToRetry.sender.tab,
+              msg.commandToRetry.message.contextMenuOnClickData,
+              msg.commandToRetry.sender.tab,
             )
             .then(() => {
-              // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
-              BrowserApi.tabSendMessageData(sender.tab, "closeNotificationBar");
+              void BrowserApi.sendTabMessage(sender.tab.id, "closeNotificationBar");
             });
         }
       },

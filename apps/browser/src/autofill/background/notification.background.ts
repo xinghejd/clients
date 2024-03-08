@@ -124,7 +124,7 @@ export default class NotificationBackground {
   private cleanupNotificationQueue() {
     for (let i = this.notificationQueue.length - 1; i >= 0; i--) {
       if (this.notificationQueue[i].expires < new Date()) {
-        BrowserApi.tabSendMessageData(this.notificationQueue[i].tab, "closeNotificationBar").catch(
+        BrowserApi.sendTabMessage(this.notificationQueue[i].tab.id, "closeNotificationBar").catch(
           (error) => this.logService.error(error),
         );
         this.notificationQueue.splice(i, 1);
@@ -168,7 +168,7 @@ export default class NotificationBackground {
         break;
     }
 
-    await BrowserApi.tabSendMessageData(tab, "openNotificationBar", {
+    await BrowserApi.sendTabMessage(tab.id, "openNotificationBar", {
       type: notificationType,
       typeData,
     });
@@ -328,7 +328,7 @@ export default class NotificationBackground {
     }
 
     const forms = this.autofillService.getFormsWithPasswordFields(message.details);
-    await BrowserApi.tabSendMessageData(message.tab, "notificationBarPageDetails", {
+    await BrowserApi.sendTabMessage(message.tab.id, "notificationBarPageDetails", {
       details: message.details,
       forms: forms,
     });
@@ -451,7 +451,7 @@ export default class NotificationBackground {
     sender: chrome.runtime.MessageSender,
   ) {
     if ((await this.authService.getAuthStatus()) < AuthenticationStatus.Unlocked) {
-      await BrowserApi.tabSendMessageData(sender.tab, "addToLockedVaultPendingNotifications", {
+      await BrowserApi.sendTabMessage(sender.tab.id, "addToLockedVaultPendingNotifications", {
         commandToRetry: {
           message: {
             command: message.command,
@@ -518,19 +518,20 @@ export default class NotificationBackground {
       folderId = (await this.folderExists(folderId)) ? folderId : null;
       const newCipher = this.convertAddLoginQueueMessageToCipherView(queueMessage, folderId);
 
+      const tabId = tab.id;
       if (edit) {
         await this.editItem(newCipher, tab);
-        await BrowserApi.tabSendMessage(tab, { command: "closeNotificationBar" });
+        await BrowserApi.sendTabMessage(tabId, "closeNotificationBar");
         return;
       }
 
       const cipher = await this.cipherService.encrypt(newCipher);
       try {
         await this.cipherService.createWithServer(cipher);
-        await BrowserApi.tabSendMessage(tab, { command: "saveCipherAttemptCompleted" });
-        await BrowserApi.tabSendMessage(tab, { command: "addedCipher" });
+        await BrowserApi.sendTabMessage(tabId, "saveCipherAttemptCompleted");
+        await BrowserApi.sendTabMessage(tabId, "addedCipher");
       } catch (error) {
-        await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
+        await BrowserApi.sendTabMessage(tabId, "saveCipherAttemptCompleted", {
           error: String(error.message),
         });
       }
@@ -555,10 +556,11 @@ export default class NotificationBackground {
   ) {
     cipherView.login.password = newPassword;
 
+    const tabId = tab.id;
     if (edit) {
       await this.editItem(cipherView, tab);
-      await BrowserApi.tabSendMessage(tab, { command: "closeNotificationBar" });
-      await BrowserApi.tabSendMessage(tab, { command: "editedCipher" });
+      await BrowserApi.sendTabMessage(tabId, "closeNotificationBar");
+      await BrowserApi.sendTabMessage(tabId, "editedCipher");
       return;
     }
 
@@ -566,9 +568,9 @@ export default class NotificationBackground {
     try {
       // We've only updated the password, no need to broadcast editedCipher message
       await this.cipherService.updateWithServer(cipher);
-      await BrowserApi.tabSendMessage(tab, { command: "saveCipherAttemptCompleted" });
+      await BrowserApi.sendTabMessage(tabId, "saveCipherAttemptCompleted");
     } catch (error) {
-      await BrowserApi.tabSendMessageData(tab, "saveCipherAttemptCompleted", {
+      await BrowserApi.sendTabMessage(tab.id, "saveCipherAttemptCompleted", {
         error: String(error.message),
       });
     }
@@ -628,7 +630,7 @@ export default class NotificationBackground {
       }
 
       this.notificationQueue.splice(i, 1);
-      await BrowserApi.tabSendMessageData(tab, "closeNotificationBar");
+      await BrowserApi.sendTabMessage(tab.id, "closeNotificationBar");
 
       const hostname = Utils.getHostname(tab.url);
       await this.cipherService.saveNeverDomain(hostname);
@@ -667,7 +669,7 @@ export default class NotificationBackground {
     const messageData = message.data as LockedVaultPendingNotificationsData;
     const retryCommand = messageData.commandToRetry.message.command;
     if (retryCommand === "autofill_login") {
-      await BrowserApi.tabSendMessageData(sender.tab, "closeNotificationBar");
+      await BrowserApi.sendTabMessage(sender.tab.id, "closeNotificationBar");
     }
 
     if (messageData.target !== "notification.background") {
@@ -690,7 +692,7 @@ export default class NotificationBackground {
    * @param sender - The contextual sender of the message
    */
   private async handleCloseNotificationBarMessage(sender: chrome.runtime.MessageSender) {
-    await BrowserApi.tabSendMessageData(sender.tab, "closeNotificationBar");
+    await BrowserApi.sendTabMessage(sender.tab.id, "closeNotificationBar");
   }
 
   /**
@@ -704,7 +706,7 @@ export default class NotificationBackground {
     message: NotificationBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
-    await BrowserApi.tabSendMessageData(sender.tab, "adjustNotificationBar", message.data);
+    await BrowserApi.sendTabMessage(sender.tab.id, "adjustNotificationBar", message.data);
   }
 
   /**

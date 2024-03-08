@@ -13,7 +13,7 @@ import {
 
 describe("AuthPopoutWindow", () => {
   const openPopoutSpy = jest.spyOn(BrowserPopupUtils, "openPopout").mockImplementation();
-  const sendMessageDataSpy = jest.spyOn(BrowserApi, "tabSendMessageData").mockImplementation();
+  const sendMessageDataSpy = jest.spyOn(BrowserApi, "sendTabMessage").mockImplementation();
   const closeSingleActionPopoutSpy = jest
     .spyOn(BrowserPopupUtils, "closeSingleActionPopout")
     .mockImplementation();

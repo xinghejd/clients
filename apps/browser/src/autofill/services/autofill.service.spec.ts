@@ -626,14 +626,14 @@ describe("AutofillService", () => {
 
     it("returns early if the fillScript cannot be generated", async () => {
       jest.spyOn(autofillService as any, "generateFillScript").mockReturnValueOnce(undefined);
-      jest.spyOn(BrowserApi, "tabSendMessage");
+      jest.spyOn(BrowserApi, "sendTabMessage");
 
       try {
         await autofillService.doAutoFill(autofillOptions);
         triggerTestFailure();
       } catch (error) {
         expect(autofillService["generateFillScript"]).toHaveBeenCalled();
-        expect(BrowserApi.tabSendMessage).not.toHaveBeenCalled();
+        expect(BrowserApi.sendTabMessage).not.toHaveBeenCalled();
         expect(error.message).toBe(didNotAutofillError);
       }
     });

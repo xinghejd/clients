@@ -30,7 +30,7 @@ describe("GeneratePasswordToClipboardCommand", () => {
 
     passwordGenerationService.generatePassword.mockResolvedValue("PASSWORD");
 
-    jest.spyOn(BrowserApi, "sendTabsMessage").mockReturnValue();
+    jest.spyOn(BrowserApi, "sendTabMessage").mockReturnValue(undefined);
 
     sut = new GeneratePasswordToClipboardCommand(
       passwordGenerationService,
@@ -48,10 +48,9 @@ describe("GeneratePasswordToClipboardCommand", () => {
 
       await sut.generatePasswordToClipboard({ id: 1 } as any);
 
-      expect(jest.spyOn(BrowserApi, "sendTabsMessage")).toHaveBeenCalledTimes(1);
+      expect(jest.spyOn(BrowserApi, "sendTabMessage")).toHaveBeenCalledTimes(1);
 
-      expect(jest.spyOn(BrowserApi, "sendTabsMessage")).toHaveBeenCalledWith(1, {
-        command: "copyText",
+      expect(jest.spyOn(BrowserApi, "sendTabMessage")).toHaveBeenCalledWith(1, "copyText", {
         text: "PASSWORD",
       });
 
@@ -65,10 +64,9 @@ describe("GeneratePasswordToClipboardCommand", () => {
 
       await sut.generatePasswordToClipboard({ id: 1 } as any);
 
-      expect(jest.spyOn(BrowserApi, "sendTabsMessage")).toHaveBeenCalledTimes(1);
+      expect(jest.spyOn(BrowserApi, "sendTabMessage")).toHaveBeenCalledTimes(1);
 
-      expect(jest.spyOn(BrowserApi, "sendTabsMessage")).toHaveBeenCalledWith(1, {
-        command: "copyText",
+      expect(jest.spyOn(BrowserApi, "sendTabMessage")).toHaveBeenCalledWith(1, "copyText", {
         text: "PASSWORD",
       });
 

@@ -109,8 +109,8 @@ export default class RuntimeBackground {
         if (item) {
           await BrowserApi.focusWindow(item.commandToRetry.sender.tab.windowId);
           await BrowserApi.focusTab(item.commandToRetry.sender.tab.id);
-          await BrowserApi.tabSendMessageData(
-            item.commandToRetry.sender.tab,
+          await BrowserApi.sendTabMessage(
+            item.commandToRetry.sender.tab.id,
             "unlockCompleted",
             item,
           );
@@ -118,7 +118,7 @@ export default class RuntimeBackground {
         break;
       }
       case "addToLockedVaultPendingNotifications":
-        this.lockedVaultPendingNotifications.push(msg.data);
+        this.lockedVaultPendingNotifications.push(msg);
         break;
       case "logout":
         await this.main.logout(msg.expired, msg.userId);

@@ -908,10 +908,7 @@ export default class MainBackground {
             return;
           }
 
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          BrowserApi.tabSendMessage(tab, {
-            command: "collectPageDetails",
+          void BrowserApi.sendTabMessage(tab.id, "collectPageDetails", {
             tab: tab,
             sender: "contextMenu",
           });
@@ -1168,12 +1165,10 @@ export default class MainBackground {
       options.frameId = frameId;
     }
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    BrowserApi.tabSendMessage(
-      tab,
+    void BrowserApi.sendTabMessage(
+      tab.id,
+      "collectPageDetails",
       {
-        command: "collectPageDetails",
         tab: tab,
         sender: sender,
       },

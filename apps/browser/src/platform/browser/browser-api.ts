@@ -2,7 +2,6 @@ import { Observable } from "rxjs";
 
 import { DeviceType } from "@bitwarden/common/enums";
 
-import { TabMessage } from "../../types/tab-messages";
 import BrowserPlatformUtilsService from "../services/browser-platform-utils.service";
 
 export class BrowserApi {
@@ -158,48 +157,24 @@ export class BrowserApi {
     return null;
   }
 
-  static tabSendMessageData(
-    tab: chrome.tabs.Tab,
-    command: string,
-    data: any = null,
-  ): Promise<void> {
-    const obj: any = {
-      command: command,
-    };
-
-    if (data != null) {
-      obj.data = data;
-    }
-
-    return BrowserApi.tabSendMessage(tab, obj);
-  }
-
-  static async tabSendMessage<T>(
-    tab: chrome.tabs.Tab,
-    obj: T,
-    options: chrome.tabs.MessageSendOptions = null,
-  ): Promise<void> {
-    if (!tab || !tab.id) {
-      return;
-    }
-
-    return new Promise<void>((resolve) => {
-      chrome.tabs.sendMessage(tab.id, obj, options, () => {
-        if (chrome.runtime.lastError) {
-          // Some error happened
-        }
-        resolve();
-      });
-    });
-  }
-
-  static sendTabsMessage<T>(
+  static sendTabMessage<TResponse>(
     tabId: number,
-    message: TabMessage,
+    subscriber: string,
+    message: Record<string, any> = {},
     options?: chrome.tabs.MessageSendOptions,
-    responseCallback?: (response: T) => void,
   ) {
-    chrome.tabs.sendMessage<TabMessage, T>(tabId, message, options, responseCallback);
+    if (BrowserApi.isManifestVersion(3)) {
+      return chrome.tabs.sendMessage(tabId, { command: subscriber, ...message }, options);
+    }
+
+    return new Promise<TResponse>((resolve, reject) =>
+      chrome.tabs.sendMessage(tabId, { command: subscriber, ...message }, options, (response) => {
+        if (chrome.runtime.lastError) {
+          reject(chrome.runtime.lastError);
+        }
+        resolve(response);
+      }),
+    );
   }
 
   static async getPrivateModeWindows(): Promise<browser.windows.Window[]> {
@@ -358,14 +333,14 @@ export class BrowserApi {
     };
   }
 
-  static sendMessage(subscriber: string, arg: any = {}) {
-    const message = Object.assign({}, { command: subscriber }, arg);
-    return chrome.runtime.sendMessage(message);
-  }
+  static sendMessage<TResponse>(subscriber: string, message: any = {}) {
+    if (BrowserApi.isManifestVersion(3)) {
+      return chrome.runtime.sendMessage({ command: subscriber, ...message });
+    }
 
-  static sendMessageWithResponse<TResponse>(subscriber: string, arg: any = {}) {
-    const message = Object.assign({}, { command: subscriber }, arg);
-    return new Promise<TResponse>((resolve) => chrome.runtime.sendMessage(message, resolve));
+    return new Promise<TResponse>((resolve) =>
+      chrome.runtime.sendMessage({ command: subscriber, ...message }, resolve),
+    );
   }
 
   static async focusTab(tabId: number) {

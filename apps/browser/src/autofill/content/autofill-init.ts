@@ -146,14 +146,14 @@ class AutofillInit implements AutofillInitInterface {
   /**
    * Opens the autofill overlay.
    *
-   * @param data - The extension message data.
+   * @param message - The extension message data.
    */
-  private openAutofillOverlay({ data }: AutofillExtensionMessage) {
+  private openAutofillOverlay(message: AutofillExtensionMessage) {
     if (!this.autofillOverlayContentService) {
       return;
     }
 
-    this.autofillOverlayContentService.openAutofillOverlay(data);
+    this.autofillOverlayContentService.openAutofillOverlay(message);
   }
 
   /**
@@ -176,7 +176,7 @@ class AutofillInit implements AutofillInitInterface {
    * removed.
    */
   private removeAutofillOverlay(message?: AutofillExtensionMessage) {
-    if (message?.data?.forceCloseOverlay) {
+    if (message?.forceCloseOverlay) {
       this.autofillOverlayContentService?.removeAutofillOverlay();
       return;
     }
@@ -210,43 +210,44 @@ class AutofillInit implements AutofillInitInterface {
   /**
    * Redirects the overlay focus out of an overlay iframe.
    *
-   * @param data - Contains the direction to redirect the focus.
+   * @param message - Contains the direction to redirect the focus.
    */
-  private redirectOverlayFocusOut({ data }: AutofillExtensionMessage) {
+  private redirectOverlayFocusOut(message: AutofillExtensionMessage) {
     if (!this.autofillOverlayContentService) {
       return;
     }
 
-    this.autofillOverlayContentService.redirectOverlayFocusOut(data?.direction);
+    this.autofillOverlayContentService.redirectOverlayFocusOut(message?.direction);
   }
 
   /**
    * Updates whether the current tab has ciphers that can populate the overlay list
    *
-   * @param data - Contains the isOverlayCiphersPopulated value
+   * @param message - Contains the isOverlayCiphersPopulated value
    *
    */
-  private updateIsOverlayCiphersPopulated({ data }: AutofillExtensionMessage) {
+  private updateIsOverlayCiphersPopulated(message: AutofillExtensionMessage) {
     if (!this.autofillOverlayContentService) {
       return;
     }
 
     this.autofillOverlayContentService.isOverlayCiphersPopulated = Boolean(
-      data?.isOverlayCiphersPopulated,
+      message?.isOverlayCiphersPopulated,
     );
   }
 
   /**
    * Updates the autofill overlay visibility.
    *
-   * @param data - Contains the autoFillOverlayVisibility value
+   * @param message - Contains the autoFillOverlayVisibility value
    */
-  private updateAutofillOverlayVisibility({ data }: AutofillExtensionMessage) {
-    if (!this.autofillOverlayContentService || isNaN(data?.autofillOverlayVisibility)) {
+  private updateAutofillOverlayVisibility(message: AutofillExtensionMessage) {
+    if (!this.autofillOverlayContentService || isNaN(message?.autofillOverlayVisibility)) {
       return;
     }
 
-    this.autofillOverlayContentService.autofillOverlayVisibility = data?.autofillOverlayVisibility;
+    this.autofillOverlayContentService.autofillOverlayVisibility =
+      message?.autofillOverlayVisibility;
   }
 
   /**

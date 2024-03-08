@@ -97,7 +97,7 @@ class FilelessImporterBackground implements FilelessImporterBackgroundInterface 
       this.triggerLpImporterCsvDownload();
     }
 
-    await BrowserApi.tabSendMessage(sender.tab, { command: "closeNotificationBar" });
+    await BrowserApi.sendTabMessage(sender.tab.id, "closeNotificationBar");
   }
 
   /**

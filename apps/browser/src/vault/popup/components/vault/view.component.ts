@@ -341,10 +341,7 @@ export class ViewComponent extends BaseViewComponent {
       return;
     }
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    BrowserApi.tabSendMessage(this.tab, {
-      command: "collectPageDetails",
+    void BrowserApi.sendTabMessage(this.tab.id, "collectPageDetails", {
       tab: this.tab,
       sender: BroadcasterSubscriptionId,
     });

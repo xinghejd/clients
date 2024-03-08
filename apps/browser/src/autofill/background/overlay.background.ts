@@ -145,7 +145,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
 
     const ciphers = this.getOverlayCipherData();
     this.overlayListPort?.postMessage({ command: "updateOverlayListCiphers", ciphers });
-    await BrowserApi.tabSendMessageData(currentTab, "updateIsOverlayCiphersPopulated", {
+    await BrowserApi.sendTabMessage(currentTab.id, "updateIsOverlayCiphersPopulated", {
       isOverlayCiphersPopulated: Boolean(ciphers.length),
     });
   }
@@ -281,7 +281,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private closeOverlay({ sender }: chrome.runtime.Port, forceCloseOverlay = false) {
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    BrowserApi.tabSendMessageData(sender.tab, "closeAutofillOverlay", { forceCloseOverlay });
+    BrowserApi.sendTabMessage(sender.tab.id, "closeAutofillOverlay", { forceCloseOverlay });
   }
 
   /**
@@ -413,7 +413,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private async openOverlay(isFocusingFieldElement = false, isOpeningFullOverlay = false) {
     const currentTab = await BrowserApi.getTabFromCurrentWindowId();
 
-    await BrowserApi.tabSendMessageData(currentTab, "openAutofillOverlay", {
+    await BrowserApi.sendTabMessage(currentTab.id, "openAutofillOverlay", {
       isFocusingFieldElement,
       isOpeningFullOverlay,
       authStatus: await this.getAuthStatus(),
@@ -490,8 +490,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
       commandToRetry: { message: { command: "openAutofillOverlay" }, sender },
       target: "overlay.background",
     };
-    await BrowserApi.tabSendMessageData(
-      sender.tab,
+    await BrowserApi.sendTabMessage(
+      sender.tab.id,
       "addToLockedVaultPendingNotifications",
       retryMessage,
     );
@@ -582,7 +582,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
 
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    BrowserApi.tabSendMessageData(sender.tab, "redirectOverlayFocusOut", { direction });
+    BrowserApi.sendTabMessage(sender.tab.id, "redirectOverlayFocusOut", { direction });
   }
 
   /**
@@ -592,9 +592,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * @param sender - The sender of the port message
    */
   private getNewVaultItemDetails({ sender }: chrome.runtime.Port) {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    BrowserApi.tabSendMessage(sender.tab, { command: "addNewVaultItemFromOverlay" });
+    void BrowserApi.sendTabMessage(sender.tab.id, "addNewVaultItemFromOverlay");
   }
 
   /**

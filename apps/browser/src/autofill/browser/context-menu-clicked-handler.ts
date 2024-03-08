@@ -142,21 +142,18 @@ export class ContextMenuClickedHandler {
   }
 
   static async messageListener(
-    message: { command: string; data: LockedVaultPendingNotificationsData },
+    message: LockedVaultPendingNotificationsData & { command: string },
     sender: chrome.runtime.MessageSender,
     cachedServices: CachedServices,
   ) {
-    if (
-      message.command !== "unlockCompleted" ||
-      message.data.target !== "contextmenus.background"
-    ) {
+    if (message.command !== "unlockCompleted" || message.target !== "contextmenus.background") {
       return;
     }
 
     const contextMenuClickedHandler = await ContextMenuClickedHandler.mv3Create(cachedServices);
     await contextMenuClickedHandler.run(
-      message.data.commandToRetry.message.contextMenuOnClickData,
-      message.data.commandToRetry.sender.tab,
+      message.commandToRetry.message.contextMenuOnClickData,
+      message.commandToRetry.sender.tab,
     );
   }
 
@@ -190,11 +187,7 @@ export class ContextMenuClickedHandler {
         },
         target: "contextmenus.background",
       };
-      await BrowserApi.tabSendMessageData(
-        tab,
-        "addToLockedVaultPendingNotifications",
-        retryMessage,
-      );
+      await BrowserApi.sendTabMessage(tab.id, "addToLockedVaultPendingNotifications", retryMessage);
 
       await openUnlockPopout(tab);
       return;
@@ -329,20 +322,11 @@ export class ContextMenuClickedHandler {
   }
 
   private async getIdentifier(tab: chrome.tabs.Tab, info: chrome.contextMenus.OnClickData) {
-    return new Promise<string>((resolve, reject) => {
-      BrowserApi.sendTabsMessage(
-        tab.id,
-        { command: "getClickedElement" },
-        { frameId: info.frameId },
-        (identifier: string) => {
-          if (chrome.runtime.lastError) {
-            reject(chrome.runtime.lastError);
-            return;
-          }
-
-          resolve(identifier);
-        },
-      );
-    });
+    return await BrowserApi.sendTabMessage<string>(
+      tab.id,
+      "getClickedElement",
+      {},
+      { frameId: info.frameId },
+    );
   }
 }

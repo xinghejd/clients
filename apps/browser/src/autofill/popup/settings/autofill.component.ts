@@ -189,7 +189,7 @@ export class AutofillComponent implements OnInit {
     if (!autofillOverlayPreviouslyDisabled && !autofillOverlayCurrentlyDisabled) {
       const tabs = await BrowserApi.tabsQuery({});
       tabs.forEach((tab) =>
-        BrowserApi.tabSendMessageData(tab, "updateAutofillOverlayVisibility", {
+        BrowserApi.sendTabMessage(tab.id, "updateAutofillOverlayVisibility", {
           autofillOverlayVisibility: this.autoFillOverlayVisibility,
         }),
       );

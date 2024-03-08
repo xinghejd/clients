@@ -24,7 +24,6 @@ import {
   AddChangePasswordQueueMessage,
   AddLoginQueueMessage,
   AddUnlockVaultQueueMessage,
-  LockedVaultPendingNotificationsData,
   NotificationBackgroundExtensionMessage,
 } from "./abstractions/notification.background";
 import NotificationBackground from "./notification.background";
@@ -143,17 +142,15 @@ describe("NotificationBackground", () => {
         const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
         const message: NotificationBackgroundExtensionMessage = {
           command: "unlockCompleted",
-          data: {
-            commandToRetry: { message: { command: "autofill_login" } },
-          } as LockedVaultPendingNotificationsData,
+          commandToRetry: { message: { command: "autofill_login" } },
         };
-        jest.spyOn(BrowserApi, "tabSendMessageData").mockImplementation();
+        jest.spyOn(BrowserApi, "sendTabMessage").mockImplementation();
 
         sendExtensionRuntimeMessage(message, sender);
         await flushPromises();
 
-        expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
-          sender.tab,
+        expect(BrowserApi.sendTabMessage).toHaveBeenCalledWith(
+          sender.tab.id,
           "closeNotificationBar",
         );
       });
@@ -161,10 +158,8 @@ describe("NotificationBackground", () => {
       it("triggers a retryHandler if the message target is `notification.background` and a handler exists", async () => {
         const message: NotificationBackgroundExtensionMessage = {
           command: "unlockCompleted",
-          data: {
-            commandToRetry: { message: { command: "bgSaveCipher" } },
-            target: "notification.background",
-          } as LockedVaultPendingNotificationsData,
+          commandToRetry: { message: { command: "bgSaveCipher" } },
+          target: "notification.background",
         };
         jest.spyOn(notificationBackground as any, "handleSaveCipherMessage").mockImplementation();
 
@@ -172,8 +167,8 @@ describe("NotificationBackground", () => {
         await flushPromises();
 
         expect(notificationBackground["handleSaveCipherMessage"]).toHaveBeenCalledWith(
-          message.data.commandToRetry.message,
-          message.data.commandToRetry.sender,
+          message.commandToRetry.message,
+          message.commandToRetry.sender,
         );
       });
     });
@@ -202,13 +197,13 @@ describe("NotificationBackground", () => {
         const message: NotificationBackgroundExtensionMessage = {
           command: "bgCloseNotificationBar",
         };
-        jest.spyOn(BrowserApi, "tabSendMessageData").mockImplementation();
+        jest.spyOn(BrowserApi, "sendTabMessage").mockImplementation();
 
         sendExtensionRuntimeMessage(message, sender);
         await flushPromises();
 
-        expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
-          sender.tab,
+        expect(BrowserApi.sendTabMessage).toHaveBeenCalledWith(
+          sender.tab.id,
           "closeNotificationBar",
         );
       });
@@ -221,13 +216,13 @@ describe("NotificationBackground", () => {
           command: "bgAdjustNotificationBar",
           data: { height: 100 },
         };
-        jest.spyOn(BrowserApi, "tabSendMessageData").mockImplementation();
+        jest.spyOn(BrowserApi, "sendTabMessage").mockImplementation();
 
         sendExtensionRuntimeMessage(message, sender);
         await flushPromises();
 
-        expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
-          sender.tab,
+        expect(BrowserApi.sendTabMessage).toHaveBeenCalledWith(
+          sender.tab.id,
           "adjustNotificationBar",
           message.data,
         );
@@ -647,12 +642,12 @@ describe("NotificationBackground", () => {
 
     describe("bgSaveCipher message handler", () => {
       let getAuthStatusSpy: jest.SpyInstance;
-      let tabSendMessageDataSpy: jest.SpyInstance;
+      let sendTabMessageSpy: jest.SpyInstance;
       let openUnlockPopoutSpy: jest.SpyInstance;
 
       beforeEach(() => {
         getAuthStatusSpy = jest.spyOn(authService, "getAuthStatus");
-        tabSendMessageDataSpy = jest.spyOn(BrowserApi, "tabSendMessageData").mockImplementation();
+        sendTabMessageSpy = jest.spyOn(BrowserApi, "sendTabMessage").mockImplementation();
         openUnlockPopoutSpy = jest
           .spyOn(notificationBackground as any, "openUnlockPopout")
           .mockImplementation();
@@ -671,7 +666,7 @@ describe("NotificationBackground", () => {
         await flushPromises();
 
         expect(getAuthStatusSpy).toHaveBeenCalled();
-        expect(tabSendMessageDataSpy).toHaveBeenCalledWith(
+        expect(sendTabMessageSpy).toHaveBeenCalledWith(
           sender.tab,
           "addToLockedVaultPendingNotifications",
           {
@@ -687,7 +682,7 @@ describe("NotificationBackground", () => {
         let getAllDecryptedForUrlSpy: jest.SpyInstance;
         let updatePasswordSpy: jest.SpyInstance;
         let convertAddLoginQueueMessageToCipherViewSpy: jest.SpyInstance;
-        let tabSendMessageSpy: jest.SpyInstance;
+        let sendTabMessageSpy: jest.SpyInstance;
         let editItemSpy: jest.SpyInstance;
         let setAddEditCipherInfoSpy: jest.SpyInstance;
         let openAddEditVaultItemPopoutSpy: jest.SpyInstance;
@@ -708,7 +703,7 @@ describe("NotificationBackground", () => {
             notificationBackground as any,
             "convertAddLoginQueueMessageToCipherView",
           );
-          tabSendMessageSpy = jest.spyOn(BrowserApi, "tabSendMessage").mockImplementation();
+          sendTabMessageSpy = jest.spyOn(BrowserApi, "sendTabMessage").mockImplementation();
           editItemSpy = jest.spyOn(notificationBackground as any, "editItem");
           setAddEditCipherInfoSpy = jest.spyOn(stateService, "setAddEditCipherInfo");
           openAddEditVaultItemPopoutSpy = jest.spyOn(
@@ -817,7 +812,7 @@ describe("NotificationBackground", () => {
             sender.tab,
           );
           expect(updateWithServerSpy).toHaveBeenCalled();
-          expect(tabSendMessageSpy).toHaveBeenCalledWith(sender.tab, {
+          expect(sendTabMessageSpy).toHaveBeenCalledWith(sender.tab, {
             command: "saveCipherAttemptCompleted",
           });
         });
@@ -888,10 +883,10 @@ describe("NotificationBackground", () => {
           );
           expect(editItemSpy).toHaveBeenCalled();
           expect(updateWithServerSpy).not.toHaveBeenCalled();
-          expect(tabSendMessageSpy).toHaveBeenCalledWith(sender.tab, {
+          expect(sendTabMessageSpy).toHaveBeenCalledWith(sender.tab, {
             command: "closeNotificationBar",
           });
-          expect(tabSendMessageSpy).toHaveBeenCalledWith(sender.tab, {
+          expect(sendTabMessageSpy).toHaveBeenCalledWith(sender.tab, {
             command: "editedCipher",
           });
           expect(setAddEditCipherInfoSpy).toHaveBeenCalledWith({
@@ -936,7 +931,7 @@ describe("NotificationBackground", () => {
             message.folder,
           );
           expect(editItemSpy).toHaveBeenCalledWith(cipherView, sender.tab);
-          expect(tabSendMessageSpy).toHaveBeenCalledWith(sender.tab, {
+          expect(sendTabMessageSpy).toHaveBeenCalledWith(sender.tab, {
             command: "closeNotificationBar",
           });
           expect(createWithServerSpy).not.toHaveBeenCalled();
@@ -975,10 +970,10 @@ describe("NotificationBackground", () => {
           );
           expect(cipherEncryptSpy).toHaveBeenCalledWith(cipherView);
           expect(createWithServerSpy).toHaveBeenCalled();
-          expect(tabSendMessageSpy).toHaveBeenCalledWith(sender.tab, {
+          expect(sendTabMessageSpy).toHaveBeenCalledWith(sender.tab, {
             command: "saveCipherAttemptCompleted",
           });
-          expect(tabSendMessageSpy).toHaveBeenCalledWith(sender.tab, { command: "addedCipher" });
+          expect(sendTabMessageSpy).toHaveBeenCalledWith(sender.tab, { command: "addedCipher" });
         });
 
         it("sends an error message within the `saveCipherAttemptCompleted` message if the cipher cannot be saved to the server", async () => {
@@ -1014,16 +1009,12 @@ describe("NotificationBackground", () => {
 
           expect(cipherEncryptSpy).toHaveBeenCalledWith(cipherView);
           expect(createWithServerSpy).toThrow(errorMessage);
-          expect(tabSendMessageSpy).not.toHaveBeenCalledWith(sender.tab, {
+          expect(sendTabMessageSpy).not.toHaveBeenCalledWith(sender.tab, {
             command: "addedCipher",
           });
-          expect(tabSendMessageDataSpy).toHaveBeenCalledWith(
-            sender.tab,
-            "saveCipherAttemptCompleted",
-            {
-              error: errorMessage,
-            },
-          );
+          expect(sendTabMessageSpy).toHaveBeenCalledWith(sender.tab, "saveCipherAttemptCompleted", {
+            error: errorMessage,
+          });
         });
 
         it("sends an error message within the `saveCipherAttemptCompleted` message if the cipher cannot be updated within the server", async () => {
@@ -1052,22 +1043,18 @@ describe("NotificationBackground", () => {
           await flushPromises();
 
           expect(updateWithServerSpy).toThrow(errorMessage);
-          expect(tabSendMessageDataSpy).toHaveBeenCalledWith(
-            sender.tab,
-            "saveCipherAttemptCompleted",
-            {
-              error: errorMessage,
-            },
-          );
+          expect(sendTabMessageSpy).toHaveBeenCalledWith(sender.tab, "saveCipherAttemptCompleted", {
+            error: errorMessage,
+          });
         });
       });
     });
 
     describe("bgNeverSave message handler", () => {
-      let tabSendMessageDataSpy: jest.SpyInstance;
+      let sendTabMessageSpy: jest.SpyInstance;
 
       beforeEach(() => {
-        tabSendMessageDataSpy = jest.spyOn(BrowserApi, "tabSendMessageData");
+        sendTabMessageSpy = jest.spyOn(BrowserApi, "sendTabMessage");
       });
 
       it("skips saving the domain as a never value if the passed tab does not exist within the notification queue", async () => {
@@ -1086,7 +1073,7 @@ describe("NotificationBackground", () => {
         sendExtensionRuntimeMessage(message, sender);
         await flushPromises();
 
-        expect(tabSendMessageDataSpy).not.toHaveBeenCalled();
+        expect(sendTabMessageSpy).not.toHaveBeenCalled();
       });
 
       it("skips saving the domain as a never value if the tab does not contain an addLogin message within the NotificationQueue", async () => {
@@ -1100,7 +1087,7 @@ describe("NotificationBackground", () => {
         sendExtensionRuntimeMessage(message, sender);
         await flushPromises();
 
-        expect(tabSendMessageDataSpy).not.toHaveBeenCalled();
+        expect(sendTabMessageSpy).not.toHaveBeenCalled();
       });
 
       it("skips saving the domain as a never value if the tab url does not match the queue message domain", async () => {
@@ -1118,7 +1105,7 @@ describe("NotificationBackground", () => {
         sendExtensionRuntimeMessage(message, sender);
         await flushPromises();
 
-        expect(tabSendMessageDataSpy).not.toHaveBeenCalled();
+        expect(sendTabMessageSpy).not.toHaveBeenCalled();
       });
 
       it("saves the tabs domain as a never value and closes the notification bar", async () => {
@@ -1137,22 +1124,22 @@ describe("NotificationBackground", () => {
         });
         notificationBackground["notificationQueue"] = [firstNotification, secondNotification];
         jest.spyOn(cipherService, "saveNeverDomain").mockImplementation();
-        jest.spyOn(BrowserApi, "tabSendMessageData").mockImplementation();
+        jest.spyOn(BrowserApi, "sendTabMessage").mockImplementation();
 
         sendExtensionRuntimeMessage(message, sender);
         await flushPromises();
 
-        expect(tabSendMessageDataSpy).toHaveBeenCalledWith(tab, "closeNotificationBar");
+        expect(sendTabMessageSpy).toHaveBeenCalledWith(tab, "closeNotificationBar");
         expect(cipherService.saveNeverDomain).toHaveBeenCalledWith("example.com");
         expect(notificationBackground["notificationQueue"]).toEqual([secondNotification]);
       });
     });
 
     describe("collectPageDetailsResponse", () => {
-      let tabSendMessageDataSpy: jest.SpyInstance;
+      let sendTabMessageSpy: jest.SpyInstance;
 
       beforeEach(() => {
-        tabSendMessageDataSpy = jest.spyOn(BrowserApi, "tabSendMessageData");
+        sendTabMessageSpy = jest.spyOn(BrowserApi, "sendTabMessage");
       });
 
       it("skips sending the `notificationBarPageDetails` message if the message sender is not `notificationBar`", async () => {
@@ -1164,7 +1151,7 @@ describe("NotificationBackground", () => {
         sendExtensionRuntimeMessage(message);
         await flushPromises();
 
-        expect(tabSendMessageDataSpy).not.toHaveBeenCalled();
+        expect(sendTabMessageSpy).not.toHaveBeenCalled();
       });
 
       it("sends a `notificationBarPageDetails` message with the forms with password fields", async () => {
@@ -1181,14 +1168,10 @@ describe("NotificationBackground", () => {
         sendExtensionRuntimeMessage(message);
         await flushPromises();
 
-        expect(tabSendMessageDataSpy).toHaveBeenCalledWith(
-          message.tab,
-          "notificationBarPageDetails",
-          {
-            details: message.details,
-            forms: formData,
-          },
-        );
+        expect(sendTabMessageSpy).toHaveBeenCalledWith(message.tab, "notificationBarPageDetails", {
+          details: message.details,
+          forms: formData,
+        });
       });
     });
 

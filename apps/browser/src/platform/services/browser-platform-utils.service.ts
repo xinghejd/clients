@@ -164,7 +164,7 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
    * the view is open.
    */
   async isViewOpen(): Promise<boolean> {
-    return Boolean(await BrowserApi.sendMessageWithResponse("checkVaultPopupHeartbeat"));
+    return Boolean(await BrowserApi.sendMessage("checkVaultPopupHeartbeat"));
   }
 
   lockTimeout(): number {
@@ -329,7 +329,7 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
       [chrome.offscreen.Reason.CLIPBOARD],
       "Write text to the clipboard.",
     );
-    await BrowserApi.sendMessageWithResponse("offscreenCopyToClipboard", { text });
+    await BrowserApi.sendMessage("offscreenCopyToClipboard", { text });
     BrowserApi.closeOffscreenDocument();
   }
 
@@ -341,7 +341,7 @@ export default class BrowserPlatformUtilsService implements PlatformUtilsService
       [chrome.offscreen.Reason.CLIPBOARD],
       "Read text from the clipboard.",
     );
-    const response = await BrowserApi.sendMessageWithResponse("offscreenReadFromClipboard");
+    const response = await BrowserApi.sendMessage("offscreenReadFromClipboard");
     BrowserApi.closeOffscreenDocument();
     if (typeof response === "string") {
       return response;

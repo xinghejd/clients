@@ -89,7 +89,7 @@ export class BrowserStateService
     if (this.isRecoveredSession && this.useAccountCache) {
       // request cache initialization
 
-      const response = await BrowserApi.sendMessageWithResponse<string>("initializeDiskCache");
+      const response = await BrowserApi.sendMessage<string>("initializeDiskCache");
       this.accountDiskCache.next(JSON.parse(response));
 
       return;

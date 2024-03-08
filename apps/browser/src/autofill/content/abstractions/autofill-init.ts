@@ -10,15 +10,13 @@ type AutofillExtensionMessage = {
   url?: string;
   pageDetailsUrl?: string;
   ciphers?: any;
-  data?: {
-    authStatus?: AuthenticationStatus;
-    isFocusingFieldElement?: boolean;
-    isOverlayCiphersPopulated?: boolean;
-    direction?: "previous" | "next";
-    isOpeningFullOverlay?: boolean;
-    forceCloseOverlay?: boolean;
-    autofillOverlayVisibility?: number;
-  };
+  authStatus?: AuthenticationStatus;
+  isFocusingFieldElement?: boolean;
+  isOverlayCiphersPopulated?: boolean;
+  direction?: "previous" | "next";
+  isOpeningFullOverlay?: boolean;
+  forceCloseOverlay?: boolean;
+  autofillOverlayVisibility?: number;
 };
 
 type AutofillExtensionMessageParam = { message: AutofillExtensionMessage };
