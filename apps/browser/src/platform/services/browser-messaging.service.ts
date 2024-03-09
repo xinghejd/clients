@@ -16,15 +16,15 @@ export default class BrowserMessagingService implements BrowserMessagingServiceI
     // TODO
   }
 
-  subscribeAll(subscribers: Record<string, CallableFunction>) {
-    // TODO
-  }
-
-  unsubscribe(subscriber: string) {
+  registerSubscribers(subscribers: Record<string, CallableFunction>) {
     // TODO
   }
 
   unsubscribeAll(subscribers: string[]) {
+    // TODO
+  }
+
+  deregisterSubscribers(subscriber: string) {
     // TODO
   }
 
