@@ -1,10 +1,12 @@
 import { Observable } from "rxjs";
 
 import { DeviceType } from "@bitwarden/common/enums";
+import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 
 import BrowserPlatformUtilsService from "../services/browser-platform-utils.service";
 
 export class BrowserApi {
+  static logService = new ConsoleLogService(false);
   static isWebExtensionsApi: boolean = typeof browser !== "undefined";
   static isSafariApi: boolean =
     navigator.userAgent.indexOf(" Safari/") !== -1 &&
@@ -164,13 +166,13 @@ export class BrowserApi {
     options?: chrome.tabs.MessageSendOptions,
   ) {
     if (BrowserApi.isManifestVersion(3)) {
-      return chrome.tabs.sendMessage(tabId, { command: subscriber, ...message }, options);
+      return chrome.tabs.sendMessage(tabId, { ...message, command: subscriber }, options);
     }
 
     return new Promise<TResponse>((resolve, reject) =>
-      chrome.tabs.sendMessage(tabId, { command: subscriber, ...message }, options, (response) => {
+      chrome.tabs.sendMessage(tabId, { ...message, command: subscriber }, options, (response) => {
         if (chrome.runtime.lastError) {
-          reject(chrome.runtime.lastError);
+          this.logService.debug(chrome.runtime.lastError.message);
         }
         resolve(response);
       }),
@@ -335,11 +337,17 @@ export class BrowserApi {
 
   static sendMessage<TResponse>(subscriber: string, message: any = {}) {
     if (BrowserApi.isManifestVersion(3)) {
-      return chrome.runtime.sendMessage({ command: subscriber, ...message });
+      return chrome.runtime.sendMessage({ ...message, command: subscriber });
     }
 
     return new Promise<TResponse>((resolve) =>
-      chrome.runtime.sendMessage({ command: subscriber, ...message }, resolve),
+      chrome.runtime.sendMessage({ ...message, command: subscriber }, (response) => {
+        if (chrome.runtime.lastError) {
+          this.logService.debug(chrome.runtime.lastError.message);
+        }
+
+        resolve(response);
+      }),
     );
   }
 
@@ -495,6 +503,10 @@ export class BrowserApi {
 
     return new Promise((resolve) => {
       chrome.tabs.executeScript(tabId, details, (result) => {
+        if (chrome.runtime.lastError) {
+          this.logService.debug(chrome.runtime.lastError.message);
+        }
+
         resolve(result);
       });
     });

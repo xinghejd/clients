@@ -660,21 +660,20 @@ export default class NotificationBackground {
     message: NotificationBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ): Promise<void> {
-    const messageData = message;
-    const retryCommand = messageData.commandToRetry.message.command;
+    const retryCommand = message.commandToRetry?.message?.command;
     if (retryCommand === "autofill_login") {
       await BrowserApi.sendTabMessage(sender.tab.id, "closeNotificationBar");
     }
 
-    if (messageData.target !== "notification.background") {
+    if (message.target !== "notification.background") {
       return;
     }
 
     const retryHandler: CallableFunction | undefined = this.extensionMessageHandlers[retryCommand];
     if (retryHandler) {
       retryHandler({
-        message: messageData.commandToRetry.message,
-        sender: messageData.commandToRetry.sender,
+        message: message.commandToRetry.message,
+        sender: message.commandToRetry.sender,
       });
     }
   }

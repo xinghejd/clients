@@ -106,14 +106,11 @@ export default class RuntimeBackground {
         await this.main.refreshMenu(false);
         this.systemService.cancelProcessReload();
 
-        if (item) {
-          await BrowserApi.focusWindow(item.commandToRetry.sender.tab.windowId);
-          await BrowserApi.focusTab(item.commandToRetry.sender.tab.id);
-          await BrowserApi.sendTabMessage(
-            item.commandToRetry.sender.tab.id,
-            "unlockCompleted",
-            item,
-          );
+        if (item?.commandToRetry?.sender) {
+          const { id, windowId } = item.commandToRetry.sender.tab;
+          await BrowserApi.focusWindow(windowId);
+          await BrowserApi.focusTab(id);
+          await BrowserApi.sendTabMessage(id, "unlockCompleted", item);
         }
         break;
       }
