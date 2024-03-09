@@ -230,7 +230,7 @@ describe("OverlayBackground", () => {
         ],
       });
       expect(BrowserApi.sendTabMessage).toHaveBeenCalledWith(
-        tab,
+        tab.id,
         "updateIsOverlayCiphersPopulated",
         { isOverlayCiphersPopulated: true },
       );
@@ -901,7 +901,7 @@ describe("OverlayBackground", () => {
 
           expect(getAuthStatusSpy).toHaveBeenCalled();
           expect(BrowserApi.sendTabMessage).toHaveBeenCalledWith(
-            sender.tab,
+            sender.tab.id,
             "openAutofillOverlay",
             {
               isFocusingFieldElement: true,
@@ -1039,7 +1039,7 @@ describe("OverlayBackground", () => {
           sendPortMessage(buttonPortSpy, { command: "closeAutofillOverlay" });
 
           expect(BrowserApi.sendTabMessage).toHaveBeenCalledWith(
-            buttonPortSpy.sender.tab,
+            buttonPortSpy.sender.tab.id,
             "closeAutofillOverlay",
             { forceCloseOverlay: false },
           );
@@ -1053,7 +1053,7 @@ describe("OverlayBackground", () => {
           sendPortMessage(buttonPortSpy, { command: "forceCloseAutofillOverlay" });
 
           expect(BrowserApi.sendTabMessage).toHaveBeenCalledWith(
-            buttonPortSpy.sender.tab,
+            buttonPortSpy.sender.tab.id,
             "closeAutofillOverlay",
             { forceCloseOverlay: true },
           );

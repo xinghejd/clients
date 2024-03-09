@@ -657,7 +657,7 @@ describe("NotificationBackground", () => {
 
         expect(getAuthStatusSpy).toHaveBeenCalled();
         expect(sendTabMessageSpy).toHaveBeenCalledWith(
-          sender.tab,
+          sender.tab.id,
           "addToLockedVaultPendingNotifications",
           {
             commandToRetry: { message, sender },
@@ -804,9 +804,10 @@ describe("NotificationBackground", () => {
             sender.tab,
           );
           expect(updateWithServerSpy).toHaveBeenCalled();
-          expect(sendTabMessageSpy).toHaveBeenCalledWith(sender.tab, {
-            command: "saveCipherAttemptCompleted",
-          });
+          expect(sendTabMessageSpy).toHaveBeenCalledWith(
+            sender.tab.id,
+            "saveCipherAttemptCompleted",
+          );
         });
 
         it("updates the cipher password if the queue message was locked and an existing cipher has the same username as the message", async () => {
@@ -875,12 +876,8 @@ describe("NotificationBackground", () => {
           );
           expect(editItemSpy).toHaveBeenCalled();
           expect(updateWithServerSpy).not.toHaveBeenCalled();
-          expect(sendTabMessageSpy).toHaveBeenCalledWith(sender.tab, {
-            command: "closeNotificationBar",
-          });
-          expect(sendTabMessageSpy).toHaveBeenCalledWith(sender.tab, {
-            command: "editedCipher",
-          });
+          expect(sendTabMessageSpy).toHaveBeenCalledWith(sender.tab.id, "closeNotificationBar");
+          expect(sendTabMessageSpy).toHaveBeenCalledWith(sender.tab.id, "editedCipher");
           expect(setAddEditCipherInfoSpy).toHaveBeenCalledWith({
             cipher: cipherView,
             collectionIds: cipherView.collectionIds,
@@ -923,9 +920,7 @@ describe("NotificationBackground", () => {
             message.folder,
           );
           expect(editItemSpy).toHaveBeenCalledWith(cipherView, sender.tab);
-          expect(sendTabMessageSpy).toHaveBeenCalledWith(sender.tab, {
-            command: "closeNotificationBar",
-          });
+          expect(sendTabMessageSpy).toHaveBeenCalledWith(sender.tab.id, "closeNotificationBar");
           expect(createWithServerSpy).not.toHaveBeenCalled();
         });
 
@@ -962,10 +957,11 @@ describe("NotificationBackground", () => {
           );
           expect(cipherEncryptSpy).toHaveBeenCalledWith(cipherView);
           expect(createWithServerSpy).toHaveBeenCalled();
-          expect(sendTabMessageSpy).toHaveBeenCalledWith(sender.tab, {
-            command: "saveCipherAttemptCompleted",
-          });
-          expect(sendTabMessageSpy).toHaveBeenCalledWith(sender.tab, { command: "addedCipher" });
+          expect(sendTabMessageSpy).toHaveBeenCalledWith(
+            sender.tab.id,
+            "saveCipherAttemptCompleted",
+          );
+          expect(sendTabMessageSpy).toHaveBeenCalledWith(sender.tab.id, "addedCipher");
         });
 
         it("sends an error message within the `saveCipherAttemptCompleted` message if the cipher cannot be saved to the server", async () => {
@@ -1004,9 +1000,13 @@ describe("NotificationBackground", () => {
           expect(sendTabMessageSpy).not.toHaveBeenCalledWith(sender.tab, {
             command: "addedCipher",
           });
-          expect(sendTabMessageSpy).toHaveBeenCalledWith(sender.tab, "saveCipherAttemptCompleted", {
-            error: errorMessage,
-          });
+          expect(sendTabMessageSpy).toHaveBeenCalledWith(
+            sender.tab.id,
+            "saveCipherAttemptCompleted",
+            {
+              error: errorMessage,
+            },
+          );
         });
 
         it("sends an error message within the `saveCipherAttemptCompleted` message if the cipher cannot be updated within the server", async () => {
@@ -1035,9 +1035,13 @@ describe("NotificationBackground", () => {
           await flushPromises();
 
           expect(updateWithServerSpy).toThrow(errorMessage);
-          expect(sendTabMessageSpy).toHaveBeenCalledWith(sender.tab, "saveCipherAttemptCompleted", {
-            error: errorMessage,
-          });
+          expect(sendTabMessageSpy).toHaveBeenCalledWith(
+            sender.tab.id,
+            "saveCipherAttemptCompleted",
+            {
+              error: errorMessage,
+            },
+          );
         });
       });
     });
@@ -1121,7 +1125,7 @@ describe("NotificationBackground", () => {
         sendExtensionRuntimeMessage(message, sender);
         await flushPromises();
 
-        expect(sendTabMessageSpy).toHaveBeenCalledWith(tab, "closeNotificationBar");
+        expect(sendTabMessageSpy).toHaveBeenCalledWith(tab.id, "closeNotificationBar");
         expect(cipherService.saveNeverDomain).toHaveBeenCalledWith("example.com");
         expect(notificationBackground["notificationQueue"]).toEqual([secondNotification]);
       });
@@ -1160,10 +1164,14 @@ describe("NotificationBackground", () => {
         sendExtensionRuntimeMessage(message);
         await flushPromises();
 
-        expect(sendTabMessageSpy).toHaveBeenCalledWith(message.tab, "notificationBarPageDetails", {
-          details: message.details,
-          forms: formData,
-        });
+        expect(sendTabMessageSpy).toHaveBeenCalledWith(
+          message.tab.id,
+          "notificationBarPageDetails",
+          {
+            details: message.details,
+            forms: formData,
+          },
+        );
       });
     });
 

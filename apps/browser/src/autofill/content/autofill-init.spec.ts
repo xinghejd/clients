@@ -307,11 +307,9 @@ describe("AutofillInit", () => {
       describe("openAutofillOverlay", () => {
         const message = {
           command: "openAutofillOverlay",
-          data: {
-            isFocusingFieldElement: true,
-            isOpeningFullOverlay: true,
-            authStatus: AuthenticationStatus.Unlocked,
-          },
+          isFocusingFieldElement: true,
+          isOpeningFullOverlay: true,
+          authStatus: AuthenticationStatus.Unlocked,
         };
 
         it("skips attempting to open the autofill overlay if the autofillOverlayContentService is not present", () => {
@@ -329,9 +327,10 @@ describe("AutofillInit", () => {
           expect(
             autofillInit["autofillOverlayContentService"].openAutofillOverlay,
           ).toHaveBeenCalledWith({
-            isFocusingFieldElement: message.data.isFocusingFieldElement,
-            isOpeningFullOverlay: message.data.isOpeningFullOverlay,
-            authStatus: message.data.authStatus,
+            command: "openAutofillOverlay",
+            isFocusingFieldElement: message.isFocusingFieldElement,
+            isOpeningFullOverlay: message.isOpeningFullOverlay,
+            authStatus: message.authStatus,
           });
         });
       });
@@ -424,9 +423,7 @@ describe("AutofillInit", () => {
       describe("redirectOverlayFocusOut", () => {
         const message = {
           command: "redirectOverlayFocusOut",
-          data: {
-            direction: RedirectFocusDirection.Next,
-          },
+          direction: RedirectFocusDirection.Next,
         };
 
         it("ignores the message to redirect focus if the autofillOverlayContentService does not exist", () => {
@@ -443,16 +440,14 @@ describe("AutofillInit", () => {
 
           expect(
             autofillInit["autofillOverlayContentService"].redirectOverlayFocusOut,
-          ).toHaveBeenCalledWith(message.data.direction);
+          ).toHaveBeenCalledWith(message.direction);
         });
       });
 
       describe("updateIsOverlayCiphersPopulated", () => {
         const message = {
           command: "updateIsOverlayCiphersPopulated",
-          data: {
-            isOverlayCiphersPopulated: true,
-          },
+          isOverlayCiphersPopulated: true,
         };
 
         it("skips updating whether the ciphers are populated if the autofillOverlayContentService does note exist", () => {
@@ -468,7 +463,7 @@ describe("AutofillInit", () => {
           sendExtensionRuntimeMessage(message);
 
           expect(autofillInit["autofillOverlayContentService"].isOverlayCiphersPopulated).toEqual(
-            message.data.isOverlayCiphersPopulated,
+            message.isOverlayCiphersPopulated,
           );
         });
       });
@@ -532,7 +527,7 @@ describe("AutofillInit", () => {
         it("skips attempting to update the overlay visibility if the autofillOverlayVisibility data value is not present", () => {
           sendExtensionRuntimeMessage({
             command: "updateAutofillOverlayVisibility",
-            data: {},
+            autofillOverlayVisibility: undefined,
           });
 
           expect(autofillInit["autofillOverlayContentService"].autofillOverlayVisibility).toEqual(
@@ -543,15 +538,13 @@ describe("AutofillInit", () => {
         it("updates the overlay visibility value", () => {
           const message = {
             command: "updateAutofillOverlayVisibility",
-            data: {
-              autofillOverlayVisibility: AutofillOverlayVisibility.Off,
-            },
+            autofillOverlayVisibility: AutofillOverlayVisibility.Off,
           };
 
           sendExtensionRuntimeMessage(message);
 
           expect(autofillInit["autofillOverlayContentService"].autofillOverlayVisibility).toEqual(
-            message.data.autofillOverlayVisibility,
+            message.autofillOverlayVisibility,
           );
         });
       });

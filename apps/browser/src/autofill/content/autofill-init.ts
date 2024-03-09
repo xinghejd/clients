@@ -247,7 +247,7 @@ class AutofillInit implements AutofillInitInterface {
     }
 
     this.autofillOverlayContentService.autofillOverlayVisibility =
-      message?.autofillOverlayVisibility;
+      message.autofillOverlayVisibility;
   }
 
   /**

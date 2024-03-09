@@ -204,7 +204,7 @@ describe("FilelessImporterBackground ", () => {
             {
               command: "closeNotificationBar",
             },
-            null,
+            undefined,
             expect.anything(),
           );
           expect(lpImporterPort.postMessage).not.toHaveBeenCalledWith({

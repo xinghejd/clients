@@ -535,7 +535,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private async unlockCompleted(message: OverlayBackgroundExtensionMessage) {
     await this.getAuthStatus();
 
-    if (message.data?.commandToRetry?.message?.command === "openAutofillOverlay") {
+    if (message.commandToRetry?.message?.command === "openAutofillOverlay") {
       await this.openOverlay(true);
     }
   }

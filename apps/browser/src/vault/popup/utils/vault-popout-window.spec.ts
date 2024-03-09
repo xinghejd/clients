@@ -2,6 +2,7 @@ import { mock } from "jest-mock-extended";
 
 import { CipherType } from "@bitwarden/common/vault/enums";
 
+import { BrowserApi } from "../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
 
 import {
@@ -58,6 +59,7 @@ describe("VaultPopoutWindow", () => {
   describe("openVaultItemPasswordRepromptPopout", () => {
     it("opens a popout window that facilitates re-prompting for the password of a vault item", async () => {
       const senderTab = { windowId: 1 } as chrome.tabs.Tab;
+      jest.spyOn(BrowserApi, "sendTabMessage").mockImplementation();
 
       await openVaultItemPasswordRepromptPopout(senderTab, {
         cipherId: "cipherId",

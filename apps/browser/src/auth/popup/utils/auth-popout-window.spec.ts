@@ -13,7 +13,7 @@ import {
 
 describe("AuthPopoutWindow", () => {
   const openPopoutSpy = jest.spyOn(BrowserPopupUtils, "openPopout").mockImplementation();
-  const sendMessageDataSpy = jest.spyOn(BrowserApi, "sendTabMessage").mockImplementation();
+  const sendTabMessageSpy = jest.spyOn(BrowserApi, "sendTabMessage").mockImplementation();
   const closeSingleActionPopoutSpy = jest
     .spyOn(BrowserPopupUtils, "closeSingleActionPopout")
     .mockImplementation();
@@ -26,7 +26,7 @@ describe("AuthPopoutWindow", () => {
     let senderTab: chrome.tabs.Tab;
 
     beforeEach(() => {
-      senderTab = { windowId: 1 } as chrome.tabs.Tab;
+      senderTab = { id: 2, windowId: 1 } as chrome.tabs.Tab;
     });
 
     it("opens a single action popup that allows the user to unlock the extension and sends a `bgUnlockPopoutOpened` message", async () => {
@@ -38,7 +38,7 @@ describe("AuthPopoutWindow", () => {
         singleActionKey: AuthPopoutType.unlockExtension,
         senderWindowId: 1,
       });
-      expect(sendMessageDataSpy).toHaveBeenCalledWith(senderTab, "bgUnlockPopoutOpened", {
+      expect(sendTabMessageSpy).toHaveBeenCalledWith(senderTab.id, "bgUnlockPopoutOpened", {
         skipNotification: false,
       });
     });
@@ -46,7 +46,7 @@ describe("AuthPopoutWindow", () => {
     it("sends an indication that the presenting the notification bar for unlocking the extension should be skipped", async () => {
       await openUnlockPopout(senderTab, true);
 
-      expect(sendMessageDataSpy).toHaveBeenCalledWith(senderTab, "bgUnlockPopoutOpened", {
+      expect(sendTabMessageSpy).toHaveBeenCalledWith(senderTab.id, "bgUnlockPopoutOpened", {
         skipNotification: true,
       });
     });
