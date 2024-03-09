@@ -81,12 +81,12 @@ export class I18nComponent implements AfterContentInit {
       this.args[1],
       this.args[2],
     );
+    const [translationParts, tagCount] = this.parseTranslatedString(translatedText);
+    this.translationParts = translationParts;
 
-    this.translationParts = this.parseTranslatedString(translatedText);
-
-    if (this.translationParts.length !== this.templateTags.length) {
+    if (tagCount !== this.templateTags.length) {
       this.logService.warning(
-        `The translation for "${this.translationKey}" has ${this.translationParts.length} template tags(s), but ${this.templateTags.length} bit-i18n-part directive(s) were found.`,
+        `The translation for "${this.translationKey}" has ${tagCount} template tags(s), but ${this.templateTags.length} bit-i18n-part directive(s) were found.`,
       );
     }
 
@@ -103,25 +103,28 @@ export class I18nComponent implements AfterContentInit {
   /**
    * Parses a translated string into an array of parts separated by tag identifiers.
    * Tag identifiers must be numbers surrounded by angle brackets.
+   * Includes the number of tags found in the string.
    * @example
    * parseTranslatedString("Hello <0>World</0>!")
-   * // returns [{ text: "Hello " }, { text: "World", tagId: 0 }, { text: "!" }]
+   * // returns [[{ text: "Hello " }, { text: "World", tagId: 0 }, { text: "!" }], 1]
    * @param inputString
    * @private
    */
-  private parseTranslatedString(inputString: string): I18nStringPart[] {
+  private parseTranslatedString(inputString: string): [I18nStringPart[], number] {
     const regex = /<(\d+)>(.*?)<\/\1>|([^<]+)/g;
     const parts: I18nStringPart[] = [];
     let match: RegExpMatchArray;
+    let tagCount = 0;
 
     while ((match = regex.exec(inputString)) !== null) {
       if (match[1]) {
         parts.push({ text: match[2], tagId: parseInt(match[1]) });
+        tagCount++;
       } else {
         parts.push({ text: match[3] });
       }
     }
 
-    return parts;
+    return [parts, tagCount];
   }
 }
