@@ -1,69 +1,55 @@
 import { Injectable, inject } from "@angular/core";
-import {
-  ActivatedRouteSnapshot,
-  CanActivateChildFn,
-  RouterStateSnapshot,
-  UrlSerializer,
-} from "@angular/router";
-import { firstValueFrom } from "rxjs";
+import { CanActivateFn, NavigationEnd, Router, UrlSerializer } from "@angular/router";
+import { filter, firstValueFrom } from "rxjs";
 
 import {
   GlobalStateProvider,
   KeyDefinition,
-  POPUP_RESUME_ROUTE_MEMORY,
+  LAST_VISITED_ROUTE_MEMORY,
 } from "@bitwarden/common/platform/state";
 
-const POPUP_RESUME_ROUTE_KEY = new KeyDefinition<string>(
-  POPUP_RESUME_ROUTE_MEMORY,
-  "popupResumeRoute",
+/** The last route accessed in the popup */
+const LAST_VISITED_ROUTE_KEY = new KeyDefinition<string>(
+  LAST_VISITED_ROUTE_MEMORY,
+  "lastVisitedRoute",
   {
     deserializer: (obj) => obj,
   },
 );
 
 @Injectable({ providedIn: "root" })
-class ResumePopupService {
-  private popupResumeRouteState = inject(GlobalStateProvider).get(POPUP_RESUME_ROUTE_KEY);
-  private hasResumed = false;
+export class ResumePopupService {
+  private popupResumeRouteState = inject(GlobalStateProvider).get(LAST_VISITED_ROUTE_KEY);
+  private router = inject(Router);
 
-  async storeLatestUrl(url: string) {
-    await this.popupResumeRouteState.update(() => url);
+  constructor() {
+    /** Update the stored route on every successful navigation */
+    this.router.events.pipe(filter((e) => e instanceof NavigationEnd)).subscribe((e) => {
+      void this.popupResumeRouteState.update(() => (e as NavigationEnd).url);
+    });
   }
 
-  /**
-   *
-   * @returns the `UrlTree` that should be redirected to. If no redirect should occur, `null` is returned instead.
-   **/
-  async getStoredUrl(): Promise<string> {
-    if (this.hasResumed) {
-      return null;
-    }
-    const url = await firstValueFrom(this.popupResumeRouteState.state$);
-    if (!url) {
-      return null;
-    }
-    this.hasResumed = true;
-    await this.popupResumeRouteState.update(() => url);
-    return url;
+  async getStoredUrl() {
+    return firstValueFrom(this.popupResumeRouteState.state$);
+  }
+
+  async clearStoredUrl() {
+    await this.popupResumeRouteState.update(() => null);
   }
 }
 
-export const resumePopupGuard: CanActivateChildFn = async (
-  _childRoute: ActivatedRouteSnapshot,
-  state: RouterStateSnapshot,
-) => {
-  const resumePopupService = inject(ResumePopupService);
+/** Redirect to the last visited route. Should be applied to root route. */
+export const resumePopupGuard = (): CanActivateFn => {
+  return async () => {
+    const resumePopupService = inject(ResumePopupService);
+    const urlSerializer = inject(UrlSerializer);
 
-  const url = await resumePopupService.getStoredUrl();
+    const url = await resumePopupService.getStoredUrl();
 
-  /** On each route change, store the current URL in state */
-  await resumePopupService.storeLatestUrl(state.url);
+    if (!url) {
+      return true;
+    }
 
-  /** Continue with original navigation if no URL is stored */
-  if (!url) {
-    return true;
-  }
-
-  /** Redirect to stored URL */
-  return inject(UrlSerializer).parse(url);
+    return urlSerializer.parse(url);
+  };
 };
