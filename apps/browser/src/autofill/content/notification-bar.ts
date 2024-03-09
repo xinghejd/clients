@@ -162,9 +162,8 @@ async function loadNotificationBar() {
       if (inIframe) {
         return;
       }
-      closeExistingAndOpenBar(msg.data.type, msg.data.typeData);
-      sendResponse();
-      return true;
+      closeExistingAndOpenBar(msg.type, msg.typeData);
+      return;
     } else if (msg.command === "closeNotificationBar") {
       // The following methods send a message to the content script to close the notification bar:
       // `bar.js : closeButton click` > `notification.background.ts : processMessage(...)`
@@ -174,26 +173,23 @@ async function loadNotificationBar() {
         return;
       }
       closeBar(true);
-      sendResponse();
-      return true;
+      return;
     } else if (msg.command === "adjustNotificationBar") {
       // `bar.js : window resize` > `notification.background.ts : processMessage(...)`
       // sends a message to the content script to adjust the notification bar
       if (inIframe) {
         return;
       }
-      adjustBar(msg.data);
-      sendResponse();
-      return true;
+      adjustBar(msg);
+      return;
     } else if (msg.command === "notificationBarPageDetails") {
       // Note: we deliberately do not check for inIframe here because a lot of websites
       // embed their login forms into iframes
       // Ex: icloud.com uses a login form in an iframe from apple.com
 
       // See method collectPageDetails() for full call itinerary that leads to this message
-      watchForms(msg.data.forms);
-      sendResponse();
-      return true;
+      watchForms(msg.forms);
+      return;
     } else if (msg.command === "saveCipherAttemptCompleted") {
       if (!notificationBarIframe) {
         return;
@@ -202,7 +198,7 @@ async function loadNotificationBar() {
       notificationBarIframe.contentWindow?.postMessage(
         {
           command: "saveCipherAttemptCompleted",
-          error: msg.data?.error,
+          error: msg.error,
         },
         "*",
       );
@@ -706,7 +702,7 @@ async function loadNotificationBar() {
             currentPassword: curPass,
             url: document.URL,
           };
-          void sendExtensionMessage("bgChangedPassword", { data });
+          void sendExtensionMessage("bgChangedPassword", data);
           break;
         }
       }

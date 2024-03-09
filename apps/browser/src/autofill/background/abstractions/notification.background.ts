@@ -75,10 +75,6 @@ type UnlockVaultMessageData = {
 type NotificationBackgroundExtensionMessage = {
   [key: string]: any;
   command: string;
-  data?: Partial<LockedVaultPendingNotificationsData> &
-    Partial<AdjustNotificationBarMessageData> &
-    Partial<ChangePasswordMessageData> &
-    Partial<UnlockVaultMessageData>;
   login?: AddLoginMessageData;
   folder?: string;
   edit?: boolean;
@@ -86,7 +82,10 @@ type NotificationBackgroundExtensionMessage = {
   tab?: chrome.tabs.Tab;
   sender?: string;
   notificationType?: string;
-};
+} & Partial<LockedVaultPendingNotificationsData> &
+  Partial<AdjustNotificationBarMessageData> &
+  Partial<ChangePasswordMessageData> &
+  Partial<UnlockVaultMessageData>;
 
 type SaveOrUpdateCipherResult = undefined | { error: string };
 

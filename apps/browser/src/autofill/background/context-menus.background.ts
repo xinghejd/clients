@@ -22,7 +22,7 @@ export default class ContextMenusBackground {
     BrowserApi.messageListener(
       "contextmenus.background",
       (
-        msg: LockedVaultPendingNotificationsData & { command: string },
+        msg: { command: string } & LockedVaultPendingNotificationsData,
         sender: chrome.runtime.MessageSender,
       ) => {
         if (msg.command === "unlockCompleted" && msg.target === "contextmenus.background") {

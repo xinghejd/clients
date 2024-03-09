@@ -142,7 +142,10 @@ describe("NotificationBackground", () => {
         const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
         const message: NotificationBackgroundExtensionMessage = {
           command: "unlockCompleted",
-          commandToRetry: { message: { command: "autofill_login" } },
+          commandToRetry: {
+            message: { command: "autofill_login" },
+            sender,
+          },
         };
         jest.spyOn(BrowserApi, "sendTabMessage").mockResolvedValue(undefined);
 
@@ -158,7 +161,10 @@ describe("NotificationBackground", () => {
       it("triggers a retryHandler if the message target is `notification.background` and a handler exists", async () => {
         const message: NotificationBackgroundExtensionMessage = {
           command: "unlockCompleted",
-          commandToRetry: { message: { command: "bgSaveCipher" } },
+          commandToRetry: {
+            message: { command: "bgSaveCipher" },
+            sender: mock<chrome.runtime.MessageSender>(),
+          },
           target: "notification.background",
         };
         jest.spyOn(notificationBackground as any, "handleSaveCipherMessage").mockImplementation();

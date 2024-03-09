@@ -279,8 +279,7 @@ export default class NotificationBackground {
     message: NotificationBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
-    const changeData = message;
-    const loginDomain = Utils.getDomain(changeData.url);
+    const loginDomain = Utils.getDomain(message.url);
     if (loginDomain == null) {
       return;
     }
@@ -289,7 +288,7 @@ export default class NotificationBackground {
       await this.pushChangePasswordToQueue(
         null,
         loginDomain,
-        changeData.newPassword,
+        message.newPassword,
         sender.tab,
         true,
       );
@@ -297,11 +296,9 @@ export default class NotificationBackground {
     }
 
     let id: string = null;
-    const ciphers = await this.cipherService.getAllDecryptedForUrl(changeData.url);
-    if (changeData.currentPassword != null) {
-      const passwordMatches = ciphers.filter(
-        (c) => c.login.password === changeData.currentPassword,
-      );
+    const ciphers = await this.cipherService.getAllDecryptedForUrl(message.url);
+    if (message.currentPassword != null) {
+      const passwordMatches = ciphers.filter((c) => c.login.password === message.currentPassword);
       if (passwordMatches.length === 1) {
         id = passwordMatches[0].id;
       }
@@ -309,7 +306,7 @@ export default class NotificationBackground {
       id = ciphers[0].id;
     }
     if (id != null) {
-      await this.pushChangePasswordToQueue(id, loginDomain, changeData.newPassword, sender.tab);
+      await this.pushChangePasswordToQueue(id, loginDomain, message.newPassword, sender.tab);
     }
   }
 
@@ -329,7 +326,7 @@ export default class NotificationBackground {
     const forms = this.autofillService.getFormsWithPasswordFields(message.details);
     await BrowserApi.sendTabMessage(message.tab.id, "notificationBarPageDetails", {
       details: message.details,
-      forms: forms,
+      forms,
     });
   }
 
@@ -517,20 +514,19 @@ export default class NotificationBackground {
       folderId = (await this.folderExists(folderId)) ? folderId : null;
       const newCipher = this.convertAddLoginQueueMessageToCipherView(queueMessage, folderId);
 
-      const tabId = tab.id;
       if (edit) {
         await this.editItem(newCipher, tab);
-        await BrowserApi.sendTabMessage(tabId, "closeNotificationBar");
+        await BrowserApi.sendTabMessage(tab.id, "closeNotificationBar");
         return;
       }
 
       const cipher = await this.cipherService.encrypt(newCipher);
       try {
         await this.cipherService.createWithServer(cipher);
-        await BrowserApi.sendTabMessage(tabId, "saveCipherAttemptCompleted");
-        await BrowserApi.sendTabMessage(tabId, "addedCipher");
+        await BrowserApi.sendTabMessage(tab.id, "saveCipherAttemptCompleted");
+        await BrowserApi.sendTabMessage(tab.id, "addedCipher");
       } catch (error) {
-        await BrowserApi.sendTabMessage(tabId, "saveCipherAttemptCompleted", {
+        await BrowserApi.sendTabMessage(tab.id, "saveCipherAttemptCompleted", {
           error: String(error.message),
         });
       }
@@ -555,11 +551,10 @@ export default class NotificationBackground {
   ) {
     cipherView.login.password = newPassword;
 
-    const tabId = tab.id;
     if (edit) {
       await this.editItem(cipherView, tab);
-      await BrowserApi.sendTabMessage(tabId, "closeNotificationBar");
-      await BrowserApi.sendTabMessage(tabId, "editedCipher");
+      await BrowserApi.sendTabMessage(tab.id, "closeNotificationBar");
+      await BrowserApi.sendTabMessage(tab.id, "editedCipher");
       return;
     }
 
@@ -567,7 +562,7 @@ export default class NotificationBackground {
     try {
       // We've only updated the password, no need to broadcast editedCipher message
       await this.cipherService.updateWithServer(cipher);
-      await BrowserApi.sendTabMessage(tabId, "saveCipherAttemptCompleted");
+      await BrowserApi.sendTabMessage(tab.id, "saveCipherAttemptCompleted");
     } catch (error) {
       await BrowserApi.sendTabMessage(tab.id, "saveCipherAttemptCompleted", {
         error: String(error.message),
