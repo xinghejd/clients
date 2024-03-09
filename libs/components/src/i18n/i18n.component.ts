@@ -91,7 +91,7 @@ export class I18nComponent implements AfterContentInit {
 
     if (tagCount !== this.templateTags.length) {
       this.logService.warning(
-        `The translation for "${this.translationKey}" has ${tagCount} template tags(s), but ${this.templateTags.length} bit-i18n-part directive(s) were found.`,
+        `The translation for "${this.translationKey}" has ${tagCount} template tag(s), but ${this.templateTags.length} bit-i18n-part directive(s) were found.`,
       );
     }
 
