@@ -31,6 +31,11 @@ interface I18nStringPart {
  * bit-i18n-part. If there are not enough bit-i18n-part directives, the text will be rendered as-is for the remaining
  * tags.
  *
+ * ## Caution
+ * Care should be taken if this directive is included in large tables/lists. It can cause performance issues
+ * when there are many 1000s being rendered at once without optimizations like *cdkVirtualFor. In such cases, it is
+ * recommended to use the i18n pipe instead and avoid including templates within the translated content.
+ *
  * @example
  * <div bit-i18n="exampleI18nKey">
  *  <a *bit-i18n-part="let text" routerLink="./first-link">{{ text }}</a>
