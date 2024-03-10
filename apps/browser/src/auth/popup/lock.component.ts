@@ -88,17 +88,13 @@ export class LockComponent extends BaseLockComponent {
     this.successRoute = "/tabs/current";
     this.isInitialLockScreen = (window as any).previousPopupUrl == null;
 
-    super.onSuccessfulSubmit = async () => {
-      const previousUrl = this.routerService.getPreviousUrl();
-      if (previousUrl) {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.router.navigateByUrl(previousUrl);
-      } else {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.router.navigate([this.successRoute]);
+    this.onSuccessfulSubmit = async () => {
+      const backSuccessful = await this.routerService.back();
+      if (backSuccessful) {
+        return;
       }
+
+      void this.router.navigate([this.successRoute]);
     };
   }
 

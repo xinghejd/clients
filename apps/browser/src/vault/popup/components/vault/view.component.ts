@@ -29,6 +29,7 @@ import { PasswordRepromptService } from "@bitwarden/vault";
 import { AutofillService } from "../../../../autofill/services/abstractions/autofill.service";
 import { BrowserApi } from "../../../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../../../platform/popup/browser-popup-utils";
+import { BrowserRouterService } from "../../../../platform/popup/services/browser-router.service";
 import { BrowserFido2UserInterfaceSession } from "../../../fido2/browser-fido2-user-interface.service";
 import { fido2PopoutSessionData$ } from "../../utils/fido2-popout-session-data";
 import { closeViewVaultItemPopout, VaultPopoutType } from "../../utils/vault-popout-window";
@@ -95,6 +96,7 @@ export class ViewComponent extends BaseViewComponent {
     fileDownloadService: FileDownloadService,
     dialogService: DialogService,
     datePipe: DatePipe,
+    private browserRouter: BrowserRouterService,
   ) {
     super(
       cipherService,
@@ -328,7 +330,8 @@ export class ViewComponent extends BaseViewComponent {
       return;
     }
 
-    this.location.back();
+    await this.browserRouter.back();
+    // this.location.back();
   }
 
   private async loadPageDetails() {
