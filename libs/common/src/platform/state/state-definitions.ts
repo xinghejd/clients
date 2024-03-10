@@ -35,7 +35,7 @@ export const GENERATOR_MEMORY = new StateDefinition("generator", "memory");
 
 export const BIOMETRIC_SETTINGS_DISK = new StateDefinition("biometricSettings", "disk");
 
-export const POPUP_HISTORY_MEMORY = new StateDefinition("lastVisitedRoute", "memory");
+export const POPUP_HISTORY_MEMORY = new StateDefinition("popupHistory", "memory");
 
 // Admin Console
 export const ORGANIZATIONS_DISK = new StateDefinition("organizations", "disk");
