@@ -25,7 +25,7 @@ import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/pass
 import { DialogService } from "@bitwarden/components";
 
 import { BiometricErrors, BiometricErrorTypes } from "../../models/biometricErrors";
-import { PopupHistoryService } from "../../platform/popup/services/browser-router.service";
+import { PopupHistoryService } from "../../platform/popup/services/popup-history.service";
 import { fido2PopoutSessionData$ } from "../../vault/popup/utils/fido2-popout-session-data";
 
 @Component({

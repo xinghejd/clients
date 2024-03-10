@@ -1,7 +1,7 @@
 import { inject } from "@angular/core";
 import { CanActivateFn, UrlSerializer } from "@angular/router";
 
-import { PopupHistoryService } from "../platform/popup/services/browser-router.service";
+import { PopupHistoryService } from "../platform/popup/services/popup-history.service";
 
 /** Redirect to the last visited route. Should be applied to root route. */
 export const resumePopupGuard = (): CanActivateFn => {
