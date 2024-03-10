@@ -15,7 +15,7 @@ const POPUP_HISTORY_KEY = new KeyDefinition<string[]>(POPUP_HISTORY_MEMORY, "his
 @Injectable({
   providedIn: "root",
 })
-export class BrowserRouterService {
+export class PopupHistoryService {
   private router = inject(Router);
   private history = inject(GlobalStateProvider).get(POPUP_HISTORY_KEY);
 

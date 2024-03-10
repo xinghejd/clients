@@ -9,7 +9,7 @@ import {
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
-import { BrowserRouterService } from "../../platform/popup/services/browser-router.service";
+import { PopupHistoryService } from "../../platform/popup/services/browser-router.service";
 
 /**
  * This guard verifies the user's authetication status.
@@ -19,7 +19,7 @@ export const fido2AuthGuard: CanActivateFn = async (
   route: ActivatedRouteSnapshot,
   state: RouterStateSnapshot,
 ) => {
-  const routerService = inject(BrowserRouterService);
+  const routerService = inject(PopupHistoryService);
   const authService = inject(AuthService);
   const router = inject(Router);
 
