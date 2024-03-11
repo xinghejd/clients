@@ -1,3 +1,5 @@
+import { Observable } from "rxjs";
+
 import { UriMatchType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
@@ -64,4 +66,9 @@ export abstract class AutofillService {
     cipherType?: CipherType,
   ) => Promise<string | null>;
   isPasswordRepromptRequired: (cipher: CipherView, tab: chrome.tabs.Tab) => Promise<boolean>;
+
+  /**
+   * Returns an observable of the autofill keyboard shortcut for the current device.
+   */
+  shortcut$: Observable<string>;
 }

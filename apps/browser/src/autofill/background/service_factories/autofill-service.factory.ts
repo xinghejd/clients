@@ -20,6 +20,10 @@ import {
   LogServiceInitOptions,
 } from "../../../platform/background/service-factories/log-service.factory";
 import {
+  PlatformUtilsServiceInitOptions,
+  platformUtilsServiceFactory,
+} from "../../../platform/background/service-factories/platform-utils-service.factory";
+import {
   stateServiceFactory,
   StateServiceInitOptions,
 } from "../../../platform/background/service-factories/state-service.factory";
@@ -49,7 +53,8 @@ export type AutoFillServiceInitOptions = AutoFillServiceOptions &
   EventCollectionServiceInitOptions &
   LogServiceInitOptions &
   SettingsServiceInitOptions &
-  UserVerificationServiceInitOptions;
+  UserVerificationServiceInitOptions &
+  PlatformUtilsServiceInitOptions;
 
 export function autofillServiceFactory(
   cache: { autofillService?: AbstractAutoFillService } & CachedServices,
@@ -69,6 +74,7 @@ export function autofillServiceFactory(
         await logServiceFactory(cache, opts),
         await settingsServiceFactory(cache, opts),
         await userVerificationServiceFactory(cache, opts),
+        await platformUtilsServiceFactory(cache, opts),
       ),
   );
 }

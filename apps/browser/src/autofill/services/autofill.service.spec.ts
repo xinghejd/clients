@@ -5,6 +5,7 @@ import { AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants"
 import { AutofillSettingsService } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { EventType } from "@bitwarden/common/enums";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { EventCollectionService } from "@bitwarden/common/services/event/event-collection.service";
 import { SettingsService } from "@bitwarden/common/services/settings.service";
 import {
@@ -57,6 +58,7 @@ describe("AutofillService", () => {
   const logService = mock<LogService>();
   const settingsService = mock<SettingsService>();
   const userVerificationService = mock<UserVerificationService>();
+  const platformUtilsService = mock<PlatformUtilsService>();
 
   beforeEach(() => {
     autofillService = new AutofillService(
@@ -68,6 +70,7 @@ describe("AutofillService", () => {
       logService,
       settingsService,
       userVerificationService,
+      platformUtilsService,
     );
   });
 

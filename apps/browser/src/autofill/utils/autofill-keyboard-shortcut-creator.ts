@@ -6,12 +6,39 @@ const mapToAutofillShortcut = map<(chrome.commands.Command | browser.commands.Co
   (commands) => commands.find((c) => c.name === "autofill_login").shortcut,
 );
 
+const fromFirefoxSetting = () => {
+  return defer(() => browser.commands.getAll()).pipe(
+    mapToAutofillShortcut,
+    switchMap((commandShortcut) => {
+      if (commandShortcut === "Ctrl+Shift+L") {
+        // If they give us the "default" command shortcut and they are on mac, then
+        // we should override it to have `Cmd` instead
+        return defer(() => browser.runtime.getPlatformInfo()).pipe(
+          map((platformInfo) => (platformInfo.os === "mac" ? "Cmd+Shift+L" : commandShortcut)),
+        );
+      }
+
+      // It's not the default shortcut, so there is no extra work to do, return it.
+      return of(commandShortcut);
+    }),
+  );
+};
+
+const fromChromeSetting = () => {
+  return defer(
+    () =>
+      new Promise<chrome.commands.Command[]>((resolve) =>
+        chrome.commands.getAll((commands) => resolve(commands)),
+      ),
+  ).pipe(mapToAutofillShortcut);
+};
+
 /**
  * Create a platform aware observable stream for the keyboard shortcut for autofill.
  * @param platformUtilsService
  * @returns
  */
-export const createAutofillKeyboardShortcutObservable = (
+export const fromBrowserSetting = (
   platformUtilsService: PlatformUtilsService,
 ): Observable<string> => {
   // We return an observable but none of the observables currently will emit
@@ -31,27 +58,8 @@ export const createAutofillKeyboardShortcutObservable = (
   }
 
   if (platformUtilsService.isFirefox()) {
-    return defer(() => browser.commands.getAll()).pipe(
-      mapToAutofillShortcut,
-      switchMap((commandShortcut) => {
-        if (commandShortcut === "Ctrl+Shift+L") {
-          // If they give us the "default" command shortcut and they are on mac, then
-          // we should override it to have `Cmd` instead
-          return defer(() => browser.runtime.getPlatformInfo()).pipe(
-            map((platformInfo) => (platformInfo.os === "mac" ? "Cmd+Shift+L" : commandShortcut)),
-          );
-        }
-
-        // It's not the default shortcut, so there is no extra work to do, return it.
-        return of(commandShortcut);
-      }),
-    );
-  } else {
-    return defer(
-      () =>
-        new Promise<chrome.commands.Command[]>((resolve) =>
-          chrome.commands.getAll((commands) => resolve(commands)),
-        ),
-    ).pipe(mapToAutofillShortcut);
+    return fromFirefoxSetting();
   }
+
+  return fromChromeSetting();
 };

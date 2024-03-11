@@ -1,5 +1,4 @@
 import { LOCALE_ID, NgModule } from "@angular/core";
-import { of } from "rxjs";
 
 import {
   AuthRequestServiceAbstraction,
@@ -227,7 +226,6 @@ import { ThemingService } from "../platform/services/theming/theming.service";
 import { AbstractThemingService } from "../platform/services/theming/theming.service.abstraction";
 
 import {
-  AUTOFILL_KEYBOARD_SHORTCUT,
   LOCALES_DIRECTORY,
   LOCKED_CALLBACK,
   LOG_MAC_FAILURES,
@@ -991,13 +989,6 @@ import { ModalService } from "./modal.service";
       provide: PaymentMethodWarningsServiceAbstraction,
       useClass: PaymentMethodWarningsService,
       deps: [BillingApiServiceAbstraction, StateProvider],
-    },
-    {
-      provide: AUTOFILL_KEYBOARD_SHORTCUT,
-      // Currently only browser supports having an autofill keyboard shortcut
-      // in the possible case of the other clients requesting this, give them null
-      // as an indication there is no shortcut.
-      useValue: of<string | null>(null),
     },
   ],
 })

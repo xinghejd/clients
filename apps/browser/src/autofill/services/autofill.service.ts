@@ -1,4 +1,4 @@
-import { firstValueFrom } from "rxjs";
+import { Observable, firstValueFrom } from "rxjs";
 
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { SettingsService } from "@bitwarden/common/abstractions/settings.service";
@@ -7,6 +7,7 @@ import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/s
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { EventType } from "@bitwarden/common/enums";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { FieldType, UriMatchType, CipherType } from "@bitwarden/common/vault/enums";
@@ -21,6 +22,7 @@ import { AutofillPort } from "../enums/autofill-port.enums";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
+import { fromBrowserSetting } from "../utils/autofill-keyboard-shortcut-creator";
 
 import {
   AutoFillOptions,
@@ -41,6 +43,8 @@ export default class AutofillService implements AutofillServiceInterface {
   private currentlyOpeningPasswordRepromptPopout = false;
   private autofillScriptPortsSet = new Set<chrome.runtime.Port>();
 
+  readonly shortcut$: Observable<string>;
+
   constructor(
     private cipherService: CipherService,
     private stateService: BrowserStateService,
@@ -50,7 +54,10 @@ export default class AutofillService implements AutofillServiceInterface {
     private logService: LogService,
     private settingsService: SettingsService,
     private userVerificationService: UserVerificationService,
-  ) {}
+    platformUtilsService: PlatformUtilsService,
+  ) {
+    this.shortcut$ = fromBrowserSetting(platformUtilsService);
+  }
 
   /**
    * Triggers on installation of the extension Handles injecting

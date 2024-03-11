@@ -1,7 +1,6 @@
-import { Component, Inject, OnInit } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { Observable, firstValueFrom } from "rxjs";
 
-import { AUTOFILL_KEYBOARD_SHORTCUT } from "@bitwarden/angular/services/injection-tokens";
 import { SettingsService } from "@bitwarden/common/abstractions/settings.service";
 import { AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
@@ -32,6 +31,7 @@ export class AutofillComponent implements OnInit {
   defaultUriMatch = UriMatchType.Domain;
   uriMatchOptions: any[];
   accountSwitcherEnabled = false;
+  autofillKeyboardShortcut$: Observable<string>;
 
   constructor(
     private stateService: StateService,
@@ -41,8 +41,6 @@ export class AutofillComponent implements OnInit {
     private autofillService: AutofillService,
     private dialogService: DialogService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
-    @Inject(AUTOFILL_KEYBOARD_SHORTCUT)
-    protected autofillKeyboardShortcut$: Observable<string | null>,
   ) {
     this.autoFillOverlayVisibilityOptions = [
       {
@@ -73,6 +71,7 @@ export class AutofillComponent implements OnInit {
 
     this.accountSwitcherEnabled = enableAccountSwitching();
     this.disablePasswordManagerLink = this.getDisablePasswordManagerLink();
+    this.autofillKeyboardShortcut$ = this.autofillService.shortcut$;
   }
 
   async ngOnInit() {

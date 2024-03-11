@@ -1,9 +1,8 @@
-import { ChangeDetectorRef, Component, Inject, NgZone, OnDestroy, OnInit } from "@angular/core";
+import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
-import { Observable, Subject, firstValueFrom } from "rxjs";
+import { Subject, firstValueFrom } from "rxjs";
 import { debounceTime, takeUntil } from "rxjs/operators";
 
-import { AUTOFILL_KEYBOARD_SHORTCUT } from "@bitwarden/angular/services/injection-tokens";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
@@ -71,8 +70,6 @@ export class CurrentTabComponent implements OnInit, OnDestroy {
     private passwordRepromptService: PasswordRepromptService,
     private organizationService: OrganizationService,
     private vaultFilterService: VaultFilterService,
-    @Inject(AUTOFILL_KEYBOARD_SHORTCUT)
-    private autofillKeyboardShortcut$: Observable<string | null>,
   ) {}
 
   async ngOnInit() {
@@ -341,7 +338,7 @@ export class CurrentTabComponent implements OnInit, OnDestroy {
 
     if (this.showHowToAutofill) {
       // FIXME: Refactor to utilize the observable in the template
-      const autofillCommand = await firstValueFrom(this.autofillKeyboardShortcut$);
+      const autofillCommand = await firstValueFrom(this.autofillService.shortcut$);
       await this.setAutofillCalloutText(autofillCommand);
     }
   }
