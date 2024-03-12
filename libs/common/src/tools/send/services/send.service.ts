@@ -37,6 +37,8 @@ export class SendService implements InternalSendServiceAbstraction {
     private keyGenerationService: KeyGenerationService,
     private stateService: StateService,
   ) {
+    // Using the account service. Should likely get the active user from the
+    // account service. Similar to the event collection.
     this.stateService.activeAccountUnlocked$
       .pipe(
         concatMap(async (unlocked) => {
@@ -251,11 +253,13 @@ export class SendService implements InternalSendServiceAbstraction {
     await this.replace(sends);
   }
 
+  // UserId likely not needed? Any scenario where user switching is an issue?
   async clear(userId?: string): Promise<any> {
     if (userId == null || userId == (await this.stateService.getUserId())) {
       this._sends.next([]);
       this._sendViews.next([]);
     }
+
     await this.stateService.setDecryptedSends(null, { userId: userId });
     await this.stateService.setEncryptedSends(null, { userId: userId });
   }
