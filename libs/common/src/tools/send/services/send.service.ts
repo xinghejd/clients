@@ -1,9 +1,17 @@
-import { BehaviorSubject, Observable, concatMap, distinctUntilChanged, map } from "rxjs";
+import {
+  BehaviorSubject,
+  Observable,
+  combineLatest,
+  concatMap,
+  distinctUntilChanged,
+  map,
+} from "rxjs";
 
+import { AccountService } from "../../../auth/abstractions/account.service";
+import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
-import { StateService } from "../../../platform/abstractions/state.service";
 import { KdfType } from "../../../platform/enums";
 import { Utils } from "../../../platform/misc/utils";
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
@@ -19,7 +27,9 @@ import { SendWithIdRequest } from "../models/request/send-with-id.request";
 import { SendView } from "../models/view/send.view";
 import { SEND_KDF_ITERATIONS } from "../send-kdf";
 
+import { SendStateService } from "./send-state.service.abstraction";
 import { InternalSendService as InternalSendServiceAbstraction } from "./send.service.abstraction";
+
 
 export class SendService implements InternalSendServiceAbstraction {
   readonly sendKeySalt = "bitwarden-send";
@@ -35,17 +45,19 @@ export class SendService implements InternalSendServiceAbstraction {
     private cryptoService: CryptoService,
     private i18nService: I18nService,
     private keyGenerationService: KeyGenerationService,
-    private stateService: StateService,
+    private stateService: SendStateService,
+    private accountService: AccountService,
   ) {
     // Using the account service. Should likely get the active user from the
     // account service. Similar to the event collection.
-    this.stateService.activeAccountUnlocked$
+    combineLatest([this.accountService.activeAccount$, this.accountService.accounts$])
       .pipe(
-        concatMap(async (unlocked) => {
+        concatMap(async ([activeAccount, accounts]) => {
           if (Utils.global.bitwardenContainerService == null) {
             return;
           }
 
+          const unlocked = accounts[activeAccount.id]?.status == AuthenticationStatus.Unlocked;
           if (!unlocked) {
             this._sends.next([]);
             this._sendViews.next([]);
@@ -53,11 +65,30 @@ export class SendService implements InternalSendServiceAbstraction {
           }
 
           const data = await this.stateService.getEncryptedSends();
-
           await this.updateObservables(data);
         }),
       )
       .subscribe();
+
+    // this.stateService.activeAccountUnlocked$
+    //   .pipe(
+    //     concatMap(async (unlocked) => {
+    //       if (Utils.global.bitwardenContainerService == null) {
+    //         return;
+    //       }
+
+    //       if (!unlocked) {
+    //         this._sends.next([]);
+    //         this._sendViews.next([]);
+    //         return;
+    //       }
+
+    //       const data = await this.stateService.getEncryptedSends();
+
+    //       await this.updateObservables(data);
+    //     }),
+    //   )
+    //   .subscribe();
   }
 
   async clearCache(): Promise<void> {
@@ -253,15 +284,9 @@ export class SendService implements InternalSendServiceAbstraction {
     await this.replace(sends);
   }
 
-  // UserId likely not needed? Any scenario where user switching is an issue?
   async clear(userId?: string): Promise<any> {
-    if (userId == null || userId == (await this.stateService.getUserId())) {
-      this._sends.next([]);
-      this._sendViews.next([]);
-    }
-
-    await this.stateService.setDecryptedSends(null, { userId: userId });
-    await this.stateService.setEncryptedSends(null, { userId: userId });
+    await this.stateService.setDecryptedSends(null);
+    await this.stateService.setEncryptedSends(null);
   }
 
   async delete(id: string | string[]): Promise<any> {
