@@ -57,6 +57,10 @@ import {
   BadgeSettingsService,
 } from "@bitwarden/common/autofill/services/badge-settings.service";
 import {
+  DomainSettingsService,
+  DefaultDomainSettingsService,
+} from "@bitwarden/common/autofill/services/domain-settings.service";
+import {
   UserNotificationSettingsService,
   UserNotificationSettingsServiceAbstraction,
 } from "@bitwarden/common/autofill/services/user-notification-settings.service";
@@ -112,6 +116,7 @@ import { DefaultSingleUserStateProvider } from "@bitwarden/common/platform/state
 import { DefaultStateProvider } from "@bitwarden/common/platform/state/implementations/default-state.provider";
 import { StateEventRegistrarService } from "@bitwarden/common/platform/state/state-event-registrar.service";
 /* eslint-enable import/no-restricted-paths */
+import { DefaultThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { AvatarUpdateService } from "@bitwarden/common/services/account/avatar-update.service";
 import { ApiService } from "@bitwarden/common/services/api.service";
 import { AuditService } from "@bitwarden/common/services/audit.service";
@@ -195,13 +200,14 @@ import { BrowserStateService as StateServiceAbstraction } from "../platform/serv
 import { BrowserConfigService } from "../platform/services/browser-config.service";
 import { BrowserCryptoService } from "../platform/services/browser-crypto.service";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
-import { BrowserI18nService } from "../platform/services/browser-i18n.service";
 import BrowserLocalStorageService from "../platform/services/browser-local-storage.service";
 import BrowserMessagingPrivateModeBackgroundService from "../platform/services/browser-messaging-private-mode-background.service";
 import BrowserMessagingService from "../platform/services/browser-messaging.service";
-import BrowserPlatformUtilsService from "../platform/services/browser-platform-utils.service";
 import { BrowserStateService } from "../platform/services/browser-state.service";
+import I18nService from "../platform/services/i18n.service";
 import { LocalBackedSessionStorageService } from "../platform/services/local-backed-session-storage.service";
+import { BackgroundPlatformUtilsService } from "../platform/services/platform-utils/background-platform-utils.service";
+import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
 import { BackgroundDerivedStateProvider } from "../platform/state/background-derived-state.provider";
 import { BackgroundMemoryStorageService } from "../platform/storage/background-memory-storage.service";
 import { BrowserSendService } from "../services/browser-send.service";
@@ -258,6 +264,7 @@ export default class MainBackground {
   userNotificationSettingsService: UserNotificationSettingsServiceAbstraction;
   autofillSettingsService: AutofillSettingsServiceAbstraction;
   badgeSettingsService: BadgeSettingsServiceAbstraction;
+  domainSettingsService: DomainSettingsService;
   systemService: SystemServiceAbstraction;
   eventCollectionService: EventCollectionServiceAbstraction;
   eventUploadService: EventUploadServiceAbstraction;
@@ -352,7 +359,7 @@ export default class MainBackground {
     this.cryptoFunctionService = new WebCryptoFunctionService(self);
     this.keyGenerationService = new KeyGenerationService(this.cryptoFunctionService);
     this.storageService = new BrowserLocalStorageService();
-    this.secureStorageService = new BrowserLocalStorageService();
+    this.secureStorageService = this.storageService; // secure storage is not supported in browsers, so we use local storage and warn users when it is used
     this.memoryStorageService = BrowserApi.isManifestVersion(3)
       ? new LocalBackedSessionStorageService(
           new EncryptServiceImplementation(this.cryptoFunctionService, this.logService, false),
@@ -438,31 +445,16 @@ export default class MainBackground {
       migrationRunner,
     );
     this.userNotificationSettingsService = new UserNotificationSettingsService(this.stateProvider);
-    this.platformUtilsService = new BrowserPlatformUtilsService(
+    this.platformUtilsService = new BackgroundPlatformUtilsService(
       this.messagingService,
-      (clipboardValue, clearMs) => {
-        if (this.systemService != null) {
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          this.systemService.clearClipboard(clipboardValue, clearMs);
-        }
-      },
-      async () => {
-        if (this.nativeMessagingBackground != null) {
-          const promise = this.nativeMessagingBackground.getResponse();
-
-          try {
-            await this.nativeMessagingBackground.send({ command: "biometricUnlock" });
-          } catch (e) {
-            return Promise.reject(e);
-          }
-
-          return promise.then((result) => result.response === "unlocked");
-        }
-      },
+      (clipboardValue, clearMs) => this.clearClipboard(clipboardValue, clearMs),
+      async () => this.biometricUnlock(),
       self,
     );
-    this.i18nService = new BrowserI18nService(BrowserApi.getUILanguage(), this.stateService);
+
+    const themeStateService = new DefaultThemeStateService(this.globalStateProvider);
+
+    this.i18nService = new I18nService(BrowserApi.getUILanguage(), this.globalStateProvider);
     this.cryptoService = new BrowserCryptoService(
       this.keyGenerationService,
       this.cryptoFunctionService,
@@ -475,7 +467,7 @@ export default class MainBackground {
       this.biometricStateService,
     );
     this.tokenService = new TokenService(this.stateService);
-    this.appIdService = new AppIdService(this.storageService);
+    this.appIdService = new AppIdService(this.globalStateProvider);
     this.apiService = new ApiService(
       this.tokenService,
       this.platformUtilsService,
@@ -483,6 +475,7 @@ export default class MainBackground {
       this.appIdService,
       (expired: boolean) => this.logout(expired),
     );
+    this.domainSettingsService = new DefaultDomainSettingsService(this.stateProvider);
     this.settingsService = new BrowserSettingsService(this.stateService);
     this.fileUploadService = new FileUploadService(this.logService);
     this.cipherFileUploadService = new CipherFileUploadService(
@@ -588,6 +581,7 @@ export default class MainBackground {
       this.policyService,
       this.deviceTrustCryptoService,
       this.authRequestService,
+      this.globalStateProvider,
     );
 
     this.ssoLoginService = new SsoLoginService(this.stateProvider);
@@ -607,7 +601,7 @@ export default class MainBackground {
 
     this.cipherService = new CipherService(
       this.cryptoService,
-      this.settingsService,
+      this.domainSettingsService,
       this.apiService,
       this.i18nService,
       this.searchService,
@@ -694,7 +688,7 @@ export default class MainBackground {
     this.providerService = new ProviderService(this.stateProvider);
     this.syncService = new SyncService(
       this.apiService,
-      this.settingsService,
+      this.domainSettingsService,
       this.folderService,
       this.cipherService,
       this.cryptoService,
@@ -731,7 +725,7 @@ export default class MainBackground {
       this.totpService,
       this.eventCollectionService,
       this.logService,
-      this.settingsService,
+      this.domainSettingsService,
       this.userVerificationService,
     );
     this.auditService = new AuditService(this.cryptoFunctionService, this.apiService);
@@ -795,6 +789,7 @@ export default class MainBackground {
       this.authService,
       this.stateService,
       this.vaultSettingsService,
+      this.domainSettingsService,
       this.logService,
     );
 
@@ -864,8 +859,10 @@ export default class MainBackground {
       this.folderService,
       this.stateService,
       this.userNotificationSettingsService,
+      this.domainSettingsService,
       this.environmentService,
       this.logService,
+      themeStateService,
     );
     this.overlayBackground = new OverlayBackground(
       this.cipherService,
@@ -877,6 +874,7 @@ export default class MainBackground {
       this.autofillSettingsService,
       this.i18nService,
       this.platformUtilsService,
+      themeStateService,
     );
     this.filelessImporterBackground = new FilelessImporterBackground(
       this.configService,
@@ -969,7 +967,7 @@ export default class MainBackground {
     await this.stateService.init();
 
     await this.vaultTimeoutService.init(true);
-    await (this.i18nService as BrowserI18nService).init();
+    await (this.i18nService as I18nService).init();
     await (this.eventUploadService as EventUploadService).init(true);
     await this.runtimeBackground.init();
     await this.notificationBackground.init();
@@ -1097,7 +1095,6 @@ export default class MainBackground {
     await Promise.all([
       this.syncService.setLastSync(new Date(0), userId),
       this.cryptoService.clearKeys(userId),
-      this.settingsService.clear(userId),
       this.cipherService.clear(userId),
       this.folderService.clear(userId),
       this.collectionService.clear(userId),
@@ -1220,6 +1217,23 @@ export default class MainBackground {
       }
       await this.storageService.save(key, storage[key]);
     }
+  }
+
+  async clearClipboard(clipboardValue: string, clearMs: number) {
+    if (this.systemService != null) {
+      await this.systemService.clearClipboard(clipboardValue, clearMs);
+    }
+  }
+
+  async biometricUnlock(): Promise<boolean> {
+    if (this.nativeMessagingBackground == null) {
+      return false;
+    }
+
+    const responsePromise = this.nativeMessagingBackground.getResponse();
+    await this.nativeMessagingBackground.send({ command: "biometricUnlock" });
+    const response = await responsePromise;
+    return response.response === "unlocked";
   }
 
   private async fullSync(override = false) {
