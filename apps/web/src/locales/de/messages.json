@@ -578,6 +578,9 @@
   "access": {
     "message": "Zugriff"
   },
+  "accessLevel": {
+    "message": "Zugriffsebene"
+  },
   "loggedOut": {
     "message": "Ausgeloggt"
   },
@@ -1349,13 +1352,17 @@
   },
   "onboardingImportDataDetailsPartOne": {
     "message": "Wenn du keine Daten zu importieren hast, kannst du stattdessen einen ",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
   "onboardingImportDataDetailsLink": {
     "message": "neuen Eintrag",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
-  "onboardingImportDataDetailsPartTwo": {
+  "onboardingImportDataDetailsPartTwoNoOrgs": {
+    "message": " erstellen.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
+  },
+  "onboardingImportDataDetailsPartTwoWithOrgs": {
     "message": " erstellen. Möglicherweise musst du warten, bis dein Administrator die Mitgliedschaft in deiner Organisation bestätigt.",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
   },
@@ -1471,13 +1478,6 @@
   },
   "faviconDesc": {
     "message": "Ein wiedererkennbares Bild neben jeden Zugangsdaten anzeigen."
-  },
-  "enableFullWidth": {
-    "message": "Darstellung in voller Breite aktivieren",
-    "description": "Allows scaling the web vault UI's width"
-  },
-  "enableFullWidthDesc": {
-    "message": "Dem Web-Tresor erlauben, die volle Breite des Browserfensters zu benutzen."
   },
   "default": {
     "message": "Standard"
@@ -4950,6 +4950,9 @@
   "newClientOrganizationDesc": {
     "message": "Erstelle eine neue Kunden-Organisation, die dir als Anbieter zugeordnet wird. Du kannst auf diese Organisation zugreifen und diese verwalten."
   },
+  "newClient": {
+    "message": "New client"
+  },
   "addExistingOrganization": {
     "message": "Bestehende Organisation hinzufügen"
   },
@@ -6673,11 +6676,11 @@
   "resendCode": {
     "message": "Code erneut senden"
   },
-  "membersColumnHeader": {
-    "message": "Mitglied/Gruppe"
-  },
-  "groupAndMemberColumnHeader": {
+  "memberColumnHeader": {
     "message": "Mitglied"
+  },
+  "groupSlashMemberColumnHeader": {
+    "message": "Gruppe/Mitglied"
   },
   "selectGroupsAndMembers": {
     "message": "Gruppen und Mitglieder auswählen"
@@ -7504,6 +7507,9 @@
   "grantCollectionAccess": {
     "message": "Gewähre Gruppen oder Mitgliedern Zugriff auf diese Sammlung."
   },
+  "grantCollectionAccessMembersOnly": {
+    "message": "Gewähre Mitgliedern Zugriff auf diese Sammlung."
+  },
   "adminCollectionAccess": {
     "message": "Administratoren können auf Sammlungen zugreifen und diese verwalten."
   },
@@ -7584,5 +7590,20 @@
   "tooExpensive": {
     "message": "Zu teuer",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "freeForOneYear": {
+    "message": "Kostenlos für 1 Jahr"
+  },
+  "newWebApp": {
+    "message": "Willkommen bei der neuen und verbesserten Web-App. Erfahre mehr über die Änderungen."
+  },
+  "releaseBlog": {
+    "message": "Veröffentlichungs-Blog lesen"
+  },
+  "adminConsole": {
+    "message": "Administrator-Konsole"
+  },
+  "providerPortal": {
+    "message": "Anbieterportal"
   }
 }

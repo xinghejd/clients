@@ -578,6 +578,9 @@
   "access": {
     "message": "Toegang"
   },
+  "accessLevel": {
+    "message": "Access level"
+  },
   "loggedOut": {
     "message": "Uitgelogd"
   },
@@ -1349,14 +1352,18 @@
   },
   "onboardingImportDataDetailsPartOne": {
     "message": "Als je geen gegevens om te importeren hebt, kun je een ",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
   "onboardingImportDataDetailsLink": {
     "message": "nieuw item",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
-  "onboardingImportDataDetailsPartTwo": {
-    "message": " maken. Je moet misschien wachten tot je beheerder je organisatielidmaatschap bevestigt.",
+  "onboardingImportDataDetailsPartTwoNoOrgs": {
+    "message": " aanmaken.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
+  },
+  "onboardingImportDataDetailsPartTwoWithOrgs": {
+    "message": " aanmaken. Je moet misschien wachten tot je beheerder je organisatielidmaatschap bevestigt.",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
   },
   "importError": {
@@ -1471,13 +1478,6 @@
   },
   "faviconDesc": {
     "message": "Een herkenbare afbeelding naast iedere login weergeven."
-  },
-  "enableFullWidth": {
-    "message": "Weergave op volle breedte inschakelen",
-    "description": "Allows scaling the web vault UI's width"
-  },
-  "enableFullWidthDesc": {
-    "message": "Laat de webkluis de volledige breedte van het browservenster gebruiken."
   },
   "default": {
     "message": "Standaard"
@@ -4950,6 +4950,9 @@
   "newClientOrganizationDesc": {
     "message": "Maak een nieuwe klantorganisatie aan die aan jou als provider zal worden gekoppeld. Je kunt toegang krijgen tot en deze organisatie beheren."
   },
+  "newClient": {
+    "message": "Nieuwe app"
+  },
   "addExistingOrganization": {
     "message": "Bestaande organisatie toevoegen"
   },
@@ -6673,11 +6676,11 @@
   "resendCode": {
     "message": "Code opnieuw sturen"
   },
-  "membersColumnHeader": {
-    "message": "Lid/Groep"
-  },
-  "groupAndMemberColumnHeader": {
+  "memberColumnHeader": {
     "message": "Lid"
+  },
+  "groupSlashMemberColumnHeader": {
+    "message": "Groep/Lid"
   },
   "selectGroupsAndMembers": {
     "message": "Groepen en leden selecteren"
@@ -7504,6 +7507,9 @@
   "grantCollectionAccess": {
     "message": "Groepen of mensen toegang tot deze collectie geven."
   },
+  "grantCollectionAccessMembersOnly": {
+    "message": "Leden toegang tot deze collectie geven."
+  },
   "adminCollectionAccess": {
     "message": "Beheerders hebben toegang tot collecties en kunnen deze beheren."
   },
@@ -7584,5 +7590,20 @@
   "tooExpensive": {
     "message": "Te duur",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "freeForOneYear": {
+    "message": "1 jaar gratis"
+  },
+  "newWebApp": {
+    "message": "Welkom bij de nieuwe en verbeterde webapp. Meer informatie over wat er is veranderd."
+  },
+  "releaseBlog": {
+    "message": "Lees release blog"
+  },
+  "adminConsole": {
+    "message": "Beheerdersconsole"
+  },
+  "providerPortal": {
+    "message": "Providerportaal"
   }
 }

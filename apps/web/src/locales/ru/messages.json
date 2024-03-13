@@ -578,6 +578,9 @@
   "access": {
     "message": "Доступ"
   },
+  "accessLevel": {
+    "message": "Уровень доступа"
+  },
   "loggedOut": {
     "message": "Вы вышли из хранилища"
   },
@@ -1349,14 +1352,18 @@
   },
   "onboardingImportDataDetailsPartOne": {
     "message": "Если у вас нет данных для импорта, вы можете создать ",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
   "onboardingImportDataDetailsLink": {
     "message": "новый элемент.",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
-  "onboardingImportDataDetailsPartTwo": {
-    "message": " Возможно, вам придется подождать, пока администратор подтвердит ваше членство в организации.",
+  "onboardingImportDataDetailsPartTwoNoOrgs": {
+    "message": " вместо этого.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
+  },
+  "onboardingImportDataDetailsPartTwoWithOrgs": {
+    "message": " вместо этого. Возможно, вам придется подождать, пока администратор подтвердит ваше членство в организации.",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
   },
   "importError": {
@@ -1471,13 +1478,6 @@
   },
   "faviconDesc": {
     "message": "Отображать узнаваемое изображение рядом с каждым логином."
-  },
-  "enableFullWidth": {
-    "message": "Активировать отображение на всю ширину",
-    "description": "Allows scaling the web vault UI's width"
-  },
-  "enableFullWidthDesc": {
-    "message": "Разрешить веб-хранилищу использовать всю ширину окна браузера."
   },
   "default": {
     "message": "По умолчанию"
@@ -4044,10 +4044,10 @@
     "message": "Теперь вы можете закрыть эту вкладку и продолжить в расширении."
   },
   "youSuccessfullyLoggedIn": {
-    "message": "You successfully logged in"
+    "message": "Вы успешно авторизовались"
   },
   "thisWindowWillCloseIn5Seconds": {
-    "message": "This window will automatically close in 5 seconds"
+    "message": "Это окно автоматически закроется через 5 секунд"
   },
   "includeAllTeamsFeatures": {
     "message": "Все возможности Teams, плюс:"
@@ -4949,6 +4949,9 @@
   },
   "newClientOrganizationDesc": {
     "message": "Создайте новую организацию клиента, которая будет связана с вами как с поставщиком. Вы сможете получить доступ к этой организации и управлять ею."
+  },
+  "newClient": {
+    "message": "Новый клиент"
   },
   "addExistingOrganization": {
     "message": "Добавить существующую организацию"
@@ -5934,13 +5937,13 @@
     }
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Запустите DUO и следуйте шагам для завершения авторизации."
+    "message": "Запустите Duo и следуйте шагам для завершения авторизации."
   },
   "duoRequiredByOrgForAccount": {
-    "message": "Для вашего аккаунта требуется двухэтапная аутентификация DUO."
+    "message": "Для вашего аккаунта требуется двухэтапная аутентификация Duo."
   },
   "launchDuo": {
-    "message": "Запустить DUO"
+    "message": "Запустить Duo"
   },
   "turnOn": {
     "message": "Включить"
@@ -6673,11 +6676,11 @@
   "resendCode": {
     "message": "Отправить код повторно"
   },
-  "membersColumnHeader": {
-    "message": "Участник/Группа"
-  },
-  "groupAndMemberColumnHeader": {
+  "memberColumnHeader": {
     "message": "Участник"
+  },
+  "groupSlashMemberColumnHeader": {
+    "message": "Группа/участник"
   },
   "selectGroupsAndMembers": {
     "message": "Выбор групп и участников"
@@ -7504,6 +7507,9 @@
   "grantCollectionAccess": {
     "message": "Предоставить группам или участникам доступ к этой коллекции."
   },
+  "grantCollectionAccessMembersOnly": {
+    "message": "Предоставить участникам доступ к этой коллекции."
+  },
   "adminCollectionAccess": {
     "message": "Администраторы могут получать доступ к коллекциям и управлять ими."
   },
@@ -7584,5 +7590,20 @@
   "tooExpensive": {
     "message": "Слишком дорого",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "freeForOneYear": {
+    "message": "Бесплатно на 1 год"
+  },
+  "newWebApp": {
+    "message": "Добро пожаловать в новое и улучшенное веб-приложение. Узнайте больше о том, что изменилось."
+  },
+  "releaseBlog": {
+    "message": "Прочитать блог о релизе"
+  },
+  "adminConsole": {
+    "message": "Консоль администратора"
+  },
+  "providerPortal": {
+    "message": "Портал провайдера"
   }
 }

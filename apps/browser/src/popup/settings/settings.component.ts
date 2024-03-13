@@ -31,6 +31,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { DialogService } from "@bitwarden/components";
 
 import { SetPinComponent } from "../../auth/popup/components/set-pin.component";
@@ -101,6 +102,7 @@ export class SettingsComponent implements OnInit {
     private userVerificationService: UserVerificationService,
     private dialogService: DialogService,
     private changeDetectorRef: ChangeDetectorRef,
+    private biometricStateService: BiometricStateService,
   ) {
     this.accountSwitcherEnabled = enableAccountSwitching();
   }
@@ -176,7 +178,9 @@ export class SettingsComponent implements OnInit {
       ),
       pin: pinStatus !== "DISABLED",
       biometric: await this.vaultTimeoutSettingsService.isBiometricLockSet(),
-      enableAutoBiometricsPrompt: !(await this.stateService.getDisableAutoBiometricsPrompt()),
+      enableAutoBiometricsPrompt: await firstValueFrom(
+        this.biometricStateService.promptAutomatically$,
+      ),
     };
     this.form.patchValue(initialValues); // Emit event to initialize `pairwise` operator
 
@@ -393,7 +397,7 @@ export class SettingsComponent implements OnInit {
             // Handle connection errors
             this.form.controls.biometric.setValue(false);
 
-            const error = BiometricErrors[e as BiometricErrorTypes];
+            const error = BiometricErrors[e.message as BiometricErrorTypes];
 
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -410,14 +414,14 @@ export class SettingsComponent implements OnInit {
           }),
       ]);
     } else {
-      await this.stateService.setBiometricUnlock(null);
-      await this.stateService.setBiometricFingerprintValidated(false);
+      await this.biometricStateService.setBiometricUnlockEnabled(false);
+      await this.biometricStateService.setFingerprintValidated(false);
     }
   }
 
   async updateAutoBiometricsPrompt() {
-    await this.stateService.setDisableAutoBiometricsPrompt(
-      !this.form.value.enableAutoBiometricsPrompt,
+    await this.biometricStateService.setPromptAutomatically(
+      this.form.value.enableAutoBiometricsPrompt,
     );
   }
 

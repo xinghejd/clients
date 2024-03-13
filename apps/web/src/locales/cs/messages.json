@@ -578,6 +578,9 @@
   "access": {
     "message": "Přístup"
   },
+  "accessLevel": {
+    "message": "Úroveň přístupu"
+  },
   "loggedOut": {
     "message": "Odhlášení"
   },
@@ -1349,14 +1352,18 @@
   },
   "onboardingImportDataDetailsPartOne": {
     "message": "Pokud nemáte žádná data k importu, můžete místo toho vytvořit ",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
   "onboardingImportDataDetailsLink": {
-    "message": "novou položku.",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+    "message": "novou položku",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
-  "onboardingImportDataDetailsPartTwo": {
-    "message": " Možná budete muset počkat, než Váš správce potvrdí členství ve Vaší organizaci.",
+  "onboardingImportDataDetailsPartTwoNoOrgs": {
+    "message": ".",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
+  },
+  "onboardingImportDataDetailsPartTwoWithOrgs": {
+    "message": ". Možná budete muset počkat, než Váš správce potvrdí členství ve Vaší organizaci.",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
   },
   "importError": {
@@ -1471,13 +1478,6 @@
   },
   "faviconDesc": {
     "message": "Zobrazí rozeznatelný obrázek vedle každého přihlášení."
-  },
-  "enableFullWidth": {
-    "message": "Zapnout rozvržení na celou šířku stránky",
-    "description": "Allows scaling the web vault UI's width"
-  },
-  "enableFullWidthDesc": {
-    "message": "Umožní webovému trezoru roztáhnout se na celou šířku okna prohlížeče."
   },
   "default": {
     "message": "Výchozí"
@@ -4950,6 +4950,9 @@
   "newClientOrganizationDesc": {
     "message": "Vytvoří novou organizaci klienta, která bude spojena s Vámi jako poskytovatel. Budete mít přístup a budete moci spravovat tuto organizaci."
   },
+  "newClient": {
+    "message": "Nový klient"
+  },
   "addExistingOrganization": {
     "message": "Přidat existující organizaci"
   },
@@ -6673,11 +6676,11 @@
   "resendCode": {
     "message": "Znovu odeslat kód"
   },
-  "membersColumnHeader": {
-    "message": "Člen/Skupina"
-  },
-  "groupAndMemberColumnHeader": {
+  "memberColumnHeader": {
     "message": "Člen"
+  },
+  "groupSlashMemberColumnHeader": {
+    "message": "Skupina/Člen"
   },
   "selectGroupsAndMembers": {
     "message": "Zvolte skupiny a členy"
@@ -7504,6 +7507,9 @@
   "grantCollectionAccess": {
     "message": "Udělí skupinám nebo členům přístup k této kolekci."
   },
+  "grantCollectionAccessMembersOnly": {
+    "message": "Udělí členům přístup k této kolekci."
+  },
   "adminCollectionAccess": {
     "message": "Správci mohou přistupovat ke kolekcím a spravovat je."
   },
@@ -7584,5 +7590,20 @@
   "tooExpensive": {
     "message": "Příliš drahé",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "freeForOneYear": {
+    "message": "Zdarma na 1 rok"
+  },
+  "newWebApp": {
+    "message": "Vítejte v nové a vylepšené webové aplikaci. Podívejte se na více informací o tom, co se změnilo."
+  },
+  "releaseBlog": {
+    "message": "Číst blog vydání"
+  },
+  "adminConsole": {
+    "message": "Konzole správce"
+  },
+  "providerPortal": {
+    "message": "Portál poskytovatele"
   }
 }

@@ -578,6 +578,9 @@
   "access": {
     "message": "Åtkomst"
   },
+  "accessLevel": {
+    "message": "Access level"
+  },
   "loggedOut": {
     "message": "Utloggad"
   },
@@ -1349,13 +1352,17 @@
   },
   "onboardingImportDataDetailsPartOne": {
     "message": "Om du inte har någon data att importera, kan du skapa ett ",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
   "onboardingImportDataDetailsLink": {
     "message": "nytt objekt",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
-  "onboardingImportDataDetailsPartTwo": {
+  "onboardingImportDataDetailsPartTwoNoOrgs": {
+    "message": " instead.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
+  },
+  "onboardingImportDataDetailsPartTwoWithOrgs": {
     "message": " instead. You may need to wait until your administrator confirms your organization membership.",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
   },
@@ -1471,13 +1478,6 @@
   },
   "faviconDesc": {
     "message": "Visa en igenkännbar bild bredvid varje inloggning."
-  },
-  "enableFullWidth": {
-    "message": "Aktivera layout med full bredd",
-    "description": "Allows scaling the web vault UI's width"
-  },
-  "enableFullWidthDesc": {
-    "message": "Tillåt webbvalvet att utökas till webbläsarfönstrets fulla bredd."
   },
   "default": {
     "message": "Standard"
@@ -4950,6 +4950,9 @@
   "newClientOrganizationDesc": {
     "message": "Create a new client organization that will be associated with you as the Provider. You will be able to access and manage this organization."
   },
+  "newClient": {
+    "message": "Ny klient"
+  },
   "addExistingOrganization": {
     "message": "Lägg till befintlig organisation"
   },
@@ -6673,11 +6676,11 @@
   "resendCode": {
     "message": "Skicka kod igen"
   },
-  "membersColumnHeader": {
-    "message": "Medlem/Grupp"
-  },
-  "groupAndMemberColumnHeader": {
+  "memberColumnHeader": {
     "message": "Medlem"
+  },
+  "groupSlashMemberColumnHeader": {
+    "message": "Grupp/Medlem"
   },
   "selectGroupsAndMembers": {
     "message": "Välj grupper och medlemmar"
@@ -7504,6 +7507,9 @@
   "grantCollectionAccess": {
     "message": "Ge grupper eller medlemmar tillgång till denna samling."
   },
+  "grantCollectionAccessMembersOnly": {
+    "message": "Ge medlemmar tillgång till denna samling."
+  },
   "adminCollectionAccess": {
     "message": "Administratörer kan komma åt och hantera samlingar."
   },
@@ -7584,5 +7590,20 @@
   "tooExpensive": {
     "message": "För dyrt",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "freeForOneYear": {
+    "message": "Gratis i 1 år"
+  },
+  "newWebApp": {
+    "message": "Välkommen till den nya och förbättrade webbappen. Läs mer om vad som har förändrats."
+  },
+  "releaseBlog": {
+    "message": "Read release blog"
+  },
+  "adminConsole": {
+    "message": "Admin Console"
+  },
+  "providerPortal": {
+    "message": "Provider Portal"
   }
 }

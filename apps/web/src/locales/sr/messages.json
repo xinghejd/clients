@@ -578,6 +578,9 @@
   "access": {
     "message": "Приступ"
   },
+  "accessLevel": {
+    "message": "Access level"
+  },
   "loggedOut": {
     "message": "Одјављено"
   },
@@ -1349,14 +1352,18 @@
   },
   "onboardingImportDataDetailsPartOne": {
     "message": "Ако немате податке за увоз, можете креирати ",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
   "onboardingImportDataDetailsLink": {
     "message": "нову ставку",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
-  "onboardingImportDataDetailsPartTwo": {
-    "message": " Можда ћете морати да сачекате док администратор не потврди чланство.",
+  "onboardingImportDataDetailsPartTwoNoOrgs": {
+    "message": " уместо.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
+  },
+  "onboardingImportDataDetailsPartTwoWithOrgs": {
+    "message": " уместо. Можда ћете морати да сачекате док администратор не потврди чланство.",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
   },
   "importError": {
@@ -1471,13 +1478,6 @@
   },
   "faviconDesc": {
     "message": "Прикажи препознатљиву иконицу поред сваке ставке за пријаву."
-  },
-  "enableFullWidth": {
-    "message": "Упали пуни ширину распореда",
-    "description": "Allows scaling the web vault UI's width"
-  },
-  "enableFullWidthDesc": {
-    "message": "Дозволите веб сефу да користи пуну ширину прозора прегледача."
   },
   "default": {
     "message": "Подразумевано"
@@ -4950,6 +4950,9 @@
   "newClientOrganizationDesc": {
     "message": "Креирајте нову организацију клијента која ће бити повезана са вама као провајдера. Бићете у могућности да приступите и управљате овој организацијом."
   },
+  "newClient": {
+    "message": "Нови клијент"
+  },
   "addExistingOrganization": {
     "message": "Додај постојећу организацију"
   },
@@ -6673,11 +6676,11 @@
   "resendCode": {
     "message": "Поново послати кôд"
   },
-  "membersColumnHeader": {
-    "message": "Члан/Група"
-  },
-  "groupAndMemberColumnHeader": {
+  "memberColumnHeader": {
     "message": "Члан"
+  },
+  "groupSlashMemberColumnHeader": {
+    "message": "Група/Члан"
   },
   "selectGroupsAndMembers": {
     "message": "Изаберите групе и чланове"
@@ -7504,6 +7507,9 @@
   "grantCollectionAccess": {
     "message": "Одобрите групама или члановима приступ овој колекцији."
   },
+  "grantCollectionAccessMembersOnly": {
+    "message": "Одобрите члановима приступ овој колекцији."
+  },
   "adminCollectionAccess": {
     "message": "Администратори могу да приступе и управљају колекцијама."
   },
@@ -7584,5 +7590,20 @@
   "tooExpensive": {
     "message": "Превише скупо",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "freeForOneYear": {
+    "message": "Бесплатно 1 годину"
+  },
+  "newWebApp": {
+    "message": "Добродошли у нову и побољшану веб апликацију. Сазнајте више о томе шта се променило."
+  },
+  "releaseBlog": {
+    "message": "Прочитајте блог о издању"
+  },
+  "adminConsole": {
+    "message": "Администраторска конзола"
+  },
+  "providerPortal": {
+    "message": "Портал провајдера"
   }
 }

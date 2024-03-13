@@ -578,6 +578,9 @@
   "access": {
     "message": "Acessos"
   },
+  "accessLevel": {
+    "message": "Nível de acesso"
+  },
   "loggedOut": {
     "message": "Sessão terminada"
   },
@@ -1349,14 +1352,18 @@
   },
   "onboardingImportDataDetailsPartOne": {
     "message": "Se não tiver quaisquer dados para importar, pode criar um ",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
   "onboardingImportDataDetailsLink": {
     "message": "novo item",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
-  "onboardingImportDataDetailsPartTwo": {
-    "message": " Poderá ser necessário aguardar até que o administrador confirme a filiação da sua organização.",
+  "onboardingImportDataDetailsPartTwoNoOrgs": {
+    "message": ".",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
+  },
+  "onboardingImportDataDetailsPartTwoWithOrgs": {
+    "message": " . Poderá ser necessário aguardar até que o administrador confirme a filiação da sua organização.",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
   },
   "importError": {
@@ -1471,13 +1478,6 @@
   },
   "faviconDesc": {
     "message": "Mostrar uma imagem reconhecível junto a cada credencial."
-  },
-  "enableFullWidth": {
-    "message": "Apresentar o esquema de largura total",
-    "description": "Allows scaling the web vault UI's width"
-  },
-  "enableFullWidthDesc": {
-    "message": "Permitir que o cofre web expanda a largura total da janela do navegador."
   },
   "default": {
     "message": "Predefinido"
@@ -4950,6 +4950,9 @@
   "newClientOrganizationDesc": {
     "message": "Crie uma nova organização de clientes que será associada a si como fornecedor. Poderá aceder e gerir esta organização."
   },
+  "newClient": {
+    "message": "Novo cliente"
+  },
   "addExistingOrganization": {
     "message": "Adicionar organização existente"
   },
@@ -5937,7 +5940,7 @@
     "message": "Inicie o DUO e siga os passos para concluir o início de sessão."
   },
   "duoRequiredByOrgForAccount": {
-    "message": "A verificação em dois passos DUO é necessária para a sua conta."
+    "message": "A verificação de dois passos Duo é necessária para a sua conta."
   },
   "launchDuo": {
     "message": "Iniciar o DUO"
@@ -6673,11 +6676,11 @@
   "resendCode": {
     "message": "Reenviar código"
   },
-  "membersColumnHeader": {
-    "message": "Membro/Grupo"
-  },
-  "groupAndMemberColumnHeader": {
+  "memberColumnHeader": {
     "message": "Membro"
+  },
+  "groupSlashMemberColumnHeader": {
+    "message": "Grupo/Membro"
   },
   "selectGroupsAndMembers": {
     "message": "Selecionar grupos e membros"
@@ -7504,6 +7507,9 @@
   "grantCollectionAccess": {
     "message": "Conceder a grupos ou membros acesso a esta coleção."
   },
+  "grantCollectionAccessMembersOnly": {
+    "message": "Conceder a membros acesso a esta coleção."
+  },
   "adminCollectionAccess": {
     "message": "Os administradores podem aceder e gerir coleções."
   },
@@ -7584,5 +7590,20 @@
   "tooExpensive": {
     "message": "Demasiado caro",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "freeForOneYear": {
+    "message": "Gratuito durante 1 ano"
+  },
+  "newWebApp": {
+    "message": "Bem-vindo à nova e melhorada aplicação Web. Saiba mais sobre o que mudou."
+  },
+  "releaseBlog": {
+    "message": "Ler o blogue de lançamento"
+  },
+  "adminConsole": {
+    "message": "Consola de administração"
+  },
+  "providerPortal": {
+    "message": "Portal do fornecedor"
   }
 }

@@ -3,6 +3,7 @@ import * as path from "path";
 import { app } from "electron";
 
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
+import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { DefaultBiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
@@ -12,11 +13,13 @@ import { MigrationBuilderService } from "@bitwarden/common/platform/services/mig
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { NoopMessagingService } from "@bitwarden/common/platform/services/noop-messaging.service";
 /* eslint-disable import/no-restricted-paths -- We need the implementation to inject, but generally this should not be accessed */
+import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
 import { DefaultActiveUserStateProvider } from "@bitwarden/common/platform/state/implementations/default-active-user-state.provider";
 import { DefaultDerivedStateProvider } from "@bitwarden/common/platform/state/implementations/default-derived-state.provider";
 import { DefaultGlobalStateProvider } from "@bitwarden/common/platform/state/implementations/default-global-state.provider";
 import { DefaultSingleUserStateProvider } from "@bitwarden/common/platform/state/implementations/default-single-user-state.provider";
 import { DefaultStateProvider } from "@bitwarden/common/platform/state/implementations/default-state.provider";
+import { StateEventRegistrarService } from "@bitwarden/common/platform/state/state-event-registrar.service";
 import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@bitwarden/common/platform/state/storage/memory-storage.service";
 /* eslint-enable import/no-restricted-paths */
 
@@ -31,6 +34,7 @@ import { Account } from "./models/account";
 import { BiometricsService, BiometricsServiceAbstraction } from "./platform/main/biometric/index";
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
+import { MainCryptoFunctionService } from "./platform/main/main-crypto-function.service";
 import { ElectronLogMainService } from "./platform/services/electron-log.main.service";
 import { ElectronStateService } from "./platform/services/electron-state.service";
 import { ElectronStorageService } from "./platform/services/electron-storage.service";
@@ -44,8 +48,9 @@ export class Main {
   memoryStorageService: MemoryStorageService;
   memoryStorageForStateProviders: MemoryStorageServiceForStateProviders;
   messagingService: ElectronMainMessagingService;
-  stateService: ElectronStateService;
+  stateService: StateService;
   environmentService: EnvironmentService;
+  mainCryptoFunctionService: MainCryptoFunctionService;
   desktopCredentialStorageListener: DesktopCredentialStorageListener;
   migrationRunner: MigrationRunner;
 
@@ -92,7 +97,6 @@ export class Main {
     }
 
     this.logService = new ElectronLogMainService(null, app.getPath("userData"));
-    this.i18nService = new I18nMainService("en", "./locales/");
 
     const storageDefaults: any = {};
     // Default vault timeout to "on restart", and action to "lock"
@@ -101,10 +105,13 @@ export class Main {
     this.storageService = new ElectronStorageService(app.getPath("userData"), storageDefaults);
     this.memoryStorageService = new MemoryStorageService();
     this.memoryStorageForStateProviders = new MemoryStorageServiceForStateProviders();
-    const globalStateProvider = new DefaultGlobalStateProvider(
-      this.memoryStorageForStateProviders,
+    const storageServiceProvider = new StorageServiceProvider(
       this.storageService,
+      this.memoryStorageForStateProviders,
     );
+    const globalStateProvider = new DefaultGlobalStateProvider(storageServiceProvider);
+
+    this.i18nService = new I18nMainService("en", "./locales/", globalStateProvider);
 
     const accountService = new AccountServiceImplementation(
       new NoopMessagingService(),
@@ -112,13 +119,18 @@ export class Main {
       globalStateProvider,
     );
 
+    const stateEventRegistrarService = new StateEventRegistrarService(
+      globalStateProvider,
+      storageServiceProvider,
+    );
+
     const stateProvider = new DefaultStateProvider(
       new DefaultActiveUserStateProvider(
         accountService,
-        this.memoryStorageForStateProviders,
-        this.storageService,
+        storageServiceProvider,
+        stateEventRegistrarService,
       ),
-      new DefaultSingleUserStateProvider(this.memoryStorageForStateProviders, this.storageService),
+      new DefaultSingleUserStateProvider(storageServiceProvider, stateEventRegistrarService),
       globalStateProvider,
       new DefaultDerivedStateProvider(this.memoryStorageForStateProviders),
     );
@@ -146,8 +158,11 @@ export class Main {
       false, // Do not use disk caching because this will get out of sync with the renderer service
     );
 
+    const biometricStateService = new DefaultBiometricStateService(stateProvider);
+
     this.windowMain = new WindowMain(
       this.stateService,
+      biometricStateService,
       this.logService,
       this.storageService,
       (arg) => this.processDeepLink(arg),
@@ -169,12 +184,9 @@ export class Main {
       this.updaterMain,
     );
 
-    const biometricStateService = new DefaultBiometricStateService(stateProvider);
-
     this.biometricsService = new BiometricsService(
       this.i18nService,
       this.windowMain,
-      this.stateService,
       this.logService,
       this.messagingService,
       process.platform,
@@ -196,6 +208,9 @@ export class Main {
 
     this.clipboardMain = new ClipboardMain();
     this.clipboardMain.init();
+
+    this.mainCryptoFunctionService = new MainCryptoFunctionService();
+    this.mainCryptoFunctionService.init();
   }
 
   bootstrap() {
@@ -204,8 +219,7 @@ export class Main {
     this.migrationRunner.run().then(
       async () => {
         await this.windowMain.init();
-        const locale = await this.stateService.getLocale();
-        await this.i18nService.init(locale != null ? locale : app.getLocale());
+        await this.i18nService.init();
         this.messagingMain.init();
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -271,28 +285,7 @@ export class Main {
     argv
       .filter((s) => s.indexOf("bitwarden://") === 0)
       .forEach((s) => {
-        const url = new URL(s);
-        const code = url.searchParams.get("code");
-        const receivedState = url.searchParams.get("state");
-        let message = "";
-
-        if (code === null) {
-          return;
-        }
-
-        if (s.indexOf("bitwarden://duo-callback") === 0) {
-          message = "duoCallback";
-        } else if (receivedState === null) {
-          return;
-        }
-
-        if (s.indexOf("bitwarden://import-callback-lp") === 0) {
-          message = "importCallbackLastPass";
-        } else if (s.indexOf("bitwarden://sso-callback") === 0) {
-          message = "ssoCallback";
-        }
-
-        this.messagingService.send(message, { code: code, state: receivedState });
+        this.messagingService.send("deepLink", { urlString: s });
       });
   }
 }

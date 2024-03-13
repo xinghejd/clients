@@ -578,6 +578,9 @@
   "access": {
     "message": "Erişim"
   },
+  "accessLevel": {
+    "message": "Erişim seviyesi"
+  },
   "loggedOut": {
     "message": "Çıkış yapıldı"
   },
@@ -1349,14 +1352,18 @@
   },
   "onboardingImportDataDetailsPartOne": {
     "message": "İçe aktarılacak veriniz yoksa bir tane oluşturun ",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
   "onboardingImportDataDetailsLink": {
     "message": "yeni öge",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
-  "onboardingImportDataDetailsPartTwo": {
-    "message": " onun yerine. Yöneticiniz kuruluş üyeliğinizi onaylayana kadar beklemeniz gerekebilir.",
+  "onboardingImportDataDetailsPartTwoNoOrgs": {
+    "message": " yerine.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
+  },
+  "onboardingImportDataDetailsPartTwoWithOrgs": {
+    "message": " yerine. Yöneticiniz kuruluş üyeliğinizi onaylayana kadar beklemeniz gerekebilir.",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
   },
   "importError": {
@@ -1471,13 +1478,6 @@
   },
   "faviconDesc": {
     "message": "Hesapların yanında tanıdık görseller göster."
-  },
-  "enableFullWidth": {
-    "message": "Tam genişlik düzeninde göster",
-    "description": "Allows scaling the web vault UI's width"
-  },
-  "enableFullWidthDesc": {
-    "message": "Web kasasının tarayıcı penceresi genişliğinin tamamını kullanmasına izin ver."
   },
   "default": {
     "message": "Varsayılan"
@@ -4950,6 +4950,9 @@
   "newClientOrganizationDesc": {
     "message": "Sağlayıcı olarak sizinle ilişkilendirilecek yeni bir müşteri kuruluşu oluşturun. Bu kuruluşa erişebilecek ve onu yönetebileceksiniz."
   },
+  "newClient": {
+    "message": "Yeni müşteri"
+  },
   "addExistingOrganization": {
     "message": "Mevcut kuruluşu ekle"
   },
@@ -6673,11 +6676,11 @@
   "resendCode": {
     "message": "Kodu yeniden gönder"
   },
-  "membersColumnHeader": {
-    "message": "Üye/Grup"
-  },
-  "groupAndMemberColumnHeader": {
+  "memberColumnHeader": {
     "message": "Üye"
+  },
+  "groupSlashMemberColumnHeader": {
+    "message": "Grup/Üye"
   },
   "selectGroupsAndMembers": {
     "message": "Grupları ve üyeleri seçin"
@@ -7504,6 +7507,9 @@
   "grantCollectionAccess": {
     "message": "Gruplara veya üyelere bu koleksiyona erişim izni verin."
   },
+  "grantCollectionAccessMembersOnly": {
+    "message": "Üyelere bu koleksiyona erişim izni verin."
+  },
   "adminCollectionAccess": {
     "message": "Yöneticiler koleksiyonlara erişebilir ve bunları yönetebilir."
   },
@@ -7584,5 +7590,20 @@
   "tooExpensive": {
     "message": "Çok pahalı",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "freeForOneYear": {
+    "message": "1 yıl boyunca ücretsiz"
+  },
+  "newWebApp": {
+    "message": "Yeni ve geliştirilmiş web uygulamasına hoş geldiniz. Nelerin değiştiği hakkında daha fazla bilgi edinin."
+  },
+  "releaseBlog": {
+    "message": "Sürüm blogunu okuyun"
+  },
+  "adminConsole": {
+    "message": "Yönetici Konsolu"
+  },
+  "providerPortal": {
+    "message": "Sağlayıcı Portalı"
   }
 }

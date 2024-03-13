@@ -2004,6 +2004,10 @@
   "selectFolder": {
     "message": "選擇資料夾⋯"
   },
+  "noFoldersFound": {
+    "message": "No folders found",
+    "description": "Used as a message within the notification bar when no folders are found"
+  },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "您的組織權限已更新，需要您設定主密碼。",
     "description": "Used as a card title description on the set password page to explain why the user is there"
@@ -2654,7 +2658,7 @@
     }
   },
   "tryAgain": {
-    "message": "Try again"
+    "message": "再試一次"
   },
   "verificationRequiredForActionSetPinToContinue": {
     "message": "Verification required for this action. Set a PIN to continue."
@@ -2704,11 +2708,11 @@
   "launchDuoAndFollowStepsToFinishLoggingIn": {
     "message": "Launch Duo and follow the steps to finish logging in."
   },
-  "duoRequiredByOrgForAccount": {
+  "duoRequiredForAccount": {
     "message": "Duo two-step login is required for your account."
   },
-  "openExtensionInNewWindowToCompleteLogin": {
-    "message": "Open the extension in a new window to complete login"
+  "popoutTheExtensionToCompleteLogin": {
+    "message": "Popout the extension to complete login."
   },
   "popoutExtension": {
     "message": "Popout extension"
@@ -2974,10 +2978,6 @@
     "message": "Ignoring this option may cause conflicts between the Bitwarden auto-fill menu and your browser's.",
     "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
   },
-  "overrideDefaultBrowserAutofillPrivacyRequiredDescription": {
-    "message": "This action will restart the Bitwarden extension. Ignoring this option may cause conflicts between the Bitwarden auto-fill menu and your browser's.",
-    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
-  },
   "overrideDefaultBrowserAutoFillSettings": {
     "message": "Make Bitwarden your default password manager",
     "description": "Label for the setting that allows overriding the default browser autofill settings"
@@ -2993,5 +2993,17 @@
   "makeDefault": {
     "message": "Make default",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "saveCipherAttemptSuccess": {
+    "message": "Credentials saved successfully!",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
+  "updateCipherAttemptSuccess": {
+    "message": "Credentials updated successfully!",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "saveCipherAttemptFailed": {
+    "message": "Error saving credentials. Check console for details.",
+    "description": "Notification message for when saving credentials has failed."
   }
 }

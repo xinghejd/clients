@@ -578,6 +578,9 @@
   "access": {
     "message": "Accesso"
   },
+  "accessLevel": {
+    "message": "Livello di accesso"
+  },
   "loggedOut": {
     "message": "Uscito"
   },
@@ -1349,13 +1352,17 @@
   },
   "onboardingImportDataDetailsPartOne": {
     "message": "Se non hai dati da importare, puoi invece creare un ",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
   "onboardingImportDataDetailsLink": {
     "message": "nuovo elemento",
-    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
   },
-  "onboardingImportDataDetailsPartTwo": {
+  "onboardingImportDataDetailsPartTwoNoOrgs": {
+    "message": ".",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
+  },
+  "onboardingImportDataDetailsPartTwoWithOrgs": {
     "message": ". Potresti dover attendere finché l'amministratore non conferma l'appartenenza all'organizzazione.",
     "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
   },
@@ -1471,13 +1478,6 @@
   },
   "faviconDesc": {
     "message": "Mostra un piccolo logo riconoscibile accanto a ogni login."
-  },
-  "enableFullWidth": {
-    "message": "Disposizione a larghezza piena",
-    "description": "Allows scaling the web vault UI's width"
-  },
-  "enableFullWidthDesc": {
-    "message": "Consenti alla cassaforte web di sfruttare tutta la larghezza della finestra del browser."
   },
   "default": {
     "message": "Predefinito"
@@ -4950,6 +4950,9 @@
   "newClientOrganizationDesc": {
     "message": "Crea una nuova organizzazione cliente a cui sarai associato come il fornitore. Potrai accedere e gestire questa organizzazione."
   },
+  "newClient": {
+    "message": "Nuovo client"
+  },
   "addExistingOrganization": {
     "message": "Aggiungi organizzazione esistente"
   },
@@ -6673,11 +6676,11 @@
   "resendCode": {
     "message": "Invia codice di nuovo"
   },
-  "membersColumnHeader": {
-    "message": "Membro/gruppo"
-  },
-  "groupAndMemberColumnHeader": {
+  "memberColumnHeader": {
     "message": "Membro"
+  },
+  "groupSlashMemberColumnHeader": {
+    "message": "Gruppo/Membro"
   },
   "selectGroupsAndMembers": {
     "message": "Seleziona gruppi e membri"
@@ -7504,6 +7507,9 @@
   "grantCollectionAccess": {
     "message": "Consenti a gruppi o membri di accedere a questa raccolta."
   },
+  "grantCollectionAccessMembersOnly": {
+    "message": "Concedi ai membri l'accesso a questa raccolta."
+  },
   "adminCollectionAccess": {
     "message": "Gli amministratori possono accedere e gestire le raccolte."
   },
@@ -7584,5 +7590,20 @@
   "tooExpensive": {
     "message": "Troppo costoso",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "freeForOneYear": {
+    "message": "Gratis per un anno"
+  },
+  "newWebApp": {
+    "message": "Benvenuto nel nuovo e migliorato sito web. Scopri cosa è cambiato."
+  },
+  "releaseBlog": {
+    "message": "Leggi il blog post"
+  },
+  "adminConsole": {
+    "message": "Console Amministrativa"
+  },
+  "providerPortal": {
+    "message": "Portale Fornitori"
   }
 }

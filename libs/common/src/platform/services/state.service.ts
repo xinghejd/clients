@@ -1,10 +1,7 @@
-import { BehaviorSubject, concatMap } from "rxjs";
+import { BehaviorSubject, Observable, map } from "rxjs";
 import { Jsonify, JsonValue } from "type-fest";
 
 import { OrganizationData } from "../../admin-console/models/data/organization.data";
-import { PolicyData } from "../../admin-console/models/data/policy.data";
-import { ProviderData } from "../../admin-console/models/data/provider.data";
-import { Policy } from "../../admin-console/models/domain/policy";
 import { AccountService } from "../../auth/abstractions/account.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { AdminAuthRequestStorable } from "../../auth/models/domain/admin-auth-req-storable";
@@ -20,8 +17,7 @@ import { UsernameGeneratorOptions } from "../../tools/generator/username";
 import { SendData } from "../../tools/send/models/data/send.data";
 import { SendView } from "../../tools/send/models/view/send.view";
 import { UserId } from "../../types/guid";
-import { DeviceKey, MasterKey, UserKey } from "../../types/key";
-import { UriMatchType } from "../../vault/enums";
+import { DeviceKey, MasterKey } from "../../types/key";
 import { CipherData } from "../../vault/models/data/cipher.data";
 import { LocalData } from "../../vault/models/data/local.data";
 import { CipherView } from "../../vault/models/view/cipher.view";
@@ -36,7 +32,7 @@ import {
   AbstractMemoryStorageService,
   AbstractStorageService,
 } from "../abstractions/storage.service";
-import { HtmlStorageLocation, KdfType, StorageLocation, ThemeType } from "../enums";
+import { HtmlStorageLocation, KdfType, StorageLocation } from "../enums";
 import { StateFactory } from "../factories/state-factory";
 import { Utils } from "../misc/utils";
 import { ServerConfigData } from "../models/data/server-config.data";
@@ -45,7 +41,6 @@ import {
   AccountData,
   AccountDecryptionOptions,
   AccountSettings,
-  AccountSettingsSettings,
 } from "../models/domain/account";
 import { EncString } from "../models/domain/enc-string";
 import { GlobalState } from "../models/domain/global-state";
@@ -87,8 +82,7 @@ export class StateService<
   protected activeAccountSubject = new BehaviorSubject<string | null>(null);
   activeAccount$ = this.activeAccountSubject.asObservable();
 
-  protected activeAccountUnlockedSubject = new BehaviorSubject<boolean>(false);
-  activeAccountUnlocked$ = this.activeAccountUnlockedSubject.asObservable();
+  activeAccountUnlocked$: Observable<boolean>;
 
   private hasBeenInited = false;
   protected isRecoveredSession = false;
@@ -109,22 +103,11 @@ export class StateService<
     private migrationRunner: MigrationRunner,
     protected useAccountCache: boolean = true,
   ) {
-    // If the account gets changed, verify the new account is unlocked
-    this.activeAccountSubject
-      .pipe(
-        concatMap(async (userId) => {
-          if (userId == null && this.activeAccountUnlockedSubject.getValue() == false) {
-            return;
-          } else if (userId == null) {
-            this.activeAccountUnlockedSubject.next(false);
-          }
-          // FIXME: This should be refactored into AuthService or a similar service,
-          //  as checking for the existence of the crypto key is a low level
-          //  implementation detail.
-          this.activeAccountUnlockedSubject.next((await this.getUserKey()) != null);
-        }),
-      )
-      .subscribe();
+    this.activeAccountUnlocked$ = this.accountService.activeAccount$.pipe(
+      map((a) => {
+        return a?.status === AuthenticationStatus.Unlocked;
+      }),
+    );
   }
 
   async init(initOptions: InitOptions = {}): Promise<void> {
@@ -390,24 +373,6 @@ export class StateService<
     );
   }
 
-  async getBiometricUnlock(options?: StorageOptions): Promise<boolean> {
-    return (
-      (await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions())))
-        ?.settings?.biometricUnlock ?? false
-    );
-  }
-
-  async setBiometricUnlock(value: boolean, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.settings.biometricUnlock = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
   async getCanAccessPremium(options?: StorageOptions): Promise<boolean> {
     if (!(await this.getIsAuthenticated(options))) {
       return false;
@@ -474,44 +439,6 @@ export class StateService<
     );
   }
 
-  async getClearClipboard(options?: StorageOptions): Promise<number> {
-    return (
-      (
-        await this.getAccount(
-          this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()),
-        )
-      )?.settings?.clearClipboard ?? null
-    );
-  }
-
-  async setClearClipboard(value: number, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()),
-    );
-    account.settings.clearClipboard = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()),
-    );
-  }
-
-  async getCollapsedGroupings(options?: StorageOptions): Promise<string[]> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()))
-    )?.settings?.collapsedGroupings;
-  }
-
-  async setCollapsedGroupings(value: string[], options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()),
-    );
-    account.settings.collapsedGroupings = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()),
-    );
-  }
-
   async getConvertAccountToKeyConnector(options?: StorageOptions): Promise<boolean> {
     return (
       await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
@@ -537,68 +464,6 @@ export class StateService<
       this.reconcileOptions(options, await this.defaultInMemoryOptions()),
     );
     return account?.keys?.cryptoMasterKey;
-  }
-
-  /**
-   * @deprecated Do not save the Master Key. Use the User Symmetric Key instead
-   */
-  async setCryptoMasterKey(value: SymmetricCryptoKey, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultInMemoryOptions()),
-    );
-    account.keys.cryptoMasterKey = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultInMemoryOptions()),
-    );
-
-    const nextStatus = value != null ? AuthenticationStatus.Unlocked : AuthenticationStatus.Locked;
-    await this.accountService.setAccountStatus(options.userId as UserId, nextStatus);
-
-    if (options.userId == this.activeAccountSubject.getValue()) {
-      const nextValue = value != null;
-
-      // Avoid emitting if we are already unlocked
-      if (this.activeAccountUnlockedSubject.getValue() != nextValue) {
-        this.activeAccountUnlockedSubject.next(nextValue);
-      }
-    }
-  }
-
-  /**
-   * user key used to encrypt/decrypt data
-   */
-  async getUserKey(options?: StorageOptions): Promise<UserKey> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultInMemoryOptions()),
-    );
-    return account?.keys?.userKey as UserKey;
-  }
-
-  /**
-   * user key used to encrypt/decrypt data
-   */
-  async setUserKey(value: UserKey, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultInMemoryOptions()),
-    );
-    account.keys.userKey = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultInMemoryOptions()),
-    );
-
-    const nextStatus = value != null ? AuthenticationStatus.Unlocked : AuthenticationStatus.Locked;
-    await this.accountService.setAccountStatus(options.userId as UserId, nextStatus);
-
-    if (options?.userId == this.activeAccountSubject.getValue()) {
-      const nextValue = value != null;
-
-      // Avoid emitting if we are already unlocked
-      if (this.activeAccountUnlockedSubject.getValue() != nextValue) {
-        this.activeAccountUnlockedSubject.next(nextValue);
-      }
-    }
   }
 
   /**
@@ -866,24 +731,6 @@ export class StateService<
     await this.saveSecureStorageKey(partialKeys.biometricKey, value, options);
   }
 
-  async getBiometricPromptCancelled(options?: StorageOptions): Promise<boolean> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    return account?.settings?.biometricPromptCancelled;
-  }
-
-  async setBiometricPromptCancelled(value: boolean, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.settings.biometricPromptCancelled = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
   @withPrototypeForArrayMembers(CipherView, CipherView.fromJSON)
   async getDecryptedCiphers(options?: StorageOptions): Promise<CipherView[]> {
     return (
@@ -896,33 +743,6 @@ export class StateService<
       this.reconcileOptions(options, await this.defaultInMemoryOptions()),
     );
     account.data.ciphers.decrypted = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultInMemoryOptions()),
-    );
-  }
-
-  /**
-   * @deprecated Use UserKey instead
-   */
-  async getDecryptedCryptoSymmetricKey(options?: StorageOptions): Promise<SymmetricCryptoKey> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultInMemoryOptions()),
-    );
-    return account?.keys?.cryptoSymmetricKey?.decrypted;
-  }
-
-  /**
-   * @deprecated Use UserKey instead
-   */
-  async setDecryptedCryptoSymmetricKey(
-    value: SymmetricCryptoKey,
-    options?: StorageOptions,
-  ): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultInMemoryOptions()),
-    );
-    account.keys.cryptoSymmetricKey.decrypted = value;
     await this.saveAccount(
       account,
       this.reconcileOptions(options, await this.defaultInMemoryOptions()),
@@ -975,24 +795,6 @@ export class StateService<
     );
   }
 
-  @withPrototypeForArrayMembers(Policy)
-  async getDecryptedPolicies(options?: StorageOptions): Promise<Policy[]> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultInMemoryOptions()))
-    )?.data?.policies?.decrypted;
-  }
-
-  async setDecryptedPolicies(value: Policy[], options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultInMemoryOptions()),
-    );
-    account.data.policies.decrypted = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultInMemoryOptions()),
-    );
-  }
-
   @withPrototypeForArrayMembers(SendView)
   async getDecryptedSends(options?: StorageOptions): Promise<SendView[]> {
     return (
@@ -1008,116 +810,6 @@ export class StateService<
     await this.saveAccount(
       account,
       this.reconcileOptions(options, await this.defaultInMemoryOptions()),
-    );
-  }
-
-  async getDefaultUriMatch(options?: StorageOptions): Promise<UriMatchType> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
-    )?.settings?.defaultUriMatch;
-  }
-
-  async setDefaultUriMatch(value: UriMatchType, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.settings.defaultUriMatch = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
-  async getDisableAddLoginNotification(options?: StorageOptions): Promise<boolean> {
-    return (
-      (await this.getGlobals(this.reconcileOptions(options, await this.defaultOnDiskOptions())))
-        ?.disableAddLoginNotification ?? false
-    );
-  }
-
-  async setDisableAddLoginNotification(value: boolean, options?: StorageOptions): Promise<void> {
-    const globals = await this.getGlobals(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    globals.disableAddLoginNotification = value;
-    await this.saveGlobals(
-      globals,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
-  async getDisableAutoBiometricsPrompt(options?: StorageOptions): Promise<boolean> {
-    return (
-      (await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions())))
-        ?.settings?.disableAutoBiometricsPrompt ?? false
-    );
-  }
-
-  async setDisableAutoBiometricsPrompt(value: boolean, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.settings.disableAutoBiometricsPrompt = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
-  async getDisableBadgeCounter(options?: StorageOptions): Promise<boolean> {
-    return (
-      (await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions())))
-        ?.settings?.disableBadgeCounter ?? false
-    );
-  }
-
-  async setDisableBadgeCounter(value: boolean, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.settings.disableBadgeCounter = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
-  async getDisableChangedPasswordNotification(options?: StorageOptions): Promise<boolean> {
-    return (
-      (await this.getGlobals(this.reconcileOptions(options, await this.defaultOnDiskOptions())))
-        ?.disableChangedPasswordNotification ?? false
-    );
-  }
-
-  async setDisableChangedPasswordNotification(
-    value: boolean,
-    options?: StorageOptions,
-  ): Promise<void> {
-    const globals = await this.getGlobals(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    globals.disableChangedPasswordNotification = value;
-    await this.saveGlobals(
-      globals,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
-  async getDisableContextMenuItem(options?: StorageOptions): Promise<boolean> {
-    return (
-      (await this.getGlobals(this.reconcileOptions(options, await this.defaultOnDiskOptions())))
-        ?.disableContextMenuItem ?? false
-    );
-  }
-
-  async setDisableContextMenuItem(value: boolean, options?: StorageOptions): Promise<void> {
-    const globals = await this.getGlobals(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    globals.disableContextMenuItem = value;
-    await this.saveGlobals(
-      globals,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
   }
 
@@ -1477,27 +1169,6 @@ export class StateService<
     );
   }
 
-  async getEnableFullWidth(options?: StorageOptions): Promise<boolean> {
-    return (
-      (
-        await this.getAccount(
-          this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()),
-        )
-      )?.settings?.enableFullWidth ?? false
-    );
-  }
-
-  async setEnableFullWidth(value: boolean, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()),
-    );
-    account.settings.enableFullWidth = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()),
-    );
-  }
-
   async getEnableMinimizeToTray(options?: StorageOptions): Promise<boolean> {
     return (
       (await this.getGlobals(this.reconcileOptions(options, await this.defaultOnDiskOptions())))
@@ -1582,20 +1253,6 @@ export class StateService<
     )?.keys.cryptoSymmetricKey.encrypted;
   }
 
-  /**
-   * @deprecated Use UserKey instead
-   */
-  async setEncryptedCryptoSymmetricKey(value: string, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.keys.cryptoSymmetricKey.encrypted = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
   @withPrototypeForArrayMembers(GeneratedPasswordHistory)
   async getEncryptedPasswordGenerationHistory(
     options?: StorageOptions,
@@ -1636,27 +1293,6 @@ export class StateService<
     );
   }
 
-  @withPrototypeForObjectValues(PolicyData)
-  async getEncryptedPolicies(options?: StorageOptions): Promise<{ [id: string]: PolicyData }> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
-    )?.data?.policies?.encrypted;
-  }
-
-  async setEncryptedPolicies(
-    value: { [id: string]: PolicyData },
-    options?: StorageOptions,
-  ): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.data.policies.encrypted = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
   @withPrototypeForObjectValues(SendData)
   async getEncryptedSends(options?: StorageOptions): Promise<{ [id: string]: SendData }> {
     return (
@@ -1675,23 +1311,6 @@ export class StateService<
     await this.saveAccount(
       account,
       this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions()),
-    );
-  }
-
-  async getEquivalentDomains(options?: StorageOptions): Promise<string[][]> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
-    )?.settings?.equivalentDomains;
-  }
-
-  async setEquivalentDomains(value: string, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.settings.equivalentDomains = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
   }
 
@@ -1865,6 +1484,23 @@ export class StateService<
     await this.storageService.save(keys.accountActivity, accountActivity, options);
   }
 
+  async getLastSync(options?: StorageOptions): Promise<string> {
+    return (
+      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions()))
+    )?.profile?.lastSync;
+  }
+
+  async setLastSync(value: string, options?: StorageOptions): Promise<void> {
+    const account = await this.getAccount(
+      this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions()),
+    );
+    account.profile.lastSync = value;
+    await this.saveAccount(
+      account,
+      this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions()),
+    );
+  }
+
   async getLocalData(options?: StorageOptions): Promise<{ [cipherId: string]: LocalData }> {
     return (
       await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()))
@@ -1933,23 +1569,6 @@ export class StateService<
     account.settings.minimizeOnCopyToClipboard = value;
     await this.saveAccount(
       account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
-  async getNeverDomains(options?: StorageOptions): Promise<{ [id: string]: unknown }> {
-    return (
-      await this.getGlobals(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
-    )?.neverDomains;
-  }
-
-  async setNeverDomains(value: { [id: string]: unknown }, options?: StorageOptions): Promise<void> {
-    const globals = await this.getGlobals(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    globals.neverDomains = value;
-    await this.saveGlobals(
-      globals,
       this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
   }
@@ -2089,27 +1708,6 @@ export class StateService<
     );
   }
 
-  @withPrototypeForObjectValues(ProviderData)
-  async getProviders(options?: StorageOptions): Promise<{ [id: string]: ProviderData }> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
-    )?.data?.providers;
-  }
-
-  async setProviders(
-    value: { [id: string]: ProviderData },
-    options?: StorageOptions,
-  ): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.data.providers = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
   async getRefreshToken(options?: StorageOptions): Promise<string> {
     options = await this.getTimeoutBasedStorageOptions(options);
     return (await this.getAccount(options))?.tokens?.refreshToken;
@@ -2153,40 +1751,6 @@ export class StateService<
     await this.saveAccount(
       account,
       this.reconcileOptions(options, await this.defaultInMemoryOptions()),
-    );
-  }
-
-  async getSettings(options?: StorageOptions): Promise<AccountSettingsSettings> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions()))
-    )?.settings?.settings;
-  }
-
-  async setSettings(value: AccountSettingsSettings, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions()),
-    );
-    account.settings.settings = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions()),
-    );
-  }
-
-  async getTheme(options?: StorageOptions): Promise<ThemeType> {
-    return (
-      await this.getGlobals(this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()))
-    )?.theme;
-  }
-
-  async setTheme(value: ThemeType, options?: StorageOptions): Promise<void> {
-    const globals = await this.getGlobals(
-      this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()),
-    );
-    globals.theme = value;
-    await this.saveGlobals(
-      globals,
-      this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()),
     );
   }
 
@@ -2252,10 +1816,14 @@ export class StateService<
     const accountVaultTimeoutAction = (
       await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()))
     )?.settings?.vaultTimeoutAction;
-    const globalVaultTimeoutAction = (
-      await this.getGlobals(this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()))
-    )?.vaultTimeoutAction;
-    return accountVaultTimeoutAction ?? globalVaultTimeoutAction;
+    return (
+      accountVaultTimeoutAction ??
+      (
+        await this.getGlobals(
+          this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()),
+        )
+      )?.vaultTimeoutAction
+    );
   }
 
   async setVaultTimeoutAction(value: string, options?: StorageOptions): Promise<void> {
@@ -2333,28 +1901,6 @@ export class StateService<
       this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()),
     );
     account.settings.avatarColor = value;
-    return await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()),
-    );
-  }
-
-  async getSMOnboardingTasks(
-    options?: StorageOptions,
-  ): Promise<Record<string, Record<string, boolean>>> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()))
-    )?.settings?.smOnboardingTasks;
-  }
-
-  async setSMOnboardingTasks(
-    value: Record<string, Record<string, boolean>>,
-    options?: StorageOptions,
-  ): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()),
-    );
-    account.settings.smOnboardingTasks = value;
     return await this.saveAccount(
       account,
       this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()),
