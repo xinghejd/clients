@@ -6,7 +6,6 @@ import { SendView } from "../models/view/send.view";
 
 import { SEND_USER_DECRYPTED, SEND_USER_ENCRYPTED } from "./key-definitions";
 
-
 export class SendStateService {
   // Exposed for the possibility to have consuming services the ability to subscribe?
   encryptedState$: Observable<Record<string, SendData>>;
@@ -23,6 +22,7 @@ export class SendStateService {
     this.decryptedState$ = this.activeUserDecryptedState.state$;
   }
 
+  // Encrypted goes to disk.
   async getEncryptedSends(): Promise<{ [id: string]: SendData }> {
     return await firstValueFrom(this.encryptedState$);
   }

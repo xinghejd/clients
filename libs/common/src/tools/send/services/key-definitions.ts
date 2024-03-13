@@ -2,6 +2,7 @@ import { KeyDefinition, SEND_MEMORY } from "../../../platform/state";
 import { SendData } from "../models/data/send.data";
 import { SendView } from "../models/view/send.view";
 
+// Encrypted goes to disk
 export const SEND_USER_ENCRYPTED = KeyDefinition.record<SendData>(
   SEND_MEMORY,
   "sendUserEncrypted",
