@@ -1,8 +1,20 @@
 import { Component, EventEmitter, Inject, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { AbstractControl, FormBuilder } from "@angular/forms";
-import { BehaviorSubject, firstValueFrom } from "rxjs";
-import { concatMap, debounceTime, map, takeUntil, tap } from "rxjs/operators";
+import {
+  Observable,
+  Subject,
+  BehaviorSubject,
+  concatMap,
+  debounceTime,
+  firstValueFrom,
+  map,
+  share,
+  takeUntil,
+  zip,
+} from "rxjs";
 
+import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
@@ -10,7 +22,12 @@ import {
   PasswordGenerationOptions,
 } from "@bitwarden/common/tools/generator/password/password-generation-options";
 
-import { PASSWORD_GENERATOR, PasswordGenerator, DependenciesModule } from "./dependencies.module";
+import {
+  PASSWORD_GENERATOR,
+  PasswordGenerator,
+  DependenciesModule,
+  PasswordEvaluator,
+} from "./dependencies.module";
 
 /** Form for generating randomized passwords */
 @Component({
@@ -36,31 +53,47 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
    * @param win clipboard access
    */
   constructor(
+    @Inject(WINDOW) private win: Window,
     @Inject(PASSWORD_GENERATOR) private passwordGeneratorService: PasswordGenerator,
+    private accountService: AccountService,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
-    private win: Window,
     private formBuilder: FormBuilder,
-  ) {}
+  ) {
+    this.options$ = this.accountService.activeAccount$.pipe(
+      concatMap(({ id }) => this.passwordGeneratorService.options$(id)),
+      takeUntil(this.destroy$),
+      share(),
+    );
+
+    this.evaluator$ = this.accountService.activeAccount$.pipe(
+      concatMap((p) => this.passwordGeneratorService.evaluator$(p.id)),
+      takeUntil(this.destroy$),
+      share(),
+    );
+  }
 
   // cancels subscriptions when the component is destroyed
-  private destroy$ = new BehaviorSubject<boolean>(false);
+  private destroy$ = new Subject<void>();
 
   /** reactive form bindings */
   protected optionsGroup = this.formBuilder.group({
-    length: this.formBuilder.control(DefaultPasswordGenerationOptions.length),
-    avoidAmbiguous: this.formBuilder.control(!DefaultPasswordGenerationOptions.ambiguous),
-    uppercase: this.formBuilder.control(DefaultPasswordGenerationOptions.uppercase),
-    lowercase: this.formBuilder.control(DefaultPasswordGenerationOptions.lowercase),
-    numbers: this.formBuilder.control(DefaultPasswordGenerationOptions.number),
-    minNumber: this.formBuilder.control(DefaultPasswordGenerationOptions.minNumber),
-    special: this.formBuilder.control(DefaultPasswordGenerationOptions.special),
-    minSpecial: this.formBuilder.control(DefaultPasswordGenerationOptions.minSpecial),
+    length: [DefaultPasswordGenerationOptions.length],
+    avoidAmbiguous: [!DefaultPasswordGenerationOptions.ambiguous],
+    uppercase: [DefaultPasswordGenerationOptions.uppercase],
+    lowercase: [DefaultPasswordGenerationOptions.lowercase],
+    numbers: [DefaultPasswordGenerationOptions.number],
+    minNumber: [DefaultPasswordGenerationOptions.minNumber],
+    special: [DefaultPasswordGenerationOptions.special],
+    minSpecial: [DefaultPasswordGenerationOptions.minSpecial],
   });
 
   private optionsMinLength = new BehaviorSubject<number>(
     DefaultPasswordGenerationOptions.minLength,
   );
+
+  private readonly evaluator$: Observable<PasswordEvaluator>;
+  private readonly options$: Observable<PasswordGenerationOptions>;
 
   /** the minimum length allowed for the password */
   protected optionsMinLength$ = this.optionsMinLength.asObservable();
@@ -73,50 +106,35 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
 
   /** Emits `true` when a policy is active and `false` otherwise. */
   protected get policyInEffect$() {
-    return this.passwordGeneratorService.policy$.pipe(
-      map((policy) => policy.policyInEffect),
-      takeUntil(this.destroy$),
-    );
+    return this.evaluator$.pipe(map((policy) => policy.policyInEffect));
   }
 
   /** Emits `true` when the password must contain an uppercase character
    *  and `false` otherwise.
    */
   protected get useUppercaseInEffect$() {
-    return this.passwordGeneratorService.policy$.pipe(
-      map((policy) => policy.policy.useUppercase),
-      takeUntil(this.destroy$),
-    );
+    return this.evaluator$.pipe(map((policy) => policy.policy.useUppercase));
   }
 
   /** Emits `true` when the password must contain a lowercase character
    *  and `false` otherwise.
    */
   protected get useLowercaseInEffect$() {
-    return this.passwordGeneratorService.policy$.pipe(
-      map((policy) => policy.policy.useLowercase),
-      takeUntil(this.destroy$),
-    );
+    return this.evaluator$.pipe(map((policy) => policy.policy.useLowercase));
   }
 
   /** Emits `true` when the password must contain a digit
    *  and `false` otherwise.
    */
   protected get useNumbersInEffect$() {
-    return this.passwordGeneratorService.policy$.pipe(
-      map((policy) => policy.policy.useNumbers),
-      takeUntil(this.destroy$),
-    );
+    return this.evaluator$.pipe(map((policy) => policy.policy.useNumbers));
   }
 
   /** Emits `true` when the password must contain a special character
    *  and `false` otherwise.
    */
   protected get useSpecialInEffect$() {
-    return this.passwordGeneratorService.policy$.pipe(
-      map((policy) => policy.policy.useSpecial),
-      takeUntil(this.destroy$),
-    );
+    return this.evaluator$.pipe(map((policy) => policy.policy.useSpecial));
   }
 
   private password = new BehaviorSubject<string>("-");
@@ -127,7 +145,7 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
   /** {@link OnInit.ngOnInit} */
   async ngOnInit() {
     // synchronize password generation options with reactive form fields
-    this.passwordGeneratorService.options$.pipe(takeUntil(this.destroy$)).subscribe((options) =>
+    this.options$.pipe(takeUntil(this.destroy$)).subscribe((options) =>
       this.optionsGroup.patchValue(
         {
           ...options,
@@ -137,7 +155,7 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
       ),
     );
 
-    this.passwordGeneratorService.options$
+    this.options$
       .pipe(
         map((val) => val.minLength),
         takeUntil(this.destroy$),
@@ -145,7 +163,7 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
       .subscribe(this.optionsMinLength);
 
     // regenerate the password when the options change and add it to the history
-    this.passwordGeneratorService.options$
+    this.options$
       .pipe(
         concatMap((options) => this.passwordGeneratorService.generate(options)),
         takeUntil(this.destroy$),
@@ -166,27 +184,28 @@ export class PasswordGeneratorComponent implements OnInit, OnDestroy {
 
     for (const [control, patch] of dependencies) {
       control.valueChanges
-        .pipe(
-          tap(() => this.optionsGroup.patchValue(patch, { emitEvent: false })),
-          takeUntil(this.destroy$),
-        )
-        .subscribe();
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(() => this.optionsGroup.patchValue(patch, { emitEvent: false }));
     }
 
     // synchronize form changes with storage
-    this.optionsGroup.valueChanges
+    zip(this.accountService.activeAccount$, this.optionsGroup.valueChanges)
       .pipe(
-        map((options) => ({ ...options, ambiguous: !options.avoidAmbiguous })),
-        concatMap((options) => this.passwordGeneratorService.enforcePolicy(options)),
-        tap((options) => this.passwordGeneratorService.saveOptions(options)),
+        map(
+          ([{ id }, options]) => [id, { ...options, ambiguous: !options.avoidAmbiguous }] as const,
+        ),
+        concatMap(
+          async ([id, options]) =>
+            [id, await this.passwordGeneratorService.enforcePolicy(id, options)] as const,
+        ),
         takeUntil(this.destroy$),
       )
-      .subscribe();
+      .subscribe(([id, options]) => this.passwordGeneratorService.saveOptions(id, options));
   }
 
   /** {@link OnDestroy.ngOnDestroy} */
   ngOnDestroy() {
-    this.destroy$.next(true);
+    this.destroy$.next();
     this.destroy$.complete();
   }
 

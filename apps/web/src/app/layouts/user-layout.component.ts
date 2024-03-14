@@ -1,6 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { RouterModule } from "@angular/router";
+import { map, takeUntil, Subject } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -38,9 +39,19 @@ export class UserLayoutComponent implements OnInit, OnDestroy {
   hasFamilySponsorshipAvailable: boolean;
   hideSubscription: boolean;
 
-  protected showPaymentMethodWarningBanners$ = this.configService.getFeatureFlag$(
-    FeatureFlag.ShowPaymentMethodWarningBanners,
-    false,
+  private readonly destroyed$ = new Subject<void>();
+
+  protected showPaymentMethodWarningBanners$ = this.configService
+    .getFeatureFlag$(FeatureFlag.ShowPaymentMethodWarningBanners, false)
+    .pipe(takeUntil(this.destroyed$));
+
+  protected showGeneratorV2$ = this.configService
+    .getFeatureFlag$(FeatureFlag.GeneratorToolsModernization, false)
+    .pipe(takeUntil(this.destroyed$));
+
+  protected showGeneratorV1$ = this.showGeneratorV2$.pipe(
+    map((show) => !show),
+    takeUntil(this.destroyed$),
   );
 
   constructor(
@@ -75,6 +86,8 @@ export class UserLayoutComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
+    this.destroyed$.next();
+    this.destroyed$.complete();
     this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
   }
 
