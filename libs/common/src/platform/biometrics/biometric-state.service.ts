@@ -215,7 +215,7 @@ export class DefaultBiometricStateService implements BiometricStateService {
         return record;
       },
       {
-        shouldUpdate: (record) => record[userId] == true,
+        shouldUpdate: (record) => record?.[userId] == true,
       },
     );
     await this.stateProvider.getUser(userId, PROMPT_CANCELLED).update(() => null);

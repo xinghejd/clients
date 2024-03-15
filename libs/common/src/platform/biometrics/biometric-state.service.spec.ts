@@ -274,4 +274,60 @@ describe("BiometricStateService", () => {
       );
     });
   });
+
+  describe("logout", () => {
+    it("will not delete prompt cancelled state for user when object is null", async () => {
+      const promptCancelledFake = stateProvider.global.getFake(PROMPT_CANCELLED);
+      promptCancelledFake.stateSubject.next(null);
+
+      await sut.logout(userId);
+
+      // Since the prompt cancelled state is null and therefore doesn't have an entry for this user, it shouldn't be updated
+      expect(promptCancelledFake.nextMock).not.toHaveBeenCalled();
+      expect(
+        stateProvider.singleUser.getFake(userId, ENCRYPTED_CLIENT_KEY_HALF).nextMock,
+      ).toHaveBeenCalledWith(null);
+
+      // NOTE: Exact same state for global and single user? is this supposed to be PROMPT_AUTOMATICALLY
+      expect(
+        stateProvider.singleUser.getFake(userId, PROMPT_CANCELLED).nextMock,
+      ).toHaveBeenCalledWith(null);
+    });
+
+    it("will delete prompt cancelled state for user when user is in record and value is true", async () => {
+      const promptCancelledFake = stateProvider.global.getFake(PROMPT_CANCELLED);
+      promptCancelledFake.stateSubject.next({ [userId]: true });
+
+      await sut.logout(userId);
+
+      // Since the prompt cancelled state is null and therefore doesn't have an entry for this user, it shouldn't be updated
+      expect(promptCancelledFake.nextMock).toHaveBeenCalledWith({});
+      expect(
+        stateProvider.singleUser.getFake(userId, ENCRYPTED_CLIENT_KEY_HALF).nextMock,
+      ).toHaveBeenCalledWith(null);
+
+      // NOTE: Exact same state for global and single user? is this supposed to be PROMPT_AUTOMATICALLY
+      expect(
+        stateProvider.singleUser.getFake(userId, PROMPT_CANCELLED).nextMock,
+      ).toHaveBeenCalledWith(null);
+    });
+
+    it("will leave user value on logout if their prompt cancelled value is false", async () => {
+      const promptCancelledFake = stateProvider.global.getFake(PROMPT_CANCELLED);
+      promptCancelledFake.stateSubject.next({ [userId]: false });
+
+      await sut.logout(userId);
+
+      // Since the prompt cancelled state is null and therefore doesn't have an entry for this user, it shouldn't be updated
+      expect(promptCancelledFake.nextMock).not.toHaveBeenCalled();
+      expect(
+        stateProvider.singleUser.getFake(userId, ENCRYPTED_CLIENT_KEY_HALF).nextMock,
+      ).toHaveBeenCalledWith(null);
+
+      // NOTE: Exact same state for global and single user? is this supposed to be PROMPT_AUTOMATICALLY
+      expect(
+        stateProvider.singleUser.getFake(userId, PROMPT_CANCELLED).nextMock,
+      ).toHaveBeenCalledWith(null);
+    });
+  });
 });
