@@ -97,6 +97,10 @@ export default class RuntimeBackground {
       case "unlocked": {
         let item: LockedVaultPendingNotificationsData;
 
+        if (msg.command === "loggedIn") {
+          await this.sendBwInstalledMessageToVault();
+        }
+
         if (this.lockedVaultPendingNotifications?.length > 0) {
           item = this.lockedVaultPendingNotifications.pop();
           await closeUnlockPopout();
@@ -130,9 +134,6 @@ export default class RuntimeBackground {
             await this.main.refreshBadge();
             await this.main.refreshMenu();
           }, 2000);
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          this.main.avatarUpdateService.loadColorFromState();
           this.configService.triggerServerConfigFetch();
         }
         break;
@@ -354,8 +355,6 @@ export default class RuntimeBackground {
           if (await this.environmentService.hasManagedEnvironment()) {
             await this.environmentService.setUrlsToManagedEnvironment();
           }
-
-          await this.sendBwInstalledMessageToVault();
         }
 
         this.onInstalledReason = null;
