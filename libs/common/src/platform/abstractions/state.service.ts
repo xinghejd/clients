@@ -10,8 +10,6 @@ import { WindowState } from "../../models/domain/window-state";
 import { GeneratorOptions } from "../../tools/generator/generator-options";
 import { GeneratedPasswordHistory, PasswordGeneratorOptions } from "../../tools/generator/password";
 import { UsernameGeneratorOptions } from "../../tools/generator/username";
-import { SendData } from "../../tools/send/models/data/send.data";
-import { SendView } from "../../tools/send/models/view/send.view";
 import { UserId } from "../../types/guid";
 import { DeviceKey, MasterKey } from "../../types/key";
 import { UriMatchType } from "../../vault/enums";
@@ -179,14 +177,6 @@ export abstract class StateService<T extends Account = Account> {
    * @deprecated For migration purposes only, use setDecryptedUserKeyPin instead
    */
   setDecryptedPinProtected: (value: EncString, options?: StorageOptions) => Promise<void>;
-  /**
-   * @deprecated Do not call this directly, use SendService
-   */
-  getDecryptedSends: (options?: StorageOptions) => Promise<SendView[]>;
-  /**
-   * @deprecated Do not call this directly, use SendService
-   */
-  setDecryptedSends: (value: SendView[], options?: StorageOptions) => Promise<void>;
   getDefaultUriMatch: (options?: StorageOptions) => Promise<UriMatchType>;
   setDefaultUriMatch: (value: UriMatchType, options?: StorageOptions) => Promise<void>;
   /**
@@ -267,14 +257,6 @@ export abstract class StateService<T extends Account = Account> {
    * @deprecated For migration purposes only, use setEncryptedUserKeyPin instead
    */
   setEncryptedPinProtected: (value: string, options?: StorageOptions) => Promise<void>;
-  /**
-   * @deprecated Do not call this directly, use SendService
-   */
-  getEncryptedSends: (options?: StorageOptions) => Promise<{ [id: string]: SendData }>;
-  /**
-   * @deprecated Do not call this directly, use SendService
-   */
-  setEncryptedSends: (value: { [id: string]: SendData }, options?: StorageOptions) => Promise<void>;
   getEquivalentDomains: (options?: StorageOptions) => Promise<string[][]>;
   setEquivalentDomains: (value: string, options?: StorageOptions) => Promise<void>;
   getEventCollection: (options?: StorageOptions) => Promise<EventData[]>;

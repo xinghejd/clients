@@ -3,7 +3,7 @@ import { Observable } from "rxjs";
 import { SendData } from "../models/data/send.data";
 import { SendView } from "../models/view/send.view";
 
-export abstract class SendStateService {
+export abstract class SendStateProvider {
   encryptedState$: Observable<Record<string, SendData>>;
   decryptedState$: Observable<SendView[]>;
 

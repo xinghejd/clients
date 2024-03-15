@@ -8,7 +8,6 @@ import {
 } from "rxjs";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
-import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
@@ -27,9 +26,8 @@ import { SendWithIdRequest } from "../models/request/send-with-id.request";
 import { SendView } from "../models/view/send.view";
 import { SEND_KDF_ITERATIONS } from "../send-kdf";
 
-import { SendStateService } from "./send-state.service.abstraction";
+import { SendStateProvider } from "./send-state.provider.abstraction";
 import { InternalSendService as InternalSendServiceAbstraction } from "./send.service.abstraction";
-
 
 export class SendService implements InternalSendServiceAbstraction {
   readonly sendKeySalt = "bitwarden-send";
@@ -45,20 +43,20 @@ export class SendService implements InternalSendServiceAbstraction {
     private cryptoService: CryptoService,
     private i18nService: I18nService,
     private keyGenerationService: KeyGenerationService,
-    private stateService: SendStateService,
+    private stateService: SendStateProvider,
     private accountService: AccountService,
   ) {
-    // Using the account service. Should likely get the active user from the
-    // account service. Similar to the event collection.
-    combineLatest([this.accountService.activeAccount$, this.accountService.accounts$])
+    // Subscribe to active account and account lock is changes
+    combineLatest([this.accountService.activeAccount$, this.accountService.accountLock$])
       .pipe(
-        concatMap(async ([activeAccount, accounts]) => {
+        concatMap(async ([activeAccount, lock]) => {
           if (Utils.global.bitwardenContainerService == null) {
             return;
           }
 
-          const unlocked = accounts[activeAccount.id]?.status == AuthenticationStatus.Unlocked;
-          if (!unlocked) {
+          // If lock has a value and the value is the active UserId
+          // the account is locked
+          if (lock && lock == activeAccount.id) {
             this._sends.next([]);
             this._sendViews.next([]);
             return;
@@ -69,26 +67,6 @@ export class SendService implements InternalSendServiceAbstraction {
         }),
       )
       .subscribe();
-
-    // this.stateService.activeAccountUnlocked$
-    //   .pipe(
-    //     concatMap(async (unlocked) => {
-    //       if (Utils.global.bitwardenContainerService == null) {
-    //         return;
-    //       }
-
-    //       if (!unlocked) {
-    //         this._sends.next([]);
-    //         this._sendViews.next([]);
-    //         return;
-    //       }
-
-    //       const data = await this.stateService.getEncryptedSends();
-
-    //       await this.updateObservables(data);
-    //     }),
-    //   )
-    //   .subscribe();
   }
 
   async clearCache(): Promise<void> {

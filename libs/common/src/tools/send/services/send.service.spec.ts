@@ -19,6 +19,7 @@ import { SendData } from "../models/data/send.data";
 import { Send } from "../models/domain/send";
 import { SendView } from "../models/view/send.view";
 
+import { SendStateProvider } from "./send-state.provider.abstraction";
 import { SendService } from "./send.service";
 
 describe("SendService", () => {
@@ -29,7 +30,7 @@ describe("SendService", () => {
 
   let sendService: SendService;
 
-  let stateService: MockProxy<StateService>;
+  let stateService: MockProxy<SendStateProvider>;
   let activeAccount: BehaviorSubject<string>;
   let activeAccountUnlocked: BehaviorSubject<boolean>;
 
