@@ -3,19 +3,17 @@ import { ActivatedRoute } from "@angular/router";
 
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { PasswordRepromptService } from "@bitwarden/common/vault/abstractions/password-reprompt.service";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+import { PasswordRepromptService } from "@bitwarden/vault";
 
 // eslint-disable-next-line no-restricted-imports
-import { ReusedPasswordsReportComponent as BaseReusedPasswordsReportComponent } from "../../../reports/pages/reused-passwords-report.component";
+import { ReusedPasswordsReportComponent as BaseReusedPasswordsReportComponent } from "../../../tools/reports/pages/reused-passwords-report.component";
 
 @Component({
   selector: "app-reused-passwords-report",
-  templateUrl: "../../../reports/pages/reused-passwords-report.component.html",
+  templateUrl: "../../../tools/reports/pages/reused-passwords-report.component.html",
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class ReusedPasswordsReportComponent extends BaseReusedPasswordsReportComponent {
@@ -24,13 +22,11 @@ export class ReusedPasswordsReportComponent extends BaseReusedPasswordsReportCom
   constructor(
     cipherService: CipherService,
     modalService: ModalService,
-    messagingService: MessagingService,
-    stateService: StateService,
     private route: ActivatedRoute,
-    private organizationService: OrganizationService,
-    passwordRepromptService: PasswordRepromptService
+    organizationService: OrganizationService,
+    passwordRepromptService: PasswordRepromptService,
   ) {
-    super(cipherService, modalService, messagingService, stateService, passwordRepromptService);
+    super(cipherService, organizationService, modalService, passwordRepromptService);
   }
 
   async ngOnInit() {

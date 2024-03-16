@@ -1,13 +1,14 @@
+import { DatePipe } from "@angular/common";
 import { Component, NgZone, OnChanges, OnDestroy, ViewChild } from "@angular/core";
 import { NgForm } from "@angular/forms";
 
-import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
 import { AddEditComponent as BaseAddEditComponent } from "@bitwarden/angular/vault/components/add-edit.component";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -17,7 +18,8 @@ import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.s
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { PasswordRepromptService } from "@bitwarden/common/vault/abstractions/password-reprompt.service";
+import { DialogService } from "@bitwarden/components";
+import { PasswordRepromptService } from "@bitwarden/vault";
 
 const BroadcasterSubscriptionId = "AddEditComponent";
 
@@ -45,7 +47,9 @@ export class AddEditComponent extends BaseAddEditComponent implements OnChanges,
     logService: LogService,
     organizationService: OrganizationService,
     sendApiService: SendApiService,
-    dialogService: DialogServiceAbstraction
+    dialogService: DialogService,
+    datePipe: DatePipe,
+    configService: ConfigServiceAbstraction,
   ) {
     super(
       cipherService,
@@ -62,7 +66,10 @@ export class AddEditComponent extends BaseAddEditComponent implements OnChanges,
       passwordRepromptService,
       organizationService,
       sendApiService,
-      dialogService
+      dialogService,
+      window,
+      datePipe,
+      configService,
     );
   }
 
@@ -96,6 +103,8 @@ export class AddEditComponent extends BaseAddEditComponent implements OnChanges,
     ) {
       this.cipher = null;
     }
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     super.load();
   }
 
@@ -124,7 +133,7 @@ export class AddEditComponent extends BaseAddEditComponent implements OnChanges,
 
   openHelpReprompt() {
     this.platformUtilsService.launchUri(
-      "https://bitwarden.com/help/managing-items/#protect-individual-items"
+      "https://bitwarden.com/help/managing-items/#protect-individual-items",
     );
   }
 }

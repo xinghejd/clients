@@ -1,13 +1,15 @@
 import * as fs from "fs";
 import * as path from "path";
 
+import { firstValueFrom } from "rxjs";
+
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models/request/selection-read-only.request";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { CipherExport } from "@bitwarden/common/models/export/cipher.export";
 import { CollectionExport } from "@bitwarden/common/models/export/collection.export";
 import { FolderExport } from "@bitwarden/common/models/export/folder.export";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
@@ -26,17 +28,17 @@ export class CreateCommand {
   constructor(
     private cipherService: CipherService,
     private folderService: FolderService,
-    private stateService: StateService,
     private cryptoService: CryptoService,
     private apiService: ApiService,
-    private folderApiService: FolderApiServiceAbstraction
+    private folderApiService: FolderApiServiceAbstraction,
+    private accountProfileService: BillingAccountProfileStateService,
   ) {}
 
   async run(
     object: string,
     requestJson: string,
     cmdOptions: Record<string, any>,
-    additionalData: any = null
+    additionalData: any = null,
   ): Promise<Response> {
     let req: any = null;
     if (object !== "attachment") {
@@ -80,7 +82,9 @@ export class CreateCommand {
     try {
       await this.cipherService.createWithServer(cipher);
       const newCipher = await this.cipherService.get(cipher.id);
-      const decCipher = await newCipher.decrypt();
+      const decCipher = await newCipher.decrypt(
+        await this.cipherService.getKeyForCipherKeyDecryption(newCipher),
+      );
       const res = new CipherResponse(decCipher);
       return Response.success(res);
     } catch (e) {
@@ -122,15 +126,18 @@ export class CreateCommand {
       return Response.notFound();
     }
 
-    if (cipher.organizationId == null && !(await this.stateService.getCanAccessPremium())) {
+    if (
+      cipher.organizationId == null &&
+      !(await firstValueFrom(this.accountProfileService.hasPremiumFromAnySource$))
+    ) {
       return Response.error("Premium status is required to use this feature.");
     }
 
-    const encKey = await this.cryptoService.getEncKey();
-    if (encKey == null) {
+    const userKey = await this.cryptoService.getUserKey();
+    if (userKey == null) {
       return Response.error(
         "You must update your encryption key before you can use this feature. " +
-          "See https://help.bitwarden.com/article/update-encryption-key/"
+          "See https://help.bitwarden.com/article/update-encryption-key/",
       );
     }
 
@@ -138,10 +145,12 @@ export class CreateCommand {
       await this.cipherService.saveAttachmentRawWithServer(
         cipher,
         fileName,
-        new Uint8Array(fileBuf).buffer
+        new Uint8Array(fileBuf).buffer,
       );
       const updatedCipher = await this.cipherService.get(cipher.id);
-      const decCipher = await updatedCipher.decrypt();
+      const decCipher = await updatedCipher.decrypt(
+        await this.cipherService.getKeyForCipherKeyDecryption(updatedCipher),
+      );
       return Response.success(new CipherResponse(decCipher));
     } catch (e) {
       return Response.error(e);
@@ -180,7 +189,9 @@ export class CreateCommand {
       const groups =
         req.groups == null
           ? null
-          : req.groups.map((g) => new SelectionReadOnlyRequest(g.id, g.readOnly, g.hidePasswords));
+          : req.groups.map(
+              (g) => new SelectionReadOnlyRequest(g.id, g.readOnly, g.hidePasswords, g.manage),
+            );
       const request = new CollectionRequest();
       request.name = (await this.cryptoService.encrypt(req.name, orgKey)).encryptedString;
       request.externalId = req.externalId;

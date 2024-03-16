@@ -60,12 +60,12 @@
           >
             {{ "singleSignOn" | i18n }}
           </a>
-          <ng-container *appIfFeature="FeatureFlag.TrustedDeviceEncryption">
+          <ng-container>
             <a
               routerLink="device-approvals"
               class="list-group-item"
               routerLinkActive="active"
-              *ngIf="org.canManageUsersPassword"
+              *ngIf="org.canManageDeviceApprovals"
             >
               {{ "deviceApprovals" | i18n }}
             </a>

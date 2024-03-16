@@ -2,7 +2,6 @@ const fs = require("fs");
 const path = require("path");
 
 const { AngularWebpackPlugin } = require("@ngtools/webpack");
-const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackInjector = require("html-webpack-injector");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
@@ -87,7 +86,6 @@ const moduleRules = [
 ];
 
 const plugins = [
-  new CleanWebpackPlugin(),
   new HtmlWebpackPlugin({
     template: "./src/index.html",
     filename: "index.html",
@@ -129,6 +127,11 @@ const plugins = [
     filename: "captcha-mobile-connector.html",
     chunks: ["connectors/captcha"],
   }),
+  new HtmlWebpackPlugin({
+    template: "./src/connectors/duo-redirect.html",
+    filename: "duo-redirect-connector.html",
+    chunks: ["connectors/duo-redirect"],
+  }),
   new CopyWebpackPlugin({
     patterns: [
       { from: "./src/.nojekyll" },
@@ -167,6 +170,7 @@ const plugins = [
     BRAINTREE_KEY: envConfig["braintreeKey"] ?? "",
     PAYPAL_CONFIG: envConfig["paypal"] ?? {},
     FLAGS: envConfig["flags"] ?? {},
+    DEV_FLAGS: NODE_ENV === "development" ? envConfig["devFlags"] : {},
   }),
   new AngularWebpackPlugin({
     tsConfigPath: "tsconfig.json",
@@ -213,6 +217,7 @@ const devServer =
             pathRewrite: { "^/notifications": "" },
             secure: false,
             changeOrigin: true,
+            ws: true,
           },
           "/icons": {
             target: envConfig.dev?.proxyIcons,
@@ -264,6 +269,7 @@ const devServer =
                   https://*.duosecurity.com
                 ;connect-src
                   'self'
+                  ${envConfig.dev.wsConnectSrc ?? ""}
                   wss://notifications.bitwarden.com
                   https://notifications.bitwarden.com
                   https://cdn.bitwarden.net
@@ -271,6 +277,7 @@ const devServer =
                   https://api.2fa.directory/v3/totp.json
                   https://api.stripe.com
                   https://www.paypal.com
+                  https://api.sandbox.braintreegateway.com
                   https://api.braintreegateway.com
                   https://client-analytics.braintreegateway.com
                   https://*.braintree-api.com
@@ -278,7 +285,7 @@ const devServer =
                   http://127.0.0.1:10000
                   https://app.simplelogin.io/api/alias/random/new
                   https://quack.duckduckgo.com/api/email/addresses
-                  https://app.anonaddy.com/api/v1/aliases
+                  https://app.addy.io/api/v1/aliases
                   https://api.fastmail.com
                   https://api.forwardemail.net
                   http://localhost:5000
@@ -298,6 +305,7 @@ const devServer =
           overlay: {
             errors: true,
             warnings: false,
+            runtimeErrors: false,
           },
         },
       };
@@ -314,7 +322,8 @@ const webpackConfig = {
     "connectors/duo": "./src/connectors/duo.ts",
     "connectors/sso": "./src/connectors/sso.ts",
     "connectors/captcha": "./src/connectors/captcha.ts",
-    theme_head: "./src/theme.js",
+    "connectors/duo-redirect": "./src/connectors/duo-redirect.ts",
+    theme_head: "./src/theme.ts",
   },
   optimization: {
     splitChunks: {
@@ -347,10 +356,6 @@ const webpackConfig = {
     extensions: [".ts", ".js"],
     symlinks: false,
     modules: [path.resolve("../../node_modules")],
-    alias: {
-      sweetalert2: require.resolve("sweetalert2/dist/sweetalert2.js"),
-      "#sweetalert2": require.resolve("sweetalert2/src/sweetalert2.scss"),
-    },
     fallback: {
       buffer: false,
       util: require.resolve("util/"),
@@ -364,6 +369,7 @@ const webpackConfig = {
   output: {
     filename: "[name].[contenthash].js",
     path: path.resolve(__dirname, "build"),
+    clean: true,
   },
   module: {
     noParse: /\.wasm$/,

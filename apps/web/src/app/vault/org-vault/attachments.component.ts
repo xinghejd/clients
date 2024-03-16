@@ -1,8 +1,8 @@
 import { Component } from "@angular/core";
 
-import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -13,6 +13,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
+import { DialogService } from "@bitwarden/components";
 
 import { AttachmentsComponent as BaseAttachmentsComponent } from "../individual-vault/attachments.component";
 
@@ -33,7 +34,8 @@ export class AttachmentsComponent extends BaseAttachmentsComponent {
     apiService: ApiService,
     logService: LogService,
     fileDownloadService: FileDownloadService,
-    dialogService: DialogServiceAbstraction
+    dialogService: DialogService,
+    billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
     super(
       cipherService,
@@ -44,7 +46,8 @@ export class AttachmentsComponent extends BaseAttachmentsComponent {
       apiService,
       logService,
       fileDownloadService,
-      dialogService
+      dialogService,
+      billingAccountProfileStateService,
     );
   }
 
@@ -66,7 +69,7 @@ export class AttachmentsComponent extends BaseAttachmentsComponent {
     return this.cipherService.saveAttachmentWithServer(
       this.cipherDomain,
       file,
-      this.organization.canEditAnyCollection
+      this.organization.canEditAnyCollection,
     );
   }
 

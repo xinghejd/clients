@@ -1,12 +1,11 @@
 import { Component, NgZone, OnDestroy, OnInit } from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
-import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-
-import { StateService } from "../core";
 
 const BroadcasterSubscriptionId = "SettingsComponent";
 
@@ -21,17 +20,18 @@ export class SettingsComponent implements OnInit, OnDestroy {
   hideSubscription: boolean;
 
   constructor(
-    private tokenService: TokenService,
     private broadcasterService: BroadcasterService,
     private ngZone: NgZone,
     private platformUtilsService: PlatformUtilsService,
     private organizationService: OrganizationService,
-    private stateService: StateService,
-    private apiService: ApiService
+    private apiService: ApiService,
+    private billingAccountProfileStateServiceAbstraction: BillingAccountProfileStateService,
   ) {}
 
   async ngOnInit() {
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.ngZone.run(async () => {
         switch (message.command) {
           case "purchasedPremium":
@@ -51,9 +51,13 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   async load() {
-    this.premium = await this.stateService.getHasPremiumPersonally();
+    this.premium = await firstValueFrom(
+      this.billingAccountProfileStateServiceAbstraction.hasPremiumPersonally$,
+    );
     this.hasFamilySponsorshipAvailable = await this.organizationService.canManageSponsorships();
-    const hasPremiumFromOrg = await this.stateService.getHasPremiumFromOrganization();
+    const hasPremiumFromOrg = await firstValueFrom(
+      this.billingAccountProfileStateServiceAbstraction.hasPremiumFromAnyOrganization$,
+    );
     let billing = null;
     if (!this.selfHosted) {
       billing = await this.apiService.getUserBillingHistory();

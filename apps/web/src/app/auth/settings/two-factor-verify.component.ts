@@ -1,14 +1,14 @@
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { UserVerificationService } from "@bitwarden/common/abstractions/userVerification/userVerification.service.abstraction";
+import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { SecretVerificationRequest } from "@bitwarden/common/auth/models/request/secret-verification.request";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { TwoFactorResponse } from "@bitwarden/common/auth/types/two-factor-response";
+import { Verification } from "@bitwarden/common/auth/types/verification";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { Verification } from "@bitwarden/common/types/verification";
 
 @Component({
   selector: "app-two-factor-verify",
@@ -25,7 +25,7 @@ export class TwoFactorVerifyComponent {
   constructor(
     private apiService: ApiService,
     private logService: LogService,
-    private userVerificationService: UserVerificationService
+    private userVerificationService: UserVerificationService,
   ) {}
 
   async submit() {

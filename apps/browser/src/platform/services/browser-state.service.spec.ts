@@ -1,5 +1,7 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
+import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
   AbstractMemoryStorageService,
@@ -8,9 +10,11 @@ import {
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { State } from "@bitwarden/common/platform/models/domain/state";
-import { StateMigrationService } from "@bitwarden/common/platform/services/state-migration.service";
+import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
+import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
 import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
+import { UserId } from "@bitwarden/common/types/guid";
 
 import { Account } from "../../models/account";
 import { BrowserComponentState } from "../../models/browserComponentState";
@@ -26,12 +30,15 @@ describe("Browser State Service", () => {
   let secureStorageService: MockProxy<AbstractStorageService>;
   let diskStorageService: MockProxy<AbstractStorageService>;
   let logService: MockProxy<LogService>;
-  let stateMigrationService: MockProxy<StateMigrationService>;
   let stateFactory: MockProxy<StateFactory<GlobalState, Account>>;
   let useAccountCache: boolean;
+  let environmentService: MockProxy<EnvironmentService>;
+  let tokenService: MockProxy<TokenService>;
+  let migrationRunner: MockProxy<MigrationRunner>;
 
   let state: State<GlobalState, Account>;
-  const userId = "userId";
+  const userId = "userId" as UserId;
+  const accountService = mockAccountServiceWith(userId);
 
   let sut: BrowserStateService;
 
@@ -39,15 +46,22 @@ describe("Browser State Service", () => {
     secureStorageService = mock();
     diskStorageService = mock();
     logService = mock();
-    stateMigrationService = mock();
     stateFactory = mock();
-    useAccountCache = true;
+    environmentService = mock();
+    tokenService = mock();
+    migrationRunner = mock();
+    // turn off account cache for tests
+    useAccountCache = false;
 
     state = new State(new GlobalState());
     state.accounts[userId] = new Account({
       profile: { userId: userId },
     });
     state.activeUserId = userId;
+  });
+
+  afterEach(() => {
+    jest.resetAllMocks();
   });
 
   describe("state methods", () => {
@@ -63,9 +77,12 @@ describe("Browser State Service", () => {
         secureStorageService,
         memoryStorageService,
         logService,
-        stateMigrationService,
         stateFactory,
-        useAccountCache
+        accountService,
+        environmentService,
+        tokenService,
+        migrationRunner,
+        useAccountCache,
       );
     });
 

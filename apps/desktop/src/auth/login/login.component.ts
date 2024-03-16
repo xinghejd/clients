@@ -7,9 +7,11 @@ import { EnvironmentSelectorComponent } from "@bitwarden/angular/auth/components
 import { LoginComponent as BaseLoginComponent } from "@bitwarden/angular/auth/components/login.component";
 import { FormValidationErrorsService } from "@bitwarden/angular/platform/abstractions/form-validation-errors.service";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
-import { DevicesApiServiceAbstraction } from "@bitwarden/common/abstractions/devices/devices-api.service.abstraction";
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { LoginStrategyServiceAbstraction } from "@bitwarden/auth/common";
+import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { LoginService } from "@bitwarden/common/auth/abstractions/login.service";
+import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
+import { WebAuthnLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/webauthn/webauthn-login.service.abstraction";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
@@ -33,8 +35,8 @@ const BroadcasterSubscriptionId = "LoginComponent";
 export class LoginComponent extends BaseLoginComponent implements OnDestroy {
   @ViewChild("environment", { read: ViewContainerRef, static: true })
   environmentModal: ViewContainerRef;
-  @ViewChild(EnvironmentSelectorComponent)
-  environmentSelector!: EnvironmentSelectorComponent;
+  @ViewChild("environmentSelector", { read: ViewContainerRef, static: true })
+  environmentSelector: EnvironmentSelectorComponent;
 
   protected componentDestroyed$: Subject<void> = new Subject();
   webVaultHostname = "";
@@ -54,7 +56,7 @@ export class LoginComponent extends BaseLoginComponent implements OnDestroy {
   constructor(
     devicesApiService: DevicesApiServiceAbstraction,
     appIdService: AppIdService,
-    authService: AuthService,
+    loginStrategyService: LoginStrategyServiceAbstraction,
     router: Router,
     i18nService: I18nService,
     syncService: SyncService,
@@ -71,12 +73,14 @@ export class LoginComponent extends BaseLoginComponent implements OnDestroy {
     formBuilder: FormBuilder,
     formValidationErrorService: FormValidationErrorsService,
     route: ActivatedRoute,
-    loginService: LoginService
+    loginService: LoginService,
+    ssoLoginService: SsoLoginServiceAbstraction,
+    webAuthnLoginService: WebAuthnLoginServiceAbstraction,
   ) {
     super(
       devicesApiService,
       appIdService,
-      authService,
+      loginStrategyService,
       router,
       platformUtilsService,
       i18nService,
@@ -89,7 +93,9 @@ export class LoginComponent extends BaseLoginComponent implements OnDestroy {
       formBuilder,
       formValidationErrorService,
       route,
-      loginService
+      loginService,
+      ssoLoginService,
+      webAuthnLoginService,
     );
     super.onSuccessfulLogin = () => {
       return syncService.fullSync(true);
@@ -121,11 +127,6 @@ export class LoginComponent extends BaseLoginComponent implements OnDestroy {
       });
     });
     this.messagingService.send("getWindowIsFocused");
-    this.environmentSelector.onOpenSelfHostedSettings
-      .pipe(takeUntil(this.componentDestroyed$))
-      .subscribe(() => {
-        this.settings();
-      });
   }
 
   ngOnDestroy() {
@@ -137,7 +138,7 @@ export class LoginComponent extends BaseLoginComponent implements OnDestroy {
   async settings() {
     const [modal, childComponent] = await this.modalService.openViewRef(
       EnvironmentComponent,
-      this.environmentModal
+      this.environmentModal,
     );
 
     modal.onShown.pipe(takeUntil(this.componentDestroyed$)).subscribe(() => {
@@ -151,6 +152,8 @@ export class LoginComponent extends BaseLoginComponent implements OnDestroy {
     // eslint-disable-next-line rxjs/no-async-subscribe
     childComponent.onSaved.pipe(takeUntil(this.componentDestroyed$)).subscribe(async () => {
       modal.close();
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.environmentSelector.updateEnvironmentInfo();
       await this.getLoginWithDevice(this.loggedEmail);
     });
@@ -166,7 +169,7 @@ export class LoginComponent extends BaseLoginComponent implements OnDestroy {
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccured"),
-        this.i18nService.t("invalidEmail")
+        this.i18nService.t("invalidEmail"),
       );
       return;
     }
@@ -187,6 +190,6 @@ export class LoginComponent extends BaseLoginComponent implements OnDestroy {
 
   private focusInput() {
     const email = this.loggedEmail;
-    document.getElementById(email == null || email === "" ? "email" : "masterPassword").focus();
+    document.getElementById(email == null || email === "" ? "email" : "masterPassword")?.focus();
   }
 }

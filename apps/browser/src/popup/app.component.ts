@@ -1,28 +1,20 @@
-import {
-  ChangeDetectorRef,
-  Component,
-  NgZone,
-  OnDestroy,
-  OnInit,
-  SecurityContext,
-} from "@angular/core";
-import { DomSanitizer } from "@angular/platform-browser";
+import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { NavigationEnd, Router, RouterOutlet } from "@angular/router";
-import { IndividualConfig, ToastrService } from "ngx-toastr";
-import { filter, concatMap, Subject, takeUntil } from "rxjs";
-import Swal from "sweetalert2";
+import { ToastrService } from "ngx-toastr";
+import { filter, concatMap, Subject, takeUntil, firstValueFrom } from "rxjs";
 
-import { DialogServiceAbstraction, SimpleDialogOptions } from "@bitwarden/angular/services/dialog";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { DialogService, SimpleDialogOptions } from "@bitwarden/components";
 
 import { BrowserApi } from "../platform/browser/browser-api";
+import { ZonedMessageListenerService } from "../platform/browser/zoned-message-listener.service";
 import { BrowserStateService } from "../platform/services/abstractions/browser-state.service";
+import { ForegroundPlatformUtilsService } from "../platform/services/platform-utils/foreground-platform-utils.service";
 
 import { routerTransition } from "./app-routing.animations";
+import { DesktopSyncVerificationDialogComponent } from "./components/desktop-sync-verification-dialog.component";
 
 @Component({
   selector: "app-root",
@@ -45,12 +37,11 @@ export class AppComponent implements OnInit, OnDestroy {
     private i18nService: I18nService,
     private router: Router,
     private stateService: BrowserStateService,
-    private messagingService: MessagingService,
     private changeDetectorRef: ChangeDetectorRef,
     private ngZone: NgZone,
-    private sanitizer: DomSanitizer,
-    private platformUtilsService: PlatformUtilsService,
-    private dialogService: DialogServiceAbstraction
+    private platformUtilsService: ForegroundPlatformUtilsService,
+    private dialogService: DialogService,
+    private browserMessagingApi: ZonedMessageListenerService,
   ) {}
 
   async ngOnInit() {
@@ -68,7 +59,7 @@ export class AppComponent implements OnInit, OnDestroy {
         concatMap(async () => {
           await this.recordActivity();
         }),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe();
 
@@ -80,47 +71,44 @@ export class AppComponent implements OnInit, OnDestroy {
       window.onkeypress = () => this.recordActivity();
     });
 
-    (window as any).bitwardenPopupMainMessageListener = async (
-      msg: any,
-      sender: any,
-      sendResponse: any
-    ) => {
+    const bitwardenPopupMainMessageListener = (msg: any, sender: any) => {
       if (msg.command === "doneLoggingOut") {
-        this.ngZone.run(async () => {
-          this.authService.logOut(async () => {
-            if (msg.expired) {
-              this.showToast({
-                type: "warning",
-                title: this.i18nService.t("loggedOut"),
-                text: this.i18nService.t("loginExpired"),
-              });
-            }
+        this.authService.logOut(async () => {
+          if (msg.expired) {
+            this.showToast({
+              type: "warning",
+              title: this.i18nService.t("loggedOut"),
+              text: this.i18nService.t("loginExpired"),
+            });
+          }
 
-            if (this.activeUserId === null) {
-              this.router.navigate(["home"]);
-            }
-          });
-          this.changeDetectorRef.detectChanges();
-        });
-      } else if (msg.command === "authBlocked") {
-        this.ngZone.run(() => {
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.router.navigate(["home"]);
         });
-      } else if (msg.command === "locked") {
-        if (msg.userId == null || msg.userId === (await this.stateService.getUserId())) {
-          this.ngZone.run(() => {
-            this.router.navigate(["lock"]);
-          });
-        }
+        this.changeDetectorRef.detectChanges();
+      } else if (msg.command === "authBlocked") {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        this.router.navigate(["home"]);
+      } else if (
+        msg.command === "locked" &&
+        (msg.userId == null || msg.userId == this.activeUserId)
+      ) {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        this.router.navigate(["lock"]);
       } else if (msg.command === "showDialog") {
-        await this.showDialog(msg);
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        this.showDialog(msg);
       } else if (msg.command === "showNativeMessagingFinterprintDialog") {
         // TODO: Should be refactored to live in another service.
-        await this.showNativeMessagingFingerprintDialog(msg);
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        this.showNativeMessagingFingerprintDialog(msg);
       } else if (msg.command === "showToast") {
-        this.ngZone.run(() => {
-          this.showToast(msg);
-        });
+        this.showToast(msg);
       } else if (msg.command === "reloadProcess") {
         const forceWindowReload =
           this.platformUtilsService.isSafari() ||
@@ -129,23 +117,31 @@ export class AppComponent implements OnInit, OnDestroy {
         // Wait to make sure background has reloaded first.
         window.setTimeout(
           () => BrowserApi.reloadExtension(forceWindowReload ? window : null),
-          2000
+          2000,
         );
       } else if (msg.command === "reloadPopup") {
-        this.ngZone.run(() => {
-          this.router.navigate(["/"]);
-        });
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        this.router.navigate(["/"]);
       } else if (msg.command === "convertAccountToKeyConnector") {
-        this.ngZone.run(async () => {
-          this.router.navigate(["/remove-password"]);
-        });
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        this.router.navigate(["/remove-password"]);
+      } else if (msg.command === "switchAccountFinish") {
+        // TODO: unset loading?
+        // this.loading = false;
+      } else if (msg.command == "update-temp-password") {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        this.router.navigate(["/update-temp-password"]);
       } else {
         msg.webExtSender = sender;
         this.broadcasterService.send(msg);
       }
     };
 
-    BrowserApi.messageListener("app.component", (window as any).bitwardenPopupMainMessageListener);
+    (window as any).bitwardenPopupMainMessageListener = bitwardenPopupMainMessageListener;
+    this.browserMessagingApi.messageListener("app.component", bitwardenPopupMainMessageListener);
 
     // eslint-disable-next-line rxjs/no-async-subscribe
     this.router.events.pipe(takeUntil(this.destroy$)).subscribe(async (event) => {
@@ -210,31 +206,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private showToast(msg: any) {
-    let message = "";
-
-    const options: Partial<IndividualConfig> = {};
-
-    if (typeof msg.text === "string") {
-      message = msg.text;
-    } else if (msg.text.length === 1) {
-      message = msg.text[0];
-    } else {
-      msg.text.forEach(
-        (t: string) =>
-          (message += "<p>" + this.sanitizer.sanitize(SecurityContext.HTML, t) + "</p>")
-      );
-      options.enableHtml = true;
-    }
-    if (msg.options != null) {
-      if (msg.options.trustedHtml === true) {
-        options.enableHtml = true;
-      }
-      if (msg.options.timeout != null && msg.options.timeout > 0) {
-        options.timeOut = msg.options.timeout;
-      }
-    }
-
-    this.toastrService.show(message, msg.title, options, "toast-" + msg.type);
+    this.platformUtilsService.showToast(msg.type, msg.title, msg.text, msg.options);
   }
 
   private async showDialog(msg: SimpleDialogOptions) {
@@ -242,19 +214,11 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private async showNativeMessagingFingerprintDialog(msg: any) {
-    await Swal.fire({
-      heightAuto: false,
-      buttonsStyling: false,
-      icon: "warning",
-      iconHtml: '<i class="swal-custom-icon bwi bwi-exclamation-triangle text-warning"></i>',
-      html: `${this.i18nService.t("desktopIntegrationVerificationText")}<br><br><strong>${
-        msg.fingerprint
-      }</strong>`,
-      titleText: this.i18nService.t("desktopSyncVerificationTitle"),
-      showConfirmButton: true,
-      confirmButtonText: this.i18nService.t("ok"),
-      timer: 300000,
+    const dialogRef = DesktopSyncVerificationDialogComponent.open(this.dialogService, {
+      fingerprint: msg.fingerprint,
     });
+
+    return firstValueFrom(dialogRef.closed);
   }
 
   private async clearComponentStates() {

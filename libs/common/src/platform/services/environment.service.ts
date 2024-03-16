@@ -1,18 +1,37 @@
-import { concatMap, Observable, Subject } from "rxjs";
+import {
+  concatMap,
+  distinctUntilChanged,
+  firstValueFrom,
+  map,
+  Observable,
+  ReplaySubject,
+} from "rxjs";
 
+import { AccountService } from "../../auth/abstractions/account.service";
 import { EnvironmentUrls } from "../../auth/models/domain/environment-urls";
+import { UserId } from "../../types/guid";
 import {
   EnvironmentService as EnvironmentServiceAbstraction,
   Region,
+  RegionDomain,
   Urls,
 } from "../abstractions/environment.service";
-import { StateService } from "../abstractions/state.service";
+import { Utils } from "../misc/utils";
+import { ENVIRONMENT_DISK, GlobalState, KeyDefinition, StateProvider } from "../state";
+
+const REGION_KEY = new KeyDefinition<Region>(ENVIRONMENT_DISK, "region", {
+  deserializer: (s) => s,
+});
+
+const URLS_KEY = new KeyDefinition<EnvironmentUrls>(ENVIRONMENT_DISK, "urls", {
+  deserializer: EnvironmentUrls.fromJSON,
+});
 
 export class EnvironmentService implements EnvironmentServiceAbstraction {
-  private readonly urlsSubject = new Subject<void>();
+  private readonly urlsSubject = new ReplaySubject<void>(1);
   urls: Observable<void> = this.urlsSubject.asObservable();
   selectedRegion?: Region;
-  initialized = true;
+  initialized = false;
 
   protected baseUrl: string;
   protected webVaultUrl: string;
@@ -23,6 +42,12 @@ export class EnvironmentService implements EnvironmentServiceAbstraction {
   protected eventsUrl: string;
   private keyConnectorUrl: string;
   private scimUrl: string = null;
+  private cloudWebVaultUrl: string;
+
+  private regionGlobalState: GlobalState<Region | null>;
+  private urlsGlobalState: GlobalState<EnvironmentUrls | null>;
+
+  private activeAccountId$: Observable<UserId | null>;
 
   readonly usUrls: Urls = {
     base: null,
@@ -32,7 +57,7 @@ export class EnvironmentService implements EnvironmentServiceAbstraction {
     webVault: "https://vault.bitwarden.com",
     notifications: "https://notifications.bitwarden.com",
     events: "https://events.bitwarden.com",
-    scim: "https://scim.bitwarden.com/v2",
+    scim: "https://scim.bitwarden.com",
   };
 
   readonly euUrls: Urls = {
@@ -43,20 +68,32 @@ export class EnvironmentService implements EnvironmentServiceAbstraction {
     webVault: "https://vault.bitwarden.eu",
     notifications: "https://notifications.bitwarden.eu",
     events: "https://events.bitwarden.eu",
-    scim: "https://scim.bitwarden.eu/v2",
+    scim: "https://scim.bitwarden.eu",
   };
 
-  constructor(private stateService: StateService) {
-    this.stateService.activeAccount$
+  constructor(
+    private stateProvider: StateProvider,
+    private accountService: AccountService,
+  ) {
+    // We intentionally don't want the helper on account service, we want the null back if there is no active user
+    this.activeAccountId$ = this.accountService.activeAccount$.pipe(map((a) => a?.id));
+
+    // TODO: Get rid of early subscription during EnvironmentService refactor
+    this.activeAccountId$
       .pipe(
+        // Use == here to not trigger on undefined -> null transition
+        distinctUntilChanged((oldUserId: string, newUserId: string) => oldUserId == newUserId),
         concatMap(async () => {
           if (!this.initialized) {
             return;
           }
           await this.setUrlsFromStorage();
-        })
+        }),
       )
       .subscribe();
+
+    this.regionGlobalState = this.stateProvider.getGlobal(REGION_KEY);
+    this.urlsGlobalState = this.stateProvider.getGlobal(URLS_KEY);
   }
 
   hasBaseUrl() {
@@ -84,6 +121,26 @@ export class EnvironmentService implements EnvironmentServiceAbstraction {
       return this.baseUrl;
     }
     return "https://vault.bitwarden.com";
+  }
+
+  getCloudWebVaultUrl() {
+    if (this.cloudWebVaultUrl != null) {
+      return this.cloudWebVaultUrl;
+    }
+
+    return this.usUrls.webVault;
+  }
+
+  setCloudWebVaultUrl(region: Region) {
+    switch (region) {
+      case Region.EU:
+        this.cloudWebVaultUrl = this.euUrls.webVault;
+        break;
+      case Region.US:
+      default:
+        this.cloudWebVaultUrl = this.usUrls.webVault;
+        break;
+    }
   }
 
   getSendUrl() {
@@ -155,17 +212,18 @@ export class EnvironmentService implements EnvironmentServiceAbstraction {
   }
 
   async setUrlsFromStorage(): Promise<void> {
-    const region = await this.stateService.getRegion();
-    const savedUrls = await this.stateService.getEnvironmentUrls();
+    const activeUserId = await firstValueFrom(this.activeAccountId$);
+
+    const region = await this.getRegion(activeUserId);
+    const savedUrls = await this.getEnvironmentUrls(activeUserId);
     const envUrls = new EnvironmentUrls();
 
-    // fix environment urls for old users
-    if (savedUrls.base === "https://vault.bitwarden.com") {
+    // In release `2023.5.0`, we set the `base` property of the environment URLs to the US web vault URL when a user clicked the "US" region.
+    // This check will detect these cases and convert them to the proper region instead.
+    // We are detecting this by checking for the presence of the web vault URL in the `base` and the absence of the `notifications` property.
+    // This is because the `notifications` will not be `null` in the web vault, and we don't want to migrate the URLs in that case.
+    if (savedUrls.base === "https://vault.bitwarden.com" && savedUrls.notifications == null) {
       await this.setRegion(Region.US);
-      return;
-    }
-    if (savedUrls.base === "https://vault.bitwarden.eu") {
-      await this.setRegion(Region.EU);
       return;
     }
 
@@ -207,7 +265,8 @@ export class EnvironmentService implements EnvironmentServiceAbstraction {
     // scimUrl cannot be cleared
     urls.scim = this.formatUrl(urls.scim) ?? this.scimUrl;
 
-    await this.stateService.setEnvironmentUrls({
+    // Don't save scim url
+    await this.urlsGlobalState.update(() => ({
       base: urls.base,
       api: urls.api,
       identity: urls.identity,
@@ -216,8 +275,7 @@ export class EnvironmentService implements EnvironmentServiceAbstraction {
       notifications: urls.notifications,
       events: urls.events,
       keyConnector: urls.keyConnector,
-      // scimUrl is not saved to storage
-    });
+    }));
 
     this.baseUrl = urls.base;
     this.webVaultUrl = urls.webVault;
@@ -240,6 +298,7 @@ export class EnvironmentService implements EnvironmentServiceAbstraction {
     return {
       base: this.baseUrl,
       webVault: this.webVaultUrl,
+      cloudWebVault: this.cloudWebVaultUrl,
       api: this.apiUrl,
       identity: this.identityUrl,
       icons: this.iconsUrl,
@@ -262,23 +321,62 @@ export class EnvironmentService implements EnvironmentServiceAbstraction {
     );
   }
 
+  async getHost(userId?: UserId) {
+    const region = await this.getRegion(userId);
+
+    switch (region) {
+      case Region.US:
+        return RegionDomain.US;
+      case Region.EU:
+        return RegionDomain.EU;
+      default: {
+        // Environment is self-hosted
+        const envUrls = await this.getEnvironmentUrls(userId);
+        return Utils.getHost(envUrls.webVault || envUrls.base);
+      }
+    }
+  }
+
+  private async getRegion(userId: UserId | null) {
+    // Previous rules dictated that we only get from user scoped state if there is an active user.
+    const activeUserId = await firstValueFrom(this.activeAccountId$);
+    return activeUserId == null
+      ? await firstValueFrom(this.regionGlobalState.state$)
+      : await firstValueFrom(this.stateProvider.getUser(userId ?? activeUserId, REGION_KEY).state$);
+  }
+
+  private async getEnvironmentUrls(userId: UserId | null) {
+    return userId == null
+      ? (await firstValueFrom(this.urlsGlobalState.state$)) ?? new EnvironmentUrls()
+      : (await firstValueFrom(this.stateProvider.getUser(userId, URLS_KEY).state$)) ??
+          new EnvironmentUrls();
+  }
+
   async setRegion(region: Region) {
     this.selectedRegion = region;
-    await this.stateService.setRegion(region);
-    switch (region) {
-      case Region.EU:
+    await this.regionGlobalState.update(() => region);
+
+    if (region === Region.SelfHosted) {
+      // If user saves a self-hosted region with empty fields, default to US
+      if (this.isEmpty()) {
+        await this.setRegion(Region.US);
+      }
+    } else {
+      // If we are setting the region to EU or US, clear the self-hosted URLs
+      await this.urlsGlobalState.update(() => new EnvironmentUrls());
+      if (region === Region.EU) {
         this.setUrlsInternal(this.euUrls);
-        break;
-      case Region.US:
+      } else if (region === Region.US) {
         this.setUrlsInternal(this.usUrls);
-        break;
-      case Region.SelfHosted:
-        // if user saves with empty fields, default to US
-        if (this.isEmpty()) {
-          await this.setRegion(Region.US);
-        }
-        break;
+      }
     }
+  }
+
+  async seedUserEnvironment(userId: UserId) {
+    const globalRegion = await firstValueFrom(this.regionGlobalState.state$);
+    const globalUrls = await firstValueFrom(this.urlsGlobalState.state$);
+    await this.stateProvider.getUser(userId, REGION_KEY).update(() => globalRegion);
+    await this.stateProvider.getUser(userId, URLS_KEY).update(() => globalUrls);
   }
 
   private setUrlsInternal(urls: Urls) {
@@ -316,16 +414,5 @@ export class EnvironmentService implements EnvironmentServiceAbstraction {
       "https://api.bitwarden.eu",
       "https://vault.bitwarden.eu/api",
     ].includes(this.getApiUrl());
-  }
-
-  isSelfHosted(): boolean {
-    return ![
-      "http://vault.bitwarden.com",
-      "https://vault.bitwarden.com",
-      "http://vault.bitwarden.eu",
-      "https://vault.bitwarden.eu",
-      "http://vault.qa.bitwarden.pw",
-      "https://vault.qa.bitwarden.pw",
-    ].includes(this.getWebVaultUrl());
   }
 }

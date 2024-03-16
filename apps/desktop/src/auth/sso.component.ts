@@ -2,8 +2,10 @@ import { Component } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 
 import { SsoComponent as BaseSsoComponent } from "@bitwarden/angular/auth/components/sso.component";
+import { LoginStrategyServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
+import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -19,7 +21,8 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 })
 export class SsoComponent extends BaseSsoComponent {
   constructor(
-    authService: AuthService,
+    ssoLoginService: SsoLoginServiceAbstraction,
+    loginStrategyService: LoginStrategyServiceAbstraction,
     router: Router,
     i18nService: I18nService,
     syncService: SyncService,
@@ -30,10 +33,12 @@ export class SsoComponent extends BaseSsoComponent {
     cryptoFunctionService: CryptoFunctionService,
     environmentService: EnvironmentService,
     passwordGenerationService: PasswordGenerationServiceAbstraction,
-    logService: LogService
+    logService: LogService,
+    configService: ConfigServiceAbstraction,
   ) {
     super(
-      authService,
+      ssoLoginService,
+      loginStrategyService,
       router,
       i18nService,
       route,
@@ -43,11 +48,21 @@ export class SsoComponent extends BaseSsoComponent {
       cryptoFunctionService,
       environmentService,
       passwordGenerationService,
-      logService
+      logService,
+      configService,
     );
-    super.onSuccessfulLogin = () => {
-      return syncService.fullSync(true);
+    super.onSuccessfulLogin = async () => {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      syncService.fullSync(true);
     };
+
+    super.onSuccessfulLoginTde = async () => {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      syncService.fullSync(true);
+    };
+
     this.redirectUri = "bitwarden://sso-callback";
     this.clientId = "desktop";
   }

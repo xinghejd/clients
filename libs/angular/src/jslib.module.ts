@@ -2,21 +2,22 @@ import { CommonModule, DatePipe } from "@angular/common";
 import { NgModule } from "@angular/core";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 
+import { AutofocusDirective } from "@bitwarden/components";
+
 import { CalloutComponent } from "./components/callout.component";
 import { BitwardenToastModule } from "./components/toastr.component";
 import { A11yInvalidDirective } from "./directives/a11y-invalid.directive";
 import { A11yTitleDirective } from "./directives/a11y-title.directive";
 import { ApiActionDirective } from "./directives/api-action.directive";
-import { AutofocusDirective } from "./directives/autofocus.directive";
 import { BoxRowDirective } from "./directives/box-row.directive";
 import { CopyClickDirective } from "./directives/copy-click.directive";
+import { CopyTextDirective } from "./directives/copy-text.directive";
 import { FallbackSrcDirective } from "./directives/fallback-src.directive";
 import { IfFeatureDirective } from "./directives/if-feature.directive";
 import { InputStripSpacesDirective } from "./directives/input-strip-spaces.directive";
 import { InputVerbatimDirective } from "./directives/input-verbatim.directive";
 import { LaunchClickDirective } from "./directives/launch-click.directive";
 import { NotPremiumDirective } from "./directives/not-premium.directive";
-import { SelectCopyDirective } from "./directives/select-copy.directive";
 import { StopClickDirective } from "./directives/stop-click.directive";
 import { StopPropDirective } from "./directives/stop-prop.directive";
 import { TrueFalseValueDirective } from "./directives/true-false-value.directive";
@@ -28,8 +29,8 @@ import { UserTypePipe } from "./pipes/user-type.pipe";
 import { EllipsisPipe } from "./platform/pipes/ellipsis.pipe";
 import { FingerprintPipe } from "./platform/pipes/fingerprint.pipe";
 import { I18nPipe } from "./platform/pipes/i18n.pipe";
-import { PasswordStrengthComponent } from "./shared/components/password-strength/password-strength.component";
 import { ExportScopeCalloutComponent } from "./tools/export/components/export-scope-callout.component";
+import { PasswordStrengthComponent } from "./tools/password-strength/password-strength.component";
 import { IconComponent } from "./vault/components/icon.component";
 
 @NgModule({
@@ -50,6 +51,7 @@ import { IconComponent } from "./vault/components/icon.component";
     AutofocusDirective,
     BoxRowDirective,
     CalloutComponent,
+    CopyTextDirective,
     CreditCardNumberPipe,
     EllipsisPipe,
     ExportScopeCalloutComponent,
@@ -61,7 +63,6 @@ import { IconComponent } from "./vault/components/icon.component";
     NotPremiumDirective,
     SearchCiphersPipe,
     SearchPipe,
-    SelectCopyDirective,
     StopClickDirective,
     StopPropDirective,
     TrueFalseValueDirective,
@@ -81,6 +82,7 @@ import { IconComponent } from "./vault/components/icon.component";
     BitwardenToastModule,
     BoxRowDirective,
     CalloutComponent,
+    CopyTextDirective,
     CreditCardNumberPipe,
     EllipsisPipe,
     ExportScopeCalloutComponent,
@@ -92,7 +94,6 @@ import { IconComponent } from "./vault/components/icon.component";
     NotPremiumDirective,
     SearchCiphersPipe,
     SearchPipe,
-    SelectCopyDirective,
     StopClickDirective,
     StopPropDirective,
     TrueFalseValueDirective,

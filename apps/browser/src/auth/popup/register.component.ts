@@ -2,12 +2,11 @@ import { Component } from "@angular/core";
 import { UntypedFormBuilder } from "@angular/forms";
 import { Router } from "@angular/router";
 
-import { RegisterComponent as BaseRegisterComponent } from "@bitwarden/angular/components/register.component";
+import { RegisterComponent as BaseRegisterComponent } from "@bitwarden/angular/auth/components/register.component";
 import { FormValidationErrorsService } from "@bitwarden/angular/platform/abstractions/form-validation-errors.service";
-import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
+import { LoginStrategyServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -15,6 +14,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
+import { DialogService } from "@bitwarden/components";
 
 @Component({
   selector: "app-register",
@@ -27,7 +27,7 @@ export class RegisterComponent extends BaseRegisterComponent {
   constructor(
     formValidationErrorService: FormValidationErrorsService,
     formBuilder: UntypedFormBuilder,
-    authService: AuthService,
+    loginStrategyService: LoginStrategyServiceAbstraction,
     router: Router,
     i18nService: I18nService,
     cryptoService: CryptoService,
@@ -38,12 +38,12 @@ export class RegisterComponent extends BaseRegisterComponent {
     environmentService: EnvironmentService,
     logService: LogService,
     auditService: AuditService,
-    dialogService: DialogServiceAbstraction
+    dialogService: DialogService,
   ) {
     super(
       formValidationErrorService,
       formBuilder,
-      authService,
+      loginStrategyService,
       router,
       i18nService,
       cryptoService,
@@ -54,7 +54,7 @@ export class RegisterComponent extends BaseRegisterComponent {
       environmentService,
       logService,
       auditService,
-      dialogService
+      dialogService,
     );
   }
 }

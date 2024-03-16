@@ -1,5 +1,8 @@
+import { firstValueFrom } from "rxjs";
+
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { BadgeSettingsService } from "@bitwarden/common/autofill/services/badge-settings.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
@@ -9,13 +12,12 @@ import { ContainerService } from "@bitwarden/common/platform/services/container.
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
 import { authServiceFactory } from "../../auth/background/service-factories/auth-service.factory";
+import { badgeSettingsServiceFactory } from "../../autofill/background/service_factories/badge-settings-service.factory";
 import { Account } from "../../models/account";
-import { stateServiceFactory } from "../../platform/background/service-factories/state-service.factory";
-import { BrowserStateService } from "../../platform/services/abstractions/browser-state.service";
 import IconDetails from "../../vault/background/models/icon-details";
 import { cipherServiceFactory } from "../../vault/background/service_factories/cipher-service.factory";
 import { BrowserApi } from "../browser/browser-api";
-import BrowserPlatformUtilsService from "../services/browser-platform-utils.service";
+import { BrowserPlatformUtilsService } from "../services/platform-utils/browser-platform-utils.service";
 
 export type BadgeOptions = {
   tab?: chrome.tabs.Tab;
@@ -24,7 +26,7 @@ export type BadgeOptions = {
 
 export class UpdateBadge {
   private authService: AuthService;
-  private stateService: BrowserStateService;
+  private badgeSettingsService: BadgeSettingsService;
   private cipherService: CipherService;
   private badgeAction: typeof chrome.action | typeof chrome.browserAction;
   private sidebarAction: OperaSidebarAction | FirefoxSidebarAction;
@@ -42,9 +44,16 @@ export class UpdateBadge {
     "deletedCipher",
   ];
 
+  static async windowsOnFocusChangedListener(
+    windowId: number,
+    serviceCache: Record<string, unknown>,
+  ) {
+    await new UpdateBadge(self).run({ windowId, existingServices: serviceCache });
+  }
+
   static async tabsOnActivatedListener(
     activeInfo: chrome.tabs.TabActiveInfo,
-    serviceCache: Record<string, unknown>
+    serviceCache: Record<string, unknown>,
   ) {
     await new UpdateBadge(self).run({
       tabId: activeInfo.tabId,
@@ -56,7 +65,7 @@ export class UpdateBadge {
   static async tabsOnReplacedListener(
     addedTabId: number,
     removedTabId: number,
-    serviceCache: Record<string, unknown>
+    serviceCache: Record<string, unknown>,
   ) {
     await new UpdateBadge(self).run({ tabId: addedTabId, existingServices: serviceCache });
   }
@@ -65,7 +74,7 @@ export class UpdateBadge {
     tabId: number,
     changeInfo: chrome.tabs.TabChangeInfo,
     tab: chrome.tabs.Tab,
-    serviceCache: Record<string, unknown>
+    serviceCache: Record<string, unknown>,
   ) {
     await new UpdateBadge(self).run({
       tabId,
@@ -76,7 +85,7 @@ export class UpdateBadge {
 
   static async messageListener(
     message: { command: string; tabId: number },
-    serviceCache: Record<string, unknown>
+    serviceCache: Record<string, unknown>,
   ) {
     if (!UpdateBadge.listenedToCommands.includes(message.command)) {
       return;
@@ -145,8 +154,8 @@ export class UpdateBadge {
 
     await this.setBadgeIcon("");
 
-    const disableBadgeCounter = await this.stateService.getDisableBadgeCounter();
-    if (disableBadgeCounter) {
+    const enableBadgeCounter = await firstValueFrom(this.badgeSettingsService.enableBadgeCounter$);
+    if (!enableBadgeCounter) {
       return;
     }
 
@@ -160,6 +169,8 @@ export class UpdateBadge {
 
   setBadgeBackgroundColor(color = "#294e5f") {
     if (this.badgeAction?.setBadgeBackgroundColor) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.badgeAction.setBadgeBackgroundColor({ color });
     }
     if (this.isOperaSidebar(this.sidebarAction)) {
@@ -189,6 +200,8 @@ export class UpdateBadge {
 
   private setActionText(text: string, tabId?: number) {
     if (this.badgeAction?.setBadgeText) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.badgeAction.setBadgeText({ text, tabId });
     }
   }
@@ -199,6 +212,8 @@ export class UpdateBadge {
     } else if (this.sidebarAction) {
       // Firefox
       const title = `Bitwarden${Utils.isNullOrEmpty(text) ? "" : ` [${text}]`}`;
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.sidebarAction.setTitle({ title, tabId });
     }
   }
@@ -209,6 +224,8 @@ export class UpdateBadge {
     }
 
     if (this.useSyncApiCalls) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.badgeAction.setIcon(options);
     } else {
       await new Promise<void>((resolve) => this.badgeAction.setIcon(options, () => resolve()));
@@ -222,7 +239,7 @@ export class UpdateBadge {
 
     if (this.isOperaSidebar(this.sidebarAction)) {
       await new Promise<void>((resolve) =>
-        (this.sidebarAction as OperaSidebarAction).setIcon(options, () => resolve())
+        (this.sidebarAction as OperaSidebarAction).setIcon(options, () => resolve()),
       );
     } else {
       await this.sidebarAction.setIcon(options);
@@ -265,9 +282,6 @@ export class UpdateBadge {
       stateServiceOptions: {
         stateFactory: new StateFactory(GlobalState, Account),
       },
-      stateMigrationServiceOptions: {
-        stateFactory: new StateFactory(GlobalState, Account),
-      },
       apiServiceOptions: {
         logoutCallback: () => Promise.reject("not implemented"),
       },
@@ -275,10 +289,10 @@ export class UpdateBadge {
         logoutCallback: () => Promise.reject("not implemented"),
       },
       i18nServiceOptions: {
-        systemLanguage: BrowserApi.getUILanguage(self),
+        systemLanguage: BrowserApi.getUILanguage(),
       },
     };
-    this.stateService = await stateServiceFactory(serviceCache, opts);
+    this.badgeSettingsService = await badgeSettingsServiceFactory(serviceCache, opts);
     this.authService = await authServiceFactory(serviceCache, opts);
     this.cipherService = await cipherServiceFactory(serviceCache, opts);
 
@@ -286,7 +300,7 @@ export class UpdateBadge {
     if (!self.bitwardenContainerService) {
       new ContainerService(
         serviceCache.cryptoService as CryptoService,
-        serviceCache.encryptService as EncryptService
+        serviceCache.encryptService as EncryptService,
       ).attachToGlobal(self);
     }
 
@@ -296,7 +310,7 @@ export class UpdateBadge {
   }
 
   private isOperaSidebar(
-    action: OperaSidebarAction | FirefoxSidebarAction
+    action: OperaSidebarAction | FirefoxSidebarAction,
   ): action is OperaSidebarAction {
     return action != null && (action as OperaSidebarAction).setBadgeText != null;
   }

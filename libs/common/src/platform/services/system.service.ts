@@ -1,11 +1,15 @@
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, timeout } from "rxjs";
 
+import { VaultTimeoutSettingsService } from "../../abstractions/vault-timeout/vault-timeout-settings.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
+import { AutofillSettingsServiceAbstraction } from "../../autofill/services/autofill-settings.service";
+import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
 import { MessagingService } from "../abstractions/messaging.service";
 import { PlatformUtilsService } from "../abstractions/platform-utils.service";
 import { StateService } from "../abstractions/state.service";
 import { SystemService as SystemServiceAbstraction } from "../abstractions/system.service";
+import { BiometricStateService } from "../biometrics/biometric-state.service";
 import { Utils } from "../misc/utils";
 
 export class SystemService implements SystemServiceAbstraction {
@@ -17,7 +21,10 @@ export class SystemService implements SystemServiceAbstraction {
     private messagingService: MessagingService,
     private platformUtilsService: PlatformUtilsService,
     private reloadCallback: () => Promise<void> = null,
-    private stateService: StateService
+    private stateService: StateService,
+    private autofillSettingsService: AutofillSettingsServiceAbstraction,
+    private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
+    private biometricStateService: BiometricStateService,
   ) {}
 
   async startProcessReload(authService: AuthService): Promise<void> {
@@ -39,8 +46,8 @@ export class SystemService implements SystemServiceAbstraction {
     }
 
     // User has set a PIN, with ask for master password on restart, to protect their vault
-    const decryptedPinProtected = await this.stateService.getDecryptedPinProtected();
-    if (decryptedPinProtected != null) {
+    const ephemeralPin = await this.stateService.getPinKeyEncryptedUserKeyEphemeral();
+    if (ephemeralPin != null) {
       return;
     }
 
@@ -49,11 +56,25 @@ export class SystemService implements SystemServiceAbstraction {
   }
 
   private async executeProcessReload() {
-    const biometricLockedFingerprintValidated =
-      await this.stateService.getBiometricFingerprintValidated();
+    const biometricLockedFingerprintValidated = await firstValueFrom(
+      this.biometricStateService.fingerprintValidated$,
+    );
     if (!biometricLockedFingerprintValidated) {
       clearInterval(this.reloadInterval);
       this.reloadInterval = null;
+
+      const currentUser = await firstValueFrom(this.stateService.activeAccount$.pipe(timeout(500)));
+      // Replace current active user if they will be logged out on reload
+      if (currentUser != null) {
+        const timeoutAction = await firstValueFrom(
+          this.vaultTimeoutSettingsService.vaultTimeoutAction$().pipe(timeout(500)),
+        );
+        if (timeoutAction === VaultTimeoutAction.LogOut) {
+          const nextUser = await this.stateService.nextUpActiveUser();
+          await this.stateService.setActiveUser(nextUser);
+        }
+      }
+
       this.messagingService.send("reloadProcess");
       if (this.reloadCallback != null) {
         await this.reloadCallback();
@@ -77,26 +98,33 @@ export class SystemService implements SystemServiceAbstraction {
       clearTimeout(this.clearClipboardTimeout);
       this.clearClipboardTimeout = null;
     }
+
     if (Utils.isNullOrWhitespace(clipboardValue)) {
       return;
     }
-    await this.stateService.getClearClipboard().then((clearSeconds) => {
-      if (clearSeconds == null) {
-        return;
+
+    const clearClipboardDelay = await firstValueFrom(
+      this.autofillSettingsService.clearClipboardDelay$,
+    );
+
+    if (clearClipboardDelay == null) {
+      return;
+    }
+
+    if (timeoutMs == null) {
+      timeoutMs = clearClipboardDelay * 1000;
+    }
+
+    this.clearClipboardTimeoutFunction = async () => {
+      const clipboardValueNow = await this.platformUtilsService.readFromClipboard();
+      if (clipboardValue === clipboardValueNow) {
+        this.platformUtilsService.copyToClipboard("", { clearing: true });
       }
-      if (timeoutMs == null) {
-        timeoutMs = clearSeconds * 1000;
-      }
-      this.clearClipboardTimeoutFunction = async () => {
-        const clipboardValueNow = await this.platformUtilsService.readFromClipboard();
-        if (clipboardValue === clipboardValueNow) {
-          this.platformUtilsService.copyToClipboard("", { clearing: true });
-        }
-      };
-      this.clearClipboardTimeout = setTimeout(async () => {
-        await this.clearPendingClipboard();
-      }, timeoutMs);
-    });
+    };
+
+    this.clearClipboardTimeout = setTimeout(async () => {
+      await this.clearPendingClipboard();
+    }, timeoutMs);
   }
 
   async clearPendingClipboard() {

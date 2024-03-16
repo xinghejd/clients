@@ -22,6 +22,19 @@
             <input bitInput appAutofocus formControlName="name" />
           </bit-form-field>
 
+          <bit-form-field *ngIf="showOrgSelector">
+            <bit-label>{{ "organization" | i18n }}</bit-label>
+            <bit-select bitInput formControlName="selectedOrg">
+              <bit-option
+                *ngFor="let org of organizations$ | async"
+                icon="bwi-business"
+                [value]="org.id"
+                [label]="org.name"
+              >
+              </bit-option>
+            </bit-select>
+          </bit-form-field>
+
           <bit-form-field>
             <bit-label>{{ "externalId" | i18n }}</bit-label>
             <input bitInput formControlName="externalId" />
@@ -51,15 +64,35 @@
           </bit-form-field>
         </bit-tab>
         <bit-tab label="{{ 'access' | i18n }}">
+          <div class="tw-mb-3" *ngIf="organization.flexibleCollections">
+            <span *ngIf="organization.useGroups">{{ "grantCollectionAccess" | i18n }}</span>
+            <span *ngIf="!organization.useGroups">{{
+              "grantCollectionAccessMembersOnly" | i18n
+            }}</span>
+            <span
+              *ngIf="
+                (flexibleCollectionsV1Enabled$ | async) &&
+                organization.allowAdminAccessToAllCollectionItems
+              "
+              >{{ " " + ("adminCollectionAccess" | i18n) }}</span
+            >
+          </div>
+          <div
+            class="tw-mb-3 tw-text-danger"
+            *ngIf="formGroup.controls.access.hasError('managePermissionRequired')"
+          >
+            <i class="bwi bwi-error"></i> {{ "managePermissionRequired" | i18n }}
+          </div>
           <bit-access-selector
             *ngIf="organization.useGroups"
             [permissionMode]="PermissionMode.Edit"
             formControlName="access"
             [items]="accessItems"
-            [columnHeader]="'groupAndMemberColumnHeader' | i18n"
+            [columnHeader]="'groupSlashMemberColumnHeader' | i18n"
             [selectorLabelText]="'selectGroupsAndMembers' | i18n"
             [selectorHelpText]="'userPermissionOverrideHelper' | i18n"
             [emptySelectionText]="'noMembersOrGroupsAdded' | i18n"
+            [flexibleCollectionsEnabled]="organization.flexibleCollections"
           ></bit-access-selector>
           <bit-access-selector
             *ngIf="!organization.useGroups"
@@ -69,6 +102,7 @@
             [columnHeader]="'memberColumnHeader' | i18n"
             [selectorLabelText]="'selectMembers' | i18n"
             [emptySelectionText]="'noMembersAdded' | i18n"
+            [flexibleCollectionsEnabled]="organization.flexibleCollections"
           ></bit-access-selector>
         </bit-tab>
       </bit-tab-group>
@@ -88,7 +122,7 @@
         {{ "cancel" | i18n }}
       </button>
       <button
-        *ngIf="editMode && organization?.canDeleteAssignedCollections"
+        *ngIf="showDeleteButton"
         type="button"
         bitIconButton="bwi-trash"
         buttonType="danger"

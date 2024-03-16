@@ -4,7 +4,6 @@ import { first } from "rxjs/operators";
 
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
-import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
@@ -21,9 +20,10 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { DialogService } from "@bitwarden/components";
+import { BasePeopleComponent } from "@bitwarden/web-vault/app/admin-console/common/base.people.component";
 import { openEntityEventsDialog } from "@bitwarden/web-vault/app/admin-console/organizations/manage/entity-events.component";
 import { BulkStatusComponent } from "@bitwarden/web-vault/app/admin-console/organizations/members/components/bulk/bulk-status.component";
-import { BasePeopleComponent } from "@bitwarden/web-vault/app/common/base.people.component";
 
 import { BulkConfirmComponent } from "./bulk/bulk-confirm.component";
 import { BulkRemoveComponent } from "./bulk/bulk-remove.component";
@@ -50,6 +50,7 @@ export class PeopleComponent
 
   userType = ProviderUserType;
   userStatusType = ProviderUserStatusType;
+  status: ProviderUserStatusType = null;
   providerId: string;
   accessEvents = false;
 
@@ -68,7 +69,7 @@ export class PeopleComponent
     userNamePipe: UserNamePipe,
     stateService: StateService,
     private providerService: ProviderService,
-    dialogService: DialogServiceAbstraction
+    dialogService: DialogService,
   ) {
     super(
       apiService,
@@ -82,7 +83,7 @@ export class PeopleComponent
       searchPipe,
       userNamePipe,
       stateService,
-      dialogService
+      dialogService,
     );
   }
 
@@ -93,6 +94,8 @@ export class PeopleComponent
       const provider = await this.providerService.get(this.providerId);
 
       if (!provider.canManageUsers) {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.router.navigate(["../"], { relativeTo: this.route });
         return;
       }
@@ -107,6 +110,8 @@ export class PeopleComponent
         if (qParams.viewEvents != null) {
           const user = this.users.filter((u) => u.id === qParams.viewEvents);
           if (user.length > 0 && user[0].status === ProviderUserStatusType.Confirmed) {
+            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.events(user[0]);
           }
         }
@@ -138,7 +143,7 @@ export class PeopleComponent
 
   async confirmUser(user: ProviderUserUserDetailsResponse, publicKey: Uint8Array): Promise<any> {
     const providerKey = await this.cryptoService.getProviderKey(this.providerId);
-    const key = await this.cryptoService.rsaEncrypt(providerKey.key, publicKey.buffer);
+    const key = await this.cryptoService.rsaEncrypt(providerKey.key, publicKey);
     const request = new ProviderUserConfirmRequest();
     request.key = key.encryptedString;
     await this.apiService.postProviderUserConfirm(this.providerId, user.id, request);
@@ -160,7 +165,7 @@ export class PeopleComponent
           modal.close();
           this.removeUser(user);
         });
-      }
+      },
     );
   }
 
@@ -187,7 +192,7 @@ export class PeopleComponent
       (comp) => {
         comp.providerId = this.providerId;
         comp.users = this.getCheckedUsers();
-      }
+      },
     );
 
     await modal.onClosedPromise();
@@ -206,7 +211,7 @@ export class PeopleComponent
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccurred"),
-        this.i18nService.t("noSelectedUsersApplicable")
+        this.i18nService.t("noSelectedUsersApplicable"),
       );
       return;
     }
@@ -214,11 +219,13 @@ export class PeopleComponent
     try {
       const request = new ProviderUserBulkRequest(filteredUsers.map((user) => user.id));
       const response = this.apiService.postManyProviderUserReinvite(this.providerId, request);
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.showBulkStatus(
         users,
         filteredUsers,
         response,
-        this.i18nService.t("bulkReinviteMessage")
+        this.i18nService.t("bulkReinviteMessage"),
       );
     } catch (e) {
       this.validationService.showError(e);
@@ -237,7 +244,7 @@ export class PeopleComponent
       (comp) => {
         comp.providerId = this.providerId;
         comp.users = this.getCheckedUsers();
-      }
+      },
     );
 
     await modal.onClosedPromise();
@@ -248,14 +255,14 @@ export class PeopleComponent
     users: ProviderUserUserDetailsResponse[],
     filteredUsers: ProviderUserUserDetailsResponse[],
     request: Promise<ListResponse<ProviderUserBulkResponse>>,
-    successfullMessage: string
+    successfullMessage: string,
   ) {
     const [modal, childComponent] = await this.modalService.openViewRef(
       BulkStatusComponent,
       this.bulkStatusModalRef,
       (comp) => {
         comp.loading = true;
-      }
+      },
     );
 
     // Workaround to handle closing the modal shortly after it has been opened

@@ -1,15 +1,24 @@
 import { Directive, EventEmitter, Input, OnInit, Output } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
-import { first } from "rxjs/operators";
+import { BehaviorSubject } from "rxjs";
+import { debounceTime, first, map } from "rxjs/operators";
 
 import { PasswordGeneratorPolicyOptions } from "@bitwarden/common/admin-console/models/domain/password-generator-policy-options";
-import { EmailForwarderOptions } from "@bitwarden/common/models/domain/email-forwarder-options";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
-import { UsernameGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/username";
+import { GeneratorOptions } from "@bitwarden/common/tools/generator/generator-options";
+import {
+  PasswordGenerationServiceAbstraction,
+  PasswordGeneratorOptions,
+} from "@bitwarden/common/tools/generator/password";
+import { DefaultBoundaries } from "@bitwarden/common/tools/generator/password/password-generator-options-evaluator";
+import {
+  UsernameGenerationServiceAbstraction,
+  UsernameGeneratorOptions,
+} from "@bitwarden/common/tools/generator/username";
+import { EmailForwarderOptions } from "@bitwarden/common/tools/models/domain/email-forwarder-options";
 
 @Directive()
 export class GeneratorComponent implements OnInit {
@@ -24,14 +33,24 @@ export class GeneratorComponent implements OnInit {
   subaddressOptions: any[];
   catchallOptions: any[];
   forwardOptions: EmailForwarderOptions[];
-  usernameOptions: any = {};
-  passwordOptions: any = {};
+  usernameOptions: UsernameGeneratorOptions = {};
+  passwordOptions: PasswordGeneratorOptions = {};
   username = "-";
   password = "-";
   showOptions = false;
   avoidAmbiguous = false;
   enforcedPasswordPolicyOptions: PasswordGeneratorPolicyOptions;
   usernameWebsite: string = null;
+
+  // update screen reader minimum password length with 500ms debounce
+  // so that the user isn't flooded with status updates
+  private _passwordOptionsMinLengthForReader = new BehaviorSubject<number>(
+    DefaultBoundaries.length.min,
+  );
+  protected passwordOptionsMinLengthForReader$ = this._passwordOptionsMinLengthForReader.pipe(
+    map((val) => val || DefaultBoundaries.length.min),
+    debounceTime(500),
+  );
 
   constructor(
     protected passwordGenerationService: PasswordGenerationServiceAbstraction,
@@ -41,7 +60,7 @@ export class GeneratorComponent implements OnInit {
     protected i18nService: I18nService,
     protected logService: LogService,
     protected route: ActivatedRoute,
-    private win: Window
+    private win: Window,
   ) {
     this.typeOptions = [
       { name: i18nService.t("password"), value: "password" },
@@ -71,6 +90,8 @@ export class GeneratorComponent implements OnInit {
     ];
     this.subaddressOptions = [{ name: i18nService.t("random"), value: "random" }];
     this.catchallOptions = [{ name: i18nService.t("random"), value: "random" }];
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.initForwardOptions();
   }
 
@@ -118,7 +139,7 @@ export class GeneratorComponent implements OnInit {
   }
 
   async typeChanged() {
-    await this.stateService.setGeneratorOptions({ type: this.type });
+    await this.stateService.setGeneratorOptions({ type: this.type } as GeneratorOptions);
     if (this.regenerateWithoutButtonPress()) {
       await this.regenerate();
     }
@@ -133,8 +154,48 @@ export class GeneratorComponent implements OnInit {
   }
 
   async sliderChanged() {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.savePasswordOptions(false);
     await this.passwordGenerationService.addHistory(this.password);
+  }
+
+  async onPasswordOptionsMinNumberInput($event: Event) {
+    // `savePasswordOptions()` replaces the null
+    this.passwordOptions.number = null;
+
+    await this.savePasswordOptions();
+
+    // fixes UI desync that occurs when minNumber has a fixed value
+    // that is reset through normalization
+    ($event.target as HTMLInputElement).value = `${this.passwordOptions.minNumber}`;
+  }
+
+  async setPasswordOptionsNumber($event: boolean) {
+    this.passwordOptions.number = $event;
+    // `savePasswordOptions()` replaces the null
+    this.passwordOptions.minNumber = null;
+
+    await this.savePasswordOptions();
+  }
+
+  async onPasswordOptionsMinSpecialInput($event: Event) {
+    // `savePasswordOptions()` replaces the null
+    this.passwordOptions.special = null;
+
+    await this.savePasswordOptions();
+
+    // fixes UI desync that occurs when minSpecial has a fixed value
+    // that is reset through normalization
+    ($event.target as HTMLInputElement).value = `${this.passwordOptions.minSpecial}`;
+  }
+
+  async setPasswordOptionsSpecial($event: boolean) {
+    this.passwordOptions.special = $event;
+    // `savePasswordOptions()` replaces the null
+    this.passwordOptions.minSpecial = null;
+
+    await this.savePasswordOptions();
   }
 
   async sliderInput() {
@@ -173,7 +234,7 @@ export class GeneratorComponent implements OnInit {
   async generateUsername() {
     try {
       this.usernameGeneratingPromise = this.usernameGenerationService.generateUsername(
-        this.usernameOptions
+        this.usernameOptions,
       );
       this.username = await this.usernameGeneratingPromise;
       if (this.username === "" || this.username === null) {
@@ -189,12 +250,12 @@ export class GeneratorComponent implements OnInit {
     const copyOptions = this.win != null ? { window: this.win } : null;
     this.platformUtilsService.copyToClipboard(
       password ? this.password : this.username,
-      copyOptions
+      copyOptions,
     );
     this.platformUtilsService.showToast(
       "info",
       null,
-      this.i18nService.t("valueCopied", this.i18nService.t(password ? "password" : "username"))
+      this.i18nService.t("valueCopied", this.i18nService.t(password ? "password" : "username")),
     );
   }
 
@@ -231,13 +292,15 @@ export class GeneratorComponent implements OnInit {
 
     this.passwordGenerationService.normalizeOptions(
       this.passwordOptions,
-      this.enforcedPasswordPolicyOptions
+      this.enforcedPasswordPolicyOptions,
     );
+
+    this._passwordOptionsMinLengthForReader.next(this.passwordOptions.minLength);
   }
 
   private async initForwardOptions() {
     this.forwardOptions = [
-      { name: "AnonAddy", value: "anonaddy", validForSelfHosted: true },
+      { name: "addy.io", value: "anonaddy", validForSelfHosted: true },
       { name: "DuckDuckGo", value: "duckduckgo", validForSelfHosted: false },
       { name: "Fastmail", value: "fastmail", validForSelfHosted: true },
       { name: "Firefox Relay", value: "firefoxrelay", validForSelfHosted: false },

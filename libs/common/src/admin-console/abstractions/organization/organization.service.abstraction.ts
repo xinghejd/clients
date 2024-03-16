@@ -6,7 +6,7 @@ import { OrganizationData } from "../../models/data/organization.data";
 import { Organization } from "../../models/domain/organization";
 
 export function canAccessVaultTab(org: Organization): boolean {
-  return org.canViewAssignedCollections || org.canViewAllCollections || org.canManageGroups;
+  return org.canViewAssignedCollections || org.canViewAllCollections;
 }
 
 export function canAccessSettingsTab(org: Organization): boolean {
@@ -15,7 +15,8 @@ export function canAccessSettingsTab(org: Organization): boolean {
     org.canManagePolicies ||
     org.canManageSso ||
     org.canManageScim ||
-    org.canAccessImportExport
+    org.canAccessImportExport ||
+    org.canManageDeviceApprovals
   );
 }
 
@@ -36,6 +37,10 @@ export function canAccessBillingTab(org: Organization): boolean {
 }
 
 export function canAccessOrgAdmin(org: Organization): boolean {
+  // Admin console can only be accessed by Owners for disabled organizations
+  if (!org.enabled && !org.isOwner) {
+    return false;
+  }
   return (
     canAccessMembersTab(org) ||
     canAccessGroupsTab(org) ||
@@ -52,7 +57,30 @@ export function getOrganizationById(id: string) {
 
 export function canAccessAdmin(i18nService: I18nService) {
   return map<Organization[], Organization[]>((orgs) =>
-    orgs.filter(canAccessOrgAdmin).sort(Utils.getSortFunction(i18nService, "name"))
+    orgs.filter(canAccessOrgAdmin).sort(Utils.getSortFunction(i18nService, "name")),
+  );
+}
+
+/**
+ * @deprecated
+ * To be removed after Flexible Collections.
+ **/
+export function canAccessImportExport(i18nService: I18nService) {
+  return map<Organization[], Organization[]>((orgs) =>
+    orgs
+      .filter((org) => org.canAccessImportExport)
+      .sort(Utils.getSortFunction(i18nService, "name")),
+  );
+}
+
+export function canAccessImport(i18nService: I18nService) {
+  return map<Organization[], Organization[]>((orgs) =>
+    orgs
+      .filter(
+        (org) =>
+          org.canAccessImportExport || (org.canCreateNewCollections && org.flexibleCollections),
+      )
+      .sort(Utils.getSortFunction(i18nService, "name")),
   );
 }
 
@@ -85,6 +113,7 @@ export abstract class OrganizationService {
   hasOrganizations: () => boolean;
 }
 
-export abstract class InternalOrganizationService extends OrganizationService {
+export abstract class InternalOrganizationServiceAbstraction extends OrganizationService {
   replace: (organizations: { [id: string]: OrganizationData }) => Promise<void>;
+  upsert: (OrganizationData: OrganizationData | OrganizationData[]) => Promise<void>;
 }

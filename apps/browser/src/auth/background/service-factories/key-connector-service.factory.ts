@@ -10,10 +10,6 @@ import {
   ApiServiceInitOptions,
 } from "../../../platform/background/service-factories/api-service.factory";
 import {
-  CryptoFunctionServiceInitOptions,
-  cryptoFunctionServiceFactory,
-} from "../../../platform/background/service-factories/crypto-function-service.factory";
-import {
   CryptoServiceInitOptions,
   cryptoServiceFactory,
 } from "../../../platform/background/service-factories/crypto-service.factory";
@@ -22,6 +18,10 @@ import {
   CachedServices,
   factory,
 } from "../../../platform/background/service-factories/factory-options";
+import {
+  KeyGenerationServiceInitOptions,
+  keyGenerationServiceFactory,
+} from "../../../platform/background/service-factories/key-generation-service.factory";
 import {
   logServiceFactory,
   LogServiceInitOptions,
@@ -46,11 +46,11 @@ export type KeyConnectorServiceInitOptions = KeyConnectorServiceFactoryOptions &
   TokenServiceInitOptions &
   LogServiceInitOptions &
   OrganizationServiceInitOptions &
-  CryptoFunctionServiceInitOptions;
+  KeyGenerationServiceInitOptions;
 
 export function keyConnectorServiceFactory(
   cache: { keyConnectorService?: AbstractKeyConnectorService } & CachedServices,
-  opts: KeyConnectorServiceInitOptions
+  opts: KeyConnectorServiceInitOptions,
 ): Promise<AbstractKeyConnectorService> {
   return factory(
     cache,
@@ -64,8 +64,8 @@ export function keyConnectorServiceFactory(
         await tokenServiceFactory(cache, opts),
         await logServiceFactory(cache, opts),
         await organizationServiceFactory(cache, opts),
-        await cryptoFunctionServiceFactory(cache, opts),
-        opts.keyConnectorServiceOptions.logoutCallback
-      )
+        await keyGenerationServiceFactory(cache, opts),
+        opts.keyConnectorServiceOptions.logoutCallback,
+      ),
   );
 }

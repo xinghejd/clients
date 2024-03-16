@@ -1,16 +1,19 @@
-import { Component } from "@angular/core";
+import { Component, Inject } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import { first } from "rxjs/operators";
+import { Subject, Subscription } from "rxjs";
+import { filter, first, takeUntil } from "rxjs/operators";
 
 import { TwoFactorComponent as BaseTwoFactorComponent } from "@bitwarden/angular/auth/components/two-factor.component";
-import { DialogServiceAbstraction, SimpleDialogType } from "@bitwarden/angular/services/dialog";
+import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
+import { LoginStrategyServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { LoginService } from "@bitwarden/common/auth/abstractions/login.service";
+import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -18,9 +21,13 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { DialogService } from "@bitwarden/components";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
-import { PopupUtilsService } from "../../popup/services/popup-utils.service";
+import { ZonedMessageListenerService } from "../../platform/browser/zoned-message-listener.service";
+import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
+
+import { closeTwoFactorAuthPopout } from "./utils/auth-popout-window";
 
 const BroadcasterSubscriptionId = "TwoFactorComponent";
 
@@ -29,10 +36,11 @@ const BroadcasterSubscriptionId = "TwoFactorComponent";
   templateUrl: "two-factor.component.html",
 })
 export class TwoFactorComponent extends BaseTwoFactorComponent {
-  showNewWindowMessage = false;
+  private destroy$ = new Subject<void>();
+  inPopout = BrowserPopupUtils.inPopout(window);
 
   constructor(
-    authService: AuthService,
+    loginStrategyService: LoginStrategyServiceAbstraction,
     router: Router,
     i18nService: I18nService,
     apiService: ApiService,
@@ -40,7 +48,6 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
     private syncService: SyncService,
     environmentService: EnvironmentService,
     private broadcasterService: BroadcasterService,
-    private popupUtilsService: PopupUtilsService,
     stateService: StateService,
     route: ActivatedRoute,
     private messagingService: MessagingService,
@@ -48,27 +55,45 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
     twoFactorService: TwoFactorService,
     appIdService: AppIdService,
     loginService: LoginService,
-    private dialogService: DialogServiceAbstraction
+    configService: ConfigServiceAbstraction,
+    ssoLoginService: SsoLoginServiceAbstraction,
+    private dialogService: DialogService,
+    @Inject(WINDOW) protected win: Window,
+    private browserMessagingApi: ZonedMessageListenerService,
   ) {
     super(
-      authService,
+      loginStrategyService,
       router,
       i18nService,
       apiService,
       platformUtilsService,
-      window,
+      win,
       environmentService,
       stateService,
       route,
       logService,
       twoFactorService,
       appIdService,
-      loginService
+      loginService,
+      ssoLoginService,
+      configService,
     );
-    super.onSuccessfulLogin = () => {
-      this.loginService.clearValues();
-      return syncService.fullSync(true);
+    super.onSuccessfulLogin = async () => {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      syncService.fullSync(true);
     };
+
+    super.onSuccessfulLoginTde = async () => {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      syncService.fullSync(true);
+    };
+
+    super.onSuccessfulLoginTdeNavigate = async () => {
+      this.win.close();
+    };
+
     super.successRoute = "/tabs/vault";
     // FIXME: Chromium 110 has broken WebAuthn support in extensions via an iframe
     this.webAuthnNewTab = true;
@@ -80,6 +105,8 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
       this.selectedProviderType = TwoFactorProviderType.WebAuthn;
       this.token = this.route.snapshot.paramMap.get("webAuthnResponse");
       super.onSuccessfulLogin = async () => {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.syncService.fullSync(true);
         this.messagingService.send("reloadPopup");
         window.close();
@@ -102,26 +129,30 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
 
     if (
       this.selectedProviderType === TwoFactorProviderType.Email &&
-      this.popupUtilsService.inPopup(window)
+      BrowserPopupUtils.inPopup(window)
     ) {
       const confirmed = await this.dialogService.openSimpleDialog({
         title: { key: "warning" },
         content: { key: "popup2faCloseMessage" },
-        type: SimpleDialogType.WARNING,
+        type: "warning",
       });
       if (confirmed) {
-        this.popupUtilsService.popOut(window);
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+        BrowserPopupUtils.openCurrentPagePopout(window);
       }
     }
 
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     this.route.queryParams.pipe(first()).subscribe(async (qParams) => {
       if (qParams.sso === "true") {
-        super.onSuccessfulLogin = () => {
+        super.onSuccessfulLogin = async () => {
           // This is not awaited so we don't pause the application while the sync is happening.
           // This call is executed by the service that lives in the background script so it will continue
           // the sync even if this tab closes.
-          const syncPromise = this.syncService.fullSync(true);
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+          this.syncService.fullSync(true);
 
           // Force sidebars (FF && Opera) to reload while exempting current window
           // because we are just going to close the current window.
@@ -129,15 +160,16 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
 
           // We don't need this window anymore because the intent is for the user to be left
           // on the web vault screen which tells them to continue in the browser extension (sidebar or popup)
-          BrowserApi.closeBitwardenExtensionTab();
-
-          return syncPromise;
+          await closeTwoFactorAuthPopout();
         };
       }
     });
   }
 
   async ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+
     this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
 
     if (this.selectedProviderType === TwoFactorProviderType.WebAuthn && (await this.isLinux())) {
@@ -152,13 +184,58 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
     if (sso) {
       // We must persist this so when the user returns to the 2FA comp, the
       // proper onSuccessfulLogin logic is executed.
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["2fa-options"], { queryParams: { sso: true } });
     } else {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["2fa-options"]);
     }
   }
 
+  async popoutCurrentPage() {
+    await BrowserPopupUtils.openCurrentPagePopout(window);
+  }
+
   async isLinux() {
     return (await BrowserApi.getPlatformInfo()).os === "linux";
+  }
+
+  duoResultSubscription: Subscription;
+  protected override setupDuoResultListener() {
+    if (!this.duoResultSubscription) {
+      this.duoResultSubscription = this.browserMessagingApi
+        .messageListener$()
+        .pipe(
+          filter((msg: any) => msg.command === "duoResult"),
+          takeUntil(this.destroy$),
+        )
+        .subscribe((msg: { command: string; code: string; state: string }) => {
+          this.token = msg.code + "|" + msg.state;
+          // This floating promise is intentional. We don't need to await the submit + awaiting in a subscription is not recommended.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
+          this.submit();
+        });
+    }
+  }
+
+  override launchDuoFrameless() {
+    const duoHandOffMessage = {
+      title: this.i18nService.t("youSuccessfullyLoggedIn"),
+      message: this.i18nService.t("youMayCloseThisWindow"),
+      isCountdown: false,
+    };
+
+    // we're using the connector here as a way to set a cookie with translations
+    // before continuing to the duo frameless url
+    const launchUrl =
+      this.environmentService.getWebVaultUrl() +
+      "/duo-redirect-connector.html" +
+      "?duoFramelessUrl=" +
+      encodeURIComponent(this.duoFramelessUrl) +
+      "&handOffMessage=" +
+      encodeURIComponent(JSON.stringify(duoHandOffMessage));
+    this.platformUtilsService.launchUri(launchUrl);
   }
 }
