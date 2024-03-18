@@ -16,9 +16,9 @@ export class DefaultDerivedStateProvider implements DerivedStateProvider {
 
   constructor(protected memoryStorage: AbstractStorageService & ObservableStorageService) {}
 
-  get<TFrom, TTo, TDeps extends DerivedStateDependencies>(
+  get<TFrom, TTo, TDeps extends DerivedStateDependencies, TIncludePrevious extends boolean>(
     parentState$: Observable<TFrom>,
-    deriveDefinition: DeriveDefinition<TFrom, TTo, TDeps>,
+    deriveDefinition: DeriveDefinition<TFrom, TTo, TDeps, TIncludePrevious>,
     dependencies: TDeps,
   ): DerivedState<TTo> {
     const cacheKey = deriveDefinition.buildCacheKey();
@@ -26,7 +26,7 @@ export class DefaultDerivedStateProvider implements DerivedStateProvider {
     if (existingDerivedState != null) {
       // I have to cast out of the unknown generic but this should be safe if rules
       // around domain token are made
-      return existingDerivedState as DefaultDerivedState<TFrom, TTo, TDeps>;
+      return existingDerivedState as DefaultDerivedState<TFrom, TTo, TDeps, TIncludePrevious>;
     }
 
     const newDerivedState = this.buildDerivedState(parentState$, deriveDefinition, dependencies);
@@ -34,12 +34,17 @@ export class DefaultDerivedStateProvider implements DerivedStateProvider {
     return newDerivedState;
   }
 
-  protected buildDerivedState<TFrom, TTo, TDeps extends DerivedStateDependencies>(
+  protected buildDerivedState<
+    TFrom,
+    TTo,
+    TDeps extends DerivedStateDependencies,
+    TIncludePrevious extends boolean,
+  >(
     parentState$: Observable<TFrom>,
-    deriveDefinition: DeriveDefinition<TFrom, TTo, TDeps>,
+    deriveDefinition: DeriveDefinition<TFrom, TTo, TDeps, TIncludePrevious>,
     dependencies: TDeps,
   ): DerivedState<TTo> {
-    return new DefaultDerivedState<TFrom, TTo, TDeps>(
+    return new DefaultDerivedState<TFrom, TTo, TDeps, TIncludePrevious>(
       parentState$,
       deriveDefinition,
       this.memoryStorage,

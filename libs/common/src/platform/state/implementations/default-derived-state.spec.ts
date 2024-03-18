@@ -6,6 +6,7 @@ import { Subject, firstValueFrom } from "rxjs";
 
 import { awaitAsync, trackEmissions } from "../../../../spec";
 import { FakeStorageService } from "../../../../spec/fake-storage.service";
+import { DerivedStateDependencies } from "../../../types/state";
 import { DeriveDefinition } from "../derive-definition";
 import { StateDefinition } from "../state-definition";
 
@@ -14,7 +15,7 @@ import { DefaultDerivedState } from "./default-derived-state";
 let callCount = 0;
 const cleanupDelayMs = 10;
 const stateDefinition = new StateDefinition("test", "memory");
-const deriveDefinition = new DeriveDefinition<string, Date, { date: Date }>(
+const deriveDefinition = new DeriveDefinition<string, Date, { date: Date }, false>(
   stateDefinition,
   "test",
   {
@@ -27,10 +28,48 @@ const deriveDefinition = new DeriveDefinition<string, Date, { date: Date }>(
   },
 );
 
+describe("DefaultDerivedState with included previous value", () => {
+  let parentState$: Subject<string>;
+
+  const deriveDefinition = new DeriveDefinition<string, Date, DerivedStateDependencies, true>(
+    stateDefinition,
+    "test",
+    {
+      derive: (dateString: string, deps: { previousState: Date }) => {
+        callCount++;
+        return deps.previousState;
+      },
+      deserializer: (dateString: string) => new Date(dateString),
+      cleanupDelayMs,
+      includePreviousDerivedState: true,
+    },
+  );
+  let sut: DefaultDerivedState<string, Date, Record<string, unknown>, true>;
+
+  beforeEach(() => {
+    callCount = 0;
+    parentState$ = new Subject();
+
+    sut = new DefaultDerivedState(parentState$, deriveDefinition, new FakeStorageService(), {});
+  });
+
+  it("should return the previous state", async () => {
+    await sut.forceValue(new Date("2020-01-01"));
+
+    const emissions = trackEmissions(sut.state$);
+
+    parentState$.next("2020-01-02");
+
+    await awaitAsync();
+
+    expect(emissions).toEqual([new Date("2020-01-01")]);
+  });
+});
+
 describe("DefaultDerivedState", () => {
   let parentState$: Subject<string>;
   let memoryStorage: FakeStorageService;
-  let sut: DefaultDerivedState<string, Date, { date: Date }>;
+  let sut: DefaultDerivedState<string, Date, { date: Date }, false>;
   const deps = {
     date: new Date(),
   };

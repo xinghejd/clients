@@ -33,7 +33,7 @@ jest.mock("../browser/run-inside-angular.operator", () => {
 
 describe("foreground background derived state interactions", () => {
   let foreground: ForegroundDerivedState<Date>;
-  let background: BackgroundDerivedState<string, Date, Record<string, unknown>>;
+  let background: BackgroundDerivedState<string, Date, Record<string, unknown>, false>;
   let parentState$: Subject<string>;
   let memoryStorage: FakeStorageService;
   const initialParent = "2020-01-01";

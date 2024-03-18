@@ -8,11 +8,17 @@ import {
 import { DeriveDefinition } from "../derive-definition";
 import { DerivedState } from "../derived-state";
 
+type MemoryStoreType<T> = { derived: true; value: T };
+
 /**
  * Default derived state
  */
-export class DefaultDerivedState<TFrom, TTo, TDeps extends DerivedStateDependencies>
-  implements DerivedState<TTo>
+export class DefaultDerivedState<
+  TFrom,
+  TTo,
+  TDeps extends DerivedStateDependencies,
+  TIncludePrevious extends boolean,
+> implements DerivedState<TTo>
 {
   private readonly storageKey: string;
   private forcedValueSubject = new Subject<TTo>();
@@ -21,15 +27,19 @@ export class DefaultDerivedState<TFrom, TTo, TDeps extends DerivedStateDependenc
 
   constructor(
     private parentState$: Observable<TFrom>,
-    protected deriveDefinition: DeriveDefinition<TFrom, TTo, TDeps>,
+    protected deriveDefinition: DeriveDefinition<TFrom, TTo, TDeps, TIncludePrevious>,
     private memoryStorage: AbstractStorageService & ObservableStorageService,
-    private dependencies: TDeps,
+    dependencies: TDeps,
   ) {
     this.storageKey = deriveDefinition.storageKey;
 
     const derivedState$ = this.parentState$.pipe(
       concatMap(async (state) => {
-        let derivedStateOrPromise = this.deriveDefinition.derive(state, this.dependencies);
+        const deps: TDeps & { previousState: TTo } = { ...dependencies, previousState: undefined };
+        if (deriveDefinition.includePreviousDerivedState) {
+          deps.previousState = await this.retrieveValue();
+        }
+        let derivedStateOrPromise = this.deriveDefinition.derive(state, deps);
         if (derivedStateOrPromise instanceof Promise) {
           derivedStateOrPromise = await derivedStateOrPromise;
         }
@@ -65,5 +75,9 @@ export class DefaultDerivedState<TFrom, TTo, TDeps extends DerivedStateDependenc
 
   private storeValue(value: TTo) {
     return this.memoryStorage.save(this.storageKey, { derived: true, value });
+  }
+
+  private retrieveValue() {
+    return this.memoryStorage.get<MemoryStoreType<TTo>>(this.storageKey).then((v) => v?.value);
   }
 }

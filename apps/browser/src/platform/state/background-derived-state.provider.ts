@@ -8,9 +8,14 @@ import { DerivedStateDependencies } from "@bitwarden/common/src/types/state";
 import { BackgroundDerivedState } from "./background-derived-state";
 
 export class BackgroundDerivedStateProvider extends DefaultDerivedStateProvider {
-  override buildDerivedState<TFrom, TTo, TDeps extends DerivedStateDependencies>(
+  override buildDerivedState<
+    TFrom,
+    TTo,
+    TDeps extends DerivedStateDependencies,
+    TIncludePrevious extends boolean,
+  >(
     parentState$: Observable<TFrom>,
-    deriveDefinition: DeriveDefinition<TFrom, TTo, TDeps>,
+    deriveDefinition: DeriveDefinition<TFrom, TTo, TDeps, TIncludePrevious>,
     dependencies: TDeps,
   ): DerivedState<TTo> {
     return new BackgroundDerivedState(

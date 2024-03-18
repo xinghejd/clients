@@ -6,11 +6,20 @@ import { DerivedStateDependencies, StorageKey } from "../../types/state";
 import { KeyDefinition } from "./key-definition";
 import { StateDefinition } from "./state-definition";
 
+type DepArray<TDeps, Derived, IncludeDerived> = IncludeDerived extends true
+  ? TDeps & { previousState: Derived }
+  : TDeps;
+
 declare const depShapeMarker: unique symbol;
 /**
  * A set of options for customizing the behavior of a {@link DeriveDefinition}
  */
-type DeriveDefinitionOptions<TFrom, TTo, TDeps extends DerivedStateDependencies = never> = {
+type DeriveDefinitionOptions<
+  TFrom,
+  TTo,
+  TDeps extends DerivedStateDependencies = never,
+  TIncludePrevious extends boolean = false,
+> = {
   /**
    * A function to use to convert values from TFrom to TTo. This is called on each emit of the parent state observable
    * and the resulting value will be emitted from the derived state observable.
@@ -20,7 +29,7 @@ type DeriveDefinitionOptions<TFrom, TTo, TDeps extends DerivedStateDependencies 
    * These are constant for the lifetime of the derived state.
    * @returns  The derived state value or a Promise that resolves to the derived state value.
    */
-  derive: (from: TFrom, deps: TDeps) => TTo | Promise<TTo>;
+  derive: (from: TFrom, deps: DepArray<TDeps, TTo, TIncludePrevious>) => TTo | Promise<TTo>;
   /**
    * A function to use to safely convert your type from json to your expected type.
    *
@@ -44,6 +53,7 @@ type DeriveDefinitionOptions<TFrom, TTo, TDeps extends DerivedStateDependencies 
    * ```
    */
   [depShapeMarker]?: TDeps;
+  includePreviousDerivedState?: TIncludePrevious;
   /**
    * The number of milliseconds to wait before cleaning up the state after the last subscriber has unsubscribed.
    * Defaults to 1000ms.
@@ -63,7 +73,12 @@ type DeriveDefinitionOptions<TFrom, TTo, TDeps extends DerivedStateDependencies 
  * be calculated once regardless of multiple execution contexts.
  */
 
-export class DeriveDefinition<TFrom, TTo, TDeps extends DerivedStateDependencies> {
+export class DeriveDefinition<
+  TFrom,
+  TTo,
+  TDeps extends DerivedStateDependencies,
+  TIncludePrevious extends boolean = false,
+> {
   /**
    * Creates a new instance of a DeriveDefinition. Derived state is always stored in memory, so the storage location
    * defined in @link{StateDefinition} is ignored.
@@ -92,7 +107,7 @@ export class DeriveDefinition<TFrom, TTo, TDeps extends DerivedStateDependencies
   constructor(
     readonly stateDefinition: StateDefinition,
     readonly uniqueDerivationName: string,
-    readonly options: DeriveDefinitionOptions<TFrom, TTo, TDeps>,
+    readonly options: DeriveDefinitionOptions<TFrom, TTo, TDeps, TIncludePrevious>,
   ) {}
 
   /**
@@ -126,11 +141,16 @@ export class DeriveDefinition<TFrom, TTo, TDeps extends DerivedStateDependencies
    * @param options
    * @returns
    */
-  static from<TFrom, TTo, TDeps extends DerivedStateDependencies = never>(
+  static from<
+    TFrom,
+    TTo,
+    TDeps extends DerivedStateDependencies = never,
+    TIncludePrevious extends boolean = false,
+  >(
     definition:
       | KeyDefinition<TFrom>
-      | [DeriveDefinition<unknown, TFrom, DerivedStateDependencies>, string],
-    options: DeriveDefinitionOptions<TFrom, TTo, TDeps>,
+      | [DeriveDefinition<unknown, TFrom, DerivedStateDependencies, TIncludePrevious>, string],
+    options: DeriveDefinitionOptions<TFrom, TTo, TDeps, TIncludePrevious>,
   ) {
     if (isKeyDefinition(definition)) {
       return new DeriveDefinition(definition.stateDefinition, definition.key, options);
@@ -139,11 +159,16 @@ export class DeriveDefinition<TFrom, TTo, TDeps extends DerivedStateDependencies
     }
   }
 
-  static fromWithUserId<TKeyDef, TTo, TDeps extends DerivedStateDependencies = never>(
+  static fromWithUserId<
+    TKeyDef,
+    TTo,
+    TDeps extends DerivedStateDependencies = never,
+    TIncludePrevious extends boolean = false,
+  >(
     definition:
       | KeyDefinition<TKeyDef>
-      | [DeriveDefinition<unknown, TKeyDef, DerivedStateDependencies>, string],
-    options: DeriveDefinitionOptions<[UserId, TKeyDef], TTo, TDeps>,
+      | [DeriveDefinition<unknown, TKeyDef, DerivedStateDependencies, TIncludePrevious>, string],
+    options: DeriveDefinitionOptions<[UserId, TKeyDef], TTo, TDeps, TIncludePrevious>,
   ) {
     if (isKeyDefinition(definition)) {
       return new DeriveDefinition(definition.stateDefinition, definition.key, options);
@@ -158,6 +183,10 @@ export class DeriveDefinition<TFrom, TTo, TDeps extends DerivedStateDependencies
 
   deserialize(serialized: Jsonify<TTo>): TTo {
     return this.options.deserializer(serialized);
+  }
+
+  get includePreviousDerivedState() {
+    return this.options.includePreviousDerivedState ?? false;
   }
 
   get cleanupDelayMs() {
@@ -184,7 +213,7 @@ export class DeriveDefinition<TFrom, TTo, TDeps extends DerivedStateDependencies
 function isKeyDefinition(
   definition:
     | KeyDefinition<unknown>
-    | [DeriveDefinition<unknown, unknown, DerivedStateDependencies>, string],
+    | [DeriveDefinition<unknown, unknown, DerivedStateDependencies, boolean>, string],
 ): definition is KeyDefinition<unknown> {
   return Object.prototype.hasOwnProperty.call(definition, "key");
 }

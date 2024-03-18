@@ -33,7 +33,7 @@ export class ForegroundDerivedState<TTo> implements DerivedState<TTo> {
   state$: Observable<TTo>;
 
   constructor(
-    private deriveDefinition: DeriveDefinition<unknown, TTo, DerivedStateDependencies>,
+    private deriveDefinition: DeriveDefinition<unknown, TTo, DerivedStateDependencies, boolean>,
     private memoryStorage: AbstractStorageService & ObservableStorageService,
     private ngZone: NgZone,
   ) {

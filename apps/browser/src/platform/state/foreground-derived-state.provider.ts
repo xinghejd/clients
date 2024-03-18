@@ -19,9 +19,14 @@ export class ForegroundDerivedStateProvider extends DefaultDerivedStateProvider 
   ) {
     super(memoryStorage);
   }
-  override buildDerivedState<TFrom, TTo, TDeps extends DerivedStateDependencies>(
+  override buildDerivedState<
+    TFrom,
+    TTo,
+    TDeps extends DerivedStateDependencies,
+    TIncludePrevious extends boolean,
+  >(
     _parentState$: Observable<TFrom>,
-    deriveDefinition: DeriveDefinition<TFrom, TTo, TDeps>,
+    deriveDefinition: DeriveDefinition<TFrom, TTo, TDeps, TIncludePrevious>,
     _dependencies: TDeps,
   ): DerivedState<TTo> {
     return new ForegroundDerivedState(deriveDefinition, this.memoryStorage, this.ngZone);

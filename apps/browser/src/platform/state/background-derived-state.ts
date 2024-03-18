@@ -16,12 +16,13 @@ export class BackgroundDerivedState<
   TFrom,
   TTo,
   TDeps extends DerivedStateDependencies,
-> extends DefaultDerivedState<TFrom, TTo, TDeps> {
+  TIncludePrevious extends boolean,
+> extends DefaultDerivedState<TFrom, TTo, TDeps, TIncludePrevious> {
   private portSubscriptions: Map<chrome.runtime.Port, Subscription> = new Map();
 
   constructor(
     parentState$: Observable<TFrom>,
-    deriveDefinition: DeriveDefinition<TFrom, TTo, TDeps>,
+    deriveDefinition: DeriveDefinition<TFrom, TTo, TDeps, TIncludePrevious>,
     memoryStorage: AbstractStorageService & ObservableStorageService,
     dependencies: TDeps,
   ) {
