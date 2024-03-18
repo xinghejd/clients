@@ -1,14 +1,21 @@
-import { any, mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom } from "rxjs";
+import { mock } from "jest-mock-extended";
+import { firstValueFrom } from "rxjs";
 
+import {
+  FakeAccountService,
+  FakeActiveUserState,
+  FakeStateProvider,
+  mockAccountServiceWith,
+} from "../../../../spec";
 import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
-import { StateService } from "../../../platform/abstractions/state.service";
+import { Utils } from "../../../platform/misc/utils";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "../../../platform/services/container.service";
+import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 import { SendType } from "../enums/send-type";
 import { SendFileApi } from "../models/api/send-file.api";
@@ -19,8 +26,10 @@ import { SendData } from "../models/data/send.data";
 import { Send } from "../models/domain/send";
 import { SendView } from "../models/view/send.view";
 
-import { SendStateProvider } from "./send-state.provider.abstraction";
+import { SEND_USER_DECRYPTED, SEND_USER_ENCRYPTED } from "./key-definitions";
+import { SendStateProvider } from "./send-state.provider";
 import { SendService } from "./send.service";
+
 
 describe("SendService", () => {
   const cryptoService = mock<CryptoService>();
@@ -28,35 +37,39 @@ describe("SendService", () => {
   const keyGenerationService = mock<KeyGenerationService>();
   const encryptService = mock<EncryptService>();
 
+  let sendStateProvider: SendStateProvider;
   let sendService: SendService;
 
-  let stateService: MockProxy<SendStateProvider>;
-  let activeAccount: BehaviorSubject<string>;
-  let activeAccountUnlocked: BehaviorSubject<boolean>;
+  let stateProvider: FakeStateProvider;
+  let encryptedState: FakeActiveUserState<Record<string, SendData>>;
+  let decryptedState: FakeActiveUserState<SendView[]>;
+
+  const mockUserId = Utils.newGuid() as UserId;
+  let accountService: FakeAccountService;
 
   beforeEach(() => {
-    activeAccount = new BehaviorSubject("123");
-    activeAccountUnlocked = new BehaviorSubject(true);
+    accountService = mockAccountServiceWith(mockUserId);
+    stateProvider = new FakeStateProvider(accountService);
+    sendStateProvider = new SendStateProvider(stateProvider);
 
-    stateService = mock<StateService>();
-    stateService.activeAccount$ = activeAccount;
-    stateService.activeAccountUnlocked$ = activeAccountUnlocked;
     (window as any).bitwardenContainerService = new ContainerService(cryptoService, encryptService);
 
-    stateService.getEncryptedSends.calledWith(any()).mockResolvedValue({
+    sendService = new SendService(
+      cryptoService,
+      i18nService,
+      keyGenerationService,
+      sendStateProvider,
+      accountService,
+    );
+
+    // Initial encrypted state
+    encryptedState = stateProvider.activeUser.getFake(SEND_USER_ENCRYPTED);
+    encryptedState.nextState({
       "1": sendData("1", "Test Send"),
     });
-
-    stateService.getDecryptedSends
-      .calledWith(any())
-      .mockResolvedValue([sendView("1", "Test Send")]);
-
-    sendService = new SendService(cryptoService, i18nService, keyGenerationService, stateService);
-  });
-
-  afterEach(() => {
-    activeAccount.complete();
-    activeAccountUnlocked.complete();
+    // Initial decrypted state
+    decryptedState = stateProvider.activeUser.getFake(SEND_USER_DECRYPTED);
+    decryptedState.nextState([sendView("1", "Test Send")]);
   });
 
   describe("get", () => {
@@ -386,7 +399,7 @@ describe("SendService", () => {
   it("getAllDecryptedFromState", async () => {
     await sendService.getAllDecryptedFromState();
 
-    expect(stateService.getDecryptedSends).toHaveBeenCalledTimes(1);
+    expect(sendStateProvider.getDecryptedSends).toHaveBeenCalledTimes(1);
   });
 
   describe("getRotatedKeys", () => {
@@ -449,8 +462,8 @@ describe("SendService", () => {
     it("exists", async () => {
       await sendService.delete("1");
 
-      expect(stateService.getEncryptedSends).toHaveBeenCalledTimes(2);
-      expect(stateService.setEncryptedSends).toHaveBeenCalledTimes(1);
+      expect(sendStateProvider.getEncryptedSends).toHaveBeenCalledTimes(2);
+      expect(sendStateProvider.setEncryptedSends).toHaveBeenCalledTimes(1);
     });
 
     it("does not exist", async () => {
@@ -458,7 +471,7 @@ describe("SendService", () => {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       sendService.delete("1");
 
-      expect(stateService.getEncryptedSends).toHaveBeenCalledTimes(2);
+      expect(sendStateProvider.getEncryptedSends).toHaveBeenCalledTimes(2);
     });
   });
 
