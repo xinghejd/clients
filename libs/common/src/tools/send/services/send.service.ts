@@ -1,4 +1,4 @@
-import { BehaviorSubject, Observable, concatMap, distinctUntilChanged, map } from "rxjs";
+import { Observable, firstValueFrom } from "rxjs";
 
 import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
@@ -19,47 +19,23 @@ import { SendWithIdRequest } from "../models/request/send-with-id.request";
 import { SendView } from "../models/view/send.view";
 import { SEND_KDF_ITERATIONS } from "../send-kdf";
 
+import { AsymmetricalSendState } from "./asymmetrical-send-state.abstraction";
 import { InternalSendService as InternalSendServiceAbstraction } from "./send.service.abstraction";
 
 export class SendService implements InternalSendServiceAbstraction {
   readonly sendKeySalt = "bitwarden-send";
   readonly sendKeyPurpose = "send";
 
-  protected _sends: BehaviorSubject<Send[]> = new BehaviorSubject([]);
-  protected _sendViews: BehaviorSubject<SendView[]> = new BehaviorSubject([]);
-
-  sends$ = this._sends.asObservable();
-  sendViews$ = this._sendViews.asObservable();
+  sendViews$: Observable<SendView[]>;
 
   constructor(
     private cryptoService: CryptoService,
     private i18nService: I18nService,
     private keyGenerationService: KeyGenerationService,
     private stateService: StateService,
+    private legacySendState: AsymmetricalSendState,
   ) {
-    this.stateService.activeAccountUnlocked$
-      .pipe(
-        concatMap(async (unlocked) => {
-          if (Utils.global.bitwardenContainerService == null) {
-            return;
-          }
-
-          if (!unlocked) {
-            this._sends.next([]);
-            this._sendViews.next([]);
-            return;
-          }
-
-          const data = await this.stateService.getEncryptedSends();
-
-          await this.updateObservables(data);
-        }),
-      )
-      .subscribe();
-  }
-
-  async clearCache(): Promise<void> {
-    await this._sendViews.next([]);
+    this.sendViews$ = this.legacySendState.sendViews$;
   }
 
   async encrypt(
@@ -120,71 +96,12 @@ export class SendService implements InternalSendServiceAbstraction {
     return [send, fileData];
   }
 
-  get(id: string): Send {
-    const sends = this._sends.getValue();
-    return sends.find((send) => send.id === id);
+  async get(id: string): Promise<SendView> {
+    return await firstValueFrom(this.legacySendState.get$("1"));
   }
 
-  get$(id: string): Observable<Send | undefined> {
-    return this.sends$.pipe(
-      distinctUntilChanged((oldSends, newSends) => {
-        const oldSend = oldSends.find((oldSend) => oldSend.id === id);
-        const newSend = newSends.find((newSend) => newSend.id === id);
-        if (!oldSend || !newSend) {
-          // If either oldSend or newSend is not found, consider them different
-          return false;
-        }
-
-        // Compare each property of the old and new Send objects
-        const allPropertiesSame = Object.keys(newSend).every((key) => {
-          if (
-            (oldSend[key as keyof Send] != null && newSend[key as keyof Send] === null) ||
-            (oldSend[key as keyof Send] === null && newSend[key as keyof Send] != null)
-          ) {
-            // If a key from either old or new send is not found, and the key from the other send has a value, consider them different
-            return false;
-          }
-
-          switch (key) {
-            case "name":
-            case "notes":
-            case "key":
-              if (oldSend[key] === null && newSend[key] === null) {
-                return true;
-              }
-
-              return oldSend[key].encryptedString === newSend[key].encryptedString;
-            case "text":
-              if (oldSend[key].text == null && newSend[key].text == null) {
-                return true;
-              }
-              if (
-                (oldSend[key].text != null && newSend[key].text == null) ||
-                (oldSend[key].text == null && newSend[key].text != null)
-              ) {
-                return false;
-              }
-              return oldSend[key].text.encryptedString === newSend[key].text.encryptedString;
-            case "file":
-              //Files are never updated so never will be changed.
-              return true;
-            case "revisionDate":
-            case "expirationDate":
-            case "deletionDate":
-              if (oldSend[key] === null && newSend[key] === null) {
-                return true;
-              }
-              return oldSend[key].getTime() === newSend[key].getTime();
-            default:
-              // For other properties, compare directly
-              return oldSend[key as keyof Send] === newSend[key as keyof Send];
-          }
-        });
-
-        return allPropertiesSame;
-      }),
-      map((sends) => sends.find((o) => o.id === id)),
-    );
+  get$(id: string): Observable<SendView | undefined> {
+    return this.legacySendState.get$(id);
   }
 
   async getFromState(id: string): Promise<Send> {
@@ -235,54 +152,15 @@ export class SendService implements InternalSendServiceAbstraction {
   }
 
   async upsert(send: SendData | SendData[]): Promise<any> {
-    let sends = await this.stateService.getEncryptedSends();
-    if (sends == null) {
-      sends = {};
-    }
-    if (send instanceof SendData) {
-      const s = send as SendData;
-      sends[s.id] = s;
-    } else {
-      (send as SendData[]).forEach((s) => {
-        sends[s.id] = s;
-      });
-    }
-
-    await this.replace(sends);
-  }
-
-  async clear(userId?: string): Promise<any> {
-    if (userId == null || userId == (await this.stateService.getUserId())) {
-      this._sends.next([]);
-      this._sendViews.next([]);
-    }
-    await this.stateService.setDecryptedSends(null, { userId: userId });
-    await this.stateService.setEncryptedSends(null, { userId: userId });
+    await this.legacySendState.update(send);
   }
 
   async delete(id: string | string[]): Promise<any> {
-    const sends = await this.stateService.getEncryptedSends();
-    if (sends == null) {
-      return;
-    }
-
-    if (typeof id === "string") {
-      if (sends[id] == null) {
-        return;
-      }
-      delete sends[id];
-    } else {
-      (id as string[]).forEach((i) => {
-        delete sends[i];
-      });
-    }
-
-    await this.replace(sends);
+    await this.legacySendState.delete(id);
   }
 
   async replace(sends: { [id: string]: SendData }): Promise<any> {
-    await this.updateObservables(sends);
-    await this.stateService.setEncryptedSends(sends);
+    await this.legacySendState.replace(sends);
   }
 
   async getRotatedKeys(newUserKey: UserKey): Promise<SendWithIdRequest[]> {
@@ -290,8 +168,9 @@ export class SendService implements InternalSendServiceAbstraction {
       throw new Error("New user key is required for rotation.");
     }
 
+    const sends = await firstValueFrom(this.legacySendState.sends$);
     const requests = await Promise.all(
-      this._sends.value.map(async (send) => {
+      sends.map(async (send) => {
         const sendKey = await this.cryptoService.decryptToBytes(send.key);
         send.key = await this.cryptoService.encrypt(sendKey, newUserKey);
         return new SendWithIdRequest(send);
@@ -332,22 +211,5 @@ export class SendService implements InternalSendServiceAbstraction {
     const encFileName = await this.cryptoService.encrypt(fileName, key);
     const encFileData = await this.cryptoService.encryptToBytes(new Uint8Array(data), key);
     return [encFileName, encFileData];
-  }
-
-  private async updateObservables(sendsMap: { [id: string]: SendData }) {
-    const sends = Object.values(sendsMap || {}).map((f) => new Send(f));
-    this._sends.next(sends);
-
-    if (await this.cryptoService.hasUserKey()) {
-      this._sendViews.next(await this.decryptSends(sends));
-    }
-  }
-
-  private async decryptSends(sends: Send[]) {
-    const decryptSendPromises = sends.map((s) => s.decrypt());
-    const decryptedSends = await Promise.all(decryptSendPromises);
-
-    decryptedSends.sort(Utils.getSortFunction(this.i18nService, "name"));
-    return decryptedSends;
   }
 }

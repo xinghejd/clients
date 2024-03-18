@@ -52,7 +52,10 @@ import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { FileUploadService } from "@bitwarden/common/platform/abstractions/file-upload/file-upload.service";
-import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
+import {
+  I18nService,
+  I18nService as I18nServiceAbstraction,
+} from "@bitwarden/common/platform/abstractions/i18n.service";
 import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import {
   LogService,
@@ -80,6 +83,11 @@ import { SearchService } from "@bitwarden/common/services/search.service";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 import { UsernameGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/username";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
+import {
+  AsymmetricalSendState,
+  SendStateOptions,
+} from "@bitwarden/common/tools/send/services/asymmetrical-send-state.abstraction";
+import { LegacySendStateService } from "@bitwarden/common/tools/send/services/legacy-send-state.service";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import {
@@ -309,21 +317,44 @@ function getBgService<T>(service: keyof MainBackground) {
       deps: [],
     },
     {
+      provide: AsymmetricalSendState,
+      useFactory: (
+        cryptoService: CryptoService,
+        i18nService: I18nService,
+        keyGenerationService: KeyGenerationService,
+        stateService: StateServiceAbstraction,
+      ) => {
+        const options: SendStateOptions = {
+          cache_ms: 1000,
+        };
+        return new LegacySendStateService(options, cryptoService, i18nService, stateService);
+      },
+      deps: [CryptoService, I18nServiceAbstraction, StateServiceAbstraction],
+    },
+    {
       provide: SendService,
       useFactory: (
         cryptoService: CryptoService,
         i18nService: I18nServiceAbstraction,
         keyGenerationService: KeyGenerationService,
         stateServiceAbstraction: StateServiceAbstraction,
+        legacySendState: AsymmetricalSendState,
       ) => {
         return new BrowserSendService(
           cryptoService,
           i18nService,
           keyGenerationService,
           stateServiceAbstraction,
+          legacySendState,
         );
       },
-      deps: [CryptoService, I18nServiceAbstraction, KeyGenerationService, StateServiceAbstraction],
+      deps: [
+        CryptoService,
+        I18nServiceAbstraction,
+        KeyGenerationService,
+        StateServiceAbstraction,
+        AsymmetricalSendState,
+      ],
     },
     {
       provide: InternalSendServiceAbstraction,

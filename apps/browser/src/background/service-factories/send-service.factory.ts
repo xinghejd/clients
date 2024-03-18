@@ -23,13 +23,16 @@ import {
 } from "../../platform/background/service-factories/state-service.factory";
 import { BrowserSendService } from "../../services/browser-send.service";
 
+import { SendStateInitOptions, legacySendStateFactory } from "./send-state.factory";
+
 type SendServiceFactoryOptions = FactoryOptions;
 
 export type SendServiceInitOptions = SendServiceFactoryOptions &
   CryptoServiceInitOptions &
   I18nServiceInitOptions &
   KeyGenerationServiceInitOptions &
-  StateServiceInitOptions;
+  StateServiceInitOptions &
+  SendStateInitOptions;
 
 export function sendServiceFactory(
   cache: { sendService?: InternalSendService } & CachedServices,
@@ -45,6 +48,7 @@ export function sendServiceFactory(
         await i18nServiceFactory(cache, opts),
         await keyGenerationServiceFactory(cache, opts),
         await stateServiceFactory(cache, opts),
+        await legacySendStateFactory(cache, opts),
       ),
   );
 }

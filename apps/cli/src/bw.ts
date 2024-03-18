@@ -93,6 +93,8 @@ import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
 } from "@bitwarden/common/tools/password-strength";
+import { AsymmetricalSendState } from "@bitwarden/common/tools/send/services/asymmetrical-send-state.abstraction";
+import { LegacySendStateService } from "@bitwarden/common/tools/send/services/legacy-send-state.service";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -213,6 +215,7 @@ export class Main {
   loginStrategyService: LoginStrategyServiceAbstraction;
   stateEventRunnerService: StateEventRunnerService;
   biometricStateService: BiometricStateService;
+  sendStateService: AsymmetricalSendState;
 
   constructor() {
     let p = null;
@@ -360,11 +363,19 @@ export class Main {
 
     this.fileUploadService = new FileUploadService(this.logService);
 
+    this.sendStateService = new LegacySendStateService(
+      { cache_ms: 100 },
+      this.cryptoService,
+      this.i18nService,
+      this.stateService,
+    );
+
     this.sendService = new SendService(
       this.cryptoService,
       this.i18nService,
       this.keyGenerationService,
       this.stateService,
+      this.sendStateService,
     );
 
     this.cipherFileUploadService = new CipherFileUploadService(

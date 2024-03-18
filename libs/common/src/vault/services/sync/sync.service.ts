@@ -235,7 +235,7 @@ export class SyncService implements SyncServiceAbstraction {
     this.syncStarted();
     if (await this.stateService.getIsAuthenticated()) {
       try {
-        const localSend = this.sendService.get(notification.id);
+        const localSend = await this.sendService.get(notification.id);
         if (
           (!isEdit && localSend == null) ||
           (isEdit && localSend != null && localSend.revisionDate < notification.revisionDate)

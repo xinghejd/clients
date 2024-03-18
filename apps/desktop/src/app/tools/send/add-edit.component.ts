@@ -50,8 +50,7 @@ export class AddEditComponent extends BaseAddEditComponent {
   }
 
   async refresh() {
-    const send = await this.loadSend();
-    this.send = await send.decrypt();
+    this.send = await this.loadSend();
     this.updateFormValues();
     this.hasPassword = this.send.password != null && this.send.password.trim() !== "";
   }

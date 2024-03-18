@@ -1,7 +1,7 @@
 import { DatePipe } from "@angular/common";
 import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
-import { BehaviorSubject, Subject, concatMap, firstValueFrom, map, takeUntil } from "rxjs";
+import { BehaviorSubject, Subject, firstValueFrom, map, takeUntil } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
@@ -230,16 +230,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
       });
 
       if (this.editMode) {
-        this.sendService
-          .get$(this.sendId)
-          .pipe(
-            //Promise.reject will complete the BehaviourSubject, if desktop starts relying only on BehaviourSubject, this should be changed.
-            concatMap((s) =>
-              s instanceof Send ? s.decrypt() : Promise.reject(new Error("Failed to load send.")),
-            ),
-            takeUntil(this.destroy$),
-          )
-          .subscribe(send);
+        this.sendService.get$(this.sendId).pipe(takeUntil(this.destroy$)).subscribe(send);
       } else {
         const sendView = new SendView();
         sendView.type = this.type;
@@ -394,7 +385,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
     this.showOptions = !this.showOptions;
   }
 
-  protected loadSend(): Promise<Send> {
+  protected loadSend(): Promise<SendView> {
     return firstValueFrom(this.sendService.get$(this.sendId));
   }
 

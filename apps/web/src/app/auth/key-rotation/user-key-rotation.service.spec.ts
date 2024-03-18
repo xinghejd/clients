@@ -8,7 +8,6 @@ import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.
 import { EncryptionType } from "@bitwarden/common/platform/enums";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { Send } from "@bitwarden/common/tools/send/models/domain/send";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { UserKey } from "@bitwarden/common/types/key";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -79,7 +78,6 @@ describe("KeyRotationService", () => {
 
   describe("rotateUserKeyAndEncryptedData", () => {
     let folderViews: BehaviorSubject<FolderView[]>;
-    let sends: BehaviorSubject<Send[]>;
 
     beforeAll(() => {
       mockCryptoService.makeMasterKey.mockResolvedValue("mockMasterKey" as any);
@@ -103,11 +101,6 @@ describe("KeyRotationService", () => {
       const mockFolders = [createMockFolder("1", "Folder 1"), createMockFolder("2", "Folder 2")];
       folderViews = new BehaviorSubject<FolderView[]>(mockFolders);
       mockFolderService.folderViews$ = folderViews;
-
-      // Mock sends
-      const mockSends = [createMockSend("1", "Send 1"), createMockSend("2", "Send 2")];
-      sends = new BehaviorSubject<Send[]>(mockSends);
-      mockSendService.sends$ = sends;
 
       // Mock encryption methods
       mockEncryptService.encrypt.mockResolvedValue({
@@ -203,11 +196,4 @@ function createMockCipher(id: string, name: string): CipherView {
   cipher.name = name;
   cipher.type = CipherType.Login;
   return cipher;
-}
-
-function createMockSend(id: string, name: string): Send {
-  const send = new Send();
-  send.id = id;
-  send.name = new EncString(EncryptionType.AesCbc256_HmacSha256_B64, name);
-  return send;
 }

@@ -9,7 +9,6 @@ import { SendWithIdRequest } from "../models/request/send-with-id.request";
 import { SendView } from "../models/view/send.view";
 
 export abstract class SendService {
-  sends$: Observable<Send[]>;
   sendViews$: Observable<SendView[]>;
 
   encrypt: (
@@ -21,14 +20,14 @@ export abstract class SendService {
   /**
    * @deprecated Do not call this, use the get$ method
    */
-  get: (id: string) => Send;
+  get: (id: string) => Promise<SendView>;
   /**
    * Provides a send for a determined id
    * updates after a change occurs to the send that matches the id
    * @param id The id of the desired send
    * @returns An observable that listens to the value of the desired send
    */
-  get$: (id: string) => Observable<Send | undefined>;
+  get$: (id: string) => Observable<SendView | undefined>;
   /**
    * Provides re-encrypted user sends for the key rotation process
    * @param newUserKey The new user key to use for re-encryption
@@ -53,6 +52,5 @@ export abstract class SendService {
 export abstract class InternalSendService extends SendService {
   upsert: (send: SendData | SendData[]) => Promise<any>;
   replace: (sends: { [id: string]: SendData }) => Promise<void>;
-  clear: (userId: string) => Promise<any>;
   delete: (id: string | string[]) => Promise<any>;
 }

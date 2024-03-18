@@ -105,7 +105,10 @@ import { CryptoService as CryptoServiceAbstraction } from "@bitwarden/common/pla
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { EnvironmentService as EnvironmentServiceAbstraction } from "@bitwarden/common/platform/abstractions/environment.service";
 import { FileUploadService as FileUploadServiceAbstraction } from "@bitwarden/common/platform/abstractions/file-upload/file-upload.service";
-import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
+import {
+  I18nService,
+  I18nService as I18nServiceAbstraction,
+} from "@bitwarden/common/platform/abstractions/i18n.service";
 import { KeyGenerationService as KeyGenerationServiceAbstraction } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService as MessagingServiceAbstraction } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -176,6 +179,11 @@ import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
 } from "@bitwarden/common/tools/password-strength";
+import {
+  AsymmetricalSendState,
+  SendStateOptions,
+} from "@bitwarden/common/tools/send/services/asymmetrical-send-state.abstraction";
+import { LegacySendStateService } from "@bitwarden/common/tools/send/services/legacy-send-state.service";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
@@ -493,12 +501,38 @@ import { ModalService } from "./modal.service";
         I18nServiceAbstraction,
         KeyGenerationServiceAbstraction,
         StateServiceAbstraction,
+        AsymmetricalSendState,
+      ],
+    },
+    {
+      provide: AsymmetricalSendState,
+      useFactory: (
+        cryptoService: CryptoService,
+        i18nService: I18nService,
+        keyGenerationService: KeyGenerationService,
+        stateService: StateService,
+      ) => {
+        const options: SendStateOptions = {
+          cache_ms: 1000,
+        };
+        return new LegacySendStateService(options, cryptoService, i18nService, stateService);
+      },
+      deps: [
+        CryptoServiceAbstraction,
+        I18nServiceAbstraction,
+        KeyGenerationServiceAbstraction,
+        StateServiceAbstraction,
       ],
     },
     {
       provide: SendApiServiceAbstraction,
       useClass: SendApiService,
-      deps: [ApiServiceAbstraction, FileUploadServiceAbstraction, SendServiceAbstraction],
+      deps: [
+        ApiServiceAbstraction,
+        FileUploadServiceAbstraction,
+        SendServiceAbstraction,
+        AsymmetricalSendState,
+      ],
     },
     {
       provide: SyncServiceAbstraction,

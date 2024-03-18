@@ -132,6 +132,8 @@ import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
 } from "@bitwarden/common/tools/password-strength";
+import { AsymmetricalSendState } from "@bitwarden/common/tools/send/services/asymmetrical-send-state.abstraction";
+import { LegacySendStateService } from "@bitwarden/common/tools/send/services/legacy-send-state.service";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { InternalSendService as InternalSendServiceAbstraction } from "@bitwarden/common/tools/send/services/send.service.abstraction";
@@ -263,6 +265,7 @@ export default class MainBackground {
   eventUploadService: EventUploadServiceAbstraction;
   policyService: InternalPolicyServiceAbstraction;
   sendService: InternalSendServiceAbstraction;
+  asymmetricalSendState: AsymmetricalSendState;
   fileUploadService: FileUploadServiceAbstraction;
   cipherFileUploadService: CipherFileUploadServiceAbstraction;
   organizationService: InternalOrganizationServiceAbstraction;
@@ -680,12 +683,24 @@ export default class MainBackground {
       logoutCallback,
     );
     this.containerService = new ContainerService(this.cryptoService, this.encryptService);
+
+    this.asymmetricalSendState = new LegacySendStateService(
+      {
+        cache_ms: 1000,
+      },
+      this.cryptoService,
+      this.i18nService,
+      this.stateService,
+    );
+
     this.sendService = new BrowserSendService(
       this.cryptoService,
       this.i18nService,
       this.keyGenerationService,
       this.stateService,
+      this.asymmetricalSendState,
     );
+
     this.sendApiService = new SendApiService(
       this.apiService,
       this.fileUploadService,
