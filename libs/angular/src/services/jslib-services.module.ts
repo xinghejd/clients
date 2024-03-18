@@ -178,8 +178,8 @@ import {
 } from "@bitwarden/common/tools/password-strength";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
-import { SendStateService } from "@bitwarden/common/tools/send/services/send-state.service";
-import { SendStateProvider as SendStateServiceAbstraction } from "@bitwarden/common/tools/send/services/send-state.service.abstraction";
+import { SendStateProvider as SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
+import { SendStateProvider as SendStateProviderAbstraction } from "@bitwarden/common/tools/send/services/send-state.provider.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
 import { SendService as SendServiceAbstraction } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -494,13 +494,13 @@ import { ModalService } from "./modal.service";
         CryptoServiceAbstraction,
         I18nServiceAbstraction,
         KeyGenerationServiceAbstraction,
-        SendStateServiceAbstraction,
+        SendStateProviderAbstraction,
         AccountServiceAbstraction,
       ],
     },
     {
-      provide: SendStateServiceAbstraction,
-      useClass: SendStateService,
+      provide: SendStateProviderAbstraction,
+      useClass: SendStateProvider,
       deps: [StateProvider],
     },
     {
