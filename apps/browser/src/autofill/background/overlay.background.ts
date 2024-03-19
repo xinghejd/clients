@@ -42,6 +42,7 @@ import {
   WebsiteIconData,
   PageDetailsForTab,
   SubFrameOffsetsForTab,
+  SubFrameOffsetData,
 } from "./abstractions/overlay.background";
 
 class OverlayBackground implements OverlayBackgroundInterface {
@@ -112,12 +113,15 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * @param tabId - Used to reference the page details of a specific tab
    */
   removePageDetails(tabId: number) {
-    if (!this.pageDetailsForTab[tabId]) {
-      return;
+    if (this.pageDetailsForTab[tabId]) {
+      this.pageDetailsForTab[tabId].clear();
+      delete this.pageDetailsForTab[tabId];
     }
 
-    this.pageDetailsForTab[tabId].clear();
-    delete this.pageDetailsForTab[tabId];
+    if (this.subFrameOffsetsForTab[tabId]) {
+      this.subFrameOffsetsForTab[tabId].clear();
+      delete this.subFrameOffsetsForTab[tabId];
+    }
   }
 
   /**
@@ -212,7 +216,6 @@ class OverlayBackground implements OverlayBackgroundInterface {
     };
 
     if (pageDetails.frameId !== 0 && pageDetails.details.fields.length) {
-      // NOT SURE I WANT THIS
       void this.buildSubFrameOffset(pageDetails);
     }
 
@@ -226,13 +229,42 @@ class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   private async buildSubFrameOffset({ tab, frameId, details }: PageDetail) {
-    const frameDetails = await BrowserApi.getFrameDetails({
-      tabId: tab.id,
-      frameId,
-    });
+    const tabId = tab.id;
+    let subFrameOffsetsForTab = this.subFrameOffsetsForTab[tabId];
+    if (!subFrameOffsetsForTab) {
+      this.subFrameOffsetsForTab[tabId] = new Map();
+      subFrameOffsetsForTab = this.subFrameOffsetsForTab[tabId];
+    }
 
-    // eslint-disable-next-line
-    console.log(frameDetails);
+    if (subFrameOffsetsForTab.get(frameId)) {
+      return;
+    }
+
+    const subFrameData = { url: details.url, top: 0, left: 0 };
+    let frameDetails = await BrowserApi.getFrameDetails({ tabId, frameId });
+
+    while (frameDetails.parentFrameId !== -1) {
+      const subFrameOffset: SubFrameOffsetData = await BrowserApi.tabSendMessage(
+        tab,
+        { command: "getSubFrameOffsets", subFrameUrl: frameDetails.url },
+        { frameId: frameDetails.parentFrameId },
+      );
+
+      if (!subFrameOffset) {
+        subFrameOffsetsForTab.set(frameId, null);
+        return;
+      }
+
+      subFrameData.top += subFrameOffset.top;
+      subFrameData.left += subFrameOffset.left;
+
+      frameDetails = await BrowserApi.getFrameDetails({
+        tabId,
+        frameId: frameDetails.parentFrameId,
+      });
+    }
+
+    subFrameOffsetsForTab.set(frameId, subFrameData);
   }
 
   /**

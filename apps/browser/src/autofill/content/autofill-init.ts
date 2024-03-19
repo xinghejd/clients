@@ -1,3 +1,4 @@
+import { SubFrameOffsetData } from "../background/abstractions/overlay.background";
 import AutofillPageDetails from "../models/autofill-page-details";
 import { AutofillOverlayContentService } from "../services/abstractions/autofill-overlay-content.service";
 import CollectAutofillContentService from "../services/collect-autofill-content.service";
@@ -28,7 +29,7 @@ class AutofillInit implements AutofillInitInterface {
     bgUnlockPopoutOpened: () => this.blurAndRemoveOverlay(),
     bgVaultItemRepromptPopoutOpened: () => this.blurAndRemoveOverlay(),
     updateAutofillOverlayVisibility: ({ message }) => this.updateAutofillOverlayVisibility(message),
-    getSubFrameOffsets: () => this.getSubFrameOffsets(),
+    getSubFrameOffsets: ({ message }) => this.getSubFrameOffsets(message),
   };
 
   /**
@@ -250,7 +251,33 @@ class AutofillInit implements AutofillInitInterface {
     this.autofillOverlayContentService.autofillOverlayVisibility = data?.autofillOverlayVisibility;
   }
 
-  private getSubFrameOffsets() {}
+  private async getSubFrameOffsets(
+    message: AutofillExtensionMessage,
+  ): Promise<SubFrameOffsetData | null> {
+    const { subFrameUrl } = message;
+    const subFrameUrlWithoutTrailingSlash = subFrameUrl?.replace(/\/$/, "");
+
+    // query iframe based on src attribute
+    const iframeElement = document.querySelector(
+      `iframe[src^="${subFrameUrlWithoutTrailingSlash}"]`,
+    );
+    if (!iframeElement) {
+      return null;
+    }
+
+    const iframeRect = iframeElement.getBoundingClientRect();
+    const iframeStyles = globalThis.getComputedStyle(iframeElement);
+    const paddingLeft = parseInt(iframeStyles.getPropertyValue("padding-left"));
+    const paddingTop = parseInt(iframeStyles.getPropertyValue("padding-top"));
+    const borderWidthLeft = parseInt(iframeStyles.getPropertyValue("border-left-width"));
+    const borderWidthTop = parseInt(iframeStyles.getPropertyValue("border-top-width"));
+
+    return {
+      url: subFrameUrl,
+      top: iframeRect.top + paddingTop + borderWidthTop,
+      left: iframeRect.left + paddingLeft + borderWidthLeft,
+    };
+  }
 
   /**
    * Sets up the extension message listeners for the content script.

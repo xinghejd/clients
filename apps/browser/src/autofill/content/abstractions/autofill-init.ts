@@ -1,5 +1,6 @@
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
+import { SubFrameOffsetData } from "../../background/abstractions/overlay.background";
 import AutofillScript from "../../models/autofill-script";
 
 type AutofillExtensionMessage = {
@@ -8,6 +9,7 @@ type AutofillExtensionMessage = {
   sender?: string;
   fillScript?: AutofillScript;
   url?: string;
+  subFrameUrl?: string;
   pageDetailsUrl?: string;
   ciphers?: any;
   data?: {
@@ -36,6 +38,7 @@ type AutofillExtensionMessageHandlers = {
   bgUnlockPopoutOpened: () => void;
   bgVaultItemRepromptPopoutOpened: () => void;
   updateAutofillOverlayVisibility: ({ message }: AutofillExtensionMessageParam) => void;
+  getSubFrameOffsets: ({ message }: AutofillExtensionMessageParam) => Promise<SubFrameOffsetData>;
 };
 
 interface AutofillInit {

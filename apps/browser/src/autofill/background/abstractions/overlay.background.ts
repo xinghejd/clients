@@ -15,7 +15,7 @@ type SubFrameOffsetData = {
   url: string;
   top: number;
   left: number;
-};
+} | null;
 
 type SubFrameOffsetsForTab = Record<
   chrome.runtime.MessageSender["tab"]["id"],

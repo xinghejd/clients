@@ -178,17 +178,17 @@ export class BrowserApi {
     tab: chrome.tabs.Tab,
     obj: T,
     options: chrome.tabs.MessageSendOptions = null,
-  ): Promise<void> {
+  ): Promise<any> {
     if (!tab || !tab.id) {
       return;
     }
 
-    return new Promise<void>((resolve) => {
-      chrome.tabs.sendMessage(tab.id, obj, options, () => {
+    return new Promise<any>((resolve) => {
+      chrome.tabs.sendMessage(tab.id, obj, options, (response) => {
         if (chrome.runtime.lastError) {
           // Some error happened
         }
-        resolve();
+        resolve(response);
       });
     });
   }
