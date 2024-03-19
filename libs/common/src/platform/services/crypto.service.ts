@@ -1,5 +1,5 @@
 import * as bigInt from "big-integer";
-import { Observable, filter, firstValueFrom, map, tap } from "rxjs";
+import { Observable, filter, firstValueFrom, map } from "rxjs";
 
 import { EncryptedOrganizationKeyData } from "../../admin-console/models/data/encrypted-organization-key.data";
 import { ProfileOrganizationResponse } from "../../admin-console/models/response/profile-organization.response";
@@ -126,28 +126,11 @@ export class CryptoService implements CryptoServiceAbstraction {
         // Null is never a valid value for org keys, even if the user is in no orgs there value should become `{}`
         // if we have a null we expect a valid value to become set soon.
         filter((keys) => keys != null),
-        tap({
-          subscribe: () => console.log("subscribe on encrypted org keys"),
-          next: (d) => console.log("next on encrypted org keys", d),
-          error: (err) => console.log("error on encrypted org keys", err),
-          finalize: () => console.log("finalize on encrypted org keys"),
-          complete: () => console.log("complete on encrypted org keys"),
-          unsubscribe: () => console.log("unsubscribe on encrypted org keys"),
-        }),
       ),
       USER_ORGANIZATION_KEYS,
       { cryptoService: this },
     );
-    this.activeUserOrgKeys$ = this.activeUserOrgKeysState.state$.pipe(
-      tap({
-        subscribe: () => console.log("subscribe on decrypted org keys"),
-        next: (d) => console.log("next on decrypted org keys", d),
-        error: (err) => console.log("error on decrypted org keys", err),
-        finalize: () => console.log("finalize on decrypted org keys"),
-        complete: () => console.log("complete on decrypted org keys"),
-        unsubscribe: () => console.log("unsubscribe on decrypted org keys"),
-      }),
-    ); // null handled by `derive` function
+    this.activeUserOrgKeys$ = this.activeUserOrgKeysState.state$.pipe(); // null handled by `derive` function
 
     // Provider keys
     this.activeUserEncryptedProviderKeysState = stateProvider.getActive(
@@ -445,7 +428,6 @@ export class CryptoService implements CryptoServiceAbstraction {
     orgs: ProfileOrganizationResponse[] = [],
     providerOrgs: ProfileProviderOrganizationResponse[] = [],
   ): Promise<void> {
-    console.log("setting org keys", orgs, providerOrgs);
     await this.activeUserEncryptedOrgKeysState.update((_) => {
       const encOrgKeyData: { [orgId: string]: EncryptedOrganizationKeyData } = {};
 
@@ -469,9 +451,7 @@ export class CryptoService implements CryptoServiceAbstraction {
   }
 
   async getOrgKey(orgId: OrganizationId): Promise<OrgKey> {
-    console.log("getting org key", orgId);
     const value = (await firstValueFrom(this.activeUserOrgKeys$))[orgId];
-    console.log("returning org key", orgId, value);
     return value;
   }
 
