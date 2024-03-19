@@ -100,7 +100,7 @@ export class CryptoService implements CryptoServiceAbstraction {
     // User Asymmetric Key Pair
     this.activeUserEncryptedPrivateKeyState = stateProvider.getActive(USER_ENCRYPTED_PRIVATE_KEY);
     this.activeUserPrivateKeyState = stateProvider.getDerived(
-      this.activeUserEncryptedPrivateKeyState.combinedState$,
+      this.activeUserEncryptedPrivateKeyState.combinedState$.pipe(filter((x) => x?.[1] != null)),
       USER_PRIVATE_KEY,
       {
         encryptService: this.encryptService,
@@ -109,7 +109,7 @@ export class CryptoService implements CryptoServiceAbstraction {
     );
     this.activeUserPrivateKey$ = this.activeUserPrivateKeyState.state$; // may be null
     this.activeUserPublicKeyState = stateProvider.getDerived(
-      this.activeUserPrivateKey$,
+      this.activeUserPrivateKey$.pipe(filter((x) => x != null)),
       USER_PUBLIC_KEY,
       {
         cryptoFunctionService: this.cryptoFunctionService,
