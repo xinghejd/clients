@@ -25,7 +25,7 @@ import {
   openViewVaultItemPopout,
   openAddEditVaultItemPopout,
 } from "../../vault/popup/utils/vault-popout-window";
-import { AutofillService } from "../services/abstractions/autofill.service";
+import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
 import { AutofillOverlayElement, AutofillOverlayPort } from "../utils/autofill-overlay.enum";
 
 import { LockedVaultPendingNotificationsData } from "./abstractions/notification.background";
@@ -41,6 +41,7 @@ import {
   OverlayPortMessage,
   WebsiteIconData,
   PageDetailsForTab,
+  SubFrameOffsetsForTab,
 } from "./abstractions/overlay.background";
 
 class OverlayBackground implements OverlayBackgroundInterface {
@@ -49,6 +50,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private readonly openAddEditVaultItemPopout = openAddEditVaultItemPopout;
   private overlayLoginCiphers: Map<string, CipherView> = new Map();
   private pageDetailsForTab: PageDetailsForTab = {};
+  private subFrameOffsetsForTab: SubFrameOffsetsForTab = {};
   private userAuthStatus: AuthenticationStatus = AuthenticationStatus.LoggedOut;
   private overlayButtonPort: chrome.runtime.Port;
   private overlayListPort: chrome.runtime.Port;
@@ -209,6 +211,11 @@ class OverlayBackground implements OverlayBackgroundInterface {
       details: message.details,
     };
 
+    if (pageDetails.frameId !== 0 && pageDetails.details.fields.length) {
+      // NOT SURE I WANT THIS
+      void this.buildSubFrameOffset(pageDetails);
+    }
+
     const pageDetailsMap = this.pageDetailsForTab[sender.tab.id];
     if (!pageDetailsMap) {
       this.pageDetailsForTab[sender.tab.id] = new Map([[sender.frameId, pageDetails]]);
@@ -218,8 +225,14 @@ class OverlayBackground implements OverlayBackgroundInterface {
     pageDetailsMap.set(sender.frameId, pageDetails);
   }
 
-  private buildFrameOffset(frameId: number, tabId: number) {
-    return frameId ? 10 : 0;
+  private async buildSubFrameOffset({ tab, frameId, details }: PageDetail) {
+    const frameDetails = await BrowserApi.getFrameDetails({
+      tabId: tab.id,
+      frameId,
+    });
+
+    // eslint-disable-next-line
+    console.log(frameDetails);
   }
 
   /**

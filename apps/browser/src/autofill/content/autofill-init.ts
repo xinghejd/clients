@@ -28,6 +28,7 @@ class AutofillInit implements AutofillInitInterface {
     bgUnlockPopoutOpened: () => this.blurAndRemoveOverlay(),
     bgVaultItemRepromptPopoutOpened: () => this.blurAndRemoveOverlay(),
     updateAutofillOverlayVisibility: ({ message }) => this.updateAutofillOverlayVisibility(message),
+    getSubFrameOffsets: () => this.getSubFrameOffsets(),
   };
 
   /**
@@ -248,6 +249,8 @@ class AutofillInit implements AutofillInitInterface {
 
     this.autofillOverlayContentService.autofillOverlayVisibility = data?.autofillOverlayVisibility;
   }
+
+  private getSubFrameOffsets() {}
 
   /**
    * Sets up the extension message listeners for the content script.
