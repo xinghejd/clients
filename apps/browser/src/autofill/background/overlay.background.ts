@@ -217,9 +217,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    if (!pageDetailsMap.has(sender.frameId)) {
-      pageDetailsMap.set(sender.frameId, pageDetails);
-    }
+    pageDetailsMap.set(sender.frameId, pageDetails);
   }
 
   /**
