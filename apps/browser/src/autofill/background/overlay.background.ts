@@ -112,6 +112,11 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * @param tabId - Used to reference the page details of a specific tab
    */
   removePageDetails(tabId: number) {
+    if (!this.pageDetailsForTab[tabId]) {
+      return;
+    }
+
+    this.pageDetailsForTab[tabId].clear();
     delete this.pageDetailsForTab[tabId];
   }
 
