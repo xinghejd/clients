@@ -1087,6 +1087,10 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * @param element - The element to get the root node active element for.
    */
   private getRootNodeActiveElement(element: Element): Element {
+    if (!element) {
+      return null;
+    }
+
     const documentRoot = element.getRootNode() as ShadowRoot | Document;
     return documentRoot?.activeElement;
   }

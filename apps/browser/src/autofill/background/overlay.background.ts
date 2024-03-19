@@ -25,7 +25,7 @@ import {
   openViewVaultItemPopout,
   openAddEditVaultItemPopout,
 } from "../../vault/popup/utils/vault-popout-window";
-import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
+import { AutofillService } from "../services/abstractions/autofill.service";
 import { AutofillOverlayElement, AutofillOverlayPort } from "../utils/autofill-overlay.enum";
 
 import { LockedVaultPendingNotificationsData } from "./abstractions/notification.background";
@@ -40,6 +40,7 @@ import {
   OverlayAddNewItemMessage,
   OverlayPortMessage,
   WebsiteIconData,
+  PageDetailsForTab,
 } from "./abstractions/overlay.background";
 
 class OverlayBackground implements OverlayBackgroundInterface {
@@ -47,10 +48,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private readonly openViewVaultItemPopout = openViewVaultItemPopout;
   private readonly openAddEditVaultItemPopout = openAddEditVaultItemPopout;
   private overlayLoginCiphers: Map<string, CipherView> = new Map();
-  private pageDetailsForTab: Record<
-    chrome.runtime.MessageSender["tab"]["id"],
-    Map<chrome.runtime.MessageSender["frameId"], PageDetail>
-  > = {};
+  private pageDetailsForTab: PageDetailsForTab = {};
   private userAuthStatus: AuthenticationStatus = AuthenticationStatus.LoggedOut;
   private overlayButtonPort: chrome.runtime.Port;
   private overlayListPort: chrome.runtime.Port;
@@ -66,7 +64,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
     focusAutofillOverlayList: () => this.focusOverlayList(),
     updateAutofillOverlayPosition: ({ message }) => this.updateOverlayPosition(message),
     updateAutofillOverlayHidden: ({ message }) => this.updateOverlayHidden(message),
-    updateFocusedFieldData: ({ message }) => this.setFocusedFieldData(message),
+    updateFocusedFieldData: ({ message, sender }) => this.setFocusedFieldData(message, sender),
     collectPageDetailsResponse: ({ message, sender }) => this.storePageDetails(message, sender),
     unlockCompleted: ({ message }) => this.unlockCompleted(message),
     addEditCipherSubmitted: () => this.updateOverlayCiphers(),
@@ -218,6 +216,10 @@ class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     pageDetailsMap.set(sender.frameId, pageDetails);
+  }
+
+  private buildFrameOffset(frameId: number, tabId: number) {
+    return frameId ? 10 : 0;
   }
 
   /**
@@ -396,7 +398,10 @@ class OverlayBackground implements OverlayBackgroundInterface {
    *
    * @param focusedFieldData - Contains the rects and styles of the focused field.
    */
-  private setFocusedFieldData({ focusedFieldData }: OverlayBackgroundExtensionMessage) {
+  private setFocusedFieldData(
+    { focusedFieldData }: OverlayBackgroundExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+  ) {
     this.focusedFieldData = focusedFieldData;
   }
 

@@ -2,8 +2,25 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 
 import AutofillPageDetails from "../../models/autofill-page-details";
+import { PageDetail } from "../../services/abstractions/autofill.service";
 
 import { LockedVaultPendingNotificationsData } from "./notification.background";
+
+type PageDetailsForTab = Record<
+  chrome.runtime.MessageSender["tab"]["id"],
+  Map<chrome.runtime.MessageSender["frameId"], PageDetail>
+>;
+
+type SubFrameOffsetData = {
+  url: string;
+  top: number;
+  left: number;
+};
+
+type SubFrameOffsetsForTab = Record<
+  chrome.runtime.MessageSender["tab"]["id"],
+  Map<chrome.runtime.MessageSender["frameId"], SubFrameOffsetData>
+>;
 
 type WebsiteIconData = {
   imageEnabled: boolean;
@@ -73,7 +90,7 @@ type OverlayBackgroundExtensionMessageHandlers = {
   focusAutofillOverlayList: () => void;
   updateAutofillOverlayPosition: ({ message }: BackgroundMessageParam) => void;
   updateAutofillOverlayHidden: ({ message }: BackgroundMessageParam) => void;
-  updateFocusedFieldData: ({ message }: BackgroundMessageParam) => void;
+  updateFocusedFieldData: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   collectPageDetailsResponse: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   unlockCompleted: ({ message }: BackgroundMessageParam) => void;
   addEditCipherSubmitted: () => void;
@@ -116,6 +133,9 @@ interface OverlayBackground {
 }
 
 export {
+  PageDetailsForTab,
+  SubFrameOffsetData,
+  SubFrameOffsetsForTab,
   WebsiteIconData,
   OverlayBackgroundExtensionMessage,
   OverlayPortMessage,
