@@ -24,10 +24,20 @@ import { RevertLastSyncMigrator } from "./migrations/26-revert-move-last-sync-to
 import { BadgeSettingsMigrator } from "./migrations/27-move-badge-settings-to-state-providers";
 import { MoveBiometricUnlockToStateProviders } from "./migrations/28-move-biometric-unlock-to-state-providers";
 import { UserNotificationSettingsKeyMigrator } from "./migrations/29-move-user-notification-settings-to-state-provider";
-import { FixPremiumMigrator } from "./migrations/3-fix-premium";
 import { PolicyMigrator } from "./migrations/30-move-policy-state-to-state-provider";
 import { EnableContextMenuMigrator } from "./migrations/31-move-enable-context-menu-to-autofill-settings-state-provider";
+import { PreferredLanguageMigrator } from "./migrations/32-move-preferred-language";
+import { AppIdMigrator } from "./migrations/33-move-app-id-to-state-providers";
+import { DomainSettingsMigrator } from "./migrations/34-move-domain-settings-to-state-providers";
+import { MoveThemeToStateProviderMigrator } from "./migrations/35-move-theme-to-state-providers";
+import { VaultSettingsKeyMigrator } from "./migrations/36-move-show-card-and-identity-to-state-provider";
+import { AvatarColorMigrator } from "./migrations/37-move-avatar-color-to-state-providers";
+import { TokenServiceStateProviderMigrator } from "./migrations/38-migrate-token-svc-to-state-provider";
+import { MoveBillingAccountProfileMigrator } from "./migrations/39-move-billing-account-profile-to-state-providers";
 import { RemoveEverBeenUnlockedMigrator } from "./migrations/4-remove-ever-been-unlocked";
+import { OrganizationMigrator } from "./migrations/40-move-organization-state-to-state-provider";
+import { EventCollectionMigrator } from "./migrations/41-move-event-collection-to-state-provider";
+import { EnableFaviconMigrator } from "./migrations/42-move-enable-favicon-to-domain-settings-state-provider";
 import { AddKeyTypeToOrgKeysMigrator } from "./migrations/5-add-key-type-to-org-keys";
 import { RemoveLegacyEtmKeyMigrator } from "./migrations/6-remove-legacy-etm-key";
 import { MoveBiometricAutoPromptToAccount } from "./migrations/7-move-biometric-auto-prompt-to-account";
@@ -35,14 +45,13 @@ import { MoveStateVersionMigrator } from "./migrations/8-move-state-version";
 import { MoveBrowserSettingsToGlobal } from "./migrations/9-move-browser-settings-to-global";
 import { MinVersionMigrator } from "./migrations/min-version";
 
-export const MIN_VERSION = 2;
-export const CURRENT_VERSION = 31;
+export const MIN_VERSION = 3;
+export const CURRENT_VERSION = 42;
 export type MinVersion = typeof MIN_VERSION;
 
 export function createMigrationBuilder() {
   return MigrationBuilder.create()
     .with(MinVersionMigrator)
-    .with(FixPremiumMigrator, 2, 3)
     .with(RemoveEverBeenUnlockedMigrator, 3, 4)
     .with(AddKeyTypeToOrgKeysMigrator, 4, 5)
     .with(RemoveLegacyEtmKeyMigrator, 5, 6)
@@ -70,7 +79,18 @@ export function createMigrationBuilder() {
     .with(MoveBiometricUnlockToStateProviders, 27, 28)
     .with(UserNotificationSettingsKeyMigrator, 28, 29)
     .with(PolicyMigrator, 29, 30)
-    .with(EnableContextMenuMigrator, 30, CURRENT_VERSION);
+    .with(EnableContextMenuMigrator, 30, 31)
+    .with(PreferredLanguageMigrator, 31, 32)
+    .with(AppIdMigrator, 32, 33)
+    .with(DomainSettingsMigrator, 33, 34)
+    .with(MoveThemeToStateProviderMigrator, 34, 35)
+    .with(VaultSettingsKeyMigrator, 35, 36)
+    .with(AvatarColorMigrator, 36, 37)
+    .with(TokenServiceStateProviderMigrator, 37, 38)
+    .with(MoveBillingAccountProfileMigrator, 38, 39)
+    .with(OrganizationMigrator, 39, 40)
+    .with(EventCollectionMigrator, 40, 41)
+    .with(EnableFaviconMigrator, 41, 42);
 }
 
 export async function currentVersion(

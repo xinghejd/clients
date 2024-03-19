@@ -1,4 +1,5 @@
 import { mock, mockReset } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
@@ -7,18 +8,29 @@ import {
   AutofillOverlayVisibility,
 } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsService } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import {
+  DefaultDomainSettingsService,
+  DomainSettingsService,
+} from "@bitwarden/common/autofill/services/domain-settings.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EnvironmentService } from "@bitwarden/common/platform/services/environment.service";
 import { I18nService } from "@bitwarden/common/platform/services/i18n.service";
-import { SettingsService } from "@bitwarden/common/services/settings.service";
+import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
+import {
+  FakeStateProvider,
+  FakeAccountService,
+  mockAccountServiceWith,
+} from "@bitwarden/common/spec";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
-import BrowserPlatformUtilsService from "../../platform/services/browser-platform-utils.service";
 import { BrowserStateService } from "../../platform/services/browser-state.service";
+import { BrowserPlatformUtilsService } from "../../platform/services/platform-utils/browser-platform-utils.service";
 import { AutofillService } from "../services/abstractions/autofill.service";
 import {
   createAutofillPageDetailsMock,
@@ -39,6 +51,10 @@ import OverlayBackground from "./overlay.background";
 const iconServerUrl = "https://icons.bitwarden.com/";
 
 describe("OverlayBackground", () => {
+  const mockUserId = Utils.newGuid() as UserId;
+  const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
+  const fakeStateProvider: FakeStateProvider = new FakeStateProvider(accountService);
+  let domainSettingsService: DomainSettingsService;
   let buttonPortSpy: chrome.runtime.Port;
   let listPortSpy: chrome.runtime.Port;
   let overlayBackground: OverlayBackground;
@@ -48,11 +64,11 @@ describe("OverlayBackground", () => {
   const environmentService = mock<EnvironmentService>({
     getIconsUrl: () => iconServerUrl,
   });
-  const settingsService = mock<SettingsService>();
   const stateService = mock<BrowserStateService>();
   const autofillSettingsService = mock<AutofillSettingsService>();
   const i18nService = mock<I18nService>();
   const platformUtilsService = mock<BrowserPlatformUtilsService>();
+  const themeStateService = mock<ThemeStateService>();
   const initOverlayElementPorts = async (options = { initList: true, initButton: true }) => {
     const { initList, initButton } = options;
     if (initButton) {
@@ -69,21 +85,26 @@ describe("OverlayBackground", () => {
   };
 
   beforeEach(() => {
+    domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider);
     overlayBackground = new OverlayBackground(
       cipherService,
       autofillService,
       authService,
       environmentService,
-      settingsService,
+      domainSettingsService,
       stateService,
       autofillSettingsService,
       i18nService,
       platformUtilsService,
+      themeStateService,
     );
 
     jest
       .spyOn(overlayBackground as any, "getOverlayVisibility")
       .mockResolvedValue(AutofillOverlayVisibility.OnFieldFocus);
+
+    themeStateService.selectedTheme$ = of(ThemeType.Light);
+    domainSettingsService.showFavicons$ = of(true);
 
     void overlayBackground.init();
   });
@@ -268,7 +289,7 @@ describe("OverlayBackground", () => {
       card: { subTitle: "Mastercard, *1234" },
     });
 
-    it("formats and returns the cipher data", () => {
+    it("formats and returns the cipher data", async () => {
       overlayBackground["overlayLoginCiphers"] = new Map([
         ["overlay-cipher-0", cipher2],
         ["overlay-cipher-1", cipher1],
@@ -276,7 +297,7 @@ describe("OverlayBackground", () => {
         ["overlay-cipher-3", cipher4],
       ]);
 
-      const overlayCipherData = overlayBackground["getOverlayCipherData"]();
+      const overlayCipherData = await overlayBackground["getOverlayCipherData"]();
 
       expect(overlayCipherData).toStrictEqual([
         {
@@ -993,7 +1014,7 @@ describe("OverlayBackground", () => {
     });
 
     it("gets the system theme", async () => {
-      jest.spyOn(overlayBackground["stateService"], "getTheme").mockResolvedValue(ThemeType.System);
+      themeStateService.selectedTheme$ = of(ThemeType.System);
 
       await initOverlayElementPorts({ initList: true, initButton: false });
       await flushPromises();
