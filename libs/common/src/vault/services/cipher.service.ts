@@ -283,7 +283,7 @@ export class CipherService implements CipherServiceAbstraction {
     return response;
   }
 
-  @sequentialize(() => "getAllDecrypted")
+  // @sequentialize(() => "getAllDecrypted")
   async getAllDecrypted(): Promise<CipherView[]> {
     if ((await this.getDecryptedCipherCache()) != null) {
       await this.reindexCiphers();

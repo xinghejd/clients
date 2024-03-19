@@ -11,10 +11,15 @@ import { ActivatedRoute, Params, Router } from "@angular/router";
 import {
   BehaviorSubject,
   combineLatest,
+  defer,
   firstValueFrom,
+  from,
+  interval,
   lastValueFrom,
   Observable,
   Subject,
+  timer,
+  zip,
 } from "rxjs";
 import {
   concatMap,
@@ -228,6 +233,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       this.ngZone.run(async () => {
         switch (message.command) {
           case "syncCompleted":
+            console.log("sync completed", message);
             if (message.successfully) {
               this.refresh();
               this.changeDetectorRef.detectChanges();
@@ -265,7 +271,15 @@ export class VaultComponent implements OnInit, OnDestroy {
     this.currentSearchText$ = this.route.queryParams.pipe(map((queryParams) => queryParams.search));
 
     const ciphers$ = combineLatest([
-      Utils.asyncToObservable(() => this.cipherService.getAllDecrypted()),
+      // zip(from([0, 1]), timer(0, 1000)).pipe(
+      //   switchMap(() => {
+      //     return defer(() => this.cipherService.getAllDecrypted());
+      //   }),
+      // ),
+      defer(() => {
+        console.log("getting all decrypted");
+        return this.cipherService.getAllDecrypted();
+      }),
       filter$,
       this.currentSearchText$,
     ]).pipe(
@@ -279,7 +293,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
         return ciphers.filter(filterFunction);
       }),
-      shareReplay({ refCount: true, bufferSize: 1 }),
+      // shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
     const collections$ = combineLatest([nestedCollections$, filter$, this.currentSearchText$]).pipe(
@@ -366,6 +380,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     firstSetup$
       .pipe(
         switchMap(() => this.refresh$),
+        tap(() => console.log("refresh emitted")),
         tap(() => (this.refreshing = true)),
         switchMap(() =>
           combineLatest([
