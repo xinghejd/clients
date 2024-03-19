@@ -17,11 +17,8 @@ import {
   LoginStrategyServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
-import { EventUploadService } from "@bitwarden/common/abstractions/event/event-upload.service";
 import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
 import { SearchService as SearchServiceAbstraction } from "@bitwarden/common/abstractions/search.service";
-import { SettingsService } from "@bitwarden/common/abstractions/settings.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -42,6 +39,10 @@ import {
   AutofillSettingsService,
   AutofillSettingsServiceAbstraction,
 } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import {
+  DefaultDomainSettingsService,
+  DomainSettingsService,
+} from "@bitwarden/common/autofill/services/domain-settings.service";
 import {
   UserNotificationSettingsService,
   UserNotificationSettingsServiceAbstraction,
@@ -98,7 +99,6 @@ import { DialogService } from "@bitwarden/components";
 import { ImportServiceAbstraction } from "@bitwarden/importer/core";
 import { VaultExportServiceAbstraction } from "@bitwarden/vault-export-core";
 
-import { BrowserOrganizationService } from "../../admin-console/services/browser-organization.service";
 import { UnauthGuardService } from "../../auth/popup/services";
 import { AutofillService } from "../../autofill/services/abstractions/autofill.service";
 import MainBackground from "../../background/main.background";
@@ -118,7 +118,6 @@ import { ForegroundPlatformUtilsService } from "../../platform/services/platform
 import { ForegroundDerivedStateProvider } from "../../platform/state/foreground-derived-state.provider";
 import { ForegroundMemoryStorageService } from "../../platform/storage/foreground-memory-storage.service";
 import { BrowserSendService } from "../../services/browser-send.service";
-import { BrowserSettingsService } from "../../services/browser-settings.service";
 import { FilePopoutUtilsService } from "../../tools/popup/services/file-popout-utils.service";
 import { VaultFilterService } from "../../vault/services/vault-filter.service";
 
@@ -233,7 +232,6 @@ function getBgService<T>(service: keyof MainBackground) {
       deps: [],
     },
     { provide: TotpService, useFactory: getBgService<TotpService>("totpService"), deps: [] },
-    { provide: TokenService, useFactory: getBgService<TokenService>("tokenService"), deps: [] },
     {
       provide: I18nServiceAbstraction,
       useFactory: (globalStateProvider: GlobalStateProvider) => {
@@ -263,16 +261,6 @@ function getBgService<T>(service: keyof MainBackground) {
     {
       provide: DevicesServiceAbstraction,
       useFactory: getBgService<DevicesServiceAbstraction>("devicesService"),
-      deps: [],
-    },
-    {
-      provide: EventUploadService,
-      useFactory: getBgService<EventUploadService>("eventUploadService"),
-      deps: [],
-    },
-    {
-      provide: EventCollectionService,
-      useFactory: getBgService<EventCollectionService>("eventCollectionService"),
       deps: [],
     },
     {
@@ -348,11 +336,9 @@ function getBgService<T>(service: keyof MainBackground) {
     },
     { provide: SyncService, useFactory: getBgService<SyncService>("syncService"), deps: [] },
     {
-      provide: SettingsService,
-      useFactory: (stateService: StateServiceAbstraction) => {
-        return new BrowserSettingsService(stateService);
-      },
-      deps: [StateServiceAbstraction],
+      provide: DomainSettingsService,
+      useClass: DefaultDomainSettingsService,
+      deps: [StateProvider],
     },
     {
       provide: AbstractStorageService,
@@ -400,13 +386,6 @@ function getBgService<T>(service: keyof MainBackground) {
       deps: [],
     },
     {
-      provide: OrganizationService,
-      useFactory: (stateService: StateServiceAbstraction, stateProvider: StateProvider) => {
-        return new BrowserOrganizationService(stateService, stateProvider);
-      },
-      deps: [StateServiceAbstraction, StateProvider],
-    },
-    {
       provide: VaultFilterService,
       useClass: VaultFilterService,
       deps: [
@@ -445,6 +424,7 @@ function getBgService<T>(service: keyof MainBackground) {
         logService: LogServiceAbstraction,
         accountService: AccountServiceAbstraction,
         environmentService: EnvironmentService,
+        tokenService: TokenService,
         migrationRunner: MigrationRunner,
       ) => {
         return new BrowserStateService(
@@ -455,6 +435,7 @@ function getBgService<T>(service: keyof MainBackground) {
           new StateFactory(GlobalState, Account),
           accountService,
           environmentService,
+          tokenService,
           migrationRunner,
         );
       },
@@ -465,6 +446,7 @@ function getBgService<T>(service: keyof MainBackground) {
         LogServiceAbstraction,
         AccountServiceAbstraction,
         EnvironmentService,
+        TokenService,
         MigrationRunner,
       ],
     },

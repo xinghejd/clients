@@ -35,6 +35,7 @@ import {
   PolicyType,
 } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
 import { ProductType } from "@bitwarden/common/enums";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
@@ -143,7 +144,7 @@ export class PeopleComponent
 
   async ngOnInit() {
     const organization$ = this.route.params.pipe(
-      map((params) => this.organizationService.get(params.organizationId)),
+      concatMap((params) => this.organizationService.get$(params.organizationId)),
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
@@ -155,7 +156,7 @@ export class PeopleComponent
       switchMap((organization) => {
         if (organization.isProviderUser) {
           return from(this.policyApiService.getPolicies(organization.id)).pipe(
-            map((response) => this.policyService.mapPoliciesFromToken(response)),
+            map((response) => Policy.fromListResponse(response)),
           );
         }
 
