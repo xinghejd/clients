@@ -47,7 +47,10 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private readonly openViewVaultItemPopout = openViewVaultItemPopout;
   private readonly openAddEditVaultItemPopout = openAddEditVaultItemPopout;
   private overlayLoginCiphers: Map<string, CipherView> = new Map();
-  private pageDetailsForTab: Record<number, PageDetail[]> = {};
+  private pageDetailsForTab: Record<
+    chrome.runtime.MessageSender["tab"]["id"],
+    Map<chrome.runtime.MessageSender["frameId"], PageDetail>
+  > = {};
   private userAuthStatus: AuthenticationStatus = AuthenticationStatus.LoggedOut;
   private overlayButtonPort: chrome.runtime.Port;
   private overlayListPort: chrome.runtime.Port;
@@ -203,12 +206,15 @@ class OverlayBackground implements OverlayBackgroundInterface {
       details: message.details,
     };
 
-    if (this.pageDetailsForTab[sender.tab.id]?.length) {
-      this.pageDetailsForTab[sender.tab.id].push(pageDetails);
+    const pageDetailsMap = this.pageDetailsForTab[sender.tab.id];
+    if (!pageDetailsMap) {
+      this.pageDetailsForTab[sender.tab.id] = new Map([[sender.frameId, pageDetails]]);
       return;
     }
 
-    this.pageDetailsForTab[sender.tab.id] = [pageDetails];
+    if (!pageDetailsMap.has(sender.frameId)) {
+      pageDetailsMap.set(sender.frameId, pageDetails);
+    }
   }
 
   /**
@@ -222,7 +228,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
     { overlayCipherId }: OverlayPortMessage,
     { sender }: chrome.runtime.Port,
   ) {
-    if (!overlayCipherId) {
+    const pageDetails = this.pageDetailsForTab[sender.tab.id];
+    if (!overlayCipherId || !pageDetails?.size) {
       return;
     }
 
@@ -234,7 +241,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
     const totpCode = await this.autofillService.doAutoFill({
       tab: sender.tab,
       cipher: cipher,
-      pageDetails: this.pageDetailsForTab[sender.tab.id],
+      pageDetails: Array.from(pageDetails.values()),
       fillNewPassword: true,
       allowTotpAutofill: true,
     });
