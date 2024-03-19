@@ -1,0 +1,395 @@
+From bfc567c3d12634c1ec5070781cca918e08101576 Mon Sep 17 00:00:00 2001
+From: gbubemismith <gsmithwalter@gmail.com>
+Date: Tue, 27 Feb 2024 15:17:04 -0500
+Subject: [PATCH 1/4] updated vault filter service to make use of collection
+ service
+
+---
+ .../abstractions/vault-filter.service.ts      |  1 -
+ .../services/vault-filter.service.spec.ts     | 25 +++++++++--------
+ .../services/vault-filter.service.ts          | 27 +++++++------------
+ .../vault/individual-vault/vault.component.ts |  4 ---
+ .../vault-filter/vault-filter.service.ts      |  7 +++--
+ .../app/vault/org-vault/vault.component.ts    |  4 ---
+ .../vault/abstractions/collection.service.ts  |  2 ++
+ 7 files changed, 27 insertions(+), 43 deletions(-)
+
+diff --git a/apps/web/src/app/vault/individual-vault/vault-filter/services/abstractions/vault-filter.service.ts b/apps/web/src/app/vault/individual-vault/vault-filter/services/abstractions/vault-filter.service.ts
+index 72be67f7a0a..74e212420d0 100644
+--- a/apps/web/src/app/vault/individual-vault/vault-filter/services/abstractions/vault-filter.service.ts
++++ b/apps/web/src/app/vault/individual-vault/vault-filter/services/abstractions/vault-filter.service.ts
+@@ -20,7 +20,6 @@ export abstract class VaultFilterService {
+   folderTree$: Observable<TreeNode<FolderFilter>>;
+   collectionTree$: Observable<TreeNode<CollectionFilter>>;
+   cipherTypeTree$: Observable<TreeNode<CipherTypeFilter>>;
+-  reloadCollections: (collections: CollectionView[]) => void;
+   getCollectionNodeFromTree: (id: string) => Promise<TreeNode<CollectionFilter>>;
+   setCollapsedFilterNodes: (collapsedFilterNodes: Set<string>) => Promise<void>;
+   expandOrgFilter: () => Promise<void>;
+diff --git a/apps/web/src/app/vault/individual-vault/vault-filter/services/vault-filter.service.spec.ts b/apps/web/src/app/vault/individual-vault/vault-filter/services/vault-filter.service.spec.ts
+index 511da100b51..b3fcdd2d039 100644
+--- a/apps/web/src/app/vault/individual-vault/vault-filter/services/vault-filter.service.spec.ts
++++ b/apps/web/src/app/vault/individual-vault/vault-filter/services/vault-filter.service.spec.ts
+@@ -15,6 +15,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
+ import { Utils } from "@bitwarden/common/platform/misc/utils";
+ import { UserId } from "@bitwarden/common/types/guid";
+ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
++import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
+ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
+ import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
+@@ -31,8 +32,10 @@ describe("vault filter service", () => {
+   let cipherService: MockProxy<CipherService>;
+   let policyService: MockProxy<PolicyService>;
+   let i18nService: MockProxy<I18nService>;
++  let collectionService: MockProxy<CollectionService>;
+   let organizations: ReplaySubject<Organization[]>;
+   let folderViews: ReplaySubject<FolderView[]>;
++  let collectionViews: ReplaySubject<CollectionView[]>;
+   let stateProvider: FakeStateProvider;
+
+   const mockUserId = Utils.newGuid() as UserId;
+@@ -48,12 +51,15 @@ describe("vault filter service", () => {
+     accountService = mockAccountServiceWith(mockUserId);
+     stateProvider = new FakeStateProvider(accountService);
+     i18nService.collator = new Intl.Collator("en-US");
++    collectionService = mock<CollectionService>();
+
+     organizations = new ReplaySubject<Organization[]>(1);
+     folderViews = new ReplaySubject<FolderView[]>(1);
++    collectionViews = new ReplaySubject<CollectionView[]>(1);
+
+     organizationService.memberOrganizations$ = organizations;
+     folderService.folderViews$ = folderViews;
++    collectionService.decryptedCollections$ = collectionViews;
+
+     vaultFilterService = new VaultFilterService(
+       organizationService,
+@@ -62,6 +68,7 @@ describe("vault filter service", () => {
+       policyService,
+       i18nService,
+       stateProvider,
++      collectionService,
+     );
+     collapsedGroupingsState = stateProvider.activeUser.getFake(COLLAPSED_GROUPINGS);
+   });
+@@ -198,7 +205,7 @@ describe("vault filter service", () => {
+         ];
+         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+         // eslint-disable-next-line @typescript-eslint/no-floating-promises
+-        vaultFilterService.reloadCollections(storedCollections);
++        collectionViews.next(storedCollections);
+
+         await expect(firstValueFrom(vaultFilterService.filteredCollections$)).resolves.toEqual([
+           createCollectionView("1", "collection 1", "org test id"),
+@@ -213,9 +220,7 @@ describe("vault filter service", () => {
+           createCollectionView("id-2", "Collection 1/Collection 2", "org test id"),
+           createCollectionView("id-3", "Collection 1/Collection 3", "org test id"),
+         ];
+-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+-        vaultFilterService.reloadCollections(storedCollections);
++        collectionViews.next(storedCollections);
+
+         const result = await firstValueFrom(vaultFilterService.collectionTree$);
+
+@@ -228,9 +233,7 @@ describe("vault filter service", () => {
+           createCollectionView("id-1", "Collection 1", "org test id"),
+           createCollectionView("id-3", "Collection 1/Collection 2/Collection 3", "org test id"),
+         ];
+-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+-        vaultFilterService.reloadCollections(storedCollections);
++        collectionViews.next(storedCollections);
+
+         const result = await firstValueFrom(vaultFilterService.collectionTree$);
+
+@@ -246,9 +249,7 @@ describe("vault filter service", () => {
+           createCollectionView("id-3", "Collection 1/Collection 2/Collection 3", "org test id"),
+           createCollectionView("id-4", "Collection 1/Collection 4", "org test id"),
+         ];
+-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+-        vaultFilterService.reloadCollections(storedCollections);
++        collectionViews.next(storedCollections);
+
+         const result = await firstValueFrom(vaultFilterService.collectionTree$);
+
+@@ -266,9 +267,7 @@ describe("vault filter service", () => {
+           createCollectionView("id-1", "Collection 1", "org test id"),
+           createCollectionView("id-3", "Collection 1/Collection 2/Collection 3", "org test id"),
+         ];
+-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+-        vaultFilterService.reloadCollections(storedCollections);
++        collectionViews.next(storedCollections);
+
+         const result = await firstValueFrom(vaultFilterService.collectionTree$);
+
+diff --git a/apps/web/src/app/vault/individual-vault/vault-filter/services/vault-filter.service.ts b/apps/web/src/app/vault/individual-vault/vault-filter/services/vault-filter.service.ts
+index 9dfc07b5db6..6bedac5bb67 100644
+--- a/apps/web/src/app/vault/individual-vault/vault-filter/services/vault-filter.service.ts
++++ b/apps/web/src/app/vault/individual-vault/vault-filter/services/vault-filter.service.ts
+@@ -1,13 +1,11 @@
+ import { Injectable } from "@angular/core";
+ import {
+   BehaviorSubject,
+-  combineLatest,
+   combineLatestWith,
+   firstValueFrom,
+   map,
+   Observable,
+   of,
+-  ReplaySubject,
+   switchMap,
+ } from "rxjs";
+
+@@ -18,6 +16,7 @@ import { Organization } from "@bitwarden/common/admin-console/models/domain/orga
+ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+ import { ActiveUserState, StateProvider } from "@bitwarden/common/platform/state";
+ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
++import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
+ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+ import { CipherType } from "@bitwarden/common/vault/enums";
+ import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
+@@ -57,17 +56,14 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
+     map((folders) => this.buildFolderTree(folders)),
+   );
+
+-  // TODO: Remove once collections is refactored with observables
+-  // replace with collection service observable
+-  private collectionViews$ = new ReplaySubject<CollectionView[]>(1);
+-  filteredCollections$: Observable<CollectionView[]> = combineLatest([
+-    this.collectionViews$,
+-    this._organizationFilter,
+-  ]).pipe(
+-    switchMap(([collections, org]) => {
+-      return this.filterCollections(collections, org);
+-    }),
+-  );
++  filteredCollections$: Observable<CollectionView[]> =
++    this.collectionService.decryptedCollections$.pipe(
++      combineLatestWith(this._organizationFilter),
++      switchMap(([collections, org]) => {
++        return this.filterCollections(collections, org);
++      }),
++    );
++
+   collectionTree$: Observable<TreeNode<CollectionFilter>> = this.filteredCollections$.pipe(
+     map((collections) => this.buildCollectionTree(collections)),
+   );
+@@ -87,12 +83,9 @@ export class VaultFilterService implements VaultFilterServiceAbstraction {
+     protected policyService: PolicyService,
+     protected i18nService: I18nService,
+     protected stateProvider: StateProvider,
++    protected collectionService: CollectionService,
+   ) {}
+
+-  async reloadCollections(collections: CollectionView[]) {
+-    this.collectionViews$.next(collections);
+-  }
+-
+   async getCollectionNodeFromTree(id: string) {
+     const collections = await firstValueFrom(this.collectionTree$);
+     return ServiceUtils.getTreeNodeObject(collections, id) as TreeNode<CollectionFilter>;
+diff --git a/apps/web/src/app/vault/individual-vault/vault.component.ts b/apps/web/src/app/vault/individual-vault/vault.component.ts
+index 7894677b69c..c35b2234b6b 100644
+--- a/apps/web/src/app/vault/individual-vault/vault.component.ts
++++ b/apps/web/src/app/vault/individual-vault/vault.component.ts
+@@ -407,10 +407,6 @@ export class VaultComponent implements OnInit, OnDestroy {
+             (filter.organizationId === undefined || filter.organizationId === Unassigned);
+           this.isEmpty = collections?.length === 0 && ciphers?.length === 0;
+
+-          // This is a temporary fix to avoid double fetching collections.
+-          // TODO: Remove when implementing new VVR menu
+-          this.vaultFilterService.reloadCollections(allCollections);
+-
+           this.performingInitialLoad = false;
+           this.refreshing = false;
+         },
+diff --git a/apps/web/src/app/vault/org-vault/vault-filter/vault-filter.service.ts b/apps/web/src/app/vault/org-vault/vault-filter/vault-filter.service.ts
+index f82ba945e41..3d6bfb28a71 100644
+--- a/apps/web/src/app/vault/org-vault/vault-filter/vault-filter.service.ts
++++ b/apps/web/src/app/vault/org-vault/vault-filter/vault-filter.service.ts
+@@ -6,6 +6,7 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
+ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+ import { StateProvider } from "@bitwarden/common/platform/state";
+ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
++import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
+ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
+ import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
+
+@@ -32,6 +33,7 @@ export class VaultFilterService extends BaseVaultFilterService implements OnDest
+     policyService: PolicyService,
+     i18nService: I18nService,
+     stateProvider: StateProvider,
++    collectionService: CollectionService,
+     protected collectionAdminService: CollectionAdminService,
+   ) {
+     super(
+@@ -41,13 +43,10 @@ export class VaultFilterService extends BaseVaultFilterService implements OnDest
+       policyService,
+       i18nService,
+       stateProvider,
++      collectionService,
+     );
+   }
+
+-  async reloadCollections(collections: CollectionAdminView[]) {
+-    this._collections.next(collections);
+-  }
+-
+   ngOnDestroy() {
+     this.destroy$.next();
+     this.destroy$.complete();
+diff --git a/apps/web/src/app/vault/org-vault/vault.component.ts b/apps/web/src/app/vault/org-vault/vault.component.ts
+index fa8c376630e..abce7b22d85 100644
+--- a/apps/web/src/app/vault/org-vault/vault.component.ts
++++ b/apps/web/src/app/vault/org-vault/vault.component.ts
+@@ -571,10 +571,6 @@ export class VaultComponent implements OnInit, OnDestroy {
+
+           this.isEmpty = collections?.length === 0 && ciphers?.length === 0;
+
+-          // This is a temporary fix to avoid double fetching collections.
+-          // TODO: Remove when implementing new VVR menu
+-          this.vaultFilterService.reloadCollections(allCollections);
+-
+           this.refreshing = false;
+           this.performingInitialLoad = false;
+         },
+diff --git a/libs/common/src/vault/abstractions/collection.service.ts b/libs/common/src/vault/abstractions/collection.service.ts
+index ab606153292..87ce8edf435 100644
+--- a/libs/common/src/vault/abstractions/collection.service.ts
++++ b/libs/common/src/vault/abstractions/collection.service.ts
+@@ -7,6 +7,8 @@ import { TreeNode } from "../models/domain/tree-node";
+ import { CollectionView } from "../models/view/collection.view";
+
+ export abstract class CollectionService {
++  decryptedCollections$: Observable<CollectionView[]>;
++
+   clearActiveUserCache: () => Promise<void>;
+   encrypt: (model: CollectionView) => Promise<Collection>;
+   decryptedCollectionViews$: (ids: CollectionId[]) => Observable<CollectionView[]>;
+
+From 922ee8806aa38ddf0070f48f63e0eb44cda1af54 Mon Sep 17 00:00:00 2001
+From: gbubemismith <gsmithwalter@gmail.com>
+Date: Tue, 27 Feb 2024 19:07:34 -0500
+Subject: [PATCH 2/4] removed fix me
+
+---
+ .../vault-filter/services/vault-filter.service.spec.ts          | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/apps/web/src/app/vault/individual-vault/vault-filter/services/vault-filter.service.spec.ts b/apps/web/src/app/vault/individual-vault/vault-filter/services/vault-filter.service.spec.ts
+index b3fcdd2d039..e5938b51979 100644
+--- a/apps/web/src/app/vault/individual-vault/vault-filter/services/vault-filter.service.spec.ts
++++ b/apps/web/src/app/vault/individual-vault/vault-filter/services/vault-filter.service.spec.ts
+@@ -203,8 +203,6 @@ describe("vault filter service", () => {
+           createCollectionView("1", "collection 1", "org test id"),
+           createCollectionView("2", "collection 2", "non matching org id"),
+         ];
+-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+         collectionViews.next(storedCollections);
+
+         await expect(firstValueFrom(vaultFilterService.filteredCollections$)).resolves.toEqual([
+
+From fa0f6a2f10588dd1dcef8077f1d649af81e3eedb Mon Sep 17 00:00:00 2001
+From: gbubemismith <gsmithwalter@gmail.com>
+Date: Fri, 8 Mar 2024 18:36:01 -0500
+Subject: [PATCH 3/4] reverted to use reload collections on org vault as
+ collection admin service does not support state management yet
+
+---
+ .../services/abstractions/vault-filter.service.ts           | 3 +++
+ .../vault/org-vault/vault-filter/vault-filter.service.ts    | 6 ++++--
+ apps/web/src/app/vault/org-vault/vault.component.ts         | 4 ++++
+ 3 files changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/apps/web/src/app/vault/individual-vault/vault-filter/services/abstractions/vault-filter.service.ts b/apps/web/src/app/vault/individual-vault/vault-filter/services/abstractions/vault-filter.service.ts
+index 74e212420d0..fb373c19486 100644
+--- a/apps/web/src/app/vault/individual-vault/vault-filter/services/abstractions/vault-filter.service.ts
++++ b/apps/web/src/app/vault/individual-vault/vault-filter/services/abstractions/vault-filter.service.ts
+@@ -5,6 +5,7 @@ import { CollectionView } from "@bitwarden/common/src/vault/models/view/collecti
+ import { FolderView } from "@bitwarden/common/src/vault/models/view/folder.view";
+ import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
+
++import { CollectionAdminView } from "../../../../core/views/collection-admin.view";
+ import {
+   CipherTypeFilter,
+   CollectionFilter,
+@@ -29,4 +30,6 @@ export abstract class VaultFilterService {
+     head: CipherTypeFilter,
+     array: CipherTypeFilter[],
+   ) => Observable<TreeNode<CipherTypeFilter>>;
++  // TODO: Remove this from org vault when collection admin service adopts state management for collections
++  reloadCollections?: (collections: CollectionAdminView[]) => void;
+ }
+diff --git a/apps/web/src/app/vault/org-vault/vault-filter/vault-filter.service.ts b/apps/web/src/app/vault/org-vault/vault-filter/vault-filter.service.ts
+index 3d6bfb28a71..c6d4ee590b8 100644
+--- a/apps/web/src/app/vault/org-vault/vault-filter/vault-filter.service.ts
++++ b/apps/web/src/app/vault/org-vault/vault-filter/vault-filter.service.ts
+@@ -11,7 +11,6 @@ import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folde
+ import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
+
+ import { CollectionAdminView } from "../../../vault/core/views/collection-admin.view";
+-import { CollectionAdminService } from "../../core/collection-admin.service";
+ import { VaultFilterService as BaseVaultFilterService } from "../../individual-vault/vault-filter/services/vault-filter.service";
+ import { CollectionFilter } from "../../individual-vault/vault-filter/shared/models/vault-filter.type";
+
+@@ -34,7 +33,6 @@ export class VaultFilterService extends BaseVaultFilterService implements OnDest
+     i18nService: I18nService,
+     stateProvider: StateProvider,
+     collectionService: CollectionService,
+-    protected collectionAdminService: CollectionAdminService,
+   ) {
+     super(
+       organizationService,
+@@ -47,6 +45,10 @@ export class VaultFilterService extends BaseVaultFilterService implements OnDest
+     );
+   }
+
++  async reloadCollections(collections: CollectionAdminView[]) {
++    this._collections.next(collections);
++  }
++
+   ngOnDestroy() {
+     this.destroy$.next();
+     this.destroy$.complete();
+diff --git a/apps/web/src/app/vault/org-vault/vault.component.ts b/apps/web/src/app/vault/org-vault/vault.component.ts
+index abce7b22d85..fa8c376630e 100644
+--- a/apps/web/src/app/vault/org-vault/vault.component.ts
++++ b/apps/web/src/app/vault/org-vault/vault.component.ts
+@@ -571,6 +571,10 @@ export class VaultComponent implements OnInit, OnDestroy {
+
+           this.isEmpty = collections?.length === 0 && ciphers?.length === 0;
+
++          // This is a temporary fix to avoid double fetching collections.
++          // TODO: Remove when implementing new VVR menu
++          this.vaultFilterService.reloadCollections(allCollections);
++
+           this.refreshing = false;
+           this.performingInitialLoad = false;
+         },
+
+From 079ce6bb33204ee2e41b85aaade4d5aebdac9c02 Mon Sep 17 00:00:00 2001
+From: gbubemismith <gsmithwalter@gmail.com>
+Date: Fri, 8 Mar 2024 18:40:09 -0500
+Subject: [PATCH 4/4] fixed statement
+
+---
+ .../vault-filter/services/abstractions/vault-filter.service.ts  | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/apps/web/src/app/vault/individual-vault/vault-filter/services/abstractions/vault-filter.service.ts b/apps/web/src/app/vault/individual-vault/vault-filter/services/abstractions/vault-filter.service.ts
+index fb373c19486..3f8a0fb99d5 100644
+--- a/apps/web/src/app/vault/individual-vault/vault-filter/services/abstractions/vault-filter.service.ts
++++ b/apps/web/src/app/vault/individual-vault/vault-filter/services/abstractions/vault-filter.service.ts
+@@ -30,6 +30,6 @@ export abstract class VaultFilterService {
+     head: CipherTypeFilter,
+     array: CipherTypeFilter[],
+   ) => Observable<TreeNode<CipherTypeFilter>>;
+-  // TODO: Remove this from org vault when collection admin service adopts state management for collections
++  // TODO: Remove this from org vault when collection admin service adopts state management
+   reloadCollections?: (collections: CollectionAdminView[]) => void;
+ }

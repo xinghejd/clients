@@ -1,5 +1,5 @@
 import * as bigInt from "big-integer";
-import { Observable, firstValueFrom, map } from "rxjs";
+import { Observable, filter, firstValueFrom, map, tap } from "rxjs";
 
 import { EncryptedOrganizationKeyData } from "../../admin-console/models/data/encrypted-organization-key.data";
 import { ProfileOrganizationResponse } from "../../admin-console/models/response/profile-organization.response";
@@ -122,18 +122,43 @@ export class CryptoService implements CryptoServiceAbstraction {
       USER_ENCRYPTED_ORGANIZATION_KEYS,
     );
     this.activeUserOrgKeysState = stateProvider.getDerived(
-      this.activeUserEncryptedOrgKeysState.state$,
+      this.activeUserEncryptedOrgKeysState.state$.pipe(
+        // Null is never a valid value for org keys, even if the user is in no orgs there value should become `{}`
+        // if we have a null we expect a valid value to become set soon.
+        filter((keys) => keys != null),
+        tap({
+          subscribe: () => console.log("subscribe on encrypted org keys"),
+          next: (d) => console.log("next on encrypted org keys", d),
+          error: (err) => console.log("error on encrypted org keys", err),
+          finalize: () => console.log("finalize on encrypted org keys"),
+          complete: () => console.log("complete on encrypted org keys"),
+          unsubscribe: () => console.log("unsubscribe on encrypted org keys"),
+        }),
+      ),
       USER_ORGANIZATION_KEYS,
       { cryptoService: this },
     );
-    this.activeUserOrgKeys$ = this.activeUserOrgKeysState.state$; // null handled by `derive` function
+    this.activeUserOrgKeys$ = this.activeUserOrgKeysState.state$.pipe(
+      tap({
+        subscribe: () => console.log("subscribe on decrypted org keys"),
+        next: (d) => console.log("next on decrypted org keys", d),
+        error: (err) => console.log("error on decrypted org keys", err),
+        finalize: () => console.log("finalize on decrypted org keys"),
+        complete: () => console.log("complete on decrypted org keys"),
+        unsubscribe: () => console.log("unsubscribe on decrypted org keys"),
+      }),
+    ); // null handled by `derive` function
 
     // Provider keys
     this.activeUserEncryptedProviderKeysState = stateProvider.getActive(
       USER_ENCRYPTED_PROVIDER_KEYS,
     );
     this.activeUserProviderKeysState = stateProvider.getDerived(
-      this.activeUserEncryptedProviderKeysState.state$,
+      this.activeUserEncryptedProviderKeysState.state$.pipe(
+        // Null is never a valid value for org keys, even if the user is in no orgs there value should become `{}`
+        // if we have a null we expect a valid value to become set soon.
+        filter((keys) => keys != null),
+      ),
       USER_PROVIDER_KEYS,
       { encryptService: this.encryptService, cryptoService: this },
     );
@@ -420,9 +445,8 @@ export class CryptoService implements CryptoServiceAbstraction {
     orgs: ProfileOrganizationResponse[] = [],
     providerOrgs: ProfileProviderOrganizationResponse[] = [],
   ): Promise<void> {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.activeUserEncryptedOrgKeysState.update((_) => {
+    console.log("setting org keys", orgs, providerOrgs);
+    await this.activeUserEncryptedOrgKeysState.update((_) => {
       const encOrgKeyData: { [orgId: string]: EncryptedOrganizationKeyData } = {};
 
       orgs.forEach((org) => {
@@ -445,7 +469,10 @@ export class CryptoService implements CryptoServiceAbstraction {
   }
 
   async getOrgKey(orgId: OrganizationId): Promise<OrgKey> {
-    return (await firstValueFrom(this.activeUserOrgKeys$))[orgId];
+    console.log("getting org key", orgId);
+    const value = (await firstValueFrom(this.activeUserOrgKeys$))[orgId];
+    console.log("returning org key", orgId, value);
+    return value;
   }
 
   @sequentialize(() => "getOrgKeys")

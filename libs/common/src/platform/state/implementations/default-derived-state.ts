@@ -48,6 +48,7 @@ export class DefaultDerivedState<TFrom, TTo, TDeps extends DerivedStateDependenc
           timer(this.deriveDefinition.cleanupDelayMs).pipe(
             concatMap(async () => {
               if (this.deriveDefinition.clearOnCleanup) {
+                console.log("running cleanup", this.storageKey);
                 await this.memoryStorage.remove(this.storageKey);
               }
               return true;
