@@ -134,6 +134,8 @@ import {
 } from "@bitwarden/common/tools/password-strength";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
+import { SendService } from "@bitwarden/common/tools/send/services/send.service";
 import { InternalSendService as InternalSendServiceAbstraction } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -204,7 +206,6 @@ import { BrowserStateService } from "../platform/services/browser-state.service"
 import { LocalBackedSessionStorageService } from "../platform/services/local-backed-session-storage.service";
 import { BackgroundDerivedStateProvider } from "../platform/state/background-derived-state.provider";
 import { BackgroundMemoryStorageService } from "../platform/storage/background-memory-storage.service";
-import { BrowserSendService } from "../services/browser-send.service";
 import { BrowserSettingsService } from "../services/browser-settings.service";
 import VaultTimeoutService from "../services/vault-timeout/vault-timeout.service";
 import FilelessImporterBackground from "../tools/background/fileless-importer.background";
@@ -263,6 +264,7 @@ export default class MainBackground {
   eventUploadService: EventUploadServiceAbstraction;
   policyService: InternalPolicyServiceAbstraction;
   sendService: InternalSendServiceAbstraction;
+  sendStateProvider: SendStateProvider;
   fileUploadService: FileUploadServiceAbstraction;
   cipherFileUploadService: CipherFileUploadServiceAbstraction;
   organizationService: InternalOrganizationServiceAbstraction;
@@ -680,11 +682,13 @@ export default class MainBackground {
       logoutCallback,
     );
     this.containerService = new ContainerService(this.cryptoService, this.encryptService);
-    this.sendService = new BrowserSendService(
+    this.sendStateProvider = new SendStateProvider(this.stateProvider);
+    this.sendService = new SendService(
       this.cryptoService,
       this.i18nService,
       this.keyGenerationService,
-      this.stateService,
+      this.sendStateProvider,
+      this.accountService,
     );
     this.sendApiService = new SendApiService(
       this.apiService,

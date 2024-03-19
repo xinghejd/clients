@@ -53,7 +53,6 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { FileUploadService } from "@bitwarden/common/platform/abstractions/file-upload/file-upload.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import {
   LogService,
   LogService as LogServiceAbstraction,
@@ -119,7 +118,6 @@ import BrowserMessagingService from "../../platform/services/browser-messaging.s
 import { BrowserStateService } from "../../platform/services/browser-state.service";
 import { ForegroundDerivedStateProvider } from "../../platform/state/foreground-derived-state.provider";
 import { ForegroundMemoryStorageService } from "../../platform/storage/foreground-memory-storage.service";
-import { BrowserSendService } from "../../services/browser-send.service";
 import { BrowserSettingsService } from "../../services/browser-settings.service";
 import { FilePopoutUtilsService } from "../../tools/popup/services/file-popout-utils.service";
 import { VaultFilterService } from "../../vault/services/vault-filter.service";
@@ -307,23 +305,6 @@ function getBgService<T>(service: keyof MainBackground) {
       provide: PasswordGenerationServiceAbstraction,
       useFactory: getBgService<PasswordGenerationServiceAbstraction>("passwordGenerationService"),
       deps: [],
-    },
-    {
-      provide: SendService,
-      useFactory: (
-        cryptoService: CryptoService,
-        i18nService: I18nServiceAbstraction,
-        keyGenerationService: KeyGenerationService,
-        stateServiceAbstraction: StateServiceAbstraction,
-      ) => {
-        return new BrowserSendService(
-          cryptoService,
-          i18nService,
-          keyGenerationService,
-          stateServiceAbstraction,
-        );
-      },
-      deps: [CryptoService, I18nServiceAbstraction, KeyGenerationService, StateServiceAbstraction],
     },
     {
       provide: InternalSendServiceAbstraction,
