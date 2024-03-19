@@ -150,7 +150,7 @@ export abstract class StateProvider {
 
   /** @see{@link GlobalStateProvider.get} */
   getGlobal: <T>(keyDefinition: KeyDefinition<T>) => GlobalState<T>;
-  getDerived: <TFrom, TTo, TDeps extends DerivedStateDependencies>(
+  getDerived: <TFrom, TTo, TDeps extends DerivedStateDependencies<TTo>>(
     parentState$: Observable<TFrom>,
     deriveDefinition: DeriveDefinition<TFrom, TTo, TDeps>,
     dependencies: TDeps,

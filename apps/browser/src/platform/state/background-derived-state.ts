@@ -15,14 +15,13 @@ import { BrowserApi } from "../browser/browser-api";
 export class BackgroundDerivedState<
   TFrom,
   TTo,
-  TDeps extends DerivedStateDependencies,
-  TIncludePrevious extends boolean,
-> extends DefaultDerivedState<TFrom, TTo, TDeps, TIncludePrevious> {
+  TDeps extends DerivedStateDependencies<TTo>,
+> extends DefaultDerivedState<TFrom, TTo, TDeps> {
   private portSubscriptions: Map<chrome.runtime.Port, Subscription> = new Map();
 
   constructor(
     parentState$: Observable<TFrom>,
-    deriveDefinition: DeriveDefinition<TFrom, TTo, TDeps, TIncludePrevious>,
+    deriveDefinition: DeriveDefinition<TFrom, TTo, TDeps>,
     memoryStorage: AbstractStorageService & ObservableStorageService,
     dependencies: TDeps,
   ) {

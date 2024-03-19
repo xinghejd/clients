@@ -73,7 +73,7 @@ export class DefaultStateProvider implements StateProvider {
   getGlobal: InstanceType<typeof GlobalStateProvider>["get"] = this.globalStateProvider.get.bind(
     this.globalStateProvider,
   );
-  getDerived: <TFrom, TTo, TDeps extends DerivedStateDependencies>(
+  getDerived: <TFrom, TTo, TDeps extends DerivedStateDependencies<TTo>>(
     parentState$: Observable<TFrom>,
     deriveDefinition: DeriveDefinition<unknown, TTo, TDeps>,
     dependencies: TDeps,

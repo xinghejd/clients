@@ -17,7 +17,7 @@ export abstract class DerivedStateProvider {
    * well as some memory persistent information.
    * @param dependencies The dependencies of the derive function
    */
-  get: <TFrom, TTo, TDeps extends DerivedStateDependencies>(
+  get: <TFrom, TTo, TDeps extends DerivedStateDependencies<TTo>>(
     parentState$: Observable<TFrom>,
     deriveDefinition: DeriveDefinition<TFrom, TTo, TDeps>,
     dependencies: TDeps,

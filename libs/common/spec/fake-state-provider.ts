@@ -225,7 +225,7 @@ export class FakeStateProvider implements StateProvider {
     return this.singleUser.get(userId, keyDefinition);
   }
 
-  getDerived<TFrom, TTo, TDeps extends DerivedStateDependencies>(
+  getDerived<TFrom, TTo, TDeps extends DerivedStateDependencies<TTo>>(
     parentState$: Observable<TFrom>,
     deriveDefinition: DeriveDefinition<unknown, TTo, TDeps>,
     dependencies: TDeps,
@@ -244,7 +244,7 @@ export class FakeStateProvider implements StateProvider {
 
 export class FakeDerivedStateProvider implements DerivedStateProvider {
   states: Map<string, DerivedState<unknown>> = new Map();
-  get<TFrom, TTo, TDeps extends DerivedStateDependencies>(
+  get<TFrom, TTo, TDeps extends DerivedStateDependencies<TTo>>(
     parentState$: Observable<TFrom>,
     deriveDefinition: DeriveDefinition<TFrom, TTo, TDeps>,
     dependencies: TDeps,

@@ -13,12 +13,8 @@ type MemoryStoreType<T> = { derived: true; value: T };
 /**
  * Default derived state
  */
-export class DefaultDerivedState<
-  TFrom,
-  TTo,
-  TDeps extends DerivedStateDependencies,
-  TIncludePrevious extends boolean,
-> implements DerivedState<TTo>
+export class DefaultDerivedState<TFrom, TTo, TDeps extends DerivedStateDependencies<TTo>>
+  implements DerivedState<TTo>
 {
   private readonly storageKey: string;
   private forcedValueSubject = new Subject<TTo>();
@@ -27,15 +23,16 @@ export class DefaultDerivedState<
 
   constructor(
     private parentState$: Observable<TFrom>,
-    protected deriveDefinition: DeriveDefinition<TFrom, TTo, TDeps, TIncludePrevious>,
+    protected deriveDefinition: DeriveDefinition<TFrom, TTo, TDeps>,
     private memoryStorage: AbstractStorageService & ObservableStorageService,
-    dependencies: TDeps,
+    dependencies: Omit<TDeps, "previousState">,
   ) {
     this.storageKey = deriveDefinition.storageKey;
 
     const derivedState$ = this.parentState$.pipe(
       concatMap(async (state) => {
-        const deps: TDeps & { previousState: TTo } = { ...dependencies, previousState: undefined };
+        // Must force types here since `Omit` doesn't know we `previousState` is constrained to `TTo | undefined`
+        const deps = { ...dependencies, previousState: undefined } as TDeps;
         if (deriveDefinition.includePreviousDerivedState) {
           deps.previousState = await this.retrieveValue();
         }

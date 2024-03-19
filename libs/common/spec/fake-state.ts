@@ -205,7 +205,7 @@ export class FakeActiveUserState<T> implements ActiveUserState<T> {
   }
 }
 
-export class FakeDerivedState<TFrom, TTo, TDeps extends DerivedStateDependencies>
+export class FakeDerivedState<TFrom, TTo, TDeps extends DerivedStateDependencies<TTo>>
   implements DerivedState<TTo>
 {
   // eslint-disable-next-line rxjs/no-exposed-subjects -- exposed for testing setup

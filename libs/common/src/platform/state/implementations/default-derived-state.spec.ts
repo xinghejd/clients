@@ -6,7 +6,6 @@ import { Subject, firstValueFrom } from "rxjs";
 
 import { awaitAsync, trackEmissions } from "../../../../spec";
 import { FakeStorageService } from "../../../../spec/fake-storage.service";
-import { DerivedStateDependencies } from "../../../types/state";
 import { DeriveDefinition } from "../derive-definition";
 import { StateDefinition } from "../state-definition";
 
@@ -15,7 +14,7 @@ import { DefaultDerivedState } from "./default-derived-state";
 let callCount = 0;
 const cleanupDelayMs = 10;
 const stateDefinition = new StateDefinition("test", "memory");
-const deriveDefinition = new DeriveDefinition<string, Date, { date: Date }, false>(
+const deriveDefinition = new DeriveDefinition<string, Date, { date: Date }>(
   stateDefinition,
   "test",
   {
@@ -25,16 +24,20 @@ const deriveDefinition = new DeriveDefinition<string, Date, { date: Date }, fals
     },
     deserializer: (dateString: string) => new Date(dateString),
     cleanupDelayMs,
+    includePreviousDerivedState: false,
   },
 );
 
 describe("DefaultDerivedState with included previous value", () => {
   let parentState$: Subject<string>;
 
-  const deriveDefinition = new DeriveDefinition<string, Date, DerivedStateDependencies, true>(
-    stateDefinition,
-    "test",
-    {
+  beforeEach(() => {
+    callCount = 0;
+    parentState$ = new Subject();
+  });
+
+  it("should return the previous state when includePreviousDerivedState is set", async () => {
+    const deriveDefinition = new DeriveDefinition(stateDefinition, "test", {
       derive: (dateString: string, deps: { previousState: Date }) => {
         callCount++;
         return deps.previousState;
@@ -42,18 +45,14 @@ describe("DefaultDerivedState with included previous value", () => {
       deserializer: (dateString: string) => new Date(dateString),
       cleanupDelayMs,
       includePreviousDerivedState: true,
-    },
-  );
-  let sut: DefaultDerivedState<string, Date, Record<string, unknown>, true>;
+    });
+    const sut = new DefaultDerivedState(
+      parentState$,
+      deriveDefinition,
+      new FakeStorageService(),
+      {},
+    );
 
-  beforeEach(() => {
-    callCount = 0;
-    parentState$ = new Subject();
-
-    sut = new DefaultDerivedState(parentState$, deriveDefinition, new FakeStorageService(), {});
-  });
-
-  it("should return the previous state", async () => {
     await sut.forceValue(new Date("2020-01-01"));
 
     const emissions = trackEmissions(sut.state$);
@@ -64,12 +63,42 @@ describe("DefaultDerivedState with included previous value", () => {
 
     expect(emissions).toEqual([new Date("2020-01-01")]);
   });
+
+  it("should not include previous state when includePreviousDerivedState is not set", async () => {
+    // This test showcases an unfortunate part of the type system. We need a _real_ instance of the `includePreviosDerivedState` boolean
+    // to be able to test this. The actual value is fully constrained by the types system, but the derived state logic cannot
+    // use types to determine whether or not to await previous state, because types are stripped at execution time.
+    const deriveDefinition = new DeriveDefinition(stateDefinition, "test", {
+      derive: (dateString: string, deps: { previousState: Date }) => {
+        callCount++;
+        return deps.previousState;
+      },
+      deserializer: (dateString: string) => new Date(dateString),
+      cleanupDelayMs,
+    });
+    const sut = new DefaultDerivedState(
+      parentState$,
+      deriveDefinition,
+      new FakeStorageService(),
+      {},
+    );
+
+    await sut.forceValue(new Date("2020-01-01"));
+
+    const emissions = trackEmissions(sut.state$);
+
+    parentState$.next("2020-01-02");
+
+    await awaitAsync();
+
+    expect(emissions).toEqual([undefined]);
+  });
 });
 
 describe("DefaultDerivedState", () => {
   let parentState$: Subject<string>;
   let memoryStorage: FakeStorageService;
-  let sut: DefaultDerivedState<string, Date, { date: Date }, false>;
+  let sut: DefaultDerivedState<string, Date, { date: Date }>;
   const deps = {
     date: new Date(),
   };

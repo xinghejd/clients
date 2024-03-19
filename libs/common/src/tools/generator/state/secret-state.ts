@@ -95,7 +95,7 @@ export class SecretState<Plaintext extends object, Disclosed>
     const encryptedState = provider.getUser(userId, secretKey);
 
     // construct plaintext store
-    const plaintextDefinition = DeriveDefinition.from<ClassifiedFormat<Disclosed>, TFrom>(
+    const plaintextDefinition = DeriveDefinition.from<ClassifiedFormat<Disclosed>, TFrom, never>(
       secretKey,
       {
         derive: async (from) => {
