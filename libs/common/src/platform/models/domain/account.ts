@@ -1,12 +1,11 @@
 import { Jsonify } from "type-fest";
 
-import { OrganizationData } from "../../../admin-console/models/data/organization.data";
 import { AdminAuthRequestStorable } from "../../../auth/models/domain/admin-auth-req-storable";
 import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
 import { KeyConnectorUserDecryptionOption } from "../../../auth/models/domain/user-decryption-options/key-connector-user-decryption-option";
 import { TrustedDeviceUserDecryptionOption } from "../../../auth/models/domain/user-decryption-options/trusted-device-user-decryption-option";
 import { IdentityTokenResponse } from "../../../auth/models/response/identity-token.response";
-import { EventData } from "../../../models/data/event.data";
+import { UriMatchStrategySetting } from "../../../models/domain/domain-service";
 import { GeneratorOptions } from "../../../tools/generator/generator-options";
 import {
   GeneratedPasswordHistory,
@@ -15,7 +14,6 @@ import {
 import { UsernameGeneratorOptions } from "../../../tools/generator/username/username-generation-options";
 import { DeepJsonify } from "../../../types/deep-jsonify";
 import { MasterKey } from "../../../types/key";
-import { UriMatchType } from "../../../vault/enums";
 import { CipherData } from "../../../vault/models/data/cipher.data";
 import { CipherView } from "../../../vault/models/view/cipher.view";
 import { AddEditCipherInfo } from "../../../vault/types/add-edit-cipher-info";
@@ -87,8 +85,6 @@ export class AccountData {
     GeneratedPasswordHistory[]
   > = new EncryptionPair<GeneratedPasswordHistory[], GeneratedPasswordHistory[]>();
   addEditCipherInfo?: AddEditCipherInfo;
-  eventCollection?: EventData[];
-  organizations?: { [id: string]: OrganizationData };
 
   static fromJSON(obj: DeepJsonify<AccountData>): AccountData {
     if (obj == null) {
@@ -109,7 +105,6 @@ export class AccountKeys {
   masterKeyEncryptedUserKey?: string;
   deviceKey?: ReturnType<SymmetricCryptoKey["toJSON"]>;
   publicKey?: Uint8Array;
-  apiKeyClientSecret?: string;
 
   /** @deprecated July 2023, left for migration purposes*/
   cryptoMasterKey?: SymmetricCryptoKey;
@@ -164,15 +159,12 @@ export class AccountKeys {
 }
 
 export class AccountProfile {
-  apiKeyClientId?: string;
   convertAccountToKeyConnector?: boolean;
   name?: string;
   email?: string;
   emailVerified?: boolean;
   everBeenUnlocked?: boolean;
   forceSetPasswordReason?: ForceSetPasswordReason;
-  hasPremiumPersonally?: boolean;
-  hasPremiumFromOrganization?: boolean;
   lastSync?: string;
   userId?: string;
   usesKeyConnector?: boolean;
@@ -192,14 +184,10 @@ export class AccountProfile {
 }
 
 export class AccountSettings {
-  autoConfirmFingerPrints?: boolean;
-  defaultUriMatch?: UriMatchType;
+  defaultUriMatch?: UriMatchStrategySetting;
   disableGa?: boolean;
-  dontShowCardsCurrentTab?: boolean;
-  dontShowIdentitiesCurrentTab?: boolean;
   enableAlwaysOnTop?: boolean;
   enableBiometric?: boolean;
-  equivalentDomains?: any;
   minimizeOnCopyToClipboard?: boolean;
   passwordGenerationOptions?: PasswordGeneratorOptions;
   usernameGenerationOptions?: UsernameGeneratorOptions;
@@ -207,7 +195,6 @@ export class AccountSettings {
   pinKeyEncryptedUserKey?: EncryptedString;
   pinKeyEncryptedUserKeyEphemeral?: EncryptedString;
   protectedPin?: string;
-  settings?: AccountSettingsSettings; // TODO: Merge whatever is going on here into the AccountSettings model properly
   vaultTimeout?: number;
   vaultTimeoutAction?: string = "lock";
   serverConfig?: ServerConfigData;
@@ -233,13 +220,7 @@ export class AccountSettings {
   }
 }
 
-export type AccountSettingsSettings = {
-  equivalentDomains?: string[][];
-};
-
 export class AccountTokens {
-  accessToken?: string;
-  refreshToken?: string;
   securityStamp?: string;
 
   static fromJSON(obj: Jsonify<AccountTokens>): AccountTokens {

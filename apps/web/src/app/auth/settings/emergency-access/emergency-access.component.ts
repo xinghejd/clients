@@ -1,8 +1,10 @@
 import { Component, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
-import { lastValueFrom } from "rxjs";
+import { lastValueFrom, Observable, firstValueFrom } from "rxjs";
 
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -44,7 +46,7 @@ export class EmergencyAccessComponent implements OnInit {
   confirmModalRef: ViewContainerRef;
 
   loaded = false;
-  canAccessPremium: boolean;
+  canAccessPremium$: Observable<boolean>;
   trustedContacts: GranteeEmergencyAccess[];
   grantedContacts: GrantorEmergencyAccess[];
   emergencyAccessType = EmergencyAccessType;
@@ -62,10 +64,13 @@ export class EmergencyAccessComponent implements OnInit {
     private stateService: StateService,
     private organizationService: OrganizationService,
     protected dialogService: DialogService,
-  ) {}
+    billingAccountProfileStateService: BillingAccountProfileStateService,
+    protected organizationManagementPreferencesService: OrganizationManagementPreferencesService,
+  ) {
+    this.canAccessPremium$ = billingAccountProfileStateService.hasPremiumFromAnySource$;
+  }
 
   async ngOnInit() {
-    this.canAccessPremium = await this.stateService.getCanAccessPremium();
     const orgs = await this.organizationService.getAll();
     this.isOrganizationOwner = orgs.some((o) => o.isOwner);
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
@@ -80,18 +85,21 @@ export class EmergencyAccessComponent implements OnInit {
   }
 
   async premiumRequired() {
-    if (!this.canAccessPremium) {
+    const canAccessPremium = await firstValueFrom(this.canAccessPremium$);
+
+    if (!canAccessPremium) {
       this.messagingService.send("premiumRequired");
       return;
     }
   }
 
   edit = async (details: GranteeEmergencyAccess) => {
+    const canAccessPremium = await firstValueFrom(this.canAccessPremium$);
     const dialogRef = EmergencyAccessAddEditComponent.open(this.dialogService, {
       data: {
         name: this.userNamePipe.transform(details),
         emergencyAccessId: details?.id,
-        readOnly: !this.canAccessPremium,
+        readOnly: !canAccessPremium,
       },
     });
 
@@ -130,7 +138,9 @@ export class EmergencyAccessComponent implements OnInit {
       return;
     }
 
-    const autoConfirm = await this.stateService.getAutoConfirmFingerPrints();
+    const autoConfirm = await firstValueFrom(
+      this.organizationManagementPreferencesService.autoConfirmFingerPrints.state$,
+    );
     if (autoConfirm == null || !autoConfirm) {
       const dialogRef = EmergencyAccessConfirmComponent.open(this.dialogService, {
         data: {

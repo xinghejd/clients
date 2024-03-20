@@ -7,6 +7,7 @@ import {
   STATE_SERVICE_USE_CACHE,
 } from "@bitwarden/angular/services/injection-tokens";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
@@ -32,6 +33,7 @@ export class StateService extends BaseStateService<GlobalState, Account> {
     @Inject(STATE_FACTORY) stateFactory: StateFactory<GlobalState, Account>,
     accountService: AccountService,
     environmentService: EnvironmentService,
+    tokenService: TokenService,
     migrationRunner: MigrationRunner,
     @Inject(STATE_SERVICE_USE_CACHE) useAccountCache = true,
   ) {
@@ -43,6 +45,7 @@ export class StateService extends BaseStateService<GlobalState, Account> {
       stateFactory,
       accountService,
       environmentService,
+      tokenService,
       migrationRunner,
       useAccountCache,
     );
