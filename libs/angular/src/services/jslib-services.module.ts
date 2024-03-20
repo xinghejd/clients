@@ -488,6 +488,11 @@ import { ModalService } from "./modal.service";
       ],
     },
     {
+      provide: SendStateProviderAbstraction,
+      useClass: SendStateProvider,
+      deps: [StateProvider],
+    },
+    {
       provide: SendServiceAbstraction,
       useClass: SendService,
       deps: [
