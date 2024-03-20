@@ -7,18 +7,19 @@ import { EVENTS, AutofillOverlayVisibility } from "@bitwarden/common/autofill/co
 
 import { FocusedFieldData } from "../background/abstractions/overlay.background";
 import AutofillField from "../models/autofill-field";
-import AutofillOverlayButtonIframe from "../overlay/iframe-content/autofill-overlay-button-iframe";
-import AutofillOverlayListIframe from "../overlay/iframe-content/autofill-overlay-list-iframe";
+// import AutofillOverlayButtonIframe from "../overlay/iframe-content/autofill-overlay-button-iframe";
+// import AutofillOverlayListIframe from "../overlay/iframe-content/autofill-overlay-list-iframe";
 import { ElementWithOpId, FillableFormFieldElement, FormFieldElement } from "../types";
 import {
   elementIsFillableFormField,
-  generateRandomCustomElementName,
+  // generateRandomCustomElementName,
   sendExtensionMessage,
-  setElementStyles,
+  // setElementStyles,
 } from "../utils";
 import { AutofillOverlayElement, RedirectFocusDirection } from "../utils/autofill-overlay.enum";
 
 import {
+  AutofillOverlayContentExtensionMessageHandlers,
   AutofillOverlayContentService as AutofillOverlayContentServiceInterface,
   OpenAutofillOverlayOptions,
 } from "./abstractions/autofill-overlay-content.service";
@@ -30,10 +31,10 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   isOverlayCiphersPopulated = false;
   pageDetailsUpdateRequired = false;
   autofillOverlayVisibility: number;
-  private isFirefoxBrowser =
-    globalThis.navigator.userAgent.indexOf(" Firefox/") !== -1 ||
-    globalThis.navigator.userAgent.indexOf(" Gecko/") !== -1;
-  private readonly generateRandomCustomElementName = generateRandomCustomElementName;
+  // private isFirefoxBrowser =
+  //   globalThis.navigator.userAgent.indexOf(" Firefox/") !== -1 ||
+  //   globalThis.navigator.userAgent.indexOf(" Gecko/") !== -1;
+  // private readonly generateRandomCustomElementName = generateRandomCustomElementName;
   private readonly findTabs = tabbable;
   private readonly sendExtensionMessage = sendExtensionMessage;
   private formFieldElements: Set<ElementWithOpId<FormFieldElement>> = new Set([]);
@@ -43,24 +44,27 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   private focusableElements: FocusableElement[] = [];
   private isOverlayButtonVisible = false;
   private isOverlayListVisible = false;
-  private overlayButtonElement: HTMLElement;
-  private overlayListElement: HTMLElement;
+  // private overlayButtonElement: HTMLElement;
+  // private overlayListElement: HTMLElement;
   private mostRecentlyFocusedField: ElementWithOpId<FormFieldElement>;
   private focusedFieldData: FocusedFieldData;
   private userInteractionEventTimeout: number | NodeJS.Timeout;
-  private overlayElementsMutationObserver: MutationObserver;
-  private bodyElementMutationObserver: MutationObserver;
-  private documentElementMutationObserver: MutationObserver;
-  private mutationObserverIterations = 0;
-  private mutationObserverIterationsResetTimeout: number | NodeJS.Timeout;
+  // private overlayElementsMutationObserver: MutationObserver;
+  // private bodyElementMutationObserver: MutationObserver;
+  // private documentElementMutationObserver: MutationObserver;
+  // private mutationObserverIterations = 0;
+  // private mutationObserverIterationsResetTimeout: number | NodeJS.Timeout;
   private autofillFieldKeywordsMap: WeakMap<AutofillField, string> = new WeakMap();
   private eventHandlersMemo: { [key: string]: EventListener } = {};
-  private readonly customElementDefaultStyles: Partial<CSSStyleDeclaration> = {
-    all: "initial",
-    position: "fixed",
-    display: "block",
-    zIndex: "2147483647",
+  readonly extensionMessageHandlers: AutofillOverlayContentExtensionMessageHandlers = {
+    blurMostRecentOverlayField: () => this.blurMostRecentOverlayField,
   };
+  // private readonly customElementDefaultStyles: Partial<CSSStyleDeclaration> = {
+  //   all: "initial",
+  //   position: "fixed",
+  //   display: "block",
+  //   zIndex: "2147483647",
+  // };
 
   /**
    * Initializes the autofill overlay content service by setting up the mutation observers.
@@ -123,9 +127,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     }
 
     if (this.pageDetailsUpdateRequired) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.sendExtensionMessage("bgCollectPageDetails", {
+      void this.sendExtensionMessage("bgCollectPageDetails", {
         sender: "autofillOverlayContentService",
       });
       this.pageDetailsUpdateRequired = false;
@@ -164,52 +166,52 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     this.mostRecentlyFocusedField?.blur();
   }
 
-  /**
-   * Removes the autofill overlay from the page. This will initially
-   * unobserve the body element to ensure the mutation observer no
-   * longer triggers.
-   */
-  removeAutofillOverlay = () => {
-    this.removeBodyElementObserver();
-    this.removeAutofillOverlayButton();
-    this.removeAutofillOverlayList();
-  };
+  // /**
+  //  * Removes the autofill overlay from the page. This will initially
+  //  * unobserve the body element to ensure the mutation observer no
+  //  * longer triggers.
+  //  */
+  // removeAutofillOverlay = () => {
+  //   this.removeBodyElementObserver();
+  //   this.removeAutofillOverlayButton();
+  //   this.removeAutofillOverlayList();
+  // };
 
-  /**
-   * Removes the overlay button from the DOM if it is currently present. Will
-   * also remove the overlay reposition event listeners.
-   */
-  removeAutofillOverlayButton() {
-    if (!this.overlayButtonElement) {
-      return;
-    }
-
-    this.overlayButtonElement.remove();
-    this.isOverlayButtonVisible = false;
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.sendExtensionMessage("autofillOverlayElementClosed", {
-      overlayElement: AutofillOverlayElement.Button,
-    });
-    this.removeOverlayRepositionEventListeners();
-  }
-
-  /**
-   * Removes the overlay list from the DOM if it is currently present.
-   */
-  removeAutofillOverlayList() {
-    if (!this.overlayListElement) {
-      return;
-    }
-
-    this.overlayListElement.remove();
-    this.isOverlayListVisible = false;
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.sendExtensionMessage("autofillOverlayElementClosed", {
-      overlayElement: AutofillOverlayElement.List,
-    });
-  }
+  // /**
+  //  * Removes the overlay button from the DOM if it is currently present. Will
+  //  * also remove the overlay reposition event listeners.
+  //  */
+  // removeAutofillOverlayButton() {
+  //   if (!this.overlayButtonElement) {
+  //     return;
+  //   }
+  //
+  //   this.overlayButtonElement.remove();
+  //   this.isOverlayButtonVisible = false;
+  //   // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+  //   // eslint-disable-next-line @typescript-eslint/no-floating-promises
+  //   this.sendExtensionMessage("autofillOverlayElementClosed", {
+  //     overlayElement: AutofillOverlayElement.Button,
+  //   });
+  //   this.removeOverlayRepositionEventListeners();
+  // }
+  //
+  // /**
+  //  * Removes the overlay list from the DOM if it is currently present.
+  //  */
+  // removeAutofillOverlayList() {
+  //   if (!this.overlayListElement) {
+  //     return;
+  //   }
+  //
+  //   this.overlayListElement.remove();
+  //   this.isOverlayListVisible = false;
+  //   // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+  //   // eslint-disable-next-line @typescript-eslint/no-floating-promises
+  //   this.sendExtensionMessage("autofillOverlayElementClosed", {
+  //     overlayElement: AutofillOverlayElement.List,
+  //   });
+  // }
 
   /**
    * Formats any found user filled fields for a login cipher and sends a message
@@ -227,9 +229,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       hostname: globalThis.document.location.hostname,
     };
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.sendExtensionMessage("autofillOverlayAddNewVaultItem", { login });
+    void this.sendExtensionMessage("autofillOverlayAddNewVaultItem", { login });
   }
 
   /**
@@ -246,7 +246,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
 
     if (direction === RedirectFocusDirection.Current) {
       this.focusMostRecentOverlayField();
-      setTimeout(this.removeAutofillOverlay, 100);
+      // setTimeout(this.removeAutofillOverlay, 100);
+      setTimeout(() => void this.sendExtensionMessage("closeAutofillOverlay"), 100);
       return;
     }
 
@@ -340,9 +341,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    */
   private handleFormFieldBlurEvent = () => {
     this.isFieldCurrentlyFocused = false;
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.sendExtensionMessage("checkAutofillOverlayFocused");
+    void this.sendExtensionMessage("checkAutofillOverlayFocused");
   };
 
   /**
@@ -356,7 +355,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   private handleFormFieldKeyupEvent = (event: KeyboardEvent) => {
     const eventCode = event.code;
     if (eventCode === "Escape") {
-      this.removeAutofillOverlay();
+      // this.removeAutofillOverlay();
+      void this.sendExtensionMessage("closeAutofillOverlay");
       return;
     }
 
@@ -420,7 +420,10 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     this.storeModifiedFormElement(formFieldElement);
 
     if (formFieldElement.value && (this.isOverlayCiphersPopulated || !this.isUserAuthed())) {
-      this.removeAutofillOverlayList();
+      // this.removeAutofillOverlayList();
+      void this.sendExtensionMessage("closeAutofillOverlay", {
+        overlayElement: AutofillOverlayElement.List,
+      });
       return;
     }
 
@@ -508,7 +511,10 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       this.autofillOverlayVisibility === AutofillOverlayVisibility.OnButtonClick ||
       (formElementHasValue && initiallyFocusedField !== this.mostRecentlyFocusedField)
     ) {
-      this.removeAutofillOverlayList();
+      // this.removeAutofillOverlayList();
+      void this.sendExtensionMessage("closeAutofillOverlay", {
+        overlayElement: AutofillOverlayElement.List,
+      });
     }
 
     if (!formElementHasValue || (!this.isOverlayCiphersPopulated && this.isUserAuthed())) {
@@ -595,19 +601,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * Updates the position of the overlay button.
    */
   private updateOverlayButtonPosition() {
-    if (!this.overlayButtonElement) {
-      this.createAutofillOverlayButton();
-      this.updateCustomElementDefaultStyles(this.overlayButtonElement);
-    }
-
-    if (!this.isOverlayButtonVisible) {
-      this.appendOverlayElementToBody(this.overlayButtonElement);
-      this.isOverlayButtonVisible = true;
-      this.setOverlayRepositionEventListeners();
-    }
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.sendExtensionMessage("updateAutofillOverlayPosition", {
+    void this.sendExtensionMessage("updateAutofillOverlayPosition", {
       overlayElement: AutofillOverlayElement.Button,
     });
   }
@@ -616,34 +610,22 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * Updates the position of the overlay list.
    */
   private updateOverlayListPosition() {
-    if (!this.overlayListElement) {
-      this.createAutofillOverlayList();
-      this.updateCustomElementDefaultStyles(this.overlayListElement);
-    }
-
-    if (!this.isOverlayListVisible) {
-      this.appendOverlayElementToBody(this.overlayListElement);
-      this.isOverlayListVisible = true;
-    }
-
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.sendExtensionMessage("updateAutofillOverlayPosition", {
+    void this.sendExtensionMessage("updateAutofillOverlayPosition", {
       overlayElement: AutofillOverlayElement.List,
     });
   }
 
-  /**
-   * Appends the overlay element to the body element. This method will also
-   * observe the body element to ensure that the overlay element is not
-   * interfered with by any DOM changes.
-   *
-   * @param element - The overlay element to append to the body element.
-   */
-  private appendOverlayElementToBody(element: HTMLElement) {
-    this.observeBodyElement();
-    globalThis.document.body.appendChild(element);
-  }
+  // /**
+  //  * Appends the overlay element to the body element. This method will also
+  //  * observe the body element to ensure that the overlay element is not
+  //  * interfered with by any DOM changes.
+  //  *
+  //  * @param element - The overlay element to append to the body element.
+  //  */
+  // private appendOverlayElementToBody(element: HTMLElement) {
+  //   this.observeBodyElement();
+  //   globalThis.document.body.appendChild(element);
+  // }
 
   /**
    * Sends a message that facilitates hiding the overlay elements.
@@ -651,11 +633,9 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * @param isHidden - Indicates if the overlay elements should be hidden.
    */
   private toggleOverlayHidden(isHidden: boolean) {
-    const displayValue = isHidden ? "none" : "block";
-    void this.sendExtensionMessage("updateAutofillOverlayHidden", { display: displayValue });
-
-    this.isOverlayButtonVisible = !!this.overlayButtonElement && !isHidden;
-    this.isOverlayListVisible = !!this.overlayListElement && !isHidden;
+    void this.sendExtensionMessage("updateAutofillOverlayHidden", {
+      isOverlayHidden: isHidden,
+    });
   }
 
   /**
@@ -676,9 +656,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       focusedFieldRects: { width, height, top, left },
     };
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.sendExtensionMessage("updateFocusedFieldData", {
+    void this.sendExtensionMessage("updateFocusedFieldData", {
       focusedFieldData: this.focusedFieldData,
     });
   }
@@ -762,77 +740,77 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     return !isLoginCipherField;
   }
 
-  /**
-   * Creates the autofill overlay button element. Will not attempt
-   * to create the element if it already exists in the DOM.
-   */
-  private createAutofillOverlayButton() {
-    if (this.overlayButtonElement) {
-      return;
-    }
+  // /**
+  //  * Creates the autofill overlay button element. Will not attempt
+  //  * to create the element if it already exists in the DOM.
+  //  */
+  // private createAutofillOverlayButton() {
+  //   if (this.overlayButtonElement) {
+  //     return;
+  //   }
+  //
+  //   if (this.isFirefoxBrowser) {
+  //     this.overlayButtonElement = globalThis.document.createElement("div");
+  //     new AutofillOverlayButtonIframe(this.overlayButtonElement);
+  //
+  //     return;
+  //   }
+  //
+  //   const customElementName = this.generateRandomCustomElementName();
+  //   globalThis.customElements?.define(
+  //     customElementName,
+  //     class extends HTMLElement {
+  //       constructor() {
+  //         super();
+  //         new AutofillOverlayButtonIframe(this);
+  //       }
+  //     },
+  //   );
+  //   this.overlayButtonElement = globalThis.document.createElement(customElementName);
+  // }
+  //
+  // /**
+  //  * Creates the autofill overlay list element. Will not attempt
+  //  * to create the element if it already exists in the DOM.
+  //  */
+  // private createAutofillOverlayList() {
+  //   if (this.overlayListElement) {
+  //     return;
+  //   }
+  //
+  //   if (this.isFirefoxBrowser) {
+  //     this.overlayListElement = globalThis.document.createElement("div");
+  //     new AutofillOverlayListIframe(this.overlayListElement);
+  //
+  //     return;
+  //   }
+  //
+  //   const customElementName = this.generateRandomCustomElementName();
+  //   globalThis.customElements?.define(
+  //     customElementName,
+  //     class extends HTMLElement {
+  //       constructor() {
+  //         super();
+  //         new AutofillOverlayListIframe(this);
+  //       }
+  //     },
+  //   );
+  //   this.overlayListElement = globalThis.document.createElement(customElementName);
+  // }
 
-    if (this.isFirefoxBrowser) {
-      this.overlayButtonElement = globalThis.document.createElement("div");
-      new AutofillOverlayButtonIframe(this.overlayButtonElement);
-
-      return;
-    }
-
-    const customElementName = this.generateRandomCustomElementName();
-    globalThis.customElements?.define(
-      customElementName,
-      class extends HTMLElement {
-        constructor() {
-          super();
-          new AutofillOverlayButtonIframe(this);
-        }
-      },
-    );
-    this.overlayButtonElement = globalThis.document.createElement(customElementName);
-  }
-
-  /**
-   * Creates the autofill overlay list element. Will not attempt
-   * to create the element if it already exists in the DOM.
-   */
-  private createAutofillOverlayList() {
-    if (this.overlayListElement) {
-      return;
-    }
-
-    if (this.isFirefoxBrowser) {
-      this.overlayListElement = globalThis.document.createElement("div");
-      new AutofillOverlayListIframe(this.overlayListElement);
-
-      return;
-    }
-
-    const customElementName = this.generateRandomCustomElementName();
-    globalThis.customElements?.define(
-      customElementName,
-      class extends HTMLElement {
-        constructor() {
-          super();
-          new AutofillOverlayListIframe(this);
-        }
-      },
-    );
-    this.overlayListElement = globalThis.document.createElement(customElementName);
-  }
-
-  /**
-   * Updates the default styles for the custom element. This method will
-   * remove any styles that are added to the custom element by other methods.
-   *
-   * @param element - The custom element to update the default styles for.
-   */
-  private updateCustomElementDefaultStyles(element: HTMLElement) {
-    this.unobserveCustomElements();
-
-    setElementStyles(element, this.customElementDefaultStyles, true);
-
-    this.observeCustomElements();
-  }
+  // /**
+  //  * Updates the default styles for the custom element. This method will
+  //  * remove any styles that are added to the custom element by other methods.
+  //  *
+  //  * @param element - The custom element to update the default styles for.
+  //  */
+  // private updateCustomElementDefaultStyles(element: HTMLElement) {
+  //   this.unobserveCustomElements();
+  //
+  //   setElementStyles(element, this.customElementDefaultStyles, true);
+  //
+  //   this.observeCustomElements();
+  // }
 
   /**
    * Queries the background script for the autofill overlay visibility setting.
@@ -890,7 +868,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   private triggerOverlayRepositionUpdates = async () => {
     if (!this.recentlyFocusedFieldIsCurrentlyFocused()) {
       this.toggleOverlayHidden(false);
-      this.removeAutofillOverlay();
+      // this.removeAutofillOverlay();
+      void this.sendExtensionMessage("closeAutofillOverlay");
       return;
     }
 
@@ -906,7 +885,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       return;
     }
 
-    this.removeAutofillOverlay();
+    // this.removeAutofillOverlay();
+    void this.sendExtensionMessage("closeAutofillOverlay");
   };
 
   /**
@@ -927,7 +907,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   private setupGlobalEventListeners = () => {
     globalThis.document.addEventListener(EVENTS.VISIBILITYCHANGE, this.handleVisibilityChangeEvent);
     globalThis.addEventListener(EVENTS.FOCUSOUT, this.handleFormFieldBlurEvent);
-    this.setupMutationObserver();
+    this.setOverlayRepositionEventListeners();
+    // this.setupMutationObserver();
   };
 
   /**
@@ -940,178 +921,179 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     }
 
     this.mostRecentlyFocusedField = null;
-    this.removeAutofillOverlay();
+    // this.removeAutofillOverlay();
+    void this.sendExtensionMessage("closeAutofillOverlay");
   };
 
-  /**
-   * Sets up mutation observers for the overlay elements, the body element, and the
-   * document element. The mutation observers are used to remove any styles that are
-   * added to the overlay elements by the website. They are also used to ensure that
-   * the overlay elements are always present at the bottom of the body element.
-   */
-  private setupMutationObserver = () => {
-    this.overlayElementsMutationObserver = new MutationObserver(
-      this.handleOverlayElementMutationObserverUpdate,
-    );
+  // /**
+  //  * Sets up mutation observers for the overlay elements, the body element, and the
+  //  * document element. The mutation observers are used to remove any styles that are
+  //  * added to the overlay elements by the website. They are also used to ensure that
+  //  * the overlay elements are always present at the bottom of the body element.
+  //  */
+  // private setupMutationObserver = () => {
+  //   this.overlayElementsMutationObserver = new MutationObserver(
+  //     this.handleOverlayElementMutationObserverUpdate,
+  //   );
+  //
+  //   this.bodyElementMutationObserver = new MutationObserver(
+  //     this.handleBodyElementMutationObserverUpdate,
+  //   );
+  // };
 
-    this.bodyElementMutationObserver = new MutationObserver(
-      this.handleBodyElementMutationObserverUpdate,
-    );
-  };
+  // /**
+  //  * Sets up mutation observers to verify that the overlay
+  //  * elements are not modified by the website.
+  //  */
+  // private observeCustomElements() {
+  //   if (this.overlayButtonElement) {
+  //     this.overlayElementsMutationObserver?.observe(this.overlayButtonElement, {
+  //       attributes: true,
+  //     });
+  //   }
+  //
+  //   if (this.overlayListElement) {
+  //     this.overlayElementsMutationObserver?.observe(this.overlayListElement, { attributes: true });
+  //   }
+  // }
 
-  /**
-   * Sets up mutation observers to verify that the overlay
-   * elements are not modified by the website.
-   */
-  private observeCustomElements() {
-    if (this.overlayButtonElement) {
-      this.overlayElementsMutationObserver?.observe(this.overlayButtonElement, {
-        attributes: true,
-      });
-    }
+  // /**
+  //  * Disconnects the mutation observers that are used to verify that the overlay
+  //  * elements are not modified by the website.
+  //  */
+  // private unobserveCustomElements() {
+  //   this.overlayElementsMutationObserver?.disconnect();
+  // }
 
-    if (this.overlayListElement) {
-      this.overlayElementsMutationObserver?.observe(this.overlayListElement, { attributes: true });
-    }
-  }
+  // /**
+  //  * Sets up a mutation observer for the body element. The mutation observer is used
+  //  * to ensure that the overlay elements are always present at the bottom of the body
+  //  * element.
+  //  */
+  // private observeBodyElement() {
+  //   this.bodyElementMutationObserver?.observe(globalThis.document.body, { childList: true });
+  // }
 
-  /**
-   * Disconnects the mutation observers that are used to verify that the overlay
-   * elements are not modified by the website.
-   */
-  private unobserveCustomElements() {
-    this.overlayElementsMutationObserver?.disconnect();
-  }
+  // /**
+  //  * Disconnects the mutation observer for the body element.
+  //  */
+  // private removeBodyElementObserver() {
+  //   this.bodyElementMutationObserver?.disconnect();
+  // }
 
-  /**
-   * Sets up a mutation observer for the body element. The mutation observer is used
-   * to ensure that the overlay elements are always present at the bottom of the body
-   * element.
-   */
-  private observeBodyElement() {
-    this.bodyElementMutationObserver?.observe(globalThis.document.body, { childList: true });
-  }
+  // /**
+  //  * Handles the mutation observer update for the overlay elements. This method will
+  //  * remove any attributes or styles that might be added to the overlay elements by
+  //  * a separate process within the website where this script is injected.
+  //  *
+  //  * @param mutationRecord - The mutation record that triggered the update.
+  //  */
+  // private handleOverlayElementMutationObserverUpdate = (mutationRecord: MutationRecord[]) => {
+  //   if (this.isTriggeringExcessiveMutationObserverIterations()) {
+  //     return;
+  //   }
+  //
+  //   for (let recordIndex = 0; recordIndex < mutationRecord.length; recordIndex++) {
+  //     const record = mutationRecord[recordIndex];
+  //     if (record.type !== "attributes") {
+  //       continue;
+  //     }
+  //
+  //     const element = record.target as HTMLElement;
+  //     if (record.attributeName !== "style") {
+  //       this.removeModifiedElementAttributes(element);
+  //
+  //       continue;
+  //     }
+  //
+  //     element.removeAttribute("style");
+  //     this.updateCustomElementDefaultStyles(element);
+  //   }
+  // };
 
-  /**
-   * Disconnects the mutation observer for the body element.
-   */
-  private removeBodyElementObserver() {
-    this.bodyElementMutationObserver?.disconnect();
-  }
+  // /**
+  //  * Removes all elements from a passed overlay
+  //  * element except for the style attribute.
+  //  *
+  //  * @param element - The element to remove the attributes from.
+  //  */
+  // private removeModifiedElementAttributes(element: HTMLElement) {
+  //   const attributes = Array.from(element.attributes);
+  //   for (let attributeIndex = 0; attributeIndex < attributes.length; attributeIndex++) {
+  //     const attribute = attributes[attributeIndex];
+  //     if (attribute.name === "style") {
+  //       continue;
+  //     }
+  //
+  //     element.removeAttribute(attribute.name);
+  //   }
+  // }
 
-  /**
-   * Handles the mutation observer update for the overlay elements. This method will
-   * remove any attributes or styles that might be added to the overlay elements by
-   * a separate process within the website where this script is injected.
-   *
-   * @param mutationRecord - The mutation record that triggered the update.
-   */
-  private handleOverlayElementMutationObserverUpdate = (mutationRecord: MutationRecord[]) => {
-    if (this.isTriggeringExcessiveMutationObserverIterations()) {
-      return;
-    }
+  // /**
+  //  * Handles the mutation observer update for the body element. This method will
+  //  * ensure that the overlay elements are always present at the bottom of the body
+  //  * element.
+  //  */
+  // private handleBodyElementMutationObserverUpdate = () => {
+  //   if (
+  //     (!this.overlayButtonElement && !this.overlayListElement) ||
+  //     this.isTriggeringExcessiveMutationObserverIterations()
+  //   ) {
+  //     return;
+  //   }
+  //
+  //   const lastChild = globalThis.document.body.lastElementChild;
+  //   const secondToLastChild = lastChild?.previousElementSibling;
+  //   const lastChildIsOverlayList = lastChild === this.overlayListElement;
+  //   const lastChildIsOverlayButton = lastChild === this.overlayButtonElement;
+  //   const secondToLastChildIsOverlayButton = secondToLastChild === this.overlayButtonElement;
+  //
+  //   if (
+  //     (lastChildIsOverlayList && secondToLastChildIsOverlayButton) ||
+  //     (lastChildIsOverlayButton && !this.isOverlayListVisible)
+  //   ) {
+  //     return;
+  //   }
+  //
+  //   if (
+  //     (lastChildIsOverlayList && !secondToLastChildIsOverlayButton) ||
+  //     (lastChildIsOverlayButton && this.isOverlayListVisible)
+  //   ) {
+  //     globalThis.document.body.insertBefore(this.overlayButtonElement, this.overlayListElement);
+  //     return;
+  //   }
+  //
+  //   globalThis.document.body.insertBefore(lastChild, this.overlayButtonElement);
+  // };
 
-    for (let recordIndex = 0; recordIndex < mutationRecord.length; recordIndex++) {
-      const record = mutationRecord[recordIndex];
-      if (record.type !== "attributes") {
-        continue;
-      }
-
-      const element = record.target as HTMLElement;
-      if (record.attributeName !== "style") {
-        this.removeModifiedElementAttributes(element);
-
-        continue;
-      }
-
-      element.removeAttribute("style");
-      this.updateCustomElementDefaultStyles(element);
-    }
-  };
-
-  /**
-   * Removes all elements from a passed overlay
-   * element except for the style attribute.
-   *
-   * @param element - The element to remove the attributes from.
-   */
-  private removeModifiedElementAttributes(element: HTMLElement) {
-    const attributes = Array.from(element.attributes);
-    for (let attributeIndex = 0; attributeIndex < attributes.length; attributeIndex++) {
-      const attribute = attributes[attributeIndex];
-      if (attribute.name === "style") {
-        continue;
-      }
-
-      element.removeAttribute(attribute.name);
-    }
-  }
-
-  /**
-   * Handles the mutation observer update for the body element. This method will
-   * ensure that the overlay elements are always present at the bottom of the body
-   * element.
-   */
-  private handleBodyElementMutationObserverUpdate = () => {
-    if (
-      (!this.overlayButtonElement && !this.overlayListElement) ||
-      this.isTriggeringExcessiveMutationObserverIterations()
-    ) {
-      return;
-    }
-
-    const lastChild = globalThis.document.body.lastElementChild;
-    const secondToLastChild = lastChild?.previousElementSibling;
-    const lastChildIsOverlayList = lastChild === this.overlayListElement;
-    const lastChildIsOverlayButton = lastChild === this.overlayButtonElement;
-    const secondToLastChildIsOverlayButton = secondToLastChild === this.overlayButtonElement;
-
-    if (
-      (lastChildIsOverlayList && secondToLastChildIsOverlayButton) ||
-      (lastChildIsOverlayButton && !this.isOverlayListVisible)
-    ) {
-      return;
-    }
-
-    if (
-      (lastChildIsOverlayList && !secondToLastChildIsOverlayButton) ||
-      (lastChildIsOverlayButton && this.isOverlayListVisible)
-    ) {
-      globalThis.document.body.insertBefore(this.overlayButtonElement, this.overlayListElement);
-      return;
-    }
-
-    globalThis.document.body.insertBefore(lastChild, this.overlayButtonElement);
-  };
-
-  /**
-   * Identifies if the mutation observer is triggering excessive iterations.
-   * Will trigger a blur of the most recently focused field and remove the
-   * autofill overlay if any set mutation observer is triggering
-   * excessive iterations.
-   */
-  private isTriggeringExcessiveMutationObserverIterations() {
-    if (this.mutationObserverIterationsResetTimeout) {
-      clearTimeout(this.mutationObserverIterationsResetTimeout);
-    }
-
-    this.mutationObserverIterations++;
-    this.mutationObserverIterationsResetTimeout = setTimeout(
-      () => (this.mutationObserverIterations = 0),
-      2000,
-    );
-
-    if (this.mutationObserverIterations > 100) {
-      clearTimeout(this.mutationObserverIterationsResetTimeout);
-      this.mutationObserverIterations = 0;
-      this.blurMostRecentOverlayField();
-      this.removeAutofillOverlay();
-
-      return true;
-    }
-
-    return false;
-  }
+  // /**
+  //  * Identifies if the mutation observer is triggering excessive iterations.
+  //  * Will trigger a blur of the most recently focused field and remove the
+  //  * autofill overlay if any set mutation observer is triggering
+  //  * excessive iterations.
+  //  */
+  // private isTriggeringExcessiveMutationObserverIterations() {
+  //   if (this.mutationObserverIterationsResetTimeout) {
+  //     clearTimeout(this.mutationObserverIterationsResetTimeout);
+  //   }
+  //
+  //   this.mutationObserverIterations++;
+  //   this.mutationObserverIterationsResetTimeout = setTimeout(
+  //     () => (this.mutationObserverIterations = 0),
+  //     2000,
+  //   );
+  //
+  //   if (this.mutationObserverIterations > 100) {
+  //     clearTimeout(this.mutationObserverIterationsResetTimeout);
+  //     this.mutationObserverIterations = 0;
+  //     this.blurMostRecentOverlayField();
+  //     this.removeAutofillOverlay();
+  //
+  //     return true;
+  //   }
+  //
+  //   return false;
+  // }
 
   /**
    * Gets the root node of the passed element and returns the active element within that root node.
@@ -1132,7 +1114,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * disconnect the mutation observers and remove all event listeners.
    */
   destroy() {
-    this.documentElementMutationObserver?.disconnect();
+    // this.documentElementMutationObserver?.disconnect();
     this.clearUserInteractionEventTimeout();
     this.formFieldElements.forEach((formFieldElement) => {
       this.removeCachedFormFieldEventListeners(formFieldElement);
@@ -1145,7 +1127,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       this.handleVisibilityChangeEvent,
     );
     globalThis.removeEventListener(EVENTS.FOCUSOUT, this.handleFormFieldBlurEvent);
-    this.removeAutofillOverlay();
+    // this.removeAutofillOverlay();
     this.removeOverlayRepositionEventListeners();
   }
 }

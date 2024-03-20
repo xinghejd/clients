@@ -45,7 +45,8 @@ type OverlayBackgroundExtensionMessage = {
   sender?: string;
   details?: AutofillPageDetails;
   overlayElement?: string;
-  display?: string;
+  forceCloseOverlay?: boolean;
+  isOverlayHidden?: boolean;
   data?: LockedVaultPendingNotificationsData;
 } & OverlayAddNewItemMessage;
 
@@ -59,6 +60,8 @@ type OverlayPortMessage = {
 type FocusedFieldData = {
   focusedFieldStyles: Partial<CSSStyleDeclaration>;
   focusedFieldRects: Partial<DOMRect>;
+  tabId?: number;
+  frameId?: number;
 };
 
 type OverlayCipherData = {
@@ -83,13 +86,17 @@ type BackgroundOnMessageHandlerParams = BackgroundMessageParam & BackgroundSende
 type OverlayBackgroundExtensionMessageHandlers = {
   [key: string]: CallableFunction;
   openAutofillOverlay: () => void;
+  closeAutofillOverlay: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   autofillOverlayElementClosed: ({ message }: BackgroundMessageParam) => void;
   autofillOverlayAddNewVaultItem: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   getAutofillOverlayVisibility: () => void;
   checkAutofillOverlayFocused: () => void;
   focusAutofillOverlayList: () => void;
-  updateAutofillOverlayPosition: ({ message }: BackgroundMessageParam) => void;
-  updateAutofillOverlayHidden: ({ message }: BackgroundMessageParam) => void;
+  updateAutofillOverlayPosition: ({
+    message,
+    sender,
+  }: BackgroundOnMessageHandlerParams) => Promise<void>;
+  updateAutofillOverlayHidden: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   updateFocusedFieldData: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   collectPageDetailsResponse: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   unlockCompleted: ({ message }: BackgroundMessageParam) => void;

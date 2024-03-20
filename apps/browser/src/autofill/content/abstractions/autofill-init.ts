@@ -3,7 +3,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { SubFrameOffsetData } from "../../background/abstractions/overlay.background";
 import AutofillScript from "../../models/autofill-script";
 
-type AutofillExtensionMessage = {
+export type AutofillExtensionMessage = {
   command: string;
   tab?: chrome.tabs.Tab;
   sender?: string;
@@ -12,6 +12,7 @@ type AutofillExtensionMessage = {
   subFrameUrl?: string;
   pageDetailsUrl?: string;
   ciphers?: any;
+  isInlineMenuHidden?: boolean;
   data?: {
     authStatus?: AuthenticationStatus;
     isFocusingFieldElement?: boolean;
@@ -23,15 +24,14 @@ type AutofillExtensionMessage = {
   };
 };
 
-type AutofillExtensionMessageParam = { message: AutofillExtensionMessage };
+export type AutofillExtensionMessageParam = { message: AutofillExtensionMessage };
 
-type AutofillExtensionMessageHandlers = {
+export type AutofillExtensionMessageHandlers = {
   [key: string]: CallableFunction;
   collectPageDetails: ({ message }: AutofillExtensionMessageParam) => void;
   collectPageDetailsImmediately: ({ message }: AutofillExtensionMessageParam) => void;
   fillForm: ({ message }: AutofillExtensionMessageParam) => void;
   openAutofillOverlay: ({ message }: AutofillExtensionMessageParam) => void;
-  closeAutofillOverlay: ({ message }: AutofillExtensionMessageParam) => void;
   addNewVaultItemFromOverlay: () => void;
   redirectOverlayFocusOut: ({ message }: AutofillExtensionMessageParam) => void;
   updateIsOverlayCiphersPopulated: ({ message }: AutofillExtensionMessageParam) => void;
@@ -41,9 +41,7 @@ type AutofillExtensionMessageHandlers = {
   getSubFrameOffsets: ({ message }: AutofillExtensionMessageParam) => Promise<SubFrameOffsetData>;
 };
 
-interface AutofillInit {
+export interface AutofillInit {
   init(): void;
   destroy(): void;
 }
-
-export { AutofillExtensionMessage, AutofillExtensionMessageHandlers, AutofillInit };

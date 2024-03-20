@@ -1,5 +1,6 @@
 import { SubFrameOffsetData } from "../background/abstractions/overlay.background";
 import AutofillPageDetails from "../models/autofill-page-details";
+import { InlineMenuElements } from "../overlay/abstractions/inline-menu-elements";
 import { AutofillOverlayContentService } from "../services/abstractions/autofill-overlay-content.service";
 import CollectAutofillContentService from "../services/collect-autofill-content.service";
 import DomElementVisibilityService from "../services/dom-element-visibility.service";
@@ -14,6 +15,7 @@ import {
 
 class AutofillInit implements AutofillInitInterface {
   private readonly autofillOverlayContentService: AutofillOverlayContentService | undefined;
+  private readonly inlineMenuElements: InlineMenuElements | undefined;
   private readonly domElementVisibilityService: DomElementVisibilityService;
   private readonly collectAutofillContentService: CollectAutofillContentService;
   private readonly insertAutofillContentService: InsertAutofillContentService;
@@ -22,7 +24,7 @@ class AutofillInit implements AutofillInitInterface {
     collectPageDetailsImmediately: ({ message }) => this.collectPageDetails(message, true),
     fillForm: ({ message }) => this.fillForm(message),
     openAutofillOverlay: ({ message }) => this.openAutofillOverlay(message),
-    closeAutofillOverlay: ({ message }) => this.removeAutofillOverlay(message),
+    // closeAutofillOverlay: ({ message }) => this.removeAutofillOverlay(message),
     addNewVaultItemFromOverlay: () => this.addNewVaultItemFromOverlay(),
     redirectOverlayFocusOut: ({ message }) => this.redirectOverlayFocusOut(message),
     updateIsOverlayCiphersPopulated: ({ message }) => this.updateIsOverlayCiphersPopulated(message),
@@ -37,9 +39,28 @@ class AutofillInit implements AutofillInitInterface {
    * CollectAutofillContentService and InsertAutofillContentService classes.
    *
    * @param autofillOverlayContentService - The autofill overlay content service, potentially undefined.
+   * @param inlineMenuElements - The inline menu elements, potentially undefined.
    */
-  constructor(autofillOverlayContentService?: AutofillOverlayContentService) {
+  constructor(
+    autofillOverlayContentService?: AutofillOverlayContentService,
+    inlineMenuElements?: InlineMenuElements,
+  ) {
     this.autofillOverlayContentService = autofillOverlayContentService;
+    if (this.autofillOverlayContentService) {
+      this.extensionMessageHandlers = Object.assign(
+        this.extensionMessageHandlers,
+        this.autofillOverlayContentService.extensionMessageHandlers,
+      );
+    }
+
+    this.inlineMenuElements = inlineMenuElements;
+    if (this.inlineMenuElements) {
+      this.extensionMessageHandlers = Object.assign(
+        this.extensionMessageHandlers,
+        this.inlineMenuElements.extensionMessageHandlers,
+      );
+    }
+
     this.domElementVisibilityService = new DomElementVisibilityService();
     this.collectAutofillContentService = new CollectAutofillContentService(
       this.domElementVisibilityService,
@@ -169,33 +190,7 @@ class AutofillInit implements AutofillInitInterface {
     }
 
     this.autofillOverlayContentService.blurMostRecentOverlayField();
-    this.removeAutofillOverlay();
-  }
-
-  /**
-   * Removes the autofill overlay if the field is not currently focused.
-   * If the autofill is currently filling, only the overlay list will be
-   * removed.
-   */
-  private removeAutofillOverlay(message?: AutofillExtensionMessage) {
-    if (message?.data?.forceCloseOverlay) {
-      this.autofillOverlayContentService?.removeAutofillOverlay();
-      return;
-    }
-
-    if (
-      !this.autofillOverlayContentService ||
-      this.autofillOverlayContentService.isFieldCurrentlyFocused
-    ) {
-      return;
-    }
-
-    if (this.autofillOverlayContentService.isCurrentlyFilling) {
-      this.autofillOverlayContentService.removeAutofillOverlayList();
-      return;
-    }
-
-    this.autofillOverlayContentService.removeAutofillOverlay();
+    void sendExtensionMessage("closeAutofillOverlay");
   }
 
   /**
@@ -257,7 +252,6 @@ class AutofillInit implements AutofillInitInterface {
     const { subFrameUrl } = message;
     const subFrameUrlWithoutTrailingSlash = subFrameUrl?.replace(/\/$/, "");
 
-    // query iframe based on src attribute
     const iframeElement = document.querySelector(
       `iframe[src^="${subFrameUrlWithoutTrailingSlash}"]`,
     );
