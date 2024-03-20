@@ -143,27 +143,18 @@ class AutofillInit implements AutofillInitInterface {
     }
 
     this.blurAndRemoveOverlay();
-    this.updateOverlayIsCurrentlyFilling(true);
+    await sendExtensionMessage("updateIsFieldCurrentlyFilling", { isFieldCurrentlyFilling: true });
     await this.insertAutofillContentService.fillForm(fillScript);
 
     if (!this.autofillOverlayContentService) {
       return;
     }
 
-    setTimeout(() => this.updateOverlayIsCurrentlyFilling(false), 250);
-  }
-
-  /**
-   * Handles updating the overlay is currently filling value.
-   *
-   * @param isCurrentlyFilling - Indicates if the overlay is currently filling
-   */
-  private updateOverlayIsCurrentlyFilling(isCurrentlyFilling: boolean) {
-    if (!this.autofillOverlayContentService) {
-      return;
-    }
-
-    this.autofillOverlayContentService.isCurrentlyFilling = isCurrentlyFilling;
+    setTimeout(
+      () =>
+        sendExtensionMessage("updateIsFieldCurrentlyFilling", { isFieldCurrentlyFilling: false }),
+      250,
+    );
   }
 
   /**

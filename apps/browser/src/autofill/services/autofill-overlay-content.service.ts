@@ -26,8 +26,8 @@ import {
 import { AutoFillConstants } from "./autofill-constants";
 
 class AutofillOverlayContentService implements AutofillOverlayContentServiceInterface {
-  isFieldCurrentlyFocused = false;
-  isCurrentlyFilling = false;
+  // isFieldCurrentlyFocused = false;
+  // isCurrentlyFilling = false;
   isOverlayCiphersPopulated = false;
   pageDetailsUpdateRequired = false;
   autofillOverlayVisibility: number;
@@ -42,8 +42,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   private userFilledFields: Record<string, FillableFormFieldElement> = {};
   private authStatus: AuthenticationStatus;
   private focusableElements: FocusableElement[] = [];
-  private isOverlayButtonVisible = false;
-  private isOverlayListVisible = false;
+  // private isOverlayButtonVisible = false;
+  // private isOverlayListVisible = false;
   // private overlayButtonElement: HTMLElement;
   // private overlayListElement: HTMLElement;
   private mostRecentlyFocusedField: ElementWithOpId<FormFieldElement>;
@@ -217,8 +217,9 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * Formats any found user filled fields for a login cipher and sends a message
    * to the background script to add a new cipher.
    */
-  addNewVaultItem() {
-    if (!this.isOverlayListVisible) {
+  async addNewVaultItem() {
+    // if (!this.isOverlayListVisible) {
+    if ((await this.sendExtensionMessage("checkIsInlineMenuListVisible")) !== true) {
       return;
     }
 
@@ -239,8 +240,12 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    *
    * @param direction - The direction to redirect the focus.
    */
-  redirectOverlayFocusOut(direction: string) {
-    if (!this.isOverlayListVisible || !this.mostRecentlyFocusedField) {
+  async redirectOverlayFocusOut(direction: string) {
+    // if (!this.isOverlayListVisible || !this.mostRecentlyFocusedField) {
+    if (
+      !this.mostRecentlyFocusedField ||
+      (await this.sendExtensionMessage("checkIsInlineMenuListVisible")) !== true
+    ) {
       return;
     }
 
@@ -340,7 +345,10 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * is currently focused.
    */
   private handleFormFieldBlurEvent = () => {
-    this.isFieldCurrentlyFocused = false;
+    // this.isFieldCurrentlyFocused = false;
+    void this.sendExtensionMessage("updateIsFieldCurrentlyFocused", {
+      isFieldCurrentlyFocused: false,
+    });
     void this.sendExtensionMessage("checkAutofillOverlayFocused");
   };
 
@@ -352,7 +360,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    *
    * @param event - The keyup event.
    */
-  private handleFormFieldKeyupEvent = (event: KeyboardEvent) => {
+  private handleFormFieldKeyupEvent = async (event: KeyboardEvent) => {
     const eventCode = event.code;
     if (eventCode === "Escape") {
       // this.removeAutofillOverlay();
@@ -360,8 +368,12 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       return;
     }
 
-    if (eventCode === "Enter" && !this.isCurrentlyFilling) {
-      this.handleOverlayRepositionEvent();
+    // if (eventCode === "Enter" && !this.isCurrentlyFilling) {
+    if (
+      eventCode === "Enter" &&
+      !(await this.sendExtensionMessage("checkIsFieldCurrentlyFilling")) === true
+    ) {
+      void this.handleOverlayRepositionEvent();
       return;
     }
 
@@ -381,7 +393,11 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * that the overlay list is focused when the user presses the down arrow key.
    */
   private async focusOverlayList() {
-    if (!this.isOverlayListVisible && this.mostRecentlyFocusedField) {
+    // if (!this.isOverlayListVisible && this.mostRecentlyFocusedField) {
+    if (
+      this.mostRecentlyFocusedField &&
+      (await this.sendExtensionMessage("checkIsInlineMenuListVisible")) !== true
+    ) {
       await this.updateMostRecentlyFocusedField(this.mostRecentlyFocusedField);
       this.openAutofillOverlay({ isOpeningFullOverlay: true });
       setTimeout(() => this.sendExtensionMessage("focusAutofillOverlayList"), 125);
@@ -470,7 +486,11 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * @param formFieldElement - The form field element that triggered the click event.
    */
   private async triggerFormFieldClickedAction(formFieldElement: ElementWithOpId<FormFieldElement>) {
-    if (this.isOverlayButtonVisible || this.isOverlayListVisible) {
+    // if (this.isOverlayButtonVisible || this.isOverlayListVisible) {
+    if (
+      (await this.sendExtensionMessage("checkIsInlineMenuButtonVisible")) === true ||
+      (await this.sendExtensionMessage("checkIsInlineMenuListVisible")) === true
+    ) {
       return;
     }
 
@@ -497,11 +517,15 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * @param formFieldElement - The form field element that triggered the focus event.
    */
   private async triggerFormFieldFocusedAction(formFieldElement: ElementWithOpId<FormFieldElement>) {
-    if (this.isCurrentlyFilling) {
+    // if (this.isCurrentlyFilling) {
+    if ((await this.sendExtensionMessage("checkIsFieldCurrentlyFilling")) === true) {
       return;
     }
 
-    this.isFieldCurrentlyFocused = true;
+    // this.isFieldCurrentlyFocused = true;
+    void this.sendExtensionMessage("updateIsFieldCurrentlyFocused", {
+      isFieldCurrentlyFocused: true,
+    });
     this.clearUserInteractionEventTimeout();
     const initiallyFocusedField = this.mostRecentlyFocusedField;
     await this.updateMostRecentlyFocusedField(formFieldElement);
@@ -848,8 +872,12 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * Handles the resize or scroll events that enact
    * repositioning of the overlay.
    */
-  private handleOverlayRepositionEvent = () => {
-    if (!this.isOverlayButtonVisible && !this.isOverlayListVisible) {
+  private handleOverlayRepositionEvent = async () => {
+    // if (!this.isOverlayButtonVisible && !this.isOverlayListVisible) {
+    if (
+      (await this.sendExtensionMessage("checkIsInlineMenuButtonVisible")) !== true &&
+      (await this.sendExtensionMessage("checkIsInlineMenuListVisible")) !== true
+    ) {
       return;
     }
 

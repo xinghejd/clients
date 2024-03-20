@@ -76,6 +76,14 @@ class OverlayBackground implements OverlayBackgroundInterface {
     unlockCompleted: ({ message }) => this.unlockCompleted(message),
     addEditCipherSubmitted: () => this.updateOverlayCiphers(),
     deletedCipher: () => this.updateOverlayCiphers(),
+    checkIsFieldCurrentlyFocused: () => this.isFieldCurrentlyFocused,
+    checkIsFieldCurrentlyFilling: () => this.isCurrentlyFilling,
+    updateIsFieldCurrentlyFocused: ({ message }) =>
+      (this.isFieldCurrentlyFocused = message.isFieldCurrentlyFocused),
+    updateIsFieldCurrentlyFilling: ({ message }) =>
+      (this.isCurrentlyFilling = message.isFieldCurrentlyFilling),
+    checkIsInlineMenuButtonVisible: ({ sender }) => this.checkIsInlineMenuButtonVisible(sender),
+    checkIsInlineMenuListVisible: ({ sender }) => this.checkIsInlineMenuListVisible(sender),
   };
   private readonly overlayButtonPortMessageHandlers: OverlayButtonPortMessageHandlers = {
     overlayButtonClicked: ({ port }) => this.handleOverlayButtonClicked(port),
@@ -110,6 +118,23 @@ class OverlayBackground implements OverlayBackgroundInterface {
     private themeStateService: ThemeStateService,
   ) {
     this.iconsServerUrl = this.environmentService.getIconsUrl();
+  }
+
+  private async checkIsInlineMenuButtonVisible(sender: chrome.runtime.MessageSender) {
+    const value = await BrowserApi.tabSendMessage(
+      sender.tab,
+      { command: "checkIsInlineMenuButtonVisible" },
+      { frameId: 0 },
+    );
+    return value;
+  }
+
+  private async checkIsInlineMenuListVisible(sender: chrome.runtime.MessageSender) {
+    return await BrowserApi.tabSendMessage(
+      sender.tab,
+      { command: "checkIsInlineMenuListVisible" },
+      { frameId: 0 },
+    );
   }
 
   /**
@@ -414,7 +439,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
 
     await BrowserApi.tabSendMessage(
       sender.tab,
-      { command: "updateInlineMenuElementsPosition" },
+      { command: "updateInlineMenuElementsPosition", overlayElement },
       { frameId: 0 },
     );
 
@@ -827,14 +852,14 @@ class OverlayBackground implements OverlayBackgroundInterface {
       translations: this.getTranslations(),
       ciphers: isOverlayListPort ? await this.getOverlayCipherData() : null,
     });
-    void this.updateOverlayPosition(
-      {
-        overlayElement: isOverlayListPort
-          ? AutofillOverlayElement.List
-          : AutofillOverlayElement.Button,
-      },
-      port.sender,
-    );
+    // void this.updateOverlayPosition(
+    //   {
+    //     overlayElement: isOverlayListPort
+    //       ? AutofillOverlayElement.List
+    //       : AutofillOverlayElement.Button,
+    //   },
+    //   port.sender,
+    // );
   };
 
   /**

@@ -1,3 +1,4 @@
+import { AutofillExtensionMessage } from "../../content/abstractions/autofill-init";
 import {
   sendExtensionMessage,
   generateRandomCustomElementName,
@@ -35,9 +36,12 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
   };
   private readonly _extensionMessageHandlers: InlineMenuExtensionMessageHandlers = {
     closeInlineMenu: ({ message }) => this.removeInlineMenu(),
-    updateInlineMenuElementsPosition: () => this.updateInlineMenuElementsPosition(),
+    updateInlineMenuElementsPosition: ({ message }) =>
+      this.updateInlineMenuElementsPosition(message),
     toggleInlineMenuHidden: ({ message }) =>
       this.toggleInlineMenuHidden(message.isInlineMenuHidden),
+    checkIsInlineMenuButtonVisible: () => this.isButtonVisible,
+    checkIsInlineMenuListVisible: () => this.isListVisible,
   };
 
   constructor() {
@@ -107,8 +111,12 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
   /**
    * Updates the position of both the overlay button and overlay list.
    */
-  private async updateInlineMenuElementsPosition() {
-    return Promise.all([this.updateButtonPosition(), this.updateListPosition()]);
+  private async updateInlineMenuElementsPosition({ overlayElement }: AutofillExtensionMessage) {
+    if (overlayElement === AutofillOverlayElement.Button) {
+      return this.updateButtonPosition();
+    }
+
+    return this.updateListPosition();
   }
 
   /**

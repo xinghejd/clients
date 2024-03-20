@@ -13,6 +13,7 @@ export type AutofillExtensionMessage = {
   pageDetailsUrl?: string;
   ciphers?: any;
   isInlineMenuHidden?: boolean;
+  overlayElement?: string;
   data?: {
     authStatus?: AuthenticationStatus;
     isFocusingFieldElement?: boolean;

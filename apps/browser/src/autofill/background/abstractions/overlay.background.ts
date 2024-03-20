@@ -48,6 +48,8 @@ type OverlayBackgroundExtensionMessage = {
   forceCloseOverlay?: boolean;
   isOverlayHidden?: boolean;
   data?: LockedVaultPendingNotificationsData;
+  isFieldCurrentlyFocused?: boolean;
+  isCurrentlyFilling?: boolean;
 } & OverlayAddNewItemMessage;
 
 type OverlayPortMessage = {
@@ -102,6 +104,12 @@ type OverlayBackgroundExtensionMessageHandlers = {
   unlockCompleted: ({ message }: BackgroundMessageParam) => void;
   addEditCipherSubmitted: () => void;
   deletedCipher: () => void;
+  checkIsFieldCurrentlyFocused: () => boolean;
+  checkIsFieldCurrentlyFilling: () => boolean;
+  updateIsFieldCurrentlyFocused: ({ message }: BackgroundMessageParam) => void;
+  updateIsFieldCurrentlyFilling: ({ message }: BackgroundMessageParam) => void;
+  checkIsInlineMenuButtonVisible: ({ sender }: BackgroundSenderParam) => void;
+  checkIsInlineMenuListVisible: ({ sender }: BackgroundSenderParam) => void;
 };
 
 type PortMessageParam = {

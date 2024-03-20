@@ -15,8 +15,8 @@ export type AutofillOverlayContentExtensionMessageHandlers = {
 };
 
 export interface AutofillOverlayContentService {
-  isFieldCurrentlyFocused: boolean;
-  isCurrentlyFilling: boolean;
+  // isFieldCurrentlyFocused: boolean;
+  // isCurrentlyFilling: boolean;
   isOverlayCiphersPopulated: boolean;
   pageDetailsUpdateRequired: boolean;
   autofillOverlayVisibility: number;

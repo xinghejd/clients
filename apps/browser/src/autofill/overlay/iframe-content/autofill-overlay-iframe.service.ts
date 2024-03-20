@@ -245,7 +245,7 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
     }
 
     this.updateElementStyles(this.iframe, position);
-    setTimeout(() => this.updateElementStyles(this.iframe, { opacity: "1" }), 75);
+    setTimeout(() => this.updateElementStyles(this.iframe, { opacity: "1" }), 0);
     this.announceAriaAlert();
   }
 

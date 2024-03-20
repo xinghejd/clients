@@ -3,8 +3,10 @@ import { AutofillExtensionMessageParam } from "../../content/abstractions/autofi
 export type InlineMenuExtensionMessageHandlers = {
   [key: string]: CallableFunction;
   closeInlineMenu: ({ message }: AutofillExtensionMessageParam) => void;
-  updateInlineMenuElementsPosition: () => Promise<[void, void]>;
+  updateInlineMenuElementsPosition: ({ message }: AutofillExtensionMessageParam) => Promise<void>;
   toggleInlineMenuHidden: ({ message }: AutofillExtensionMessageParam) => void;
+  checkIsInlineMenuButtonVisible: () => boolean;
+  checkIsInlineMenuListVisible: () => boolean;
 };
 
 export interface InlineMenuElements {
