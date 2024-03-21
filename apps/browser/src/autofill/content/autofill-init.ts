@@ -19,6 +19,7 @@ class AutofillInit implements AutofillInitInterface {
   private readonly domElementVisibilityService: DomElementVisibilityService;
   private readonly collectAutofillContentService: CollectAutofillContentService;
   private readonly insertAutofillContentService: InsertAutofillContentService;
+  private sendCollectDetailsMessageTimeout: number | NodeJS.Timeout | undefined;
   private readonly extensionMessageHandlers: AutofillExtensionMessageHandlers = {
     collectPageDetails: ({ message }) => this.collectPageDetails(message),
     collectPageDetailsImmediately: ({ message }) => this.collectPageDetails(message, true),
@@ -89,11 +90,13 @@ class AutofillInit implements AutofillInitInterface {
    * to act on the page.
    */
   private collectPageDetailsOnLoad() {
-    const sendCollectDetailsMessage = () =>
-      setTimeout(
+    const sendCollectDetailsMessage = () => {
+      this.clearSendCollectDetailsMessageTimeout();
+      this.sendCollectDetailsMessageTimeout = setTimeout(
         () => sendExtensionMessage("bgCollectPageDetails", { sender: "autofillInit" }),
         250,
       );
+    };
 
     if (document.readyState === "complete") {
       sendCollectDetailsMessage();
@@ -300,6 +303,12 @@ class AutofillInit implements AutofillInitInterface {
     return true;
   };
 
+  private clearSendCollectDetailsMessageTimeout() {
+    if (this.sendCollectDetailsMessageTimeout) {
+      clearTimeout(this.sendCollectDetailsMessageTimeout as number);
+    }
+  }
+
   /**
    * Handles destroying the autofill init content script. Removes all
    * listeners, timeouts, and object instances to prevent memory leaks.
@@ -308,6 +317,7 @@ class AutofillInit implements AutofillInitInterface {
     chrome.runtime.onMessage.removeListener(this.handleExtensionMessage);
     this.collectAutofillContentService.destroy();
     this.autofillOverlayContentService?.destroy();
+    this.clearSendCollectDetailsMessageTimeout();
   }
 }
 

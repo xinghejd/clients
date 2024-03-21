@@ -364,7 +364,9 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     const eventCode = event.code;
     if (eventCode === "Escape") {
       // this.removeAutofillOverlay();
-      void this.sendExtensionMessage("closeAutofillOverlay");
+      void this.sendExtensionMessage("closeAutofillOverlay", {
+        forceCloseOverlay: true,
+      });
       return;
     }
 
@@ -381,9 +383,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       event.preventDefault();
       event.stopPropagation();
 
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.focusOverlayList();
+      void this.focusOverlayList();
     }
   };
 
@@ -439,6 +439,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       // this.removeAutofillOverlayList();
       void this.sendExtensionMessage("closeAutofillOverlay", {
         overlayElement: AutofillOverlayElement.List,
+        forceCloseOverlay: true,
       });
       return;
     }
@@ -538,6 +539,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       // this.removeAutofillOverlayList();
       void this.sendExtensionMessage("closeAutofillOverlay", {
         overlayElement: AutofillOverlayElement.List,
+        forceCloseOverlay: true,
       });
     }
 

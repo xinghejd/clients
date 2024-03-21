@@ -35,7 +35,7 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
     zIndex: "2147483647",
   };
   private readonly _extensionMessageHandlers: InlineMenuExtensionMessageHandlers = {
-    closeInlineMenu: ({ message }) => this.removeInlineMenu(),
+    closeInlineMenu: ({ message }) => this.removeInlineMenu(message),
     updateInlineMenuElementsPosition: ({ message }) =>
       this.updateInlineMenuElementsPosition(message),
     toggleInlineMenuHidden: ({ message }) =>
@@ -67,7 +67,17 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
    * unobserve the body element to ensure the mutation observer no
    * longer triggers.
    */
-  private removeInlineMenu = () => {
+  private removeInlineMenu = (message: any) => {
+    if (message.overlayElement === AutofillOverlayElement.Button) {
+      this.removeInlineMenuButton();
+      return;
+    }
+
+    if (message.overlayElement === AutofillOverlayElement.List) {
+      this.removeInlineMenuList();
+      return;
+    }
+
     this.removeBodyElementObserver();
     this.removeInlineMenuButton();
     this.removeInlineMenuList();
@@ -403,7 +413,7 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
       clearTimeout(this.mutationObserverIterationsResetTimeout);
       this.mutationObserverIterations = 0;
       void this.sendExtensionMessage("blurMostRecentOverlayField");
-      this.removeInlineMenu();
+      this.removeInlineMenu({ forceClose: true });
 
       return true;
     }

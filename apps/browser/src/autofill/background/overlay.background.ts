@@ -377,7 +377,11 @@ class OverlayBackground implements OverlayBackgroundInterface {
     }: { forceCloseOverlay?: boolean; overlayElement?: string } = {},
   ) {
     if (forceCloseOverlay) {
-      void BrowserApi.tabSendMessage(sender.tab, { command: "closeInlineMenu" }, { frameId: 0 });
+      void BrowserApi.tabSendMessage(
+        sender.tab,
+        { command: "closeInlineMenu", overlayElement },
+        { frameId: 0 },
+      );
       return;
     }
 
@@ -745,9 +749,17 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * @param sender - The sender of the port message
    */
   private getNewVaultItemDetails({ sender }: chrome.runtime.Port) {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    BrowserApi.tabSendMessage(sender.tab, { command: "addNewVaultItemFromOverlay" });
+    if (sender.tab.id !== this.focusedFieldData.tabId) {
+      return;
+    }
+
+    void BrowserApi.tabSendMessage(
+      sender.tab,
+      { command: "addNewVaultItemFromOverlay" },
+      {
+        frameId: this.focusedFieldData.frameId || 0,
+      },
+    );
   }
 
   /**
