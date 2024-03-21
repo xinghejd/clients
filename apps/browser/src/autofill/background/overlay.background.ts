@@ -56,8 +56,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private overlayButtonPort: chrome.runtime.Port;
   private overlayListPort: chrome.runtime.Port;
   private focusedFieldData: FocusedFieldData;
-  private isFieldCurrentlyFocused: boolean;
-  private isCurrentlyFilling: boolean;
+  private isFieldCurrentlyFocused: boolean = false;
+  private isCurrentlyFilling: boolean = false;
   private overlayPageTranslations: Record<string, string>;
   private iconsServerUrl: string;
   private readonly extensionMessageHandlers: OverlayBackgroundExtensionMessageHandlers = {
@@ -433,7 +433,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
     { overlayElement }: { overlayElement?: string },
     sender: chrome.runtime.MessageSender,
   ) {
-    if (!overlayElement) {
+    if (!overlayElement || sender.tab.id !== this.focusedFieldData.tabId) {
       return;
     }
 
@@ -443,10 +443,10 @@ class OverlayBackground implements OverlayBackgroundInterface {
       { frameId: 0 },
     );
 
-    const subFrameOffsetsForTab = this.subFrameOffsetsForTab[sender.tab.id];
+    const subFrameOffsetsForTab = this.subFrameOffsetsForTab[this.focusedFieldData.tabId];
     let subFrameOffsets: SubFrameOffsetData;
     if (subFrameOffsetsForTab) {
-      subFrameOffsets = subFrameOffsetsForTab.get(sender.frameId);
+      subFrameOffsets = subFrameOffsetsForTab.get(this.focusedFieldData.frameId);
     }
 
     if (overlayElement === AutofillOverlayElement.Button) {
@@ -814,7 +814,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     const messageResponse = handler({ message, sender });
-    if (!messageResponse) {
+    if (typeof messageResponse === "undefined") {
       return;
     }
 
@@ -852,14 +852,14 @@ class OverlayBackground implements OverlayBackgroundInterface {
       translations: this.getTranslations(),
       ciphers: isOverlayListPort ? await this.getOverlayCipherData() : null,
     });
-    // void this.updateOverlayPosition(
-    //   {
-    //     overlayElement: isOverlayListPort
-    //       ? AutofillOverlayElement.List
-    //       : AutofillOverlayElement.Button,
-    //   },
-    //   port.sender,
-    // );
+    void this.updateOverlayPosition(
+      {
+        overlayElement: isOverlayListPort
+          ? AutofillOverlayElement.List
+          : AutofillOverlayElement.Button,
+      },
+      port.sender,
+    );
   };
 
   /**

@@ -236,7 +236,7 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
   private updateCustomElementDefaultStyles(element: HTMLElement) {
     this.unobserveCustomElements();
 
-    setElementStyles(element, this.customElementDefaultStyles, true);
+    this.setElementStyles(element, this.customElementDefaultStyles, true);
 
     this.observeCustomElements();
   }
