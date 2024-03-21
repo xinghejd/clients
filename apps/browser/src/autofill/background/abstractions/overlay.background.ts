@@ -12,9 +12,10 @@ type PageDetailsForTab = Record<
 >;
 
 type SubFrameOffsetData = {
-  url: string;
+  url?: string;
   top: number;
   left: number;
+  frameId?: number;
 } | null;
 
 type SubFrameOffsetsForTab = Record<
@@ -110,6 +111,7 @@ type OverlayBackgroundExtensionMessageHandlers = {
   updateIsFieldCurrentlyFilling: ({ message }: BackgroundMessageParam) => void;
   checkIsInlineMenuButtonVisible: ({ sender }: BackgroundSenderParam) => void;
   checkIsInlineMenuListVisible: ({ sender }: BackgroundSenderParam) => void;
+  updateSubFrameData: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
 };
 
 type PortMessageParam = {

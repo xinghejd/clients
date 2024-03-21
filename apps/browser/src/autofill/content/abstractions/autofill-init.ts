@@ -10,6 +10,7 @@ export type AutofillExtensionMessage = {
   fillScript?: AutofillScript;
   url?: string;
   subFrameUrl?: string;
+  subFrameId?: string;
   pageDetailsUrl?: string;
   ciphers?: any;
   isInlineMenuHidden?: boolean;
@@ -40,6 +41,7 @@ export type AutofillExtensionMessageHandlers = {
   bgVaultItemRepromptPopoutOpened: () => void;
   updateAutofillOverlayVisibility: ({ message }: AutofillExtensionMessageParam) => void;
   getSubFrameOffsets: ({ message }: AutofillExtensionMessageParam) => Promise<SubFrameOffsetData>;
+  getSubFrameOffsetsThroughWindowMessaging: ({ message }: AutofillExtensionMessageParam) => void;
 };
 
 export interface AutofillInit {

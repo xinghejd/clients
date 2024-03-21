@@ -84,6 +84,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
       (this.isCurrentlyFilling = message.isFieldCurrentlyFilling),
     checkIsInlineMenuButtonVisible: ({ sender }) => this.checkIsInlineMenuButtonVisible(sender),
     checkIsInlineMenuListVisible: ({ sender }) => this.checkIsInlineMenuListVisible(sender),
+    updateSubFrameData: ({ message, sender }) => this.updateSubFrameData(message, sender),
   };
   private readonly overlayButtonPortMessageHandlers: OverlayButtonPortMessageHandlers = {
     overlayButtonClicked: ({ port }) => this.handleOverlayButtonClicked(port),
@@ -125,6 +126,13 @@ class OverlayBackground implements OverlayBackgroundInterface {
       { frameId: 0 },
     );
     return value;
+  }
+
+  updateSubFrameData(message: any, sender: chrome.runtime.MessageSender) {
+    const subFrameOffsetsForTab = this.subFrameOffsetsForTab[sender.tab.id];
+    if (subFrameOffsetsForTab) {
+      subFrameOffsetsForTab.set(message.subFrameData.frameId, message.subFrameData);
+    }
   }
 
   private async checkIsInlineMenuListVisible(sender: chrome.runtime.MessageSender) {
@@ -277,12 +285,26 @@ class OverlayBackground implements OverlayBackgroundInterface {
     while (frameDetails.parentFrameId !== -1) {
       const subFrameOffset: SubFrameOffsetData = await BrowserApi.tabSendMessage(
         tab,
-        { command: "getSubFrameOffsets", subFrameUrl: frameDetails.url },
+        {
+          command: "getSubFrameOffsets",
+          subFrameUrl: frameDetails.url,
+          subFrameId: frameDetails.documentId,
+        },
         { frameId: frameDetails.parentFrameId },
       );
 
       if (!subFrameOffset) {
         subFrameOffsetsForTab.set(frameId, null);
+        void BrowserApi.tabSendMessage(
+          tab,
+          {
+            command: "getSubFrameOffsetsThroughWindowMessaging",
+            subFrameId: frameId,
+          },
+          {
+            frameId: frameId,
+          },
+        );
         return;
       }
 

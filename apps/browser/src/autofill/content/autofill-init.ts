@@ -33,6 +33,8 @@ class AutofillInit implements AutofillInitInterface {
     bgVaultItemRepromptPopoutOpened: () => this.blurAndRemoveOverlay(),
     updateAutofillOverlayVisibility: ({ message }) => this.updateAutofillOverlayVisibility(message),
     getSubFrameOffsets: ({ message }) => this.getSubFrameOffsets(message),
+    getSubFrameOffsetsThroughWindowMessaging: ({ message }) =>
+      this.getSubFrameOffsetsThroughWindowMessaging(message),
   };
 
   /**
@@ -71,6 +73,45 @@ class AutofillInit implements AutofillInitInterface {
       this.domElementVisibilityService,
       this.collectAutofillContentService,
     );
+
+    window.addEventListener("message", (event) => {
+      // if (event.source !== window) {
+      //   return;
+      // }
+
+      if (event.data.command === "calculateSubFramePositioning") {
+        const subFrameData = event.data.subFrameData;
+        let subFrameOffsets: SubFrameOffsetData;
+        const iframes = document.querySelectorAll("iframe");
+        for (let i = 0; i < iframes.length; i++) {
+          if (iframes[i].contentWindow === event.source) {
+            const iframeElement = iframes[i];
+            subFrameOffsets = this.calculateSubFrameOffsets(
+              iframeElement,
+              subFrameData.url,
+              subFrameData.frameId,
+            );
+
+            subFrameData.top += subFrameOffsets.top;
+            subFrameData.left += subFrameOffsets.left;
+
+            break;
+          }
+        }
+
+        if (globalThis.window.self !== globalThis.window.top) {
+          globalThis.parent.postMessage(
+            { command: "calculateSubFramePositioning", subFrameData },
+            "*",
+          );
+          return;
+        }
+
+        void sendExtensionMessage("updateSubFrameData", {
+          subFrameData,
+        });
+      }
+    });
   }
 
   /**
@@ -245,14 +286,27 @@ class AutofillInit implements AutofillInitInterface {
   ): Promise<SubFrameOffsetData | null> {
     const { subFrameUrl } = message;
     const subFrameUrlWithoutTrailingSlash = subFrameUrl?.replace(/\/$/, "");
-    const iframeElement = document.querySelector(
+
+    let iframeElement: HTMLIFrameElement | null = null;
+    const iframeElements = document.querySelectorAll(
       `iframe[src="${subFrameUrl}"], iframe[src="${subFrameUrlWithoutTrailingSlash}"]`,
-    );
+    ) as NodeListOf<HTMLIFrameElement>;
+    if (iframeElements.length === 1) {
+      iframeElement = iframeElements[0];
+    }
 
     if (!iframeElement) {
       return null;
     }
 
+    return this.calculateSubFrameOffsets(iframeElement, subFrameUrl);
+  }
+
+  private calculateSubFrameOffsets(
+    iframeElement: HTMLIFrameElement,
+    subFrameUrl?: string,
+    frameId?: number,
+  ): SubFrameOffsetData {
     const iframeRect = iframeElement.getBoundingClientRect();
     const iframeStyles = globalThis.getComputedStyle(iframeElement);
     const paddingLeft = parseInt(iframeStyles.getPropertyValue("padding-left"));
@@ -262,9 +316,25 @@ class AutofillInit implements AutofillInitInterface {
 
     return {
       url: subFrameUrl,
+      frameId,
       top: iframeRect.top + paddingTop + borderWidthTop,
       left: iframeRect.left + paddingLeft + borderWidthLeft,
     };
+  }
+
+  private getSubFrameOffsetsThroughWindowMessaging(message: any) {
+    globalThis.parent.postMessage(
+      {
+        command: "calculateSubFramePositioning",
+        subFrameData: {
+          url: window.location.href,
+          frameId: message.subFrameId,
+          left: 0,
+          top: 0,
+        },
+      },
+      "*",
+    );
   }
 
   /**
