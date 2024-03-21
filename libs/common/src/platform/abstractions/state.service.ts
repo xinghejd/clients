@@ -8,8 +8,6 @@ import { WindowState } from "../../models/domain/window-state";
 import { GeneratorOptions } from "../../tools/generator/generator-options";
 import { GeneratedPasswordHistory, PasswordGeneratorOptions } from "../../tools/generator/password";
 import { UsernameGeneratorOptions } from "../../tools/generator/username";
-import { SendData } from "../../tools/send/models/data/send.data";
-import { SendView } from "../../tools/send/models/view/send.view";
 import { UserId } from "../../types/guid";
 import { DeviceKey, MasterKey } from "../../types/key";
 import { CipherData } from "../../vault/models/data/cipher.data";
@@ -54,9 +52,6 @@ export abstract class StateService<T extends Account = Account> {
   setAddEditCipherInfo: (value: AddEditCipherInfo, options?: StorageOptions) => Promise<void>;
   getAlwaysShowDock: (options?: StorageOptions) => Promise<boolean>;
   setAlwaysShowDock: (value: boolean, options?: StorageOptions) => Promise<void>;
-
-  getAutoConfirmFingerPrints: (options?: StorageOptions) => Promise<boolean>;
-  setAutoConfirmFingerprints: (value: boolean, options?: StorageOptions) => Promise<void>;
   getBiometricFingerprintValidated: (options?: StorageOptions) => Promise<boolean>;
   setBiometricFingerprintValidated: (value: boolean, options?: StorageOptions) => Promise<void>;
   getConvertAccountToKeyConnector: (options?: StorageOptions) => Promise<boolean>;
@@ -162,14 +157,6 @@ export abstract class StateService<T extends Account = Account> {
    * @deprecated For migration purposes only, use setDecryptedUserKeyPin instead
    */
   setDecryptedPinProtected: (value: EncString, options?: StorageOptions) => Promise<void>;
-  /**
-   * @deprecated Do not call this directly, use SendService
-   */
-  getDecryptedSends: (options?: StorageOptions) => Promise<SendView[]>;
-  /**
-   * @deprecated Do not call this directly, use SendService
-   */
-  setDecryptedSends: (value: SendView[], options?: StorageOptions) => Promise<void>;
   getDisableGa: (options?: StorageOptions) => Promise<boolean>;
   setDisableGa: (value: boolean, options?: StorageOptions) => Promise<void>;
   getDuckDuckGoSharedKey: (options?: StorageOptions) => Promise<string>;
@@ -236,14 +223,6 @@ export abstract class StateService<T extends Account = Account> {
    * @deprecated For migration purposes only, use setEncryptedUserKeyPin instead
    */
   setEncryptedPinProtected: (value: string, options?: StorageOptions) => Promise<void>;
-  /**
-   * @deprecated Do not call this directly, use SendService
-   */
-  getEncryptedSends: (options?: StorageOptions) => Promise<{ [id: string]: SendData }>;
-  /**
-   * @deprecated Do not call this directly, use SendService
-   */
-  setEncryptedSends: (value: { [id: string]: SendData }, options?: StorageOptions) => Promise<void>;
   getEverBeenUnlocked: (options?: StorageOptions) => Promise<boolean>;
   setEverBeenUnlocked: (value: boolean, options?: StorageOptions) => Promise<void>;
   getForceSetPasswordReason: (options?: StorageOptions) => Promise<ForceSetPasswordReason>;

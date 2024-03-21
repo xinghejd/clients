@@ -27,6 +27,7 @@ import {
   OrgDomainInternalServiceAbstraction,
   OrgDomainServiceAbstraction,
 } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain.service.abstraction";
+import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import { OrganizationUserService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user.service";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import {
@@ -38,6 +39,7 @@ import { OrganizationApiService } from "@bitwarden/common/admin-console/services
 import { OrganizationService } from "@bitwarden/common/admin-console/services/organization/organization.service";
 import { OrgDomainApiService } from "@bitwarden/common/admin-console/services/organization-domain/org-domain-api.service";
 import { OrgDomainService } from "@bitwarden/common/admin-console/services/organization-domain/org-domain.service";
+import { DefaultOrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/services/organization-management-preferences/default-organization-management-preferences.service";
 import { OrganizationUserServiceImplementation } from "@bitwarden/common/admin-console/services/organization-user/organization-user.service.implementation";
 import { PolicyApiService } from "@bitwarden/common/admin-console/services/policy/policy-api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/services/policy/policy.service";
@@ -189,6 +191,8 @@ import { AsymmetricalSendState } from "@bitwarden/common/tools/send/services/asy
 import { LegacySendStateService } from "@bitwarden/common/tools/send/services/legacy-send-state.service";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendStateProvider as SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
+import { SendStateProvider as SendStateProviderAbstraction } from "@bitwarden/common/tools/send/services/send-state.provider.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
 import {
   InternalSendService,
@@ -543,7 +547,8 @@ const typesafeProviders: Array<SafeProvider> = [
     useFactory: (
       cryptoService: CryptoServiceAbstraction,
       i18nService: I18nServiceAbstraction,
-      stateService: StateServiceAbstraction,
+      stateService: SendStateProviderAbstraction,
+      accountService: AccountServiceAbstraction,
     ) =>
       new LegacySendStateService(
         {
@@ -552,8 +557,14 @@ const typesafeProviders: Array<SafeProvider> = [
         cryptoService,
         i18nService,
         stateService,
+        accountService,
       ),
-    deps: [CryptoServiceAbstraction, I18nServiceAbstraction, StateServiceAbstraction],
+    deps: [
+      CryptoServiceAbstraction,
+      I18nServiceAbstraction,
+      SendStateProviderAbstraction,
+      AccountServiceAbstraction,
+    ],
   }),
   safeProvider({
     provide: SendServiceAbstraction,
@@ -566,9 +577,14 @@ const typesafeProviders: Array<SafeProvider> = [
       CryptoServiceAbstraction,
       I18nServiceAbstraction,
       KeyGenerationServiceAbstraction,
-      StateServiceAbstraction,
+      SendStateProviderAbstraction,
       AsymmetricalSendState,
     ],
+  }),
+  safeProvider({
+    provide: SendStateProviderAbstraction,
+    useClass: SendStateProvider,
+    deps: [StateProvider],
   }),
   safeProvider({
     provide: SendApiServiceAbstraction,
@@ -1067,6 +1083,11 @@ const typesafeProviders: Array<SafeProvider> = [
     provide: BillingAccountProfileStateService,
     useClass: DefaultBillingAccountProfileStateService,
     deps: [ActiveUserStateProvider],
+  }),
+  safeProvider({
+    provide: OrganizationManagementPreferencesService,
+    useClass: DefaultOrganizationManagementPreferencesService,
+    deps: [StateProvider],
   }),
 ];
 

@@ -2,6 +2,7 @@ import {
   BehaviorSubject,
   Observable,
   ReplaySubject,
+  combineLatest,
   concatMap,
   distinctUntilChanged,
   filter,
@@ -10,15 +11,16 @@ import {
   timer,
 } from "rxjs";
 
+import { AccountService } from "../../../auth/abstractions/account.service";
 import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
-import { StateService } from "../../../platform/abstractions/state.service";
 import { Utils } from "../../../platform/misc/utils";
 import { SendData } from "../models/data/send.data";
 import { Send } from "../models/domain/send";
 import { SendView } from "../models/view/send.view";
 
 import { SendStateOptions, AsymmetricalSendState } from "./asymmetrical-send-state.abstraction";
+import { SendStateProvider } from "./send-state.provider.abstraction";
 
 export class LegacySendStateService implements AsymmetricalSendState {
   readonly sendKeySalt = "bitwarden-send";
@@ -27,16 +29,19 @@ export class LegacySendStateService implements AsymmetricalSendState {
     options: SendStateOptions,
     private cryptoService: CryptoService,
     private i18nService: I18nService,
-    private stateService: StateService,
+    private stateService: SendStateProvider,
+    private accountService: AccountService,
   ) {
-    this.stateService.activeAccountUnlocked$
+    combineLatest([this.accountService.activeAccount$, this.accountService.accountLock$])
       .pipe(
-        concatMap(async (unlocked) => {
+        concatMap(async ([activeAccount, lock]) => {
           if (Utils.global.bitwardenContainerService == null) {
             return;
           }
 
-          if (!unlocked) {
+          // If lock has a value and the value is the active UserId
+          // the account is locked
+          if (lock && lock == activeAccount.id) {
             this._encryptedSends.next([]);
             return;
           }

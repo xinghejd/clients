@@ -3,7 +3,6 @@ import { Observable, firstValueFrom } from "rxjs";
 import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
-import { StateService } from "../../../platform/abstractions/state.service";
 import { KdfType } from "../../../platform/enums";
 import { Utils } from "../../../platform/misc/utils";
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
@@ -20,6 +19,7 @@ import { SendView } from "../models/view/send.view";
 import { SEND_KDF_ITERATIONS } from "../send-kdf";
 
 import { AsymmetricalSendState } from "./asymmetrical-send-state.abstraction";
+import { SendStateProvider } from "./send-state.provider.abstraction";
 import { InternalSendService as InternalSendServiceAbstraction } from "./send.service.abstraction";
 
 export class SendService implements InternalSendServiceAbstraction {
@@ -32,7 +32,7 @@ export class SendService implements InternalSendServiceAbstraction {
     private cryptoService: CryptoService,
     private i18nService: I18nService,
     private keyGenerationService: KeyGenerationService,
-    private stateService: StateService,
+    private stateService: SendStateProvider,
     private legacySendState: AsymmetricalSendState,
   ) {
     this.sendViews$ = this.legacySendState.sendViews$;

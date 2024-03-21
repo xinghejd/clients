@@ -90,9 +90,12 @@ import {
 import { LegacySendStateService } from "@bitwarden/common/tools/send/services/legacy-send-state.service";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
+import { SendStateProvider as SendStateProviderAbstraction } from "@bitwarden/common/tools/send/services/send-state.provider.abstraction";
+import { SendService } from "@bitwarden/common/tools/send/services/send.service";
 import {
   InternalSendService as InternalSendServiceAbstraction,
-  SendService,
+  SendService as SendServiceAbstraction,
 } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
@@ -122,7 +125,6 @@ import I18nService from "../../platform/services/i18n.service";
 import { ForegroundPlatformUtilsService } from "../../platform/services/platform-utils/foreground-platform-utils.service";
 import { ForegroundDerivedStateProvider } from "../../platform/state/foreground-derived-state.provider";
 import { ForegroundMemoryStorageService } from "../../platform/storage/foreground-memory-storage.service";
-import { BrowserSendService } from "../../services/browser-send.service";
 import { FilePopoutUtilsService } from "../../tools/popup/services/file-popout-utils.service";
 import { VaultFilterService } from "../../vault/services/vault-filter.service";
 
@@ -308,29 +310,46 @@ function getBgService<T>(service: keyof MainBackground) {
       deps: [],
     },
     {
+      provide: SendStateProviderAbstraction,
+      useClass: SendStateProvider,
+      deps: [StateProvider],
+    },
+    {
       provide: AsymmetricalSendState,
       useFactory: (
         cryptoService: CryptoService,
         i18nService: I18nService,
-        stateService: StateServiceAbstraction,
+        stateService: SendStateProviderAbstraction,
+        accountService: AccountServiceAbstraction,
       ) => {
         const options: SendStateOptions = {
           cache_ms: 1000,
         };
-        return new LegacySendStateService(options, cryptoService, i18nService, stateService);
+        return new LegacySendStateService(
+          options,
+          cryptoService,
+          i18nService,
+          stateService,
+          accountService,
+        );
       },
-      deps: [CryptoService, I18nServiceAbstraction, StateServiceAbstraction],
+      deps: [
+        CryptoService,
+        I18nServiceAbstraction,
+        StateServiceAbstraction,
+        AccountServiceAbstraction,
+      ],
     },
     {
-      provide: SendService,
+      provide: SendServiceAbstraction,
       useFactory: (
         cryptoService: CryptoService,
         i18nService: I18nServiceAbstraction,
         keyGenerationService: KeyGenerationService,
-        stateServiceAbstraction: StateServiceAbstraction,
+        stateServiceAbstraction: SendStateProviderAbstraction,
         legacySendState: AsymmetricalSendState,
       ) => {
-        return new BrowserSendService(
+        return new SendService(
           cryptoService,
           i18nService,
           keyGenerationService,
@@ -348,7 +367,7 @@ function getBgService<T>(service: keyof MainBackground) {
     },
     {
       provide: InternalSendServiceAbstraction,
-      useExisting: SendService,
+      useExisting: SendServiceAbstraction,
     },
     {
       provide: SendApiServiceAbstraction,
