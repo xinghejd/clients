@@ -625,6 +625,22 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * Updates the position of the overlay button.
    */
   private updateOverlayButtonPosition() {
+    // if (!this.overlayButtonElement) {
+    //   this.createAutofillOverlayButton();
+    //   this.updateCustomElementDefaultStyles(this.overlayButtonElement);
+    // }
+    //
+    // if (!this.isOverlayButtonVisible) {
+    //   this.appendOverlayElementToBody(this.overlayButtonElement);
+    //   this.isOverlayButtonVisible = true;
+    //   this.setOverlayRepositionEventListeners();
+    // }
+    // // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    // this.sendExtensionMessage("updateAutofillOverlayPosition", {
+    //   overlayElement: AutofillOverlayElement.Button,
+    // });
+
     void this.sendExtensionMessage("updateAutofillOverlayPosition", {
       overlayElement: AutofillOverlayElement.Button,
     });
@@ -634,6 +650,22 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * Updates the position of the overlay list.
    */
   private updateOverlayListPosition() {
+    // if (!this.overlayListElement) {
+    //   this.createAutofillOverlayList();
+    //   this.updateCustomElementDefaultStyles(this.overlayListElement);
+    // }
+    //
+    // if (!this.isOverlayListVisible) {
+    //   this.appendOverlayElementToBody(this.overlayListElement);
+    //   this.isOverlayListVisible = true;
+    // }
+    //
+    // // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    // this.sendExtensionMessage("updateAutofillOverlayPosition", {
+    //   overlayElement: AutofillOverlayElement.List,
+    // });
+
     void this.sendExtensionMessage("updateAutofillOverlayPosition", {
       overlayElement: AutofillOverlayElement.List,
     });
