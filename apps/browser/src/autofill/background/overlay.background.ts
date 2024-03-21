@@ -59,7 +59,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private isFieldCurrentlyFocused: boolean;
   private isCurrentlyFilling: boolean;
   private overlayPageTranslations: Record<string, string>;
-  private readonly iconsServerUrl: string;
+  private iconsServerUrl: string;
   private readonly extensionMessageHandlers: OverlayBackgroundExtensionMessageHandlers = {
     openAutofillOverlay: () => this.openOverlay(false),
     closeAutofillOverlay: ({ message, sender }) => this.closeOverlay(sender, message),
@@ -116,9 +116,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private themeStateService: ThemeStateService,
-  ) {
-    this.iconsServerUrl = this.environmentService.getIconsUrl();
-  }
+  ) {}
 
   private async checkIsInlineMenuButtonVisible(sender: chrome.runtime.MessageSender) {
     const value = await BrowserApi.tabSendMessage(
@@ -161,6 +159,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
    */
   async init() {
     this.setupExtensionMessageListeners();
+    const env = await firstValueFrom(this.environmentService.environment$);
+    this.iconsServerUrl = env.getIconsUrl();
     await this.getOverlayVisibility();
     await this.getAuthStatus();
   }
