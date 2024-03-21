@@ -245,10 +245,10 @@ class AutofillInit implements AutofillInitInterface {
   ): Promise<SubFrameOffsetData | null> {
     const { subFrameUrl } = message;
     const subFrameUrlWithoutTrailingSlash = subFrameUrl?.replace(/\/$/, "");
-
     const iframeElement = document.querySelector(
-      `iframe[src^="${subFrameUrlWithoutTrailingSlash}"]`,
+      `iframe[src="${subFrameUrl}"], iframe[src="${subFrameUrlWithoutTrailingSlash}"]`,
     );
+
     if (!iframeElement) {
       return null;
     }
