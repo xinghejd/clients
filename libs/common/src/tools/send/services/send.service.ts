@@ -1,13 +1,7 @@
-import {
-  BehaviorSubject,
-  Observable,
-  combineLatest,
-  concatMap,
-  distinctUntilChanged,
-  map,
-} from "rxjs";
+import { BehaviorSubject, Observable, concatMap, distinctUntilChanged, map } from "rxjs";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
+import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { KeyGenerationService } from "../../../platform/abstractions/key-generation.service";
@@ -46,17 +40,15 @@ export class SendService implements InternalSendServiceAbstraction {
     private stateService: SendStateProvider,
     private accountService: AccountService,
   ) {
-    // Subscribe to active account and account lock is changes
-    combineLatest([this.accountService.activeAccount$, this.accountService.accountLock$])
+    // Subscribe to active account
+    this.accountService.activeAccount$
       .pipe(
-        concatMap(async ([activeAccount, lock]) => {
+        concatMap(async (account) => {
           if (Utils.global.bitwardenContainerService == null) {
             return;
           }
 
-          // If lock has a value and the value is the active UserId
-          // the account is locked
-          if (lock && lock == activeAccount.id) {
+          if (account.status === AuthenticationStatus.Locked) {
             this._sends.next([]);
             this._sendViews.next([]);
             return;
