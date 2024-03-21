@@ -27,6 +27,11 @@ type LpImporterMessageHandlers = {
   startLpImport: ({ message }: { message: FilelessImportPortMessage }) => void;
 };
 
+type CreepImporterMessageHandlers = {
+  [key: string]: ({ message, port }: FilelessImportPortMessageHandlerParams) => void;
+  startCreepFilelessImport: ({ message }: { message: FilelessImportPortMessage }) => void;
+};
+
 interface FilelessImporterBackground {
   init(): void;
 }
@@ -37,4 +42,5 @@ export {
   ImportNotificationMessageHandlers,
   LpImporterMessageHandlers,
   FilelessImporterBackground,
+  CreepImporterMessageHandlers,
 };

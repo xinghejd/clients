@@ -41,6 +41,12 @@
       "js": ["content/lp-fileless-importer.js"],
       "matches": ["https://lastpass.com/export.php"],
       "run_at": "document_start"
+    },
+    {
+      "all_frames": false,
+      "js": ["content/creep-fileless-importer.js"],
+      "matches": ["https://creep-app.stag.global.nordpass.com/*"],
+      "run_at": "document_start"
     }
   ],
   "background": {

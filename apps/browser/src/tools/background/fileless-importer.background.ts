@@ -24,15 +24,18 @@ import {
   FilelessImporterBackground as FilelessImporterBackgroundInterface,
   FilelessImportPortMessage,
   SuppressDownloadScriptInjectionConfig,
+  CreepImporterMessageHandlers,
 } from "./abstractions/fileless-importer.background";
 
 class FilelessImporterBackground implements FilelessImporterBackgroundInterface {
   private static readonly filelessImporterPortNames: Set<string> = new Set([
     FilelessImportPort.LpImporter,
     FilelessImportPort.NotificationBar,
+    FilelessImportPort.CREEPImporter,
   ]);
   private importNotificationsPort: chrome.runtime.Port;
   private lpImporterPort: chrome.runtime.Port;
+  private creepImporterPort: chrome.runtime.Port;
   private readonly importNotificationsPortMessageHandlers: ImportNotificationMessageHandlers = {
     startFilelessImport: ({ message }) => this.startFilelessImport(message.importType),
     cancelFilelessImport: ({ message, port }) =>
@@ -42,6 +45,9 @@ class FilelessImporterBackground implements FilelessImporterBackgroundInterface 
     displayLpImportNotification: ({ port }) =>
       this.displayFilelessImportNotification(port.sender.tab, FilelessImportType.LP),
     startLpImport: ({ message }) => this.triggerLpImport(message.data),
+  };
+  private readonly creepImporterPortMessageHandlers: CreepImporterMessageHandlers = {
+    startCreepFilelessImport: ({ message }) => this.triggerCreepImport(message.data),
   };
 
   /**
@@ -171,6 +177,17 @@ class FilelessImporterBackground implements FilelessImporterBackgroundInterface 
     }
   }
 
+  private triggerCreepImport(data: string) {
+    if (!data) {
+      return;
+    }
+
+    // Handle Import
+
+    // eslint-disable-next-line
+    console.log(data);
+  }
+
   /**
    * Identifies if the user account has a policy that disables personal ownership.
    */
@@ -250,6 +267,9 @@ class FilelessImporterBackground implements FilelessImporterBackgroundInterface 
       case FilelessImportPort.NotificationBar:
         handler = this.importNotificationsPortMessageHandlers[message.command];
         break;
+      case FilelessImportPort.CREEPImporter:
+        handler = this.creepImporterPortMessageHandlers[message.command];
+        break;
     }
 
     if (!handler) {
@@ -270,6 +290,9 @@ class FilelessImporterBackground implements FilelessImporterBackgroundInterface 
         break;
       case FilelessImportPort.NotificationBar:
         this.importNotificationsPort = null;
+        break;
+      case FilelessImportPort.CREEPImporter:
+        this.creepImporterPort = null;
         break;
     }
   };

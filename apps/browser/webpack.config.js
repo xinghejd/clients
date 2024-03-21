@@ -175,6 +175,7 @@ const mainConfig = {
     "overlay/list": "./src/autofill/overlay/pages/list/bootstrap-autofill-overlay-list.ts",
     "encrypt-worker": "../../libs/common/src/platform/services/cryptography/encrypt.worker.ts",
     "content/lp-fileless-importer": "./src/tools/content/lp-fileless-importer.ts",
+    "content/creep-fileless-importer": "./src/tools/content/creep-fileless-importer.ts",
     "content/send-on-installed-message": "./src/vault/content/send-on-installed-message.ts",
     "content/lp-suppress-import-download": "./src/tools/content/lp-suppress-import-download.ts",
   },
