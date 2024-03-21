@@ -4,6 +4,7 @@ import { ToastrService } from "ngx-toastr";
 
 import { UnauthGuard as BaseUnauthGuardService } from "@bitwarden/angular/auth/guards";
 import { AngularThemingService } from "@bitwarden/angular/platform/services/theming/angular-theming.service";
+import { safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
   MEMORY_STORAGE,
   SECURE_STORAGE,
@@ -14,6 +15,7 @@ import {
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
 import {
   AuthRequestServiceAbstraction,
+  InternalUserDecryptionOptionsServiceAbstraction,
   LoginStrategyService,
   LoginStrategyServiceAbstraction,
 } from "@bitwarden/auth/common";
@@ -32,11 +34,11 @@ import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-con
 import { LoginService as LoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/login.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
-import { TwoFactorService as TwoFactorServiceAbstraction } from "@bitwarden/common/auth/abstractions/two-factor.service";
+import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { LoginService } from "@bitwarden/common/auth/services/login.service";
-import { TwoFactorService } from "@bitwarden/common/auth/services/two-factor.service";
+import { TwoFactorService as DefaultTwoFactorService } from "@bitwarden/common/auth/services/two-factor.service";
 import {
   AutofillSettingsService,
   AutofillSettingsServiceAbstraction,
@@ -49,6 +51,8 @@ import {
   UserNotificationSettingsService,
   UserNotificationSettingsServiceAbstraction,
 } from "@bitwarden/common/autofill/services/user-notification-settings.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
+import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
@@ -84,6 +88,7 @@ import {
 import { SearchService } from "@bitwarden/common/services/search.service";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 import { UsernameGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/username";
+import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength/password-strength.service.abstraction";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import {
@@ -171,8 +176,8 @@ function getBgService<T>(service: keyof MainBackground) {
       },
     },
     {
-      provide: TwoFactorServiceAbstraction,
-      useClass: TwoFactorService,
+      provide: TwoFactorService,
+      useClass: DefaultTwoFactorService,
       deps: [I18nServiceAbstraction, PlatformUtilsService],
     },
     {
@@ -180,7 +185,7 @@ function getBgService<T>(service: keyof MainBackground) {
       useFactory: getBgService<AuthService>("authService"),
       deps: [],
     },
-    {
+    safeProvider({
       provide: LoginStrategyServiceAbstraction,
       useClass: LoginStrategyService,
       deps: [
@@ -194,15 +199,18 @@ function getBgService<T>(service: keyof MainBackground) {
         KeyConnectorService,
         EnvironmentService,
         StateServiceAbstraction,
-        TwoFactorServiceAbstraction,
+        TwoFactorService,
         I18nServiceAbstraction,
         EncryptService,
         PasswordStrengthServiceAbstraction,
         PolicyService,
         DeviceTrustCryptoServiceAbstraction,
         AuthRequestServiceAbstraction,
+        InternalUserDecryptionOptionsServiceAbstraction,
+        GlobalStateProvider,
+        BillingAccountProfileStateService,
       ],
-    },
+    }),
     {
       provide: SsoLoginServiceAbstraction,
       useFactory: getBgService<SsoLoginServiceAbstraction>("ssoLoginService"),
