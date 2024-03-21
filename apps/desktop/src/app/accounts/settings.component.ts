@@ -3,14 +3,12 @@ import { FormBuilder } from "@angular/forms";
 import { BehaviorSubject, firstValueFrom, Observable, Subject } from "rxjs";
 import { concatMap, debounceTime, filter, map, switchMap, takeUntil, tap } from "rxjs/operators";
 
-import { AbstractThemingService } from "@bitwarden/angular/platform/services/theming/theming.service.abstraction";
-import { ModalService } from "@bitwarden/angular/services/modal.service";
-import { SettingsService } from "@bitwarden/common/abstractions/settings.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { UserVerificationService as UserVerificationServiceAbstraction } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { DeviceType } from "@bitwarden/common/enums";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
@@ -21,10 +19,12 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { ThemeType, KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { DialogService } from "@bitwarden/components";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
 import { flagEnabled } from "../../platform/flags";
+import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 
 @Component({
   selector: "app-settings",
@@ -97,6 +97,7 @@ export class SettingsComponent implements OnInit {
       value: false,
       disabled: true,
     }),
+    enableHardwareAcceleration: true,
     enableDuckDuckGoBrowserIntegration: false,
     theme: [null as ThemeType | null],
     locale: [null as string | null],
@@ -115,12 +116,12 @@ export class SettingsComponent implements OnInit {
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private messagingService: MessagingService,
     private cryptoService: CryptoService,
-    private modalService: ModalService,
-    private themingService: AbstractThemingService,
-    private settingsService: SettingsService,
+    private themeStateService: ThemeStateService,
+    private domainSettingsService: DomainSettingsService,
     private dialogService: DialogService,
     private userVerificationService: UserVerificationServiceAbstraction,
     private biometricStateService: BiometricStateService,
+    private desktopSettingsService: DesktopSettingsService,
   ) {
     const isMac = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
 
@@ -251,7 +252,7 @@ export class SettingsComponent implements OnInit {
       approveLoginRequests: (await this.stateService.getApproveLoginRequests()) ?? false,
       clearClipboard: await firstValueFrom(this.autofillSettingsService.clearClipboardDelay$),
       minimizeOnCopyToClipboard: await this.stateService.getMinimizeOnCopyToClipboard(),
-      enableFavicons: !(await this.stateService.getDisableFavicon()),
+      enableFavicons: await firstValueFrom(this.domainSettingsService.showFavicons$),
       enableTray: await this.stateService.getEnableTray(),
       enableMinToTray: await this.stateService.getEnableMinimizeToTray(),
       enableCloseToTray: await this.stateService.getEnableCloseToTray(),
@@ -261,10 +262,13 @@ export class SettingsComponent implements OnInit {
       enableBrowserIntegration: await this.stateService.getEnableBrowserIntegration(),
       enableBrowserIntegrationFingerprint:
         await this.stateService.getEnableBrowserIntegrationFingerprint(),
+      enableHardwareAcceleration: await firstValueFrom(
+        this.desktopSettingsService.hardwareAcceleration$,
+      ),
       enableDuckDuckGoBrowserIntegration:
         await this.stateService.getEnableDuckDuckGoBrowserIntegration(),
-      theme: await this.stateService.getTheme(),
-      locale: (await this.stateService.getLocale()) ?? null,
+      theme: await firstValueFrom(this.themeStateService.selectedTheme$),
+      locale: await firstValueFrom(this.i18nService.userSetLocale$),
     };
     this.form.setValue(initialValues, { emitEvent: false });
 
@@ -498,7 +502,7 @@ export class SettingsComponent implements OnInit {
   }
 
   async saveFavicons() {
-    await this.settingsService.setDisableFavicon(!this.form.value.enableFavicons);
+    await this.domainSettingsService.setShowFavicons(this.form.value.enableFavicons);
     this.messagingService.send("refreshCiphers");
   }
 
@@ -553,11 +557,11 @@ export class SettingsComponent implements OnInit {
   }
 
   async saveLocale() {
-    await this.stateService.setLocale(this.form.value.locale);
+    await this.i18nService.setLocale(this.form.value.locale);
   }
 
   async saveTheme() {
-    await this.themingService.updateConfiguredTheme(this.form.value.theme);
+    await this.themeStateService.setSelectedTheme(this.form.value.theme);
   }
 
   async saveMinOnCopyToClipboard() {
@@ -654,6 +658,12 @@ export class SettingsComponent implements OnInit {
   async saveBrowserIntegrationFingerprint() {
     await this.stateService.setEnableBrowserIntegrationFingerprint(
       this.form.value.enableBrowserIntegrationFingerprint,
+    );
+  }
+
+  async saveHardwareAcceleration() {
+    await this.desktopSettingsService.setHardwareAcceleration(
+      this.form.value.enableHardwareAcceleration,
     );
   }
 

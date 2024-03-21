@@ -1,3 +1,5 @@
+import { firstValueFrom } from "rxjs";
+
 import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
 import { AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
@@ -19,7 +21,7 @@ import { AutofillService } from "../autofill/services/abstractions/autofill.serv
 import { BrowserApi } from "../platform/browser/browser-api";
 import { BrowserStateService } from "../platform/services/abstractions/browser-state.service";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
-import BrowserPlatformUtilsService from "../platform/services/browser-platform-utils.service";
+import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
 import { AbortManager } from "../vault/background/abort-manager";
 import { Fido2Service } from "../vault/services/abstractions/fido2.service";
 
@@ -68,6 +70,7 @@ export default class RuntimeBackground {
         "checkFido2FeatureEnabled",
         "fido2RegisterCredentialRequest",
         "fido2GetCredentialRequest",
+        "biometricUnlock",
       ];
 
       if (messagesWithResponse.includes(msg.command)) {
@@ -95,6 +98,10 @@ export default class RuntimeBackground {
       case "loggedIn":
       case "unlocked": {
         let item: LockedVaultPendingNotificationsData;
+
+        if (msg.command === "loggedIn") {
+          await this.sendBwInstalledMessageToVault();
+        }
 
         if (this.lockedVaultPendingNotifications?.length > 0) {
           item = this.lockedVaultPendingNotifications.pop();
@@ -129,9 +136,6 @@ export default class RuntimeBackground {
             await this.main.refreshBadge();
             await this.main.refreshMenu();
           }, 2000);
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          this.main.avatarUpdateService.loadColorFromState();
           this.configService.triggerServerConfigFetch();
         }
         break;
@@ -218,7 +222,8 @@ export default class RuntimeBackground {
         }
         break;
       case "authResult": {
-        const vaultUrl = this.environmentService.getWebVaultUrl();
+        const env = await firstValueFrom(this.environmentService.environment$);
+        const vaultUrl = env.getWebVaultUrl();
 
         if (msg.referrer == null || Utils.getHostname(vaultUrl) !== msg.referrer) {
           return;
@@ -239,7 +244,8 @@ export default class RuntimeBackground {
         break;
       }
       case "webAuthnResult": {
-        const vaultUrl = this.environmentService.getWebVaultUrl();
+        const env = await firstValueFrom(this.environmentService.environment$);
+        const vaultUrl = env.getWebVaultUrl();
 
         if (msg.referrer == null || Utils.getHostname(vaultUrl) !== msg.referrer) {
           return;
@@ -305,6 +311,14 @@ export default class RuntimeBackground {
         );
       case "switchAccount": {
         await this.main.switchAccount(msg.userId);
+        break;
+      }
+      case "clearClipboard": {
+        await this.main.clearClipboard(msg.clipboardValue, msg.timeoutMs);
+        break;
+      }
+      case "biometricUnlock": {
+        return await this.main.biometricUnlock();
       }
     }
   }
@@ -345,8 +359,6 @@ export default class RuntimeBackground {
           if (await this.environmentService.hasManagedEnvironment()) {
             await this.environmentService.setUrlsToManagedEnvironment();
           }
-
-          await this.sendBwInstalledMessageToVault();
         }
 
         this.onInstalledReason = null;
@@ -356,7 +368,8 @@ export default class RuntimeBackground {
 
   async sendBwInstalledMessageToVault() {
     try {
-      const vaultUrl = this.environmentService.getWebVaultUrl();
+      const env = await firstValueFrom(this.environmentService.environment$);
+      const vaultUrl = env.getWebVaultUrl();
       const urlObj = new URL(vaultUrl);
 
       const tabs = await BrowserApi.tabsQuery({ url: `${urlObj.href}*` });
