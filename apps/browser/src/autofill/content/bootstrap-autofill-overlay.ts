@@ -8,7 +8,7 @@ import AutofillInit from "./autofill-init";
   if (!windowContext.bitwardenAutofillInit) {
     const autofillOverlayContentService = new AutofillOverlayContentService();
     let inlineMenuElements: InlineMenuElements;
-    if (globalThis.parent === globalThis.top) {
+    if (globalThis.self === globalThis.top) {
       inlineMenuElements = new InlineMenuElements();
     }
     windowContext.bitwardenAutofillInit = new AutofillInit(

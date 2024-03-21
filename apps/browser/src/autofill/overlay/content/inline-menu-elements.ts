@@ -422,5 +422,6 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
   }
   destroy() {
     this.documentElementMutationObserver?.disconnect();
+    this.removeInlineMenu({ forceClose: true });
   }
 }

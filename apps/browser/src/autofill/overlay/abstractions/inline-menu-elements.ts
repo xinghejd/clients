@@ -11,4 +11,5 @@ export type InlineMenuExtensionMessageHandlers = {
 
 export interface InlineMenuElements {
   extensionMessageHandlers: InlineMenuExtensionMessageHandlers;
+  destroy: () => void;
 }

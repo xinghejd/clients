@@ -623,15 +623,11 @@ class OverlayBackground implements OverlayBackgroundInterface {
    */
   private handleOverlayButtonClicked(port: chrome.runtime.Port) {
     if (this.userAuthStatus !== AuthenticationStatus.Unlocked) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.unlockVault(port);
+      void this.unlockVault(port);
       return;
     }
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.openOverlay(false, true);
+    void this.openOverlay(false, true);
   }
 
   /**
@@ -737,9 +733,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    BrowserApi.tabSendMessageData(sender.tab, "redirectOverlayFocusOut", { direction });
+    void BrowserApi.tabSendMessageData(sender.tab, "redirectOverlayFocusOut", { direction });
   }
 
   /**
