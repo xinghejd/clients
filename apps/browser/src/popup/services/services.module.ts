@@ -79,7 +79,6 @@ import {
 import { SearchService } from "@bitwarden/common/services/search.service";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 import { UsernameGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/username";
-import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { CipherFileUploadService } from "@bitwarden/common/vault/abstractions/file-upload/cipher-file-upload.service";
@@ -87,7 +86,6 @@ import { FolderService as FolderServiceAbstraction } from "@bitwarden/common/vau
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { DialogService } from "@bitwarden/components";
-import { ImportServiceAbstraction } from "@bitwarden/importer/core";
 import { VaultExportServiceAbstraction } from "@bitwarden/vault-export-core";
 
 import { UnauthGuardService } from "../../auth/popup/services";
@@ -214,12 +212,12 @@ function getBgService<T>(service: keyof MainBackground) {
     },
     {
       provide: BrowserEnvironmentService,
-      useExisting: EnvironmentService,
+      useClass: BrowserEnvironmentService,
+      deps: [LogService, StateProvider, AccountServiceAbstraction],
     },
     {
       provide: EnvironmentService,
-      useFactory: getBgService<EnvironmentService>("environmentService"),
-      deps: [],
+      useExisting: BrowserEnvironmentService,
     },
     { provide: TotpService, useFactory: getBgService<TotpService>("totpService"), deps: [] },
     {
@@ -283,11 +281,6 @@ function getBgService<T>(service: keyof MainBackground) {
       deps: [DomSanitizer, ToastrService],
     },
     {
-      provide: PasswordStrengthServiceAbstraction,
-      useFactory: getBgService<PasswordStrengthServiceAbstraction>("passwordStrengthService"),
-      deps: [],
-    },
-    {
       provide: PasswordGenerationServiceAbstraction,
       useFactory: getBgService<PasswordGenerationServiceAbstraction>("passwordGenerationService"),
       deps: [],
@@ -306,11 +299,6 @@ function getBgService<T>(service: keyof MainBackground) {
     {
       provide: AutofillService,
       useFactory: getBgService<AutofillService>("autofillService"),
-      deps: [],
-    },
-    {
-      provide: ImportServiceAbstraction,
-      useFactory: getBgService<ImportServiceAbstraction>("importService"),
       deps: [],
     },
     {
@@ -450,6 +438,7 @@ function getBgService<T>(service: keyof MainBackground) {
         ConfigApiServiceAbstraction,
         AuthServiceAbstraction,
         EnvironmentService,
+        StateProvider,
         LogService,
       ],
     },
