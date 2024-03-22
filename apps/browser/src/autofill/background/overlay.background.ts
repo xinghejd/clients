@@ -600,7 +600,13 @@ class OverlayBackground implements OverlayBackgroundInterface {
     sender: chrome.runtime.MessageSender,
   ) {
     const display = isOverlayHidden ? "none" : "block";
-    const styles = setTransparentOverlay ? { display, opacity: 0 } : { display };
+    let styles: { display: string; opacity?: number } = { display };
+
+    if (typeof setTransparentOverlay !== "undefined") {
+      const opacity = setTransparentOverlay ? 0 : 1;
+      styles = { ...styles, opacity };
+    }
+
     const portMessage = { command: "updateOverlayHidden", styles };
 
     void BrowserApi.tabSendMessage(

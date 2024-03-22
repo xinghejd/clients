@@ -749,7 +749,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
 
     if (
       this.focusedFieldData.focusedFieldRects?.top > 0 &&
-      this.focusedFieldData.focusedFieldRects?.top < window.innerHeight
+      this.focusedFieldData.focusedFieldRects?.top < window.innerHeight + window.scrollY
     ) {
       return;
     }
