@@ -555,10 +555,12 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * Sends a message that facilitates hiding the overlay elements.
    *
    * @param isHidden - Indicates if the overlay elements should be hidden.
+   * @param setTransparentOverlay - Indicates if the overlay is closing.
    */
-  private toggleOverlayHidden(isHidden: boolean) {
+  private toggleOverlayHidden(isHidden: boolean, setTransparentOverlay: boolean = false) {
     void this.sendExtensionMessage("updateAutofillOverlayHidden", {
       isOverlayHidden: isHidden,
+      setTransparentOverlay,
     });
   }
 
@@ -729,7 +731,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    */
   private triggerOverlayRepositionUpdates = async () => {
     if (!this.recentlyFocusedFieldIsCurrentlyFocused()) {
-      this.toggleOverlayHidden(false);
+      this.toggleOverlayHidden(false, true);
       void this.sendExtensionMessage("closeAutofillOverlay", {
         forceCloseOverlay: true,
       });

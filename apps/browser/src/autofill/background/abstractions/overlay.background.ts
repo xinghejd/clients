@@ -48,6 +48,7 @@ type OverlayBackgroundExtensionMessage = {
   overlayElement?: string;
   forceCloseOverlay?: boolean;
   isOverlayHidden?: boolean;
+  setTransparentOverlay?: boolean;
   data?: LockedVaultPendingNotificationsData;
   isFieldCurrentlyFocused?: boolean;
   isCurrentlyFilling?: boolean;

@@ -277,10 +277,9 @@ class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    subFrameOffsetsForTab.forEach((subFrameData) => {
-      const { url, frameId } = subFrameData;
+    subFrameOffsetsForTab.forEach((_, frameId) => {
       subFrameOffsetsForTab.delete(frameId);
-      void this.buildSubFrameOffsets(sender.tab, frameId, url);
+      void this.buildSubFrameOffsets(sender.tab, frameId, sender.url);
     });
   }
 
@@ -584,11 +583,12 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * @param sender - The sender of the extension message
    */
   private updateOverlayHidden(
-    { isOverlayHidden }: OverlayBackgroundExtensionMessage,
+    { isOverlayHidden, setTransparentOverlay }: OverlayBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
     const display = isOverlayHidden ? "none" : "block";
-    const portMessage = { command: "updateOverlayHidden", styles: { display } };
+    const styles = setTransparentOverlay ? { display, opacity: 0 } : { display };
+    const portMessage = { command: "updateOverlayHidden", styles };
 
     void BrowserApi.tabSendMessage(
       sender.tab,
