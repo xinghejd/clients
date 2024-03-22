@@ -5,7 +5,7 @@ describe("Key definitions", () => {
     it("should pass through deserialization", () => {
       const value: any = {};
       const result = SEND_USER_ENCRYPTED.deserializer(value);
-      expect(result).toBe(value);
+      expect(result).toStrictEqual(value);
     });
   });
 
@@ -13,7 +13,7 @@ describe("Key definitions", () => {
     it("should pass through deserialization", () => {
       const value: any = {};
       const result = SEND_USER_DECRYPTED.deserializer(value);
-      expect(result).toBe(value);
+      expect(result).toStrictEqual(value);
     });
   });
 });
