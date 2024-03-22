@@ -2,7 +2,6 @@ import {
   BehaviorSubject,
   Observable,
   ReplaySubject,
-  combineLatest,
   concatMap,
   distinctUntilChanged,
   filter,
@@ -12,6 +11,7 @@ import {
 } from "rxjs";
 
 import { AccountService } from "../../../auth/abstractions/account.service";
+import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
 import { Utils } from "../../../platform/misc/utils";
@@ -32,16 +32,15 @@ export class LegacySendStateService implements AsymmetricalSendState {
     private stateService: SendStateProvider,
     private accountService: AccountService,
   ) {
-    combineLatest([this.accountService.activeAccount$, this.accountService.accountLock$])
+    // Subscribe to active account
+    this.accountService.activeAccount$
       .pipe(
-        concatMap(async ([activeAccount, lock]) => {
+        concatMap(async (account) => {
           if (Utils.global.bitwardenContainerService == null) {
             return;
           }
 
-          // If lock has a value and the value is the active UserId
-          // the account is locked
-          if (lock && lock == activeAccount.id) {
+          if (account.status === AuthenticationStatus.Locked) {
             this._encryptedSends.next([]);
             return;
           }
@@ -51,7 +50,6 @@ export class LegacySendStateService implements AsymmetricalSendState {
         }),
       )
       .subscribe();
-
     this.sendViews$ = this._encryptedSends.pipe(
       filter((es) => es !== null),
       concatMap((s) => {
