@@ -5,10 +5,10 @@ import { AuthGuard } from "@bitwarden/angular/auth/guards";
 
 import { hasPremiumGuard } from "../../core/guards/has-premium.guard";
 
+import { HealthComponent } from "./health-dashboard/health.component";
 import { BreachReportComponent } from "./pages/breach-report.component";
 import { ExposedPasswordsReportComponent } from "./pages/exposed-passwords-report.component";
 import { InactiveTwoFactorReportComponent } from "./pages/inactive-two-factor-report.component";
-import { ReportsHomeComponent } from "./pages/reports-home.component";
 import { ReusedPasswordsReportComponent } from "./pages/reused-passwords-report.component";
 import { UnsecuredWebsitesReportComponent } from "./pages/unsecured-websites-report.component";
 import { WeakPasswordsReportComponent } from "./pages/weak-passwords-report.component";
@@ -23,7 +23,7 @@ const routes: Routes = [
       {
         path: "",
         pathMatch: "full",
-        component: ReportsHomeComponent,
+        component: HealthComponent,
         data: { titleId: "reports", homepage: true },
       },
       {
