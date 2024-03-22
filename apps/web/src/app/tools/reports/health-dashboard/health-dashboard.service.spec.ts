@@ -1,6 +1,7 @@
 import { MockProxy, mock } from "jest-mock-extended";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
+import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -12,11 +13,13 @@ describe("HealthDashboardService", () => {
   let service: HealthDashboardService;
   let cipherService: MockProxy<CipherService>;
   let auditService: MockProxy<AuditService>;
+  let passwordStrengthService: MockProxy<PasswordStrengthServiceAbstraction>;
 
   beforeEach(() => {
     cipherService = mock();
     auditService = mock();
-    service = new HealthDashboardService(cipherService, auditService);
+    passwordStrengthService = mock();
+    service = new HealthDashboardService(cipherService, auditService, passwordStrengthService);
   });
 
   describe("getHealth", () => {
@@ -32,11 +35,12 @@ describe("HealthDashboardService", () => {
         createCipherView("2", "abc123"),
       ];
       cipherService.getAllDecrypted.mockResolvedValue(ciphers);
+      passwordStrengthService.getPasswordStrength.mockReturnValue({ score: 3 } as any);
 
       const result = await service.getHealth();
       expect(result).toEqual([
-        { item: ciphers[0], health: { passwordLeaked: 0, passwordReuse: 2 } },
-        { item: ciphers[1], health: { passwordLeaked: 0, passwordReuse: 2 } },
+        { item: ciphers[0], health: { passwordLeaked: 0, passwordReuse: 2, passwordWeak: false } },
+        { item: ciphers[1], health: { passwordLeaked: 0, passwordReuse: 2, passwordWeak: false } },
       ]);
     });
 
@@ -49,11 +53,32 @@ describe("HealthDashboardService", () => {
       auditService.passwordLeaked.mockImplementation((p) =>
         Promise.resolve(p === "qwerty" ? 1234 : 0),
       );
+      passwordStrengthService.getPasswordStrength.mockReturnValue({ score: 3 } as any);
 
       const result = await service.getHealth();
-
       expect(result).toEqual([
-        { item: ciphers[0], health: { passwordLeaked: 1234, passwordReuse: 0 } },
+        {
+          item: ciphers[0],
+          health: { passwordLeaked: 1234, passwordReuse: 0, passwordWeak: false },
+        },
+      ]);
+    });
+
+    it("should find weak passwords", async () => {
+      const ciphers: CipherView[] = [
+        createCipherView("1", "qwerty"),
+        createCipherView("2", "abc123"),
+      ];
+      cipherService.getAllDecrypted.mockResolvedValue(ciphers);
+      passwordStrengthService.getPasswordStrength.mockReturnValueOnce({ score: 1 } as any);
+      passwordStrengthService.getPasswordStrength.mockReturnValue({ score: 3 } as any);
+
+      const result = await service.getHealth();
+      expect(result).toEqual([
+        {
+          item: ciphers[0],
+          health: { passwordLeaked: 0, passwordReuse: 0, passwordWeak: true },
+        },
       ]);
     });
   });
