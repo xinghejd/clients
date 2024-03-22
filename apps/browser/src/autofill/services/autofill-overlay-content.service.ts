@@ -32,6 +32,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   private mostRecentlyFocusedField: ElementWithOpId<FormFieldElement>;
   private focusedFieldData: FocusedFieldData;
   private userInteractionEventTimeout: number | NodeJS.Timeout;
+  private recalculateSubFrameOffsetsTimeout: number | NodeJS.Timeout;
   private autofillFieldKeywordsMap: WeakMap<AutofillField, string> = new WeakMap();
   private eventHandlersMemo: { [key: string]: EventListener } = {};
   readonly extensionMessageHandlers: AutofillOverlayContentExtensionMessageHandlers = {
@@ -371,8 +372,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * @private
    */
   private storeModifiedFormElement(formFieldElement: ElementWithOpId<FillableFormFieldElement>) {
-    if (formFieldElement === this.mostRecentlyFocusedField) {
-      this.mostRecentlyFocusedField = formFieldElement;
+    if (formFieldElement !== this.mostRecentlyFocusedField) {
+      void this.updateMostRecentlyFocusedField(formFieldElement);
     }
 
     if (formFieldElement.type === "password") {
@@ -570,6 +571,10 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   private async updateMostRecentlyFocusedField(
     formFieldElement: ElementWithOpId<FormFieldElement>,
   ) {
+    if (!elementIsFillableFormField(formFieldElement)) {
+      return;
+    }
+
     this.mostRecentlyFocusedField = formFieldElement;
     const { paddingRight, paddingLeft } = globalThis.getComputedStyle(formFieldElement);
     const { width, height, top, left } =
@@ -700,6 +705,12 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * repositioning of the overlay.
    */
   private handleOverlayRepositionEvent = async () => {
+    this.clearRecalculateSubFrameOffsetsTimeout();
+    this.recalculateSubFrameOffsetsTimeout = setTimeout(
+      () => void this.sendExtensionMessage("rebuildSubFrameOffsets"),
+      750,
+    );
+
     if (
       (await this.sendExtensionMessage("checkIsInlineMenuButtonVisible")) !== true &&
       (await this.sendExtensionMessage("checkIsInlineMenuListVisible")) !== true
@@ -709,10 +720,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
 
     this.toggleOverlayHidden(true);
     this.clearUserInteractionEventTimeout();
-    this.userInteractionEventTimeout = setTimeout(
-      this.triggerOverlayRepositionUpdates,
-      750,
-    ) as unknown as number;
+    this.userInteractionEventTimeout = setTimeout(this.triggerOverlayRepositionUpdates, 750);
   };
 
   /**
@@ -730,7 +738,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
 
     await this.updateMostRecentlyFocusedField(this.mostRecentlyFocusedField);
     this.updateOverlayElementsPosition();
-    this.toggleOverlayHidden(false);
+    setTimeout(() => this.toggleOverlayHidden(false), 50);
     this.clearUserInteractionEventTimeout();
 
     if (
@@ -752,6 +760,12 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   private clearUserInteractionEventTimeout() {
     if (this.userInteractionEventTimeout) {
       clearTimeout(this.userInteractionEventTimeout);
+    }
+  }
+
+  private clearRecalculateSubFrameOffsetsTimeout() {
+    if (this.recalculateSubFrameOffsetsTimeout) {
+      clearTimeout(this.recalculateSubFrameOffsetsTimeout);
     }
   }
 

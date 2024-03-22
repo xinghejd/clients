@@ -112,6 +112,7 @@ type OverlayBackgroundExtensionMessageHandlers = {
   checkIsInlineMenuButtonVisible: ({ sender }: BackgroundSenderParam) => void;
   checkIsInlineMenuListVisible: ({ sender }: BackgroundSenderParam) => void;
   updateSubFrameData: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
+  rebuildSubFrameOffsets: ({ sender }: BackgroundSenderParam) => void;
 };
 
 type PortMessageParam = {

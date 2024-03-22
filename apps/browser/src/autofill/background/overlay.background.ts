@@ -22,27 +22,27 @@ import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import {
-  openViewVaultItemPopout,
   openAddEditVaultItemPopout,
+  openViewVaultItemPopout,
 } from "../../vault/popup/utils/vault-popout-window";
-import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
+import { AutofillService } from "../services/abstractions/autofill.service";
 import { AutofillOverlayElement, AutofillOverlayPort } from "../utils/autofill-overlay.enum";
 
 import { LockedVaultPendingNotificationsData } from "./abstractions/notification.background";
 import {
   FocusedFieldData,
+  OverlayAddNewItemMessage,
+  OverlayBackground as OverlayBackgroundInterface,
+  OverlayBackgroundExtensionMessage,
   OverlayBackgroundExtensionMessageHandlers,
   OverlayButtonPortMessageHandlers,
   OverlayCipherData,
   OverlayListPortMessageHandlers,
-  OverlayBackground as OverlayBackgroundInterface,
-  OverlayBackgroundExtensionMessage,
-  OverlayAddNewItemMessage,
   OverlayPortMessage,
-  WebsiteIconData,
   PageDetailsForTab,
-  SubFrameOffsetsForTab,
   SubFrameOffsetData,
+  SubFrameOffsetsForTab,
+  WebsiteIconData,
 } from "./abstractions/overlay.background";
 
 class OverlayBackground implements OverlayBackgroundInterface {
@@ -85,6 +85,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
     checkIsInlineMenuButtonVisible: ({ sender }) => this.checkIsInlineMenuButtonVisible(sender),
     checkIsInlineMenuListVisible: ({ sender }) => this.checkIsInlineMenuListVisible(sender),
     updateSubFrameData: ({ message, sender }) => this.updateSubFrameData(message, sender),
+    rebuildSubFrameOffsets: ({ sender }) => this.rebuildSubFrameOffsets(sender),
   };
   private readonly overlayButtonPortMessageHandlers: OverlayButtonPortMessageHandlers = {
     overlayButtonClicked: ({ port }) => this.handleOverlayButtonClicked(port),
@@ -120,19 +121,11 @@ class OverlayBackground implements OverlayBackgroundInterface {
   ) {}
 
   private async checkIsInlineMenuButtonVisible(sender: chrome.runtime.MessageSender) {
-    const value = await BrowserApi.tabSendMessage(
+    return await BrowserApi.tabSendMessage(
       sender.tab,
       { command: "checkIsInlineMenuButtonVisible" },
       { frameId: 0 },
     );
-    return value;
-  }
-
-  updateSubFrameData(message: any, sender: chrome.runtime.MessageSender) {
-    const subFrameOffsetsForTab = this.subFrameOffsetsForTab[sender.tab.id];
-    if (subFrameOffsetsForTab) {
-      subFrameOffsetsForTab.set(message.subFrameData.frameId, message.subFrameData);
-    }
   }
 
   private async checkIsInlineMenuListVisible(sender: chrome.runtime.MessageSender) {
@@ -141,6 +134,13 @@ class OverlayBackground implements OverlayBackgroundInterface {
       { command: "checkIsInlineMenuListVisible" },
       { frameId: 0 },
     );
+  }
+
+  updateSubFrameData(message: any, sender: chrome.runtime.MessageSender) {
+    const subFrameOffsetsForTab = this.subFrameOffsetsForTab[sender.tab.id];
+    if (subFrameOffsetsForTab) {
+      subFrameOffsetsForTab.set(message.subFrameData.frameId, message.subFrameData);
+    }
   }
 
   /**
@@ -255,7 +255,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
     };
 
     if (pageDetails.frameId !== 0 && pageDetails.details.fields.length) {
-      void this.buildSubFrameOffsets(pageDetails);
+      void this.buildSubFrameOffsets(pageDetails.tab, pageDetails.frameId, pageDetails.details.url);
     }
 
     const pageDetailsMap = this.pageDetailsForTab[sender.tab.id];
@@ -267,7 +267,24 @@ class OverlayBackground implements OverlayBackgroundInterface {
     pageDetailsMap.set(sender.frameId, pageDetails);
   }
 
-  private async buildSubFrameOffsets({ tab, frameId, details }: PageDetail) {
+  private async rebuildSubFrameOffsets(sender: chrome.runtime.MessageSender) {
+    if (sender.frameId === this.focusedFieldData.frameId) {
+      return;
+    }
+
+    const subFrameOffsetsForTab = this.subFrameOffsetsForTab[sender.tab.id];
+    if (!subFrameOffsetsForTab) {
+      return;
+    }
+
+    subFrameOffsetsForTab.forEach((subFrameData) => {
+      const { url, frameId } = subFrameData;
+      subFrameOffsetsForTab.delete(frameId);
+      void this.buildSubFrameOffsets(sender.tab, frameId, url);
+    });
+  }
+
+  private async buildSubFrameOffsets(tab: chrome.tabs.Tab, frameId: number, url: string) {
     const tabId = tab.id;
     let subFrameOffsetsForTab = this.subFrameOffsetsForTab[tabId];
     if (!subFrameOffsetsForTab) {
@@ -279,7 +296,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    const subFrameData = { url: details.url, top: 0, left: 0 };
+    const subFrameData = { url, top: 0, left: 0 };
     let frameDetails = await BrowserApi.getFrameDetails({ tabId, frameId });
 
     while (frameDetails.parentFrameId !== -1) {
@@ -872,6 +889,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     port.onMessage.addListener(this.handleOverlayElementPortMessage);
+    port.onDisconnect.addListener(this.handlePortOnDisconnect);
     port.postMessage({
       command: `initAutofillOverlay${isOverlayListPort ? "List" : "Button"}`,
       authStatus: await this.getAuthStatus(),
@@ -916,6 +934,16 @@ class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     handler({ message, port });
+  };
+
+  private handlePortOnDisconnect = (port: chrome.runtime.Port) => {
+    if (port.name === AutofillOverlayPort.List) {
+      this.overlayListPort = null;
+    }
+
+    if (port.name === AutofillOverlayPort.Button) {
+      this.overlayButtonPort = null;
+    }
   };
 }
 
