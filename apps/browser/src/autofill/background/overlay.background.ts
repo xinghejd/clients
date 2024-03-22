@@ -268,7 +268,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   private async rebuildSubFrameOffsets(sender: chrome.runtime.MessageSender) {
-    if (sender.frameId === this.focusedFieldData.frameId) {
+    if (sender.frameId === this.focusedFieldData?.frameId) {
       return;
     }
 
@@ -277,10 +277,23 @@ class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    subFrameOffsetsForTab.forEach((_, frameId) => {
+    const frameTabs = Array.from(subFrameOffsetsForTab.keys());
+    for (const frameId of frameTabs) {
+      if (frameId === sender.frameId) {
+        continue;
+      }
+
       subFrameOffsetsForTab.delete(frameId);
-      void this.buildSubFrameOffsets(sender.tab, frameId, sender.url);
-    });
+      await this.buildSubFrameOffsets(sender.tab, frameId, sender.url);
+    }
+
+    // TODO: Consider a better way to facilitate this delayed update
+    setTimeout(() => {
+      if (this.isFieldCurrentlyFocused) {
+        void this.updateOverlayPosition({ overlayElement: AutofillOverlayElement.List }, sender);
+        void this.updateOverlayPosition({ overlayElement: AutofillOverlayElement.Button }, sender);
+      }
+    }, 650);
   }
 
   private async buildSubFrameOffsets(tab: chrome.tabs.Tab, frameId: number, url: string) {
@@ -298,7 +311,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
     const subFrameData = { url, top: 0, left: 0 };
     let frameDetails = await BrowserApi.getFrameDetails({ tabId, frameId });
 
-    while (frameDetails.parentFrameId !== -1) {
+    while (frameDetails && frameDetails.parentFrameId !== -1) {
       const subFrameOffset: SubFrameOffsetData = await BrowserApi.tabSendMessage(
         tab,
         {

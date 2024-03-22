@@ -707,11 +707,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * repositioning of the overlay.
    */
   private handleOverlayRepositionEvent = async () => {
-    this.clearRecalculateSubFrameOffsetsTimeout();
-    this.recalculateSubFrameOffsetsTimeout = setTimeout(
-      () => void this.sendExtensionMessage("rebuildSubFrameOffsets"),
-      750,
-    );
+    this.rebuildSubFrameOffsets();
 
     if (
       (await this.sendExtensionMessage("checkIsInlineMenuButtonVisible")) !== true &&
@@ -724,6 +720,14 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     this.clearUserInteractionEventTimeout();
     this.userInteractionEventTimeout = setTimeout(this.triggerOverlayRepositionUpdates, 750);
   };
+
+  private rebuildSubFrameOffsets() {
+    this.clearRecalculateSubFrameOffsetsTimeout();
+    this.recalculateSubFrameOffsetsTimeout = setTimeout(
+      () => void this.sendExtensionMessage("rebuildSubFrameOffsets"),
+      150,
+    );
+  }
 
   /**
    * Triggers the overlay reposition updates. This method ensures that the overlay elements
