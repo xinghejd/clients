@@ -26,6 +26,7 @@ import {
   openViewVaultItemPopout,
 } from "../../vault/popup/utils/vault-popout-window";
 import { AutofillService } from "../services/abstractions/autofill.service";
+import { AutofillCipherTypeId } from "../types";
 import { AutofillOverlayElement, AutofillOverlayPort } from "../utils/autofill-overlay.enum";
 
 import { LockedVaultPendingNotificationsData } from "./abstractions/notification.background";
@@ -190,55 +191,56 @@ class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    this.overlayLoginCiphers = new Map();
-    // const ciphersViews = (await this.cipherService.getAllDecryptedForUrl(currentTab.url)).sort(
-    //   (a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b),
-    // );
-
-    // CG - get all ciphers
-
     const ciphersViews = await this.cipherService.getAllDecryptedForUrl(currentTab.url, [
       CipherType.Card,
       CipherType.Identity,
     ]);
-    ciphersViews.sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
+    ciphersViews
+      .sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b))
+      .reduce(
+        (ciphersByType, cipher) => {
+          if (!cipher?.type) {
+            return ciphersByType;
+          }
 
-    // const groupedCiphers: Record<AutofillCipherTypeId, CipherView[]> = ciphersViews.reduce(
-    //   (ciphersByType, cipher) => {
-    //     if (!cipher?.type) {
-    //       return ciphersByType;
-    //     }
-    //
-    //     const existingCiphersOfType = ciphersByType[cipher.type as AutofillCipherTypeId] || [];
-    //
-    //     return {
-    //       ...ciphersByType,
-    //       [cipher.type]: [...existingCiphersOfType, cipher],
-    //     };
-    //   },
-    //   {
-    //     [CipherType.Login]: [],
-    //     [CipherType.Card]: [],
-    //     [CipherType.Identity]: [],
-    //   },
-    // );
+          const existingCiphersOfType = ciphersByType[cipher.type as AutofillCipherTypeId] || [];
 
+          return {
+            ...ciphersByType,
+            [cipher.type]: [...existingCiphersOfType, cipher],
+          };
+        },
+        {
+          [CipherType.Login]: [],
+          [CipherType.Card]: [],
+          [CipherType.Identity]: [],
+        },
+      );
+
+    this.overlayLoginCiphers = new Map();
+    this.overlayCreditCardCiphers = new Map();
+    this.overlayIdentityCiphers = new Map();
+
+    let cipherCount = 0;
     for (let cipherIndex = 0; cipherIndex < ciphersViews.length; cipherIndex++) {
       const cipher = ciphersViews[cipherIndex];
 
       if (cipher.type === CipherType.Login) {
-        this.overlayLoginCiphers.set(`overlay-cipher-${cipherIndex}`, ciphersViews[cipherIndex]);
+        this.overlayLoginCiphers.set(`overlay-cipher-${cipherCount}`, ciphersViews[cipherIndex]);
+        cipherCount++;
       }
 
       if (cipher.type === CipherType.Card) {
         this.overlayCreditCardCiphers.set(
-          `overlay-cipher-${cipherIndex}`,
+          `overlay-cipher-${cipherCount}`,
           ciphersViews[cipherIndex],
         );
+        cipherCount++;
       }
 
       if (cipher.type === CipherType.Identity) {
-        this.overlayIdentityCiphers.set(`overlay-cipher-${cipherIndex}`, ciphersViews[cipherIndex]);
+        this.overlayIdentityCiphers.set(`overlay-cipher-${cipherCount}`, ciphersViews[cipherIndex]);
+        cipherCount++;
       }
     }
 
@@ -428,13 +430,17 @@ class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
+    const autofillOptions = {
+      tab: sender.tab,
+      pageDetails: Array.from(pageDetails.values()),
+    };
+
     if (creditCardCipher) {
       await this.autofillService.doAutoFill({
-        tab: sender.tab,
+        ...autofillOptions,
         cipher: creditCardCipher,
-        pageDetails: Array.from(pageDetails.values()),
-        fillNewPassword: true,
-        allowTotpAutofill: true,
+        fillNewPassword: false,
+        allowTotpAutofill: false,
       });
 
       return;
@@ -442,9 +448,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
 
     if (identityCipher) {
       await this.autofillService.doAutoFill({
-        tab: sender.tab,
+        ...autofillOptions,
         cipher: identityCipher,
-        pageDetails: Array.from(pageDetails.values()),
         fillNewPassword: true,
         allowTotpAutofill: true,
       });
