@@ -16,7 +16,7 @@ import {
   AutofillOverlayContentService as AutofillOverlayContentServiceInterface,
   OpenAutofillOverlayOptions,
 } from "./abstractions/autofill-overlay-content.service";
-import { AutoFillConstants } from "./autofill-constants";
+import { AutoFillConstants, CreditCardAutoFillConstants } from "./autofill-constants";
 
 class AutofillOverlayContentService implements AutofillOverlayContentServiceInterface {
   isOverlayCiphersPopulated = false;
@@ -667,7 +667,33 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       autofillFieldData.type === "password" ||
       this.keywordsFoundInFieldData(autofillFieldData, AutoFillConstants.UsernameFieldNames);
 
+    if (isLoginCipherField) {
+      return false;
+    }
+
+    const isCreditCardField = this.isCreditCardField(autofillFieldData);
+    if (isCreditCardField) {
+      return false;
+    }
+
     return !isLoginCipherField;
+  }
+
+  private isCreditCardField(autofillFieldData: AutofillField): boolean {
+    const keywordsFoundInFieldData = this.keywordsFoundInFieldData(autofillFieldData, [
+      ...CreditCardAutoFillConstants.CardHolderFieldNames,
+      ...CreditCardAutoFillConstants.CardNumberFieldNames,
+    ]);
+
+    const isBannedCreditCardField =
+      CreditCardAutoFillConstants.CardExpiryFieldNames.some((keyword) =>
+        autofillFieldData.htmlName?.includes(keyword),
+      ) ||
+      CreditCardAutoFillConstants.CardBrandFieldNames.some((keyword) =>
+        autofillFieldData.htmlName?.includes(keyword),
+      );
+
+    return keywordsFoundInFieldData && !isBannedCreditCardField;
   }
 
   /**

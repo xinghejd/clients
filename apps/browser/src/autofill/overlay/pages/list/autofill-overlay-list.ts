@@ -2,6 +2,7 @@ import "@webcomponents/custom-elements";
 import "lit/polyfill-support.js";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EVENTS } from "@bitwarden/common/autofill/constants";
+import { CipherType } from "@bitwarden/common/vault/enums";
 
 import { OverlayCipherData } from "../../../background/abstractions/overlay.background";
 import { buildSvgDomElement } from "../../../utils";
@@ -22,6 +23,9 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
   private cipherListScrollDebounceTimeout: NodeJS.Timeout;
   private currentCipherIndex = 0;
   private readonly showCiphersPerPage = 6;
+  private isLoginDone = false;
+  private isCardDone = false;
+  private isIdentityDone = false;
   private readonly overlayListWindowMessageHandlers: OverlayListWindowMessageHandlers = {
     initAutofillOverlayList: ({ message }) => this.initAutofillOverlayList(message),
     checkAutofillOverlayListFocused: () => this.checkOverlayListFocused(),
@@ -182,8 +186,19 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
       this.currentCipherIndex + this.showCiphersPerPage,
       this.ciphers.length,
     );
+    let cipherTypeIndex = 0;
+    let currentCipherType = this.ciphers[this.currentCipherIndex].type;
     for (let cipherIndex = this.currentCipherIndex; cipherIndex < lastIndex; cipherIndex++) {
-      this.ciphersList.appendChild(this.buildOverlayActionsListItem(this.ciphers[cipherIndex]));
+      const nextCipherType = this.ciphers[cipherIndex].type;
+      if (currentCipherType !== nextCipherType) {
+        cipherTypeIndex = 0;
+        currentCipherType = nextCipherType;
+      }
+      cipherTypeIndex++;
+
+      this.ciphersList.appendChild(
+        this.buildOverlayActionsListItem(this.ciphers[cipherIndex], cipherTypeIndex),
+      );
       this.currentCipherIndex++;
     }
 
@@ -215,7 +230,8 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
   private handleDebouncedScrollEvent = () => {
     this.cipherListScrollIsDebounced = false;
 
-    if (globalThis.scrollY + globalThis.innerHeight >= this.ciphersList.clientHeight - 300) {
+    // if (globalThis.scrollY + globalThis.innerHeight >= this.ciphersList.clientHeight - 300) {
+    if (globalThis.scrollY + globalThis.innerHeight >= this.ciphersList.clientHeight - 20000000) {
       this.loadPageOfCiphers();
     }
   };
@@ -224,8 +240,9 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
    * Builds the list item for a given cipher.
    *
    * @param cipher - The cipher to build the list item for.
+   * @param cipherIndex - The index of the cipher in the list.
    */
-  private buildOverlayActionsListItem(cipher: OverlayCipherData) {
+  private buildOverlayActionsListItem(cipher: OverlayCipherData, cipherIndex: number) {
     const fillCipherElement = this.buildFillCipherElement(cipher);
     const viewCipherElement = this.buildViewCipherElement(cipher);
 
@@ -235,6 +252,37 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
 
     const overlayActionsListItem = globalThis.document.createElement("li");
     overlayActionsListItem.setAttribute("role", "listitem");
+
+    if (!this.isLoginDone && cipher.type === CipherType.Login) {
+      this.isLoginDone = true;
+      overlayActionsListItem.classList.add(
+        "overlay-actions-list-item__login",
+        `overlay-actions-list-item__login--index-${cipherIndex}`,
+      );
+      if (cipher.login?.username) {
+        overlayActionsListItem.setAttribute(
+          "aria-description",
+          `${this.getTranslation("partialUsername")}, ${cipher.login.username}`,
+        );
+      }
+    }
+
+    if (!this.isCardDone && cipher.type === CipherType.Card) {
+      this.isCardDone = true;
+      overlayActionsListItem.classList.add(
+        "overlay-actions-list-item__card",
+        `overlay-actions-list-item__card--index-${cipherIndex}`,
+      );
+    }
+
+    if (!this.isIdentityDone && cipher.type === CipherType.Identity) {
+      this.isIdentityDone = true;
+      overlayActionsListItem.classList.add(
+        "overlay-actions-list-item__identity",
+        `overlay-actions-list-item__identity--index-${cipherIndex}`,
+      );
+    }
+
     overlayActionsListItem.classList.add("overlay-actions-list-item");
     overlayActionsListItem.appendChild(cipherContainerElement);
 
@@ -258,10 +306,25 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
       "aria-label",
       `${this.getTranslation("fillCredentialsFor")} ${cipher.name}`,
     );
-    fillCipherElement.setAttribute(
-      "aria-description",
-      `${this.getTranslation("partialUsername")}, ${cipher.login.username}`,
-    );
+
+    // if (cipher.type === CipherType.Login) {
+    //   fillCipherElement.classList.add("fill-cipher-button__login");
+    //   if (cipher.login?.username) {
+    //     fillCipherElement.setAttribute(
+    //       "aria-description",
+    //       `${this.getTranslation("partialUsername")}, ${cipher.login.username}`,
+    //     );
+    //   }
+    // }
+    //
+    // if (cipher.type === CipherType.Card) {
+    //   fillCipherElement.classList.add("fill-cipher-button__card");
+    // }
+    //
+    // if (cipher.type === CipherType.Identity) {
+    //   fillCipherElement.classList.add("fill-cipher-button__identity");
+    // }
+
     fillCipherElement.append(cipherIcon, cipherDetailsElement);
     fillCipherElement.addEventListener(EVENTS.CLICK, this.handleFillCipherClickEvent(cipher));
     fillCipherElement.addEventListener(EVENTS.KEYUP, this.handleFillCipherKeyUpEvent);
@@ -404,7 +467,10 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     }
 
     if (cipher.icon?.icon) {
-      cipherIcon.classList.add("cipher-icon", "bwi", cipher.icon.icon);
+      // separate cipher.icon.icon by space
+      const splitIcon = cipher.icon.icon.split(" ");
+
+      cipherIcon.classList.add("cipher-icon", "bwi", ...splitIcon);
       return cipherIcon;
     }
 

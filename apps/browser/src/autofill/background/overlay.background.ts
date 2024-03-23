@@ -50,6 +50,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private readonly openViewVaultItemPopout = openViewVaultItemPopout;
   private readonly openAddEditVaultItemPopout = openAddEditVaultItemPopout;
   private overlayLoginCiphers: Map<string, CipherView> = new Map();
+  private overlayCreditCardCiphers: Map<string, CipherView> = new Map();
+  private overlayIdentityCiphers: Map<string, CipherView> = new Map();
   private pageDetailsForTab: PageDetailsForTab = {};
   private subFrameOffsetsForTab: SubFrameOffsetsForTab = {};
   private userAuthStatus: AuthenticationStatus = AuthenticationStatus.LoggedOut;
@@ -189,11 +191,55 @@ class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     this.overlayLoginCiphers = new Map();
-    const ciphersViews = (await this.cipherService.getAllDecryptedForUrl(currentTab.url)).sort(
-      (a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b),
-    );
+    // const ciphersViews = (await this.cipherService.getAllDecryptedForUrl(currentTab.url)).sort(
+    //   (a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b),
+    // );
+
+    // CG - get all ciphers
+
+    const ciphersViews = await this.cipherService.getAllDecryptedForUrl(currentTab.url, [
+      CipherType.Card,
+      CipherType.Identity,
+    ]);
+    ciphersViews.sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
+
+    // const groupedCiphers: Record<AutofillCipherTypeId, CipherView[]> = ciphersViews.reduce(
+    //   (ciphersByType, cipher) => {
+    //     if (!cipher?.type) {
+    //       return ciphersByType;
+    //     }
+    //
+    //     const existingCiphersOfType = ciphersByType[cipher.type as AutofillCipherTypeId] || [];
+    //
+    //     return {
+    //       ...ciphersByType,
+    //       [cipher.type]: [...existingCiphersOfType, cipher],
+    //     };
+    //   },
+    //   {
+    //     [CipherType.Login]: [],
+    //     [CipherType.Card]: [],
+    //     [CipherType.Identity]: [],
+    //   },
+    // );
+
     for (let cipherIndex = 0; cipherIndex < ciphersViews.length; cipherIndex++) {
-      this.overlayLoginCiphers.set(`overlay-cipher-${cipherIndex}`, ciphersViews[cipherIndex]);
+      const cipher = ciphersViews[cipherIndex];
+
+      if (cipher.type === CipherType.Login) {
+        this.overlayLoginCiphers.set(`overlay-cipher-${cipherIndex}`, ciphersViews[cipherIndex]);
+      }
+
+      if (cipher.type === CipherType.Card) {
+        this.overlayCreditCardCiphers.set(
+          `overlay-cipher-${cipherIndex}`,
+          ciphersViews[cipherIndex],
+        );
+      }
+
+      if (cipher.type === CipherType.Identity) {
+        this.overlayIdentityCiphers.set(`overlay-cipher-${cipherIndex}`, ciphersViews[cipherIndex]);
+      }
     }
 
     const ciphers = await this.getOverlayCipherData();
@@ -209,7 +255,16 @@ class OverlayBackground implements OverlayBackgroundInterface {
    */
   private async getOverlayCipherData(): Promise<OverlayCipherData[]> {
     const showFavicons = await firstValueFrom(this.domainSettingsService.showFavicons$);
-    const overlayCiphersArray = Array.from(this.overlayLoginCiphers);
+
+    const overlayLoginCiphers = Array.from(this.overlayLoginCiphers);
+    const overlayCreditCardCiphers = Array.from(this.overlayCreditCardCiphers);
+    const overlayIdentityCiphers = Array.from(this.overlayIdentityCiphers);
+
+    const overlayCiphersArray = [
+      ...overlayLoginCiphers,
+      ...overlayCreditCardCiphers,
+      ...overlayIdentityCiphers,
+    ];
     const overlayCipherData = [];
     let loginCipherIcon: WebsiteIconData;
 
@@ -365,14 +420,47 @@ class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    const cipher = this.overlayLoginCiphers.get(overlayCipherId);
+    const loginCipher = this.overlayLoginCiphers.get(overlayCipherId);
+    const creditCardCipher = this.overlayCreditCardCiphers.get(overlayCipherId);
+    const identityCipher = this.overlayIdentityCiphers.get(overlayCipherId);
 
-    if (await this.autofillService.isPasswordRepromptRequired(cipher, sender.tab)) {
+    if (!loginCipher && !creditCardCipher && !identityCipher) {
+      return;
+    }
+
+    if (creditCardCipher) {
+      await this.autofillService.doAutoFill({
+        tab: sender.tab,
+        cipher: creditCardCipher,
+        pageDetails: Array.from(pageDetails.values()),
+        fillNewPassword: true,
+        allowTotpAutofill: true,
+      });
+
+      return;
+    }
+
+    if (identityCipher) {
+      await this.autofillService.doAutoFill({
+        tab: sender.tab,
+        cipher: identityCipher,
+        pageDetails: Array.from(pageDetails.values()),
+        fillNewPassword: true,
+        allowTotpAutofill: true,
+      });
+
+      return;
+    }
+
+    if (
+      loginCipher &&
+      (await this.autofillService.isPasswordRepromptRequired(loginCipher, sender.tab))
+    ) {
       return;
     }
     const totpCode = await this.autofillService.doAutoFill({
       tab: sender.tab,
-      cipher: cipher,
+      cipher: loginCipher,
       pageDetails: Array.from(pageDetails.values()),
       fillNewPassword: true,
       allowTotpAutofill: true,
@@ -382,7 +470,10 @@ class OverlayBackground implements OverlayBackgroundInterface {
       this.platformUtilsService.copyToClipboard(totpCode);
     }
 
-    this.overlayLoginCiphers = new Map([[overlayCipherId, cipher], ...this.overlayLoginCiphers]);
+    this.overlayLoginCiphers = new Map([
+      [overlayCipherId, loginCipher],
+      ...this.overlayLoginCiphers,
+    ]);
   }
 
   /**

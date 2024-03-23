@@ -3,6 +3,9 @@
 @import "../../../shared/styles/variables";
 @import "../../../../../../../libs/angular/src/scss/icons";
 
+$label-element-height: 30px;
+$label-font-size: 1.1rem;
+
 * {
   box-sizing: border-box;
 }
@@ -138,6 +141,108 @@ body {
   &:hover {
     @include themify($themes) {
       background: themed("backgroundOffsetColor");
+    }
+  }
+
+  &__login {
+    &--index-1:not(:last-child) {
+      //border-top: 3px solid rgba(0,0,0,0.25);
+      padding-top: $label-element-height;
+      position: relative;
+
+      // CG TODO - This can't be read by screen readers. Think if you wanna do it this way
+      &::before {
+        content: "Logins";
+        border-bottom: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        @include themify($themes) {
+          border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+          background: rgba(0, 0, 0, 0.25);
+          color: lighten(themed("mutedTextColor"), 15%);
+        }
+        opacity: 0.75;
+        width: 100%;
+        height: $label-element-height;
+        font-size: $label-font-size;
+        font-family: $font-family-sans-serif;
+        font-weight: bold;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        align-content: center;
+        padding-left: 1rem;
+      }
+    }
+  }
+
+  &__card {
+    &--index-1:not(:last-child) {
+      //border-top: 3px solid rgba(0,0,0,0.25);
+      padding-top: $label-element-height;
+      position: relative;
+
+      // CG TODO - This can't be read by screen readers. Think if you wanna do it this way
+      &::before {
+        content: "Cards";
+        border-bottom: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        @include themify($themes) {
+          border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+          background: rgba(0, 0, 0, 0.25);
+          color: lighten(themed("mutedTextColor"), 15%);
+        }
+        opacity: 0.75;
+        width: 100%;
+        height: $label-element-height;
+        font-size: $label-font-size;
+        font-family: $font-family-sans-serif;
+        font-weight: bold;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        align-content: center;
+        padding-left: 1rem;
+      }
+    }
+  }
+
+  &__identity {
+    &--index-1:not(:last-child) {
+      //border-top: 3px solid rgba(0,0,0,0.25);
+      padding-top: $label-element-height;
+      position: relative;
+
+      // CG TODO - This can't be read by screen readers. Think if you wanna do it this way
+      &::before {
+        content: "Identities";
+        border-bottom: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        @include themify($themes) {
+          border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+          background: rgba(0, 0, 0, 0.25);
+          color: lighten(themed("mutedTextColor"), 15%);
+        }
+        opacity: 0.75;
+        width: 100%;
+        height: $label-element-height;
+        font-size: $label-font-size;
+        font-family: $font-family-sans-serif;
+        font-weight: bold;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        align-content: center;
+        padding-left: 1rem;
+      }
     }
   }
 
