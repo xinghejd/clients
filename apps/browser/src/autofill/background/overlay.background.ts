@@ -815,13 +815,31 @@ class OverlayBackground implements OverlayBackgroundInterface {
     { overlayCipherId }: OverlayPortMessage,
     { sender }: chrome.runtime.Port,
   ) {
-    const cipher = this.overlayLoginCiphers.get(overlayCipherId);
-    if (!cipher) {
+    const loginCipher = this.overlayLoginCiphers.get(overlayCipherId);
+    if (loginCipher) {
+      void this.openViewVaultItemPopout(sender.tab, {
+        cipherId: loginCipher.id,
+        action: SHOW_AUTOFILL_BUTTON,
+      });
       return;
     }
 
-    await this.openViewVaultItemPopout(sender.tab, {
-      cipherId: cipher.id,
+    const creditCardCipher = this.overlayCreditCardCiphers.get(overlayCipherId);
+    if (creditCardCipher) {
+      void this.openViewVaultItemPopout(sender.tab, {
+        cipherId: creditCardCipher.id,
+        action: SHOW_AUTOFILL_BUTTON,
+      });
+      return;
+    }
+
+    const identityCipher = this.overlayIdentityCiphers.get(overlayCipherId);
+    if (!identityCipher) {
+      return;
+    }
+
+    void this.openViewVaultItemPopout(sender.tab, {
+      cipherId: identityCipher.id,
       action: SHOW_AUTOFILL_BUTTON,
     });
   }
