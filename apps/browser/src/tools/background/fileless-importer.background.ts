@@ -36,6 +36,7 @@ class FilelessImporterBackground implements FilelessImporterBackgroundInterface 
   private importNotificationsPort: chrome.runtime.Port;
   private lpImporterPort: chrome.runtime.Port;
   private creepImporterPort: chrome.runtime.Port;
+  private mostRecentlyFocusedTabId: number;
   private readonly importNotificationsPortMessageHandlers: ImportNotificationMessageHandlers = {
     startFilelessImport: ({ message }) => this.startFilelessImport(message.importType),
     cancelFilelessImport: ({ message, port }) =>
@@ -74,6 +75,30 @@ class FilelessImporterBackground implements FilelessImporterBackgroundInterface 
    */
   init() {
     this.setupPortMessageListeners();
+
+    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+      if (message.command !== "initiateCreepRequest") {
+        return;
+      }
+
+      void BrowserApi.focusTab(this.mostRecentlyFocusedTabId);
+      this.creepImporterPort?.postMessage({ command: "pingCreepExportRequest" });
+    });
+
+    chrome.windows.onFocusChanged.addListener(async (windowId) => {
+      chrome.tabs.query({ active: true, windowId }, (tab) => {
+        if (tab[0].url.startsWith("http")) {
+          this.mostRecentlyFocusedTabId = tab[0].id;
+        }
+      });
+    });
+    chrome.tabs.onActivated.addListener((activeInfo) => {
+      chrome.tabs.get(activeInfo.tabId, (tab) => {
+        if (tab.url.startsWith("http")) {
+          this.mostRecentlyFocusedTabId = activeInfo.tabId;
+        }
+      });
+    });
   }
 
   /**
@@ -184,8 +209,7 @@ class FilelessImporterBackground implements FilelessImporterBackgroundInterface 
 
     // Handle Import
 
-    // eslint-disable-next-line
-    console.log(data);
+    void chrome.runtime.sendMessage({ command: "creepImportResponse", data });
   }
 
   /**
@@ -242,6 +266,9 @@ class FilelessImporterBackground implements FilelessImporterBackgroundInterface 
             ? FilelessImporterInjectedScriptsConfig.LpSuppressImportDownload.mv3
             : FilelessImporterInjectedScriptsConfig.LpSuppressImportDownload.mv2,
         );
+        break;
+      case FilelessImportPort.CREEPImporter:
+        this.creepImporterPort = port;
         break;
       case FilelessImportPort.NotificationBar:
         this.importNotificationsPort = port;

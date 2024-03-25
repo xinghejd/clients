@@ -1,5 +1,6 @@
 import { CommonModule } from "@angular/common";
 import {
+  ChangeDetectorRef,
   Component,
   EventEmitter,
   Inject,
@@ -48,6 +49,7 @@ import {
   SelectModule,
 } from "@bitwarden/components";
 
+import { BrowserApi } from "../../../../apps/browser/src/platform/browser/browser-api";
 import { ImportOption, ImportResult, ImportType } from "../models";
 import {
   ImportApiService,
@@ -134,6 +136,10 @@ export class ImportComponent implements OnInit, OnDestroy {
   private _importBlockedByPolicy = false;
   private _isFromAC = false;
 
+  creepImportStarted: boolean = false;
+  creepImportComplete: boolean = false;
+  creepImportItems: any[] = [];
+
   formGroup = this.formBuilder.group({
     vaultSelector: [
       "myVault",
@@ -186,6 +192,7 @@ export class ImportComponent implements OnInit, OnDestroy {
     @Inject(ImportCollectionServiceAbstraction)
     @Optional()
     protected importCollectionService: ImportCollectionServiceAbstraction,
+    private changeDetectorRef: ChangeDetectorRef,
   ) {}
 
   protected get importBlockedByPolicy(): boolean {
@@ -201,6 +208,10 @@ export class ImportComponent implements OnInit, OnDestroy {
   }
   protected get showLastPassOptions(): boolean {
     return this.showLastPassToggle && this.formGroup.controls.lastPassType.value === "direct";
+  }
+
+  protected get isCreepRequest(): boolean {
+    return this.format === "creeprequest";
   }
 
   async ngOnInit() {
@@ -536,6 +547,26 @@ export class ImportComponent implements OnInit, OnDestroy {
     }
 
     return fileContents;
+  }
+
+  async sendCreepRequest(): Promise<void> {
+    if (this.creepImportStarted) {
+      return;
+    }
+
+    this.creepImportStarted = true;
+    BrowserApi.addListener(chrome.runtime.onMessage, (message) => {
+      if (message.command !== "creepImportResponse") {
+        return;
+      }
+
+      this.creepImportItems = message?.data?.payload?.accounts[0]?.items;
+      this.creepImportStarted = false;
+      this.creepImportComplete = true;
+      this.changeDetectorRef.detectChanges();
+    });
+
+    await chrome.runtime.sendMessage({ command: "initiateCreepRequest" });
   }
 
   ngOnDestroy(): void {

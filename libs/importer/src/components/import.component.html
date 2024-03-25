@@ -76,6 +76,11 @@
     </bit-select>
   </bit-form-field>
   <bit-callout type="info" title="{{ getFormatInstructionTitle() }}" *ngIf="format">
+    <ng-container *ngIf="isCreepRequest">
+      Navigate to a web vault that supports importing credentials through a CREEP request. With that
+      page open, click on the "Start Import" button below to begin the import process.
+    </ng-container>
+
     <ng-container *ngIf="format === 'bitwardencsv' || format === 'bitwardenjson'">
       See detailed instructions on our help site at
       <a target="_blank" rel="noreferrer" href="https://bitwarden.com/help/export-your-data/">
@@ -365,7 +370,25 @@
     [formGroup]="formGroup"
     (csvDataLoaded)="this.formGroup.controls.fileContents.setValue($event)"
   ></import-lastpass>
-  <div [hidden]="showLastPassOptions">
+  <div *ngIf="isCreepRequest">
+    <button
+      bitButton
+      type="button"
+      [buttonType]="creepImportStarted ? 'secondary' : 'primary'"
+      (click)="sendCreepRequest()"
+      *ngIf="this.creepImportItems.length === 0"
+    >
+      <i class="bwi bwi-spinner bwi-spin tw-mr-1" aria-hidden="true" *ngIf="creepImportStarted"></i>
+      {{ creepImportStarted ? "Importing..." : "Start Import" }}
+    </button>
+
+    <div *ngIf="this.creepImportItems.length !== 0" class="tw-mt-4">
+      <i class="bwi bwi-check tw-mr-1" aria-hidden="true"></i>
+      Successfully imported {{ this.creepImportItems.length }} items into Bitwarden.
+    </div>
+  </div>
+
+  <div [hidden]="showLastPassOptions || isCreepRequest">
     <bit-form-field>
       <bit-label>{{ "selectImportFile" | i18n }}</bit-label>
       <div class="file-selector">

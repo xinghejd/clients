@@ -2,14 +2,15 @@ import { FilelessImportPort } from "../enums/fileless-import.enums";
 
 class CreepFilelessImporter {
   private featureEnabled: boolean = false;
-  private currentLocationHref: string = "";
+  // private currentLocationHref: string = "";
   private messagePort: chrome.runtime.Port;
   private readonly portMessageHandlers: Record<string, any> = {
     verifyFeatureFlag: ({ message }: any) => this.handleFeatureFlagVerification(message),
+    pingCreepExportRequest: () => this.pingCreepExportRequest(),
   };
 
   init() {
-    this.currentLocationHref = globalThis.location.href;
+    // this.currentLocationHref = globalThis.location.href;
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", this.loadImporter);
       return;
@@ -27,6 +28,7 @@ class CreepFilelessImporter {
   }
 
   private loadImporter = () => {
+    this.setupMessagePort();
     window.addEventListener("message", (event) => {
       const { data } = event;
       if (!data || !data.type) {
@@ -46,23 +48,23 @@ class CreepFilelessImporter {
       }
     });
 
-    this.currentLocationHref = globalThis.location.href;
-    document.body.addEventListener(
-      "click",
-      () => {
-        requestAnimationFrame(() => {
-          if (this.currentLocationHref !== globalThis.location.href) {
-            this.setupMessagePort();
-            this.currentLocationHref = globalThis.location.href;
-
-            if (this.currentLocationHref.includes("/export")) {
-              this.pingCreepExportRequest();
-            }
-          }
-        });
-      },
-      true,
-    );
+    // this.currentLocationHref = globalThis.location.href;
+    // document.body.addEventListener(
+    //   "click",
+    //   () => {
+    //     requestAnimationFrame(() => {
+    //       if (this.currentLocationHref !== globalThis.location.href) {
+    //         this.setupMessagePort();
+    //         this.currentLocationHref = globalThis.location.href;
+    //
+    //         if (this.currentLocationHref.includes("/export")) {
+    //           this.pingCreepExportRequest();
+    //         }
+    //       }
+    //     });
+    //   },
+    //   true,
+    // );
   };
 
   pingCreepExportRequest = () => {
