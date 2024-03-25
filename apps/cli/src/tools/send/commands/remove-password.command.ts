@@ -1,3 +1,5 @@
+import { firstValueFrom } from "rxjs";
+
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { SendService } from "@bitwarden/common/tools/send/services//send.service.abstraction";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
@@ -16,8 +18,9 @@ export class SendRemovePasswordCommand {
     try {
       await this.sendApiService.removePassword(id);
 
-      const updatedSend = await this.sendService.get(id);
-      const webVaultUrl = this.environmentService.getWebVaultUrl();
+      const updatedSend = await firstValueFrom(this.sendService.get$(id));
+      const env = await firstValueFrom(this.environmentService.environment$);
+      const webVaultUrl = env.getWebVaultUrl();
       const res = new SendResponse(updatedSend, webVaultUrl);
       return Response.success(res);
     } catch (e) {
