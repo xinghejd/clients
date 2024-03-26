@@ -9,6 +9,7 @@ import {
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DeviceTrustCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust-crypto.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
@@ -101,6 +102,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     protected userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
     protected stateProvider: GlobalStateProvider,
     protected billingAccountProfileStateService: BillingAccountProfileStateService,
+    protected accountService: AccountService,
   ) {
     this.currentAuthnTypeState = this.stateProvider.get(CURRENT_LOGIN_STRATEGY_KEY);
     this.loginStrategyCacheState = this.stateProvider.get(CACHE_KEY);
@@ -347,6 +349,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
               this.policyService,
               this,
               this.billingAccountProfileStateService,
+              this.accountService,
             );
           case AuthenticationType.Sso:
             return new SsoLoginStrategy(
@@ -366,6 +369,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
               this.authRequestService,
               this.i18nService,
               this.billingAccountProfileStateService,
+              this.accountService,
             );
           case AuthenticationType.UserApiKey:
             return new UserApiLoginStrategy(
@@ -383,6 +387,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
               this.environmentService,
               this.keyConnectorService,
               this.billingAccountProfileStateService,
+              this.accountService,
             );
           case AuthenticationType.AuthRequest:
             return new AuthRequestLoginStrategy(
@@ -399,6 +404,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
               this.userDecryptionOptionsService,
               this.deviceTrustCryptoService,
               this.billingAccountProfileStateService,
+              this.accountService,
             );
           case AuthenticationType.WebAuthn:
             return new WebAuthnLoginStrategy(
@@ -414,6 +420,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
               this.twoFactorService,
               this.userDecryptionOptionsService,
               this.billingAccountProfileStateService,
+              this.accountService,
             );
         }
       }),

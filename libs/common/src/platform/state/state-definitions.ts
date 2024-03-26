@@ -37,6 +37,7 @@ export const BILLING_DISK = new StateDefinition("billing", "disk");
 
 export const KEY_CONNECTOR_DISK = new StateDefinition("keyConnector", "disk");
 export const ACCOUNT_MEMORY = new StateDefinition("account", "memory");
+export const ACCOUNT_DISK = new StateDefinition("account", "disk");
 export const AVATAR_DISK = new StateDefinition("avatar", "disk", { web: "disk-local" });
 export const LOGIN_EMAIL_DISK = new StateDefinition("loginEmail", "disk", {
   web: "disk-local",

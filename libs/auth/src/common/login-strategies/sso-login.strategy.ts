@@ -2,6 +2,7 @@ import { Observable, map, BehaviorSubject } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { DeviceTrustCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust-crypto.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
@@ -94,6 +95,7 @@ export class SsoLoginStrategy extends LoginStrategy {
     private authRequestService: AuthRequestServiceAbstraction,
     private i18nService: I18nService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
+    accountService: AccountService,
   ) {
     super(
       cryptoService,
@@ -107,6 +109,7 @@ export class SsoLoginStrategy extends LoginStrategy {
       twoFactorService,
       userDecryptionOptionsService,
       billingAccountProfileStateService,
+      accountService,
     );
 
     this.cache = new BehaviorSubject(data);
