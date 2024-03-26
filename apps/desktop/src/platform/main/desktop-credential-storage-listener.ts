@@ -42,12 +42,14 @@ export class DesktopCredentialStorageListener {
         return val;
       } catch (e) {
         if (
-          e.message === "Password not found." ||
-          e.message === "The specified item could not be found in the keychain."
+          e.message === "Password not found." || // windows error
+          e.message === "The specified item could not be found in the keychain." // macos error
         ) {
           return null;
         }
-        this.logService.info(e);
+        this.logService.info(
+          `Error while doing action '${message.action}' on key '${message.key}'` + e,
+        );
       }
     });
 
