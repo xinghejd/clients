@@ -111,6 +111,11 @@ export interface CreateCredentialParams {
    * This is treated as a hint, and MAY be overridden by the client.
    **/
   timeout?: number;
+
+  /**
+   * The raw request as a string. This is used to pass the request to the SDK implementation.
+   */
+  rawRequest: string;
 }
 
 /**

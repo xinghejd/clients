@@ -51,6 +51,7 @@ export class WebauthnUtils {
       },
       timeout: keyOptions.timeout,
       fallbackSupported,
+      rawRequest: serializeCredentialCreationOptions(options),
     };
   }
 
@@ -139,3 +140,84 @@ export class WebauthnUtils {
     return credential;
   }
 }
+
+function serializeCredentialCreationOptions(options: CredentialCreationOptions): string {
+  const publicKey = options.publicKey;
+  return JSON.stringify({
+    publicKey: {
+      rp: {
+        id: publicKey.rp.id,
+        name: publicKey.rp.name,
+      },
+      user: {
+        id: Fido2Utils.bufferToString(publicKey.user.id),
+        name: publicKey.user.name,
+        displayName: publicKey.user.displayName,
+      },
+      challenge: Fido2Utils.bufferToString(publicKey.challenge),
+      pubKeyCredParams: publicKey.pubKeyCredParams.map((params) => ({
+        alg: params.alg,
+        type: params.type,
+      })),
+      timeout: publicKey.timeout,
+      excludeCredentials: publicKey.excludeCredentials?.map((credential) => ({
+        id: Fido2Utils.bufferToString(credential.id),
+        transports: credential.transports,
+        type: credential.type,
+      })),
+      authenticatorSelection: publicKey.authenticatorSelection && {
+        authenticatorAttachment: publicKey.authenticatorSelection.authenticatorAttachment,
+        requireResidentKey: publicKey.authenticatorSelection.requireResidentKey,
+        residentKey: publicKey.authenticatorSelection.residentKey,
+        userVerification: publicKey.authenticatorSelection.userVerification,
+      },
+      hints: (publicKey as any).hints,
+      attestation: publicKey.attestation,
+      attestationFormats: (publicKey as any).attestationFormats,
+      extensions: publicKey.extensions,
+    } as CredentialCreationOptionsJSON,
+  });
+}
+
+interface CredentialCreationOptionsJSON {
+  rp: {
+    id?: string;
+    name: string;
+  };
+  user: {
+    id: string;
+    name: string;
+    displayName: string;
+  };
+  challenge: string;
+  pubKeyCredParams: {
+    type: PublicKeyCredentialType;
+    alg: number;
+  }[];
+  timeout: number;
+  excludeCredentials?: {
+    type: PublicKeyCredentialType;
+    id: string;
+    transports: AuthenticatorTransport[];
+  }[];
+  authenticatorSelection?: {
+    authenticatorAttachment?: AuthenticatorAttachment;
+    requireResidentKey?: boolean;
+    residentKey?: ResidentKeyRequirement;
+    userVerification?: UserVerificationRequirement;
+  };
+  hints?: PublicKeyCredentialHints[];
+  attestation?: AttestationConveyancePreference;
+  attestationFormats?: AttestationStatementFormatIdentifiers[];
+  extensions: unknown; // not supported
+}
+
+type PublicKeyCredentialHints = "security_key" | "client_device" | "hybrid";
+type AttestationStatementFormatIdentifiers =
+  | "packed"
+  | "tpm"
+  | "android-key"
+  | "android-safetynet"
+  | "fido-u2f"
+  | "none"
+  | "apple";

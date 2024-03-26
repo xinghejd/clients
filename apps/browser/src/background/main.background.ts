@@ -779,6 +779,7 @@ export default class MainBackground {
     this.fido2ClientService = new Fido2ClientService(
       this.bitwardenSdkService,
       this.fido2UserInterfaceService,
+      this.cipherService,
     );
     // this.fido2ClientService = new Fido2ClientService(
     //   this.fido2AuthenticatorService,

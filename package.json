@@ -160,6 +160,7 @@
     "@angular/router": "16.2.12",
     "@bitwarden/sdk-client": "file:../sdk/languages/js/sdk-client",
     "@bitwarden/sdk-wasm": "file:../sdk/languages/js/wasm",
+    "@github/webauthn-json": "^2.1.1",
     "@koa/multer": "3.0.2",
     "@koa/router": "12.0.1",
     "@microsoft/signalr": "8.0.0",
