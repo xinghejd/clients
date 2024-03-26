@@ -774,10 +774,16 @@ export class TokenService implements TokenServiceAbstraction {
     storageKey: string,
   ): Promise<string | null> {
     // If we have a user ID, read from secure storage.
-    return await this.secureStorageService.get<string>(
-      `${userId}${storageKey}`,
-      this.getSecureStorageOptions(userId),
-    );
+    try {
+      return await this.secureStorageService.get<string>(
+        `${userId}${storageKey}`,
+        this.getSecureStorageOptions(userId),
+      );
+    } catch (e) {
+      throw new Error(
+        `Error while retrieving ${storageKey} from secure storage: ${typeof e === "string" ? e : JSON.stringify(e)}`,
+      );
+    }
   }
 
   private getSecureStorageOptions(userId: UserId): StorageOptions {

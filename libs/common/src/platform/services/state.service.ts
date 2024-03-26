@@ -381,10 +381,17 @@ export class StateService<
     if (options?.userId == null) {
       return null;
     }
-    return await this.secureStorageService.get<string>(
-      `${options.userId}${partialKeys.userAutoKey}`,
-      options,
-    );
+    try {
+      return await this.secureStorageService.get<string>(
+        `${options.userId}${partialKeys.userAutoKey}`,
+        options,
+      );
+    } catch (e) {
+      this.logService.error(
+        `Error while retrieving user auto key from secure storage ${typeof e === "string" ? e : JSON.stringify(e)}`,
+      );
+      throw e;
+    }
   }
 
   /**
@@ -412,10 +419,18 @@ export class StateService<
     if (options?.userId == null) {
       return null;
     }
-    return await this.secureStorageService.get<string>(
-      `${options.userId}${partialKeys.userBiometricKey}`,
-      options,
-    );
+
+    try {
+      return await this.secureStorageService.get<string>(
+        `${options.userId}${partialKeys.userBiometricKey}`,
+        options,
+      );
+    } catch (e) {
+      this.logService.error(
+        `Error while retrieving user biometric key from secure storage ${typeof e === "string" ? e : JSON.stringify(e)}`,
+      );
+      throw e;
+    }
   }
 
   async hasUserKeyBiometric(options?: StorageOptions): Promise<boolean> {
@@ -493,10 +508,18 @@ export class StateService<
     if (options?.userId == null) {
       return null;
     }
-    return await this.secureStorageService.get<string>(
-      `${options.userId}${partialKeys.autoKey}`,
-      options,
-    );
+
+    try {
+      return await this.secureStorageService.get<string>(
+        `${options.userId}${partialKeys.autoKey}`,
+        options,
+      );
+    } catch (e) {
+      this.logService.error(
+        `Error while retrieving user crypto master key from secure storage ${typeof e === "string" ? e : JSON.stringify(e)}`,
+      );
+      throw e;
+    }
   }
 
   /**
@@ -549,10 +572,17 @@ export class StateService<
     if (options?.userId == null) {
       return null;
     }
-    return await this.secureStorageService.get<string>(
-      `${options.userId}${partialKeys.biometricKey}`,
-      options,
-    );
+    try {
+      return await this.secureStorageService.get<string>(
+        `${options.userId}${partialKeys.biometricKey}`,
+        options,
+      );
+    } catch (e) {
+      this.logService.error(
+        `Error while retrieving user crypto master key biometric from secure storage ${typeof e === "string" ? e : JSON.stringify(e)}`,
+      );
+      throw e;
+    }
   }
 
   /**
@@ -566,10 +596,16 @@ export class StateService<
     if (options?.userId == null) {
       return false;
     }
-    return await this.secureStorageService.has(
-      `${options.userId}${partialKeys.biometricKey}`,
-      options,
-    );
+    try {
+      return await this.secureStorageService.has(
+        `${options.userId}${partialKeys.biometricKey}`,
+        options,
+      );
+    } catch (e) {
+      this.logService.error(
+        `Error while checking existence of crypto master key biometric from secure storage ${typeof e === "string" ? e : JSON.stringify(e)}`,
+      );
+    }
   }
 
   /**
@@ -691,7 +727,14 @@ export class StateService<
     if (options?.userId == null) {
       return null;
     }
-    return await this.secureStorageService.get<string>(DDG_SHARED_KEY, options);
+    try {
+      return await this.secureStorageService.get<string>(DDG_SHARED_KEY, options);
+    } catch (e) {
+      this.logService.error(
+        `Error while retrieving duck duck go shared key from secure storage ${typeof e === "string" ? e : JSON.stringify(e)}`,
+      );
+      throw e;
+    }
   }
 
   async setDuckDuckGoSharedKey(value: string, options?: StorageOptions): Promise<void> {
