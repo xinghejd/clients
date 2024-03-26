@@ -1,6 +1,7 @@
 import * as path from "path";
 
 import { app } from "electron";
+import { firstValueFrom } from "rxjs";
 
 import { TokenService as TokenServiceAbstraction } from "@bitwarden/common/auth/abstractions/token.service";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
@@ -9,7 +10,7 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { DefaultBiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
-import { EnvironmentService } from "@bitwarden/common/platform/services/environment.service";
+import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
@@ -25,6 +26,7 @@ import { StateEventRegistrarService } from "@bitwarden/common/platform/state/sta
 import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@bitwarden/common/platform/state/storage/memory-storage.service";
 /* eslint-enable import/no-restricted-paths */
 
+import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
 import { MenuMain } from "./main/menu/menu.main";
 import { MessagingMain } from "./main/messaging.main";
 import { NativeMessagingMain } from "./main/native-messaging.main";
@@ -37,12 +39,14 @@ import { BiometricsService, BiometricsServiceAbstraction } from "./platform/main
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { MainCryptoFunctionService } from "./platform/main/main-crypto-function.service";
+import { DesktopSettingsService } from "./platform/services/desktop-settings.service";
 import { ElectronLogMainService } from "./platform/services/electron-log.main.service";
 import { ELECTRON_SUPPORTS_SECURE_STORAGE } from "./platform/services/electron-platform-utils.service";
 import { ElectronStateService } from "./platform/services/electron-state.service";
 import { ElectronStorageService } from "./platform/services/electron-storage.service";
 import { I18nMainService } from "./platform/services/i18n.main.service";
 import { ElectronMainMessagingService } from "./services/electron-main-messaging.service";
+import { isMacAppStore } from "./utils";
 
 export class Main {
   logService: ElectronLogMainService;
@@ -52,9 +56,10 @@ export class Main {
   memoryStorageForStateProviders: MemoryStorageServiceForStateProviders;
   messagingService: ElectronMainMessagingService;
   stateService: StateService;
-  environmentService: EnvironmentService;
+  environmentService: DefaultEnvironmentService;
   mainCryptoFunctionService: MainCryptoFunctionService;
   desktopCredentialStorageListener: DesktopCredentialStorageListener;
+  desktopSettingsService: DesktopSettingsService;
   migrationRunner: MigrationRunner;
   tokenService: TokenServiceAbstraction;
 
@@ -67,6 +72,7 @@ export class Main {
   biometricsService: BiometricsServiceAbstraction;
   nativeMessagingMain: NativeMessagingMain;
   clipboardMain: ClipboardMain;
+  desktopAutofillSettingsService: DesktopAutofillSettingsService;
 
   constructor() {
     // Set paths for portable builds
@@ -145,7 +151,7 @@ export class Main {
       new DefaultDerivedStateProvider(this.memoryStorageForStateProviders),
     );
 
-    this.environmentService = new EnvironmentService(stateProvider, accountService);
+    this.environmentService = new DefaultEnvironmentService(stateProvider, accountService);
 
     this.tokenService = new TokenService(
       singleUserStateProvider,
@@ -176,6 +182,8 @@ export class Main {
       false, // Do not use disk caching because this will get out of sync with the renderer service
     );
 
+    this.desktopSettingsService = new DesktopSettingsService(stateProvider);
+
     const biometricStateService = new DefaultBiometricStateService(stateProvider);
 
     this.windowMain = new WindowMain(
@@ -183,12 +191,13 @@ export class Main {
       biometricStateService,
       this.logService,
       this.storageService,
+      this.desktopSettingsService,
       (arg) => this.processDeepLink(arg),
       (win) => this.trayMain.setupWindowListeners(win),
     );
-    this.messagingMain = new MessagingMain(this, this.stateService);
+    this.messagingMain = new MessagingMain(this, this.stateService, this.desktopSettingsService);
     this.updaterMain = new UpdaterMain(this.i18nService, this.windowMain);
-    this.trayMain = new TrayMain(this.windowMain, this.i18nService, this.stateService);
+    this.trayMain = new TrayMain(this.windowMain, this.i18nService, this.desktopSettingsService);
 
     this.messagingService = new ElectronMainMessagingService(this.windowMain, (message) => {
       this.messagingMain.onMessage(message);
@@ -201,6 +210,7 @@ export class Main {
       this.environmentService,
       this.windowMain,
       this.updaterMain,
+      this.desktopSettingsService,
     );
 
     this.biometricsService = new BiometricsService(
@@ -225,6 +235,8 @@ export class Main {
       app.getPath("exe"),
     );
 
+    this.desktopAutofillSettingsService = new DesktopAutofillSettingsService(stateProvider);
+
     this.clipboardMain = new ClipboardMain();
     this.clipboardMain.init();
 
@@ -237,9 +249,10 @@ export class Main {
     // Run migrations first, then other things
     this.migrationRunner.run().then(
       async () => {
+        await this.toggleHardwareAcceleration();
         await this.windowMain.init();
         await this.i18nService.init();
-        this.messagingMain.init();
+        await this.messagingMain.init();
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.menuMain.init();
@@ -251,20 +264,18 @@ export class Main {
             click: () => this.messagingService.send("lockVault"),
           },
         ]);
-        if (await this.stateService.getEnableStartToTray()) {
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          this.trayMain.hideToTray();
+        if (await firstValueFrom(this.desktopSettingsService.startToTray$)) {
+          await this.trayMain.hideToTray();
         }
         this.powerMonitorMain.init();
         await this.updaterMain.init();
 
         if (
           (await this.stateService.getEnableBrowserIntegration()) ||
-          (await this.stateService.getEnableDuckDuckGoBrowserIntegration())
+          (await firstValueFrom(
+            this.desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$,
+          ))
         ) {
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.nativeMessagingMain.listen();
         }
 
@@ -306,5 +317,29 @@ export class Main {
       .forEach((s) => {
         this.messagingService.send("deepLink", { urlString: s });
       });
+  }
+
+  private async toggleHardwareAcceleration(): Promise<void> {
+    const hardwareAcceleration = await firstValueFrom(
+      this.desktopSettingsService.hardwareAcceleration$,
+    );
+
+    if (!hardwareAcceleration) {
+      this.logService.warning("Hardware acceleration is disabled");
+      app.disableHardwareAcceleration();
+    } else if (isMacAppStore()) {
+      // We disable hardware acceleration on Mac App Store builds for iMacs with amd switchable GPUs due to:
+      // https://github.com/electron/electron/issues/41346
+      const gpuInfo: any = await app.getGPUInfo("basic");
+      const badGpu = gpuInfo?.auxAttributes?.amdSwitchable ?? false;
+      const isImac = gpuInfo?.machineModelName == "iMac";
+
+      if (isImac && badGpu) {
+        this.logService.warning(
+          "Bad GPU detected, hardware acceleration is disabled for compatibility",
+        );
+        app.disableHardwareAcceleration();
+      }
+    }
   }
 }
