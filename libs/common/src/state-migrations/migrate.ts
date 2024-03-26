@@ -43,7 +43,8 @@ import { UserDecryptionOptionsMigrator } from "./migrations/44-move-user-decrypt
 import { MergeEnvironmentState } from "./migrations/45-merge-environment-state";
 import { DeleteBiometricPromptCancelledData } from "./migrations/46-delete-orphaned-biometric-prompt-data";
 import { MoveDesktopSettingsMigrator } from "./migrations/47-move-desktop-settings";
-import { SendMigrator } from "./migrations/48-move-encrypted-sends";
+import { MoveDdgToStateProviderMigrator } from "./migrations/48-move-ddg-to-state-provider";
+import { SendMigrator } from "./migrations/49-move-encrypted-sends";
 import { AddKeyTypeToOrgKeysMigrator } from "./migrations/5-add-key-type-to-org-keys";
 import { RemoveLegacyEtmKeyMigrator } from "./migrations/6-remove-legacy-etm-key";
 import { MoveBiometricAutoPromptToAccount } from "./migrations/7-move-biometric-auto-prompt-to-account";
@@ -52,7 +53,8 @@ import { MoveBrowserSettingsToGlobal } from "./migrations/9-move-browser-setting
 import { MinVersionMigrator } from "./migrations/min-version";
 
 export const MIN_VERSION = 3;
-export const CURRENT_VERSION = 48;
+export const CURRENT_VERSION = 49;
+
 export type MinVersion = typeof MIN_VERSION;
 
 export function createMigrationBuilder() {
@@ -102,7 +104,8 @@ export function createMigrationBuilder() {
     .with(MergeEnvironmentState, 44, 45)
     .with(DeleteBiometricPromptCancelledData, 45, 46)
     .with(MoveDesktopSettingsMigrator, 46, 47)
-    .with(SendMigrator, 47, CURRENT_VERSION);
+    .with(MoveDdgToStateProviderMigrator, 47, 48)
+    .with(SendMigrator, 48, CURRENT_VERSION);
 }
 
 export async function currentVersion(

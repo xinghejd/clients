@@ -570,6 +570,7 @@ export default class MainBackground {
     );
 
     this.authService = new AuthService(
+      this.accountService,
       backgroundMessagingService,
       this.cryptoService,
       this.apiService,
