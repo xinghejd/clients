@@ -349,6 +349,7 @@ const typesafeProviders: Array<SafeProvider> = [
     provide: AuthServiceAbstraction,
     useClass: AuthService,
     deps: [
+      AccountServiceAbstraction,
       MessagingServiceAbstraction,
       CryptoServiceAbstraction,
       ApiServiceAbstraction,
