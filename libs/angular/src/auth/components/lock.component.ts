@@ -80,7 +80,7 @@ export class LockComponent implements OnInit, OnDestroy {
   ) {}
 
   async ngOnInit() {
-    this.stateService.activeAccount$
+    this.accountService.activeAccount$
       .pipe(
         concatMap(async () => {
           await this.load();
