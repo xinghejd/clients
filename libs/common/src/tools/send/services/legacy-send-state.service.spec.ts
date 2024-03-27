@@ -1,17 +1,24 @@
-import { any, mock, MockProxy } from "jest-mock-extended";
-import { BehaviorSubject, firstValueFrom, skip, take } from "rxjs";
+import { mock } from "jest-mock-extended";
+import { firstValueFrom, skip, take } from "rxjs";
 
-import { makeStaticByteArray } from "../../../../spec";
+import {
+  FakeAccountService,
+  FakeActiveUserState,
+  FakeStateProvider,
+  makeStaticByteArray,
+  mockAccountServiceWith,
+} from "../../../../spec";
+import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
 import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../../platform/abstractions/i18n.service";
-import { StateService } from "../../../platform/abstractions/state.service";
 import { EncryptionType } from "../../../platform/enums/encryption-type.enum";
 import { Utils } from "../../../platform/misc/utils";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "../../../platform/services/container.service";
 import { CsprngArray } from "../../../types/csprng";
+import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 import { SendType } from "../enums/send-type";
 import { SendFileApi } from "../models/api/send-file.api";
@@ -23,27 +30,33 @@ import { Send } from "../models/domain/send";
 import { SendView } from "../models/view/send.view";
 
 import { SendStateOptions } from "./asymmetrical-send-state.abstraction";
+import { SEND_USER_ENCRYPTED } from "./key-definitions";
 import { LegacySendStateService } from "./legacy-send-state.service";
+import { SendStateProvider } from "./send-state.provider";
 
 describe("asymmetricalSendState", () => {
   const i18nService = mock<I18nService>();
   const encryptService = mock<EncryptService>();
   const cryptoService = mock<CryptoService>();
   const sendStateOptions: SendStateOptions = { cache_ms: 1 };
+  // const sendStateService = mock<AsymmetricalSendState>();
+
+  let encryptedState: FakeActiveUserState<Record<string, SendData>>;
+  // let decryptedState: FakeActiveUserState<SendView[]>;
 
   let asymmetricalSendState: LegacySendStateService;
 
-  let stateService: MockProxy<StateService>;
-  let activeAccount: BehaviorSubject<string>;
-  let activeAccountUnlocked: BehaviorSubject<boolean>;
+  let sendStateProvider: SendStateProvider;
+  let stateProvider: FakeStateProvider;
+
+  const mockUserId = Utils.newGuid() as UserId;
+  let accountService: FakeAccountService;
 
   beforeEach(() => {
-    activeAccount = new BehaviorSubject("123");
-    activeAccountUnlocked = new BehaviorSubject(true);
+    accountService = mockAccountServiceWith(mockUserId);
 
-    stateService = mock<StateService>();
-    stateService.activeAccount$ = activeAccount;
-    stateService.activeAccountUnlocked$ = activeAccountUnlocked;
+    stateProvider = new FakeStateProvider(accountService);
+    sendStateProvider = new SendStateProvider(stateProvider);
 
     cryptoService.hasUserKey.mockResolvedValue(true);
     cryptoService.getUserKeyWithLegacySupport.mockResolvedValue(
@@ -66,26 +79,31 @@ describe("asymmetricalSendState", () => {
 
     (window as any).bitwardenContainerService = new ContainerService(cryptoService, encryptService);
 
-    stateService.getEncryptedSends.calledWith(any()).mockResolvedValue({
+    // Initial encrypted state
+    encryptedState = stateProvider.activeUser.getFake(SEND_USER_ENCRYPTED);
+    encryptedState.nextState({
       "1": sendData("1", "Test Send"),
     });
 
-    stateService.getDecryptedSends
-      .calledWith(any())
-      .mockResolvedValue([sendView("1", "Test Send")]);
+    // const mockSend = sendData("1", "Send 1");
+    // const sends = new BehaviorSubject<Send[]>([mockSend]);
+    // sendStateService.sends$ = sends;
+
+    accountService.activeAccountSubject.next({
+      id: mockUserId,
+      email: "email",
+      name: "name",
+      status: AuthenticationStatus.Unlocked,
+    });
 
     sendStateOptions.cache_ms = 100;
     asymmetricalSendState = new LegacySendStateService(
       sendStateOptions,
       cryptoService,
       i18nService,
-      stateService,
+      sendStateProvider,
+      accountService,
     );
-  });
-
-  afterEach(() => {
-    activeAccount.complete();
-    activeAccountUnlocked.complete();
   });
 
   describe("get$", () => {
@@ -444,7 +462,7 @@ describe("asymmetricalSendState", () => {
     });
 
     it("Deleting on an empty sends array should not throw", async () => {
-      stateService.getEncryptedSends.calledWith(any()).mockResolvedValue(null);
+      sendStateProvider.getEncryptedSends = jest.fn().mockResolvedValue(null);
       await expect(asymmetricalSendState.delete("2")).resolves.not.toThrow();
     });
 

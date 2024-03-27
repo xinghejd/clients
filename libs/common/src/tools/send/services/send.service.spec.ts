@@ -83,308 +83,13 @@ describe("SendService", () => {
     decryptedState.nextState([sendView("1", "Test Send")]);
   });
 
-  // describe("get", () => {
-  //   it("exists", async () => {
-  //     const result = await sendService.get("1");
+  it("get$", async () => {
+    await sendService.get$("1");
 
-  //     expect(result).toEqual(sendView("1", "Test Send"));
-  //   });
+    sendStateService.get$.mockImplementationOnce(() => null);
 
-  //   it("does not exist", async () => {
-  //     const result = await sendService.get("2");
-
-  //     expect(result).toBe(undefined);
-  //   });
-  // });
-
-  // describe("get$", () => {
-  //   it("exists", async () => {
-  //     const result = await firstValueFrom(sendService.get$("1"));
-
-  //     expect(result).toEqual(send("1", "Test Send"));
-  //   });
-
-  //   it("does not exist", async () => {
-  //     const result = await firstValueFrom(sendService.get$("2"));
-
-  //     expect(result).toBe(undefined);
-  //   });
-
-  //   it("updated observable", async () => {
-  //     const singleSendObservable = sendService.get$("1");
-  //     const result = await firstValueFrom(singleSendObservable);
-  //     expect(result).toEqual(send("1", "Test Send"));
-
-  //     await sendService.replace({
-  //       "1": sendData("1", "Test Send Updated"),
-  //     });
-
-  //     const result2 = await firstValueFrom(singleSendObservable);
-  //     expect(result2).toEqual(send("1", "Test Send Updated"));
-  //   });
-
-  //   it("reports a change when name changes on a new send", async () => {
-  //     let changed = false;
-  //     sendService.get$("1").subscribe(() => {
-  //       changed = true;
-  //     });
-  //     const sendDataObject = sendData("1", "Test Send 2");
-
-  //     //it is immediately called when subscribed, we need to reset the value
-  //     changed = false;
-  //     await sendService.replace({
-  //       "1": sendDataObject,
-  //       "2": sendData("2", "Test Send 2"),
-  //     });
-
-  //     expect(changed).toEqual(true);
-  //   });
-
-  //   it("reports a change when notes changes on a new send", async () => {
-  //     const sendDataObject = createSendData() as SendData;
-
-  //     await sendService.replace({
-  //       "1": sendDataObject,
-  //       "2": sendData("2", "Test Send 2"),
-  //     });
-
-  //     let changed = false;
-  //     sendService.get$("1").subscribe(() => {
-  //       changed = true;
-  //     });
-
-  //     sendDataObject.notes = "New notes";
-  //     //it is immediately called when subscribed, we need to reset the value
-  //     changed = false;
-
-  //     await sendService.replace({
-  //       "1": sendDataObject,
-  //       "2": sendData("2", "Test Send 2"),
-  //     });
-
-  //     expect(changed).toEqual(true);
-  //   });
-
-  //   it("reports a change when Text changes on a new send", async () => {
-  //     const sendDataObject = createSendData() as SendData;
-
-  //     await sendService.replace({
-  //       "1": sendDataObject,
-  //       "2": sendData("2", "Test Send 2"),
-  //     });
-
-  //     let changed = false;
-  //     sendService.get$("1").subscribe(() => {
-  //       changed = true;
-  //     });
-
-  //     //it is immediately called when subscribed, we need to reset the value
-  //     changed = false;
-
-  //     sendDataObject.text.text = "new text";
-  //     await sendService.replace({
-  //       "1": sendDataObject,
-  //       "2": sendData("2", "Test Send 2"),
-  //     });
-
-  //     expect(changed).toEqual(true);
-  //   });
-
-  //   it("reports a change when Text is set as null on a new send", async () => {
-  //     const sendDataObject = createSendData() as SendData;
-
-  //     await sendService.replace({
-  //       "1": sendDataObject,
-  //       "2": sendData("2", "Test Send 2"),
-  //     });
-
-  //     let changed = false;
-  //     sendService.get$("1").subscribe(() => {
-  //       changed = true;
-  //     });
-
-  //     //it is immediately called when subscribed, we need to reset the value
-  //     changed = false;
-
-  //     sendDataObject.text = null;
-  //     await sendService.replace({
-  //       "1": sendDataObject,
-  //       "2": sendData("2", "Test Send 2"),
-  //     });
-
-  //     expect(changed).toEqual(true);
-  //   });
-
-  //   it("Doesn't reports a change when File changes on a new send", async () => {
-  //     const sendDataObject = createSendData({
-  //       type: SendType.File,
-  //       file: new SendFileData(new SendFileApi({ FileName: "name of file" })),
-  //     }) as SendData;
-  //     await sendService.replace({
-  //       "1": sendDataObject,
-  //       "2": sendData("2", "Test Send 2"),
-  //     });
-
-  //     sendDataObject.file = new SendFileData(new SendFileApi({ FileName: "updated name of file" }));
-  //     let changed = false;
-  //     sendService.get$("1").subscribe(() => {
-  //       changed = true;
-  //     });
-
-  //     //it is immediately called when subscribed, we need to reset the value
-  //     changed = false;
-
-  //     await sendService.replace({
-  //       "1": sendDataObject,
-  //       "2": sendData("2", "Test Send 2"),
-  //     });
-
-  //     expect(changed).toEqual(false);
-  //   });
-
-  //   it("reports a change when key changes on a new send", async () => {
-  //     const sendDataObject = createSendData() as SendData;
-
-  //     await sendService.replace({
-  //       "1": sendDataObject,
-  //       "2": sendData("2", "Test Send 2"),
-  //     });
-
-  //     let changed = false;
-  //     sendService.get$("1").subscribe(() => {
-  //       changed = true;
-  //     });
-
-  //     //it is immediately called when subscribed, we need to reset the value
-  //     changed = false;
-
-  //     sendDataObject.key = "newKey";
-  //     await sendService.replace({
-  //       "1": sendDataObject,
-  //       "2": sendData("2", "Test Send 2"),
-  //     });
-
-  //     expect(changed).toEqual(true);
-  //   });
-
-  //   it("reports a change when revisionDate changes on a new send", async () => {
-  //     const sendDataObject = createSendData() as SendData;
-
-  //     await sendService.replace({
-  //       "1": sendDataObject,
-  //       "2": sendData("2", "Test Send 2"),
-  //     });
-
-  //     let changed = false;
-  //     sendService.get$("1").subscribe(() => {
-  //       changed = true;
-  //     });
-
-  //     //it is immediately called when subscribed, we need to reset the value
-  //     changed = false;
-
-  //     sendDataObject.revisionDate = "2025-04-05";
-  //     await sendService.replace({
-  //       "1": sendDataObject,
-  //       "2": sendData("2", "Test Send 2"),
-  //     });
-
-  //     expect(changed).toEqual(true);
-  //   });
-
-  //   it("reports a change when a property is set as null on a new send", async () => {
-  //     const sendDataObject = createSendData() as SendData;
-
-  //     await sendService.replace({
-  //       "1": sendDataObject,
-  //       "2": sendData("2", "Test Send 2"),
-  //     });
-
-  //     let changed = false;
-  //     sendService.get$("1").subscribe(() => {
-  //       changed = true;
-  //     });
-
-  //     //it is immediately called when subscribed, we need to reset the value
-  //     changed = false;
-
-  //     sendDataObject.name = null;
-  //     await sendService.replace({
-  //       "1": sendDataObject,
-  //       "2": sendData("2", "Test Send 2"),
-  //     });
-
-  //     expect(changed).toEqual(true);
-  //   });
-
-  //   it("does not reports a change when text's text is set as null on a new send and old send and reports a change then new send sets a text", async () => {
-  //     const sendDataObject = createSendData({
-  //       text: new SendTextData(new SendTextApi({ Text: null })),
-  //     }) as SendData;
-
-  //     await sendService.replace({
-  //       "1": sendDataObject,
-  //       "2": sendData("2", "Test Send 2"),
-  //     });
-
-  //     let changed = false;
-  //     sendService.get$("1").subscribe(() => {
-  //       changed = true;
-  //     });
-
-  //     //it is immediately called when subscribed, we need to reset the value
-  //     changed = false;
-
-  //     await sendService.replace({
-  //       "1": sendDataObject,
-  //       "2": sendData("2", "Test Send 2"),
-  //     });
-
-  //     expect(changed).toEqual(false);
-
-  //     sendDataObject.text.text = "Asdf";
-  //     await sendService.replace({
-  //       "1": sendDataObject,
-  //       "2": sendData("2", "Test Send 2"),
-  //     });
-
-  //     expect(changed).toEqual(true);
-  //   });
-
-  //   it("do not reports a change when nothing changes on the observed send", async () => {
-  //     let changed = false;
-  //     sendService.get$("1").subscribe(() => {
-  //       changed = true;
-  //     });
-
-  //     const sendDataObject = sendData("1", "Test Send");
-
-  //     //it is immediately called when subscribed, we need to reset the value
-  //     changed = false;
-
-  //     await sendService.replace({
-  //       "1": sendDataObject,
-  //       "2": sendData("3", "Test Send 3"),
-  //     });
-
-  //     expect(changed).toEqual(false);
-  //   });
-
-  //   it("reports a change when the observed send is deleted", async () => {
-  //     let changed = false;
-  //     sendService.get$("1").subscribe(() => {
-  //       changed = true;
-  //     });
-  //     //it is immediately called when subscribed, we need to reset the value
-  //     changed = false;
-
-  //     await sendService.replace({
-  //       "2": sendData("2", "Test Send 2"),
-  //     });
-
-  //     expect(changed).toEqual(true);
-  //   });
-  // });
+    expect(sendStateService.get$).toHaveBeenCalledTimes(1);
+  });
 
   it("getAll", async () => {
     const sends = await sendService.getAll();
@@ -394,20 +99,9 @@ describe("SendService", () => {
     expect(send1).toEqual(send("1", "Test Send"));
   });
 
-  describe("getFromState", () => {
-    it("exists", async () => {
-      const result = await sendService.getFromState("1");
-
-      expect(result).toEqual(send("1", "Test Send"));
-    });
-    it("does not exist", async () => {
-      const result = await sendService.getFromState("2");
-
-      expect(result).toBe(null);
-    });
-  });
-
   it("getAllDecryptedFromState", async () => {
+    cryptoService.hasUserKey.mockImplementationOnce(async () => true);
+    sendStateProvider.getDecryptedSends = jest.fn();
     await sendService.getAllDecryptedFromState();
 
     expect(sendStateProvider.getDecryptedSends).toHaveBeenCalledTimes(1);
@@ -452,44 +146,43 @@ describe("SendService", () => {
     });
   });
 
+  describe("getFromState", () => {
+    it("exists", async () => {
+      const result = await sendService.getFromState("1");
+
+      expect(result).toEqual(send("1", "Test Send"));
+    });
+    it("does not exist", async () => {
+      const result = await sendService.getFromState("2");
+
+      expect(result).toBe(null);
+    });
+  });
+
   // InternalSendService
 
-  // it("upsert", async () => {
-  //   await sendService.upsert(sendData("2", "Test 2"));
+  describe("InternalSendService", () => {
+    it("upsert", async () => {
+      await sendService.upsert(sendData("2", "Test 2"));
+      sendStateService.update.mockImplementationOnce(() => null);
 
-  //   expect(await firstValueFrom(sendService.sends$)).toEqual([
-  //     send("1", "Test Send"),
-  //     send("2", "Test 2"),
-  //   ]);
-  // });
+      expect(sendStateService.update).toHaveBeenCalledTimes(1);
+    });
 
-  // it("replace", async () => {
-  //   await sendService.replace({ "2": sendData("2", "test 2") });
+    it("replace", async () => {
+      await sendService.upsert(sendData("2", "Test 2"));
+      sendStateService.replace.mockImplementationOnce(() => null);
 
-  //   expect(await firstValueFrom(sendService.sends$)).toEqual([send("2", "test 2")]);
-  // });
+      expect(sendStateService.replace).toHaveBeenCalledTimes(1);
+    });
 
-  // it("clear", async () => {
-  //   await sendService.clear();
+    it("delete", async () => {
+      await sendService.delete("1");
+      sendStateService.delete.mockImplementationOnce(() => null);
 
-  //   expect(await firstValueFrom(sendService.sendViews)).toEqual([]);
-  // });
-
-  // describe("delete", () => {
-  //   it("exists", async () => {
-  //     await sendService.delete("1");
-
-  //     expect(sendStateProvider.getEncryptedSends).toHaveBeenCalledTimes(2);
-  //     expect(sendStateProvider.setEncryptedSends).toHaveBeenCalledTimes(1);
-  //   });
-
-  //   it("does not exist", async () => {
-  //     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-  //     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  //     sendService.delete("1");
-  //     expect(sendStateProvider.getEncryptedSends).toHaveBeenCalledTimes(2);
-  //   });
-  // });ools/pm-5574-sends-state-provider
+      expect(sendStateService.delete).toHaveBeenCalledTimes(1);
+    });
+  });
 
   // Send object helper functions
 
