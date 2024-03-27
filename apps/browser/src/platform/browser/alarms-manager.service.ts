@@ -133,6 +133,9 @@ export class AlarmsManagerService implements AlarmsManagerServiceInterface {
 
       void this.createAlarm(name, createInfo);
     }
+
+    // 10 seconds after verifying the alarm state, we should treat any newly created alarms as non-recovered alarms.
+    setTimeout(() => this.recoveredAlarms.clear(), 10 * 1000);
   }
 
   private async setActiveAlarm(alarm: ActiveAlarm): Promise<void> {
