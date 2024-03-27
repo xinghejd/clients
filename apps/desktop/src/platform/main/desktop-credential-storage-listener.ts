@@ -43,7 +43,8 @@ export class DesktopCredentialStorageListener {
       } catch (e) {
         if (
           e.message === "Password not found." || // windows error
-          e.message === "The specified item could not be found in the keychain." // macos error
+          e.message === "The specified item could not be found in the keychain." || // macos error
+          e.message === "No password found" // unix error
         ) {
           return null;
         }
