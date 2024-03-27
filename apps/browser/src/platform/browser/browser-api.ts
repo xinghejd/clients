@@ -591,4 +591,12 @@ export class BrowserApi {
       }
     });
   }
+
+  static getAlarm(alarmName: string): Promise<chrome.alarms.Alarm> {
+    return new Promise((resolve) => chrome.alarms.get(alarmName, resolve));
+  }
+
+  static clearAlarm(alarmName: string): Promise<boolean> {
+    return new Promise((resolve) => chrome.alarms.clear(alarmName, resolve));
+  }
 }

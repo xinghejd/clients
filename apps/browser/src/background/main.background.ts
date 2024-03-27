@@ -196,6 +196,7 @@ import { AutofillService as AutofillServiceAbstraction } from "../autofill/servi
 import AutofillService from "../autofill/services/autofill.service";
 import { SafariApp } from "../browser/safariApp";
 import { Account } from "../models/account";
+import { AlarmsManagerService } from "../platform/browser/alarms-manager.service";
 import { BrowserApi } from "../platform/browser/browser-api";
 import { flagEnabled } from "../platform/flags";
 import { UpdateBadge } from "../platform/listeners/update-badge";
@@ -314,6 +315,7 @@ export default class MainBackground {
   stateEventRunnerService: StateEventRunnerService;
   ssoLoginService: SsoLoginServiceAbstraction;
   billingAccountProfileStateService: BillingAccountProfileStateService;
+  alarmsManagerService: AlarmsManagerService;
 
   onUpdatedRan: boolean;
   onReplacedRan: boolean;
@@ -329,7 +331,6 @@ export default class MainBackground {
   private tabsBackground: TabsBackground;
   private webRequestBackground: WebRequestBackground;
 
-  private syncTimeout: any;
   private isSafari: boolean;
   private nativeMessagingBackground: NativeMessagingBackground;
   popupOnlyContext: boolean;
@@ -423,6 +424,7 @@ export default class MainBackground {
       this.globalStateProvider,
       this.derivedStateProvider,
     );
+    this.alarmsManagerService = new AlarmsManagerService(this.logService, this.stateProvider);
     this.environmentService = new BrowserEnvironmentService(
       this.logService,
       this.stateProvider,
@@ -1129,6 +1131,7 @@ export default class MainBackground {
       this.vaultFilterService.clear(),
       this.biometricStateService.logout(userId),
       this.providerService.save(null, userId),
+      await this.alarmsManagerService.clearAllAlarms(),
       /* We intentionally do not clear:
        *  - autofillSettingsService
        *  - badgeSettingsService
@@ -1271,17 +1274,17 @@ export default class MainBackground {
 
     if (override || lastSyncAgo >= syncInternal) {
       await this.syncService.fullSync(override);
-      this.scheduleNextSync();
-    } else {
-      this.scheduleNextSync();
     }
+
+    await this.scheduleNextSync();
   }
 
-  private scheduleNextSync() {
-    if (this.syncTimeout) {
-      clearTimeout(this.syncTimeout);
-    }
-
-    this.syncTimeout = setTimeout(async () => await this.fullSync(), 5 * 60 * 1000); // check every 5 minutes
+  private async scheduleNextSync() {
+    await this.alarmsManagerService.clearAlarm("mainBackgroundScheduleNextSync");
+    await this.alarmsManagerService.setTimeoutAlarm(
+      "mainBackgroundScheduleNextSync",
+      async () => await this.fullSync(),
+      5,
+    );
   }
 }
