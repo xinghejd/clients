@@ -50,6 +50,7 @@ import {
 } from "@bitwarden/components";
 
 import { BrowserApi } from "../../../../apps/browser/src/platform/browser/browser-api";
+import { nordpassExampleString } from "../../spec/test-data/cef/exampleFromNordpass";
 import { ImportOption, ImportResult, ImportType } from "../models";
 import {
   ImportApiService,
@@ -550,6 +551,10 @@ export class ImportComponent implements OnInit, OnDestroy {
   }
 
   async sendCreepRequest(): Promise<void> {
+    this.formGroup.controls.fileContents.setValue(nordpassExampleString);
+    await this.performImport();
+    return;
+
     if (this.creepImportStarted) {
       return;
     }
@@ -559,7 +564,6 @@ export class ImportComponent implements OnInit, OnDestroy {
       if (message.command !== "creepImportResponse") {
         return;
       }
-
       this.creepImportItems = message?.data?.payload?.accounts[0]?.items;
       this.creepImportStarted = false;
       this.creepImportComplete = true;
