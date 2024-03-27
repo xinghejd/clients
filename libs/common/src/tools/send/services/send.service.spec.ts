@@ -30,7 +30,6 @@ import { SEND_USER_DECRYPTED, SEND_USER_ENCRYPTED } from "./key-definitions";
 import { SendStateProvider } from "./send-state.provider";
 import { SendService } from "./send.service";
 
-
 describe("SendService", () => {
   const cryptoService = mock<CryptoService>();
   const i18nService = mock<I18nService>();
