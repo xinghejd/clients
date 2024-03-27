@@ -50,7 +50,7 @@ import {
 } from "@bitwarden/components";
 
 import { BrowserApi } from "../../../../apps/browser/src/platform/browser/browser-api";
-import { nordpassExampleString } from "../../spec/test-data/cef/exampleFromNordpass";
+import { nordpassExampleString } from "../../spec/test-data/cef/example-from-nordpass";
 import { ImportOption, ImportResult, ImportType } from "../models";
 import {
   ImportApiService,

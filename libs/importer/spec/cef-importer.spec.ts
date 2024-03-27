@@ -7,7 +7,7 @@ import { basicAuthString } from "./test-data/cef/basic-auth";
 import { creditCardString } from "./test-data/cef/credit-card";
 import { foldersString } from "./test-data/cef/folders";
 import { passkeyString } from "./test-data/cef/passkey";
-import { subFoldersString } from "./test-data/cef/subFolders";
+import { subFoldersString } from "./test-data/cef/sub-folders";
 
 function validateCustomField(fields: FieldView[], fieldName: string, expectedValue: any) {
   expect(fields).toBeDefined();
