@@ -445,6 +445,9 @@ export default class MainBackground {
       this.globalStateProvider,
       this.platformUtilsService.supportsSecureStorage(),
       this.secureStorageService,
+      this.keyGenerationService,
+      this.encryptService,
+      this.logService,
     );
 
     const migrationRunner = new MigrationRunner(
@@ -697,6 +700,7 @@ export default class MainBackground {
       logoutCallback,
     );
     this.containerService = new ContainerService(this.cryptoService, this.encryptService);
+
     this.sendStateProvider = new SendStateProvider(this.stateProvider);
     this.sendService = new SendService(
       this.cryptoService,
