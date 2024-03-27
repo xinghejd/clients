@@ -324,11 +324,16 @@ export class Main {
       this.accountService,
     );
 
+    this.keyGenerationService = new KeyGenerationService(this.cryptoFunctionService);
+
     this.tokenService = new TokenService(
       this.singleUserStateProvider,
       this.globalStateProvider,
       this.platformUtilsService.supportsSecureStorage(),
       this.secureStorageService,
+      this.keyGenerationService,
+      this.encryptService,
+      this.logService,
     );
 
     const migrationRunner = new MigrationRunner(
@@ -348,8 +353,6 @@ export class Main {
       this.tokenService,
       migrationRunner,
     );
-
-    this.keyGenerationService = new KeyGenerationService(this.cryptoFunctionService);
 
     this.cryptoService = new CryptoService(
       this.keyGenerationService,
@@ -484,7 +487,7 @@ export class Main {
     );
 
     this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
-      this.activeUserStateProvider,
+      this.stateProvider,
     );
 
     this.loginStrategyService = new LoginStrategyService(
