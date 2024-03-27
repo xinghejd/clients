@@ -43,6 +43,7 @@ export class AlarmsManagerService implements AlarmsManagerServiceInterface {
     if (wasCleared) {
       await this.deleteActiveAlarm(name);
       delete this.onAlarmHandlers[name];
+      this.recoveredAlarms.delete(name);
     }
   }
 
@@ -81,6 +82,7 @@ export class AlarmsManagerService implements AlarmsManagerServiceInterface {
     await chrome.alarms.clearAll();
     await this.updateActiveAlarms([]);
     this.onAlarmHandlers = {};
+    this.recoveredAlarms.clear();
   }
 
   private async triggerRecoveredAlarm(name: string): Promise<void> {
