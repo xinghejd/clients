@@ -29,22 +29,23 @@ import { SendData } from "../models/data/send.data";
 import { Send } from "../models/domain/send";
 import { SendView } from "../models/view/send.view";
 
-import { SendStateOptions } from "./asymmetrical-send-state.abstraction";
 import { SEND_USER_ENCRYPTED } from "./key-definitions";
-import { LegacySendStateService } from "./legacy-send-state.service";
 import { SendStateProvider } from "./send-state.provider";
+import { SendStateService } from "./send-state.service";
+import {
+  SendStateService as SendStateServiceAbstraction,
+  SendStateOptions,
+} from "./send-state.service.abstraction";
 
-describe("asymmetricalSendState", () => {
+describe("sendStateService", () => {
   const i18nService = mock<I18nService>();
   const encryptService = mock<EncryptService>();
   const cryptoService = mock<CryptoService>();
   const sendStateOptions: SendStateOptions = { cache_ms: 1 };
-  // const sendStateService = mock<AsymmetricalSendState>();
 
   let encryptedState: FakeActiveUserState<Record<string, SendData>>;
-  // let decryptedState: FakeActiveUserState<SendView[]>;
 
-  let asymmetricalSendState: LegacySendStateService;
+  let sendStateService: SendStateServiceAbstraction;
 
   let sendStateProvider: SendStateProvider;
   let stateProvider: FakeStateProvider;
@@ -97,7 +98,7 @@ describe("asymmetricalSendState", () => {
     });
 
     sendStateOptions.cache_ms = 100;
-    asymmetricalSendState = new LegacySendStateService(
+    sendStateService = new SendStateService(
       sendStateOptions,
       cryptoService,
       i18nService,
@@ -107,7 +108,7 @@ describe("asymmetricalSendState", () => {
   });
 
   describe("get$", () => {
-    const decryptSend = jest.spyOn(LegacySendStateService.prototype as any, "decryptSend");
+    const decryptSend = jest.spyOn(SendStateService.prototype as any, "decryptSend");
 
     decryptSend.mockImplementation((send) => {
       const sendView = new SendView(send as Send);
@@ -120,36 +121,36 @@ describe("asymmetricalSendState", () => {
     });
 
     it("exists", async () => {
-      const result = await firstValueFrom(asymmetricalSendState.get$("1"));
+      const result = await firstValueFrom(sendStateService.get$("1"));
 
       expect(result).toEqual(sendView("1", "Test Send"));
     });
 
     it("does not exist", async () => {
-      const result = await firstValueFrom(asymmetricalSendState.get$("2"));
+      const result = await firstValueFrom(sendStateService.get$("2"));
 
       expect(result).toBe(undefined);
     });
 
-    it("updated observable", async () => {
-      const singleSendObservable = asymmetricalSendState.get$("1");
+    it("upsertd observable", async () => {
+      const singleSendObservable = sendStateService.get$("1");
       const result = await firstValueFrom(singleSendObservable);
       expect(result).toEqual(sendView("1", "Test Send"));
 
-      await asymmetricalSendState.update(sendData("1", "Test Send Updated"));
+      await sendStateService.upsert(sendData("1", "Test Send upsertd"));
 
       const result2 = await firstValueFrom(singleSendObservable);
-      expect(result2).toEqual(sendView("1", "Test Send Updated"));
+      expect(result2).toEqual(sendView("1", "Test Send upsertd"));
     });
 
     it("distinctUntilChanged emits only distinct values", async () => {
       // Spy on the subscription to send "1"
       let changed = false;
-      const subscription = asymmetricalSendState.get$("1").subscribe(() => {
+      const subscription = sendStateService.get$("1").subscribe(() => {
         changed = true;
       });
       changed = false;
-      await asymmetricalSendState.update(sendData("1", "Test Send 3"));
+      await sendStateService.upsert(sendData("1", "Test Send 3"));
       await new Promise((resolve) => setTimeout(resolve, 100));
       expect(changed).toBe(true);
 
@@ -160,11 +161,11 @@ describe("asymmetricalSendState", () => {
     it("reports a change when notes changes on a new send", async () => {
       const sendDataObject = createSendData() as SendData;
 
-      await asymmetricalSendState.update(sendDataObject);
-      await asymmetricalSendState.update(sendData("2", "Test Send 2"));
+      await sendStateService.upsert(sendDataObject);
+      await sendStateService.upsert(sendData("2", "Test Send 2"));
 
       let changed = false;
-      const subscription = asymmetricalSendState.get$("1").subscribe(() => {
+      const subscription = sendStateService.get$("1").subscribe(() => {
         changed = true;
       });
 
@@ -172,8 +173,8 @@ describe("asymmetricalSendState", () => {
       //it is immediately called when subscribed, we need to reset the value
       changed = false;
 
-      await asymmetricalSendState.update(sendDataObject);
-      await asymmetricalSendState.update(sendData("2", "Test Send 2"));
+      await sendStateService.upsert(sendDataObject);
+      await sendStateService.upsert(sendData("2", "Test Send 2"));
 
       expect(changed).toEqual(true);
 
@@ -184,11 +185,11 @@ describe("asymmetricalSendState", () => {
     it("reports a change when Text changes on a new send", async () => {
       const sendDataObject = createSendData() as SendData;
 
-      await asymmetricalSendState.update(sendDataObject);
-      await asymmetricalSendState.update(sendData("2", "Test Send 2"));
+      await sendStateService.upsert(sendDataObject);
+      await sendStateService.upsert(sendData("2", "Test Send 2"));
 
       let changed = false;
-      const subscription = asymmetricalSendState.get$("1").subscribe(() => {
+      const subscription = sendStateService.get$("1").subscribe(() => {
         changed = true;
       });
 
@@ -196,8 +197,8 @@ describe("asymmetricalSendState", () => {
       changed = false;
 
       sendDataObject.text.text = "new text";
-      await asymmetricalSendState.update(sendDataObject);
-      await asymmetricalSendState.update(sendData("2", "Test Send 2"));
+      await sendStateService.upsert(sendDataObject);
+      await sendStateService.upsert(sendData("2", "Test Send 2"));
 
       expect(changed).toEqual(true);
 
@@ -207,11 +208,11 @@ describe("asymmetricalSendState", () => {
 
     it("reports a change when Text is set as null on a new send", async () => {
       const sendDataObject = createSendData() as SendData;
-      await asymmetricalSendState.update(sendDataObject);
-      await asymmetricalSendState.update(sendData("2", "Test Send 2"));
+      await sendStateService.upsert(sendDataObject);
+      await sendStateService.upsert(sendData("2", "Test Send 2"));
 
       let changed = false;
-      const subscription = asymmetricalSendState.get$("1").subscribe(() => {
+      const subscription = sendStateService.get$("1").subscribe(() => {
         changed = true;
       });
 
@@ -219,8 +220,8 @@ describe("asymmetricalSendState", () => {
       changed = false;
 
       sendDataObject.text = null;
-      await asymmetricalSendState.update(sendDataObject);
-      await asymmetricalSendState.update(sendData("2", "Test Send 2"));
+      await sendStateService.upsert(sendDataObject);
+      await sendStateService.upsert(sendData("2", "Test Send 2"));
 
       expect(changed).toEqual(true);
       // Unsubscribe to prevent memory leaks
@@ -232,12 +233,12 @@ describe("asymmetricalSendState", () => {
         type: SendType.File,
         file: new SendFileData(new SendFileApi({ FileName: "name of file" })),
       }) as SendData;
-      await asymmetricalSendState.update(sendDataObject);
-      await asymmetricalSendState.update(sendData("2", "Test Send 2"));
+      await sendStateService.upsert(sendDataObject);
+      await sendStateService.upsert(sendData("2", "Test Send 2"));
 
-      //sendDataObject.file = new SendFileData(new SendFileApi({ FileName: "updated name of file" }));
+      //sendDataObject.file = new SendFileData(new SendFileApi({ FileName: "upsertd name of file" }));
       let changed = false;
-      const subscription = asymmetricalSendState.get$("1").subscribe(() => {
+      const subscription = sendStateService.get$("1").subscribe(() => {
         changed = true;
       });
 
@@ -246,8 +247,8 @@ describe("asymmetricalSendState", () => {
       //it is immediately called when subscribed, we need to reset the value
       changed = false;
 
-      await asymmetricalSendState.update(sendDataObject);
-      await asymmetricalSendState.update(sendDataObject);
+      await sendStateService.upsert(sendDataObject);
+      await sendStateService.upsert(sendDataObject);
 
       expect(changed).toEqual(false);
       // Unsubscribe to prevent memory leaks
@@ -257,11 +258,11 @@ describe("asymmetricalSendState", () => {
     it("reports a change when key changes on a new send", async () => {
       const sendDataObject = createSendData() as SendData;
 
-      await asymmetricalSendState.update(sendDataObject);
-      await asymmetricalSendState.update(sendData("2", "Test Send 2"));
+      await sendStateService.upsert(sendDataObject);
+      await sendStateService.upsert(sendData("2", "Test Send 2"));
 
       let changed = false;
-      const subscription = asymmetricalSendState.get$("1").subscribe(() => {
+      const subscription = sendStateService.get$("1").subscribe(() => {
         changed = true;
       });
 
@@ -269,8 +270,8 @@ describe("asymmetricalSendState", () => {
       changed = false;
 
       sendDataObject.key = "newKey";
-      await asymmetricalSendState.update(sendDataObject);
-      await asymmetricalSendState.update(sendData("2", "Test Send 2"));
+      await sendStateService.upsert(sendDataObject);
+      await sendStateService.upsert(sendData("2", "Test Send 2"));
 
       expect(changed).toEqual(true);
       // Unsubscribe to prevent memory leaks
@@ -279,11 +280,11 @@ describe("asymmetricalSendState", () => {
 
     it("reports a change when revisionDate changes on a new send", async () => {
       const sendDataObject = createSendData() as SendData;
-      await asymmetricalSendState.update(sendDataObject);
-      await asymmetricalSendState.update(sendData("2", "Test Send 2"));
+      await sendStateService.upsert(sendDataObject);
+      await sendStateService.upsert(sendData("2", "Test Send 2"));
 
       let changed = false;
-      const subscription = asymmetricalSendState.get$("1").subscribe(() => {
+      const subscription = sendStateService.get$("1").subscribe(() => {
         changed = true;
       });
 
@@ -291,8 +292,8 @@ describe("asymmetricalSendState", () => {
       changed = false;
 
       sendDataObject.revisionDate = "2025-04-05";
-      await asymmetricalSendState.update(sendDataObject);
-      await asymmetricalSendState.update(sendData("2", "Test Send 2"));
+      await sendStateService.upsert(sendDataObject);
+      await sendStateService.upsert(sendData("2", "Test Send 2"));
 
       expect(changed).toEqual(true);
       // Unsubscribe to prevent memory leaks
@@ -302,11 +303,11 @@ describe("asymmetricalSendState", () => {
     it("reports a change when a property is set as null on a new send", async () => {
       const sendDataObject = createSendData() as SendData;
 
-      await asymmetricalSendState.update(sendDataObject);
-      await asymmetricalSendState.update(sendData("2", "Test Send 2"));
+      await sendStateService.upsert(sendDataObject);
+      await sendStateService.upsert(sendData("2", "Test Send 2"));
 
       let changed = false;
-      const subscription = asymmetricalSendState.get$("1").subscribe(() => {
+      const subscription = sendStateService.get$("1").subscribe(() => {
         changed = true;
       });
 
@@ -314,8 +315,8 @@ describe("asymmetricalSendState", () => {
       changed = false;
 
       sendDataObject.name = null;
-      await asymmetricalSendState.update(sendDataObject);
-      await asymmetricalSendState.update(sendData("2", "Test Send 2"));
+      await sendStateService.upsert(sendDataObject);
+      await sendStateService.upsert(sendData("2", "Test Send 2"));
 
       expect(changed).toEqual(true);
       // Unsubscribe to prevent memory leaks
@@ -330,11 +331,11 @@ describe("asymmetricalSendState", () => {
         text: new SendTextData(new SendTextApi({ Text: null })),
       }) as SendData;
 
-      await asymmetricalSendState.update(sendDataObject);
-      await asymmetricalSendState.update(sendData("2", "Test Send 2"));
+      await sendStateService.upsert(sendDataObject);
+      await sendStateService.upsert(sendData("2", "Test Send 2"));
 
       let changed = false;
-      const subscription = asymmetricalSendState.get$("1").subscribe(() => {
+      const subscription = sendStateService.get$("1").subscribe(() => {
         changed = true;
       });
 
@@ -342,15 +343,15 @@ describe("asymmetricalSendState", () => {
       //it is immediately called when subscribed, we need to reset the value
       changed = false;
 
-      await asymmetricalSendState.update(sendDataObject);
-      await asymmetricalSendState.update(sendData("2", "Test Send 2"));
+      await sendStateService.upsert(sendDataObject);
+      await sendStateService.upsert(sendData("2", "Test Send 2"));
 
       expect(changed).toEqual(false);
 
       await new Promise((resolve) => setTimeout(resolve, 200));
       sendDataObject.text.text = "Asdf";
-      await asymmetricalSendState.update(sendDataObject);
-      await asymmetricalSendState.update(sendData("2", "Test Send 2"));
+      await sendStateService.upsert(sendDataObject);
+      await sendStateService.upsert(sendData("2", "Test Send 2"));
 
       expect(changed).toEqual(true);
       // Unsubscribe to prevent memory leaks
@@ -359,7 +360,7 @@ describe("asymmetricalSendState", () => {
 
     it("do not reports a change when nothing changes on the observed send", async () => {
       let changed = false;
-      const subscription = asymmetricalSendState.get$("1").subscribe(() => {
+      const subscription = sendStateService.get$("1").subscribe(() => {
         changed = true;
       });
 
@@ -368,8 +369,8 @@ describe("asymmetricalSendState", () => {
 
       //it is immediately called when subscribed, we need to reset the value
       changed = false;
-      await asymmetricalSendState.update(sendDataObject);
-      await asymmetricalSendState.update(sendData("2", "Test Send 2"));
+      await sendStateService.upsert(sendDataObject);
+      await sendStateService.upsert(sendData("2", "Test Send 2"));
 
       expect(changed).toEqual(false);
       // Unsubscribe to prevent memory leaks
@@ -378,13 +379,13 @@ describe("asymmetricalSendState", () => {
 
     it("reports a change when the observed send is deleted", async () => {
       let changed = false;
-      const subscription = asymmetricalSendState.get$("1").subscribe(() => {
+      const subscription = sendStateService.get$("1").subscribe(() => {
         changed = true;
       });
       //it is immediately called when subscribed, we need to reset the value
       changed = false;
 
-      await asymmetricalSendState.delete("1");
+      await sendStateService.delete("1");
 
       expect(changed).toEqual(true);
       // Unsubscribe to prevent memory leaks
@@ -392,84 +393,81 @@ describe("asymmetricalSendState", () => {
     });
   });
 
-  describe("Update", () => {
+  describe("upsert", () => {
     it("Add a new send", async () => {
-      const initialSends = await firstValueFrom(asymmetricalSendState.sendViews$);
+      const initialSends = await firstValueFrom(sendStateService.sendViews$);
 
-      await asymmetricalSendState.update(sendData("2", "Test 2"));
+      await sendStateService.upsert(sendData("2", "Test 2"));
 
-      // Define an observable that emits once the update is processed
-      const updateCompleted$ = asymmetricalSendState.sendViews$.pipe(
+      // Define an observable that emits once the upsert is processed
+      const upsertCompleted$ = sendStateService.sendViews$.pipe(
         skip(1), // Skip the initial emission (initialSends)
         take(1), // Take only one emission after initialSends
       );
 
-      await firstValueFrom(updateCompleted$);
-      const sendsAfterUpdate = await firstValueFrom(asymmetricalSendState.sendViews$);
+      await firstValueFrom(upsertCompleted$);
+      const sendsAfterupsert = await firstValueFrom(sendStateService.sendViews$);
 
-      expect(sendsAfterUpdate.length).toBeGreaterThan(initialSends.length);
+      expect(sendsAfterupsert.length).toBeGreaterThan(initialSends.length);
     });
 
     it("modify an existing send", async () => {
-      await asymmetricalSendState.update(sendData("2", "test 2"));
-      const result = await firstValueFrom(asymmetricalSendState.get$("2"));
+      await sendStateService.upsert(sendData("2", "test 2"));
+      const result = await firstValueFrom(sendStateService.get$("2"));
       expect(result).toEqual(sendView("2", "test 2"));
     });
 
-    it("Update multiple sends", async () => {
-      await asymmetricalSendState.update([
-        sendData("2", "test 2"),
-        sendData("1", "updated send 1"),
-      ]);
-      const resultSend1 = await firstValueFrom(asymmetricalSendState.get$("1"));
-      const resultSend2 = await firstValueFrom(asymmetricalSendState.get$("2"));
-      expect(resultSend1).toEqual(sendView("1", "updated send 1"));
+    it("upsert multiple sends", async () => {
+      await sendStateService.upsert([sendData("2", "test 2"), sendData("1", "upsertd send 1")]);
+      const resultSend1 = await firstValueFrom(sendStateService.get$("1"));
+      const resultSend2 = await firstValueFrom(sendStateService.get$("2"));
+      expect(resultSend1).toEqual(sendView("1", "upsertd send 1"));
       expect(resultSend2).toEqual(sendView("2", "test 2"));
     });
   });
 
   describe("Delete", () => {
     it("Sends count should decrease after delete", async () => {
-      const sendsBeforeDelete = await firstValueFrom(asymmetricalSendState.sendViews$);
-      await asymmetricalSendState.delete(sendsBeforeDelete[0].id);
+      const sendsBeforeDelete = await firstValueFrom(sendStateService.sendViews$);
+      await sendStateService.delete(sendsBeforeDelete[0].id);
 
       // Define an observable that emits once the delete is processed
-      const deleteCompleted$ = asymmetricalSendState.sendViews$.pipe(
+      const deleteCompleted$ = sendStateService.sendViews$.pipe(
         skip(1), // Skip the initial emission (initialSends)
         take(1), // Take only one emission after initialSends
       );
 
       await firstValueFrom(deleteCompleted$);
 
-      const sendsAfterDelete = await firstValueFrom(asymmetricalSendState.sendViews$);
+      const sendsAfterDelete = await firstValueFrom(sendStateService.sendViews$);
       expect(sendsAfterDelete.length).toBeLessThan(sendsBeforeDelete.length);
     });
 
     it("Intended send should be delete", async () => {
-      const sendsBeforeDelete = await firstValueFrom(asymmetricalSendState.sendViews$);
-      await asymmetricalSendState.delete(sendsBeforeDelete[0].id);
+      const sendsBeforeDelete = await firstValueFrom(sendStateService.sendViews$);
+      await sendStateService.delete(sendsBeforeDelete[0].id);
 
       // Define an observable that emits once the delete is processed
-      const deleteCompleted$ = asymmetricalSendState.sendViews$.pipe(
+      const deleteCompleted$ = sendStateService.sendViews$.pipe(
         skip(1), // Skip the initial emission (initialSends)
         take(1), // Take only one emission after initialSends
       );
 
       await firstValueFrom(deleteCompleted$);
 
-      const sendsAfterDelete = await firstValueFrom(asymmetricalSendState.sendViews$);
+      const sendsAfterDelete = await firstValueFrom(sendStateService.sendViews$);
       expect(sendsAfterDelete[0]).not.toBe(sendsBeforeDelete[0]);
     });
 
     it("Deleting on an empty sends array should not throw", async () => {
       sendStateProvider.getEncryptedSends = jest.fn().mockResolvedValue(null);
-      await expect(asymmetricalSendState.delete("2")).resolves.not.toThrow();
+      await expect(sendStateService.delete("2")).resolves.not.toThrow();
     });
 
     it("Delete multiple sends", async () => {
-      await asymmetricalSendState.update(sendData("2", "test 2"));
-      await asymmetricalSendState.delete(["1", "2"]);
-      const sendsAfterDelete = await firstValueFrom(asymmetricalSendState.sendViews$);
+      await sendStateService.upsert(sendData("2", "test 2"));
+      await sendStateService.delete(["1", "2"]);
+      const sendsAfterDelete = await firstValueFrom(sendStateService.sendViews$);
       expect(sendsAfterDelete.length).toBe(0);
     });
   });
@@ -486,9 +484,9 @@ describe("asymmetricalSendState", () => {
       sendData2.name = "Send at one";
       newSends[0] = sendData1;
       newSends[1] = sendData2;
-      await asymmetricalSendState.replace(newSends);
+      await sendStateService.replace(newSends);
 
-      const sends = await firstValueFrom(asymmetricalSendState.sendViews$);
+      const sends = await firstValueFrom(sendStateService.sendViews$);
       expect(sends.length).toBe(2);
     });
 
@@ -503,9 +501,9 @@ describe("asymmetricalSendState", () => {
       sendData2.name = "Send at one";
       newSends[3] = sendData1;
       newSends[4] = sendData2;
-      await asymmetricalSendState.replace(newSends);
+      await sendStateService.replace(newSends);
 
-      const sends = await firstValueFrom(asymmetricalSendState.sendViews$);
+      const sends = await firstValueFrom(sendStateService.sendViews$);
       expect(sends[0].id).toBe(sendData1.id);
       expect(sends[1].id).toBe(sendData2.id);
     });

@@ -190,12 +190,12 @@ import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
 } from "@bitwarden/common/tools/password-strength";
-import { AsymmetricalSendState } from "@bitwarden/common/tools/send/services/asymmetrical-send-state.abstraction";
-import { LegacySendStateService } from "@bitwarden/common/tools/send/services/legacy-send-state.service";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendStateProvider as SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
 import { SendStateProvider as SendStateProviderAbstraction } from "@bitwarden/common/tools/send/services/send-state.provider.abstraction";
+import { SendStateService } from "@bitwarden/common/tools/send/services/send-state.service";
+import { SendStateService as SendStateServiceAbstraction } from "@bitwarden/common/tools/send/services/send-state.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
 import {
   InternalSendService,
@@ -557,14 +557,14 @@ const typesafeProviders: Array<SafeProvider> = [
     ],
   }),
   safeProvider({
-    provide: AsymmetricalSendState,
+    provide: SendStateServiceAbstraction,
     useFactory: (
       cryptoService: CryptoServiceAbstraction,
       i18nService: I18nServiceAbstraction,
       stateService: SendStateProviderAbstraction,
       accountService: AccountServiceAbstraction,
     ) =>
-      new LegacySendStateService(
+      new SendStateService(
         {
           cache_ms: 1000,
         },
@@ -592,7 +592,7 @@ const typesafeProviders: Array<SafeProvider> = [
       I18nServiceAbstraction,
       KeyGenerationServiceAbstraction,
       SendStateProviderAbstraction,
-      AsymmetricalSendState,
+      SendStateServiceAbstraction,
     ],
   }),
   safeProvider({

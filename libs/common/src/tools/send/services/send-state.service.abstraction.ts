@@ -8,7 +8,7 @@ export type SendStateOptions = {
   cache_ms: number;
 };
 
-export abstract class AsymmetricalSendState {
+export abstract class SendStateService {
   /**
    * Provides a SendView[] after decrypting the encrypted sends
    * updates after a change on the encryptedSends BehaviourObject
@@ -38,7 +38,7 @@ export abstract class AsymmetricalSendState {
    * @param send a SendData object that contains the necessary data to construct a Send
    * @returns The updated Send
    */
-  update: (send: SendData | SendData[]) => Promise<void>;
+  upsert: (send: SendData | SendData[]) => Promise<void>;
 
   /**
    * Deletes a send on the encrypted sends list

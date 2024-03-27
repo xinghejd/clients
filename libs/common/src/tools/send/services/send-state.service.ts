@@ -19,10 +19,13 @@ import { SendData } from "../models/data/send.data";
 import { Send } from "../models/domain/send";
 import { SendView } from "../models/view/send.view";
 
-import { SendStateOptions, AsymmetricalSendState } from "./asymmetrical-send-state.abstraction";
 import { SendStateProvider } from "./send-state.provider.abstraction";
+import {
+  SendStateOptions,
+  SendStateService as SendStateServiceAbstraction,
+} from "./send-state.service.abstraction";
 
-export class LegacySendStateService implements AsymmetricalSendState {
+export class SendStateService implements SendStateServiceAbstraction {
   readonly sendKeySalt = "bitwarden-send";
   readonly sendKeyPurpose = "send";
   constructor(
@@ -171,7 +174,7 @@ export class LegacySendStateService implements AsymmetricalSendState {
     await this.replace(sends);
   }
 
-  async update(send: SendData | SendData[]) {
+  async upsert(send: SendData | SendData[]) {
     let sends = await this.stateService.getEncryptedSends();
 
     if (sends == null) {

@@ -141,11 +141,11 @@ import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
 } from "@bitwarden/common/tools/password-strength";
-import { AsymmetricalSendState } from "@bitwarden/common/tools/send/services/asymmetrical-send-state.abstraction";
-import { LegacySendStateService } from "@bitwarden/common/tools/send/services/legacy-send-state.service";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
+import { SendStateService } from "@bitwarden/common/tools/send/services/send-state.service";
+import { SendStateService as SendStateServiceAbstraction } from "@bitwarden/common/tools/send/services/send-state.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
 import { InternalSendService as InternalSendServiceAbstraction } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -275,7 +275,7 @@ export default class MainBackground {
   eventUploadService: EventUploadServiceAbstraction;
   policyService: InternalPolicyServiceAbstraction;
   sendService: InternalSendServiceAbstraction;
-  asymmetricalSendState: AsymmetricalSendState;
+  sendStateServiceAbstraction: SendStateServiceAbstraction;
   sendStateProvider: SendStateProvider;
   fileUploadService: FileUploadServiceAbstraction;
   cipherFileUploadService: CipherFileUploadServiceAbstraction;
@@ -702,7 +702,7 @@ export default class MainBackground {
     this.containerService = new ContainerService(this.cryptoService, this.encryptService);
 
     this.sendStateProvider = new SendStateProvider(this.stateProvider);
-    this.asymmetricalSendState = new LegacySendStateService(
+    this.sendStateServiceAbstraction = new SendStateService(
       {
         cache_ms: 1000,
       },
@@ -717,7 +717,7 @@ export default class MainBackground {
       this.i18nService,
       this.keyGenerationService,
       this.sendStateProvider,
-      this.asymmetricalSendState,
+      this.sendStateServiceAbstraction,
     );
 
     this.sendApiService = new SendApiService(

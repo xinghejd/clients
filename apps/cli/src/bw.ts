@@ -103,9 +103,11 @@ import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
 } from "@bitwarden/common/tools/password-strength";
-import { AsymmetricalSendState } from "@bitwarden/common/tools/send/services/asymmetrical-send-state.abstraction";
-import { LegacySendStateService } from "@bitwarden/common/tools/send/services/legacy-send-state.service";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
+import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
+import { SendStateProvider as SendStateProviderAbstraction } from "@bitwarden/common/tools/send/services/send-state.provider.abstraction";
+import { SendStateService } from "@bitwarden/common/tools/send/services/send-state.service";
+import { SendStateService as SendStateServiceAbstraction } from "@bitwarden/common/tools/send/services/send-state.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -227,7 +229,8 @@ export class Main {
   avatarService: AvatarServiceAbstraction;
   stateEventRunnerService: StateEventRunnerService;
   biometricStateService: BiometricStateService;
-  sendStateService: AsymmetricalSendState;
+  sendStateService: SendStateServiceAbstraction;
+  sendStateProvider: SendStateProviderAbstraction;
   billingAccountProfileStateService: BillingAccountProfileStateService;
 
   constructor() {
@@ -387,18 +390,21 @@ export class Main {
 
     this.fileUploadService = new FileUploadService(this.logService);
 
-    this.sendStateService = new LegacySendStateService(
+    this.sendStateProvider = new SendStateProvider(this.stateProvider);
+
+    this.sendStateService = new SendStateService(
       { cache_ms: 100 },
       this.cryptoService,
       this.i18nService,
-      this.stateService,
+      this.sendStateProvider,
+      this.accountService,
     );
 
     this.sendService = new SendService(
       this.cryptoService,
       this.i18nService,
       this.keyGenerationService,
-      this.stateService,
+      this.sendStateProvider,
       this.sendStateService,
     );
 

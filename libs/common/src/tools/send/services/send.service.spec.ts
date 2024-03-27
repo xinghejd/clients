@@ -21,9 +21,9 @@ import { SendData } from "../models/data/send.data";
 import { Send } from "../models/domain/send";
 import { SendView } from "../models/view/send.view";
 
-import { AsymmetricalSendState } from "./asymmetrical-send-state.abstraction";
 import { SEND_USER_DECRYPTED, SEND_USER_ENCRYPTED } from "./key-definitions";
 import { SendStateProvider } from "./send-state.provider";
+import { SendStateService as SendStateServiceAbstraction } from "./send-state.service.abstraction";
 import { SendService } from "./send.service";
 
 describe("SendService", () => {
@@ -31,7 +31,7 @@ describe("SendService", () => {
   const i18nService = mock<I18nService>();
   const keyGenerationService = mock<KeyGenerationService>();
   const encryptService = mock<EncryptService>();
-  const sendStateService = mock<AsymmetricalSendState>();
+  const sendStateService = mock<SendStateServiceAbstraction>();
 
   let sendStateProvider: SendStateProvider;
   let sendService: SendService;
@@ -164,9 +164,9 @@ describe("SendService", () => {
   describe("InternalSendService", () => {
     it("upsert", async () => {
       await sendService.upsert(sendData("2", "Test 2"));
-      sendStateService.update.mockImplementationOnce(() => null);
+      sendStateService.upsert.mockImplementationOnce(() => null);
 
-      expect(sendStateService.update).toHaveBeenCalledTimes(1);
+      expect(sendStateService.upsert).toHaveBeenCalledTimes(1);
     });
 
     it("replace", async () => {

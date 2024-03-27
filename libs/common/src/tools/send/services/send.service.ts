@@ -18,8 +18,8 @@ import { SendWithIdRequest } from "../models/request/send-with-id.request";
 import { SendView } from "../models/view/send.view";
 import { SEND_KDF_ITERATIONS } from "../send-kdf";
 
-import { AsymmetricalSendState } from "./asymmetrical-send-state.abstraction";
 import { SendStateProvider } from "./send-state.provider.abstraction";
+import { SendStateService as SendStateServiceAbstraction } from "./send-state.service.abstraction";
 import { InternalSendService as InternalSendServiceAbstraction } from "./send.service.abstraction";
 
 export class SendService implements InternalSendServiceAbstraction {
@@ -33,9 +33,9 @@ export class SendService implements InternalSendServiceAbstraction {
     private i18nService: I18nService,
     private keyGenerationService: KeyGenerationService,
     private stateService: SendStateProvider,
-    private legacySendState: AsymmetricalSendState,
+    private sendStateService: SendStateServiceAbstraction,
   ) {
-    this.sendViews$ = this.legacySendState.sendViews$;
+    this.sendViews$ = this.sendStateService.sendViews$;
   }
 
   async encrypt(
@@ -97,11 +97,11 @@ export class SendService implements InternalSendServiceAbstraction {
   }
 
   async get(id: string): Promise<SendView> {
-    return await firstValueFrom(this.legacySendState.get$("1"));
+    return await firstValueFrom(this.sendStateService.get$("1"));
   }
 
   get$(id: string): Observable<SendView | undefined> {
-    return this.legacySendState.get$(id);
+    return this.sendStateService.get$(id);
   }
 
   async getFromState(id: string): Promise<Send> {
@@ -152,15 +152,15 @@ export class SendService implements InternalSendServiceAbstraction {
   }
 
   async upsert(send: SendData | SendData[]): Promise<any> {
-    await this.legacySendState.update(send);
+    await this.sendStateService.upsert(send);
   }
 
   async delete(id: string | string[]): Promise<any> {
-    await this.legacySendState.delete(id);
+    await this.sendStateService.delete(id);
   }
 
   async replace(sends: { [id: string]: SendData }): Promise<any> {
-    await this.legacySendState.replace(sends);
+    await this.sendStateService.replace(sends);
   }
 
   async getRotatedKeys(newUserKey: UserKey): Promise<SendWithIdRequest[]> {
@@ -168,7 +168,7 @@ export class SendService implements InternalSendServiceAbstraction {
       throw new Error("New user key is required for rotation.");
     }
 
-    const sends = await firstValueFrom(this.legacySendState.sends$);
+    const sends = await firstValueFrom(this.sendStateService.sends$);
     const requests = await Promise.all(
       sends.map(async (send) => {
         const sendKey = await this.cryptoService.decryptToBytes(send.key);
