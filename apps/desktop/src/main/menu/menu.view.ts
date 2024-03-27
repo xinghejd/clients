@@ -3,8 +3,6 @@ import { MenuItemConstructorOptions } from "electron";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 
-import { isDev } from "../../utils";
-
 import { IMenubarMenu } from "./menubar";
 
 export class ViewMenu implements IMenubarMenu {
@@ -30,9 +28,7 @@ export class ViewMenu implements IMenubarMenu {
       this.reload,
     ];
 
-    if (isDev()) {
-      items.push(this.toggleDevTools);
-    }
+    items.push(this.toggleDevTools);
 
     return items;
   }
