@@ -103,7 +103,6 @@ import { MemoryStorageService } from "@bitwarden/common/platform/services/memory
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
-import { SystemService } from "@bitwarden/common/platform/services/system.service";
 import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
 import {
   ActiveUserStateProvider,
@@ -208,6 +207,7 @@ import BrowserLocalStorageService from "../platform/services/browser-local-stora
 import BrowserMessagingPrivateModeBackgroundService from "../platform/services/browser-messaging-private-mode-background.service";
 import BrowserMessagingService from "../platform/services/browser-messaging.service";
 import { BrowserStateService } from "../platform/services/browser-state.service";
+import { BrowserSystemService } from "../platform/services/browser-system.service";
 import I18nService from "../platform/services/i18n.service";
 import { LocalBackedSessionStorageService } from "../platform/services/local-backed-session-storage.service";
 import { BackgroundPlatformUtilsService } from "../platform/services/platform-utils/background-platform-utils.service";
@@ -837,7 +837,7 @@ export default class MainBackground {
       return Promise.resolve();
     };
 
-    this.systemService = new SystemService(
+    this.systemService = new BrowserSystemService(
       this.messagingService,
       this.platformUtilsService,
       systemUtilsServiceReloadCallback,
@@ -845,6 +845,7 @@ export default class MainBackground {
       this.autofillSettingsService,
       this.vaultTimeoutSettingsService,
       this.biometricStateService,
+      this.alarmsManagerService,
     );
 
     // Other fields
@@ -954,6 +955,7 @@ export default class MainBackground {
         this.totpService,
         this.eventCollectionService,
         this.userVerificationService,
+        this.alarmsManagerService,
       );
 
       this.contextMenusBackground = new ContextMenusBackground(contextMenuClickedHandler);

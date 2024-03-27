@@ -14,15 +14,15 @@ import { Utils } from "../misc/utils";
 
 export class SystemService implements SystemServiceAbstraction {
   private reloadInterval: any = null;
-  private clearClipboardTimeout: any = null;
-  private clearClipboardTimeoutFunction: () => Promise<any> = null;
+  protected clearClipboardTimeout: any = null;
+  protected clearClipboardTimeoutFunction: () => Promise<any> = null;
 
   constructor(
     private messagingService: MessagingService,
-    private platformUtilsService: PlatformUtilsService,
+    protected platformUtilsService: PlatformUtilsService,
     private reloadCallback: () => Promise<void> = null,
     private stateService: StateService,
-    private autofillSettingsService: AutofillSettingsServiceAbstraction,
+    protected autofillSettingsService: AutofillSettingsServiceAbstraction,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private biometricStateService: BiometricStateService,
   ) {}

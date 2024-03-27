@@ -21,6 +21,7 @@ const ACTIVE_ALARMS = new KeyDefinition(ALARMS_DISK, "activeAlarms", {
 export class AlarmsManagerService implements AlarmsManagerServiceInterface {
   private activeAlarmsState: GlobalState<ActiveAlarm[]>;
   readonly activeAlarms$: Observable<ActiveAlarm[]>;
+  private recoveredAlarms: Set<string> = new Set();
   private onAlarmHandlers: Record<string, () => void> = {};
 
   constructor(
@@ -32,8 +33,8 @@ export class AlarmsManagerService implements AlarmsManagerServiceInterface {
       map((activeAlarms) => activeAlarms ?? []),
     );
 
-    void this.verifyAlarmsState();
     this.setupOnAlarmListener();
+    void this.verifyAlarmsState();
   }
 
   async clearAlarm(name: string): Promise<void> {
@@ -51,6 +52,11 @@ export class AlarmsManagerService implements AlarmsManagerServiceInterface {
     delayInMinutes: number,
   ): Promise<void> {
     this.registerAlarmHandler(name, callback);
+    if (this.recoveredAlarms.has(name)) {
+      await this.triggerRecoveredAlarm(name);
+      return;
+    }
+
     await this.createAlarm(name, { delayInMinutes });
   }
 
@@ -61,6 +67,10 @@ export class AlarmsManagerService implements AlarmsManagerServiceInterface {
     initialDelayInMinutes?: number,
   ): Promise<void> {
     this.registerAlarmHandler(name, callback);
+    if (this.recoveredAlarms.has(name)) {
+      await this.triggerRecoveredAlarm(name);
+    }
+
     await this.createAlarm(name, {
       periodInMinutes: intervalInMinutes,
       delayInMinutes: initialDelayInMinutes ?? intervalInMinutes,
@@ -73,10 +83,20 @@ export class AlarmsManagerService implements AlarmsManagerServiceInterface {
     this.onAlarmHandlers = {};
   }
 
+  private async triggerRecoveredAlarm(name: string): Promise<void> {
+    this.recoveredAlarms.delete(name);
+    await this.triggerAlarm(name);
+  }
+
   private async createAlarm(
     name: string,
     createInfo: chrome.alarms.AlarmCreateInfo,
   ): Promise<void> {
+    const existingAlarm = await BrowserApi.getAlarm(name);
+    if (existingAlarm) {
+      return;
+    }
+
     await this.deleteActiveAlarm(name);
     await chrome.alarms.create(name, createInfo);
     await this.setActiveAlarm({ name, startTime: Date.now(), createInfo });
@@ -107,7 +127,7 @@ export class AlarmsManagerService implements AlarmsManagerServiceInterface {
           createInfo.delayInMinutes &&
           startTime + createInfo.delayInMinutes * 60 * 1000 < currentTime)
       ) {
-        void this.triggerAlarm(name);
+        this.recoveredAlarms.add(name);
         continue;
       }
 

@@ -35,8 +35,10 @@ import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { autofillSettingsServiceFactory } from "../../autofill/background/service_factories/autofill-settings-service.factory";
 import { eventCollectionServiceFactory } from "../../background/service-factories/event-collection-service.factory";
 import { Account } from "../../models/account";
+import { alarmsManagerServiceFactory } from "../../platform/background/service-factories/alarms-manager-service.factory";
 import { CachedServices } from "../../platform/background/service-factories/factory-options";
 import { stateServiceFactory } from "../../platform/background/service-factories/state-service.factory";
+import { AlarmsManagerService } from "../../platform/browser/abstractions/alarms-manager.service";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { passwordGenerationServiceFactory } from "../../tools/background/service_factories/password-generation-service.factory";
 import {
@@ -74,6 +76,7 @@ export class ContextMenuClickedHandler {
     private totpService: TotpService,
     private eventCollectionService: EventCollectionService,
     private userVerificationService: UserVerificationService,
+    private alarmsManagerService: AlarmsManagerService,
   ) {}
 
   static async mv3Create(cachedServices: CachedServices) {
@@ -113,6 +116,7 @@ export class ContextMenuClickedHandler {
     const generatePasswordToClipboardCommand = new GeneratePasswordToClipboardCommand(
       await passwordGenerationServiceFactory(cachedServices, serviceOptions),
       await autofillSettingsServiceFactory(cachedServices, serviceOptions),
+      await alarmsManagerServiceFactory(cachedServices, serviceOptions),
     );
 
     const autofillCommand = new AutofillTabCommand(
@@ -129,6 +133,7 @@ export class ContextMenuClickedHandler {
       await totpServiceFactory(cachedServices, serviceOptions),
       await eventCollectionServiceFactory(cachedServices, serviceOptions),
       await userVerificationServiceFactory(cachedServices, serviceOptions),
+      await alarmsManagerServiceFactory(cachedServices, serviceOptions),
     );
   }
 

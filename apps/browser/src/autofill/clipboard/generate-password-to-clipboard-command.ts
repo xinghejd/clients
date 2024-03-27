@@ -1,17 +1,19 @@
 import { firstValueFrom } from "rxjs";
 
+import { ClearClipboardDelay } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 
-import { setAlarmTime } from "../../platform/alarms/alarm-state";
+import { AlarmsManagerService } from "../../platform/browser/alarms-manager.service";
 
-import { clearClipboardAlarmName } from "./clear-clipboard";
+import { ClearClipboard, clearClipboardAlarmName } from "./clear-clipboard";
 import { copyToClipboard } from "./copy-to-clipboard-command";
 
 export class GeneratePasswordToClipboardCommand {
   constructor(
     private passwordGenerationService: PasswordGenerationServiceAbstraction,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
+    private alarmsManagerService: AlarmsManagerService,
   ) {}
 
   async getClearClipboard() {
@@ -26,10 +28,21 @@ export class GeneratePasswordToClipboardCommand {
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     copyToClipboard(tab, password);
 
-    const clearClipboard = await this.getClearClipboard();
-
-    if (clearClipboard != null) {
-      await setAlarmTime(clearClipboardAlarmName, clearClipboard * 1000);
+    const clearClipboardDelayInSeconds = await this.getClearClipboard();
+    if (!clearClipboardDelayInSeconds) {
+      return;
     }
+
+    if (clearClipboardDelayInSeconds < ClearClipboardDelay.OneMinute) {
+      setTimeout(() => ClearClipboard.run(), clearClipboardDelayInSeconds * 1000);
+      return;
+    }
+
+    await this.alarmsManagerService.clearAlarm(clearClipboardAlarmName);
+    await this.alarmsManagerService.setTimeoutAlarm(
+      clearClipboardAlarmName,
+      () => ClearClipboard.run(),
+      clearClipboardDelayInSeconds / 60,
+    );
   }
 }

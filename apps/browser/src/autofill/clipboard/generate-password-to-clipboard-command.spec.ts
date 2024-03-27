@@ -4,6 +4,7 @@ import { AutofillSettingsService } from "@bitwarden/common/autofill/services/aut
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 
 import { setAlarmTime } from "../../platform/alarms/alarm-state";
+import { AlarmsManagerService } from "../../platform/browser/alarms-manager.service";
 import { BrowserApi } from "../../platform/browser/browser-api";
 
 import { clearClipboardAlarmName } from "./clear-clipboard";
@@ -20,6 +21,7 @@ const setAlarmTimeMock = setAlarmTime as jest.Mock;
 describe("GeneratePasswordToClipboardCommand", () => {
   let passwordGenerationService: MockProxy<PasswordGenerationServiceAbstraction>;
   let autofillSettingsService: MockProxy<AutofillSettingsService>;
+  let alarmsManagerService: MockProxy<AlarmsManagerService>;
 
   let sut: GeneratePasswordToClipboardCommand;
 
@@ -30,11 +32,14 @@ describe("GeneratePasswordToClipboardCommand", () => {
 
     passwordGenerationService.generatePassword.mockResolvedValue("PASSWORD");
 
+    alarmsManagerService = mock<AlarmsManagerService>();
+
     jest.spyOn(BrowserApi, "sendTabsMessage").mockReturnValue();
 
     sut = new GeneratePasswordToClipboardCommand(
       passwordGenerationService,
       autofillSettingsService,
+      alarmsManagerService,
     );
   });
 

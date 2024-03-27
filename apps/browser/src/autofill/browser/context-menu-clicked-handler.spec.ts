@@ -19,6 +19,8 @@ import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-repromp
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
+import { AlarmsManagerService } from "../../platform/browser/alarms-manager.service";
+
 import {
   CopyToClipboardAction,
   ContextMenuClickedHandler,
@@ -69,6 +71,7 @@ describe("ContextMenuClickedHandler", () => {
   let totpService: MockProxy<TotpService>;
   let eventCollectionService: MockProxy<EventCollectionService>;
   let userVerificationService: MockProxy<UserVerificationService>;
+  let alarmsManagerService: MockProxy<AlarmsManagerService>;
 
   let sut: ContextMenuClickedHandler;
 
@@ -81,6 +84,7 @@ describe("ContextMenuClickedHandler", () => {
     stateService = mock();
     totpService = mock();
     eventCollectionService = mock();
+    alarmsManagerService = mock<AlarmsManagerService>();
 
     sut = new ContextMenuClickedHandler(
       copyToClipboard,
@@ -92,6 +96,7 @@ describe("ContextMenuClickedHandler", () => {
       totpService,
       eventCollectionService,
       userVerificationService,
+      alarmsManagerService,
     );
   });
 
