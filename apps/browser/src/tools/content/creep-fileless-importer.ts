@@ -4,6 +4,8 @@ class CreepFilelessImporter {
   private featureEnabled: boolean = false;
   // private currentLocationHref: string = "";
   private messagePort: chrome.runtime.Port;
+  private mutationObserver: MutationObserver;
+  private currentHref: string = "";
   private readonly portMessageHandlers: Record<string, any> = {
     verifyFeatureFlag: ({ message }: any) => this.handleFeatureFlagVerification(message),
     pingCreepExportRequest: ({ message }: any) => this.pingCreepExportRequest(message),
@@ -29,6 +31,13 @@ class CreepFilelessImporter {
 
   private loadImporter = () => {
     this.setupMessagePort();
+    this.currentHref = globalThis.location.href;
+    this.mutationObserver = new MutationObserver(this.handleMutation);
+    this.mutationObserver.observe(document.body, {
+      childList: true,
+      subtree: true,
+    });
+
     window.addEventListener("message", (event) => {
       const { data } = event;
       if (!data || !data.type) {
@@ -47,6 +56,16 @@ class CreepFilelessImporter {
         });
       }
     });
+  };
+
+  private handleMutation = () => {
+    if (this.currentHref !== globalThis.location.href) {
+      this.currentHref = globalThis.location.href;
+
+      if (this.currentHref.includes("/vault")) {
+        this.postPortMessage({ command: "displayCreepImportNotification" });
+      }
+    }
   };
 
   pingCreepExportRequest = (message: { requestMessage: any }) => {
@@ -89,6 +108,10 @@ class CreepFilelessImporter {
     this.messagePort.onDisconnect.addListener(() => {
       this.messagePort = null;
     });
+  }
+
+  private postPortMessage(message: any) {
+    this.messagePort?.postMessage(message);
   }
 
   private handlePortMessage = (message: any, port: chrome.runtime.Port) => {

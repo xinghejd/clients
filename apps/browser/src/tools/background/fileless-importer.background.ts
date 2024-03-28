@@ -11,6 +11,7 @@ import { ImportServiceAbstraction } from "@bitwarden/importer/core";
 
 import NotificationBackground from "../../autofill/background/notification.background";
 import { BrowserApi } from "../../platform/browser/browser-api";
+import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
 import { FilelessImporterInjectedScriptsConfig } from "../config/fileless-importer-injected-scripts";
 import {
   FilelessImportPort,
@@ -38,7 +39,7 @@ class FilelessImporterBackground implements FilelessImporterBackgroundInterface 
   private creepImporterPort: chrome.runtime.Port;
   private mostRecentlyFocusedTabId: number;
   private readonly importNotificationsPortMessageHandlers: ImportNotificationMessageHandlers = {
-    startFilelessImport: ({ message }) => this.startFilelessImport(message.importType),
+    startFilelessImport: ({ message, port }) => this.startFilelessImport(message.importType, port),
     cancelFilelessImport: ({ message, port }) =>
       this.cancelFilelessImport(message.importType, port.sender),
   };
@@ -49,6 +50,8 @@ class FilelessImporterBackground implements FilelessImporterBackgroundInterface 
   };
   private readonly creepImporterPortMessageHandlers: CreepImporterMessageHandlers = {
     startCreepFilelessImport: ({ message }) => this.triggerCreepImport(message.data),
+    displayCreepImportNotification: ({ port }) =>
+      this.displayFilelessImportNotification(port.sender.tab, FilelessImportType.CREEP),
   };
 
   /**
@@ -109,9 +112,20 @@ class FilelessImporterBackground implements FilelessImporterBackgroundInterface 
    *
    * @param importType - The type of import to start. Identifies the used content script.
    */
-  private startFilelessImport(importType: FilelessImportTypeKeys) {
+  private startFilelessImport(importType: FilelessImportTypeKeys, port: chrome.runtime.Port) {
     if (importType === FilelessImportType.LP) {
       this.lpImporterPort?.postMessage({ command: "startLpFilelessImport" });
+    }
+
+    if (importType === FilelessImportType.CREEP) {
+      void BrowserPopupUtils.openPopout(
+        "popup/index.html?uilocation=popout&importType=CREEP#/import",
+        {
+          singleActionKey: "creepImport",
+          senderWindowId: port.sender.tab.windowId,
+        },
+      );
+      void BrowserApi.tabSendMessageData(port.sender.tab, "closeNotificationBar");
     }
   }
 

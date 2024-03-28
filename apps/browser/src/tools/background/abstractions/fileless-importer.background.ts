@@ -18,6 +18,7 @@ type FilelessImportPortMessageHandlerParams = {
 
 type ImportNotificationMessageHandlers = {
   [key: string]: ({ message, port }: FilelessImportPortMessageHandlerParams) => void;
+  startFilelessImport: ({ message, port }: FilelessImportPortMessageHandlerParams) => void;
   cancelFilelessImport: ({ message, port }: FilelessImportPortMessageHandlerParams) => void;
 };
 
