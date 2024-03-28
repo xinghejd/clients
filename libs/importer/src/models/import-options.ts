@@ -4,7 +4,7 @@ export interface ImportOption {
 }
 
 export const featuredImportOptions = [
-  { id: "creeprequest", name: "CREEP Request" },
+  { id: "creeprequest", name: "Universal Credential Exchange" },
   { id: "CEF", name: "CEF Plaintext import" },
   { id: "bitwardenjson", name: "Bitwarden (json)" },
   { id: "bitwardencsv", name: "Bitwarden (csv)" },
