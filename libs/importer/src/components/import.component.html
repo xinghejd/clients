@@ -54,7 +54,8 @@
     </bit-select>
     <bit-hint>{{
       "importTargetHint"
-        | i18n: (organizationId ? ("collection" | i18n | lowercase) : ("folder" | i18n | lowercase))
+        | i18n
+          : (organizationId ? ("collection" | i18n | lowercase) : ("folder" | i18n | lowercase))
     }}</bit-hint>
   </bit-form-field>
 
@@ -63,7 +64,7 @@
     <bit-select formControlName="format">
       <bit-option value="" label="-- {{ 'select' | i18n }} --" />
       <bit-option
-        class="tw-font-bold tw-text-muted tw-text-xs"
+        class="tw-text-xs tw-font-bold tw-text-muted"
         value="-"
         label="{{ 'commonImportFormats' | i18n }}"
         disabled
@@ -77,8 +78,9 @@
   </bit-form-field>
   <bit-callout type="info" title="{{ getFormatInstructionTitle() }}" *ngIf="format">
     <ng-container *ngIf="isCreepRequest">
-      Navigate to a web vault that supports importing credentials through a CREEP request. With that
-      page open, click on the "Start Import" button below to begin the import process.
+      Navigate to a web vault that supports transfering credentials using Universal Credential
+      Exchange. With that page open, click on the "Start Import" button below to begin the import
+      process.
     </ng-container>
 
     <ng-container *ngIf="format === 'bitwardencsv' || format === 'bitwardenjson'">
