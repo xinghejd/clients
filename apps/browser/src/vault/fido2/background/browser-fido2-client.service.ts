@@ -30,9 +30,14 @@ export class BrowserFido2ClientService extends Fido2ClientService {
     );
   }
 
-  protected initAbortTimeout = (abortController: AbortController, timeout: number) => {
+  protected initAbortTimeout = (abortController: AbortController, timeoutInMs: number) => {
+    const timeoutInSeconds = timeoutInMs / 1000;
     this.alarmsManagerService
-      .setTimeoutAlarm(this.abortTimeoutAlarmName, () => abortController.abort(), timeout / 1000)
+      .setTimeoutAlarm(
+        this.abortTimeoutAlarmName,
+        () => abortController.abort(),
+        timeoutInSeconds / 60,
+      )
       .catch((error) => this.logService?.error(error));
 
     return 0;
