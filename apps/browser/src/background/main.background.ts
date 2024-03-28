@@ -4,7 +4,6 @@ import {
   PinCryptoServiceAbstraction,
   PinCryptoService,
   LoginStrategyServiceAbstraction,
-  LoginStrategyService,
   InternalUserDecryptionOptionsServiceAbstraction,
   UserDecryptionOptionsService,
   AuthRequestServiceAbstraction,
@@ -126,7 +125,6 @@ import { ApiService } from "@bitwarden/common/services/api.service";
 import { AuditService } from "@bitwarden/common/services/audit.service";
 import { EventCollectionService } from "@bitwarden/common/services/event/event-collection.service";
 import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
-import { NotificationsService } from "@bitwarden/common/services/notifications.service";
 import { SearchService } from "@bitwarden/common/services/search.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/services/vault-timeout/vault-timeout-settings.service";
 import { AvatarService as AvatarServiceAbstraction } from "@bitwarden/common/src/auth/abstractions/avatar.service";
@@ -185,6 +183,7 @@ import {
   VaultExportServiceAbstraction,
 } from "@bitwarden/vault-export-core";
 
+import { BrowserLoginStrategyService } from "../auth/services/browser-login-strategy.service";
 import ContextMenusBackground from "../autofill/background/context-menus.background";
 import NotificationBackground from "../autofill/background/notification.background";
 import OverlayBackground from "../autofill/background/overlay.background";
@@ -207,6 +206,7 @@ import { BrowserEnvironmentService } from "../platform/services/browser-environm
 import BrowserLocalStorageService from "../platform/services/browser-local-storage.service";
 import BrowserMessagingPrivateModeBackgroundService from "../platform/services/browser-messaging-private-mode-background.service";
 import BrowserMessagingService from "../platform/services/browser-messaging.service";
+import { BrowserNotificationsService } from "../platform/services/browser-notifications.service";
 import { BrowserStateService } from "../platform/services/browser-state.service";
 import { BrowserSystemService } from "../platform/services/browser-system.service";
 import I18nService from "../platform/services/i18n.service";
@@ -585,7 +585,7 @@ export default class MainBackground {
       this.stateProvider,
     );
 
-    this.loginStrategyService = new LoginStrategyService(
+    this.loginStrategyService = new BrowserLoginStrategyService(
       this.cryptoService,
       this.apiService,
       this.tokenService,
@@ -606,6 +606,7 @@ export default class MainBackground {
       this.userDecryptionOptionsService,
       this.globalStateProvider,
       this.billingAccountProfileStateService,
+      this.alarmsManagerService,
     );
 
     this.ssoLoginService = new SsoLoginService(this.stateProvider);
@@ -797,7 +798,7 @@ export default class MainBackground {
       this.organizationVaultExportService,
     );
 
-    this.notificationsService = new NotificationsService(
+    this.notificationsService = new BrowserNotificationsService(
       this.logService,
       this.syncService,
       this.appIdService,
@@ -807,6 +808,7 @@ export default class MainBackground {
       this.stateService,
       this.authService,
       this.messagingService,
+      this.alarmsManagerService,
     );
 
     this.fido2Service = new Fido2Service();

@@ -60,10 +60,9 @@ import {
   CACHE_KEY,
 } from "./login-strategy.state";
 
-const sessionTimeoutLength = 2 * 60 * 1000; // 2 minutes
-
 export class LoginStrategyService implements LoginStrategyServiceAbstraction {
-  private sessionTimeout: unknown;
+  protected readonly sessionTimeoutLengthInMs = 2 * 60 * 1000; // 2 minutes
+  private sessionTimeout: number | NodeJS.Timeout;
   private currentAuthnTypeState: GlobalState<AuthenticationType | null>;
   private loginStrategyCacheState: GlobalState<CacheData | null>;
   private loginStrategyCacheExpirationState: GlobalState<Date | null>;
@@ -289,7 +288,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     return await this.apiService.putAuthRequest(id, request);
   }
 
-  private async clearCache(): Promise<void> {
+  protected async clearCache(): Promise<void> {
     await this.currentAuthnTypeState.update((_) => null);
     await this.loginStrategyCacheState.update((_) => null);
     await this.clearSessionTimeout();
@@ -298,14 +297,21 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
   private async startSessionTimeout(): Promise<void> {
     await this.clearSessionTimeout();
     await this.loginStrategyCacheExpirationState.update(
-      (_) => new Date(Date.now() + sessionTimeoutLength),
+      (_) => new Date(Date.now() + this.sessionTimeoutLengthInMs),
     );
-    this.sessionTimeout = setTimeout(() => this.clearCache(), sessionTimeoutLength);
+    this.setupSessionTimeout();
   }
 
-  private async clearSessionTimeout(): Promise<void> {
+  protected setupSessionTimeout = () => {
+    this.sessionTimeout = setTimeout(() => this.clearCache(), this.sessionTimeoutLengthInMs);
+  };
+
+  protected async clearSessionTimeout(): Promise<void> {
     await this.loginStrategyCacheExpirationState.update((_) => null);
-    this.sessionTimeout = null;
+    if (this.sessionTimeout) {
+      clearTimeout(this.sessionTimeout);
+      this.sessionTimeout = null;
+    }
   }
 
   private async isSessionValid(): Promise<boolean> {
