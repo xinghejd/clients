@@ -215,7 +215,7 @@ export class ImportComponent implements OnInit, OnDestroy {
   }
 
   protected get isCreepRequest(): boolean {
-    return this.format === "creeprequest";
+    return this.format === "creeprequest" || this.format === "CEF";
   }
 
   async ngOnInit() {
@@ -560,6 +560,24 @@ export class ImportComponent implements OnInit, OnDestroy {
   }
 
   async sendCreepRequest(): Promise<void> {
+    // Un-comment to enable testing CEF plaintext or CREEP using the example response
+    // if (this.format === "CEF") {
+    //  this.formGroup.controls.fileContents.setValue(nordpassExampleString);
+    // }
+
+    // if (this.format === "creeprequest") {
+    //   const response = {
+    //     version: 0,
+    //     hpke: {},
+    //     zip: "zip",
+    //     exporter: "Nordpass",
+    //     payload: "5rG0AADgrIDxubCgbAAAFfCQk7UA7YyO4ZSA0JTDnWwAAAsAw63wkJO1AAAAAAAA5I2F0JRQ8oCBtQDCpPGBkIDlgYvMgO2MhAA"
+    //   };
+    //   this.formGroup.controls.fileContents.setValue(response);
+    // }
+    // await this.performImport();
+    // return;
+
     if (this.creepImportStarted) {
       return;
     }

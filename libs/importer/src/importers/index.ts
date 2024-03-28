@@ -10,7 +10,7 @@ export {
 } from "./bitwarden";
 export { BlurCsvImporter } from "./blur-csv-importer";
 export { ButtercupCsvImporter } from "./buttercup-csv-importer";
-export { CEFImporter } from "./cef/cef-importer";
+export { CEFImporter, CREEPImporter } from "./cef";
 export { ClipperzHtmlImporter } from "./clipperz-html-importer";
 export { CodebookCsvImporter } from "./codebook-csv-importer";
 export { DashlaneCsvImporter, DashlaneJsonImporter } from "./dashlane";

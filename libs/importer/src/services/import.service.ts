@@ -77,6 +77,7 @@ import {
   YotiCsvImporter,
   ZohoVaultCsvImporter,
   CEFImporter,
+  CREEPImporter,
 } from "../importers";
 import { Importer } from "../importers/importer";
 import {
@@ -323,8 +324,10 @@ export class ImportService implements ImportServiceAbstraction {
         return new PasskyJsonImporter();
       case "protonpass":
         return new ProtonPassJsonImporter(this.i18nService);
-      case "creeprequest":
+      case "CEF":
         return new CEFImporter();
+      case "creeprequest":
+        return new CREEPImporter();
       default:
         return null;
     }
