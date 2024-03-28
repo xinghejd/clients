@@ -697,6 +697,7 @@ export default class MainBackground {
       this.authService,
       this.vaultTimeoutSettingsService,
       this.stateEventRunnerService,
+      this.accountService,
       lockedCallback,
       logoutCallback,
     );
@@ -706,6 +707,7 @@ export default class MainBackground {
       this.i18nService,
       this.keyGenerationService,
       this.stateService,
+      this.authService,
     );
     this.sendApiService = new SendApiService(
       this.apiService,
@@ -1149,6 +1151,7 @@ export default class MainBackground {
 
     const currentUserId = await this.stateService.getUserId();
     const newActiveUser = await this.stateService.clean({ userId: userId });
+    await this.accountService.setAccountStatus(userId, AuthenticationStatus.LoggedOut);
 
     if (userId == null || userId === currentUserId) {
       this.searchService.clearIndex();
