@@ -1,6 +1,5 @@
 import { CommonModule } from "@angular/common";
 import {
-  ChangeDetectorRef,
   Component,
   EventEmitter,
   Inject,
@@ -13,9 +12,10 @@ import {
   ViewChild,
 } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
+import { ActivatedRoute } from "@angular/router";
 import * as JSZip from "jszip";
 import { concat, Observable, Subject, lastValueFrom, combineLatest, firstValueFrom } from "rxjs";
-import { filter, map, takeUntil } from "rxjs/operators";
+import { filter, first, map, takeUntil } from "rxjs/operators";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
@@ -196,7 +196,7 @@ export class ImportComponent implements OnInit, OnDestroy {
     @Inject(ImportCollectionServiceAbstraction)
     @Optional()
     protected importCollectionService: ImportCollectionServiceAbstraction,
-    private changeDetectorRef: ChangeDetectorRef,
+    private route: ActivatedRoute,
   ) {}
 
   protected get importBlockedByPolicy(): boolean {
@@ -235,6 +235,12 @@ export class ImportComponent implements OnInit, OnDestroy {
       });
 
     await this.handlePolicies();
+    // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
+    this.route.queryParams.pipe(first()).subscribe(async (params) => {
+      if (params["import-type"] === "creeprequest") {
+        this.formGroup.controls.format.setValue("creeprequest");
+      }
+    });
   }
 
   private handleOrganizationImportInit() {

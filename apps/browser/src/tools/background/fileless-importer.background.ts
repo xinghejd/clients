@@ -119,7 +119,7 @@ class FilelessImporterBackground implements FilelessImporterBackgroundInterface 
 
     if (importType === FilelessImportType.CREEP) {
       void BrowserPopupUtils.openPopout(
-        "popup/index.html?uilocation=popout&importType=CREEP#/import",
+        "popup/index.html?uilocation=popout#/import?import-type=creeprequest",
         {
           singleActionKey: "creepImport",
           senderWindowId: port.sender.tab.windowId,
