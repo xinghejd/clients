@@ -12,6 +12,7 @@ import {
 import { Fido2UserInterfaceService } from "../../abstractions/fido2/fido2-user-interface.service.abstraction";
 import { CipherType } from "../../enums";
 import { CipherView } from "../../models/view/cipher.view";
+import { Fido2CredentialView } from "../../models/view/fido2-credential.view";
 
 import { Fido2Utils } from "./fido2-utils";
 import { guidToStandardFormat } from "./guid-utils";
@@ -50,11 +51,11 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
         console.log("js.confirmNewCredential called", { params });
 
         const result = await session.confirmNewCredential({
-          credentialName: params.credential_name,
-          userName: params.user_name,
+          credentialName: params.credentialName,
+          userName: params.userName,
           userVerification: false,
         });
-        return { vault_item: { cipher_id: result.cipherId, name: "unknown" } };
+        return { vaultItem: { cipherId: result.cipherId, name: "unknown" } };
       },
 
       pickCredential: async (params: unknown): Promise<any> => {
@@ -96,10 +97,10 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     const credentialStore: Fido2CredentialStore = {
       findCredentials: async (params) => {
         // Todo implement id mapping
+        await session.ensureUnlockedVault();
         const ciphers = await this.findCredentials([], params.rp_id);
-
         return ciphers.map((cipher) => ({
-          cipher_id: cipher.id,
+          cipherId: cipher.id,
           name: cipher.name,
         }));
       },
@@ -108,7 +109,36 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
         // eslint-disable-next-line no-console
         console.log("js.saveCredential called", params);
 
-        // throw new Error("Not implemented.");
+        const cipher = await this.cipherService.get(params.vaultItem.cipherId);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const decrypted = await cipher.decrypt(
+          await this.cipherService.getKeyForCipherKeyDecryption(cipher),
+        );
+
+        const rustCredential = params.vaultItem.fido2Credential;
+        if (rustCredential == null) {
+          throw new Error("Saving empty credentials is not allowed");
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const fido2Credential = new Fido2CredentialView();
+        fido2Credential.credentialId = rustCredential.credentialId;
+        fido2Credential.keyType = rustCredential.keyType;
+        fido2Credential.keyAlgorithm = mapAlgorithm(rustCredential.keyAlgorithm);
+        fido2Credential.keyCurve = mapCurve(rustCredential.keyCurve);
+        fido2Credential.keyValue = rustCredential.keyValue;
+        fido2Credential.rpId = rustCredential.rpId;
+        fido2Credential.userHandle = rustCredential.userHandle;
+        fido2Credential.userName = rustCredential.userName;
+        fido2Credential.counter = rustCredential.counter;
+        fido2Credential.rpName = rustCredential.rpName;
+        fido2Credential.userDisplayName = rustCredential.userDisplayName;
+        fido2Credential.discoverable = rustCredential.discoverable;
+        fido2Credential.creationDate = new Date(rustCredential.creationDate);
+
+        decrypted.login.fido2Credentials = [fido2Credential];
+        const encrypted = await this.cipherService.encrypt(decrypted);
+        await this.cipherService.updateWithServer(encrypted);
       },
     };
 
@@ -194,4 +224,20 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
         cipher.login.fido2Credentials[0].discoverable,
     );
   }
+}
+
+function mapAlgorithm(algorithm: string): "ECDSA" {
+  if (algorithm !== "ECDSA") {
+    throw new Error("Unsupported algorithm, cannot save credential");
+  }
+
+  return "ECDSA";
+}
+
+function mapCurve(curve: string): "P-256" {
+  if (curve !== "P-256") {
+    throw new Error("Unsupported curve, cannot save credential");
+  }
+
+  return "P-256";
 }
