@@ -9,7 +9,7 @@ import { Fido2ClientService } from "@bitwarden/common/vault/services/fido2/fido2
 import { AlarmsManagerService } from "../../../platform/browser/alarms-manager.service";
 
 export class BrowserFido2ClientService extends Fido2ClientService {
-  private abortTimeoutAlarmName = "fido2AbortTimeout";
+  private abortTimeoutAlarmName = "browser-fido2-abort-timeout-alarm";
 
   constructor(
     authenticator: Fido2AuthenticatorService,

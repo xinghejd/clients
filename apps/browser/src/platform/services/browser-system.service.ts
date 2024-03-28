@@ -10,7 +10,7 @@ import { SystemService } from "@bitwarden/common/platform/services/system.servic
 import { AlarmsManagerService } from "../browser/abstractions/alarms-manager.service";
 
 export class BrowserSystemService extends SystemService {
-  private clearClipboardAlarmName = "browserSystemClearClipboard";
+  private clearClipboardAlarmName = "browser-system-clear-clipboard-alarm";
 
   constructor(
     messagingService: MessagingService,

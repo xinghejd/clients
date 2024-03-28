@@ -25,7 +25,7 @@ import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/pass
 import { AlarmsManagerService } from "../../platform/browser/abstractions/alarms-manager.service";
 
 export class BrowserLoginStrategyService extends LoginStrategyService {
-  private readonly sessionTimeoutAlarmName = "session-timeout";
+  private readonly sessionTimeoutAlarmName = "browser-session-timeout-alarm";
 
   constructor(
     cryptoService: CryptoService,

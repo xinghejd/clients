@@ -11,7 +11,7 @@ import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.serv
 import { AlarmsManagerService } from "../browser/abstractions/alarms-manager.service";
 
 export class BrowserNotificationsService extends NotificationsService {
-  private reconnectTimerAlarmName = "browser-reconnect-timer";
+  private reconnectTimerAlarmName = "browser-reconnect-timer-alarm";
 
   constructor(
     logService: LogService,
