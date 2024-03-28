@@ -8,6 +8,7 @@ import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { UserId } from "@bitwarden/common/types/guid";
 import { DialogService, SimpleDialogOptions } from "@bitwarden/components";
 
 import { BrowserApi } from "../platform/browser/browser-api";
@@ -27,8 +28,8 @@ import { DesktopSyncVerificationDialogComponent } from "./components/desktop-syn
   </div>`,
 })
 export class AppComponent implements OnInit, OnDestroy {
-  private lastActivity: number = null;
-  private activeUserId: string;
+  private lastActivity: Date;
+  private activeUserId: UserId;
 
   private destroy$ = new Subject<void>();
 
@@ -199,13 +200,13 @@ export class AppComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const now = new Date().getTime();
-    if (this.lastActivity != null && now - this.lastActivity < 250) {
+    const now = new Date();
+    if (this.lastActivity != null && now.getTime() - this.lastActivity.getTime() < 250) {
       return;
     }
 
     this.lastActivity = now;
-    await this.stateService.setLastActive(now, { userId: this.activeUserId });
+    await this.accountService.setAccountActivity(this.activeUserId, now);
   }
 
   private showToast(msg: any) {

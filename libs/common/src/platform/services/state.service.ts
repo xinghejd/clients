@@ -48,7 +48,6 @@ const keys = {
   authenticatedAccounts: "authenticatedAccounts",
   activeUserId: "activeUserId",
   tempAccountSettings: "tempAccountSettings", // used to hold account specific settings (i.e clear clipboard) between initial migration and first account authentication
-  accountActivity: "accountActivity",
 };
 
 const partialKeys = {
@@ -167,7 +166,6 @@ export class StateService<
       return state;
     });
     await this.scaffoldNewAccountStorage(account);
-    await this.setLastActive(new Date().getTime(), { userId: account.profile.userId });
     await this.setActiveUser(account.profile.userId);
   }
 
@@ -905,35 +903,6 @@ export class StateService<
     );
   }
 
-  async getLastActive(options?: StorageOptions): Promise<number> {
-    options = this.reconcileOptions(options, await this.defaultOnDiskOptions());
-
-    const accountActivity = await this.storageService.get<{ [userId: string]: number }>(
-      keys.accountActivity,
-      options,
-    );
-
-    if (accountActivity == null || Object.keys(accountActivity).length < 1) {
-      return null;
-    }
-
-    return accountActivity[options.userId];
-  }
-
-  async setLastActive(value: number, options?: StorageOptions): Promise<void> {
-    options = this.reconcileOptions(options, await this.defaultOnDiskOptions());
-    if (options.userId == null) {
-      return;
-    }
-    const accountActivity =
-      (await this.storageService.get<{ [userId: string]: number }>(
-        keys.accountActivity,
-        options,
-      )) ?? {};
-    accountActivity[options.userId] = value;
-    await this.storageService.save(keys.accountActivity, accountActivity, options);
-  }
-
   async getLastSync(options?: StorageOptions): Promise<string> {
     return (
       await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskMemoryOptions()))
@@ -1553,7 +1522,6 @@ export class StateService<
     // We must have a manual call to clear tokens as we can't leverage state provider to clean
     // up our data as we have secure storage in the mix.
     await this.tokenService.clearTokens(userId as UserId);
-    await this.setLastActive(null, { userId: userId });
     await this.updateState(async (state) => {
       state.authenticatedAccounts = state.authenticatedAccounts.filter((id) => id !== userId);
 

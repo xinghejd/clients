@@ -3,7 +3,7 @@ import { BehaviorSubject, of } from "rxjs";
 
 import { SearchService } from "../../abstractions/search.service";
 import { VaultTimeoutSettingsService } from "../../abstractions/vault-timeout/vault-timeout-settings.service";
-import { AccountInfo, AccountService } from "../../auth/abstractions/account.service";
+import { AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
@@ -114,10 +114,6 @@ describe("VaultTimeoutService", () => {
       return Promise.resolve(accounts[userId]?.vaultTimeout);
     });
 
-    stateService.getLastActive.mockImplementation((options) => {
-      return Promise.resolve(accounts[options.userId]?.lastActive);
-    });
-
     stateService.getUserId.mockResolvedValue(globalSetups?.userId);
 
     // Set desired user active and known users on accounts service : note the only thing that matters here is that the ID are set
@@ -128,18 +124,13 @@ describe("VaultTimeoutService", () => {
       name: "",
       status: AuthenticationStatus.Unlocked,
     });
-    accountService.accounts$ = of(
+    accountService.accountActivity$ = of(
       Object.entries(accounts).reduce(
         (agg, [id, info]) => {
-          agg[id] = {
-            email: "",
-            emailVerified: true,
-            name: "",
-            status: info.authStatus,
-          };
+          agg[id] = info.lastActive ? new Date(info.lastActive) : null;
           return agg;
         },
-        {} as Record<string, AccountInfo>,
+        {} as Record<string, Date>,
       ),
     );
 

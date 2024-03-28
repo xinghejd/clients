@@ -60,11 +60,18 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     const isViewOpen = await this.platformUtilsService.isViewOpen();
 
     await firstValueFrom(
-      combineLatest([this.accountService.activeAccount$, this.accountService.accounts$]).pipe(
-        switchMap(async ([activeAccount, accounts]) => {
+      combineLatest([
+        this.accountService.activeAccount$,
+        this.accountService.accountActivity$,
+      ]).pipe(
+        switchMap(async ([activeAccount, accountActivity]) => {
           const activeUserId = activeAccount?.id;
-          for (const userId in accounts) {
-            if (userId != null && (await this.shouldLock(userId, activeUserId, isViewOpen))) {
+          for (const userIdString in accountActivity) {
+            const userId = userIdString as UserId;
+            if (
+              userId != null &&
+              (await this.shouldLock(userId, accountActivity[userId], activeUserId, isViewOpen))
+            ) {
               await this.executeTimeoutAction(userId);
             }
           }
@@ -126,6 +133,7 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
 
   private async shouldLock(
     userId: string,
+    lastActive: Date,
     activeUserId: string,
     isViewOpen: boolean,
   ): Promise<boolean> {
@@ -149,13 +157,12 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
       return false;
     }
 
-    const lastActive = await this.stateService.getLastActive({ userId: userId });
     if (lastActive == null) {
       return false;
     }
 
     const vaultTimeoutSeconds = vaultTimeout * 60;
-    const diffSeconds = (new Date().getTime() - lastActive) / 1000;
+    const diffSeconds = (new Date().getTime() - lastActive.getTime()) / 1000;
     return diffSeconds >= vaultTimeoutSeconds;
   }
 

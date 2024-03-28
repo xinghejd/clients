@@ -42,6 +42,7 @@ import { SystemService } from "@bitwarden/common/platform/abstractions/system.se
 import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { StateEventRunnerService } from "@bitwarden/common/platform/state";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -108,11 +109,11 @@ export class AppComponent implements OnInit, OnDestroy {
 
   loading = false;
 
-  private lastActivity: number = null;
+  private lastActivity: Date = null;
   private modal: ModalRef = null;
   private idleTimer: number = null;
   private isIdle = false;
-  private activeUserId: string = null;
+  private activeUserId: UserId = null;
 
   private destroy$ = new Subject<void>();
 
@@ -632,13 +633,13 @@ export class AppComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const now = new Date().getTime();
-    if (this.lastActivity != null && now - this.lastActivity < 250) {
+    const now = new Date();
+    if (this.lastActivity != null && now.getTime() - this.lastActivity.getTime() < 250) {
       return;
     }
 
     this.lastActivity = now;
-    await this.stateService.setLastActive(now, { userId: this.activeUserId });
+    await this.accountService.setAccountActivity(this.activeUserId, now);
 
     // Idle states
     if (this.isIdle) {

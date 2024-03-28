@@ -37,6 +37,8 @@ export abstract class AccountService {
   accountActivity$: Observable<Record<UserId, Date>>;
   /**
    * Updates the `accounts$` observable with the new account data.
+   *
+   * @note Also sets the last active date of the account to `now`.
    * @param userId
    * @param accountData
    */
@@ -62,6 +64,7 @@ export abstract class AccountService {
   /**
    * Updates the `accounts$` observable with the new account status.
    * Also emits the `accountLock$` or `accountLogout$` observable if the status is `Locked` or `LoggedOut` respectively.
+   * @note removes given account activity when the new status is `LoggedOut`.
    * @param userId
    * @param status
    */

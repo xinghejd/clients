@@ -1,6 +1,7 @@
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, map } from "rxjs";
 
 import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -48,6 +49,7 @@ export default class RuntimeBackground {
     private logService: LogService,
     private configService: ConfigService,
     private fido2Service: Fido2Service,
+    private accountService: AccountService,
   ) {
     // onInstalled listener must be wired up before anything else, so we do it in the ctor
     chrome.runtime.onInstalled.addListener((details: any) => {
@@ -162,9 +164,10 @@ export default class RuntimeBackground {
         switch (msg.sender) {
           case "autofiller":
           case "autofill_cmd": {
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.stateService.setLastActive(new Date().getTime());
+            const activeUserId = await firstValueFrom(
+              this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+            );
+            await this.accountService.setAccountActivity(activeUserId, new Date());
             const totpCode = await this.autofillService.doAutoFillActiveTab(
               [
                 {
