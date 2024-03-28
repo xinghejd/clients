@@ -6,7 +6,7 @@ import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/ge
 import { AlarmsManagerService } from "../../platform/browser/alarms-manager.service";
 import { BrowserApi } from "../../platform/browser/browser-api";
 
-// import { clearClipboardAlarmName } from "./clear-clipboard";
+import { clearClipboardAlarmName } from "./clear-clipboard";
 import { GeneratePasswordToClipboardCommand } from "./generate-password-to-clipboard-command";
 
 describe("GeneratePasswordToClipboardCommand", () => {
@@ -45,17 +45,16 @@ describe("GeneratePasswordToClipboardCommand", () => {
       await sut.generatePasswordToClipboard({ id: 1 } as any);
 
       expect(jest.spyOn(BrowserApi, "sendTabsMessage")).toHaveBeenCalledTimes(1);
-
       expect(jest.spyOn(BrowserApi, "sendTabsMessage")).toHaveBeenCalledWith(1, {
         command: "copyText",
         text: "PASSWORD",
       });
-
-      // expect(setAlarmTimeMock).toHaveBeenCalledTimes(1);
-      //
-      // expect(setAlarmTimeMock).toHaveBeenCalledWith(clearClipboardAlarmName, expect.any(Number));
-
-      expect(true).toBe(true);
+      expect(alarmsManagerService.setTimeoutAlarm).toHaveBeenCalledTimes(1);
+      expect(alarmsManagerService.setTimeoutAlarm).toHaveBeenCalledWith(
+        clearClipboardAlarmName,
+        expect.any(Function),
+        expect.any(Number),
+      );
     });
 
     it("does not have clear clipboard value", async () => {
@@ -64,15 +63,11 @@ describe("GeneratePasswordToClipboardCommand", () => {
       await sut.generatePasswordToClipboard({ id: 1 } as any);
 
       expect(jest.spyOn(BrowserApi, "sendTabsMessage")).toHaveBeenCalledTimes(1);
-
       expect(jest.spyOn(BrowserApi, "sendTabsMessage")).toHaveBeenCalledWith(1, {
         command: "copyText",
         text: "PASSWORD",
       });
-
-      // expect(setAlarmTimeMock).not.toHaveBeenCalled();
-
-      expect(true).toBe(true);
+      expect(alarmsManagerService.setTimeoutAlarm).not.toHaveBeenCalled();
     });
   });
 });
