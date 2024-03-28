@@ -124,7 +124,6 @@ import { DefaultThemeStateService } from "@bitwarden/common/platform/theming/the
 import { ApiService } from "@bitwarden/common/services/api.service";
 import { AuditService } from "@bitwarden/common/services/audit.service";
 import { EventCollectionService } from "@bitwarden/common/services/event/event-collection.service";
-import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
 import { SearchService } from "@bitwarden/common/services/search.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/services/vault-timeout/vault-timeout-settings.service";
 import { AvatarService as AvatarServiceAbstraction } from "@bitwarden/common/src/auth/abstractions/avatar.service";
@@ -203,6 +202,7 @@ import { UpdateBadge } from "../platform/listeners/update-badge";
 import { BrowserStateService as StateServiceAbstraction } from "../platform/services/abstractions/browser-state.service";
 import { BrowserCryptoService } from "../platform/services/browser-crypto.service";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
+import { BrowserEventUploadService } from "../platform/services/browser-event-upload.service";
 import BrowserLocalStorageService from "../platform/services/browser-local-storage.service";
 import BrowserMessagingPrivateModeBackgroundService from "../platform/services/browser-messaging-private-mode-background.service";
 import BrowserMessagingService from "../platform/services/browser-messaging.service";
@@ -737,11 +737,12 @@ export default class MainBackground {
       logoutCallback,
       this.billingAccountProfileStateService,
     );
-    this.eventUploadService = new EventUploadService(
+    this.eventUploadService = new BrowserEventUploadService(
       this.apiService,
       this.stateProvider,
       this.logService,
       this.accountService,
+      this.alarmsManagerService,
     );
     this.eventCollectionService = new EventCollectionService(
       this.cipherService,
@@ -1004,7 +1005,7 @@ export default class MainBackground {
 
     await this.vaultTimeoutService.init(true);
     await (this.i18nService as I18nService).init();
-    await (this.eventUploadService as EventUploadService).init(true);
+    await (this.eventUploadService as BrowserEventUploadService).init(true);
     await this.runtimeBackground.init();
     await this.notificationBackground.init();
     this.filelessImporterBackground.init();

@@ -14,10 +14,12 @@ import { EVENT_COLLECTION } from "./key-definitions";
 
 export class EventUploadService implements EventUploadServiceAbstraction {
   private inited = false;
+  protected uploadEventsIntervalDurationInMs = 60 * 1000; // check every 60 seconds
+
   constructor(
     private apiService: ApiService,
     private stateProvider: StateProvider,
-    private logService: LogService,
+    protected logService: LogService,
     private accountService: AccountService,
   ) {}
 
@@ -31,7 +33,7 @@ export class EventUploadService implements EventUploadServiceAbstraction {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.uploadEvents();
-      setInterval(() => this.uploadEvents(), 60 * 1000); // check every 60 seconds
+      this.setupEventUploadsInterval();
     }
   }
 
@@ -87,4 +89,8 @@ export class EventUploadService implements EventUploadServiceAbstraction {
 
     return taken;
   }
+
+  protected setupEventUploadsInterval = () => {
+    setInterval(() => this.uploadEvents(), this.uploadEventsIntervalDurationInMs);
+  };
 }
