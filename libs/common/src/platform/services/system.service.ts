@@ -93,26 +93,18 @@ export class SystemService implements SystemServiceAbstraction {
     }
   }
 
-  async clearClipboard(clipboardValue: string, timeoutMs: number = null): Promise<void> {
-    if (this.clearClipboardTimeout != null) {
-      clearTimeout(this.clearClipboardTimeout);
-      this.clearClipboardTimeout = null;
-    }
+  async clearClipboard(clipboardValue: string, timeoutInSeconds: number = null): Promise<void> {
+    this.resetClearClipboardTimeout();
 
     if (Utils.isNullOrWhitespace(clipboardValue)) {
       return;
     }
 
-    const clearClipboardDelay = await firstValueFrom(
-      this.autofillSettingsService.clearClipboardDelay$,
-    );
+    const clearClipboardDelayInSeconds =
+      timeoutInSeconds || (await firstValueFrom(this.autofillSettingsService.clearClipboardDelay$));
 
-    if (clearClipboardDelay == null) {
+    if (clearClipboardDelayInSeconds == null) {
       return;
-    }
-
-    if (timeoutMs == null) {
-      timeoutMs = clearClipboardDelay * 1000;
     }
 
     this.clearClipboardTimeoutFunction = async () => {
@@ -122,9 +114,7 @@ export class SystemService implements SystemServiceAbstraction {
       }
     };
 
-    this.clearClipboardTimeout = setTimeout(async () => {
-      await this.clearPendingClipboard();
-    }, timeoutMs);
+    this.setupClearClipboardTimeout(clearClipboardDelayInSeconds);
   }
 
   async clearPendingClipboard() {
@@ -132,5 +122,18 @@ export class SystemService implements SystemServiceAbstraction {
       await this.clearClipboardTimeoutFunction();
       this.clearClipboardTimeoutFunction = null;
     }
+  }
+
+  protected resetClearClipboardTimeout() {
+    if (this.clearClipboardTimeout) {
+      clearTimeout(this.clearClipboardTimeout);
+      this.clearClipboardTimeout = null;
+    }
+  }
+
+  protected setupClearClipboardTimeout(timeoutInSeconds: number) {
+    this.clearClipboardTimeout = setTimeout(async () => {
+      await this.clearPendingClipboard();
+    }, timeoutInSeconds * 1000);
   }
 }
