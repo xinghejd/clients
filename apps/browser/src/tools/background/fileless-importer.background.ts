@@ -76,13 +76,16 @@ class FilelessImporterBackground implements FilelessImporterBackgroundInterface 
   init() {
     this.setupPortMessageListeners();
 
-    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    chrome.runtime.onMessage.addListener((message) => {
       if (message.command !== "initiateCreepRequest") {
         return;
       }
 
       void BrowserApi.focusTab(this.mostRecentlyFocusedTabId);
-      this.creepImporterPort?.postMessage({ command: "pingCreepExportRequest" });
+      this.creepImporterPort?.postMessage({
+        command: "pingCreepExportRequest",
+        requestMessage: message.requestMessage,
+      });
     });
 
     chrome.windows.onFocusChanged.addListener(async (windowId) => {

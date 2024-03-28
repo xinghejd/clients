@@ -6,7 +6,7 @@ class CreepFilelessImporter {
   private messagePort: chrome.runtime.Port;
   private readonly portMessageHandlers: Record<string, any> = {
     verifyFeatureFlag: ({ message }: any) => this.handleFeatureFlagVerification(message),
-    pingCreepExportRequest: () => this.pingCreepExportRequest(),
+    pingCreepExportRequest: ({ message }: any) => this.pingCreepExportRequest(message),
   };
 
   init() {
@@ -47,44 +47,36 @@ class CreepFilelessImporter {
         });
       }
     });
-
-    // this.currentLocationHref = globalThis.location.href;
-    // document.body.addEventListener(
-    //   "click",
-    //   () => {
-    //     requestAnimationFrame(() => {
-    //       if (this.currentLocationHref !== globalThis.location.href) {
-    //         this.setupMessagePort();
-    //         this.currentLocationHref = globalThis.location.href;
-    //
-    //         if (this.currentLocationHref.includes("/export")) {
-    //           this.pingCreepExportRequest();
-    //         }
-    //       }
-    //     });
-    //   },
-    //   true,
-    // );
   };
 
-  pingCreepExportRequest = () => {
+  pingCreepExportRequest = (message: { requestMessage: any }) => {
     if (!this.featureEnabled) {
       return;
     }
 
-    globalThis.postMessage(
-      {
-        type: "creepExportRequest",
-        content: {
-          version: 0,
-          hpke: "...", // includes public-key
-          zip: "...",
-          importer: "Bitwarden",
-          credentialTypes: [],
-        },
-      },
-      "*",
-    );
+    globalThis.postMessage(message.requestMessage, "*");
+
+    // TODO: This is a mocked response for testing purposes. Remove this when the hpkey value is actually setup correctly. Expect the window.onMessage handler to be called with the correct data.
+    setTimeout(() => {
+      const modalButton = document.querySelector(
+        "div.ReactModal__Content--after-open.modal button.np-ui-button--contained.np-ui-button--secondary-variant",
+      );
+      modalButton?.addEventListener("click", () => {
+        window.postMessage(
+          {
+            type: "creepExportResponse",
+            content: {
+              version: 0,
+              hpke: ["..."], // includes public-key
+              zip: ["zip"],
+              importer: "Bitwarden",
+              credentialTypes: [],
+            },
+          },
+          "*",
+        );
+      });
+    }, 100);
   };
 
   private setupMessagePort() {

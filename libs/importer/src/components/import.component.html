@@ -376,16 +376,10 @@
       type="button"
       [buttonType]="creepImportStarted ? 'secondary' : 'primary'"
       (click)="sendCreepRequest()"
-      *ngIf="this.creepImportItems.length === 0"
     >
       <i class="bwi bwi-spinner bwi-spin tw-mr-1" aria-hidden="true" *ngIf="creepImportStarted"></i>
       {{ creepImportStarted ? "Importing..." : "Start Import" }}
     </button>
-
-    <div *ngIf="this.creepImportItems.length !== 0" class="tw-mt-4">
-      <i class="bwi bwi-check tw-mr-1" aria-hidden="true"></i>
-      Successfully imported {{ this.creepImportItems.length }} items into Bitwarden.
-    </div>
   </div>
 
   <div [hidden]="showLastPassOptions || isCreepRequest">

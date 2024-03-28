@@ -9,6 +9,7 @@ import {
   OnInit,
   Optional,
   Output,
+  SimpleChanges,
   ViewChild,
 } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -49,8 +50,6 @@ import {
   SelectModule,
 } from "@bitwarden/components";
 
-import { BrowserApi } from "../../../../apps/browser/src/platform/browser/browser-api";
-import { nordpassExampleString } from "../../spec/test-data/cef/example-from-nordpass";
 import { ImportOption, ImportResult, ImportType } from "../models";
 import {
   ImportApiService,
@@ -138,8 +137,6 @@ export class ImportComponent implements OnInit, OnDestroy {
   private _isFromAC = false;
 
   creepImportStarted: boolean = false;
-  creepImportComplete: boolean = false;
-  creepImportItems: any[] = [];
 
   formGroup = this.formBuilder.group({
     vaultSelector: [
@@ -167,6 +164,12 @@ export class ImportComponent implements OnInit, OnDestroy {
 
   @Output()
   onSuccessfulImport = new EventEmitter<string>();
+
+  @Output()
+  onSendCreepRequest = new EventEmitter<void>();
+
+  @Input()
+  creepResponse: any;
 
   ngAfterViewInit(): void {
     this.bitSubmit.loading$.pipe(takeUntil(this.destroy$)).subscribe((loading) => {
@@ -551,26 +554,20 @@ export class ImportComponent implements OnInit, OnDestroy {
   }
 
   async sendCreepRequest(): Promise<void> {
-    this.formGroup.controls.fileContents.setValue(nordpassExampleString);
-    await this.performImport();
-    return;
-
     if (this.creepImportStarted) {
       return;
     }
 
     this.creepImportStarted = true;
-    BrowserApi.addListener(chrome.runtime.onMessage, (message) => {
-      if (message.command !== "creepImportResponse") {
-        return;
-      }
-      this.creepImportItems = message?.data?.payload?.accounts[0]?.items;
-      this.creepImportStarted = false;
-      this.creepImportComplete = true;
-      this.changeDetectorRef.detectChanges();
-    });
+    this.onSendCreepRequest.emit();
+  }
 
-    await chrome.runtime.sendMessage({ command: "initiateCreepRequest" });
+  async ngOnChanges(changes: SimpleChanges) {
+    if (changes.creepResponse?.currentValue) {
+      this.creepImportStarted = false;
+      this.formGroup.controls.fileContents.setValue(changes.creepResponse?.currentValue);
+      await this.performImport();
+    }
   }
 
   ngOnDestroy(): void {

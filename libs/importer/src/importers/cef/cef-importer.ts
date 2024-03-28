@@ -68,7 +68,7 @@ export class CEFImporter extends BaseImporter implements Importer {
           this.processBasicAuth(credentials, cipher);
           break;
         case "passkey":
-          this.processPasskey(credentials, cipher);
+          // this.processPasskey(credentials, cipher);
           break;
         case "credit-card":
           this.processCreditCard(credentials, cipher);
