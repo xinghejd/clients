@@ -35,6 +35,7 @@ export const BILLING_DISK = new StateDefinition("billing", "disk");
 
 // Auth
 
+export const KEY_CONNECTOR_DISK = new StateDefinition("keyConnector", "disk");
 export const ACCOUNT_MEMORY = new StateDefinition("account", "memory");
 export const AVATAR_DISK = new StateDefinition("avatar", "disk", { web: "disk-local" });
 export const SSO_DISK = new StateDefinition("ssoLogin", "disk");
@@ -73,6 +74,9 @@ export const APPLICATION_ID_DISK = new StateDefinition("applicationId", "disk", 
 });
 export const BIOMETRIC_SETTINGS_DISK = new StateDefinition("biometricSettings", "disk");
 export const CLEAR_EVENT_DISK = new StateDefinition("clearEvent", "disk");
+export const CONFIG_DISK = new StateDefinition("config", "disk", {
+  web: "disk-local",
+});
 export const CRYPTO_DISK = new StateDefinition("crypto", "disk");
 export const CRYPTO_MEMORY = new StateDefinition("crypto", "memory");
 export const DESKTOP_SETTINGS_DISK = new StateDefinition("desktopSettings", "disk");

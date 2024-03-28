@@ -1,5 +1,4 @@
 import { LOCALE_ID, NgModule } from "@angular/core";
-import { UnwrapOpaque } from "type-fest";
 
 import {
   AuthRequestServiceAbstraction,
@@ -111,7 +110,7 @@ import { PaymentMethodWarningsService } from "@bitwarden/common/billing/services
 import { AppIdService as AppIdServiceAbstraction } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { BroadcasterService as BroadcasterServiceAbstraction } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { CryptoService as CryptoServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
@@ -135,7 +134,7 @@ import { Account } from "@bitwarden/common/platform/models/domain/account";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { AppIdService } from "@bitwarden/common/platform/services/app-id.service";
 import { ConfigApiService } from "@bitwarden/common/platform/services/config/config-api.service";
-import { ConfigService } from "@bitwarden/common/platform/services/config/config.service";
+import { DefaultConfigService } from "@bitwarden/common/platform/services/config/default-config.service";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { CryptoService } from "@bitwarden/common/platform/services/crypto.service";
 import { EncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/encrypt.service.implementation";
@@ -267,7 +266,7 @@ import { ModalService } from "./modal.service";
  * Add your provider definition here using the safeProvider function as a wrapper. This will give you type safety.
  * If you need help please ask for it, do NOT change the type of this array.
  */
-const typesafeProviders: Array<SafeProvider> = [
+const safeProviders: SafeProvider[] = [
   safeProvider(AuthGuard),
   safeProvider(UnauthGuard),
   safeProvider(ModalService),
@@ -400,7 +399,7 @@ const typesafeProviders: Array<SafeProvider> = [
       autofillSettingsService: AutofillSettingsServiceAbstraction,
       encryptService: EncryptService,
       fileUploadService: CipherFileUploadServiceAbstraction,
-      configService: ConfigServiceAbstraction,
+      configService: ConfigService,
     ) =>
       new CipherService(
         cryptoService,
@@ -424,7 +423,7 @@ const typesafeProviders: Array<SafeProvider> = [
       AutofillSettingsServiceAbstraction,
       EncryptService,
       CipherFileUploadServiceAbstraction,
-      ConfigServiceAbstraction,
+      ConfigService,
     ],
   }),
   safeProvider({
@@ -766,7 +765,6 @@ const typesafeProviders: Array<SafeProvider> = [
     provide: KeyConnectorServiceAbstraction,
     useClass: KeyConnectorService,
     deps: [
-      StateServiceAbstraction,
       CryptoServiceAbstraction,
       ApiServiceAbstraction,
       TokenServiceAbstraction,
@@ -774,6 +772,7 @@ const typesafeProviders: Array<SafeProvider> = [
       OrganizationServiceAbstraction,
       KeyGenerationServiceAbstraction,
       LOGOUT_CALLBACK,
+      StateProvider,
     ],
   }),
   safeProvider({
@@ -851,30 +850,23 @@ const typesafeProviders: Array<SafeProvider> = [
     deps: [],
   }),
   safeProvider({
-    provide: ConfigService,
-    useClass: ConfigService,
-    deps: [
-      StateServiceAbstraction,
-      ConfigApiServiceAbstraction,
-      AuthServiceAbstraction,
-      EnvironmentService,
-      LogService,
-      StateProvider,
-    ],
+    provide: DefaultConfigService,
+    useClass: DefaultConfigService,
+    deps: [ConfigApiServiceAbstraction, EnvironmentService, LogService, StateProvider],
   }),
   safeProvider({
-    provide: ConfigServiceAbstraction,
-    useExisting: ConfigService,
+    provide: ConfigService,
+    useExisting: DefaultConfigService,
   }),
   safeProvider({
     provide: ConfigApiServiceAbstraction,
     useClass: ConfigApiService,
-    deps: [ApiServiceAbstraction, AuthServiceAbstraction],
+    deps: [ApiServiceAbstraction, TokenServiceAbstraction],
   }),
   safeProvider({
     provide: AnonymousHubServiceAbstraction,
     useClass: AnonymousHubService,
-    deps: [EnvironmentService, LoginStrategyServiceAbstraction, LogService],
+    deps: [EnvironmentService, AuthRequestServiceAbstraction],
   }),
   safeProvider({
     provide: ValidationServiceAbstraction,
@@ -1092,6 +1084,6 @@ function encryptServiceFactory(
 @NgModule({
   declarations: [],
   // Do not register your dependency here! Add it to the typesafeProviders array using the helper function
-  providers: typesafeProviders as UnwrapOpaque<SafeProvider>[],
+  providers: safeProviders,
 })
 export class JslibServicesModule {}
