@@ -163,7 +163,6 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/services/collection.service";
 import { Fido2AuthenticatorService } from "@bitwarden/common/vault/services/fido2/fido2-authenticator.service";
-import { Fido2ClientService } from "@bitwarden/common/vault/services/fido2/fido2-client.service";
 import { CipherFileUploadService } from "@bitwarden/common/vault/services/file-upload/cipher-file-upload.service";
 import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder-api.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
@@ -218,6 +217,7 @@ import { BackgroundDerivedStateProvider } from "../platform/state/background-der
 import { BackgroundMemoryStorageService } from "../platform/storage/background-memory-storage.service";
 import VaultTimeoutService from "../services/vault-timeout/vault-timeout.service";
 import FilelessImporterBackground from "../tools/background/fileless-importer.background";
+import { BrowserFido2ClientService } from "../vault/fido2/background/browser-fido2-client.service";
 import { BrowserFido2UserInterfaceService } from "../vault/fido2/browser-fido2-user-interface.service";
 import { Fido2Service as Fido2ServiceAbstraction } from "../vault/services/abstractions/fido2.service";
 import Fido2Service from "../vault/services/fido2.service";
@@ -817,13 +817,14 @@ export default class MainBackground {
       this.syncService,
       this.logService,
     );
-    this.fido2ClientService = new Fido2ClientService(
+    this.fido2ClientService = new BrowserFido2ClientService(
       this.fido2AuthenticatorService,
       this.configService,
       this.authService,
       this.vaultSettingsService,
       this.domainSettingsService,
       this.logService,
+      this.alarmsManagerService,
     );
 
     const systemUtilsServiceReloadCallback = () => {

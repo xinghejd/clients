@@ -38,13 +38,27 @@ import { Fido2Utils } from "./fido2-utils";
  * It is highly recommended that the W3C specification is used a reference when reading this code.
  */
 export class Fido2ClientService implements Fido2ClientServiceAbstraction {
+  private readonly TIMEOUTS = {
+    NO_VERIFICATION: {
+      DEFAULT: 120000,
+      MIN: 30000,
+      MAX: 180000,
+    },
+    WITH_VERIFICATION: {
+      DEFAULT: 300000,
+      MIN: 30000,
+      MAX: 600000,
+    },
+  };
+  private abortTimeout: number | NodeJS.Timeout;
+
   constructor(
     private authenticator: Fido2AuthenticatorService,
     private configService: ConfigService,
     private authService: AuthService,
     private vaultSettingsService: VaultSettingsService,
     private domainSettingsService: DomainSettingsService,
-    private logService?: LogService,
+    protected logService?: LogService,
   ) {}
 
   async isFido2FeatureEnabled(hostname: string, origin: string): Promise<boolean> {
@@ -140,7 +154,7 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     const clientDataJSON = JSON.stringify(collectedClientData);
     const clientDataJSONBytes = Utils.fromByteStringToArray(clientDataJSON);
     const clientDataHash = await crypto.subtle.digest({ name: "SHA-256" }, clientDataJSONBytes);
-    const makeCredentialParams = mapToMakeCredentialParams({
+    const makeCredentialParams = this.mapToMakeCredentialParams({
       params,
       credTypesAndPubKeyAlgs,
       clientDataHash,
@@ -151,7 +165,7 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
       this.logService?.info(`[Fido2Client] Aborted with AbortController`);
       throw new DOMException("The operation either timed out or was not allowed.", "AbortError");
     }
-    const timeout = setAbortTimeout(
+    this.abortTimeout = this.setAbortTimeout(
       abortController,
       params.authenticatorSelection?.userVerification,
       params.timeout,
@@ -200,7 +214,7 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
       };
     }
 
-    clearTimeout(timeout);
+    this.clearAbortTimeout();
     return {
       credentialId: Fido2Utils.bufferToString(makeCredentialResult.credentialId),
       attestationObject: Fido2Utils.bufferToString(makeCredentialResult.attestationObject),
@@ -253,14 +267,18 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     const clientDataJSON = JSON.stringify(collectedClientData);
     const clientDataJSONBytes = Utils.fromByteStringToArray(clientDataJSON);
     const clientDataHash = await crypto.subtle.digest({ name: "SHA-256" }, clientDataJSONBytes);
-    const getAssertionParams = mapToGetAssertionParams({ params, clientDataHash });
+    const getAssertionParams = this.mapToGetAssertionParams({ params, clientDataHash });
 
     if (abortController.signal.aborted) {
       this.logService?.info(`[Fido2Client] Aborted with AbortController`);
       throw new DOMException("The operation either timed out or was not allowed.", "AbortError");
     }
 
-    const timeout = setAbortTimeout(abortController, params.userVerification, params.timeout);
+    this.abortTimeout = this.setAbortTimeout(
+      abortController,
+      params.userVerification,
+      params.timeout,
+    );
 
     let getAssertionResult;
     try {
@@ -297,7 +315,7 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
       this.logService?.info(`[Fido2Client] Aborted with AbortController`);
       throw new DOMException("The operation either timed out or was not allowed.", "AbortError");
     }
-    clearTimeout(timeout);
+    this.clearAbortTimeout();
 
     return {
       authenticatorData: Fido2Utils.bufferToString(getAssertionResult.authenticatorData),
@@ -310,122 +328,114 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
       signature: Fido2Utils.bufferToString(getAssertionResult.signature),
     };
   }
-}
 
-const TIMEOUTS = {
-  NO_VERIFICATION: {
-    DEFAULT: 120000,
-    MIN: 30000,
-    MAX: 180000,
-  },
-  WITH_VERIFICATION: {
-    DEFAULT: 300000,
-    MIN: 30000,
-    MAX: 600000,
-  },
-};
+  private setAbortTimeout = (
+    abortController: AbortController,
+    userVerification?: UserVerification,
+    timeout?: number,
+  ): number => {
+    let clampedTimeout: number;
+    const { WITH_VERIFICATION, NO_VERIFICATION } = this.TIMEOUTS;
 
-function setAbortTimeout(
-  abortController: AbortController,
-  userVerification?: UserVerification,
-  timeout?: number,
-): number {
-  let clampedTimeout: number;
+    if (userVerification === "required") {
+      timeout = timeout ?? WITH_VERIFICATION.DEFAULT;
+      clampedTimeout = Math.max(WITH_VERIFICATION.MIN, Math.min(timeout, WITH_VERIFICATION.MAX));
+    } else {
+      timeout = timeout ?? NO_VERIFICATION.DEFAULT;
+      clampedTimeout = Math.max(NO_VERIFICATION.MIN, Math.min(timeout, NO_VERIFICATION.MAX));
+    }
 
-  if (userVerification === "required") {
-    timeout = timeout ?? TIMEOUTS.WITH_VERIFICATION.DEFAULT;
-    clampedTimeout = Math.max(
-      TIMEOUTS.WITH_VERIFICATION.MIN,
-      Math.min(timeout, TIMEOUTS.WITH_VERIFICATION.MAX),
-    );
-  } else {
-    timeout = timeout ?? TIMEOUTS.NO_VERIFICATION.DEFAULT;
-    clampedTimeout = Math.max(
-      TIMEOUTS.NO_VERIFICATION.MIN,
-      Math.min(timeout, TIMEOUTS.NO_VERIFICATION.MAX),
-    );
-  }
-
-  return window.setTimeout(() => abortController.abort(), clampedTimeout);
-}
-
-/**
- * Convert data gathered by the WebAuthn Client to a format that can be used by the authenticator.
- */
-function mapToMakeCredentialParams({
-  params,
-  credTypesAndPubKeyAlgs,
-  clientDataHash,
-}: {
-  params: CreateCredentialParams;
-  credTypesAndPubKeyAlgs: PublicKeyCredentialParam[];
-  clientDataHash: ArrayBuffer;
-}): Fido2AuthenticatorMakeCredentialsParams {
-  const excludeCredentialDescriptorList: PublicKeyCredentialDescriptor[] =
-    params.excludeCredentials?.map((credential) => ({
-      id: Fido2Utils.stringToBuffer(credential.id),
-      transports: credential.transports,
-      type: credential.type,
-    })) ?? [];
-
-  const requireResidentKey =
-    params.authenticatorSelection?.residentKey === "required" ||
-    params.authenticatorSelection?.residentKey === "preferred" ||
-    (params.authenticatorSelection?.residentKey === undefined &&
-      params.authenticatorSelection?.requireResidentKey === true);
-
-  const requireUserVerification =
-    params.authenticatorSelection?.userVerification === "required" ||
-    params.authenticatorSelection?.userVerification === "preferred" ||
-    params.authenticatorSelection?.userVerification === undefined;
-
-  return {
-    requireResidentKey,
-    requireUserVerification,
-    enterpriseAttestationPossible: params.attestation === "enterprise",
-    excludeCredentialDescriptorList,
-    credTypesAndPubKeyAlgs,
-    hash: clientDataHash,
-    rpEntity: {
-      id: params.rp.id,
-      name: params.rp.name,
-    },
-    userEntity: {
-      id: Fido2Utils.stringToBuffer(params.user.id),
-      displayName: params.user.displayName,
-      name: params.user.name,
-    },
-    fallbackSupported: params.fallbackSupported,
+    return this.initAbortTimeout(abortController, clampedTimeout);
   };
-}
 
-/**
- * Convert data gathered by the WebAuthn Client to a format that can be used by the authenticator.
- */
-function mapToGetAssertionParams({
-  params,
-  clientDataHash,
-}: {
-  params: AssertCredentialParams;
-  clientDataHash: ArrayBuffer;
-}): Fido2AuthenticatorGetAssertionParams {
-  const allowCredentialDescriptorList: PublicKeyCredentialDescriptor[] =
-    params.allowedCredentialIds.map((id) => ({
-      id: Fido2Utils.stringToBuffer(id),
-      type: "public-key",
-    }));
+  protected initAbortTimeout = (abortController: AbortController, timeout: number): number => {
+    return self.setTimeout(() => abortController.abort(), timeout);
+  };
 
-  const requireUserVerification =
-    params.userVerification === "required" ||
-    params.userVerification === "preferred" ||
-    params.userVerification === undefined;
+  protected clearAbortTimeout = (): void => {
+    if (this.abortTimeout) {
+      clearTimeout(this.abortTimeout);
+    }
+  };
 
-  return {
-    rpId: params.rpId,
-    requireUserVerification,
-    hash: clientDataHash,
-    allowCredentialDescriptorList,
-    extensions: {},
-    fallbackSupported: params.fallbackSupported,
+  /**
+   * Convert data gathered by the WebAuthn Client to a format that can be used by the authenticator.
+   */
+  private mapToMakeCredentialParams = ({
+    params,
+    credTypesAndPubKeyAlgs,
+    clientDataHash,
+  }: {
+    params: CreateCredentialParams;
+    credTypesAndPubKeyAlgs: PublicKeyCredentialParam[];
+    clientDataHash: ArrayBuffer;
+  }): Fido2AuthenticatorMakeCredentialsParams => {
+    const excludeCredentialDescriptorList: PublicKeyCredentialDescriptor[] =
+      params.excludeCredentials?.map((credential) => ({
+        id: Fido2Utils.stringToBuffer(credential.id),
+        transports: credential.transports,
+        type: credential.type,
+      })) ?? [];
+
+    const requireResidentKey =
+      params.authenticatorSelection?.residentKey === "required" ||
+      params.authenticatorSelection?.residentKey === "preferred" ||
+      (params.authenticatorSelection?.residentKey === undefined &&
+        params.authenticatorSelection?.requireResidentKey === true);
+
+    const requireUserVerification =
+      params.authenticatorSelection?.userVerification === "required" ||
+      params.authenticatorSelection?.userVerification === "preferred" ||
+      params.authenticatorSelection?.userVerification === undefined;
+
+    return {
+      requireResidentKey,
+      requireUserVerification,
+      enterpriseAttestationPossible: params.attestation === "enterprise",
+      excludeCredentialDescriptorList,
+      credTypesAndPubKeyAlgs,
+      hash: clientDataHash,
+      rpEntity: {
+        id: params.rp.id,
+        name: params.rp.name,
+      },
+      userEntity: {
+        id: Fido2Utils.stringToBuffer(params.user.id),
+        displayName: params.user.displayName,
+        name: params.user.name,
+      },
+      fallbackSupported: params.fallbackSupported,
+    };
+  };
+
+  /**
+   * Convert data gathered by the WebAuthn Client to a format that can be used by the authenticator.
+   */
+  mapToGetAssertionParams = ({
+    params,
+    clientDataHash,
+  }: {
+    params: AssertCredentialParams;
+    clientDataHash: ArrayBuffer;
+  }): Fido2AuthenticatorGetAssertionParams => {
+    const allowCredentialDescriptorList: PublicKeyCredentialDescriptor[] =
+      params.allowedCredentialIds.map((id) => ({
+        id: Fido2Utils.stringToBuffer(id),
+        type: "public-key",
+      }));
+
+    const requireUserVerification =
+      params.userVerification === "required" ||
+      params.userVerification === "preferred" ||
+      params.userVerification === undefined;
+
+    return {
+      rpId: params.rpId,
+      requireUserVerification,
+      hash: clientDataHash,
+      allowCredentialDescriptorList,
+      extensions: {},
+      fallbackSupported: params.fallbackSupported,
+    };
   };
 }
