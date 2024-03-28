@@ -29,7 +29,7 @@ export class NotificationsService implements NotificationsServiceAbstraction {
   private reconnectTimer: any = null;
 
   constructor(
-    private logService: LogService,
+    protected logService: LogService,
     private syncService: SyncService,
     private appIdService: AppIdService,
     private apiService: ApiService,
@@ -210,11 +210,8 @@ export class NotificationsService implements NotificationsServiceAbstraction {
     }
   }
 
-  private async reconnect(sync: boolean) {
-    if (this.reconnectTimer != null) {
-      clearTimeout(this.reconnectTimer);
-      this.reconnectTimer = null;
-    }
+  protected async reconnect(sync: boolean) {
+    this.clearReconnectTimer();
     if (this.connected || !this.inited || this.inactive) {
       return;
     }
@@ -234,9 +231,20 @@ export class NotificationsService implements NotificationsServiceAbstraction {
     }
 
     if (!this.connected) {
-      this.reconnectTimer = setTimeout(() => this.reconnect(sync), this.random(120000, 300000));
+      this.setupReconnectTimer(sync, this.random(120000, 300000));
     }
   }
+
+  protected setupReconnectTimer = (shouldSync: boolean, timeoutInMs: number) => {
+    this.reconnectTimer = setTimeout(() => this.reconnect(shouldSync), timeoutInMs);
+  };
+
+  protected clearReconnectTimer = () => {
+    if (this.reconnectTimer != null) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+    }
+  };
 
   private async isAuthedAndUnlocked() {
     const authStatus = await this.authService.getAuthStatus();
