@@ -1,19 +1,32 @@
+import { parse } from "tldts";
+
 import { Fido2CredentialStore, Fido2UserInterface } from "@bitwarden/sdk-client";
 
 import { BitwardenSdkServiceAbstraction } from "../../../abstractions/bitwarden-sdk.service.abstraction";
+import { LogService } from "../../../platform/abstractions/log.service";
+import { Utils } from "../../../platform/misc/utils";
 import { CipherService } from "../../abstractions/cipher.service";
+import {
+  Fido2AuthenticatorError,
+  Fido2AuthenticatorErrorCode,
+  Fido2AuthenticatorGetAssertionParams,
+  Fido2AuthenticatorService,
+} from "../../abstractions/fido2/fido2-authenticator.service.abstraction";
 import {
   AssertCredentialParams,
   AssertCredentialResult,
   CreateCredentialParams,
   CreateCredentialResult,
+  FallbackRequestedError,
   Fido2ClientService as Fido2ClientServiceAbstraction,
+  UserRequestedFallbackAbortReason,
 } from "../../abstractions/fido2/fido2-client.service.abstraction";
 import { Fido2UserInterfaceService } from "../../abstractions/fido2/fido2-user-interface.service.abstraction";
 import { CipherType } from "../../enums";
 import { CipherView } from "../../models/view/cipher.view";
 import { Fido2CredentialView } from "../../models/view/fido2-credential.view";
 
+import { isValidRpId } from "./domain-utils";
 import { Fido2Utils } from "./fido2-utils";
 import { guidToStandardFormat } from "./guid-utils";
 
@@ -26,6 +39,8 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     private bitwardenSdkService: BitwardenSdkServiceAbstraction,
     private userInterface: Fido2UserInterfaceService,
     private cipherService: CipherService,
+    private authenticator: Fido2AuthenticatorService,
+    private logService?: LogService,
   ) {}
 
   async isFido2FeatureEnabled(hostname: string, origin: string): Promise<boolean> {
@@ -171,7 +186,97 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     tab: chrome.tabs.Tab,
     abortController = new AbortController(),
   ): Promise<AssertCredentialResult> {
-    throw new Error("Not implemented.");
+    const parsedOrigin = parse(params.origin, { allowPrivateDomains: true });
+    const enableFido2VaultCredentials = await this.isFido2FeatureEnabled(
+      parsedOrigin.hostname,
+      params.origin,
+    );
+
+    if (!enableFido2VaultCredentials) {
+      this.logService?.warning(`[Fido2Client] Fido2VaultCredential is not enabled`);
+      throw new FallbackRequestedError();
+    }
+
+    params.rpId = params.rpId ?? parsedOrigin.hostname;
+
+    if (parsedOrigin.hostname == undefined || !params.origin.startsWith("https://")) {
+      this.logService?.warning(`[Fido2Client] Invalid https origin: ${params.origin}`);
+      throw new DOMException("'origin' is not a valid https origin", "SecurityError");
+    }
+
+    if (!isValidRpId(params.rpId, params.origin)) {
+      this.logService?.warning(
+        `[Fido2Client] 'rp.id' cannot be used with the current origin: rp.id = ${params.rpId}; origin = ${params.origin}`,
+      );
+      throw new DOMException("'rp.id' cannot be used with the current origin", "SecurityError");
+    }
+
+    const collectedClientData = {
+      type: "webauthn.get",
+      challenge: params.challenge,
+      origin: params.origin,
+      crossOrigin: !params.sameOriginWithAncestors,
+      // tokenBinding: {} // Not currently supported
+    };
+    const clientDataJSON = JSON.stringify(collectedClientData);
+    const clientDataJSONBytes = Utils.fromByteStringToArray(clientDataJSON);
+    const clientDataHash = await crypto.subtle.digest({ name: "SHA-256" }, clientDataJSONBytes);
+    const getAssertionParams = mapToGetAssertionParams({ params, clientDataHash });
+
+    if (abortController.signal.aborted) {
+      this.logService?.info(`[Fido2Client] Aborted with AbortController`);
+      throw new DOMException("The operation either timed out or was not allowed.", "AbortError");
+    }
+
+    // const timeout = setAbortTimeout(abortController, params.userVerification, params.timeout);
+
+    let getAssertionResult;
+    try {
+      getAssertionResult = await this.authenticator.getAssertion(
+        getAssertionParams,
+        tab,
+        abortController,
+      );
+    } catch (error) {
+      if (
+        abortController.signal.aborted &&
+        abortController.signal.reason === UserRequestedFallbackAbortReason
+      ) {
+        this.logService?.info(`[Fido2Client] Aborting because user requested fallback`);
+        throw new FallbackRequestedError();
+      }
+
+      if (
+        error instanceof Fido2AuthenticatorError &&
+        error.errorCode === Fido2AuthenticatorErrorCode.InvalidState
+      ) {
+        this.logService?.warning(`[Fido2Client] Unknown error: ${error}`);
+        throw new DOMException("Unknown error occured.", "InvalidStateError");
+      }
+
+      this.logService?.info(`[Fido2Client] Aborted by user: ${error}`);
+      throw new DOMException(
+        "The operation either timed out or was not allowed.",
+        "NotAllowedError",
+      );
+    }
+
+    if (abortController.signal.aborted) {
+      this.logService?.info(`[Fido2Client] Aborted with AbortController`);
+      throw new DOMException("The operation either timed out or was not allowed.", "AbortError");
+    }
+    // clearTimeout(timeout);
+
+    return {
+      authenticatorData: Fido2Utils.bufferToString(getAssertionResult.authenticatorData),
+      clientDataJSON: Fido2Utils.bufferToString(clientDataJSONBytes),
+      credentialId: Fido2Utils.bufferToString(getAssertionResult.selectedCredential.id),
+      userHandle:
+        getAssertionResult.selectedCredential.userHandle !== undefined
+          ? Fido2Utils.bufferToString(getAssertionResult.selectedCredential.userHandle)
+          : undefined,
+      signature: Fido2Utils.bufferToString(getAssertionResult.signature),
+    };
   }
 
   async findCredentials(
@@ -240,4 +345,35 @@ function mapCurve(curve: string): "P-256" {
   }
 
   return "P-256";
+}
+
+/**
+ * Convert data gathered by the WebAuthn Client to a format that can be used by the authenticator.
+ */
+function mapToGetAssertionParams({
+  params,
+  clientDataHash,
+}: {
+  params: AssertCredentialParams;
+  clientDataHash: ArrayBuffer;
+}): Fido2AuthenticatorGetAssertionParams {
+  const allowCredentialDescriptorList: PublicKeyCredentialDescriptor[] =
+    params.allowedCredentialIds.map((id) => ({
+      id: Fido2Utils.stringToBuffer(id),
+      type: "public-key",
+    }));
+
+  const requireUserVerification =
+    params.userVerification === "required" ||
+    params.userVerification === "preferred" ||
+    params.userVerification === undefined;
+
+  return {
+    rpId: params.rpId,
+    requireUserVerification,
+    hash: clientDataHash,
+    allowCredentialDescriptorList,
+    extensions: {},
+    fallbackSupported: params.fallbackSupported,
+  };
 }
