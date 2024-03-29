@@ -4,8 +4,16 @@ import { Observable } from "rxjs";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { GlobalState, StateProvider } from "@bitwarden/common/platform/state";
 
-import { AlarmNames } from "./abstractions/alarms-manager.service";
+import { ActiveAlarm, AlarmNames } from "./abstractions/alarms-manager.service";
 import { AlarmsManagerService } from "./alarms-manager.service";
+import { BrowserApi } from "./browser-api";
+
+let activeAlarms: ActiveAlarm[] = [];
+jest.mock("rxjs", () => ({
+  firstValueFrom: jest.fn(() => Promise.resolve(activeAlarms)),
+  map: jest.fn(),
+  Observable: jest.fn(),
+}));
 
 describe("AlarmsManagerService", () => {
   let logService: MockProxy<LogService>;
@@ -13,6 +21,7 @@ describe("AlarmsManagerService", () => {
   let alarmsManagerService: AlarmsManagerService;
 
   beforeEach(() => {
+    activeAlarms = [];
     logService = mock<LogService>();
     stateProvider = mock<StateProvider>({
       getGlobal: jest.fn(() =>
@@ -42,6 +51,15 @@ describe("AlarmsManagerService", () => {
       );
     });
 
-    it("triggers the recovered alarm immediately ", () => {});
+    it("triggers the recovered alarm immediately ", async () => {
+      activeAlarms = [mock<ActiveAlarm>({ name: AlarmNames.clearClipboardTimeout })];
+      jest.spyOn(BrowserApi, "getAlarm").mockResolvedValue(undefined);
+      alarmsManagerService["recoveredAlarms"].add(AlarmNames.clearClipboardTimeout);
+      const callback = jest.fn();
+
+      await alarmsManagerService.setTimeoutAlarm(AlarmNames.clearClipboardTimeout, callback, 10);
+
+      expect(callback).toHaveBeenCalled();
+    });
   });
 });
