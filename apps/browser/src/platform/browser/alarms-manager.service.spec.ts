@@ -30,11 +30,18 @@ describe("AlarmsManagerService", () => {
 
   describe("setTimeoutAlarm", () => {
     it("throws an error if called with a delayInMinutes less than 1", async () => {
-      await expect(() =>
-        alarmsManagerService.setTimeoutAlarm(AlarmNames.clearClipboardTimeout, jest.fn(), 0.5),
+      await expect(
+        async () =>
+          await alarmsManagerService.setTimeoutAlarm(
+            AlarmNames.clearClipboardTimeout,
+            jest.fn(),
+            0.5,
+          ),
       ).rejects.toThrow(
         "setTimeoutAlarm delay must be at least 1 minute. Use globalThis.setTimeout for shorter delays.",
       );
     });
+
+    it("triggers the recovered alarm immediately ", () => {});
   });
 });

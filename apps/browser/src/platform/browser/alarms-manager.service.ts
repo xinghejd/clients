@@ -90,10 +90,8 @@ export class AlarmsManagerService implements AlarmsManagerServiceInterface {
 
   async clearAlarm(name: AlarmName): Promise<void> {
     const wasCleared = await BrowserApi.clearAlarm(name);
-
     if (wasCleared) {
       await this.deleteActiveAlarm(name);
-      delete this.onAlarmHandlers[name];
       this.recoveredAlarms.delete(name);
     }
   }
@@ -111,10 +109,10 @@ export class AlarmsManagerService implements AlarmsManagerServiceInterface {
   ): Promise<void> {
     const existingAlarm = await BrowserApi.getAlarm(name);
     if (existingAlarm) {
+      this.logService.debug(`Alarm ${name} already exists. Skipping creation.`);
       return;
     }
 
-    await this.deleteActiveAlarm(name);
     await BrowserApi.createAlarm(name, createInfo);
     await this.setActiveAlarm({ name, startTime: Date.now(), createInfo });
   }
@@ -165,6 +163,7 @@ export class AlarmsManagerService implements AlarmsManagerServiceInterface {
     const activeAlarms = await firstValueFrom(this.activeAlarms$);
     const filteredAlarms = activeAlarms.filter((alarm) => alarm.name !== name);
     await this.updateActiveAlarms(filteredAlarms);
+    delete this.onAlarmHandlers[name];
   }
 
   private async updateActiveAlarms(alarms: ActiveAlarm[]): Promise<void> {
