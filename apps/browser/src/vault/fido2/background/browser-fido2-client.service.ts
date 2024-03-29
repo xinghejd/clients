@@ -6,11 +6,10 @@ import { Fido2AuthenticatorService } from "@bitwarden/common/vault/abstractions/
 import { VaultSettingsService } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { Fido2ClientService } from "@bitwarden/common/vault/services/fido2/fido2-client.service";
 
+import { AlarmNames } from "../../../platform/browser/abstractions/alarms-manager.service";
 import { AlarmsManagerService } from "../../../platform/browser/alarms-manager.service";
 
 export class BrowserFido2ClientService extends Fido2ClientService {
-  private abortTimeoutAlarmName = "browser-fido2-abort-timeout-alarm";
-
   constructor(
     authenticator: Fido2AuthenticatorService,
     configService: ConfigService,
@@ -34,7 +33,7 @@ export class BrowserFido2ClientService extends Fido2ClientService {
     const timeoutInSeconds = timeoutInMs / 1000;
     this.alarmsManagerService
       .setTimeoutAlarm(
-        this.abortTimeoutAlarmName,
+        AlarmNames.fido2ClientAbortTimeout,
         () => abortController.abort(),
         timeoutInSeconds / 60,
       )
@@ -45,7 +44,7 @@ export class BrowserFido2ClientService extends Fido2ClientService {
 
   protected clearAbortTimeout = () => {
     this.alarmsManagerService
-      .clearAlarm(this.abortTimeoutAlarmName)
+      .clearAlarm(AlarmNames.fido2ClientAbortTimeout)
       .catch((error) => this.logService?.error(error));
   };
 }

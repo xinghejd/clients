@@ -10,6 +10,7 @@ import {
 
 import {
   ActiveAlarm,
+  AlarmName,
   AlarmsManagerService as AlarmsManagerServiceInterface,
 } from "./abstractions/alarms-manager.service";
 import { BrowserApi } from "./browser-api";
@@ -34,21 +35,11 @@ export class AlarmsManagerService implements AlarmsManagerServiceInterface {
     );
 
     this.setupOnAlarmListener();
-    void this.verifyAlarmsState();
-  }
-
-  async clearAlarm(name: string): Promise<void> {
-    const wasCleared = await BrowserApi.clearAlarm(name);
-
-    if (wasCleared) {
-      await this.deleteActiveAlarm(name);
-      delete this.onAlarmHandlers[name];
-      this.recoveredAlarms.delete(name);
-    }
+    this.verifyAlarmsState().catch((e) => this.logService.error(e));
   }
 
   async setTimeoutAlarm(
-    name: string,
+    name: AlarmName,
     callback: CallableFunction,
     delayInMinutes: number,
   ): Promise<void> {
@@ -62,7 +53,7 @@ export class AlarmsManagerService implements AlarmsManagerServiceInterface {
   }
 
   async setIntervalAlarm(
-    name: string,
+    name: AlarmName,
     callback: CallableFunction,
     intervalInMinutes: number,
     initialDelayInMinutes?: number,
@@ -78,6 +69,16 @@ export class AlarmsManagerService implements AlarmsManagerServiceInterface {
     });
   }
 
+  async clearAlarm(name: AlarmName): Promise<void> {
+    const wasCleared = await BrowserApi.clearAlarm(name);
+
+    if (wasCleared) {
+      await this.deleteActiveAlarm(name);
+      delete this.onAlarmHandlers[name];
+      this.recoveredAlarms.delete(name);
+    }
+  }
+
   async clearAllAlarms(): Promise<void> {
     await chrome.alarms.clearAll();
     await this.updateActiveAlarms([]);
@@ -85,13 +86,8 @@ export class AlarmsManagerService implements AlarmsManagerServiceInterface {
     this.recoveredAlarms.clear();
   }
 
-  private async triggerRecoveredAlarm(name: string): Promise<void> {
-    this.recoveredAlarms.delete(name);
-    await this.triggerAlarm(name);
-  }
-
   private async createAlarm(
-    name: string,
+    name: AlarmName,
     createInfo: chrome.alarms.AlarmCreateInfo,
   ): Promise<void> {
     const existingAlarm = await BrowserApi.getAlarm(name);
@@ -104,7 +100,7 @@ export class AlarmsManagerService implements AlarmsManagerServiceInterface {
     await this.setActiveAlarm({ name, startTime: Date.now(), createInfo });
   }
 
-  private registerAlarmHandler(name: string, handler: CallableFunction): void {
+  private registerAlarmHandler(name: AlarmName, handler: CallableFunction): void {
     if (this.onAlarmHandlers[name]) {
       this.logService.warning(`Alarm handler for ${name} already exists. Overwriting.`);
     }
@@ -146,7 +142,7 @@ export class AlarmsManagerService implements AlarmsManagerServiceInterface {
     await this.updateActiveAlarms(activeAlarms);
   }
 
-  private async deleteActiveAlarm(name: string): Promise<void> {
+  private async deleteActiveAlarm(name: AlarmName): Promise<void> {
     const activeAlarms = await firstValueFrom(this.activeAlarms$);
     const filteredAlarms = activeAlarms.filter((alarm) => alarm.name !== name);
     await this.updateActiveAlarms(filteredAlarms);
@@ -156,15 +152,20 @@ export class AlarmsManagerService implements AlarmsManagerServiceInterface {
     await this.activeAlarmsState.update(() => alarms);
   }
 
+  private async triggerRecoveredAlarm(name: AlarmName): Promise<void> {
+    this.recoveredAlarms.delete(name);
+    await this.triggerAlarm(name);
+  }
+
   private setupOnAlarmListener(): void {
     BrowserApi.addListener(chrome.alarms.onAlarm, this.handleOnAlarm);
   }
 
   private handleOnAlarm = async (alarm: chrome.alarms.Alarm): Promise<void> => {
-    await this.triggerAlarm(alarm.name);
+    await this.triggerAlarm(alarm.name as AlarmName);
   };
 
-  private async triggerAlarm(name: string): Promise<void> {
+  private async triggerAlarm(name: AlarmName): Promise<void> {
     const handler = this.onAlarmHandlers[name];
     if (handler) {
       handler();

@@ -22,11 +22,12 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { GlobalStateProvider } from "@bitwarden/common/platform/state";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 
-import { AlarmsManagerService } from "../../platform/browser/abstractions/alarms-manager.service";
+import {
+  AlarmNames,
+  AlarmsManagerService,
+} from "../../platform/browser/abstractions/alarms-manager.service";
 
 export class BrowserLoginStrategyService extends LoginStrategyService {
-  private readonly sessionTimeoutAlarmName = "browser-session-timeout-alarm";
-
   constructor(
     cryptoService: CryptoService,
     apiService: ApiService,
@@ -78,17 +79,15 @@ export class BrowserLoginStrategyService extends LoginStrategyService {
     const sessionTimeoutLengthInSeconds = this.sessionTimeoutLengthInMs / 1000;
     this.alarmsManagerService
       .setTimeoutAlarm(
-        this.sessionTimeoutAlarmName,
+        AlarmNames.loginStrategySessionTimeout,
         () => this.clearCache(),
         sessionTimeoutLengthInSeconds / 60,
       )
-      .catch((error) => this.logService.error(`Failed to set session timeout alarm: ${error}`));
+      .catch((error) => this.logService.error(error));
   };
 
   protected async clearSessionTimeout() {
     await super.clearSessionTimeout();
-    void this.alarmsManagerService
-      .clearAlarm(this.sessionTimeoutAlarmName)
-      .catch((error) => this.logService.error(`Failed to clear session timeout alarm: ${error}`));
+    await this.alarmsManagerService.clearAlarm(AlarmNames.loginStrategySessionTimeout);
   }
 }

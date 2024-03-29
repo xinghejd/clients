@@ -8,11 +8,9 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { NotificationsService } from "@bitwarden/common/services/notifications.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 
-import { AlarmsManagerService } from "../browser/abstractions/alarms-manager.service";
+import { AlarmNames, AlarmsManagerService } from "../browser/abstractions/alarms-manager.service";
 
 export class BrowserNotificationsService extends NotificationsService {
-  private reconnectTimerAlarmName = "browser-reconnect-timer-alarm";
-
   constructor(
     logService: LogService,
     syncService: SyncService,
@@ -42,7 +40,7 @@ export class BrowserNotificationsService extends NotificationsService {
     const timeoutInSeconds = timeoutInMs / 1000;
     this.alarmsManagerService
       .setTimeoutAlarm(
-        this.reconnectTimerAlarmName,
+        AlarmNames.notificationsReconnectTimeout,
         () => this.reconnect(shouldSync),
         timeoutInSeconds / 60,
       )
@@ -51,7 +49,7 @@ export class BrowserNotificationsService extends NotificationsService {
 
   protected clearReconnectTimer = () => {
     this.alarmsManagerService
-      .clearAlarm(this.reconnectTimerAlarmName)
+      .clearAlarm(AlarmNames.notificationsReconnectTimeout)
       .catch((error) => this.logService.error(`Failed to clear reconnect timer alarm: ${error}`));
   };
 }

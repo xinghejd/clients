@@ -4,11 +4,10 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
 
+import { AlarmNames } from "../browser/abstractions/alarms-manager.service";
 import { AlarmsManagerService } from "../browser/alarms-manager.service";
 
 export class BrowserEventUploadService extends EventUploadService {
-  private eventUploadsAlarmName = "browser-event-uploads-interval-alarm";
-
   constructor(
     apiService: ApiService,
     stateProvider: StateProvider,
@@ -23,7 +22,7 @@ export class BrowserEventUploadService extends EventUploadService {
     const intervalDurationInSeconds = this.uploadEventsIntervalDurationInMs / 1000;
     this.alarmsManagerService
       .setIntervalAlarm(
-        this.eventUploadsAlarmName,
+        AlarmNames.eventUploadsInterval,
         () => this.uploadEvents(),
         intervalDurationInSeconds / 60,
       )

@@ -1,14 +1,30 @@
+export const AlarmNames = {
+  clearClipboardTimeout: "clearClipboardTimeout",
+  systemClearClipboardTimeout: "systemClearClipboardTimeout",
+  scheduleNextSyncTimeout: "scheduleNextSyncTimeout",
+  loginStrategySessionTimeout: "loginStrategySessionTimeout",
+  notificationsReconnectTimeout: "notificationsReconnectTimeout",
+  fido2ClientAbortTimeout: "fido2ClientAbortTimeout",
+  eventUploadsInterval: "eventUploadsInterval",
+} as const;
+
+export type AlarmName = (typeof AlarmNames)[keyof typeof AlarmNames];
+
 export type ActiveAlarm = {
-  name: string;
+  name: AlarmName;
   startTime: number;
   createInfo: chrome.alarms.AlarmCreateInfo;
 };
 
 export interface AlarmsManagerService {
-  clearAlarm(name: string): Promise<void>;
-  setTimeoutAlarm(name: string, callback: CallableFunction, delayInMinutes: number): Promise<void>;
+  clearAlarm(name: AlarmName): Promise<void>;
+  setTimeoutAlarm(
+    name: AlarmName,
+    callback: CallableFunction,
+    delayInMinutes: number,
+  ): Promise<void>;
   setIntervalAlarm(
-    name: string,
+    name: AlarmName,
     callback: CallableFunction,
     intervalInMinutes: number,
     initialDelayInMinutes?: number,

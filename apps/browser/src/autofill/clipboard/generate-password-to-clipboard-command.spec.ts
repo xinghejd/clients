@@ -3,10 +3,10 @@ import { mock, MockProxy } from "jest-mock-extended";
 import { AutofillSettingsService } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 
+import { AlarmNames } from "../../platform/browser/abstractions/alarms-manager.service";
 import { AlarmsManagerService } from "../../platform/browser/alarms-manager.service";
 import { BrowserApi } from "../../platform/browser/browser-api";
 
-import { clearClipboardAlarmName } from "./clear-clipboard";
 import { GeneratePasswordToClipboardCommand } from "./generate-password-to-clipboard-command";
 
 describe("GeneratePasswordToClipboardCommand", () => {
@@ -51,7 +51,7 @@ describe("GeneratePasswordToClipboardCommand", () => {
       });
       expect(alarmsManagerService.setTimeoutAlarm).toHaveBeenCalledTimes(1);
       expect(alarmsManagerService.setTimeoutAlarm).toHaveBeenCalledWith(
-        clearClipboardAlarmName,
+        AlarmNames.clearClipboardTimeout,
         expect.any(Function),
         expect.any(Number),
       );

@@ -7,11 +7,9 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
 
-import { AlarmsManagerService } from "../browser/abstractions/alarms-manager.service";
+import { AlarmNames, AlarmsManagerService } from "../browser/abstractions/alarms-manager.service";
 
 export class BrowserSystemService extends SystemService {
-  private clearClipboardAlarmName = "browser-system-clear-clipboard-alarm";
-
   constructor(
     messagingService: MessagingService,
     platformUtilsService: PlatformUtilsService,
@@ -33,11 +31,6 @@ export class BrowserSystemService extends SystemService {
     );
   }
 
-  protected resetClearClipboardTimeout() {
-    super.resetClearClipboardTimeout();
-    void this.alarmsManagerService.clearAlarm(this.clearClipboardAlarmName);
-  }
-
   protected setupClearClipboardTimeout(timeoutInSeconds: number) {
     if (timeoutInSeconds < ClearClipboardDelay.OneMinute) {
       super.setupClearClipboardTimeout(timeoutInSeconds);
@@ -45,9 +38,14 @@ export class BrowserSystemService extends SystemService {
     }
 
     void this.alarmsManagerService.setTimeoutAlarm(
-      this.clearClipboardAlarmName,
+      AlarmNames.systemClearClipboardTimeout,
       () => this.clearClipboardTimeoutFunction(),
       timeoutInSeconds / 60,
     );
+  }
+
+  protected resetClearClipboardTimeout() {
+    super.resetClearClipboardTimeout();
+    void this.alarmsManagerService.clearAlarm(AlarmNames.systemClearClipboardTimeout);
   }
 }

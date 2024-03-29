@@ -195,6 +195,7 @@ import { AutofillService as AutofillServiceAbstraction } from "../autofill/servi
 import AutofillService from "../autofill/services/autofill.service";
 import { SafariApp } from "../browser/safariApp";
 import { Account } from "../models/account";
+import { AlarmNames } from "../platform/browser/abstractions/alarms-manager.service";
 import { AlarmsManagerService } from "../platform/browser/alarms-manager.service";
 import { BrowserApi } from "../platform/browser/browser-api";
 import { flagEnabled } from "../platform/flags";
@@ -1285,10 +1286,10 @@ export default class MainBackground {
   }
 
   private async scheduleNextSync() {
-    await this.alarmsManagerService.clearAlarm("mainBackgroundScheduleNextSync");
+    await this.alarmsManagerService.clearAlarm(AlarmNames.scheduleNextSyncTimeout);
     await this.alarmsManagerService.setTimeoutAlarm(
-      "mainBackgroundScheduleNextSync",
-      async () => await this.fullSync(),
+      AlarmNames.scheduleNextSyncTimeout,
+      () => this.fullSync(),
       5,
     );
   }
