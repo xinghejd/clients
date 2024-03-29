@@ -38,11 +38,24 @@ export class AlarmsManagerService implements AlarmsManagerServiceInterface {
     this.verifyAlarmsState().catch((e) => this.logService.error(e));
   }
 
+  /**
+   * Sets an alarm that will trigger once after a specified delay.
+   *
+   * @param name - The name of the alarm.
+   * @param callback - The function to call when the alarm triggers.
+   * @param delayInMinutes - The delay in minutes before the alarm triggers.
+   */
   async setTimeoutAlarm(
     name: AlarmName,
     callback: CallableFunction,
     delayInMinutes: number,
   ): Promise<void> {
+    if (delayInMinutes < 1) {
+      throw new Error(
+        "setTimeoutAlarm delay must be at least 1 minute. Use globalThis.setTimeout for shorter delays.",
+      );
+    }
+
     this.registerAlarmHandler(name, callback);
     if (this.recoveredAlarms.has(name)) {
       await this.triggerRecoveredAlarm(name);
@@ -58,6 +71,12 @@ export class AlarmsManagerService implements AlarmsManagerServiceInterface {
     intervalInMinutes: number,
     initialDelayInMinutes?: number,
   ): Promise<void> {
+    if (intervalInMinutes < 1) {
+      throw new Error(
+        "setIntervalAlarm interval must be at least 1 minute. Use globalThis.setInterval for shorter intervals.",
+      );
+    }
+
     this.registerAlarmHandler(name, callback);
     if (this.recoveredAlarms.has(name)) {
       await this.triggerRecoveredAlarm(name);
@@ -80,7 +99,7 @@ export class AlarmsManagerService implements AlarmsManagerServiceInterface {
   }
 
   async clearAllAlarms(): Promise<void> {
-    await chrome.alarms.clearAll();
+    await BrowserApi.clearAllAlarms();
     await this.updateActiveAlarms([]);
     this.onAlarmHandlers = {};
     this.recoveredAlarms.clear();
@@ -96,7 +115,7 @@ export class AlarmsManagerService implements AlarmsManagerServiceInterface {
     }
 
     await this.deleteActiveAlarm(name);
-    await chrome.alarms.create(name, createInfo);
+    await BrowserApi.createAlarm(name, createInfo);
     await this.setActiveAlarm({ name, startTime: Date.now(), createInfo });
   }
 
