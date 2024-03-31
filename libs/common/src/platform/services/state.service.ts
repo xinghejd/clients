@@ -32,7 +32,6 @@ import {
 import { HtmlStorageLocation, KdfType, StorageLocation } from "../enums";
 import { StateFactory } from "../factories/state-factory";
 import { Utils } from "../misc/utils";
-import { ServerConfigData } from "../models/data/server-config.data";
 import { Account, AccountData, AccountSettings } from "../models/domain/account";
 import { EncString } from "../models/domain/enc-string";
 import { GlobalState } from "../models/domain/global-state";
@@ -290,23 +289,6 @@ export class StateService<
     globals.biometricFingerprintValidated = value;
     await this.saveGlobals(
       globals,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
-  async getConvertAccountToKeyConnector(options?: StorageOptions): Promise<boolean> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
-    )?.profile?.convertAccountToKeyConnector;
-  }
-
-  async setConvertAccountToKeyConnector(value: boolean, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.profile.convertAccountToKeyConnector = value;
-    await this.saveAccount(
-      account,
       this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
   }
@@ -867,27 +849,6 @@ export class StateService<
     );
   }
 
-  async getEnableDuckDuckGoBrowserIntegration(options?: StorageOptions): Promise<boolean> {
-    return (
-      (await this.getGlobals(this.reconcileOptions(options, await this.defaultOnDiskOptions())))
-        ?.enableDuckDuckGoBrowserIntegration ?? false
-    );
-  }
-
-  async setEnableDuckDuckGoBrowserIntegration(
-    value: boolean,
-    options?: StorageOptions,
-  ): Promise<void> {
-    const globals = await this.getGlobals(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    globals.enableDuckDuckGoBrowserIntegration = value;
-    await this.saveGlobals(
-      globals,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
   @withPrototypeForObjectValues(CipherData)
   async getEncryptedCiphers(options?: StorageOptions): Promise<{ [id: string]: CipherData }> {
     return (
@@ -1280,23 +1241,6 @@ export class StateService<
     );
   }
 
-  async getRememberedEmail(options?: StorageOptions): Promise<string> {
-    return (
-      await this.getGlobals(this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()))
-    )?.rememberedEmail;
-  }
-
-  async setRememberedEmail(value: string, options?: StorageOptions): Promise<void> {
-    const globals = await this.getGlobals(
-      this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()),
-    );
-    globals.rememberedEmail = value;
-    await this.saveGlobals(
-      globals,
-      this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()),
-    );
-  }
-
   async getSecurityStamp(options?: StorageOptions): Promise<string> {
     return (
       await this.getAccount(this.reconcileOptions(options, await this.defaultInMemoryOptions()))
@@ -1318,23 +1262,6 @@ export class StateService<
     return (
       await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
     )?.profile?.userId;
-  }
-
-  async getUsesKeyConnector(options?: StorageOptions): Promise<boolean> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
-    )?.profile?.usesKeyConnector;
-  }
-
-  async setUsesKeyConnector(value: boolean, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.profile.usesKeyConnector = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
   }
 
   async getVaultTimeout(options?: StorageOptions): Promise<number> {
@@ -1396,23 +1323,6 @@ export class StateService<
       account,
       this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()),
     );
-  }
-
-  async setServerConfig(value: ServerConfigData, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()),
-    );
-    account.settings.serverConfig = value;
-    return await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()),
-    );
-  }
-
-  async getServerConfig(options: StorageOptions): Promise<ServerConfigData> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()))
-    )?.settings?.serverConfig;
   }
 
   async getDeepLinkRedirectUrl(options?: StorageOptions): Promise<string> {
@@ -1802,7 +1712,9 @@ export class StateService<
   }
 
   protected async deAuthenticateAccount(userId: string): Promise<void> {
-    await this.tokenService.clearAccessToken(userId as UserId);
+    // We must have a manual call to clear tokens as we can't leverage state provider to clean
+    // up our data as we have secure storage in the mix.
+    await this.tokenService.clearTokens(userId as UserId);
     await this.setLastActive(null, { userId: userId });
     await this.updateState(async (state) => {
       state.authenticatedAccounts = state.authenticatedAccounts.filter((id) => id !== userId);

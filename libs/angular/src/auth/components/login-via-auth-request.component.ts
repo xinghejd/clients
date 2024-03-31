@@ -6,12 +6,12 @@ import {
   AuthRequestLoginCredentials,
   AuthRequestServiceAbstraction,
   LoginStrategyServiceAbstraction,
+  LoginEmailServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AnonymousHubService } from "@bitwarden/common/auth/abstractions/anonymous-hub.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { DeviceTrustCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust-crypto.service.abstraction";
-import { LoginService } from "@bitwarden/common/auth/abstractions/login.service";
 import { AuthRequestType } from "@bitwarden/common/auth/enums/auth-request-type";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AdminAuthRequestStorable } from "@bitwarden/common/auth/models/domain/admin-auth-req-storable";
@@ -68,7 +68,6 @@ export class LoginViaAuthRequestComponent
 
   private authRequestKeyPair: { publicKey: Uint8Array; privateKey: Uint8Array };
 
-  // TODO: in future, go to child components and remove child constructors and let deps fall through to the super class
   constructor(
     protected router: Router,
     private cryptoService: CryptoService,
@@ -84,7 +83,7 @@ export class LoginViaAuthRequestComponent
     private anonymousHubService: AnonymousHubService,
     private validationService: ValidationService,
     private stateService: StateService,
-    private loginService: LoginService,
+    private loginEmailService: LoginEmailServiceAbstraction,
     private deviceTrustCryptoService: DeviceTrustCryptoServiceAbstraction,
     private authRequestService: AuthRequestServiceAbstraction,
     private loginStrategyService: LoginStrategyServiceAbstraction,
@@ -95,17 +94,19 @@ export class LoginViaAuthRequestComponent
     // Why would the existence of the email depend on the navigation?
     const navigation = this.router.getCurrentNavigation();
     if (navigation) {
-      this.email = this.loginService.getEmail();
+      this.email = this.loginEmailService.getEmail();
     }
 
-    //gets signalR push notification
-    this.loginStrategyService.authRequestPushNotification$
+    // Gets signalR push notification
+    // Only fires on approval to prevent enumeration
+    this.authRequestService.authRequestPushNotification$
       .pipe(takeUntil(this.destroy$))
       .subscribe((id) => {
-        // Only fires on approval currently
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.verifyAndHandleApprovedAuthReq(id);
+        this.verifyAndHandleApprovedAuthReq(id).catch((e: Error) => {
+          this.platformUtilsService.showToast("error", this.i18nService.t("error"), e.message);
+          this.logService.error("Failed to use approved auth request: " + e.message);
+        });
       });
   }
 
@@ -150,7 +151,7 @@ export class LoginViaAuthRequestComponent
     } else {
       // Standard auth request
       // TODO: evaluate if we can remove the setting of this.email in the constructor
-      this.email = this.loginService.getEmail();
+      this.email = this.loginEmailService.getEmail();
 
       if (!this.email) {
         this.platformUtilsService.showToast("error", null, this.i18nService.t("userEmailMissing"));
@@ -164,10 +165,10 @@ export class LoginViaAuthRequestComponent
     }
   }
 
-  ngOnDestroy(): void {
+  async ngOnDestroy() {
+    await this.anonymousHubService.stopHubConnection();
     this.destroy$.next();
     this.destroy$.complete();
-    this.anonymousHubService.stopHubConnection();
   }
 
   private async handleExistingAdminAuthRequest(adminAuthReqStorable: AdminAuthRequestStorable) {
@@ -213,7 +214,7 @@ export class LoginViaAuthRequestComponent
 
     // Request still pending response from admin
     // So, create hub connection so that any approvals will be received via push notification
-    this.anonymousHubService.createHubConnection(adminAuthReqStorable.id);
+    await this.anonymousHubService.createHubConnection(adminAuthReqStorable.id);
   }
 
   private async handleExistingAdminAuthReqDeletedOrDenied() {
@@ -273,7 +274,7 @@ export class LoginViaAuthRequestComponent
       }
 
       if (reqResponse.id) {
-        this.anonymousHubService.createHubConnection(reqResponse.id);
+        await this.anonymousHubService.createHubConnection(reqResponse.id);
       }
     } catch (e) {
       this.logService.error(e);
@@ -471,17 +472,10 @@ export class LoginViaAuthRequestComponent
     }
   }
 
-  async setRememberEmailValues() {
-    const rememberEmail = this.loginService.getRememberEmail();
-    const rememberedEmail = this.loginService.getEmail();
-    await this.stateService.setRememberedEmail(rememberEmail ? rememberedEmail : null);
-    this.loginService.clearValues();
-  }
-
   private async handleSuccessfulLoginNavigation() {
     if (this.state === State.StandardAuthRequest) {
       // Only need to set remembered email on standard login with auth req flow
-      await this.setRememberEmailValues();
+      await this.loginEmailService.saveEmailSettings();
     }
 
     if (this.onSuccessfulLogin != null) {

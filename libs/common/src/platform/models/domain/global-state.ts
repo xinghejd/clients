@@ -3,7 +3,6 @@ import { ThemeType } from "../../enums";
 export class GlobalState {
   installedVersion?: string;
   organizationInvitation?: any;
-  rememberedEmail?: string;
   theme?: ThemeType = ThemeType.System;
   twoFactorToken?: string;
   biometricFingerprintValidated?: boolean;
@@ -13,6 +12,5 @@ export class GlobalState {
   mainWindowSize?: number;
   enableBrowserIntegration?: boolean;
   enableBrowserIntegrationFingerprint?: boolean;
-  enableDuckDuckGoBrowserIntegration?: boolean;
   deepLinkRedirectUrl?: string;
 }
