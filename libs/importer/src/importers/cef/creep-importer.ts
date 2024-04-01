@@ -1,5 +1,7 @@
 import * as JSZip from "jszip";
 
+import { Utils } from "@bitwarden/common/platform/misc/utils";
+
 import { ImportResult } from "../../models/import-result";
 
 import { CEFImporter } from "./cef-importer";
@@ -25,19 +27,21 @@ export class CREEPImporter extends CEFImporter {
 
     //TODO HPKE decryption
 
-    // Pass base64 encoded payload (zip) over to extractZipContent
-    const contentString = await this.extractZipContent(response.payload, "index.json");
+    // We use our own utils for decoding b64 since JSZip does not handle base64 without padding
+    const d = Utils.fromB64ToArray(response.payload);
+
+    const contentString = await this.extractZipContent(d, "index.jwe");
+
     return super.parse(contentString);
   }
 
   async extractZipContent(container: InputFileFormat, contentFilePath: string): Promise<string> {
     // Per the CREEP spec the payload is provided as abase64 encoded string
-    const zipOptions: JSZip.JSZipLoadOptions = { base64: true };
 
     return new JSZip()
-      .loadAsync(container, zipOptions)
+      .loadAsync(container)
       .then((zip) => {
-        return zip.files["index.jwe"].async("string");
+        return zip.files[contentFilePath].async("string");
       })
       .then(
         function success(content) {
