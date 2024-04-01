@@ -40,8 +40,8 @@ describe("ConfigService", () => {
   const environmentService = mock<EnvironmentService>();
   const logService = mock<LogService>();
   let stateProvider: FakeStateProvider;
-  let globalState: FakeGlobalState<Record<ApiUrl, ServerConfig>>;
-  let userState: FakeSingleUserState<ServerConfig>;
+  let globalState: FakeGlobalState<Record<ApiUrl, ServerConfig | undefined>>;
+  let userState: FakeSingleUserState<ServerConfig | undefined>;
   const activeApiUrl = apiUrl(0);
   const userId = "userId" as UserId;
   const accountService = mockAccountServiceWith(userId);
@@ -61,7 +61,7 @@ describe("ConfigService", () => {
     let sut: DefaultConfigService;
 
     beforeAll(async () => {
-      await accountService.switchAccount(activeUserId);
+      await accountService.switchAccount(activeUserId as any);
     });
 
     beforeEach(() => {
@@ -75,9 +75,9 @@ describe("ConfigService", () => {
     });
 
     describe("serverConfig$", () => {
-      it.each([{}, null])("handles null stored state", async (globalTestState) => {
+      it.each([{} as any, null])("handles null stored state", async (globalTestState) => {
         globalState.stateSubject.next(globalTestState);
-        userState.nextState(null);
+        userState.nextState(undefined);
         await expect(firstValueFrom(sut.serverConfig$)).resolves.not.toThrow();
       });
 
@@ -95,7 +95,7 @@ describe("ConfigService", () => {
 
         beforeEach(() => {
           globalState.stateSubject.next(globalStored);
-          userState.nextState(userStored);
+          userState.nextState(userStored as any);
         });
 
         // sanity check
@@ -147,12 +147,11 @@ describe("ConfigService", () => {
 
             const actual = await firstValueFrom(sut.serverConfig$);
 
-            // This is the time the response is converted to a config
-            expect(actual.utcDate).toAlmostEqual(newConfig.utcDate, 1000);
-            delete actual.utcDate;
-            delete newConfig.utcDate;
-
-            expect(actual).toEqual(newConfig);
+            expect(actual).toEqual({
+              ...newConfig,
+              // This is the time the response is converted to a config
+              utcDate: expect.toAlmostEqual(newConfig.utcDate, 1000),
+            });
           });
         });
       });
@@ -194,7 +193,7 @@ describe("ConfigService", () => {
 
     beforeAll(async () => {
       // updating environment with an active account is undefined behavior
-      await accountService.switchAccount(null);
+      await accountService.switchAccount(null as any);
     });
 
     beforeEach(() => {
@@ -226,15 +225,13 @@ describe("ConfigService", () => {
         const actual = await spy.pauseUntilReceived(2);
         expect(actual.length).toBe(2);
 
-        // validate dates this is done separately because the dates are created when ServerConfig is initialized
-        expect(actual[0].utcDate).toAlmostEqual(expected[0].utcDate, 1000);
-        expect(actual[1].utcDate).toAlmostEqual(expected[1].utcDate, 1000);
-        delete actual[0].utcDate;
-        delete actual[1].utcDate;
-        delete expected[0].utcDate;
-        delete expected[1].utcDate;
-
-        expect(actual).toEqual(expected);
+        expect(actual).toEqual(
+          expected.map((e) => ({
+            ...e,
+            // validate dates this is done separately because the dates are created when ServerConfig is initialized
+            utcDate: expect.toAlmostEqual(e.utcDate, 1000),
+          })),
+        );
         spy.unsubscribe();
       });
     });

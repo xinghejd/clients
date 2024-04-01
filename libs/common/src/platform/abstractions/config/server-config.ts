@@ -25,7 +25,7 @@ export class ServerConfig {
     this.featureStates = serverConfigData.featureStates;
 
     if (this.server?.name == null && this.server?.url == null) {
-      this.server = null;
+      this.server = undefined;
     }
   }
 
@@ -37,9 +37,9 @@ export class ServerConfig {
     return this.getAgeInMilliseconds() <= dayInMilliseconds;
   }
 
-  static fromJSON(obj: Jsonify<ServerConfig>): ServerConfig {
+  static fromJSON(obj: Jsonify<ServerConfig>): ServerConfig | undefined {
     if (obj == null) {
-      return null;
+      return undefined;
     }
 
     return new ServerConfig(obj);

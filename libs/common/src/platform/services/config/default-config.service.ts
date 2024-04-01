@@ -27,25 +27,29 @@ export const RETRIEVAL_INTERVAL = 3_600_000; // 1 hour
 
 export type ApiUrl = string;
 
-export const USER_SERVER_CONFIG = new UserKeyDefinition<ServerConfig>(CONFIG_DISK, "serverConfig", {
-  deserializer: (data) => (data == null ? null : ServerConfig.fromJSON(data)),
-  clearOn: ["logout"],
-});
+export const USER_SERVER_CONFIG = new UserKeyDefinition<ServerConfig | undefined>(
+  CONFIG_DISK,
+  "serverConfig",
+  {
+    deserializer: (data) => (data == null ? undefined : ServerConfig.fromJSON(data)),
+    clearOn: ["logout"],
+  },
+);
 
 // TODO MDG: When to clean these up?
-export const GLOBAL_SERVER_CONFIGURATIONS = KeyDefinition.record<ServerConfig, ApiUrl>(
+export const GLOBAL_SERVER_CONFIGURATIONS = KeyDefinition.record<ServerConfig | undefined, ApiUrl>(
   CONFIG_DISK,
   "byServer",
   {
-    deserializer: (data) => (data == null ? null : ServerConfig.fromJSON(data)),
+    deserializer: (data) => (data == null ? undefined : ServerConfig.fromJSON(data)),
   },
 );
 
 // FIXME: currently we are limited to api requests for active users. Update to accept a UserId and APIUrl once ApiService supports it.
 export class DefaultConfigService implements ConfigService {
-  private failedFetchFallbackSubject = new Subject<ServerConfig>();
+  private failedFetchFallbackSubject = new Subject<ServerConfig | undefined>();
 
-  serverConfig$: Observable<ServerConfig>;
+  serverConfig$: Observable<ServerConfig | undefined>;
 
   cloudRegion$: Observable<Region>;
 
@@ -69,7 +73,7 @@ export class DefaultConfigService implements ConfigService {
         const [existingConfig, userId, apiUrl] = rec;
         // Grab new config if older retrieval interval
         if (!existingConfig || this.olderThanRetrievalInterval(existingConfig.utcDate)) {
-          await this.renewConfig(existingConfig, userId, apiUrl);
+          await this.renewConfig(apiUrl, existingConfig, userId);
         }
       }),
       switchMap(([existingConfig]) => {
@@ -90,6 +94,7 @@ export class DefaultConfigService implements ConfigService {
       map((config) => config?.environment?.cloudRegion ?? Region.US),
     );
   }
+
   getFeatureFlag$<T extends FeatureFlagValue>(key: FeatureFlag, defaultValue?: T) {
     return this.serverConfig$.pipe(
       map((serverConfig) => {
@@ -129,9 +134,9 @@ export class DefaultConfigService implements ConfigService {
 
   // Updates the on-disk configuration with a newly retrieved configuration
   private async renewConfig(
-    existingConfig: ServerConfig,
-    userId: UserId,
     apiUrl: string,
+    existingConfig?: ServerConfig,
+    userId?: UserId,
   ): Promise<void> {
     try {
       const response = await this.configApiService.get(userId);
@@ -165,13 +170,13 @@ export class DefaultConfigService implements ConfigService {
     }
   }
 
-  private globalConfigFor$(apiUrl: string): Observable<ServerConfig> {
+  private globalConfigFor$(apiUrl: string): Observable<ServerConfig | undefined> {
     return this.stateProvider
       .getGlobal(GLOBAL_SERVER_CONFIGURATIONS)
       .state$.pipe(map((configs) => configs?.[apiUrl]));
   }
 
-  private userConfigFor$(userId: UserId): Observable<ServerConfig> {
+  private userConfigFor$(userId: UserId): Observable<ServerConfig | undefined> {
     return this.stateProvider.getUser(userId, USER_SERVER_CONFIG).state$;
   }
 }
