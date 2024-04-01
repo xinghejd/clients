@@ -37,7 +37,7 @@ export class CREEPImporter extends CEFImporter {
     return new JSZip()
       .loadAsync(container, zipOptions)
       .then((zip) => {
-        return zip.file(contentFilePath).async("string");
+        return zip.files["index.jwe"].async("string");
       })
       .then(
         function success(content) {

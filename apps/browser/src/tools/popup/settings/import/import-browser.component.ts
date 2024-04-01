@@ -6,7 +6,6 @@ import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { AsyncActionsModule, ButtonModule, DialogModule } from "@bitwarden/components";
 import { ImportComponent } from "@bitwarden/importer/ui";
 
-import { nordpassExampleString } from "../../../../../../../libs/importer/spec/test-data/cef/example-from-nordpass";
 import { BrowserApi } from "../../../../platform/browser/browser-api";
 
 @Component({
@@ -34,8 +33,8 @@ export class ImportBrowserComponent {
       }
 
       // TODO: Capture creep response from message.data
-      // this.creepResponse = message.data;
-      this.creepResponse = nordpassExampleString;
+      this.creepResponse = message.data;
+      //this.creepResponse = nordpassExampleString;
     });
   }
 
@@ -51,10 +50,10 @@ export class ImportBrowserComponent {
       type: "creepExportRequest",
       content: {
         version: 0,
-        hpke: ["..."], // includes public-key
+        hpke: [""], // includes public-key
         zip: ["zip"],
         importer: "Bitwarden",
-        credentialTypes: [] as any[],
+        credentialTypes: ["basic-auth"],
       },
     };
 

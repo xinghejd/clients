@@ -74,28 +74,6 @@ class CreepFilelessImporter {
     }
 
     globalThis.postMessage(message.requestMessage, "*");
-
-    // TODO: This is a mocked response for testing purposes. Remove this when the hpkey value is actually setup correctly. Expect the window.onMessage handler to be called with the correct data.
-    setTimeout(() => {
-      const modalButton = document.querySelector(
-        "div.ReactModal__Content--after-open.modal button.np-ui-button--contained.np-ui-button--secondary-variant",
-      );
-      modalButton?.addEventListener("click", () => {
-        window.postMessage(
-          {
-            type: "creepExportResponse",
-            content: {
-              version: 0,
-              hpke: ["..."], // includes public-key
-              zip: ["zip"],
-              importer: "Bitwarden",
-              credentialTypes: [],
-            },
-          },
-          "*",
-        );
-      });
-    }, 100);
   };
 
   private setupMessagePort() {

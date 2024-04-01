@@ -589,7 +589,9 @@ export class ImportComponent implements OnInit, OnDestroy {
   async ngOnChanges(changes: SimpleChanges) {
     if (changes.creepResponse?.currentValue) {
       this.creepImportStarted = false;
-      this.formGroup.controls.fileContents.setValue(changes.creepResponse?.currentValue);
+      this.formGroup.controls.fileContents.setValue(
+        JSON.stringify(changes.creepResponse?.currentValue),
+      );
       await this.performImport();
     }
   }
