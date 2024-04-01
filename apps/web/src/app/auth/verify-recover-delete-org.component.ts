@@ -2,8 +2,8 @@ import { Component, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { first } from "rxjs/operators";
 
-import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { OrganizationVerifyDeleteRecoverRequest } from "@bitwarden/common/models/request/organization-verify-delete-recover.request";
+import { OrganizationVerifyDeleteRecoverRequest } from "@bitwarden/common/admin-console/models/request/organization-verify-delete-recover.request";
+import { OrganizationApiService } from "@bitwarden/common/admin-console/services/organization/organization-api.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -22,7 +22,7 @@ export class VerifyRecoverDeleteOrgComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private apiService: ApiService,
+    private apiService: OrganizationApiService,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
     private route: ActivatedRoute,
@@ -47,7 +47,7 @@ export class VerifyRecoverDeleteOrgComponent implements OnInit {
   async submit() {
     try {
       const request = new OrganizationVerifyDeleteRecoverRequest(this.token);
-      this.formPromise = this.apiService.postOrganizationRecoverDeleteToken(this.orgId, request);
+      this.formPromise = this.apiService.recoverDeleteToken(this.orgId, request);
       await this.formPromise;
       this.platformUtilsService.showToast(
         "success",
