@@ -36,6 +36,7 @@ import {
 
 // Register the locales for the application
 import "./locales";
+import { AnonLayoutComponent } from "../../../../../libs/auth/src/angular/anon-layout/anon-layout.component";
 
 /**
  * This NgModule should contain the most basic shared directives, pipes, and components. They
@@ -80,6 +81,7 @@ import "./locales";
     TabsModule,
     ToggleGroupModule,
     TypographyModule,
+    AnonLayoutComponent,
 
     // Web specific
   ],
@@ -118,6 +120,7 @@ import "./locales";
     TabsModule,
     ToggleGroupModule,
     TypographyModule,
+    AnonLayoutComponent,
 
     // Web specific
   ],
