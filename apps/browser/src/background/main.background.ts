@@ -556,11 +556,12 @@ export default class MainBackground {
       this.cryptoFunctionService,
       this.cryptoService,
       this.encryptService,
-      this.stateService,
       this.appIdService,
       this.devicesApiService,
       this.i18nService,
       this.platformUtilsService,
+      this.stateProvider,
+      this.secureStorageService,
       this.userDecryptionOptionsService,
     );
 
@@ -579,6 +580,7 @@ export default class MainBackground {
       this.cryptoService,
       this.apiService,
       this.stateService,
+      this.tokenService,
     );
 
     this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
