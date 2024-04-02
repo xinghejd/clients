@@ -9,6 +9,7 @@ import {
   UserDecryptionOptionsService,
   AuthRequestServiceAbstraction,
   AuthRequestService,
+  LoginEmailServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { ApiService as ApiServiceAbstraction } from "@bitwarden/common/abstractions/api.service";
 import { AuditService as AuditServiceAbstraction } from "@bitwarden/common/abstractions/audit.service";
@@ -206,6 +207,7 @@ import { BrowserStateService as StateServiceAbstraction } from "../platform/serv
 import { BrowserCryptoService } from "../platform/services/browser-crypto.service";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import BrowserLocalStorageService from "../platform/services/browser-local-storage.service";
+import BrowserMemoryStorageService from "../platform/services/browser-memory-storage.service";
 import BrowserMessagingPrivateModeBackgroundService from "../platform/services/browser-messaging-private-mode-background.service";
 import BrowserMessagingService from "../platform/services/browser-messaging.service";
 import { BrowserStateService } from "../platform/services/browser-state.service";
@@ -229,7 +231,7 @@ import RuntimeBackground from "./runtime.background";
 
 export default class MainBackground {
   messagingService: MessagingServiceAbstraction;
-  storageService: AbstractStorageService;
+  storageService: AbstractStorageService & ObservableStorageService;
   secureStorageService: AbstractStorageService;
   memoryStorageService: AbstractMemoryStorageService;
   memoryStorageForStateProviders: AbstractMemoryStorageService & ObservableStorageService;
@@ -258,6 +260,7 @@ export default class MainBackground {
   auditService: AuditServiceAbstraction;
   authService: AuthServiceAbstraction;
   loginStrategyService: LoginStrategyServiceAbstraction;
+  loginEmailService: LoginEmailServiceAbstraction;
   importApiService: ImportApiServiceAbstraction;
   importService: ImportServiceAbstraction;
   exportService: VaultExportServiceAbstraction;
@@ -363,22 +366,28 @@ export default class MainBackground {
     this.cryptoFunctionService = new WebCryptoFunctionService(self);
     this.keyGenerationService = new KeyGenerationService(this.cryptoFunctionService);
     this.storageService = new BrowserLocalStorageService();
+
+    const mv3MemoryStorageCreator = (partitionName: string) => {
+      // TODO: Consider using multithreaded encrypt service in popup only context
+      return new LocalBackedSessionStorageService(
+        new EncryptServiceImplementation(this.cryptoFunctionService, this.logService, false),
+        this.keyGenerationService,
+        new BrowserLocalStorageService(),
+        new BrowserMemoryStorageService(),
+        partitionName,
+      );
+    };
+
     this.secureStorageService = this.storageService; // secure storage is not supported in browsers, so we use local storage and warn users when it is used
     this.memoryStorageService = BrowserApi.isManifestVersion(3)
-      ? new LocalBackedSessionStorageService(
-          new EncryptServiceImplementation(this.cryptoFunctionService, this.logService, false),
-          this.keyGenerationService,
-        )
+      ? mv3MemoryStorageCreator("stateService")
       : new MemoryStorageService();
     this.memoryStorageForStateProviders = BrowserApi.isManifestVersion(3)
-      ? new LocalBackedSessionStorageService(
-          new EncryptServiceImplementation(this.cryptoFunctionService, this.logService, false),
-          this.keyGenerationService,
-        )
+      ? mv3MemoryStorageCreator("stateProviders")
       : new BackgroundMemoryStorageService();
 
     const storageServiceProvider = new StorageServiceProvider(
-      this.storageService as BrowserLocalStorageService,
+      this.storageService,
       this.memoryStorageForStateProviders,
     );
 
@@ -514,7 +523,6 @@ export default class MainBackground {
     this.badgeSettingsService = new BadgeSettingsService(this.stateProvider);
     this.policyApiService = new PolicyApiService(this.policyService, this.apiService);
     this.keyConnectorService = new KeyConnectorService(
-      this.stateService,
       this.cryptoService,
       this.apiService,
       this.tokenService,
@@ -522,6 +530,7 @@ export default class MainBackground {
       this.organizationService,
       this.keyGenerationService,
       logoutCallback,
+      this.stateProvider,
     );
 
     this.passwordStrengthService = new PasswordStrengthService();
@@ -554,11 +563,12 @@ export default class MainBackground {
       this.cryptoFunctionService,
       this.cryptoService,
       this.encryptService,
-      this.stateService,
       this.appIdService,
       this.devicesApiService,
       this.i18nService,
       this.platformUtilsService,
+      this.stateProvider,
+      this.secureStorageService,
       this.userDecryptionOptionsService,
     );
 
@@ -577,6 +587,7 @@ export default class MainBackground {
       this.cryptoService,
       this.apiService,
       this.stateService,
+      this.tokenService,
     );
 
     this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
@@ -991,7 +1002,7 @@ export default class MainBackground {
   }
 
   async bootstrap() {
-    this.containerService.attachToGlobal(window);
+    this.containerService.attachToGlobal(self);
 
     await this.stateService.init();
 
@@ -1080,7 +1091,9 @@ export default class MainBackground {
       await this.stateService.setActiveUser(userId);
 
       if (userId == null) {
-        await this.stateService.setRememberedEmail(null);
+        this.loginEmailService.setRememberEmail(false);
+        await this.loginEmailService.saveEmailSettings();
+
         await this.refreshBadge();
         await this.refreshMenu();
         await this.overlayBackground.updateOverlayCiphers();
@@ -1125,7 +1138,6 @@ export default class MainBackground {
       this.policyService.clear(userId),
       this.passwordGenerationService.clear(userId),
       this.vaultTimeoutSettingsService.clear(userId),
-      this.keyConnectorService.clear(),
       this.vaultFilterService.clear(),
       this.biometricStateService.logout(userId),
       this.providerService.save(null, userId),

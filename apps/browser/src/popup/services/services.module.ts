@@ -30,13 +30,11 @@ import { AuthService as AuthServiceAbstraction } from "@bitwarden/common/auth/ab
 import { DeviceTrustCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust-crypto.service.abstraction";
 import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
-import { LoginService as LoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/login.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
-import { LoginService } from "@bitwarden/common/auth/services/login.service";
 import {
   AutofillSettingsService,
   AutofillSettingsServiceAbstraction,
@@ -92,9 +90,9 @@ import MainBackground from "../../background/main.background";
 import { Account } from "../../models/account";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
+import { BrowserFileDownloadService } from "../../platform/popup/services/browser-file-download.service";
 import { BrowserStateService as StateServiceAbstraction } from "../../platform/services/abstractions/browser-state.service";
 import { BrowserEnvironmentService } from "../../platform/services/browser-environment.service";
-import { BrowserFileDownloadService } from "../../platform/services/browser-file-download.service";
 import BrowserLocalStorageService from "../../platform/services/browser-local-storage.service";
 import BrowserMessagingPrivateModePopupService from "../../platform/services/browser-messaging-private-mode-popup.service";
 import BrowserMessagingService from "../../platform/services/browser-messaging.service";
@@ -428,11 +426,6 @@ const safeProviders: SafeProvider[] = [
     provide: FileDownloadService,
     useClass: BrowserFileDownloadService,
     deps: [],
-  }),
-  safeProvider({
-    provide: LoginServiceAbstraction,
-    useClass: LoginService,
-    deps: [StateServiceAbstraction],
   }),
   safeProvider({
     provide: SYSTEM_THEME_OBSERVABLE,

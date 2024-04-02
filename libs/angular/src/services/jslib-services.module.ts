@@ -1,4 +1,4 @@
-import { LOCALE_ID, NgModule } from "@angular/core";
+import { ErrorHandler, LOCALE_ID, NgModule } from "@angular/core";
 
 import {
   AuthRequestServiceAbstraction,
@@ -7,6 +7,8 @@ import {
   PinCryptoService,
   LoginStrategyServiceAbstraction,
   LoginStrategyService,
+  LoginEmailServiceAbstraction,
+  LoginEmailService,
   InternalUserDecryptionOptionsServiceAbstraction,
   UserDecryptionOptionsService,
   UserDecryptionOptionsServiceAbstraction,
@@ -58,7 +60,6 @@ import { DeviceTrustCryptoServiceAbstraction } from "@bitwarden/common/auth/abst
 import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "@bitwarden/common/auth/abstractions/key-connector.service";
-import { LoginService as LoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/login.service";
 import { PasswordResetEnrollmentServiceAbstraction } from "@bitwarden/common/auth/abstractions/password-reset-enrollment.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TokenService as TokenServiceAbstraction } from "@bitwarden/common/auth/abstractions/token.service";
@@ -77,7 +78,6 @@ import { DeviceTrustCryptoService } from "@bitwarden/common/auth/services/device
 import { DevicesServiceImplementation } from "@bitwarden/common/auth/services/devices/devices.service.implementation";
 import { DevicesApiServiceImplementation } from "@bitwarden/common/auth/services/devices-api.service.implementation";
 import { KeyConnectorService } from "@bitwarden/common/auth/services/key-connector.service";
-import { LoginService } from "@bitwarden/common/auth/services/login.service";
 import { PasswordResetEnrollmentServiceImplementation } from "@bitwarden/common/auth/services/password-reset-enrollment.service.implementation";
 import { SsoLoginService } from "@bitwarden/common/auth/services/sso-login.service";
 import { TokenService } from "@bitwarden/common/auth/services/token.service";
@@ -238,6 +238,7 @@ import { UnauthGuard } from "../auth/guards/unauth.guard";
 import { FormValidationErrorsService as FormValidationErrorsServiceAbstraction } from "../platform/abstractions/form-validation-errors.service";
 import { BroadcasterService } from "../platform/services/broadcaster.service";
 import { FormValidationErrorsService } from "../platform/services/form-validation-errors.service";
+import { LoggingErrorHandler } from "../platform/services/logging-error-handler";
 import { AngularThemingService } from "../platform/services/theming/angular-theming.service";
 import { AbstractThemingService } from "../platform/services/theming/theming.service.abstraction";
 import { safeProvider, SafeProvider } from "../platform/utils/safe-provider";
@@ -349,6 +350,7 @@ const safeProviders: SafeProvider[] = [
       CryptoServiceAbstraction,
       ApiServiceAbstraction,
       StateServiceAbstraction,
+      TokenServiceAbstraction,
     ],
   }),
   safeProvider({
@@ -765,7 +767,6 @@ const safeProviders: SafeProvider[] = [
     provide: KeyConnectorServiceAbstraction,
     useClass: KeyConnectorService,
     deps: [
-      StateServiceAbstraction,
       CryptoServiceAbstraction,
       ApiServiceAbstraction,
       TokenServiceAbstraction,
@@ -773,6 +774,7 @@ const safeProviders: SafeProvider[] = [
       OrganizationServiceAbstraction,
       KeyGenerationServiceAbstraction,
       LOGOUT_CALLBACK,
+      StateProvider,
     ],
   }),
   safeProvider({
@@ -866,7 +868,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: AnonymousHubServiceAbstraction,
     useClass: AnonymousHubService,
-    deps: [EnvironmentService, LoginStrategyServiceAbstraction, LogService],
+    deps: [EnvironmentService, AuthRequestServiceAbstraction],
   }),
   safeProvider({
     provide: ValidationServiceAbstraction,
@@ -874,9 +876,9 @@ const safeProviders: SafeProvider[] = [
     deps: [I18nServiceAbstraction, PlatformUtilsServiceAbstraction],
   }),
   safeProvider({
-    provide: LoginServiceAbstraction,
-    useClass: LoginService,
-    deps: [StateServiceAbstraction],
+    provide: LoginEmailServiceAbstraction,
+    useClass: LoginEmailService,
+    deps: [StateProvider],
   }),
   safeProvider({
     provide: OrgDomainInternalServiceAbstraction,
@@ -910,11 +912,12 @@ const safeProviders: SafeProvider[] = [
       CryptoFunctionServiceAbstraction,
       CryptoServiceAbstraction,
       EncryptService,
-      StateServiceAbstraction,
       AppIdServiceAbstraction,
       DevicesApiServiceAbstraction,
       I18nServiceAbstraction,
       PlatformUtilsServiceAbstraction,
+      StateProvider,
+      SECURE_STORAGE,
       UserDecryptionOptionsServiceAbstraction,
     ],
   }),
@@ -1068,6 +1071,11 @@ const safeProviders: SafeProvider[] = [
     provide: OrganizationManagementPreferencesService,
     useClass: DefaultOrganizationManagementPreferencesService,
     deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: ErrorHandler,
+    useClass: LoggingErrorHandler,
+    deps: [LogService],
   }),
 ];
 
