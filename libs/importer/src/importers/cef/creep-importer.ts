@@ -1,4 +1,3 @@
-import { AeadId, CipherSuite, KdfId, KemId } from "hpke-js";
 import * as JSZip from "jszip";
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -39,14 +38,8 @@ export class CREEPImporter extends CEFImporter {
     contentFilePath: string,
     hpke: any,
   ): Promise<string> {
-    const suite = new CipherSuite({
-      kem: KemId.DhkemP256HkdfSha256,
-      kdf: KdfId.HkdfSha256,
-      aead: AeadId.Aes128Gcm,
-    });
-
-    const secretKey = await suite.kem.importKey("jwk", hpke.key, true);
-    const rawSecret = await suite.kem.serializePublicKey(secretKey);
+    const secretKey = await (window as any).suite.kem.importKey("jwk", hpke.key, true);
+    const rawSecret = await (window as any).suite.kem.serializePublicKey(secretKey);
 
     return new JSZip()
       .loadAsync(container)
@@ -55,7 +48,7 @@ export class CREEPImporter extends CEFImporter {
       })
       .then(async (content) => {
         const bytes = Utils.fromUrlB64ToArray(content);
-        const decrypted = await suite.open(
+        const decrypted = await (window as any).suite.open(
           { recipientKey: (window as any).rkp, enc: rawSecret },
           bytes.buffer,
         );
