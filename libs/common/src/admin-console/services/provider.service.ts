@@ -1,13 +1,14 @@
 import { Observable, map, firstValueFrom, of, switchMap, take } from "rxjs";
 
-import { KeyDefinition, PROVIDERS_DISK, StateProvider } from "../../platform/state";
+import { PROVIDERS_DISK, StateProvider, UserKeyDefinition } from "../../platform/state";
 import { UserId } from "../../types/guid";
 import { ProviderService as ProviderServiceAbstraction } from "../abstractions/provider.service";
 import { ProviderData } from "../models/data/provider.data";
 import { Provider } from "../models/domain/provider";
 
-export const PROVIDERS = KeyDefinition.record<ProviderData>(PROVIDERS_DISK, "providers", {
+export const PROVIDERS = UserKeyDefinition.record<ProviderData>(PROVIDERS_DISK, "providers", {
   deserializer: (obj: ProviderData) => obj,
+  clearOn: [], // Manually handled by calling `save` with `null` but NOT in web, could be migrated to having `"logout"` set.
 });
 
 function mapToSingleProvider(providerId: string) {
