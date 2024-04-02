@@ -1,5 +1,9 @@
 import { KeyDefinition, TOKEN_DISK, TOKEN_DISK_LOCAL, TOKEN_MEMORY } from "../../platform/state";
 
+// Note: all tokens / API key information must be cleared on logout.
+// because we are using secure storage, we must manually call to clean up our tokens.
+// See stateService.deAuthenticateAccount for where we call clearTokens(...)
+
 export const ACCESS_TOKEN_DISK = new KeyDefinition<string>(TOKEN_DISK, "accessToken", {
   deserializer: (accessToken) => accessToken,
 });
@@ -7,14 +11,6 @@ export const ACCESS_TOKEN_DISK = new KeyDefinition<string>(TOKEN_DISK, "accessTo
 export const ACCESS_TOKEN_MEMORY = new KeyDefinition<string>(TOKEN_MEMORY, "accessToken", {
   deserializer: (accessToken) => accessToken,
 });
-
-export const ACCESS_TOKEN_MIGRATED_TO_SECURE_STORAGE = new KeyDefinition<boolean>(
-  TOKEN_DISK,
-  "accessTokenMigratedToSecureStorage",
-  {
-    deserializer: (accessTokenMigratedToSecureStorage) => accessTokenMigratedToSecureStorage,
-  },
-);
 
 export const REFRESH_TOKEN_DISK = new KeyDefinition<string>(TOKEN_DISK, "refreshToken", {
   deserializer: (refreshToken) => refreshToken,

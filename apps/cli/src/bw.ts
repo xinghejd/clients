@@ -47,6 +47,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { KeyGenerationService as KeyGenerationServiceAbstraction } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import {
@@ -60,6 +61,7 @@ import { GlobalState } from "@bitwarden/common/platform/models/domain/global-sta
 import { AppIdService } from "@bitwarden/common/platform/services/app-id.service";
 import { BroadcasterService } from "@bitwarden/common/platform/services/broadcaster.service";
 import { ConfigApiService } from "@bitwarden/common/platform/services/config/config-api.service";
+import { DefaultConfigService } from "@bitwarden/common/platform/services/config/default-config.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { CryptoService } from "@bitwarden/common/platform/services/crypto.service";
 import { EncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/encrypt.service.implementation";
@@ -104,6 +106,7 @@ import {
   PasswordStrengthServiceAbstraction,
 } from "@bitwarden/common/tools/password-strength";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
+import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -131,7 +134,6 @@ import {
   VaultExportServiceAbstraction,
 } from "@bitwarden/vault-export-core";
 
-import { CliConfigService } from "./platform/services/cli-config.service";
 import { CliPlatformUtilsService } from "./platform/services/cli-platform-utils.service";
 import { ConsoleLogService } from "./platform/services/console-log.service";
 import { I18nService } from "./platform/services/i18n.service";
@@ -193,6 +195,7 @@ export class Main {
   sendProgram: SendProgram;
   logService: ConsoleLogService;
   sendService: SendService;
+  sendStateProvider: SendStateProvider;
   fileUploadService: FileUploadService;
   cipherFileUploadService: CipherFileUploadService;
   keyConnectorService: KeyConnectorService;
@@ -214,7 +217,7 @@ export class Main {
   deviceTrustCryptoService: DeviceTrustCryptoServiceAbstraction;
   authRequestService: AuthRequestService;
   configApiService: ConfigApiServiceAbstraction;
-  configService: CliConfigService;
+  configService: ConfigService;
   accountService: AccountService;
   globalStateProvider: GlobalStateProvider;
   singleUserStateProvider: SingleUserStateProvider;
@@ -318,11 +321,16 @@ export class Main {
       this.accountService,
     );
 
+    this.keyGenerationService = new KeyGenerationService(this.cryptoFunctionService);
+
     this.tokenService = new TokenService(
       this.singleUserStateProvider,
       this.globalStateProvider,
       this.platformUtilsService.supportsSecureStorage(),
       this.secureStorageService,
+      this.keyGenerationService,
+      this.encryptService,
+      this.logService,
     );
 
     const migrationRunner = new MigrationRunner(
@@ -342,8 +350,6 @@ export class Main {
       this.tokenService,
       migrationRunner,
     );
-
-    this.keyGenerationService = new KeyGenerationService(this.cryptoFunctionService);
 
     this.cryptoService = new CryptoService(
       this.keyGenerationService,
@@ -384,11 +390,14 @@ export class Main {
 
     this.fileUploadService = new FileUploadService(this.logService);
 
+    this.sendStateProvider = new SendStateProvider(this.stateProvider);
+
     this.sendService = new SendService(
       this.cryptoService,
       this.i18nService,
       this.keyGenerationService,
-      this.stateService,
+      this.sendStateProvider,
+      this.encryptService,
     );
 
     this.cipherFileUploadService = new CipherFileUploadService(
@@ -423,7 +432,6 @@ export class Main {
     this.policyApiService = new PolicyApiService(this.policyService, this.apiService);
 
     this.keyConnectorService = new KeyConnectorService(
-      this.stateService,
       this.cryptoService,
       this.apiService,
       this.tokenService,
@@ -431,6 +439,7 @@ export class Main {
       this.organizationService,
       this.keyGenerationService,
       async (expired: boolean) => await this.logout(),
+      this.stateProvider,
     );
 
     this.twoFactorService = new TwoFactorService(this.i18nService, this.platformUtilsService);
@@ -451,11 +460,12 @@ export class Main {
       this.cryptoFunctionService,
       this.cryptoService,
       this.encryptService,
-      this.stateService,
       this.appIdService,
       this.devicesApiService,
       this.i18nService,
       this.platformUtilsService,
+      this.stateProvider,
+      this.secureStorageService,
       this.userDecryptionOptionsService,
     );
 
@@ -467,7 +477,7 @@ export class Main {
     );
 
     this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(
-      this.activeUserStateProvider,
+      this.stateProvider,
     );
 
     this.loginStrategyService = new LoginStrategyService(
@@ -494,22 +504,21 @@ export class Main {
     );
 
     this.authService = new AuthService(
+      this.accountService,
       this.messagingService,
       this.cryptoService,
       this.apiService,
       this.stateService,
+      this.tokenService,
     );
 
-    this.configApiService = new ConfigApiService(this.apiService, this.authService);
+    this.configApiService = new ConfigApiService(this.apiService, this.tokenService);
 
-    this.configService = new CliConfigService(
-      this.stateService,
+    this.configService = new DefaultConfigService(
       this.configApiService,
-      this.authService,
       this.environmentService,
       this.logService,
       this.stateProvider,
-      true,
     );
 
     this.cipherService = new CipherService(
@@ -710,13 +719,6 @@ export class Main {
     this.containerService.attachToGlobal(global);
     await this.i18nService.init();
     this.twoFactorService.init();
-    this.configService.init();
-
-    const installedVersion = await this.stateService.getInstalledVersion();
-    const currentVersion = await this.platformUtilsService.getApplicationVersion();
-    if (installedVersion == null || installedVersion !== currentVersion) {
-      await this.stateService.setInstalledVersion(currentVersion);
-    }
   }
 }
 
