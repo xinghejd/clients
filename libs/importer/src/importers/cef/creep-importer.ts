@@ -1,3 +1,4 @@
+import { AeadId, CipherSuite, KdfId, KemId } from "hpke-js";
 import * as JSZip from "jszip";
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -25,23 +26,40 @@ export class CREEPImporter extends CEFImporter {
   async parse(data: string): Promise<ImportResult> {
     const response: CREEPResponse = JSON.parse(data);
 
-    //TODO HPKE decryption
-
     // We use our own utils for decoding b64 since JSZip does not handle base64 without padding
-    const d = Utils.fromB64ToArray(response.payload);
+    const d = Utils.fromUrlB64ToArray(response.payload);
 
-    const contentString = await this.extractZipContent(d, "index.jwe");
+    const contentString = await this.extractZipContent(d, "index.jwe", response.hpke);
 
     return super.parse(contentString);
   }
 
-  async extractZipContent(container: InputFileFormat, contentFilePath: string): Promise<string> {
-    // Per the CREEP spec the payload is provided as abase64 encoded string
+  async extractZipContent(
+    container: InputFileFormat,
+    contentFilePath: string,
+    hpke: any,
+  ): Promise<string> {
+    const suite = new CipherSuite({
+      kem: KemId.DhkemP256HkdfSha256,
+      kdf: KdfId.HkdfSha256,
+      aead: AeadId.Aes128Gcm,
+    });
+
+    const secretKey = await suite.kem.importKey("jwk", hpke.key, true);
+    const rawSecret = await suite.kem.serializePublicKey(secretKey);
 
     return new JSZip()
       .loadAsync(container)
       .then((zip) => {
         return zip.files[contentFilePath].async("string");
+      })
+      .then(async (content) => {
+        const bytes = Utils.fromUrlB64ToArray(content);
+        const decrypted = await suite.open(
+          { recipientKey: (window as any).rkp, enc: rawSecret },
+          bytes.buffer,
+        );
+        return Utils.fromBufferToUtf8(decrypted);
       })
       .then(
         function success(content) {

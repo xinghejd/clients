@@ -26,14 +26,20 @@ export class ImportBrowserComponent {
   protected disabled = false;
   protected loading = false;
   protected creepResponse: any;
+  private rkp: CryptoKeyPair;
+  suite: CipherSuite;
 
   constructor(private router: Router) {
-    BrowserApi.addListener(chrome.runtime.onMessage, (message) => {
+    BrowserApi.addListener(chrome.runtime.onMessage, async (message) => {
       if (message.command !== "creepImportResponse") {
         return;
       }
 
       // TODO: Capture creep response from message.data
+
+      (window as any).suite = this.suite;
+      (window as any).rkp = this.rkp;
+
       this.creepResponse = message.data;
       //this.creepResponse = nordpassExampleString;
     });
@@ -46,27 +52,15 @@ export class ImportBrowserComponent {
   }
 
   protected async sendCreepRequest(): Promise<void> {
-    /*this.key = await window.crypto.subtle.generateKey(
-      {
-        name: "AES-GCM",
-        length: 128,
-      },
-      true,
-      ["encrypt", "decrypt"],
-    );
-
-    const pubKey = await window.crypto.subtle.exportKey("jwk", this.key);
-    */
-
-    const suite = new CipherSuite({
+    this.suite = new CipherSuite({
       kem: KemId.DhkemP256HkdfSha256,
       kdf: KdfId.HkdfSha256,
       aead: AeadId.Aes128Gcm,
     });
 
-    const rkp = await suite.kem.generateKeyPair();
+    this.rkp = await this.suite.kem.generateKeyPair();
 
-    const pubKey = await window.crypto.subtle.exportKey("jwk", rkp.publicKey);
+    const pubKey = await window.crypto.subtle.exportKey("jwk", this.rkp.publicKey);
 
     // TODO: Create Valid CREEP Request message
     const requestMessage = {
@@ -82,13 +76,13 @@ export class ImportBrowserComponent {
             key: pubKey,
           },
         ], // includes public-key
+        //*/
+        //hpke: [""],
         zip: ["zip"],
         importer: "Bitwarden",
         credentialTypes: ["basic-auth"],
       },
     };
-
-    console.log(requestMessage);
 
     await chrome.runtime.sendMessage({
       command: "initiateCreepRequest",

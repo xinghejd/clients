@@ -236,6 +236,7 @@ const mainConfig = {
       url: require.resolve("url/"),
       fs: false,
       path: require.resolve("path-browserify"),
+      crypto: false,
     },
   },
   output: {
