@@ -1,12 +1,14 @@
-import {
-  PasswordGenerationService,
-  PasswordGenerationServiceAbstraction,
-} from "@bitwarden/common/tools/generator/password";
+import { legacyPasswordGenerationServiceFactory } from "@bitwarden/common/tools/generator";
+import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 
 import {
   policyServiceFactory,
   PolicyServiceInitOptions,
 } from "../../admin-console/background/service-factories/policy-service.factory";
+import {
+  accountServiceFactory,
+  AccountServiceInitOptions,
+} from "../../auth/background/service-factories/account-service.factory";
 import {
   CryptoServiceInitOptions,
   cryptoServiceFactory,
@@ -17,30 +19,28 @@ import {
   FactoryOptions,
 } from "../../platform/background/service-factories/factory-options";
 import {
-  stateServiceFactory,
-  StateServiceInitOptions,
-} from "../../platform/background/service-factories/state-service.factory";
+  stateProviderFactory,
+  StateProviderInitOptions,
+} from "../../platform/background/service-factories/state-provider.factory";
 
 type PasswordGenerationServiceFactoryOptions = FactoryOptions;
 
 export type PasswordGenerationServiceInitOptions = PasswordGenerationServiceFactoryOptions &
   CryptoServiceInitOptions &
   PolicyServiceInitOptions &
-  StateServiceInitOptions;
+  AccountServiceInitOptions &
+  StateProviderInitOptions;
 
 export function passwordGenerationServiceFactory(
   cache: { passwordGenerationService?: PasswordGenerationServiceAbstraction } & CachedServices,
   opts: PasswordGenerationServiceInitOptions,
 ): Promise<PasswordGenerationServiceAbstraction> {
-  return factory(
-    cache,
-    "passwordGenerationService",
-    opts,
-    async () =>
-      new PasswordGenerationService(
-        await cryptoServiceFactory(cache, opts),
-        await policyServiceFactory(cache, opts),
-        await stateServiceFactory(cache, opts),
-      ),
+  return factory(cache, "passwordGenerationService", opts, async () =>
+    legacyPasswordGenerationServiceFactory(
+      await cryptoServiceFactory(cache, opts),
+      await policyServiceFactory(cache, opts),
+      await accountServiceFactory(cache, opts),
+      await stateProviderFactory(cache, opts),
+    ),
   );
 }

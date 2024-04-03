@@ -177,10 +177,8 @@ import { NotificationsService } from "@bitwarden/common/services/notifications.s
 import { SearchService } from "@bitwarden/common/services/search.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/services/vault-timeout/vault-timeout-settings.service";
 import { VaultTimeoutService } from "@bitwarden/common/services/vault-timeout/vault-timeout.service";
-import {
-  PasswordGenerationService,
-  PasswordGenerationServiceAbstraction,
-} from "@bitwarden/common/tools/generator/password";
+import { legacyPasswordGenerationServiceFactory } from "@bitwarden/common/tools/generator";
+import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 import {
   UsernameGenerationService,
   UsernameGenerationServiceAbstraction,
@@ -538,8 +536,13 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: PasswordGenerationServiceAbstraction,
-    useClass: PasswordGenerationService,
-    deps: [CryptoServiceAbstraction, PolicyServiceAbstraction, StateServiceAbstraction],
+    useFactory: legacyPasswordGenerationServiceFactory,
+    deps: [
+      CryptoServiceAbstraction,
+      PolicyServiceAbstraction,
+      AccountServiceAbstraction,
+      StateProvider,
+    ],
   }),
   safeProvider({
     provide: UsernameGenerationServiceAbstraction,
