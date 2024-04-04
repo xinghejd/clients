@@ -1,3 +1,14 @@
+<bit-banner
+  class="-tw-m-6 tw-flex tw-flex-col tw-pb-6"
+  bannerType="premium"
+  *ngIf="showPremiumBanner"
+  (onClose)="closePremiumCallout($event)"
+>
+  {{ "premiumUpgradeUnlockFeatures" | i18n }}
+  <a class="text-white tw-font-bold" routerLink="/settings/subscription/premium">
+    {{ "goPremium" | i18n }}
+  </a>
+</bit-banner>
 <app-vault-header
   [filter]="filter"
   [loading]="refreshing && !performingInitialLoad"
@@ -107,7 +118,7 @@
         </a>
       </div>
     </div>
-    <div class="card border-success mb-4" *ngIf="showPremiumCallout">
+    <!-- <div class="card border-success mb-4" *ngIf="showPremiumBanner">
       <div class="card-header bg-success text-white">
         <i class="bwi bwi-star-f bwi-fw" aria-hidden="true"></i> {{ "goPremium" | i18n }}
       </div>
@@ -117,7 +128,7 @@
           {{ "goPremium" | i18n }}
         </a>
       </div>
-    </div>
+    </div> -->
   </div>
 </div>
 

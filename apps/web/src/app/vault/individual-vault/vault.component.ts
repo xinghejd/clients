@@ -123,11 +123,12 @@ export class VaultComponent implements OnInit, OnDestroy {
 
   showVerifyEmail = false;
   showBrowserOutdated = false;
-  showPremiumCallout = false;
+  showPremiumBanner = false;
   showLowKdf = false;
   trashCleanupWarning: string = null;
   kdfIterations: number;
   activeFilter: VaultFilter = new VaultFilter();
+  bannerType: "premium";
 
   protected noItemIcon = Icons.Search;
   protected performingInitialLoad = true;
@@ -181,6 +182,10 @@ export class VaultComponent implements OnInit, OnDestroy {
     private billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {}
 
+  closePremiumCallout(e: any) {
+    this.showPremiumBanner = false;
+  }
+
   async ngOnInit() {
     this.showBrowserOutdated = window.navigator.userAgent.indexOf("MSIE") !== -1;
     this.trashCleanupWarning = this.i18nService.t(
@@ -201,7 +206,8 @@ export class VaultComponent implements OnInit, OnDestroy {
         const canAccessPremium = await firstValueFrom(
           this.billingAccountProfileStateService.hasPremiumFromAnySource$,
         );
-        this.showPremiumCallout =
+
+        this.showPremiumBanner =
           !this.showVerifyEmail && !canAccessPremium && !this.platformUtilsService.isSelfHost();
 
         const cipherId = getCipherIdFromParams(params);
@@ -408,9 +414,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   get isShowingCards() {
-    return (
-      this.showBrowserOutdated || this.showPremiumCallout || this.showVerifyEmail || this.showLowKdf
-    );
+    return this.showBrowserOutdated || this.showVerifyEmail || this.showLowKdf;
   }
 
   emailVerified(verified: boolean) {

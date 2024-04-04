@@ -18,6 +18,7 @@ import { VaultOnboardingService } from "./vault-onboarding/services/vault-onboar
 import { VaultOnboardingComponent } from "./vault-onboarding/vault-onboarding.component";
 import { VaultRoutingModule } from "./vault-routing.module";
 import { VaultComponent } from "./vault.component";
+import { BannerModule } from "@bitwarden/components";
 
 @NgModule({
   imports: [
@@ -34,6 +35,7 @@ import { VaultComponent } from "./vault.component";
     VaultItemsModule,
     CollectionDialogModule,
     VaultOnboardingComponent,
+    BannerModule,
   ],
   declarations: [VaultComponent, VaultHeaderComponent],
   exports: [VaultComponent],
