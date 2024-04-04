@@ -4,12 +4,12 @@ import { UserId } from "../../types/guid";
 
 import { StateUpdateOptions } from "./state-update-options";
 
-export type CombinedState<T> = readonly [userId: UserId, state: T];
+export type CombinedState<T> = readonly [userId: UserId, state: T | undefined];
 
 /** A helper object for interacting with state that is scoped to a specific user. */
 export interface UserState<T> {
   /** Emits a stream of data. Emits null if the user does not have specified state. */
-  readonly state$: Observable<T | null>;
+  readonly state$: Observable<T | undefined>;
 
   /** Emits a stream of tuples, with the first element being a user id and the second element being the data for that user. */
   readonly combinedState$: Observable<CombinedState<T>>;
@@ -23,7 +23,7 @@ export interface ActiveUserState<T> extends UserState<T> {
    * Emits a stream of data. Emits null if the user does not have specified state.
    * Note: Will not emit if there is no active user.
    */
-  readonly state$: Observable<T | null>;
+  readonly state$: Observable<T | undefined>;
 
   /**
    * Updates backing stores for the active user.

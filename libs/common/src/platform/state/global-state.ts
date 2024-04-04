@@ -26,5 +26,5 @@ export interface GlobalState<T> {
    * An observable stream of this state, the first emission of this will be the current state on disk
    * and subsequent updates will be from an update to that state.
    */
-  state$: Observable<T>;
+  state$: Observable<T | undefined>;
 }

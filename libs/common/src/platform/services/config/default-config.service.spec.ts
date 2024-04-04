@@ -40,8 +40,8 @@ describe("ConfigService", () => {
   const environmentService = mock<EnvironmentService>();
   const logService = mock<LogService>();
   let stateProvider: FakeStateProvider;
-  let globalState: FakeGlobalState<Record<ApiUrl, ServerConfig | undefined>>;
-  let userState: FakeSingleUserState<ServerConfig | undefined>;
+  let globalState: FakeGlobalState<Record<ApiUrl, ServerConfig>>;
+  let userState: FakeSingleUserState<ServerConfig>;
   const activeApiUrl = apiUrl(0);
   const userId = "userId" as UserId;
   const accountService = mockAccountServiceWith(userId);

@@ -91,7 +91,7 @@ export class FakeSingleUserState<T> implements SingleUserState<T> {
   // eslint-disable-next-line rxjs/no-exposed-subjects -- exposed for testing setup
   stateSubject = new ReplaySubject<CombinedState<T>>(1);
 
-  state$: Observable<T>;
+  state$: Observable<T | undefined>;
   combinedState$: Observable<CombinedState<T>>;
 
   constructor(
@@ -104,7 +104,7 @@ export class FakeSingleUserState<T> implements SingleUserState<T> {
     this.state$ = this.combinedState$.pipe(map(([_userId, state]) => state));
   }
 
-  nextState(state: T) {
+  nextState(state: T | undefined) {
     this.stateSubject.next([this.userId, state]);
   }
 
