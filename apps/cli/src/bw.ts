@@ -106,6 +106,7 @@ import {
   PasswordStrengthServiceAbstraction,
 } from "@bitwarden/common/tools/password-strength";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
+import { SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
 import { UserId } from "@bitwarden/common/types/guid";
 import { InternalFolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -194,6 +195,7 @@ export class Main {
   sendProgram: SendProgram;
   logService: ConsoleLogService;
   sendService: SendService;
+  sendStateProvider: SendStateProvider;
   fileUploadService: FileUploadService;
   cipherFileUploadService: CipherFileUploadService;
   keyConnectorService: KeyConnectorService;
@@ -388,11 +390,14 @@ export class Main {
 
     this.fileUploadService = new FileUploadService(this.logService);
 
+    this.sendStateProvider = new SendStateProvider(this.stateProvider);
+
     this.sendService = new SendService(
       this.cryptoService,
       this.i18nService,
       this.keyGenerationService,
-      this.stateService,
+      this.sendStateProvider,
+      this.encryptService,
     );
 
     this.cipherFileUploadService = new CipherFileUploadService(
@@ -455,11 +460,12 @@ export class Main {
       this.cryptoFunctionService,
       this.cryptoService,
       this.encryptService,
-      this.stateService,
       this.appIdService,
       this.devicesApiService,
       this.i18nService,
       this.platformUtilsService,
+      this.stateProvider,
+      this.secureStorageService,
       this.userDecryptionOptionsService,
     );
 
@@ -503,6 +509,7 @@ export class Main {
       this.cryptoService,
       this.apiService,
       this.stateService,
+      this.tokenService,
     );
 
     this.configApiService = new ConfigApiService(this.apiService, this.tokenService);
@@ -712,12 +719,6 @@ export class Main {
     this.containerService.attachToGlobal(global);
     await this.i18nService.init();
     this.twoFactorService.init();
-
-    const installedVersion = await this.stateService.getInstalledVersion();
-    const currentVersion = await this.platformUtilsService.getApplicationVersion();
-    if (installedVersion == null || installedVersion !== currentVersion) {
-      await this.stateService.setInstalledVersion(currentVersion);
-    }
   }
 }
 

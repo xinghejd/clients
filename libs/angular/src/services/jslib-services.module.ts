@@ -1,4 +1,4 @@
-import { LOCALE_ID, NgModule } from "@angular/core";
+import { ErrorHandler, LOCALE_ID, NgModule } from "@angular/core";
 
 import {
   AuthRequestServiceAbstraction,
@@ -191,6 +191,8 @@ import {
 } from "@bitwarden/common/tools/password-strength";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service";
 import { SendApiService as SendApiServiceAbstraction } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
+import { SendStateProvider as SendStateProvider } from "@bitwarden/common/tools/send/services/send-state.provider";
+import { SendStateProvider as SendStateProviderAbstraction } from "@bitwarden/common/tools/send/services/send-state.provider.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service";
 import {
   InternalSendService,
@@ -238,6 +240,7 @@ import { UnauthGuard } from "../auth/guards/unauth.guard";
 import { FormValidationErrorsService as FormValidationErrorsServiceAbstraction } from "../platform/abstractions/form-validation-errors.service";
 import { BroadcasterService } from "../platform/services/broadcaster.service";
 import { FormValidationErrorsService } from "../platform/services/form-validation-errors.service";
+import { LoggingErrorHandler } from "../platform/services/logging-error-handler";
 import { AngularThemingService } from "../platform/services/theming/angular-theming.service";
 import { AbstractThemingService } from "../platform/services/theming/theming.service.abstraction";
 import { safeProvider, SafeProvider } from "../platform/utils/safe-provider";
@@ -349,6 +352,7 @@ const safeProviders: SafeProvider[] = [
       CryptoServiceAbstraction,
       ApiServiceAbstraction,
       StateServiceAbstraction,
+      TokenServiceAbstraction,
     ],
   }),
   safeProvider({
@@ -565,8 +569,14 @@ const safeProviders: SafeProvider[] = [
       CryptoServiceAbstraction,
       I18nServiceAbstraction,
       KeyGenerationServiceAbstraction,
-      StateServiceAbstraction,
+      SendStateProviderAbstraction,
+      EncryptService,
     ],
+  }),
+  safeProvider({
+    provide: SendStateProviderAbstraction,
+    useClass: SendStateProvider,
+    deps: [StateProvider],
   }),
   safeProvider({
     provide: SendApiServiceAbstraction,
@@ -910,11 +920,12 @@ const safeProviders: SafeProvider[] = [
       CryptoFunctionServiceAbstraction,
       CryptoServiceAbstraction,
       EncryptService,
-      StateServiceAbstraction,
       AppIdServiceAbstraction,
       DevicesApiServiceAbstraction,
       I18nServiceAbstraction,
       PlatformUtilsServiceAbstraction,
+      StateProvider,
+      SECURE_STORAGE,
       UserDecryptionOptionsServiceAbstraction,
     ],
   }),
@@ -1068,6 +1079,11 @@ const safeProviders: SafeProvider[] = [
     provide: OrganizationManagementPreferencesService,
     useClass: DefaultOrganizationManagementPreferencesService,
     deps: [StateProvider],
+  }),
+  safeProvider({
+    provide: ErrorHandler,
+    useClass: LoggingErrorHandler,
+    deps: [],
   }),
 ];
 
