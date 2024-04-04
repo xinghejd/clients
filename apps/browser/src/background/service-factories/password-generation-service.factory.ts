@@ -14,6 +14,10 @@ import {
   cryptoServiceFactory,
 } from "../../platform/background/service-factories/crypto-service.factory";
 import {
+  encryptServiceFactory,
+  EncryptServiceInitOptions,
+} from "../../platform/background/service-factories/encrypt-service.factory";
+import {
   CachedServices,
   factory,
   FactoryOptions,
@@ -27,6 +31,7 @@ type PasswordGenerationServiceFactoryOptions = FactoryOptions;
 
 export type PasswordGenerationServiceInitOptions = PasswordGenerationServiceFactoryOptions &
   CryptoServiceInitOptions &
+  EncryptServiceInitOptions &
   PolicyServiceInitOptions &
   AccountServiceInitOptions &
   StateProviderInitOptions;
@@ -37,6 +42,7 @@ export function passwordGenerationServiceFactory(
 ): Promise<PasswordGenerationServiceAbstraction> {
   return factory(cache, "passwordGenerationService", opts, async () =>
     legacyPasswordGenerationServiceFactory(
+      await encryptServiceFactory(cache, opts),
       await cryptoServiceFactory(cache, opts),
       await policyServiceFactory(cache, opts),
       await accountServiceFactory(cache, opts),

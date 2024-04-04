@@ -538,6 +538,7 @@ const safeProviders: SafeProvider[] = [
     provide: PasswordGenerationServiceAbstraction,
     useFactory: legacyPasswordGenerationServiceFactory,
     deps: [
+      EncryptService,
       CryptoServiceAbstraction,
       PolicyServiceAbstraction,
       AccountServiceAbstraction,
