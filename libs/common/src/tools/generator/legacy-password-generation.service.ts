@@ -15,6 +15,7 @@ import {
 import { PasswordGenerationServiceAbstraction } from "./abstractions/password-generation.service.abstraction";
 import { DefaultGeneratorService } from "./default-generator.service";
 import { LocalGeneratorHistoryService } from "./history/local-generator-history.service";
+import { GeneratorNavigation } from "./navigation";
 import { DefaultGeneratorNavigationService } from "./navigation/default-generator-navigation.service";
 import {
   PassphraseGenerationOptions,
@@ -29,6 +30,12 @@ import {
   PasswordGeneratorPolicy,
   PasswordGeneratorStrategy,
 } from "./password";
+
+type MappedOptions = {
+  generator: GeneratorNavigation;
+  password: PasswordGenerationOptions;
+  passphrase: PassphraseGenerationOptions;
+};
 
 export function legacyPasswordGenerationServiceFactory(
   encryptService: EncryptService,
@@ -119,12 +126,11 @@ export class LegacyPasswordGenerationService implements PasswordGenerationServic
           generatorDefaults,
           generatorEvaluator,
         ]) => {
-          const options: PasswordGeneratorOptions = Object.assign(
-            {},
-            passwordOptions ?? passwordDefaults,
-            passphraseOptions ?? passphraseDefaults,
-            generatorOptions ?? generatorDefaults,
-          );
+          const options = this.toPasswordGeneratorOptions({
+            password: passwordOptions ?? passwordDefaults,
+            passphrase: passphraseOptions ?? passphraseDefaults,
+            generator: generatorOptions ?? generatorDefaults,
+          });
 
           const policy = Object.assign(
             new PasswordGeneratorPolicyOptions(),
@@ -185,14 +191,70 @@ export class LegacyPasswordGenerationService implements PasswordGenerationServic
   }
 
   async saveOptions(options: PasswordGeneratorOptions) {
+    const stored = this.toStoredOptions(options);
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
 
-    await this.navigation.saveOptions(activeAccount.id, options);
-    if (options.type === "password") {
-      await this.passwords.saveOptions(activeAccount.id, options);
-    } else {
-      await this.passphrases.saveOptions(activeAccount.id, options);
-    }
+    // generator settings needs to preserve whether password or passphrase is selected,
+    // so `navigationOptions` is mutated.
+    const navigationOptions$ = zip(
+      this.navigation.options$(activeAccount.id),
+      this.navigation.defaults$(activeAccount.id),
+    ).pipe(map(([options, defaults]) => options ?? defaults));
+    let navigationOptions = await firstValueFrom(navigationOptions$);
+    navigationOptions = Object.assign(navigationOptions, stored.generator);
+    await this.navigation.saveOptions(activeAccount.id, navigationOptions);
+
+    // overwrite all other settings with latest values
+    await this.passwords.saveOptions(activeAccount.id, stored.password);
+    await this.passphrases.saveOptions(activeAccount.id, stored.passphrase);
+  }
+
+  private toStoredOptions(options: PasswordGeneratorOptions): MappedOptions {
+    return {
+      generator: {
+        type: options.type,
+      },
+      password: {
+        length: options.length,
+        minLength: options.minLength,
+        ambiguous: options.ambiguous,
+        uppercase: options.uppercase,
+        minUppercase: options.minUppercase,
+        lowercase: options.lowercase,
+        minLowercase: options.minLowercase,
+        number: options.number,
+        minNumber: options.minNumber,
+        special: options.special,
+        minSpecial: options.minSpecial,
+      },
+      passphrase: {
+        numWords: options.numWords,
+        wordSeparator: options.wordSeparator,
+        capitalize: options.capitalize,
+        includeNumber: options.includeNumber,
+      },
+    };
+  }
+
+  private toPasswordGeneratorOptions(options: MappedOptions): PasswordGeneratorOptions {
+    return {
+      type: options.generator.type,
+      length: options.password.length,
+      minLength: options.password.minLength,
+      ambiguous: options.password.ambiguous,
+      uppercase: options.password.uppercase,
+      minUppercase: options.password.minUppercase,
+      lowercase: options.password.lowercase,
+      minLowercase: options.password.minLowercase,
+      number: options.password.number,
+      minNumber: options.password.minNumber,
+      special: options.password.special,
+      minSpecial: options.password.minSpecial,
+      numWords: options.passphrase.numWords,
+      wordSeparator: options.passphrase.wordSeparator,
+      capitalize: options.passphrase.capitalize,
+      includeNumber: options.passphrase.includeNumber,
+    };
   }
 
   getHistory() {

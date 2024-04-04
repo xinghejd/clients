@@ -103,10 +103,10 @@ function createNavigationGenerator(
     defaults$(id: UserId) {
       return of(DefaultGeneratorNavigation);
     },
-    saveOptions(userId, options) {
+    saveOptions: jest.fn((userId, options) => {
       savedOptions = options;
       return Promise.resolve();
-    },
+    }),
   });
 
   return generator;
@@ -201,8 +201,6 @@ describe("LegacyPasswordGenerationService", () => {
 
       expect(result).toEqual({
         type: "passphrase",
-        username: "word",
-        forwarder: "simplelogin",
         length: 29,
         minLength: 20,
         ambiguous: false,
@@ -237,7 +235,7 @@ describe("LegacyPasswordGenerationService", () => {
       const [result] = await generator.getOptions();
 
       expect(result).toEqual({
-        ...DefaultGeneratorNavigation,
+        type: DefaultGeneratorNavigation.type,
         ...DefaultPassphraseGenerationOptions,
         ...DefaultPasswordGenerationOptions,
       });
@@ -444,8 +442,6 @@ describe("LegacyPasswordGenerationService", () => {
       );
       const options = {
         type: "password" as const,
-        username: "word" as const,
-        forwarder: "simplelogin" as const,
         length: 29,
         minLength: 20,
         ambiguous: false,
@@ -479,8 +475,6 @@ describe("LegacyPasswordGenerationService", () => {
       );
       const options = {
         type: "passphrase" as const,
-        username: "word" as const,
-        forwarder: "simplelogin" as const,
         numWords: 10,
         wordSeparator: "-",
         capitalize: true,
@@ -491,6 +485,39 @@ describe("LegacyPasswordGenerationService", () => {
       const [result] = await generator.getOptions();
 
       expect(result).toMatchObject(options);
+    });
+
+    it("preserves saved navigation options", async () => {
+      const innerPassword = createPasswordGenerator();
+      const innerPassphrase = createPassphraseGenerator();
+      const navigation = createNavigationGenerator({
+        type: "password",
+        username: "forwarded",
+        forwarder: "firefoxrelay",
+      });
+      const accountService = mockAccountServiceWith(SomeUser);
+      const generator = new LegacyPasswordGenerationService(
+        accountService,
+        navigation,
+        innerPassword,
+        innerPassphrase,
+        null,
+      );
+      const options = {
+        type: "passphrase" as const,
+        numWords: 10,
+        wordSeparator: "-",
+        capitalize: true,
+        includeNumber: false,
+      };
+
+      await generator.saveOptions(options);
+
+      expect(navigation.saveOptions).toHaveBeenCalledWith(SomeUser, {
+        type: "passphrase",
+        username: "forwarded",
+        forwarder: "firefoxrelay",
+      });
     });
   });
 
