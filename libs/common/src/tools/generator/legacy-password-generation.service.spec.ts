@@ -8,7 +8,12 @@ import { of } from "rxjs";
 import { mockAccountServiceWith } from "../../../spec";
 import { UserId } from "../../types/guid";
 
-import { GeneratorNavigationService, GeneratorService } from "./abstractions";
+import {
+  GeneratorHistoryService,
+  GeneratorNavigationService,
+  GeneratorService,
+} from "./abstractions";
+import { GeneratedCredential } from "./history";
 import { LegacyPasswordGenerationService } from "./legacy-password-generation.service";
 import { DefaultGeneratorNavigation, GeneratorNavigation } from "./navigation/generator-navigation";
 import { GeneratorNavigationEvaluator } from "./navigation/generator-navigation-evaluator";
@@ -22,6 +27,7 @@ import {
 import { DisabledPassphraseGeneratorPolicy } from "./passphrase/passphrase-generator-policy";
 import {
   DefaultPasswordGenerationOptions,
+  GeneratedPasswordHistory,
   PasswordGenerationOptions,
   PasswordGeneratorOptions,
   PasswordGeneratorOptionsEvaluator,
@@ -113,7 +119,7 @@ describe("LegacyPasswordGenerationService", () => {
   describe("generatePassword", () => {
     it("invokes the inner password generator to generate passwords", async () => {
       const innerPassword = createPasswordGenerator();
-      const generator = new LegacyPasswordGenerationService(null, null, innerPassword, null);
+      const generator = new LegacyPasswordGenerationService(null, null, innerPassword, null, null);
       const options = { type: "password" } as PasswordGeneratorOptions;
 
       await generator.generatePassword(options);
@@ -123,7 +129,13 @@ describe("LegacyPasswordGenerationService", () => {
 
     it("invokes the inner passphrase generator to generate passphrases", async () => {
       const innerPassphrase = createPassphraseGenerator();
-      const generator = new LegacyPasswordGenerationService(null, null, null, innerPassphrase);
+      const generator = new LegacyPasswordGenerationService(
+        null,
+        null,
+        null,
+        innerPassphrase,
+        null,
+      );
       const options = { type: "passphrase" } as PasswordGeneratorOptions;
 
       await generator.generatePassword(options);
@@ -135,7 +147,13 @@ describe("LegacyPasswordGenerationService", () => {
   describe("generatePassphrase", () => {
     it("invokes the inner passphrase generator", async () => {
       const innerPassphrase = createPassphraseGenerator();
-      const generator = new LegacyPasswordGenerationService(null, null, null, innerPassphrase);
+      const generator = new LegacyPasswordGenerationService(
+        null,
+        null,
+        null,
+        innerPassphrase,
+        null,
+      );
       const options = {} as PasswordGeneratorOptions;
 
       await generator.generatePassphrase(options);
@@ -176,6 +194,7 @@ describe("LegacyPasswordGenerationService", () => {
         navigation,
         innerPassword,
         innerPassphrase,
+        null,
       );
 
       const [result] = await generator.getOptions();
@@ -212,6 +231,7 @@ describe("LegacyPasswordGenerationService", () => {
         navigation,
         innerPassword,
         innerPassphrase,
+        null,
       );
 
       const [result] = await generator.getOptions();
@@ -256,6 +276,7 @@ describe("LegacyPasswordGenerationService", () => {
         navigation,
         innerPassword,
         innerPassphrase,
+        null,
       );
 
       const [, policy] = await generator.getOptions();
@@ -301,6 +322,7 @@ describe("LegacyPasswordGenerationService", () => {
         navigation,
         innerPassword,
         innerPassphrase,
+        null,
       );
 
       const [result] = await generator.enforcePasswordGeneratorPoliciesOnOptions(options);
@@ -340,6 +362,7 @@ describe("LegacyPasswordGenerationService", () => {
         navigation,
         innerPassword,
         innerPassphrase,
+        null,
       );
 
       const [result] = await generator.enforcePasswordGeneratorPoliciesOnOptions(options);
@@ -385,6 +408,7 @@ describe("LegacyPasswordGenerationService", () => {
         navigation,
         innerPassword,
         innerPassphrase,
+        null,
       );
 
       const [, policy] = await generator.enforcePasswordGeneratorPoliciesOnOptions({});
@@ -416,6 +440,7 @@ describe("LegacyPasswordGenerationService", () => {
         navigation,
         innerPassword,
         innerPassphrase,
+        null,
       );
       const options = {
         type: "password" as const,
@@ -450,6 +475,7 @@ describe("LegacyPasswordGenerationService", () => {
         navigation,
         innerPassword,
         innerPassphrase,
+        null,
       );
       const options = {
         type: "passphrase" as const,
@@ -465,6 +491,46 @@ describe("LegacyPasswordGenerationService", () => {
       const [result] = await generator.getOptions();
 
       expect(result).toMatchObject(options);
+    });
+  });
+
+  describe("getHistory", () => {
+    it("gets the active user's history from the history service", async () => {
+      const history = mock<GeneratorHistoryService>();
+      history.credentials$.mockReturnValue(
+        of([new GeneratedCredential("foo", "password", new Date(100))]),
+      );
+      const accountService = mockAccountServiceWith(SomeUser);
+      const generator = new LegacyPasswordGenerationService(
+        accountService,
+        null,
+        null,
+        null,
+        history,
+      );
+
+      const result = await generator.getHistory();
+
+      expect(history.credentials$).toHaveBeenCalledWith(SomeUser);
+      expect(result).toEqual([new GeneratedPasswordHistory("foo", 100)]);
+    });
+  });
+
+  describe("addHistory", () => {
+    it("adds a history item as a password credential", async () => {
+      const history = mock<GeneratorHistoryService>();
+      const accountService = mockAccountServiceWith(SomeUser);
+      const generator = new LegacyPasswordGenerationService(
+        accountService,
+        null,
+        null,
+        null,
+        history,
+      );
+
+      await generator.addHistory("foo");
+
+      expect(history.track).toHaveBeenCalledWith(SomeUser, "foo", "password");
     });
   });
 });

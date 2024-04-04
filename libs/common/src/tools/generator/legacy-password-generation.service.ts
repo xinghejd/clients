@@ -4,11 +4,17 @@ import { PolicyService } from "../../admin-console/abstractions/policy/policy.se
 import { PasswordGeneratorPolicyOptions } from "../../admin-console/models/domain/password-generator-policy-options";
 import { AccountService } from "../../auth/abstractions/account.service";
 import { CryptoService } from "../../platform/abstractions/crypto.service";
+import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { StateProvider } from "../../platform/state";
 
-import { GeneratorService, GeneratorNavigationService } from "./abstractions";
+import {
+  GeneratorHistoryService,
+  GeneratorService,
+  GeneratorNavigationService,
+} from "./abstractions";
 import { PasswordGenerationServiceAbstraction } from "./abstractions/password-generation.service.abstraction";
 import { DefaultGeneratorService } from "./default-generator.service";
+import { LocalGeneratorHistoryService } from "./history/local-generator-history.service";
 import { DefaultGeneratorNavigationService } from "./navigation/default-generator-navigation.service";
 import {
   PassphraseGenerationOptions,
@@ -16,6 +22,7 @@ import {
   PassphraseGeneratorStrategy,
 } from "./passphrase";
 import {
+  GeneratedPasswordHistory,
   PasswordGenerationOptions,
   PasswordGenerationService,
   PasswordGeneratorOptions,
@@ -24,6 +31,7 @@ import {
 } from "./password";
 
 export function legacyPasswordGenerationServiceFactory(
+  encryptService: EncryptService,
   cryptoService: CryptoService,
   policyService: PolicyService,
   accountService: AccountService,
@@ -45,7 +53,15 @@ export function legacyPasswordGenerationServiceFactory(
 
   const navigation = new DefaultGeneratorNavigationService(stateProvider, policyService);
 
-  return new LegacyPasswordGenerationService(accountService, navigation, passwords, passphrases);
+  const history = new LocalGeneratorHistoryService(encryptService, cryptoService, stateProvider);
+
+  return new LegacyPasswordGenerationService(
+    accountService,
+    navigation,
+    passwords,
+    passphrases,
+    history,
+  );
 }
 
 /** Adapts the generator 2.0 design to 1.0 angular services. */
@@ -61,6 +77,7 @@ export class LegacyPasswordGenerationService implements PasswordGenerationServic
       PassphraseGenerationOptions,
       PassphraseGeneratorPolicy
     >,
+    private readonly history: GeneratorHistoryService,
   ) {}
 
   generatePassword(options: PasswordGeneratorOptions) {
@@ -178,7 +195,27 @@ export class LegacyPasswordGenerationService implements PasswordGenerationServic
     }
   }
 
-  getHistory: () => Promise<any[]>;
-  addHistory: (password: string) => Promise<void>;
-  clear: (userId?: string) => Promise<void>;
+  getHistory() {
+    const history = this.accountService.activeAccount$.pipe(
+      concatMap((account) => this.history.credentials$(account.id)),
+      map((history) =>
+        history.map(
+          (item) => new GeneratedPasswordHistory(item.credential, item.generationDate.valueOf()),
+        ),
+      ),
+    );
+
+    return firstValueFrom(history);
+  }
+
+  async addHistory(password: string) {
+    const account = await firstValueFrom(this.accountService.activeAccount$);
+    // legacy service doesn't distinguish credential types
+    await this.history.track(account.id, password, "password");
+  }
+
+  clear() {
+    // clear is handled by the state provider's "clearon" configuration
+    return Promise.resolve();
+  }
 }
