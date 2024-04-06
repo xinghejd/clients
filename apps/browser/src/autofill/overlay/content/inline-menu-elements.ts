@@ -52,6 +52,10 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
     return this._extensionMessageHandlers;
   }
 
+  isElementInlineMenu(element: HTMLElement) {
+    return element === this.buttonElement || element === this.listElement;
+  }
+
   /**
    * Sends a message that facilitates hiding the overlay elements.
    *
@@ -133,38 +137,30 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
    * Updates the position of the overlay button.
    */
   private async updateButtonPosition(): Promise<void> {
-    return new Promise((resolve) => {
-      if (!this.buttonElement) {
-        this.createButton();
-        this.updateCustomElementDefaultStyles(this.buttonElement);
-      }
+    if (!this.buttonElement) {
+      this.createButton();
+      this.updateCustomElementDefaultStyles(this.buttonElement);
+    }
 
-      if (!this.isButtonVisible) {
-        this.appendOverlayElementToBody(this.buttonElement);
-        this.isButtonVisible = true;
-      }
-
-      resolve();
-    });
+    if (!this.isButtonVisible) {
+      this.appendOverlayElementToBody(this.buttonElement);
+      this.isButtonVisible = true;
+    }
   }
 
   /**
    * Updates the position of the overlay list.
    */
   private async updateListPosition(): Promise<void> {
-    return new Promise((resolve) => {
-      if (!this.listElement) {
-        this.createList();
-        this.updateCustomElementDefaultStyles(this.listElement);
-      }
+    if (!this.listElement) {
+      this.createList();
+      this.updateCustomElementDefaultStyles(this.listElement);
+    }
 
-      if (!this.isListVisible) {
-        this.appendOverlayElementToBody(this.listElement);
-        this.isListVisible = true;
-      }
-
-      resolve();
-    });
+    if (!this.isListVisible) {
+      this.appendOverlayElementToBody(this.listElement);
+      this.isListVisible = true;
+    }
   }
 
   /**

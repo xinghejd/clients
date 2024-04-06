@@ -63,7 +63,7 @@ class AutofillInit implements AutofillInitInterface {
       );
     }
 
-    this.domElementVisibilityService = new DomElementVisibilityService();
+    this.domElementVisibilityService = new DomElementVisibilityService(this.inlineMenuElements);
     this.collectAutofillContentService = new CollectAutofillContentService(
       this.domElementVisibilityService,
       this.autofillOverlayContentService,
