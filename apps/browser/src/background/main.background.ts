@@ -767,7 +767,6 @@ export default class MainBackground {
 
     this.autofillService = new AutofillService(
       this.cipherService,
-      this.stateService,
       this.autofillSettingsService,
       this.totpService,
       this.eventCollectionService,
@@ -909,6 +908,7 @@ export default class MainBackground {
       this.environmentService,
       this.logService,
       themeStateService,
+      this.configService,
     );
     this.overlayBackground = new OverlayBackground(
       this.cipherService,
@@ -1140,12 +1140,10 @@ export default class MainBackground {
       this.cipherService.clear(userId),
       this.folderService.clear(userId),
       this.collectionService.clear(userId),
-      this.policyService.clear(userId),
       this.passwordGenerationService.clear(userId),
       this.vaultTimeoutSettingsService.clear(userId),
       this.vaultFilterService.clear(),
       this.biometricStateService.logout(userId),
-      this.providerService.save(null, userId),
       /* We intentionally do not clear:
        *  - autofillSettingsService
        *  - badgeSettingsService
