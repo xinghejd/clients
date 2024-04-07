@@ -23,7 +23,6 @@ import {
 import { AutoFillConstants } from "./autofill-constants";
 
 class AutofillOverlayContentService implements AutofillOverlayContentServiceInterface {
-  isOverlayCiphersPopulated = false;
   pageDetailsUpdateRequired = false;
   autofillOverlayVisibility: number;
   private readonly findTabs = tabbable;
@@ -47,7 +46,6 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     bgVaultItemRepromptPopoutOpened: () => this.blurMostRecentOverlayField(true),
     redirectOverlayFocusOut: ({ message }) => this.redirectOverlayFocusOut(message),
     updateAutofillOverlayVisibility: ({ message }) => this.updateAutofillOverlayVisibility(message),
-    updateIsOverlayCiphersPopulated: ({ message }) => this.updateIsOverlayCiphersPopulated(message),
     getSubFrameOffsets: ({ message }) => this.getSubFrameOffsets(message),
     getSubFrameOffsetsFromWindowMessage: ({ message }) =>
       this.getSubFrameOffsetsFromWindowMessage(message),
@@ -365,14 +363,17 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    *
    * @param formFieldElement - The form field element that triggered the input event.
    */
-  private triggerFormFieldInput(formFieldElement: ElementWithOpId<FormFieldElement>) {
+  private async triggerFormFieldInput(formFieldElement: ElementWithOpId<FormFieldElement>) {
     if (!elementIsFillableFormField(formFieldElement)) {
       return;
     }
 
     this.storeModifiedFormElement(formFieldElement);
 
-    if (formFieldElement.value && (this.isOverlayCiphersPopulated || !this.isUserAuthed())) {
+    if (
+      formFieldElement.value &&
+      ((await this.isOverlayCiphersPopulated()) || !this.isUserAuthed())
+    ) {
       void this.sendExtensionMessage("closeAutofillOverlay", {
         overlayElement: AutofillOverlayElement.List,
         forceCloseOverlay: true,
@@ -475,7 +476,10 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       });
     }
 
-    if (!formElementHasValue || (!this.isOverlayCiphersPopulated && this.isUserAuthed())) {
+    if (
+      !formElementHasValue ||
+      (!(await this.isOverlayCiphersPopulated()) && this.isUserAuthed())
+    ) {
       void this.sendExtensionMessage("openAutofillOverlay");
       return;
     }
@@ -764,9 +768,12 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
 
     await this.updateMostRecentlyFocusedField(this.mostRecentlyFocusedField);
     this.updateOverlayElementsPosition();
-    setTimeout(() => {
+    setTimeout(async () => {
       this.toggleOverlayHidden(false);
-      if ((this.mostRecentlyFocusedField as HTMLInputElement).value) {
+      if (
+        (this.mostRecentlyFocusedField as HTMLInputElement).value &&
+        ((await this.isOverlayCiphersPopulated()) || !this.isUserAuthed())
+      ) {
         void this.sendExtensionMessage("closeAutofillOverlay", {
           overlayElement: AutofillOverlayElement.List,
           forceCloseOverlay: true,
@@ -946,8 +953,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     this.autofillOverlayVisibility = data.autofillOverlayVisibility;
   }
 
-  private updateIsOverlayCiphersPopulated({ data }: AutofillExtensionMessage) {
-    this.isOverlayCiphersPopulated = Boolean(data?.isOverlayCiphersPopulated);
+  private async isOverlayCiphersPopulated() {
+    return (await this.sendExtensionMessage("checkIsInlineMenuCiphersPopulated")) === true;
   }
 
   /**

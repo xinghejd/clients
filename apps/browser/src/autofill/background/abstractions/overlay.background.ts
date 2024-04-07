@@ -112,6 +112,7 @@ type OverlayBackgroundExtensionMessageHandlers = {
   updateIsFieldCurrentlyFilling: ({ message }: BackgroundMessageParam) => void;
   checkIsInlineMenuButtonVisible: ({ sender }: BackgroundSenderParam) => void;
   checkIsInlineMenuListVisible: ({ sender }: BackgroundSenderParam) => void;
+  checkIsInlineMenuCiphersPopulated: ({ sender }: BackgroundSenderParam) => void;
   updateSubFrameData: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   rebuildSubFrameOffsets: ({ sender }: BackgroundSenderParam) => void;
 };

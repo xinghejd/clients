@@ -85,6 +85,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
       (this.isCurrentlyFilling = message.isFieldCurrentlyFilling),
     checkIsInlineMenuButtonVisible: ({ sender }) => this.checkIsInlineMenuButtonVisible(sender),
     checkIsInlineMenuListVisible: ({ sender }) => this.checkIsInlineMenuListVisible(sender),
+    checkIsInlineMenuCiphersPopulated: ({ sender }) =>
+      this.checkIsInlineMenuCiphersPopulated(sender),
     updateSubFrameData: ({ message, sender }) => this.updateSubFrameData(message, sender),
     rebuildSubFrameOffsets: ({ sender }) => this.rebuildSubFrameOffsets(sender),
   };
@@ -135,6 +137,10 @@ class OverlayBackground implements OverlayBackgroundInterface {
       { command: "checkIsInlineMenuListVisible" },
       { frameId: 0 },
     );
+  }
+
+  private checkIsInlineMenuCiphersPopulated(sender: chrome.runtime.MessageSender) {
+    return sender.tab.id === this.focusedFieldData.tabId && this.overlayLoginCiphers.size > 0;
   }
 
   updateSubFrameData(message: any, sender: chrome.runtime.MessageSender) {
@@ -199,9 +205,6 @@ class OverlayBackground implements OverlayBackgroundInterface {
 
     const ciphers = await this.getOverlayCipherData();
     this.overlayListPort?.postMessage({ command: "updateOverlayListCiphers", ciphers });
-    await BrowserApi.tabSendMessageData(currentTab, "updateIsOverlayCiphersPopulated", {
-      isOverlayCiphersPopulated: Boolean(ciphers.length),
-    });
   }
 
   /**

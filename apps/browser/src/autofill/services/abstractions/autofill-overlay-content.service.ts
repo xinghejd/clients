@@ -20,15 +20,11 @@ export type AutofillOverlayContentExtensionMessageHandlers = {
   bgVaultItemRepromptPopoutOpened: () => void;
   redirectOverlayFocusOut: ({ message }: AutofillExtensionMessageParam) => void;
   updateAutofillOverlayVisibility: ({ message }: AutofillExtensionMessageParam) => void;
-  updateIsOverlayCiphersPopulated: ({ message }: AutofillExtensionMessageParam) => void;
   getSubFrameOffsets: ({ message }: AutofillExtensionMessageParam) => Promise<SubFrameOffsetData>;
   getSubFrameOffsetsFromWindowMessage: ({ message }: AutofillExtensionMessageParam) => void;
 };
 
 export interface AutofillOverlayContentService {
-  // isFieldCurrentlyFocused: boolean;
-  // isCurrentlyFilling: boolean;
-  isOverlayCiphersPopulated: boolean;
   pageDetailsUpdateRequired: boolean;
   autofillOverlayVisibility: number;
   extensionMessageHandlers: any;
@@ -37,11 +33,6 @@ export interface AutofillOverlayContentService {
     autofillFieldElement: ElementWithOpId<FormFieldElement>,
     autofillFieldData: AutofillField,
   ): Promise<void>;
-  openAutofillOverlay(options: OpenAutofillOverlayOptions): void;
-  // removeAutofillOverlay(): void;
-  // removeAutofillOverlayButton(): void;
-  // removeAutofillOverlayList(): void;
-  addNewVaultItem(): void;
   focusMostRecentOverlayField(): void;
   blurMostRecentOverlayField(isRemovingOverlay?: boolean): void;
   destroy(): void;
