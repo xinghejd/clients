@@ -26,14 +26,12 @@ export type AutofillOverlayContentExtensionMessageHandlers = {
 
 export interface AutofillOverlayContentService {
   pageDetailsUpdateRequired: boolean;
-  autofillOverlayVisibility: number;
-  extensionMessageHandlers: any;
+  extensionMessageHandlers: AutofillOverlayContentExtensionMessageHandlers;
   init(): void;
   setupAutofillOverlayListenerOnField(
     autofillFieldElement: ElementWithOpId<FormFieldElement>,
     autofillFieldData: AutofillField,
   ): Promise<void>;
-  focusMostRecentOverlayField(): void;
   blurMostRecentOverlayField(isRemovingOverlay?: boolean): void;
   destroy(): void;
 }

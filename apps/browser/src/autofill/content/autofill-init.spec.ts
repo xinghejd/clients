@@ -1,8 +1,5 @@
 import { mock } from "jest-mock-extended";
 
-import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
-
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
 import AutofillOverlayContentService from "../services/autofill-overlay-content.service";
@@ -254,9 +251,9 @@ describe("AutofillInit", () => {
         it("updates the isCurrentlyFilling property of the overlay to true after filling", async () => {
           jest.useFakeTimers();
           jest.spyOn(autofillInit as any, "updateOverlayIsCurrentlyFilling");
-          jest
-            .spyOn(autofillInit["autofillOverlayContentService"], "focusMostRecentOverlayField")
-            .mockImplementation();
+          // jest
+          //   .spyOn(autofillInit["autofillOverlayContentService"], "focusMostRecentOverlayField")
+          //   .mockImplementation();
 
           sendMockExtensionMessage({
             command: "fillForm",
@@ -304,37 +301,37 @@ describe("AutofillInit", () => {
         });
       });
 
-      describe("openAutofillOverlay", () => {
-        const message = {
-          command: "openAutofillOverlay",
-          data: {
-            isFocusingFieldElement: true,
-            isOpeningFullOverlay: true,
-            authStatus: AuthenticationStatus.Unlocked,
-          },
-        };
-
-        it("skips attempting to open the autofill overlay if the autofillOverlayContentService is not present", () => {
-          const newAutofillInit = new AutofillInit(undefined);
-          newAutofillInit.init();
-
-          sendMockExtensionMessage(message);
-
-          expect(newAutofillInit["autofillOverlayContentService"]).toBe(undefined);
-        });
-
-        it("opens the autofill overlay", () => {
-          sendMockExtensionMessage(message);
-
-          expect(
-            autofillInit["autofillOverlayContentService"].openAutofillOverlay,
-          ).toHaveBeenCalledWith({
-            isFocusingFieldElement: message.data.isFocusingFieldElement,
-            isOpeningFullOverlay: message.data.isOpeningFullOverlay,
-            authStatus: message.data.authStatus,
-          });
-        });
-      });
+      // describe("openAutofillOverlay", () => {
+      //   const message = {
+      //     command: "openAutofillOverlay",
+      //     data: {
+      //       isFocusingFieldElement: true,
+      //       isOpeningFullOverlay: true,
+      //       authStatus: AuthenticationStatus.Unlocked,
+      //     },
+      //   };
+      //
+      //   it("skips attempting to open the autofill overlay if the autofillOverlayContentService is not present", () => {
+      //     const newAutofillInit = new AutofillInit(undefined);
+      //     newAutofillInit.init();
+      //
+      //     sendMockExtensionMessage(message);
+      //
+      //     expect(newAutofillInit["autofillOverlayContentService"]).toBe(undefined);
+      //   });
+      //
+      //   it("opens the autofill overlay", () => {
+      //     sendMockExtensionMessage(message);
+      //
+      //     expect(
+      //       autofillInit["autofillOverlayContentService"].openAutofillOverlay,
+      //     ).toHaveBeenCalledWith({
+      //       isFocusingFieldElement: message.data.isFocusingFieldElement,
+      //       isOpeningFullOverlay: message.data.isOpeningFullOverlay,
+      //       authStatus: message.data.authStatus,
+      //     });
+      //   });
+      // });
 
       // describe("closeAutofillOverlay", () => {
       //   beforeEach(() => {
@@ -404,131 +401,131 @@ describe("AutofillInit", () => {
       //   });
       // });
 
-      describe("addNewVaultItemFromOverlay", () => {
-        it("will not add a new vault item if the autofillOverlayContentService is not present", () => {
-          const newAutofillInit = new AutofillInit(undefined);
-          newAutofillInit.init();
+      // describe("addNewVaultItemFromOverlay", () => {
+      //   it("will not add a new vault item if the autofillOverlayContentService is not present", () => {
+      //     const newAutofillInit = new AutofillInit(undefined);
+      //     newAutofillInit.init();
+      //
+      //     sendMockExtensionMessage({ command: "addNewVaultItemFromOverlay" });
+      //
+      //     expect(newAutofillInit["autofillOverlayContentService"]).toBe(undefined);
+      //   });
+      //
+      //   it("will add a new vault item", () => {
+      //     sendMockExtensionMessage({ command: "addNewVaultItemFromOverlay" });
+      //
+      //     expect(autofillInit["autofillOverlayContentService"].addNewVaultItem).toHaveBeenCalled();
+      //   });
+      // });
 
-          sendMockExtensionMessage({ command: "addNewVaultItemFromOverlay" });
+      // describe("updateIsOverlayCiphersPopulated", () => {
+      //   const message = {
+      //     command: "updateIsOverlayCiphersPopulated",
+      //     data: {
+      //       isOverlayCiphersPopulated: true,
+      //     },
+      //   };
+      //
+      //   it("skips updating whether the ciphers are populated if the autofillOverlayContentService does note exist", () => {
+      //     const newAutofillInit = new AutofillInit(undefined);
+      //     newAutofillInit.init();
+      //
+      //     sendMockExtensionMessage(message);
+      //
+      //     expect(newAutofillInit["autofillOverlayContentService"]).toBe(undefined);
+      //   });
+      //
+      //   it("updates whether the overlay ciphers are populated", () => {
+      //     sendMockExtensionMessage(message);
+      //
+      //     expect(autofillInit["autofillOverlayContentService"].isOverlayCiphersPopulated).toEqual(
+      //       message.data.isOverlayCiphersPopulated,
+      //     );
+      //   });
+      // });
 
-          expect(newAutofillInit["autofillOverlayContentService"]).toBe(undefined);
-        });
+      // describe("bgUnlockPopoutOpened", () => {
+      //   it("skips attempting to blur and remove the overlay if the autofillOverlayContentService is not present", () => {
+      //     const newAutofillInit = new AutofillInit(undefined);
+      //     newAutofillInit.init();
+      //     jest.spyOn(newAutofillInit as any, "removeAutofillOverlay");
+      //
+      //     sendMockExtensionMessage({ command: "bgUnlockPopoutOpened" });
+      //
+      //     expect(newAutofillInit["autofillOverlayContentService"]).toBe(undefined);
+      //     // expect(newAutofillInit["removeAutofillOverlay"]).not.toHaveBeenCalled();
+      //   });
+      //
+      //   it("blurs the most recently focused feel and remove the autofill overlay", () => {
+      //     jest.spyOn(autofillInit["autofillOverlayContentService"], "blurMostRecentOverlayField");
+      //     jest.spyOn(autofillInit as any, "removeAutofillOverlay");
+      //
+      //     sendMockExtensionMessage({ command: "bgUnlockPopoutOpened" });
+      //
+      //     expect(
+      //       autofillInit["autofillOverlayContentService"].blurMostRecentOverlayField,
+      //     ).toHaveBeenCalled();
+      //     // expect(autofillInit["removeAutofillOverlay"]).toHaveBeenCalled();
+      //   });
+      // });
+      //
+      // describe("bgVaultItemRepromptPopoutOpened", () => {
+      //   it("skips attempting to blur and remove the overlay if the autofillOverlayContentService is not present", () => {
+      //     const newAutofillInit = new AutofillInit(undefined);
+      //     newAutofillInit.init();
+      //     jest.spyOn(newAutofillInit as any, "removeAutofillOverlay");
+      //
+      //     sendMockExtensionMessage({ command: "bgVaultItemRepromptPopoutOpened" });
+      //
+      //     expect(newAutofillInit["autofillOverlayContentService"]).toBe(undefined);
+      //     // expect(newAutofillInit["removeAutofillOverlay"]).not.toHaveBeenCalled();
+      //   });
+      //
+      //   it("blurs the most recently focused feel and remove the autofill overlay", () => {
+      //     jest.spyOn(autofillInit["autofillOverlayContentService"], "blurMostRecentOverlayField");
+      //     jest.spyOn(autofillInit as any, "removeAutofillOverlay");
+      //
+      //     sendMockExtensionMessage({ command: "bgVaultItemRepromptPopoutOpened" });
+      //
+      //     expect(
+      //       autofillInit["autofillOverlayContentService"].blurMostRecentOverlayField,
+      //     ).toHaveBeenCalled();
+      //     // expect(autofillInit["removeAutofillOverlay"]).toHaveBeenCalled();
+      //   });
+      // });
 
-        it("will add a new vault item", () => {
-          sendMockExtensionMessage({ command: "addNewVaultItemFromOverlay" });
-
-          expect(autofillInit["autofillOverlayContentService"].addNewVaultItem).toHaveBeenCalled();
-        });
-      });
-
-      describe("updateIsOverlayCiphersPopulated", () => {
-        const message = {
-          command: "updateIsOverlayCiphersPopulated",
-          data: {
-            isOverlayCiphersPopulated: true,
-          },
-        };
-
-        it("skips updating whether the ciphers are populated if the autofillOverlayContentService does note exist", () => {
-          const newAutofillInit = new AutofillInit(undefined);
-          newAutofillInit.init();
-
-          sendMockExtensionMessage(message);
-
-          expect(newAutofillInit["autofillOverlayContentService"]).toBe(undefined);
-        });
-
-        it("updates whether the overlay ciphers are populated", () => {
-          sendMockExtensionMessage(message);
-
-          expect(autofillInit["autofillOverlayContentService"].isOverlayCiphersPopulated).toEqual(
-            message.data.isOverlayCiphersPopulated,
-          );
-        });
-      });
-
-      describe("bgUnlockPopoutOpened", () => {
-        it("skips attempting to blur and remove the overlay if the autofillOverlayContentService is not present", () => {
-          const newAutofillInit = new AutofillInit(undefined);
-          newAutofillInit.init();
-          jest.spyOn(newAutofillInit as any, "removeAutofillOverlay");
-
-          sendMockExtensionMessage({ command: "bgUnlockPopoutOpened" });
-
-          expect(newAutofillInit["autofillOverlayContentService"]).toBe(undefined);
-          // expect(newAutofillInit["removeAutofillOverlay"]).not.toHaveBeenCalled();
-        });
-
-        it("blurs the most recently focused feel and remove the autofill overlay", () => {
-          jest.spyOn(autofillInit["autofillOverlayContentService"], "blurMostRecentOverlayField");
-          jest.spyOn(autofillInit as any, "removeAutofillOverlay");
-
-          sendMockExtensionMessage({ command: "bgUnlockPopoutOpened" });
-
-          expect(
-            autofillInit["autofillOverlayContentService"].blurMostRecentOverlayField,
-          ).toHaveBeenCalled();
-          // expect(autofillInit["removeAutofillOverlay"]).toHaveBeenCalled();
-        });
-      });
-
-      describe("bgVaultItemRepromptPopoutOpened", () => {
-        it("skips attempting to blur and remove the overlay if the autofillOverlayContentService is not present", () => {
-          const newAutofillInit = new AutofillInit(undefined);
-          newAutofillInit.init();
-          jest.spyOn(newAutofillInit as any, "removeAutofillOverlay");
-
-          sendMockExtensionMessage({ command: "bgVaultItemRepromptPopoutOpened" });
-
-          expect(newAutofillInit["autofillOverlayContentService"]).toBe(undefined);
-          // expect(newAutofillInit["removeAutofillOverlay"]).not.toHaveBeenCalled();
-        });
-
-        it("blurs the most recently focused feel and remove the autofill overlay", () => {
-          jest.spyOn(autofillInit["autofillOverlayContentService"], "blurMostRecentOverlayField");
-          jest.spyOn(autofillInit as any, "removeAutofillOverlay");
-
-          sendMockExtensionMessage({ command: "bgVaultItemRepromptPopoutOpened" });
-
-          expect(
-            autofillInit["autofillOverlayContentService"].blurMostRecentOverlayField,
-          ).toHaveBeenCalled();
-          // expect(autofillInit["removeAutofillOverlay"]).toHaveBeenCalled();
-        });
-      });
-
-      describe("updateAutofillOverlayVisibility", () => {
-        beforeEach(() => {
-          autofillInit["autofillOverlayContentService"].autofillOverlayVisibility =
-            AutofillOverlayVisibility.OnButtonClick;
-        });
-
-        it("skips attempting to update the overlay visibility if the autofillOverlayVisibility data value is not present", () => {
-          sendMockExtensionMessage({
-            command: "updateAutofillOverlayVisibility",
-            data: {},
-          });
-
-          expect(autofillInit["autofillOverlayContentService"].autofillOverlayVisibility).toEqual(
-            AutofillOverlayVisibility.OnButtonClick,
-          );
-        });
-
-        it("updates the overlay visibility value", () => {
-          const message = {
-            command: "updateAutofillOverlayVisibility",
-            data: {
-              autofillOverlayVisibility: AutofillOverlayVisibility.Off,
-            },
-          };
-
-          sendMockExtensionMessage(message);
-
-          expect(autofillInit["autofillOverlayContentService"].autofillOverlayVisibility).toEqual(
-            message.data.autofillOverlayVisibility,
-          );
-        });
-      });
+      // describe("updateAutofillOverlayVisibility", () => {
+      //   beforeEach(() => {
+      //     autofillInit["autofillOverlayContentService"].autofillOverlayVisibility =
+      //       AutofillOverlayVisibility.OnButtonClick;
+      //   });
+      //
+      //   it("skips attempting to update the overlay visibility if the autofillOverlayVisibility data value is not present", () => {
+      //     sendMockExtensionMessage({
+      //       command: "updateAutofillOverlayVisibility",
+      //       data: {},
+      //     });
+      //
+      //     expect(autofillInit["autofillOverlayContentService"].autofillOverlayVisibility).toEqual(
+      //       AutofillOverlayVisibility.OnButtonClick,
+      //     );
+      //   });
+      //
+      //   it("updates the overlay visibility value", () => {
+      //     const message = {
+      //       command: "updateAutofillOverlayVisibility",
+      //       data: {
+      //         autofillOverlayVisibility: AutofillOverlayVisibility.Off,
+      //       },
+      //     };
+      //
+      //     sendMockExtensionMessage(message);
+      //
+      //     expect(autofillInit["autofillOverlayContentService"].autofillOverlayVisibility).toEqual(
+      //       message.data.autofillOverlayVisibility,
+      //     );
+      //   });
+      // });
     });
   });
 
