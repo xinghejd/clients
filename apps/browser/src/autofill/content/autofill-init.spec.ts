@@ -7,7 +7,6 @@ import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
 import AutofillOverlayContentService from "../services/autofill-overlay-content.service";
 import { flushPromises, sendMockExtensionMessage } from "../spec/testing-utils";
-import { RedirectFocusDirection } from "../utils/autofill-overlay.enum";
 
 import { AutofillExtensionMessage } from "./abstractions/autofill-init";
 import AutofillInit from "./autofill-init";
@@ -419,32 +418,6 @@ describe("AutofillInit", () => {
           sendMockExtensionMessage({ command: "addNewVaultItemFromOverlay" });
 
           expect(autofillInit["autofillOverlayContentService"].addNewVaultItem).toHaveBeenCalled();
-        });
-      });
-
-      describe("redirectOverlayFocusOut", () => {
-        const message = {
-          command: "redirectOverlayFocusOut",
-          data: {
-            direction: RedirectFocusDirection.Next,
-          },
-        };
-
-        it("ignores the message to redirect focus if the autofillOverlayContentService does not exist", () => {
-          const newAutofillInit = new AutofillInit(undefined);
-          newAutofillInit.init();
-
-          sendMockExtensionMessage(message);
-
-          expect(newAutofillInit["autofillOverlayContentService"]).toBe(undefined);
-        });
-
-        it("redirects the overlay focus", () => {
-          sendMockExtensionMessage(message);
-
-          expect(
-            autofillInit["autofillOverlayContentService"].redirectOverlayFocusOut,
-          ).toHaveBeenCalledWith(message.data.direction);
         });
       });
 

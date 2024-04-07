@@ -1,4 +1,3 @@
-import { SubFrameOffsetData } from "../background/abstractions/overlay.background";
 import AutofillPageDetails from "../models/autofill-page-details";
 import { InlineMenuElements } from "../overlay/abstractions/inline-menu-elements";
 import { AutofillOverlayContentService } from "../services/abstractions/autofill-overlay-content.service";
@@ -24,16 +23,6 @@ class AutofillInit implements AutofillInitInterface {
     collectPageDetails: ({ message }) => this.collectPageDetails(message),
     collectPageDetailsImmediately: ({ message }) => this.collectPageDetails(message, true),
     fillForm: ({ message }) => this.fillForm(message),
-    openAutofillOverlay: ({ message }) => this.openAutofillOverlay(message),
-    addNewVaultItemFromOverlay: () => this.addNewVaultItemFromOverlay(),
-    redirectOverlayFocusOut: ({ message }) => this.redirectOverlayFocusOut(message),
-    updateIsOverlayCiphersPopulated: ({ message }) => this.updateIsOverlayCiphersPopulated(message),
-    bgUnlockPopoutOpened: () => this.blurAndRemoveOverlay(),
-    bgVaultItemRepromptPopoutOpened: () => this.blurAndRemoveOverlay(),
-    updateAutofillOverlayVisibility: ({ message }) => this.updateAutofillOverlayVisibility(message),
-    getSubFrameOffsets: ({ message }) => this.getSubFrameOffsets(message),
-    getSubFrameOffsetsThroughWindowMessaging: ({ message }) =>
-      this.getSubFrameOffsetsThroughWindowMessaging(message),
   };
 
   /**
@@ -72,45 +61,6 @@ class AutofillInit implements AutofillInitInterface {
       this.domElementVisibilityService,
       this.collectAutofillContentService,
     );
-
-    window.addEventListener("message", (event) => {
-      // if (event.source !== window) {
-      //   return;
-      // }
-
-      if (event.data.command === "calculateSubFramePositioning") {
-        const subFrameData = event.data.subFrameData;
-        let subFrameOffsets: SubFrameOffsetData;
-        const iframes = document.querySelectorAll("iframe");
-        for (let i = 0; i < iframes.length; i++) {
-          if (iframes[i].contentWindow === event.source) {
-            const iframeElement = iframes[i];
-            subFrameOffsets = this.calculateSubFrameOffsets(
-              iframeElement,
-              subFrameData.url,
-              subFrameData.frameId,
-            );
-
-            subFrameData.top += subFrameOffsets.top;
-            subFrameData.left += subFrameOffsets.left;
-
-            break;
-          }
-        }
-
-        if (globalThis.window.self !== globalThis.window.top) {
-          globalThis.parent.postMessage(
-            { command: "calculateSubFramePositioning", subFrameData },
-            "*",
-          );
-          return;
-        }
-
-        void sendExtensionMessage("updateSubFrameData", {
-          subFrameData,
-        });
-      }
-    });
   }
 
   /**
@@ -199,19 +149,6 @@ class AutofillInit implements AutofillInitInterface {
   }
 
   /**
-   * Opens the autofill overlay.
-   *
-   * @param data - The extension message data.
-   */
-  private openAutofillOverlay({ data }: AutofillExtensionMessage) {
-    if (!this.autofillOverlayContentService) {
-      return;
-    }
-
-    this.autofillOverlayContentService.openAutofillOverlay(data);
-  }
-
-  /**
    * Blurs the most recent overlay field and removes the overlay. Used
    * in cases where the background unlock or vault item reprompt popout
    * is opened.
@@ -221,117 +158,7 @@ class AutofillInit implements AutofillInitInterface {
       return;
     }
 
-    this.autofillOverlayContentService.blurMostRecentOverlayField();
-    void sendExtensionMessage("closeAutofillOverlay");
-  }
-
-  /**
-   * Adds a new vault item from the overlay.
-   */
-  private addNewVaultItemFromOverlay() {
-    if (!this.autofillOverlayContentService) {
-      return;
-    }
-
-    this.autofillOverlayContentService.addNewVaultItem();
-  }
-
-  /**
-   * Redirects the overlay focus out of an overlay iframe.
-   *
-   * @param data - Contains the direction to redirect the focus.
-   */
-  private redirectOverlayFocusOut({ data }: AutofillExtensionMessage) {
-    if (!this.autofillOverlayContentService) {
-      return;
-    }
-
-    this.autofillOverlayContentService.redirectOverlayFocusOut(data?.direction);
-  }
-
-  /**
-   * Updates whether the current tab has ciphers that can populate the overlay list
-   *
-   * @param data - Contains the isOverlayCiphersPopulated value
-   *
-   */
-  private updateIsOverlayCiphersPopulated({ data }: AutofillExtensionMessage) {
-    if (!this.autofillOverlayContentService) {
-      return;
-    }
-
-    this.autofillOverlayContentService.isOverlayCiphersPopulated = Boolean(
-      data?.isOverlayCiphersPopulated,
-    );
-  }
-
-  /**
-   * Updates the autofill overlay visibility.
-   *
-   * @param data - Contains the autoFillOverlayVisibility value
-   */
-  private updateAutofillOverlayVisibility({ data }: AutofillExtensionMessage) {
-    if (!this.autofillOverlayContentService || isNaN(data?.autofillOverlayVisibility)) {
-      return;
-    }
-
-    this.autofillOverlayContentService.autofillOverlayVisibility = data?.autofillOverlayVisibility;
-  }
-
-  private async getSubFrameOffsets(
-    message: AutofillExtensionMessage,
-  ): Promise<SubFrameOffsetData | null> {
-    const { subFrameUrl } = message;
-    const subFrameUrlWithoutTrailingSlash = subFrameUrl?.replace(/\/$/, "");
-
-    let iframeElement: HTMLIFrameElement | null = null;
-    const iframeElements = document.querySelectorAll(
-      `iframe[src="${subFrameUrl}"], iframe[src="${subFrameUrlWithoutTrailingSlash}"]`,
-    ) as NodeListOf<HTMLIFrameElement>;
-    if (iframeElements.length === 1) {
-      iframeElement = iframeElements[0];
-    }
-
-    if (!iframeElement) {
-      return null;
-    }
-
-    return this.calculateSubFrameOffsets(iframeElement, subFrameUrl);
-  }
-
-  private calculateSubFrameOffsets(
-    iframeElement: HTMLIFrameElement,
-    subFrameUrl?: string,
-    frameId?: number,
-  ): SubFrameOffsetData {
-    const iframeRect = iframeElement.getBoundingClientRect();
-    const iframeStyles = globalThis.getComputedStyle(iframeElement);
-    const paddingLeft = parseInt(iframeStyles.getPropertyValue("padding-left"));
-    const paddingTop = parseInt(iframeStyles.getPropertyValue("padding-top"));
-    const borderWidthLeft = parseInt(iframeStyles.getPropertyValue("border-left-width"));
-    const borderWidthTop = parseInt(iframeStyles.getPropertyValue("border-top-width"));
-
-    return {
-      url: subFrameUrl,
-      frameId,
-      top: iframeRect.top + paddingTop + borderWidthTop,
-      left: iframeRect.left + paddingLeft + borderWidthLeft,
-    };
-  }
-
-  private getSubFrameOffsetsThroughWindowMessaging(message: any) {
-    globalThis.parent.postMessage(
-      {
-        command: "calculateSubFramePositioning",
-        subFrameData: {
-          url: window.location.href,
-          frameId: message.subFrameId,
-          left: 0,
-          top: 0,
-        },
-      },
-      "*",
-    );
+    this.autofillOverlayContentService.blurMostRecentOverlayField(true);
   }
 
   /**
@@ -364,9 +191,7 @@ class AutofillInit implements AutofillInitInterface {
       return;
     }
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    Promise.resolve(messageResponse).then((response) => sendResponse(response));
+    void Promise.resolve(messageResponse).then((response) => sendResponse(response));
     return true;
   };
 

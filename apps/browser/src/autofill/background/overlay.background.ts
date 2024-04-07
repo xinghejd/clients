@@ -326,13 +326,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
         subFrameOffsetsForTab.set(frameId, null);
         void BrowserApi.tabSendMessage(
           tab,
-          {
-            command: "getSubFrameOffsetsThroughWindowMessaging",
-            subFrameId: frameId,
-          },
-          {
-            frameId: frameId,
-          },
+          { command: "getSubFrameOffsetsFromWindowMessage", subFrameId: frameId },
+          { frameId: frameId },
         );
         return;
       }
@@ -494,7 +489,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
 
     await BrowserApi.tabSendMessage(
       sender.tab,
-      { command: "updateInlineMenuElementsPosition", overlayElement },
+      { command: "appendInlineMenuElementsToDom", overlayElement },
       { frameId: 0 },
     );
 

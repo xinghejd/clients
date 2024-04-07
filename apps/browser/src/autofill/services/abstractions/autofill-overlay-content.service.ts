@@ -1,5 +1,7 @@
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
+import { SubFrameOffsetData } from "../../background/abstractions/overlay.background";
+import { AutofillExtensionMessageParam } from "../../content/abstractions/autofill-init";
 import AutofillField from "../../models/autofill-field";
 import { ElementWithOpId, FormFieldElement } from "../../types";
 
@@ -11,7 +13,16 @@ export type OpenAutofillOverlayOptions = {
 
 export type AutofillOverlayContentExtensionMessageHandlers = {
   [key: string]: CallableFunction;
+  openAutofillOverlay: ({ message }: AutofillExtensionMessageParam) => void;
+  addNewVaultItemFromOverlay: () => void;
   blurMostRecentOverlayField: () => void;
+  bgUnlockPopoutOpened: () => void;
+  bgVaultItemRepromptPopoutOpened: () => void;
+  redirectOverlayFocusOut: ({ message }: AutofillExtensionMessageParam) => void;
+  updateAutofillOverlayVisibility: ({ message }: AutofillExtensionMessageParam) => void;
+  updateIsOverlayCiphersPopulated: ({ message }: AutofillExtensionMessageParam) => void;
+  getSubFrameOffsets: ({ message }: AutofillExtensionMessageParam) => Promise<SubFrameOffsetData>;
+  getSubFrameOffsetsFromWindowMessage: ({ message }: AutofillExtensionMessageParam) => void;
 };
 
 export interface AutofillOverlayContentService {
@@ -31,8 +42,7 @@ export interface AutofillOverlayContentService {
   // removeAutofillOverlayButton(): void;
   // removeAutofillOverlayList(): void;
   addNewVaultItem(): void;
-  redirectOverlayFocusOut(direction: "previous" | "next"): void;
   focusMostRecentOverlayField(): void;
-  blurMostRecentOverlayField(): void;
+  blurMostRecentOverlayField(isRemovingOverlay?: boolean): void;
   destroy(): void;
 }

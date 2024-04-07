@@ -36,8 +36,7 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
   };
   private readonly _extensionMessageHandlers: InlineMenuExtensionMessageHandlers = {
     closeInlineMenu: ({ message }) => this.removeInlineMenu(message),
-    updateInlineMenuElementsPosition: ({ message }) =>
-      this.updateInlineMenuElementsPosition(message),
+    appendInlineMenuElementsToDom: ({ message }) => this.appendInlineMenuElements(message),
     toggleInlineMenuHidden: ({ message }) =>
       this.toggleInlineMenuHidden(message.isInlineMenuHidden),
     checkIsInlineMenuButtonVisible: () => this.isButtonVisible,
@@ -125,25 +124,25 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
   /**
    * Updates the position of both the overlay button and overlay list.
    */
-  private async updateInlineMenuElementsPosition({ overlayElement }: AutofillExtensionMessage) {
+  private async appendInlineMenuElements({ overlayElement }: AutofillExtensionMessage) {
     if (overlayElement === AutofillOverlayElement.Button) {
-      return this.updateButtonPosition();
+      return this.appendButtonElement();
     }
 
-    return this.updateListPosition();
+    return this.appendListElement();
   }
 
   /**
    * Updates the position of the overlay button.
    */
-  private async updateButtonPosition(): Promise<void> {
+  private async appendButtonElement(): Promise<void> {
     if (!this.buttonElement) {
       this.createButton();
       this.updateCustomElementDefaultStyles(this.buttonElement);
     }
 
     if (!this.isButtonVisible) {
-      this.appendOverlayElementToBody(this.buttonElement);
+      this.appendInlineMenuElementToBody(this.buttonElement);
       this.isButtonVisible = true;
     }
   }
@@ -151,14 +150,14 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
   /**
    * Updates the position of the overlay list.
    */
-  private async updateListPosition(): Promise<void> {
+  private async appendListElement(): Promise<void> {
     if (!this.listElement) {
       this.createList();
       this.updateCustomElementDefaultStyles(this.listElement);
     }
 
     if (!this.isListVisible) {
-      this.appendOverlayElementToBody(this.listElement);
+      this.appendInlineMenuElementToBody(this.listElement);
       this.isListVisible = true;
     }
   }
@@ -170,7 +169,7 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
    *
    * @param element - The overlay element to append to the body element.
    */
-  private appendOverlayElementToBody(element: HTMLElement) {
+  private appendInlineMenuElementToBody(element: HTMLElement) {
     this.observeBodyElement();
     globalThis.document.body.appendChild(element);
   }

@@ -5,7 +5,11 @@ import { FocusableElement, tabbable } from "tabbable";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EVENTS, AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
 
-import { FocusedFieldData } from "../background/abstractions/overlay.background";
+import {
+  FocusedFieldData,
+  SubFrameOffsetData,
+} from "../background/abstractions/overlay.background";
+import { AutofillExtensionMessage } from "../content/abstractions/autofill-init";
 import AutofillField from "../models/autofill-field";
 import { ElementWithOpId, FillableFormFieldElement, FormFieldElement } from "../types";
 import { elementIsFillableFormField, sendExtensionMessage } from "../utils";
@@ -36,7 +40,17 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   private autofillFieldKeywordsMap: WeakMap<AutofillField, string> = new WeakMap();
   private eventHandlersMemo: { [key: string]: EventListener } = {};
   readonly extensionMessageHandlers: AutofillOverlayContentExtensionMessageHandlers = {
-    blurMostRecentOverlayField: () => this.blurMostRecentOverlayField,
+    openAutofillOverlay: ({ message }) => this.openAutofillOverlay(message.data),
+    addNewVaultItemFromOverlay: () => this.addNewVaultItem(),
+    blurMostRecentOverlayField: () => this.blurMostRecentOverlayField(),
+    bgUnlockPopoutOpened: () => this.blurMostRecentOverlayField(true),
+    bgVaultItemRepromptPopoutOpened: () => this.blurMostRecentOverlayField(true),
+    redirectOverlayFocusOut: ({ message }) => this.redirectOverlayFocusOut(message),
+    updateAutofillOverlayVisibility: ({ message }) => this.updateAutofillOverlayVisibility(message),
+    updateIsOverlayCiphersPopulated: ({ message }) => this.updateIsOverlayCiphersPopulated(message),
+    getSubFrameOffsets: ({ message }) => this.getSubFrameOffsets(message),
+    getSubFrameOffsetsFromWindowMessage: ({ message }) =>
+      this.getSubFrameOffsetsFromWindowMessage(message),
   };
 
   /**
@@ -135,8 +149,12 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   /**
    * Removes focus from the most recently focused field element.
    */
-  blurMostRecentOverlayField() {
+  blurMostRecentOverlayField(isRemovingOverlay: boolean = false) {
     this.mostRecentlyFocusedField?.blur();
+
+    if (isRemovingOverlay) {
+      void sendExtensionMessage("closeAutofillOverlay");
+    }
   }
 
   /**
@@ -163,15 +181,18 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * either previous or next in the tab order. If the direction is current, the most
    * recently focused field will be focused.
    *
-   * @param direction - The direction to redirect the focus.
+   * @param data - Contains the direction to redirect the focus.
    */
-  async redirectOverlayFocusOut(direction: string) {
+  async redirectOverlayFocusOut({ data }: AutofillExtensionMessage) {
     if (
+      !data?.direction ||
       !this.mostRecentlyFocusedField ||
       (await this.sendExtensionMessage("checkIsInlineMenuListVisible")) !== true
     ) {
       return;
     }
+
+    const { direction } = data;
 
     if (direction === RedirectFocusDirection.Current) {
       this.focusMostRecentOverlayField();
@@ -573,7 +594,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   private async updateMostRecentlyFocusedField(
     formFieldElement: ElementWithOpId<FormFieldElement>,
   ) {
-    if (!elementIsFillableFormField(formFieldElement)) {
+    if (!formFieldElement || !elementIsFillableFormField(formFieldElement)) {
       return;
     }
 
@@ -781,6 +802,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * overlay elements.
    */
   private setupGlobalEventListeners = () => {
+    globalThis.addEventListener(EVENTS.MESSAGE, this.handleWindowMessageEvent);
     globalThis.document.addEventListener(EVENTS.VISIBILITYCHANGE, this.handleVisibilityChangeEvent);
     globalThis.addEventListener(EVENTS.FOCUSOUT, this.handleFormFieldBlurEvent);
     this.setOverlayRepositionEventListeners();
@@ -813,6 +835,112 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
 
     const documentRoot = element.getRootNode() as ShadowRoot | Document;
     return documentRoot?.activeElement;
+  }
+
+  private async getSubFrameOffsets(
+    message: AutofillExtensionMessage,
+  ): Promise<SubFrameOffsetData | null> {
+    const { subFrameUrl } = message;
+    const subFrameUrlWithoutTrailingSlash = subFrameUrl?.replace(/\/$/, "");
+
+    let iframeElement: HTMLIFrameElement | null = null;
+    const iframeElements = document.querySelectorAll(
+      `iframe[src="${subFrameUrl}"], iframe[src="${subFrameUrlWithoutTrailingSlash}"]`,
+    ) as NodeListOf<HTMLIFrameElement>;
+    if (iframeElements.length === 1) {
+      iframeElement = iframeElements[0];
+    }
+
+    if (!iframeElement) {
+      return null;
+    }
+
+    return this.calculateSubFrameOffsets(iframeElement, subFrameUrl);
+  }
+
+  private calculateSubFrameOffsets(
+    iframeElement: HTMLIFrameElement,
+    subFrameUrl?: string,
+    frameId?: number,
+  ): SubFrameOffsetData {
+    const iframeRect = iframeElement.getBoundingClientRect();
+    const iframeStyles = globalThis.getComputedStyle(iframeElement);
+    const paddingLeft = parseInt(iframeStyles.getPropertyValue("padding-left"));
+    const paddingTop = parseInt(iframeStyles.getPropertyValue("padding-top"));
+    const borderWidthLeft = parseInt(iframeStyles.getPropertyValue("border-left-width"));
+    const borderWidthTop = parseInt(iframeStyles.getPropertyValue("border-top-width"));
+
+    return {
+      url: subFrameUrl,
+      frameId,
+      top: iframeRect.top + paddingTop + borderWidthTop,
+      left: iframeRect.left + paddingLeft + borderWidthLeft,
+    };
+  }
+
+  private getSubFrameOffsetsFromWindowMessage(message: any) {
+    globalThis.parent.postMessage(
+      {
+        command: "calculateSubFramePositioning",
+        subFrameData: {
+          url: window.location.href,
+          frameId: message.subFrameId,
+          left: 0,
+          top: 0,
+        },
+      },
+      "*",
+    );
+  }
+
+  private handleWindowMessageEvent = (event: MessageEvent) => {
+    if (event.data?.command !== "calculateSubFramePositioning") {
+      return;
+    }
+
+    this.calculateSubFramePositioning(event);
+  };
+
+  private calculateSubFramePositioning = (event: MessageEvent) => {
+    const subFrameData = event.data.subFrameData;
+    let subFrameOffsets: SubFrameOffsetData;
+    const iframes = document.querySelectorAll("iframe");
+    for (let i = 0; i < iframes.length; i++) {
+      if (iframes[i].contentWindow === event.source) {
+        const iframeElement = iframes[i];
+        subFrameOffsets = this.calculateSubFrameOffsets(
+          iframeElement,
+          subFrameData.url,
+          subFrameData.frameId,
+        );
+
+        subFrameData.top += subFrameOffsets.top;
+        subFrameData.left += subFrameOffsets.left;
+
+        break;
+      }
+    }
+
+    if (globalThis.window.self !== globalThis.window.top) {
+      globalThis.parent.postMessage({ command: "calculateSubFramePositioning", subFrameData }, "*");
+      return;
+    }
+
+    void sendExtensionMessage("updateSubFrameData", {
+      subFrameData,
+    });
+  };
+
+  private updateAutofillOverlayVisibility({ data }: AutofillExtensionMessage) {
+    if (isNaN(data?.autofillOverlayVisibility)) {
+      return;
+    }
+
+    this.autofillOverlayVisibility = data.autofillOverlayVisibility;
+  }
+
+  private updateIsOverlayCiphersPopulated({ data }: AutofillExtensionMessage) {
+    this.isOverlayCiphersPopulated = Boolean(data?.isOverlayCiphersPopulated);
   }
 
   /**
