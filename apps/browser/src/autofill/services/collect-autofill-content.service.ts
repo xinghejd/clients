@@ -201,11 +201,17 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
    * @private
    */
   private updateCachedAutofillFieldVisibility() {
-    this.autofillFieldElements.forEach(
-      async (autofillField, element) =>
-        (autofillField.viewable =
-          await this.domElementVisibilityService.isFormFieldViewable(element)),
-    );
+    this.autofillFieldElements.forEach(async (autofillField, element) => {
+      const currentViewableState = autofillField.viewable;
+      autofillField.viewable = await this.domElementVisibilityService.isFormFieldViewable(element);
+
+      if (!currentViewableState && autofillField.viewable) {
+        await this.autofillOverlayContentService?.setupAutofillOverlayListenerOnField(
+          element,
+          autofillField,
+        );
+      }
+    });
   }
 
   /**

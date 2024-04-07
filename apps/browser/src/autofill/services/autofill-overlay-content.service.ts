@@ -83,6 +83,10 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
 
     this.formFieldElements.add(formFieldElement);
 
+    if (!this.mostRecentlyFocusedField) {
+      await this.updateMostRecentlyFocusedField(formFieldElement);
+    }
+
     if (!this.autofillOverlayVisibility) {
       await this.getAutofillOverlayVisibility();
     }
@@ -91,11 +95,6 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
 
     if (this.getRootNodeActiveElement(formFieldElement) === formFieldElement) {
       await this.triggerFormFieldFocusedAction(formFieldElement);
-      return;
-    }
-
-    if (!this.mostRecentlyFocusedField) {
-      await this.updateMostRecentlyFocusedField(formFieldElement);
     }
   }
 
@@ -765,7 +764,15 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
 
     await this.updateMostRecentlyFocusedField(this.mostRecentlyFocusedField);
     this.updateOverlayElementsPosition();
-    setTimeout(() => this.toggleOverlayHidden(false), 50);
+    setTimeout(() => {
+      this.toggleOverlayHidden(false);
+      if ((this.mostRecentlyFocusedField as HTMLInputElement).value) {
+        void this.sendExtensionMessage("closeAutofillOverlay", {
+          overlayElement: AutofillOverlayElement.List,
+          forceCloseOverlay: true,
+        });
+      }
+    }, 50);
     this.clearUserInteractionEventTimeout();
 
     if (

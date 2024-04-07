@@ -1,3 +1,5 @@
+import { EVENTS } from "@bitwarden/common/autofill/constants";
+
 import AutofillPageDetails from "../models/autofill-page-details";
 import { InlineMenuElements } from "../overlay/abstractions/inline-menu-elements";
 import { AutofillOverlayContentService } from "../services/abstractions/autofill-overlay-content.service";
@@ -92,7 +94,7 @@ class AutofillInit implements AutofillInitInterface {
       sendCollectDetailsMessage();
     }
 
-    window.addEventListener("load", sendCollectDetailsMessage);
+    globalThis.addEventListener(EVENTS.LOAD, sendCollectDetailsMessage);
   }
 
   /**
