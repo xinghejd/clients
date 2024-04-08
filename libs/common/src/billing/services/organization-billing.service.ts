@@ -7,6 +7,7 @@ import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { EncString } from "../../platform/models/domain/enc-string";
 import { OrgKey } from "../../types/key";
+import { BillingApiServiceAbstraction as BillingApiService } from "../abstractions/billilng-api.service.abstraction";
 import {
   OrganizationBillingServiceAbstraction,
   OrganizationInformation,
@@ -25,11 +26,25 @@ interface OrganizationKeys {
 
 export class OrganizationBillingService implements OrganizationBillingServiceAbstraction {
   constructor(
+    private billingApiService: BillingApiService,
     private cryptoService: CryptoService,
     private encryptService: EncryptService,
     private i18nService: I18nService,
     private organizationApiService: OrganizationApiService,
   ) {}
+
+  async isOnSecretsManagerStandalone(organizationId: string): Promise<boolean> {
+    const response = await this.billingApiService.getOrganizationSubscription(organizationId);
+    if (response.customerDiscount?.id === "sm-standalone") {
+      const productIds = response.subscription.items.map((item) => item.productId);
+      return (
+        response.customerDiscount?.appliesTo.filter((appliesToProductId) =>
+          productIds.includes(appliesToProductId),
+        ).length > 0
+      );
+    }
+    return false;
+  }
 
   async purchaseSubscription(subscription: SubscriptionInformation): Promise<OrganizationResponse> {
     const request = new OrganizationCreateRequest();

@@ -38,6 +38,7 @@ import {
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/request/organization-keys.request";
+import { OrganizationBillingServiceAbstraction as OrganizationBillingService } from "@bitwarden/common/billing/abstractions/organization-billing.service";
 import { ProductType } from "@bitwarden/common/enums";
 import { ListResponse } from "@bitwarden/common/models/response/list.response";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
@@ -97,6 +98,7 @@ export class PeopleComponent
   organization: Organization;
   status: OrganizationUserStatusType = null;
   orgResetPasswordPolicyEnabled = false;
+  orgIsOnSecretsManagerStandalone = false;
 
   protected canUseSecretsManager$: Observable<boolean>;
   private destroy$ = new Subject<void>();
@@ -124,6 +126,7 @@ export class PeopleComponent
     private groupService: GroupService,
     private collectionService: CollectionService,
     organizationManagementPreferencesService: OrganizationManagementPreferencesService,
+    private organizationBillingService: OrganizationBillingService,
   ) {
     super(
       apiService,
@@ -191,6 +194,11 @@ export class PeopleComponent
             .filter((policy) => policy.type === PolicyType.ResetPassword)
             .find((p) => p.organizationId === this.organization.id);
           this.orgResetPasswordPolicyEnabled = resetPasswordPolicy?.enabled;
+
+          this.orgIsOnSecretsManagerStandalone =
+            await this.organizationBillingService.isOnSecretsManagerStandalone(
+              this.organization.id,
+            );
 
           await this.load();
 
@@ -452,6 +460,7 @@ export class PeopleComponent
         organizationUserId: user != null ? user.id : null,
         allOrganizationUserEmails: this.allUsers?.map((user) => user.email) ?? [],
         usesKeyConnector: user?.usesKeyConnector,
+        isOnSecretsManagerStandalone: this.orgIsOnSecretsManagerStandalone,
         initialTab: initialTab,
         numConfirmedMembers: this.confirmedCount,
       },

@@ -2,6 +2,7 @@ import { ApiService } from "../../abstractions/api.service";
 import { BillingApiServiceAbstraction } from "../../billing/abstractions/billilng-api.service.abstraction";
 import { SubscriptionCancellationRequest } from "../../billing/models/request/subscription-cancellation.request";
 import { OrganizationBillingStatusResponse } from "../../billing/models/response/organization-billing-status.response";
+import { OrganizationSubscriptionResponse } from "../../billing/models/response/organization-subscription.response";
 import { ProviderOrganizationUpdateRequest } from "../models/request/provider-organization-update.request";
 import { ProviderSubscriptionResponse } from "../models/response/provider-subscription-response";
 
@@ -35,6 +36,19 @@ export class BillingApiService implements BillingApiServiceAbstraction {
     );
 
     return new OrganizationBillingStatusResponse(r);
+  }
+
+  async getOrganizationSubscription(
+    organizationId: string,
+  ): Promise<OrganizationSubscriptionResponse> {
+    const r = await this.apiService.send(
+      "GET",
+      "/organizations/" + organizationId + "/subscription",
+      null,
+      true,
+      true,
+    );
+    return new OrganizationSubscriptionResponse(r);
   }
 
   async getProviderSubscription(providerId: string): Promise<ProviderSubscriptionResponse> {

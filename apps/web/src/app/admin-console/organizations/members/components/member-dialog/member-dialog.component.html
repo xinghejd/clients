@@ -371,7 +371,7 @@
               </div>
             </ng-template>
           </ng-container>
-          <ng-container *ngIf="organization.useSecretsManager">
+          <ng-container *ngIf="organization.useSecretsManager && !isOnSecretsManagerStandalone">
             <h3 class="mt-4">
               {{ "secretsManager" | i18n }}
               <a
