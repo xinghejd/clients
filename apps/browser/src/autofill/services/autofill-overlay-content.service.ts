@@ -44,7 +44,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     blurMostRecentOverlayField: () => this.blurMostRecentOverlayField(),
     bgUnlockPopoutOpened: () => this.blurMostRecentOverlayField(true),
     bgVaultItemRepromptPopoutOpened: () => this.blurMostRecentOverlayField(true),
-    redirectOverlayFocusOut: ({ message }) => this.redirectOverlayFocusOut(message),
+    redirectOverlayFocusOut: ({ message }) =>
+      this.redirectOverlayFocusOut(message?.data?.direction),
     updateAutofillOverlayVisibility: ({ message }) => this.updateAutofillOverlayVisibility(message),
     getSubFrameOffsets: ({ message }) => this.getSubFrameOffsets(message),
     getSubFrameOffsetsFromWindowMessage: ({ message }) =>
@@ -178,18 +179,13 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * either previous or next in the tab order. If the direction is current, the most
    * recently focused field will be focused.
    *
-   * @param data - Contains the direction to redirect the focus.
+   * @param direction - The direction to redirect the focus out.
    */
-  async redirectOverlayFocusOut({ data }: AutofillExtensionMessage) {
-    if (
-      !data?.direction ||
-      !this.mostRecentlyFocusedField ||
-      !(await this.isInlineMenuListVisible())
-    ) {
+  async redirectOverlayFocusOut(direction?: string) {
+    if (!direction || !this.mostRecentlyFocusedField || !(await this.isInlineMenuListVisible())) {
       return;
     }
 
-    const { direction } = data;
     if (direction === RedirectFocusDirection.Current) {
       this.focusMostRecentOverlayField();
       setTimeout(() => void this.sendExtensionMessage("closeAutofillOverlay"), 100);
@@ -764,7 +760,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     }, 50);
     this.clearUserInteractionEventTimeout();
 
-    if (this.isRepositionedFocusedFieldOutOfBounds()) {
+    if (this.isFocusedFieldWithinViewportBounds()) {
       return;
     }
 
@@ -789,7 +785,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     }
   }
 
-  private isRepositionedFocusedFieldOutOfBounds() {
+  private isFocusedFieldWithinViewportBounds() {
     const focusedFieldRectsTop = this.focusedFieldData?.focusedFieldRects?.top;
     return (
       focusedFieldRectsTop &&

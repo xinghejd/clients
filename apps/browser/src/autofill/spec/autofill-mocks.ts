@@ -275,6 +275,21 @@ function createPortSpyMock(name: string) {
   });
 }
 
+function createMutationRecordMock(customFields = {}): MutationRecord {
+  return {
+    addedNodes: mock<NodeList>(),
+    attributeName: "default-attributeName",
+    attributeNamespace: "default-attributeNamespace",
+    nextSibling: null,
+    oldValue: "default-oldValue",
+    previousSibling: null,
+    removedNodes: mock<NodeList>(),
+    target: null,
+    type: "attributes",
+    ...customFields,
+  };
+}
+
 export {
   createAutofillFormMock,
   createAutofillFieldMock,
@@ -287,4 +302,5 @@ export {
   createInitAutofillOverlayListMessageMock,
   createFocusedFieldDataMock,
   createPortSpyMock,
+  createMutationRecordMock,
 };
