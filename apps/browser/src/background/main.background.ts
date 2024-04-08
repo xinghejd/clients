@@ -911,6 +911,7 @@ export default class MainBackground {
       this.configService,
     );
     this.overlayBackground = new OverlayBackground(
+      this.logService,
       this.cipherService,
       this.autofillService,
       this.authService,

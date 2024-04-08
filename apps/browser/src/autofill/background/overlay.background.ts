@@ -8,6 +8,7 @@ import { DomainSettingsService } from "@bitwarden/common/autofill/services/domai
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -42,7 +43,6 @@ import {
   PageDetailsForTab,
   SubFrameOffsetData,
   SubFrameOffsetsForTab,
-  WebsiteIconData,
 } from "./abstractions/overlay.background";
 
 class OverlayBackground implements OverlayBackgroundInterface {
@@ -58,7 +58,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private overlayListPort: chrome.runtime.Port;
   private focusedFieldData: FocusedFieldData;
   private isFieldCurrentlyFocused: boolean = false;
-  private isCurrentlyFilling: boolean = false;
+  private isFieldCurrentlyFilling: boolean = false;
   private overlayPageTranslations: Record<string, string>;
   private iconsServerUrl: string;
   private readonly extensionMessageHandlers: OverlayBackgroundExtensionMessageHandlers = {
@@ -95,11 +95,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
       this.closeOverlay(port.sender, { forceCloseOverlay: true }),
     overlayPageBlurred: () => this.checkOverlayListFocused(),
     redirectOverlayFocusOut: ({ message, port }) => this.redirectOverlayFocusOut(message, port),
-    getPageColorScheme: () => {
-      this.overlayButtonPort?.postMessage({
-        command: "getPageColorScheme",
-      });
-    },
+    getPageColorScheme: () => this.updateButtonPageColorScheme(),
   };
   private readonly overlayListPortMessageHandlers: OverlayListPortMessageHandlers = {
     checkAutofillOverlayButtonFocused: () => this.checkOverlayButtonFocused(),
@@ -111,15 +107,11 @@ class OverlayBackground implements OverlayBackgroundInterface {
     addNewVaultItem: ({ port }) => this.getNewVaultItemDetails(port),
     viewSelectedCipher: ({ message, port }) => this.viewSelectedCipher(message, port),
     redirectOverlayFocusOut: ({ message, port }) => this.redirectOverlayFocusOut(message, port),
-    updateAutofillOverlayListHeight: ({ message }) => {
-      this.overlayListPort?.postMessage({
-        command: "updateIframePosition",
-        styles: message.styles,
-      });
-    },
+    updateAutofillOverlayListHeight: ({ message }) => this.updateOverlayListHeight(message),
   };
 
   constructor(
+    private logService: LogService,
     private cipherService: CipherService,
     private autofillService: AutofillService,
     private authService: AuthService,
@@ -197,13 +189,9 @@ class OverlayBackground implements OverlayBackgroundInterface {
     const showFavicons = await firstValueFrom(this.domainSettingsService.showFavicons$);
     const overlayCiphersArray = Array.from(this.overlayLoginCiphers);
     const overlayCipherData = [];
-    let loginCipherIcon: WebsiteIconData;
 
     for (let cipherIndex = 0; cipherIndex < overlayCiphersArray.length; cipherIndex++) {
       const [overlayCipherId, cipher] = overlayCiphersArray[cipherIndex];
-      if (!loginCipherIcon && cipher.type === CipherType.Login) {
-        loginCipherIcon = buildCipherIcon(this.iconsServerUrl, cipher, showFavicons);
-      }
 
       overlayCipherData.push({
         id: overlayCipherId,
@@ -211,10 +199,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
         type: cipher.type,
         reprompt: cipher.reprompt,
         favorite: cipher.favorite,
-        icon:
-          cipher.type === CipherType.Login
-            ? loginCipherIcon
-            : buildCipherIcon(this.iconsServerUrl, cipher, showFavicons),
+        icon: buildCipherIcon(this.iconsServerUrl, cipher, showFavicons),
         login: cipher.type === CipherType.Login ? { username: cipher.login.username } : null,
         card: cipher.type === CipherType.Card ? cipher.card.subTitle : null,
       });
@@ -253,7 +238,10 @@ class OverlayBackground implements OverlayBackgroundInterface {
     pageDetailsMap.set(sender.frameId, pageDetails);
   }
 
-  private updateSubFrameData(message: any, sender: chrome.runtime.MessageSender) {
+  private updateSubFrameData(
+    message: OverlayBackgroundExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+  ) {
     const subFrameOffsetsForTab = this.subFrameOffsetsForTab[sender.tab.id];
     if (subFrameOffsetsForTab) {
       subFrameOffsetsForTab.set(message.subFrameData.frameId, message.subFrameData);
@@ -431,7 +419,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    if (this.isCurrentlyFilling) {
+    if (this.isFieldCurrentlyFilling) {
       void BrowserApi.tabSendMessage(
         sender.tab,
         {
@@ -852,11 +840,11 @@ class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   private updateIsFieldCurrentlyFilling(message: OverlayBackgroundExtensionMessage) {
-    this.isCurrentlyFilling = message.isFieldCurrentlyFilling;
+    this.isFieldCurrentlyFilling = message.isFieldCurrentlyFilling;
   }
 
   private checkIsFieldCurrentlyFilling() {
-    return this.isCurrentlyFilling;
+    return this.isFieldCurrentlyFilling;
   }
 
   private async checkIsInlineMenuButtonVisible(sender: chrome.runtime.MessageSender) {
@@ -877,6 +865,19 @@ class OverlayBackground implements OverlayBackgroundInterface {
 
   private checkIsInlineMenuCiphersPopulated(sender: chrome.runtime.MessageSender) {
     return sender.tab.id === this.focusedFieldData.tabId && this.overlayLoginCiphers.size > 0;
+  }
+
+  private updateButtonPageColorScheme() {
+    this.overlayButtonPort?.postMessage({
+      command: "getPageColorScheme",
+    });
+  }
+
+  private updateOverlayListHeight(message: OverlayBackgroundExtensionMessage) {
+    this.overlayListPort?.postMessage({
+      command: "updateIframePosition",
+      styles: message.styles,
+    });
   }
 
   /**
@@ -909,9 +910,9 @@ class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    Promise.resolve(messageResponse).then((response) => sendResponse(response));
+    Promise.resolve(messageResponse)
+      .then((response) => sendResponse(response))
+      .catch(this.logService.error);
     return true;
   };
 

@@ -39,8 +39,14 @@ type OverlayAddNewItemMessage = {
   };
 };
 
+type FocusedFieldData = {
+  focusedFieldStyles: Partial<CSSStyleDeclaration>;
+  focusedFieldRects: Partial<DOMRect>;
+  tabId?: number;
+  frameId?: number;
+};
+
 type OverlayBackgroundExtensionMessage = {
-  [key: string]: any;
   command: string;
   tab?: chrome.tabs.Tab;
   sender?: string;
@@ -50,8 +56,11 @@ type OverlayBackgroundExtensionMessage = {
   isOverlayHidden?: boolean;
   setTransparentOverlay?: boolean;
   isFieldCurrentlyFocused?: boolean;
-  isCurrentlyFilling?: boolean;
+  isFieldCurrentlyFilling?: boolean;
+  subFrameData?: SubFrameOffsetData;
+  focusedFieldData?: FocusedFieldData;
   data?: LockedVaultPendingNotificationsData;
+  styles?: Partial<CSSStyleDeclaration>;
 } & OverlayAddNewItemMessage;
 
 type OverlayPortMessage = {
@@ -61,20 +70,13 @@ type OverlayPortMessage = {
   overlayCipherId?: string;
 };
 
-type FocusedFieldData = {
-  focusedFieldStyles: Partial<CSSStyleDeclaration>;
-  focusedFieldRects: Partial<DOMRect>;
-  tabId?: number;
-  frameId?: number;
-};
-
 type OverlayCipherData = {
   id: string;
   name: string;
   type: CipherType;
   reprompt: CipherRepromptType;
   favorite: boolean;
-  icon: { imageEnabled: boolean; image: string; fallbackImage: string; icon: string };
+  icon: WebsiteIconData;
   login?: { username: string };
   card?: string;
 };

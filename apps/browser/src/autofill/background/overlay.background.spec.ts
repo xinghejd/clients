@@ -1,4 +1,4 @@
-import { mock, mockReset } from "jest-mock-extended";
+import { mock, MockProxy, mockReset } from "jest-mock-extended";
 import { BehaviorSubject, of } from "rxjs";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -16,6 +16,7 @@ import {
   EnvironmentService,
   Region,
 } from "@bitwarden/common/platform/abstractions/environment.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CloudEnvironment } from "@bitwarden/common/platform/services/default-environment.service";
@@ -60,6 +61,7 @@ describe("OverlayBackground", () => {
   let buttonPortSpy: chrome.runtime.Port;
   let listPortSpy: chrome.runtime.Port;
   let overlayBackground: OverlayBackground;
+  let logService: MockProxy<LogService>;
   const cipherService = mock<CipherService>();
   const autofillService = mock<AutofillService>();
   const authService = mock<AuthService>();
@@ -93,8 +95,10 @@ describe("OverlayBackground", () => {
   };
 
   beforeEach(() => {
+    logService = mock<LogService>();
     domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider);
     overlayBackground = new OverlayBackground(
+      logService,
       cipherService,
       autofillService,
       authService,
