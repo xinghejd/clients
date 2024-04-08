@@ -2,7 +2,7 @@ import { ApiService } from "../../abstractions/api.service";
 import { BillingApiServiceAbstraction } from "../../billing/abstractions/billilng-api.service.abstraction";
 import { SubscriptionCancellationRequest } from "../../billing/models/request/subscription-cancellation.request";
 import { OrganizationBillingStatusResponse } from "../../billing/models/response/organization-billing-status.response";
-import { ProviderSubscriptionUpdateRequest } from "../models/request/provider-subscription-update.request";
+import { ProviderOrganizationUpdateRequest } from "../models/request/provider-organization-update.request";
 import { ProviderSubscriptionResponse } from "../models/response/provider-subscription-response";
 
 export class BillingApiService implements BillingApiServiceAbstraction {
@@ -37,7 +37,7 @@ export class BillingApiService implements BillingApiServiceAbstraction {
     return new OrganizationBillingStatusResponse(r);
   }
 
-  async getProviderClientSubscriptions(providerId: string): Promise<ProviderSubscriptionResponse> {
+  async getProviderSubscription(providerId: string): Promise<ProviderSubscriptionResponse> {
     const r = await this.apiService.send(
       "GET",
       "/providers/" + providerId + "/billing/subscription",
@@ -48,10 +48,10 @@ export class BillingApiService implements BillingApiServiceAbstraction {
     return new ProviderSubscriptionResponse(r);
   }
 
-  async putProviderClientSubscriptions(
+  async updateProviderOrganization(
     providerId: string,
     organizationId: string,
-    request: ProviderSubscriptionUpdateRequest,
+    request: ProviderOrganizationUpdateRequest,
   ): Promise<any> {
     return await this.apiService.send(
       "PUT",
