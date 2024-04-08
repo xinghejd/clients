@@ -77,12 +77,10 @@ class OverlayBackground implements OverlayBackgroundInterface {
     unlockCompleted: ({ message }) => this.unlockCompleted(message),
     addEditCipherSubmitted: () => this.updateOverlayCiphers(),
     deletedCipher: () => this.updateOverlayCiphers(),
-    checkIsFieldCurrentlyFocused: () => this.isFieldCurrentlyFocused,
-    checkIsFieldCurrentlyFilling: () => this.isCurrentlyFilling,
-    updateIsFieldCurrentlyFocused: ({ message }) =>
-      (this.isFieldCurrentlyFocused = message.isFieldCurrentlyFocused),
-    updateIsFieldCurrentlyFilling: ({ message }) =>
-      (this.isCurrentlyFilling = message.isFieldCurrentlyFilling),
+    updateIsFieldCurrentlyFocused: ({ message }) => this.updateIsFieldCurrentlyFocused(message),
+    checkIsFieldCurrentlyFocused: () => this.checkIsFieldCurrentlyFocused(),
+    updateIsFieldCurrentlyFilling: ({ message }) => this.updateIsFieldCurrentlyFilling(message),
+    checkIsFieldCurrentlyFilling: () => this.checkIsFieldCurrentlyFilling(),
     checkIsInlineMenuButtonVisible: ({ sender }) => this.checkIsInlineMenuButtonVisible(sender),
     checkIsInlineMenuListVisible: ({ sender }) => this.checkIsInlineMenuListVisible(sender),
     checkIsInlineMenuCiphersPopulated: ({ sender }) =>
@@ -122,33 +120,6 @@ class OverlayBackground implements OverlayBackgroundInterface {
     private platformUtilsService: PlatformUtilsService,
     private themeStateService: ThemeStateService,
   ) {}
-
-  private async checkIsInlineMenuButtonVisible(sender: chrome.runtime.MessageSender) {
-    return await BrowserApi.tabSendMessage(
-      sender.tab,
-      { command: "checkIsInlineMenuButtonVisible" },
-      { frameId: 0 },
-    );
-  }
-
-  private async checkIsInlineMenuListVisible(sender: chrome.runtime.MessageSender) {
-    return await BrowserApi.tabSendMessage(
-      sender.tab,
-      { command: "checkIsInlineMenuListVisible" },
-      { frameId: 0 },
-    );
-  }
-
-  private checkIsInlineMenuCiphersPopulated(sender: chrome.runtime.MessageSender) {
-    return sender.tab.id === this.focusedFieldData.tabId && this.overlayLoginCiphers.size > 0;
-  }
-
-  updateSubFrameData(message: any, sender: chrome.runtime.MessageSender) {
-    const subFrameOffsetsForTab = this.subFrameOffsetsForTab[sender.tab.id];
-    if (subFrameOffsetsForTab) {
-      subFrameOffsetsForTab.set(message.subFrameData.frameId, message.subFrameData);
-    }
-  }
 
   /**
    * Removes cached page details for a tab
@@ -271,36 +242,11 @@ class OverlayBackground implements OverlayBackgroundInterface {
     pageDetailsMap.set(sender.frameId, pageDetails);
   }
 
-  private async rebuildSubFrameOffsets(sender: chrome.runtime.MessageSender) {
-    if (sender.frameId === this.focusedFieldData?.frameId) {
-      return;
-    }
-
+  private updateSubFrameData(message: any, sender: chrome.runtime.MessageSender) {
     const subFrameOffsetsForTab = this.subFrameOffsetsForTab[sender.tab.id];
-    if (!subFrameOffsetsForTab) {
-      return;
+    if (subFrameOffsetsForTab) {
+      subFrameOffsetsForTab.set(message.subFrameData.frameId, message.subFrameData);
     }
-
-    if (this.rebuildSubFrameOffsetsTimeout) {
-      clearTimeout(this.rebuildSubFrameOffsetsTimeout as number);
-    }
-
-    const frameTabs = Array.from(subFrameOffsetsForTab.keys());
-    for (const frameId of frameTabs) {
-      if (frameId === sender.frameId) {
-        continue;
-      }
-
-      subFrameOffsetsForTab.delete(frameId);
-      await this.buildSubFrameOffsets(sender.tab, frameId, sender.url);
-    }
-
-    this.rebuildSubFrameOffsetsTimeout = setTimeout(() => {
-      if (this.isFieldCurrentlyFocused) {
-        void this.updateOverlayPosition({ overlayElement: AutofillOverlayElement.List }, sender);
-        void this.updateOverlayPosition({ overlayElement: AutofillOverlayElement.Button }, sender);
-      }
-    }, 650);
   }
 
   private async buildSubFrameOffsets(tab: chrome.tabs.Tab, frameId: number, url: string) {
@@ -349,6 +295,38 @@ class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     subFrameOffsetsForTab.set(frameId, subFrameData);
+  }
+
+  private async rebuildSubFrameOffsets(sender: chrome.runtime.MessageSender) {
+    if (sender.frameId === this.focusedFieldData?.frameId) {
+      return;
+    }
+
+    const subFrameOffsetsForTab = this.subFrameOffsetsForTab[sender.tab.id];
+    if (!subFrameOffsetsForTab) {
+      return;
+    }
+
+    if (this.rebuildSubFrameOffsetsTimeout) {
+      clearTimeout(this.rebuildSubFrameOffsetsTimeout as number);
+    }
+
+    const frameTabs = Array.from(subFrameOffsetsForTab.keys());
+    for (const frameId of frameTabs) {
+      if (frameId === sender.frameId) {
+        continue;
+      }
+
+      subFrameOffsetsForTab.delete(frameId);
+      await this.buildSubFrameOffsets(sender.tab, frameId, sender.url);
+    }
+
+    this.rebuildSubFrameOffsetsTimeout = setTimeout(() => {
+      if (this.isFieldCurrentlyFocused) {
+        void this.updateOverlayPosition({ overlayElement: AutofillOverlayElement.List }, sender);
+        void this.updateOverlayPosition({ overlayElement: AutofillOverlayElement.Button }, sender);
+      }
+    }, 650);
   }
 
   /**
@@ -852,6 +830,42 @@ class OverlayBackground implements OverlayBackgroundInterface {
 
     await this.openAddEditVaultItemPopout(sender.tab, { cipherId: cipherView.id });
     await BrowserApi.sendMessage("inlineAutofillMenuRefreshAddEditCipher");
+  }
+
+  private updateIsFieldCurrentlyFocused({ message }: OverlayBackgroundExtensionMessage) {
+    this.isFieldCurrentlyFocused = message.isFieldCurrentlyFocused;
+  }
+
+  private checkIsFieldCurrentlyFocused() {
+    return this.isFieldCurrentlyFocused;
+  }
+
+  private updateIsFieldCurrentlyFilling({ message }: OverlayBackgroundExtensionMessage) {
+    this.isCurrentlyFilling = message.isFieldCurrentlyFilling;
+  }
+
+  private checkIsFieldCurrentlyFilling() {
+    return this.isCurrentlyFilling;
+  }
+
+  private async checkIsInlineMenuButtonVisible(sender: chrome.runtime.MessageSender) {
+    return await BrowserApi.tabSendMessage(
+      sender.tab,
+      { command: "checkIsInlineMenuButtonVisible" },
+      { frameId: 0 },
+    );
+  }
+
+  private async checkIsInlineMenuListVisible(sender: chrome.runtime.MessageSender) {
+    return await BrowserApi.tabSendMessage(
+      sender.tab,
+      { command: "checkIsInlineMenuListVisible" },
+      { frameId: 0 },
+    );
+  }
+
+  private checkIsInlineMenuCiphersPopulated(sender: chrome.runtime.MessageSender) {
+    return sender.tab.id === this.focusedFieldData.tabId && this.overlayLoginCiphers.size > 0;
   }
 
   /**
