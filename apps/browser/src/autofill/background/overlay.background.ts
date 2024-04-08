@@ -477,7 +477,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
     { overlayElement }: { overlayElement?: string },
     sender: chrome.runtime.MessageSender,
   ) {
-    if (!overlayElement || sender.tab.id !== this.focusedFieldData.tabId) {
+    if (!overlayElement || sender.tab.id !== this.focusedFieldData?.tabId) {
       return;
     }
 

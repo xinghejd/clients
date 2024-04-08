@@ -124,6 +124,10 @@ const offscreen = {
   },
 };
 
+const webNavigation = {
+  getFrame: jest.fn(),
+};
+
 // set chrome
 global.chrome = {
   i18n,
@@ -137,4 +141,5 @@ global.chrome = {
   privacy,
   extension,
   offscreen,
+  webNavigation,
 } as any;

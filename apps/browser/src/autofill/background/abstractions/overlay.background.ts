@@ -105,10 +105,6 @@ type OverlayBackgroundExtensionMessageHandlers = {
   }: BackgroundOnMessageHandlerParams) => Promise<void>;
   updateAutofillOverlayHidden: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   updateFocusedFieldData: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
-  collectPageDetailsResponse: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
-  unlockCompleted: ({ message }: BackgroundMessageParam) => void;
-  addEditCipherSubmitted: () => void;
-  deletedCipher: () => void;
   updateIsFieldCurrentlyFocused: ({ message }: BackgroundMessageParam) => void;
   checkIsFieldCurrentlyFocused: () => boolean;
   updateIsFieldCurrentlyFilling: ({ message }: BackgroundMessageParam) => void;
@@ -118,6 +114,10 @@ type OverlayBackgroundExtensionMessageHandlers = {
   checkIsInlineMenuCiphersPopulated: ({ sender }: BackgroundSenderParam) => void;
   updateSubFrameData: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   rebuildSubFrameOffsets: ({ sender }: BackgroundSenderParam) => void;
+  collectPageDetailsResponse: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
+  unlockCompleted: ({ message }: BackgroundMessageParam) => void;
+  addEditCipherSubmitted: () => void;
+  deletedCipher: () => void;
 };
 
 type PortMessageParam = {
