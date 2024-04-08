@@ -43,28 +43,7 @@ class AutofillOverlayPageElement extends HTMLElement {
     globalThis.document.documentElement.setAttribute("lang", this.getTranslation("locale"));
     globalThis.document.head.title = this.getTranslation(`${elementName}PageTitle`);
 
-    this.messageConnectorIframe = globalThis.document.createElement("iframe");
-    this.messageConnectorIframe.src = messageConnectorUrl;
-    this.messageConnectorIframe.style.opacity = "0";
-    this.messageConnectorIframe.style.position = "absolute";
-    this.messageConnectorIframe.style.width = "0";
-    this.messageConnectorIframe.style.height = "0";
-    this.messageConnectorIframe.style.border = "none";
-    this.messageConnectorIframe.style.pointerEvents = "none";
-    globalThis.document.body.appendChild(this.messageConnectorIframe);
-
-    await new Promise<void>((resolve) => {
-      this.messageConnectorIframe.addEventListener(EVENTS.LOAD, () => {
-        this.postMessageToConnector({
-          command: `initAutofillOverlayPort`,
-          portName:
-            elementName === "list"
-              ? AutofillOverlayPort.ListMessageConnector
-              : AutofillOverlayPort.ButtonMessageConnector,
-        });
-        resolve();
-      });
-    });
+    await this.initMessageConnector(messageConnectorUrl, elementName);
 
     this.shadowDom.innerHTML = "";
     const linkElement = globalThis.document.createElement("link");
@@ -80,10 +59,6 @@ class AutofillOverlayPageElement extends HTMLElement {
    * @param message - The message to post
    */
   protected postMessageToConnector(message: AutofillOverlayPageElementWindowMessage) {
-    if (!this.messageOrigin) {
-      return;
-    }
-
     this.messageConnectorIframe.contentWindow.postMessage(
       { portKey: this.portKey, ...message },
       "*",
@@ -183,6 +158,31 @@ class AutofillOverlayPageElement extends HTMLElement {
    */
   private redirectOverlayFocusOutMessage(direction: string) {
     this.postMessageToConnector({ command: "redirectOverlayFocusOut", direction });
+  }
+
+  private initMessageConnector(messageConnectorUrl: string, elementName: "button" | "list") {
+    this.messageConnectorIframe = globalThis.document.createElement("iframe");
+    this.messageConnectorIframe.src = messageConnectorUrl;
+    this.messageConnectorIframe.style.opacity = "0";
+    this.messageConnectorIframe.style.position = "absolute";
+    this.messageConnectorIframe.style.width = "0";
+    this.messageConnectorIframe.style.height = "0";
+    this.messageConnectorIframe.style.border = "none";
+    this.messageConnectorIframe.style.pointerEvents = "none";
+    globalThis.document.body.appendChild(this.messageConnectorIframe);
+
+    return new Promise<void>((resolve) => {
+      this.messageConnectorIframe.addEventListener(EVENTS.LOAD, () => {
+        this.postMessageToConnector({
+          command: `initAutofillOverlayPort`,
+          portName:
+            elementName === "list"
+              ? AutofillOverlayPort.ListMessageConnector
+              : AutofillOverlayPort.ButtonMessageConnector,
+        });
+        resolve();
+      });
+    });
   }
 }
 

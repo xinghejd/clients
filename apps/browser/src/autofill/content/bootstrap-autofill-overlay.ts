@@ -1,4 +1,4 @@
-import { InlineMenuElements } from "../overlay/content/inline-menu-elements";
+import { AutofillOverlayInlineMenuElements } from "../overlay/content/autofill-overlay-inline-menu-elements";
 import AutofillOverlayContentService from "../services/autofill-overlay-content.service";
 import { setupAutofillInitDisconnectAction } from "../utils";
 
@@ -7,9 +7,9 @@ import AutofillInit from "./autofill-init";
 (function (windowContext) {
   if (!windowContext.bitwardenAutofillInit) {
     const autofillOverlayContentService = new AutofillOverlayContentService();
-    let inlineMenuElements: InlineMenuElements;
+    let inlineMenuElements: AutofillOverlayInlineMenuElements;
     if (globalThis.self === globalThis.top) {
-      inlineMenuElements = new InlineMenuElements();
+      inlineMenuElements = new AutofillOverlayInlineMenuElements();
     }
     windowContext.bitwardenAutofillInit = new AutofillInit(
       autofillOverlayContentService,

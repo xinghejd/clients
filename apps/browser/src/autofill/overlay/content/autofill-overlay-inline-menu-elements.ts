@@ -12,7 +12,7 @@ import {
 import AutofillOverlayButtonIframe from "../iframe-content/autofill-overlay-button-iframe";
 import AutofillOverlayListIframe from "../iframe-content/autofill-overlay-list-iframe";
 
-export class InlineMenuElements implements InlineMenuElementsInterface {
+export class AutofillOverlayInlineMenuElements implements InlineMenuElementsInterface {
   private readonly sendExtensionMessage = sendExtensionMessage;
   private readonly generateRandomCustomElementName = generateRandomCustomElementName;
   private readonly setElementStyles = setElementStyles;

@@ -12,6 +12,7 @@ describe("AutofillOverlayPageElement", () => {
     buttonPageTitle: "buttonPageTitle",
     listPageTitle: "listPageTitle",
   };
+  const portKey = "portKey";
 
   beforeEach(() => {
     jest.spyOn(globalThis.parent, "postMessage");
@@ -19,6 +20,12 @@ describe("AutofillOverlayPageElement", () => {
     jest.spyOn(globalThis.document, "addEventListener");
     document.body.innerHTML = "<autofill-overlay-page-element></autofill-overlay-page-element>";
     autofillOverlayPageElement = document.querySelector("autofill-overlay-page-element");
+    autofillOverlayPageElement["messageConnectorIframe"] = mock<HTMLIFrameElement>({
+      contentWindow: {
+        postMessage: jest.fn(),
+      },
+    });
+    autofillOverlayPageElement["portKey"] = portKey;
   });
 
   afterEach(() => {
@@ -29,6 +36,9 @@ describe("AutofillOverlayPageElement", () => {
     beforeEach(() => {
       jest.spyOn(globalThis.document.documentElement, "setAttribute");
       jest.spyOn(globalThis.document, "createElement");
+      jest
+        .spyOn(autofillOverlayPageElement as any, "initMessageConnector")
+        .mockResolvedValue(undefined);
     });
 
     it("initializes the button overlay page", async () => {
@@ -37,7 +47,7 @@ describe("AutofillOverlayPageElement", () => {
         "https://jest-testing-website.com",
         translations,
         "https://jest-testing-website.com/message-connector",
-        "portKey",
+        portKey,
       );
 
       expect(globalThis.document.documentElement.setAttribute).toHaveBeenCalledWith(
@@ -52,20 +62,12 @@ describe("AutofillOverlayPageElement", () => {
   });
 
   describe("postMessageToConnector", () => {
-    it("skips posting a message to the parent if the message origin in not set", () => {
-      autofillOverlayPageElement["postMessageToConnector"]({ command: "test" });
-
-      expect(globalThis.parent.postMessage).not.toHaveBeenCalled();
-    });
-
     it("posts a message to the parent", () => {
-      autofillOverlayPageElement["messageOrigin"] = "https://jest-testing-website.com";
       autofillOverlayPageElement["postMessageToConnector"]({ command: "test" });
 
-      expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-        { command: "test" },
-        "https://jest-testing-website.com",
-      );
+      expect(
+        autofillOverlayPageElement["messageConnectorIframe"].contentWindow.postMessage,
+      ).toHaveBeenCalledWith({ command: "test", portKey }, "*");
     });
   });
 
@@ -151,17 +153,15 @@ describe("AutofillOverlayPageElement", () => {
     });
 
     it("posts a message to the parent when the window is blurred", () => {
-      autofillOverlayPageElement["messageOrigin"] = "https://jest-testing-website.com";
       autofillOverlayPageElement["setupGlobalListeners"](
         mock<OverlayButtonWindowMessageHandlers>(),
       );
 
       globalThis.dispatchEvent(new Event("blur"));
 
-      expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-        { command: "overlayPageBlurred" },
-        "https://jest-testing-website.com",
-      );
+      expect(
+        autofillOverlayPageElement["messageConnectorIframe"].contentWindow.postMessage,
+      ).toHaveBeenCalledWith({ command: "overlayPageBlurred", portKey }, "*");
     });
 
     it("skips redirecting keyboard focus when a KeyDown event triggers and the key is not a `Tab` or `Escape` key", () => {
@@ -184,9 +184,11 @@ describe("AutofillOverlayPageElement", () => {
         new KeyboardEvent("keydown", { code: "Tab", shiftKey: true }),
       );
 
-      expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-        { command: "redirectOverlayFocusOut", direction: "previous" },
-        "https://jest-testing-website.com",
+      expect(
+        autofillOverlayPageElement["messageConnectorIframe"].contentWindow.postMessage,
+      ).toHaveBeenCalledWith(
+        { command: "redirectOverlayFocusOut", direction: "previous", portKey },
+        "*",
       );
     });
 
@@ -198,9 +200,11 @@ describe("AutofillOverlayPageElement", () => {
 
       globalThis.document.dispatchEvent(new KeyboardEvent("keydown", { code: "Tab" }));
 
-      expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-        { command: "redirectOverlayFocusOut", direction: "next" },
-        "https://jest-testing-website.com",
+      expect(
+        autofillOverlayPageElement["messageConnectorIframe"].contentWindow.postMessage,
+      ).toHaveBeenCalledWith(
+        { command: "redirectOverlayFocusOut", direction: "next", portKey },
+        "*",
       );
     });
 
@@ -212,9 +216,11 @@ describe("AutofillOverlayPageElement", () => {
 
       globalThis.document.dispatchEvent(new KeyboardEvent("keydown", { code: "Escape" }));
 
-      expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-        { command: "redirectOverlayFocusOut", direction: "current" },
-        "https://jest-testing-website.com",
+      expect(
+        autofillOverlayPageElement["messageConnectorIframe"].contentWindow.postMessage,
+      ).toHaveBeenCalledWith(
+        { command: "redirectOverlayFocusOut", direction: "current", portKey },
+        "*",
       );
     });
   });
