@@ -48,6 +48,7 @@ type FocusedFieldData = {
 
 type OverlayBackgroundExtensionMessage = {
   command: string;
+  portKey?: string;
   tab?: chrome.tabs.Tab;
   sender?: string;
   details?: AutofillPageDetails;

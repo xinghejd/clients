@@ -27,6 +27,7 @@ import {
   openViewVaultItemPopout,
 } from "../../vault/popup/utils/vault-popout-window";
 import { AutofillService } from "../services/abstractions/autofill.service";
+import { generateRandomChars } from "../utils";
 import { AutofillOverlayElement, AutofillOverlayPort } from "../utils/autofill-overlay.enum";
 
 import { LockedVaultPendingNotificationsData } from "./abstractions/notification.background";
@@ -56,6 +57,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private userAuthStatus: AuthenticationStatus = AuthenticationStatus.LoggedOut;
   private overlayButtonPort: chrome.runtime.Port;
   private overlayListPort: chrome.runtime.Port;
+  private portKeyForTab: Record<number, string> = {};
   private focusedFieldData: FocusedFieldData;
   private isFieldCurrentlyFocused: boolean = false;
   private isFieldCurrentlyFilling: boolean = false;
@@ -139,6 +141,10 @@ class OverlayBackground implements OverlayBackgroundInterface {
     if (this.subFrameOffsetsForTab[tabId]) {
       this.subFrameOffsetsForTab[tabId].clear();
       delete this.subFrameOffsetsForTab[tabId];
+    }
+
+    if (this.portKeyForTab[tabId]) {
+      delete this.portKeyForTab[tabId];
     }
   }
 
@@ -635,7 +641,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
    */
   private async getAuthStatus() {
     const formerAuthStatus = this.userAuthStatus;
-    this.userAuthStatus = await this.authService.getAuthStatus();
+    this.userAuthStatus = await firstValueFrom(this.authService.activeAccountStatus$);
 
     if (
       this.userAuthStatus !== formerAuthStatus &&
@@ -939,9 +945,13 @@ class OverlayBackground implements OverlayBackgroundInterface {
 
     const isOverlayListPort = port.name === AutofillOverlayPort.List;
     const isOverlayButtonPort = port.name === AutofillOverlayPort.Button;
-
     if (!isOverlayListPort && !isOverlayButtonPort) {
       return;
+    }
+
+    const tabId = port.sender.tab.id;
+    if (!this.portKeyForTab[tabId]) {
+      this.portKeyForTab[tabId] = generateRandomChars(12);
     }
 
     if (isOverlayListPort) {
@@ -959,6 +969,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
       translations: this.getTranslations(),
       ciphers: isOverlayListPort ? await this.getOverlayCipherData() : null,
       messageConnectorUrl: chrome.runtime.getURL("overlay/message-connector.html"),
+      portKey: this.portKeyForTab[tabId],
     });
     void this.updateOverlayPosition(
       {
@@ -980,7 +991,12 @@ class OverlayBackground implements OverlayBackgroundInterface {
     message: OverlayBackgroundExtensionMessage,
     port: chrome.runtime.Port,
   ) => {
-    const command = message?.command;
+    const tabId = port.sender.tab.id;
+    if (this.portKeyForTab[tabId] !== message?.portKey) {
+      return;
+    }
+
+    const command = message.command;
     let handler: CallableFunction | undefined;
 
     if (port.name === AutofillOverlayPort.ButtonMessageConnector) {

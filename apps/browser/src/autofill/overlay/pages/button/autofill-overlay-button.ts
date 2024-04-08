@@ -47,18 +47,21 @@ class AutofillOverlayButton extends AutofillOverlayPageElement {
    * @param styleSheetUrl - The URL of the stylesheet to apply to the page
    * @param translations - The translations to apply to the page
    * @param messageConnectorUrl - The URL of the message connector to use
+   * @param portKey - Background generated key that allows the port to communicate with the background
    */
   private async initAutofillOverlayButton({
     authStatus,
     styleSheetUrl,
     translations,
     messageConnectorUrl,
+    portKey,
   }: InitAutofillOverlayButtonMessage) {
     const linkElement = await this.initOverlayPage(
       "button",
       styleSheetUrl,
       translations,
       messageConnectorUrl,
+      portKey,
     );
     this.buttonElement.tabIndex = -1;
     this.buttonElement.type = "button";

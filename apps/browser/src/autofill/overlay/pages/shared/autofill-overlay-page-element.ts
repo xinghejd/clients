@@ -11,6 +11,7 @@ class AutofillOverlayPageElement extends HTMLElement {
   protected messageOrigin: string;
   protected translations: Record<string, string>;
   protected messageConnectorIframe: HTMLIFrameElement;
+  private portKey: string;
   protected windowMessageHandlers: WindowMessageHandlers;
 
   constructor() {
@@ -27,13 +28,17 @@ class AutofillOverlayPageElement extends HTMLElement {
    * @param styleSheetUrl - The URL of the stylesheet to apply to the page
    * @param translations - The translations to apply to the page
    * @param messageConnectorUrl - The URL of the message connector to use
+   * @param portKey - Background generated key that allows the port to communicate with the background
    */
   protected async initOverlayPage(
     elementName: "button" | "list",
     styleSheetUrl: string,
     translations: Record<string, string>,
     messageConnectorUrl: string,
+    portKey: string,
   ): Promise<HTMLLinkElement> {
+    this.portKey = portKey;
+
     this.translations = translations;
     globalThis.document.documentElement.setAttribute("lang", this.getTranslation("locale"));
     globalThis.document.head.title = this.getTranslation(`${elementName}PageTitle`);
@@ -79,7 +84,10 @@ class AutofillOverlayPageElement extends HTMLElement {
       return;
     }
 
-    this.messageConnectorIframe.contentWindow.postMessage(message, "*");
+    this.messageConnectorIframe.contentWindow.postMessage(
+      { portKey: this.portKey, ...message },
+      "*",
+    );
   }
 
   /**

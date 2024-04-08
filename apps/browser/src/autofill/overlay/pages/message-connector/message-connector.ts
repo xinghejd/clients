@@ -12,25 +12,23 @@ export class AutofillOverlayMessageConnector {
   }
 
   private handleWindowMessage = (event: MessageEvent) => {
+    const message = event.data;
     if (
       event.source !== globalThis.parent ||
-      !this.isFromExtensionOrigin(event.origin.toLowerCase())
+      !this.isFromExtensionOrigin(event.origin.toLowerCase()) ||
+      !message.portKey
     ) {
       return;
     }
-
-    const message = event.data;
 
     if (this.port) {
       this.port.postMessage(message);
       return;
     }
 
-    if (message.command !== "initAutofillOverlayPort") {
-      return;
+    if (message.command === "initAutofillOverlayPort") {
+      this.port = chrome.runtime.connect({ name: message.portName });
     }
-
-    this.port = chrome.runtime.connect({ name: message.portName });
   };
 
   /**

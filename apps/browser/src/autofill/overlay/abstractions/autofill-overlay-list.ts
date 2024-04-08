@@ -15,6 +15,7 @@ type InitAutofillOverlayListMessage = OverlayListMessage & {
   translations: Record<string, string>;
   ciphers?: OverlayCipherData[];
   messageConnectorUrl: string;
+  portKey: string;
 };
 
 type OverlayListWindowMessageHandlers = {

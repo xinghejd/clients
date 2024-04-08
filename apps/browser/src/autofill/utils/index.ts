@@ -1,24 +1,24 @@
 import { AutofillPort } from "../enums/autofill-port.enums";
 import { FillableFormFieldElement, FormFieldElement } from "../types";
 
+function generateRandomChars(length: number): string {
+  const chars = "abcdefghijklmnopqrstuvwxyz";
+  const randomChars = [];
+  const randomBytes = new Uint8Array(length);
+  globalThis.crypto.getRandomValues(randomBytes);
+
+  for (let byteIndex = 0; byteIndex < randomBytes.length; byteIndex++) {
+    const byte = randomBytes[byteIndex];
+    randomChars.push(chars[byte % chars.length]);
+  }
+
+  return randomChars.join("");
+}
+
 /**
  * Generates a random string of characters that formatted as a custom element name.
  */
 function generateRandomCustomElementName(): string {
-  const generateRandomChars = (length: number): string => {
-    const chars = "abcdefghijklmnopqrstuvwxyz";
-    const randomChars = [];
-    const randomBytes = new Uint8Array(length);
-    globalThis.crypto.getRandomValues(randomBytes);
-
-    for (let byteIndex = 0; byteIndex < randomBytes.length; byteIndex++) {
-      const byte = randomBytes[byteIndex];
-      randomChars.push(chars[byte % chars.length]);
-    }
-
-    return randomChars.join("");
-  };
-
   const length = Math.floor(Math.random() * 5) + 8; // Between 8 and 12 characters
   const numHyphens = Math.min(Math.max(Math.floor(Math.random() * 4), 1), length - 1); // At least 1, maximum of 3 hyphens
 
@@ -274,6 +274,7 @@ function nodeIsFormElement(node: Node): node is HTMLFormElement {
 }
 
 export {
+  generateRandomChars,
   generateRandomCustomElementName,
   buildSvgDomElement,
   sendExtensionMessage,

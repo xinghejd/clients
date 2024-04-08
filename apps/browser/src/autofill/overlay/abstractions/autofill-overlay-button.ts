@@ -8,6 +8,7 @@ type InitAutofillOverlayButtonMessage = UpdateAuthStatusMessage & {
   styleSheetUrl: string;
   translations: Record<string, string>;
   messageConnectorUrl: string;
+  portKey: string;
 };
 
 type OverlayButtonWindowMessageHandlers = {

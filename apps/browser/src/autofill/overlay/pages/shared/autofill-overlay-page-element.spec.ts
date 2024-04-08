@@ -37,6 +37,7 @@ describe("AutofillOverlayPageElement", () => {
         "https://jest-testing-website.com",
         translations,
         "https://jest-testing-website.com/message-connector",
+        "portKey",
       );
 
       expect(globalThis.document.documentElement.setAttribute).toHaveBeenCalledWith(
