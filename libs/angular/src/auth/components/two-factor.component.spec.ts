@@ -7,21 +7,21 @@ import { BehaviorSubject } from "rxjs";
 // eslint-disable-next-line no-restricted-imports
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import {
-  FakeKeyConnectorUserDecryptionOption as KeyConnectorUserDecryptionOption,
   LoginStrategyServiceAbstraction,
+  LoginEmailServiceAbstraction,
+  FakeKeyConnectorUserDecryptionOption as KeyConnectorUserDecryptionOption,
   FakeTrustedDeviceUserDecryptionOption as TrustedDeviceUserDecryptionOption,
   FakeUserDecryptionOptions as UserDecryptionOptions,
   UserDecryptionOptionsServiceAbstraction,
 } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { LoginService } from "@bitwarden/common/auth/abstractions/login.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -59,10 +59,10 @@ describe("TwoFactorComponent", () => {
   let mockLogService: MockProxy<LogService>;
   let mockTwoFactorService: MockProxy<TwoFactorService>;
   let mockAppIdService: MockProxy<AppIdService>;
-  let mockLoginService: MockProxy<LoginService>;
+  let mockLoginEmailService: MockProxy<LoginEmailServiceAbstraction>;
   let mockUserDecryptionOptionsService: MockProxy<UserDecryptionOptionsServiceAbstraction>;
   let mockSsoLoginService: MockProxy<SsoLoginServiceAbstraction>;
-  let mockConfigService: MockProxy<ConfigServiceAbstraction>;
+  let mockConfigService: MockProxy<ConfigService>;
 
   let mockUserDecryptionOpts: {
     noMasterPassword: UserDecryptionOptions;
@@ -89,10 +89,10 @@ describe("TwoFactorComponent", () => {
     mockLogService = mock<LogService>();
     mockTwoFactorService = mock<TwoFactorService>();
     mockAppIdService = mock<AppIdService>();
-    mockLoginService = mock<LoginService>();
+    mockLoginEmailService = mock<LoginEmailServiceAbstraction>();
     mockUserDecryptionOptionsService = mock<UserDecryptionOptionsServiceAbstraction>();
     mockSsoLoginService = mock<SsoLoginServiceAbstraction>();
-    mockConfigService = mock<ConfigServiceAbstraction>();
+    mockConfigService = mock<ConfigService>();
 
     mockUserDecryptionOpts = {
       noMasterPassword: new UserDecryptionOptions({
@@ -163,13 +163,13 @@ describe("TwoFactorComponent", () => {
         { provide: LogService, useValue: mockLogService },
         { provide: TwoFactorService, useValue: mockTwoFactorService },
         { provide: AppIdService, useValue: mockAppIdService },
-        { provide: LoginService, useValue: mockLoginService },
+        { provide: LoginEmailServiceAbstraction, useValue: mockLoginEmailService },
         {
           provide: UserDecryptionOptionsServiceAbstraction,
           useValue: mockUserDecryptionOptionsService,
         },
         { provide: SsoLoginServiceAbstraction, useValue: mockSsoLoginService },
-        { provide: ConfigServiceAbstraction, useValue: mockConfigService },
+        { provide: ConfigService, useValue: mockConfigService },
       ],
     });
 
@@ -280,11 +280,11 @@ describe("TwoFactorComponent", () => {
         expect(component.onSuccessfulLogin).toHaveBeenCalled();
       });
 
-      it("calls loginService.clearValues() when login is successful", async () => {
+      it("calls loginEmailService.clearValues() when login is successful", async () => {
         // Arrange
         mockLoginStrategyService.logInTwoFactor.mockResolvedValue(new AuthResult());
-        // spy on loginService.clearValues
-        const clearValuesSpy = jest.spyOn(mockLoginService, "clearValues");
+        // spy on loginEmailService.clearValues
+        const clearValuesSpy = jest.spyOn(mockLoginEmailService, "clearValues");
 
         // Act
         await component.doSubmit();
