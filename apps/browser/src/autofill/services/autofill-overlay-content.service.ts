@@ -363,10 +363,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
 
     this.storeModifiedFormElement(formFieldElement);
 
-    if (
-      formFieldElement.value &&
-      ((await this.isInlineMenuCiphersPopulated()) || !this.isUserAuthed())
-    ) {
+    if (await this.hideOverlayListOnFilledField(formFieldElement)) {
       void this.sendExtensionMessage("closeAutofillOverlay", {
         overlayElement: AutofillOverlayElement.List,
         forceCloseOverlay: true,
@@ -466,15 +463,12 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       });
     }
 
-    if (
-      !formElementHasValue ||
-      (!(await this.isInlineMenuCiphersPopulated()) && this.isUserAuthed())
-    ) {
-      void this.sendExtensionMessage("openAutofillOverlay");
+    if (await this.hideOverlayListOnFilledField(formFieldElement as FillableFormFieldElement)) {
+      this.updateOverlayButtonPosition();
       return;
     }
 
-    this.updateOverlayButtonPosition();
+    void this.sendExtensionMessage("openAutofillOverlay");
   }
 
   /**
@@ -758,8 +752,9 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     setTimeout(async () => {
       this.toggleOverlayHidden(false);
       if (
-        (this.mostRecentlyFocusedField as HTMLInputElement)?.value &&
-        ((await this.isInlineMenuCiphersPopulated()) || !this.isUserAuthed())
+        await this.hideOverlayListOnFilledField(
+          this.mostRecentlyFocusedField as FillableFormFieldElement,
+        )
       ) {
         void this.sendExtensionMessage("closeAutofillOverlay", {
           overlayElement: AutofillOverlayElement.List,
@@ -769,10 +764,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     }, 50);
     this.clearUserInteractionEventTimeout();
 
-    if (
-      this.focusedFieldData.focusedFieldRects?.top > 0 &&
-      this.focusedFieldData.focusedFieldRects?.top < globalThis.innerHeight + globalThis.scrollY
-    ) {
+    if (this.isRepositionedFocusedFieldOutOfBounds()) {
       return;
     }
 
@@ -795,6 +787,24 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     if (this.recalculateSubFrameOffsetsTimeout) {
       clearTimeout(this.recalculateSubFrameOffsetsTimeout);
     }
+  }
+
+  private isRepositionedFocusedFieldOutOfBounds() {
+    const focusedFieldRectsTop = this.focusedFieldData?.focusedFieldRects?.top;
+    return (
+      focusedFieldRectsTop &&
+      focusedFieldRectsTop > 0 &&
+      focusedFieldRectsTop < globalThis.innerHeight + globalThis.scrollY
+    );
+  }
+
+  private async hideOverlayListOnFilledField(
+    formFieldElement?: FillableFormFieldElement,
+  ): Promise<boolean> {
+    return (
+      formFieldElement?.value &&
+      ((await this.isInlineMenuCiphersPopulated()) || !this.isUserAuthed())
+    );
   }
 
   /**

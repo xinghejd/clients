@@ -127,6 +127,18 @@ class OverlayBackground implements OverlayBackgroundInterface {
   ) {}
 
   /**
+   * Sets up the extension message listeners and gets the settings for the
+   * overlay's visibility and the user's authentication status.
+   */
+  async init() {
+    this.setupExtensionMessageListeners();
+    const env = await firstValueFrom(this.environmentService.environment$);
+    this.iconsServerUrl = env.getIconsUrl();
+    await this.getOverlayVisibility();
+    await this.getAuthStatus();
+  }
+
+  /**
    * Removes cached page details for a tab
    * based on the passed tabId.
    *
@@ -146,18 +158,6 @@ class OverlayBackground implements OverlayBackgroundInterface {
     if (this.portKeyForTab[tabId]) {
       delete this.portKeyForTab[tabId];
     }
-  }
-
-  /**
-   * Sets up the extension message listeners and gets the settings for the
-   * overlay's visibility and the user's authentication status.
-   */
-  async init() {
-    this.setupExtensionMessageListeners();
-    const env = await firstValueFrom(this.environmentService.environment$);
-    this.iconsServerUrl = env.getIconsUrl();
-    await this.getOverlayVisibility();
-    await this.getAuthStatus();
   }
 
   /**
@@ -225,6 +225,10 @@ class OverlayBackground implements OverlayBackgroundInterface {
     message: OverlayBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
+    if (!this.portKeyForTab[sender.tab.id]) {
+      this.portKeyForTab[sender.tab.id] = generateRandomChars(12);
+    }
+
     const pageDetails = {
       frameId: sender.frameId,
       tab: sender.tab,
@@ -949,11 +953,6 @@ class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    const tabId = port.sender.tab.id;
-    if (!this.portKeyForTab[tabId]) {
-      this.portKeyForTab[tabId] = generateRandomChars(12);
-    }
-
     if (isOverlayListPort) {
       this.overlayListPort = port;
     } else {
@@ -969,7 +968,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
       translations: this.getTranslations(),
       ciphers: isOverlayListPort ? await this.getOverlayCipherData() : null,
       messageConnectorUrl: chrome.runtime.getURL("overlay/message-connector.html"),
-      portKey: this.portKeyForTab[tabId],
+      portKey: this.portKeyForTab[port.sender.tab.id],
     });
     void this.updateOverlayPosition(
       {
@@ -991,8 +990,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
     message: OverlayBackgroundExtensionMessage,
     port: chrome.runtime.Port,
   ) => {
-    const tabId = port.sender.tab.id;
-    if (this.portKeyForTab[tabId] !== message?.portKey) {
+    if (this.portKeyForTab[port.sender.tab.id] !== message?.portKey) {
       return;
     }
 
