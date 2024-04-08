@@ -607,11 +607,18 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private async openOverlay(isFocusingFieldElement = false, isOpeningFullOverlay = false) {
     const currentTab = await BrowserApi.getTabFromCurrentWindowId();
 
-    await BrowserApi.tabSendMessageData(currentTab, "openAutofillOverlay", {
-      isFocusingFieldElement,
-      isOpeningFullOverlay,
-      authStatus: await this.getAuthStatus(),
-    });
+    await BrowserApi.tabSendMessage(
+      currentTab,
+      {
+        command: "openAutofillOverlay",
+        isFocusingFieldElement,
+        isOpeningFullOverlay,
+        authStatus: await this.getAuthStatus(),
+      },
+      {
+        frameId: this.focusedFieldData?.tabId === currentTab.id ? this.focusedFieldData.frameId : 0,
+      },
+    );
   }
 
   /**

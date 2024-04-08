@@ -14,12 +14,12 @@ export type AutofillExtensionMessage = {
   ciphers?: any;
   isInlineMenuHidden?: boolean;
   overlayElement?: string;
+  isFocusingFieldElement?: boolean;
+  authStatus?: AuthenticationStatus;
+  isOpeningFullOverlay?: boolean;
   data?: {
-    authStatus?: AuthenticationStatus;
-    isFocusingFieldElement?: boolean;
     isOverlayCiphersPopulated?: boolean;
     direction?: "previous" | "next" | "current";
-    isOpeningFullOverlay?: boolean;
     forceCloseOverlay?: boolean;
     autofillOverlayVisibility?: number;
   };

@@ -39,7 +39,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   private autofillFieldKeywordsMap: WeakMap<AutofillField, string> = new WeakMap();
   private eventHandlersMemo: { [key: string]: EventListener } = {};
   readonly extensionMessageHandlers: AutofillOverlayContentExtensionMessageHandlers = {
-    openAutofillOverlay: ({ message }) => this.openAutofillOverlay(message.data),
+    openAutofillOverlay: ({ message }) => this.openAutofillOverlay(message),
     addNewVaultItemFromOverlay: () => this.addNewVaultItem(),
     blurMostRecentOverlayField: () => this.blurMostRecentOverlayField(),
     bgUnlockPopoutOpened: () => this.blurMostRecentOverlayField(true),
