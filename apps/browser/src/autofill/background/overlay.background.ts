@@ -851,7 +851,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
     return this.isFieldCurrentlyFocused;
   }
 
-  private updateIsFieldCurrentlyFilling({ message }: OverlayBackgroundExtensionMessage) {
+  private updateIsFieldCurrentlyFilling(message: OverlayBackgroundExtensionMessage) {
     this.isCurrentlyFilling = message.isFieldCurrentlyFilling;
   }
 

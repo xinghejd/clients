@@ -23,7 +23,7 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
   private listElement: HTMLElement;
   private isButtonVisible = false;
   private isListVisible = false;
-  private overlayElementsMutationObserver: MutationObserver;
+  private inlineMenuElementsMutationObserver: MutationObserver;
   private bodyElementMutationObserver: MutationObserver;
   private documentElementMutationObserver: MutationObserver;
   private mutationObserverIterations = 0;
@@ -39,8 +39,8 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
     appendInlineMenuElementsToDom: ({ message }) => this.appendInlineMenuElements(message),
     toggleInlineMenuHidden: ({ message }) =>
       this.toggleInlineMenuHidden(message.isInlineMenuHidden),
-    checkIsInlineMenuButtonVisible: () => this.isButtonVisible,
-    checkIsInlineMenuListVisible: () => this.isListVisible,
+    checkIsInlineMenuButtonVisible: () => this.isInlineMenuButtonVisible(),
+    checkIsInlineMenuListVisible: () => this.isInlineMenuListVisible(),
   };
 
   constructor() {
@@ -55,10 +55,18 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
     return element === this.buttonElement || element === this.listElement;
   }
 
+  private isInlineMenuButtonVisible() {
+    return this.isButtonVisible;
+  }
+
+  private isInlineMenuListVisible() {
+    return this.isListVisible;
+  }
+
   /**
-   * Sends a message that facilitates hiding the overlay elements.
+   * Sends a message that facilitates hiding the inline menu elements.
    *
-   * @param isHidden - Indicates if the overlay elements should be hidden.
+   * @param isHidden - Indicates if the inline menu elements should be hidden.
    */
   private toggleInlineMenuHidden(isHidden: boolean) {
     this.isButtonVisible = !!this.buttonElement && !isHidden;
@@ -66,7 +74,7 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
   }
 
   /**
-   * Removes the autofill overlay from the page. This will initially
+   * Removes the autofill inline menu from the page. This will initially
    * unobserve the body element to ensure the mutation observer no
    * longer triggers.
    */
@@ -87,8 +95,8 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
   };
 
   /**
-   * Removes the overlay button from the DOM if it is currently present. Will
-   * also remove the overlay reposition event listeners.
+   * Removes the inline menu button from the DOM if it is currently present. Will
+   * also remove the inline menu reposition event listeners.
    */
   private removeInlineMenuButton() {
     if (!this.buttonElement) {
@@ -105,7 +113,7 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
   }
 
   /**
-   * Removes the overlay list from the DOM if it is currently present.
+   * Removes the inline menu list from the DOM if it is currently present.
    */
   private removeInlineMenuList() {
     if (!this.listElement) {
@@ -122,7 +130,7 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
   }
 
   /**
-   * Updates the position of both the overlay button and overlay list.
+   * Updates the position of both the inline menu button and inline menu list.
    */
   private async appendInlineMenuElements({ overlayElement }: AutofillExtensionMessage) {
     if (overlayElement === AutofillOverlayElement.Button) {
@@ -133,7 +141,7 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
   }
 
   /**
-   * Updates the position of the overlay button.
+   * Updates the position of the inline menu button.
    */
   private async appendButtonElement(): Promise<void> {
     if (!this.buttonElement) {
@@ -148,7 +156,7 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
   }
 
   /**
-   * Updates the position of the overlay list.
+   * Updates the position of the inline menu list.
    */
   private async appendListElement(): Promise<void> {
     if (!this.listElement) {
@@ -163,11 +171,11 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
   }
 
   /**
-   * Appends the overlay element to the body element. This method will also
-   * observe the body element to ensure that the overlay element is not
+   * Appends the inline menu element to the body element. This method will also
+   * observe the body element to ensure that the inline menu element is not
    * interfered with by any DOM changes.
    *
-   * @param element - The overlay element to append to the body element.
+   * @param element - The inline menu element to append to the body element.
    */
   private appendInlineMenuElementToBody(element: HTMLElement) {
     this.observeBodyElement();
@@ -175,7 +183,7 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
   }
 
   /**
-   * Creates the autofill overlay button element. Will not attempt
+   * Creates the autofill inline menu button element. Will not attempt
    * to create the element if it already exists in the DOM.
    */
   private createButton() {
@@ -204,7 +212,7 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
   }
 
   /**
-   * Creates the autofill overlay list element. Will not attempt
+   * Creates the autofill inline menu list element. Will not attempt
    * to create the element if it already exists in the DOM.
    */
   private createList() {
@@ -247,14 +255,14 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
   }
 
   /**
-   * Sets up mutation observers for the overlay elements, the body element, and the
-   * document element. The mutation observers are used to remove any styles that are
-   * added to the overlay elements by the website. They are also used to ensure that
-   * the overlay elements are always present at the bottom of the body element.
+   * Sets up mutation observers for the inline menu elements, the body element, and
+   * the document element. The mutation observers are used to remove any styles that
+   * are added to the inline menu elements by the website. They are also used to ensure
+   * that the inline menu elements are always present at the bottom of the body element.
    */
   private setupMutationObserver = () => {
-    this.overlayElementsMutationObserver = new MutationObserver(
-      this.handleOverlayElementMutationObserverUpdate,
+    this.inlineMenuElementsMutationObserver = new MutationObserver(
+      this.handleInlineMenuElementMutationObserverUpdate,
     );
 
     this.bodyElementMutationObserver = new MutationObserver(
@@ -263,33 +271,33 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
   };
 
   /**
-   * Sets up mutation observers to verify that the overlay
+   * Sets up mutation observers to verify that the inline menu
    * elements are not modified by the website.
    */
   private observeCustomElements() {
     if (this.buttonElement) {
-      this.overlayElementsMutationObserver?.observe(this.buttonElement, {
+      this.inlineMenuElementsMutationObserver?.observe(this.buttonElement, {
         attributes: true,
       });
     }
 
     if (this.listElement) {
-      this.overlayElementsMutationObserver?.observe(this.listElement, { attributes: true });
+      this.inlineMenuElementsMutationObserver?.observe(this.listElement, { attributes: true });
     }
   }
 
   /**
-   * Disconnects the mutation observers that are used to verify that the overlay
+   * Disconnects the mutation observers that are used to verify that the inline menu
    * elements are not modified by the website.
    */
   private unobserveCustomElements() {
-    this.overlayElementsMutationObserver?.disconnect();
+    this.inlineMenuElementsMutationObserver?.disconnect();
   }
 
   /**
    * Sets up a mutation observer for the body element. The mutation observer is used
-   * to ensure that the overlay elements are always present at the bottom of the body
-   * element.
+   * to ensure that the inline menu elements are always present at the bottom of the
+   * body element.
    */
   private observeBodyElement() {
     this.bodyElementMutationObserver?.observe(globalThis.document.body, { childList: true });
@@ -303,13 +311,13 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
   }
 
   /**
-   * Handles the mutation observer update for the overlay elements. This method will
-   * remove any attributes or styles that might be added to the overlay elements by
+   * Handles the mutation observer update for the inline menu elements. This method will
+   * remove any attributes or styles that might be added to the inline menu elements by
    * a separate process within the website where this script is injected.
    *
    * @param mutationRecord - The mutation record that triggered the update.
    */
-  private handleOverlayElementMutationObserverUpdate = (mutationRecord: MutationRecord[]) => {
+  private handleInlineMenuElementMutationObserverUpdate = (mutationRecord: MutationRecord[]) => {
     if (this.isTriggeringExcessiveMutationObserverIterations()) {
       return;
     }
@@ -333,7 +341,7 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
   };
 
   /**
-   * Removes all elements from a passed overlay
+   * Removes all elements from a passed inline menu
    * element except for the style attribute.
    *
    * @param element - The element to remove the attributes from.
@@ -352,8 +360,8 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
 
   /**
    * Handles the mutation observer update for the body element. This method will
-   * ensure that the overlay elements are always present at the bottom of the body
-   * element.
+   * ensure that the inline menu elements are always present at the bottom of the
+   * body element.
    */
   private handleBodyElementMutationObserverUpdate = () => {
     if (
@@ -365,20 +373,20 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
 
     const lastChild = globalThis.document.body.lastElementChild;
     const secondToLastChild = lastChild?.previousElementSibling;
-    const lastChildIsOverlayList = lastChild === this.listElement;
-    const lastChildIsOverlayButton = lastChild === this.buttonElement;
-    const secondToLastChildIsOverlayButton = secondToLastChild === this.buttonElement;
+    const lastChildIsInlineMenuList = lastChild === this.listElement;
+    const lastChildIsInlineMenuButton = lastChild === this.buttonElement;
+    const secondToLastChildIsInlineMenuButton = secondToLastChild === this.buttonElement;
 
     if (
-      (lastChildIsOverlayList && secondToLastChildIsOverlayButton) ||
-      (lastChildIsOverlayButton && !this.isListVisible)
+      (lastChildIsInlineMenuList && secondToLastChildIsInlineMenuButton) ||
+      (lastChildIsInlineMenuButton && !this.isListVisible)
     ) {
       return;
     }
 
     if (
-      (lastChildIsOverlayList && !secondToLastChildIsOverlayButton) ||
-      (lastChildIsOverlayButton && this.isListVisible)
+      (lastChildIsInlineMenuList && !secondToLastChildIsInlineMenuButton) ||
+      (lastChildIsInlineMenuButton && this.isListVisible)
     ) {
       globalThis.document.body.insertBefore(this.buttonElement, this.listElement);
       return;
@@ -390,7 +398,7 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
   /**
    * Identifies if the mutation observer is triggering excessive iterations.
    * Will trigger a blur of the most recently focused field and remove the
-   * autofill overlay if any set mutation observer is triggering
+   * autofill inline menu if any set mutation observer is triggering
    * excessive iterations.
    */
   private isTriggeringExcessiveMutationObserverIterations() {

@@ -758,7 +758,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     setTimeout(async () => {
       this.toggleOverlayHidden(false);
       if (
-        (this.mostRecentlyFocusedField as HTMLInputElement).value &&
+        (this.mostRecentlyFocusedField as HTMLInputElement)?.value &&
         ((await this.isInlineMenuCiphersPopulated()) || !this.isUserAuthed())
       ) {
         void this.sendExtensionMessage("closeAutofillOverlay", {
