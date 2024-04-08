@@ -27,7 +27,9 @@ export class RolloverState<Input, Output> implements SingleUserState<Output> {
           return true;
         }
 
-        // when there is an update, apply it without emitting the new value
+        // when there is an update, suppress the emission;
+        // `switchMap` handles it by emitting a new output state once
+        // the `null` update round-trips
         await this.updateOutput();
         return false;
       }),
