@@ -193,6 +193,9 @@ class AutofillInit implements AutofillInitInterface {
     return true;
   };
 
+  /**
+   * Clears the send collect details message timeout.
+   */
   private clearSendCollectDetailsMessageTimeout() {
     if (this.sendCollectDetailsMessageTimeout) {
       clearTimeout(this.sendCollectDetailsMessageTimeout as number);

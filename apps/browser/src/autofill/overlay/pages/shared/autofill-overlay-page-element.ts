@@ -54,6 +54,40 @@ class AutofillOverlayPageElement extends HTMLElement {
   }
 
   /**
+   * Initializes an iframe that acts as the communication bridge between
+   * the inline menu UI and the background script. Awaits the load event
+   * of the iframe before initializing the inline menu element to ensure
+   * messages from the inline menu are not missed.
+   *
+   * @param messageConnectorUrl - The URL of the message connector to use
+   * @param elementName - The name of the element, e.g. "button" or "list"
+   */
+  private initMessageConnector(messageConnectorUrl: string, elementName: "button" | "list") {
+    this.messageConnectorIframe = globalThis.document.createElement("iframe");
+    this.messageConnectorIframe.src = messageConnectorUrl;
+    this.messageConnectorIframe.style.opacity = "0";
+    this.messageConnectorIframe.style.position = "absolute";
+    this.messageConnectorIframe.style.width = "0";
+    this.messageConnectorIframe.style.height = "0";
+    this.messageConnectorIframe.style.border = "none";
+    this.messageConnectorIframe.style.pointerEvents = "none";
+    globalThis.document.body.appendChild(this.messageConnectorIframe);
+
+    return new Promise<void>((resolve) => {
+      this.messageConnectorIframe.addEventListener(EVENTS.LOAD, () => {
+        this.postMessageToConnector({
+          command: `initAutofillOverlayPort`,
+          portName:
+            elementName === "list"
+              ? AutofillOverlayPort.ListMessageConnector
+              : AutofillOverlayPort.ButtonMessageConnector,
+        });
+        resolve();
+      });
+    });
+  }
+
+  /**
    * Posts a window message to the parent window.
    *
    * @param message - The message to post
@@ -158,31 +192,6 @@ class AutofillOverlayPageElement extends HTMLElement {
    */
   private redirectOverlayFocusOutMessage(direction: string) {
     this.postMessageToConnector({ command: "redirectOverlayFocusOut", direction });
-  }
-
-  private initMessageConnector(messageConnectorUrl: string, elementName: "button" | "list") {
-    this.messageConnectorIframe = globalThis.document.createElement("iframe");
-    this.messageConnectorIframe.src = messageConnectorUrl;
-    this.messageConnectorIframe.style.opacity = "0";
-    this.messageConnectorIframe.style.position = "absolute";
-    this.messageConnectorIframe.style.width = "0";
-    this.messageConnectorIframe.style.height = "0";
-    this.messageConnectorIframe.style.border = "none";
-    this.messageConnectorIframe.style.pointerEvents = "none";
-    globalThis.document.body.appendChild(this.messageConnectorIframe);
-
-    return new Promise<void>((resolve) => {
-      this.messageConnectorIframe.addEventListener(EVENTS.LOAD, () => {
-        this.postMessageToConnector({
-          command: `initAutofillOverlayPort`,
-          portName:
-            elementName === "list"
-              ? AutofillOverlayPort.ListMessageConnector
-              : AutofillOverlayPort.ButtonMessageConnector,
-        });
-        resolve();
-      });
-    });
   }
 }
 
