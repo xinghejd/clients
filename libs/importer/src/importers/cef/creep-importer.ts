@@ -44,13 +44,12 @@ export class CREEPImporter extends CEFImporter {
     return new JSZip()
       .loadAsync(container)
       .then((zip) => {
-        return zip.files[contentFilePath].async("string");
+        return zip.files[contentFilePath].async("arraybuffer");
       })
       .then(async (content) => {
-        const bytes = Utils.fromUrlB64ToArray(content);
         const decrypted = await (window as any).suite.open(
           { recipientKey: (window as any).rkp, enc: rawSecret },
-          bytes.buffer,
+          content,
         );
         return Utils.fromBufferToUtf8(decrypted);
       })
