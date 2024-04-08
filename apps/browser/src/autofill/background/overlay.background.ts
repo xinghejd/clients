@@ -52,7 +52,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private overlayLoginCiphers: Map<string, CipherView> = new Map();
   private pageDetailsForTab: PageDetailsForTab = {};
   private subFrameOffsetsForTab: SubFrameOffsetsForTab = {};
-  private rebuildSubFrameOffsetsTimeout: number | NodeJS.Timeout;
+  private updateOverlayPositionAfterSubFrameRebuildTimeout: number | NodeJS.Timeout;
   private userAuthStatus: AuthenticationStatus = AuthenticationStatus.LoggedOut;
   private overlayButtonPort: chrome.runtime.Port;
   private overlayListPort: chrome.runtime.Port;
@@ -306,8 +306,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    if (this.rebuildSubFrameOffsetsTimeout) {
-      clearTimeout(this.rebuildSubFrameOffsetsTimeout as number);
+    if (this.updateOverlayPositionAfterSubFrameRebuildTimeout) {
+      clearTimeout(this.updateOverlayPositionAfterSubFrameRebuildTimeout);
     }
 
     const frameTabs = Array.from(subFrameOffsetsForTab.keys());
@@ -320,7 +320,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
       await this.buildSubFrameOffsets(sender.tab, frameId, sender.url);
     }
 
-    this.rebuildSubFrameOffsetsTimeout = setTimeout(() => {
+    this.updateOverlayPositionAfterSubFrameRebuildTimeout = setTimeout(() => {
       if (this.isFieldCurrentlyFocused) {
         void this.updateOverlayPosition({ overlayElement: AutofillOverlayElement.List }, sender);
         void this.updateOverlayPosition({ overlayElement: AutofillOverlayElement.Button }, sender);

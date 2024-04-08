@@ -59,8 +59,8 @@ type OverlayBackgroundExtensionMessage = {
   isFieldCurrentlyFilling?: boolean;
   subFrameData?: SubFrameOffsetData;
   focusedFieldData?: FocusedFieldData;
-  data?: LockedVaultPendingNotificationsData;
   styles?: Partial<CSSStyleDeclaration>;
+  data?: LockedVaultPendingNotificationsData;
 } & OverlayAddNewItemMessage;
 
 type OverlayPortMessage = {
