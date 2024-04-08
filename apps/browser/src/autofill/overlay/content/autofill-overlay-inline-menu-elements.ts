@@ -7,8 +7,8 @@ import {
 import { AutofillOverlayElement } from "../../utils/autofill-overlay.enum";
 import {
   InlineMenuExtensionMessageHandlers,
-  InlineMenuElements as InlineMenuElementsInterface,
-} from "../abstractions/inline-menu-elements";
+  AutofillOverlayInlineMenuElements as InlineMenuElementsInterface,
+} from "../abstractions/autofill-overlay-inline-menu-elements";
 import AutofillOverlayButtonIframe from "../iframe-content/autofill-overlay-button-iframe";
 import AutofillOverlayListIframe from "../iframe-content/autofill-overlay-list-iframe";
 

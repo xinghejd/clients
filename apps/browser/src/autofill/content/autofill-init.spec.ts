@@ -1,7 +1,8 @@
-import { mock } from "jest-mock-extended";
+import { mock, MockProxy } from "jest-mock-extended";
 
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
+import { AutofillOverlayInlineMenuElements } from "../overlay/content/autofill-overlay-inline-menu-elements";
 import AutofillOverlayContentService from "../services/autofill-overlay-content.service";
 import { flushPromises, sendMockExtensionMessage } from "../spec/testing-utils";
 
@@ -9,8 +10,9 @@ import { AutofillExtensionMessage } from "./abstractions/autofill-init";
 import AutofillInit from "./autofill-init";
 
 describe("AutofillInit", () => {
+  let inlineMenuElements: MockProxy<AutofillOverlayInlineMenuElements>;
+  let autofillOverlayContentService: MockProxy<AutofillOverlayContentService>;
   let autofillInit: AutofillInit;
-  const autofillOverlayContentService = mock<AutofillOverlayContentService>();
   const originalDocumentReadyState = document.readyState;
   let sendExtensionMessageSpy: jest.SpyInstance;
 
@@ -20,7 +22,9 @@ describe("AutofillInit", () => {
         addListener: jest.fn(),
       },
     });
-    autofillInit = new AutofillInit(autofillOverlayContentService);
+    inlineMenuElements = mock<AutofillOverlayInlineMenuElements>();
+    autofillOverlayContentService = mock<AutofillOverlayContentService>();
+    autofillInit = new AutofillInit(autofillOverlayContentService, inlineMenuElements);
     sendExtensionMessageSpy = jest
       .spyOn(autofillInit as any, "sendExtensionMessage")
       .mockImplementation();
@@ -164,8 +168,7 @@ describe("AutofillInit", () => {
           sendMockExtensionMessage(message, sender, sendResponse);
           await flushPromises();
 
-          expect(chrome.runtime.sendMessage).toHaveBeenCalledWith({
-            command: "collectPageDetailsResponse",
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("collectPageDetailsResponse", {
             tab: message.tab,
             details: pageDetails,
             sender: message.sender,
@@ -208,14 +211,11 @@ describe("AutofillInit", () => {
         });
 
         it("skips calling the InsertAutofillContentService and does not fill the form if the url to fill is not equal to the current tab url", async () => {
-          const fillScript = mock<AutofillScript>();
-          const message = {
+          sendMockExtensionMessage({
             command: "fillForm",
             fillScript,
             pageDetailsUrl: "https://a-different-url.com",
-          };
-
-          sendMockExtensionMessage(message);
+          });
           await flushPromises();
 
           expect(autofillInit["insertAutofillContentService"].fillForm).not.toHaveBeenCalledWith(

@@ -1,7 +1,7 @@
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
 import AutofillPageDetails from "../models/autofill-page-details";
-import { InlineMenuElements } from "../overlay/abstractions/inline-menu-elements";
+import { AutofillOverlayInlineMenuElements } from "../overlay/abstractions/autofill-overlay-inline-menu-elements";
 import { AutofillOverlayContentService } from "../services/abstractions/autofill-overlay-content.service";
 import CollectAutofillContentService from "../services/collect-autofill-content.service";
 import DomElementVisibilityService from "../services/dom-element-visibility.service";
@@ -17,7 +17,7 @@ import {
 class AutofillInit implements AutofillInitInterface {
   private readonly sendExtensionMessage = sendExtensionMessage;
   private readonly autofillOverlayContentService: AutofillOverlayContentService | undefined;
-  private readonly inlineMenuElements: InlineMenuElements | undefined;
+  private readonly inlineMenuElements: AutofillOverlayInlineMenuElements | undefined;
   private readonly domElementVisibilityService: DomElementVisibilityService;
   private readonly collectAutofillContentService: CollectAutofillContentService;
   private readonly insertAutofillContentService: InsertAutofillContentService;
@@ -37,7 +37,7 @@ class AutofillInit implements AutofillInitInterface {
    */
   constructor(
     autofillOverlayContentService?: AutofillOverlayContentService,
-    inlineMenuElements?: InlineMenuElements,
+    inlineMenuElements?: AutofillOverlayInlineMenuElements,
   ) {
     this.autofillOverlayContentService = autofillOverlayContentService;
     if (this.autofillOverlayContentService) {
@@ -118,8 +118,7 @@ class AutofillInit implements AutofillInitInterface {
       return pageDetails;
     }
 
-    void chrome.runtime.sendMessage({
-      command: "collectPageDetailsResponse",
+    void this.sendExtensionMessage("collectPageDetailsResponse", {
       tab: message.tab,
       details: pageDetails,
       sender: message.sender,
@@ -157,11 +156,7 @@ class AutofillInit implements AutofillInitInterface {
    * is opened.
    */
   private blurAndRemoveOverlay() {
-    if (!this.autofillOverlayContentService) {
-      return;
-    }
-
-    this.autofillOverlayContentService.blurMostRecentOverlayField(true);
+    this.autofillOverlayContentService?.blurMostRecentOverlayField(true);
   }
 
   /**

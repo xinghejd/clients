@@ -9,7 +9,7 @@ export type InlineMenuExtensionMessageHandlers = {
   checkIsInlineMenuListVisible: () => boolean;
 };
 
-export interface InlineMenuElements {
+export interface AutofillOverlayInlineMenuElements {
   extensionMessageHandlers: InlineMenuExtensionMessageHandlers;
   isElementInlineMenu(element: HTMLElement): boolean;
   destroy(): void;

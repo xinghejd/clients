@@ -1,4 +1,4 @@
-import { InlineMenuElements } from "../overlay/abstractions/inline-menu-elements";
+import { AutofillOverlayInlineMenuElements } from "../overlay/abstractions/autofill-overlay-inline-menu-elements";
 import { FillableFormFieldElement, FormFieldElement } from "../types";
 
 import { DomElementVisibilityService as domElementVisibilityServiceInterface } from "./abstractions/dom-element-visibility.service";
@@ -6,7 +6,7 @@ import { DomElementVisibilityService as domElementVisibilityServiceInterface } f
 class DomElementVisibilityService implements domElementVisibilityServiceInterface {
   private cachedComputedStyle: CSSStyleDeclaration | null = null;
 
-  constructor(private inlineMenuElements?: InlineMenuElements) {}
+  constructor(private inlineMenuElements?: AutofillOverlayInlineMenuElements) {}
 
   /**
    * Checks if a form field is viewable. This is done by checking if the element is within the
