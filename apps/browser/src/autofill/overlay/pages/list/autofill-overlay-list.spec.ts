@@ -3,7 +3,7 @@ import { mock } from "jest-mock-extended";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
 import { createInitAutofillOverlayListMessageMock } from "../../../spec/autofill-mocks";
-import { postWindowMessage } from "../../../spec/testing-utils";
+import { flushPromises, postWindowMessage } from "../../../spec/testing-utils";
 
 import AutofillOverlayList from "./autofill-overlay-list";
 
@@ -16,11 +16,20 @@ describe("AutofillOverlayList", () => {
   }));
 
   let autofillOverlayList: AutofillOverlayList;
+  let messageConnectorIframe: HTMLIFrameElement;
+  const portKey: string = "overlayListPortKey";
 
   beforeEach(() => {
     document.body.innerHTML = `<autofill-overlay-list></autofill-overlay-list>`;
     autofillOverlayList = document.querySelector("autofill-overlay-list");
     autofillOverlayList["messageOrigin"] = "https://localhost/";
+    messageConnectorIframe = mock<HTMLIFrameElement>({
+      contentWindow: {
+        postMessage: jest.fn(),
+      },
+    });
+    autofillOverlayList["messageConnectorIframe"] = messageConnectorIframe;
+    jest.spyOn(autofillOverlayList as any, "initMessageConnector").mockResolvedValue(undefined);
     jest.spyOn(globalThis.document, "createElement");
     jest.spyOn(globalThis.parent, "postMessage");
   });
@@ -36,6 +45,7 @@ describe("AutofillOverlayList", () => {
           createInitAutofillOverlayListMessageMock({
             authStatus: AuthenticationStatus.Locked,
             cipherList: [],
+            portKey,
           }),
         );
       });
@@ -50,9 +60,9 @@ describe("AutofillOverlayList", () => {
 
         unlockButton.dispatchEvent(new Event("click"));
 
-        expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-          { command: "unlockVault" },
-          "https://localhost/",
+        expect(messageConnectorIframe.contentWindow.postMessage).toHaveBeenCalledWith(
+          { command: "unlockVault", portKey },
+          "*",
         );
       });
     });
@@ -63,6 +73,7 @@ describe("AutofillOverlayList", () => {
           createInitAutofillOverlayListMessageMock({
             authStatus: AuthenticationStatus.Unlocked,
             ciphers: [],
+            portKey,
           }),
         );
       });
@@ -77,9 +88,9 @@ describe("AutofillOverlayList", () => {
 
         addVaultItemButton.dispatchEvent(new Event("click"));
 
-        expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-          { command: "addNewVaultItem" },
-          "https://localhost/",
+        expect(messageConnectorIframe.contentWindow.postMessage).toHaveBeenCalledWith(
+          { command: "addNewVaultItem", portKey },
+          "*",
         );
       });
     });
@@ -128,7 +139,7 @@ describe("AutofillOverlayList", () => {
 
       describe("fill cipher button event listeners", () => {
         beforeEach(() => {
-          postWindowMessage(createInitAutofillOverlayListMessageMock());
+          postWindowMessage(createInitAutofillOverlayListMessageMock({ portKey }));
         });
 
         it("allows the user to fill a cipher on click", () => {
@@ -137,9 +148,9 @@ describe("AutofillOverlayList", () => {
 
           fillCipherButton.dispatchEvent(new Event("click"));
 
-          expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-            { command: "fillSelectedListItem", overlayCipherId: "1" },
-            "https://localhost/",
+          expect(messageConnectorIframe.contentWindow.postMessage).toHaveBeenCalledWith(
+            { command: "fillSelectedListItem", overlayCipherId: "1", portKey },
+            "*",
           );
         });
 
@@ -216,7 +227,7 @@ describe("AutofillOverlayList", () => {
 
       describe("view cipher button event listeners", () => {
         beforeEach(() => {
-          postWindowMessage(createInitAutofillOverlayListMessageMock());
+          postWindowMessage(createInitAutofillOverlayListMessageMock({ portKey }));
         });
 
         it("allows the user to view a cipher on click", () => {
@@ -225,9 +236,9 @@ describe("AutofillOverlayList", () => {
 
           viewCipherButton.dispatchEvent(new Event("click"));
 
-          expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-            { command: "viewSelectedCipher", overlayCipherId: "1" },
-            "https://localhost/",
+          expect(messageConnectorIframe.contentWindow.postMessage).toHaveBeenCalledWith(
+            { command: "viewSelectedCipher", overlayCipherId: "1", portKey },
+            "*",
           );
         });
 
@@ -283,12 +294,16 @@ describe("AutofillOverlayList", () => {
   });
 
   describe("global event listener handlers", () => {
+    beforeEach(() => {
+      postWindowMessage(createInitAutofillOverlayListMessageMock({ portKey }));
+    });
+
     it("does not post a `checkAutofillOverlayButtonFocused` message to the parent if the overlay is currently focused", () => {
       jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(true);
 
       postWindowMessage({ command: "checkAutofillOverlayListFocused" });
 
-      expect(globalThis.parent.postMessage).not.toHaveBeenCalled();
+      expect(messageConnectorIframe.contentWindow.postMessage).not.toHaveBeenCalled();
     });
 
     it("posts a `checkAutofillOverlayButtonFocused` message to the parent if the overlay is not currently focused", () => {
@@ -296,9 +311,9 @@ describe("AutofillOverlayList", () => {
 
       postWindowMessage({ command: "checkAutofillOverlayListFocused" });
 
-      expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-        { command: "checkAutofillOverlayButtonFocused" },
-        "https://localhost/",
+      expect(messageConnectorIframe.contentWindow.postMessage).toHaveBeenCalledWith(
+        { command: "checkAutofillOverlayButtonFocused", portKey },
+        "*",
       );
     });
 
@@ -330,13 +345,14 @@ describe("AutofillOverlayList", () => {
         expect(overlayContainerSetAttributeSpy).toHaveBeenCalledWith("aria-modal", "true");
       });
 
-      it("focuses the unlock button element if the user is not authenticated", () => {
+      it("focuses the unlock button element if the user is not authenticated", async () => {
         postWindowMessage(
           createInitAutofillOverlayListMessageMock({
             authStatus: AuthenticationStatus.Locked,
             cipherList: [],
           }),
         );
+        await flushPromises();
         const unlockButton =
           autofillOverlayList["overlayListContainer"].querySelector("#unlock-button");
         jest.spyOn(unlockButton as HTMLElement, "focus");
@@ -346,8 +362,9 @@ describe("AutofillOverlayList", () => {
         expect((unlockButton as HTMLElement).focus).toBeCalled();
       });
 
-      it("focuses the new item button element if the cipher list is empty", () => {
+      it("focuses the new item button element if the cipher list is empty", async () => {
         postWindowMessage(createInitAutofillOverlayListMessageMock({ ciphers: [] }));
+        await flushPromises();
         const newItemButton =
           autofillOverlayList["overlayListContainer"].querySelector("#new-item-button");
         jest.spyOn(newItemButton as HTMLElement, "focus");
@@ -372,7 +389,7 @@ describe("AutofillOverlayList", () => {
 
   describe("handleResizeObserver", () => {
     beforeEach(() => {
-      postWindowMessage(createInitAutofillOverlayListMessageMock());
+      postWindowMessage(createInitAutofillOverlayListMessageMock({ portKey }));
     });
 
     it("ignores resize entries whose target is not the overlay list", () => {
@@ -385,7 +402,7 @@ describe("AutofillOverlayList", () => {
 
       autofillOverlayList["handleResizeObserver"](entries as unknown as ResizeObserverEntry[]);
 
-      expect(globalThis.parent.postMessage).not.toHaveBeenCalled();
+      expect(messageConnectorIframe.contentWindow.postMessage).not.toHaveBeenCalled();
     });
 
     it("posts a message to update the overlay list height if the list container is resized", () => {
@@ -398,9 +415,9 @@ describe("AutofillOverlayList", () => {
 
       autofillOverlayList["handleResizeObserver"](entries as unknown as ResizeObserverEntry[]);
 
-      expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-        { command: "updateAutofillOverlayListHeight", styles: { height: "300px" } },
-        "https://localhost/",
+      expect(messageConnectorIframe.contentWindow.postMessage).toHaveBeenCalledWith(
+        { command: "updateAutofillOverlayListHeight", styles: { height: "300px" }, portKey },
+        "*",
       );
     });
   });
