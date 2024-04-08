@@ -24,14 +24,11 @@ describe("AutofillOverlayList", () => {
     autofillOverlayList = document.querySelector("autofill-overlay-list");
     autofillOverlayList["messageOrigin"] = "https://localhost/";
     messageConnectorIframe = mock<HTMLIFrameElement>({
-      contentWindow: {
-        postMessage: jest.fn(),
-      },
+      contentWindow: { postMessage: jest.fn() },
     });
     autofillOverlayList["messageConnectorIframe"] = messageConnectorIframe;
     jest.spyOn(autofillOverlayList as any, "initMessageConnector").mockResolvedValue(undefined);
     jest.spyOn(globalThis.document, "createElement");
-    jest.spyOn(globalThis.parent, "postMessage");
   });
 
   afterEach(() => {
