@@ -60,7 +60,7 @@ describe("AutofillOverlayIframeService", () => {
 
       autofillOverlayIframeService.initOverlayIframe({}, "title");
 
-      expect(autofillOverlayIframeService["shadow"].appendChild).toBeCalledWith(
+      expect(autofillOverlayIframeService["shadow"].appendChild).toHaveBeenCalledWith(
         autofillOverlayIframeService["iframe"],
       );
     });
@@ -71,7 +71,9 @@ describe("AutofillOverlayIframeService", () => {
 
       autofillOverlayIframeService.initOverlayIframe({}, "title", ariaAlert);
 
-      expect(autofillOverlayIframeService["createAriaAlertElement"]).toBeCalledWith(ariaAlert);
+      expect(autofillOverlayIframeService["createAriaAlertElement"]).toHaveBeenCalledWith(
+        ariaAlert,
+      );
       expect(autofillOverlayIframeService["ariaAlertElement"]).toMatchSnapshot();
     });
 
@@ -86,9 +88,9 @@ describe("AutofillOverlayIframeService", () => {
         autofillOverlayIframeService["iframe"].dispatchEvent(new Event(EVENTS.LOAD));
         portSpy = autofillOverlayIframeService["port"];
 
-        expect(chrome.runtime.connect).toBeCalledWith({ name: AutofillOverlayPort.Button });
-        expect(portSpy.onDisconnect.addListener).toBeCalledWith(handlePortDisconnectSpy);
-        expect(portSpy.onMessage.addListener).toBeCalledWith(handlePortMessageSpy);
+        expect(chrome.runtime.connect).toHaveBeenCalledWith({ name: AutofillOverlayPort.Button });
+        expect(portSpy.onDisconnect.addListener).toHaveBeenCalledWith(handlePortDisconnectSpy);
+        expect(portSpy.onMessage.addListener).toHaveBeenCalledWith(handlePortMessageSpy);
       });
 
       it("skips announcing the aria alert if the aria alert element is not populated", () => {
@@ -97,7 +99,7 @@ describe("AutofillOverlayIframeService", () => {
 
         autofillOverlayIframeService["iframe"].dispatchEvent(new Event(EVENTS.LOAD));
 
-        expect(globalThis.setTimeout).not.toBeCalled();
+        expect(globalThis.setTimeout).not.toHaveBeenCalled();
       });
 
       it("announces the aria alert if the aria alert element is populated", () => {
@@ -108,10 +110,12 @@ describe("AutofillOverlayIframeService", () => {
 
         autofillOverlayIframeService["iframe"].dispatchEvent(new Event(EVENTS.LOAD));
 
-        expect(globalThis.setTimeout).toBeCalled();
+        expect(globalThis.setTimeout).toHaveBeenCalled();
         jest.advanceTimersByTime(2000);
 
-        expect(shadowAppendSpy).toBeCalledWith(autofillOverlayIframeService["ariaAlertElement"]);
+        expect(shadowAppendSpy).toHaveBeenCalledWith(
+          autofillOverlayIframeService["ariaAlertElement"],
+        );
       });
     });
   });
@@ -149,19 +153,19 @@ describe("AutofillOverlayIframeService", () => {
       it("removes the port's onMessage listener", () => {
         triggerPortOnDisconnectEvent(portSpy);
 
-        expect(portSpy.onMessage.removeListener).toBeCalledWith(handlePortMessageSpy);
+        expect(portSpy.onMessage.removeListener).toHaveBeenCalledWith(handlePortMessageSpy);
       });
 
       it("removes the port's onDisconnect listener", () => {
         triggerPortOnDisconnectEvent(portSpy);
 
-        expect(portSpy.onDisconnect.removeListener).toBeCalledWith(handlePortDisconnectSpy);
+        expect(portSpy.onDisconnect.removeListener).toHaveBeenCalledWith(handlePortDisconnectSpy);
       });
 
       it("disconnects the port", () => {
         triggerPortOnDisconnectEvent(portSpy);
 
-        expect(portSpy.disconnect).toBeCalled();
+        expect(portSpy.disconnect).toHaveBeenCalled();
         expect(autofillOverlayIframeService["port"]).toBeNull();
       });
     });
@@ -171,7 +175,9 @@ describe("AutofillOverlayIframeService", () => {
         portSpy.name = "wrong-port-name";
         sendPortMessage(portSpy, {});
 
-        expect(autofillOverlayIframeService["iframe"].contentWindow.postMessage).not.toBeCalled();
+        expect(
+          autofillOverlayIframeService["iframe"].contentWindow.postMessage,
+        ).not.toHaveBeenCalled();
       });
 
       it("passes on the message to the iframe if the message is not registered with the message handlers", () => {
@@ -179,10 +185,9 @@ describe("AutofillOverlayIframeService", () => {
 
         sendPortMessage(portSpy, message);
 
-        expect(autofillOverlayIframeService["iframe"].contentWindow.postMessage).toBeCalledWith(
-          message,
-          "*",
-        );
+        expect(
+          autofillOverlayIframeService["iframe"].contentWindow.postMessage,
+        ).toHaveBeenCalledWith(message, "*");
       });
 
       it("handles port messages that are registered with the message handlers and does not pass the message on to the iframe", () => {
@@ -190,7 +195,9 @@ describe("AutofillOverlayIframeService", () => {
 
         sendPortMessage(portSpy, { command: "updateIframePosition" });
 
-        expect(autofillOverlayIframeService["iframe"].contentWindow.postMessage).not.toBeCalled();
+        expect(
+          autofillOverlayIframeService["iframe"].contentWindow.postMessage,
+        ).not.toHaveBeenCalled();
       });
 
       describe("initializing the overlay list", () => {
@@ -211,11 +218,10 @@ describe("AutofillOverlayIframeService", () => {
 
           sendPortMessage(portSpy, message);
 
-          expect(updateElementStylesSpy).not.toBeCalled();
-          expect(autofillOverlayIframeService["iframe"].contentWindow.postMessage).toBeCalledWith(
-            message,
-            "*",
-          );
+          expect(updateElementStylesSpy).not.toHaveBeenCalled();
+          expect(
+            autofillOverlayIframeService["iframe"].contentWindow.postMessage,
+          ).toHaveBeenCalledWith(message, "*");
         });
 
         it("sets a light theme based on the user's system preferences", () => {
@@ -228,7 +234,9 @@ describe("AutofillOverlayIframeService", () => {
           sendPortMessage(portSpy, message);
 
           expect(window.matchMedia).toHaveBeenCalledWith("(prefers-color-scheme: dark)");
-          expect(autofillOverlayIframeService["iframe"].contentWindow.postMessage).toBeCalledWith(
+          expect(
+            autofillOverlayIframeService["iframe"].contentWindow.postMessage,
+          ).toHaveBeenCalledWith(
             {
               command: "initAutofillOverlayList",
               theme: ThemeType.Light,
@@ -247,7 +255,9 @@ describe("AutofillOverlayIframeService", () => {
           sendPortMessage(portSpy, message);
 
           expect(window.matchMedia).toHaveBeenCalledWith("(prefers-color-scheme: dark)");
-          expect(autofillOverlayIframeService["iframe"].contentWindow.postMessage).toBeCalledWith(
+          expect(
+            autofillOverlayIframeService["iframe"].contentWindow.postMessage,
+          ).toHaveBeenCalledWith(
             {
               command: "initAutofillOverlayList",
               theme: ThemeType.Dark,
@@ -264,9 +274,12 @@ describe("AutofillOverlayIframeService", () => {
 
           sendPortMessage(portSpy, message);
 
-          expect(updateElementStylesSpy).toBeCalledWith(autofillOverlayIframeService["iframe"], {
-            borderColor: "#4c525f",
-          });
+          expect(updateElementStylesSpy).toHaveBeenCalledWith(
+            autofillOverlayIframeService["iframe"],
+            {
+              borderColor: "#4c525f",
+            },
+          );
         });
 
         it("updates the border to match the `nord` theme", () => {
@@ -277,9 +290,12 @@ describe("AutofillOverlayIframeService", () => {
 
           sendPortMessage(portSpy, message);
 
-          expect(updateElementStylesSpy).toBeCalledWith(autofillOverlayIframeService["iframe"], {
-            borderColor: "#2E3440",
-          });
+          expect(updateElementStylesSpy).toHaveBeenCalledWith(
+            autofillOverlayIframeService["iframe"],
+            {
+              borderColor: "#2E3440",
+            },
+          );
         });
 
         it("updates the border to match the `solarizedDark` theme", () => {
@@ -290,9 +306,12 @@ describe("AutofillOverlayIframeService", () => {
 
           sendPortMessage(portSpy, message);
 
-          expect(updateElementStylesSpy).toBeCalledWith(autofillOverlayIframeService["iframe"], {
-            borderColor: "#073642",
-          });
+          expect(updateElementStylesSpy).toHaveBeenCalledWith(
+            autofillOverlayIframeService["iframe"],
+            {
+              borderColor: "#073642",
+            },
+          );
         });
       });
 
@@ -310,7 +329,7 @@ describe("AutofillOverlayIframeService", () => {
             styles: { top: 100, left: 100 },
           });
 
-          expect(autofillOverlayIframeService["updateElementStyles"]).not.toBeCalled();
+          expect(autofillOverlayIframeService["updateElementStyles"]).not.toHaveBeenCalled();
         });
 
         it("updates the iframe position if the document has focus", () => {
@@ -349,7 +368,9 @@ describe("AutofillOverlayIframeService", () => {
           });
 
           jest.advanceTimersByTime(2000);
-          expect(shadowAppendSpy).toBeCalledWith(autofillOverlayIframeService["ariaAlertElement"]);
+          expect(shadowAppendSpy).toHaveBeenCalledWith(
+            autofillOverlayIframeService["ariaAlertElement"],
+          );
         });
       });
 
@@ -360,6 +381,22 @@ describe("AutofillOverlayIframeService", () => {
         });
 
         expect(autofillOverlayIframeService["iframe"].style.display).toBe("none");
+      });
+
+      it("updates the button based on the web page's color scheme", () => {
+        sendPortMessage(portSpy, {
+          command: "updateOverlayPageColorScheme",
+        });
+
+        expect(
+          autofillOverlayIframeService["iframe"].contentWindow.postMessage,
+        ).toHaveBeenCalledWith(
+          {
+            command: "updateOverlayPageColorScheme",
+            colorScheme: "normal",
+          },
+          "*",
+        );
       });
     });
   });
@@ -384,7 +421,7 @@ describe("AutofillOverlayIframeService", () => {
       autofillOverlayIframeService["iframe"].style.visibility = "hidden";
       await flushPromises();
 
-      expect(autofillOverlayIframeService["updateElementStyles"]).not.toBeCalled();
+      expect(autofillOverlayIframeService["updateElementStyles"]).not.toHaveBeenCalled();
     });
 
     it("reverts any styles changes made directly to the iframe", async () => {
@@ -403,7 +440,9 @@ describe("AutofillOverlayIframeService", () => {
       autofillOverlayIframeService["iframe"].src = "http://malicious-site.com";
       await flushPromises();
 
-      expect(sendExtensionMessageSpy).toBeCalledWith("closeAutofillOverlay", { forceClose: true });
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillOverlay", {
+        forceClose: true,
+      });
     });
 
     it("force closes the autofill overlay if excessive mutations are being triggered", async () => {
@@ -413,7 +452,9 @@ describe("AutofillOverlayIframeService", () => {
       autofillOverlayIframeService["iframe"].src = "http://malicious-site.com";
       await flushPromises();
 
-      expect(sendExtensionMessageSpy).toBeCalledWith("closeAutofillOverlay", { forceClose: true });
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillOverlay", {
+        forceClose: true,
+      });
     });
 
     it("resets the excessive mutations and foreign mutation counters", async () => {

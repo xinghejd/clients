@@ -135,7 +135,7 @@ type OverlayButtonPortMessageHandlers = {
   forceCloseAutofillOverlay: ({ port }: PortConnectionParam) => void;
   overlayPageBlurred: () => void;
   redirectOverlayFocusOut: ({ message, port }: PortOnMessageHandlerParams) => void;
-  getPageColorScheme: () => void;
+  updateOverlayPageColorScheme: () => void;
 };
 
 type OverlayListPortMessageHandlers = {

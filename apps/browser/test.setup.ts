@@ -126,6 +126,7 @@ const offscreen = {
 
 const webNavigation = {
   getFrame: jest.fn(),
+  getAllFrames: jest.fn(),
 };
 
 // set chrome

@@ -45,7 +45,7 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
     initAutofillOverlayList: ({ message }) => this.initAutofillOverlayList(message),
     updateIframePosition: ({ message }) => this.updateIframePosition(message.styles),
     updateOverlayHidden: ({ message }) => this.updateElementStyles(this.iframe, message.styles),
-    getPageColorScheme: () => this.updateOverlayPageColorScheme(),
+    updateOverlayPageColorScheme: () => this.updateOverlayPageColorScheme(),
   };
 
   constructor(
@@ -304,6 +304,10 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
     }
   };
 
+  /**
+   * Triggers a forced closure of the autofill overlay. This is used when the
+   * mutation observer is triggered excessively.
+   */
   private forceCloseAutofillOverlay() {
     void this.sendExtensionMessage("closeAutofillOverlay", { forceClose: true });
   }

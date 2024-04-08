@@ -18,7 +18,7 @@ type BackgroundPortMessageHandlers = {
   initAutofillOverlayList: ({ message }: AutofillOverlayIframeExtensionMessageParam) => void;
   updateIframePosition: ({ message }: AutofillOverlayIframeExtensionMessageParam) => void;
   updateOverlayHidden: ({ message }: AutofillOverlayIframeExtensionMessageParam) => void;
-  getPageColorScheme: () => void;
+  updateOverlayPageColorScheme: () => void;
 };
 
 interface AutofillOverlayIframeService {

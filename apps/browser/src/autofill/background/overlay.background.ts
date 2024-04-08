@@ -97,7 +97,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
       this.closeOverlay(port.sender, { forceCloseOverlay: true }),
     overlayPageBlurred: () => this.checkOverlayListFocused(),
     redirectOverlayFocusOut: ({ message, port }) => this.redirectOverlayFocusOut(message, port),
-    getPageColorScheme: () => this.updateButtonPageColorScheme(),
+    updateOverlayPageColorScheme: () => this.updateButtonPageColorScheme(),
   };
   private readonly overlayListPortMessageHandlers: OverlayListPortMessageHandlers = {
     checkAutofillOverlayButtonFocused: () => this.checkOverlayButtonFocused(),
@@ -886,7 +886,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
 
   private updateButtonPageColorScheme() {
     this.overlayButtonPort?.postMessage({
-      command: "getPageColorScheme",
+      command: "updateOverlayPageColorScheme",
     });
   }
 

@@ -71,7 +71,7 @@ class AutofillOverlayButton extends AutofillOverlayPageElement {
       this.getTranslation("toggleBitwardenVaultOverlay"),
     );
     this.buttonElement.addEventListener(EVENTS.CLICK, this.handleButtonElementClick);
-    this.postMessageToConnector({ command: "getPageColorScheme" });
+    this.postMessageToConnector({ command: "updateOverlayPageColorScheme" });
 
     this.updateAuthStatus(authStatus);
 
