@@ -275,6 +275,12 @@ export class BrowserApi {
     return new Promise((resolve) => chrome.webNavigation.getFrame(details, resolve));
   }
 
+  static async getAllFrames(
+    details: chrome.webNavigation.GetAllFrameDetails,
+  ): Promise<chrome.webNavigation.GetAllFrameResultDetails[]> {
+    return new Promise((resolve) => chrome.webNavigation.getAllFrames(details, resolve));
+  }
+
   // Keep track of all the events registered in a Safari popup so we can remove
   // them when the popup gets unloaded, otherwise we cause a memory leak
   private static trackedChromeEventListeners: [
