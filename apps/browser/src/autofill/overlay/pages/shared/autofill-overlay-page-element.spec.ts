@@ -31,11 +31,12 @@ describe("AutofillOverlayPageElement", () => {
       jest.spyOn(globalThis.document, "createElement");
     });
 
-    it("initializes the button overlay page", () => {
-      const linkElement = autofillOverlayPageElement["initOverlayPage"](
+    it("initializes the button overlay page", async () => {
+      const linkElement = await autofillOverlayPageElement["initOverlayPage"](
         "button",
         "https://jest-testing-website.com",
         translations,
+        "https://jest-testing-website.com/message-connector",
       );
 
       expect(globalThis.document.documentElement.setAttribute).toHaveBeenCalledWith(
@@ -49,16 +50,16 @@ describe("AutofillOverlayPageElement", () => {
     });
   });
 
-  describe("postMessageToParent", () => {
+  describe("postMessageToConnector", () => {
     it("skips posting a message to the parent if the message origin in not set", () => {
-      autofillOverlayPageElement["postMessageToParent"]({ command: "test" });
+      autofillOverlayPageElement["postMessageToConnector"]({ command: "test" });
 
       expect(globalThis.parent.postMessage).not.toHaveBeenCalled();
     });
 
     it("posts a message to the parent", () => {
       autofillOverlayPageElement["messageOrigin"] = "https://jest-testing-website.com";
-      autofillOverlayPageElement["postMessageToParent"]({ command: "test" });
+      autofillOverlayPageElement["postMessageToConnector"]({ command: "test" });
 
       expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
         { command: "test" },

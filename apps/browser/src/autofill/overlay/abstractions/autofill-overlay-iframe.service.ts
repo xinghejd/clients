@@ -7,7 +7,6 @@ type AutofillOverlayIframeExtensionMessage = {
 type AutofillOverlayIframeWindowMessageHandlers = {
   [key: string]: CallableFunction;
   updateAutofillOverlayListHeight: (message: AutofillOverlayIframeExtensionMessage) => void;
-  getPageColorScheme: () => void;
 };
 
 type AutofillOverlayIframeExtensionMessageParam = {
@@ -19,6 +18,7 @@ type BackgroundPortMessageHandlers = {
   initAutofillOverlayList: ({ message }: AutofillOverlayIframeExtensionMessageParam) => void;
   updateIframePosition: ({ message }: AutofillOverlayIframeExtensionMessageParam) => void;
   updateOverlayHidden: ({ message }: AutofillOverlayIframeExtensionMessageParam) => void;
+  getPageColorScheme: () => void;
 };
 
 interface AutofillOverlayIframeService {

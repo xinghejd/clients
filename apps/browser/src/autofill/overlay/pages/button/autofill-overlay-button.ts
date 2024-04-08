@@ -46,15 +46,20 @@ class AutofillOverlayButton extends AutofillOverlayPageElement {
    * @param authStatus - The authentication status of the user
    * @param styleSheetUrl - The URL of the stylesheet to apply to the page
    * @param translations - The translations to apply to the page
-   * @private
+   * @param messageConnectorUrl - The URL of the message connector to use
    */
   private async initAutofillOverlayButton({
     authStatus,
     styleSheetUrl,
     translations,
+    messageConnectorUrl,
   }: InitAutofillOverlayButtonMessage) {
-    const linkElement = this.initOverlayPage("button", styleSheetUrl, translations);
-
+    const linkElement = await this.initOverlayPage(
+      "button",
+      styleSheetUrl,
+      translations,
+      messageConnectorUrl,
+    );
     this.buttonElement.tabIndex = -1;
     this.buttonElement.type = "button";
     this.buttonElement.classList.add("overlay-button");
@@ -63,7 +68,7 @@ class AutofillOverlayButton extends AutofillOverlayPageElement {
       this.getTranslation("toggleBitwardenVaultOverlay"),
     );
     this.buttonElement.addEventListener(EVENTS.CLICK, this.handleButtonElementClick);
-    this.postMessageToParent({ command: "getPageColorScheme" });
+    this.postMessageToConnector({ command: "getPageColorScheme" });
 
     this.updateAuthStatus(authStatus);
 
@@ -103,7 +108,7 @@ class AutofillOverlayButton extends AutofillOverlayPageElement {
    * parent window indicating that the button was clicked.
    */
   private handleButtonElementClick = () => {
-    this.postMessageToParent({ command: "overlayButtonClicked" });
+    this.postMessageToConnector({ command: "overlayButtonClicked" });
   };
 
   /**
@@ -115,7 +120,7 @@ class AutofillOverlayButton extends AutofillOverlayPageElement {
       return;
     }
 
-    this.postMessageToParent({ command: "closeAutofillOverlay" });
+    this.postMessageToConnector({ command: "closeAutofillOverlay" });
   }
 }
 

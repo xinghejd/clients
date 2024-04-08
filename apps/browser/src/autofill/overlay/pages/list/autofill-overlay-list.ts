@@ -44,6 +44,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
    * @param theme - The theme to use for the overlay list.
    * @param authStatus - The current authentication status.
    * @param ciphers - The ciphers to display in the overlay list.
+   * @param messageConnectorUrl - The URL of the message connector to use.
    */
   private async initAutofillOverlayList({
     translations,
@@ -51,8 +52,14 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     theme,
     authStatus,
     ciphers,
+    messageConnectorUrl,
   }: InitAutofillOverlayListMessage) {
-    const linkElement = this.initOverlayPage("button", styleSheetUrl, translations);
+    const linkElement = await this.initOverlayPage(
+      "list",
+      styleSheetUrl,
+      translations,
+      messageConnectorUrl,
+    );
 
     const themeClass = `theme_${theme}`;
     globalThis.document.documentElement.classList.add(themeClass);
@@ -105,7 +112,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
    * Sends a message to the parent window to unlock the vault.
    */
   private handleUnlockButtonClick = () => {
-    this.postMessageToParent({ command: "unlockVault" });
+    this.postMessageToConnector({ command: "unlockVault" });
   };
 
   /**
@@ -169,7 +176,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
    * Sends a message to the parent window to add a new vault item.
    */
   private handeNewItemButtonClick = () => {
-    this.postMessageToParent({ command: "addNewVaultItem" });
+    this.postMessageToConnector({ command: "addNewVaultItem" });
   };
 
   /**
@@ -276,7 +283,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
   private handleFillCipherClickEvent = (cipher: OverlayCipherData) => {
     return this.useEventHandlersMemo(
       () =>
-        this.postMessageToParent({
+        this.postMessageToConnector({
           command: "fillSelectedListItem",
           overlayCipherId: cipher.id,
         }),
@@ -341,7 +348,8 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
    */
   private handleViewCipherClickEvent = (cipher: OverlayCipherData) => {
     return this.useEventHandlersMemo(
-      () => this.postMessageToParent({ command: "viewSelectedCipher", overlayCipherId: cipher.id }),
+      () =>
+        this.postMessageToConnector({ command: "viewSelectedCipher", overlayCipherId: cipher.id }),
       `${cipher.id}-view-cipher-button-click-handler`,
     );
   };
@@ -476,7 +484,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
       return;
     }
 
-    this.postMessageToParent({ command: "checkAutofillOverlayButtonFocused" });
+    this.postMessageToConnector({ command: "checkAutofillOverlayButtonFocused" });
   }
 
   /**
@@ -533,7 +541,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
       }
 
       const { height } = entry.contentRect;
-      this.postMessageToParent({
+      this.postMessageToConnector({
         command: "updateAutofillOverlayListHeight",
         styles: { height: `${height}px` },
       });

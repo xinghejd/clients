@@ -5,7 +5,9 @@ const AutofillOverlayElement = {
 
 const AutofillOverlayPort = {
   Button: "autofill-overlay-button-port",
+  ButtonMessageConnector: "autofill-overlay-button-message-connector",
   List: "autofill-overlay-list-port",
+  ListMessageConnector: "autofill-overlay-list-message-connector",
 } as const;
 
 const RedirectFocusDirection = {

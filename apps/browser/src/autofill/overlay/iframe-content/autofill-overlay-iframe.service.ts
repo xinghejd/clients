@@ -1,17 +1,15 @@
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 
-import { setElementStyles } from "../../utils";
+import { sendExtensionMessage, setElementStyles } from "../../utils";
 import {
   BackgroundPortMessageHandlers,
   AutofillOverlayIframeService as AutofillOverlayIframeServiceInterface,
   AutofillOverlayIframeExtensionMessage,
-  AutofillOverlayIframeWindowMessageHandlers,
 } from "../abstractions/autofill-overlay-iframe.service";
 
 class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterface {
   private port: chrome.runtime.Port | null = null;
-  private extensionOriginsSet: Set<string>;
   private iframeMutationObserver: MutationObserver;
   private iframe: HTMLIFrameElement;
   private ariaAlertElement: HTMLDivElement;
@@ -42,15 +40,11 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
   private foreignMutationsCount = 0;
   private mutationObserverIterations = 0;
   private mutationObserverIterationsResetTimeout: number | NodeJS.Timeout;
-  private readonly windowMessageHandlers: AutofillOverlayIframeWindowMessageHandlers = {
-    updateAutofillOverlayListHeight: (message) =>
-      this.updateElementStyles(this.iframe, message.styles),
-    getPageColorScheme: () => this.updateOverlayPageColorScheme(),
-  };
   private readonly backgroundPortMessageHandlers: BackgroundPortMessageHandlers = {
     initAutofillOverlayList: ({ message }) => this.initAutofillOverlayList(message),
     updateIframePosition: ({ message }) => this.updateIframePosition(message.styles),
     updateOverlayHidden: ({ message }) => this.updateElementStyles(this.iframe, message.styles),
+    getPageColorScheme: () => this.updateOverlayPageColorScheme(),
   };
 
   constructor(
@@ -58,11 +52,6 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
     private portName: string,
     private shadow: ShadowRoot,
   ) {
-    this.extensionOriginsSet = new Set([
-      chrome.runtime.getURL("").slice(0, -1).toLowerCase(), // Remove the trailing slash and normalize the extension url to lowercase
-      "null",
-    ]);
-
     this.iframeMutationObserver = new MutationObserver(this.handleMutations);
   }
 
@@ -134,7 +123,6 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
     this.port = chrome.runtime.connect({ name: this.portName });
     this.port.onDisconnect.addListener(this.handlePortDisconnect);
     this.port.onMessage.addListener(this.handlePortMessage);
-    globalThis.addEventListener(EVENTS.MESSAGE, this.handleWindowMessage);
 
     this.announceAriaAlert();
   };
@@ -168,7 +156,6 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
     }
 
     this.updateElementStyles(this.iframe, { opacity: "0", height: "0px", display: "block" });
-    globalThis.removeEventListener("message", this.handleWindowMessage);
     this.unobserveIframe();
     this.port?.onMessage.removeListener(this.handlePortMessage);
     this.port?.onDisconnect.removeListener(this.handlePortDisconnect);
@@ -266,30 +253,6 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
   }
 
   /**
-   * Handles messages sent from the iframe. If the message does not have a
-   * specified handler set, it passes the message to the background script.
-   *
-   * @param event - The message event
-   */
-  private handleWindowMessage = (event: MessageEvent) => {
-    if (
-      !this.port ||
-      event.source !== this.iframe.contentWindow ||
-      !this.isFromExtensionOrigin(event.origin.toLowerCase())
-    ) {
-      return;
-    }
-
-    const message = event.data;
-    if (this.windowMessageHandlers[message.command]) {
-      this.windowMessageHandlers[message.command](message);
-      return;
-    }
-
-    this.port.postMessage(event.data);
-  };
-
-  /**
    * Accepts an element and updates the styles for that element. This method
    * will also unobserve the element if it is the iframe element. This is
    * done to ensure that we do not trigger the mutation observer when we
@@ -309,17 +272,6 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
     this.iframeStyles = { ...this.iframeStyles, ...styles };
 
     this.observeIframe();
-  }
-
-  /**
-   * Chrome returns null for any sandboxed iframe sources.
-   * Firefox references the extension URI as its origin.
-   * Any other origin value is a security risk.
-   *
-   * @param messageOrigin - The origin of the window message
-   */
-  private isFromExtensionOrigin(messageOrigin: string): boolean {
-    return this.extensionOriginsSet.has(messageOrigin);
   }
 
   /**
@@ -351,6 +303,10 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
     }
   };
 
+  private forceCloseAutofillOverlay() {
+    void sendExtensionMessage("closeAutofillOverlay", { forceClose: true });
+  }
+
   /**
    * Handles mutations to the iframe element's attributes. This ensures that
    * the iframe element's attributes are not modified by a third party source.
@@ -366,7 +322,7 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
       }
 
       if (this.foreignMutationsCount >= 10) {
-        this.port?.postMessage({ command: "forceCloseAutofillOverlay" });
+        this.forceCloseAutofillOverlay();
         break;
       }
 
@@ -421,7 +377,7 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
     if (this.mutationObserverIterations > 20) {
       clearTimeout(this.mutationObserverIterationsResetTimeout);
       resetCounters();
-      this.port?.postMessage({ command: "forceCloseAutofillOverlay" });
+      this.forceCloseAutofillOverlay();
 
       return true;
     }

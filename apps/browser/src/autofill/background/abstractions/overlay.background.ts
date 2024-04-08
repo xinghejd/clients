@@ -12,10 +12,10 @@ type PageDetailsForTab = Record<
 >;
 
 type SubFrameOffsetData = {
+  frameId?: number;
   url?: string;
   top: number;
   left: number;
-  frameId?: number;
 } | null;
 
 type SubFrameOffsetsForTab = Record<
@@ -49,9 +49,9 @@ type OverlayBackgroundExtensionMessage = {
   forceCloseOverlay?: boolean;
   isOverlayHidden?: boolean;
   setTransparentOverlay?: boolean;
-  data?: LockedVaultPendingNotificationsData;
   isFieldCurrentlyFocused?: boolean;
   isCurrentlyFilling?: boolean;
+  data?: LockedVaultPendingNotificationsData;
 } & OverlayAddNewItemMessage;
 
 type OverlayPortMessage = {
@@ -132,6 +132,7 @@ type OverlayButtonPortMessageHandlers = {
   forceCloseAutofillOverlay: ({ port }: PortConnectionParam) => void;
   overlayPageBlurred: () => void;
   redirectOverlayFocusOut: ({ message, port }: PortOnMessageHandlerParams) => void;
+  getPageColorScheme: () => void;
 };
 
 type OverlayListPortMessageHandlers = {
@@ -144,6 +145,7 @@ type OverlayListPortMessageHandlers = {
   addNewVaultItem: ({ port }: PortConnectionParam) => void;
   viewSelectedCipher: ({ message, port }: PortOnMessageHandlerParams) => void;
   redirectOverlayFocusOut: ({ message, port }: PortOnMessageHandlerParams) => void;
+  updateAutofillOverlayListHeight: ({ message, port }: PortOnMessageHandlerParams) => void;
 };
 
 interface OverlayBackground {

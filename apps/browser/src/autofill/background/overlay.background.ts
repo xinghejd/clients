@@ -95,6 +95,11 @@ class OverlayBackground implements OverlayBackgroundInterface {
       this.closeOverlay(port.sender, { forceCloseOverlay: true }),
     overlayPageBlurred: () => this.checkOverlayListFocused(),
     redirectOverlayFocusOut: ({ message, port }) => this.redirectOverlayFocusOut(message, port),
+    getPageColorScheme: () => {
+      this.overlayButtonPort?.postMessage({
+        command: "getPageColorScheme",
+      });
+    },
   };
   private readonly overlayListPortMessageHandlers: OverlayListPortMessageHandlers = {
     checkAutofillOverlayButtonFocused: () => this.checkOverlayButtonFocused(),
@@ -106,6 +111,12 @@ class OverlayBackground implements OverlayBackgroundInterface {
     addNewVaultItem: ({ port }) => this.getNewVaultItemDetails(port),
     viewSelectedCipher: ({ message, port }) => this.viewSelectedCipher(message, port),
     redirectOverlayFocusOut: ({ message, port }) => this.redirectOverlayFocusOut(message, port),
+    updateAutofillOverlayListHeight: ({ message }) => {
+      this.overlayListPort?.postMessage({
+        command: "updateIframePosition",
+        styles: message.styles,
+      });
+    },
   };
 
   constructor(
@@ -832,7 +843,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
     await BrowserApi.sendMessage("inlineAutofillMenuRefreshAddEditCipher");
   }
 
-  private updateIsFieldCurrentlyFocused({ message }: OverlayBackgroundExtensionMessage) {
+  private updateIsFieldCurrentlyFocused(message: OverlayBackgroundExtensionMessage) {
     this.isFieldCurrentlyFocused = message.isFieldCurrentlyFocused;
   }
 
@@ -910,6 +921,14 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * @param port - The port that connected to the extension background
    */
   private handlePortOnConnect = async (port: chrome.runtime.Port) => {
+    const isOverlayListMessageConnector = port.name === AutofillOverlayPort.ListMessageConnector;
+    const isOverlayButtonMessageConnector =
+      port.name === AutofillOverlayPort.ButtonMessageConnector;
+    if (isOverlayListMessageConnector || isOverlayButtonMessageConnector) {
+      port.onMessage.addListener(this.handleOverlayElementPortMessage);
+      return;
+    }
+
     const isOverlayListPort = port.name === AutofillOverlayPort.List;
     const isOverlayButtonPort = port.name === AutofillOverlayPort.Button;
 
@@ -923,7 +942,6 @@ class OverlayBackground implements OverlayBackgroundInterface {
       this.overlayButtonPort = port;
     }
 
-    port.onMessage.addListener(this.handleOverlayElementPortMessage);
     port.onDisconnect.addListener(this.handlePortOnDisconnect);
     port.postMessage({
       command: `initAutofillOverlay${isOverlayListPort ? "List" : "Button"}`,
@@ -932,6 +950,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       translations: this.getTranslations(),
       ciphers: isOverlayListPort ? await this.getOverlayCipherData() : null,
+      messageConnectorUrl: chrome.runtime.getURL("overlay/message-connector.html"),
     });
     void this.updateOverlayPosition(
       {
@@ -956,11 +975,11 @@ class OverlayBackground implements OverlayBackgroundInterface {
     const command = message?.command;
     let handler: CallableFunction | undefined;
 
-    if (port.name === AutofillOverlayPort.Button) {
+    if (port.name === AutofillOverlayPort.ButtonMessageConnector) {
       handler = this.overlayButtonPortMessageHandlers[command];
     }
 
-    if (port.name === AutofillOverlayPort.List) {
+    if (port.name === AutofillOverlayPort.ListMessageConnector) {
       handler = this.overlayListPortMessageHandlers[command];
     }
 

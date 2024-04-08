@@ -70,13 +70,13 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
    * unobserve the body element to ensure the mutation observer no
    * longer triggers.
    */
-  private removeInlineMenu = (message: any) => {
-    if (message.overlayElement === AutofillOverlayElement.Button) {
+  private removeInlineMenu = (message?: AutofillExtensionMessage) => {
+    if (message?.overlayElement === AutofillOverlayElement.Button) {
       this.removeInlineMenuButton();
       return;
     }
 
-    if (message.overlayElement === AutofillOverlayElement.List) {
+    if (message?.overlayElement === AutofillOverlayElement.List) {
       this.removeInlineMenuList();
       return;
     }
@@ -408,7 +408,7 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
       clearTimeout(this.mutationObserverIterationsResetTimeout);
       this.mutationObserverIterations = 0;
       void this.sendExtensionMessage("blurMostRecentOverlayField");
-      this.removeInlineMenu({ forceClose: true });
+      this.removeInlineMenu();
 
       return true;
     }
@@ -417,6 +417,6 @@ export class InlineMenuElements implements InlineMenuElementsInterface {
   }
   destroy() {
     this.documentElementMutationObserver?.disconnect();
-    this.removeInlineMenu({ forceClose: true });
+    this.removeInlineMenu();
   }
 }

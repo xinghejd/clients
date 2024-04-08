@@ -115,6 +115,7 @@
     "images/icon38_locked.png",
     "overlay/button.html",
     "overlay/list.html",
+    "overlay/message-connector.html",
     "popup/fonts/*"
   ],
   "applications": {

@@ -24,7 +24,7 @@ const notificationBarWindowMessageHandlers: NotificationBarWindowMessageHandlers
 globalThis.addEventListener("load", load);
 function load() {
   setupWindowMessageListener();
-  postMessageToParent({ command: "initNotificationBar" });
+  postMessageToConnector({ command: "initNotificationBar" });
 }
 
 function initNotificationBar(message: NotificationBarWindowMessage) {
@@ -392,6 +392,6 @@ function setNotificationBarTheme() {
   document.documentElement.classList.add(`theme_${theme}`);
 }
 
-function postMessageToParent(message: NotificationBarWindowMessage) {
+function postMessageToConnector(message: NotificationBarWindowMessage) {
   globalThis.parent.postMessage(message, windowMessageOrigin || "*");
 }

@@ -173,6 +173,7 @@ function createInitAutofillOverlayButtonMessageMock(
     translations: overlayPagesTranslations,
     styleSheetUrl: "https://jest-testing-website.com",
     authStatus: AuthenticationStatus.Unlocked,
+    messageConnectorUrl: "https://jest-testing-website.com/message-connector",
     ...customFields,
   };
 }
@@ -203,6 +204,7 @@ function createInitAutofillOverlayListMessageMock(
     styleSheetUrl: "https://jest-testing-website.com",
     theme: ThemeType.Light,
     authStatus: AuthenticationStatus.Unlocked,
+    messageConnectorUrl: "https://jest-testing-website.com/message-connector",
     ciphers: [
       createAutofillOverlayCipherDataMock(1, {
         icon: {

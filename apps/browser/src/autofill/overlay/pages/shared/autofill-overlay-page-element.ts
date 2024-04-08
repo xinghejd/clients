@@ -1,6 +1,6 @@
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
-import { RedirectFocusDirection } from "../../../utils/autofill-overlay.enum";
+import { AutofillOverlayPort, RedirectFocusDirection } from "../../../utils/autofill-overlay.enum";
 import {
   AutofillOverlayPageElementWindowMessage,
   WindowMessageHandlers,
@@ -10,6 +10,7 @@ class AutofillOverlayPageElement extends HTMLElement {
   protected shadowDom: ShadowRoot;
   protected messageOrigin: string;
   protected translations: Record<string, string>;
+  protected messageConnectorIframe: HTMLIFrameElement;
   protected windowMessageHandlers: WindowMessageHandlers;
 
   constructor() {
@@ -25,15 +26,40 @@ class AutofillOverlayPageElement extends HTMLElement {
    * @param elementName - The name of the element, e.g. "button" or "list"
    * @param styleSheetUrl - The URL of the stylesheet to apply to the page
    * @param translations - The translations to apply to the page
+   * @param messageConnectorUrl - The URL of the message connector to use
    */
-  protected initOverlayPage(
+  protected async initOverlayPage(
     elementName: "button" | "list",
     styleSheetUrl: string,
     translations: Record<string, string>,
-  ): HTMLLinkElement {
+    messageConnectorUrl: string,
+  ): Promise<HTMLLinkElement> {
     this.translations = translations;
     globalThis.document.documentElement.setAttribute("lang", this.getTranslation("locale"));
     globalThis.document.head.title = this.getTranslation(`${elementName}PageTitle`);
+
+    this.messageConnectorIframe = globalThis.document.createElement("iframe");
+    this.messageConnectorIframe.src = messageConnectorUrl;
+    this.messageConnectorIframe.style.opacity = "0";
+    this.messageConnectorIframe.style.position = "absolute";
+    this.messageConnectorIframe.style.width = "0";
+    this.messageConnectorIframe.style.height = "0";
+    this.messageConnectorIframe.style.border = "none";
+    this.messageConnectorIframe.style.pointerEvents = "none";
+    globalThis.document.body.appendChild(this.messageConnectorIframe);
+
+    await new Promise<void>((resolve) => {
+      this.messageConnectorIframe.addEventListener(EVENTS.LOAD, () => {
+        this.postMessageToConnector({
+          command: `initAutofillOverlayPort`,
+          portName:
+            elementName === "list"
+              ? AutofillOverlayPort.ListMessageConnector
+              : AutofillOverlayPort.ButtonMessageConnector,
+        });
+        resolve();
+      });
+    });
 
     this.shadowDom.innerHTML = "";
     const linkElement = globalThis.document.createElement("link");
@@ -48,12 +74,12 @@ class AutofillOverlayPageElement extends HTMLElement {
    *
    * @param message - The message to post
    */
-  protected postMessageToParent(message: AutofillOverlayPageElementWindowMessage) {
+  protected postMessageToConnector(message: AutofillOverlayPageElementWindowMessage) {
     if (!this.messageOrigin) {
       return;
     }
 
-    globalThis.parent.postMessage(message, this.messageOrigin);
+    this.messageConnectorIframe.contentWindow.postMessage(message, "*");
   }
 
   /**
@@ -111,7 +137,7 @@ class AutofillOverlayPageElement extends HTMLElement {
    * Handles the window blur event.
    */
   private handleWindowBlurEvent = () => {
-    this.postMessageToParent({ command: "overlayPageBlurred" });
+    this.postMessageToConnector({ command: "overlayPageBlurred" });
   };
 
   /**
@@ -148,7 +174,7 @@ class AutofillOverlayPageElement extends HTMLElement {
    * @param direction - The direction to redirect the focus out
    */
   private redirectOverlayFocusOutMessage(direction: string) {
-    this.postMessageToParent({ command: "redirectOverlayFocusOut", direction });
+    this.postMessageToConnector({ command: "redirectOverlayFocusOut", direction });
   }
 }
 
