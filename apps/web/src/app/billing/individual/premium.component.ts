@@ -58,6 +58,10 @@ export class PremiumComponent implements OnInit {
   }
 
   async submit() {
+    if (!this.taxInfoComponent.taxFormGroup.valid) {
+      this.taxInfoComponent.taxFormGroup.markAllAsTouched();
+    }
+
     let files: FileList = null;
     if (this.selfHosted) {
       const fileEl = document.getElementById("file") as HTMLInputElement;

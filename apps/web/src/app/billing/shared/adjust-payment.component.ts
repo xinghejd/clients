@@ -38,6 +38,9 @@ export class AdjustPaymentComponent {
   ) {}
 
   async submit() {
+    if (!this.taxInfoComponent.taxFormGroup.valid) {
+      this.taxInfoComponent.taxFormGroup.markAllAsTouched();
+    }
     try {
       const request = new PaymentRequest();
       this.formPromise = this.paymentComponent.createPaymentToken().then((result) => {
