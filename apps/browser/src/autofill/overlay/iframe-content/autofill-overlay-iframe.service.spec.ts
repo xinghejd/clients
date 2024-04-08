@@ -20,7 +20,7 @@ describe("AutofillOverlayIframeService", () => {
   let shadowAppendSpy: jest.SpyInstance;
   let handlePortDisconnectSpy: jest.SpyInstance;
   let handlePortMessageSpy: jest.SpyInstance;
-  let handleWindowMessageSpy: jest.SpyInstance;
+  let sendExtensionMessageSpy: jest.SpyInstance;
 
   beforeEach(() => {
     const shadow = document.createElement("div").attachShadow({ mode: "open" });
@@ -35,10 +35,13 @@ describe("AutofillOverlayIframeService", () => {
       "handlePortDisconnect",
     );
     handlePortMessageSpy = jest.spyOn(autofillOverlayIframeService as any, "handlePortMessage");
-    handleWindowMessageSpy = jest.spyOn(autofillOverlayIframeService as any, "handleWindowMessage");
     chrome.runtime.connect = jest.fn((connectInfo: chrome.runtime.ConnectInfo) =>
       createPortSpyMock(connectInfo.name),
     ) as unknown as typeof chrome.runtime.connect;
+    sendExtensionMessageSpy = jest.spyOn(
+      autofillOverlayIframeService as any,
+      "sendExtensionMessage",
+    );
   });
 
   afterEach(() => {
@@ -86,7 +89,6 @@ describe("AutofillOverlayIframeService", () => {
         expect(chrome.runtime.connect).toBeCalledWith({ name: AutofillOverlayPort.Button });
         expect(portSpy.onDisconnect.addListener).toBeCalledWith(handlePortDisconnectSpy);
         expect(portSpy.onMessage.addListener).toBeCalledWith(handlePortMessageSpy);
-        expect(globalThis.addEventListener).toBeCalledWith(EVENTS.MESSAGE, handleWindowMessageSpy);
       });
 
       it("skips announcing the aria alert if the aria alert element is not populated", () => {
@@ -142,17 +144,6 @@ describe("AutofillOverlayIframeService", () => {
         expect(autofillOverlayIframeService["iframe"].style.opacity).toBe("0");
         expect(autofillOverlayIframeService["iframe"].style.height).toBe("0px");
         expect(autofillOverlayIframeService["iframe"].style.display).toBe("block");
-      });
-
-      it("removes the global message listener", () => {
-        jest.spyOn(globalThis, "removeEventListener");
-
-        triggerPortOnDisconnectEvent(portSpy);
-
-        expect(globalThis.removeEventListener).toBeCalledWith(
-          EVENTS.MESSAGE,
-          handleWindowMessageSpy,
-        );
       });
 
       it("removes the port's onMessage listener", () => {
@@ -371,103 +362,6 @@ describe("AutofillOverlayIframeService", () => {
         expect(autofillOverlayIframeService["iframe"].style.display).toBe("none");
       });
     });
-
-    describe("handleWindowMessage", () => {
-      it("ignores window messages when the port is not set", () => {
-        autofillOverlayIframeService["port"] = null;
-
-        globalThis.dispatchEvent(new MessageEvent("message", { data: {} }));
-
-        expect(autofillOverlayIframeService["port"]).toBeNull();
-      });
-
-      it("ignores window messages whose source is not the iframe's content window", () => {
-        globalThis.dispatchEvent(
-          new MessageEvent("message", {
-            data: {},
-            source: window,
-          }),
-        );
-
-        expect(portSpy.postMessage).not.toBeCalled();
-      });
-
-      it("ignores window messages whose origin is not from the extension origin", () => {
-        globalThis.dispatchEvent(
-          new MessageEvent("message", {
-            data: {},
-            source: autofillOverlayIframeService["iframe"].contentWindow,
-            origin: "https://www.google.com",
-          }),
-        );
-
-        expect(portSpy.postMessage).not.toBeCalled();
-      });
-
-      it("passes the window message from an iframe element to the background port", () => {
-        globalThis.dispatchEvent(
-          new MessageEvent("message", {
-            data: { command: "not-a-handled-command" },
-            source: autofillOverlayIframeService["iframe"].contentWindow,
-            origin: "chrome-extension://id",
-          }),
-        );
-
-        expect(portSpy.postMessage).toBeCalledWith({ command: "not-a-handled-command" });
-      });
-
-      it("updates the overlay list height", () => {
-        globalThis.dispatchEvent(
-          new MessageEvent("message", {
-            data: { command: "updateAutofillOverlayListHeight", styles: { height: "300px" } },
-            source: autofillOverlayIframeService["iframe"].contentWindow,
-            origin: "chrome-extension://id",
-          }),
-        );
-
-        expect(autofillOverlayIframeService["iframe"].style.height).toBe("300px");
-      });
-
-      describe("getPageColorScheme window message", () => {
-        afterEach(() => {
-          globalThis.document.head.innerHTML = "";
-        });
-
-        it("gets and updates the overlay page color scheme", () => {
-          const colorSchemeMetaTag = globalThis.document.createElement("meta");
-          colorSchemeMetaTag.setAttribute("name", "color-scheme");
-          colorSchemeMetaTag.setAttribute("content", "dark");
-          globalThis.document.head.append(colorSchemeMetaTag);
-          globalThis.dispatchEvent(
-            new MessageEvent("message", {
-              data: { command: "getPageColorScheme" },
-              source: autofillOverlayIframeService["iframe"].contentWindow,
-              origin: "chrome-extension://id",
-            }),
-          );
-
-          expect(autofillOverlayIframeService["iframe"].contentWindow.postMessage).toBeCalledWith(
-            { command: "updateOverlayPageColorScheme", colorScheme: "dark" },
-            "*",
-          );
-        });
-
-        it("sends a normal color scheme if the color scheme meta tag is not present", () => {
-          globalThis.dispatchEvent(
-            new MessageEvent("message", {
-              data: { command: "getPageColorScheme" },
-              source: autofillOverlayIframeService["iframe"].contentWindow,
-              origin: "chrome-extension://id",
-            }),
-          );
-
-          expect(autofillOverlayIframeService["iframe"].contentWindow.postMessage).toBeCalledWith(
-            { command: "updateOverlayPageColorScheme", colorScheme: "normal" },
-            "*",
-          );
-        });
-      });
-    });
   });
 
   describe("mutation observer", () => {
@@ -509,7 +403,7 @@ describe("AutofillOverlayIframeService", () => {
       autofillOverlayIframeService["iframe"].src = "http://malicious-site.com";
       await flushPromises();
 
-      expect(portSpy.postMessage).toBeCalledWith({ command: "forceCloseAutofillOverlay" });
+      expect(sendExtensionMessageSpy).toBeCalledWith("closeAutofillOverlay", { forceClose: true });
     });
 
     it("force closes the autofill overlay if excessive mutations are being triggered", async () => {
@@ -519,7 +413,7 @@ describe("AutofillOverlayIframeService", () => {
       autofillOverlayIframeService["iframe"].src = "http://malicious-site.com";
       await flushPromises();
 
-      expect(portSpy.postMessage).toBeCalledWith({ command: "forceCloseAutofillOverlay" });
+      expect(sendExtensionMessageSpy).toBeCalledWith("closeAutofillOverlay", { forceClose: true });
     });
 
     it("resets the excessive mutations and foreign mutation counters", async () => {

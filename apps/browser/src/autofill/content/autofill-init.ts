@@ -15,6 +15,7 @@ import {
 } from "./abstractions/autofill-init";
 
 class AutofillInit implements AutofillInitInterface {
+  private readonly sendExtensionMessage = sendExtensionMessage;
   private readonly autofillOverlayContentService: AutofillOverlayContentService | undefined;
   private readonly inlineMenuElements: InlineMenuElements | undefined;
   private readonly domElementVisibilityService: DomElementVisibilityService;
@@ -85,7 +86,7 @@ class AutofillInit implements AutofillInitInterface {
     const sendCollectDetailsMessage = () => {
       this.clearSendCollectDetailsMessageTimeout();
       this.sendCollectDetailsMessageTimeout = setTimeout(
-        () => sendExtensionMessage("bgCollectPageDetails", { sender: "autofillInit" }),
+        () => this.sendExtensionMessage("bgCollectPageDetails", { sender: "autofillInit" }),
         250,
       );
     };
@@ -136,16 +137,16 @@ class AutofillInit implements AutofillInitInterface {
     }
 
     this.blurAndRemoveOverlay();
-    await sendExtensionMessage("updateIsFieldCurrentlyFilling", { isFieldCurrentlyFilling: true });
+    await this.sendExtensionMessage("updateIsFieldCurrentlyFilling", {
+      isFieldCurrentlyFilling: true,
+    });
     await this.insertAutofillContentService.fillForm(fillScript);
-
-    if (!this.autofillOverlayContentService) {
-      return;
-    }
 
     setTimeout(
       () =>
-        sendExtensionMessage("updateIsFieldCurrentlyFilling", { isFieldCurrentlyFilling: false }),
+        this.sendExtensionMessage("updateIsFieldCurrentlyFilling", {
+          isFieldCurrentlyFilling: false,
+        }),
       250,
     );
   }

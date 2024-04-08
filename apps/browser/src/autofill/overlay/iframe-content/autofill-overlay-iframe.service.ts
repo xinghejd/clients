@@ -9,6 +9,7 @@ import {
 } from "../abstractions/autofill-overlay-iframe.service";
 
 class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterface {
+  private sendExtensionMessage = sendExtensionMessage;
   private port: chrome.runtime.Port | null = null;
   private iframeMutationObserver: MutationObserver;
   private iframe: HTMLIFrameElement;
@@ -304,7 +305,7 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
   };
 
   private forceCloseAutofillOverlay() {
-    void sendExtensionMessage("closeAutofillOverlay", { forceClose: true });
+    void this.sendExtensionMessage("closeAutofillOverlay", { forceClose: true });
   }
 
   /**
