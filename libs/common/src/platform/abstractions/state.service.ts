@@ -7,8 +7,6 @@ import { BiometricKey } from "../../auth/types/biometric-key";
 import { GeneratorOptions } from "../../tools/generator/generator-options";
 import { GeneratedPasswordHistory, PasswordGeneratorOptions } from "../../tools/generator/password";
 import { UsernameGeneratorOptions } from "../../tools/generator/username";
-import { SendData } from "../../tools/send/models/data/send.data";
-import { SendView } from "../../tools/send/models/view/send.view";
 import { UserId } from "../../types/guid";
 import { MasterKey } from "../../types/key";
 import { CipherData } from "../../vault/models/data/cipher.data";
@@ -151,14 +149,6 @@ export abstract class StateService<T extends Account = Account> {
    * @deprecated For migration purposes only, use setDecryptedUserKeyPin instead
    */
   setDecryptedPinProtected: (value: EncString, options?: StorageOptions) => Promise<void>;
-  /**
-   * @deprecated Do not call this directly, use SendService
-   */
-  getDecryptedSends: (options?: StorageOptions) => Promise<SendView[]>;
-  /**
-   * @deprecated Do not call this directly, use SendService
-   */
-  setDecryptedSends: (value: SendView[], options?: StorageOptions) => Promise<void>;
   getDuckDuckGoSharedKey: (options?: StorageOptions) => Promise<string>;
   setDuckDuckGoSharedKey: (value: string, options?: StorageOptions) => Promise<void>;
   getAdminAuthRequest: (options?: StorageOptions) => Promise<AdminAuthRequestStorable | null>;
@@ -197,14 +187,6 @@ export abstract class StateService<T extends Account = Account> {
    * @deprecated For migration purposes only, use setEncryptedUserKeyPin instead
    */
   setEncryptedPinProtected: (value: string, options?: StorageOptions) => Promise<void>;
-  /**
-   * @deprecated Do not call this directly, use SendService
-   */
-  getEncryptedSends: (options?: StorageOptions) => Promise<{ [id: string]: SendData }>;
-  /**
-   * @deprecated Do not call this directly, use SendService
-   */
-  setEncryptedSends: (value: { [id: string]: SendData }, options?: StorageOptions) => Promise<void>;
   getEverBeenUnlocked: (options?: StorageOptions) => Promise<boolean>;
   setEverBeenUnlocked: (value: boolean, options?: StorageOptions) => Promise<void>;
   getForceSetPasswordReason: (options?: StorageOptions) => Promise<ForceSetPasswordReason>;
@@ -261,18 +243,5 @@ export abstract class StateService<T extends Account = Account> {
   setVaultTimeoutAction: (value: string, options?: StorageOptions) => Promise<void>;
   getApproveLoginRequests: (options?: StorageOptions) => Promise<boolean>;
   setApproveLoginRequests: (value: boolean, options?: StorageOptions) => Promise<void>;
-  /**
-   * fetches string value of URL user tried to navigate to while unauthenticated.
-   * @param options Defines the storage options for the URL; Defaults to session Storage.
-   * @returns route called prior to successful login.
-   */
-  getDeepLinkRedirectUrl: (options?: StorageOptions) => Promise<string>;
-  /**
-   * Store URL in session storage by default, but can be configured. Developed to handle
-   * unauthN interrupted navigation.
-   * @param url URL of route
-   * @param options Defines the storage options for the URL; Defaults to session Storage.
-   */
-  setDeepLinkRedirectUrl: (url: string, options?: StorageOptions) => Promise<void>;
   nextUpActiveUser: () => Promise<UserId>;
 }

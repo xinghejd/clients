@@ -1,5 +1,5 @@
 import { Component, OnInit } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 import { first } from "rxjs/operators";
 
@@ -13,6 +13,8 @@ import { ProviderUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { ProviderOrganizationOrganizationDetailsResponse } from "@bitwarden/common/admin-console/models/response/provider/provider-organization.response";
 import { PlanType } from "@bitwarden/common/billing/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -50,8 +52,14 @@ export class ClientsComponent implements OnInit {
   protected actionPromise: Promise<unknown>;
   private pagedClientsCount = 0;
 
+  protected enableConsolidatedBilling$ = this.configService.getFeatureFlag$(
+    FeatureFlag.EnableConsolidatedBilling,
+    false,
+  );
+
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private providerService: ProviderService,
     private apiService: ApiService,
     private searchService: SearchService,
@@ -64,20 +72,29 @@ export class ClientsComponent implements OnInit {
     private organizationService: OrganizationService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private dialogService: DialogService,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
-    this.route.parent.params.subscribe(async (params) => {
-      this.providerId = params.providerId;
 
-      await this.load();
+    const enableConsolidatedBilling = await firstValueFrom(this.enableConsolidatedBilling$);
 
-      /* eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe, rxjs/no-nested-subscribe */
-      this.route.queryParams.pipe(first()).subscribe(async (qParams) => {
-        this.searchText = qParams.search;
+    if (enableConsolidatedBilling) {
+      await this.router.navigate(["../manage-client-organizations"], { relativeTo: this.route });
+    } else {
+      // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
+      this.route.parent.params.subscribe(async (params) => {
+        this.providerId = params.providerId;
+
+        await this.load();
+
+        /* eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe, rxjs/no-nested-subscribe */
+        this.route.queryParams.pipe(first()).subscribe(async (qParams) => {
+          this.searchText = qParams.search;
+        });
       });
-    });
+    }
   }
 
   async load() {
