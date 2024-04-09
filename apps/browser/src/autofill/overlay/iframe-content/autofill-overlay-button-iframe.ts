@@ -6,7 +6,6 @@ class AutofillOverlayButtonIframe extends AutofillOverlayIframeElement {
   constructor(element: HTMLElement) {
     super(
       element,
-      "overlay/button.html",
       AutofillOverlayPort.Button,
       {
         background: "transparent",

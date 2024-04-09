@@ -962,13 +962,19 @@ class OverlayBackground implements OverlayBackgroundInterface {
     port.onDisconnect.addListener(this.handlePortOnDisconnect);
     port.postMessage({
       command: `initAutofillOverlay${isOverlayListPort ? "List" : "Button"}`,
+      iframeUrl: chrome.runtime.getURL(`overlay/${isOverlayListPort ? "list" : "button"}.html`),
+      pageTitle: chrome.i18n.getMessage(
+        isOverlayListPort ? "bitwardenVault" : "bitwardenOverlayButton",
+      ),
       authStatus: await this.getAuthStatus(),
       styleSheetUrl: chrome.runtime.getURL(`overlay/${isOverlayListPort ? "list" : "button"}.css`),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       translations: this.getTranslations(),
       ciphers: isOverlayListPort ? await this.getOverlayCipherData() : null,
-      messageConnectorUrl: chrome.runtime.getURL("overlay/message-connector.html"),
       portKey: this.portKeyForTab[port.sender.tab.id],
+      portName: isOverlayListPort
+        ? AutofillOverlayPort.ListMessageConnector
+        : AutofillOverlayPort.ButtonMessageConnector,
     });
     void this.updateOverlayPosition(
       {

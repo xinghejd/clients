@@ -44,7 +44,6 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
    * @param theme - The theme to use for the overlay list.
    * @param authStatus - The current authentication status.
    * @param ciphers - The ciphers to display in the overlay list.
-   * @param messageConnectorUrl - The URL of the message connector to use.
    * @param portKey - Background generated key that allows the port to communicate with the background.
    */
   private async initAutofillOverlayList({
@@ -53,16 +52,9 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     theme,
     authStatus,
     ciphers,
-    messageConnectorUrl,
     portKey,
   }: InitAutofillOverlayListMessage) {
-    const linkElement = await this.initOverlayPage(
-      "list",
-      styleSheetUrl,
-      translations,
-      messageConnectorUrl,
-      portKey,
-    );
+    const linkElement = await this.initOverlayPage("list", styleSheetUrl, translations, portKey);
 
     const themeClass = `theme_${theme}`;
     globalThis.document.documentElement.classList.add(themeClass);

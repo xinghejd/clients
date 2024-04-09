@@ -3,7 +3,6 @@ import AutofillOverlayIframeService from "./autofill-overlay-iframe.service";
 class AutofillOverlayIframeElement {
   constructor(
     element: HTMLElement,
-    iframePath: string,
     portName: string,
     initStyles: Partial<CSSStyleDeclaration>,
     iframeTitle: string,
@@ -11,11 +10,13 @@ class AutofillOverlayIframeElement {
   ) {
     const shadow: ShadowRoot = element.attachShadow({ mode: "closed" });
     const autofillOverlayIframeService = new AutofillOverlayIframeService(
-      iframePath,
-      portName,
       shadow,
+      portName,
+      initStyles,
+      iframeTitle,
+      ariaAlert,
     );
-    autofillOverlayIframeService.initOverlayIframe(initStyles, iframeTitle, ariaAlert);
+    autofillOverlayIframeService.initMenuIframe();
   }
 }
 

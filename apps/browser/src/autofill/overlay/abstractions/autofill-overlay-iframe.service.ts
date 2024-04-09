@@ -2,6 +2,7 @@ type AutofillOverlayIframeExtensionMessage = {
   command: string;
   styles?: Partial<CSSStyleDeclaration>;
   theme?: string;
+  portKey?: string;
 };
 
 type AutofillOverlayIframeWindowMessageHandlers = {
@@ -15,6 +16,7 @@ type AutofillOverlayIframeExtensionMessageParam = {
 
 type BackgroundPortMessageHandlers = {
   [key: string]: CallableFunction;
+  initAutofillOverlayButton: ({ message }: AutofillOverlayIframeExtensionMessageParam) => void;
   initAutofillOverlayList: ({ message }: AutofillOverlayIframeExtensionMessageParam) => void;
   updateIframePosition: ({ message }: AutofillOverlayIframeExtensionMessageParam) => void;
   updateOverlayHidden: ({ message }: AutofillOverlayIframeExtensionMessageParam) => void;
@@ -22,7 +24,7 @@ type BackgroundPortMessageHandlers = {
 };
 
 interface AutofillOverlayIframeService {
-  initOverlayIframe(initStyles: Partial<CSSStyleDeclaration>, ariaAlert?: string): void;
+  initMenuIframe(): void;
 }
 
 export {

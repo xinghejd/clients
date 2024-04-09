@@ -117,9 +117,9 @@ const plugins = [
     chunks: ["overlay/list"],
   }),
   new HtmlWebpackPlugin({
-    template: "./src/autofill/overlay/pages/message-connector/message-connector.html",
-    filename: "overlay/message-connector.html",
-    chunks: ["overlay/message-connector"],
+    template: "./src/autofill/overlay/pages/menu/menu.html",
+    filename: "overlay/menu.html",
+    chunks: ["overlay/menu"],
   }),
   new CopyWebpackPlugin({
     patterns: [
@@ -178,8 +178,8 @@ const mainConfig = {
     "notification/bar": "./src/autofill/notification/bar.ts",
     "overlay/button": "./src/autofill/overlay/pages/button/bootstrap-autofill-overlay-button.ts",
     "overlay/list": "./src/autofill/overlay/pages/list/bootstrap-autofill-overlay-list.ts",
-    "overlay/message-connector":
-      "./src/autofill/overlay/pages/message-connector/bootstrap-autofill-overlay-message-connector.ts",
+    "overlay/menu":
+      "./src/autofill/overlay/pages/menu/bootstrap-autofill-overlay-menu-container.ts",
     "encrypt-worker": "../../libs/common/src/platform/services/cryptography/encrypt.worker.ts",
     "content/lp-fileless-importer": "./src/tools/content/lp-fileless-importer.ts",
     "content/send-on-installed-message": "./src/vault/content/send-on-installed-message.ts",

@@ -7,7 +7,6 @@ type UpdateAuthStatusMessage = OverlayButtonMessage & { authStatus: Authenticati
 type InitAutofillOverlayButtonMessage = UpdateAuthStatusMessage & {
   styleSheetUrl: string;
   translations: Record<string, string>;
-  messageConnectorUrl: string;
   portKey: string;
 };
 

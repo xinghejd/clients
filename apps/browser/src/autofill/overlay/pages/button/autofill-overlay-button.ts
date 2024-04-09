@@ -53,16 +53,9 @@ class AutofillOverlayButton extends AutofillOverlayPageElement {
     authStatus,
     styleSheetUrl,
     translations,
-    messageConnectorUrl,
     portKey,
   }: InitAutofillOverlayButtonMessage) {
-    const linkElement = await this.initOverlayPage(
-      "button",
-      styleSheetUrl,
-      translations,
-      messageConnectorUrl,
-      portKey,
-    );
+    const linkElement = await this.initOverlayPage("button", styleSheetUrl, translations, portKey);
     this.buttonElement.tabIndex = -1;
     this.buttonElement.type = "button";
     this.buttonElement.classList.add("overlay-button");

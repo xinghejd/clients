@@ -1,6 +1,6 @@
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
-import { AutofillOverlayPort, RedirectFocusDirection } from "../../../utils/autofill-overlay.enum";
+import { RedirectFocusDirection } from "../../../utils/autofill-overlay.enum";
 import {
   AutofillOverlayPageElementWindowMessage,
   WindowMessageHandlers,
@@ -27,14 +27,12 @@ class AutofillOverlayPageElement extends HTMLElement {
    * @param elementName - The name of the element, e.g. "button" or "list"
    * @param styleSheetUrl - The URL of the stylesheet to apply to the page
    * @param translations - The translations to apply to the page
-   * @param messageConnectorUrl - The URL of the message connector to use
    * @param portKey - Background generated key that allows the port to communicate with the background
    */
   protected async initOverlayPage(
     elementName: "button" | "list",
     styleSheetUrl: string,
     translations: Record<string, string>,
-    messageConnectorUrl: string,
     portKey: string,
   ): Promise<HTMLLinkElement> {
     this.portKey = portKey;
@@ -42,8 +40,6 @@ class AutofillOverlayPageElement extends HTMLElement {
     this.translations = translations;
     globalThis.document.documentElement.setAttribute("lang", this.getTranslation("locale"));
     globalThis.document.head.title = this.getTranslation(`${elementName}PageTitle`);
-
-    await this.initMessageConnector(messageConnectorUrl, elementName);
 
     this.shadowDom.innerHTML = "";
     const linkElement = globalThis.document.createElement("link");
@@ -62,30 +58,30 @@ class AutofillOverlayPageElement extends HTMLElement {
    * @param messageConnectorUrl - The URL of the message connector to use
    * @param elementName - The name of the element, e.g. "button" or "list"
    */
-  private initMessageConnector(messageConnectorUrl: string, elementName: "button" | "list") {
-    this.messageConnectorIframe = globalThis.document.createElement("iframe");
-    this.messageConnectorIframe.src = messageConnectorUrl;
-    this.messageConnectorIframe.style.opacity = "0";
-    this.messageConnectorIframe.style.position = "absolute";
-    this.messageConnectorIframe.style.width = "0";
-    this.messageConnectorIframe.style.height = "0";
-    this.messageConnectorIframe.style.border = "none";
-    this.messageConnectorIframe.style.pointerEvents = "none";
-    globalThis.document.body.appendChild(this.messageConnectorIframe);
-
-    return new Promise<void>((resolve) => {
-      this.messageConnectorIframe.addEventListener(EVENTS.LOAD, () => {
-        this.postMessageToConnector({
-          command: `initAutofillOverlayPort`,
-          portName:
-            elementName === "list"
-              ? AutofillOverlayPort.ListMessageConnector
-              : AutofillOverlayPort.ButtonMessageConnector,
-        });
-        resolve();
-      });
-    });
-  }
+  // private initMessageConnector(messageConnectorUrl: string, elementName: "button" | "list") {
+  //   this.messageConnectorIframe = globalThis.document.createElement("iframe");
+  //   this.messageConnectorIframe.src = messageConnectorUrl;
+  //   this.messageConnectorIframe.style.opacity = "0";
+  //   this.messageConnectorIframe.style.position = "absolute";
+  //   this.messageConnectorIframe.style.width = "0";
+  //   this.messageConnectorIframe.style.height = "0";
+  //   this.messageConnectorIframe.style.border = "none";
+  //   this.messageConnectorIframe.style.pointerEvents = "none";
+  //   globalThis.document.body.appendChild(this.messageConnectorIframe);
+  //
+  //   return new Promise<void>((resolve) => {
+  //     this.messageConnectorIframe.addEventListener(EVENTS.LOAD, () => {
+  //       this.postMessageToConnector({
+  //         command: `initAutofillOverlayPort`,
+  //         portName:
+  //           elementName === "list"
+  //             ? AutofillOverlayPort.ListMessageConnector
+  //             : AutofillOverlayPort.ButtonMessageConnector,
+  //       });
+  //       resolve();
+  //     });
+  //   });
+  // }
 
   /**
    * Posts a window message to the parent window.
@@ -93,10 +89,12 @@ class AutofillOverlayPageElement extends HTMLElement {
    * @param message - The message to post
    */
   protected postMessageToConnector(message: AutofillOverlayPageElementWindowMessage) {
-    this.messageConnectorIframe.contentWindow.postMessage(
-      { portKey: this.portKey, ...message },
-      "*",
-    );
+    globalThis.parent.postMessage({ portKey: this.portKey, ...message }, "*");
+
+    // this.messageConnectorIframe.contentWindow.postMessage(
+    //   { portKey: this.portKey, ...message },
+    //   "*",
+    // );
   }
 
   /**

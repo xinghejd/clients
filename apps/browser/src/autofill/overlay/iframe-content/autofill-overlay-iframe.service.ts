@@ -11,6 +11,7 @@ import {
 class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterface {
   private sendExtensionMessage = sendExtensionMessage;
   private port: chrome.runtime.Port | null = null;
+  private portKey: string;
   private iframeMutationObserver: MutationObserver;
   private iframe: HTMLIFrameElement;
   private ariaAlertElement: HTMLDivElement;
@@ -34,7 +35,7 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
   private defaultIframeAttributes: Record<string, string> = {
     src: "",
     title: "",
-    sandbox: "allow-scripts",
+    // sandbox: "allow-scripts",
     allowtransparency: "true",
     tabIndex: "-1",
   };
@@ -42,6 +43,7 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
   private mutationObserverIterations = 0;
   private mutationObserverIterationsResetTimeout: number | NodeJS.Timeout;
   private readonly backgroundPortMessageHandlers: BackgroundPortMessageHandlers = {
+    initAutofillOverlayButton: ({ message }) => this.initAutofillOverlay(message),
     initAutofillOverlayList: ({ message }) => this.initAutofillOverlayList(message),
     updateIframePosition: ({ message }) => this.updateIframePosition(message.styles),
     updateOverlayHidden: ({ message }) => this.updateElementStyles(this.iframe, message.styles),
@@ -49,9 +51,11 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
   };
 
   constructor(
-    private iframePath: string,
-    private portName: string,
     private shadow: ShadowRoot,
+    private portName: string,
+    private initStyles: Partial<CSSStyleDeclaration>,
+    private iframeTitle: string,
+    private ariaAlert?: string,
   ) {
     this.iframeMutationObserver = new MutationObserver(this.handleMutations);
   }
@@ -63,29 +67,20 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
    * create an aria alert element to announce to screen readers when the iframe
    * is loaded. The end result is append to the shadowDOM of the custom element
    * that is declared.
-   *
-   *
-   * @param initStyles - Initial styles to apply to the iframe
-   * @param iframeTitle - Title to apply to the iframe
-   * @param ariaAlert - Text to announce to screen readers when the iframe is loaded
    */
-  initOverlayIframe(
-    initStyles: Partial<CSSStyleDeclaration>,
-    iframeTitle: string,
-    ariaAlert?: string,
-  ) {
-    this.defaultIframeAttributes.src = chrome.runtime.getURL(this.iframePath);
-    this.defaultIframeAttributes.title = iframeTitle;
+  initMenuIframe() {
+    this.defaultIframeAttributes.src = chrome.runtime.getURL("overlay/menu.html");
+    this.defaultIframeAttributes.title = this.iframeTitle;
 
     this.iframe = globalThis.document.createElement("iframe");
-    this.updateElementStyles(this.iframe, { ...this.iframeStyles, ...initStyles });
+    this.updateElementStyles(this.iframe, { ...this.iframeStyles, ...this.initStyles });
     for (const [attribute, value] of Object.entries(this.defaultIframeAttributes)) {
       this.iframe.setAttribute(attribute, value);
     }
     this.iframe.addEventListener(EVENTS.LOAD, this.setupPortMessageListener);
 
-    if (ariaAlert) {
-      this.createAriaAlertElement(ariaAlert);
+    if (this.ariaAlert) {
+      this.createAriaAlertElement(this.ariaAlert);
     }
 
     this.shadow.appendChild(this.iframe);
@@ -185,8 +180,13 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
       return;
     }
 
-    this.iframe.contentWindow?.postMessage(message, "*");
+    this.postMessageToIFrame(message);
   };
+
+  private initAutofillOverlay(message: AutofillOverlayIframeExtensionMessage) {
+    this.portKey = message.portKey;
+    this.postMessageToIFrame(message);
+  }
 
   /**
    * Handles messages sent from the iframe to the extension background script.
@@ -196,6 +196,7 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
    */
   private initAutofillOverlayList(message: AutofillOverlayIframeExtensionMessage) {
     const { theme } = message;
+    this.portKey = message.portKey;
     let borderColor: string;
     let verifiedTheme = theme;
     if (verifiedTheme === ThemeType.System) {
@@ -218,7 +219,11 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
     }
 
     message.theme = verifiedTheme;
-    this.iframe.contentWindow?.postMessage(message, "*");
+    this.postMessageToIFrame(message);
+  }
+
+  private postMessageToIFrame(message: any) {
+    this.iframe.contentWindow?.postMessage({ portKey: this.portKey, ...message }, "*");
   }
 
   /**
@@ -247,10 +252,10 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
       .querySelector("meta[name='color-scheme']")
       ?.getAttribute("content");
 
-    this.iframe.contentWindow?.postMessage(
-      { command: "updateOverlayPageColorScheme", colorScheme: colorSchemeValue || "normal" },
-      "*",
-    );
+    this.postMessageToIFrame({
+      command: "updateOverlayPageColorScheme",
+      colorScheme: colorSchemeValue || "normal",
+    });
   }
 
   /**
