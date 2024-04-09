@@ -4,6 +4,8 @@ import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
+import { Fido2Utils } from "@bitwarden/common/vault/services/fido2/fido2-utils";
+import { guidToStandardFormat } from "@bitwarden/common/vault/services/fido2/guid-utils";
 
 import { ImportResult } from "../../models/import-result";
 import { BaseImporter } from "../base-importer";
@@ -68,7 +70,7 @@ export class CEFImporter extends BaseImporter implements Importer {
           this.processBasicAuth(credentials, cipher);
           break;
         case "passkey":
-          // this.processPasskey(credentials, cipher);
+          this.processPasskey(item, credentials, cipher);
           break;
         case "credit-card":
           this.processCreditCard(credentials, cipher);
@@ -123,7 +125,7 @@ export class CEFImporter extends BaseImporter implements Importer {
     // this.processKvp(cipher, field.label, fieldValue, fieldType);
   }
 
-  private processPasskey(item: PasskeyCredential, cipher: CipherView) {
+  private processPasskey(item: Item, credential: PasskeyCredential, cipher: CipherView) {
     cipher.type = CipherType.Login;
     cipher.login = new LoginView();
 
@@ -131,10 +133,27 @@ export class CEFImporter extends BaseImporter implements Importer {
       cipher.login.fido2Credentials = [];
     }
     const fido2Credentials: Fido2CredentialView = new Fido2CredentialView();
-    fido2Credentials.rpId = item.rpId;
-    fido2Credentials.userName = item.userName;
-    fido2Credentials.userDisplayName = item.userDisplayName;
-    fido2Credentials.userHandle = item.userHandle;
+    fido2Credentials.rpId = credential.rpId;
+    fido2Credentials.userName = credential.userName;
+    fido2Credentials.userDisplayName = credential.userDisplayName;
+    fido2Credentials.userHandle = credential.userHandle;
+    fido2Credentials.keyValue = Fido2Utils.bufferToString(
+      Utils.fromB64ToArray(
+        credential.key.pkcs8
+          .replace("-----BEGIN PRIVATE KEY-----", "")
+          .replace("-----END PRIVATE KEY-----", "")
+          .replace("\n", "")
+          .trim(),
+      ),
+    );
+    fido2Credentials.creationDate = new Date(item.creationAt);
+    fido2Credentials.discoverable = true;
+    fido2Credentials.credentialId = guidToStandardFormat(
+      Utils.fromUrlB64ToArray(credential.credentialId),
+    );
+    fido2Credentials.userHandle = credential.userHandle;
+    fido2Credentials.keyAlgorithm = "ECDSA";
+    fido2Credentials.keyCurve = "P-256";
     cipher.login.fido2Credentials.push(fido2Credentials);
   }
 

@@ -102,7 +102,9 @@ export interface PasskeyCredential extends Credential {
   userDisplayName: string;
   userHandle: string;
   // JWK, CoseKey, pkcs#8 ?
-  key: object;
+  key: {
+    pkcs8: string;
+  };
   fido2Extensions?: Fido2Extensions;
 }
 

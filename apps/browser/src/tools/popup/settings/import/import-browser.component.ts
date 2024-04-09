@@ -80,7 +80,7 @@ export class ImportBrowserComponent {
         //hpke: [""],
         zip: ["zip"],
         importer: "Bitwarden",
-        credentialTypes: ["basic-auth"],
+        credentialTypes: ["basic-auth", "passkey"],
       },
     };
 
