@@ -62,6 +62,7 @@ import { StateService as BaseStateServiceAbstraction } from "@bitwarden/common/p
 import {
   AbstractMemoryStorageService,
   AbstractStorageService,
+  ObservableStorageService,
 } from "@bitwarden/common/platform/abstractions/storage.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
@@ -97,7 +98,6 @@ import { BrowserFileDownloadService } from "../../platform/popup/services/browse
 import { BrowserStateService as StateServiceAbstraction } from "../../platform/services/abstractions/browser-state.service";
 import { BrowserEnvironmentService } from "../../platform/services/browser-environment.service";
 import BrowserLocalStorageService from "../../platform/services/browser-local-storage.service";
-import BrowserMessagingPrivateModePopupService from "../../platform/services/browser-messaging-private-mode-popup.service";
 import BrowserMessagingService from "../../platform/services/browser-messaging.service";
 import { DefaultBrowserStateService } from "../../platform/services/default-browser-state.service";
 import I18nService from "../../platform/services/i18n.service";
@@ -159,9 +159,10 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: MessagingService,
     useFactory: () => {
-      return needsBackgroundInit
-        ? new BrowserMessagingPrivateModePopupService()
-        : new BrowserMessagingService();
+      // return needsBackgroundInit
+      //   ? new BrowserMessagingPrivateModePopupService()
+      //   : new BrowserMessagingService();
+      return new BrowserMessagingService();
     },
     deps: [],
   }),
@@ -387,7 +388,16 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: OBSERVABLE_MEMORY_STORAGE,
-    useClass: ForegroundMemoryStorageService,
+    // useClass:  ForegroundMemoryStorageService,
+    useFactory: () => {
+      if (BrowserApi.isManifestVersion(2)) {
+        return new ForegroundMemoryStorageService();
+      }
+
+      return getBgService<AbstractStorageService & ObservableStorageService>(
+        "memoryStorageForStateProviders",
+      )();
+    },
     deps: [],
   }),
   safeProvider({

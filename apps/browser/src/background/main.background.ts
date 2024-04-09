@@ -209,7 +209,6 @@ import { BrowserCryptoService } from "../platform/services/browser-crypto.servic
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import BrowserLocalStorageService from "../platform/services/browser-local-storage.service";
 import BrowserMemoryStorageService from "../platform/services/browser-memory-storage.service";
-import BrowserMessagingPrivateModeBackgroundService from "../platform/services/browser-messaging-private-mode-background.service";
 import BrowserMessagingService from "../platform/services/browser-messaging.service";
 import { DefaultBrowserStateService } from "../platform/services/default-browser-state.service";
 import I18nService from "../platform/services/i18n.service";
@@ -361,9 +360,7 @@ export default class MainBackground {
     const logoutCallback = async (expired: boolean, userId?: UserId) =>
       await this.logout(expired, userId);
 
-    this.messagingService = this.popupOnlyContext
-      ? new BrowserMessagingPrivateModeBackgroundService()
-      : new BrowserMessagingService();
+    this.messagingService = new BrowserMessagingService();
     this.logService = new ConsoleLogService(false);
     this.cryptoFunctionService = new WebCryptoFunctionService(self);
     this.keyGenerationService = new KeyGenerationService(this.cryptoFunctionService);
@@ -405,13 +402,14 @@ export default class MainBackground {
       storageServiceProvider,
     );
 
-    this.encryptService = flagEnabled("multithreadDecryption")
-      ? new MultithreadEncryptServiceImplementation(
-          this.cryptoFunctionService,
-          this.logService,
-          true,
-        )
-      : new EncryptServiceImplementation(this.cryptoFunctionService, this.logService, true);
+    this.encryptService =
+      flagEnabled("multithreadDecryption") && BrowserApi.isManifestVersion(2)
+        ? new MultithreadEncryptServiceImplementation(
+            this.cryptoFunctionService,
+            this.logService,
+            true,
+          )
+        : new EncryptServiceImplementation(this.cryptoFunctionService, this.logService, true);
 
     this.singleUserStateProvider = new DefaultSingleUserStateProvider(
       storageServiceProvider,
@@ -550,10 +548,12 @@ export default class MainBackground {
     const backgroundMessagingService = new (class extends MessagingServiceAbstraction {
       // AuthService should send the messages to the background not popup.
       send = (subscriber: string, arg: any = {}) => {
-        const message = Object.assign({}, { command: subscriber }, arg);
+        // const message = Object.assign({}, { command: subscriber }, arg);
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        that.runtimeBackground.processMessage(message, that as any);
+        // that.runtimeBackground.processMessage(message, that as any);
+
+        that.messagingService.send(subscriber, arg);
       };
     })();
 
