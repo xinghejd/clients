@@ -289,10 +289,8 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
         return {
           authenticatorData,
           selectedCredential: {
-            id: Fido2Utils.stringToBuffer("OTY1NjIxMTAtZjY2OS0xMWVlLWJkNTYtMjgzY2NiZGQ0Yzlk"),
-            userHandle: Fido2Utils.stringToBuffer(
-              "Nk5PVDM4eEVSTGIyTzM5cHZqMEpGdnotcDRIODJGcE4zdUtJSlRIbXk4OA",
-            ),
+            id: Utils.fromUtf8ToArray(selectedCredentialId),
+            userHandle: Fido2Utils.stringToBuffer(selectedFido2Credential.userHandle),
           },
           signature,
         };
