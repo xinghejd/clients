@@ -12,6 +12,7 @@ import { ProviderUserBulkRequest } from "../admin-console/models/request/provide
 import { ProviderUserConfirmRequest } from "../admin-console/models/request/provider/provider-user-confirm.request";
 import { ProviderUserInviteRequest } from "../admin-console/models/request/provider/provider-user-invite.request";
 import { ProviderUserUpdateRequest } from "../admin-console/models/request/provider/provider-user-update.request";
+import { ProviderVerifyDeleteRecoverRequest } from "../admin-console/models/request/provider/provider-verify-delete-recover.request";
 import { SelectionReadOnlyRequest } from "../admin-console/models/request/selection-read-only.request";
 import {
   OrganizationConnectionConfigApis,
@@ -376,6 +377,10 @@ export abstract class ApiService {
   postProviderSetup: (id: string, request: ProviderSetupRequest) => Promise<ProviderResponse>;
   getProvider: (id: string) => Promise<ProviderResponse>;
   putProvider: (id: string, request: ProviderUpdateRequest) => Promise<ProviderResponse>;
+  providerRecoverDeleteToken: (
+    organizationId: string,
+    request: ProviderVerifyDeleteRecoverRequest,
+  ) => Promise<any>;
 
   getProviderUsers: (providerId: string) => Promise<ListResponse<ProviderUserUserDetailsResponse>>;
   getProviderUser: (providerId: string, id: string) => Promise<ProviderUserResponse>;
