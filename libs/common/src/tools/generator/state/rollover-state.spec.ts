@@ -21,6 +21,7 @@ const SOME_KEY = new KeyDefinition<SomeType>(GENERATOR_DISK, "fooBar", {
 });
 const ROLLOVER_KEY = new RolloverKeyDefinition<SomeType>(GENERATOR_DISK, "fooBar_rollover", {
   deserializer: (jsonValue) => jsonValue as SomeType,
+  clearOn: [],
 });
 
 describe("RolloverState", () => {
@@ -130,6 +131,7 @@ describe("RolloverState", () => {
       const rolloverKey = new RolloverKeyDefinition<SomeType>(GENERATOR_DISK, "fooBar_rollover", {
         deserializer: (jsonValue) => jsonValue as SomeType,
         shouldRollover: () => true,
+        clearOn: [],
       });
       const provider = new FakeStateProvider(accountService);
       const outputState = provider.getUser(SomeUser, SOME_KEY);
@@ -147,6 +149,7 @@ describe("RolloverState", () => {
       const rolloverKey = new RolloverKeyDefinition<SomeType>(GENERATOR_DISK, "fooBar_rollover", {
         deserializer: (jsonValue) => jsonValue as SomeType,
         shouldRollover: () => false,
+        clearOn: [],
       });
       const provider = new FakeStateProvider(accountService);
       const outputState = provider.getUser(SomeUser, SOME_KEY);
@@ -168,6 +171,7 @@ describe("RolloverState", () => {
       const rolloverKey = new RolloverKeyDefinition<SomeType>(GENERATOR_DISK, "fooBar_rollover", {
         deserializer: (jsonValue) => jsonValue as SomeType,
         shouldRollover: (dependency) => !dependency,
+        clearOn: [],
       });
       const provider = new FakeStateProvider(accountService);
       const outputState = provider.getUser(SomeUser, SOME_KEY);
@@ -285,6 +289,7 @@ describe("RolloverState", () => {
       const rolloverKey = new RolloverKeyDefinition<SomeType>(GENERATOR_DISK, "fooBar_rollover", {
         deserializer: (jsonValue) => jsonValue as SomeType,
         isValid: () => Promise.resolve(false),
+        clearOn: [],
       });
       const provider = new FakeStateProvider(accountService);
       const outputState = provider.getUser(SomeUser, SOME_KEY);
@@ -303,6 +308,7 @@ describe("RolloverState", () => {
       const rolloverKey = new RolloverKeyDefinition<SomeType>(GENERATOR_DISK, "fooBar_rollover", {
         deserializer: (jsonValue) => jsonValue as SomeType,
         isValid: () => Promise.resolve(true),
+        clearOn: [],
       });
       const provider = new FakeStateProvider(accountService);
       const outputState = provider.getUser(SomeUser, SOME_KEY);
@@ -323,6 +329,7 @@ describe("RolloverState", () => {
       const rolloverKey = new RolloverKeyDefinition<SomeType>(GENERATOR_DISK, "fooBar_rollover", {
         deserializer: (jsonValue) => jsonValue as SomeType,
         map: () => Promise.resolve(mappedValue),
+        clearOn: [],
       });
       const provider = new FakeStateProvider(accountService);
       const outputState = provider.getUser(SomeUser, SOME_KEY);

@@ -1,4 +1,4 @@
-import { GENERATOR_DISK, KeyDefinition } from "../../../platform/state";
+import { GENERATOR_DISK, UserKeyDefinition } from "../../../platform/state";
 
 import { RolloverKeyDefinition } from "./rollover-key-definition";
 
@@ -10,11 +10,12 @@ describe("RolloverKeyDefinition", () => {
       const key = new RolloverKeyDefinition(GENERATOR_DISK, "test", {
         deserializer,
         cleanupDelayMs: 5,
+        clearOn: [],
       });
 
       const result = key.toKeyDefinition();
 
-      expect(result).toBeInstanceOf(KeyDefinition);
+      expect(result).toBeInstanceOf(UserKeyDefinition);
       expect(result.stateDefinition).toBe(GENERATOR_DISK);
       expect(result.key).toBe("test");
       expect(result.deserializer(1)).toEqual(2);
@@ -28,6 +29,7 @@ describe("RolloverKeyDefinition", () => {
       const key = new RolloverKeyDefinition(GENERATOR_DISK, "test", {
         deserializer,
         shouldRollover,
+        clearOn: [],
       });
 
       const result = await key.shouldRollover(true);
@@ -39,6 +41,7 @@ describe("RolloverKeyDefinition", () => {
     it("should return true when shouldRollover is not defined and the input is truthy", async () => {
       const key = new RolloverKeyDefinition<number, number, number>(GENERATOR_DISK, "test", {
         deserializer,
+        clearOn: [],
       });
 
       const result = await key.shouldRollover(1);
@@ -49,6 +52,7 @@ describe("RolloverKeyDefinition", () => {
     it("should return false when shouldRollover is not defined and the input is falsy", async () => {
       const key = new RolloverKeyDefinition<number, number, number>(GENERATOR_DISK, "test", {
         deserializer,
+        clearOn: [],
       });
 
       const result = await key.shouldRollover(0);
@@ -63,6 +67,7 @@ describe("RolloverKeyDefinition", () => {
       const key = new RolloverKeyDefinition(GENERATOR_DISK, "test", {
         deserializer,
         map,
+        clearOn: [],
       });
 
       const result = await key.map(1, true);
@@ -72,7 +77,7 @@ describe("RolloverKeyDefinition", () => {
     });
 
     it("should fall back to an identity function when map is not defined", async () => {
-      const key = new RolloverKeyDefinition(GENERATOR_DISK, "test", { deserializer });
+      const key = new RolloverKeyDefinition(GENERATOR_DISK, "test", { deserializer, clearOn: [] });
 
       const result = await key.map(1, null);
 
@@ -86,6 +91,7 @@ describe("RolloverKeyDefinition", () => {
       const key = new RolloverKeyDefinition(GENERATOR_DISK, "test", {
         deserializer,
         isValid,
+        clearOn: [],
       });
 
       const result = await key.isValid(1, true);
@@ -95,7 +101,7 @@ describe("RolloverKeyDefinition", () => {
     });
 
     it("should return true when isValid is not defined and the input is truthy", async () => {
-      const key = new RolloverKeyDefinition(GENERATOR_DISK, "test", { deserializer });
+      const key = new RolloverKeyDefinition(GENERATOR_DISK, "test", { deserializer, clearOn: [] });
 
       const result = await key.isValid(1, null);
 
@@ -103,7 +109,7 @@ describe("RolloverKeyDefinition", () => {
     });
 
     it("should return false when isValid is not defined and the input is falsy", async () => {
-      const key = new RolloverKeyDefinition(GENERATOR_DISK, "test", { deserializer });
+      const key = new RolloverKeyDefinition(GENERATOR_DISK, "test", { deserializer, clearOn: [] });
 
       const result = await key.isValid(0, null);
 

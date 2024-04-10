@@ -142,6 +142,7 @@ export const ADDY_IO_ROLLOVER = new RolloverKeyDefinition<
   SelfHostedApiOptions & EmailDomainOptions
 >(GENERATOR_DISK, "addyIoRollover", {
   deserializer: (value) => value,
+  clearOn: ["lock"],
 });
 
 /** backing store configuration for {@link Forwarders.DuckDuckGo} */
@@ -150,6 +151,7 @@ export const DUCK_DUCK_GO_ROLLOVER = new RolloverKeyDefinition<ApiOptions>(
   "duckDuckGoRollover",
   {
     deserializer: (value) => value,
+    clearOn: ["lock"],
   },
 );
 
@@ -159,6 +161,7 @@ export const FASTMAIL_ROLLOVER = new RolloverKeyDefinition<ApiOptions & EmailPre
   "fastmailRollover",
   {
     deserializer: (value) => value,
+    clearOn: ["lock"],
   },
 );
 
@@ -168,6 +171,7 @@ export const FIREFOX_RELAY_ROLLOVER = new RolloverKeyDefinition<ApiOptions>(
   "firefoxRelayRollover",
   {
     deserializer: (value) => value,
+    clearOn: ["lock"],
   },
 );
 
@@ -177,6 +181,7 @@ export const FORWARD_EMAIL_ROLLOVER = new RolloverKeyDefinition<ApiOptions & Ema
   "forwardEmailRollover",
   {
     deserializer: (value) => value,
+    clearOn: ["lock"],
   },
 );
 
@@ -186,6 +191,7 @@ export const SIMPLE_LOGIN_ROLLOVER = new RolloverKeyDefinition<SelfHostedApiOpti
   "simpleLoginRollover",
   {
     deserializer: (value) => value,
+    clearOn: ["lock"],
   },
 );
 

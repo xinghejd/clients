@@ -1,11 +1,11 @@
 // eslint-disable-next-line -- `StateDefinition` used as an argument
 import { StateDefinition } from "@bitwarden/common/platform/state/state-definition";
-import { KeyDefinition, KeyDefinitionOptions } from "../../../platform/state";
+import { UserKeyDefinition, UserKeyDefinitionOptions } from "../../../platform/state";
 
 /** A set of options for customizing the behavior of a {@link RolloverKeyDefinition}
  */
 export type RolloverKeyDefinitionOptions<Input, Output, Dependency> =
-  KeyDefinitionOptions<Input> & {
+  UserKeyDefinitionOptions<Input> & {
     /** Checks whether the input type can be converted to the output type.
      *  @param input the data that is rolling over.
      *  @returns `true` if the definition is valid, otherwise `false`. If this
@@ -59,7 +59,7 @@ export class RolloverKeyDefinition<Input, Output = Input, Dependency = true> {
    *  key definition
    */
   toKeyDefinition() {
-    const rolloverKey = new KeyDefinition<Input>(this.stateDefinition, this.key, this.options);
+    const rolloverKey = new UserKeyDefinition<Input>(this.stateDefinition, this.key, this.options);
 
     return rolloverKey;
   }
