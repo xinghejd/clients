@@ -10,7 +10,7 @@ import { AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants"
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -77,7 +77,7 @@ export class CurrentTabComponent implements OnInit, OnDestroy {
     private organizationService: OrganizationService,
     private vaultFilterService: VaultFilterService,
     private vaultSettingsService: VaultSettingsService,
-    private configService: ConfigService,
+    private configService: ConfigServiceAbstraction,
     protected unassignedItemsBannerService: UnassignedItemsBannerService,
   ) {}
 
