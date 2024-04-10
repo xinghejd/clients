@@ -52,7 +52,6 @@ import { Collection } from "@bitwarden/common/vault/models/domain/collection";
 import { CollectionDetailsResponse } from "@bitwarden/common/vault/models/response/collection.response";
 import { DialogService, SimpleDialogOptions } from "@bitwarden/components";
 
-import { flagEnabled } from "../../../../utils/flags";
 import { openEntityEventsDialog } from "../../../admin-console/organizations/manage/entity-events.component";
 import { BasePeopleComponent } from "../../common/base.people.component";
 import { GroupService } from "../core";
@@ -148,9 +147,7 @@ export class PeopleComponent
       shareReplay({ refCount: true, bufferSize: 1 }),
     );
 
-    this.canUseSecretsManager$ = organization$.pipe(
-      map((org) => org.useSecretsManager && flagEnabled("secretsManager")),
-    );
+    this.canUseSecretsManager$ = organization$.pipe(map((org) => org.useSecretsManager));
 
     const policies$ = organization$.pipe(
       switchMap((organization) => {
@@ -571,7 +568,8 @@ export class PeopleComponent
   }
 
   async bulkEnableSM() {
-    const users = this.getCheckedUsers();
+    const users = this.getCheckedUsers().filter((ou) => !ou.accessSecretsManager);
+
     if (users.length === 0) {
       this.platformUtilsService.showToast(
         "error",
@@ -588,6 +586,7 @@ export class PeopleComponent
 
     await lastValueFrom(dialogRef.closed);
     this.selectAll(false);
+    await this.load();
   }
 
   async events(user: OrganizationUserView) {

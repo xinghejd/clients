@@ -23,7 +23,7 @@ import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-stat
 import { DialogService } from "@bitwarden/components";
 
 import { SetPinComponent } from "../../auth/components/set-pin.component";
-import { flagEnabled } from "../../platform/flags";
+import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 
 @Component({
@@ -41,7 +41,6 @@ export class SettingsComponent implements OnInit {
   themeOptions: any[];
   clearClipboardOptions: any[];
   supportsBiometric: boolean;
-  additionalBiometricSettingsText: string;
   showAlwaysShowDock = false;
   requireEnableTray = false;
   showDuckDuckGoIntegrationOption = false;
@@ -122,6 +121,7 @@ export class SettingsComponent implements OnInit {
     private userVerificationService: UserVerificationServiceAbstraction,
     private desktopSettingsService: DesktopSettingsService,
     private biometricStateService: BiometricStateService,
+    private desktopAutofillSettingsService: DesktopAutofillSettingsService,
   ) {
     const isMac = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
 
@@ -145,7 +145,7 @@ export class SettingsComponent implements OnInit {
     this.startToTrayDescText = this.i18nService.t(startToTrayKey + "Desc");
 
     // DuckDuckGo browser is only for macos initially
-    this.showDuckDuckGoIntegrationOption = flagEnabled("showDDGSetting") && isMac;
+    this.showDuckDuckGoIntegrationOption = isMac;
 
     this.vaultTimeoutOptions = [
       // { name: i18nService.t('immediately'), value: 0 },
@@ -262,11 +262,12 @@ export class SettingsComponent implements OnInit {
       enableBrowserIntegration: await this.stateService.getEnableBrowserIntegration(),
       enableBrowserIntegrationFingerprint:
         await this.stateService.getEnableBrowserIntegrationFingerprint(),
+      enableDuckDuckGoBrowserIntegration: await firstValueFrom(
+        this.desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$,
+      ),
       enableHardwareAcceleration: await firstValueFrom(
         this.desktopSettingsService.hardwareAcceleration$,
       ),
-      enableDuckDuckGoBrowserIntegration:
-        await this.stateService.getEnableDuckDuckGoBrowserIntegration(),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       locale: await firstValueFrom(this.i18nService.userSetLocale$),
     };
@@ -280,10 +281,6 @@ export class SettingsComponent implements OnInit {
     this.showMinToTray = this.platformUtilsService.getDevice() !== DeviceType.LinuxDesktop;
     this.showAlwaysShowDock = this.platformUtilsService.getDevice() === DeviceType.MacOsDesktop;
     this.supportsBiometric = await this.platformUtilsService.supportsBiometric();
-    this.additionalBiometricSettingsText =
-      this.biometricText === "unlockWithTouchId"
-        ? "additionalTouchIdSettings"
-        : "additionalWindowsHelloSettings";
     this.previousVaultTimeout = this.form.value.vaultTimeout;
 
     this.refreshTimeoutSettings$
@@ -640,7 +637,7 @@ export class SettingsComponent implements OnInit {
   }
 
   async saveDdgBrowserIntegration() {
-    await this.stateService.setEnableDuckDuckGoBrowserIntegration(
+    await this.desktopAutofillSettingsService.setEnableDuckDuckGoBrowserIntegration(
       this.form.value.enableDuckDuckGoBrowserIntegration,
     );
 
@@ -693,6 +690,17 @@ export class SettingsComponent implements OnInit {
         return "autoPromptTouchId";
       case DeviceType.WindowsDesktop:
         return "autoPromptWindowsHello";
+      default:
+        throw new Error("Unsupported platform");
+    }
+  }
+
+  get additionalBiometricSettingsText() {
+    switch (this.platformUtilsService.getDevice()) {
+      case DeviceType.MacOsDesktop:
+        return "additionalTouchIdSettings";
+      case DeviceType.WindowsDesktop:
+        return "additionalWindowsHelloSettings";
       default:
         throw new Error("Unsupported platform");
     }

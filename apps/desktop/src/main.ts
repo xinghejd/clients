@@ -6,11 +6,15 @@ import { firstValueFrom } from "rxjs";
 import { TokenService as TokenServiceAbstraction } from "@bitwarden/common/auth/abstractions/token.service";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { TokenService } from "@bitwarden/common/auth/services/token.service";
+import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { KeyGenerationService as KeyGenerationServiceAbstraction } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { DefaultBiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
+import { EncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/encrypt.service.implementation";
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
+import { KeyGenerationService } from "@bitwarden/common/platform/services/key-generation.service";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
@@ -26,6 +30,7 @@ import { StateEventRegistrarService } from "@bitwarden/common/platform/state/sta
 import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@bitwarden/common/platform/state/storage/memory-storage.service";
 /* eslint-enable import/no-restricted-paths */
 
+import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
 import { MenuMain } from "./main/menu/menu.main";
 import { MessagingMain } from "./main/messaging.main";
 import { NativeMessagingMain } from "./main/native-messaging.main";
@@ -44,7 +49,9 @@ import { ELECTRON_SUPPORTS_SECURE_STORAGE } from "./platform/services/electron-p
 import { ElectronStateService } from "./platform/services/electron-state.service";
 import { ElectronStorageService } from "./platform/services/electron-storage.service";
 import { I18nMainService } from "./platform/services/i18n.main.service";
+import { IllegalSecureStorageService } from "./platform/services/illegal-secure-storage.service";
 import { ElectronMainMessagingService } from "./services/electron-main-messaging.service";
+import { isMacAppStore } from "./utils";
 
 export class Main {
   logService: ElectronLogMainService;
@@ -60,6 +67,8 @@ export class Main {
   desktopSettingsService: DesktopSettingsService;
   migrationRunner: MigrationRunner;
   tokenService: TokenServiceAbstraction;
+  keyGenerationService: KeyGenerationServiceAbstraction;
+  encryptService: EncryptService;
 
   windowMain: WindowMain;
   messagingMain: MessagingMain;
@@ -70,6 +79,7 @@ export class Main {
   biometricsService: BiometricsServiceAbstraction;
   nativeMessagingMain: NativeMessagingMain;
   clipboardMain: ClipboardMain;
+  desktopAutofillSettingsService: DesktopAutofillSettingsService;
 
   constructor() {
     // Set paths for portable builds
@@ -150,11 +160,28 @@ export class Main {
 
     this.environmentService = new DefaultEnvironmentService(stateProvider, accountService);
 
+    this.mainCryptoFunctionService = new MainCryptoFunctionService();
+    this.mainCryptoFunctionService.init();
+
+    this.keyGenerationService = new KeyGenerationService(this.mainCryptoFunctionService);
+
+    this.encryptService = new EncryptServiceImplementation(
+      this.mainCryptoFunctionService,
+      this.logService,
+      true, // log mac failures
+    );
+
+    // Note: secure storage service is not available and should not be called in the main background process.
+    const illegalSecureStorageService = new IllegalSecureStorageService();
+
     this.tokenService = new TokenService(
       singleUserStateProvider,
       globalStateProvider,
       ELECTRON_SUPPORTS_SECURE_STORAGE,
-      this.storageService,
+      illegalSecureStorageService,
+      this.keyGenerationService,
+      this.encryptService,
+      this.logService,
     );
 
     this.migrationRunner = new MigrationRunner(
@@ -207,6 +234,7 @@ export class Main {
       this.environmentService,
       this.windowMain,
       this.updaterMain,
+      this.desktopSettingsService,
     );
 
     this.biometricsService = new BiometricsService(
@@ -231,11 +259,10 @@ export class Main {
       app.getPath("exe"),
     );
 
+    this.desktopAutofillSettingsService = new DesktopAutofillSettingsService(stateProvider);
+
     this.clipboardMain = new ClipboardMain();
     this.clipboardMain.init();
-
-    this.mainCryptoFunctionService = new MainCryptoFunctionService();
-    this.mainCryptoFunctionService.init();
   }
 
   bootstrap() {
@@ -266,10 +293,10 @@ export class Main {
 
         if (
           (await this.stateService.getEnableBrowserIntegration()) ||
-          (await this.stateService.getEnableDuckDuckGoBrowserIntegration())
+          (await firstValueFrom(
+            this.desktopAutofillSettingsService.enableDuckDuckGoBrowserIntegration$,
+          ))
         ) {
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.nativeMessagingMain.listen();
         }
 
@@ -321,6 +348,19 @@ export class Main {
     if (!hardwareAcceleration) {
       this.logService.warning("Hardware acceleration is disabled");
       app.disableHardwareAcceleration();
+    } else if (isMacAppStore()) {
+      // We disable hardware acceleration on Mac App Store builds for iMacs with amd switchable GPUs due to:
+      // https://github.com/electron/electron/issues/41346
+      const gpuInfo: any = await app.getGPUInfo("basic");
+      const badGpu = gpuInfo?.auxAttributes?.amdSwitchable ?? false;
+      const isImac = gpuInfo?.machineModelName == "iMac";
+
+      if (isImac && badGpu) {
+        this.logService.warning(
+          "Bad GPU detected, hardware acceleration is disabled for compatibility",
+        );
+        app.disableHardwareAcceleration();
+      }
     }
   }
 }
