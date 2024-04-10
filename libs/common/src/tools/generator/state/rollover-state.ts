@@ -1,4 +1,4 @@
-import { Observable, concatMap, filter, map, switchMap } from "rxjs";
+import { BehaviorSubject, Observable, combineLatest, concatMap, filter, map } from "rxjs";
 
 import {
   StateProvider,
@@ -11,30 +11,48 @@ import { RolloverKeyDefinition } from "./rollover-key-definition";
 
 /** Stateful storage that rolls data from an input state to an output
  *  state. When rollover occurs, the input state is automatically deleted.
+ *  @remarks The rollover state can only rollover non-nullish values. If the
+ *   rollover key contains `null` or `undefined`, it will do nothing.
  */
 export class RolloverState<Input, Output> implements SingleUserState<Output> {
+  /**
+   * Instantiate a rollover state
+   * @param provider constructs the temporary rollover state.
+   * @param key defines the temporary rollover state.
+   * @param outputState updates when a rollover occurs
+   * @param shouldRollover$ should emit `true` when a rollover can happen and
+   *   false when a rollover should be suppressed. When this is omitted, rollovers
+   *   are applied with every rollover emission.
+   *
+   * @remarks `shouldRollover$` enables rollover control during dynamic circumstances,
+   *   such as when a rollover should occur only if an account is unlocked.
+   */
   constructor(
     provider: StateProvider,
     private key: RolloverKeyDefinition<Input, Output>,
     private outputState: SingleUserState<Output>,
+    shouldRollover$: Observable<boolean> = new BehaviorSubject(true).asObservable(),
   ) {
     this.inputState = provider.getUser(outputState.userId, key.toKeyDefinition());
 
-    this.state$ = this.inputState.state$.pipe(
-      concatMap(async (state) => {
-        // emit the output state when there's no update pending
-        if (state === null) {
-          return true;
+    const watching = [this.inputState.state$, this.outputState.state$, shouldRollover$] as const;
+
+    this.state$ = combineLatest(watching).pipe(
+      concatMap(async ([input, output, shouldRollover]) => {
+        const normalized = input ?? null;
+
+        const canRollover = shouldRollover && normalized !== null;
+        if (canRollover) {
+          await this.updateOutput();
+
+          // prevent duplicate updates by suppressing the update
+          return [false, output] as const;
         }
 
-        // when there is an update, suppress the emission;
-        // `switchMap` handles it by emitting a new output state once
-        // the `null` update round-trips
-        await this.updateOutput();
-        return false;
+        return [true, output] as const;
       }),
-      filter((bypass) => bypass),
-      switchMap(() => this.outputState.state$),
+      filter(([updated]) => updated),
+      map(([, output]) => output),
     );
 
     this.combinedState$ = this.state$.pipe(map((state) => [this.outputState.userId, state]));
@@ -63,10 +81,12 @@ export class RolloverState<Input, Output> implements SingleUserState<Output> {
       return;
     }
 
-    // rollover anything left
+    // rollover anything left; the updates need to be awaited with `Promise.all` so that
+    // `inputState.update(() => null)` runs before `shouldUpdate` reads the value (above).
+    // This lets the emission from `this.outputState.update` renter the `concatMap`. If the
+    // awaits run in sequence, it can win the race and cause a double emission.
     const output = await this.key.map(input);
-    await this.outputState.update(() => output);
-    await this.inputState.update(() => null);
+    await Promise.all([this.outputState.update(() => output), this.inputState.update(() => null)]);
 
     return;
   }
@@ -76,9 +96,9 @@ export class RolloverState<Input, Output> implements SingleUserState<Output> {
     return this.outputState.userId;
   }
 
-  /** Observes changes to the decrypted secret state. The observer
-   *  updates after the secret has been recorded to state storage.
-   *  @returns `undefined` when the account is locked.
+  /** Observes changes to the output state. This updates when the output
+   *  state updates, when a rollover occurs, and when `RolloverState.rollover`
+   *  is invoked.
    */
   readonly state$: Observable<Output>;
 
@@ -87,15 +107,19 @@ export class RolloverState<Input, Output> implements SingleUserState<Output> {
 
   /** Creates a new rollover state. The rollover state overwrites the output
    *  state when a subscription occurs.
-   *  @param rolloverState the state to roll over.
+   *  @param value the state to roll over. Setting this to `null` or `undefined`
+   *  has no effect.
    */
-  rollover(rolloverState: Input): Promise<Input> {
-    return this.inputState.update(() => rolloverState);
+  async rollover(value: Input): Promise<void> {
+    const normalized = value ?? null;
+    if (normalized !== null) {
+      await this.inputState.update(() => normalized);
+    }
   }
 
   /** Updates the output state.
-   *  @param configureState a callback that returns an updated decrypted
-   *   secret state. The callback receives the state's present value as its
+   *  @param configureState a callback that returns an updated output
+   *   state. The callback receives the state's present value as its
    *   first argument and the dependencies listed in `options.combinedLatestWith`
    *   as its second argument.
    *  @param options configures how the update is applied. See {@link StateUpdateOptions}.

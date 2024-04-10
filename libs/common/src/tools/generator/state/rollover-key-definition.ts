@@ -23,10 +23,11 @@ export type RolloverKeyDefinitionOptions<Input, Output> = KeyDefinitionOptions<I
    * and a disk format or rotating encryption keys.
    */
   map?: (input: Input) => Promise<Output>;
-}; /** Storage and mapping settings for data stored by a `RolloverState`.
- */
+};
 
-export class RolloverKeyDefinition<Input, Output> {
+/** Storage and mapping settings for data stored by a `RolloverState`.
+ */
+export class RolloverKeyDefinition<Input, Output = Input> {
   /**
    * Defines a rollover state
    * @param stateDefinition The domain of the rollover's temporary state.
@@ -40,6 +41,9 @@ export class RolloverKeyDefinition<Input, Output> {
     readonly options: RolloverKeyDefinitionOptions<Input, Output>,
   ) {}
 
+  /** Converts the rollover key definition to a state provider
+   *  key definition
+   */
   toKeyDefinition() {
     const rolloverKey = new KeyDefinition<Input>(this.stateDefinition, this.key, this.options);
 
