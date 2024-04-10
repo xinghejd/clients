@@ -24,13 +24,16 @@ module.exports = {
       current: colors.current,
       black: colors.black,
       primary: {
+        100: rgba("--color-primary-100"),
         300: rgba("--color-primary-300"),
+        500: rgba("--color-primary-500"),
         600: rgba("--color-primary-600"),
         700: rgba("--color-primary-700"),
       },
       secondary: {
         100: rgba("--color-secondary-100"),
         300: rgba("--color-secondary-300"),
+        500: rgba("--color-secondary-500"),
         600: rgba("--color-secondary-600"),
         700: rgba("--color-secondary-700"),
       },
@@ -56,6 +59,7 @@ module.exports = {
         contrast: rgba("--color-text-contrast"),
         alt2: rgba("--color-text-alt2"),
         code: rgba("--color-text-code"),
+        headers: rgba("--color-text-headers"),
       },
       background: {
         DEFAULT: rgba("--color-background"),
