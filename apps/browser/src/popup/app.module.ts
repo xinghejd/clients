@@ -15,6 +15,7 @@ import { BitwardenToastModule } from "@bitwarden/angular/components/toastr.compo
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ColorPasswordCountPipe } from "@bitwarden/angular/pipes/color-password-count.pipe";
 import { ColorPasswordPipe } from "@bitwarden/angular/pipes/color-password.pipe";
+import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
 import { AvatarModule, ButtonModule } from "@bitwarden/components";
 import { ExportScopeCalloutComponent } from "@bitwarden/vault-export-ui";
 
@@ -109,6 +110,7 @@ import "../platform/popup/locales";
     AccountComponent,
     ButtonModule,
     ExportScopeCalloutComponent,
+    UserVerificationDialogComponent,
   ],
   declarations: [
     ActionButtonsComponent,

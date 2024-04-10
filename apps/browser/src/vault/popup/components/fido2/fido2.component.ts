@@ -13,6 +13,7 @@ import {
   takeUntil,
 } from "rxjs";
 
+import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -59,6 +60,7 @@ export class Fido2Component implements OnInit, OnDestroy {
   protected data$: Observable<ViewData>;
   protected sessionId?: string;
   protected senderTabId?: string;
+  protected fromLock?: boolean;
   protected ciphers?: CipherView[] = [];
   protected displayedCiphers?: CipherView[] = [];
   protected loading = false;
@@ -89,6 +91,7 @@ export class Fido2Component implements OnInit, OnDestroy {
         sessionId: queryParamMap.get("sessionId"),
         senderTabId: queryParamMap.get("senderTabId"),
         senderUrl: queryParamMap.get("senderUrl"),
+        fromLock: queryParamMap.get("fromLock"),
       })),
     );
 
@@ -101,6 +104,7 @@ export class Fido2Component implements OnInit, OnDestroy {
           this.sessionId = queryParams.sessionId;
           this.senderTabId = queryParams.senderTabId;
           this.url = queryParams.senderUrl;
+          this.fromLock = queryParams.fromLock === "true";
           // For a 'NewSessionCreatedRequest', abort if it doesn't belong to the current session.
           if (
             message.type === "NewSessionCreatedRequest" &&
@@ -380,13 +384,54 @@ export class Fido2Component implements OnInit, OnDestroy {
   ): Promise<boolean> {
     const masterPasswordRepromptRequired = cipher && cipher.reprompt !== 0;
 
+    if (this.fromLock) {
+      return masterPasswordRepromptRequired
+        ? this.showMasterPasswordReprompt()
+        : userVerificationRequested;
+    }
+
     if (masterPasswordRepromptRequired) {
-      return await this.passwordRepromptService.showPasswordPrompt();
+      return await this.showMasterPasswordReprompt();
+    } else if (userVerificationRequested) {
+      return await this.showUserVerificationDialog();
     }
 
     // We are bypassing user verification pending implementation of PIN and biometric support.
     return userVerificationRequested;
   }
+
+  private async showMasterPasswordReprompt(): Promise<boolean> {
+    return await this.passwordRepromptService.showPasswordPrompt();
+  }
+
+  private async showUserVerificationDialog(): Promise<boolean> {
+    const result = await UserVerificationDialogComponent.open(this.dialogService, {
+      clientSideOnlyVerification: true,
+    });
+
+    if (result.userAction === "cancel") {
+      return;
+    }
+
+    if (!result.verificationSuccess) {
+      if (result.noAvailableClientVerificationMethods) {
+        // No client-side verification methods are available
+        // Could send user to configure a verification method like PIN or biometrics
+      }
+      return;
+    }
+
+    return result.verificationSuccess;
+  }
+
+  // private async createUserPinVerificationDialog(): Promise<boolean> {
+  //   const result = await UserVerificationDialogComponent.open(this.dialogService, {
+  //     title: "Verification Required",
+  //     bodyText: "Verification required for this action. Set a PIN to continue.",
+  //   });
+
+  //   return true;
+  // }
 
   private send(msg: BrowserFido2Message) {
     BrowserFido2UserInterfaceSession.sendMessage({
