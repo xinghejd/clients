@@ -20,12 +20,12 @@ export class RolloverState<Input, Output, Dependency> implements SingleUserState
    * @param provider constructs the temporary rollover state.
    * @param key defines the temporary rollover state.
    * @param outputState updates when a rollover occurs
-   * @param dependency$ should emit `true` when a rollover can happen and
-   *   false when a rollover should be suppressed. When this is omitted, rollovers
-   *   are applied with every rollover emission.
+   * @param dependency$ provides data the rollover depends upon to evaluate and
+   *   transform its data. If this is omitted, then `true` is injected as
+   *   a dependency.
    *
-   * @remarks `shouldRollover$` enables rollover control during dynamic circumstances,
-   *   such as when a rollover should occur only if an account is unlocked.
+   * @remarks `dependency$` enables rollover control during dynamic circumstances,
+   *   such as when a rollover should occur only if a user key is available.
    */
   constructor(
     provider: StateProvider,
