@@ -4,6 +4,7 @@ import { GeneratedCredential } from "./history/generated-credential";
 import { GeneratorNavigation } from "./navigation/generator-navigation";
 import { PassphraseGenerationOptions } from "./passphrase/passphrase-generation-options";
 import { PasswordGenerationOptions } from "./password/password-generation-options";
+import { RolloverKeyDefinition } from "./state/rollover-key-definition";
 import { SecretClassifier } from "./state/secret-classifier";
 import { SecretKeyDefinition } from "./state/secret-key-definition";
 import { CatchallGenerationOptions } from "./username/catchall-generator-options";
@@ -133,6 +134,58 @@ export const SIMPLE_LOGIN_FORWARDER = new UserKeyDefinition<SelfHostedApiOptions
   {
     deserializer: (value) => value,
     clearOn: [],
+  },
+);
+
+/** backing store configuration for {@link Forwarders.AddyIo} */
+export const ADDY_IO_ROLLOVER = new RolloverKeyDefinition<
+  SelfHostedApiOptions & EmailDomainOptions
+>(GENERATOR_DISK, "addyIoRollover", {
+  deserializer: (value) => value,
+});
+
+/** backing store configuration for {@link Forwarders.DuckDuckGo} */
+export const DUCK_DUCK_GO_ROLLOVER = new RolloverKeyDefinition<ApiOptions>(
+  GENERATOR_DISK,
+  "duckDuckGoRollover",
+  {
+    deserializer: (value) => value,
+  },
+);
+
+/** backing store configuration for {@link Forwarders.FastMail} */
+export const FASTMAIL_ROLLOVER = new RolloverKeyDefinition<ApiOptions & EmailPrefixOptions>(
+  GENERATOR_DISK,
+  "fastmailRollover",
+  {
+    deserializer: (value) => value,
+  },
+);
+
+/** backing store configuration for {@link Forwarders.FireFoxRelay} */
+export const FIREFOX_RELAY_ROLLOVER = new RolloverKeyDefinition<ApiOptions>(
+  GENERATOR_DISK,
+  "firefoxRelayRollover",
+  {
+    deserializer: (value) => value,
+  },
+);
+
+/** backing store configuration for {@link Forwarders.ForwardEmail} */
+export const FORWARD_EMAIL_ROLLOVER = new RolloverKeyDefinition<ApiOptions & EmailDomainOptions>(
+  GENERATOR_DISK,
+  "forwardEmailRollover",
+  {
+    deserializer: (value) => value,
+  },
+);
+
+/** backing store configuration for {@link forwarders.SimpleLogin} */
+export const SIMPLE_LOGIN_ROLLOVER = new RolloverKeyDefinition<SelfHostedApiOptions>(
+  GENERATOR_DISK,
+  "simpleLoginRollover",
+  {
+    deserializer: (value) => value,
   },
 );
 

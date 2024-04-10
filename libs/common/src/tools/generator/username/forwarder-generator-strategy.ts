@@ -9,6 +9,8 @@ import { GeneratorStrategy } from "../abstractions";
 import { DefaultPolicyEvaluator } from "../default-policy-evaluator";
 import { NoPolicy } from "../no-policy";
 import { PaddedDataPacker } from "../state/padded-data-packer";
+import { RolloverKeyDefinition } from "../state/rollover-key-definition";
+import { RolloverState } from "../state/rollover-state";
 import { SecretClassifier } from "../state/secret-classifier";
 import { SecretKeyDefinition } from "../state/secret-key-definition";
 import { SecretState } from "../state/secret-state";
@@ -48,25 +50,7 @@ export abstract class ForwarderGeneratorStrategy<
     let state = this.durableStates.get(userId);
 
     if (!state) {
-      const encryptor = this.createEncryptor();
-      // always exclude request properties
-      const classifier = SecretClassifier.allSecret<Options>().exclude("website");
-
-      // Derive the secret key definition
-      const key = SecretKeyDefinition.value(this.key.stateDefinition, this.key.key, classifier, {
-        deserializer: (d) => this.key.deserializer(d),
-        cleanupDelayMs: this.key.cleanupDelayMs,
-        clearOn: this.key.clearOn,
-      });
-
-      // the type parameter is explicit because type inference fails for `Omit<Options, "website">`
-      state = SecretState.from<
-        Options,
-        void,
-        Options,
-        Record<keyof Options, never>,
-        Omit<Options, "website">
-      >(userId, key, this.stateProvider, encryptor);
+      state = this.createState(userId);
 
       this.durableStates.set(userId, state);
     }
@@ -74,10 +58,42 @@ export abstract class ForwarderGeneratorStrategy<
     return state;
   };
 
-  private createEncryptor() {
+  private createState(userId: UserId): SingleUserState<Options> {
     // construct the encryptor
     const packer = new PaddedDataPacker(OPTIONS_FRAME_SIZE);
-    return new UserKeyEncryptor(this.encryptService, this.keyService, packer);
+    const encryptor = new UserKeyEncryptor(this.encryptService, this.keyService, packer);
+
+    // always exclude request properties
+    const classifier = SecretClassifier.allSecret<Options>().exclude("website");
+
+    // Derive the secret key definition
+    const key = SecretKeyDefinition.value(this.key.stateDefinition, this.key.key, classifier, {
+      deserializer: (d) => this.key.deserializer(d),
+      cleanupDelayMs: this.key.cleanupDelayMs,
+      clearOn: this.key.clearOn,
+    });
+
+    // the type parameter is explicit because type inference fails for `Omit<Options, "website">`
+    const secretState = SecretState.from<
+      Options,
+      void,
+      Options,
+      Record<keyof Options, never>,
+      Omit<Options, "website">
+    >(userId, key, this.stateProvider, encryptor);
+
+    // rollover should occur once the user key is available for decryption
+    const canDecrypt$ = this.keyService
+      .getInMemoryUserKeyFor$(userId)
+      .pipe(map((key) => key !== null));
+    const rolloverState = new RolloverState(
+      this.stateProvider,
+      this.rolloverKey,
+      secretState,
+      canDecrypt$,
+    );
+
+    return rolloverState;
   }
 
   /** Gets the default options. */
@@ -85,6 +101,9 @@ export abstract class ForwarderGeneratorStrategy<
 
   /** Determine where forwarder configuration is stored  */
   protected abstract readonly key: UserKeyDefinition<Options>;
+
+  /** Determine where forwarder rollover configuration is stored  */
+  protected abstract readonly rolloverKey: RolloverKeyDefinition<Options, Options>;
 
   /** {@link GeneratorStrategy.toEvaluator} */
   toEvaluator = () => {
