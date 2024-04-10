@@ -5,7 +5,7 @@ import { combineLatest, map, Observable } from "rxjs";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
@@ -44,7 +44,7 @@ export class WebHeaderComponent {
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     private messagingService: MessagingService,
     protected webUnassignedItemsBannerService: WebUnassignedItemsBannerService,
-    private configService: ConfigService,
+    private configService: ConfigServiceAbstraction,
   ) {
     this.routeData$ = this.route.data.pipe(
       map((params) => {
