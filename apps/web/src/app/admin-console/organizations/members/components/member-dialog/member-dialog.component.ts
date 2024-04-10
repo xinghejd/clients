@@ -163,6 +163,12 @@ export class MemberDialogComponent implements OnDestroy {
     this.title = this.i18nService.t(this.editMode ? "editMember" : "inviteMember");
     this.isOnSecretsManagerStandalone = this.params.isOnSecretsManagerStandalone;
 
+    if (this.isOnSecretsManagerStandalone) {
+      this.formGroup.patchValue({
+        accessSecretsManager: true,
+      });
+    }
+
     const groups$ = this.organization$.pipe(
       switchMap((organization) =>
         organization.useGroups
@@ -414,9 +420,7 @@ export class MemberDialogComponent implements OnDestroy {
       ? null
       : this.formGroup.value.groups.map((m) => m.id);
 
-    userView.accessSecretsManager = this.isOnSecretsManagerStandalone
-      ? true
-      : this.formGroup.value.accessSecretsManager;
+    userView.accessSecretsManager = this.formGroup.value.accessSecretsManager;
 
     if (this.editMode) {
       await this.userService.save(userView);
