@@ -1,4 +1,4 @@
-import { BehaviorSubject, Observable, combineLatest, concatMap, filter, map } from "rxjs";
+import { Observable, combineLatest, concatMap, filter, map, of } from "rxjs";
 
 import {
   StateProvider,
@@ -14,13 +14,13 @@ import { RolloverKeyDefinition } from "./rollover-key-definition";
  *  @remarks The rollover state can only rollover non-nullish values. If the
  *   rollover key contains `null` or `undefined`, it will do nothing.
  */
-export class RolloverState<Input, Output> implements SingleUserState<Output> {
+export class RolloverState<Input, Output, Dependency> implements SingleUserState<Output> {
   /**
    * Instantiate a rollover state
    * @param provider constructs the temporary rollover state.
    * @param key defines the temporary rollover state.
    * @param outputState updates when a rollover occurs
-   * @param shouldRollover$ should emit `true` when a rollover can happen and
+   * @param dependency$ should emit `true` when a rollover can happen and
    *   false when a rollover should be suppressed. When this is omitted, rollovers
    *   are applied with every rollover emission.
    *
@@ -29,21 +29,25 @@ export class RolloverState<Input, Output> implements SingleUserState<Output> {
    */
   constructor(
     provider: StateProvider,
-    private key: RolloverKeyDefinition<Input, Output>,
+    private key: RolloverKeyDefinition<Input, Output, Dependency>,
     private outputState: SingleUserState<Output>,
-    shouldRollover$: Observable<boolean> = new BehaviorSubject(true).asObservable(),
+    dependency$: Observable<Dependency> = null,
   ) {
     this.inputState = provider.getUser(outputState.userId, key.toKeyDefinition());
 
-    const watching = [this.inputState.state$, this.outputState.state$, shouldRollover$] as const;
+    const watching = [
+      this.inputState.state$,
+      this.outputState.state$,
+      dependency$ ?? of(true as unknown as Dependency),
+    ] as const;
 
     this.state$ = combineLatest(watching).pipe(
-      concatMap(async ([input, output, shouldRollover]) => {
+      concatMap(async ([input, output, dependency]) => {
         const normalized = input ?? null;
 
-        const canRollover = shouldRollover && normalized !== null;
+        const canRollover = normalized !== null && key.shouldRollover(dependency);
         if (canRollover) {
-          await this.updateOutput();
+          await this.updateOutput(dependency);
 
           // prevent duplicate updates by suppressing the update
           return [false, output] as const;
@@ -56,11 +60,13 @@ export class RolloverState<Input, Output> implements SingleUserState<Output> {
     );
 
     this.combinedState$ = this.state$.pipe(map((state) => [this.outputState.userId, state]));
+
+    this.inputState$ = this.inputState.state$;
   }
 
   private inputState: SingleUserState<Input>;
 
-  private async updateOutput() {
+  private async updateOutput(dependency: Dependency) {
     // retrieve the latest input value
     let input: Input;
     await this.inputState.update((state) => state, {
@@ -76,7 +82,7 @@ export class RolloverState<Input, Output> implements SingleUserState<Output> {
     }
 
     // destroy invalid data and bail
-    if (!(await this.key.isValid(input))) {
+    if (!(await this.key.isValid(input, dependency))) {
       await this.inputState.update(() => null);
       return;
     }
@@ -85,7 +91,7 @@ export class RolloverState<Input, Output> implements SingleUserState<Output> {
     // `inputState.update(() => null)` runs before `shouldUpdate` reads the value (above).
     // This lets the emission from `this.outputState.update` renter the `concatMap`. If the
     // awaits run in sequence, it can win the race and cause a double emission.
-    const output = await this.key.map(input);
+    const output = await this.key.map(input, dependency);
     await Promise.all([this.outputState.update(() => output), this.inputState.update(() => null)]);
 
     return;
@@ -116,6 +122,12 @@ export class RolloverState<Input, Output> implements SingleUserState<Output> {
       await this.inputState.update(() => normalized);
     }
   }
+
+  /** The data presently pending rollover. This emits the pending value each time
+   *  new rollover data is provided. It emits null when there is no data pending
+   *  rollover.
+   */
+  readonly inputState$: Observable<Input>;
 
   /** Updates the output state.
    *  @param configureState a callback that returns an updated output

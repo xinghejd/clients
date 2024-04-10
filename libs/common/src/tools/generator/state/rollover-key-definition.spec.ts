@@ -22,22 +22,59 @@ describe("RolloverKeyDefinition", () => {
     });
   });
 
-  describe("map", () => {
-    it("should call the map function when its defined", async () => {
+  describe("shouldRollover", () => {
+    it("should call the shouldRollover function when its defined", async () => {
+      const shouldRollover = jest.fn(() => true);
       const key = new RolloverKeyDefinition(GENERATOR_DISK, "test", {
         deserializer,
-        map: (value: number) => Promise.resolve(`${value}`),
+        shouldRollover,
       });
 
-      const result = await key.map(1);
+      const result = await key.shouldRollover(true);
 
+      expect(shouldRollover).toHaveBeenCalledWith(true);
+      expect(result).toStrictEqual(true);
+    });
+
+    it("should return true when shouldRollover is not defined and the input is truthy", async () => {
+      const key = new RolloverKeyDefinition<number, number, number>(GENERATOR_DISK, "test", {
+        deserializer,
+      });
+
+      const result = await key.shouldRollover(1);
+
+      expect(result).toStrictEqual(true);
+    });
+
+    it("should return false when shouldRollover is not defined and the input is falsy", async () => {
+      const key = new RolloverKeyDefinition<number, number, number>(GENERATOR_DISK, "test", {
+        deserializer,
+      });
+
+      const result = await key.shouldRollover(0);
+
+      expect(result).toStrictEqual(false);
+    });
+  });
+
+  describe("map", () => {
+    it("should call the map function when its defined", async () => {
+      const map = jest.fn((value: number) => Promise.resolve(`${value}`));
+      const key = new RolloverKeyDefinition(GENERATOR_DISK, "test", {
+        deserializer,
+        map,
+      });
+
+      const result = await key.map(1, true);
+
+      expect(map).toHaveBeenCalledWith(1, true);
       expect(result).toStrictEqual("1");
     });
 
     it("should fall back to an identity function when map is not defined", async () => {
       const key = new RolloverKeyDefinition(GENERATOR_DISK, "test", { deserializer });
 
-      const result = await key.map(1);
+      const result = await key.map(1, null);
 
       expect(result).toStrictEqual(1);
     });
@@ -45,20 +82,22 @@ describe("RolloverKeyDefinition", () => {
 
   describe("isValid", () => {
     it("should call the isValid function when its defined", async () => {
+      const isValid = jest.fn(() => Promise.resolve(true));
       const key = new RolloverKeyDefinition(GENERATOR_DISK, "test", {
         deserializer,
-        isValid: () => Promise.resolve(true),
+        isValid,
       });
 
-      const result = await key.isValid(1);
+      const result = await key.isValid(1, true);
 
+      expect(isValid).toHaveBeenCalledWith(1, true);
       expect(result).toStrictEqual(true);
     });
 
     it("should return true when isValid is not defined and the input is truthy", async () => {
       const key = new RolloverKeyDefinition(GENERATOR_DISK, "test", { deserializer });
 
-      const result = await key.isValid(1);
+      const result = await key.isValid(1, null);
 
       expect(result).toStrictEqual(true);
     });
@@ -66,7 +105,7 @@ describe("RolloverKeyDefinition", () => {
     it("should return false when isValid is not defined and the input is falsy", async () => {
       const key = new RolloverKeyDefinition(GENERATOR_DISK, "test", { deserializer });
 
-      const result = await key.isValid(0);
+      const result = await key.isValid(0, null);
 
       expect(result).toStrictEqual(false);
     });

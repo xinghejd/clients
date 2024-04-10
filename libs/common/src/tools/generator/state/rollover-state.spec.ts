@@ -85,13 +85,13 @@ describe("RolloverState", () => {
     });
 
     // also important for data migrations
-    it("reads from the output state when shouldRollover is false", async () => {
+    it("reads from the output state when its dependency is false", async () => {
       const provider = new FakeStateProvider(accountService);
       const outputState = provider.getUser(SomeUser, SOME_KEY);
       const value = { foo: true, bar: false };
       await outputState.update(() => value);
-      const shouldRollover = new BehaviorSubject<boolean>(false).asObservable();
-      const rolloverState = new RolloverState(provider, ROLLOVER_KEY, outputState, shouldRollover);
+      const dependency = new BehaviorSubject<boolean>(false).asObservable();
+      const rolloverState = new RolloverState(provider, ROLLOVER_KEY, outputState, dependency);
       await provider.setUserState(
         ROLLOVER_KEY.toKeyDefinition(),
         { foo: true, bar: true },
@@ -104,23 +104,87 @@ describe("RolloverState", () => {
     });
 
     // also important for data migrations
-    it("replaces the output state when shouldRollover becomes true", async () => {
+    it("replaces the output state when its dependency emits a truthy value", async () => {
       const provider = new FakeStateProvider(accountService);
       const outputState = provider.getUser(SomeUser, SOME_KEY);
       const firstValue = { foo: true, bar: false };
       await outputState.update(() => firstValue);
-      const shouldRollover = new BehaviorSubject<boolean>(false);
+      const dependency = new BehaviorSubject<boolean>(false);
       const rolloverState = new RolloverState(
         provider,
         ROLLOVER_KEY,
         outputState,
-        shouldRollover.asObservable(),
+        dependency.asObservable(),
       );
       const rolloverValue = { foo: true, bar: true };
       await provider.setUserState(ROLLOVER_KEY.toKeyDefinition(), rolloverValue, SomeUser);
 
       const result = trackEmissions(rolloverState.state$);
-      shouldRollover.next(true);
+      dependency.next(true);
+      await awaitAsync();
+
+      expect(result).toEqual([firstValue, rolloverValue]);
+    });
+
+    it("replaces the output state when shouldUpdate returns a truthy value", async () => {
+      const rolloverKey = new RolloverKeyDefinition<SomeType>(GENERATOR_DISK, "fooBar_rollover", {
+        deserializer: (jsonValue) => jsonValue as SomeType,
+        shouldRollover: () => true,
+      });
+      const provider = new FakeStateProvider(accountService);
+      const outputState = provider.getUser(SomeUser, SOME_KEY);
+      await outputState.update(() => ({ foo: true, bar: false }));
+      const rolloverState = new RolloverState(provider, rolloverKey, outputState);
+      const rolloverValue = { foo: true, bar: true };
+      await provider.setUserState(rolloverKey.toKeyDefinition(), rolloverValue, SomeUser);
+
+      const result = await firstValueFrom(rolloverState.state$);
+
+      expect(result).toEqual(rolloverValue);
+    });
+
+    it("reads from the output state when shouldUpdate returns a falsy value", async () => {
+      const rolloverKey = new RolloverKeyDefinition<SomeType>(GENERATOR_DISK, "fooBar_rollover", {
+        deserializer: (jsonValue) => jsonValue as SomeType,
+        shouldRollover: () => false,
+      });
+      const provider = new FakeStateProvider(accountService);
+      const outputState = provider.getUser(SomeUser, SOME_KEY);
+      const value = { foo: true, bar: false };
+      await outputState.update(() => value);
+      const rolloverState = new RolloverState(provider, rolloverKey, outputState);
+      await provider.setUserState(
+        rolloverKey.toKeyDefinition(),
+        { foo: true, bar: true },
+        SomeUser,
+      );
+
+      const result = await firstValueFrom(rolloverState.state$);
+
+      expect(result).toEqual(value);
+    });
+
+    it("replaces the output state when shouldUpdate transforms its dependency to a truthy value", async () => {
+      const rolloverKey = new RolloverKeyDefinition<SomeType>(GENERATOR_DISK, "fooBar_rollover", {
+        deserializer: (jsonValue) => jsonValue as SomeType,
+        shouldRollover: (dependency) => !dependency,
+      });
+      const provider = new FakeStateProvider(accountService);
+      const outputState = provider.getUser(SomeUser, SOME_KEY);
+      const firstValue = { foo: true, bar: false };
+      await outputState.update(() => firstValue);
+      const dependency = new BehaviorSubject<boolean>(true);
+      const rolloverState = new RolloverState(
+        provider,
+        rolloverKey,
+        outputState,
+        dependency.asObservable(),
+      );
+      const rolloverValue = { foo: true, bar: true };
+      await provider.setUserState(rolloverKey.toKeyDefinition(), rolloverValue, SomeUser);
+
+      const result = trackEmissions(rolloverState.state$);
+      dependency.next(false);
       await awaitAsync();
 
       expect(result).toEqual([firstValue, rolloverValue]);
@@ -165,12 +229,12 @@ describe("RolloverState", () => {
       const outputState = provider.getUser(SomeUser, SOME_KEY);
       const firstValue = { foo: true, bar: false };
       await outputState.update(() => firstValue);
-      const shouldRollover = new BehaviorSubject<boolean>(false);
+      const dependency = new BehaviorSubject<boolean>(false);
       const rolloverState = new RolloverState(
         provider,
         ROLLOVER_KEY,
         outputState,
-        shouldRollover.asObservable(),
+        dependency.asObservable(),
       );
       const rolloverValue = { foo: true, bar: true };
 
@@ -186,18 +250,18 @@ describe("RolloverState", () => {
       const outputState = provider.getUser(SomeUser, SOME_KEY);
       const firstValue = { foo: true, bar: false };
       await outputState.update(() => firstValue);
-      const shouldRollover = new BehaviorSubject<boolean>(false);
+      const dependency = new BehaviorSubject<boolean>(false);
       const rolloverState = new RolloverState(
         provider,
         ROLLOVER_KEY,
         outputState,
-        shouldRollover.asObservable(),
+        dependency.asObservable(),
       );
       const rolloverValue = { foo: true, bar: true };
 
       const result = trackEmissions(rolloverState.state$);
       await rolloverState.rollover(rolloverValue);
-      shouldRollover.next(true);
+      dependency.next(true);
       await awaitAsync();
 
       expect(result).toEqual([firstValue, firstValue, rolloverValue]);
