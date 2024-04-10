@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
+import { Component, ViewChild, ViewContainerRef } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import {
   combineLatest,
@@ -9,7 +9,6 @@ import {
   map,
   Observable,
   shareReplay,
-  Subject,
   switchMap,
   takeUntil,
 } from "rxjs";
@@ -74,10 +73,7 @@ import { ResetPasswordComponent } from "./components/reset-password.component";
   selector: "app-org-people",
   templateUrl: "people.component.html",
 })
-export class PeopleComponent
-  extends BasePeopleComponent<OrganizationUserView>
-  implements OnInit, OnDestroy
-{
+export class PeopleComponent extends BasePeopleComponent<OrganizationUserView> {
   @ViewChild("groupsTemplate", { read: ViewContainerRef, static: true })
   groupsModalRef: ViewContainerRef;
   @ViewChild("confirmTemplate", { read: ViewContainerRef, static: true })
@@ -101,7 +97,6 @@ export class PeopleComponent
   orgIsOnSecretsManagerStandalone = false;
 
   protected canUseSecretsManager$: Observable<boolean>;
-  private destroy$ = new Subject<void>();
 
   constructor(
     apiService: ApiService,
@@ -218,8 +213,7 @@ export class PeopleComponent
   }
 
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
+    super.ngOnDestroy();
   }
 
   async load() {
