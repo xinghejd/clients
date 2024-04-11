@@ -37,7 +37,10 @@ export const BILLING_DISK = new StateDefinition("billing", "disk");
 
 export const KEY_CONNECTOR_DISK = new StateDefinition("keyConnector", "disk");
 export const ACCOUNT_MEMORY = new StateDefinition("account", "memory");
+export const MASTER_PASSWORD_MEMORY = new StateDefinition("masterPassword", "memory");
+export const MASTER_PASSWORD_DISK = new StateDefinition("masterPassword", "disk");
 export const AVATAR_DISK = new StateDefinition("avatar", "disk", { web: "disk-local" });
+export const ROUTER_DISK = new StateDefinition("router", "disk");
 export const LOGIN_EMAIL_DISK = new StateDefinition("loginEmail", "disk", {
   web: "disk-local",
 });
@@ -48,6 +51,9 @@ export const TOKEN_DISK_LOCAL = new StateDefinition("tokenDiskLocal", "disk", {
   web: "disk-local",
 });
 export const TOKEN_MEMORY = new StateDefinition("token", "memory");
+export const DEVICE_TRUST_DISK_LOCAL = new StateDefinition("deviceTrust", "disk", {
+  web: "disk-local",
+});
 export const USER_DECRYPTION_OPTIONS_DISK = new StateDefinition("userDecryptionOptions", "disk");
 
 // Autofill
@@ -67,6 +73,10 @@ export const AUTOFILL_SETTINGS_DISK_LOCAL = new StateDefinition("autofillSetting
 // Components
 
 export const NEW_WEB_LAYOUT_BANNER_DISK = new StateDefinition("newWebLayoutBanner", "disk", {
+  web: "disk-local",
+});
+
+export const UNASSIGNED_ITEMS_BANNER_DISK = new StateDefinition("unassignedItemsBanner", "disk", {
   web: "disk-local",
 });
 
@@ -98,7 +108,12 @@ export const SM_ONBOARDING_DISK = new StateDefinition("smOnboarding", "disk", {
 
 export const GENERATOR_DISK = new StateDefinition("generator", "disk");
 export const GENERATOR_MEMORY = new StateDefinition("generator", "memory");
+export const BROWSER_SEND_MEMORY = new StateDefinition("sendBrowser", "memory");
 export const EVENT_COLLECTION_DISK = new StateDefinition("eventCollection", "disk");
+export const SEND_DISK = new StateDefinition("encryptedSend", "disk", {
+  web: "memory",
+});
+export const SEND_MEMORY = new StateDefinition("decryptedSend", "memory");
 
 // Vault
 
@@ -115,3 +130,5 @@ export const VAULT_ONBOARDING = new StateDefinition("vaultOnboarding", "disk", {
 export const VAULT_SETTINGS_DISK = new StateDefinition("vaultSettings", "disk", {
   web: "disk-local",
 });
+export const VAULT_BROWSER_MEMORY = new StateDefinition("vaultBrowser", "memory");
+export const VAULT_SEARCH_MEMORY = new StateDefinition("vaultSearch", "memory");
