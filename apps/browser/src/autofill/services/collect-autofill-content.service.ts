@@ -1,12 +1,7 @@
 import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
 import AutofillPageDetails from "../models/autofill-page-details";
-import {
-  ElementWithOpId,
-  FillableFormFieldElement,
-  FormFieldElement,
-  FormElementWithAttribute,
-} from "../types";
+import { ElementWithOpId, FillableFormFieldElement, FormFieldElement } from "../types";
 import {
   elementIsDescriptionDetailsElement,
   elementIsDescriptionTermElement,
@@ -19,6 +14,8 @@ import {
   nodeIsElement,
   elementIsInputElement,
   elementIsTextAreaElement,
+  getAttributeBoolean,
+  getPropertyOrAttribute,
 } from "../utils";
 
 import { AutofillOverlayContentService } from "./abstractions/autofill-overlay-content.service";
@@ -33,6 +30,8 @@ import { DomElementVisibilityService } from "./abstractions/dom-element-visibili
 class CollectAutofillContentService implements CollectAutofillContentServiceInterface {
   private readonly domElementVisibilityService: DomElementVisibilityService;
   private readonly autofillOverlayContentService: AutofillOverlayContentService;
+  private readonly getAttributeBoolean = getAttributeBoolean;
+  private readonly getPropertyOrAttribute = getPropertyOrAttribute;
   private noFieldsFound = false;
   private domRecentlyMutated = true;
   private autofillFormElements: AutofillFormElements = new Map();
@@ -468,26 +467,6 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
   }
 
   /**
-   * Returns a boolean representing the attribute value of an element.
-   * @param {ElementWithOpId<FormFieldElement>} element
-   * @param {string} attributeName
-   * @param {boolean} checkString
-   * @returns {boolean}
-   * @private
-   */
-  private getAttributeBoolean(
-    element: ElementWithOpId<FormFieldElement>,
-    attributeName: string,
-    checkString = false,
-  ): boolean {
-    if (checkString) {
-      return this.getPropertyOrAttribute(element, attributeName) === "true";
-    }
-
-    return Boolean(this.getPropertyOrAttribute(element, attributeName));
-  }
-
-  /**
    * Returns the attribute of an element as a lowercase value.
    * @param {ElementWithOpId<FormFieldElement>} element
    * @param {string} attributeName
@@ -796,21 +775,6 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
     }
 
     return this.recursivelyGetTextFromPreviousSiblings(siblingElement);
-  }
-
-  /**
-   * Get the value of a property or attribute from a FormFieldElement.
-   * @param {HTMLElement} element
-   * @param {string} attributeName
-   * @returns {string | null}
-   * @private
-   */
-  private getPropertyOrAttribute(element: HTMLElement, attributeName: string): string | null {
-    if (attributeName in element) {
-      return (element as FormElementWithAttribute)[attributeName];
-    }
-
-    return element.getAttribute(attributeName);
   }
 
   /**

@@ -12,7 +12,7 @@ import {
 import { AutofillExtensionMessage } from "../content/abstractions/autofill-init";
 import AutofillField from "../models/autofill-field";
 import { ElementWithOpId, FillableFormFieldElement, FormFieldElement } from "../types";
-import { elementIsFillableFormField, sendExtensionMessage } from "../utils";
+import { elementIsFillableFormField, getAttributeBoolean, sendExtensionMessage } from "../utils";
 import { AutofillOverlayElement, RedirectFocusDirection } from "../utils/autofill-overlay.enum";
 
 import {
@@ -708,6 +708,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     const formFieldElement = event.target as ElementWithOpId<FormFieldElement>;
     const autofillFieldData = this.hiddenFormFieldElements.get(formFieldElement);
     if (autofillFieldData) {
+      autofillFieldData.readonly = getAttributeBoolean(formFieldElement, "disabled");
+      autofillFieldData.disabled = getAttributeBoolean(formFieldElement, "disabled");
       autofillFieldData.viewable = true;
       void this.setupAutofillOverlayListenerOnField(formFieldElement, autofillFieldData);
     }
