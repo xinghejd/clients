@@ -7,9 +7,11 @@ type MessagingServiceFactoryOptions = FactoryOptions;
 export type MessageSenderInitOptions = MessagingServiceFactoryOptions;
 
 export function messageSenderFactory(
-  cache: { messageSender?: MessageSender } & CachedServices,
+  cache: { messagingService?: MessageSender } & CachedServices,
   opts: MessageSenderInitOptions,
 ): Promise<MessageSender> {
-  // TODO: Implement this
-  return factory(cache, "messageSender", opts, () => MessageSender.combine());
+  // NOTE: Name needs to match that of MainBackground property until we delete these.
+  return factory(cache, "messagingService", opts, () => {
+    throw new Error("Not implemented, not expected to be used.");
+  });
 }
