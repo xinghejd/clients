@@ -522,11 +522,15 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: INTRAPROCESS_MESSAGING_SUBJECT,
     useFactory: () => {
-      if (BrowserPopupUtils.backgroundInitializationRequired()) {
-        // There is no persistent main background which means we have one in memory,
-        // we need the same instance that our in memory background is utilizing.
+      if (needsBackgroundInit) {
+        // We will have created a popup within this context, in that case
+        // we want to make sure we have the same subject as that context so we
+        // can message with it.
         return getBgService("intraprocessMessagingSubject")();
       } else {
+        // There isn't a locally created background so we will communicate with
+        // the true background through chrome apis, in that case, we can just create
+        // one for ourself.
         return new Subject<Message<object>>();
       }
     },
