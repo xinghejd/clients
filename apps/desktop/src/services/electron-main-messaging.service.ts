@@ -2,18 +2,16 @@ import * as path from "path";
 
 import { app, dialog, ipcMain, Menu, MenuItem, nativeTheme, Notification, shell } from "electron";
 
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
+import { MessageSender, MessageDefinition } from "@bitwarden/common/platform/messaging";
+import { getCommand } from "@bitwarden/common/platform/messaging/internal";
 import { SafeUrls } from "@bitwarden/common/platform/misc/safe-urls";
 
 import { WindowMain } from "../main/window.main";
 import { RendererMenuItem } from "../utils";
 
-export class ElectronMainMessagingService implements MessagingService {
-  constructor(
-    private windowMain: WindowMain,
-    private onMessage: (message: any) => void,
-  ) {
+export class ElectronMainMessagingService implements MessageSender {
+  constructor(private windowMain: WindowMain) {
     ipcMain.handle("appVersion", () => {
       return app.getVersion();
     });
@@ -88,9 +86,9 @@ export class ElectronMainMessagingService implements MessagingService {
     });
   }
 
-  send(subscriber: string, arg: any = {}) {
-    const message = Object.assign({}, { command: subscriber }, arg);
-    this.onMessage(message);
+  send<T extends object>(messageDefinition: MessageDefinition<T> | string, arg: T | object = {}) {
+    const command = getCommand(messageDefinition);
+    const message = Object.assign({}, { command: command }, arg);
     if (this.windowMain.win != null) {
       this.windowMain.win.webContents.send("messagingService", message);
     }

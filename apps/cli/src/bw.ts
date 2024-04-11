@@ -57,10 +57,10 @@ import {
 } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { KeySuffixOptions, LogLevelType } from "@bitwarden/common/platform/enums";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
+import { NoopMessageSender } from "@bitwarden/common/platform/messaging/internal";
 import { Account } from "@bitwarden/common/platform/models/domain/account";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { AppIdService } from "@bitwarden/common/platform/services/app-id.service";
-import { BroadcasterService } from "@bitwarden/common/platform/services/broadcaster.service";
 import { ConfigApiService } from "@bitwarden/common/platform/services/config/config-api.service";
 import { DefaultConfigService } from "@bitwarden/common/platform/services/config/default-config.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
@@ -72,7 +72,6 @@ import { KeyGenerationService } from "@bitwarden/common/platform/services/key-ge
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
-import { NoopMessagingService } from "@bitwarden/common/platform/services/noop-messaging.service";
 import { StateService } from "@bitwarden/common/platform/services/state.service";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
 import {
@@ -152,7 +151,7 @@ global.DOMParser = new jsdom.JSDOM().window.DOMParser;
 const packageJson = require("../package.json");
 
 export class Main {
-  messagingService: NoopMessagingService;
+  messagingService: NoopMessageSender;
   storageService: LowdbStorageService;
   secureStorageService: NodeEnvSecureStorageService;
   memoryStorageService: MemoryStorageService;
@@ -209,7 +208,6 @@ export class Main {
   organizationService: OrganizationService;
   providerService: ProviderService;
   twoFactorService: TwoFactorService;
-  broadcasterService: BroadcasterService;
   folderApiService: FolderApiService;
   userVerificationApiService: UserVerificationApiService;
   organizationApiService: OrganizationApiServiceAbstraction;
@@ -294,7 +292,7 @@ export class Main {
       stateEventRegistrarService,
     );
 
-    this.messagingService = new NoopMessagingService();
+    this.messagingService = new NoopMessageSender();
 
     this.accountService = new AccountServiceImplementation(
       this.messagingService,
@@ -415,8 +413,6 @@ export class Main {
     );
 
     this.searchService = new SearchService(this.logService, this.i18nService, this.stateProvider);
-
-    this.broadcasterService = new BroadcasterService();
 
     this.collectionService = new CollectionService(
       this.cryptoService,

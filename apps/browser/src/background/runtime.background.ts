@@ -1,4 +1,4 @@
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, mergeMap } from "rxjs";
 
 import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
 import { AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
@@ -11,6 +11,7 @@ import { SystemService } from "@bitwarden/common/platform/abstractions/system.se
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
+import { MessageListener } from "../../../../libs/common/src/platform/messaging";
 import {
   closeUnlockPopout,
   openSsoAuthResultPopout,
@@ -48,6 +49,7 @@ export default class RuntimeBackground {
     private logService: LogService,
     private configService: ConfigService,
     private fido2Service: Fido2Service,
+    private messageListener: MessageListener,
   ) {
     // onInstalled listener must be wired up before anything else, so we do it in the ctor
     chrome.runtime.onInstalled.addListener((details: any) => {
@@ -64,7 +66,7 @@ export default class RuntimeBackground {
     const backgroundMessageListener = (
       msg: any,
       sender: chrome.runtime.MessageSender,
-      sendResponse: any,
+      sendResponse: (response: any) => void,
     ) => {
       const messagesWithResponse = [
         "checkFido2FeatureEnabled",
@@ -74,89 +76,43 @@ export default class RuntimeBackground {
       ];
 
       if (messagesWithResponse.includes(msg.command)) {
-        this.processMessage(msg, sender).then(
+        this.processMessageWithSender(msg, sender).then(
           (value) => sendResponse({ result: value }),
           (error) => sendResponse({ error: { ...error, message: error.message } }),
         );
         return true;
       }
 
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.processMessage(msg, sender);
+      void this.processMessageWithSender(msg, sender).catch((err) =>
+        this.logService.error(
+          `Error while processing message in RuntimeBackground '${msg?.command}'. Error: ${err?.message ?? "Unknown Error"}`,
+        ),
+      );
       return false;
     };
 
-    BrowserApi.messageListener("runtime.background", backgroundMessageListener);
-    if (this.main.popupOnlyContext) {
-      (self as any).bitwardenBackgroundMessageListener = backgroundMessageListener;
-    }
+    this.messageListener.allMessages$
+      .pipe(
+        mergeMap(async (message: any) => {
+          await this.processMessage(message);
+        }),
+      )
+      .subscribe();
+
+    // For messages that require the full on message interface
+    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+      return backgroundMessageListener(message, sender, sendResponse);
+    });
   }
 
-  async processMessage(msg: any, sender: chrome.runtime.MessageSender) {
+  // Messages that need the chrome sender and send back a response need to be registered in this method.
+  async processMessageWithSender(msg: any, sender: chrome.runtime.MessageSender) {
     switch (msg.command) {
-      case "loggedIn":
-      case "unlocked": {
-        let item: LockedVaultPendingNotificationsData;
-
-        if (msg.command === "loggedIn") {
-          await this.sendBwInstalledMessageToVault();
-        }
-
-        if (this.lockedVaultPendingNotifications?.length > 0) {
-          item = this.lockedVaultPendingNotifications.pop();
-          await closeUnlockPopout();
-        }
-
-        await this.notificationsService.updateConnection(msg.command === "loggedIn");
-        await this.main.refreshBadge();
-        await this.main.refreshMenu(false);
-        this.systemService.cancelProcessReload();
-
-        if (item) {
-          await BrowserApi.focusWindow(item.commandToRetry.sender.tab.windowId);
-          await BrowserApi.focusTab(item.commandToRetry.sender.tab.id);
-          await BrowserApi.tabSendMessageData(
-            item.commandToRetry.sender.tab,
-            "unlockCompleted",
-            item,
-          );
-        }
-        break;
-      }
-      case "addToLockedVaultPendingNotifications":
-        this.lockedVaultPendingNotifications.push(msg.data);
-        break;
-      case "logout":
-        await this.main.logout(msg.expired, msg.userId);
-        break;
-      case "syncCompleted":
-        if (msg.successfully) {
-          setTimeout(async () => {
-            await this.main.refreshBadge();
-            await this.main.refreshMenu();
-          }, 2000);
-          await this.configService.ensureConfigFetched();
-        }
-        break;
-      case "openPopup":
-        await this.main.openPopup();
-        break;
       case "triggerAutofillScriptInjection":
         await this.autofillService.injectAutofillScripts(sender.tab, sender.frameId);
         break;
       case "bgCollectPageDetails":
         await this.main.collectPageDetailsForContentScript(sender.tab, msg.sender, sender.frameId);
-        break;
-      case "bgUpdateContextMenu":
-      case "editedCipher":
-      case "addedCipher":
-      case "deletedCipher":
-        await this.main.refreshBadge();
-        await this.main.refreshMenu();
-        break;
-      case "bgReseedStorage":
-        await this.main.reseedStorage();
         break;
       case "collectPageDetailsResponse":
         switch (msg.sender) {
@@ -221,6 +177,109 @@ export default class RuntimeBackground {
             break;
         }
         break;
+      case "triggerFido2ContentScriptInjection":
+        await this.fido2Service.injectFido2ContentScripts(sender);
+        break;
+      case "fido2RegisterCredentialRequest":
+        return await this.abortManager.runWithAbortController(
+          msg.requestId,
+          async (abortController) => {
+            try {
+              return await this.main.fido2ClientService.createCredential(
+                msg.data,
+                sender.tab,
+                abortController,
+              );
+            } finally {
+              await BrowserApi.focusTab(sender.tab.id);
+              await BrowserApi.focusWindow(sender.tab.windowId);
+            }
+          },
+        );
+      case "fido2GetCredentialRequest":
+        return await this.abortManager.runWithAbortController(
+          msg.requestId,
+          async (abortController) => {
+            try {
+              return await this.main.fido2ClientService.assertCredential(
+                msg.data,
+                sender.tab,
+                abortController,
+              );
+            } finally {
+              await BrowserApi.focusTab(sender.tab.id);
+              await BrowserApi.focusWindow(sender.tab.windowId);
+            }
+          },
+        );
+      case "checkFido2FeatureEnabled":
+        return await this.main.fido2ClientService.isFido2FeatureEnabled(msg.hostname, msg.origin);
+      case "biometricUnlock": {
+        const result = await this.main.biometricUnlock();
+        return result;
+      }
+    }
+  }
+
+  async processMessage(msg: any) {
+    switch (msg.command) {
+      case "loggedIn":
+      case "unlocked": {
+        let item: LockedVaultPendingNotificationsData;
+
+        if (msg.command === "loggedIn") {
+          await this.sendBwInstalledMessageToVault();
+        }
+
+        if (this.lockedVaultPendingNotifications?.length > 0) {
+          item = this.lockedVaultPendingNotifications.pop();
+          await closeUnlockPopout();
+        }
+
+        await this.notificationsService.updateConnection(msg.command === "loggedIn");
+        await this.main.refreshBadge();
+        await this.main.refreshMenu(false);
+        this.systemService.cancelProcessReload();
+
+        if (item) {
+          await BrowserApi.focusWindow(item.commandToRetry.sender.tab.windowId);
+          await BrowserApi.focusTab(item.commandToRetry.sender.tab.id);
+          await BrowserApi.tabSendMessageData(
+            item.commandToRetry.sender.tab,
+            "unlockCompleted",
+            item,
+          );
+        }
+        break;
+      }
+      case "addToLockedVaultPendingNotifications":
+        this.lockedVaultPendingNotifications.push(msg.data);
+        break;
+      case "logout":
+        await this.main.logout(msg.expired, msg.userId);
+        break;
+      case "syncCompleted":
+        if (msg.successfully) {
+          setTimeout(async () => {
+            await this.main.refreshBadge();
+            await this.main.refreshMenu();
+          }, 2000);
+          await this.configService.ensureConfigFetched();
+        }
+        break;
+      case "openPopup":
+        await this.main.openPopup();
+        break;
+      case "bgUpdateContextMenu":
+      case "editedCipher":
+      case "addedCipher":
+      case "deletedCipher":
+        await this.main.refreshBadge();
+        await this.main.refreshMenu();
+        break;
+      case "bgReseedStorage":
+        await this.main.reseedStorage();
+        break;
       case "authResult": {
         const env = await firstValueFrom(this.environmentService.environment$);
         const vaultUrl = env.getWebVaultUrl();
@@ -269,46 +328,10 @@ export default class RuntimeBackground {
       case "getClickedElementResponse":
         this.platformUtilsService.copyToClipboard(msg.identifier);
         break;
-      case "triggerFido2ContentScriptInjection":
-        await this.fido2Service.injectFido2ContentScripts(sender);
-        break;
       case "fido2AbortRequest":
         this.abortManager.abort(msg.abortedRequestId);
         break;
-      case "checkFido2FeatureEnabled":
-        return await this.main.fido2ClientService.isFido2FeatureEnabled(msg.hostname, msg.origin);
-      case "fido2RegisterCredentialRequest":
-        return await this.abortManager.runWithAbortController(
-          msg.requestId,
-          async (abortController) => {
-            try {
-              return await this.main.fido2ClientService.createCredential(
-                msg.data,
-                sender.tab,
-                abortController,
-              );
-            } finally {
-              await BrowserApi.focusTab(sender.tab.id);
-              await BrowserApi.focusWindow(sender.tab.windowId);
-            }
-          },
-        );
-      case "fido2GetCredentialRequest":
-        return await this.abortManager.runWithAbortController(
-          msg.requestId,
-          async (abortController) => {
-            try {
-              return await this.main.fido2ClientService.assertCredential(
-                msg.data,
-                sender.tab,
-                abortController,
-              );
-            } finally {
-              await BrowserApi.focusTab(sender.tab.id);
-              await BrowserApi.focusWindow(sender.tab.windowId);
-            }
-          },
-        );
+
       case "switchAccount": {
         await this.main.switchAccount(msg.userId);
         break;
@@ -316,9 +339,6 @@ export default class RuntimeBackground {
       case "clearClipboard": {
         await this.main.clearClipboard(msg.clipboardValue, msg.timeoutMs);
         break;
-      }
-      case "biometricUnlock": {
-        return await this.main.biometricUnlock();
       }
     }
   }

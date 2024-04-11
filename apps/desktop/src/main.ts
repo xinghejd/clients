@@ -1,7 +1,7 @@
 import * as path from "path";
 
 import { app } from "electron";
-import { firstValueFrom } from "rxjs";
+import { Subject, firstValueFrom } from "rxjs";
 
 import { TokenService as TokenServiceAbstraction } from "@bitwarden/common/auth/abstractions/token.service";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
@@ -11,6 +11,11 @@ import { KeyGenerationService as KeyGenerationServiceAbstraction } from "@bitwar
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { DefaultBiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
+import { Message, MessageSender } from "@bitwarden/common/platform/messaging";
+import {
+  SubjectMessageSender,
+  NoopMessageSender,
+} from "@bitwarden/common/platform/messaging/internal";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { EncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/encrypt.service.implementation";
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
@@ -18,7 +23,6 @@ import { KeyGenerationService } from "@bitwarden/common/platform/services/key-ge
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
-import { NoopMessagingService } from "@bitwarden/common/platform/services/noop-messaging.service";
 /* eslint-disable import/no-restricted-paths -- We need the implementation to inject, but generally this should not be accessed */
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
 import { DefaultActiveUserStateProvider } from "@bitwarden/common/platform/state/implementations/default-active-user-state.provider";
@@ -59,7 +63,7 @@ export class Main {
   storageService: ElectronStorageService;
   memoryStorageService: MemoryStorageService;
   memoryStorageForStateProviders: MemoryStorageServiceForStateProviders;
-  messagingService: ElectronMainMessagingService;
+  messagingService: MessageSender;
   stateService: StateService;
   environmentService: DefaultEnvironmentService;
   mainCryptoFunctionService: MainCryptoFunctionService;
@@ -131,7 +135,7 @@ export class Main {
     this.i18nService = new I18nMainService("en", "./locales/", globalStateProvider);
 
     const accountService = new AccountServiceImplementation(
-      new NoopMessagingService(),
+      new NoopMessageSender(),
       this.logService,
       globalStateProvider,
     );
@@ -223,7 +227,13 @@ export class Main {
     this.updaterMain = new UpdaterMain(this.i18nService, this.windowMain);
     this.trayMain = new TrayMain(this.windowMain, this.i18nService, this.desktopSettingsService);
 
-    this.messagingService = new ElectronMainMessagingService(this.windowMain, (message) => {
+    const messageSubject = new Subject<Message<object>>();
+    this.messagingService = MessageSender.combine(
+      new SubjectMessageSender(messageSubject), // For local messages
+      new ElectronMainMessagingService(this.windowMain),
+    );
+
+    messageSubject.asObservable().subscribe((message) => {
       this.messagingMain.onMessage(message);
     });
 
