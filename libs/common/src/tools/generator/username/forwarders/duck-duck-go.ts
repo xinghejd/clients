@@ -6,7 +6,7 @@ import { EncryptService } from "../../../../platform/abstractions/encrypt.servic
 import { I18nService } from "../../../../platform/abstractions/i18n.service";
 import { StateProvider } from "../../../../platform/state";
 import { UserId } from "../../../../types/guid";
-import { DUCK_DUCK_GO_FORWARDER, DUCK_DUCK_GO_ROLLOVER } from "../../key-definitions";
+import { DUCK_DUCK_GO_FORWARDER, DUCK_DUCK_GO_BUFFER } from "../../key-definitions";
 import { ForwarderGeneratorStrategy } from "../forwarder-generator-strategy";
 import { Forwarders } from "../options/constants";
 import { ApiOptions } from "../options/forwarder-options";
@@ -42,7 +42,7 @@ export class DuckDuckGoForwarder extends ForwarderGeneratorStrategy<ApiOptions> 
 
   /** {@link ForwarderGeneratorStrategy.rolloverKey} */
   get rolloverKey() {
-    return DUCK_DUCK_GO_ROLLOVER;
+    return DUCK_DUCK_GO_BUFFER;
   }
 
   /** {@link ForwarderGeneratorStrategy.defaults$} */

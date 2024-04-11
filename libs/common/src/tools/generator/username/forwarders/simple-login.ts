@@ -6,7 +6,7 @@ import { EncryptService } from "../../../../platform/abstractions/encrypt.servic
 import { I18nService } from "../../../../platform/abstractions/i18n.service";
 import { StateProvider } from "../../../../platform/state";
 import { UserId } from "../../../../types/guid";
-import { SIMPLE_LOGIN_FORWARDER, SIMPLE_LOGIN_ROLLOVER } from "../../key-definitions";
+import { SIMPLE_LOGIN_FORWARDER, SIMPLE_LOGIN_BUFFER } from "../../key-definitions";
 import { ForwarderGeneratorStrategy } from "../forwarder-generator-strategy";
 import { Forwarders } from "../options/constants";
 import { SelfHostedApiOptions } from "../options/forwarder-options";
@@ -43,7 +43,7 @@ export class SimpleLoginForwarder extends ForwarderGeneratorStrategy<SelfHostedA
 
   /** {@link ForwarderGeneratorStrategy.rolloverKey} */
   get rolloverKey() {
-    return SIMPLE_LOGIN_ROLLOVER;
+    return SIMPLE_LOGIN_BUFFER;
   }
 
   /** {@link ForwarderGeneratorStrategy.defaults$} */

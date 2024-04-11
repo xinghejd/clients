@@ -12,7 +12,7 @@ import { StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 import { DefaultPolicyEvaluator } from "../default-policy-evaluator";
-import { DUCK_DUCK_GO_FORWARDER, DUCK_DUCK_GO_ROLLOVER } from "../key-definitions";
+import { DUCK_DUCK_GO_FORWARDER, DUCK_DUCK_GO_BUFFER } from "../key-definitions";
 import { RolloverState } from "../state/rollover-state";
 
 import { ForwarderGeneratorStrategy } from "./forwarder-generator-strategy";
@@ -34,7 +34,7 @@ class TestForwarder extends ForwarderGeneratorStrategy<ApiOptions> {
   }
 
   get rolloverKey() {
-    return DUCK_DUCK_GO_ROLLOVER;
+    return DUCK_DUCK_GO_BUFFER;
   }
 
   defaults$ = (userId: UserId) => {

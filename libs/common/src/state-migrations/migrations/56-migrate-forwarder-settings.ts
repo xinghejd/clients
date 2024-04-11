@@ -80,42 +80,42 @@ const ADDY_IO: KeyDefinitionLike = {
   stateDefinition: {
     name: "generator",
   },
-  key: "addyIoRollover",
+  key: "addyIoBuffer",
 };
 
 const DUCK_DUCK_GO: KeyDefinitionLike = {
   stateDefinition: {
     name: "generator",
   },
-  key: "duckDuckGoRollover",
+  key: "duckDuckGoBuffer",
 };
 
 const FASTMAIL: KeyDefinitionLike = {
   stateDefinition: {
     name: "generator",
   },
-  key: "fastmailRollover",
+  key: "fastmailBuffer",
 };
 
 const FIREFOX_RELAY: KeyDefinitionLike = {
   stateDefinition: {
     name: "generator",
   },
-  key: "firefoxRelayRollover",
+  key: "firefoxRelayBuffer",
 };
 
 const FORWARD_EMAIL: KeyDefinitionLike = {
   stateDefinition: {
     name: "generator",
   },
-  key: "forwardEmailRollover",
+  key: "forwardEmailBuffer",
 };
 
 const SIMPLE_LOGIN: KeyDefinitionLike = {
   stateDefinition: {
     name: "generator",
   },
-  key: "simpleLoginRollover",
+  key: "simpleLoginBuffer",
 };
 
 export type GeneratorNavigation = {

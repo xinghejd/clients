@@ -138,17 +138,19 @@ export const SIMPLE_LOGIN_FORWARDER = new UserKeyDefinition<SelfHostedApiOptions
 );
 
 /** backing store configuration for {@link Forwarders.AddyIo} */
-export const ADDY_IO_ROLLOVER = new RolloverKeyDefinition<
-  SelfHostedApiOptions & EmailDomainOptions
->(GENERATOR_DISK, "addyIoRollover", {
-  deserializer: (value) => value,
-  clearOn: ["lock"],
-});
+export const ADDY_IO_BUFFER = new RolloverKeyDefinition<SelfHostedApiOptions & EmailDomainOptions>(
+  GENERATOR_DISK,
+  "addyIoBuffer",
+  {
+    deserializer: (value) => value,
+    clearOn: ["lock"],
+  },
+);
 
 /** backing store configuration for {@link Forwarders.DuckDuckGo} */
-export const DUCK_DUCK_GO_ROLLOVER = new RolloverKeyDefinition<ApiOptions>(
+export const DUCK_DUCK_GO_BUFFER = new RolloverKeyDefinition<ApiOptions>(
   GENERATOR_DISK,
-  "duckDuckGoRollover",
+  "duckDuckGoBuffer",
   {
     deserializer: (value) => value,
     clearOn: ["lock"],
@@ -156,9 +158,9 @@ export const DUCK_DUCK_GO_ROLLOVER = new RolloverKeyDefinition<ApiOptions>(
 );
 
 /** backing store configuration for {@link Forwarders.FastMail} */
-export const FASTMAIL_ROLLOVER = new RolloverKeyDefinition<ApiOptions & EmailPrefixOptions>(
+export const FASTMAIL_BUFFER = new RolloverKeyDefinition<ApiOptions & EmailPrefixOptions>(
   GENERATOR_DISK,
-  "fastmailRollover",
+  "fastmailBuffer",
   {
     deserializer: (value) => value,
     clearOn: ["lock"],
@@ -166,9 +168,9 @@ export const FASTMAIL_ROLLOVER = new RolloverKeyDefinition<ApiOptions & EmailPre
 );
 
 /** backing store configuration for {@link Forwarders.FireFoxRelay} */
-export const FIREFOX_RELAY_ROLLOVER = new RolloverKeyDefinition<ApiOptions>(
+export const FIREFOX_RELAY_BUFFER = new RolloverKeyDefinition<ApiOptions>(
   GENERATOR_DISK,
-  "firefoxRelayRollover",
+  "firefoxRelayBuffer",
   {
     deserializer: (value) => value,
     clearOn: ["lock"],
@@ -176,9 +178,9 @@ export const FIREFOX_RELAY_ROLLOVER = new RolloverKeyDefinition<ApiOptions>(
 );
 
 /** backing store configuration for {@link Forwarders.ForwardEmail} */
-export const FORWARD_EMAIL_ROLLOVER = new RolloverKeyDefinition<ApiOptions & EmailDomainOptions>(
+export const FORWARD_EMAIL_BUFFER = new RolloverKeyDefinition<ApiOptions & EmailDomainOptions>(
   GENERATOR_DISK,
-  "forwardEmailRollover",
+  "forwardEmailBuffer",
   {
     deserializer: (value) => value,
     clearOn: ["lock"],
@@ -186,9 +188,9 @@ export const FORWARD_EMAIL_ROLLOVER = new RolloverKeyDefinition<ApiOptions & Ema
 );
 
 /** backing store configuration for {@link forwarders.SimpleLogin} */
-export const SIMPLE_LOGIN_ROLLOVER = new RolloverKeyDefinition<SelfHostedApiOptions>(
+export const SIMPLE_LOGIN_BUFFER = new RolloverKeyDefinition<SelfHostedApiOptions>(
   GENERATOR_DISK,
-  "simpleLoginRollover",
+  "simpleLoginBuffer",
   {
     deserializer: (value) => value,
     clearOn: ["lock"],

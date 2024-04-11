@@ -6,7 +6,7 @@ import { EncryptService } from "../../../../platform/abstractions/encrypt.servic
 import { I18nService } from "../../../../platform/abstractions/i18n.service";
 import { StateProvider } from "../../../../platform/state";
 import { UserId } from "../../../../types/guid";
-import { ADDY_IO_FORWARDER, ADDY_IO_ROLLOVER } from "../../key-definitions";
+import { ADDY_IO_FORWARDER, ADDY_IO_BUFFER } from "../../key-definitions";
 import { ForwarderGeneratorStrategy } from "../forwarder-generator-strategy";
 import { Forwarders } from "../options/constants";
 import { EmailDomainOptions, SelfHostedApiOptions } from "../options/forwarder-options";
@@ -46,7 +46,7 @@ export class AddyIoForwarder extends ForwarderGeneratorStrategy<
 
   /** {@link ForwarderGeneratorStrategy.rolloverKey} */
   get rolloverKey() {
-    return ADDY_IO_ROLLOVER;
+    return ADDY_IO_BUFFER;
   }
 
   /** {@link ForwarderGeneratorStrategy.defaults$} */
