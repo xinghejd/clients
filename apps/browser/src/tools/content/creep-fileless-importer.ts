@@ -2,7 +2,7 @@ import { FilelessImportPort } from "../enums/fileless-import.enums";
 
 class CreepFilelessImporter {
   private featureEnabled: boolean = false;
-  // private currentLocationHref: string = "";
+  private hasExportNotificationDisplayed: boolean = false;
   private messagePort: chrome.runtime.Port;
   private mutationObserver: MutationObserver;
   private currentHref: string = "";
@@ -12,7 +12,6 @@ class CreepFilelessImporter {
   };
 
   init() {
-    // this.currentLocationHref = globalThis.location.href;
     if (document.readyState === "loading") {
       document.addEventListener("DOMContentLoaded", this.loadImporter);
       return;
@@ -59,12 +58,16 @@ class CreepFilelessImporter {
   };
 
   private handleMutation = () => {
-    if (this.currentHref !== globalThis.location.href) {
-      this.currentHref = globalThis.location.href;
+    if (this.hasExportNotificationDisplayed) {
+      this.mutationObserver.disconnect();
+      return;
+    }
 
-      if (this.currentHref.includes("/vault")) {
-        this.postPortMessage({ command: "displayCreepImportNotification" });
-      }
+    const creepMetaTag = globalThis.document.querySelector('meta[name="creep"]');
+    const allowsCredentialExport = Boolean(creepMetaTag?.getAttribute("content"));
+    if (allowsCredentialExport) {
+      this.postPortMessage({ command: "displayCreepImportNotification" });
+      this.hasExportNotificationDisplayed = true;
     }
   };
 
