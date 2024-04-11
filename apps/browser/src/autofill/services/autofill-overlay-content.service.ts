@@ -28,6 +28,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   private readonly findTabs = tabbable;
   private readonly sendExtensionMessage = sendExtensionMessage;
   private formFieldElements: Set<ElementWithOpId<FormFieldElement>> = new Set([]);
+  private hiddenFormFieldElements: WeakMap<ElementWithOpId<FormFieldElement>, AutofillField> =
+    new WeakMap();
   private ignoredFieldTypes: Set<string> = new Set(AutoFillConstants.ExcludedOverlayTypes);
   private userFilledFields: Record<string, FillableFormFieldElement> = {};
   private authStatus: AuthenticationStatus;
@@ -77,6 +79,10 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     autofillFieldData: AutofillField,
   ) {
     if (this.isIgnoredField(autofillFieldData) || this.formFieldElements.has(formFieldElement)) {
+      return;
+    }
+
+    if (this.isHiddenField(formFieldElement, autofillFieldData)) {
       return;
     }
 
@@ -658,9 +664,6 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    */
   private isIgnoredField(autofillFieldData: AutofillField): boolean {
     if (
-      autofillFieldData.readonly ||
-      autofillFieldData.disabled ||
-      !autofillFieldData.viewable ||
       this.ignoredFieldTypes.has(autofillFieldData.type) ||
       this.keywordsFoundInFieldData(autofillFieldData, ["search", "captcha"])
     ) {
@@ -673,6 +676,44 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
 
     return !isLoginCipherField;
   }
+
+  private isHiddenField(
+    formFieldElement: ElementWithOpId<FormFieldElement>,
+    autofillFieldData: AutofillField,
+  ): boolean {
+    if (!autofillFieldData.readonly && !autofillFieldData.disabled && autofillFieldData.viewable) {
+      this.removeHiddenFieldFallbackListener(formFieldElement);
+      return false;
+    }
+
+    this.setupHiddenFieldFallbackListener(formFieldElement, autofillFieldData);
+
+    return true;
+  }
+
+  private setupHiddenFieldFallbackListener(
+    formFieldElement: ElementWithOpId<FormFieldElement>,
+    autofillFieldData: AutofillField,
+  ) {
+    this.hiddenFormFieldElements.set(formFieldElement, autofillFieldData);
+    formFieldElement.addEventListener(EVENTS.FOCUS, this.handleHiddenFieldFocusEvent);
+  }
+
+  private removeHiddenFieldFallbackListener(formFieldElement: ElementWithOpId<FormFieldElement>) {
+    formFieldElement.removeEventListener(EVENTS.FOCUS, this.handleHiddenFieldFocusEvent);
+    this.hiddenFormFieldElements.delete(formFieldElement);
+  }
+
+  private handleHiddenFieldFocusEvent = (event: FocusEvent) => {
+    const formFieldElement = event.target as ElementWithOpId<FormFieldElement>;
+    const autofillFieldData = this.hiddenFormFieldElements.get(formFieldElement);
+    if (autofillFieldData) {
+      autofillFieldData.viewable = true;
+      void this.setupAutofillOverlayListenerOnField(formFieldElement, autofillFieldData);
+    }
+
+    this.removeHiddenFieldFallbackListener(formFieldElement);
+  };
 
   /**
    * Queries the background script for the autofill overlay visibility setting.
@@ -820,7 +861,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * autofill overlay if the document is not visible.
    */
   private handleVisibilityChangeEvent = () => {
-    if (document.visibilityState === "visible") {
+    if (!this.mostRecentlyFocusedField || document.visibilityState === "visible") {
       return;
     }
 
