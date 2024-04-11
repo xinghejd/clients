@@ -5,6 +5,7 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { BadgeVariant } from "@bitwarden/components";
@@ -29,8 +30,9 @@ export class WeakPasswordsReportComponent extends CipherReportComponent implemen
     protected organizationService: OrganizationService,
     modalService: ModalService,
     passwordRepromptService: PasswordRepromptService,
+    syncService: SyncService,
   ) {
-    super(modalService, passwordRepromptService, organizationService);
+    super(modalService, passwordRepromptService, syncService, organizationService);
   }
 
   async ngOnInit() {

@@ -3,6 +3,7 @@ import { Component, OnInit } from "@angular/core";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { PasswordRepromptService } from "@bitwarden/vault";
@@ -21,8 +22,9 @@ export class UnsecuredWebsitesReportComponent extends CipherReportComponent impl
     protected organizationService: OrganizationService,
     modalService: ModalService,
     passwordRepromptService: PasswordRepromptService,
+    syncService: SyncService,
   ) {
-    super(modalService, passwordRepromptService, organizationService);
+    super(modalService, passwordRepromptService, syncService, organizationService);
   }
 
   async ngOnInit() {

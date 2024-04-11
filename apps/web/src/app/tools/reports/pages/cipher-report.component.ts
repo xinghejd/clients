@@ -4,6 +4,7 @@ import { Observable } from "rxjs";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { PasswordRepromptService } from "@bitwarden/vault";
@@ -25,6 +26,7 @@ export class CipherReportComponent {
   constructor(
     private modalService: ModalService,
     protected passwordRepromptService: PasswordRepromptService,
+    private syncService: SyncService,
     protected organizationService: OrganizationService,
   ) {
     this.organizations$ = this.organizationService.organizations$;
@@ -32,6 +34,7 @@ export class CipherReportComponent {
 
   async load() {
     this.loading = true;
+    await this.syncService.fullSync(false);
     await this.setCiphers();
     this.loading = false;
     this.hasLoaded = true;

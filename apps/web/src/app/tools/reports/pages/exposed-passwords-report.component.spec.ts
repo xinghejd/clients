@@ -8,6 +8,7 @@ import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { ExposedPasswordsReportComponent } from "./exposed-passwords-report.component";
@@ -17,8 +18,10 @@ describe("ExposedPasswordsReportComponent", () => {
   let component: ExposedPasswordsReportComponent;
   let fixture: ComponentFixture<ExposedPasswordsReportComponent>;
   let auditService: MockProxy<AuditService>;
+  let syncServiceMock: MockProxy<SyncService>;
 
   beforeEach(() => {
+    syncServiceMock = mock<SyncService>();
     auditService = mock<AuditService>();
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -44,6 +47,10 @@ describe("ExposedPasswordsReportComponent", () => {
         {
           provide: PasswordRepromptService,
           useValue: mock<PasswordRepromptService>(),
+        },
+        {
+          provide: SyncService,
+          useValue: syncServiceMock,
         },
         {
           provide: I18nService,
@@ -77,5 +84,9 @@ describe("ExposedPasswordsReportComponent", () => {
     expect(component.ciphers[0].edit).toEqual(true);
     expect(component.ciphers[1].id).toEqual(expectedIdTwo);
     expect(component.ciphers[1].edit).toEqual(true);
+  });
+
+  it("should call fullSync method of syncService", () => {
+    expect(syncServiceMock.fullSync).toHaveBeenCalledWith(false);
   });
 });

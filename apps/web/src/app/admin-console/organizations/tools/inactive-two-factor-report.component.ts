@@ -5,6 +5,7 @@ import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { PasswordRepromptService } from "@bitwarden/vault";
 
@@ -24,8 +25,16 @@ export class InactiveTwoFactorReportComponent extends BaseInactiveTwoFactorRepor
     logService: LogService,
     passwordRepromptService: PasswordRepromptService,
     organizationService: OrganizationService,
+    syncService: SyncService,
   ) {
-    super(cipherService, organizationService, modalService, logService, passwordRepromptService);
+    super(
+      cipherService,
+      organizationService,
+      modalService,
+      logService,
+      passwordRepromptService,
+      syncService,
+    );
   }
 
   async ngOnInit() {
