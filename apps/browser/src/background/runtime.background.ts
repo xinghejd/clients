@@ -100,9 +100,7 @@ export default class RuntimeBackground {
       .subscribe();
 
     // For messages that require the full on message interface
-    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-      return backgroundMessageListener(message, sender, sendResponse);
-    });
+    BrowserApi.messageListener("runtime.background", backgroundMessageListener);
   }
 
   // Messages that need the chrome sender and send back a response need to be registered in this method.
