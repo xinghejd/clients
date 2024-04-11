@@ -1,34 +1,75 @@
+import { CommonModule } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
-import { ActivatedRoute } from "@angular/router";
+import { ActivatedRoute, RouterModule } from "@angular/router";
 import { map, mergeMap, Observable, Subject, takeUntil } from "rxjs";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
 import {
   canAccessBillingTab,
   canAccessGroupsTab,
   canAccessMembersTab,
+  canAccessOrgAdmin,
   canAccessReportingTab,
   canAccessSettingsTab,
   canAccessVaultTab,
   getOrganizationById,
   OrganizationService,
 } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { BannerModule, IconModule, LayoutComponent, NavigationModule } from "@bitwarden/components";
+
+import { PaymentMethodWarningsModule } from "../../../billing/shared";
+import { OrgSwitcherComponent } from "../../../layouts/org-switcher/org-switcher.component";
+import { ToggleWidthComponent } from "../../../layouts/toggle-width.component";
+import { AdminConsoleLogo } from "../../icons/admin-console-logo";
 
 @Component({
   selector: "app-organization-layout",
   templateUrl: "organization-layout.component.html",
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterModule,
+    JslibModule,
+    LayoutComponent,
+    IconModule,
+    NavigationModule,
+    OrgSwitcherComponent,
+    BannerModule,
+    PaymentMethodWarningsModule,
+    ToggleWidthComponent,
+  ],
 })
 export class OrganizationLayoutComponent implements OnInit, OnDestroy {
+  protected readonly logo = AdminConsoleLogo;
+
+  protected orgFilter = (org: Organization) => canAccessOrgAdmin(org);
+
   organization$: Observable<Organization>;
+  showPaymentAndHistory$: Observable<boolean>;
+  hideNewOrgButton$: Observable<boolean>;
 
   private _destroy = new Subject<void>();
+
+  protected showPaymentMethodWarningBanners$ = this.configService.getFeatureFlag$(
+    FeatureFlag.ShowPaymentMethodWarningBanners,
+    false,
+  );
 
   constructor(
     private route: ActivatedRoute,
     private organizationService: OrganizationService,
+    private platformUtilsService: PlatformUtilsService,
+    private configService: ConfigService,
+    private policyService: PolicyService,
   ) {}
 
-  ngOnInit() {
+  async ngOnInit() {
     document.body.classList.remove("layout_frontend");
 
     this.organization$ = this.route.params
@@ -41,6 +82,17 @@ export class OrganizationLayoutComponent implements OnInit, OnDestroy {
             .pipe(getOrganizationById(id));
         }),
       );
+
+    this.showPaymentAndHistory$ = this.organization$.pipe(
+      map(
+        (org) =>
+          !this.platformUtilsService.isSelfHost() &&
+          org?.canViewBillingHistory &&
+          org?.canEditPaymentMethods,
+      ),
+    );
+
+    this.hideNewOrgButton$ = this.policyService.policyAppliesToActiveUser$(PolicyType.SingleOrg);
   }
 
   ngOnDestroy() {

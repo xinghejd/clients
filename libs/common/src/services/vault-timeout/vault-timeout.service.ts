@@ -3,7 +3,9 @@ import { firstValueFrom, timeout } from "rxjs";
 import { SearchService } from "../../abstractions/search.service";
 import { VaultTimeoutSettingsService } from "../../abstractions/vault-timeout/vault-timeout-settings.service";
 import { VaultTimeoutService as VaultTimeoutServiceAbstraction } from "../../abstractions/vault-timeout/vault-timeout.service";
+import { AccountService } from "../../auth/abstractions/account.service";
 import { AuthService } from "../../auth/abstractions/auth.service";
+import { InternalMasterPasswordServiceAbstraction } from "../../auth/abstractions/master-password.service.abstraction";
 import { AuthenticationStatus } from "../../auth/enums/authentication-status";
 import { ClientType } from "../../enums";
 import { VaultTimeoutAction } from "../../enums/vault-timeout-action.enum";
@@ -11,6 +13,8 @@ import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { MessagingService } from "../../platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "../../platform/abstractions/platform-utils.service";
 import { StateService } from "../../platform/abstractions/state.service";
+import { StateEventRunnerService } from "../../platform/state";
+import { UserId } from "../../types/guid";
 import { CipherService } from "../../vault/abstractions/cipher.service";
 import { CollectionService } from "../../vault/abstractions/collection.service";
 import { FolderService } from "../../vault/abstractions/folder/folder.service.abstraction";
@@ -19,6 +23,8 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
   private inited = false;
 
   constructor(
+    private accountService: AccountService,
+    private masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private cipherService: CipherService,
     private folderService: FolderService,
     private collectionService: CollectionService,
@@ -29,6 +35,7 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
     private stateService: StateService,
     private authService: AuthService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsService,
+    private stateEventRunnerService: StateEventRunnerService,
     private lockedCallback: (userId?: string) => Promise<void> = null,
     private loggedOutCallback: (expired: boolean, userId?: string) => Promise<void> = null,
   ) {}
@@ -47,6 +54,8 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
   }
 
   startCheck() {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.checkVaultTimeout();
     setInterval(() => this.checkVaultTimeout(), 10 * 1000); // check every 10 seconds
   }
@@ -79,23 +88,27 @@ export class VaultTimeoutService implements VaultTimeoutServiceAbstraction {
       await this.logOut(userId);
     }
 
-    if (userId == null || userId === (await this.stateService.getUserId())) {
-      this.searchService.clearIndex();
+    const currentUserId = (await firstValueFrom(this.accountService.activeAccount$)).id;
+
+    if (userId == null || userId === currentUserId) {
+      await this.searchService.clearIndex();
       await this.folderService.clearCache();
+      await this.collectionService.clearActiveUserCache();
     }
+
+    await this.masterPasswordService.clearMasterKey((userId ?? currentUserId) as UserId);
 
     await this.stateService.setEverBeenUnlocked(true, { userId: userId });
     await this.stateService.setUserKeyAutoUnlock(null, { userId: userId });
     await this.stateService.setCryptoMasterKeyAuto(null, { userId: userId });
 
-    await this.cryptoService.clearUserKey(false, userId);
-    await this.cryptoService.clearMasterKey(userId);
-    await this.cryptoService.clearOrgKeys(true, userId);
-    await this.cryptoService.clearKeyPair(true, userId);
-
     await this.cipherService.clearCache(userId);
-    await this.collectionService.clearCache(userId);
 
+    await this.stateEventRunnerService.handleEvent("lock", (userId ?? currentUserId) as UserId);
+
+    // FIXME: We should send the userId of the user that was locked, in the case of this method being passed
+    // undefined then it should give back the currentUserId. Better yet, this method shouldn't take
+    // an undefined userId at all. All receivers need to be checked for how they handle getting undefined.
     this.messagingService.send("locked", { userId: userId });
 
     if (this.lockedCallback != null) {

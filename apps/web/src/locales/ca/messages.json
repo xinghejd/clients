@@ -578,6 +578,9 @@
   "access": {
     "message": "Accés"
   },
+  "accessLevel": {
+    "message": "Nivell d'accés"
+  },
   "loggedOut": {
     "message": "Sessió tancada"
   },
@@ -638,9 +641,6 @@
   "learnMoreAboutPasswordless": {
     "message": "Més informació sobre sense contrasenyes"
   },
-  "passkeyEnterMasterPassword": {
-    "message": "Introduïu la vostra contrasenya mestra per modificar l'inici de sessió amb la configuració de la clau de pas."
-  },
   "creatingPasskeyLoading": {
     "message": "S'està creant la clau de pas..."
   },
@@ -655,9 +655,6 @@
   },
   "passkeySuccessfullyCreated": {
     "message": "Clau de pas creada correctament!"
-  },
-  "customName": {
-    "message": "Nom personalitzat"
   },
   "customPasskeyNameInfo": {
     "message": "Poseu un nom a la vostra clau per ajudar-vos a identificar-la."
@@ -1075,7 +1072,7 @@
     "message": "Exporta"
   },
   "exportFrom": {
-    "message": "Export from"
+    "message": "Exporta des de"
   },
   "exportVault": {
     "message": "Exporta la caixa forta"
@@ -1353,6 +1350,22 @@
   "importData": {
     "message": "Importa dades"
   },
+  "onboardingImportDataDetailsPartOne": {
+    "message": "Si no teniu cap dada per importar, podeu crear un ",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsLink": {
+    "message": "element nou.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsPartTwoNoOrgs": {
+    "message": " en compte d'això.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
+  },
+  "onboardingImportDataDetailsPartTwoWithOrgs": {
+    "message": " en compte d'això. És possible que hàgeu d'esperar fins que l'administrador confirme la vostra pertinença a l'organització.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+  },
   "importError": {
     "message": "Error d'importació"
   },
@@ -1465,13 +1478,6 @@
   },
   "faviconDesc": {
     "message": "Mostra una imatge reconeixible al costat de cada inici de sessió."
-  },
-  "enableFullWidth": {
-    "message": "Habilita la disposició de l'amplada completa",
-    "description": "Allows scaling the web vault UI's width"
-  },
-  "enableFullWidthDesc": {
-    "message": "Permet que la caixa forta web s'expandisca a tot l'ample de la finestra del navegador."
   },
   "default": {
     "message": "Per defecte"
@@ -2534,6 +2540,15 @@
       }
     }
   },
+  "trialSecretsManagerThankYou": {
+    "message": "Gràcies per registrar-vos a Bitwarden Secrets Manager per $PLAN$!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
   "trialPaidInfoMessage": {
     "message": "La vostra prova gratuïta de $PLAN$ de 7 dies es convertirà en una subscripció de pagament al cap de 7 dies.",
     "placeholders": {
@@ -2818,6 +2833,9 @@
   },
   "incorrectCode": {
     "message": "Codi incorrecte"
+  },
+  "incorrectPin": {
+    "message": "PIN incorrecte"
   },
   "exportedVault": {
     "message": "S'ha exportat la caixa forta"
@@ -3548,12 +3566,12 @@
       }
     }
   },
-  "subscriptionFamiliesPlan": {
-    "message": "No podeu convidar més de $COUNT$ usuaris sense actualitzar el vostre pla. Poseu-vos en contacte amb el servei d'assistència al client per actualitzar.",
+  "subscriptionUpgrade": {
+    "message": "No podeu convidar més de $COUNT$ membres sense actualitzar el vostre pla.",
     "placeholders": {
       "count": {
         "content": "$1",
-        "example": "6"
+        "example": "2"
       }
     }
   },
@@ -3828,15 +3846,6 @@
   "couldNotChargeCardPayInvoice": {
     "message": "No hem pogut carregar la vostra targeta. Consulteu i pagueu la factura pendent que es mostra a continuació."
   },
-  "inAppPurchase": {
-    "message": "Compra integrada a l'aplicació"
-  },
-  "cannotPerformInAppPurchase": {
-    "message": "No podeu realitzar aquesta acció mentre feu servir un mètode de pagament de compra a l’aplicació."
-  },
-  "manageSubscriptionFromStore": {
-    "message": "Heu de gestionar la vostra subscripció des de la botiga on s’ha realitzat la compra a l’aplicació."
-  },
   "minLength": {
     "message": "Longitud mínima"
   },
@@ -3925,7 +3934,7 @@
     "message": "Una caixa forta bloquejada requereix que torne a introduir la contrasenya principal per accedir-ne de nou."
   },
   "vaultTimeoutActionLogOutDesc": {
-    "message": "Una caixa forta desconnectada requereix que torneu a autentificar-vos per accedir-hi de nou."
+    "message": "Una caixa forta desconnectada requereix que torneu a autentificar-vos per accedir-ne de nou."
   },
   "lock": {
     "message": "Bloqueja",
@@ -4033,6 +4042,12 @@
   },
   "ssoHandOff": {
     "message": "Ara podeu tancar aquesta pestanya i continuar a l'extensió."
+  },
+  "youSuccessfullyLoggedIn": {
+    "message": "Heu iniciat sessió correctament"
+  },
+  "thisWindowWillCloseIn5Seconds": {
+    "message": "Aquesta finestra es tancarà automàticament en 5 segons"
   },
   "includeAllTeamsFeatures": {
     "message": "Característiques de tots els equips, a més de:"
@@ -4935,6 +4950,9 @@
   "newClientOrganizationDesc": {
     "message": "Creeu una nova organització client que s'associarà amb vosaltres com a proveïdor. Podreu accedir i gestionar aquesta organització."
   },
+  "newClient": {
+    "message": "Client nou"
+  },
   "addExistingOrganization": {
     "message": "Afig organització existent"
   },
@@ -5187,6 +5205,12 @@
   },
   "spValidateCertificates": {
     "message": "Valida certificats"
+  },
+  "spUniqueEntityId": {
+    "message": "Estableix un ID d'entitat SP únic"
+  },
+  "spUniqueEntityIdDesc": {
+    "message": "Genereu un identificador únic per a la vostra organització"
   },
   "idpEntityId": {
     "message": "Identificador de l'entitat"
@@ -5912,6 +5936,15 @@
       }
     }
   },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Inicieu DUO i seguiu els passos per finalitzar la sessió."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "Es requereix l'inici de sessió en dos passos de DUO al vostre compte."
+  },
+  "launchDuo": {
+    "message": "Inicia DUO"
+  },
   "turnOn": {
     "message": "Activa"
   },
@@ -6610,11 +6643,44 @@
       }
     }
   },
-  "membersColumnHeader": {
-    "message": "Membre/grup"
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Es requereix verificació per a aquesta acció. Estableix un PIN per continuar."
   },
-  "groupAndMemberColumnHeader": {
+  "setPin": {
+    "message": "Estableix el PIN"
+  },
+  "verifyWithBiometrics": {
+    "message": "Verifica amb biomètrica"
+  },
+  "awaitingConfirmation": {
+    "message": "S'està esperant la confirmació"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "No s'ha pogut completar la biomètrica."
+  },
+  "needADifferentMethod": {
+    "message": "Necessita un mètode diferent?"
+  },
+  "useMasterPassword": {
+    "message": "Utilitza contrasenya mestra"
+  },
+  "usePin": {
+    "message": "Utilitza el PIN"
+  },
+  "useBiometrics": {
+    "message": "Utilitza la biometria"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Introduïu el codi de verificació que s’ha enviat al vostre correu electrònic."
+  },
+  "resendCode": {
+    "message": "Reenvia el codi"
+  },
+  "memberColumnHeader": {
     "message": "Membre"
+  },
+  "groupSlashMemberColumnHeader": {
+    "message": "Grup/Membre"
   },
   "selectGroupsAndMembers": {
     "message": "Seleccioneu grups i membres"
@@ -6668,7 +6734,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "Els plans de Teams Starter poden tenir fins a $SEATCOUNT$ membres. Poseu-vos en contacte amb el servei d'atenció al client per actualitzar el vostre pla i convidar més membres.",
+    "message": "Els plans Teams Starter poden tenir fins a $SEATCOUNT$ membres. Actualitza el teu pla per convidar més membres.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -6820,9 +6886,6 @@
   "secretsManager": {
     "message": "Administrador de secrets"
   },
-  "secretsManagerBeta": {
-    "message": "Administrador de secrets Beta"
-  },
   "secretsManagerAccessDescription": {
     "message": "Activa l'accés dels usuaris a l'administrador de secrets."
   },
@@ -6869,6 +6932,9 @@
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
+  },
+  "createAnAccount": {
+    "message": "Crea un compte"
   },
   "createSecret": {
     "message": "Crea un secret"
@@ -6925,12 +6991,6 @@
   },
   "selectionIsRequired": {
     "message": "La selecció és necessària."
-  },
-  "secretsManagerSubscriptionDesc": {
-    "message": "Activeu l’accés a l’organització al Gestor de secrets sense cap càrrec durant el programa beta. Els usuaris poden rebre accés a la beta en membres."
-  },
-  "secretsManagerEnable": {
-    "message": "Habilita l'administrador de secrets Beta"
   },
   "saPeopleWarningTitle": {
     "message": "Els tokens d'accés encara estan disponibles"
@@ -7002,12 +7062,6 @@
   },
   "enforceOnLoginDesc": {
     "message": "Exigeix que els membres existents canvien les seues contrasenyes"
-  },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
   },
   "smProjectDeleteAccessRestricted": {
     "message": "No teniu permisos per suprimir aquest projecte",
@@ -7091,6 +7145,10 @@
         "example": "Service Account"
       }
     }
+  },
+  "verificationRequired": {
+    "message": "Es requereix verificació",
+    "description": "Default title for the user verification dialog."
   },
   "recoverAccount": {
     "message": "Recupera el compte"
@@ -7193,6 +7251,15 @@
   },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Inicieu la vostra prova gratuïta de 7 dies de Bitwarden per a $ORG$",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerFor": {
+    "message": "Inicieu la vostra prova gratuïta de 7 dies de Bitwarden Secrets Manager per a $ORG$",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -7331,8 +7398,8 @@
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Els propietaris i els administradors poden gestionar totes les col·leccions i articles"
   },
-  "collectionManagementUpdated": {
-    "message": "S'ha guardat el comportament d'administració de la col·lecció"
+  "updatedCollectionManagement": {
+    "message": "S'ha actualitzat la configuració de gestió de col·leccions"
   },
   "passwordManagerPlanPrice": {
     "message": "Preu del pla Administrador de contrasenyes"
@@ -7361,22 +7428,6 @@
   "loggedInExclamation": {
     "message": "Connectat!"
   },
-  "smBetaEndedDesc": {
-    "message": "La beta de l'administrador de secrets va finalitzar el dia $BETA_ENDING_DATE$. Et queden $DAYS$ dies per afegir l'administrador de secrets a la teua subscripció de pagament i mantindre l'accés a les dades de l'administrador de secrets. Contacteu amb Customer Success per afegir l'administrador de secrets a la vostra subscripció.",
-    "placeholders": {
-      "beta_ending_date": {
-        "content": "$1",
-        "example": "August 1, 2023"
-      },
-      "days": {
-        "content": "$2",
-        "example": "11"
-      }
-    }
-  },
-  "betaEnding": {
-    "message": "Beta final"
-  },
   "beta": {
     "message": "Beta"
   },
@@ -7395,11 +7446,8 @@
   "alreadyHaveAccount": {
     "message": "Ja tens un compte?"
   },
-  "customBillingStart": {
-    "message": "La facturació personalitzada no es reflecteix. Visita la "
-  },
-  "customBillingEnd": {
-    "message": " pàgina per a la facturació més recent."
+  "skipToContent": {
+    "message": "Vés al contingut"
   },
   "managePermissionRequired": {
     "message": "Com a mínim un membre o grup ha de tindre permís de gestió."
@@ -7426,6 +7474,12 @@
     "message": "Consulteu les instruccions detallades al nostre lloc d'ajuda a",
     "description": "This is followed a by a hyperlink to the help website."
   },
+  "installBrowserExtension": {
+    "message": "Instal·la extension del navegador"
+  },
+  "installBrowserExtensionDetails": {
+    "message": "Utilitza l'extensió per guardar ràpidament els inicis de sessió i emplenar formularis automàticament sense obrir l'aplicació web."
+  },
   "projectAccessUpdated": {
     "message": "S'ha actualitzat l'accés al projecte"
   },
@@ -7444,7 +7498,149 @@
   "collectionAccessRestricted": {
     "message": "L'accés a la col·lecció està restringit"
   },
+  "grantCollectionAccess": {
+    "message": "Concedeix als grups o membres l'accés a aquesta col·lecció."
+  },
+  "grantCollectionAccessMembersOnly": {
+    "message": "Concedeix als membres l'accés a aquesta col·lecció."
+  },
+  "adminCollectionAccess": {
+    "message": "Els administradors poden accedir i gestionar les col·leccions."
+  },
   "serviceAccountAccessUpdated": {
     "message": "Accés al compte del servei actualitzat"
+  },
+  "commonImportFormats": {
+    "message": "Formats comuns",
+    "description": "Label indicating the most common import formats"
+  },
+  "maintainYourSubscription": {
+    "message": "Per mantenir la teua subscripció per $ORG$, ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Example Inc."
+      }
+    }
+  },
+  "addAPaymentMethod": {
+    "message": "afig mètode de pagament",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
+  },
+  "collectionEnhancementsDesc": {
+    "message": "Afegiu nous paràmetres i permisos per obtenir més flexibilitat. Substituïu la funció de gestor pel permís \"pot gestionar\" i introduïu opcions per permetre als usuaris crear col·leccions i restringir l'accés administratiu a les col·leccions.",
+    "description": "This describes new features and improvements for user roles and collections"
+  },
+  "collectionEnhancementsLearnMore": {
+    "message": "Més informació sobre gestió de col·leccions"
+  },
+  "organizationInformation": {
+    "message": "Informació de l'organització"
+  },
+  "confirmationDetails": {
+    "message": "Detall de confirmació"
+  },
+  "smFreeTrialThankYou": {
+    "message": "Gràcies per registrar-vos a Bitwarden Secrets Manager!"
+  },
+  "smFreeTrialConfirmationEmail": {
+    "message": "Hem enviat un correu electrònic de confirmació al vostre correu electrònic a "
+  },
+  "confirmCollectionEnhancementsDialogTitle": {
+    "message": "Aquesta acció és irreversible"
+  },
+  "confirmCollectionEnhancementsDialogContent": {
+    "message": "En activar aquesta característica, la funció de gestor quedarà obsoleta i se substituirà per Pot gestionar permís. Això tardarà un moment. No feu cap canvi a l'organització fins que no s'haja completat. Esteu segur que voleu continuar?"
+  },
+  "sorryToSeeYouGo": {
+    "message": "Sentim que te'n vages! Ajuda a millorar Bitwarden compartint per què estàs donant-te de baixa.",
+    "description": "A message shown to users as part of an offboarding survey asking them to provide more information on their subscription cancelation."
+  },
+  "selectCancellationReason": {
+    "message": "Seleccioneu un motiu per cancel·lar-lo",
+    "description": "Used as a form field label for a select input on the offboarding survey."
+  },
+  "anyOtherFeedback": {
+    "message": "Hi ha algun altre comentari que voldríeu compartir?",
+    "description": "Used as a form field label for a textarea input on the offboarding survey."
+  },
+  "missingFeatures": {
+    "message": "Característiques que falten",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "movingToAnotherTool": {
+    "message": "Passem a una altra eina",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooDifficultToUse": {
+    "message": "És difícil d'utilitzar",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "notUsingEnough": {
+    "message": "No l'utilitzem prou",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooExpensive": {
+    "message": "Massa car",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "freeForOneYear": {
+    "message": "Gratuït durant 1 any"
+  },
+  "newWebApp": {
+    "message": "Benvingut a l'aplicació web nova i millorada. Obteniu més informació sobre el que ha canviat."
+  },
+  "releaseBlog": {
+    "message": "Llegiu el bloc de publicacions"
+  },
+  "adminConsole": {
+    "message": "Consola d'administració"
+  },
+  "providerPortal": {
+    "message": "Portal del proveïdor"
+  },
+  "restrictedGroupAccess": {
+    "message": "No podeu afegir-vos als grups."
+  },
+  "restrictedCollectionAccess": {
+    "message": "No podeu afegir-vos a les col·leccions."
+  },
+  "assign": {
+    "message": "Assign"
+  },
+  "assignToCollections": {
+    "message": "Assign to collections"
+  },
+  "assignToTheseCollections": {
+    "message": "Assign to these collections"
+  },
+  "bulkCollectionAssignmentDialogDescription": {
+    "message": "Select the collections that the items will be shared with. Once an item is updated in one collection, it will be reflected in all collections. Only organization members with access to these collections will be able to see the items."
+  },
+  "selectCollectionsToAssign": {
+    "message": "Select collections to assign"
+  },
+  "noCollectionsAssigned": {
+    "message": "No collections have been assigned"
+  },
+  "successfullyAssignedCollections": {
+    "message": "Successfully assigned collections"
+  },
+  "bulkCollectionAssignmentWarning": {
+    "message": "You have selected $TOTAL_COUNT$ items. You cannot update $READONLY_COUNT$ of the items because you do not have edit permissions.",
+    "placeholders": {
+      "total_count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "readonly_count": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "items": {
+    "message": "Items"
   }
 }

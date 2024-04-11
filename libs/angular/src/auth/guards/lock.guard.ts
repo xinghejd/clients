@@ -5,6 +5,7 @@ import {
   Router,
   RouterStateSnapshot,
 } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { DeviceTrustCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust-crypto.service.abstraction";
@@ -19,6 +20,8 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
  * Only allow access to this route if the vault is locked.
  * If TDE is enabled then the user must also have had a user key at some point.
  * Otherwise redirect to root.
+ *
+ * TODO: This should return Observable<boolean | UrlTree> once we can remove all the promises
  */
 export function lockGuard(): CanActivateFn {
   return async (
@@ -50,7 +53,7 @@ export function lockGuard(): CanActivateFn {
 
     // User is authN and in locked state.
 
-    const tdeEnabled = await deviceTrustCryptoService.supportsDeviceTrust();
+    const tdeEnabled = await firstValueFrom(deviceTrustCryptoService.supportsDeviceTrust$);
 
     // Create special exception which allows users to go from the login-initiated page to the lock page for the approve w/ MP flow
     // The MP check is necessary to prevent direct manual navigation from other locked state pages for users who don't have a MP
@@ -64,7 +67,7 @@ export function lockGuard(): CanActivateFn {
 
     // If authN user with TDE directly navigates to lock, kick them upwards so redirect guard can
     // properly route them to the login decryption options component.
-    const everHadUserKey = await cryptoService.getEverHadUserKey();
+    const everHadUserKey = await firstValueFrom(cryptoService.everHadUserKey$);
     if (tdeEnabled && !everHadUserKey) {
       return router.createUrlTree(["/"]);
     }

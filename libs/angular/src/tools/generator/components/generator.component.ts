@@ -33,7 +33,7 @@ export class GeneratorComponent implements OnInit {
   subaddressOptions: any[];
   catchallOptions: any[];
   forwardOptions: EmailForwarderOptions[];
-  usernameOptions: UsernameGeneratorOptions = {};
+  usernameOptions: UsernameGeneratorOptions = { website: null };
   passwordOptions: PasswordGeneratorOptions = {};
   username = "-";
   password = "-";
@@ -90,6 +90,8 @@ export class GeneratorComponent implements OnInit {
     ];
     this.subaddressOptions = [{ name: i18nService.t("random"), value: "random" }];
     this.catchallOptions = [{ name: i18nService.t("random"), value: "random" }];
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.initForwardOptions();
   }
 
@@ -152,6 +154,8 @@ export class GeneratorComponent implements OnInit {
   }
 
   async sliderChanged() {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.savePasswordOptions(false);
     await this.passwordGenerationService.addHistory(this.password);
   }
@@ -195,12 +199,12 @@ export class GeneratorComponent implements OnInit {
   }
 
   async sliderInput() {
-    this.normalizePasswordOptions();
+    await this.normalizePasswordOptions();
     this.password = await this.passwordGenerationService.generatePassword(this.passwordOptions);
   }
 
   async savePasswordOptions(regenerate = true) {
-    this.normalizePasswordOptions();
+    await this.normalizePasswordOptions();
     await this.passwordGenerationService.saveOptions(this.passwordOptions);
 
     if (regenerate && this.regenerateWithoutButtonPress()) {
@@ -267,7 +271,7 @@ export class GeneratorComponent implements OnInit {
     return this.type !== "username" || this.usernameOptions.type !== "forwarded";
   }
 
-  private normalizePasswordOptions() {
+  private async normalizePasswordOptions() {
     // Application level normalize options dependent on class variables
     this.passwordOptions.ambiguous = !this.avoidAmbiguous;
 
@@ -286,9 +290,8 @@ export class GeneratorComponent implements OnInit {
       }
     }
 
-    this.passwordGenerationService.normalizeOptions(
+    await this.passwordGenerationService.enforcePasswordGeneratorPoliciesOnOptions(
       this.passwordOptions,
-      this.enforcedPasswordPolicyOptions,
     );
 
     this._passwordOptionsMinLengthForReader.next(this.passwordOptions.minLength);

@@ -9,44 +9,14 @@ import { Messenger } from "./messaging/messenger";
 function isFido2FeatureEnabled(): Promise<boolean> {
   return new Promise((resolve) => {
     chrome.runtime.sendMessage(
-      { command: "checkFido2FeatureEnabled" },
+      {
+        command: "checkFido2FeatureEnabled",
+        hostname: window.location.hostname,
+        origin: window.location.origin,
+      },
       (response: { result?: boolean }) => resolve(response.result),
     );
   });
-}
-
-async function getFromLocalStorage(keys: string | string[]): Promise<Record<string, any>> {
-  return new Promise((resolve) => {
-    chrome.storage.local.get(keys, (storage: Record<string, any>) => resolve(storage));
-  });
-}
-
-async function getActiveUserSettings() {
-  // TODO: This is code copied from `notification-bar.tsx`. We should refactor this into a shared function.
-  // Look up the active user id from storage
-  const activeUserIdKey = "activeUserId";
-  let activeUserId: string;
-
-  const activeUserStorageValue = await getFromLocalStorage(activeUserIdKey);
-  if (activeUserStorageValue[activeUserIdKey]) {
-    activeUserId = activeUserStorageValue[activeUserIdKey];
-  }
-
-  const settingsStorage = await getFromLocalStorage(activeUserId);
-
-  // Look up the user's settings from storage
-  return settingsStorage?.[activeUserId]?.settings;
-}
-
-async function isDomainExcluded(activeUserSettings: Record<string, any>) {
-  const excludedDomains = activeUserSettings?.neverDomains;
-  return excludedDomains && window.location.hostname in excludedDomains;
-}
-
-async function hasActiveUser() {
-  const activeUserIdKey = "activeUserId";
-  const activeUserStorageValue = await getFromLocalStorage(activeUserIdKey);
-  return activeUserStorageValue[activeUserIdKey] !== undefined;
 }
 
 function isSameOriginWithAncestors() {
@@ -56,11 +26,6 @@ function isSameOriginWithAncestors() {
     return false;
   }
 }
-
-async function isLocationBitwardenVault(activeUserSettings: Record<string, any>) {
-  return window.location.origin === activeUserSettings.serverConfig.environment.vault;
-}
-
 const messenger = Messenger.forDOMCommunication(window);
 
 function injectPageScript() {
@@ -78,6 +43,8 @@ function injectPageScript() {
   }
 
   // If the page-script already exists, send a reconnect message to the page-script
+  // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+  // eslint-disable-next-line @typescript-eslint/no-floating-promises
   messenger.sendReconnectCommand();
 }
 
@@ -156,17 +123,7 @@ function initializeFido2ContentScript() {
 }
 
 async function run() {
-  if (!(await hasActiveUser())) {
-    return;
-  }
-
-  const activeUserSettings = await getActiveUserSettings();
-  if (
-    activeUserSettings == null ||
-    !(await isFido2FeatureEnabled()) ||
-    (await isDomainExcluded(activeUserSettings)) ||
-    (await isLocationBitwardenVault(activeUserSettings))
-  ) {
+  if (!(await isFido2FeatureEnabled())) {
     return;
   }
 
@@ -175,8 +132,13 @@ async function run() {
   const port = chrome.runtime.connect({ name: "fido2ContentScriptReady" });
   port.onDisconnect.addListener(() => {
     // Cleanup the messenger and remove the event listener
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     messenger.destroy();
   });
 }
 
-run();
+// Only run the script if the document is an HTML document
+if (document.contentType === "text/html") {
+  void run();
+}

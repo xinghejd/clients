@@ -3,7 +3,7 @@ import { Component, OnInit } from "@angular/core";
 import { FormBuilder, Validators } from "@angular/forms";
 import { firstValueFrom, map, Observable } from "rxjs";
 
-import { PrfKeySet } from "@bitwarden/auth";
+import { PrfKeySet } from "@bitwarden/auth/common";
 import { Verification } from "@bitwarden/common/auth/types/verification";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -44,7 +44,7 @@ export class CreateCredentialDialogComponent implements OnInit {
     }),
     credentialNaming: this.formBuilder.group({
       name: ["", Validators.maxLength(50)],
-      useForEncryption: [false],
+      useForEncryption: [true],
     }),
   });
 
@@ -137,7 +137,10 @@ export class CreateCredentialDialogComponent implements OnInit {
     }
 
     let keySet: PrfKeySet | undefined;
-    if (this.formGroup.value.credentialNaming.useForEncryption) {
+    if (
+      this.pendingCredential.supportsPrf &&
+      this.formGroup.value.credentialNaming.useForEncryption
+    ) {
       keySet = await this.webauthnService.createKeySet(this.pendingCredential);
 
       if (keySet === undefined) {

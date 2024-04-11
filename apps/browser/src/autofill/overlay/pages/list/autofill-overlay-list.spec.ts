@@ -2,8 +2,8 @@ import { mock } from "jest-mock-extended";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
-import { createInitAutofillOverlayListMessageMock } from "../../../jest/autofill-mocks";
-import { postWindowMessage } from "../../../jest/testing-utils";
+import { createInitAutofillOverlayListMessageMock } from "../../../spec/autofill-mocks";
+import { postWindowMessage } from "../../../spec/testing-utils";
 
 import AutofillOverlayList from "./autofill-overlay-list";
 
@@ -312,6 +312,24 @@ describe("AutofillOverlayList", () => {
     });
 
     describe("directing user focus into the overlay list", () => {
+      it("sets ARIA attributes that define the list as a `dialog` to screen reader users", () => {
+        postWindowMessage(
+          createInitAutofillOverlayListMessageMock({
+            authStatus: AuthenticationStatus.Locked,
+            cipherList: [],
+          }),
+        );
+        const overlayContainerSetAttributeSpy = jest.spyOn(
+          autofillOverlayList["overlayListContainer"],
+          "setAttribute",
+        );
+
+        postWindowMessage({ command: "focusOverlayList" });
+
+        expect(overlayContainerSetAttributeSpy).toHaveBeenCalledWith("role", "dialog");
+        expect(overlayContainerSetAttributeSpy).toHaveBeenCalledWith("aria-modal", "true");
+      });
+
       it("focuses the unlock button element if the user is not authenticated", () => {
         postWindowMessage(
           createInitAutofillOverlayListMessageMock({

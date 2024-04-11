@@ -1,37 +1,24 @@
 import { Component } from "@angular/core";
 import { UntypedFormBuilder } from "@angular/forms";
-import { firstValueFrom } from "rxjs";
 
-import { ExportComponent as BaseExportComponent } from "@bitwarden/angular/tools/export/components/export.component";
+import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { EncryptedExportType } from "@bitwarden/common/tools/enums/encrypted-export-type.enum";
 import { DialogService } from "@bitwarden/components";
-import { VaultExportServiceAbstraction } from "@bitwarden/exporter/vault-export";
-
-import { openUserVerificationPrompt } from "../../auth/shared/components/user-verification";
+import { VaultExportServiceAbstraction } from "@bitwarden/vault-export-core";
+import { ExportComponent as BaseExportComponent } from "@bitwarden/vault-export-ui";
 
 @Component({
   selector: "app-export",
   templateUrl: "export.component.html",
 })
 export class ExportComponent extends BaseExportComponent {
-  encryptedExportType = EncryptedExportType;
-  protected showFilePassword: boolean;
-
-  protected flexibleCollectionsEnabled$ = this.configService.getFeatureFlag$(
-    FeatureFlag.FlexibleCollections,
-    false,
-  );
-
   constructor(
     i18nService: I18nService,
     platformUtilsService: PlatformUtilsService,
@@ -44,7 +31,6 @@ export class ExportComponent extends BaseExportComponent {
     fileDownloadService: FileDownloadService,
     dialogService: DialogService,
     organizationService: OrganizationService,
-    protected configService: ConfigServiceAbstraction,
   ) {
     super(
       i18nService,
@@ -61,7 +47,7 @@ export class ExportComponent extends BaseExportComponent {
     );
   }
 
-  async submit() {
+  submit = async () => {
     if (this.isFileEncryptedExport && this.filePassword != this.confirmFilePassword) {
       this.platformUtilsService.showToast(
         "error",
@@ -72,7 +58,7 @@ export class ExportComponent extends BaseExportComponent {
     }
 
     this.exportForm.markAllAsTouched();
-    if (!this.exportForm.valid) {
+    if (this.exportForm.invalid) {
       return;
     }
 
@@ -90,15 +76,17 @@ export class ExportComponent extends BaseExportComponent {
       return;
     }
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.doExport();
-  }
+  };
 
   protected saved() {
     super.saved();
     this.platformUtilsService.showToast("success", null, this.i18nService.t("exportSuccess"));
   }
 
-  private verifyUser() {
+  private async verifyUser(): Promise<boolean> {
     let confirmDescription = "exportWarningDesc";
     if (this.isFileEncryptedExport) {
       confirmDescription = "fileEncryptedExportWarningDesc";
@@ -106,32 +94,29 @@ export class ExportComponent extends BaseExportComponent {
       confirmDescription = "encExportKeyWarningDesc";
     }
 
-    const ref = openUserVerificationPrompt(this.dialogService, {
-      data: {
-        confirmDescription: confirmDescription,
-        confirmButtonText: "exportVault",
-        modalTitle: "confirmVaultExport",
+    const result = await UserVerificationDialogComponent.open(this.dialogService, {
+      title: "confirmVaultExport",
+      bodyText: confirmDescription,
+      confirmButtonOptions: {
+        text: "exportVault",
+        type: "primary",
       },
     });
 
-    if (ref == null) {
-      return;
+    // Handle the result of the dialog based on user action and verification success
+    if (result.userAction === "cancel") {
+      // User cancelled the dialog
+      return false;
     }
 
-    return firstValueFrom(ref.closed);
-  }
-
-  get isFileEncryptedExport() {
-    return (
-      this.format === "encrypted_json" &&
-      this.fileEncryptionType === EncryptedExportType.FileEncrypted
-    );
-  }
-
-  get isAccountEncryptedExport() {
-    return (
-      this.format === "encrypted_json" &&
-      this.fileEncryptionType === EncryptedExportType.AccountEncrypted
-    );
+    // User confirmed the dialog so check verification success
+    if (!result.verificationSuccess) {
+      if (result.noAvailableClientVerificationMethods) {
+        // No client-side verification methods are available
+        // Could send user to configure a verification method like PIN or biometrics
+      }
+      return false;
+    }
+    return true;
   }
 }

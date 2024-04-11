@@ -404,7 +404,7 @@
     "message": "Ilgis"
   },
   "passwordMinLength": {
-    "message": "Minimum password length"
+    "message": "Minimalus slaptažodžio ilgis"
   },
   "uppercase": {
     "message": "Didžiosiomis (A-Z)"
@@ -559,6 +559,12 @@
   },
   "newAccountCreated": {
     "message": "Jūsų paskyra sukurta! Galite prisijungti."
+  },
+  "youSuccessfullyLoggedIn": {
+    "message": "You successfully logged in"
+  },
+  "youMayCloseThisWindow": {
+    "message": "You may close this window"
   },
   "masterPassSent": {
     "message": "Išsiuntėme jums el. laišką su pagrindinio slaptažodžio užuomina."
@@ -1392,6 +1398,9 @@
   "invalidPin": {
     "message": "Neteisingas PIN kodas."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Per daug netinkamų PIN kodo įvedimo bandymų. Atsijungiama."
+  },
   "unlockWithWindowsHello": {
     "message": "Atrakinti naudojant Windows Hello"
   },
@@ -1544,6 +1553,10 @@
     "message": "Jūsų organizacija reikalauja nustatyti pagrindinį slaptažodį.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
+  "verificationRequired": {
+    "message": "Reikalingas patvirtinimas",
+    "description": "Default title for the user verification dialog."
+  },
   "currentMasterPass": {
     "message": "Dabartinis pagrindinis slaptažodis"
   },
@@ -1630,6 +1643,12 @@
   },
   "enableBrowserIntegrationFingerprintDesc": {
     "message": "Pridėkite papildomą apsaugos sluoksnį reikalaudami piršto antspaudo frazės patvirtinimo kuriant ryšį tarp savo darbalaukio ir naršyklės. Tam reikalingas vartotojo veiksmas ir patvirtinimas kiekvieną kartą prisijungus."
+  },
+  "enableHardwareAcceleration": {
+    "message": "Use hardware acceleration"
+  },
+  "enableHardwareAccelerationDesc": {
+    "message": "By default this setting is ON. Turn OFF only if you experience graphical issues. Restart is required."
   },
   "approve": {
     "message": "Patvirtinti"
@@ -1868,6 +1887,42 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Jūsų pagrindinis slaptažodis neatitinka vieno ar kelių organizacijos slaptažodžiui keliamų reikalavimų. Norėdami prisijungti prie saugyklos, jūs turite atnaujinti savo pagrindinį slaptažodį. Jeigu nuspręsite tęsti, jūs būsite atjungti nuo dabartinės sesijos ir jums reikės vėl prisijungti. Visos aktyvios sesijos kituose įrenginiuose gali išlikti aktyvios iki vienos valandos."
+  },
+  "tryAgain": {
+    "message": "Bandyti dar kartą"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Šiam veiksmui reikalingas patikrinimas. Norėdamas (-a) tęsti, nustatykite PIN."
+  },
+  "setPin": {
+    "message": "Nustatyti PIN"
+  },
+  "verifyWithBiometrics": {
+    "message": "Patvirtinti naudojant biometrinius duomenis"
+  },
+  "awaitingConfirmation": {
+    "message": "Laukiama patvirtinimo"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Nepavyko atlikti biometrinių duomenų."
+  },
+  "needADifferentMethod": {
+    "message": "Reikia kito metodo?"
+  },
+  "useMasterPassword": {
+    "message": "Naudoti pagrindinį slaptažodį"
+  },
+  "usePin": {
+    "message": "Naudoti PIN"
+  },
+  "useBiometrics": {
+    "message": "Naudoti biometrinius duomenis"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Įveskite patvirtinimo kodą, kuris buvo išsiųstas į jūsų el. paštą."
+  },
+  "resendCode": {
+    "message": "Siųsti kodą dar kartą"
   },
   "hours": {
     "message": "Valandų"
@@ -2291,12 +2346,6 @@
   "loggingInOn": {
     "message": "Prisijungiama prie"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "selfHostedServer": {
     "message": "savarankiškai sukurtas"
   },
@@ -2427,6 +2476,9 @@
   "submenu": {
     "message": "Submeniu"
   },
+  "skipToContent": {
+    "message": "Pereiti prie turinio"
+  },
   "typePasskey": {
     "message": "Prieigos raktas"
   },
@@ -2478,6 +2530,15 @@
         "example": "My Org Name"
       }
     }
+  },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Launch Duo and follow the steps to finish logging in."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "Duo two-step login is required for your account."
+  },
+  "launchDuo": {
+    "message": "Launch Duo in Browser"
   },
   "importFormatError": {
     "message": "Duomenys neteisingai suformatuoti. Prašome patikrinti savo importuojamą failą ir pabandyti iš naujo."
@@ -2559,6 +2620,15 @@
   "incorrectUsernameOrPassword": {
     "message": "Neteisingas naudotojo vardas arba slaptažodis"
   },
+  "incorrectPassword": {
+    "message": "Neteisingas slaptažodis"
+  },
+  "incorrectCode": {
+    "message": "Neteisingas kodas"
+  },
+  "incorrectPin": {
+    "message": "Neteisingas PIN"
+  },
   "multifactorAuthenticationFailed": {
     "message": "Kelių veiksnių autentifikacija nepavyko"
   },
@@ -2613,5 +2683,24 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Įkiškite su LastPass paskyra susietą YubiKey į kompiuterio USB jungtį, tada palieskite jo mygtuką."
+  },
+  "commonImportFormats": {
+    "message": "Dažni formatai",
+    "description": "Label indicating the most common import formats"
+  },
+  "troubleshooting": {
+    "message": "Troubleshooting"
+  },
+  "disableHardwareAccelerationRestart": {
+    "message": "Disable hardware acceleration and restart"
+  },
+  "enableHardwareAccelerationRestart": {
+    "message": "Enable hardware acceleration and restart"
+  },
+  "removePasskey": {
+    "message": "Remove passkey"
+  },
+  "passkeyRemoved": {
+    "message": "Passkey removed"
   }
 }

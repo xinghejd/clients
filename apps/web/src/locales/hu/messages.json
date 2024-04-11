@@ -578,6 +578,9 @@
   "access": {
     "message": "Hozzáférés"
   },
+  "accessLevel": {
+    "message": "Hozzáférési szint"
+  },
   "loggedOut": {
     "message": "Megtörtént a kijelentkezés."
   },
@@ -638,9 +641,6 @@
   "learnMoreAboutPasswordless": {
     "message": "További információ a jelszó nélküli használatról"
   },
-  "passkeyEnterMasterPassword": {
-    "message": "Adjuk meg a mesterjelszót a belépési jelszó beállításainak módosításához."
-  },
   "creatingPasskeyLoading": {
     "message": "Jelszó létrehozása..."
   },
@@ -655,9 +655,6 @@
   },
   "passkeySuccessfullyCreated": {
     "message": "A jelszó sikeresen létrehozásra került!"
-  },
-  "customName": {
-    "message": "Egyedi név"
   },
   "customPasskeyNameInfo": {
     "message": "Nevezzük el a jelszót a könnyebb azonosítshoz."
@@ -1353,6 +1350,22 @@
   "importData": {
     "message": "Adatok importálása"
   },
+  "onboardingImportDataDetailsPartOne": {
+    "message": "Ha nincsenek importálandó adatok, létrehozhatunk egy",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsLink": {
+    "message": "új elemet",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsPartTwoNoOrgs": {
+    "message": " helyett.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
+  },
+  "onboardingImportDataDetailsPartTwoWithOrgs": {
+    "message": " helyett. Előfordulhat, hogy meg kell várni, amíg az adminisztrátor megerősíti szervezeti tagságot.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+  },
   "importError": {
     "message": "Importálási hiba"
   },
@@ -1465,13 +1478,6 @@
   },
   "faviconDesc": {
     "message": "Felismerhető kép megjelenítése minden bejelentkezés mellett."
-  },
-  "enableFullWidth": {
-    "message": "Teljes szélességű elrendezés engedélyezése",
-    "description": "Allows scaling the web vault UI's width"
-  },
-  "enableFullWidthDesc": {
-    "message": "A webes széf teljes szélességűre tágításának engedélyezése a böngészőablakban."
   },
   "default": {
     "message": "Alapértelmezett"
@@ -2534,6 +2540,15 @@
       }
     }
   },
+  "trialSecretsManagerThankYou": {
+    "message": "Köszönet a regisztrációért a Bitwarden Titkos Kód Kezelő $PLAN$ csomagjára!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
   "trialPaidInfoMessage": {
     "message": "$PLAN$ csomag 7 napos ingyenes próbaverziója fizetős feliratkozássá válik 7 nap után.",
     "placeholders": {
@@ -2818,6 +2833,9 @@
   },
   "incorrectCode": {
     "message": "Helytelen kód"
+  },
+  "incorrectPin": {
+    "message": "Helytelen PIN kód"
   },
   "exportedVault": {
     "message": "A széf exportálásra került."
@@ -3548,12 +3566,12 @@
       }
     }
   },
-  "subscriptionFamiliesPlan": {
-    "message": "$COUNT$ felhasználónál több nem hívható meg magasabb szintű előfizetés nélkül. Az áttéréshez vegyük fel a kapcsolatot a vevőszolgálattal.",
+  "subscriptionUpgrade": {
+    "message": "$COUNT$ tagnál több nem hívható meg a magasabb szintű csomag nélkül.",
     "placeholders": {
       "count": {
         "content": "$1",
-        "example": "6"
+        "example": "2"
       }
     }
   },
@@ -3828,15 +3846,6 @@
   "couldNotChargeCardPayInvoice": {
     "message": "Nem lehet megterhelni a kártyát.  Nézzük át és fizessük ki az alább felsorolt kifizetés nélküli számlát."
   },
-  "inAppPurchase": {
-    "message": "Alkalmazáson belüli vásárlás"
-  },
-  "cannotPerformInAppPurchase": {
-    "message": "Nem hajtható végre ez a művelet az alkalmazáson belüli vásárlás fizetési módjának használatával."
-  },
-  "manageSubscriptionFromStore": {
-    "message": "Az előfizetés annál az üzletnél kell kezelni, ahol az alkalmazáson belüli vásárlás történt."
-  },
   "minLength": {
     "message": "Minimális hossz"
   },
@@ -4033,6 +4042,12 @@
   },
   "ssoHandOff": {
     "message": "Bezárható ez a fül és folytatás a bővítményben."
+  },
+  "youSuccessfullyLoggedIn": {
+    "message": "A bejelentkezés sikeres volt."
+  },
+  "thisWindowWillCloseIn5Seconds": {
+    "message": "Ez az ablak 5 másodpercen belül automatikusan bezárul."
   },
   "includeAllTeamsFeatures": {
     "message": "Összes Csapat funkció, továbbá:"
@@ -4935,6 +4950,9 @@
   "newClientOrganizationDesc": {
     "message": "Egy új ügyfélszervezet létrehozása társított szolgáltatásként. Lehetőség lesz a szervezet elérésére és kezelésére."
   },
+  "newClient": {
+    "message": "Új ügyfél"
+  },
   "addExistingOrganization": {
     "message": "Létező fordítások hozzáadása"
   },
@@ -5187,6 +5205,12 @@
   },
   "spValidateCertificates": {
     "message": "Tanúsítványok ellenőrzése"
+  },
+  "spUniqueEntityId": {
+    "message": "Egyedi SP entitás azonosító beállítása"
+  },
+  "spUniqueEntityIdDesc": {
+    "message": "Egyedi azonosító létrehozása a szervezetre vonatkozóan"
   },
   "idpEntityId": {
     "message": "Szervezeti ID"
@@ -5912,6 +5936,15 @@
       }
     }
   },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Indítsuk el a DUO-t és kövessük a lépéseket a bejelentkezés befejezéséhez."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "A fiókhoz kétlépcsős DUO bejelentkezés szükséges."
+  },
+  "launchDuo": {
+    "message": "DUO indítása"
+  },
   "turnOn": {
     "message": "Bekapcsolás"
   },
@@ -6610,11 +6643,44 @@
       }
     }
   },
-  "membersColumnHeader": {
-    "message": "Tag/Csoport"
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Ehhez a művelethez ellenőrzés szükséges. A folytatáshoz állítsunk be egy PIN kódot."
   },
-  "groupAndMemberColumnHeader": {
+  "setPin": {
+    "message": "PIN kód beállítása"
+  },
+  "verifyWithBiometrics": {
+    "message": "Ellenőrzés biometrikusan"
+  },
+  "awaitingConfirmation": {
+    "message": "Várakozás megerősítésre"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Nem sikerült kitölteni a biometrikus adatokat."
+  },
+  "needADifferentMethod": {
+    "message": "Más módszerre van szükség?"
+  },
+  "useMasterPassword": {
+    "message": "Mesterjelszó használata"
+  },
+  "usePin": {
+    "message": "PIN kód használata"
+  },
+  "useBiometrics": {
+    "message": "Biometria használata"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Az emailben elküldött ellenőrző kód megadása."
+  },
+  "resendCode": {
+    "message": "Kód újraküldése"
+  },
+  "memberColumnHeader": {
     "message": "Tag"
+  },
+  "groupSlashMemberColumnHeader": {
+    "message": "Csoport/Tag"
   },
   "selectGroupsAndMembers": {
     "message": "Csoportok és tagok kiválasztása"
@@ -6668,7 +6734,7 @@
     }
   },
   "teamsStarterPlanInvLimitReachedManageBilling": {
-    "message": "A Teams Starter csomagok legfeljebb $SEATCOUNT$ tagot tartalmazhatnak. Lépjünk kapcsolatba az ügyfélszolgálattal a csomag frissítéséhez és további tagok meghívásához.",
+    "message": "Teams Starter plans may have up to $SEATCOUNT$ members. Upgrade to your plan to invite more members.",
     "placeholders": {
       "seatcount": {
         "content": "$1",
@@ -6820,9 +6886,6 @@
   "secretsManager": {
     "message": "Titkos kód kezelő"
   },
-  "secretsManagerBeta": {
-    "message": "Titkos kód kezelő béta"
-  },
   "secretsManagerAccessDescription": {
     "message": "A felhasználói hozzáférés bekapcsolása a Titkos kód kezelőhöz."
   },
@@ -6869,6 +6932,9 @@
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
+  },
+  "createAnAccount": {
+    "message": "Fiók létrehozása"
   },
   "createSecret": {
     "message": "Titkos kód létrehozása"
@@ -6925,12 +6991,6 @@
   },
   "selectionIsRequired": {
     "message": "A kiválasztás szükséges."
-  },
-  "secretsManagerSubscriptionDesc": {
-    "message": "A bétaprogram alatt díjmentesen engedélyezzük a szervezeti hozzáférést a Titkos kód kezelőhöz. A felhasználók hozzáférést kaphatnak a bétá verzióhoz a Tagok részben."
-  },
-  "secretsManagerEnable": {
-    "message": "A Titkos kód kezelő engedélyezése"
   },
   "saPeopleWarningTitle": {
     "message": "Az eléréi vezérjel még minig elérhető."
@@ -7002,12 +7062,6 @@
   },
   "enforceOnLoginDesc": {
     "message": "A meglévő tagoknak meg kell változtatniuk jelszavaikat."
-  },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
   },
   "smProjectDeleteAccessRestricted": {
     "message": "Nincs jogosulltság ezen projekt törléséhez.",
@@ -7091,6 +7145,10 @@
         "example": "Service Account"
       }
     }
+  },
+  "verificationRequired": {
+    "message": "Ellenőrzés szükséges",
+    "description": "Default title for the user verification dialog."
   },
   "recoverAccount": {
     "message": "Fiók helyreállítás"
@@ -7193,6 +7251,15 @@
   },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Kezdjük el a Bitwarden 7 napos ingyenes próbaverzió használatát $ORG$ áron",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerFor": {
+    "message": "Kezdjük el a Bitwarden Titkos Kód Kezelő $ORG$ 7 napos ingyenes próbaverzió használatát",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -7331,8 +7398,8 @@
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Owners and admins can manage all collections and items"
   },
-  "collectionManagementUpdated": {
-    "message": "A gyűjtemény kezelési viselkedés mentésre került."
+  "updatedCollectionManagement": {
+    "message": "Frissített gyűjteménykezelési beállítás"
   },
   "passwordManagerPlanPrice": {
     "message": "Jelszókezelő csomag ár"
@@ -7361,22 +7428,6 @@
   "loggedInExclamation": {
     "message": "Megtörtént a bejelentkezés."
   },
-  "smBetaEndedDesc": {
-    "message": "A Titkós kód kezelő bétaverziója $BETA_ENDING_DATE$ időpontban befejeződött. Még $DAYS$ napig lehetőség van a Titkos kód kezelő szolgáltatás hozzáadásához a fizetett előfizetéshez és a hozzáférés fenntartásához a Titkos kód kezelő adataihoz. Lépjünk kapcsolatba az Ügyfél szolgálattal aTitkos kód kezelő hozzáadásához az előfizetéshez.",
-    "placeholders": {
-      "beta_ending_date": {
-        "content": "$1",
-        "example": "August 1, 2023"
-      },
-      "days": {
-        "content": "$2",
-        "example": "11"
-      }
-    }
-  },
-  "betaEnding": {
-    "message": "Béta vezió befejezés"
-  },
   "beta": {
     "message": "Béta"
   },
@@ -7395,11 +7446,8 @@
   "alreadyHaveAccount": {
     "message": "Van már saját fiók?"
   },
-  "customBillingStart": {
-    "message": "Az egyedi számlázás nem jelenik meg. Keressük fel "
-  },
-  "customBillingEnd": {
-    "message": " oldalt a legújabb számlázásért."
+  "skipToContent": {
+    "message": "Ugrás a tartalomra"
   },
   "managePermissionRequired": {
     "message": "Legalább egy tagnak vagy csoportnak rendelkeznie kell kezelési engedéllyel."
@@ -7426,6 +7474,12 @@
     "message": "Tekintsük meg a részletes utasításokat a súgó oldalon:",
     "description": "This is followed a by a hyperlink to the help website."
   },
+  "installBrowserExtension": {
+    "message": "Böngésző bővítmény telepítése"
+  },
+  "installBrowserExtensionDetails": {
+    "message": "A bővítmény segítségével gyorsan elmenthetők a bejelentkezések és automatikusan kitölthetők az űrlapok a webalkalmazás megnyitása nélkül."
+  },
   "projectAccessUpdated": {
     "message": "A projekt elérés frissítésre került."
   },
@@ -7444,7 +7498,149 @@
   "collectionAccessRestricted": {
     "message": "A gyűjtemény elérése korlátozott."
   },
+  "grantCollectionAccess": {
+    "message": "Adjunk hozzáférést csoportoknak vagy személyeknek eennél a gyűjteménynél."
+  },
+  "grantCollectionAccessMembersOnly": {
+    "message": "A tagok hozzáférésének megadása ehhez a gyűjteményhez."
+  },
+  "adminCollectionAccess": {
+    "message": "Az adminisztrátorok elérhetik és kezelhetik a gyűjteményeket."
+  },
   "serviceAccountAccessUpdated": {
     "message": "A szolgáltatás fiók elérése frissítésre került."
+  },
+  "commonImportFormats": {
+    "message": "Általános formátumok",
+    "description": "Label indicating the most common import formats"
+  },
+  "maintainYourSubscription": {
+    "message": "$ORG$ előfizetés fenntartásához, ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Example Inc."
+      }
+    }
+  },
+  "addAPaymentMethod": {
+    "message": "fitetési metódus hozzáadása",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
+  },
+  "collectionEnhancementsDesc": {
+    "message": "Adjunk hozzá új beállításokat és jogosultságokat a nagyobb rugalmasság érdekében. Cseréljük le a Kezelő szerepet a \"kezelheti\" jogosultsággal és vezessünk be olyan opciókat, amelyek lehetővé teszik a felhasználók számára gyűjtemények létrehozását, valamint a gyűjtemények adminisztrátori hozzáférésének korlátozását.",
+    "description": "This describes new features and improvements for user roles and collections"
+  },
+  "collectionEnhancementsLearnMore": {
+    "message": "További információ a gyűjteménykezelésről"
+  },
+  "organizationInformation": {
+    "message": "Szervezeti információ"
+  },
+  "confirmationDetails": {
+    "message": "Megerősítő adatok"
+  },
+  "smFreeTrialThankYou": {
+    "message": "Köszönet a Bitwarden Titkos Kód Kezelő regisztrációért!"
+  },
+  "smFreeTrialConfirmationEmail": {
+    "message": "A megerősítő email elküldésre került az email címre:"
+  },
+  "confirmCollectionEnhancementsDialogTitle": {
+    "message": "Ez a művelet visszavonhatatlan."
+  },
+  "confirmCollectionEnhancementsDialogContent": {
+    "message": "Ezt a funkciót bekapcsolva a kezelői szerepkör elavul és az egy Kezelheti jogosultsággal kerül felváltásra. Ez eltart néhány pillanatig. Ne hajtsunk végre semmilyen szervezeti változtatást, amíg az be nem fejeződött. Biztosan folytatjuk?"
+  },
+  "sorryToSeeYouGo": {
+    "message": "Sorry to see you go! Help improve Bitwarden by sharing why you're canceling.",
+    "description": "A message shown to users as part of an offboarding survey asking them to provide more information on their subscription cancelation."
+  },
+  "selectCancellationReason": {
+    "message": "Select a reason for canceling",
+    "description": "Used as a form field label for a select input on the offboarding survey."
+  },
+  "anyOtherFeedback": {
+    "message": "Is there any other feedback you'd like to share?",
+    "description": "Used as a form field label for a textarea input on the offboarding survey."
+  },
+  "missingFeatures": {
+    "message": "Missing features",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "movingToAnotherTool": {
+    "message": "Moving to another tool",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooDifficultToUse": {
+    "message": "Too difficult to use",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "notUsingEnough": {
+    "message": "Not using enough",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooExpensive": {
+    "message": "Too expensive",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "freeForOneYear": {
+    "message": "Díjmentes 1 évre"
+  },
+  "newWebApp": {
+    "message": "Üdvözlet az új és továbbfejlesztett webalkalmazásban. További információ a megváltozott dolgokról."
+  },
+  "releaseBlog": {
+    "message": "Kiadási blog elolvasása"
+  },
+  "adminConsole": {
+    "message": "Admin konzol"
+  },
+  "providerPortal": {
+    "message": "Szolgáltató portál"
+  },
+  "restrictedGroupAccess": {
+    "message": "Nem adhadjuk magunkat a csoporthoz."
+  },
+  "restrictedCollectionAccess": {
+    "message": "Nem adhadjuk magunkat a gyűjteményhez."
+  },
+  "assign": {
+    "message": "Hozzárendelés"
+  },
+  "assignToCollections": {
+    "message": "Hozzárendelés gyűjteményekhez"
+  },
+  "assignToTheseCollections": {
+    "message": "Hozzárendelés ezen gyűjteményekhez"
+  },
+  "bulkCollectionAssignmentDialogDescription": {
+    "message": "Válasszuk ki azokat a gyűjteményeket, amelyekkel az elemek megosztásra kerülnek. Ha egy elem egy gyűjteményben frissítésre kerül, az az összes gyűjteményben megjelenik. Csak az ezekhez a gyűjteményekhez hozzáféréssel rendelkező szervezeti tagok láthatják az elemeket."
+  },
+  "selectCollectionsToAssign": {
+    "message": "Hozzárendelendő gyűjtemények kiválasztása"
+  },
+  "noCollectionsAssigned": {
+    "message": "Nem lettek gyűjtemények hozzárendelve."
+  },
+  "successfullyAssignedCollections": {
+    "message": "A gyűjtemények sikeresen hozzárendelésre kerültek."
+  },
+  "bulkCollectionAssignmentWarning": {
+    "message": "$TOTAL_COUNT$ elem lett kiválasztva. Az elemek közül $READONLY_COUNT$ nem frissíthető, mert nincs szerkesztési jogosultság.",
+    "placeholders": {
+      "total_count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "readonly_count": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "items": {
+    "message": "Elemek"
   }
 }

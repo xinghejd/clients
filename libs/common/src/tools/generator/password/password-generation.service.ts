@@ -5,10 +5,10 @@ import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { StateService } from "../../../platform/abstractions/state.service";
 import { EFFLongWordList } from "../../../platform/misc/wordlist";
 import { EncString } from "../../../platform/models/domain/enc-string";
+import { PasswordGenerationServiceAbstraction } from "../abstractions/password-generation.service.abstraction";
+import { PassphraseGeneratorOptionsEvaluator } from "../passphrase/passphrase-generator-options-evaluator";
 
 import { GeneratedPasswordHistory } from "./generated-password-history";
-import { PassphraseGeneratorOptionsEvaluator } from "./passphrase-generator-options-evaluator";
-import { PasswordGenerationServiceAbstraction } from "./password-generation.service.abstraction";
 import { PasswordGeneratorOptions } from "./password-generator-options";
 import { PasswordGeneratorOptionsEvaluator } from "./password-generator-options-evaluator";
 
@@ -23,7 +23,7 @@ const DefaultOptions: PasswordGeneratorOptions = {
   lowercase: true,
   minLowercase: 0,
   special: false,
-  minSpecial: 1,
+  minSpecial: 0,
   type: "password",
   numWords: 3,
   wordSeparator: "-",
@@ -147,9 +147,6 @@ export class PasswordGenerationService implements PasswordGenerationServiceAbstr
     if (o.numWords == null || o.numWords <= 2) {
       o.numWords = DefaultOptions.numWords;
     }
-    if (o.wordSeparator == null || o.wordSeparator.length === 0 || o.wordSeparator.length > 1) {
-      o.wordSeparator = " ";
-    }
     if (o.capitalize == null) {
       o.capitalize = false;
     }
@@ -198,9 +195,10 @@ export class PasswordGenerationService implements PasswordGenerationServiceAbstr
       options.type = policy.defaultType;
     }
 
-    const evaluator = options.type
-      ? new PasswordGeneratorOptionsEvaluator(policy)
-      : new PassphraseGeneratorOptionsEvaluator(policy);
+    const evaluator =
+      options.type == "password"
+        ? new PasswordGeneratorOptionsEvaluator(policy)
+        : new PassphraseGeneratorOptionsEvaluator(policy);
 
     // Ensure the options to pass the current rules
     const withPolicy = evaluator.applyPolicy(options);
@@ -341,23 +339,6 @@ export class PasswordGenerationService implements PasswordGenerationServiceAbstr
   async clear(userId?: string): Promise<void> {
     await this.stateService.setEncryptedPasswordGenerationHistory(null, { userId: userId });
     await this.stateService.setDecryptedPasswordGenerationHistory(null, { userId: userId });
-  }
-
-  normalizeOptions(
-    options: PasswordGeneratorOptions,
-    enforcedPolicyOptions: PasswordGeneratorPolicyOptions,
-  ) {
-    const evaluator = options.type
-      ? new PasswordGeneratorOptionsEvaluator(enforcedPolicyOptions)
-      : new PassphraseGeneratorOptionsEvaluator(enforcedPolicyOptions);
-
-    const evaluatedOptions = evaluator.applyPolicy(options);
-    const santizedOptions = evaluator.sanitize(evaluatedOptions);
-
-    // callers assume this function updates the options parameter
-    Object.assign(options, santizedOptions);
-
-    return options;
   }
 
   private capitalize(str: string) {

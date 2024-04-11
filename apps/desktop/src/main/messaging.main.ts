@@ -6,6 +6,7 @@ import { app, ipcMain } from "electron";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 
 import { Main } from "../main";
+import { DesktopSettingsService } from "../platform/services/desktop-settings.service";
 
 import { MenuUpdateRequest } from "./menu/menu.updater";
 
@@ -17,15 +18,16 @@ export class MessagingMain {
   constructor(
     private main: Main,
     private stateService: StateService,
+    private desktopSettingsService: DesktopSettingsService,
   ) {}
 
-  init() {
+  async init() {
     this.scheduleNextSync();
     if (process.platform === "linux") {
-      this.stateService.setOpenAtLogin(fs.existsSync(this.linuxStartupFile()));
+      await this.desktopSettingsService.setOpenAtLogin(fs.existsSync(this.linuxStartupFile()));
     } else {
       const loginSettings = app.getLoginItemSettings();
-      this.stateService.setOpenAtLogin(loginSettings.openAtLogin);
+      await this.desktopSettingsService.setOpenAtLogin(loginSettings.openAtLogin);
     }
     ipcMain.on("messagingService", async (event: any, message: any) => this.onMessage(message));
   }
@@ -36,10 +38,14 @@ export class MessagingMain {
         this.scheduleNextSync();
         break;
       case "updateAppMenu":
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.main.menuMain.updateApplicationMenuState(message.updateRequest);
         this.updateTrayMenu(message.updateRequest);
         break;
       case "minimizeOnCopy":
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.stateService.getMinimizeOnCopyToClipboard().then((shouldMinimize) => {
           if (shouldMinimize && this.main.windowMain.win !== null) {
             this.main.windowMain.win.minimize();
@@ -53,6 +59,8 @@ export class MessagingMain {
         this.main.trayMain.removeTray();
         break;
       case "hideToTray":
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.main.trayMain.hideToTray();
         break;
       case "addOpenAtLogin":

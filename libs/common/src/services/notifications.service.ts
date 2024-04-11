@@ -1,5 +1,6 @@
 import * as signalR from "@microsoft/signalr";
 import * as signalRMsgPack from "@microsoft/signalr-protocol-msgpack";
+import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "../abstractions/api.service";
 import { NotificationsService as NotificationsServiceAbstraction } from "../abstractions/notifications.service";
@@ -38,18 +39,20 @@ export class NotificationsService implements NotificationsServiceAbstraction {
     private authService: AuthService,
     private messagingService: MessagingService,
   ) {
-    this.environmentService.urls.subscribe(() => {
+    this.environmentService.environment$.subscribe(() => {
       if (!this.inited) {
         return;
       }
 
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.init();
     });
   }
 
   async init(): Promise<void> {
     this.inited = false;
-    this.url = this.environmentService.getNotificationsUrl();
+    this.url = (await firstValueFrom(this.environmentService.environment$)).getNotificationsUrl();
 
     // Set notifications server URL to `https://-` to effectively disable communication
     // with the notifications server from the client app
@@ -84,6 +87,8 @@ export class NotificationsService implements NotificationsServiceAbstraction {
     });
     this.signalrConnection.onclose(() => {
       this.connected = false;
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.reconnect(true);
     });
     this.inited = true;
@@ -163,6 +168,12 @@ export class NotificationsService implements NotificationsServiceAbstraction {
           await this.syncService.fullSync(false);
         }
         break;
+      case NotificationType.SyncOrganizations:
+        if (isAuthenticated) {
+          // An organization update may not have bumped the user's account revision date, so force a sync
+          await this.syncService.fullSync(true);
+        }
+        break;
       case NotificationType.SyncOrgKeys:
         if (isAuthenticated) {
           await this.syncService.fullSync(true);
@@ -172,6 +183,8 @@ export class NotificationsService implements NotificationsServiceAbstraction {
         break;
       case NotificationType.LogOut:
         if (isAuthenticated) {
+          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+          // eslint-disable-next-line @typescript-eslint/no-floating-promises
           this.logoutCallback(true);
         }
         break;

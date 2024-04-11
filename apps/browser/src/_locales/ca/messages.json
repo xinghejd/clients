@@ -326,6 +326,9 @@
   "password": {
     "message": "Contrasenya"
   },
+  "totp": {
+    "message": "Secret de l'autenticador"
+  },
   "passphrase": {
     "message": "Frase de pas"
   },
@@ -490,6 +493,12 @@
   "newAccountCreated": {
     "message": "El vostre compte s'ha creat correctament. Ara ja podeu iniciar sessió."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "Heu iniciat sessió correctament"
+  },
+  "youMayCloseThisWindow": {
+    "message": "Podeu tancar aquesta finestra"
+  },
   "masterPassSent": {
     "message": "Hem enviat un correu electrònic amb la vostra contrasenya mestra."
   },
@@ -511,6 +520,18 @@
   },
   "autofillError": {
     "message": "No es pot omplir automàticament l'element seleccionat en aquesta pàgina. Com a alternativa, copieu i enganxeu la informació."
+  },
+  "totpCaptureError": {
+    "message": "No es pot escanejar el codi QR des de la pàgina web actual"
+  },
+  "totpCaptureSuccess": {
+    "message": "S'ha afegit la clau de l'autenticador"
+  },
+  "totpCapture": {
+    "message": "Escaneja el codi QR de l'autenticador des de la pàgina web actual"
+  },
+  "copyTOTP": {
+    "message": "Copia la clau de l'autenticador (TOTP)"
   },
   "loggedOut": {
     "message": "Sessió tancada"
@@ -1478,6 +1499,9 @@
   "invalidPin": {
     "message": "El codi PIN no és vàlid."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Hi ha massa intents d'introducció de PIN no vàlids. S'està tancant sessió."
+  },
   "unlockWithBiometrics": {
     "message": "Desbloqueja amb biomètrica"
   },
@@ -1725,7 +1749,7 @@
     "placeholders": {
       "domain": {
         "content": "$1",
-        "example": "googlecom"
+        "example": "google.com"
       }
     }
   },
@@ -1980,6 +2004,10 @@
   "selectFolder": {
     "message": "Seleccioneu la carpeta..."
   },
+  "noFoldersFound": {
+    "message": "No s'ha trobat cap carpeta",
+    "description": "Used as a message within the notification bar when no folders are found"
+  },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "Els permisos de la vostra organització s'han actualitzat, cal que establiu una contrasenya mestra.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
@@ -1987,6 +2015,10 @@
   "orgRequiresYouToSetPassword": {
     "message": "La vostra organització requereix que establiu una contrasenya mestra.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "verificationRequired": {
+    "message": "Es requereix verificació",
+    "description": "Default title for the user verification dialog."
   },
   "hours": {
     "message": "Hores"
@@ -2354,12 +2386,6 @@
     "message": "UE",
     "description": "European Union"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "accessDenied": {
     "message": "Accés denegat. No teniu permís per veure aquesta pàgina."
   },
@@ -2497,6 +2523,38 @@
     "message": "Redueix/Amplia",
     "description": "Toggling an expand/collapse state."
   },
+  "filelessImport": {
+    "message": "Voleu importar les vostres dades a Bitwarden?",
+    "description": "Default notification title for triggering a fileless import."
+  },
+  "lpFilelessImport": {
+    "message": "Protegiu les vostres dades de LastPass i importeu-les a Bitwarden?",
+    "description": "LastPass specific notification title for triggering a fileless import."
+  },
+  "lpCancelFilelessImport": {
+    "message": "Guarda com a fitxer sense xifrar",
+    "description": "LastPass specific notification button text for cancelling a fileless import."
+  },
+  "startFilelessImport": {
+    "message": "Importa a Bitwarden",
+    "description": "Notification button text for starting a fileless import."
+  },
+  "importing": {
+    "message": "S'està important...",
+    "description": "Notification message for when an import is in progress."
+  },
+  "dataSuccessfullyImported": {
+    "message": "Les dades s'han importat correctament!",
+    "description": "Notification message for when an import has completed successfully."
+  },
+  "dataImportFailed": {
+    "message": "S'ha produït un error en importar. Consulteu la consola per obtenir més informació.",
+    "description": "Notification message for when an import has failed."
+  },
+  "importNetworkError": {
+    "message": "S'ha trobat un error de xarxa durant la importació.",
+    "description": "Notification message for when an import has failed due to a network error."
+  },
   "aliasDomain": {
     "message": "Alies de domini"
   },
@@ -2511,6 +2569,9 @@
   "turnOffMasterPasswordPromptToEditField": {
     "message": "Desactiveu la sol·licitud de nova contrasenya mestra per editar aquest camp",
     "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
+  },
+  "skipToContent": {
+    "message": "Vés al contingut"
   },
   "bitwardenOverlayButton": {
     "message": "Botó de menú d'emplenament automàtic de Bitwarden",
@@ -2590,6 +2651,42 @@
       }
     }
   },
+  "tryAgain": {
+    "message": "Torneu-ho a provar"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Es requereix verificació per a aquesta acció. Estableix un PIN per continuar."
+  },
+  "setPin": {
+    "message": "Estableix el PIN"
+  },
+  "verifyWithBiometrics": {
+    "message": "Verifica amb biomètrica"
+  },
+  "awaitingConfirmation": {
+    "message": "S'està esperant la confirmació"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "No s'ha pogut completar la biomètrica."
+  },
+  "needADifferentMethod": {
+    "message": "Necessita un mètode diferent?"
+  },
+  "useMasterPassword": {
+    "message": "Utilitza contrasenya mestra"
+  },
+  "usePin": {
+    "message": "Utilitza el PIN"
+  },
+  "useBiometrics": {
+    "message": "Utilitza la biometria"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Introduïu el codi de verificació que s’ha enviat al vostre correu electrònic."
+  },
+  "resendCode": {
+    "message": "Reenvia el codi"
+  },
   "total": {
     "message": "Total"
   },
@@ -2601,6 +2698,21 @@
         "example": "My Org Name"
       }
     }
+  },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Inicieu DUO i seguiu els passos per finalitzar la sessió."
+  },
+  "duoRequiredForAccount": {
+    "message": "Es requereix l'inici de sessió en dos passos de DUO al vostre compte."
+  },
+  "popoutTheExtensionToCompleteLogin": {
+    "message": "Desplega l'extensió per completar l'inici de sessió."
+  },
+  "popoutExtension": {
+    "message": "Extensió emergent"
+  },
+  "launchDuo": {
+    "message": "Inicia DUO"
   },
   "importFormatError": {
     "message": "Les dades no estan formatades correctament. Comproveu el fitxer d'importació i torneu-ho a provar."
@@ -2724,9 +2836,6 @@
   "yourPasskeyIsLocked": {
     "message": "Es requereix autenticació per utilitzar la clau de pas. Verifiqueu la vostra identitat per continuar."
   },
-  "useBrowserName": {
-    "message": "Utilitza navegador"
-  },
   "multifactorAuthenticationCancelled": {
     "message": "S'ha cancel·lat l'autenticació multifactor"
   },
@@ -2735,6 +2844,15 @@
   },
   "incorrectUsernameOrPassword": {
     "message": "Nom d'usuari o contrasenya incorrectes"
+  },
+  "incorrectPassword": {
+    "message": "Contrasenya incorrecta"
+  },
+  "incorrectCode": {
+    "message": "Codi incorrecte"
+  },
+  "incorrectPin": {
+    "message": "PIN incorrecte"
   },
   "multifactorAuthenticationFailed": {
     "message": "L'autenticació multifactor ha fallat"
@@ -2803,6 +2921,9 @@
   "activeAccount": {
     "message": "Activa el compte"
   },
+  "availableAccounts": {
+    "message": "Comptes disponibles"
+  },
   "accountLimitReached": {
     "message": "S'ha arribat al límit del compte. Tanqueu la sessió d'un compte per afegir-ne un altre."
   },
@@ -2820,5 +2941,69 @@
   },
   "hostedAt": {
     "message": "allotjat a"
+  },
+  "useDeviceOrHardwareKey": {
+    "message": "Utilitzeu el vostre dispositiu o la clau de maquinari"
+  },
+  "justOnce": {
+    "message": "Només una vegada"
+  },
+  "alwaysForThisSite": {
+    "message": "Sempre per aquest lloc"
+  },
+  "domainAddedToExcludedDomains": {
+    "message": "$DOMAIN$ afegit als dominis exclosos.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "google.com"
+      }
+    }
+  },
+  "commonImportFormats": {
+    "message": "Formats comuns",
+    "description": "Label indicating the most common import formats"
+  },
+  "overrideDefaultBrowserAutofillTitle": {
+    "message": "Fer que Bitwarden siga el gestor de contrasenyes predeterminat?",
+    "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutofillDescription": {
+    "message": "Si ignoreu aquesta opció pot provocar conflictes entre el menú d'emplenament automàtic de Bitwarden i el del navegador.",
+    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutoFillSettings": {
+    "message": "Feu que Bitwarden siga el vostre gestor de contrasenyes predeterminat",
+    "description": "Label for the setting that allows overriding the default browser autofill settings"
+  },
+  "privacyPermissionAdditionNotGrantedTitle": {
+    "message": "No es pot establir Bitwarden com a gestor de contrasenyes predeterminat",
+    "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "privacyPermissionAdditionNotGrantedDescription": {
+    "message": "Heu de concedir permisos de privadesa del navegador a Bitwarden per establir-lo com a gestor de contrasenyes predeterminat.",
+    "description": "Description for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "makeDefault": {
+    "message": "Estableix per defecte",
+    "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "saveCipherAttemptSuccess": {
+    "message": "Les credencials s'han guardat correctament!",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
+  "updateCipherAttemptSuccess": {
+    "message": "Les credencials s'han actualitzat correctament!",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "saveCipherAttemptFailed": {
+    "message": "S'ha produït un error en guardar les credencials. Consulteu la consola per obtenir més informació.",
+    "description": "Notification message for when saving credentials has failed."
+  },
+  "removePasskey": {
+    "message": "Remove passkey"
+  },
+  "passkeyRemoved": {
+    "message": "Passkey removed"
   }
 }

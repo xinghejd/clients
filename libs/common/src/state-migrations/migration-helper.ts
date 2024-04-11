@@ -9,12 +9,29 @@ export type KeyDefinitionLike = {
   key: string;
 };
 
+export type MigrationHelperType = "general" | "web-disk-local";
+
 export class MigrationHelper {
   constructor(
     public currentVersion: number,
     private storageService: AbstractStorageService,
     public logService: LogService,
-  ) {}
+    type: MigrationHelperType,
+  ) {
+    this.type = type;
+  }
+
+  /**
+   * On some clients, migrations are ran multiple times without direct action from the migration writer.
+   *
+   * All clients will run through migrations at least once, this run is referred to as `"general"`. If a migration is
+   * ran more than that single time, they will get a unique name if that the write can make conditional logic based on which
+   * migration run this is.
+   *
+   * @remarks The preferrable way of writing migrations is ALWAYS to be defensive and reflect on the data you are given back. This
+   * should really only be used when reflecting on the data given isn't enough.
+   */
+  type: MigrationHelperType;
 
   /**
    * Gets a value from the storage service at the given key.
@@ -38,6 +55,18 @@ export class MigrationHelper {
   set<T>(key: string, value: T): Promise<void> {
     this.logService.info(`Setting ${key}`);
     return this.storageService.save(key, value);
+  }
+
+  /**
+   * Remove a value in the storage service at the given key.
+   *
+   * This is a brute force method to just remove a value in the storage service. If you can use {@link removeFromGlobal} or {@link removeFromUser}, you should.
+   * @param key location
+   * @returns void
+   */
+  remove(key: string): Promise<void> {
+    this.logService.info(`Removing ${key}`);
+    return this.storageService.remove(key);
   }
 
   /**
@@ -66,6 +95,18 @@ export class MigrationHelper {
   }
 
   /**
+   * Remove a globally scoped location derived through the key definition
+   *
+   * This is for use with the state providers framework, DO NOT use for values stored with {@link StateService},
+   * use {@link remove} for those.
+   * @param keyDefinition unique key definition
+   * @returns void
+   */
+  removeFromGlobal(keyDefinition: KeyDefinitionLike): Promise<void> {
+    return this.remove(this.getGlobalKey(keyDefinition));
+  }
+
+  /**
    * Gets a user scoped value from a location derived through the user id and key definition
    *
    * This is for use with the state providers framework, DO NOT use for values stored with {@link StateService},
@@ -90,6 +131,18 @@ export class MigrationHelper {
    */
   setToUser<T>(userId: string, keyDefinition: KeyDefinitionLike, value: T): Promise<void> {
     return this.set(this.getUserKey(userId, keyDefinition), value);
+  }
+
+  /**
+   * Remove a user scoped location derived through the key definition
+   *
+   * This is for use with the state providers framework, DO NOT use for values stored with {@link StateService},
+   * use {@link remove} for those.
+   * @param keyDefinition unique key definition
+   * @returns void
+   */
+  removeFromUser(userId: string, keyDefinition: KeyDefinitionLike): Promise<void> {
+    return this.remove(this.getUserKey(userId, keyDefinition));
   }
 
   info(message: string): void {

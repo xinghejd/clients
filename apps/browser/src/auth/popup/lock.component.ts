@@ -1,14 +1,18 @@
 import { Component, NgZone } from "@angular/core";
 import { Router } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 
 import { LockComponent as BaseLockComponent } from "@bitwarden/angular/auth/components/lock.component";
+import { PinCryptoServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { DeviceTrustCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust-crypto.service.abstraction";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
@@ -18,12 +22,13 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
 import { DialogService } from "@bitwarden/components";
 
 import { BiometricErrors, BiometricErrorTypes } from "../../models/biometricErrors";
 import { BrowserRouterService } from "../../platform/popup/services/browser-router.service";
-import { fido2PopoutSessionData$ } from "../../vault/fido2/browser-fido2-user-interface.service";
+import { fido2PopoutSessionData$ } from "../../vault/popup/utils/fido2-popout-session-data";
 
 @Component({
   selector: "app-lock",
@@ -37,6 +42,7 @@ export class LockComponent extends BaseLockComponent {
   fido2PopoutSessionData$ = fido2PopoutSessionData$();
 
   constructor(
+    masterPasswordService: InternalMasterPasswordServiceAbstraction,
     router: Router,
     i18nService: I18nService,
     platformUtilsService: PlatformUtilsService,
@@ -56,9 +62,13 @@ export class LockComponent extends BaseLockComponent {
     dialogService: DialogService,
     deviceTrustCryptoService: DeviceTrustCryptoServiceAbstraction,
     userVerificationService: UserVerificationService,
+    pinCryptoService: PinCryptoServiceAbstraction,
     private routerService: BrowserRouterService,
+    biometricStateService: BiometricStateService,
+    accountService: AccountService,
   ) {
     super(
+      masterPasswordService,
       router,
       i18nService,
       platformUtilsService,
@@ -77,6 +87,9 @@ export class LockComponent extends BaseLockComponent {
       dialogService,
       deviceTrustCryptoService,
       userVerificationService,
+      pinCryptoService,
+      biometricStateService,
+      accountService,
     );
     this.successRoute = "/tabs/current";
     this.isInitialLockScreen = (window as any).previousPopupUrl == null;
@@ -84,8 +97,12 @@ export class LockComponent extends BaseLockComponent {
     super.onSuccessfulSubmit = async () => {
       const previousUrl = this.routerService.getPreviousUrl();
       if (previousUrl) {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.router.navigateByUrl(previousUrl);
       } else {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.router.navigate([this.successRoute]);
       }
     };
@@ -93,14 +110,15 @@ export class LockComponent extends BaseLockComponent {
 
   async ngOnInit() {
     await super.ngOnInit();
-    const disableAutoBiometricsPrompt =
-      (await this.stateService.getDisableAutoBiometricsPrompt()) ?? true;
+    const autoBiometricsPrompt = await firstValueFrom(
+      this.biometricStateService.promptAutomatically$,
+    );
 
     window.setTimeout(async () => {
       document.getElementById(this.pinEnabled ? "pin" : "masterPassword")?.focus();
       if (
         this.biometricLock &&
-        !disableAutoBiometricsPrompt &&
+        autoBiometricsPrompt &&
         this.isInitialLockScreen &&
         (await this.authService.getAuthStatus()) === AuthenticationStatus.Locked
       ) {

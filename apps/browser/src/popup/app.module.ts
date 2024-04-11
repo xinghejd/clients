@@ -15,12 +15,12 @@ import { BitwardenToastModule } from "@bitwarden/angular/components/toastr.compo
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ColorPasswordCountPipe } from "@bitwarden/angular/pipes/color-password-count.pipe";
 import { ColorPasswordPipe } from "@bitwarden/angular/pipes/color-password.pipe";
-import { AvatarModule } from "@bitwarden/components";
+import { AvatarModule, ButtonModule } from "@bitwarden/components";
+import { ExportScopeCalloutComponent } from "@bitwarden/vault-export-ui";
 
 import { AccountSwitcherComponent } from "../auth/popup/account-switching/account-switcher.component";
 import { AccountComponent } from "../auth/popup/account-switching/account.component";
 import { CurrentAccountComponent } from "../auth/popup/account-switching/current-account.component";
-import { SetPinComponent } from "../auth/popup/components/set-pin.component";
 import { EnvironmentComponent } from "../auth/popup/environment.component";
 import { HintComponent } from "../auth/popup/hint.component";
 import { HomeComponent } from "../auth/popup/home.component";
@@ -107,6 +107,8 @@ import "../platform/popup/locales";
     FilePopoutCalloutComponent,
     AvatarModule,
     AccountComponent,
+    ButtonModule,
+    ExportScopeCalloutComponent,
   ],
   declarations: [
     ActionButtonsComponent,
@@ -148,7 +150,6 @@ import "../platform/popup/locales";
     SendListComponent,
     SendTypeComponent,
     SetPasswordComponent,
-    SetPinComponent,
     SettingsComponent,
     ShareComponent,
     SsoComponent,

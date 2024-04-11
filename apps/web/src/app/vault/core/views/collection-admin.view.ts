@@ -31,15 +31,16 @@ export class CollectionAdminView extends CollectionView {
     this.assigned = response.assigned;
   }
 
-  override canEdit(org: Organization, flexibleCollectionsEnabled: boolean): boolean {
-    return flexibleCollectionsEnabled
-      ? org?.canEditAnyCollection
-      : org?.canEditAnyCollection || (org?.canEditAssignedCollections && this.assigned);
+  override canEdit(org: Organization, flexibleCollectionsV1Enabled: boolean): boolean {
+    return org?.flexibleCollections
+      ? org?.canEditAnyCollection(flexibleCollectionsV1Enabled) || this.manage
+      : org?.canEditAnyCollection(flexibleCollectionsV1Enabled) ||
+          (org?.canEditAssignedCollections && this.assigned);
   }
 
-  override canDelete(org: Organization, flexibleCollectionsEnabled: boolean): boolean {
-    return flexibleCollectionsEnabled
-      ? org?.canDeleteAnyCollection
+  override canDelete(org: Organization): boolean {
+    return org?.flexibleCollections
+      ? org?.canDeleteAnyCollection || (!org?.limitCollectionCreationDeletion && this.manage)
       : org?.canDeleteAnyCollection || (org?.canDeleteAssignedCollections && this.assigned);
   }
 }

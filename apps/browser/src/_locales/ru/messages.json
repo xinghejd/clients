@@ -326,6 +326,9 @@
   "password": {
     "message": "Пароль"
   },
+  "totp": {
+    "message": "Секрет аутентификатора"
+  },
   "passphrase": {
     "message": "Парольная фраза"
   },
@@ -490,6 +493,12 @@
   "newAccountCreated": {
     "message": "Ваш аккаунт создан! Теперь вы можете войти в систему."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "Вы успешно авторизовались"
+  },
+  "youMayCloseThisWindow": {
+    "message": "Можете закрыть это окно"
+  },
   "masterPassSent": {
     "message": "Мы отправили вам письмо с подсказкой к мастер-паролю."
   },
@@ -511,6 +520,18 @@
   },
   "autofillError": {
     "message": "Не удалось автоматически заполнить выбранный элемент на этой странице. Скопируйте и вставьте логин/пароль из своего хранилища."
+  },
+  "totpCaptureError": {
+    "message": "Не удается сосканировать QR-код с текущей веб-страницы"
+  },
+  "totpCaptureSuccess": {
+    "message": "Ключ аутентификатора добавлен"
+  },
+  "totpCapture": {
+    "message": "Сканировать QR-код аутентификатора с текущей веб-страницы"
+  },
+  "copyTOTP": {
+    "message": "Скопировать ключ аутентификатора (TOTP)"
   },
   "loggedOut": {
     "message": "Вы вышли из хранилища"
@@ -1478,6 +1499,9 @@
   "invalidPin": {
     "message": "Неверный PIN-код."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Слишком много неверных попыток ввода PIN-кода. Выполняется выход."
+  },
   "unlockWithBiometrics": {
     "message": "Разблокировать с помощью биометрии"
   },
@@ -1725,7 +1749,7 @@
     "placeholders": {
       "domain": {
         "content": "$1",
-        "example": "googlecom"
+        "example": "google.com"
       }
     }
   },
@@ -1980,6 +2004,10 @@
   "selectFolder": {
     "message": "Выберите папку..."
   },
+  "noFoldersFound": {
+    "message": "Папки не найдены",
+    "description": "Used as a message within the notification bar when no folders are found"
+  },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "Права доступа организации были обновлены, требуется установить мастер-пароль.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
@@ -1987,6 +2015,10 @@
   "orgRequiresYouToSetPassword": {
     "message": "Необходимо установить мастер-пароль для организации.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "verificationRequired": {
+    "message": "Требуется верификация",
+    "description": "Default title for the user verification dialog."
   },
   "hours": {
     "message": "Час."
@@ -2354,12 +2386,6 @@
     "message": "Европа",
     "description": "European Union"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "accessDenied": {
     "message": "Доступ запрещен. У вас нет разрешения на просмотр этой страницы."
   },
@@ -2497,6 +2523,38 @@
     "message": "Свернуть/развернуть",
     "description": "Toggling an expand/collapse state."
   },
+  "filelessImport": {
+    "message": "Импортировать данные в Bitwarden?",
+    "description": "Default notification title for triggering a fileless import."
+  },
+  "lpFilelessImport": {
+    "message": "Защитить данные LastPass и импортировать их в Bitwarden?",
+    "description": "LastPass specific notification title for triggering a fileless import."
+  },
+  "lpCancelFilelessImport": {
+    "message": "Сохранить как незашифрованный файл",
+    "description": "LastPass specific notification button text for cancelling a fileless import."
+  },
+  "startFilelessImport": {
+    "message": "Импортировать в Bitwarden",
+    "description": "Notification button text for starting a fileless import."
+  },
+  "importing": {
+    "message": "Импорт...",
+    "description": "Notification message for when an import is in progress."
+  },
+  "dataSuccessfullyImported": {
+    "message": "Данные успешно импортированы!",
+    "description": "Notification message for when an import has completed successfully."
+  },
+  "dataImportFailed": {
+    "message": "Ошибка импорта. Проверьте консоль для получения подробной информации.",
+    "description": "Notification message for when an import has failed."
+  },
+  "importNetworkError": {
+    "message": "Во время импорта возникла сетевая ошибка.",
+    "description": "Notification message for when an import has failed due to a network error."
+  },
   "aliasDomain": {
     "message": "Псевдоним домена"
   },
@@ -2511,6 +2569,9 @@
   "turnOffMasterPasswordPromptToEditField": {
     "message": "Для редактирования этого поля отключите повторный запрос мастер-пароля",
     "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
+  },
+  "skipToContent": {
+    "message": "Перейти к содержимому"
   },
   "bitwardenOverlayButton": {
     "message": "Кнопка меню автозаполнения Bitwarden",
@@ -2590,6 +2651,42 @@
       }
     }
   },
+  "tryAgain": {
+    "message": "Попробуйте снова"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Для этого действия требуется верификация. Для продолжения введите PIN-код."
+  },
+  "setPin": {
+    "message": "Задать PIN-код"
+  },
+  "verifyWithBiometrics": {
+    "message": "Верифицировать с помощью биометрии"
+  },
+  "awaitingConfirmation": {
+    "message": "Ожидание подтверждения"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Не удалось выполнить верификацию биометрией."
+  },
+  "needADifferentMethod": {
+    "message": "Нужен другой метод?"
+  },
+  "useMasterPassword": {
+    "message": "Использовать мастер-пароль"
+  },
+  "usePin": {
+    "message": "Использовать PIN-код"
+  },
+  "useBiometrics": {
+    "message": "Использовать биометрию"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Введите код подтверждения, отправленный вам на почту."
+  },
+  "resendCode": {
+    "message": "Отправить код повторно"
+  },
   "total": {
     "message": "Всего"
   },
@@ -2601,6 +2698,21 @@
         "example": "My Org Name"
       }
     }
+  },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Запустите Duo и следуйте шагам для завершения авторизации."
+  },
+  "duoRequiredForAccount": {
+    "message": "Для вашего аккаунта требуется двухэтапная аутентификация Duo."
+  },
+  "popoutTheExtensionToCompleteLogin": {
+    "message": "Запустите расширение для завершения авторизации."
+  },
+  "popoutExtension": {
+    "message": "Открепить расширение"
+  },
+  "launchDuo": {
+    "message": "Запустить Duo"
   },
   "importFormatError": {
     "message": "Формат данных некорректен. Проверьте импортируемый файл и повторите попытку."
@@ -2724,9 +2836,6 @@
   "yourPasskeyIsLocked": {
     "message": "Для использования ключа доступа необходима аутентификация. Для продолжения работы подтвердите свою личность."
   },
-  "useBrowserName": {
-    "message": "Использовать браузер"
-  },
   "multifactorAuthenticationCancelled": {
     "message": "Многофакторная аутентификация отменена"
   },
@@ -2735,6 +2844,15 @@
   },
   "incorrectUsernameOrPassword": {
     "message": "Неверное имя пользователя или пароль"
+  },
+  "incorrectPassword": {
+    "message": "Неверный пароль"
+  },
+  "incorrectCode": {
+    "message": "Неверный код"
+  },
+  "incorrectPin": {
+    "message": "Неверный PIN-код"
   },
   "multifactorAuthenticationFailed": {
     "message": "Сбой многофакторной аутентификации"
@@ -2803,6 +2921,9 @@
   "activeAccount": {
     "message": "Активный аккаунт"
   },
+  "availableAccounts": {
+    "message": "Доступные аккаунты"
+  },
   "accountLimitReached": {
     "message": "Достигнут лимит аккаунтов. Выйдите, чтобы добавить другой."
   },
@@ -2820,5 +2941,69 @@
   },
   "hostedAt": {
     "message": "под управлением"
+  },
+  "useDeviceOrHardwareKey": {
+    "message": "Используйте ваше устройство или аппаратный ключ"
+  },
+  "justOnce": {
+    "message": "Только сейчас"
+  },
+  "alwaysForThisSite": {
+    "message": "Всегда для этого сайта"
+  },
+  "domainAddedToExcludedDomains": {
+    "message": "$DOMAIN$ добавлен в исключенные домены.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "google.com"
+      }
+    }
+  },
+  "commonImportFormats": {
+    "message": "Основные форматы",
+    "description": "Label indicating the most common import formats"
+  },
+  "overrideDefaultBrowserAutofillTitle": {
+    "message": "Сделать Bitwarden менеджером паролей по умолчанию?",
+    "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutofillDescription": {
+    "message": "Отключение этого параметра может привести к конфликту между меню автозаполнения Bitwarden и вашим браузером.",
+    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutoFillSettings": {
+    "message": "Сделать Bitwarden менеджером паролей по умолчанию",
+    "description": "Label for the setting that allows overriding the default browser autofill settings"
+  },
+  "privacyPermissionAdditionNotGrantedTitle": {
+    "message": "Невозможно установить Bitwarden в качестве менеджера паролей по умолчанию",
+    "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "privacyPermissionAdditionNotGrantedDescription": {
+    "message": "Чтобы установить Bitwarden в качестве менеджера паролей по умолчанию, необходимо предоставить Bitwarden права доступа к конфиденциальности браузера.",
+    "description": "Description for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "makeDefault": {
+    "message": "Установить по умолчанию",
+    "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "saveCipherAttemptSuccess": {
+    "message": "Учетные данные успешно сохранены!",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
+  "updateCipherAttemptSuccess": {
+    "message": "Учетные данные успешно обновлены!",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "saveCipherAttemptFailed": {
+    "message": "Ошибка сохранения учетных данных. Проверьте консоль для получения подробной информации.",
+    "description": "Notification message for when saving credentials has failed."
+  },
+  "removePasskey": {
+    "message": "Удалить passkey"
+  },
+  "passkeyRemoved": {
+    "message": "Passkey удален"
   }
 }

@@ -90,7 +90,6 @@ import { TaxInfoResponse } from "../billing/models/response/tax-info.response";
 import { TaxRateResponse } from "../billing/models/response/tax-rate.response";
 import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
 import { EventRequest } from "../models/request/event.request";
-import { IapCheckRequest } from "../models/request/iap-check.request";
 import { KdfRequest } from "../models/request/kdf.request";
 import { KeysRequest } from "../models/request/keys.request";
 import { OrganizationImportRequest } from "../models/request/organization-import.request";
@@ -99,7 +98,6 @@ import { RegisterRequest } from "../models/request/register.request";
 import { StorageRequest } from "../models/request/storage.request";
 import { UpdateAvatarRequest } from "../models/request/update-avatar.request";
 import { UpdateDomainsRequest } from "../models/request/update-domains.request";
-import { UpdateKeyRequest } from "../models/request/update-key.request";
 import { VerifyDeleteRecoverRequest } from "../models/request/verify-delete-recover.request";
 import { VerifyEmailRequest } from "../models/request/verify-email.request";
 import { BreachAccountResponse } from "../models/response/breach-account.response";
@@ -124,6 +122,7 @@ import { AttachmentResponse } from "../vault/models/response/attachment.response
 import { CipherResponse } from "../vault/models/response/cipher.response";
 import {
   CollectionAccessDetailsResponse,
+  CollectionDetailsResponse,
   CollectionResponse,
 } from "../vault/models/response/collection.response";
 import { SyncResponse } from "../vault/models/response/sync.response";
@@ -170,13 +169,10 @@ export abstract class ApiService {
   postPasswordHint: (request: PasswordHintRequest) => Promise<any>;
   postRegister: (request: RegisterRequest) => Promise<RegisterResponse>;
   postPremium: (data: FormData) => Promise<PaymentResponse>;
-  postIapCheck: (request: IapCheckRequest) => Promise<any>;
   postReinstatePremium: () => Promise<any>;
-  postCancelPremium: () => Promise<any>;
   postAccountStorage: (request: StorageRequest) => Promise<PaymentResponse>;
   postAccountPayment: (request: PaymentRequest) => Promise<void>;
   postAccountLicense: (data: FormData) => Promise<any>;
-  postAccountKey: (request: UpdateKeyRequest) => Promise<any>;
   postAccountKeys: (request: KeysRequest) => Promise<any>;
   postAccountVerifyEmail: () => Promise<any>;
   postAccountVerifyEmailToken: (request: VerifyEmailRequest) => Promise<any>;
@@ -281,7 +277,7 @@ export abstract class ApiService {
   postCollection: (
     organizationId: string,
     request: CollectionRequest,
-  ) => Promise<CollectionResponse>;
+  ) => Promise<CollectionDetailsResponse>;
   putCollectionUsers: (
     organizationId: string,
     id: string,
@@ -291,7 +287,7 @@ export abstract class ApiService {
     organizationId: string,
     id: string,
     request: CollectionRequest,
-  ) => Promise<CollectionResponse>;
+  ) => Promise<CollectionDetailsResponse>;
   deleteCollection: (organizationId: string, id: string) => Promise<any>;
   deleteManyCollections: (organizationId: string, collectionIds: string[]) => Promise<any>;
   deleteCollectionUser: (

@@ -61,7 +61,7 @@
     }
   },
   "moveToOrgDesc": {
-    "message": "Изаберите организацију у коју желите да преместите овај предмет. Прелазак на организацију преноси власништво над ставком у ту организацију. Више нећете бити директни власник ове ставке након што је премештена."
+    "message": "Изаберите организацију у коју желите да преместите ову ставку. Пребацивање у организацију преноси власништво над ставком тој организацији. Више нећете бити директни власник ове ставке када буде премештена."
   },
   "attachments": {
     "message": "Прилози"
@@ -126,7 +126,7 @@
     "message": "Минимизирај приликом копирања у привремену меморију"
   },
   "minimizeOnCopyToClipboardDesc": {
-    "message": "Минимизирај при копиранју података ставке у привремену меморију."
+    "message": "Минимизирај при копирању података ставке у привремену меморију."
   },
   "toggleVisibility": {
     "message": "Промени видљивост"
@@ -467,13 +467,13 @@
     "message": "Сигурно обрисати овај прилог?"
   },
   "attachmentSaved": {
-    "message": "Прилог је сачуван."
+    "message": "Прилог је сачуван"
   },
   "file": {
     "message": "Датотека"
   },
   "selectFile": {
-    "message": "Изабери датотеку."
+    "message": "Изабери датотеку"
   },
   "maxFileSize": {
     "message": "Максимална величина је 500МБ."
@@ -559,6 +559,12 @@
   },
   "newAccountCreated": {
     "message": "Ваш налог је креиран! Сада се можете пријавити."
+  },
+  "youSuccessfullyLoggedIn": {
+    "message": "Успешно сте се пријавили"
+  },
+  "youMayCloseThisWindow": {
+    "message": "Можете затворити овај прозор"
   },
   "masterPassSent": {
     "message": "Послали смо Вам поруку са саветом главне лозинке."
@@ -714,7 +720,7 @@
     "message": "УРЛ сервера иконице"
   },
   "environmentSaved": {
-    "message": "УРЛ адресе окружења су сачуване."
+    "message": "УРЛ адресе окружења су сачуване"
   },
   "ok": {
     "message": "У реду"
@@ -821,7 +827,7 @@
     "message": "Синхронизација није успела"
   },
   "yourVaultIsLocked": {
-    "message": "Сеф је заклјучан. Унесите главну лозинку за наставак."
+    "message": "Сеф је закљчан. Унесите главну лозинку за наставак."
   },
   "unlock": {
     "message": "Откључај"
@@ -891,7 +897,7 @@
     "message": "На мировање система"
   },
   "onSleep": {
-    "message": "Након спаванја система"
+    "message": "Након спавања система"
   },
   "onLocked": {
     "message": "На закључавање система"
@@ -932,7 +938,7 @@
     "message": "Када минимизујете прозор, покажи икону у траци менија."
   },
   "enableCloseToTray": {
-    "message": "Затваранје оставлја иконицу у системској траци"
+    "message": "Затварање оставља иконицу у системској траци"
   },
   "enableCloseToTrayDesc": {
     "message": "Када затворите прозор, уместо тога покажите икону у системској траци."
@@ -1004,7 +1010,7 @@
     "description": "Copy to clipboard"
   },
   "checkForUpdates": {
-    "message": "Провери доступна ажурирања"
+    "message": "Провери доступна ажурирања…"
   },
   "version": {
     "message": "Верзија $VERSION_NUM$",
@@ -1392,6 +1398,9 @@
   "invalidPin": {
     "message": "Погрешан ПИН код."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Превише покушаја уноса неважећег ПИН-а. Одјављивања."
+  },
   "unlockWithWindowsHello": {
     "message": "Откључај са Windows Hello"
   },
@@ -1408,7 +1417,7 @@
     "message": "Додатна подешавања Touch ID"
   },
   "touchIdConsentMessage": {
-    "message": "Откључај свој сеф"
+    "message": "откључај свој сеф"
   },
   "autoPromptWindowsHello": {
     "message": "Захтевај Windows Hello при покретању"
@@ -1544,6 +1553,10 @@
     "message": "Ваша организација захтева да поставите главну лозинку.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
+  "verificationRequired": {
+    "message": "Потребдна верификација",
+    "description": "Default title for the user verification dialog."
+  },
   "currentMasterPass": {
     "message": "Тренутна главна лозинка"
   },
@@ -1630,6 +1643,12 @@
   },
   "enableBrowserIntegrationFingerprintDesc": {
     "message": "Омогућите додатни ниво заштите захтевајући проверу фразе отиска прста приликом успостављања везе између desktop-а и прегледача. Када је омогућено, ово захтева интервенцију и верификацију корисника сваки пут када се успостави веза."
+  },
+  "enableHardwareAcceleration": {
+    "message": "Користи хардверско убрзање"
+  },
+  "enableHardwareAccelerationDesc": {
+    "message": "Подразумевано је ово подешавање УКЉУЧЕНО. ИСКЉУЧИТЕ само ако имате графичких проблема. Потребно је поновно покретање."
   },
   "approve": {
     "message": "Одобри"
@@ -1869,6 +1888,42 @@
   "updateWeakMasterPasswordWarning": {
     "message": "Ваша главна лозинка не испуњава једну или више смерница ваше организације. Да бисте приступили сефу, морате одмах да ажурирате главну лозинку. Ако наставите, одјавићете се са ваше тренутне сесије, што захтева да се поново пријавите. Активне сесије на другим уређајима могу да остану активне до један сат."
   },
+  "tryAgain": {
+    "message": "Покушајте поново"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "За ову радњу је потребна верификација. Подесите ПИН да бисте наставили."
+  },
+  "setPin": {
+    "message": "Поставите PIN"
+  },
+  "verifyWithBiometrics": {
+    "message": "Верификујте помоћу биометрије"
+  },
+  "awaitingConfirmation": {
+    "message": "Чека се потврда"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Није могуће завршити биометрију."
+  },
+  "needADifferentMethod": {
+    "message": "Потребан вам је други начин?"
+  },
+  "useMasterPassword": {
+    "message": "Користите главну лозинку"
+  },
+  "usePin": {
+    "message": "Користите ПИН"
+  },
+  "useBiometrics": {
+    "message": "Користите биометрију"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Унесите верификациони кôд који је послат на Вашу е-адресу."
+  },
+  "resendCode": {
+    "message": "Поново пошаљите код"
+  },
   "hours": {
     "message": "Сата"
   },
@@ -1936,7 +1991,7 @@
     "message": "Уклони главну лозинку"
   },
   "removedMasterPassword": {
-    "message": "Главна лозинка уклоњена."
+    "message": "Главна лозинка уклоњена"
   },
   "convertOrganizationEncryptionDesc": {
     "message": "$ORGANIZATION$ користи SSO уз сопствени сервер за кључеве. Главна лозинка за пријаву више није неопходна за чланове ове организације.",
@@ -2082,7 +2137,7 @@
     "message": "Premium претплата је потребна"
   },
   "organizationIsDisabled": {
-    "message": "Организација је онемогућена."
+    "message": "Организација је онемогућена"
   },
   "disabledOrganizationFilterError": {
     "message": "Није могуће приступити ставкама у онемогућене организације. Обратите се власнику организације за помоћ."
@@ -2291,12 +2346,6 @@
   "loggingInOn": {
     "message": "Пријављено на"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "selfHostedServer": {
     "message": "личан хостинг"
   },
@@ -2427,6 +2476,9 @@
   "submenu": {
     "message": "Под-мени"
   },
+  "skipToContent": {
+    "message": "Прескочи на садржај"
+  },
   "typePasskey": {
     "message": "Приступачни кључ"
   },
@@ -2478,6 +2530,15 @@
         "example": "My Org Name"
       }
     }
+  },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Покренути Duo и пратите кораке да бисте завршили пријављивање."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "Duo пријава у два корака је потребна за ваш налог."
+  },
+  "launchDuo": {
+    "message": "Покренути Duo у претраживачу"
   },
   "importFormatError": {
     "message": "Подаци нису правилно форматирани. Проверите датотеку за увоз и покушајте поново."
@@ -2559,6 +2620,15 @@
   "incorrectUsernameOrPassword": {
     "message": "Неважеће корисничко име или лозинка"
   },
+  "incorrectPassword": {
+    "message": "Погрешна лозинка"
+  },
+  "incorrectCode": {
+    "message": "Погрешан кôд"
+  },
+  "incorrectPin": {
+    "message": "Нетачан PIN"
+  },
   "multifactorAuthenticationFailed": {
     "message": "Вишефакторска аутентификација је неуспешна"
   },
@@ -2613,5 +2683,24 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Унети YubiKey који је асоциран са LastPass налогом у УСБ порт вашег рачунара, и затим додирните његово дугме."
+  },
+  "commonImportFormats": {
+    "message": "Уобичајени формати",
+    "description": "Label indicating the most common import formats"
+  },
+  "troubleshooting": {
+    "message": "Решавање проблема"
+  },
+  "disableHardwareAccelerationRestart": {
+    "message": "Онемогућите хардверско убрзање и поново покрените"
+  },
+  "enableHardwareAccelerationRestart": {
+    "message": "Омогућите хардверско убрзање и поново покрените"
+  },
+  "removePasskey": {
+    "message": "Уклонити приступачни кључ"
+  },
+  "passkeyRemoved": {
+    "message": "Приступачни кључ је уклоњен"
   }
 }

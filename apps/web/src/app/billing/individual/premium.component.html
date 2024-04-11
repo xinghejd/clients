@@ -6,7 +6,7 @@
 </div>
 <bit-callout
   type="info"
-  *ngIf="canAccessPremium"
+  *ngIf="canAccessPremium$ | async"
   title="{{ 'youHavePremiumAccess' | i18n }}"
   icon="bwi bwi-star-f"
 >
@@ -54,9 +54,9 @@
   </p>
   <a
     bitButton
-    href="{{ this.cloudWebVaultUrl }}/#/settings/premium"
+    href="{{ this.cloudWebVaultUrl }}/#/settings/subscription/premium"
     target="_blank"
-    rel="noopener"
+    rel="noreferrer"
     buttonType="secondary"
     *ngIf="selfHosted"
   >

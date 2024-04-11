@@ -3,13 +3,19 @@ import { ActivatedRoute, Router } from "@angular/router";
 import { first } from "rxjs/operators";
 
 import { SsoComponent as BaseSsoComponent } from "@bitwarden/angular/auth/components/sso.component";
+import {
+  LoginStrategyServiceAbstraction,
+  UserDecryptionOptionsServiceAbstraction,
+} from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
 import { OrganizationDomainSsoDetailsResponse } from "@bitwarden/common/admin-console/abstractions/organization-domain/responses/organization-domain-sso-details.response";
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
+import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { HttpStatusCode } from "@bitwarden/common/enums";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -26,7 +32,8 @@ import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/ge
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class SsoComponent extends BaseSsoComponent {
   constructor(
-    authService: AuthService,
+    ssoLoginService: SsoLoginServiceAbstraction,
+    loginStrategyService: LoginStrategyServiceAbstraction,
     router: Router,
     i18nService: I18nService,
     route: ActivatedRoute,
@@ -39,10 +46,14 @@ export class SsoComponent extends BaseSsoComponent {
     logService: LogService,
     private orgDomainApiService: OrgDomainApiServiceAbstraction,
     private validationService: ValidationService,
-    configService: ConfigServiceAbstraction,
+    userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
+    configService: ConfigService,
+    masterPasswordService: InternalMasterPasswordServiceAbstraction,
+    accountService: AccountService,
   ) {
     super(
-      authService,
+      ssoLoginService,
+      loginStrategyService,
       router,
       i18nService,
       route,
@@ -53,13 +64,18 @@ export class SsoComponent extends BaseSsoComponent {
       environmentService,
       passwordGenerationService,
       logService,
+      userDecryptionOptionsService,
       configService,
+      masterPasswordService,
+      accountService,
     );
     this.redirectUri = window.location.origin + "/sso-connector.html";
     this.clientId = "web";
   }
 
   async ngOnInit() {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     super.ngOnInit();
 
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
@@ -92,7 +108,7 @@ export class SsoComponent extends BaseSsoComponent {
         }
 
         // Fallback to state svc if domain is unclaimed
-        const storedIdentifier = await this.stateService.getSsoOrgIdentifier();
+        const storedIdentifier = await this.ssoLoginService.getOrganizationSsoIdentifier();
         if (storedIdentifier != null) {
           this.identifier = storedIdentifier;
         }
@@ -116,10 +132,12 @@ export class SsoComponent extends BaseSsoComponent {
   }
 
   async submit() {
-    await this.stateService.setSsoOrganizationIdentifier(this.identifier);
+    await this.ssoLoginService.setOrganizationSsoIdentifier(this.identifier);
     if (this.clientId === "browser") {
       document.cookie = `ssoHandOffMessage=${this.i18nService.t("ssoHandOff")};SameSite=strict`;
     }
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     super.submit();
   }
 }

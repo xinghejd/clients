@@ -1,16 +1,6 @@
 import * as path from "path";
 
-import {
-  app,
-  dialog,
-  ipcMain,
-  Menu,
-  MenuItem,
-  nativeTheme,
-  session,
-  Notification,
-  shell,
-} from "electron";
+import { app, dialog, ipcMain, Menu, MenuItem, nativeTheme, Notification, shell } from "electron";
 
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { ThemeType } from "@bitwarden/common/platform/enums";
@@ -64,7 +54,7 @@ export class ElectronMainMessagingService implements MessagingService {
     });
 
     ipcMain.handle("getCookie", async (event, options) => {
-      return await session.defaultSession.cookies.get(options);
+      return await this.windowMain.session.cookies.get(options);
     });
 
     ipcMain.handle("loginRequest", async (event, options) => {
@@ -84,6 +74,8 @@ export class ElectronMainMessagingService implements MessagingService {
 
     ipcMain.handle("launchUri", async (event, uri) => {
       if (SafeUrls.canLaunch(uri)) {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         shell.openExternal(uri);
       }
     });

@@ -95,10 +95,10 @@
     "message": "Auto-fill login"
   },
   "autoFillCard": {
-    "message": "Auto-fill card"
+    "message": "Auto-bete txartela"
   },
   "autoFillIdentity": {
-    "message": "Auto-fill identity"
+    "message": "Auto-bete nortasuna"
   },
   "generatePasswordCopied": {
     "message": "Sortu pasahitza (kopiatuta)"
@@ -110,19 +110,19 @@
     "message": "Bat datozen saio-hasierarik gabe"
   },
   "noCards": {
-    "message": "No cards"
+    "message": "Txartelik ez"
   },
   "noIdentities": {
-    "message": "No identities"
+    "message": "Nortasunik ez"
   },
   "addLoginMenu": {
     "message": "Add login"
   },
   "addCardMenu": {
-    "message": "Add card"
+    "message": "Gehitu txartela"
   },
   "addIdentityMenu": {
-    "message": "Add identity"
+    "message": "Gehitu nortasuna"
   },
   "unlockVaultMenu": {
     "message": "Desblokeatu kutxa gotorra"
@@ -223,10 +223,10 @@
     "message": "Bitwarden Laguntza zentroa"
   },
   "communityForums": {
-    "message": "Explore Bitwarden community forums"
+    "message": "Esploratu Bitwarden komunitatearen foroak"
   },
   "contactSupport": {
-    "message": "Contact Bitwarden support"
+    "message": "Jarri harremanetan Bitwardeneko laguntza taldearekin"
   },
   "sync": {
     "message": "Sinkronizatu"
@@ -269,7 +269,7 @@
     "message": "Luzera"
   },
   "passwordMinLength": {
-    "message": "Minimum password length"
+    "message": "Pasahitzaren gutxieneko luzera"
   },
   "uppercase": {
     "message": "Letra larria (A-Z)"
@@ -325,6 +325,9 @@
   },
   "password": {
     "message": "Pasahitza"
+  },
+  "totp": {
+    "message": "Authenticator secret"
   },
   "passphrase": {
     "message": "Pasaesaldia"
@@ -490,6 +493,12 @@
   "newAccountCreated": {
     "message": "Zure kontua egina dago. Orain saioa has dezakezu."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "You successfully logged in"
+  },
+  "youMayCloseThisWindow": {
+    "message": "You may close this window"
+  },
   "masterPassSent": {
     "message": "Mezu elektroniko bat bidali dizugu zure pasahitz nagusiaren pistarekin."
   },
@@ -511,6 +520,18 @@
   },
   "autofillError": {
     "message": "Ezin izan da orri honetan hautatutako elementua auto-bete. Kopiatu eta itsatsi informazioa dagokion tokian."
+  },
+  "totpCaptureError": {
+    "message": "Unable to scan QR code from the current webpage"
+  },
+  "totpCaptureSuccess": {
+    "message": "Authenticator key added"
+  },
+  "totpCapture": {
+    "message": "Scan authenticator QR code from current webpage"
+  },
+  "copyTOTP": {
+    "message": "Copy Authenticator key (TOTP)"
   },
   "loggedOut": {
     "message": "Saioa itxita"
@@ -1043,7 +1064,7 @@
     "message": "Edit browser settings."
   },
   "autofillOverlayVisibilityOff": {
-    "message": "Off",
+    "message": "Itzalita",
     "description": "Overlay setting select option for disabling autofill overlay"
   },
   "autofillOverlayVisibilityOnFieldFocus": {
@@ -1478,6 +1499,9 @@
   "invalidPin": {
     "message": "PIN baliogabea."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Too many invalid PIN entry attempts. Logging out."
+  },
   "unlockWithBiometrics": {
     "message": "Desblokeatu biometria erabiliz"
   },
@@ -1568,10 +1592,10 @@
     "message": "Ezarri pasahitz nagusia"
   },
   "currentMasterPass": {
-    "message": "Current master password"
+    "message": "Oraingo pasahitz nagusia"
   },
   "newMasterPass": {
-    "message": "New master password"
+    "message": "Pasahitz nagusi berria"
   },
   "confirmNewMasterPass": {
     "message": "Confirm new master password"
@@ -1725,7 +1749,7 @@
     "placeholders": {
       "domain": {
         "content": "$1",
-        "example": "googlecom"
+        "example": "google.com"
       }
     }
   },
@@ -1980,6 +2004,10 @@
   "selectFolder": {
     "message": "Hautatu karpeta..."
   },
+  "noFoldersFound": {
+    "message": "No folders found",
+    "description": "Used as a message within the notification bar when no folders are found"
+  },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "Your organization permissions were updated, requiring you to set a master password.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
@@ -1987,6 +2015,10 @@
   "orgRequiresYouToSetPassword": {
     "message": "Your organization requires you to set a master password.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "verificationRequired": {
+    "message": "Verification required",
+    "description": "Default title for the user verification dialog."
   },
   "hours": {
     "message": "Ordu"
@@ -2234,10 +2266,10 @@
     "message": "Please make sure your vault is unlocked and the Fingerprint phrase matches on the other device."
   },
   "resendNotification": {
-    "message": "Resend notification"
+    "message": "Berbidali jakinarazpena"
   },
   "viewAllLoginOptions": {
-    "message": "View all log in options"
+    "message": "Ikusi erregistro guztiak ezarpenetan"
   },
   "notificationSentDevice": {
     "message": "A notification has been sent to your device."
@@ -2261,13 +2293,13 @@
     "message": "Check known data breaches for this password"
   },
   "important": {
-    "message": "Important:"
+    "message": "Garrantzitsua:"
   },
   "masterPasswordHint": {
     "message": "Your master password cannot be recovered if you forget it!"
   },
   "characterMinimum": {
-    "message": "$LENGTH$ character minimum",
+    "message": "$LENGTH$ karaktere gutxienez",
     "placeholders": {
       "length": {
         "content": "$1",
@@ -2294,7 +2326,7 @@
     "message": "Select an item from this screen, or explore other options in settings."
   },
   "gotIt": {
-    "message": "Got it"
+    "message": "Ulertuta"
   },
   "autofillSettings": {
     "message": "Auto-fill settings"
@@ -2327,25 +2359,25 @@
     "message": "Logging in on"
   },
   "opensInANewWindow": {
-    "message": "Opens in a new window"
+    "message": "Leiho berri batean irekitzen da"
   },
   "deviceApprovalRequired": {
     "message": "Device approval required. Select an approval option below:"
   },
   "rememberThisDevice": {
-    "message": "Remember this device"
+    "message": "Gogoratu gailu hau"
   },
   "uncheckIfPublicDevice": {
     "message": "Uncheck if using a public device"
   },
   "approveFromYourOtherDevice": {
-    "message": "Approve from your other device"
+    "message": "Onartu zure beste gailutik"
   },
   "requestAdminApproval": {
-    "message": "Request admin approval"
+    "message": "Eskatu administratzailearen onarpena"
   },
   "approveWithMasterPassword": {
-    "message": "Approve with master password"
+    "message": "Onartu pasahitz nagusiarekin"
   },
   "ssoIdentifierRequired": {
     "message": "Organization SSO identifier is required."
@@ -2354,41 +2386,35 @@
     "message": "EU",
     "description": "European Union"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "accessDenied": {
     "message": "Access denied. You do not have permission to view this page."
   },
   "general": {
-    "message": "General"
+    "message": "Orokorra"
   },
   "display": {
-    "message": "Display"
+    "message": "Bistaratzea"
   },
   "accountSuccessfullyCreated": {
-    "message": "Account successfully created!"
+    "message": "Kontua zuzen sortu da!"
   },
   "adminApprovalRequested": {
-    "message": "Admin approval requested"
+    "message": "Administratzailearen onarpena eskatuta"
   },
   "adminApprovalRequestSentToAdmins": {
-    "message": "Your request has been sent to your admin."
+    "message": "Zure eskaera zure administratzaileari bidali zaio."
   },
   "youWillBeNotifiedOnceApproved": {
-    "message": "You will be notified once approved."
+    "message": "Jakinaraziko zaizu onartzen denean."
   },
   "troubleLoggingIn": {
-    "message": "Trouble logging in?"
+    "message": "Arazoak saioa hasterakoan?"
   },
   "loginApproved": {
     "message": "Login approved"
   },
   "userEmailMissing": {
-    "message": "User email missing"
+    "message": "Erabiltzailearen emaila falta da"
   },
   "deviceTrusted": {
     "message": "Device trusted"
@@ -2497,6 +2523,38 @@
     "message": "Toggle collapse",
     "description": "Toggling an expand/collapse state."
   },
+  "filelessImport": {
+    "message": "Import your data to Bitwarden?",
+    "description": "Default notification title for triggering a fileless import."
+  },
+  "lpFilelessImport": {
+    "message": "Protect your LastPass data and import to Bitwarden?",
+    "description": "LastPass specific notification title for triggering a fileless import."
+  },
+  "lpCancelFilelessImport": {
+    "message": "Save as unencrypted file",
+    "description": "LastPass specific notification button text for cancelling a fileless import."
+  },
+  "startFilelessImport": {
+    "message": "Import to Bitwarden",
+    "description": "Notification button text for starting a fileless import."
+  },
+  "importing": {
+    "message": "Inportatzen...",
+    "description": "Notification message for when an import is in progress."
+  },
+  "dataSuccessfullyImported": {
+    "message": "Datuak zuzen inportatu dira!",
+    "description": "Notification message for when an import has completed successfully."
+  },
+  "dataImportFailed": {
+    "message": "Errorea gertatu da inportatzean. Begiratu xehetasunak kontsolan.",
+    "description": "Notification message for when an import has failed."
+  },
+  "importNetworkError": {
+    "message": "Sareko errorea gertatu da inportatzerakoan.",
+    "description": "Notification message for when an import has failed due to a network error."
+  },
   "aliasDomain": {
     "message": "Alias domain"
   },
@@ -2511,6 +2569,9 @@
   "turnOffMasterPasswordPromptToEditField": {
     "message": "Turn off master password re-prompt to edit this field",
     "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
+  },
+  "skipToContent": {
+    "message": "Skip to content"
   },
   "bitwardenOverlayButton": {
     "message": "Bitwarden auto-fill menu button",
@@ -2541,11 +2602,11 @@
     "description": "Screen reader text for when a login item is focused where a partial username is displayed. SR will announce this phrase before reading the text of the partial username"
   },
   "noItemsToShow": {
-    "message": "No items to show",
+    "message": "Ez dago elementurik erakusteko",
     "description": "Text to show in overlay if there are no matching items"
   },
   "newItem": {
-    "message": "New item",
+    "message": "Elementu berria",
     "description": "Button text to display in overlay when there are no matching items"
   },
   "addNewVaultItem": {
@@ -2557,32 +2618,32 @@
     "description": "Screen reader text for announcing when the overlay opens on the page"
   },
   "turnOn": {
-    "message": "Turn on"
+    "message": "Piztu"
   },
   "ignore": {
-    "message": "Ignore"
+    "message": "Ezikusi"
   },
   "importData": {
-    "message": "Import data",
+    "message": "Inportatu datuak",
     "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
   },
   "importError": {
-    "message": "Import error"
+    "message": "Errorea inportatzerakoan"
   },
   "importErrorDesc": {
-    "message": "There was a problem with the data you tried to import. Please resolve the errors listed below in your source file and try again."
+    "message": "Inportatzen saiatu zaren datuekin arazo bat egon da. Mesedez, konpondu ondoren adierazten diren akatsak eta saiatu berriro."
   },
   "resolveTheErrorsBelowAndTryAgain": {
-    "message": "Resolve the errors below and try again."
+    "message": "Konpondu beheko akatsak eta saiatu berriro."
   },
   "description": {
-    "message": "Description"
+    "message": "Deskribapena"
   },
   "importSuccess": {
-    "message": "Data successfully imported"
+    "message": "Datuak zuzen inportatu dira"
   },
   "importSuccessNumberOfItems": {
-    "message": "A total of $AMOUNT$ items were imported.",
+    "message": "Guztira $AMOUNT$ elementu inportatu dira.",
     "placeholders": {
       "amount": {
         "content": "$1",
@@ -2590,17 +2651,68 @@
       }
     }
   },
+  "tryAgain": {
+    "message": "Saiatu berriro"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Verification required for this action. Set a PIN to continue."
+  },
+  "setPin": {
+    "message": "Set PIN"
+  },
+  "verifyWithBiometrics": {
+    "message": "Egiaztatu biometria erabiliz"
+  },
+  "awaitingConfirmation": {
+    "message": "Baieztapenaren zain"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Could not complete biometrics."
+  },
+  "needADifferentMethod": {
+    "message": "Need a different method?"
+  },
+  "useMasterPassword": {
+    "message": "Erabili pasahitz nagusia"
+  },
+  "usePin": {
+    "message": "Erabili PIN kodea"
+  },
+  "useBiometrics": {
+    "message": "Erabili biometria"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Enter the verification code that was sent to your email."
+  },
+  "resendCode": {
+    "message": "Resend code"
+  },
   "total": {
-    "message": "Total"
+    "message": "Guztira"
   },
   "importWarning": {
-    "message": "You are importing data to $ORGANIZATION$. Your data may be shared with members of this organization. Do you want to proceed?",
+    "message": "$ORGANIZATION$(e)ra datuak inportatzen ari zara. Zure datuak erakunde horretako kideekin parteka daitezke. Jarraitu nahi duzu?",
     "placeholders": {
       "organization": {
         "content": "$1",
         "example": "My Org Name"
       }
     }
+  },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Launch Duo and follow the steps to finish logging in."
+  },
+  "duoRequiredForAccount": {
+    "message": "Duo two-step login is required for your account."
+  },
+  "popoutTheExtensionToCompleteLogin": {
+    "message": "Popout the extension to complete login."
+  },
+  "popoutExtension": {
+    "message": "Popout extension"
+  },
+  "launchDuo": {
+    "message": "Launch Duo"
   },
   "importFormatError": {
     "message": "Data is not formatted correctly. Please check your import file and try again."
@@ -2698,7 +2810,7 @@
     "message": "You do not have a matching login for this site."
   },
   "confirm": {
-    "message": "Confirm"
+    "message": "Berretsi"
   },
   "savePasskey": {
     "message": "Save passkey"
@@ -2724,9 +2836,6 @@
   "yourPasskeyIsLocked": {
     "message": "Authentication required to use passkey. Verify your identity to continue."
   },
-  "useBrowserName": {
-    "message": "Use browser"
-  },
   "multifactorAuthenticationCancelled": {
     "message": "Multifactor authentication cancelled"
   },
@@ -2735,6 +2844,15 @@
   },
   "incorrectUsernameOrPassword": {
     "message": "Incorrect username or password"
+  },
+  "incorrectPassword": {
+    "message": "Incorrect password"
+  },
+  "incorrectCode": {
+    "message": "Incorrect code"
+  },
+  "incorrectPin": {
+    "message": "Incorrect PIN"
   },
   "multifactorAuthenticationFailed": {
     "message": "Multifactor authentication failed"
@@ -2803,6 +2921,9 @@
   "activeAccount": {
     "message": "Active account"
   },
+  "availableAccounts": {
+    "message": "Available accounts"
+  },
   "accountLimitReached": {
     "message": "Account limit reached. Log out of an account to add another."
   },
@@ -2820,5 +2941,69 @@
   },
   "hostedAt": {
     "message": "hosted at"
+  },
+  "useDeviceOrHardwareKey": {
+    "message": "Use your device or hardware key"
+  },
+  "justOnce": {
+    "message": "Just once"
+  },
+  "alwaysForThisSite": {
+    "message": "Always for this site"
+  },
+  "domainAddedToExcludedDomains": {
+    "message": "$DOMAIN$ added to excluded domains.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "google.com"
+      }
+    }
+  },
+  "commonImportFormats": {
+    "message": "Common formats",
+    "description": "Label indicating the most common import formats"
+  },
+  "overrideDefaultBrowserAutofillTitle": {
+    "message": "Make Bitwarden your default password manager?",
+    "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutofillDescription": {
+    "message": "Ignoring this option may cause conflicts between the Bitwarden auto-fill menu and your browser's.",
+    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutoFillSettings": {
+    "message": "Make Bitwarden your default password manager",
+    "description": "Label for the setting that allows overriding the default browser autofill settings"
+  },
+  "privacyPermissionAdditionNotGrantedTitle": {
+    "message": "Unable to set Bitwarden as the default password manager",
+    "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "privacyPermissionAdditionNotGrantedDescription": {
+    "message": "You must grant browser privacy permissions to Bitwarden to set it as the default password manager.",
+    "description": "Description for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "makeDefault": {
+    "message": "Make default",
+    "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "saveCipherAttemptSuccess": {
+    "message": "Credentials saved successfully!",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
+  "updateCipherAttemptSuccess": {
+    "message": "Credentials updated successfully!",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "saveCipherAttemptFailed": {
+    "message": "Error saving credentials. Check console for details.",
+    "description": "Notification message for when saving credentials has failed."
+  },
+  "removePasskey": {
+    "message": "Remove passkey"
+  },
+  "passkeyRemoved": {
+    "message": "Passkey removed"
   }
 }

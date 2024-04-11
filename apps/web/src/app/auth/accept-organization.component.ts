@@ -19,7 +19,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { OrgKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { OrgKey } from "@bitwarden/common/types/key";
 
 import { BaseAcceptComponent } from "../common/base.accept.component";
 
@@ -79,11 +79,17 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
         : this.i18nService.t("inviteAcceptedDesc"),
       { timeout: 10000 },
     );
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["/vault"]);
   }
 
   async unauthedHandler(qParams: Params): Promise<void> {
     await this.prepareOrganizationInvitation(qParams);
+
+    // In certain scenarios, we want to accelerate the user through the accept org invite process
+    // For example, if the user has a BW account already, we want them to be taken to login instead of creation.
+    await this.accelerateInviteAcceptIfPossible(qParams);
   }
 
   private async acceptInitOrganizationFlow(qParams: Params): Promise<any> {
@@ -161,7 +167,7 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
         qParams.email,
         qParams.organizationUserId,
       );
-      policyList = this.policyService.mapPoliciesFromToken(policies);
+      policyList = Policy.fromListResponse(policies);
     } catch (e) {
       this.logService.error(e);
     }
@@ -185,5 +191,54 @@ export class AcceptOrganizationComponent extends BaseAcceptComponent {
       this.orgName = this.orgName.replace(/\+/g, " ");
     }
     await this.stateService.setOrganizationInvitation(qParams);
+  }
+
+  private async accelerateInviteAcceptIfPossible(qParams: Params): Promise<void> {
+    // Extract the query params we need to make routing acceleration decisions
+    const orgSsoIdentifier = qParams.orgSsoIdentifier;
+    const orgUserHasExistingUser = this.stringToNullOrBool(qParams.orgUserHasExistingUser);
+
+    // if orgUserHasExistingUser is null, short circuit for backwards compatibility w/ older servers
+    if (orgUserHasExistingUser == null) {
+      return;
+    }
+
+    // if user exists, send user to login
+    if (orgUserHasExistingUser) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.router.navigate(["/login"], {
+        queryParams: { email: qParams.email },
+      });
+      return;
+    }
+
+    // no user exists; so either sign in via SSO and JIT provision one or simply register.
+
+    if (orgSsoIdentifier) {
+      // We only send sso org identifier if the org has SSO enabled and the SSO policy required.
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.router.navigate(["/sso"], {
+        queryParams: { email: qParams.email, identifier: orgSsoIdentifier },
+      });
+      return;
+    }
+
+    // if SSO is disabled OR if sso is enabled but the SSO login required policy is not enabled
+    // then send user to create account
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    this.router.navigate(["/register"], {
+      queryParams: { email: qParams.email, fromOrgInvite: true },
+    });
+    return;
+  }
+
+  private stringToNullOrBool(s: string | undefined): boolean | null {
+    if (s === undefined) {
+      return null;
+    }
+    return s.toLowerCase() === "true";
   }
 }

@@ -1,9 +1,9 @@
 import "@webcomponents/custom-elements";
 import "lit/polyfill-support.js";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { EVENTS } from "@bitwarden/common/autofill/constants";
 
 import { OverlayCipherData } from "../../../background/abstractions/overlay.background";
-import { EVENTS } from "../../../constants";
 import { buildSvgDomElement } from "../../../utils";
 import { globeIcon, lockIcon, plusIcon, viewCipherIcon } from "../../../utils/svg-icons";
 import {
@@ -19,7 +19,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
   private ciphers: OverlayCipherData[] = [];
   private ciphersList: HTMLUListElement;
   private cipherListScrollIsDebounced = false;
-  private cipherListScrollDebounceTimeout: NodeJS.Timeout;
+  private cipherListScrollDebounceTimeout: number | NodeJS.Timeout;
   private currentCipherIndex = 0;
   private readonly showCiphersPerPage = 6;
   private readonly overlayListWindowMessageHandlers: OverlayListWindowMessageHandlers = {
@@ -54,12 +54,11 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
   }: InitAutofillOverlayListMessage) {
     const linkElement = this.initOverlayPage("button", styleSheetUrl, translations);
 
-    globalThis.document.documentElement.classList.add(theme);
+    const themeClass = `theme_${theme}`;
+    globalThis.document.documentElement.classList.add(themeClass);
 
     this.overlayListContainer = globalThis.document.createElement("div");
-    this.overlayListContainer.classList.add("overlay-list-container", theme);
-    this.overlayListContainer.setAttribute("role", "dialog");
-    this.overlayListContainer.setAttribute("aria-modal", "true");
+    this.overlayListContainer.classList.add("overlay-list-container", themeClass);
     this.resizeObserver.observe(this.overlayListContainer);
 
     this.shadowDom.append(linkElement, this.overlayListContainer);
@@ -486,6 +485,9 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
    * the first cipher button.
    */
   private focusOverlayList() {
+    this.overlayListContainer.setAttribute("role", "dialog");
+    this.overlayListContainer.setAttribute("aria-modal", "true");
+
     const unlockButtonElement = this.overlayListContainer.querySelector(
       "#unlock-button",
     ) as HTMLElement;

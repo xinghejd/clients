@@ -11,11 +11,11 @@ import {
 } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { fromChromeEvent } from "../../../../platform/browser/from-chrome-event";
@@ -44,7 +44,7 @@ export class AccountSwitcherService {
 
   constructor(
     private accountService: AccountService,
-    private stateService: StateService,
+    private avatarService: AvatarService,
     private messagingService: MessagingService,
     private environmentService: EnvironmentService,
     private logService: LogService,
@@ -65,10 +65,12 @@ export class AccountSwitcherService {
               name: account.name ?? account.email,
               email: account.email,
               id: id,
-              server: await this.environmentService.getHost(id),
+              server: (await this.environmentService.getEnvironment(id))?.getHostname(),
               status: account.status,
               isActive: id === activeAccount?.id,
-              avatarColor: await this.stateService.getAvatarColor({ userId: id }),
+              avatarColor: await firstValueFrom(
+                this.avatarService.getUserAvatarColor$(id as UserId),
+              ),
             };
           }),
         );
@@ -77,11 +79,31 @@ export class AccountSwitcherService {
           options.push({
             name: "Add account",
             id: this.SPECIAL_ADD_ACCOUNT_ID,
-            isActive: activeAccount?.id == null,
+            isActive: false,
           });
         }
 
-        return options;
+        return options.sort((a, b) => {
+          /**
+           * Make sure the compare function is "well-formed" to account for browser inconsistencies.
+           *
+           * For specifics, see the sections "Description" and "Sorting with a non-well-formed comparator"
+           * on this page:
+           * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort
+           */
+
+          // Active account (if one exists) is always first
+          if (a.isActive) {
+            return -1;
+          }
+
+          // If account "b" is the 'Add account' button, keep original order of "a" and "b"
+          if (b.id === this.SPECIAL_ADD_ACCOUNT_ID) {
+            return 0;
+          }
+
+          return 1;
+        });
       }),
     );
 

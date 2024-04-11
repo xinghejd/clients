@@ -6,10 +6,8 @@ import {
   AuthGuard,
   lockGuard,
   tdeDecryptionRequiredGuard,
-  UnauthGuard,
+  unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
-import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 import { fido2AuthGuard } from "../auth/guards/fido2-auth.guard";
 import { AccountSwitcherComponent } from "../auth/popup/account-switching/account-switcher.component";
@@ -28,6 +26,7 @@ import { TwoFactorOptionsComponent } from "../auth/popup/two-factor-options.comp
 import { TwoFactorComponent } from "../auth/popup/two-factor.component";
 import { UpdateTempPasswordComponent } from "../auth/popup/update-temp-password.component";
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
+import BrowserPopupUtils from "../platform/popup/browser-popup-utils";
 import { GeneratorComponent } from "../tools/popup/generator/generator.component";
 import { PasswordGeneratorHistoryComponent } from "../tools/popup/generator/password-generator-history.component";
 import { SendAddEditComponent } from "../tools/popup/send/send-add-edit.component";
@@ -57,6 +56,12 @@ import { SettingsComponent } from "./settings/settings.component";
 import { SyncComponent } from "./settings/sync.component";
 import { TabsComponent } from "./tabs.component";
 
+const unauthRouteOverrides = {
+  homepage: () => {
+    return BrowserPopupUtils.inPopout(window) ? "/tabs/vault" : "/tabs/current";
+  },
+};
+
 const routes: Routes = [
   {
     path: "",
@@ -74,7 +79,7 @@ const routes: Routes = [
   {
     path: "home",
     component: HomeComponent,
-    canActivate: [UnauthGuard],
+    canActivate: [unauthGuardFn(unauthRouteOverrides)],
     data: { state: "home" },
   },
   {
@@ -86,7 +91,7 @@ const routes: Routes = [
   {
     path: "login",
     component: LoginComponent,
-    canActivate: [UnauthGuard],
+    canActivate: [unauthGuardFn(unauthRouteOverrides)],
     data: { state: "login" },
   },
   {
@@ -110,27 +115,24 @@ const routes: Routes = [
   {
     path: "2fa",
     component: TwoFactorComponent,
-    canActivate: [UnauthGuard],
+    canActivate: [unauthGuardFn(unauthRouteOverrides)],
     data: { state: "2fa" },
   },
   {
     path: "2fa-options",
     component: TwoFactorOptionsComponent,
-    canActivate: [UnauthGuard],
+    canActivate: [unauthGuardFn(unauthRouteOverrides)],
     data: { state: "2fa-options" },
   },
   {
     path: "login-initiated",
     component: LoginDecryptionOptionsComponent,
-    canActivate: [
-      tdeDecryptionRequiredGuard(),
-      canAccessFeature(FeatureFlag.TrustedDeviceEncryption),
-    ],
+    canActivate: [tdeDecryptionRequiredGuard()],
   },
   {
     path: "sso",
     component: SsoComponent,
-    canActivate: [UnauthGuard],
+    canActivate: [unauthGuardFn(unauthRouteOverrides)],
     data: { state: "sso" },
   },
   {
@@ -147,19 +149,19 @@ const routes: Routes = [
   {
     path: "register",
     component: RegisterComponent,
-    canActivate: [UnauthGuard],
+    canActivate: [unauthGuardFn(unauthRouteOverrides)],
     data: { state: "register" },
   },
   {
     path: "hint",
     component: HintComponent,
-    canActivate: [UnauthGuard],
+    canActivate: [unauthGuardFn(unauthRouteOverrides)],
     data: { state: "hint" },
   },
   {
     path: "environment",
     component: EnvironmentComponent,
-    canActivate: [UnauthGuard],
+    canActivate: [unauthGuardFn(unauthRouteOverrides)],
     data: { state: "environment" },
   },
   {
