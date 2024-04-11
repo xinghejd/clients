@@ -48,70 +48,70 @@ type ConvertedOptions = {
   };
 };
 
-const NAVIGATION: KeyDefinitionLike = {
+export const NAVIGATION: KeyDefinitionLike = {
   stateDefinition: {
     name: "generator",
   },
   key: "generatorSettings",
 };
 
-const CATCHALL: KeyDefinitionLike = {
+export const CATCHALL: KeyDefinitionLike = {
   stateDefinition: {
     name: "generator",
   },
   key: "catchallGeneratorSettings",
 };
 
-const EFF_USERNAME: KeyDefinitionLike = {
+export const EFF_USERNAME: KeyDefinitionLike = {
   stateDefinition: {
     name: "generator",
   },
   key: "effUsernameGeneratorSettings",
 };
 
-const SUBADDRESS: KeyDefinitionLike = {
+export const SUBADDRESS: KeyDefinitionLike = {
   stateDefinition: {
     name: "generator",
   },
   key: "subaddressGeneratorSettings",
 };
 
-const ADDY_IO: KeyDefinitionLike = {
+export const ADDY_IO: KeyDefinitionLike = {
   stateDefinition: {
     name: "generator",
   },
   key: "addyIoBuffer",
 };
 
-const DUCK_DUCK_GO: KeyDefinitionLike = {
+export const DUCK_DUCK_GO: KeyDefinitionLike = {
   stateDefinition: {
     name: "generator",
   },
   key: "duckDuckGoBuffer",
 };
 
-const FASTMAIL: KeyDefinitionLike = {
+export const FASTMAIL: KeyDefinitionLike = {
   stateDefinition: {
     name: "generator",
   },
   key: "fastmailBuffer",
 };
 
-const FIREFOX_RELAY: KeyDefinitionLike = {
+export const FIREFOX_RELAY: KeyDefinitionLike = {
   stateDefinition: {
     name: "generator",
   },
   key: "firefoxRelayBuffer",
 };
 
-const FORWARD_EMAIL: KeyDefinitionLike = {
+export const FORWARD_EMAIL: KeyDefinitionLike = {
   stateDefinition: {
     name: "generator",
   },
   key: "forwardEmailBuffer",
 };
 
-const SIMPLE_LOGIN: KeyDefinitionLike = {
+export const SIMPLE_LOGIN: KeyDefinitionLike = {
   stateDefinition: {
     name: "generator",
   },
@@ -155,97 +155,92 @@ type EmailDomainOptions = {
 
 export class ForwarderOptionsMigrator extends Migrator<55, 56> {
   async migrate(helper: MigrationHelper): Promise<void> {
-    type Pair = { userId: string; account: AccountType };
     const accounts = await helper.getAccounts<AccountType>();
 
     // without the bind, `this` within `migrateAccount` refers to `accounts`
-    const migrateAccount = Function.bind(this, async ({ userId, account }: Pair) => {
+    async function migrateAccount(userId: string, account: AccountType) {
       const legacyOptions = account?.settings?.usernameGenerationOptions;
 
       if (legacyOptions) {
-        const converted = this.convertSettings(legacyOptions);
-        await this.storeSettings(helper, userId, converted);
-        await this.deleteSettings(helper, userId, account);
+        const converted = convertSettings(legacyOptions);
+        await storeSettings(helper, userId, converted);
+        await deleteSettings(helper, userId, account);
       }
-    });
+    }
 
-    await Promise.all(accounts.map(migrateAccount));
-  }
-
-  private convertSettings(options: ExpectedOptions): ConvertedOptions {
-    const forwarders = {
-      addyIo: {
-        baseUrl: options.forwardedAnonAddyBaseUrl,
-        token: options.forwardedAnonAddyApiToken,
-        domain: options.forwardedAnonAddyDomain,
-      },
-      duckDuckGo: {
-        token: options.forwardedDuckDuckGoToken,
-      },
-      fastmail: {
-        token: options.forwardedFastmailApiToken,
-      },
-      firefoxRelay: {
-        token: options.forwardedFirefoxApiToken,
-      },
-      forwardEmail: {
-        token: options.forwardedForwardEmailApiToken,
-        domain: options.forwardedForwardEmailDomain,
-      },
-      simpleLogin: {
-        token: options.forwardedSimpleLoginApiKey,
-        baseUrl: options.forwardedSimpleLoginBaseUrl,
-      },
-    };
-
-    const generator = {
-      username: options.type,
-      forwarder: options.forwardedService,
-    };
-
-    const algorithms = {
-      effUsername: {
-        wordCapitalize: options.wordCapitalize,
-        wordIncludeNumber: options.wordIncludeNumber,
-      },
-      subaddress: {
-        subaddressType: options.subaddressType,
-        subaddressEmail: options.subaddressEmail,
-      },
-      catchall: {
-        catchallType: options.catchallType,
-        catchallDomain: options.catchallDomain,
-      },
-    };
-
-    return { generator, algorithms, forwarders };
-  }
-
-  private async storeSettings(
-    helper: MigrationHelper,
-    userId: string,
-    converted: ConvertedOptions,
-  ) {
-    await Promise.all([
-      helper.setToUser(userId, NAVIGATION, converted.generator),
-      helper.setToUser(userId, CATCHALL, converted.algorithms.catchall),
-      helper.setToUser(userId, EFF_USERNAME, converted.algorithms.effUsername),
-      helper.setToUser(userId, SUBADDRESS, converted.algorithms.subaddress),
-      helper.setToUser(userId, ADDY_IO, converted.forwarders.addyIo),
-      helper.setToUser(userId, DUCK_DUCK_GO, converted.forwarders.duckDuckGo),
-      helper.setToUser(userId, FASTMAIL, converted.forwarders.fastmail),
-      helper.setToUser(userId, FIREFOX_RELAY, converted.forwarders.firefoxRelay),
-      helper.setToUser(userId, FORWARD_EMAIL, converted.forwarders.forwardEmail),
-      helper.setToUser(userId, SIMPLE_LOGIN, converted.forwarders.simpleLogin),
-    ]);
-  }
-
-  private async deleteSettings(helper: MigrationHelper, userId: string, account: AccountType) {
-    delete account?.settings?.usernameGenerationOptions;
-    await helper.set(userId, account);
+    await Promise.all([...accounts.map(({ userId, account }) => migrateAccount(userId, account))]);
   }
 
   async rollback(helper: MigrationHelper): Promise<void> {
     // not supported
   }
+}
+
+function convertSettings(options: ExpectedOptions): ConvertedOptions {
+  const forwarders = {
+    addyIo: {
+      baseUrl: options.forwardedAnonAddyBaseUrl,
+      token: options.forwardedAnonAddyApiToken,
+      domain: options.forwardedAnonAddyDomain,
+    },
+    duckDuckGo: {
+      token: options.forwardedDuckDuckGoToken,
+    },
+    fastmail: {
+      token: options.forwardedFastmailApiToken,
+    },
+    firefoxRelay: {
+      token: options.forwardedFirefoxApiToken,
+    },
+    forwardEmail: {
+      token: options.forwardedForwardEmailApiToken,
+      domain: options.forwardedForwardEmailDomain,
+    },
+    simpleLogin: {
+      token: options.forwardedSimpleLoginApiKey,
+      baseUrl: options.forwardedSimpleLoginBaseUrl,
+    },
+  };
+
+  const generator = {
+    username: options.type,
+    forwarder: options.forwardedService,
+  };
+
+  const algorithms = {
+    effUsername: {
+      wordCapitalize: options.wordCapitalize,
+      wordIncludeNumber: options.wordIncludeNumber,
+    },
+    subaddress: {
+      subaddressType: options.subaddressType,
+      subaddressEmail: options.subaddressEmail,
+    },
+    catchall: {
+      catchallType: options.catchallType,
+      catchallDomain: options.catchallDomain,
+    },
+  };
+
+  return { generator, algorithms, forwarders };
+}
+
+async function storeSettings(helper: MigrationHelper, userId: string, converted: ConvertedOptions) {
+  await Promise.all([
+    helper.setToUser(userId, NAVIGATION, converted.generator),
+    helper.setToUser(userId, CATCHALL, converted.algorithms.catchall),
+    helper.setToUser(userId, EFF_USERNAME, converted.algorithms.effUsername),
+    helper.setToUser(userId, SUBADDRESS, converted.algorithms.subaddress),
+    helper.setToUser(userId, ADDY_IO, converted.forwarders.addyIo),
+    helper.setToUser(userId, DUCK_DUCK_GO, converted.forwarders.duckDuckGo),
+    helper.setToUser(userId, FASTMAIL, converted.forwarders.fastmail),
+    helper.setToUser(userId, FIREFOX_RELAY, converted.forwarders.firefoxRelay),
+    helper.setToUser(userId, FORWARD_EMAIL, converted.forwarders.forwardEmail),
+    helper.setToUser(userId, SIMPLE_LOGIN, converted.forwarders.simpleLogin),
+  ]);
+}
+
+async function deleteSettings(helper: MigrationHelper, userId: string, account: AccountType) {
+  delete account?.settings?.usernameGenerationOptions;
+  await helper.set(userId, account);
 }
