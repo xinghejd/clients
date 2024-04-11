@@ -587,7 +587,6 @@ export class AppComponent implements OnInit, OnDestroy {
       await this.passwordGenerationService.clear(userBeingLoggedOut);
       await this.vaultTimeoutSettingsService.clear(userBeingLoggedOut);
       await this.biometricStateService.logout(userBeingLoggedOut as UserId);
-      await this.searchService.clearIndex();
 
       await this.stateEventRunnerService.handleEvent("logout", userBeingLoggedOut as UserId);
 
