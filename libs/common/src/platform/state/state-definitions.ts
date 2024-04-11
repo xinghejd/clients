@@ -76,6 +76,10 @@ export const NEW_WEB_LAYOUT_BANNER_DISK = new StateDefinition("newWebLayoutBanne
   web: "disk-local",
 });
 
+export const UNASSIGNED_ITEMS_BANNER_DISK = new StateDefinition("unassignedItemsBanner", "disk", {
+  web: "disk-local",
+});
+
 // Platform
 
 export const APPLICATION_ID_DISK = new StateDefinition("applicationId", "disk", {
@@ -127,3 +131,4 @@ export const VAULT_SETTINGS_DISK = new StateDefinition("vaultSettings", "disk", 
   web: "disk-local",
 });
 export const VAULT_BROWSER_MEMORY = new StateDefinition("vaultBrowser", "memory");
+export const VAULT_SEARCH_MEMORY = new StateDefinition("vaultSearch", "memory");
