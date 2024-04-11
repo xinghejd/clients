@@ -1178,14 +1178,9 @@ export default class MainBackground {
     //Needs to be checked before state is cleaned
     const needStorageReseed = await this.needsStorageReseed();
 
-    const currentUserId = await this.stateService.getUserId();
     const newActiveUser = await this.stateService.clean({ userId: userId });
 
-    if (userId == null || userId === currentUserId) {
-      await this.searchService.clearIndex();
-    }
-
-    await this.stateEventRunnerService.handleEvent("logout", currentUserId as UserId);
+    await this.stateEventRunnerService.handleEvent("logout", userId);
 
     if (newActiveUser != null) {
       // we have a new active user, do not continue tearing down application
