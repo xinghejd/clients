@@ -1,5 +1,3 @@
-// Messages shouldn't be serialized after they have been tagged with this
-
 import { MonoTypeOperatorFunction, map } from "rxjs";
 
 import { Message, MessageDefinition } from "./types";
