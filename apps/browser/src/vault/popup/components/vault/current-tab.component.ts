@@ -3,11 +3,14 @@ import { Router } from "@angular/router";
 import { Subject, firstValueFrom, from } from "rxjs";
 import { debounceTime, switchMap, takeUntil } from "rxjs/operators";
 
+import { UnassignedItemsBannerService } from "@bitwarden/angular/services/unassigned-items-banner.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -53,6 +56,11 @@ export class CurrentTabComponent implements OnInit, OnDestroy {
   private totpTimeout: number;
   private loadedTimeout: number;
   private searchTimeout: number;
+  private initPageDetailsTimeout: number;
+
+  protected unassignedItemsBannerEnabled$ = this.configService.getFeatureFlag$(
+    FeatureFlag.UnassignedItemsBanner,
+  );
 
   constructor(
     private platformUtilsService: PlatformUtilsService,
@@ -70,6 +78,8 @@ export class CurrentTabComponent implements OnInit, OnDestroy {
     private organizationService: OrganizationService,
     private vaultFilterService: VaultFilterService,
     private vaultSettingsService: VaultSettingsService,
+    private configService: ConfigService,
+    protected unassignedItemsBannerService: UnassignedItemsBannerService,
   ) {}
 
   async ngOnInit() {
@@ -307,18 +317,13 @@ export class CurrentTabComponent implements OnInit, OnDestroy {
     });
 
     if (this.loginCiphers.length) {
-      void BrowserApi.tabSendMessage(this.tab, {
-        command: "collectPageDetails",
-        tab: this.tab,
-        sender: BroadcasterSubscriptionId,
-      });
-
       this.loginCiphers = this.loginCiphers.sort((a, b) =>
         this.cipherService.sortCiphersByLastUsedThenName(a, b),
       );
     }
 
     this.isLoading = this.loaded = true;
+    this.collectTabPageDetails();
   }
 
   async goToSettings() {
@@ -355,5 +360,20 @@ export class CurrentTabComponent implements OnInit, OnDestroy {
     } else {
       this.autofillCalloutText = this.i18nService.t("autofillSelectInfoWithoutCommand");
     }
+  }
+
+  private collectTabPageDetails() {
+    void BrowserApi.tabSendMessage(this.tab, {
+      command: "collectPageDetails",
+      tab: this.tab,
+      sender: BroadcasterSubscriptionId,
+    });
+
+    window.clearTimeout(this.initPageDetailsTimeout);
+    this.initPageDetailsTimeout = window.setTimeout(() => {
+      if (this.pageDetails.length === 0) {
+        this.collectTabPageDetails();
+      }
+    }, 250);
   }
 }
