@@ -77,6 +77,7 @@ import {
 } from "@bitwarden/common/platform/state";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 import { UsernameGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/username";
+import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { FolderService as FolderServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
@@ -89,6 +90,7 @@ import { UnauthGuardService } from "../../auth/popup/services";
 import { AutofillService as AutofillServiceAbstraction } from "../../autofill/services/abstractions/autofill.service";
 import AutofillService from "../../autofill/services/autofill.service";
 import MainBackground from "../../background/main.background";
+import { SharedBgServicesContainer } from "../../background/shared-bg-services-container.singleton";
 import { Account } from "../../models/account";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
@@ -120,10 +122,21 @@ const mainBackground: MainBackground = needsBackgroundInit
   : BrowserApi.getBackgroundPage().bitwardenMain;
 
 function createLocalBgService() {
+  if (BrowserApi.isManifestVersion(3)) {
+    const sharedBgServices = new SharedBgServicesContainer(
+      true,
+      platformUtilsClipboardWriteCallback,
+      platformUtilsBiometricCallback,
+      // The logout and locked callbacks need to be set in the popup, but should not actually do anything. This is due to dependencies requiring them to be set.
+      async (_expired: boolean, _userId?: UserId) => {},
+      async () => {},
+    );
+    void sharedBgServices.bootstrapBaseServices();
+    return sharedBgServices;
+  }
+
   const localBgService = new MainBackground(isPrivateMode);
-  // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  localBgService.bootstrap();
+  void localBgService.bootstrap();
   return localBgService;
 }
 
@@ -132,6 +145,21 @@ function getBgService<T>(service: keyof MainBackground) {
   return (): T => {
     return mainBackground ? (mainBackground[service] as any as T) : null;
   };
+}
+
+function platformUtilsClipboardWriteCallback(clipboardValue: string, clearMs: number) {
+  void BrowserApi.sendMessage("clearClipboard", { clipboardValue, clearMs });
+}
+
+async function platformUtilsBiometricCallback(): Promise<boolean> {
+  const response = await BrowserApi.sendMessageWithResponse<{
+    result: boolean;
+    error: string;
+  }>("biometricUnlock");
+  if (!response.result) {
+    throw response.error;
+  }
+  return response.result;
 }
 
 /**
@@ -266,19 +294,8 @@ const safeProviders: SafeProvider[] = [
       return new ForegroundPlatformUtilsService(
         sanitizer,
         toastrService,
-        (clipboardValue: string, clearMs: number) => {
-          void BrowserApi.sendMessage("clearClipboard", { clipboardValue, clearMs });
-        },
-        async () => {
-          const response = await BrowserApi.sendMessageWithResponse<{
-            result: boolean;
-            error: string;
-          }>("biometricUnlock");
-          if (!response.result) {
-            throw response.error;
-          }
-          return response.result;
-        },
+        platformUtilsClipboardWriteCallback,
+        platformUtilsBiometricCallback,
         window,
       );
     },
