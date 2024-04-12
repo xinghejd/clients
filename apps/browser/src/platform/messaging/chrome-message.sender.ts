@@ -17,6 +17,11 @@ export class ChromeMessageSender implements MessageSender {
           "Could not establish connection. Receiving end does not exist."
         ) {
           this.logService.debug(`Receiving end didn't exist for command '${command}'`);
+        } else if (
+          chrome.runtime.lastError.message ===
+          "The message port closed before a response was received."
+        ) {
+          this.logService.debug(`Port was closed for command '${command}'`);
         } else {
           this.logService.warning(
             `Error while sending message with command '${command}': ${chrome.runtime.lastError.message}`,
