@@ -1,6 +1,10 @@
 import { Injectable } from "@angular/core";
-import { EMPTY, concatMap } from "rxjs";
+import { concatMap, map } from "rxjs";
 
+import {
+  EnvironmentService,
+  Region,
+} from "@bitwarden/common/platform/abstractions/environment.service";
 import {
   StateProvider,
   UNASSIGNED_ITEMS_BANNER_DISK,
@@ -24,21 +28,30 @@ export class UnassignedItemsBannerService {
   private _showBanner = this.stateProvider.getActive(SHOW_BANNER_KEY);
 
   showBanner$ = this._showBanner.state$.pipe(
-    concatMap(async (showBanner) => {
+    concatMap(async (showBannerState) => {
       // null indicates that the user has not seen or dismissed the banner yet - get the flag from server
-      if (showBanner == null) {
+      if (showBannerState == null) {
         const showBannerResponse = await this.apiService.getShowUnassignedCiphersBanner();
         await this._showBanner.update(() => showBannerResponse);
-        return EMPTY; // complete the inner observable without emitting any value; the update on the previous line will trigger another run
+        return showBannerResponse;
       }
 
-      return showBanner;
+      return showBannerState;
     }),
+  );
+
+  bannerText$ = this.environmentService.environment$.pipe(
+    map((e) =>
+      e?.getRegion() == Region.SelfHosted
+        ? "unassignedItemsBannerSelfHost"
+        : "unassignedItemsBanner",
+    ),
   );
 
   constructor(
     private stateProvider: StateProvider,
     private apiService: UnassignedItemsBannerApiService,
+    private environmentService: EnvironmentService,
   ) {}
 
   async hideBanner() {
