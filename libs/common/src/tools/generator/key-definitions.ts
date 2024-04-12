@@ -143,7 +143,7 @@ export const ADDY_IO_BUFFER = new RolloverKeyDefinition<SelfHostedApiOptions & E
   "addyIoBuffer",
   {
     deserializer: (value) => value,
-    clearOn: ["lock"],
+    clearOn: ["logout"],
   },
 );
 
@@ -153,7 +153,7 @@ export const DUCK_DUCK_GO_BUFFER = new RolloverKeyDefinition<ApiOptions>(
   "duckDuckGoBuffer",
   {
     deserializer: (value) => value,
-    clearOn: ["lock"],
+    clearOn: ["logout"],
   },
 );
 
@@ -163,7 +163,7 @@ export const FASTMAIL_BUFFER = new RolloverKeyDefinition<ApiOptions & EmailPrefi
   "fastmailBuffer",
   {
     deserializer: (value) => value,
-    clearOn: ["lock"],
+    clearOn: ["logout"],
   },
 );
 
@@ -173,7 +173,7 @@ export const FIREFOX_RELAY_BUFFER = new RolloverKeyDefinition<ApiOptions>(
   "firefoxRelayBuffer",
   {
     deserializer: (value) => value,
-    clearOn: ["lock"],
+    clearOn: ["logout"],
   },
 );
 
@@ -183,7 +183,7 @@ export const FORWARD_EMAIL_BUFFER = new RolloverKeyDefinition<ApiOptions & Email
   "forwardEmailBuffer",
   {
     deserializer: (value) => value,
-    clearOn: ["lock"],
+    clearOn: ["logout"],
   },
 );
 
@@ -193,7 +193,7 @@ export const SIMPLE_LOGIN_BUFFER = new RolloverKeyDefinition<SelfHostedApiOption
   "simpleLoginBuffer",
   {
     deserializer: (value) => value,
-    clearOn: ["lock"],
+    clearOn: ["logout"],
   },
 );
 
