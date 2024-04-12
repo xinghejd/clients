@@ -2,6 +2,13 @@ import { CommandDefinition } from "./types";
 
 export abstract class MessageSender {
   /**
+   * A method for sending messages in a type safe manner. The passed in command definition
+   * will require you to provide a compatible type in the payload parameter.
+   *
+   * @example
+   * const MY_COMMAND = new CommandDefinition<{ test: number }>("myCommand");
+   *
+   * this.messageSender.send(MY_COMMAND, { test: 14 });
    *
    * @param commandDefinition
    * @param payload
@@ -10,6 +17,10 @@ export abstract class MessageSender {
 
   /**
    * A legacy method for sending messages in a non-type safe way.
+   *
+   * @remarks Consider defining a {@link CommandDefinition} and passing that in for the first parameter to
+   * get compilation errors when defining an incompatible payload.
+   *
    * @param command The string based command of your message.
    * @param payload Extra contextual information regarding the message. Be aware that this payload may
    *   be serialized and lose all prototype information.
