@@ -11,14 +11,14 @@ import { Message, CommandDefinition } from "./types";
  * or vault data changes and those observables should be preferred over messaging.
  */
 export class MessageListener {
-  constructor(private readonly messagesStream: Observable<Message<object>>) {}
+  constructor(private readonly messageStream: Observable<Message<object>>) {}
 
   /**
    * A stream of all messages sent through the application. It does not contain type information for the
    * other properties on the messages. You are encouraged to instead subscribe to an individual message
    * through {@link messages$}.
    */
-  allMessages$ = this.messagesStream;
+  allMessages$ = this.messageStream;
 
   /**
    * Creates an observable stream filtered to just the command given via the {@link CommandDefinition} and typed
