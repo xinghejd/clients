@@ -13,7 +13,7 @@ import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
 import { DefaultPolicyEvaluator } from "../default-policy-evaluator";
 import { DUCK_DUCK_GO_FORWARDER, DUCK_DUCK_GO_BUFFER } from "../key-definitions";
-import { RolloverState } from "../state/rollover-state";
+import { BufferedState } from "../state/buffered-state";
 
 import { ForwarderGeneratorStrategy } from "./forwarder-generator-strategy";
 import { DefaultDuckDuckGoOptions } from "./forwarders/duck-duck-go";
@@ -71,7 +71,7 @@ describe("ForwarderGeneratorStrategy", () => {
 
       const result = strategy.durableState(SomeUser);
 
-      expect(result).toBeInstanceOf(RolloverState);
+      expect(result).toBeInstanceOf(BufferedState);
     });
 
     it("returns the same secret state for a single user", () => {

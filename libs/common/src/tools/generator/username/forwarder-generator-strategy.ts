@@ -8,9 +8,9 @@ import { UserId } from "../../../types/guid";
 import { GeneratorStrategy } from "../abstractions";
 import { DefaultPolicyEvaluator } from "../default-policy-evaluator";
 import { NoPolicy } from "../no-policy";
+import { BufferedKeyDefinition } from "../state/buffered-key-definition";
+import { BufferedState } from "../state/buffered-state";
 import { PaddedDataPacker } from "../state/padded-data-packer";
-import { RolloverKeyDefinition } from "../state/rollover-key-definition";
-import { RolloverState } from "../state/rollover-state";
 import { SecretClassifier } from "../state/secret-classifier";
 import { SecretKeyDefinition } from "../state/secret-key-definition";
 import { SecretState } from "../state/secret-state";
@@ -86,7 +86,7 @@ export abstract class ForwarderGeneratorStrategy<
     const canDecrypt$ = this.keyService
       .getInMemoryUserKeyFor$(userId)
       .pipe(map((key) => key !== null));
-    const rolloverState = new RolloverState(
+    const rolloverState = new BufferedState(
       this.stateProvider,
       this.rolloverKey,
       secretState,
@@ -103,7 +103,7 @@ export abstract class ForwarderGeneratorStrategy<
   protected abstract readonly key: UserKeyDefinition<Options>;
 
   /** Determine where forwarder rollover configuration is stored  */
-  protected abstract readonly rolloverKey: RolloverKeyDefinition<Options, Options>;
+  protected abstract readonly rolloverKey: BufferedKeyDefinition<Options, Options>;
 
   /** {@link GeneratorStrategy.toEvaluator} */
   toEvaluator = () => {

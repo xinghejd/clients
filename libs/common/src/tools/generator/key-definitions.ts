@@ -4,7 +4,7 @@ import { GeneratedCredential } from "./history/generated-credential";
 import { GeneratorNavigation } from "./navigation/generator-navigation";
 import { PassphraseGenerationOptions } from "./passphrase/passphrase-generation-options";
 import { PasswordGenerationOptions } from "./password/password-generation-options";
-import { RolloverKeyDefinition } from "./state/rollover-key-definition";
+import { BufferedKeyDefinition } from "./state/buffered-key-definition";
 import { SecretClassifier } from "./state/secret-classifier";
 import { SecretKeyDefinition } from "./state/secret-key-definition";
 import { CatchallGenerationOptions } from "./username/catchall-generator-options";
@@ -138,7 +138,7 @@ export const SIMPLE_LOGIN_FORWARDER = new UserKeyDefinition<SelfHostedApiOptions
 );
 
 /** backing store configuration for {@link Forwarders.AddyIo} */
-export const ADDY_IO_BUFFER = new RolloverKeyDefinition<SelfHostedApiOptions & EmailDomainOptions>(
+export const ADDY_IO_BUFFER = new BufferedKeyDefinition<SelfHostedApiOptions & EmailDomainOptions>(
   GENERATOR_DISK,
   "addyIoBuffer",
   {
@@ -148,7 +148,7 @@ export const ADDY_IO_BUFFER = new RolloverKeyDefinition<SelfHostedApiOptions & E
 );
 
 /** backing store configuration for {@link Forwarders.DuckDuckGo} */
-export const DUCK_DUCK_GO_BUFFER = new RolloverKeyDefinition<ApiOptions>(
+export const DUCK_DUCK_GO_BUFFER = new BufferedKeyDefinition<ApiOptions>(
   GENERATOR_DISK,
   "duckDuckGoBuffer",
   {
@@ -158,7 +158,7 @@ export const DUCK_DUCK_GO_BUFFER = new RolloverKeyDefinition<ApiOptions>(
 );
 
 /** backing store configuration for {@link Forwarders.FastMail} */
-export const FASTMAIL_BUFFER = new RolloverKeyDefinition<ApiOptions & EmailPrefixOptions>(
+export const FASTMAIL_BUFFER = new BufferedKeyDefinition<ApiOptions & EmailPrefixOptions>(
   GENERATOR_DISK,
   "fastmailBuffer",
   {
@@ -168,7 +168,7 @@ export const FASTMAIL_BUFFER = new RolloverKeyDefinition<ApiOptions & EmailPrefi
 );
 
 /** backing store configuration for {@link Forwarders.FireFoxRelay} */
-export const FIREFOX_RELAY_BUFFER = new RolloverKeyDefinition<ApiOptions>(
+export const FIREFOX_RELAY_BUFFER = new BufferedKeyDefinition<ApiOptions>(
   GENERATOR_DISK,
   "firefoxRelayBuffer",
   {
@@ -178,7 +178,7 @@ export const FIREFOX_RELAY_BUFFER = new RolloverKeyDefinition<ApiOptions>(
 );
 
 /** backing store configuration for {@link Forwarders.ForwardEmail} */
-export const FORWARD_EMAIL_BUFFER = new RolloverKeyDefinition<ApiOptions & EmailDomainOptions>(
+export const FORWARD_EMAIL_BUFFER = new BufferedKeyDefinition<ApiOptions & EmailDomainOptions>(
   GENERATOR_DISK,
   "forwardEmailBuffer",
   {
@@ -188,7 +188,7 @@ export const FORWARD_EMAIL_BUFFER = new RolloverKeyDefinition<ApiOptions & Email
 );
 
 /** backing store configuration for {@link forwarders.SimpleLogin} */
-export const SIMPLE_LOGIN_BUFFER = new RolloverKeyDefinition<SelfHostedApiOptions>(
+export const SIMPLE_LOGIN_BUFFER = new BufferedKeyDefinition<SelfHostedApiOptions>(
   GENERATOR_DISK,
   "simpleLoginBuffer",
   {
