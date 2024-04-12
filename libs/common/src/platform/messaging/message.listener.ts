@@ -1,4 +1,4 @@
-import { Observable, filter, merge } from "rxjs";
+import { EMPTY, Observable, filter, merge } from "rxjs";
 
 import { Message, CommandDefinition } from "./types";
 
@@ -11,14 +11,14 @@ import { Message, CommandDefinition } from "./types";
  * or vault data changes and those observables should be preferred over messaging.
  */
 export class MessageListener {
-  constructor(private readonly messages: Observable<Message<object>>) {}
+  constructor(private readonly messagesStream: Observable<Message<object>>) {}
 
   /**
    * A stream of all messages sent through the application. It does not contain type information for the
    * other properties on the messages. You are encouraged to instead subscribe to an individual message
    * through {@link messages$}.
    */
-  allMessages$ = this.messages;
+  allMessages$ = this.messagesStream;
 
   /**
    * Creates an observable stream filtered to just the command given via the {@link CommandDefinition} and typed
@@ -42,4 +42,9 @@ export class MessageListener {
   static combine(...messageListeners: MessageListener[]) {
     return new MessageListener(merge(...messageListeners.map((ml) => ml.allMessages$)));
   }
+
+  /**
+   * A helper property for returning a MessageListener that will never emit any messages and will immediately complete.
+   */
+  static readonly EMPTY = new MessageListener(EMPTY);
 }

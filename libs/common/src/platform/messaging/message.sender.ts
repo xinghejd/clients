@@ -1,5 +1,18 @@
 import { CommandDefinition } from "./types";
 
+class MultiMessageSender implements MessageSender {
+  constructor(private readonly innerMessageSenders: MessageSender[]) {}
+
+  send<T extends object>(
+    commandDefinition: string | CommandDefinition<T>,
+    payload: object | T = {},
+  ): void {
+    for (const messageSender of this.innerMessageSenders) {
+      messageSender.send(commandDefinition, payload);
+    }
+  }
+}
+
 export abstract class MessageSender {
   /**
    * A method for sending messages in a type safe manner. The passed in command definition
@@ -41,17 +54,9 @@ export abstract class MessageSender {
   static combine(...messageSenders: MessageSender[]) {
     return new MultiMessageSender(messageSenders);
   }
-}
 
-class MultiMessageSender implements MessageSender {
-  constructor(private readonly innerMessageSenders: MessageSender[]) {}
-
-  send<T extends object>(
-    commandDefinition: string | CommandDefinition<T>,
-    payload: object | T = {},
-  ): void {
-    for (const messageSender of this.innerMessageSenders) {
-      messageSender.send(commandDefinition, payload);
-    }
-  }
+  /**
+   * A helper property for creating a {@link MessageSender} that sends to nowhere.
+   */
+  static readonly EMPTY: MessageSender = new MultiMessageSender([]);
 }

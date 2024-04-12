@@ -12,10 +12,7 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { DefaultBiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { Message, MessageSender } from "@bitwarden/common/platform/messaging";
-import {
-  SubjectMessageSender,
-  NoopMessageSender,
-} from "@bitwarden/common/platform/messaging/internal";
+import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { EncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/encrypt.service.implementation";
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
@@ -135,7 +132,7 @@ export class Main {
     this.i18nService = new I18nMainService("en", "./locales/", globalStateProvider);
 
     const accountService = new AccountServiceImplementation(
-      new NoopMessageSender(),
+      MessageSender.EMPTY,
       this.logService,
       globalStateProvider,
     );

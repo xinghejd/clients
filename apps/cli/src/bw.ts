@@ -57,7 +57,7 @@ import {
 } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { KeySuffixOptions, LogLevelType } from "@bitwarden/common/platform/enums";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
-import { NoopMessageSender } from "@bitwarden/common/platform/messaging/internal";
+import { MessageSender } from "@bitwarden/common/platform/messaging";
 import { Account } from "@bitwarden/common/platform/models/domain/account";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { AppIdService } from "@bitwarden/common/platform/services/app-id.service";
@@ -151,7 +151,7 @@ global.DOMParser = new jsdom.JSDOM().window.DOMParser;
 const packageJson = require("../package.json");
 
 export class Main {
-  messagingService: NoopMessageSender;
+  messagingService: MessageSender;
   storageService: LowdbStorageService;
   secureStorageService: NodeEnvSecureStorageService;
   memoryStorageService: MemoryStorageService;
@@ -292,7 +292,7 @@ export class Main {
       stateEventRegistrarService,
     );
 
-    this.messagingService = new NoopMessageSender();
+    this.messagingService = MessageSender.EMPTY;
 
     this.accountService = new AccountServiceImplementation(
       this.messagingService,
