@@ -3,7 +3,7 @@ import * as path from "path";
 import { app, dialog, ipcMain, Menu, MenuItem, nativeTheme, Notification, shell } from "electron";
 
 import { ThemeType } from "@bitwarden/common/platform/enums";
-import { MessageSender, MessageDefinition } from "@bitwarden/common/platform/messaging";
+import { MessageSender, CommandDefinition } from "@bitwarden/common/platform/messaging";
 import { getCommand } from "@bitwarden/common/platform/messaging/internal";
 import { SafeUrls } from "@bitwarden/common/platform/misc/safe-urls";
 
@@ -86,8 +86,8 @@ export class ElectronMainMessagingService implements MessageSender {
     });
   }
 
-  send<T extends object>(messageDefinition: MessageDefinition<T> | string, arg: T | object = {}) {
-    const command = getCommand(messageDefinition);
+  send<T extends object>(commandDefinition: CommandDefinition<T> | string, arg: T | object = {}) {
+    const command = getCommand(commandDefinition);
     const message = Object.assign({}, { command: command }, arg);
     if (this.windowMain.win != null) {
       this.windowMain.win.webContents.send("messagingService", message);

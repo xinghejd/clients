@@ -5,7 +5,7 @@ declare const tag: unique symbol;
  * alonside `MessageSender` and `MessageListener` for providing a type
  * safe(-ish) way of sending and receiving messages.
  */
-export class MessageDefinition<T extends object> {
+export class CommandDefinition<T extends object> {
   [tag]: T;
   constructor(readonly command: string) {}
 }

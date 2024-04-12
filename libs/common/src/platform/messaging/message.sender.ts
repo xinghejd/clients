@@ -1,12 +1,12 @@
-import { MessageDefinition } from "./types";
+import { CommandDefinition } from "./types";
 
 export abstract class MessageSender {
   /**
    *
-   * @param messageDefinition
+   * @param commandDefinition
    * @param payload
    */
-  abstract send<T extends object>(messageDefinition: MessageDefinition<T>, payload: T): void;
+  abstract send<T extends object>(commandDefinition: CommandDefinition<T>, payload: T): void;
 
   /**
    * A legacy method for sending messages in a non-type safe way.
@@ -18,7 +18,7 @@ export abstract class MessageSender {
 
   /** Implementation of the other two overloads, read their docs instead. */
   abstract send<T extends object>(
-    messageDefinition: MessageDefinition<T> | string,
+    commandDefinition: CommandDefinition<T> | string,
     payload: T | object,
   ): void;
 
@@ -36,11 +36,11 @@ class MultiMessageSender implements MessageSender {
   constructor(private readonly innerMessageSenders: MessageSender[]) {}
 
   send<T extends object>(
-    messageDefinition: string | MessageDefinition<T>,
+    commandDefinition: string | CommandDefinition<T>,
     payload: object | T = {},
   ): void {
     for (const messageSender of this.innerMessageSenders) {
-      messageSender.send(messageDefinition, payload);
+      messageSender.send(commandDefinition, payload);
     }
   }
 }

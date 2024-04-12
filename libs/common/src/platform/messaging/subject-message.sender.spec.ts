@@ -4,7 +4,7 @@ import { subscribeTo } from "../../../spec/observable-tracker";
 
 import { SubjectMessageSender } from "./internal";
 import { MessageSender } from "./message.sender";
-import { Message, MessageDefinition } from "./types";
+import { Message, CommandDefinition } from "./types";
 
 describe("SubjectMessageSender", () => {
   const subject = new Subject<Message<{ test: number }>>();
@@ -14,12 +14,12 @@ describe("SubjectMessageSender", () => {
 
   describe("send", () => {
     it("will send message with command from message definition", async () => {
-      const messageDefinition = new MessageDefinition<{ test: number }>("myCommand");
+      const commandDefinition = new CommandDefinition<{ test: number }>("myCommand");
 
       const tracker = subscribeTo(subjectObservable);
       const pausePromise = tracker.pauseUntilReceived(1);
 
-      sut.send(messageDefinition, { test: 1 });
+      sut.send(commandDefinition, { test: 1 });
 
       await pausePromise;
 

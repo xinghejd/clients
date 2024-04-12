@@ -1,6 +1,6 @@
 import { Observable, filter, merge } from "rxjs";
 
-import { Message, MessageDefinition } from "./types";
+import { Message, CommandDefinition } from "./types";
 
 /**
  * A class that allows for listening to messages coming through the application,
@@ -21,16 +21,16 @@ export class MessageListener {
   allMessages$ = this.messages;
 
   /**
-   * Creates an observable stream filtered to just the command given via the {@link MessageDefinition} and typed
-   * to the generic contained in the MessageDefinition. Be careful using this method unless all your messages are being
+   * Creates an observable stream filtered to just the command given via the {@link CommandDefinition} and typed
+   * to the generic contained in the CommandDefinition. Be careful using this method unless all your messages are being
    * sent through `MessageSender.send`, if that isn't the case you should have lower confidence in the message
    * payload being the expected type.
    *
-   * @param messageDefinition The MessageDefinition containing the information about the message type you care about.
+   * @param commandDefinition The CommandDefinition containing the information about the message type you care about.
    */
-  messages$<T extends object>(messageDefinition: MessageDefinition<T>): Observable<T> {
+  messages$<T extends object>(commandDefinition: CommandDefinition<T>): Observable<T> {
     return this.allMessages$.pipe(
-      filter((msg) => msg?.command === messageDefinition.command),
+      filter((msg) => msg?.command === commandDefinition.command),
     ) as Observable<T>;
   }
 

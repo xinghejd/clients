@@ -1,12 +1,12 @@
 import { MonoTypeOperatorFunction, map } from "rxjs";
 
-import { Message, MessageDefinition } from "./types";
+import { Message, CommandDefinition } from "./types";
 
-export const getCommand = (messageDefinition: MessageDefinition<object> | string) => {
-  if (typeof messageDefinition === "string") {
-    return messageDefinition;
+export const getCommand = (commandDefinition: CommandDefinition<object> | string) => {
+  if (typeof commandDefinition === "string") {
+    return commandDefinition;
   } else {
-    return messageDefinition.command;
+    return commandDefinition.command;
   }
 };
 

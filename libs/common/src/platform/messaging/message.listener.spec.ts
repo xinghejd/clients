@@ -3,13 +3,13 @@ import { Subject } from "rxjs";
 import { subscribeTo } from "../../../spec/observable-tracker";
 
 import { MessageListener } from "./message.listener";
-import { Message, MessageDefinition } from "./types";
+import { Message, CommandDefinition } from "./types";
 
 describe("MessageListener", () => {
   const subject = new Subject<Message<{ test: number }>>();
   const sut = new MessageListener(subject.asObservable());
 
-  const testMessageDefinition = new MessageDefinition<{ test: number }>("myCommand");
+  const testCommandDefinition = new CommandDefinition<{ test: number }>("myCommand");
 
   describe("allMessages$", () => {
     it("runs on all nexts", async () => {
@@ -29,7 +29,7 @@ describe("MessageListener", () => {
 
   describe("messages$", () => {
     it("runs on only my commands", async () => {
-      const tracker = subscribeTo(sut.messages$(testMessageDefinition));
+      const tracker = subscribeTo(sut.messages$(testCommandDefinition));
 
       const pausePromise = tracker.pauseUntilReceived(2);
 

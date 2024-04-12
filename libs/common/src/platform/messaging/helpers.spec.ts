@@ -1,7 +1,7 @@
 import { Subject, firstValueFrom } from "rxjs";
 
 import { getCommand, isExternalMessage, tagAsExternal } from "./helpers";
-import { Message, MessageDefinition } from "./types";
+import { Message, CommandDefinition } from "./types";
 
 describe("helpers", () => {
   describe("getCommand", () => {
@@ -12,9 +12,9 @@ describe("helpers", () => {
     });
 
     it("can get the command from a message definition", () => {
-      const messageDefinition = new MessageDefinition<object>("myCommand");
+      const commandDefinition = new CommandDefinition<object>("myCommand");
 
-      const command = getCommand(messageDefinition);
+      const command = getCommand(commandDefinition);
 
       expect(command).toEqual("myCommand");
     });
