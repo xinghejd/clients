@@ -760,7 +760,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: EventUploadServiceAbstraction,
     useClass: EventUploadService,
-    deps: [ApiServiceAbstraction, StateProvider, LogService, AccountServiceAbstraction],
+    deps: [ApiServiceAbstraction, StateProvider, LogService, AuthServiceAbstraction],
   }),
   safeProvider({
     provide: EventCollectionServiceAbstraction,
@@ -770,7 +770,7 @@ const safeProviders: SafeProvider[] = [
       StateProvider,
       OrganizationServiceAbstraction,
       EventUploadServiceAbstraction,
-      AccountServiceAbstraction,
+      AuthServiceAbstraction,
     ],
   }),
   safeProvider({
