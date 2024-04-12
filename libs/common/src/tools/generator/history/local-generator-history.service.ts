@@ -105,6 +105,7 @@ export class LocalGeneratorHistoryService extends GeneratorHistoryService {
     const packer = new PaddedDataPacker(OPTIONS_FRAME_SIZE);
     const encryptor = new UserKeyEncryptor(this.encryptService, this.keyService, packer);
 
+    // construct the durable state
     const state = SecretState.from<
       GeneratedCredential[],
       number,
@@ -113,6 +114,8 @@ export class LocalGeneratorHistoryService extends GeneratorHistoryService {
       GeneratedCredential
     >(userId, GENERATOR_HISTORY, this.stateProvider, encryptor);
 
+    // move data from the old password history to the new one once the encryption key
+    // becomes available in memory
     const decryptor$ = this.keyService
       .getInMemoryUserKeyFor$(userId)
       .pipe(map((key) => key && new LegacyPasswordHistoryDecryptor(this.keyService)));

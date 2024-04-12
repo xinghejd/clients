@@ -8,16 +8,14 @@ export class LegacyPasswordHistoryDecryptor {
   constructor(private cryptoService: CryptoService) {}
 
   /** Decrypts a password history. */
-  async decrypt(history: GeneratedPasswordHistory[]): Promise<GeneratedPasswordHistory[]> {
-    if (history == null || history.length === 0) {
-      return Promise.resolve([]);
-    }
-
-    const promises = history.map(async (item) => {
-      const decrypted = await this.cryptoService.decryptToUtf8(new EncString(item.password));
+  decrypt(history: GeneratedPasswordHistory[]): Promise<GeneratedPasswordHistory[]> {
+    // this code uses `decryptToUtf8` because the legacy service does
+    const promises = (history ?? []).map(async (item) => {
+      const encrypted = new EncString(item.password);
+      const decrypted = await this.cryptoService.decryptToUtf8(encrypted);
       return new GeneratedPasswordHistory(decrypted, item.date);
     });
 
-    return await Promise.all(promises);
+    return Promise.all(promises);
   }
 }
