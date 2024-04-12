@@ -317,6 +317,7 @@ const devServer =
       };
 
 const webpackConfig = {
+  target: "browserslist",
   mode: NODE_ENV,
   devtool: "source-map",
   devServer: devServer,

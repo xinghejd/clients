@@ -167,6 +167,7 @@
     "big-integer": "1.6.51",
     "bootstrap": "4.6.0",
     "braintree-web-drop-in": "1.42.0",
+    "browserslist": "4.23.0",
     "buffer": "6.0.3",
     "bufferutil": "4.0.8",
     "chalk": "4.1.2",
