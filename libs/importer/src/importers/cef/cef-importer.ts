@@ -5,7 +5,6 @@ import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { Fido2CredentialView } from "@bitwarden/common/vault/models/view/fido2-credential.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { Fido2Utils } from "@bitwarden/common/vault/services/fido2/fido2-utils";
-import { guidToStandardFormat } from "@bitwarden/common/vault/services/fido2/guid-utils";
 
 import { ImportResult } from "../../models/import-result";
 import { BaseImporter } from "../base-importer";
@@ -148,9 +147,7 @@ export class CEFImporter extends BaseImporter implements Importer {
     );
     fido2Credentials.creationDate = new Date(item.creationAt);
     fido2Credentials.discoverable = true;
-    fido2Credentials.credentialId = guidToStandardFormat(
-      Utils.fromUrlB64ToArray(credential.credentialId),
-    );
+    fido2Credentials.credentialId = credential.credentialId;
     fido2Credentials.userHandle = credential.userHandle;
     fido2Credentials.keyAlgorithm = "ECDSA";
     fido2Credentials.keyCurve = "P-256";

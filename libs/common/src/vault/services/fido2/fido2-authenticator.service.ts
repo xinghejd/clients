@@ -274,7 +274,7 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
 
         const authenticatorData = await generateAuthData({
           rpId: selectedFido2Credential.rpId,
-          credentialId: guidToRawFormat(selectedCredentialId),
+          credentialId: Utils.fromB64ToArray(selectedCredentialId),
           counter: selectedFido2Credential.counter,
           userPresence: true,
           userVerification: userVerified,
@@ -289,7 +289,7 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
         return {
           authenticatorData,
           selectedCredential: {
-            id: Utils.fromUtf8ToArray(selectedCredentialId),
+            id: Fido2Utils.stringToBuffer(selectedCredentialId),
             userHandle: Fido2Utils.stringToBuffer(selectedFido2Credential.userHandle),
           },
           signature,
