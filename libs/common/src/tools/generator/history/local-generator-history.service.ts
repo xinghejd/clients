@@ -5,7 +5,9 @@ import { EncryptService } from "../../../platform/abstractions/encrypt.service";
 import { SingleUserState, StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { GeneratorHistoryService } from "../abstractions/generator-history.abstraction";
-import { GENERATOR_HISTORY } from "../key-definitions";
+import { GENERATOR_HISTORY, GENERATOR_HISTORY_BUFFER } from "../key-definitions";
+import { LegacyPasswordHistoryDecryptor } from "../legacy-password-history-decryptor";
+import { BufferedState } from "../state/buffered-state";
 import { PaddedDataPacker } from "../state/padded-data-packer";
 import { SecretState } from "../state/secret-state";
 import { UserKeyEncryptor } from "../state/user-key-encryptor";
@@ -98,7 +100,7 @@ export class LocalGeneratorHistoryService extends GeneratorHistoryService {
     return state;
   }
 
-  private createSecretState(userId: UserId) {
+  private createSecretState(userId: UserId): SingleUserState<GeneratedCredential[]> {
     // construct the encryptor
     const packer = new PaddedDataPacker(OPTIONS_FRAME_SIZE);
     const encryptor = new UserKeyEncryptor(this.encryptService, this.keyService, packer);
@@ -111,6 +113,16 @@ export class LocalGeneratorHistoryService extends GeneratorHistoryService {
       GeneratedCredential
     >(userId, GENERATOR_HISTORY, this.stateProvider, encryptor);
 
-    return state;
+    const decryptor$ = this.keyService
+      .getInMemoryUserKeyFor$(userId)
+      .pipe(map((key) => key && new LegacyPasswordHistoryDecryptor(this.keyService)));
+    const buffer = new BufferedState(
+      this.stateProvider,
+      GENERATOR_HISTORY_BUFFER,
+      state,
+      decryptor$,
+    );
+
+    return buffer;
   }
 }

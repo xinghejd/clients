@@ -1,9 +1,14 @@
+import { Jsonify } from "type-fest";
+
 import { GENERATOR_DISK, GENERATOR_MEMORY, UserKeyDefinition } from "../../platform/state";
 
 import { GeneratedCredential } from "./history/generated-credential";
+import { LegacyPasswordHistoryDecryptor } from "./legacy-password-history-decryptor";
 import { GeneratorNavigation } from "./navigation/generator-navigation";
 import { PassphraseGenerationOptions } from "./passphrase/passphrase-generation-options";
+import { GeneratedPasswordHistory } from "./password/generated-password-history";
 import { PasswordGenerationOptions } from "./password/password-generation-options";
+import { BufferedKeyDefinition } from "./state/buffered-key-definition";
 import { SecretClassifier } from "./state/secret-classifier";
 import { SecretKeyDefinition } from "./state/secret-key-definition";
 import { CatchallGenerationOptions } from "./username/catchall-generator-options";
@@ -146,3 +151,21 @@ export const GENERATOR_HISTORY = SecretKeyDefinition.array(
     clearOn: ["logout"],
   },
 );
+
+/** encrypted password generation history subject to migration */
+export const GENERATOR_HISTORY_BUFFER = new BufferedKeyDefinition<
+  GeneratedPasswordHistory[],
+  GeneratedCredential[],
+  LegacyPasswordHistoryDecryptor
+>(GENERATOR_DISK, "localGeneratorHistoryBuffer", {
+  deserializer(history) {
+    const items = history as Jsonify<GeneratedPasswordHistory>[];
+    return items.map((h) => new GeneratedPasswordHistory(h.password, h.date));
+  },
+  async map(history, decryptor) {
+    const credentials = await decryptor.decrypt(history);
+    const mapped = credentials.map((c) => new GeneratedCredential(c.password, "password", c.date));
+    return mapped;
+  },
+  clearOn: ["logout"],
+});
