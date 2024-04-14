@@ -4,6 +4,7 @@ import { app, dialog, ipcMain, Menu, MenuItem, nativeTheme, Notification, shell 
 
 import { ThemeType } from "@bitwarden/common/platform/enums";
 import { MessageSender, CommandDefinition } from "@bitwarden/common/platform/messaging";
+// eslint-disable-next-line no-restricted-imports -- Using implementation helper in implementation
 import { getCommand } from "@bitwarden/common/platform/messaging/internal";
 import { SafeUrls } from "@bitwarden/common/platform/misc/safe-urls";
 
