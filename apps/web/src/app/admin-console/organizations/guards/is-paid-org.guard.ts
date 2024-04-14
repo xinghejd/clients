@@ -1,9 +1,9 @@
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from "@angular/router";
 
-import { DialogServiceAbstraction, SimpleDialogType } from "@bitwarden/angular/services/dialog";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { DialogService } from "@bitwarden/components";
 
 @Injectable({
   providedIn: "root",
@@ -13,11 +13,11 @@ export class IsPaidOrgGuard implements CanActivate {
     private router: Router,
     private organizationService: OrganizationService,
     private messagingService: MessagingService,
-    private dialogService: DialogServiceAbstraction
+    private dialogService: DialogService,
   ) {}
 
   async canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-    const org = this.organizationService.get(route.params.organizationId);
+    const org = await this.organizationService.get(route.params.organizationId);
 
     if (org == null) {
       return this.router.createUrlTree(["/"]);
@@ -31,7 +31,7 @@ export class IsPaidOrgGuard implements CanActivate {
           content: { key: "notAvailableForFreeOrganization" },
           acceptButtonText: { key: "ok" },
           cancelButtonText: null,
-          type: SimpleDialogType.INFO,
+          type: "info",
         });
         return false;
       } else {

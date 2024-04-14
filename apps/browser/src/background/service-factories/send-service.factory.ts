@@ -1,10 +1,14 @@
+import { SendService } from "@bitwarden/common/tools/send/services/send.service";
 import { InternalSendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
 
-import { cryptoFunctionServiceFactory } from "../../platform/background/service-factories/crypto-function-service.factory";
 import {
   CryptoServiceInitOptions,
   cryptoServiceFactory,
 } from "../../platform/background/service-factories/crypto-service.factory";
+import {
+  EncryptServiceInitOptions,
+  encryptServiceFactory,
+} from "../../platform/background/service-factories/encrypt-service.factory";
 import {
   FactoryOptions,
   CachedServices,
@@ -15,32 +19,39 @@ import {
   I18nServiceInitOptions,
 } from "../../platform/background/service-factories/i18n-service.factory";
 import {
-  stateServiceFactory,
-  StateServiceInitOptions,
-} from "../../platform/background/service-factories/state-service.factory";
-import { BrowserSendService } from "../../services/browser-send.service";
+  KeyGenerationServiceInitOptions,
+  keyGenerationServiceFactory,
+} from "../../platform/background/service-factories/key-generation-service.factory";
+
+import {
+  SendStateProviderInitOptions,
+  sendStateProviderFactory,
+} from "./send-state-provider.factory";
 
 type SendServiceFactoryOptions = FactoryOptions;
 
 export type SendServiceInitOptions = SendServiceFactoryOptions &
   CryptoServiceInitOptions &
   I18nServiceInitOptions &
-  StateServiceInitOptions;
+  KeyGenerationServiceInitOptions &
+  SendStateProviderInitOptions &
+  EncryptServiceInitOptions;
 
 export function sendServiceFactory(
   cache: { sendService?: InternalSendService } & CachedServices,
-  opts: SendServiceInitOptions
+  opts: SendServiceInitOptions,
 ): Promise<InternalSendService> {
   return factory(
     cache,
     "sendService",
     opts,
     async () =>
-      new BrowserSendService(
+      new SendService(
         await cryptoServiceFactory(cache, opts),
         await i18nServiceFactory(cache, opts),
-        await cryptoFunctionServiceFactory(cache, opts),
-        await stateServiceFactory(cache, opts)
-      )
+        await keyGenerationServiceFactory(cache, opts),
+        await sendStateProviderFactory(cache, opts),
+        await encryptServiceFactory(cache, opts),
+      ),
   );
 }

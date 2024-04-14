@@ -8,8 +8,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
-
-import { DialogServiceAbstraction, SimpleDialogType } from "../../services/dialog";
+import { DialogService } from "@bitwarden/components";
 
 @Directive()
 export class RemovePasswordComponent implements OnInit {
@@ -29,7 +28,7 @@ export class RemovePasswordComponent implements OnInit {
     private i18nService: I18nService,
     private keyConnectorService: KeyConnectorService,
     private organizationApiService: OrganizationApiServiceAbstraction,
-    private dialogService: DialogServiceAbstraction
+    private dialogService: DialogService,
   ) {}
 
   async ngOnInit() {
@@ -48,9 +47,11 @@ export class RemovePasswordComponent implements OnInit {
       this.platformUtilsService.showToast(
         "success",
         null,
-        this.i18nService.t("removedMasterPassword")
+        this.i18nService.t("removedMasterPassword"),
       );
       await this.keyConnectorService.removeConvertAccountRequired();
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate([""]);
     } catch (e) {
       this.platformUtilsService.showToast("error", this.i18nService.t("errorOccurred"), e.message);
@@ -61,7 +62,7 @@ export class RemovePasswordComponent implements OnInit {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: this.organization.name,
       content: { key: "leaveOrganizationConfirmation" },
-      type: SimpleDialogType.WARNING,
+      type: "warning",
     });
 
     if (!confirmed) {
@@ -74,6 +75,8 @@ export class RemovePasswordComponent implements OnInit {
       await this.actionPromise;
       this.platformUtilsService.showToast("success", null, this.i18nService.t("leftOrganization"));
       await this.keyConnectorService.removeConvertAccountRequired();
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate([""]);
     } catch (e) {
       this.platformUtilsService.showToast("error", this.i18nService.t("errorOccurred"), e);

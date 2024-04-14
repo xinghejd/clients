@@ -1,15 +1,24 @@
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 
+import {
+  accountServiceFactory,
+  AccountServiceInitOptions,
+} from "../../../auth/background/service-factories/account-service.factory";
+import {
+  tokenServiceFactory,
+  TokenServiceInitOptions,
+} from "../../../auth/background/service-factories/token-service.factory";
 import { Account } from "../../../models/account";
-import { BrowserStateService } from "../../services/browser-state.service";
+import { DefaultBrowserStateService } from "../../services/default-browser-state.service";
 
+import {
+  environmentServiceFactory,
+  EnvironmentServiceInitOptions,
+} from "./environment-service.factory";
 import { CachedServices, factory, FactoryOptions } from "./factory-options";
 import { logServiceFactory, LogServiceInitOptions } from "./log-service.factory";
-import {
-  stateMigrationServiceFactory,
-  StateMigrationServiceInitOptions,
-} from "./state-migration-service.factory";
+import { migrationRunnerFactory, MigrationRunnerInitOptions } from "./migration-runner.factory";
 import {
   diskStorageServiceFactory,
   secureStorageServiceFactory,
@@ -31,27 +40,34 @@ export type StateServiceInitOptions = StateServiceFactoryOptions &
   SecureStorageServiceInitOptions &
   MemoryStorageServiceInitOptions &
   LogServiceInitOptions &
-  StateMigrationServiceInitOptions;
+  AccountServiceInitOptions &
+  EnvironmentServiceInitOptions &
+  TokenServiceInitOptions &
+  MigrationRunnerInitOptions;
 
 export async function stateServiceFactory(
-  cache: { stateService?: BrowserStateService } & CachedServices,
-  opts: StateServiceInitOptions
-): Promise<BrowserStateService> {
+  cache: { stateService?: DefaultBrowserStateService } & CachedServices,
+  opts: StateServiceInitOptions,
+): Promise<DefaultBrowserStateService> {
   const service = await factory(
     cache,
     "stateService",
     opts,
     async () =>
-      await new BrowserStateService(
+      new DefaultBrowserStateService(
         await diskStorageServiceFactory(cache, opts),
         await secureStorageServiceFactory(cache, opts),
         await memoryStorageServiceFactory(cache, opts),
         await logServiceFactory(cache, opts),
-        await stateMigrationServiceFactory(cache, opts),
         opts.stateServiceOptions.stateFactory,
-        opts.stateServiceOptions.useAccountCache
-      )
+        await accountServiceFactory(cache, opts),
+        await environmentServiceFactory(cache, opts),
+        await tokenServiceFactory(cache, opts),
+        await migrationRunnerFactory(cache, opts),
+        opts.stateServiceOptions.useAccountCache,
+      ),
   );
-  service.init();
+  // TODO: If we run migration through a chrome installed/updated event we can turn off running migrations
+  await service.init();
   return service;
 }

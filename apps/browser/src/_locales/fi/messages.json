@@ -11,7 +11,7 @@
     "description": "Extension description"
   },
   "loginOrCreateNewAccount": {
-    "message": "Kirjaudu tai luo uusi tili käyttääksesi salattua holviasi."
+    "message": "Käytä salattua holviasi kirjautumalla sisään tai luo uusi tili."
   },
   "createAccount": {
     "message": "Luo tili"
@@ -89,7 +89,16 @@
     "message": "Kopioi turvakoodi"
   },
   "autoFill": {
-    "message": "Automaattinen täyttö"
+    "message": "Automaattitäyttö"
+  },
+  "autoFillLogin": {
+    "message": "Automaattitäytä kirjautumistieto"
+  },
+  "autoFillCard": {
+    "message": "Automaattitäytä kortti"
+  },
+  "autoFillIdentity": {
+    "message": "Automaattitäytä identiteetti"
   },
   "generatePasswordCopied": {
     "message": "Luo salasana (leikepöydälle)"
@@ -99,6 +108,21 @@
   },
   "noMatchingLogins": {
     "message": "Ei tunnistettuja kirjautumistietoja."
+  },
+  "noCards": {
+    "message": "Kortteja ei ole"
+  },
+  "noIdentities": {
+    "message": "Identiteettejä ei ole"
+  },
+  "addLoginMenu": {
+    "message": "Lisää kirjautumistieto"
+  },
+  "addCardMenu": {
+    "message": "Lisää kortti"
+  },
+  "addIdentityMenu": {
+    "message": "Lisää identiteetti"
   },
   "unlockVaultMenu": {
     "message": "Avaa holvisi"
@@ -244,6 +268,9 @@
   "length": {
     "message": "Pituus"
   },
+  "passwordMinLength": {
+    "message": "Salasanan vähimmäispituus"
+  },
   "uppercase": {
     "message": "Isot kirjaimet (A-Z)"
   },
@@ -279,7 +306,7 @@
     "message": "Vältä epäselviä merkkejä"
   },
   "searchVault": {
-    "message": "Hae holvista"
+    "message": "Etsi holvista"
   },
   "edit": {
     "message": "Muokkaa"
@@ -298,6 +325,9 @@
   },
   "password": {
     "message": "Salasana"
+  },
+  "totp": {
+    "message": "Todennuksen salaisuus"
   },
   "passphrase": {
     "message": "Salauslauseke"
@@ -333,10 +363,16 @@
     "message": "Näytä tai piilota"
   },
   "manage": {
-    "message": "Hallinnoi"
+    "message": "Hallitse"
   },
   "other": {
     "message": "Muut"
+  },
+  "unlockMethodNeededToChangeTimeoutActionDesc": {
+    "message": "Muuta holvisi aikakatkaisutoimintoa määrittämällä lukituksen avaustapa."
+  },
+  "unlockMethodNeeded": {
+    "message": "Määritä avaustapa asetuksista"
   },
   "rateExtension": {
     "message": "Arvioi laajennus"
@@ -377,6 +413,9 @@
   },
   "lockNow": {
     "message": "Lukitse nyt"
+  },
+  "lockAll": {
+    "message": "Lukitse kaikki"
   },
   "immediately": {
     "message": "Välittömästi"
@@ -454,6 +493,12 @@
   "newAccountCreated": {
     "message": "Uusi käyttäjätilisi on luotu! Voit nyt kirjautua sisään."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "Kirjautuminen onnistui"
+  },
+  "youMayCloseThisWindow": {
+    "message": "Voit sulkea tämän ikkunan"
+  },
   "masterPassSent": {
     "message": "Lähetimme pääsalasanasi vihjeen sähköpostitse."
   },
@@ -475,6 +520,18 @@
   },
   "autofillError": {
     "message": "Valittua kohdetta ei voitu täyttää tälle sivulle automaattisesti. Kopioi ja liitä tiedot itse."
+  },
+  "totpCaptureError": {
+    "message": "QR-koodin skannaus nykyiseltä sivulta ei onnistu."
+  },
+  "totpCaptureSuccess": {
+    "message": "Todennusavain on lisätty"
+  },
+  "totpCapture": {
+    "message": "Skannaa todennusavaimen QR-koodi nykyiseltä verkkosivulta"
+  },
+  "copyTOTP": {
+    "message": "Kopioi todennusavain (TOTP)"
   },
   "loggedOut": {
     "message": "Kirjauduttu ulos"
@@ -574,13 +631,13 @@
     "message": "Haluatko varmasti korvata nykyisen käyttäjätunnuksen?"
   },
   "searchFolder": {
-    "message": "Hae kansiosta"
+    "message": "Etsi kansiosta"
   },
   "searchCollection": {
-    "message": "Hae kokoelmasta"
+    "message": "Etsi kokoelmasta"
   },
   "searchType": {
-    "message": "Hae tyypeistä"
+    "message": "Etsi tyypistä"
   },
   "noneFolder": {
     "message": "Ei kansiota",
@@ -592,6 +649,9 @@
   "addLoginNotificationDesc": {
     "message": "Kysy lisätäänkö uusi kohde, jos holvissa ei vielä ole sopivaa kohdetta."
   },
+  "addLoginNotificationDescAlt": {
+    "message": "Ehdota kohteen tallennusta, jos holvistasi ei vielä löydy vastaavaa kohdetta. Koskee kaikkia kirjautuneita tilejä."
+  },
   "showCardsCurrentTab": {
     "message": "Näytä kortit välilehtiosiossa"
   },
@@ -602,7 +662,7 @@
     "message": "Näytä henkilöllisyydet välilehtiosiossa"
   },
   "showIdentitiesCurrentTabDesc": {
-    "message": "Henkilöllisyydet näytetään laajennuksen välilehtisivulla niiden automaattisen täytön helpottamiseksi."
+    "message": "Henkilöllisyydet näytetään laajennuksen Välilehti-sivulla niiden automaattisen täytön helpottamiseksi."
   },
   "clearClipboard": {
     "message": "Tyhjennä leikepöytä",
@@ -619,10 +679,19 @@
     "message": "Tallenna"
   },
   "enableChangedPasswordNotification": {
-    "message": "Kysy päivitetäänkö olemassa oleva kirjautumistieto"
+    "message": "Kysy päivitetäänkö kirjautumistieto"
   },
   "changedPasswordNotificationDesc": {
     "message": "Kysy päivitetäänkö kirjautumistiedon salasana sivustolla havaittua muutosta vastaavaksi."
+  },
+  "changedPasswordNotificationDescAlt": {
+    "message": "Tarjoa kirjautumistiedon salasanan päivitystä, kun verkkosivustolla havaitaan uusi salasana. Koskee kaikkia kirjautuneita tilejä."
+  },
+  "enableUsePasskeys": {
+    "message": "Tarjoa salausavainten tallennusta ja käyttöä"
+  },
+  "usePasskeysDesc": {
+    "message": "Tarjoa tallennusta uusille salausavaimille tai kirjautumista holvissasi olevilla salausavaimilla. Koskee kaikkia kirjautuneita tilejä."
   },
   "notificationChangeDesc": {
     "message": "Haluatko päivittää salasanan Bitwardeniin?"
@@ -630,24 +699,36 @@
   "notificationChangeSave": {
     "message": "Päivitä"
   },
+  "notificationUnlockDesc": {
+    "message": "Viimeistele automaattisen täytön pyyntö avaamalla Bitwarden-holvisi lukitus."
+  },
+  "notificationUnlock": {
+    "message": "Avaa"
+  },
   "enableContextMenuItem": {
     "message": "Näytä sisältövalikon valinnat"
   },
   "contextMenuItemDesc": {
-    "message": "Käytä salasanageneraattoria ja avoimelle sivulle soveltuvia kirjautumistietoja hiiren kakkospainikkeella avattavasta valikosta."
+    "message": "Käytä salasanageneraattoria ja avoimelle sivulle soveltuvia kirjautumistietoja hiiren kakkospainikkeella."
+  },
+  "contextMenuItemDescAlt": {
+    "message": "Käytä salasanageneraattoria ja avoimelle sivulle soveltuvia kirjautumistietoja hiiren kakkospainikkeella avattavasta valikosta. Koskee kaikkia kirjautuneita tilejä."
   },
   "defaultUriMatchDetection": {
-    "message": "URI:n oletusarvoinen täsmäystapa",
+    "message": "URI:n oletuarvoinen tunnistustapa",
     "description": "Default URI match detection for auto-fill."
   },
   "defaultUriMatchDetectionDesc": {
-    "message": "Valitse oletustapa, jolla URI tunnistetaan esimerkiksi automaattisen täytön yhteydessä."
+    "message": "Valitse kirjautumistietojen URI:en oletusarvoinen tunnistustapa suoritettaessa automaattisen täytön kaltaisia toimintoja."
   },
   "theme": {
     "message": "Teema"
   },
   "themeDesc": {
     "message": "Vaihda sovelluksen väriteemaa."
+  },
+  "themeDescAlt": {
+    "message": "Muuta laajennujksen väriteemaa. Koskee kaikkia kirjautuneita tilejä."
   },
   "dark": {
     "message": "Tumma",
@@ -721,7 +802,7 @@
     "message": "Lue lisää"
   },
   "authenticatorKeyTotp": {
-    "message": "Todennusmenetelmän avain (TOTP)"
+    "message": "Todennusavain (TOTP)"
   },
   "verificationCodeTotp": {
     "message": "Todennuskoodi (TOTP)"
@@ -762,8 +843,8 @@
   "featureUnavailable": {
     "message": "Ominaisuus ei ole käytettävissä"
   },
-  "updateKey": {
-    "message": "Et voi käyttää tätä toimintoa ennen kuin päivität salausavaimesi."
+  "encryptionKeyMigrationRequired": {
+    "message": "Salausavaimen siirto vaaditaan. Päivitä salausavaimesi kirjautumalla verkkoholviin."
   },
   "premiumMembership": {
     "message": "Premium-jäsenyys"
@@ -786,8 +867,8 @@
   "ppremiumSignUpStorage": {
     "message": "1 Gt salattua tallennustilaa tiedostoliitteille."
   },
-  "ppremiumSignUpTwoStep": {
-    "message": "Muita kaksivaiheisen kirjautumisen todennusmenetelmiä kuten YubiKey, FIDO U2F ja Duo Security."
+  "premiumSignUpTwoStepOptions": {
+    "message": "Omisteiset kaksivaiheisen kirjautumisen vaihtoehdot, kuten YubiKey ja Duo."
   },
   "ppremiumSignUpReports": {
     "message": "Salasanahygienian, tilin terveyden ja tietovuotojen raportointitoiminnot pitävät holvisi turvassa."
@@ -829,7 +910,7 @@
     "message": "Kopioi TOTP-koodi automaattisesti"
   },
   "disableAutoTotpCopyDesc": {
-    "message": "Jos kirjautumistieto sisältää kaksivaiheisen todennusmenetelmän avaimen, kopioidaan TOTP-todennuskoodi leikepöydälle kohteen automaattisen täytön yhteydessä."
+    "message": "Jos kirjautumistieto sisältää kaksivaiheisen todennuksen avaimen, kopioidaan TOTP-todennuskoodi leikepöydälle kohteen automaattisen täytön yhteydessä."
   },
   "enableAutoBiometricsPrompt": {
     "message": "Pyydä Biometristä todennusta käynnistettäessä"
@@ -969,35 +1050,60 @@
   "environmentSaved": {
     "message": "Palvelinympäristön URL-osoitteet tallennettiin"
   },
+  "showAutoFillMenuOnFormFields": {
+    "message": "Näytä automaattitäytön valikko lomakekentissä",
+    "description": "Represents the message for allowing the user to enable the auto-fill overlay"
+  },
+  "showAutoFillMenuOnFormFieldsDescAlt": {
+    "message": "Koskee kaikkia kirjautuneita tilejä."
+  },
+  "turnOffBrowserBuiltInPasswordManagerSettings": {
+    "message": "Poista selaimesi sisäänrakennettu salasanahallinta käytöstä sen asetuksista ristiriitojen välttämiseksi."
+  },
+  "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
+    "message": "Muokkaa selaimen asetuksia"
+  },
+  "autofillOverlayVisibilityOff": {
+    "message": "Ei käytössä",
+    "description": "Overlay setting select option for disabling autofill overlay"
+  },
+  "autofillOverlayVisibilityOnFieldFocus": {
+    "message": "Kun kenttä valitaan (kohdistetaan)",
+    "description": "Overlay appearance select option for showing the field on focus of the input element"
+  },
+  "autofillOverlayVisibilityOnButtonClick": {
+    "message": "Kun automaattitäytön kuvaketta painetaan",
+    "description": "Overlay appearance select option for showing the field on click of the overlay icon"
+  },
   "enableAutoFillOnPageLoad": {
-    "message": "Automaattinen täyttö sivun avautuessa"
+    "message": "Automaattitäyttö sivun avautuessa"
   },
   "enableAutoFillOnPageLoadDesc": {
-    "message": "Jos havaitaan kirjautumislomake, suorita automaattinen täyttö sivun avautuessa."
+    "message": "Automaattinen täyttö suoritetaan sivun avautuessa, jos sivulla havaitaan kirjautumislomake."
   },
   "experimentalFeature": {
     "message": "Vaarantuneet tai epäluotettavat sivustot voivat väärinkäyttää sivun avautuessa suoritettavaa automaattista täyttöä."
   },
   "learnMoreAboutAutofill": {
-    "message": "Lisätietoja automaattisesta täytöstä"
+    "message": "Lisätietoja automaattitäytöstä"
   },
   "defaultAutoFillOnPageLoad": {
-    "message": "Automaattisen täytön oletusasetus kirjautumistiedoille"
+    "message": "Kirjautumistietojen automaattitäytön oletusasetus"
   },
   "defaultAutoFillOnPageLoadDesc": {
-    "message": "Voit ottaa automaattisen täytön käyttöön tai poistaa sen käytöstä kirjautumistietokohtaisesti muokkaamalla kirjautumistetoa."
+    "message": "Automaattinen täyttö on mahdollista ottaa käyttöön tai poistaa käytöstä kirjautumistietokohtaisesti kirjautumistetoa muokkaamalla."
   },
   "itemAutoFillOnPageLoad": {
-    "message": "Automaattinen täyttö sivun avautuessa (jos määritetty asetuksista)"
+    "message": "Automaattitäyttö sivun avautuessa (jos määritetty asetuksista)"
   },
   "autoFillOnPageLoadUseDefault": {
     "message": "Käytä oletusasetusta"
   },
   "autoFillOnPageLoadYes": {
-    "message": "Täytä automaattisesti sivun avautuessa"
+    "message": "Automaattitäyttö sivun avautuessa"
   },
   "autoFillOnPageLoadNo": {
-    "message": "Älä täytä automaattisesti sivun avautuessa"
+    "message": "Ei automaattitäyttöä sivun avautuessa"
   },
   "commandOpenPopup": {
     "message": "Avaa holvin ponnahdusikkuna"
@@ -1006,7 +1112,7 @@
     "message": "Avaa holvi sivupalkissa"
   },
   "commandAutofillDesc": {
-    "message": "Täytä automaattisesti viimeisin nykyisellä sivustolla käytetty kirjautumistieto"
+    "message": "Täytä edellinen nykyisellä sivustolla käytetty kirjautumistieto automaattisesti."
   },
   "commandGeneratePasswordDesc": {
     "message": "Luo uusi satunnainen salasana ja kopioi se leikepöydälle."
@@ -1060,6 +1166,9 @@
   },
   "faviconDesc": {
     "message": "Näytä tunnistettava kuva jokaiselle kirjautumistiedolle."
+  },
+  "faviconDescAlt": {
+    "message": "Näytä tunnistettava kuva jokaisen kirjautumistiedon vieressä. Koskee kaikkia kirjautuneita tilejä."
   },
   "enableBadgeCounter": {
     "message": "Näytä laskuri"
@@ -1296,7 +1405,7 @@
     "description": "URI match detection for auto-fill."
   },
   "defaultMatchDetection": {
-    "message": "Tunnistuksen oletustapa",
+    "message": "Oletusarvoinen tunnistustapa",
     "description": "Default URI match detection for auto-fill."
   },
   "toggleOptions": {
@@ -1390,6 +1499,9 @@
   "invalidPin": {
     "message": "Virheellinen PIN-koodi."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Liian monta epäonnistunutta PIN-yritystä. Kirjaudutaan ulos."
+  },
   "unlockWithBiometrics": {
     "message": "Avaa biometrialla"
   },
@@ -1426,7 +1538,7 @@
     "description": "Noun: a special folder to hold deleted items"
   },
   "searchTrash": {
-    "message": "Hae roskakorista"
+    "message": "Etsi roskakorista"
   },
   "permanentlyDeleteItem": {
     "message": "Poista kohde pysyvästi"
@@ -1440,9 +1552,6 @@
   "restoreItem": {
     "message": "Palauta kohde"
   },
-  "restoreItemConfirmation": {
-    "message": "Haluatko varmasti palauttaa kohteen?"
-  },
   "restoredItem": {
     "message": "Kohde palautettiin"
   },
@@ -1453,7 +1562,7 @@
     "message": "Aikakatkaisutoiminnon vahvistus"
   },
   "autoFillAndSave": {
-    "message": "Täytä automaattisesti ja tallenna"
+    "message": "Automaattitäytä ja tallenna"
   },
   "autoFillSuccessAndSavedUri": {
     "message": "Kohde täytettiin automaattisesti ja URI tallennettiin"
@@ -1468,7 +1577,7 @@
     "message": "Haluatko silti täyttää kirjautumistiedot?"
   },
   "autofillIframeWarning": {
-    "message": "Lomakkeen URI-osoite poikkeaa kirjautumistietoon tallennetusta osoitteesta. Täytä se siitä huolimatta valitsemalla OK tai peru täyttö valitsemalla Peruuta."
+    "message": "Lomakkeen URI-osoite poikkeaa kirjautumistietoon tallennetusta osoitteesta. Salli sen automaattinen täyttö siitä huolimatta valitsemalla OK tai estä se valitsemalla Peruuta."
   },
   "autofillIframeWarningTip": {
     "message": "Välttyäksesi varoitukselta jatkossa, tallenna URI $HOSTNAME$ sivustolle tallennettuun Bitwarden-kirjautumistietoosi.",
@@ -1599,6 +1708,12 @@
   "biometricsNotSupportedDesc": {
     "message": "Selaimen biometriaa ei tueta tällä laitteella."
   },
+  "biometricsFailedTitle": {
+    "message": "Biometria epäonnistui"
+  },
+  "biometricsFailedDesc": {
+    "message": "Biometristä todennusta ei voida suorittaa. Harkitse pääsalasanan käyttämistä tai uloskirjautumista. Jos tämä jatkuu, ole yhteydessä Bitwardenin asiakaspalveluun."
+  },
   "nativeMessaginPermissionErrorTitle": {
     "message": "Oikeutta ei myönnetty"
   },
@@ -1612,10 +1727,13 @@
     "message": "Toimintoa ei voi suorittaa sivupalkissa, yritä toimintoa uudelleen ponnahdusvalikossa tai ponnahdusikkunassa."
   },
   "personalOwnershipSubmitError": {
-    "message": "Yrityskäytännön johdosta kohteiden tallennus henkilökohtaiseen holviin ei ole mahdollista. Muuta omistusasetus organisaatiolle ja valitse käytettävissä olevista kokoelmista."
+    "message": "Yrityskäytännön vuoksi kohteiden tallennus henkilökohtaiseen holviin ei ole mahdollista. Muuta omistusasetus organisaatiolle ja valitse käytettävissä olevista kokoelmista."
   },
   "personalOwnershipPolicyInEffect": {
     "message": "Organisaatiokäytäntö vaikuttaa omistajuusvalintoihisi."
+  },
+  "personalOwnershipPolicyInEffectImports": {
+    "message": "Organisaatiokäytäntö estää kohteiden tuonnin yksityiseen holviisi."
   },
   "excludedDomains": {
     "message": "Ohitettavat verkkotunnukset"
@@ -1623,12 +1741,15 @@
   "excludedDomainsDesc": {
     "message": "Bitwarden ei pyydä kirjautumistietojen tallennusta näille verkkotunnuksille. Päivitä sivu ottaaksesi muutokset käyttöön."
   },
+  "excludedDomainsDescAlt": {
+    "message": "Bitwarden ei pyydä kirjautumistietojen tallennusta näillä verkkotunnuksilla. Koskee kaikkia kirjautuneita tilejä. Ota muutokset käyttöön päivittämällä sivu."
+  },
   "excludedDomainsInvalidDomain": {
     "message": "$DOMAIN$ ei ole kelvollinen verkkotunnus",
     "placeholders": {
       "domain": {
         "content": "$1",
-        "example": "googlecom"
+        "example": "google.com"
       }
     }
   },
@@ -1637,7 +1758,7 @@
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "searchSends": {
-    "message": "Hae Sendeistä",
+    "message": "Etsi Sendeistä",
     "description": "'Send' is a noun and the name of a feature called 'Bitwarden Send'. It should not be translated."
   },
   "addSend": {
@@ -1878,13 +1999,26 @@
     "message": "Automaattinen liitos"
   },
   "resetPasswordAutoEnrollInviteWarning": {
-    "message": "Organisaatiolla on käytäntö, joka liittää tilisi automaattisesti salasanan palautusapuun. Liitos sallii organisaation ylläpitäjien vaihtaa pääsalasanasi."
+    "message": "Organisaatiolla on yrityskäytäntö, joka liittää tilisi automaattisesti salasanan palautusapuun. Liitos sallii organisaation ylläpitäjien vaihtaa pääsalasanasi."
   },
   "selectFolder": {
     "message": "Valitse kansio..."
   },
-  "ssoCompleteRegistration": {
-    "message": "Kirjautuaksesi sisään käyttäen kertakirjautumista (SSO), suojaa holvisi pääsalasanalla."
+  "noFoldersFound": {
+    "message": "Ongelmia ei löytynyt",
+    "description": "Used as a message within the notification bar when no folders are found"
+  },
+  "orgPermissionsUpdatedMustSetPassword": {
+    "message": "Organisaatiosi käyttöoikeuksia muutettiin ja tämän seurauksena sinun on asetettava pääsalasana.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "orgRequiresYouToSetPassword": {
+    "message": "Organisaatiosi edellyttää, että asetat pääsalasanan.",
+    "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "verificationRequired": {
+    "message": "Vahvistus vaaditaan",
+    "description": "Default title for the user verification dialog."
   },
   "hours": {
     "message": "Tuntia"
@@ -1979,8 +2113,8 @@
   "exportingPersonalVaultTitle": {
     "message": "Henkilökohtaisen holvin vienti"
   },
-  "exportingPersonalVaultDescription": {
-    "message": "Vain tunnukseen $EMAIL$ liitetyt henkilökohtaisen holvin kohteet viedään. Organisaation kohteet eivät sisälly tähän.",
+  "exportingIndividualVaultDescription": {
+    "message": "Vain tunnukseen $EMAIL$ liitetyt yksityisen holvin kohteet viedään. Organisaation holvin kohteita ei sisällytetä. Vain holvin kohteiden tiedot viedään ilman niiden sisältämiä liitteitä.",
     "placeholders": {
       "email": {
         "content": "$1",
@@ -2038,7 +2172,7 @@
     "message": "Luo sähköpostialias ulkoisella ohjauspalvelulla."
   },
   "hostname": {
-    "message": "Osoite",
+    "message": "Isäntä",
     "description": "Part of a URL."
   },
   "apiAccessToken": {
@@ -2080,8 +2214,8 @@
   "serverVersion": {
     "message": "Palvelimen versio"
   },
-  "selfHosted": {
-    "message": "Itse ylläpidetty"
+  "selfHostedServer": {
+    "message": "itse ylläpidetty"
   },
   "thirdParty": {
     "message": "Ulkopuolinen taho"
@@ -2140,7 +2274,7 @@
   "notificationSentDevice": {
     "message": "Laitteellesi on lähetetty ilmoitus."
   },
-  "logInInitiated": {
+  "loginInitiated": {
     "message": "Kirjautuminen aloitettu"
   },
   "exposedMasterPassword": {
@@ -2174,13 +2308,13 @@
     }
   },
   "autofillPageLoadPolicyActivated": {
-    "message": "Organisaatiokäytännöt ovat poistaneet käytöstä automaattisen täytön sivun avautuessa."
+    "message": "Organisaatiokäytännöt ovat poistaneet käytöstä avautuessa suoritettavan automaattisen täytön."
   },
   "howToAutofill": {
-    "message": "Miten täytetään automaattisesti"
+    "message": "Miten automaattitäyttöä käytetään"
   },
   "autofillSelectInfoWithCommand": {
-    "message": "Valitse tälle sivulle sopiva kohde tai käytä pikanäppäintä $COMMAND$.",
+    "message": "Valitse kohde tästä ruudusta, käytä pikanäppäintä $COMMAND$ tai tutustu muihin vaihtoehtoihin asetuksissa.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2189,16 +2323,16 @@
     }
   },
   "autofillSelectInfoWithoutCommand": {
-    "message": "Valitse tälle sivulle sopiva kohde tai määritä pikanäppäin asetuksista."
+    "message": "Valitse kohde tästä ruudusta tai tutustu muihin vaihtoehtoihin asetuksissa."
   },
   "gotIt": {
     "message": "Selvä"
   },
   "autofillSettings": {
-    "message": "Täytön asetukset"
+    "message": "Automaattitäytön asetukset"
   },
   "autofillShortcut": {
-    "message": "Automaattisen täytön pikanäppäin"
+    "message": "Automaattitäytön pikanäppäin"
   },
   "autofillShortcutNotSet": {
     "message": "Automaattisen täytön pikanäppäintä ei ole määritetty. Määritä se selaimen asetuksista."
@@ -2221,19 +2355,36 @@
       }
     }
   },
-  "region": {
-    "message": "Alue"
+  "loggingInOn": {
+    "message": "Kirjaudutaan sijaintiin"
   },
   "opensInANewWindow": {
     "message": "Avautuu uudessa ikkunassa"
   },
+  "deviceApprovalRequired": {
+    "message": "Laitehyväksyntä vaaditaan. Valitse hyväksyntätapa alta:"
+  },
+  "rememberThisDevice": {
+    "message": "Muista tämä laite"
+  },
+  "uncheckIfPublicDevice": {
+    "message": "Poista valinta julkisilla laitteilla"
+  },
+  "approveFromYourOtherDevice": {
+    "message": "Hyväksy muilta laitteiltasi"
+  },
+  "requestAdminApproval": {
+    "message": "Pyydä hyväksyntää ylläpidolta"
+  },
+  "approveWithMasterPassword": {
+    "message": "Hyväksy pääsalasanalla"
+  },
+  "ssoIdentifierRequired": {
+    "message": "Organisaation kertakirjautumistunniste tarvitaan."
+  },
   "eu": {
     "message": "EU",
     "description": "European Union"
-  },
-  "us": {
-    "message": "US",
-    "description": "United States"
   },
   "accessDenied": {
     "message": "Pääsy estetty. Sinulla ei ole oikeutta avata sivua."
@@ -2243,5 +2394,619 @@
   },
   "display": {
     "message": "Ulkoasu"
+  },
+  "accountSuccessfullyCreated": {
+    "message": "Tilin luonti onnistui!"
+  },
+  "adminApprovalRequested": {
+    "message": "Hyväksyntää pyydetty ylläpidolta"
+  },
+  "adminApprovalRequestSentToAdmins": {
+    "message": "Pyyntösi on välitetty ylläpidollesi."
+  },
+  "youWillBeNotifiedOnceApproved": {
+    "message": "Saat ilmoituksen kun se on hyväksytty."
+  },
+  "troubleLoggingIn": {
+    "message": "Ongelmia kirjautumisessa?"
+  },
+  "loginApproved": {
+    "message": "Kirjautuminen hyväksyttiin"
+  },
+  "userEmailMissing": {
+    "message": "Käyttäjän sähköpostiosoite puuttuu"
+  },
+  "deviceTrusted": {
+    "message": "Laitteeseen luotettu"
+  },
+  "inputRequired": {
+    "message": "Syöte vaaditaan."
+  },
+  "required": {
+    "message": "pakollinen"
+  },
+  "search": {
+    "message": "Etsi"
+  },
+  "inputMinLength": {
+    "message": "Syötteen tulee sisältää ainakin $COUNT$ merkkiä.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxLength": {
+    "message": "Syötteen enimmäismerkkimäärä on $COUNT$.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "20"
+      }
+    }
+  },
+  "inputForbiddenCharacters": {
+    "message": "Seuraavia merkkejä ei sallita: $CHARACTERS$",
+    "placeholders": {
+      "characters": {
+        "content": "$1",
+        "example": "@, #, $, %"
+      }
+    }
+  },
+  "inputMinValue": {
+    "message": "Syötteen vähimmäisarvo on $MIN$.",
+    "placeholders": {
+      "min": {
+        "content": "$1",
+        "example": "8"
+      }
+    }
+  },
+  "inputMaxValue": {
+    "message": "Syötteen enimmäisarvo on $MAX$.",
+    "placeholders": {
+      "max": {
+        "content": "$1",
+        "example": "100"
+      }
+    }
+  },
+  "multipleInputEmails": {
+    "message": "Ainakin yksi sähköpostiosoite on virheellinen"
+  },
+  "inputTrimValidator": {
+    "message": "Syöte ei voi sisältää vain tyhjiä merkkejä.",
+    "description": "Notification to inform the user that a form's input can't contain only whitespace."
+  },
+  "inputEmail": {
+    "message": "Syöte ei ole sähköpostiosoite."
+  },
+  "fieldsNeedAttention": {
+    "message": "$COUNT$ yllä oleva(a) kenttä(ä) vaatii huomiotasi.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "4"
+      }
+    }
+  },
+  "selectPlaceholder": {
+    "message": "-- Valitse --"
+  },
+  "multiSelectPlaceholder": {
+    "message": "-- Suodatettava tyyppi --"
+  },
+  "multiSelectLoading": {
+    "message": "Noudetaan vaihtoehtoja..."
+  },
+  "multiSelectNotFound": {
+    "message": "Kohteita ei löytynyt"
+  },
+  "multiSelectClearAll": {
+    "message": "Tyhjennä kaikki"
+  },
+  "plusNMore": {
+    "message": "+ $QUANTITY$ lisää",
+    "placeholders": {
+      "quantity": {
+        "content": "$1",
+        "example": "5"
+      }
+    }
+  },
+  "submenu": {
+    "message": "Alavalikko"
+  },
+  "toggleCollapse": {
+    "message": "Laajenna tai supista",
+    "description": "Toggling an expand/collapse state."
+  },
+  "filelessImport": {
+    "message": "Haluatko tuoda tietosi Bitwardeniin?",
+    "description": "Default notification title for triggering a fileless import."
+  },
+  "lpFilelessImport": {
+    "message": "Haluatko suojata LastPass-tietosi tuomalla ne Bitwardeniin?",
+    "description": "LastPass specific notification title for triggering a fileless import."
+  },
+  "lpCancelFilelessImport": {
+    "message": "Tallenna salaamattomana tiedostona",
+    "description": "LastPass specific notification button text for cancelling a fileless import."
+  },
+  "startFilelessImport": {
+    "message": "Tuo Bitwardeniin",
+    "description": "Notification button text for starting a fileless import."
+  },
+  "importing": {
+    "message": "Tuodaan...",
+    "description": "Notification message for when an import is in progress."
+  },
+  "dataSuccessfullyImported": {
+    "message": "Tietojen tuonti onnistui.",
+    "description": "Notification message for when an import has completed successfully."
+  },
+  "dataImportFailed": {
+    "message": "Tuontivirhe. Näet isätietoja hallinnasta.",
+    "description": "Notification message for when an import has failed."
+  },
+  "importNetworkError": {
+    "message": "Verkkovirhe tuonnin aikana.",
+    "description": "Notification message for when an import has failed due to a network error."
+  },
+  "aliasDomain": {
+    "message": "Aliaksen verkkotunnus"
+  },
+  "passwordRepromptDisabledAutofillOnPageLoad": {
+    "message": "Kohteille, joille on määritetty pääsalasanan uudelleenkysely, ei voida suorittaa automaattista täyttöä sivun avautuessa. Automaattitäyttö sivun avautuessa poistettiin käytöstä. avautuessa suoritettavan",
+    "description": "Toast message for describing that master password re-prompt cannot be auto-filled on page load."
+  },
+  "autofillOnPageLoadSetToDefault": {
+    "message": "Automaattitäyttö sivun avautuessa käyttää oletusasetusta.",
+    "description": "Toast message for informing the user that auto-fill on page load has been set to the default setting."
+  },
+  "turnOffMasterPasswordPromptToEditField": {
+    "message": "Poista pääsalasanan uudelleenkysely käytöstä muokataksesi kenttää",
+    "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
+  },
+  "skipToContent": {
+    "message": "Siirry sisältöön"
+  },
+  "bitwardenOverlayButton": {
+    "message": "Bitwardenin automaattitäytön painike",
+    "description": "Page title for the iframe containing the overlay button"
+  },
+  "toggleBitwardenVaultOverlay": {
+    "message": "Kytke Bitwardenin automaattitäytön valikko",
+    "description": "Screen reader and tool tip label for the overlay button"
+  },
+  "bitwardenVault": {
+    "message": "Bitwardenin automaattitäytön valikko",
+    "description": "Page title in overlay"
+  },
+  "unlockYourAccountToViewMatchingLogins": {
+    "message": "Näytä sopivat kirjautumistiedot avaamalla tilisi lukitus",
+    "description": "Text to display in overlay when the account is locked."
+  },
+  "unlockAccount": {
+    "message": "Avaa tili",
+    "description": "Button text to display in overlay when the account is locked."
+  },
+  "fillCredentialsFor": {
+    "message": "Täytä kirjautumistiedot kohteesta",
+    "description": "Screen reader text for when overlay item is in focused"
+  },
+  "partialUsername": {
+    "message": "Osittainen käyttäjätunnus",
+    "description": "Screen reader text for when a login item is focused where a partial username is displayed. SR will announce this phrase before reading the text of the partial username"
+  },
+  "noItemsToShow": {
+    "message": "Näytettäviä kohteita ei ole",
+    "description": "Text to show in overlay if there are no matching items"
+  },
+  "newItem": {
+    "message": "Uusi kohde",
+    "description": "Button text to display in overlay when there are no matching items"
+  },
+  "addNewVaultItem": {
+    "message": "Lisää holviin uusi kohde",
+    "description": "Screen reader text (aria-label) for new item button in overlay"
+  },
+  "bitwardenOverlayMenuAvailable": {
+    "message": "Bitwardenin automaattisen täytön valikko on käytettävissä. Valitse painamalla alas-nuolinäppäintä.",
+    "description": "Screen reader text for announcing when the overlay opens on the page"
+  },
+  "turnOn": {
+    "message": "Ota käyttöön"
+  },
+  "ignore": {
+    "message": "Ohita"
+  },
+  "importData": {
+    "message": "Tuo tietoja",
+    "description": "Used for the header of the import dialog, the import button and within the file-password-prompt"
+  },
+  "importError": {
+    "message": "Tuontivirhe"
+  },
+  "importErrorDesc": {
+    "message": "Tiedoissa, joita yritit tuoda, havaittiin ongelma. Korjaa alla listatut virheet lähdetiedostosta ja yritä uudelleen."
+  },
+  "resolveTheErrorsBelowAndTryAgain": {
+    "message": "Korjaa seuraavat virheet ja yritä uudelleen."
+  },
+  "description": {
+    "message": "Kuvaus"
+  },
+  "importSuccess": {
+    "message": "Tietojen tuonti onnistui"
+  },
+  "importSuccessNumberOfItems": {
+    "message": "Kaikkiaan $AMOUNT$ kohdetta tuotiin.",
+    "placeholders": {
+      "amount": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "tryAgain": {
+    "message": "Yritä uudelleen"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Toiminto vaatii vahvistuksen. Jatka asettamalla PIN-koodi."
+  },
+  "setPin": {
+    "message": "Aseta PIN-koodi"
+  },
+  "verifyWithBiometrics": {
+    "message": "Vahvista biometrialla"
+  },
+  "awaitingConfirmation": {
+    "message": "Odottaa vahvistusta"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Biometrinen todennus ei onnistunut."
+  },
+  "needADifferentMethod": {
+    "message": "Tarvitsetko eri menetelmän?"
+  },
+  "useMasterPassword": {
+    "message": "Käytä pääsalasanaa"
+  },
+  "usePin": {
+    "message": "Käytä PIN-koodia"
+  },
+  "useBiometrics": {
+    "message": "Käytä biometriaa"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Syötä sähköpostiosoitteeseesi lähetetty vahvistuskoodi."
+  },
+  "resendCode": {
+    "message": "Lähetä koodi uudelleen"
+  },
+  "total": {
+    "message": "Yhteensä"
+  },
+  "importWarning": {
+    "message": "Olet tuomassa tietoja organisaatioon $ORGANIZATION$. Tietojasi saatetaan jakaa organisaation jäsenten kesken. Haluatko jatkaa?",
+    "placeholders": {
+      "organization": {
+        "content": "$1",
+        "example": "My Org Name"
+      }
+    }
+  },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Avaa Duo ja viimeistele kirjautuminen seuraamalla ohjeita."
+  },
+  "duoRequiredForAccount": {
+    "message": "Tilillesi kirjautuminen vaatii Duo-vahvistuksen."
+  },
+  "popoutTheExtensionToCompleteLogin": {
+    "message": "Viimeistele kirjautuminen avaamalla laajennus erilliseen ikkunaan."
+  },
+  "popoutExtension": {
+    "message": "Irrota laajennus"
+  },
+  "launchDuo": {
+    "message": "Avaa Duo"
+  },
+  "importFormatError": {
+    "message": "Tietoja ei ole muotoiltu oikein. Tarkista tuotava tiedosto ja yritä uudelleen."
+  },
+  "importNothingError": {
+    "message": "Mitään ei tuotu."
+  },
+  "importEncKeyError": {
+    "message": "Virhe purettaessa viedyn tiedoston salausta. Salausavaimesi ei vastaa viennissä käytettyä salausavainta."
+  },
+  "invalidFilePassword": {
+    "message": "Tiedoston salasana on virheellinen. Käytä vientitiedoston luonnin yhteydessä syötettyä salasanaa."
+  },
+  "importDestination": {
+    "message": "Tuontikohde"
+  },
+  "learnAboutImportOptions": {
+    "message": "Lue lisää tuontivaihtoehdoista"
+  },
+  "selectImportFolder": {
+    "message": "Valitse kansio"
+  },
+  "selectImportCollection": {
+    "message": "Valitse kokoelma"
+  },
+  "importTargetHint": {
+    "message": "Valitse tämä, jos haluat tuoda tiedoston sisällön kohteeseen \"$DESTINATION$\".",
+    "description": "Located as a hint under the import target. Will be appended by either folder or collection, depending if the user is importing into an individual or an organizational vault.",
+    "placeholders": {
+      "destination": {
+        "content": "$1",
+        "example": "folder or collection"
+      }
+    }
+  },
+  "importUnassignedItemsError": {
+    "message": "Tiedosto sisältää määrittämättömiä kohteita."
+  },
+  "selectFormat": {
+    "message": "Valitse tuotavan tiedoston muoto"
+  },
+  "selectImportFile": {
+    "message": "Valitse tuotava tiedosto"
+  },
+  "chooseFile": {
+    "message": "Valitse tiedosto"
+  },
+  "noFileChosen": {
+    "message": "Tiedostoa ei ole valittu"
+  },
+  "orCopyPasteFileContents": {
+    "message": "tai kopioi ja liitä tuotavan tiedoston sisältö"
+  },
+  "instructionsFor": {
+    "message": "$NAME$ -ohjeet",
+    "description": "The title for the import tool instructions.",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "LastPass (csv)"
+      }
+    }
+  },
+  "confirmVaultImport": {
+    "message": "Vahvista holvin tuonti"
+  },
+  "confirmVaultImportDesc": {
+    "message": "Tiedosto on salasanasuojattu. Jatka tuontia syöttämällä tiedoston salasana."
+  },
+  "confirmFilePassword": {
+    "message": "Vahvista tiedoston salasana"
+  },
+  "typePasskey": {
+    "message": "Suojausavain"
+  },
+  "passkeyNotCopied": {
+    "message": "Suojausavainta ei kopioida"
+  },
+  "passkeyNotCopiedAlert": {
+    "message": "Suojausavain ei kopioidu kloonattuun kohteeseen. Haluatko jatkaa kloonausta?"
+  },
+  "passkeyFeatureIsNotImplementedForAccountsWithoutMasterPassword": {
+    "message": "Käynnistävä sivusto edellyttää todennusta. Ominaisuutta ei ole vielä toteutettu tileille, joilla ei ole pääsalasanaa."
+  },
+  "logInWithPasskey": {
+    "message": "Kirjaudutaanko suojausavaimella?"
+  },
+  "passkeyAlreadyExists": {
+    "message": "Tälle sovellukselle on jo tallennettu suojausavain."
+  },
+  "noPasskeysFoundForThisApplication": {
+    "message": "Tälle sovellukselle ei löytynyt suojausavaimia."
+  },
+  "noMatchingPasskeyLogin": {
+    "message": "Holvissasi ei ole tälle sivustolle sopivaa kirjautumistietoa."
+  },
+  "confirm": {
+    "message": "Vahvista"
+  },
+  "savePasskey": {
+    "message": "Tallenna suojausavain"
+  },
+  "savePasskeyNewLogin": {
+    "message": "Tallenna suojausavain uuteen kirjautumistietoon"
+  },
+  "choosePasskey": {
+    "message": "Valitse kirjautumistieto, johon suojausavain tallennetaan"
+  },
+  "passkeyItem": {
+    "message": "Suojausavainkohde"
+  },
+  "overwritePasskey": {
+    "message": "Korvataanko suojausavain?"
+  },
+  "overwritePasskeyAlert": {
+    "message": "Kohde sisältää jo suojausavaimen. Haluatko varmasti korvata nykyisen salasanan?"
+  },
+  "featureNotSupported": {
+    "message": "Ominaisuutta ei vielä tueta"
+  },
+  "yourPasskeyIsLocked": {
+    "message": "Salausavaimen käyttö edellyttää todennusta. Jatka vahvistamalla henkilöllisyytesi."
+  },
+  "multifactorAuthenticationCancelled": {
+    "message": "Monivaiheinen todennus peruttiin"
+  },
+  "noLastPassDataFound": {
+    "message": "LastPass-tietoja ei löytynyt"
+  },
+  "incorrectUsernameOrPassword": {
+    "message": "Virheellinen käyttäjätunnus tai salasana"
+  },
+  "incorrectPassword": {
+    "message": "Virheellinen salasana"
+  },
+  "incorrectCode": {
+    "message": "Virheellinen koodi"
+  },
+  "incorrectPin": {
+    "message": "Virheellinen PIN-koodi"
+  },
+  "multifactorAuthenticationFailed": {
+    "message": "Monivaiheinen todennus epäonnistui"
+  },
+  "includeSharedFolders": {
+    "message": "Sisällytä jaetut kansiot"
+  },
+  "lastPassEmail": {
+    "message": "LastPass-sähköpostiosoite"
+  },
+  "importingYourAccount": {
+    "message": "Tiliäsi tuodaan..."
+  },
+  "lastPassMFARequired": {
+    "message": "Monivaiheinen LastPass-todennus vaaditaan"
+  },
+  "lastPassMFADesc": {
+    "message": "Syötä kertakäyttökoodi todennussovelluksestasi."
+  },
+  "lastPassOOBDesc": {
+    "message": "Hyväksy kirjautumispyyntö todennussovelluksesta tai syötä kertakäyttökoodi."
+  },
+  "passcode": {
+    "message": "Suojakoodi"
+  },
+  "lastPassMasterPassword": {
+    "message": "LastPass-pääsalasana"
+  },
+  "lastPassAuthRequired": {
+    "message": "LastPass-todennus vaaditaan"
+  },
+  "awaitingSSO": {
+    "message": "Odotetaan kertakirjautumista"
+  },
+  "awaitingSSODesc": {
+    "message": "Jatka kirjautumista työtunnuksillasi."
+  },
+  "seeDetailedInstructions": {
+    "message": "Katso tarkemmat ohjeet tukisivustoltamme osoitteesta",
+    "description": "This is followed a by a hyperlink to the help website."
+  },
+  "importDirectlyFromLastPass": {
+    "message": "Tuo suoraan LastPassista"
+  },
+  "importFromCSV": {
+    "message": "Tuo CSV-tiedostosta"
+  },
+  "lastPassTryAgainCheckEmail": {
+    "message": "Yritä uudelleen tai etsi LastPassin lähettämää sähköpostia, jolla vahvistat sen olleen sinä."
+  },
+  "collection": {
+    "message": "Kokoelma"
+  },
+  "lastPassYubikeyDesc": {
+    "message": "Kytke LastPass-tiliisi liitetty YubiKey tietokoneen USB-porttiin ja kosketa sen painiketta."
+  },
+  "switchAccount": {
+    "message": "Vaihda tiliä"
+  },
+  "switchAccounts": {
+    "message": "Vaihda tiliä"
+  },
+  "switchToAccount": {
+    "message": "Vaihda tiliin"
+  },
+  "activeAccount": {
+    "message": "Aktiivinen tili"
+  },
+  "availableAccounts": {
+    "message": "Käytettävissä olevat tilit"
+  },
+  "accountLimitReached": {
+    "message": "Tilien enimmäismäärä on saavutettu. Kirjaa jokin niistä ulos lisätäksesi tilin."
+  },
+  "active": {
+    "message": "aktiivinen"
+  },
+  "locked": {
+    "message": "lukittu"
+  },
+  "unlocked": {
+    "message": "avoin"
+  },
+  "server": {
+    "message": "palvelin"
+  },
+  "hostedAt": {
+    "message": "palvelimelta"
+  },
+  "useDeviceOrHardwareKey": {
+    "message": "Käytä laittettasi tai fyysistä suojausavainta"
+  },
+  "justOnce": {
+    "message": "Vain kerran"
+  },
+  "alwaysForThisSite": {
+    "message": "Aina tällä sivustolla"
+  },
+  "domainAddedToExcludedDomains": {
+    "message": "$DOMAIN$ lisättiin ohitettaviin verkkotunnuksiin.",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "google.com"
+      }
+    }
+  },
+  "commonImportFormats": {
+    "message": "Yleiset muodot",
+    "description": "Label indicating the most common import formats"
+  },
+  "overrideDefaultBrowserAutofillTitle": {
+    "message": "Määritetäänkö Bitwarden oletusarvoiseksi salasanahallinnaksi?",
+    "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutofillDescription": {
+    "message": "Tämän huomiotta jättäminen voi aiheuttaa ongelmia Bitwardenin automaattitäytön valikon ja selaimen välisessä toiminnassa.",
+    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutoFillSettings": {
+    "message": "Määritä Bitwarden oletusarvoiseksi salasanahallinnaksi",
+    "description": "Label for the setting that allows overriding the default browser autofill settings"
+  },
+  "privacyPermissionAdditionNotGrantedTitle": {
+    "message": "Bitwardenia ei voida määrittää oletusarvoiseksi salasanahallinnaksi",
+    "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "privacyPermissionAdditionNotGrantedDescription": {
+    "message": "Jotta Bitwarden voidaan määrittää oletusarvoiseksi salasanahallinnaksi, on sille myönettävä oikeus käsitellä yksityisiä tietoja selaimessa.",
+    "description": "Description for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "makeDefault": {
+    "message": "Määritä oletukseksi",
+    "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "saveCipherAttemptSuccess": {
+    "message": "Käyttäjätiedot tallennettiin!",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
+  "updateCipherAttemptSuccess": {
+    "message": "Käyttäjätiedot päivitettiin!",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "saveCipherAttemptFailed": {
+    "message": "Virhe tallennettaessa käyttäjätietoja. Näet isätietoja hallinnasta.",
+    "description": "Notification message for when saving credentials has failed."
+  },
+  "removePasskey": {
+    "message": "Poista suojausavain"
+  },
+  "passkeyRemoved": {
+    "message": "Suojausavain poistettiin"
+  },
+  "unassignedItemsBanner": {
+    "message": "Notice: Unassigned organization items are no longer visible in the All Vaults view and only accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible."
   }
 }

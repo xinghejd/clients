@@ -1,12 +1,11 @@
 import { Component, Inject, OnDestroy, OnInit } from "@angular/core";
-import { map, Subject, takeUntil } from "rxjs";
+import { combineLatest, map, Observable, Subject, takeUntil } from "rxjs";
 
-import { DialogServiceAbstraction, SimpleDialogType } from "@bitwarden/angular/services/dialog";
-import { ModalService } from "@bitwarden/angular/services/modal.service";
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { OrganizationUserService } from "@bitwarden/common/abstractions/organization-user/organization-user.service";
-import { OrganizationUserResetPasswordEnrollmentRequest } from "@bitwarden/common/abstractions/organization-user/requests";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
+import { OrganizationUserService } from "@bitwarden/common/admin-console/abstractions/organization-user/organization-user.service";
+import { OrganizationUserResetPasswordEnrollmentRequest } from "@bitwarden/common/admin-console/abstractions/organization-user/requests";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
@@ -15,7 +14,9 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { DialogService } from "@bitwarden/components";
 
+import { OrganizationUserResetPasswordService } from "../../../../admin-console/organizations/members/services/organization-user-reset-password/organization-user-reset-password.service";
 import { EnrollMasterPasswordReset } from "../../../../admin-console/organizations/users/enroll-master-password-reset.component";
 import { OptionsInput } from "../shared/components/vault-filter-section.component";
 import { OrganizationFilter } from "../shared/models/vault-filter.type";
@@ -25,34 +26,59 @@ import { OrganizationFilter } from "../shared/models/vault-filter.type";
   templateUrl: "organization-options.component.html",
 })
 export class OrganizationOptionsComponent implements OnInit, OnDestroy {
-  actionPromise: Promise<void | boolean>;
-  policies: Policy[];
-  loaded = false;
+  protected actionPromise: Promise<void | boolean>;
+  protected resetPasswordPolicy?: Policy | undefined;
+  protected loaded = false;
+  protected hideMenu = false;
+  protected showLeaveOrgOption = false;
+  protected organization: OrganizationFilter;
 
   private destroy$ = new Subject<void>();
 
   constructor(
-    @Inject(OptionsInput) protected organization: OrganizationFilter,
+    @Inject(OptionsInput) protected organization$: Observable<OrganizationFilter>,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
     private apiService: ApiService,
     private syncService: SyncService,
     private policyService: PolicyService,
-    private modalService: ModalService,
     private logService: LogService,
     private organizationApiService: OrganizationApiServiceAbstraction,
     private organizationUserService: OrganizationUserService,
-    private dialogService: DialogServiceAbstraction
+    private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
+    private dialogService: DialogService,
+    private resetPasswordService: OrganizationUserResetPasswordService,
   ) {}
 
   async ngOnInit() {
-    this.policyService.policies$
-      .pipe(
-        map((policies) => policies.filter((policy) => policy.type === PolicyType.ResetPassword)),
-        takeUntil(this.destroy$)
-      )
-      .subscribe((policies) => {
-        this.policies = policies;
+    const resetPasswordPolicies$ = this.policyService.policies$.pipe(
+      map((policies) => policies.filter((policy) => policy.type === PolicyType.ResetPassword)),
+    );
+
+    combineLatest([
+      this.organization$,
+      resetPasswordPolicies$,
+      this.userDecryptionOptionsService.userDecryptionOptions$,
+    ])
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(([organization, resetPasswordPolicies, decryptionOptions]) => {
+        this.organization = organization;
+        this.resetPasswordPolicy = resetPasswordPolicies.find(
+          (p) => p.organizationId === organization.id,
+        );
+
+        // A user can leave an organization if they are NOT using TDE and Key Connector, or they have a master password.
+        this.showLeaveOrgOption =
+          (decryptionOptions.trustedDeviceOption == undefined &&
+            decryptionOptions.keyConnectorOption == undefined) ||
+          decryptionOptions.hasMasterPassword;
+
+        // Hide the 3 dot menu if the user has no available actions
+        this.hideMenu =
+          !this.showLeaveOrgOption &&
+          !this.showSsoOptions(this.organization) &&
+          !this.allowEnrollmentChanges(this.organization);
+
         this.loaded = true;
       });
   }
@@ -63,29 +89,24 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
   }
 
   allowEnrollmentChanges(org: OrganizationFilter): boolean {
-    if (org.usePolicies && org.useResetPassword && org.hasPublicAndPrivateKeys) {
-      const policy = this.policies.find((p) => p.organizationId === org.id);
-      if (policy != null && policy.enabled) {
-        return org.resetPasswordEnrolled && policy.data.autoEnrollEnabled ? false : true;
+    if (org?.usePolicies && org?.useResetPassword && org?.hasPublicAndPrivateKeys) {
+      if (this.resetPasswordPolicy != undefined && this.resetPasswordPolicy.enabled) {
+        return !(org?.resetPasswordEnrolled && this.resetPasswordPolicy.data.autoEnrollEnabled);
       }
     }
 
     return false;
   }
 
-  showEnrolledStatus(org: Organization): boolean {
-    return (
-      org.useResetPassword &&
-      org.resetPasswordEnrolled &&
-      this.policies.some((p) => p.organizationId === org.id && p.enabled)
-    );
+  showSsoOptions(org: OrganizationFilter) {
+    return org?.useSso && org?.identifier;
   }
 
   async unlinkSso(org: Organization) {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: org.name,
       content: { key: "unlinkSsoConfirmation" },
-      type: SimpleDialogType.WARNING,
+      type: "warning",
     });
 
     if (!confirmed) {
@@ -107,7 +128,7 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
     const confirmed = await this.dialogService.openSimpleDialog({
       title: org.name,
       content: { key: "leaveOrganizationConfirmation" },
-      type: SimpleDialogType.WARNING,
+      type: "warning",
     });
 
     if (!confirmed) {
@@ -125,12 +146,16 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
 
   async toggleResetPasswordEnrollment(org: Organization) {
     if (!this.organization.resetPasswordEnrolled) {
-      this.modalService.open(EnrollMasterPasswordReset, {
-        allowMultipleModals: true,
-        data: {
-          organization: org,
-        },
-      });
+      await EnrollMasterPasswordReset.open(
+        this.dialogService,
+        { organization: org },
+        this.resetPasswordService,
+        this.organizationUserService,
+        this.platformUtilsService,
+        this.i18nService,
+        this.syncService,
+        this.logService,
+      );
     } else {
       // Remove reset password
       const request = new OrganizationUserResetPasswordEnrollmentRequest();
@@ -139,16 +164,16 @@ export class OrganizationOptionsComponent implements OnInit, OnDestroy {
       this.actionPromise = this.organizationUserService.putOrganizationUserResetPasswordEnrollment(
         this.organization.id,
         this.organization.userId,
-        request
+        request,
       );
       try {
         await this.actionPromise;
         this.platformUtilsService.showToast(
           "success",
           null,
-          this.i18nService.t("withdrawPasswordResetSuccess")
+          this.i18nService.t("withdrawPasswordResetSuccess"),
         );
-        this.syncService.fullSync(true);
+        await this.syncService.fullSync(true);
       } catch (e) {
         this.logService.error(e);
       }

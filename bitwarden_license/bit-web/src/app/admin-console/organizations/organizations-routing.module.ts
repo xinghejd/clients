@@ -1,14 +1,11 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
-import { AuthGuard } from "@bitwarden/angular/auth/guards/auth.guard";
-import { canAccessFeature } from "@bitwarden/angular/guard/feature-flag.guard";
+import { AuthGuard } from "@bitwarden/angular/auth/guards";
 import { canAccessSettingsTab } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { OrganizationPermissionsGuard } from "@bitwarden/web-vault/app/admin-console/organizations/guards/org-permissions.guard";
 import { OrganizationLayoutComponent } from "@bitwarden/web-vault/app/admin-console/organizations/layouts/organization-layout.component";
-import { SettingsComponent } from "@bitwarden/web-vault/app/admin-console/organizations/settings/settings.component";
 
 import { SsoComponent } from "../../auth/sso/sso.component";
 
@@ -24,7 +21,6 @@ const routes: Routes = [
     children: [
       {
         path: "settings",
-        component: SettingsComponent,
         canActivate: [OrganizationPermissionsGuard],
         data: {
           organizationPermissions: canAccessSettingsTab,
@@ -35,6 +31,7 @@ const routes: Routes = [
             component: DomainVerificationComponent,
             canActivate: [OrganizationPermissionsGuard],
             data: {
+              titleId: "domainVerification",
               organizationPermissions: (org: Organization) => org.canManageDomainVerification,
             },
           },
@@ -43,6 +40,7 @@ const routes: Routes = [
             component: SsoComponent,
             canActivate: [OrganizationPermissionsGuard],
             data: {
+              titleId: "singleSignOn",
               organizationPermissions: (org: Organization) => org.canManageSso,
             },
           },
@@ -51,16 +49,14 @@ const routes: Routes = [
             component: ScimComponent,
             canActivate: [OrganizationPermissionsGuard],
             data: {
+              titleId: "scim",
               organizationPermissions: (org: Organization) => org.canManageScim,
             },
           },
           {
             path: "device-approvals",
             component: DeviceApprovalsComponent,
-            canActivate: [
-              OrganizationPermissionsGuard,
-              canAccessFeature(FeatureFlag.TrustedDeviceEncryption),
-            ],
+            canActivate: [OrganizationPermissionsGuard],
             data: {
               organizationPermissions: (org: Organization) => org.canManageDeviceApprovals,
               titleId: "deviceApprovals",

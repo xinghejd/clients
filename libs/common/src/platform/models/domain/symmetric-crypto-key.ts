@@ -1,7 +1,7 @@
-import { Jsonify, Opaque } from "type-fest";
+import { Jsonify } from "type-fest";
 
-import { EncryptionType } from "../../../enums";
 import { Utils } from "../../../platform/misc/utils";
+import { EncryptionType } from "../../enums";
 
 export class SymmetricCryptoKey {
   key: Uint8Array;
@@ -75,6 +75,3 @@ export class SymmetricCryptoKey {
     return SymmetricCryptoKey.fromString(obj?.keyB64);
   }
 }
-
-// Setup all separate key types as opaque types
-export type DeviceKey = Opaque<SymmetricCryptoKey, "DeviceKey">;
