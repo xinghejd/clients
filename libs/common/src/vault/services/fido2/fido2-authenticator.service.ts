@@ -1,3 +1,4 @@
+import { SearchService } from "../../../abstractions/search.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { Utils } from "../../../platform/misc/utils";
 import { CipherService } from "../../abstractions/cipher.service";
@@ -42,6 +43,7 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
     private cipherService: CipherService,
     private userInterface: Fido2UserInterfaceService,
     private syncService: SyncService,
+    private searchService: SearchService,
     private logService?: LogService,
   ) {}
 

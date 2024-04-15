@@ -1,4 +1,4 @@
-import { firstValueFrom } from "rxjs";
+import { Subject, firstValueFrom } from "rxjs";
 import { SemVer } from "semver";
 
 import { ApiService } from "../../abstractions/api.service";
@@ -58,9 +58,13 @@ import { PasswordHistoryView } from "../models/view/password-history.view";
 const CIPHER_KEY_ENC_MIN_SERVER_VER = new SemVer("2024.2.0");
 
 export class CipherService implements CipherServiceAbstraction {
+  private onChanged = new Subject<void>();
   private sortedCiphersCache: SortedCiphersCache = new SortedCiphersCache(
     this.sortCiphersByLastUsed,
   );
+
+  // TODO: We should use proper state providers for this
+  readonly onChanged$ = this.onChanged.asObservable();
 
   constructor(
     private cryptoService: CryptoService,

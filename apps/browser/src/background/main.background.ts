@@ -853,6 +853,7 @@ export default class MainBackground {
       this.cipherService,
       this.fido2UserInterfaceService,
       this.syncService,
+      this.searchService,
       this.logService,
     );
     this.fido2ClientService = new Fido2ClientService(

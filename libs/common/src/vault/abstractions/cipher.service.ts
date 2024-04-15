@@ -1,3 +1,5 @@
+import { Observable } from "rxjs";
+
 import { UriMatchStrategySetting } from "../../models/domain/domain-service";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
 import { CipherId, CollectionId, OrganizationId } from "../../types/guid";
@@ -9,6 +11,8 @@ import { CipherView } from "../models/view/cipher.view";
 import { FieldView } from "../models/view/field.view";
 
 export abstract class CipherService {
+  readonly onChanged$: Observable<void>;
+
   clearCache: (userId?: string) => Promise<void>;
   encrypt: (
     model: CipherView,
