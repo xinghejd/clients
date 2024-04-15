@@ -1,4 +1,4 @@
-import { concatMap, firstValueFrom, map, tap } from "rxjs";
+import { concatMap, debounceTime, firstValueFrom, map, tap } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { SIMPLE_VAULT_INDEX_DISK, StateProvider, UserKeyDefinition } from "../../../platform/state";
@@ -51,6 +51,8 @@ export class SimpleVaultIndexServiceImplementation implements SimpleVaultIndexSe
   ) {
     cipherService.onChanged$.pipe(
       tap(() => this.statusState.update(() => "indexing")),
+      // Wait for 100ms before indexing to avoid indexing multiple times in quick succession
+      debounceTime(100),
       concatMap(() => this.indexCiphers()),
       tap(() => this.statusState.update(() => "ready")),
     );
