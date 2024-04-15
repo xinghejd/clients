@@ -145,7 +145,7 @@ export class CEFImporter extends BaseImporter implements Importer {
           .trim(),
       ),
     );
-    fido2Credentials.creationDate = new Date(item.creationAt);
+    fido2Credentials.creationDate = new Date(item.creationAt * 1000);
     fido2Credentials.discoverable = true;
     fido2Credentials.credentialId = credential.credentialId;
     fido2Credentials.userHandle = credential.userHandle;
