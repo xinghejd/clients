@@ -87,7 +87,6 @@ export class PasswordOptionsMigrator extends Migrator<56, 57> {
   async migrate(helper: MigrationHelper): Promise<void> {
     const accounts = await helper.getAccounts<AccountType>();
 
-    // without the bind, `this` within `migrateAccount` refers to `accounts`
     async function migrateAccount(userId: string, account: AccountType) {
       const legacyOptions = account?.settings?.passwordGenerationOptions;
 
