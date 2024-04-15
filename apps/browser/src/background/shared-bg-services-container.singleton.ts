@@ -430,6 +430,7 @@ export class SharedBgServicesContainer {
       this.masterPasswordService,
       this.cryptoService,
       this.apiService,
+      this.stateProvider,
     );
     this.devicesApiService = new DevicesApiServiceImplementation(this.apiService);
     this.deviceTrustCryptoService = new DeviceTrustCryptoService(
@@ -607,6 +608,7 @@ export class SharedBgServicesContainer {
       this.logoutCallback,
       this.stateService,
       this.authService,
+      this.authRequestService,
       this.messagingService,
     );
     this.usernameGenerationService = new UsernameGenerationService(
