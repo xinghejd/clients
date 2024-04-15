@@ -479,6 +479,7 @@ export class Main {
       this.masterPasswordService,
       this.cryptoService,
       this.apiService,
+      this.stateProvider,
     );
 
     this.billingAccountProfileStateService = new DefaultBillingAccountProfileStateService(

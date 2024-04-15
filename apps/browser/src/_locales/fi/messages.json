@@ -3005,5 +3005,11 @@
   },
   "passkeyRemoved": {
     "message": "Suojausavain poistettiin"
+  },
+  "unassignedItemsBanner": {
+    "message": "Huomautus: Organisaatioiden kokoelmiin määrittämättömät kohteet eivät enää näy laitteiden \"Kaikki holvit\" -näkymissä, vaan ne ovat nähtävissä vain Hallintapaneelista. Määritä kohteet kokoelmiin Hallintapaneelista, jotta ne ovat jatkossakin käytettävissä kaikilta laitteilta."
+  },
+  "unassignedItemsBannerSelfHost": {
+    "message": "Huomautus: 2.5.2024 alkaen kokoelmiin määrittämättömät organisaatioiden kohteet eivät enää näy laitteiden \"Kaikki holvit\" -näkymissä, vaan ne ovat nähtävissä vain Hallintapaneelista. Määritä kohteet kokoelmiin Hallintapaneelista, jotta ne ovat jatkossakin käytettävissä kaikilta laitteilta."
   }
 }

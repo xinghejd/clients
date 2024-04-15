@@ -749,6 +749,7 @@ const safeProviders: SafeProvider[] = [
       LOGOUT_CALLBACK,
       StateServiceAbstraction,
       AuthServiceAbstraction,
+      AuthRequestServiceAbstraction,
       MessagingServiceAbstraction,
     ],
   }),
@@ -972,6 +973,7 @@ const safeProviders: SafeProvider[] = [
       InternalMasterPasswordServiceAbstraction,
       CryptoServiceAbstraction,
       ApiServiceAbstraction,
+      StateProvider,
     ],
   }),
   safeProvider({
