@@ -395,13 +395,15 @@ export class Fido2Component implements OnInit, OnDestroy {
     // Check if user is coming from lock screen and handle accordingly.
     if (this.fromLock) {
       return masterPasswordRepromptRequired
-        ? this.showMasterPasswordReprompt()
+        ? await this.showMasterPasswordReprompt()
         : userVerificationRequested;
     }
 
     if (masterPasswordRepromptRequired) {
       return await this.showMasterPasswordReprompt();
-    } else if (userVerificationRequested) {
+    }
+
+    if (userVerificationRequested) {
       return await this.showUserVerificationDialog();
     }
 
