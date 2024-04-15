@@ -433,6 +433,9 @@ export default class MainBackground {
 
     this.pinCryptoService = getSharedBgService<PinCryptoServiceAbstraction>("pinCryptoService");
 
+    this.userVerificationService =
+      getSharedBgService<UserVerificationServiceAbstraction>("userVerificationService");
+
     this.vaultFilterService = new VaultFilterService(
       this.organizationService,
       this.folderService,
