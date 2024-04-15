@@ -17,6 +17,7 @@ import { CreateOrganizationComponent } from "./admin-console/settings/create-org
 import { SponsoredFamiliesComponent } from "./admin-console/settings/sponsored-families.component";
 import { AcceptOrganizationComponent } from "./auth/accept-organization.component";
 import { deepLinkGuard } from "./auth/guards/deep-link.guard";
+import { smRedirectGuard } from "./auth/guards/sm-redirect.guard";
 import { HintComponent } from "./auth/hint.component";
 import { LockComponent } from "./auth/lock.component";
 import { LoginDecryptionOptionsComponent } from "./auth/login/login-decryption-options/login-decryption-options.component";
@@ -195,6 +196,7 @@ const routes: Routes = [
     children: [
       {
         path: "vault",
+        canActivate: [smRedirectGuard()],
         loadChildren: () => VaultModule,
       },
       { path: "sends", component: SendComponent, data: { titleId: "send" } },
