@@ -247,7 +247,7 @@ export class SharedBgServicesContainer {
     private platformUtilsBiometricCallback: () => Promise<boolean>,
     private logoutCallback: (expired: boolean, userId?: UserId) => Promise<void>,
     private lockedCallback: () => Promise<void>,
-    private selfReferentialBackgroundMessagingService?: MessagingServiceAbstraction,
+    private authBackgroundMessagingService?: MessagingServiceAbstraction,
   ) {
     if (SharedBgServicesContainer._instance) {
       throw new Error(
@@ -306,7 +306,7 @@ export class SharedBgServicesContainer {
     this.twoFactorService = new TwoFactorService(this.i18nService, this.platformUtilsService);
     this.memoryStorageService = this.getMemoryStorageService();
     this.backgroundMessagingService =
-      this.selfReferentialBackgroundMessagingService || this.getBackgroundMessagingService();
+      this.authBackgroundMessagingService || this.getBackgroundMessagingService();
     this.encryptService = this.getEncryptService();
     this.migrationRunner = new MigrationRunner(
       this.storageService,
@@ -618,8 +618,8 @@ export class SharedBgServicesContainer {
     );
   }
 
-  async bootstrapBaseServices() {
-    await this.stateService.init({ runMigrations: false });
+  async bootstrapSharedServices(runMigrations = true): Promise<void> {
+    await this.stateService.init({ runMigrations });
     await (this.i18nService as I18nService).init();
     this.twoFactorService.init();
   }

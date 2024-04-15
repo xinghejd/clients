@@ -131,7 +131,7 @@ function createLocalBgService() {
       async (_expired: boolean, _userId?: UserId) => {},
       async () => {},
     );
-    void sharedBgServices.bootstrapBaseServices();
+    void sharedBgServices.bootstrapSharedServices(false);
     return sharedBgServices;
   }
 
