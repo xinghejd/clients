@@ -37,6 +37,8 @@ import {
 } from "../../../fido2/browser-fido2-user-interface.service";
 import { VaultPopoutType } from "../../utils/vault-popout-window";
 
+import { SetPinComponent } from "./../../../../auth/popup/components/set-pin.component";
+
 interface ViewData {
   message: BrowserFido2Message;
   fallbackSupported: boolean;
@@ -378,12 +380,19 @@ export class Fido2Component implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Handles user verification for a user based on the cipher and user verification requested.
+   * @param userVerificationRequested Indicates if user verification is required or not.
+   * @param cipher Contains details about the cipher including master password reprompt.
+   * @returns
+   */
   private async handleUserVerification(
     userVerificationRequested: boolean,
     cipher: CipherView,
   ): Promise<boolean> {
     const masterPasswordRepromptRequired = cipher && cipher.reprompt !== 0;
 
+    // Check if user is coming from lock screen and handle accordingly.
     if (this.fromLock) {
       return masterPasswordRepromptRequired
         ? this.showMasterPasswordReprompt()
@@ -396,7 +405,6 @@ export class Fido2Component implements OnInit, OnDestroy {
       return await this.showUserVerificationDialog();
     }
 
-    // We are bypassing user verification pending implementation of PIN and biometric support.
     return userVerificationRequested;
   }
 
@@ -413,10 +421,11 @@ export class Fido2Component implements OnInit, OnDestroy {
       return;
     }
 
+    // Handle unsuccessful verification attempts.
     if (!result.verificationSuccess) {
+      // Check if no client-side verification methods are available.
       if (result.noAvailableClientVerificationMethods) {
-        // No client-side verification methods are available
-        // Could send user to configure a verification method like PIN or biometrics
+        await this.promptUserToSetPin();
       }
       return;
     }
@@ -424,14 +433,22 @@ export class Fido2Component implements OnInit, OnDestroy {
     return result.verificationSuccess;
   }
 
-  // private async createUserPinVerificationDialog(): Promise<boolean> {
-  //   const result = await UserVerificationDialogComponent.open(this.dialogService, {
-  //     title: "Verification Required",
-  //     bodyText: "Verification required for this action. Set a PIN to continue.",
-  //   });
+  private async promptUserToSetPin() {
+    const dialogRef = SetPinComponent.open(this.dialogService);
 
-  //   return true;
-  // }
+    if (!dialogRef) {
+      return;
+    }
+
+    const userHasPinSet = await firstValueFrom(dialogRef.closed);
+
+    if (!userHasPinSet) {
+      return;
+    }
+
+    // If the user has set a PIN, re-invoke the user verification dialog to complete the verification process.
+    return await this.showUserVerificationDialog();
+  }
 
   private send(msg: BrowserFido2Message) {
     BrowserFido2UserInterfaceSession.sendMessage({
