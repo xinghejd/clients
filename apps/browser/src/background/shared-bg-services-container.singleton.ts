@@ -256,9 +256,10 @@ export class SharedBgServicesContainer {
     }
     SharedBgServicesContainer._instance = this;
 
-    this.messagingService = this.inPopupContext
-      ? new BrowserMessagingPrivateModeBackgroundService()
-      : new BrowserMessagingService();
+    this.messagingService =
+      this.inPopupContext && BrowserApi.isManifestVersion(2)
+        ? new BrowserMessagingPrivateModeBackgroundService()
+        : new BrowserMessagingService();
     this.logService = new ConsoleLogService(false);
     this.cryptoFunctionService = new WebCryptoFunctionService(self);
     this.keyGenerationService = new KeyGenerationService(this.cryptoFunctionService);
@@ -649,10 +650,10 @@ export class SharedBgServicesContainer {
 
   private getBackgroundMessagingService = (): MessagingServiceAbstraction => {
     // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const context = this;
+    const sharedBgServicesContext = this;
     return new (class extends MessagingServiceAbstraction {
       send = (subscriber: string, arg: any = {}) => {
-        void context.messagingService.send(subscriber, arg);
+        void sharedBgServicesContext.messagingService.send(subscriber, arg);
       };
     })();
   };
