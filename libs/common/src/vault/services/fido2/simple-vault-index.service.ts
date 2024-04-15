@@ -1,4 +1,4 @@
-import { concatMap, debounceTime, firstValueFrom, map, tap } from "rxjs";
+import { Subject, concatMap, debounceTime, firstValueFrom, map, tap } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { SIMPLE_VAULT_INDEX_DISK, StateProvider, UserKeyDefinition } from "../../../platform/state";
@@ -45,11 +45,14 @@ export class SimpleVaultIndexServiceImplementation implements SimpleVaultIndexSe
   private indexState = this.stateProvider.getActive(SIMPLE_VAULT_INDEX);
   private statusState = this.stateProvider.getActive(SIMPLE_VAULT_INDEX_STATUS);
 
+  private triggerIndex = ((window as any).triggerIndex = new Subject<void>());
+
   constructor(
     private stateProvider: StateProvider,
     private cipherService: CipherService,
   ) {
-    cipherService.onChanged$
+    // cipherService.onChanged$
+    this.triggerIndex
       .pipe(
         tap(() => this.statusState.update(() => "indexing")),
         // Wait for 100ms before indexing to avoid indexing multiple times in quick succession

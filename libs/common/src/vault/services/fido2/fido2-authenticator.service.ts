@@ -326,10 +326,7 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
       return [];
     }
 
-    const ciphers = await this.simpleVaultIndexService.getDecryptedItems(
-      "fido2CredentialRpId",
-      rpId,
-    );
+    const ciphers = await this.getCiphers(rpId);
     return ciphers
       .filter(
         (cipher) =>
@@ -359,10 +356,7 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
       return [];
     }
 
-    const ciphers = await this.simpleVaultIndexService.getDecryptedItems(
-      "fido2CredentialRpId",
-      rpId,
-    );
+    const ciphers = await this.getCiphers(rpId);
     return ciphers.filter(
       (cipher) =>
         !cipher.isDeleted &&
@@ -374,10 +368,7 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
   }
 
   private async findCredentialsByRp(rpId: string): Promise<CipherView[]> {
-    const ciphers = await this.simpleVaultIndexService.getDecryptedItems(
-      "fido2CredentialRpId",
-      rpId,
-    );
+    const ciphers = await this.getCiphers(rpId);
     return ciphers.filter(
       (cipher) =>
         !cipher.isDeleted &&
@@ -386,6 +377,14 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
         cipher.login.fido2Credentials[0].rpId === rpId &&
         cipher.login.fido2Credentials[0].discoverable,
     );
+  }
+
+  private getCiphers(rpId: string): Promise<CipherView[]> {
+    return this.cipherService.getAllDecrypted();
+    // return this.simpleVaultIndexService.getDecryptedItems(
+    //   "fido2CredentialRpId",
+    //   rpId,
+    // );
   }
 }
 
