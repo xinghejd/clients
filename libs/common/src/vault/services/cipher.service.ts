@@ -751,11 +751,15 @@ export class CipherService implements CipherServiceAbstraction {
     }
 
     await this.replace(ciphers);
+
+    this.onChanged.next();
   }
 
   async replace(ciphers: { [id: string]: CipherData }): Promise<any> {
     await this.clearDecryptedCiphersState();
     await this.stateService.setEncryptedCiphers(ciphers);
+
+    this.onChanged.next();
   }
 
   async clear(userId?: string): Promise<any> {
@@ -780,6 +784,7 @@ export class CipherService implements CipherServiceAbstraction {
 
     await this.clearCache();
     await this.stateService.setEncryptedCiphers(ciphers);
+    this.onChanged.next();
   }
 
   async delete(id: string | string[]): Promise<any> {
@@ -801,6 +806,7 @@ export class CipherService implements CipherServiceAbstraction {
 
     await this.clearCache();
     await this.stateService.setEncryptedCiphers(ciphers);
+    this.onChanged.next();
   }
 
   async deleteWithServer(id: string, asAdmin = false): Promise<any> {
@@ -988,6 +994,7 @@ export class CipherService implements CipherServiceAbstraction {
 
     await this.clearCache();
     await this.stateService.setEncryptedCiphers(ciphers);
+    this.onChanged.next();
   }
 
   async restoreWithServer(id: string, asAdmin = false): Promise<any> {
