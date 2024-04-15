@@ -4,7 +4,6 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { ImportServiceAbstraction } from "@bitwarden/importer/core";
@@ -256,9 +255,7 @@ class FilelessImporterBackground implements FilelessImporterBackgroundInterface 
       return;
     }
 
-    const filelessImportFeatureFlagEnabled = await this.configService.getFeatureFlag<boolean>(
-      FeatureFlag.BrowserFilelessImport,
-    );
+    const filelessImportFeatureFlagEnabled = true;
     const userAuthStatus = await this.authService.getAuthStatus();
     const removeIndividualVault = await this.removeIndividualVault();
     const filelessImportEnabled =
