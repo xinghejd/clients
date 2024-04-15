@@ -1,4 +1,3 @@
-import { SearchService } from "../../../abstractions/search.service";
 import { LogService } from "../../../platform/abstractions/log.service";
 import { Utils } from "../../../platform/misc/utils";
 import { CipherService } from "../../abstractions/cipher.service";
@@ -14,6 +13,7 @@ import {
   PublicKeyCredentialDescriptor,
 } from "../../abstractions/fido2/fido2-authenticator.service.abstraction";
 import { Fido2UserInterfaceService } from "../../abstractions/fido2/fido2-user-interface.service.abstraction";
+import { SimpleVaultIndexService } from "../../abstractions/fido2/simple-vault-index.service.abstraction";
 import { SyncService } from "../../abstractions/sync/sync.service.abstraction";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
@@ -43,7 +43,7 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
     private cipherService: CipherService,
     private userInterface: Fido2UserInterfaceService,
     private syncService: SyncService,
-    private searchService: SearchService,
+    private simpleVaultIndexService: SimpleVaultIndexService,
     private logService?: LogService,
   ) {}
 
@@ -96,6 +96,7 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
 
       const existingCipherIds = await this.findExcludedCredentials(
         params.excludeCredentialDescriptorList,
+        params.rpEntity.id,
       );
       if (existingCipherIds.length > 0) {
         this.logService?.info(
@@ -310,6 +311,7 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
   /** Finds existing crendetials and returns the `cipherId` for each one */
   private async findExcludedCredentials(
     credentials: PublicKeyCredentialDescriptor[],
+    rpId: string,
   ): Promise<string[]> {
     const ids: string[] = [];
 
@@ -324,7 +326,10 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
       return [];
     }
 
-    const ciphers = await this.cipherService.getAllDecrypted();
+    const ciphers = await this.simpleVaultIndexService.getDecryptedItems(
+      "fido2CredentialRpId",
+      rpId,
+    );
     return ciphers
       .filter(
         (cipher) =>
@@ -354,7 +359,10 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
       return [];
     }
 
-    const ciphers = await this.cipherService.getAllDecrypted();
+    const ciphers = await this.simpleVaultIndexService.getDecryptedItems(
+      "fido2CredentialRpId",
+      rpId,
+    );
     return ciphers.filter(
       (cipher) =>
         !cipher.isDeleted &&
@@ -366,7 +374,10 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
   }
 
   private async findCredentialsByRp(rpId: string): Promise<CipherView[]> {
-    const ciphers = await this.cipherService.getAllDecrypted();
+    const ciphers = await this.simpleVaultIndexService.getDecryptedItems(
+      "fido2CredentialRpId",
+      rpId,
+    );
     return ciphers.filter(
       (cipher) =>
         !cipher.isDeleted &&
