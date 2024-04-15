@@ -56,7 +56,7 @@ type MappedOptions = {
   };
 };
 
-export function legacyPasswordGenerationServiceFactory(
+export function legacyUsernameGenerationServiceFactory(
   apiService: ApiService,
   i18nService: I18nService,
   cryptoService: CryptoService,
