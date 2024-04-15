@@ -1,10 +1,8 @@
-import { BehaviorSubject, Observable, map } from "rxjs";
+import { BehaviorSubject } from "rxjs";
 import { Jsonify, JsonValue } from "type-fest";
 
 import { AccountService } from "../../auth/abstractions/account.service";
 import { TokenService } from "../../auth/abstractions/token.service";
-import { AuthenticationStatus } from "../../auth/enums/authentication-status";
-import { AdminAuthRequestStorable } from "../../auth/models/domain/admin-auth-req-storable";
 import { KdfConfig } from "../../auth/models/domain/kdf-config";
 import { BiometricKey } from "../../auth/types/biometric-key";
 import { GeneratorOptions } from "../../tools/generator/generator-options";
@@ -68,8 +66,6 @@ export class StateService<
   protected activeAccountSubject = new BehaviorSubject<string | null>(null);
   activeAccount$ = this.activeAccountSubject.asObservable();
 
-  activeAccountUnlocked$: Observable<boolean>;
-
   private hasBeenInited = false;
   protected isRecoveredSession = false;
 
@@ -89,13 +85,7 @@ export class StateService<
     protected tokenService: TokenService,
     private migrationRunner: MigrationRunner,
     protected useAccountCache: boolean = true,
-  ) {
-    this.activeAccountUnlocked$ = this.accountService.activeAccount$.pipe(
-      map((a) => {
-        return a?.status === AuthenticationStatus.Unlocked;
-      }),
-    );
-  }
+  ) {}
 
   async init(initOptions: InitOptions = {}): Promise<void> {
     // Deconstruct and apply defaults
@@ -151,7 +141,6 @@ export class StateService<
         await this.accountService.addAccount(state.activeUserId as UserId, {
           name: activeDiskAccount.profile.name,
           email: activeDiskAccount.profile.email,
-          status: AuthenticationStatus.LoggedOut,
         });
       }
       await this.accountService.switchAccount(state.activeUserId as UserId);
@@ -177,16 +166,7 @@ export class StateService<
 
     // TODO: Temporary update to avoid routing all account status changes through account service for now.
     // The determination of state should be handled by the various services that control those values.
-    const token = await this.tokenService.getAccessToken(userId as UserId);
-    const autoKey = await this.getUserKeyAutoUnlock({ userId: userId });
-    const accountStatus =
-      token == null
-        ? AuthenticationStatus.LoggedOut
-        : autoKey == null
-          ? AuthenticationStatus.Locked
-          : AuthenticationStatus.Unlocked;
     await this.accountService.addAccount(userId as UserId, {
-      status: accountStatus,
       name: diskAccount.profile.name,
       email: diskAccount.profile.email,
     });
@@ -206,7 +186,6 @@ export class StateService<
     await this.setLastActive(new Date().getTime(), { userId: account.profile.userId });
     // TODO: Temporary update to avoid routing all account status changes through account service for now.
     await this.accountService.addAccount(account.profile.userId as UserId, {
-      status: AuthenticationStatus.Locked,
       name: account.profile.name,
       email: account.profile.email,
     });
@@ -566,37 +545,6 @@ export class StateService<
     value == null
       ? await this.secureStorageService.remove(DDG_SHARED_KEY, options)
       : await this.secureStorageService.save(DDG_SHARED_KEY, value, options);
-  }
-
-  async getAdminAuthRequest(options?: StorageOptions): Promise<AdminAuthRequestStorable | null> {
-    options = this.reconcileOptions(options, await this.defaultOnDiskLocalOptions());
-
-    if (options?.userId == null) {
-      return null;
-    }
-
-    const account = await this.getAccount(options);
-
-    return account?.adminAuthRequest
-      ? AdminAuthRequestStorable.fromJSON(account.adminAuthRequest)
-      : null;
-  }
-
-  async setAdminAuthRequest(
-    adminAuthRequest: AdminAuthRequestStorable,
-    options?: StorageOptions,
-  ): Promise<void> {
-    options = this.reconcileOptions(options, await this.defaultOnDiskLocalOptions());
-
-    if (options?.userId == null) {
-      return;
-    }
-
-    const account = await this.getAccount(options);
-
-    account.adminAuthRequest = adminAuthRequest?.toJSON();
-
-    await this.saveAccount(account, options);
   }
 
   async getEmail(options?: StorageOptions): Promise<string> {
@@ -1052,24 +1000,6 @@ export class StateService<
     );
   }
 
-  async getApproveLoginRequests(options?: StorageOptions): Promise<boolean> {
-    const approveLoginRequests = (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()))
-    )?.settings?.approveLoginRequests;
-    return approveLoginRequests;
-  }
-
-  async setApproveLoginRequests(value: boolean, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()),
-    );
-    account.settings.approveLoginRequests = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskLocalOptions()),
-    );
-  }
-
   protected async getGlobals(options: StorageOptions): Promise<TGlobalState> {
     let globals: TGlobalState;
     if (this.useMemory(options.storageLocation)) {
@@ -1406,15 +1336,12 @@ export class StateService<
 
       return state;
     });
-    // TODO: Invert this logic, we should remove accounts based on logged out emit
-    await this.accountService.setAccountStatus(userId as UserId, AuthenticationStatus.LoggedOut);
   }
 
   // settings persist even on reset, and are not affected by this method
   protected resetAccount(account: TAccount) {
     const persistentAccountInformation = {
       settings: account.settings,
-      adminAuthRequest: account.adminAuthRequest,
     };
     return Object.assign(this.createAccount(), persistentAccountInformation);
   }
