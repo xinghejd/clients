@@ -107,7 +107,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
    * Sends a message to the parent window to unlock the vault.
    */
   private handleUnlockButtonClick = () => {
-    this.postMessageToConnector({ command: "unlockVault" });
+    this.postMessageToParent({ command: "unlockVault" });
   };
 
   /**
@@ -171,7 +171,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
    * Sends a message to the parent window to add a new vault item.
    */
   private handeNewItemButtonClick = () => {
-    this.postMessageToConnector({ command: "addNewVaultItem" });
+    this.postMessageToParent({ command: "addNewVaultItem" });
   };
 
   /**
@@ -278,7 +278,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
   private handleFillCipherClickEvent = (cipher: OverlayCipherData) => {
     return this.useEventHandlersMemo(
       () =>
-        this.postMessageToConnector({
+        this.postMessageToParent({
           command: "fillSelectedListItem",
           overlayCipherId: cipher.id,
         }),
@@ -343,8 +343,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
    */
   private handleViewCipherClickEvent = (cipher: OverlayCipherData) => {
     return this.useEventHandlersMemo(
-      () =>
-        this.postMessageToConnector({ command: "viewSelectedCipher", overlayCipherId: cipher.id }),
+      () => this.postMessageToParent({ command: "viewSelectedCipher", overlayCipherId: cipher.id }),
       `${cipher.id}-view-cipher-button-click-handler`,
     );
   };
@@ -479,7 +478,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
       return;
     }
 
-    this.postMessageToConnector({ command: "checkAutofillOverlayButtonFocused" });
+    this.postMessageToParent({ command: "checkAutofillOverlayButtonFocused" });
   }
 
   /**
@@ -536,7 +535,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
       }
 
       const { height } = entry.contentRect;
-      this.postMessageToConnector({
+      this.postMessageToParent({
         command: "updateAutofillOverlayListHeight",
         styles: { height: `${height}px` },
       });

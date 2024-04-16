@@ -43,7 +43,7 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
   private mutationObserverIterationsResetTimeout: number | NodeJS.Timeout;
   private readonly backgroundPortMessageHandlers: BackgroundPortMessageHandlers = {
     initAutofillOverlayButton: ({ message }) => this.initAutofillOverlay(message),
-    initAutofillOverlayList: ({ message }) => this.initAutofillOverlayList(message),
+    initAutofillOverlayList: ({ message }) => this.initAutofillOverlay(message),
     updateIframePosition: ({ message }) => this.updateIframePosition(message.styles),
     updateOverlayHidden: ({ message }) => this.updateElementStyles(this.iframe, message.styles),
     updateOverlayPageColorScheme: () => this.updateOverlayPageColorScheme(),
@@ -184,6 +184,11 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
 
   private initAutofillOverlay(message: AutofillOverlayIframeExtensionMessage) {
     this.portKey = message.portKey;
+    if (message.command === "initAutofillOverlayList") {
+      this.initAutofillOverlayList(message);
+      return;
+    }
+
     this.postMessageToIFrame(message);
   }
 
@@ -195,7 +200,6 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
    */
   private initAutofillOverlayList(message: AutofillOverlayIframeExtensionMessage) {
     const { theme } = message;
-    this.portKey = message.portKey;
     let borderColor: string;
     let verifiedTheme = theme;
     if (verifiedTheme === ThemeType.System) {

@@ -1,13 +1,16 @@
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
 import { setElementStyles } from "../../../utils";
+import {
+  InitOverlayElementMessage,
+  AutofillOverlayMenuContainerWindowMessageHandlers,
+} from "../../abstractions/autofill-overlay-menu-container";
 
 export class AutofillOverlayMenuContainer {
-  private initMessage: any;
   private extensionOriginsSet: Set<string>;
   private port: chrome.runtime.Port | null = null;
   private portName: string;
-  private iframe: HTMLIFrameElement;
+  private overlayPageIframe: HTMLIFrameElement;
   private iframeStyles: Partial<CSSStyleDeclaration> = {
     all: "initial",
     position: "fixed",
@@ -33,11 +36,10 @@ export class AutofillOverlayMenuContainer {
     allowtransparency: "true",
     tabIndex: "-1",
   };
-  private windowMessageHandlers: Record<string, (message: any) => void> = {
-    initAutofillOverlayList: (message: any) => this.handleInitOverlayIframe(message),
-    initAutofillOverlayButton: (message: any) => this.handleInitOverlayIframe(message),
+  private windowMessageHandlers: AutofillOverlayMenuContainerWindowMessageHandlers = {
+    initAutofillOverlayList: (message) => this.handleInitOverlayIframe(message),
+    initAutofillOverlayButton: (message) => this.handleInitOverlayIframe(message),
   };
-  private backgroundPortMessageHandlers: Record<string, (message: any) => void> = {};
 
   constructor() {
     this.extensionOriginsSet = new Set([
@@ -48,31 +50,44 @@ export class AutofillOverlayMenuContainer {
     globalThis.addEventListener("message", this.handleWindowMessage);
   }
 
-  private handleInitOverlayIframe(message: any) {
-    this.initMessage = message;
+  private handleInitOverlayIframe(message: InitOverlayElementMessage) {
     this.defaultIframeAttributes.src = message.iframeUrl;
     this.defaultIframeAttributes.title = message.pageTitle;
     this.portName = message.portName;
 
-    this.iframe = globalThis.document.createElement("iframe");
-    setElementStyles(this.iframe, this.iframeStyles, true);
+    this.overlayPageIframe = globalThis.document.createElement("iframe");
+    setElementStyles(this.overlayPageIframe, this.iframeStyles, true);
     for (const [attribute, value] of Object.entries(this.defaultIframeAttributes)) {
-      this.iframe.setAttribute(attribute, value);
+      this.overlayPageIframe.setAttribute(attribute, value);
     }
-    this.iframe.addEventListener(EVENTS.LOAD, this.setupPortMessageListener);
+    this.overlayPageIframe.addEventListener(EVENTS.LOAD, () =>
+      this.setupPortMessageListener(message),
+    );
 
-    globalThis.document.body.appendChild(this.iframe);
+    globalThis.document.body.appendChild(this.overlayPageIframe);
   }
 
-  private setupPortMessageListener = () => {
+  private setupPortMessageListener = (message: InitOverlayElementMessage) => {
     this.port = chrome.runtime.connect({ name: this.portName });
     this.port.onMessage.addListener(this.handlePortMessage);
 
-    this.postMessageToIframe(this.initMessage);
+    this.postMessageToOverlayPage(message);
   };
 
-  private postMessageToIframe(message: any) {
-    this.iframe?.contentWindow?.postMessage(message, "*");
+  private postMessageToOverlayPage(message: any) {
+    if (!this.overlayPageIframe?.contentWindow) {
+      return;
+    }
+
+    this.overlayPageIframe.contentWindow.postMessage(message, "*");
+  }
+
+  private postMessageToBackground(message: any) {
+    if (!this.port) {
+      return;
+    }
+
+    this.port.postMessage(message);
   }
 
   private handlePortMessage = (message: any, port: chrome.runtime.Port) => {
@@ -80,12 +95,7 @@ export class AutofillOverlayMenuContainer {
       return;
     }
 
-    if (this.backgroundPortMessageHandlers[message.command]) {
-      this.backgroundPortMessageHandlers[message.command]({ message, port });
-      return;
-    }
-
-    this.iframe.contentWindow?.postMessage(message, "*");
+    this.postMessageToOverlayPage(message);
   };
 
   private handleWindowMessage = (event: MessageEvent) => {
@@ -100,11 +110,11 @@ export class AutofillOverlayMenuContainer {
     }
 
     if (event.source === globalThis.parent) {
-      this.iframe?.contentWindow?.postMessage(message, "*");
+      this.postMessageToOverlayPage(message);
       return;
     }
 
-    this.port?.postMessage(message);
+    this.postMessageToBackground(message);
   };
 
   private isForeignWindowMessage(event: MessageEvent) {
@@ -116,20 +126,17 @@ export class AutofillOverlayMenuContainer {
       return false;
     }
 
-    return (
-      this.iframe?.contentWindow !== event.source ||
-      !this.isFromExtensionOrigin(event.origin.toLowerCase())
-    );
+    return !this.isMessageFromOverlayPageIframe(event);
   }
 
-  /**
-   * Chrome returns null for any sandboxed iframe sources.
-   * Firefox references the extension URI as its origin.
-   * Any other origin value is a security risk.
-   *
-   * @param messageOrigin - The origin of the window message
-   */
-  private isFromExtensionOrigin(messageOrigin: string): boolean {
-    return this.extensionOriginsSet.has(messageOrigin);
+  private isMessageFromOverlayPageIframe(event: MessageEvent): boolean {
+    if (!this.overlayPageIframe) {
+      return false;
+    }
+
+    return (
+      this.overlayPageIframe.contentWindow === event.source &&
+      this.extensionOriginsSet.has(event.origin.toLowerCase())
+    );
   }
 }

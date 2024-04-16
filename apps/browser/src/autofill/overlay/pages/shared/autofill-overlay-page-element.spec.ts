@@ -61,9 +61,9 @@ describe("AutofillOverlayPageElement", () => {
     });
   });
 
-  describe("postMessageToConnector", () => {
+  describe("postMessageToParent", () => {
     it("posts a message to the parent", () => {
-      autofillOverlayPageElement["postMessageToConnector"]({ command: "test" });
+      autofillOverlayPageElement["postMessageToParent"]({ command: "test" });
 
       expect(
         autofillOverlayPageElement["messageConnectorIframe"].contentWindow.postMessage,

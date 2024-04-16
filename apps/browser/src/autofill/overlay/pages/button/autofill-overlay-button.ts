@@ -64,7 +64,7 @@ class AutofillOverlayButton extends AutofillOverlayPageElement {
       this.getTranslation("toggleBitwardenVaultOverlay"),
     );
     this.buttonElement.addEventListener(EVENTS.CLICK, this.handleButtonElementClick);
-    this.postMessageToConnector({ command: "updateOverlayPageColorScheme" });
+    this.postMessageToParent({ command: "updateOverlayPageColorScheme" });
 
     this.updateAuthStatus(authStatus);
 
@@ -104,7 +104,7 @@ class AutofillOverlayButton extends AutofillOverlayPageElement {
    * parent window indicating that the button was clicked.
    */
   private handleButtonElementClick = () => {
-    this.postMessageToConnector({ command: "overlayButtonClicked" });
+    this.postMessageToParent({ command: "overlayButtonClicked" });
   };
 
   /**
@@ -116,7 +116,7 @@ class AutofillOverlayButton extends AutofillOverlayPageElement {
       return;
     }
 
-    this.postMessageToConnector({ command: "closeAutofillOverlay" });
+    this.postMessageToParent({ command: "closeAutofillOverlay" });
   }
 }
 
