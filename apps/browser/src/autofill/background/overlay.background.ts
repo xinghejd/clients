@@ -68,7 +68,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
     closeAutofillOverlayMenu: ({ message, sender }) => this.closeOverlayMenu(sender, message),
     autofillOverlayElementClosed: ({ message }) => this.overlayElementClosed(message),
     autofillOverlayAddNewVaultItem: ({ message, sender }) => this.addNewVaultItem(message, sender),
-    getAutofillOverlayVisibility: () => this.getOverlayVisibility(),
+    getInlineMenuVisibilitySetting: () => this.getInlineMenuVisibility(),
     checkAutofillOverlayMenuFocused: () => this.checkOverlayMenuFocused(),
     focusAutofillOverlayList: () => this.focusOverlayList(),
     updateAutofillOverlayMenuPosition: ({ message, sender }) =>
@@ -135,7 +135,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
     this.setupExtensionMessageListeners();
     const env = await firstValueFrom(this.environmentService.environment$);
     this.iconsServerUrl = env.getIconsUrl();
-    await this.getOverlayVisibility();
+    await this.getInlineMenuVisibility();
     await this.getAuthStatus();
   }
 
@@ -641,7 +641,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
   /**
    * Gets the overlay's visibility setting from the settings service.
    */
-  private async getOverlayVisibility(): Promise<InlineMenuVisibilitySetting> {
+  private async getInlineMenuVisibility(): Promise<InlineMenuVisibilitySetting> {
     return await firstValueFrom(this.autofillSettingsService.inlineMenuVisibility$);
   }
 

@@ -230,7 +230,7 @@ describe("AutofillOverlayContentService", () => {
           autofillFieldData,
         );
 
-        expect(sendExtensionMessageSpy).toHaveBeenCalledWith("getAutofillOverlayVisibility");
+        expect(sendExtensionMessageSpy).toHaveBeenCalledWith("getInlineMenuVisibilitySetting");
         expect(autofillOverlayContentService["autofillOverlayVisibility"]).toEqual(
           AutofillOverlayVisibility.OnFieldFocus,
         );

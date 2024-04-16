@@ -99,7 +99,7 @@ export default class AutofillService implements AutofillServiceInterface {
     frameId = 0,
     triggeringOnPageLoad = true,
   ): Promise<void> {
-    const mainAutofillScript = (await this.getOverlayVisibility())
+    const mainAutofillScript = (await this.getInlineMenuVisibility())
       ? "bootstrap-autofill-overlay.js"
       : "bootstrap-autofill.js";
 
@@ -199,7 +199,7 @@ export default class AutofillService implements AutofillServiceInterface {
   /**
    * Gets the overlay's visibility setting from the autofill settings service.
    */
-  async getOverlayVisibility(): Promise<InlineMenuVisibilitySetting> {
+  async getInlineMenuVisibility(): Promise<InlineMenuVisibilitySetting> {
     return await firstValueFrom(this.autofillSettingsService.inlineMenuVisibility$);
   }
 

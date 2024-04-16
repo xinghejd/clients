@@ -108,7 +108,7 @@ describe("AutofillService", () => {
         .spyOn(BrowserApi, "getAllFrames")
         .mockResolvedValue([mock<chrome.webNavigation.GetAllFrameResultDetails>({ frameId: 0 })]);
       jest
-        .spyOn(autofillService, "getOverlayVisibility")
+        .spyOn(autofillService, "getInlineMenuVisibility")
         .mockResolvedValue(AutofillOverlayVisibility.OnFieldFocus);
       jest.spyOn(autofillService, "getAutofillOnPageLoad").mockResolvedValue(true);
     });
@@ -186,7 +186,7 @@ describe("AutofillService", () => {
       sender = { tab: tabMock, frameId: 1 };
       jest.spyOn(BrowserApi, "executeScriptInTab").mockImplementation();
       jest
-        .spyOn(autofillService, "getOverlayVisibility")
+        .spyOn(autofillService, "getInlineMenuVisibility")
         .mockResolvedValue(AutofillOverlayVisibility.OnFieldFocus);
       jest.spyOn(autofillService, "getAutofillOnPageLoad").mockResolvedValue(true);
     });
@@ -232,7 +232,7 @@ describe("AutofillService", () => {
 
     it("will inject the bootstrap-autofill script if the user does not have the autofill overlay enabled", async () => {
       jest
-        .spyOn(autofillService, "getOverlayVisibility")
+        .spyOn(autofillService, "getInlineMenuVisibility")
         .mockResolvedValue(AutofillOverlayVisibility.Off);
 
       await autofillService.injectAutofillScripts(sender.tab, sender.frameId);
