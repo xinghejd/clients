@@ -93,7 +93,7 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
    */
   private createAriaAlertElement(ariaAlertText: string) {
     this.ariaAlertElement = globalThis.document.createElement("div");
-    this.ariaAlertElement.setAttribute("role", "status");
+    this.ariaAlertElement.setAttribute("role", "alert");
     this.ariaAlertElement.setAttribute("aria-live", "polite");
     this.ariaAlertElement.setAttribute("aria-atomic", "true");
     this.updateElementStyles(this.ariaAlertElement, {
@@ -182,6 +182,13 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
     this.postMessageToIFrame(message);
   };
 
+  /**
+   * Handles the initialization of the autofill overlay. This includes setting
+   * the port key and sending a message to the iframe to initialize the overlay.
+   *
+   * @param message
+   * @private
+   */
   private initAutofillOverlay(message: AutofillOverlayIframeExtensionMessage) {
     this.portKey = message.portKey;
     if (message.command === "initAutofillOverlayList") {
@@ -193,8 +200,8 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
   }
 
   /**
-   * Handles messages sent from the iframe to the extension background script.
-   * Will adjust the border element to fit the user's set theme.
+   * Handles initialization of the autofill overlay list. This includes setting
+   * the theme and sending a message to the iframe to initialize the overlay.
    *
    * @param message - The message sent from the iframe
    */

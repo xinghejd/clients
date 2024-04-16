@@ -202,6 +202,23 @@ describe("AutofillOverlayIframeService", () => {
         ).not.toHaveBeenCalled();
       });
 
+      describe("initializing the overlay button", () => {
+        it("sets the port key and posts the message to the overlay page iframe", () => {
+          const portKey = "portKey";
+          const message = {
+            command: "initAutofillOverlayButton",
+            portKey,
+          };
+
+          sendPortMessage(portSpy, message);
+
+          expect(autofillOverlayIframeService["portKey"]).toBe(portKey);
+          expect(
+            autofillOverlayIframeService["iframe"].contentWindow.postMessage,
+          ).toHaveBeenCalledWith(message, "*");
+        });
+      });
+
       describe("initializing the overlay list", () => {
         let updateElementStylesSpy: jest.SpyInstance;
 
