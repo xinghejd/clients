@@ -1,7 +1,9 @@
 import { OverlayButtonWindowMessageHandlers } from "./autofill-overlay-button";
 import { OverlayListWindowMessageHandlers } from "./autofill-overlay-list";
 
-type WindowMessageHandlers = OverlayButtonWindowMessageHandlers | OverlayListWindowMessageHandlers;
+type AutofillOverlayPageElementWindowMessageHandlers =
+  | OverlayButtonWindowMessageHandlers
+  | OverlayListWindowMessageHandlers;
 
 type AutofillOverlayPageElementWindowMessage = {
   [key: string]: any;
@@ -10,4 +12,4 @@ type AutofillOverlayPageElementWindowMessage = {
   height?: number;
 };
 
-export { WindowMessageHandlers, AutofillOverlayPageElementWindowMessage };
+export { AutofillOverlayPageElementWindowMessageHandlers, AutofillOverlayPageElementWindowMessage };

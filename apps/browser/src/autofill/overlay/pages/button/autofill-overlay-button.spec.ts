@@ -1,5 +1,3 @@
-import { mock } from "jest-mock-extended";
-
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
 import { createInitAutofillOverlayButtonMessageMock } from "../../../spec/autofill-mocks";
@@ -11,20 +9,14 @@ describe("AutofillOverlayButton", () => {
   globalThis.customElements.define("autofill-overlay-button", AutofillOverlayButton);
 
   let autofillOverlayButton: AutofillOverlayButton;
-  let messageConnectorIframe: HTMLIFrameElement;
   const portKey: string = "overlayButtonPortKey";
 
   beforeEach(() => {
     document.body.innerHTML = `<autofill-overlay-button></autofill-overlay-button>`;
     autofillOverlayButton = document.querySelector("autofill-overlay-button");
     autofillOverlayButton["messageOrigin"] = "https://localhost/";
-    messageConnectorIframe = mock<HTMLIFrameElement>({
-      contentWindow: { postMessage: jest.fn() },
-    });
-    autofillOverlayButton["messageConnectorIframe"] = messageConnectorIframe;
-    jest.spyOn(autofillOverlayButton as any, "initMessageConnector").mockResolvedValue(undefined);
     jest.spyOn(globalThis.document, "createElement");
-    jest.spyOn(messageConnectorIframe.contentWindow, "postMessage");
+    jest.spyOn(globalThis.parent, "postMessage");
   });
 
   afterEach(() => {
@@ -63,7 +55,7 @@ describe("AutofillOverlayButton", () => {
 
       autofillOverlayButton["buttonElement"].click();
 
-      expect(messageConnectorIframe.contentWindow.postMessage).toHaveBeenCalledWith(
+      expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
         { command: "overlayButtonClicked", portKey },
         "*",
       );
@@ -81,7 +73,7 @@ describe("AutofillOverlayButton", () => {
       postWindowMessage({ command: "checkAutofillOverlayButtonFocused" });
       await flushPromises();
 
-      expect(messageConnectorIframe.contentWindow.postMessage).not.toHaveBeenCalledWith({
+      expect(globalThis.parent.postMessage).not.toHaveBeenCalledWith({
         command: "closeAutofillOverlay",
       });
     });
@@ -92,7 +84,7 @@ describe("AutofillOverlayButton", () => {
       postWindowMessage({ command: "checkAutofillOverlayButtonFocused" });
       await flushPromises();
 
-      expect(messageConnectorIframe.contentWindow.postMessage).toHaveBeenCalledWith(
+      expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
         { command: "closeAutofillOverlay", portKey },
         "*",
       );

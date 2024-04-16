@@ -16,19 +16,14 @@ describe("AutofillOverlayList", () => {
   }));
 
   let autofillOverlayList: AutofillOverlayList;
-  let messageConnectorIframe: HTMLIFrameElement;
   const portKey: string = "overlayListPortKey";
 
   beforeEach(() => {
     document.body.innerHTML = `<autofill-overlay-list></autofill-overlay-list>`;
     autofillOverlayList = document.querySelector("autofill-overlay-list");
     autofillOverlayList["messageOrigin"] = "https://localhost/";
-    messageConnectorIframe = mock<HTMLIFrameElement>({
-      contentWindow: { postMessage: jest.fn() },
-    });
-    autofillOverlayList["messageConnectorIframe"] = messageConnectorIframe;
-    jest.spyOn(autofillOverlayList as any, "initMessageConnector").mockResolvedValue(undefined);
     jest.spyOn(globalThis.document, "createElement");
+    jest.spyOn(globalThis.parent, "postMessage");
   });
 
   afterEach(() => {
@@ -57,7 +52,7 @@ describe("AutofillOverlayList", () => {
 
         unlockButton.dispatchEvent(new Event("click"));
 
-        expect(messageConnectorIframe.contentWindow.postMessage).toHaveBeenCalledWith(
+        expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
           { command: "unlockVault", portKey },
           "*",
         );
@@ -85,7 +80,7 @@ describe("AutofillOverlayList", () => {
 
         addVaultItemButton.dispatchEvent(new Event("click"));
 
-        expect(messageConnectorIframe.contentWindow.postMessage).toHaveBeenCalledWith(
+        expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
           { command: "addNewVaultItem", portKey },
           "*",
         );
@@ -145,7 +140,7 @@ describe("AutofillOverlayList", () => {
 
           fillCipherButton.dispatchEvent(new Event("click"));
 
-          expect(messageConnectorIframe.contentWindow.postMessage).toHaveBeenCalledWith(
+          expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
             { command: "fillSelectedListItem", overlayCipherId: "1", portKey },
             "*",
           );
@@ -233,7 +228,7 @@ describe("AutofillOverlayList", () => {
 
           viewCipherButton.dispatchEvent(new Event("click"));
 
-          expect(messageConnectorIframe.contentWindow.postMessage).toHaveBeenCalledWith(
+          expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
             { command: "viewSelectedCipher", overlayCipherId: "1", portKey },
             "*",
           );
@@ -300,7 +295,7 @@ describe("AutofillOverlayList", () => {
 
       postWindowMessage({ command: "checkAutofillOverlayListFocused" });
 
-      expect(messageConnectorIframe.contentWindow.postMessage).not.toHaveBeenCalled();
+      expect(globalThis.parent.postMessage).not.toHaveBeenCalled();
     });
 
     it("posts a `checkAutofillOverlayButtonFocused` message to the parent if the overlay is not currently focused", () => {
@@ -308,7 +303,7 @@ describe("AutofillOverlayList", () => {
 
       postWindowMessage({ command: "checkAutofillOverlayListFocused" });
 
-      expect(messageConnectorIframe.contentWindow.postMessage).toHaveBeenCalledWith(
+      expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
         { command: "checkAutofillOverlayButtonFocused", portKey },
         "*",
       );
@@ -399,7 +394,7 @@ describe("AutofillOverlayList", () => {
 
       autofillOverlayList["handleResizeObserver"](entries as unknown as ResizeObserverEntry[]);
 
-      expect(messageConnectorIframe.contentWindow.postMessage).not.toHaveBeenCalled();
+      expect(globalThis.parent.postMessage).not.toHaveBeenCalled();
     });
 
     it("posts a message to update the overlay list height if the list container is resized", () => {
@@ -412,7 +407,7 @@ describe("AutofillOverlayList", () => {
 
       autofillOverlayList["handleResizeObserver"](entries as unknown as ResizeObserverEntry[]);
 
-      expect(messageConnectorIframe.contentWindow.postMessage).toHaveBeenCalledWith(
+      expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
         { command: "updateAutofillOverlayListHeight", styles: { height: "300px" }, portKey },
         "*",
       );

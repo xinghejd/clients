@@ -3,16 +3,15 @@ import { EVENTS } from "@bitwarden/common/autofill/constants";
 import { RedirectFocusDirection } from "../../../enums/autofill-overlay.enum";
 import {
   AutofillOverlayPageElementWindowMessage,
-  WindowMessageHandlers,
+  AutofillOverlayPageElementWindowMessageHandlers,
 } from "../../abstractions/autofill-overlay-page-element";
 
 class AutofillOverlayPageElement extends HTMLElement {
   protected shadowDom: ShadowRoot;
   protected messageOrigin: string;
   protected translations: Record<string, string>;
-  protected messageConnectorIframe: HTMLIFrameElement;
   private portKey: string;
-  protected windowMessageHandlers: WindowMessageHandlers;
+  protected windowMessageHandlers: AutofillOverlayPageElementWindowMessageHandlers;
 
   constructor() {
     super();
@@ -61,8 +60,7 @@ class AutofillOverlayPageElement extends HTMLElement {
   /**
    * Gets a translation from the translations object.
    *
-   * @param key
-   * @protected
+   * @param key - The key of the translation to get
    */
   protected getTranslation(key: string): string {
     return this.translations[key] || "";
@@ -74,7 +72,9 @@ class AutofillOverlayPageElement extends HTMLElement {
    *
    * @param windowMessageHandlers - The window message handlers to use
    */
-  protected setupGlobalListeners(windowMessageHandlers: WindowMessageHandlers) {
+  protected setupGlobalListeners(
+    windowMessageHandlers: AutofillOverlayPageElementWindowMessageHandlers,
+  ) {
     this.windowMessageHandlers = windowMessageHandlers;
 
     globalThis.addEventListener(EVENTS.MESSAGE, this.handleWindowMessage);
