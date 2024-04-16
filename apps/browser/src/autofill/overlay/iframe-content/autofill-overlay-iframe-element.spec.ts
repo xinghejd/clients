@@ -1,3 +1,5 @@
+import { AutofillOverlayPort } from "../../utils/autofill-overlay.enum";
+
 import AutofillOverlayIframeElement from "./autofill-overlay-iframe-element";
 import AutofillOverlayIframeService from "./autofill-overlay-iframe.service";
 
@@ -11,8 +13,7 @@ describe("AutofillOverlayIframeElement", () => {
         super();
         new AutofillOverlayIframeElement(
           this,
-          "overlay/button.html",
-          "overlay/button",
+          AutofillOverlayPort.Button,
           { background: "transparent", border: "none" },
           "bitwardenOverlayButton",
         );

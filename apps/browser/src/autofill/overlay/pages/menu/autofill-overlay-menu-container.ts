@@ -4,7 +4,6 @@ import { setElementStyles } from "../../../utils";
 
 export class AutofillOverlayMenuContainer {
   private initMessage: any;
-
   private extensionOriginsSet: Set<string>;
   private port: chrome.runtime.Port | null = null;
   private portName: string;
@@ -30,7 +29,7 @@ export class AutofillOverlayMenuContainer {
   private defaultIframeAttributes: Record<string, string> = {
     src: "",
     title: "",
-    // sandbox: "allow-scripts",
+    sandbox: "allow-scripts",
     allowtransparency: "true",
     tabIndex: "-1",
   };
@@ -69,8 +68,12 @@ export class AutofillOverlayMenuContainer {
     this.port = chrome.runtime.connect({ name: this.portName });
     this.port.onMessage.addListener(this.handlePortMessage);
 
-    this.iframe.contentWindow?.postMessage(this.initMessage, "*");
+    this.postMessageToIframe(this.initMessage);
   };
+
+  private postMessageToIframe(message: any) {
+    this.iframe?.contentWindow?.postMessage(message, "*");
+  }
 
   private handlePortMessage = (message: any, port: chrome.runtime.Port) => {
     if (port.name !== this.portName) {

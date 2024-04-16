@@ -35,7 +35,6 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
   private defaultIframeAttributes: Record<string, string> = {
     src: "",
     title: "",
-    // sandbox: "allow-scripts",
     allowtransparency: "true",
     tabIndex: "-1",
   };

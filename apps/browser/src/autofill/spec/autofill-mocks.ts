@@ -173,7 +173,6 @@ function createInitAutofillOverlayButtonMessageMock(
     translations: overlayPagesTranslations,
     styleSheetUrl: "https://jest-testing-website.com",
     authStatus: AuthenticationStatus.Unlocked,
-    messageConnectorUrl: "https://jest-testing-website.com/message-connector",
     portKey: "portKey",
     ...customFields,
   };

@@ -1,6 +1,5 @@
 import { mock } from "jest-mock-extended";
 
-import { flushPromises } from "../../../spec/testing-utils";
 import { OverlayButtonWindowMessageHandlers } from "../../abstractions/autofill-overlay-button";
 
 import AutofillOverlayPageElement from "./autofill-overlay-page-element";
@@ -48,7 +47,6 @@ describe("AutofillOverlayPageElement", () => {
         "button",
         "https://jest-testing-website.com",
         translations,
-        "https://jest-testing-website.com/message-connector",
         portKey,
       );
 
@@ -60,26 +58,6 @@ describe("AutofillOverlayPageElement", () => {
       expect(globalThis.document.createElement).toHaveBeenCalledWith("link");
       expect(linkElement.getAttribute("rel")).toEqual("stylesheet");
       expect(linkElement.getAttribute("href")).toEqual("https://jest-testing-website.com");
-    });
-  });
-
-  describe("initMessageConnector", () => {
-    it("initializes the message connector iframe", async () => {
-      const elementName = "list";
-      const messageConnectorUrl = "https://jest-testing-website.com/message-connector";
-      const messageConnectorIframe = document.createElement("iframe");
-      jest.spyOn(messageConnectorIframe, "addEventListener");
-      jest.spyOn(globalThis.document, "createElement").mockReturnValue(messageConnectorIframe);
-
-      void autofillOverlayPageElement["initMessageConnector"](messageConnectorUrl, elementName);
-      messageConnectorIframe.dispatchEvent(new Event("load"));
-      await flushPromises();
-
-      expect(messageConnectorIframe.src).toEqual(messageConnectorUrl);
-      expect(messageConnectorIframe.addEventListener).toHaveBeenCalledWith(
-        "load",
-        expect.any(Function),
-      );
     });
   });
 

@@ -14,7 +14,6 @@ import { AutofillOverlayPort } from "../../utils/autofill-overlay.enum";
 import AutofillOverlayIframeService from "./autofill-overlay-iframe.service";
 
 describe("AutofillOverlayIframeService", () => {
-  const iframePath = "overlay/list.html";
   let autofillOverlayIframeService: AutofillOverlayIframeService;
   let portSpy: chrome.runtime.Port;
   let shadowAppendSpy: jest.SpyInstance;
@@ -25,9 +24,11 @@ describe("AutofillOverlayIframeService", () => {
   beforeEach(() => {
     const shadow = document.createElement("div").attachShadow({ mode: "open" });
     autofillOverlayIframeService = new AutofillOverlayIframeService(
-      iframePath,
-      AutofillOverlayPort.Button,
       shadow,
+      AutofillOverlayPort.Button,
+      { height: "0px" },
+      "title",
+      "ariaAlert",
     );
     shadowAppendSpy = jest.spyOn(shadow, "appendChild");
     handlePortDisconnectSpy = jest.spyOn(
@@ -48,9 +49,9 @@ describe("AutofillOverlayIframeService", () => {
     jest.clearAllMocks();
   });
 
-  describe("initOverlayIframe", () => {
+  describe("initMenuIframe", () => {
     it("sets up the iframe's attributes", () => {
-      autofillOverlayIframeService.initOverlayIframe({ height: "0px" }, "title");
+      autofillOverlayIframeService.initMenuIframe();
 
       expect(autofillOverlayIframeService["iframe"]).toMatchSnapshot();
     });
@@ -58,7 +59,7 @@ describe("AutofillOverlayIframeService", () => {
     it("appends the iframe to the shadowDom", () => {
       jest.spyOn(autofillOverlayIframeService["shadow"], "appendChild");
 
-      autofillOverlayIframeService.initOverlayIframe({}, "title");
+      autofillOverlayIframeService.initMenuIframe();
 
       expect(autofillOverlayIframeService["shadow"].appendChild).toHaveBeenCalledWith(
         autofillOverlayIframeService["iframe"],
@@ -69,7 +70,7 @@ describe("AutofillOverlayIframeService", () => {
       const ariaAlert = "aria alert";
       jest.spyOn(autofillOverlayIframeService as any, "createAriaAlertElement");
 
-      autofillOverlayIframeService.initOverlayIframe({}, "title", ariaAlert);
+      autofillOverlayIframeService.initMenuIframe();
 
       expect(autofillOverlayIframeService["createAriaAlertElement"]).toHaveBeenCalledWith(
         ariaAlert,
@@ -79,7 +80,7 @@ describe("AutofillOverlayIframeService", () => {
 
     describe("on load of the iframe source", () => {
       beforeEach(() => {
-        autofillOverlayIframeService.initOverlayIframe({ height: "0px" }, "title", "ariaAlert");
+        autofillOverlayIframeService.initMenuIframe();
       });
 
       it("sets up and connects the port message listener to the extension background", () => {
@@ -122,7 +123,7 @@ describe("AutofillOverlayIframeService", () => {
 
   describe("event listeners", () => {
     beforeEach(() => {
-      autofillOverlayIframeService.initOverlayIframe({ height: "0px" }, "title", "ariaAlert");
+      autofillOverlayIframeService.initMenuIframe();
       autofillOverlayIframeService["iframe"].dispatchEvent(new Event(EVENTS.LOAD));
       Object.defineProperty(autofillOverlayIframeService["iframe"], "contentWindow", {
         value: {
@@ -403,7 +404,7 @@ describe("AutofillOverlayIframeService", () => {
 
   describe("mutation observer", () => {
     beforeEach(() => {
-      autofillOverlayIframeService.initOverlayIframe({ height: "0px" }, "title", "ariaAlert");
+      autofillOverlayIframeService.initMenuIframe();
       autofillOverlayIframeService["iframe"].dispatchEvent(new Event(EVENTS.LOAD));
       portSpy = autofillOverlayIframeService["port"];
     });
