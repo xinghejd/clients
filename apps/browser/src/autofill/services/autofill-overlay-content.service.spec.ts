@@ -3,11 +3,11 @@ import { mock } from "jest-mock-extended";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EVENTS, AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
 
+import { AutofillOverlayElement, RedirectFocusDirection } from "../enums/autofill-overlay.enum";
 import AutofillField from "../models/autofill-field";
 import { createAutofillFieldMock } from "../spec/autofill-mocks";
 import { flushPromises } from "../spec/testing-utils";
 import { ElementWithOpId, FormFieldElement } from "../types";
-import { AutofillOverlayElement, RedirectFocusDirection } from "../utils/autofill-overlay.enum";
 
 import { AutoFillConstants } from "./autofill-constants";
 import AutofillOverlayContentService from "./autofill-overlay-content.service";

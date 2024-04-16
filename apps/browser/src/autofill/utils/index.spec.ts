@@ -1,4 +1,4 @@
-import { AutofillPort } from "../enums/autofill-port.enums";
+import { AutofillPort } from "../enums/autofill-port.enum";
 import { triggerPortOnDisconnectEvent } from "../spec/testing-utils";
 
 import { logoIcon, logoLockedIcon } from "./svg-icons";

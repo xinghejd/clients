@@ -10,10 +10,10 @@ import {
   SubFrameOffsetData,
 } from "../background/abstractions/overlay.background";
 import { AutofillExtensionMessage } from "../content/abstractions/autofill-init";
+import { AutofillOverlayElement, RedirectFocusDirection } from "../enums/autofill-overlay.enum";
 import AutofillField from "../models/autofill-field";
 import { ElementWithOpId, FillableFormFieldElement, FormFieldElement } from "../types";
 import { elementIsFillableFormField, getAttributeBoolean, sendExtensionMessage } from "../utils";
-import { AutofillOverlayElement, RedirectFocusDirection } from "../utils/autofill-overlay.enum";
 
 import {
   AutofillOverlayContentExtensionMessageHandlers,

@@ -36,6 +36,11 @@ import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { DefaultBrowserStateService } from "../../platform/services/default-browser-state.service";
 import { BrowserPlatformUtilsService } from "../../platform/services/platform-utils/browser-platform-utils.service";
+import {
+  AutofillOverlayElement,
+  AutofillOverlayPort,
+  RedirectFocusDirection,
+} from "../enums/autofill-overlay.enum";
 import { AutofillService } from "../services/abstractions/autofill.service";
 import {
   createAutofillPageDetailsMock,
@@ -45,11 +50,6 @@ import {
   createPortSpyMock,
 } from "../spec/autofill-mocks";
 import { flushPromises, sendMockExtensionMessage, sendPortMessage } from "../spec/testing-utils";
-import {
-  AutofillOverlayElement,
-  AutofillOverlayPort,
-  RedirectFocusDirection,
-} from "../utils/autofill-overlay.enum";
 
 import OverlayBackground from "./overlay.background";
 

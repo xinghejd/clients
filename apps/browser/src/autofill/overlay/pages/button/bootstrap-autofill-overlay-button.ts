@@ -1,4 +1,4 @@
-import { AutofillOverlayElement } from "../../../utils/autofill-overlay.enum";
+import { AutofillOverlayElement } from "../../../enums/autofill-overlay.enum";
 
 import AutofillOverlayButton from "./autofill-overlay-button";
 

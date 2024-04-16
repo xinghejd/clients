@@ -21,7 +21,7 @@ import { FieldView } from "@bitwarden/common/vault/models/view/field.view";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { openVaultItemPasswordRepromptPopout } from "../../vault/popup/utils/vault-popout-window";
-import { AutofillPort } from "../enums/autofill-port.enums";
+import { AutofillPort } from "../enums/autofill-port.enum";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";

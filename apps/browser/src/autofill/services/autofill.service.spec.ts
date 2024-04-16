@@ -32,7 +32,7 @@ import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
-import { AutofillPort } from "../enums/autofill-port.enums";
+import { AutofillPort } from "../enums/autofill-port.enum";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";

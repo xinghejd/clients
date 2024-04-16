@@ -1,6 +1,6 @@
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
-import { RedirectFocusDirection } from "../../../utils/autofill-overlay.enum";
+import { RedirectFocusDirection } from "../../../enums/autofill-overlay.enum";
 import {
   AutofillOverlayPageElementWindowMessage,
   WindowMessageHandlers,

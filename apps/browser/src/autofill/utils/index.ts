@@ -1,4 +1,4 @@
-import { AutofillPort } from "../enums/autofill-port.enums";
+import { AutofillPort } from "../enums/autofill-port.enum";
 import { FillableFormFieldElement, FormElementWithAttribute, FormFieldElement } from "../types";
 
 export function generateRandomChars(length: number): string {

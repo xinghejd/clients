@@ -1,10 +1,10 @@
 import { AutofillExtensionMessage } from "../../content/abstractions/autofill-init";
+import { AutofillOverlayElement } from "../../enums/autofill-overlay.enum";
 import {
   sendExtensionMessage,
   generateRandomCustomElementName,
   setElementStyles,
 } from "../../utils";
-import { AutofillOverlayElement } from "../../utils/autofill-overlay.enum";
 import {
   InlineMenuExtensionMessageHandlers,
   AutofillOverlayInlineMenuElements as InlineMenuElementsInterface,

@@ -26,9 +26,9 @@ import {
   openAddEditVaultItemPopout,
   openViewVaultItemPopout,
 } from "../../vault/popup/utils/vault-popout-window";
+import { AutofillOverlayElement, AutofillOverlayPort } from "../enums/autofill-overlay.enum";
 import { AutofillService } from "../services/abstractions/autofill.service";
 import { generateRandomChars } from "../utils";
-import { AutofillOverlayElement, AutofillOverlayPort } from "../utils/autofill-overlay.enum";
 
 import { LockedVaultPendingNotificationsData } from "./abstractions/notification.background";
 import {

@@ -3,13 +3,13 @@ import { mock } from "jest-mock-extended";
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 
+import { AutofillOverlayPort } from "../../enums/autofill-overlay.enum";
 import { createPortSpyMock } from "../../spec/autofill-mocks";
 import {
   flushPromises,
   sendPortMessage,
   triggerPortOnDisconnectEvent,
 } from "../../spec/testing-utils";
-import { AutofillOverlayPort } from "../../utils/autofill-overlay.enum";
 
 import AutofillOverlayIframeService from "./autofill-overlay-iframe.service";
 
