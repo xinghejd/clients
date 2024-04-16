@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Result};
 use libsecret::{password_clear_sync, password_lookup_sync, password_store_sync, Schema};
-use std::collections::HashMap;
+use std::{collections::HashMap, time::Duration};
 
 pub fn get_password(service: &str, account: &str) -> Result<String> {
     let res = password_lookup_sync(
@@ -15,18 +15,23 @@ pub fn get_password(service: &str, account: &str) -> Result<String> {
     }
 }
 
+// Query dbus names looking for the org.freedesktop.secrets service, which indicates an active libsecret provider
 pub fn has_password_management() -> bool {
-    match password_lookup_sync(
-        Some(&get_schema()),
-        build_attributes("", ""),
-        gio::Cancellable::NONE,
-    ) {
-        Ok(v) => {
-            // If we can get a password, we have password management. A non-existing password results in None
-            true
-        }
-        Err(e) => false,
-    }
+    let conn = match dbus::blocking::SyncConnection::new_session() {
+        Ok(conn) => conn,
+        Err(_) => return false,
+    };
+    let proxy = conn.with_proxy(
+        "org.freedesktop.DBus",
+        "/org/freedesktop/DBus",
+        Duration::from_millis(250),
+    );
+    let (names,): (Vec<String>,) = match proxy.method_call("org.freedesktop.DBus", "ListNames", ())
+    {
+        Ok(names) => names,
+        Err(_) => return false,
+    };
+    names.contains(&"org.freedesktop.secrets".to_string())
 }
 
 pub fn get_password_keytar(service: &str, account: &str) -> Result<String> {
