@@ -109,7 +109,7 @@ export class AutofillOverlayMenuContainer {
       return;
     }
 
-    if (event.source === globalThis.parent) {
+    if (this.isMessageFromParentWindow(event)) {
       this.postMessageToOverlayPage(message);
       return;
     }
@@ -122,11 +122,15 @@ export class AutofillOverlayMenuContainer {
       return true;
     }
 
-    if (globalThis.parent === event.source) {
+    if (this.isMessageFromParentWindow(event)) {
       return false;
     }
 
     return !this.isMessageFromOverlayPageIframe(event);
+  }
+
+  private isMessageFromParentWindow(event: MessageEvent): boolean {
+    return globalThis.parent === event.source;
   }
 
   private isMessageFromOverlayPageIframe(event: MessageEvent): boolean {
