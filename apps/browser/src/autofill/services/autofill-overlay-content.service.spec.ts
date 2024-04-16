@@ -305,7 +305,7 @@ describe("AutofillOverlayContentService", () => {
         it("sends a message to the background to check if the overlay is focused", () => {
           autofillFieldElement.dispatchEvent(new Event("blur"));
 
-          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("checkAutofillOverlayFocused");
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("checkAutofillOverlayMenuFocused");
         });
       });
 
@@ -704,9 +704,12 @@ describe("AutofillOverlayContentService", () => {
           autofillFieldElement.dispatchEvent(new Event("focus"));
           await flushPromises();
 
-          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayPosition", {
-            overlayElement: AutofillOverlayElement.Button,
-          });
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith(
+            "updateAutofillOverlayMenuPosition",
+            {
+              overlayElement: AutofillOverlayElement.Button,
+            },
+          );
         });
       });
     });
@@ -816,10 +819,10 @@ describe("AutofillOverlayContentService", () => {
 
       autofillOverlayContentService["openAutofillOverlayMenu"]();
 
-      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayPosition", {
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayMenuPosition", {
         overlayElement: AutofillOverlayElement.Button,
       });
-      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayPosition", {
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayMenuPosition", {
         overlayElement: AutofillOverlayElement.List,
       });
     });
@@ -830,12 +833,15 @@ describe("AutofillOverlayContentService", () => {
 
       autofillOverlayContentService["openAutofillOverlayMenu"]({ isOpeningFullOverlay: false });
 
-      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayPosition", {
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayMenuPosition", {
         overlayElement: AutofillOverlayElement.Button,
       });
-      expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith("updateAutofillOverlayPosition", {
-        overlayElement: AutofillOverlayElement.List,
-      });
+      expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith(
+        "updateAutofillOverlayMenuPosition",
+        {
+          overlayElement: AutofillOverlayElement.List,
+        },
+      );
     });
 
     it("overrides the onButtonClick visibility setting to open both overlay elements", () => {
@@ -844,10 +850,10 @@ describe("AutofillOverlayContentService", () => {
 
       autofillOverlayContentService["openAutofillOverlayMenu"]({ isOpeningFullOverlay: true });
 
-      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayPosition", {
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayMenuPosition", {
         overlayElement: AutofillOverlayElement.Button,
       });
-      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayPosition", {
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayMenuPosition", {
         overlayElement: AutofillOverlayElement.List,
       });
     });
@@ -1098,7 +1104,7 @@ describe("AutofillOverlayContentService", () => {
       globalThis.dispatchEvent(new Event(EVENTS.SCROLL));
       await flushPromises();
 
-      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayHidden", {
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayMenuHidden", {
         isOverlayHidden: true,
         setTransparentOverlay: false,
       });
@@ -1126,7 +1132,7 @@ describe("AutofillOverlayContentService", () => {
       await flushPromises();
       jest.advanceTimersByTime(800);
 
-      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayHidden", {
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayMenuHidden", {
         isOverlayHidden: false,
         setTransparentOverlay: true,
       });
@@ -1157,10 +1163,10 @@ describe("AutofillOverlayContentService", () => {
       jest.advanceTimersByTime(800);
       await flushPromises();
 
-      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayPosition", {
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayMenuPosition", {
         overlayElement: AutofillOverlayElement.Button,
       });
-      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayPosition", {
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayMenuPosition", {
         overlayElement: AutofillOverlayElement.List,
       });
       expect(clearUserInteractionEventTimeoutSpy).toHaveBeenCalled();

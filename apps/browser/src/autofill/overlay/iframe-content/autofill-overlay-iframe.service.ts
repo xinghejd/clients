@@ -45,7 +45,7 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
     initAutofillOverlayButton: ({ message }) => this.initAutofillOverlay(message),
     initAutofillOverlayList: ({ message }) => this.initAutofillOverlay(message),
     updateIframePosition: ({ message }) => this.updateIframePosition(message.styles),
-    updateOverlayHidden: ({ message }) => this.updateElementStyles(this.iframe, message.styles),
+    updateOverlayMenuHidden: ({ message }) => this.updateElementStyles(this.iframe, message.styles),
     updateOverlayPageColorScheme: () => this.updateOverlayPageColorScheme(),
   };
 

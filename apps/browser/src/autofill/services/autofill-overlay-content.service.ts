@@ -290,7 +290,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     void this.sendExtensionMessage("updateIsFieldCurrentlyFocused", {
       isFieldCurrentlyFocused: false,
     });
-    void this.sendExtensionMessage("checkAutofillOverlayFocused");
+    void this.sendExtensionMessage("checkAutofillOverlayMenuFocused");
   };
 
   /**
@@ -547,7 +547,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * Updates the position of the overlay button.
    */
   private updateOverlayButtonPosition() {
-    void this.sendExtensionMessage("updateAutofillOverlayPosition", {
+    void this.sendExtensionMessage("updateAutofillOverlayMenuPosition", {
       overlayElement: AutofillOverlayElement.Button,
     });
   }
@@ -556,7 +556,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * Updates the position of the overlay list.
    */
   private updateOverlayListPosition() {
-    void this.sendExtensionMessage("updateAutofillOverlayPosition", {
+    void this.sendExtensionMessage("updateAutofillOverlayMenuPosition", {
       overlayElement: AutofillOverlayElement.List,
     });
   }
@@ -568,7 +568,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * @param setTransparentOverlay - Indicates if the overlay is closing.
    */
   private toggleOverlayHidden(isHidden: boolean, setTransparentOverlay: boolean = false) {
-    void this.sendExtensionMessage("updateAutofillOverlayHidden", {
+    void this.sendExtensionMessage("updateAutofillOverlayMenuHidden", {
       isOverlayHidden: isHidden,
       setTransparentOverlay,
     });
@@ -1002,7 +1002,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   }
 
   private async isInlineMenuCiphersPopulated() {
-    return (await this.sendExtensionMessage("checkIsInlineMenuCiphersPopulated")) === true;
+    return (await this.sendExtensionMessage("checkIsOverlayLoginCiphersPopulated")) === true;
   }
 
   /**

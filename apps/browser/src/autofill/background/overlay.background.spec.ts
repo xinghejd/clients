@@ -668,13 +668,13 @@ describe("OverlayBackground", () => {
         });
       });
 
-      describe("checkAutofillOverlayFocused message handler", () => {
+      describe("checkAutofillOverlayMenuFocused message handler", () => {
         beforeEach(async () => {
           await initOverlayElementPorts();
         });
 
         it("will check if the overlay list is focused if the list port is open", () => {
-          sendMockExtensionMessage({ command: "checkAutofillOverlayFocused" });
+          sendMockExtensionMessage({ command: "checkAutofillOverlayMenuFocused" });
 
           expect(listPortSpy.postMessage).toHaveBeenCalledWith({
             command: "checkAutofillOverlayListFocused",
@@ -687,7 +687,7 @@ describe("OverlayBackground", () => {
         it("will check if the overlay button is focused if the list port is not open", () => {
           overlayBackground["overlayListPort"] = undefined;
 
-          sendMockExtensionMessage({ command: "checkAutofillOverlayFocused" });
+          sendMockExtensionMessage({ command: "checkAutofillOverlayMenuFocused" });
 
           expect(buttonPortSpy.postMessage).toHaveBeenCalledWith({
             command: "checkAutofillOverlayButtonFocused",
@@ -713,7 +713,7 @@ describe("OverlayBackground", () => {
         });
       });
 
-      describe("updateAutofillOverlayPosition message handler", () => {
+      describe("updateAutofillOverlayMenuPosition message handler", () => {
         let sender: MockProxy<chrome.runtime.MessageSender>;
 
         beforeEach(async () => {
@@ -731,7 +731,7 @@ describe("OverlayBackground", () => {
         });
 
         it("ignores updating the position if the overlay element type is not provided", () => {
-          sendMockExtensionMessage({ command: "updateAutofillOverlayPosition" }, sender);
+          sendMockExtensionMessage({ command: "updateAutofillOverlayMenuPosition" }, sender);
 
           expect(listPortSpy.postMessage).not.toHaveBeenCalledWith({
             command: "updateIframePosition",
@@ -749,7 +749,7 @@ describe("OverlayBackground", () => {
 
           sendMockExtensionMessage(
             {
-              command: "updateAutofillOverlayPosition",
+              command: "updateAutofillOverlayMenuPosition",
               overlayElement: AutofillOverlayElement.Button,
             },
             sender,
@@ -770,7 +770,7 @@ describe("OverlayBackground", () => {
 
           sendMockExtensionMessage(
             {
-              command: "updateAutofillOverlayPosition",
+              command: "updateAutofillOverlayMenuPosition",
               overlayElement: AutofillOverlayElement.Button,
             },
             sender,
@@ -791,7 +791,7 @@ describe("OverlayBackground", () => {
 
           sendMockExtensionMessage(
             {
-              command: "updateAutofillOverlayPosition",
+              command: "updateAutofillOverlayMenuPosition",
               overlayElement: AutofillOverlayElement.Button,
             },
             sender,
@@ -812,7 +812,7 @@ describe("OverlayBackground", () => {
 
           sendMockExtensionMessage(
             {
-              command: "updateAutofillOverlayPosition",
+              command: "updateAutofillOverlayMenuPosition",
               overlayElement: AutofillOverlayElement.Button,
             },
             sender,
@@ -831,7 +831,7 @@ describe("OverlayBackground", () => {
 
           sendMockExtensionMessage(
             {
-              command: "updateAutofillOverlayPosition",
+              command: "updateAutofillOverlayMenuPosition",
               overlayElement: AutofillOverlayElement.List,
             },
             sender,
@@ -845,24 +845,24 @@ describe("OverlayBackground", () => {
         });
       });
 
-      describe("updateOverlayHidden", () => {
+      describe("updateOverlayMenuHidden", () => {
         beforeEach(async () => {
           await initOverlayElementPorts();
         });
 
         it("sets the `display` CSS value on the overlay button and list", () => {
-          const message = { command: "updateAutofillOverlayHidden", isOverlayHidden: true };
+          const message = { command: "updateAutofillOverlayMenuHidden", isOverlayHidden: true };
 
           sendMockExtensionMessage(message);
 
           expect(buttonPortSpy.postMessage).toHaveBeenCalledWith({
-            command: "updateOverlayHidden",
+            command: "updateOverlayMenuHidden",
             styles: {
               display: "none",
             },
           });
           expect(listPortSpy.postMessage).toHaveBeenCalledWith({
-            command: "updateOverlayHidden",
+            command: "updateOverlayMenuHidden",
             styles: {
               display: "none",
             },
@@ -870,19 +870,22 @@ describe("OverlayBackground", () => {
         });
 
         it("sets the `opacity` CSS value on the overlay button and list", () => {
-          const message = { command: "updateAutofillOverlayHidden", setTransparentOverlay: true };
+          const message = {
+            command: "updateAutofillOverlayMenuHidden",
+            setTransparentOverlay: true,
+          };
 
           sendMockExtensionMessage(message);
 
           expect(buttonPortSpy.postMessage).toHaveBeenCalledWith({
-            command: "updateOverlayHidden",
+            command: "updateOverlayMenuHidden",
             styles: {
               display: "block",
               opacity: 0,
             },
           });
           expect(listPortSpy.postMessage).toHaveBeenCalledWith({
-            command: "updateOverlayHidden",
+            command: "updateOverlayMenuHidden",
             styles: {
               display: "block",
               opacity: 0,
@@ -1033,7 +1036,7 @@ describe("OverlayBackground", () => {
 
   describe("handlePortOnConnect", () => {
     beforeEach(() => {
-      jest.spyOn(overlayBackground as any, "updateOverlayPosition").mockImplementation();
+      jest.spyOn(overlayBackground as any, "updateOverlayMenuPosition").mockImplementation();
       jest.spyOn(overlayBackground as any, "getAuthStatus").mockImplementation();
       jest.spyOn(overlayBackground as any, "getTranslations").mockImplementation();
       jest.spyOn(overlayBackground as any, "getOverlayCipherData").mockImplementation();
@@ -1063,7 +1066,7 @@ describe("OverlayBackground", () => {
       expect(chrome.runtime.getURL).toHaveBeenCalledWith("overlay/list.css");
       expect(overlayBackground["getTranslations"]).toHaveBeenCalled();
       expect(overlayBackground["getOverlayCipherData"]).toHaveBeenCalled();
-      expect(overlayBackground["updateOverlayPosition"]).toHaveBeenCalledWith(
+      expect(overlayBackground["updateOverlayMenuPosition"]).toHaveBeenCalledWith(
         { overlayElement: AutofillOverlayElement.List },
         listPortSpy.sender,
       );
@@ -1083,7 +1086,7 @@ describe("OverlayBackground", () => {
       expect(overlayBackground["getAuthStatus"]).toHaveBeenCalled();
       expect(chrome.runtime.getURL).toHaveBeenCalledWith("overlay/button.css");
       expect(overlayBackground["getTranslations"]).toHaveBeenCalled();
-      expect(overlayBackground["updateOverlayPosition"]).toHaveBeenCalledWith(
+      expect(overlayBackground["updateOverlayMenuPosition"]).toHaveBeenCalledWith(
         { overlayElement: AutofillOverlayElement.Button },
         buttonPortSpy.sender,
       );

@@ -97,13 +97,13 @@ type OverlayBackgroundExtensionMessageHandlers = {
   autofillOverlayElementClosed: ({ message }: BackgroundMessageParam) => void;
   autofillOverlayAddNewVaultItem: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   getAutofillOverlayVisibility: () => void;
-  checkAutofillOverlayFocused: () => void;
+  checkAutofillOverlayMenuFocused: () => void;
   focusAutofillOverlayList: () => void;
-  updateAutofillOverlayPosition: ({
+  updateAutofillOverlayMenuPosition: ({
     message,
     sender,
   }: BackgroundOnMessageHandlerParams) => Promise<void>;
-  updateAutofillOverlayHidden: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
+  updateAutofillOverlayMenuHidden: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   updateFocusedFieldData: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   updateIsFieldCurrentlyFocused: ({ message }: BackgroundMessageParam) => void;
   checkIsFieldCurrentlyFocused: () => boolean;
@@ -111,7 +111,7 @@ type OverlayBackgroundExtensionMessageHandlers = {
   checkIsFieldCurrentlyFilling: () => boolean;
   checkIsInlineMenuButtonVisible: ({ sender }: BackgroundSenderParam) => void;
   checkIsInlineMenuListVisible: ({ sender }: BackgroundSenderParam) => void;
-  checkIsInlineMenuCiphersPopulated: ({ sender }: BackgroundSenderParam) => void;
+  checkIsOverlayLoginCiphersPopulated: ({ sender }: BackgroundSenderParam) => void;
   updateSubFrameData: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   rebuildSubFrameOffsets: ({ sender }: BackgroundSenderParam) => void;
   collectPageDetailsResponse: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;

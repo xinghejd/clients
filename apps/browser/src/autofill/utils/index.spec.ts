@@ -38,7 +38,7 @@ describe("generateRandomCustomElementName", () => {
 
 describe("sendExtensionMessage", () => {
   it("sends a message to the extention", () => {
-    const extensionMessageResponse = sendExtensionMessage("updateAutofillOverlayHidden", {
+    const extensionMessageResponse = sendExtensionMessage("updateAutofillOverlayMenuHidden", {
       display: "none",
     });
     jest.spyOn(chrome.runtime, "sendMessage");
