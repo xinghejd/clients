@@ -16,7 +16,6 @@ import { UserKeyEncryptor } from "../state/user-key-encryptor";
 
 import { ApiOptions } from "./options/forwarder-options";
 
-const ONE_MINUTE = 60 * 1000;
 const OPTIONS_FRAME_SIZE = 512;
 
 /** An email forwarding service configurable through an API. */
@@ -37,8 +36,6 @@ export abstract class ForwarderGeneratorStrategy<
     // Uses password generator since there aren't policies
     // specific to usernames.
     this.policy = PolicyType.PasswordGenerator;
-
-    this.cache_ms = ONE_MINUTE;
   }
 
   private durableStates = new Map<UserId, SingleUserState<Options>>();

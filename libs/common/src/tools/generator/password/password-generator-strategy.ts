@@ -19,8 +19,6 @@ import {
   leastPrivilege,
 } from "./password-generator-policy";
 
-const ONE_MINUTE = 60 * 1000;
-
 /** {@link GeneratorStrategy} */
 export class PasswordGeneratorStrategy
   implements GeneratorStrategy<PasswordGenerationOptions, PasswordGeneratorPolicy>
@@ -46,10 +44,6 @@ export class PasswordGeneratorStrategy
   /** {@link GeneratorStrategy.policy} */
   get policy() {
     return PolicyType.PasswordGenerator;
-  }
-
-  get cache_ms() {
-    return ONE_MINUTE;
   }
 
   /** {@link GeneratorStrategy.toEvaluator} */
