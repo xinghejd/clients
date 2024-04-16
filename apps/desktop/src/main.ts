@@ -31,6 +31,7 @@ import { DefaultStateProvider } from "@bitwarden/common/platform/state/implement
 import { StateEventRegistrarService } from "@bitwarden/common/platform/state/state-event-registrar.service";
 import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@bitwarden/common/platform/state/storage/memory-storage.service";
 /* eslint-enable import/no-restricted-paths */
+import { passwords } from "@bitwarden/desktop-native";
 
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
 import { MenuMain } from "./main/menu/menu.main";
@@ -47,7 +48,6 @@ import { DesktopCredentialStorageListener } from "./platform/main/desktop-creden
 import { MainCryptoFunctionService } from "./platform/main/main-crypto-function.service";
 import { DesktopSettingsService } from "./platform/services/desktop-settings.service";
 import { ElectronLogMainService } from "./platform/services/electron-log.main.service";
-import { ELECTRON_SUPPORTS_SECURE_STORAGE } from "./platform/services/electron-platform-utils.service";
 import { ElectronStateService } from "./platform/services/electron-state.service";
 import { ElectronStorageService } from "./platform/services/electron-storage.service";
 import { I18nMainService } from "./platform/services/i18n.main.service";
@@ -179,7 +179,7 @@ export class Main {
     this.tokenService = new TokenService(
       singleUserStateProvider,
       globalStateProvider,
-      ELECTRON_SUPPORTS_SECURE_STORAGE,
+      passwords.osSupportsSecuredStorage(),
       illegalSecureStorageService,
       this.keyGenerationService,
       this.encryptService,

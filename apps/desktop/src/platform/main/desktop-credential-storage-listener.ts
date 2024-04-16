@@ -18,6 +18,10 @@ export class DesktopCredentialStorageListener {
   ) {}
 
   init() {
+    // Handle password management detection sync
+    ipcMain.on("osSupportsSecuredStorage", (event) => {
+      event.returnValue = passwords.osSupportsSecuredStorage();
+    });
     ipcMain.handle("keytar", async (event: any, message: any) => {
       try {
         let serviceName = this.serviceName;
