@@ -427,7 +427,7 @@ export class Fido2Component implements OnInit, OnDestroy {
     if (!result.verificationSuccess) {
       // Check if no client-side verification methods are available.
       if (result.noAvailableClientVerificationMethods) {
-        await this.promptUserToSetPin();
+        return await this.promptUserToSetPin();
       }
       return;
     }
