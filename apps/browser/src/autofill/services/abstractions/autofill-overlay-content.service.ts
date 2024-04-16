@@ -13,7 +13,7 @@ export type OpenAutofillOverlayOptions = {
 
 export type AutofillOverlayContentExtensionMessageHandlers = {
   [key: string]: CallableFunction;
-  openAutofillOverlay: ({ message }: AutofillExtensionMessageParam) => void;
+  openAutofillOverlayMenu: ({ message }: AutofillExtensionMessageParam) => void;
   addNewVaultItemFromOverlay: () => void;
   blurMostRecentOverlayField: () => void;
   bgUnlockPopoutOpened: () => void;

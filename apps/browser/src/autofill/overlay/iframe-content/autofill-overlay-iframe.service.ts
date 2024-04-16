@@ -324,7 +324,7 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
    * mutation observer is triggered excessively.
    */
   private forceCloseAutofillOverlay() {
-    void this.sendExtensionMessage("closeAutofillOverlay", { forceClose: true });
+    void this.sendExtensionMessage("closeAutofillOverlayMenu", { forceClose: true });
   }
 
   /**

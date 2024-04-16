@@ -41,7 +41,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   private autofillFieldKeywordsMap: WeakMap<AutofillField, string> = new WeakMap();
   private eventHandlersMemo: { [key: string]: EventListener } = {};
   readonly extensionMessageHandlers: AutofillOverlayContentExtensionMessageHandlers = {
-    openAutofillOverlay: ({ message }) => this.openAutofillOverlay(message),
+    openAutofillOverlayMenu: ({ message }) => this.openAutofillOverlayMenu(message),
     addNewVaultItemFromOverlay: () => this.addNewVaultItem(),
     blurMostRecentOverlayField: () => this.blurMostRecentOverlayField(),
     bgUnlockPopoutOpened: () => this.blurMostRecentOverlayField(true),
@@ -111,7 +111,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    *
    * @param options - Options for opening the autofill overlay.
    */
-  openAutofillOverlay(options: OpenAutofillOverlayOptions = {}) {
+  openAutofillOverlayMenu(options: OpenAutofillOverlayOptions = {}) {
     const { isFocusingFieldElement, isOpeningFullOverlay, authStatus } = options;
     if (!this.mostRecentlyFocusedField) {
       return;
@@ -157,7 +157,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     this.mostRecentlyFocusedField?.blur();
 
     if (isRemovingOverlay) {
-      void sendExtensionMessage("closeAutofillOverlay");
+      void sendExtensionMessage("closeAutofillOverlayMenu");
     }
   }
 
@@ -194,7 +194,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
 
     if (direction === RedirectFocusDirection.Current) {
       this.focusMostRecentOverlayField();
-      setTimeout(() => void this.sendExtensionMessage("closeAutofillOverlay"), 100);
+      setTimeout(() => void this.sendExtensionMessage("closeAutofillOverlayMenu"), 100);
       return;
     }
 
@@ -304,7 +304,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   private handleFormFieldKeyupEvent = async (event: KeyboardEvent) => {
     const eventCode = event.code;
     if (eventCode === "Escape") {
-      void this.sendExtensionMessage("closeAutofillOverlay", {
+      void this.sendExtensionMessage("closeAutofillOverlayMenu", {
         forceCloseOverlay: true,
       });
       return;
@@ -331,7 +331,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   private async focusOverlayList() {
     if (this.mostRecentlyFocusedField && !(await this.isInlineMenuListVisible())) {
       await this.updateMostRecentlyFocusedField(this.mostRecentlyFocusedField);
-      this.openAutofillOverlay({ isOpeningFullOverlay: true });
+      this.openAutofillOverlayMenu({ isOpeningFullOverlay: true });
       setTimeout(() => this.sendExtensionMessage("focusAutofillOverlayList"), 125);
       return;
     }
@@ -366,14 +366,14 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     this.storeModifiedFormElement(formFieldElement);
 
     if (await this.hideOverlayListOnFilledField(formFieldElement)) {
-      void this.sendExtensionMessage("closeAutofillOverlay", {
+      void this.sendExtensionMessage("closeAutofillOverlayMenu", {
         overlayElement: AutofillOverlayElement.List,
         forceCloseOverlay: true,
       });
       return;
     }
 
-    this.openAutofillOverlay();
+    this.openAutofillOverlayMenu();
   }
 
   /**
@@ -459,7 +459,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       this.autofillOverlayVisibility === AutofillOverlayVisibility.OnButtonClick ||
       (formElementHasValue && initiallyFocusedField !== this.mostRecentlyFocusedField)
     ) {
-      await this.sendExtensionMessage("closeAutofillOverlay", {
+      await this.sendExtensionMessage("closeAutofillOverlayMenu", {
         overlayElement: AutofillOverlayElement.List,
         forceCloseOverlay: true,
       });
@@ -470,7 +470,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       return;
     }
 
-    void this.sendExtensionMessage("openAutofillOverlay");
+    void this.sendExtensionMessage("openAutofillOverlayMenu");
   }
 
   /**
@@ -780,7 +780,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   private triggerOverlayRepositionUpdates = async () => {
     if (!this.recentlyFocusedFieldIsCurrentlyFocused()) {
       this.toggleOverlayHidden(false, true);
-      void this.sendExtensionMessage("closeAutofillOverlay", {
+      void this.sendExtensionMessage("closeAutofillOverlayMenu", {
         forceCloseOverlay: true,
       });
       return;
@@ -795,7 +795,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
           this.mostRecentlyFocusedField as FillableFormFieldElement,
         )
       ) {
-        void this.sendExtensionMessage("closeAutofillOverlay", {
+        void this.sendExtensionMessage("closeAutofillOverlayMenu", {
           overlayElement: AutofillOverlayElement.List,
           forceCloseOverlay: true,
         });
@@ -807,7 +807,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       return;
     }
 
-    void this.sendExtensionMessage("closeAutofillOverlay", {
+    void this.sendExtensionMessage("closeAutofillOverlayMenu", {
       forceCloseOverlay: true,
     });
   };
@@ -868,7 +868,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     }
 
     this.mostRecentlyFocusedField = null;
-    void this.sendExtensionMessage("closeAutofillOverlay", {
+    void this.sendExtensionMessage("closeAutofillOverlayMenu", {
       forceCloseOverlay: true,
     });
   };

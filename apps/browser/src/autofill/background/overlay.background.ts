@@ -64,8 +64,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private overlayPageTranslations: Record<string, string>;
   private iconsServerUrl: string;
   private readonly extensionMessageHandlers: OverlayBackgroundExtensionMessageHandlers = {
-    openAutofillOverlay: () => this.openOverlay(false),
-    closeAutofillOverlay: ({ message, sender }) => this.closeOverlay(sender, message),
+    openAutofillOverlayMenu: () => this.openOverlayMenu(false),
+    closeAutofillOverlayMenu: ({ message, sender }) => this.closeOverlayMenu(sender, message),
     autofillOverlayElementClosed: ({ message }) => this.overlayElementClosed(message),
     autofillOverlayAddNewVaultItem: ({ message, sender }) => this.addNewVaultItem(message, sender),
     getAutofillOverlayVisibility: () => this.getOverlayVisibility(),
@@ -92,9 +92,9 @@ class OverlayBackground implements OverlayBackgroundInterface {
   };
   private readonly overlayButtonPortMessageHandlers: OverlayButtonPortMessageHandlers = {
     overlayButtonClicked: ({ port }) => this.handleOverlayButtonClicked(port),
-    closeAutofillOverlay: ({ port }) => this.closeOverlay(port.sender),
+    closeAutofillOverlayMenu: ({ port }) => this.closeOverlayMenu(port.sender),
     forceCloseAutofillOverlay: ({ port }) =>
-      this.closeOverlay(port.sender, { forceCloseOverlay: true }),
+      this.closeOverlayMenu(port.sender, { forceCloseOverlay: true }),
     overlayPageBlurred: () => this.checkOverlayListFocused(),
     redirectOverlayFocusOut: ({ message, port }) => this.redirectOverlayFocusOut(message, port),
     updateOverlayPageColorScheme: () => this.updateButtonPageColorScheme(),
@@ -102,7 +102,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private readonly overlayListPortMessageHandlers: OverlayListPortMessageHandlers = {
     checkAutofillOverlayButtonFocused: () => this.checkOverlayButtonFocused(),
     forceCloseAutofillOverlay: ({ port }) =>
-      this.closeOverlay(port.sender, { forceCloseOverlay: true }),
+      this.closeOverlayMenu(port.sender, { forceCloseOverlay: true }),
     overlayPageBlurred: () => this.checkOverlayButtonFocused(),
     unlockVault: ({ port }) => this.unlockVault(port),
     fillSelectedListItem: ({ message, port }) => this.fillSelectedOverlayListItem(message, port),
@@ -409,7 +409,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * @param forceCloseOverlay - Identifies whether the overlay should be forced closed
    * @param overlayElement - The overlay element to close, either the list or button
    */
-  private closeOverlay(
+  private closeOverlayMenu(
     sender: chrome.runtime.MessageSender,
     {
       forceCloseOverlay,
@@ -614,13 +614,13 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * @param isFocusingFieldElement - Identifies whether the field element should be focused when the overlay is opened
    * @param isOpeningFullOverlay - Identifies whether the full overlay should be forced open regardless of other states
    */
-  private async openOverlay(isFocusingFieldElement = false, isOpeningFullOverlay = false) {
+  private async openOverlayMenu(isFocusingFieldElement = false, isOpeningFullOverlay = false) {
     const currentTab = await BrowserApi.getTabFromCurrentWindowId();
 
     await BrowserApi.tabSendMessage(
       currentTab,
       {
-        command: "openAutofillOverlay",
+        command: "openAutofillOverlayMenu",
         isFocusingFieldElement,
         isOpeningFullOverlay,
         authStatus: await this.getAuthStatus(),
@@ -681,7 +681,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    void this.openOverlay(false, true);
+    void this.openOverlayMenu(false, true);
   }
 
   /**
@@ -692,9 +692,9 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private async unlockVault(port: chrome.runtime.Port) {
     const { sender } = port;
 
-    this.closeOverlay(port.sender);
+    this.closeOverlayMenu(port.sender);
     const retryMessage: LockedVaultPendingNotificationsData = {
-      commandToRetry: { message: { command: "openAutofillOverlay" }, sender },
+      commandToRetry: { message: { command: "openAutofillOverlayMenu" }, sender },
       target: "overlay.background",
     };
     await BrowserApi.tabSendMessageData(
@@ -742,8 +742,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private async unlockCompleted(message: OverlayBackgroundExtensionMessage) {
     await this.getAuthStatus();
 
-    if (message.data?.commandToRetry?.message?.command === "openAutofillOverlay") {
-      await this.openOverlay(true);
+    if (message.data?.commandToRetry?.message?.command === "openAutofillOverlayMenu") {
+      await this.openOverlayMenu(true);
     }
   }
 

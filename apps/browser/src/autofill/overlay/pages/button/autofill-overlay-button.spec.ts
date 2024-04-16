@@ -74,7 +74,7 @@ describe("AutofillOverlayButton", () => {
       await flushPromises();
 
       expect(globalThis.parent.postMessage).not.toHaveBeenCalledWith({
-        command: "closeAutofillOverlay",
+        command: "closeAutofillOverlayMenu",
       });
     });
 
@@ -85,7 +85,7 @@ describe("AutofillOverlayButton", () => {
       await flushPromises();
 
       expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-        { command: "closeAutofillOverlay", portKey },
+        { command: "closeAutofillOverlayMenu", portKey },
         "*",
       );
     });

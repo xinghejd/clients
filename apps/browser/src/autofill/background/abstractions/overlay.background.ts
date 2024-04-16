@@ -92,8 +92,8 @@ type BackgroundOnMessageHandlerParams = BackgroundMessageParam & BackgroundSende
 
 type OverlayBackgroundExtensionMessageHandlers = {
   [key: string]: CallableFunction;
-  openAutofillOverlay: () => void;
-  closeAutofillOverlay: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
+  openAutofillOverlayMenu: () => void;
+  closeAutofillOverlayMenu: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   autofillOverlayElementClosed: ({ message }: BackgroundMessageParam) => void;
   autofillOverlayAddNewVaultItem: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   getAutofillOverlayVisibility: () => void;
@@ -131,7 +131,7 @@ type PortOnMessageHandlerParams = PortMessageParam & PortConnectionParam;
 type OverlayButtonPortMessageHandlers = {
   [key: string]: CallableFunction;
   overlayButtonClicked: ({ port }: PortConnectionParam) => void;
-  closeAutofillOverlay: ({ port }: PortConnectionParam) => void;
+  closeAutofillOverlayMenu: ({ port }: PortConnectionParam) => void;
   forceCloseAutofillOverlay: ({ port }: PortConnectionParam) => void;
   overlayPageBlurred: () => void;
   redirectOverlayFocusOut: ({ message, port }: PortOnMessageHandlerParams) => void;

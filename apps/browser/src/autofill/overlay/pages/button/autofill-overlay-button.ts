@@ -115,7 +115,7 @@ class AutofillOverlayButton extends AutofillOverlayPageElement {
       return;
     }
 
-    this.postMessageToParent({ command: "closeAutofillOverlay" });
+    this.postMessageToParent({ command: "closeAutofillOverlayMenu" });
   }
 }
 
