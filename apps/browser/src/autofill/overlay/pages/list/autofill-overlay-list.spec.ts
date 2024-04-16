@@ -21,7 +21,6 @@ describe("AutofillOverlayList", () => {
   beforeEach(() => {
     document.body.innerHTML = `<autofill-overlay-list></autofill-overlay-list>`;
     autofillOverlayList = document.querySelector("autofill-overlay-list");
-    autofillOverlayList["messageOrigin"] = "https://localhost/";
     jest.spyOn(globalThis.document, "createElement");
     jest.spyOn(globalThis.parent, "postMessage");
   });
