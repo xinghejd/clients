@@ -24,7 +24,7 @@ import { AutoFillConstants } from "./autofill-constants";
 
 class AutofillOverlayContentService implements AutofillOverlayContentServiceInterface {
   pageDetailsUpdateRequired = false;
-  autofillOverlayVisibility: number;
+  inlineMenuVisibility: number;
   private readonly findTabs = tabbable;
   private readonly sendExtensionMessage = sendExtensionMessage;
   private formFieldElements: Set<ElementWithOpId<FormFieldElement>> = new Set([]);
@@ -92,7 +92,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       await this.updateMostRecentlyFocusedField(formFieldElement);
     }
 
-    if (!this.autofillOverlayVisibility) {
+    if (!this.inlineMenuVisibility) {
       await this.getInlineMenuVisibilitySetting();
     }
 
@@ -133,7 +133,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     }
 
     if (
-      this.autofillOverlayVisibility === AutofillOverlayVisibility.OnButtonClick &&
+      this.inlineMenuVisibility === AutofillOverlayVisibility.OnButtonClick &&
       !isOpeningFullOverlay
     ) {
       this.updateOverlayButtonPosition();
@@ -456,7 +456,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     const formElementHasValue = Boolean((formFieldElement as HTMLInputElement).value);
 
     if (
-      this.autofillOverlayVisibility === AutofillOverlayVisibility.OnButtonClick ||
+      this.inlineMenuVisibility === AutofillOverlayVisibility.OnButtonClick ||
       (formElementHasValue && initiallyFocusedField !== this.mostRecentlyFocusedField)
     ) {
       await this.sendExtensionMessage("closeAutofillOverlayMenu", {
@@ -724,7 +724,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    */
   private async getInlineMenuVisibilitySetting() {
     const overlayVisibility = await this.sendExtensionMessage("getInlineMenuVisibilitySetting");
-    this.autofillOverlayVisibility = overlayVisibility || AutofillOverlayVisibility.OnFieldFocus;
+    this.inlineMenuVisibility = overlayVisibility || AutofillOverlayVisibility.OnFieldFocus;
   }
 
   /**
@@ -982,11 +982,11 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   };
 
   private updateInlineMenuVisibility({ data }: AutofillExtensionMessage) {
-    if (isNaN(data?.autofillOverlayVisibility)) {
+    if (isNaN(data?.inlineMenuVisibility)) {
       return;
     }
 
-    this.autofillOverlayVisibility = data.autofillOverlayVisibility;
+    this.inlineMenuVisibility = data.inlineMenuVisibility;
   }
 
   private async isFieldCurrentlyFilling() {

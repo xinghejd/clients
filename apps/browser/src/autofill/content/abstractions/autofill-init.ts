@@ -21,7 +21,7 @@ export type AutofillExtensionMessage = {
     isOverlayCiphersPopulated?: boolean;
     direction?: "previous" | "next" | "current";
     forceCloseOverlay?: boolean;
-    autofillOverlayVisibility?: number;
+    inlineMenuVisibility?: number;
   };
 };
 

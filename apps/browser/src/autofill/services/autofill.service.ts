@@ -2088,7 +2088,7 @@ export default class AutofillService implements AutofillServiceInterface {
       const tabs = await BrowserApi.tabsQuery({});
       tabs.forEach((tab) =>
         BrowserApi.tabSendMessageData(tab, "updateInlineMenuVisibility", {
-          autofillOverlayVisibility: currentSetting,
+          inlineMenuVisibility: currentSetting,
         }),
       );
       return;

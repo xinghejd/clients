@@ -223,7 +223,7 @@ describe("AutofillOverlayContentService", () => {
     describe("identifies the overlay visibility setting", () => {
       it("defaults the overlay visibility setting to `OnFieldFocus` if a value is not set", async () => {
         sendExtensionMessageSpy.mockResolvedValueOnce(undefined);
-        autofillOverlayContentService["autofillOverlayVisibility"] = undefined;
+        autofillOverlayContentService["inlineMenuVisibility"] = undefined;
 
         await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
@@ -231,21 +231,21 @@ describe("AutofillOverlayContentService", () => {
         );
 
         expect(sendExtensionMessageSpy).toHaveBeenCalledWith("getInlineMenuVisibilitySetting");
-        expect(autofillOverlayContentService["autofillOverlayVisibility"]).toEqual(
+        expect(autofillOverlayContentService["inlineMenuVisibility"]).toEqual(
           AutofillOverlayVisibility.OnFieldFocus,
         );
       });
 
       it("sets the overlay visibility setting to the value returned from the background script", async () => {
         sendExtensionMessageSpy.mockResolvedValueOnce(AutofillOverlayVisibility.OnFieldFocus);
-        autofillOverlayContentService["autofillOverlayVisibility"] = undefined;
+        autofillOverlayContentService["inlineMenuVisibility"] = undefined;
 
         await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
           autofillFieldData,
         );
 
-        expect(autofillOverlayContentService["autofillOverlayVisibility"]).toEqual(
+        expect(autofillOverlayContentService["inlineMenuVisibility"]).toEqual(
           AutofillOverlayVisibility.OnFieldFocus,
         );
       });
@@ -594,7 +594,7 @@ describe("AutofillOverlayContentService", () => {
         it("skips triggering the handler logic if autofill is currently filling", async () => {
           isFieldCurrentlyFillingSpy.mockResolvedValue(true);
           autofillOverlayContentService["mostRecentlyFocusedField"] = autofillFieldElement;
-          autofillOverlayContentService["autofillOverlayVisibility"] =
+          autofillOverlayContentService["inlineMenuVisibility"] =
             AutofillOverlayVisibility.OnFieldFocus;
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
@@ -623,7 +623,7 @@ describe("AutofillOverlayContentService", () => {
         });
 
         it("removes the overlay list if the autofill visibility is set to onClick", async () => {
-          autofillOverlayContentService["autofillOverlayVisibility"] =
+          autofillOverlayContentService["inlineMenuVisibility"] =
             AutofillOverlayVisibility.OnButtonClick;
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
@@ -660,7 +660,7 @@ describe("AutofillOverlayContentService", () => {
 
         it("opens the autofill overlay if the form element has no value", async () => {
           (autofillFieldElement as HTMLInputElement).value = "";
-          autofillOverlayContentService["autofillOverlayVisibility"] =
+          autofillOverlayContentService["inlineMenuVisibility"] =
             AutofillOverlayVisibility.OnFieldFocus;
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
@@ -675,7 +675,7 @@ describe("AutofillOverlayContentService", () => {
 
         it("opens the autofill overlay if the overlay ciphers are not populated and the user is authed", async () => {
           (autofillFieldElement as HTMLInputElement).value = "";
-          autofillOverlayContentService["autofillOverlayVisibility"] =
+          autofillOverlayContentService["inlineMenuVisibility"] =
             AutofillOverlayVisibility.OnFieldFocus;
           jest.spyOn(autofillOverlayContentService as any, "isUserAuthed").mockReturnValue(true);
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
@@ -690,7 +690,7 @@ describe("AutofillOverlayContentService", () => {
         });
 
         it("updates the overlay button position if the focus event is not opening the overlay", async () => {
-          autofillOverlayContentService["autofillOverlayVisibility"] =
+          autofillOverlayContentService["inlineMenuVisibility"] =
             AutofillOverlayVisibility.OnFieldFocus;
           (autofillFieldElement as HTMLInputElement).value = "test";
           jest
@@ -828,7 +828,7 @@ describe("AutofillOverlayContentService", () => {
     });
 
     it("opens the autofill overlay button only if overlay visibility is set for onButtonClick", () => {
-      autofillOverlayContentService["autofillOverlayVisibility"] =
+      autofillOverlayContentService["inlineMenuVisibility"] =
         AutofillOverlayVisibility.OnButtonClick;
 
       autofillOverlayContentService["openAutofillOverlayMenu"]({ isOpeningFullOverlay: false });
@@ -845,7 +845,7 @@ describe("AutofillOverlayContentService", () => {
     });
 
     it("overrides the onButtonClick visibility setting to open both overlay elements", () => {
-      autofillOverlayContentService["autofillOverlayVisibility"] =
+      autofillOverlayContentService["inlineMenuVisibility"] =
         AutofillOverlayVisibility.OnButtonClick;
 
       autofillOverlayContentService["openAutofillOverlayMenu"]({ isOpeningFullOverlay: true });
