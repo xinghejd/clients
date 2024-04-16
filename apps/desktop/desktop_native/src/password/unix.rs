@@ -15,6 +15,20 @@ pub fn get_password(service: &str, account: &str) -> Result<String> {
     }
 }
 
+pub fn has_password_management() -> bool {
+    match password_lookup_sync(
+        Some(&get_schema()),
+        build_attributes("", ""),
+        gio::Cancellable::NONE,
+    ) {
+        Ok(v) => {
+            // If we can get a password, we have password management. A non-existing password results in None
+            true
+        }
+        Err(e) => false,
+    }
+}
+
 pub fn get_password_keytar(service: &str, account: &str) -> Result<String> {
     get_password(service, account)
 }

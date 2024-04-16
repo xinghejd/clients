@@ -8,6 +8,10 @@ pub fn get_password(service: &str, account: &str) -> Result<String> {
     Ok(result)
 }
 
+pub fn has_password_management() -> bool {
+    true
+}
+
 pub fn get_password_keytar(service: &str, account: &str) -> Result<String> {
     get_password(service, account)
 }

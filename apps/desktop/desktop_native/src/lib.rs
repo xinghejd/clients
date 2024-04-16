@@ -40,6 +40,11 @@ pub mod passwords {
         super::password::delete_password(&service, &account)
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
+
+    #[napi]
+    pub fn has_password_management() -> bool {
+        super::password::has_password_management()
+    }
 }
 
 #[napi]

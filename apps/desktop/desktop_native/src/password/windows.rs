@@ -45,6 +45,10 @@ pub fn get_password<'a>(service: &str, account: &str) -> Result<String> {
     Ok(String::from(password))
 }
 
+pub fn has_password_management() -> bool {
+    true
+}
+
 // Remove this after sufficient releases
 pub fn get_password_keytar<'a>(service: &str, account: &str) -> Result<String> {
     let target_name = U16CString::from_str(target_name(service, account))?;
