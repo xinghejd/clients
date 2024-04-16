@@ -46,7 +46,6 @@ class AutofillOverlayButton extends AutofillOverlayPageElement {
    * @param authStatus - The authentication status of the user
    * @param styleSheetUrl - The URL of the stylesheet to apply to the page
    * @param translations - The translations to apply to the page
-   * @param messageConnectorUrl - The URL of the message connector to use
    * @param portKey - Background generated key that allows the port to communicate with the background
    */
   private async initAutofillOverlayButton({

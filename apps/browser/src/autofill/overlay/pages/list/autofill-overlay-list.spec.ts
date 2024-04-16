@@ -101,7 +101,7 @@ describe("AutofillOverlayList", () => {
         const originalListOfElements =
           autofillOverlayList["overlayListContainer"].querySelectorAll(".cipher-container");
 
-        autofillOverlayList["handleCiphersListScrollEvent"]();
+        window.dispatchEvent(new Event("scroll"));
         jest.runAllTimers();
 
         const updatedListOfElements =
@@ -119,11 +119,11 @@ describe("AutofillOverlayList", () => {
           "handleDebouncedScrollEvent",
         );
 
-        autofillOverlayList["handleCiphersListScrollEvent"]();
+        window.dispatchEvent(new Event("scroll"));
         jest.advanceTimersByTime(100);
-        autofillOverlayList["handleCiphersListScrollEvent"]();
+        window.dispatchEvent(new Event("scroll"));
         jest.advanceTimersByTime(100);
-        autofillOverlayList["handleCiphersListScrollEvent"]();
+        window.dispatchEvent(new Event("scroll"));
         jest.advanceTimersByTime(400);
 
         expect(handleDebouncedScrollEventSpy).toHaveBeenCalledTimes(1);
@@ -375,6 +375,60 @@ describe("AutofillOverlayList", () => {
         postWindowMessage({ command: "focusOverlayList" });
 
         expect((firstCipherItem as HTMLElement).focus).toBeCalled();
+      });
+    });
+
+    describe("blur event", () => {
+      it("posts a message to the parent window indicating that the overlay has lost focus", () => {
+        postWindowMessage(createInitAutofillOverlayListMessageMock({ portKey }));
+
+        globalThis.dispatchEvent(new Event("blur"));
+
+        expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
+          { command: "overlayPageBlurred", portKey },
+          "*",
+        );
+      });
+    });
+
+    describe("keydown event", () => {
+      beforeEach(() => {
+        postWindowMessage(createInitAutofillOverlayListMessageMock({ portKey }));
+      });
+
+      it("skips redirecting keyboard focus when a KeyDown event triggers and the key is not a `Tab` or `Escape` key", () => {
+        globalThis.document.dispatchEvent(new KeyboardEvent("keydown", { code: "test" }));
+
+        expect(globalThis.parent.postMessage).not.toHaveBeenCalled();
+      });
+
+      it("redirects the overlay focus out to the previous element on KeyDown of the `Tab+Shift` keys", () => {
+        globalThis.document.dispatchEvent(
+          new KeyboardEvent("keydown", { code: "Tab", shiftKey: true }),
+        );
+
+        expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
+          { command: "redirectOverlayFocusOut", direction: "previous", portKey },
+          "*",
+        );
+      });
+
+      it("redirects the overlay focus out to the next element on KeyDown of the `Tab` key", () => {
+        globalThis.document.dispatchEvent(new KeyboardEvent("keydown", { code: "Tab" }));
+
+        expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
+          { command: "redirectOverlayFocusOut", direction: "next", portKey },
+          "*",
+        );
+      });
+
+      it("redirects the overlay focus out to the current element on KeyDown of the `Escape` key", () => {
+        globalThis.document.dispatchEvent(new KeyboardEvent("keydown", { code: "Escape" }));
+
+        expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
+          { command: "redirectOverlayFocusOut", direction: "current", portKey },
+          "*",
+        );
       });
     });
   });
