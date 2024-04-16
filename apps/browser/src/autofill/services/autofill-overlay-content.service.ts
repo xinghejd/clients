@@ -48,7 +48,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     bgVaultItemRepromptPopoutOpened: () => this.blurMostRecentOverlayField(true),
     redirectOverlayFocusOut: ({ message }) =>
       this.redirectOverlayFocusOut(message?.data?.direction),
-    updateAutofillOverlayVisibility: ({ message }) => this.updateAutofillOverlayVisibility(message),
+    updateInlineMenuVisibility: ({ message }) => this.updateInlineMenuVisibility(message),
     getSubFrameOffsets: ({ message }) => this.getSubFrameOffsets(message),
     getSubFrameOffsetsFromWindowMessage: ({ message }) =>
       this.getSubFrameOffsetsFromWindowMessage(message),
@@ -981,7 +981,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     });
   };
 
-  private updateAutofillOverlayVisibility({ data }: AutofillExtensionMessage) {
+  private updateInlineMenuVisibility({ data }: AutofillExtensionMessage) {
     if (isNaN(data?.autofillOverlayVisibility)) {
       return;
     }
