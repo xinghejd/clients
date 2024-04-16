@@ -37,7 +37,10 @@ import {
   LogService as LogServiceAbstraction,
 } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService as MessagingServiceAbstraction } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import {
+  PlatformUtilsService,
+  PlatformUtilsService as PlatformUtilsServiceAbstraction,
+} from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService as StateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
@@ -64,7 +67,6 @@ import { DesktopSettingsService } from "../../platform/services/desktop-settings
 import { ElectronCryptoService } from "../../platform/services/electron-crypto.service";
 import { ElectronLogRendererService } from "../../platform/services/electron-log.renderer.service";
 import {
-  ELECTRON_SUPPORTS_SECURE_STORAGE,
   ElectronPlatformUtilsService,
 } from "../../platform/services/electron-platform-utils.service";
 import { ElectronRendererMessageSender } from "../../platform/services/electron-renderer-message.sender";
@@ -135,7 +137,10 @@ const safeProviders: SafeProvider[] = [
     // the TokenService having to inject the PlatformUtilsService which introduces a
     // circular dependency on Desktop only.
     provide: SUPPORTS_SECURE_STORAGE,
-    useValue: ELECTRON_SUPPORTS_SECURE_STORAGE,
+    useFactory: (platformUtilsService: PlatformUtilsService) => {
+      return platformUtilsService.supportsSecureStorage();
+    },
+    deps: [PlatformUtilsServiceAbstraction],
   }),
   safeProvider({
     provide: I18nServiceAbstraction,
