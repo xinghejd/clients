@@ -330,7 +330,7 @@ describe("AutofillOverlayList", () => {
           "setAttribute",
         );
 
-        postWindowMessage({ command: "focusOverlayList" });
+        postWindowMessage({ command: "focusOverlayMenuList" });
 
         expect(overlayContainerSetAttributeSpy).toHaveBeenCalledWith("role", "dialog");
         expect(overlayContainerSetAttributeSpy).toHaveBeenCalledWith("aria-modal", "true");
@@ -348,7 +348,7 @@ describe("AutofillOverlayList", () => {
           autofillOverlayList["overlayListContainer"].querySelector("#unlock-button");
         jest.spyOn(unlockButton as HTMLElement, "focus");
 
-        postWindowMessage({ command: "focusOverlayList" });
+        postWindowMessage({ command: "focusOverlayMenuList" });
 
         expect((unlockButton as HTMLElement).focus).toBeCalled();
       });
@@ -360,7 +360,7 @@ describe("AutofillOverlayList", () => {
           autofillOverlayList["overlayListContainer"].querySelector("#new-item-button");
         jest.spyOn(newItemButton as HTMLElement, "focus");
 
-        postWindowMessage({ command: "focusOverlayList" });
+        postWindowMessage({ command: "focusOverlayMenuList" });
 
         expect((newItemButton as HTMLElement).focus).toBeCalled();
       });
@@ -371,7 +371,7 @@ describe("AutofillOverlayList", () => {
           autofillOverlayList["overlayListContainer"].querySelector(".fill-cipher-button");
         jest.spyOn(firstCipherItem as HTMLElement, "focus");
 
-        postWindowMessage({ command: "focusOverlayList" });
+        postWindowMessage({ command: "focusOverlayMenuList" });
 
         expect((firstCipherItem as HTMLElement).focus).toBeCalled();
       });

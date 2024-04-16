@@ -698,8 +698,8 @@ describe("OverlayBackground", () => {
         });
       });
 
-      describe("focusAutofillOverlayList message handler", () => {
-        it("will send a `focusOverlayList` message to the overlay list port", async () => {
+      describe("focusAutofillOverlayMenuList message handler", () => {
+        it("will send a `focusOverlayMenuList` message to the overlay list port", async () => {
           await initOverlayElementPorts({
             initList: true,
             initButton: false,
@@ -707,9 +707,9 @@ describe("OverlayBackground", () => {
             initListMessageConnectorSpy: false,
           });
 
-          sendMockExtensionMessage({ command: "focusAutofillOverlayList" });
+          sendMockExtensionMessage({ command: "focusAutofillOverlayMenuList" });
 
-          expect(listPortSpy.postMessage).toHaveBeenCalledWith({ command: "focusOverlayList" });
+          expect(listPortSpy.postMessage).toHaveBeenCalledWith({ command: "focusOverlayMenuList" });
         });
       });
 

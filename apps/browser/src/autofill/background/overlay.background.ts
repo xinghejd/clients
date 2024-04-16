@@ -70,7 +70,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
     autofillOverlayAddNewVaultItem: ({ message, sender }) => this.addNewVaultItem(message, sender),
     getInlineMenuVisibilitySetting: () => this.getInlineMenuVisibility(),
     checkAutofillOverlayMenuFocused: () => this.checkOverlayMenuFocused(),
-    focusAutofillOverlayList: () => this.focusOverlayList(),
+    focusAutofillOverlayMenuList: () => this.focusOverlayMenuList(),
     updateAutofillOverlayMenuPosition: ({ message, sender }) =>
       this.updateOverlayMenuPosition(message, sender),
     updateAutofillOverlayMenuHidden: ({ message, sender }) =>
@@ -736,8 +736,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
   /**
    * Facilitates redirecting focus to the overlay list.
    */
-  private focusOverlayList() {
-    this.overlayListPort?.postMessage({ command: "focusOverlayList" });
+  private focusOverlayMenuList() {
+    this.overlayListPort?.postMessage({ command: "focusOverlayMenuList" });
   }
 
   /**

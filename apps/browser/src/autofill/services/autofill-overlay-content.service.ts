@@ -319,7 +319,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       event.preventDefault();
       event.stopPropagation();
 
-      void this.focusOverlayList();
+      void this.focusOverlayMenuList();
     }
   };
 
@@ -328,15 +328,15 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * the overlay will be opened and the list will be focused after a short delay. Ensures
    * that the overlay list is focused when the user presses the down arrow key.
    */
-  private async focusOverlayList() {
+  private async focusOverlayMenuList() {
     if (this.mostRecentlyFocusedField && !(await this.isInlineMenuListVisible())) {
       await this.updateMostRecentlyFocusedField(this.mostRecentlyFocusedField);
       this.openAutofillOverlayMenu({ isOpeningFullOverlay: true });
-      setTimeout(() => this.sendExtensionMessage("focusAutofillOverlayList"), 125);
+      setTimeout(() => this.sendExtensionMessage("focusAutofillOverlayMenuList"), 125);
       return;
     }
 
-    void this.sendExtensionMessage("focusAutofillOverlayList");
+    void this.sendExtensionMessage("focusAutofillOverlayMenuList");
   }
 
   /**

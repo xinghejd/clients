@@ -1,13 +1,14 @@
-import { mock, mockReset } from "jest-mock-extended";
-import { of } from "rxjs";
+import { mock, MockProxy, mockReset } from "jest-mock-extended";
+import { BehaviorSubject, of } from "rxjs";
 
 import { UserVerificationService } from "@bitwarden/common/auth/services/user-verification/user-verification.service";
 import { AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
-import { AutofillSettingsService } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import {
   DefaultDomainSettingsService,
   DomainSettingsService,
 } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
@@ -62,7 +63,7 @@ const mockEquivalentDomains = [
 describe("AutofillService", () => {
   let autofillService: AutofillService;
   const cipherService = mock<CipherService>();
-  const autofillSettingsService = mock<AutofillSettingsService>();
+  let autofillSettingsService: MockProxy<AutofillSettingsServiceAbstraction>;
   const mockUserId = Utils.newGuid() as UserId;
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
   const fakeStateProvider: FakeStateProvider = new FakeStateProvider(accountService);
@@ -72,8 +73,12 @@ describe("AutofillService", () => {
   const logService = mock<LogService>();
   const userVerificationService = mock<UserVerificationService>();
   const billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
+  let inlineMenuVisibilitySettingMock$!: BehaviorSubject<InlineMenuVisibilitySetting>;
 
   beforeEach(() => {
+    inlineMenuVisibilitySettingMock$ = new BehaviorSubject(AutofillOverlayVisibility.OnFieldFocus);
+    autofillSettingsService = mock<AutofillSettingsServiceAbstraction>();
+    autofillSettingsService.inlineMenuVisibility$ = inlineMenuVisibilitySettingMock$;
     autofillService = new AutofillService(
       cipherService,
       autofillSettingsService,

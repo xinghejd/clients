@@ -375,11 +375,11 @@ describe("AutofillOverlayContentService", () => {
 
           expect(updateMostRecentlyFocusedFieldSpy).toHaveBeenCalledWith(autofillFieldElement);
           expect(openAutofillOverlaySpy).toHaveBeenCalledWith({ isOpeningFullOverlay: true });
-          expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith("focusAutofillOverlayList");
+          expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith("focusAutofillOverlayMenuList");
 
           jest.advanceTimersByTime(150);
 
-          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("focusAutofillOverlayList");
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("focusAutofillOverlayMenuList");
         });
 
         it("focuses the overlay list when the `ArrowDown` key is pressed", async () => {
@@ -390,7 +390,7 @@ describe("AutofillOverlayContentService", () => {
           autofillFieldElement.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowDown" }));
           await flushPromises();
 
-          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("focusAutofillOverlayList");
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("focusAutofillOverlayMenuList");
         });
       });
 

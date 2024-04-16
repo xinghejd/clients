@@ -22,7 +22,7 @@ type OverlayListWindowMessageHandlers = {
   initAutofillOverlayList: ({ message }: { message: InitAutofillOverlayListMessage }) => void;
   checkAutofillOverlayListFocused: () => void;
   updateOverlayListCiphers: ({ message }: { message: UpdateOverlayListCiphersMessage }) => void;
-  focusOverlayList: () => void;
+  focusOverlayMenuList: () => void;
 };
 
 export {

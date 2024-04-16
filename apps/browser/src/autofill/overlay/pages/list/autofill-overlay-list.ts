@@ -26,7 +26,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     initAutofillOverlayList: ({ message }) => this.initAutofillOverlayList(message),
     checkAutofillOverlayListFocused: () => this.checkOverlayListFocused(),
     updateOverlayListCiphers: ({ message }) => this.updateListItems(message.ciphers),
-    focusOverlayList: () => this.focusOverlayList(),
+    focusOverlayMenuList: () => this.focusOverlayMenuList(),
   };
 
   constructor() {
@@ -486,7 +486,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
    * determined by the presence of the unlock button, new item button, or
    * the first cipher button.
    */
-  private focusOverlayList() {
+  private focusOverlayMenuList() {
     this.overlayListContainer.setAttribute("role", "dialog");
     this.overlayListContainer.setAttribute("aria-modal", "true");
 
