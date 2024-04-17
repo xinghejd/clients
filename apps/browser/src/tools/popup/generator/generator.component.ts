@@ -1,6 +1,7 @@
 import { Location } from "@angular/common";
 import { ChangeDetectorRef, Component, NgZone } from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 
 import { GeneratorComponent as BaseGeneratorComponent } from "@bitwarden/angular/tools/generator/components/generator.component";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
@@ -10,6 +11,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 import { UsernameGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/username";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { AddEditCipherInfo } from "@bitwarden/common/vault/types/add-edit-cipher-info";
 
@@ -20,6 +22,7 @@ import { AddEditCipherInfo } from "@bitwarden/common/vault/types/add-edit-cipher
 export class GeneratorComponent extends BaseGeneratorComponent {
   private addEditCipherInfo: AddEditCipherInfo;
   private cipherState: CipherView;
+  private cipherService: CipherService;
 
   constructor(
     passwordGenerationService: PasswordGenerationServiceAbstraction,
@@ -27,6 +30,7 @@ export class GeneratorComponent extends BaseGeneratorComponent {
     platformUtilsService: PlatformUtilsService,
     i18nService: I18nService,
     stateService: StateService,
+    cipherService: CipherService,
     route: ActivatedRoute,
     logService: LogService,
     broadcasterService: BroadcasterService,
@@ -47,10 +51,11 @@ export class GeneratorComponent extends BaseGeneratorComponent {
       changeDetectorRef,
       window,
     );
+    this.cipherService = cipherService;
   }
 
   async ngOnInit() {
-    this.addEditCipherInfo = await this.stateService.getAddEditCipherInfo();
+    this.addEditCipherInfo = await firstValueFrom(this.cipherService.addEditCipherInfo$);
     if (this.addEditCipherInfo != null) {
       this.cipherState = this.addEditCipherInfo.cipher;
     }
@@ -71,7 +76,7 @@ export class GeneratorComponent extends BaseGeneratorComponent {
     this.addEditCipherInfo.cipher = this.cipherState;
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.stateService.setAddEditCipherInfo(this.addEditCipherInfo);
+    this.cipherService.setAddEditCipherInfo(this.addEditCipherInfo);
     this.close();
   }
 
