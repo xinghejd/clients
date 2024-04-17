@@ -41,7 +41,7 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
     const module = await import("@bitwarden/sdk-wasm");
     const result = module.argon2(passwordArr, saltArr, iterations, memory / 1024, parallelism);
 
-    return Utils.fromB64ToArray(result);
+    return result;
   }
 
   // ref: https://tools.ietf.org/html/rfc5869
