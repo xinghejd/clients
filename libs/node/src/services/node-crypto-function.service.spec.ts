@@ -116,6 +116,14 @@ describe("NodeCrypto Function Service", () => {
     });
   });
 
+  describe("argon2", () => {
+    const regularKey = "bQuK9aSlX+NnvIxJNmtWINhqZ/t3SVksTNffphRw3Hs=";
+    const utf8Key = "osyqJYGkJkcAPMWSEDJnMKy4eOFsHh0IFR8Ca1z+Fck=";
+    const unicodeKey = "wZcA1oXJ3vKf2ui+04uvyy2LkJmiAf75MTfmtpuBJUc=";
+
+    testArgon2(regularKey, utf8Key, unicodeKey);
+  });
+
   describe("hash", () => {
     const regular1Hash = "2a241604fb921fad12bf877282457268e1dccb70";
     const utf81Hash = "85672798dc5831e96d6c48655d3d39365a9c88b6";
@@ -411,6 +419,34 @@ function testHkdfExpand(
       algorithm,
     );
     expect(Utils.fromBufferToB64(okm)).toBe(b64ExpectedOkm);
+  });
+}
+
+function testArgon2(regularKey: string, utf8Key: string, unicodeKey: string) {
+  const regularUser = "user@example.com";
+  const utf8User = "üser@example.com";
+  const unicodeUser = "😀user🙏@example.com";
+
+  const regularPassword = "password";
+  const utf8Password = "pǻssword";
+  const unicodePassword = "😀password🙏";
+
+  it("should create valid key from regular input", async () => {
+    const cryptoFunctionService = new NodeCryptoFunctionService();
+    const key = await cryptoFunctionService.argon2(regularPassword, regularUser, 5, 4 * 1024, 3);
+    expect(Utils.fromBufferToB64(key)).toBe(regularKey);
+  });
+
+  it("should create valid key from utf8 input", async () => {
+    const cryptoFunctionService = new NodeCryptoFunctionService();
+    const key = await cryptoFunctionService.argon2(utf8Password, utf8User, 5, 4 * 1024, 3);
+    expect(Utils.fromBufferToB64(key)).toBe(utf8Key);
+  });
+
+  it("should create valid key from unicode input", async () => {
+    const cryptoFunctionService = new NodeCryptoFunctionService();
+    const key = await cryptoFunctionService.argon2(unicodePassword, unicodeUser, 5, 4 * 1024, 3);
+    expect(Utils.fromBufferToB64(key)).toBe(unicodeKey);
   });
 }
 
