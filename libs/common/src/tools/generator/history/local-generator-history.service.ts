@@ -6,13 +6,13 @@ import { SingleUserState, StateProvider } from "../../../platform/state";
 import { UserId } from "../../../types/guid";
 import { GeneratorHistoryService } from "../abstractions/generator-history.abstraction";
 import { GENERATOR_HISTORY, GENERATOR_HISTORY_BUFFER } from "../key-definitions";
-import { LegacyPasswordHistoryDecryptor } from "../legacy-password-history-decryptor";
 import { BufferedState } from "../state/buffered-state";
 import { PaddedDataPacker } from "../state/padded-data-packer";
 import { SecretState } from "../state/secret-state";
 import { UserKeyEncryptor } from "../state/user-key-encryptor";
 
 import { GeneratedCredential } from "./generated-credential";
+import { LegacyPasswordHistoryDecryptor } from "./legacy-password-history-decryptor";
 import { GeneratorCategory, HistoryServiceOptions } from "./options";
 
 const OPTIONS_FRAME_SIZE = 2048;
@@ -114,11 +114,18 @@ export class LocalGeneratorHistoryService extends GeneratorHistoryService {
       GeneratedCredential
     >(userId, GENERATOR_HISTORY, this.stateProvider, encryptor);
 
-    // move data from the old password history to the new one once the encryption key
-    // becomes available in memory
+    // decryptor is just an algorithm, but it can't run until the key is available;
+    // providing it via an observable makes running it early impossible
+    const decryptor = new LegacyPasswordHistoryDecryptor(
+      userId,
+      this.keyService,
+      this.encryptService,
+    );
     const decryptor$ = this.keyService
       .getInMemoryUserKeyFor$(userId)
-      .pipe(map((key) => key && new LegacyPasswordHistoryDecryptor(this.keyService)));
+      .pipe(map((key) => key && decryptor));
+
+    // move data from the old password history once decryptor is available
     const buffer = new BufferedState(
       this.stateProvider,
       GENERATOR_HISTORY_BUFFER,

@@ -3,7 +3,7 @@ import { Jsonify } from "type-fest";
 import { GENERATOR_DISK, GENERATOR_MEMORY, UserKeyDefinition } from "../../platform/state";
 
 import { GeneratedCredential } from "./history/generated-credential";
-import { LegacyPasswordHistoryDecryptor } from "./legacy-password-history-decryptor";
+import { LegacyPasswordHistoryDecryptor } from "./history/legacy-password-history-decryptor";
 import { GeneratorNavigation } from "./navigation/generator-navigation";
 import { PassphraseGenerationOptions } from "./passphrase/passphrase-generation-options";
 import { GeneratedPasswordHistory } from "./password/generated-password-history";
