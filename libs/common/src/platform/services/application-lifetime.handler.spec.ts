@@ -12,26 +12,16 @@ class SubscriptionLifetime implements ApplicationLifetimeService {
   }
 }
 
-class PromiseLifetime implements ApplicationLifetimeService {
-  ran = false;
-  async onStart() {
-    await Promise.resolve();
-    this.ran = true;
-  }
-}
-
 describe("ApplicationLifetimeHandler", () => {
   describe("runOnStart", () => {
     it("runs all methods to completion", async () => {
       const subscriptionLifetime = new SubscriptionLifetime();
-      const promiseLifetime = new PromiseLifetime();
 
-      const handler = new ApplicationLifetimeHandler([subscriptionLifetime, promiseLifetime]);
+      const handler = new ApplicationLifetimeHandler([subscriptionLifetime]);
 
-      await handler.runOnStart();
+      handler.runOnStart();
 
       expect(subscriptionLifetime.ran).toBe(true);
-      expect(promiseLifetime.ran).toBe(true);
     });
   });
 });

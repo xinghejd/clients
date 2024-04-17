@@ -22,7 +22,7 @@ export abstract class ApplicationLifetimeService {
   /**
    * A method that runs at the start of the application.
    *
-   * @returns A {@link Subscription} of the operation you've subscribed to or a promise that will complete your action.
+   * @returns A {@link Subscription} of the operation you've subscribed to.
    */
-  onStart: () => Promise<void> | Subscription;
+  onStart: () => Subscription;
 }

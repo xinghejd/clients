@@ -1,14 +1,19 @@
+import { Subscription } from "rxjs";
+
 import { ApplicationLifetimeService } from "../abstractions/application-lifetime.service";
 
 export class ApplicationLifetimeHandler {
-  constructor(private applicationLifetimeServices: ApplicationLifetimeService[]) {}
+  constructor(private readonly applicationLifetimeServices: ApplicationLifetimeService[]) {}
 
-  async runOnStart(): Promise<void> {
+  runOnStart(): Subscription {
+    // Create a main subscription that can unsubscribe from all the sub tasks
+    const subscription = new Subscription();
+
     for (const applicationLifetimeService of this.applicationLifetimeServices) {
-      const subscriptionOrPromise = applicationLifetimeService.onStart();
-      if (subscriptionOrPromise instanceof Promise) {
-        await subscriptionOrPromise;
-      }
+      const serviceSubscription = applicationLifetimeService.onStart();
+      subscription.add(serviceSubscription);
     }
+
+    return subscription;
   }
 }
