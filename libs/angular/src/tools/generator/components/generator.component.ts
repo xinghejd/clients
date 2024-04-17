@@ -1,9 +1,18 @@
-import { Directive, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import {
+  ChangeDetectorRef,
+  Directive,
+  EventEmitter,
+  Input,
+  NgZone,
+  OnInit,
+  Output,
+} from "@angular/core";
 import { ActivatedRoute } from "@angular/router";
 import { BehaviorSubject } from "rxjs";
 import { debounceTime, first, map } from "rxjs/operators";
 
 import { PasswordGeneratorPolicyOptions } from "@bitwarden/common/admin-console/models/domain/password-generator-policy-options";
+import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -19,6 +28,8 @@ import {
   UsernameGeneratorOptions,
 } from "@bitwarden/common/tools/generator/username";
 import { EmailForwarderOptions } from "@bitwarden/common/tools/models/domain/email-forwarder-options";
+
+const ComponentId = "GeneratorComponent";
 
 @Directive()
 export class GeneratorComponent implements OnInit {
@@ -60,6 +71,9 @@ export class GeneratorComponent implements OnInit {
     protected i18nService: I18nService,
     protected logService: LogService,
     protected route: ActivatedRoute,
+    protected broadcasterService: BroadcasterService,
+    protected ngZone: NgZone,
+    protected changeDetectorRef: ChangeDetectorRef,
     private win: Window,
   ) {
     this.typeOptions = [
@@ -95,47 +109,76 @@ export class GeneratorComponent implements OnInit {
     this.initForwardOptions();
   }
 
+  async load(navigationType: string = undefined) {
+    const passwordOptionsResponse = await this.passwordGenerationService.getOptions();
+    this.passwordOptions = passwordOptionsResponse[0];
+    this.enforcedPasswordPolicyOptions = passwordOptionsResponse[1];
+    this.avoidAmbiguous = !this.passwordOptions.ambiguous;
+    this.passwordOptions.type =
+      this.passwordOptions.type === "passphrase" ? "passphrase" : "password";
+
+    this.usernameOptions = await this.usernameGenerationService.getOptions();
+    if (this.usernameOptions.type == null) {
+      this.usernameOptions.type = "word";
+    }
+    if (
+      this.usernameOptions.subaddressEmail == null ||
+      this.usernameOptions.subaddressEmail === ""
+    ) {
+      this.usernameOptions.subaddressEmail = await this.stateService.getEmail();
+    }
+    if (this.usernameWebsite == null) {
+      this.usernameOptions.subaddressType = this.usernameOptions.catchallType = "random";
+    } else {
+      this.usernameOptions.website = this.usernameWebsite;
+      const websiteOption = { name: this.i18nService.t("websiteName"), value: "website-name" };
+      this.subaddressOptions.push(websiteOption);
+      this.catchallOptions.push(websiteOption);
+    }
+
+    if (this.type !== "username" && this.type !== "password") {
+      if (navigationType === "username" || navigationType === "password") {
+        this.type = navigationType;
+      } else {
+        const generatorOptions = await this.stateService.getGeneratorOptions();
+        this.type = generatorOptions?.type ?? "password";
+      }
+    }
+    if (this.regenerateWithoutButtonPress()) {
+      await this.regenerate();
+    }
+  }
+
   async ngOnInit() {
     // eslint-disable-next-line rxjs/no-async-subscribe
     this.route.queryParams.pipe(first()).subscribe(async (qParams) => {
-      const passwordOptionsResponse = await this.passwordGenerationService.getOptions();
-      this.passwordOptions = passwordOptionsResponse[0];
-      this.enforcedPasswordPolicyOptions = passwordOptionsResponse[1];
-      this.avoidAmbiguous = !this.passwordOptions.ambiguous;
-      this.passwordOptions.type =
-        this.passwordOptions.type === "passphrase" ? "passphrase" : "password";
-
-      this.usernameOptions = await this.usernameGenerationService.getOptions();
-      if (this.usernameOptions.type == null) {
-        this.usernameOptions.type = "word";
-      }
-      if (
-        this.usernameOptions.subaddressEmail == null ||
-        this.usernameOptions.subaddressEmail === ""
-      ) {
-        this.usernameOptions.subaddressEmail = await this.stateService.getEmail();
-      }
-      if (this.usernameWebsite == null) {
-        this.usernameOptions.subaddressType = this.usernameOptions.catchallType = "random";
-      } else {
-        this.usernameOptions.website = this.usernameWebsite;
-        const websiteOption = { name: this.i18nService.t("websiteName"), value: "website-name" };
-        this.subaddressOptions.push(websiteOption);
-        this.catchallOptions.push(websiteOption);
-      }
-
-      if (this.type !== "username" && this.type !== "password") {
-        if (qParams.type === "username" || qParams.type === "password") {
-          this.type = qParams.type;
-        } else {
-          const generatorOptions = await this.stateService.getGeneratorOptions();
-          this.type = generatorOptions?.type ?? "password";
-        }
-      }
-      if (this.regenerateWithoutButtonPress()) {
-        await this.regenerate();
-      }
+      await this.load(qParams.type as string);
     });
+
+    // Load all sends if sync completed in background
+    this.broadcasterService.subscribe(ComponentId, (message: any) => {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.ngZone.run(async () => {
+        switch (message.command) {
+          case "syncCompleted":
+            window.setTimeout(() => {
+              // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+              // eslint-disable-next-line @typescript-eslint/no-floating-promises
+              this.load();
+            }, 500);
+            break;
+          default:
+            break;
+        }
+
+        this.changeDetectorRef.detectChanges();
+      });
+    });
+  }
+
+  ngOnDestroy() {
+    this.broadcasterService.unsubscribe(ComponentId);
   }
 
   async typeChanged() {

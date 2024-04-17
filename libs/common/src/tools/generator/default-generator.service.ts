@@ -1,13 +1,4 @@
-import {
-  firstValueFrom,
-  share,
-  timer,
-  ReplaySubject,
-  Observable,
-  race,
-  debounceTime,
-  skip,
-} from "rxjs";
+import { firstValueFrom, share, timer, ReplaySubject, Observable } from "rxjs";
 
 // FIXME: use index.ts imports once policy abstractions and models
 // implement ADR-0002
@@ -17,17 +8,6 @@ import { UserId } from "../../types/guid";
 import { GeneratorStrategy, GeneratorService, PolicyEvaluator } from "./abstractions";
 
 type DefaultGeneratorServiceTuning = {
-  /* number of policy updates to ignore before monitoring policy.
-   * WARNING: When this setting is used, you must also specify the timeout,
-   * or the generator may not load.
-   */
-  policyIgnoreQty: number;
-
-  /* amount of time to wait for policy updates before processing the most recent emission.
-   * WARNING: this setting delays generator calculations.
-   */
-  policyTimeoutMs: number;
-
   /* amount of time to keep the most recent policy after a subscription ends. Once the
    * cache expires, the ignoreQty and timeoutMs settings apply to the next lookup.
    */
@@ -46,15 +26,13 @@ export class DefaultGeneratorService<Options, Policy> implements GeneratorServic
     private policy: PolicyService,
     tuning: Partial<DefaultGeneratorServiceTuning> = {},
   ) {
-    this.tuning = Object.assign(tuning, {
-      // at time of writing, the first two policy emissions after unlock
-      // are always the on-disk settings
-      policyIgnoreQty: 2,
-      // half a second
-      policyTimeoutMs: 500,
-      // a minute
-      policyCacheMs: 60000,
-    });
+    this.tuning = Object.assign(
+      {
+        // a minute
+        policyCacheMs: 60000,
+      },
+      tuning,
+    );
   }
 
   private tuning: DefaultGeneratorServiceTuning;
@@ -88,21 +66,7 @@ export class DefaultGeneratorService<Options, Policy> implements GeneratorServic
   }
 
   private createEvaluator(userId: UserId) {
-    const policy$ = this.policy.getAll$(this.strategy.policy, userId);
-
-    // give the policy service some time to refresh the policy when there
-    // are changes syncing
-    //
-    // FIXME: replace this race with a solution that updates once sync
-    // policy
-    const stablePolicy$ = race(
-      // if there's less than 3 entries after a half of a second,
-      // take the last one
-      policy$.pipe(skip(this.tuning.policyIgnoreQty)),
-      policy$.pipe(debounceTime(this.tuning.policyTimeoutMs)),
-    );
-
-    const evaluator$ = stablePolicy$.pipe(
+    const evaluator$ = this.policy.getAll$(this.strategy.policy, userId).pipe(
       // create the evaluator from the policies
       this.strategy.toEvaluator(),
 
