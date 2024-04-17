@@ -1,6 +1,6 @@
 import { Jsonify } from "type-fest";
 
-import { GENERATOR_DISK, GENERATOR_MEMORY, UserKeyDefinition } from "../../platform/state";
+import { GENERATOR_DISK, UserKeyDefinition } from "../../platform/state";
 
 import { GeneratedCredential } from "./history/generated-credential";
 import { LegacyPasswordHistoryDecryptor } from "./history/legacy-password-history-decryptor";
@@ -23,11 +23,11 @@ import { SubaddressGenerationOptions } from "./username/subaddress-generator-opt
 
 /** plaintext password generation options */
 export const GENERATOR_SETTINGS = new UserKeyDefinition<GeneratorNavigation>(
-  GENERATOR_MEMORY,
+  GENERATOR_DISK,
   "generatorSettings",
   {
     deserializer: (value) => value,
-    clearOn: ["lock", "logout"],
+    clearOn: ["logout"],
   },
 );
 

@@ -18,7 +18,7 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { GeneratorOptions } from "@bitwarden/common/tools/generator/generator-options";
+import { GeneratorType } from "@bitwarden/common/tools/generator/generator-type";
 import {
   PasswordGenerationServiceAbstraction,
   PasswordGeneratorOptions,
@@ -35,7 +35,7 @@ const ComponentId = "GeneratorComponent";
 @Directive()
 export class GeneratorComponent implements OnInit, OnDestroy {
   @Input() comingFromAddEdit = false;
-  @Input() type: string;
+  @Input() type: GeneratorType | "";
   @Output() onSelected = new EventEmitter<string>();
 
   usernameGeneratingPromise: Promise<string>;
@@ -110,11 +110,20 @@ export class GeneratorComponent implements OnInit, OnDestroy {
     this.initForwardOptions();
   }
 
-  async load(navigationType: string = undefined) {
+  async load(navigationType: GeneratorType = undefined) {
     const passwordOptionsResponse = await this.passwordGenerationService.getOptions();
     this.passwordOptions = passwordOptionsResponse[0];
     this.enforcedPasswordPolicyOptions = passwordOptionsResponse[1];
     this.avoidAmbiguous = !this.passwordOptions.ambiguous;
+
+    if (!this.type) {
+      if (navigationType) {
+        this.type = navigationType;
+      } else {
+        this.type = this.passwordOptions.type === "username" ? "username" : "password";
+      }
+    }
+
     this.passwordOptions.type =
       this.passwordOptions.type === "passphrase" ? "passphrase" : "password";
 
@@ -137,14 +146,6 @@ export class GeneratorComponent implements OnInit, OnDestroy {
       this.catchallOptions.push(websiteOption);
     }
 
-    if (this.type !== "username" && this.type !== "password") {
-      if (navigationType === "username" || navigationType === "password") {
-        this.type = navigationType;
-      } else {
-        const generatorOptions = await this.stateService.getGeneratorOptions();
-        this.type = generatorOptions?.type ?? "password";
-      }
-    }
     if (this.regenerateWithoutButtonPress()) {
       await this.regenerate();
     }
@@ -153,7 +154,7 @@ export class GeneratorComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     // eslint-disable-next-line rxjs/no-async-subscribe
     this.route.queryParams.pipe(first()).subscribe(async (qParams) => {
-      await this.load(qParams.type as string);
+      await this.load(qParams.type as GeneratorType);
     });
 
     // Load all sends if sync completed in background
@@ -183,10 +184,10 @@ export class GeneratorComponent implements OnInit, OnDestroy {
   }
 
   async typeChanged() {
-    await this.stateService.setGeneratorOptions({ type: this.type } as GeneratorOptions);
     if (this.regenerateWithoutButtonPress()) {
       await this.regenerate();
     }
+    await this.savePasswordOptions();
   }
 
   async regenerate() {
@@ -248,8 +249,18 @@ export class GeneratorComponent implements OnInit, OnDestroy {
   }
 
   async savePasswordOptions(regenerate = true) {
+    // map navigation state into generator type
+    const restoreType = this.passwordOptions.type;
+    if (this.type === "username") {
+      this.passwordOptions.type = this.type;
+    }
+
+    // save options
     await this.normalizePasswordOptions();
     await this.passwordGenerationService.saveOptions(this.passwordOptions);
+
+    // restore the original format
+    this.passwordOptions.type = restoreType;
 
     if (regenerate && this.regenerateWithoutButtonPress()) {
       await this.regeneratePassword();
