@@ -1,13 +1,21 @@
+import { Observable } from "rxjs";
+
 import { UriMatchStrategySetting } from "../../models/domain/domain-service";
 import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypto-key";
+import { CipherId, CollectionId, OrganizationId } from "../../types/guid";
 import { CipherType } from "../enums/cipher-type";
 import { CipherData } from "../models/data/cipher.data";
 import { Cipher } from "../models/domain/cipher";
 import { Field } from "../models/domain/field";
 import { CipherView } from "../models/view/cipher.view";
 import { FieldView } from "../models/view/field.view";
+import { AddEditCipherInfo } from "../types/add-edit-cipher-info";
 
 export abstract class CipherService {
+  /**
+   *  An observable monitoring the add/edit cipher info saved to memory.
+   */
+  addEditCipherInfo$: Observable<AddEditCipherInfo>;
   clearCache: (userId?: string) => Promise<void>;
   encrypt: (
     model: CipherView,
@@ -63,6 +71,19 @@ export abstract class CipherService {
     admin?: boolean,
   ) => Promise<Cipher>;
   saveCollectionsWithServer: (cipher: Cipher) => Promise<any>;
+  /**
+   * Bulk update collections for many ciphers with the server
+   * @param orgId
+   * @param cipherIds
+   * @param collectionIds
+   * @param removeCollections - If true, the collections will be removed from the ciphers, otherwise they will be added
+   */
+  bulkUpdateCollectionsWithServer: (
+    orgId: OrganizationId,
+    cipherIds: CipherId[],
+    collectionIds: CollectionId[],
+    removeCollections: boolean,
+  ) => Promise<void>;
   upsert: (cipher: CipherData | CipherData[]) => Promise<any>;
   replace: (ciphers: { [id: string]: CipherData }) => Promise<any>;
   clear: (userId: string) => Promise<any>;
@@ -88,4 +109,5 @@ export abstract class CipherService {
     asAdmin?: boolean,
   ) => Promise<void>;
   getKeyForCipherKeyDecryption: (cipher: Cipher) => Promise<any>;
+  setAddEditCipherInfo: (value: AddEditCipherInfo) => Promise<void>;
 }

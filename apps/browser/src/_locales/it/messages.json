@@ -2999,5 +2999,17 @@
   "saveCipherAttemptFailed": {
     "message": "Errore durante il salvataggio delle credenziali. Controlla la console per più dettagli.",
     "description": "Notification message for when saving credentials has failed."
+  },
+  "removePasskey": {
+    "message": "Rimuovi passkey"
+  },
+  "passkeyRemoved": {
+    "message": "Passkey rimossa"
+  },
+  "unassignedItemsBanner": {
+    "message": "Avviso: gli elementi dell'organizzazione non assegnati non sono più visibili nella visualizzazione Tutte le Cassaforti su tutti i dispositivi e sono ora accessibili solo tramite la Console di amministrazione. Assegna questi elementi ad una raccolta dalla Console di amministrazione per renderli visibili."
+  },
+  "unassignedItemsBannerSelfHost": {
+    "message": "Avviso: dal 2 maggio 2024, gli elementi dell'organizzazione non assegnati non saranno più visibili nella visualizzazione Tutte le Cassaforti su tutti i dispositivi e saranno accessibili solo tramite la Console di amministrazione. Assegna questi elementi ad una raccolta dalla Console di amministrazione per renderli visibili."
   }
 }

@@ -2480,13 +2480,13 @@
     "message": "Перейти к содержимому"
   },
   "typePasskey": {
-    "message": "Ключ доступа"
+    "message": "Passkey"
   },
   "passkeyNotCopied": {
-    "message": "Ключ доступа не будет скопирован"
+    "message": "Passkey не будет скопирован"
   },
   "passkeyNotCopiedAlert": {
-    "message": "Ключ доступа не будет скопирован в клонированный элемент. Продолжить клонирование этого элемента?"
+    "message": "Passkey не будет скопирован в клонированный элемент. Продолжить клонирование этого элемента?"
   },
   "aliasDomain": {
     "message": "Псевдоним домена"
@@ -2687,5 +2687,20 @@
   "commonImportFormats": {
     "message": "Основные форматы",
     "description": "Label indicating the most common import formats"
+  },
+  "troubleshooting": {
+    "message": "Устранение проблем"
+  },
+  "disableHardwareAccelerationRestart": {
+    "message": "Отключить аппаратное ускорение и перезапустить"
+  },
+  "enableHardwareAccelerationRestart": {
+    "message": "Включить аппаратное ускорение и перезапустить"
+  },
+  "removePasskey": {
+    "message": "Удалить passkey"
+  },
+  "passkeyRemoved": {
+    "message": "Passkey удален"
   }
 }

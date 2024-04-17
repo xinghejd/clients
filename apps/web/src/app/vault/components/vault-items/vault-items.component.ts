@@ -37,13 +37,15 @@ export class VaultItemsComponent {
   @Input() showBulkMove: boolean;
   @Input() showBulkTrashOptions: boolean;
   // Encompasses functionality only available from the organization vault context
-  @Input() showAdminActions: boolean;
+  @Input() showAdminActions = false;
   @Input() allOrganizations: Organization[] = [];
   @Input() allCollections: CollectionView[] = [];
   @Input() allGroups: GroupView[] = [];
   @Input() showBulkEditCollectionAccess = false;
+  @Input() showBulkAddToCollections = false;
   @Input() showPermissionsColumn = false;
   @Input() viewingOrgVault: boolean;
+  @Input({ required: true }) flexibleCollectionsV1Enabled = false;
 
   private _ciphers?: CipherView[] = [];
   @Input() get ciphers(): CipherView[] {
@@ -89,6 +91,10 @@ export class VaultItemsComponent {
     );
   }
 
+  get bulkAssignToCollectionsAllowed() {
+    return this.showBulkAddToCollections && this.ciphers.length > 0;
+  }
+
   protected canEditCollection(collection: CollectionView): boolean {
     // Only allow allow deletion if collection editing is enabled and not deleting "Unassigned"
     if (collection.id === Unassigned) {
@@ -96,7 +102,7 @@ export class VaultItemsComponent {
     }
 
     const organization = this.allOrganizations.find((o) => o.id === collection.organizationId);
-    return collection.canEdit(organization);
+    return collection.canEdit(organization, this.flexibleCollectionsV1Enabled);
   }
 
   protected canDeleteCollection(collection: CollectionView): boolean {
@@ -180,6 +186,15 @@ export class VaultItemsComponent {
       items: this.selection.selected
         .filter((item) => item.collection !== undefined)
         .map((item) => item.collection),
+    });
+  }
+
+  protected assignToCollections() {
+    this.event({
+      type: "assignToCollections",
+      items: this.selection.selected
+        .filter((item) => item.cipher !== undefined)
+        .map((item) => item.cipher),
     });
   }
 }

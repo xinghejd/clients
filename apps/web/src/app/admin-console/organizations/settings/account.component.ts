@@ -11,7 +11,7 @@ import { OrganizationKeysRequest } from "@bitwarden/common/admin-console/models/
 import { OrganizationUpdateRequest } from "@bitwarden/common/admin-console/models/request/organization-update.request";
 import { OrganizationResponse } from "@bitwarden/common/admin-console/models/response/organization.response";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -65,10 +65,6 @@ export class AccountComponent {
       { value: "", disabled: true },
       { validators: [Validators.required, Validators.email, Validators.maxLength(256)] },
     ),
-    businessName: this.formBuilder.control(
-      { value: "", disabled: true },
-      { validators: [Validators.maxLength(50)] },
-    ),
   });
 
   protected collectionManagementFormGroup = this.formBuilder.group({
@@ -95,7 +91,7 @@ export class AccountComponent {
     private organizationApiService: OrganizationApiServiceAbstraction,
     private dialogService: DialogService,
     private formBuilder: FormBuilder,
-    private configService: ConfigServiceAbstraction,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -124,7 +120,6 @@ export class AccountComponent {
         // Update disabled states - reactive forms prefers not using disabled attribute
         if (!this.selfHosted) {
           this.formGroup.get("orgName").enable();
-          this.formGroup.get("businessName").enable();
           this.collectionManagementFormGroup.get("limitCollectionCreationDeletion").enable();
           this.collectionManagementFormGroup.get("allowAdminAccessToAllCollectionItems").enable();
         }
@@ -143,7 +138,6 @@ export class AccountComponent {
         this.formGroup.patchValue({
           orgName: this.org.name,
           billingEmail: this.org.billingEmail,
-          businessName: this.org.businessName,
         });
         this.collectionManagementFormGroup.patchValue({
           limitCollectionCreationDeletion: this.org.limitCollectionCreationDeletion,
@@ -168,7 +162,6 @@ export class AccountComponent {
 
     const request = new OrganizationUpdateRequest();
     request.name = this.formGroup.value.orgName;
-    request.businessName = this.formGroup.value.businessName;
     request.billingEmail = this.formGroup.value.billingEmail;
 
     // Backfill pub/priv key if necessary

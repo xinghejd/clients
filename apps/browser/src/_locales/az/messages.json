@@ -2706,7 +2706,7 @@
     "message": "Hesabınız üçün Duo iki addımlı giriş tələb olunur."
   },
   "popoutTheExtensionToCompleteLogin": {
-    "message": "Popout the extension to complete login."
+    "message": "Girişi tamamlamaq üçün uzantını aç."
   },
   "popoutExtension": {
     "message": "Popout uzantısı"
@@ -2999,5 +2999,17 @@
   "saveCipherAttemptFailed": {
     "message": "Kimlik məlumatlarını saxlama xətası. Detallar üçün konsolu yoxlayın.",
     "description": "Notification message for when saving credentials has failed."
+  },
+  "removePasskey": {
+    "message": "Parolu sil"
+  },
+  "passkeyRemoved": {
+    "message": "Parol silindi"
+  },
+  "unassignedItemsBanner": {
+    "message": "Bildiriş: Təyin edilməmiş təşkilat elementləri artıq Bütün Anbarlar görünüşündə görünməyəndir və yalnız Admin Konsolu vasitəsilə əlçatandır. Bu elementləri görünən etmək üçün Admin Konsolundan bir kolleksiyaya təyin edin."
+  },
+  "unassignedItemsBannerSelfHost": {
+    "message": "Bildiriş: 2 May 2024-cü ildən etibarən təyin edilməmiş təşkilat elementləri artıq Bütün Anbarlar görünüşündə görünməyən və yalnız Admin Konsolu vasitəsilə əlçatan olacaq. Bu elementləri görünən etmək üçün Admin Konsolundan bir kolleksiyaya təyin edin."
   }
 }
