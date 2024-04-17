@@ -15,22 +15,30 @@ pub fn get_password(service: &str, account: &str) -> Result<String> {
     }
 }
 
+#[zbus::proxy(
+    interface = "org.freedesktop.DBus",
+    default_service = "org.freedesktop.DBus",
+    default_path = "/org/freedesktop/DBus"
+)]
+trait ListNames {
+    fn list_names(&self) -> Result<Vec<String>>;
+}
+
 // Query dbus names looking for the org.freedesktop.secrets service, which indicates an active libsecret provider
 pub fn has_password_management() -> bool {
-    let conn = match dbus::blocking::SyncConnection::new_session() {
+    let conn = match zbus::blocking::Connection::session() {
         Ok(conn) => conn,
         Err(_) => return false,
     };
-    let proxy = conn.with_proxy(
-        "org.freedesktop.DBus",
-        "/org/freedesktop/DBus",
-        Duration::from_millis(250),
-    );
-    let (names,): (Vec<String>,) = match proxy.method_call("org.freedesktop.DBus", "ListNames", ())
-    {
+    let proxy = match ListNamesProxyBlocking::new(&conn) {
+        Ok(proxy) => proxy,
+        Err(_) => return false,
+    };
+    let names = match proxy.list_names() {
         Ok(names) => names,
         Err(_) => return false,
     };
+
     names.contains(&"org.freedesktop.secrets".to_string())
 }
 
