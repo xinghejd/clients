@@ -4,6 +4,7 @@ import {
   EventEmitter,
   Input,
   NgZone,
+  OnDestroy,
   OnInit,
   Output,
 } from "@angular/core";
@@ -32,7 +33,7 @@ import { EmailForwarderOptions } from "@bitwarden/common/tools/models/domain/ema
 const ComponentId = "GeneratorComponent";
 
 @Directive()
-export class GeneratorComponent implements OnInit {
+export class GeneratorComponent implements OnInit, OnDestroy {
   @Input() comingFromAddEdit = false;
   @Input() type: string;
   @Output() onSelected = new EventEmitter<string>();
