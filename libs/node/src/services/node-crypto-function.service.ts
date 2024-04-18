@@ -8,7 +8,7 @@ import { DecryptParameters } from "@bitwarden/common/platform/models/domain/decr
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CsprngArray } from "@bitwarden/common/types/csprng";
 
-export class NodeCryptoFunctionService implements CryptoFunctionService {
+export abstract class NodeCryptoFunctionService implements CryptoFunctionService {
   pbkdf2(
     password: string | Uint8Array,
     salt: string | Uint8Array,
@@ -29,20 +29,13 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
     });
   }
 
-  async argon2(
+  abstract argon2(
     password: string | Uint8Array,
     salt: string | Uint8Array,
     iterations: number,
     memory: number,
     parallelism: number,
-  ): Promise<Uint8Array> {
-    const passwordArr = new Uint8Array(this.toUint8Buffer(password));
-    const saltArr = new Uint8Array(this.toUint8Buffer(salt));
-    const module = await import("@bitwarden/sdk-wasm");
-    const result = module.argon2(passwordArr, saltArr, iterations, memory / 1024, parallelism);
-
-    return result;
-  }
+  ): Promise<Uint8Array>;
 
   // ref: https://tools.ietf.org/html/rfc5869
   async hkdf(
@@ -287,7 +280,7 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
     });
   }
 
-  private toNodeValue(value: string | Uint8Array): string | Buffer {
+  protected toNodeValue(value: string | Uint8Array): string | Buffer {
     let nodeValue: string | Buffer;
     if (typeof value === "string") {
       nodeValue = value;
@@ -297,11 +290,11 @@ export class NodeCryptoFunctionService implements CryptoFunctionService {
     return nodeValue;
   }
 
-  private toNodeBuffer(value: Uint8Array): Buffer {
+  protected toNodeBuffer(value: Uint8Array): Buffer {
     return Buffer.from(value);
   }
 
-  private toUint8Buffer(value: Buffer | string | Uint8Array): Uint8Array {
+  protected toUint8Buffer(value: Buffer | string | Uint8Array): Uint8Array {
     let buf: Uint8Array;
     if (typeof value === "string") {
       buf = Utils.fromUtf8ToArray(value);

@@ -1,3 +1,4 @@
+import * as argon2 from "argon2";
 import { ipcMain } from "electron";
 
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
@@ -29,5 +30,27 @@ export class MainCryptoFunctionService
         );
       },
     );
+  }
+
+  async argon2(
+    password: string | Uint8Array,
+    salt: string | Uint8Array,
+    iterations: number,
+    memory: number,
+    parallelism: number,
+  ): Promise<Uint8Array> {
+    const nodePassword = this.toNodeValue(password);
+    const nodeSalt = this.toNodeBuffer(this.toUint8Buffer(salt));
+
+    const hash = await argon2.hash(nodePassword, {
+      salt: nodeSalt,
+      raw: true,
+      hashLength: 32,
+      timeCost: iterations,
+      memoryCost: memory,
+      parallelism: parallelism,
+      type: argon2.argon2id,
+    });
+    return this.toUint8Buffer(hash);
   }
 }

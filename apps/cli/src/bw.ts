@@ -128,7 +128,6 @@ import {
   ImportService,
   ImportServiceAbstraction,
 } from "@bitwarden/importer/core";
-import { NodeCryptoFunctionService } from "@bitwarden/node/services/node-crypto-function.service";
 import {
   IndividualVaultExportService,
   IndividualVaultExportServiceAbstraction,
@@ -138,6 +137,7 @@ import {
   VaultExportServiceAbstraction,
 } from "@bitwarden/vault-export-core";
 
+import { CliCryptoFunctionService } from "./platform/services/cli-crypto-function.service";
 import { CliPlatformUtilsService } from "./platform/services/cli-platform-utils.service";
 import { ConsoleLogService } from "./platform/services/console-log.service";
 import { I18nService } from "./platform/services/i18n.service";
@@ -190,7 +190,7 @@ export class Main {
   organizationExportService: OrganizationVaultExportServiceAbstraction;
   searchService: SearchService;
   keyGenerationService: KeyGenerationServiceAbstraction;
-  cryptoFunctionService: NodeCryptoFunctionService;
+  cryptoFunctionService: CliCryptoFunctionService;
   encryptService: EncryptServiceImplementation;
   authService: AuthService;
   policyService: PolicyService;
@@ -258,7 +258,7 @@ export class Main {
       this.platformUtilsService.isDev(),
       (level) => process.env.BITWARDENCLI_DEBUG !== "true" && level <= LogLevelType.Info,
     );
-    this.cryptoFunctionService = new NodeCryptoFunctionService();
+    this.cryptoFunctionService = new CliCryptoFunctionService();
     this.encryptService = new EncryptServiceImplementation(
       this.cryptoFunctionService,
       this.logService,
