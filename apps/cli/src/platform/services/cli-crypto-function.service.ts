@@ -1,11 +1,7 @@
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { NodeCryptoFunctionService } from "@bitwarden/node/services/node-crypto-function.service";
 import { argon2 } from "@bitwarden/sdk-wasm";
 
-export class CliCryptoFunctionService
-  extends NodeCryptoFunctionService
-  implements CryptoFunctionService
-{
+export class CliCryptoFunctionService extends NodeCryptoFunctionService {
   async argon2(
     password: string | Uint8Array,
     salt: string | Uint8Array,

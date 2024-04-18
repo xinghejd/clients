@@ -1,13 +1,9 @@
 import * as argon2 from "argon2";
 import { ipcMain } from "electron";
 
-import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { NodeCryptoFunctionService } from "@bitwarden/node/services/node-crypto-function.service";
 
-export class MainCryptoFunctionService
-  extends NodeCryptoFunctionService
-  implements CryptoFunctionService
-{
+export class MainCryptoFunctionService extends NodeCryptoFunctionService {
   init() {
     ipcMain.handle(
       "crypto.argon2",
