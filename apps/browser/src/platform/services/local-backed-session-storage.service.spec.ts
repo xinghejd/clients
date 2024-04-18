@@ -11,9 +11,16 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 
+import { BrowserApi } from "../browser/browser-api";
+
 import { LocalBackedSessionStorageService } from "./local-backed-session-storage.service";
 
 describe("LocalBackedSessionStorage", () => {
+  const sendMessageWithResponseSpy: jest.SpyInstance = jest.spyOn(
+    BrowserApi,
+    "sendMessageWithResponse",
+  );
+
   let encryptService: MockProxy<EncryptService>;
   let keyGenerationService: MockProxy<KeyGenerationService>;
   let localStorageService: MockProxy<AbstractStorageService>;
@@ -21,6 +28,7 @@ describe("LocalBackedSessionStorage", () => {
 
   let cache: Map<string, any>;
   const testObj = { a: 1, b: 2 };
+  const stringifiedTestObj = JSON.stringify(testObj);
 
   const key = new SymmetricCryptoKey(Utils.fromUtf8ToArray("00000000000000000000000000000000"));
   let getSessionKeySpy: jest.SpyInstance;
@@ -40,6 +48,7 @@ describe("LocalBackedSessionStorage", () => {
   };
 
   beforeEach(() => {
+    sendMessageWithResponseSpy.mockResolvedValue(null);
     encryptService = mock<EncryptService>();
     keyGenerationService = mock<KeyGenerationService>();
     localStorageService = mock<AbstractStorageService>();
@@ -69,14 +78,22 @@ describe("LocalBackedSessionStorage", () => {
   });
 
   describe("get", () => {
-    it("should return from cache", async () => {
-      cache.set("test", testObj);
-      const result = await sut.get("test");
-      expect(result).toStrictEqual(testObj);
+    describe("in local cache or external context cache", () => {
+      it("should return from local cache", async () => {
+        cache.set("test", stringifiedTestObj);
+        const result = await sut.get("test");
+        expect(result).toStrictEqual(testObj);
+      });
+
+      it("should return from external context cache when local cache is not available", async () => {
+        sendMessageWithResponseSpy.mockResolvedValue(stringifiedTestObj);
+        const result = await sut.get("test");
+        expect(result).toStrictEqual(testObj);
+      });
     });
 
     describe("not in cache", () => {
-      const session = { test: testObj };
+      const session = { test: stringifiedTestObj };
 
       beforeEach(() => {
         mockExistingSessionKey(key);
@@ -118,7 +135,7 @@ describe("LocalBackedSessionStorage", () => {
         it("should set retrieved values in cache", async () => {
           await sut.get("test");
           expect(cache.has("test")).toBe(true);
-          expect(cache.get("test")).toEqual(session.test);
+          expect(cache.get("test")).toEqual(JSON.stringify(session.test));
         });
 
         it("should use a deserializer if provided", async () => {
@@ -148,13 +165,56 @@ describe("LocalBackedSessionStorage", () => {
   });
 
   describe("remove", () => {
+    describe("existing cache value is null", () => {
+      it("should not save null if the local cached value is already null", async () => {
+        cache.set("test", null);
+        await sut.remove("test");
+        expect(sendUpdateSpy).not.toHaveBeenCalled();
+      });
+
+      it("should not save null if the externally cached value is already null", async () => {
+        sendMessageWithResponseSpy.mockResolvedValue(null);
+        await sut.remove("test");
+        expect(sendUpdateSpy).not.toHaveBeenCalled();
+      });
+    });
+
     it("should save null", async () => {
+      cache.set("test", stringifiedTestObj);
+
       await sut.remove("test");
       expect(sendUpdateSpy).toHaveBeenCalledWith({ key: "test", updateType: "remove" });
     });
   });
 
   describe("save", () => {
+    describe("currently cached", () => {
+      it("does not save the value a local cached value exists which is an exact match", async () => {
+        cache.set("test", stringifiedTestObj);
+        await sut.save("test", testObj);
+        expect(sendUpdateSpy).not.toHaveBeenCalled();
+      });
+
+      it("does not save the value if a local cached value exists, even if the keys not in the same order", async () => {
+        cache.set("test", JSON.stringify({ b: 2, a: 1 }));
+        await sut.save("test", testObj);
+        expect(sendUpdateSpy).not.toHaveBeenCalled();
+      });
+
+      it("does not save the value a externally cached value exists which is an exact match", async () => {
+        sendMessageWithResponseSpy.mockResolvedValue(stringifiedTestObj);
+        await sut.save("test", testObj);
+        expect(sendUpdateSpy).not.toHaveBeenCalled();
+        expect(cache.get("test")).toBe(stringifiedTestObj);
+      });
+
+      it("saves the value if the currently cached string value evaluates to a falsy value", async () => {
+        cache.set("test", "null");
+        await sut.save("test", testObj);
+        expect(sendUpdateSpy).toHaveBeenCalledWith({ key: "test", updateType: "save" });
+      });
+    });
+
     describe("caching", () => {
       beforeEach(() => {
         localStorageService.get.mockResolvedValue(null);
@@ -180,8 +240,8 @@ describe("LocalBackedSessionStorage", () => {
         expect(cache.has("test")).toBe(false);
         const setSpy = jest.spyOn(cache, "set");
         await sut.save("test", testObj);
-        expect(cache.get("test")).toBe(testObj);
-        expect(setSpy).toHaveBeenCalledWith("test", testObj);
+        expect(cache.get("test")).toBe(stringifiedTestObj);
+        expect(setSpy).toHaveBeenCalledWith("test", stringifiedTestObj);
       });
     });
 
