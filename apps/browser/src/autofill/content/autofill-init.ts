@@ -86,7 +86,7 @@ class AutofillInit implements AutofillInitInterface {
     const sendCollectDetailsMessage = () => {
       this.clearCollectPageDetailsOnLoadTimeout();
       this.collectPageDetailsOnLoadTimeout = setTimeout(
-        () => sendExtensionMessage("bgCollectPageDetails", { sender: "autofillInit" }),
+        () => this.sendExtensionMessage("bgCollectPageDetails", { sender: "autofillInit" }),
         250,
       );
     };
@@ -203,15 +203,6 @@ class AutofillInit implements AutofillInitInterface {
   };
 
   /**
-   * Clears the send collect details message timeout.
-   */
-  private clearSendCollectDetailsMessageTimeout() {
-    if (this.sendCollectDetailsMessageTimeout) {
-      clearTimeout(this.sendCollectDetailsMessageTimeout as number);
-    }
-  }
-
-  /**
    * Handles destroying the autofill init content script. Removes all
    * listeners, timeouts, and object instances to prevent memory leaks.
    */
@@ -221,7 +212,6 @@ class AutofillInit implements AutofillInitInterface {
     this.collectAutofillContentService.destroy();
     this.autofillOverlayContentService?.destroy();
     this.inlineMenuElements?.destroy();
-    this.clearSendCollectDetailsMessageTimeout();
   }
 }
 
