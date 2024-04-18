@@ -1632,6 +1632,12 @@
   "browserIntegrationUnsupportedTitle": {
     "message": "Browser integration not supported"
   },
+  "browserIntegrationErrorTitle": {
+    "message": "Error enabling browser integration"
+  },
+  "browserIntegrationErrorDesc": {
+    "message": "An error has occurred while enabling browser integration."
+  },
   "browserIntegrationMasOnlyDesc": {
     "message": "Unfortunately browser integration is only supported in the Mac App Store version for now."
   },
@@ -2705,5 +2711,11 @@
   },
   "passkeyRemoved": {
     "message": "Passkey removed"
+  },
+  "errorAssigningTargetCollection": {
+    "message": "Error assigning target collection."
+  },
+  "errorAssigningTargetFolder": {
+    "message": "Error assigning target folder."
   }
 }

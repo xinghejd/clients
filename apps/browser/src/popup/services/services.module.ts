@@ -94,10 +94,12 @@ import { BrowserApi } from "../../platform/browser/browser-api";
 import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
 import { BrowserFileDownloadService } from "../../platform/popup/services/browser-file-download.service";
 import { BrowserStateService as StateServiceAbstraction } from "../../platform/services/abstractions/browser-state.service";
+import { ScriptInjectorService } from "../../platform/services/abstractions/script-injector.service";
 import { BrowserEnvironmentService } from "../../platform/services/browser-environment.service";
 import BrowserLocalStorageService from "../../platform/services/browser-local-storage.service";
 import BrowserMessagingPrivateModePopupService from "../../platform/services/browser-messaging-private-mode-popup.service";
 import BrowserMessagingService from "../../platform/services/browser-messaging.service";
+import { BrowserScriptInjectorService } from "../../platform/services/browser-script-injector.service";
 import { DefaultBrowserStateService } from "../../platform/services/default-browser-state.service";
 import I18nService from "../../platform/services/i18n.service";
 import { ForegroundPlatformUtilsService } from "../../platform/services/platform-utils/foreground-platform-utils.service";
@@ -120,7 +122,7 @@ const mainBackground: MainBackground = needsBackgroundInit
   : BrowserApi.getBackgroundPage().bitwardenMain;
 
 function createLocalBgService() {
-  const localBgService = new MainBackground(isPrivateMode);
+  const localBgService = new MainBackground(isPrivateMode, true);
   // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
   localBgService.bootstrap();
@@ -319,7 +321,13 @@ const safeProviders: SafeProvider[] = [
       DomainSettingsService,
       UserVerificationService,
       BillingAccountProfileStateService,
+      ScriptInjectorService,
     ],
+  }),
+  safeProvider({
+    provide: ScriptInjectorService,
+    useClass: BrowserScriptInjectorService,
+    deps: [],
   }),
   safeProvider({
     provide: KeyConnectorService,
