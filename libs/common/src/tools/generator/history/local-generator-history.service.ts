@@ -53,7 +53,7 @@ export class LocalGeneratorHistoryService extends GeneratorHistoryService {
       },
       {
         shouldUpdate: (credentials) =>
-          credentials?.some((f) => f.credential !== credential) ?? true,
+          !(credentials?.some((f) => f.credential === credential) ?? false),
       },
     );
 

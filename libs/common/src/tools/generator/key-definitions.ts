@@ -160,7 +160,10 @@ export const GENERATOR_HISTORY_BUFFER = new BufferedKeyDefinition<
 >(GENERATOR_DISK, "localGeneratorHistoryBuffer", {
   deserializer(history) {
     const items = history as Jsonify<GeneratedPasswordHistory>[];
-    return items.map((h) => new GeneratedPasswordHistory(h.password, h.date));
+    return items?.map((h) => new GeneratedPasswordHistory(h.password, h.date));
+  },
+  async isValid(history) {
+    return history && history.length ? true : false;
   },
   async map(history, decryptor) {
     const credentials = await decryptor.decrypt(history);
