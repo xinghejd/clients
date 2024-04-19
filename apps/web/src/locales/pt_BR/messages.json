@@ -579,7 +579,7 @@
     "message": "Acesso"
   },
   "accessLevel": {
-    "message": "Access level"
+    "message": "Nível de acesso"
   },
   "loggedOut": {
     "message": "Sessão encerrada"
@@ -672,7 +672,7 @@
     "message": "Criptografia não suportada"
   },
   "enablePasskeyEncryption": {
-    "message": "Set up encryption"
+    "message": "Configurar criptografia"
   },
   "usedForEncryption": {
     "message": "Usado para criptografia"
@@ -4951,10 +4951,13 @@
     "message": "Crie uma nova organização de cliente que será associada a você como o provedor. Você poderá acessar e gerenciar esta organização."
   },
   "newClient": {
-    "message": "New client"
+    "message": "Novo cliente"
   },
   "addExistingOrganization": {
     "message": "Adicionar Organização Existente"
+  },
+  "addNewOrganization": {
+    "message": "Adicionar nova organização"
   },
   "myProvider": {
     "message": "Meu Provedor"
@@ -5937,13 +5940,13 @@
     }
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch Duo and follow the steps to finish logging in."
+    "message": "Inicie o Duo e siga os passos para finalizar o login."
   },
   "duoRequiredByOrgForAccount": {
-    "message": "Duo two-step login is required for your account."
+    "message": "A autenticação em duas etapas do Duo é necessária para sua conta."
   },
   "launchDuo": {
-    "message": "Launch Duo"
+    "message": "Abrir o Duo"
   },
   "turnOn": {
     "message": "Ligar"
@@ -6677,10 +6680,10 @@
     "message": "Reenviar código"
   },
   "memberColumnHeader": {
-    "message": "Member"
+    "message": "Membro"
   },
   "groupSlashMemberColumnHeader": {
-    "message": "Group/Member"
+    "message": "Grupo/Membro"
   },
   "selectGroupsAndMembers": {
     "message": "Selecione grupos e membros"
@@ -7447,7 +7450,7 @@
     "message": "Já tem uma conta?"
   },
   "skipToContent": {
-    "message": "Skip to content"
+    "message": "Pular para o conteúdo"
   },
   "managePermissionRequired": {
     "message": "Pelo menos um membro ou grupo deve ter poder gerenciar a permissão."
@@ -7498,11 +7501,14 @@
   "collectionAccessRestricted": {
     "message": "O acesso à coleção está restrito"
   },
+  "readOnlyCollectionAccess": {
+    "message": "Você não tem acesso para gerenciar esta coleção."
+  },
   "grantCollectionAccess": {
     "message": "Grant groups or members access to this collection."
   },
   "grantCollectionAccessMembersOnly": {
-    "message": "Grant members access to this collection."
+    "message": "Conceder acesso a essa coleção."
   },
   "adminCollectionAccess": {
     "message": "Administrators can access and manage collections."
@@ -7551,54 +7557,60 @@
     "message": "Esta ação é irreversível"
   },
   "confirmCollectionEnhancementsDialogContent": {
-    "message": "Turning on this feature will deprecate the manager role and replace it with a Can manage permission. This will take a few moments. Do not make any organization changes until it is complete. Are you sure you want to proceed?"
+    "message": "Ativar este recurso irá depreciar a função de gerente e substituí-lo por uma Permissão de para Gerenciar. Isso levará algum tempo. Não faça nenhuma alteração de organização até que esteja concluída. Tem certeza que deseja continuar?"
   },
   "sorryToSeeYouGo": {
-    "message": "Sorry to see you go! Help improve Bitwarden by sharing why you're canceling.",
+    "message": "Lamentamos vê-lo ir! Ajude a melhorar o Bitwarden compartilhando o motivo de você estar cancelando.",
     "description": "A message shown to users as part of an offboarding survey asking them to provide more information on their subscription cancelation."
   },
   "selectCancellationReason": {
-    "message": "Select a reason for canceling",
+    "message": "Selecione o motivo do cancelamento",
     "description": "Used as a form field label for a select input on the offboarding survey."
   },
   "anyOtherFeedback": {
-    "message": "Is there any other feedback you'd like to share?",
+    "message": "Existe algum outro comentário que você gostaria de compartilhar?",
     "description": "Used as a form field label for a textarea input on the offboarding survey."
   },
   "missingFeatures": {
-    "message": "Missing features",
+    "message": "Recursos ausentes",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "movingToAnotherTool": {
-    "message": "Moving to another tool",
+    "message": "Trocando de ferramenta",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "tooDifficultToUse": {
-    "message": "Too difficult to use",
+    "message": "Muito difícil de usar",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "notUsingEnough": {
-    "message": "Not using enough",
+    "message": "Não está usando o suficiente",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "tooExpensive": {
-    "message": "Too expensive",
+    "message": "Muito caro",
     "description": "An option for the offboarding survey shown when a user cancels their subscription."
   },
   "freeForOneYear": {
     "message": "Grátis por 1 ano"
   },
   "newWebApp": {
-    "message": "Welcome to the new and improved web app. Learn more about what’s changed."
+    "message": "Bem-vindo ao novo e melhorado aplicativo da web. Saiba mais sobre o que mudou."
   },
   "releaseBlog": {
-    "message": "Read release blog"
+    "message": "Ler o blog do lançamento"
   },
   "adminConsole": {
-    "message": "Admin Console"
+    "message": "Painel de administração"
   },
   "providerPortal": {
-    "message": "Provider Portal"
+    "message": "Portal do provedor"
+  },
+  "success": {
+    "message": "Success"
+  },
+  "viewCollection": {
+    "message": "Ver Coleção"
   },
   "restrictedGroupAccess": {
     "message": "Você não pode se adicionar aos grupos."
@@ -7607,28 +7619,28 @@
     "message": "Você não pode se adicionar às coleções."
   },
   "assign": {
-    "message": "Assign"
+    "message": "Atribuir"
   },
   "assignToCollections": {
-    "message": "Assign to collections"
+    "message": "Atribuir à coleções"
   },
   "assignToTheseCollections": {
-    "message": "Assign to these collections"
+    "message": "Atribuir a estas coleções"
   },
   "bulkCollectionAssignmentDialogDescription": {
-    "message": "Select the collections that the items will be shared with. Once an item is updated in one collection, it will be reflected in all collections. Only organization members with access to these collections will be able to see the items."
+    "message": "Selecione as coleções com as quais os itens serão compartilhados. Assim que um item for atualizado em uma coleção, isso será refletido em todas as coleções. Apenas membros da organização com acesso a essas coleções poderão ver os itens."
   },
   "selectCollectionsToAssign": {
-    "message": "Select collections to assign"
+    "message": "Selecione as coleções para atribuir"
   },
   "noCollectionsAssigned": {
-    "message": "No collections have been assigned"
+    "message": "Nenhuma coleção foi atribuída"
   },
   "successfullyAssignedCollections": {
-    "message": "Successfully assigned collections"
+    "message": "Coleções atribuídas com sucesso"
   },
   "bulkCollectionAssignmentWarning": {
-    "message": "You have selected $TOTAL_COUNT$ items. You cannot update $READONLY_COUNT$ of the items because you do not have edit permissions.",
+    "message": "Você selecionou $TOTAL_COUNT$ itens. Você não pode atualizar $READONLY_COUNT$ destes itens porque você não tem permissão para edição.",
     "placeholders": {
       "total_count": {
         "content": "$1",
@@ -7641,6 +7653,401 @@
     }
   },
   "items": {
-    "message": "Items"
+    "message": "Itens"
+  },
+  "assignedSeats": {
+    "message": "Lugares Atribuídos"
+  },
+  "assigned": {
+    "message": "Atribuído"
+  },
+  "used": {
+    "message": "Utilizado"
+  },
+  "remaining": {
+    "message": "Restante"
+  },
+  "unlinkOrganization": {
+    "message": "Desvincular organização"
+  },
+  "manageSeats": {
+    "message": "GERENCIAR LUGARES"
+  },
+  "manageSeatsDescription": {
+    "message": "Os ajustes nos lugares serão refletidos no próximo ciclo de faturamento."
+  },
+  "unassignedSeatsDescription": {
+    "message": "Assinatura de assentos desvinculada"
+  },
+  "purchaseSeatDescription": {
+    "message": "Assentos adicionais comprados"
+  },
+  "assignedSeatCannotUpdate": {
+    "message": "Os assentos atribuídos não podem ser atualizados. Por favor, entre em contato com o proprietário da sua organização para obter assistência."
+  },
+  "subscriptionUpdateFailed": {
+    "message": "Atualização da assinatura falhou"
+  },
+  "trial": {
+    "message": "Avaliação",
+    "description": "A subscription status label."
+  },
+  "pastDue": {
+    "message": "Atrasado",
+    "description": "A subscription status label"
+  },
+  "subscriptionExpired": {
+    "message": "Assinatura expirada",
+    "description": "The date header used when a subscription is past due."
+  },
+  "pastDueWarningForChargeAutomatically": {
+    "message": "Você tem um período de carência de $DAYS$ dias a contar da data de expiração para manter sua assinatura. Por favor, resolva as faturas vencidas até $SUSPENSION_DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "11"
+      },
+      "suspension_date": {
+        "content": "$2",
+        "example": "01/10/2024"
+      }
+    },
+    "description": "A warning shown to the user when their subscription is past due and they are charged automatically."
+  },
+  "pastDueWarningForSendInvoice": {
+    "message": "Você tem um período de licença de $DAYS$, contados a partir da data de vencimento da sua primeira fatura em aberto para manter a sua assinatura. Por favor, resolva as faturas vencidas até $SUSPENSION_DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "11"
+      },
+      "suspension_date": {
+        "content": "$2",
+        "example": "01/10/2024"
+      }
+    },
+    "description": "A warning shown to the user when their subscription is past due and they pay via invoice."
+  },
+  "unpaidInvoice": {
+    "message": "Fatura não paga",
+    "description": "The header of a warning box shown to a user whose subscription is unpaid."
+  },
+  "toReactivateYourSubscription": {
+    "message": "Para reativar sua assinatura, por favor resolva as faturas vencidas.",
+    "description": "The body of a warning box shown to a user whose subscription is unpaid."
+  },
+  "cancellationDate": {
+    "message": "Data de cancelamento",
+    "description": "The date header used when a subscription is cancelled."
+  },
+  "machineAccountsCannotCreate": {
+    "message": "Contas de máquina não podem ser criadas em organizações suspensas. Entre em contato com o proprietário da organização para obter assistência."
+  },
+  "machineAccount": {
+    "message": "Conta de máquina",
+    "description": "A machine user which can be used to automate processes and access secrets in the system."
+  },
+  "machineAccounts": {
+    "message": "Contas de máquina",
+    "description": "The title for the section that deals with machine accounts."
+  },
+  "newMachineAccount": {
+    "message": "Nova conta de máquina",
+    "description": "Title for creating a new machine account."
+  },
+  "machineAccountsNoItemsMessage": {
+    "message": "Crie uma nova conta de máquina para começar a automatizar o acesso secreto.",
+    "description": "Message to encourage the user to start creating machine accounts."
+  },
+  "machineAccountsNoItemsTitle": {
+    "message": "Ainda não há nada a ser exibido",
+    "description": "Title to indicate that there are no machine accounts to display."
+  },
+  "deleteMachineAccounts": {
+    "message": "Excluir contas de máquina",
+    "description": "Title for the action to delete one or multiple machine accounts."
+  },
+  "deleteMachineAccount": {
+    "message": "Excluir conta de máquina",
+    "description": "Title for the action to delete a single machine account."
+  },
+  "viewMachineAccount": {
+    "message": "Ver conta de máquina",
+    "description": "Action to view the details of a machine account."
+  },
+  "deleteMachineAccountDialogMessage": {
+    "message": "A exclusão da conta de máquina $MACHINE_ACCOUNT$ é permanente e irreversível.",
+    "placeholders": {
+      "machine_account": {
+        "content": "$1",
+        "example": "Machine account name"
+      }
+    }
+  },
+  "deleteMachineAccountsDialogMessage": {
+    "message": "Excluir contas de máquina é permanente e irreversível."
+  },
+  "deleteMachineAccountsConfirmMessage": {
+    "message": "Excluir $COUNT$ contas de máquina",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "deleteMachineAccountToast": {
+    "message": "Conta de máquina excluída"
+  },
+  "deleteMachineAccountsToast": {
+    "message": "Contas de máquina excluídas"
+  },
+  "searchMachineAccounts": {
+    "message": "Pesquisar contas de máquina",
+    "description": "Placeholder text for searching machine accounts."
+  },
+  "editMachineAccount": {
+    "message": "Editar conta da máquina",
+    "description": "Title for editing a machine account."
+  },
+  "machineAccountName": {
+    "message": "Nome da conta de máquina",
+    "description": "Label for the name of a machine account"
+  },
+  "machineAccountCreated": {
+    "message": "Conta de máquina criada",
+    "description": "Notifies that a new machine account has been created"
+  },
+  "machineAccountUpdated": {
+    "message": "Conta de máquina atualizada",
+    "description": "Notifies that a machine account has been updated"
+  },
+  "projectMachineAccountsDescription": {
+    "message": "Conceder acesso a contas de máquina a este projeto."
+  },
+  "projectMachineAccountsSelectHint": {
+    "message": "Digite ou selecione contas de máquina"
+  },
+  "projectEmptyMachineAccountAccessPolicies": {
+    "message": "Adicione contas de máquina para conceder acesso"
+  },
+  "machineAccountPeopleDescription": {
+    "message": "Conceder acesso de grupos ou pessoas a esta conta de máquina."
+  },
+  "machineAccountProjectsDescription": {
+    "message": "Atribuir projetos a esta conta de máquina. "
+  },
+  "createMachineAccount": {
+    "message": "Criar uma conta de máquina"
+  },
+  "maPeopleWarningMessage": {
+    "message": "Remover pessoas de uma conta de máquina não remove os tokens de acesso que elas criaram. Por melhores práticas de segurança, é recomendado revogar os tokens de acesso criados por pessoas que foram removidas de uma conta de máquina."
+  },
+  "smAccessRemovalWarningMaTitle": {
+    "message": "Remover acesso a esta conta de máquina"
+  },
+  "smAccessRemovalWarningMaMessage": {
+    "message": "Esta ação irá remover seu acesso à conta de máquina."
+  },
+  "machineAccountsIncluded": {
+    "message": "$COUNT$ contas de serviço incluídas",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "additionalMachineAccountCost": {
+    "message": "$COST$ mensal para contas de máquina adicionais",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$0.50"
+      }
+    }
+  },
+  "additionalMachineAccounts": {
+    "message": "Contas de máquina adicionais"
+  },
+  "includedMachineAccounts": {
+    "message": "Seu plano vem com $COUNT$ contas de máquina.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "addAdditionalMachineAccounts": {
+    "message": "Você pode adicionar contas de máquina extras por $COST$ mensais.",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$0.50"
+      }
+    }
+  },
+  "limitMachineAccounts": {
+    "message": "Limitar contas de máquina (opcional)"
+  },
+  "limitMachineAccountsDesc": {
+    "message": "Defina um limite para suas contas de máquina. Quando este limite for atingido, você não poderá criar novas contas de máquina."
+  },
+  "machineAccountLimit": {
+    "message": "Limite de conta de máquina (opcional)"
+  },
+  "maxMachineAccountCost": {
+    "message": "Custo máximo de conta de máquina"
+  },
+  "machineAccountAccessUpdated": {
+    "message": "Acesso a conta de máquina atualizado"
+  },
+  "restrictedGroupAccessDesc": {
+    "message": "Você não pode adicionar você mesmo a um grupo."
+  },
+  "unassignedItemsBannerSelfHost": {
+    "message": "Notice: On May 2, 2024, unassigned organization items will no longer be visible in your All Vaults view across devices and will only be accessible via the Admin Console. Assign these items to a collection from the Admin Console to make them visible."
+  },
+  "unassignedItemsBannerNotice": {
+    "message": "Aviso: Itens de organização não atribuídos não estão mais visíveis na sua tela Todos os Cofres através dos dispositivos e agora só são acessíveis por meio do Console de Administração."
+  },
+  "unassignedItemsBannerSelfHostNotice": {
+    "message": "Aviso: Em 16 de maio, 2024, itens da organização que não foram atribuídos não estarão mais visíveis em sua visualização de Todos os Cofres dos dispositivos e só serão acessíveis por meio do painel de administração."
+  },
+  "unassignedItemsBannerCTAPartOne": {
+    "message": "Atribua estes itens a uma coleção da",
+    "description": "This will be part of a larger sentence, which will read like so: Assign these items to a collection from the Admin Console to make them visible."
+  },
+  "unassignedItemsBannerCTAPartTwo": {
+    "message": "para torná-los visíveis.",
+    "description": "This will be part of a larger sentence, which will read like so: Assign these items to a collection from the Admin Console to make them visible."
+  },
+  "deleteProvider": {
+    "message": "Excluir Provedor"
+  },
+  "deleteProviderConfirmation": {
+    "message": "A exclusão de um provedor é permanente e irreversível. Digite sua senha mestra para confirmar a exclusão do provedor e de todos os dados associados."
+  },
+  "deleteProviderName": {
+    "message": "Não é possível excluir $ID$",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "deleteProviderWarningDesc": {
+    "message": "Você deve desvincular todos os clientes antes de excluir $ID$",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "providerDeleted": {
+    "message": "Provedor excluído"
+  },
+  "providerDeletedDesc": {
+    "message": "O provedor e todos os dados associados foram excluídos."
+  },
+  "deleteProviderRecoverConfirmDesc": {
+    "message": "Você pediu para excluir este Provedor. Clique no botão abaixo para confirmar."
+  },
+  "deleteProviderWarning": {
+    "message": "A exclusão do seu provedor é permanente. Não pode ser desfeita."
+  },
+  "errorAssigningTargetCollection": {
+    "message": "Erro ao atribuir coleção de destino."
+  },
+  "errorAssigningTargetFolder": {
+    "message": "Erro ao atribuir pasta de destino."
+  },
+  "integrationsAndSdks": {
+    "message": "Integrations & SDKs",
+    "description": "The title for the section that deals with integrations and SDKs."
+  },
+  "integrations": {
+    "message": "Integrations"
+  },
+  "integrationsDesc": {
+    "message": "Automatically sync secrets from Bitwarden Secrets Manager to a third-party service."
+  },
+  "sdks": {
+    "message": "SDKs"
+  },
+  "sdksDesc": {
+    "message": "Use Bitwarden Secrets Manager SDK in the following programming languages to build your own applications."
+  },
+  "setUpGithubActions": {
+    "message": "Set up Github Actions"
+  },
+  "setUpGitlabCICD": {
+    "message": "Set up GitLab CI/CD"
+  },
+  "setUpAnsible": {
+    "message": "Set up Ansible"
+  },
+  "cSharpSDKRepo": {
+    "message": "View C# repository"
+  },
+  "cPlusPlusSDKRepo": {
+    "message": "View C++ repository"
+  },
+  "jsWebAssemblySDKRepo": {
+    "message": "View JS WebAssembly repository"
+  },
+  "javaSDKRepo": {
+    "message": "View Java repository"
+  },
+  "pythonSDKRepo": {
+    "message": "View Python repository"
+  },
+  "phpSDKRepo": {
+    "message": "View php repository"
+  },
+  "rubySDKRepo": {
+    "message": "View Ruby repository"
+  },
+  "goSDKRepo": {
+    "message": "View Go repository"
+  },
+  "createNewClientToManageAsProvider": {
+    "message": "Crie uma nova organização de cliente para gerenciar como um Provedor. Posições adicionais serão refletidas no próximo ciclo de faturamento."
+  },
+  "selectAPlan": {
+    "message": "Selecione um plano"
+  },
+  "thirtyFivePercentDiscount": {
+    "message": "35% de Desconto"
+  },
+  "monthPerMember": {
+    "message": "mês por membro"
+  },
+  "seats": {
+    "message": "Lugares"
+  },
+  "addOrganization": {
+    "message": "Adicionar Organização"
+  },
+  "createdNewClient": {
+    "message": "Novo cliente criado com sucesso"
+  },
+  "noAccess": {
+    "message": "No access"
+  },
+  "collectionAdminConsoleManaged": {
+    "message": "This collection is only accessible from the admin console"
+  },
+  "organizationOptionsMenu": {
+    "message": "Toggle Organization Menu"
+  },
+  "vaultItemSelect": {
+    "message": "Select vault item"
+  },
+  "collectionItemSelect": {
+    "message": "Select collection item"
   }
 }
