@@ -99,7 +99,7 @@ export class StateService<
     }
 
     await this.state().then(async (state) => {
-      if (state == null) {
+      if (this.sessionIsNew(state)) {
         await this.setState(new State<TGlobalState, TAccount>(this.createGlobals()));
       } else {
         this.isRecoveredSession = true;
@@ -108,6 +108,10 @@ export class StateService<
     await this.initAccountState();
 
     this.hasBeenInited = true;
+  }
+
+  protected sessionIsNew(state: State<TGlobalState, TAccount>): boolean {
+    return state == null;
   }
 
   async initAccountState() {

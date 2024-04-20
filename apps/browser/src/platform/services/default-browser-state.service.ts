@@ -10,6 +10,7 @@ import {
 } from "@bitwarden/common/platform/abstractions/storage.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
+import { State } from "@bitwarden/common/platform/models/domain/state";
 import { StorageOptions } from "@bitwarden/common/platform/models/domain/storage-options";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { StateService as BaseStateService } from "@bitwarden/common/platform/services/state.service";
@@ -83,6 +84,13 @@ export class DefaultBrowserStateService
         },
       );
     }
+  }
+  override sessionIsNew(state: State<GlobalState, Account>): boolean {
+    if (BrowserApi.isManifestVersion(3) && self.constructor.name !== "Window") {
+      // Service worker is not a recovered session
+      return true;
+    }
+    return super.sessionIsNew(state);
   }
 
   override async initAccountState(): Promise<void> {
