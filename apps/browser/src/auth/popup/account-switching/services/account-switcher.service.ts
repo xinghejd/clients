@@ -16,10 +16,12 @@ import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.servic
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import {
+  CommandDefinition,
+  MessageListener,
+  MessageSender,
+} from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
-
-import { fromChromeEvent } from "../../../../platform/browser/from-chrome-event";
 
 export type AvailableAccount = {
   name: string;
@@ -46,7 +48,8 @@ export class AccountSwitcherService {
   constructor(
     private accountService: AccountService,
     private avatarService: AvatarService,
-    private messagingService: MessagingService,
+    private messageSender: MessageSender,
+    private messageListener: MessageListener,
     private environmentService: EnvironmentService,
     private logService: LogService,
     authService: AuthService,
@@ -111,12 +114,9 @@ export class AccountSwitcherService {
     );
 
     // Create a reusable observable that listens to the the switchAccountFinish message and returns the userId from the message
-    this.switchAccountFinished$ = fromChromeEvent<[message: { command: string; userId: string }]>(
-      chrome.runtime.onMessage,
-    ).pipe(
-      filter(([message]) => message.command === "switchAccountFinish"),
-      map(([message]) => message.userId),
-    );
+    this.switchAccountFinished$ = this.messageListener
+      .messages$(new CommandDefinition<{ userId: UserId }>("switchAccountFinish"))
+      .pipe(map((message) => message.userId));
   }
 
   get specialAccountAddId() {
@@ -147,7 +147,7 @@ export class AccountSwitcherService {
 
     // Initiate the actions required to make account switching happen
     await this.accountService.switchAccount(id as UserId);
-    this.messagingService.send("switchAccount", { userId: id }); // This message should cause switchAccountFinish to be sent
+    this.messageSender.send("switchAccount", { userId: id }); // This message should cause switchAccountFinish to be sent
 
     // Wait until we recieve the switchAccountFinished message
     await switchAccountFinishedPromise.catch((err) => {

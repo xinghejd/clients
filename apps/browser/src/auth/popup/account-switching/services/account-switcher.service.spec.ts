@@ -1,5 +1,5 @@
 import { matches, mock } from "jest-mock-extended";
-import { BehaviorSubject, ReplaySubject, firstValueFrom, of, timeout } from "rxjs";
+import { BehaviorSubject, ReplaySubject, Subject, filter, firstValueFrom, of, timeout } from "rxjs";
 
 import { AccountInfo, AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -7,7 +7,14 @@ import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.servic
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import {
+  CommandDefinition,
+  Message,
+  MessageListener,
+  MessageSender,
+} from "@bitwarden/common/platform/messaging";
+// eslint-disable-next-line no-restricted-imports -- used to create test environment
+import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/subject-message.sender";
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { AccountSwitcherService } from "./account-switcher.service";
@@ -19,7 +26,8 @@ describe("AccountSwitcherService", () => {
 
   const accountService = mock<AccountService>();
   const avatarService = mock<AvatarService>();
-  const messagingService = mock<MessagingService>();
+  const messageListener = mock<MessageListener>();
+  const messageSender = mock<MessageSender>();
   const environmentService = mock<EnvironmentService>();
   const logService = mock<LogService>();
   const authService = mock<AuthService>();
@@ -32,6 +40,14 @@ describe("AccountSwitcherService", () => {
     activeAccountSubject = new BehaviorSubject<{ id: UserId } & AccountInfo>(null);
     authStatusSubject = new ReplaySubject<Record<UserId, AuthenticationStatus>>(1);
 
+    const messageSubject = new Subject<Message<object>>();
+    messageListener.allMessages$ = messageSubject.asObservable();
+    messageListener.messages$.mockImplementation((command) =>
+      messageSubject.pipe(filter((m) => (m as Message<object>).command === command.command)),
+    );
+    const realMessageSender = new SubjectMessageSender(messageSubject);
+    messageSender.send.mockImplementation((...args) => realMessageSender.send(...args));
+
     // Use subject to allow for easy updates
     accountService.accounts$ = accountsSubject;
     accountService.activeAccount$ = activeAccountSubject;
@@ -40,7 +56,8 @@ describe("AccountSwitcherService", () => {
     accountSwitcherService = new AccountSwitcherService(
       accountService,
       avatarService,
-      messagingService,
+      messageSender,
+      messageListener,
       environmentService,
       logService,
       authService,
@@ -131,56 +148,33 @@ describe("AccountSwitcherService", () => {
   });
 
   describe("selectAccount", () => {
+    const switchAccountFinish = new CommandDefinition("switchAccountFinish");
     it("initiates an add account logic when add account is selected", async () => {
-      let listener: (
-        message: { command: string; userId: string },
-        sender: unknown,
-        sendResponse: unknown,
-      ) => void = null;
-      jest.spyOn(chrome.runtime.onMessage, "addListener").mockImplementation((addedListener) => {
-        listener = addedListener;
-      });
-
-      const removeListenerSpy = jest.spyOn(chrome.runtime.onMessage, "removeListener");
-
       const selectAccountPromise = accountSwitcherService.selectAccount("addAccount");
 
-      expect(listener).not.toBeNull();
-      listener({ command: "switchAccountFinish", userId: null }, undefined, undefined);
+      expect(messageListener.messages$).toHaveBeenCalledWith(switchAccountFinish);
+
+      messageSender.send(switchAccountFinish, { userId: null });
 
       await selectAccountPromise;
 
       expect(accountService.switchAccount).toBeCalledWith(null);
-
-      expect(removeListenerSpy).toBeCalledTimes(1);
     });
 
     it("initiates an account switch with an account id", async () => {
-      let listener: (
-        message: { command: string; userId: string },
-        sender: unknown,
-        sendResponse: unknown,
-      ) => void;
-      jest.spyOn(chrome.runtime.onMessage, "addListener").mockImplementation((addedListener) => {
-        listener = addedListener;
-      });
-
-      const removeListenerSpy = jest.spyOn(chrome.runtime.onMessage, "removeListener");
-
       const selectAccountPromise = accountSwitcherService.selectAccount("1");
 
-      listener({ command: "switchAccountFinish", userId: "1" }, undefined, undefined);
+      messageSender.send(switchAccountFinish, { userId: "1" });
 
       await selectAccountPromise;
 
       expect(accountService.switchAccount).toBeCalledWith("1");
-      expect(messagingService.send).toBeCalledWith(
+      expect(messageSender.send).toBeCalledWith(
         "switchAccount",
         matches((payload) => {
           return payload.userId === "1";
         }),
       );
-      expect(removeListenerSpy).toBeCalledTimes(1);
     });
   });
 });
