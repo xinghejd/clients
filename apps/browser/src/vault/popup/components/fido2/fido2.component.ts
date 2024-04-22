@@ -392,7 +392,8 @@ export class Fido2Component implements OnInit, OnDestroy {
   ): Promise<boolean> {
     const masterPasswordRepromptRequired = cipher && cipher.reprompt !== 0;
 
-    // Check if user is coming from lock screen and handle accordingly.
+    // If the request is from the lock screen, treat unlocking the vault as user verification,
+    // unless a master password reprompt is required.
     if (this.fromLock) {
       return masterPasswordRepromptRequired
         ? await this.showMasterPasswordReprompt()
