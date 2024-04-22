@@ -42,7 +42,7 @@ pub mod passwords {
     }
 
     #[napi]
-    pub fn os_supports_secured_storage() -> bool {
+    pub fn os_support() -> bool {
         super::password::has_password_management()
     }
 }

@@ -179,7 +179,7 @@ export class Main {
     this.tokenService = new TokenService(
       singleUserStateProvider,
       globalStateProvider,
-      passwords.osSupportsSecuredStorage(),
+      passwords.osSupport(),
       illegalSecureStorageService,
       this.keyGenerationService,
       this.encryptService,

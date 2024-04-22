@@ -34,7 +34,7 @@ const passwords = {
     ipcRenderer.invoke("keytar", { action: "setPassword", key, keySuffix, value }),
   delete: (key: string, keySuffix: string): Promise<void> =>
     ipcRenderer.invoke("keytar", { action: "deletePassword", key, keySuffix }),
-  osSupportsSecuredStorage: (): boolean => ipcRenderer.sendSync("osSupportsSecuredStorage"),
+  osSupport: (): boolean => ipcRenderer.sendSync("osSupportsPasswords"),
 };
 
 const biometric = {

@@ -142,7 +142,7 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
   }
 
   supportsSecureStorage(): boolean {
-    return ipc.platform.passwords.osSupportsSecuredStorage();
+    return ipc.platform.passwords.osSupport();
   }
 
   getAutofillKeyboardShortcut(): Promise<string> {

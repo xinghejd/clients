@@ -12,7 +12,7 @@ export namespace passwords {
   export function setPassword(service: string, account: string, password: string): Promise<void>
   /** Delete the stored password from the keychain. */
   export function deletePassword(service: string, account: string): Promise<void>
-  export function osSupportsSecuredStorage(): boolean
+  export function osSupport(): boolean
 }
 export namespace biometrics {
   export function prompt(hwnd: Buffer, message: string): Promise<boolean>
