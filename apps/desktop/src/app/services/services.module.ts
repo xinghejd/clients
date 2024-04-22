@@ -66,9 +66,7 @@ import { Account } from "../../models/account";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
 import { ElectronCryptoService } from "../../platform/services/electron-crypto.service";
 import { ElectronLogRendererService } from "../../platform/services/electron-log.renderer.service";
-import {
-  ElectronPlatformUtilsService,
-} from "../../platform/services/electron-platform-utils.service";
+import { ElectronPlatformUtilsService } from "../../platform/services/electron-platform-utils.service";
 import { ElectronRendererMessageSender } from "../../platform/services/electron-renderer-message.sender";
 import { ElectronRendererSecureStorageService } from "../../platform/services/electron-renderer-secure-storage.service";
 import { ElectronRendererStorageService } from "../../platform/services/electron-renderer-storage.service";
