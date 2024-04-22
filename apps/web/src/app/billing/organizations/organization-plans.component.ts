@@ -15,6 +15,7 @@ import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { ProviderApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/provider/provider-api.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { OrganizationCreateRequest } from "@bitwarden/common/admin-console/models/request/organization-create.request";
@@ -47,11 +48,7 @@ interface OnSuccessArgs {
   organizationId: string;
 }
 
-const AllowedLegacyPlanTypes = [
-  PlanType.TeamsMonthly2023,
-  PlanType.TeamsAnnually2023,
-  PlanType.EnterpriseAnnually2023,
-  PlanType.EnterpriseMonthly2023,
+const Allowed2020PlansForLegacyProviders = [
   PlanType.TeamsMonthly2020,
   PlanType.TeamsAnnually2020,
   PlanType.EnterpriseAnnually2020,
@@ -147,6 +144,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     private messagingService: MessagingService,
     private formBuilder: FormBuilder,
     private organizationApiService: OrganizationApiServiceAbstraction,
+    private providerApiService: ProviderApiServiceAbstraction,
   ) {
     this.selfHosted = platformUtilsService.isSelfHost();
   }
@@ -182,7 +180,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     if (this.hasProvider) {
       this.formGroup.controls.businessOwned.setValue(true);
       this.changedOwnedBusiness();
-      this.provider = await this.apiService.getProvider(this.providerId);
+      this.provider = await this.providerApiService.getProvider(this.providerId);
       const providerDefaultPlan = this.passwordManagerPlans.find(
         (plan) => plan.type === PlanType.TeamsAnnually,
       );
@@ -281,7 +279,8 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         (!this.currentPlan || this.currentPlan.upgradeSortOrder < plan.upgradeSortOrder) &&
         (!this.hasProvider || plan.product !== ProductType.TeamsStarter) &&
         ((!this.isProviderQualifiedFor2020Plan() && this.planIsEnabled(plan)) ||
-          (this.isProviderQualifiedFor2020Plan() && AllowedLegacyPlanTypes.includes(plan.type))),
+          (this.isProviderQualifiedFor2020Plan() &&
+            Allowed2020PlansForLegacyProviders.includes(plan.type))),
     );
 
     result.sort((planA, planB) => planA.displaySortOrder - planB.displaySortOrder);
@@ -296,7 +295,8 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
         (plan) =>
           plan.product === selectedProductType &&
           ((!this.isProviderQualifiedFor2020Plan() && this.planIsEnabled(plan)) ||
-            (this.isProviderQualifiedFor2020Plan() && AllowedLegacyPlanTypes.includes(plan.type))),
+            (this.isProviderQualifiedFor2020Plan() &&
+              Allowed2020PlansForLegacyProviders.includes(plan.type))),
       ) || [];
 
     result.sort((planA, planB) => planA.displaySortOrder - planB.displaySortOrder);
@@ -587,7 +587,8 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
       this.formPromise = doSubmit();
       const organizationId = await this.formPromise;
       this.onSuccess.emit({ organizationId: organizationId });
-      this.messagingService.send("organizationCreated", organizationId);
+      // TODO: No one actually listening to this message?
+      this.messagingService.send("organizationCreated", { organizationId });
     } catch (e) {
       this.logService.error(e);
     }
