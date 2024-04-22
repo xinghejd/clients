@@ -309,9 +309,7 @@ export class Main {
       this.singleUserStateProvider,
     );
 
-    this.derivedStateProvider = new DefaultDerivedStateProvider(
-      this.memoryStorageForStateProviders,
-    );
+    this.derivedStateProvider = new DefaultDerivedStateProvider(storageServiceProvider);
 
     this.stateProvider = new DefaultStateProvider(
       this.activeUserStateProvider,
@@ -633,7 +631,6 @@ export class Main {
       this.avatarService,
       async (expired: boolean) => await this.logout(),
       this.billingAccountProfileStateService,
-      this.tokenService,
     );
 
     this.totpService = new TotpService(this.cryptoFunctionService, this.logService);
