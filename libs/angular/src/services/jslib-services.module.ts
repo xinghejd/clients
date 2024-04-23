@@ -1046,7 +1046,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: DerivedStateProvider,
     useClass: DefaultDerivedStateProvider,
-    deps: [OBSERVABLE_MEMORY_STORAGE],
+    deps: [StorageServiceProvider],
   }),
   safeProvider({
     provide: StateProvider,
