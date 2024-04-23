@@ -1093,9 +1093,12 @@ export default class MainBackground {
   }
 
   async bootstrap() {
+    this.logService.info("Starting MainBackground.bootstrap");
     this.containerService.attachToGlobal(self);
 
     await this.stateService.init({ runMigrations: !this.isPrivateMode });
+
+    this.logService.info("Finishing Initializing StateService");
 
     // This is here instead of in in the InitService b/c we don't plan for
     // side effects to run in the Browser InitService.
@@ -1108,6 +1111,8 @@ export default class MainBackground {
     if (this.popupOnlyContext) {
       return;
     }
+
+    this.logService.info("Initializing Sub-Backgrounds");
 
     await this.vaultTimeoutService.init(true);
     this.fido2Background.init();

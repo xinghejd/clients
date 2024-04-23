@@ -134,9 +134,10 @@ const mainBackground: MainBackground = needsBackgroundInit
 
 function createLocalBgService() {
   const localBgService = new MainBackground(isPrivateMode, true);
-  // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-  // eslint-disable-next-line @typescript-eslint/no-floating-promises
-  localBgService.bootstrap();
+  void localBgService.bootstrap().catch((err) => {
+    // eslint-disable-next-line no-console -- Needed to not lose information in a un-awaited promise
+    console.log("Uncaught Error while bootstrapping locally created MainBackground", err);
+  });
   return localBgService;
 }
 
