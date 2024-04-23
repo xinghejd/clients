@@ -1,6 +1,14 @@
 import { Injectable } from "@angular/core";
-import { concatMap } from "rxjs";
+import { combineLatest, concatMap, map, startWith } from "rxjs";
 
+import {
+  OrganizationService,
+  canAccessOrgAdmin,
+} from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
+import {
+  EnvironmentService,
+  Region,
+} from "@bitwarden/common/platform/abstractions/environment.service";
 import {
   StateProvider,
   UNASSIGNED_ITEMS_BANNER_DISK,
@@ -36,9 +44,41 @@ export class UnassignedItemsBannerService {
     }),
   );
 
+  private adminConsoleOrg$ = this.organizationService.organizations$.pipe(
+    map((orgs) => orgs.find((o) => canAccessOrgAdmin(o))),
+  );
+
+  adminConsoleUrl$ = combineLatest([
+    this.adminConsoleOrg$,
+    this.environmentService.environment$,
+  ]).pipe(
+    map(([org, environment]) => {
+      if (org == null || environment == null) {
+        return "#";
+      }
+
+      return environment.getWebVaultUrl() + "/#/organizations/" + org.id;
+    }),
+  );
+
+  bannerText$ = this.environmentService.environment$.pipe(
+    map((e) =>
+      e?.getRegion() == Region.SelfHosted
+        ? "unassignedItemsBannerSelfHostNotice"
+        : "unassignedItemsBannerNotice",
+    ),
+  );
+
+  loading$ = combineLatest([this.adminConsoleUrl$, this.bannerText$]).pipe(
+    startWith(true),
+    map(() => false),
+  );
+
   constructor(
     private stateProvider: StateProvider,
     private apiService: UnassignedItemsBannerApiService,
+    private environmentService: EnvironmentService,
+    private organizationService: OrganizationService,
   ) {}
 
   async hideBanner() {
