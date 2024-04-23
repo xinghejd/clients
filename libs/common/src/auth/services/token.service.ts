@@ -207,6 +207,8 @@ export class TokenService implements TokenServiceAbstraction {
       this.getSecureStorageOptions(userId),
     );
 
+    this.logService.info("Created and saved new access token key to secure storage.");
+
     return newAccessTokenKey;
   }
 
@@ -232,6 +234,8 @@ export class TokenService implements TokenServiceAbstraction {
     if (!accessTokenKey) {
       // Otherwise, create a new one and save it to secure storage, then return it
       accessTokenKey = await this.createAndSaveAccessTokenKey(userId);
+    } else {
+      this.logService.info("Retrieved access token key from secure storage.");
     }
 
     return accessTokenKey;
@@ -280,6 +284,8 @@ export class TokenService implements TokenServiceAbstraction {
       true,
     );
 
+    this.logService.info("Storing the access token in " + storageLocation + ".");
+
     switch (storageLocation) {
       case TokenStorageLocation.SecureStorage: {
         // Secure storage implementations have variable length limitations (Windows), so we cannot
@@ -293,6 +299,8 @@ export class TokenService implements TokenServiceAbstraction {
           .get(userId, ACCESS_TOKEN_DISK)
           .update((_) => encryptedAccessToken.encryptedString);
 
+        this.logService.info("Stored encrypted access token to disk.");
+
         // TODO: PM-6408 - https://bitwarden.atlassian.net/browse/PM-6408
         // 2024-02-20: Remove access token from memory so that we migrate to encrypt the access token over time.
         // Remove this call to remove the access token from memory after 3 releases.
@@ -305,12 +313,14 @@ export class TokenService implements TokenServiceAbstraction {
         await this.singleUserStateProvider
           .get(userId, ACCESS_TOKEN_DISK)
           .update((_) => accessToken);
+        this.logService.info("Stored unencrypted access token to disk.");
         return;
       case TokenStorageLocation.Memory:
         // Access token stored in memory due to vault timeout settings
         await this.singleUserStateProvider
           .get(userId, ACCESS_TOKEN_MEMORY)
           .update((_) => accessToken);
+        this.logService.info("Stored unencrypted access token in memory.");
         return;
     }
   }
@@ -369,6 +379,7 @@ export class TokenService implements TokenServiceAbstraction {
       ACCESS_TOKEN_MEMORY,
     );
     if (accessTokenMemory != null) {
+      this.logService.info("Retrieved access token from memory.");
       return accessTokenMemory;
     }
 
@@ -379,20 +390,26 @@ export class TokenService implements TokenServiceAbstraction {
     }
 
     if (this.platformSupportsSecureStorage) {
+      this.logService.info(
+        "Platform supports secure storage. Attempting to retrieve access token key.",
+      );
       const accessTokenKey = await this.getAccessTokenKey(userId);
 
       if (!accessTokenKey) {
         // We know this is an unencrypted access token because we don't have an access token key
+        this.logService.info("No access token key found. Assuming token is unencrypted on disk.");
         return accessTokenDisk;
       }
 
       try {
         const encryptedAccessTokenEncString = new EncString(accessTokenDisk as EncryptedString);
 
+        this.logService.info("Attempting to decrypt access token with access token key.");
         const decryptedAccessToken = await this.decryptAccessToken(
           encryptedAccessTokenEncString,
           userId,
         );
+        this.logService.info("Decrypted access token with access token key.");
         return decryptedAccessToken;
       } catch (error) {
         // If an error occurs during decryption, return null for logout.
@@ -426,6 +443,8 @@ export class TokenService implements TokenServiceAbstraction {
       true,
     );
 
+    this.logService.info("Storing the refresh token in " + storageLocation + ".");
+
     switch (storageLocation) {
       case TokenStorageLocation.SecureStorage:
         await this.saveStringToSecureStorage(
@@ -433,6 +452,8 @@ export class TokenService implements TokenServiceAbstraction {
           this.refreshTokenSecureStorageKey,
           refreshToken,
         );
+
+        this.logService.info("Stored refresh token in secure storage.");
 
         // TODO: PM-6408 - https://bitwarden.atlassian.net/browse/PM-6408
         // 2024-02-20: Remove refresh token from memory and disk so that we migrate to secure storage over time.
@@ -446,12 +467,14 @@ export class TokenService implements TokenServiceAbstraction {
         await this.singleUserStateProvider
           .get(userId, REFRESH_TOKEN_DISK)
           .update((_) => refreshToken);
+        this.logService.info("Stored refresh token on disk.");
         return;
 
       case TokenStorageLocation.Memory:
         await this.singleUserStateProvider
           .get(userId, REFRESH_TOKEN_MEMORY)
           .update((_) => refreshToken);
+        this.logService.info("Stored refresh token in memory.");
         return;
     }
   }
@@ -471,6 +494,7 @@ export class TokenService implements TokenServiceAbstraction {
     );
 
     if (refreshTokenMemory != null) {
+      this.logService.info("Retrieved refresh token from memory.");
       return refreshTokenMemory;
     }
 
@@ -478,17 +502,24 @@ export class TokenService implements TokenServiceAbstraction {
     const refreshTokenDisk = await this.getStateValueByUserIdAndKeyDef(userId, REFRESH_TOKEN_DISK);
 
     if (refreshTokenDisk != null) {
+      this.logService.info("Retrieved refresh token from disk.");
       return refreshTokenDisk;
     }
 
     if (this.platformSupportsSecureStorage) {
+      this.logService.info(
+        "Platform supports secure storage. Attempting to retrieve refresh token.",
+      );
       const refreshTokenSecureStorage = await this.getStringFromSecureStorage(
         userId,
         this.refreshTokenSecureStorageKey,
       );
 
       if (refreshTokenSecureStorage != null) {
+        this.logService.info("Retrieved refresh token from secure storage.");
         return refreshTokenSecureStorage;
+      } else {
+        this.logService.info("No refresh token found in secure storage.");
       }
     }
 
