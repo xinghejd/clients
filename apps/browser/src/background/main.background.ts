@@ -30,7 +30,7 @@ import { ProviderService } from "@bitwarden/common/admin-console/services/provid
 import { AccountService as AccountServiceAbstraction } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService as AuthServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AvatarService as AvatarServiceAbstraction } from "@bitwarden/common/auth/abstractions/avatar.service";
-import { DeviceTrustCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust-crypto.service.abstraction";
+import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
 import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
 import { DevicesApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices-api.service.abstraction";
 import { KeyConnectorService as KeyConnectorServiceAbstraction } from "@bitwarden/common/auth/abstractions/key-connector.service";
@@ -45,7 +45,7 @@ import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/for
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import { AvatarService } from "@bitwarden/common/auth/services/avatar.service";
-import { DeviceTrustCryptoService } from "@bitwarden/common/auth/services/device-trust-crypto.service.implementation";
+import { DeviceTrustService } from "@bitwarden/common/auth/services/device-trust.service.implementation";
 import { DevicesServiceImplementation } from "@bitwarden/common/auth/services/devices/devices.service.implementation";
 import { DevicesApiServiceImplementation } from "@bitwarden/common/auth/services/devices-api.service.implementation";
 import { KeyConnectorService } from "@bitwarden/common/auth/services/key-connector.service";
@@ -318,7 +318,7 @@ export default class MainBackground {
   configApiService: ConfigApiServiceAbstraction;
   devicesApiService: DevicesApiServiceAbstraction;
   devicesService: DevicesServiceAbstraction;
-  deviceTrustCryptoService: DeviceTrustCryptoServiceAbstraction;
+  deviceTrustService: DeviceTrustServiceAbstraction;
   authRequestService: AuthRequestServiceAbstraction;
   accountService: AccountServiceAbstraction;
   globalStateProvider: GlobalStateProvider;
@@ -612,7 +612,7 @@ export default class MainBackground {
     this.userDecryptionOptionsService = new UserDecryptionOptionsService(this.stateProvider);
 
     this.devicesApiService = new DevicesApiServiceImplementation(this.apiService);
-    this.deviceTrustCryptoService = new DeviceTrustCryptoService(
+    this.deviceTrustService = new DeviceTrustService(
       this.keyGenerationService,
       this.cryptoFunctionService,
       this.cryptoService,
@@ -670,7 +670,7 @@ export default class MainBackground {
       this.encryptService,
       this.passwordStrengthService,
       this.policyService,
-      this.deviceTrustCryptoService,
+      this.deviceTrustService,
       this.authRequestService,
       this.userDecryptionOptionsService,
       this.globalStateProvider,
@@ -1096,7 +1096,8 @@ export default class MainBackground {
   async bootstrap() {
     this.containerService.attachToGlobal(self);
 
-    await this.stateService.init({ runMigrations: !this.isPrivateMode });
+    // Only the "true" background should run migrations
+    await this.stateService.init({ runMigrations: !this.popupOnlyContext });
 
     // This is here instead of in in the InitService b/c we don't plan for
     // side effects to run in the Browser InitService.
@@ -1106,20 +1107,22 @@ export default class MainBackground {
     await (this.eventUploadService as EventUploadService).init(true);
     this.twoFactorService.init();
 
-    if (!this.popupOnlyContext) {
-      await this.vaultTimeoutService.init(true);
-      this.fido2Background.init();
-      await this.runtimeBackground.init();
-      await this.notificationBackground.init();
-      this.filelessImporterBackground.init();
-      await this.commandsBackground.init();
-      await this.overlayBackground.init();
-      await this.tabsBackground.init();
-      this.contextMenusBackground?.init();
-      await this.idleBackground.init();
-      if (BrowserApi.isManifestVersion(2)) {
-        await this.webRequestBackground.init();
-      }
+    if (this.popupOnlyContext) {
+      return;
+    }
+
+    await this.vaultTimeoutService.init(true);
+    this.fido2Background.init();
+    await this.runtimeBackground.init();
+    await this.notificationBackground.init();
+    this.filelessImporterBackground.init();
+    await this.commandsBackground.init();
+    await this.overlayBackground.init();
+    await this.tabsBackground.init();
+    this.contextMenusBackground?.init();
+    await this.idleBackground.init();
+    if (BrowserApi.isManifestVersion(2)) {
+      await this.webRequestBackground.init();
     }
 
     if (this.platformUtilsService.isFirefox() && !this.isPrivateMode) {
