@@ -10,6 +10,7 @@ import { Jsonify } from "type-fest";
 import { trackEmissions, awaitAsync } from "../../../../spec";
 import { FakeStorageService } from "../../../../spec/fake-storage.service";
 import { UserId } from "../../../types/guid";
+import { LogService } from "../../abstractions/log.service";
 import { Utils } from "../../misc/utils";
 import { StateDefinition } from "../state-definition";
 import { StateEventRegistrarService } from "../state-event-registrar.service";
@@ -45,6 +46,7 @@ describe("DefaultSingleUserState", () => {
   let diskStorageService: FakeStorageService;
   let userState: DefaultSingleUserState<TestState>;
   const stateEventRegistrarService = mock<StateEventRegistrarService>();
+  const logService = mock<LogService>();
   const newData = { date: new Date() };
 
   beforeEach(() => {
@@ -54,6 +56,8 @@ describe("DefaultSingleUserState", () => {
       testKeyDefinition,
       diskStorageService,
       stateEventRegistrarService,
+      false,
+      logService,
     );
   });
 
@@ -511,6 +515,61 @@ describe("DefaultSingleUserState", () => {
       await awaitAsync();
 
       expect(await firstValueFrom(observable)).toEqual(newData);
+    });
+  });
+
+  describe("Unnecessary save warning", () => {
+    it("warns if an unnecessary change was made in dev mode", async () => {
+      userState = new DefaultSingleUserState(
+        userId,
+        testKeyDefinition,
+        diskStorageService,
+        stateEventRegistrarService,
+        true,
+        logService,
+      );
+
+      await userState.update((state) => state);
+
+      expect(logService.warning).toHaveBeenCalled();
+      expect(logService.warning).toHaveBeenCalledWith(
+        expect.stringContaining(
+          `State update for ${testKeyDefinition.buildKey(userId)} was likely unnecessary.`,
+        ),
+      );
+    });
+
+    it.each([false, true])(
+      "does not warn if the change was necessary (isDev = %s)",
+      async (isDev) => {
+        userState = new DefaultSingleUserState(
+          userId,
+          testKeyDefinition,
+          diskStorageService,
+          stateEventRegistrarService,
+          isDev,
+          logService,
+        );
+
+        await userState.update((state) => ({ date: new Date(), array: ["test"] }));
+
+        expect(logService.warning).not.toHaveBeenCalled();
+      },
+    );
+
+    it("does not warn if an unnecessary change was made in prod mode", async () => {
+      userState = new DefaultSingleUserState(
+        userId,
+        testKeyDefinition,
+        diskStorageService,
+        stateEventRegistrarService,
+        false,
+        logService,
+      );
+
+      await userState.update((state) => state);
+
+      expect(logService.warning).not.toHaveBeenCalled();
     });
   });
 });

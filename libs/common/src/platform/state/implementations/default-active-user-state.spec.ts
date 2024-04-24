@@ -10,6 +10,8 @@ import { awaitAsync, trackEmissions } from "../../../../spec";
 import { FakeStorageService } from "../../../../spec/fake-storage.service";
 import { AccountInfo } from "../../../auth/abstractions/account.service";
 import { UserId } from "../../../types/guid";
+import { LogService } from "../../abstractions/log.service";
+import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
 import { StorageServiceProvider } from "../../services/storage-service.provider";
 import { StateDefinition } from "../state-definition";
 import { StateEventRegistrarService } from "../state-event-registrar.service";
@@ -45,6 +47,8 @@ describe("DefaultActiveUserState", () => {
   let diskStorageService: FakeStorageService;
   const storageServiceProvider = mock<StorageServiceProvider>();
   const stateEventRegistrarService = mock<StateEventRegistrarService>();
+  const platformUtilsService = mock<PlatformUtilsService>();
+  const logService = mock<LogService>();
   let activeAccountSubject: BehaviorSubject<{ id: UserId } & AccountInfo>;
 
   let singleUserStateProvider: DefaultSingleUserStateProvider;
@@ -55,9 +59,13 @@ describe("DefaultActiveUserState", () => {
     diskStorageService = new FakeStorageService();
     storageServiceProvider.get.mockReturnValue(["disk", diskStorageService]);
 
+    platformUtilsService.isDev.mockReturnValue(false);
+
     singleUserStateProvider = new DefaultSingleUserStateProvider(
       storageServiceProvider,
       stateEventRegistrarService,
+      platformUtilsService,
+      logService,
     );
 
     activeAccountSubject = new BehaviorSubject<{ id: UserId } & AccountInfo>(undefined);
@@ -761,6 +769,48 @@ describe("DefaultActiveUserState", () => {
       await awaitAsync();
 
       expect(await firstValueFrom(observable)).toEqual(newData);
+    });
+  });
+
+  describe("Unnecessary save warning", () => {
+    it("warns if an unnecessary change was made in dev mode", async () => {
+      platformUtilsService.isDev.mockReturnValue(true);
+
+      await changeActiveUser("1");
+      await awaitAsync();
+
+      await userState.update((state) => state);
+
+      expect(logService.warning).toHaveBeenCalled();
+      expect(logService.warning).toHaveBeenCalledWith(
+        expect.stringContaining(
+          `State update for ${testKeyDefinition.buildKey(makeUserId("1"))} was likely unnecessary.`,
+        ),
+      );
+    });
+
+    it.each([false, true])(
+      "does not warn if the change was necessary (isDev = %s)",
+      async (isDev) => {
+        platformUtilsService.isDev.mockReturnValue(isDev);
+
+        await changeActiveUser("1");
+
+        await userState.update((state) => ({ date: new Date(), array: ["test"] }));
+
+        expect(logService.warning).not.toHaveBeenCalled();
+      },
+    );
+
+    it("does not warn if an unnecessary change was made in prod mode", async () => {
+      platformUtilsService.isDev.mockReturnValue(false);
+
+      await changeActiveUser("1");
+      await awaitAsync();
+
+      await userState.update((state) => state);
+
+      expect(logService.warning).not.toHaveBeenCalled();
     });
   });
 });

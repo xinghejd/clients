@@ -277,7 +277,11 @@ export class Main {
       this.memoryStorageForStateProviders,
     );
 
-    this.globalStateProvider = new DefaultGlobalStateProvider(storageServiceProvider);
+    this.globalStateProvider = new DefaultGlobalStateProvider(
+      storageServiceProvider,
+      this.platformUtilsService,
+      this.logService,
+    );
 
     const stateEventRegistrarService = new StateEventRegistrarService(
       this.globalStateProvider,
@@ -294,6 +298,8 @@ export class Main {
     this.singleUserStateProvider = new DefaultSingleUserStateProvider(
       storageServiceProvider,
       stateEventRegistrarService,
+      this.platformUtilsService,
+      this.logService,
     );
 
     this.messagingService = MessageSender.EMPTY;

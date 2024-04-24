@@ -53,7 +53,7 @@ import { ElectronStorageService } from "./platform/services/electron-storage.ser
 import { I18nMainService } from "./platform/services/i18n.main.service";
 import { IllegalSecureStorageService } from "./platform/services/illegal-secure-storage.service";
 import { ElectronMainMessagingService } from "./services/electron-main-messaging.service";
-import { isMacAppStore } from "./utils";
+import { isDev, isMacAppStore } from "./utils";
 
 export class Main {
   logService: ElectronLogMainService;
@@ -128,7 +128,11 @@ export class Main {
       this.storageService,
       this.memoryStorageForStateProviders,
     );
-    const globalStateProvider = new DefaultGlobalStateProvider(storageServiceProvider);
+    const globalStateProvider = new DefaultGlobalStateProvider(
+      storageServiceProvider,
+      { isDev: isDev },
+      this.logService,
+    );
 
     this.i18nService = new I18nMainService("en", "./locales/", globalStateProvider);
 
@@ -146,6 +150,8 @@ export class Main {
     const singleUserStateProvider = new DefaultSingleUserStateProvider(
       storageServiceProvider,
       stateEventRegistrarService,
+      { isDev: isDev },
+      this.logService,
     );
 
     const activeUserStateProvider = new DefaultActiveUserStateProvider(

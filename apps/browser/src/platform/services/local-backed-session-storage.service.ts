@@ -2,8 +2,6 @@ import { Subject } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
   AbstractMemoryStorageService,
   AbstractStorageService,
@@ -33,8 +31,6 @@ export class LocalBackedSessionStorageService
     private readonly sessionKey: Lazy<Promise<SymmetricCryptoKey>>,
     private readonly localStorage: AbstractStorageService,
     private readonly encryptService: EncryptService,
-    private readonly platformUtilsService: PlatformUtilsService,
-    private readonly logService: LogService,
   ) {
     super();
 
@@ -89,15 +85,6 @@ export class LocalBackedSessionStorageService
   }
 
   async save<T>(key: string, obj: T): Promise<void> {
-    // This is for observation purposes only. At some point, we don't want to write to local session storage if the value is the same.
-    if (this.platformUtilsService.isDev()) {
-      const existingValue = this.cache[key] as T;
-      if (this.compareValues<T>(existingValue, obj)) {
-        this.logService.warning(`Possible unnecessary write to local session storage. Key: ${key}`);
-        this.logService.warning(obj as any);
-      }
-    }
-
     if (obj == null) {
       return await this.remove(key);
     }
@@ -190,29 +177,5 @@ export class LocalBackedSessionStorageService
 
   private sessionStorageKey(key: string) {
     return `session_${key}`;
-  }
-
-  private compareValues<T>(value1: T, value2: T): boolean {
-    if (value1 == null && value2 == null) {
-      return true;
-    }
-
-    if (value1 && value2 == null) {
-      return false;
-    }
-
-    if (value1 == null && value2) {
-      return false;
-    }
-
-    if (typeof value1 !== "object" || typeof value2 !== "object") {
-      return value1 === value2;
-    }
-
-    if (JSON.stringify(value1) === JSON.stringify(value2)) {
-      return true;
-    }
-
-    return Object.entries(value1).sort().toString() === Object.entries(value2).sort().toString();
   }
 }

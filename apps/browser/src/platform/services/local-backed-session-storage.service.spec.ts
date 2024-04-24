@@ -1,8 +1,6 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Lazy } from "@bitwarden/common/platform/misc/lazy";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
@@ -16,23 +14,17 @@ describe("LocalBackedSessionStorage", () => {
   );
   let localStorage: FakeStorageService;
   let encryptService: MockProxy<EncryptService>;
-  let platformUtilsService: MockProxy<PlatformUtilsService>;
-  let logService: MockProxy<LogService>;
 
   let sut: LocalBackedSessionStorageService;
 
   beforeEach(() => {
     localStorage = new FakeStorageService();
     encryptService = mock<EncryptService>();
-    platformUtilsService = mock<PlatformUtilsService>();
-    logService = mock<LogService>();
 
     sut = new LocalBackedSessionStorageService(
       new Lazy(async () => sessionKey),
       localStorage,
       encryptService,
-      platformUtilsService,
-      logService,
     );
   });
 
@@ -138,20 +130,6 @@ describe("LocalBackedSessionStorage", () => {
     const encString = makeEncString("encrypted");
     beforeEach(() => {
       encryptService.encrypt.mockResolvedValue(encString);
-    });
-
-    it("logs a warning when saving the same value twice and in a dev environment", async () => {
-      platformUtilsService.isDev.mockReturnValue(true);
-      sut["cache"]["test"] = "cached";
-      await sut.save("test", "cached");
-      expect(logService.warning).toHaveBeenCalled();
-    });
-
-    it("does not log when saving the same value twice and not in a dev environment", async () => {
-      platformUtilsService.isDev.mockReturnValue(false);
-      sut["cache"]["test"] = "cached";
-      await sut.save("test", "cached");
-      expect(logService.warning).not.toHaveBeenCalled();
     });
 
     it("removes the key when saving a null value", async () => {

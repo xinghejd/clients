@@ -3,6 +3,8 @@ import { mock } from "jest-mock-extended";
 import { mockAccountServiceWith } from "../../../../spec/fake-account-service";
 import { FakeStorageService } from "../../../../spec/fake-storage.service";
 import { UserId } from "../../../types/guid";
+import { LogService } from "../../abstractions/log.service";
+import { PlatformUtilsService } from "../../abstractions/platform-utils.service";
 import { StorageServiceProvider } from "../../services/storage-service.provider";
 import { KeyDefinition } from "../key-definition";
 import { StateDefinition } from "../state-definition";
@@ -18,6 +20,8 @@ import { DefaultSingleUserStateProvider } from "./default-single-user-state.prov
 describe("Specific State Providers", () => {
   const storageServiceProvider = mock<StorageServiceProvider>();
   const stateEventRegistrarService = mock<StateEventRegistrarService>();
+  const platformUtilsService = mock<PlatformUtilsService>();
+  const logService = mock<LogService>();
 
   let singleSut: DefaultSingleUserStateProvider;
   let activeSut: DefaultActiveUserStateProvider;
@@ -30,12 +34,20 @@ describe("Specific State Providers", () => {
       return [location, new FakeStorageService()];
     });
 
+    platformUtilsService.isDev.mockReturnValue(false);
+
     singleSut = new DefaultSingleUserStateProvider(
       storageServiceProvider,
       stateEventRegistrarService,
+      platformUtilsService,
+      logService,
     );
     activeSut = new DefaultActiveUserStateProvider(mockAccountServiceWith(null), singleSut);
-    globalSut = new DefaultGlobalStateProvider(storageServiceProvider);
+    globalSut = new DefaultGlobalStateProvider(
+      storageServiceProvider,
+      platformUtilsService,
+      logService,
+    );
   });
 
   const fakeDiskStateDefinition = new StateDefinition("fake", "disk");

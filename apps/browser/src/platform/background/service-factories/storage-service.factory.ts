@@ -19,11 +19,6 @@ import {
   KeyGenerationServiceInitOptions,
   keyGenerationServiceFactory,
 } from "./key-generation-service.factory";
-import { LogServiceInitOptions, logServiceFactory } from "./log-service.factory";
-import {
-  PlatformUtilsServiceInitOptions,
-  platformUtilsServiceFactory,
-} from "./platform-utils-service.factory";
 
 export type DiskStorageServiceInitOptions = FactoryOptions;
 export type SecureStorageServiceInitOptions = FactoryOptions;
@@ -32,9 +27,7 @@ export type MemoryStorageServiceInitOptions = FactoryOptions &
   EncryptServiceInitOptions &
   KeyGenerationServiceInitOptions &
   DiskStorageServiceInitOptions &
-  SessionStorageServiceInitOptions &
-  LogServiceInitOptions &
-  PlatformUtilsServiceInitOptions;
+  SessionStorageServiceInitOptions;
 
 export function diskStorageServiceFactory(
   cache: { diskStorageService?: AbstractStorageService } & CachedServices,
@@ -87,8 +80,6 @@ export function memoryStorageServiceFactory(
         }),
         await diskStorageServiceFactory(cache, opts),
         await encryptServiceFactory(cache, opts),
-        await platformUtilsServiceFactory(cache, opts),
-        await logServiceFactory(cache, opts),
       );
     }
     return new MemoryStorageService();

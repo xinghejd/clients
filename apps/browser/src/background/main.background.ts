@@ -437,8 +437,6 @@ export default class MainBackground {
         sessionKey,
         this.storageService,
         new EncryptServiceImplementation(this.cryptoFunctionService, this.logService, false),
-        this.platformUtilsService,
-        this.logService,
       );
     };
 
@@ -459,7 +457,11 @@ export default class MainBackground {
       this.largeObjectMemoryStorageForStateProviders,
     );
 
-    this.globalStateProvider = new DefaultGlobalStateProvider(storageServiceProvider);
+    this.globalStateProvider = new DefaultGlobalStateProvider(
+      storageServiceProvider,
+      this.platformUtilsService,
+      this.logService,
+    );
 
     const stateEventRegistrarService = new StateEventRegistrarService(
       this.globalStateProvider,
@@ -483,6 +485,8 @@ export default class MainBackground {
     this.singleUserStateProvider = new DefaultSingleUserStateProvider(
       storageServiceProvider,
       stateEventRegistrarService,
+      this.platformUtilsService,
+      this.logService,
     );
     this.accountService = new AccountServiceImplementation(
       this.messagingService,

@@ -13,6 +13,7 @@ import {
 import { Jsonify } from "type-fest";
 
 import { StorageKey } from "../../../types/state";
+import { LogService } from "../../abstractions/log.service";
 import {
   AbstractStorageService,
   ObservableStorageService,
@@ -36,6 +37,8 @@ export abstract class StateBase<T, KeyDef extends KeyDefinitionRequirements<T>> 
     protected readonly key: StorageKey,
     protected readonly storageService: AbstractStorageService & ObservableStorageService,
     protected readonly keyDefinition: KeyDef,
+    private readonly isDev: boolean,
+    private readonly logService: LogService,
   ) {
     const storageUpdate$ = storageService.updates$.pipe(
       filter((storageUpdate) => storageUpdate.key === key),
@@ -92,6 +95,15 @@ export abstract class StateBase<T, KeyDef extends KeyDefinitionRequirements<T>> 
     }
 
     const newState = configureState(currentState, combinedDependencies);
+    if (this.isDev && valuesEquivalent(currentState, newState)) {
+      this.logService.warning(
+        `State update for ${this.key} was likely unnecessary.
+        Please add a shouldUpdate check to avoid unnecessary work.
+        ${currentState}
+        ${newState}`,
+      );
+    }
+
     await this.doStorageSave(newState, currentState);
     return newState;
   }
@@ -106,4 +118,24 @@ export abstract class StateBase<T, KeyDef extends KeyDefinitionRequirements<T>> 
   private async getStateForUpdate() {
     return await getStoredValue(this.key, this.storageService, this.keyDefinition.deserializer);
   }
+}
+
+function valuesEquivalent<T>(value1: T, value2: T): boolean {
+  if (value1 == null && value2 == null) {
+    return true;
+  }
+
+  if (value1 && value2 == null) {
+    return false;
+  }
+
+  if (value1 == null && value2) {
+    return false;
+  }
+
+  if (typeof value1 !== "object" || typeof value2 !== "object") {
+    return value1 === value2;
+  }
+
+  return JSON.stringify(value1) === JSON.stringify(value2);
 }

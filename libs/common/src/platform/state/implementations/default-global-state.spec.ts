@@ -3,11 +3,13 @@
  * @jest-environment ../shared/test.environment.ts
  */
 
+import { mock } from "jest-mock-extended";
 import { firstValueFrom, of } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { trackEmissions, awaitAsync } from "../../../../spec";
 import { FakeStorageService } from "../../../../spec/fake-storage.service";
+import { LogService } from "../../abstractions/log.service";
 import { KeyDefinition, globalKeyBuilder } from "../key-definition";
 import { StateDefinition } from "../state-definition";
 
@@ -38,11 +40,12 @@ const globalKey = globalKeyBuilder(testKeyDefinition);
 describe("DefaultGlobalState", () => {
   let diskStorageService: FakeStorageService;
   let globalState: DefaultGlobalState<TestState>;
+  const logService = mock<LogService>();
   const newData = { date: new Date() };
 
   beforeEach(() => {
     diskStorageService = new FakeStorageService();
-    globalState = new DefaultGlobalState(testKeyDefinition, diskStorageService);
+    globalState = new DefaultGlobalState(testKeyDefinition, diskStorageService, false, logService);
   });
 
   afterEach(() => {
@@ -403,6 +406,50 @@ describe("DefaultGlobalState", () => {
       await awaitAsync();
 
       expect(await firstValueFrom(observable)).toEqual(newData);
+    });
+  });
+
+  describe("Unnecessary save warning", () => {
+    it("warns if an unnecessary change was made in dev mode", async () => {
+      globalState = new DefaultGlobalState(testKeyDefinition, diskStorageService, true, logService);
+
+      await globalState.update((state) => state);
+
+      expect(logService.warning).toHaveBeenCalled();
+      expect(logService.warning).toHaveBeenCalledWith(
+        expect.stringContaining(
+          `State update for ${globalKeyBuilder(testKeyDefinition)} was likely unnecessary.`,
+        ),
+      );
+    });
+
+    it.each([false, true])(
+      "does not warn if the change was necessary (isDev = %s)",
+      async (isDev) => {
+        globalState = new DefaultGlobalState(
+          testKeyDefinition,
+          diskStorageService,
+          isDev,
+          logService,
+        );
+
+        await globalState.update((state) => ({ date: new Date(), array: ["test"] }));
+
+        expect(logService.warning).not.toHaveBeenCalled();
+      },
+    );
+
+    it("does not warn if an unnecessary change was made in prod mode", async () => {
+      globalState = new DefaultGlobalState(
+        testKeyDefinition,
+        diskStorageService,
+        false,
+        logService,
+      );
+
+      await globalState.update((state) => state);
+
+      expect(logService.warning).not.toHaveBeenCalled();
     });
   });
 });
