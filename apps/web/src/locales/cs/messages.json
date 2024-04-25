@@ -578,6 +578,9 @@
   "access": {
     "message": "Přístup"
   },
+  "accessLevel": {
+    "message": "Úroveň přístupu"
+  },
   "loggedOut": {
     "message": "Odhlášení"
   },
@@ -638,9 +641,6 @@
   "learnMoreAboutPasswordless": {
     "message": "Další informace o přihlášení bez hesla"
   },
-  "passkeyEnterMasterPassword": {
-    "message": "Zadejte Vaše hlavní heslo pro úpravu dvoufázového přihlášení."
-  },
   "creatingPasskeyLoading": {
     "message": "Vytváření přístupového klíče..."
   },
@@ -655,9 +655,6 @@
   },
   "passkeySuccessfullyCreated": {
     "message": "Přístupový klíč byl úspěšně vytvořen!"
-  },
-  "customName": {
-    "message": "Vlastní název"
   },
   "customPasskeyNameInfo": {
     "message": "Pojmenujte Váš přístupový klíč, abyste jej mohli snáze identifikovat."
@@ -1353,6 +1350,22 @@
   "importData": {
     "message": "Importovat data"
   },
+  "onboardingImportDataDetailsPartOne": {
+    "message": "Pokud nemáte žádná data k importu, můžete místo toho vytvořit ",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsLink": {
+    "message": "novou položku",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. (Optional second half: You may need to wait until your administrator confirms your organization membership.)"
+  },
+  "onboardingImportDataDetailsPartTwoNoOrgs": {
+    "message": ".",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead."
+  },
+  "onboardingImportDataDetailsPartTwoWithOrgs": {
+    "message": ". Možná budete muset počkat, než Váš správce potvrdí členství ve Vaší organizaci.",
+    "description": "This will be part of a larger sentence, that will read like this: If you don't have any data to import, you can create a new item instead. You may need to wait until your administrator confirms your organization membership."
+  },
   "importError": {
     "message": "Chyba importu"
   },
@@ -1465,13 +1478,6 @@
   },
   "faviconDesc": {
     "message": "Zobrazí rozeznatelný obrázek vedle každého přihlášení."
-  },
-  "enableFullWidth": {
-    "message": "Zapnout rozvržení na celou šířku stránky",
-    "description": "Allows scaling the web vault UI's width"
-  },
-  "enableFullWidthDesc": {
-    "message": "Umožní webovému trezoru roztáhnout se na celou šířku okna prohlížeče."
   },
   "default": {
     "message": "Výchozí"
@@ -2534,6 +2540,15 @@
       }
     }
   },
+  "trialSecretsManagerThankYou": {
+    "message": "Děkujeme za registraci do Správce klíčů Bitwardenu s plánem $PLAN$!",
+    "placeholders": {
+      "plan": {
+        "content": "$1",
+        "example": "Teams"
+      }
+    }
+  },
   "trialPaidInfoMessage": {
     "message": "Po 7 dnech bude bezplatná zkušební doba překlopena do placeného předplatného $PLAN$.",
     "placeholders": {
@@ -2818,6 +2833,9 @@
   },
   "incorrectCode": {
     "message": "Nesprávný kód"
+  },
+  "incorrectPin": {
+    "message": "Nesprávný PIN"
   },
   "exportedVault": {
     "message": "Trezor byl exportován"
@@ -3828,15 +3846,6 @@
   "couldNotChargeCardPayInvoice": {
     "message": "Nepodařilo se nám strhnout platbu z Vaší karty. Prohlédněte si a zaplaťte nezaplacenou fakturu uvedenou níže."
   },
-  "inAppPurchase": {
-    "message": "Nákup v aplikaci"
-  },
-  "cannotPerformInAppPurchase": {
-    "message": "Tuto akci nelze provést při použití platební metody \"Nákup v aplikaci\"."
-  },
-  "manageSubscriptionFromStore": {
-    "message": "Své předplatné musíte spravovat z obchodu, pomocí kterého byl nákup v aplikaci proveden."
-  },
   "minLength": {
     "message": "Minimální délka"
   },
@@ -4033,6 +4042,12 @@
   },
   "ssoHandOff": {
     "message": "Nyní můžete zavřít tuto kartu a pokračovat v rozšíření."
+  },
+  "youSuccessfullyLoggedIn": {
+    "message": "Byli jste úspěšně přihlášeni"
+  },
+  "thisWindowWillCloseIn5Seconds": {
+    "message": "Toto okno se automaticky zavře za 5 sekund"
   },
   "includeAllTeamsFeatures": {
     "message": "Všechny funkce týmů, navíc:"
@@ -4403,7 +4418,7 @@
     "message": "Bude vyžadovat, aby členové ukládali položky do organizace tím, že odeberete možnost osobního trezoru."
   },
   "personalOwnershipExemption": {
-    "message": "Majitelé a administrátoři organizací jsou od prosazování těchto zásad osvobozeni."
+    "message": "Majitelé a správci organizací jsou od prosazování těchto zásad osvobozeni."
   },
   "personalOwnershipSubmitError": {
     "message": "Z důvodu podnikových zásad nemůžete ukládat položky do svého osobního trezoru. Změňte vlastnictví položky na organizaci a poté si vyberte z dostupných kolekcí."
@@ -4776,7 +4791,7 @@
     "message": "Automaticky zaregistrovat nové uživatele"
   },
   "resetPasswordAutoEnrollInviteWarning": {
-    "message": "Tato organizace má podnikové zásady, které Vás automaticky zaregistrují k obnovení hesla. Registrace umožní administrátorům organizace změnit Vaše hlavní heslo."
+    "message": "Tato organizace má podnikové zásady, které Vás automaticky zaregistrují k obnovení hesla. Registrace umožní správcům organizace změnit Vaše hlavní heslo."
   },
   "resetPasswordOrgKeysError": {
     "message": "Odpověď klíčů organizace je prázdná"
@@ -4921,7 +4936,7 @@
     "message": "Nelze přijmout pozvánku. Požádejte administrátora poskytovatele o zaslání nové pozvánky."
   },
   "providerInviteAcceptedDesc": {
-    "message": "K tomuto poskytovateli můžete přistupovat jakmile administrátor potvrdí Vaše členství. Až se tak stane, pošleme Vám e-mail."
+    "message": "K tomuto poskytovateli můžete přistupovat jakmile správce potvrdí Vaše členství. Až se tak stane, pošleme Vám e-mail."
   },
   "providerUsersNeedConfirmed": {
     "message": "Někteří uživatelé přijali pozvánku, ale nejdříve musí být potvrzeni. Dokud nedojde k potvrzení, nebudou mít tito uživatelé přístup k poskytovateli."
@@ -4935,8 +4950,14 @@
   "newClientOrganizationDesc": {
     "message": "Vytvoří novou organizaci klienta, která bude spojena s Vámi jako poskytovatel. Budete mít přístup a budete moci spravovat tuto organizaci."
   },
+  "newClient": {
+    "message": "Nový klient"
+  },
   "addExistingOrganization": {
     "message": "Přidat existující organizaci"
+  },
+  "addNewOrganization": {
+    "message": "Přidat novou organizaci"
   },
   "myProvider": {
     "message": "Můj poskytovatel"
@@ -5003,7 +5024,7 @@
     "message": "Aktualizovat hlavní heslo"
   },
   "updateMasterPasswordWarning": {
-    "message": "Administrátor v organizaci nedávno změnil Vaše hlavní heslo. Pro přístup k trezoru jej nyní musíte změnit. Pokračování Vás odhlásí z Vaší aktuální relace a bude nutné se znovu přihlásit. Aktivní relace na jiných zařízeních mohou zůstat aktivní až po dobu jedné hodiny."
+    "message": "Správce v organizaci nedávno změnil Vaše hlavní heslo. Pro přístup k trezoru jej nyní musíte změnit. Pokračování Vás odhlásí z Vaší aktuální relace a bude nutné se znovu přihlásit. Aktivní relace na jiných zařízeních mohou zůstat aktivní až po dobu jedné hodiny."
   },
   "masterPasswordInvalidWarning": {
     "message": "Vaše hlavní heslo nesplňuje zásady Vaší organizace. Pro přístup k organizaci musíte nyní aktualizovat své hlavní heslo. Pokračování Vás odhlásí z Vaší aktuální relace a bude nutné se přihlásit. Aktivní relace na jiných zařízeních mohou zůstat aktivní až po dobu jedné hodiny."
@@ -5187,6 +5208,12 @@
   },
   "spValidateCertificates": {
     "message": "Ověřit certifikáty"
+  },
+  "spUniqueEntityId": {
+    "message": "Nastavit jedinečné ID SP entity"
+  },
+  "spUniqueEntityIdDesc": {
+    "message": "Vygeneruje identifikátor jedinečný pro vaši organizaci."
   },
   "idpEntityId": {
     "message": "ID entity"
@@ -5912,6 +5939,15 @@
       }
     }
   },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Spusťte DUO a pro dokončení přihlášení postupujte podle kroků."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "Pro Váš účet je vyžadováno dvoufázové přihlášení DUO."
+  },
+  "launchDuo": {
+    "message": "Spustit DUO"
+  },
   "turnOn": {
     "message": "Zapnout"
   },
@@ -6610,11 +6646,44 @@
       }
     }
   },
-  "membersColumnHeader": {
-    "message": "Člen/Skupina"
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Pro tuto akci je vyžadováno ověření. Nastavte PIN kód pro pokračování."
   },
-  "groupAndMemberColumnHeader": {
+  "setPin": {
+    "message": "Nastavit PIN"
+  },
+  "verifyWithBiometrics": {
+    "message": "Ověřit pomocí biometrie"
+  },
+  "awaitingConfirmation": {
+    "message": "Čeká na potvrzení"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Nelze dokončit biometrii."
+  },
+  "needADifferentMethod": {
+    "message": "Potřebujete jinou metodu?"
+  },
+  "useMasterPassword": {
+    "message": "Použít hlavní heslo"
+  },
+  "usePin": {
+    "message": "Použít PIN"
+  },
+  "useBiometrics": {
+    "message": "Použít biometrii"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Zadejte ověřovací kód, který byl odeslán do Vašeho e-mailu."
+  },
+  "resendCode": {
+    "message": "Znovu odeslat kód"
+  },
+  "memberColumnHeader": {
     "message": "Člen"
+  },
+  "groupSlashMemberColumnHeader": {
+    "message": "Skupina/Člen"
   },
   "selectGroupsAndMembers": {
     "message": "Zvolte skupiny a členy"
@@ -6820,9 +6889,6 @@
   "secretsManager": {
     "message": "Správce tajných klíčů"
   },
-  "secretsManagerBeta": {
-    "message": "Správce tajných klíčů v programu Beta"
-  },
   "secretsManagerAccessDescription": {
     "message": "Aktivuje přístup uživatele ke správci tajných klíčů."
   },
@@ -6869,6 +6935,9 @@
   "sdk": {
     "message": "SDK",
     "description": "Software Development Kit"
+  },
+  "createAnAccount": {
+    "message": "Vytvořit účet"
   },
   "createSecret": {
     "message": "Vytvořit tajný klíč"
@@ -6925,12 +6994,6 @@
   },
   "selectionIsRequired": {
     "message": "Je vyžadován výběr."
-  },
-  "secretsManagerSubscriptionDesc": {
-    "message": "Zapněte přístup organizace ke správci tajných klíčů zdarma během programu Beta. Uživatelé mohou získat přístup k betaverzi v sekci Členové."
-  },
-  "secretsManagerEnable": {
-    "message": "Povolit program Beta pro správce tajných klíčů"
   },
   "saPeopleWarningTitle": {
     "message": "Přístupové tokeny jsou stále k dispozici"
@@ -7002,12 +7065,6 @@
   },
   "enforceOnLoginDesc": {
     "message": "Bude vyžadovat od stávajících členů, aby změnili svá hesla"
-  },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
   },
   "smProjectDeleteAccessRestricted": {
     "message": "Nemáte oprávnění tento projekt smazat",
@@ -7091,6 +7148,10 @@
         "example": "Service Account"
       }
     }
+  },
+  "verificationRequired": {
+    "message": "Je vyžadováno ověření",
+    "description": "Default title for the user verification dialog."
   },
   "recoverAccount": {
     "message": "Obnovit účet"
@@ -7193,6 +7254,15 @@
   },
   "startYour7DayFreeTrialOfBitwardenFor": {
     "message": "Začněte 7denní bezplatnou zkušební verzi Bitwardenu pro $ORG$",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Organization name"
+      }
+    }
+  },
+  "startYour7DayFreeTrialOfBitwardenSecretsManagerFor": {
+    "message": "Začněte 7denní bezplatnou zkušební verzi Správce klíšu Bitwardenu pro $ORG$",
     "placeholders": {
       "org": {
         "content": "$1",
@@ -7331,8 +7401,8 @@
   "allowAdminAccessToAllCollectionItemsDesc": {
     "message": "Vlastníci a správci mohou spravovat všechny kolekce a předměty"
   },
-  "collectionManagementUpdated": {
-    "message": "Chování správy kolekce bylo uloženo"
+  "updatedCollectionManagement": {
+    "message": "Aktualizované nastavení správy kolekce"
   },
   "passwordManagerPlanPrice": {
     "message": "Cena předplatného správce hesel"
@@ -7361,22 +7431,6 @@
   "loggedInExclamation": {
     "message": "Přihlášeno!"
   },
-  "smBetaEndedDesc": {
-    "message": "Správce klíčů beta skončil $BETA_ENDING_DATE$. Zbývá $DAYS$ dní na to, abyste si přidali aplikaci správce klíčů k placenému předplatnému a zachovali si přístup k datům správce klíčů. Kontaktujte oddělení Customer Success a přidejte si aplikaci správce klíčů do svého předplatného.",
-    "placeholders": {
-      "beta_ending_date": {
-        "content": "$1",
-        "example": "August 1, 2023"
-      },
-      "days": {
-        "content": "$2",
-        "example": "11"
-      }
-    }
-  },
-  "betaEnding": {
-    "message": "Beta končí"
-  },
   "beta": {
     "message": "Beta"
   },
@@ -7397,12 +7451,6 @@
   },
   "skipToContent": {
     "message": "Přeskočit na obsah"
-  },
-  "customBillingStart": {
-    "message": "Vlastní fakturace není zahrnuta. Navštivte stránku "
-  },
-  "customBillingEnd": {
-    "message": " pro nejnovější faktury."
   },
   "managePermissionRequired": {
     "message": "Alespoň jeden člen nebo skupina musí mít možnost spravovat oprávnění."
@@ -7429,6 +7477,12 @@
     "message": "Podívejte se na podrobné pokyny na našem webu s nápovědou na",
     "description": "This is followed a by a hyperlink to the help website."
   },
+  "installBrowserExtension": {
+    "message": "Nainstalovat rozšíření prohlížeče"
+  },
+  "installBrowserExtensionDetails": {
+    "message": "Použijte rozšíření pro rychlé ukládání přihlašovacích údajů a automatického vyplňování formulářů bez otevření webové aplikace."
+  },
   "projectAccessUpdated": {
     "message": "Přístup k projektu byl aktualizován"
   },
@@ -7447,7 +7501,553 @@
   "collectionAccessRestricted": {
     "message": "Přístup ke kolekci je omezen"
   },
+  "readOnlyCollectionAccess": {
+    "message": "Nemáte přístup ke správě této kolekce."
+  },
+  "grantCollectionAccess": {
+    "message": "Udělí skupinám nebo členům přístup k této kolekci."
+  },
+  "grantCollectionAccessMembersOnly": {
+    "message": "Udělí členům přístup k této kolekci."
+  },
+  "adminCollectionAccess": {
+    "message": "Správci mohou přistupovat ke kolekcím a spravovat je."
+  },
   "serviceAccountAccessUpdated": {
     "message": "Přístup účtu služby byl aktualizován"
+  },
+  "commonImportFormats": {
+    "message": "Společné formáty",
+    "description": "Label indicating the most common import formats"
+  },
+  "maintainYourSubscription": {
+    "message": "Pro správu předplatného pro $ORG$, ",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'",
+    "placeholders": {
+      "org": {
+        "content": "$1",
+        "example": "Example Inc."
+      }
+    }
+  },
+  "addAPaymentMethod": {
+    "message": "přidejte platební metodu",
+    "description": "This will be used as part of a larger sentence, broken up to include links. The full sentence will read 'To maintain your subscription for $ORG$, add a payment method.'"
+  },
+  "collectionEnhancementsDesc": {
+    "message": "Přidá nová nastavení a oprávnění pro další flexibilitu. Nahradí roli správce oprávněním \"can manage\" a zavede volby, které umožní uživatelům vytvářet kolekce a také omezovat přístup ke kolekcím pro správce.",
+    "description": "This describes new features and improvements for user roles and collections"
+  },
+  "collectionEnhancementsLearnMore": {
+    "message": "Více o správě kolekce"
+  },
+  "organizationInformation": {
+    "message": "Informace o organizaci"
+  },
+  "confirmationDetails": {
+    "message": "Detaily potvrzení"
+  },
+  "smFreeTrialThankYou": {
+    "message": "Děkujeme za registraci do Správce klíčů Bitwardenu!"
+  },
+  "smFreeTrialConfirmationEmail": {
+    "message": "Potvrzovací e-mail byl odeslán na "
+  },
+  "confirmCollectionEnhancementsDialogTitle": {
+    "message": "Tato akce je nevratná"
+  },
+  "confirmCollectionEnhancementsDialogContent": {
+    "message": "Zapnutí této funkce zruší roli správce a nahradí ji oprávněním Can manage. Toto bude trvat několik okamžiků. Neprovádějte žádné změny organizace, dokud nebude akce dokončena. Opravdu chcete pokračovat?"
+  },
+  "sorryToSeeYouGo": {
+    "message": "Je nám líto, že odcházíte! Pomozte nám Bitwarden vylepšit a řekněte nám, co se Vám nelíbí.",
+    "description": "A message shown to users as part of an offboarding survey asking them to provide more information on their subscription cancelation."
+  },
+  "selectCancellationReason": {
+    "message": "Vyberte důvod pro zrušení",
+    "description": "Used as a form field label for a select input on the offboarding survey."
+  },
+  "anyOtherFeedback": {
+    "message": "Je ještě něco, co nám chcete říci?",
+    "description": "Used as a form field label for a textarea input on the offboarding survey."
+  },
+  "missingFeatures": {
+    "message": "Chybějící funkce",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "movingToAnotherTool": {
+    "message": "Přesouvám se k jiné aplikaci",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooDifficultToUse": {
+    "message": "Příliš složité ne používání",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "notUsingEnough": {
+    "message": "Příliš jsem nepoužíval(a)",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "tooExpensive": {
+    "message": "Příliš drahé",
+    "description": "An option for the offboarding survey shown when a user cancels their subscription."
+  },
+  "freeForOneYear": {
+    "message": "Zdarma na 1 rok"
+  },
+  "newWebApp": {
+    "message": "Vítejte v nové a vylepšené webové aplikaci. Podívejte se na více informací o tom, co se změnilo."
+  },
+  "releaseBlog": {
+    "message": "Číst blog vydání"
+  },
+  "adminConsole": {
+    "message": "Konzole správce"
+  },
+  "providerPortal": {
+    "message": "Portál poskytovatele"
+  },
+  "success": {
+    "message": "Úspěch"
+  },
+  "viewCollection": {
+    "message": "Zobrazit kolekci"
+  },
+  "restrictedGroupAccess": {
+    "message": "Do skupin nemůžete přidat sami sebe."
+  },
+  "restrictedCollectionAccess": {
+    "message": "Do kolekcí nemůžete přidat sami sebe."
+  },
+  "assign": {
+    "message": "Přiřadit"
+  },
+  "assignToCollections": {
+    "message": "Přiřadit ke kolekcím"
+  },
+  "assignToTheseCollections": {
+    "message": "Přiřadit k těmto kolekcím"
+  },
+  "bulkCollectionAssignmentDialogDescription": {
+    "message": "Vyberte kolekce, se kterými budou položky sdíleny. Jakmile bude položka aktualizována v jedné kolekci, bude zobrazena ve všech kolekcích. Jen členové organizace s přístupem k těmto kolekcím budou moci vidět položky."
+  },
+  "selectCollectionsToAssign": {
+    "message": "Vyberte kolekce pro přiřazení"
+  },
+  "noCollectionsAssigned": {
+    "message": "Nebyly přiřazeny žádné kolekce"
+  },
+  "successfullyAssignedCollections": {
+    "message": "Kolekce byly úspěšně přiřazeny"
+  },
+  "bulkCollectionAssignmentWarning": {
+    "message": "Vybrali jste $TOTAL_COUNT$ položek. Nemůžete aktualizovat $READONLY_COUNT$ položek, protože nemáte oprávnění k úpravám.",
+    "placeholders": {
+      "total_count": {
+        "content": "$1",
+        "example": "10"
+      },
+      "readonly_count": {
+        "content": "$2",
+        "example": "3"
+      }
+    }
+  },
+  "items": {
+    "message": "Položky"
+  },
+  "assignedSeats": {
+    "message": "Přiřazení uživatelé"
+  },
+  "assigned": {
+    "message": "Přiřazeno"
+  },
+  "used": {
+    "message": "Využito"
+  },
+  "remaining": {
+    "message": "Zbývá"
+  },
+  "unlinkOrganization": {
+    "message": "Odpojit organizaci"
+  },
+  "manageSeats": {
+    "message": "SPRAVOVAT UŽIVATELE"
+  },
+  "manageSeatsDescription": {
+    "message": "Nastavení uživatelů bude započítáno v dalším fakturačním cyklu."
+  },
+  "unassignedSeatsDescription": {
+    "message": "Nepřiřazení uživatelé k odběru"
+  },
+  "purchaseSeatDescription": {
+    "message": "Další zakoupení uživatelé"
+  },
+  "assignedSeatCannotUpdate": {
+    "message": "Přiřazení uživatelé nemohou být aktualizováni. Požádejte o pomoc vlastníka organizace."
+  },
+  "subscriptionUpdateFailed": {
+    "message": "Aktualizace předplatného se nezdařila"
+  },
+  "trial": {
+    "message": "Zkušební verze",
+    "description": "A subscription status label."
+  },
+  "pastDue": {
+    "message": "Po splatnosti",
+    "description": "A subscription status label"
+  },
+  "subscriptionExpired": {
+    "message": "Předplatné vypršelo",
+    "description": "The date header used when a subscription is past due."
+  },
+  "pastDueWarningForChargeAutomatically": {
+    "message": "Máte lhůtu k odkladu $DAYS$ dnů od data vypršení předplatného pro zachování předplatného. Vyřešte poslední splatné faktury od $SUSPENSION_DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "11"
+      },
+      "suspension_date": {
+        "content": "$2",
+        "example": "01/10/2024"
+      }
+    },
+    "description": "A warning shown to the user when their subscription is past due and they are charged automatically."
+  },
+  "pastDueWarningForSendInvoice": {
+    "message": "Máte lhůtu k odkladu $DAYS$ dnů od data, kdy byla Vaše první nezaplacená faktura udržována v předplatném. Vyřešte poslední splatné faktury od $SUSPENSION_DATE$.",
+    "placeholders": {
+      "days": {
+        "content": "$1",
+        "example": "11"
+      },
+      "suspension_date": {
+        "content": "$2",
+        "example": "01/10/2024"
+      }
+    },
+    "description": "A warning shown to the user when their subscription is past due and they pay via invoice."
+  },
+  "unpaidInvoice": {
+    "message": "Nezaplacená faktura",
+    "description": "The header of a warning box shown to a user whose subscription is unpaid."
+  },
+  "toReactivateYourSubscription": {
+    "message": "Chcete-li znovu aktivovat předplatné, vyřešte poslední splatné faktury.",
+    "description": "The body of a warning box shown to a user whose subscription is unpaid."
+  },
+  "cancellationDate": {
+    "message": "Datum zrušení",
+    "description": "The date header used when a subscription is cancelled."
+  },
+  "machineAccountsCannotCreate": {
+    "message": "Strojové účty nelze vytvořit v pozastavených organizacích. Požádejte o pomoc vlastníka organizace."
+  },
+  "machineAccount": {
+    "message": "Strojový účet",
+    "description": "A machine user which can be used to automate processes and access secrets in the system."
+  },
+  "machineAccounts": {
+    "message": "Strojové účty",
+    "description": "The title for the section that deals with machine accounts."
+  },
+  "newMachineAccount": {
+    "message": "Nový strojový účet",
+    "description": "Title for creating a new machine account."
+  },
+  "machineAccountsNoItemsMessage": {
+    "message": "Abyste mohli začít automatizovat přístup k tajnému kliči, vytvořte nový strojový účet.",
+    "description": "Message to encourage the user to start creating machine accounts."
+  },
+  "machineAccountsNoItemsTitle": {
+    "message": "Nyní není nic k zobrazení",
+    "description": "Title to indicate that there are no machine accounts to display."
+  },
+  "deleteMachineAccounts": {
+    "message": "Smazat strojové účty",
+    "description": "Title for the action to delete one or multiple machine accounts."
+  },
+  "deleteMachineAccount": {
+    "message": "Smazat strojový účet",
+    "description": "Title for the action to delete a single machine account."
+  },
+  "viewMachineAccount": {
+    "message": "Zobrazit strojový účet",
+    "description": "Action to view the details of a machine account."
+  },
+  "deleteMachineAccountDialogMessage": {
+    "message": "Smazání strojového účtu $MACHINE_ACCOUNT$ je trvalé a nevratné.",
+    "placeholders": {
+      "machine_account": {
+        "content": "$1",
+        "example": "Machine account name"
+      }
+    }
+  },
+  "deleteMachineAccountsDialogMessage": {
+    "message": "Smazání strojových účtů je trvalé a nevratné."
+  },
+  "deleteMachineAccountsConfirmMessage": {
+    "message": "Smazat $COUNT$ strojových účtů",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
+  },
+  "deleteMachineAccountToast": {
+    "message": "Strojový účet byl smazán"
+  },
+  "deleteMachineAccountsToast": {
+    "message": "Strojové účty byly smazány"
+  },
+  "searchMachineAccounts": {
+    "message": "Prohledat strojové účty",
+    "description": "Placeholder text for searching machine accounts."
+  },
+  "editMachineAccount": {
+    "message": "Upravit strojový účet",
+    "description": "Title for editing a machine account."
+  },
+  "machineAccountName": {
+    "message": "Název strojového účtu",
+    "description": "Label for the name of a machine account"
+  },
+  "machineAccountCreated": {
+    "message": "Strojový účet byl vytvořen",
+    "description": "Notifies that a new machine account has been created"
+  },
+  "machineAccountUpdated": {
+    "message": "Strojový účet byl aktualizován",
+    "description": "Notifies that a machine account has been updated"
+  },
+  "projectMachineAccountsDescription": {
+    "message": "Udělí strojovým účtům přístup k tomuto projektu."
+  },
+  "projectMachineAccountsSelectHint": {
+    "message": "Napište nebo vyberte strojové účty"
+  },
+  "projectEmptyMachineAccountAccessPolicies": {
+    "message": "Přidejte strojové účty pro udělení přístupu"
+  },
+  "machineAccountPeopleDescription": {
+    "message": "Udělí skupinám nebo lidem přístup k tomuto strojovému účtu."
+  },
+  "machineAccountProjectsDescription": {
+    "message": "Přiřaďte projekty k tomuto strojovému účtu. "
+  },
+  "createMachineAccount": {
+    "message": "Vytvořit strojový účet"
+  },
+  "maPeopleWarningMessage": {
+    "message": "Odebráním osob ze strojového účtu se neodeberou přístupové tokeny, které tyto osoby vytvořily. V rámci osvědčených bezpečnostních postupů se doporučuje zrušit přístupové tokeny vytvořené osobami odebranými ze strojového účtu."
+  },
+  "smAccessRemovalWarningMaTitle": {
+    "message": "Odebrat přístup k tomuto strojovému účtu"
+  },
+  "smAccessRemovalWarningMaMessage": {
+    "message": "Tato akce odebere Váš přístup ke strojovému účtu."
+  },
+  "machineAccountsIncluded": {
+    "message": "Zahrnuto $COUNT$ strojových účtů",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "3"
+      }
+    }
+  },
+  "additionalMachineAccountCost": {
+    "message": "Pro další strojové účty $COST$ měsíčně",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$0.50"
+      }
+    }
+  },
+  "additionalMachineAccounts": {
+    "message": "Další strojové účty"
+  },
+  "includedMachineAccounts": {
+    "message": "Váš plán již obsahuje $COUNT$ strojových účtů.",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "50"
+      }
+    }
+  },
+  "addAdditionalMachineAccounts": {
+    "message": "Za $COST$ měsíčně můžete přidat další strojové účty.",
+    "placeholders": {
+      "cost": {
+        "content": "$1",
+        "example": "$0.50"
+      }
+    }
+  },
+  "limitMachineAccounts": {
+    "message": "Omezit strojové účty (volitelné)"
+  },
+  "limitMachineAccountsDesc": {
+    "message": "Nastavte limit pro Vaše strojové účty. Jakmile tohoto limitu dosáhnete, nebudete moci vytvářet nové strojové účty."
+  },
+  "machineAccountLimit": {
+    "message": "Limit strojových účtů (volitelné)"
+  },
+  "maxMachineAccountCost": {
+    "message": "Max. potenciální náklady na strojový účet"
+  },
+  "machineAccountAccessUpdated": {
+    "message": "Přístup strojového účtu byl aktualizován"
+  },
+  "restrictedGroupAccessDesc": {
+    "message": "Do skupiny nemůžete přidat sami sebe."
+  },
+  "unassignedItemsBannerSelfHost": {
+    "message": "Upozornění: Dne 2. května 2024 již nebudou nepřiřazené položky organizace viditelné v zobrazení Všechny trezory ve všech zařízeních a budou přístupné jen prostřednictvím konzoly správce. Přiřaďte tyto položky do kolekce z konzoly pro správce, aby byly viditelné."
+  },
+  "unassignedItemsBannerNotice": {
+    "message": "Upozornění: Nepřiřazené položky organizace již nejsou viditelné ve vašem zobrazení všech trezorů napříč zařízeními a jsou nyní přístupné pouze v konzoli správce."
+  },
+  "unassignedItemsBannerSelfHostNotice": {
+    "message": "Upozornění: 16. květba 2024 již nebudou nepřiřazené položky organizace viditelné ve vašem zobrazení všech trezorů napříč zařízeními a budou přístupné pouze v konzoli správce."
+  },
+  "unassignedItemsBannerCTAPartOne": {
+    "message": "Přiřadit tyto položky ke kolekci z",
+    "description": "This will be part of a larger sentence, which will read like so: Assign these items to a collection from the Admin Console to make them visible."
+  },
+  "unassignedItemsBannerCTAPartTwo": {
+    "message": "aby byly viditelné.",
+    "description": "This will be part of a larger sentence, which will read like so: Assign these items to a collection from the Admin Console to make them visible."
+  },
+  "deleteProvider": {
+    "message": "Smazat poskytovatele"
+  },
+  "deleteProviderConfirmation": {
+    "message": "Smazání poskytovatele je trvalé a nevratné. Zadejte hlavní heslo pro potvrzení smazání poskytovatele a všech souvisejících dat."
+  },
+  "deleteProviderName": {
+    "message": "Nelze smazat $ID$",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "deleteProviderWarningDesc": {
+    "message": "Před smazáním $ID$ musíte odpojit všechny klienty",
+    "placeholders": {
+      "id": {
+        "content": "$1",
+        "example": "John Smith"
+      }
+    }
+  },
+  "providerDeleted": {
+    "message": "Poskytovatel byl smazán"
+  },
+  "providerDeletedDesc": {
+    "message": "Poskytovatel a veškerá související data byla smazána."
+  },
+  "deleteProviderRecoverConfirmDesc": {
+    "message": "Požádali jste o smazání tohoto poskytovatele. Pro potvrzení použijte tlačítko níže."
+  },
+  "deleteProviderWarning": {
+    "message": "Smazání poskytovatele je trvalé. Tuto akci nelze vrátit zpět."
+  },
+  "errorAssigningTargetCollection": {
+    "message": "Chyba při přiřazování cílové kolekce."
+  },
+  "errorAssigningTargetFolder": {
+    "message": "Chyba při přiřazování cílové složky."
+  },
+  "integrationsAndSdks": {
+    "message": "Integrace a SDK",
+    "description": "The title for the section that deals with integrations and SDKs."
+  },
+  "integrations": {
+    "message": "Integrace"
+  },
+  "integrationsDesc": {
+    "message": "Automaticky synchronizuje tajné klíče se správce tajných klíčů Bitwardenu do služby třetí strany."
+  },
+  "sdks": {
+    "message": "SDK"
+  },
+  "sdksDesc": {
+    "message": "Použije SDK správce tajných klíčů Bitwardenu v následujících programovacích jazycích k vytvoření vlastních aplikací."
+  },
+  "setUpGithubActions": {
+    "message": "Nastavit akce GitHubu"
+  },
+  "setUpGitlabCICD": {
+    "message": "Nastavit GitLab CI/CD"
+  },
+  "setUpAnsible": {
+    "message": "Nastavit Ansible"
+  },
+  "cSharpSDKRepo": {
+    "message": "Zobrazit repozitář C#"
+  },
+  "cPlusPlusSDKRepo": {
+    "message": "Zobrazit repozitář C++"
+  },
+  "jsWebAssemblySDKRepo": {
+    "message": "Zobrazit repozitář JS WebAssembly"
+  },
+  "javaSDKRepo": {
+    "message": "Zobrazit repozitář Java"
+  },
+  "pythonSDKRepo": {
+    "message": "Zobrazit repozitář Python"
+  },
+  "phpSDKRepo": {
+    "message": "Zobrazit repozitář PHP"
+  },
+  "rubySDKRepo": {
+    "message": "Zobrazit repozitář Ruby"
+  },
+  "goSDKRepo": {
+    "message": "Zobrazit repozitář Go"
+  },
+  "createNewClientToManageAsProvider": {
+    "message": "Vytvořte novou klientskou organizaci pro správu jako poskytovatele. Další uživatelé budou reflektováni v dalším platebním cyklu."
+  },
+  "selectAPlan": {
+    "message": "Vyberte plán"
+  },
+  "thirtyFivePercentDiscount": {
+    "message": "35% sleva"
+  },
+  "monthPerMember": {
+    "message": "měsíčně za člena"
+  },
+  "seats": {
+    "message": "Počet"
+  },
+  "addOrganization": {
+    "message": "Přidat organizaci"
+  },
+  "createdNewClient": {
+    "message": "Nový klient byl úspěšně vytvořen"
+  },
+  "noAccess": {
+    "message": "Žádný přístup"
+  },
+  "collectionAdminConsoleManaged": {
+    "message": "Tato kolekce je přístupná pouze z konzole administrátora"
+  },
+  "organizationOptionsMenu": {
+    "message": "Přepnout menu organizace"
+  },
+  "vaultItemSelect": {
+    "message": "Vybrat položku trezoru"
+  },
+  "collectionItemSelect": {
+    "message": "Vybrat položku kolekce"
   }
 }

@@ -2,8 +2,6 @@ import { SelectionModel } from "@angular/cdk/collections";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 import { TableDataSource } from "@bitwarden/components";
@@ -29,8 +27,6 @@ const MaxSelectionCount = 500;
 export class VaultItemsComponent {
   protected RowHeight = RowHeight;
 
-  protected flexibleCollectionsEnabled: boolean;
-
   @Input() disabled: boolean;
   @Input() showOwner: boolean;
   @Input() showCollections: boolean;
@@ -41,12 +37,15 @@ export class VaultItemsComponent {
   @Input() showBulkMove: boolean;
   @Input() showBulkTrashOptions: boolean;
   // Encompasses functionality only available from the organization vault context
-  @Input() showAdminActions: boolean;
+  @Input() showAdminActions = false;
   @Input() allOrganizations: Organization[] = [];
   @Input() allCollections: CollectionView[] = [];
   @Input() allGroups: GroupView[] = [];
   @Input() showBulkEditCollectionAccess = false;
+  @Input() showBulkAddToCollections = false;
   @Input() showPermissionsColumn = false;
+  @Input() viewingOrgVault: boolean;
+  @Input({ required: true }) flexibleCollectionsV1Enabled = false;
 
   private _ciphers?: CipherView[] = [];
   @Input() get ciphers(): CipherView[] {
@@ -72,14 +71,6 @@ export class VaultItemsComponent {
   protected dataSource = new TableDataSource<VaultItem>();
   protected selection = new SelectionModel<VaultItem>(true, [], true);
 
-  constructor(private configService: ConfigServiceAbstraction) {}
-
-  async ngOnInit() {
-    this.flexibleCollectionsEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.FlexibleCollections,
-    );
-  }
-
   get showExtraColumn() {
     return this.showCollections || this.showGroups || this.showOwner;
   }
@@ -100,6 +91,10 @@ export class VaultItemsComponent {
     );
   }
 
+  get bulkAssignToCollectionsAllowed() {
+    return this.showBulkAddToCollections && this.ciphers.length > 0;
+  }
+
   protected canEditCollection(collection: CollectionView): boolean {
     // Only allow allow deletion if collection editing is enabled and not deleting "Unassigned"
     if (collection.id === Unassigned) {
@@ -107,7 +102,7 @@ export class VaultItemsComponent {
     }
 
     const organization = this.allOrganizations.find((o) => o.id === collection.organizationId);
-    return collection.canEdit(organization, this.flexibleCollectionsEnabled);
+    return collection.canEdit(organization, this.flexibleCollectionsV1Enabled);
   }
 
   protected canDeleteCollection(collection: CollectionView): boolean {
@@ -117,7 +112,7 @@ export class VaultItemsComponent {
     }
 
     const organization = this.allOrganizations.find((o) => o.id === collection.organizationId);
-    return collection.canDelete(organization, this.flexibleCollectionsEnabled);
+    return collection.canDelete(organization);
   }
 
   protected toggleAll() {
@@ -191,6 +186,15 @@ export class VaultItemsComponent {
       items: this.selection.selected
         .filter((item) => item.collection !== undefined)
         .map((item) => item.collection),
+    });
+  }
+
+  protected assignToCollections() {
+    this.event({
+      type: "assignToCollections",
+      items: this.selection.selected
+        .filter((item) => item.cipher !== undefined)
+        .map((item) => item.cipher),
     });
   }
 }

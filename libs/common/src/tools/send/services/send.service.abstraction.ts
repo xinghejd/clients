@@ -1,7 +1,8 @@
 import { Observable } from "rxjs";
 
 import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer";
-import { SymmetricCryptoKey, UserKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
+import { UserKey } from "../../../types/key";
 import { SendData } from "../models/data/send.data";
 import { Send } from "../models/domain/send";
 import { SendWithIdRequest } from "../models/request/send-with-id.request";
@@ -17,7 +18,13 @@ export abstract class SendService {
     password: string,
     key?: SymmetricCryptoKey,
   ) => Promise<[Send, EncArrayBuffer]>;
-  get: (id: string) => Send;
+  /**
+   * Provides a send for a determined id
+   * updates after a change occurs to the send that matches the id
+   * @param id The id of the desired send
+   * @returns An observable that listens to the value of the desired send
+   */
+  get$: (id: string) => Observable<Send | undefined>;
   /**
    * Provides re-encrypted user sends for the key rotation process
    * @param newUserKey The new user key to use for re-encryption
@@ -42,6 +49,5 @@ export abstract class SendService {
 export abstract class InternalSendService extends SendService {
   upsert: (send: SendData | SendData[]) => Promise<any>;
   replace: (sends: { [id: string]: SendData }) => Promise<void>;
-  clear: (userId: string) => Promise<any>;
   delete: (id: string | string[]) => Promise<any>;
 }

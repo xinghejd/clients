@@ -39,6 +39,7 @@
           { "accessibility": "no-public" }
         ],
         "@typescript-eslint/no-explicit-any": "off", // TODO: This should be re-enabled
+        "@typescript-eslint/no-floating-promises": "error",
         "@typescript-eslint/no-misused-promises": ["error", { "checksVoidReturn": false }],
         "@typescript-eslint/no-this-alias": ["error", { "allowedNames": ["self"] }],
         "@typescript-eslint/no-unused-vars": ["error", { "args": "none" }],
@@ -66,7 +67,7 @@
             "pathGroupsExcludedImportTypes": ["builtin"]
           }
         ],
-        "rxjs-angular/prefer-takeuntil": "error",
+        "rxjs-angular/prefer-takeuntil": ["error", { "alias": ["takeUntilDestroyed"] }],
         "rxjs/no-exposed-subjects": ["error", { "allowProtected": true }],
         "no-restricted-syntax": [
           "error",
@@ -98,7 +99,7 @@
 
                   // Import/export
                   "./libs/importer/**/*",
-                  "./libs/exporter/**/*"
+                  "./libs/tools/export/vault-export/vault-export-core/**/*"
                 ]
               },
               {
@@ -182,9 +183,21 @@
       }
     },
     {
-      "files": ["libs/exporter/src/**/*.ts"],
+      "files": ["libs/tools/export/vault-export/vault-export-core/src/**/*.ts"],
       "rules": {
-        "no-restricted-imports": ["error", { "patterns": ["@bitwarden/exporter/*", "src/**/*"] }]
+        "no-restricted-imports": [
+          "error",
+          { "patterns": ["@bitwarden/vault-export-core/*", "src/**/*"] }
+        ]
+      }
+    },
+    {
+      "files": ["libs/tools/export/vault-export/vault-export-ui/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          { "patterns": ["@bitwarden/vault-export-ui/*", "src/**/*"] }
+        ]
       }
     },
     {
@@ -230,6 +243,22 @@
             "message": "Using addListener in the browser popup produces a memory leak in Safari, use `BrowserApi.addListener` instead",
             // This selector covers events like chrome.storage.local.onChange
             "selector": "CallExpression > [object.object.object.object.name='chrome'][property.name='addListener']"
+          }
+        ]
+      }
+    },
+    {
+      "files": ["**/*.ts"],
+      "excludedFiles": ["**/platform/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              "**/platform/**/internal", // General internal pattern
+              // All features that have been converted to barrel files
+              "**/platform/messaging/**"
+            ]
           }
         ]
       }

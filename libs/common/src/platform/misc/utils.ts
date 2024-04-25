@@ -1,6 +1,7 @@
 /* eslint-disable no-useless-escape */
 import * as path from "path";
 
+import { Buffer as BufferLib } from "buffer/";
 import { Observable, of, switchMap } from "rxjs";
 import { getHostname, parse } from "tldts";
 import { Merge } from "type-fest";
@@ -145,13 +146,7 @@ export class Utils {
   }
 
   static fromBufferToUtf8(buffer: ArrayBuffer): string {
-    if (Utils.isNode) {
-      return Buffer.from(buffer).toString("utf8");
-    } else {
-      const bytes = new Uint8Array(buffer);
-      const encodedString = String.fromCharCode.apply(null, bytes);
-      return decodeURIComponent(escape(encodedString));
-    }
+    return BufferLib.from(buffer).toString("utf8");
   }
 
   static fromBufferToByteString(buffer: ArrayBuffer): string {
@@ -258,11 +253,10 @@ export class Utils {
     });
   }
 
+  static guidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+
   static isGuid(id: string) {
-    return RegExp(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
-      "i",
-    ).test(id);
+    return RegExp(Utils.guidRegex, "i").test(id);
   }
 
   static getHostname(uriString: string): string {

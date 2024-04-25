@@ -11,11 +11,11 @@ import { BrowserModule } from "@angular/platform-browser";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
 import { EnvironmentSelectorComponent } from "@bitwarden/angular/auth/components/environment-selector.component";
-import { BitwardenToastModule } from "@bitwarden/angular/components/toastr.component";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ColorPasswordCountPipe } from "@bitwarden/angular/pipes/color-password-count.pipe";
 import { ColorPasswordPipe } from "@bitwarden/angular/pipes/color-password.pipe";
-import { AvatarModule } from "@bitwarden/components";
+import { AvatarModule, ButtonModule, ToastModule } from "@bitwarden/components";
+import { ExportScopeCalloutComponent } from "@bitwarden/vault-export-ui";
 
 import { AccountSwitcherComponent } from "../auth/popup/account-switching/account-switcher.component";
 import { AccountComponent } from "../auth/popup/account-switching/account.component";
@@ -86,7 +86,7 @@ import "../platform/popup/locales";
   imports: [
     A11yModule,
     AppRoutingModule,
-    BitwardenToastModule.forRoot({
+    ToastModule.forRoot({
       maxOpened: 2,
       autoDismiss: true,
       closeButton: true,
@@ -106,6 +106,8 @@ import "../platform/popup/locales";
     FilePopoutCalloutComponent,
     AvatarModule,
     AccountComponent,
+    ButtonModule,
+    ExportScopeCalloutComponent,
   ],
   declarations: [
     ActionButtonsComponent,

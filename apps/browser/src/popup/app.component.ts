@@ -1,26 +1,19 @@
-import {
-  ChangeDetectorRef,
-  Component,
-  NgZone,
-  OnDestroy,
-  OnInit,
-  SecurityContext,
-} from "@angular/core";
-import { DomSanitizer } from "@angular/platform-browser";
+import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { NavigationEnd, Router, RouterOutlet } from "@angular/router";
-import { IndividualConfig, ToastrService } from "ngx-toastr";
-import { filter, concatMap, Subject, takeUntil, firstValueFrom } from "rxjs";
+import { filter, concatMap, Subject, takeUntil, firstValueFrom, tap, map } from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { DialogService, SimpleDialogOptions } from "@bitwarden/components";
+import { MessageListener } from "@bitwarden/common/platform/messaging";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { DialogService, SimpleDialogOptions, ToastService } from "@bitwarden/components";
 
 import { BrowserApi } from "../platform/browser/browser-api";
-import { ZonedMessageListenerService } from "../platform/browser/zoned-message-listener.service";
 import { BrowserStateService } from "../platform/services/abstractions/browser-state.service";
+import { BrowserSendStateService } from "../tools/popup/services/browser-send-state.service";
+import { VaultBrowserStateService } from "../vault/services/vault-browser-state.service";
 
 import { routerTransition } from "./app-routing.animations";
 import { DesktopSyncVerificationDialogComponent } from "./components/desktop-sync-verification-dialog.component";
@@ -40,19 +33,19 @@ export class AppComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   constructor(
-    private toastrService: ToastrService,
-    private broadcasterService: BroadcasterService,
     private authService: AuthService,
     private i18nService: I18nService,
     private router: Router,
     private stateService: BrowserStateService,
-    private messagingService: MessagingService,
+    private browserSendStateService: BrowserSendStateService,
+    private vaultBrowserStateService: VaultBrowserStateService,
+    private cipherService: CipherService,
     private changeDetectorRef: ChangeDetectorRef,
     private ngZone: NgZone,
-    private sanitizer: DomSanitizer,
     private platformUtilsService: PlatformUtilsService,
     private dialogService: DialogService,
-    private browserMessagingApi: ZonedMessageListenerService,
+    private messageListener: MessageListener,
+    private toastService: ToastService,
   ) {}
 
   async ngOnInit() {
@@ -64,8 +57,9 @@ export class AppComponent implements OnInit, OnDestroy {
       this.activeUserId = userId;
     });
 
-    this.stateService.activeAccountUnlocked$
+    this.authService.activeAccountStatus$
       .pipe(
+        map((status) => status === AuthenticationStatus.Unlocked),
         filter((unlocked) => unlocked),
         concatMap(async () => {
           await this.recordActivity();
@@ -82,61 +76,76 @@ export class AppComponent implements OnInit, OnDestroy {
       window.onkeypress = () => this.recordActivity();
     });
 
-    const bitwardenPopupMainMessageListener = (msg: any, sender: any) => {
-      if (msg.command === "doneLoggingOut") {
-        this.authService.logOut(async () => {
-          if (msg.expired) {
-            this.showToast({
-              type: "warning",
-              title: this.i18nService.t("loggedOut"),
-              text: this.i18nService.t("loginExpired"),
+    this.messageListener.allMessages$
+      .pipe(
+        tap((msg: any) => {
+          if (msg.command === "doneLoggingOut") {
+            this.authService.logOut(async () => {
+              if (msg.expired) {
+                this.toastService.showToast({
+                  variant: "warning",
+                  title: this.i18nService.t("loggedOut"),
+                  message: this.i18nService.t("loginExpired"),
+                });
+              }
+
+              // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+              // eslint-disable-next-line @typescript-eslint/no-floating-promises
+              this.router.navigate(["home"]);
             });
+            this.changeDetectorRef.detectChanges();
+          } else if (msg.command === "authBlocked") {
+            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            this.router.navigate(["home"]);
+          } else if (
+            msg.command === "locked" &&
+            (msg.userId == null || msg.userId == this.activeUserId)
+          ) {
+            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            this.router.navigate(["lock"]);
+          } else if (msg.command === "showDialog") {
+            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            this.showDialog(msg);
+          } else if (msg.command === "showNativeMessagingFinterprintDialog") {
+            // TODO: Should be refactored to live in another service.
+            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            this.showNativeMessagingFingerprintDialog(msg);
+          } else if (msg.command === "showToast") {
+            this.toastService._showToast(msg);
+          } else if (msg.command === "reloadProcess") {
+            const forceWindowReload =
+              this.platformUtilsService.isSafari() ||
+              this.platformUtilsService.isFirefox() ||
+              this.platformUtilsService.isOpera();
+            // Wait to make sure background has reloaded first.
+            window.setTimeout(
+              () => BrowserApi.reloadExtension(forceWindowReload ? window : null),
+              2000,
+            );
+          } else if (msg.command === "reloadPopup") {
+            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            this.router.navigate(["/"]);
+          } else if (msg.command === "convertAccountToKeyConnector") {
+            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            this.router.navigate(["/remove-password"]);
+          } else if (msg.command === "switchAccountFinish") {
+            // TODO: unset loading?
+            // this.loading = false;
+          } else if (msg.command == "update-temp-password") {
+            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            this.router.navigate(["/update-temp-password"]);
           }
-
-          this.router.navigate(["home"]);
-        });
-        this.changeDetectorRef.detectChanges();
-      } else if (msg.command === "authBlocked") {
-        this.router.navigate(["home"]);
-      } else if (
-        msg.command === "locked" &&
-        (msg.userId === null || msg.userId == this.activeUserId)
-      ) {
-        this.router.navigate(["lock"]);
-      } else if (msg.command === "showDialog") {
-        this.showDialog(msg);
-      } else if (msg.command === "showNativeMessagingFinterprintDialog") {
-        // TODO: Should be refactored to live in another service.
-        this.showNativeMessagingFingerprintDialog(msg);
-      } else if (msg.command === "showToast") {
-        this.showToast(msg);
-      } else if (msg.command === "reloadProcess") {
-        const forceWindowReload =
-          this.platformUtilsService.isSafari() ||
-          this.platformUtilsService.isFirefox() ||
-          this.platformUtilsService.isOpera();
-        // Wait to make sure background has reloaded first.
-        window.setTimeout(
-          () => BrowserApi.reloadExtension(forceWindowReload ? window : null),
-          2000,
-        );
-      } else if (msg.command === "reloadPopup") {
-        this.router.navigate(["/"]);
-      } else if (msg.command === "convertAccountToKeyConnector") {
-        this.router.navigate(["/remove-password"]);
-      } else if (msg.command === "switchAccountFinish") {
-        // TODO: unset loading?
-        // this.loading = false;
-      } else if (msg.command == "update-temp-password") {
-        this.router.navigate(["/update-temp-password"]);
-      } else {
-        msg.webExtSender = sender;
-        this.broadcasterService.send(msg);
-      }
-    };
-
-    (window as any).bitwardenPopupMainMessageListener = bitwardenPopupMainMessageListener;
-    this.browserMessagingApi.messageListener("app.component", bitwardenPopupMainMessageListener);
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe();
 
     // eslint-disable-next-line rxjs/no-async-subscribe
     this.router.events.pipe(takeUntil(this.destroy$)).subscribe(async (event) => {
@@ -150,7 +159,7 @@ export class AppComponent implements OnInit, OnDestroy {
           await this.clearComponentStates();
         }
         if (url.startsWith("/tabs/")) {
-          await this.stateService.setAddEditCipherInfo(null);
+          await this.cipherService.setAddEditCipherInfo(null);
         }
         (window as any).previousPopupUrl = url;
 
@@ -201,31 +210,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private showToast(msg: any) {
-    let message = "";
-
-    const options: Partial<IndividualConfig> = {};
-
-    if (typeof msg.text === "string") {
-      message = msg.text;
-    } else if (msg.text.length === 1) {
-      message = msg.text[0];
-    } else {
-      msg.text.forEach(
-        (t: string) =>
-          (message += "<p>" + this.sanitizer.sanitize(SecurityContext.HTML, t) + "</p>"),
-      );
-      options.enableHtml = true;
-    }
-    if (msg.options != null) {
-      if (msg.options.trustedHtml === true) {
-        options.enableHtml = true;
-      }
-      if (msg.options.timeout != null && msg.options.timeout > 0) {
-        options.timeOut = msg.options.timeout;
-      }
-    }
-
-    this.toastrService.show(message, msg.title, options, "toast-" + msg.type);
+    this.platformUtilsService.showToast(msg.type, msg.title, msg.text, msg.options);
   }
 
   private async showDialog(msg: SimpleDialogOptions) {
@@ -246,10 +231,10 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     await Promise.all([
-      this.stateService.setBrowserGroupingComponentState(null),
-      this.stateService.setBrowserVaultItemsComponentState(null),
-      this.stateService.setBrowserSendComponentState(null),
-      this.stateService.setBrowserSendTypeComponentState(null),
+      this.vaultBrowserStateService.setBrowserGroupingsComponentState(null),
+      this.vaultBrowserStateService.setBrowserVaultItemsComponentState(null),
+      this.browserSendStateService.setBrowserSendComponentState(null),
+      this.browserSendStateService.setBrowserSendTypeComponentState(null),
     ]);
   }
 }

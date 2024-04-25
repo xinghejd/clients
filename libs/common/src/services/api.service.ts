@@ -1,3 +1,5 @@
+import { firstValueFrom } from "rxjs";
+
 import { ApiService as ApiServiceAbstraction } from "../abstractions/api.service";
 import { OrganizationConnectionType } from "../admin-console/enums";
 import { OrganizationSponsorshipCreateRequest } from "../admin-console/models/request/organization/organization-sponsorship-create.request";
@@ -5,8 +7,6 @@ import { OrganizationSponsorshipRedeemRequest } from "../admin-console/models/re
 import { OrganizationConnectionRequest } from "../admin-console/models/request/organization-connection.request";
 import { ProviderAddOrganizationRequest } from "../admin-console/models/request/provider/provider-add-organization.request";
 import { ProviderOrganizationCreateRequest } from "../admin-console/models/request/provider/provider-organization-create.request";
-import { ProviderSetupRequest } from "../admin-console/models/request/provider/provider-setup.request";
-import { ProviderUpdateRequest } from "../admin-console/models/request/provider/provider-update.request";
 import { ProviderUserAcceptRequest } from "../admin-console/models/request/provider/provider-user-accept.request";
 import { ProviderUserBulkConfirmRequest } from "../admin-console/models/request/provider/provider-user-bulk-confirm.request";
 import { ProviderUserBulkRequest } from "../admin-console/models/request/provider/provider-user-bulk.request";
@@ -30,7 +30,6 @@ import {
   ProviderUserResponse,
   ProviderUserUserDetailsResponse,
 } from "../admin-console/models/response/provider/provider-user.response";
-import { ProviderResponse } from "../admin-console/models/response/provider/provider.response";
 import { SelectionReadOnlyResponse } from "../admin-console/models/response/selection-read-only.response";
 import { TokenService } from "../auth/abstractions/token.service";
 import { CreateAuthRequest } from "../auth/models/request/create-auth.request";
@@ -93,10 +92,10 @@ import { SubscriptionResponse } from "../billing/models/response/subscription.re
 import { TaxInfoResponse } from "../billing/models/response/tax-info.response";
 import { TaxRateResponse } from "../billing/models/response/tax-rate.response";
 import { DeviceType } from "../enums";
+import { VaultTimeoutAction } from "../enums/vault-timeout-action.enum";
 import { CollectionBulkDeleteRequest } from "../models/request/collection-bulk-delete.request";
 import { DeleteRecoverRequest } from "../models/request/delete-recover.request";
 import { EventRequest } from "../models/request/event.request";
-import { IapCheckRequest } from "../models/request/iap-check.request";
 import { KdfRequest } from "../models/request/kdf.request";
 import { KeysRequest } from "../models/request/keys.request";
 import { OrganizationImportRequest } from "../models/request/organization-import.request";
@@ -117,7 +116,9 @@ import { UserKeyResponse } from "../models/response/user-key.response";
 import { AppIdService } from "../platform/abstractions/app-id.service";
 import { EnvironmentService } from "../platform/abstractions/environment.service";
 import { PlatformUtilsService } from "../platform/abstractions/platform-utils.service";
+import { StateService } from "../platform/abstractions/state.service";
 import { Utils } from "../platform/misc/utils";
+import { UserId } from "../types/guid";
 import { AttachmentRequest } from "../vault/models/request/attachment.request";
 import { CipherBulkDeleteRequest } from "../vault/models/request/cipher-bulk-delete.request";
 import { CipherBulkMoveRequest } from "../vault/models/request/cipher-bulk-move.request";
@@ -134,6 +135,7 @@ import { AttachmentResponse } from "../vault/models/response/attachment.response
 import { CipherResponse } from "../vault/models/response/cipher.response";
 import {
   CollectionAccessDetailsResponse,
+  CollectionDetailsResponse,
   CollectionResponse,
 } from "../vault/models/response/collection.response";
 import { SyncResponse } from "../vault/models/response/sync.response";
@@ -154,6 +156,7 @@ export class ApiService implements ApiServiceAbstraction {
     private platformUtilsService: PlatformUtilsService,
     private environmentService: EnvironmentService,
     private appIdService: AppIdService,
+    private stateService: StateService,
     private logoutCallback: (expired: boolean) => Promise<void>,
     private customUserAgent: string = null,
   ) {
@@ -201,10 +204,12 @@ export class ApiService implements ApiServiceAbstraction {
         ? request.toIdentityToken()
         : request.toIdentityToken(this.platformUtilsService.getClientType());
 
+    const env = await firstValueFrom(this.environmentService.environment$);
+
     const response = await this.fetch(
-      new Request(this.environmentService.getIdentityUrl() + "/connect/token", {
+      new Request(env.getIdentityUrl() + "/connect/token", {
         body: this.qsStringify(identityToken),
-        credentials: this.getCredentials(),
+        credentials: await this.getCredentials(),
         cache: "no-store",
         headers: headers,
         method: "POST",
@@ -224,7 +229,6 @@ export class ApiService implements ApiServiceAbstraction {
         responseJson.TwoFactorProviders2 &&
         Object.keys(responseJson.TwoFactorProviders2).length
       ) {
-        await this.tokenService.clearTwoFactorToken();
         return new IdentityTwoFactorResponse(responseJson);
       } else if (
         response.status === 400 &&
@@ -317,13 +321,14 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   async postPrelogin(request: PreloginRequest): Promise<PreloginResponse> {
+    const env = await firstValueFrom(this.environmentService.environment$);
     const r = await this.send(
       "POST",
       "/accounts/prelogin",
       request,
       false,
       true,
-      this.environmentService.getIdentityUrl(),
+      env.getIdentityUrl(),
     );
     return new PreloginResponse(r);
   }
@@ -362,13 +367,14 @@ export class ApiService implements ApiServiceAbstraction {
   }
 
   async postRegister(request: RegisterRequest): Promise<RegisterResponse> {
+    const env = await firstValueFrom(this.environmentService.environment$);
     const r = await this.send(
       "POST",
       "/accounts/register",
       request,
       false,
       true,
-      this.environmentService.getIdentityUrl(),
+      env.getIdentityUrl(),
     );
     return new RegisterResponse(r);
   }
@@ -378,16 +384,8 @@ export class ApiService implements ApiServiceAbstraction {
     return new PaymentResponse(r);
   }
 
-  async postIapCheck(request: IapCheckRequest): Promise<any> {
-    return this.send("POST", "/accounts/iap-check", request, true, false);
-  }
-
   postReinstatePremium(): Promise<any> {
     return this.send("POST", "/accounts/reinstate-premium", null, true, false);
-  }
-
-  postCancelPremium(): Promise<any> {
-    return this.send("POST", "/accounts/cancel-premium", null, true, false);
   }
 
   async postAccountStorage(request: StorageRequest): Promise<PaymentResponse> {
@@ -561,8 +559,12 @@ export class ApiService implements ApiServiceAbstraction {
     return this.send("PUT", "/ciphers/share", request, true, false);
   }
 
-  putCipherCollections(id: string, request: CipherCollectionsRequest): Promise<any> {
-    return this.send("PUT", "/ciphers/" + id + "/collections", request, true, false);
+  async putCipherCollections(
+    id: string,
+    request: CipherCollectionsRequest,
+  ): Promise<CipherResponse> {
+    const response = await this.send("PUT", "/ciphers/" + id + "/collections", request, true, true);
+    return new CipherResponse(response);
   }
 
   putCipherCollectionsAdmin(id: string, request: CipherCollectionsRequest): Promise<any> {
@@ -771,7 +773,7 @@ export class ApiService implements ApiServiceAbstraction {
   async postCollection(
     organizationId: string,
     request: CollectionRequest,
-  ): Promise<CollectionResponse> {
+  ): Promise<CollectionDetailsResponse> {
     const r = await this.send(
       "POST",
       "/organizations/" + organizationId + "/collections",
@@ -779,14 +781,14 @@ export class ApiService implements ApiServiceAbstraction {
       true,
       true,
     );
-    return new CollectionResponse(r);
+    return new CollectionDetailsResponse(r);
   }
 
   async putCollection(
     organizationId: string,
     id: string,
     request: CollectionRequest,
-  ): Promise<CollectionResponse> {
+  ): Promise<CollectionDetailsResponse> {
     const r = await this.send(
       "PUT",
       "/organizations/" + organizationId + "/collections/" + id,
@@ -794,7 +796,7 @@ export class ApiService implements ApiServiceAbstraction {
       true,
       true,
     );
-    return new CollectionResponse(r);
+    return new CollectionDetailsResponse(r);
   }
 
   async putCollectionUsers(
@@ -856,16 +858,6 @@ export class ApiService implements ApiServiceAbstraction {
       true,
     );
     return r;
-  }
-
-  async putGroupUsers(organizationId: string, id: string, request: string[]): Promise<any> {
-    await this.send(
-      "PUT",
-      "/organizations/" + organizationId + "/groups/" + id + "/users",
-      request,
-      true,
-      false,
-    );
   }
 
   deleteGroupUser(organizationId: string, id: string, organizationUserId: string): Promise<any> {
@@ -1153,23 +1145,6 @@ export class ApiService implements ApiServiceAbstraction {
     return this.send("DELETE", "/organizations/connections/" + id, null, true, false);
   }
 
-  // Provider APIs
-
-  async postProviderSetup(id: string, request: ProviderSetupRequest) {
-    const r = await this.send("POST", "/providers/" + id + "/setup", request, true, true);
-    return new ProviderResponse(r);
-  }
-
-  async getProvider(id: string) {
-    const r = await this.send("GET", "/providers/" + id, null, true, true);
-    return new ProviderResponse(r);
-  }
-
-  async putProvider(id: string, request: ProviderUpdateRequest) {
-    const r = await this.send("PUT", "/providers/" + id, request, true, true);
-    return new ProviderResponse(r);
-  }
-
   // Provider User APIs
 
   async getProviderUsers(
@@ -1445,8 +1420,8 @@ export class ApiService implements ApiServiceAbstraction {
     return new ListResponse(r, EventResponse);
   }
 
-  async postEventsCollect(request: EventRequest[]): Promise<any> {
-    const authHeader = await this.getActiveBearerToken();
+  async postEventsCollect(request: EventRequest[], userId?: UserId): Promise<any> {
+    const authHeader = await this.tokenService.getAccessToken(userId);
     const headers = new Headers({
       "Device-Type": this.deviceType,
       Authorization: "Bearer " + authHeader,
@@ -1455,10 +1430,11 @@ export class ApiService implements ApiServiceAbstraction {
     if (this.customUserAgent != null) {
       headers.set("User-Agent", this.customUserAgent);
     }
+    const env = await firstValueFrom(this.environmentService.environment$);
     const response = await this.fetch(
-      new Request(this.environmentService.getEventsUrl() + "/collect", {
+      new Request(env.getEventsUrl() + "/collect", {
         cache: "no-store",
-        credentials: this.getCredentials(),
+        credentials: await this.getCredentials(),
         method: "POST",
         body: JSON.stringify(request),
         headers: headers,
@@ -1578,10 +1554,10 @@ export class ApiService implements ApiServiceAbstraction {
   // Helpers
 
   async getActiveBearerToken(): Promise<string> {
-    let accessToken = await this.tokenService.getToken();
+    let accessToken = await this.tokenService.getAccessToken();
     if (await this.tokenService.tokenNeedsRefresh()) {
       await this.doAuthRefresh();
-      accessToken = await this.tokenService.getToken();
+      accessToken = await this.tokenService.getAccessToken();
     }
     return accessToken;
   }
@@ -1615,11 +1591,12 @@ export class ApiService implements ApiServiceAbstraction {
       headers.set("User-Agent", this.customUserAgent);
     }
 
+    const env = await firstValueFrom(this.environmentService.environment$);
     const path = `/sso/prevalidate?domainHint=${encodeURIComponent(identifier)}`;
     const response = await this.fetch(
-      new Request(this.environmentService.getIdentityUrl() + path, {
+      new Request(env.getIdentityUrl() + path, {
         cache: "no-store",
-        credentials: this.getCredentials(),
+        credentials: await this.getCredentials(),
         headers: headers,
         method: "GET",
       }),
@@ -1749,16 +1726,17 @@ export class ApiService implements ApiServiceAbstraction {
       headers.set("User-Agent", this.customUserAgent);
     }
 
-    const decodedToken = await this.tokenService.decodeToken();
+    const env = await firstValueFrom(this.environmentService.environment$);
+    const decodedToken = await this.tokenService.decodeAccessToken();
     const response = await this.fetch(
-      new Request(this.environmentService.getIdentityUrl() + "/connect/token", {
+      new Request(env.getIdentityUrl() + "/connect/token", {
         body: this.qsStringify({
           grant_type: "refresh_token",
           client_id: decodedToken.client_id,
           refresh_token: refreshToken,
         }),
         cache: "no-store",
-        credentials: this.getCredentials(),
+        credentials: await this.getCredentials(),
         headers: headers,
         method: "POST",
       }),
@@ -1767,10 +1745,15 @@ export class ApiService implements ApiServiceAbstraction {
     if (response.status === 200) {
       const responseJson = await response.json();
       const tokenResponse = new IdentityTokenResponse(responseJson);
+
+      const vaultTimeoutAction = await this.stateService.getVaultTimeoutAction();
+      const vaultTimeout = await this.stateService.getVaultTimeout();
+
       await this.tokenService.setTokens(
         tokenResponse.accessToken,
+        vaultTimeoutAction as VaultTimeoutAction,
+        vaultTimeout,
         tokenResponse.refreshToken,
-        null,
       );
     } else {
       const error = await this.handleError(response, true, true);
@@ -1796,7 +1779,14 @@ export class ApiService implements ApiServiceAbstraction {
       throw new Error("Invalid response received when refreshing api token");
     }
 
-    await this.tokenService.setToken(response.accessToken);
+    const vaultTimeoutAction = await this.stateService.getVaultTimeoutAction();
+    const vaultTimeout = await this.stateService.getVaultTimeout();
+
+    await this.tokenService.setAccessToken(
+      response.accessToken,
+      vaultTimeoutAction as VaultTimeoutAction,
+      vaultTimeout,
+    );
   }
 
   async send(
@@ -1808,7 +1798,8 @@ export class ApiService implements ApiServiceAbstraction {
     apiUrl?: string,
     alterHeaders?: (headers: Headers) => void,
   ): Promise<any> {
-    apiUrl = Utils.isNullOrWhitespace(apiUrl) ? this.environmentService.getApiUrl() : apiUrl;
+    const env = await firstValueFrom(this.environmentService.environment$);
+    apiUrl = Utils.isNullOrWhitespace(apiUrl) ? env.getApiUrl() : apiUrl;
 
     // Prevent directory traversal from malicious paths
     const pathParts = path.split("?");
@@ -1824,7 +1815,7 @@ export class ApiService implements ApiServiceAbstraction {
 
     const requestInit: RequestInit = {
       cache: "no-store",
-      credentials: this.getCredentials(),
+      credentials: await this.getCredentials(),
       method: method,
     };
 
@@ -1903,8 +1894,9 @@ export class ApiService implements ApiServiceAbstraction {
       .join("&");
   }
 
-  private getCredentials(): RequestCredentials {
-    if (!this.isWebClient || this.environmentService.hasBaseUrl()) {
+  private async getCredentials(): Promise<RequestCredentials> {
+    const env = await firstValueFrom(this.environmentService.environment$);
+    if (!this.isWebClient || env.hasBaseUrl()) {
       return "include";
     }
     return undefined;

@@ -1,20 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:base",
-    ":combinePatchMinorReleases",
-    ":dependencyDashboard",
-    ":maintainLockFilesWeekly",
-    ":pinAllExceptPeerDependencies",
-    ":prConcurrentLimit10",
-    ":rebaseStalePrs",
-    ":separateMajorReleases",
-    "group:monorepos",
-    "schedule:weekends"
-  ],
+  "extends": ["github>bitwarden/renovate-config"],
   "enabledManagers": ["cargo", "github-actions", "npm"],
-  "commitMessagePrefix": "[deps]:",
-  "commitMessageTopic": "{{depName}}",
   "packageRules": [
     {
       "groupName": "gh minor",
@@ -28,6 +15,10 @@
     {
       "matchManagers": ["cargo"],
       "commitMessagePrefix": "[deps] Platform:"
+    },
+    {
+      "groupName": "napi",
+      "matchPackageNames": ["napi", "napi-build", "napi-derive"]
     },
     {
       "matchPackageNames": ["typescript", "zone.js"],
@@ -50,7 +41,6 @@
         "base64-loader",
         "buffer",
         "bufferutil",
-        "clean-webpack-plugin",
         "copy-webpack-plugin",
         "core-js",
         "css-loader",
@@ -180,7 +170,7 @@
       ],
       "description": "Component library owned dependencies",
       "commitMessagePrefix": "[deps] Platform (CL):",
-      "reviewers": ["team:team-platform-dev"]
+      "reviewers": ["team:team-component-library"]
     },
     {
       "matchPackageNames": [
@@ -264,7 +254,8 @@
         "node-fetch",
         "open",
         "pkg",
-        "proper-lockfile"
+        "proper-lockfile",
+        "qrcode-parser"
       ],
       "description": "Vault owned dependencies",
       "commitMessagePrefix": "[deps] Vault:",

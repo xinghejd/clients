@@ -11,7 +11,7 @@ const IdleInterval = 60 * 5; // 5 minutes
 
 export default class IdleBackground {
   private idle: typeof chrome.idle | typeof browser.idle | null;
-  private idleTimer: number = null;
+  private idleTimer: number | NodeJS.Timeout = null;
   private idleState = "active";
 
   constructor(
@@ -30,8 +30,12 @@ export default class IdleBackground {
 
     const idleHandler = (newState: string) => {
       if (newState === "active") {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.notificationsService.reconnectFromActivity();
       } else {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.notificationsService.disconnectFromInactivity();
       }
     };
@@ -69,15 +73,17 @@ export default class IdleBackground {
 
   private pollIdle(handler: (newState: string) => void) {
     if (this.idleTimer != null) {
-      window.clearTimeout(this.idleTimer);
+      globalThis.clearTimeout(this.idleTimer);
       this.idleTimer = null;
     }
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.idle.queryState(IdleInterval, (state: string) => {
       if (state !== this.idleState) {
         this.idleState = state;
         handler(state);
       }
-      this.idleTimer = window.setTimeout(() => this.pollIdle(handler), 5000);
+      this.idleTimer = globalThis.setTimeout(() => this.pollIdle(handler), 5000);
     });
   }
 }

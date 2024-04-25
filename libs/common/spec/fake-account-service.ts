@@ -1,8 +1,7 @@
 import { mock } from "jest-mock-extended";
-import { Observable, ReplaySubject } from "rxjs";
+import { ReplaySubject } from "rxjs";
 
 import { AccountInfo, AccountService } from "../src/auth/abstractions/account.service";
-import { AuthenticationStatus } from "../src/auth/enums/authentication-status";
 import { UserId } from "../src/types/guid";
 
 export function mockAccountServiceWith(
@@ -14,7 +13,6 @@ export function mockAccountServiceWith(
     ...{
       name: "name",
       email: "email",
-      status: AuthenticationStatus.Locked,
     },
   };
   const service = new FakeAccountService({ [userId]: fullInfo });
@@ -32,14 +30,8 @@ export class FakeAccountService implements AccountService {
   get activeUserId() {
     return this._activeUserId;
   }
-  get accounts$() {
-    return this.accountsSubject.asObservable();
-  }
-  get activeAccount$() {
-    return this.activeAccountSubject.asObservable();
-  }
-  accountLock$: Observable<UserId>;
-  accountLogout$: Observable<UserId>;
+  accounts$ = this.accountsSubject.asObservable();
+  activeAccount$ = this.activeAccountSubject.asObservable();
 
   constructor(initialData: Record<UserId, AccountInfo>) {
     this.accountsSubject.next(initialData);
@@ -48,22 +40,23 @@ export class FakeAccountService implements AccountService {
   }
 
   async addAccount(userId: UserId, accountData: AccountInfo): Promise<void> {
-    this.mock.addAccount(userId, accountData);
+    const current = this.accountsSubject["_buffer"][0] ?? {};
+    this.accountsSubject.next({ ...current, [userId]: accountData });
+    await this.mock.addAccount(userId, accountData);
   }
 
   async setAccountName(userId: UserId, name: string): Promise<void> {
-    this.mock.setAccountName(userId, name);
+    await this.mock.setAccountName(userId, name);
   }
 
   async setAccountEmail(userId: UserId, email: string): Promise<void> {
-    this.mock.setAccountEmail(userId, email);
-  }
-
-  async setAccountStatus(userId: UserId, status: AuthenticationStatus): Promise<void> {
-    this.mock.setAccountStatus(userId, status);
+    await this.mock.setAccountEmail(userId, email);
   }
 
   async switchAccount(userId: UserId): Promise<void> {
-    this.mock.switchAccount(userId);
+    const next =
+      userId == null ? null : { id: userId, ...this.accountsSubject["_buffer"]?.[0]?.[userId] };
+    this.activeAccountSubject.next(next);
+    await this.mock.switchAccount(userId);
   }
 }

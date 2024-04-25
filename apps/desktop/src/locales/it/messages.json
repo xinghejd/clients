@@ -560,6 +560,12 @@
   "newAccountCreated": {
     "message": "Il tuo nuovo account è stato creato! Ora puoi eseguire l'accesso."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "Hai effettuato l'accesso"
+  },
+  "youMayCloseThisWindow": {
+    "message": "Puoi chiudere questa finestra"
+  },
   "masterPassSent": {
     "message": "Ti abbiamo inviato un'email con il tuo suggerimento per la password principale."
   },
@@ -794,8 +800,11 @@
   "changeMasterPass": {
     "message": "Cambia password principale"
   },
-  "changeMasterPasswordConfirmation": {
-    "message": "Puoi cambiare la tua password principale sulla cassaforte online di bitwarden.com. Vuoi visitare ora il sito?"
+  "continueToWebApp": {
+    "message": "Passa al sito web?"
+  },
+  "changeMasterPasswordOnWebConfirmation": {
+    "message": "Puoi modificare la tua password principale sul sito web di Bitwarden."
   },
   "fingerprintPhrase": {
     "message": "Frase impronta",
@@ -1392,6 +1401,9 @@
   "invalidPin": {
     "message": "Codice PIN non valido."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Troppi tentativi di inserimento del PIN falliti. Uscendo dall'account..."
+  },
   "unlockWithWindowsHello": {
     "message": "Sblocca con Windows Hello"
   },
@@ -1544,6 +1556,10 @@
     "message": "La tua organizzazione ti obbliga di impostare di una password principale.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
+  "verificationRequired": {
+    "message": "Verifica necessaria",
+    "description": "Default title for the user verification dialog."
+  },
   "currentMasterPass": {
     "message": "Password principale corrente"
   },
@@ -1616,6 +1632,12 @@
   "browserIntegrationUnsupportedTitle": {
     "message": "L'integrazione del browser non è supportata"
   },
+  "browserIntegrationErrorTitle": {
+    "message": "Errore durante l'attivazione dell'integrazione del browser"
+  },
+  "browserIntegrationErrorDesc": {
+    "message": "Si è verificato un errore durante l'attivazione dell'integrazione del browser."
+  },
   "browserIntegrationMasOnlyDesc": {
     "message": "Purtroppo l'integrazione del browser è supportata solo nella versione nell'App Store per ora."
   },
@@ -1630,6 +1652,12 @@
   },
   "enableBrowserIntegrationFingerprintDesc": {
     "message": "Aggiungi un altro livello di sicurezza richiedendo la conferma della frase impronta quando colleghi il desktop e il browser. Questo richiede l'azione dell'utente e la verifica ogni volta che si crea una connessione."
+  },
+  "enableHardwareAcceleration": {
+    "message": "Usa accelerazione hardware"
+  },
+  "enableHardwareAccelerationDesc": {
+    "message": "Per impostazione predefinita, questa impostazione è attiva. Disattivala solo se riscontri problemi grafici. Richiede un riavvio."
   },
   "approve": {
     "message": "Approva"
@@ -1868,6 +1896,42 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "La tua password principale non soddisfa uno o più politiche della tua organizzazione. Per accedere alla cassaforte, aggiornala ora. Procedere ti farà uscire dalla sessione corrente, richiedendoti di accedere di nuovo. Le sessioni attive su altri dispositivi potrebbero continuare a rimanere attive per un massimo di un'ora."
+  },
+  "tryAgain": {
+    "message": "Riprova"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Verifica necessaria per questa azione. Imposta un PIN per continuare."
+  },
+  "setPin": {
+    "message": "Imposta PIN"
+  },
+  "verifyWithBiometrics": {
+    "message": "Verifica con i dati biometrici"
+  },
+  "awaitingConfirmation": {
+    "message": "In attesa di conferma"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Impossibile completare i dati biometrici."
+  },
+  "needADifferentMethod": {
+    "message": "Usa un altro metodo?"
+  },
+  "useMasterPassword": {
+    "message": "Usa password principale"
+  },
+  "usePin": {
+    "message": "Usa PIN"
+  },
+  "useBiometrics": {
+    "message": "Usa dati biometrici"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Inserisci il codice di verifica che è stato inviato alla tua email."
+  },
+  "resendCode": {
+    "message": "Invia codice di nuovo"
   },
   "hours": {
     "message": "Ore"
@@ -2291,12 +2355,6 @@
   "loggingInOn": {
     "message": "Accedendo su"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "selfHostedServer": {
     "message": "self-hosted"
   },
@@ -2482,6 +2540,15 @@
       }
     }
   },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Avvia Duo e segui i passaggi per finire di accedere."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "Per il tuo account è richiesta la verifica in due passaggi Duo."
+  },
+  "launchDuo": {
+    "message": "Avvia Duo nel browser"
+  },
   "importFormatError": {
     "message": "I dati non sono formattati correttamente. Controlla il file di importazione e riprova."
   },
@@ -2562,6 +2629,15 @@
   "incorrectUsernameOrPassword": {
     "message": "Nome utente o password errati"
   },
+  "incorrectPassword": {
+    "message": "Password errata"
+  },
+  "incorrectCode": {
+    "message": "Codice errato"
+  },
+  "incorrectPin": {
+    "message": "PIN errato"
+  },
   "multifactorAuthenticationFailed": {
     "message": "Verifica in due passaggi non riuscita"
   },
@@ -2616,5 +2692,33 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Inserisci la tua YubiKey associata al tuo account LastPass nella porta USB del computer, poi premi il suo bottone."
+  },
+  "commonImportFormats": {
+    "message": "Formati comuni",
+    "description": "Label indicating the most common import formats"
+  },
+  "success": {
+    "message": "Successo"
+  },
+  "troubleshooting": {
+    "message": "Risoluzione problemi"
+  },
+  "disableHardwareAccelerationRestart": {
+    "message": "Disattiva l'accelerazione hardware e riavvia"
+  },
+  "enableHardwareAccelerationRestart": {
+    "message": "Attiva l'accelerazione hardware e riavvia"
+  },
+  "removePasskey": {
+    "message": "Rimuovi passkey"
+  },
+  "passkeyRemoved": {
+    "message": "Passkey rimossa"
+  },
+  "errorAssigningTargetCollection": {
+    "message": "Errore nell'assegnazione della raccolta di destinazione."
+  },
+  "errorAssigningTargetFolder": {
+    "message": "Errore nell'assegnazione della cartella di destinazione."
   }
 }

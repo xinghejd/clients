@@ -3,15 +3,13 @@ import { ConnectedPosition } from "@angular/cdk/overlay";
 import { Component } from "@angular/core";
 import { firstValueFrom } from "rxjs";
 
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 
-import {
-  BrowserFido2UserInterfaceSession,
-  fido2PopoutSessionData$,
-} from "../../../fido2/browser-fido2-user-interface.service";
+import { BrowserFido2UserInterfaceSession } from "../../../fido2/browser-fido2-user-interface.service";
+import { fido2PopoutSessionData$ } from "../../utils/fido2-popout-session-data";
 
 @Component({
   selector: "app-fido2-use-browser-link",
@@ -38,7 +36,7 @@ import {
   ],
 })
 export class Fido2UseBrowserLinkComponent {
-  showOverlay: boolean = false;
+  showOverlay = false;
   isOpen = false;
   overlayPosition: ConnectedPosition[] = [
     {
@@ -53,7 +51,7 @@ export class Fido2UseBrowserLinkComponent {
   protected fido2PopoutSessionData$ = fido2PopoutSessionData$();
 
   constructor(
-    private stateService: StateService,
+    private domainSettingsService: DomainSettingsService,
     private platformUtilsService: PlatformUtilsService,
     private i18nService: I18nService,
   ) {}
@@ -91,7 +89,7 @@ export class Fido2UseBrowserLinkComponent {
    * @param uri - The domain uri to exclude from future FIDO2 prompts.
    */
   private async handleDomainExclusion(uri: string) {
-    const exisitingDomains = await this.stateService.getNeverDomains();
+    const exisitingDomains = await firstValueFrom(this.domainSettingsService.neverDomains$);
 
     const validDomain = Utils.getHostname(uri);
     const savedDomains: { [name: string]: unknown } = {
@@ -99,7 +97,7 @@ export class Fido2UseBrowserLinkComponent {
     };
     savedDomains[validDomain] = null;
 
-    this.stateService.setNeverDomains(savedDomains);
+    await this.domainSettingsService.setNeverDomains(savedDomains);
 
     this.platformUtilsService.showToast(
       "success",

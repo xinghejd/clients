@@ -3,12 +3,12 @@
     "message": "Bitwarden"
   },
   "extName": {
-    "message": "Bitwarden - Quản lý mật khẩu miễn phí",
+    "message": "Bitwarden Password Manager",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "Trình quản lý mật khẩu an toàn và miễn phí cho mọi thiết bị của bạn.",
-    "description": "Extension description"
+    "message": "At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information",
+    "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
     "message": "Đăng nhập hoặc tạo tài khoản mới để truy cập kho lưu trữ của bạn."
@@ -92,13 +92,13 @@
     "message": "Tự động điền"
   },
   "autoFillLogin": {
-    "message": "Auto-fill login"
+    "message": "Tự động điền thông tin đăng nhập"
   },
   "autoFillCard": {
-    "message": "Auto-fill card"
+    "message": "Tự động điền thẻ"
   },
   "autoFillIdentity": {
-    "message": "Auto-fill identity"
+    "message": "Tự động điền danh tính"
   },
   "generatePasswordCopied": {
     "message": "Tạo mật khẩu (đã sao chép)"
@@ -110,19 +110,19 @@
     "message": "Không có thông tin đăng nhập phù hợp."
   },
   "noCards": {
-    "message": "No cards"
+    "message": "Không có thẻ"
   },
   "noIdentities": {
-    "message": "No identities"
+    "message": "Không có danh tính"
   },
   "addLoginMenu": {
-    "message": "Add login"
+    "message": "Thêm thông tin đăng nhập"
   },
   "addCardMenu": {
-    "message": "Add card"
+    "message": "Thêm thẻ"
   },
   "addIdentityMenu": {
-    "message": "Add identity"
+    "message": "Thêm danh tính"
   },
   "unlockVaultMenu": {
     "message": "Mở khoá kho lưu trữ của bạn"
@@ -171,6 +171,12 @@
   },
   "changeMasterPassword": {
     "message": "Thay đổi mật khẩu chính"
+  },
+  "continueToWebApp": {
+    "message": "Tiếp tục tới ứng dụng web?"
+  },
+  "changeMasterPasswordOnWebConfirmation": {
+    "message": "Bạn có thể thay đổi mật khẩu chính của mình trên Bitwarden bản web."
   },
   "fingerprintPhrase": {
     "message": "Fingerprint Phrase",
@@ -269,7 +275,7 @@
     "message": "Độ dài"
   },
   "passwordMinLength": {
-    "message": "Minimum password length"
+    "message": "Độ dài mật khẩu tối thiểu"
   },
   "uppercase": {
     "message": "Chữ in hoa (A-Z)"
@@ -327,7 +333,7 @@
     "message": "Mật khẩu"
   },
   "totp": {
-    "message": "Authenticator secret"
+    "message": "Khóa xác thực"
   },
   "passphrase": {
     "message": "Cụm từ mật khẩu"
@@ -369,10 +375,10 @@
     "message": "Khác"
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Set up an unlock method to change your vault timeout action."
+    "message": "Thiết lập phương thức mở khóa để thay đổi hành động hết thời gian chờ của vault."
   },
   "unlockMethodNeeded": {
-    "message": "Set up an unlock method in Settings"
+    "message": "Thiết lập phương pháp mở khóa trong Cài đặt"
   },
   "rateExtension": {
     "message": "Đánh giá tiện ích mở rộng"
@@ -415,7 +421,7 @@
     "message": "Khóa ngay"
   },
   "lockAll": {
-    "message": "Lock all"
+    "message": "Khóa tất cả"
   },
   "immediately": {
     "message": "Ngay lập tức"
@@ -493,6 +499,12 @@
   "newAccountCreated": {
     "message": "Tài khoản mới của bạn đã được tạo! Bạn có thể đăng nhập từ bây giờ."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "Bạn đã đăng nhập thành công"
+  },
+  "youMayCloseThisWindow": {
+    "message": "Bạn có thể đóng cửa sổ này"
+  },
   "masterPassSent": {
     "message": "Chúng tôi đã gửi cho bạn email có chứa gợi ý mật khẩu chính của bạn."
   },
@@ -516,16 +528,16 @@
     "message": "Không thể tự động điền mục đã chọn trên trang này. Hãy thực hiện sao chép và dán thông tin một cách thủ công."
   },
   "totpCaptureError": {
-    "message": "Unable to scan QR code from the current webpage"
+    "message": "Không thể quét mã QR từ trang web hiện tại"
   },
   "totpCaptureSuccess": {
-    "message": "Authenticator key added"
+    "message": "Đã thêm khóa xác thực"
   },
   "totpCapture": {
-    "message": "Scan authenticator QR code from current webpage"
+    "message": "Quét mã QR xác thực từ trang web hiện tại"
   },
   "copyTOTP": {
-    "message": "Copy Authenticator key (TOTP)"
+    "message": "Sao chép khóa Authenticator (TOTP)"
   },
   "loggedOut": {
     "message": "Đã đăng xuất"
@@ -550,12 +562,6 @@
   },
   "addedFolder": {
     "message": "Đã thêm thư mục"
-  },
-  "changeMasterPass": {
-    "message": "Thay đổi mật khẩu chính"
-  },
-  "changeMasterPasswordConfirmation": {
-    "message": "Bạn có thể thay đổi mật khẩu chính trong trang web kho lưu trữ của Bitwarden. Bạn có muốn truy cập trang web ngay bây giờ không?"
   },
   "twoStepLoginConfirmation": {
     "message": "Xác thực hai lớp giúp cho tài khoản của bạn an toàn hơn bằng cách yêu cầu bạn xác minh thông tin đăng nhập của bạn bằng một thiết bị khác như khóa bảo mật, ứng dụng xác thực, SMS, cuộc gọi điện thoại hoặc email. Bạn có thể bật xác thực hai lớp trong kho bitwarden nền web. Bạn có muốn ghé thăm trang web bây giờ?"
@@ -1045,14 +1051,14 @@
     "message": "Địa chỉ môi trường đã được lưu."
   },
   "showAutoFillMenuOnFormFields": {
-    "message": "Show auto-fill menu on form fields",
+    "message": "Hiển thị menu tự động điền trên các trường biểu mẫu",
     "description": "Represents the message for allowing the user to enable the auto-fill overlay"
   },
   "showAutoFillMenuOnFormFieldsDescAlt": {
-    "message": "Applies to all logged in accounts."
+    "message": "Áp dụng cho tất cả tài khoản đã đăng nhập."
   },
   "turnOffBrowserBuiltInPasswordManagerSettings": {
-    "message": "Turn off your browser’s built in password manager settings to avoid conflicts."
+    "message": "Tắt cài đặt trình quản lý mật khẩu tích hợp trong trình duyệt của bạn để tránh xung đột."
   },
   "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
     "message": "Edit browser settings."
@@ -1066,7 +1072,7 @@
     "description": "Overlay appearance select option for showing the field on focus of the input element"
   },
   "autofillOverlayVisibilityOnButtonClick": {
-    "message": "When auto-fill icon is selected",
+    "message": "Khi chọn biểu tượng tự động điền",
     "description": "Overlay appearance select option for showing the field on click of the overlay icon"
   },
   "enableAutoFillOnPageLoad": {
@@ -1492,6 +1498,9 @@
   },
   "invalidPin": {
     "message": "Mã PIN không hợp lệ."
+  },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Too many invalid PIN entry attempts. Logging out."
   },
   "unlockWithBiometrics": {
     "message": "Mở khóa bằng sinh trắc học"
@@ -1995,6 +2004,10 @@
   "selectFolder": {
     "message": "Chọn thư mục..."
   },
+  "noFoldersFound": {
+    "message": "No folders found",
+    "description": "Used as a message within the notification bar when no folders are found"
+  },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "Your organization permissions were updated, requiring you to set a master password.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
@@ -2002,6 +2015,10 @@
   "orgRequiresYouToSetPassword": {
     "message": "Your organization requires you to set a master password.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "verificationRequired": {
+    "message": "Verification required",
+    "description": "Default title for the user verification dialog."
   },
   "hours": {
     "message": "Giờ"
@@ -2369,12 +2386,6 @@
     "message": "EU",
     "description": "European Union"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "accessDenied": {
     "message": "Access denied. You do not have permission to view this page."
   },
@@ -2640,6 +2651,42 @@
       }
     }
   },
+  "tryAgain": {
+    "message": "Try again"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Verification required for this action. Set a PIN to continue."
+  },
+  "setPin": {
+    "message": "Set PIN"
+  },
+  "verifyWithBiometrics": {
+    "message": "Verify with biometrics"
+  },
+  "awaitingConfirmation": {
+    "message": "Awaiting confirmation"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Could not complete biometrics."
+  },
+  "needADifferentMethod": {
+    "message": "Need a different method?"
+  },
+  "useMasterPassword": {
+    "message": "Use master password"
+  },
+  "usePin": {
+    "message": "Use PIN"
+  },
+  "useBiometrics": {
+    "message": "Use biometrics"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Enter the verification code that was sent to your email."
+  },
+  "resendCode": {
+    "message": "Resend code"
+  },
   "total": {
     "message": "Total"
   },
@@ -2651,6 +2698,21 @@
         "example": "My Org Name"
       }
     }
+  },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Launch Duo and follow the steps to finish logging in."
+  },
+  "duoRequiredForAccount": {
+    "message": "Duo two-step login is required for your account."
+  },
+  "popoutTheExtensionToCompleteLogin": {
+    "message": "Popout the extension to complete login."
+  },
+  "popoutExtension": {
+    "message": "Popout extension"
+  },
+  "launchDuo": {
+    "message": "Launch Duo"
   },
   "importFormatError": {
     "message": "Data is not formatted correctly. Please check your import file and try again."
@@ -2783,6 +2845,15 @@
   "incorrectUsernameOrPassword": {
     "message": "Incorrect username or password"
   },
+  "incorrectPassword": {
+    "message": "Incorrect password"
+  },
+  "incorrectCode": {
+    "message": "Incorrect code"
+  },
+  "incorrectPin": {
+    "message": "Incorrect PIN"
+  },
   "multifactorAuthenticationFailed": {
     "message": "Multifactor authentication failed"
   },
@@ -2888,5 +2959,77 @@
         "example": "google.com"
       }
     }
+  },
+  "commonImportFormats": {
+    "message": "Common formats",
+    "description": "Label indicating the most common import formats"
+  },
+  "overrideDefaultBrowserAutofillTitle": {
+    "message": "Make Bitwarden your default password manager?",
+    "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutofillDescription": {
+    "message": "Ignoring this option may cause conflicts between the Bitwarden auto-fill menu and your browser's.",
+    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutoFillSettings": {
+    "message": "Make Bitwarden your default password manager",
+    "description": "Label for the setting that allows overriding the default browser autofill settings"
+  },
+  "privacyPermissionAdditionNotGrantedTitle": {
+    "message": "Unable to set Bitwarden as the default password manager",
+    "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "privacyPermissionAdditionNotGrantedDescription": {
+    "message": "You must grant browser privacy permissions to Bitwarden to set it as the default password manager.",
+    "description": "Description for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "makeDefault": {
+    "message": "Make default",
+    "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "saveCipherAttemptSuccess": {
+    "message": "Credentials saved successfully!",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
+  "updateCipherAttemptSuccess": {
+    "message": "Credentials updated successfully!",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "saveCipherAttemptFailed": {
+    "message": "Error saving credentials. Check console for details.",
+    "description": "Notification message for when saving credentials has failed."
+  },
+  "success": {
+    "message": "Success"
+  },
+  "removePasskey": {
+    "message": "Remove passkey"
+  },
+  "passkeyRemoved": {
+    "message": "Passkey removed"
+  },
+  "unassignedItemsBannerNotice": {
+    "message": "Lưu ý: Các mục tổ chức chưa được chỉ định sẽ không còn hiển thị trong chế độ xem Tất cả Vault và chỉ có thể truy cập được qua Bảng điều khiển dành cho quản trị viên."
+  },
+  "unassignedItemsBannerSelfHostNotice": {
+    "message": "Lưu ý: Vào ngày 16 tháng 5 năm 2024, các mục tổ chức chưa được chỉ định sẽ không còn hiển thị trong chế độ xem Tất cả Vault và sẽ chỉ có thể truy cập được qua Bảng điều khiển dành cho quản trị viên."
+  },
+  "unassignedItemsBannerCTAPartOne": {
+    "message": "Gán các mục này vào một bộ sưu tập từ",
+    "description": "This will be part of a larger sentence, which will read like so: Assign these items to a collection from the Admin Console to make them visible."
+  },
+  "unassignedItemsBannerCTAPartTwo": {
+    "message": "để làm cho chúng hiển thị.",
+    "description": "This will be part of a larger sentence, which will read like so: Assign these items to a collection from the Admin Console to make them visible."
+  },
+  "adminConsole": {
+    "message": "Bảng điều khiển dành cho quản trị viên"
+  },
+  "errorAssigningTargetCollection": {
+    "message": "Error assigning target collection."
+  },
+  "errorAssigningTargetFolder": {
+    "message": "Error assigning target folder."
   }
 }

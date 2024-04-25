@@ -54,6 +54,10 @@ const common = {
     extensions: [".tsx", ".ts", ".js"],
     symlinks: false,
     modules: [path.resolve("../../node_modules")],
+    fallback: {
+      path: require.resolve("path-browserify"),
+      fs: false,
+    },
   },
   output: {
     filename: "[name].js",
@@ -64,9 +68,7 @@ const common = {
 const renderer = {
   mode: NODE_ENV,
   devtool: "source-map",
-  // TODO: Replace this with web.
-  // target: "web",
-  target: "electron-renderer",
+  target: "web",
   node: {
     __dirname: false,
   },
@@ -175,6 +177,7 @@ const renderer = {
       ENV: ENV,
       FLAGS: envConfig.flags,
       DEV_FLAGS: NODE_ENV === "development" ? envConfig.devFlags : {},
+      ADDITIONAL_REGIONS: envConfig.additionalRegions ?? [],
     }),
   ],
 };

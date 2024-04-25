@@ -26,7 +26,7 @@ import { SsoConfigApi } from "@bitwarden/common/auth/models/api/sso-config.api";
 import { OrganizationSsoRequest } from "@bitwarden/common/auth/models/request/organization-sso.request";
 import { OrganizationSsoResponse } from "@bitwarden/common/auth/models/response/organization-sso.response";
 import { SsoConfigView } from "@bitwarden/common/auth/models/view/sso-config.view";
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -104,6 +104,7 @@ export class SsoComponent implements OnInit, OnDestroy {
   callbackPath: string;
   signedOutCallbackPath: string;
   spEntityId: string;
+  spEntityIdStatic: string;
   spMetadataUrl: string;
   spAcsUrl: string;
 
@@ -132,6 +133,7 @@ export class SsoComponent implements OnInit, OnDestroy {
 
   protected samlForm = this.formBuilder.group<ControlsOf<SsoConfigView["saml"]>>(
     {
+      spUniqueEntityId: new FormControl(true, { updateOn: "change" }),
       spNameIdFormat: new FormControl(Saml2NameIdFormat.NotConfigured),
       spOutboundSigningAlgorithm: new FormControl(defaultSigningAlgorithm),
       spSigningBehavior: new FormControl(Saml2SigningBehavior.IfIdpWantAuthnRequestsSigned),
@@ -184,7 +186,7 @@ export class SsoComponent implements OnInit, OnDestroy {
     private i18nService: I18nService,
     private organizationService: OrganizationService,
     private organizationApiService: OrganizationApiServiceAbstraction,
-    private configService: ConfigServiceAbstraction,
+    private configService: ConfigService,
   ) {}
 
   async ngOnInit() {
@@ -250,6 +252,7 @@ export class SsoComponent implements OnInit, OnDestroy {
     this.callbackPath = ssoSettings.urls.callbackPath;
     this.signedOutCallbackPath = ssoSettings.urls.signedOutCallbackPath;
     this.spEntityId = ssoSettings.urls.spEntityId;
+    this.spEntityIdStatic = ssoSettings.urls.spEntityIdStatic;
     this.spMetadataUrl = ssoSettings.urls.spMetadataUrl;
     this.spAcsUrl = ssoSettings.urls.spAcsUrl;
 

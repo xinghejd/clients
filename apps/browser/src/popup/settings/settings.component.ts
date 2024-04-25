@@ -16,8 +16,7 @@ import {
   takeUntil,
 } from "rxjs";
 
-import { ModalService } from "@bitwarden/angular/services/modal.service";
-import { FingerprintDialogComponent } from "@bitwarden/auth";
+import { FingerprintDialogComponent } from "@bitwarden/auth/angular";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
@@ -31,12 +30,13 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { DialogService } from "@bitwarden/components";
 
 import { SetPinComponent } from "../../auth/popup/components/set-pin.component";
 import { BiometricErrors, BiometricErrorTypes } from "../../models/biometricErrors";
 import { BrowserApi } from "../../platform/browser/browser-api";
-import { flagEnabled } from "../../platform/flags";
+import { enableAccountSwitching } from "../../platform/flags";
 import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
 
 import { AboutComponent } from "./about.component";
@@ -97,12 +97,12 @@ export class SettingsComponent implements OnInit {
     private environmentService: EnvironmentService,
     private cryptoService: CryptoService,
     private stateService: StateService,
-    private modalService: ModalService,
     private userVerificationService: UserVerificationService,
     private dialogService: DialogService,
     private changeDetectorRef: ChangeDetectorRef,
+    private biometricStateService: BiometricStateService,
   ) {
-    this.accountSwitcherEnabled = flagEnabled("accountSwitching");
+    this.accountSwitcherEnabled = enableAccountSwitching();
   }
 
   async ngOnInit() {
@@ -176,7 +176,9 @@ export class SettingsComponent implements OnInit {
       ),
       pin: pinStatus !== "DISABLED",
       biometric: await this.vaultTimeoutSettingsService.isBiometricLockSet(),
-      enableAutoBiometricsPrompt: !(await this.stateService.getDisableAutoBiometricsPrompt()),
+      enableAutoBiometricsPrompt: await firstValueFrom(
+        this.biometricStateService.promptAutomatically$,
+      ),
     };
     this.form.patchValue(initialValues); // Emit event to initialize `pairwise` operator
 
@@ -369,14 +371,12 @@ export class SettingsComponent implements OnInit {
       const awaitDesktopDialogRef = AwaitDesktopDialogComponent.open(this.dialogService);
       const awaitDesktopDialogClosed = firstValueFrom(awaitDesktopDialogRef.closed);
 
-      await this.stateService.setBiometricAwaitingAcceptance(true);
       await this.cryptoService.refreshAdditionalKeys();
 
       await Promise.race([
         awaitDesktopDialogClosed.then(async (result) => {
           if (result !== true) {
             this.form.controls.biometric.setValue(false);
-            await this.stateService.setBiometricAwaitingAcceptance(null);
           }
         }),
         this.platformUtilsService
@@ -395,8 +395,10 @@ export class SettingsComponent implements OnInit {
             // Handle connection errors
             this.form.controls.biometric.setValue(false);
 
-            const error = BiometricErrors[e as BiometricErrorTypes];
+            const error = BiometricErrors[e.message as BiometricErrorTypes];
 
+            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.dialogService.openSimpleDialog({
               title: { key: error.title },
               content: { key: error.description },
@@ -410,14 +412,14 @@ export class SettingsComponent implements OnInit {
           }),
       ]);
     } else {
-      await this.stateService.setBiometricUnlock(null);
-      await this.stateService.setBiometricFingerprintValidated(false);
+      await this.biometricStateService.setBiometricUnlockEnabled(false);
+      await this.biometricStateService.setFingerprintValidated(false);
     }
   }
 
   async updateAutoBiometricsPrompt() {
-    await this.stateService.setDisableAutoBiometricsPrompt(
-      !this.form.value.enableAutoBiometricsPrompt,
+    await this.biometricStateService.setPromptAutomatically(
+      this.form.value.enableAutoBiometricsPrompt,
     );
   }
 
@@ -439,12 +441,14 @@ export class SettingsComponent implements OnInit {
 
   async changePassword() {
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "changeMasterPassword" },
-      content: { key: "changeMasterPasswordConfirmation" },
+      title: { key: "continueToWebApp" },
+      content: { key: "changeMasterPasswordOnWebConfirmation" },
       type: "info",
+      acceptButtonText: { key: "continue" },
     });
     if (confirmed) {
-      BrowserApi.createNewTab(this.environmentService.getWebVaultUrl());
+      const env = await firstValueFrom(this.environmentService.environment$);
+      await BrowserApi.createNewTab(env.getWebVaultUrl());
     }
   }
 
@@ -455,6 +459,8 @@ export class SettingsComponent implements OnInit {
       type: "info",
     });
     if (confirmed) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       BrowserApi.createNewTab("https://bitwarden.com/help/setup-two-step-login/");
     }
   }
@@ -466,23 +472,30 @@ export class SettingsComponent implements OnInit {
       type: "info",
     });
     if (confirmed) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       BrowserApi.createNewTab("https://bitwarden.com/help/about-organizations/");
     }
   }
 
   async webVault() {
-    const url = this.environmentService.getWebVaultUrl();
-    BrowserApi.createNewTab(url);
+    const env = await firstValueFrom(this.environmentService.environment$);
+    const url = env.getWebVaultUrl();
+    await BrowserApi.createNewTab(url);
   }
 
   async import() {
     await this.router.navigate(["/import"]);
     if (await BrowserApi.isPopupOpen()) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       BrowserPopupUtils.openCurrentPagePopout(window);
     }
   }
 
   export() {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["/export"]);
   }
 
@@ -504,6 +517,8 @@ export class SettingsComponent implements OnInit {
 
   rate() {
     const deviceType = this.platformUtilsService.getDevice();
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     BrowserApi.createNewTab((RateUrls as any)[deviceType]);
   }
 

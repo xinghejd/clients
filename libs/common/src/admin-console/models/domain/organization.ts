@@ -177,27 +177,62 @@ export class Organization {
   }
 
   get canCreateNewCollections() {
+    if (this.flexibleCollections) {
+      return (
+        !this.limitCollectionCreationDeletion ||
+        this.isAdmin ||
+        this.permissions.createNewCollections
+      );
+    }
+
+    return this.isManager || this.permissions.createNewCollections;
+  }
+
+  canEditAnyCollection(flexibleCollectionsV1Enabled: boolean) {
+    if (!this.flexibleCollections || !flexibleCollectionsV1Enabled) {
+      // Pre-Flexible Collections v1 logic
+      return this.isAdmin || this.permissions.editAnyCollection;
+    }
+
+    // Post Flexible Collections V1, the allowAdminAccessToAllCollectionItems flag can restrict admins
+    // Providers and custom users with canEditAnyCollection are not affected by allowAdminAccessToAllCollectionItems flag
     return (
-      !this.limitCollectionCreationDeletion ||
-      this.isManager ||
-      this.permissions.createNewCollections
+      this.isProviderUser ||
+      (this.type === OrganizationUserType.Custom && this.permissions.editAnyCollection) ||
+      (this.allowAdminAccessToAllCollectionItems && this.isAdmin)
     );
   }
 
-  get canEditAnyCollection() {
+  canEditUnassignedCiphers() {
+    // TODO: Update this to exclude Providers if provider access is restricted in AC-1707
     return this.isAdmin || this.permissions.editAnyCollection;
   }
 
-  get canUseAdminCollections() {
-    return this.canEditAnyCollection;
+  canEditAllCiphers(flexibleCollectionsV1Enabled: boolean) {
+    // Before Flexible Collections, any admin or anyone with editAnyCollection permission could edit all ciphers
+    if (!this.flexibleCollections || !flexibleCollectionsV1Enabled) {
+      return this.isAdmin || this.permissions.editAnyCollection;
+    }
+    // Post Flexible Collections V1, the allowAdminAccessToAllCollectionItems flag can restrict admins
+    // Providers and custom users with canEditAnyCollection are not affected by allowAdminAccessToAllCollectionItems flag
+    return (
+      this.isProviderUser ||
+      (this.type === OrganizationUserType.Custom && this.permissions.editAnyCollection) ||
+      (this.allowAdminAccessToAllCollectionItems && this.isAdmin)
+    );
   }
 
   get canDeleteAnyCollection() {
     return this.isAdmin || this.permissions.deleteAnyCollection;
   }
 
+  /**
+   * Whether the user can view all collection information, such as collection name and access.
+   * This does not indicate that the user can view items inside any collection - for that, see {@link canEditAllCiphers}
+   */
   get canViewAllCollections() {
-    return this.canEditAnyCollection || this.canDeleteAnyCollection;
+    // Admins can always see all collections even if collection management settings prevent them from editing them or seeing items
+    return this.isAdmin || this.permissions.editAnyCollection || this.canDeleteAnyCollection;
   }
 
   /**
@@ -300,6 +335,10 @@ export class Organization {
   get isFreeOrg() {
     // return true if organization needs to be upgraded from a free org
     return !this.useTotp;
+  }
+
+  get canManageSponsorships() {
+    return this.familySponsorshipAvailable || this.familySponsorshipFriendlyName !== null;
   }
 
   static fromJSON(json: Jsonify<Organization>) {

@@ -4,8 +4,8 @@ import { Component, OnInit, OnDestroy, Inject } from "@angular/core";
 import { Subject, firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
@@ -46,11 +46,11 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
 
   constructor(
     @Inject(DIALOG_DATA) private params: LoginApprovalDialogParams,
+    protected authRequestService: AuthRequestServiceAbstraction,
     protected stateService: StateService,
     protected platformUtilsService: PlatformUtilsService,
     protected i18nService: I18nService,
     protected apiService: ApiService,
-    protected authService: AuthService,
     protected appIdService: AppIdService,
     protected cryptoService: CryptoService,
     private dialogRef: DialogRef,
@@ -62,6 +62,8 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
     clearInterval(this.interval);
     const closedWithButton = await firstValueFrom(this.dialogRef.closed);
     if (!closedWithButton) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.retrieveAuthRequestAndRespond(false);
     }
     this.destroy$.next();
@@ -119,10 +121,9 @@ export class LoginApprovalComponent implements OnInit, OnDestroy {
         this.i18nService.t("thisRequestIsNoLongerValid"),
       );
     } else {
-      const loginResponse = await this.authService.passwordlessLogin(
-        this.authRequestResponse.id,
-        this.authRequestResponse.publicKey,
+      const loginResponse = await this.authRequestService.approveOrDenyAuthRequest(
         approve,
+        this.authRequestResponse,
       );
       this.showResultToast(loginResponse);
     }

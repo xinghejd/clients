@@ -1,34 +1,40 @@
+import { firstValueFrom } from "rxjs";
+
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { KeySuffixOptions } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import {
-  MasterKey,
-  SymmetricCryptoKey,
-  UserKey,
-} from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { CryptoService } from "@bitwarden/common/platform/services/crypto.service";
 import { StateProvider } from "@bitwarden/common/platform/state";
 import { CsprngString } from "@bitwarden/common/types/csprng";
 import { UserId } from "@bitwarden/common/types/guid";
-
-import { ElectronStateService } from "./electron-state.service.abstraction";
+import { UserKey, MasterKey } from "@bitwarden/common/types/key";
 
 export class ElectronCryptoService extends CryptoService {
   constructor(
+    masterPasswordService: InternalMasterPasswordServiceAbstraction,
+    keyGenerationService: KeyGenerationService,
     cryptoFunctionService: CryptoFunctionService,
     encryptService: EncryptService,
     platformUtilsService: PlatformUtilsService,
     logService: LogService,
-    protected override stateService: ElectronStateService,
+    stateService: StateService,
     accountService: AccountService,
     stateProvider: StateProvider,
+    private biometricStateService: BiometricStateService,
   ) {
     super(
+      masterPasswordService,
+      keyGenerationService,
       cryptoFunctionService,
       encryptService,
       platformUtilsService,
@@ -50,11 +56,14 @@ export class ElectronCryptoService extends CryptoService {
 
   override async clearStoredUserKey(keySuffix: KeySuffixOptions, userId?: UserId): Promise<void> {
     if (keySuffix === KeySuffixOptions.Biometric) {
-      this.stateService.setUserKeyBiometric(null, { userId: userId });
-      this.clearDeprecatedKeys(KeySuffixOptions.Biometric, userId);
+      await this.stateService.setUserKeyBiometric(null, { userId: userId });
+      await this.biometricStateService.removeEncryptedClientKeyHalf(userId);
+      await this.clearDeprecatedKeys(KeySuffixOptions.Biometric, userId);
       return;
     }
-    super.clearStoredUserKey(keySuffix, userId);
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    await super.clearStoredUserKey(keySuffix, userId);
   }
 
   protected override async storeAdditionalKeys(key: UserKey, userId?: UserId) {
@@ -83,10 +92,8 @@ export class ElectronCryptoService extends CryptoService {
   }
 
   protected async storeBiometricKey(key: UserKey, userId?: UserId): Promise<void> {
-    let clientEncKeyHalf: CsprngString = null;
-    if (await this.stateService.getBiometricRequirePasswordOnStart({ userId })) {
-      clientEncKeyHalf = await this.getBiometricEncryptionClientKeyHalf(userId);
-    }
+    // May resolve to null, in which case no client key have is required
+    const clientEncKeyHalf = await this.getBiometricEncryptionClientKeyHalf(key, userId);
     await this.stateService.setUserKeyBiometric(
       { key: key.keyB64, clientEncKeyHalf },
       { userId: userId },
@@ -95,35 +102,44 @@ export class ElectronCryptoService extends CryptoService {
 
   protected async shouldStoreKey(keySuffix: KeySuffixOptions, userId?: UserId): Promise<boolean> {
     if (keySuffix === KeySuffixOptions.Biometric) {
-      const biometricUnlock = await this.stateService.getBiometricUnlock({ userId: userId });
+      const biometricUnlockPromise =
+        userId == null
+          ? firstValueFrom(this.biometricStateService.biometricUnlockEnabled$)
+          : this.biometricStateService.getBiometricUnlockEnabled(userId);
+      const biometricUnlock = await biometricUnlockPromise;
       return biometricUnlock && this.platformUtilService.supportsSecureStorage();
     }
     return await super.shouldStoreKey(keySuffix, userId);
   }
 
   protected override async clearAllStoredUserKeys(userId?: UserId): Promise<void> {
-    await this.stateService.setUserKeyBiometric(null, { userId: userId });
-    super.clearAllStoredUserKeys(userId);
+    await this.clearStoredUserKey(KeySuffixOptions.Biometric, userId);
+    await super.clearAllStoredUserKeys(userId);
   }
 
-  private async getBiometricEncryptionClientKeyHalf(userId?: UserId): Promise<CsprngString | null> {
-    try {
-      let biometricKey = await this.stateService
-        .getBiometricEncryptionClientKeyHalf({ userId })
-        .then((result) => result?.decrypt(null /* user encrypted */))
-        .then((result) => result as CsprngString);
-      const userKey = await this.getUserKeyWithLegacySupport();
-      if (biometricKey == null && userKey != null) {
-        const keyBytes = await this.cryptoFunctionService.randomBytes(32);
-        biometricKey = Utils.fromBufferToUtf8(keyBytes) as CsprngString;
-        const encKey = await this.encryptService.encrypt(biometricKey, userKey);
-        await this.stateService.setBiometricEncryptionClientKeyHalf(encKey);
-      }
-
-      return biometricKey;
-    } catch {
+  private async getBiometricEncryptionClientKeyHalf(
+    userKey: UserKey,
+    userId: UserId,
+  ): Promise<CsprngString | null> {
+    const requireClientKeyHalf = await this.biometricStateService.getRequirePasswordOnStart(userId);
+    if (!requireClientKeyHalf) {
       return null;
     }
+
+    // Retrieve existing key half if it exists
+    let biometricKey = await this.biometricStateService
+      .getEncryptedClientKeyHalf(userId)
+      .then((result) => result?.decrypt(null /* user encrypted */, userKey))
+      .then((result) => result as CsprngString);
+    if (biometricKey == null && userKey != null) {
+      // Set a key half if it doesn't exist
+      const keyBytes = await this.cryptoFunctionService.randomBytes(32);
+      biometricKey = Utils.fromBufferToUtf8(keyBytes) as CsprngString;
+      const encKey = await this.encryptService.encrypt(biometricKey, userKey);
+      await this.biometricStateService.setEncryptedClientKeyHalf(encKey, userId);
+    }
+
+    return biometricKey;
   }
 
   // --LEGACY METHODS--
@@ -136,6 +152,8 @@ export class ElectronCryptoService extends CryptoService {
       await this.stateService.setCryptoMasterKeyBiometric(null, { userId: userId });
     }
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     super.clearDeprecatedKeys(keySuffix, userId);
   }
 
@@ -144,12 +162,16 @@ export class ElectronCryptoService extends CryptoService {
       const oldBiometricKey = await this.stateService.getCryptoMasterKeyBiometric({ userId });
       // decrypt
       const masterKey = new SymmetricCryptoKey(Utils.fromB64ToArray(oldBiometricKey)) as MasterKey;
-      let encUserKey = await this.stateService.getEncryptedCryptoSymmetricKey();
-      encUserKey = encUserKey ?? (await this.stateService.getMasterKeyEncryptedUserKey());
+      userId ??= (await firstValueFrom(this.accountService.activeAccount$))?.id;
+      const encUserKeyPrim = await this.stateService.getEncryptedCryptoSymmetricKey();
+      const encUserKey =
+        encUserKeyPrim != null
+          ? new EncString(encUserKeyPrim)
+          : await this.masterPasswordService.getMasterKeyEncryptedUserKey(userId);
       if (!encUserKey) {
         throw new Error("No user key found during biometric migration");
       }
-      const userKey = await this.decryptUserKeyWithMasterKey(masterKey, new EncString(encUserKey));
+      const userKey = await this.decryptUserKeyWithMasterKey(masterKey, encUserKey);
       // migrate
       await this.storeBiometricKey(userKey, userId);
       await this.stateService.setCryptoMasterKeyBiometric(null, { userId });

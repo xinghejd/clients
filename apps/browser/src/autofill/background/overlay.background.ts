@@ -1,12 +1,17 @@
-import { SettingsService } from "@bitwarden/common/abstractions/settings.service";
+import { firstValueFrom } from "rxjs";
+
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { SHOW_AUTOFILL_BUTTON } from "@bitwarden/common/autofill/constants";
+import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { ThemeType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { buildCipherIcon } from "@bitwarden/common/vault/icon/build-cipher-icon";
@@ -20,11 +25,10 @@ import {
   openViewVaultItemPopout,
   openAddEditVaultItemPopout,
 } from "../../vault/popup/utils/vault-popout-window";
-import { SHOW_AUTOFILL_BUTTON } from "../constants";
-import LockedVaultPendingNotificationsItem from "../notification/models/locked-vault-pending-notifications-item";
 import { AutofillService, PageDetail } from "../services/abstractions/autofill.service";
 import { AutofillOverlayElement, AutofillOverlayPort } from "../utils/autofill-overlay.enum";
 
+import { LockedVaultPendingNotificationsData } from "./abstractions/notification.background";
 import {
   FocusedFieldData,
   OverlayBackgroundExtensionMessageHandlers,
@@ -42,15 +46,17 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private readonly openUnlockPopout = openUnlockPopout;
   private readonly openViewVaultItemPopout = openViewVaultItemPopout;
   private readonly openAddEditVaultItemPopout = openAddEditVaultItemPopout;
-  private overlayVisibility: number;
   private overlayLoginCiphers: Map<string, CipherView> = new Map();
-  private pageDetailsForTab: Record<number, PageDetail[]> = {};
+  private pageDetailsForTab: Record<
+    chrome.runtime.MessageSender["tab"]["id"],
+    Map<chrome.runtime.MessageSender["frameId"], PageDetail>
+  > = {};
   private userAuthStatus: AuthenticationStatus = AuthenticationStatus.LoggedOut;
   private overlayButtonPort: chrome.runtime.Port;
   private overlayListPort: chrome.runtime.Port;
   private focusedFieldData: FocusedFieldData;
   private overlayPageTranslations: Record<string, string>;
-  private readonly iconsServerUrl: string;
+  private iconsServerUrl: string;
   private readonly extensionMessageHandlers: OverlayBackgroundExtensionMessageHandlers = {
     openAutofillOverlay: () => this.openOverlay(false),
     autofillOverlayElementClosed: ({ message }) => this.overlayElementClosed(message),
@@ -89,13 +95,13 @@ class OverlayBackground implements OverlayBackgroundInterface {
     private autofillService: AutofillService,
     private authService: AuthService,
     private environmentService: EnvironmentService,
-    private settingsService: SettingsService,
+    private domainSettingsService: DomainSettingsService,
     private stateService: StateService,
+    private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
-  ) {
-    this.iconsServerUrl = this.environmentService.getIconsUrl();
-  }
+    private themeStateService: ThemeStateService,
+  ) {}
 
   /**
    * Removes cached page details for a tab
@@ -104,6 +110,11 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * @param tabId - Used to reference the page details of a specific tab
    */
   removePageDetails(tabId: number) {
+    if (!this.pageDetailsForTab[tabId]) {
+      return;
+    }
+
+    this.pageDetailsForTab[tabId].clear();
     delete this.pageDetailsForTab[tabId];
   }
 
@@ -113,6 +124,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
    */
   async init() {
     this.setupExtensionMessageListeners();
+    const env = await firstValueFrom(this.environmentService.environment$);
+    this.iconsServerUrl = env.getIconsUrl();
     await this.getOverlayVisibility();
     await this.getAuthStatus();
   }
@@ -140,7 +153,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
       this.overlayLoginCiphers.set(`overlay-cipher-${cipherIndex}`, ciphersViews[cipherIndex]);
     }
 
-    const ciphers = this.getOverlayCipherData();
+    const ciphers = await this.getOverlayCipherData();
     this.overlayListPort?.postMessage({ command: "updateOverlayListCiphers", ciphers });
     await BrowserApi.tabSendMessageData(currentTab, "updateIsOverlayCiphersPopulated", {
       isOverlayCiphersPopulated: Boolean(ciphers.length),
@@ -151,8 +164,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * Strips out unnecessary data from the ciphers and returns an array of
    * objects that contain the cipher data needed for the overlay list.
    */
-  private getOverlayCipherData(): OverlayCipherData[] {
-    const isFaviconDisabled = this.settingsService.getDisableFavicon();
+  private async getOverlayCipherData(): Promise<OverlayCipherData[]> {
+    const showFavicons = await firstValueFrom(this.domainSettingsService.showFavicons$);
     const overlayCiphersArray = Array.from(this.overlayLoginCiphers);
     const overlayCipherData = [];
     let loginCipherIcon: WebsiteIconData;
@@ -160,7 +173,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
     for (let cipherIndex = 0; cipherIndex < overlayCiphersArray.length; cipherIndex++) {
       const [overlayCipherId, cipher] = overlayCiphersArray[cipherIndex];
       if (!loginCipherIcon && cipher.type === CipherType.Login) {
-        loginCipherIcon = buildCipherIcon(this.iconsServerUrl, cipher, isFaviconDisabled);
+        loginCipherIcon = buildCipherIcon(this.iconsServerUrl, cipher, showFavicons);
       }
 
       overlayCipherData.push({
@@ -172,11 +185,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
         icon:
           cipher.type === CipherType.Login
             ? loginCipherIcon
-            : buildCipherIcon(this.iconsServerUrl, cipher, isFaviconDisabled),
-        login:
-          cipher.type === CipherType.Login
-            ? { username: this.obscureName(cipher.login.username) }
-            : null,
+            : buildCipherIcon(this.iconsServerUrl, cipher, showFavicons),
+        login: cipher.type === CipherType.Login ? { username: cipher.login.username } : null,
         card: cipher.type === CipherType.Card ? cipher.card.subTitle : null,
       });
     }
@@ -201,12 +211,13 @@ class OverlayBackground implements OverlayBackgroundInterface {
       details: message.details,
     };
 
-    if (this.pageDetailsForTab[sender.tab.id]?.length) {
-      this.pageDetailsForTab[sender.tab.id].push(pageDetails);
+    const pageDetailsMap = this.pageDetailsForTab[sender.tab.id];
+    if (!pageDetailsMap) {
+      this.pageDetailsForTab[sender.tab.id] = new Map([[sender.frameId, pageDetails]]);
       return;
     }
 
-    this.pageDetailsForTab[sender.tab.id] = [pageDetails];
+    pageDetailsMap.set(sender.frameId, pageDetails);
   }
 
   /**
@@ -220,7 +231,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
     { overlayCipherId }: OverlayPortMessage,
     { sender }: chrome.runtime.Port,
   ) {
-    if (!overlayCipherId) {
+    const pageDetails = this.pageDetailsForTab[sender.tab.id];
+    if (!overlayCipherId || !pageDetails?.size) {
       return;
     }
 
@@ -232,13 +244,13 @@ class OverlayBackground implements OverlayBackgroundInterface {
     const totpCode = await this.autofillService.doAutoFill({
       tab: sender.tab,
       cipher: cipher,
-      pageDetails: this.pageDetailsForTab[sender.tab.id],
+      pageDetails: Array.from(pageDetails.values()),
       fillNewPassword: true,
       allowTotpAutofill: true,
     });
 
     if (totpCode) {
-      this.platformUtilsService.copyToClipboard(totpCode, { window });
+      this.platformUtilsService.copyToClipboard(totpCode);
     }
 
     this.overlayLoginCiphers = new Map([[overlayCipherId, cipher], ...this.overlayLoginCiphers]);
@@ -279,6 +291,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * @param forceCloseOverlay - Identifies whether the overlay should be force closed
    */
   private closeOverlay({ sender }: chrome.runtime.Port, forceCloseOverlay = false) {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     BrowserApi.tabSendMessageData(sender.tab, "closeAutofillOverlay", { forceCloseOverlay });
   }
 
@@ -419,45 +433,10 @@ class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
-   * Obscures the username by replacing all but the first and last characters with asterisks.
-   * If the username is less than 4 characters, only the first character will be shown.
-   * If the username is 6 or more characters, the first and last characters will be shown.
-   * The domain will not be obscured.
-   *
-   * @param name - The username to obscure
-   */
-  private obscureName(name: string): string {
-    if (!name) {
-      return "";
-    }
-
-    const [username, domain] = name.split("@");
-    const usernameLength = username?.length;
-    if (!usernameLength) {
-      return name;
-    }
-
-    const startingCharacters = username.slice(0, usernameLength > 4 ? 2 : 1);
-    let numberStars = usernameLength;
-    if (usernameLength > 4) {
-      numberStars = usernameLength < 6 ? numberStars - 1 : numberStars - 2;
-    }
-
-    let obscureName = `${startingCharacters}${new Array(numberStars).join("*")}`;
-    if (usernameLength >= 6) {
-      obscureName = `${obscureName}${username.slice(-1)}`;
-    }
-
-    return domain ? `${obscureName}@${domain}` : obscureName;
-  }
-
-  /**
    * Gets the overlay's visibility setting from the settings service.
    */
-  private async getOverlayVisibility(): Promise<number> {
-    this.overlayVisibility = await this.settingsService.getAutoFillOverlayVisibility();
-
-    return this.overlayVisibility;
+  private async getOverlayVisibility(): Promise<InlineMenuVisibilitySetting> {
+    return await firstValueFrom(this.autofillSettingsService.inlineMenuVisibility$);
   }
 
   /**
@@ -481,21 +460,6 @@ class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
-   * Gets the currently set theme for the user.
-   */
-  private async getCurrentTheme() {
-    const theme = await this.stateService.getTheme();
-
-    if (theme !== ThemeType.System) {
-      return theme;
-    }
-
-    return window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? ThemeType.Dark
-      : ThemeType.Light;
-  }
-
-  /**
    * Sends a message to the overlay button to update its authentication status.
    */
   private updateOverlayButtonAuthStatus() {
@@ -514,10 +478,14 @@ class OverlayBackground implements OverlayBackgroundInterface {
    */
   private handleOverlayButtonClicked(port: chrome.runtime.Port) {
     if (this.userAuthStatus !== AuthenticationStatus.Unlocked) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.unlockVault(port);
       return;
     }
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.openOverlay(false, true);
   }
 
@@ -530,8 +498,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
     const { sender } = port;
 
     this.closeOverlay(port);
-    const retryMessage: LockedVaultPendingNotificationsItem = {
-      commandToRetry: { msg: { command: "openAutofillOverlay" }, sender },
+    const retryMessage: LockedVaultPendingNotificationsData = {
+      commandToRetry: { message: { command: "openAutofillOverlay" }, sender },
       target: "overlay.background",
     };
     await BrowserApi.tabSendMessageData(
@@ -579,7 +547,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private async unlockCompleted(message: OverlayBackgroundExtensionMessage) {
     await this.getAuthStatus();
 
-    if (message.data?.commandToRetry?.msg?.command === "openAutofillOverlay") {
+    if (message.data?.commandToRetry?.message?.command === "openAutofillOverlay") {
       await this.openOverlay(true);
     }
   }
@@ -624,6 +592,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     BrowserApi.tabSendMessageData(sender.tab, "redirectOverlayFocusOut", { direction });
   }
 
@@ -634,7 +604,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * @param sender - The sender of the port message
    */
   private getNewVaultItemDetails({ sender }: chrome.runtime.Port) {
-    BrowserApi.tabSendMessage(sender.tab, { command: "addNewVaultItemFromOverlay" });
+    void BrowserApi.tabSendMessage(sender.tab, { command: "addNewVaultItemFromOverlay" });
   }
 
   /**
@@ -666,12 +636,13 @@ class OverlayBackground implements OverlayBackgroundInterface {
     cipherView.type = CipherType.Login;
     cipherView.login = loginView;
 
-    await this.stateService.setAddEditCipherInfo({
+    await this.cipherService.setAddEditCipherInfo({
       cipher: cipherView,
       collectionIds: cipherView.collectionIds,
     });
 
     await this.openAddEditVaultItemPopout(sender.tab, { cipherId: cipherView.id });
+    await BrowserApi.sendMessage("inlineAutofillMenuRefreshAddEditCipher");
   }
 
   /**
@@ -704,6 +675,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     Promise.resolve(messageResponse).then((response) => sendResponse(response));
     return true;
   };
@@ -732,9 +705,9 @@ class OverlayBackground implements OverlayBackgroundInterface {
       command: `initAutofillOverlay${isOverlayListPort ? "List" : "Button"}`,
       authStatus: await this.getAuthStatus(),
       styleSheetUrl: chrome.runtime.getURL(`overlay/${isOverlayListPort ? "list" : "button"}.css`),
-      theme: `theme_${await this.getCurrentTheme()}`,
+      theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       translations: this.getTranslations(),
-      ciphers: isOverlayListPort ? this.getOverlayCipherData() : null,
+      ciphers: isOverlayListPort ? await this.getOverlayCipherData() : null,
     });
     this.updateOverlayPosition({
       overlayElement: isOverlayListPort

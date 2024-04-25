@@ -1,5 +1,5 @@
 import { mock } from "jest-mock-extended";
-import { Observable } from "rxjs";
+import { Observable, map, of, switchMap, take } from "rxjs";
 
 import {
   GlobalState,
@@ -13,7 +13,10 @@ import {
   DerivedState,
   DeriveDefinition,
   DerivedStateProvider,
+  UserKeyDefinition,
 } from "../src/platform/state";
+// eslint-disable-next-line import/no-restricted-paths -- Needed to type check similarly to the real state providers
+import { isUserKeyDefinition } from "../src/platform/state/user-key-definition";
 import { UserId } from "../src/types/guid";
 import { DerivedStateDependencies } from "../src/types/state";
 
@@ -31,7 +34,8 @@ export class FakeGlobalStateProvider implements GlobalStateProvider {
   states: Map<string, GlobalState<unknown>> = new Map();
   get<T>(keyDefinition: KeyDefinition<T>): GlobalState<T> {
     this.mock.get(keyDefinition);
-    let result = this.states.get(keyDefinition.buildCacheKey("global"));
+    const cacheKey = `${keyDefinition.fullName}_${keyDefinition.stateDefinition.defaultStorageLocation}`;
+    let result = this.states.get(cacheKey);
 
     if (result == null) {
       let fake: FakeGlobalState<T>;
@@ -43,10 +47,10 @@ export class FakeGlobalStateProvider implements GlobalStateProvider {
       }
       fake.keyDefinition = keyDefinition;
       result = fake;
-      this.states.set(keyDefinition.buildCacheKey("global"), result);
+      this.states.set(cacheKey, result);
 
       result = new FakeGlobalState<T>();
-      this.states.set(keyDefinition.buildCacheKey("global"), result);
+      this.states.set(cacheKey, result);
     }
     return result as GlobalState<T>;
   }
@@ -67,9 +71,16 @@ export class FakeSingleUserStateProvider implements SingleUserStateProvider {
   mock = mock<SingleUserStateProvider>();
   establishedMocks: Map<string, FakeSingleUserState<unknown>> = new Map();
   states: Map<string, SingleUserState<unknown>> = new Map();
-  get<T>(userId: UserId, keyDefinition: KeyDefinition<T>): SingleUserState<T> {
+  get<T>(
+    userId: UserId,
+    keyDefinition: KeyDefinition<T> | UserKeyDefinition<T>,
+  ): SingleUserState<T> {
     this.mock.get(userId, keyDefinition);
-    let result = this.states.get(keyDefinition.buildCacheKey("user", userId));
+    if (keyDefinition instanceof KeyDefinition) {
+      keyDefinition = UserKeyDefinition.fromBaseKeyDefinition(keyDefinition);
+    }
+    const cacheKey = `${keyDefinition.fullName}_${keyDefinition.stateDefinition.defaultStorageLocation}_${userId}`;
+    let result = this.states.get(cacheKey);
 
     if (result == null) {
       let fake: FakeSingleUserState<T>;
@@ -81,12 +92,15 @@ export class FakeSingleUserStateProvider implements SingleUserStateProvider {
       }
       fake.keyDefinition = keyDefinition;
       result = fake;
-      this.states.set(keyDefinition.buildCacheKey("user", userId), result);
+      this.states.set(cacheKey, result);
     }
     return result as SingleUserState<T>;
   }
 
-  getFake<T>(userId: UserId, keyDefinition: KeyDefinition<T>): FakeSingleUserState<T> {
+  getFake<T>(
+    userId: UserId,
+    keyDefinition: KeyDefinition<T> | UserKeyDefinition<T>,
+  ): FakeSingleUserState<T> {
     return this.get(userId, keyDefinition) as FakeSingleUserState<T>;
   }
 
@@ -99,14 +113,21 @@ export class FakeSingleUserStateProvider implements SingleUserStateProvider {
 }
 
 export class FakeActiveUserStateProvider implements ActiveUserStateProvider {
+  activeUserId$: Observable<UserId>;
   establishedMocks: Map<string, FakeActiveUserState<unknown>> = new Map();
 
   states: Map<string, FakeActiveUserState<unknown>> = new Map();
 
-  constructor(public accountService: FakeAccountService) {}
+  constructor(public accountService: FakeAccountService) {
+    this.activeUserId$ = accountService.activeAccountSubject.asObservable().pipe(map((a) => a?.id));
+  }
 
-  get<T>(keyDefinition: KeyDefinition<T>): ActiveUserState<T> {
-    let result = this.states.get(keyDefinition.buildCacheKey("user", "active"));
+  get<T>(keyDefinition: KeyDefinition<T> | UserKeyDefinition<T>): ActiveUserState<T> {
+    if (keyDefinition instanceof KeyDefinition) {
+      keyDefinition = UserKeyDefinition.fromBaseKeyDefinition(keyDefinition);
+    }
+    const cacheKey = `${keyDefinition.fullName}_${keyDefinition.stateDefinition.defaultStorageLocation}`;
+    let result = this.states.get(cacheKey);
 
     if (result == null) {
       // Look for established mock
@@ -116,12 +137,12 @@ export class FakeActiveUserStateProvider implements ActiveUserStateProvider {
         result = new FakeActiveUserState<T>(this.accountService);
       }
       result.keyDefinition = keyDefinition;
-      this.states.set(keyDefinition.buildCacheKey("user", "active"), result);
+      this.states.set(cacheKey, result);
     }
     return result as ActiveUserState<T>;
   }
 
-  getFake<T>(keyDefinition: KeyDefinition<T>): FakeActiveUserState<T> {
+  getFake<T>(keyDefinition: KeyDefinition<T> | UserKeyDefinition<T>): FakeActiveUserState<T> {
     return this.get(keyDefinition) as FakeActiveUserState<T>;
   }
 
@@ -137,7 +158,59 @@ export class FakeActiveUserStateProvider implements ActiveUserStateProvider {
 }
 
 export class FakeStateProvider implements StateProvider {
-  getActive<T>(keyDefinition: KeyDefinition<T>): ActiveUserState<T> {
+  mock = mock<StateProvider>();
+  getUserState$<T>(
+    keyDefinition: KeyDefinition<T> | UserKeyDefinition<T>,
+    userId?: UserId,
+  ): Observable<T> {
+    if (isUserKeyDefinition(keyDefinition)) {
+      this.mock.getUserState$(keyDefinition, userId);
+    } else {
+      this.mock.getUserState$(keyDefinition, userId);
+    }
+    if (userId) {
+      return this.getUser<T>(userId, keyDefinition).state$;
+    }
+
+    return this.getActive(keyDefinition).state$;
+  }
+
+  getUserStateOrDefault$<T>(
+    keyDefinition: KeyDefinition<T> | UserKeyDefinition<T>,
+    config: { userId: UserId | undefined; defaultValue?: T },
+  ): Observable<T> {
+    const { userId, defaultValue = null } = config;
+    if (isUserKeyDefinition(keyDefinition)) {
+      this.mock.getUserStateOrDefault$(keyDefinition, config);
+    } else {
+      this.mock.getUserStateOrDefault$(keyDefinition, config);
+    }
+    if (userId) {
+      return this.getUser<T>(userId, keyDefinition).state$;
+    }
+
+    return this.activeUserId$.pipe(
+      take(1),
+      switchMap((userId) =>
+        userId != null ? this.getUser(userId, keyDefinition).state$ : of(defaultValue),
+      ),
+    );
+  }
+
+  async setUserState<T>(
+    keyDefinition: KeyDefinition<T> | UserKeyDefinition<T>,
+    value: T,
+    userId?: UserId,
+  ): Promise<[UserId, T]> {
+    await this.mock.setUserState(keyDefinition, value, userId);
+    if (userId) {
+      return [userId, await this.getUser(userId, keyDefinition).update(() => value)];
+    } else {
+      return await this.getActive(keyDefinition).update(() => value);
+    }
+  }
+
+  getActive<T>(keyDefinition: KeyDefinition<T> | UserKeyDefinition<T>): ActiveUserState<T> {
     return this.activeUser.get(keyDefinition);
   }
 
@@ -145,7 +218,10 @@ export class FakeStateProvider implements StateProvider {
     return this.global.get(keyDefinition);
   }
 
-  getUser<T>(userId: UserId, keyDefinition: KeyDefinition<T>): SingleUserState<T> {
+  getUser<T>(
+    userId: UserId,
+    keyDefinition: KeyDefinition<T> | UserKeyDefinition<T>,
+  ): SingleUserState<T> {
     return this.singleUser.get(userId, keyDefinition);
   }
 
@@ -163,6 +239,7 @@ export class FakeStateProvider implements StateProvider {
   singleUser: FakeSingleUserStateProvider = new FakeSingleUserStateProvider();
   activeUser: FakeActiveUserStateProvider = new FakeActiveUserStateProvider(this.accountService);
   derived: FakeDerivedStateProvider = new FakeDerivedStateProvider();
+  activeUserId$: Observable<UserId> = this.activeUser.activeUserId$;
 }
 
 export class FakeDerivedStateProvider implements DerivedStateProvider {
@@ -172,11 +249,11 @@ export class FakeDerivedStateProvider implements DerivedStateProvider {
     deriveDefinition: DeriveDefinition<TFrom, TTo, TDeps>,
     dependencies: TDeps,
   ): DerivedState<TTo> {
-    let result = this.states.get(deriveDefinition.buildCacheKey()) as DerivedState<TTo>;
+    let result = this.states.get(deriveDefinition.buildCacheKey("memory")) as DerivedState<TTo>;
 
     if (result == null) {
-      result = new FakeDerivedState<TTo>();
-      this.states.set(deriveDefinition.buildCacheKey(), result);
+      result = new FakeDerivedState(parentState$, deriveDefinition, dependencies);
+      this.states.set(deriveDefinition.buildCacheKey("memory"), result);
     }
     return result;
   }
