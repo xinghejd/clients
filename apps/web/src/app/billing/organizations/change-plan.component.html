@@ -8,9 +8,8 @@
     <app-organization-plans
       [showFree]="false"
       [showCancel]="true"
-      [plan]="defaultUpgradePlan"
-      [product]="defaultUpgradeProduct"
       [organizationId]="organizationId"
+      [currentPlan]="currentPlan"
       (onCanceled)="cancel()"
     >
     </app-organization-plans>

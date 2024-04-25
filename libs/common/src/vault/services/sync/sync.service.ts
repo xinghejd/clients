@@ -1,14 +1,23 @@
+import { firstValueFrom } from "rxjs";
+
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+
 import { ApiService } from "../../../abstractions/api.service";
-import { SettingsService } from "../../../abstractions/settings.service";
 import { InternalOrganizationServiceAbstraction } from "../../../admin-console/abstractions/organization/organization.service.abstraction";
 import { InternalPolicyService } from "../../../admin-console/abstractions/policy/policy.service.abstraction";
 import { ProviderService } from "../../../admin-console/abstractions/provider.service";
+import { OrganizationUserType } from "../../../admin-console/enums";
 import { OrganizationData } from "../../../admin-console/models/data/organization.data";
 import { PolicyData } from "../../../admin-console/models/data/policy.data";
 import { ProviderData } from "../../../admin-console/models/data/provider.data";
 import { PolicyResponse } from "../../../admin-console/models/response/policy.response";
+import { AccountService } from "../../../auth/abstractions/account.service";
+import { AvatarService } from "../../../auth/abstractions/avatar.service";
 import { KeyConnectorService } from "../../../auth/abstractions/key-connector.service";
-import { ForceResetPasswordReason } from "../../../auth/models/domain/force-reset-password-reason";
+import { InternalMasterPasswordServiceAbstraction } from "../../../auth/abstractions/master-password.service.abstraction";
+import { ForceSetPasswordReason } from "../../../auth/models/domain/force-set-password-reason";
+import { DomainSettingsService } from "../../../autofill/services/domain-settings.service";
+import { BillingAccountProfileStateService } from "../../../billing/abstractions/account/billing-account-profile-state.service";
 import { DomainsResponse } from "../../../models/response/domains.response";
 import {
   SyncCipherNotification,
@@ -25,6 +34,7 @@ import { SendData } from "../../../tools/send/models/data/send.data";
 import { SendResponse } from "../../../tools/send/models/response/send.response";
 import { SendApiService } from "../../../tools/send/services/send-api.service.abstraction";
 import { InternalSendService } from "../../../tools/send/services/send.service.abstraction";
+import { UserId } from "../../../types/guid";
 import { CipherService } from "../../../vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "../../../vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService } from "../../../vault/abstractions/folder/folder.service.abstraction";
@@ -41,8 +51,10 @@ export class SyncService implements SyncServiceAbstraction {
   syncInProgress = false;
 
   constructor(
+    private masterPasswordService: InternalMasterPasswordServiceAbstraction,
+    private accountService: AccountService,
     private apiService: ApiService,
-    private settingsService: SettingsService,
+    private domainSettingsService: DomainSettingsService,
     private folderService: InternalFolderService,
     private cipherService: CipherService,
     private cryptoService: CryptoService,
@@ -57,7 +69,10 @@ export class SyncService implements SyncServiceAbstraction {
     private folderApiService: FolderApiServiceAbstraction,
     private organizationService: InternalOrganizationServiceAbstraction,
     private sendApiService: SendApiService,
-    private logoutCallback: (expired: boolean) => Promise<void>
+    private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
+    private avatarService: AvatarService,
+    private logoutCallback: (expired: boolean) => Promise<void>,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {}
 
   async getLastSync(): Promise<Date> {
@@ -233,7 +248,7 @@ export class SyncService implements SyncServiceAbstraction {
     this.syncStarted();
     if (await this.stateService.getIsAuthenticated()) {
       try {
-        const localSend = this.sendService.get(notification.id);
+        const localSend = await firstValueFrom(this.sendService.get$(notification.id));
         if (
           (!isEdit && localSend == null) ||
           (isEdit && localSend != null && localSend.revisionDate < notification.revisionDate)
@@ -303,25 +318,21 @@ export class SyncService implements SyncServiceAbstraction {
       throw new Error("Stamp has changed");
     }
 
-    await this.cryptoService.setEncKey(response.key);
-    await this.cryptoService.setEncPrivateKey(response.privateKey);
+    await this.cryptoService.setMasterKeyEncryptedUserKey(response.key);
+    await this.cryptoService.setPrivateKey(response.privateKey);
     await this.cryptoService.setProviderKeys(response.providers);
     await this.cryptoService.setOrgKeys(response.organizations, response.providerOrganizations);
-    await this.stateService.setAvatarColor(response.avatarColor);
+    await this.avatarService.setSyncAvatarColor(response.id as UserId, response.avatarColor);
     await this.stateService.setSecurityStamp(response.securityStamp);
     await this.stateService.setEmailVerified(response.emailVerified);
-    await this.stateService.setHasPremiumPersonally(response.premiumPersonally);
-    await this.stateService.setHasPremiumFromOrganization(response.premiumFromOrganization);
+
+    await this.billingAccountProfileStateService.setHasPremium(
+      response.premiumPersonally,
+      response.premiumFromOrganization,
+    );
     await this.keyConnectorService.setUsesKeyConnector(response.usesKeyConnector);
 
-    // The `forcePasswordReset` flag indicates an admin has reset the user's password and must be updated
-    if (response.forcePasswordReset) {
-      await this.stateService.setForcePasswordResetReason(
-        ForceResetPasswordReason.AdminForcePasswordReset
-      );
-    }
-
-    await this.syncProfileOrganizations(response);
+    await this.setForceSetPasswordReasonIfNeeded(response);
 
     const providers: { [id: string]: ProviderData } = {};
     response.providers.forEach((p) => {
@@ -330,11 +341,63 @@ export class SyncService implements SyncServiceAbstraction {
 
     await this.providerService.save(providers);
 
+    await this.syncProfileOrganizations(response);
+
     if (await this.keyConnectorService.userNeedsMigration()) {
       await this.keyConnectorService.setConvertAccountRequired(true);
       this.messagingService.send("convertAccountToKeyConnector");
     } else {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.keyConnectorService.removeConvertAccountRequired();
+    }
+  }
+
+  private async setForceSetPasswordReasonIfNeeded(profileResponse: ProfileResponse) {
+    // The `forcePasswordReset` flag indicates an admin has reset the user's password and must be updated
+    if (profileResponse.forcePasswordReset) {
+      const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+      await this.masterPasswordService.setForceSetPasswordReason(
+        ForceSetPasswordReason.AdminForcePasswordReset,
+        userId,
+      );
+    }
+
+    const userDecryptionOptions = await firstValueFrom(
+      this.userDecryptionOptionsService.userDecryptionOptions$,
+    );
+
+    if (userDecryptionOptions === null || userDecryptionOptions === undefined) {
+      this.logService.error("Sync: Account decryption options are null or undefined.");
+    }
+
+    // Even though TDE users should only be in a single org (per single org policy), check
+    // through all orgs for the manageResetPassword permission. If they have it in any org,
+    // they should be forced to set a password.
+    let hasManageResetPasswordPermission = false;
+    for (const org of profileResponse.organizations) {
+      const isAdmin = org.type === OrganizationUserType.Admin;
+      const isOwner = org.type === OrganizationUserType.Owner;
+
+      // Note: apparently permissions only come down populated for custom roles.
+      if (isAdmin || isOwner || (org.permissions && org.permissions.manageResetPassword)) {
+        hasManageResetPasswordPermission = true;
+        break;
+      }
+    }
+
+    if (
+      userDecryptionOptions.trustedDeviceOption !== undefined &&
+      !userDecryptionOptions.hasMasterPassword &&
+      hasManageResetPasswordPermission
+    ) {
+      // TDE user w/out MP went from having no password reset permission to having it.
+      // Must set the force password reset reason so the auth guard will redirect to the set password page.
+      const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+      await this.masterPasswordService.setForceSetPasswordReason(
+        ForceSetPasswordReason.TdeUserWithoutPasswordHasPasswordResetPermission,
+        userId,
+      );
     }
   }
 
@@ -407,7 +470,7 @@ export class SyncService implements SyncServiceAbstraction {
       });
     }
 
-    return this.settingsService.setEquivalentDomains(eqDomains);
+    return this.domainSettingsService.setEquivalentDomains(eqDomains);
   }
 
   private async syncPolicies(response: PolicyResponse[]) {

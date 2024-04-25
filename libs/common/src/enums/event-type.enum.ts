@@ -10,6 +10,7 @@ export enum EventType {
   User_ClientExportedVault = 1007,
   User_UpdatedTempPassword = 1008,
   User_MigratedKeyToKeyConnector = 1009,
+  User_RequestedDeviceApproval = 1010,
 
   Cipher_Created = 1100,
   Cipher_Updated = 1101,
@@ -29,6 +30,7 @@ export enum EventType {
   Cipher_SoftDeleted = 1115,
   Cipher_Restored = 1116,
   Cipher_ClientToggledCardNumberVisible = 1117,
+  Cipher_ClientToggledTOTPSeedVisible = 1118,
 
   Collection_Created = 1300,
   Collection_Updated = 1301,
@@ -51,6 +53,8 @@ export enum EventType {
   OrganizationUser_FirstSsoLogin = 1510,
   OrganizationUser_Revoked = 1511,
   OrganizationUser_Restored = 1512,
+  OrganizationUser_ApprovedAuthRequest = 1513,
+  OrganizationUser_RejectedAuthRequest = 1514,
 
   Organization_Updated = 1600,
   Organization_PurgedVault = 1601,
@@ -61,6 +65,7 @@ export enum EventType {
   Organization_EnabledKeyConnector = 1606,
   Organization_DisabledKeyConnector = 1607,
   Organization_SponsorshipsSynced = 1608,
+  Organization_CollectionManagementUpdated = 1609,
 
   Policy_Updated = 1700,
 

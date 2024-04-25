@@ -1,14 +1,15 @@
 import { CurrencyPipe, Location } from "@angular/common";
 import { Component } from "@angular/core";
 
-import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
 import { PremiumComponent as BasePremiumComponent } from "@bitwarden/angular/vault/components/premium.component";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { DialogService } from "@bitwarden/components";
 
 @Component({
   selector: "app-premium",
@@ -25,8 +26,9 @@ export class PremiumComponent extends BasePremiumComponent {
     logService: LogService,
     private location: Location,
     private currencyPipe: CurrencyPipe,
-    dialogService: DialogServiceAbstraction,
-    environmentService: EnvironmentService
+    dialogService: DialogService,
+    environmentService: EnvironmentService,
+    billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
     super(
       i18nService,
@@ -35,7 +37,8 @@ export class PremiumComponent extends BasePremiumComponent {
       logService,
       stateService,
       dialogService,
-      environmentService
+      environmentService,
+      billingAccountProfileStateService,
     );
 
     // Support old price string. Can be removed in future once all translations are properly updated.

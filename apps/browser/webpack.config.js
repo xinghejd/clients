@@ -1,6 +1,5 @@
 const path = require("path");
 const webpack = require("webpack");
-const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
@@ -14,10 +13,9 @@ if (process.env.NODE_ENV == null) {
 }
 const ENV = (process.env.ENV = process.env.NODE_ENV);
 const manifestVersion = process.env.MANIFEST_VERSION == 3 ? 3 : 2;
-const autofillVersion = process.env.AUTOFILL_VERSION == 2 ? 2 : 1;
 
 console.log(`Building Manifest Version ${manifestVersion} app`);
-console.log(`Using Autofill v${autofillVersion}`);
+
 const envConfig = configurator.load(ENV);
 configurator.log(envConfig);
 
@@ -108,6 +106,16 @@ const plugins = [
     filename: "notification/bar.html",
     chunks: ["notification/bar"],
   }),
+  new HtmlWebpackPlugin({
+    template: "./src/autofill/overlay/pages/button/button.html",
+    filename: "overlay/button.html",
+    chunks: ["overlay/button"],
+  }),
+  new HtmlWebpackPlugin({
+    template: "./src/autofill/overlay/pages/list/list.html",
+    filename: "overlay/list.html",
+    chunks: ["overlay/list"],
+  }),
   new CopyWebpackPlugin({
     patterns: [
       manifestVersion == 3
@@ -129,14 +137,11 @@ const plugins = [
     entryModule: "src/popup/app.module#AppModule",
     sourceMap: true,
   }),
-  new CleanWebpackPlugin({
-    cleanAfterEveryBuildPatterns: ["!popup/fonts/**/*"],
-  }),
   new webpack.ProvidePlugin({
     process: "process/browser.js",
   }),
   new webpack.SourceMapDevToolPlugin({
-    exclude: [/content\/.*/, /notification\/.*/],
+    exclude: [/content\/.*/, /notification\/.*/, /overlay\/.*/],
     filename: "[file].map",
   }),
   ...requiredPlugins,
@@ -153,18 +158,31 @@ const mainConfig = {
   entry: {
     "popup/polyfills": "./src/popup/polyfills.ts",
     "popup/main": "./src/popup/main.ts",
+    "content/trigger-autofill-script-injection":
+      "./src/autofill/content/trigger-autofill-script-injection.ts",
+    "content/bootstrap-autofill": "./src/autofill/content/bootstrap-autofill.ts",
+    "content/bootstrap-autofill-overlay": "./src/autofill/content/bootstrap-autofill-overlay.ts",
     "content/autofiller": "./src/autofill/content/autofiller.ts",
     "content/notificationBar": "./src/autofill/content/notification-bar.ts",
     "content/contextMenuHandler": "./src/autofill/content/context-menu-handler.ts",
-    "content/message_handler": "./src/autofill/content/message_handler.ts",
+    "content/content-message-handler": "./src/autofill/content/content-message-handler.ts",
+    "content/fido2/trigger-fido2-content-script-injection":
+      "./src/vault/fido2/content/trigger-fido2-content-script-injection.ts",
+    "content/fido2/content-script": "./src/vault/fido2/content/content-script.ts",
+    "content/fido2/page-script": "./src/vault/fido2/content/page-script.ts",
     "notification/bar": "./src/autofill/notification/bar.ts",
+    "overlay/button": "./src/autofill/overlay/pages/button/bootstrap-autofill-overlay-button.ts",
+    "overlay/list": "./src/autofill/overlay/pages/list/bootstrap-autofill-overlay-list.ts",
     "encrypt-worker": "../../libs/common/src/platform/services/cryptography/encrypt.worker.ts",
+    "content/lp-fileless-importer": "./src/tools/content/lp-fileless-importer.ts",
+    "content/send-on-installed-message": "./src/vault/content/send-on-installed-message.ts",
+    "content/lp-suppress-import-download": "./src/tools/content/lp-suppress-import-download.ts",
   },
   optimization: {
     minimize: ENV !== "development",
     minimizer: [
       new TerserPlugin({
-        exclude: [/content\/.*/, /notification\/.*/],
+        exclude: [/content\/.*/, /notification\/.*/, /overlay\/.*/],
         terserOptions: {
           // Replicate Angular CLI behaviour
           compress: {
@@ -210,10 +228,6 @@ const mainConfig = {
     extensions: [".ts", ".js"],
     symlinks: false,
     modules: [path.resolve("../../node_modules")],
-    alias: {
-      sweetalert2: require.resolve("sweetalert2/dist/sweetalert2.js"),
-      "#sweetalert2": require.resolve("sweetalert2/src/sweetalert2.scss"),
-    },
     fallback: {
       assert: false,
       buffer: require.resolve("buffer/"),
@@ -226,6 +240,7 @@ const mainConfig = {
   output: {
     filename: "[name].js",
     path: path.resolve(__dirname, "build"),
+    clean: true,
   },
   module: {
     noParse: /\.wasm$/,
@@ -254,18 +269,30 @@ if (manifestVersion == 2) {
       template: "./src/platform/background.html",
       filename: "background.html",
       chunks: ["vendor", "background"],
-    })
+    }),
   );
 
   // Manifest V2 background pages can be run through the regular build pipeline.
   // Since it's a standard webpage.
   mainConfig.entry.background = "./src/platform/background.ts";
+  mainConfig.entry["content/lp-suppress-import-download-script-append-mv2"] =
+    "./src/tools/content/lp-suppress-import-download-script-append.mv2.ts";
 
   configs.push(mainConfig);
 } else {
   // Manifest v3 needs an extra helper for utilities in the content script.
   // The javascript output of this should be added to manifest.v3.json
   mainConfig.entry["content/misc-utils"] = "./src/autofill/content/misc-utils.ts";
+  mainConfig.entry["offscreen-document/offscreen-document"] =
+    "./src/platform/offscreen-document/offscreen-document.ts";
+
+  mainConfig.plugins.push(
+    new HtmlWebpackPlugin({
+      template: "./src/platform/offscreen-document/index.html",
+      filename: "offscreen-document/index.html",
+      chunks: ["offscreen-document/offscreen-document"],
+    }),
+  );
 
   /**
    * @type {import("webpack").Configuration}
@@ -301,7 +328,7 @@ if (manifestVersion == 2) {
       plugins: [new TsconfigPathsPlugin()],
       fallback: {
         fs: false,
-        path: false,
+        path: require.resolve("path-browserify"),
       },
     },
     dependencies: ["main"],
@@ -310,14 +337,6 @@ if (manifestVersion == 2) {
 
   configs.push(mainConfig);
   configs.push(backgroundConfig);
-}
-
-if (autofillVersion == 2) {
-  // Typescript refactors (WIP)
-  mainConfig.entry["content/autofill"] = "./src/autofill/content/autofillv2.ts";
-} else {
-  // Javascript (used in production)
-  mainConfig.entry["content/autofill"] = "./src/autofill/content/autofill.js";
 }
 
 module.exports = configs;

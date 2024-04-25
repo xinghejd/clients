@@ -1,9 +1,11 @@
+import { DIALOG_DATA, DialogRef } from "@angular/cdk/dialog";
 import { DatePipe } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, Inject } from "@angular/core";
+import { FormBuilder } from "@angular/forms";
 
-import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
 import { AddEditComponent as BaseAddEditComponent } from "@bitwarden/angular/tools/send/add-edit.component";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -12,6 +14,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SendApiService } from "@bitwarden/common/tools/send/services/send-api.service.abstraction";
 import { SendService } from "@bitwarden/common/tools/send/services/send.service.abstraction";
+import { DialogService } from "@bitwarden/components";
 
 @Component({
   selector: "app-send-add-edit",
@@ -19,6 +22,7 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service.
 })
 export class AddEditComponent extends BaseAddEditComponent {
   override componentName = "app-send-add-edit";
+  protected selectedFile: File;
 
   constructor(
     i18nService: I18nService,
@@ -31,7 +35,11 @@ export class AddEditComponent extends BaseAddEditComponent {
     policyService: PolicyService,
     logService: LogService,
     sendApiService: SendApiService,
-    dialogService: DialogServiceAbstraction
+    dialogService: DialogService,
+    formBuilder: FormBuilder,
+    billingAccountProfileStateService: BillingAccountProfileStateService,
+    protected dialogRef: DialogRef,
+    @Inject(DIALOG_DATA) params: { sendId: string },
   ) {
     super(
       i18nService,
@@ -44,8 +52,12 @@ export class AddEditComponent extends BaseAddEditComponent {
       logService,
       stateService,
       sendApiService,
-      dialogService
+      dialogService,
+      formBuilder,
+      billingAccountProfileStateService,
     );
+
+    this.sendId = params.sendId;
   }
 
   async copyLinkToClipboard(link: string): Promise<void | boolean> {
@@ -55,4 +67,29 @@ export class AddEditComponent extends BaseAddEditComponent {
       window.setTimeout(() => resolve(super.copyLinkToClipboard(link)), 500);
     });
   }
+
+  protected setSelectedFile(event: Event) {
+    const fileInputEl = <HTMLInputElement>event.target;
+    const file = fileInputEl.files.length > 0 ? fileInputEl.files[0] : null;
+    this.selectedFile = file;
+  }
+
+  submitAndClose = async () => {
+    this.formGroup.markAllAsTouched();
+    if (this.formGroup.invalid) {
+      return;
+    }
+
+    const success = await this.submit();
+    if (success) {
+      this.dialogRef.close();
+    }
+  };
+
+  deleteAndClose = async () => {
+    const success = await this.delete();
+    if (success) {
+      this.dialogRef.close();
+    }
+  };
 }

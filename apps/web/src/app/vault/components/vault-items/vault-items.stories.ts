@@ -1,17 +1,18 @@
 import { importProvidersFrom } from "@angular/core";
 import { RouterModule } from "@angular/router";
 import { applicationConfig, Meta, moduleMetadata, Story } from "@storybook/angular";
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, of } from "rxjs";
 
-import { AvatarUpdateService } from "@bitwarden/common/abstractions/account/avatar-update.service";
-import { SettingsService } from "@bitwarden/common/abstractions/settings.service";
 import { OrganizationUserType } from "@bitwarden/common/admin-console/enums";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { AvatarService } from "@bitwarden/common/auth/abstractions/avatar.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
-import { CipherType } from "@bitwarden/common/vault/enums/cipher-type";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { AttachmentView } from "@bitwarden/common/vault/models/view/attachment.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
@@ -56,27 +57,25 @@ export default {
           useValue: {
             activeAccount$: new BehaviorSubject("1").asObservable(),
             accounts$: new BehaviorSubject({ "1": { profile: { name: "Foo" } } }).asObservable(),
-            async getDisableFavicon() {
-              return false;
+            async getShowFavicon() {
+              return true;
             },
           } as Partial<StateService>,
         },
         {
-          provide: SettingsService,
+          provide: DomainSettingsService,
           useValue: {
-            disableFavicon$: new BehaviorSubject(false).asObservable(),
-            getDisableFavicon() {
-              return false;
+            showFavicons$: new BehaviorSubject(true).asObservable(),
+            getShowFavicon() {
+              return true;
             },
-          } as Partial<SettingsService>,
+          } as Partial<DomainSettingsService>,
         },
         {
-          provide: AvatarUpdateService,
+          provide: AvatarService,
           useValue: {
-            async loadColorFromState() {
-              return "#FF0000";
-            },
-          } as Partial<AvatarUpdateService>,
+            avatarColor$: of("#FF0000"),
+          } as Partial<AvatarService>,
         },
         {
           provide: TokenService,
@@ -91,6 +90,15 @@ export default {
               return "email";
             },
           } as Partial<TokenService>,
+        },
+        {
+          provide: ConfigService,
+          useValue: {
+            getFeatureFlag() {
+              // does not currently affect any display logic, default all to OFF
+              return false;
+            },
+          },
         },
       ],
     }),
@@ -125,7 +133,6 @@ Individual.args = {
   showBulkMove: true,
   showBulkTrashOptions: false,
   useEvents: false,
-  editableCollections: false,
   cloneableOrganizationCiphers: false,
 };
 
@@ -141,7 +148,6 @@ IndividualDisabled.args = {
   showBulkMove: true,
   showBulkTrashOptions: false,
   useEvents: false,
-  editableCollections: false,
   cloneableOrganizationCiphers: false,
 };
 
@@ -156,7 +162,6 @@ IndividualTrash.args = {
   showBulkMove: false,
   showBulkTrashOptions: true,
   useEvents: false,
-  editableCollections: false,
   cloneableOrganizationCiphers: false,
 };
 
@@ -171,7 +176,6 @@ IndividualTopLevelCollection.args = {
   showBulkMove: false,
   showBulkTrashOptions: false,
   useEvents: false,
-  editableCollections: false,
   cloneableOrganizationCiphers: false,
 };
 
@@ -186,7 +190,6 @@ IndividualSecondLevelCollection.args = {
   showBulkMove: true,
   showBulkTrashOptions: false,
   useEvents: false,
-  editableCollections: false,
   cloneableOrganizationCiphers: false,
 };
 
@@ -201,7 +204,6 @@ OrganizationVault.args = {
   showBulkMove: false,
   showBulkTrashOptions: false,
   useEvents: true,
-  editableCollections: true,
   cloneableOrganizationCiphers: true,
 };
 
@@ -216,7 +218,6 @@ OrganizationTrash.args = {
   showBulkMove: false,
   showBulkTrashOptions: true,
   useEvents: true,
-  editableCollections: true,
   cloneableOrganizationCiphers: true,
 };
 
@@ -234,7 +235,6 @@ OrganizationTopLevelCollection.args = {
   showBulkMove: false,
   showBulkTrashOptions: false,
   useEvents: true,
-  editableCollections: true,
   cloneableOrganizationCiphers: true,
 };
 
@@ -249,7 +249,6 @@ OrganizationSecondLevelCollection.args = {
   showBulkMove: false,
   showBulkTrashOptions: false,
   useEvents: true,
-  editableCollections: true,
   cloneableOrganizationCiphers: true,
 };
 
@@ -298,6 +297,7 @@ function createCollectionView(i: number): CollectionAdminView {
         id: group.id,
         hidePasswords: false,
         readOnly: false,
+        manage: false,
       }),
     ];
   }

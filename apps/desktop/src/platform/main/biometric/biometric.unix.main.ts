@@ -2,7 +2,6 @@ import { spawn } from "child_process";
 import { existsSync } from "fs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { biometrics, passwords } from "@bitwarden/desktop-native";
 
 import { WindowMain } from "../../../main/window.main";
@@ -32,13 +31,9 @@ export default class BiometricUnixMain implements OsBiometricService {
   constructor(
     private i18nservice: I18nService,
     private windowMain: WindowMain,
-    private stateService: StateService
   ) {}
 
-  async init() {
-    await this.stateService.setBiometricText("unlockWithPolkit");
-    await this.stateService.setNoAutoPromptBiometricsText("autoPromptPolkit");
-  }
+  async init() {}
 
   async setBiometricKey(service: string, key: string, value: string): Promise<void> {
     return await passwords.setPassword(service, key, value);
