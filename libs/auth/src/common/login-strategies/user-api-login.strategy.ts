@@ -3,6 +3,7 @@ import { Jsonify } from "type-fest";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
@@ -18,6 +19,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { UserId } from "@bitwarden/common/types/guid";
 
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import { UserApiLoginCredentials } from "../models/domain/login-credentials";
@@ -56,6 +58,7 @@ export class UserApiLoginStrategy extends LoginStrategy {
     private environmentService: EnvironmentService,
     private keyConnectorService: KeyConnectorService,
     billingAccountProfileStateService: BillingAccountProfileStateService,
+    protected kdfConfigService: KdfConfigService,
   ) {
     super(
       accountService,
@@ -71,6 +74,7 @@ export class UserApiLoginStrategy extends LoginStrategy {
       twoFactorService,
       userDecryptionOptionsService,
       billingAccountProfileStateService,
+      kdfConfigService,
     );
     this.cache = new BehaviorSubject(data);
   }
@@ -97,7 +101,10 @@ export class UserApiLoginStrategy extends LoginStrategy {
     }
   }
 
-  protected override async setUserKey(response: IdentityTokenResponse): Promise<void> {
+  protected override async setUserKey(
+    response: IdentityTokenResponse,
+    userId: UserId,
+  ): Promise<void> {
     await this.cryptoService.setMasterKeyEncryptedUserKey(response.key);
 
     if (response.apiUseKeyConnector) {
@@ -116,8 +123,8 @@ export class UserApiLoginStrategy extends LoginStrategy {
     );
   }
 
-  protected async saveAccountInformation(tokenResponse: IdentityTokenResponse) {
-    await super.saveAccountInformation(tokenResponse);
+  protected async saveAccountInformation(tokenResponse: IdentityTokenResponse): Promise<UserId> {
+    const userId = await super.saveAccountInformation(tokenResponse);
 
     const vaultTimeout = await this.stateService.getVaultTimeout();
     const vaultTimeoutAction = await this.stateService.getVaultTimeoutAction();
@@ -134,6 +141,7 @@ export class UserApiLoginStrategy extends LoginStrategy {
       vaultTimeoutAction as VaultTimeoutAction,
       vaultTimeout,
     );
+    return userId;
   }
 
   exportCache(): CacheData {

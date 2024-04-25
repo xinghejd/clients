@@ -3,6 +3,7 @@ import { Jsonify } from "type-fest";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
@@ -17,6 +18,7 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
+import { UserId } from "@bitwarden/common/types/guid";
 import { UserKey } from "@bitwarden/common/types/key";
 
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions";
@@ -56,6 +58,7 @@ export class WebAuthnLoginStrategy extends LoginStrategy {
     twoFactorService: TwoFactorService,
     userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
     billingAccountProfileStateService: BillingAccountProfileStateService,
+    kdfConfigService: KdfConfigService,
   ) {
     super(
       accountService,
@@ -71,6 +74,7 @@ export class WebAuthnLoginStrategy extends LoginStrategy {
       twoFactorService,
       userDecryptionOptionsService,
       billingAccountProfileStateService,
+      kdfConfigService,
     );
 
     this.cache = new BehaviorSubject(data);
@@ -98,7 +102,7 @@ export class WebAuthnLoginStrategy extends LoginStrategy {
     return Promise.resolve();
   }
 
-  protected override async setUserKey(idTokenResponse: IdentityTokenResponse) {
+  protected override async setUserKey(idTokenResponse: IdentityTokenResponse, userId: UserId) {
     const masterKeyEncryptedUserKey = idTokenResponse.key;
 
     if (masterKeyEncryptedUserKey) {

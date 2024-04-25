@@ -1,6 +1,6 @@
 import { DatePipe } from "@angular/common";
 import { Directive, EventEmitter, Input, OnDestroy, OnInit, Output } from "@angular/core";
-import { concatMap, Observable, Subject, takeUntil } from "rxjs";
+import { concatMap, firstValueFrom, Observable, Subject, takeUntil } from "rxjs";
 
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -184,8 +184,6 @@ export class AddEditComponent implements OnInit, OnDestroy {
       FeatureFlag.FlexibleCollectionsV1,
       false,
     );
-    this.writeableCollections = await this.loadCollections();
-    this.canUseReprompt = await this.passwordRepromptService.enabled();
 
     this.policyService
       .policyAppliesToActiveUser$(PolicyType.PersonalOwnership)
@@ -197,6 +195,9 @@ export class AddEditComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe();
+
+    this.writeableCollections = await this.loadCollections();
+    this.canUseReprompt = await this.passwordRepromptService.enabled();
   }
 
   ngOnDestroy() {
@@ -687,7 +688,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
   }
 
   async loadAddEditCipherInfo(): Promise<boolean> {
-    const addEditCipherInfo: any = await this.stateService.getAddEditCipherInfo();
+    const addEditCipherInfo: any = await firstValueFrom(this.cipherService.addEditCipherInfo$);
     const loadedSavedInfo = addEditCipherInfo != null;
 
     if (loadedSavedInfo) {
@@ -700,7 +701,7 @@ export class AddEditComponent implements OnInit, OnDestroy {
       }
     }
 
-    await this.stateService.setAddEditCipherInfo(null);
+    await this.cipherService.setAddEditCipherInfo(null);
 
     return loadedSavedInfo;
   }

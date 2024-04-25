@@ -3,7 +3,7 @@ import { Jsonify } from "type-fest";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
-import { DeviceTrustCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust-crypto.service.abstraction";
+import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
@@ -18,6 +18,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { DeviceTrustServiceAbstraction } from "@bitwarden/common/src/auth/abstractions/device-trust.service.abstraction";
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
@@ -61,8 +62,9 @@ export class AuthRequestLoginStrategy extends LoginStrategy {
     stateService: StateService,
     twoFactorService: TwoFactorService,
     userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
-    private deviceTrustCryptoService: DeviceTrustCryptoServiceAbstraction,
+    private deviceTrustService: DeviceTrustServiceAbstraction,
     billingAccountProfileStateService: BillingAccountProfileStateService,
+    kdfConfigService: KdfConfigService,
   ) {
     super(
       accountService,
@@ -78,6 +80,7 @@ export class AuthRequestLoginStrategy extends LoginStrategy {
       twoFactorService,
       userDecryptionOptionsService,
       billingAccountProfileStateService,
+      kdfConfigService,
     );
 
     this.cache = new BehaviorSubject(data);
@@ -132,7 +135,10 @@ export class AuthRequestLoginStrategy extends LoginStrategy {
     }
   }
 
-  protected override async setUserKey(response: IdentityTokenResponse): Promise<void> {
+  protected override async setUserKey(
+    response: IdentityTokenResponse,
+    userId: UserId,
+  ): Promise<void> {
     const authRequestCredentials = this.cache.value.authRequestCredentials;
     // User now may or may not have a master password
     // but set the master key encrypted user key if it exists regardless
@@ -143,9 +149,8 @@ export class AuthRequestLoginStrategy extends LoginStrategy {
     } else {
       await this.trySetUserKeyWithMasterKey();
 
-      const userId = (await this.stateService.getUserId()) as UserId;
       // Establish trust if required after setting user key
-      await this.deviceTrustCryptoService.trustDeviceIfRequired(userId);
+      await this.deviceTrustService.trustDeviceIfRequired(userId);
     }
   }
 

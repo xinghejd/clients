@@ -35,6 +35,7 @@ import { EventCollectionService } from "@bitwarden/common/abstractions/event/eve
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
@@ -86,7 +87,7 @@ import {
   BulkShareDialogResult,
   openBulkShareDialog,
 } from "./bulk-action-dialogs/bulk-share-dialog/bulk-share-dialog.component";
-import { CollectionsComponent } from "./collections.component";
+import { openIndividualVaultCollectionsDialog } from "./collections.component";
 import { FolderAddEditDialogResult, openFolderAddEditDialog } from "./folder-add-edit.component";
 import { ShareComponent } from "./share.component";
 import { VaultFilterComponent } from "./vault-filter/components/vault-filter.component";
@@ -184,6 +185,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     private apiService: ApiService,
     private userVerificationService: UserVerificationService,
     private billingAccountProfileStateService: BillingAccountProfileStateService,
+    protected kdfConfigService: KdfConfigService,
   ) {}
 
   async ngOnInit() {
@@ -568,17 +570,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async editCipherCollections(cipher: CipherView) {
-    const [modal] = await this.modalService.openViewRef(
-      CollectionsComponent,
-      this.collectionsModalRef,
-      (comp) => {
-        comp.cipherId = cipher.id;
-        comp.onSavedCollections.pipe(takeUntil(this.destroy$)).subscribe(() => {
-          modal.close();
-          this.refresh();
-        });
-      },
-    );
+    openIndividualVaultCollectionsDialog(this.dialogService, { data: { cipherId: cipher.id } });
   }
 
   async addCipher() {
@@ -689,6 +681,14 @@ export class VaultComponent implements OnInit, OnDestroy {
     } else if (result.action === CollectionDialogAction.Deleted) {
       await this.collectionService.delete(result.collection?.id);
       this.refresh();
+      // Navigate away if we deleted the collection we were viewing
+      if (this.selectedCollection?.node.id === c?.id) {
+        void this.router.navigate([], {
+          queryParams: { collectionId: this.selectedCollection.parent?.node.id ?? null },
+          queryParamsHandling: "merge",
+          replaceUrl: true,
+        });
+      }
     }
   }
 
@@ -720,9 +720,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       );
       // Navigate away if we deleted the collection we were viewing
       if (this.selectedCollection?.node.id === collection.id) {
-        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-        // eslint-disable-next-line @typescript-eslint/no-floating-promises
-        this.router.navigate([], {
+        void this.router.navigate([], {
           queryParams: { collectionId: this.selectedCollection.parent?.node.id ?? null },
           queryParamsHandling: "merge",
           replaceUrl: true,
@@ -976,10 +974,10 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async isLowKdfIteration() {
-    const kdfType = await this.stateService.getKdfType();
-    const kdfOptions = await this.stateService.getKdfConfig();
+    const kdfConfig = await this.kdfConfigService.getKdfConfig();
     return (
-      kdfType === KdfType.PBKDF2_SHA256 && kdfOptions.iterations < PBKDF2_ITERATIONS.defaultValue
+      kdfConfig.kdfType === KdfType.PBKDF2_SHA256 &&
+      kdfConfig.iterations < PBKDF2_ITERATIONS.defaultValue
     );
   }
 
