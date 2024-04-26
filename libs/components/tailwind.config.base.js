@@ -73,6 +73,7 @@ module.exports = {
       main: rgba("--color-text-main"),
       muted: rgba("--color-text-muted"),
       contrast: rgba("--color-text-contrast"),
+      headers: rgba("--color-text-headers"),
       alt2: rgba("--color-text-alt2"),
       code: rgba("--color-text-code"),
       success: rgba("--color-success-600"),

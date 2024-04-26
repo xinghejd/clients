@@ -15,10 +15,7 @@ import {
   INTRAPROCESS_MESSAGING_SUBJECT,
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
-import {
-  AuthRequestServiceAbstraction,
-  LoginStrategyServiceAbstraction,
-} from "@bitwarden/auth/common";
+import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
 import { SearchService as SearchServiceAbstraction } from "@bitwarden/common/abstractions/search.service";
@@ -28,12 +25,11 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService as AccountServiceAbstraction } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService as AuthServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth.service";
-import { DeviceTrustCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust-crypto.service.abstraction";
+import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
 import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
 import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
-import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
 import {
@@ -169,18 +165,8 @@ const safeProviders: SafeProvider[] = [
     deps: [AuthServiceAbstraction, Router],
   }),
   safeProvider({
-    provide: TwoFactorService,
-    useFactory: getBgService<TwoFactorService>("twoFactorService"),
-    deps: [],
-  }),
-  safeProvider({
     provide: AuthServiceAbstraction,
     useFactory: getBgService<AuthService>("authService"),
-    deps: [],
-  }),
-  safeProvider({
-    provide: LoginStrategyServiceAbstraction,
-    useFactory: getBgService<LoginStrategyServiceAbstraction>("loginStrategyService"),
     deps: [],
   }),
   safeProvider({
@@ -250,8 +236,8 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
-    provide: DeviceTrustCryptoServiceAbstraction,
-    useFactory: getBgService<DeviceTrustCryptoServiceAbstraction>("deviceTrustCryptoService"),
+    provide: DeviceTrustServiceAbstraction,
+    useFactory: getBgService<DeviceTrustServiceAbstraction>("deviceTrustService"),
     deps: [],
   }),
   safeProvider({
