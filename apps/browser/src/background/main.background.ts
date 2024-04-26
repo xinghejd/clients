@@ -1,4 +1,4 @@
-import { Subject, firstValueFrom, merge } from "rxjs";
+import { Subject, firstValueFrom, merge, timeout } from "rxjs";
 
 import {
   PinCryptoServiceAbstraction,
@@ -1219,7 +1219,18 @@ export default class MainBackground {
   }
 
   async logout(expired: boolean, userId?: UserId) {
-    userId ??= (await firstValueFrom(this.accountService.activeAccount$))?.id;
+    userId ??= (
+      await firstValueFrom(
+        this.accountService.activeAccount$.pipe(
+          timeout({
+            first: 2000,
+            with: () => {
+              throw new Error("No active account found to logout");
+            },
+          }),
+        ),
+      )
+    )?.id;
 
     await this.eventUploadService.uploadEvents(userId as UserId);
 
