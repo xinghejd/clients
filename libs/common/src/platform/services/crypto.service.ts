@@ -107,7 +107,7 @@ export class CryptoService implements CryptoServiceAbstraction {
       USER_PRIVATE_KEY,
       {
         encryptService: this.encryptService,
-        cryptoService: this,
+        getUserKey: (userId) => this.getUserKey(userId),
       },
     );
     this.activeUserPrivateKey$ = this.activeUserPrivateKeyState.state$; // may be null
@@ -754,13 +754,23 @@ export class CryptoService implements CryptoServiceAbstraction {
       // Can decrypt private key
       const privateKey = await USER_PRIVATE_KEY.derive([userId, encPrivateKey], {
         encryptService: this.encryptService,
-        cryptoService: this,
+        getUserKey: () => Promise.resolve(key),
       });
 
+      if (privateKey == null) {
+        // failed to decrypt
+        return false;
+      }
+
       // Can successfully derive public key
-      await USER_PUBLIC_KEY.derive(privateKey, {
+      const publicKey = await USER_PUBLIC_KEY.derive(privateKey, {
         cryptoFunctionService: this.cryptoFunctionService,
       });
+
+      if (publicKey == null) {
+        // failed to decrypt
+        return false;
+      }
     } catch (e) {
       return false;
     }
