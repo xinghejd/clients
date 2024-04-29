@@ -314,7 +314,7 @@ export class Main {
       this.singleUserStateProvider,
     );
 
-    this.derivedStateProvider = new DefaultDerivedStateProvider(storageServiceProvider);
+    this.derivedStateProvider = new DefaultDerivedStateProvider();
 
     this.stateProvider = new DefaultStateProvider(
       this.activeUserStateProvider,
@@ -344,6 +344,7 @@ export class Main {
       this.storageService,
       this.logService,
       new MigrationBuilderService(),
+      ClientType.Cli,
     );
 
     this.stateService = new StateService(
@@ -455,7 +456,11 @@ export class Main {
       this.stateProvider,
     );
 
-    this.twoFactorService = new TwoFactorService(this.i18nService, this.platformUtilsService);
+    this.twoFactorService = new TwoFactorService(
+      this.i18nService,
+      this.platformUtilsService,
+      this.globalStateProvider,
+    );
 
     this.passwordStrengthService = new PasswordStrengthService();
 
