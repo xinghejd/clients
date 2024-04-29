@@ -1,20 +1,31 @@
 import { mock } from "jest-mock-extended";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { EVENTS, AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
 
-import { EVENTS } from "../constants";
-import { createAutofillFieldMock } from "../jest/autofill-mocks";
-import { flushPromises } from "../jest/testing-utils";
 import AutofillField from "../models/autofill-field";
+import { createAutofillFieldMock } from "../spec/autofill-mocks";
+import { flushPromises } from "../spec/testing-utils";
 import { ElementWithOpId, FormFieldElement } from "../types";
-import {
-  AutofillOverlayElement,
-  AutofillOverlayVisibility,
-  RedirectFocusDirection,
-} from "../utils/autofill-overlay.enum";
+import { AutofillOverlayElement, RedirectFocusDirection } from "../utils/autofill-overlay.enum";
 
 import { AutoFillConstants } from "./autofill-constants";
 import AutofillOverlayContentService from "./autofill-overlay-content.service";
+
+function createMutationRecordMock(customFields = {}): MutationRecord {
+  return {
+    addedNodes: mock<NodeList>(),
+    attributeName: "default-attributeName",
+    attributeNamespace: "default-attributeNamespace",
+    nextSibling: null,
+    oldValue: "default-oldValue",
+    previousSibling: null,
+    removedNodes: mock<NodeList>(),
+    target: null,
+    type: "attributes",
+    ...customFields,
+  };
+}
 
 const defaultWindowReadyState = document.readyState;
 const defaultDocumentVisibilityState = document.visibilityState;
@@ -106,7 +117,7 @@ describe("AutofillOverlayContentService", () => {
       expect(window.addEventListener).toHaveBeenCalledWith("focusout", handleFormFieldBlurEventSpy);
     });
 
-    it("sets up mutation observers for the body and html element", () => {
+    it("sets up mutation observers for the body element", () => {
       jest
         .spyOn(globalThis, "MutationObserver")
         .mockImplementation(() => mock<MutationObserver>({ observe: jest.fn() }));
@@ -118,11 +129,6 @@ describe("AutofillOverlayContentService", () => {
         autofillOverlayContentService as any,
         "handleBodyElementMutationObserverUpdate",
       );
-      const handleDocumentElementMutationObserverUpdateSpy = jest.spyOn(
-        autofillOverlayContentService as any,
-        "handleDocumentElementMutationObserverUpdate",
-      );
-
       autofillOverlayContentService.init();
 
       expect(setupMutationObserverSpy).toHaveBeenCalledTimes(1);
@@ -133,10 +139,6 @@ describe("AutofillOverlayContentService", () => {
       expect(globalThis.MutationObserver).toHaveBeenNthCalledWith(
         2,
         handleBodyElementMutationObserverUpdateSpy,
-      );
-      expect(globalThis.MutationObserver).toHaveBeenNthCalledWith(
-        3,
-        handleDocumentElementMutationObserverUpdateSpy,
       );
     });
   });
@@ -171,10 +173,10 @@ describe("AutofillOverlayContentService", () => {
         autofillFieldData = mock<AutofillField>();
       });
 
-      it("ignores fields that are readonly", () => {
+      it("ignores fields that are readonly", async () => {
         autofillFieldData.readonly = true;
 
-        autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+        await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
           autofillFieldData,
         );
@@ -182,10 +184,10 @@ describe("AutofillOverlayContentService", () => {
         expect(autofillFieldElement.addEventListener).not.toHaveBeenCalled();
       });
 
-      it("ignores fields that contain a disabled attribute", () => {
+      it("ignores fields that contain a disabled attribute", async () => {
         autofillFieldData.disabled = true;
 
-        autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+        await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
           autofillFieldData,
         );
@@ -193,10 +195,10 @@ describe("AutofillOverlayContentService", () => {
         expect(autofillFieldElement.addEventListener).not.toHaveBeenCalled();
       });
 
-      it("ignores fields that are not viewable", () => {
+      it("ignores fields that are not viewable", async () => {
         autofillFieldData.viewable = false;
 
-        autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+        await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
           autofillFieldData,
         );
@@ -204,11 +206,11 @@ describe("AutofillOverlayContentService", () => {
         expect(autofillFieldElement.addEventListener).not.toHaveBeenCalled();
       });
 
-      it("ignores fields that are part of the ExcludedAutofillTypes", () => {
-        AutoFillConstants.ExcludedAutofillTypes.forEach((excludedType) => {
+      it("ignores fields that are part of the ExcludedOverlayTypes", () => {
+        AutoFillConstants.ExcludedOverlayTypes.forEach(async (excludedType) => {
           autofillFieldData.type = excludedType;
 
-          autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+          await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
             autofillFieldData,
           );
@@ -217,10 +219,10 @@ describe("AutofillOverlayContentService", () => {
         });
       });
 
-      it("ignores fields that contain the keyword `search`", () => {
+      it("ignores fields that contain the keyword `search`", async () => {
         autofillFieldData.placeholder = "search";
 
-        autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+        await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
           autofillFieldData,
         );
@@ -228,10 +230,10 @@ describe("AutofillOverlayContentService", () => {
         expect(autofillFieldElement.addEventListener).not.toHaveBeenCalled();
       });
 
-      it("ignores fields that contain the keyword `captcha` ", () => {
+      it("ignores fields that contain the keyword `captcha` ", async () => {
         autofillFieldData.placeholder = "captcha";
 
-        autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+        await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
           autofillFieldData,
         );
@@ -239,16 +241,27 @@ describe("AutofillOverlayContentService", () => {
         expect(autofillFieldElement.addEventListener).not.toHaveBeenCalled();
       });
 
-      it("ignores fields that do not appear as a login field", () => {
+      it("ignores fields that do not appear as a login field", async () => {
         autofillFieldData.placeholder = "not-a-login-field";
 
-        autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+        await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
           autofillFieldData,
         );
 
         expect(autofillFieldElement.addEventListener).not.toHaveBeenCalled();
       });
+    });
+
+    it("skips setup on fields that have been previously set up", async () => {
+      autofillOverlayContentService["formFieldElements"].add(autofillFieldElement);
+
+      await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+        autofillFieldElement,
+        autofillFieldData,
+      );
+
+      expect(autofillFieldElement.addEventListener).not.toHaveBeenCalled();
     });
 
     describe("identifies the overlay visibility setting", () => {
@@ -861,6 +874,44 @@ describe("AutofillOverlayContentService", () => {
         sender: "autofillOverlayContentService",
       });
     });
+
+    it("builds the overlay elements as custom web components if the user's browser is not Firefox", () => {
+      let namesIndex = 0;
+      const customNames = ["op-autofill-overlay-button", "op-autofill-overlay-list"];
+
+      jest
+        .spyOn(autofillOverlayContentService as any, "generateRandomCustomElementName")
+        .mockImplementation(() => {
+          if (namesIndex > 1) {
+            return "";
+          }
+          const customName = customNames[namesIndex];
+          namesIndex++;
+
+          return customName;
+        });
+      autofillOverlayContentService["isFirefoxBrowser"] = false;
+
+      autofillOverlayContentService.openAutofillOverlay();
+
+      expect(autofillOverlayContentService["overlayButtonElement"]).toBeInstanceOf(HTMLElement);
+      expect(autofillOverlayContentService["overlayButtonElement"].tagName).toEqual(
+        customNames[0].toUpperCase(),
+      );
+      expect(autofillOverlayContentService["overlayListElement"]).toBeInstanceOf(HTMLElement);
+      expect(autofillOverlayContentService["overlayListElement"].tagName).toEqual(
+        customNames[1].toUpperCase(),
+      );
+    });
+
+    it("builds the overlay elements as `div` elements if the user's browser is Firefox", () => {
+      autofillOverlayContentService["isFirefoxBrowser"] = true;
+
+      autofillOverlayContentService.openAutofillOverlay();
+
+      expect(autofillOverlayContentService["overlayButtonElement"]).toBeInstanceOf(HTMLDivElement);
+      expect(autofillOverlayContentService["overlayListElement"]).toBeInstanceOf(HTMLDivElement);
+    });
   });
 
   describe("focusMostRecentOverlayField", () => {
@@ -1198,7 +1249,10 @@ describe("AutofillOverlayContentService", () => {
         autofillOverlayContentService as any,
         "removeAutofillOverlay",
       );
+
       autofillOverlayContentService["mostRecentlyFocusedField"] = undefined;
+      autofillOverlayContentService["overlayButtonElement"] = document.createElement("div");
+      autofillOverlayContentService["overlayListElement"] = document.createElement("div");
 
       globalThis.dispatchEvent(new Event(EVENTS.SCROLL));
       jest.advanceTimersByTime(800);
@@ -1206,8 +1260,8 @@ describe("AutofillOverlayContentService", () => {
       expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayHidden", {
         display: "block",
       });
-      expect(autofillOverlayContentService["isOverlayButtonVisible"]).toEqual(true);
-      expect(autofillOverlayContentService["isOverlayListVisible"]).toEqual(true);
+      expect(autofillOverlayContentService["isOverlayButtonVisible"]).toEqual(false);
+      expect(autofillOverlayContentService["isOverlayListVisible"]).toEqual(false);
       expect(removeAutofillOverlaySpy).toHaveBeenCalled();
     });
 
@@ -1264,6 +1318,32 @@ describe("AutofillOverlayContentService", () => {
 
       expect(removeAutofillOverlaySpy).toHaveBeenCalled();
     });
+
+    it("defaults overlay elements to a visibility of `false` if the element is not rendered on the page", async () => {
+      jest.useFakeTimers();
+      jest
+        .spyOn(autofillOverlayContentService as any, "updateMostRecentlyFocusedField")
+        .mockImplementation(() => {
+          autofillOverlayContentService["focusedFieldData"] = {
+            focusedFieldRects: {
+              top: 100,
+            },
+            focusedFieldStyles: {},
+          };
+        });
+      jest
+        .spyOn(autofillOverlayContentService as any, "updateOverlayElementsPosition")
+        .mockImplementation();
+      autofillOverlayContentService["overlayButtonElement"] = document.createElement("div");
+      autofillOverlayContentService["overlayListElement"] = undefined;
+
+      globalThis.dispatchEvent(new Event(EVENTS.SCROLL));
+      jest.advanceTimersByTime(800);
+      await flushPromises();
+
+      expect(autofillOverlayContentService["isOverlayButtonVisible"]).toEqual(true);
+      expect(autofillOverlayContentService["isOverlayListVisible"]).toEqual(false);
+    });
   });
 
   describe("handleOverlayElementMutationObserverUpdate", () => {
@@ -1299,9 +1379,7 @@ describe("AutofillOverlayContentService", () => {
         .mockReturnValue(true);
 
       autofillOverlayContentService["handleOverlayElementMutationObserverUpdate"]([
-        mock<MutationRecord>({
-          target: usernameField,
-        }),
+        createMutationRecordMock({ target: usernameField }),
       ]);
 
       expect(usernameField.removeAttribute).not.toHaveBeenCalled();
@@ -1309,10 +1387,7 @@ describe("AutofillOverlayContentService", () => {
 
     it("skips handling the mutation if the record type is not for `attributes`", () => {
       autofillOverlayContentService["handleOverlayElementMutationObserverUpdate"]([
-        mock<MutationRecord>({
-          target: usernameField,
-          type: "childList",
-        }),
+        createMutationRecordMock({ target: usernameField, type: "childList" }),
       ]);
 
       expect(usernameField.removeAttribute).not.toHaveBeenCalled();
@@ -1320,7 +1395,7 @@ describe("AutofillOverlayContentService", () => {
 
     it("removes all element attributes that are not the style attribute", () => {
       autofillOverlayContentService["handleOverlayElementMutationObserverUpdate"]([
-        mock<MutationRecord>({
+        createMutationRecordMock({
           target: usernameField,
           type: "attributes",
           attributeName: "placeholder",
@@ -1332,7 +1407,7 @@ describe("AutofillOverlayContentService", () => {
 
     it("removes all attached style attributes and sets the default styles", () => {
       autofillOverlayContentService["handleOverlayElementMutationObserverUpdate"]([
-        mock<MutationRecord>({
+        createMutationRecordMock({
           target: usernameField,
           type: "attributes",
           attributeName: "style",
@@ -1446,105 +1521,6 @@ describe("AutofillOverlayContentService", () => {
     });
   });
 
-  describe("handleDocumentElementMutationObserverUpdate", () => {
-    let overlayButtonElement: HTMLElement;
-    let overlayListElement: HTMLElement;
-
-    beforeEach(() => {
-      document.body.innerHTML = `
-      <div class="overlay-button"></div>
-      <div class="overlay-list"></div>
-      `;
-      document.head.innerHTML = `<title>test</title>`;
-      overlayButtonElement = document.querySelector(".overlay-button") as HTMLElement;
-      overlayListElement = document.querySelector(".overlay-list") as HTMLElement;
-      autofillOverlayContentService["overlayButtonElement"] = overlayButtonElement;
-      autofillOverlayContentService["overlayListElement"] = overlayListElement;
-      autofillOverlayContentService["isOverlayListVisible"] = true;
-      jest.spyOn(globalThis.document.body, "appendChild");
-      jest
-        .spyOn(
-          autofillOverlayContentService as any,
-          "isTriggeringExcessiveMutationObserverIterations",
-        )
-        .mockReturnValue(false);
-    });
-
-    it("skips modification of the DOM if the overlay button and list elements are not present", () => {
-      autofillOverlayContentService["overlayButtonElement"] = undefined;
-      autofillOverlayContentService["overlayListElement"] = undefined;
-
-      autofillOverlayContentService["handleDocumentElementMutationObserverUpdate"]([
-        mock<MutationRecord>(),
-      ]);
-
-      expect(globalThis.document.body.appendChild).not.toHaveBeenCalled();
-    });
-
-    it("skips modification of the DOM if excessive mutation events are being triggered", () => {
-      jest
-        .spyOn(
-          autofillOverlayContentService as any,
-          "isTriggeringExcessiveMutationObserverIterations",
-        )
-        .mockReturnValue(true);
-
-      autofillOverlayContentService["handleDocumentElementMutationObserverUpdate"]([
-        mock<MutationRecord>(),
-      ]);
-
-      expect(globalThis.document.body.appendChild).not.toHaveBeenCalled();
-    });
-
-    it("ignores the mutation record if the record is not of type `childlist`", () => {
-      autofillOverlayContentService["handleDocumentElementMutationObserverUpdate"]([
-        mock<MutationRecord>({
-          type: "attributes",
-        }),
-      ]);
-
-      expect(globalThis.document.body.appendChild).not.toHaveBeenCalled();
-    });
-
-    it("ignores the mutation record if the record does not contain any added nodes", () => {
-      autofillOverlayContentService["handleDocumentElementMutationObserverUpdate"]([
-        mock<MutationRecord>({
-          type: "childList",
-          addedNodes: mock<NodeList>({ length: 0 }),
-        }),
-      ]);
-
-      expect(globalThis.document.body.appendChild).not.toHaveBeenCalled();
-    });
-
-    it("ignores mutations for the document body and head", () => {
-      autofillOverlayContentService["handleDocumentElementMutationObserverUpdate"]([
-        {
-          type: "childList",
-          addedNodes: document.querySelectorAll("body, head"),
-        } as unknown as MutationRecord,
-      ]);
-
-      expect(globalThis.document.body.appendChild).not.toHaveBeenCalled();
-    });
-
-    it("appends the identified node to the body", async () => {
-      jest.useFakeTimers();
-      const injectedElement = document.createElement("div");
-      injectedElement.id = "test";
-      document.documentElement.appendChild(injectedElement);
-      autofillOverlayContentService["handleDocumentElementMutationObserverUpdate"]([
-        {
-          type: "childList",
-          addedNodes: document.querySelectorAll("#test"),
-        } as unknown as MutationRecord,
-      ]);
-      jest.advanceTimersByTime(10);
-
-      expect(globalThis.document.body.appendChild).toHaveBeenCalledWith(injectedElement);
-    });
-  });
-
   describe("isTriggeringExcessiveMutationObserverIterations", () => {
     it("clears any existing reset timeout", () => {
       jest.useFakeTimers();
@@ -1632,6 +1608,8 @@ describe("AutofillOverlayContentService", () => {
         placeholder: "username",
         elementNumber: 1,
       });
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       autofillOverlayContentService.setupAutofillOverlayListenerOnField(
         autofillFieldElement,
         autofillFieldData,
@@ -1642,13 +1620,9 @@ describe("AutofillOverlayContentService", () => {
     it("disconnects all mutation observers", () => {
       autofillOverlayContentService["setupMutationObserver"]();
       jest.spyOn(autofillOverlayContentService["bodyElementMutationObserver"], "disconnect");
-      jest.spyOn(autofillOverlayContentService["documentElementMutationObserver"], "disconnect");
 
       autofillOverlayContentService.destroy();
 
-      expect(
-        autofillOverlayContentService["documentElementMutationObserver"].disconnect,
-      ).toHaveBeenCalled();
       expect(
         autofillOverlayContentService["bodyElementMutationObserver"].disconnect,
       ).toHaveBeenCalled();

@@ -77,12 +77,36 @@ export type AccessItemValue = {
   type: AccessItemType;
 };
 
+export type Permission = {
+  perm: CollectionPermission;
+  labelId: string;
+};
+
+export const getPermissionList = (flexibleCollectionsEnabled: boolean): Permission[] => {
+  const permissions = [
+    { perm: CollectionPermission.View, labelId: "canView" },
+    { perm: CollectionPermission.ViewExceptPass, labelId: "canViewExceptPass" },
+    { perm: CollectionPermission.Edit, labelId: "canEdit" },
+    { perm: CollectionPermission.EditExceptPass, labelId: "canEditExceptPass" },
+  ];
+  if (flexibleCollectionsEnabled) {
+    permissions.push({ perm: CollectionPermission.Manage, labelId: "canManage" });
+  }
+
+  return permissions;
+};
+
 /**
  * Converts the CollectionAccessSelectionView interface to one of the new CollectionPermission values
  * for the dropdown in the AccessSelectorComponent
  * @param value
  */
-export const convertToPermission = (value: CollectionAccessSelectionView) => {
+export const convertToPermission = (
+  value: CollectionAccessSelectionView | undefined,
+): CollectionPermission | undefined => {
+  if (value == null) {
+    return undefined;
+  }
   if (value.manage) {
     return CollectionPermission.Manage;
   } else if (value.readOnly) {

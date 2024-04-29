@@ -7,13 +7,12 @@ import { OrganizationService } from "@bitwarden/common/admin-console/abstraction
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { EventType } from "@bitwarden/common/enums";
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService } from "@bitwarden/components";
-import { VaultExportServiceAbstraction } from "@bitwarden/exporter/vault-export";
+import { VaultExportServiceAbstraction } from "@bitwarden/vault-export-core";
 
 import { ExportComponent } from "../../../../tools/vault-export/export.component";
 
@@ -36,7 +35,6 @@ export class OrganizationVaultExportComponent extends ExportComponent {
     fileDownloadService: FileDownloadService,
     dialogService: DialogService,
     organizationService: OrganizationService,
-    configService: ConfigServiceAbstraction,
   ) {
     super(
       i18nService,
@@ -50,7 +48,6 @@ export class OrganizationVaultExportComponent extends ExportComponent {
       fileDownloadService,
       dialogService,
       organizationService,
-      configService,
     );
   }
 
@@ -63,15 +60,16 @@ export class OrganizationVaultExportComponent extends ExportComponent {
     this.route.parent.parent.params.subscribe(async (params) => {
       this.organizationId = params.organizationId;
     });
+
     await super.ngOnInit();
   }
 
   getExportData() {
-    if (this.isFileEncryptedExport) {
-      return this.exportService.getPasswordProtectedExport(this.filePassword, this.organizationId);
-    } else {
-      return this.exportService.getOrganizationExport(this.organizationId, this.format);
-    }
+    return this.exportService.getOrganizationExport(
+      this.organizationId,
+      this.format,
+      this.filePassword,
+    );
   }
 
   getFileName() {

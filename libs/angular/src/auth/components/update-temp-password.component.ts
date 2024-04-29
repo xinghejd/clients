@@ -1,15 +1,19 @@
 import { Directive } from "@angular/core";
 import { Router } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
 import { UpdateTempPasswordRequest } from "@bitwarden/common/auth/models/request/update-temp-password.request";
-import { Verification } from "@bitwarden/common/auth/types/verification";
+import { MasterPasswordVerification } from "@bitwarden/common/auth/types/verification";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -17,8 +21,8 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { MasterKey, UserKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
+import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { DialogService } from "@bitwarden/components";
 
@@ -31,7 +35,7 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent {
   enforcedPolicyOptions: MasterPasswordPolicyOptions;
   showPassword = false;
   reason: ForceSetPasswordReason = ForceSetPasswordReason.None;
-  verification: Verification = {
+  verification: MasterPasswordVerification = {
     type: VerificationType.MasterPassword,
     secret: "",
   };
@@ -54,8 +58,11 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent {
     private syncService: SyncService,
     private logService: LogService,
     private userVerificationService: UserVerificationService,
-    private router: Router,
+    protected router: Router,
     dialogService: DialogService,
+    kdfConfigService: KdfConfigService,
+    private accountService: AccountService,
+    private masterPasswordService: InternalMasterPasswordServiceAbstraction,
   ) {
     super(
       i18nService,
@@ -66,16 +73,20 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent {
       policyService,
       stateService,
       dialogService,
+      kdfConfigService,
     );
   }
 
   async ngOnInit() {
     await this.syncService.fullSync(true, "update-temp-password");
 
-    this.reason = await this.stateService.getForceSetPasswordReason();
+    const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+    this.reason = await firstValueFrom(this.masterPasswordService.forceSetPasswordReason$(userId));
 
     // If we somehow end up here without a reason, go back to the home page
     if (this.reason == ForceSetPasswordReason.None) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["/"]);
       return;
     }
@@ -96,8 +107,7 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent {
 
   async setupSubmitActions(): Promise<boolean> {
     this.email = await this.stateService.getEmail();
-    this.kdf = await this.stateService.getKdfType();
-    this.kdfConfig = await this.stateService.getKdfConfig();
+    this.kdfConfig = await this.kdfConfigService.getKdfConfig();
     return true;
   }
 
@@ -116,7 +126,6 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent {
       const newMasterKey = await this.cryptoService.makeMasterKey(
         this.masterPassword,
         this.email.trim().toLowerCase(),
-        this.kdf,
         this.kdfConfig,
       );
       const newPasswordHash = await this.cryptoService.hashMasterKey(
@@ -161,9 +170,15 @@ export class UpdateTempPasswordComponent extends BaseChangePasswordComponent {
         this.i18nService.t("updatedMasterPassword"),
       );
 
-      await this.stateService.setForceSetPasswordReason(ForceSetPasswordReason.None);
+      const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+      await this.masterPasswordService.setForceSetPasswordReason(
+        ForceSetPasswordReason.None,
+        userId,
+      );
 
       if (this.onSuccessfulChangePassword != null) {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.onSuccessfulChangePassword();
       } else {
         this.messagingService.send("logout");

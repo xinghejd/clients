@@ -3,180 +3,134 @@ import {
   CreateCredentialParams,
 } from "@bitwarden/common/vault/abstractions/fido2/fido2-client.service.abstraction";
 
-import { Message, MessageType } from "./messaging/message";
-import { Messenger } from "./messaging/messenger";
+import { sendExtensionMessage } from "../../../autofill/utils";
+import { Fido2PortName } from "../enums/fido2-port-name.enum";
 
-function isFido2FeatureEnabled(): Promise<boolean> {
-  return new Promise((resolve) => {
-    chrome.runtime.sendMessage(
-      { command: "checkFido2FeatureEnabled" },
-      (response: { result?: boolean }) => resolve(response.result),
-    );
-  });
-}
+import {
+  InsecureAssertCredentialParams,
+  InsecureCreateCredentialParams,
+  Message,
+  MessageType,
+} from "./messaging/message";
+import { MessageWithMetadata, Messenger } from "./messaging/messenger";
 
-async function getFromLocalStorage(keys: string | string[]): Promise<Record<string, any>> {
-  return new Promise((resolve) => {
-    chrome.storage.local.get(keys, (storage: Record<string, any>) => resolve(storage));
-  });
-}
-
-async function getActiveUserSettings() {
-  // TODO: This is code copied from `notification-bar.tsx`. We should refactor this into a shared function.
-  // Look up the active user id from storage
-  const activeUserIdKey = "activeUserId";
-  let activeUserId: string;
-
-  const activeUserStorageValue = await getFromLocalStorage(activeUserIdKey);
-  if (activeUserStorageValue[activeUserIdKey]) {
-    activeUserId = activeUserStorageValue[activeUserIdKey];
-  }
-
-  const settingsStorage = await getFromLocalStorage(activeUserId);
-
-  // Look up the user's settings from storage
-  return settingsStorage?.[activeUserId]?.settings;
-}
-
-async function isDomainExcluded(activeUserSettings: Record<string, any>) {
-  const excludedDomains = activeUserSettings?.neverDomains;
-  return excludedDomains && window.location.hostname in excludedDomains;
-}
-
-async function hasActiveUser() {
-  const activeUserIdKey = "activeUserId";
-  const activeUserStorageValue = await getFromLocalStorage(activeUserIdKey);
-  return activeUserStorageValue[activeUserIdKey] !== undefined;
-}
-
-function isSameOriginWithAncestors() {
-  try {
-    return window.self === window.top;
-  } catch {
-    return false;
-  }
-}
-
-async function isLocationBitwardenVault(activeUserSettings: Record<string, any>) {
-  return window.location.origin === activeUserSettings.serverConfig.environment.vault;
-}
-
-const messenger = Messenger.forDOMCommunication(window);
-
-function injectPageScript() {
-  // Locate an existing page-script on the page
-  const existingPageScript = document.getElementById("bw-fido2-page-script");
-
-  // Inject the page-script if it doesn't exist
-  if (!existingPageScript) {
-    const s = document.createElement("script");
-    s.src = chrome.runtime.getURL("content/fido2/page-script.js");
-    s.id = "bw-fido2-page-script";
-    (document.head || document.documentElement).appendChild(s);
-
+(function (globalContext) {
+  if (globalContext.document.contentType !== "text/html") {
     return;
   }
 
-  // If the page-script already exists, send a reconnect message to the page-script
-  messenger.sendReconnectCommand();
-}
+  // Initialization logic, set up the messenger and connect a port to the background script.
+  const messenger = Messenger.forDOMCommunication(globalContext.window);
+  messenger.handler = handleFido2Message;
+  const port = chrome.runtime.connect({ name: Fido2PortName.InjectedScript });
+  port.onDisconnect.addListener(handlePortOnDisconnect);
 
-function initializeFido2ContentScript() {
-  injectPageScript();
-
-  messenger.handler = async (message, abortController) => {
+  /**
+   * Handles FIDO2 credential requests and returns the result.
+   *
+   * @param message - The message to handle.
+   * @param abortController - The abort controller used to handle exit conditions from the FIDO2 request.
+   */
+  async function handleFido2Message(
+    message: MessageWithMetadata,
+    abortController: AbortController,
+  ) {
     const requestId = Date.now().toString();
     const abortHandler = () =>
-      chrome.runtime.sendMessage({
-        command: "fido2AbortRequest",
-        abortedRequestId: requestId,
-      });
+      sendExtensionMessage("fido2AbortRequest", { abortedRequestId: requestId });
     abortController.signal.addEventListener("abort", abortHandler);
 
-    if (message.type === MessageType.CredentialCreationRequest) {
-      return new Promise<Message | undefined>((resolve, reject) => {
-        const data: CreateCredentialParams = {
-          ...message.data,
-          origin: window.location.origin,
-          sameOriginWithAncestors: isSameOriginWithAncestors(),
-        };
-
-        chrome.runtime.sendMessage(
-          {
-            command: "fido2RegisterCredentialRequest",
-            data,
-            requestId: requestId,
-          },
-          (response) => {
-            if (response && response.error !== undefined) {
-              return reject(response.error);
-            }
-
-            resolve({
-              type: MessageType.CredentialCreationResponse,
-              result: response.result,
-            });
-          },
+    try {
+      if (message.type === MessageType.CredentialCreationRequest) {
+        return handleCredentialCreationRequestMessage(
+          requestId,
+          message.data as InsecureCreateCredentialParams,
         );
-      });
-    }
+      }
 
-    if (message.type === MessageType.CredentialGetRequest) {
-      return new Promise<Message | undefined>((resolve, reject) => {
-        const data: AssertCredentialParams = {
-          ...message.data,
-          origin: window.location.origin,
-          sameOriginWithAncestors: isSameOriginWithAncestors(),
-        };
-
-        chrome.runtime.sendMessage(
-          {
-            command: "fido2GetCredentialRequest",
-            data,
-            requestId: requestId,
-          },
-          (response) => {
-            if (response && response.error !== undefined) {
-              return reject(response.error);
-            }
-
-            resolve({
-              type: MessageType.CredentialGetResponse,
-              result: response.result,
-            });
-          },
+      if (message.type === MessageType.CredentialGetRequest) {
+        return handleCredentialGetRequestMessage(
+          requestId,
+          message.data as InsecureAssertCredentialParams,
         );
-      }).finally(() =>
-        abortController.signal.removeEventListener("abort", abortHandler),
-      ) as Promise<Message>;
+      }
+    } finally {
+      abortController.signal.removeEventListener("abort", abortHandler);
     }
-
-    return undefined;
-  };
-}
-
-async function run() {
-  if (!(await hasActiveUser())) {
-    return;
   }
 
-  const activeUserSettings = await getActiveUserSettings();
-  if (
-    activeUserSettings == null ||
-    !(await isFido2FeatureEnabled()) ||
-    (await isDomainExcluded(activeUserSettings)) ||
-    (await isLocationBitwardenVault(activeUserSettings))
-  ) {
-    return;
+  /**
+   * Handles the credential creation request message and returns the result.
+   *
+   * @param requestId - The request ID of the message.
+   * @param data - Data associated with the credential request.
+   */
+  async function handleCredentialCreationRequestMessage(
+    requestId: string,
+    data: InsecureCreateCredentialParams,
+  ): Promise<Message | undefined> {
+    return respondToCredentialRequest(
+      "fido2RegisterCredentialRequest",
+      MessageType.CredentialCreationResponse,
+      requestId,
+      data,
+    );
   }
 
-  initializeFido2ContentScript();
+  /**
+   * Handles the credential get request message and returns the result.
+   *
+   * @param requestId - The request ID of the message.
+   * @param data - Data associated with the credential request.
+   */
+  async function handleCredentialGetRequestMessage(
+    requestId: string,
+    data: InsecureAssertCredentialParams,
+  ): Promise<Message | undefined> {
+    return respondToCredentialRequest(
+      "fido2GetCredentialRequest",
+      MessageType.CredentialGetResponse,
+      requestId,
+      data,
+    );
+  }
 
-  const port = chrome.runtime.connect({ name: "fido2ContentScriptReady" });
-  port.onDisconnect.addListener(() => {
-    // Cleanup the messenger and remove the event listener
-    messenger.destroy();
-  });
-}
+  /**
+   * Sends a message to the extension to handle the
+   * credential request and returns the result.
+   *
+   * @param command - The command to send to the extension.
+   * @param type - The type of message, either CredentialCreationResponse or CredentialGetResponse.
+   * @param requestId - The request ID of the message.
+   * @param messageData - Data associated with the credential request.
+   */
+  async function respondToCredentialRequest(
+    command: string,
+    type: MessageType.CredentialCreationResponse | MessageType.CredentialGetResponse,
+    requestId: string,
+    messageData: InsecureCreateCredentialParams | InsecureAssertCredentialParams,
+  ): Promise<Message | undefined> {
+    const data: CreateCredentialParams | AssertCredentialParams = {
+      ...messageData,
+      origin: globalContext.location.origin,
+      sameOriginWithAncestors: globalContext.self === globalContext.top,
+    };
 
-run();
+    const result = await sendExtensionMessage(command, { data, requestId });
+
+    if (result && result.error !== undefined) {
+      return Promise.reject(result.error);
+    }
+
+    return Promise.resolve({ type, result });
+  }
+
+  /**
+   * Handles the disconnect event of the port. Calls
+   * to the messenger to destroy and tear down the
+   * implemented page-script.js logic.
+   */
+  function handlePortOnDisconnect() {
+    void messenger.destroy();
+  }
+})(globalThis);

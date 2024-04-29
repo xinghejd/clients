@@ -1,14 +1,12 @@
 import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
-import { Observable } from "rxjs";
+import { Observable, combineLatest, defer, map } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
-import { ServerConfig } from "@bitwarden/common/platform/abstractions/config/server-config";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { ButtonModule, DialogModule } from "@bitwarden/components";
-
-import { BrowserApi } from "../../platform/browser/browser-api";
 
 @Component({
   templateUrl: "about.component.html",
@@ -16,14 +14,19 @@ import { BrowserApi } from "../../platform/browser/browser-api";
   imports: [CommonModule, JslibModule, DialogModule, ButtonModule],
 })
 export class AboutComponent {
-  protected serverConfig$: Observable<ServerConfig> = this.configService.serverConfig$;
-
   protected year = new Date().getFullYear();
-  protected version = BrowserApi.getApplicationVersion();
-  protected isCloud = this.environmentService.isCloud();
+  protected version$: Observable<string>;
+
+  protected data$ = combineLatest([
+    this.configService.serverConfig$,
+    this.environmentService.environment$.pipe(map((env) => env.isCloud())),
+  ]).pipe(map(([serverConfig, isCloud]) => ({ serverConfig, isCloud })));
 
   constructor(
-    private configService: ConfigServiceAbstraction,
+    private configService: ConfigService,
     private environmentService: EnvironmentService,
-  ) {}
+    private platformUtilsService: PlatformUtilsService,
+  ) {
+    this.version$ = defer(() => this.platformUtilsService.getApplicationVersion());
+  }
 }

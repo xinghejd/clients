@@ -4,6 +4,7 @@ import { Router } from "@angular/router";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
+import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
@@ -15,8 +16,8 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
-import { MasterKey, UserKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
+import { MasterKey, UserKey } from "@bitwarden/common/types/key";
 import { DialogService } from "@bitwarden/components";
 
 import { ChangePasswordComponent as BaseChangePasswordComponent } from "./change-password.component";
@@ -44,6 +45,7 @@ export class UpdatePasswordComponent extends BaseChangePasswordComponent {
     private userVerificationService: UserVerificationService,
     private logService: LogService,
     dialogService: DialogService,
+    kdfConfigService: KdfConfigService,
   ) {
     super(
       i18nService,
@@ -54,6 +56,7 @@ export class UpdatePasswordComponent extends BaseChangePasswordComponent {
       policyService,
       stateService,
       dialogService,
+      kdfConfigService,
     );
   }
 
@@ -64,6 +67,8 @@ export class UpdatePasswordComponent extends BaseChangePasswordComponent {
 
   async cancel() {
     await this.stateService.setOrganizationInvitation(null);
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["/vault"]);
   }
 
@@ -88,8 +93,7 @@ export class UpdatePasswordComponent extends BaseChangePasswordComponent {
       return false;
     }
 
-    this.kdf = await this.stateService.getKdfType();
-    this.kdfConfig = await this.stateService.getKdfConfig();
+    this.kdfConfig = await this.kdfConfigService.getKdfConfig();
     return true;
   }
 
@@ -109,6 +113,8 @@ export class UpdatePasswordComponent extends BaseChangePasswordComponent {
       request.key = newUserKey[1].encryptedString;
 
       // Update user's password
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.apiService.postPassword(request);
 
       this.platformUtilsService.showToast(
@@ -118,6 +124,8 @@ export class UpdatePasswordComponent extends BaseChangePasswordComponent {
       );
 
       if (this.onSuccessfulChangePassword != null) {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.onSuccessfulChangePassword();
       } else {
         this.messagingService.send("logout");

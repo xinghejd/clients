@@ -1,3 +1,4 @@
+import { DatePipe } from "@angular/common";
 import { Component, NgZone, OnChanges, OnDestroy, ViewChild } from "@angular/core";
 import { NgForm } from "@angular/forms";
 
@@ -7,6 +8,7 @@ import { EventCollectionService } from "@bitwarden/common/abstractions/event/eve
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -46,6 +48,8 @@ export class AddEditComponent extends BaseAddEditComponent implements OnChanges,
     organizationService: OrganizationService,
     sendApiService: SendApiService,
     dialogService: DialogService,
+    datePipe: DatePipe,
+    configService: ConfigService,
   ) {
     super(
       cipherService,
@@ -63,11 +67,15 @@ export class AddEditComponent extends BaseAddEditComponent implements OnChanges,
       organizationService,
       sendApiService,
       dialogService,
+      window,
+      datePipe,
+      configService,
     );
   }
 
   async ngOnInit() {
     await super.ngOnInit();
+    await this.load();
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, async (message: any) => {
       this.ngZone.run(() => {
         switch (message.command) {
@@ -96,6 +104,8 @@ export class AddEditComponent extends BaseAddEditComponent implements OnChanges,
     ) {
       this.cipher = null;
     }
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     super.load();
   }
 

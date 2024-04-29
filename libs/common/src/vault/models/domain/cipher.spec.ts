@@ -2,13 +2,14 @@ import { mock } from "jest-mock-extended";
 import { Jsonify } from "type-fest";
 
 import { makeStaticByteArray, mockEnc, mockFromJson } from "../../../../spec/utils";
+import { UriMatchStrategy } from "../../../models/domain/domain-service";
 import { CryptoService } from "../../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../../platform/abstractions/encrypt.service";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { ContainerService } from "../../../platform/services/container.service";
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
 import { CipherService } from "../../abstractions/cipher.service";
-import { FieldType, SecureNoteType, UriMatchType } from "../../enums";
+import { FieldType, SecureNoteType } from "../../enums";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
 import { CipherData } from "../../models/data/cipher.data";
@@ -75,7 +76,13 @@ describe("Cipher DTO", () => {
         reprompt: CipherRepromptType.None,
         key: "EncryptedString",
         login: {
-          uris: [{ uri: "EncryptedString", match: UriMatchType.Domain }],
+          uris: [
+            {
+              uri: "EncryptedString",
+              uriChecksum: "EncryptedString",
+              match: UriMatchStrategy.Domain,
+            },
+          ],
           username: "EncryptedString",
           password: "EncryptedString",
           passwordRevisionDate: "2022-01-31T12:00:00.000Z",
@@ -148,7 +155,13 @@ describe("Cipher DTO", () => {
           username: { encryptedString: "EncryptedString", encryptionType: 0 },
           password: { encryptedString: "EncryptedString", encryptionType: 0 },
           totp: { encryptedString: "EncryptedString", encryptionType: 0 },
-          uris: [{ match: 0, uri: { encryptedString: "EncryptedString", encryptionType: 0 } }],
+          uris: [
+            {
+              match: 0,
+              uri: { encryptedString: "EncryptedString", encryptionType: 0 },
+              uriChecksum: { encryptedString: "EncryptedString", encryptionType: 0 },
+            },
+          ],
         },
         attachments: [
           {

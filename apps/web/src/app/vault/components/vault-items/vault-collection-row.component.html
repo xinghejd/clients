@@ -7,6 +7,7 @@
     [disabled]="disabled"
     [checked]="checked"
     (change)="$event ? this.checkedToggled.next() : null"
+    [attr.aria-label]="'collectionItemSelect' | i18n"
   />
 </td>
 <td bitCell [ngClass]="RowHeightClass" class="tw-min-w-fit">
@@ -46,6 +47,11 @@
     [selectedGroups]="collectionGroups"
     [allGroups]="groups"
   ></app-group-badge>
+</td>
+<td bitCell [ngClass]="RowHeightClass" *ngIf="showPermissionsColumn">
+  <p class="tw-mb-0 tw-text-muted" [title]="permissionTooltip">
+    {{ permissionText }}
+  </p>
 </td>
 <td bitCell [ngClass]="RowHeightClass" class="tw-text-right">
   <button

@@ -10,6 +10,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 import { UsernameGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/username";
+import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 
 import { GeneratorComponent } from "./generator.component";
 
@@ -21,6 +22,8 @@ describe("GeneratorComponent", () => {
   beforeEach(() => {
     platformUtilsServiceMock = mock<PlatformUtilsService>();
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     TestBed.configureTestingModule({
       declarations: [GeneratorComponent, I18nPipe],
       providers: [
@@ -51,6 +54,10 @@ describe("GeneratorComponent", () => {
         {
           provide: LogService,
           useValue: mock<LogService>(),
+        },
+        {
+          provide: CipherService,
+          useValue: mock<CipherService>(),
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],

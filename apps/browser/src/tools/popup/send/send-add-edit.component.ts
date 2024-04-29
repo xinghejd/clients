@@ -6,6 +6,7 @@ import { first } from "rxjs/operators";
 
 import { AddEditComponent as BaseAddEditComponent } from "@bitwarden/angular/tools/send/add-edit.component";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -49,6 +50,7 @@ export class SendAddEditComponent extends BaseAddEditComponent {
     dialogService: DialogService,
     formBuilder: FormBuilder,
     private filePopoutUtilsService: FilePopoutUtilsService,
+    billingAccountProfileStateService: BillingAccountProfileStateService,
   ) {
     super(
       i18nService,
@@ -63,10 +65,13 @@ export class SendAddEditComponent extends BaseAddEditComponent {
       sendApiService,
       dialogService,
       formBuilder,
+      billingAccountProfileStateService,
     );
   }
 
   popOutWindow() {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     BrowserPopupUtils.openCurrentPagePopout(window);
   }
 
@@ -117,6 +122,8 @@ export class SendAddEditComponent extends BaseAddEditComponent {
   cancel() {
     // If true, the window was pop'd out on the add-send page. location.back will not work
     if ((window as any).previousPopupUrl.startsWith("/add-send")) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["tabs/send"]);
     } else {
       this.location.back();

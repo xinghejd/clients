@@ -8,13 +8,12 @@ import {
   tdeDecryptionRequiredGuard,
   UnauthGuard,
 } from "@bitwarden/angular/auth/guards";
-import { canAccessFeature } from "@bitwarden/angular/platform/guard/feature-flag.guard";
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 
 import { flagEnabled, Flags } from "../utils/flags";
 
 import { AcceptFamilySponsorshipComponent } from "./admin-console/organizations/sponsorships/accept-family-sponsorship.component";
 import { FamiliesForEnterpriseSetupComponent } from "./admin-console/organizations/sponsorships/families-for-enterprise-setup.component";
+import { VerifyRecoverDeleteProviderComponent } from "./admin-console/providers/verify-recover-delete-provider.component";
 import { CreateOrganizationComponent } from "./admin-console/settings/create-organization.component";
 import { SponsoredFamiliesComponent } from "./admin-console/settings/sponsored-families.component";
 import { AcceptOrganizationComponent } from "./auth/accept-organization.component";
@@ -42,14 +41,12 @@ import { VerifyEmailTokenComponent } from "./auth/verify-email-token.component";
 import { VerifyRecoverDeleteComponent } from "./auth/verify-recover-delete.component";
 import { FrontendLayoutComponent } from "./layouts/frontend-layout.component";
 import { UserLayoutComponent } from "./layouts/user-layout.component";
-import { ReportsModule } from "./reports";
 import { DomainRulesComponent } from "./settings/domain-rules.component";
 import { PreferencesComponent } from "./settings/preferences.component";
-import { SettingsComponent } from "./settings/settings.component";
 import { GeneratorComponent } from "./tools/generator.component";
+import { ReportsModule } from "./tools/reports";
 import { AccessComponent } from "./tools/send/access.component";
 import { SendComponent } from "./tools/send/send.component";
-import { ToolsComponent } from "./tools/tools.component";
 import { VaultModule } from "./vault/individual-vault/vault.module";
 
 const routes: Routes = [
@@ -84,10 +81,7 @@ const routes: Routes = [
       {
         path: "login-initiated",
         component: LoginDecryptionOptionsComponent,
-        canActivate: [
-          tdeDecryptionRequiredGuard(),
-          canAccessFeature(FeatureFlag.TrustedDeviceEncryption),
-        ],
+        canActivate: [tdeDecryptionRequiredGuard()],
       },
       {
         path: "register",
@@ -164,6 +158,12 @@ const routes: Routes = [
         data: { titleId: "deleteAccount" },
       },
       {
+        path: "verify-recover-delete-provider",
+        component: VerifyRecoverDeleteProviderComponent,
+        canActivate: [UnauthGuard],
+        data: { titleId: "deleteAccount" },
+      },
+      {
         path: "send/:sendId/:key",
         component: AccessComponent,
         data: { title: "Bitwarden Send" },
@@ -204,7 +204,7 @@ const routes: Routes = [
         path: "vault",
         loadChildren: () => VaultModule,
       },
-      { path: "sends", component: SendComponent, data: { title: "Send" } },
+      { path: "sends", component: SendComponent, data: { titleId: "send" } },
       {
         path: "create-organization",
         component: CreateOrganizationComponent,
@@ -212,7 +212,6 @@ const routes: Routes = [
       },
       {
         path: "settings",
-        component: SettingsComponent,
         children: [
           { path: "", pathMatch: "full", redirectTo: "account" },
           { path: "account", component: AccountComponent, data: { titleId: "myAccount" } },
@@ -261,7 +260,6 @@ const routes: Routes = [
       },
       {
         path: "tools",
-        component: ToolsComponent,
         canActivate: [AuthGuard],
         children: [
           { path: "", pathMatch: "full", redirectTo: "generator" },

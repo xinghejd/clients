@@ -560,6 +560,12 @@
   "newAccountCreated": {
     "message": "Váš účet byl vytvořen! Můžete se přihlásit."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "Byli jste úspěšně přihlášeni"
+  },
+  "youMayCloseThisWindow": {
+    "message": "Toto okno můžete zavřít"
+  },
   "masterPassSent": {
     "message": "Poslali jsme vám e-mail s nápovědou k hlavnímu heslu."
   },
@@ -794,8 +800,11 @@
   "changeMasterPass": {
     "message": "Změnit hlavní heslo"
   },
-  "changeMasterPasswordConfirmation": {
-    "message": "Hlavní heslo si můžete změnit na webové stránce bitwarden.com. Chcete tuto stránku nyní otevřít?"
+  "continueToWebApp": {
+    "message": "Pokračovat do webové aplikace?"
+  },
+  "changeMasterPasswordOnWebConfirmation": {
+    "message": "Hlavní heslo můžete změnit ve webové aplikaci Bitwardenu."
   },
   "fingerprintPhrase": {
     "message": "Fráze otisku prstu",
@@ -1392,6 +1401,9 @@
   "invalidPin": {
     "message": "Neplatný PIN kód."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Příliš mnoho neplatných pokusů o zadání PINu. Odhlášeno."
+  },
   "unlockWithWindowsHello": {
     "message": "Odemknout pomocí Windows Hello"
   },
@@ -1544,6 +1556,10 @@
     "message": "Vaše organizace vyžaduje nastavení hlavního hesla.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
+  "verificationRequired": {
+    "message": "Je vyžadováno ověření",
+    "description": "Default title for the user verification dialog."
+  },
   "currentMasterPass": {
     "message": "Aktuální hlavní heslo"
   },
@@ -1616,6 +1632,12 @@
   "browserIntegrationUnsupportedTitle": {
     "message": "Integrace prohlížeče není podporována"
   },
+  "browserIntegrationErrorTitle": {
+    "message": "Chyba při povolování integrace prohlížeče"
+  },
+  "browserIntegrationErrorDesc": {
+    "message": "Vyskytla se chyba při povolování integrace prohlížeče."
+  },
   "browserIntegrationMasOnlyDesc": {
     "message": "Integrace prohlížeče je podporována jen ve verzi pro Mac App Store."
   },
@@ -1630,6 +1652,12 @@
   },
   "enableBrowserIntegrationFingerprintDesc": {
     "message": "Přidá další vrstvu zabezpečení vyžadováním ověření frází otisků prstů při vytvoření propojení mezi plochou a prohlížečem. Pokud je povoleno, vyžaduje to zásah uživatele a ověření pokaždé, když je navázáno spojení."
+  },
+  "enableHardwareAcceleration": {
+    "message": "Používat hardwarovou akceleraci"
+  },
+  "enableHardwareAccelerationDesc": {
+    "message": "Ve výchozím nastavení je toto nastavení zapnuto. Vypněte jen v případě problémů s grafikou. Je vyžadováno restartování."
   },
   "approve": {
     "message": "Schválit"
@@ -1868,6 +1896,42 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Vaše hlavní heslo nesplňuje jednu nebo více zásad Vaší organizace. Pro přístup k trezoru musíte nyní aktualizovat své hlavní heslo. Pokračování Vás odhlásí z Vaší aktuální relace a bude nutné se přihlásit. Aktivní relace na jiných zařízeních mohou zůstat aktivní až po dobu jedné hodiny."
+  },
+  "tryAgain": {
+    "message": "Zkusit znovu"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Pro tuto akci je vyžadováno ověření. Nastavte PIN kód pro pokračování."
+  },
+  "setPin": {
+    "message": "Nastavit PIN"
+  },
+  "verifyWithBiometrics": {
+    "message": "Ověřit pomocí biometrie"
+  },
+  "awaitingConfirmation": {
+    "message": "Čeká na potvrzení"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Nelze dokončit biometrii."
+  },
+  "needADifferentMethod": {
+    "message": "Potřebujete jinou metodu?"
+  },
+  "useMasterPassword": {
+    "message": "Použít hlavní heslo"
+  },
+  "usePin": {
+    "message": "Použít PIN"
+  },
+  "useBiometrics": {
+    "message": "Použít biometrii"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Zadejte ověřovací kód, který byl odeslán do Vašeho e-mailu."
+  },
+  "resendCode": {
+    "message": "Znovu odeslat kód"
   },
   "hours": {
     "message": "hodin"
@@ -2291,12 +2355,6 @@
   "loggingInOn": {
     "message": "Přihlašování na"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "selfHostedServer": {
     "message": "vlastní hosting"
   },
@@ -2427,6 +2485,9 @@
   "submenu": {
     "message": "Podmenu"
   },
+  "skipToContent": {
+    "message": "Přeskočit na obsah"
+  },
   "typePasskey": {
     "message": "Přístupový klíč"
   },
@@ -2478,6 +2539,15 @@
         "example": "My Org Name"
       }
     }
+  },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Spusťte DUO a pro dokončení přihlášení postupujte podle kroků."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "Pro Váš účet je vyžadováno dvoufázové přihlášení DUO."
+  },
+  "launchDuo": {
+    "message": "Spustit DUO v prohlížeči"
   },
   "importFormatError": {
     "message": "Data nemají správný formát. Zkontrolujte importovaný soubor a zkuste to znovu."
@@ -2559,6 +2629,15 @@
   "incorrectUsernameOrPassword": {
     "message": "Nesprávné uživatelské jméno nebo heslo"
   },
+  "incorrectPassword": {
+    "message": "Nesprávné heslo"
+  },
+  "incorrectCode": {
+    "message": "Nesprávný kód"
+  },
+  "incorrectPin": {
+    "message": "Nesprávný PIN"
+  },
   "multifactorAuthenticationFailed": {
     "message": "Vícefaktorové ověření se nezdařilo"
   },
@@ -2613,5 +2692,33 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Vložte YubiKey spojený s Vaším účtem LastPass do USB portu Vašeho počítače a stiskněte jeho tlačítko."
+  },
+  "commonImportFormats": {
+    "message": "Společné formáty",
+    "description": "Label indicating the most common import formats"
+  },
+  "success": {
+    "message": "Úspěch"
+  },
+  "troubleshooting": {
+    "message": "Řešení problémů"
+  },
+  "disableHardwareAccelerationRestart": {
+    "message": "Zakázat hardwarovou akceleraci a restartovat"
+  },
+  "enableHardwareAccelerationRestart": {
+    "message": "Povolit hardwarovou akceleraci a restartovat"
+  },
+  "removePasskey": {
+    "message": "Odebrat přístupový klíč"
+  },
+  "passkeyRemoved": {
+    "message": "Přístupový klíč byl odebrán"
+  },
+  "errorAssigningTargetCollection": {
+    "message": "Chyba při přiřazování cílové kolekce."
+  },
+  "errorAssigningTargetFolder": {
+    "message": "Chyba při přiřazování cílové složky."
   }
 }

@@ -1,4 +1,4 @@
-import { createChromeTabMock } from "../../autofill/jest/autofill-mocks";
+import { createChromeTabMock } from "../../autofill/spec/autofill-mocks";
 import { BrowserApi } from "../browser/browser-api";
 
 import BrowserPopupUtils from "./browser-popup-utils";
@@ -196,12 +196,14 @@ describe("BrowserPopupUtils", () => {
       jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(false);
       jest.spyOn(BrowserPopupUtils as any, "buildPopoutUrl");
 
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       BrowserPopupUtils.openPopout(url);
 
       expect(BrowserPopupUtils["buildPopoutUrl"]).not.toHaveBeenCalled();
     });
 
-    it("replaces any existing `uilocation=` query params within the passed extension url path to state the the uilocaiton is a popup", async () => {
+    it("replaces any existing `uilocation=` query params within the passed extension url path to state the uilocation is a popup", async () => {
       const url = "popup/index.html?uilocation=sidebar#/tabs/vault";
       jest.spyOn(BrowserPopupUtils as any, "isSingleActionPopoutOpen").mockResolvedValueOnce(false);
 

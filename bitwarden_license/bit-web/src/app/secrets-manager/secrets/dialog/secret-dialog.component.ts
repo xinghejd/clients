@@ -87,7 +87,7 @@ export class SecretDialogComponent implements OnInit {
       this.formGroup.get("project").setValue(this.data.projectId);
     }
 
-    if (this.organizationService.get(this.data.organizationId)?.isAdmin) {
+    if ((await this.organizationService.get(this.data.organizationId))?.isAdmin) {
       this.formGroup.get("project").removeValidators(Validators.required);
       this.formGroup.get("project").updateValueAndValidity();
     }
@@ -212,6 +212,8 @@ export class SecretDialogComponent implements OnInit {
     );
 
     // If the secret is deleted, chain close this dialog after the delete dialog
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     lastValueFrom(dialogRef.closed).then(
       (closeData) => closeData !== undefined && this.dialogRef.close(),
     );

@@ -1,5 +1,5 @@
 import * as chalk from "chalk";
-import * as program from "commander";
+import { program, Command, OptionValues } from "commander";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
@@ -135,10 +135,11 @@ export class Program {
         writeLn("    bw login --sso");
         writeLn("", true);
       })
-      .action(async (email: string, password: string, options: program.OptionValues) => {
+      .action(async (email: string, password: string, options: OptionValues) => {
         if (!options.check) {
           await this.exitIfAuthed();
           const command = new LoginCommand(
+            this.main.loginStrategyService,
             this.main.authService,
             this.main.apiService,
             this.main.cryptoFunctionService,
@@ -155,6 +156,7 @@ export class Program {
             this.main.policyApiService,
             this.main.organizationService,
             async () => await this.main.logout(),
+            this.main.kdfConfigService,
           );
           const response = await command.run(email, password, options);
           this.processResponse(response, true);
@@ -252,6 +254,8 @@ export class Program {
         if (!cmd.check) {
           await this.exitIfNotAuthed();
           const command = new UnlockCommand(
+            this.main.accountService,
+            this.main.masterPasswordService,
             this.main.cryptoService,
             this.main.stateService,
             this.main.cryptoFunctionService,
@@ -262,6 +266,7 @@ export class Program {
             this.main.syncService,
             this.main.organizationApiService,
             async () => await this.main.logout(),
+            this.main.kdfConfigService,
           );
           const response = await command.run(password, cmd);
           this.processResponse(response);
@@ -321,6 +326,7 @@ export class Program {
         writeLn("    bw generate -ul");
         writeLn("    bw generate -p --separator _");
         writeLn("    bw generate -p --words 5 --separator space");
+        writeLn("    bw generate -p --words 5 --separator empty");
         writeLn("", true);
       })
       .action(async (options) => {
@@ -427,7 +433,7 @@ export class Program {
         writeLn("    bw completion --shell zsh");
         writeLn("", true);
       })
-      .action(async (options: program.OptionValues, cmd: program.Command) => {
+      .action(async (options: OptionValues, cmd: Command) => {
         const command = new CompletionCommand();
         const response = await command.run(options);
         this.processResponse(response);
@@ -611,6 +617,8 @@ export class Program {
         this.processResponse(response, true);
       } else {
         const command = new UnlockCommand(
+          this.main.accountService,
+          this.main.masterPasswordService,
           this.main.cryptoService,
           this.main.stateService,
           this.main.cryptoFunctionService,
@@ -621,6 +629,7 @@ export class Program {
           this.main.syncService,
           this.main.organizationApiService,
           this.main.logout,
+          this.main.kdfConfigService,
         );
         const response = await command.run(null, null);
         if (!response.success) {

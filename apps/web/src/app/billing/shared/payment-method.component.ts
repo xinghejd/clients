@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild } from "@angular/core";
 import { FormBuilder, FormControl, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
+import { lastValueFrom } from "rxjs";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { OrganizationApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization/organization-api.service.abstraction";
@@ -14,6 +15,10 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { DialogService } from "@bitwarden/components";
 
+import {
+  AdjustPaymentDialogResult,
+  openAdjustPaymentDialog,
+} from "./adjust-payment-dialog.component";
 import { TaxInfoComponent } from "./tax-info.component";
 
 @Component({
@@ -25,7 +30,6 @@ export class PaymentMethodComponent implements OnInit {
 
   loading = false;
   firstLoaded = false;
-  showAdjustPayment = false;
   showAddCredit = false;
   billing: BillingPaymentResponse;
   org: OrganizationSubscriptionResponse;
@@ -68,6 +72,8 @@ export class PaymentMethodComponent implements OnInit {
       if (params.organizationId) {
         this.organizationId = params.organizationId;
       } else if (this.platformUtilsService.isSelfHost()) {
+        // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+        // eslint-disable-next-line @typescript-eslint/no-floating-promises
         this.router.navigate(["/settings/subscription"]);
         return;
       }
@@ -106,49 +112,30 @@ export class PaymentMethodComponent implements OnInit {
   }
 
   addCredit() {
-    if (this.paymentSourceInApp) {
-      this.dialogService.openSimpleDialog({
-        title: { key: "addCredit" },
-        content: { key: "cannotPerformInAppPurchase" },
-        acceptButtonText: { key: "ok" },
-        cancelButtonText: null,
-        type: "warning",
-      });
-
-      return;
-    }
     this.showAddCredit = true;
   }
 
   closeAddCredit(load: boolean) {
     this.showAddCredit = false;
     if (load) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.load();
     }
   }
 
-  changePayment() {
-    if (this.paymentSourceInApp) {
-      this.dialogService.openSimpleDialog({
-        title: { key: "changePaymentMethod" },
-        content: { key: "cannotPerformInAppPurchase" },
-        acceptButtonText: { key: "ok" },
-        cancelButtonText: null,
-        type: "warning",
-      });
-
-      return;
+  changePayment = async () => {
+    const dialogRef = openAdjustPaymentDialog(this.dialogService, {
+      data: {
+        organizationId: this.organizationId,
+        currentType: this.paymentSource !== null ? this.paymentSource.type : null,
+      },
+    });
+    const result = await lastValueFrom(dialogRef.closed);
+    if (result === AdjustPaymentDialogResult.Adjusted) {
+      await this.load();
     }
-
-    this.showAdjustPayment = true;
-  }
-
-  closePayment(load: boolean) {
-    this.showAdjustPayment = false;
-    if (load) {
-      this.load();
-    }
-  }
+  };
 
   async verifyBank() {
     if (this.loading || !this.forOrganization) {
@@ -166,6 +153,8 @@ export class PaymentMethodComponent implements OnInit {
         null,
         this.i18nService.t("verifiedBankAccount"),
       );
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.load();
     } catch (e) {
       this.logService.error(e);
@@ -209,23 +198,11 @@ export class PaymentMethodComponent implements OnInit {
         return ["bwi-bank"];
       case PaymentMethodType.Check:
         return ["bwi-money"];
-      case PaymentMethodType.AppleInApp:
-        return ["bwi-apple text-muted"];
-      case PaymentMethodType.GoogleInApp:
-        return ["bwi-google text-muted"];
       case PaymentMethodType.PayPal:
         return ["bwi-paypal text-primary"];
       default:
         return [];
     }
-  }
-
-  get paymentSourceInApp() {
-    return (
-      this.paymentSource != null &&
-      (this.paymentSource.type === PaymentMethodType.AppleInApp ||
-        this.paymentSource.type === PaymentMethodType.GoogleInApp)
-    );
   }
 
   get subscription() {

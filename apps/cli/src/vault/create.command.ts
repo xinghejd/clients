@@ -1,13 +1,15 @@
 import * as fs from "fs";
 import * as path from "path";
 
+import { firstValueFrom } from "rxjs";
+
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { SelectionReadOnlyRequest } from "@bitwarden/common/admin-console/models/request/selection-read-only.request";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { CipherExport } from "@bitwarden/common/models/export/cipher.export";
 import { CollectionExport } from "@bitwarden/common/models/export/collection.export";
 import { FolderExport } from "@bitwarden/common/models/export/folder.export";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
@@ -26,10 +28,10 @@ export class CreateCommand {
   constructor(
     private cipherService: CipherService,
     private folderService: FolderService,
-    private stateService: StateService,
     private cryptoService: CryptoService,
     private apiService: ApiService,
     private folderApiService: FolderApiServiceAbstraction,
+    private accountProfileService: BillingAccountProfileStateService,
   ) {}
 
   async run(
@@ -78,8 +80,7 @@ export class CreateCommand {
   private async createCipher(req: CipherExport) {
     const cipher = await this.cipherService.encrypt(CipherExport.toView(req));
     try {
-      await this.cipherService.createWithServer(cipher);
-      const newCipher = await this.cipherService.get(cipher.id);
+      const newCipher = await this.cipherService.createWithServer(cipher);
       const decCipher = await newCipher.decrypt(
         await this.cipherService.getKeyForCipherKeyDecryption(newCipher),
       );
@@ -124,7 +125,10 @@ export class CreateCommand {
       return Response.notFound();
     }
 
-    if (cipher.organizationId == null && !(await this.stateService.getCanAccessPremium())) {
+    if (
+      cipher.organizationId == null &&
+      !(await firstValueFrom(this.accountProfileService.hasPremiumFromAnySource$))
+    ) {
       return Response.error("Premium status is required to use this feature.");
     }
 
@@ -137,12 +141,11 @@ export class CreateCommand {
     }
 
     try {
-      await this.cipherService.saveAttachmentRawWithServer(
+      const updatedCipher = await this.cipherService.saveAttachmentRawWithServer(
         cipher,
         fileName,
         new Uint8Array(fileBuf).buffer,
       );
-      const updatedCipher = await this.cipherService.get(cipher.id);
       const decCipher = await updatedCipher.decrypt(
         await this.cipherService.getKeyForCipherKeyDecryption(updatedCipher),
       );

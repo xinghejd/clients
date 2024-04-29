@@ -3,12 +3,12 @@
     "message": "Bitwarden"
   },
   "extName": {
-    "message": "Bitwarden - 免费密码管理器",
+    "message": "Bitwarden 密码管理器",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "安全且免费的跨平台密码管理器。",
-    "description": "Extension description"
+    "message": "无论是在家里、工作中还是在外出时，Bitwarden 都可以轻松地保护您的所有密码、通行密钥和敏感信息。",
+    "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
     "message": "登录或者创建一个账户来访问您的安全密码库。"
@@ -172,6 +172,12 @@
   "changeMasterPassword": {
     "message": "更改主密码"
   },
+  "continueToWebApp": {
+    "message": "前往网页 App 吗？"
+  },
+  "changeMasterPasswordOnWebConfirmation": {
+    "message": "您可以在 Bitwarden 网页应用上更改您的主密码。"
+  },
   "fingerprintPhrase": {
     "message": "指纹短语",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
@@ -326,6 +332,9 @@
   "password": {
     "message": "密码"
   },
+  "totp": {
+    "message": "验证器机密"
+  },
   "passphrase": {
     "message": "密码短语"
   },
@@ -369,7 +378,7 @@
     "message": "设置一个解锁方式以更改您的密码库超时动作。"
   },
   "unlockMethodNeeded": {
-    "message": "在设置中设置解锁方法"
+    "message": "在设置中设置一个解锁方式"
   },
   "rateExtension": {
     "message": "为本扩展打分"
@@ -490,6 +499,12 @@
   "newAccountCreated": {
     "message": "您的新账户已创建！您现在可以登录了。"
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "您已成功登录"
+  },
+  "youMayCloseThisWindow": {
+    "message": "您可以关闭此窗口"
+  },
   "masterPassSent": {
     "message": "我们已经为您发送了包含主密码提示的邮件。"
   },
@@ -511,6 +526,18 @@
   },
   "autofillError": {
     "message": "无法在此页面上自动填充所选项目。请改为手工复制并粘贴。"
+  },
+  "totpCaptureError": {
+    "message": "无法从当前网页扫描二维码"
+  },
+  "totpCaptureSuccess": {
+    "message": "已添加验证器密钥"
+  },
+  "totpCapture": {
+    "message": "从当前网页扫描验证器二维码"
+  },
+  "copyTOTP": {
+    "message": "复制验证器密钥 (TOTP)"
   },
   "loggedOut": {
     "message": "已注销"
@@ -535,12 +562,6 @@
   },
   "addedFolder": {
     "message": "文件夹已添加"
-  },
-  "changeMasterPass": {
-    "message": "修改主密码"
-  },
-  "changeMasterPasswordConfirmation": {
-    "message": "您可以在 bitwarden.com 网页版密码库修改主密码。您现在要访问这个网站吗？"
   },
   "twoStepLoginConfirmation": {
     "message": "两步登录要求您从其他设备（例如安全钥匙、验证器 App、短信、电话或者电子邮件）来验证您的登录，这能使您的账户更加安全。两步登录需要在 bitwarden.com 网页版密码库中设置。现在访问此网站吗？"
@@ -967,7 +988,7 @@
     "message": "验证器 App"
   },
   "authenticatorAppDesc": {
-    "message": "使用验证器应用（例如 Authy 或 Google Authenticator）来生成基于时间的验证码。",
+    "message": "使用验证器 App（例如 Authy 或 Google Authenticator）来生成基于时间的验证码。",
     "description": "'Authy' and 'Google Authenticator' are product names and should not be translated."
   },
   "yubiKeyTitle": {
@@ -1037,7 +1058,7 @@
     "message": "适用于所有已登录的账户。"
   },
   "turnOffBrowserBuiltInPasswordManagerSettings": {
-    "message": "关闭您浏览器自带的密码管理器设置以免冲突"
+    "message": "关闭您浏览器自带的密码管理器设置以避免冲突。"
   },
   "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
     "message": "编辑浏览器设置。"
@@ -1478,6 +1499,9 @@
   "invalidPin": {
     "message": "无效 PIN 码。"
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "无效的 PIN 输入尝试次数过多，正在注销。"
+  },
   "unlockWithBiometrics": {
     "message": "使用生物识别解锁"
   },
@@ -1718,14 +1742,14 @@
     "message": "Bitwarden 将不会询问是否为这些域名保存登录信息。您必须刷新页面才能使更改生效。"
   },
   "excludedDomainsDescAlt": {
-    "message": "Bitwarden 不会询问保存所有已登录的账户的这些域名的登录信息。您必须刷新页面才能使更改生效。"
+    "message": "Bitwarden 不会询问保存所有已登录的账户的这些域名的登录信息。必须刷新页面才能使更改生效。"
   },
   "excludedDomainsInvalidDomain": {
     "message": "$DOMAIN$ 不是一个有效的域名",
     "placeholders": {
       "domain": {
         "content": "$1",
-        "example": "googlecom"
+        "example": "google.com"
       }
     }
   },
@@ -1980,6 +2004,10 @@
   "selectFolder": {
     "message": "选择文件夹..."
   },
+  "noFoldersFound": {
+    "message": "找不到文件夹",
+    "description": "Used as a message within the notification bar when no folders are found"
+  },
   "orgPermissionsUpdatedMustSetPassword": {
     "message": "您的组织权限已更新，要求您设置主密码。",
     "description": "Used as a card title description on the set password page to explain why the user is there"
@@ -1987,6 +2015,10 @@
   "orgRequiresYouToSetPassword": {
     "message": "您的组织要求您设置主密码。",
     "description": "Used as a card title description on the set password page to explain why the user is there"
+  },
+  "verificationRequired": {
+    "message": "需要验证",
+    "description": "Default title for the user verification dialog."
   },
   "hours": {
     "message": "小时"
@@ -2282,7 +2314,7 @@
     "message": "如何自动填充"
   },
   "autofillSelectInfoWithCommand": {
-    "message": "从此界面选择一个项目，使用快捷方式 $COMMAND$，或探索设置中的其他选项。",
+    "message": "从此界面选择一个项目，使用快捷键 $COMMAND$，或探索设置中的其他选项。",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2303,10 +2335,10 @@
     "message": "自动填充键盘快捷键"
   },
   "autofillShortcutNotSet": {
-    "message": "未设置自动填充快捷方式。请在浏览器设置中更改此设置。"
+    "message": "未设置自动填充快捷键。可在浏览器的设置中更改它。"
   },
   "autofillShortcutText": {
-    "message": "自动填充快捷方式为： $COMMAND$。在浏览器设置中更改此项。",
+    "message": "自动填充快捷键为：$COMMAND$。可在浏览器的设置中更改它。",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2353,12 +2385,6 @@
   "eu": {
     "message": "欧盟",
     "description": "European Union"
-  },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
   },
   "accessDenied": {
     "message": "访问被拒绝。您没有权限查看此页面。"
@@ -2497,6 +2523,38 @@
     "message": "切换折叠",
     "description": "Toggling an expand/collapse state."
   },
+  "filelessImport": {
+    "message": "导入您的数据到 Bitwarden 吗？",
+    "description": "Default notification title for triggering a fileless import."
+  },
+  "lpFilelessImport": {
+    "message": "保护您的 LastPass 数据并导入到 Bitwarden 吗？",
+    "description": "LastPass specific notification title for triggering a fileless import."
+  },
+  "lpCancelFilelessImport": {
+    "message": "保存为未加密的文件",
+    "description": "LastPass specific notification button text for cancelling a fileless import."
+  },
+  "startFilelessImport": {
+    "message": "导入到 Bitwarden",
+    "description": "Notification button text for starting a fileless import."
+  },
+  "importing": {
+    "message": "导入中...",
+    "description": "Notification message for when an import is in progress."
+  },
+  "dataSuccessfullyImported": {
+    "message": "数据导入成功！",
+    "description": "Notification message for when an import has completed successfully."
+  },
+  "dataImportFailed": {
+    "message": "导入时出错。检查控制台以获取详细信息。",
+    "description": "Notification message for when an import has failed."
+  },
+  "importNetworkError": {
+    "message": "导入过程中遇到网络错误。",
+    "description": "Notification message for when an import has failed due to a network error."
+  },
   "aliasDomain": {
     "message": "别名域"
   },
@@ -2511,6 +2569,9 @@
   "turnOffMasterPasswordPromptToEditField": {
     "message": "关闭主密码重新提示以编辑此字段",
     "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
+  },
+  "skipToContent": {
+    "message": "跳转到正文"
   },
   "bitwardenOverlayButton": {
     "message": "Bitwarden 自动填充菜单按钮",
@@ -2590,6 +2651,42 @@
       }
     }
   },
+  "tryAgain": {
+    "message": "再试一次"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "此操作需要验证。设置一个 PIN 码以继续。"
+  },
+  "setPin": {
+    "message": "设置 PIN 码"
+  },
+  "verifyWithBiometrics": {
+    "message": "使用生物识别验证"
+  },
+  "awaitingConfirmation": {
+    "message": "等待确认"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "无法完成生物识别。"
+  },
+  "needADifferentMethod": {
+    "message": "需要一个不同的方法？"
+  },
+  "useMasterPassword": {
+    "message": "使用主密码"
+  },
+  "usePin": {
+    "message": "使用 PIN 码"
+  },
+  "useBiometrics": {
+    "message": "使用生物识别"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "输入发送到您电子邮箱的验证码。"
+  },
+  "resendCode": {
+    "message": "重新发送代码"
+  },
   "total": {
     "message": "总计"
   },
@@ -2601,6 +2698,21 @@
         "example": "My Org Name"
       }
     }
+  },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "启动 DUO 并按照步骤完成登录。"
+  },
+  "duoRequiredForAccount": {
+    "message": "您的账户要求使用 Duo 两步登录。"
+  },
+  "popoutTheExtensionToCompleteLogin": {
+    "message": "弹出扩展以完成登录。"
+  },
+  "popoutExtension": {
+    "message": "弹出扩展"
+  },
+  "launchDuo": {
+    "message": "启动 Duo"
   },
   "importFormatError": {
     "message": "数据格式不正确。请检查您的导入文件然后重试。"
@@ -2724,9 +2836,6 @@
   "yourPasskeyIsLocked": {
     "message": "使用通行密钥需要身份验证。请验证身份以继续。"
   },
-  "useBrowserName": {
-    "message": "使用浏览器"
-  },
   "multifactorAuthenticationCancelled": {
     "message": "多重身份验证已取消"
   },
@@ -2735,6 +2844,15 @@
   },
   "incorrectUsernameOrPassword": {
     "message": "用户名或密码不正确"
+  },
+  "incorrectPassword": {
+    "message": "密码不正确"
+  },
+  "incorrectCode": {
+    "message": "验证码不正确"
+  },
+  "incorrectPin": {
+    "message": "PIN 码不正确"
   },
   "multifactorAuthenticationFailed": {
     "message": "多重身份验证失败"
@@ -2803,11 +2921,14 @@
   "activeAccount": {
     "message": "活动账户"
   },
+  "availableAccounts": {
+    "message": "可用账户"
+  },
   "accountLimitReached": {
     "message": "已达到账户上限。请注销一个账户后再添加其他账户。"
   },
   "active": {
-    "message": "已生效"
+    "message": "活动的"
   },
   "locked": {
     "message": "已锁定"
@@ -2820,5 +2941,95 @@
   },
   "hostedAt": {
     "message": "托管于"
+  },
+  "useDeviceOrHardwareKey": {
+    "message": "使用您的设备或实体钥匙"
+  },
+  "justOnce": {
+    "message": "仅此一次"
+  },
+  "alwaysForThisSite": {
+    "message": "总是为此站点"
+  },
+  "domainAddedToExcludedDomains": {
+    "message": "$DOMAIN$ 已添加到排除域名列表。",
+    "placeholders": {
+      "domain": {
+        "content": "$1",
+        "example": "google.com"
+      }
+    }
+  },
+  "commonImportFormats": {
+    "message": "常规格式",
+    "description": "Label indicating the most common import formats"
+  },
+  "overrideDefaultBrowserAutofillTitle": {
+    "message": "将 Bitwarden 设置为您的默认密码管理器吗？",
+    "description": "Dialog title facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutofillDescription": {
+    "message": "忽略此选项可能会导致 Bitwarden 自动填充菜单与浏览器自带功能产生冲突。",
+    "description": "Dialog message facilitating the ability to override a chrome browser's default autofill behavior"
+  },
+  "overrideDefaultBrowserAutoFillSettings": {
+    "message": "将 Bitwarden 设置为您的默认密码管理器",
+    "description": "Label for the setting that allows overriding the default browser autofill settings"
+  },
+  "privacyPermissionAdditionNotGrantedTitle": {
+    "message": "无法将 Bitwarden 设置为默认密码管理器",
+    "description": "Title for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "privacyPermissionAdditionNotGrantedDescription": {
+    "message": "您必须授予 Bitwarden 浏览器隐私权限才能将其设置为默认密码管理器。",
+    "description": "Description for the dialog that appears when the user has not granted the extension permission to set privacy settings"
+  },
+  "makeDefault": {
+    "message": "设为默认",
+    "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "saveCipherAttemptSuccess": {
+    "message": "凭据保存成功！",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
+  "updateCipherAttemptSuccess": {
+    "message": "凭据更新成功！",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "saveCipherAttemptFailed": {
+    "message": "保存凭据时出错。检查控制台以获取详细信息。",
+    "description": "Notification message for when saving credentials has failed."
+  },
+  "success": {
+    "message": "成功"
+  },
+  "removePasskey": {
+    "message": "移除通行密钥"
+  },
+  "passkeyRemoved": {
+    "message": "通行密钥已移除"
+  },
+  "unassignedItemsBannerNotice": {
+    "message": "注意：未分配的组织项目在「所有密码库」视图中不再可见，只能通过管理控制台访问。"
+  },
+  "unassignedItemsBannerSelfHostNotice": {
+    "message": "注意：从 2024 年 5 月 16 日起，未分配的组织项目在「所有密码库」视图中将不再可见，只能通过管理控制台访问。"
+  },
+  "unassignedItemsBannerCTAPartOne": {
+    "message": "Assign these items to a collection from the",
+    "description": "This will be part of a larger sentence, which will read like so: Assign these items to a collection from the Admin Console to make them visible."
+  },
+  "unassignedItemsBannerCTAPartTwo": {
+    "message": "以使其可见。",
+    "description": "This will be part of a larger sentence, which will read like so: Assign these items to a collection from the Admin Console to make them visible."
+  },
+  "adminConsole": {
+    "message": "管理控制台"
+  },
+  "errorAssigningTargetCollection": {
+    "message": "分配目标集合时出错。"
+  },
+  "errorAssigningTargetFolder": {
+    "message": "分配目标文件夹时出错。"
   }
 }

@@ -560,6 +560,12 @@
   "newAccountCreated": {
     "message": "Konto zostało utworzone! Teraz możesz się zalogować."
   },
+  "youSuccessfullyLoggedIn": {
+    "message": "Zalogowałeś się pomyślnie"
+  },
+  "youMayCloseThisWindow": {
+    "message": "Możesz zamknąć to okno"
+  },
   "masterPassSent": {
     "message": "Wysłaliśmy Tobie wiadomość e-mail z podpowiedzią do hasła głównego."
   },
@@ -794,8 +800,11 @@
   "changeMasterPass": {
     "message": "Zmień hasło główne"
   },
-  "changeMasterPasswordConfirmation": {
-    "message": "Hasło główne możesz zmienić na stronie sejfu bitwarden.com. Czy chcesz przejść do tej strony?"
+  "continueToWebApp": {
+    "message": "Kontynuować do aplikacji internetowej?"
+  },
+  "changeMasterPasswordOnWebConfirmation": {
+    "message": "Możesz zmienić swoje hasło główne w aplikacji internetowej Bitwarden."
   },
   "fingerprintPhrase": {
     "message": "Unikalny identyfikator konta",
@@ -1392,6 +1401,9 @@
   "invalidPin": {
     "message": "Kod PIN jest nieprawidłowy."
   },
+  "tooManyInvalidPinEntryAttemptsLoggingOut": {
+    "message": "Zbyt wiele nieprawidłowych prób wpisywania PIN. Wylogowywanie."
+  },
   "unlockWithWindowsHello": {
     "message": "Odblokuj za pomocą Windows Hello"
   },
@@ -1544,6 +1556,10 @@
     "message": "Twoja organizacja wymaga ustawienia hasła głównego.",
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
+  "verificationRequired": {
+    "message": "Wymagana weryfikacja",
+    "description": "Default title for the user verification dialog."
+  },
   "currentMasterPass": {
     "message": "Aktualne hasło główne"
   },
@@ -1616,6 +1632,12 @@
   "browserIntegrationUnsupportedTitle": {
     "message": "Połączenie z przeglądarką nie jest obsługiwane"
   },
+  "browserIntegrationErrorTitle": {
+    "message": "Błąd podczas włączania integracji z przeglądarką"
+  },
+  "browserIntegrationErrorDesc": {
+    "message": "Wystąpił błąd podczas włączania integracji z przeglądarką."
+  },
   "browserIntegrationMasOnlyDesc": {
     "message": "Połączenie z przeglądarką jest obsługiwane tylko z wersją aplikacji ze sklepu Mac App Store."
   },
@@ -1630,6 +1652,12 @@
   },
   "enableBrowserIntegrationFingerprintDesc": {
     "message": "Dodaj dodatkową warstwę zabezpieczeń, weryfikując unikalny identyfikator konta podczas tworzenia linku między aplikacją a przeglądarką. Funkcja ta wymaga weryfikacji identyfikatora przy każdym nawiązaniu połączenia."
+  },
+  "enableHardwareAcceleration": {
+    "message": "Użyj przyśpieszenia sprzętowego"
+  },
+  "enableHardwareAccelerationDesc": {
+    "message": "Domyślnie to ustawienie jest włączone. Wyłącz tylko wtedy, gdy wystąpią problemy graficzne. Wymagane jest ponowne uruchomienie."
   },
   "approve": {
     "message": "Zatwierdź"
@@ -1868,6 +1896,42 @@
   },
   "updateWeakMasterPasswordWarning": {
     "message": "Twoje hasło główne nie spełnia jednej lub kilku zasad organizacji. Aby uzyskać dostęp do sejfu, musisz teraz zaktualizować swoje hasło główne. Kontynuacja wyloguje Cię z bieżącej sesji, wymagając zalogowania się ponownie. Aktywne sesje na innych urządzeniach mogą pozostać aktywne przez maksymalnie jedną godzinę."
+  },
+  "tryAgain": {
+    "message": "Spróbuj ponownie"
+  },
+  "verificationRequiredForActionSetPinToContinue": {
+    "message": "Weryfikacja dla tej akcji jest wymagana. Ustaw kod PIN, aby kontynuować."
+  },
+  "setPin": {
+    "message": "Ustaw PIN"
+  },
+  "verifyWithBiometrics": {
+    "message": "Weryfikuj za pomocą biometrii"
+  },
+  "awaitingConfirmation": {
+    "message": "Oczekiwanie na potwierdzenie"
+  },
+  "couldNotCompleteBiometrics": {
+    "message": "Nie można ukończyć z użyciem biometrii."
+  },
+  "needADifferentMethod": {
+    "message": "Potrzebujesz innej metody?"
+  },
+  "useMasterPassword": {
+    "message": "Użyj hasła głównego"
+  },
+  "usePin": {
+    "message": "Użyj PINu"
+  },
+  "useBiometrics": {
+    "message": "Użyj biometrii"
+  },
+  "enterVerificationCodeSentToEmail": {
+    "message": "Wpisz kod weryfikacyjny, który został wysłany na adres e-mail."
+  },
+  "resendCode": {
+    "message": "Wysłać kod ponownie"
   },
   "hours": {
     "message": "Godziny"
@@ -2291,12 +2355,6 @@
   "loggingInOn": {
     "message": "Logowanie do"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "selfHostedServer": {
     "message": "samodzielnie hostowany"
   },
@@ -2427,6 +2485,9 @@
   "submenu": {
     "message": "Podmenu"
   },
+  "skipToContent": {
+    "message": "Przejdź do treści"
+  },
   "typePasskey": {
     "message": "Passkey"
   },
@@ -2478,6 +2539,15 @@
         "example": "My Org Name"
       }
     }
+  },
+  "launchDuoAndFollowStepsToFinishLoggingIn": {
+    "message": "Uruchom Duo i wykonaj kroki, aby zakończyć logowanie."
+  },
+  "duoRequiredByOrgForAccount": {
+    "message": "Dwustopniowe logowanie Duo jest wymagane dla Twojego konta."
+  },
+  "launchDuo": {
+    "message": "Uruchom Duo w przeglądarce"
   },
   "importFormatError": {
     "message": "Dane nie są poprawnie sformatowane. Sprawdź importowany plik i spróbuj ponownie."
@@ -2559,6 +2629,15 @@
   "incorrectUsernameOrPassword": {
     "message": "Nieprawidłowa nazwa użytkownika lub hasło"
   },
+  "incorrectPassword": {
+    "message": "Błędne hasło"
+  },
+  "incorrectCode": {
+    "message": "Błędny kod"
+  },
+  "incorrectPin": {
+    "message": "Niepoprawny PIN"
+  },
   "multifactorAuthenticationFailed": {
     "message": "Uwierzytelnianie wieloskładnikowe nie powiodło się"
   },
@@ -2613,5 +2692,33 @@
   },
   "lastPassYubikeyDesc": {
     "message": "Włóż YubiKey powiązany z Twoim kontem LastPass do portu USB komputera, a następnie naciśnij jego przycisk."
+  },
+  "commonImportFormats": {
+    "message": "Popularne formaty",
+    "description": "Label indicating the most common import formats"
+  },
+  "success": {
+    "message": "Sukces"
+  },
+  "troubleshooting": {
+    "message": "Rozwiązywanie problemów"
+  },
+  "disableHardwareAccelerationRestart": {
+    "message": "Wyłącz akcelerację sprzętową i uruchom ponownie"
+  },
+  "enableHardwareAccelerationRestart": {
+    "message": "Włącz akcelerację sprzętową i uruchom ponownie"
+  },
+  "removePasskey": {
+    "message": "Usuń passkey"
+  },
+  "passkeyRemoved": {
+    "message": "Passkey został usunięty"
+  },
+  "errorAssigningTargetCollection": {
+    "message": "Wystąpił błąd podczas przypisywania kolekcji."
+  },
+  "errorAssigningTargetFolder": {
+    "message": "Wystąpił błąd podczas przypisywania folderu."
   }
 }

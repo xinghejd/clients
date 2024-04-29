@@ -7,7 +7,6 @@ import { Subject, takeUntil } from "rxjs";
 
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyData } from "@bitwarden/common/admin-console/models/data/policy.data";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 import { PlanType } from "@bitwarden/common/billing/enums";
@@ -16,6 +15,12 @@ import { ReferenceEventRequest } from "@bitwarden/common/models/request/referenc
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+
+import {
+  OrganizationCreatedEvent,
+  SubscriptionProduct,
+  TrialOrganizationType,
+} from "../../billing/accounts/trial-initiation/trial-billing-step.component";
 
 import { RouterService } from "./../../core/router.service";
 import { VerticalStepperComponent } from "./vertical-stepper/vertical-stepper.component";
@@ -44,6 +49,7 @@ enum ValidLayoutParams {
   cnetcmpgnteams = "cnetcmpgnteams",
   abmenterprise = "abmenterprise",
   abmteams = "abmteams",
+  secretsManager = "secretsManager",
 }
 
 @Component({
@@ -168,6 +174,10 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
       // Are they coming from an email for sponsoring a families organization
       // After logging in redirect them to setup the families sponsorship
       this.setupFamilySponsorship(qParams.sponsorshipToken);
+
+      this.referenceData.initiationPath = this.accountCreateOnly
+        ? "Registration form"
+        : "Password Manager trial from marketing website";
     });
 
     const invite = await this.stateService.getOrganizationInvitation();
@@ -180,8 +190,7 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
           invite.organizationUserId,
         );
         if (policies.data != null) {
-          const policiesData = policies.data.map((p) => new PolicyData(p));
-          this.policies = policiesData.map((p) => new Policy(p));
+          this.policies = Policy.fromListResponse(policies);
         }
       } catch (e) {
         this.logService.error(e);
@@ -238,11 +247,21 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
     this.verticalStepper.next();
   }
 
+  createdOrganization(event: OrganizationCreatedEvent) {
+    this.orgId = event.organizationId;
+    this.billingSubLabel = event.planDescription;
+    this.verticalStepper.next();
+  }
+
   navigateToOrgVault() {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["organizations", this.orgId, "vault"]);
   }
 
   navigateToOrgInvite() {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate(["organizations", this.orgId, "members"]);
   }
 
@@ -258,6 +277,24 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
     return this.org;
   }
 
+  get freeTrialText() {
+    const translationKey =
+      this.layout === this.layouts.secretsManager
+        ? "startYour7DayFreeTrialOfBitwardenSecretsManagerFor"
+        : "startYour7DayFreeTrialOfBitwardenFor";
+
+    return this.i18nService.t(translationKey, this.org);
+  }
+
+  get trialOrganizationType(): TrialOrganizationType {
+    switch (this.product) {
+      case ProductType.Free:
+        return null;
+      default:
+        return this.product;
+    }
+  }
+
   private setupFamilySponsorship(sponsorshipToken: string) {
     if (sponsorshipToken != null) {
       const route = this.router.createUrlTree(["setup/families-for-enterprise"], {
@@ -266,4 +303,6 @@ export class TrialInitiationComponent implements OnInit, OnDestroy {
       this.routerService.setPreviousUrl(route.toString());
     }
   }
+
+  protected readonly SubscriptionProduct = SubscriptionProduct;
 }

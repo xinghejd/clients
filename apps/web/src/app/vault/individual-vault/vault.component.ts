@@ -35,13 +35,14 @@ import { EventCollectionService } from "@bitwarden/common/abstractions/event/eve
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
+import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EventType } from "@bitwarden/common/enums";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { BroadcasterService } from "@bitwarden/common/platform/abstractions/broadcaster.service";
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
-import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -86,7 +87,7 @@ import {
   BulkShareDialogResult,
   openBulkShareDialog,
 } from "./bulk-action-dialogs/bulk-share-dialog/bulk-share-dialog.component";
-import { CollectionsComponent } from "./collections.component";
+import { openIndividualVaultCollectionsDialog } from "./collections.component";
 import { FolderAddEditDialogResult, openFolderAddEditDialog } from "./folder-add-edit.component";
 import { ShareComponent } from "./share.component";
 import { VaultFilterComponent } from "./vault-filter/components/vault-filter.component";
@@ -145,9 +146,8 @@ export class VaultComponent implements OnInit, OnDestroy {
   protected selectedCollection: TreeNode<CollectionView> | undefined;
   protected canCreateCollections = false;
   protected currentSearchText$: Observable<string>;
-  protected showBulkCollectionAccess$ = this.configService.getFeatureFlag$(
-    FeatureFlag.BulkCollectionAccess,
-    false,
+  protected flexibleCollectionsV1Enabled$ = this.configService.getFeatureFlag$(
+    FeatureFlag.FlexibleCollectionsV1,
   );
 
   private searchText$ = new Subject<string>();
@@ -163,7 +163,6 @@ export class VaultComponent implements OnInit, OnDestroy {
     private modalService: ModalService,
     private dialogService: DialogService,
     private tokenService: TokenService,
-    private cryptoService: CryptoService,
     private messagingService: MessagingService,
     private platformUtilsService: PlatformUtilsService,
     private broadcasterService: BroadcasterService,
@@ -181,9 +180,11 @@ export class VaultComponent implements OnInit, OnDestroy {
     private eventCollectionService: EventCollectionService,
     private searchService: SearchService,
     private searchPipe: SearchPipe,
-    private configService: ConfigServiceAbstraction,
+    private configService: ConfigService,
     private apiService: ApiService,
     private userVerificationService: UserVerificationService,
+    private billingAccountProfileStateService: BillingAccountProfileStateService,
+    protected kdfConfigService: KdfConfigService,
   ) {}
 
   async ngOnInit() {
@@ -203,7 +204,9 @@ export class VaultComponent implements OnInit, OnDestroy {
           : false;
         await this.syncService.fullSync(false, "vault-first-setup");
 
-        const canAccessPremium = await this.stateService.getCanAccessPremium();
+        const canAccessPremium = await firstValueFrom(
+          this.billingAccountProfileStateService.hasPremiumFromAnySource$,
+        );
         this.showPremiumCallout =
           !this.showVerifyEmail && !canAccessPremium && !this.platformUtilsService.isSelfHost();
 
@@ -223,6 +226,8 @@ export class VaultComponent implements OnInit, OnDestroy {
     );
 
     this.broadcasterService.subscribe(BroadcasterSubscriptionId, (message: any) => {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.ngZone.run(async () => {
         switch (message.command) {
           case "syncCompleted":
@@ -242,10 +247,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       });
 
     const filter$ = this.routedVaultFilterService.filter$;
-    const canAccessPremium$ = Utils.asyncToObservable(() =>
-      this.stateService.getCanAccessPremium(),
-    ).pipe(shareReplay({ refCount: true, bufferSize: 1 }));
-    const allCollections$ = Utils.asyncToObservable(() => this.collectionService.getAllDecrypted());
+    const allCollections$ = this.collectionService.decryptedCollections$;
     const nestedCollections$ = allCollections$.pipe(
       map((collections) => getNestedCollectionTree(collections)),
     );
@@ -271,7 +273,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       concatMap(async ([ciphers, filter, searchText]) => {
         const filterFunction = createFilterFunction(filter);
 
-        if (this.searchService.isSearchable(searchText)) {
+        if (await this.searchService.isSearchable(searchText)) {
           return await this.searchService.searchCiphers(searchText, [filterFunction], ciphers);
         }
 
@@ -282,7 +284,7 @@ export class VaultComponent implements OnInit, OnDestroy {
 
     const collections$ = combineLatest([nestedCollections$, filter$, this.currentSearchText$]).pipe(
       filter(([collections, filter]) => collections != undefined && filter != undefined),
-      map(([collections, filter, searchText]) => {
+      concatMap(async ([collections, filter, searchText]) => {
         if (filter.collectionId === undefined || filter.collectionId === Unassigned) {
           return [];
         }
@@ -302,7 +304,7 @@ export class VaultComponent implements OnInit, OnDestroy {
           collectionsToReturn = selectedCollection?.children.map((c) => c.node) ?? [];
         }
 
-        if (this.searchService.isSearchable(searchText)) {
+        if (await this.searchService.isSearchable(searchText)) {
           collectionsToReturn = this.searchPipe.transform(
             collectionsToReturn,
             searchText,
@@ -339,6 +341,8 @@ export class VaultComponent implements OnInit, OnDestroy {
           const cipherId = getCipherIdFromParams(params);
           if (cipherId) {
             if ((await this.cipherService.get(cipherId)) != null) {
+              // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+              // eslint-disable-next-line @typescript-eslint/no-floating-promises
               this.editCipherId(cipherId);
             } else {
               this.platformUtilsService.showToast(
@@ -346,6 +350,8 @@ export class VaultComponent implements OnInit, OnDestroy {
                 this.i18nService.t("errorOccurred"),
                 this.i18nService.t("unknownCipher"),
               );
+              // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+              // eslint-disable-next-line @typescript-eslint/no-floating-promises
               this.router.navigate([], {
                 queryParams: { itemId: null, cipherId: null },
                 queryParamsHandling: "merge",
@@ -364,7 +370,7 @@ export class VaultComponent implements OnInit, OnDestroy {
         switchMap(() =>
           combineLatest([
             filter$,
-            canAccessPremium$,
+            this.billingAccountProfileStateService.hasPremiumFromAnySource$,
             allCollections$,
             this.organizationService.organizations$,
             ciphers$,
@@ -400,10 +406,6 @@ export class VaultComponent implements OnInit, OnDestroy {
             filter.type !== "trash" &&
             (filter.organizationId === undefined || filter.organizationId === Unassigned);
           this.isEmpty = collections?.length === 0 && ciphers?.length === 0;
-
-          // This is a temporary fix to avoid double fetching collections.
-          // TODO: Remove when implementing new VVR menu
-          this.vaultFilterService.reloadCollections(allCollections);
 
           this.performingInitialLoad = false;
           this.refreshing = false;
@@ -470,6 +472,8 @@ export class VaultComponent implements OnInit, OnDestroy {
     }
     const orgs = await firstValueFrom(this.filterComponent.filters.organizationFilter.data$);
     const orgNode = ServiceUtils.getTreeNodeObject(orgs, orgId) as TreeNode<OrganizationFilter>;
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.filterComponent.filters?.organizationFilter?.action(orgNode);
   }
 
@@ -487,6 +491,8 @@ export class VaultComponent implements OnInit, OnDestroy {
     const result = await lastValueFrom(dialog.closed);
 
     if (result === FolderAddEditDialogResult.Deleted) {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate([], {
         queryParams: { folderId: null },
         queryParamsHandling: "merge",
@@ -505,12 +511,11 @@ export class VaultComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const canAccessPremium = await this.stateService.getCanAccessPremium();
-    if (cipher.organizationId == null && !canAccessPremium) {
+    if (cipher.organizationId == null && !this.canAccessPremium) {
       this.messagingService.send("premiumRequired");
       return;
     } else if (cipher.organizationId != null) {
-      const org = this.organizationService.get(cipher.organizationId);
+      const org = await this.organizationService.get(cipher.organizationId);
       if (org != null && (org.maxStorageGb == null || org.maxStorageGb === 0)) {
         this.messagingService.send("upgradeOrganization", {
           organizationId: cipher.organizationId,
@@ -564,17 +569,7 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async editCipherCollections(cipher: CipherView) {
-    const [modal] = await this.modalService.openViewRef(
-      CollectionsComponent,
-      this.collectionsModalRef,
-      (comp) => {
-        comp.cipherId = cipher.id;
-        comp.onSavedCollections.pipe(takeUntil(this.destroy$)).subscribe(() => {
-          modal.close();
-          this.refresh();
-        });
-      },
-    );
+    openIndividualVaultCollectionsDialog(this.dialogService, { data: { cipherId: cipher.id } });
   }
 
   async addCipher() {
@@ -638,6 +633,8 @@ export class VaultComponent implements OnInit, OnDestroy {
       },
     );
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     modal.onClosedPromise().then(() => {
       this.go({ cipherId: null, itemId: null });
     });
@@ -649,7 +646,7 @@ export class VaultComponent implements OnInit, OnDestroy {
     const dialog = openCollectionDialog(this.dialogService, {
       data: {
         organizationId: this.allOrganizations
-          .filter((o) => o.canCreateNewCollections)
+          .filter((o) => o.canCreateNewCollections && !o.isProviderUser)
           .sort(Utils.getSortFunction(this.i18nService, "name"))[0].id,
         parentCollectionId: this.filter.collectionId,
         showOrgSelector: true,
@@ -683,16 +680,20 @@ export class VaultComponent implements OnInit, OnDestroy {
     } else if (result.action === CollectionDialogAction.Deleted) {
       await this.collectionService.delete(result.collection?.id);
       this.refresh();
+      // Navigate away if we deleted the collection we were viewing
+      if (this.selectedCollection?.node.id === c?.id) {
+        void this.router.navigate([], {
+          queryParams: { collectionId: this.selectedCollection.parent?.node.id ?? null },
+          queryParamsHandling: "merge",
+          replaceUrl: true,
+        });
+      }
     }
   }
 
   async deleteCollection(collection: CollectionView): Promise<void> {
-    const organization = this.organizationService.get(collection.organizationId);
-    const flexibleCollectionsEnabled = await this.configService.getFeatureFlag(
-      FeatureFlag.FlexibleCollections,
-      false,
-    );
-    if (!collection.canDelete(organization, flexibleCollectionsEnabled)) {
+    const organization = await this.organizationService.get(collection.organizationId);
+    if (!collection.canDelete(organization)) {
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccurred"),
@@ -718,7 +719,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       );
       // Navigate away if we deleted the collection we were viewing
       if (this.selectedCollection?.node.id === collection.id) {
-        this.router.navigate([], {
+        void this.router.navigate([], {
           queryParams: { collectionId: this.selectedCollection.parent?.node.id ?? null },
           queryParamsHandling: "merge",
           replaceUrl: true,
@@ -856,7 +857,6 @@ export class VaultComponent implements OnInit, OnDestroy {
       data: {
         permanent: this.filter.type === "trash",
         cipherIds: ciphers.map((c) => c.id),
-        collectionIds: collections.map((c) => c.id),
         organizations: organizations,
         collections: collections,
       },
@@ -934,8 +934,12 @@ export class VaultComponent implements OnInit, OnDestroy {
     );
 
     if (field === "password") {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.eventCollectionService.collect(EventType.Cipher_ClientCopiedPassword, cipher.id);
     } else if (field === "totp") {
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.eventCollectionService.collect(EventType.Cipher_ClientCopiedHiddenField, cipher.id);
     }
   }
@@ -969,10 +973,10 @@ export class VaultComponent implements OnInit, OnDestroy {
   }
 
   async isLowKdfIteration() {
-    const kdfType = await this.stateService.getKdfType();
-    const kdfOptions = await this.stateService.getKdfConfig();
+    const kdfConfig = await this.kdfConfigService.getKdfConfig();
     return (
-      kdfType === KdfType.PBKDF2_SHA256 && kdfOptions.iterations < PBKDF2_ITERATIONS.defaultValue
+      kdfConfig.kdfType === KdfType.PBKDF2_SHA256 &&
+      kdfConfig.iterations < PBKDF2_ITERATIONS.defaultValue
     );
   }
 
@@ -997,6 +1001,8 @@ export class VaultComponent implements OnInit, OnDestroy {
       };
     }
 
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: queryParams,
