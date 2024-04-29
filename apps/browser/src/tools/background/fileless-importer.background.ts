@@ -144,7 +144,7 @@ class FilelessImporterBackground implements FilelessImporterBackgroundInterface 
       const result = await this.importService.import(importer, data, null, null, false);
       if (result.success) {
         this.importNotificationsPort?.postMessage({ command: "filelessImportCompleted" });
-        await this.syncService.fullSync(true);
+        await this.syncService.fullSync(true, "import");
       }
     } catch (error) {
       this.importNotificationsPort?.postMessage({

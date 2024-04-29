@@ -52,7 +52,7 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
 
     await this.apiService.refreshIdentityToken();
 
-    await this.syncService.fullSync(true);
+    await this.syncService.fullSync(true, "billing-purchase-subscription");
 
     return response;
   }
@@ -72,7 +72,7 @@ export class OrganizationBillingService implements OrganizationBillingServiceAbs
 
     await this.apiService.refreshIdentityToken();
 
-    await this.syncService.fullSync(true);
+    await this.syncService.fullSync(true, "billing-start-free-trial");
 
     return response;
   }

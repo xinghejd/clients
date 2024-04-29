@@ -54,7 +54,7 @@ export class UserLayoutComponent implements OnInit {
   async ngOnInit() {
     document.body.classList.remove("layout_frontend");
 
-    await this.syncService.fullSync(false);
+    await this.syncService.fullSync(false, "web-user-layout");
 
     this.hasFamilySponsorshipAvailable$ = this.organizationService.canManageSponsorships$;
 

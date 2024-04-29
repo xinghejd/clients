@@ -347,6 +347,6 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
       true,
       false,
     );
-    await this.syncService.fullSync(true);
+    await this.syncService.fullSync(true, "organization-enable-collection-enhancements");
   }
 }

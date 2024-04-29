@@ -50,7 +50,7 @@ export class MigrateFromLegacyEncryptionComponent {
     const masterPassword = this.formGroup.value.masterPassword;
 
     try {
-      await this.syncService.fullSync(false, true);
+      await this.syncService.fullSync(false, "migrate-legacy-encryption", true);
 
       await this.keyRotationService.rotateUserKeyAndEncryptedData(masterPassword);
 
