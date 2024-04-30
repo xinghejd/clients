@@ -392,7 +392,7 @@ export class Program {
         writeLn("", true);
       })
       .action(async (setting, value, options) => {
-        const command = new ConfigCommand(this.main.environmentService);
+        const command = new ConfigCommand(this.main.environmentService, this.main.accountService);
         const response = await command.run(setting, value, options);
         this.processResponse(response);
       });
