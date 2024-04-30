@@ -1,4 +1,4 @@
-import { Subject, firstValueFrom, merge } from "rxjs";
+import { Subject, firstValueFrom, map, merge, timeout } from "rxjs";
 
 import {
   PinCryptoServiceAbstraction,
@@ -71,6 +71,7 @@ import {
 } from "@bitwarden/common/autofill/services/user-notification-settings.service";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
+import { ClientType } from "@bitwarden/common/enums";
 import { AppIdService as AppIdServiceAbstraction } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -112,7 +113,7 @@ import { MemoryStorageService } from "@bitwarden/common/platform/services/memory
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
-import { UserKeyInitService } from "@bitwarden/common/platform/services/user-key-init.service";
+import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
 import {
   ActiveUserStateProvider,
@@ -333,7 +334,7 @@ export default class MainBackground {
   billingAccountProfileStateService: BillingAccountProfileStateService;
   // eslint-disable-next-line rxjs/no-exposed-subjects -- Needed to give access to services module
   intraprocessMessagingSubject: Subject<Message<object>>;
-  userKeyInitService: UserKeyInitService;
+  userAutoUnlockKeyService: UserAutoUnlockKeyService;
   scriptInjectorService: BrowserScriptInjectorService;
   kdfConfigService: kdfConfigServiceAbstraction;
 
@@ -490,7 +491,7 @@ export default class MainBackground {
       this.accountService,
       this.singleUserStateProvider,
     );
-    this.derivedStateProvider = new BackgroundDerivedStateProvider(storageServiceProvider);
+    this.derivedStateProvider = new BackgroundDerivedStateProvider();
     this.stateProvider = new DefaultStateProvider(
       this.activeUserStateProvider,
       this.singleUserStateProvider,
@@ -520,6 +521,7 @@ export default class MainBackground {
       this.storageService,
       this.logService,
       new MigrationBuilderService(),
+      ClientType.Browser,
     );
 
     this.stateService = new DefaultBrowserStateService(
@@ -900,6 +902,7 @@ export default class MainBackground {
       this.autofillSettingsService,
       this.vaultTimeoutSettingsService,
       this.biometricStateService,
+      this.accountService,
     );
 
     // Other fields
@@ -918,7 +921,6 @@ export default class MainBackground {
         this.autofillService,
         this.platformUtilsService as BrowserPlatformUtilsService,
         this.notificationsService,
-        this.stateService,
         this.autofillSettingsService,
         this.systemService,
         this.environmentService,
@@ -927,6 +929,7 @@ export default class MainBackground {
         this.configService,
         this.fido2Background,
         messageListener,
+        this.accountService,
       );
       this.nativeMessagingBackground = new NativeMessagingBackground(
         this.accountService,
@@ -1016,10 +1019,10 @@ export default class MainBackground {
         },
         this.authService,
         this.cipherService,
-        this.stateService,
         this.totpService,
         this.eventCollectionService,
         this.userVerificationService,
+        this.accountService,
       );
 
       this.contextMenusBackground = new ContextMenusBackground(contextMenuClickedHandler);
@@ -1062,11 +1065,7 @@ export default class MainBackground {
       }
     }
 
-    this.userKeyInitService = new UserKeyInitService(
-      this.accountService,
-      this.cryptoService,
-      this.logService,
-    );
+    this.userAutoUnlockKeyService = new UserAutoUnlockKeyService(this.cryptoService);
   }
 
   async bootstrap() {
@@ -1077,7 +1076,18 @@ export default class MainBackground {
 
     // This is here instead of in in the InitService b/c we don't plan for
     // side effects to run in the Browser InitService.
-    this.userKeyInitService.listenForActiveUserChangesToSetUserKey();
+    const accounts = await firstValueFrom(this.accountService.accounts$);
+
+    const setUserKeyInMemoryPromises = [];
+    for (const userId of Object.keys(accounts) as UserId[]) {
+      // For each acct, we must await the process of setting the user key in memory
+      // if the auto user key is set to avoid race conditions of any code trying to access
+      // the user key from mem.
+      setUserKeyInMemoryPromises.push(
+        this.userAutoUnlockKeyService.setUserKeyInMemoryIfAutoUserKeySet(userId),
+      );
+    }
+    await Promise.all(setUserKeyInMemoryPromises);
 
     await (this.i18nService as I18nService).init();
     (this.eventUploadService as EventUploadService).init(true);
@@ -1159,7 +1169,12 @@ export default class MainBackground {
    */
   async switchAccount(userId: UserId) {
     try {
-      await this.stateService.setActiveUser(userId);
+      const currentlyActiveAccount = await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((account) => account?.id)),
+      );
+      // can be removed once password generation history is migrated to state providers
+      await this.stateService.clearDecryptedData(currentlyActiveAccount);
+      await this.accountService.switchAccount(userId);
 
       if (userId == null) {
         this.loginEmailService.setRememberEmail(false);
@@ -1196,7 +1211,18 @@ export default class MainBackground {
   }
 
   async logout(expired: boolean, userId?: UserId) {
-    userId ??= (await firstValueFrom(this.accountService.activeAccount$))?.id;
+    userId ??= (
+      await firstValueFrom(
+        this.accountService.activeAccount$.pipe(
+          timeout({
+            first: 2000,
+            with: () => {
+              throw new Error("No active account found to logout");
+            },
+          }),
+        ),
+      )
+    )?.id;
 
     await this.eventUploadService.uploadEvents(userId as UserId);
 
@@ -1220,7 +1246,11 @@ export default class MainBackground {
     //Needs to be checked before state is cleaned
     const needStorageReseed = await this.needsStorageReseed();
 
-    const newActiveUser = await this.stateService.clean({ userId: userId });
+    const newActiveUser = await firstValueFrom(
+      this.accountService.nextUpAccount$.pipe(map((a) => a?.id)),
+    );
+    await this.stateService.clean({ userId: userId });
+    await this.accountService.clean(userId);
 
     await this.stateEventRunnerService.handleEvent("logout", userId);
 

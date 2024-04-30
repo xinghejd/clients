@@ -53,7 +53,6 @@ import { ProviderApiService } from "@bitwarden/common/admin-console/services/pro
 import { ProviderService } from "@bitwarden/common/admin-console/services/provider.service";
 import { AccountApiService as AccountApiServiceAbstraction } from "@bitwarden/common/auth/abstractions/account-api.service";
 import {
-  AccountService,
   AccountService as AccountServiceAbstraction,
   InternalAccountService,
 } from "@bitwarden/common/auth/abstractions/account.service";
@@ -162,7 +161,7 @@ import { MigrationRunner } from "@bitwarden/common/platform/services/migration-r
 import { NoopNotificationsService } from "@bitwarden/common/platform/services/noop-notifications.service";
 import { StateService } from "@bitwarden/common/platform/services/state.service";
 import { StorageServiceProvider } from "@bitwarden/common/platform/services/storage-service.provider";
-import { UserKeyInitService } from "@bitwarden/common/platform/services/user-key-init.service";
+import { UserAutoUnlockKeyService } from "@bitwarden/common/platform/services/user-auto-unlock-key.service";
 import { ValidationService } from "@bitwarden/common/platform/services/validation.service";
 import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
 import {
@@ -276,6 +275,7 @@ import {
   SYSTEM_THEME_OBSERVABLE,
   WINDOW,
   INTRAPROCESS_MESSAGING_SUBJECT,
+  CLIENT_TYPE,
 } from "./injection-tokens";
 import { ModalService } from "./modal.service";
 
@@ -1047,7 +1047,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: DerivedStateProvider,
     useClass: DefaultDerivedStateProvider,
-    deps: [StorageServiceProvider],
+    deps: [],
   }),
   safeProvider({
     provide: StateProvider,
@@ -1099,7 +1099,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: MigrationRunner,
     useClass: MigrationRunner,
-    deps: [AbstractStorageService, LogService, MigrationBuilderService],
+    deps: [AbstractStorageService, LogService, MigrationBuilderService, CLIENT_TYPE],
   }),
   safeProvider({
     provide: MigrationBuilderService,
@@ -1127,9 +1127,9 @@ const safeProviders: SafeProvider[] = [
     deps: [StateProvider],
   }),
   safeProvider({
-    provide: UserKeyInitService,
-    useClass: UserKeyInitService,
-    deps: [AccountService, CryptoServiceAbstraction, LogService],
+    provide: UserAutoUnlockKeyService,
+    useClass: UserAutoUnlockKeyService,
+    deps: [CryptoServiceAbstraction],
   }),
   safeProvider({
     provide: ErrorHandler,
