@@ -13,7 +13,6 @@ import {
   takeUntil,
 } from "rxjs";
 
-import { UserVerificationDialogComponent } from "@bitwarden/auth/angular";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -28,16 +27,14 @@ import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
 import { SecureNoteView } from "@bitwarden/common/vault/models/view/secure-note.view";
 import { DialogService } from "@bitwarden/components";
-import { PasswordRepromptService } from "@bitwarden/vault";
 
 import { ZonedMessageListenerService } from "../../../../platform/browser/zoned-message-listener.service";
 import {
   BrowserFido2Message,
   BrowserFido2UserInterfaceSession,
 } from "../../../fido2/browser-fido2-user-interface.service";
+import { Fido2UserVerificationService } from "../../../services/fido2-user-verification.service";
 import { VaultPopoutType } from "../../utils/vault-popout-window";
-
-import { SetPinComponent } from "./../../../../auth/popup/components/set-pin.component";
 
 interface ViewData {
   message: BrowserFido2Message;
@@ -75,13 +72,13 @@ export class Fido2Component implements OnInit, OnDestroy {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private cipherService: CipherService,
-    private passwordRepromptService: PasswordRepromptService,
     private platformUtilsService: PlatformUtilsService,
     private domainSettingsService: DomainSettingsService,
     private searchService: SearchService,
     private logService: LogService,
     private dialogService: DialogService,
     private browserMessagingApi: ZonedMessageListenerService,
+    private fido2UserVerificationService: Fido2UserVerificationService,
   ) {}
 
   ngOnInit() {
@@ -216,7 +213,11 @@ export class Fido2Component implements OnInit, OnDestroy {
   protected async submit() {
     const data = this.message$.value;
     if (data?.type === "PickCredentialRequest") {
-      const userVerified = await this.handleUserVerification(data.userVerification, this.cipher);
+      const userVerified = await this.fido2UserVerificationService.handleUserVerification(
+        data.userVerification,
+        this.cipher,
+        this.fromLock,
+      );
 
       this.send({
         sessionId: this.sessionId,
@@ -237,7 +238,11 @@ export class Fido2Component implements OnInit, OnDestroy {
         }
       }
 
-      const userVerified = await this.handleUserVerification(data.userVerification, this.cipher);
+      const userVerified = await this.fido2UserVerificationService.handleUserVerification(
+        data.userVerification,
+        this.cipher,
+        this.fromLock,
+      );
 
       this.send({
         sessionId: this.sessionId,
@@ -254,14 +259,21 @@ export class Fido2Component implements OnInit, OnDestroy {
     const data = this.message$.value;
     if (data?.type === "ConfirmNewCredentialRequest") {
       const name = data.credentialName || data.rpId;
-      await this.createNewCipher(name);
+      const userVerified = await this.fido2UserVerificationService.handleUserVerification(
+        data.userVerification,
+        this.cipher,
+        this.fromLock,
+      );
 
-      // We are bypassing user verification pending implementation of PIN and biometric support.
+      if (!data.userVerification || userVerified) {
+        await this.createNewCipher(name);
+      }
+
       this.send({
         sessionId: this.sessionId,
         cipherId: this.cipher?.id,
         type: "ConfirmNewCredentialResponse",
-        userVerified: data.userVerification,
+        userVerified,
       });
     }
 
@@ -310,6 +322,7 @@ export class Fido2Component implements OnInit, OnDestroy {
         uilocation: "popout",
         senderTabId: this.senderTabId,
         sessionId: this.sessionId,
+        fromLock: this.fromLock,
         userVerification: data.userVerification,
         singleActionPopout: `${VaultPopoutType.fido2Popout}_${this.sessionId}`,
       },
@@ -378,79 +391,6 @@ export class Fido2Component implements OnInit, OnDestroy {
     } catch (e) {
       this.logService.error(e);
     }
-  }
-
-  /**
-   * Handles user verification for a user based on the cipher and user verification requested.
-   * @param userVerificationRequested Indicates if user verification is required or not.
-   * @param cipher Contains details about the cipher including master password reprompt.
-   * @returns
-   */
-  private async handleUserVerification(
-    userVerificationRequested: boolean,
-    cipher: CipherView,
-  ): Promise<boolean> {
-    const masterPasswordRepromptRequired = cipher && cipher.reprompt !== 0;
-
-    // If the request is from the lock screen, treat unlocking the vault as user verification,
-    // unless a master password reprompt is required.
-    if (this.fromLock) {
-      return masterPasswordRepromptRequired
-        ? await this.showMasterPasswordReprompt()
-        : userVerificationRequested;
-    }
-
-    if (masterPasswordRepromptRequired) {
-      return await this.showMasterPasswordReprompt();
-    }
-
-    if (userVerificationRequested) {
-      return await this.showUserVerificationDialog();
-    }
-
-    return userVerificationRequested;
-  }
-
-  private async showMasterPasswordReprompt(): Promise<boolean> {
-    return await this.passwordRepromptService.showPasswordPrompt();
-  }
-
-  private async showUserVerificationDialog(): Promise<boolean> {
-    const result = await UserVerificationDialogComponent.open(this.dialogService, {
-      clientSideOnlyVerification: true,
-    });
-
-    if (result.userAction === "cancel") {
-      return;
-    }
-
-    // Handle unsuccessful verification attempts.
-    if (!result.verificationSuccess) {
-      // Check if no client-side verification methods are available.
-      if (result.noAvailableClientVerificationMethods) {
-        return await this.promptUserToSetPin();
-      }
-      return;
-    }
-
-    return result.verificationSuccess;
-  }
-
-  private async promptUserToSetPin() {
-    const dialogRef = SetPinComponent.open(this.dialogService);
-
-    if (!dialogRef) {
-      return;
-    }
-
-    const userHasPinSet = await firstValueFrom(dialogRef.closed);
-
-    if (!userHasPinSet) {
-      return;
-    }
-
-    // If the user has set a PIN, re-invoke the user verification dialog to complete the verification process.
-    return await this.showUserVerificationDialog();
   }
 
   private send(msg: BrowserFido2Message) {
