@@ -79,8 +79,6 @@ export class AutofillOverlayInlineMenuElements implements InlineMenuElementsInte
    * longer triggers.
    */
   private removeInlineMenu = (message?: AutofillExtensionMessage) => {
-    return;
-
     if (message?.overlayElement === AutofillOverlayElement.Button) {
       this.removeInlineMenuButton();
       return;
