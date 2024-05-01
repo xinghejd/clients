@@ -103,7 +103,8 @@ export default {
   isMacAppStore: isMacAppStore(),
   isWindowsStore: isWindowsStore(),
   reloadProcess: () => ipcRenderer.send("reload-process"),
-  log: (level: LogLevelType, message: string) => ipcRenderer.invoke("ipc.log", { level, message }),
+  log: (level: LogLevelType, message?: any, ...optionalParams: any[]) =>
+    ipcRenderer.invoke("ipc.log", { level, message, optionalParams }),
 
   openContextMenu: (
     menu: {
@@ -124,12 +125,21 @@ export default {
 
   sendMessage: (message: { command: string } & any) =>
     ipcRenderer.send("messagingService", message),
-  onMessage: (callback: (message: { command: string } & any) => void) => {
-    ipcRenderer.on("messagingService", (_event, message: any) => {
-      if (message.command) {
-        callback(message);
-      }
-    });
+  onMessage: {
+    addListener: (callback: (message: { command: string } & any) => void) => {
+      ipcRenderer.addListener("messagingService", (_event, message: any) => {
+        if (message.command) {
+          callback(message);
+        }
+      });
+    },
+    removeListener: (callback: (message: { command: string } & any) => void) => {
+      ipcRenderer.removeListener("messagingService", (_event, message: any) => {
+        if (message.command) {
+          callback(message);
+        }
+      });
+    },
   },
 
   launchUri: (uri: string) => ipcRenderer.invoke("launchUri", uri),

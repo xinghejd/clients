@@ -5,7 +5,6 @@ import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/sa
 import {
   SECURE_STORAGE,
   STATE_FACTORY,
-  STATE_SERVICE_USE_CACHE,
   LOCALES_DIRECTORY,
   SYSTEM_LANGUAGE,
   MEMORY_STORAGE,
@@ -14,15 +13,16 @@ import {
   OBSERVABLE_DISK_LOCAL_STORAGE,
   WINDOW,
   SafeInjectionToken,
+  CLIENT_TYPE,
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
 import { ModalService as ModalServiceAbstraction } from "@bitwarden/angular/services/modal.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { ClientType } from "@bitwarden/common/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessagingService as MessagingServiceAbstraction } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService as PlatformUtilsServiceAbstraction } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService as BaseStateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/storage.service";
@@ -51,7 +51,6 @@ import { WebStorageServiceProvider } from "../platform/web-storage-service.provi
 import { WindowStorageService } from "../platform/window-storage.service";
 import { CollectionAdminService } from "../vault/core/collection-admin.service";
 
-import { BroadcasterMessagingService } from "./broadcaster-messaging.service";
 import { EventService } from "./event.service";
 import { InitService } from "./init.service";
 import { ModalService } from "./modal.service";
@@ -79,10 +78,6 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: STATE_FACTORY,
     useValue: new StateFactory(GlobalState, Account),
-  }),
-  safeProvider({
-    provide: STATE_SERVICE_USE_CACHE,
-    useValue: false,
   }),
   safeProvider({
     provide: I18nServiceAbstraction,
@@ -115,11 +110,6 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: PlatformUtilsServiceAbstraction,
     useClass: WebPlatformUtilsService,
-    useAngularDecorators: true,
-  }),
-  safeProvider({
-    provide: MessagingServiceAbstraction,
-    useClass: BroadcasterMessagingService,
     useAngularDecorators: true,
   }),
   safeProvider({
@@ -168,6 +158,10 @@ const safeProviders: SafeProvider[] = [
       // Web chooses to have Light as the default theme
       new DefaultThemeStateService(globalStateProvider, ThemeType.Light),
     deps: [GlobalStateProvider],
+  }),
+  safeProvider({
+    provide: CLIENT_TYPE,
+    useValue: ClientType.Web,
   }),
 ];
 

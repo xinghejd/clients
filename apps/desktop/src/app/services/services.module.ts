@@ -1,9 +1,9 @@
 import { APP_INITIALIZER, NgModule } from "@angular/core";
+import { Subject, merge } from "rxjs";
 
 import { SafeProvider, safeProvider } from "@bitwarden/angular/platform/utils/safe-provider";
 import {
   SECURE_STORAGE,
-  STATE_SERVICE_USE_CACHE,
   LOCALES_DIRECTORY,
   SYSTEM_LANGUAGE,
   MEMORY_STORAGE,
@@ -14,16 +14,19 @@ import {
   SYSTEM_THEME_OBSERVABLE,
   SafeInjectionToken,
   STATE_FACTORY,
+  INTRAPROCESS_MESSAGING_SUBJECT,
+  CLIENT_TYPE,
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { PolicyService as PolicyServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService as AccountServiceAbstraction } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService as AuthServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth.service";
+import { KdfConfigService as KdfConfigServiceAbstraction } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
-import { BroadcasterService as BroadcasterServiceAbstraction } from "@bitwarden/common/platform/abstractions/broadcaster.service";
+import { ClientType } from "@bitwarden/common/enums";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { CryptoService as CryptoServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
@@ -42,6 +45,9 @@ import { AbstractStorageService } from "@bitwarden/common/platform/abstractions/
 import { SystemService as SystemServiceAbstraction } from "@bitwarden/common/platform/abstractions/system.service";
 import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
+import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
+// eslint-disable-next-line no-restricted-imports -- Used for dependency injection
+import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
@@ -53,7 +59,6 @@ import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/ge
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { DialogService } from "@bitwarden/components";
 
-import { LoginGuard } from "../../auth/guards/login.guard";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
 import { Account } from "../../models/account";
 import { DesktopSettingsService } from "../../platform/services/desktop-settings.service";
@@ -63,11 +68,12 @@ import {
   ELECTRON_SUPPORTS_SECURE_STORAGE,
   ElectronPlatformUtilsService,
 } from "../../platform/services/electron-platform-utils.service";
-import { ElectronRendererMessagingService } from "../../platform/services/electron-renderer-messaging.service";
+import { ElectronRendererMessageSender } from "../../platform/services/electron-renderer-message.sender";
 import { ElectronRendererSecureStorageService } from "../../platform/services/electron-renderer-secure-storage.service";
 import { ElectronRendererStorageService } from "../../platform/services/electron-renderer-storage.service";
 import { ElectronStateService } from "../../platform/services/electron-state.service";
 import { I18nRendererService } from "../../platform/services/i18n.renderer.service";
+import { fromIpcMessaging } from "../../platform/utils/from-ipc-messaging";
 import { fromIpcSystemTheme } from "../../platform/utils/from-ipc-system-theme";
 import { EncryptedMessageHandlerService } from "../../services/encrypted-message-handler.service";
 import { NativeMessageHandlerService } from "../../services/native-message-handler.service";
@@ -95,7 +101,6 @@ const safeProviders: SafeProvider[] = [
   safeProvider(InitService),
   safeProvider(NativeMessagingService),
   safeProvider(SearchBarService),
-  safeProvider(LoginGuard),
   safeProvider(DialogService),
   safeProvider({
     provide: APP_INITIALIZER as SafeInjectionToken<() => void>,
@@ -138,9 +143,24 @@ const safeProviders: SafeProvider[] = [
     deps: [SYSTEM_LANGUAGE, LOCALES_DIRECTORY, GlobalStateProvider],
   }),
   safeProvider({
-    provide: MessagingServiceAbstraction,
-    useClass: ElectronRendererMessagingService,
-    deps: [BroadcasterServiceAbstraction],
+    provide: MessageSender,
+    useFactory: (subject: Subject<Message<object>>) =>
+      MessageSender.combine(
+        new ElectronRendererMessageSender(), // Communication with main process
+        new SubjectMessageSender(subject), // Communication with ourself
+      ),
+    deps: [INTRAPROCESS_MESSAGING_SUBJECT],
+  }),
+  safeProvider({
+    provide: MessageListener,
+    useFactory: (subject: Subject<Message<object>>) =>
+      new MessageListener(
+        merge(
+          subject.asObservable(), // For messages from the same context
+          fromIpcMessaging(), // For messages from the main process
+        ),
+      ),
+    deps: [INTRAPROCESS_MESSAGING_SUBJECT],
   }),
   safeProvider({
     provide: AbstractStorageService,
@@ -170,6 +190,7 @@ const safeProviders: SafeProvider[] = [
       AutofillSettingsServiceAbstraction,
       VaultTimeoutSettingsService,
       BiometricStateService,
+      AccountServiceAbstraction,
     ],
   }),
   safeProvider({
@@ -185,7 +206,6 @@ const safeProviders: SafeProvider[] = [
       EnvironmentService,
       TokenService,
       MigrationRunner,
-      STATE_SERVICE_USE_CACHE,
     ],
   }),
   safeProvider({
@@ -240,6 +260,7 @@ const safeProviders: SafeProvider[] = [
       AccountServiceAbstraction,
       StateProvider,
       BiometricStateService,
+      KdfConfigServiceAbstraction,
     ],
   }),
   safeProvider({
@@ -254,6 +275,10 @@ const safeProviders: SafeProvider[] = [
     provide: NativeMessagingManifestService,
     useClass: NativeMessagingManifestService,
     deps: [],
+  }),
+  safeProvider({
+    provide: CLIENT_TYPE,
+    useValue: ClientType.Desktop,
   }),
 ];
 

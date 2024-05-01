@@ -1,9 +1,8 @@
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, firstValueFrom, map } from "rxjs";
 import { Jsonify, JsonValue } from "type-fest";
 
 import { AccountService } from "../../auth/abstractions/account.service";
 import { TokenService } from "../../auth/abstractions/token.service";
-import { KdfConfig } from "../../auth/models/domain/kdf-config";
 import { BiometricKey } from "../../auth/types/biometric-key";
 import { GeneratorOptions } from "../../tools/generator/generator-options";
 import { GeneratedPasswordHistory, PasswordGeneratorOptions } from "../../tools/generator/password";
@@ -19,7 +18,7 @@ import {
   AbstractMemoryStorageService,
   AbstractStorageService,
 } from "../abstractions/storage.service";
-import { HtmlStorageLocation, KdfType, StorageLocation } from "../enums";
+import { HtmlStorageLocation, StorageLocation } from "../enums";
 import { StateFactory } from "../factories/state-factory";
 import { Utils } from "../misc/utils";
 import { Account, AccountData, AccountSettings } from "../models/domain/account";
@@ -34,10 +33,7 @@ const keys = {
   state: "state",
   stateVersion: "stateVersion",
   global: "global",
-  authenticatedAccounts: "authenticatedAccounts",
-  activeUserId: "activeUserId",
   tempAccountSettings: "tempAccountSettings", // used to hold account specific settings (i.e clear clipboard) between initial migration and first account authentication
-  accountActivity: "accountActivity",
 };
 
 const partialKeys = {
@@ -59,13 +55,8 @@ export class StateService<
   protected accountsSubject = new BehaviorSubject<{ [userId: string]: TAccount }>({});
   accounts$ = this.accountsSubject.asObservable();
 
-  protected activeAccountSubject = new BehaviorSubject<string | null>(null);
-  activeAccount$ = this.activeAccountSubject.asObservable();
-
   private hasBeenInited = false;
   protected isRecoveredSession = false;
-
-  protected accountDiskCache = new BehaviorSubject<Record<string, TAccount>>({});
 
   // default account serializer, must be overridden by child class
   protected accountDeserializer = Account.fromJSON as (json: Jsonify<TAccount>) => TAccount;
@@ -80,7 +71,6 @@ export class StateService<
     protected environmentService: EnvironmentService,
     protected tokenService: TokenService,
     private migrationRunner: MigrationRunner,
-    protected useAccountCache: boolean = true,
   ) {}
 
   async init(initOptions: InitOptions = {}): Promise<void> {
@@ -115,32 +105,17 @@ export class StateService<
       return;
     }
 
+    // Get all likely authenticated accounts
+    const authenticatedAccounts = await firstValueFrom(
+      this.accountService.accounts$.pipe(map((accounts) => Object.keys(accounts))),
+    );
+
     await this.updateState(async (state) => {
-      state.authenticatedAccounts =
-        (await this.storageService.get<string[]>(keys.authenticatedAccounts)) ?? [];
-      for (const i in state.authenticatedAccounts) {
-        if (i != null) {
-          state = await this.syncAccountFromDisk(state.authenticatedAccounts[i]);
-        }
+      for (const i in authenticatedAccounts) {
+        state = await this.syncAccountFromDisk(authenticatedAccounts[i]);
       }
-      const storedActiveUser = await this.storageService.get<string>(keys.activeUserId);
-      if (storedActiveUser != null) {
-        state.activeUserId = storedActiveUser;
-      }
+
       await this.pushAccounts();
-      this.activeAccountSubject.next(state.activeUserId);
-      // TODO: Temporary update to avoid routing all account status changes through account service for now.
-      // account service tracks logged out accounts, but State service does not, so we need to add the active account
-      // if it's not in the accounts list.
-      if (state.activeUserId != null && this.accountsSubject.value[state.activeUserId] == null) {
-        const activeDiskAccount = await this.getAccountFromDisk({ userId: state.activeUserId });
-        await this.accountService.addAccount(state.activeUserId as UserId, {
-          name: activeDiskAccount.profile.name,
-          email: activeDiskAccount.profile.email,
-        });
-      }
-      await this.accountService.switchAccount(state.activeUserId as UserId);
-      // End TODO
 
       return state;
     });
@@ -160,61 +135,25 @@ export class StateService<
       return state;
     });
 
-    // TODO: Temporary update to avoid routing all account status changes through account service for now.
-    // The determination of state should be handled by the various services that control those values.
-    await this.accountService.addAccount(userId as UserId, {
-      name: diskAccount.profile.name,
-      email: diskAccount.profile.email,
-    });
-
     return state;
   }
 
   async addAccount(account: TAccount) {
     await this.environmentService.seedUserEnvironment(account.profile.userId as UserId);
     await this.updateState(async (state) => {
-      state.authenticatedAccounts.push(account.profile.userId);
-      await this.storageService.save(keys.authenticatedAccounts, state.authenticatedAccounts);
       state.accounts[account.profile.userId] = account;
       return state;
     });
     await this.scaffoldNewAccountStorage(account);
-    await this.setLastActive(new Date().getTime(), { userId: account.profile.userId });
-    // TODO: Temporary update to avoid routing all account status changes through account service for now.
-    await this.accountService.addAccount(account.profile.userId as UserId, {
-      name: account.profile.name,
-      email: account.profile.email,
-    });
-    await this.setActiveUser(account.profile.userId);
   }
 
-  async setActiveUser(userId: string): Promise<void> {
-    await this.clearDecryptedDataForActiveUser();
-    await this.updateState(async (state) => {
-      state.activeUserId = userId;
-      await this.storageService.save(keys.activeUserId, userId);
-      this.activeAccountSubject.next(state.activeUserId);
-      // TODO: temporary update to avoid routing all account status changes through account service for now.
-      await this.accountService.switchAccount(userId as UserId);
-
-      return state;
-    });
-
-    await this.pushAccounts();
-  }
-
-  async clean(options?: StorageOptions): Promise<UserId> {
+  async clean(options?: StorageOptions): Promise<void> {
     options = this.reconcileOptions(options, await this.defaultInMemoryOptions());
     await this.deAuthenticateAccount(options.userId);
-    let currentUser = (await this.state())?.activeUserId;
-    if (options.userId === currentUser) {
-      currentUser = await this.dynamicallySetActiveUser();
-    }
 
     await this.removeAccountFromDisk(options?.userId);
     await this.removeAccountFromMemory(options?.userId);
     await this.pushAccounts();
-    return currentUser as UserId;
   }
 
   /**
@@ -514,24 +453,6 @@ export class StateService<
     );
   }
 
-  async getEmailVerified(options?: StorageOptions): Promise<boolean> {
-    return (
-      (await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions())))
-        ?.profile.emailVerified ?? false
-    );
-  }
-
-  async setEmailVerified(value: boolean, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.profile.emailVerified = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
   async getEnableBrowserIntegration(options?: StorageOptions): Promise<boolean> {
     return (
       (await this.getGlobals(this.reconcileOptions(options, await this.defaultOnDiskOptions())))
@@ -565,6 +486,20 @@ export class StateService<
       this.reconcileOptions(options, await this.defaultOnDiskOptions()),
     );
     globals.enableBrowserIntegrationFingerprint = value;
+    await this.saveGlobals(
+      globals,
+      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
+    );
+  }
+
+  async setEnableDuckDuckGoBrowserIntegration(
+    value: boolean,
+    options?: StorageOptions,
+  ): Promise<void> {
+    const globals = await this.getGlobals(
+      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
+    );
+    globals.enableDuckDuckGoBrowserIntegration = value;
     await this.saveGlobals(
       globals,
       this.reconcileOptions(options, await this.defaultOnDiskOptions()),
@@ -620,101 +555,11 @@ export class StateService<
     );
   }
 
-  async getEverBeenUnlocked(options?: StorageOptions): Promise<boolean> {
-    return (
-      (await this.getAccount(this.reconcileOptions(options, await this.defaultInMemoryOptions())))
-        ?.profile?.everBeenUnlocked ?? false
-    );
-  }
-
-  async setEverBeenUnlocked(value: boolean, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultInMemoryOptions()),
-    );
-    account.profile.everBeenUnlocked = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultInMemoryOptions()),
-    );
-  }
-
   async getIsAuthenticated(options?: StorageOptions): Promise<boolean> {
     return (
       (await this.tokenService.getAccessToken(options?.userId as UserId)) != null &&
       (await this.getUserId(options)) != null
     );
-  }
-
-  async getKdfConfig(options?: StorageOptions): Promise<KdfConfig> {
-    const iterations = (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
-    )?.profile?.kdfIterations;
-    const memory = (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
-    )?.profile?.kdfMemory;
-    const parallelism = (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
-    )?.profile?.kdfParallelism;
-    return new KdfConfig(iterations, memory, parallelism);
-  }
-
-  async setKdfConfig(config: KdfConfig, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.profile.kdfIterations = config.iterations;
-    account.profile.kdfMemory = config.memory;
-    account.profile.kdfParallelism = config.parallelism;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
-  async getKdfType(options?: StorageOptions): Promise<KdfType> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
-    )?.profile?.kdfType;
-  }
-
-  async setKdfType(value: KdfType, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-    account.profile.kdfType = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultOnDiskOptions()),
-    );
-  }
-
-  async getLastActive(options?: StorageOptions): Promise<number> {
-    options = this.reconcileOptions(options, await this.defaultOnDiskOptions());
-
-    const accountActivity = await this.storageService.get<{ [userId: string]: number }>(
-      keys.accountActivity,
-      options,
-    );
-
-    if (accountActivity == null || Object.keys(accountActivity).length < 1) {
-      return null;
-    }
-
-    return accountActivity[options.userId];
-  }
-
-  async setLastActive(value: number, options?: StorageOptions): Promise<void> {
-    options = this.reconcileOptions(options, await this.defaultOnDiskOptions());
-    if (options.userId == null) {
-      return;
-    }
-    const accountActivity =
-      (await this.storageService.get<{ [userId: string]: number }>(
-        keys.accountActivity,
-        options,
-      )) ?? {};
-    accountActivity[options.userId] = value;
-    await this.storageService.save(keys.accountActivity, accountActivity, options);
   }
 
   async getLastSync(options?: StorageOptions): Promise<string> {
@@ -843,23 +688,6 @@ export class StateService<
     );
   }
 
-  async getSecurityStamp(options?: StorageOptions): Promise<string> {
-    return (
-      await this.getAccount(this.reconcileOptions(options, await this.defaultInMemoryOptions()))
-    )?.tokens?.securityStamp;
-  }
-
-  async setSecurityStamp(value: string, options?: StorageOptions): Promise<void> {
-    const account = await this.getAccount(
-      this.reconcileOptions(options, await this.defaultInMemoryOptions()),
-    );
-    account.tokens.securityStamp = value;
-    await this.saveAccount(
-      account,
-      this.reconcileOptions(options, await this.defaultInMemoryOptions()),
-    );
-  }
-
   async getUserId(options?: StorageOptions): Promise<string> {
     return (
       await this.getAccount(this.reconcileOptions(options, await this.defaultOnDiskOptions()))
@@ -973,32 +801,29 @@ export class StateService<
   }
 
   protected async getAccountFromMemory(options: StorageOptions): Promise<TAccount> {
+    const userId =
+      options.userId ??
+      (await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((account) => account?.id)),
+      ));
+
     return await this.state().then(async (state) => {
       if (state.accounts == null) {
         return null;
       }
-      return state.accounts[await this.getUserIdFromMemory(options)];
-    });
-  }
-
-  protected async getUserIdFromMemory(options: StorageOptions): Promise<string> {
-    return await this.state().then((state) => {
-      return options?.userId != null
-        ? state.accounts[options.userId]?.profile?.userId
-        : state.activeUserId;
+      return state.accounts[userId];
     });
   }
 
   protected async getAccountFromDisk(options: StorageOptions): Promise<TAccount> {
-    if (options?.userId == null && (await this.state())?.activeUserId == null) {
-      return null;
-    }
+    const userId =
+      options.userId ??
+      (await firstValueFrom(
+        this.accountService.activeAccount$.pipe(map((account) => account?.id)),
+      ));
 
-    if (this.useAccountCache) {
-      const cachedAccount = this.accountDiskCache.value[options.userId];
-      if (cachedAccount != null) {
-        return cachedAccount;
-      }
+    if (userId == null) {
+      return null;
     }
 
     const account = options?.useSecureStorage
@@ -1008,8 +833,6 @@ export class StateService<
           this.reconcileOptions(options, { htmlStorageLocation: HtmlStorageLocation.Local }),
         ))
       : await this.storageService.get<TAccount>(options.userId, options);
-
-    this.setDiskCache(options.userId, account);
     return account;
   }
 
@@ -1039,8 +862,6 @@ export class StateService<
       : this.storageService;
 
     await storageLocation.save(`${options.userId}`, account, options);
-
-    this.deleteDiskCache(options.userId);
   }
 
   protected async saveAccountToMemory(account: TAccount): Promise<void> {
@@ -1160,53 +981,76 @@ export class StateService<
   }
 
   protected async defaultInMemoryOptions(): Promise<StorageOptions> {
+    const userId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((account) => account?.id)),
+    );
+
     return {
       storageLocation: StorageLocation.Memory,
-      userId: (await this.state()).activeUserId,
+      userId,
     };
   }
 
   protected async defaultOnDiskOptions(): Promise<StorageOptions> {
+    const userId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((account) => account?.id)),
+    );
+
     return {
       storageLocation: StorageLocation.Disk,
       htmlStorageLocation: HtmlStorageLocation.Session,
-      userId: (await this.state())?.activeUserId ?? (await this.getActiveUserIdFromStorage()),
+      userId,
       useSecureStorage: false,
     };
   }
 
   protected async defaultOnDiskLocalOptions(): Promise<StorageOptions> {
+    const userId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((account) => account?.id)),
+    );
+
     return {
       storageLocation: StorageLocation.Disk,
       htmlStorageLocation: HtmlStorageLocation.Local,
-      userId: (await this.state())?.activeUserId ?? (await this.getActiveUserIdFromStorage()),
+      userId,
       useSecureStorage: false,
     };
   }
 
   protected async defaultOnDiskMemoryOptions(): Promise<StorageOptions> {
+    const userId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((account) => account?.id)),
+    );
+
     return {
       storageLocation: StorageLocation.Disk,
       htmlStorageLocation: HtmlStorageLocation.Memory,
-      userId: (await this.state())?.activeUserId ?? (await this.getUserId()),
+      userId,
       useSecureStorage: false,
     };
   }
 
   protected async defaultSecureStorageOptions(): Promise<StorageOptions> {
+    const userId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((account) => account?.id)),
+    );
+
     return {
       storageLocation: StorageLocation.Disk,
       useSecureStorage: true,
-      userId: (await this.state())?.activeUserId ?? (await this.getActiveUserIdFromStorage()),
+      userId,
     };
   }
 
   protected async getActiveUserIdFromStorage(): Promise<string> {
-    return await this.storageService.get<string>(keys.activeUserId);
+    return await firstValueFrom(this.accountService.activeAccount$.pipe(map((a) => a?.id)));
   }
 
   protected async removeAccountFromLocalStorage(userId: string = null): Promise<void> {
-    userId = userId ?? (await this.state())?.activeUserId;
+    userId ??= await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((account) => account?.id)),
+    );
+
     const storedAccount = await this.getAccount(
       this.reconcileOptions({ userId: userId }, await this.defaultOnDiskLocalOptions()),
     );
@@ -1217,7 +1061,10 @@ export class StateService<
   }
 
   protected async removeAccountFromSessionStorage(userId: string = null): Promise<void> {
-    userId = userId ?? (await this.state())?.activeUserId;
+    userId ??= await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((account) => account?.id)),
+    );
+
     const storedAccount = await this.getAccount(
       this.reconcileOptions({ userId: userId }, await this.defaultOnDiskOptions()),
     );
@@ -1228,7 +1075,10 @@ export class StateService<
   }
 
   protected async removeAccountFromSecureStorage(userId: string = null): Promise<void> {
-    userId = userId ?? (await this.state())?.activeUserId;
+    userId ??= await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((account) => account?.id)),
+    );
+
     await this.setUserKeyAutoUnlock(null, { userId: userId });
     await this.setUserKeyBiometric(null, { userId: userId });
     await this.setCryptoMasterKeyAuto(null, { userId: userId });
@@ -1237,12 +1087,12 @@ export class StateService<
   }
 
   protected async removeAccountFromMemory(userId: string = null): Promise<void> {
+    userId ??= await firstValueFrom(
+      this.accountService.activeAccount$.pipe(map((account) => account?.id)),
+    );
+
     await this.updateState(async (state) => {
-      userId = userId ?? state.activeUserId;
       delete state.accounts[userId];
-
-      this.deleteDiskCache(userId);
-
       return state;
     });
   }
@@ -1255,15 +1105,16 @@ export class StateService<
     return Object.assign(this.createAccount(), persistentAccountInformation);
   }
 
-  protected async clearDecryptedDataForActiveUser(): Promise<void> {
+  async clearDecryptedData(userId: UserId): Promise<void> {
     await this.updateState(async (state) => {
-      const userId = state?.activeUserId;
       if (userId != null && state?.accounts[userId]?.data != null) {
         state.accounts[userId].data = new AccountData();
       }
 
       return state;
     });
+
+    await this.pushAccounts();
   }
 
   protected createAccount(init: Partial<TAccount> = null): TAccount {
@@ -1278,46 +1129,12 @@ export class StateService<
     // We must have a manual call to clear tokens as we can't leverage state provider to clean
     // up our data as we have secure storage in the mix.
     await this.tokenService.clearTokens(userId as UserId);
-    await this.setLastActive(null, { userId: userId });
-    await this.updateState(async (state) => {
-      state.authenticatedAccounts = state.authenticatedAccounts.filter((id) => id !== userId);
-
-      await this.storageService.save(keys.authenticatedAccounts, state.authenticatedAccounts);
-
-      return state;
-    });
   }
 
   protected async removeAccountFromDisk(userId: string) {
     await this.removeAccountFromSessionStorage(userId);
     await this.removeAccountFromLocalStorage(userId);
     await this.removeAccountFromSecureStorage(userId);
-  }
-
-  async nextUpActiveUser() {
-    const accounts = (await this.state())?.accounts;
-    if (accounts == null || Object.keys(accounts).length < 1) {
-      return null;
-    }
-
-    let newActiveUser;
-    for (const userId in accounts) {
-      if (userId == null) {
-        continue;
-      }
-      if (await this.getIsAuthenticated({ userId: userId })) {
-        newActiveUser = userId;
-        break;
-      }
-      newActiveUser = null;
-    }
-    return newActiveUser as UserId;
-  }
-
-  protected async dynamicallySetActiveUser() {
-    const newActiveUser = await this.nextUpActiveUser();
-    await this.setActiveUser(newActiveUser);
-    return newActiveUser;
   }
 
   protected async saveSecureStorageKey<T extends JsonValue>(
@@ -1355,20 +1172,6 @@ export class StateService<
 
       return await this.setState(updatedState);
     });
-  }
-
-  private setDiskCache(key: string, value: TAccount, options?: StorageOptions) {
-    if (this.useAccountCache) {
-      this.accountDiskCache.value[key] = value;
-      this.accountDiskCache.next(this.accountDiskCache.value);
-    }
-  }
-
-  protected deleteDiskCache(key: string) {
-    if (this.useAccountCache) {
-      delete this.accountDiskCache.value[key];
-      this.accountDiskCache.next(this.accountDiskCache.value);
-    }
   }
 }
 

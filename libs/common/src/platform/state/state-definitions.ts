@@ -35,10 +35,13 @@ export const BILLING_DISK = new StateDefinition("billing", "disk");
 
 // Auth
 
+export const KDF_CONFIG_DISK = new StateDefinition("kdfConfig", "disk");
 export const KEY_CONNECTOR_DISK = new StateDefinition("keyConnector", "disk");
 export const ACCOUNT_MEMORY = new StateDefinition("account", "memory");
+export const ACCOUNT_DISK = new StateDefinition("account", "disk");
 export const MASTER_PASSWORD_MEMORY = new StateDefinition("masterPassword", "memory");
 export const MASTER_PASSWORD_DISK = new StateDefinition("masterPassword", "disk");
+export const TWO_FACTOR_MEMORY = new StateDefinition("twoFactor", "memory");
 export const AVATAR_DISK = new StateDefinition("avatar", "disk", { web: "disk-local" });
 export const ROUTER_DISK = new StateDefinition("router", "disk");
 export const LOGIN_EMAIL_DISK = new StateDefinition("loginEmail", "disk", {
@@ -116,7 +119,9 @@ export const EVENT_COLLECTION_DISK = new StateDefinition("eventCollection", "dis
 export const SEND_DISK = new StateDefinition("encryptedSend", "disk", {
   web: "memory",
 });
-export const SEND_MEMORY = new StateDefinition("decryptedSend", "memory");
+export const SEND_MEMORY = new StateDefinition("decryptedSend", "memory", {
+  browser: "memory-large-object",
+});
 
 // Vault
 
@@ -133,10 +138,16 @@ export const VAULT_ONBOARDING = new StateDefinition("vaultOnboarding", "disk", {
 export const VAULT_SETTINGS_DISK = new StateDefinition("vaultSettings", "disk", {
   web: "disk-local",
 });
-export const VAULT_BROWSER_MEMORY = new StateDefinition("vaultBrowser", "memory");
-export const VAULT_SEARCH_MEMORY = new StateDefinition("vaultSearch", "memory");
+export const VAULT_BROWSER_MEMORY = new StateDefinition("vaultBrowser", "memory", {
+  browser: "memory-large-object",
+});
+export const VAULT_SEARCH_MEMORY = new StateDefinition("vaultSearch", "memory", {
+  browser: "memory-large-object",
+});
 export const CIPHERS_DISK = new StateDefinition("ciphers", "disk", { web: "memory" });
 export const CIPHERS_DISK_LOCAL = new StateDefinition("ciphersLocal", "disk", {
   web: "disk-local",
 });
-export const CIPHERS_MEMORY = new StateDefinition("ciphersMemory", "memory");
+export const CIPHERS_MEMORY = new StateDefinition("ciphersMemory", "memory", {
+  browser: "memory-large-object",
+});
