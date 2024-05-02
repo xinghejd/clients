@@ -10,7 +10,7 @@ import { CryptoService } from "../abstractions/crypto.service";
 import { EncryptService } from "../abstractions/encrypt.service";
 import { I18nService } from "../abstractions/i18n.service";
 
-const nodeURL = typeof window === "undefined" ? require("url") : null;
+const nodeURL = typeof self === "undefined" ? require("url") : null;
 
 declare global {
   /* eslint-disable-next-line no-var */
@@ -253,11 +253,10 @@ export class Utils {
     });
   }
 
+  static guidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
+
   static isGuid(id: string) {
-    return RegExp(
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
-      "i",
-    ).test(id);
+    return RegExp(Utils.guidRegex, "i").test(id);
   }
 
   static getHostname(uriString: string): string {

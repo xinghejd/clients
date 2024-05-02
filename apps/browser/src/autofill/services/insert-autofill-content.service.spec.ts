@@ -47,7 +47,7 @@ const initEventCount = Object.freeze(
 );
 
 let confirmSpy: jest.SpyInstance<boolean, [message?: string]>;
-let windowSpy: jest.SpyInstance<any>;
+let windowLocationSpy: jest.SpyInstance<any>;
 let savedURLs: string[] | null = ["https://bitwarden.com"];
 function setMockWindowLocation({
   protocol,
@@ -56,11 +56,9 @@ function setMockWindowLocation({
   protocol: "http:" | "https:";
   hostname: string;
 }) {
-  windowSpy.mockImplementation(() => ({
-    location: {
-      protocol,
-      hostname,
-    },
+  windowLocationSpy.mockImplementation(() => ({
+    protocol,
+    hostname,
   }));
 }
 
@@ -76,8 +74,8 @@ describe("InsertAutofillContentService", () => {
 
   beforeEach(() => {
     document.body.innerHTML = mockLoginForm;
-    confirmSpy = jest.spyOn(window, "confirm");
-    windowSpy = jest.spyOn(window, "window", "get");
+    confirmSpy = jest.spyOn(globalThis, "confirm");
+    windowLocationSpy = jest.spyOn(globalThis, "location", "get");
     insertAutofillContentService = new InsertAutofillContentService(
       domElementVisibilityService,
       collectAutofillContentService,
@@ -100,8 +98,8 @@ describe("InsertAutofillContentService", () => {
   });
 
   afterEach(() => {
-    jest.resetAllMocks();
-    windowSpy.mockRestore();
+    jest.restoreAllMocks();
+    windowLocationSpy.mockRestore();
     confirmSpy.mockRestore();
     document.body.innerHTML = "";
   });
@@ -245,8 +243,8 @@ describe("InsertAutofillContentService", () => {
     });
 
     it("returns true if the frameElement has a sandbox attribute", () => {
-      Object.defineProperty(globalThis, "window", {
-        value: { frameElement: { hasAttribute: jest.fn(() => true) } },
+      Object.defineProperty(globalThis, "frameElement", {
+        value: { hasAttribute: jest.fn(() => true) },
         writable: true,
       });
 
@@ -553,16 +551,29 @@ describe("InsertAutofillContentService", () => {
         insertAutofillContentService as any,
         "simulateUserMouseClickAndFocusEventInteractions",
       );
+      jest.spyOn(targetInput, "blur");
 
       insertAutofillContentService["handleFocusOnFieldByOpidAction"]("__0");
 
       expect(
         insertAutofillContentService["collectAutofillContentService"].getAutofillFieldElementByOpid,
       ).toBeCalledWith("__0");
+      expect(targetInput.blur).not.toHaveBeenCalled();
       expect(
         insertAutofillContentService["simulateUserMouseClickAndFocusEventInteractions"],
       ).toHaveBeenCalledWith(targetInput, true);
       expect(elementEventCount).toEqual(expectedElementEventCount);
+    });
+
+    it("blurs the element if it is currently the active element before simulating click and focus events", () => {
+      const targetInput = document.querySelector('input[type="text"]') as FormElementWithAttribute;
+      targetInput.opid = "__0";
+      targetInput.focus();
+      jest.spyOn(targetInput, "blur");
+
+      insertAutofillContentService["handleFocusOnFieldByOpidAction"]("__0");
+
+      expect(targetInput.blur).toHaveBeenCalled();
     });
   });
 
@@ -710,7 +721,7 @@ describe("InsertAutofillContentService", () => {
   });
 
   describe("triggerPostInsertEventsOnElement", () => {
-    it("triggers simulated event interactions and blurs the element after", () => {
+    it("triggers simulated event interactions", () => {
       const elementValue = "test";
       document.body.innerHTML = `<input type="text" id="username" value="${elementValue}"/>`;
       const element = document.getElementById("username") as FillableFormFieldElement;
@@ -726,7 +737,6 @@ describe("InsertAutofillContentService", () => {
       expect(insertAutofillContentService["simulateInputElementChangedEvent"]).toHaveBeenCalledWith(
         element,
       );
-      expect(element.blur).toHaveBeenCalled();
       expect(element.value).toBe(elementValue);
     });
   });
@@ -979,11 +989,11 @@ describe("InsertAutofillContentService", () => {
       const inputElement = document.querySelector('input[type="text"]') as HTMLInputElement;
       inputElement.value = "test";
       jest.spyOn(inputElement, "focus");
-      jest.spyOn(window, "String");
+      jest.spyOn(globalThis, "String");
 
       insertAutofillContentService["triggerFocusOnElement"](inputElement, true);
 
-      expect(window.String).toHaveBeenCalledWith(value);
+      expect(globalThis.String).toHaveBeenCalledWith(value);
       expect(inputElement.focus).toHaveBeenCalled();
       expect(inputElement.value).toEqual(value);
     });
@@ -993,11 +1003,11 @@ describe("InsertAutofillContentService", () => {
       const inputElement = document.querySelector('input[type="text"]') as HTMLInputElement;
       inputElement.value = "test";
       jest.spyOn(inputElement, "focus");
-      jest.spyOn(window, "String");
+      jest.spyOn(globalThis, "String");
 
       insertAutofillContentService["triggerFocusOnElement"](inputElement, false);
 
-      expect(window.String).not.toHaveBeenCalledWith();
+      expect(globalThis.String).not.toHaveBeenCalledWith();
       expect(inputElement.focus).toHaveBeenCalled();
       expect(inputElement.value).toEqual(value);
     });

@@ -2,9 +2,9 @@
  * Default storage location options.
  *
  * `disk` generally means state that is accessible between restarts of the application,
- * with the exception of the web client. In web this means `sessionStorage`. The data is
- * through refreshes of the page but not available once that tab is closed or from any
- * other tabs.
+ * with the exception of the web client. In web this means `sessionStorage`. The data
+ * persists through refreshes of the page but not available once that tab is closed or
+ * from any other tabs.
  *
  * `memory` means that the information stored there goes away during application
  * restarts.
@@ -24,8 +24,10 @@ export type ClientLocations = {
   web: StorageLocation | "disk-local";
   /**
    * Overriding storage location for browser clients.
+   *
+   * "memory-large-object" is used to store non-countable objects in memory. This exists due to limited persistent memory available to browser extensions.
    */
-  //browser: StorageLocation;
+  browser: StorageLocation | "memory-large-object";
   /**
    * Overriding storage location for desktop clients.
    */

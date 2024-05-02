@@ -3,12 +3,12 @@
     "message": "Bitwarden"
   },
   "extName": {
-    "message": "Bitwarden – бясплатны менеджар пароляў",
+    "message": "Bitwarden Password Manager",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "Бяспечны і бясплатны менеджар пароляў для ўсіх вашых прылад.",
-    "description": "Extension description"
+    "message": "At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information",
+    "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
     "message": "Увайдзіце або стварыце новы ўліковы запіс для доступу да бяспечнага сховішча."
@@ -119,7 +119,7 @@
     "message": "Дадаць лагін"
   },
   "addCardMenu": {
-    "message": "Add card"
+    "message": "Дадаць картку"
   },
   "addIdentityMenu": {
     "message": "Add identity"
@@ -171,6 +171,12 @@
   },
   "changeMasterPassword": {
     "message": "Змяніць асноўны пароль"
+  },
+  "continueToWebApp": {
+    "message": "Continue to web app?"
+  },
+  "changeMasterPasswordOnWebConfirmation": {
+    "message": "You can change your master password on the Bitwarden web app."
   },
   "fingerprintPhrase": {
     "message": "Фраза адбітка пальца",
@@ -269,7 +275,7 @@
     "message": "Даўжыня"
   },
   "passwordMinLength": {
-    "message": "Minimum password length"
+    "message": "Мінімальная даўжыня пароля"
   },
   "uppercase": {
     "message": "Вялікія літары (A-Z)"
@@ -369,7 +375,7 @@
     "message": "Iншае"
   },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
-    "message": "Set up an unlock method to change your vault timeout action."
+    "message": "Наладзіць метад разблакіроўкі для змянення дзеяння часу чакання вашага сховішча."
   },
   "unlockMethodNeeded": {
     "message": "Set up an unlock method in Settings"
@@ -415,7 +421,7 @@
     "message": "Заблакіраваць зараз"
   },
   "lockAll": {
-    "message": "Lock all"
+    "message": "Заблакаваць усе"
   },
   "immediately": {
     "message": "Адразу"
@@ -494,7 +500,7 @@
     "message": "Ваш уліковы запіс створаны! Цяпер вы можаце ўвайсці ў яго."
   },
   "youSuccessfullyLoggedIn": {
-    "message": "You successfully logged in"
+    "message": "Вы паспяхова аўтарызаваны"
   },
   "youMayCloseThisWindow": {
     "message": "You may close this window"
@@ -556,12 +562,6 @@
   },
   "addedFolder": {
     "message": "Папка дададзена"
-  },
-  "changeMasterPass": {
-    "message": "Змяніць асноўны пароль"
-  },
-  "changeMasterPasswordConfirmation": {
-    "message": "Вы можаце змяніць свой асноўны пароль у вэб-сховішчы на bitwarden.com. Перайсці на вэб-сайт зараз?"
   },
   "twoStepLoginConfirmation": {
     "message": "Двухэтапны ўваход робіць ваш уліковы запіс больш бяспечным, патрабуючы пацвярджэнне ўваходу на іншай прыладзе з выкарыстаннем ключа бяспекі, праграмы аўтэнтыфікацыі, SMS, тэлефоннага званка або электроннай пошты. Двухэтапны ўваход уключаецца на bitwarden.com. Перайсці на вэб-сайт, каб зрабіць гэта?"
@@ -2005,7 +2005,7 @@
     "message": "Выбраць папку..."
   },
   "noFoldersFound": {
-    "message": "No folders found",
+    "message": "Папкі не знойдзены",
     "description": "Used as a message within the notification bar when no folders are found"
   },
   "orgPermissionsUpdatedMustSetPassword": {
@@ -2215,7 +2215,7 @@
     "message": "Версія сервера"
   },
   "selfHostedServer": {
-    "message": "self-hosted"
+    "message": "уласнае размяшчэнне"
   },
   "thirdParty": {
     "message": "Іншы пастаўшчык"
@@ -2356,25 +2356,25 @@
     }
   },
   "loggingInOn": {
-    "message": "Logging in on"
+    "message": "Увайсці на"
   },
   "opensInANewWindow": {
     "message": "Адкрываць у новым акне"
   },
   "deviceApprovalRequired": {
-    "message": "Device approval required. Select an approval option below:"
+    "message": "Патрабуецца ўхваленне прылады. Выберыце параметры ўхвалення ніжэй:"
   },
   "rememberThisDevice": {
-    "message": "Remember this device"
+    "message": "Запомніць гэту прыладу"
   },
   "uncheckIfPublicDevice": {
-    "message": "Uncheck if using a public device"
+    "message": "Здыміце пазнаку, калі выкарыстоўваеце агульнадаступную прыладу"
   },
   "approveFromYourOtherDevice": {
-    "message": "Approve from your other device"
+    "message": "Ухваліць з іншай вашай прылады"
   },
   "requestAdminApproval": {
-    "message": "Request admin approval"
+    "message": "Запытаць ухваленне адміністратара"
   },
   "approveWithMasterPassword": {
     "message": "Approve with master password"
@@ -2386,12 +2386,6 @@
     "message": "ЕС",
     "description": "European Union"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "accessDenied": {
     "message": "Доступ забаронены. У вас не дастаткова правоў для прагляду гэтай старонкі."
   },
@@ -2402,7 +2396,7 @@
     "message": "Адлюстраванне"
   },
   "accountSuccessfullyCreated": {
-    "message": "Account successfully created!"
+    "message": "Уліковы запіс паспяхова створаны!"
   },
   "adminApprovalRequested": {
     "message": "Admin approval requested"
@@ -3005,5 +2999,37 @@
   "saveCipherAttemptFailed": {
     "message": "Error saving credentials. Check console for details.",
     "description": "Notification message for when saving credentials has failed."
+  },
+  "success": {
+    "message": "Success"
+  },
+  "removePasskey": {
+    "message": "Remove passkey"
+  },
+  "passkeyRemoved": {
+    "message": "Passkey removed"
+  },
+  "unassignedItemsBannerNotice": {
+    "message": "Notice: Unassigned organization items are no longer visible in the All Vaults view and only accessible via the Admin Console."
+  },
+  "unassignedItemsBannerSelfHostNotice": {
+    "message": "Notice: On May 16, 2024, unassigned organization items will no longer be visible in the All Vaults view and will only be accessible via the Admin Console."
+  },
+  "unassignedItemsBannerCTAPartOne": {
+    "message": "Assign these items to a collection from the",
+    "description": "This will be part of a larger sentence, which will read like so: Assign these items to a collection from the Admin Console to make them visible."
+  },
+  "unassignedItemsBannerCTAPartTwo": {
+    "message": "to make them visible.",
+    "description": "This will be part of a larger sentence, which will read like so: Assign these items to a collection from the Admin Console to make them visible."
+  },
+  "adminConsole": {
+    "message": "Admin Console"
+  },
+  "errorAssigningTargetCollection": {
+    "message": "Error assigning target collection."
+  },
+  "errorAssigningTargetFolder": {
+    "message": "Error assigning target folder."
   }
 }

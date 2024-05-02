@@ -1,4 +1,5 @@
-import { UriMatchType, CipherType } from "@bitwarden/common/vault/enums";
+import { UriMatchStrategySetting } from "@bitwarden/common/models/domain/domain-service";
+import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import AutofillField from "../../models/autofill-field";
@@ -14,7 +15,7 @@ export interface PageDetail {
 export interface AutoFillOptions {
   cipher: CipherView;
   pageDetails: PageDetail[];
-  doc?: typeof window.document;
+  doc?: typeof self.document;
   tab: chrome.tabs.Tab;
   skipUsernameOnlyFill?: boolean;
   onlyEmptyFields?: boolean;
@@ -40,7 +41,7 @@ export interface GenerateFillScriptOptions {
   allowTotpAutofill: boolean;
   cipher: CipherView;
   tabUrl: string;
-  defaultUriMatch: UriMatchType;
+  defaultUriMatch: UriMatchStrategySetting;
 }
 
 export abstract class AutofillService {

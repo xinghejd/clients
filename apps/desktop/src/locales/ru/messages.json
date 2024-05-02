@@ -800,8 +800,11 @@
   "changeMasterPass": {
     "message": "Изменить мастер-пароль"
   },
-  "changeMasterPasswordConfirmation": {
-    "message": "Вы можете изменить свой мастер-пароль на bitwarden.com. Перейти на сайт сейчас?"
+  "continueToWebApp": {
+    "message": "Перейти к веб-приложению?"
+  },
+  "changeMasterPasswordOnWebConfirmation": {
+    "message": "Изменить мастер-пароль можно в веб-приложении Bitwarden."
   },
   "fingerprintPhrase": {
     "message": "Фраза отпечатка",
@@ -1629,6 +1632,12 @@
   "browserIntegrationUnsupportedTitle": {
     "message": "Интеграция с браузером не поддерживается"
   },
+  "browserIntegrationErrorTitle": {
+    "message": "Ошибка при включении интеграции с браузером"
+  },
+  "browserIntegrationErrorDesc": {
+    "message": "Произошла ошибка при включении интеграции с браузером."
+  },
   "browserIntegrationMasOnlyDesc": {
     "message": "К сожалению, интеграция браузера пока поддерживается только в версии Mac App Store."
   },
@@ -1643,6 +1652,12 @@
   },
   "enableBrowserIntegrationFingerprintDesc": {
     "message": "Добавьте дополнительный уровень безопасности, требуя подтверждения отпечатка фразы при установлении связи между компьютером и браузером. Это потребует действий пользователя и подтверждения при каждом создании соединения."
+  },
+  "enableHardwareAcceleration": {
+    "message": "Использовать аппаратное ускорение"
+  },
+  "enableHardwareAccelerationDesc": {
+    "message": "По умолчанию этот параметр включен. Отключайте его только в том случае, если у вас возникли проблемы с графикой. Требуется перезагрузка."
   },
   "approve": {
     "message": "Принять"
@@ -2340,12 +2355,6 @@
   "loggingInOn": {
     "message": "Войти на"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "selfHostedServer": {
     "message": "собственный хостинг"
   },
@@ -2480,13 +2489,13 @@
     "message": "Перейти к содержимому"
   },
   "typePasskey": {
-    "message": "Ключ доступа"
+    "message": "Passkey"
   },
   "passkeyNotCopied": {
-    "message": "Ключ доступа не будет скопирован"
+    "message": "Passkey не будет скопирован"
   },
   "passkeyNotCopiedAlert": {
-    "message": "Ключ доступа не будет скопирован в клонированный элемент. Продолжить клонирование этого элемента?"
+    "message": "Passkey не будет скопирован в клонированный элемент. Продолжить клонирование этого элемента?"
   },
   "aliasDomain": {
     "message": "Псевдоним домена"
@@ -2687,5 +2696,29 @@
   "commonImportFormats": {
     "message": "Основные форматы",
     "description": "Label indicating the most common import formats"
+  },
+  "success": {
+    "message": "Успешно"
+  },
+  "troubleshooting": {
+    "message": "Устранение проблем"
+  },
+  "disableHardwareAccelerationRestart": {
+    "message": "Отключить аппаратное ускорение и перезапустить"
+  },
+  "enableHardwareAccelerationRestart": {
+    "message": "Включить аппаратное ускорение и перезапустить"
+  },
+  "removePasskey": {
+    "message": "Удалить passkey"
+  },
+  "passkeyRemoved": {
+    "message": "Passkey удален"
+  },
+  "errorAssigningTargetCollection": {
+    "message": "Ошибка при назначении целевой коллекции."
+  },
+  "errorAssigningTargetFolder": {
+    "message": "Ошибка при назначении целевой папки."
   }
 }

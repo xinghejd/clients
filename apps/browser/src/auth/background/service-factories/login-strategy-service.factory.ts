@@ -10,6 +10,10 @@ import {
 } from "../../../platform/background/service-factories/api-service.factory";
 import { appIdServiceFactory } from "../../../platform/background/service-factories/app-id-service.factory";
 import {
+  billingAccountProfileStateServiceFactory,
+  BillingAccountProfileStateServiceInitOptions,
+} from "../../../platform/background/service-factories/billing-account-profile-state-service.factory";
+import {
   CryptoServiceInitOptions,
   cryptoServiceFactory,
 } from "../../../platform/background/service-factories/crypto-service.factory";
@@ -26,6 +30,10 @@ import {
   factory,
   FactoryOptions,
 } from "../../../platform/background/service-factories/factory-options";
+import {
+  globalStateProviderFactory,
+  GlobalStateProviderInitOptions,
+} from "../../../platform/background/service-factories/global-state-provider.factory";
 import {
   i18nServiceFactory,
   I18nServiceInitOptions,
@@ -51,24 +59,36 @@ import {
   PasswordStrengthServiceInitOptions,
 } from "../../../tools/background/service_factories/password-strength-service.factory";
 
+import { accountServiceFactory, AccountServiceInitOptions } from "./account-service.factory";
 import {
   authRequestServiceFactory,
   AuthRequestServiceInitOptions,
 } from "./auth-request-service.factory";
 import {
-  deviceTrustCryptoServiceFactory,
-  DeviceTrustCryptoServiceInitOptions,
-} from "./device-trust-crypto-service.factory";
+  deviceTrustServiceFactory,
+  DeviceTrustServiceInitOptions,
+} from "./device-trust-service.factory";
+import { kdfConfigServiceFactory, KdfConfigServiceInitOptions } from "./kdf-config-service.factory";
 import {
   keyConnectorServiceFactory,
   KeyConnectorServiceInitOptions,
 } from "./key-connector-service.factory";
+import {
+  internalMasterPasswordServiceFactory,
+  MasterPasswordServiceInitOptions,
+} from "./master-password-service.factory";
 import { tokenServiceFactory, TokenServiceInitOptions } from "./token-service.factory";
 import { twoFactorServiceFactory, TwoFactorServiceInitOptions } from "./two-factor-service.factory";
+import {
+  internalUserDecryptionOptionServiceFactory,
+  UserDecryptionOptionsServiceInitOptions,
+} from "./user-decryption-options-service.factory";
 
 type LoginStrategyServiceFactoryOptions = FactoryOptions;
 
 export type LoginStrategyServiceInitOptions = LoginStrategyServiceFactoryOptions &
+  AccountServiceInitOptions &
+  MasterPasswordServiceInitOptions &
   CryptoServiceInitOptions &
   ApiServiceInitOptions &
   TokenServiceInitOptions &
@@ -83,8 +103,12 @@ export type LoginStrategyServiceInitOptions = LoginStrategyServiceFactoryOptions
   EncryptServiceInitOptions &
   PolicyServiceInitOptions &
   PasswordStrengthServiceInitOptions &
-  DeviceTrustCryptoServiceInitOptions &
-  AuthRequestServiceInitOptions;
+  DeviceTrustServiceInitOptions &
+  AuthRequestServiceInitOptions &
+  UserDecryptionOptionsServiceInitOptions &
+  GlobalStateProviderInitOptions &
+  BillingAccountProfileStateServiceInitOptions &
+  KdfConfigServiceInitOptions;
 
 export function loginStrategyServiceFactory(
   cache: { loginStrategyService?: LoginStrategyServiceAbstraction } & CachedServices,
@@ -96,6 +120,8 @@ export function loginStrategyServiceFactory(
     opts,
     async () =>
       new LoginStrategyService(
+        await accountServiceFactory(cache, opts),
+        await internalMasterPasswordServiceFactory(cache, opts),
         await cryptoServiceFactory(cache, opts),
         await apiServiceFactory(cache, opts),
         await tokenServiceFactory(cache, opts),
@@ -111,8 +137,12 @@ export function loginStrategyServiceFactory(
         await encryptServiceFactory(cache, opts),
         await passwordStrengthServiceFactory(cache, opts),
         await policyServiceFactory(cache, opts),
-        await deviceTrustCryptoServiceFactory(cache, opts),
+        await deviceTrustServiceFactory(cache, opts),
         await authRequestServiceFactory(cache, opts),
+        await internalUserDecryptionOptionServiceFactory(cache, opts),
+        await globalStateProviderFactory(cache, opts),
+        await billingAccountProfileStateServiceFactory(cache, opts),
+        await kdfConfigServiceFactory(cache, opts),
       ),
   );
 }

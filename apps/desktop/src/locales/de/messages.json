@@ -800,8 +800,11 @@
   "changeMasterPass": {
     "message": "Master-Passwort ändern"
   },
-  "changeMasterPasswordConfirmation": {
-    "message": "Du kannst dein Master-Passwort im bitwarden.com-Web-Tresor ändern. Möchtest du die Seite jetzt öffnen?"
+  "continueToWebApp": {
+    "message": "Weiter zur Web-App?"
+  },
+  "changeMasterPasswordOnWebConfirmation": {
+    "message": "Du kannst dein Master-Passwort in der Bitwarden Web-App ändern."
   },
   "fingerprintPhrase": {
     "message": "Fingerabdruck-Phrase",
@@ -1629,6 +1632,12 @@
   "browserIntegrationUnsupportedTitle": {
     "message": "Browser-Integration wird nicht unterstützt"
   },
+  "browserIntegrationErrorTitle": {
+    "message": "Fehler beim Aktivieren der Browser-Integration"
+  },
+  "browserIntegrationErrorDesc": {
+    "message": "Beim Aktivieren der Browser-Integration ist ein Fehler aufgetreten."
+  },
   "browserIntegrationMasOnlyDesc": {
     "message": "Leider wird die Browser-Integration derzeit nur in der Mac App Store Version unterstützt."
   },
@@ -1643,6 +1652,12 @@
   },
   "enableBrowserIntegrationFingerprintDesc": {
     "message": "Eine zusätzliche Sicherheitsebene hinzufügen, indem eine Fingerabdruck-Phrasen-Validierung verlangt wird, wenn eine Verbindung zwischen deiner Desktop-Anwendung und dem Browser aufgebaut wird. Nach Aktivierung ist bei jedem Verbindungsaufbau ein Benutzer-Eingriff und Verifizierung erforderlich."
+  },
+  "enableHardwareAcceleration": {
+    "message": "Hardwarebeschleunigung verwenden"
+  },
+  "enableHardwareAccelerationDesc": {
+    "message": "Standardmäßig ist diese Einstellung eingeschaltet. Schalte sie nur aus, wenn grafische Probleme auftreten. Neustart ist erforderlich."
   },
   "approve": {
     "message": "Genehmigen"
@@ -2340,12 +2355,6 @@
   "loggingInOn": {
     "message": "Anmelden bei"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "selfHostedServer": {
     "message": "selbst gehostet"
   },
@@ -2687,5 +2696,29 @@
   "commonImportFormats": {
     "message": "Gängigste Formate",
     "description": "Label indicating the most common import formats"
+  },
+  "success": {
+    "message": "Erfolg"
+  },
+  "troubleshooting": {
+    "message": "Problembehandlung"
+  },
+  "disableHardwareAccelerationRestart": {
+    "message": "Hardwarebeschleunigung deaktivieren und neu starten"
+  },
+  "enableHardwareAccelerationRestart": {
+    "message": "Hardwarebeschleunigung aktivieren und neu starten"
+  },
+  "removePasskey": {
+    "message": "Passkey entfernen"
+  },
+  "passkeyRemoved": {
+    "message": "Passkey entfernt"
+  },
+  "errorAssigningTargetCollection": {
+    "message": "Fehler beim Zuweisen der Ziel-Sammlung."
+  },
+  "errorAssigningTargetFolder": {
+    "message": "Fehler beim Zuweisen des Ziel-Ordners."
   }
 }

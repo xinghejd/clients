@@ -127,7 +127,9 @@ jobs:
     # Note, before updating the ubuntu version of the workflow, ensure the snap base image
     # is equal or greater than the new version. Otherwise there might be GLIBC version issues.
     # The snap base for desktop is defined in `apps/desktop/electron-builder.json`
-    runs-on: ubuntu-22.04
+    # We are currently running on 20.04 until the Ubuntu 24.04 release is available, as moving
+    # to 22.04 now breaks users who are on 20.04 due to mismatched GLIBC versions.
+    runs-on: ubuntu-20.04
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
@@ -442,7 +444,10 @@ jobs:
 
   macos-build:
     name: MacOS Build
-    runs-on: macos-13
+    # Note, this workflow is running on macOS 11 to maintain compatibility with macOS 10.15 Catalina, 
+    # as the newer versions will case the native modules to be incompatible with older macOS systems
+    # This version should stay pinned until we drop support for macOS 10.15, or we drop the native modules
+    runs-on: macos-11
     needs: setup
     env:
       _PACKAGE_VERSION: ${{ needs.setup.outputs.package_version }}
@@ -600,7 +605,10 @@ jobs:
 
   macos-package-github:
     name: MacOS Package GitHub Release Assets
-    runs-on: macos-13
+    # Note, this workflow is running on macOS 11 to maintain compatibility with macOS 10.15 Catalina, 
+    # as the newer versions will case the native modules to be incompatible with older macOS systems
+    # This version should stay pinned until we drop support for macOS 10.15, or we drop the native modules
+    runs-on: macos-11
     needs:
       - browser-build
       - macos-build
@@ -806,7 +814,10 @@ jobs:
 
   macos-package-mas:
     name: MacOS Package Prod Release Asset
-    runs-on: macos-13
+    # Note, this workflow is running on macOS 11 to maintain compatibility with macOS 10.15 Catalina, 
+    # as the newer versions will case the native modules to be incompatible with older macOS systems
+    # This version should stay pinned until we drop support for macOS 10.15, or we drop the native modules
+    runs-on: macos-11
     needs:
       - browser-build
       - macos-build
@@ -1004,7 +1015,10 @@ jobs:
   macos-package-dev:
     name: MacOS Package Dev Release Asset
     if: false  # We need to look into how code signing works for dev
-    runs-on: macos-13
+    # Note, this workflow is running on macOS 11 to maintain compatibility with macOS 10.15 Catalina, 
+    # as the newer versions will case the native modules to be incompatible with older macOS systems
+    # This version should stay pinned until we drop support for macOS 10.15, or we drop the native modules
+    runs-on: macos-11
     needs:
       - browser-build
       - macos-build

@@ -1,5 +1,6 @@
 import { mock, MockProxy } from "jest-mock-extended";
 
+import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import {
@@ -11,16 +12,11 @@ import { GlobalState } from "@bitwarden/common/platform/models/domain/global-sta
 import { State } from "@bitwarden/common/platform/models/domain/state";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
-import { SendType } from "@bitwarden/common/tools/send/enums/send-type";
-import { SendView } from "@bitwarden/common/tools/send/models/view/send.view";
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { Account } from "../../models/account";
-import { BrowserComponentState } from "../../models/browserComponentState";
-import { BrowserGroupingsComponentState } from "../../models/browserGroupingsComponentState";
-import { BrowserSendComponentState } from "../../models/browserSendComponentState";
 
-import { BrowserStateService } from "./browser-state.service";
+import { DefaultBrowserStateService } from "./default-browser-state.service";
 
 // disable session syncing to just test class
 jest.mock("../decorators/session-sync-observable/");
@@ -30,15 +26,15 @@ describe("Browser State Service", () => {
   let diskStorageService: MockProxy<AbstractStorageService>;
   let logService: MockProxy<LogService>;
   let stateFactory: MockProxy<StateFactory<GlobalState, Account>>;
-  let useAccountCache: boolean;
   let environmentService: MockProxy<EnvironmentService>;
+  let tokenService: MockProxy<TokenService>;
   let migrationRunner: MockProxy<MigrationRunner>;
 
   let state: State<GlobalState, Account>;
   const userId = "userId" as UserId;
   const accountService = mockAccountServiceWith(userId);
 
-  let sut: BrowserStateService;
+  let sut: DefaultBrowserStateService;
 
   beforeEach(() => {
     secureStorageService = mock();
@@ -46,15 +42,13 @@ describe("Browser State Service", () => {
     logService = mock();
     stateFactory = mock();
     environmentService = mock();
+    tokenService = mock();
     migrationRunner = mock();
-    // turn off account cache for tests
-    useAccountCache = false;
 
     state = new State(new GlobalState());
     state.accounts[userId] = new Account({
       profile: { userId: userId },
     });
-    state.activeUserId = userId;
   });
 
   afterEach(() => {
@@ -69,7 +63,7 @@ describe("Browser State Service", () => {
       const stateGetter = (key: string) => Promise.resolve(state);
       memoryStorageService.get.mockImplementation(stateGetter);
 
-      sut = new BrowserStateService(
+      sut = new DefaultBrowserStateService(
         diskStorageService,
         secureStorageService,
         memoryStorageService,
@@ -77,59 +71,13 @@ describe("Browser State Service", () => {
         stateFactory,
         accountService,
         environmentService,
+        tokenService,
         migrationRunner,
-        useAccountCache,
       );
     });
 
-    describe("getBrowserGroupingComponentState", () => {
-      it("should return a BrowserGroupingsComponentState", async () => {
-        state.accounts[userId].groupings = new BrowserGroupingsComponentState();
-
-        const actual = await sut.getBrowserGroupingComponentState();
-        expect(actual).toBeInstanceOf(BrowserGroupingsComponentState);
-      });
-    });
-
-    describe("getBrowserVaultItemsComponentState", () => {
-      it("should return a BrowserComponentState", async () => {
-        const componentState = new BrowserComponentState();
-        componentState.scrollY = 0;
-        componentState.searchText = "test";
-        state.accounts[userId].ciphers = componentState;
-
-        const actual = await sut.getBrowserVaultItemsComponentState();
-        expect(actual).toStrictEqual(componentState);
-      });
-    });
-
-    describe("getBrowserSendComponentState", () => {
-      it("should return a BrowserSendComponentState", async () => {
-        const sendState = new BrowserSendComponentState();
-        sendState.sends = [new SendView(), new SendView()];
-        sendState.typeCounts = new Map<SendType, number>([
-          [SendType.File, 3],
-          [SendType.Text, 5],
-        ]);
-        state.accounts[userId].send = sendState;
-        (global as any)["watch"] = state;
-
-        const actual = await sut.getBrowserSendComponentState();
-        expect(actual).toBeInstanceOf(BrowserSendComponentState);
-        expect(actual).toMatchObject(sendState);
-      });
-    });
-
-    describe("getBrowserSendTypeComponentState", () => {
-      it("should return a BrowserComponentState", async () => {
-        const componentState = new BrowserComponentState();
-        componentState.scrollY = 0;
-        componentState.searchText = "test";
-        state.accounts[userId].sendType = componentState;
-
-        const actual = await sut.getBrowserSendTypeComponentState();
-        expect(actual).toStrictEqual(componentState);
-      });
+    it("exists", () => {
+      expect(sut).toBeDefined();
     });
   });
 });

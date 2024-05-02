@@ -2,7 +2,6 @@ const fs = require("fs");
 const path = require("path");
 
 const { AngularWebpackPlugin } = require("@ngtools/webpack");
-const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackInjector = require("html-webpack-injector");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
@@ -87,7 +86,6 @@ const moduleRules = [
 ];
 
 const plugins = [
-  new CleanWebpackPlugin(),
   new HtmlWebpackPlugin({
     template: "./src/index.html",
     filename: "index.html",
@@ -173,6 +171,7 @@ const plugins = [
     PAYPAL_CONFIG: envConfig["paypal"] ?? {},
     FLAGS: envConfig["flags"] ?? {},
     DEV_FLAGS: NODE_ENV === "development" ? envConfig["devFlags"] : {},
+    ADDITIONAL_REGIONS: envConfig["additionalRegions"] ?? [],
   }),
   new AngularWebpackPlugin({
     tsConfigPath: "tsconfig.json",
@@ -195,39 +194,44 @@ const devServer =
           },
         },
         // host: '192.168.1.9',
-        proxy: {
-          "/api": {
+        proxy: [
+          {
+            context: ["/api"],
             target: envConfig.dev?.proxyApi,
             pathRewrite: { "^/api": "" },
             secure: false,
             changeOrigin: true,
           },
-          "/identity": {
+          {
+            context: ["/identity"],
             target: envConfig.dev?.proxyIdentity,
             pathRewrite: { "^/identity": "" },
             secure: false,
             changeOrigin: true,
           },
-          "/events": {
+          {
+            context: ["/events"],
             target: envConfig.dev?.proxyEvents,
             pathRewrite: { "^/events": "" },
             secure: false,
             changeOrigin: true,
           },
-          "/notifications": {
+          {
+            context: ["/notifications"],
             target: envConfig.dev?.proxyNotifications,
             pathRewrite: { "^/notifications": "" },
             secure: false,
             changeOrigin: true,
             ws: true,
           },
-          "/icons": {
+          {
+            context: ["/icons"],
             target: envConfig.dev?.proxyIcons,
             pathRewrite: { "^/icons": "" },
             secure: false,
             changeOrigin: true,
           },
-        },
+        ],
         headers: (req) => {
           if (!req.originalUrl.includes("connector.html")) {
             return {
@@ -325,7 +329,7 @@ const webpackConfig = {
     "connectors/sso": "./src/connectors/sso.ts",
     "connectors/captcha": "./src/connectors/captcha.ts",
     "connectors/duo-redirect": "./src/connectors/duo-redirect.ts",
-    theme_head: "./src/theme.js",
+    theme_head: "./src/theme.ts",
   },
   optimization: {
     splitChunks: {
@@ -371,6 +375,7 @@ const webpackConfig = {
   output: {
     filename: "[name].[contenthash].js",
     path: path.resolve(__dirname, "build"),
+    clean: true,
   },
   module: {
     noParse: /\.wasm$/,

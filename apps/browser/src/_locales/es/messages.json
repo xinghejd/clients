@@ -3,12 +3,12 @@
     "message": "Bitwarden"
   },
   "extName": {
-    "message": "Bitwarden",
+    "message": "Bitwarden Password Manager",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "Bitwarden es un gestor de contraseñas seguro y gratuito para todos tus dispositivos.",
-    "description": "Extension description"
+    "message": "At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information",
+    "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
     "message": "Identifícate o crea una nueva cuenta para acceder a tu caja fuerte."
@@ -171,6 +171,12 @@
   },
   "changeMasterPassword": {
     "message": "Cambiar contraseña maestra"
+  },
+  "continueToWebApp": {
+    "message": "¿Continuar a la aplicación web?"
+  },
+  "changeMasterPasswordOnWebConfirmation": {
+    "message": "Puedes cambiar la contraseña maestra en la aplicación web de Bitwarden."
   },
   "fingerprintPhrase": {
     "message": "Frase de huella digital",
@@ -556,12 +562,6 @@
   },
   "addedFolder": {
     "message": "Carpeta añadida"
-  },
-  "changeMasterPass": {
-    "message": "Cambiar contraseña maestra"
-  },
-  "changeMasterPasswordConfirmation": {
-    "message": "Puedes cambiar tu contraseña maestra en la caja fuerte web de bitwarden.com. ¿Quieres visitar ahora el sitio web?"
   },
   "twoStepLoginConfirmation": {
     "message": "La autenticación en dos pasos hace que tu cuenta sea mucho más segura, requiriendo que introduzcas un código de seguridad de una aplicación de autenticación cada vez que accedes. La autenticación en dos pasos puede ser habilitada en la caja fuerte web de bitwarden.com. ¿Quieres visitar ahora el sitio web?"
@@ -2005,7 +2005,7 @@
     "message": "Seleccione carpeta..."
   },
   "noFoldersFound": {
-    "message": "No folders found",
+    "message": "Ninguna carpeta encontrada",
     "description": "Used as a message within the notification bar when no folders are found"
   },
   "orgPermissionsUpdatedMustSetPassword": {
@@ -2386,12 +2386,6 @@
     "message": "Unión Europea",
     "description": "European Union"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "accessDenied": {
     "message": "Acceso denegado. No tiene permiso para ver esta página."
   },
@@ -2670,25 +2664,25 @@
     "message": "Verificar biométricamente"
   },
   "awaitingConfirmation": {
-    "message": "Awaiting confirmation"
+    "message": "Esperando confirmación"
   },
   "couldNotCompleteBiometrics": {
-    "message": "Could not complete biometrics."
+    "message": "No se pudo completar la biométrica."
   },
   "needADifferentMethod": {
     "message": "¿Necesita un método distinto?"
   },
   "useMasterPassword": {
-    "message": "Use master password"
+    "message": "Usar contraseña maestra"
   },
   "usePin": {
     "message": "Usar NIP"
   },
   "useBiometrics": {
-    "message": "Use biometrics"
+    "message": "Usar biométrica"
   },
   "enterVerificationCodeSentToEmail": {
-    "message": "Enter the verification code that was sent to your email."
+    "message": "Introduzca el código de verificación que se ha enviado a su correo electrónico."
   },
   "resendCode": {
     "message": "Volver a enviar código"
@@ -2706,19 +2700,19 @@
     }
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch Duo and follow the steps to finish logging in."
+    "message": "Abra Duo y siga los pasos para terminar de iniciar sesión."
   },
   "duoRequiredForAccount": {
-    "message": "Duo two-step login is required for your account."
+    "message": "Se requiere el inicio de sesión en dos pasos Duo para su cuenta."
   },
   "popoutTheExtensionToCompleteLogin": {
-    "message": "Popout the extension to complete login."
+    "message": "Abra la extensión para completar el inicio de sesión."
   },
   "popoutExtension": {
-    "message": "Popout extension"
+    "message": "Abrir extensión"
   },
   "launchDuo": {
-    "message": "Launch Duo"
+    "message": "Iniciar Duo"
   },
   "importFormatError": {
     "message": "Los datos no están formateados correctamente. Por favor, comprueba tu archivo de importación e inténtalo de nuevo."
@@ -2995,15 +2989,47 @@
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
   },
   "saveCipherAttemptSuccess": {
-    "message": "Credentials saved successfully!",
+    "message": "¡Credenciales guardadas con éxito!",
     "description": "Notification message for when saving credentials has succeeded."
   },
   "updateCipherAttemptSuccess": {
-    "message": "Credentials updated successfully!",
+    "message": "¡Credenciales actualizadas con éxito!",
     "description": "Notification message for when updating credentials has succeeded."
   },
   "saveCipherAttemptFailed": {
-    "message": "Error saving credentials. Check console for details.",
+    "message": "Se produjo un error al guardar las credenciales. Revise la consola para obtener detalles.",
     "description": "Notification message for when saving credentials has failed."
+  },
+  "success": {
+    "message": "Success"
+  },
+  "removePasskey": {
+    "message": "Eliminar passkey"
+  },
+  "passkeyRemoved": {
+    "message": "Passkey eliminada"
+  },
+  "unassignedItemsBannerNotice": {
+    "message": "Notice: Unassigned organization items are no longer visible in the All Vaults view and only accessible via the Admin Console."
+  },
+  "unassignedItemsBannerSelfHostNotice": {
+    "message": "Notice: On May 16, 2024, unassigned organization items will no longer be visible in the All Vaults view and will only be accessible via the Admin Console."
+  },
+  "unassignedItemsBannerCTAPartOne": {
+    "message": "Assign these items to a collection from the",
+    "description": "This will be part of a larger sentence, which will read like so: Assign these items to a collection from the Admin Console to make them visible."
+  },
+  "unassignedItemsBannerCTAPartTwo": {
+    "message": "to make them visible.",
+    "description": "This will be part of a larger sentence, which will read like so: Assign these items to a collection from the Admin Console to make them visible."
+  },
+  "adminConsole": {
+    "message": "Admin Console"
+  },
+  "errorAssigningTargetCollection": {
+    "message": "Error assigning target collection."
+  },
+  "errorAssigningTargetFolder": {
+    "message": "Error assigning target folder."
   }
 }

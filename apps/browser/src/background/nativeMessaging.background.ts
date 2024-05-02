@@ -1,11 +1,12 @@
 import { firstValueFrom } from "rxjs";
 
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
@@ -72,10 +73,11 @@ export class NativeMessagingBackground {
   private validatingFingerprint: boolean;
 
   constructor(
+    private accountService: AccountService,
+    private masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private cryptoService: CryptoService,
     private cryptoFunctionService: CryptoFunctionService,
     private runtimeBackground: RuntimeBackground,
-    private i18nService: I18nService,
     private messagingService: MessagingService,
     private appIdService: AppIdService,
     private platformUtilsService: PlatformUtilsService,
@@ -84,10 +86,6 @@ export class NativeMessagingBackground {
     private authService: AuthService,
     private biometricStateService: BiometricStateService,
   ) {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.stateService.setBiometricFingerprintValidated(false);
-
     if (chrome?.permissions?.onAdded) {
       // Reload extension to activate nativeMessaging
       chrome.permissions.onAdded.addListener((permissions) => {
@@ -100,9 +98,7 @@ export class NativeMessagingBackground {
 
   async connect() {
     this.appId = await this.appIdService.getAppId();
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.stateService.setBiometricFingerprintValidated(false);
+    await this.biometricStateService.setFingerprintValidated(false);
 
     return new Promise<void>((resolve, reject) => {
       this.port = BrowserApi.connectNative("com.8bit.bitwarden");
@@ -128,7 +124,7 @@ export class NativeMessagingBackground {
             break;
           case "disconnected":
             if (this.connecting) {
-              reject("startDesktop");
+              reject(new Error("startDesktop"));
             }
             this.connected = false;
             this.port.disconnect();
@@ -148,9 +144,7 @@ export class NativeMessagingBackground {
 
             if (this.validatingFingerprint) {
               this.validatingFingerprint = false;
-              // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
-              this.stateService.setBiometricFingerprintValidated(true);
+              await this.biometricStateService.setFingerprintValidated(true);
             }
             this.sharedSecret = new SymmetricCryptoKey(decrypted);
             this.secureSetupResolve();
@@ -210,8 +204,10 @@ export class NativeMessagingBackground {
         this.privateKey = null;
         this.connected = false;
 
+        this.logService.error("NativeMessaging port disconnected because of error: " + error);
+
         const reason = error != null ? "desktopIntegrationDisabled" : null;
-        reject(reason);
+        reject(new Error(reason));
       });
     });
   }
@@ -346,10 +342,14 @@ export class NativeMessagingBackground {
               ) as UserKey;
               await this.cryptoService.setUserKey(userKey);
             } else if (message.keyB64) {
+              const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
               // Backwards compatibility to support cases in which the user hasn't updated their desktop app
               // TODO: Remove after 2023.10 release (https://bitwarden.atlassian.net/browse/PM-3472)
-              let encUserKey = await this.stateService.getEncryptedCryptoSymmetricKey();
-              encUserKey ||= await this.stateService.getMasterKeyEncryptedUserKey();
+              const encUserKeyPrim = await this.stateService.getEncryptedCryptoSymmetricKey();
+              const encUserKey =
+                encUserKeyPrim != null
+                  ? new EncString(encUserKeyPrim)
+                  : await this.masterPasswordService.getMasterKeyEncryptedUserKey(userId);
               if (!encUserKey) {
                 throw new Error("No encrypted user key found");
               }
@@ -358,9 +358,9 @@ export class NativeMessagingBackground {
               ) as MasterKey;
               const userKey = await this.cryptoService.decryptUserKeyWithMasterKey(
                 masterKey,
-                new EncString(encUserKey),
+                encUserKey,
               );
-              await this.cryptoService.setMasterKey(masterKey);
+              await this.masterPasswordService.setMasterKey(masterKey, userId);
               await this.cryptoService.setUserKey(userKey);
             } else {
               throw new Error("No key received");
@@ -399,7 +399,7 @@ export class NativeMessagingBackground {
 
           // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
           // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          this.runtimeBackground.processMessage({ command: "unlocked" }, null);
+          this.runtimeBackground.processMessage({ command: "unlocked" });
         }
         break;
       }

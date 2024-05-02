@@ -2,6 +2,10 @@ import { EventUploadService as AbstractEventUploadService } from "@bitwarden/com
 import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
 
 import {
+  AuthServiceInitOptions,
+  authServiceFactory,
+} from "../../auth/background/service-factories/auth-service.factory";
+import {
   ApiServiceInitOptions,
   apiServiceFactory,
 } from "../../platform/background/service-factories/api-service.factory";
@@ -14,17 +18,16 @@ import {
   logServiceFactory,
   LogServiceInitOptions,
 } from "../../platform/background/service-factories/log-service.factory";
-import {
-  stateServiceFactory,
-  StateServiceInitOptions,
-} from "../../platform/background/service-factories/state-service.factory";
+import { stateProviderFactory } from "../../platform/background/service-factories/state-provider.factory";
+import { StateServiceInitOptions } from "../../platform/background/service-factories/state-service.factory";
 
 type EventUploadServiceOptions = FactoryOptions;
 
 export type EventUploadServiceInitOptions = EventUploadServiceOptions &
   ApiServiceInitOptions &
   StateServiceInitOptions &
-  LogServiceInitOptions;
+  LogServiceInitOptions &
+  AuthServiceInitOptions;
 
 export function eventUploadServiceFactory(
   cache: { eventUploadService?: AbstractEventUploadService } & CachedServices,
@@ -37,8 +40,9 @@ export function eventUploadServiceFactory(
     async () =>
       new EventUploadService(
         await apiServiceFactory(cache, opts),
-        await stateServiceFactory(cache, opts),
+        await stateProviderFactory(cache, opts),
         await logServiceFactory(cache, opts),
+        await authServiceFactory(cache, opts),
       ),
   );
 }

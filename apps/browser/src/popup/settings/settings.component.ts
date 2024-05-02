@@ -16,12 +16,12 @@ import {
   takeUntil,
 } from "rxjs";
 
-import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { FingerprintDialogComponent } from "@bitwarden/auth/angular";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { DeviceType } from "@bitwarden/common/enums";
 import { VaultTimeoutAction } from "@bitwarden/common/enums/vault-timeout-action.enum";
@@ -87,6 +87,7 @@ export class SettingsComponent implements OnInit {
   private destroy$ = new Subject<void>();
 
   constructor(
+    private accountService: AccountService,
     private policyService: PolicyService,
     private formBuilder: FormBuilder,
     private platformUtilsService: PlatformUtilsService,
@@ -98,7 +99,6 @@ export class SettingsComponent implements OnInit {
     private environmentService: EnvironmentService,
     private cryptoService: CryptoService,
     private stateService: StateService,
-    private modalService: ModalService,
     private userVerificationService: UserVerificationService,
     private dialogService: DialogService,
     private changeDetectorRef: ChangeDetectorRef,
@@ -397,7 +397,7 @@ export class SettingsComponent implements OnInit {
             // Handle connection errors
             this.form.controls.biometric.setValue(false);
 
-            const error = BiometricErrors[e as BiometricErrorTypes];
+            const error = BiometricErrors[e.message as BiometricErrorTypes];
 
             // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -415,7 +415,7 @@ export class SettingsComponent implements OnInit {
       ]);
     } else {
       await this.biometricStateService.setBiometricUnlockEnabled(false);
-      await this.stateService.setBiometricFingerprintValidated(false);
+      await this.biometricStateService.setFingerprintValidated(false);
     }
   }
 
@@ -436,21 +436,22 @@ export class SettingsComponent implements OnInit {
       type: "info",
     });
 
+    const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
     if (confirmed) {
-      this.messagingService.send("logout");
+      this.messagingService.send("logout", { userId: userId });
     }
   }
 
   async changePassword() {
     const confirmed = await this.dialogService.openSimpleDialog({
-      title: { key: "changeMasterPassword" },
-      content: { key: "changeMasterPasswordConfirmation" },
+      title: { key: "continueToWebApp" },
+      content: { key: "changeMasterPasswordOnWebConfirmation" },
       type: "info",
+      acceptButtonText: { key: "continue" },
     });
     if (confirmed) {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      BrowserApi.createNewTab(this.environmentService.getWebVaultUrl());
+      const env = await firstValueFrom(this.environmentService.environment$);
+      await BrowserApi.createNewTab(env.getWebVaultUrl());
     }
   }
 
@@ -481,10 +482,9 @@ export class SettingsComponent implements OnInit {
   }
 
   async webVault() {
-    const url = this.environmentService.getWebVaultUrl();
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    BrowserApi.createNewTab(url);
+    const env = await firstValueFrom(this.environmentService.environment$);
+    const url = env.getWebVaultUrl();
+    await BrowserApi.createNewTab(url);
   }
 
   async import() {

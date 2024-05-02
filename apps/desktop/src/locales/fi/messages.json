@@ -494,7 +494,7 @@
     "message": "Kansio poistettiin"
   },
   "loginOrCreateNewAccount": {
-    "message": "Käytä salattua holviasi kirjautumalla sisään tai tai luo uusi tili."
+    "message": "Käytä salattua holviasi kirjautumalla sisään tai luo uusi tili."
   },
   "createAccount": {
     "message": "Luo tili"
@@ -800,8 +800,11 @@
   "changeMasterPass": {
     "message": "Vaihda pääsalasana"
   },
-  "changeMasterPasswordConfirmation": {
-    "message": "Voit vaihtaa pääsalasanasi bitwarden.com-verkkoholvissa. Haluatko käydä sivustolla nyt?"
+  "continueToWebApp": {
+    "message": "Avataanko verkkosovellus?"
+  },
+  "changeMasterPasswordOnWebConfirmation": {
+    "message": "Voit vaihtaa pääsalasanasi Bitwardenin verkkosovelluksessa."
   },
   "fingerprintPhrase": {
     "message": "Tunnistelauseke",
@@ -1629,6 +1632,12 @@
   "browserIntegrationUnsupportedTitle": {
     "message": "Selainintegraatiota ei tueta"
   },
+  "browserIntegrationErrorTitle": {
+    "message": "Virhe otettaessa selainintegrointia käyttöön"
+  },
+  "browserIntegrationErrorDesc": {
+    "message": "Otettaessa selainintegraatiota käyttöön tapahtui virhe."
+  },
   "browserIntegrationMasOnlyDesc": {
     "message": "Valitettavasti selainintegraatiota tuetaan toistaiseksi vain Mac App Store -versiossa."
   },
@@ -1643,6 +1652,12 @@
   },
   "enableBrowserIntegrationFingerprintDesc": {
     "message": "Paranna tietoturvaa vaatimalla työpöytäsovelluksen ja selainlaajennuksen kytköksen todennus tunnistelausekkeella. Tämä vaatii aina yhteyden muodostuessa vahvistuksen käyttäjältä."
+  },
+  "enableHardwareAcceleration": {
+    "message": "Käytä laitteistokiihdytystä"
+  },
+  "enableHardwareAccelerationDesc": {
+    "message": "Asetus on oletusarvoisesti käytössä. Poista käytöstä vain, jos havaitset graafisia ongelmia. Muutos vaatii sovelluksen uudelleenkäynnistyksen."
   },
   "approve": {
     "message": "Salli"
@@ -2340,12 +2355,6 @@
   "loggingInOn": {
     "message": "Kirjaudutaan sijaintiin"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "selfHostedServer": {
     "message": "itse ylläpidetty"
   },
@@ -2687,5 +2696,29 @@
   "commonImportFormats": {
     "message": "Yleiset muodot",
     "description": "Label indicating the most common import formats"
+  },
+  "success": {
+    "message": "Onnistui"
+  },
+  "troubleshooting": {
+    "message": "Vianetsintä"
+  },
+  "disableHardwareAccelerationRestart": {
+    "message": "Poista laitteistokiihdytys käytöstä ja käynnistä sovellus uudelleen"
+  },
+  "enableHardwareAccelerationRestart": {
+    "message": "Ota laitteistokiihdytys käyttöön ja käynnistä sovellus uudelleen"
+  },
+  "removePasskey": {
+    "message": "Poista suojausavain"
+  },
+  "passkeyRemoved": {
+    "message": "Suojausavain poistettiin"
+  },
+  "errorAssigningTargetCollection": {
+    "message": "Virhe määritettäessä kohdekokoelmaa."
+  },
+  "errorAssigningTargetFolder": {
+    "message": "Virhe määritettäessä kohdekansiota."
   }
 }

@@ -1,7 +1,9 @@
+import { UriMatchStrategySetting } from "../../models/domain/domain-service";
 import { EncString } from "../../platform/models/domain/enc-string";
-import { UriMatchType } from "../../vault/enums";
 import { LoginUri as LoginUriDomain } from "../../vault/models/domain/login-uri";
 import { LoginUriView } from "../../vault/models/view/login-uri.view";
+
+import { safeGetString } from "./utils";
 
 export class LoginUriExport {
   static template(): LoginUriExport {
@@ -26,17 +28,15 @@ export class LoginUriExport {
 
   uri: string;
   uriChecksum: string | undefined;
-  match: UriMatchType = null;
+  match: UriMatchStrategySetting = null;
 
   constructor(o?: LoginUriView | LoginUriDomain) {
     if (o == null) {
       return;
     }
 
-    if (o instanceof LoginUriView) {
-      this.uri = o.uri;
-    } else {
-      this.uri = o.uri?.encryptedString;
+    this.uri = safeGetString(o.uri);
+    if ("uriChecksum" in o) {
       this.uriChecksum = o.uriChecksum?.encryptedString;
     }
     this.match = o.match;

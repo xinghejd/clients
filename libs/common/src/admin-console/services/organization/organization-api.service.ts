@@ -4,9 +4,9 @@ import { OrganizationSsoRequest } from "../../../auth/models/request/organizatio
 import { SecretVerificationRequest } from "../../../auth/models/request/secret-verification.request";
 import { ApiKeyResponse } from "../../../auth/models/response/api-key.response";
 import { OrganizationSsoResponse } from "../../../auth/models/response/organization-sso.response";
+import { ExpandedTaxInfoUpdateRequest } from "../../../billing/models/request/expanded-tax-info-update.request";
 import { OrganizationSmSubscriptionUpdateRequest } from "../../../billing/models/request/organization-sm-subscription-update.request";
 import { OrganizationSubscriptionUpdateRequest } from "../../../billing/models/request/organization-subscription-update.request";
-import { OrganizationTaxInfoUpdateRequest } from "../../../billing/models/request/organization-tax-info-update.request";
 import { PaymentRequest } from "../../../billing/models/request/payment.request";
 import { SecretsManagerSubscribeRequest } from "../../../billing/models/request/sm-subscribe.request";
 import { BillingResponse } from "../../../billing/models/response/billing.response";
@@ -184,10 +184,6 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
     );
   }
 
-  async cancel(id: string): Promise<void> {
-    return this.apiService.send("POST", "/organizations/" + id + "/cancel", null, true, false);
-  }
-
   async reinstate(id: string): Promise<void> {
     return this.apiService.send("POST", "/organizations/" + id + "/reinstate", null, true, false);
   }
@@ -261,7 +257,7 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
     return new TaxInfoResponse(r);
   }
 
-  async updateTaxInfo(id: string, request: OrganizationTaxInfoUpdateRequest): Promise<void> {
+  async updateTaxInfo(id: string, request: ExpandedTaxInfoUpdateRequest): Promise<void> {
     // Can't broadcast anything because the response doesn't have content
     return this.apiService.send("PUT", "/organizations/" + id + "/tax", request, true, false);
   }

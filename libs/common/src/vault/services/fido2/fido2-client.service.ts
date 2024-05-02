@@ -3,9 +3,9 @@ import { parse } from "tldts";
 
 import { AuthService } from "../../../auth/abstractions/auth.service";
 import { AuthenticationStatus } from "../../../auth/enums/authentication-status";
-import { ConfigServiceAbstraction } from "../../../platform/abstractions/config/config.service.abstraction";
+import { DomainSettingsService } from "../../../autofill/services/domain-settings.service";
+import { ConfigService } from "../../../platform/abstractions/config/config.service";
 import { LogService } from "../../../platform/abstractions/log.service";
-import { StateService } from "../../../platform/abstractions/state.service";
 import { Utils } from "../../../platform/misc/utils";
 import {
   Fido2AuthenticatorError,
@@ -40,27 +40,34 @@ import { Fido2Utils } from "./fido2-utils";
 export class Fido2ClientService implements Fido2ClientServiceAbstraction {
   constructor(
     private authenticator: Fido2AuthenticatorService,
-    private configService: ConfigServiceAbstraction,
+    private configService: ConfigService,
     private authService: AuthService,
-    private stateService: StateService,
     private vaultSettingsService: VaultSettingsService,
+    private domainSettingsService: DomainSettingsService,
     private logService?: LogService,
   ) {}
 
   async isFido2FeatureEnabled(hostname: string, origin: string): Promise<boolean> {
-    const userEnabledPasskeys = await firstValueFrom(this.vaultSettingsService.enablePasskeys$);
     const isUserLoggedIn =
       (await this.authService.getAuthStatus()) !== AuthenticationStatus.LoggedOut;
+    if (!isUserLoggedIn) {
+      return false;
+    }
 
-    const neverDomains = await this.stateService.getNeverDomains();
+    const neverDomains = await firstValueFrom(this.domainSettingsService.neverDomains$);
+
     const isExcludedDomain = neverDomains != null && hostname in neverDomains;
+    if (isExcludedDomain) {
+      return false;
+    }
 
     const serverConfig = await firstValueFrom(this.configService.serverConfig$);
     const isOriginEqualBitwardenVault = origin === serverConfig.environment?.vault;
+    if (isOriginEqualBitwardenVault) {
+      return false;
+    }
 
-    return (
-      userEnabledPasskeys && isUserLoggedIn && !isExcludedDomain && !isOriginEqualBitwardenVault
-    );
+    return await firstValueFrom(this.vaultSettingsService.enablePasskeys$);
   }
 
   async createCredential(
@@ -69,6 +76,7 @@ export class Fido2ClientService implements Fido2ClientServiceAbstraction {
     abortController = new AbortController(),
   ): Promise<CreateCredentialResult> {
     const parsedOrigin = parse(params.origin, { allowPrivateDomains: true });
+
     const enableFido2VaultCredentials = await this.isFido2FeatureEnabled(
       parsedOrigin.hostname,
       params.origin,
@@ -345,7 +353,7 @@ function setAbortTimeout(
     );
   }
 
-  return window.setTimeout(() => abortController.abort(), clampedTimeout);
+  return self.setTimeout(() => abortController.abort(), clampedTimeout);
 }
 
 /**

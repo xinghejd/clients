@@ -5,8 +5,12 @@ import {
   accountServiceFactory,
   AccountServiceInitOptions,
 } from "../../../auth/background/service-factories/account-service.factory";
+import {
+  tokenServiceFactory,
+  TokenServiceInitOptions,
+} from "../../../auth/background/service-factories/token-service.factory";
 import { Account } from "../../../models/account";
-import { BrowserStateService } from "../../services/browser-state.service";
+import { DefaultBrowserStateService } from "../../services/default-browser-state.service";
 
 import {
   environmentServiceFactory,
@@ -26,7 +30,6 @@ import {
 
 type StateServiceFactoryOptions = FactoryOptions & {
   stateServiceOptions: {
-    useAccountCache?: boolean;
     stateFactory: StateFactory<GlobalState, Account>;
   };
 };
@@ -38,18 +41,19 @@ export type StateServiceInitOptions = StateServiceFactoryOptions &
   LogServiceInitOptions &
   AccountServiceInitOptions &
   EnvironmentServiceInitOptions &
+  TokenServiceInitOptions &
   MigrationRunnerInitOptions;
 
 export async function stateServiceFactory(
-  cache: { stateService?: BrowserStateService } & CachedServices,
+  cache: { stateService?: DefaultBrowserStateService } & CachedServices,
   opts: StateServiceInitOptions,
-): Promise<BrowserStateService> {
+): Promise<DefaultBrowserStateService> {
   const service = await factory(
     cache,
     "stateService",
     opts,
     async () =>
-      new BrowserStateService(
+      new DefaultBrowserStateService(
         await diskStorageServiceFactory(cache, opts),
         await secureStorageServiceFactory(cache, opts),
         await memoryStorageServiceFactory(cache, opts),
@@ -57,8 +61,8 @@ export async function stateServiceFactory(
         opts.stateServiceOptions.stateFactory,
         await accountServiceFactory(cache, opts),
         await environmentServiceFactory(cache, opts),
+        await tokenServiceFactory(cache, opts),
         await migrationRunnerFactory(cache, opts),
-        opts.stateServiceOptions.useAccountCache,
       ),
   );
   // TODO: If we run migration through a chrome installed/updated event we can turn off running migrations

@@ -67,7 +67,7 @@
             "pathGroupsExcludedImportTypes": ["builtin"]
           }
         ],
-        "rxjs-angular/prefer-takeuntil": "error",
+        "rxjs-angular/prefer-takeuntil": ["error", { "alias": ["takeUntilDestroyed"] }],
         "rxjs/no-exposed-subjects": ["error", { "allowProtected": true }],
         "no-restricted-syntax": [
           "error",
@@ -192,6 +192,15 @@
       }
     },
     {
+      "files": ["libs/tools/export/vault-export/vault-export-ui/src/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          { "patterns": ["@bitwarden/vault-export-ui/*", "src/**/*"] }
+        ]
+      }
+    },
+    {
       "files": ["libs/importer/src/**/*.ts"],
       "rules": {
         "no-restricted-imports": ["error", { "patterns": ["@bitwarden/importer/*", "src/**/*"] }]
@@ -234,6 +243,22 @@
             "message": "Using addListener in the browser popup produces a memory leak in Safari, use `BrowserApi.addListener` instead",
             // This selector covers events like chrome.storage.local.onChange
             "selector": "CallExpression > [object.object.object.object.name='chrome'][property.name='addListener']"
+          }
+        ]
+      }
+    },
+    {
+      "files": ["**/*.ts"],
+      "excludedFiles": ["**/platform/**/*.ts"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              "**/platform/**/internal", // General internal pattern
+              // All features that have been converted to barrel files
+              "**/platform/messaging/**"
+            ]
           }
         ]
       }

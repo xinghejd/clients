@@ -1,3 +1,7 @@
+import { firstValueFrom } from "rxjs";
+
+import { UserDecryptionOptionsServiceAbstraction } from "@bitwarden/auth/common";
+
 import { PinCryptoServiceAbstraction } from "../../../../../auth/src/common/abstractions/pin-crypto.service.abstraction";
 import { VaultTimeoutSettingsService as VaultTimeoutSettingsServiceAbstraction } from "../../../abstractions/vault-timeout/vault-timeout-settings.service";
 import { CryptoService } from "../../../platform/abstractions/crypto.service";
@@ -6,7 +10,11 @@ import { LogService } from "../../../platform/abstractions/log.service";
 import { PlatformUtilsService } from "../../../platform/abstractions/platform-utils.service";
 import { StateService } from "../../../platform/abstractions/state.service";
 import { KeySuffixOptions } from "../../../platform/enums/key-suffix-options.enum";
+import { UserId } from "../../../types/guid";
 import { UserKey } from "../../../types/key";
+import { AccountService } from "../../abstractions/account.service";
+import { KdfConfigService } from "../../abstractions/kdf-config.service";
+import { InternalMasterPasswordServiceAbstraction } from "../../abstractions/master-password.service.abstraction";
 import { UserVerificationApiServiceAbstraction } from "../../abstractions/user-verification/user-verification-api.service.abstraction";
 import { UserVerificationService as UserVerificationServiceAbstraction } from "../../abstractions/user-verification/user-verification.service.abstraction";
 import { VerificationType } from "../../enums/verification-type";
@@ -31,12 +39,16 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
   constructor(
     private stateService: StateService,
     private cryptoService: CryptoService,
+    private accountService: AccountService,
+    private masterPasswordService: InternalMasterPasswordServiceAbstraction,
     private i18nService: I18nService,
     private userVerificationApiService: UserVerificationApiServiceAbstraction,
+    private userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
     private pinCryptoService: PinCryptoServiceAbstraction,
     private logService: LogService,
     private vaultTimeoutSettingsService: VaultTimeoutSettingsServiceAbstraction,
     private platformUtilsService: PlatformUtilsService,
+    private kdfConfigService: KdfConfigService,
   ) {}
 
   async getAvailableVerificationOptions(
@@ -102,13 +114,13 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
     if (verification.type === VerificationType.OTP) {
       request.otp = verification.secret;
     } else {
-      let masterKey = await this.cryptoService.getMasterKey();
+      const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+      let masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
       if (!masterKey && !alreadyHashed) {
         masterKey = await this.cryptoService.makeMasterKey(
           verification.secret,
           await this.stateService.getEmail(),
-          await this.stateService.getKdfType(),
-          await this.stateService.getKdfConfig(),
+          await this.kdfConfigService.getKdfConfig(),
         );
       }
       request.masterPasswordHash = alreadyHashed
@@ -136,7 +148,6 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
         return this.verifyUserByMasterPassword(verification);
       case VerificationType.PIN:
         return this.verifyUserByPIN(verification);
-        break;
       case VerificationType.Biometrics:
         return this.verifyUserByBiometrics();
       default: {
@@ -160,13 +171,13 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
   private async verifyUserByMasterPassword(
     verification: MasterPasswordVerification,
   ): Promise<boolean> {
-    let masterKey = await this.cryptoService.getMasterKey();
+    const userId = (await firstValueFrom(this.accountService.activeAccount$))?.id;
+    let masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
     if (!masterKey) {
       masterKey = await this.cryptoService.makeMasterKey(
         verification.secret,
         await this.stateService.getEmail(),
-        await this.stateService.getKdfType(),
-        await this.stateService.getKdfConfig(),
+        await this.kdfConfigService.getKdfConfig(),
       );
     }
     const passwordValid = await this.cryptoService.compareAndUpdateKeyHash(
@@ -177,7 +188,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
       throw new Error(this.i18nService.t("invalidMasterPassword"));
     }
     // TODO: we should re-evaluate later on if user verification should have the side effect of modifying state. Probably not.
-    await this.cryptoService.setMasterKey(masterKey);
+    await this.masterPasswordService.setMasterKey(masterKey, userId);
     return true;
   }
 
@@ -210,22 +221,26 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
    * Note: This only checks the server, not the local state
    * @param userId The user id to check. If not provided, the current user is used
    * @returns True if the user has a master password
+   * @deprecated Use UserDecryptionOptionsService.hasMasterPassword$ instead
    */
   async hasMasterPassword(userId?: string): Promise<boolean> {
-    const decryptionOptions = await this.stateService.getAccountDecryptionOptions({ userId });
+    if (userId) {
+      const decryptionOptions = await firstValueFrom(
+        this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
+      );
 
-    if (decryptionOptions?.hasMasterPassword != undefined) {
-      return decryptionOptions.hasMasterPassword;
+      if (decryptionOptions?.hasMasterPassword != undefined) {
+        return decryptionOptions.hasMasterPassword;
+      }
     }
-
-    // TODO: PM-3518 - Left for backwards compatibility, remove after 2023.12.0
-    return !(await this.stateService.getUsesKeyConnector({ userId }));
+    return await firstValueFrom(this.userDecryptionOptionsService.hasMasterPassword$);
   }
 
   async hasMasterPasswordAndMasterKeyHash(userId?: string): Promise<boolean> {
+    userId ??= (await firstValueFrom(this.accountService.activeAccount$))?.id;
     return (
       (await this.hasMasterPassword(userId)) &&
-      (await this.cryptoService.getMasterKeyHash()) != null
+      (await firstValueFrom(this.masterPasswordService.masterKeyHash$(userId as UserId))) != null
     );
   }
 

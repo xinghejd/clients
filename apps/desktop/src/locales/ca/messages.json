@@ -800,8 +800,11 @@
   "changeMasterPass": {
     "message": "Canvia la contrasenya mestra"
   },
-  "changeMasterPasswordConfirmation": {
-    "message": "Podeu canviar la contrasenya mestra a la caixa forta web de bitwarden.com. Voleu visitar el lloc web ara?"
+  "continueToWebApp": {
+    "message": "Continue to web app?"
+  },
+  "changeMasterPasswordOnWebConfirmation": {
+    "message": "You can change your master password on the Bitwarden web app."
   },
   "fingerprintPhrase": {
     "message": "Frase d'empremta digital",
@@ -1629,6 +1632,12 @@
   "browserIntegrationUnsupportedTitle": {
     "message": "La integració en el navegador no és compatible"
   },
+  "browserIntegrationErrorTitle": {
+    "message": "Error enabling browser integration"
+  },
+  "browserIntegrationErrorDesc": {
+    "message": "An error has occurred while enabling browser integration."
+  },
   "browserIntegrationMasOnlyDesc": {
     "message": "Malauradament, la integració del navegador només és compatible amb la versió de Mac App Store."
   },
@@ -1643,6 +1652,12 @@
   },
   "enableBrowserIntegrationFingerprintDesc": {
     "message": "Habilita una capa de seguretat addicional mitjançant la validació de frases d'empremtes dactilars quan estableix un enllaç entre l'escriptori i el navegador. Quan està habilitat, requereix la intervenció i verificació de l'usuari cada vegada que s'estableix una connexió."
+  },
+  "enableHardwareAcceleration": {
+    "message": "Utilitza l'acceleració de maquinari"
+  },
+  "enableHardwareAccelerationDesc": {
+    "message": "Per defecte, aquesta configuració està activada. Apagueu només si teniu problemes gràfics. Cal reiniciar."
   },
   "approve": {
     "message": "Aprova"
@@ -2340,12 +2355,6 @@
   "loggingInOn": {
     "message": "Inici de sessió en"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "selfHostedServer": {
     "message": "autoallotjat"
   },
@@ -2687,5 +2696,29 @@
   "commonImportFormats": {
     "message": "Formats comuns",
     "description": "Label indicating the most common import formats"
+  },
+  "success": {
+    "message": "Success"
+  },
+  "troubleshooting": {
+    "message": "Resolució de problemes"
+  },
+  "disableHardwareAccelerationRestart": {
+    "message": "Desactiveu l'acceleració de maquinari i reinicieu"
+  },
+  "enableHardwareAccelerationRestart": {
+    "message": "Activeu l'acceleració i reinicieu el maquinari"
+  },
+  "removePasskey": {
+    "message": "Suprimeix la clau de pas"
+  },
+  "passkeyRemoved": {
+    "message": "Clau de pas suprimida"
+  },
+  "errorAssigningTargetCollection": {
+    "message": "Error assigning target collection."
+  },
+  "errorAssigningTargetFolder": {
+    "message": "Error assigning target folder."
   }
 }

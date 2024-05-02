@@ -3,12 +3,12 @@
     "message": "Bitwarden"
   },
   "extName": {
-    "message": "Bitwarden - 免費密碼管理工具",
+    "message": "Bitwarden Password Manager",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "Bitwarden 是一款安全、免費、跨平台的密碼管理工具。",
-    "description": "Extension description"
+    "message": "At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information",
+    "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
     "message": "登入或建立帳戶以存取您的安全密碼庫。"
@@ -172,6 +172,12 @@
   "changeMasterPassword": {
     "message": "變更主密碼"
   },
+  "continueToWebApp": {
+    "message": "Continue to web app?"
+  },
+  "changeMasterPasswordOnWebConfirmation": {
+    "message": "You can change your master password on the Bitwarden web app."
+  },
   "fingerprintPhrase": {
     "message": "指紋短語",
     "description": "A 'fingerprint phrase' is a unique word phrase (similar to a passphrase) that a user can use to authenticate their public key with another user, for the purposes of sharing."
@@ -327,7 +333,7 @@
     "message": "密碼"
   },
   "totp": {
-    "message": "Authenticator secret"
+    "message": "程式產生驗證碼"
   },
   "passphrase": {
     "message": "密碼短語"
@@ -372,7 +378,7 @@
     "message": "設定一個解鎖方式來變更您的密碼庫逾時動作。"
   },
   "unlockMethodNeeded": {
-    "message": "Set up an unlock method in Settings"
+    "message": "設定中設定解鎖"
   },
   "rateExtension": {
     "message": "為本套件評分"
@@ -494,10 +500,10 @@
     "message": "帳戶已建立！現在可以登入了。"
   },
   "youSuccessfullyLoggedIn": {
-    "message": "You successfully logged in"
+    "message": "登入成功"
   },
   "youMayCloseThisWindow": {
-    "message": "You may close this window"
+    "message": "您可以關閉此視窗"
   },
   "masterPassSent": {
     "message": "已寄出包含您主密碼提示的電子郵件。"
@@ -522,13 +528,13 @@
     "message": "無法在此頁面自動填入所選項目。請手動複製貼上。"
   },
   "totpCaptureError": {
-    "message": "Unable to scan QR code from the current webpage"
+    "message": "無法掃描此網頁的二維碼"
   },
   "totpCaptureSuccess": {
     "message": "已新增驗證器金鑰。"
   },
   "totpCapture": {
-    "message": "Scan authenticator QR code from current webpage"
+    "message": "從目前網頁掃描驗證器二維碼"
   },
   "copyTOTP": {
     "message": "複製驗證器金鑰 (TOTP)"
@@ -556,12 +562,6 @@
   },
   "addedFolder": {
     "message": "資料夾已新增"
-  },
-  "changeMasterPass": {
-    "message": "變更主密碼"
-  },
-  "changeMasterPasswordConfirmation": {
-    "message": "您可以在 bitwarden.com 網頁版密碼庫變更主密碼。現在要前往嗎？"
   },
   "twoStepLoginConfirmation": {
     "message": "兩步驟登入需要您從其他裝置（例如安全鑰匙、驗證器程式、SMS、手機或電子郵件）來驗證您的登入，這使您的帳戶更加安全。兩步驟登入可以在 bitwarden.com 網頁版密碼庫啟用。現在要前往嗎？"
@@ -1058,10 +1058,10 @@
     "message": "適用於所有已登入的帳戶。"
   },
   "turnOffBrowserBuiltInPasswordManagerSettings": {
-    "message": "Turn off your browser’s built in password manager settings to avoid conflicts."
+    "message": "關閉你的瀏覽器內建密碼管理器設定以避免衝突。"
   },
   "turnOffBrowserBuiltInPasswordManagerSettingsLink": {
-    "message": "Edit browser settings."
+    "message": "編輯瀏覽器設定"
   },
   "autofillOverlayVisibilityOff": {
     "message": "關閉",
@@ -1168,7 +1168,7 @@
     "message": "在每個登入資料旁顯示一個可辨識的圖片。"
   },
   "faviconDescAlt": {
-    "message": "Show a recognizable image next to each login. Applies to all logged in accounts."
+    "message": "在每次登入時旁邊顯示可識別的圖片。適用於所有已登入的帳號。"
   },
   "enableBadgeCounter": {
     "message": "顯示圖示計數器"
@@ -1500,7 +1500,7 @@
     "message": "無效的 PIN 碼。"
   },
   "tooManyInvalidPinEntryAttemptsLoggingOut": {
-    "message": "Too many invalid PIN entry attempts. Logging out."
+    "message": "輸入太多無效 PIN 碼。 登出。"
   },
   "unlockWithBiometrics": {
     "message": "使用生物特徵辨識解鎖"
@@ -2005,7 +2005,7 @@
     "message": "選擇資料夾⋯"
   },
   "noFoldersFound": {
-    "message": "No folders found",
+    "message": "未找到資料夾",
     "description": "Used as a message within the notification bar when no folders are found"
   },
   "orgPermissionsUpdatedMustSetPassword": {
@@ -2017,7 +2017,7 @@
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "verificationRequired": {
-    "message": "Verification required",
+    "message": "需要驗證",
     "description": "Default title for the user verification dialog."
   },
   "hours": {
@@ -2314,7 +2314,7 @@
     "message": "如何自動填入"
   },
   "autofillSelectInfoWithCommand": {
-    "message": "Select an item from this screen, use the shortcut $COMMAND$, or explore other options in settings.",
+    "message": "從此畫面中選擇一個項目；使用捷徑 $COMMAND$，或在設定中探索其他選項。",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2323,7 +2323,7 @@
     }
   },
   "autofillSelectInfoWithoutCommand": {
-    "message": "Select an item from this screen, or explore other options in settings."
+    "message": "從此畫面中選擇一個項目，或在設定中探索其他選項。"
   },
   "gotIt": {
     "message": "我知道了"
@@ -2385,12 +2385,6 @@
   "eu": {
     "message": "EU",
     "description": "European Union"
-  },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
   },
   "accessDenied": {
     "message": "拒絕存取。您沒有檢視此頁面的權限。"
@@ -2530,15 +2524,15 @@
     "description": "Toggling an expand/collapse state."
   },
   "filelessImport": {
-    "message": "Import your data to Bitwarden?",
+    "message": "匯入你的資料至 Bitwarden？",
     "description": "Default notification title for triggering a fileless import."
   },
   "lpFilelessImport": {
-    "message": "Protect your LastPass data and import to Bitwarden?",
+    "message": "保護你的 LastPass 資料並匯入至 Bitwarden？",
     "description": "LastPass specific notification title for triggering a fileless import."
   },
   "lpCancelFilelessImport": {
-    "message": "Save as unencrypted file",
+    "message": "儲存為未加密的檔案",
     "description": "LastPass specific notification button text for cancelling a fileless import."
   },
   "startFilelessImport": {
@@ -2554,11 +2548,11 @@
     "description": "Notification message for when an import has completed successfully."
   },
   "dataImportFailed": {
-    "message": "Error importing. Check console for details.",
+    "message": "匯入時發生錯誤。檢查控制台以了解詳細資訊。",
     "description": "Notification message for when an import has failed."
   },
   "importNetworkError": {
-    "message": "Network error encountered during import.",
+    "message": "匯入時遇到網路錯誤",
     "description": "Notification message for when an import has failed due to a network error."
   },
   "aliasDomain": {
@@ -2661,37 +2655,37 @@
     "message": "再試一次"
   },
   "verificationRequiredForActionSetPinToContinue": {
-    "message": "Verification required for this action. Set a PIN to continue."
+    "message": "此操作需要驗證。設定 PIN 碼以繼續。"
   },
   "setPin": {
-    "message": "Set PIN"
+    "message": "設定 PIN 碼"
   },
   "verifyWithBiometrics": {
-    "message": "Verify with biometrics"
+    "message": "生物辨識驗證"
   },
   "awaitingConfirmation": {
-    "message": "Awaiting confirmation"
+    "message": "正在等待確認"
   },
   "couldNotCompleteBiometrics": {
-    "message": "Could not complete biometrics."
+    "message": "無法完成生物辨識。"
   },
   "needADifferentMethod": {
-    "message": "Need a different method?"
+    "message": "需要不同的方法嗎？"
   },
   "useMasterPassword": {
-    "message": "Use master password"
+    "message": "用主密碼"
   },
   "usePin": {
-    "message": "Use PIN"
+    "message": "使用 PIN 碼"
   },
   "useBiometrics": {
-    "message": "Use biometrics"
+    "message": "用生物識別"
   },
   "enterVerificationCodeSentToEmail": {
-    "message": "Enter the verification code that was sent to your email."
+    "message": "輸入傳送到你的電子郵件的驗證碼。"
   },
   "resendCode": {
-    "message": "Resend code"
+    "message": "重新傳送驗證碼"
   },
   "total": {
     "message": "總計"
@@ -2706,7 +2700,7 @@
     }
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch Duo and follow the steps to finish logging in."
+    "message": "啟動 Duo 並依照步驟完成登入。"
   },
   "duoRequiredForAccount": {
     "message": "Duo two-step login is required for your account."
@@ -2718,7 +2712,7 @@
     "message": "Popout extension"
   },
   "launchDuo": {
-    "message": "Launch Duo"
+    "message": "開啟Duo"
   },
   "importFormatError": {
     "message": "資料格式不正確。請檢查您匯入的檔案後再試一次。"
@@ -2852,13 +2846,13 @@
     "message": "使用者名稱或密碼不正確"
   },
   "incorrectPassword": {
-    "message": "Incorrect password"
+    "message": "密碼錯誤"
   },
   "incorrectCode": {
-    "message": "Incorrect code"
+    "message": "錯誤驗證碼"
   },
   "incorrectPin": {
-    "message": "Incorrect PIN"
+    "message": "PIN 碼錯誤"
   },
   "multifactorAuthenticationFailed": {
     "message": "多因素驗證失敗"
@@ -2919,7 +2913,7 @@
     "message": "切換帳戶"
   },
   "switchAccounts": {
-    "message": "Switch accounts"
+    "message": "切換帳號"
   },
   "switchToAccount": {
     "message": "切換帳戶"
@@ -2991,7 +2985,7 @@
     "description": "Description for the dialog that appears when the user has not granted the extension permission to set privacy settings"
   },
   "makeDefault": {
-    "message": "Make default",
+    "message": "設為預設",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
   },
   "saveCipherAttemptSuccess": {
@@ -3005,5 +2999,37 @@
   "saveCipherAttemptFailed": {
     "message": "Error saving credentials. Check console for details.",
     "description": "Notification message for when saving credentials has failed."
+  },
+  "success": {
+    "message": "Success"
+  },
+  "removePasskey": {
+    "message": "Remove passkey"
+  },
+  "passkeyRemoved": {
+    "message": "Passkey removed"
+  },
+  "unassignedItemsBannerNotice": {
+    "message": "Notice: Unassigned organization items are no longer visible in the All Vaults view and only accessible via the Admin Console."
+  },
+  "unassignedItemsBannerSelfHostNotice": {
+    "message": "Notice: On May 16, 2024, unassigned organization items will no longer be visible in the All Vaults view and will only be accessible via the Admin Console."
+  },
+  "unassignedItemsBannerCTAPartOne": {
+    "message": "Assign these items to a collection from the",
+    "description": "This will be part of a larger sentence, which will read like so: Assign these items to a collection from the Admin Console to make them visible."
+  },
+  "unassignedItemsBannerCTAPartTwo": {
+    "message": "to make them visible.",
+    "description": "This will be part of a larger sentence, which will read like so: Assign these items to a collection from the Admin Console to make them visible."
+  },
+  "adminConsole": {
+    "message": "Admin Console"
+  },
+  "errorAssigningTargetCollection": {
+    "message": "Error assigning target collection."
+  },
+  "errorAssigningTargetFolder": {
+    "message": "Error assigning target folder."
   }
 }
