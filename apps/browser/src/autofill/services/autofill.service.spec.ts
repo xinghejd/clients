@@ -32,7 +32,7 @@ import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
-import { BrowserStateService } from "../../platform/services/browser-state.service";
+import { BrowserScriptInjectorService } from "../../platform/services/browser-script-injector.service";
 import { AutofillPort } from "../enums/autofill-port.enums";
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
@@ -63,12 +63,12 @@ const mockEquivalentDomains = [
 describe("AutofillService", () => {
   let autofillService: AutofillService;
   const cipherService = mock<CipherService>();
-  const stateService = mock<BrowserStateService>();
   const autofillSettingsService = mock<AutofillSettingsService>();
   const mockUserId = Utils.newGuid() as UserId;
   const accountService: FakeAccountService = mockAccountServiceWith(mockUserId);
   const fakeStateProvider: FakeStateProvider = new FakeStateProvider(accountService);
   let domainSettingsService: DomainSettingsService;
+  let scriptInjectorService: BrowserScriptInjectorService;
   const totpService = mock<TotpService>();
   const eventCollectionService = mock<EventCollectionService>();
   const logService = mock<LogService>();
@@ -76,9 +76,9 @@ describe("AutofillService", () => {
   const billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
 
   beforeEach(() => {
+    scriptInjectorService = new BrowserScriptInjectorService();
     autofillService = new AutofillService(
       cipherService,
-      stateService,
       autofillSettingsService,
       totpService,
       eventCollectionService,
@@ -86,6 +86,8 @@ describe("AutofillService", () => {
       domainSettingsService,
       userVerificationService,
       billingAccountProfileStateService,
+      scriptInjectorService,
+      accountService,
     );
 
     domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider);
@@ -253,6 +255,7 @@ describe("AutofillService", () => {
 
       expect(BrowserApi.executeScriptInTab).toHaveBeenCalledWith(tabMock.id, {
         file: "content/content-message-handler.js",
+        frameId: 0,
         ...defaultExecuteScriptOptions,
       });
     });

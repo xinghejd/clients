@@ -1,4 +1,4 @@
-import { firstValueFrom } from "rxjs";
+import { Observable, combineLatest, firstValueFrom, map } from "rxjs";
 import { Opaque } from "type-fest";
 
 import { decodeJwtTokenToJson } from "@bitwarden/auth/common";
@@ -15,8 +15,8 @@ import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypt
 import {
   GlobalState,
   GlobalStateProvider,
-  KeyDefinition,
   SingleUserStateProvider,
+  UserKeyDefinition,
 } from "../../platform/state";
 import { UserId } from "../../types/guid";
 import { TokenService as TokenServiceAbstraction } from "../abstractions/token.service";
@@ -32,7 +32,7 @@ import {
   EMAIL_TWO_FACTOR_TOKEN_RECORD_DISK_LOCAL,
   REFRESH_TOKEN_DISK,
   REFRESH_TOKEN_MEMORY,
-  REFRESH_TOKEN_MIGRATED_TO_SECURE_STORAGE,
+  SECURITY_STAMP_MEMORY,
 } from "./token.state";
 
 export enum TokenStorageLocation {
@@ -133,6 +133,15 @@ export class TokenService implements TokenServiceAbstraction {
     private logService: LogService,
   ) {
     this.initializeState();
+  }
+
+  hasAccessToken$(userId: UserId): Observable<boolean> {
+    // FIXME Once once vault timeout action is observable, we can use it to determine storage location
+    // and avoid the need to check both disk and memory.
+    return combineLatest([
+      this.singleUserStateProvider.get(userId, ACCESS_TOKEN_DISK).state$,
+      this.singleUserStateProvider.get(userId, ACCESS_TOKEN_MEMORY).state$,
+    ]).pipe(map(([disk, memory]) => Boolean(disk || memory)));
   }
 
   // pivoting to an approach where we create a symmetric key we store in secure storage
@@ -243,7 +252,7 @@ export class TokenService implements TokenServiceAbstraction {
 
     if (!accessTokenKey) {
       // If we don't have an accessTokenKey, then that means we don't have an access token as it hasn't been set yet
-      // and we have to return null here to properly indicate the the user isn't logged in.
+      // and we have to return null here to properly indicate the user isn't logged in.
       return null;
     }
 
@@ -432,9 +441,6 @@ export class TokenService implements TokenServiceAbstraction {
         await this.singleUserStateProvider.get(userId, REFRESH_TOKEN_DISK).update((_) => null);
         await this.singleUserStateProvider.get(userId, REFRESH_TOKEN_MEMORY).update((_) => null);
 
-        // Set flag to indicate that the refresh token has been migrated to secure storage (don't remove this)
-        await this.setRefreshTokenMigratedToSecureStorage(userId);
-
         return;
 
       case TokenStorageLocation.Disk:
@@ -458,12 +464,6 @@ export class TokenService implements TokenServiceAbstraction {
       return undefined;
     }
 
-    const refreshTokenMigratedToSecureStorage =
-      await this.getRefreshTokenMigratedToSecureStorage(userId);
-    if (this.platformSupportsSecureStorage && refreshTokenMigratedToSecureStorage) {
-      return await this.getStringFromSecureStorage(userId, this.refreshTokenSecureStorageKey);
-    }
-
     // pre-secure storage migration:
     // Always read memory first b/c faster
     const refreshTokenMemory = await this.getStateValueByUserIdAndKeyDef(
@@ -475,11 +475,22 @@ export class TokenService implements TokenServiceAbstraction {
       return refreshTokenMemory;
     }
 
-    // if memory is null, read from disk
+    // if memory is null, read from disk and then secure storage
     const refreshTokenDisk = await this.getStateValueByUserIdAndKeyDef(userId, REFRESH_TOKEN_DISK);
 
     if (refreshTokenDisk != null) {
       return refreshTokenDisk;
+    }
+
+    if (this.platformSupportsSecureStorage) {
+      const refreshTokenSecureStorage = await this.getStringFromSecureStorage(
+        userId,
+        this.refreshTokenSecureStorageKey,
+      );
+
+      if (refreshTokenSecureStorage != null) {
+        return refreshTokenSecureStorage;
+      }
     }
 
     return null;
@@ -505,18 +516,6 @@ export class TokenService implements TokenServiceAbstraction {
     // Platform doesn't support secure storage, so use state provider implementation
     await this.singleUserStateProvider.get(userId, REFRESH_TOKEN_MEMORY).update((_) => null);
     await this.singleUserStateProvider.get(userId, REFRESH_TOKEN_DISK).update((_) => null);
-  }
-
-  private async getRefreshTokenMigratedToSecureStorage(userId: UserId): Promise<boolean> {
-    return await firstValueFrom(
-      this.singleUserStateProvider.get(userId, REFRESH_TOKEN_MIGRATED_TO_SECURE_STORAGE).state$,
-    );
-  }
-
-  private async setRefreshTokenMigratedToSecureStorage(userId: UserId): Promise<void> {
-    await this.singleUserStateProvider
-      .get(userId, REFRESH_TOKEN_MIGRATED_TO_SECURE_STORAGE)
-      .update((_) => true);
   }
 
   async setClientId(
@@ -852,9 +851,33 @@ export class TokenService implements TokenServiceAbstraction {
     return Array.isArray(decoded.amr) && decoded.amr.includes("external");
   }
 
+  async getSecurityStamp(userId?: UserId): Promise<string | null> {
+    userId ??= await firstValueFrom(this.activeUserIdGlobalState.state$);
+
+    if (!userId) {
+      throw new Error("User id not found. Cannot get security stamp.");
+    }
+
+    const securityStamp = await this.getStateValueByUserIdAndKeyDef(userId, SECURITY_STAMP_MEMORY);
+
+    return securityStamp;
+  }
+
+  async setSecurityStamp(securityStamp: string, userId?: UserId): Promise<void> {
+    userId ??= await firstValueFrom(this.activeUserIdGlobalState.state$);
+
+    if (!userId) {
+      throw new Error("User id not found. Cannot set security stamp.");
+    }
+
+    await this.singleUserStateProvider
+      .get(userId, SECURITY_STAMP_MEMORY)
+      .update((_) => securityStamp);
+  }
+
   private async getStateValueByUserIdAndKeyDef(
     userId: UserId,
-    storageLocation: KeyDefinition<string>,
+    storageLocation: UserKeyDefinition<string>,
   ): Promise<string | undefined> {
     // read from single user state provider
     return await firstValueFrom(this.singleUserStateProvider.get(userId, storageLocation).state$);
