@@ -13,6 +13,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { EventType } from "@bitwarden/common/enums";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EventCollectionService } from "@bitwarden/common/services/event/event-collection.service";
 import {
@@ -75,13 +76,14 @@ describe("AutofillService", () => {
   const logService = mock<LogService>();
   const userVerificationService = mock<UserVerificationService>();
   const billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
+  const platformUtilsService = mock<PlatformUtilsService>();
   let inlineMenuVisibilitySettingMock$!: BehaviorSubject<InlineMenuVisibilitySetting>;
 
   beforeEach(() => {
+    scriptInjectorService = new BrowserScriptInjectorService(platformUtilsService, logService);
     inlineMenuVisibilitySettingMock$ = new BehaviorSubject(AutofillOverlayVisibility.OnFieldFocus);
     autofillSettingsService = mock<AutofillSettingsServiceAbstraction>();
     autofillSettingsService.inlineMenuVisibility$ = inlineMenuVisibilitySettingMock$;
-    scriptInjectorService = new BrowserScriptInjectorService();
     autofillService = new AutofillService(
       cipherService,
       autofillSettingsService,

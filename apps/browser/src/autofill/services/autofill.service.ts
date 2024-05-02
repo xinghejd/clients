@@ -110,17 +110,13 @@ export default class AutofillService implements AutofillServiceInterface {
     frameId = 0,
     triggeringOnPageLoad = true,
   ): Promise<void> {
-    // Autofill settings loaded from state can await the active account state indefinitely if
-    // not guarded by an active account check (e.g. the user is logged in)
+    // Autofill user settings loaded from state can await the active account state indefinitely
+    // if not guarded by an active account check (e.g. the user is logged in)
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
 
-    // These settings are not available until the user logs in
-    let overlayVisibility: InlineMenuVisibilitySetting = AutofillOverlayVisibility.Off;
     let autoFillOnPageLoadIsEnabled = false;
+    const overlayVisibility = await this.getInlineMenuVisibility();
 
-    if (activeAccount) {
-      overlayVisibility = await this.getInlineMenuVisibility();
-    }
     const mainAutofillScript = overlayVisibility
       ? "bootstrap-autofill-overlay.js"
       : "bootstrap-autofill.js";
