@@ -395,7 +395,7 @@ describe("AutofillOverlayIframeService", () => {
 
       it("updates the visibility of the iframe", () => {
         sendPortMessage(portSpy, {
-          command: "updateOverlayMenuHidden",
+          command: "updateInlineMenuHidden",
           styles: { display: "none" },
         });
 

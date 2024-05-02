@@ -845,7 +845,7 @@ describe("OverlayBackground", () => {
         });
       });
 
-      describe("updateOverlayMenuHidden", () => {
+      describe("updateInlineMenuHidden", () => {
         beforeEach(async () => {
           await initOverlayElementPorts();
         });
@@ -859,13 +859,13 @@ describe("OverlayBackground", () => {
           sendMockExtensionMessage(message);
 
           expect(buttonPortSpy.postMessage).toHaveBeenCalledWith({
-            command: "updateOverlayMenuHidden",
+            command: "updateInlineMenuHidden",
             styles: {
               display: "none",
             },
           });
           expect(listPortSpy.postMessage).toHaveBeenCalledWith({
-            command: "updateOverlayMenuHidden",
+            command: "updateInlineMenuHidden",
             styles: {
               display: "none",
             },
@@ -881,14 +881,14 @@ describe("OverlayBackground", () => {
           sendMockExtensionMessage(message);
 
           expect(buttonPortSpy.postMessage).toHaveBeenCalledWith({
-            command: "updateOverlayMenuHidden",
+            command: "updateInlineMenuHidden",
             styles: {
               display: "block",
               opacity: 0,
             },
           });
           expect(listPortSpy.postMessage).toHaveBeenCalledWith({
-            command: "updateOverlayMenuHidden",
+            command: "updateInlineMenuHidden",
             styles: {
               display: "block",
               opacity: 0,

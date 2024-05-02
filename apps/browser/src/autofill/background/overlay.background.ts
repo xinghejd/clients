@@ -74,7 +74,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
     updateAutofillInlineMenuPosition: ({ message, sender }) =>
       this.updateInlineMenuPosition(message, sender),
     updateAutofillInlineMenuHidden: ({ message, sender }) =>
-      this.updateOverlayMenuHidden(message, sender),
+      this.updateInlineMenuHidden(message, sender),
     updateFocusedFieldData: ({ message, sender }) => this.setFocusedFieldData(message, sender),
     updateIsFieldCurrentlyFocused: ({ message }) => this.updateIsFieldCurrentlyFocused(message),
     checkIsFieldCurrentlyFocused: () => this.checkIsFieldCurrentlyFocused(),
@@ -590,7 +590,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * @param display - The display property of the overlay, either "block" or "none"
    * @param sender - The sender of the extension message
    */
-  private updateOverlayMenuHidden(
+  private updateInlineMenuHidden(
     { isAutofillInlineMenuHidden, setTransparentOverlay }: OverlayBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
@@ -602,7 +602,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
       styles = { ...styles, opacity };
     }
 
-    const portMessage = { command: "updateOverlayMenuHidden", styles };
+    const portMessage = { command: "updateInlineMenuHidden", styles };
 
     void BrowserApi.tabSendMessage(
       sender.tab,

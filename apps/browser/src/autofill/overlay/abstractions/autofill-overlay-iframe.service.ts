@@ -19,7 +19,7 @@ type BackgroundPortMessageHandlers = {
   initAutofillOverlayButton: ({ message }: AutofillOverlayIframeExtensionMessageParam) => void;
   initAutofillOverlayList: ({ message }: AutofillOverlayIframeExtensionMessageParam) => void;
   updateIframePosition: ({ message }: AutofillOverlayIframeExtensionMessageParam) => void;
-  updateOverlayMenuHidden: ({ message }: AutofillOverlayIframeExtensionMessageParam) => void;
+  updateInlineMenuHidden: ({ message }: AutofillOverlayIframeExtensionMessageParam) => void;
   updateOverlayPageColorScheme: () => void;
 };
 
