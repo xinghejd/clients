@@ -536,7 +536,7 @@ describe("OverlayBackground", () => {
 
     it("will return a response if the message handler returns a response", async () => {
       const message = {
-        command: "openAutofillOverlayMenu",
+        command: "openAutofillInlineMenu",
       };
       const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
       const sendResponse = jest.fn();
@@ -552,17 +552,17 @@ describe("OverlayBackground", () => {
     });
 
     describe("extension message handlers", () => {
-      describe("openAutofillOverlayMenu message handler", () => {
+      describe("openAutofillInlineMenu message handler", () => {
         it("opens the autofill overlay by sending a message to the current tab", async () => {
           const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
           jest.spyOn(BrowserApi, "getTabFromCurrentWindowId").mockResolvedValueOnce(sender.tab);
           jest.spyOn(BrowserApi, "tabSendMessage").mockImplementation();
 
-          sendMockExtensionMessage({ command: "openAutofillOverlayMenu" });
+          sendMockExtensionMessage({ command: "openAutofillInlineMenu" });
           await flushPromises();
 
           expect(BrowserApi.tabSendMessage).not.toHaveBeenCalledWith(sender.tab, {
-            command: "openAutofillOverlayMenu",
+            command: "openAutofillInlineMenu",
             isFocusingFieldElement: false,
             isOpeningFullOverlay: false,
             authStatus: AuthenticationStatus.Unlocked,
@@ -984,7 +984,7 @@ describe("OverlayBackground", () => {
           const message = {
             command: "unlockCompleted",
             data: {
-              commandToRetry: { message: { command: "openAutofillOverlayMenu" } },
+              commandToRetry: { message: { command: "openAutofillInlineMenu" } },
             },
           };
           jest.spyOn(BrowserApi, "getTabFromCurrentWindowId").mockResolvedValueOnce(sender.tab);
@@ -996,7 +996,7 @@ describe("OverlayBackground", () => {
           expect(BrowserApi.tabSendMessage).toHaveBeenCalledWith(
             sender.tab,
             {
-              command: "openAutofillOverlayMenu",
+              command: "openAutofillInlineMenu",
               isFocusingFieldElement: true,
               isOpeningFullOverlay: false,
               authStatus: AuthenticationStatus.Unlocked,
@@ -1147,23 +1147,23 @@ describe("OverlayBackground", () => {
       });
 
       it("opens the autofill overlay if the auth status is unlocked", () => {
-        jest.spyOn(overlayBackground as any, "openOverlayMenu").mockImplementation();
+        jest.spyOn(overlayBackground as any, "openInlineMenu").mockImplementation();
 
         sendPortMessage(buttonMessageConnectorPortSpy, {
           command: "overlayButtonClicked",
           portKey,
         });
 
-        expect(overlayBackground["openOverlayMenu"]).toHaveBeenCalled();
+        expect(overlayBackground["openInlineMenu"]).toHaveBeenCalled();
       });
 
-      // TODO: The tests for `closeAutofillOverlayMenu` and `forceCloseAutofillOverlay` need to be fleshed out
-      describe("closeAutofillOverlayMenu", () => {
+      // TODO: The tests for `closeAutofillInlineMenu` and `forceCloseAutofillOverlay` need to be fleshed out
+      describe("closeAutofillInlineMenu", () => {
         it("sends a `closeOverlay` message to the sender tab", () => {
           jest.spyOn(BrowserApi, "tabSendMessage");
 
           sendPortMessage(buttonMessageConnectorPortSpy, {
-            command: "closeAutofillOverlayMenu",
+            command: "closeAutofillInlineMenu",
             portKey,
           });
 
@@ -1284,14 +1284,14 @@ describe("OverlayBackground", () => {
 
       describe("unlockVault", () => {
         it("closes the autofill overlay and opens the unlock popout", async () => {
-          jest.spyOn(overlayBackground as any, "closeOverlayMenu").mockImplementation();
+          jest.spyOn(overlayBackground as any, "closeInlineMenu").mockImplementation();
           jest.spyOn(overlayBackground as any, "openUnlockPopout").mockImplementation();
           jest.spyOn(BrowserApi, "tabSendMessageData").mockImplementation();
 
           sendPortMessage(listMessageConnectorPortSpy, { command: "unlockVault", portKey });
           await flushPromises();
 
-          expect(overlayBackground["closeOverlayMenu"]).toHaveBeenCalledWith(
+          expect(overlayBackground["closeInlineMenu"]).toHaveBeenCalledWith(
             listMessageConnectorPortSpy.sender,
           );
           expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
@@ -1299,7 +1299,7 @@ describe("OverlayBackground", () => {
             "addToLockedVaultPendingNotifications",
             {
               commandToRetry: {
-                message: { command: "openAutofillOverlayMenu" },
+                message: { command: "openAutofillInlineMenu" },
                 sender: listMessageConnectorPortSpy.sender,
               },
               target: "overlay.background",

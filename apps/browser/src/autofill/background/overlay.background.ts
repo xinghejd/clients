@@ -64,8 +64,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private overlayPageTranslations: Record<string, string>;
   private iconsServerUrl: string;
   private readonly extensionMessageHandlers: OverlayBackgroundExtensionMessageHandlers = {
-    openAutofillOverlayMenu: () => this.openOverlayMenu(false),
-    closeAutofillOverlayMenu: ({ message, sender }) => this.closeOverlayMenu(sender, message),
+    openAutofillInlineMenu: () => this.openInlineMenu(false),
+    closeAutofillInlineMenu: ({ message, sender }) => this.closeInlineMenu(sender, message),
     autofillOverlayElementClosed: ({ message }) => this.overlayElementClosed(message),
     autofillOverlayAddNewVaultItem: ({ message, sender }) => this.addNewVaultItem(message, sender),
     getInlineMenuVisibilitySetting: () => this.getInlineMenuVisibility(),
@@ -93,9 +93,9 @@ class OverlayBackground implements OverlayBackgroundInterface {
   };
   private readonly overlayButtonPortMessageHandlers: OverlayButtonPortMessageHandlers = {
     overlayButtonClicked: ({ port }) => this.handleOverlayButtonClicked(port),
-    closeAutofillOverlayMenu: ({ port }) => this.closeOverlayMenu(port.sender),
+    closeAutofillInlineMenu: ({ port }) => this.closeInlineMenu(port.sender),
     forceCloseAutofillOverlay: ({ port }) =>
-      this.closeOverlayMenu(port.sender, { forceCloseOverlay: true }),
+      this.closeInlineMenu(port.sender, { forceCloseOverlay: true }),
     overlayPageBlurred: () => this.checkOverlayListFocused(),
     redirectOverlayFocusOut: ({ message, port }) => this.redirectOverlayFocusOut(message, port),
     updateOverlayPageColorScheme: () => this.updateButtonPageColorScheme(),
@@ -103,7 +103,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private readonly overlayListPortMessageHandlers: OverlayListPortMessageHandlers = {
     checkAutofillOverlayButtonFocused: () => this.checkOverlayButtonFocused(),
     forceCloseAutofillOverlay: ({ port }) =>
-      this.closeOverlayMenu(port.sender, { forceCloseOverlay: true }),
+      this.closeInlineMenu(port.sender, { forceCloseOverlay: true }),
     overlayPageBlurred: () => this.checkOverlayButtonFocused(),
     unlockVault: ({ port }) => this.unlockVault(port),
     fillSelectedListItem: ({ message, port }) => this.fillSelectedOverlayListItem(message, port),
@@ -416,7 +416,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * @param forceCloseOverlay - Identifies whether the overlay should be forced closed
    * @param overlayElement - The overlay element to close, either the list or button
    */
-  private closeOverlayMenu(
+  private closeInlineMenu(
     sender: chrome.runtime.MessageSender,
     {
       forceCloseOverlay,
@@ -621,13 +621,13 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * @param isFocusingFieldElement - Identifies whether the field element should be focused when the overlay is opened
    * @param isOpeningFullOverlay - Identifies whether the full overlay should be forced open regardless of other states
    */
-  private async openOverlayMenu(isFocusingFieldElement = false, isOpeningFullOverlay = false) {
+  private async openInlineMenu(isFocusingFieldElement = false, isOpeningFullOverlay = false) {
     const currentTab = await BrowserApi.getTabFromCurrentWindowId();
 
     await BrowserApi.tabSendMessage(
       currentTab,
       {
-        command: "openAutofillOverlayMenu",
+        command: "openAutofillInlineMenu",
         isFocusingFieldElement,
         isOpeningFullOverlay,
         authStatus: await this.getAuthStatus(),
@@ -688,7 +688,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    void this.openOverlayMenu(false, true);
+    void this.openInlineMenu(false, true);
   }
 
   /**
@@ -699,9 +699,9 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private async unlockVault(port: chrome.runtime.Port) {
     const { sender } = port;
 
-    this.closeOverlayMenu(port.sender);
+    this.closeInlineMenu(port.sender);
     const retryMessage: LockedVaultPendingNotificationsData = {
-      commandToRetry: { message: { command: "openAutofillOverlayMenu" }, sender },
+      commandToRetry: { message: { command: "openAutofillInlineMenu" }, sender },
       target: "overlay.background",
     };
     await BrowserApi.tabSendMessageData(
@@ -749,8 +749,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private async unlockCompleted(message: OverlayBackgroundExtensionMessage) {
     await this.getAuthStatus();
 
-    if (message.data?.commandToRetry?.message?.command === "openAutofillOverlayMenu") {
-      await this.openOverlayMenu(true);
+    if (message.data?.commandToRetry?.message?.command === "openAutofillInlineMenu") {
+      await this.openInlineMenu(true);
     }
   }
 

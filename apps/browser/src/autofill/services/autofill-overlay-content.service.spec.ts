@@ -321,7 +321,7 @@ describe("AutofillOverlayContentService", () => {
         it("closes the autofill overlay when the `Escape` key is pressed", () => {
           autofillFieldElement.dispatchEvent(new KeyboardEvent("keyup", { code: "Escape" }));
 
-          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillOverlayMenu", {
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu", {
             forceCloseOverlay: true,
           });
         });
@@ -364,7 +364,7 @@ describe("AutofillOverlayContentService", () => {
           );
           const openAutofillOverlaySpy = jest.spyOn(
             autofillOverlayContentService as any,
-            "openAutofillOverlayMenu",
+            "openAutofillInlineMenu",
           );
           jest
             .spyOn(autofillOverlayContentService as any, "isInlineMenuListVisible")
@@ -454,7 +454,7 @@ describe("AutofillOverlayContentService", () => {
           autofillFieldElement.dispatchEvent(new Event("input"));
           await flushPromises();
 
-          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillOverlayMenu", {
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu", {
             overlayElement: AutofillOverlayElement.List,
             forceCloseOverlay: true,
           });
@@ -475,14 +475,14 @@ describe("AutofillOverlayContentService", () => {
           autofillFieldElement.dispatchEvent(new Event("input"));
           await flushPromises();
 
-          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillOverlayMenu", {
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu", {
             overlayElement: AutofillOverlayElement.List,
             forceCloseOverlay: true,
           });
         });
 
         it("opens the autofill overlay if the form field is empty", async () => {
-          jest.spyOn(autofillOverlayContentService as any, "openAutofillOverlayMenu");
+          jest.spyOn(autofillOverlayContentService as any, "openAutofillInlineMenu");
           (autofillFieldElement as HTMLInputElement).value = "";
 
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
@@ -492,12 +492,12 @@ describe("AutofillOverlayContentService", () => {
           autofillFieldElement.dispatchEvent(new Event("input"));
           await flushPromises();
 
-          expect(autofillOverlayContentService["openAutofillOverlayMenu"]).toHaveBeenCalled();
+          expect(autofillOverlayContentService["openAutofillInlineMenu"]).toHaveBeenCalled();
         });
 
         it("opens the autofill overlay if the form field is empty and the user is authed", async () => {
           jest.spyOn(autofillOverlayContentService as any, "isUserAuthed").mockReturnValue(true);
-          jest.spyOn(autofillOverlayContentService as any, "openAutofillOverlayMenu");
+          jest.spyOn(autofillOverlayContentService as any, "openAutofillInlineMenu");
           (autofillFieldElement as HTMLInputElement).value = "";
 
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
@@ -507,7 +507,7 @@ describe("AutofillOverlayContentService", () => {
           autofillFieldElement.dispatchEvent(new Event("input"));
           await flushPromises();
 
-          expect(autofillOverlayContentService["openAutofillOverlayMenu"]).toHaveBeenCalled();
+          expect(autofillOverlayContentService["openAutofillInlineMenu"]).toHaveBeenCalled();
         });
 
         it("opens the autofill overlay if the form field is empty and the overlay ciphers are not populated", async () => {
@@ -515,7 +515,7 @@ describe("AutofillOverlayContentService", () => {
           jest
             .spyOn(autofillOverlayContentService as any, "isInlineMenuCiphersPopulated")
             .mockResolvedValue(false);
-          jest.spyOn(autofillOverlayContentService as any, "openAutofillOverlayMenu");
+          jest.spyOn(autofillOverlayContentService as any, "openAutofillInlineMenu");
           (autofillFieldElement as HTMLInputElement).value = "";
 
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
@@ -525,7 +525,7 @@ describe("AutofillOverlayContentService", () => {
           autofillFieldElement.dispatchEvent(new Event("input"));
           await flushPromises();
 
-          expect(autofillOverlayContentService["openAutofillOverlayMenu"]).toHaveBeenCalled();
+          expect(autofillOverlayContentService["openAutofillInlineMenu"]).toHaveBeenCalled();
         });
       });
 
@@ -633,7 +633,7 @@ describe("AutofillOverlayContentService", () => {
           autofillFieldElement.dispatchEvent(new Event("focus"));
           await flushPromises();
 
-          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillOverlayMenu", {
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu", {
             overlayElement: AutofillOverlayElement.List,
             forceCloseOverlay: true,
           });
@@ -652,7 +652,7 @@ describe("AutofillOverlayContentService", () => {
           autofillFieldElement.dispatchEvent(new Event("focus"));
           await flushPromises();
 
-          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillOverlayMenu", {
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu", {
             overlayElement: AutofillOverlayElement.List,
             forceCloseOverlay: true,
           });
@@ -670,7 +670,7 @@ describe("AutofillOverlayContentService", () => {
           autofillFieldElement.dispatchEvent(new Event("focus"));
           await flushPromises();
 
-          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("openAutofillOverlayMenu");
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("openAutofillInlineMenu");
         });
 
         it("opens the autofill overlay if the overlay ciphers are not populated and the user is authed", async () => {
@@ -686,7 +686,7 @@ describe("AutofillOverlayContentService", () => {
           autofillFieldElement.dispatchEvent(new Event("focus"));
           await flushPromises();
 
-          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("openAutofillOverlayMenu");
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith("openAutofillInlineMenu");
         });
 
         it("updates the overlay button position if the focus event is not opening the overlay", async () => {
@@ -726,7 +726,7 @@ describe("AutofillOverlayContentService", () => {
         autofillFieldData,
       );
 
-      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("openAutofillOverlayMenu");
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("openAutofillInlineMenu");
       expect(autofillOverlayContentService["mostRecentlyFocusedField"]).toEqual(
         autofillFieldElement,
       );
@@ -746,7 +746,7 @@ describe("AutofillOverlayContentService", () => {
     });
   });
 
-  describe("openAutofillOverlayMenu", () => {
+  describe("openAutofillInlineMenu", () => {
     let autofillFieldElement: ElementWithOpId<FormFieldElement>;
 
     beforeEach(() => {
@@ -767,7 +767,7 @@ describe("AutofillOverlayContentService", () => {
     it("skips opening the overlay if a field has not been recently focused", () => {
       autofillOverlayContentService["mostRecentlyFocusedField"] = undefined;
 
-      autofillOverlayContentService["openAutofillOverlayMenu"]();
+      autofillOverlayContentService["openAutofillInlineMenu"]();
 
       expect(sendExtensionMessageSpy).not.toHaveBeenCalled();
     });
@@ -783,7 +783,7 @@ describe("AutofillOverlayContentService", () => {
         "focusMostRecentOverlayField",
       );
 
-      autofillOverlayContentService["openAutofillOverlayMenu"]({ isFocusingFieldElement: true });
+      autofillOverlayContentService["openAutofillInlineMenu"]({ isFocusingFieldElement: true });
 
       expect(focusMostRecentOverlayFieldSpy).toHaveBeenCalled();
     });
@@ -799,7 +799,7 @@ describe("AutofillOverlayContentService", () => {
         "focusMostRecentOverlayField",
       );
 
-      autofillOverlayContentService["openAutofillOverlayMenu"]({ isFocusingFieldElement: true });
+      autofillOverlayContentService["openAutofillInlineMenu"]({ isFocusingFieldElement: true });
 
       expect(focusMostRecentOverlayFieldSpy).not.toHaveBeenCalled();
     });
@@ -807,7 +807,7 @@ describe("AutofillOverlayContentService", () => {
     it("stores the user's auth status", () => {
       autofillOverlayContentService["authStatus"] = undefined;
 
-      autofillOverlayContentService["openAutofillOverlayMenu"]({
+      autofillOverlayContentService["openAutofillInlineMenu"]({
         authStatus: AuthenticationStatus.Unlocked,
       });
 
@@ -817,7 +817,7 @@ describe("AutofillOverlayContentService", () => {
     it("opens both autofill overlay elements", () => {
       autofillOverlayContentService["mostRecentlyFocusedField"] = autofillFieldElement;
 
-      autofillOverlayContentService["openAutofillOverlayMenu"]();
+      autofillOverlayContentService["openAutofillInlineMenu"]();
 
       expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayMenuPosition", {
         overlayElement: AutofillOverlayElement.Button,
@@ -831,7 +831,7 @@ describe("AutofillOverlayContentService", () => {
       autofillOverlayContentService["inlineMenuVisibility"] =
         AutofillOverlayVisibility.OnButtonClick;
 
-      autofillOverlayContentService["openAutofillOverlayMenu"]({ isOpeningFullOverlay: false });
+      autofillOverlayContentService["openAutofillInlineMenu"]({ isOpeningFullOverlay: false });
 
       expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayMenuPosition", {
         overlayElement: AutofillOverlayElement.Button,
@@ -848,7 +848,7 @@ describe("AutofillOverlayContentService", () => {
       autofillOverlayContentService["inlineMenuVisibility"] =
         AutofillOverlayVisibility.OnButtonClick;
 
-      autofillOverlayContentService["openAutofillOverlayMenu"]({ isOpeningFullOverlay: true });
+      autofillOverlayContentService["openAutofillInlineMenu"]({ isOpeningFullOverlay: true });
 
       expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillOverlayMenuPosition", {
         overlayElement: AutofillOverlayElement.Button,
@@ -862,7 +862,7 @@ describe("AutofillOverlayContentService", () => {
       jest.spyOn(autofillOverlayContentService as any, "sendExtensionMessage");
       autofillOverlayContentService.pageDetailsUpdateRequired = true;
 
-      autofillOverlayContentService["openAutofillOverlayMenu"]();
+      autofillOverlayContentService["openAutofillInlineMenu"]();
 
       expect(sendExtensionMessageSpy).toHaveBeenCalledWith("bgCollectPageDetails", {
         sender: "autofillOverlayContentService",
@@ -1028,7 +1028,7 @@ describe("AutofillOverlayContentService", () => {
       await autofillOverlayContentService.redirectOverlayFocusOut(RedirectFocusDirection.Current);
       jest.advanceTimersByTime(150);
 
-      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillOverlayMenu");
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu");
     });
 
     it("finds all focusable tabs if the focusable elements array is not populated", async () => {
@@ -1136,7 +1136,7 @@ describe("AutofillOverlayContentService", () => {
         isOverlayHidden: false,
         setTransparentOverlay: true,
       });
-      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillOverlayMenu", {
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu", {
         forceCloseOverlay: true,
       });
     });
@@ -1190,7 +1190,7 @@ describe("AutofillOverlayContentService", () => {
       jest.advanceTimersByTime(800);
       await flushPromises();
 
-      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillOverlayMenu", {
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu", {
         forceCloseOverlay: true,
       });
     });
@@ -1200,7 +1200,7 @@ describe("AutofillOverlayContentService", () => {
     it("skips removing the overlay if the document is visible", () => {
       autofillOverlayContentService["handleVisibilityChangeEvent"]();
 
-      expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith("closeAutofillOverlayMenu", {
+      expect(sendExtensionMessageSpy).not.toHaveBeenCalledWith("closeAutofillInlineMenu", {
         forceCloseOverlay: true,
       });
     });
@@ -1214,7 +1214,7 @@ describe("AutofillOverlayContentService", () => {
 
       autofillOverlayContentService["handleVisibilityChangeEvent"]();
 
-      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillOverlayMenu", {
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu", {
         forceCloseOverlay: true,
       });
     });

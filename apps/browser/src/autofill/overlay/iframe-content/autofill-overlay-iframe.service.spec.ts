@@ -459,7 +459,7 @@ describe("AutofillOverlayIframeService", () => {
       autofillOverlayIframeService["iframe"].src = "http://malicious-site.com";
       await flushPromises();
 
-      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillOverlayMenu", {
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu", {
         forceClose: true,
       });
     });
@@ -471,7 +471,7 @@ describe("AutofillOverlayIframeService", () => {
       autofillOverlayIframeService["iframe"].src = "http://malicious-site.com";
       await flushPromises();
 
-      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillOverlayMenu", {
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu", {
         forceClose: true,
       });
     });
