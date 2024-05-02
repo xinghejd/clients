@@ -569,7 +569,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: Fido2UserVerificationService,
     useClass: Fido2UserVerificationService,
-    deps: [PasswordRepromptService, DialogService],
+    deps: [PasswordRepromptService, UserVerificationService, DialogService],
   }),
 ];
 

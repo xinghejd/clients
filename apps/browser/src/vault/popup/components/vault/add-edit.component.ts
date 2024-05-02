@@ -172,8 +172,10 @@ export class AddEditComponent extends BaseAddEditComponent {
     const fido2SessionData = await firstValueFrom(this.fido2PopoutSessionData$);
     const { isFido2Session, sessionId, userVerification, fromLock } = fido2SessionData;
     const inFido2PopoutWindow = BrowserPopupUtils.inPopout(window) && isFido2Session;
+
     if (
       inFido2PopoutWindow &&
+      userVerification &&
       !(await this.fido2UserVerificationService.handleUserVerification(
         userVerification,
         this.cipher,
