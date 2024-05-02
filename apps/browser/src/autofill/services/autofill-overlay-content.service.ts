@@ -1002,11 +1002,11 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   }
 
   private async isInlineMenuButtonVisible() {
-    return (await this.sendExtensionMessage("checkIsInlineMenuButtonVisible")) === true;
+    return (await this.sendExtensionMessage("checkIsAutofillInlineMenuButtonVisible")) === true;
   }
 
   private async isInlineMenuListVisible() {
-    return (await this.sendExtensionMessage("checkIsInlineMenuListVisible")) === true;
+    return (await this.sendExtensionMessage("checkIsAutofillInlineMenuListVisible")) === true;
   }
 
   private async isInlineMenuCiphersPopulated() {

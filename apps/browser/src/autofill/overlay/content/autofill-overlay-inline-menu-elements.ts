@@ -39,8 +39,8 @@ export class AutofillOverlayInlineMenuElements implements InlineMenuElementsInte
     appendInlineMenuElementsToDom: ({ message }) => this.appendInlineMenuElements(message),
     toggleInlineMenuHidden: ({ message }) =>
       this.toggleInlineMenuHidden(message.isInlineMenuHidden),
-    checkIsInlineMenuButtonVisible: () => this.isInlineMenuButtonVisible(),
-    checkIsInlineMenuListVisible: () => this.isInlineMenuListVisible(),
+    checkIsAutofillInlineMenuButtonVisible: () => this.isInlineMenuButtonVisible(),
+    checkIsAutofillInlineMenuListVisible: () => this.isInlineMenuListVisible(),
   };
 
   constructor() {

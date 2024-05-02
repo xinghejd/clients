@@ -80,8 +80,10 @@ class OverlayBackground implements OverlayBackgroundInterface {
     checkIsFieldCurrentlyFocused: () => this.checkIsFieldCurrentlyFocused(),
     updateIsFieldCurrentlyFilling: ({ message }) => this.updateIsFieldCurrentlyFilling(message),
     checkIsFieldCurrentlyFilling: () => this.checkIsFieldCurrentlyFilling(),
-    checkIsInlineMenuButtonVisible: ({ sender }) => this.checkIsInlineMenuButtonVisible(sender),
-    checkIsInlineMenuListVisible: ({ sender }) => this.checkIsInlineMenuListVisible(sender),
+    checkIsAutofillInlineMenuButtonVisible: ({ sender }) =>
+      this.checkIsAutofillInlineMenuButtonVisible(sender),
+    checkIsAutofillInlineMenuListVisible: ({ sender }) =>
+      this.checkIsAutofillInlineMenuListVisible(sender),
     checkIsOverlayLoginCiphersPopulated: ({ sender }) =>
       this.checkIsOverlayLoginCiphersPopulated(sender),
     updateSubFrameData: ({ message, sender }) => this.updateSubFrameData(message, sender),
@@ -873,18 +875,18 @@ class OverlayBackground implements OverlayBackgroundInterface {
     return this.isFieldCurrentlyFilling;
   }
 
-  private async checkIsInlineMenuButtonVisible(sender: chrome.runtime.MessageSender) {
+  private async checkIsAutofillInlineMenuButtonVisible(sender: chrome.runtime.MessageSender) {
     return await BrowserApi.tabSendMessage(
       sender.tab,
-      { command: "checkIsInlineMenuButtonVisible" },
+      { command: "checkIsAutofillInlineMenuButtonVisible" },
       { frameId: 0 },
     );
   }
 
-  private async checkIsInlineMenuListVisible(sender: chrome.runtime.MessageSender) {
+  private async checkIsAutofillInlineMenuListVisible(sender: chrome.runtime.MessageSender) {
     return await BrowserApi.tabSendMessage(
       sender.tab,
-      { command: "checkIsInlineMenuListVisible" },
+      { command: "checkIsAutofillInlineMenuListVisible" },
       { frameId: 0 },
     );
   }

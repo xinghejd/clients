@@ -5,8 +5,8 @@ export type InlineMenuExtensionMessageHandlers = {
   closeInlineMenu: ({ message }: AutofillExtensionMessageParam) => void;
   appendInlineMenuElementsToDom: ({ message }: AutofillExtensionMessageParam) => Promise<void>;
   toggleInlineMenuHidden: ({ message }: AutofillExtensionMessageParam) => void;
-  checkIsInlineMenuButtonVisible: () => boolean;
-  checkIsInlineMenuListVisible: () => boolean;
+  checkIsAutofillInlineMenuButtonVisible: () => boolean;
+  checkIsAutofillInlineMenuListVisible: () => boolean;
 };
 
 export interface AutofillOverlayInlineMenuElements {
