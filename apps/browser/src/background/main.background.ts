@@ -109,7 +109,6 @@ import { EncryptServiceImplementation } from "@bitwarden/common/platform/service
 import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/multithread-encrypt.service.implementation";
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
 import { KeyGenerationService } from "@bitwarden/common/platform/services/key-generation.service";
-import { MemoryStorageService } from "@bitwarden/common/platform/services/memory-storage.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
 import { MigrationRunner } from "@bitwarden/common/platform/services/migration-runner";
 import { SystemService } from "@bitwarden/common/platform/services/system.service";
@@ -213,6 +212,8 @@ import { UpdateBadge } from "../platform/listeners/update-badge";
 /* eslint-disable no-restricted-imports */
 import { ChromeMessageSender } from "../platform/messaging/chrome-message.sender";
 /* eslint-enable no-restricted-imports */
+import { OffscreenDocumentService } from "../platform/offscreen-document/abstractions/offscreen-document";
+import { DefaultOffscreenDocumentService } from "../platform/offscreen-document/offscreen-document.service";
 import { BrowserStateService as StateServiceAbstraction } from "../platform/services/abstractions/browser-state.service";
 import { BrowserCryptoService } from "../platform/services/browser-crypto.service";
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
@@ -337,6 +338,7 @@ export default class MainBackground {
   userAutoUnlockKeyService: UserAutoUnlockKeyService;
   scriptInjectorService: BrowserScriptInjectorService;
   kdfConfigService: kdfConfigServiceAbstraction;
+  offscreenDocumentService: OffscreenDocumentService;
 
   onUpdatedRan: boolean;
   onReplacedRan: boolean;
@@ -356,10 +358,7 @@ export default class MainBackground {
   private isSafari: boolean;
   private nativeMessagingBackground: NativeMessagingBackground;
 
-  constructor(
-    public isPrivateMode: boolean = false,
-    public popupOnlyContext: boolean = false,
-  ) {
+  constructor(public popupOnlyContext: boolean = false) {
     // Services
     const lockedCallback = async (userId?: string) => {
       if (this.notificationsService != null) {
@@ -397,11 +396,14 @@ export default class MainBackground {
       ),
     );
 
+    this.offscreenDocumentService = new DefaultOffscreenDocumentService();
+
     this.platformUtilsService = new BackgroundPlatformUtilsService(
       this.messagingService,
       (clipboardValue, clearMs) => this.clearClipboard(clipboardValue, clearMs),
       async () => this.biometricUnlock(),
       self,
+      this.offscreenDocumentService,
     );
 
     // Creates a session key for mv3 storage of large memory items
@@ -443,10 +445,14 @@ export default class MainBackground {
     this.secureStorageService = this.storageService; // secure storage is not supported in browsers, so we use local storage and warn users when it is used
     this.memoryStorageForStateProviders = BrowserApi.isManifestVersion(3)
       ? new BrowserMemoryStorageService() // mv3 stores to storage.session
-      : new BackgroundMemoryStorageService(); // mv2 stores to memory
+      : popupOnlyContext
+        ? new ForegroundMemoryStorageService()
+        : new BackgroundMemoryStorageService(); // mv2 stores to memory
     this.memoryStorageService = BrowserApi.isManifestVersion(3)
       ? this.memoryStorageForStateProviders // manifest v3 can reuse the same storage. They are split for v2 due to lacking a good sync mechanism, which isn't true for v3
-      : new MemoryStorageService();
+      : popupOnlyContext
+        ? new ForegroundMemoryStorageService()
+        : new BackgroundMemoryStorageService();
     this.largeObjectMemoryStorageForStateProviders = BrowserApi.isManifestVersion(3)
       ? mv3MemoryStorageCreator() // mv3 stores to local-backed session storage
       : this.memoryStorageForStateProviders; // mv2 stores to the same location
@@ -737,7 +743,6 @@ export default class MainBackground {
       this.cipherService,
       this.folderService,
       this.collectionService,
-      this.cryptoService,
       this.platformUtilsService,
       this.messagingService,
       this.searchService,
@@ -1056,11 +1061,12 @@ export default class MainBackground {
         this.cipherService,
       );
 
-      if (BrowserApi.isManifestVersion(2)) {
+      if (chrome.webRequest != null && chrome.webRequest.onAuthRequired != null) {
         this.webRequestBackground = new WebRequestBackground(
           this.platformUtilsService,
           this.cipherService,
           this.authService,
+          chrome.webRequest,
         );
       }
     }
@@ -1106,31 +1112,11 @@ export default class MainBackground {
     await this.tabsBackground.init();
     this.contextMenusBackground?.init();
     await this.idleBackground.init();
-    if (BrowserApi.isManifestVersion(2)) {
-      await this.webRequestBackground.init();
-    }
-
-    if (this.platformUtilsService.isFirefox() && !this.isPrivateMode) {
-      // Set Private Mode windows to the default icon - they do not share state with the background page
-      const privateWindows = await BrowserApi.getPrivateModeWindows();
-      privateWindows.forEach(async (win) => {
-        await new UpdateBadge(self).setBadgeIcon("", win.id);
-      });
-
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      BrowserApi.onWindowCreated(async (win) => {
-        if (win.incognito) {
-          await new UpdateBadge(self).setBadgeIcon("", win.id);
-        }
-      });
-    }
+    this.webRequestBackground?.startListening();
 
     return new Promise<void>((resolve) => {
       setTimeout(async () => {
-        if (!this.isPrivateMode) {
-          await this.refreshBadge();
-        }
+        await this.refreshBadge();
         await this.fullSync(true);
         setTimeout(() => this.notificationsService.init(), 2500);
         resolve();
