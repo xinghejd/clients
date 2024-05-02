@@ -564,7 +564,7 @@ describe("OverlayBackground", () => {
           expect(BrowserApi.tabSendMessage).not.toHaveBeenCalledWith(sender.tab, {
             command: "openAutofillInlineMenu",
             isFocusingFieldElement: false,
-            isOpeningFullOverlay: false,
+            isOpeningFullAutofillInlineMenu: false,
             authStatus: AuthenticationStatus.Unlocked,
           });
         });
@@ -668,13 +668,13 @@ describe("OverlayBackground", () => {
         });
       });
 
-      describe("checkAutofillOverlayMenuFocused message handler", () => {
+      describe("checkAutofillInlineMenuFocused message handler", () => {
         beforeEach(async () => {
           await initOverlayElementPorts();
         });
 
         it("will check if the overlay list is focused if the list port is open", () => {
-          sendMockExtensionMessage({ command: "checkAutofillOverlayMenuFocused" });
+          sendMockExtensionMessage({ command: "checkAutofillInlineMenuFocused" });
 
           expect(listPortSpy.postMessage).toHaveBeenCalledWith({
             command: "checkAutofillOverlayListFocused",
@@ -687,7 +687,7 @@ describe("OverlayBackground", () => {
         it("will check if the overlay button is focused if the list port is not open", () => {
           overlayBackground["overlayListPort"] = undefined;
 
-          sendMockExtensionMessage({ command: "checkAutofillOverlayMenuFocused" });
+          sendMockExtensionMessage({ command: "checkAutofillInlineMenuFocused" });
 
           expect(buttonPortSpy.postMessage).toHaveBeenCalledWith({
             command: "checkAutofillOverlayButtonFocused",
@@ -698,8 +698,8 @@ describe("OverlayBackground", () => {
         });
       });
 
-      describe("focusAutofillOverlayMenuList message handler", () => {
-        it("will send a `focusOverlayMenuList` message to the overlay list port", async () => {
+      describe("focusAutofillInlineMenuList message handler", () => {
+        it("will send a `focusInlineMenuList` message to the overlay list port", async () => {
           await initOverlayElementPorts({
             initList: true,
             initButton: false,
@@ -707,13 +707,13 @@ describe("OverlayBackground", () => {
             initListMessageConnectorSpy: false,
           });
 
-          sendMockExtensionMessage({ command: "focusAutofillOverlayMenuList" });
+          sendMockExtensionMessage({ command: "focusAutofillInlineMenuList" });
 
-          expect(listPortSpy.postMessage).toHaveBeenCalledWith({ command: "focusOverlayMenuList" });
+          expect(listPortSpy.postMessage).toHaveBeenCalledWith({ command: "focusInlineMenuList" });
         });
       });
 
-      describe("updateAutofillOverlayMenuPosition message handler", () => {
+      describe("updateAutofillInlineMenuPosition message handler", () => {
         let sender: MockProxy<chrome.runtime.MessageSender>;
 
         beforeEach(async () => {
@@ -731,7 +731,7 @@ describe("OverlayBackground", () => {
         });
 
         it("ignores updating the position if the overlay element type is not provided", () => {
-          sendMockExtensionMessage({ command: "updateAutofillOverlayMenuPosition" }, sender);
+          sendMockExtensionMessage({ command: "updateAutofillInlineMenuPosition" }, sender);
 
           expect(listPortSpy.postMessage).not.toHaveBeenCalledWith({
             command: "updateIframePosition",
@@ -749,7 +749,7 @@ describe("OverlayBackground", () => {
 
           sendMockExtensionMessage(
             {
-              command: "updateAutofillOverlayMenuPosition",
+              command: "updateAutofillInlineMenuPosition",
               overlayElement: AutofillOverlayElement.Button,
             },
             sender,
@@ -770,7 +770,7 @@ describe("OverlayBackground", () => {
 
           sendMockExtensionMessage(
             {
-              command: "updateAutofillOverlayMenuPosition",
+              command: "updateAutofillInlineMenuPosition",
               overlayElement: AutofillOverlayElement.Button,
             },
             sender,
@@ -791,7 +791,7 @@ describe("OverlayBackground", () => {
 
           sendMockExtensionMessage(
             {
-              command: "updateAutofillOverlayMenuPosition",
+              command: "updateAutofillInlineMenuPosition",
               overlayElement: AutofillOverlayElement.Button,
             },
             sender,
@@ -812,7 +812,7 @@ describe("OverlayBackground", () => {
 
           sendMockExtensionMessage(
             {
-              command: "updateAutofillOverlayMenuPosition",
+              command: "updateAutofillInlineMenuPosition",
               overlayElement: AutofillOverlayElement.Button,
             },
             sender,
@@ -831,7 +831,7 @@ describe("OverlayBackground", () => {
 
           sendMockExtensionMessage(
             {
-              command: "updateAutofillOverlayMenuPosition",
+              command: "updateAutofillInlineMenuPosition",
               overlayElement: AutofillOverlayElement.List,
             },
             sender,
@@ -851,7 +851,10 @@ describe("OverlayBackground", () => {
         });
 
         it("sets the `display` CSS value on the overlay button and list", () => {
-          const message = { command: "updateAutofillOverlayMenuHidden", isOverlayHidden: true };
+          const message = {
+            command: "updateAutofillInlineMenuHidden",
+            isAutofillInlineMenuHidden: true,
+          };
 
           sendMockExtensionMessage(message);
 
@@ -871,7 +874,7 @@ describe("OverlayBackground", () => {
 
         it("sets the `opacity` CSS value on the overlay button and list", () => {
           const message = {
-            command: "updateAutofillOverlayMenuHidden",
+            command: "updateAutofillInlineMenuHidden",
             setTransparentOverlay: true,
           };
 
@@ -998,7 +1001,7 @@ describe("OverlayBackground", () => {
             {
               command: "openAutofillInlineMenu",
               isFocusingFieldElement: true,
-              isOpeningFullOverlay: false,
+              isOpeningFullAutofillInlineMenu: false,
               authStatus: AuthenticationStatus.Unlocked,
             },
             { frameId: 0 },
@@ -1036,7 +1039,7 @@ describe("OverlayBackground", () => {
 
   describe("handlePortOnConnect", () => {
     beforeEach(() => {
-      jest.spyOn(overlayBackground as any, "updateOverlayMenuPosition").mockImplementation();
+      jest.spyOn(overlayBackground as any, "updateInlineMenuPosition").mockImplementation();
       jest.spyOn(overlayBackground as any, "getAuthStatus").mockImplementation();
       jest.spyOn(overlayBackground as any, "getTranslations").mockImplementation();
       jest.spyOn(overlayBackground as any, "getOverlayCipherData").mockImplementation();
@@ -1066,7 +1069,7 @@ describe("OverlayBackground", () => {
       expect(chrome.runtime.getURL).toHaveBeenCalledWith("overlay/list.css");
       expect(overlayBackground["getTranslations"]).toHaveBeenCalled();
       expect(overlayBackground["getOverlayCipherData"]).toHaveBeenCalled();
-      expect(overlayBackground["updateOverlayMenuPosition"]).toHaveBeenCalledWith(
+      expect(overlayBackground["updateInlineMenuPosition"]).toHaveBeenCalledWith(
         { overlayElement: AutofillOverlayElement.List },
         listPortSpy.sender,
       );
@@ -1086,7 +1089,7 @@ describe("OverlayBackground", () => {
       expect(overlayBackground["getAuthStatus"]).toHaveBeenCalled();
       expect(chrome.runtime.getURL).toHaveBeenCalledWith("overlay/button.css");
       expect(overlayBackground["getTranslations"]).toHaveBeenCalled();
-      expect(overlayBackground["updateOverlayMenuPosition"]).toHaveBeenCalledWith(
+      expect(overlayBackground["updateInlineMenuPosition"]).toHaveBeenCalledWith(
         { overlayElement: AutofillOverlayElement.Button },
         buttonPortSpy.sender,
       );
@@ -1176,7 +1179,7 @@ describe("OverlayBackground", () => {
       });
 
       describe("forceCloseAutofillOverlay", () => {
-        it("sends a `closeOverlay` message to the sender tab with a `forceCloseOverlay` flag of `true` set", () => {
+        it("sends a `closeOverlay` message to the sender tab with a `forceCloseAutofillInlineMenu` flag of `true` set", () => {
           jest.spyOn(BrowserApi, "tabSendMessage");
 
           sendPortMessage(buttonMessageConnectorPortSpy, {
@@ -1205,14 +1208,14 @@ describe("OverlayBackground", () => {
         });
       });
 
-      describe("redirectOverlayFocusOut", () => {
+      describe("redirectInlineMenuFocusOut", () => {
         beforeEach(() => {
           jest.spyOn(BrowserApi, "tabSendMessageData");
         });
 
         it("ignores the redirect message if the direction is not provided", () => {
           sendPortMessage(buttonMessageConnectorPortSpy, {
-            command: "redirectOverlayFocusOut",
+            command: "redirectInlineMenuFocusOut",
             portKey,
           });
 
@@ -1221,14 +1224,14 @@ describe("OverlayBackground", () => {
 
         it("sends the redirect message if the direction is provided", () => {
           sendPortMessage(buttonMessageConnectorPortSpy, {
-            command: "redirectOverlayFocusOut",
+            command: "redirectInlineMenuFocusOut",
             direction: RedirectFocusDirection.Next,
             portKey,
           });
 
           expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
             buttonMessageConnectorPortSpy.sender.tab,
-            "redirectOverlayFocusOut",
+            "redirectInlineMenuFocusOut",
             { direction: RedirectFocusDirection.Next },
           );
         });
@@ -1256,7 +1259,7 @@ describe("OverlayBackground", () => {
       });
 
       describe("forceCloseAutofillOverlay", () => {
-        it("sends a `closeOverlay` message to the sender tab with a `forceCloseOverlay` flag of `true` set", () => {
+        it("sends a `closeOverlay` message to the sender tab with a `forceCloseAutofillInlineMenu` flag of `true` set", () => {
           jest.spyOn(BrowserApi, "tabSendMessage");
 
           sendPortMessage(listMessageConnectorPortSpy, {
@@ -1518,16 +1521,16 @@ describe("OverlayBackground", () => {
         });
       });
 
-      describe("redirectOverlayFocusOut", () => {
+      describe("redirectInlineMenuFocusOut", () => {
         it("redirects focus out of the overlay list", async () => {
           const message = {
-            command: "redirectOverlayFocusOut",
+            command: "redirectInlineMenuFocusOut",
             direction: RedirectFocusDirection.Next,
             portKey,
           };
           const redirectOverlayFocusOutSpy = jest.spyOn(
             overlayBackground as any,
-            "redirectOverlayFocusOut",
+            "redirectInlineMenuFocusOut",
           );
 
           sendPortMessage(listMessageConnectorPortSpy, message);

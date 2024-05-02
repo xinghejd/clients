@@ -205,7 +205,7 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
       autofillField.viewable = await this.domElementVisibilityService.isFormFieldViewable(element);
 
       if (!currentViewableState && autofillField.viewable) {
-        await this.autofillOverlayContentService?.setupAutofillOverlayListenerOnField(
+        await this.autofillOverlayContentService?.setupAutofillInlineMenuListenerOnField(
           element,
           autofillField,
         );
@@ -381,7 +381,7 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
 
     if (elementIsSpanElement(element)) {
       this.cacheAutofillFieldElement(index, element, autofillFieldBase);
-      void this.autofillOverlayContentService?.setupAutofillOverlayListenerOnField(
+      void this.autofillOverlayContentService?.setupAutofillInlineMenuListenerOnField(
         element,
         autofillFieldBase,
       );
@@ -424,7 +424,7 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
     };
 
     this.cacheAutofillFieldElement(index, element, autofillField);
-    void this.autofillOverlayContentService?.setupAutofillOverlayListenerOnField(
+    void this.autofillOverlayContentService?.setupAutofillInlineMenuListenerOnField(
       element,
       autofillField,
     );
@@ -1321,7 +1321,7 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
       const cachedAutofillFieldElement = this.autofillFieldElements.get(formFieldElement);
       cachedAutofillFieldElement.viewable = true;
 
-      void this.autofillOverlayContentService?.setupAutofillOverlayListenerOnField(
+      void this.autofillOverlayContentService?.setupAutofillInlineMenuListenerOnField(
         formFieldElement,
         cachedAutofillFieldElement,
       );

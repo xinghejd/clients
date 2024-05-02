@@ -16,11 +16,11 @@ export type AutofillExtensionMessage = {
   overlayElement?: string;
   isFocusingFieldElement?: boolean;
   authStatus?: AuthenticationStatus;
-  isOpeningFullOverlay?: boolean;
+  isOpeningFullAutofillInlineMenu?: boolean;
   data?: {
     isOverlayCiphersPopulated?: boolean;
     direction?: "previous" | "next" | "current";
-    forceCloseOverlay?: boolean;
+    forceCloseAutofillInlineMenu?: boolean;
     inlineMenuVisibility?: number;
   };
 };

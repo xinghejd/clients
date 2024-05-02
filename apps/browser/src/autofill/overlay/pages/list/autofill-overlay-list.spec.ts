@@ -330,7 +330,7 @@ describe("AutofillOverlayList", () => {
           "setAttribute",
         );
 
-        postWindowMessage({ command: "focusOverlayMenuList" });
+        postWindowMessage({ command: "focusInlineMenuList" });
 
         expect(overlayContainerSetAttributeSpy).toHaveBeenCalledWith("role", "dialog");
         expect(overlayContainerSetAttributeSpy).toHaveBeenCalledWith("aria-modal", "true");
@@ -348,7 +348,7 @@ describe("AutofillOverlayList", () => {
           autofillOverlayList["overlayListContainer"].querySelector("#unlock-button");
         jest.spyOn(unlockButton as HTMLElement, "focus");
 
-        postWindowMessage({ command: "focusOverlayMenuList" });
+        postWindowMessage({ command: "focusInlineMenuList" });
 
         expect((unlockButton as HTMLElement).focus).toBeCalled();
       });
@@ -360,7 +360,7 @@ describe("AutofillOverlayList", () => {
           autofillOverlayList["overlayListContainer"].querySelector("#new-item-button");
         jest.spyOn(newItemButton as HTMLElement, "focus");
 
-        postWindowMessage({ command: "focusOverlayMenuList" });
+        postWindowMessage({ command: "focusInlineMenuList" });
 
         expect((newItemButton as HTMLElement).focus).toBeCalled();
       });
@@ -371,7 +371,7 @@ describe("AutofillOverlayList", () => {
           autofillOverlayList["overlayListContainer"].querySelector(".fill-cipher-button");
         jest.spyOn(firstCipherItem as HTMLElement, "focus");
 
-        postWindowMessage({ command: "focusOverlayMenuList" });
+        postWindowMessage({ command: "focusInlineMenuList" });
 
         expect((firstCipherItem as HTMLElement).focus).toBeCalled();
       });
@@ -407,7 +407,7 @@ describe("AutofillOverlayList", () => {
         );
 
         expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-          { command: "redirectOverlayFocusOut", direction: "previous", portKey },
+          { command: "redirectInlineMenuFocusOut", direction: "previous", portKey },
           "*",
         );
       });
@@ -416,7 +416,7 @@ describe("AutofillOverlayList", () => {
         globalThis.document.dispatchEvent(new KeyboardEvent("keydown", { code: "Tab" }));
 
         expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-          { command: "redirectOverlayFocusOut", direction: "next", portKey },
+          { command: "redirectInlineMenuFocusOut", direction: "next", portKey },
           "*",
         );
       });
@@ -425,7 +425,7 @@ describe("AutofillOverlayList", () => {
         globalThis.document.dispatchEvent(new KeyboardEvent("keydown", { code: "Escape" }));
 
         expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-          { command: "redirectOverlayFocusOut", direction: "current", portKey },
+          { command: "redirectInlineMenuFocusOut", direction: "current", portKey },
           "*",
         );
       });

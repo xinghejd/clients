@@ -53,8 +53,8 @@ type OverlayBackgroundExtensionMessage = {
   sender?: string;
   details?: AutofillPageDetails;
   overlayElement?: string;
-  forceCloseOverlay?: boolean;
-  isOverlayHidden?: boolean;
+  forceCloseAutofillInlineMenu?: boolean;
+  isAutofillInlineMenuHidden?: boolean;
   setTransparentOverlay?: boolean;
   isFieldCurrentlyFocused?: boolean;
   isFieldCurrentlyFilling?: boolean;
@@ -97,13 +97,13 @@ type OverlayBackgroundExtensionMessageHandlers = {
   autofillOverlayElementClosed: ({ message }: BackgroundMessageParam) => void;
   autofillOverlayAddNewVaultItem: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   getInlineMenuVisibilitySetting: () => void;
-  checkAutofillOverlayMenuFocused: () => void;
-  focusAutofillOverlayMenuList: () => void;
-  updateAutofillOverlayMenuPosition: ({
+  checkAutofillInlineMenuFocused: () => void;
+  focusAutofillInlineMenuList: () => void;
+  updateAutofillInlineMenuPosition: ({
     message,
     sender,
   }: BackgroundOnMessageHandlerParams) => Promise<void>;
-  updateAutofillOverlayMenuHidden: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
+  updateAutofillInlineMenuHidden: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   updateFocusedFieldData: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   updateIsFieldCurrentlyFocused: ({ message }: BackgroundMessageParam) => void;
   checkIsFieldCurrentlyFocused: () => boolean;
@@ -134,7 +134,7 @@ type OverlayButtonPortMessageHandlers = {
   closeAutofillInlineMenu: ({ port }: PortConnectionParam) => void;
   forceCloseAutofillOverlay: ({ port }: PortConnectionParam) => void;
   overlayPageBlurred: () => void;
-  redirectOverlayFocusOut: ({ message, port }: PortOnMessageHandlerParams) => void;
+  redirectInlineMenuFocusOut: ({ message, port }: PortOnMessageHandlerParams) => void;
   updateOverlayPageColorScheme: () => void;
 };
 
@@ -147,7 +147,7 @@ type OverlayListPortMessageHandlers = {
   fillSelectedListItem: ({ message, port }: PortOnMessageHandlerParams) => void;
   addNewVaultItem: ({ port }: PortConnectionParam) => void;
   viewSelectedCipher: ({ message, port }: PortOnMessageHandlerParams) => void;
-  redirectOverlayFocusOut: ({ message, port }: PortOnMessageHandlerParams) => void;
+  redirectInlineMenuFocusOut: ({ message, port }: PortOnMessageHandlerParams) => void;
   updateAutofillOverlayListHeight: ({ message, port }: PortOnMessageHandlerParams) => void;
 };
 

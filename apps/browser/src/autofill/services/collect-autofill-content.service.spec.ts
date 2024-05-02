@@ -2578,7 +2578,7 @@ describe("CollectAutofillContentService", () => {
       );
       setupAutofillOverlayListenerOnFieldSpy = jest.spyOn(
         collectAutofillContentService["autofillOverlayContentService"],
-        "setupAutofillOverlayListenerOnField",
+        "setupAutofillInlineMenuListenerOnField",
       );
     });
 

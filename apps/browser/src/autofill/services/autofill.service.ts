@@ -2105,7 +2105,7 @@ export default class AutofillService implements AutofillServiceInterface {
     if (!inlineMenuPreviouslyDisabled && !inlineMenuCurrentlyDisabled) {
       const tabs = await BrowserApi.tabsQuery({});
       tabs.forEach((tab) =>
-        BrowserApi.tabSendMessageData(tab, "updateInlineMenuVisibility", {
+        BrowserApi.tabSendMessageData(tab, "updateAutofillInlineMenuVisibility", {
           inlineMenuVisibility: currentSetting,
         }),
       );

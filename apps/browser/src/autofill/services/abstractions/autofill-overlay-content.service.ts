@@ -5,9 +5,9 @@ import { AutofillExtensionMessageParam } from "../../content/abstractions/autofi
 import AutofillField from "../../models/autofill-field";
 import { ElementWithOpId, FormFieldElement } from "../../types";
 
-export type OpenAutofillOverlayOptions = {
+export type OpenAutofillInlineMenuOptions = {
   isFocusingFieldElement?: boolean;
-  isOpeningFullOverlay?: boolean;
+  isOpeningFullAutofillInlineMenu?: boolean;
   authStatus?: AuthenticationStatus;
 };
 
@@ -18,8 +18,8 @@ export type AutofillOverlayContentExtensionMessageHandlers = {
   blurMostRecentOverlayField: () => void;
   bgUnlockPopoutOpened: () => void;
   bgVaultItemRepromptPopoutOpened: () => void;
-  redirectOverlayFocusOut: ({ message }: AutofillExtensionMessageParam) => void;
-  updateInlineMenuVisibility: ({ message }: AutofillExtensionMessageParam) => void;
+  redirectInlineMenuFocusOut: ({ message }: AutofillExtensionMessageParam) => void;
+  updateAutofillInlineMenuVisibility: ({ message }: AutofillExtensionMessageParam) => void;
   getSubFrameOffsets: ({ message }: AutofillExtensionMessageParam) => Promise<SubFrameOffsetData>;
   getSubFrameOffsetsFromWindowMessage: ({ message }: AutofillExtensionMessageParam) => void;
 };
@@ -28,7 +28,7 @@ export interface AutofillOverlayContentService {
   pageDetailsUpdateRequired: boolean;
   extensionMessageHandlers: AutofillOverlayContentExtensionMessageHandlers;
   init(): void;
-  setupAutofillOverlayListenerOnField(
+  setupAutofillInlineMenuListenerOnField(
     autofillFieldElement: ElementWithOpId<FormFieldElement>,
     autofillFieldData: AutofillField,
   ): Promise<void>;

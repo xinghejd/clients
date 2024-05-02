@@ -69,11 +69,11 @@ class OverlayBackground implements OverlayBackgroundInterface {
     autofillOverlayElementClosed: ({ message }) => this.overlayElementClosed(message),
     autofillOverlayAddNewVaultItem: ({ message, sender }) => this.addNewVaultItem(message, sender),
     getInlineMenuVisibilitySetting: () => this.getInlineMenuVisibility(),
-    checkAutofillOverlayMenuFocused: () => this.checkOverlayMenuFocused(),
-    focusAutofillOverlayMenuList: () => this.focusOverlayMenuList(),
-    updateAutofillOverlayMenuPosition: ({ message, sender }) =>
-      this.updateOverlayMenuPosition(message, sender),
-    updateAutofillOverlayMenuHidden: ({ message, sender }) =>
+    checkAutofillInlineMenuFocused: () => this.checkInlineMenuFocused(),
+    focusAutofillInlineMenuList: () => this.focusInlineMenuList(),
+    updateAutofillInlineMenuPosition: ({ message, sender }) =>
+      this.updateInlineMenuPosition(message, sender),
+    updateAutofillInlineMenuHidden: ({ message, sender }) =>
       this.updateOverlayMenuHidden(message, sender),
     updateFocusedFieldData: ({ message, sender }) => this.setFocusedFieldData(message, sender),
     updateIsFieldCurrentlyFocused: ({ message }) => this.updateIsFieldCurrentlyFocused(message),
@@ -95,21 +95,23 @@ class OverlayBackground implements OverlayBackgroundInterface {
     overlayButtonClicked: ({ port }) => this.handleOverlayButtonClicked(port),
     closeAutofillInlineMenu: ({ port }) => this.closeInlineMenu(port.sender),
     forceCloseAutofillOverlay: ({ port }) =>
-      this.closeInlineMenu(port.sender, { forceCloseOverlay: true }),
+      this.closeInlineMenu(port.sender, { forceCloseAutofillInlineMenu: true }),
     overlayPageBlurred: () => this.checkOverlayListFocused(),
-    redirectOverlayFocusOut: ({ message, port }) => this.redirectOverlayFocusOut(message, port),
+    redirectInlineMenuFocusOut: ({ message, port }) =>
+      this.redirectInlineMenuFocusOut(message, port),
     updateOverlayPageColorScheme: () => this.updateButtonPageColorScheme(),
   };
   private readonly overlayListPortMessageHandlers: OverlayListPortMessageHandlers = {
     checkAutofillOverlayButtonFocused: () => this.checkOverlayButtonFocused(),
     forceCloseAutofillOverlay: ({ port }) =>
-      this.closeInlineMenu(port.sender, { forceCloseOverlay: true }),
+      this.closeInlineMenu(port.sender, { forceCloseAutofillInlineMenu: true }),
     overlayPageBlurred: () => this.checkOverlayButtonFocused(),
     unlockVault: ({ port }) => this.unlockVault(port),
     fillSelectedListItem: ({ message, port }) => this.fillSelectedOverlayListItem(message, port),
     addNewVaultItem: ({ port }) => this.getNewVaultItemDetails(port),
     viewSelectedCipher: ({ message, port }) => this.viewSelectedCipher(message, port),
-    redirectOverlayFocusOut: ({ message, port }) => this.redirectOverlayFocusOut(message, port),
+    redirectInlineMenuFocusOut: ({ message, port }) =>
+      this.redirectInlineMenuFocusOut(message, port),
     updateAutofillOverlayListHeight: ({ message }) => this.updateOverlayListHeight(message),
   };
 
@@ -333,11 +335,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
 
     this.updateOverlayMenuPositionTimeout = setTimeout(() => {
       if (this.isFieldCurrentlyFocused) {
-        void this.updateOverlayMenuPosition(
-          { overlayElement: AutofillOverlayElement.List },
-          sender,
-        );
-        void this.updateOverlayMenuPosition(
+        void this.updateInlineMenuPosition({ overlayElement: AutofillOverlayElement.List }, sender);
+        void this.updateInlineMenuPosition(
           { overlayElement: AutofillOverlayElement.Button },
           sender,
         );
@@ -385,7 +384,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * Checks if the overlay is focused. Will check the overlay list
    * if it is open, otherwise it will check the overlay button.
    */
-  private checkOverlayMenuFocused() {
+  private checkInlineMenuFocused() {
     if (this.overlayListPort) {
       this.checkOverlayListFocused();
 
@@ -413,17 +412,17 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * Sends a message to the sender tab to close the autofill overlay.
    *
    * @param sender - The sender of the port message
-   * @param forceCloseOverlay - Identifies whether the overlay should be forced closed
+   * @param forceCloseAutofillInlineMenu - Identifies whether the overlay should be forced closed
    * @param overlayElement - The overlay element to close, either the list or button
    */
   private closeInlineMenu(
     sender: chrome.runtime.MessageSender,
     {
-      forceCloseOverlay,
+      forceCloseAutofillInlineMenu,
       overlayElement,
-    }: { forceCloseOverlay?: boolean; overlayElement?: string } = {},
+    }: { forceCloseAutofillInlineMenu?: boolean; overlayElement?: string } = {},
   ) {
-    if (forceCloseOverlay) {
+    if (forceCloseAutofillInlineMenu) {
       void BrowserApi.tabSendMessage(
         sender.tab,
         { command: "closeInlineMenu", overlayElement },
@@ -480,7 +479,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * @param overlayElement - The overlay element to update, either the list or button
    * @param sender - The sender of the extension message
    */
-  private async updateOverlayMenuPosition(
+  private async updateInlineMenuPosition(
     { overlayElement }: { overlayElement?: string },
     sender: chrome.runtime.MessageSender,
   ) {
@@ -592,10 +591,10 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * @param sender - The sender of the extension message
    */
   private updateOverlayMenuHidden(
-    { isOverlayHidden, setTransparentOverlay }: OverlayBackgroundExtensionMessage,
+    { isAutofillInlineMenuHidden, setTransparentOverlay }: OverlayBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
-    const display = isOverlayHidden ? "none" : "block";
+    const display = isAutofillInlineMenuHidden ? "none" : "block";
     let styles: { display: string; opacity?: number } = { display };
 
     if (typeof setTransparentOverlay !== "undefined") {
@@ -607,7 +606,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
 
     void BrowserApi.tabSendMessage(
       sender.tab,
-      { command: "toggleInlineMenuHidden", isInlineMenuHidden: isOverlayHidden },
+      { command: "toggleInlineMenuHidden", isInlineMenuHidden: isAutofillInlineMenuHidden },
       { frameId: 0 },
     );
 
@@ -619,9 +618,12 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * Sends a message to the currently active tab to open the autofill overlay.
    *
    * @param isFocusingFieldElement - Identifies whether the field element should be focused when the overlay is opened
-   * @param isOpeningFullOverlay - Identifies whether the full overlay should be forced open regardless of other states
+   * @param isOpeningFullAutofillInlineMenu - Identifies whether the full overlay should be forced open regardless of other states
    */
-  private async openInlineMenu(isFocusingFieldElement = false, isOpeningFullOverlay = false) {
+  private async openInlineMenu(
+    isFocusingFieldElement = false,
+    isOpeningFullAutofillInlineMenu = false,
+  ) {
     const currentTab = await BrowserApi.getTabFromCurrentWindowId();
 
     await BrowserApi.tabSendMessage(
@@ -629,7 +631,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
       {
         command: "openAutofillInlineMenu",
         isFocusingFieldElement,
-        isOpeningFullOverlay,
+        isOpeningFullAutofillInlineMenu,
         authStatus: await this.getAuthStatus(),
       },
       {
@@ -736,8 +738,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
   /**
    * Facilitates redirecting focus to the overlay list.
    */
-  private focusOverlayMenuList() {
-    this.overlayListPort?.postMessage({ command: "focusOverlayMenuList" });
+  private focusInlineMenuList() {
+    this.overlayListPort?.postMessage({ command: "focusInlineMenuList" });
   }
 
   /**
@@ -786,7 +788,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * @param direction - The direction to redirect focus to (either "next", "previous" or "current)
    * @param sender - The sender of the port message
    */
-  private redirectOverlayFocusOut(
+  private redirectInlineMenuFocusOut(
     { direction }: OverlayPortMessage,
     { sender }: chrome.runtime.Port,
   ) {
@@ -794,7 +796,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    void BrowserApi.tabSendMessageData(sender.tab, "redirectOverlayFocusOut", { direction });
+    void BrowserApi.tabSendMessageData(sender.tab, "redirectInlineMenuFocusOut", { direction });
   }
 
   /**
@@ -983,7 +985,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
         ? AutofillOverlayPort.ListMessageConnector
         : AutofillOverlayPort.ButtonMessageConnector,
     });
-    void this.updateOverlayMenuPosition(
+    void this.updateInlineMenuPosition(
       {
         overlayElement: isOverlayListPort
           ? AutofillOverlayElement.List

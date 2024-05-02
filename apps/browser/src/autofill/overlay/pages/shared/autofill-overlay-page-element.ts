@@ -150,7 +150,7 @@ class AutofillOverlayPageElement extends HTMLElement {
    * @param direction - The direction to redirect the focus out
    */
   private redirectOverlayFocusOutMessage(direction: string) {
-    this.postMessageToParent({ command: "redirectOverlayFocusOut", direction });
+    this.postMessageToParent({ command: "redirectInlineMenuFocusOut", direction });
   }
 }
 
