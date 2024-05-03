@@ -177,9 +177,9 @@ const mainConfig = {
     "overlay/button":
       "./src/autofill/overlay/inline-menu/pages/button/bootstrap-autofill-inline-menu-button.ts",
     "overlay/list":
-      "./src/autofill/overlay/inline-menu/pages/list/bootstrap-autofill-overlay-list.ts",
+      "./src/autofill/overlay/inline-menu/pages/list/bootstrap-autofill-inline-menu-list.ts",
     "overlay/menu":
-      "./src/autofill/overlay/inline-menu/pages/menu/bootstrap-autofill-overlay-menu-container.ts",
+      "./src/autofill/overlay/inline-menu/pages/menu/bootstrap-autofill-inline-menu-container.ts",
     "encrypt-worker": "../../libs/common/src/platform/services/cryptography/encrypt.worker.ts",
     "content/lp-fileless-importer": "./src/tools/content/lp-fileless-importer.ts",
     "content/send-on-installed-message": "./src/vault/content/send-on-installed-message.ts",

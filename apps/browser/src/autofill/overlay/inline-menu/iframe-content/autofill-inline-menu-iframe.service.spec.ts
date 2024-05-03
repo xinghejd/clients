@@ -13,8 +13,8 @@ import {
 
 import { AutofillInlineMenuIframeService } from "./autofill-inline-menu-iframe.service";
 
-describe("AutofillOverlayIframeService", () => {
-  let autofillOverlayIframeService: AutofillInlineMenuIframeService;
+describe("AutofillInlineMenuIframeService", () => {
+  let autofillInlineMenuIframeService: AutofillInlineMenuIframeService;
   let portSpy: chrome.runtime.Port;
   let shadowAppendSpy: jest.SpyInstance;
   let handlePortDisconnectSpy: jest.SpyInstance;
@@ -23,7 +23,7 @@ describe("AutofillOverlayIframeService", () => {
 
   beforeEach(() => {
     const shadow = document.createElement("div").attachShadow({ mode: "open" });
-    autofillOverlayIframeService = new AutofillInlineMenuIframeService(
+    autofillInlineMenuIframeService = new AutofillInlineMenuIframeService(
       shadow,
       AutofillOverlayPort.Button,
       { height: "0px" },
@@ -32,15 +32,15 @@ describe("AutofillOverlayIframeService", () => {
     );
     shadowAppendSpy = jest.spyOn(shadow, "appendChild");
     handlePortDisconnectSpy = jest.spyOn(
-      autofillOverlayIframeService as any,
+      autofillInlineMenuIframeService as any,
       "handlePortDisconnect",
     );
-    handlePortMessageSpy = jest.spyOn(autofillOverlayIframeService as any, "handlePortMessage");
+    handlePortMessageSpy = jest.spyOn(autofillInlineMenuIframeService as any, "handlePortMessage");
     chrome.runtime.connect = jest.fn((connectInfo: chrome.runtime.ConnectInfo) =>
       createPortSpyMock(connectInfo.name),
     ) as unknown as typeof chrome.runtime.connect;
     sendExtensionMessageSpy = jest.spyOn(
-      autofillOverlayIframeService as any,
+      autofillInlineMenuIframeService as any,
       "sendExtensionMessage",
     );
   });
@@ -51,44 +51,44 @@ describe("AutofillOverlayIframeService", () => {
 
   describe("initMenuIframe", () => {
     it("sets up the iframe's attributes", () => {
-      autofillOverlayIframeService.initMenuIframe();
+      autofillInlineMenuIframeService.initMenuIframe();
 
-      expect(autofillOverlayIframeService["iframe"]).toMatchSnapshot();
+      expect(autofillInlineMenuIframeService["iframe"]).toMatchSnapshot();
     });
 
     it("appends the iframe to the shadowDom", () => {
-      jest.spyOn(autofillOverlayIframeService["shadow"], "appendChild");
+      jest.spyOn(autofillInlineMenuIframeService["shadow"], "appendChild");
 
-      autofillOverlayIframeService.initMenuIframe();
+      autofillInlineMenuIframeService.initMenuIframe();
 
-      expect(autofillOverlayIframeService["shadow"].appendChild).toHaveBeenCalledWith(
-        autofillOverlayIframeService["iframe"],
+      expect(autofillInlineMenuIframeService["shadow"].appendChild).toHaveBeenCalledWith(
+        autofillInlineMenuIframeService["iframe"],
       );
     });
 
     // TODO CG - This test is brittle and failing due to how we are calling the private method. This needs to be reworked
     it.skip("creates an aria alert element if the ariaAlert param is passed", () => {
       const ariaAlert = "aria alert";
-      jest.spyOn(autofillOverlayIframeService as any, "createAriaAlertElement");
+      jest.spyOn(autofillInlineMenuIframeService as any, "createAriaAlertElement");
 
-      autofillOverlayIframeService.initMenuIframe();
+      autofillInlineMenuIframeService.initMenuIframe();
 
-      expect(autofillOverlayIframeService["createAriaAlertElement"]).toHaveBeenCalledWith(
+      expect(autofillInlineMenuIframeService["createAriaAlertElement"]).toHaveBeenCalledWith(
         ariaAlert,
       );
-      expect(autofillOverlayIframeService["ariaAlertElement"]).toMatchSnapshot();
+      expect(autofillInlineMenuIframeService["ariaAlertElement"]).toMatchSnapshot();
     });
 
     describe("on load of the iframe source", () => {
       beforeEach(() => {
-        autofillOverlayIframeService.initMenuIframe();
+        autofillInlineMenuIframeService.initMenuIframe();
       });
 
       it("sets up and connects the port message listener to the extension background", () => {
         jest.spyOn(globalThis, "addEventListener");
 
-        autofillOverlayIframeService["iframe"].dispatchEvent(new Event(EVENTS.LOAD));
-        portSpy = autofillOverlayIframeService["port"];
+        autofillInlineMenuIframeService["iframe"].dispatchEvent(new Event(EVENTS.LOAD));
+        portSpy = autofillInlineMenuIframeService["port"];
 
         expect(chrome.runtime.connect).toHaveBeenCalledWith({ name: AutofillOverlayPort.Button });
         expect(portSpy.onDisconnect.addListener).toHaveBeenCalledWith(handlePortDisconnectSpy);
@@ -97,9 +97,9 @@ describe("AutofillOverlayIframeService", () => {
 
       it("skips announcing the aria alert if the aria alert element is not populated", () => {
         jest.spyOn(globalThis, "setTimeout");
-        autofillOverlayIframeService["ariaAlertElement"] = undefined;
+        autofillInlineMenuIframeService["ariaAlertElement"] = undefined;
 
-        autofillOverlayIframeService["iframe"].dispatchEvent(new Event(EVENTS.LOAD));
+        autofillInlineMenuIframeService["iframe"].dispatchEvent(new Event(EVENTS.LOAD));
 
         expect(globalThis.setTimeout).not.toHaveBeenCalled();
       });
@@ -107,16 +107,16 @@ describe("AutofillOverlayIframeService", () => {
       it("announces the aria alert if the aria alert element is populated", () => {
         jest.useFakeTimers();
         jest.spyOn(globalThis, "setTimeout");
-        autofillOverlayIframeService["ariaAlertElement"] = document.createElement("div");
-        autofillOverlayIframeService["ariaAlertTimeout"] = setTimeout(jest.fn(), 2000);
+        autofillInlineMenuIframeService["ariaAlertElement"] = document.createElement("div");
+        autofillInlineMenuIframeService["ariaAlertTimeout"] = setTimeout(jest.fn(), 2000);
 
-        autofillOverlayIframeService["iframe"].dispatchEvent(new Event(EVENTS.LOAD));
+        autofillInlineMenuIframeService["iframe"].dispatchEvent(new Event(EVENTS.LOAD));
 
         expect(globalThis.setTimeout).toHaveBeenCalled();
         jest.advanceTimersByTime(2000);
 
         expect(shadowAppendSpy).toHaveBeenCalledWith(
-          autofillOverlayIframeService["ariaAlertElement"],
+          autofillInlineMenuIframeService["ariaAlertElement"],
         );
       });
     });
@@ -124,16 +124,16 @@ describe("AutofillOverlayIframeService", () => {
 
   describe("event listeners", () => {
     beforeEach(() => {
-      autofillOverlayIframeService.initMenuIframe();
-      autofillOverlayIframeService["iframe"].dispatchEvent(new Event(EVENTS.LOAD));
-      Object.defineProperty(autofillOverlayIframeService["iframe"], "contentWindow", {
+      autofillInlineMenuIframeService.initMenuIframe();
+      autofillInlineMenuIframeService["iframe"].dispatchEvent(new Event(EVENTS.LOAD));
+      Object.defineProperty(autofillInlineMenuIframeService["iframe"], "contentWindow", {
         value: {
           postMessage: jest.fn(),
         },
         writable: true,
       });
-      jest.spyOn(autofillOverlayIframeService["iframe"].contentWindow, "postMessage");
-      portSpy = autofillOverlayIframeService["port"];
+      jest.spyOn(autofillInlineMenuIframeService["iframe"].contentWindow, "postMessage");
+      portSpy = autofillInlineMenuIframeService["port"];
     });
 
     describe("handlePortDisconnect", () => {
@@ -141,15 +141,15 @@ describe("AutofillOverlayIframeService", () => {
         portSpy.name = "wrong-port-name";
         triggerPortOnDisconnectEvent(portSpy);
 
-        expect(autofillOverlayIframeService["port"]).not.toBeNull();
+        expect(autofillInlineMenuIframeService["port"]).not.toBeNull();
       });
 
       it("resets the iframe element's opacity, height, and display styles", () => {
         triggerPortOnDisconnectEvent(portSpy);
 
-        expect(autofillOverlayIframeService["iframe"].style.opacity).toBe("0");
-        expect(autofillOverlayIframeService["iframe"].style.height).toBe("0px");
-        expect(autofillOverlayIframeService["iframe"].style.display).toBe("block");
+        expect(autofillInlineMenuIframeService["iframe"].style.opacity).toBe("0");
+        expect(autofillInlineMenuIframeService["iframe"].style.height).toBe("0px");
+        expect(autofillInlineMenuIframeService["iframe"].style.display).toBe("block");
       });
 
       it("removes the port's onMessage listener", () => {
@@ -168,7 +168,7 @@ describe("AutofillOverlayIframeService", () => {
         triggerPortOnDisconnectEvent(portSpy);
 
         expect(portSpy.disconnect).toHaveBeenCalled();
-        expect(autofillOverlayIframeService["port"]).toBeNull();
+        expect(autofillInlineMenuIframeService["port"]).toBeNull();
       });
     });
 
@@ -178,7 +178,7 @@ describe("AutofillOverlayIframeService", () => {
         sendPortMessage(portSpy, {});
 
         expect(
-          autofillOverlayIframeService["iframe"].contentWindow.postMessage,
+          autofillInlineMenuIframeService["iframe"].contentWindow.postMessage,
         ).not.toHaveBeenCalled();
       });
 
@@ -188,22 +188,22 @@ describe("AutofillOverlayIframeService", () => {
         sendPortMessage(portSpy, message);
 
         expect(
-          autofillOverlayIframeService["iframe"].contentWindow.postMessage,
+          autofillInlineMenuIframeService["iframe"].contentWindow.postMessage,
         ).toHaveBeenCalledWith(message, "*");
       });
 
       it("handles port messages that are registered with the message handlers and does not pass the message on to the iframe", () => {
-        jest.spyOn(autofillOverlayIframeService as any, "updateIframePosition");
+        jest.spyOn(autofillInlineMenuIframeService as any, "updateIframePosition");
 
         sendPortMessage(portSpy, { command: "updateIframePosition" });
 
         expect(
-          autofillOverlayIframeService["iframe"].contentWindow.postMessage,
+          autofillInlineMenuIframeService["iframe"].contentWindow.postMessage,
         ).not.toHaveBeenCalled();
       });
 
-      describe("initializing the overlay button", () => {
-        it("sets the port key and posts the message to the overlay page iframe", () => {
+      describe("initializing the inline menu button", () => {
+        it("sets the port key and posts the message to the inline menu page iframe", () => {
           const portKey = "portKey";
           const message = {
             command: "initAutofillInlineMenuButton",
@@ -212,19 +212,19 @@ describe("AutofillOverlayIframeService", () => {
 
           sendPortMessage(portSpy, message);
 
-          expect(autofillOverlayIframeService["portKey"]).toBe(portKey);
+          expect(autofillInlineMenuIframeService["portKey"]).toBe(portKey);
           expect(
-            autofillOverlayIframeService["iframe"].contentWindow.postMessage,
+            autofillInlineMenuIframeService["iframe"].contentWindow.postMessage,
           ).toHaveBeenCalledWith(message, "*");
         });
       });
 
-      describe("initializing the overlay list", () => {
+      describe("initializing the inline menu list", () => {
         let updateElementStylesSpy: jest.SpyInstance;
 
         beforeEach(() => {
           updateElementStylesSpy = jest.spyOn(
-            autofillOverlayIframeService as any,
+            autofillInlineMenuIframeService as any,
             "updateElementStyles",
           );
         });
@@ -239,7 +239,7 @@ describe("AutofillOverlayIframeService", () => {
 
           expect(updateElementStylesSpy).not.toHaveBeenCalled();
           expect(
-            autofillOverlayIframeService["iframe"].contentWindow.postMessage,
+            autofillInlineMenuIframeService["iframe"].contentWindow.postMessage,
           ).toHaveBeenCalledWith(message, "*");
         });
 
@@ -254,7 +254,7 @@ describe("AutofillOverlayIframeService", () => {
 
           expect(window.matchMedia).toHaveBeenCalledWith("(prefers-color-scheme: dark)");
           expect(
-            autofillOverlayIframeService["iframe"].contentWindow.postMessage,
+            autofillInlineMenuIframeService["iframe"].contentWindow.postMessage,
           ).toHaveBeenCalledWith(
             {
               command: "initAutofillInlineMenuList",
@@ -275,7 +275,7 @@ describe("AutofillOverlayIframeService", () => {
 
           expect(window.matchMedia).toHaveBeenCalledWith("(prefers-color-scheme: dark)");
           expect(
-            autofillOverlayIframeService["iframe"].contentWindow.postMessage,
+            autofillInlineMenuIframeService["iframe"].contentWindow.postMessage,
           ).toHaveBeenCalledWith(
             {
               command: "initAutofillInlineMenuList",
@@ -294,7 +294,7 @@ describe("AutofillOverlayIframeService", () => {
           sendPortMessage(portSpy, message);
 
           expect(updateElementStylesSpy).toHaveBeenCalledWith(
-            autofillOverlayIframeService["iframe"],
+            autofillInlineMenuIframeService["iframe"],
             {
               borderColor: "#4c525f",
             },
@@ -310,7 +310,7 @@ describe("AutofillOverlayIframeService", () => {
           sendPortMessage(portSpy, message);
 
           expect(updateElementStylesSpy).toHaveBeenCalledWith(
-            autofillOverlayIframeService["iframe"],
+            autofillInlineMenuIframeService["iframe"],
             {
               borderColor: "#2E3440",
             },
@@ -326,7 +326,7 @@ describe("AutofillOverlayIframeService", () => {
           sendPortMessage(portSpy, message);
 
           expect(updateElementStylesSpy).toHaveBeenCalledWith(
-            autofillOverlayIframeService["iframe"],
+            autofillInlineMenuIframeService["iframe"],
             {
               borderColor: "#073642",
             },
@@ -340,7 +340,7 @@ describe("AutofillOverlayIframeService", () => {
         });
 
         it("ignores updating the iframe position if the document does not have focus", () => {
-          jest.spyOn(autofillOverlayIframeService as any, "updateElementStyles");
+          jest.spyOn(autofillInlineMenuIframeService as any, "updateElementStyles");
           jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(false);
 
           sendPortMessage(portSpy, {
@@ -348,7 +348,7 @@ describe("AutofillOverlayIframeService", () => {
             styles: { top: 100, left: 100 },
           });
 
-          expect(autofillOverlayIframeService["updateElementStyles"]).not.toHaveBeenCalled();
+          expect(autofillInlineMenuIframeService["updateElementStyles"]).not.toHaveBeenCalled();
         });
 
         it("updates the iframe position if the document has focus", () => {
@@ -359,8 +359,8 @@ describe("AutofillOverlayIframeService", () => {
             styles,
           });
 
-          expect(autofillOverlayIframeService["iframe"].style.top).toBe(styles.top);
-          expect(autofillOverlayIframeService["iframe"].style.left).toBe(styles.left);
+          expect(autofillInlineMenuIframeService["iframe"].style.top).toBe(styles.top);
+          expect(autofillInlineMenuIframeService["iframe"].style.left).toBe(styles.left);
         });
 
         it("fades the iframe element in after positioning the element", () => {
@@ -372,9 +372,9 @@ describe("AutofillOverlayIframeService", () => {
             styles,
           });
 
-          expect(autofillOverlayIframeService["iframe"].style.opacity).toBe("0");
+          expect(autofillInlineMenuIframeService["iframe"].style.opacity).toBe("0");
           jest.advanceTimersByTime(10);
-          expect(autofillOverlayIframeService["iframe"].style.opacity).toBe("1");
+          expect(autofillInlineMenuIframeService["iframe"].style.opacity).toBe("1");
         });
 
         it("announces the opening of the iframe using an aria alert", () => {
@@ -388,7 +388,7 @@ describe("AutofillOverlayIframeService", () => {
 
           jest.advanceTimersByTime(2000);
           expect(shadowAppendSpy).toHaveBeenCalledWith(
-            autofillOverlayIframeService["ariaAlertElement"],
+            autofillInlineMenuIframeService["ariaAlertElement"],
           );
         });
       });
@@ -399,7 +399,7 @@ describe("AutofillOverlayIframeService", () => {
           styles: { display: "none" },
         });
 
-        expect(autofillOverlayIframeService["iframe"].style.display).toBe("none");
+        expect(autofillInlineMenuIframeService["iframe"].style.display).toBe("none");
       });
 
       it("updates the button based on the web page's color scheme", () => {
@@ -408,7 +408,7 @@ describe("AutofillOverlayIframeService", () => {
         });
 
         expect(
-          autofillOverlayIframeService["iframe"].contentWindow.postMessage,
+          autofillInlineMenuIframeService["iframe"].contentWindow.postMessage,
         ).toHaveBeenCalledWith(
           {
             command: "updateAutofillInlineMenuColorScheme",
@@ -422,41 +422,41 @@ describe("AutofillOverlayIframeService", () => {
 
   describe("mutation observer", () => {
     beforeEach(() => {
-      autofillOverlayIframeService.initMenuIframe();
-      autofillOverlayIframeService["iframe"].dispatchEvent(new Event(EVENTS.LOAD));
-      portSpy = autofillOverlayIframeService["port"];
+      autofillInlineMenuIframeService.initMenuIframe();
+      autofillInlineMenuIframeService["iframe"].dispatchEvent(new Event(EVENTS.LOAD));
+      portSpy = autofillInlineMenuIframeService["port"];
     });
 
     it("skips handling found mutations if excessive mutations are triggering", async () => {
       jest.useFakeTimers();
       jest
         .spyOn(
-          autofillOverlayIframeService as any,
+          autofillInlineMenuIframeService as any,
           "isTriggeringExcessiveMutationObserverIterations",
         )
         .mockReturnValue(true);
-      jest.spyOn(autofillOverlayIframeService as any, "updateElementStyles");
+      jest.spyOn(autofillInlineMenuIframeService as any, "updateElementStyles");
 
-      autofillOverlayIframeService["iframe"].style.visibility = "hidden";
+      autofillInlineMenuIframeService["iframe"].style.visibility = "hidden";
       await flushPromises();
 
-      expect(autofillOverlayIframeService["updateElementStyles"]).not.toHaveBeenCalled();
+      expect(autofillInlineMenuIframeService["updateElementStyles"]).not.toHaveBeenCalled();
     });
 
     it("reverts any styles changes made directly to the iframe", async () => {
       jest.useFakeTimers();
 
-      autofillOverlayIframeService["iframe"].style.visibility = "hidden";
+      autofillInlineMenuIframeService["iframe"].style.visibility = "hidden";
       await flushPromises();
 
-      expect(autofillOverlayIframeService["iframe"].style.visibility).toBe("visible");
+      expect(autofillInlineMenuIframeService["iframe"].style.visibility).toBe("visible");
     });
 
-    it("force closes the autofill overlay if more than 9 foreign mutations are triggered", async () => {
+    it("force closes the autofill inline menu if more than 9 foreign mutations are triggered", async () => {
       jest.useFakeTimers();
-      autofillOverlayIframeService["foreignMutationsCount"] = 10;
+      autofillInlineMenuIframeService["foreignMutationsCount"] = 10;
 
-      autofillOverlayIframeService["iframe"].src = "http://malicious-site.com";
+      autofillInlineMenuIframeService["iframe"].src = "http://malicious-site.com";
       await flushPromises();
 
       expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu", {
@@ -464,11 +464,11 @@ describe("AutofillOverlayIframeService", () => {
       });
     });
 
-    it("force closes the autofill overlay if excessive mutations are being triggered", async () => {
+    it("force closes the autofill overinline menulay if excessive mutations are being triggered", async () => {
       jest.useFakeTimers();
-      autofillOverlayIframeService["mutationObserverIterations"] = 20;
+      autofillInlineMenuIframeService["mutationObserverIterations"] = 20;
 
-      autofillOverlayIframeService["iframe"].src = "http://malicious-site.com";
+      autofillInlineMenuIframeService["iframe"].src = "http://malicious-site.com";
       await flushPromises();
 
       expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu", {
@@ -478,24 +478,24 @@ describe("AutofillOverlayIframeService", () => {
 
     it("resets the excessive mutations and foreign mutation counters", async () => {
       jest.useFakeTimers();
-      autofillOverlayIframeService["foreignMutationsCount"] = 9;
-      autofillOverlayIframeService["mutationObserverIterations"] = 19;
+      autofillInlineMenuIframeService["foreignMutationsCount"] = 9;
+      autofillInlineMenuIframeService["mutationObserverIterations"] = 19;
 
-      autofillOverlayIframeService["iframe"].src = "http://malicious-site.com";
+      autofillInlineMenuIframeService["iframe"].src = "http://malicious-site.com";
       jest.advanceTimersByTime(2001);
       await flushPromises();
 
-      expect(autofillOverlayIframeService["foreignMutationsCount"]).toBe(0);
-      expect(autofillOverlayIframeService["mutationObserverIterations"]).toBe(0);
+      expect(autofillInlineMenuIframeService["foreignMutationsCount"]).toBe(0);
+      expect(autofillInlineMenuIframeService["mutationObserverIterations"]).toBe(0);
     });
 
     it("resets any mutated default attributes for the iframe", async () => {
       jest.useFakeTimers();
 
-      autofillOverlayIframeService["iframe"].title = "some-other-title";
+      autofillInlineMenuIframeService["iframe"].title = "some-other-title";
       await flushPromises();
 
-      expect(autofillOverlayIframeService["iframe"].title).toBe("title");
+      expect(autofillInlineMenuIframeService["iframe"].title).toBe("title");
     });
   });
 });

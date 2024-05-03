@@ -13,7 +13,7 @@ import AutofillForm from "../models/autofill-form";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript, { FillScript } from "../models/autofill-script";
 import { InitAutofillInlineMenuButtonMessage } from "../overlay/inline-menu/abstractions/autofill-inline-menu-button";
-import { InitAutofillOverlayListMessage } from "../overlay/inline-menu/abstractions/autofill-inline-menu-list";
+import { InitAutofillInlineMenuListMessage } from "../overlay/inline-menu/abstractions/autofill-inline-menu-list";
 import { GenerateFillScriptOptions, PageDetail } from "../services/abstractions/autofill.service";
 
 function createAutofillFormMock(customFields = {}): AutofillForm {
@@ -197,7 +197,7 @@ function createAutofillOverlayCipherDataMock(index: number, customFields = {}): 
 
 function createInitAutofillOverlayListMessageMock(
   customFields = {},
-): InitAutofillOverlayListMessage {
+): InitAutofillInlineMenuListMessage {
   return {
     command: "initAutofillInlineMenuList",
     translations: overlayPagesTranslations,

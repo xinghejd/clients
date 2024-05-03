@@ -5,22 +5,22 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { createInitAutofillOverlayListMessageMock } from "../../../../spec/autofill-mocks";
 import { flushPromises, postWindowMessage } from "../../../../spec/testing-utils";
 
-import AutofillOverlayList from "./autofill-overlay-list";
+import { AutofillInlineMenuList } from "./autofill-inline-menu-list";
 
 describe("AutofillOverlayList", () => {
-  globalThis.customElements.define("autofill-overlay-list", AutofillOverlayList);
+  globalThis.customElements.define("autofill-inline-menu-list", AutofillInlineMenuList);
   global.ResizeObserver = jest.fn().mockImplementation(() => ({
     observe: jest.fn(),
     unobserve: jest.fn(),
     disconnect: jest.fn(),
   }));
 
-  let autofillOverlayList: AutofillOverlayList;
+  let autofillOverlayList: AutofillInlineMenuList;
   const portKey: string = "overlayListPortKey";
 
   beforeEach(() => {
-    document.body.innerHTML = `<autofill-overlay-list></autofill-overlay-list>`;
-    autofillOverlayList = document.querySelector("autofill-overlay-list");
+    document.body.innerHTML = `<autofill-inline-menu-list></autofill-inline-menu-list>`;
+    autofillOverlayList = document.querySelector("autofill-inline-menu-list");
     jest.spyOn(globalThis.document, "createElement");
     jest.spyOn(globalThis.parent, "postMessage");
   });
@@ -312,7 +312,7 @@ describe("AutofillOverlayList", () => {
       postWindowMessage(createInitAutofillOverlayListMessageMock());
       const updateCiphersSpy = jest.spyOn(autofillOverlayList as any, "updateListItems");
 
-      postWindowMessage({ command: "updateOverlayListCiphers" });
+      postWindowMessage({ command: "updateAutofillInlineMenuListCiphers" });
 
       expect(updateCiphersSpy).toHaveBeenCalled();
     });

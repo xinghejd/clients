@@ -236,7 +236,7 @@ describe("OverlayBackground", () => {
       expect(overlayBackground["getOverlayCipherData"]).toHaveBeenCalled();
     });
 
-    it("posts an `updateOverlayListCiphers` message to the overlay list port with the updated ciphers", async () => {
+    it("posts an `updateAutofillInlineMenuListCiphers` message to the overlay list port with the updated ciphers", async () => {
       overlayBackground["inlineMenuListPort"] = mock<chrome.runtime.Port>();
       cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher1, cipher2]);
       cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
@@ -246,7 +246,7 @@ describe("OverlayBackground", () => {
       await overlayBackground.updateOverlayCiphers();
 
       expect(overlayBackground["inlineMenuListPort"].postMessage).toHaveBeenCalledWith({
-        command: "updateOverlayListCiphers",
+        command: "updateAutofillInlineMenuListCiphers",
         ciphers: [
           {
             card: null,

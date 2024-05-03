@@ -15,7 +15,7 @@ describe("AutofillInlineMenuIframeElement", () => {
           this,
           AutofillOverlayPort.Button,
           { background: "transparent", border: "none" },
-          "bitwardenOverlayButton",
+          "bitwardenInlineMenuButton",
         );
       }
     },
@@ -41,7 +41,7 @@ describe("AutofillInlineMenuIframeElement", () => {
     expect(iframe.shadowRoot).toBeNull();
   });
 
-  it("instantiates the autofill overlay iframe service for each attached custom element", () => {
+  it("instantiates the autofill inline menu iframe service for each attached custom element", () => {
     expect(AutofillInlineMenuIframeService).toHaveBeenCalledTimes(2);
   });
 });

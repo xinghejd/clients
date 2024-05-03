@@ -4,11 +4,11 @@ import { ThemeType } from "@bitwarden/common/platform/enums";
 import { sendExtensionMessage, setElementStyles } from "../../../utils";
 import {
   BackgroundPortMessageHandlers,
-  AutofillInlineMenuIframeService as AutofillOverlayIframeServiceInterface,
-  AutofillOverlayIframeExtensionMessage,
+  AutofillInlineMenuIframeService as AutofillInlineMenuIframeServiceInterface,
+  AutofillInlineMenuIframeExtensionMessage,
 } from "../abstractions/autofill-inline-menu-iframe.service";
 
-export class AutofillInlineMenuIframeService implements AutofillOverlayIframeServiceInterface {
+export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframeServiceInterface {
   private sendExtensionMessage = sendExtensionMessage;
   private port: chrome.runtime.Port | null = null;
   private portKey: string;
@@ -167,7 +167,7 @@ export class AutofillInlineMenuIframeService implements AutofillOverlayIframeSer
    * @param port
    */
   private handlePortMessage = (
-    message: AutofillOverlayIframeExtensionMessage,
+    message: AutofillInlineMenuIframeExtensionMessage,
     port: chrome.runtime.Port,
   ) => {
     if (port.name !== this.portName) {
@@ -183,13 +183,13 @@ export class AutofillInlineMenuIframeService implements AutofillOverlayIframeSer
   };
 
   /**
-   * Handles the initialization of the autofill overlay. This includes setting
-   * the port key and sending a message to the iframe to initialize the overlay.
+   * Handles the initialization of the autofill inline menu. This includes setting
+   * the port key and sending a message to the iframe to initialize the inline menu.
    *
    * @param message
    * @private
    */
-  private initAutofillInlineMenu(message: AutofillOverlayIframeExtensionMessage) {
+  private initAutofillInlineMenu(message: AutofillInlineMenuIframeExtensionMessage) {
     this.portKey = message.portKey;
     if (message.command === "initAutofillInlineMenuList") {
       this.initAutofillInlineMenuList(message);
@@ -200,12 +200,12 @@ export class AutofillInlineMenuIframeService implements AutofillOverlayIframeSer
   }
 
   /**
-   * Handles initialization of the autofill overlay list. This includes setting
-   * the theme and sending a message to the iframe to initialize the overlay.
+   * Handles initialization of the autofill inline menu list. This includes setting
+   * the theme and sending a message to the iframe to initialize the inline menu.
    *
    * @param message - The message sent from the iframe
    */
-  private initAutofillInlineMenuList(message: AutofillOverlayIframeExtensionMessage) {
+  private initAutofillInlineMenuList(message: AutofillInlineMenuIframeExtensionMessage) {
     const { theme } = message;
     let borderColor: string;
     let verifiedTheme = theme;
@@ -320,7 +320,7 @@ export class AutofillInlineMenuIframeService implements AutofillOverlayIframeSer
   };
 
   /**
-   * Triggers a forced closure of the autofill overlay. This is used when the
+   * Triggers a forced closure of the autofill inline menu. This is used when the
    * mutation observer is triggered excessively.
    */
   private forceCloseAutofillInlineMenu() {
@@ -378,7 +378,7 @@ export class AutofillInlineMenuIframeService implements AutofillOverlayIframeSer
 
   /**
    * Identifies if the mutation observer is triggering excessive iterations.
-   * Will remove the autofill overlay if any set mutation observer is
+   * Will remove the autofill inline menu if any set mutation observer is
    * triggering excessive iterations.
    */
   private isTriggeringExcessiveMutationObserverIterations() {

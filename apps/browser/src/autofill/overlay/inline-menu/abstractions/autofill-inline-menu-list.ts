@@ -2,13 +2,13 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 
 import { OverlayCipherData } from "../../../background/abstractions/overlay.background";
 
-type OverlayListMessage = { command: string };
+type AutofillInlineMenuListMessage = { command: string };
 
-type UpdateOverlayListCiphersMessage = OverlayListMessage & {
+export type UpdateAutofillInlineMenuListCiphersMessage = AutofillInlineMenuListMessage & {
   ciphers: OverlayCipherData[];
 };
 
-type InitAutofillOverlayListMessage = OverlayListMessage & {
+export type InitAutofillInlineMenuListMessage = AutofillInlineMenuListMessage & {
   authStatus: AuthenticationStatus;
   styleSheetUrl: string;
   theme: string;
@@ -17,16 +17,14 @@ type InitAutofillOverlayListMessage = OverlayListMessage & {
   portKey: string;
 };
 
-type OverlayListWindowMessageHandlers = {
+export type AutofillInlineMenuListWindowMessageHandlers = {
   [key: string]: CallableFunction;
-  initAutofillInlineMenuList: ({ message }: { message: InitAutofillOverlayListMessage }) => void;
+  initAutofillInlineMenuList: ({ message }: { message: InitAutofillInlineMenuListMessage }) => void;
   checkAutofillInlineMenuListFocused: () => void;
-  updateOverlayListCiphers: ({ message }: { message: UpdateOverlayListCiphersMessage }) => void;
+  updateAutofillInlineMenuListCiphers: ({
+    message,
+  }: {
+    message: UpdateAutofillInlineMenuListCiphersMessage;
+  }) => void;
   focusInlineMenuList: () => void;
-};
-
-export {
-  UpdateOverlayListCiphersMessage,
-  InitAutofillOverlayListMessage,
-  OverlayListWindowMessageHandlers,
 };

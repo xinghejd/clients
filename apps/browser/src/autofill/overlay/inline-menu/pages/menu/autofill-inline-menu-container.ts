@@ -2,11 +2,11 @@ import { EVENTS } from "@bitwarden/common/autofill/constants";
 
 import { setElementStyles } from "../../../../utils";
 import {
-  InitOverlayElementMessage,
-  AutofillOverlayMenuContainerWindowMessageHandlers,
+  InitInlineMenuElementMessage,
+  AutofillInlineMenuMenuContainerWindowMessageHandlers,
 } from "../../abstractions/autofill-inline-menu-container";
 
-export class AutofillOverlayMenuContainer {
+export class AutofillInlineMenuContainer {
   private extensionOriginsSet: Set<string>;
   private port: chrome.runtime.Port | null = null;
   private portName: string;
@@ -36,9 +36,9 @@ export class AutofillOverlayMenuContainer {
     allowtransparency: "true",
     tabIndex: "-1",
   };
-  private windowMessageHandlers: AutofillOverlayMenuContainerWindowMessageHandlers = {
-    initAutofillInlineMenuList: (message) => this.handleInitOverlayIframe(message),
-    initAutofillInlineMenuButton: (message) => this.handleInitOverlayIframe(message),
+  private windowMessageHandlers: AutofillInlineMenuMenuContainerWindowMessageHandlers = {
+    initAutofillInlineMenuList: (message) => this.handleInitInlineMenuIframe(message),
+    initAutofillInlineMenuButton: (message) => this.handleInitInlineMenuIframe(message),
   };
 
   constructor() {
@@ -50,7 +50,7 @@ export class AutofillOverlayMenuContainer {
     globalThis.addEventListener("message", this.handleWindowMessage);
   }
 
-  private handleInitOverlayIframe(message: InitOverlayElementMessage) {
+  private handleInitInlineMenuIframe(message: InitInlineMenuElementMessage) {
     this.defaultIframeAttributes.src = message.iframeUrl;
     this.defaultIframeAttributes.title = message.pageTitle;
     this.portName = message.portName;
@@ -67,7 +67,7 @@ export class AutofillOverlayMenuContainer {
     globalThis.document.body.appendChild(this.overlayPageIframe);
   }
 
-  private setupPortMessageListener = (message: InitOverlayElementMessage) => {
+  private setupPortMessageListener = (message: InitInlineMenuElementMessage) => {
     this.port = chrome.runtime.connect({ name: this.portName });
     this.port.onMessage.addListener(this.handlePortMessage);
 

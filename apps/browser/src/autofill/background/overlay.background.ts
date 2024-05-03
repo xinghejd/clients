@@ -190,7 +190,10 @@ class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     const ciphers = await this.getOverlayCipherData();
-    this.inlineMenuListPort?.postMessage({ command: "updateOverlayListCiphers", ciphers });
+    this.inlineMenuListPort?.postMessage({
+      command: "updateAutofillInlineMenuListCiphers",
+      ciphers,
+    });
   }
 
   /**

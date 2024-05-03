@@ -9,13 +9,13 @@ export class AutofillInlineMenuIframeElement {
     ariaAlert?: string,
   ) {
     const shadow: ShadowRoot = element.attachShadow({ mode: "closed" });
-    const autofillOverlayIframeService = new AutofillInlineMenuIframeService(
+    const autofillInlineMenuIframeService = new AutofillInlineMenuIframeService(
       shadow,
       portName,
       initStyles,
       iframeTitle,
       ariaAlert,
     );
-    autofillOverlayIframeService.initMenuIframe();
+    autofillInlineMenuIframeService.initMenuIframe();
   }
 }

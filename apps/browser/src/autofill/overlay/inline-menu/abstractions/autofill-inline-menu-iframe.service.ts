@@ -1,35 +1,25 @@
-type AutofillOverlayIframeExtensionMessage = {
+export type AutofillInlineMenuIframeExtensionMessage = {
   command: string;
   styles?: Partial<CSSStyleDeclaration>;
   theme?: string;
   portKey?: string;
 };
 
-type AutofillOverlayIframeWindowMessageHandlers = {
-  [key: string]: CallableFunction;
-  updateAutofillInlineMenuListHeight: (message: AutofillOverlayIframeExtensionMessage) => void;
+export type AutofillInlineMenuIframeExtensionMessageParam = {
+  message: AutofillInlineMenuIframeExtensionMessage;
 };
 
-type AutofillOverlayIframeExtensionMessageParam = {
-  message: AutofillOverlayIframeExtensionMessage;
-};
-
-type BackgroundPortMessageHandlers = {
+export type BackgroundPortMessageHandlers = {
   [key: string]: CallableFunction;
-  initAutofillInlineMenuButton: ({ message }: AutofillOverlayIframeExtensionMessageParam) => void;
-  initAutofillInlineMenuList: ({ message }: AutofillOverlayIframeExtensionMessageParam) => void;
-  updateIframePosition: ({ message }: AutofillOverlayIframeExtensionMessageParam) => void;
-  updateInlineMenuHidden: ({ message }: AutofillOverlayIframeExtensionMessageParam) => void;
+  initAutofillInlineMenuButton: ({
+    message,
+  }: AutofillInlineMenuIframeExtensionMessageParam) => void;
+  initAutofillInlineMenuList: ({ message }: AutofillInlineMenuIframeExtensionMessageParam) => void;
+  updateIframePosition: ({ message }: AutofillInlineMenuIframeExtensionMessageParam) => void;
+  updateInlineMenuHidden: ({ message }: AutofillInlineMenuIframeExtensionMessageParam) => void;
   updateAutofillInlineMenuColorScheme: () => void;
 };
 
-interface AutofillInlineMenuIframeService {
+export interface AutofillInlineMenuIframeService {
   initMenuIframe(): void;
 }
-
-export {
-  AutofillOverlayIframeExtensionMessage,
-  AutofillOverlayIframeWindowMessageHandlers,
-  BackgroundPortMessageHandlers,
-  AutofillInlineMenuIframeService,
-};

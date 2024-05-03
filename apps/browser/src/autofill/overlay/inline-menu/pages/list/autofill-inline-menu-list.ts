@@ -7,12 +7,12 @@ import { OverlayCipherData } from "../../../../background/abstractions/overlay.b
 import { buildSvgDomElement } from "../../../../utils";
 import { globeIcon, lockIcon, plusIcon, viewCipherIcon } from "../../../../utils/svg-icons";
 import {
-  InitAutofillOverlayListMessage,
-  OverlayListWindowMessageHandlers,
+  InitAutofillInlineMenuListMessage,
+  AutofillInlineMenuListWindowMessageHandlers,
 } from "../../abstractions/autofill-inline-menu-list";
 import { AutofillInlineMenuPageElement } from "../shared/autofill-inline-menu-page-element";
 
-class AutofillOverlayList extends AutofillInlineMenuPageElement {
+export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private overlayListContainer: HTMLDivElement;
   private resizeObserver: ResizeObserver;
   private eventHandlersMemo: { [key: string]: EventListener } = {};
@@ -22,10 +22,10 @@ class AutofillOverlayList extends AutofillInlineMenuPageElement {
   private cipherListScrollDebounceTimeout: number | NodeJS.Timeout;
   private currentCipherIndex = 0;
   private readonly showCiphersPerPage = 6;
-  private readonly overlayListWindowMessageHandlers: OverlayListWindowMessageHandlers = {
+  private readonly overlayListWindowMessageHandlers: AutofillInlineMenuListWindowMessageHandlers = {
     initAutofillInlineMenuList: ({ message }) => this.initAutofillInlineMenuList(message),
     checkAutofillInlineMenuListFocused: () => this.checkInlineMenuListFocused(),
-    updateOverlayListCiphers: ({ message }) => this.updateListItems(message.ciphers),
+    updateAutofillInlineMenuListCiphers: ({ message }) => this.updateListItems(message.ciphers),
     focusInlineMenuList: () => this.focusInlineMenuList(),
   };
 
@@ -53,7 +53,7 @@ class AutofillOverlayList extends AutofillInlineMenuPageElement {
     authStatus,
     ciphers,
     portKey,
-  }: InitAutofillOverlayListMessage) {
+  }: InitAutofillInlineMenuListMessage) {
     const linkElement = await this.initAutofillInlineMenuPage(
       "list",
       styleSheetUrl,
@@ -619,5 +619,3 @@ class AutofillOverlayList extends AutofillInlineMenuPageElement {
     nextSibling?.focus();
   }
 }
-
-export default AutofillOverlayList;

@@ -1,18 +1,18 @@
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
-type AutofillInlineMenuButtonMessage = { command: string; colorScheme?: string };
+export type AutofillInlineMenuButtonMessage = { command: string; colorScheme?: string };
 
-type UpdateAuthStatusMessage = AutofillInlineMenuButtonMessage & {
+export type UpdateAuthStatusMessage = AutofillInlineMenuButtonMessage & {
   authStatus: AuthenticationStatus;
 };
 
-type InitAutofillInlineMenuButtonMessage = UpdateAuthStatusMessage & {
+export type InitAutofillInlineMenuButtonMessage = UpdateAuthStatusMessage & {
   styleSheetUrl: string;
   translations: Record<string, string>;
   portKey: string;
 };
 
-type AutofillInlineMenuButtonWindowMessageHandlers = {
+export type AutofillInlineMenuButtonWindowMessageHandlers = {
   [key: string]: CallableFunction;
   initAutofillInlineMenuButton: ({
     message,
@@ -30,11 +30,4 @@ type AutofillInlineMenuButtonWindowMessageHandlers = {
   }: {
     message: AutofillInlineMenuButtonMessage;
   }) => void;
-};
-
-export {
-  UpdateAuthStatusMessage,
-  AutofillInlineMenuButtonMessage,
-  InitAutofillInlineMenuButtonMessage,
-  AutofillInlineMenuButtonWindowMessageHandlers,
 };

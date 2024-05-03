@@ -10,7 +10,7 @@ import {
   AutofillInlineMenuContentService as AutofillInlineMenuContentServiceInterface,
 } from "../abstractions/autofill-inline-menu-content.service";
 import { AutofillInlineMenuButtonIframe } from "../iframe-content/autofill-inline-menu-button-iframe";
-import AutofillInlineMenuListIframe from "../iframe-content/autofill-inline-menu-list-iframe";
+import { AutofillInlineMenuListIframe } from "../iframe-content/autofill-inline-menu-list-iframe";
 
 export class AutofillInlineMenuContentService implements AutofillInlineMenuContentServiceInterface {
   private readonly sendExtensionMessage = sendExtensionMessage;

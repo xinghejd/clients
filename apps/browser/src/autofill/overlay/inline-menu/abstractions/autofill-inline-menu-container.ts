@@ -2,12 +2,12 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 
 import { OverlayCipherData } from "../../../background/abstractions/overlay.background";
 
-type AutofillOverlayMenuContainerMessage = {
+type AutofillInlineMenuMenuContainerMessage = {
   command: string;
   portKey: string;
 };
 
-export type InitOverlayElementMessage = AutofillOverlayMenuContainerMessage & {
+export type InitInlineMenuElementMessage = AutofillInlineMenuMenuContainerMessage & {
   iframeUrl?: string;
   pageTitle?: string;
   authStatus?: AuthenticationStatus;
@@ -18,8 +18,8 @@ export type InitOverlayElementMessage = AutofillOverlayMenuContainerMessage & {
   portName?: string;
 };
 
-export type AutofillOverlayMenuContainerWindowMessageHandlers = {
+export type AutofillInlineMenuMenuContainerWindowMessageHandlers = {
   [key: string]: CallableFunction;
-  initAutofillInlineMenuList: (message: InitOverlayElementMessage) => void;
-  initAutofillInlineMenuButton: (message: InitOverlayElementMessage) => void;
+  initAutofillInlineMenuList: (message: InitInlineMenuElementMessage) => void;
+  initAutofillInlineMenuButton: (message: InitInlineMenuElementMessage) => void;
 };
