@@ -402,12 +402,12 @@ describe("OverlayBackground", () => {
       const authStatus = AuthenticationStatus.Unlocked;
       overlayBackground["userAuthStatus"] = AuthenticationStatus.Unlocked;
       authService.activeAccountStatus$ = new BehaviorSubject(authStatus);
-      jest.spyOn(overlayBackground as any, "updateOverlayButtonAuthStatus").mockImplementation();
+      jest.spyOn(overlayBackground as any, "updateInlineMenuButtonAuthStatus").mockImplementation();
       jest.spyOn(overlayBackground as any, "updateOverlayCiphers").mockImplementation();
 
       const status = await overlayBackground["getAuthStatus"]();
 
-      expect(overlayBackground["updateOverlayButtonAuthStatus"]).not.toHaveBeenCalled();
+      expect(overlayBackground["updateInlineMenuButtonAuthStatus"]).not.toHaveBeenCalled();
       expect(overlayBackground["updateOverlayCiphers"]).not.toHaveBeenCalled();
       expect(overlayBackground["userAuthStatus"]).toBe(authStatus);
       expect(status).toBe(authStatus);
@@ -417,41 +417,41 @@ describe("OverlayBackground", () => {
       const authStatus = AuthenticationStatus.Unlocked;
       overlayBackground["userAuthStatus"] = AuthenticationStatus.LoggedOut;
       authService.activeAccountStatus$ = new BehaviorSubject(authStatus);
-      jest.spyOn(overlayBackground as any, "updateOverlayButtonAuthStatus").mockImplementation();
+      jest.spyOn(overlayBackground as any, "updateInlineMenuButtonAuthStatus").mockImplementation();
       jest.spyOn(overlayBackground as any, "updateOverlayCiphers").mockImplementation();
 
       await overlayBackground["getAuthStatus"]();
 
-      expect(overlayBackground["updateOverlayButtonAuthStatus"]).toHaveBeenCalled();
+      expect(overlayBackground["updateInlineMenuButtonAuthStatus"]).toHaveBeenCalled();
       expect(overlayBackground["updateOverlayCiphers"]).toHaveBeenCalled();
       expect(overlayBackground["userAuthStatus"]).toBe(authStatus);
     });
   });
 
-  describe("updateOverlayButtonAuthStatus", () => {
+  describe("updateInlineMenuButtonAuthStatus", () => {
     it("will send a message to the button port with the user's auth status", () => {
       overlayBackground["inlineMenuButtonPort"] = mock<chrome.runtime.Port>();
       jest.spyOn(overlayBackground["inlineMenuButtonPort"], "postMessage");
 
-      overlayBackground["updateOverlayButtonAuthStatus"]();
+      overlayBackground["updateInlineMenuButtonAuthStatus"]();
 
       expect(overlayBackground["inlineMenuButtonPort"].postMessage).toHaveBeenCalledWith({
-        command: "updateOverlayButtonAuthStatus",
+        command: "updateInlineMenuButtonAuthStatus",
         authStatus: overlayBackground["userAuthStatus"],
       });
     });
   });
 
-  describe("getTranslations", () => {
+  describe("getInlineMenuTranslations", () => {
     it("will query the overlay page translations if they have not been queried", () => {
       overlayBackground["inlineMenuPageTranslations"] = undefined;
-      jest.spyOn(overlayBackground as any, "getTranslations");
+      jest.spyOn(overlayBackground as any, "getInlineMenuTranslations");
       jest.spyOn(overlayBackground["i18nService"], "translate").mockImplementation((key) => key);
       jest.spyOn(BrowserApi, "getUILanguage").mockReturnValue("en");
 
-      const translations = overlayBackground["getTranslations"]();
+      const translations = overlayBackground["getInlineMenuTranslations"]();
 
-      expect(overlayBackground["getTranslations"]).toHaveBeenCalled();
+      expect(overlayBackground["getInlineMenuTranslations"]).toHaveBeenCalled();
       const translationKeys = [
         "opensInANewWindow",
         "bitwardenOverlayButton",
@@ -540,7 +540,9 @@ describe("OverlayBackground", () => {
       };
       const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
       const sendResponse = jest.fn();
-      jest.spyOn(overlayBackground as any, "getTranslations").mockReturnValue("translations");
+      jest
+        .spyOn(overlayBackground as any, "getInlineMenuTranslations")
+        .mockReturnValue("translations");
 
       const returnValue = overlayBackground["handleExtensionMessage"](
         message,
@@ -677,7 +679,7 @@ describe("OverlayBackground", () => {
           sendMockExtensionMessage({ command: "checkAutofillInlineMenuFocused" });
 
           expect(listPortSpy.postMessage).toHaveBeenCalledWith({
-            command: "checkAutofillOverlayListFocused",
+            command: "checkAutofillInlineMenuListFocused",
           });
           expect(buttonPortSpy.postMessage).not.toHaveBeenCalledWith({
             command: "checkAutofillInlineMenuButtonFocused",
@@ -693,7 +695,7 @@ describe("OverlayBackground", () => {
             command: "checkAutofillInlineMenuButtonFocused",
           });
           expect(listPortSpy.postMessage).not.toHaveBeenCalledWith({
-            command: "checkAutofillOverlayListFocused",
+            command: "checkAutofillInlineMenuListFocused",
           });
         });
       });
@@ -1041,7 +1043,7 @@ describe("OverlayBackground", () => {
     beforeEach(() => {
       jest.spyOn(overlayBackground as any, "updateInlineMenuPosition").mockImplementation();
       jest.spyOn(overlayBackground as any, "getAuthStatus").mockImplementation();
-      jest.spyOn(overlayBackground as any, "getTranslations").mockImplementation();
+      jest.spyOn(overlayBackground as any, "getInlineMenuTranslations").mockImplementation();
       jest.spyOn(overlayBackground as any, "getOverlayCipherData").mockImplementation();
     });
 
@@ -1067,7 +1069,7 @@ describe("OverlayBackground", () => {
       expect(listPortSpy.postMessage).toHaveBeenCalled();
       expect(overlayBackground["getAuthStatus"]).toHaveBeenCalled();
       expect(chrome.runtime.getURL).toHaveBeenCalledWith("overlay/list.css");
-      expect(overlayBackground["getTranslations"]).toHaveBeenCalled();
+      expect(overlayBackground["getInlineMenuTranslations"]).toHaveBeenCalled();
       expect(overlayBackground["getOverlayCipherData"]).toHaveBeenCalled();
       expect(overlayBackground["updateInlineMenuPosition"]).toHaveBeenCalledWith(
         { overlayElement: AutofillOverlayElement.List },
@@ -1088,7 +1090,7 @@ describe("OverlayBackground", () => {
       expect(buttonPortSpy.postMessage).toHaveBeenCalled();
       expect(overlayBackground["getAuthStatus"]).toHaveBeenCalled();
       expect(chrome.runtime.getURL).toHaveBeenCalledWith("overlay/button.css");
-      expect(overlayBackground["getTranslations"]).toHaveBeenCalled();
+      expect(overlayBackground["getInlineMenuTranslations"]).toHaveBeenCalled();
       expect(overlayBackground["updateInlineMenuPosition"]).toHaveBeenCalledWith(
         { overlayElement: AutofillOverlayElement.Button },
         buttonPortSpy.sender,
@@ -1318,7 +1320,7 @@ describe("OverlayBackground", () => {
         });
       });
 
-      describe("fillSelectedListItem", () => {
+      describe("fillSelectedAutofillInlineMenuListItem", () => {
         let getLoginCiphersSpy: jest.SpyInstance;
         let isPasswordRepromptRequiredSpy: jest.SpyInstance;
         let doAutoFillSpy: jest.SpyInstance;
@@ -1339,7 +1341,7 @@ describe("OverlayBackground", () => {
 
         it("ignores the fill request if the overlay cipher id is not provided", async () => {
           sendPortMessage(listMessageConnectorPortSpy, {
-            command: "fillSelectedListItem",
+            command: "fillSelectedAutofillInlineMenuListItem",
             portKey,
           });
           await flushPromises();
@@ -1351,7 +1353,7 @@ describe("OverlayBackground", () => {
 
         it("ignores the fill request if the tab does not contain any identified page details", async () => {
           sendPortMessage(listMessageConnectorPortSpy, {
-            command: "fillSelectedListItem",
+            command: "fillSelectedAutofillInlineMenuListItem",
             overlayCipherId: "overlay-cipher-1",
             portKey,
           });
@@ -1375,7 +1377,7 @@ describe("OverlayBackground", () => {
           isPasswordRepromptRequiredSpy.mockResolvedValue(true);
 
           sendPortMessage(listMessageConnectorPortSpy, {
-            command: "fillSelectedListItem",
+            command: "fillSelectedAutofillInlineMenuListItem",
             overlayCipherId: "overlay-cipher-1",
             portKey,
           });
@@ -1409,7 +1411,7 @@ describe("OverlayBackground", () => {
           isPasswordRepromptRequiredSpy.mockResolvedValue(false);
 
           sendPortMessage(listMessageConnectorPortSpy, {
-            command: "fillSelectedListItem",
+            command: "fillSelectedAutofillInlineMenuListItem",
             overlayCipherId: "overlay-cipher-2",
             portKey,
           });
@@ -1448,7 +1450,7 @@ describe("OverlayBackground", () => {
           doAutoFillSpy.mockReturnValueOnce("totp-code");
 
           sendPortMessage(listMessageConnectorPortSpy, {
-            command: "fillSelectedListItem",
+            command: "fillSelectedAutofillInlineMenuListItem",
             overlayCipherId: "overlay-cipher-2",
             portKey,
           });
@@ -1533,7 +1535,7 @@ describe("OverlayBackground", () => {
           };
           const redirectOverlayFocusOutSpy = jest.spyOn(
             overlayBackground as any,
-            "redirectAutofillInlineMenuFocusOut",
+            "redirectInlineMenuFocusOut",
           );
 
           sendPortMessage(listMessageConnectorPortSpy, message);

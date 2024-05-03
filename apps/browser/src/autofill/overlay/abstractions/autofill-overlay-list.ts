@@ -20,7 +20,7 @@ type InitAutofillOverlayListMessage = OverlayListMessage & {
 type OverlayListWindowMessageHandlers = {
   [key: string]: CallableFunction;
   initAutofillOverlayList: ({ message }: { message: InitAutofillOverlayListMessage }) => void;
-  checkAutofillOverlayListFocused: () => void;
+  checkAutofillInlineMenuListFocused: () => void;
   updateOverlayListCiphers: ({ message }: { message: UpdateOverlayListCiphersMessage }) => void;
   focusInlineMenuList: () => void;
 };

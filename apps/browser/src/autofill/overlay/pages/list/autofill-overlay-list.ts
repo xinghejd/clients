@@ -24,7 +24,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
   private readonly showCiphersPerPage = 6;
   private readonly overlayListWindowMessageHandlers: OverlayListWindowMessageHandlers = {
     initAutofillOverlayList: ({ message }) => this.initAutofillOverlayList(message),
-    checkAutofillOverlayListFocused: () => this.checkInlineMenuListFocused(),
+    checkAutofillInlineMenuListFocused: () => this.checkInlineMenuListFocused(),
     updateOverlayListCiphers: ({ message }) => this.updateListItems(message.ciphers),
     focusInlineMenuList: () => this.focusInlineMenuList(),
   };
@@ -279,7 +279,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     return this.useEventHandlersMemo(
       () =>
         this.postMessageToParent({
-          command: "fillSelectedListItem",
+          command: "fillSelectedAutofillInlineMenuListItem",
           overlayCipherId: cipher.id,
         }),
       `${cipher.id}-fill-cipher-button-click-handler`,

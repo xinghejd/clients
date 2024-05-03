@@ -109,7 +109,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
       this.closeInlineMenu(port.sender, { forceCloseAutofillInlineMenu: true }),
     autofillInlineMenuBlurred: () => this.checkInlineMenuButtonFocused(),
     unlockVault: ({ port }) => this.unlockVault(port),
-    fillSelectedListItem: ({ message, port }) => this.fillSelectedOverlayListItem(message, port),
+    fillSelectedAutofillInlineMenuListItem: ({ message, port }) =>
+      this.fillSelectedInlineMenuListItem(message, port),
     addNewVaultItem: ({ port }) => this.getNewVaultItemDetails(port),
     viewSelectedCipher: ({ message, port }) => this.viewSelectedCipher(message, port),
     redirectAutofillInlineMenuFocusOut: ({ message, port }) =>
@@ -166,7 +167,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
-   * Updates the overlay list's ciphers and sends the updated list to the overlay list iframe.
+   * Updates the inline menu list's ciphers and sends the updated list to the inline menu list iframe.
    * Queries all ciphers for the given url, and sorts them by last used. Will not update the
    * list of ciphers if the extension is not unlocked.
    */
@@ -194,7 +195,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
 
   /**
    * Strips out unnecessary data from the ciphers and returns an array of
-   * objects that contain the cipher data needed for the overlay list.
+   * objects that contain the cipher data needed for the inline menu list.
    */
   private async getOverlayCipherData(): Promise<OverlayCipherData[]> {
     const showFavicons = await firstValueFrom(this.domainSettingsService.showFavicons$);
@@ -347,13 +348,13 @@ class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
-   * Triggers autofill for the selected cipher in the overlay list. Also places
+   * Triggers autofill for the selected cipher in the inline menu list. Also places
    * the selected cipher at the top of the list of ciphers.
    *
    * @param overlayCipherId - Cipher ID corresponding to the overlayLoginCiphers map. Does not correspond to the actual cipher's ID.
    * @param sender - The sender of the port message
    */
-  private async fillSelectedOverlayListItem(
+  private async fillSelectedInlineMenuListItem(
     { overlayCipherId }: OverlayPortMessage,
     { sender }: chrome.runtime.Port,
   ) {
@@ -383,8 +384,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
-   * Checks if the overlay is focused. Will check the overlay list
-   * if it is open, otherwise it will check the overlay button.
+   * Checks if the inline menu is focused. Will check the inline menu list
+   * if it is open, otherwise it will check the inline menu button.
    */
   private checkInlineMenuFocused() {
     if (this.inlineMenuListPort) {
@@ -397,24 +398,24 @@ class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
-   * Posts a message to the overlay button iframe to check if it is focused.
+   * Posts a message to the inline menu button iframe to check if it is focused.
    */
   private checkInlineMenuButtonFocused() {
     this.inlineMenuButtonPort?.postMessage({ command: "checkAutofillInlineMenuButtonFocused" });
   }
 
   /**
-   * Posts a message to the overlay list iframe to check if it is focused.
+   * Posts a message to the inline menu list iframe to check if it is focused.
    */
   private checkInlineMenuListFocused() {
-    this.inlineMenuListPort?.postMessage({ command: "checkAutofillOverlayListFocused" });
+    this.inlineMenuListPort?.postMessage({ command: "checkAutofillInlineMenuListFocused" });
   }
 
   /**
-   * Sends a message to the sender tab to close the autofill overlay.
+   * Sends a message to the sender tab to close the autofill inline menu.
    *
    * @param sender - The sender of the port message
-   * @param forceCloseAutofillInlineMenu - Identifies whether the overlay should be forced closed
+   * @param forceCloseAutofillInlineMenu - Identifies whether the inline menu should be forced closed
    * @param overlayElement - The overlay element to close, either the list or button
    */
   private closeInlineMenu(
@@ -475,7 +476,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
-   * Updates the position of either the overlay list or button. The position
+   * Updates the position of either the inline menu list or button. The position
    * is based on the focused field's position and dimensions.
    *
    * @param overlayElement - The overlay element to update, either the list or button
@@ -504,7 +505,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
     if (overlayElement === AutofillOverlayElement.Button) {
       this.inlineMenuButtonPort?.postMessage({
         command: "updateIframePosition",
-        styles: this.getOverlayButtonPosition(subFrameOffsets),
+        styles: this.getInlineMenuButtonPosition(subFrameOffsets),
       });
 
       return;
@@ -512,15 +513,15 @@ class OverlayBackground implements OverlayBackgroundInterface {
 
     this.inlineMenuListPort?.postMessage({
       command: "updateIframePosition",
-      styles: this.getOverlayListPosition(subFrameOffsets),
+      styles: this.getInlineMenuListPosition(subFrameOffsets),
     });
   }
 
   /**
    * Gets the position of the focused field and calculates the position
-   * of the overlay button based on the focused field's position and dimensions.
+   * of the inline menu button based on the focused field's position and dimensions.
    */
-  private getOverlayButtonPosition(subFrameOffsets: SubFrameOffsetData) {
+  private getInlineMenuButtonPosition(subFrameOffsets: SubFrameOffsetData) {
     if (!this.focusedFieldData) {
       return;
     }
@@ -555,9 +556,9 @@ class OverlayBackground implements OverlayBackgroundInterface {
 
   /**
    * Gets the position of the focused field and calculates the position
-   * of the overlay list based on the focused field's position and dimensions.
+   * of the inline menu list based on the focused field's position and dimensions.
    */
-  private getOverlayListPosition(subFrameOffsets: SubFrameOffsetData) {
+  private getInlineMenuListPosition(subFrameOffsets: SubFrameOffsetData) {
     if (!this.focusedFieldData) {
       return;
     }
@@ -587,9 +588,9 @@ class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
-   * Updates the overlay's visibility based on the display property passed in the extension message.
+   * Updates the inline menu's visibility based on the display property passed in the extension message.
    *
-   * @param display - The display property of the overlay, either "block" or "none"
+   * @param display - The display property of the inline menu, either "block" or "none"
    * @param sender - The sender of the extension message
    */
   private updateInlineMenuHidden(
@@ -617,10 +618,10 @@ class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
-   * Sends a message to the currently active tab to open the autofill overlay.
+   * Sends a message to the currently active tab to open the autofill inline menu.
    *
-   * @param isFocusingFieldElement - Identifies whether the field element should be focused when the overlay is opened
-   * @param isOpeningFullAutofillInlineMenu - Identifies whether the full overlay should be forced open regardless of other states
+   * @param isFocusingFieldElement - Identifies whether the field element should be focused when the inline menu is opened
+   * @param isOpeningFullAutofillInlineMenu - Identifies whether the full inline menu should be forced open regardless of other states
    */
   private async openInlineMenu(
     isFocusingFieldElement = false,
@@ -643,16 +644,16 @@ class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
-   * Gets the overlay's visibility setting from the settings service.
+   * Gets the inline menu's visibility setting from the settings service.
    */
   private async getInlineMenuVisibility(): Promise<InlineMenuVisibilitySetting> {
     return await firstValueFrom(this.autofillSettingsService.inlineMenuVisibility$);
   }
 
   /**
-   * Gets the user's authentication status from the auth service. If the user's
-   * authentication status has changed, the overlay button's authentication status
-   * will be updated and the overlay list's ciphers will be updated.
+   * Gets the user's authentication status from the auth service. If the user's authentication
+   * status has changed, the inline menu button's authentication status will be updated
+   * and the inline menu list's ciphers will be updated.
    */
   private async getAuthStatus() {
     const formerAuthStatus = this.userAuthStatus;
@@ -662,7 +663,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
       this.userAuthStatus !== formerAuthStatus &&
       this.userAuthStatus === AuthenticationStatus.Unlocked
     ) {
-      this.updateOverlayButtonAuthStatus();
+      this.updateInlineMenuButtonAuthStatus();
       await this.updateOverlayCiphers();
     }
 
@@ -670,21 +671,21 @@ class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
-   * Sends a message to the overlay button to update its authentication status.
+   * Sends a message to the inline menu button to update its authentication status.
    */
-  private updateOverlayButtonAuthStatus() {
+  private updateInlineMenuButtonAuthStatus() {
     this.inlineMenuButtonPort?.postMessage({
-      command: "updateOverlayButtonAuthStatus",
+      command: "updateInlineMenuButtonAuthStatus",
       authStatus: this.userAuthStatus,
     });
   }
 
   /**
-   * Handles the overlay button being clicked. If the user is not authenticated,
-   * the vault will be unlocked. If the user is authenticated, the overlay will
+   * Handles the inline menu button being clicked. If the user is not authenticated,
+   * the vault will be unlocked. If the user is authenticated, the inline menu will
    * be opened.
    *
-   * @param port - The port of the overlay button
+   * @param port - The port of the inline menu button
    */
   private handleInlineMenuButtonClicked(port: chrome.runtime.Port) {
     if (this.userAuthStatus !== AuthenticationStatus.Unlocked) {
@@ -698,7 +699,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
   /**
    * Facilitates opening the unlock popout window.
    *
-   * @param port - The port of the overlay list
+   * @param port - The port of the inline menu list
    */
   private async unlockVault(port: chrome.runtime.Port) {
     const { sender } = port;
@@ -738,14 +739,14 @@ class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
-   * Facilitates redirecting focus to the overlay list.
+   * Facilitates redirecting focus to the inline menu list.
    */
   private focusInlineMenuList() {
     this.inlineMenuListPort?.postMessage({ command: "focusInlineMenuList" });
   }
 
   /**
-   * Updates the authentication status for the user and opens the overlay if
+   * Updates the authentication status for the user and opens the inline menu if
    * a followup command is present in the message.
    *
    * @param message - Extension message received from the `unlockCompleted` command
@@ -759,9 +760,9 @@ class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
-   * Gets the translations for the overlay page.
+   * Gets the translations for the inline menu page.
    */
-  private getTranslations() {
+  private getInlineMenuTranslations() {
     if (!this.inlineMenuPageTranslations) {
       this.inlineMenuPageTranslations = {
         locale: BrowserApi.getUILanguage(),
@@ -785,7 +786,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
 
   /**
    * Facilitates redirecting focus out of one of the
-   *  overlay elements to elements on the page.
+   * inline menu elements to elements on the page.
    *
    * @param direction - The direction to redirect focus to (either "next", "previous" or "current)
    * @param sender - The sender of the port message
@@ -952,21 +953,21 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * @param port - The port that connected to the extension background
    */
   private handlePortOnConnect = async (port: chrome.runtime.Port) => {
-    const isOverlayListMessageConnector = port.name === AutofillOverlayPort.ListMessageConnector;
-    const isOverlayButtonMessageConnector =
+    const isInlineMenuListMessageConnector = port.name === AutofillOverlayPort.ListMessageConnector;
+    const isInlineMenuButtonMessageConnector =
       port.name === AutofillOverlayPort.ButtonMessageConnector;
-    if (isOverlayListMessageConnector || isOverlayButtonMessageConnector) {
+    if (isInlineMenuListMessageConnector || isInlineMenuButtonMessageConnector) {
       port.onMessage.addListener(this.handleOverlayElementPortMessage);
       return;
     }
 
-    const isOverlayListPort = port.name === AutofillOverlayPort.List;
-    const isOverlayButtonPort = port.name === AutofillOverlayPort.Button;
-    if (!isOverlayListPort && !isOverlayButtonPort) {
+    const isInlineMenuListPort = port.name === AutofillOverlayPort.List;
+    const isInlineMenuButtonPort = port.name === AutofillOverlayPort.Button;
+    if (!isInlineMenuListPort && !isInlineMenuButtonPort) {
       return;
     }
 
-    if (isOverlayListPort) {
+    if (isInlineMenuListPort) {
       this.inlineMenuListPort = port;
     } else {
       this.inlineMenuButtonPort = port;
@@ -974,24 +975,26 @@ class OverlayBackground implements OverlayBackgroundInterface {
 
     port.onDisconnect.addListener(this.handlePortOnDisconnect);
     port.postMessage({
-      command: `initAutofillOverlay${isOverlayListPort ? "List" : "Button"}`,
-      iframeUrl: chrome.runtime.getURL(`overlay/${isOverlayListPort ? "list" : "button"}.html`),
+      command: `initAutofillOverlay${isInlineMenuListPort ? "List" : "Button"}`,
+      iframeUrl: chrome.runtime.getURL(`overlay/${isInlineMenuListPort ? "list" : "button"}.html`),
       pageTitle: chrome.i18n.getMessage(
-        isOverlayListPort ? "bitwardenVault" : "bitwardenOverlayButton",
+        isInlineMenuListPort ? "bitwardenVault" : "bitwardenOverlayButton",
       ),
       authStatus: await this.getAuthStatus(),
-      styleSheetUrl: chrome.runtime.getURL(`overlay/${isOverlayListPort ? "list" : "button"}.css`),
+      styleSheetUrl: chrome.runtime.getURL(
+        `overlay/${isInlineMenuListPort ? "list" : "button"}.css`,
+      ),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
-      translations: this.getTranslations(),
-      ciphers: isOverlayListPort ? await this.getOverlayCipherData() : null,
+      translations: this.getInlineMenuTranslations(),
+      ciphers: isInlineMenuListPort ? await this.getOverlayCipherData() : null,
       portKey: this.portKeyForTab[port.sender.tab.id],
-      portName: isOverlayListPort
+      portName: isInlineMenuListPort
         ? AutofillOverlayPort.ListMessageConnector
         : AutofillOverlayPort.ButtonMessageConnector,
     });
     void this.updateInlineMenuPosition(
       {
-        overlayElement: isOverlayListPort
+        overlayElement: isInlineMenuListPort
           ? AutofillOverlayElement.List
           : AutofillOverlayElement.Button,
       },

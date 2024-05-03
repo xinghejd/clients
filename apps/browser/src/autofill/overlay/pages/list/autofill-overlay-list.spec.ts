@@ -140,7 +140,7 @@ describe("AutofillOverlayList", () => {
           fillCipherButton.dispatchEvent(new Event("click"));
 
           expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-            { command: "fillSelectedListItem", overlayCipherId: "1", portKey },
+            { command: "fillSelectedAutofillInlineMenuListItem", overlayCipherId: "1", portKey },
             "*",
           );
         });
@@ -292,7 +292,7 @@ describe("AutofillOverlayList", () => {
     it("does not post a `checkAutofillInlineMenuButtonFocused` message to the parent if the overlay is currently focused", () => {
       jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(true);
 
-      postWindowMessage({ command: "checkAutofillOverlayListFocused" });
+      postWindowMessage({ command: "checkAutofillInlineMenuListFocused" });
 
       expect(globalThis.parent.postMessage).not.toHaveBeenCalled();
     });
@@ -300,7 +300,7 @@ describe("AutofillOverlayList", () => {
     it("posts a `checkAutofillInlineMenuButtonFocused` message to the parent if the overlay is not currently focused", () => {
       jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(false);
 
-      postWindowMessage({ command: "checkAutofillOverlayListFocused" });
+      postWindowMessage({ command: "checkAutofillInlineMenuListFocused" });
 
       expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
         { command: "checkAutofillInlineMenuButtonFocused", portKey },
