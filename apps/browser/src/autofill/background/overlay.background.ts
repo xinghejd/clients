@@ -64,28 +64,28 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private inlineMenuPageTranslations: Record<string, string>;
   private iconsServerUrl: string;
   private readonly extensionMessageHandlers: OverlayBackgroundExtensionMessageHandlers = {
-    openAutofillInlineMenu: () => this.openInlineMenu(false),
-    closeAutofillInlineMenu: ({ message, sender }) => this.closeInlineMenu(sender, message),
     autofillOverlayElementClosed: ({ message }) => this.overlayElementClosed(message),
     autofillOverlayAddNewVaultItem: ({ message, sender }) => this.addNewVaultItem(message, sender),
+    checkIsOverlayLoginCiphersPopulated: ({ sender }) =>
+      this.checkIsOverlayLoginCiphersPopulated(sender),
+    updateFocusedFieldData: ({ message, sender }) => this.setFocusedFieldData(message, sender),
+    updateIsFieldCurrentlyFocused: ({ message }) => this.updateIsFieldCurrentlyFocused(message),
+    checkIsFieldCurrentlyFocused: () => this.checkIsFieldCurrentlyFocused(),
+    updateIsFieldCurrentlyFilling: ({ message }) => this.updateIsFieldCurrentlyFilling(message),
+    checkIsFieldCurrentlyFilling: () => this.checkIsFieldCurrentlyFilling(),
     getAutofillInlineMenuVisibility: () => this.getInlineMenuVisibility(),
+    openAutofillInlineMenu: () => this.openInlineMenu(false),
+    closeAutofillInlineMenu: ({ message, sender }) => this.closeInlineMenu(sender, message),
     checkAutofillInlineMenuFocused: () => this.checkInlineMenuFocused(),
     focusAutofillInlineMenuList: () => this.focusInlineMenuList(),
     updateAutofillInlineMenuPosition: ({ message, sender }) =>
       this.updateInlineMenuPosition(message, sender),
     updateAutofillInlineMenuHidden: ({ message, sender }) =>
       this.updateInlineMenuHidden(message, sender),
-    updateFocusedFieldData: ({ message, sender }) => this.setFocusedFieldData(message, sender),
-    updateIsFieldCurrentlyFocused: ({ message }) => this.updateIsFieldCurrentlyFocused(message),
-    checkIsFieldCurrentlyFocused: () => this.checkIsFieldCurrentlyFocused(),
-    updateIsFieldCurrentlyFilling: ({ message }) => this.updateIsFieldCurrentlyFilling(message),
-    checkIsFieldCurrentlyFilling: () => this.checkIsFieldCurrentlyFilling(),
     checkIsAutofillInlineMenuButtonVisible: ({ sender }) =>
       this.checkIsAutofillInlineMenuButtonVisible(sender),
     checkIsAutofillInlineMenuListVisible: ({ sender }) =>
       this.checkIsAutofillInlineMenuListVisible(sender),
-    checkIsOverlayLoginCiphersPopulated: ({ sender }) =>
-      this.checkIsOverlayLoginCiphersPopulated(sender),
     updateSubFrameData: ({ message, sender }) => this.updateSubFrameData(message, sender),
     rebuildSubFrameOffsets: ({ sender }) => this.rebuildSubFrameOffsets(sender),
     collectPageDetailsResponse: ({ message, sender }) => this.storePageDetails(message, sender),

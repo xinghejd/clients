@@ -92,11 +92,17 @@ export type BackgroundOnMessageHandlerParams = BackgroundMessageParam & Backgrou
 
 export type OverlayBackgroundExtensionMessageHandlers = {
   [key: string]: CallableFunction;
-  openAutofillInlineMenu: () => void;
-  closeAutofillInlineMenu: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   autofillOverlayElementClosed: ({ message }: BackgroundMessageParam) => void;
   autofillOverlayAddNewVaultItem: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
+  checkIsOverlayLoginCiphersPopulated: ({ sender }: BackgroundSenderParam) => void;
+  updateFocusedFieldData: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
+  updateIsFieldCurrentlyFocused: ({ message }: BackgroundMessageParam) => void;
+  checkIsFieldCurrentlyFocused: () => boolean;
+  updateIsFieldCurrentlyFilling: ({ message }: BackgroundMessageParam) => void;
+  checkIsFieldCurrentlyFilling: () => boolean;
   getAutofillInlineMenuVisibility: () => void;
+  openAutofillInlineMenu: () => void;
+  closeAutofillInlineMenu: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   checkAutofillInlineMenuFocused: () => void;
   focusAutofillInlineMenuList: () => void;
   updateAutofillInlineMenuPosition: ({
@@ -104,14 +110,8 @@ export type OverlayBackgroundExtensionMessageHandlers = {
     sender,
   }: BackgroundOnMessageHandlerParams) => Promise<void>;
   updateAutofillInlineMenuHidden: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
-  updateFocusedFieldData: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
-  updateIsFieldCurrentlyFocused: ({ message }: BackgroundMessageParam) => void;
-  checkIsFieldCurrentlyFocused: () => boolean;
-  updateIsFieldCurrentlyFilling: ({ message }: BackgroundMessageParam) => void;
-  checkIsFieldCurrentlyFilling: () => boolean;
   checkIsAutofillInlineMenuButtonVisible: ({ sender }: BackgroundSenderParam) => void;
   checkIsAutofillInlineMenuListVisible: ({ sender }: BackgroundSenderParam) => void;
-  checkIsOverlayLoginCiphersPopulated: ({ sender }: BackgroundSenderParam) => void;
   updateSubFrameData: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   rebuildSubFrameOffsets: ({ sender }: BackgroundSenderParam) => void;
   collectPageDetailsResponse: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;

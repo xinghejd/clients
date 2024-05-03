@@ -40,21 +40,7 @@ class AutofillInit implements AutofillInitInterface {
     inlineMenuElements?: AutofillInlineMenuContentService,
   ) {
     this.autofillOverlayContentService = autofillOverlayContentService;
-    if (this.autofillOverlayContentService) {
-      this.extensionMessageHandlers = Object.assign(
-        this.extensionMessageHandlers,
-        this.autofillOverlayContentService.extensionMessageHandlers,
-      );
-    }
-
     this.autofillInlineMenuContentService = inlineMenuElements;
-    if (this.autofillInlineMenuContentService) {
-      this.extensionMessageHandlers = Object.assign(
-        this.extensionMessageHandlers,
-        this.autofillInlineMenuContentService.extensionMessageHandlers,
-      );
-    }
-
     this.domElementVisibilityService = new DomElementVisibilityService(
       this.autofillInlineMenuContentService,
     );
@@ -190,7 +176,7 @@ class AutofillInit implements AutofillInitInterface {
     sendResponse: (response?: any) => void,
   ): boolean => {
     const command: string = message.command;
-    const handler: CallableFunction | undefined = this.extensionMessageHandlers[command];
+    const handler: CallableFunction | undefined = this.getExtensionMessageHandler(command);
     if (!handler) {
       return;
     }
@@ -203,6 +189,18 @@ class AutofillInit implements AutofillInitInterface {
     void Promise.resolve(messageResponse).then((response) => sendResponse(response));
     return true;
   };
+
+  private getExtensionMessageHandler(command: string): CallableFunction | undefined {
+    if (this.autofillOverlayContentService?.extensionMessageHandlers?.[command]) {
+      return this.autofillOverlayContentService.extensionMessageHandlers[command];
+    }
+
+    if (this.autofillInlineMenuContentService?.extensionMessageHandlers?.[command]) {
+      return this.autofillInlineMenuContentService.extensionMessageHandlers[command];
+    }
+
+    return this.extensionMessageHandlers[command];
+  }
 
   /**
    * Handles destroying the autofill init content script. Removes all
