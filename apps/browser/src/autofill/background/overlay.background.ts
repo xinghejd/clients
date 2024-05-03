@@ -46,7 +46,7 @@ import {
   SubFrameOffsetsForTab,
 } from "./abstractions/overlay.background";
 
-class OverlayBackground implements OverlayBackgroundInterface {
+export class OverlayBackground implements OverlayBackgroundInterface {
   private readonly openUnlockPopout = openUnlockPopout;
   private readonly openViewVaultItemPopout = openViewVaultItemPopout;
   private readonly openAddEditVaultItemPopout = openAddEditVaultItemPopout;
@@ -1047,5 +1047,3 @@ class OverlayBackground implements OverlayBackgroundInterface {
     }
   };
 }
-
-export default OverlayBackground;

@@ -11,7 +11,7 @@ import {
 } from "../spec/testing-utils";
 
 import NotificationBackground from "./notification.background";
-import OverlayBackground from "./overlay.background";
+import { OverlayBackground } from "./overlay.background";
 import TabsBackground from "./tabs.background";
 
 describe("TabsBackground", () => {

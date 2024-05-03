@@ -6,31 +6,31 @@ import { PageDetail } from "../../services/abstractions/autofill.service";
 
 import { LockedVaultPendingNotificationsData } from "./notification.background";
 
-type PageDetailsForTab = Record<
+export type PageDetailsForTab = Record<
   chrome.runtime.MessageSender["tab"]["id"],
   Map<chrome.runtime.MessageSender["frameId"], PageDetail>
 >;
 
-type SubFrameOffsetData = {
+export type SubFrameOffsetData = {
   frameId?: number;
   url?: string;
   top: number;
   left: number;
 } | null;
 
-type SubFrameOffsetsForTab = Record<
+export type SubFrameOffsetsForTab = Record<
   chrome.runtime.MessageSender["tab"]["id"],
   Map<chrome.runtime.MessageSender["frameId"], SubFrameOffsetData>
 >;
 
-type WebsiteIconData = {
+export type WebsiteIconData = {
   imageEnabled: boolean;
   image: string;
   fallbackImage: string;
   icon: string;
 };
 
-type OverlayAddNewItemMessage = {
+export type OverlayAddNewItemMessage = {
   login?: {
     uri?: string;
     hostname: string;
@@ -39,14 +39,14 @@ type OverlayAddNewItemMessage = {
   };
 };
 
-type FocusedFieldData = {
+export type FocusedFieldData = {
   focusedFieldStyles: Partial<CSSStyleDeclaration>;
   focusedFieldRects: Partial<DOMRect>;
   tabId?: number;
   frameId?: number;
 };
 
-type OverlayBackgroundExtensionMessage = {
+export type OverlayBackgroundExtensionMessage = {
   command: string;
   portKey?: string;
   tab?: chrome.tabs.Tab;
@@ -64,14 +64,14 @@ type OverlayBackgroundExtensionMessage = {
   data?: LockedVaultPendingNotificationsData;
 } & OverlayAddNewItemMessage;
 
-type OverlayPortMessage = {
+export type OverlayPortMessage = {
   [key: string]: any;
   command: string;
   direction?: string;
   overlayCipherId?: string;
 };
 
-type OverlayCipherData = {
+export type OverlayCipherData = {
   id: string;
   name: string;
   type: CipherType;
@@ -82,15 +82,15 @@ type OverlayCipherData = {
   card?: string;
 };
 
-type BackgroundMessageParam = {
+export type BackgroundMessageParam = {
   message: OverlayBackgroundExtensionMessage;
 };
-type BackgroundSenderParam = {
+export type BackgroundSenderParam = {
   sender: chrome.runtime.MessageSender;
 };
-type BackgroundOnMessageHandlerParams = BackgroundMessageParam & BackgroundSenderParam;
+export type BackgroundOnMessageHandlerParams = BackgroundMessageParam & BackgroundSenderParam;
 
-type OverlayBackgroundExtensionMessageHandlers = {
+export type OverlayBackgroundExtensionMessageHandlers = {
   [key: string]: CallableFunction;
   openAutofillInlineMenu: () => void;
   closeAutofillInlineMenu: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
@@ -120,15 +120,15 @@ type OverlayBackgroundExtensionMessageHandlers = {
   deletedCipher: () => void;
 };
 
-type PortMessageParam = {
+export type PortMessageParam = {
   message: OverlayPortMessage;
 };
-type PortConnectionParam = {
+export type PortConnectionParam = {
   port: chrome.runtime.Port;
 };
-type PortOnMessageHandlerParams = PortMessageParam & PortConnectionParam;
+export type PortOnMessageHandlerParams = PortMessageParam & PortConnectionParam;
 
-type InlineMenuButtonPortMessageHandlers = {
+export type InlineMenuButtonPortMessageHandlers = {
   [key: string]: CallableFunction;
   autofillInlineMenuButtonClicked: ({ port }: PortConnectionParam) => void;
   closeAutofillInlineMenu: ({ port }: PortConnectionParam) => void;
@@ -138,7 +138,7 @@ type InlineMenuButtonPortMessageHandlers = {
   updateAutofillInlineMenuColorScheme: () => void;
 };
 
-type InlineMenuListPortMessageHandlers = {
+export type InlineMenuListPortMessageHandlers = {
   [key: string]: CallableFunction;
   checkAutofillInlineMenuButtonFocused: () => void;
   forceCloseAutofillInlineMenu: ({ port }: PortConnectionParam) => void;
@@ -151,24 +151,8 @@ type InlineMenuListPortMessageHandlers = {
   updateAutofillInlineMenuListHeight: ({ message, port }: PortOnMessageHandlerParams) => void;
 };
 
-interface OverlayBackground {
+export interface OverlayBackground {
   init(): Promise<void>;
   removePageDetails(tabId: number): void;
   updateOverlayCiphers(): void;
 }
-
-export {
-  PageDetailsForTab,
-  SubFrameOffsetData,
-  SubFrameOffsetsForTab,
-  WebsiteIconData,
-  OverlayBackgroundExtensionMessage,
-  OverlayPortMessage,
-  FocusedFieldData,
-  OverlayCipherData,
-  OverlayAddNewItemMessage,
-  OverlayBackgroundExtensionMessageHandlers,
-  InlineMenuButtonPortMessageHandlers,
-  InlineMenuListPortMessageHandlers,
-  OverlayBackground,
-};

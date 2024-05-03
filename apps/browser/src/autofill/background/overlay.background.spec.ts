@@ -51,7 +51,7 @@ import {
 } from "../spec/autofill-mocks";
 import { flushPromises, sendMockExtensionMessage, sendPortMessage } from "../spec/testing-utils";
 
-import OverlayBackground from "./overlay.background";
+import { OverlayBackground } from "./overlay.background";
 
 describe("OverlayBackground", () => {
   const mockUserId = Utils.newGuid() as UserId;

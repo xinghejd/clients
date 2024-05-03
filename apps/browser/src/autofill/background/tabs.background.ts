@@ -1,7 +1,7 @@
 import MainBackground from "../../background/main.background";
 
+import { OverlayBackground } from "./abstractions/overlay.background";
 import NotificationBackground from "./notification.background";
-import OverlayBackground from "./overlay.background";
 
 export default class TabsBackground {
   constructor(

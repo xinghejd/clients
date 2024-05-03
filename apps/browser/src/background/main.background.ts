@@ -195,7 +195,7 @@ import {
 
 import ContextMenusBackground from "../autofill/background/context-menus.background";
 import NotificationBackground from "../autofill/background/notification.background";
-import OverlayBackground from "../autofill/background/overlay.background";
+import { OverlayBackground } from "../autofill/background/overlay.background";
 import TabsBackground from "../autofill/background/tabs.background";
 import WebRequestBackground from "../autofill/background/web-request.background";
 import { CipherContextMenuHandler } from "../autofill/browser/cipher-context-menu-handler";
