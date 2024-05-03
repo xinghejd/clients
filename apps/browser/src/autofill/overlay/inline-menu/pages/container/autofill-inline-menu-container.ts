@@ -10,7 +10,7 @@ export class AutofillInlineMenuContainer {
   private extensionOriginsSet: Set<string>;
   private port: chrome.runtime.Port | null = null;
   private portName: string;
-  private overlayPageIframe: HTMLIFrameElement;
+  private inlineMenuPageIframe: HTMLIFrameElement;
   private iframeStyles: Partial<CSSStyleDeclaration> = {
     all: "initial",
     position: "fixed",
@@ -55,31 +55,31 @@ export class AutofillInlineMenuContainer {
     this.defaultIframeAttributes.title = message.pageTitle;
     this.portName = message.portName;
 
-    this.overlayPageIframe = globalThis.document.createElement("iframe");
-    setElementStyles(this.overlayPageIframe, this.iframeStyles, true);
+    this.inlineMenuPageIframe = globalThis.document.createElement("iframe");
+    setElementStyles(this.inlineMenuPageIframe, this.iframeStyles, true);
     for (const [attribute, value] of Object.entries(this.defaultIframeAttributes)) {
-      this.overlayPageIframe.setAttribute(attribute, value);
+      this.inlineMenuPageIframe.setAttribute(attribute, value);
     }
-    this.overlayPageIframe.addEventListener(EVENTS.LOAD, () =>
+    this.inlineMenuPageIframe.addEventListener(EVENTS.LOAD, () =>
       this.setupPortMessageListener(message),
     );
 
-    globalThis.document.body.appendChild(this.overlayPageIframe);
+    globalThis.document.body.appendChild(this.inlineMenuPageIframe);
   }
 
   private setupPortMessageListener = (message: InitInlineMenuElementMessage) => {
     this.port = chrome.runtime.connect({ name: this.portName });
     this.port.onMessage.addListener(this.handlePortMessage);
 
-    this.postMessageToOverlayPage(message);
+    this.postMessageToInlineMenuPage(message);
   };
 
-  private postMessageToOverlayPage(message: any) {
-    if (!this.overlayPageIframe?.contentWindow) {
+  private postMessageToInlineMenuPage(message: any) {
+    if (!this.inlineMenuPageIframe?.contentWindow) {
       return;
     }
 
-    this.overlayPageIframe.contentWindow.postMessage(message, "*");
+    this.inlineMenuPageIframe.contentWindow.postMessage(message, "*");
   }
 
   private postMessageToBackground(message: any) {
@@ -95,7 +95,7 @@ export class AutofillInlineMenuContainer {
       return;
     }
 
-    this.postMessageToOverlayPage(message);
+    this.postMessageToInlineMenuPage(message);
   };
 
   private handleWindowMessage = (event: MessageEvent) => {
@@ -110,7 +110,7 @@ export class AutofillInlineMenuContainer {
     }
 
     if (this.isMessageFromParentWindow(event)) {
-      this.postMessageToOverlayPage(message);
+      this.postMessageToInlineMenuPage(message);
       return;
     }
 
@@ -126,20 +126,20 @@ export class AutofillInlineMenuContainer {
       return false;
     }
 
-    return !this.isMessageFromOverlayPageIframe(event);
+    return !this.isMessageFromInlineMenuPageIframe(event);
   }
 
   private isMessageFromParentWindow(event: MessageEvent): boolean {
     return globalThis.parent === event.source;
   }
 
-  private isMessageFromOverlayPageIframe(event: MessageEvent): boolean {
-    if (!this.overlayPageIframe) {
+  private isMessageFromInlineMenuPageIframe(event: MessageEvent): boolean {
+    if (!this.inlineMenuPageIframe) {
       return false;
     }
 
     return (
-      this.overlayPageIframe.contentWindow === event.source &&
+      this.inlineMenuPageIframe.contentWindow === event.source &&
       this.extensionOriginsSet.has(event.origin.toLowerCase())
     );
   }
