@@ -55,7 +55,7 @@ type OverlayBackgroundExtensionMessage = {
   overlayElement?: string;
   forceCloseAutofillInlineMenu?: boolean;
   isAutofillInlineMenuHidden?: boolean;
-  setTransparentOverlay?: boolean;
+  setTransparentInlineMenu?: boolean;
   isFieldCurrentlyFocused?: boolean;
   isFieldCurrentlyFilling?: boolean;
   subFrameData?: SubFrameOffsetData;

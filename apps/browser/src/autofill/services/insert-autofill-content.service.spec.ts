@@ -3,7 +3,7 @@ import { EVENTS } from "@bitwarden/common/autofill/constants";
 import AutofillScript, { FillScript, FillScriptActions } from "../models/autofill-script";
 import { FillableFormFieldElement, FormElementWithAttribute, FormFieldElement } from "../types";
 
-import AutofillOverlayContentService from "./autofill-overlay-content.service";
+import { AutofillOverlayContentService } from "./autofill-overlay-content.service";
 import CollectAutofillContentService from "./collect-autofill-content.service";
 import DomElementVisibilityService from "./dom-element-visibility.service";
 import InsertAutofillContentService from "./insert-autofill-content.service";

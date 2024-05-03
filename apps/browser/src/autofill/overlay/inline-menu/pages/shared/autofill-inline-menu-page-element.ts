@@ -20,7 +20,7 @@ export class AutofillInlineMenuPageElement extends HTMLElement {
   }
 
   /**
-   * Initializes the overlay page element. Facilitates ensuring that the page
+   * Initializes the inline menu page element. Facilitates ensuring that the page
    * is set up with the expected styles and translations.
    *
    * @param elementName - The name of the element, e.g. "button" or "list"
@@ -118,8 +118,8 @@ export class AutofillInlineMenuPageElement extends HTMLElement {
 
   /**
    * Handles the document keydown event. Facilitates redirecting the
-   * user focus in the right direction out of the overlay. Also facilitates
-   * closing the overlay when the user presses the Escape key.
+   * user focus in the right direction out of the inline menu. Also facilitates
+   * closing the inline menu when the user presses the Escape key.
    *
    * @param event - The document keydown event
    */

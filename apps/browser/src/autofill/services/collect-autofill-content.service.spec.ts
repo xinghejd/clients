@@ -10,7 +10,7 @@ import {
   FormElementWithAttribute,
 } from "../types";
 
-import AutofillOverlayContentService from "./autofill-overlay-content.service";
+import { AutofillOverlayContentService } from "./autofill-overlay-content.service";
 import CollectAutofillContentService from "./collect-autofill-content.service";
 import DomElementVisibilityService from "./dom-element-visibility.service";
 

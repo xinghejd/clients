@@ -597,14 +597,14 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * @param sender - The sender of the extension message
    */
   private updateInlineMenuHidden(
-    { isAutofillInlineMenuHidden, setTransparentOverlay }: OverlayBackgroundExtensionMessage,
+    { isAutofillInlineMenuHidden, setTransparentInlineMenu }: OverlayBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
     const display = isAutofillInlineMenuHidden ? "none" : "block";
     let styles: { display: string; opacity?: number } = { display };
 
-    if (typeof setTransparentOverlay !== "undefined") {
-      const opacity = setTransparentOverlay ? 0 : 1;
+    if (typeof setTransparentInlineMenu !== "undefined") {
+      const opacity = setTransparentInlineMenu ? 0 : 1;
       styles = { ...styles, opacity };
     }
 

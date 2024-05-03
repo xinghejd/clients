@@ -22,7 +22,7 @@ import {
 } from "./abstractions/autofill-overlay-content.service";
 import { AutoFillConstants } from "./autofill-constants";
 
-class AutofillOverlayContentService implements AutofillOverlayContentServiceInterface {
+export class AutofillOverlayContentService implements AutofillOverlayContentServiceInterface {
   pageDetailsUpdateRequired = false;
   inlineMenuVisibility: number;
   private readonly findTabs = tabbable;
@@ -30,7 +30,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   private formFieldElements: Set<ElementWithOpId<FormFieldElement>> = new Set([]);
   private hiddenFormFieldElements: WeakMap<ElementWithOpId<FormFieldElement>, AutofillField> =
     new WeakMap();
-  private ignoredFieldTypes: Set<string> = new Set(AutoFillConstants.ExcludedOverlayTypes);
+  private ignoredFieldTypes: Set<string> = new Set(AutoFillConstants.ExcludedInlineMenuTypes);
   private userFilledFields: Record<string, FillableFormFieldElement> = {};
   private authStatus: AuthenticationStatus;
   private focusableElements: FocusableElement[] = [];
@@ -105,12 +105,12 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   }
 
   /**
-   * Handles opening the autofill overlay. Will conditionally open
-   * the overlay based on the current autofill overlay visibility setting.
-   * Allows you to optionally focus the field element when opening the overlay.
-   * Will also optionally ignore the overlay visibility setting and open the
+   * Handles opening the autofill inline menu. Will conditionally open
+   * the inline menu based on the current inline menu visibility setting.
+   * Allows you to optionally focus the field element when opening the inline menu.
+   * Will also optionally ignore the inline menu visibility setting and open the
    *
-   * @param options - Options for opening the autofill overlay.
+   * @param options - Options for opening the autofill inline menu.
    */
   openAutofillInlineMenu(options: OpenAutofillInlineMenuOptions = {}) {
     const { isFocusingFieldElement, isOpeningFullAutofillInlineMenu, authStatus } = options;
@@ -126,7 +126,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     }
 
     if (isFocusingFieldElement && !this.recentlyFocusedFieldIsCurrentlyFocused()) {
-      this.focusMostRecentOverlayField();
+      this.focusMostRecentlyFocusedField();
     }
 
     if (typeof authStatus !== "undefined") {
@@ -147,7 +147,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   /**
    * Focuses the most recently focused field element.
    */
-  focusMostRecentOverlayField() {
+  focusMostRecentlyFocusedField() {
     this.mostRecentlyFocusedField?.focus();
   }
 
@@ -182,7 +182,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   }
 
   /**
-   * Redirects the keyboard focus out of the overlay, selecting the element that is
+   * Redirects the keyboard focus out of the inline menu, selecting the element that is
    * either previous or next in the tab order. If the direction is current, the most
    * recently focused field will be focused.
    *
@@ -194,7 +194,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     }
 
     if (direction === RedirectFocusDirection.Current) {
-      this.focusMostRecentOverlayField();
+      this.focusMostRecentlyFocusedField();
       setTimeout(() => void this.sendExtensionMessage("closeAutofillInlineMenu"), 100);
       return;
     }
@@ -215,7 +215,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   /**
    * Sets up the event listeners that facilitate interaction with the form field elements.
    * Will clear any cached form field element handlers that are encountered when setting
-   * up a form field element to the overlay.
+   * up a form field element.
    *
    * @param formFieldElement - The form field element to set up the event listeners for.
    */
@@ -240,7 +240,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
 
   /**
    * Removes any cached form field element handlers that are encountered
-   * when setting up a form field element to present the overlay.
+   * when setting up a form field element to present the inline menu.
    *
    * @param formFieldElement - The form field element to remove the cached handlers for.
    */
@@ -284,7 +284,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
 
   /**
    * Form Field blur event handler. Updates the value identifying whether
-   * the field is focused and sends a message to check if the overlay itself
+   * the field is focused and sends a message to check if the inline menu itself
    * is currently focused.
    */
   private handleFormFieldBlurEvent = () => {
@@ -296,8 +296,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
 
   /**
    * Form field keyup event handler. Facilitates the ability to remove the
-   * autofill overlay using the escape key, focusing the overlay list using
-   * the ArrowDown key, and ensuring that the overlay is repositioned when
+   * autofill inline menu using the escape key, focusing the inline menu list using
+   * the ArrowDown key, and ensuring that the inline menu is repositioned when
    * the form is submitted using the Enter key.
    *
    * @param event - The keyup event.
@@ -325,9 +325,9 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   };
 
   /**
-   * Triggers a focus of the overlay list, if it is visible. If the list is not visible,
-   * the overlay will be opened and the list will be focused after a short delay. Ensures
-   * that the overlay list is focused when the user presses the down arrow key.
+   * Triggers a focus of the inline menu list, if it is visible. If the list is not visible,
+   * the inline menu will be opened and the list will be focused after a short delay. Ensures
+   * that the inline menu list is focused when the user presses the down arrow key.
    */
   private async focusInlineMenuList() {
     if (this.mostRecentlyFocusedField && !(await this.isInlineMenuListVisible())) {
@@ -355,7 +355,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   /**
    * Triggers when the form field element receives an input event. This method will
    * store the modified form element data for use when the user attempts to add a new
-   * vault item. It also acts to remove the overlay list while the user is typing.
+   * vault item. It also acts to remove the inline menu list while the user is typing.
    *
    * @param formFieldElement - The form field element that triggered the input event.
    */
@@ -412,7 +412,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
 
   /**
    * Triggers when the form field element receives a click event. This method will
-   * trigger the focused action for the form field element if the overlay is not visible.
+   * trigger the focused action for the form field element if the inline menu is not visible.
    *
    * @param formFieldElement - The form field element that triggered the click event.
    */
@@ -438,7 +438,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
 
   /**
    * Triggers when the form field element receives a focus event. This method will
-   * update the most recently focused field and open the autofill overlay if the
+   * update the most recently focused field and open the autofill inline menu if the
    * autofill process is not currently active.
    *
    * @param formFieldElement - The form field element that triggered the focus event.
@@ -541,7 +541,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   }
 
   /**
-   * Updates the position of both the overlay button and overlay list.
+   * Updates the position of both the inline menu button and list.
    */
   private updateAutofillInlineMenuElementsPosition() {
     this.updateAutofillInlineMenuButtonPosition();
@@ -549,7 +549,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   }
 
   /**
-   * Updates the position of the overlay button.
+   * Updates the position of the inline menu button.
    */
   private updateAutofillInlineMenuButtonPosition() {
     void this.sendExtensionMessage("updateAutofillInlineMenuPosition", {
@@ -558,7 +558,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   }
 
   /**
-   * Updates the position of the overlay list.
+   * Updates the position of the inline menu list.
    */
   private updateAutofillInlineMenuListPosition() {
     void this.sendExtensionMessage("updateAutofillInlineMenuPosition", {
@@ -567,23 +567,23 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   }
 
   /**
-   * Sends a message that facilitates hiding the overlay elements.
+   * Sends a message that facilitates hiding the inline menu elements.
    *
-   * @param isHidden - Indicates if the overlay elements should be hidden.
-   * @param setTransparentOverlay - Indicates if the overlay is closing.
+   * @param isHidden - Indicates if the inline menu elements should be hidden.
+   * @param setTransparentInlineMenu - Indicates if the inline menu is closing.
    */
   private toggleAutofillInlineMenuHidden(
     isHidden: boolean,
-    setTransparentOverlay: boolean = false,
+    setTransparentInlineMenu: boolean = false,
   ) {
     void this.sendExtensionMessage("updateAutofillInlineMenuHidden", {
       isAutofillInlineMenuHidden: isHidden,
-      setTransparentOverlay,
+      setTransparentInlineMenu,
     });
   }
 
   /**
-   * Updates the data used to position the overlay elements in relation
+   * Updates the data used to position the inline menu elements in relation
    * to the most recently focused form field.
    *
    * @param formFieldElement - The form field element that triggered the focus event.
@@ -664,7 +664,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   }
 
   /**
-   * Identifies if the field should have the autofill overlay setup on it. Currently, this is mainly
+   * Identifies if the field should have the autofill inline menu setup on it. Currently, this is mainly
    * determined by whether the field correlates with a login cipher. This method will need to be
    * updated in the future to support other types of forms.
    *
@@ -726,18 +726,18 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   };
 
   /**
-   * Queries the background script for the autofill overlay visibility setting.
+   * Queries the background script for the autofill inline menu visibility setting.
    * If the setting is not found, a default value of OnFieldFocus will be used
    * @private
    */
   private async getAutofillInlineMenuVisibility() {
-    const overlayVisibility = await this.sendExtensionMessage("getAutofillInlineMenuVisibility");
-    this.inlineMenuVisibility = overlayVisibility || AutofillOverlayVisibility.OnFieldFocus;
+    const inlineMenuVisibility = await this.sendExtensionMessage("getAutofillInlineMenuVisibility");
+    this.inlineMenuVisibility = inlineMenuVisibility || AutofillOverlayVisibility.OnFieldFocus;
   }
 
   /**
    * Sets up event listeners that facilitate repositioning
-   * the autofill overlay on scroll or resize.
+   * the overlay elements on scroll or resize.
    */
   private setOverlayRepositionEventListeners() {
     globalThis.addEventListener(EVENTS.SCROLL, this.handleOverlayRepositionEvent, {
@@ -748,7 +748,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
 
   /**
    * Removes the listeners that facilitate repositioning
-   * the autofill overlay on scroll or resize.
+   * the overlay elements on scroll or resize.
    */
   private removeOverlayRepositionEventListeners() {
     globalThis.removeEventListener(EVENTS.SCROLL, this.handleOverlayRepositionEvent, {
@@ -759,7 +759,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
 
   /**
    * Handles the resize or scroll events that enact
-   * repositioning of the overlay.
+   * repositioning of existing overlay elements.
    */
   private handleOverlayRepositionEvent = async () => {
     this.rebuildSubFrameOffsets();
@@ -1033,5 +1033,3 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     this.removeOverlayRepositionEventListeners();
   }
 }
-
-export default AutofillOverlayContentService;

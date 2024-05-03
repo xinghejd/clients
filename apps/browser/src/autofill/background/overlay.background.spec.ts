@@ -877,7 +877,7 @@ describe("OverlayBackground", () => {
         it("sets the `opacity` CSS value on the overlay button and list", () => {
           const message = {
             command: "updateAutofillInlineMenuHidden",
-            setTransparentOverlay: true,
+            setTransparentInlineMenu: true,
           };
 
           sendMockExtensionMessage(message);

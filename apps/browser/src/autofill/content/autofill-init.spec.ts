@@ -3,7 +3,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
 import { AutofillInlineMenuContentService } from "../overlay/inline-menu/content/autofill-inline-menu-content.service";
-import AutofillOverlayContentService from "../services/autofill-overlay-content.service";
+import { AutofillOverlayContentService } from "../services/autofill-overlay-content.service";
 import { flushPromises, sendMockExtensionMessage } from "../spec/testing-utils";
 
 import { AutofillExtensionMessage } from "./abstractions/autofill-init";

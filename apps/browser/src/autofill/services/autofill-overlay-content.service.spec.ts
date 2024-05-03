@@ -10,7 +10,7 @@ import { flushPromises } from "../spec/testing-utils";
 import { ElementWithOpId, FormFieldElement } from "../types";
 
 import { AutoFillConstants } from "./autofill-constants";
-import AutofillOverlayContentService from "./autofill-overlay-content.service";
+import { AutofillOverlayContentService } from "./autofill-overlay-content.service";
 
 const defaultWindowReadyState = document.readyState;
 const defaultDocumentVisibilityState = document.visibilityState;
@@ -161,8 +161,8 @@ describe("AutofillOverlayContentService", () => {
         expect(autofillFieldElement.addEventListener).not.toHaveBeenCalled();
       });
 
-      it("ignores fields that are part of the ExcludedOverlayTypes", () => {
-        AutoFillConstants.ExcludedOverlayTypes.forEach(async (excludedType) => {
+      it("ignores fields that are part of the ExcludedInlineMenuTypes", () => {
+        AutoFillConstants.ExcludedInlineMenuTypes.forEach(async (excludedType) => {
           autofillFieldData.type = excludedType;
 
           await autofillOverlayContentService.setupAutofillInlineMenuListenerOnField(
@@ -779,7 +779,7 @@ describe("AutofillOverlayContentService", () => {
       });
       const focusMostRecentOverlayFieldSpy = jest.spyOn(
         autofillOverlayContentService as any,
-        "focusMostRecentOverlayField",
+        "focusMostRecentlyFocusedField",
       );
 
       autofillOverlayContentService["openAutofillInlineMenu"]({ isFocusingFieldElement: true });
@@ -795,7 +795,7 @@ describe("AutofillOverlayContentService", () => {
       });
       const focusMostRecentOverlayFieldSpy = jest.spyOn(
         autofillOverlayContentService as any,
-        "focusMostRecentOverlayField",
+        "focusMostRecentlyFocusedField",
       );
 
       autofillOverlayContentService["openAutofillInlineMenu"]({ isFocusingFieldElement: true });
@@ -870,7 +870,7 @@ describe("AutofillOverlayContentService", () => {
     });
   });
 
-  describe("focusMostRecentOverlayField", () => {
+  describe("focusMostRecentlyFocusedField", () => {
     it("focuses the most recently focused overlay field", () => {
       const mostRecentlyFocusedField = document.createElement(
         "input",
@@ -878,7 +878,7 @@ describe("AutofillOverlayContentService", () => {
       autofillOverlayContentService["mostRecentlyFocusedField"] = mostRecentlyFocusedField;
       jest.spyOn(mostRecentlyFocusedField, "focus");
 
-      autofillOverlayContentService["focusMostRecentOverlayField"]();
+      autofillOverlayContentService["focusMostRecentlyFocusedField"]();
 
       expect(mostRecentlyFocusedField.focus).toHaveBeenCalled();
     });
@@ -1120,7 +1120,7 @@ describe("AutofillOverlayContentService", () => {
 
       expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillInlineMenuHidden", {
         isAutofillInlineMenuHidden: true,
-        setTransparentOverlay: false,
+        setTransparentInlineMenu: false,
       });
     });
 
@@ -1148,7 +1148,7 @@ describe("AutofillOverlayContentService", () => {
 
       expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillInlineMenuHidden", {
         isAutofillInlineMenuHidden: false,
-        setTransparentOverlay: true,
+        setTransparentInlineMenu: true,
       });
       expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu", {
         forceCloseAutofillInlineMenu: true,

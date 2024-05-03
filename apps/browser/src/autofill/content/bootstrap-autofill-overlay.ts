@@ -1,5 +1,5 @@
 import { AutofillInlineMenuContentService } from "../overlay/inline-menu/content/autofill-inline-menu-content.service";
-import AutofillOverlayContentService from "../services/autofill-overlay-content.service";
+import { AutofillOverlayContentService } from "../services/autofill-overlay-content.service";
 import { setupAutofillInitDisconnectAction } from "../utils";
 
 import AutofillInit from "./autofill-init";
