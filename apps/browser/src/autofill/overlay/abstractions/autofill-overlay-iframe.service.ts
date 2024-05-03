@@ -7,7 +7,7 @@ type AutofillOverlayIframeExtensionMessage = {
 
 type AutofillOverlayIframeWindowMessageHandlers = {
   [key: string]: CallableFunction;
-  updateAutofillOverlayListHeight: (message: AutofillOverlayIframeExtensionMessage) => void;
+  updateAutofillInlineMenuListHeight: (message: AutofillOverlayIframeExtensionMessage) => void;
 };
 
 type AutofillOverlayIframeExtensionMessageParam = {
@@ -20,7 +20,7 @@ type BackgroundPortMessageHandlers = {
   initAutofillOverlayList: ({ message }: AutofillOverlayIframeExtensionMessageParam) => void;
   updateIframePosition: ({ message }: AutofillOverlayIframeExtensionMessageParam) => void;
   updateInlineMenuHidden: ({ message }: AutofillOverlayIframeExtensionMessageParam) => void;
-  updateOverlayPageColorScheme: () => void;
+  updateAutofillInlineMenuColorScheme: () => void;
 };
 
 interface AutofillOverlayIframeService {

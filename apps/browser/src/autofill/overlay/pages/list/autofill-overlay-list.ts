@@ -487,7 +487,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
       return;
     }
 
-    this.postMessageToParent({ command: "checkAutofillOverlayButtonFocused" });
+    this.postMessageToParent({ command: "checkAutofillInlineMenuButtonFocused" });
   }
 
   /**
@@ -545,7 +545,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
 
       const { height } = entry.contentRect;
       this.postMessageToParent({
-        command: "updateAutofillOverlayListHeight",
+        command: "updateAutofillInlineMenuListHeight",
         styles: { height: `${height}px` },
       });
       break;

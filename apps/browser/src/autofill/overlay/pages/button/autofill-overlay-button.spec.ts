@@ -70,7 +70,7 @@ describe("AutofillOverlayButton", () => {
     it("does not post a message to close the autofill overlay if the element is focused during the focus check", async () => {
       jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(true);
 
-      postWindowMessage({ command: "checkAutofillOverlayButtonFocused" });
+      postWindowMessage({ command: "checkAutofillInlineMenuButtonFocused" });
       await flushPromises();
 
       expect(globalThis.parent.postMessage).not.toHaveBeenCalledWith({
@@ -81,7 +81,7 @@ describe("AutofillOverlayButton", () => {
     it("posts a message to close the autofill overlay if the element is not focused during the focus check", async () => {
       jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(false);
 
-      postWindowMessage({ command: "checkAutofillOverlayButtonFocused" });
+      postWindowMessage({ command: "checkAutofillInlineMenuButtonFocused" });
       await flushPromises();
 
       expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
@@ -109,7 +109,7 @@ describe("AutofillOverlayButton", () => {
       globalThis.document.head.append(colorSchemeMetaTag);
 
       postWindowMessage({
-        command: "updateOverlayPageColorScheme",
+        command: "updateAutofillInlineMenuColorScheme",
         colorScheme: "dark",
       });
       await flushPromises();

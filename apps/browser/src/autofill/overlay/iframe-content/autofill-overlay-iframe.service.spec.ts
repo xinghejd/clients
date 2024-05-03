@@ -404,14 +404,14 @@ describe("AutofillOverlayIframeService", () => {
 
       it("updates the button based on the web page's color scheme", () => {
         sendPortMessage(portSpy, {
-          command: "updateOverlayPageColorScheme",
+          command: "updateAutofillInlineMenuColorScheme",
         });
 
         expect(
           autofillOverlayIframeService["iframe"].contentWindow.postMessage,
         ).toHaveBeenCalledWith(
           {
-            command: "updateOverlayPageColorScheme",
+            command: "updateAutofillInlineMenuColorScheme",
             colorScheme: "normal",
           },
           "*",

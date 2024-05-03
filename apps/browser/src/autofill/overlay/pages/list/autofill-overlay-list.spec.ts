@@ -289,7 +289,7 @@ describe("AutofillOverlayList", () => {
       postWindowMessage(createInitAutofillOverlayListMessageMock({ portKey }));
     });
 
-    it("does not post a `checkAutofillOverlayButtonFocused` message to the parent if the overlay is currently focused", () => {
+    it("does not post a `checkAutofillInlineMenuButtonFocused` message to the parent if the overlay is currently focused", () => {
       jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(true);
 
       postWindowMessage({ command: "checkAutofillOverlayListFocused" });
@@ -297,13 +297,13 @@ describe("AutofillOverlayList", () => {
       expect(globalThis.parent.postMessage).not.toHaveBeenCalled();
     });
 
-    it("posts a `checkAutofillOverlayButtonFocused` message to the parent if the overlay is not currently focused", () => {
+    it("posts a `checkAutofillInlineMenuButtonFocused` message to the parent if the overlay is not currently focused", () => {
       jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(false);
 
       postWindowMessage({ command: "checkAutofillOverlayListFocused" });
 
       expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-        { command: "checkAutofillOverlayButtonFocused", portKey },
+        { command: "checkAutofillInlineMenuButtonFocused", portKey },
         "*",
       );
     });
@@ -461,7 +461,7 @@ describe("AutofillOverlayList", () => {
       autofillOverlayList["handleResizeObserver"](entries as unknown as ResizeObserverEntry[]);
 
       expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-        { command: "updateAutofillOverlayListHeight", styles: { height: "300px" }, portKey },
+        { command: "updateAutofillInlineMenuListHeight", styles: { height: "300px" }, portKey },
         "*",
       );
     });

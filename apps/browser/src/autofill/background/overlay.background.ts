@@ -37,9 +37,9 @@ import {
   OverlayBackground as OverlayBackgroundInterface,
   OverlayBackgroundExtensionMessage,
   OverlayBackgroundExtensionMessageHandlers,
-  OverlayButtonPortMessageHandlers,
+  InlineMenuButtonPortMessageHandlers,
   OverlayCipherData,
-  OverlayListPortMessageHandlers,
+  InlineMenuListPortMessageHandlers,
   OverlayPortMessage,
   PageDetailsForTab,
   SubFrameOffsetData,
@@ -53,15 +53,15 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private overlayLoginCiphers: Map<string, CipherView> = new Map();
   private pageDetailsForTab: PageDetailsForTab = {};
   private subFrameOffsetsForTab: SubFrameOffsetsForTab = {};
-  private updateOverlayMenuPositionTimeout: number | NodeJS.Timeout;
+  private updateInlineMenuPositionTimeout: number | NodeJS.Timeout;
   private userAuthStatus: AuthenticationStatus = AuthenticationStatus.LoggedOut;
-  private overlayButtonPort: chrome.runtime.Port;
-  private overlayListPort: chrome.runtime.Port;
+  private inlineMenuButtonPort: chrome.runtime.Port;
+  private inlineMenuListPort: chrome.runtime.Port;
   private portKeyForTab: Record<number, string> = {};
   private focusedFieldData: FocusedFieldData;
   private isFieldCurrentlyFocused: boolean = false;
   private isFieldCurrentlyFilling: boolean = false;
-  private overlayPageTranslations: Record<string, string>;
+  private inlineMenuPageTranslations: Record<string, string>;
   private iconsServerUrl: string;
   private readonly extensionMessageHandlers: OverlayBackgroundExtensionMessageHandlers = {
     openAutofillInlineMenu: () => this.openInlineMenu(false),
@@ -93,7 +93,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
     addEditCipherSubmitted: () => this.updateOverlayCiphers(),
     deletedCipher: () => this.updateOverlayCiphers(),
   };
-  private readonly overlayButtonPortMessageHandlers: OverlayButtonPortMessageHandlers = {
+  private readonly inlineMenuButtonPortMessageHandlers: InlineMenuButtonPortMessageHandlers = {
     autofillInlineMenuButtonClicked: ({ port }) => this.handleInlineMenuButtonClicked(port),
     closeAutofillInlineMenu: ({ port }) => this.closeInlineMenu(port.sender),
     forceCloseAutofillInlineMenu: ({ port }) =>
@@ -101,20 +101,20 @@ class OverlayBackground implements OverlayBackgroundInterface {
     autofillInlineMenuBlurred: () => this.checkInlineMenuListFocused(),
     redirectAutofillInlineMenuFocusOut: ({ message, port }) =>
       this.redirectInlineMenuFocusOut(message, port),
-    updateOverlayPageColorScheme: () => this.updateButtonPageColorScheme(),
+    updateAutofillInlineMenuColorScheme: () => this.updateInlineMenuButtonColorScheme(),
   };
-  private readonly overlayListPortMessageHandlers: OverlayListPortMessageHandlers = {
-    checkAutofillOverlayButtonFocused: () => this.checkOverlayButtonFocused(),
+  private readonly inlineMenuListPortMessageHandlers: InlineMenuListPortMessageHandlers = {
+    checkAutofillInlineMenuButtonFocused: () => this.checkInlineMenuButtonFocused(),
     forceCloseAutofillInlineMenu: ({ port }) =>
       this.closeInlineMenu(port.sender, { forceCloseAutofillInlineMenu: true }),
-    autofillInlineMenuBlurred: () => this.checkOverlayButtonFocused(),
+    autofillInlineMenuBlurred: () => this.checkInlineMenuButtonFocused(),
     unlockVault: ({ port }) => this.unlockVault(port),
     fillSelectedListItem: ({ message, port }) => this.fillSelectedOverlayListItem(message, port),
     addNewVaultItem: ({ port }) => this.getNewVaultItemDetails(port),
     viewSelectedCipher: ({ message, port }) => this.viewSelectedCipher(message, port),
     redirectAutofillInlineMenuFocusOut: ({ message, port }) =>
       this.redirectInlineMenuFocusOut(message, port),
-    updateAutofillOverlayListHeight: ({ message }) => this.updateOverlayListHeight(message),
+    updateAutofillInlineMenuListHeight: ({ message }) => this.updateInlineMenuListHeight(message),
   };
 
   constructor(
@@ -189,7 +189,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     const ciphers = await this.getOverlayCipherData();
-    this.overlayListPort?.postMessage({ command: "updateOverlayListCiphers", ciphers });
+    this.inlineMenuListPort?.postMessage({ command: "updateOverlayListCiphers", ciphers });
   }
 
   /**
@@ -321,8 +321,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    if (this.updateOverlayMenuPositionTimeout) {
-      clearTimeout(this.updateOverlayMenuPositionTimeout);
+    if (this.updateInlineMenuPositionTimeout) {
+      clearTimeout(this.updateInlineMenuPositionTimeout);
     }
 
     const frameTabs = Array.from(subFrameOffsetsForTab.keys());
@@ -335,7 +335,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
       await this.buildSubFrameOffsets(sender.tab, frameId, sender.url);
     }
 
-    this.updateOverlayMenuPositionTimeout = setTimeout(() => {
+    this.updateInlineMenuPositionTimeout = setTimeout(() => {
       if (this.isFieldCurrentlyFocused) {
         void this.updateInlineMenuPosition({ overlayElement: AutofillOverlayElement.List }, sender);
         void this.updateInlineMenuPosition(
@@ -387,27 +387,27 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * if it is open, otherwise it will check the overlay button.
    */
   private checkInlineMenuFocused() {
-    if (this.overlayListPort) {
+    if (this.inlineMenuListPort) {
       this.checkInlineMenuListFocused();
 
       return;
     }
 
-    this.checkOverlayButtonFocused();
+    this.checkInlineMenuButtonFocused();
   }
 
   /**
    * Posts a message to the overlay button iframe to check if it is focused.
    */
-  private checkOverlayButtonFocused() {
-    this.overlayButtonPort?.postMessage({ command: "checkAutofillOverlayButtonFocused" });
+  private checkInlineMenuButtonFocused() {
+    this.inlineMenuButtonPort?.postMessage({ command: "checkAutofillInlineMenuButtonFocused" });
   }
 
   /**
    * Posts a message to the overlay list iframe to check if it is focused.
    */
   private checkInlineMenuListFocused() {
-    this.overlayListPort?.postMessage({ command: "checkAutofillOverlayListFocused" });
+    this.inlineMenuListPort?.postMessage({ command: "checkAutofillOverlayListFocused" });
   }
 
   /**
@@ -464,14 +464,14 @@ class OverlayBackground implements OverlayBackgroundInterface {
    */
   private overlayElementClosed({ overlayElement }: OverlayBackgroundExtensionMessage) {
     if (overlayElement === AutofillOverlayElement.Button) {
-      this.overlayButtonPort?.disconnect();
-      this.overlayButtonPort = null;
+      this.inlineMenuButtonPort?.disconnect();
+      this.inlineMenuButtonPort = null;
 
       return;
     }
 
-    this.overlayListPort?.disconnect();
-    this.overlayListPort = null;
+    this.inlineMenuListPort?.disconnect();
+    this.inlineMenuListPort = null;
   }
 
   /**
@@ -502,7 +502,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     if (overlayElement === AutofillOverlayElement.Button) {
-      this.overlayButtonPort?.postMessage({
+      this.inlineMenuButtonPort?.postMessage({
         command: "updateIframePosition",
         styles: this.getOverlayButtonPosition(subFrameOffsets),
       });
@@ -510,7 +510,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    this.overlayListPort?.postMessage({
+    this.inlineMenuListPort?.postMessage({
       command: "updateIframePosition",
       styles: this.getOverlayListPosition(subFrameOffsets),
     });
@@ -612,8 +612,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
       { frameId: 0 },
     );
 
-    this.overlayButtonPort?.postMessage(portMessage);
-    this.overlayListPort?.postMessage(portMessage);
+    this.inlineMenuButtonPort?.postMessage(portMessage);
+    this.inlineMenuListPort?.postMessage(portMessage);
   }
 
   /**
@@ -673,7 +673,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * Sends a message to the overlay button to update its authentication status.
    */
   private updateOverlayButtonAuthStatus() {
-    this.overlayButtonPort?.postMessage({
+    this.inlineMenuButtonPort?.postMessage({
       command: "updateOverlayButtonAuthStatus",
       authStatus: this.userAuthStatus,
     });
@@ -741,7 +741,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * Facilitates redirecting focus to the overlay list.
    */
   private focusInlineMenuList() {
-    this.overlayListPort?.postMessage({ command: "focusInlineMenuList" });
+    this.inlineMenuListPort?.postMessage({ command: "focusInlineMenuList" });
   }
 
   /**
@@ -762,8 +762,8 @@ class OverlayBackground implements OverlayBackgroundInterface {
    * Gets the translations for the overlay page.
    */
   private getTranslations() {
-    if (!this.overlayPageTranslations) {
-      this.overlayPageTranslations = {
+    if (!this.inlineMenuPageTranslations) {
+      this.inlineMenuPageTranslations = {
         locale: BrowserApi.getUILanguage(),
         opensInANewWindow: this.i18nService.translate("opensInANewWindow"),
         buttonPageTitle: this.i18nService.translate("bitwardenOverlayButton"),
@@ -780,7 +780,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
       };
     }
 
-    return this.overlayPageTranslations;
+    return this.inlineMenuPageTranslations;
   }
 
   /**
@@ -897,14 +897,14 @@ class OverlayBackground implements OverlayBackgroundInterface {
     return sender.tab.id === this.focusedFieldData.tabId && this.overlayLoginCiphers.size > 0;
   }
 
-  private updateButtonPageColorScheme() {
-    this.overlayButtonPort?.postMessage({
-      command: "updateOverlayPageColorScheme",
+  private updateInlineMenuButtonColorScheme() {
+    this.inlineMenuButtonPort?.postMessage({
+      command: "updateAutofillInlineMenuColorScheme",
     });
   }
 
-  private updateOverlayListHeight(message: OverlayBackgroundExtensionMessage) {
-    this.overlayListPort?.postMessage({
+  private updateInlineMenuListHeight(message: OverlayBackgroundExtensionMessage) {
+    this.inlineMenuListPort?.postMessage({
       command: "updateIframePosition",
       styles: message.styles,
     });
@@ -967,9 +967,9 @@ class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     if (isOverlayListPort) {
-      this.overlayListPort = port;
+      this.inlineMenuListPort = port;
     } else {
-      this.overlayButtonPort = port;
+      this.inlineMenuButtonPort = port;
     }
 
     port.onDisconnect.addListener(this.handlePortOnDisconnect);
@@ -1017,11 +1017,11 @@ class OverlayBackground implements OverlayBackgroundInterface {
     let handler: CallableFunction | undefined;
 
     if (port.name === AutofillOverlayPort.ButtonMessageConnector) {
-      handler = this.overlayButtonPortMessageHandlers[command];
+      handler = this.inlineMenuButtonPortMessageHandlers[command];
     }
 
     if (port.name === AutofillOverlayPort.ListMessageConnector) {
-      handler = this.overlayListPortMessageHandlers[command];
+      handler = this.inlineMenuListPortMessageHandlers[command];
     }
 
     if (!handler) {
@@ -1033,11 +1033,11 @@ class OverlayBackground implements OverlayBackgroundInterface {
 
   private handlePortOnDisconnect = (port: chrome.runtime.Port) => {
     if (port.name === AutofillOverlayPort.List) {
-      this.overlayListPort = null;
+      this.inlineMenuListPort = null;
     }
 
     if (port.name === AutofillOverlayPort.Button) {
-      this.overlayButtonPort = null;
+      this.inlineMenuButtonPort = null;
     }
   };
 }

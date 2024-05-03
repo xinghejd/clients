@@ -46,7 +46,7 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
     initAutofillOverlayList: ({ message }) => this.initAutofillOverlay(message),
     updateIframePosition: ({ message }) => this.updateIframePosition(message.styles),
     updateInlineMenuHidden: ({ message }) => this.updateElementStyles(this.iframe, message.styles),
-    updateOverlayPageColorScheme: () => this.updateOverlayPageColorScheme(),
+    updateAutofillInlineMenuColorScheme: () => this.updateAutofillInlineMenuColorScheme(),
   };
 
   constructor(
@@ -257,13 +257,13 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
    * to update its color scheme. Will default to "normal" if the meta tag
    * does not exist.
    */
-  private updateOverlayPageColorScheme() {
+  private updateAutofillInlineMenuColorScheme() {
     const colorSchemeValue = globalThis.document
       .querySelector("meta[name='color-scheme']")
       ?.getAttribute("content");
 
     this.postMessageToIFrame({
-      command: "updateOverlayPageColorScheme",
+      command: "updateAutofillInlineMenuColorScheme",
       colorScheme: colorSchemeValue || "normal",
     });
   }

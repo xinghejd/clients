@@ -13,13 +13,13 @@ type InitAutofillOverlayButtonMessage = UpdateAuthStatusMessage & {
 type OverlayButtonWindowMessageHandlers = {
   [key: string]: CallableFunction;
   initAutofillOverlayButton: ({ message }: { message: InitAutofillOverlayButtonMessage }) => void;
-  checkAutofillOverlayButtonFocused: () => void;
+  checkAutofillInlineMenuButtonFocused: () => void;
   updateAutofillOverlayButtonAuthStatus: ({
     message,
   }: {
     message: UpdateAuthStatusMessage;
   }) => void;
-  updateOverlayPageColorScheme: ({ message }: { message: OverlayButtonMessage }) => void;
+  updateAutofillInlineMenuColorScheme: ({ message }: { message: OverlayButtonMessage }) => void;
 };
 
 export {

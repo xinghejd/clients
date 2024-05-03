@@ -19,10 +19,10 @@ class AutofillOverlayButton extends AutofillOverlayPageElement {
   private readonly logoLockedIconElement: HTMLElement;
   private readonly overlayButtonWindowMessageHandlers: OverlayButtonWindowMessageHandlers = {
     initAutofillOverlayButton: ({ message }) => this.initAutofillOverlayButton(message),
-    checkAutofillOverlayButtonFocused: () => this.checkButtonFocused(),
+    checkAutofillInlineMenuButtonFocused: () => this.checkButtonFocused(),
     updateAutofillOverlayButtonAuthStatus: ({ message }) =>
       this.updateAuthStatus(message.authStatus),
-    updateOverlayPageColorScheme: ({ message }) => this.updatePageColorScheme(message),
+    updateAutofillInlineMenuColorScheme: ({ message }) => this.updatePageColorScheme(message),
   };
 
   constructor() {
@@ -63,7 +63,7 @@ class AutofillOverlayButton extends AutofillOverlayPageElement {
       this.getTranslation("toggleBitwardenVaultOverlay"),
     );
     this.buttonElement.addEventListener(EVENTS.CLICK, this.handleButtonElementClick);
-    this.postMessageToParent({ command: "updateOverlayPageColorScheme" });
+    this.postMessageToParent({ command: "updateAutofillInlineMenuColorScheme" });
 
     this.updateAuthStatus(authStatus);
 

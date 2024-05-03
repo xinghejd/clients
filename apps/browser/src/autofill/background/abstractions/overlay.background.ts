@@ -128,19 +128,19 @@ type PortConnectionParam = {
 };
 type PortOnMessageHandlerParams = PortMessageParam & PortConnectionParam;
 
-type OverlayButtonPortMessageHandlers = {
+type InlineMenuButtonPortMessageHandlers = {
   [key: string]: CallableFunction;
   autofillInlineMenuButtonClicked: ({ port }: PortConnectionParam) => void;
   closeAutofillInlineMenu: ({ port }: PortConnectionParam) => void;
   forceCloseAutofillInlineMenu: ({ port }: PortConnectionParam) => void;
   autofillInlineMenuBlurred: () => void;
   redirectAutofillInlineMenuFocusOut: ({ message, port }: PortOnMessageHandlerParams) => void;
-  updateOverlayPageColorScheme: () => void;
+  updateAutofillInlineMenuColorScheme: () => void;
 };
 
-type OverlayListPortMessageHandlers = {
+type InlineMenuListPortMessageHandlers = {
   [key: string]: CallableFunction;
-  checkAutofillOverlayButtonFocused: () => void;
+  checkAutofillInlineMenuButtonFocused: () => void;
   forceCloseAutofillInlineMenu: ({ port }: PortConnectionParam) => void;
   autofillInlineMenuBlurred: () => void;
   unlockVault: ({ port }: PortConnectionParam) => void;
@@ -148,7 +148,7 @@ type OverlayListPortMessageHandlers = {
   addNewVaultItem: ({ port }: PortConnectionParam) => void;
   viewSelectedCipher: ({ message, port }: PortOnMessageHandlerParams) => void;
   redirectAutofillInlineMenuFocusOut: ({ message, port }: PortOnMessageHandlerParams) => void;
-  updateAutofillOverlayListHeight: ({ message, port }: PortOnMessageHandlerParams) => void;
+  updateAutofillInlineMenuListHeight: ({ message, port }: PortOnMessageHandlerParams) => void;
 };
 
 interface OverlayBackground {
@@ -168,7 +168,7 @@ export {
   OverlayCipherData,
   OverlayAddNewItemMessage,
   OverlayBackgroundExtensionMessageHandlers,
-  OverlayButtonPortMessageHandlers,
-  OverlayListPortMessageHandlers,
+  InlineMenuButtonPortMessageHandlers,
+  InlineMenuListPortMessageHandlers,
   OverlayBackground,
 };
