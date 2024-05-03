@@ -281,7 +281,10 @@ describe("FilelessImporterBackground ", () => {
           expect(
             filelessImporterBackground["importNotificationsPort"].postMessage,
           ).toHaveBeenCalledWith({ command: "filelessImportCompleted" });
-          expect(filelessImporterBackground["syncService"].fullSync).toHaveBeenCalledWith(true);
+          expect(filelessImporterBackground["syncService"].fullSync).toHaveBeenCalledWith(
+            true,
+            "import",
+          );
         });
 
         it("posts a failed message if the import fails", async () => {
