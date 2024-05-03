@@ -117,7 +117,7 @@ const plugins = [
     chunks: ["overlay/list"],
   }),
   new HtmlWebpackPlugin({
-    template: "./src/autofill/overlay/inline-menu/pages/container/menu.html",
+    template: "./src/autofill/overlay/inline-menu/pages/menu-container/menu-container.html",
     filename: "overlay/menu.html",
     chunks: ["overlay/menu"],
   }),
@@ -179,7 +179,7 @@ const mainConfig = {
     "overlay/list":
       "./src/autofill/overlay/inline-menu/pages/list/bootstrap-autofill-inline-menu-list.ts",
     "overlay/menu":
-      "./src/autofill/overlay/inline-menu/pages/container/bootstrap-autofill-inline-menu-container.ts",
+      "./src/autofill/overlay/inline-menu/pages/menu-container/bootstrap-autofill-inline-menu-container.ts",
     "encrypt-worker": "../../libs/common/src/platform/services/cryptography/encrypt.worker.ts",
     "content/lp-fileless-importer": "./src/tools/content/lp-fileless-importer.ts",
     "content/send-on-installed-message": "./src/vault/content/send-on-installed-message.ts",
