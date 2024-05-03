@@ -96,7 +96,7 @@ type OverlayBackgroundExtensionMessageHandlers = {
   closeAutofillInlineMenu: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   autofillOverlayElementClosed: ({ message }: BackgroundMessageParam) => void;
   autofillOverlayAddNewVaultItem: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
-  getInlineMenuVisibilitySetting: () => void;
+  getAutofillInlineMenuVisibility: () => void;
   checkAutofillInlineMenuFocused: () => void;
   focusAutofillInlineMenuList: () => void;
   updateAutofillInlineMenuPosition: ({

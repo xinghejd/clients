@@ -638,7 +638,7 @@ describe("OverlayBackground", () => {
         });
       });
 
-      describe("getInlineMenuVisibilitySetting message handler", () => {
+      describe("getAutofillInlineMenuVisibility message handler", () => {
         beforeEach(() => {
           jest
             .spyOn(overlayBackground as any, "getInlineMenuVisibility")
@@ -646,7 +646,7 @@ describe("OverlayBackground", () => {
         });
 
         it("will set the overlayVisibility property", async () => {
-          sendMockExtensionMessage({ command: "getInlineMenuVisibilitySetting" });
+          sendMockExtensionMessage({ command: "getAutofillInlineMenuVisibility" });
           await flushPromises();
 
           expect(await overlayBackground["getInlineMenuVisibility"]()).toBe(
@@ -658,7 +658,7 @@ describe("OverlayBackground", () => {
           const sendMessageSpy = jest.fn();
 
           sendMockExtensionMessage(
-            { command: "getInlineMenuVisibilitySetting" },
+            { command: "getAutofillInlineMenuVisibility" },
             undefined,
             sendMessageSpy,
           );

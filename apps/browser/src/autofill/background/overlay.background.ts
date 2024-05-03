@@ -68,7 +68,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
     closeAutofillInlineMenu: ({ message, sender }) => this.closeInlineMenu(sender, message),
     autofillOverlayElementClosed: ({ message }) => this.overlayElementClosed(message),
     autofillOverlayAddNewVaultItem: ({ message, sender }) => this.addNewVaultItem(message, sender),
-    getInlineMenuVisibilitySetting: () => this.getInlineMenuVisibility(),
+    getAutofillInlineMenuVisibility: () => this.getInlineMenuVisibility(),
     checkAutofillInlineMenuFocused: () => this.checkInlineMenuFocused(),
     focusAutofillInlineMenuList: () => this.focusInlineMenuList(),
     updateAutofillInlineMenuPosition: ({ message, sender }) =>

@@ -94,7 +94,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     }
 
     if (!this.inlineMenuVisibility) {
-      await this.getInlineMenuVisibilitySetting();
+      await this.getAutofillInlineMenuVisibility();
     }
 
     this.setupFormFieldElementEventListeners(formFieldElement);
@@ -730,8 +730,8 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    * If the setting is not found, a default value of OnFieldFocus will be used
    * @private
    */
-  private async getInlineMenuVisibilitySetting() {
-    const overlayVisibility = await this.sendExtensionMessage("getInlineMenuVisibilitySetting");
+  private async getAutofillInlineMenuVisibility() {
+    const overlayVisibility = await this.sendExtensionMessage("getAutofillInlineMenuVisibility");
     this.inlineMenuVisibility = overlayVisibility || AutofillOverlayVisibility.OnFieldFocus;
   }
 
