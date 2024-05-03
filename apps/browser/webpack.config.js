@@ -175,7 +175,7 @@ const mainConfig = {
     "content/fido2/page-script": "./src/vault/fido2/content/page-script.ts",
     "notification/bar": "./src/autofill/notification/bar.ts",
     "overlay/button":
-      "./src/autofill/overlay/inline-menu/pages/button/bootstrap-autofill-overlay-button.ts",
+      "./src/autofill/overlay/inline-menu/pages/button/bootstrap-autofill-inline-menu-button.ts",
     "overlay/list":
       "./src/autofill/overlay/inline-menu/pages/list/bootstrap-autofill-overlay-list.ts",
     "overlay/menu":

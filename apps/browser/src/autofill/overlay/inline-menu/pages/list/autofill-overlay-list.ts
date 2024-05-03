@@ -9,10 +9,10 @@ import { globeIcon, lockIcon, plusIcon, viewCipherIcon } from "../../../../utils
 import {
   InitAutofillOverlayListMessage,
   OverlayListWindowMessageHandlers,
-} from "../../abstractions/autofill-overlay-list";
-import AutofillOverlayPageElement from "../shared/autofill-overlay-page-element";
+} from "../../abstractions/autofill-inline-menu-list";
+import { AutofillInlineMenuPageElement } from "../shared/autofill-inline-menu-page-element";
 
-class AutofillOverlayList extends AutofillOverlayPageElement {
+class AutofillOverlayList extends AutofillInlineMenuPageElement {
   private overlayListContainer: HTMLDivElement;
   private resizeObserver: ResizeObserver;
   private eventHandlersMemo: { [key: string]: EventListener } = {};
@@ -54,7 +54,12 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     ciphers,
     portKey,
   }: InitAutofillOverlayListMessage) {
-    const linkElement = await this.initOverlayPage("list", styleSheetUrl, translations, portKey);
+    const linkElement = await this.initAutofillInlineMenuPage(
+      "list",
+      styleSheetUrl,
+      translations,
+      portKey,
+    );
 
     const themeClass = `theme_${theme}`;
     globalThis.document.documentElement.classList.add(themeClass);

@@ -884,7 +884,7 @@ describe("AutofillOverlayContentService", () => {
     });
   });
 
-  describe("blurMostRecentOverlayField", () => {
+  describe("blurMostRecentlyFocusedField", () => {
     it("removes focus from the most recently focused overlay field", () => {
       const mostRecentlyFocusedField = document.createElement(
         "input",
@@ -892,7 +892,7 @@ describe("AutofillOverlayContentService", () => {
       autofillOverlayContentService["mostRecentlyFocusedField"] = mostRecentlyFocusedField;
       jest.spyOn(mostRecentlyFocusedField, "blur");
 
-      autofillOverlayContentService["blurMostRecentOverlayField"]();
+      autofillOverlayContentService["blurMostRecentlyFocusedField"]();
 
       expect(mostRecentlyFocusedField.blur).toHaveBeenCalled();
     });

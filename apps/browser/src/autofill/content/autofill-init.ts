@@ -1,7 +1,7 @@
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
 import AutofillPageDetails from "../models/autofill-page-details";
-import { AutofillOverlayInlineMenuElements } from "../overlay/inline-menu/abstractions/autofill-overlay-inline-menu-elements";
+import { AutofillInlineMenuContentService } from "../overlay/inline-menu/abstractions/autofill-inline-menu-content.service";
 import { AutofillOverlayContentService } from "../services/abstractions/autofill-overlay-content.service";
 import CollectAutofillContentService from "../services/collect-autofill-content.service";
 import DomElementVisibilityService from "../services/dom-element-visibility.service";
@@ -17,7 +17,7 @@ import {
 class AutofillInit implements AutofillInitInterface {
   private readonly sendExtensionMessage = sendExtensionMessage;
   private readonly autofillOverlayContentService: AutofillOverlayContentService | undefined;
-  private readonly inlineMenuElements: AutofillOverlayInlineMenuElements | undefined;
+  private readonly autofillInlineMenuContentService: AutofillInlineMenuContentService | undefined;
   private readonly domElementVisibilityService: DomElementVisibilityService;
   private readonly collectAutofillContentService: CollectAutofillContentService;
   private readonly insertAutofillContentService: InsertAutofillContentService;
@@ -37,7 +37,7 @@ class AutofillInit implements AutofillInitInterface {
    */
   constructor(
     autofillOverlayContentService?: AutofillOverlayContentService,
-    inlineMenuElements?: AutofillOverlayInlineMenuElements,
+    inlineMenuElements?: AutofillInlineMenuContentService,
   ) {
     this.autofillOverlayContentService = autofillOverlayContentService;
     if (this.autofillOverlayContentService) {
@@ -47,15 +47,17 @@ class AutofillInit implements AutofillInitInterface {
       );
     }
 
-    this.inlineMenuElements = inlineMenuElements;
-    if (this.inlineMenuElements) {
+    this.autofillInlineMenuContentService = inlineMenuElements;
+    if (this.autofillInlineMenuContentService) {
       this.extensionMessageHandlers = Object.assign(
         this.extensionMessageHandlers,
-        this.inlineMenuElements.extensionMessageHandlers,
+        this.autofillInlineMenuContentService.extensionMessageHandlers,
       );
     }
 
-    this.domElementVisibilityService = new DomElementVisibilityService(this.inlineMenuElements);
+    this.domElementVisibilityService = new DomElementVisibilityService(
+      this.autofillInlineMenuContentService,
+    );
     this.collectAutofillContentService = new CollectAutofillContentService(
       this.domElementVisibilityService,
       this.autofillOverlayContentService,
@@ -135,7 +137,7 @@ class AutofillInit implements AutofillInitInterface {
       return;
     }
 
-    this.blurAndRemoveOverlay();
+    this.blurAndRemoveInlineMenu();
     await this.sendExtensionMessage("updateIsFieldCurrentlyFilling", {
       isFieldCurrentlyFilling: true,
     });
@@ -155,8 +157,8 @@ class AutofillInit implements AutofillInitInterface {
    * in cases where the background unlock or vault item reprompt popout
    * is opened.
    */
-  private blurAndRemoveOverlay() {
-    this.autofillOverlayContentService?.blurMostRecentOverlayField(true);
+  private blurAndRemoveInlineMenu() {
+    this.autofillOverlayContentService?.blurMostRecentlyFocusedField(true);
   }
 
   /**
@@ -211,7 +213,7 @@ class AutofillInit implements AutofillInitInterface {
     chrome.runtime.onMessage.removeListener(this.handleExtensionMessage);
     this.collectAutofillContentService.destroy();
     this.autofillOverlayContentService?.destroy();
-    this.inlineMenuElements?.destroy();
+    this.autofillInlineMenuContentService?.destroy();
   }
 }
 

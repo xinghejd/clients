@@ -1,20 +1,20 @@
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
-import { createInitAutofillOverlayButtonMessageMock } from "../../../../spec/autofill-mocks";
+import { createInitAutofillInlineMenuButtonMessageMock } from "../../../../spec/autofill-mocks";
 import { flushPromises, postWindowMessage } from "../../../../spec/testing-utils";
 
-import AutofillOverlayButton from "./autofill-overlay-button";
+import AutofillInlineMenuButton from "./autofill-inline-menu-button";
 
-describe("AutofillOverlayButton", () => {
-  globalThis.customElements.define("autofill-overlay-button", AutofillOverlayButton);
+describe("AutofillInlineMenuButton", () => {
+  globalThis.customElements.define("autofill-inline-menu-button", AutofillInlineMenuButton);
 
-  let autofillOverlayButton: AutofillOverlayButton;
-  const portKey: string = "overlayButtonPortKey";
+  let autofillInlineMenuButton: AutofillInlineMenuButton;
+  const portKey: string = "inlineMenuButtonPortKey";
 
   beforeEach(() => {
-    document.body.innerHTML = `<autofill-overlay-button></autofill-overlay-button>`;
-    autofillOverlayButton = document.querySelector("autofill-overlay-button");
-    autofillOverlayButton["messageOrigin"] = "https://localhost/";
+    document.body.innerHTML = `<autofill-inline-menu-button></autofill-inline-menu-button>`;
+    autofillInlineMenuButton = document.querySelector("autofill-inline-menu-button");
+    autofillInlineMenuButton["messageOrigin"] = "https://localhost/";
     jest.spyOn(globalThis.document, "createElement");
     jest.spyOn(globalThis.parent, "postMessage");
   });
@@ -26,34 +26,34 @@ describe("AutofillOverlayButton", () => {
   describe("initAutofillInlineMenuButton", () => {
     it("creates the button element with the locked icon when the user's auth status is not Unlocked", async () => {
       postWindowMessage(
-        createInitAutofillOverlayButtonMessageMock({
+        createInitAutofillInlineMenuButtonMessageMock({
           authStatus: AuthenticationStatus.Locked,
           portKey,
         }),
       );
       await flushPromises();
 
-      expect(autofillOverlayButton["buttonElement"]).toMatchSnapshot();
-      expect(autofillOverlayButton["buttonElement"].querySelector("svg")).toBe(
-        autofillOverlayButton["logoLockedIconElement"],
+      expect(autofillInlineMenuButton["buttonElement"]).toMatchSnapshot();
+      expect(autofillInlineMenuButton["buttonElement"].querySelector("svg")).toBe(
+        autofillInlineMenuButton["logoLockedIconElement"],
       );
     });
 
     it("creates the button element with the normal icon when the user's auth status is Unlocked ", async () => {
-      postWindowMessage(createInitAutofillOverlayButtonMessageMock({ portKey }));
+      postWindowMessage(createInitAutofillInlineMenuButtonMessageMock({ portKey }));
       await flushPromises();
 
-      expect(autofillOverlayButton["buttonElement"]).toMatchSnapshot();
-      expect(autofillOverlayButton["buttonElement"].querySelector("svg")).toBe(
-        autofillOverlayButton["logoIconElement"],
+      expect(autofillInlineMenuButton["buttonElement"]).toMatchSnapshot();
+      expect(autofillInlineMenuButton["buttonElement"].querySelector("svg")).toBe(
+        autofillInlineMenuButton["logoIconElement"],
       );
     });
 
     it("posts a message to the background indicating that the icon was clicked", async () => {
-      postWindowMessage(createInitAutofillOverlayButtonMessageMock({ portKey }));
+      postWindowMessage(createInitAutofillInlineMenuButtonMessageMock({ portKey }));
       await flushPromises();
 
-      autofillOverlayButton["buttonElement"].click();
+      autofillInlineMenuButton["buttonElement"].click();
 
       expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
         { command: "autofillInlineMenuButtonClicked", portKey },
@@ -64,10 +64,10 @@ describe("AutofillOverlayButton", () => {
 
   describe("global event listeners", () => {
     beforeEach(() => {
-      postWindowMessage(createInitAutofillOverlayButtonMessageMock({ portKey }));
+      postWindowMessage(createInitAutofillInlineMenuButtonMessageMock({ portKey }));
     });
 
-    it("does not post a message to close the autofill overlay if the element is focused during the focus check", async () => {
+    it("does not post a message to close the autofill inline menu if the element is focused during the focus check", async () => {
       jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(true);
 
       postWindowMessage({ command: "checkAutofillInlineMenuButtonFocused" });
@@ -78,7 +78,7 @@ describe("AutofillOverlayButton", () => {
       });
     });
 
-    it("posts a message to close the autofill overlay if the element is not focused during the focus check", async () => {
+    it("posts a message to close the autofill inline menu if the element is not focused during the focus check", async () => {
       jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(false);
 
       postWindowMessage({ command: "checkAutofillInlineMenuButtonFocused" });
@@ -91,15 +91,15 @@ describe("AutofillOverlayButton", () => {
     });
 
     it("updates the user's auth status", async () => {
-      autofillOverlayButton["authStatus"] = AuthenticationStatus.Locked;
+      autofillInlineMenuButton["authStatus"] = AuthenticationStatus.Locked;
 
       postWindowMessage({
-        command: "updateAutofillOverlayButtonAuthStatus",
+        command: "updateAutofillInlineMenuButtonAuthStatus",
         authStatus: AuthenticationStatus.Unlocked,
       });
       await flushPromises();
 
-      expect(autofillOverlayButton["authStatus"]).toBe(AuthenticationStatus.Unlocked);
+      expect(autofillInlineMenuButton["authStatus"]).toBe(AuthenticationStatus.Unlocked);
     });
 
     it("updates the page color scheme meta tag", async () => {

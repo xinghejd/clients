@@ -4,7 +4,7 @@ import { setElementStyles } from "../../../../utils";
 import {
   InitOverlayElementMessage,
   AutofillOverlayMenuContainerWindowMessageHandlers,
-} from "../../abstractions/autofill-overlay-menu-container";
+} from "../../abstractions/autofill-inline-menu-container";
 
 export class AutofillOverlayMenuContainer {
   private extensionOriginsSet: Set<string>;

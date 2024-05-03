@@ -14,12 +14,12 @@ body {
   background: transparent;
   overflow: hidden;
 }
-autofill-overlay-button {
+autofill-inline-menu-button {
   width: 100%;
   height: auto;
 }
 
-.overlay-button {
+.inline-menu-button {
   display: block;
   width: 100%;
   padding: 0;
@@ -28,7 +28,7 @@ autofill-overlay-button {
   background: transparent;
   cursor: pointer;
 
-  .overlay-button-svg-icon {
+  .inline-menu-button-svg-icon {
     display: block;
     width: 100%;
     height: auto;

@@ -1,17 +1,17 @@
 import { AutofillOverlayPort } from "../../../enums/autofill-overlay.enum";
 
-import AutofillOverlayIframeElement from "./autofill-overlay-iframe-element";
-import AutofillOverlayIframeService from "./autofill-overlay-iframe.service";
+import { AutofillInlineMenuIframeElement } from "./autofill-inline-menu-iframe-element";
+import { AutofillInlineMenuIframeService } from "./autofill-inline-menu-iframe.service";
 
-jest.mock("./autofill-overlay-iframe.service");
+jest.mock("./autofill-inline-menu-iframe.service");
 
-describe("AutofillOverlayIframeElement", () => {
+describe("AutofillInlineMenuIframeElement", () => {
   window.customElements.define(
-    "autofill-overlay-iframe",
+    "autofill-inline-menu-iframe",
     class extends HTMLElement {
       constructor() {
         super();
-        new AutofillOverlayIframeElement(
+        new AutofillInlineMenuIframeElement(
           this,
           AutofillOverlayPort.Button,
           { background: "transparent", border: "none" },
@@ -26,22 +26,22 @@ describe("AutofillOverlayIframeElement", () => {
   });
 
   it("creates a custom element that is an instance of the HTMLElement parent class", () => {
-    document.body.innerHTML = "<autofill-overlay-iframe></autofill-overlay-iframe>";
+    document.body.innerHTML = "<autofill-inline-menu-iframe></autofill-inline-menu-iframe>";
 
-    const iframe = document.querySelector("autofill-overlay-iframe");
+    const iframe = document.querySelector("autofill-inline-menu-iframe");
 
     expect(iframe).toBeInstanceOf(HTMLElement);
   });
 
   it("attaches a closed shadow DOM", () => {
-    document.body.innerHTML = "<autofill-overlay-iframe></autofill-overlay-iframe>";
+    document.body.innerHTML = "<autofill-inline-menu-iframe></autofill-inline-menu-iframe>";
 
-    const iframe = document.querySelector("autofill-overlay-iframe");
+    const iframe = document.querySelector("autofill-inline-menu-iframe");
 
     expect(iframe.shadowRoot).toBeNull();
   });
 
   it("instantiates the autofill overlay iframe service for each attached custom element", () => {
-    expect(AutofillOverlayIframeService).toHaveBeenCalledTimes(2);
+    expect(AutofillInlineMenuIframeService).toHaveBeenCalledTimes(2);
   });
 });

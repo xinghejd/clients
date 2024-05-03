@@ -1,6 +1,6 @@
-import AutofillOverlayIframeService from "./autofill-overlay-iframe.service";
+import { AutofillInlineMenuIframeService } from "./autofill-inline-menu-iframe.service";
 
-class AutofillOverlayIframeElement {
+export class AutofillInlineMenuIframeElement {
   constructor(
     element: HTMLElement,
     portName: string,
@@ -9,7 +9,7 @@ class AutofillOverlayIframeElement {
     ariaAlert?: string,
   ) {
     const shadow: ShadowRoot = element.attachShadow({ mode: "closed" });
-    const autofillOverlayIframeService = new AutofillOverlayIframeService(
+    const autofillOverlayIframeService = new AutofillInlineMenuIframeService(
       shadow,
       portName,
       initStyles,
@@ -19,5 +19,3 @@ class AutofillOverlayIframeElement {
     autofillOverlayIframeService.initMenuIframe();
   }
 }
-
-export default AutofillOverlayIframeElement;

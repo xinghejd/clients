@@ -2,16 +2,16 @@ import { EVENTS } from "@bitwarden/common/autofill/constants";
 
 import { RedirectFocusDirection } from "../../../../enums/autofill-overlay.enum";
 import {
-  AutofillOverlayPageElementWindowMessage,
-  AutofillOverlayPageElementWindowMessageHandlers,
-} from "../../abstractions/autofill-overlay-page-element";
+  AutofillInlineMenuPageElementWindowMessage,
+  AutofillInlineMenuPageElementWindowMessageHandlers,
+} from "../../abstractions/autofill-inline-menu-page-element";
 
-class AutofillOverlayPageElement extends HTMLElement {
+export class AutofillInlineMenuPageElement extends HTMLElement {
   protected shadowDom: ShadowRoot;
   protected messageOrigin: string;
   protected translations: Record<string, string>;
   private portKey: string;
-  protected windowMessageHandlers: AutofillOverlayPageElementWindowMessageHandlers;
+  protected windowMessageHandlers: AutofillInlineMenuPageElementWindowMessageHandlers;
 
   constructor() {
     super();
@@ -28,7 +28,7 @@ class AutofillOverlayPageElement extends HTMLElement {
    * @param translations - The translations to apply to the page
    * @param portKey - Background generated key that allows the port to communicate with the background
    */
-  protected async initOverlayPage(
+  protected async initAutofillInlineMenuPage(
     elementName: "button" | "list",
     styleSheetUrl: string,
     translations: Record<string, string>,
@@ -53,7 +53,7 @@ class AutofillOverlayPageElement extends HTMLElement {
    *
    * @param message - The message to post
    */
-  protected postMessageToParent(message: AutofillOverlayPageElementWindowMessage) {
+  protected postMessageToParent(message: AutofillInlineMenuPageElementWindowMessage) {
     globalThis.parent.postMessage({ portKey: this.portKey, ...message }, "*");
   }
 
@@ -73,7 +73,7 @@ class AutofillOverlayPageElement extends HTMLElement {
    * @param windowMessageHandlers - The window message handlers to use
    */
   protected setupGlobalListeners(
-    windowMessageHandlers: AutofillOverlayPageElementWindowMessageHandlers,
+    windowMessageHandlers: AutofillInlineMenuPageElementWindowMessageHandlers,
   ) {
     this.windowMessageHandlers = windowMessageHandlers;
 
@@ -133,25 +133,23 @@ class AutofillOverlayPageElement extends HTMLElement {
     event.stopPropagation();
 
     if (event.code === "Tab") {
-      this.redirectOverlayFocusOutMessage(
+      this.sendRedirectFocusOutMessage(
         event.shiftKey ? RedirectFocusDirection.Previous : RedirectFocusDirection.Next,
       );
       return;
     }
 
-    this.redirectOverlayFocusOutMessage(RedirectFocusDirection.Current);
+    this.sendRedirectFocusOutMessage(RedirectFocusDirection.Current);
   };
 
   /**
-   * Redirects the overlay focus out to the previous element on KeyDown of the `Tab+Shift` keys.
-   * Redirects the overlay focus out to the next element on KeyDown of the `Tab` key.
-   * Redirects the overlay focus out to the current element on KeyDown of the `Escape` key.
+   * Redirects the inline menu focus out to the previous element on KeyDown of the `Tab+Shift` keys.
+   * Redirects the inline menu focus out to the next element on KeyDown of the `Tab` key.
+   * Redirects the inline menu focus out to the current element on KeyDown of the `Escape` key.
    *
    * @param direction - The direction to redirect the focus out
    */
-  private redirectOverlayFocusOutMessage(direction: string) {
+  private sendRedirectFocusOutMessage(direction: string) {
     this.postMessageToParent({ command: "redirectAutofillInlineMenuFocusOut", direction });
   }
 }
-
-export default AutofillOverlayPageElement;

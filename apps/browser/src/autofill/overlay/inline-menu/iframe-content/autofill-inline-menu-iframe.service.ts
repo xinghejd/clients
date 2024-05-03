@@ -4,11 +4,11 @@ import { ThemeType } from "@bitwarden/common/platform/enums";
 import { sendExtensionMessage, setElementStyles } from "../../../utils";
 import {
   BackgroundPortMessageHandlers,
-  AutofillOverlayIframeService as AutofillOverlayIframeServiceInterface,
+  AutofillInlineMenuIframeService as AutofillOverlayIframeServiceInterface,
   AutofillOverlayIframeExtensionMessage,
-} from "../abstractions/autofill-overlay-iframe.service";
+} from "../abstractions/autofill-inline-menu-iframe.service";
 
-class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterface {
+export class AutofillInlineMenuIframeService implements AutofillOverlayIframeServiceInterface {
   private sendExtensionMessage = sendExtensionMessage;
   private port: chrome.runtime.Port | null = null;
   private portKey: string;
@@ -405,5 +405,3 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
     return false;
   }
 }
-
-export default AutofillOverlayIframeService;

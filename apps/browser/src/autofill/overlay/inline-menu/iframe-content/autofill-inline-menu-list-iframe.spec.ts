@@ -1,12 +1,12 @@
-import AutofillOverlayButtonIframe from "./autofill-overlay-button-iframe";
+import AutofillInlineMenuListIframe from "./autofill-inline-menu-list-iframe";
 
-describe("AutofillOverlayButtonIframe", () => {
+describe("AutofillOverlayListIframe", () => {
   window.customElements.define(
-    "autofill-overlay-button-iframe",
+    "autofill-overlay-list-iframe",
     class extends HTMLElement {
       constructor() {
         super();
-        new AutofillOverlayButtonIframe(this);
+        new AutofillInlineMenuListIframe(this);
       }
     },
   );
@@ -16,9 +16,9 @@ describe("AutofillOverlayButtonIframe", () => {
   });
 
   it("creates a custom element that is an instance of the AutofillIframeElement parent class", () => {
-    document.body.innerHTML = "<autofill-overlay-button-iframe></autofill-overlay-button-iframe>";
+    document.body.innerHTML = "<autofill-overlay-list-iframe></autofill-overlay-list-iframe>";
 
-    const iframe = document.querySelector("autofill-overlay-button-iframe");
+    const iframe = document.querySelector("autofill-overlay-list-iframe");
 
     expect(iframe).toBeInstanceOf(HTMLElement);
     expect(iframe.shadowRoot).toBeDefined();

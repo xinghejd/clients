@@ -2,7 +2,7 @@ import { mock, MockProxy } from "jest-mock-extended";
 
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
-import { AutofillOverlayInlineMenuElements } from "../overlay/inline-menu/content/autofill-overlay-inline-menu-elements";
+import { AutofillInlineMenuContentService } from "../overlay/inline-menu/content/autofill-inline-menu-content.service";
 import AutofillOverlayContentService from "../services/autofill-overlay-content.service";
 import { flushPromises, sendMockExtensionMessage } from "../spec/testing-utils";
 
@@ -10,7 +10,7 @@ import { AutofillExtensionMessage } from "./abstractions/autofill-init";
 import AutofillInit from "./autofill-init";
 
 describe("AutofillInit", () => {
-  let inlineMenuElements: MockProxy<AutofillOverlayInlineMenuElements>;
+  let inlineMenuElements: MockProxy<AutofillInlineMenuContentService>;
   let autofillOverlayContentService: MockProxy<AutofillOverlayContentService>;
   let autofillInit: AutofillInit;
   const originalDocumentReadyState = document.readyState;
@@ -22,7 +22,7 @@ describe("AutofillInit", () => {
         addListener: jest.fn(),
       },
     });
-    inlineMenuElements = mock<AutofillOverlayInlineMenuElements>();
+    inlineMenuElements = mock<AutofillInlineMenuContentService>();
     autofillOverlayContentService = mock<AutofillOverlayContentService>();
     autofillInit = new AutofillInit(autofillOverlayContentService, inlineMenuElements);
     sendExtensionMessageSpy = jest
@@ -237,7 +237,10 @@ describe("AutofillInit", () => {
         });
 
         it("removes the overlay when filling the form", async () => {
-          const blurAndRemoveOverlaySpy = jest.spyOn(autofillInit as any, "blurAndRemoveOverlay");
+          const blurAndRemoveOverlaySpy = jest.spyOn(
+            autofillInit as any,
+            "blurAndRemoveInlineMenu",
+          );
           sendMockExtensionMessage({
             command: "fillForm",
             fillScript,

@@ -7,12 +7,12 @@ import {
 } from "../../../utils";
 import {
   InlineMenuExtensionMessageHandlers,
-  AutofillOverlayInlineMenuElements as InlineMenuElementsInterface,
-} from "../abstractions/autofill-overlay-inline-menu-elements";
-import AutofillOverlayButtonIframe from "../iframe-content/autofill-overlay-button-iframe";
-import AutofillOverlayListIframe from "../iframe-content/autofill-overlay-list-iframe";
+  AutofillInlineMenuContentService as AutofillInlineMenuContentServiceInterface,
+} from "../abstractions/autofill-inline-menu-content.service";
+import { AutofillInlineMenuButtonIframe } from "../iframe-content/autofill-inline-menu-button-iframe";
+import AutofillInlineMenuListIframe from "../iframe-content/autofill-inline-menu-list-iframe";
 
-export class AutofillOverlayInlineMenuElements implements InlineMenuElementsInterface {
+export class AutofillInlineMenuContentService implements AutofillInlineMenuContentServiceInterface {
   private readonly sendExtensionMessage = sendExtensionMessage;
   private readonly generateRandomCustomElementName = generateRandomCustomElementName;
   private readonly setElementStyles = setElementStyles;
@@ -193,7 +193,7 @@ export class AutofillOverlayInlineMenuElements implements InlineMenuElementsInte
 
     if (this.isFirefoxBrowser) {
       this.buttonElement = globalThis.document.createElement("div");
-      new AutofillOverlayButtonIframe(this.buttonElement);
+      new AutofillInlineMenuButtonIframe(this.buttonElement);
 
       return;
     }
@@ -204,7 +204,7 @@ export class AutofillOverlayInlineMenuElements implements InlineMenuElementsInte
       class extends HTMLElement {
         constructor() {
           super();
-          new AutofillOverlayButtonIframe(this);
+          new AutofillInlineMenuButtonIframe(this);
         }
       },
     );
@@ -222,7 +222,7 @@ export class AutofillOverlayInlineMenuElements implements InlineMenuElementsInte
 
     if (this.isFirefoxBrowser) {
       this.listElement = globalThis.document.createElement("div");
-      new AutofillOverlayListIframe(this.listElement);
+      new AutofillInlineMenuListIframe(this.listElement);
 
       return;
     }
@@ -233,7 +233,7 @@ export class AutofillOverlayInlineMenuElements implements InlineMenuElementsInte
       class extends HTMLElement {
         constructor() {
           super();
-          new AutofillOverlayListIframe(this);
+          new AutofillInlineMenuListIframe(this);
         }
       },
     );
@@ -415,7 +415,7 @@ export class AutofillOverlayInlineMenuElements implements InlineMenuElementsInte
     if (this.mutationObserverIterations > 100) {
       clearTimeout(this.mutationObserverIterationsResetTimeout);
       this.mutationObserverIterations = 0;
-      void this.sendExtensionMessage("blurMostRecentOverlayField");
+      void this.sendExtensionMessage("blurMostRecentlyFocusedField");
       this.removeInlineMenu();
 
       return true;

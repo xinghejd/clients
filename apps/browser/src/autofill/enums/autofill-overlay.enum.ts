@@ -1,11 +1,11 @@
 const AutofillOverlayElement = {
-  Button: "autofill-overlay-button",
+  Button: "autofill-inline-menu-button",
   List: "autofill-overlay-list",
 } as const;
 
 const AutofillOverlayPort = {
-  Button: "autofill-overlay-button-port",
-  ButtonMessageConnector: "autofill-overlay-button-message-connector",
+  Button: "autofill-inline-menu-button-port",
+  ButtonMessageConnector: "autofill-inline-menu-button-message-connector",
   List: "autofill-overlay-list-port",
   ListMessageConnector: "autofill-overlay-list-message-connector",
 } as const;

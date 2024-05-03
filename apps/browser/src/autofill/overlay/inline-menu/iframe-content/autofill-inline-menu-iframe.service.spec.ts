@@ -11,10 +11,10 @@ import {
   triggerPortOnDisconnectEvent,
 } from "../../../spec/testing-utils";
 
-import AutofillOverlayIframeService from "./autofill-overlay-iframe.service";
+import { AutofillInlineMenuIframeService } from "./autofill-inline-menu-iframe.service";
 
 describe("AutofillOverlayIframeService", () => {
-  let autofillOverlayIframeService: AutofillOverlayIframeService;
+  let autofillOverlayIframeService: AutofillInlineMenuIframeService;
   let portSpy: chrome.runtime.Port;
   let shadowAppendSpy: jest.SpyInstance;
   let handlePortDisconnectSpy: jest.SpyInstance;
@@ -23,7 +23,7 @@ describe("AutofillOverlayIframeService", () => {
 
   beforeEach(() => {
     const shadow = document.createElement("div").attachShadow({ mode: "open" });
-    autofillOverlayIframeService = new AutofillOverlayIframeService(
+    autofillOverlayIframeService = new AutofillInlineMenuIframeService(
       shadow,
       AutofillOverlayPort.Button,
       { height: "0px" },

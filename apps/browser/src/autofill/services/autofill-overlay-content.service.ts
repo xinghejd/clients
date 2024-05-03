@@ -43,9 +43,9 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   readonly extensionMessageHandlers: AutofillOverlayContentExtensionMessageHandlers = {
     openAutofillInlineMenu: ({ message }) => this.openAutofillInlineMenu(message),
     addNewVaultItemFromOverlay: () => this.addNewVaultItem(),
-    blurMostRecentOverlayField: () => this.blurMostRecentOverlayField(),
-    bgUnlockPopoutOpened: () => this.blurMostRecentOverlayField(true),
-    bgVaultItemRepromptPopoutOpened: () => this.blurMostRecentOverlayField(true),
+    blurMostRecentlyFocusedField: () => this.blurMostRecentlyFocusedField(),
+    bgUnlockPopoutOpened: () => this.blurMostRecentlyFocusedField(true),
+    bgVaultItemRepromptPopoutOpened: () => this.blurMostRecentlyFocusedField(true),
     redirectAutofillInlineMenuFocusOut: ({ message }) =>
       this.redirectInlineMenuFocusOut(message?.data?.direction),
     updateAutofillInlineMenuVisibility: ({ message }) =>
@@ -154,10 +154,10 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   /**
    * Removes focus from the most recently focused field element.
    */
-  blurMostRecentOverlayField(isRemovingOverlay: boolean = false) {
+  blurMostRecentlyFocusedField(isRemovingInlineMenu: boolean = false) {
     this.mostRecentlyFocusedField?.blur();
 
-    if (isRemovingOverlay) {
+    if (isRemovingInlineMenu) {
       void sendExtensionMessage("closeAutofillInlineMenu");
     }
   }

@@ -23,7 +23,7 @@ type BackgroundPortMessageHandlers = {
   updateAutofillInlineMenuColorScheme: () => void;
 };
 
-interface AutofillOverlayIframeService {
+interface AutofillInlineMenuIframeService {
   initMenuIframe(): void;
 }
 
@@ -31,5 +31,5 @@ export {
   AutofillOverlayIframeExtensionMessage,
   AutofillOverlayIframeWindowMessageHandlers,
   BackgroundPortMessageHandlers,
-  AutofillOverlayIframeService,
+  AutofillInlineMenuIframeService,
 };

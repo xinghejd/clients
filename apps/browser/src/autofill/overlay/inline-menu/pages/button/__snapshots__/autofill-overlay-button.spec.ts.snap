@@ -3,13 +3,13 @@
 exports[`AutofillOverlayButton initAutofillOverlayButton creates the button element with the locked icon when the user's auth status is not Unlocked 1`] = `
 <button
   aria-label="toggleBitwardenVaultOverlay"
-  class="overlay-button"
+  class="inline-menu-button"
   tabindex="-1"
   type="button"
 >
   <svg
     aria-hidden="true"
-    class="overlay-button-svg-icon logo-locked-icon"
+    class="inline-menu-button-svg-icon logo-locked-icon"
     fill="none"
     height="16"
     viewBox="0 0 16 16"
@@ -57,13 +57,13 @@ exports[`AutofillOverlayButton initAutofillOverlayButton creates the button elem
 exports[`AutofillOverlayButton initAutofillOverlayButton creates the button element with the normal icon when the user's auth status is Unlocked  1`] = `
 <button
   aria-label="toggleBitwardenVaultOverlay"
-  class="overlay-button"
+  class="inline-menu-button"
   tabindex="-1"
   type="button"
 >
   <svg
     aria-hidden="true"
-    class="overlay-button-svg-icon logo-icon"
+    class="inline-menu-button-svg-icon logo-icon"
     fill="none"
     height="14"
     viewBox="0 0 14 14"

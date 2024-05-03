@@ -12,8 +12,8 @@ import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript, { FillScript } from "../models/autofill-script";
-import { InitAutofillOverlayButtonMessage } from "../overlay/inline-menu/abstractions/autofill-overlay-button";
-import { InitAutofillOverlayListMessage } from "../overlay/inline-menu/abstractions/autofill-overlay-list";
+import { InitAutofillInlineMenuButtonMessage } from "../overlay/inline-menu/abstractions/autofill-inline-menu-button";
+import { InitAutofillOverlayListMessage } from "../overlay/inline-menu/abstractions/autofill-inline-menu-list";
 import { GenerateFillScriptOptions, PageDetail } from "../services/abstractions/autofill.service";
 
 function createAutofillFormMock(customFields = {}): AutofillForm {
@@ -165,9 +165,9 @@ const overlayPagesTranslations = {
   newItem: "newItem",
   addNewVaultItem: "addNewVaultItem",
 };
-function createInitAutofillOverlayButtonMessageMock(
+function createInitAutofillInlineMenuButtonMessageMock(
   customFields = {},
-): InitAutofillOverlayButtonMessage {
+): InitAutofillInlineMenuButtonMessage {
   return {
     command: "initAutofillInlineMenuButton",
     translations: overlayPagesTranslations,
@@ -297,7 +297,7 @@ export {
   createChromeTabMock,
   createGenerateFillScriptOptionsMock,
   createAutofillScriptMock,
-  createInitAutofillOverlayButtonMessageMock,
+  createInitAutofillInlineMenuButtonMessageMock,
   createInitAutofillOverlayListMessageMock,
   createFocusedFieldDataMock,
   createPortSpyMock,

@@ -15,7 +15,7 @@ export type AutofillOverlayContentExtensionMessageHandlers = {
   [key: string]: CallableFunction;
   openAutofillInlineMenu: ({ message }: AutofillExtensionMessageParam) => void;
   addNewVaultItemFromOverlay: () => void;
-  blurMostRecentOverlayField: () => void;
+  blurMostRecentlyFocusedField: () => void;
   bgUnlockPopoutOpened: () => void;
   bgVaultItemRepromptPopoutOpened: () => void;
   redirectAutofillInlineMenuFocusOut: ({ message }: AutofillExtensionMessageParam) => void;
@@ -32,6 +32,6 @@ export interface AutofillOverlayContentService {
     autofillFieldElement: ElementWithOpId<FormFieldElement>,
     autofillFieldData: AutofillField,
   ): Promise<void>;
-  blurMostRecentOverlayField(isRemovingOverlay?: boolean): void;
+  blurMostRecentlyFocusedField(isRemovingInlineMenu?: boolean): void;
   destroy(): void;
 }

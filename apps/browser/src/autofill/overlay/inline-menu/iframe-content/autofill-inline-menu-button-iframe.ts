@@ -1,8 +1,8 @@
 import { AutofillOverlayPort } from "../../../enums/autofill-overlay.enum";
 
-import AutofillOverlayIframeElement from "./autofill-overlay-iframe-element";
+import { AutofillInlineMenuIframeElement } from "./autofill-inline-menu-iframe-element";
 
-class AutofillOverlayButtonIframe extends AutofillOverlayIframeElement {
+export class AutofillInlineMenuButtonIframe extends AutofillInlineMenuIframeElement {
   constructor(element: HTMLElement) {
     super(
       element,
@@ -16,5 +16,3 @@ class AutofillOverlayButtonIframe extends AutofillOverlayIframeElement {
     );
   }
 }
-
-export default AutofillOverlayButtonIframe;

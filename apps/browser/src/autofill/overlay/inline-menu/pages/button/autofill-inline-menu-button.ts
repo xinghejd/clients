@@ -6,37 +6,38 @@ import { EVENTS } from "@bitwarden/common/autofill/constants";
 import { buildSvgDomElement } from "../../../../utils";
 import { logoIcon, logoLockedIcon } from "../../../../utils/svg-icons";
 import {
-  InitAutofillOverlayButtonMessage,
-  OverlayButtonMessage,
-  OverlayButtonWindowMessageHandlers,
-} from "../../abstractions/autofill-overlay-button";
-import AutofillOverlayPageElement from "../shared/autofill-overlay-page-element";
+  InitAutofillInlineMenuButtonMessage,
+  AutofillInlineMenuButtonMessage,
+  AutofillInlineMenuButtonWindowMessageHandlers,
+} from "../../abstractions/autofill-inline-menu-button";
+import { AutofillInlineMenuPageElement } from "../shared/autofill-inline-menu-page-element";
 
-class AutofillOverlayButton extends AutofillOverlayPageElement {
+class AutofillInlineMenuButton extends AutofillInlineMenuPageElement {
   private authStatus: AuthenticationStatus = AuthenticationStatus.LoggedOut;
   private readonly buttonElement: HTMLButtonElement;
   private readonly logoIconElement: HTMLElement;
   private readonly logoLockedIconElement: HTMLElement;
-  private readonly overlayButtonWindowMessageHandlers: OverlayButtonWindowMessageHandlers = {
-    initAutofillInlineMenuButton: ({ message }) => this.initAutofillInlineMenuButton(message),
-    checkAutofillInlineMenuButtonFocused: () => this.checkButtonFocused(),
-    updateAutofillOverlayButtonAuthStatus: ({ message }) =>
-      this.updateAuthStatus(message.authStatus),
-    updateAutofillInlineMenuColorScheme: ({ message }) => this.updatePageColorScheme(message),
-  };
+  private readonly inlineMenuButtonWindowMessageHandlers: AutofillInlineMenuButtonWindowMessageHandlers =
+    {
+      initAutofillInlineMenuButton: ({ message }) => this.initAutofillInlineMenuButton(message),
+      checkAutofillInlineMenuButtonFocused: () => this.checkButtonFocused(),
+      updateAutofillInlineMenuButtonAuthStatus: ({ message }) =>
+        this.updateAuthStatus(message.authStatus),
+      updateAutofillInlineMenuColorScheme: ({ message }) => this.updatePageColorScheme(message),
+    };
 
   constructor() {
     super();
 
     this.buttonElement = globalThis.document.createElement("button");
 
-    this.setupGlobalListeners(this.overlayButtonWindowMessageHandlers);
+    this.setupGlobalListeners(this.inlineMenuButtonWindowMessageHandlers);
 
     this.logoIconElement = buildSvgDomElement(logoIcon);
-    this.logoIconElement.classList.add("overlay-button-svg-icon", "logo-icon");
+    this.logoIconElement.classList.add("inline-menu-button-svg-icon", "logo-icon");
 
     this.logoLockedIconElement = buildSvgDomElement(logoLockedIcon);
-    this.logoLockedIconElement.classList.add("overlay-button-svg-icon", "logo-locked-icon");
+    this.logoLockedIconElement.classList.add("inline-menu-button-svg-icon", "logo-locked-icon");
   }
 
   /**
@@ -53,11 +54,16 @@ class AutofillOverlayButton extends AutofillOverlayPageElement {
     styleSheetUrl,
     translations,
     portKey,
-  }: InitAutofillOverlayButtonMessage) {
-    const linkElement = await this.initOverlayPage("button", styleSheetUrl, translations, portKey);
+  }: InitAutofillInlineMenuButtonMessage) {
+    const linkElement = await this.initAutofillInlineMenuPage(
+      "button",
+      styleSheetUrl,
+      translations,
+      portKey,
+    );
     this.buttonElement.tabIndex = -1;
     this.buttonElement.type = "button";
-    this.buttonElement.classList.add("overlay-button");
+    this.buttonElement.classList.add("inline-menu-button");
     this.buttonElement.setAttribute(
       "aria-label",
       this.getTranslation("toggleBitwardenVaultOverlay"),
@@ -93,7 +99,7 @@ class AutofillOverlayButton extends AutofillOverlayPageElement {
    *
    * @param colorScheme - The color scheme of the iframe's parent page
    */
-  private updatePageColorScheme({ colorScheme }: OverlayButtonMessage) {
+  private updatePageColorScheme({ colorScheme }: AutofillInlineMenuButtonMessage) {
     const colorSchemeMetaTag = globalThis.document.querySelector("meta[name='color-scheme']");
     colorSchemeMetaTag?.setAttribute("content", colorScheme);
   }
@@ -119,4 +125,4 @@ class AutofillOverlayButton extends AutofillOverlayPageElement {
   }
 }
 
-export default AutofillOverlayButton;
+export default AutofillInlineMenuButton;
