@@ -153,7 +153,7 @@ class AutofillInit implements AutofillInitInterface {
   }
 
   /**
-   * Blurs the most recent overlay field and removes the overlay. Used
+   * Blurs the most recently focused field and removes the inline menu. Used
    * in cases where the background unlock or vault item reprompt popout
    * is opened.
    */
