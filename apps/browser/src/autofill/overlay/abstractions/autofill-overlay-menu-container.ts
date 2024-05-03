@@ -20,6 +20,6 @@ export type InitOverlayElementMessage = AutofillOverlayMenuContainerMessage & {
 
 export type AutofillOverlayMenuContainerWindowMessageHandlers = {
   [key: string]: CallableFunction;
-  initAutofillOverlayList: (message: InitOverlayElementMessage) => void;
-  initAutofillOverlayButton: (message: InitOverlayElementMessage) => void;
+  initAutofillInlineMenuList: (message: InitOverlayElementMessage) => void;
+  initAutofillInlineMenuButton: (message: InitOverlayElementMessage) => void;
 };

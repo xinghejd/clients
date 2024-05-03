@@ -37,8 +37,8 @@ export class AutofillOverlayMenuContainer {
     tabIndex: "-1",
   };
   private windowMessageHandlers: AutofillOverlayMenuContainerWindowMessageHandlers = {
-    initAutofillOverlayList: (message) => this.handleInitOverlayIframe(message),
-    initAutofillOverlayButton: (message) => this.handleInitOverlayIframe(message),
+    initAutofillInlineMenuList: (message) => this.handleInitOverlayIframe(message),
+    initAutofillInlineMenuButton: (message) => this.handleInitOverlayIframe(message),
   };
 
   constructor() {

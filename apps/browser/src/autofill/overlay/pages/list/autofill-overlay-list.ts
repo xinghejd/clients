@@ -23,7 +23,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
   private currentCipherIndex = 0;
   private readonly showCiphersPerPage = 6;
   private readonly overlayListWindowMessageHandlers: OverlayListWindowMessageHandlers = {
-    initAutofillOverlayList: ({ message }) => this.initAutofillOverlayList(message),
+    initAutofillInlineMenuList: ({ message }) => this.initAutofillInlineMenuList(message),
     checkAutofillInlineMenuListFocused: () => this.checkInlineMenuListFocused(),
     updateOverlayListCiphers: ({ message }) => this.updateListItems(message.ciphers),
     focusInlineMenuList: () => this.focusInlineMenuList(),
@@ -46,7 +46,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
    * @param ciphers - The ciphers to display in the overlay list.
    * @param portKey - Background generated key that allows the port to communicate with the background.
    */
-  private async initAutofillOverlayList({
+  private async initAutofillInlineMenuList({
     translations,
     styleSheetUrl,
     theme,

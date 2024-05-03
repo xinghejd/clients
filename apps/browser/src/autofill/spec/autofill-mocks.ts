@@ -169,7 +169,7 @@ function createInitAutofillOverlayButtonMessageMock(
   customFields = {},
 ): InitAutofillOverlayButtonMessage {
   return {
-    command: "initAutofillOverlayButton",
+    command: "initAutofillInlineMenuButton",
     translations: overlayPagesTranslations,
     styleSheetUrl: "https://jest-testing-website.com",
     authStatus: AuthenticationStatus.Unlocked,
@@ -199,7 +199,7 @@ function createInitAutofillOverlayListMessageMock(
   customFields = {},
 ): InitAutofillOverlayListMessage {
   return {
-    command: "initAutofillOverlayList",
+    command: "initAutofillInlineMenuList",
     translations: overlayPagesTranslations,
     styleSheetUrl: "https://jest-testing-website.com",
     theme: ThemeType.Light,

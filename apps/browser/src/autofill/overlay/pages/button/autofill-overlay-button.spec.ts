@@ -23,7 +23,7 @@ describe("AutofillOverlayButton", () => {
     jest.clearAllMocks();
   });
 
-  describe("initAutofillOverlayButton", () => {
+  describe("initAutofillInlineMenuButton", () => {
     it("creates the button element with the locked icon when the user's auth status is not Unlocked", async () => {
       postWindowMessage(
         createInitAutofillOverlayButtonMessageMock({

@@ -16,8 +16,8 @@ type AutofillOverlayIframeExtensionMessageParam = {
 
 type BackgroundPortMessageHandlers = {
   [key: string]: CallableFunction;
-  initAutofillOverlayButton: ({ message }: AutofillOverlayIframeExtensionMessageParam) => void;
-  initAutofillOverlayList: ({ message }: AutofillOverlayIframeExtensionMessageParam) => void;
+  initAutofillInlineMenuButton: ({ message }: AutofillOverlayIframeExtensionMessageParam) => void;
+  initAutofillInlineMenuList: ({ message }: AutofillOverlayIframeExtensionMessageParam) => void;
   updateIframePosition: ({ message }: AutofillOverlayIframeExtensionMessageParam) => void;
   updateInlineMenuHidden: ({ message }: AutofillOverlayIframeExtensionMessageParam) => void;
   updateAutofillInlineMenuColorScheme: () => void;

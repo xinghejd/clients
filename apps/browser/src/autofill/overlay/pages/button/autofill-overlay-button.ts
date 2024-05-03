@@ -18,7 +18,7 @@ class AutofillOverlayButton extends AutofillOverlayPageElement {
   private readonly logoIconElement: HTMLElement;
   private readonly logoLockedIconElement: HTMLElement;
   private readonly overlayButtonWindowMessageHandlers: OverlayButtonWindowMessageHandlers = {
-    initAutofillOverlayButton: ({ message }) => this.initAutofillOverlayButton(message),
+    initAutofillInlineMenuButton: ({ message }) => this.initAutofillInlineMenuButton(message),
     checkAutofillInlineMenuButtonFocused: () => this.checkButtonFocused(),
     updateAutofillOverlayButtonAuthStatus: ({ message }) =>
       this.updateAuthStatus(message.authStatus),
@@ -48,7 +48,7 @@ class AutofillOverlayButton extends AutofillOverlayPageElement {
    * @param translations - The translations to apply to the page
    * @param portKey - Background generated key that allows the port to communicate with the background
    */
-  private async initAutofillOverlayButton({
+  private async initAutofillInlineMenuButton({
     authStatus,
     styleSheetUrl,
     translations,

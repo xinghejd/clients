@@ -206,7 +206,7 @@ describe("AutofillOverlayIframeService", () => {
         it("sets the port key and posts the message to the overlay page iframe", () => {
           const portKey = "portKey";
           const message = {
-            command: "initAutofillOverlayButton",
+            command: "initAutofillInlineMenuButton",
             portKey,
           };
 
@@ -231,7 +231,7 @@ describe("AutofillOverlayIframeService", () => {
 
         it("passes the message on to the iframe element", () => {
           const message = {
-            command: "initAutofillOverlayList",
+            command: "initAutofillInlineMenuList",
             theme: ThemeType.Light,
           };
 
@@ -246,7 +246,7 @@ describe("AutofillOverlayIframeService", () => {
         it("sets a light theme based on the user's system preferences", () => {
           window.matchMedia = jest.fn(() => mock<MediaQueryList>({ matches: false }));
           const message = {
-            command: "initAutofillOverlayList",
+            command: "initAutofillInlineMenuList",
             theme: ThemeType.System,
           };
 
@@ -257,7 +257,7 @@ describe("AutofillOverlayIframeService", () => {
             autofillOverlayIframeService["iframe"].contentWindow.postMessage,
           ).toHaveBeenCalledWith(
             {
-              command: "initAutofillOverlayList",
+              command: "initAutofillInlineMenuList",
               theme: ThemeType.Light,
             },
             "*",
@@ -267,7 +267,7 @@ describe("AutofillOverlayIframeService", () => {
         it("sets a dark theme based on the user's system preferences", () => {
           window.matchMedia = jest.fn(() => mock<MediaQueryList>({ matches: true }));
           const message = {
-            command: "initAutofillOverlayList",
+            command: "initAutofillInlineMenuList",
             theme: ThemeType.System,
           };
 
@@ -278,7 +278,7 @@ describe("AutofillOverlayIframeService", () => {
             autofillOverlayIframeService["iframe"].contentWindow.postMessage,
           ).toHaveBeenCalledWith(
             {
-              command: "initAutofillOverlayList",
+              command: "initAutofillInlineMenuList",
               theme: ThemeType.Dark,
             },
             "*",
@@ -287,7 +287,7 @@ describe("AutofillOverlayIframeService", () => {
 
         it("updates the border to match the `dark` theme", () => {
           const message = {
-            command: "initAutofillOverlayList",
+            command: "initAutofillInlineMenuList",
             theme: ThemeType.Dark,
           };
 
@@ -303,7 +303,7 @@ describe("AutofillOverlayIframeService", () => {
 
         it("updates the border to match the `nord` theme", () => {
           const message = {
-            command: "initAutofillOverlayList",
+            command: "initAutofillInlineMenuList",
             theme: ThemeType.Nord,
           };
 
@@ -319,7 +319,7 @@ describe("AutofillOverlayIframeService", () => {
 
         it("updates the border to match the `solarizedDark` theme", () => {
           const message = {
-            command: "initAutofillOverlayList",
+            command: "initAutofillInlineMenuList",
             theme: ThemeType.SolarizedDark,
           };
 

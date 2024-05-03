@@ -42,8 +42,8 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
   private mutationObserverIterations = 0;
   private mutationObserverIterationsResetTimeout: number | NodeJS.Timeout;
   private readonly backgroundPortMessageHandlers: BackgroundPortMessageHandlers = {
-    initAutofillOverlayButton: ({ message }) => this.initAutofillOverlay(message),
-    initAutofillOverlayList: ({ message }) => this.initAutofillOverlay(message),
+    initAutofillInlineMenuButton: ({ message }) => this.initAutofillInlineMenu(message),
+    initAutofillInlineMenuList: ({ message }) => this.initAutofillInlineMenu(message),
     updateIframePosition: ({ message }) => this.updateIframePosition(message.styles),
     updateInlineMenuHidden: ({ message }) => this.updateElementStyles(this.iframe, message.styles),
     updateAutofillInlineMenuColorScheme: () => this.updateAutofillInlineMenuColorScheme(),
@@ -189,10 +189,10 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
    * @param message
    * @private
    */
-  private initAutofillOverlay(message: AutofillOverlayIframeExtensionMessage) {
+  private initAutofillInlineMenu(message: AutofillOverlayIframeExtensionMessage) {
     this.portKey = message.portKey;
-    if (message.command === "initAutofillOverlayList") {
-      this.initAutofillOverlayList(message);
+    if (message.command === "initAutofillInlineMenuList") {
+      this.initAutofillInlineMenuList(message);
       return;
     }
 
@@ -205,7 +205,7 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
    *
    * @param message - The message sent from the iframe
    */
-  private initAutofillOverlayList(message: AutofillOverlayIframeExtensionMessage) {
+  private initAutofillInlineMenuList(message: AutofillOverlayIframeExtensionMessage) {
     const { theme } = message;
     let borderColor: string;
     let verifiedTheme = theme;

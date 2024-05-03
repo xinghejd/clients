@@ -29,7 +29,7 @@ describe("AutofillOverlayList", () => {
     jest.clearAllMocks();
   });
 
-  describe("initAutofillOverlayList", () => {
+  describe("initAutofillInlineMenuList", () => {
     describe("the locked overlay for an unauthenticated user", () => {
       beforeEach(() => {
         postWindowMessage(

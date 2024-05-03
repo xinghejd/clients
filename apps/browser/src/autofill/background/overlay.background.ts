@@ -975,7 +975,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
 
     port.onDisconnect.addListener(this.handlePortOnDisconnect);
     port.postMessage({
-      command: `initAutofillOverlay${isInlineMenuListPort ? "List" : "Button"}`,
+      command: `initAutofillInlineMenu${isInlineMenuListPort ? "List" : "Button"}`,
       iframeUrl: chrome.runtime.getURL(`overlay/${isInlineMenuListPort ? "list" : "button"}.html`),
       pageTitle: chrome.i18n.getMessage(
         isInlineMenuListPort ? "bitwardenVault" : "bitwardenOverlayButton",
