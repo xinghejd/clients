@@ -103,7 +103,7 @@ class AutofillOverlayButton extends AutofillOverlayPageElement {
    * parent window indicating that the button was clicked.
    */
   private handleButtonElementClick = () => {
-    this.postMessageToParent({ command: "overlayButtonClicked" });
+    this.postMessageToParent({ command: "autofillInlineMenuButtonClicked" });
   };
 
   /**

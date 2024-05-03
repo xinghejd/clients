@@ -56,7 +56,7 @@ describe("AutofillOverlayButton", () => {
       autofillOverlayButton["buttonElement"].click();
 
       expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-        { command: "overlayButtonClicked", portKey },
+        { command: "autofillInlineMenuButtonClicked", portKey },
         "*",
       );
     });

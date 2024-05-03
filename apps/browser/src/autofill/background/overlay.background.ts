@@ -94,7 +94,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
     deletedCipher: () => this.updateOverlayCiphers(),
   };
   private readonly overlayButtonPortMessageHandlers: OverlayButtonPortMessageHandlers = {
-    overlayButtonClicked: ({ port }) => this.handleOverlayButtonClicked(port),
+    autofillInlineMenuButtonClicked: ({ port }) => this.handleInlineMenuButtonClicked(port),
     closeAutofillInlineMenu: ({ port }) => this.closeInlineMenu(port.sender),
     forceCloseAutofillOverlay: ({ port }) =>
       this.closeInlineMenu(port.sender, { forceCloseAutofillInlineMenu: true }),
@@ -686,7 +686,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
    *
    * @param port - The port of the overlay button
    */
-  private handleOverlayButtonClicked(port: chrome.runtime.Port) {
+  private handleInlineMenuButtonClicked(port: chrome.runtime.Port) {
     if (this.userAuthStatus !== AuthenticationStatus.Unlocked) {
       void this.unlockVault(port);
       return;

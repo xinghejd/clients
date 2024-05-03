@@ -130,7 +130,7 @@ type PortOnMessageHandlerParams = PortMessageParam & PortConnectionParam;
 
 type OverlayButtonPortMessageHandlers = {
   [key: string]: CallableFunction;
-  overlayButtonClicked: ({ port }: PortConnectionParam) => void;
+  autofillInlineMenuButtonClicked: ({ port }: PortConnectionParam) => void;
   closeAutofillInlineMenu: ({ port }: PortConnectionParam) => void;
   forceCloseAutofillOverlay: ({ port }: PortConnectionParam) => void;
   overlayPageBlurred: () => void;

@@ -1142,7 +1142,7 @@ describe("OverlayBackground", () => {
         jest.spyOn(overlayBackground as any, "unlockVault").mockImplementation();
 
         sendPortMessage(buttonMessageConnectorPortSpy, {
-          command: "overlayButtonClicked",
+          command: "autofillInlineMenuButtonClicked",
           portKey,
         });
 
@@ -1153,7 +1153,7 @@ describe("OverlayBackground", () => {
         jest.spyOn(overlayBackground as any, "openInlineMenu").mockImplementation();
 
         sendPortMessage(buttonMessageConnectorPortSpy, {
-          command: "overlayButtonClicked",
+          command: "autofillInlineMenuButtonClicked",
           portKey,
         });
 
