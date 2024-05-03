@@ -1,6 +1,6 @@
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
-import { OverlayCipherData } from "../../background/abstractions/overlay.background";
+import { OverlayCipherData } from "../../../background/abstractions/overlay.background";
 
 type OverlayListMessage = { command: string };
 

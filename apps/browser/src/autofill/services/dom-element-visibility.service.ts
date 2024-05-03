@@ -1,4 +1,4 @@
-import { AutofillOverlayInlineMenuElements } from "../overlay/abstractions/autofill-overlay-inline-menu-elements";
+import { AutofillOverlayInlineMenuElements } from "../overlay/inline-menu/abstractions/autofill-overlay-inline-menu-elements";
 import { FillableFormFieldElement, FormFieldElement } from "../types";
 
 import { DomElementVisibilityService as domElementVisibilityServiceInterface } from "./abstractions/dom-element-visibility.service";

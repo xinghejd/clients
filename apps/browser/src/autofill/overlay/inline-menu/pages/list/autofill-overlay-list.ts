@@ -3,9 +3,9 @@ import "lit/polyfill-support.js";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
-import { OverlayCipherData } from "../../../background/abstractions/overlay.background";
-import { buildSvgDomElement } from "../../../utils";
-import { globeIcon, lockIcon, plusIcon, viewCipherIcon } from "../../../utils/svg-icons";
+import { OverlayCipherData } from "../../../../background/abstractions/overlay.background";
+import { buildSvgDomElement } from "../../../../utils";
+import { globeIcon, lockIcon, plusIcon, viewCipherIcon } from "../../../../utils/svg-icons";
 import {
   InitAutofillOverlayListMessage,
   OverlayListWindowMessageHandlers,

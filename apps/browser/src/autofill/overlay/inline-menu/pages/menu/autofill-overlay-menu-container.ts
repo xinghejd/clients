@@ -1,6 +1,6 @@
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
-import { setElementStyles } from "../../../utils";
+import { setElementStyles } from "../../../../utils";
 import {
   InitOverlayElementMessage,
   AutofillOverlayMenuContainerWindowMessageHandlers,

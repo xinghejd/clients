@@ -12,8 +12,8 @@ import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript, { FillScript } from "../models/autofill-script";
-import { InitAutofillOverlayButtonMessage } from "../overlay/abstractions/autofill-overlay-button";
-import { InitAutofillOverlayListMessage } from "../overlay/abstractions/autofill-overlay-list";
+import { InitAutofillOverlayButtonMessage } from "../overlay/inline-menu/abstractions/autofill-overlay-button";
+import { InitAutofillOverlayListMessage } from "../overlay/inline-menu/abstractions/autofill-overlay-list";
 import { GenerateFillScriptOptions, PageDetail } from "../services/abstractions/autofill.service";
 
 function createAutofillFormMock(customFields = {}): AutofillForm {

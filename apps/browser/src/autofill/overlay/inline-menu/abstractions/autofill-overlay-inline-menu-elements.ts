@@ -1,4 +1,4 @@
-import { AutofillExtensionMessageParam } from "../../content/abstractions/autofill-init";
+import { AutofillExtensionMessageParam } from "../../../content/abstractions/autofill-init";
 
 export type InlineMenuExtensionMessageHandlers = {
   [key: string]: CallableFunction;

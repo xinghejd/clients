@@ -1,7 +1,7 @@
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 
-import { sendExtensionMessage, setElementStyles } from "../../utils";
+import { sendExtensionMessage, setElementStyles } from "../../../utils";
 import {
   BackgroundPortMessageHandlers,
   AutofillOverlayIframeService as AutofillOverlayIframeServiceInterface,

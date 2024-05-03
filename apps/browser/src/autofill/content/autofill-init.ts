@@ -1,7 +1,7 @@
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
 import AutofillPageDetails from "../models/autofill-page-details";
-import { AutofillOverlayInlineMenuElements } from "../overlay/abstractions/autofill-overlay-inline-menu-elements";
+import { AutofillOverlayInlineMenuElements } from "../overlay/inline-menu/abstractions/autofill-overlay-inline-menu-elements";
 import { AutofillOverlayContentService } from "../services/abstractions/autofill-overlay-content.service";
 import CollectAutofillContentService from "../services/collect-autofill-content.service";
 import DomElementVisibilityService from "../services/dom-element-visibility.service";

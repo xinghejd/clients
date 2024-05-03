@@ -1,4 +1,4 @@
-import { AutofillOverlayInlineMenuElements } from "../overlay/content/autofill-overlay-inline-menu-elements";
+import { AutofillOverlayInlineMenuElements } from "../overlay/inline-menu/content/autofill-overlay-inline-menu-elements";
 import AutofillOverlayContentService from "../services/autofill-overlay-content.service";
 import { setupAutofillInitDisconnectAction } from "../utils";
 
