@@ -13,7 +13,7 @@ import {
 import { AutofillInlineMenuPageElement } from "../shared/autofill-inline-menu-page-element";
 
 export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
-  private overlayListContainer: HTMLDivElement;
+  private inlineMenuListContainer: HTMLDivElement;
   private resizeObserver: ResizeObserver;
   private eventHandlersMemo: { [key: string]: EventListener } = {};
   private ciphers: OverlayCipherData[] = [];
@@ -22,28 +22,29 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private cipherListScrollDebounceTimeout: number | NodeJS.Timeout;
   private currentCipherIndex = 0;
   private readonly showCiphersPerPage = 6;
-  private readonly overlayListWindowMessageHandlers: AutofillInlineMenuListWindowMessageHandlers = {
-    initAutofillInlineMenuList: ({ message }) => this.initAutofillInlineMenuList(message),
-    checkAutofillInlineMenuListFocused: () => this.checkInlineMenuListFocused(),
-    updateAutofillInlineMenuListCiphers: ({ message }) => this.updateListItems(message.ciphers),
-    focusInlineMenuList: () => this.focusInlineMenuList(),
-  };
+  private readonly inlineMenuListWindowMessageHandlers: AutofillInlineMenuListWindowMessageHandlers =
+    {
+      initAutofillInlineMenuList: ({ message }) => this.initAutofillInlineMenuList(message),
+      checkAutofillInlineMenuListFocused: () => this.checkInlineMenuListFocused(),
+      updateAutofillInlineMenuListCiphers: ({ message }) => this.updateListItems(message.ciphers),
+      focusInlineMenuList: () => this.focusInlineMenuList(),
+    };
 
   constructor() {
     super();
 
-    this.setupOverlayListGlobalListeners();
+    this.setupInlineMenuListGlobalListeners();
   }
 
   /**
-   * Initializes the overlay list and updates the list items with the passed ciphers.
-   * If the auth status is not `Unlocked`, the locked overlay is built.
+   * Initializes the inline menu list and updates the list items with the passed ciphers.
+   * If the auth status is not `Unlocked`, the locked inline menu is built.
    *
-   * @param translations - The translations to use for the overlay list.
-   * @param styleSheetUrl - The URL of the stylesheet to use for the overlay list.
-   * @param theme - The theme to use for the overlay list.
+   * @param translations - The translations to use for the inline menu list.
+   * @param styleSheetUrl - The URL of the stylesheet to use for the inline menu list.
+   * @param theme - The theme to use for the inline menu list.
    * @param authStatus - The current authentication status.
-   * @param ciphers - The ciphers to display in the overlay list.
+   * @param ciphers - The ciphers to display in the inline menu list.
    * @param portKey - Background generated key that allows the port to communicate with the background.
    */
   private async initAutofillInlineMenuList({
@@ -64,34 +65,34 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     const themeClass = `theme_${theme}`;
     globalThis.document.documentElement.classList.add(themeClass);
 
-    this.overlayListContainer = globalThis.document.createElement("div");
-    this.overlayListContainer.classList.add("overlay-list-container", themeClass);
-    this.resizeObserver.observe(this.overlayListContainer);
+    this.inlineMenuListContainer = globalThis.document.createElement("div");
+    this.inlineMenuListContainer.classList.add("inline-menu-list-container", themeClass);
+    this.resizeObserver.observe(this.inlineMenuListContainer);
 
-    this.shadowDom.append(linkElement, this.overlayListContainer);
+    this.shadowDom.append(linkElement, this.inlineMenuListContainer);
 
     if (authStatus === AuthenticationStatus.Unlocked) {
       this.updateListItems(ciphers);
       return;
     }
 
-    this.buildLockedOverlay();
+    this.buildLockedInlineMenu();
   }
 
   /**
-   * Builds the locked overlay, which is displayed when the user is not authenticated.
-   * Facilitates the ability to unlock the extension from the overlay.
+   * Builds the locked inline menu, which is displayed when the user is not authenticated.
+   * Facilitates the ability to unlock the extension from the inline menu.
    */
-  private buildLockedOverlay() {
-    const lockedOverlay = globalThis.document.createElement("div");
-    lockedOverlay.id = "locked-overlay-description";
-    lockedOverlay.classList.add("locked-overlay", "overlay-list-message");
-    lockedOverlay.textContent = this.getTranslation("unlockYourAccount");
+  private buildLockedInlineMenu() {
+    const lockedInlineMenu = globalThis.document.createElement("div");
+    lockedInlineMenu.id = "locked-inline-menu-description";
+    lockedInlineMenu.classList.add("locked-inline-menu", "inline-menu-list-message");
+    lockedInlineMenu.textContent = this.getTranslation("unlockYourAccount");
 
     const unlockButtonElement = globalThis.document.createElement("button");
     unlockButtonElement.id = "unlock-button";
     unlockButtonElement.tabIndex = -1;
-    unlockButtonElement.classList.add("unlock-button", "overlay-list-button");
+    unlockButtonElement.classList.add("unlock-button", "inline-menu-list-button");
     unlockButtonElement.textContent = this.getTranslation("unlockAccount");
     unlockButtonElement.setAttribute(
       "aria-label",
@@ -100,11 +101,11 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     unlockButtonElement.prepend(buildSvgDomElement(lockIcon));
     unlockButtonElement.addEventListener(EVENTS.CLICK, this.handleUnlockButtonClick);
 
-    const overlayListButtonContainer = globalThis.document.createElement("div");
-    overlayListButtonContainer.classList.add("overlay-list-button-container");
-    overlayListButtonContainer.appendChild(unlockButtonElement);
+    const inlineMenuListButtonContainer = globalThis.document.createElement("div");
+    inlineMenuListButtonContainer.classList.add("inline-menu-list-button-container");
+    inlineMenuListButtonContainer.appendChild(unlockButtonElement);
 
-    this.overlayListContainer.append(lockedOverlay, overlayListButtonContainer);
+    this.inlineMenuListContainer.append(lockedInlineMenu, inlineMenuListButtonContainer);
   }
 
   /**
@@ -117,45 +118,45 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
 
   /**
    * Updates the list items with the passed ciphers.
-   * If no ciphers are passed, the no results overlay is built.
+   * If no ciphers are passed, the no results inline menu is built.
    *
-   * @param ciphers - The ciphers to display in the overlay list.
+   * @param ciphers - The ciphers to display in the inline menu list.
    */
   private updateListItems(ciphers: OverlayCipherData[]) {
     this.ciphers = ciphers;
     this.currentCipherIndex = 0;
-    if (this.overlayListContainer) {
-      this.overlayListContainer.innerHTML = "";
+    if (this.inlineMenuListContainer) {
+      this.inlineMenuListContainer.innerHTML = "";
     }
 
     if (!ciphers?.length) {
-      this.buildNoResultsOverlayList();
+      this.buildNoResultsInlineMenuList();
       return;
     }
 
     this.ciphersList = globalThis.document.createElement("ul");
-    this.ciphersList.classList.add("overlay-actions-list");
+    this.ciphersList.classList.add("inline-menu-list-actions");
     this.ciphersList.setAttribute("role", "list");
     globalThis.addEventListener(EVENTS.SCROLL, this.handleCiphersListScrollEvent);
 
     this.loadPageOfCiphers();
 
-    this.overlayListContainer.appendChild(this.ciphersList);
+    this.inlineMenuListContainer.appendChild(this.ciphersList);
   }
 
   /**
-   * Overlay view that is presented when no ciphers are found for a given page.
-   * Facilitates the ability to add a new vault item from the overlay.
+   * Inline menu view that is presented when no ciphers are found for a given page.
+   * Facilitates the ability to add a new vault item from the inline menu.
    */
-  private buildNoResultsOverlayList() {
+  private buildNoResultsInlineMenuList() {
     const noItemsMessage = globalThis.document.createElement("div");
-    noItemsMessage.classList.add("no-items", "overlay-list-message");
+    noItemsMessage.classList.add("no-items", "inline-menu-list-message");
     noItemsMessage.textContent = this.getTranslation("noItemsToShow");
 
     const newItemButton = globalThis.document.createElement("button");
     newItemButton.tabIndex = -1;
     newItemButton.id = "new-item-button";
-    newItemButton.classList.add("add-new-item-button", "overlay-list-button");
+    newItemButton.classList.add("add-new-item-button", "inline-menu-list-button");
     newItemButton.textContent = this.getTranslation("newItem");
     newItemButton.setAttribute(
       "aria-label",
@@ -164,11 +165,11 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     newItemButton.prepend(buildSvgDomElement(plusIcon));
     newItemButton.addEventListener(EVENTS.CLICK, this.handeNewItemButtonClick);
 
-    const overlayListButtonContainer = globalThis.document.createElement("div");
-    overlayListButtonContainer.classList.add("overlay-list-button-container");
-    overlayListButtonContainer.appendChild(newItemButton);
+    const inlineMenuListButtonContainer = globalThis.document.createElement("div");
+    inlineMenuListButtonContainer.classList.add("inline-menu-list-button-container");
+    inlineMenuListButtonContainer.appendChild(newItemButton);
 
-    this.overlayListContainer.append(noItemsMessage, overlayListButtonContainer);
+    this.inlineMenuListContainer.append(noItemsMessage, inlineMenuListButtonContainer);
   }
 
   /**
@@ -180,7 +181,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   };
 
   /**
-   * Loads a page of ciphers into the overlay list container.
+   * Loads a page of ciphers into the inline menu list container.
    */
   private loadPageOfCiphers() {
     const lastIndex = Math.min(
@@ -188,7 +189,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       this.ciphers.length,
     );
     for (let cipherIndex = this.currentCipherIndex; cipherIndex < lastIndex; cipherIndex++) {
-      this.ciphersList.appendChild(this.buildOverlayActionsListItem(this.ciphers[cipherIndex]));
+      this.ciphersList.appendChild(this.buildInlineMenuListActionsItem(this.ciphers[cipherIndex]));
       this.currentCipherIndex++;
     }
 
@@ -230,7 +231,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    *
    * @param cipher - The cipher to build the list item for.
    */
-  private buildOverlayActionsListItem(cipher: OverlayCipherData) {
+  private buildInlineMenuListActionsItem(cipher: OverlayCipherData) {
     const fillCipherElement = this.buildFillCipherElement(cipher);
     const viewCipherElement = this.buildViewCipherElement(cipher);
 
@@ -238,12 +239,12 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     cipherContainerElement.classList.add("cipher-container");
     cipherContainerElement.append(fillCipherElement, viewCipherElement);
 
-    const overlayActionsListItem = globalThis.document.createElement("li");
-    overlayActionsListItem.setAttribute("role", "listitem");
-    overlayActionsListItem.classList.add("overlay-actions-list-item");
-    overlayActionsListItem.appendChild(cipherContainerElement);
+    const inlineMenuListActionsItem = globalThis.document.createElement("li");
+    inlineMenuListActionsItem.setAttribute("role", "listitem");
+    inlineMenuListActionsItem.classList.add("inline-menu-list-actions-item");
+    inlineMenuListActionsItem.appendChild(cipherContainerElement);
 
-    return overlayActionsListItem;
+    return inlineMenuListActionsItem;
   }
 
   /**
@@ -306,7 +307,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
 
     event.preventDefault();
 
-    const currentListItem = event.target.closest(".overlay-actions-list-item") as HTMLElement;
+    const currentListItem = event.target.closest(".inline-menu-list-actions-item") as HTMLElement;
     if (event.code === "ArrowDown") {
       this.focusNextListItem(currentListItem);
       return;
@@ -369,7 +370,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
 
     event.preventDefault();
 
-    const currentListItem = event.target.closest(".overlay-actions-list-item") as HTMLElement;
+    const currentListItem = event.target.closest(".inline-menu-list-actions-item") as HTMLElement;
     const cipherContainer = currentListItem.querySelector(".cipher-container") as HTMLElement;
     cipherContainer?.classList.remove("remove-outline");
     if (event.code === "ArrowDown") {
@@ -484,7 +485,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   }
 
   /**
-   * Validates whether the overlay list iframe is currently focused.
+   * Validates whether the inline menu list iframe is currently focused.
    * If not focused, will check if the button element is focused.
    */
   private checkInlineMenuListFocused() {
@@ -496,15 +497,15 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   }
 
   /**
-   * Focuses the overlay list iframe. The element that receives focus is
+   * Focuses the inline menu list iframe. The element that receives focus is
    * determined by the presence of the unlock button, new item button, or
    * the first cipher button.
    */
   private focusInlineMenuList() {
-    this.overlayListContainer.setAttribute("role", "dialog");
-    this.overlayListContainer.setAttribute("aria-modal", "true");
+    this.inlineMenuListContainer.setAttribute("role", "dialog");
+    this.inlineMenuListContainer.setAttribute("aria-modal", "true");
 
-    const unlockButtonElement = this.overlayListContainer.querySelector(
+    const unlockButtonElement = this.inlineMenuListContainer.querySelector(
       "#unlock-button",
     ) as HTMLElement;
     if (unlockButtonElement) {
@@ -512,7 +513,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       return;
     }
 
-    const newItemButtonElement = this.overlayListContainer.querySelector(
+    const newItemButtonElement = this.inlineMenuListContainer.querySelector(
       "#new-item-button",
     ) as HTMLElement;
     if (newItemButtonElement) {
@@ -520,31 +521,31 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       return;
     }
 
-    const firstCipherElement = this.overlayListContainer.querySelector(
+    const firstCipherElement = this.inlineMenuListContainer.querySelector(
       ".fill-cipher-button",
     ) as HTMLElement;
     firstCipherElement?.focus();
   }
 
   /**
-   * Sets up the global listeners for the overlay list iframe.
+   * Sets up the global listeners for the inline menu list iframe.
    */
-  private setupOverlayListGlobalListeners() {
-    this.setupGlobalListeners(this.overlayListWindowMessageHandlers);
+  private setupInlineMenuListGlobalListeners() {
+    this.setupGlobalListeners(this.inlineMenuListWindowMessageHandlers);
 
     this.resizeObserver = new ResizeObserver(this.handleResizeObserver);
   }
 
   /**
    * Handles the resize observer event. Facilitates updating the height of the
-   * overlay list iframe when the height of the list changes.
+   * inline menu list iframe when the height of the list changes.
    *
    * @param entries - The resize observer entries.
    */
   private handleResizeObserver = (entries: ResizeObserverEntry[]) => {
     for (let entryIndex = 0; entryIndex < entries.length; entryIndex++) {
       const entry = entries[entryIndex];
-      if (entry.target !== this.overlayListContainer) {
+      if (entry.target !== this.inlineMenuListContainer) {
         continue;
       }
 
@@ -568,7 +569,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   };
 
   /**
-   * Focuses the next list item in the overlay list. If the current list item is the last
+   * Focuses the next list item in the inline menu list. If the current list item is the last
    * item in the list, the first item is focused.
    *
    * @param currentListItem - The current list item.
@@ -587,7 +588,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   }
 
   /**
-   * Focuses the previous list item in the overlay list. If the current list item is the first
+   * Focuses the previous list item in the inline menu list. If the current list item is the first
    * item in the list, the last item is focused.
    *
    * @param currentListItem - The current list item.

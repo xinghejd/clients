@@ -22,7 +22,7 @@ body {
   }
 }
 
-.overlay-list-message {
+.inline-menu-list-message {
   font-family: $font-family-sans-serif;
   font-weight: 400;
   font-size: 1.4rem;
@@ -39,7 +39,7 @@ body {
   }
 }
 
-.overlay-list-button-container {
+.inline-menu-list-button-container {
   width: 100%;
   padding: 0.2rem;
   background: transparent;
@@ -58,7 +58,7 @@ body {
   }
 }
 
-.overlay-list-button {
+.inline-menu-list-button {
   display: flex;
   align-content: center;
   justify-content: flex-start;
@@ -116,12 +116,12 @@ body {
   }
 }
 
-.overlay-actions-list {
+.inline-menu-list-actions {
   padding: 0;
   margin: 0;
 }
 
-.overlay-actions-list-item {
+.inline-menu-list-actions-item {
   transition: background-color 0.2s ease-in-out;
   list-style: none;
   padding: 0.2rem;

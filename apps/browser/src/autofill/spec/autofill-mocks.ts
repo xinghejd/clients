@@ -195,7 +195,7 @@ function createAutofillOverlayCipherDataMock(index: number, customFields = {}): 
   };
 }
 
-function createInitAutofillOverlayListMessageMock(
+function createInitAutofillInlineMenuListMessageMock(
   customFields = {},
 ): InitAutofillInlineMenuListMessage {
   return {
@@ -298,7 +298,7 @@ export {
   createGenerateFillScriptOptionsMock,
   createAutofillScriptMock,
   createInitAutofillInlineMenuButtonMessageMock,
-  createInitAutofillOverlayListMessageMock,
+  createInitAutofillInlineMenuListMessageMock,
   createFocusedFieldDataMock,
   createPortSpyMock,
   createMutationRecordMock,

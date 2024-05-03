@@ -2,12 +2,12 @@ import { mock } from "jest-mock-extended";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
-import { createInitAutofillOverlayListMessageMock } from "../../../../spec/autofill-mocks";
+import { createInitAutofillInlineMenuListMessageMock } from "../../../../spec/autofill-mocks";
 import { flushPromises, postWindowMessage } from "../../../../spec/testing-utils";
 
 import { AutofillInlineMenuList } from "./autofill-inline-menu-list";
 
-describe("AutofillOverlayList", () => {
+describe("AutofillInlineMenuList", () => {
   globalThis.customElements.define("autofill-inline-menu-list", AutofillInlineMenuList);
   global.ResizeObserver = jest.fn().mockImplementation(() => ({
     observe: jest.fn(),
@@ -15,12 +15,12 @@ describe("AutofillOverlayList", () => {
     disconnect: jest.fn(),
   }));
 
-  let autofillOverlayList: AutofillInlineMenuList;
-  const portKey: string = "overlayListPortKey";
+  let autofillInlineMenuList: AutofillInlineMenuList;
+  const portKey: string = "inlineMenuListPortKey";
 
   beforeEach(() => {
     document.body.innerHTML = `<autofill-inline-menu-list></autofill-inline-menu-list>`;
-    autofillOverlayList = document.querySelector("autofill-inline-menu-list");
+    autofillInlineMenuList = document.querySelector("autofill-inline-menu-list");
     jest.spyOn(globalThis.document, "createElement");
     jest.spyOn(globalThis.parent, "postMessage");
   });
@@ -30,10 +30,10 @@ describe("AutofillOverlayList", () => {
   });
 
   describe("initAutofillInlineMenuList", () => {
-    describe("the locked overlay for an unauthenticated user", () => {
+    describe("the locked inline menu for an unauthenticated user", () => {
       beforeEach(() => {
         postWindowMessage(
-          createInitAutofillOverlayListMessageMock({
+          createInitAutofillInlineMenuListMessageMock({
             authStatus: AuthenticationStatus.Locked,
             cipherList: [],
             portKey,
@@ -41,13 +41,13 @@ describe("AutofillOverlayList", () => {
         );
       });
 
-      it("creates the views for the locked overlay", () => {
-        expect(autofillOverlayList["overlayListContainer"]).toMatchSnapshot();
+      it("creates the views for the locked inline menu", () => {
+        expect(autofillInlineMenuList["inlineMenuListContainer"]).toMatchSnapshot();
       });
 
       it("allows the user to unlock the vault", () => {
         const unlockButton =
-          autofillOverlayList["overlayListContainer"].querySelector("#unlock-button");
+          autofillInlineMenuList["inlineMenuListContainer"].querySelector("#unlock-button");
 
         unlockButton.dispatchEvent(new Event("click"));
 
@@ -58,10 +58,10 @@ describe("AutofillOverlayList", () => {
       });
     });
 
-    describe("the overlay with an empty list of ciphers", () => {
+    describe("the inline menu with an empty list of ciphers", () => {
       beforeEach(() => {
         postWindowMessage(
-          createInitAutofillOverlayListMessageMock({
+          createInitAutofillInlineMenuListMessageMock({
             authStatus: AuthenticationStatus.Unlocked,
             ciphers: [],
             portKey,
@@ -69,13 +69,13 @@ describe("AutofillOverlayList", () => {
         );
       });
 
-      it("creates the views for the no results overlay", () => {
-        expect(autofillOverlayList["overlayListContainer"]).toMatchSnapshot();
+      it("creates the views for the no results inline menu", () => {
+        expect(autofillInlineMenuList["inlineMenuListContainer"]).toMatchSnapshot();
       });
 
       it("allows the user to add a vault item", () => {
         const addVaultItemButton =
-          autofillOverlayList["overlayListContainer"].querySelector("#new-item-button");
+          autofillInlineMenuList["inlineMenuListContainer"].querySelector("#new-item-button");
 
         addVaultItemButton.dispatchEvent(new Event("click"));
 
@@ -88,23 +88,23 @@ describe("AutofillOverlayList", () => {
 
     describe("the list of ciphers for an authenticated user", () => {
       beforeEach(() => {
-        postWindowMessage(createInitAutofillOverlayListMessageMock());
+        postWindowMessage(createInitAutofillInlineMenuListMessageMock());
       });
 
       it("creates the view for a list of ciphers", () => {
-        expect(autofillOverlayList["overlayListContainer"]).toMatchSnapshot();
+        expect(autofillInlineMenuList["inlineMenuListContainer"]).toMatchSnapshot();
       });
 
       it("loads ciphers on scroll one page at a time", () => {
         jest.useFakeTimers();
         const originalListOfElements =
-          autofillOverlayList["overlayListContainer"].querySelectorAll(".cipher-container");
+          autofillInlineMenuList["inlineMenuListContainer"].querySelectorAll(".cipher-container");
 
         window.dispatchEvent(new Event("scroll"));
         jest.runAllTimers();
 
         const updatedListOfElements =
-          autofillOverlayList["overlayListContainer"].querySelectorAll(".cipher-container");
+          autofillInlineMenuList["inlineMenuListContainer"].querySelectorAll(".cipher-container");
 
         expect(originalListOfElements.length).toBe(6);
         expect(updatedListOfElements.length).toBe(8);
@@ -112,9 +112,9 @@ describe("AutofillOverlayList", () => {
 
       it("debounces the ciphers scroll handler", () => {
         jest.useFakeTimers();
-        autofillOverlayList["cipherListScrollDebounceTimeout"] = setTimeout(jest.fn, 0);
+        autofillInlineMenuList["cipherListScrollDebounceTimeout"] = setTimeout(jest.fn, 0);
         const handleDebouncedScrollEventSpy = jest.spyOn(
-          autofillOverlayList as any,
+          autofillInlineMenuList as any,
           "handleDebouncedScrollEvent",
         );
 
@@ -130,12 +130,12 @@ describe("AutofillOverlayList", () => {
 
       describe("fill cipher button event listeners", () => {
         beforeEach(() => {
-          postWindowMessage(createInitAutofillOverlayListMessageMock({ portKey }));
+          postWindowMessage(createInitAutofillInlineMenuListMessageMock({ portKey }));
         });
 
         it("allows the user to fill a cipher on click", () => {
           const fillCipherButton =
-            autofillOverlayList["overlayListContainer"].querySelector(".fill-cipher-button");
+            autofillInlineMenuList["inlineMenuListContainer"].querySelector(".fill-cipher-button");
 
           fillCipherButton.dispatchEvent(new Event("click"));
 
@@ -147,7 +147,9 @@ describe("AutofillOverlayList", () => {
 
         it("allows the user to move keyboard focus to the next cipher element on ArrowDown", () => {
           const fillCipherElements =
-            autofillOverlayList["overlayListContainer"].querySelectorAll(".fill-cipher-button");
+            autofillInlineMenuList["inlineMenuListContainer"].querySelectorAll(
+              ".fill-cipher-button",
+            );
           const firstFillCipherElement = fillCipherElements[0];
           const secondFillCipherElement = fillCipherElements[1];
           jest.spyOn(secondFillCipherElement as HTMLElement, "focus");
@@ -159,7 +161,9 @@ describe("AutofillOverlayList", () => {
 
         it("directs focus to the first item in the cipher list if no cipher is present after the current one when pressing ArrowDown", () => {
           const fillCipherElements =
-            autofillOverlayList["overlayListContainer"].querySelectorAll(".fill-cipher-button");
+            autofillInlineMenuList["inlineMenuListContainer"].querySelectorAll(
+              ".fill-cipher-button",
+            );
           const lastFillCipherElement = fillCipherElements[fillCipherElements.length - 1];
           const firstFillCipherElement = fillCipherElements[0];
           jest.spyOn(firstFillCipherElement as HTMLElement, "focus");
@@ -171,7 +175,9 @@ describe("AutofillOverlayList", () => {
 
         it("allows the user to move keyboard focus to the previous cipher element on ArrowUp", () => {
           const fillCipherElements =
-            autofillOverlayList["overlayListContainer"].querySelectorAll(".fill-cipher-button");
+            autofillInlineMenuList["inlineMenuListContainer"].querySelectorAll(
+              ".fill-cipher-button",
+            );
           const firstFillCipherElement = fillCipherElements[0];
           const secondFillCipherElement = fillCipherElements[1];
           jest.spyOn(firstFillCipherElement as HTMLElement, "focus");
@@ -183,7 +189,9 @@ describe("AutofillOverlayList", () => {
 
         it("directs focus to the last item in the cipher list if no cipher is present before the current one when pressing ArrowUp", () => {
           const fillCipherElements =
-            autofillOverlayList["overlayListContainer"].querySelectorAll(".fill-cipher-button");
+            autofillInlineMenuList["inlineMenuListContainer"].querySelectorAll(
+              ".fill-cipher-button",
+            );
           const firstFillCipherElement = fillCipherElements[0];
           const lastFillCipherElement = fillCipherElements[fillCipherElements.length - 1];
           jest.spyOn(lastFillCipherElement as HTMLElement, "focus");
@@ -195,7 +203,7 @@ describe("AutofillOverlayList", () => {
 
         it("allows the user to move keyboard focus to the view cipher button on ArrowRight", () => {
           const cipherContainerElement =
-            autofillOverlayList["overlayListContainer"].querySelector(".cipher-container");
+            autofillInlineMenuList["inlineMenuListContainer"].querySelector(".cipher-container");
           const fillCipherElement = cipherContainerElement.querySelector(".fill-cipher-button");
           const viewCipherButton = cipherContainerElement.querySelector(".view-cipher-button");
           jest.spyOn(viewCipherButton as HTMLElement, "focus");
@@ -207,7 +215,7 @@ describe("AutofillOverlayList", () => {
 
         it("ignores keyup events that do not include ArrowUp, ArrowDown, or ArrowRight", () => {
           const fillCipherElement =
-            autofillOverlayList["overlayListContainer"].querySelector(".fill-cipher-button");
+            autofillInlineMenuList["inlineMenuListContainer"].querySelector(".fill-cipher-button");
           jest.spyOn(fillCipherElement as HTMLElement, "focus");
 
           fillCipherElement.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowLeft" }));
@@ -218,12 +226,12 @@ describe("AutofillOverlayList", () => {
 
       describe("view cipher button event listeners", () => {
         beforeEach(() => {
-          postWindowMessage(createInitAutofillOverlayListMessageMock({ portKey }));
+          postWindowMessage(createInitAutofillInlineMenuListMessageMock({ portKey }));
         });
 
         it("allows the user to view a cipher on click", () => {
           const viewCipherButton =
-            autofillOverlayList["overlayListContainer"].querySelector(".view-cipher-button");
+            autofillInlineMenuList["inlineMenuListContainer"].querySelector(".view-cipher-button");
 
           viewCipherButton.dispatchEvent(new Event("click"));
 
@@ -235,7 +243,7 @@ describe("AutofillOverlayList", () => {
 
         it("allows the user to move keyboard focus to the current cipher element on ArrowLeft", () => {
           const cipherContainerElement =
-            autofillOverlayList["overlayListContainer"].querySelector(".cipher-container");
+            autofillInlineMenuList["inlineMenuListContainer"].querySelector(".cipher-container");
           const fillCipherButton = cipherContainerElement.querySelector(".fill-cipher-button");
           const viewCipherButton = cipherContainerElement.querySelector(".view-cipher-button");
           jest.spyOn(fillCipherButton as HTMLElement, "focus");
@@ -247,7 +255,7 @@ describe("AutofillOverlayList", () => {
 
         it("allows the user to move keyboard to the next cipher element on ArrowDown", () => {
           const cipherContainerElements =
-            autofillOverlayList["overlayListContainer"].querySelectorAll(".cipher-container");
+            autofillInlineMenuList["inlineMenuListContainer"].querySelectorAll(".cipher-container");
           const viewCipherButton = cipherContainerElements[0].querySelector(".view-cipher-button");
           const secondFillCipherButton =
             cipherContainerElements[1].querySelector(".fill-cipher-button");
@@ -260,7 +268,7 @@ describe("AutofillOverlayList", () => {
 
         it("allows the user to move keyboard focus to the previous cipher element on ArrowUp", () => {
           const cipherContainerElements =
-            autofillOverlayList["overlayListContainer"].querySelectorAll(".cipher-container");
+            autofillInlineMenuList["inlineMenuListContainer"].querySelectorAll(".cipher-container");
           const viewCipherButton = cipherContainerElements[1].querySelector(".view-cipher-button");
           const firstFillCipherButton =
             cipherContainerElements[0].querySelector(".fill-cipher-button");
@@ -273,7 +281,7 @@ describe("AutofillOverlayList", () => {
 
         it("ignores keyup events that do not include ArrowUp, ArrowDown, or ArrowRight", () => {
           const viewCipherButton =
-            autofillOverlayList["overlayListContainer"].querySelector(".view-cipher-button");
+            autofillInlineMenuList["inlineMenuListContainer"].querySelector(".view-cipher-button");
           jest.spyOn(viewCipherButton as HTMLElement, "focus");
 
           viewCipherButton.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowRight" }));
@@ -286,10 +294,10 @@ describe("AutofillOverlayList", () => {
 
   describe("global event listener handlers", () => {
     beforeEach(() => {
-      postWindowMessage(createInitAutofillOverlayListMessageMock({ portKey }));
+      postWindowMessage(createInitAutofillInlineMenuListMessageMock({ portKey }));
     });
 
-    it("does not post a `checkAutofillInlineMenuButtonFocused` message to the parent if the overlay is currently focused", () => {
+    it("does not post a `checkAutofillInlineMenuButtonFocused` message to the parent if the inline menu is currently focused", () => {
       jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(true);
 
       postWindowMessage({ command: "checkAutofillInlineMenuListFocused" });
@@ -297,7 +305,7 @@ describe("AutofillOverlayList", () => {
       expect(globalThis.parent.postMessage).not.toHaveBeenCalled();
     });
 
-    it("posts a `checkAutofillInlineMenuButtonFocused` message to the parent if the overlay is not currently focused", () => {
+    it("posts a `checkAutofillInlineMenuButtonFocused` message to the parent if the inline menu is not currently focused", () => {
       jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(false);
 
       postWindowMessage({ command: "checkAutofillInlineMenuListFocused" });
@@ -309,43 +317,43 @@ describe("AutofillOverlayList", () => {
     });
 
     it("updates the list of ciphers", () => {
-      postWindowMessage(createInitAutofillOverlayListMessageMock());
-      const updateCiphersSpy = jest.spyOn(autofillOverlayList as any, "updateListItems");
+      postWindowMessage(createInitAutofillInlineMenuListMessageMock());
+      const updateCiphersSpy = jest.spyOn(autofillInlineMenuList as any, "updateListItems");
 
       postWindowMessage({ command: "updateAutofillInlineMenuListCiphers" });
 
       expect(updateCiphersSpy).toHaveBeenCalled();
     });
 
-    describe("directing user focus into the overlay list", () => {
+    describe("directing user focus into the inline menu list", () => {
       it("sets ARIA attributes that define the list as a `dialog` to screen reader users", () => {
         postWindowMessage(
-          createInitAutofillOverlayListMessageMock({
+          createInitAutofillInlineMenuListMessageMock({
             authStatus: AuthenticationStatus.Locked,
             cipherList: [],
           }),
         );
-        const overlayContainerSetAttributeSpy = jest.spyOn(
-          autofillOverlayList["overlayListContainer"],
+        const inlineMenuContainerSetAttributeSpy = jest.spyOn(
+          autofillInlineMenuList["inlineMenuListContainer"],
           "setAttribute",
         );
 
         postWindowMessage({ command: "focusInlineMenuList" });
 
-        expect(overlayContainerSetAttributeSpy).toHaveBeenCalledWith("role", "dialog");
-        expect(overlayContainerSetAttributeSpy).toHaveBeenCalledWith("aria-modal", "true");
+        expect(inlineMenuContainerSetAttributeSpy).toHaveBeenCalledWith("role", "dialog");
+        expect(inlineMenuContainerSetAttributeSpy).toHaveBeenCalledWith("aria-modal", "true");
       });
 
       it("focuses the unlock button element if the user is not authenticated", async () => {
         postWindowMessage(
-          createInitAutofillOverlayListMessageMock({
+          createInitAutofillInlineMenuListMessageMock({
             authStatus: AuthenticationStatus.Locked,
             cipherList: [],
           }),
         );
         await flushPromises();
         const unlockButton =
-          autofillOverlayList["overlayListContainer"].querySelector("#unlock-button");
+          autofillInlineMenuList["inlineMenuListContainer"].querySelector("#unlock-button");
         jest.spyOn(unlockButton as HTMLElement, "focus");
 
         postWindowMessage({ command: "focusInlineMenuList" });
@@ -354,10 +362,10 @@ describe("AutofillOverlayList", () => {
       });
 
       it("focuses the new item button element if the cipher list is empty", async () => {
-        postWindowMessage(createInitAutofillOverlayListMessageMock({ ciphers: [] }));
+        postWindowMessage(createInitAutofillInlineMenuListMessageMock({ ciphers: [] }));
         await flushPromises();
         const newItemButton =
-          autofillOverlayList["overlayListContainer"].querySelector("#new-item-button");
+          autofillInlineMenuList["inlineMenuListContainer"].querySelector("#new-item-button");
         jest.spyOn(newItemButton as HTMLElement, "focus");
 
         postWindowMessage({ command: "focusInlineMenuList" });
@@ -366,9 +374,9 @@ describe("AutofillOverlayList", () => {
       });
 
       it("focuses the first cipher button element if the cipher list is populated", () => {
-        postWindowMessage(createInitAutofillOverlayListMessageMock());
+        postWindowMessage(createInitAutofillInlineMenuListMessageMock());
         const firstCipherItem =
-          autofillOverlayList["overlayListContainer"].querySelector(".fill-cipher-button");
+          autofillInlineMenuList["inlineMenuListContainer"].querySelector(".fill-cipher-button");
         jest.spyOn(firstCipherItem as HTMLElement, "focus");
 
         postWindowMessage({ command: "focusInlineMenuList" });
@@ -378,8 +386,8 @@ describe("AutofillOverlayList", () => {
     });
 
     describe("blur event", () => {
-      it("posts a message to the parent window indicating that the overlay has lost focus", () => {
-        postWindowMessage(createInitAutofillOverlayListMessageMock({ portKey }));
+      it("posts a message to the parent window indicating that the inline menu has lost focus", () => {
+        postWindowMessage(createInitAutofillInlineMenuListMessageMock({ portKey }));
 
         globalThis.dispatchEvent(new Event("blur"));
 
@@ -392,7 +400,7 @@ describe("AutofillOverlayList", () => {
 
     describe("keydown event", () => {
       beforeEach(() => {
-        postWindowMessage(createInitAutofillOverlayListMessageMock({ portKey }));
+        postWindowMessage(createInitAutofillInlineMenuListMessageMock({ portKey }));
       });
 
       it("skips redirecting keyboard focus when a KeyDown event triggers and the key is not a `Tab` or `Escape` key", () => {
@@ -401,7 +409,7 @@ describe("AutofillOverlayList", () => {
         expect(globalThis.parent.postMessage).not.toHaveBeenCalled();
       });
 
-      it("redirects the overlay focus out to the previous element on KeyDown of the `Tab+Shift` keys", () => {
+      it("redirects the inline menu focus out to the previous element on KeyDown of the `Tab+Shift` keys", () => {
         globalThis.document.dispatchEvent(
           new KeyboardEvent("keydown", { code: "Tab", shiftKey: true }),
         );
@@ -412,7 +420,7 @@ describe("AutofillOverlayList", () => {
         );
       });
 
-      it("redirects the overlay focus out to the next element on KeyDown of the `Tab` key", () => {
+      it("redirects the inline menu focus out to the next element on KeyDown of the `Tab` key", () => {
         globalThis.document.dispatchEvent(new KeyboardEvent("keydown", { code: "Tab" }));
 
         expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
@@ -421,7 +429,7 @@ describe("AutofillOverlayList", () => {
         );
       });
 
-      it("redirects the overlay focus out to the current element on KeyDown of the `Escape` key", () => {
+      it("redirects the inline menu focus out to the current element on KeyDown of the `Escape` key", () => {
         globalThis.document.dispatchEvent(new KeyboardEvent("keydown", { code: "Escape" }));
 
         expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
@@ -434,10 +442,10 @@ describe("AutofillOverlayList", () => {
 
   describe("handleResizeObserver", () => {
     beforeEach(() => {
-      postWindowMessage(createInitAutofillOverlayListMessageMock({ portKey }));
+      postWindowMessage(createInitAutofillInlineMenuListMessageMock({ portKey }));
     });
 
-    it("ignores resize entries whose target is not the overlay list", () => {
+    it("ignores resize entries whose target is not the inline menu list", () => {
       const entries = [
         {
           target: mock<HTMLElement>(),
@@ -445,20 +453,20 @@ describe("AutofillOverlayList", () => {
         },
       ];
 
-      autofillOverlayList["handleResizeObserver"](entries as unknown as ResizeObserverEntry[]);
+      autofillInlineMenuList["handleResizeObserver"](entries as unknown as ResizeObserverEntry[]);
 
       expect(globalThis.parent.postMessage).not.toHaveBeenCalled();
     });
 
-    it("posts a message to update the overlay list height if the list container is resized", () => {
+    it("posts a message to update the inline menu list height if the list container is resized", () => {
       const entries = [
         {
-          target: autofillOverlayList["overlayListContainer"],
+          target: autofillInlineMenuList["inlineMenuListContainer"],
           contentRect: { height: 300 },
         },
       ];
 
-      autofillOverlayList["handleResizeObserver"](entries as unknown as ResizeObserverEntry[]);
+      autofillInlineMenuList["handleResizeObserver"](entries as unknown as ResizeObserverEntry[]);
 
       expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
         { command: "updateAutofillInlineMenuListHeight", styles: { height: "300px" }, portKey },

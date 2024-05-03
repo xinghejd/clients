@@ -41,7 +41,7 @@ class AutofillInlineMenuButton extends AutofillInlineMenuPageElement {
   }
 
   /**
-   * Initializes the overlay button. Facilitates ensuring that the page
+   * Initializes the inline menu button. Facilitates ensuring that the page
    * is set up with the expected styles and translations.
    *
    * @param authStatus - The authentication status of the user
@@ -114,7 +114,7 @@ class AutofillInlineMenuButton extends AutofillInlineMenuPageElement {
 
   /**
    * Checks if the button is focused. If it is not, then it posts a message
-   * to the parent window indicating that the overlay should be closed.
+   * to the parent window indicating that the inline menu should be closed.
    */
   private checkButtonFocused() {
     if (globalThis.document.hasFocus()) {
