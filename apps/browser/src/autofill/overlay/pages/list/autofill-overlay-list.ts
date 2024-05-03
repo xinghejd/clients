@@ -24,7 +24,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
   private readonly showCiphersPerPage = 6;
   private readonly overlayListWindowMessageHandlers: OverlayListWindowMessageHandlers = {
     initAutofillOverlayList: ({ message }) => this.initAutofillOverlayList(message),
-    checkAutofillOverlayListFocused: () => this.checkOverlayListFocused(),
+    checkAutofillOverlayListFocused: () => this.checkInlineMenuListFocused(),
     updateOverlayListCiphers: ({ message }) => this.updateListItems(message.ciphers),
     focusInlineMenuList: () => this.focusInlineMenuList(),
   };
@@ -482,7 +482,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
    * Validates whether the overlay list iframe is currently focused.
    * If not focused, will check if the button element is focused.
    */
-  private checkOverlayListFocused() {
+  private checkInlineMenuListFocused() {
     if (globalThis.document.hasFocus()) {
       return;
     }

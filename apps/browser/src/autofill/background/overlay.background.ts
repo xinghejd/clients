@@ -96,23 +96,23 @@ class OverlayBackground implements OverlayBackgroundInterface {
   private readonly overlayButtonPortMessageHandlers: OverlayButtonPortMessageHandlers = {
     autofillInlineMenuButtonClicked: ({ port }) => this.handleInlineMenuButtonClicked(port),
     closeAutofillInlineMenu: ({ port }) => this.closeInlineMenu(port.sender),
-    forceCloseAutofillOverlay: ({ port }) =>
+    forceCloseAutofillInlineMenu: ({ port }) =>
       this.closeInlineMenu(port.sender, { forceCloseAutofillInlineMenu: true }),
-    overlayPageBlurred: () => this.checkOverlayListFocused(),
-    redirectInlineMenuFocusOut: ({ message, port }) =>
+    autofillInlineMenuBlurred: () => this.checkInlineMenuListFocused(),
+    redirectAutofillInlineMenuFocusOut: ({ message, port }) =>
       this.redirectInlineMenuFocusOut(message, port),
     updateOverlayPageColorScheme: () => this.updateButtonPageColorScheme(),
   };
   private readonly overlayListPortMessageHandlers: OverlayListPortMessageHandlers = {
     checkAutofillOverlayButtonFocused: () => this.checkOverlayButtonFocused(),
-    forceCloseAutofillOverlay: ({ port }) =>
+    forceCloseAutofillInlineMenu: ({ port }) =>
       this.closeInlineMenu(port.sender, { forceCloseAutofillInlineMenu: true }),
-    overlayPageBlurred: () => this.checkOverlayButtonFocused(),
+    autofillInlineMenuBlurred: () => this.checkOverlayButtonFocused(),
     unlockVault: ({ port }) => this.unlockVault(port),
     fillSelectedListItem: ({ message, port }) => this.fillSelectedOverlayListItem(message, port),
     addNewVaultItem: ({ port }) => this.getNewVaultItemDetails(port),
     viewSelectedCipher: ({ message, port }) => this.viewSelectedCipher(message, port),
-    redirectInlineMenuFocusOut: ({ message, port }) =>
+    redirectAutofillInlineMenuFocusOut: ({ message, port }) =>
       this.redirectInlineMenuFocusOut(message, port),
     updateAutofillOverlayListHeight: ({ message }) => this.updateOverlayListHeight(message),
   };
@@ -388,7 +388,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
    */
   private checkInlineMenuFocused() {
     if (this.overlayListPort) {
-      this.checkOverlayListFocused();
+      this.checkInlineMenuListFocused();
 
       return;
     }
@@ -406,7 +406,7 @@ class OverlayBackground implements OverlayBackgroundInterface {
   /**
    * Posts a message to the overlay list iframe to check if it is focused.
    */
-  private checkOverlayListFocused() {
+  private checkInlineMenuListFocused() {
     this.overlayListPort?.postMessage({ command: "checkAutofillOverlayListFocused" });
   }
 
@@ -798,7 +798,9 @@ class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    void BrowserApi.tabSendMessageData(sender.tab, "redirectInlineMenuFocusOut", { direction });
+    void BrowserApi.tabSendMessageData(sender.tab, "redirectAutofillInlineMenuFocusOut", {
+      direction,
+    });
   }
 
   /**

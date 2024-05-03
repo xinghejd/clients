@@ -113,7 +113,7 @@ class AutofillOverlayPageElement extends HTMLElement {
    * Handles the window blur event.
    */
   private handleWindowBlurEvent = () => {
-    this.postMessageToParent({ command: "overlayPageBlurred" });
+    this.postMessageToParent({ command: "autofillInlineMenuBlurred" });
   };
 
   /**
@@ -150,7 +150,7 @@ class AutofillOverlayPageElement extends HTMLElement {
    * @param direction - The direction to redirect the focus out
    */
   private redirectOverlayFocusOutMessage(direction: string) {
-    this.postMessageToParent({ command: "redirectInlineMenuFocusOut", direction });
+    this.postMessageToParent({ command: "redirectAutofillInlineMenuFocusOut", direction });
   }
 }
 

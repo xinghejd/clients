@@ -1003,7 +1003,9 @@ describe("AutofillOverlayContentService", () => {
     it("skips focusing an element if the overlay is not visible", async () => {
       isInlineMenuListVisibleSpy.mockResolvedValue(false);
 
-      await autofillOverlayContentService.redirectInlineMenuFocusOut(RedirectFocusDirection.Next);
+      await autofillOverlayContentService["redirectInlineMenuFocusOut"](
+        RedirectFocusDirection.Next,
+      );
 
       expect(findTabsSpy).not.toHaveBeenCalled();
     });
@@ -1011,13 +1013,15 @@ describe("AutofillOverlayContentService", () => {
     it("skips focusing an element if no recently focused field exists", async () => {
       autofillOverlayContentService["mostRecentlyFocusedField"] = undefined;
 
-      await autofillOverlayContentService.redirectInlineMenuFocusOut(RedirectFocusDirection.Next);
+      await autofillOverlayContentService["redirectInlineMenuFocusOut"](
+        RedirectFocusDirection.Next,
+      );
 
       expect(findTabsSpy).not.toHaveBeenCalled();
     });
 
     it("focuses the most recently focused field if the focus direction is `Current`", async () => {
-      await autofillOverlayContentService.redirectInlineMenuFocusOut(
+      await autofillOverlayContentService["redirectInlineMenuFocusOut"](
         RedirectFocusDirection.Current,
       );
 
@@ -1027,7 +1031,7 @@ describe("AutofillOverlayContentService", () => {
 
     it("removes the overlay if the focus direction is `Current`", async () => {
       jest.useFakeTimers();
-      await autofillOverlayContentService.redirectInlineMenuFocusOut(
+      await autofillOverlayContentService["redirectInlineMenuFocusOut"](
         RedirectFocusDirection.Current,
       );
       jest.advanceTimersByTime(150);
@@ -1043,7 +1047,9 @@ describe("AutofillOverlayContentService", () => {
         nextFocusableElement,
       ]);
 
-      await autofillOverlayContentService.redirectInlineMenuFocusOut(RedirectFocusDirection.Next);
+      await autofillOverlayContentService["redirectInlineMenuFocusOut"](
+        RedirectFocusDirection.Next,
+      );
 
       expect(findTabsSpy).toHaveBeenCalledWith(globalThis.document.body, { getShadowRoot: true });
     });
@@ -1051,7 +1057,7 @@ describe("AutofillOverlayContentService", () => {
     it("focuses the previous focusable element if the focus direction is `Previous`", async () => {
       jest.spyOn(previousFocusableElement, "focus");
 
-      await autofillOverlayContentService.redirectInlineMenuFocusOut(
+      await autofillOverlayContentService["redirectInlineMenuFocusOut"](
         RedirectFocusDirection.Previous,
       );
 
@@ -1062,7 +1068,9 @@ describe("AutofillOverlayContentService", () => {
     it("focuses the next focusable element if the focus direction is `Next`", async () => {
       jest.spyOn(nextFocusableElement, "focus");
 
-      await autofillOverlayContentService.redirectInlineMenuFocusOut(RedirectFocusDirection.Next);
+      await autofillOverlayContentService["redirectInlineMenuFocusOut"](
+        RedirectFocusDirection.Next,
+      );
 
       expect(autofillFieldFocusSpy).not.toHaveBeenCalled();
       expect(nextFocusableElement.focus).toHaveBeenCalled();

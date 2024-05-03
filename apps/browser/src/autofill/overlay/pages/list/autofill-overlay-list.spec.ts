@@ -384,7 +384,7 @@ describe("AutofillOverlayList", () => {
         globalThis.dispatchEvent(new Event("blur"));
 
         expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-          { command: "overlayPageBlurred", portKey },
+          { command: "autofillInlineMenuBlurred", portKey },
           "*",
         );
       });
@@ -407,7 +407,7 @@ describe("AutofillOverlayList", () => {
         );
 
         expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-          { command: "redirectInlineMenuFocusOut", direction: "previous", portKey },
+          { command: "redirectAutofillInlineMenuFocusOut", direction: "previous", portKey },
           "*",
         );
       });
@@ -416,7 +416,7 @@ describe("AutofillOverlayList", () => {
         globalThis.document.dispatchEvent(new KeyboardEvent("keydown", { code: "Tab" }));
 
         expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-          { command: "redirectInlineMenuFocusOut", direction: "next", portKey },
+          { command: "redirectAutofillInlineMenuFocusOut", direction: "next", portKey },
           "*",
         );
       });
@@ -425,7 +425,7 @@ describe("AutofillOverlayList", () => {
         globalThis.document.dispatchEvent(new KeyboardEvent("keydown", { code: "Escape" }));
 
         expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-          { command: "redirectInlineMenuFocusOut", direction: "current", portKey },
+          { command: "redirectAutofillInlineMenuFocusOut", direction: "current", portKey },
           "*",
         );
       });

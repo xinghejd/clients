@@ -132,22 +132,22 @@ type OverlayButtonPortMessageHandlers = {
   [key: string]: CallableFunction;
   autofillInlineMenuButtonClicked: ({ port }: PortConnectionParam) => void;
   closeAutofillInlineMenu: ({ port }: PortConnectionParam) => void;
-  forceCloseAutofillOverlay: ({ port }: PortConnectionParam) => void;
-  overlayPageBlurred: () => void;
-  redirectInlineMenuFocusOut: ({ message, port }: PortOnMessageHandlerParams) => void;
+  forceCloseAutofillInlineMenu: ({ port }: PortConnectionParam) => void;
+  autofillInlineMenuBlurred: () => void;
+  redirectAutofillInlineMenuFocusOut: ({ message, port }: PortOnMessageHandlerParams) => void;
   updateOverlayPageColorScheme: () => void;
 };
 
 type OverlayListPortMessageHandlers = {
   [key: string]: CallableFunction;
   checkAutofillOverlayButtonFocused: () => void;
-  forceCloseAutofillOverlay: ({ port }: PortConnectionParam) => void;
-  overlayPageBlurred: () => void;
+  forceCloseAutofillInlineMenu: ({ port }: PortConnectionParam) => void;
+  autofillInlineMenuBlurred: () => void;
   unlockVault: ({ port }: PortConnectionParam) => void;
   fillSelectedListItem: ({ message, port }: PortOnMessageHandlerParams) => void;
   addNewVaultItem: ({ port }: PortConnectionParam) => void;
   viewSelectedCipher: ({ message, port }: PortOnMessageHandlerParams) => void;
-  redirectInlineMenuFocusOut: ({ message, port }: PortOnMessageHandlerParams) => void;
+  redirectAutofillInlineMenuFocusOut: ({ message, port }: PortOnMessageHandlerParams) => void;
   updateAutofillOverlayListHeight: ({ message, port }: PortOnMessageHandlerParams) => void;
 };
 

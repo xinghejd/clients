@@ -323,7 +323,7 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
    * Triggers a forced closure of the autofill overlay. This is used when the
    * mutation observer is triggered excessively.
    */
-  private forceCloseAutofillOverlay() {
+  private forceCloseAutofillInlineMenu() {
     void this.sendExtensionMessage("closeAutofillInlineMenu", { forceClose: true });
   }
 
@@ -342,7 +342,7 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
       }
 
       if (this.foreignMutationsCount >= 10) {
-        this.forceCloseAutofillOverlay();
+        this.forceCloseAutofillInlineMenu();
         break;
       }
 
@@ -397,7 +397,7 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
     if (this.mutationObserverIterations > 20) {
       clearTimeout(this.mutationObserverIterationsResetTimeout);
       resetCounters();
-      this.forceCloseAutofillOverlay();
+      this.forceCloseAutofillInlineMenu();
 
       return true;
     }

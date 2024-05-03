@@ -1160,7 +1160,7 @@ describe("OverlayBackground", () => {
         expect(overlayBackground["openInlineMenu"]).toHaveBeenCalled();
       });
 
-      // TODO: The tests for `closeAutofillInlineMenu` and `forceCloseAutofillOverlay` need to be fleshed out
+      // TODO: The tests for `closeAutofillInlineMenu` and `forceCloseAutofillInlineMenu` need to be fleshed out
       describe("closeAutofillInlineMenu", () => {
         it("sends a `closeOverlay` message to the sender tab", () => {
           jest.spyOn(BrowserApi, "tabSendMessage");
@@ -1178,12 +1178,12 @@ describe("OverlayBackground", () => {
         });
       });
 
-      describe("forceCloseAutofillOverlay", () => {
+      describe("forceCloseAutofillInlineMenu", () => {
         it("sends a `closeOverlay` message to the sender tab with a `forceCloseAutofillInlineMenu` flag of `true` set", () => {
           jest.spyOn(BrowserApi, "tabSendMessage");
 
           sendPortMessage(buttonMessageConnectorPortSpy, {
-            command: "forceCloseAutofillOverlay",
+            command: "forceCloseAutofillInlineMenu",
             portKey,
           });
 
@@ -1195,27 +1195,27 @@ describe("OverlayBackground", () => {
         });
       });
 
-      describe("overlayPageBlurred", () => {
+      describe("autofillInlineMenuBlurred", () => {
         it("checks if the overlay list is focused", () => {
-          jest.spyOn(overlayBackground as any, "checkOverlayListFocused");
+          jest.spyOn(overlayBackground as any, "checkInlineMenuListFocused");
 
           sendPortMessage(buttonMessageConnectorPortSpy, {
-            command: "overlayPageBlurred",
+            command: "autofillInlineMenuBlurred",
             portKey,
           });
 
-          expect(overlayBackground["checkOverlayListFocused"]).toHaveBeenCalled();
+          expect(overlayBackground["checkInlineMenuListFocused"]).toHaveBeenCalled();
         });
       });
 
-      describe("redirectInlineMenuFocusOut", () => {
+      describe("redirectAutofillInlineMenuFocusOut", () => {
         beforeEach(() => {
           jest.spyOn(BrowserApi, "tabSendMessageData");
         });
 
         it("ignores the redirect message if the direction is not provided", () => {
           sendPortMessage(buttonMessageConnectorPortSpy, {
-            command: "redirectInlineMenuFocusOut",
+            command: "redirectAutofillInlineMenuFocusOut",
             portKey,
           });
 
@@ -1224,14 +1224,14 @@ describe("OverlayBackground", () => {
 
         it("sends the redirect message if the direction is provided", () => {
           sendPortMessage(buttonMessageConnectorPortSpy, {
-            command: "redirectInlineMenuFocusOut",
+            command: "redirectAutofillInlineMenuFocusOut",
             direction: RedirectFocusDirection.Next,
             portKey,
           });
 
           expect(BrowserApi.tabSendMessageData).toHaveBeenCalledWith(
             buttonMessageConnectorPortSpy.sender.tab,
-            "redirectInlineMenuFocusOut",
+            "redirectAutofillInlineMenuFocusOut",
             { direction: RedirectFocusDirection.Next },
           );
         });
@@ -1258,12 +1258,12 @@ describe("OverlayBackground", () => {
         });
       });
 
-      describe("forceCloseAutofillOverlay", () => {
+      describe("forceCloseAutofillInlineMenu", () => {
         it("sends a `closeOverlay` message to the sender tab with a `forceCloseAutofillInlineMenu` flag of `true` set", () => {
           jest.spyOn(BrowserApi, "tabSendMessage");
 
           sendPortMessage(listMessageConnectorPortSpy, {
-            command: "forceCloseAutofillOverlay",
+            command: "forceCloseAutofillInlineMenu",
             portKey,
           });
 
@@ -1275,11 +1275,14 @@ describe("OverlayBackground", () => {
         });
       });
 
-      describe("overlayPageBlurred", () => {
+      describe("autofillInlineMenuBlurred", () => {
         it("checks on the focus state of the overlay button", () => {
           jest.spyOn(overlayBackground as any, "checkOverlayButtonFocused").mockImplementation();
 
-          sendPortMessage(listMessageConnectorPortSpy, { command: "overlayPageBlurred", portKey });
+          sendPortMessage(listMessageConnectorPortSpy, {
+            command: "autofillInlineMenuBlurred",
+            portKey,
+          });
 
           expect(overlayBackground["checkOverlayButtonFocused"]).toHaveBeenCalled();
         });
@@ -1521,16 +1524,16 @@ describe("OverlayBackground", () => {
         });
       });
 
-      describe("redirectInlineMenuFocusOut", () => {
+      describe("redirectAutofillInlineMenuFocusOut", () => {
         it("redirects focus out of the overlay list", async () => {
           const message = {
-            command: "redirectInlineMenuFocusOut",
+            command: "redirectAutofillInlineMenuFocusOut",
             direction: RedirectFocusDirection.Next,
             portKey,
           };
           const redirectOverlayFocusOutSpy = jest.spyOn(
             overlayBackground as any,
-            "redirectInlineMenuFocusOut",
+            "redirectAutofillInlineMenuFocusOut",
           );
 
           sendPortMessage(listMessageConnectorPortSpy, message);

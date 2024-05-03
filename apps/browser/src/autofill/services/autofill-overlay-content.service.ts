@@ -46,7 +46,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     blurMostRecentOverlayField: () => this.blurMostRecentOverlayField(),
     bgUnlockPopoutOpened: () => this.blurMostRecentOverlayField(true),
     bgVaultItemRepromptPopoutOpened: () => this.blurMostRecentOverlayField(true),
-    redirectInlineMenuFocusOut: ({ message }) =>
+    redirectAutofillInlineMenuFocusOut: ({ message }) =>
       this.redirectInlineMenuFocusOut(message?.data?.direction),
     updateAutofillInlineMenuVisibility: ({ message }) =>
       this.updateAutofillInlineMenuVisibility(message),
@@ -188,7 +188,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    *
    * @param direction - The direction to redirect the focus out.
    */
-  async redirectInlineMenuFocusOut(direction?: string) {
+  private async redirectInlineMenuFocusOut(direction?: string) {
     if (!direction || !this.mostRecentlyFocusedField || !(await this.isInlineMenuListVisible())) {
       return;
     }
