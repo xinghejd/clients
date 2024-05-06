@@ -118,6 +118,7 @@ import { EnvironmentService } from "../platform/abstractions/environment.service
 import { PlatformUtilsService } from "../platform/abstractions/platform-utils.service";
 import { StateService } from "../platform/abstractions/state.service";
 import { Utils } from "../platform/misc/utils";
+import { SyncResponse } from "../platform/sync";
 import { UserId } from "../types/guid";
 import { AttachmentRequest } from "../vault/models/request/attachment.request";
 import { CipherBulkDeleteRequest } from "../vault/models/request/cipher-bulk-delete.request";
@@ -138,7 +139,6 @@ import {
   CollectionDetailsResponse,
   CollectionResponse,
 } from "../vault/models/response/collection.response";
-import { SyncResponse } from "../vault/models/response/sync.response";
 
 /**
  * @deprecated The `ApiService` class is deprecated and calls should be extracted into individual

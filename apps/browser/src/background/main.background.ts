@@ -128,6 +128,9 @@ import { DefaultSingleUserStateProvider } from "@bitwarden/common/platform/state
 import { DefaultStateProvider } from "@bitwarden/common/platform/state/implementations/default-state.provider";
 import { StateEventRegistrarService } from "@bitwarden/common/platform/state/state-event-registrar.service";
 /* eslint-enable import/no-restricted-paths */
+import { SyncService } from "@bitwarden/common/platform/sync";
+// eslint-disable-next-line no-restricted-imports -- Needed for service creation
+import { DefaultSyncService } from "@bitwarden/common/platform/sync/internal";
 import { DefaultThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { ApiService } from "@bitwarden/common/services/api.service";
 import { AuditService } from "@bitwarden/common/services/audit.service";
@@ -162,8 +165,6 @@ import { Fido2UserInterfaceService as Fido2UserInterfaceServiceAbstraction } fro
 import { CipherFileUploadService as CipherFileUploadServiceAbstraction } from "@bitwarden/common/vault/abstractions/file-upload/cipher-file-upload.service";
 import { FolderApiServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService as InternalFolderServiceAbstraction } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
-import { SyncNotifierService as SyncNotifierServiceAbstraction } from "@bitwarden/common/vault/abstractions/sync/sync-notifier.service.abstraction";
-import { SyncService as SyncServiceAbstraction } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { TotpService as TotpServiceAbstraction } from "@bitwarden/common/vault/abstractions/totp.service";
 import { VaultSettingsService as VaultSettingsServiceAbstraction } from "@bitwarden/common/vault/abstractions/vault-settings/vault-settings.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -174,8 +175,6 @@ import { Fido2ClientService } from "@bitwarden/common/vault/services/fido2/fido2
 import { CipherFileUploadService } from "@bitwarden/common/vault/services/file-upload/cipher-file-upload.service";
 import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder-api.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
-import { SyncNotifierService } from "@bitwarden/common/vault/services/sync/sync-notifier.service";
-import { SyncService } from "@bitwarden/common/vault/services/sync/sync.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/services/vault-settings/vault-settings.service";
 import {
@@ -267,7 +266,7 @@ export default class MainBackground {
   collectionService: CollectionServiceAbstraction;
   vaultTimeoutService: VaultTimeoutService;
   vaultTimeoutSettingsService: VaultTimeoutSettingsServiceAbstraction;
-  syncService: SyncServiceAbstraction;
+  syncService: SyncService;
   passwordGenerationService: PasswordGenerationServiceAbstraction;
   passwordStrengthService: PasswordStrengthServiceAbstraction;
   totpService: TotpServiceAbstraction;
@@ -305,7 +304,6 @@ export default class MainBackground {
   policyApiService: PolicyApiServiceAbstraction;
   sendApiService: SendApiServiceAbstraction;
   userVerificationApiService: UserVerificationApiServiceAbstraction;
-  syncNotifierService: SyncNotifierServiceAbstraction;
   fido2UserInterfaceService: Fido2UserInterfaceServiceAbstraction;
   fido2AuthenticatorService: Fido2AuthenticatorServiceAbstraction;
   fido2ClientService: Fido2ClientServiceAbstraction;
@@ -586,7 +584,6 @@ export default class MainBackground {
       this.i18nService,
       this.stateProvider,
     );
-    this.syncNotifierService = new SyncNotifierService();
     this.organizationService = new OrganizationService(this.stateProvider);
     this.policyService = new PolicyService(this.stateProvider, this.organizationService);
     this.autofillSettingsService = new AutofillSettingsService(
@@ -774,7 +771,7 @@ export default class MainBackground {
 
     this.providerService = new ProviderService(this.stateProvider);
 
-    this.syncService = new SyncService(
+    this.syncService = new DefaultSyncService(
       this.masterPasswordService,
       this.accountService,
       this.apiService,

@@ -98,6 +98,9 @@ import { DefaultStateProvider } from "@bitwarden/common/platform/state/implement
 import { StateEventRegistrarService } from "@bitwarden/common/platform/state/state-event-registrar.service";
 import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@bitwarden/common/platform/state/storage/memory-storage.service";
 /* eslint-enable import/no-restricted-paths */
+import { SyncService } from "@bitwarden/common/platform/sync";
+// eslint-disable-next-line no-restricted-imports -- For service creation
+import { DefaultSyncService } from "@bitwarden/common/platform/sync/internal";
 import { AuditService } from "@bitwarden/common/services/audit.service";
 import { EventCollectionService } from "@bitwarden/common/services/event/event-collection.service";
 import { EventUploadService } from "@bitwarden/common/services/event/event-upload.service";
@@ -122,8 +125,6 @@ import { CollectionService } from "@bitwarden/common/vault/services/collection.s
 import { CipherFileUploadService } from "@bitwarden/common/vault/services/file-upload/cipher-file-upload.service";
 import { FolderApiService } from "@bitwarden/common/vault/services/folder/folder-api.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
-import { SyncNotifierService } from "@bitwarden/common/vault/services/sync/sync-notifier.service";
-import { SyncService } from "@bitwarden/common/vault/services/sync/sync.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import {
   ImportApiService,
@@ -218,7 +219,6 @@ export class Main {
   folderApiService: FolderApiService;
   userVerificationApiService: UserVerificationApiService;
   organizationApiService: OrganizationApiServiceAbstraction;
-  syncNotifierService: SyncNotifierService;
   sendApiService: SendApiService;
   devicesApiService: DevicesApiServiceAbstraction;
   deviceTrustService: DeviceTrustServiceAbstraction;
@@ -394,8 +394,6 @@ export class Main {
       async (expired: boolean) => await this.logout(),
       customUserAgent,
     );
-
-    this.syncNotifierService = new SyncNotifierService();
 
     this.organizationApiService = new OrganizationApiService(this.apiService, this.syncService);
 
@@ -625,7 +623,7 @@ export class Main {
 
     this.avatarService = new AvatarService(this.apiService, this.stateProvider);
 
-    this.syncService = new SyncService(
+    this.syncService = new DefaultSyncService(
       this.masterPasswordService,
       this.accountService,
       this.apiService,
