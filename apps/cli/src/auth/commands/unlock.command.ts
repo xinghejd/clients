@@ -14,7 +14,7 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import { HashPurpose } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
-import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { SyncService } from "@bitwarden/common/platform/sync";
 
 import { ConvertToKeyConnectorCommand } from "../../commands/convert-to-key-connector.command";
 import { Response } from "../../models/response";
