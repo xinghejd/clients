@@ -3,6 +3,7 @@ import { TextEncoder } from "util";
 import { mock, MockProxy } from "jest-mock-extended";
 
 import { Utils } from "../../../platform/misc/utils";
+import { SyncService } from "../../../platform/sync/sync.service";
 import { CipherService } from "../../abstractions/cipher.service";
 import {
   Fido2AuthenticatorErrorCode,
@@ -14,7 +15,6 @@ import {
   Fido2UserInterfaceSession,
   NewCredentialParams,
 } from "../../abstractions/fido2/fido2-user-interface.service.abstraction";
-import { SyncService } from "../../abstractions/sync/sync.service.abstraction";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
 import { Cipher } from "../../models/domain/cipher";

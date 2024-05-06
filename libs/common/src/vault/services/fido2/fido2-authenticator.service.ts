@@ -1,5 +1,6 @@
 import { LogService } from "../../../platform/abstractions/log.service";
 import { Utils } from "../../../platform/misc/utils";
+import { SyncService } from "../../../platform/sync/sync.service";
 import { CipherService } from "../../abstractions/cipher.service";
 import {
   Fido2AlgorithmIdentifier,
@@ -13,7 +14,6 @@ import {
   PublicKeyCredentialDescriptor,
 } from "../../abstractions/fido2/fido2-authenticator.service.abstraction";
 import { Fido2UserInterfaceService } from "../../abstractions/fido2/fido2-user-interface.service.abstraction";
-import { SyncService } from "../../abstractions/sync/sync.service.abstraction";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
 import { CipherView } from "../../models/view/cipher.view";

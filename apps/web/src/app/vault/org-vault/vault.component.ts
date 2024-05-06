@@ -46,10 +46,10 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { SyncService } from "@bitwarden/common/platform/sync";
 import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
-import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
@@ -720,7 +720,7 @@ export class VaultComponent implements OnInit, OnDestroy {
       },
     });
     /**
-     
+
      const [modal] = await this.modalService.openViewRef(
      CollectionsComponent,
      this.collectionsModalRef,
@@ -736,7 +736,7 @@ export class VaultComponent implements OnInit, OnDestroy {
      });
      },
      );
-     
+
      */
 
     if ((await lastValueFrom(dialog.closed)) == CollectionsDialogResult.Saved) {
