@@ -19,7 +19,6 @@ import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.
 import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
-import { SearchService as SearchServiceAbstraction } from "@bitwarden/common/abstractions/search.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -28,7 +27,9 @@ import { AccountService as AccountServiceAbstraction } from "@bitwarden/common/a
 import { AuthService as AuthServiceAbstraction } from "@bitwarden/common/auth/abstractions/auth.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
 import { DevicesServiceAbstraction } from "@bitwarden/common/auth/abstractions/devices/devices.service.abstraction";
+import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { KeyConnectorService } from "@bitwarden/common/auth/abstractions/key-connector.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
@@ -53,6 +54,7 @@ import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { FileDownloadService } from "@bitwarden/common/platform/abstractions/file-download/file-download.service";
 import { I18nService as I18nServiceAbstraction } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService as BaseStateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
@@ -61,6 +63,7 @@ import {
   AbstractStorageService,
   ObservableStorageService,
 } from "@bitwarden/common/platform/abstractions/storage.service";
+import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
 import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- Used for dependency injection
@@ -96,10 +99,13 @@ import { runInsideAngular } from "../../platform/browser/run-inside-angular.oper
 /* eslint-disable no-restricted-imports */
 import { ChromeMessageSender } from "../../platform/messaging/chrome-message.sender";
 /* eslint-enable no-restricted-imports */
+import { OffscreenDocumentService } from "../../platform/offscreen-document/abstractions/offscreen-document";
+import { DefaultOffscreenDocumentService } from "../../platform/offscreen-document/offscreen-document.service";
 import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
 import { BrowserFileDownloadService } from "../../platform/popup/services/browser-file-download.service";
 import { BrowserStateService as StateServiceAbstraction } from "../../platform/services/abstractions/browser-state.service";
 import { ScriptInjectorService } from "../../platform/services/abstractions/script-injector.service";
+import { BrowserCryptoService } from "../../platform/services/browser-crypto.service";
 import { BrowserEnvironmentService } from "../../platform/services/browser-environment.service";
 import BrowserLocalStorageService from "../../platform/services/browser-local-storage.service";
 import { BrowserScriptInjectorService } from "../../platform/services/browser-script-injector.service";
@@ -118,20 +124,18 @@ import { VaultFilterService } from "../../vault/services/vault-filter.service";
 import { DebounceNavigationService } from "./debounce-navigation.service";
 import { InitService } from "./init.service";
 import { PopupCloseWarningService } from "./popup-close-warning.service";
-import { PopupSearchService } from "./popup-search.service";
 
 const OBSERVABLE_LARGE_OBJECT_MEMORY_STORAGE = new SafeInjectionToken<
   AbstractStorageService & ObservableStorageService
 >("OBSERVABLE_LARGE_OBJECT_MEMORY_STORAGE");
 
 const needsBackgroundInit = BrowserPopupUtils.backgroundInitializationRequired();
-const isPrivateMode = BrowserPopupUtils.inPrivateMode();
 const mainBackground: MainBackground = needsBackgroundInit
   ? createLocalBgService()
   : BrowserApi.getBackgroundPage().bitwardenMain;
 
 function createLocalBgService() {
-  const localBgService = new MainBackground(isPrivateMode, true);
+  const localBgService = new MainBackground(true);
   // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
   // eslint-disable-next-line @typescript-eslint/no-floating-promises
   localBgService.bootstrap();
@@ -177,23 +181,8 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
-    provide: SearchServiceAbstraction,
-    useClass: PopupSearchService,
-    deps: [LogService, I18nServiceAbstraction, StateProvider],
-  }),
-  safeProvider({
-    provide: CipherService,
-    useFactory: getBgService<CipherService>("cipherService"),
-    deps: [],
-  }),
-  safeProvider({
     provide: CryptoFunctionService,
     useFactory: () => new WebCryptoFunctionService(window),
-    deps: [],
-  }),
-  safeProvider({
-    provide: CollectionService,
-    useFactory: getBgService<CollectionService>("collectionService"),
     deps: [],
   }),
   safeProvider({
@@ -220,12 +209,48 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: CryptoService,
-    useFactory: (encryptService: EncryptService) => {
-      const cryptoService = getBgService<CryptoService>("cryptoService")();
+    useFactory: (
+      masterPasswordService: InternalMasterPasswordServiceAbstraction,
+      keyGenerationService: KeyGenerationService,
+      cryptoFunctionService: CryptoFunctionService,
+      encryptService: EncryptService,
+      platformUtilsService: PlatformUtilsService,
+      logService: LogService,
+      stateService: StateServiceAbstraction,
+      accountService: AccountServiceAbstraction,
+      stateProvider: StateProvider,
+      biometricStateService: BiometricStateService,
+      kdfConfigService: KdfConfigService,
+    ) => {
+      const cryptoService = new BrowserCryptoService(
+        masterPasswordService,
+        keyGenerationService,
+        cryptoFunctionService,
+        encryptService,
+        platformUtilsService,
+        logService,
+        stateService,
+        accountService,
+        stateProvider,
+        biometricStateService,
+        kdfConfigService,
+      );
       new ContainerService(cryptoService, encryptService).attachToGlobal(self);
       return cryptoService;
     },
-    deps: [EncryptService],
+    deps: [
+      InternalMasterPasswordServiceAbstraction,
+      KeyGenerationService,
+      CryptoFunctionService,
+      EncryptService,
+      PlatformUtilsService,
+      LogService,
+      StateServiceAbstraction,
+      AccountServiceAbstraction,
+      StateProvider,
+      BiometricStateService,
+      KdfConfigService,
+    ],
   }),
   safeProvider({
     provide: TotpServiceAbstraction,
@@ -248,8 +273,16 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
+    provide: OffscreenDocumentService,
+    useClass: DefaultOffscreenDocumentService,
+    deps: [],
+  }),
+  safeProvider({
     provide: PlatformUtilsService,
-    useFactory: (toastService: ToastService) => {
+    useFactory: (
+      toastService: ToastService,
+      offscreenDocumentService: OffscreenDocumentService,
+    ) => {
       return new ForegroundPlatformUtilsService(
         toastService,
         (clipboardValue: string, clearMs: number) => {
@@ -266,9 +299,10 @@ const safeProviders: SafeProvider[] = [
           return response.result;
         },
         window,
+        offscreenDocumentService,
       );
     },
-    deps: [ToastService],
+    deps: [ToastService, OffscreenDocumentService],
   }),
   safeProvider({
     provide: PasswordGenerationServiceAbstraction,
@@ -312,7 +346,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: ScriptInjectorService,
     useClass: BrowserScriptInjectorService,
-    deps: [],
+    deps: [PlatformUtilsService, LogService],
   }),
   safeProvider({
     provide: KeyConnectorService,
