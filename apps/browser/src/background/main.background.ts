@@ -1,4 +1,4 @@
-import { Subject, firstValueFrom, map, merge, timeout } from "rxjs";
+import { Subject, filter, firstValueFrom, map, merge, timeout } from "rxjs";
 
 import {
   PinCryptoServiceAbstraction,
@@ -106,7 +106,6 @@ import { DefaultConfigService } from "@bitwarden/common/platform/services/config
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { EncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/encrypt.service.implementation";
-import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/multithread-encrypt.service.implementation";
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
 import { KeyGenerationService } from "@bitwarden/common/platform/services/key-generation.service";
 import { MigrationBuilderService } from "@bitwarden/common/platform/services/migration-builder.service";
@@ -219,6 +218,7 @@ import { BrowserCryptoService } from "../platform/services/browser-crypto.servic
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import BrowserLocalStorageService from "../platform/services/browser-local-storage.service";
 import BrowserMemoryStorageService from "../platform/services/browser-memory-storage.service";
+import { BrowserMultithreadEncryptServiceImplementation } from "../platform/services/browser-multithread-encrypt.service.implementation";
 import { BrowserScriptInjectorService } from "../platform/services/browser-script-injector.service";
 import { DefaultBrowserStateService } from "../platform/services/default-browser-state.service";
 import I18nService from "../platform/services/i18n.service";
@@ -475,14 +475,14 @@ export default class MainBackground {
       storageServiceProvider,
     );
 
-    this.encryptService =
-      flagEnabled("multithreadDecryption") && BrowserApi.isManifestVersion(2)
-        ? new MultithreadEncryptServiceImplementation(
-            this.cryptoFunctionService,
-            this.logService,
-            true,
-          )
-        : new EncryptServiceImplementation(this.cryptoFunctionService, this.logService, true);
+    this.encryptService = flagEnabled("multithreadDecryption")
+      ? new BrowserMultithreadEncryptServiceImplementation(
+          this.cryptoFunctionService,
+          this.logService,
+          true,
+          this.offscreenDocumentService,
+        )
+      : new EncryptServiceImplementation(this.cryptoFunctionService, this.logService, true);
 
     this.singleUserStateProvider = new DefaultSingleUserStateProvider(
       storageServiceProvider,
@@ -813,7 +813,10 @@ export default class MainBackground {
     );
     this.totpService = new TotpService(this.cryptoFunctionService, this.logService);
 
-    this.scriptInjectorService = new BrowserScriptInjectorService();
+    this.scriptInjectorService = new BrowserScriptInjectorService(
+      this.platformUtilsService,
+      this.logService,
+    );
     this.autofillService = new AutofillService(
       this.cipherService,
       this.autofillSettingsService,
@@ -1197,31 +1200,46 @@ export default class MainBackground {
   }
 
   async logout(expired: boolean, userId?: UserId) {
-    userId ??= (
-      await firstValueFrom(
-        this.accountService.activeAccount$.pipe(
-          timeout({
-            first: 2000,
-            with: () => {
-              throw new Error("No active account found to logout");
-            },
-          }),
-        ),
-      )
-    )?.id;
+    const activeUserId = await firstValueFrom(
+      this.accountService.activeAccount$.pipe(
+        map((a) => a?.id),
+        timeout({
+          first: 2000,
+          with: () => {
+            throw new Error("No active account found to logout");
+          },
+        }),
+      ),
+    );
 
-    await this.eventUploadService.uploadEvents(userId as UserId);
+    const userBeingLoggedOut = userId ?? activeUserId;
+
+    await this.eventUploadService.uploadEvents(userBeingLoggedOut);
+
+    // HACK: We shouldn't wait for the authentication status to change but instead subscribe to the
+    // authentication status to do various actions.
+    const logoutPromise = firstValueFrom(
+      this.authService.authStatusFor$(userBeingLoggedOut).pipe(
+        filter((authenticationStatus) => authenticationStatus === AuthenticationStatus.LoggedOut),
+        timeout({
+          first: 5_000,
+          with: () => {
+            throw new Error("The logout process did not complete in a reasonable amount of time.");
+          },
+        }),
+      ),
+    );
 
     await Promise.all([
-      this.syncService.setLastSync(new Date(0), userId),
-      this.cryptoService.clearKeys(userId),
-      this.cipherService.clear(userId),
-      this.folderService.clear(userId),
-      this.collectionService.clear(userId),
-      this.passwordGenerationService.clear(userId),
-      this.vaultTimeoutSettingsService.clear(userId),
+      this.syncService.setLastSync(new Date(0), userBeingLoggedOut),
+      this.cryptoService.clearKeys(userBeingLoggedOut),
+      this.cipherService.clear(userBeingLoggedOut),
+      this.folderService.clear(userBeingLoggedOut),
+      this.collectionService.clear(userBeingLoggedOut),
+      this.passwordGenerationService.clear(userBeingLoggedOut),
+      this.vaultTimeoutSettingsService.clear(userBeingLoggedOut),
       this.vaultFilterService.clear(),
-      this.biometricStateService.logout(userId),
+      this.biometricStateService.logout(userBeingLoggedOut),
       /* We intentionally do not clear:
        *  - autofillSettingsService
        *  - badgeSettingsService
@@ -1232,20 +1250,28 @@ export default class MainBackground {
     //Needs to be checked before state is cleaned
     const needStorageReseed = await this.needsStorageReseed();
 
-    const newActiveUser = await firstValueFrom(
-      this.accountService.nextUpAccount$.pipe(map((a) => a?.id)),
-    );
-    await this.stateService.clean({ userId: userId });
-    await this.accountService.clean(userId);
+    const newActiveUser =
+      userBeingLoggedOut === activeUserId
+        ? await firstValueFrom(this.accountService.nextUpAccount$.pipe(map((a) => a?.id)))
+        : null;
 
-    await this.stateEventRunnerService.handleEvent("logout", userId);
+    await this.stateService.clean({ userId: userBeingLoggedOut });
+    await this.accountService.clean(userBeingLoggedOut);
 
+    await this.stateEventRunnerService.handleEvent("logout", userBeingLoggedOut);
+
+    // HACK: Wait for the user logging outs authentication status to transition to LoggedOut
+    await logoutPromise;
+
+    await this.switchAccount(newActiveUser);
     if (newActiveUser != null) {
       // we have a new active user, do not continue tearing down application
-      await this.switchAccount(newActiveUser as UserId);
       this.messagingService.send("switchAccountFinish");
     } else {
-      this.messagingService.send("doneLoggingOut", { expired: expired, userId: userId });
+      this.messagingService.send("doneLoggingOut", {
+        expired: expired,
+        userId: userBeingLoggedOut,
+      });
     }
 
     if (needStorageReseed) {
