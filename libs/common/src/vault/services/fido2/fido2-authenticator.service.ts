@@ -124,7 +124,9 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
         );
         throw new Fido2AuthenticatorError(Fido2AuthenticatorErrorCode.NotAllowed);
       }
+
       await this.syncService.fullSync(false);
+
       try {
         keyPair = await createKeyPair();
         pubKeyDer = await crypto.subtle.exportKey("spki", keyPair.publicKey);
