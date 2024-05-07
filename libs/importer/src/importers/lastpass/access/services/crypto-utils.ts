@@ -11,7 +11,14 @@ export class CryptoUtils {
     if (iterationCount == 1) {
       return await this.cryptoFunctionService.hash(username + password, "sha256");
     }
-    return await this.cryptoFunctionService.pbkdf2(password, username, "sha256", iterationCount);
+    try {
+      return await this.cryptoFunctionService.pbkdf2(password, username, "sha256", iterationCount);
+    } catch (error) {
+      throw new Error(
+        "Error in derive key: " +
+          (error.message || "An error occurred without a specific message."),
+      );
+    }
   }
 
   async deriveKeyHash(username: string, password: string, iterationCount: number) {

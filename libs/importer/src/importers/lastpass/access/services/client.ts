@@ -82,7 +82,15 @@ export class Client {
     if (!this.isComplete(chunks)) {
       throw new Error("Blob is truncated or corrupted");
     }
-    return await this.parseAccounts(chunks, encryptionKey, privateKey, options);
+
+    try {
+      return await this.parseAccounts(chunks, encryptionKey, privateKey, options);
+    } catch (error) {
+      const errorMessage =
+        "Error while parsing accounts: " +
+        (error.message || "An error occurred without a specific message.");
+      throw new Error(errorMessage);
+    }
   }
 
   private async parseAccounts(

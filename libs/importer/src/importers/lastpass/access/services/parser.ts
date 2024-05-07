@@ -273,12 +273,20 @@ export class Parser {
   }
 
   async parseEncryptedPrivateKey(encryptedPrivateKey: string, encryptionKey: Uint8Array) {
-    const decrypted = await this.cryptoUtils.decryptAes256(
-      Utils.fromHexToArray(encryptedPrivateKey),
-      encryptionKey,
-      "cbc",
-      encryptionKey.subarray(0, 16),
-    );
+    let decrypted: string;
+    try {
+      decrypted = await this.cryptoUtils.decryptAes256(
+        Utils.fromHexToArray(encryptedPrivateKey),
+        encryptionKey,
+        "cbc",
+        encryptionKey.subarray(0, 16),
+      );
+    } catch (error) {
+      const errorMessage =
+        "Error decrypting AES key: " +
+        (error.message || "An error occurred without a specific message.");
+      throw new Error(errorMessage);
+    }
 
     const header = "LastPassPrivateKey<";
     const footer = ">LastPassPrivateKey";
@@ -286,9 +294,16 @@ export class Parser {
       throw new Error("Failed to decrypt private key");
     }
 
-    const parsedKey = decrypted.substring(header.length, decrypted.length - footer.length);
-    const pkcs8 = Utils.fromHexToArray(parsedKey);
-    return pkcs8;
+    try {
+      const parsedKey = decrypted.substring(header.length, decrypted.length - footer.length);
+      const pkcs8 = Utils.fromHexToArray(parsedKey);
+      return pkcs8;
+    } catch (error) {
+      const errorMessage =
+        "Error decrypting key: " +
+        (error.message || "An error occurred without a specific message.");
+      throw new Error(errorMessage);
+    }
   }
 
   makeAccountPath(group: string, folder: SharedFolder): string {
