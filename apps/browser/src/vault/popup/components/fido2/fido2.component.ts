@@ -20,6 +20,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { SecureNoteType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
+import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { CardView } from "@bitwarden/common/vault/models/view/card.view";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { IdentityView } from "@bitwarden/common/vault/models/view/identity.view";
@@ -265,13 +266,15 @@ export class Fido2Component implements OnInit, OnDestroy {
         this.fromLock,
       );
 
+      let cipherId = "";
       if (!data.userVerification || userVerified) {
-        await this.createNewCipher(name);
+        const createdCipher = await this.createNewCipher(name);
+        cipherId = createdCipher?.id;
       }
 
       this.send({
         sessionId: this.sessionId,
-        cipherId: this.cipher?.id,
+        cipherId,
         type: "ConfirmNewCredentialResponse",
         userVerified,
       });
@@ -368,28 +371,30 @@ export class Fido2Component implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private buildCipher(name: string) {
-    this.cipher = new CipherView();
-    this.cipher.name = name;
-    this.cipher.type = CipherType.Login;
-    this.cipher.login = new LoginView();
-    this.cipher.login.uris = [new LoginUriView()];
-    this.cipher.login.uris[0].uri = this.url;
-    this.cipher.card = new CardView();
-    this.cipher.identity = new IdentityView();
-    this.cipher.secureNote = new SecureNoteView();
-    this.cipher.secureNote.type = SecureNoteType.Generic;
-    this.cipher.reprompt = CipherRepromptType.None;
+  private buildCipher(name: string): CipherView {
+    const cipherView = new CipherView();
+    cipherView.name = name;
+    cipherView.type = CipherType.Login;
+    cipherView.login = new LoginView();
+    cipherView.login.uris = [new LoginUriView()];
+    cipherView.login.uris[0].uri = this.url;
+    cipherView.card = new CardView();
+    cipherView.identity = new IdentityView();
+    cipherView.secureNote = new SecureNoteView();
+    cipherView.secureNote.type = SecureNoteType.Generic;
+    cipherView.reprompt = CipherRepromptType.None;
+
+    return cipherView;
   }
 
-  private async createNewCipher(name: string) {
-    this.buildCipher(name);
-    const cipher = await this.cipherService.encrypt(this.cipher);
+  private async createNewCipher(name: string): Promise<Cipher | undefined> {
+    const newCipher = this.buildCipher(name);
+    const cipher = await this.cipherService.encrypt(newCipher);
     try {
-      await this.cipherService.createWithServer(cipher);
-      this.cipher.id = cipher.id;
+      return await this.cipherService.createWithServer(cipher);
     } catch (e) {
       this.logService.error(e);
+      return undefined;
     }
   }
 

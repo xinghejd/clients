@@ -118,7 +118,7 @@ export class Fido2AuthenticatorService implements Fido2AuthenticatorServiceAbstr
       const cipherId = response.cipherId;
       userVerified = response.userVerified;
 
-      if (cipherId === undefined) {
+      if (!cipherId) {
         this.logService?.warning(
           `[Fido2Authenticator] Aborting because user confirmation was not recieved.`,
         );
