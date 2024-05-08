@@ -1,11 +1,12 @@
 import { ChangeDetectorRef, Component, NgZone, OnDestroy, OnInit } from "@angular/core";
 import { NavigationEnd, Router, RouterOutlet } from "@angular/router";
-import { Subject, takeUntil, firstValueFrom, concatMap, filter, tap } from "rxjs";
+import { Subject, takeUntil, firstValueFrom, concatMap, filter, mergeMap } from "rxjs";
 
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -50,6 +51,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private messageListener: MessageListener,
     private toastService: ToastService,
     private accountService: AccountService,
+    private logService: LogService,
   ) {}
 
   async ngOnInit() {
@@ -71,79 +73,13 @@ export class AppComponent implements OnInit, OnDestroy {
       )
       .subscribe();
 
-    this.ngZone.runOutsideAngular(() => {
-      window.onmousedown = () => this.recordActivity();
-      window.ontouchstart = () => this.recordActivity();
-      window.onclick = () => this.recordActivity();
-      window.onscroll = () => this.recordActivity();
-      window.onkeypress = () => this.recordActivity();
-    });
-
     this.messageListener.allMessages$
       .pipe(
-        tap((msg: any) => {
-          if (msg.command === "doneLoggingOut") {
-            this.authService.logOut(async () => {
-              if (msg.expired) {
-                this.toastService.showToast({
-                  variant: "warning",
-                  title: this.i18nService.t("loggedOut"),
-                  message: this.i18nService.t("loginExpired"),
-                });
-              }
-
-              // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-              // eslint-disable-next-line @typescript-eslint/no-floating-promises
-              this.router.navigate(["home"]);
-            });
-            this.changeDetectorRef.detectChanges();
-          } else if (msg.command === "authBlocked") {
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.router.navigate(["home"]);
-          } else if (
-            msg.command === "locked" &&
-            (msg.userId == null || msg.userId == this.activeUserId)
-          ) {
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.router.navigate(["lock"]);
-          } else if (msg.command === "showDialog") {
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.showDialog(msg);
-          } else if (msg.command === "showNativeMessagingFinterprintDialog") {
-            // TODO: Should be refactored to live in another service.
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.showNativeMessagingFingerprintDialog(msg);
-          } else if (msg.command === "showToast") {
-            this.toastService._showToast(msg);
-          } else if (msg.command === "reloadProcess") {
-            const forceWindowReload =
-              this.platformUtilsService.isSafari() ||
-              this.platformUtilsService.isFirefox() ||
-              this.platformUtilsService.isOpera();
-            // Wait to make sure background has reloaded first.
-            window.setTimeout(
-              () => BrowserApi.reloadExtension(forceWindowReload ? window : null),
-              2000,
-            );
-          } else if (msg.command === "reloadPopup") {
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.router.navigate(["/"]);
-          } else if (msg.command === "convertAccountToKeyConnector") {
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.router.navigate(["/remove-password"]);
-          } else if (msg.command === "switchAccountFinish") {
-            // TODO: unset loading?
-            // this.loading = false;
-          } else if (msg.command == "update-temp-password") {
-            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            this.router.navigate(["/update-temp-password"]);
+        mergeMap(async (message: any) => {
+          try {
+            await this.processMessage(message);
+          } catch (err) {
+            this.logService.error(err);
           }
         }),
         takeUntil(this.destroy$),
@@ -174,6 +110,61 @@ export class AppComponent implements OnInit, OnDestroy {
         }
       }
     });
+
+    this.ngZone.runOutsideAngular(() => {
+      window.onmousedown = () => this.recordActivity();
+      window.ontouchstart = () => this.recordActivity();
+      window.onclick = () => this.recordActivity();
+      window.onscroll = () => this.recordActivity();
+      window.onkeypress = () => this.recordActivity();
+    });
+  }
+
+  private async processMessage(msg: any) {
+    if (msg.command === "doneLoggingOut") {
+      this.authService.logOut(async () => {
+        if (msg.expired) {
+          this.toastService.showToast({
+            variant: "warning",
+            title: this.i18nService.t("loggedOut"),
+            message: this.i18nService.t("loginExpired"),
+          });
+        }
+
+        await this.router.navigate(["home"]);
+      });
+      this.changeDetectorRef.detectChanges();
+    } else if (msg.command === "authBlocked") {
+      await this.router.navigate(["home"]);
+    } else if (
+      msg.command === "locked" &&
+      (msg.userId == null || msg.userId == this.activeUserId)
+    ) {
+      await this.router.navigate(["lock"]);
+    } else if (msg.command === "showDialog") {
+      await this.showDialog(msg);
+    } else if (msg.command === "showNativeMessagingFinterprintDialog") {
+      // TODO: Should be refactored to live in another service.
+      await this.showNativeMessagingFingerprintDialog(msg);
+    } else if (msg.command === "showToast") {
+      this.toastService._showToast(msg);
+    } else if (msg.command === "reloadProcess") {
+      const forceWindowReload =
+        this.platformUtilsService.isSafari() ||
+        this.platformUtilsService.isFirefox() ||
+        this.platformUtilsService.isOpera();
+      // Wait to make sure background has reloaded first.
+      window.setTimeout(() => BrowserApi.reloadExtension(forceWindowReload ? window : null), 2000);
+    } else if (msg.command === "reloadPopup") {
+      await this.router.navigate(["/"]);
+    } else if (msg.command === "convertAccountToKeyConnector") {
+      await this.router.navigate(["/remove-password"]);
+    } else if (msg.command === "switchAccountFinish") {
+      // TODO: unset loading?
+      // this.loading = false;
+    } else if (msg.command == "update-temp-password") {
+      await this.router.navigate(["/update-temp-password"]);
+    }
   }
 
   ngOnDestroy(): void {
