@@ -194,6 +194,8 @@ export class AddEditComponent extends BaseAddEditComponent {
       this.popupCloseWarningService.disable();
     }
 
+    this.ciph;
+
     if (inFido2PopoutWindow) {
       BrowserFido2UserInterfaceSession.confirmNewCredentialResponse(
         sessionId,
