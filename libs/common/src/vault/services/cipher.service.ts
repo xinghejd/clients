@@ -77,7 +77,7 @@ export class CipherService implements CipherServiceAbstraction {
   private sortedCiphersCache: SortedCiphersCache = new SortedCiphersCache(
     this.sortCiphersByLastUsed,
   );
-  private ciphersExpectingUpdate: DerivedState<boolean>;
+  private ciphersExpectingUpdate: DerivedState<Date | undefined>;
 
   localData$: Observable<Record<CipherId, LocalData>>;
   ciphers$: Observable<Record<CipherId, CipherData>>;
@@ -112,8 +112,8 @@ export class CipherService implements CipherServiceAbstraction {
     this.ciphersExpectingUpdate = this.stateProvider.getDerived(
       this.encryptedCiphersState.state$,
       new DeriveDefinition(CIPHERS_MEMORY, "ciphersExpectingUpdate", {
-        derive: (_: Record<CipherId, CipherData>) => false,
-        deserializer: (value) => value,
+        derive: (_: Record<CipherId, CipherData>) => undefined as Date,
+        deserializer: (value) => (value == null ? undefined : new Date(value)),
       }),
       {},
     );
@@ -121,7 +121,10 @@ export class CipherService implements CipherServiceAbstraction {
     this.localData$ = this.localDataState.state$.pipe(map((data) => data ?? {}));
     // First wait for ciphersExpectingUpdate to be false before emitting ciphers
     this.ciphers$ = this.ciphersExpectingUpdate.state$.pipe(
-      skipWhile((expectingUpdate) => expectingUpdate),
+      skipWhile(
+        (expectingUpdate) =>
+          expectingUpdate != null && Date.now() - expectingUpdate.getTime() > 1000,
+      ),
       switchMap(() => this.encryptedCiphersState.state$),
       map((ciphers) => ciphers ?? {}),
     );
@@ -837,7 +840,7 @@ export class CipherService implements CipherServiceAbstraction {
     update: (current: Record<CipherId, CipherData>) => Record<CipherId, CipherData>,
   ): Promise<Record<CipherId, CipherData>> {
     // Store that we should wait for an update to return any ciphers
-    await this.ciphersExpectingUpdate.forceValue(true);
+    await this.ciphersExpectingUpdate.forceValue(new Date());
     await this.clearDecryptedCiphersState();
     const [, updatedCiphers] = await this.encryptedCiphersState.update((current) => {
       const result = update(current ?? {});
