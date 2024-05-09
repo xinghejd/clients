@@ -240,9 +240,7 @@ export class UserVerificationService implements UserVerificationServiceAbstracti
         this.userDecryptionOptionsService.userDecryptionOptionsById$(userId),
       );
 
-      if (decryptionOptions?.hasMasterPassword != undefined) {
-        return decryptionOptions.hasMasterPassword;
-      }
+      return decryptionOptions?.hasMasterPassword ?? false;
     }
     return await firstValueFrom(this.userDecryptionOptionsService.hasMasterPassword$);
   }
