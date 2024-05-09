@@ -595,7 +595,7 @@ export class OrganizationPlansComponent implements OnInit, OnDestroy {
     this.formPromise = doSubmit();
     const organizationId = await this.formPromise;
     this.onSuccess.emit({ organizationId: organizationId });
-    this.messagingService.send("organizationCreated", organizationId);
+    this.messagingService.send("organizationCreated", { organizationId: organizationId });
   };
 
   private async updateOrganization(orgId: string) {
