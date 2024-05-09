@@ -16,10 +16,9 @@ import {
   CLIENT_TYPE,
 } from "@bitwarden/angular/services/injection-tokens";
 import { JslibServicesModule } from "@bitwarden/angular/services/jslib-services.module";
-import { AuthRequestServiceAbstraction } from "@bitwarden/auth/common";
+import { AuthRequestServiceAbstraction, PinServiceAbstraction } from "@bitwarden/auth/common";
 import { EventCollectionService as EventCollectionServiceAbstraction } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { NotificationsService } from "@bitwarden/common/abstractions/notifications.service";
-import { SearchService as SearchServiceAbstraction } from "@bitwarden/common/abstractions/search.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { OrganizationService } from "@bitwarden/common/admin-console/abstractions/organization/organization.service.abstraction";
@@ -60,7 +59,6 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService as BaseStateServiceAbstraction } from "@bitwarden/common/platform/abstractions/state.service";
 import {
-  AbstractMemoryStorageService,
   AbstractStorageService,
   ObservableStorageService,
 } from "@bitwarden/common/platform/abstractions/storage.service";
@@ -125,7 +123,6 @@ import { VaultFilterService } from "../../vault/services/vault-filter.service";
 import { DebounceNavigationService } from "./debounce-navigation.service";
 import { InitService } from "./init.service";
 import { PopupCloseWarningService } from "./popup-close-warning.service";
-import { PopupSearchService } from "./popup-search.service";
 
 const OBSERVABLE_LARGE_OBJECT_MEMORY_STORAGE = new SafeInjectionToken<
   AbstractStorageService & ObservableStorageService
@@ -183,23 +180,8 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
-    provide: SearchServiceAbstraction,
-    useClass: PopupSearchService,
-    deps: [LogService, I18nServiceAbstraction, StateProvider],
-  }),
-  safeProvider({
-    provide: CipherService,
-    useFactory: getBgService<CipherService>("cipherService"),
-    deps: [],
-  }),
-  safeProvider({
     provide: CryptoFunctionService,
     useFactory: () => new WebCryptoFunctionService(window),
-    deps: [],
-  }),
-  safeProvider({
-    provide: CollectionService,
-    useFactory: getBgService<CollectionService>("collectionService"),
     deps: [],
   }),
   safeProvider({
@@ -227,6 +209,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: CryptoService,
     useFactory: (
+      pinService: PinServiceAbstraction,
       masterPasswordService: InternalMasterPasswordServiceAbstraction,
       keyGenerationService: KeyGenerationService,
       cryptoFunctionService: CryptoFunctionService,
@@ -240,6 +223,7 @@ const safeProviders: SafeProvider[] = [
       kdfConfigService: KdfConfigService,
     ) => {
       const cryptoService = new BrowserCryptoService(
+        pinService,
         masterPasswordService,
         keyGenerationService,
         cryptoFunctionService,
@@ -256,6 +240,7 @@ const safeProviders: SafeProvider[] = [
       return cryptoService;
     },
     deps: [
+      PinServiceAbstraction,
       InternalMasterPasswordServiceAbstraction,
       KeyGenerationService,
       CryptoFunctionService,
@@ -363,7 +348,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: ScriptInjectorService,
     useClass: BrowserScriptInjectorService,
-    deps: [],
+    deps: [PlatformUtilsService, LogService],
   }),
   safeProvider({
     provide: KeyConnectorService,
@@ -428,7 +413,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: OBSERVABLE_LARGE_OBJECT_MEMORY_STORAGE,
     useFactory: (
-      regularMemoryStorageService: AbstractMemoryStorageService & ObservableStorageService,
+      regularMemoryStorageService: AbstractStorageService & ObservableStorageService,
     ) => {
       if (BrowserApi.isManifestVersion(2)) {
         return regularMemoryStorageService;
@@ -456,7 +441,7 @@ const safeProviders: SafeProvider[] = [
     useFactory: (
       storageService: AbstractStorageService,
       secureStorageService: AbstractStorageService,
-      memoryStorageService: AbstractMemoryStorageService,
+      memoryStorageService: AbstractStorageService,
       logService: LogService,
       accountService: AccountServiceAbstraction,
       environmentService: EnvironmentService,
