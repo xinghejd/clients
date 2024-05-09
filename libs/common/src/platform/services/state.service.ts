@@ -450,10 +450,7 @@ export class StateService<
   }
 
   async getIsAuthenticated(options?: StorageOptions): Promise<boolean> {
-    return (
-      (await this.tokenService.getAccessToken(options?.userId as UserId)) != null &&
-      (await this.getUserId(options)) != null
-    );
+    return (await this.tokenService.getAccessToken(options?.userId as UserId)) != null;
   }
 
   async getLastSync(options?: StorageOptions): Promise<string> {
