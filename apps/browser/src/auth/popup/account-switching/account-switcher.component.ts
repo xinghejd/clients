@@ -1,7 +1,7 @@
 import { Location } from "@angular/common";
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { Router } from "@angular/router";
-import { Subject, firstValueFrom, map, switchMap, takeUntil } from "rxjs";
+import { Subject, firstValueFrom, map, of, switchMap, takeUntil } from "rxjs";
 
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
@@ -49,7 +49,7 @@ export class AccountSwitcherComponent implements OnInit, OnDestroy {
   readonly currentAccount$ = this.accountService.activeAccount$.pipe(
     switchMap((a) =>
       a == null
-        ? null
+        ? of(null)
         : this.authService.activeAccountStatus$.pipe(map((s) => ({ ...a, status: s }))),
     ),
   );
