@@ -266,7 +266,7 @@ export class Main {
     this.encryptService = new EncryptServiceImplementation(
       this.cryptoFunctionService,
       this.logService,
-      true,
+      false,
     );
     this.storageService = new LowdbStorageService(this.logService, null, p, false, true);
     this.secureStorageService = new NodeEnvSecureStorageService(
