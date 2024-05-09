@@ -15,6 +15,8 @@ type UpdateAutofillDataAttributeParams = {
 };
 
 interface CollectAutofillContentService {
+  autofillFormElements: AutofillFormElements;
+  autofillFieldElements: AutofillFieldElements;
   getPageDetails(): Promise<AutofillPageDetails>;
   getAutofillFieldElementByOpid(opid: string): HTMLElement | null;
   queryAllTreeWalkerNodes(

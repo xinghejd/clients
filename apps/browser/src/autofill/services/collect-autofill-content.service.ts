@@ -4,29 +4,29 @@ import AutofillPageDetails from "../models/autofill-page-details";
 import {
   ElementWithOpId,
   FillableFormFieldElement,
-  FormFieldElement,
   FormElementWithAttribute,
+  FormFieldElement,
 } from "../types";
 import {
   elementIsDescriptionDetailsElement,
   elementIsDescriptionTermElement,
   elementIsFillableFormField,
   elementIsFormElement,
+  elementIsInputElement,
   elementIsLabelElement,
   elementIsSelectElement,
   elementIsSpanElement,
-  nodeIsFormElement,
-  nodeIsElement,
-  elementIsInputElement,
   elementIsTextAreaElement,
+  nodeIsElement,
+  nodeIsFormElement,
 } from "../utils";
 
 import { AutofillOverlayContentService } from "./abstractions/autofill-overlay-content.service";
 import {
-  UpdateAutofillDataAttributeParams,
   AutofillFieldElements,
   AutofillFormElements,
   CollectAutofillContentService as CollectAutofillContentServiceInterface,
+  UpdateAutofillDataAttributeParams,
 } from "./abstractions/collect-autofill-content.service";
 import { DomElementVisibilityService } from "./abstractions/dom-element-visibility.service";
 
@@ -35,8 +35,8 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
   private readonly autofillOverlayContentService: AutofillOverlayContentService;
   private noFieldsFound = false;
   private domRecentlyMutated = true;
-  private autofillFormElements: AutofillFormElements = new Map();
-  private autofillFieldElements: AutofillFieldElements = new Map();
+  autofillFormElements: AutofillFormElements = new Map();
+  autofillFieldElements: AutofillFieldElements = new Map();
   private currentLocationHref = "";
   private intersectionObserver: IntersectionObserver;
   private elementInitializingIntersectionObserver: Set<Element> = new Set();
@@ -454,11 +454,11 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
    * @private
    */
   private getAutoCompleteAttribute(element: ElementWithOpId<FormFieldElement>): string {
-    const autoCompleteType =
+    return (
       this.getPropertyOrAttribute(element, "x-autocompletetype") ||
       this.getPropertyOrAttribute(element, "autocompletetype") ||
-      this.getPropertyOrAttribute(element, "autocomplete");
-    return autoCompleteType !== "off" ? autoCompleteType : null;
+      this.getPropertyOrAttribute(element, "autocomplete")
+    );
   }
 
   /**
