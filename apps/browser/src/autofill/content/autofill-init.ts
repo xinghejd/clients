@@ -1,5 +1,6 @@
 import AutofillPageDetails from "../models/autofill-page-details";
 import { AutofillOverlayContentService } from "../services/abstractions/autofill-overlay-content.service";
+import { AutofillFieldQualificationService } from "../services/autofill-field-qualification.service";
 import CollectAutofillContentService from "../services/collect-autofill-content.service";
 import DomElementVisibilityService from "../services/dom-element-visibility.service";
 import InsertAutofillContentService from "../services/insert-autofill-content.service";
@@ -12,6 +13,7 @@ import {
 } from "./abstractions/autofill-init";
 
 class AutofillInit implements AutofillInitInterface {
+  private readonly autofillFieldQualificationService: AutofillFieldQualificationService;
   private readonly autofillOverlayContentService: AutofillOverlayContentService | undefined;
   private readonly domElementVisibilityService: DomElementVisibilityService;
   private readonly collectAutofillContentService: CollectAutofillContentService;
@@ -38,6 +40,7 @@ class AutofillInit implements AutofillInitInterface {
    * @param autofillOverlayContentService - The autofill overlay content service, potentially undefined.
    */
   constructor(autofillOverlayContentService?: AutofillOverlayContentService) {
+    this.autofillFieldQualificationService = new AutofillFieldQualificationService();
     this.autofillOverlayContentService = autofillOverlayContentService;
     this.domElementVisibilityService = new DomElementVisibilityService();
     this.collectAutofillContentService = new CollectAutofillContentService(
@@ -98,6 +101,17 @@ class AutofillInit implements AutofillInitInterface {
   ): Promise<AutofillPageDetails | void> {
     const pageDetails: AutofillPageDetails =
       await this.collectAutofillContentService.getPageDetails();
+
+    // console.log(pageDetails);
+    // pageDetails.fields.forEach((field) => {
+    //   const isLoginField = this.autofillFieldQualificationService.isFieldForLoginForm(
+    //     field,
+    //     pageDetails,
+    //   );
+    //
+    //   console.log(isLoginField, field);
+    // });
+
     if (sendDetailsInResponse) {
       return pageDetails;
     }

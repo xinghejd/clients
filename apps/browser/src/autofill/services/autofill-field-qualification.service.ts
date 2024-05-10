@@ -10,13 +10,163 @@ export class AutofillFieldQualificationService {
   private fieldIgnoreListString = AutoFillConstants.FieldIgnoreList.join(",");
   private passwordFieldExcludeListString = AutoFillConstants.PasswordFieldExcludeList.join(",");
   private autofillFieldKeywordsMap: WeakMap<AutofillField, string> = new WeakMap();
+  private invalidAutocompleteValuesSet = new Set(["off", "false"]);
 
   isFieldForLoginForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean {
-    // Check if the field
-    return false;
+    // TODO: Determine whether it makes sense to even incorporate this.
+    if (!field.viewable) {
+      return false;
+    }
+
+    const isExistingPasswordField = this.isExistingPasswordField(field);
+    if (isExistingPasswordField) {
+      return this.isPasswordFieldForLoginForm(field, pageDetails);
+    }
+
+    const isUsernameField = this.isUsernameField(field);
+    if (!isUsernameField) {
+      return false;
+    }
+
+    return this.isUsernameFieldForLoginForm(field, pageDetails);
   }
 
-  isUsernameField(field: AutofillField): boolean {
+  private isPasswordFieldForLoginForm(
+    field: AutofillField,
+    pageDetails: AutofillPageDetails,
+  ): boolean {
+    // Check if the autocomplete attribute is set to "current-password", if so treat this as a password field
+    if (field.autoCompleteType === "current-password") {
+      return true;
+    }
+
+    // Check if the field has a form parent
+    const parentForm = pageDetails.forms[field.form];
+    const usernameFieldsInPageDetails = pageDetails.fields.filter(this.isUsernameField);
+    const passwordFieldsInPageDetails = pageDetails.fields.filter(this.isExistingPasswordField);
+    // If no form parent is found, check if a username field exists and no other password fields are found in the page details, if so treat this as a password field
+    if (
+      !parentForm &&
+      usernameFieldsInPageDetails.length === 1 &&
+      passwordFieldsInPageDetails.length === 1
+    ) {
+      return true;
+    }
+
+    // If no form parent is found and the autocomplete attribute is set to "off" or "false", this is not a password field
+    if (!parentForm && this.invalidAutocompleteValuesSet.has(field.autoCompleteType)) {
+      return false;
+    }
+
+    // If the field has a form parent and if the form has  username field and no other password fields exist, if so treat this as a password field
+    if (
+      parentForm &&
+      usernameFieldsInPageDetails.length === 1 &&
+      passwordFieldsInPageDetails.length === 1
+    ) {
+      return true;
+    }
+
+    // If the field has a form parent and there are multiple visible password fields in the form, this is not a username field
+    const visiblePasswordFieldsInPageDetails = passwordFieldsInPageDetails.filter(
+      (field) => field.viewable,
+    );
+    if (parentForm && visiblePasswordFieldsInPageDetails.length > 1) {
+      return false;
+    }
+
+    // If the field has a form parent a no username field exists and the field has an autocomplete attribute set to "off" or "false", this is not a password field
+    if (
+      parentForm &&
+      usernameFieldsInPageDetails.length === 0 &&
+      this.invalidAutocompleteValuesSet.has(field.autoCompleteType)
+    ) {
+      return false;
+    }
+
+    return true;
+  }
+
+  private isUsernameFieldForLoginForm(
+    field: AutofillField,
+    pageDetails: AutofillPageDetails,
+  ): boolean {
+    // console.log(field);
+
+    // Check if the autocomplete attribute is set to "username", if so treat this as a username field
+    if (field.autoCompleteType === "username") {
+      return true;
+    }
+
+    // Check if the field has a form parent
+    const parentForm = pageDetails.forms[field.form];
+    const passwordFieldsInPageDetails = pageDetails.fields.filter(this.isExistingPasswordField);
+    // console.log(passwordFieldsInPageDetails);
+
+    // If no form parent is found, check if a single password field is found in the page details, if so treat this as a username field
+    if (!parentForm && passwordFieldsInPageDetails.length === 1) {
+      // TODO: We should consider checking the distance between the username and password fields in the DOM to determine if they are close enough to be considered a pair
+      return true;
+    }
+
+    // If no form parent is found and the autocomplete attribute is set to "off" or "false", this is not a username field
+    if (!parentForm && this.invalidAutocompleteValuesSet.has(field.autoCompleteType)) {
+      // console.log("invalid autocomplete value");
+      return false;
+    }
+
+    // If the field has a form parent and if the form has a single password field, if so treat this as a username field
+    if (
+      parentForm &&
+      passwordFieldsInPageDetails.length === 1 &&
+      parentForm === pageDetails.forms[passwordFieldsInPageDetails[0].form] &&
+      field.elementNumber < passwordFieldsInPageDetails[0].elementNumber
+    ) {
+      // console.log("shared form");
+      return true;
+    }
+
+    // If the field has a form parent and the form has a single password that is before the username, this is not a username field
+    if (
+      parentForm &&
+      passwordFieldsInPageDetails.length === 1 &&
+      (parentForm !== pageDetails.forms[passwordFieldsInPageDetails[0].form] ||
+        field.elementNumber >= passwordFieldsInPageDetails[0].elementNumber)
+    ) {
+      // console.log("username field is below password field");
+      return false;
+    }
+
+    // If the field has a form parent and there are multiple visible password fields in the form, this is not a username field
+    const visiblePasswordFieldsInPageDetails = passwordFieldsInPageDetails.filter(
+      (field) => field.viewable,
+    );
+    if (parentForm && visiblePasswordFieldsInPageDetails.length > 1) {
+      // console.log("multiple password fields");
+      return false;
+    }
+
+    // If the field has a form parent and the form has no password fields and has an autocomplete attribute set to "off" or "false", this is not a username field
+    if (
+      parentForm &&
+      passwordFieldsInPageDetails.length === 0 &&
+      this.invalidAutocompleteValuesSet.has(field.autoCompleteType)
+    ) {
+      // console.log("no password fields");
+      return false;
+    }
+
+    const otherFieldsInForm = pageDetails.fields.filter((f) => f.form === field.form);
+    // If the parent form has no password fields and the form has multiple fields, this is not a username field
+    if (parentForm && passwordFieldsInPageDetails.length === 0 && otherFieldsInForm.length > 1) {
+      return false;
+    }
+
+    // console.log("no previous conditions met");
+    return true;
+  }
+
+  isUsernameField = (field: AutofillField): boolean => {
     if (
       !this.usernameFieldTypes.has(field.type) ||
       this.isExcludedFieldType(field, this.excludedAutofillLoginTypesSet)
@@ -25,17 +175,17 @@ export class AutofillFieldQualificationService {
     }
 
     return this.keywordsFoundInFieldData(field, AutoFillConstants.UsernameFieldNames);
-  }
+  };
 
-  isExistingPasswordField(field: AutofillField): boolean {
-    if (field.autoComplete === "new-password") {
+  isExistingPasswordField = (field: AutofillField): boolean => {
+    if (field.autoCompleteType === "new-password") {
       return false;
     }
 
     return this.isPasswordField(field);
-  }
+  };
 
-  isPasswordField(field: AutofillField): boolean {
+  isPasswordField = (field: AutofillField): boolean => {
     const isInputPasswordType = field.type === "password";
     if (
       !isInputPasswordType ||
@@ -46,7 +196,7 @@ export class AutofillFieldQualificationService {
     }
 
     return isInputPasswordType || this.isLikePasswordField(field);
-  }
+  };
 
   private isLikePasswordField(field: AutofillField): boolean {
     if (field.type !== "text") {
