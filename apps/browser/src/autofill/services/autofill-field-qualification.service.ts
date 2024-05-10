@@ -4,41 +4,51 @@ import AutofillPageDetails from "../models/autofill-page-details";
 import { AutoFillConstants } from "./autofill-constants";
 
 export class AutofillFieldQualificationService {
-  autofillPageDetails: AutofillPageDetails;
   private searchFieldNamesSet = new Set(AutoFillConstants.SearchFieldNames);
   private excludedAutofillLoginTypesSet = new Set(AutoFillConstants.ExcludedAutofillLoginTypes);
+  private usernameFieldTypes = new Set(["text", "email", "tel"]);
   private fieldIgnoreListString = AutoFillConstants.FieldIgnoreList.join(",");
   private passwordFieldExcludeListString = AutoFillConstants.PasswordFieldExcludeList.join(",");
+  private autofillFieldKeywordsMap: WeakMap<AutofillField, string> = new WeakMap();
 
-  setAutofillPageDetails(autofillPageDetails: AutofillPageDetails): void {
-    this.autofillPageDetails = autofillPageDetails;
-  }
-
-  isLoginUsernameField(field: AutofillField): boolean {
+  isFieldForLoginForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean {
+    // Check if the field
     return false;
   }
 
-  isLoginPasswordField(field: AutofillField): boolean {
+  isUsernameField(field: AutofillField): boolean {
     if (
-      field.type !== "password" ||
-      field.autoComplete === "new-password" ||
+      !this.usernameFieldTypes.has(field.type) ||
       this.isExcludedFieldType(field, this.excludedAutofillLoginTypesSet)
     ) {
       return false;
     }
 
-    if (this.fieldHasDisqualifyingAttributeValue(field)) {
+    return this.keywordsFoundInFieldData(field, AutoFillConstants.UsernameFieldNames);
+  }
+
+  isExistingPasswordField(field: AutofillField): boolean {
+    if (field.autoComplete === "new-password") {
       return false;
     }
 
-    if (field.type === "password") {
-      return true;
-    }
-
-    return this.isPseudoPasswordField(field);
+    return this.isPasswordField(field);
   }
 
-  private isPseudoPasswordField(field: AutofillField): boolean {
+  isPasswordField(field: AutofillField): boolean {
+    const isInputPasswordType = field.type === "password";
+    if (
+      !isInputPasswordType ||
+      this.isExcludedFieldType(field, this.excludedAutofillLoginTypesSet) ||
+      this.fieldHasDisqualifyingAttributeValue(field)
+    ) {
+      return false;
+    }
+
+    return isInputPasswordType || this.isLikePasswordField(field);
+  }
+
+  private isLikePasswordField(field: AutofillField): boolean {
     if (field.type !== "text") {
       return false;
     }
@@ -112,5 +122,37 @@ export class AutofillFieldQualificationService {
     }
 
     return false;
+  }
+
+  private keywordsFoundInFieldData(autofillFieldData: AutofillField, keywords: string[]) {
+    const searchedString = this.getAutofillFieldDataKeywords(autofillFieldData);
+    return keywords.some((keyword) => searchedString.includes(keyword));
+  }
+
+  private getAutofillFieldDataKeywords(autofillFieldData: AutofillField) {
+    if (this.autofillFieldKeywordsMap.has(autofillFieldData)) {
+      return this.autofillFieldKeywordsMap.get(autofillFieldData);
+    }
+
+    const keywordValues = [
+      autofillFieldData.htmlID,
+      autofillFieldData.htmlName,
+      autofillFieldData.htmlClass,
+      autofillFieldData.type,
+      autofillFieldData.title,
+      autofillFieldData.placeholder,
+      autofillFieldData.autoCompleteType,
+      autofillFieldData["label-data"],
+      autofillFieldData["label-aria"],
+      autofillFieldData["label-left"],
+      autofillFieldData["label-right"],
+      autofillFieldData["label-tag"],
+      autofillFieldData["label-top"],
+    ]
+      .join(",")
+      .toLowerCase();
+    this.autofillFieldKeywordsMap.set(autofillFieldData, keywordValues);
+
+    return keywordValues;
   }
 }
