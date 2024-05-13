@@ -49,7 +49,6 @@ export class Parser {
         placeholder,
       );
 
-      throw new Error("Error occured");
       // 2: group
       const group = await this.cryptoUtils.decryptAes256PlainWithDefault(
         this.readItem(reader),
