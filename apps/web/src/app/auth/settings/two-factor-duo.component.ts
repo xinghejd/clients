@@ -19,6 +19,9 @@ import { TwoFactorBaseComponent } from "./two-factor-base.component";
 })
 export class TwoFactorDuoComponent extends TwoFactorBaseComponent {
   type = TwoFactorProviderType.Duo;
+  //TODO - will remove iKey and sKey  with PM-8107
+  iKey: string;
+  sKey: string;
   clientId: string;
   clientSecret: string;
   host: string;
@@ -59,6 +62,10 @@ export class TwoFactorDuoComponent extends TwoFactorBaseComponent {
 
   protected async enable() {
     const request = await this.buildRequestModel(UpdateTwoFactorDuoRequest);
+    //TODO - will remove iKey and sKey  with PM-8107
+    request.iKey = this.clientId;
+    request.sKey = this.clientSecret;
+
     request.clientId = this.clientId;
     request.clientSecret = this.clientSecret;
     request.host = this.host;
@@ -78,6 +85,10 @@ export class TwoFactorDuoComponent extends TwoFactorBaseComponent {
   }
 
   private processResponse(response: TwoFactorDuoResponse) {
+    //TODO - will remove iKey and sKey with PM-8107
+    this.iKey = response.clientId;
+    this.sKey = response.clientSecret;
+
     this.clientId = response.clientId;
     this.clientSecret = response.clientSecret;
     this.host = response.host;
