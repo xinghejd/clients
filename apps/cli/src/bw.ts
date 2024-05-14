@@ -649,6 +649,7 @@ export class Main {
       async (expired: boolean) => await this.logout(),
       this.billingAccountProfileStateService,
       this.tokenService,
+      this.authService,
     );
 
     this.totpService = new TotpService(this.cryptoFunctionService, this.logService);
