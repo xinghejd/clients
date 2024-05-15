@@ -1,9 +1,7 @@
 import { defaultIfEmpty, filter, firstValueFrom, fromEvent, map, Subject, takeUntil } from "rxjs";
 import { Jsonify } from "type-fest";
 
-// eslint-disable-next-line no-restricted-imports
-import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-
+import { FeatureFlag } from "../../../enums/feature-flag.enum";
 import { Utils } from "../../../platform/misc/utils";
 import { ConfigService } from "../../abstractions/config/config.service";
 import { CryptoFunctionService } from "../../abstractions/crypto-function.service";
