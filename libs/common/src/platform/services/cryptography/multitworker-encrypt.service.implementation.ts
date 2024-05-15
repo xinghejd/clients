@@ -50,8 +50,14 @@ export class MultiWorkerEncryptServiceImplementation extends EncryptServiceImple
     items: Decryptable<T>[],
     key: SymmetricCryptoKey,
   ): Promise<T[]> {
+    if (items == null || items.length < 1) {
+      return [];
+    }
+
     // fall back to "old" single-worker background thread decryption when the featureflag is disabled
-    if (await this.configService.getFeatureFlag(FeatureFlag.EnableMultiWorkerEncryptionService)) {
+    if (
+      !(await this.configService.getFeatureFlag(FeatureFlag.EnableMultiWorkerEncryptionService))
+    ) {
       this.logService.info(
         "Multiworker decryption disabled, falling back to background thread decryption",
       );
@@ -60,10 +66,6 @@ export class MultiWorkerEncryptServiceImplementation extends EncryptServiceImple
 
     if (typeof window === "undefined") {
       return super.decryptItems(items, key);
-    }
-
-    if (items == null || items.length < 1) {
-      return [];
     }
 
     const decryptedItems = await this.getDecryptedItemsFromWorker(items, key);
