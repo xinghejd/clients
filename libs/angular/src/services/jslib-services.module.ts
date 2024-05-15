@@ -152,6 +152,7 @@ import { ConsoleLogService } from "@bitwarden/common/platform/services/console-l
 import { CryptoService } from "@bitwarden/common/platform/services/crypto.service";
 import { EncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/encrypt.service.implementation";
 import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/multithread-encrypt.service.implementation";
+import { MultiWorkerEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/multitworker-encrypt.service.implementation";
 import { DefaultBroadcasterService } from "@bitwarden/common/platform/services/default-broadcaster.service";
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
@@ -279,6 +280,9 @@ import {
   CLIENT_TYPE,
 } from "./injection-tokens";
 import { ModalService } from "./modal.service";
+
+// Temporary class to fix circular dependency of TokenService > EncryptService > ConfigApiService > TokenService. Remove once multi worker decryption has been rolled out and tested
+abstract class FastEncryptService extends EncryptService {}
 
 /**
  * Provider definitions used in the ngModule.
@@ -443,7 +447,7 @@ const safeProviders: SafeProvider[] = [
       SearchServiceAbstraction,
       StateServiceAbstraction,
       AutofillSettingsServiceAbstraction,
-      EncryptService,
+      FastEncryptService,
       CipherFileUploadServiceAbstraction,
       ConfigService,
       StateProvider,
@@ -777,6 +781,11 @@ const safeProviders: SafeProvider[] = [
     provide: EncryptService,
     useFactory: encryptServiceFactory,
     deps: [CryptoFunctionServiceAbstraction, LogService, LOG_MAC_FAILURES],
+  }),
+  safeProvider({
+    provide: FastEncryptService,
+    useFactory: fastEncryptServiceFactory,
+    deps: [CryptoFunctionServiceAbstraction, LogService, ConfigService, LOG_MAC_FAILURES],
   }),
   safeProvider({
     provide: EventUploadServiceAbstraction,
@@ -1186,6 +1195,22 @@ function encryptServiceFactory(
   return flagEnabled("multithreadDecryption")
     ? new MultithreadEncryptServiceImplementation(cryptoFunctionservice, logService, logMacFailures)
     : new EncryptServiceImplementation(cryptoFunctionservice, logService, logMacFailures);
+}
+
+function fastEncryptServiceFactory(
+  cryptoFunctionService: CryptoFunctionServiceAbstraction,
+  logService: LogService,
+  configService: ConfigService,
+  logMacFailures: boolean,
+): FastEncryptService {
+  return flagEnabled("multithreadDecryption")
+    ? new MultiWorkerEncryptServiceImplementation(
+        cryptoFunctionService,
+        logService,
+        configService,
+        logMacFailures,
+      )
+    : new EncryptServiceImplementation(cryptoFunctionService, logService, logMacFailures);
 }
 
 @NgModule({
