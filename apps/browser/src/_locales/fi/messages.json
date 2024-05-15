@@ -3,11 +3,11 @@
     "message": "Bitwarden"
   },
   "extName": {
-    "message": "Bitwarden – Salasanahallinta",
+    "message": "Bitwarden Salasanahallinta",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information",
+    "message": "Kotona, töissä tai reissussa, Bitwarden suojaa helposti salasanasi, suojausavaimesi ja arkaluonteiset tietosi.",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
@@ -374,11 +374,20 @@
   "other": {
     "message": "Muut"
   },
+  "unlockMethods": {
+    "message": "Avausasetukset"
+  },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Muuta holvisi aikakatkaisutoimintoa määrittämällä lukituksen avaustapa."
   },
   "unlockMethodNeeded": {
     "message": "Määritä avaustapa asetuksista"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Istunnon aikakatkaisu"
+  },
+  "otherOptions": {
+    "message": "Muut asetukset"
   },
   "rateExtension": {
     "message": "Arvioi laajennus"
@@ -1119,9 +1128,6 @@
   },
   "commandLockVaultDesc": {
     "message": "Lukitse holvi"
-  },
-  "privateModeWarning": {
-    "message": "Yksityisen tilan tuki on kokeellinen ja jotkin ominaisuudet toimivat rajoitetusti."
   },
   "customFields": {
     "message": "Lisäkentät"
@@ -2828,7 +2834,7 @@
     "message": "Korvataanko suojausavain?"
   },
   "overwritePasskeyAlert": {
-    "message": "Kohde sisältää jo suojausavaimen. Haluatko varmasti korvata nykyisen salasanan?"
+    "message": "Kohde sisältää jo suojausavaimen. Haluatko varmasti korvata nykyisen suojausavaimen?"
   },
   "featureNotSupported": {
     "message": "Ominaisuutta ei vielä tueta"
@@ -3025,6 +3031,15 @@
   },
   "adminConsole": {
     "message": "Hallintapaneelista"
+  },
+  "accountSecurity": {
+    "message": "Tilin suojaus"
+  },
+  "notifications": {
+    "message": "Ilmoitukset"
+  },
+  "appearance": {
+    "message": "Ulkoasu"
   },
   "errorAssigningTargetCollection": {
     "message": "Virhe määritettäessä kohdekokoelmaa."

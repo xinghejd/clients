@@ -1809,12 +1809,16 @@
   "unsecuredWebsitesFound": {
     "message": "Пронађене су незаштићене веб странице"
   },
-  "unsecuredWebsitesFoundDesc": {
-    "message": "Нашли смо $COUNT$ ставке у вашем сефу са незаштићеним УРЛ. Требали би да промените шеме у https:// ако веб страница то дозвољава.",
+  "unsecuredWebsitesFoundReportDesc": {
+    "message": "Нашли смо $COUNT$ ставке у вашем $VAULT$ са незаштићеним УРЛ. Требали би да промените шеме у https:// ако веб страница то дозвољава.",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "8"
+      },
+      "vault": {
+        "content": "$2",
+        "example": "this will be 'vault' or 'vaults'"
       }
     }
   },
@@ -1830,12 +1834,16 @@
   "inactive2faFound": {
     "message": "Нађене пријаве без 2FA"
   },
-  "inactive2faFoundDesc": {
-    "message": "Нашли смо $COUNT$ сајта у вашем сефу који можда нису конфигурисани за пријаву у два корака (према 2fa.directory). Да бисте додатно заштитили ове налоге, требало би да подесите пријаву у два корака.",
+  "inactive2faFoundReportDesc": {
+    "message": "Нашли смо $COUNT$ сајта у вашем $VAULT$ који можда нису конфигурисани за пријаву у два корака (према 2fa.directory). Да бисте додатно заштитили ове налоге, требало би да подесите пријаву у два корака.",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "8"
+      },
+      "vault": {
+        "content": "$2",
+        "example": "this will be 'vault' or 'vaults'"
       }
     }
   },
@@ -1854,12 +1862,16 @@
   "exposedPasswordsFound": {
     "message": "Пронађене изложене лозинке"
   },
-  "exposedPasswordsFoundDesc": {
+  "exposedPasswordsFoundReportDesc": {
     "message": "Пронашли смо у вашем сефу $COUNT$ предмета који садрже лозинке откривене у познатим повредама података. Требали би да их промените да бисте користили нову лозинку.",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "8"
+      },
+      "vault": {
+        "content": "$2",
+        "example": "this will be 'vault' or 'vaults'"
       }
     }
   },
@@ -1887,12 +1899,16 @@
   "weakPasswordsFound": {
     "message": "Пронађене су слабе лозинке"
   },
-  "weakPasswordsFoundDesc": {
+  "weakPasswordsFoundReportDesc": {
     "message": "Пронашли смо у вашем сефу $COUNT$ ставки са слабим лозинкама. Требали бисте их ажурирати да би користили јаче лозинке.",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "8"
+      },
+      "vault": {
+        "content": "$2",
+        "example": "this will be 'vault' or 'vaults'"
       }
     }
   },
@@ -1908,12 +1924,16 @@
   "reusedPasswordsFound": {
     "message": "Пронађене поновне лозинке"
   },
-  "reusedPasswordsFoundDesc": {
+  "reusedPasswordsFoundReportDesc": {
     "message": "Нашли смо $COUNT$ лозинке које се поново користе у вашем сефу. Требали бисте да их промените у јединствену вредност.",
     "placeholders": {
       "count": {
         "content": "$1",
         "example": "8"
+      },
+      "vault": {
+        "content": "$2",
+        "example": "this will be 'vault' or 'vaults'"
       }
     }
   },
@@ -2767,6 +2787,12 @@
   },
   "all": {
     "message": "Све"
+  },
+  "addAccess": {
+    "message": "Add Access"
+  },
+  "addAccessFilter": {
+    "message": "Add Access Filter"
   },
   "refresh": {
     "message": "Освежи"
@@ -6460,6 +6486,9 @@
   "editGroupCollectionsDesc": {
     "message": "Grant access to collections by adding them to this group."
   },
+  "editGroupCollectionsRestrictionsDesc": {
+    "message": "Можете да доделите само колекције којима управљате."
+  },
   "accessAllCollectionsDesc": {
     "message": "Grant access to all current and future collections."
   },
@@ -7938,8 +7967,8 @@
       }
     }
   },
-  "deleteProviderWarningDesc": {
-    "message": "Морате прекинути везу са свим клијентима да бисте могли да избришете $ID$",
+  "deleteProviderWarningDescription": {
+    "message": "Морате прекинути везу са свим клијентима да бисте могли да избришете $ID$.",
     "placeholders": {
       "id": {
         "content": "$1",
@@ -8049,5 +8078,8 @@
   },
   "collectionItemSelect": {
     "message": "Изаберите ставку колекције"
+  },
+  "manageBillingFromProviderPortalMessage": {
+    "message": "Управљајте наплатом из Provider Portal"
   }
 }
