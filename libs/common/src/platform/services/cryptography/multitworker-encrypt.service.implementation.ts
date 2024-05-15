@@ -68,16 +68,15 @@ export class MultiWorkerEncryptServiceImplementation extends EncryptServiceImple
       return super.decryptItems(items, key);
     }
 
-    const decryptedItems = await this.getDecryptedItemsFromWorker(items, key);
+    const decryptedItems = await this.getDecryptedItemsFromWorkers(items, key);
     return decryptedItems;
   }
 
   /**
-   * Sends items to a web worker to decrypt them. This utilizes multithreading to decrypt items
-   * faster without interrupting other operations (e.g. updating UI). This method returns values
-   * prior to deserialization to support forwarding results to another party
+   * Sends items to a set of web workers to decrypt them. This utilizes multiple workers to decrypt items
+   * faster without interrupting other operations (e.g. updating UI).
    */
-  async getDecryptedItemsFromWorker<T extends InitializerMetadata>(
+  async getDecryptedItemsFromWorkers<T extends InitializerMetadata>(
     items: Decryptable<T>[],
     key: SymmetricCryptoKey,
   ): Promise<T[]> {
