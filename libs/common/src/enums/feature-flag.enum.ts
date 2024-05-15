@@ -17,7 +17,7 @@ export enum FeatureFlag {
   EnableDeleteProvider = "AC-1218-delete-provider",
   ExtensionRefresh = "extension-refresh",
   RestrictProviderAccess = "restrict-provider-access",
-  EnableMultiWorkerEncryptionService = "multi-worker-encryption-service",
+  EnableMultiWorkerEncryptionService = "PM-4154-multi-worker-encryption-service",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
