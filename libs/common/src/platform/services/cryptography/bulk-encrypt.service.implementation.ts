@@ -1,26 +1,22 @@
-import { defaultIfEmpty, filter, firstValueFrom, fromEvent, map, Subject, takeUntil } from "rxjs";
+import { firstValueFrom, fromEvent, filter, map, takeUntil, defaultIfEmpty, Subject } from "rxjs";
 import { Jsonify } from "type-fest";
 
-import { FeatureFlag } from "../../../enums/feature-flag.enum";
-import { Utils } from "../../../platform/misc/utils";
-import { ConfigService } from "../../abstractions/config/config.service";
+import { BulkEncryptService } from "../../abstractions/bulk-encrypt.service";
 import { CryptoFunctionService } from "../../abstractions/crypto-function.service";
 import { LogService } from "../../abstractions/log.service";
 import { Decryptable } from "../../interfaces/decryptable.interface";
 import { InitializerMetadata } from "../../interfaces/initializer-metadata.interface";
+import { Utils } from "../../misc/utils";
 import { SymmetricCryptoKey } from "../../models/domain/symmetric-crypto-key";
 
-import { EncryptServiceImplementation } from "./encrypt.service.implementation";
 import { getClassInitializer } from "./get-class-initializer";
-import { MultithreadEncryptServiceImplementation } from "./multithread-encrypt.service.implementation";
 
 // TTL (time to live) is not strictly required but avoids tying up memory resources if inactive
 const workerTTL = 60000; // 1 minute
 const maxWorkers = 8;
-const minNumberOfItemsForMultithreading = 500; // arbitrarily chosen, can be optimized further
+const minNumberOfItemsForMultithreading = 400;
 
-export class MultiWorkerEncryptServiceImplementation extends EncryptServiceImplementation {
-  private multithreadEncryptServiceImplementation: MultithreadEncryptServiceImplementation;
+export class BulkEncryptServiceImplementation implements BulkEncryptService {
   private workers: Worker[] = [];
   private timeout: any;
 
@@ -29,16 +25,7 @@ export class MultiWorkerEncryptServiceImplementation extends EncryptServiceImple
   constructor(
     protected cryptoFunctionService: CryptoFunctionService,
     protected logService: LogService,
-    protected configService: ConfigService,
-    protected logMacFailures: boolean,
-  ) {
-    super(cryptoFunctionService, logService, logMacFailures);
-    this.multithreadEncryptServiceImplementation = new MultithreadEncryptServiceImplementation(
-      cryptoFunctionService,
-      logService,
-      logMacFailures,
-    );
-  }
+  ) {}
 
   /**
    * Decrypts items using a web worker if the environment supports it.
@@ -52,18 +39,13 @@ export class MultiWorkerEncryptServiceImplementation extends EncryptServiceImple
       return [];
     }
 
-    // fall back to "old" single-worker background thread decryption when the featureflag is disabled
-    if (
-      !(await this.configService.getFeatureFlag(FeatureFlag.EnableMultiWorkerEncryptionService))
-    ) {
-      this.logService.info(
-        "Multiworker decryption disabled, falling back to background thread decryption",
-      );
-      return this.multithreadEncryptServiceImplementation.decryptItems(items, key);
-    }
-
     if (typeof window === "undefined") {
-      return super.decryptItems(items, key);
+      this.logService.info("Window not available in BulkEncryptService, decrypting sequentially");
+      const results = [];
+      for (let i = 0; i < items.length; i++) {
+        results.push(await items[i].decrypt(key));
+      }
+      return results;
     }
 
     const decryptedItems = await this.getDecryptedItemsFromWorkers(items, key);
@@ -90,11 +72,7 @@ export class MultiWorkerEncryptServiceImplementation extends EncryptServiceImple
     }
 
     this.logService.info(
-      "Starting decryption using multithreading with " +
-        numberOfWorkers +
-        " workers for " +
-        items.length +
-        " items",
+      `Starting decryption using multithreading with ${numberOfWorkers} workers for ${items.length} items`,
     );
 
     if (this.workers.length == 0) {
@@ -151,11 +129,7 @@ export class MultiWorkerEncryptServiceImplementation extends EncryptServiceImple
 
     const decryptedItems = (await Promise.all(results)).flat();
     this.logService.info(
-      "Finished decrypting " +
-        decryptedItems.length +
-        " items using " +
-        numberOfWorkers +
-        " workers",
+      `Finished decrypting ${decryptedItems.length} items using ${numberOfWorkers} workers`,
     );
 
     this.restartTimeout();
