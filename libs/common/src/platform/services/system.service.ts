@@ -107,11 +107,13 @@ export class SystemService implements SystemServiceAbstraction {
     }
   }
 
-  cancelProcessReload(): void {
+  cancelProcessReload(): boolean {
     if (this.reloadInterval != null) {
       clearInterval(this.reloadInterval);
       this.reloadInterval = null;
+      return true;
     }
+    return false;
   }
 
   async clearClipboard(clipboardValue: string, timeoutMs: number = null): Promise<void> {
