@@ -1,24 +1,56 @@
+import { BehaviorSubject } from "rxjs";
+
 import { ApiService } from "../../../../abstractions/api.service";
+import { CryptoService } from "../../../../platform/abstractions/crypto.service";
+import { EncryptService } from "../../../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../../../platform/abstractions/i18n.service";
+import { StateProvider } from "../../../../platform/state";
+import { UserId } from "../../../../types/guid";
+import { ADDY_IO_FORWARDER } from "../../key-definitions";
+import { ForwarderGeneratorStrategy } from "../forwarder-generator-strategy";
 import { Forwarders } from "../options/constants";
-import { EmailDomainOptions, Forwarder, SelfHostedApiOptions } from "../options/forwarder-options";
+import { EmailDomainOptions, SelfHostedApiOptions } from "../options/forwarder-options";
+
+export const DefaultAddyIoOptions: SelfHostedApiOptions & EmailDomainOptions = Object.freeze({
+  website: null,
+  baseUrl: "https://app.addy.io",
+  token: "",
+  domain: "",
+});
 
 /** Generates a forwarding address for addy.io (formerly anon addy) */
-export class AddyIoForwarder implements Forwarder {
+export class AddyIoForwarder extends ForwarderGeneratorStrategy<
+  SelfHostedApiOptions & EmailDomainOptions
+> {
   /** Instantiates the forwarder
    *  @param apiService used for ajax requests to the forwarding service
    *  @param i18nService used to look up error strings
+   *  @param encryptService protects sensitive forwarder options
+   *  @param keyService looks up the user key when protecting data.
+   *  @param stateProvider creates the durable state for options storage
    */
   constructor(
     private apiService: ApiService,
     private i18nService: I18nService,
-  ) {}
+    encryptService: EncryptService,
+    keyService: CryptoService,
+    stateProvider: StateProvider,
+  ) {
+    super(encryptService, keyService, stateProvider);
+  }
 
-  /** {@link Forwarder.generate} */
-  async generate(
-    website: string | null,
-    options: SelfHostedApiOptions & EmailDomainOptions,
-  ): Promise<string> {
+  /** {@link ForwarderGeneratorStrategy.key} */
+  get key() {
+    return ADDY_IO_FORWARDER;
+  }
+
+  /** {@link ForwarderGeneratorStrategy.defaults$} */
+  defaults$ = (userId: UserId) => {
+    return new BehaviorSubject({ ...DefaultAddyIoOptions });
+  };
+
+  /** {@link ForwarderGeneratorStrategy.generate} */
+  generate = async (options: SelfHostedApiOptions & EmailDomainOptions) => {
     if (!options.token || options.token === "") {
       const error = this.i18nService.t("forwaderInvalidToken", Forwarders.AddyIo.name);
       throw error;
@@ -32,9 +64,11 @@ export class AddyIoForwarder implements Forwarder {
       throw error;
     }
 
-    const descriptionId =
-      website && website !== "" ? "forwarderGeneratedByWithWebsite" : "forwarderGeneratedBy";
-    const description = this.i18nService.t(descriptionId, website ?? "");
+    let descriptionId = "forwarderGeneratedByWithWebsite";
+    if (!options.website || options.website === "") {
+      descriptionId = "forwarderGeneratedBy";
+    }
+    const description = this.i18nService.t(descriptionId, options.website ?? "");
 
     const url = options.baseUrl + "/api/v1/aliases";
     const request = new Request(url, {
@@ -70,5 +104,12 @@ export class AddyIoForwarder implements Forwarder {
       const error = this.i18nService.t("forwarderUnknownError", Forwarders.AddyIo.name);
       throw error;
     }
-  }
+  };
 }
+
+export const DefaultOptions = Object.freeze({
+  website: null,
+  baseUrl: "https://app.addy.io",
+  domain: "",
+  token: "",
+});

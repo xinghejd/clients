@@ -1,18 +1,23 @@
 import { mock } from "jest-mock-extended";
-import { firstValueFrom } from "rxjs";
+import { BehaviorSubject, firstValueFrom } from "rxjs";
 
 import { PolicyService } from "@bitwarden/common/admin-console/services/policy/policy.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AuthService } from "@bitwarden/common/auth/services/auth.service";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { UserNotificationSettingsService } from "@bitwarden/common/autofill/services/user-notification-settings.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { EnvironmentService } from "@bitwarden/common/platform/services/environment.service";
+import { SelfHostedEnvironment } from "@bitwarden/common/platform/services/default-environment.service";
+import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { CipherService } from "@bitwarden/common/vault/services/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/services/folder/folder.service";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
-import { BrowserStateService } from "../../platform/services/browser-state.service";
+import { DefaultBrowserStateService } from "../../platform/services/default-browser-state.service";
 import { NotificationQueueMessageType } from "../enums/notification-queue-message-type.enum";
 import { FormData } from "../services/abstractions/autofill.service";
 import AutofillService from "../services/autofill.service";
@@ -44,9 +49,13 @@ describe("NotificationBackground", () => {
   const authService = mock<AuthService>();
   const policyService = mock<PolicyService>();
   const folderService = mock<FolderService>();
-  const stateService = mock<BrowserStateService>();
+  const stateService = mock<DefaultBrowserStateService>();
+  const userNotificationSettingsService = mock<UserNotificationSettingsService>();
+  const domainSettingsService = mock<DomainSettingsService>();
   const environmentService = mock<EnvironmentService>();
   const logService = mock<LogService>();
+  const themeStateService = mock<ThemeStateService>();
+  const configService = mock<ConfigService>();
 
   beforeEach(() => {
     notificationBackground = new NotificationBackground(
@@ -56,8 +65,12 @@ describe("NotificationBackground", () => {
       policyService,
       folderService,
       stateService,
+      userNotificationSettingsService,
+      domainSettingsService,
       environmentService,
       logService,
+      themeStateService,
+      configService,
     );
   });
 
@@ -235,8 +248,8 @@ describe("NotificationBackground", () => {
       let tab: chrome.tabs.Tab;
       let sender: chrome.runtime.MessageSender;
       let getAuthStatusSpy: jest.SpyInstance;
-      let getDisableAddLoginNotificationSpy: jest.SpyInstance;
-      let getDisableChangedPasswordNotificationSpy: jest.SpyInstance;
+      let getEnableAddedLoginPromptSpy: jest.SpyInstance;
+      let getEnableChangedPasswordPromptSpy: jest.SpyInstance;
       let pushAddLoginToQueueSpy: jest.SpyInstance;
       let pushChangePasswordToQueueSpy: jest.SpyInstance;
       let getAllDecryptedForUrlSpy: jest.SpyInstance;
@@ -245,13 +258,13 @@ describe("NotificationBackground", () => {
         tab = createChromeTabMock();
         sender = mock<chrome.runtime.MessageSender>({ tab });
         getAuthStatusSpy = jest.spyOn(authService, "getAuthStatus");
-        getDisableAddLoginNotificationSpy = jest.spyOn(
-          stateService,
-          "getDisableAddLoginNotification",
+        getEnableAddedLoginPromptSpy = jest.spyOn(
+          notificationBackground as any,
+          "getEnableAddedLoginPrompt",
         );
-        getDisableChangedPasswordNotificationSpy = jest.spyOn(
-          stateService,
-          "getDisableChangedPasswordNotification",
+        getEnableChangedPasswordPromptSpy = jest.spyOn(
+          notificationBackground as any,
+          "getEnableChangedPasswordPrompt",
         );
         pushAddLoginToQueueSpy = jest.spyOn(notificationBackground as any, "pushAddLoginToQueue");
         pushChangePasswordToQueueSpy = jest.spyOn(
@@ -272,7 +285,7 @@ describe("NotificationBackground", () => {
         await flushPromises();
 
         expect(getAuthStatusSpy).toHaveBeenCalled();
-        expect(getDisableAddLoginNotificationSpy).not.toHaveBeenCalled();
+        expect(getEnableAddedLoginPromptSpy).not.toHaveBeenCalled();
         expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
       });
 
@@ -287,7 +300,7 @@ describe("NotificationBackground", () => {
         await flushPromises();
 
         expect(getAuthStatusSpy).toHaveBeenCalled();
-        expect(getDisableAddLoginNotificationSpy).not.toHaveBeenCalled();
+        expect(getEnableAddedLoginPromptSpy).not.toHaveBeenCalled();
         expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
       });
 
@@ -297,13 +310,13 @@ describe("NotificationBackground", () => {
           login: { username: "test", password: "password", url: "https://example.com" },
         };
         getAuthStatusSpy.mockResolvedValueOnce(AuthenticationStatus.Locked);
-        getDisableAddLoginNotificationSpy.mockReturnValueOnce(true);
+        getEnableAddedLoginPromptSpy.mockReturnValueOnce(false);
 
         sendExtensionRuntimeMessage(message, sender);
         await flushPromises();
 
         expect(getAuthStatusSpy).toHaveBeenCalled();
-        expect(getDisableAddLoginNotificationSpy).toHaveBeenCalled();
+        expect(getEnableAddedLoginPromptSpy).toHaveBeenCalled();
         expect(getAllDecryptedForUrlSpy).not.toHaveBeenCalled();
         expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
         expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
@@ -315,14 +328,14 @@ describe("NotificationBackground", () => {
           login: { username: "test", password: "password", url: "https://example.com" },
         };
         getAuthStatusSpy.mockResolvedValueOnce(AuthenticationStatus.Unlocked);
-        getDisableAddLoginNotificationSpy.mockReturnValueOnce(true);
+        getEnableAddedLoginPromptSpy.mockReturnValueOnce(false);
         getAllDecryptedForUrlSpy.mockResolvedValueOnce([]);
 
         sendExtensionRuntimeMessage(message, sender);
         await flushPromises();
 
         expect(getAuthStatusSpy).toHaveBeenCalled();
-        expect(getDisableAddLoginNotificationSpy).toHaveBeenCalled();
+        expect(getEnableAddedLoginPromptSpy).toHaveBeenCalled();
         expect(getAllDecryptedForUrlSpy).toHaveBeenCalled();
         expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
         expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
@@ -334,8 +347,8 @@ describe("NotificationBackground", () => {
           login: { username: "test", password: "password", url: "https://example.com" },
         };
         getAuthStatusSpy.mockResolvedValueOnce(AuthenticationStatus.Unlocked);
-        getDisableAddLoginNotificationSpy.mockReturnValueOnce(false);
-        getDisableChangedPasswordNotificationSpy.mockReturnValueOnce(true);
+        getEnableAddedLoginPromptSpy.mockReturnValueOnce(true);
+        getEnableChangedPasswordPromptSpy.mockReturnValueOnce(false);
         getAllDecryptedForUrlSpy.mockResolvedValueOnce([
           mock<CipherView>({ login: { username: "test", password: "oldPassword" } }),
         ]);
@@ -344,9 +357,9 @@ describe("NotificationBackground", () => {
         await flushPromises();
 
         expect(getAuthStatusSpy).toHaveBeenCalled();
-        expect(getDisableAddLoginNotificationSpy).toHaveBeenCalled();
+        expect(getEnableAddedLoginPromptSpy).toHaveBeenCalled();
         expect(getAllDecryptedForUrlSpy).toHaveBeenCalled();
-        expect(getDisableChangedPasswordNotificationSpy).toHaveBeenCalled();
+        expect(getEnableChangedPasswordPromptSpy).toHaveBeenCalled();
         expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
         expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
       });
@@ -357,7 +370,7 @@ describe("NotificationBackground", () => {
           login: { username: "test", password: "password", url: "https://example.com" },
         };
         getAuthStatusSpy.mockResolvedValueOnce(AuthenticationStatus.Unlocked);
-        getDisableAddLoginNotificationSpy.mockReturnValueOnce(false);
+        getEnableAddedLoginPromptSpy.mockReturnValueOnce(true);
         getAllDecryptedForUrlSpy.mockResolvedValueOnce([
           mock<CipherView>({ login: { username: "test", password: "password" } }),
         ]);
@@ -366,7 +379,7 @@ describe("NotificationBackground", () => {
         await flushPromises();
 
         expect(getAuthStatusSpy).toHaveBeenCalled();
-        expect(getDisableAddLoginNotificationSpy).toHaveBeenCalled();
+        expect(getEnableAddedLoginPromptSpy).toHaveBeenCalled();
         expect(getAllDecryptedForUrlSpy).toHaveBeenCalled();
         expect(pushAddLoginToQueueSpy).not.toHaveBeenCalled();
         expect(pushChangePasswordToQueueSpy).not.toHaveBeenCalled();
@@ -376,7 +389,7 @@ describe("NotificationBackground", () => {
         const login = { username: "test", password: "password", url: "https://example.com" };
         const message: NotificationBackgroundExtensionMessage = { command: "bgAddLogin", login };
         getAuthStatusSpy.mockResolvedValueOnce(AuthenticationStatus.Locked);
-        getDisableAddLoginNotificationSpy.mockReturnValueOnce(false);
+        getEnableAddedLoginPromptSpy.mockReturnValueOnce(true);
 
         sendExtensionRuntimeMessage(message, sender);
         await flushPromises();
@@ -393,7 +406,7 @@ describe("NotificationBackground", () => {
         } as any;
         const message: NotificationBackgroundExtensionMessage = { command: "bgAddLogin", login };
         getAuthStatusSpy.mockResolvedValueOnce(AuthenticationStatus.Unlocked);
-        getDisableAddLoginNotificationSpy.mockReturnValueOnce(false);
+        getEnableAddedLoginPromptSpy.mockReturnValueOnce(true);
         getAllDecryptedForUrlSpy.mockResolvedValueOnce([
           mock<CipherView>({ login: { username: "anotherTestUsername", password: "password" } }),
         ]);
@@ -409,7 +422,8 @@ describe("NotificationBackground", () => {
         const login = { username: "tEsT", password: "password", url: "https://example.com" };
         const message: NotificationBackgroundExtensionMessage = { command: "bgAddLogin", login };
         getAuthStatusSpy.mockResolvedValueOnce(AuthenticationStatus.Unlocked);
-        getDisableAddLoginNotificationSpy.mockReturnValueOnce(false);
+        getEnableAddedLoginPromptSpy.mockResolvedValueOnce(true);
+        getEnableChangedPasswordPromptSpy.mockResolvedValueOnce(true);
         getAllDecryptedForUrlSpy.mockResolvedValueOnce([
           mock<CipherView>({
             id: "cipher-id",
@@ -706,7 +720,7 @@ describe("NotificationBackground", () => {
           );
           tabSendMessageSpy = jest.spyOn(BrowserApi, "tabSendMessage").mockImplementation();
           editItemSpy = jest.spyOn(notificationBackground as any, "editItem");
-          setAddEditCipherInfoSpy = jest.spyOn(stateService, "setAddEditCipherInfo");
+          setAddEditCipherInfoSpy = jest.spyOn(cipherService, "setAddEditCipherInfo");
           openAddEditVaultItemPopoutSpy = jest.spyOn(
             notificationBackground as any,
             "openAddEditVaultItemPopout",
@@ -1330,6 +1344,29 @@ describe("NotificationBackground", () => {
         await flushPromises();
 
         expect(openUnlockWindowSpy).toHaveBeenCalled();
+      });
+    });
+
+    describe("getWebVaultUrlForNotification", () => {
+      it("returns the web vault url", async () => {
+        const message: NotificationBackgroundExtensionMessage = {
+          command: "getWebVaultUrlForNotification",
+        };
+        const env = new SelfHostedEnvironment({ webVault: "https://example.com" });
+
+        Object.defineProperty(environmentService, "environment$", {
+          configurable: true,
+          get: () => null,
+        });
+
+        const environmentServiceSpy = jest
+          .spyOn(environmentService as any, "environment$", "get")
+          .mockReturnValue(new BehaviorSubject(env).asObservable());
+
+        sendExtensionRuntimeMessage(message);
+        await flushPromises();
+
+        expect(environmentServiceSpy).toHaveBeenCalled();
       });
     });
   });

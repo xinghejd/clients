@@ -1,6 +1,6 @@
+import { EVENTS } from "@bitwarden/common/autofill/constants";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 
-import { EVENTS } from "../../constants";
 import { setElementStyles } from "../../utils";
 import {
   BackgroundPortMessageHandlers,
@@ -211,7 +211,7 @@ class AutofillOverlayIframeService implements AutofillOverlayIframeServiceInterf
     let borderColor: string;
     let verifiedTheme = theme;
     if (verifiedTheme === ThemeType.System) {
-      verifiedTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+      verifiedTheme = globalThis.matchMedia("(prefers-color-scheme: dark)").matches
         ? ThemeType.Dark
         : ThemeType.Light;
     }

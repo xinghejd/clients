@@ -1,12 +1,13 @@
 import { mock } from "jest-mock-extended";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
 
 import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
 import AutofillOverlayContentService from "../services/autofill-overlay-content.service";
 import { flushPromises, sendExtensionRuntimeMessage } from "../spec/testing-utils";
-import { AutofillOverlayVisibility, RedirectFocusDirection } from "../utils/autofill-overlay.enum";
+import { RedirectFocusDirection } from "../utils/autofill-overlay.enum";
 
 import { AutofillExtensionMessage } from "./abstractions/autofill-init";
 import AutofillInit from "./autofill-init";
@@ -23,6 +24,7 @@ describe("AutofillInit", () => {
       },
     });
     autofillInit = new AutofillInit(autofillOverlayContentService);
+    window.IntersectionObserver = jest.fn(() => mock<IntersectionObserver>());
   });
 
   afterEach(() => {
@@ -558,6 +560,17 @@ describe("AutofillInit", () => {
   });
 
   describe("destroy", () => {
+    it("clears the timeout used to collect page details on load", () => {
+      jest.spyOn(window, "clearTimeout");
+
+      autofillInit.init();
+      autofillInit.destroy();
+
+      expect(window.clearTimeout).toHaveBeenCalledWith(
+        autofillInit["collectPageDetailsOnLoadTimeout"],
+      );
+    });
+
     it("removes the extension message listeners", () => {
       autofillInit.destroy();
 

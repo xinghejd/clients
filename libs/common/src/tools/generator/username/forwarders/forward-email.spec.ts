@@ -2,22 +2,45 @@
  * include Request in test environment.
  * @jest-environment ../../../../shared/test.environment.ts
  */
+import { firstValueFrom } from "rxjs";
+
+import { UserId } from "../../../../types/guid";
+import { FORWARD_EMAIL_FORWARDER } from "../../key-definitions";
 import { Forwarders } from "../options/constants";
 
-import { ForwardEmailForwarder } from "./forward-email";
+import { ForwardEmailForwarder, DefaultForwardEmailOptions } from "./forward-email";
 import { mockApiService, mockI18nService } from "./mocks.jest";
 
+const SomeUser = "some user" as UserId;
+
 describe("ForwardEmail Forwarder", () => {
+  it("key returns the Forward Email forwarder key", () => {
+    const forwarder = new ForwardEmailForwarder(null, null, null, null, null);
+
+    expect(forwarder.key).toBe(FORWARD_EMAIL_FORWARDER);
+  });
+
+  describe("defaults$", () => {
+    it("should return the default subaddress options", async () => {
+      const strategy = new ForwardEmailForwarder(null, null, null, null, null);
+
+      const result = await firstValueFrom(strategy.defaults$(SomeUser));
+
+      expect(result).toEqual(DefaultForwardEmailOptions);
+    });
+  });
+
   describe("generate(string | null, SelfHostedApiOptions & EmailDomainOptions)", () => {
     it.each([null, ""])("throws an error if the token is missing (token = %p)", async (token) => {
       const apiService = mockApiService(200, {});
       const i18nService = mockI18nService();
 
-      const forwarder = new ForwardEmailForwarder(apiService, i18nService);
+      const forwarder = new ForwardEmailForwarder(apiService, i18nService, null, null, null);
 
       await expect(
         async () =>
-          await forwarder.generate(null, {
+          await forwarder.generate({
+            website: null,
             token,
             domain: "example.com",
           }),
@@ -36,11 +59,12 @@ describe("ForwardEmail Forwarder", () => {
         const apiService = mockApiService(200, {});
         const i18nService = mockI18nService();
 
-        const forwarder = new ForwardEmailForwarder(apiService, i18nService);
+        const forwarder = new ForwardEmailForwarder(apiService, i18nService, null, null, null);
 
         await expect(
           async () =>
-            await forwarder.generate(null, {
+            await forwarder.generate({
+              website: null,
               token: "token",
               domain,
             }),
@@ -65,9 +89,10 @@ describe("ForwardEmail Forwarder", () => {
         const apiService = mockApiService(200, {});
         const i18nService = mockI18nService();
 
-        const forwarder = new ForwardEmailForwarder(apiService, i18nService);
+        const forwarder = new ForwardEmailForwarder(apiService, i18nService, null, null, null);
 
-        await forwarder.generate(website, {
+        await forwarder.generate({
+          website,
           token: "token",
           domain: "example.com",
         });
@@ -92,9 +117,10 @@ describe("ForwardEmail Forwarder", () => {
         const apiService = mockApiService(status, response);
         const i18nService = mockI18nService();
 
-        const forwarder = new ForwardEmailForwarder(apiService, i18nService);
+        const forwarder = new ForwardEmailForwarder(apiService, i18nService, null, null, null);
 
-        const result = await forwarder.generate(null, {
+        const result = await forwarder.generate({
+          website: null,
           token: "token",
           domain: "example.com",
         });
@@ -108,11 +134,12 @@ describe("ForwardEmail Forwarder", () => {
       const apiService = mockApiService(401, {});
       const i18nService = mockI18nService();
 
-      const forwarder = new ForwardEmailForwarder(apiService, i18nService);
+      const forwarder = new ForwardEmailForwarder(apiService, i18nService, null, null, null);
 
       await expect(
         async () =>
-          await forwarder.generate(null, {
+          await forwarder.generate({
+            website: null,
             token: "token",
             domain: "example.com",
           }),
@@ -132,11 +159,12 @@ describe("ForwardEmail Forwarder", () => {
       const apiService = mockApiService(401, { message: "A message" });
       const i18nService = mockI18nService();
 
-      const forwarder = new ForwardEmailForwarder(apiService, i18nService);
+      const forwarder = new ForwardEmailForwarder(apiService, i18nService, null, null, null);
 
       await expect(
         async () =>
-          await forwarder.generate(null, {
+          await forwarder.generate({
+            website: null,
             token: "token",
             domain: "example.com",
           }),
@@ -158,11 +186,12 @@ describe("ForwardEmail Forwarder", () => {
         const apiService = mockApiService(500, json);
         const i18nService = mockI18nService();
 
-        const forwarder = new ForwardEmailForwarder(apiService, i18nService);
+        const forwarder = new ForwardEmailForwarder(apiService, i18nService, null, null, null);
 
         await expect(
           async () =>
-            await forwarder.generate(null, {
+            await forwarder.generate({
+              website: null,
               token: "token",
               domain: "example.com",
             }),
@@ -191,11 +220,12 @@ describe("ForwardEmail Forwarder", () => {
         const apiService = mockApiService(statusCode, { message });
         const i18nService = mockI18nService();
 
-        const forwarder = new ForwardEmailForwarder(apiService, i18nService);
+        const forwarder = new ForwardEmailForwarder(apiService, i18nService, null, null, null);
 
         await expect(
           async () =>
-            await forwarder.generate(null, {
+            await forwarder.generate({
+              website: null,
               token: "token",
               domain: "example.com",
             }),
@@ -225,11 +255,12 @@ describe("ForwardEmail Forwarder", () => {
         const apiService = mockApiService(statusCode, { error });
         const i18nService = mockI18nService();
 
-        const forwarder = new ForwardEmailForwarder(apiService, i18nService);
+        const forwarder = new ForwardEmailForwarder(apiService, i18nService, null, null, null);
 
         await expect(
           async () =>
-            await forwarder.generate(null, {
+            await forwarder.generate({
+              website: null,
               token: "token",
               domain: "example.com",
             }),

@@ -3,174 +3,180 @@
     "message": "Bitwarden"
   },
   "extName": {
-    "message": "Bitwarden - Free Password Manager",
+    "message": "Bitwarden - Xestor de contrasinais",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "A secure and free password manager for all of your devices.",
-    "description": "Extension description"
+    "message": "Na casa, no traballo ou en ruta, Bitwarden protexe os teus contrasinais, chaves de acceso e datos sensíbeis",
+    "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
-    "message": "Log in or create a new account to access your secure vault."
+    "message": "Rexístrate ou crea unha nova conta para acceder á túa caixa forte."
   },
   "createAccount": {
-    "message": "Create account"
+    "message": "Crea unha conta"
   },
   "login": {
-    "message": "Log in"
+    "message": "Iniciar sesión"
   },
   "enterpriseSingleSignOn": {
-    "message": "Enterprise single sign-on"
+    "message": "Inicio de sesión único empresarial"
   },
   "cancel": {
-    "message": "Cancel"
+    "message": "Cancelar"
   },
   "close": {
-    "message": "Close"
+    "message": "Pechar"
   },
   "submit": {
-    "message": "Submit"
+    "message": "Enviar"
   },
   "emailAddress": {
-    "message": "Email address"
+    "message": "Enderezo de correo electrónico"
   },
   "masterPass": {
-    "message": "Master password"
+    "message": "Contrasinal mestre"
   },
   "masterPassDesc": {
-    "message": "The master password is the password you use to access your vault. It is very important that you do not forget your master password. There is no way to recover the password in the event that you forget it."
+    "message": "O contrasinal mestre é a chave que empregas para acceder á túa caixa forte. É moi importante que non esquezas o teu contrasinal mestre. Non hai xeito de recuperala se a esqueces."
   },
   "masterPassHintDesc": {
-    "message": "A master password hint can help you remember your password if you forget it."
+    "message": "Unha pista do contrasinal mestre pode axudarte a lembrar o teu contrasinal se o esqueces."
   },
   "reTypeMasterPass": {
-    "message": "Re-type master password"
+    "message": "Reescriba o contrasinal mestre"
   },
   "masterPassHint": {
-    "message": "Master password hint (optional)"
+    "message": "Pista do contrasinal mestre (opcional)"
   },
   "tab": {
-    "message": "Tab"
+    "message": "Separador"
   },
   "vault": {
-    "message": "Vault"
+    "message": "Caixa forte"
   },
   "myVault": {
-    "message": "My vault"
+    "message": "A miña caixa forte"
   },
   "allVaults": {
-    "message": "All vaults"
+    "message": "Todas as caixas fortes"
   },
   "tools": {
-    "message": "Tools"
+    "message": "Ferramentas"
   },
   "settings": {
-    "message": "Settings"
+    "message": "Axustes"
   },
   "currentTab": {
-    "message": "Current tab"
+    "message": "Separador actual"
   },
   "copyPassword": {
-    "message": "Copy password"
+    "message": "Copiar contrasinal"
   },
   "copyNote": {
-    "message": "Copy note"
+    "message": "Copiar nota"
   },
   "copyUri": {
-    "message": "Copy URI"
+    "message": "Copiar URI"
   },
   "copyUsername": {
-    "message": "Copy username"
+    "message": "Copiar nome de usuario"
   },
   "copyNumber": {
-    "message": "Copy number"
+    "message": "Copiar número"
   },
   "copySecurityCode": {
-    "message": "Copy security code"
+    "message": "Copiar código de seguranza"
   },
   "autoFill": {
-    "message": "Auto-fill"
+    "message": "Auto-encher"
   },
   "autoFillLogin": {
-    "message": "Auto-fill login"
+    "message": "Encher automaticamente inicio de sesión"
   },
   "autoFillCard": {
-    "message": "Auto-fill card"
+    "message": "Encher automaticamente tarxeta"
   },
   "autoFillIdentity": {
-    "message": "Auto-fill identity"
+    "message": "Encher automaticamente identidade"
   },
   "generatePasswordCopied": {
-    "message": "Generate password (copied)"
+    "message": "Xerar contrasinal (copiado)"
   },
   "copyElementIdentifier": {
-    "message": "Copy custom field name"
+    "message": "Copiar nome de campo personalizado"
   },
   "noMatchingLogins": {
-    "message": "No matching logins"
+    "message": "Sen inicios de sesión coincidentes"
   },
   "noCards": {
-    "message": "No cards"
+    "message": "Sen tarxetas"
   },
   "noIdentities": {
-    "message": "No identities"
+    "message": "Sen identidades"
   },
   "addLoginMenu": {
-    "message": "Add login"
+    "message": "Engadir inicio de sesión"
   },
   "addCardMenu": {
-    "message": "Add card"
+    "message": "Engadir tarxeta"
   },
   "addIdentityMenu": {
-    "message": "Add identity"
+    "message": "Engadir identidade"
   },
   "unlockVaultMenu": {
-    "message": "Unlock your vault"
+    "message": "Desbloquear a súa caixa forte"
   },
   "loginToVaultMenu": {
-    "message": "Log in to your vault"
+    "message": "Rexistrarse na súa caixa forte"
   },
   "autoFillInfo": {
-    "message": "There are no logins available to auto-fill for the current browser tab."
+    "message": "Non hai inicios de sesión dispoñíbeis para encher automaticamente para o separador actual do navegador."
   },
   "addLogin": {
-    "message": "Add a login"
+    "message": "Engadir inicio de sesión"
   },
   "addItem": {
-    "message": "Add item"
+    "message": "Engadir elemento"
   },
   "passwordHint": {
-    "message": "Password hint"
+    "message": "Pista do contrasinal"
   },
   "enterEmailToGetHint": {
-    "message": "Enter your account email address to receive your master password hint."
+    "message": "Introduce a dirección de correo da túa conta para recibir a pista do contrasinal mestre."
   },
   "getMasterPasswordHint": {
-    "message": "Get master password hint"
+    "message": "Obter pista do contrasinal mestre"
   },
   "continue": {
-    "message": "Continue"
+    "message": "Continuar"
   },
   "sendVerificationCode": {
-    "message": "Send a verification code to your email"
+    "message": "Envía un código de verificación ao teu correo"
   },
   "sendCode": {
-    "message": "Send code"
+    "message": "Enviar código"
   },
   "codeSent": {
-    "message": "Code sent"
+    "message": "Código enviado"
   },
   "verificationCode": {
-    "message": "Verification code"
+    "message": "Código de verificación"
   },
   "confirmIdentity": {
-    "message": "Confirm your identity to continue."
+    "message": "Confirma a túa identidade para continuar."
   },
   "account": {
-    "message": "Account"
+    "message": "Conta"
   },
   "changeMasterPassword": {
-    "message": "Change master password"
+    "message": "Cambiar o contrasinal mestre"
+  },
+  "continueToWebApp": {
+    "message": "Continuar á aplicación web?"
+  },
+  "changeMasterPasswordOnWebConfirmation": {
+    "message": "You can change your master password on the Bitwarden web app."
   },
   "fingerprintPhrase": {
     "message": "Fingerprint phrase",
@@ -368,11 +374,20 @@
   "other": {
     "message": "Other"
   },
+  "unlockMethods": {
+    "message": "Unlock options"
+  },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Set up an unlock method to change your vault timeout action."
   },
   "unlockMethodNeeded": {
     "message": "Set up an unlock method in Settings"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
+  },
+  "otherOptions": {
+    "message": "Other options"
   },
   "rateExtension": {
     "message": "Rate the extension"
@@ -556,12 +571,6 @@
   },
   "addedFolder": {
     "message": "Folder added"
-  },
-  "changeMasterPass": {
-    "message": "Change master password"
-  },
-  "changeMasterPasswordConfirmation": {
-    "message": "You can change your master password on the bitwarden.com web vault. Do you want to visit the website now?"
   },
   "twoStepLoginConfirmation": {
     "message": "Two-step login makes your account more secure by requiring you to verify your login with another device such as a security key, authenticator app, SMS, phone call, or email. Two-step login can be set up on the bitwarden.com web vault. Do you want to visit the website now?"
@@ -1119,9 +1128,6 @@
   },
   "commandLockVaultDesc": {
     "message": "Lock the vault"
-  },
-  "privateModeWarning": {
-    "message": "Private mode support is experimental and some features are limited."
   },
   "customFields": {
     "message": "Custom fields"
@@ -2386,12 +2392,6 @@
     "message": "EU",
     "description": "European Union"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "accessDenied": {
     "message": "Access denied. You do not have permission to view this page."
   },
@@ -2993,5 +2993,58 @@
   "makeDefault": {
     "message": "Make default",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "saveCipherAttemptSuccess": {
+    "message": "Credentials saved successfully!",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
+  "updateCipherAttemptSuccess": {
+    "message": "Credentials updated successfully!",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "saveCipherAttemptFailed": {
+    "message": "Error saving credentials. Check console for details.",
+    "description": "Notification message for when saving credentials has failed."
+  },
+  "success": {
+    "message": "Success"
+  },
+  "removePasskey": {
+    "message": "Remove passkey"
+  },
+  "passkeyRemoved": {
+    "message": "Passkey removed"
+  },
+  "unassignedItemsBannerNotice": {
+    "message": "Notice: Unassigned organization items are no longer visible in the All Vaults view and only accessible via the Admin Console."
+  },
+  "unassignedItemsBannerSelfHostNotice": {
+    "message": "Notice: On May 16, 2024, unassigned organization items will no longer be visible in the All Vaults view and will only be accessible via the Admin Console."
+  },
+  "unassignedItemsBannerCTAPartOne": {
+    "message": "Assign these items to a collection from the",
+    "description": "This will be part of a larger sentence, which will read like so: Assign these items to a collection from the Admin Console to make them visible."
+  },
+  "unassignedItemsBannerCTAPartTwo": {
+    "message": "to make them visible.",
+    "description": "This will be part of a larger sentence, which will read like so: Assign these items to a collection from the Admin Console to make them visible."
+  },
+  "adminConsole": {
+    "message": "Admin Console"
+  },
+  "accountSecurity": {
+    "message": "Account security"
+  },
+  "notifications": {
+    "message": "Notifications"
+  },
+  "appearance": {
+    "message": "Appearance"
+  },
+  "errorAssigningTargetCollection": {
+    "message": "Error assigning target collection."
+  },
+  "errorAssigningTargetFolder": {
+    "message": "Error assigning target folder."
   }
 }

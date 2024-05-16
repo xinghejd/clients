@@ -800,8 +800,11 @@
   "changeMasterPass": {
     "message": "修改主密码"
   },
-  "changeMasterPasswordConfirmation": {
-    "message": "您可以在 bitwarden.com 网页密码库修改您的主密码。现在要访问吗？"
+  "continueToWebApp": {
+    "message": "前往网页 App 吗？"
+  },
+  "changeMasterPasswordOnWebConfirmation": {
+    "message": "您可以在 Bitwarden 网页应用上更改您的主密码。"
   },
   "fingerprintPhrase": {
     "message": "指纹短语",
@@ -1629,6 +1632,12 @@
   "browserIntegrationUnsupportedTitle": {
     "message": "不支持浏览器集成"
   },
+  "browserIntegrationErrorTitle": {
+    "message": "启用浏览器集成时出错"
+  },
+  "browserIntegrationErrorDesc": {
+    "message": "启用浏览器集成时出错。"
+  },
   "browserIntegrationMasOnlyDesc": {
     "message": "很遗憾，目前仅 Mac App Store 版本支持浏览器集成。"
   },
@@ -1643,6 +1652,12 @@
   },
   "enableBrowserIntegrationFingerprintDesc": {
     "message": "在您的桌面与浏览器间建立连接时，通过要求指纹短语确认，来增加一个额外的安全层。每次建立连接都需要用户操作和验证。"
+  },
+  "enableHardwareAcceleration": {
+    "message": "使用硬件加速"
+  },
+  "enableHardwareAccelerationDesc": {
+    "message": "此设置默认为开启。仅当您遇到图形问题时才关闭。需要重启。"
   },
   "approve": {
     "message": "批准"
@@ -1901,7 +1916,7 @@
     "message": "无法完成生物识别。"
   },
   "needADifferentMethod": {
-    "message": "Need a different method?"
+    "message": "使用其他方式？"
   },
   "useMasterPassword": {
     "message": "使用主密码"
@@ -2340,12 +2355,6 @@
   "loggingInOn": {
     "message": "登录到"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "selfHostedServer": {
     "message": "自托管"
   },
@@ -2535,7 +2544,7 @@
     "message": "启动 Duo 然后按照步骤完成登录。"
   },
   "duoRequiredByOrgForAccount": {
-    "message": "您的账户需要 Duo 两步登录。"
+    "message": "您的账户要求使用 Duo 两步登录。"
   },
   "launchDuo": {
     "message": "在浏览器中启动 Duo"
@@ -2685,7 +2694,31 @@
     "message": "将与您的 LastPass 账户关联的 YubiKey 插入计算机的 USB 端口，然后触摸其按钮。"
   },
   "commonImportFormats": {
-    "message": "通用格式",
+    "message": "常规格式",
     "description": "Label indicating the most common import formats"
+  },
+  "success": {
+    "message": "成功"
+  },
+  "troubleshooting": {
+    "message": "故障排除"
+  },
+  "disableHardwareAccelerationRestart": {
+    "message": "禁用硬件加速并重启"
+  },
+  "enableHardwareAccelerationRestart": {
+    "message": "启用硬件加速并重启"
+  },
+  "removePasskey": {
+    "message": "移除通行密钥"
+  },
+  "passkeyRemoved": {
+    "message": "通行密钥已移除"
+  },
+  "errorAssigningTargetCollection": {
+    "message": "分配目标集合时出错。"
+  },
+  "errorAssigningTargetFolder": {
+    "message": "分配目标文件夹时出错。"
   }
 }

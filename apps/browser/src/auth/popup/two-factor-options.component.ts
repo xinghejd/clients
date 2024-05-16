@@ -2,7 +2,11 @@ import { Component } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 
 import { TwoFactorOptionsComponent as BaseTwoFactorOptionsComponent } from "@bitwarden/angular/auth/components/two-factor-options.component";
-import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
+import {
+  TwoFactorProviderDetails,
+  TwoFactorService,
+} from "@bitwarden/common/auth/abstractions/two-factor.service";
+import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 
@@ -16,18 +20,19 @@ export class TwoFactorOptionsComponent extends BaseTwoFactorOptionsComponent {
     router: Router,
     i18nService: I18nService,
     platformUtilsService: PlatformUtilsService,
+    environmentService: EnvironmentService,
     private activatedRoute: ActivatedRoute,
   ) {
-    super(twoFactorService, router, i18nService, platformUtilsService, window);
+    super(twoFactorService, router, i18nService, platformUtilsService, window, environmentService);
   }
 
   close() {
     this.navigateTo2FA();
   }
 
-  choose(p: any) {
-    super.choose(p);
-    this.twoFactorService.setSelectedProvider(p.type);
+  override async choose(p: TwoFactorProviderDetails) {
+    await super.choose(p);
+    await this.twoFactorService.setSelectedProvider(p.type);
 
     this.navigateTo2FA();
   }

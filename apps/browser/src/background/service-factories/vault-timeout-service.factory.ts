@@ -1,13 +1,17 @@
 import { VaultTimeoutService as AbstractVaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 
 import {
+  accountServiceFactory,
+  AccountServiceInitOptions,
+} from "../../auth/background/service-factories/account-service.factory";
+import {
   authServiceFactory,
   AuthServiceInitOptions,
 } from "../../auth/background/service-factories/auth-service.factory";
 import {
-  CryptoServiceInitOptions,
-  cryptoServiceFactory,
-} from "../../platform/background/service-factories/crypto-service.factory";
+  internalMasterPasswordServiceFactory,
+  MasterPasswordServiceInitOptions,
+} from "../../auth/background/service-factories/master-password-service.factory";
 import {
   CachedServices,
   factory,
@@ -21,6 +25,10 @@ import {
   platformUtilsServiceFactory,
   PlatformUtilsServiceInitOptions,
 } from "../../platform/background/service-factories/platform-utils-service.factory";
+import {
+  stateEventRunnerServiceFactory,
+  StateEventRunnerServiceInitOptions,
+} from "../../platform/background/service-factories/state-event-runner-service.factory";
 import {
   StateServiceInitOptions,
   stateServiceFactory,
@@ -53,16 +61,18 @@ type VaultTimeoutServiceFactoryOptions = FactoryOptions & {
 };
 
 export type VaultTimeoutServiceInitOptions = VaultTimeoutServiceFactoryOptions &
+  AccountServiceInitOptions &
+  MasterPasswordServiceInitOptions &
   CipherServiceInitOptions &
   FolderServiceInitOptions &
   CollectionServiceInitOptions &
-  CryptoServiceInitOptions &
   PlatformUtilsServiceInitOptions &
   MessagingServiceInitOptions &
   SearchServiceInitOptions &
   StateServiceInitOptions &
   AuthServiceInitOptions &
-  VaultTimeoutSettingsServiceInitOptions;
+  VaultTimeoutSettingsServiceInitOptions &
+  StateEventRunnerServiceInitOptions;
 
 export function vaultTimeoutServiceFactory(
   cache: { vaultTimeoutService?: AbstractVaultTimeoutService } & CachedServices,
@@ -74,16 +84,18 @@ export function vaultTimeoutServiceFactory(
     opts,
     async () =>
       new VaultTimeoutService(
+        await accountServiceFactory(cache, opts),
+        await internalMasterPasswordServiceFactory(cache, opts),
         await cipherServiceFactory(cache, opts),
         await folderServiceFactory(cache, opts),
         await collectionServiceFactory(cache, opts),
-        await cryptoServiceFactory(cache, opts),
         await platformUtilsServiceFactory(cache, opts),
         await messagingServiceFactory(cache, opts),
         await searchServiceFactory(cache, opts),
         await stateServiceFactory(cache, opts),
         await authServiceFactory(cache, opts),
         await vaultTimeoutSettingsServiceFactory(cache, opts),
+        await stateEventRunnerServiceFactory(cache, opts),
         opts.vaultTimeoutServiceOptions.lockedCallback,
         opts.vaultTimeoutServiceOptions.loggedOutCallback,
       ),

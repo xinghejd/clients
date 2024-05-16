@@ -1,6 +1,9 @@
 import { FakeStateProvider } from "@bitwarden/common/../spec/fake-state-provider";
 import { mock } from "jest-mock-extended";
 
+import { PinServiceAbstraction } from "@bitwarden/auth/common";
+import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
+import { FakeMasterPasswordService } from "@bitwarden/common/auth/services/master-password/fake-master-password.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { KeyGenerationService } from "@bitwarden/common/platform/abstractions/key-generation.service";
@@ -24,23 +27,29 @@ import { ElectronCryptoService } from "./electron-crypto.service";
 describe("electronCryptoService", () => {
   let sut: ElectronCryptoService;
 
+  const pinService = mock<PinServiceAbstraction>();
   const keyGenerationService = mock<KeyGenerationService>();
   const cryptoFunctionService = mock<CryptoFunctionService>();
   const encryptService = mock<EncryptService>();
   const platformUtilService = mock<PlatformUtilsService>();
   const logService = mock<LogService>();
   const stateService = mock<StateService>();
+  let masterPasswordService: FakeMasterPasswordService;
   let accountService: FakeAccountService;
   let stateProvider: FakeStateProvider;
   const biometricStateService = mock<BiometricStateService>();
+  const kdfConfigService = mock<KdfConfigService>();
 
   const mockUserId = "mock user id" as UserId;
 
   beforeEach(() => {
     accountService = mockAccountServiceWith("userId" as UserId);
+    masterPasswordService = new FakeMasterPasswordService();
     stateProvider = new FakeStateProvider(accountService);
 
     sut = new ElectronCryptoService(
+      pinService,
+      masterPasswordService,
       keyGenerationService,
       cryptoFunctionService,
       encryptService,
@@ -50,6 +59,7 @@ describe("electronCryptoService", () => {
       accountService,
       stateProvider,
       biometricStateService,
+      kdfConfigService,
     );
   });
 
@@ -73,8 +83,8 @@ describe("electronCryptoService", () => {
         encClientKeyHalf.decrypt = jest.fn().mockResolvedValue(decClientKeyHalf);
       });
 
-      it("sets an Biometric key if getBiometricUnlock is true and the platform supports secure storage", async () => {
-        stateService.getBiometricUnlock.mockResolvedValue(true);
+      it("sets a Biometric key if getBiometricUnlock is true and the platform supports secure storage", async () => {
+        biometricStateService.getBiometricUnlockEnabled.mockResolvedValue(true);
         platformUtilService.supportsSecureStorage.mockReturnValue(true);
         biometricStateService.getRequirePasswordOnStart.mockResolvedValue(true);
         biometricStateService.getEncryptedClientKeyHalf.mockResolvedValue(encClientKeyHalf);
@@ -90,7 +100,7 @@ describe("electronCryptoService", () => {
       });
 
       it("clears the Biometric key if getBiometricUnlock is false or the platform does not support secure storage", async () => {
-        stateService.getBiometricUnlock.mockResolvedValue(true);
+        biometricStateService.getBiometricUnlockEnabled.mockResolvedValue(true);
         platformUtilService.supportsSecureStorage.mockReturnValue(false);
 
         await sut.setUserKey(mockUserKey, mockUserId);

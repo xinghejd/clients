@@ -4,32 +4,31 @@
  */
 
 import { mock } from "jest-mock-extended";
+import { of, firstValueFrom } from "rxjs";
 
 import { PolicyType } from "../../../admin-console/enums";
 // FIXME: use index.ts imports once policy abstractions and models
 // implement ADR-0002
 import { Policy } from "../../../admin-console/models/domain/policy";
+import { StateProvider } from "../../../platform/state";
+import { UserId } from "../../../types/guid";
 import { PASSWORD_SETTINGS } from "../key-definitions";
 
+import { DisabledPasswordGeneratorPolicy } from "./password-generator-policy";
+
 import {
+  DefaultPasswordGenerationOptions,
   PasswordGenerationServiceAbstraction,
   PasswordGeneratorOptionsEvaluator,
   PasswordGeneratorStrategy,
 } from ".";
 
+const SomeUser = "some user" as UserId;
+
 describe("Password generation strategy", () => {
-  describe("evaluator()", () => {
-    it("should throw if the policy type is incorrect", () => {
-      const strategy = new PasswordGeneratorStrategy(null);
-      const policy = mock<Policy>({
-        type: PolicyType.DisableSend,
-      });
-
-      expect(() => strategy.evaluator(policy)).toThrow(new RegExp("Mismatched policy type\\. .+"));
-    });
-
-    it("should map to the policy evaluator", () => {
-      const strategy = new PasswordGeneratorStrategy(null);
+  describe("toEvaluator()", () => {
+    it("should map to a password policy evaluator", async () => {
+      const strategy = new PasswordGeneratorStrategy(null, null);
       const policy = mock<Policy>({
         type: PolicyType.PasswordGenerator,
         data: {
@@ -43,7 +42,8 @@ describe("Password generation strategy", () => {
         },
       });
 
-      const evaluator = strategy.evaluator(policy);
+      const evaluator$ = of([policy]).pipe(strategy.toEvaluator());
+      const evaluator = await firstValueFrom(evaluator$);
 
       expect(evaluator).toBeInstanceOf(PasswordGeneratorOptionsEvaluator);
       expect(evaluator.policy).toMatchObject({
@@ -56,21 +56,47 @@ describe("Password generation strategy", () => {
         specialCount: 1,
       });
     });
+
+    it.each([[[]], [null], [undefined]])(
+      "should map `%p` to a disabled password policy evaluator",
+      async (policies) => {
+        const strategy = new PasswordGeneratorStrategy(null, null);
+
+        const evaluator$ = of(policies).pipe(strategy.toEvaluator());
+        const evaluator = await firstValueFrom(evaluator$);
+
+        expect(evaluator).toBeInstanceOf(PasswordGeneratorOptionsEvaluator);
+        expect(evaluator.policy).toMatchObject(DisabledPasswordGeneratorPolicy);
+      },
+    );
   });
 
-  describe("disk", () => {
+  describe("durableState", () => {
     it("should use password settings key", () => {
+      const provider = mock<StateProvider>();
       const legacy = mock<PasswordGenerationServiceAbstraction>();
-      const strategy = new PasswordGeneratorStrategy(legacy);
+      const strategy = new PasswordGeneratorStrategy(legacy, provider);
 
-      expect(strategy.disk).toBe(PASSWORD_SETTINGS);
+      strategy.durableState(SomeUser);
+
+      expect(provider.getUser).toHaveBeenCalledWith(SomeUser, PASSWORD_SETTINGS);
+    });
+  });
+
+  describe("defaults$", () => {
+    it("should return the default subaddress options", async () => {
+      const strategy = new PasswordGeneratorStrategy(null, null);
+
+      const result = await firstValueFrom(strategy.defaults$(SomeUser));
+
+      expect(result).toEqual(DefaultPasswordGenerationOptions);
     });
   });
 
   describe("cache_ms", () => {
     it("should be a positive non-zero number", () => {
       const legacy = mock<PasswordGenerationServiceAbstraction>();
-      const strategy = new PasswordGeneratorStrategy(legacy);
+      const strategy = new PasswordGeneratorStrategy(legacy, null);
 
       expect(strategy.cache_ms).toBeGreaterThan(0);
     });
@@ -79,7 +105,7 @@ describe("Password generation strategy", () => {
   describe("policy", () => {
     it("should use password generator policy", () => {
       const legacy = mock<PasswordGenerationServiceAbstraction>();
-      const strategy = new PasswordGeneratorStrategy(legacy);
+      const strategy = new PasswordGeneratorStrategy(legacy, null);
 
       expect(strategy.policy).toBe(PolicyType.PasswordGenerator);
     });
@@ -88,7 +114,7 @@ describe("Password generation strategy", () => {
   describe("generate()", () => {
     it("should call the legacy service with the given options", async () => {
       const legacy = mock<PasswordGenerationServiceAbstraction>();
-      const strategy = new PasswordGeneratorStrategy(legacy);
+      const strategy = new PasswordGeneratorStrategy(legacy, null);
       const options = {
         type: "password",
         minLength: 1,
@@ -107,7 +133,7 @@ describe("Password generation strategy", () => {
 
     it("should set the generation type to password", async () => {
       const legacy = mock<PasswordGenerationServiceAbstraction>();
-      const strategy = new PasswordGeneratorStrategy(legacy);
+      const strategy = new PasswordGeneratorStrategy(legacy, null);
 
       await strategy.generate({ type: "foo" } as any);
 

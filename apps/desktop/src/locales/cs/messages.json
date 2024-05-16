@@ -800,8 +800,11 @@
   "changeMasterPass": {
     "message": "Změnit hlavní heslo"
   },
-  "changeMasterPasswordConfirmation": {
-    "message": "Hlavní heslo si můžete změnit na webové stránce bitwarden.com. Chcete tuto stránku nyní otevřít?"
+  "continueToWebApp": {
+    "message": "Pokračovat do webové aplikace?"
+  },
+  "changeMasterPasswordOnWebConfirmation": {
+    "message": "Hlavní heslo můžete změnit ve webové aplikaci Bitwardenu."
   },
   "fingerprintPhrase": {
     "message": "Fráze otisku prstu",
@@ -1629,6 +1632,12 @@
   "browserIntegrationUnsupportedTitle": {
     "message": "Integrace prohlížeče není podporována"
   },
+  "browserIntegrationErrorTitle": {
+    "message": "Chyba při povolování integrace prohlížeče"
+  },
+  "browserIntegrationErrorDesc": {
+    "message": "Vyskytla se chyba při povolování integrace prohlížeče."
+  },
   "browserIntegrationMasOnlyDesc": {
     "message": "Integrace prohlížeče je podporována jen ve verzi pro Mac App Store."
   },
@@ -1643,6 +1652,12 @@
   },
   "enableBrowserIntegrationFingerprintDesc": {
     "message": "Přidá další vrstvu zabezpečení vyžadováním ověření frází otisků prstů při vytvoření propojení mezi plochou a prohlížečem. Pokud je povoleno, vyžaduje to zásah uživatele a ověření pokaždé, když je navázáno spojení."
+  },
+  "enableHardwareAcceleration": {
+    "message": "Používat hardwarovou akceleraci"
+  },
+  "enableHardwareAccelerationDesc": {
+    "message": "Ve výchozím nastavení je toto nastavení zapnuto. Vypněte jen v případě problémů s grafikou. Je vyžadováno restartování."
   },
   "approve": {
     "message": "Schválit"
@@ -2340,12 +2355,6 @@
   "loggingInOn": {
     "message": "Přihlašování na"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "selfHostedServer": {
     "message": "vlastní hosting"
   },
@@ -2687,5 +2696,29 @@
   "commonImportFormats": {
     "message": "Společné formáty",
     "description": "Label indicating the most common import formats"
+  },
+  "success": {
+    "message": "Úspěch"
+  },
+  "troubleshooting": {
+    "message": "Řešení problémů"
+  },
+  "disableHardwareAccelerationRestart": {
+    "message": "Zakázat hardwarovou akceleraci a restartovat"
+  },
+  "enableHardwareAccelerationRestart": {
+    "message": "Povolit hardwarovou akceleraci a restartovat"
+  },
+  "removePasskey": {
+    "message": "Odebrat přístupový klíč"
+  },
+  "passkeyRemoved": {
+    "message": "Přístupový klíč byl odebrán"
+  },
+  "errorAssigningTargetCollection": {
+    "message": "Chyba při přiřazování cílové kolekce."
+  },
+  "errorAssigningTargetFolder": {
+    "message": "Chyba při přiřazování cílové složky."
   }
 }

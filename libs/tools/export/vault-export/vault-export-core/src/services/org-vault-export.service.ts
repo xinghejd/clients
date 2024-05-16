@@ -1,10 +1,11 @@
 import * as papa from "papaparse";
 
+import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { CipherWithIdExport, CollectionWithIdExport } from "@bitwarden/common/models/export";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
@@ -34,12 +35,13 @@ export class OrganizationVaultExportService
   constructor(
     private cipherService: CipherService,
     private apiService: ApiService,
+    pinService: PinServiceAbstraction,
     cryptoService: CryptoService,
     cryptoFunctionService: CryptoFunctionService,
-    stateService: StateService,
     private collectionService: CollectionService,
+    kdfConfigService: KdfConfigService,
   ) {
-    super(cryptoService, cryptoFunctionService, stateService);
+    super(pinService, cryptoService, cryptoFunctionService, kdfConfigService);
   }
 
   async getPasswordProtectedExport(

@@ -2,11 +2,17 @@
  * include Request in test environment.
  * @jest-environment ../../../../shared/test.environment.ts
  */
+import { firstValueFrom } from "rxjs";
+
 import { ApiService } from "../../../../abstractions/api.service";
+import { UserId } from "../../../../types/guid";
+import { FASTMAIL_FORWARDER } from "../../key-definitions";
 import { Forwarders } from "../options/constants";
 
-import { FastmailForwarder } from "./fastmail";
+import { FastmailForwarder, DefaultFastmailOptions } from "./fastmail";
 import { mockI18nService } from "./mocks.jest";
+
+const SomeUser = "some user" as UserId;
 
 type MockResponse = { status: number; body: any };
 
@@ -45,16 +51,33 @@ const AccountIdSuccess: MockResponse = Object.freeze({
 
 // the tests
 describe("Fastmail Forwarder", () => {
+  it("key returns the Fastmail forwarder key", () => {
+    const forwarder = new FastmailForwarder(null, null, null, null, null);
+
+    expect(forwarder.key).toBe(FASTMAIL_FORWARDER);
+  });
+
+  describe("defaults$", () => {
+    it("should return the default subaddress options", async () => {
+      const strategy = new FastmailForwarder(null, null, null, null, null);
+
+      const result = await firstValueFrom(strategy.defaults$(SomeUser));
+
+      expect(result).toEqual(DefaultFastmailOptions);
+    });
+  });
+
   describe("generate(string | null, SelfHostedApiOptions & EmailDomainOptions)", () => {
     it.each([null, ""])("throws an error if the token is missing (token = %p)", async (token) => {
       const apiService = mockApiService(AccountIdSuccess, EmptyResponse);
       const i18nService = mockI18nService();
 
-      const forwarder = new FastmailForwarder(apiService, i18nService);
+      const forwarder = new FastmailForwarder(apiService, i18nService, null, null, null);
 
       await expect(
         async () =>
-          await forwarder.generate(null, {
+          await forwarder.generate({
+            website: null,
             token,
             domain: "example.com",
             prefix: "prefix",
@@ -71,11 +94,12 @@ describe("Fastmail Forwarder", () => {
         const apiService = mockApiService({ status, body: {} }, EmptyResponse);
         const i18nService = mockI18nService();
 
-        const forwarder = new FastmailForwarder(apiService, i18nService);
+        const forwarder = new FastmailForwarder(apiService, i18nService, null, null, null);
 
         await expect(
           async () =>
-            await forwarder.generate(null, {
+            await forwarder.generate({
+              website: null,
               token: "token",
               domain: "example.com",
               prefix: "prefix",
@@ -105,9 +129,10 @@ describe("Fastmail Forwarder", () => {
         });
         const i18nService = mockI18nService();
 
-        const forwarder = new FastmailForwarder(apiService, i18nService);
+        const forwarder = new FastmailForwarder(apiService, i18nService, null, null, null);
 
-        const result = await forwarder.generate(null, {
+        const result = await forwarder.generate({
+          website: null,
           token: "token",
           domain: "example.com",
           prefix: "prefix",
@@ -138,11 +163,12 @@ describe("Fastmail Forwarder", () => {
         });
         const i18nService = mockI18nService();
 
-        const forwarder = new FastmailForwarder(apiService, i18nService);
+        const forwarder = new FastmailForwarder(apiService, i18nService, null, null, null);
 
         await expect(
           async () =>
-            await forwarder.generate(null, {
+            await forwarder.generate({
+              website: null,
               token: "token",
               domain: "example.com",
               prefix: "prefix",
@@ -165,11 +191,12 @@ describe("Fastmail Forwarder", () => {
         const apiService = mockApiService(AccountIdSuccess, { status, body: {} });
         const i18nService = mockI18nService();
 
-        const forwarder = new FastmailForwarder(apiService, i18nService);
+        const forwarder = new FastmailForwarder(apiService, i18nService, null, null, null);
 
         await expect(
           async () =>
-            await forwarder.generate(null, {
+            await forwarder.generate({
+              website: null,
               token: "token",
               domain: "example.com",
               prefix: "prefix",
@@ -206,11 +233,12 @@ describe("Fastmail Forwarder", () => {
         });
         const i18nService = mockI18nService();
 
-        const forwarder = new FastmailForwarder(apiService, i18nService);
+        const forwarder = new FastmailForwarder(apiService, i18nService, null, null, null);
 
         await expect(
           async () =>
-            await forwarder.generate(null, {
+            await forwarder.generate({
+              website: null,
               token: "token",
               domain: "example.com",
               prefix: "prefix",
@@ -232,11 +260,12 @@ describe("Fastmail Forwarder", () => {
         const apiService = mockApiService(AccountIdSuccess, { status: statusCode, body: {} });
         const i18nService = mockI18nService();
 
-        const forwarder = new FastmailForwarder(apiService, i18nService);
+        const forwarder = new FastmailForwarder(apiService, i18nService, null, null, null);
 
         await expect(
           async () =>
-            await forwarder.generate(null, {
+            await forwarder.generate({
+              website: null,
               token: "token",
               domain: "example.com",
               prefix: "prefix",

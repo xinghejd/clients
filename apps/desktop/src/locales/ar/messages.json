@@ -561,10 +561,10 @@
     "message": "تم إنشاء حسابك الجديد! يمكنك الآن تسجيل الدخول."
   },
   "youSuccessfullyLoggedIn": {
-    "message": "You successfully logged in"
+    "message": "سجلتَ الدخول بنجاح"
   },
   "youMayCloseThisWindow": {
-    "message": "You may close this window"
+    "message": "يمكنك إغلاق هذه النافذة"
   },
   "masterPassSent": {
     "message": "لقد أرسلنا لك رسالة بريد إلكتروني تحتوي على تلميحات كلمة المرور الرئيسية."
@@ -800,8 +800,11 @@
   "changeMasterPass": {
     "message": "تغيير كلمة المرور الرئيسية"
   },
-  "changeMasterPasswordConfirmation": {
-    "message": "يمكنك تغيير كلمة المرور الرئيسية من خزنة الويب في bitwarden.com. هل تريد زيارة الموقع الآن؟"
+  "continueToWebApp": {
+    "message": "متابعة إلى تطبيق الويب؟"
+  },
+  "changeMasterPasswordOnWebConfirmation": {
+    "message": "يمكنك تغيير كلمة المرور الرئيسية الخاصة بك على تطبيق ويب Bitwarden."
   },
   "fingerprintPhrase": {
     "message": "عبارة بصمة الإصبع",
@@ -1554,7 +1557,7 @@
     "description": "Used as a card title description on the set password page to explain why the user is there"
   },
   "verificationRequired": {
-    "message": "Verification required",
+    "message": "التحقق مطلوب",
     "description": "Default title for the user verification dialog."
   },
   "currentMasterPass": {
@@ -1629,6 +1632,12 @@
   "browserIntegrationUnsupportedTitle": {
     "message": "تكامل المتصفح غير مدعوم"
   },
+  "browserIntegrationErrorTitle": {
+    "message": "خطأ في تمكين تكامل المتصفح"
+  },
+  "browserIntegrationErrorDesc": {
+    "message": "حدث خطأ أثناء تمكين دمج المتصفح."
+  },
   "browserIntegrationMasOnlyDesc": {
     "message": "للأسف، لا يتم دعم تكامل المتصفح إلا في إصدار متجر تطبيقات ماك في الوقت الحالي."
   },
@@ -1643,6 +1652,12 @@
   },
   "enableBrowserIntegrationFingerprintDesc": {
     "message": "أضف طبقة أمان إضافية عن طريق طلب تأكيد عبارة بصمة الإصبع عند إنشاء رابط بين سطح المكتب الخاص بك والمتصفح. هذا يتطلب إجراء المستخدم والتحقق في كل مرة يتم فيها إنشاء اتصال."
+  },
+  "enableHardwareAcceleration": {
+    "message": "استخدام تسارع العتاد"
+  },
+  "enableHardwareAccelerationDesc": {
+    "message": "بشكل افتراضي هذا الإعداد مفعل. أوقف التشغيل فقط إذا واجهت مشاكل في الرسوم البيانية. إعادة التشغيل مطلوبة."
   },
   "approve": {
     "message": "الموافقة"
@@ -1883,40 +1898,40 @@
     "message": "كلمة المرور الرئيسية الخاصة بك لا تفي بواحدة أو أكثر من سياسات مؤسستك. من أجل الوصول إلى الخزنة، يجب عليك تحديث كلمة المرور الرئيسية الآن. سيتم تسجيل خروجك من الجلسة الحالية، مما يتطلب منك تسجيل الدخول مرة أخرى. وقد تظل الجلسات النشطة على أجهزة أخرى نشطة لمدة تصل إلى ساعة واحدة."
   },
   "tryAgain": {
-    "message": "Try again"
+    "message": "حاول مرة أخرى"
   },
   "verificationRequiredForActionSetPinToContinue": {
-    "message": "Verification required for this action. Set a PIN to continue."
+    "message": "التحقق مطلوب لهذا الإجراء. قم بتعيين رمز PIN للمتابعة."
   },
   "setPin": {
-    "message": "Set PIN"
+    "message": "تعيين رقم التعريف الشخصي"
   },
   "verifyWithBiometrics": {
-    "message": "Verify with biometrics"
+    "message": "التحقق بواسطة القياسات الحيوية"
   },
   "awaitingConfirmation": {
-    "message": "Awaiting confirmation"
+    "message": "في انتظار تأكيد"
   },
   "couldNotCompleteBiometrics": {
-    "message": "Could not complete biometrics."
+    "message": "لا يمكن إكمال القياسات الحيوية."
   },
   "needADifferentMethod": {
-    "message": "Need a different method?"
+    "message": "هل تحتاج إلى طريقة مختلفة؟"
   },
   "useMasterPassword": {
-    "message": "Use master password"
+    "message": "استخدام كلمة المرور الرئيسية"
   },
   "usePin": {
-    "message": "Use PIN"
+    "message": "استخدام PIN"
   },
   "useBiometrics": {
-    "message": "Use biometrics"
+    "message": "استخدام المقاييس الحيوية"
   },
   "enterVerificationCodeSentToEmail": {
-    "message": "Enter the verification code that was sent to your email."
+    "message": "أدخِل رمز التحقق الذي أرسل إلى بريدك الإلكتروني."
   },
   "resendCode": {
-    "message": "Resend code"
+    "message": "إعادة إرسال الرمز"
   },
   "hours": {
     "message": "ساعات"
@@ -2340,12 +2355,6 @@
   "loggingInOn": {
     "message": "جارٍ تسجيل الدخول"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "selfHostedServer": {
     "message": "استضافة ذاتية"
   },
@@ -2532,13 +2541,13 @@
     }
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Launch Duo and follow the steps to finish logging in."
+    "message": "قم بتشغيل دوو واتبع الخطوات لإنهاء تسجيل الدخول."
   },
   "duoRequiredByOrgForAccount": {
-    "message": "Duo two-step login is required for your account."
+    "message": "تسجيل الدخول لـ Duo من خطوتين مطلوب لحسابك."
   },
   "launchDuo": {
-    "message": "Launch Duo in Browser"
+    "message": "تشغيل دوو في المتصفح"
   },
   "importFormatError": {
     "message": "لم يتم تنسيق البيانات بشكل صحيح. الرجاء التحقق من ملف الاستيراد الخاص بك وحاول مرة أخرى."
@@ -2621,13 +2630,13 @@
     "message": "اسم المستخدم أو كلمة المرور غير صحيحة"
   },
   "incorrectPassword": {
-    "message": "Incorrect password"
+    "message": "كلمة سر خاطئة"
   },
   "incorrectCode": {
-    "message": "Incorrect code"
+    "message": "رمز غير صحيح"
   },
   "incorrectPin": {
-    "message": "Incorrect PIN"
+    "message": "رمز PIN غير صحيح"
   },
   "multifactorAuthenticationFailed": {
     "message": "فشلت المصادقة المتعددة العوامل"
@@ -2687,5 +2696,29 @@
   "commonImportFormats": {
     "message": "تنسيقات مشتركة",
     "description": "Label indicating the most common import formats"
+  },
+  "success": {
+    "message": "نجاح"
+  },
+  "troubleshooting": {
+    "message": "استكشاف الأخطاء وإصلاحها"
+  },
+  "disableHardwareAccelerationRestart": {
+    "message": "تعطيل تسارع العتاد وإعادة التشغيل"
+  },
+  "enableHardwareAccelerationRestart": {
+    "message": "تمكين تسارع العتاد وإعادة التشغيل"
+  },
+  "removePasskey": {
+    "message": "إزالة مفتاح المرور"
+  },
+  "passkeyRemoved": {
+    "message": "تمت إزالة كلمة المرور"
+  },
+  "errorAssigningTargetCollection": {
+    "message": "خطأ في تعيين مجموعة الأهداف."
+  },
+  "errorAssigningTargetFolder": {
+    "message": "خطأ في تعيين مجلد الهدف."
   }
 }

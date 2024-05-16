@@ -2,6 +2,7 @@
   "compilerOptions": {
     "moduleResolution": "node",
     "noImplicitAny": true,
+    "allowSyntheticDefaultImports": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "module": "ES2020",
@@ -9,6 +10,7 @@
     "allowJs": true,
     "sourceMap": true,
     "baseUrl": ".",
+    "lib": ["ES2021.String"],
     "paths": {
       "@bitwarden/admin-console": ["../../libs/admin-console/src"],
       "@bitwarden/angular/*": ["../../libs/angular/src/*"],
@@ -20,6 +22,7 @@
       "@bitwarden/vault-export-core": [
         "../../libs/tools/export/vault-export/vault-export-core/src"
       ],
+      "@bitwarden/vault-export-ui": ["../../libs/tools/export/vault-export/vault-export-ui/src"],
       "@bitwarden/importer/core": ["../../libs/importer/src"],
       "@bitwarden/importer/ui": ["../../libs/importer/src/components"],
       "@bitwarden/platform": ["../../libs/platform/src"],
@@ -31,5 +34,9 @@
     "strictTemplates": true,
     "preserveWhitespaces": true
   },
-  "include": ["src", "../../libs/common/src/platform/services/**/*.worker.ts"]
+  "include": [
+    "src",
+    "../../libs/common/src/platform/services/**/*.worker.ts",
+    "../../libs/common/src/autofill/constants"
+  ]
 }

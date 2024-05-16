@@ -9,16 +9,17 @@ import {
   SimpleChanges,
   OnChanges,
 } from "@angular/core";
-import { Router } from "@angular/router";
-import { Subject, takeUntil, Observable, firstValueFrom } from "rxjs";
+import { Subject, takeUntil, Observable, firstValueFrom, fromEvent } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
+import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { VaultOnboardingMessages } from "@bitwarden/common/vault/enums/vault-onboarding.enum";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LinkModule } from "@bitwarden/components";
 
@@ -35,13 +36,14 @@ import { VaultOnboardingTasks } from "./services/vault-onboarding.service";
 })
 export class VaultOnboardingComponent implements OnInit, OnChanges, OnDestroy {
   @Input() ciphers: CipherView[];
+  @Input() orgs: Organization[];
   @Output() onAddCipher = new EventEmitter<void>();
 
   extensionUrl: string;
   isIndividualPolicyVault: boolean;
   private destroy$ = new Subject<void>();
   isNewAccount: boolean;
-  private readonly onboardingReleaseDate = new Date("2024-01-01");
+  private readonly onboardingReleaseDate = new Date("2024-04-02");
   showOnboardingAccess$: Observable<boolean>;
 
   protected currentTasks: VaultOnboardingTasks;
@@ -52,36 +54,61 @@ export class VaultOnboardingComponent implements OnInit, OnChanges, OnDestroy {
   constructor(
     protected platformUtilsService: PlatformUtilsService,
     protected policyService: PolicyService,
-    protected router: Router,
     private apiService: ApiService,
-    private configService: ConfigServiceAbstraction,
+    private configService: ConfigService,
     private vaultOnboardingService: VaultOnboardingServiceAbstraction,
   ) {}
 
   async ngOnInit() {
-    this.showOnboardingAccess$ = await this.configService.getFeatureFlag$<boolean>(
+    this.showOnboardingAccess$ = await this.configService.getFeatureFlag$(
       FeatureFlag.VaultOnboarding,
-      false,
     );
     this.onboardingTasks$ = this.vaultOnboardingService.vaultOnboardingState$;
     await this.setOnboardingTasks();
     this.setInstallExtLink();
     this.individualVaultPolicyCheck();
+    this.checkForBrowserExtension();
   }
 
   async ngOnChanges(changes: SimpleChanges) {
     if (this.showOnboarding && changes?.ciphers) {
-      await this.saveCompletedTasks({
+      const currentTasks = await firstValueFrom(this.onboardingTasks$);
+      const updatedTasks = {
         createAccount: true,
         importData: this.ciphers.length > 0,
-        installExtension: false,
-      });
+        installExtension: currentTasks.installExtension,
+      };
+      await this.vaultOnboardingService.setVaultOnboardingTasks(updatedTasks);
     }
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  checkForBrowserExtension() {
+    if (this.showOnboarding) {
+      fromEvent<MessageEvent>(window, "message")
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((event) => {
+          void this.getMessages(event);
+        });
+
+      window.postMessage({ command: VaultOnboardingMessages.checkBwInstalled });
+    }
+  }
+
+  async getMessages(event: any) {
+    if (event.data.command === VaultOnboardingMessages.HasBwInstalled && this.showOnboarding) {
+      const currentTasks = await firstValueFrom(this.onboardingTasks$);
+      const updatedTasks = {
+        createAccount: currentTasks.createAccount,
+        importData: currentTasks.importData,
+        installExtension: true,
+      };
+      await this.vaultOnboardingService.setVaultOnboardingTasks(updatedTasks);
+    }
   }
 
   async checkCreationDate() {
@@ -142,7 +169,7 @@ export class VaultOnboardingComponent implements OnInit, OnChanges, OnDestroy {
   setInstallExtLink() {
     if (this.platformUtilsService.isChrome()) {
       this.extensionUrl =
-        "https://chrome.google.com/webstore/detail/bitwarden-free-password-m/nngceckbapebfimnlniiiahkandclblb";
+        "https://chromewebstore.google.com/detail/bitwarden-password-manage/nngceckbapebfimnlniiiahkandclblb";
     } else if (this.platformUtilsService.isFirefox()) {
       this.extensionUrl =
         "https://addons.mozilla.org/en-US/firefox/addon/bitwarden-password-manager/";

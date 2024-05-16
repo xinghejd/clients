@@ -3,7 +3,9 @@ import { Observable } from "rxjs";
 import { DeviceType } from "@bitwarden/common/enums";
 
 import { TabMessage } from "../../types/tab-messages";
-import BrowserPlatformUtilsService from "../services/browser-platform-utils.service";
+import { BrowserPlatformUtilsService } from "../services/platform-utils/browser-platform-utils.service";
+
+import { registerContentScriptsPolyfill } from "./browser-api.register-content-scripts-polyfill";
 
 export class BrowserApi {
   static isWebExtensionsApi: boolean = typeof browser !== "undefined";
@@ -17,6 +19,15 @@ export class BrowserApi {
 
   static get manifestVersion() {
     return chrome.runtime.getManifest().manifest_version;
+  }
+
+  /**
+   * Determines if the extension manifest version is the given version.
+   *
+   * @param expectedVersion - The expected manifest version to check against.
+   */
+  static isManifestVersion(expectedVersion: 2 | 3) {
+    return BrowserApi.manifestVersion === expectedVersion;
   }
 
   /**
@@ -98,12 +109,17 @@ export class BrowserApi {
     });
   }
 
+  /**
+   * Gets the tab with the given id.
+   *
+   * @param tabId - The id of the tab to get.
+   */
   static async getTab(tabId: number): Promise<chrome.tabs.Tab> | null {
     if (!tabId) {
       return null;
     }
 
-    if (BrowserApi.manifestVersion === 3) {
+    if (BrowserApi.isManifestVersion(3)) {
       return await chrome.tabs.get(tabId);
     }
 
@@ -188,10 +204,6 @@ export class BrowserApi {
     chrome.tabs.sendMessage<TabMessage, T>(tabId, message, options, responseCallback);
   }
 
-  static async getPrivateModeWindows(): Promise<browser.windows.Window[]> {
-    return (await browser.windows.getAll()).filter((win) => win.incognito);
-  }
-
   static async onWindowCreated(callback: (win: chrome.windows.Window) => any) {
     // FIXME: Make sure that is does not cause a memory leak in Safari or use BrowserApi.AddListener
     // and test that it doesn't break.
@@ -220,10 +232,6 @@ export class BrowserApi {
    */
   static isBackgroundPage(window: Window & typeof globalThis): boolean {
     return typeof window !== "undefined" && window === BrowserApi.getBackgroundPage();
-  }
-
-  static getApplicationVersion(): string {
-    return chrome.runtime.getManifest().version;
   }
 
   /**
@@ -306,7 +314,7 @@ export class BrowserApi {
   ) {
     event.addListener(callback);
 
-    if (BrowserApi.isSafariApi && !BrowserApi.isBackgroundPage(window)) {
+    if (BrowserApi.isSafariApi && !BrowserApi.isBackgroundPage(self)) {
       BrowserApi.trackedChromeEventListeners.push([event, callback]);
       BrowserApi.setupUnloadListeners();
     }
@@ -323,7 +331,7 @@ export class BrowserApi {
   ) {
     event.removeListener(callback);
 
-    if (BrowserApi.isSafariApi && !BrowserApi.isBackgroundPage(window)) {
+    if (BrowserApi.isSafariApi && !BrowserApi.isBackgroundPage(self)) {
       const index = BrowserApi.trackedChromeEventListeners.findIndex(([_event, eventListener]) => {
         return eventListener == callback;
       });
@@ -337,11 +345,11 @@ export class BrowserApi {
   private static setupUnloadListeners() {
     // The MDN recommend using 'visibilitychange' but that event is fired any time the popup window is obscured as well
     // 'pagehide' works just like 'unload' but is compatible with the back/forward cache, so we prefer using that one
-    window.onpagehide = () => {
+    self.addEventListener("pagehide", () => {
       for (const [event, callback] of BrowserApi.trackedChromeEventListeners) {
         event.removeListener(callback);
       }
-    };
+    });
   }
 
   static sendMessage(subscriber: string, arg: any = {}) {
@@ -409,7 +417,7 @@ export class BrowserApi {
       return;
     }
 
-    const currentHref = window.location.href;
+    const currentHref = self.location.href;
     views
       .filter((w) => w.location.href != null && !w.location.href.includes("background.html"))
       .filter((w) => !exemptCurrentHref || w.location.href !== currentHref)
@@ -453,8 +461,11 @@ export class BrowserApi {
     });
   }
 
+  /**
+   * Returns the supported BrowserAction API based on the manifest version.
+   */
   static getBrowserAction() {
-    return BrowserApi.manifestVersion === 3 ? chrome.action : chrome.browserAction;
+    return BrowserApi.isManifestVersion(3) ? chrome.action : chrome.browserAction;
   }
 
   static getSidebarAction(
@@ -475,13 +486,20 @@ export class BrowserApi {
 
   /**
    * Extension API helper method used to execute a script in a tab.
+   *
    * @see https://developer.chrome.com/docs/extensions/reference/tabs/#method-executeScript
-   * @param {number} tabId
-   * @param {chrome.tabs.InjectDetails} details
-   * @returns {Promise<unknown>}
+   * @param tabId - The id of the tab to execute the script in.
+   * @param details {@link "InjectDetails" https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/extensionTypes/InjectDetails}
+   * @param scriptingApiDetails {@link "ExecutionWorld" https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/scripting/ExecutionWorld}
    */
-  static executeScriptInTab(tabId: number, details: chrome.tabs.InjectDetails) {
-    if (BrowserApi.manifestVersion === 3) {
+  static executeScriptInTab(
+    tabId: number,
+    details: chrome.tabs.InjectDetails,
+    scriptingApiDetails?: {
+      world: chrome.scripting.ExecutionWorld;
+    },
+  ): Promise<unknown> {
+    if (BrowserApi.isManifestVersion(3)) {
       return chrome.scripting.executeScript({
         target: {
           tabId: tabId,
@@ -490,6 +508,7 @@ export class BrowserApi {
         },
         files: details.file ? [details.file] : null,
         injectImmediately: details.runAt === "document_start",
+        world: scriptingApiDetails?.world || "ISOLATED",
       });
     }
 
@@ -537,5 +556,42 @@ export class BrowserApi {
     chrome.privacy.services.autofillAddressEnabled.set({ value });
     chrome.privacy.services.autofillCreditCardEnabled.set({ value });
     chrome.privacy.services.passwordSavingEnabled.set({ value });
+  }
+
+  /**
+   * Handles registration of static content scripts within manifest v2.
+   *
+   * @param contentScriptOptions - Details of the registered content scripts
+   */
+  static async registerContentScriptsMv2(
+    contentScriptOptions: browser.contentScripts.RegisteredContentScriptOptions,
+  ): Promise<browser.contentScripts.RegisteredContentScript> {
+    if (typeof browser !== "undefined" && !!browser.contentScripts?.register) {
+      return await browser.contentScripts.register(contentScriptOptions);
+    }
+
+    return await registerContentScriptsPolyfill(contentScriptOptions);
+  }
+
+  /**
+   * Handles registration of static content scripts within manifest v3.
+   *
+   * @param scripts - Details of the registered content scripts
+   */
+  static async registerContentScriptsMv3(
+    scripts: chrome.scripting.RegisteredContentScript[],
+  ): Promise<void> {
+    await chrome.scripting.registerContentScripts(scripts);
+  }
+
+  /**
+   * Handles unregistering of static content scripts within manifest v3.
+   *
+   * @param filter - Optional filter to unregister content scripts. Passing an empty object will unregister all content scripts.
+   */
+  static async unregisterContentScriptsMv3(
+    filter?: chrome.scripting.ContentScriptFilter,
+  ): Promise<void> {
+    await chrome.scripting.unregisterContentScripts(filter);
   }
 }

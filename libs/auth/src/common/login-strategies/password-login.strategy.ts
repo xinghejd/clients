@@ -1,6 +1,13 @@
+import { BehaviorSubject, firstValueFrom, map, Observable } from "rxjs";
+import { Jsonify } from "type-fest";
+
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { TokenService } from "@bitwarden/common/auth/abstractions/token.service";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
@@ -10,6 +17,7 @@ import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/ide
 import { IdentityCaptchaResponse } from "@bitwarden/common/auth/models/response/identity-captcha.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { IdentityTwoFactorResponse } from "@bitwarden/common/auth/models/response/identity-two-factor.response";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -17,35 +25,58 @@ import { MessagingService } from "@bitwarden/common/platform/abstractions/messag
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { HashPurpose } from "@bitwarden/common/platform/enums";
+import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
+import { UserId } from "@bitwarden/common/types/guid";
 import { MasterKey } from "@bitwarden/common/types/key";
 
 import { LoginStrategyServiceAbstraction } from "../abstractions";
+import { InternalUserDecryptionOptionsServiceAbstraction } from "../abstractions/user-decryption-options.service.abstraction";
 import { PasswordLoginCredentials } from "../models/domain/login-credentials";
+import { CacheData } from "../services/login-strategies/login-strategy.state";
 
-import { LoginStrategy } from "./login.strategy";
+import { LoginStrategy, LoginStrategyData } from "./login.strategy";
 
-export class PasswordLoginStrategy extends LoginStrategy {
-  get email() {
-    return this.tokenRequest.email;
-  }
-
-  get masterPasswordHash() {
-    return this.tokenRequest.masterPasswordHash;
-  }
-
+export class PasswordLoginStrategyData implements LoginStrategyData {
   tokenRequest: PasswordTokenRequest;
 
-  private localMasterKeyHash: string;
-  private masterKey: MasterKey;
-
+  /** User's entered email obtained pre-login. Always present in MP login. */
+  userEnteredEmail: string;
+  /** If 2fa is required, token is returned to bypass captcha */
+  captchaBypassToken?: string;
+  /** The local version of the user's master key hash */
+  localMasterKeyHash: string;
+  /** The user's master key */
+  masterKey: MasterKey;
   /**
-   * Options to track if the user needs to update their password due to a password that does not meet an organization's
-   * master password policy.
+   * Tracks if the user needs to update their password due to
+   * a password that does not meet an organization's master password policy.
    */
-  private forcePasswordResetReason: ForceSetPasswordReason = ForceSetPasswordReason.None;
+  forcePasswordResetReason: ForceSetPasswordReason = ForceSetPasswordReason.None;
+
+  static fromJSON(obj: Jsonify<PasswordLoginStrategyData>): PasswordLoginStrategyData {
+    const data = Object.assign(new PasswordLoginStrategyData(), obj, {
+      tokenRequest: PasswordTokenRequest.fromJSON(obj.tokenRequest),
+      masterKey: SymmetricCryptoKey.fromJSON(obj.masterKey),
+    });
+    return data;
+  }
+}
+
+export class PasswordLoginStrategy extends LoginStrategy {
+  /** The email address of the user attempting to log in. */
+  email$: Observable<string>;
+  /** The master key hash used for authentication */
+  serverMasterKeyHash$: Observable<string>;
+  /** The local master key hash we store client side */
+  localMasterKeyHash$: Observable<string | null>;
+
+  protected cache: BehaviorSubject<PasswordLoginStrategyData>;
 
   constructor(
+    data: PasswordLoginStrategyData,
+    accountService: AccountService,
+    masterPasswordService: InternalMasterPasswordServiceAbstraction,
     cryptoService: CryptoService,
     apiService: ApiService,
     tokenService: TokenService,
@@ -55,11 +86,17 @@ export class PasswordLoginStrategy extends LoginStrategy {
     logService: LogService,
     protected stateService: StateService,
     twoFactorService: TwoFactorService,
+    userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction,
     private passwordStrengthService: PasswordStrengthServiceAbstraction,
     private policyService: PolicyService,
     private loginStrategyService: LoginStrategyServiceAbstraction,
+    billingAccountProfileStateService: BillingAccountProfileStateService,
+    vaultTimeoutSettingsService: VaultTimeoutSettingsService,
+    kdfConfigService: KdfConfigService,
   ) {
     super(
+      accountService,
+      masterPasswordService,
       cryptoService,
       apiService,
       tokenService,
@@ -69,51 +106,53 @@ export class PasswordLoginStrategy extends LoginStrategy {
       logService,
       stateService,
       twoFactorService,
+      userDecryptionOptionsService,
+      billingAccountProfileStateService,
+      vaultTimeoutSettingsService,
+      kdfConfigService,
     );
-  }
 
-  override async logInTwoFactor(
-    twoFactor: TokenTwoFactorRequest,
-    captchaResponse: string,
-  ): Promise<AuthResult> {
-    this.tokenRequest.captchaResponse = captchaResponse ?? this.captchaBypassToken;
-    const result = await super.logInTwoFactor(twoFactor);
-
-    // 2FA was successful, save the force update password options with the state service if defined
-    if (
-      !result.requiresTwoFactor &&
-      !result.requiresCaptcha &&
-      this.forcePasswordResetReason != ForceSetPasswordReason.None
-    ) {
-      await this.stateService.setForceSetPasswordReason(this.forcePasswordResetReason);
-      result.forcePasswordReset = this.forcePasswordResetReason;
-    }
-
-    return result;
+    this.cache = new BehaviorSubject(data);
+    this.email$ = this.cache.pipe(map((state) => state.tokenRequest.email));
+    this.serverMasterKeyHash$ = this.cache.pipe(
+      map((state) => state.tokenRequest.masterPasswordHash),
+    );
+    this.localMasterKeyHash$ = this.cache.pipe(map((state) => state.localMasterKeyHash));
   }
 
   override async logIn(credentials: PasswordLoginCredentials) {
     const { email, masterPassword, captchaToken, twoFactor } = credentials;
 
-    this.masterKey = await this.loginStrategyService.makePreloginKey(masterPassword, email);
+    const data = new PasswordLoginStrategyData();
+    data.masterKey = await this.loginStrategyService.makePreloginKey(masterPassword, email);
+    data.userEnteredEmail = email;
 
     // Hash the password early (before authentication) so we don't persist it in memory in plaintext
-    this.localMasterKeyHash = await this.cryptoService.hashMasterKey(
+    data.localMasterKeyHash = await this.cryptoService.hashMasterKey(
       masterPassword,
-      this.masterKey,
+      data.masterKey,
       HashPurpose.LocalAuthorization,
     );
-    const masterKeyHash = await this.cryptoService.hashMasterKey(masterPassword, this.masterKey);
+    const serverMasterKeyHash = await this.cryptoService.hashMasterKey(
+      masterPassword,
+      data.masterKey,
+    );
 
-    this.tokenRequest = new PasswordTokenRequest(
+    data.tokenRequest = new PasswordTokenRequest(
       email,
-      masterKeyHash,
+      serverMasterKeyHash,
       captchaToken,
-      await this.buildTwoFactor(twoFactor),
+      await this.buildTwoFactor(twoFactor, email),
       await this.buildDeviceRequest(),
     );
 
+    this.cache.next(data);
+
     const [authResult, identityResponse] = await this.startLogIn();
+
+    if (identityResponse instanceof IdentityCaptchaResponse) {
+      return authResult;
+    }
 
     const masterPasswordPolicyOptions =
       this.getMasterPasswordPolicyOptionsFromResponse(identityResponse);
@@ -125,45 +164,85 @@ export class PasswordLoginStrategy extends LoginStrategy {
         credentials,
         masterPasswordPolicyOptions,
       );
+      if (meetsRequirements) {
+        return authResult;
+      }
 
-      if (!meetsRequirements) {
-        if (authResult.requiresCaptcha || authResult.requiresTwoFactor) {
-          // Save the flag to this strategy for later use as the master password is about to pass out of scope
-          this.forcePasswordResetReason = ForceSetPasswordReason.WeakMasterPassword;
-        } else {
-          // Authentication was successful, save the force update password options with the state service
-          await this.stateService.setForceSetPasswordReason(
-            ForceSetPasswordReason.WeakMasterPassword,
-          );
-          authResult.forcePasswordReset = ForceSetPasswordReason.WeakMasterPassword;
-        }
+      if (identityResponse instanceof IdentityTwoFactorResponse) {
+        // Save the flag to this strategy for use in 2fa login as the master password is about to pass out of scope
+        this.cache.next({
+          ...this.cache.value,
+          forcePasswordResetReason: ForceSetPasswordReason.WeakMasterPassword,
+        });
+      } else {
+        // Authentication was successful, save the force update password options with the state service
+        await this.masterPasswordService.setForceSetPasswordReason(
+          ForceSetPasswordReason.WeakMasterPassword,
+          authResult.userId, // userId is only available on successful login
+        );
+        authResult.forcePasswordReset = ForceSetPasswordReason.WeakMasterPassword;
       }
     }
     return authResult;
   }
 
-  protected override async setMasterKey(response: IdentityTokenResponse) {
-    await this.cryptoService.setMasterKey(this.masterKey);
-    await this.cryptoService.setMasterKeyHash(this.localMasterKeyHash);
+  override async logInTwoFactor(
+    twoFactor: TokenTwoFactorRequest,
+    captchaResponse: string,
+  ): Promise<AuthResult> {
+    const data = this.cache.value;
+    data.tokenRequest.captchaResponse = captchaResponse ?? data.captchaBypassToken;
+    this.cache.next(data);
+
+    const result = await super.logInTwoFactor(twoFactor);
+
+    // 2FA was successful, save the force update password options with the state service if defined
+    const forcePasswordResetReason = this.cache.value.forcePasswordResetReason;
+    if (
+      !result.requiresTwoFactor &&
+      !result.requiresCaptcha &&
+      forcePasswordResetReason != ForceSetPasswordReason.None
+    ) {
+      await this.masterPasswordService.setForceSetPasswordReason(
+        forcePasswordResetReason,
+        result.userId,
+      );
+      result.forcePasswordReset = forcePasswordResetReason;
+    }
+
+    return result;
   }
 
-  protected override async setUserKey(response: IdentityTokenResponse): Promise<void> {
+  protected override async setMasterKey(response: IdentityTokenResponse, userId: UserId) {
+    const { masterKey, localMasterKeyHash } = this.cache.value;
+    await this.masterPasswordService.setMasterKey(masterKey, userId);
+    await this.masterPasswordService.setMasterKeyHash(localMasterKeyHash, userId);
+  }
+
+  protected override async setUserKey(
+    response: IdentityTokenResponse,
+    userId: UserId,
+  ): Promise<void> {
     // If migration is required, we won't have a user key to set yet.
     if (this.encryptionKeyMigrationRequired(response)) {
       return;
     }
-    await this.cryptoService.setMasterKeyEncryptedUserKey(response.key);
+    await this.cryptoService.setMasterKeyEncryptedUserKey(response.key, userId);
 
-    const masterKey = await this.cryptoService.getMasterKey();
+    const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
     if (masterKey) {
-      const userKey = await this.cryptoService.decryptUserKeyWithMasterKey(masterKey);
-      await this.cryptoService.setUserKey(userKey);
+      const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(masterKey);
+      await this.cryptoService.setUserKey(userKey, userId);
     }
   }
 
-  protected override async setPrivateKey(response: IdentityTokenResponse): Promise<void> {
+  protected override async setPrivateKey(
+    response: IdentityTokenResponse,
+    userId: UserId,
+  ): Promise<void> {
     await this.cryptoService.setPrivateKey(
-      response.privateKey ?? (await this.createKeyPairForOldAccount()),
+      response.privateKey ?? (await this.createKeyPairForOldAccount(userId)),
+      userId,
     );
   }
 
@@ -172,9 +251,9 @@ export class PasswordLoginStrategy extends LoginStrategy {
   }
 
   private getMasterPasswordPolicyOptionsFromResponse(
-    response: IdentityTokenResponse | IdentityTwoFactorResponse | IdentityCaptchaResponse,
+    response: IdentityTokenResponse | IdentityTwoFactorResponse,
   ): MasterPasswordPolicyOptions {
-    if (response == null || response instanceof IdentityCaptchaResponse) {
+    if (response == null) {
       return null;
     }
     return MasterPasswordPolicyOptions.fromResponse(response.masterPasswordPolicy);
@@ -190,5 +269,11 @@ export class PasswordLoginStrategy extends LoginStrategy {
     )?.score;
 
     return this.policyService.evaluateMasterPassword(passwordStrength, masterPassword, options);
+  }
+
+  exportCache(): CacheData {
+    return {
+      password: this.cache.value,
+    };
   }
 }

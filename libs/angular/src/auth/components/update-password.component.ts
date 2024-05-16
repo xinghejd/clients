@@ -4,6 +4,8 @@ import { Router } from "@angular/router";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
+import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { VerificationType } from "@bitwarden/common/auth/enums/verification-type";
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
@@ -44,6 +46,8 @@ export class UpdatePasswordComponent extends BaseChangePasswordComponent {
     private userVerificationService: UserVerificationService,
     private logService: LogService,
     dialogService: DialogService,
+    kdfConfigService: KdfConfigService,
+    masterPasswordService: InternalMasterPasswordServiceAbstraction,
   ) {
     super(
       i18nService,
@@ -54,6 +58,8 @@ export class UpdatePasswordComponent extends BaseChangePasswordComponent {
       policyService,
       stateService,
       dialogService,
+      kdfConfigService,
+      masterPasswordService,
     );
   }
 
@@ -90,8 +96,7 @@ export class UpdatePasswordComponent extends BaseChangePasswordComponent {
       return false;
     }
 
-    this.kdf = await this.stateService.getKdfType();
-    this.kdfConfig = await this.stateService.getKdfConfig();
+    this.kdfConfig = await this.kdfConfigService.getKdfConfig();
     return true;
   }
 

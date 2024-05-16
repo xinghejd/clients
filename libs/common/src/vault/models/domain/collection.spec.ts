@@ -61,6 +61,7 @@ describe("Collection", () => {
     const view = await collection.decrypt();
 
     expect(view).toEqual({
+      addAccess: false,
       externalId: "extId",
       hidePasswords: false,
       id: "id",
@@ -68,6 +69,7 @@ describe("Collection", () => {
       organizationId: "orgId",
       readOnly: false,
       manage: true,
+      assigned: true,
     });
   });
 });

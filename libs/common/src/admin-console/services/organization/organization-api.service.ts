@@ -4,13 +4,12 @@ import { OrganizationSsoRequest } from "../../../auth/models/request/organizatio
 import { SecretVerificationRequest } from "../../../auth/models/request/secret-verification.request";
 import { ApiKeyResponse } from "../../../auth/models/response/api-key.response";
 import { OrganizationSsoResponse } from "../../../auth/models/response/organization-sso.response";
+import { ExpandedTaxInfoUpdateRequest } from "../../../billing/models/request/expanded-tax-info-update.request";
 import { OrganizationSmSubscriptionUpdateRequest } from "../../../billing/models/request/organization-sm-subscription-update.request";
 import { OrganizationSubscriptionUpdateRequest } from "../../../billing/models/request/organization-subscription-update.request";
-import { OrganizationTaxInfoUpdateRequest } from "../../../billing/models/request/organization-tax-info-update.request";
 import { PaymentRequest } from "../../../billing/models/request/payment.request";
 import { SecretsManagerSubscribeRequest } from "../../../billing/models/request/sm-subscribe.request";
 import { BillingResponse } from "../../../billing/models/response/billing.response";
-import { OrganizationRisksSubscriptionFailureResponse } from "../../../billing/models/response/organization-risks-subscription-failure.response";
 import { OrganizationSubscriptionResponse } from "../../../billing/models/response/organization-subscription.response";
 import { PaymentResponse } from "../../../billing/models/response/payment.response";
 import { TaxInfoResponse } from "../../../billing/models/response/tax-info.response";
@@ -185,10 +184,6 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
     );
   }
 
-  async cancel(id: string): Promise<void> {
-    return this.apiService.send("POST", "/organizations/" + id + "/cancel", null, true, false);
-  }
-
   async reinstate(id: string): Promise<void> {
     return this.apiService.send("POST", "/organizations/" + id + "/reinstate", null, true, false);
   }
@@ -262,7 +257,7 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
     return new TaxInfoResponse(r);
   }
 
-  async updateTaxInfo(id: string, request: OrganizationTaxInfoUpdateRequest): Promise<void> {
+  async updateTaxInfo(id: string, request: ExpandedTaxInfoUpdateRequest): Promise<void> {
     // Can't broadcast anything because the response doesn't have content
     return this.apiService.send("PUT", "/organizations/" + id + "/tax", request, true, false);
   }
@@ -342,20 +337,6 @@ export class OrganizationApiService implements OrganizationApiServiceAbstraction
     const data = new OrganizationResponse(r);
     await this.syncService.fullSync(true);
     return data;
-  }
-
-  async risksSubscriptionFailure(
-    id: string,
-  ): Promise<OrganizationRisksSubscriptionFailureResponse> {
-    const r = await this.apiService.send(
-      "GET",
-      "/organizations/" + id + "/risks-subscription-failure",
-      null,
-      true,
-      true,
-    );
-
-    return new OrganizationRisksSubscriptionFailureResponse(r);
   }
 
   async enableCollectionEnhancements(id: string): Promise<void> {

@@ -1,6 +1,8 @@
 import * as signalR from "@microsoft/signalr";
 import * as signalRMsgPack from "@microsoft/signalr-protocol-msgpack";
+import { firstValueFrom } from "rxjs";
 
+import { AuthRequestServiceAbstraction } from "../../../auth/src/common/abstractions";
 import { ApiService } from "../abstractions/api.service";
 import { NotificationsService as NotificationsServiceAbstraction } from "../abstractions/notifications.service";
 import { AuthService } from "../auth/abstractions/auth.service";
@@ -17,6 +19,7 @@ import { EnvironmentService } from "../platform/abstractions/environment.service
 import { LogService } from "../platform/abstractions/log.service";
 import { MessagingService } from "../platform/abstractions/messaging.service";
 import { StateService } from "../platform/abstractions/state.service";
+import { UserId } from "../types/guid";
 import { SyncService } from "../vault/abstractions/sync/sync.service.abstraction";
 
 export class NotificationsService implements NotificationsServiceAbstraction {
@@ -36,9 +39,10 @@ export class NotificationsService implements NotificationsServiceAbstraction {
     private logoutCallback: (expired: boolean) => Promise<void>,
     private stateService: StateService,
     private authService: AuthService,
+    private authRequestService: AuthRequestServiceAbstraction,
     private messagingService: MessagingService,
   ) {
-    this.environmentService.urls.subscribe(() => {
+    this.environmentService.environment$.subscribe(() => {
       if (!this.inited) {
         return;
       }
@@ -51,7 +55,7 @@ export class NotificationsService implements NotificationsServiceAbstraction {
 
   async init(): Promise<void> {
     this.inited = false;
-    this.url = this.environmentService.getNotificationsUrl();
+    this.url = (await firstValueFrom(this.environmentService.environment$)).getNotificationsUrl();
 
     // Set notifications server URL to `https://-` to effectively disable communication
     // with the notifications server from the client app
@@ -198,10 +202,13 @@ export class NotificationsService implements NotificationsServiceAbstraction {
         await this.syncService.syncDeleteSend(notification.payload as SyncSendNotification);
         break;
       case NotificationType.AuthRequest:
-        if (await this.stateService.getApproveLoginRequests()) {
-          this.messagingService.send("openLoginApproval", {
-            notificationId: notification.payload.id,
-          });
+        {
+          const userId = await this.stateService.getUserId();
+          if (await this.authRequestService.getAcceptAuthRequests(userId as UserId)) {
+            this.messagingService.send("openLoginApproval", {
+              notificationId: notification.payload.id,
+            });
+          }
         }
         break;
       default:

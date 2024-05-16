@@ -3,12 +3,12 @@
     "message": "Bitwarden"
   },
   "extName": {
-    "message": "Bitwarden",
+    "message": "Bitwarden Password Manager",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "Saugi ir nemokama slaptažodžių tvarkyklė visiems įrenginiams.",
-    "description": "Extension description"
+    "message": "At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information",
+    "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
     "message": "Prisijunkite arba sukurkite naują paskyrą, kad galėtumėte pasiekti saugyklą."
@@ -171,6 +171,12 @@
   },
   "changeMasterPassword": {
     "message": "Keisti pagrindinį slaptažodį"
+  },
+  "continueToWebApp": {
+    "message": "Tęsti į žiniatinklio programėlę?"
+  },
+  "changeMasterPasswordOnWebConfirmation": {
+    "message": "Pagrindinį slaptažodį galite pakeisti „Bitwarden“ žiniatinklio programėlėje."
   },
   "fingerprintPhrase": {
     "message": "Pirštų atspaudų frazė",
@@ -368,11 +374,20 @@
   "other": {
     "message": "Kita"
   },
+  "unlockMethods": {
+    "message": "Unlock options"
+  },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Nustatyk atrakinimo būdą, kad pakeistum saugyklos laiko limito veiksmą."
   },
   "unlockMethodNeeded": {
     "message": "Nustatykite nustatymuose atrakinimo metodą"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Session timeout"
+  },
+  "otherOptions": {
+    "message": "Other options"
   },
   "rateExtension": {
     "message": "Įvertinkite šį plėtinį"
@@ -556,12 +571,6 @@
   },
   "addedFolder": {
     "message": "Katalogas pridėtas"
-  },
-  "changeMasterPass": {
-    "message": "Keisti pagrindinį slaptažodį"
-  },
-  "changeMasterPasswordConfirmation": {
-    "message": "Pagrindinį slaptažodį galite pakeisti „bitwarden.com“ žiniatinklio saugykloje. Ar norite dabar apsilankyti svetainėje?"
   },
   "twoStepLoginConfirmation": {
     "message": "Prisijungus dviem veiksmais, jūsų paskyra tampa saugesnė, reikalaujant patvirtinti prisijungimą naudojant kitą įrenginį, pvz., saugos raktą, autentifikavimo programėlę, SMS, telefono skambutį ar el. paštą. Dviejų žingsnių prisijungimą galima įjungti „bitwarden.com“ interneto saugykloje. Ar norite dabar apsilankyti svetainėje?"
@@ -1119,9 +1128,6 @@
   },
   "commandLockVaultDesc": {
     "message": "Užrakinti saugyklą"
-  },
-  "privateModeWarning": {
-    "message": "Privataus režimo palaikymas yra eksperimentinis, o kai kurios funkcijos yra ribotos."
   },
   "customFields": {
     "message": "Pasirinktiniai laukai"
@@ -2005,7 +2011,7 @@
     "message": "Pasirinkti aplankalą..."
   },
   "noFoldersFound": {
-    "message": "No folders found",
+    "message": "Nerasta aplankų.",
     "description": "Used as a message within the notification bar when no folders are found"
   },
   "orgPermissionsUpdatedMustSetPassword": {
@@ -2386,12 +2392,6 @@
     "message": "ES",
     "description": "European Union"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "accessDenied": {
     "message": "Prieiga uždrausta. Neturi teisės peržiūrėti šį puslapį."
   },
@@ -2709,10 +2709,10 @@
     "message": "Paleisk DUO ir sek veiksmus, kad baigtum prisijungti."
   },
   "duoRequiredForAccount": {
-    "message": "Duo two-step login is required for your account."
+    "message": "Tavo paskyrai reikalingas Duo dviejų veiksmų prisijungimas."
   },
   "popoutTheExtensionToCompleteLogin": {
-    "message": "Popout the extension to complete login."
+    "message": "Išskleisk plėtinį, kad užbaigtum prisijungimą."
   },
   "popoutExtension": {
     "message": "Iššokantis plėtinys"
@@ -2993,5 +2993,58 @@
   "makeDefault": {
     "message": "Padaryti numatytuoju",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "saveCipherAttemptSuccess": {
+    "message": "Kredencialai išsaugoti sėkmingai.",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
+  "updateCipherAttemptSuccess": {
+    "message": "Kredencialai atnaujinti sėkmingai.",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "saveCipherAttemptFailed": {
+    "message": "Klaida išsaugant kredencialus. Išsamesnės informacijos patikrink konsolėje.",
+    "description": "Notification message for when saving credentials has failed."
+  },
+  "success": {
+    "message": "Sėkmė"
+  },
+  "removePasskey": {
+    "message": "Pašalinti slaptaraktį"
+  },
+  "passkeyRemoved": {
+    "message": "Pašalintas slaptaraktis"
+  },
+  "unassignedItemsBannerNotice": {
+    "message": "Pranešimas: nepriskirti organizacijos elementai nebėra matomi peržiūros rodinyje Visi saugyklos ir yra pasiekiami tik per Administratoriaus konsolę."
+  },
+  "unassignedItemsBannerSelfHostNotice": {
+    "message": "Pranešimas: 2024 m. gegužės 16 d. nepriskirti organizacijos elementai nebėra matomi peržiūros rodinyje Visi saugyklos ir yra pasiekiami tik per Administratoriaus konsolę."
+  },
+  "unassignedItemsBannerCTAPartOne": {
+    "message": "Priskirkite šiuos elementus kolekcijai iš",
+    "description": "This will be part of a larger sentence, which will read like so: Assign these items to a collection from the Admin Console to make them visible."
+  },
+  "unassignedItemsBannerCTAPartTwo": {
+    "message": ", kad jie būtų matomi.",
+    "description": "This will be part of a larger sentence, which will read like so: Assign these items to a collection from the Admin Console to make them visible."
+  },
+  "adminConsole": {
+    "message": "Administratoriaus konsolės"
+  },
+  "accountSecurity": {
+    "message": "Account security"
+  },
+  "notifications": {
+    "message": "Notifications"
+  },
+  "appearance": {
+    "message": "Appearance"
+  },
+  "errorAssigningTargetCollection": {
+    "message": "Klaida priskiriant tikslinę kolekciją."
+  },
+  "errorAssigningTargetFolder": {
+    "message": "Klaida priskiriant tikslinį aplanką."
   }
 }

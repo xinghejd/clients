@@ -5,6 +5,18 @@ import {
   accountServiceFactory,
 } from "../../../auth/background/service-factories/account-service.factory";
 import {
+  KdfConfigServiceInitOptions,
+  kdfConfigServiceFactory,
+} from "../../../auth/background/service-factories/kdf-config-service.factory";
+import {
+  internalMasterPasswordServiceFactory,
+  MasterPasswordServiceInitOptions,
+} from "../../../auth/background/service-factories/master-password-service.factory";
+import {
+  PinServiceInitOptions,
+  pinServiceFactory,
+} from "../../../auth/background/service-factories/pin-service.factory";
+import {
   StateServiceInitOptions,
   stateServiceFactory,
 } from "../../../platform/background/service-factories/state-service.factory";
@@ -14,6 +26,10 @@ import {
 } from "../../background/service-factories/log-service.factory";
 import { BrowserCryptoService } from "../../services/browser-crypto.service";
 
+import {
+  BiometricStateServiceInitOptions,
+  biometricStateServiceFactory,
+} from "./biometric-state-service.factory";
 import {
   cryptoFunctionServiceFactory,
   CryptoFunctionServiceInitOptions,
@@ -33,6 +49,8 @@ import { StateProviderInitOptions, stateProviderFactory } from "./state-provider
 type CryptoServiceFactoryOptions = FactoryOptions;
 
 export type CryptoServiceInitOptions = CryptoServiceFactoryOptions &
+  PinServiceInitOptions &
+  MasterPasswordServiceInitOptions &
   KeyGenerationServiceInitOptions &
   CryptoFunctionServiceInitOptions &
   EncryptServiceInitOptions &
@@ -40,7 +58,9 @@ export type CryptoServiceInitOptions = CryptoServiceFactoryOptions &
   LogServiceInitOptions &
   StateServiceInitOptions &
   AccountServiceInitOptions &
-  StateProviderInitOptions;
+  StateProviderInitOptions &
+  BiometricStateServiceInitOptions &
+  KdfConfigServiceInitOptions;
 
 export function cryptoServiceFactory(
   cache: { cryptoService?: AbstractCryptoService } & CachedServices,
@@ -52,6 +72,8 @@ export function cryptoServiceFactory(
     opts,
     async () =>
       new BrowserCryptoService(
+        await pinServiceFactory(cache, opts),
+        await internalMasterPasswordServiceFactory(cache, opts),
         await keyGenerationServiceFactory(cache, opts),
         await cryptoFunctionServiceFactory(cache, opts),
         await encryptServiceFactory(cache, opts),
@@ -60,6 +82,8 @@ export function cryptoServiceFactory(
         await stateServiceFactory(cache, opts),
         await accountServiceFactory(cache, opts),
         await stateProviderFactory(cache, opts),
+        await biometricStateServiceFactory(cache, opts),
+        await kdfConfigServiceFactory(cache, opts),
       ),
   );
 }

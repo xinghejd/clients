@@ -4,10 +4,16 @@ import { PolicyService } from "@bitwarden/common/admin-console/abstractions/poli
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
+import { NOTIFICATION_BAR_LIFESPAN_MS } from "@bitwarden/common/autofill/constants";
+import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
+import { UserNotificationSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/user-notification-settings.service";
+import { NeverDomains } from "@bitwarden/common/models/domain/domain-service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
+import { ServerConfig } from "@bitwarden/common/platform/abstractions/config/server-config";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { ThemeType } from "@bitwarden/common/platform/enums";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
+import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
@@ -19,7 +25,6 @@ import { openUnlockPopout } from "../../auth/popup/utils/auth-popout-window";
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserStateService } from "../../platform/services/abstractions/browser-state.service";
 import { openAddEditVaultItemPopout } from "../../vault/popup/utils/vault-popout-window";
-import { NOTIFICATION_BAR_LIFESPAN_MS } from "../constants";
 import { NotificationQueueMessageType } from "../enums/notification-queue-message-type.enum";
 import { AutofillService } from "../services/abstractions/autofill.service";
 
@@ -58,6 +63,11 @@ export default class NotificationBackground {
     bgUnlockPopoutOpened: ({ message, sender }) => this.unlockVault(message, sender.tab),
     checkNotificationQueue: ({ sender }) => this.checkNotificationQueue(sender.tab),
     bgReopenUnlockPopout: ({ sender }) => this.openUnlockPopout(sender.tab),
+    bgGetEnableChangedPasswordPrompt: () => this.getEnableChangedPasswordPrompt(),
+    bgGetEnableAddedLoginPrompt: () => this.getEnableAddedLoginPrompt(),
+    bgGetExcludedDomains: () => this.getExcludedDomains(),
+    bgGetActiveUserServerConfig: () => this.getActiveUserServerConfig(),
+    getWebVaultUrlForNotification: () => this.getWebVaultUrl(),
   };
 
   constructor(
@@ -67,8 +77,12 @@ export default class NotificationBackground {
     private policyService: PolicyService,
     private folderService: FolderService,
     private stateService: BrowserStateService,
+    private userNotificationSettingsService: UserNotificationSettingsServiceAbstraction,
+    private domainSettingsService: DomainSettingsService,
     private environmentService: EnvironmentService,
     private logService: LogService,
+    private themeStateService: ThemeStateService,
+    private configService: ConfigService,
   ) {}
 
   async init() {
@@ -79,6 +93,34 @@ export default class NotificationBackground {
     this.setupExtensionMessageListener();
 
     this.cleanupNotificationQueue();
+  }
+
+  /**
+   * Gets the enableChangedPasswordPrompt setting from the user notification settings service.
+   */
+  async getEnableChangedPasswordPrompt(): Promise<boolean> {
+    return await firstValueFrom(this.userNotificationSettingsService.enableChangedPasswordPrompt$);
+  }
+
+  /**
+   * Gets the enableAddedLoginPrompt setting from the user notification settings service.
+   */
+  async getEnableAddedLoginPrompt(): Promise<boolean> {
+    return await firstValueFrom(this.userNotificationSettingsService.enableAddedLoginPrompt$);
+  }
+
+  /**
+   * Gets the neverDomains setting from the domain settings service.
+   */
+  async getExcludedDomains(): Promise<NeverDomains> {
+    return await firstValueFrom(this.domainSettingsService.neverDomains$);
+  }
+
+  /**
+   * Gets the active user server config from the config service.
+   */
+  async getActiveUserServerConfig(): Promise<ServerConfig> {
+    return await firstValueFrom(this.configService.serverConfig$);
   }
 
   /**
@@ -134,11 +176,10 @@ export default class NotificationBackground {
     notificationQueueMessage: NotificationQueueMessageItem,
   ) {
     const notificationType = notificationQueueMessage.type;
-    const webVaultURL = this.environmentService.getWebVaultUrl();
+
     const typeData: Record<string, any> = {
       isVaultLocked: notificationQueueMessage.wasVaultLocked,
-      theme: await this.getCurrentTheme(),
-      webVaultURL,
+      theme: await firstValueFrom(this.themeStateService.selectedTheme$),
     };
 
     switch (notificationType) {
@@ -156,18 +197,6 @@ export default class NotificationBackground {
       type: notificationType,
       typeData,
     });
-  }
-
-  private async getCurrentTheme() {
-    const theme = await this.stateService.getTheme();
-
-    if (theme !== ThemeType.System) {
-      return theme;
-    }
-
-    return window.matchMedia("(prefers-color-scheme: dark)").matches
-      ? ThemeType.Dark
-      : ThemeType.Light;
   }
 
   /**
@@ -208,9 +237,10 @@ export default class NotificationBackground {
       return;
     }
 
-    const disabledAddLogin = await this.stateService.getDisableAddLoginNotification();
+    const addLoginIsEnabled = await this.getEnableAddedLoginPrompt();
+
     if (authStatus === AuthenticationStatus.Locked) {
-      if (!disabledAddLogin) {
+      if (addLoginIsEnabled) {
         await this.pushAddLoginToQueue(loginDomain, loginInfo, sender.tab, true);
       }
 
@@ -221,14 +251,15 @@ export default class NotificationBackground {
     const usernameMatches = ciphers.filter(
       (c) => c.login.username != null && c.login.username.toLowerCase() === normalizedUsername,
     );
-    if (!disabledAddLogin && usernameMatches.length === 0) {
+    if (addLoginIsEnabled && usernameMatches.length === 0) {
       await this.pushAddLoginToQueue(loginDomain, loginInfo, sender.tab);
       return;
     }
 
-    const disabledChangePassword = await this.stateService.getDisableChangedPasswordNotification();
+    const changePasswordIsEnabled = await this.getEnableChangedPasswordPrompt();
+
     if (
-      !disabledChangePassword &&
+      changePasswordIsEnabled &&
       usernameMatches.length === 1 &&
       usernameMatches[0].login.password !== loginInfo.password
     ) {
@@ -569,14 +600,14 @@ export default class NotificationBackground {
   }
 
   /**
-   * Sets the add/edit cipher info in the state service
+   * Sets the add/edit cipher info in the cipher service
    * and opens the add/edit vault item popout.
    *
    * @param cipherView - The cipher to edit
    * @param senderTab - The tab that the message was sent from
    */
   private async editItem(cipherView: CipherView, senderTab: chrome.tabs.Tab) {
-    await this.stateService.setAddEditCipherInfo({
+    await this.cipherService.setAddEditCipherInfo({
       cipher: cipherView,
       collectionIds: cipherView.collectionIds,
     });
@@ -634,6 +665,11 @@ export default class NotificationBackground {
    */
   private async getFolderData() {
     return await firstValueFrom(this.folderService.folderViews$);
+  }
+
+  private async getWebVaultUrl(): Promise<string> {
+    const env = await firstValueFrom(this.environmentService.environment$);
+    return env.getWebVaultUrl();
   }
 
   private async removeIndividualVault(): Promise<boolean> {

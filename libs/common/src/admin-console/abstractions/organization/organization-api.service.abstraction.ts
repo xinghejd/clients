@@ -3,13 +3,12 @@ import { OrganizationSsoRequest } from "../../../auth/models/request/organizatio
 import { SecretVerificationRequest } from "../../../auth/models/request/secret-verification.request";
 import { ApiKeyResponse } from "../../../auth/models/response/api-key.response";
 import { OrganizationSsoResponse } from "../../../auth/models/response/organization-sso.response";
+import { ExpandedTaxInfoUpdateRequest } from "../../../billing/models/request/expanded-tax-info-update.request";
 import { OrganizationSmSubscriptionUpdateRequest } from "../../../billing/models/request/organization-sm-subscription-update.request";
 import { OrganizationSubscriptionUpdateRequest } from "../../../billing/models/request/organization-subscription-update.request";
-import { OrganizationTaxInfoUpdateRequest } from "../../../billing/models/request/organization-tax-info-update.request";
 import { PaymentRequest } from "../../../billing/models/request/payment.request";
 import { SecretsManagerSubscribeRequest } from "../../../billing/models/request/sm-subscribe.request";
 import { BillingResponse } from "../../../billing/models/response/billing.response";
-import { OrganizationRisksSubscriptionFailureResponse } from "../../../billing/models/response/organization-risks-subscription-failure.response";
 import { OrganizationSubscriptionResponse } from "../../../billing/models/response/organization-subscription.response";
 import { PaymentResponse } from "../../../billing/models/response/payment.response";
 import { TaxInfoResponse } from "../../../billing/models/response/tax-info.response";
@@ -52,7 +51,6 @@ export class OrganizationApiServiceAbstraction {
   updateSeats: (id: string, request: SeatRequest) => Promise<PaymentResponse>;
   updateStorage: (id: string, request: StorageRequest) => Promise<PaymentResponse>;
   verifyBank: (id: string, request: VerifyBankRequest) => Promise<void>;
-  cancel: (id: string) => Promise<void>;
   reinstate: (id: string) => Promise<void>;
   leave: (id: string) => Promise<void>;
   delete: (id: string, request: SecretVerificationRequest) => Promise<void>;
@@ -65,7 +63,7 @@ export class OrganizationApiServiceAbstraction {
   ) => Promise<ListResponse<OrganizationApiKeyInformationResponse>>;
   rotateApiKey: (id: string, request: OrganizationApiKeyRequest) => Promise<ApiKeyResponse>;
   getTaxInfo: (id: string) => Promise<TaxInfoResponse>;
-  updateTaxInfo: (id: string, request: OrganizationTaxInfoUpdateRequest) => Promise<void>;
+  updateTaxInfo: (id: string, request: ExpandedTaxInfoUpdateRequest) => Promise<void>;
   getKeys: (id: string) => Promise<OrganizationKeysResponse>;
   updateKeys: (id: string, request: OrganizationKeysRequest) => Promise<OrganizationKeysResponse>;
   getSso: (id: string) => Promise<OrganizationSsoResponse>;
@@ -79,6 +77,5 @@ export class OrganizationApiServiceAbstraction {
     id: string,
     request: OrganizationCollectionManagementUpdateRequest,
   ) => Promise<OrganizationResponse>;
-  risksSubscriptionFailure: (id: string) => Promise<OrganizationRisksSubscriptionFailureResponse>;
   enableCollectionEnhancements: (id: string) => Promise<void>;
 }

@@ -1,10 +1,12 @@
-import { Directive, ViewChild, ViewContainerRef } from "@angular/core";
+import { Directive, OnDestroy, OnInit, ViewChild, ViewContainerRef } from "@angular/core";
+import { BehaviorSubject, Subject, firstValueFrom, from, switchMap, takeUntil } from "rxjs";
 
 import { SearchPipe } from "@bitwarden/angular/pipes/search.pipe";
 import { UserNamePipe } from "@bitwarden/angular/pipes/user-name.pipe";
 import { ModalService } from "@bitwarden/angular/services/modal.service";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { SearchService } from "@bitwarden/common/abstractions/search.service";
+import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import {
   OrganizationUserStatusType,
   OrganizationUserType,
@@ -17,7 +19,6 @@ import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.se
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { DialogService } from "@bitwarden/components";
@@ -31,8 +32,10 @@ const MaxCheckedCount = 500;
 
 @Directive()
 export abstract class BasePeopleComponent<
-  UserType extends ProviderUserUserDetailsResponse | OrganizationUserView,
-> {
+    UserType extends ProviderUserUserDetailsResponse | OrganizationUserView,
+  >
+  implements OnInit, OnDestroy
+{
   @ViewChild("confirmTemplate", { read: ViewContainerRef, static: true })
   confirmModalRef: ViewContainerRef;
 
@@ -87,7 +90,6 @@ export abstract class BasePeopleComponent<
   status: StatusType;
   users: UserType[] = [];
   pagedUsers: UserType[] = [];
-  searchText: string;
   actionPromise: Promise<void>;
 
   protected allUsers: UserType[] = [];
@@ -96,7 +98,19 @@ export abstract class BasePeopleComponent<
   protected didScroll = false;
   protected pageSize = 100;
 
+  protected destroy$ = new Subject<void>();
+
   private pagedUsersCount = 0;
+  private _searchText$ = new BehaviorSubject<string>("");
+  private isSearching: boolean = false;
+
+  get searchText() {
+    return this._searchText$.value;
+  }
+
+  set searchText(value: string) {
+    this._searchText$.next(value);
+  }
 
   constructor(
     protected apiService: ApiService,
@@ -109,8 +123,8 @@ export abstract class BasePeopleComponent<
     private logService: LogService,
     private searchPipe: SearchPipe,
     protected userNamePipe: UserNamePipe,
-    protected stateService: StateService,
     protected dialogService: DialogService,
+    protected organizationManagementPreferencesService: OrganizationManagementPreferencesService,
   ) {}
 
   abstract edit(user: UserType): void;
@@ -120,6 +134,22 @@ export abstract class BasePeopleComponent<
   abstract restoreUser(id: string): Promise<void>;
   abstract reinviteUser(id: string): Promise<void>;
   abstract confirmUser(user: UserType, publicKey: Uint8Array): Promise<void>;
+
+  ngOnInit(): void {
+    this._searchText$
+      .pipe(
+        switchMap((searchText) => from(this.searchService.isSearchable(searchText))),
+        takeUntil(this.destroy$),
+      )
+      .subscribe((isSearchable) => {
+        this.isSearching = isSearchable;
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   async load() {
     const response = await this.getUsers();
@@ -351,7 +381,9 @@ export abstract class BasePeopleComponent<
       const publicKeyResponse = await this.apiService.getUserPublicKey(user.userId);
       const publicKey = Utils.fromB64ToArray(publicKeyResponse.publicKey);
 
-      const autoConfirm = await this.stateService.getAutoConfirmFingerPrints();
+      const autoConfirm = await firstValueFrom(
+        this.organizationManagementPreferencesService.autoConfirmFingerPrints.state$,
+      );
       if (autoConfirm == null || !autoConfirm) {
         const [modal] = await this.modalService.openViewRef(
           UserConfirmComponent,
@@ -387,12 +419,8 @@ export abstract class BasePeopleComponent<
     }
   }
 
-  isSearching() {
-    return this.searchService.isSearchable(this.searchText);
-  }
-
   isPaging() {
-    const searching = this.isSearching();
+    const searching = this.isSearching;
     if (searching && this.didScroll) {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises

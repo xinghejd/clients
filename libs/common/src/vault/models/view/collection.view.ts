@@ -17,6 +17,8 @@ export class CollectionView implements View, ITreeNodeObject {
   readOnly: boolean = null;
   hidePasswords: boolean = null;
   manage: boolean = null;
+  addAccess: boolean = false;
+  assigned: boolean = null;
 
   constructor(c?: Collection | CollectionAccessDetailsResponse) {
     if (!c) {
@@ -30,11 +32,37 @@ export class CollectionView implements View, ITreeNodeObject {
       this.readOnly = c.readOnly;
       this.hidePasswords = c.hidePasswords;
       this.manage = c.manage;
+      this.assigned = true;
     }
+    if (c instanceof CollectionAccessDetailsResponse) {
+      this.assigned = c.assigned;
+    }
+  }
+
+  canEditItems(
+    org: Organization,
+    v1FlexibleCollections: boolean,
+    restrictProviderAccess: boolean,
+  ): boolean {
+    if (org != null && org.id !== this.organizationId) {
+      throw new Error(
+        "Id of the organization provided does not match the org id of the collection.",
+      );
+    }
+
+    if (org?.flexibleCollections) {
+      return (
+        org?.canEditAllCiphers(v1FlexibleCollections, restrictProviderAccess) ||
+        this.manage ||
+        (this.assigned && !this.readOnly)
+      );
+    }
+
+    return org?.canEditAnyCollection(false) || (org?.canEditAssignedCollections && this.assigned);
   }
 
   // For editing collection details, not the items within it.
-  canEdit(org: Organization): boolean {
+  canEdit(org: Organization, flexibleCollectionsV1Enabled: boolean): boolean {
     if (org != null && org.id !== this.organizationId) {
       throw new Error(
         "Id of the organization provided does not match the org id of the collection.",
@@ -42,21 +70,33 @@ export class CollectionView implements View, ITreeNodeObject {
     }
 
     return org?.flexibleCollections
-      ? org?.canEditAnyCollection || this.manage
-      : org?.canEditAnyCollection || org?.canEditAssignedCollections;
+      ? org?.canEditAnyCollection(flexibleCollectionsV1Enabled) || this.manage
+      : org?.canEditAnyCollection(flexibleCollectionsV1Enabled) || org?.canEditAssignedCollections;
   }
 
   // For deleting a collection, not the items within it.
-  canDelete(org: Organization): boolean {
+  canDelete(org: Organization, flexibleCollectionsV1Enabled: boolean): boolean {
     if (org != null && org.id !== this.organizationId) {
       throw new Error(
         "Id of the organization provided does not match the org id of the collection.",
       );
     }
 
-    return org?.flexibleCollections
-      ? org?.canDeleteAnyCollection || (!org?.limitCollectionCreationDeletion && this.manage)
-      : org?.canDeleteAnyCollection || org?.canDeleteAssignedCollections;
+    const canDeleteManagedCollections = !org?.limitCollectionCreationDeletion || org.isAdmin;
+    return (
+      org?.canDeleteAnyCollection(flexibleCollectionsV1Enabled) ||
+      (canDeleteManagedCollections && this.manage)
+    );
+  }
+
+  /**
+   * Returns true if the user can view collection info and access in a read-only state from the individual vault
+   */
+  canViewCollectionInfo(
+    org: Organization | undefined,
+    flexibleCollectionsV1Enabled: boolean,
+  ): boolean {
+    return false;
   }
 
   static fromJSON(obj: Jsonify<CollectionView>) {

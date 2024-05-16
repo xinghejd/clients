@@ -3,14 +3,17 @@ import { Router } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
 import { LockComponent as BaseLockComponent } from "@bitwarden/angular/auth/components/lock.component";
-import { PinCryptoServiceAbstraction } from "@bitwarden/auth/common";
+import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { DeviceTrustCryptoServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust-crypto.service.abstraction";
+import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
+import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
@@ -40,6 +43,7 @@ export class LockComponent extends BaseLockComponent {
   fido2PopoutSessionData$ = fido2PopoutSessionData$();
 
   constructor(
+    masterPasswordService: InternalMasterPasswordServiceAbstraction,
     router: Router,
     i18nService: I18nService,
     platformUtilsService: PlatformUtilsService,
@@ -55,15 +59,18 @@ export class LockComponent extends BaseLockComponent {
     policyApiService: PolicyApiServiceAbstraction,
     policyService: InternalPolicyService,
     passwordStrengthService: PasswordStrengthServiceAbstraction,
-    private authService: AuthService,
+    authService: AuthService,
     dialogService: DialogService,
-    deviceTrustCryptoService: DeviceTrustCryptoServiceAbstraction,
+    deviceTrustService: DeviceTrustServiceAbstraction,
     userVerificationService: UserVerificationService,
-    pinCryptoService: PinCryptoServiceAbstraction,
+    pinService: PinServiceAbstraction,
     private routerService: BrowserRouterService,
     biometricStateService: BiometricStateService,
+    accountService: AccountService,
+    kdfConfigService: KdfConfigService,
   ) {
     super(
+      masterPasswordService,
       router,
       i18nService,
       platformUtilsService,
@@ -80,10 +87,13 @@ export class LockComponent extends BaseLockComponent {
       policyService,
       passwordStrengthService,
       dialogService,
-      deviceTrustCryptoService,
+      deviceTrustService,
       userVerificationService,
-      pinCryptoService,
+      pinService,
       biometricStateService,
+      accountService,
+      authService,
+      kdfConfigService,
     );
     this.successRoute = "/tabs/current";
     this.isInitialLockScreen = (window as any).previousPopupUrl == null;
@@ -104,7 +114,7 @@ export class LockComponent extends BaseLockComponent {
 
   async ngOnInit() {
     await super.ngOnInit();
-    const disableAutoBiometricsPrompt = await firstValueFrom(
+    const autoBiometricsPrompt = await firstValueFrom(
       this.biometricStateService.promptAutomatically$,
     );
 
@@ -112,7 +122,7 @@ export class LockComponent extends BaseLockComponent {
       document.getElementById(this.pinEnabled ? "pin" : "masterPassword")?.focus();
       if (
         this.biometricLock &&
-        !disableAutoBiometricsPrompt &&
+        autoBiometricsPrompt &&
         this.isInitialLockScreen &&
         (await this.authService.getAuthStatus()) === AuthenticationStatus.Locked
       ) {
@@ -133,15 +143,17 @@ export class LockComponent extends BaseLockComponent {
     try {
       success = await super.unlockBiometric();
     } catch (e) {
-      const error = BiometricErrors[e as BiometricErrorTypes];
+      const error = BiometricErrors[e?.message as BiometricErrorTypes];
 
       if (error == null) {
         this.logService.error("Unknown error: " + e);
+        return false;
       }
 
       this.biometricError = this.i18nService.t(error.description);
+    } finally {
+      this.pendingBiometric = false;
     }
-    this.pendingBiometric = false;
 
     return success;
   }

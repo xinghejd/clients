@@ -3,12 +3,12 @@
     "message": "Bitwarden"
   },
   "extName": {
-    "message": "Bitwarden - Gratis adgangskodemanager",
+    "message": "Bitwarden Adgangskodehåndtering",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "En sikker og gratis adgangskodemanager til alle dine enheder.",
-    "description": "Extension description"
+    "message": "Hjemme, på arbejde eller på farten sikrer Bitwarden nemt alle adgangskoder, adgangskort og sensitive oplysninger",
+    "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
     "message": "Log ind eller opret en ny konto for at få adgang til din sikre boks."
@@ -171,6 +171,12 @@
   },
   "changeMasterPassword": {
     "message": "Skift hovedadgangskode"
+  },
+  "continueToWebApp": {
+    "message": "Fortsæt til web-app?"
+  },
+  "changeMasterPasswordOnWebConfirmation": {
+    "message": "Hovedadgangskoden kan ændres via Bitwarden web-appen."
   },
   "fingerprintPhrase": {
     "message": "Fingeraftrykssætning",
@@ -368,11 +374,20 @@
   "other": {
     "message": "Andre"
   },
+  "unlockMethods": {
+    "message": "Oplåsningsmuligheder"
+  },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Opsæt en oplåsningsmetode til at ændre bokstimeouthandlingen."
   },
   "unlockMethodNeeded": {
     "message": "Opsæt en oplåsningsmetode i Indstillinger"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Sessionstimeout"
+  },
+  "otherOptions": {
+    "message": "Andre innstillinger"
   },
   "rateExtension": {
     "message": "Bedøm udvidelsen"
@@ -557,12 +572,6 @@
   "addedFolder": {
     "message": "Mappe tilføjet"
   },
-  "changeMasterPass": {
-    "message": "Skift hovedadgangskode"
-  },
-  "changeMasterPasswordConfirmation": {
-    "message": "Du kan ændre din hovedadgangskode i bitwarden.com web-boksen. Vil du besøge hjemmesiden nu?"
-  },
   "twoStepLoginConfirmation": {
     "message": "To-trins login gør din konto mere sikker ved at kræve, at du verificerer dit login med en anden enhed, såsom en sikkerhedsnøgle, autentificeringsapp, SMS, telefonopkald eller e-mail. To-trins login kan aktiveres i bitwarden.com web-boksen. Vil du besøge hjemmesiden nu?"
   },
@@ -709,7 +718,7 @@
     "message": "Vis indstillinger i kontekstmenuen"
   },
   "contextMenuItemDesc": {
-    "message": "Brug et sekundært klik for at få adgang til adgangskodegenerering og matchende logins til hjemmesiden."
+    "message": "Brug et sekundært klik for at tilgå adgangskodegenerering og matchende logins til webstedet."
   },
   "contextMenuItemDescAlt": {
     "message": "Brug et sekundært klik for at få adgang til adgangskodegenerering og matchende logins til webstedet. Gælder alle indloggede konti."
@@ -1033,7 +1042,7 @@
     "message": "Server URL"
   },
   "apiUrl": {
-    "message": "API server URL"
+    "message": "API-server URL"
   },
   "webVaultUrl": {
     "message": "Web-boks server URL"
@@ -1119,9 +1128,6 @@
   },
   "commandLockVaultDesc": {
     "message": "Lås boksen"
-  },
-  "privateModeWarning": {
-    "message": "Understøttelse af privat tilstand er eksperimentel, og nogle funktioner er begrænsede."
   },
   "customFields": {
     "message": "Brugerdefinerede felter"
@@ -1574,7 +1580,7 @@
     "message": "Advarsel: Dette er en ikke-sikret HTTP side, og alle indsendte oplysninger kan potentielt ses og ændres af andre. Dette login blev oprindeligt gemt på en sikker (HTTPS) side."
   },
   "insecurePageWarningFillPrompt": {
-    "message": "Do you still wish to fill this login?"
+    "message": "Ønsker dette login stadig udfyldt?"
   },
   "autofillIframeWarning": {
     "message": "Formularen hostes af et andet domæne end URI'en for det gemte login. Vælg OK for at autoudfylde alligevel, eller Afbryd for at stoppe."
@@ -1712,7 +1718,7 @@
     "message": "Biometri mislykkedes"
   },
   "biometricsFailedDesc": {
-    "message": "Biometri kan ikke fuldføres, overvej at bruge en hovedadgangskode eller logge ud og ind igen. Fortsætter problemet, kontakt Bitwarden-supporten."
+    "message": "Biometri kan ikke gennemføres. Overvej at bruge en hovedadgangskode eller at logge ud. Fortsætter problemet, kontakt Bitwarden-supporten."
   },
   "nativeMessaginPermissionErrorTitle": {
     "message": "Tilladelse ikke givet"
@@ -2027,7 +2033,7 @@
     "message": "Minutter"
   },
   "vaultTimeoutPolicyInEffect": {
-    "message": "Organisationspolitikker har sat maks. tilladt boks-timeout. til $HOURS$ time(r) og $MINUTES$ minut(ter).",
+    "message": "Organisationspolitikkerne har fastsat den maksimalt tilladte boks-timeout til $HOURS$ time(r) og $MINUTES$ minut(ter).",
     "placeholders": {
       "hours": {
         "content": "$1",
@@ -2314,7 +2320,7 @@
     "message": "Sådan autoudfyldes"
   },
   "autofillSelectInfoWithCommand": {
-    "message": "Select an item from this screen, use the shortcut $COMMAND$, or explore other options in settings.",
+    "message": "Vælg et emne fra denne skærm, brug genvejen $COMMAND$ eller udforsk andre valgmuligheder i Indstillinger.",
     "placeholders": {
       "command": {
         "content": "$1",
@@ -2323,7 +2329,7 @@
     }
   },
   "autofillSelectInfoWithoutCommand": {
-    "message": "Select an item from this screen, or explore other options in settings."
+    "message": "Vælg et emne fra denne skærm eller udforsk andre valgmuligheder i Indstillinger."
   },
   "gotIt": {
     "message": "Forstået"
@@ -2386,12 +2392,6 @@
     "message": "EU",
     "description": "European Union"
   },
-  "usDomain": {
-    "message": "bitwarden.com"
-  },
-  "euDomain": {
-    "message": "bitwarden.eu"
-  },
   "accessDenied": {
     "message": "Adgang nægtet. Nødvendig tilladelse til at se siden mangler."
   },
@@ -2399,7 +2399,7 @@
     "message": "Generelt"
   },
   "display": {
-    "message": "Display"
+    "message": "Skærm"
   },
   "accountSuccessfullyCreated": {
     "message": "Konto oprettet!"
@@ -2706,19 +2706,19 @@
     }
   },
   "launchDuoAndFollowStepsToFinishLoggingIn": {
-    "message": "Start DUO og følg trinene for at fuldføre indlogningen."
+    "message": "Start Duo og følg trinnene for at fuldføre indlogningen."
   },
   "duoRequiredForAccount": {
-    "message": "Duo two-step login is required for your account."
+    "message": "Duo-totrinsindlogning kræves for kontoen."
   },
   "popoutTheExtensionToCompleteLogin": {
-    "message": "Popout the extension to complete login."
+    "message": "Pop udvidelsen ud for at fuldføre indlogning."
   },
   "popoutExtension": {
     "message": "Pop ud-udvidelse"
   },
   "launchDuo": {
-    "message": "Start DUO"
+    "message": "Start Duo"
   },
   "importFormatError": {
     "message": "Data er ikke korrekt formateret. Tjek importfilen og forsøg igen."
@@ -2993,5 +2993,58 @@
   "makeDefault": {
     "message": "Gør til standard",
     "description": "Button text for the setting that allows overriding the default browser autofill settings"
+  },
+  "saveCipherAttemptSuccess": {
+    "message": "Legitimationsoplysninger er gemt!",
+    "description": "Notification message for when saving credentials has succeeded."
+  },
+  "updateCipherAttemptSuccess": {
+    "message": "Legitimationsoplysninger er opdateret!",
+    "description": "Notification message for when updating credentials has succeeded."
+  },
+  "saveCipherAttemptFailed": {
+    "message": "Fejl under import. Tjek konsollen for detaljer.",
+    "description": "Notification message for when saving credentials has failed."
+  },
+  "success": {
+    "message": "Gennemført"
+  },
+  "removePasskey": {
+    "message": "Fjern adgangsnøgle"
+  },
+  "passkeyRemoved": {
+    "message": "Adgangsnøgle fjernet"
+  },
+  "unassignedItemsBannerNotice": {
+    "message": "Bemærk: Utildelte organisationsemner er ikke længere synlige i Alle Bokse-visningen, men er kun tilgængelige via Admin-konsol."
+  },
+  "unassignedItemsBannerSelfHostNotice": {
+    "message": "Bemærk: Pr. 16. maj 2024 er utildelte organisationsemner er ikke længere synlige i Alle Bokse-visningen, men er kun tilgængelige via Admin-konsol."
+  },
+  "unassignedItemsBannerCTAPartOne": {
+    "message": "Tildel disse emner til en samling via",
+    "description": "This will be part of a larger sentence, which will read like so: Assign these items to a collection from the Admin Console to make them visible."
+  },
+  "unassignedItemsBannerCTAPartTwo": {
+    "message": "for at gøre dem synlige.",
+    "description": "This will be part of a larger sentence, which will read like so: Assign these items to a collection from the Admin Console to make them visible."
+  },
+  "adminConsole": {
+    "message": "Admin-konsol"
+  },
+  "accountSecurity": {
+    "message": "Kontosikkerhed"
+  },
+  "notifications": {
+    "message": "Notifikationer"
+  },
+  "appearance": {
+    "message": "Udseende"
+  },
+  "errorAssigningTargetCollection": {
+    "message": "Fejl ved tildeling af målsamling."
+  },
+  "errorAssigningTargetFolder": {
+    "message": "Fejl ved tildeling af målmappe."
   }
 }

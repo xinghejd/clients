@@ -6,6 +6,8 @@ import { first } from "rxjs/operators";
 
 import { AddEditComponent as BaseAddEditComponent } from "@bitwarden/angular/tools/send/add-edit.component";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
@@ -49,6 +51,8 @@ export class SendAddEditComponent extends BaseAddEditComponent {
     dialogService: DialogService,
     formBuilder: FormBuilder,
     private filePopoutUtilsService: FilePopoutUtilsService,
+    billingAccountProfileStateService: BillingAccountProfileStateService,
+    accountService: AccountService,
   ) {
     super(
       i18nService,
@@ -63,6 +67,8 @@ export class SendAddEditComponent extends BaseAddEditComponent {
       sendApiService,
       dialogService,
       formBuilder,
+      billingAccountProfileStateService,
+      accountService,
     );
   }
 

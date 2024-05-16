@@ -5,9 +5,10 @@ import { ChangePasswordComponent as BaseChangePasswordComponent } from "@bitward
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { AuditService } from "@bitwarden/common/abstractions/audit.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
+import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { PasswordRequest } from "@bitwarden/common/auth/models/request/password.request";
-import { ConfigServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config.service.abstraction";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
@@ -48,8 +49,9 @@ export class ChangePasswordComponent extends BaseChangePasswordComponent {
     private router: Router,
     dialogService: DialogService,
     private userVerificationService: UserVerificationService,
-    private configService: ConfigServiceAbstraction,
     private keyRotationService: UserKeyRotationService,
+    kdfConfigService: KdfConfigService,
+    masterPasswordService: InternalMasterPasswordServiceAbstraction,
   ) {
     super(
       i18nService,
@@ -60,6 +62,8 @@ export class ChangePasswordComponent extends BaseChangePasswordComponent {
       policyService,
       stateService,
       dialogService,
+      kdfConfigService,
+      masterPasswordService,
     );
   }
 
@@ -164,7 +168,22 @@ export class ChangePasswordComponent extends BaseChangePasswordComponent {
     newMasterKey: MasterKey,
     newUserKey: [UserKey, EncString],
   ) {
-    const masterKey = await this.cryptoService.getOrDeriveMasterKey(this.currentMasterPassword);
+    const masterKey = await this.cryptoService.makeMasterKey(
+      this.currentMasterPassword,
+      await this.stateService.getEmail(),
+      await this.kdfConfigService.getKdfConfig(),
+    );
+
+    const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(masterKey);
+    if (userKey == null) {
+      this.platformUtilsService.showToast(
+        "error",
+        null,
+        this.i18nService.t("invalidMasterPassword"),
+      );
+      return;
+    }
+
     const request = new PasswordRequest();
     request.masterPasswordHash = await this.cryptoService.hashMasterKey(
       this.currentMasterPassword,
