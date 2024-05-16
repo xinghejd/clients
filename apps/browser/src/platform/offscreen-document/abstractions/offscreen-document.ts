@@ -14,7 +14,11 @@ export type OffscreenDocumentExtensionMessageHandlers = {
   [key: string]: ({ message, sender }: OffscreenExtensionMessageEventParams) => any;
   offscreenCopyToClipboard: ({ message }: OffscreenExtensionMessageEventParams) => any;
   offscreenReadFromClipboard: () => any;
+  /**
+   * @deprecated
+   */
   offscreenDecryptItems: ({ message }: OffscreenExtensionMessageEventParams) => Promise<string>;
+  offscreenDecryptItemsBulk: ({ message }: OffscreenExtensionMessageEventParams) => Promise<string>;
 };
 
 export interface OffscreenDocument {

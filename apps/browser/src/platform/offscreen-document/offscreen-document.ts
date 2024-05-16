@@ -1,4 +1,5 @@
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
+import { BulkEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/bulk-encrypt.service.implementation";
 import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/multithread-encrypt.service.implementation";
 import { WebCryptoFunctionService } from "@bitwarden/common/platform/services/web-crypto-function.service";
 
@@ -14,10 +15,12 @@ import {
 class OffscreenDocument implements OffscreenDocumentInterface {
   private readonly consoleLogService: ConsoleLogService;
   private encryptService: MultithreadEncryptServiceImplementation;
+  private bulkEncryptService: BulkEncryptServiceImplementation;
   private readonly extensionMessageHandlers: OffscreenDocumentExtensionMessageHandlers = {
     offscreenCopyToClipboard: ({ message }) => this.handleOffscreenCopyToClipboard(message),
     offscreenReadFromClipboard: () => this.handleOffscreenReadFromClipboard(),
     offscreenDecryptItems: ({ message }) => this.handleOffscreenDecryptItems(message),
+    offscreenDecryptItemsBulk: ({ message }) => this.handleOffscreenDecryptItemsBulk(message),
   };
 
   constructor() {
@@ -27,6 +30,10 @@ class OffscreenDocument implements OffscreenDocumentInterface {
       cryptoFunctionService,
       this.consoleLogService,
       true,
+    );
+    this.bulkEncryptService = new BulkEncryptServiceImplementation(
+      cryptoFunctionService,
+      this.consoleLogService,
     );
   }
 
@@ -56,6 +63,7 @@ class OffscreenDocument implements OffscreenDocumentInterface {
   /**
    * Decrypts the items in the message using the encrypt service.
    *
+   * @deprecated
    * @param message - The extension message containing the items to decrypt
    */
   private async handleOffscreenDecryptItems(
@@ -68,6 +76,25 @@ class OffscreenDocument implements OffscreenDocumentInterface {
 
     const request = JSON.parse(decryptRequest);
     return await this.encryptService.getDecryptedItemsFromWorker(request.items, request.key);
+  }
+
+  /**
+   * Decrypts the items in the message using the bulkencrypt service.
+   *
+   * @param message - The extension message containing the items to decrypt
+   */
+  private async handleOffscreenDecryptItemsBulk(
+    message: OffscreenDocumentExtensionMessage,
+  ): Promise<string> {
+    const { decryptRequest } = message;
+    if (!decryptRequest) {
+      return "[]";
+    }
+
+    const request = JSON.parse(decryptRequest);
+    return JSON.stringify(
+      await this.bulkEncryptService.getDecryptedItemsFromWorkers(request.items, request.key),
+    );
   }
 
   /**

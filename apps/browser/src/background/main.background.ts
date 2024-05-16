@@ -73,6 +73,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { DefaultBillingAccountProfileStateService } from "@bitwarden/common/billing/services/account/billing-account-profile-state.service";
 import { ClientType } from "@bitwarden/common/enums";
 import { AppIdService as AppIdServiceAbstraction } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { BulkEncryptService } from "@bitwarden/common/platform/abstractions/bulk-encrypt.service";
 import { ConfigApiServiceAbstraction } from "@bitwarden/common/platform/abstractions/config/config-api.service.abstraction";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoFunctionService as CryptoFunctionServiceAbstraction } from "@bitwarden/common/platform/abstractions/crypto-function.service";
@@ -195,6 +196,8 @@ import {
   VaultExportServiceAbstraction,
 } from "@bitwarden/vault-export-core";
 
+import { BrowserFallbackBulkEncryptServiceImplementation } from "src/platform/services/browser-fallback-bulk-encrypt.service.implementation";
+
 import ContextMenusBackground from "../autofill/background/context-menus.background";
 import NotificationBackground from "../autofill/background/notification.background";
 import OverlayBackground from "../autofill/background/overlay.background";
@@ -301,6 +304,7 @@ export default class MainBackground {
   vaultFilterService: VaultFilterService;
   usernameGenerationService: UsernameGenerationServiceAbstraction;
   encryptService: EncryptService;
+  bulkEncryptService: BulkEncryptService;
   folderApiService: FolderApiServiceAbstraction;
   policyApiService: PolicyApiServiceAbstraction;
   sendApiService: SendApiServiceAbstraction;
@@ -483,6 +487,9 @@ export default class MainBackground {
           this.offscreenDocumentService,
         )
       : new EncryptServiceImplementation(this.cryptoFunctionService, this.logService, true);
+    this.bulkEncryptService = new BrowserFallbackBulkEncryptServiceImplementation(
+      this.encryptService,
+    );
 
     this.singleUserStateProvider = new DefaultSingleUserStateProvider(
       storageServiceProvider,
@@ -717,6 +724,7 @@ export default class MainBackground {
       this.stateService,
       this.autofillSettingsService,
       this.encryptService,
+      this.bulkEncryptService,
       this.cipherFileUploadService,
       this.configService,
       this.stateProvider,
