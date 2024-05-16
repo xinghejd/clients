@@ -21,6 +21,7 @@ export async function globalStateProviderFactory(
     cache,
     "globalStateProvider",
     opts,
-    async () => new DefaultGlobalStateProvider(await storageServiceProviderFactory(cache, opts)),
+    async () =>
+      new DefaultGlobalStateProvider(await storageServiceProviderFactory(cache, opts), null),
   );
 }

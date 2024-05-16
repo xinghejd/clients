@@ -10,6 +10,7 @@ import { Jsonify } from "type-fest";
 import { trackEmissions, awaitAsync } from "../../../../spec";
 import { FakeStorageService } from "../../../../spec/fake-storage.service";
 import { UserId } from "../../../types/guid";
+import { LogService } from "../../abstractions/log.service";
 import { Utils } from "../../misc/utils";
 import { StateDefinition } from "../state-definition";
 import { StateEventRegistrarService } from "../state-event-registrar.service";
@@ -45,6 +46,7 @@ describe("DefaultSingleUserState", () => {
   let diskStorageService: FakeStorageService;
   let userState: DefaultSingleUserState<TestState>;
   const stateEventRegistrarService = mock<StateEventRegistrarService>();
+  const logService = mock<LogService>();
   const newData = { date: new Date() };
 
   beforeEach(() => {
@@ -54,6 +56,7 @@ describe("DefaultSingleUserState", () => {
       testKeyDefinition,
       diskStorageService,
       stateEventRegistrarService,
+      logService,
     );
   });
 

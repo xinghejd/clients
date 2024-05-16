@@ -5,14 +5,17 @@ import {
   filter,
   firstValueFrom,
   merge,
+  mergeWith,
   share,
   switchMap,
+  tap,
   timeout,
   timer,
 } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { StorageKey } from "../../../types/state";
+import { LogService } from "../../abstractions/log.service";
 import {
   AbstractStorageService,
   ObservableStorageService,
@@ -36,6 +39,7 @@ export abstract class StateBase<T, KeyDef extends KeyDefinitionRequirements<T>> 
     protected readonly key: StorageKey,
     protected readonly storageService: AbstractStorageService & ObservableStorageService,
     protected readonly keyDefinition: KeyDef,
+    protected readonly logService: LogService,
   ) {
     const storageUpdate$ = storageService.updates$.pipe(
       filter((storageUpdate) => storageUpdate.key === key),
@@ -71,6 +75,14 @@ export abstract class StateBase<T, KeyDef extends KeyDefinitionRequirements<T>> 
     try {
       this.updatePromise = this.internalUpdate(configureState, options);
       const newState = await this.updatePromise;
+      await firstValueFrom(
+        this.state$.pipe(
+          filter((s) => JSON.stringify(s) === JSON.stringify(newState)),
+          mergeWith(
+            timer(50).pipe(tap(() => this.logService.warning("emitting anyway", this.key))),
+          ),
+        ),
+      );
       return newState;
     } finally {
       this.updatePromise = null;

@@ -30,6 +30,7 @@ export async function singleUserStateProviderFactory(
       new DefaultSingleUserStateProvider(
         await storageServiceProviderFactory(cache, opts),
         await stateEventRegistrarServiceFactory(cache, opts),
+        null,
       ),
   );
 }

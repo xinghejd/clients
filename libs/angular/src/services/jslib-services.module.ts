@@ -1047,7 +1047,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: GlobalStateProvider,
     useClass: DefaultGlobalStateProvider,
-    deps: [StorageServiceProvider],
+    deps: [StorageServiceProvider, LogService],
   }),
   safeProvider({
     provide: ActiveUserStateProvider,
@@ -1057,7 +1057,7 @@ const safeProviders: SafeProvider[] = [
   safeProvider({
     provide: SingleUserStateProvider,
     useClass: DefaultSingleUserStateProvider,
-    deps: [StorageServiceProvider, StateEventRegistrarService],
+    deps: [StorageServiceProvider, StateEventRegistrarService, LogService],
   }),
   safeProvider({
     provide: DerivedStateProvider,
