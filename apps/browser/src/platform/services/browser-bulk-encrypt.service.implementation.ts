@@ -12,10 +12,7 @@ import { getClassInitializer } from "@bitwarden/common/platform/services/cryptog
 import { BrowserApi } from "../browser/browser-api";
 import { OffscreenDocumentService } from "../offscreen-document/abstractions/offscreen-document";
 
-/**
- * @deprecated For the feature flag from PM-4154, remove once feature is rolled out
- */
-export class BrowserFallbackBulkEncryptServiceImplementation extends BulkEncryptServiceImplementation {
+export class BrowserBulkEncryptServiceImplementation extends BulkEncryptServiceImplementation {
   constructor(
     protected cryptoFunctionService: CryptoFunctionService,
     protected logService: LogService,
