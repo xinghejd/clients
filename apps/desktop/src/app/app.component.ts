@@ -38,6 +38,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
 import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
+import { CANCELLED_PROCESS_RELOAD } from "@bitwarden/common/platform/messaging";
 import { clearCaches } from "@bitwarden/common/platform/misc/sequentialize";
 import { StateEventRunnerService } from "@bitwarden/common/platform/state";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
@@ -248,9 +249,11 @@ export class AppComponent implements OnInit, OnDestroy {
             // eslint-disable-next-line @typescript-eslint/no-floating-promises
             this.systemService.startProcessReload(this.authService);
             break;
-          case "cancelProcessReload":
-            this.systemService.cancelProcessReload();
+          case "cancelProcessReload": {
+            const cancelled = this.systemService.cancelProcessReload();
+            this.messagingService.send(CANCELLED_PROCESS_RELOAD, { cancelled });
             break;
+          }
           case "reloadProcess":
             ipc.platform.reloadProcess();
             break;
