@@ -1,7 +1,13 @@
+import { firstValueFrom, map, mergeWith, tap, timer } from "rxjs";
+
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
+import {
+  CANCELLED_PROCESS_RELOAD,
+  MessageListener,
+  MessageSender,
+} from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { WindowMain } from "../../../main/window.main";
@@ -16,7 +22,8 @@ export class BiometricsService implements BiometricsServiceAbstraction {
     private i18nService: I18nService,
     private windowMain: WindowMain,
     private logService: LogService,
-    private messagingService: MessagingService,
+    private messageSender: MessageSender,
+    private messageListener: MessageListener,
     private platform: NodeJS.Platform,
     private biometricStateService: BiometricStateService,
   ) {
@@ -76,9 +83,7 @@ export class BiometricsService implements BiometricsServiceAbstraction {
 
   async authenticateBiometric(): Promise<boolean> {
     let result = false;
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.interruptProcessReload(
+    await this.interruptProcessReload(
       () => {
         return this.platformSpecificService.authenticateBiometric();
       },
@@ -139,7 +144,7 @@ export class BiometricsService implements BiometricsServiceAbstraction {
     callback: () => Promise<T>,
     restartReloadCallback: (arg: T) => boolean = () => false,
   ): Promise<T> {
-    this.messagingService.send("cancelProcessReload");
+    const cancelled = await this.cancelProcessReload();
     let restartReload = false;
     let response: T;
     try {
@@ -149,8 +154,8 @@ export class BiometricsService implements BiometricsServiceAbstraction {
       restartReload = true;
     }
 
-    if (restartReload) {
-      this.messagingService.send("startProcessReload");
+    if (cancelled && restartReload) {
+      this.messageSender.send("startProcessReload");
     }
 
     return response;
@@ -177,5 +182,24 @@ export class BiometricsService implements BiometricsServiceAbstraction {
     if (requireClientKeyHalf && !clientKeyHalfB64) {
       throw new Error("Biometric key requirements not met. No client key half provided.");
     }
+  }
+
+  private async cancelProcessReload() {
+    const cancelledPromise = firstValueFrom(
+      this.messageListener.messages$(CANCELLED_PROCESS_RELOAD).pipe(
+        mergeWith(
+          timer(250).pipe(
+            tap(() => this.logService.error("failed to report cancellation")),
+            map((_) => ({
+              // play it safe and assume cancelled
+              cancelled: true,
+            })),
+          ),
+        ),
+      ),
+    );
+    this.messageSender.send("cancelProcessReload");
+    const response = await cancelledPromise;
+    return response.cancelled;
   }
 }

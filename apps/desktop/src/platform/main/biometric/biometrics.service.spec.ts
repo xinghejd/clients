@@ -1,9 +1,11 @@
 import { mock, MockProxy } from "jest-mock-extended";
+import { of } from "rxjs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
+import { MessagingService as MessageSender } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
+import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { WindowMain } from "../../../main/window.main";
@@ -24,8 +26,13 @@ describe("biometrics tests", function () {
   const i18nService = mock<I18nService>();
   const windowMain = mock<WindowMain>();
   const logService = mock<LogService>();
-  const messagingService = mock<MessagingService>();
+  const messageSender = mock<MessageSender>();
+  const messageListener = mock<MessageListener>();
   const biometricStateService = mock<BiometricStateService>();
+
+  afterEach(() => {
+    jest.resetAllMocks();
+  });
 
   it("Should call the platformspecific methods", async () => {
     const userId = "userId-1" as UserId;
@@ -33,7 +40,8 @@ describe("biometrics tests", function () {
       i18nService,
       windowMain,
       logService,
-      messagingService,
+      messageSender,
+      messageListener,
       process.platform,
       biometricStateService,
     );
@@ -44,11 +52,60 @@ describe("biometrics tests", function () {
 
     await sut.canAuthBiometric({ service: "test", key: "test", userId });
     expect(mockService.osSupportsBiometric).toBeCalled();
+    messageListener.messages$.mockReturnValue(of({ cancelled: false }));
 
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    sut.authenticateBiometric();
+    await sut.authenticateBiometric();
     expect(mockService.authenticateBiometric).toBeCalled();
+  });
+
+  it("restarts process reload if it was cancelled and auth fails", async () => {
+    const userId = "userId-1" as UserId;
+    const sut = new BiometricsService(
+      i18nService,
+      windowMain,
+      logService,
+      messageSender,
+      messageListener,
+      process.platform,
+      biometricStateService,
+    );
+
+    const mockService = mock<OsBiometricService>();
+    (sut as any).platformSpecificService = mockService;
+    await sut.setEncryptionKeyHalf({ service: "test", key: "test", value: "test" });
+
+    await sut.canAuthBiometric({ service: "test", key: "test", userId });
+    expect(mockService.osSupportsBiometric).toBeCalled();
+    messageListener.messages$.mockReturnValue(of({ cancelled: true }));
+    mockService.authenticateBiometric.mockResolvedValue(false);
+
+    await sut.authenticateBiometric();
+    expect(messageSender.send).toHaveBeenCalledWith("startProcessReload");
+  });
+
+  it("will not restart process reload if it wasn't cancelled", async () => {
+    const userId = "userId-1" as UserId;
+    const sut = new BiometricsService(
+      i18nService,
+      windowMain,
+      logService,
+      messageSender,
+      messageListener,
+      process.platform,
+      biometricStateService,
+    );
+
+    const mockService = mock<OsBiometricService>();
+    (sut as any).platformSpecificService = mockService;
+    await sut.setEncryptionKeyHalf({ service: "test", key: "test", value: "test" });
+
+    await sut.canAuthBiometric({ service: "test", key: "test", userId });
+    expect(mockService.osSupportsBiometric).toBeCalled();
+    messageListener.messages$.mockReturnValue(of({ cancelled: false }));
+    mockService.authenticateBiometric.mockResolvedValue(false);
+
+    await sut.authenticateBiometric();
+    expect(messageSender.send).not.toHaveBeenCalledWith("startProcessReload");
   });
 
   describe("Should create a platform specific service", function () {
@@ -57,7 +114,8 @@ describe("biometrics tests", function () {
         i18nService,
         windowMain,
         logService,
-        messagingService,
+        messageSender,
+        messageListener,
         "win32",
         biometricStateService,
       );
@@ -72,7 +130,8 @@ describe("biometrics tests", function () {
         i18nService,
         windowMain,
         logService,
-        messagingService,
+        messageSender,
+        messageListener,
         "darwin",
         biometricStateService,
       );
@@ -92,7 +151,8 @@ describe("biometrics tests", function () {
         i18nService,
         windowMain,
         logService,
-        messagingService,
+        messageSender,
+        messageListener,
         process.platform,
         biometricStateService,
       );

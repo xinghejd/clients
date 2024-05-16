@@ -1,7 +1,7 @@
 import * as path from "path";
 
 import { app } from "electron";
-import { Subject, firstValueFrom } from "rxjs";
+import { Subject, firstValueFrom, tap } from "rxjs";
 
 import { TokenService as TokenServiceAbstraction } from "@bitwarden/common/auth/abstractions/token.service";
 import { AccountServiceImplementation } from "@bitwarden/common/auth/services/account.service";
@@ -12,7 +12,7 @@ import { KeyGenerationService as KeyGenerationServiceAbstraction } from "@bitwar
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { DefaultBiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
 import { StateFactory } from "@bitwarden/common/platform/factories/state-factory";
-import { Message, MessageSender } from "@bitwarden/common/platform/messaging";
+import { Message, MessageListener, MessageSender } from "@bitwarden/common/platform/messaging";
 // eslint-disable-next-line no-restricted-imports -- For dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
@@ -53,6 +53,7 @@ import { ElectronStateService } from "./platform/services/electron-state.service
 import { ElectronStorageService } from "./platform/services/electron-storage.service";
 import { I18nMainService } from "./platform/services/i18n.main.service";
 import { IllegalSecureStorageService } from "./platform/services/illegal-secure-storage.service";
+import { fromIpcMainMessaging } from "./platform/utils/from-ipc-main-messaging";
 import { ElectronMainMessagingService } from "./services/electron-main-messaging.service";
 import { isMacAppStore } from "./utils";
 
@@ -212,6 +213,9 @@ export class Main {
     this.desktopSettingsService = new DesktopSettingsService(stateProvider);
 
     const biometricStateService = new DefaultBiometricStateService(stateProvider);
+    const messageListener = new MessageListener(
+      fromIpcMainMessaging().pipe(tap((m) => this.logService.warning("ipcmain message", m))),
+    );
 
     this.windowMain = new WindowMain(
       this.stateService,
@@ -251,6 +255,7 @@ export class Main {
       this.windowMain,
       this.logService,
       this.messagingService,
+      messageListener,
       process.platform,
       biometricStateService,
     );
