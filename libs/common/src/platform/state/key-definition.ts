@@ -24,6 +24,17 @@ export type KeyDefinitionOptions<T> = {
    * Defaults to 1000ms.
    */
   readonly cleanupDelayMs?: number;
+  /**
+   * Equality comparison function to use when determining if two values are equal.
+   *
+   * This method is used to limit unnecessary updates to the state and to ensure that updates await detection and
+   * emission to the `state$` observable.
+   * Defaults to JSON equality.
+   * @param a
+   * @param b
+   * @returns
+   */
+  readonly equalityComparer?: (a: T, b: T) => boolean;
 };
 
 /**
@@ -65,6 +76,15 @@ export class KeyDefinition<T> {
   }
 
   /**
+   * Gets the equality comparer configured for this {@link KeyDefinition}
+   */
+  get equalityComparer() {
+    return (
+      this.options.equalityComparer ?? ((a: T, b: T) => JSON.stringify(a) === JSON.stringify(b))
+    );
+  }
+
+  /**
    * Gets the number of milliseconds to wait before cleaning up the state after the last subscriber has unsubscribed.
    */
   get cleanupDelayMs() {
@@ -95,6 +115,29 @@ export class KeyDefinition<T> {
     return new KeyDefinition<T[]>(stateDefinition, key, {
       ...options,
       deserializer: array((e) => options.deserializer(e)),
+      equalityComparer: (a: T[], b: T[]) => {
+        if (a == null && b == null) {
+          return true;
+        }
+
+        if (a == null || b == null) {
+          return false;
+        }
+
+        if (a.length !== b.length) {
+          return false;
+        }
+
+        const itemComparer =
+          options.equalityComparer ?? ((a: T, b: T) => JSON.stringify(a) === JSON.stringify(b));
+        for (let i = 0; i < a.length; i++) {
+          if (!itemComparer(a[i], b[i])) {
+            return false;
+          }
+        }
+
+        return true;
+      },
     });
   }
 
@@ -122,6 +165,26 @@ export class KeyDefinition<T> {
     return new KeyDefinition<Record<TKey, T>>(stateDefinition, key, {
       ...options,
       deserializer: record((v) => options.deserializer(v)),
+      equalityComparer: (a: Record<TKey, T>, b: Record<TKey, T>) => {
+        if (a == null && b == null) {
+          return true;
+        }
+
+        if (a == null || b == null) {
+          return false;
+        }
+
+        const keys = new Set([...Object.keys(a), ...Object.keys(b)]) as Set<TKey>;
+        const itemComparer =
+          options.equalityComparer ?? ((a: T, b: T) => JSON.stringify(a) === JSON.stringify(b));
+        for (const key of keys) {
+          if (!itemComparer(a[key], b[key])) {
+            return false;
+          }
+        }
+
+        return true;
+      },
     });
   }
 

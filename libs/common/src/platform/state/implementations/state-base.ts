@@ -27,6 +27,7 @@ import { getStoredValue } from "./util";
 // The parts of a KeyDefinition this class cares about to make it work
 type KeyDefinitionRequirements<T> = {
   deserializer: (jsonState: Jsonify<T>) => T;
+  equalityComparer: (a: T, b: T) => boolean;
   cleanupDelayMs: number;
 };
 
@@ -77,7 +78,7 @@ export abstract class StateBase<T, KeyDef extends KeyDefinitionRequirements<T>> 
       const newState = await this.updatePromise;
       await firstValueFrom(
         this.state$.pipe(
-          filter((s) => JSON.stringify(s) === JSON.stringify(newState)),
+          filter((s) => this.keyDefinition.equalityComparer(s, newState)),
           mergeWith(
             timer(50).pipe(tap(() => this.logService.warning("emitting anyway", this.key))),
           ),

@@ -57,6 +57,15 @@ export class UserKeyDefinition<T> {
   }
 
   /**
+   * Gets the equality comparer configured for this {@link KeyDefinition}
+   */
+  get equalityComparer() {
+    return (
+      this.options.equalityComparer ?? ((a: T, b: T) => JSON.stringify(a) === JSON.stringify(b))
+    );
+  }
+
+  /**
    * Gets the number of milliseconds to wait before cleaning up the state after the last subscriber has unsubscribed.
    */
   get cleanupDelayMs() {
@@ -102,6 +111,29 @@ export class UserKeyDefinition<T> {
     return new UserKeyDefinition<T[]>(stateDefinition, key, {
       ...options,
       deserializer: array((e) => options.deserializer(e)),
+      equalityComparer: (a: T[], b: T[]) => {
+        if (a == null && b == null) {
+          return true;
+        }
+
+        if (a == null || b == null) {
+          return false;
+        }
+
+        if (a.length !== b.length) {
+          return false;
+        }
+
+        const itemComparer =
+          options.equalityComparer ?? ((a: T, b: T) => JSON.stringify(a) === JSON.stringify(b));
+        for (let i = 0; i < a.length; i++) {
+          if (!itemComparer(a[i], b[i])) {
+            return false;
+          }
+        }
+
+        return true;
+      },
     });
   }
 
@@ -129,6 +161,26 @@ export class UserKeyDefinition<T> {
     return new UserKeyDefinition<Record<TKey, T>>(stateDefinition, key, {
       ...options,
       deserializer: record((v) => options.deserializer(v)),
+      equalityComparer: (a: Record<TKey, T>, b: Record<TKey, T>) => {
+        if (a == null && b == null) {
+          return true;
+        }
+
+        if (a == null || b == null) {
+          return false;
+        }
+
+        const keys = new Set([...Object.keys(a), ...Object.keys(b)]) as Set<TKey>;
+        const itemComparer =
+          options.equalityComparer ?? ((a: T, b: T) => JSON.stringify(a) === JSON.stringify(b));
+        for (const key of keys) {
+          if (!itemComparer(a[key], b[key])) {
+            return false;
+          }
+        }
+
+        return true;
+      },
     });
   }
 

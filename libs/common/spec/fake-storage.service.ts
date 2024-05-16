@@ -10,7 +10,8 @@ import { StorageOptions } from "../src/platform/models/domain/storage-options";
 
 export class FakeStorageService implements AbstractStorageService, ObservableStorageService {
   private store: Record<string, unknown>;
-  private updatesSubject = new Subject<StorageUpdate>();
+  // eslint-disable-next-line rxjs/no-exposed-subjects -- test class
+  updatesSubject = new Subject<StorageUpdate>();
   private _valuesRequireDeserialization = false;
 
   /**

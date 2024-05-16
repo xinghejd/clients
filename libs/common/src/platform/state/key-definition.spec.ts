@@ -1,4 +1,4 @@
-import { Opaque } from "type-fest";
+import { Jsonify, Opaque } from "type-fest";
 
 import { KeyDefinition } from "./key-definition";
 import { StateDefinition } from "./state-definition";
@@ -49,6 +49,29 @@ describe("KeyDefinition", () => {
     });
   });
 
+  describe("equalityComparer", () => {
+    it("defaults to JSON.stringify", () => {
+      const keyDefinition = new KeyDefinition<JsonEqual>(fakeStateDefinition, "fake", {
+        deserializer: JsonEqual.deserializer,
+      });
+
+      const result = keyDefinition.equalityComparer(new JsonEqual("a"), new JsonEqual("b"));
+      expect(result).toBe(true);
+    });
+
+    it("can be overridden", () => {
+      const equalityComparer = jest.fn((a: boolean, b: boolean) => a === b);
+      const keyDefinition = new KeyDefinition<boolean>(fakeStateDefinition, "fake", {
+        deserializer: (value) => value,
+        equalityComparer,
+      });
+
+      keyDefinition.equalityComparer(true, true);
+
+      expect(equalityComparer).toHaveBeenCalledTimes(1);
+    });
+  });
+
   describe("record", () => {
     it("runs custom deserializer for each record value", () => {
       const recordDefinition = KeyDefinition.record<boolean>(fakeStateDefinition, "fake", {
@@ -90,6 +113,49 @@ describe("KeyDefinition", () => {
       expect(fancyRecord["myKey" as FancyString]).toBeTruthy();
       expect(fancyRecord["mySecondKey" as FancyString]).toBeFalsy();
     });
+
+    it("runs custom equality comparer for record", () => {
+      const equalityComparer = jest.fn((a: boolean, b: boolean) => a === b);
+      const recordDefinition = KeyDefinition.record<boolean>(fakeStateDefinition, "fake", {
+        deserializer: (value) => !value,
+        equalityComparer,
+      });
+
+      const result = recordDefinition.equalityComparer(
+        { test1: false, test2: true },
+        { test1: false, test2: true },
+      );
+
+      expect(result).toBeTruthy();
+      expect(equalityComparer).toHaveBeenCalledTimes(2);
+    });
+
+    it("defaults equality comparison to JSON.stringify", () => {
+      const recordDefinition = KeyDefinition.record<JsonEqual>(fakeStateDefinition, "fake", {
+        deserializer: JsonEqual.deserializer,
+      });
+
+      const result = recordDefinition.equalityComparer(
+        { test1: new JsonEqual("a") },
+        { test1: new JsonEqual("b") },
+      );
+      expect(result).toBe(true);
+    });
+
+    it("handles null equality comparison", () => {
+      const recordDefinition = KeyDefinition.record<JsonEqual>(fakeStateDefinition, "fake", {
+        deserializer: JsonEqual.deserializer,
+      });
+
+      const result = recordDefinition.equalityComparer(null, null);
+      expect(result).toBe(true);
+
+      const result2 = recordDefinition.equalityComparer(null, {});
+      expect(result2).toBe(false);
+
+      const result3 = recordDefinition.equalityComparer({}, null);
+      expect(result3).toBe(false);
+    });
   });
 
   describe("array", () => {
@@ -108,5 +174,54 @@ describe("KeyDefinition", () => {
       expect(deserializedValue[0]).toBeTruthy();
       expect(deserializedValue[1]).toBeFalsy();
     });
+
+    it("runs custom equality comparer for array", () => {
+      const equalityComparer = jest.fn((a: boolean, b: boolean) => a === b);
+      const arrayDefinition = KeyDefinition.array<boolean>(fakeStateDefinition, "fake", {
+        deserializer: (value) => !value,
+        equalityComparer,
+      });
+
+      expect(arrayDefinition).toBeTruthy();
+      expect(arrayDefinition.equalityComparer).toBeTruthy();
+
+      const result = arrayDefinition.equalityComparer([false, true], [false, true]);
+
+      expect(result).toBeTruthy();
+      expect(equalityComparer).toHaveBeenCalledTimes(2);
+    });
+
+    it("defaults equality comparison to JSON.stringify", () => {
+      const arrayDefinition = KeyDefinition.array<JsonEqual>(fakeStateDefinition, "fake", {
+        deserializer: JsonEqual.deserializer,
+      });
+
+      const result = arrayDefinition.equalityComparer([new JsonEqual("a")], [new JsonEqual("b")]);
+      expect(result).toBe(true);
+    });
+
+    it("handles null equality comparison", () => {
+      const arrayDefinition = KeyDefinition.array<JsonEqual>(fakeStateDefinition, "fake", {
+        deserializer: JsonEqual.deserializer,
+      });
+
+      const result = arrayDefinition.equalityComparer(null, null);
+      expect(result).toBe(true);
+
+      const result2 = arrayDefinition.equalityComparer(null, []);
+      expect(result2).toBe(false);
+
+      const result3 = arrayDefinition.equalityComparer([], null);
+      expect(result3).toBe(false);
+    });
   });
 });
+
+class JsonEqual {
+  constructor(public value: string) {}
+  toJSON() {
+    return "I'm always equal!";
+  }
+
+  static deserializer = (_: Jsonify<JsonEqual>) => new JsonEqual("can't recover me!");
+}
