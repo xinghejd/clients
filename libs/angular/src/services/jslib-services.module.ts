@@ -153,6 +153,7 @@ import { ConsoleLogService } from "@bitwarden/common/platform/services/console-l
 import { CryptoService } from "@bitwarden/common/platform/services/crypto.service";
 import { BulkEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/bulk-encrypt.service.implementation";
 import { EncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/encrypt.service.implementation";
+import { FallbackBulkEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/fallback-bulk-encrypt.service.implementation";
 import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/multithread-encrypt.service.implementation";
 import { DefaultBroadcasterService } from "@bitwarden/common/platform/services/default-broadcaster.service";
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
@@ -785,8 +786,8 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: BulkEncryptService,
-    useClass: BulkEncryptServiceImplementation,
-    deps: [CryptoFunctionServiceAbstraction, LogService],
+    useFactory: bulkEncryptServiceFactory,
+    deps: [CryptoFunctionServiceAbstraction, EncryptService, LogService],
   }),
   safeProvider({
     provide: EventUploadServiceAbstraction,
@@ -1199,6 +1200,19 @@ function encryptServiceFactory(
   return flagEnabled("multithreadDecryption")
     ? new MultithreadEncryptServiceImplementation(cryptoFunctionservice, logService, logMacFailures)
     : new EncryptServiceImplementation(cryptoFunctionservice, logService, logMacFailures);
+}
+
+/**
+ * @deprecated
+ */
+function bulkEncryptServiceFactory(
+  cryptoFunctionservice: CryptoFunctionServiceAbstraction,
+  encryptService: EncryptService,
+  logService: LogService,
+): BulkEncryptService {
+  return flagEnabled("multithreadDecryption")
+    ? new BulkEncryptServiceImplementation(cryptoFunctionservice, logService)
+    : new FallbackBulkEncryptServiceImplementation(encryptService);
 }
 
 @NgModule({

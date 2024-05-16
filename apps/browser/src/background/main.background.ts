@@ -111,6 +111,7 @@ import { DefaultConfigService } from "@bitwarden/common/platform/services/config
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { EncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/encrypt.service.implementation";
+import { FallbackBulkEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/fallback-bulk-encrypt.service.implementation";
 import { Fido2AuthenticatorService } from "@bitwarden/common/platform/services/fido2/fido2-authenticator.service";
 import { Fido2ClientService } from "@bitwarden/common/platform/services/fido2/fido2-client.service";
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
@@ -196,8 +197,6 @@ import {
   VaultExportService,
   VaultExportServiceAbstraction,
 } from "@bitwarden/vault-export-core";
-
-import { BrowserFallbackBulkEncryptServiceImplementation } from "src/platform/services/browser-fallback-bulk-encrypt.service.implementation";
 
 import ContextMenusBackground from "../autofill/background/context-menus.background";
 import NotificationBackground from "../autofill/background/notification.background";
@@ -493,9 +492,7 @@ export default class MainBackground {
           this.offscreenDocumentService,
         )
       : new EncryptServiceImplementation(this.cryptoFunctionService, this.logService, true);
-    this.bulkEncryptService = new BrowserFallbackBulkEncryptServiceImplementation(
-      this.encryptService,
-    );
+    this.bulkEncryptService = new FallbackBulkEncryptServiceImplementation(this.encryptService);
     this.singleUserStateProvider = new DefaultSingleUserStateProvider(
       storageServiceProvider,
       stateEventRegistrarService,
