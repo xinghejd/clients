@@ -9,6 +9,9 @@ import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/platf
 import { BrowserApi } from "../browser/browser-api";
 import { OffscreenDocumentService } from "../offscreen-document/abstractions/offscreen-document";
 
+/**
+ * @deprecated Remove after the flag PM-4154-bulk-encryption-service has been tested and can be removed
+ */
 export class BrowserMultithreadEncryptServiceImplementation extends MultithreadEncryptServiceImplementation {
   constructor(
     cryptoFunctionService: CryptoFunctionService,
