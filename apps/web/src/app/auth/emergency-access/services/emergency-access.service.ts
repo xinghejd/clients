@@ -227,7 +227,7 @@ export class EmergencyAccessService {
     const grantorUserKey = new SymmetricCryptoKey(grantorKeyBuffer) as UserKey;
 
     let ciphers: CipherView[] = [];
-    if (await this.configService.getFeatureFlag(FeatureFlag.EnableMultiWorkerEncryptionService)) {
+    if (await this.configService.getFeatureFlag(FeatureFlag.PM4154_BulkEncryptionService)) {
       ciphers = await this.bulkEncryptService.decryptItems(
         response.ciphers.map((c) => new Cipher(c)),
         grantorUserKey,

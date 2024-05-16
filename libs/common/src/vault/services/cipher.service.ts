@@ -402,9 +402,7 @@ export class CipherService implements CipherServiceAbstraction {
     const decCiphers = (
       await Promise.all(
         Object.entries(grouped).map(async ([orgId, groupedCiphers]) => {
-          if (
-            await this.configService.getFeatureFlag(FeatureFlag.EnableMultiWorkerEncryptionService)
-          ) {
+          if (await this.configService.getFeatureFlag(FeatureFlag.PM4154_BulkEncryptionService)) {
             return await this.bulkEncryptService.decryptItems(
               groupedCiphers,
               orgKeys[orgId] ?? userKey,
@@ -520,7 +518,7 @@ export class CipherService implements CipherServiceAbstraction {
     const ciphers = response.data.map((cr) => new Cipher(new CipherData(cr)));
     const key = await this.cryptoService.getOrgKey(organizationId);
     let decCiphers: CipherView[] = [];
-    if (await this.configService.getFeatureFlag(FeatureFlag.EnableMultiWorkerEncryptionService)) {
+    if (await this.configService.getFeatureFlag(FeatureFlag.PM4154_BulkEncryptionService)) {
       decCiphers = await this.bulkEncryptService.decryptItems(ciphers, key);
     } else {
       decCiphers = await this.encryptService.decryptItems(ciphers, key);
