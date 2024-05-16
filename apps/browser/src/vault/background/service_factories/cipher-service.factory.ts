@@ -22,6 +22,10 @@ import {
   ApiServiceInitOptions,
 } from "../../../platform/background/service-factories/api-service.factory";
 import {
+  BulkEncryptServiceInitOptions,
+  bulkEncryptServiceFactory,
+} from "../../../platform/background/service-factories/bulk-encrypt-service.factory";
+import {
   configServiceFactory,
   ConfigServiceInitOptions,
 } from "../../../platform/background/service-factories/config-service.factory";
@@ -44,8 +48,8 @@ import {
 } from "../../../platform/background/service-factories/i18n-service.factory";
 import { stateProviderFactory } from "../../../platform/background/service-factories/state-provider.factory";
 import {
-  stateServiceFactory,
   StateServiceInitOptions,
+  stateServiceFactory,
 } from "../../../platform/background/service-factories/state-service.factory";
 
 type CipherServiceFactoryOptions = FactoryOptions;
@@ -60,6 +64,7 @@ export type CipherServiceInitOptions = CipherServiceFactoryOptions &
   AutofillSettingsServiceInitOptions &
   DomainSettingsServiceInitOptions &
   EncryptServiceInitOptions &
+  BulkEncryptServiceInitOptions &
   ConfigServiceInitOptions;
 
 export function cipherServiceFactory(
@@ -80,6 +85,7 @@ export function cipherServiceFactory(
         await stateServiceFactory(cache, opts),
         await autofillSettingsServiceFactory(cache, opts),
         await encryptServiceFactory(cache, opts),
+        await bulkEncryptServiceFactory(cache, opts),
         await cipherFileUploadServiceFactory(cache, opts),
         await configServiceFactory(cache, opts),
         await stateProviderFactory(cache, opts),
