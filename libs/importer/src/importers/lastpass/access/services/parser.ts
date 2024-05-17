@@ -33,7 +33,6 @@ export class Parser {
     options: ParserOptions,
   ): Promise<Account> {
     let id: string;
-    let name: string;
     try {
       const placeholder = "decryption failed";
       const reader = new BinaryReader(chunk.payload);
@@ -43,7 +42,7 @@ export class Parser {
       id = Utils.fromBufferToUtf8(this.readItem(reader));
 
       // 1: name
-      name = await this.cryptoUtils.decryptAes256PlainWithDefault(
+      const name = await this.cryptoUtils.decryptAes256PlainWithDefault(
         this.readItem(reader),
         encryptionKey,
         placeholder,
@@ -242,15 +241,8 @@ export class Parser {
       account.isFavorite = isFavorite;
       account.isShared = folder != null;
       return account;
-    } catch (error) {
-      throw new Error(
-        "Error parsing accounts on item: ID-" +
-          id +
-          " Name-" +
-          name +
-          " Error message:" +
-          error.message,
-      );
+    } catch {
+      throw new Error("Error parsing accounts on item with ID:" + id);
     }
   }
 
@@ -287,14 +279,7 @@ export class Parser {
       folder.encryptionKey = key;
       return folder;
     } catch (error) {
-      throw new Error(
-        "Error parsing shared folder: ID-" +
-          id +
-          " Name-" +
-          name +
-          " Error message:" +
-          error.message,
-      );
+      throw new Error("Error parsing shared folder with ID:" + id);
     }
   }
 
