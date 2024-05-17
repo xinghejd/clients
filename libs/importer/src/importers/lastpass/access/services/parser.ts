@@ -241,8 +241,10 @@ export class Parser {
       account.isFavorite = isFavorite;
       account.isShared = folder != null;
       return account;
-    } catch {
-      throw new Error("Error parsing accounts on item with ID:" + id);
+    } catch (err) {
+      throw new Error(
+        "Error parsing accounts on item with ID:" + id + " errorMessage: " + err.message,
+      );
     }
   }
 
@@ -278,8 +280,10 @@ export class Parser {
       folder.name = name;
       folder.encryptionKey = key;
       return folder;
-    } catch (error) {
-      throw new Error("Error parsing shared folder with ID:" + id);
+    } catch (err) {
+      throw new Error(
+        "Error parsing shared folder with ID:" + id + " errorMessage: " + err.message,
+      );
     }
   }
 
