@@ -13,7 +13,7 @@ export class UserExecutionContextBuilder extends ExecutionContextBuilder<{
 
     this.contextMap.push({
       name: "userId",
-      predicate: () => this.accountService.activeAccount$.pipe(map((a) => a?.id)),
+      factory: () => this.accountService.activeAccount$.pipe(map((a) => a?.id)),
     });
   }
 }

@@ -4,7 +4,7 @@ import { ExecutionContextBuilder } from "./execution-context.builder";
 
 describe("ExecutionContextBuilder", () => {
   describe("with", () => {
-    it("builds the context with the value returned by the predicate when the value is not a promise or observable", async () => {
+    it("builds the context with the value returned by the factory when the value is not a promise or observable", async () => {
       const context = await new ExecutionContextBuilder()
         .with(() => 42)
         .as("value")
@@ -13,7 +13,7 @@ describe("ExecutionContextBuilder", () => {
       expect(context).toEqual({ value: 42 });
     });
 
-    it("builds the context with the value resolved by the promise returned by the predicate", async () => {
+    it("builds the context with the value resolved by the promise returned by the factory", async () => {
       const context = await new ExecutionContextBuilder()
         .with(() => Promise.resolve(42))
         .as("value")
@@ -22,7 +22,7 @@ describe("ExecutionContextBuilder", () => {
       expect(context).toEqual({ value: 42 });
     });
 
-    it("builds the context with the value resolved by the observable returned by the predicate", async () => {
+    it("builds the context with the value resolved by the observable returned by the factory", async () => {
       const context = await new ExecutionContextBuilder()
         .with(() => of(42))
         .as("value")
@@ -33,7 +33,7 @@ describe("ExecutionContextBuilder", () => {
   });
 
   describe("multiple with", () => {
-    it("builds the context with all the values returned by the predicates", async () => {
+    it("builds the context with all the values returned by the factories", async () => {
       const context = await new ExecutionContextBuilder()
         .with(() => 42)
         .as("value")
@@ -44,7 +44,7 @@ describe("ExecutionContextBuilder", () => {
       expect(context).toEqual({ value: 42, string: "foo" });
     });
 
-    it("provides the current context to the predicate", async () => {
+    it("provides the current context to the factory", async () => {
       const context = await new ExecutionContextBuilder()
         .withValue(42)
         .as("first")

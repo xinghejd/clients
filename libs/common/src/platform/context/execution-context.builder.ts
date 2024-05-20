@@ -9,25 +9,24 @@ export class ExecutionContextPropertyBuilder<
 > {
   constructor(
     private readonly executionContextBuilder: TExecutionContextBuilder,
-    private readonly predicate: ExecutionContextPredicate<TExecutionContext, TValue>,
+    private readonly factory: ExecutionContextFactory<TExecutionContext, TValue>,
   ) {}
   as<const TKey extends string>(
     propertyName: TKey,
   ): ExecutionContextBuilder<TExecutionContext & Record<TKey, TValue>> {
-    return this.executionContextBuilder.addPropertyBuilder(propertyName, this.predicate);
+    return this.executionContextBuilder.addPropertyBuilder(propertyName, this.factory);
   }
 }
 
-type ExecutionContextPredicate<TContext, T> = (context: TContext) => T | Promise<T> | Observable<T>;
+type ExecutionContextFactory<TContext, T> = (context: TContext) => T | Promise<T> | Observable<T>;
 
 export class ExecutionContextBuilder<T extends GenericExecutionContext> {
-  // The type of these predicates are the context that is built by the time they are called and the value they return,
+  // The type of these factories are the context that is built by the time they are called and the value they return,
   // which is protected by the `with` method and `as` method on ExecutionContextPropertyBuilder.
-  protected contextMap: { name: string; predicate: ExecutionContextPredicate<unknown, unknown> }[] =
-    [];
+  protected contextMap: { name: string; factory: ExecutionContextFactory<unknown, unknown> }[] = [];
 
   with<TValue>(
-    contextBuilder: ExecutionContextPredicate<T, TValue>,
+    contextBuilder: ExecutionContextFactory<T, TValue>,
   ): ExecutionContextPropertyBuilder<T, typeof this, TValue> {
     return new ExecutionContextPropertyBuilder(this, contextBuilder);
   }
@@ -46,13 +45,13 @@ export class ExecutionContextBuilder<T extends GenericExecutionContext> {
 
   async build(): Promise<T> {
     const context: Record<string, unknown> = {};
-    for (const { name, predicate } of this.contextMap) {
-      let predicateResult = predicate(context);
-      if (isObservable(predicateResult)) {
-        predicateResult = firstValueFrom(predicateResult);
+    for (const { name, factory } of this.contextMap) {
+      let factoryResult = factory(context);
+      if (isObservable(factoryResult)) {
+        factoryResult = firstValueFrom(factoryResult);
       }
 
-      context[name] = await predicateResult;
+      context[name] = await factoryResult;
     }
     return context as T;
   }
@@ -61,19 +60,16 @@ export class ExecutionContextBuilder<T extends GenericExecutionContext> {
    * @internal This method is part of the builder pattern and is not intended for external use.
    *
    * @param propertyName The name of the new context property
-   * @param predicate The predicate that will be used to build the new context property
+   * @param factory The factory that will be used to build the new context property
    * @returns A new ExecutionContextBuilder with the new context property added
    */
   addPropertyBuilder<
     TKey extends string,
     TValue,
-    TValuePredicate extends ExecutionContextPredicate<T, TValue>,
-  >(
-    propertyName: TKey,
-    predicate: TValuePredicate,
-  ): ExecutionContextBuilder<T & Record<TKey, TValue>> {
+    TValueFactory extends ExecutionContextFactory<T, TValue>,
+  >(propertyName: TKey, factory: TValueFactory): ExecutionContextBuilder<T & Record<TKey, TValue>> {
     const result = new ExecutionContextBuilder<T & Record<TKey, TValue>>();
-    result.contextMap = this.contextMap.concat({ name: propertyName, predicate });
+    result.contextMap = this.contextMap.concat({ name: propertyName, factory });
     return result;
   }
 }
