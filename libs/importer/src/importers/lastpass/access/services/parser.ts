@@ -254,7 +254,6 @@ export class Parser {
     rsaKey: Uint8Array,
   ): Promise<SharedFolder> {
     let id: string;
-    let name: string;
     try {
       const reader = new BinaryReader(chunk.payload);
 
@@ -273,7 +272,7 @@ export class Parser {
 
       // Name
       const encryptedName = this.readItem(reader);
-      name = await this.cryptoUtils.decryptAes256Base64(encryptedName, key);
+      const name = await this.cryptoUtils.decryptAes256Base64(encryptedName, key);
 
       const folder = new SharedFolder();
       folder.id = id;
