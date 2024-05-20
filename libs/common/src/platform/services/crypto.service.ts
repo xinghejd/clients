@@ -1,5 +1,14 @@
 import * as bigInt from "big-integer";
-import { Observable, combineLatest, filter, firstValueFrom, map, zip } from "rxjs";
+import {
+  Observable,
+  combineLatest,
+  combineLatestWith,
+  filter,
+  firstValueFrom,
+  map,
+  switchMap,
+  zip,
+} from "rxjs";
 
 import { PinServiceAbstraction } from "../../../../auth/src/common/abstractions";
 import { EncryptedOrganizationKeyData } from "../../admin-console/models/data/encrypted-organization-key.data";
@@ -94,10 +103,23 @@ export class CryptoService implements CryptoServiceAbstraction {
     this.activeUserEverHadUserKey = stateProvider.getActive(USER_EVER_HAD_USER_KEY);
     this.everHadUserKey$ = this.activeUserEverHadUserKey.state$.pipe(map((x) => x ?? false));
 
+    const activeUserKeyWithLegacySupport$ = this.activeUserKey$.pipe(
+      combineLatestWith(this.stateProvider.activeUserId$),
+      switchMap(async ([userKey, userId]) => {
+        if (userKey != null) {
+          return userKey;
+        }
+
+        if (await this.isLegacyUser(null, userId)) {
+          return await this.getUserKeyWithLegacySupport(userId);
+        }
+      }),
+    );
+
     // User Asymmetric Key Pair
     this.activeUserEncryptedPrivateKeyState = stateProvider.getActive(USER_ENCRYPTED_PRIVATE_KEY);
     this.activeUserPrivateKeyState = stateProvider.getDerived(
-      zip(this.activeUserEncryptedPrivateKeyState.state$, this.activeUserKey$).pipe(
+      zip(this.activeUserEncryptedPrivateKeyState.state$, activeUserKeyWithLegacySupport$).pipe(
         filter(([, userKey]) => !!userKey),
       ),
       USER_PRIVATE_KEY,

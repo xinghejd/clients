@@ -28,7 +28,6 @@ import {
   mockAccountServiceWith,
 } from "../../../../../../libs/common/spec/fake-account-service";
 import { OrganizationUserResetPasswordService } from "../../admin-console/organizations/members/services/organization-user-reset-password/organization-user-reset-password.service";
-import { StateService } from "../../core";
 import { EmergencyAccessService } from "../emergency-access";
 
 import { UserKeyRotationApiService } from "./user-key-rotation-api.service";
@@ -46,7 +45,6 @@ describe("KeyRotationService", () => {
   let mockDeviceTrustService: MockProxy<DeviceTrustServiceAbstraction>;
   let mockCryptoService: MockProxy<CryptoService>;
   let mockEncryptService: MockProxy<EncryptService>;
-  let mockStateService: MockProxy<StateService>;
   let mockConfigService: MockProxy<ConfigService>;
   let mockKdfConfigService: MockProxy<KdfConfigService>;
 
@@ -65,7 +63,6 @@ describe("KeyRotationService", () => {
     mockDeviceTrustService = mock<DeviceTrustServiceAbstraction>();
     mockCryptoService = mock<CryptoService>();
     mockEncryptService = mock<EncryptService>();
-    mockStateService = mock<StateService>();
     mockConfigService = mock<ConfigService>();
     mockKdfConfigService = mock<KdfConfigService>();
 
@@ -80,7 +77,6 @@ describe("KeyRotationService", () => {
       mockDeviceTrustService,
       mockCryptoService,
       mockEncryptService,
-      mockStateService,
       mockAccountService,
       mockKdfConfigService,
     );
