@@ -2,6 +2,7 @@ import { BehaviorSubject, firstValueFrom, map, Observable } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
+import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { PolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { MasterPasswordPolicyOptions } from "@bitwarden/common/admin-console/models/domain/master-password-policy-options";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
@@ -90,6 +91,7 @@ export class PasswordLoginStrategy extends LoginStrategy {
     private policyService: PolicyService,
     private loginStrategyService: LoginStrategyServiceAbstraction,
     billingAccountProfileStateService: BillingAccountProfileStateService,
+    vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     kdfConfigService: KdfConfigService,
   ) {
     super(
@@ -106,6 +108,7 @@ export class PasswordLoginStrategy extends LoginStrategy {
       twoFactorService,
       userDecryptionOptionsService,
       billingAccountProfileStateService,
+      vaultTimeoutSettingsService,
       kdfConfigService,
     );
 
@@ -228,14 +231,18 @@ export class PasswordLoginStrategy extends LoginStrategy {
 
     const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
     if (masterKey) {
-      const userKey = await this.cryptoService.decryptUserKeyWithMasterKey(masterKey);
+      const userKey = await this.masterPasswordService.decryptUserKeyWithMasterKey(masterKey);
       await this.cryptoService.setUserKey(userKey, userId);
     }
   }
 
-  protected override async setPrivateKey(response: IdentityTokenResponse): Promise<void> {
+  protected override async setPrivateKey(
+    response: IdentityTokenResponse,
+    userId: UserId,
+  ): Promise<void> {
     await this.cryptoService.setPrivateKey(
-      response.privateKey ?? (await this.createKeyPairForOldAccount()),
+      response.privateKey ?? (await this.createKeyPairForOldAccount(userId)),
+      userId,
     );
   }
 
