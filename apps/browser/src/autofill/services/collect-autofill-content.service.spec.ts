@@ -1136,7 +1136,7 @@ describe("CollectAutofillContentService", () => {
         "aria-disabled": false,
         "aria-haspopup": false,
         "aria-hidden": false,
-        autoCompleteType: null,
+        autoCompleteType: "off",
         checked: false,
         "data-stripe": hiddenField.dataStripe,
         disabled: false,
