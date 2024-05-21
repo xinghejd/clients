@@ -1,6 +1,6 @@
 import { Jsonify } from "type-fest";
 
-import { Cipher } from "../../../vault/models/domain/cipher";
+import { CipherV1 } from "../../../vault/models/domain/cipher";
 import { CipherView } from "../../../vault/models/view/cipher.view";
 import { InitializerMetadata } from "../../interfaces/initializer-metadata.interface";
 
@@ -11,7 +11,7 @@ import { InitializerKey } from "./initializer-key";
  * Each entry should be keyed using the Decryptable.initializerKey property
  */
 const classInitializers: Record<InitializerKey, (obj: any) => any> = {
-  [InitializerKey.Cipher]: Cipher.fromJSON,
+  [InitializerKey.Cipher]: CipherV1.fromJSON,
   [InitializerKey.CipherView]: CipherView.fromJSON,
 };
 

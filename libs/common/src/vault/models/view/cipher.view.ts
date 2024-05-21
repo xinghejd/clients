@@ -6,7 +6,7 @@ import { LinkedIdType } from "../../enums";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
 import { LocalData } from "../data/local.data";
-import { Cipher } from "../domain/cipher";
+import { CipherV1 } from "../domain/cipher";
 
 import { AttachmentView } from "./attachment.view";
 import { CardView } from "./card.view";
@@ -43,7 +43,7 @@ export class CipherView implements View, InitializerMetadata {
   deletedDate: Date = null;
   reprompt: CipherRepromptType = CipherRepromptType.None;
 
-  constructor(c?: Cipher) {
+  constructor(c?: CipherV1) {
     if (!c) {
       return;
     }

@@ -1,10 +1,10 @@
-import { Cipher } from "../domain/cipher";
+import { CipherV1 } from "../domain/cipher";
 
 export class CipherPartialRequest {
   folderId: string;
   favorite: boolean;
 
-  constructor(cipher: Cipher) {
+  constructor(cipher: CipherV1) {
     this.folderId = cipher.folderId;
     this.favorite = cipher.favorite;
   }

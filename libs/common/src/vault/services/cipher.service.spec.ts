@@ -26,7 +26,7 @@ import { FieldType } from "../enums";
 import { CipherRepromptType } from "../enums/cipher-reprompt-type";
 import { CipherType } from "../enums/cipher-type";
 import { CipherData } from "../models/data/cipher.data";
-import { Cipher } from "../models/domain/cipher";
+import { CipherV1 } from "../models/domain/cipher";
 import { CipherCreateRequest } from "../models/request/cipher-create.request";
 import { CipherPartialRequest } from "../models/request/cipher-partial.request";
 import { CipherRequest } from "../models/request/cipher.request";
@@ -119,7 +119,7 @@ describe("Cipher Service", () => {
   const stateProvider = new FakeStateProvider(accountService);
 
   let cipherService: CipherService;
-  let cipherObj: Cipher;
+  let cipherObj: CipherV1;
 
   beforeEach(() => {
     encryptService.encryptToBytes.mockReturnValue(Promise.resolve(ENCRYPTED_BYTES));
@@ -141,7 +141,7 @@ describe("Cipher Service", () => {
       stateProvider,
     );
 
-    cipherObj = new Cipher(cipherData);
+    cipherObj = new CipherV1(cipherData);
   });
 
   afterEach(() => {
@@ -164,7 +164,7 @@ describe("Cipher Service", () => {
 
       const spy = jest.spyOn(cipherFileUploadService, "upload");
 
-      await cipherService.saveAttachmentRawWithServer(new Cipher(), fileName, fileData);
+      await cipherService.saveAttachmentRawWithServer(new CipherV1(), fileName, fileData);
 
       expect(spy).toHaveBeenCalled();
     });

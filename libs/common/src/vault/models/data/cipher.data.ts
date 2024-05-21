@@ -13,6 +13,7 @@ import { PasswordHistoryData } from "./password-history.data";
 import { SecureNoteData } from "./secure-note.data";
 
 export class CipherData {
+  version: number;
   id: string;
   organizationId: string;
   folderId: string;

@@ -15,7 +15,7 @@ import { CipherType } from "../../enums/cipher-type";
 import { CipherData } from "../../models/data/cipher.data";
 import { Attachment } from "../../models/domain/attachment";
 import { Card } from "../../models/domain/card";
-import { Cipher } from "../../models/domain/cipher";
+import { CipherV1 } from "../../models/domain/cipher";
 import { Field } from "../../models/domain/field";
 import { Identity } from "../../models/domain/identity";
 import { Login } from "../../models/domain/login";
@@ -28,7 +28,7 @@ import { LoginView } from "../../models/view/login.view";
 describe("Cipher DTO", () => {
   it("Convert from empty CipherData", () => {
     const data = new CipherData();
-    const cipher = new Cipher(data);
+    const cipher = new CipherV1(data);
 
     expect(cipher).toEqual({
       initializerKey: InitializerKey.Cipher,
@@ -128,7 +128,7 @@ describe("Cipher DTO", () => {
     });
 
     it("Convert", () => {
-      const cipher = new Cipher(cipherData);
+      const cipher = new CipherV1(cipherData);
 
       expect(cipher).toEqual({
         initializerKey: InitializerKey.Cipher,
@@ -205,12 +205,12 @@ describe("Cipher DTO", () => {
     });
 
     it("toCipherData", () => {
-      const cipher = new Cipher(cipherData);
+      const cipher = new CipherV1(cipherData);
       expect(cipher.toCipherData()).toEqual(cipherData);
     });
 
     it("Decrypt", async () => {
-      const cipher = new Cipher();
+      const cipher = new CipherV1();
       cipher.id = "id";
       cipher.organizationId = "orgId";
       cipher.folderId = "folderId";
@@ -302,7 +302,7 @@ describe("Cipher DTO", () => {
     });
 
     it("Convert", () => {
-      const cipher = new Cipher(cipherData);
+      const cipher = new CipherV1(cipherData);
 
       expect(cipher).toEqual({
         initializerKey: InitializerKey.Cipher,
@@ -331,12 +331,12 @@ describe("Cipher DTO", () => {
     });
 
     it("toCipherData", () => {
-      const cipher = new Cipher(cipherData);
+      const cipher = new CipherV1(cipherData);
       expect(cipher.toCipherData()).toEqual(cipherData);
     });
 
     it("Decrypt", async () => {
-      const cipher = new Cipher();
+      const cipher = new CipherV1();
       cipher.id = "id";
       cipher.organizationId = "orgId";
       cipher.folderId = "folderId";
@@ -427,7 +427,7 @@ describe("Cipher DTO", () => {
     });
 
     it("Convert", () => {
-      const cipher = new Cipher(cipherData);
+      const cipher = new CipherV1(cipherData);
 
       expect(cipher).toEqual({
         initializerKey: InitializerKey.Cipher,
@@ -463,12 +463,12 @@ describe("Cipher DTO", () => {
     });
 
     it("toCipherData", () => {
-      const cipher = new Cipher(cipherData);
+      const cipher = new CipherV1(cipherData);
       expect(cipher.toCipherData()).toEqual(cipherData);
     });
 
     it("Decrypt", async () => {
-      const cipher = new Cipher();
+      const cipher = new CipherV1();
       cipher.id = "id";
       cipher.organizationId = "orgId";
       cipher.folderId = "folderId";
@@ -577,7 +577,7 @@ describe("Cipher DTO", () => {
     });
 
     it("Convert", () => {
-      const cipher = new Cipher(cipherData);
+      const cipher = new CipherV1(cipherData);
 
       expect(cipher).toEqual({
         initializerKey: InitializerKey.Cipher,
@@ -625,12 +625,12 @@ describe("Cipher DTO", () => {
     });
 
     it("toCipherData", () => {
-      const cipher = new Cipher(cipherData);
+      const cipher = new CipherV1(cipherData);
       expect(cipher.toCipherData()).toEqual(cipherData);
     });
 
     it("Decrypt", async () => {
-      const cipher = new Cipher();
+      const cipher = new CipherV1();
       cipher.id = "id";
       cipher.organizationId = "orgId";
       cipher.folderId = "folderId";
@@ -704,7 +704,7 @@ describe("Cipher DTO", () => {
 
       const revisionDate = new Date("2022-08-04T01:06:40.441Z");
       const deletedDate = new Date("2022-09-04T01:06:40.441Z");
-      const actual = Cipher.fromJSON({
+      const actual = CipherV1.fromJSON({
         name: "myName",
         notes: "myNotes",
         revisionDate: revisionDate.toISOString(),
@@ -712,7 +712,7 @@ describe("Cipher DTO", () => {
         fields: ["field1", "field2"] as any,
         passwordHistory: ["ph1", "ph2"] as any,
         deletedDate: deletedDate.toISOString(),
-      } as Jsonify<Cipher>);
+      } as Jsonify<CipherV1>);
 
       expect(actual).toMatchObject({
         name: "myName_fromJSON",
@@ -723,7 +723,7 @@ describe("Cipher DTO", () => {
         passwordHistory: ["ph1_fromJSON", "ph2_fromJSON"],
         deletedDate: deletedDate,
       });
-      expect(actual).toBeInstanceOf(Cipher);
+      expect(actual).toBeInstanceOf(CipherV1);
     });
 
     test.each([
@@ -738,7 +738,7 @@ describe("Cipher DTO", () => {
       jest.spyOn(Card, "fromJSON").mockImplementation(mockFromJson);
       jest.spyOn(SecureNote, "fromJSON").mockImplementation(mockFromJson);
 
-      const actual = Cipher.fromJSON({
+      const actual = CipherV1.fromJSON({
         login: "myLogin",
         card: "myCard",
         identity: "myIdentity",
@@ -750,7 +750,7 @@ describe("Cipher DTO", () => {
     });
 
     it("returns null if object is null", () => {
-      expect(Cipher.fromJSON(null)).toBeNull();
+      expect(CipherV1.fromJSON(null)).toBeNull();
     });
   });
 });

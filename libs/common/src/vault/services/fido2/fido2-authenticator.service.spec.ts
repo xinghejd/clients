@@ -17,7 +17,7 @@ import {
 import { SyncService } from "../../abstractions/sync/sync.service.abstraction";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
-import { Cipher } from "../../models/domain/cipher";
+import { CipherV1 } from "../../models/domain/cipher";
 import { CipherView } from "../../models/view/cipher.view";
 import { Fido2CredentialView } from "../../models/view/fido2-credential.view";
 import { LoginView } from "../../models/view/login.view";
@@ -227,7 +227,7 @@ describe("FidoAuthenticatorService", () => {
           cipherId: existingCipher.id,
           userVerified: false,
         });
-        cipherService.encrypt.mockResolvedValue(encryptedCipher as unknown as Cipher);
+        cipherService.encrypt.mockResolvedValue(encryptedCipher as unknown as CipherV1);
 
         await authenticator.makeCredential(params, tab);
 
@@ -279,7 +279,7 @@ describe("FidoAuthenticatorService", () => {
           userVerified: false,
         });
         const encryptedCipher = { ...existingCipher, reprompt: CipherRepromptType.Password };
-        cipherService.get.mockResolvedValue(encryptedCipher as unknown as Cipher);
+        cipherService.get.mockResolvedValue(encryptedCipher as unknown as CipherV1);
 
         const result = async () => await authenticator.makeCredential(params, tab);
 
@@ -293,7 +293,7 @@ describe("FidoAuthenticatorService", () => {
           cipherId: existingCipher.id,
           userVerified: false,
         });
-        cipherService.encrypt.mockResolvedValue(encryptedCipher as unknown as Cipher);
+        cipherService.encrypt.mockResolvedValue(encryptedCipher as unknown as CipherV1);
         cipherService.updateWithServer.mockRejectedValue(new Error("Internal error"));
 
         const result = async () => await authenticator.makeCredential(params, tab);

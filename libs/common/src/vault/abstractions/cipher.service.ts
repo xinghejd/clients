@@ -5,8 +5,8 @@ import { SymmetricCryptoKey } from "../../platform/models/domain/symmetric-crypt
 import { CipherId, CollectionId, OrganizationId } from "../../types/guid";
 import { CipherType } from "../enums/cipher-type";
 import { CipherData } from "../models/data/cipher.data";
-import { Cipher } from "../models/domain/cipher";
 import { Field } from "../models/domain/field";
+import { Cipher } from "../models/domain/version-agnostic-cipher";
 import { CipherView } from "../models/view/cipher.view";
 import { FieldView } from "../models/view/field.view";
 import { AddEditCipherInfo } from "../types/add-edit-cipher-info";

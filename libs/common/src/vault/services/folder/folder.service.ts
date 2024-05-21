@@ -11,7 +11,7 @@ import { InternalFolderService as InternalFolderServiceAbstraction } from "../..
 import { FolderData } from "../../../vault/models/data/folder.data";
 import { Folder } from "../../../vault/models/domain/folder";
 import { FolderView } from "../../../vault/models/view/folder.view";
-import { Cipher } from "../../models/domain/cipher";
+import { CipherV1 } from "../../models/domain/cipher";
 import { FOLDER_DECRYPTED_FOLDERS, FOLDER_ENCRYPTED_FOLDERS } from "../key-state/folder.state";
 
 export class FolderService implements InternalFolderServiceAbstraction {
@@ -144,7 +144,7 @@ export class FolderService implements InternalFolderServiceAbstraction {
     // Items in a deleted folder are re-assigned to "No Folder"
     const ciphers = await this.cipherService.getAll();
     if (ciphers != null) {
-      const updates: Cipher[] = [];
+      const updates: CipherV1[] = [];
       for (const cId in ciphers) {
         if (ciphers[cId].folderId === id) {
           ciphers[cId].folderId = null;

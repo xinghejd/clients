@@ -7,7 +7,7 @@ import { IdentityApi } from "../api/identity.api";
 import { LoginUriApi } from "../api/login-uri.api";
 import { LoginApi } from "../api/login.api";
 import { SecureNoteApi } from "../api/secure-note.api";
-import { Cipher } from "../domain/cipher";
+import { CipherV1 } from "../domain/cipher";
 
 import { AttachmentRequest } from "./attachment.request";
 import { PasswordHistoryRequest } from "./password-history.request";
@@ -32,7 +32,7 @@ export class CipherRequest {
   reprompt: CipherRepromptType;
   key: string;
 
-  constructor(cipher: Cipher) {
+  constructor(cipher: CipherV1) {
     this.type = cipher.type;
     this.folderId = cipher.folderId;
     this.organizationId = cipher.organizationId;

@@ -20,7 +20,7 @@ import { Login } from "./login";
 import { Password } from "./password";
 import { SecureNote } from "./secure-note";
 
-export class Cipher extends Domain implements Decryptable<CipherView> {
+export class CipherV1 extends Domain implements Decryptable<CipherView> {
   readonly initializerKey = InitializerKey.Cipher;
 
   id: string;
@@ -256,12 +256,12 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     return c;
   }
 
-  static fromJSON(obj: Jsonify<Cipher>) {
+  static fromJSON(obj: Jsonify<CipherV1>) {
     if (obj == null) {
       return null;
     }
 
-    const domain = new Cipher();
+    const domain = new CipherV1();
     const name = EncString.fromJSON(obj.name);
     const notes = EncString.fromJSON(obj.notes);
     const revisionDate = obj.revisionDate == null ? null : new Date(obj.revisionDate);
