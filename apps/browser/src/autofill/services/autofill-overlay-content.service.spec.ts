@@ -971,6 +971,14 @@ describe("AutofillOverlayContentService", () => {
       expect(document.body.contains(overlayButtonElement)).toEqual(false);
     });
 
+    it("sends a message to the background indicating that the overlay button has been closed", () => {
+      autofillOverlayContentService.removeAutofillOverlay();
+
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("autofillOverlayElementClosed", {
+        overlayElement: AutofillOverlayElement.Button,
+      });
+    });
+
     it("removes the overlay reposition event listeners", () => {
       jest.spyOn(globalThis.document.body, "removeEventListener");
       jest.spyOn(globalThis, "removeEventListener");
@@ -1011,6 +1019,14 @@ describe("AutofillOverlayContentService", () => {
 
       expect(autofillOverlayContentService["isOverlayListVisible"]).toEqual(false);
       expect(document.body.contains(overlayListElement)).toEqual(false);
+    });
+
+    it("sends a message to the extension background indicating that the overlay list has closed", () => {
+      autofillOverlayContentService.removeAutofillOverlay();
+
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("autofillOverlayElementClosed", {
+        overlayElement: AutofillOverlayElement.List,
+      });
     });
   });
 
