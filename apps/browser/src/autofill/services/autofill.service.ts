@@ -2095,6 +2095,13 @@ export default class AutofillService implements AutofillServiceInterface {
     }
   }
 
+  /**
+   * Updates the autofill inline menu visibility setting in all active tabs
+   * when the InlineMenuVisibilitySetting observable is updated.
+   *
+   * @param previousSetting - The previous setting value
+   * @param currentSetting - The current setting value
+   */
   private async handleInlineMenuVisibilityChange(
     previousSetting: InlineMenuVisibilitySetting,
     currentSetting: InlineMenuVisibilitySetting,

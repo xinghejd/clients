@@ -1319,6 +1319,10 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
       }
 
       const cachedAutofillFieldElement = this.autofillFieldElements.get(formFieldElement);
+      if (!cachedAutofillFieldElement) {
+        continue;
+      }
+
       cachedAutofillFieldElement.viewable = true;
 
       void this.autofillOverlayContentService?.setupAutofillInlineMenuListenerOnField(
