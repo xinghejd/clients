@@ -7,7 +7,9 @@ import { SymmetricCryptoKey } from "../../models/domain/symmetric-crypto-key";
 /**
  * @deprecated For the feature flag from PM-4154, remove once feature is rolled out
  */
-export class FallbackBulkEncryptServiceImplementation implements BulkEncryptService {
+export class FallbackBulkEncryptService implements BulkEncryptService {
+  private featureFlagEncryptService: BulkEncryptService;
+
   constructor(protected encryptService: EncryptService) {}
 
   /**
@@ -18,6 +20,14 @@ export class FallbackBulkEncryptServiceImplementation implements BulkEncryptServ
     items: Decryptable<T>[],
     key: SymmetricCryptoKey,
   ): Promise<T[]> {
-    return await this.encryptService.decryptItems(items, key);
+    if (this.featureFlagEncryptService != null) {
+      return await this.featureFlagEncryptService.decryptItems(items, key);
+    } else {
+      return await this.encryptService.decryptItems(items, key);
+    }
+  }
+
+  async setFeatureFlagEncryptService(featureFlagEncryptService: BulkEncryptService) {
+    this.featureFlagEncryptService = featureFlagEncryptService;
   }
 }

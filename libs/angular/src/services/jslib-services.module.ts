@@ -153,7 +153,7 @@ import { ConsoleLogService } from "@bitwarden/common/platform/services/console-l
 import { CryptoService } from "@bitwarden/common/platform/services/crypto.service";
 import { BulkEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/bulk-encrypt.service.implementation";
 import { EncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/encrypt.service.implementation";
-import { FallbackBulkEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/fallback-bulk-encrypt.service.implementation";
+import { FallbackBulkEncryptService } from "@bitwarden/common/platform/services/cryptography/fallback-bulk-encrypt.service";
 import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/multithread-encrypt.service.implementation";
 import { DefaultBroadcasterService } from "@bitwarden/common/platform/services/default-broadcaster.service";
 import { DefaultEnvironmentService } from "@bitwarden/common/platform/services/default-environment.service";
@@ -1212,7 +1212,7 @@ function bulkEncryptServiceFactory(
 ): BulkEncryptService {
   return flagEnabled("multithreadDecryption")
     ? new BulkEncryptServiceImplementation(cryptoFunctionservice, logService)
-    : new FallbackBulkEncryptServiceImplementation(encryptService);
+    : new FallbackBulkEncryptService(encryptService);
 }
 
 @NgModule({
