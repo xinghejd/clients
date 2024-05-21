@@ -1172,7 +1172,10 @@ export default class MainBackground {
     this.webRequestBackground?.startListening();
     this.syncServiceListener?.startListening();
 
-    if (await this.configService.getFeatureFlag(FeatureFlag.PM4154_BulkEncryptionService)) {
+    if (
+      (await this.configService.getFeatureFlag(FeatureFlag.PM4154_BulkEncryptionService)) &&
+      BrowserApi.isManifestVersion(2)
+    ) {
       await this.bulkEncryptService.setFeatureFlagEncryptService(
         new BulkEncryptServiceImplementation(this.cryptoFunctionService, this.logService),
       );
