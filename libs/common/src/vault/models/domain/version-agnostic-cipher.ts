@@ -6,19 +6,34 @@ import { CipherData } from "../data/cipher.data";
 import { LocalData } from "../data/local.data";
 import { CipherView } from "../view/cipher.view";
 
-import { CipherV1 } from "./cipher";
+import { CipherV1 } from "./cipher-v1";
 
 export class Cipher implements Decryptable<CipherView> {
   readonly id = this.cipherData.id;
   readonly organizationId = this.cipherData.organizationId;
   readonly version = this.cipherData.version;
-  readonly key: EncString;
+
+  collectionIds: string[];
+
+  private _key: EncString;
+  get key() {
+    return this._key;
+  }
+
+  set key(value: EncString) {
+    this.cipherData.key = value.toJSON();
+    this._key = value;
+  }
 
   constructor(
     private cipherData: CipherData,
     private localData: LocalData,
   ) {
-    this.key = new EncString(this.cipherData.key);
+    this._key = new EncString(this.cipherData.key);
+
+    // Unencrypted data available across versions
+    this.collectionIds = cipherData.collectionIds;
+    this.localData = localData;
   }
 
   initializerKey: InitializerKey;
@@ -30,4 +45,6 @@ export class Cipher implements Decryptable<CipherView> {
       return cipher.decrypt(encKey);
     }
   }
+
+  async encrypt(encKey: SymmetricCryptoKey): Promise<
 }

@@ -19,6 +19,7 @@ import { Identity } from "./identity";
 import { Login } from "./login";
 import { Password } from "./password";
 import { SecureNote } from "./secure-note";
+import { Cipher } from "./version-agnostic-cipher";
 
 export class CipherV1 extends Domain implements Decryptable<CipherView> {
   readonly initializerKey = InitializerKey.Cipher;
@@ -254,6 +255,10 @@ export class CipherV1 extends Domain implements Decryptable<CipherView> {
       c.passwordHistory = this.passwordHistory.map((ph) => ph.toPasswordHistoryData());
     }
     return c;
+  }
+
+  toVersionAgnostic(): Cipher {
+    return new Cipher(this.toCipherData(), this.localData);
   }
 
   static fromJSON(obj: Jsonify<CipherV1>) {

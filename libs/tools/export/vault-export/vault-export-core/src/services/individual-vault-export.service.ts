@@ -1,3 +1,5 @@
+// NOT SUPPORTED
+
 import * as papa from "papaparse";
 
 import { CipherWithIdExport, FolderWithIdExport } from "@bitwarden/common/models/export";
@@ -8,7 +10,7 @@ import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { FolderService } from "@bitwarden/common/vault/abstractions/folder/folder.service.abstraction";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
+// import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { Folder } from "@bitwarden/common/vault/models/domain/folder";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
@@ -77,7 +79,7 @@ export class IndividualVaultExportService
 
   private async getEncryptedExport(): Promise<string> {
     let folders: Folder[] = [];
-    let ciphers: Cipher[] = [];
+    // const ciphers: Cipher[] = [];
     const promises = [];
 
     promises.push(
@@ -86,11 +88,12 @@ export class IndividualVaultExportService
       }),
     );
 
-    promises.push(
-      this.cipherService.getAll().then((c) => {
-        ciphers = c.filter((f) => f.deletedDate == null);
-      }),
-    );
+    // TODO: Not supported
+    // promises.push(
+    //   this.cipherService.getAll().then((c) => {
+    //     ciphers = c.filter((f) => f.deletedDate == null);
+    //   }),
+    // );
 
     await Promise.all(promises);
 
@@ -112,15 +115,15 @@ export class IndividualVaultExportService
       jsonDoc.folders.push(folder);
     });
 
-    ciphers.forEach((c) => {
-      if (c.organizationId != null) {
-        return;
-      }
-      const cipher = new CipherWithIdExport();
-      cipher.build(c);
-      cipher.collectionIds = null;
-      jsonDoc.items.push(cipher);
-    });
+    // ciphers.forEach((c) => {
+    //   if (c.organizationId != null) {
+    //     return;
+    //   }
+    //   const cipher = new CipherWithIdExport();
+    //   cipher.build(c);
+    //   cipher.collectionIds = null;
+    //   jsonDoc.items.push(cipher);
+    // });
 
     return JSON.stringify(jsonDoc, null, "  ");
   }

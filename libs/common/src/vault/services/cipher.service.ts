@@ -38,7 +38,7 @@ import { CipherData } from "../models/data/cipher.data";
 import { LocalData } from "../models/data/local.data";
 import { Attachment } from "../models/domain/attachment";
 import { Card } from "../models/domain/card";
-import { CipherV1 } from "../models/domain/cipher";
+import { CipherV1 } from "../models/domain/cipher-v1";
 import { Fido2Credential } from "../models/domain/fido2-credential";
 import { Field } from "../models/domain/field";
 import { Identity } from "../models/domain/identity";
@@ -169,7 +169,7 @@ export class CipherService implements CipherServiceAbstraction {
     keyForEncryption?: SymmetricCryptoKey,
     keyForCipherKeyDecryption?: SymmetricCryptoKey,
     originalCipher: Cipher = null,
-  ): Promise<CipherV1> {
+  ): Promise<Cipher> {
     if (model.id != null) {
       if (originalCipher == null) {
         originalCipher = await this.get(model.id);
@@ -180,19 +180,21 @@ export class CipherService implements CipherServiceAbstraction {
       this.adjustPasswordHistoryLength(model);
     }
 
-    const cipher = new CipherV1();
-    cipher.id = model.id;
-    cipher.folderId = model.folderId;
-    cipher.favorite = model.favorite;
-    cipher.organizationId = model.organizationId;
-    cipher.type = model.type;
-    cipher.collectionIds = model.collectionIds;
-    cipher.revisionDate = model.revisionDate;
-    cipher.reprompt = model.reprompt;
-    cipher.edit = model.edit;
+    const v1Cipher = new CipherV1();
+    v1Cipher.id = model.id;
+    v1Cipher.folderId = model.folderId;
+    v1Cipher.favorite = model.favorite;
+    v1Cipher.organizationId = model.organizationId;
+    v1Cipher.type = model.type;
+    v1Cipher.collectionIds = model.collectionIds;
+    v1Cipher.revisionDate = model.revisionDate;
+    v1Cipher.reprompt = model.reprompt;
+    v1Cipher.edit = model.edit;
+
+    const cipher = v1Cipher.toVersionAgnostic();
 
     if (await this.getCipherKeyEncryptionEnabled()) {
-      cipher.key = originalCipher?.key ?? null;
+      v1Cipher.key = originalCipher?.key ?? null;
       const userOrOrgKey = await this.getKeyForCipherKeyDecryption(cipher);
       // The keyForEncryption is only used for encrypting the cipher key, not the cipher itself, since cipher key encryption is enabled.
       // If the caller has provided a key for cipher key encryption, use it. Otherwise, use the user or org key.
@@ -500,7 +502,7 @@ export class CipherService implements CipherServiceAbstraction {
       return [];
     }
 
-    const ciphers = response.data.map((cr) => new CipherV1(new CipherData(cr)));
+    const ciphers = response.data.map((cr) => new Cipher(new CipherData(cr), {}));
     const key = await this.cryptoService.getOrgKey(organizationId);
     const decCiphers = await this.encryptService.decryptItems(ciphers, key);
 
@@ -1482,9 +1484,9 @@ export class CipherService implements CipherServiceAbstraction {
 
   private async encryptCipher(
     model: CipherView,
-    cipher: CipherV1,
+    cipher: Cipher,
     key: SymmetricCryptoKey,
-  ): Promise<CipherV1> {
+  ): Promise<Cipher> {
     await Promise.all([
       this.encryptObjProperty(
         model,
@@ -1511,10 +1513,10 @@ export class CipherService implements CipherServiceAbstraction {
 
   private async encryptCipherWithCipherKey(
     model: CipherView,
-    cipher: CipherV1,
+    cipher: Cipher,
     keyForCipherKeyEncryption: SymmetricCryptoKey,
     keyForCipherKeyDecryption: SymmetricCryptoKey,
-  ): Promise<CipherV1> {
+  ): Promise<Cipher> {
     // First, we get the key for cipher key encryption, in its decrypted form
     let decryptedCipherKey: SymmetricCryptoKey;
     if (cipher.key == null) {
