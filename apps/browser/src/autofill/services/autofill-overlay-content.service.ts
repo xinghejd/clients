@@ -54,6 +54,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     getSubFrameOffsets: ({ message }) => this.getSubFrameOffsets(message),
     getSubFrameOffsetsFromWindowMessage: ({ message }) =>
       this.getSubFrameOffsetsFromWindowMessage(message),
+    checkMostRecentlyFocusedFieldHasValue: () => this.mostRecentlyFocusedFieldHasValue(),
   };
 
   /**
@@ -857,6 +858,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       formFieldElement?.value &&
       ((await this.isInlineMenuCiphersPopulated()) || !this.isUserAuthed())
     );
+  }
+
+  private mostRecentlyFocusedFieldHasValue() {
+    return Boolean((this.mostRecentlyFocusedField as FillableFormFieldElement)?.value);
   }
 
   /**

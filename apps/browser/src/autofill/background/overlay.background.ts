@@ -343,15 +343,33 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       await this.buildSubFrameOffsets(sender.tab, frameId, sender.url);
     }
 
-    this.updateInlineMenuPositionTimeout = setTimeout(() => {
-      if (this.isFieldCurrentlyFocused) {
-        void this.updateInlineMenuPosition({ overlayElement: AutofillOverlayElement.List }, sender);
-        void this.updateInlineMenuPosition(
-          { overlayElement: AutofillOverlayElement.Button },
-          sender,
-        );
-      }
-    }, 650);
+    this.updateInlineMenuPositionTimeout = setTimeout(
+      () => this.updateInlineMenuPositionAfterSubFrameRebuild(sender),
+      650,
+    );
+  }
+
+  private async updateInlineMenuPositionAfterSubFrameRebuild(sender: chrome.runtime.MessageSender) {
+    if (!this.isFieldCurrentlyFocused) {
+      return;
+    }
+
+    void this.updateInlineMenuPosition({ overlayElement: AutofillOverlayElement.Button }, sender);
+
+    const mostRecentlyFocusedFieldHasValue = await BrowserApi.tabSendMessage(
+      sender.tab,
+      { command: "checkMostRecentlyFocusedFieldHasValue" },
+      { frameId: this.focusedFieldData.frameId },
+    );
+    if (
+      mostRecentlyFocusedFieldHasValue &&
+      (this.checkIsOverlayLoginCiphersPopulated(sender) ||
+        this.userAuthStatus !== AuthenticationStatus.Unlocked)
+    ) {
+      return;
+    }
+
+    void this.updateInlineMenuPosition({ overlayElement: AutofillOverlayElement.List }, sender);
   }
 
   /**

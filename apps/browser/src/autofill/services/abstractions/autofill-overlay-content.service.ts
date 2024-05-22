@@ -23,6 +23,7 @@ export type AutofillOverlayContentExtensionMessageHandlers = {
   updateAutofillInlineMenuVisibility: ({ message }: AutofillExtensionMessageParam) => void;
   getSubFrameOffsets: ({ message }: AutofillExtensionMessageParam) => Promise<SubFrameOffsetData>;
   getSubFrameOffsetsFromWindowMessage: ({ message }: AutofillExtensionMessageParam) => void;
+  checkMostRecentlyFocusedFieldHasValue: () => boolean;
 };
 
 export interface AutofillOverlayContentService {
