@@ -44,6 +44,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     openAutofillInlineMenu: ({ message }) => this.openAutofillInlineMenu(message),
     addNewVaultItemFromOverlay: () => this.addNewVaultItem(),
     blurMostRecentlyFocusedField: () => this.blurMostRecentlyFocusedField(),
+    unsetMostRecentlyFocusedField: () => this.unsetMostRecentlyFocusedField(),
     bgUnlockPopoutOpened: () => this.blurMostRecentlyFocusedField(true),
     bgVaultItemRepromptPopoutOpened: () => this.blurMostRecentlyFocusedField(true),
     redirectAutofillInlineMenuFocusOut: ({ message }) =>
@@ -160,6 +161,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     if (isRemovingInlineMenu) {
       void sendExtensionMessage("closeAutofillInlineMenu");
     }
+  }
+
+  unsetMostRecentlyFocusedField() {
+    this.mostRecentlyFocusedField = null;
   }
 
   /**
@@ -797,7 +802,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     await this.updateMostRecentlyFocusedField(this.mostRecentlyFocusedField);
     this.updateAutofillInlineMenuElementsPosition();
     setTimeout(async () => {
-      this.toggleAutofillInlineMenuHidden(false);
+      this.toggleAutofillInlineMenuHidden(false, true);
       if (
         await this.hideAutofillInlineMenuListOnFilledField(
           this.mostRecentlyFocusedField as FillableFormFieldElement,

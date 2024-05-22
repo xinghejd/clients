@@ -54,6 +54,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private pageDetailsForTab: PageDetailsForTab = {};
   private subFrameOffsetsForTab: SubFrameOffsetsForTab = {};
   private updateInlineMenuPositionTimeout: number | NodeJS.Timeout;
+  private inlineMenuFadeInTimeout: number | NodeJS.Timeout;
   private userAuthStatus: AuthenticationStatus = AuthenticationStatus.LoggedOut;
   private inlineMenuButtonPort: chrome.runtime.Port;
   private inlineMenuListPort: chrome.runtime.Port;
@@ -440,7 +441,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    if (sender.frameId === this.focusedFieldData?.frameId && this.isFieldCurrentlyFocused) {
+    if (this.isFieldCurrentlyFocused) {
       return;
     }
 
@@ -518,9 +519,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       subFrameOffsets = subFrameOffsetsForTab.get(this.focusedFieldData.frameId);
     }
 
+    this.setInlineMenuFadeInTimeout();
+
     if (overlayElement === AutofillOverlayElement.Button) {
       this.inlineMenuButtonPort?.postMessage({
-        command: "updateIframePosition",
+        command: "updateInlineMenuIframePosition",
         styles: this.getInlineMenuButtonPosition(subFrameOffsets),
       });
 
@@ -528,9 +531,21 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     this.inlineMenuListPort?.postMessage({
-      command: "updateIframePosition",
+      command: "updateInlineMenuIframePosition",
       styles: this.getInlineMenuListPosition(subFrameOffsets),
     });
+  }
+
+  private setInlineMenuFadeInTimeout() {
+    if (this.inlineMenuFadeInTimeout) {
+      globalThis.clearTimeout(this.inlineMenuFadeInTimeout);
+    }
+
+    const message = { command: "updateInlineMenuIframePosition", styles: { opacity: "1" } };
+    this.inlineMenuFadeInTimeout = globalThis.setTimeout(() => {
+      this.inlineMenuButtonPort?.postMessage(message);
+      this.inlineMenuListPort?.postMessage(message);
+    }, 75);
   }
 
   /**
@@ -600,6 +615,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     { focusedFieldData }: OverlayBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
+    if (this.focusedFieldData?.frameId && this.focusedFieldData.frameId !== sender.frameId) {
+      void BrowserApi.tabSendMessage(
+        sender.tab,
+        { command: "unsetMostRecentlyFocusedField" },
+        { frameId: this.focusedFieldData.frameId },
+      );
+    }
+
     this.focusedFieldData = { ...focusedFieldData, tabId: sender.tab.id, frameId: sender.frameId };
   }
 
@@ -922,7 +945,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
   private updateInlineMenuListHeight(message: OverlayBackgroundExtensionMessage) {
     this.inlineMenuListPort?.postMessage({
-      command: "updateIframePosition",
+      command: "updateInlineMenuIframePosition",
       styles: message.styles,
     });
   }

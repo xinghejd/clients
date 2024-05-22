@@ -104,9 +104,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     }
 
     this.buttonElement.remove();
-
     this.isButtonVisible = false;
-
     void this.sendExtensionMessage("autofillOverlayElementClosed", {
       overlayElement: AutofillOverlayElement.Button,
     });
@@ -121,9 +119,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     }
 
     this.listElement.remove();
-
     this.isListVisible = false;
-
     void this.sendExtensionMessage("autofillOverlayElementClosed", {
       overlayElement: AutofillOverlayElement.List,
     });

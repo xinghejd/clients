@@ -44,7 +44,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
   private readonly backgroundPortMessageHandlers: BackgroundPortMessageHandlers = {
     initAutofillInlineMenuButton: ({ message }) => this.initAutofillInlineMenu(message),
     initAutofillInlineMenuList: ({ message }) => this.initAutofillInlineMenu(message),
-    updateIframePosition: ({ message }) => this.updateIframePosition(message.styles),
+    updateInlineMenuIframePosition: ({ message }) => this.updateIframePosition(message.styles),
     updateInlineMenuHidden: ({ message }) => this.updateElementStyles(this.iframe, message.styles),
     updateAutofillInlineMenuColorScheme: () => this.updateAutofillInlineMenuColorScheme(),
   };
@@ -248,7 +248,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     }
 
     this.updateElementStyles(this.iframe, position);
-    setTimeout(() => this.updateElementStyles(this.iframe, { opacity: "1" }), 0);
+    // setTimeout(() => this.updateElementStyles(this.iframe, { opacity: "1" }), 0);
     this.announceAriaAlert();
   }
 
