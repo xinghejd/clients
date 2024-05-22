@@ -106,12 +106,16 @@ export class CryptoService implements CryptoServiceAbstraction {
     const activeUserKeyWithLegacySupport$ = this.activeUserKey$.pipe(
       combineLatestWith(this.stateProvider.activeUserId$),
       switchMap(async ([userKey, userId]) => {
+        const masterKey = await firstValueFrom(this.masterPasswordService.masterKey$(userId));
+        return [userKey, masterKey, userId];
+      }),
+      switchMap(async ([userKey, masterKey, userId]: [UserKey, MasterKey, UserId]) => {
         if (userKey != null) {
           return userKey;
         }
 
-        if (await this.isLegacyUser(null, userId)) {
-          return await this.getUserKeyWithLegacySupport(userId);
+        if (await this.isLegacyUser(masterKey, userId)) {
+          return masterKey;
         }
       }),
     );
