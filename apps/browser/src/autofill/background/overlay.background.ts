@@ -440,7 +440,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    if (this.isFieldCurrentlyFocused) {
+    if (sender.frameId === this.focusedFieldData?.frameId && this.isFieldCurrentlyFocused) {
       return;
     }
 
@@ -984,6 +984,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     this.storeOverlayPort(port);
+    port.onDisconnect.addListener(this.handlePortOnDisconnect);
     port.onMessage.addListener(this.handleOverlayElementPortMessage);
     port.postMessage({
       command: `initAutofillInlineMenu${isInlineMenuListPort ? "List" : "Button"}`,
