@@ -57,6 +57,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private userAuthStatus: AuthenticationStatus = AuthenticationStatus.LoggedOut;
   private inlineMenuButtonPort: chrome.runtime.Port;
   private inlineMenuListPort: chrome.runtime.Port;
+  private expiredPorts: chrome.runtime.Port[] = [];
   private portKeyForTab: Record<number, string> = {};
   private focusedFieldData: FocusedFieldData;
   private isFieldCurrentlyFocused: boolean = false;
@@ -64,7 +65,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private inlineMenuPageTranslations: Record<string, string>;
   private iconsServerUrl: string;
   private readonly extensionMessageHandlers: OverlayBackgroundExtensionMessageHandlers = {
-    autofillOverlayElementClosed: ({ message }) => this.overlayElementClosed(message),
+    autofillOverlayElementClosed: ({ message, sender }) =>
+      this.overlayElementClosed(message, sender),
     autofillOverlayAddNewVaultItem: ({ message, sender }) => this.addNewVaultItem(message, sender),
     checkIsOverlayLoginCiphersPopulated: ({ sender }) =>
       this.checkIsOverlayLoginCiphersPopulated(sender),
@@ -466,8 +468,18 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * the list and button ports and sets them to null.
    *
    * @param overlayElement - The overlay element that was closed, either the list or button
+   * @param sender - The sender of the port message
    */
-  private overlayElementClosed({ overlayElement }: OverlayBackgroundExtensionMessage) {
+  private overlayElementClosed(
+    { overlayElement }: OverlayBackgroundExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+  ) {
+    if (sender.tab.id !== this.focusedFieldData?.tabId) {
+      this.expiredPorts.forEach((port) => port.disconnect());
+      this.expiredPorts = [];
+      return;
+    }
+
     if (overlayElement === AutofillOverlayElement.Button) {
       this.inlineMenuButtonPort?.disconnect();
       this.inlineMenuButtonPort = null;
@@ -484,7 +496,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * is based on the focused field's position and dimensions.
    *
    * @param overlayElement - The overlay element to update, either the list or button
-   * @param sender - The sender of the extension message
+   * @param sender - The sender of the port message
    */
   private async updateInlineMenuPosition(
     { overlayElement }: { overlayElement?: string },
@@ -971,13 +983,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    if (isInlineMenuListPort) {
-      this.inlineMenuListPort = port;
-    } else {
-      this.inlineMenuButtonPort = port;
-    }
-
-    port.onDisconnect.addListener(this.handlePortOnDisconnect);
+    this.storeOverlayPort(port);
+    port.onMessage.addListener(this.handleOverlayElementPortMessage);
     port.postMessage({
       command: `initAutofillInlineMenu${isInlineMenuListPort ? "List" : "Button"}`,
       iframeUrl: chrome.runtime.getURL(`overlay/${isInlineMenuListPort ? "list" : "button"}.html`),
@@ -1005,6 +1012,37 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       port.sender,
     );
   };
+
+  /**
+   * Stores the connected overlay port and sets up any existing ports to be disconnected.
+   *
+   * @param port - The port to store
+|   */
+  private storeOverlayPort(port: chrome.runtime.Port) {
+    if (port.name === AutofillOverlayPort.List) {
+      this.storeExpiredOverlayPort(this.inlineMenuListPort);
+      this.inlineMenuListPort = port;
+      return;
+    }
+
+    if (port.name === AutofillOverlayPort.Button) {
+      this.storeExpiredOverlayPort(this.inlineMenuButtonPort);
+      this.inlineMenuButtonPort = port;
+    }
+  }
+
+  /**
+   * When registering a new connection, we want to ensure that the port is disconnected.
+   * This method places an existing port in the expiredPorts array to be disconnected
+   * at a later time.
+   *
+   * @param port - The port to store in the expiredPorts array
+   */
+  private storeExpiredOverlayPort(port: chrome.runtime.Port | null) {
+    if (port) {
+      this.expiredPorts.push(port);
+    }
+  }
 
   /**
    * Handles messages sent to the overlay list or button ports.

@@ -92,7 +92,7 @@ export type BackgroundOnMessageHandlerParams = BackgroundMessageParam & Backgrou
 
 export type OverlayBackgroundExtensionMessageHandlers = {
   [key: string]: CallableFunction;
-  autofillOverlayElementClosed: ({ message }: BackgroundMessageParam) => void;
+  autofillOverlayElementClosed: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   autofillOverlayAddNewVaultItem: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   checkIsOverlayLoginCiphersPopulated: ({ sender }: BackgroundSenderParam) => void;
   updateFocusedFieldData: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
