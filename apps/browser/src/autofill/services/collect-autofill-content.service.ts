@@ -1312,14 +1312,14 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
         continue;
       }
 
-      const isViewable =
-        await this.domElementVisibilityService.isFormFieldViewable(formFieldElement);
-      if (!isViewable) {
+      const cachedAutofillFieldElement = this.autofillFieldElements.get(formFieldElement);
+      if (!cachedAutofillFieldElement) {
         continue;
       }
 
-      const cachedAutofillFieldElement = this.autofillFieldElements.get(formFieldElement);
-      if (!cachedAutofillFieldElement) {
+      const isViewable =
+        await this.domElementVisibilityService.isFormFieldViewable(formFieldElement);
+      if (!isViewable) {
         continue;
       }
 
