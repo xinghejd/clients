@@ -1314,6 +1314,7 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
 
       const cachedAutofillFieldElement = this.autofillFieldElements.get(formFieldElement);
       if (!cachedAutofillFieldElement) {
+        this.intersectionObserver.unobserve(entry.target);
         continue;
       }
 
@@ -1324,7 +1325,6 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
       }
 
       cachedAutofillFieldElement.viewable = true;
-
       void this.autofillOverlayContentService?.setupAutofillInlineMenuListenerOnField(
         formFieldElement,
         cachedAutofillFieldElement,
