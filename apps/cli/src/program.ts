@@ -9,7 +9,6 @@ import { LoginCommand } from "./auth/commands/login.command";
 import { LogoutCommand } from "./auth/commands/logout.command";
 import { UnlockCommand } from "./auth/commands/unlock.command";
 import { CompletionCommand } from "./commands/completion.command";
-import { ConfigCommand } from "./commands/config.command";
 import { EncodeCommand } from "./commands/encode.command";
 import { ServeCommand } from "./commands/serve.command";
 import { StatusCommand } from "./commands/status.command";
@@ -19,6 +18,7 @@ import { ListResponse } from "./models/response/list.response";
 import { MessageResponse } from "./models/response/message.response";
 import { StringResponse } from "./models/response/string.response";
 import { TemplateResponse } from "./models/response/template.response";
+import { ConfigCommand } from "./platform/commands/config.command";
 import { ServiceContainer } from "./service-container";
 import { GenerateCommand } from "./tools/generate.command";
 import { CliUtils } from "./utils";
@@ -406,7 +406,10 @@ export class Program {
         writeLn("", true);
       })
       .action(async (setting, value, options) => {
-        const command = new ConfigCommand(this.serviceContainer.environmentService);
+        const command = new ConfigCommand(
+          this.serviceContainer.environmentService,
+          this.serviceContainer.accountService,
+        );
         const response = await command.run(setting, value, options);
         this.processResponse(response);
       });
