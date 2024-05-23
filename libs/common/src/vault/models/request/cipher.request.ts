@@ -15,6 +15,7 @@ import { AttachmentRequest } from "./attachment.request";
 import { PasswordHistoryRequest } from "./password-history.request";
 
 export class CipherRequest {
+  version: 2;
   type: CipherType;
   folderId: string;
   organizationId: string;

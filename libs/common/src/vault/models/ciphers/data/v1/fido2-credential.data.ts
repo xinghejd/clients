@@ -1,6 +1,6 @@
-import { Fido2CredentialApiLatest } from "../ciphers/api/latest";
+import { Fido2CredentialApiV1 } from "../../api/v1/fido2-credential.api";
 
-export class Fido2CredentialData {
+export class Fido2CredentialDataV1 {
   credentialId: string;
   keyType: "public-key";
   keyAlgorithm: "ECDSA";
@@ -15,8 +15,7 @@ export class Fido2CredentialData {
   discoverable: string;
   creationDate: string;
 
-  // TODO: Implement version support
-  constructor(data?: Fido2CredentialApiLatest) {
+  constructor(data?: Fido2CredentialApiV1) {
     if (data == null) {
       return;
     }

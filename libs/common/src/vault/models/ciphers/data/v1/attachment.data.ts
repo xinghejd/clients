@@ -1,5 +1,6 @@
-import { AttachmentResponse } from "../response/attachment.response";
+import { AttachmentResponse } from "../../../response/attachment.response";
 
+// TODO: This should probably also be versioned
 export class AttachmentData {
   id: string;
   url: string;

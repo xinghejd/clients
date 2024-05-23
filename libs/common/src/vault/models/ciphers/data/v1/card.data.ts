@@ -1,6 +1,6 @@
-import { CardApiLatest } from "../ciphers/api/latest";
+import { CardApiV1 } from "../../api/v1/card.api";
 
-export class CardData {
+export class CardDataV1 {
   cardholderName: string;
   brand: string;
   number: string;
@@ -8,8 +8,7 @@ export class CardData {
   expYear: string;
   code: string;
 
-  // TODO: Implement version support
-  constructor(data?: CardApiLatest) {
+  constructor(data?: CardApiV1) {
     if (data == null) {
       return;
     }

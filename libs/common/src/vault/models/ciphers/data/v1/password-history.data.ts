@@ -1,6 +1,7 @@
-import { PasswordHistoryResponse } from "../response/password-history.response";
+import { PasswordHistoryResponse } from "../../../response/password-history.response";
 
-export class PasswordHistoryData {
+// TODO: The response should also be versioned
+export class PasswordHistoryDataV1 {
   password: string;
   lastUsedDate: string;
 

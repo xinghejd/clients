@@ -1,14 +1,13 @@
-import { FieldType, LinkedIdType } from "../../enums";
-import { FieldApiLatest } from "../ciphers/api/latest";
+import { FieldType, LinkedIdType } from "../../../../enums";
+import { FieldApiV2 } from "../../api/v2/field.api";
 
-export class FieldData {
+export class FieldDataV2 {
   type: FieldType;
   name: string;
   value: string;
   linkedId: LinkedIdType;
 
-  // TODO: Implement version support
-  constructor(response?: FieldApiLatest) {
+  constructor(response?: FieldApiV2) {
     if (response == null) {
       return;
     }
