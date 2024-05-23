@@ -3,19 +3,18 @@ import { MockProxy, mock } from "jest-mock-extended";
 import { mockEnc, mockFromJson } from "../../../../spec";
 import { UriMatchStrategy, UriMatchStrategySetting } from "../../../models/domain/domain-service";
 import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
-import { LoginData } from "../../models/data/login.data";
 import { Login } from "../../models/domain/login";
 import { LoginUri } from "../../models/domain/login-uri";
 import { LoginUriView } from "../../models/view/login-uri.view";
 import { Fido2CredentialApiLatest } from "../ciphers/api/latest";
-import { Fido2CredentialData } from "../data/fido2-credential.data";
+import { Fido2CredentialDataLatest, LoginDataLatest } from "../ciphers/data/latest";
 import { Fido2CredentialView } from "../view/fido2-credential.view";
 
 import { Fido2Credential } from "./fido2-credential";
 
 describe("Login DTO", () => {
   it("Convert from empty LoginData", () => {
-    const data = new LoginData();
+    const data = new LoginDataLatest();
     const login = new Login(data);
 
     expect(login).toEqual({
@@ -28,8 +27,8 @@ describe("Login DTO", () => {
   });
 
   it("Convert from full LoginData", () => {
-    const fido2CredentialData = initializeFido2Credential(new Fido2CredentialData());
-    const data: LoginData = {
+    const fido2CredentialData = initializeFido2Credential(new Fido2CredentialDataLatest());
+    const data: LoginDataLatest = {
       uris: [{ uri: "uri", uriChecksum: "checksum", match: UriMatchStrategy.Domain }],
       username: "username",
       password: "password",
@@ -122,14 +121,14 @@ describe("Login DTO", () => {
   });
 
   it("Converts from LoginData and back", () => {
-    const data: LoginData = {
+    const data: LoginDataLatest = {
       uris: [{ uri: "uri", uriChecksum: "checksum", match: UriMatchStrategy.Domain }],
       username: "username",
       password: "password",
       passwordRevisionDate: "2022-01-31T12:00:00.000Z",
       totp: "123",
       autofillOnPageLoad: false,
-      fido2Credentials: [initializeFido2Credential(new Fido2CredentialData())],
+      fido2Credentials: [initializeFido2Credential(new Fido2CredentialDataLatest())],
     };
     const login = new Login(data);
 
@@ -203,7 +202,10 @@ describe("Login DTO", () => {
   });
 });
 
-type Fido2CredentialLike = Fido2CredentialData | Fido2CredentialView | Fido2CredentialApiLatest;
+type Fido2CredentialLike =
+  | Fido2CredentialDataLatest
+  | Fido2CredentialView
+  | Fido2CredentialApiLatest;
 function initializeFido2Credential<T extends Fido2CredentialLike>(key: T): T {
   key.credentialId = "credentialId";
   key.keyType = "public-key";

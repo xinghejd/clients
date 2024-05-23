@@ -5,7 +5,7 @@ import { Utils } from "../../../platform/misc/utils";
 import Domain from "../../../platform/models/domain/domain-base";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { LoginUriData } from "../data/login-uri.data";
+import { LoginUriDataLatest } from "../ciphers/data/latest";
 import { LoginUriView } from "../view/login-uri.view";
 
 export class LoginUri extends Domain {
@@ -13,7 +13,7 @@ export class LoginUri extends Domain {
   uriChecksum: EncString | undefined;
   match: UriMatchStrategySetting;
 
-  constructor(obj?: LoginUriData) {
+  constructor(obj?: LoginUriDataLatest) {
     super();
     if (obj == null) {
       return;
@@ -54,8 +54,8 @@ export class LoginUri extends Domain {
     return remoteChecksum === localChecksum;
   }
 
-  toLoginUriData(): LoginUriData {
-    const u = new LoginUriData();
+  toLoginUriData(): LoginUriDataLatest {
+    const u = new LoginUriDataLatest();
     this.buildDataModel(
       this,
       u,

@@ -1,10 +1,10 @@
 import { SecureNoteType } from "../../enums";
-import { SecureNoteData } from "../data/secure-note.data";
+import { SecureNoteDataLatest } from "../ciphers/data/latest";
 
 import { SecureNote } from "./secure-note";
 
 describe("SecureNote", () => {
-  let data: SecureNoteData;
+  let data: SecureNoteDataLatest;
 
   beforeEach(() => {
     data = {
@@ -13,7 +13,7 @@ describe("SecureNote", () => {
   });
 
   it("Convert from empty", () => {
-    const data = new SecureNoteData();
+    const data = new SecureNoteDataLatest();
     const secureNote = new SecureNote(data);
 
     expect(secureNote).toEqual({

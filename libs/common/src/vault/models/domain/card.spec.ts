@@ -1,10 +1,10 @@
 import { mockEnc, mockFromJson } from "../../../../spec";
 import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
-import { CardData } from "../../../vault/models/data/card.data";
 import { Card } from "../../models/domain/card";
+import { CardDataLatest } from "../ciphers/data/latest";
 
 describe("Card", () => {
-  let data: CardData;
+  let data: CardDataLatest;
 
   beforeEach(() => {
     data = {
@@ -18,7 +18,7 @@ describe("Card", () => {
   });
 
   it("Convert from empty", () => {
-    const data = new CardData();
+    const data = new CardDataLatest();
     const card = new Card(data);
 
     expect(card).toEqual({

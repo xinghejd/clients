@@ -3,7 +3,7 @@ import { Jsonify } from "type-fest";
 import Domain from "../../../platform/models/domain/domain-base";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { Fido2CredentialData } from "../data/fido2-credential.data";
+import { Fido2CredentialDataLatest } from "../ciphers/data/latest";
 import { Fido2CredentialView } from "../view/fido2-credential.view";
 
 export class Fido2Credential extends Domain {
@@ -21,7 +21,7 @@ export class Fido2Credential extends Domain {
   discoverable: EncString;
   creationDate: Date;
 
-  constructor(obj?: Fido2CredentialData) {
+  constructor(obj?: Fido2CredentialDataLatest) {
     super();
     if (obj == null) {
       return;
@@ -94,8 +94,8 @@ export class Fido2Credential extends Domain {
     return view;
   }
 
-  toFido2CredentialData(): Fido2CredentialData {
-    const i = new Fido2CredentialData();
+  toFido2CredentialData(): Fido2CredentialDataLatest {
+    const i = new Fido2CredentialDataLatest();
     i.creationDate = this.creationDate.toISOString();
     this.buildDataModel(this, i, {
       credentialId: null,

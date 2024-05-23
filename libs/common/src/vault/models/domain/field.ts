@@ -4,7 +4,7 @@ import Domain from "../../../platform/models/domain/domain-base";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { FieldType, LinkedIdType } from "../../enums";
-import { FieldData } from "../data/field.data";
+import { FieldDataLatest } from "../ciphers/data/latest";
 import { FieldView } from "../view/field.view";
 
 export class Field extends Domain {
@@ -13,7 +13,7 @@ export class Field extends Domain {
   type: FieldType;
   linkedId: LinkedIdType;
 
-  constructor(obj?: FieldData) {
+  constructor(obj?: FieldDataLatest) {
     super();
     if (obj == null) {
       return;
@@ -44,8 +44,8 @@ export class Field extends Domain {
     );
   }
 
-  toFieldData(): FieldData {
-    const f = new FieldData();
+  toFieldData(): FieldDataLatest {
+    const f = new FieldDataLatest();
     this.buildDataModel(
       this,
       f,

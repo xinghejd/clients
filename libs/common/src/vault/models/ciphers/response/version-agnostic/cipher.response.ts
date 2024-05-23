@@ -35,7 +35,13 @@ export class CipherResponse {
     return null;
   }
 
-  // TODO: This is a temporary solution for CipherService.restoreWithServer.
+  set deletedDate(value: string) {
+    if (this.value instanceof CipherResponseV1 || this.value instanceof CipherResponseV2) {
+      this.value.deletedDate = value;
+    }
+  }
+
+  // TODO: This is a temporary solution for CipherService.
   // Ideally we shouldn't be writing logic that directly uses a response.
   get revisionDate() {
     if (this.value instanceof CipherResponseV1 || this.value instanceof CipherResponseV2) {
@@ -43,6 +49,12 @@ export class CipherResponse {
     }
 
     return null;
+  }
+
+  set revisionDate(value: string) {
+    if (this.value instanceof CipherResponseV1 || this.value instanceof CipherResponseV2) {
+      this.value.revisionDate = value;
+    }
   }
 
   private constructResponse(value: unknown) {

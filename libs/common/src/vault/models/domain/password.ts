@@ -3,14 +3,14 @@ import { Jsonify } from "type-fest";
 import Domain from "../../../platform/models/domain/domain-base";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { PasswordHistoryData } from "../data/password-history.data";
+import { PasswordHistoryDataLatest } from "../ciphers/data/latest";
 import { PasswordHistoryView } from "../view/password-history.view";
 
 export class Password extends Domain {
   password: EncString;
   lastUsedDate: Date;
 
-  constructor(obj?: PasswordHistoryData) {
+  constructor(obj?: PasswordHistoryDataLatest) {
     super();
     if (obj == null) {
       return;
@@ -33,8 +33,8 @@ export class Password extends Domain {
     );
   }
 
-  toPasswordHistoryData(): PasswordHistoryData {
-    const ph = new PasswordHistoryData();
+  toPasswordHistoryData(): PasswordHistoryDataLatest {
+    const ph = new PasswordHistoryDataLatest();
     ph.lastUsedDate = this.lastUsedDate.toISOString();
     this.buildDataModel(this, ph, {
       password: null,

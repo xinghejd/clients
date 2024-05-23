@@ -1,7 +1,7 @@
 import { Jsonify } from "type-fest";
 
 import { CipherRepromptType, CipherType } from "../../../../enums";
-import { CipherResponseV2 } from "../../response/V2/cipher.response";
+import { CipherResponseV2 } from "../../response/v2/cipher.response";
 
 import { AttachmentData } from "./attachment.data";
 import { CardDataV2 } from "./card.data";

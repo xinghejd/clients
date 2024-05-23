@@ -3,7 +3,7 @@ import { Jsonify } from "type-fest";
 import Domain from "../../../platform/models/domain/domain-base";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { IdentityData } from "../data/identity.data";
+import { IdentityDataLatest } from "../ciphers/data/latest";
 import { IdentityView } from "../view/identity.view";
 
 export class Identity extends Domain {
@@ -26,7 +26,7 @@ export class Identity extends Domain {
   passportNumber: EncString;
   licenseNumber: EncString;
 
-  constructor(obj?: IdentityData) {
+  constructor(obj?: IdentityDataLatest) {
     super();
     if (obj == null) {
       return;
@@ -87,8 +87,8 @@ export class Identity extends Domain {
     );
   }
 
-  toIdentityData(): IdentityData {
-    const i = new IdentityData();
+  toIdentityData(): IdentityDataLatest {
+    const i = new IdentityDataLatest();
     this.buildDataModel(this, i, {
       title: null,
       firstName: null,

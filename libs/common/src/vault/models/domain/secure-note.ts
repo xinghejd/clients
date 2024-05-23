@@ -3,13 +3,13 @@ import { Jsonify } from "type-fest";
 import Domain from "../../../platform/models/domain/domain-base";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { SecureNoteType } from "../../enums";
-import { SecureNoteData } from "../data/secure-note.data";
+import { SecureNoteDataLatest } from "../ciphers/data/latest";
 import { SecureNoteView } from "../view/secure-note.view";
 
 export class SecureNote extends Domain {
   type: SecureNoteType;
 
-  constructor(obj?: SecureNoteData) {
+  constructor(obj?: SecureNoteDataLatest) {
     super();
     if (obj == null) {
       return;
@@ -22,8 +22,8 @@ export class SecureNote extends Domain {
     return Promise.resolve(new SecureNoteView(this));
   }
 
-  toSecureNoteData(): SecureNoteData {
-    const n = new SecureNoteData();
+  toSecureNoteData(): SecureNoteDataLatest {
+    const n = new SecureNoteDataLatest();
     n.type = this.type;
     return n;
   }

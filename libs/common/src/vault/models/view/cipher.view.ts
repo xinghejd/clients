@@ -5,7 +5,7 @@ import { DeepJsonify } from "../../../types/deep-jsonify";
 import { LinkedIdType } from "../../enums";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
-import { LocalData } from "../data/local.data";
+import { LocalDataLatest } from "../ciphers/data/latest";
 import { Cipher } from "../domain/cipher";
 
 import { AttachmentView } from "./attachment.view";
@@ -29,7 +29,7 @@ export class CipherView implements View, InitializerMetadata {
   organizationUseTotp = false;
   edit = false;
   viewPassword = true;
-  localData: LocalData;
+  localData: LocalDataLatest;
   login = new LoginView();
   identity = new IdentityView();
   card = new CardView();

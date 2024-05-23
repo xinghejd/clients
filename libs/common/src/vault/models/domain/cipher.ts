@@ -8,8 +8,8 @@ import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-cr
 import { InitializerKey } from "../../../platform/services/cryptography/initializer-key";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
-import { CipherData } from "../data/cipher.data";
-import { LocalData } from "../data/local.data";
+import { CipherDataLatest, LocalDataLatest } from "../ciphers/data/latest";
+import { CipherData } from "../ciphers/data/version-agnostic/cipher.data";
 import { CipherView } from "../view/cipher.view";
 
 import { Attachment } from "./attachment";
@@ -34,7 +34,9 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   edit: boolean;
   viewPassword: boolean;
   revisionDate: Date;
-  localData: LocalData;
+  // TODO: Should the domain really contain Data classes?
+  // It seems like a shortcut here just because it's not a real class
+  localData: LocalDataLatest;
   login: Login;
   identity: Identity;
   card: Card;
@@ -48,7 +50,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   reprompt: CipherRepromptType;
   key: EncString;
 
-  constructor(obj?: CipherData, localData: LocalData = null) {
+  constructor(obj?: CipherDataLatest, localData: LocalDataLatest = null) {
     super();
     if (obj == null) {
       return;
@@ -206,7 +208,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   }
 
   toCipherData(): CipherData {
-    const c = new CipherData();
+    const c = new CipherDataLatest();
     c.id = this.id;
     c.organizationId = this.organizationId;
     c.folderId = this.folderId;
@@ -253,7 +255,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     if (this.passwordHistory != null) {
       c.passwordHistory = this.passwordHistory.map((ph) => ph.toPasswordHistoryData());
     }
-    return c;
+    return new CipherData(c);
   }
 
   static fromJSON(obj: Jsonify<Cipher>) {

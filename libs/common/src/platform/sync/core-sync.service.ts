@@ -17,7 +17,7 @@ import { CollectionService } from "../../vault/abstractions/collection.service";
 import { FolderApiServiceAbstraction } from "../../vault/abstractions/folder/folder-api.service.abstraction";
 import { InternalFolderService } from "../../vault/abstractions/folder/folder.service.abstraction";
 import { SyncService } from "../../vault/abstractions/sync/sync.service.abstraction";
-import { CipherData } from "../../vault/models/data/cipher.data";
+import { CipherData } from "../../vault/models/ciphers/data/version-agnostic/cipher.data";
 import { FolderData } from "../../vault/models/data/folder.data";
 import { LogService } from "../abstractions/log.service";
 import { StateService } from "../abstractions/state.service";

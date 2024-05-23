@@ -1,10 +1,10 @@
 import { mockEnc, mockFromJson } from "../../../../spec";
 import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
-import { IdentityData } from "../../models/data/identity.data";
 import { Identity } from "../../models/domain/identity";
+import { IdentityDataLatest } from "../ciphers/data/latest";
 
 describe("Identity", () => {
-  let data: IdentityData;
+  let data: IdentityDataLatest;
 
   beforeEach(() => {
     data = {
@@ -30,7 +30,7 @@ describe("Identity", () => {
   });
 
   it("Convert from empty", () => {
-    const data = new IdentityData();
+    const data = new IdentityDataLatest();
     const identity = new Identity(data);
 
     expect(identity).toEqual({

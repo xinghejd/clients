@@ -34,9 +34,9 @@ import { CipherService as CipherServiceAbstraction } from "../abstractions/ciphe
 import { CipherFileUploadService } from "../abstractions/file-upload/cipher-file-upload.service";
 import { FieldType } from "../enums";
 import { CipherType } from "../enums/cipher-type";
+import { LocalDataLatest } from "../models/ciphers/data/latest";
+import { CipherData } from "../models/ciphers/data/version-agnostic/cipher.data";
 import { CipherResponse } from "../models/ciphers/response/version-agnostic/cipher.response";
-import { CipherData } from "../models/data/cipher.data";
-import { LocalData } from "../models/data/local.data";
 import { Attachment } from "../models/domain/attachment";
 import { Card } from "../models/domain/card";
 import { Cipher } from "../models/domain/cipher";
@@ -79,7 +79,7 @@ export class CipherService implements CipherServiceAbstraction {
   );
   private ciphersExpectingUpdate: DerivedState<boolean>;
 
-  localData$: Observable<Record<CipherId, LocalData>>;
+  localData$: Observable<Record<CipherId, LocalDataLatest>>;
   ciphers$: Observable<Record<CipherId, CipherData>>;
   cipherViews$: Observable<Record<CipherId, CipherView>>;
   viewFor$(id: CipherId) {
@@ -87,7 +87,7 @@ export class CipherService implements CipherServiceAbstraction {
   }
   addEditCipherInfo$: Observable<AddEditCipherInfo>;
 
-  private localDataState: ActiveUserState<Record<CipherId, LocalData>>;
+  private localDataState: ActiveUserState<Record<CipherId, LocalDataLatest>>;
   private encryptedCiphersState: ActiveUserState<Record<CipherId, CipherData>>;
   private decryptedCiphersState: ActiveUserState<Record<CipherId, CipherView>>;
   private addEditCipherInfoState: ActiveUserState<AddEditCipherInfo>;
@@ -333,16 +333,17 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async get(id: string): Promise<Cipher> {
-    const ciphers = await firstValueFrom(this.ciphers$);
-    // eslint-disable-next-line
-    if (ciphers == null || !ciphers.hasOwnProperty(id)) {
-      return null;
-    }
+    throw new Error("Migration not implemented");
+    // const ciphers = await firstValueFrom(this.ciphers$);
+    // // eslint-disable-next-line
+    // if (ciphers == null || !ciphers.hasOwnProperty(id)) {
+    //   return null;
+    // }
 
-    const localData = await firstValueFrom(this.localData$);
-    const cipherId = id as CipherId;
+    // const localData = await firstValueFrom(this.localData$);
+    // const cipherId = id as CipherId;
 
-    return new Cipher(ciphers[cipherId], localData ? localData[cipherId] : null);
+    // return new Cipher(ciphers[cipherId], localData ? localData[cipherId] : null);
   }
 
   async getAll(): Promise<Cipher[]> {

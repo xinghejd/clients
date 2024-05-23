@@ -12,7 +12,6 @@ import { CipherService } from "../../abstractions/cipher.service";
 import { FieldType, SecureNoteType } from "../../enums";
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
-import { CipherData } from "../../models/data/cipher.data";
 import { Attachment } from "../../models/domain/attachment";
 import { Card } from "../../models/domain/card";
 import { Cipher } from "../../models/domain/cipher";
@@ -24,10 +23,11 @@ import { SecureNote } from "../../models/domain/secure-note";
 import { CardView } from "../../models/view/card.view";
 import { IdentityView } from "../../models/view/identity.view";
 import { LoginView } from "../../models/view/login.view";
+import { CipherDataLatest } from "../ciphers/data/latest";
 
 describe("Cipher DTO", () => {
   it("Convert from empty CipherData", () => {
-    const data = new CipherData();
+    const data = new CipherDataLatest();
     const cipher = new Cipher(data);
 
     expect(cipher).toEqual({
@@ -56,10 +56,11 @@ describe("Cipher DTO", () => {
   });
 
   describe("LoginCipher", () => {
-    let cipherData: CipherData;
+    let cipherData: CipherDataLatest;
 
     beforeEach(() => {
       cipherData = {
+        version: 2,
         id: "id",
         organizationId: "orgId",
         folderId: "folderId",
@@ -276,10 +277,11 @@ describe("Cipher DTO", () => {
   });
 
   describe("SecureNoteCipher", () => {
-    let cipherData: CipherData;
+    let cipherData: CipherDataLatest;
 
     beforeEach(() => {
       cipherData = {
+        version: 2,
         id: "id",
         organizationId: "orgId",
         folderId: "folderId",
@@ -396,10 +398,11 @@ describe("Cipher DTO", () => {
   });
 
   describe("CardCipher", () => {
-    let cipherData: CipherData;
+    let cipherData: CipherDataLatest;
 
     beforeEach(() => {
       cipherData = {
+        version: 2,
         id: "id",
         organizationId: "orgId",
         folderId: "folderId",
@@ -534,10 +537,11 @@ describe("Cipher DTO", () => {
   });
 
   describe("IdentityCipher", () => {
-    let cipherData: CipherData;
+    let cipherData: CipherDataLatest;
 
     beforeEach(() => {
       cipherData = {
+        version: 2,
         id: "id",
         organizationId: "orgId",
         folderId: "folderId",

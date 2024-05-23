@@ -7,11 +7,11 @@ import { EncryptedString, EncString } from "../../../platform/models/domain/enc-
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { ContainerService } from "../../../platform/services/container.service";
 import { OrgKey, UserKey } from "../../../types/key";
-import { AttachmentData } from "../../models/data/attachment.data";
 import { Attachment } from "../../models/domain/attachment";
+import { AttachmentDataLatest } from "../ciphers/data/latest";
 
 describe("Attachment", () => {
-  let data: AttachmentData;
+  let data: AttachmentDataLatest;
 
   beforeEach(() => {
     data = {
@@ -25,7 +25,7 @@ describe("Attachment", () => {
   });
 
   it("Convert from empty", () => {
-    const data = new AttachmentData();
+    const data = new AttachmentDataLatest();
     const attachment = new Attachment(data);
 
     expect(attachment).toEqual({

@@ -4,7 +4,7 @@ import { Utils } from "../../../platform/misc/utils";
 import Domain from "../../../platform/models/domain/domain-base";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { AttachmentData } from "../data/attachment.data";
+import { AttachmentDataLatest } from "../ciphers/data/latest";
 import { AttachmentView } from "../view/attachment.view";
 
 export class Attachment extends Domain {
@@ -15,7 +15,7 @@ export class Attachment extends Domain {
   key: EncString;
   fileName: EncString;
 
-  constructor(obj?: AttachmentData) {
+  constructor(obj?: AttachmentDataLatest) {
     super();
     if (obj == null) {
       return;
@@ -74,8 +74,8 @@ export class Attachment extends Domain {
       : await cryptoService.getUserKeyWithLegacySupport();
   }
 
-  toAttachmentData(): AttachmentData {
-    const a = new AttachmentData();
+  toAttachmentData(): AttachmentDataLatest {
+    const a = new AttachmentDataLatest();
     a.size = this.size;
     this.buildDataModel(
       this,

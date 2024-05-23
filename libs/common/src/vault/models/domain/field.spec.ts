@@ -1,11 +1,11 @@
 import { mockEnc, mockFromJson } from "../../../../spec";
 import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
 import { FieldType } from "../../enums";
-import { FieldData } from "../../models/data/field.data";
 import { Field } from "../../models/domain/field";
+import { FieldDataLatest } from "../ciphers/data/latest";
 
 describe("Field", () => {
-  let data: FieldData;
+  let data: FieldDataLatest;
 
   beforeEach(() => {
     data = {
@@ -17,7 +17,7 @@ describe("Field", () => {
   });
 
   it("Convert from empty", () => {
-    const data = new FieldData();
+    const data = new FieldDataLatest();
     const field = new Field(data);
 
     expect(field).toEqual({

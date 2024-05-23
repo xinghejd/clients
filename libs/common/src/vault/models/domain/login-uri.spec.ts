@@ -5,12 +5,12 @@ import { mockEnc, mockFromJson } from "../../../../spec";
 import { UriMatchStrategy } from "../../../models/domain/domain-service";
 import { EncryptService } from "../../../platform/abstractions/encrypt.service";
 import { EncString } from "../../../platform/models/domain/enc-string";
-import { LoginUriData } from "../data/login-uri.data";
+import { LoginUriDataLatest } from "../ciphers/data/latest";
 
 import { LoginUri } from "./login-uri";
 
 describe("LoginUri", () => {
-  let data: LoginUriData;
+  let data: LoginUriDataLatest;
 
   beforeEach(() => {
     data = {
@@ -21,7 +21,7 @@ describe("LoginUri", () => {
   });
 
   it("Convert from empty", () => {
-    const data = new LoginUriData();
+    const data = new LoginUriDataLatest();
     const loginUri = new LoginUri(data);
 
     expect(loginUri).toEqual({

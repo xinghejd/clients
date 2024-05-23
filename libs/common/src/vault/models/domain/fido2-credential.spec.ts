@@ -1,7 +1,7 @@
 import { mockEnc } from "../../../../spec";
 import { EncryptionType } from "../../../platform/enums";
 import { EncString } from "../../../platform/models/domain/enc-string";
-import { Fido2CredentialData } from "../data/fido2-credential.data";
+import { Fido2CredentialDataLatest } from "../ciphers/data/latest";
 
 import { Fido2Credential } from "./fido2-credential";
 
@@ -14,7 +14,7 @@ describe("Fido2Credential", () => {
 
   describe("constructor", () => {
     it("returns all fields null when given empty data parameter", () => {
-      const data = new Fido2CredentialData();
+      const data = new Fido2CredentialDataLatest();
       const credential = new Fido2Credential(data);
 
       expect(credential).toEqual({
@@ -35,7 +35,7 @@ describe("Fido2Credential", () => {
     });
 
     it("returns all fields as EncStrings except creationDate when given full Fido2CredentialData", () => {
-      const data: Fido2CredentialData = {
+      const data: Fido2CredentialDataLatest = {
         credentialId: "credentialId",
         keyType: "public-key",
         keyAlgorithm: "ECDSA",
@@ -117,7 +117,7 @@ describe("Fido2Credential", () => {
 
   describe("toFido2CredentialData", () => {
     it("encodes to data object when converted from Fido2CredentialData and back", () => {
-      const data: Fido2CredentialData = {
+      const data: Fido2CredentialDataLatest = {
         credentialId: "credentialId",
         keyType: "public-key",
         keyAlgorithm: "ECDSA",

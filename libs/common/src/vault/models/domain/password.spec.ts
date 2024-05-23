@@ -1,10 +1,10 @@
 import { mockEnc, mockFromJson } from "../../../../spec";
 import { EncryptedString, EncString } from "../../../platform/models/domain/enc-string";
-import { PasswordHistoryData } from "../../models/data/password-history.data";
 import { Password } from "../../models/domain/password";
+import { PasswordHistoryDataLatest } from "../ciphers/data/latest";
 
 describe("Password", () => {
-  let data: PasswordHistoryData;
+  let data: PasswordHistoryDataLatest;
 
   beforeEach(() => {
     data = {
@@ -14,7 +14,7 @@ describe("Password", () => {
   });
 
   it("Convert from empty", () => {
-    const data = new PasswordHistoryData();
+    const data = new PasswordHistoryDataLatest();
     const password = new Password(data);
 
     expect(password).toMatchObject({

@@ -12,7 +12,7 @@ import { OrganizationId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
-import { CipherData } from "@bitwarden/common/vault/models/data/cipher.data";
+// import { CipherData } from "@bitwarden/common/vault/models/ciphers/data/version-agnostic/cipher.data";
 import { CollectionData } from "@bitwarden/common/vault/models/data/collection.data";
 import { Cipher } from "@bitwarden/common/vault/models/domain/cipher";
 import { Collection } from "@bitwarden/common/vault/models/domain/collection";
@@ -108,15 +108,20 @@ export class OrganizationVaultExportService
             exportData.ciphers
               .filter((c) => c.deletedDate === null)
               .forEach(async (c) => {
-                const cipher = new Cipher(new CipherData(c));
-                exportPromises.push(
-                  this.cipherService
-                    .getKeyForCipherKeyDecryption(cipher)
-                    .then((key) => cipher.decrypt(key))
-                    .then((decCipher) => {
-                      decCiphers.push(decCipher);
-                    }),
-                );
+                // TODO: No key. Implement.
+                // We should consider fetching ciphers from the CipherService instead so we avoid
+                // duplicating code.
+                //
+                // const data = new CipherData(c).toLatestVersion(key);
+                // const cipher = new Cipher(new CipherData(c));
+                // exportPromises.push(
+                //   this.cipherService
+                //     .getKeyForCipherKeyDecryption(cipher)
+                //     .then((key) => cipher.decrypt(key))
+                //     .then((decCipher) => {
+                //       decCiphers.push(decCipher);
+                //     }),
+                // );
               });
           }
         }
@@ -154,8 +159,9 @@ export class OrganizationVaultExportService
           c.data
             .filter((item) => item.deletedDate === null)
             .forEach((item) => {
-              const cipher = new Cipher(new CipherData(item));
-              ciphers.push(cipher);
+              // TODO: No key. Fix. See TODO further up in this file
+              // const cipher = new Cipher(new CipherData(item));
+              // ciphers.push(cipher);
             });
         }
       }),

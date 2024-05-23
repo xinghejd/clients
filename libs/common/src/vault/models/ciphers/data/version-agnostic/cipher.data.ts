@@ -1,3 +1,5 @@
+import { Jsonify } from "type-fest";
+
 import { UserKey } from "../../../../../types/key";
 import { CipherResponseV1 } from "../../response/v1/cipher.response";
 import { CipherResponseV2 } from "../../response/v2/cipher.response";
@@ -12,12 +14,53 @@ export type CipherDataAnyVersion = CipherDataUnknownVersion | CipherDataV1 | Cip
 export class CipherData {
   value: CipherDataAnyVersion;
 
-  constructor(response?: CipherResponse) {
-    if (response == undefined) {
+  constructor(responseOrData?: CipherResponse | CipherDataAnyVersion) {
+    if (responseOrData == undefined) {
       return;
     }
 
-    this.value = this.constructData(response);
+    if (responseOrData instanceof CipherResponse) {
+      this.value = this.constructData(responseOrData);
+      return;
+    }
+
+    this.value = responseOrData;
+  }
+
+  // TODO: This is a temporary solution for CipherService.
+  // We probably shouldn't be directly modifying data objects.
+  get deletedDate() {
+    if (this.value instanceof CipherDataUnknownVersion) {
+      return null;
+    }
+
+    return this.value.deletedDate;
+  }
+
+  set deletedDate(value: string) {
+    if (this.value instanceof CipherDataUnknownVersion) {
+      return;
+    }
+
+    this.value.deletedDate = value;
+  }
+
+  // TODO: This is a temporary solution for CipherService.
+  // We probably shouldn't be directly modifying data objects.
+  get revisionDate() {
+    if (this.value instanceof CipherDataUnknownVersion) {
+      return null;
+    }
+
+    return this.value.revisionDate;
+  }
+
+  set revisionDate(value: string) {
+    if (this.value instanceof CipherDataUnknownVersion) {
+      return;
+    }
+
+    this.value.revisionDate = value;
   }
 
   /**
@@ -36,5 +79,26 @@ export class CipherData {
     } else {
       return new CipherDataUnknownVersion(response.value);
     }
+  }
+
+  static fromJSON(obj: Jsonify<CipherData>) {
+    let value: CipherDataAnyVersion;
+
+    switch (obj.value.version) {
+      case 1:
+        value = CipherDataV1.fromJSON(obj.value);
+        break;
+      case 2:
+        value = CipherDataV2.fromJSON(obj.value);
+        break;
+      default:
+        value = CipherDataUnknownVersion.fromJSON(obj.value);
+        break;
+    }
+
+    const toReturn = new CipherData();
+    toReturn.value = value;
+
+    return toReturn;
   }
 }

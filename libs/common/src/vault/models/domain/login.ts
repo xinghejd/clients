@@ -3,7 +3,7 @@ import { Jsonify } from "type-fest";
 import Domain from "../../../platform/models/domain/domain-base";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { LoginData } from "../data/login.data";
+import { LoginDataLatest } from "../ciphers/data/latest";
 import { LoginView } from "../view/login.view";
 
 import { Fido2Credential } from "./fido2-credential";
@@ -18,7 +18,7 @@ export class Login extends Domain {
   autofillOnPageLoad: boolean;
   fido2Credentials: Fido2Credential[];
 
-  constructor(obj?: LoginData) {
+  constructor(obj?: LoginDataLatest) {
     super();
     if (obj == null) {
       return;
@@ -90,8 +90,8 @@ export class Login extends Domain {
     return view;
   }
 
-  toLoginData(): LoginData {
-    const l = new LoginData();
+  toLoginData(): LoginDataLatest {
+    const l = new LoginDataLatest();
     l.passwordRevisionDate =
       this.passwordRevisionDate != null ? this.passwordRevisionDate.toISOString() : null;
     l.autofillOnPageLoad = this.autofillOnPageLoad;

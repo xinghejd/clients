@@ -3,7 +3,7 @@ import { Jsonify } from "type-fest";
 import Domain from "../../../platform/models/domain/domain-base";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
-import { CardData } from "../data/card.data";
+import { CardDataLatest } from "../ciphers/data/latest";
 import { CardView } from "../view/card.view";
 
 export class Card extends Domain {
@@ -14,7 +14,7 @@ export class Card extends Domain {
   expYear: EncString;
   code: EncString;
 
-  constructor(obj?: CardData) {
+  constructor(obj?: CardDataLatest) {
     super();
     if (obj == null) {
       return;
@@ -51,8 +51,8 @@ export class Card extends Domain {
     );
   }
 
-  toCardData(): CardData {
-    const c = new CardData();
+  toCardData(): CardDataLatest {
+    const c = new CardDataLatest();
     this.buildDataModel(this, c, {
       cardholderName: null,
       brand: null,
