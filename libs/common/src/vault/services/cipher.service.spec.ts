@@ -137,7 +137,6 @@ describe("Cipher Service", () => {
       autofillSettingsService,
       encryptService,
       cipherFileUploadService,
-      configService,
       stateProvider,
     );
 
@@ -160,7 +159,6 @@ describe("Cipher Service", () => {
       );
 
       configService.checkServerMeetsVersionRequirement$.mockReturnValue(of(false));
-      setEncryptionKeyFlag(false);
 
       const spy = jest.spyOn(cipherFileUploadService, "upload");
 
@@ -292,17 +290,7 @@ describe("Cipher Service", () => {
     });
 
     describe("cipher.key", () => {
-      it("is null when enableCipherKeyEncryption flag is false", async () => {
-        setEncryptionKeyFlag(false);
-
-        const cipher = await cipherService.encrypt(cipherView);
-
-        expect(cipher.key).toBeNull();
-      });
-
-      it("is defined when enableCipherKeyEncryption flag is true", async () => {
-        setEncryptionKeyFlag(true);
-
+      it("is defined with cipher key", async () => {
         const cipher = await cipherService.encrypt(cipherView);
 
         expect(cipher.key).toBeDefined();
@@ -314,17 +302,7 @@ describe("Cipher Service", () => {
         jest.spyOn<any, string>(cipherService, "encryptCipherWithCipherKey");
       });
 
-      it("is not called when enableCipherKeyEncryption is false", async () => {
-        setEncryptionKeyFlag(false);
-
-        await cipherService.encrypt(cipherView);
-
-        expect(cipherService["encryptCipherWithCipherKey"]).not.toHaveBeenCalled();
-      });
-
-      it("is called when enableCipherKeyEncryption is true", async () => {
-        setEncryptionKeyFlag(true);
-
+      it("is called with cipher key", async () => {
         await cipherService.encrypt(cipherView);
 
         expect(cipherService["encryptCipherWithCipherKey"]).toHaveBeenCalled();
@@ -332,9 +310,3 @@ describe("Cipher Service", () => {
     });
   });
 });
-
-function setEncryptionKeyFlag(value: boolean) {
-  process.env.FLAGS = JSON.stringify({
-    enableCipherKeyEncryption: value,
-  });
-}

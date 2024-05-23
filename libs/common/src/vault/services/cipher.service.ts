@@ -1,5 +1,4 @@
 import { firstValueFrom, map, Observable, share, skipWhile, switchMap } from "rxjs";
-import { SemVer } from "semver";
 
 import { ApiService } from "../../abstractions/api.service";
 import { SearchService } from "../../abstractions/search.service";
@@ -9,12 +8,10 @@ import { UriMatchStrategySetting } from "../../models/domain/domain-service";
 import { ErrorResponse } from "../../models/response/error.response";
 import { ListResponse } from "../../models/response/list.response";
 import { View } from "../../models/view/view";
-import { ConfigService } from "../../platform/abstractions/config/config.service";
 import { CryptoService } from "../../platform/abstractions/crypto.service";
 import { EncryptService } from "../../platform/abstractions/encrypt.service";
 import { I18nService } from "../../platform/abstractions/i18n.service";
 import { StateService } from "../../platform/abstractions/state.service";
-import { flagEnabled } from "../../platform/misc/flags";
 import { sequentialize } from "../../platform/misc/sequentialize";
 import { Utils } from "../../platform/misc/utils";
 import Domain from "../../platform/models/domain/domain-base";
@@ -71,8 +68,6 @@ import {
   LOCAL_DATA_KEY,
 } from "./key-state/ciphers.state";
 
-const CIPHER_KEY_ENC_MIN_SERVER_VER = new SemVer("2024.2.0");
-
 export class CipherService implements CipherServiceAbstraction {
   private sortedCiphersCache: SortedCiphersCache = new SortedCiphersCache(
     this.sortCiphersByLastUsed,
@@ -102,7 +97,6 @@ export class CipherService implements CipherServiceAbstraction {
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private encryptService: EncryptService,
     private cipherFileUploadService: CipherFileUploadService,
-    private configService: ConfigService,
     private stateProvider: StateProvider,
   ) {
     this.localDataState = this.stateProvider.getActive(LOCAL_DATA_KEY);
@@ -192,32 +186,19 @@ export class CipherService implements CipherServiceAbstraction {
     cipher.reprompt = model.reprompt;
     cipher.edit = model.edit;
 
-    if (await this.getCipherKeyEncryptionEnabled()) {
-      cipher.key = originalCipher?.key ?? null;
-      const userOrOrgKey = await this.getKeyForCipherKeyDecryption(cipher);
-      // The keyForEncryption is only used for encrypting the cipher key, not the cipher itself, since cipher key encryption is enabled.
-      // If the caller has provided a key for cipher key encryption, use it. Otherwise, use the user or org key.
-      keyForEncryption ||= userOrOrgKey;
-      // If the caller has provided a key for cipher key decryption, use it. Otherwise, use the user or org key.
-      keyForCipherKeyDecryption ||= userOrOrgKey;
-      return this.encryptCipherWithCipherKey(
-        model,
-        cipher,
-        keyForEncryption,
-        keyForCipherKeyDecryption,
-      );
-    } else {
-      if (keyForEncryption == null && cipher.organizationId != null) {
-        keyForEncryption = await this.cryptoService.getOrgKey(cipher.organizationId);
-        if (keyForEncryption == null) {
-          throw new Error("Cannot encrypt cipher for organization. No key.");
-        }
-      }
-      // We want to ensure that the cipher key is null if cipher key encryption is disabled
-      // so that decryption uses the proper key.
-      cipher.key = null;
-      return this.encryptCipher(model, cipher, keyForEncryption);
-    }
+    cipher.key = originalCipher?.key ?? null;
+    const userOrOrgKey = await this.getKeyForCipherKeyDecryption(cipher);
+    // The keyForEncryption is only used for encrypting the cipher key, not the cipher itself, since cipher key encryption is enabled.
+    // If the caller has provided a key for cipher key encryption, use it. Otherwise, use the user or org key.
+    keyForEncryption ||= userOrOrgKey;
+    // If the caller has provided a key for cipher key decryption, use it. Otherwise, use the user or org key.
+    keyForCipherKeyDecryption ||= userOrOrgKey;
+    return this.encryptCipherWithCipherKey(
+      model,
+      cipher,
+      keyForEncryption,
+      keyForCipherKeyDecryption,
+    );
   }
 
   async encryptAttachments(
@@ -744,10 +725,9 @@ export class CipherService implements CipherServiceAbstraction {
     admin = false,
   ): Promise<Cipher> {
     const encKey = await this.getKeyForCipherKeyDecryption(cipher);
-    const cipherKeyEncryptionEnabled = await this.getCipherKeyEncryptionEnabled();
 
     const cipherEncKey =
-      cipherKeyEncryptionEnabled && cipher.key != null
+      cipher.key != null
         ? (new SymmetricCryptoKey(
             await this.encryptService.decryptToBytes(cipher.key, encKey),
           ) as UserKey)
@@ -756,7 +736,7 @@ export class CipherService implements CipherServiceAbstraction {
     //if cipher key encryption is disabled but the item has an individual key,
     //then we rollback to using the user key as the main key of encryption of the item
     //in order to keep item and it's attachments with the same encryption level
-    if (cipher.key != null && !cipherKeyEncryptionEnabled) {
+    if (cipher.key != null) {
       const model = await cipher.decrypt(await this.getKeyForCipherKeyDecryption(cipher));
       cipher = await this.encrypt(model);
       await this.updateWithServer(cipher);
@@ -1556,14 +1536,5 @@ export class CipherService implements CipherServiceAbstraction {
 
     // Finally, we can encrypt the cipher with the decrypted cipher key.
     return this.encryptCipher(model, cipher, decryptedCipherKey);
-  }
-
-  private async getCipherKeyEncryptionEnabled(): Promise<boolean> {
-    return (
-      flagEnabled("enableCipherKeyEncryption") &&
-      (await firstValueFrom(
-        this.configService.checkServerMeetsVersionRequirement$(CIPHER_KEY_ENC_MIN_SERVER_VER),
-      ))
-    );
   }
 }
