@@ -79,8 +79,6 @@ import {
   GlobalStateProvider,
   StateProvider,
 } from "@bitwarden/common/platform/state";
-// eslint-disable-next-line import/no-restricted-paths -- Used for dependency injection
-import { InlineDerivedStateProvider } from "@bitwarden/common/platform/state/implementations/inline-derived-state";
 import { VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CollectionService } from "@bitwarden/common/vault/abstractions/collection.service";
@@ -114,6 +112,7 @@ import { BrowserScriptInjectorService } from "../../platform/services/browser-sc
 import { DefaultBrowserStateService } from "../../platform/services/default-browser-state.service";
 import I18nService from "../../platform/services/i18n.service";
 import { ForegroundPlatformUtilsService } from "../../platform/services/platform-utils/foreground-platform-utils.service";
+import { ForegroundDerivedStateProvider } from "../../platform/state/foreground-derived-state.provider";
 import { BrowserStorageServiceProvider } from "../../platform/storage/browser-storage-service.provider";
 import { ForegroundMemoryStorageService } from "../../platform/storage/foreground-memory-storage.service";
 import { fromChromeRuntimeMessaging } from "../../platform/utils/from-chrome-runtime-messaging";
@@ -509,8 +508,8 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: DerivedStateProvider,
-    useClass: InlineDerivedStateProvider,
-    deps: [],
+    useFactory: (ngZone: NgZone) => new ForegroundDerivedStateProvider(runInsideAngular(ngZone)),
+    deps: [NgZone],
   }),
   safeProvider({
     provide: AutofillSettingsServiceAbstraction,
