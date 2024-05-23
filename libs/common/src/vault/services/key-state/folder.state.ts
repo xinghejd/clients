@@ -16,7 +16,7 @@ export const FOLDER_DECRYPTED_FOLDERS = DeriveDefinition.from<
   FolderView[],
   { folderService: FolderService; cryptoService: CryptoService }
 >(FOLDER_ENCRYPTED_FOLDERS, {
-  deserializer: (obj) => obj?.map((f) => FolderView.fromJSON(f)),
+  deserializer: (obj) => obj.map((f) => FolderView.fromJSON(f)),
   derive: async (from, { folderService, cryptoService }) => {
     const folders = Object.values(from || {}).map((f) => new Folder(f));
 
