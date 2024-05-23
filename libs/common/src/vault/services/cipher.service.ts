@@ -34,7 +34,7 @@ import { CipherService as CipherServiceAbstraction } from "../abstractions/ciphe
 import { CipherFileUploadService } from "../abstractions/file-upload/cipher-file-upload.service";
 import { FieldType } from "../enums";
 import { CipherType } from "../enums/cipher-type";
-import { LocalDataLatest } from "../models/ciphers/data/latest";
+import { CipherDataLatest, LocalDataLatest } from "../models/ciphers/data/latest";
 import { CipherData } from "../models/ciphers/data/version-agnostic/cipher.data";
 import { CipherResponse } from "../models/ciphers/response/version-agnostic/cipher.response";
 import { Attachment } from "../models/domain/attachment";
@@ -354,7 +354,9 @@ export class CipherService implements CipherServiceAbstraction {
       // eslint-disable-next-line
       if (ciphers.hasOwnProperty(id)) {
         const cipherId = id as CipherId;
-        response.push(new Cipher(ciphers[cipherId], localData ? localData[cipherId] : null));
+        response.push(
+          new Cipher(await this.migrate(ciphers[cipherId]), localData ? localData[cipherId] : null),
+        );
       }
     }
     return response;
@@ -511,7 +513,9 @@ export class CipherService implements CipherServiceAbstraction {
       return [];
     }
 
-    const ciphers = response.data.map((cr) => new Cipher(new CipherData(cr)));
+    const ciphers = await Promise.all(
+      response.data.map(async (cr) => new Cipher(await this.migrate(new CipherData(cr)))),
+    );
     const key = await this.cryptoService.getOrgKey(organizationId);
     const decCiphers = await this.encryptService.decryptItems(ciphers, key);
 
@@ -633,7 +637,7 @@ export class CipherService implements CipherServiceAbstraction {
     const data = new CipherData(response, cipher.collectionIds);
     const updated = await this.upsert(data);
     // No local data for new ciphers
-    return new Cipher(updated[cipher.id as CipherId]);
+    return new Cipher(await this.migrate(updated[cipher.id as CipherId]));
   }
 
   async updateWithServer(
@@ -656,7 +660,7 @@ export class CipherService implements CipherServiceAbstraction {
     const data = new CipherData(response, cipher.collectionIds);
     const updated = await this.upsert(data);
     // updating with server does not change local data
-    return new Cipher(updated[cipher.id as CipherId], cipher.localData);
+    return new Cipher(await this.migrate(updated[cipher.id as CipherId]), cipher.localData);
   }
 
   async shareWithServer(
@@ -780,7 +784,7 @@ export class CipherService implements CipherServiceAbstraction {
     if (!admin) {
       await this.upsert(cData);
     }
-    return new Cipher(cData);
+    return new Cipher(await this.migrate(cData));
   }
 
   async saveCollectionsWithServer(cipher: Cipher): Promise<Cipher> {
@@ -794,7 +798,7 @@ export class CipherService implements CipherServiceAbstraction {
     }
     const data = new CipherData(response.cipher);
     const updated = await this.upsert(data);
-    return new Cipher(updated[cipher.id as CipherId], cipher.localData);
+    return new Cipher(await this.migrate(updated[cipher.id as CipherId]), cipher.localData);
   }
 
   /**
@@ -1154,7 +1158,9 @@ export class CipherService implements CipherServiceAbstraction {
     await this.restore(restores);
   }
 
-  async getKeyForCipherKeyDecryption(cipher: Cipher): Promise<UserKey | OrgKey> {
+  async getKeyForCipherKeyDecryption(cipher: {
+    organizationId?: string;
+  }): Promise<UserKey | OrgKey> {
     return (
       (await this.cryptoService.getOrgKey(cipher.organizationId)) ||
       ((await this.cryptoService.getUserKeyWithLegacySupport()) as UserKey)
@@ -1566,5 +1572,10 @@ export class CipherService implements CipherServiceAbstraction {
         this.configService.checkServerMeetsVersionRequirement$(CIPHER_KEY_ENC_MIN_SERVER_VER),
       ))
     );
+  }
+
+  private async migrate(data: CipherData): Promise<CipherDataLatest> {
+    const key = await this.getKeyForCipherKeyDecryption(data);
+    return await data.toLatestVersion(key);
   }
 }

@@ -25,7 +25,7 @@ import { CipherFileUploadService } from "../abstractions/file-upload/cipher-file
 import { FieldType } from "../enums";
 import { CipherRepromptType } from "../enums/cipher-reprompt-type";
 import { CipherType } from "../enums/cipher-type";
-import { CipherData } from "../models/data/cipher.data";
+import { CipherDataLatest } from "../models/ciphers/data/latest";
 import { Cipher } from "../models/domain/cipher";
 import { CipherCreateRequest } from "../models/request/cipher-create.request";
 import { CipherPartialRequest } from "../models/request/cipher-partial.request";
@@ -41,7 +41,8 @@ function encryptText(clearText: string | Uint8Array) {
 }
 const ENCRYPTED_BYTES = mock<EncArrayBuffer>();
 
-const cipherData: CipherData = {
+const cipherData: CipherDataLatest = {
+  version: 2,
   id: "id",
   organizationId: "orgId",
   folderId: "folderId",

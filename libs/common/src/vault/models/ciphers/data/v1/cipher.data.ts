@@ -12,6 +12,10 @@ import { PasswordHistoryDataV1 } from "./password-history.data";
 import { SecureNoteDataV1 } from "./secure-note.data";
 
 export class CipherDataV1 {
+  // THOUGHT: If we defined this as a string then we could create "virtual versions"
+  // that are instead calculated by looking at which fields are present, e.g: `version: "1.cipher-key";`.
+  // This would allow us to convert older "implicit versions" to explicit ones, and handle them
+  // using the migration mechanisms, possibly simplifying the code base.
   version: 1;
   id: string;
   organizationId: string;
