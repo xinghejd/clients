@@ -3,8 +3,8 @@ import { BaseResponse } from "../../../models/response/base.response";
 import { DomainsResponse } from "../../../models/response/domains.response";
 import { ProfileResponse } from "../../../models/response/profile.response";
 import { SendResponse } from "../../../tools/send/models/response/send.response";
+import { CipherResponse } from "../ciphers/response/version-agnostic/cipher.response";
 
-import { CipherResponse } from "./cipher.response";
 import { CollectionDetailsResponse } from "./collection.response";
 import { FolderResponse } from "./folder.response";
 

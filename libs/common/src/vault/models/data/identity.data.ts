@@ -1,4 +1,4 @@
-import { IdentityApi } from "../api/identity.api";
+import { IdentityApiLatest } from "../ciphers/api/latest";
 
 export class IdentityData {
   title: string;
@@ -20,7 +20,8 @@ export class IdentityData {
   passportNumber: string;
   licenseNumber: string;
 
-  constructor(data?: IdentityApi) {
+  // TODO: Implement version support
+  constructor(data?: IdentityApiLatest) {
     if (data == null) {
       return;
     }

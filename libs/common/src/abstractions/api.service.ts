@@ -104,6 +104,7 @@ import { ListResponse } from "../models/response/list.response";
 import { ProfileResponse } from "../models/response/profile.response";
 import { UserKeyResponse } from "../models/response/user-key.response";
 import { UserId } from "../types/guid";
+import { CipherResponse } from "../vault/models/ciphers/response/version-agnostic/cipher.response";
 import { AttachmentRequest } from "../vault/models/request/attachment.request";
 import { CipherBulkDeleteRequest } from "../vault/models/request/cipher-bulk-delete.request";
 import { CipherBulkMoveRequest } from "../vault/models/request/cipher-bulk-move.request";
@@ -117,7 +118,6 @@ import { CipherRequest } from "../vault/models/request/cipher.request";
 import { CollectionRequest } from "../vault/models/request/collection.request";
 import { AttachmentUploadDataResponse } from "../vault/models/response/attachment-upload-data.response";
 import { AttachmentResponse } from "../vault/models/response/attachment.response";
-import { CipherResponse } from "../vault/models/response/cipher.response";
 import {
   CollectionAccessDetailsResponse,
   CollectionDetailsResponse,

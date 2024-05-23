@@ -1,10 +1,10 @@
 import { SecureNoteType } from "../../enums";
-import { SecureNoteApi } from "../api/secure-note.api";
+import { SecureNoteApiLatest } from "../ciphers/api/latest";
 
 export class SecureNoteData {
   type: SecureNoteType;
 
-  constructor(data?: SecureNoteApi) {
+  constructor(data?: SecureNoteApiLatest) {
     if (data == null) {
       return;
     }

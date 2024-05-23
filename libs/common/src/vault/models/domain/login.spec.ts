@@ -7,7 +7,7 @@ import { LoginData } from "../../models/data/login.data";
 import { Login } from "../../models/domain/login";
 import { LoginUri } from "../../models/domain/login-uri";
 import { LoginUriView } from "../../models/view/login-uri.view";
-import { Fido2CredentialApi } from "../api/fido2-credential.api";
+import { Fido2CredentialApiLatest } from "../ciphers/api/latest";
 import { Fido2CredentialData } from "../data/fido2-credential.data";
 import { Fido2CredentialView } from "../view/fido2-credential.view";
 
@@ -203,7 +203,7 @@ describe("Login DTO", () => {
   });
 });
 
-type Fido2CredentialLike = Fido2CredentialData | Fido2CredentialView | Fido2CredentialApi;
+type Fido2CredentialLike = Fido2CredentialData | Fido2CredentialView | Fido2CredentialApiLatest;
 function initializeFido2Credential<T extends Fido2CredentialLike>(key: T): T {
   key.credentialId = "credentialId";
   key.keyType = "public-key";

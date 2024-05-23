@@ -1,6 +1,5 @@
 import { BaseResponse } from "../../../models/response/base.response";
-
-import { CipherResponse } from "./cipher.response";
+import { CipherResponse } from "../ciphers/response/version-agnostic/cipher.response";
 
 export class OptionalCipherResponse extends BaseResponse {
   unavailable: boolean;

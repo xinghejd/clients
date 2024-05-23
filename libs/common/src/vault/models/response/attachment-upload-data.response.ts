@@ -1,7 +1,6 @@
 import { BaseResponse } from "../../../models/response/base.response";
 import { FileUploadType } from "../../../platform/enums";
-
-import { CipherResponse } from "./cipher.response";
+import { CipherResponse } from "../ciphers/response/version-agnostic/cipher.response";
 
 export class AttachmentUploadDataResponse extends BaseResponse {
   attachmentId: string;

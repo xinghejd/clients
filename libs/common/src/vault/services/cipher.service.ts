@@ -34,6 +34,7 @@ import { CipherService as CipherServiceAbstraction } from "../abstractions/ciphe
 import { CipherFileUploadService } from "../abstractions/file-upload/cipher-file-upload.service";
 import { FieldType } from "../enums";
 import { CipherType } from "../enums/cipher-type";
+import { CipherResponse } from "../models/ciphers/response/version-agnostic/cipher.response";
 import { CipherData } from "../models/data/cipher.data";
 import { LocalData } from "../models/data/local.data";
 import { Attachment } from "../models/domain/attachment";
@@ -57,7 +58,6 @@ import { CipherCreateRequest } from "../models/request/cipher-create.request";
 import { CipherPartialRequest } from "../models/request/cipher-partial.request";
 import { CipherShareRequest } from "../models/request/cipher-share.request";
 import { CipherRequest } from "../models/request/cipher.request";
-import { CipherResponse } from "../models/response/cipher.response";
 import { AttachmentView } from "../models/view/attachment.view";
 import { CipherView } from "../models/view/cipher.view";
 import { FieldView } from "../models/view/field.view";

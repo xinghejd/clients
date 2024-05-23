@@ -9,10 +9,10 @@ import { EncArrayBuffer } from "../../../platform/models/domain/enc-array-buffer
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
 import { CipherFileUploadService as CipherFileUploadServiceAbstraction } from "../../abstractions/file-upload/cipher-file-upload.service";
+import { CipherResponse } from "../../models/ciphers/response/version-agnostic/cipher.response";
 import { Cipher } from "../../models/domain/cipher";
 import { AttachmentRequest } from "../../models/request/attachment.request";
 import { AttachmentUploadDataResponse } from "../../models/response/attachment-upload-data.response";
-import { CipherResponse } from "../../models/response/cipher.response";
 
 export class CipherFileUploadService implements CipherFileUploadServiceAbstraction {
   constructor(

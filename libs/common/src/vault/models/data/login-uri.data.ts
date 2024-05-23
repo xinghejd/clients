@@ -1,12 +1,13 @@
 import { UriMatchStrategySetting } from "../../../models/domain/domain-service";
-import { LoginUriApi } from "../api/login-uri.api";
+import { LoginUriApiLatest } from "../ciphers/api/latest";
 
 export class LoginUriData {
   uri: string;
   uriChecksum: string;
   match: UriMatchStrategySetting = null;
 
-  constructor(data?: LoginUriApi) {
+  // TODO: Implement version support
+  constructor(data?: LoginUriApiLatest) {
     if (data == null) {
       return;
     }

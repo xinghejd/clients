@@ -1,5 +1,5 @@
 import { FieldType, LinkedIdType } from "../../enums";
-import { FieldApi } from "../api/field.api";
+import { FieldApiLatest } from "../ciphers/api/latest";
 
 export class FieldData {
   type: FieldType;
@@ -7,7 +7,8 @@ export class FieldData {
   value: string;
   linkedId: LinkedIdType;
 
-  constructor(response?: FieldApi) {
+  // TODO: Implement version support
+  constructor(response?: FieldApiLatest) {
     if (response == null) {
       return;
     }

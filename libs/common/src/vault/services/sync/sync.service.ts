@@ -37,9 +37,9 @@ import { FolderApiServiceAbstraction } from "../../../vault/abstractions/folder/
 import { InternalFolderService } from "../../../vault/abstractions/folder/folder.service.abstraction";
 import { CipherData } from "../../../vault/models/data/cipher.data";
 import { FolderData } from "../../../vault/models/data/folder.data";
-import { CipherResponse } from "../../../vault/models/response/cipher.response";
 import { FolderResponse } from "../../../vault/models/response/folder.response";
 import { CollectionService } from "../../abstractions/collection.service";
+import { CipherResponse } from "../../models/ciphers/response/version-agnostic/cipher.response";
 import { CollectionData } from "../../models/data/collection.data";
 import { CollectionDetailsResponse } from "../../models/response/collection.response";
 
