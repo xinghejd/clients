@@ -1,12 +1,14 @@
 import { CipherRepromptType } from "../../enums/cipher-reprompt-type";
 import { CipherType } from "../../enums/cipher-type";
-import { CardApi } from "../api/card.api";
-import { Fido2CredentialApi } from "../api/fido2-credential.api";
-import { FieldApi } from "../api/field.api";
-import { IdentityApi } from "../api/identity.api";
-import { LoginUriApi } from "../api/login-uri.api";
-import { LoginApi } from "../api/login.api";
-import { SecureNoteApi } from "../api/secure-note.api";
+import {
+  CardApiLatest,
+  Fido2CredentialApiLatest,
+  FieldApiLatest,
+  IdentityApiLatest,
+  LoginApiLatest,
+  LoginUriApiLatest,
+  SecureNoteApiLatest,
+} from "../ciphers/api/latest";
 import { Cipher } from "../domain/cipher";
 
 import { AttachmentRequest } from "./attachment.request";
@@ -19,11 +21,11 @@ export class CipherRequest {
   name: string;
   notes: string;
   favorite: boolean;
-  login: LoginApi;
-  secureNote: SecureNoteApi;
-  card: CardApi;
-  identity: IdentityApi;
-  fields: FieldApi[];
+  login: LoginApiLatest;
+  secureNote: SecureNoteApiLatest;
+  card: CardApiLatest;
+  identity: IdentityApiLatest;
+  fields: FieldApiLatest[];
   passwordHistory: PasswordHistoryRequest[];
   // Deprecated, remove at some point and rename attachments2 to attachments
   attachments: { [id: string]: string };
@@ -45,10 +47,10 @@ export class CipherRequest {
 
     switch (this.type) {
       case CipherType.Login:
-        this.login = new LoginApi();
+        this.login = new LoginApiLatest();
         this.login.uris =
           cipher.login.uris?.map((u) => {
-            const uri = new LoginUriApi();
+            const uri = new LoginUriApiLatest();
             uri.uri = u.uri != null ? u.uri.encryptedString : null;
             uri.match = u.match != null ? u.match : null;
             uri.uriChecksum = u.uriChecksum != null ? u.uriChecksum.encryptedString : null;
@@ -65,7 +67,7 @@ export class CipherRequest {
 
         if (cipher.login.fido2Credentials != null) {
           this.login.fido2Credentials = cipher.login.fido2Credentials.map((key) => {
-            const keyApi = new Fido2CredentialApi();
+            const keyApi = new Fido2CredentialApiLatest();
             keyApi.credentialId =
               key.credentialId != null ? key.credentialId.encryptedString : null;
             keyApi.keyType =
@@ -90,11 +92,11 @@ export class CipherRequest {
         }
         break;
       case CipherType.SecureNote:
-        this.secureNote = new SecureNoteApi();
+        this.secureNote = new SecureNoteApiLatest();
         this.secureNote.type = cipher.secureNote.type;
         break;
       case CipherType.Card:
-        this.card = new CardApi();
+        this.card = new CardApiLatest();
         this.card.cardholderName =
           cipher.card.cardholderName != null ? cipher.card.cardholderName.encryptedString : null;
         this.card.brand = cipher.card.brand != null ? cipher.card.brand.encryptedString : null;
@@ -106,7 +108,7 @@ export class CipherRequest {
         this.card.code = cipher.card.code != null ? cipher.card.code.encryptedString : null;
         break;
       case CipherType.Identity:
-        this.identity = new IdentityApi();
+        this.identity = new IdentityApiLatest();
         this.identity.title =
           cipher.identity.title != null ? cipher.identity.title.encryptedString : null;
         this.identity.firstName =
@@ -154,7 +156,7 @@ export class CipherRequest {
 
     if (cipher.fields != null) {
       this.fields = cipher.fields.map((f) => {
-        const field = new FieldApi();
+        const field = new FieldApiLatest();
         field.type = f.type;
         field.name = f.name ? f.name.encryptedString : null;
         field.value = f.value ? f.value.encryptedString : null;
