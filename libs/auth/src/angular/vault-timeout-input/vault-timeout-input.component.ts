@@ -31,7 +31,7 @@ interface VaultTimeoutFormValue {
 }
 
 @Component({
-  selector: "app-vault-timeout-input",
+  selector: "auth-vault-timeout-input",
   templateUrl: "vault-timeout-input.component.html",
   standalone: true,
   imports: [CommonModule, JslibModule, ReactiveFormsModule, FormFieldModule, SelectModule],
