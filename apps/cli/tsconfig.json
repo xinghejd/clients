@@ -16,6 +16,8 @@
       "@bitwarden/auth/common": ["../../libs/auth/src/common"],
       "@bitwarden/auth/angular": ["../../libs/auth/src/angular"],
       "@bitwarden/common/*": ["../../libs/common/src/*"],
+      "@bitwarden/generator": ["../../libs/tools/generator/core/src"],
+      "@bitwarden/generator-extensions": ["../../libs/tools/generator/extensions/src"],
       "@bitwarden/importer/core": ["../../libs/importer/src"],
       "@bitwarden/vault-export-core": [
         "../../libs/tools/export/vault-export/vault-export-core/src"
