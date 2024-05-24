@@ -14,7 +14,7 @@ import { PasswordHistoryDataV2 } from "./password-history.data";
 import { SecureNoteDataV2 } from "./secure-note.data";
 
 export class CipherDataV2 {
-  version: 2;
+  version = 2 as const;
   id: string;
   organizationId: string;
   folderId: string;

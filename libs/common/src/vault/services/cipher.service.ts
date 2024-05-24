@@ -333,17 +333,19 @@ export class CipherService implements CipherServiceAbstraction {
   }
 
   async get(id: string): Promise<Cipher> {
-    throw new Error("Migration not implemented");
-    // const ciphers = await firstValueFrom(this.ciphers$);
-    // // eslint-disable-next-line
-    // if (ciphers == null || !ciphers.hasOwnProperty(id)) {
-    //   return null;
-    // }
+    const ciphers = await firstValueFrom(this.ciphers$);
+    // eslint-disable-next-line
+    if (ciphers == null || !ciphers.hasOwnProperty(id)) {
+      return null;
+    }
 
-    // const localData = await firstValueFrom(this.localData$);
-    // const cipherId = id as CipherId;
+    const localData = await firstValueFrom(this.localData$);
+    const cipherId = id as CipherId;
 
-    // return new Cipher(ciphers[cipherId], localData ? localData[cipherId] : null);
+    return new Cipher(
+      await this.migrate(ciphers[cipherId]),
+      localData ? localData[cipherId] : null,
+    );
   }
 
   async getAll(): Promise<Cipher[]> {

@@ -134,11 +134,11 @@ export class CipherData {
    * @param key Used to decrypt fields that need to be read for migration
    */
   async toLatestVersion(key: SymmetricCryptoKey): Promise<CipherDataLatest> {
-    let to_be_migrated = this.value;
-    while (!(to_be_migrated instanceof CipherDataLatest)) {
-      if (to_be_migrated instanceof CipherDataV1) {
-        to_be_migrated = await CipherDataV2.migrate(to_be_migrated, key);
-      } else if (to_be_migrated instanceof CipherDataUnknownVersion) {
+    let toBeMigrated = this.value;
+    while (!(toBeMigrated instanceof CipherDataLatest)) {
+      if (toBeMigrated instanceof CipherDataV1) {
+        toBeMigrated = await CipherDataV2.migrate(toBeMigrated, key);
+      } else if (toBeMigrated instanceof CipherDataUnknownVersion) {
         // TODO: Implement support for unknown versions.
         // There are two ways to handle this:
         // 1. Let this function return `Promise<CipherDataLatest | undefined>` and return `undefined` if the version is unknown.
@@ -148,9 +148,14 @@ export class CipherData {
         //    `CipherUnknown` that can be created from CipherDataUnknownVersion. We can then add support for this
         //    in the rest of the application by e.g. displaying a special "UnknownCipherRow" in the vault item list.
         throw new Error("Cannot migrate unknown version");
+      } else {
+        // This should not happen unless a developer has created a CipherData object without
+        // properly initializing it.
+        throw new Error("Cannot migrate data of unknown instance");
       }
     }
-    throw new Error("Not yet implemented");
+
+    return toBeMigrated;
   }
 
   private constructData(response: CipherResponse, collectionIds?: string[]) {
@@ -166,6 +171,10 @@ export class CipherData {
   static fromJSON(obj: Jsonify<CipherData>) {
     let value: CipherDataAnyVersion;
 
+    // TODO: This throws when run on an already logged in user. This is because the
+    // user has cipher data objects in state that were not created by this version-agnostic class.
+    // Proper solution would probably be a state migration script that would simply convert
+    // state.data -> { value: state.data }.
     switch (obj.value.version) {
       case 1:
         value = CipherDataV1.fromJSON(obj.value);

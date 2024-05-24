@@ -16,7 +16,7 @@ export class CipherDataV1 {
   // that are instead calculated by looking at which fields are present, e.g: `version: "1.cipher-key";`.
   // This would allow us to convert older "implicit versions" to explicit ones, and handle them
   // using the migration mechanisms, possibly simplifying the code base.
-  version: 1;
+  version = 1 as const;
   id: string;
   organizationId: string;
   folderId: string;
