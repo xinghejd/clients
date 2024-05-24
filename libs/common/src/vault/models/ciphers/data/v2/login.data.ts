@@ -1,3 +1,4 @@
+import { EncryptService } from "../../../../../platform/abstractions/encrypt.service";
 import { SymmetricCryptoKey } from "../../../../../platform/models/domain/symmetric-crypto-key";
 import { LoginApiV2 } from "../../api/v2/login.api";
 import { LoginDataV1 } from "../v1/login.data";
@@ -38,6 +39,7 @@ export class LoginDataV2 {
     old: LoginDataV1,
     organizationId: string,
     key: SymmetricCryptoKey,
+    encryptService: EncryptService,
   ): Promise<LoginDataV2> {
     const migrated = new LoginDataV2();
 
@@ -53,7 +55,9 @@ export class LoginDataV2 {
 
     if (old.fido2Credentials) {
       migrated.fido2Credentials = await Promise.all(
-        old.fido2Credentials?.map((c) => Fido2CredentialDataV2.migrate(c, organizationId, key)),
+        old.fido2Credentials?.map((c) =>
+          Fido2CredentialDataV2.migrate(c, organizationId, key, encryptService),
+        ),
       );
     }
 

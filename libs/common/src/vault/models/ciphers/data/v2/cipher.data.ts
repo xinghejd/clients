@@ -1,5 +1,6 @@
 import { Jsonify } from "type-fest";
 
+import { EncryptService } from "../../../../../platform/abstractions/encrypt.service";
 import { SymmetricCryptoKey } from "../../../../../platform/models/domain/symmetric-crypto-key";
 import { CipherRepromptType, CipherType } from "../../../../enums";
 import { CipherResponseV2 } from "../../response/v2/cipher.response";
@@ -94,7 +95,11 @@ export class CipherDataV2 {
     return Object.assign(new CipherDataV2(), obj);
   }
 
-  static async migrate(old: CipherDataV1, key: SymmetricCryptoKey): Promise<CipherDataV2> {
+  static async migrate(
+    old: CipherDataV1,
+    key: SymmetricCryptoKey,
+    encryptService: EncryptService,
+  ): Promise<CipherDataV2> {
     const migrated = new CipherDataV2();
 
     migrated.id = old.id;
@@ -116,7 +121,12 @@ export class CipherDataV2 {
 
     switch (migrated.type) {
       case CipherType.Login:
-        migrated.login = await LoginDataV2.migrate(old.login, migrated.organizationId, key);
+        migrated.login = await LoginDataV2.migrate(
+          old.login,
+          migrated.organizationId,
+          key,
+          encryptService,
+        );
         break;
       case CipherType.SecureNote:
         migrated.secureNote = SecureNoteDataV2.migrate(old.secureNote);

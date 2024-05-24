@@ -1,3 +1,4 @@
+import { EncryptService } from "../../../../../platform/abstractions/encrypt.service";
 import { EncString } from "../../../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../../../platform/models/domain/symmetric-crypto-key";
 
@@ -11,4 +12,13 @@ export async function decryptString(
   const decrypted = await encString.decrypt(organizationId, key);
 
   return decrypted;
+}
+
+export async function encryptString(
+  plainValue: string,
+  key: SymmetricCryptoKey,
+  encryptService: EncryptService,
+): Promise<string> {
+  const encString = await encryptService.encrypt(plainValue, key);
+  return encString.encryptedString;
 }

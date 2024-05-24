@@ -1578,6 +1578,6 @@ export class CipherService implements CipherServiceAbstraction {
 
   private async migrate(data: CipherData): Promise<CipherDataLatest> {
     const key = await this.getKeyForCipherKeyDecryption(data);
-    return await data.toLatestVersion(key);
+    return await data.toLatestVersion(key, this.encryptService);
   }
 }

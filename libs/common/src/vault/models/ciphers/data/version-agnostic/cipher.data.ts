@@ -1,5 +1,6 @@
 import { Jsonify } from "type-fest";
 
+import { EncryptService } from "../../../../../platform/abstractions/encrypt.service";
 import { SymmetricCryptoKey } from "../../../../../platform/models/domain/symmetric-crypto-key";
 import { CipherResponseV1 } from "../../response/v1/cipher.response";
 import { CipherResponseV2 } from "../../response/v2/cipher.response";
@@ -133,11 +134,15 @@ export class CipherData {
    * This function will migrate any underlying data object to the latest version
    * @param key Used to decrypt fields that need to be read for migration
    */
-  async toLatestVersion(key: SymmetricCryptoKey): Promise<CipherDataLatest> {
+  // TODO: This probably needs to take individual cipher key encryption into account.
+  async toLatestVersion(
+    key: SymmetricCryptoKey,
+    encryptService: EncryptService,
+  ): Promise<CipherDataLatest> {
     let toBeMigrated = this.value;
     while (!(toBeMigrated instanceof CipherDataLatest)) {
       if (toBeMigrated instanceof CipherDataV1) {
-        toBeMigrated = await CipherDataV2.migrate(toBeMigrated, key);
+        toBeMigrated = await CipherDataV2.migrate(toBeMigrated, key, encryptService);
       } else if (toBeMigrated instanceof CipherDataUnknownVersion) {
         // TODO: Implement support for unknown versions.
         // There are two ways to handle this:
