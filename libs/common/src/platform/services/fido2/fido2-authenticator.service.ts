@@ -397,6 +397,7 @@ async function createKeyView(
 
   const pkcs8Key = await crypto.subtle.exportKey("pkcs8", keyValue);
   const fido2Credential = new Fido2CredentialView();
+  fido2Credential.credentialIdType = "uuid";
   fido2Credential.credentialId = Utils.newGuid();
   fido2Credential.keyType = "public-key";
   fido2Credential.keyAlgorithm = "ECDSA";

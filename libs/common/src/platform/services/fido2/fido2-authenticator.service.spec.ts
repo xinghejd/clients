@@ -792,6 +792,7 @@ function createCipherView(
   cipher.localData = {};
 
   const fido2CredentialView = new Fido2CredentialView();
+  fido2CredentialView.credentialIdType = "uuid";
   fido2CredentialView.credentialId = fido2Credential.credentialId ?? Utils.newGuid();
   fido2CredentialView.rpId = fido2Credential.rpId ?? RpId;
   fido2CredentialView.counter = fido2Credential.counter ?? 0;

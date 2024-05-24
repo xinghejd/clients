@@ -79,6 +79,10 @@ export class ViewComponent implements OnDestroy, OnInit {
     return `${dateCreated} ${creationDate}`;
   }
 
+  get fido2CredentialIdType(): string {
+    return this.cipher?.login?.fido2Credentials?.[0]?.credentialIdType;
+  }
+
   constructor(
     protected cipherService: CipherService,
     protected folderService: FolderService,

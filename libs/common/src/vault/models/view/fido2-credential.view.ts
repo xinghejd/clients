@@ -3,6 +3,7 @@ import { Jsonify } from "type-fest";
 import { ItemView } from "./item.view";
 
 export class Fido2CredentialView extends ItemView {
+  credentialIdType: "uuid" | "base64";
   credentialId: string;
   keyType: "public-key";
   keyAlgorithm: "ECDSA";
