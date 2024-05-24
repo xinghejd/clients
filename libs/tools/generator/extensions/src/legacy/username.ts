@@ -1,43 +1,46 @@
 import { zip, firstValueFrom, map, concatMap, combineLatest } from "rxjs";
 
-import { ApiService } from "../../abstractions/api.service";
-import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
-import { AccountService } from "../../auth/abstractions/account.service";
-import { CryptoService } from "../../platform/abstractions/crypto.service";
-import { EncryptService } from "../../platform/abstractions/encrypt.service";
-import { I18nService } from "../../platform/abstractions/i18n.service";
-import { StateProvider } from "../../platform/state";
-
-import { GeneratorService, GeneratorNavigationService } from "./abstractions";
-import { UsernameGenerationServiceAbstraction } from "./abstractions/username-generation.service.abstraction";
-import { DefaultGeneratorService } from "./default-generator.service";
-import { DefaultGeneratorNavigationService } from "./navigation/default-generator-navigation.service";
-import { GeneratorNavigation } from "./navigation/generator-navigation";
-import { NoPolicy } from "./no-policy";
+import { ApiService } from "@bitwarden/common/src/abstractions/api.service";
+import { PolicyService } from "@bitwarden/common/src/admin-console/abstractions/policy/policy.service.abstraction";
+import { AccountService } from "@bitwarden/common/src/auth/abstractions/account.service";
+import { CryptoService } from "@bitwarden/common/src/platform/abstractions/crypto.service";
+import { EncryptService } from "@bitwarden/common/src/platform/abstractions/encrypt.service";
+import { I18nService } from "@bitwarden/common/src/platform/abstractions/i18n.service";
+import { StateProvider } from "@bitwarden/common/src/platform/state";
+import {
+  GeneratorNavigationService,
+  DefaultGeneratorService,
+  GeneratorService,
+  NoPolicy,
+  UsernameGeneratorOptions,
+  CatchallGenerationOptions,
+  RequestOptions,
+  EffUsernameGenerationOptions,
+  ApiOptions,
+  EmailDomainOptions,
+  EmailPrefixOptions,
+  SelfHostedApiOptions,
+  SubaddressGenerationOptions,
+  Forwarders,
+  AddyIoForwarder,
+  DuckDuckGoForwarder,
+  FastmailForwarder,
+  FirefoxRelayForwarder,
+  ForwardEmailForwarder,
+  SimpleLoginForwarder,
+  UsernameGenerationService,
+} from "@bitwarden/generator";
 import {
   CatchallGeneratorStrategy,
   SubaddressGeneratorStrategy,
   EffUsernameGeneratorStrategy,
-} from "./username";
-import { CatchallGenerationOptions } from "./username/catchall-generator-options";
-import { EffUsernameGenerationOptions } from "./username/eff-username-generator-options";
-import { AddyIoForwarder } from "./username/forwarders/addy-io";
-import { DuckDuckGoForwarder } from "./username/forwarders/duck-duck-go";
-import { FastmailForwarder } from "./username/forwarders/fastmail";
-import { FirefoxRelayForwarder } from "./username/forwarders/firefox-relay";
-import { ForwardEmailForwarder } from "./username/forwarders/forward-email";
-import { SimpleLoginForwarder } from "./username/forwarders/simple-login";
-import { Forwarders } from "./username/options/constants";
+} from "@bitwarden/generator/strategies";
+
 import {
-  ApiOptions,
-  EmailDomainOptions,
-  EmailPrefixOptions,
-  RequestOptions,
-  SelfHostedApiOptions,
-} from "./username/options/forwarder-options";
-import { SubaddressGenerationOptions } from "./username/subaddress-generator-options";
-import { UsernameGeneratorOptions } from "./username/username-generation-options";
-import { UsernameGenerationService } from "./username/username-generation.service";
+  UsernameGenerationServiceAbstraction,
+  DefaultGeneratorNavigationService,
+  GeneratorNavigation,
+} from "../workflow";
 
 type MappedOptions = {
   generator: GeneratorNavigation;

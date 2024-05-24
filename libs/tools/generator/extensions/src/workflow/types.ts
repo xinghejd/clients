@@ -1,5 +1,6 @@
-/** Stores credential generator UI state. */
+import { GeneratorType, UsernameGeneratorType, ForwarderId } from "@bitwarden/generator/types";
 
+/** Stores credential generator UI state. */
 export type GeneratorNavigation = {
   /** The kind of credential being generated.
    * @remarks The legacy generator only supports "password" and "passphrase".
@@ -13,11 +14,11 @@ export type GeneratorNavigation = {
   /** When `username === "forwarded"`, this stores the forwarder implementation. */
   forwarder?: ForwarderId | "";
 };
-/** The default options for password generation. */
 
-export const DefaultGeneratorNavigation: Partial<GeneratorNavigation> = Object.freeze({
-  type: "password",
-  username: "word",
-  forwarder: "",
-});
-
+/** Policy settings affecting password generator navigation */
+export type GeneratorNavigationPolicy = {
+  /** The type of generator that should be shown by default when opening
+   *  the password generator.
+   */
+  defaultType?: GeneratorType;
+};

@@ -1,6 +1,6 @@
 import { of, firstValueFrom } from "rxjs";
 
-import { awaitAsync, trackEmissions } from "../../../../common/spec";
+import { awaitAsync, trackEmissions } from "@bitwarden/common/spec";
 
 import { distinctIfShallowMatch, reduceCollection } from "./rx";
 

@@ -6,9 +6,8 @@ import { BufferedKeyDefinition } from "@bitwarden/common/tools/generator/state/b
 import { SecretClassifier } from "@bitwarden/common/tools/generator/state/secret-classifier";
 import { SecretKeyDefinition } from "@bitwarden/common/tools/generator/state/secret-key-definition";
 
-import { LegacyPasswordHistoryDecryptor } from "./decryptor";
+import { LegacyPasswordHistoryDecryptor } from "./crypto";
 import { GeneratedCredential } from "./types";
-
 
 /** encrypted password generation history */
 export const GENERATOR_HISTORY = SecretKeyDefinition.array(

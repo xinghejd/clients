@@ -2,10 +2,10 @@ import { firstValueFrom, share, timer, ReplaySubject, Observable } from "rxjs";
 
 // FIXME: use index.ts imports once policy abstractions and models
 // implement ADR-0002
-import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
-import { UserId } from "../../types/guid";
+import { PolicyService } from "@bitwarden/common/src/admin-console/abstractions/policy/policy.service.abstraction";
+import { UserId } from "@bitwarden/common/src/types/guid";
 
-import { GeneratorStrategy, GeneratorService, PolicyEvaluator } from "./abstractions";
+import { GeneratorStrategy, GeneratorService, PolicyEvaluator } from "../abstractions";
 
 type DefaultGeneratorServiceTuning = {
   /* amount of time to keep the most recent policy after a subscription ends. Once the

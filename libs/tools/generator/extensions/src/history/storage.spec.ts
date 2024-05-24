@@ -2,15 +2,11 @@ import { mock } from "jest-mock-extended";
 
 import { GeneratedPasswordHistory } from "@bitwarden/common/tools/generator/password/generated-password-history";
 
-import { LegacyPasswordHistoryDecryptor } from "./decryptor";
-import {
-  GENERATOR_HISTORY,
-  GENERATOR_HISTORY_BUFFER
-} from "./storage";
+import { LegacyPasswordHistoryDecryptor } from "./crypto";
+import { GENERATOR_HISTORY, GENERATOR_HISTORY_BUFFER } from "./storage";
 import { GeneratedCredential } from "./types";
 
 describe("Key definitions", () => {
-
   describe("GENERATOR_HISTORY", () => {
     it("should pass through deserialization", () => {
       const value: any = [{}];
