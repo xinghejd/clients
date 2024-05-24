@@ -1,10 +1,5 @@
 {
   "extends": "../../../shared/tsconfig.libs",
-  "compilerOptions": {
-    "paths": {
-      "@bitwarden/common/*": ["../../../common/src/*"]
-    }
-  },
-  "include": ["src", "../extensions/src/workflow/generator-navigation-evaluator.spec.ts"],
+  "include": ["src"],
   "exclude": ["node_modules", "dist"]
 }
