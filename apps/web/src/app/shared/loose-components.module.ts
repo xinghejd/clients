@@ -266,7 +266,6 @@ import { SharedModule } from "./shared.module";
     VerifyRecoverDeleteProviderComponent,
     HeaderModule,
     DangerZoneComponent,
-    VaultTimeoutInputComponent,
   ],
 })
 export class LooseComponentsModule {}
