@@ -1,7 +1,7 @@
 {
-  "name": "@bitwarden/vault-export-core",
+  "name": "@bitwarden/generator",
   "version": "0.0.0",
-  "description": "Home for all Bitwarden vault exporters.",
+  "description": "TODO",
   "keywords": [
     "bitwarden"
   ],
