@@ -133,7 +133,23 @@ export class CipherData {
    * This function will migrate any underlying data object to the latest version
    * @param key Used to decrypt fields that need to be read for migration
    */
-  toLatestVersion(key: SymmetricCryptoKey): Promise<CipherDataLatest> {
+  async toLatestVersion(key: SymmetricCryptoKey): Promise<CipherDataLatest> {
+    let to_be_migrated = this.value;
+    while (!(to_be_migrated instanceof CipherDataLatest)) {
+      if (to_be_migrated instanceof CipherDataV1) {
+        to_be_migrated = await CipherDataV2.migrate(to_be_migrated, key);
+      } else if (to_be_migrated instanceof CipherDataUnknownVersion) {
+        // TODO: Implement support for unknown versions.
+        // There are two ways to handle this:
+        // 1. Let this function return `Promise<CipherDataLatest | undefined>` and return `undefined` if the version is unknown.
+        //    The CipherService should then check for `undefined` and set a global flag on itself to indicate that the vault contains
+        //    ciphers of unknown version. The UI should check this flag and display a warning to the user.
+        // 2. Let this function return `Promise<CipherDataLatest | CipherDataUnknownVersion>`. Then create a new domain object
+        //    `CipherUnknown` that can be created from CipherDataUnknownVersion. We can then add support for this
+        //    in the rest of the application by e.g. displaying a special "UnknownCipherRow" in the vault item list.
+        throw new Error("Cannot migrate unknown version");
+      }
+    }
     throw new Error("Not yet implemented");
   }
 

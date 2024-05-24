@@ -1,4 +1,5 @@
 import { IdentityApiV2 } from "../../api/v2/identity.api";
+import { IdentityDataV1 } from "../v1/identity.data";
 
 export class IdentityDataV2 {
   title: string;
@@ -43,5 +44,30 @@ export class IdentityDataV2 {
     this.username = data.username;
     this.passportNumber = data.passportNumber;
     this.licenseNumber = data.licenseNumber;
+  }
+
+  static migrate(old: IdentityDataV1): IdentityDataV2 {
+    const migrated = new IdentityDataV2();
+
+    migrated.title = old.title;
+    migrated.firstName = old.firstName;
+    migrated.middleName = old.middleName;
+    migrated.lastName = old.lastName;
+    migrated.address1 = old.address1;
+    migrated.address2 = old.address2;
+    migrated.address3 = old.address3;
+    migrated.city = old.city;
+    migrated.state = old.state;
+    migrated.postalCode = old.postalCode;
+    migrated.country = old.country;
+    migrated.company = old.company;
+    migrated.email = old.email;
+    migrated.phone = old.phone;
+    migrated.ssn = old.ssn;
+    migrated.username = old.username;
+    migrated.passportNumber = old.passportNumber;
+    migrated.licenseNumber = old.licenseNumber;
+
+    return migrated;
   }
 }

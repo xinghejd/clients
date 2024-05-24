@@ -1,7 +1,9 @@
 import { Jsonify } from "type-fest";
 
+import { SymmetricCryptoKey } from "../../../../../platform/models/domain/symmetric-crypto-key";
 import { CipherRepromptType, CipherType } from "../../../../enums";
 import { CipherResponseV2 } from "../../response/v2/cipher.response";
+import { CipherDataV1 } from "../v1/cipher.data";
 
 import { AttachmentData } from "./attachment.data";
 import { CardDataV2 } from "./card.data";
@@ -90,5 +92,45 @@ export class CipherDataV2 {
 
   static fromJSON(obj: Jsonify<CipherDataV2>) {
     return Object.assign(new CipherDataV2(), obj);
+  }
+
+  static async migrate(old: CipherDataV1, key: SymmetricCryptoKey): Promise<CipherDataV2> {
+    const migrated = new CipherDataV2();
+
+    migrated.id = old.id;
+    migrated.organizationId = old.organizationId;
+    migrated.folderId = old.folderId;
+    migrated.edit = old.edit;
+    migrated.viewPassword = old.viewPassword;
+    migrated.organizationUseTotp = old.organizationUseTotp;
+    migrated.favorite = old.favorite;
+    migrated.revisionDate = old.revisionDate;
+    migrated.type = old.type;
+    migrated.name = old.name;
+    migrated.notes = old.notes;
+    migrated.collectionIds = old.collectionIds;
+    migrated.creationDate = old.creationDate;
+    migrated.deletedDate = old.deletedDate;
+    migrated.reprompt = old.reprompt;
+    migrated.key = old.key;
+
+    switch (migrated.type) {
+      case CipherType.Login:
+        migrated.login = await LoginDataV2.migrate(old.login, migrated.organizationId, key);
+        break;
+      case CipherType.SecureNote:
+        migrated.secureNote = SecureNoteDataV2.migrate(old.secureNote);
+        break;
+      case CipherType.Card:
+        migrated.card = CardDataV2.migrate(old.card);
+        break;
+      case CipherType.Identity:
+        migrated.identity = IdentityDataV2.migrate(old.identity);
+        break;
+      default:
+        break;
+    }
+
+    return migrated;
   }
 }

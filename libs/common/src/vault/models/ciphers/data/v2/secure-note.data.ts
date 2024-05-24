@@ -11,4 +11,12 @@ export class SecureNoteDataV2 {
 
     this.type = data.type;
   }
+
+  static migrate(old: SecureNoteDataV2): SecureNoteDataV2 {
+    const migrated = new SecureNoteDataV2();
+
+    migrated.type = old.type;
+
+    return migrated;
+  }
 }

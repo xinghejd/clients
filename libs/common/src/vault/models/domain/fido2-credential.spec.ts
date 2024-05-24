@@ -36,6 +36,7 @@ describe("Fido2Credential", () => {
 
     it("returns all fields as EncStrings except creationDate when given full Fido2CredentialData", () => {
       const data: Fido2CredentialDataLatest = {
+        credentialIdType: "uuid",
         credentialId: "credentialId",
         keyType: "public-key",
         keyAlgorithm: "ECDSA",
@@ -118,6 +119,7 @@ describe("Fido2Credential", () => {
   describe("toFido2CredentialData", () => {
     it("encodes to data object when converted from Fido2CredentialData and back", () => {
       const data: Fido2CredentialDataLatest = {
+        credentialIdType: "uuid",
         credentialId: "credentialId",
         keyType: "public-key",
         keyAlgorithm: "ECDSA",
