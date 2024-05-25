@@ -1,5 +1,5 @@
 import { awaitAsync } from "@bitwarden/common/../spec";
-import { OperatorFunction, identity } from "rxjs";
+import { identity } from "rxjs";
 
 import { DeriveDefinition } from "@bitwarden/common/platform/state";
 // eslint-disable-next-line import/no-restricted-paths -- needed to define a derive definition
@@ -22,11 +22,7 @@ describe("ForegroundDerivedState", () => {
 
   beforeEach(() => {
     mockPorts();
-    sut = new ForegroundDerivedState<Date>(
-      deriveDefinition,
-      portName,
-      identity as OperatorFunction<unknown, Date>,
-    );
+    sut = new ForegroundDerivedState<Date>(deriveDefinition, portName, identity);
   });
 
   afterEach(() => {

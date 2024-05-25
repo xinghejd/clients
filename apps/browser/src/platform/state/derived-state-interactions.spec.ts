@@ -3,7 +3,7 @@
  * @jest-environment ../../libs/shared/test.environment.ts
  */
 
-import { OperatorFunction, Subject, firstValueFrom, identity } from "rxjs";
+import { Subject, firstValueFrom, identity } from "rxjs";
 
 import { DeriveDefinition } from "@bitwarden/common/platform/state";
 // eslint-disable-next-line import/no-restricted-paths -- needed to define a derive definition
@@ -41,11 +41,7 @@ describe("foreground background derived state interactions", () => {
     parentState$ = new Subject<string>();
 
     background = new BackgroundDerivedState(parentState$, deriveDefinition, portName, {});
-    foreground = new ForegroundDerivedState<Date>(
-      deriveDefinition,
-      portName,
-      identity as OperatorFunction<string, Date>,
-    );
+    foreground = new ForegroundDerivedState<Date>(deriveDefinition, portName, identity);
   });
 
   afterEach(() => {

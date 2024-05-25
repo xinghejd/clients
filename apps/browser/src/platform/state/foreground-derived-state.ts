@@ -1,6 +1,6 @@
 import {
+  MonoTypeOperatorFunction,
   Observable,
-  OperatorFunction,
   ReplaySubject,
   defer,
   filter,
@@ -28,7 +28,7 @@ export class ForegroundDerivedState<TTo> implements DerivedState<TTo> {
   constructor(
     private deriveDefinition: DeriveDefinition<unknown, TTo, DerivedStateDependencies>,
     private portName: string,
-    private pipeCustomizer: OperatorFunction<unknown, TTo>,
+    private pipeCustomizer: MonoTypeOperatorFunction<TTo>,
   ) {
     const latestValueFromPort$ = (port: chrome.runtime.Port) => {
       return fromChromeEvent(port.onMessage).pipe(
