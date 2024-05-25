@@ -22,13 +22,6 @@ const deriveDefinition = new DeriveDefinition(stateDefinition, "test", {
   cleanupDelayMs: 1000,
 });
 
-// Mock out the runInsideAngular operator so we don't have to deal with zone.js
-jest.mock("../browser/run-inside-angular.operator", () => {
-  return {
-    runInsideAngular: (ngZone: any) => (source: any) => source,
-  };
-});
-
 describe("foreground background derived state interactions", () => {
   let foreground: ForegroundDerivedState<Date>;
   let background: BackgroundDerivedState<string, Date, Record<string, unknown>>;
