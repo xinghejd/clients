@@ -1,4 +1,4 @@
-import { Observable, Subscription, concatMap } from "rxjs";
+import { Observable, Subscription, tap } from "rxjs";
 import { Jsonify } from "type-fest";
 
 import { Utils } from "@bitwarden/common/platform/misc/utils";
@@ -40,8 +40,8 @@ export class BackgroundDerivedState<
 
       const stateSubscription = this.state$
         .pipe(
-          concatMap(async (state) => {
-            await this.sendMessage(
+          tap((state) => {
+            this.sendMessage(
               {
                 action: "nextState",
                 data: JSON.stringify(state),
@@ -67,7 +67,7 @@ export class BackgroundDerivedState<
         const dataObj = JSON.parse(message.data) as Jsonify<TTo>;
         const data = this.deriveDefinition.deserialize(dataObj);
         await this.forceValue(data);
-        await this.sendResponse(
+        this.sendResponse(
           message,
           {
             action: "resolve",
@@ -79,13 +79,11 @@ export class BackgroundDerivedState<
     }
   }
 
-  private async sendResponse(
+  private sendResponse(
     originalMessage: DerivedStateMessage,
     response: Omit<DerivedStateMessage, "originator" | "id">,
     port: chrome.runtime.Port,
   ) {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.sendMessage(
       {
         ...response,
@@ -95,10 +93,7 @@ export class BackgroundDerivedState<
     );
   }
 
-  private async sendMessage(
-    message: Omit<DerivedStateMessage, "originator">,
-    port: chrome.runtime.Port,
-  ) {
+  private sendMessage(message: Omit<DerivedStateMessage, "originator">, port: chrome.runtime.Port) {
     port.postMessage({
       ...message,
       originator: "background",
