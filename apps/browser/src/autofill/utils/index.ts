@@ -243,6 +243,10 @@ export function elementIsDescriptionTermElement(element: Element): element is HT
  * @param node - The node to check.
  */
 export function nodeIsElement(node: Node): node is Element {
+  if (!node) {
+    return false;
+  }
+
   return node?.nodeType === Node.ELEMENT_NODE;
 }
 

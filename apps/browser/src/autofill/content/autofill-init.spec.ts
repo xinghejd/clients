@@ -4,7 +4,11 @@ import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillScript from "../models/autofill-script";
 import { AutofillInlineMenuContentService } from "../overlay/inline-menu/content/autofill-inline-menu-content.service";
 import { AutofillOverlayContentService } from "../services/autofill-overlay-content.service";
-import { flushPromises, sendMockExtensionMessage } from "../spec/testing-utils";
+import {
+  flushPromises,
+  mockQuerySelectorAllDefinedCall,
+  sendMockExtensionMessage,
+} from "../spec/testing-utils";
 
 import { AutofillExtensionMessage } from "./abstractions/autofill-init";
 import AutofillInit from "./autofill-init";
@@ -14,6 +18,7 @@ describe("AutofillInit", () => {
   let autofillOverlayContentService: MockProxy<AutofillOverlayContentService>;
   let autofillInit: AutofillInit;
   const originalDocumentReadyState = document.readyState;
+  const mockQuerySelectorAll = mockQuerySelectorAllDefinedCall();
   let sendExtensionMessageSpy: jest.SpyInstance;
 
   beforeEach(() => {
@@ -38,6 +43,10 @@ describe("AutofillInit", () => {
       value: originalDocumentReadyState,
       writable: true,
     });
+  });
+
+  afterAll(() => {
+    mockQuerySelectorAll.mockRestore();
   });
 
   describe("init", () => {
@@ -199,7 +208,12 @@ describe("AutofillInit", () => {
 
           expect(autofillInit["collectAutofillContentService"].getPageDetails).toHaveBeenCalled();
           expect(sendResponse).toBeCalledWith(pageDetails);
-          expect(chrome.runtime.sendMessage).not.toHaveBeenCalled();
+          expect(chrome.runtime.sendMessage).not.toHaveBeenCalledWith({
+            command: "collectPageDetailsResponse",
+            tab: message.tab,
+            details: pageDetails,
+            sender: message.sender,
+          });
         });
       });
 
