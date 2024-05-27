@@ -148,7 +148,6 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
     this.selectedProviderType = await this.twoFactorService.getDefaultProvider(
       this.webAuthnSupported,
     );
-    await this.init();
   }
 
   ngOnDestroy(): void {
@@ -216,9 +215,7 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
         break;
       case TwoFactorProviderType.Email:
         this.twoFactorEmail = providerData.Email;
-        if ((await this.twoFactorService.getProviders()).size > 1) {
-          await this.sendEmail(false);
-        }
+        await this.sendEmail(false);
         break;
       default:
         break;

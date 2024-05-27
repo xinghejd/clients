@@ -147,8 +147,11 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
         // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
         // eslint-disable-next-line @typescript-eslint/no-floating-promises
         BrowserPopupUtils.openCurrentPagePopout(window);
+        return;
       }
     }
+
+    await this.init();
 
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     this.route.queryParams.pipe(first()).subscribe(async (qParams) => {
