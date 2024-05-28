@@ -11,7 +11,6 @@ import {
   takeUntil,
 } from "rxjs";
 
-// TODO: This service should move out of CL and into platform, so these imports won't be an issue in the long term.
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 
@@ -25,7 +24,7 @@ export type ServiceState = { [context: string]: ContextState };
   providedIn: "root",
 })
 export class AsyncActionsService implements OnDestroy {
-  private readonly onDestroy$ = new Subject<void>();
+  private readonly destroy$ = new Subject<void>();
   private readonly states$ = new BehaviorSubject<ServiceState>({});
 
   constructor(
@@ -64,7 +63,7 @@ export class AsyncActionsService implements OnDestroy {
    * @param until An observable that will cause the action to be cancelled when it emits.
    */
   async execute(
-    context: string,
+    context: string | undefined,
     origin: unknown,
     handler: FunctionReturningAwaitable,
     until?: Observable<unknown>,
@@ -74,7 +73,7 @@ export class AsyncActionsService implements OnDestroy {
     try {
       await firstValueFrom(
         functionToObservable(handler).pipe(
-          takeUntil(until ? merge(this.onDestroy$, until) : this.onDestroy$),
+          takeUntil(until ? merge(this.destroy$, until) : this.destroy$),
         ),
       );
     } catch (error) {
@@ -103,7 +102,7 @@ export class AsyncActionsService implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.onDestroy$.next();
-    this.onDestroy$.complete();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

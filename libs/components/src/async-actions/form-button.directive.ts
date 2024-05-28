@@ -35,31 +35,29 @@ export class BitFormButtonDirective implements OnDestroy {
     @Optional() submitDirective?: BitSubmitDirective,
     @Optional() actionDirective?: BitActionDirective,
   ) {
-    if (submitDirective && buttonComponent) {
-      submitDirective.loading$.pipe(takeUntil(this.destroy$)).subscribe((loading) => {
-        if (this.type === "submit") {
-          buttonComponent.loading = loading;
-        } else {
-          buttonComponent.disabled = loading;
-        }
-      });
-
-      submitDirective.disabled$.pipe(takeUntil(this.destroy$)).subscribe((disabled) => {
-        if (this.disabled !== false) {
-          buttonComponent.disabled = disabled;
-        }
-      });
-    }
-
-    if (submitDirective && actionDirective) {
-      actionDirective.loading$.pipe(takeUntil(this.destroy$)).subscribe((disabled) => {
-        submitDirective.disabled = disabled;
-      });
-
-      submitDirective.disabled$.pipe(takeUntil(this.destroy$)).subscribe((disabled) => {
-        actionDirective.disabled = disabled;
-      });
-    }
+    // TODO: Implement using new AsyncActionService
+    // if (submitDirective && buttonComponent) {
+    //   submitDirective.loading$.pipe(takeUntil(this.destroy$)).subscribe((loading) => {
+    //     if (this.type === "submit") {
+    //       buttonComponent.loading = loading;
+    //     } else {
+    //       buttonComponent.disabled = loading;
+    //     }
+    //   });
+    //   submitDirective.disabled$.pipe(takeUntil(this.destroy$)).subscribe((disabled) => {
+    //     if (this.disabled !== false) {
+    //       buttonComponent.disabled = disabled;
+    //     }
+    //   });
+    // }
+    // if (submitDirective && actionDirective) {
+    //   actionDirective.loading$.pipe(takeUntil(this.destroy$)).subscribe((disabled) => {
+    //     submitDirective.disabled = disabled;
+    //   });
+    //   submitDirective.disabled$.pipe(takeUntil(this.destroy$)).subscribe((disabled) => {
+    //     actionDirective.disabled = disabled;
+    //   });
+    // }
   }
 
   ngOnDestroy(): void {
