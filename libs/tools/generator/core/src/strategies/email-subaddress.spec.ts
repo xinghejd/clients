@@ -10,7 +10,7 @@ import { UserId } from "@bitwarden/common/src/types/guid";
 
 import { DefaultSubaddressOptions } from "../data";
 import { Randomizer } from "../engine";
-import { DefaultPolicyEvaluator } from "../policy";
+import { DefaultPolicyEvaluator } from "../policies";
 //import { SubaddressGenerationOptions, } from "../types";
 
 import { SubaddressGeneratorStrategy } from "./email-subaddress";

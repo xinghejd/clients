@@ -14,7 +14,7 @@ import { UserId } from "@bitwarden/common/src/types/guid";
 import { UserKey } from "@bitwarden/common/src/types/key";
 
 import { DefaultDuckDuckGoOptions } from "../data";
-import { DefaultPolicyEvaluator } from "../policy";
+import { DefaultPolicyEvaluator } from "../policies";
 import { DUCK_DUCK_GO_FORWARDER, DUCK_DUCK_GO_BUFFER } from "../storage";
 import { ApiOptions } from "../types";
 

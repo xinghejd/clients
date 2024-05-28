@@ -5,16 +5,10 @@ import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { GeneratorStrategy, Randomizer } from "../abstractions";
-import {
-  DefaultPasswordGenerationOptions,
-  DisabledPasswordGeneratorPolicy
-} from "../data";
-import { PasswordGeneratorOptionsEvaluator, leastPrivilege } from "../policy/password";
+import { DefaultPasswordGenerationOptions, DisabledPasswordGeneratorPolicy } from "../data";
+import { PasswordGeneratorOptionsEvaluator, leastPrivilege } from "../policies/password";
 import { distinctIfShallowMatch, reduceCollection } from "../rx";
-import {
-  PasswordGenerationOptions,
-  PasswordGeneratorPolicy
-} from "../types";
+import { PasswordGenerationOptions, PasswordGeneratorPolicy } from "../types";
 
 import { PASSWORD_SETTINGS } from "./storage";
 

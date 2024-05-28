@@ -10,39 +10,38 @@ import {
   Observable,
 } from "rxjs";
 
-import { PolicyService } from "../../admin-console/abstractions/policy/policy.service.abstraction";
-import { PasswordGeneratorPolicyOptions } from "../../admin-console/models/domain/password-generator-policy-options";
-import { AccountService } from "../../auth/abstractions/account.service";
-import { CryptoService } from "../../platform/abstractions/crypto.service";
-import { EncryptService } from "../../platform/abstractions/encrypt.service";
-import { StateProvider } from "../../platform/state";
+import { PolicyService } from "@bitwarden/common/src/admin-console/abstractions/policy/policy.service.abstraction";
+import { PasswordGeneratorPolicyOptions } from "@bitwarden/common/src/admin-console/models/domain/password-generator-policy-options";
+import { AccountService } from "@bitwarden/common/src/auth/abstractions/account.service";
+import { CryptoService } from "@bitwarden/common/src/platform/abstractions/crypto.service";
+import { EncryptService } from "@bitwarden/common/src/platform/abstractions/encrypt.service";
+import { StateProvider } from "@bitwarden/common/src/platform/state";
+import {
+  GeneratorService,
+  PolicyEvaluator,
+  PassphraseGenerationOptions,
+  PasswordGenerationOptions,
+  createRandomizer,
+  PassphraseGeneratorPolicy,
+  PasswordGeneratorPolicy,
+  services,
+  strategies,
+} from "@bitwarden/generator";
 
 import {
   GeneratorHistoryService,
-  GeneratorService,
+  GeneratedCredential,
+  LocalGeneratorHistoryService,
+} from "../history";
+import {
   GeneratorNavigationService,
-  PolicyEvaluator,
-} from "./abstractions";
-import { PasswordGenerationServiceAbstraction } from "./abstractions/password-generation.service.abstraction";
-import { DefaultGeneratorService } from "./default-generator.service";
-import { GeneratedCredential } from "./history";
-import { LocalGeneratorHistoryService } from "./history/local-generator-history.service";
-import { GeneratorNavigation } from "./navigation";
-import { DefaultGeneratorNavigationService } from "./navigation/default-generator-navigation.service";
-import { GeneratorNavigationPolicy } from "./navigation/generator-navigation-policy";
-import {
-  PassphraseGenerationOptions,
-  PassphraseGeneratorPolicy,
-  PassphraseGeneratorStrategy,
-} from "./passphrase";
-import {
-  GeneratedPasswordHistory,
-  PasswordGenerationOptions,
-  PasswordGenerationService,
-  PasswordGeneratorOptions,
-  PasswordGeneratorPolicy,
-  PasswordGeneratorStrategy,
-} from "./password";
+  GeneratorNavigation,
+  DefaultGeneratorNavigationService,
+  GeneratorNavigationPolicy,
+} from "../workflow";
+
+import { PasswordGenerationServiceAbstraction } from "./abstractions";
+import { GeneratedPasswordHistory, PasswordGeneratorOptions } from "./types";
 
 type MappedOptions = {
   generator: GeneratorNavigation;
@@ -58,17 +57,14 @@ export function legacyPasswordGenerationServiceFactory(
   accountService: AccountService,
   stateProvider: StateProvider,
 ): PasswordGenerationServiceAbstraction {
-  // FIXME: Once the password generation service is replaced with this service
-  // in the clients, factor out the deprecated service in its entirety.
-  const deprecatedService = new PasswordGenerationService(cryptoService, null, null);
-
-  const passwords = new DefaultGeneratorService(
-    new PasswordGeneratorStrategy(deprecatedService, stateProvider),
+  const randomizer = createRandomizer(cryptoService);
+  const passwords = new services.DefaultGeneratorService(
+    new strategies.PasswordGeneratorStrategy(randomizer, stateProvider),
     policyService,
   );
 
-  const passphrases = new DefaultGeneratorService(
-    new PassphraseGeneratorStrategy(deprecatedService, stateProvider),
+  const passphrases = new services.DefaultGeneratorService(
+    new strategies.PassphraseGeneratorStrategy(randomizer, stateProvider),
     policyService,
   );
 

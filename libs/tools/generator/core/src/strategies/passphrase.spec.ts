@@ -14,7 +14,7 @@ import { UserId } from "@bitwarden/common/src/types/guid";
 
 import { DisabledPassphraseGeneratorPolicy, DefaultPassphraseGenerationOptions } from "../data";
 import { Randomizer } from "../engine";
-import { PassphraseGeneratorOptionsEvaluator } from "../policy";
+import { PassphraseGeneratorOptionsEvaluator } from "../policies";
 
 import { PassphraseGeneratorStrategy } from "./passphrase";
 import { PASSPHRASE_SETTINGS } from "./storage";

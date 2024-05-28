@@ -6,14 +6,8 @@ import { StateProvider } from "@bitwarden/common/platform/state";
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { GeneratorStrategy, Randomizer } from "../abstractions";
-import {
-  DefaultPassphraseGenerationOptions,
-  DisabledPassphraseGeneratorPolicy
-} from "../data";
-import {
-  PassphraseGeneratorOptionsEvaluator,
-  leastPrivilege,
-} from "../policy/passphrase";
+import { DefaultPassphraseGenerationOptions, DisabledPassphraseGeneratorPolicy } from "../data";
+import { PassphraseGeneratorOptionsEvaluator, leastPrivilege } from "../policies/passphrase";
 import { distinctIfShallowMatch, reduceCollection } from "../rx";
 import { PassphraseGenerationOptions, PassphraseGeneratorPolicy } from "../types";
 
@@ -71,7 +65,7 @@ export class PassphraseGeneratorStrategy
 
     // select which word gets the number, if any
     let luckyNumber = -1;
-    if(o.includeNumber) {
+    if (o.includeNumber) {
       luckyNumber = await this.randomizer.uniform(0, o.numWords);
     }
 
@@ -80,8 +74,8 @@ export class PassphraseGeneratorStrategy
     for (let i = 0; i < o.numWords; i++) {
       const word = await this.randomizer.pickWord(EFFLongWordList, {
         titleCase: o.capitalize,
-        number: i === luckyNumber
-      })
+        number: i === luckyNumber,
+      });
 
       wordList[i] = word;
     }

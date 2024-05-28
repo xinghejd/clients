@@ -1,6 +1,6 @@
 import { distinctUntilChanged, map, OperatorFunction, pipe } from "rxjs";
 
-import { DefaultPolicyEvaluator } from "./policy/default";
+import { DefaultPolicyEvaluator } from "./policies/default";
 
 /**
  * An observable operator that reduces an emitted collection to a single object,
@@ -42,5 +42,5 @@ export function distinctIfShallowMatch<Item>(): OperatorFunction<Item, Item> {
 export function newDefaultEvaluator<Target>() {
   return () => {
     return pipe(map((_) => new DefaultPolicyEvaluator<Target>()));
-  }
+  };
 }

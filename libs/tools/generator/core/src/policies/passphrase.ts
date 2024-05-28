@@ -4,7 +4,10 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { Policy } from "@bitwarden/common/admin-console/models/domain/policy";
 
 import { PolicyEvaluator } from "../abstractions";
-import { DefaultPassphraseGeneratorBoundaries as DefaultBoundaries, DefaultPassphraseGenerationOptions } from "../data";
+import {
+  DefaultPassphraseGeneratorBoundaries as DefaultBoundaries,
+  DefaultPassphraseGenerationOptions,
+} from "../data";
 import { Boundary, PassphraseGenerationOptions, PassphraseGeneratorPolicy } from "../types";
 
 /** Reduces a policy into an accumulator by accepting the most restrictive
@@ -27,7 +30,6 @@ export function leastPrivilege(
     includeNumber: policy.data.includeNumber || acc.includeNumber,
   };
 }
-
 
 /** Enforces policy for passphrase generation options.
  */

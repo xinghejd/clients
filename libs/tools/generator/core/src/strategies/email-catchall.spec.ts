@@ -10,11 +10,11 @@ import { UserId } from "@bitwarden/common/src/types/guid";
 
 import { Randomizer } from "../abstractions";
 import { DefaultCatchallOptions } from "../data";
-import { DefaultPolicyEvaluator } from "../policy";
-import { CATCHALL_SETTINGS } from "../storage";
+import { DefaultPolicyEvaluator } from "../policies";
 //import { CatchallGenerationOptions } from "../types";
 
 import { CatchallGeneratorStrategy } from "./email-catchall";
+import { CATCHALL_SETTINGS } from "./storage";
 
 const SomeUser = "some user" as UserId;
 const SomePolicy = mock<Policy>({

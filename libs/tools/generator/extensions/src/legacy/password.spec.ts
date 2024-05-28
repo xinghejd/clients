@@ -8,31 +8,29 @@ import { of } from "rxjs";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/src/types/guid";
 import {
-  GeneratorHistoryService,
-  GeneratorNavigationService,
   GeneratorService,
   DisabledPasswordGeneratorPolicy,
-  DefaultPasswordGenerationOptions,
-  PasswordGenerationOptions,
-  PasswordGeneratorOptions,
-  PasswordGeneratorOptionsEvaluator,
-  PasswordGeneratorPolicy,
-  DefaultPassphraseGenerationOptions,
-  PassphraseGenerationOptions,
-  PassphraseGeneratorOptionsEvaluator,
-  PassphraseGeneratorPolicy,
   DisabledPassphraseGeneratorPolicy,
+  PasswordGenerationOptions,
+  DefaultPassphraseGenerationOptions,
+  DefaultPasswordGenerationOptions,
+  PasswordGeneratorPolicy,
+  PassphraseGenerationOptions,
+  policies,
+  PassphraseGeneratorPolicy,
 } from "@bitwarden/generator";
 
-import { GeneratedPasswordHistory, GeneratedCredential } from "../history";
+import { GeneratedCredential, GeneratorHistoryService } from "../history";
 import {
   DefaultGeneratorNavigation,
   GeneratorNavigation,
-  GeneratorNavigationPolicy,
   GeneratorNavigationEvaluator,
+  GeneratorNavigationService,
+  GeneratorNavigationPolicy,
 } from "../workflow";
 
 import { LegacyPasswordGenerationService } from "./password";
+import { GeneratedPasswordHistory, PasswordGeneratorOptions } from "./types";
 
 const SomeUser = "some user" as UserId;
 
@@ -43,7 +41,7 @@ function createPassphraseGenerator(
   let savedOptions = options;
   const generator = mock<GeneratorService<PassphraseGenerationOptions, PassphraseGeneratorPolicy>>({
     evaluator$(id: UserId) {
-      const evaluator = new PassphraseGeneratorOptionsEvaluator(policy);
+      const evaluator = new policies.PassphraseGeneratorOptionsEvaluator(policy);
       return of(evaluator);
     },
     options$(id: UserId) {
@@ -68,7 +66,7 @@ function createPasswordGenerator(
   let savedOptions = options;
   const generator = mock<GeneratorService<PasswordGenerationOptions, PasswordGeneratorPolicy>>({
     evaluator$(id: UserId) {
-      const evaluator = new PasswordGeneratorOptionsEvaluator(policy);
+      const evaluator = new policies.PasswordGeneratorOptionsEvaluator(policy);
       return of(evaluator);
     },
     options$(id: UserId) {
