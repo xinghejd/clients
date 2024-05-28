@@ -13,7 +13,7 @@ use crate::biometrics::{KeyMaterial, OsDerivedKey};
 #[async_trait]
 pub trait BiometricTrait {
     async fn prompt(hwnd: Vec<u8>, message: String) -> Result<bool>;
-    fn available() -> Result<bool>;
+    async fn available() -> Result<bool>;
     fn derive_key_material(secret: Option<&str>) -> Result<OsDerivedKey>;
     fn set_biometric_secret(
         service: &str,

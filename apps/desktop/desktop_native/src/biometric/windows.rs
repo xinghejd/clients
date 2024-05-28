@@ -59,7 +59,7 @@ impl super::BiometricTrait for Biometric {
         }
     }
 
-    fn available() -> Result<bool> {
+    async fn available() -> Result<bool> {
         let ucv_available = UserConsentVerifier::CheckAvailabilityAsync()?.get()?;
 
         match ucv_available {

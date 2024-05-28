@@ -24,8 +24,17 @@ impl super::BiometricTrait for Biometric {
         return Ok(result.is_authorized);
     }
 
-    fn available() -> Result<bool> {
-        bail!("available not implemented");
+    async fn available() -> Result<bool> {
+        let connection = Connection::system().await?;
+        let proxy = AuthorityProxy::new(&connection).await?;
+        let subject = Subject::new_for_owner(std::process::id(), None, None)?;
+        let res = proxy.enumerate_actions("en").await?;
+        for action in res {
+            if action.action_id == "com.bitwarden.Bitwarden.unlock" {
+                return Ok(true);
+            }
+        }
+        return Ok(false);
     }
 
     fn derive_key_material(_iv_str: Option<&str>) -> Result<OsDerivedKey> {

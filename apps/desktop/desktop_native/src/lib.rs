@@ -57,7 +57,7 @@ pub mod biometrics {
 
     #[napi]
     pub async fn available() -> napi::Result<bool> {
-        Biometric::available().map_err(|e| napi::Error::from_reason(e.to_string()))
+        Biometric::available().await.map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 
     #[napi]
