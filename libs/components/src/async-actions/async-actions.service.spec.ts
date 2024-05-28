@@ -1,3 +1,4 @@
+import { MockProxy, mock } from "jest-mock-extended";
 import {
   Observable,
   Subject,
@@ -9,13 +10,20 @@ import {
   take,
 } from "rxjs";
 
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+
 import { AsyncActionsService } from "./async-actions.service";
 
 describe("AsyncActionsService", () => {
+  let validationService!: MockProxy<ValidationService>;
+  let logService!: MockProxy<LogService>;
   let service!: AsyncActionsService;
 
   beforeEach(() => {
-    service = new AsyncActionsService();
+    validationService = mock();
+    logService = mock();
+    service = new AsyncActionsService(validationService, logService);
   });
 
   describe("state$", () => {
@@ -88,13 +96,13 @@ describe("AsyncActionsService", () => {
   });
 
   describe("execute", () => {
-    it("executes the handler and re-throws any errors", async () => {
+    it("catches and handles all errors using the supplied log and validation services", async () => {
       const error = new Error("example");
 
-      const result = async () =>
-        await service.execute("context", Symbol(), () => Promise.reject(error));
+      await service.execute("context", Symbol(), () => Promise.reject(error));
 
-      await expect(result).rejects.toThrow(error);
+      expect(logService.error).toHaveBeenCalledWith(expect.anything(), error);
+      expect(validationService.showError).toHaveBeenCalledWith(error);
     });
 
     it("unsubscribes from the observable when the service is destroyed", async () => {
@@ -117,6 +125,8 @@ describe("AsyncActionsService", () => {
 
       expect(action.observed).toBe(false);
     });
+
+    it("ignores EmptyError and completes the action", async () => {});
   });
 });
 

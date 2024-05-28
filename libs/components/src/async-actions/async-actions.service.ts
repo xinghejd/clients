@@ -1,4 +1,4 @@
-import { Injectable, OnDestroy } from "@angular/core";
+import { Injectable, OnDestroy, Optional } from "@angular/core";
 import {
   BehaviorSubject,
   EmptyError,
@@ -10,6 +10,10 @@ import {
   merge,
   takeUntil,
 } from "rxjs";
+
+// TODO: This service should move out of CL and into platform, so these imports won't be an issue in the long term.
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
 
 import { FunctionReturningAwaitable, functionToObservable } from "../utils/function-to-observable";
 
@@ -23,6 +27,11 @@ export type ServiceState = { [context: string]: ContextState };
 export class AsyncActionsService implements OnDestroy {
   private readonly onDestroy$ = new Subject<void>();
   private readonly states$ = new BehaviorSubject<ServiceState>({});
+
+  constructor(
+    @Optional() private validationService?: ValidationService,
+    @Optional() private logService?: LogService,
+  ) {}
 
   /**
    * Emits the current state of the context.
@@ -74,7 +83,8 @@ export class AsyncActionsService implements OnDestroy {
         return;
       }
 
-      throw error;
+      this.logService?.error(`Async action exception: ${error}`, error);
+      this.validationService?.showError(error);
     } finally {
       this.removeState(context);
     }
