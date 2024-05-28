@@ -8,11 +8,13 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
-import { UsernameGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/username";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { legacy } from "@bitwarden/generator-extensions";
 
 import { GeneratorComponent } from "./generator.component";
+
+const PasswordGenerationServiceAbstraction = legacy.PasswordGenerationServiceAbstraction;
+const UsernameGenerationServiceAbstraction = legacy.UsernameGenerationServiceAbstraction;
 
 describe("GeneratorComponent", () => {
   let component: GeneratorComponent;
@@ -29,11 +31,11 @@ describe("GeneratorComponent", () => {
       providers: [
         {
           provide: PasswordGenerationServiceAbstraction,
-          useValue: mock<PasswordGenerationServiceAbstraction>(),
+          useValue: mock<typeof PasswordGenerationServiceAbstraction>(),
         },
         {
           provide: UsernameGenerationServiceAbstraction,
-          useValue: mock<UsernameGenerationServiceAbstraction>(),
+          useValue: mock<typeof UsernameGenerationServiceAbstraction>(),
         },
         {
           provide: PlatformUtilsService,

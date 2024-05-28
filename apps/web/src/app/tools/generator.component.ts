@@ -6,9 +6,8 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
-import { UsernameGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/username";
 import { DialogService } from "@bitwarden/components";
+import { legacy } from "@bitwarden/generator-extensions";
 
 import { PasswordGeneratorHistoryComponent } from "./password-generator-history.component";
 
@@ -18,8 +17,8 @@ import { PasswordGeneratorHistoryComponent } from "./password-generator-history.
 })
 export class GeneratorComponent extends BaseGeneratorComponent {
   constructor(
-    passwordGenerationService: PasswordGenerationServiceAbstraction,
-    usernameGenerationService: UsernameGenerationServiceAbstraction,
+    passwordGenerationService: legacy.PasswordGenerationServiceAbstraction,
+    usernameGenerationService: legacy.UsernameGenerationServiceAbstraction,
     accountService: AccountService,
     platformUtilsService: PlatformUtilsService,
     i18nService: I18nService,

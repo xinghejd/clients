@@ -8,11 +8,10 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
-import { UsernameGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/username";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { AddEditCipherInfo } from "@bitwarden/common/vault/types/add-edit-cipher-info";
+import { legacy } from "@bitwarden/generator-extensions";
 
 @Component({
   selector: "app-generator",
@@ -24,8 +23,8 @@ export class GeneratorComponent extends BaseGeneratorComponent {
   private cipherService: CipherService;
 
   constructor(
-    passwordGenerationService: PasswordGenerationServiceAbstraction,
-    usernameGenerationService: UsernameGenerationServiceAbstraction,
+    passwordGenerationService: legacy.PasswordGenerationServiceAbstraction,
+    usernameGenerationService: legacy.UsernameGenerationServiceAbstraction,
     platformUtilsService: PlatformUtilsService,
     i18nService: I18nService,
     accountService: AccountService,
