@@ -1,7 +1,7 @@
 import {
   GeneratorCategory,
   GeneratedCredential,
-} from "../../../../../common/src/tools/generator/history";
+} from "@bitwarden/common/src/tools/generator-old/history";
 
 describe("GeneratedCredential", () => {
   describe("constructor", () => {

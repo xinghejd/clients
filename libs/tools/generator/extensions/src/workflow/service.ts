@@ -1,16 +1,16 @@
 import { BehaviorSubject, Observable, firstValueFrom, map } from "rxjs";
 
-import { PolicyService } from "../../../admin-console/abstractions/policy/policy.service.abstraction";
-import { PolicyType } from "../../../admin-console/enums";
-import { StateProvider } from "../../../platform/state";
-import { UserId } from "../../../types/guid";
-import { GeneratorNavigationService } from "../abstractions/generator-navigation.service.abstraction";
-import { GENERATOR_SETTINGS } from "../key-definitions";
-import { distinctIfShallowMatch, reduceCollection } from "../rx-operators";
+import { PolicyService } from "@bitwarden/common/src/admin-console/abstractions/policy/policy.service.abstraction";
+import { PolicyType } from "@bitwarden/common/src/admin-console/enums";
+import { StateProvider } from "@bitwarden/common/src/platform/state";
+import { UserId } from "@bitwarden/common/src/types/guid";
+import { rx } from "@bitwarden/generator";
 
-import { DefaultGeneratorNavigation, GeneratorNavigation } from "./generator-navigation";
-import { GeneratorNavigationEvaluator } from "./generator-navigation-evaluator";
-import { DisabledGeneratorNavigationPolicy, preferPassword } from "./generator-navigation-policy";
+import { GeneratorNavigationService } from "./abstractions";
+import { DefaultGeneratorNavigation, DisabledGeneratorNavigationPolicy } from "./data";
+import { GeneratorNavigationEvaluator, preferPassword } from "./policy";
+import { GENERATOR_SETTINGS } from "./storage";
+import { GeneratorNavigation } from "./types";
 
 export class DefaultGeneratorNavigationService implements GeneratorNavigationService {
   /** instantiates the password generator strategy.
@@ -41,8 +41,8 @@ export class DefaultGeneratorNavigationService implements GeneratorNavigationSer
    */
   evaluator$(userId: UserId) {
     const evaluator$ = this.policy.getAll$(PolicyType.PasswordGenerator, userId).pipe(
-      reduceCollection(preferPassword, DisabledGeneratorNavigationPolicy),
-      distinctIfShallowMatch(),
+      rx.reduceCollection(preferPassword, DisabledGeneratorNavigationPolicy),
+      rx.distinctIfShallowMatch(),
       map((policy) => new GeneratorNavigationEvaluator(policy)),
     );
 

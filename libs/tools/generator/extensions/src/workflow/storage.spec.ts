@@ -1,10 +1,4 @@
-import { mock } from "jest-mock-extended";
-
-import { GeneratedCredential } from "./history";
-import {
-  GENERATOR_SETTINGS,
-} from "./key-definitions";
-import { GeneratedPasswordHistory } from "./password";
+import { GENERATOR_SETTINGS } from "./storage";
 
 describe("Key definitions", () => {
   describe("GENERATOR_SETTINGS", () => {

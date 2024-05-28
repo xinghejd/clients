@@ -1,13 +1,15 @@
-import { CatchallGenerationOptions } from "./catchall-generator-options";
-import { EffUsernameGenerationOptions } from "./eff-username-generator-options";
-import { ForwarderId, RequestOptions } from "./options/forwarder-options";
-import { UsernameGeneratorType } from "./options/generator-options";
-import { SubaddressGenerationOptions } from "./subaddress-generator-options";
+import {
+  PassphraseGenerationOptions,
+  PasswordGenerationOptions,
+  CatchallGenerationOptions,
+  EffUsernameGenerationOptions,
+  ForwarderId,
+  UsernameGeneratorType,
+  SubaddressGenerationOptions,
+  RequestOptions,
+} from "@bitwarden/generator";
 
-import { GeneratorNavigation } from "../navigation/generator-navigation";
-import { PassphraseGenerationOptions } from "../passphrase/passphrase-generation-options";
-
-import { PasswordGenerationOptions } from "./password-generation-options";
+import { GeneratorNavigation } from "../workflow";
 
 /** Request format for credential generation.
  *  This type includes all properties suitable for reactive data binding.
@@ -25,7 +27,6 @@ export class GeneratedPasswordHistory {
     this.date = date;
   }
 }
-
 
 export type UsernameGeneratorOptions = EffUsernameGenerationOptions &
   SubaddressGenerationOptions &
@@ -45,10 +46,14 @@ export type UsernameGeneratorOptions = EffUsernameGenerationOptions &
     forwardedSimpleLoginBaseUrl?: string;
   };
 
-
 // this export provided solely for backwards compatibility
 export {
   /** @deprecated use `GeneratorNavigation` from './navigation' instead. */
   GeneratorNavigation as GeneratorOptions,
-} from "./navigation/generator-navigation";
+} from "../workflow";
 
+export class EmailForwarderOptions {
+  name: string;
+  value: string;
+  validForSelfHosted: boolean;
+}

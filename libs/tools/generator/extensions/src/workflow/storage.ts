@@ -1,6 +1,6 @@
-import { GENERATOR_DISK, UserKeyDefinition } from "../../platform/state";
+import { GENERATOR_DISK, UserKeyDefinition } from "@bitwarden/common/src/platform/state";
 
-import { GeneratorNavigation } from "./navigation/generator-navigation";
+import { GeneratorNavigation } from "./types";
 
 /** plaintext password generation options */
 export const GENERATOR_SETTINGS = new UserKeyDefinition<GeneratorNavigation>(

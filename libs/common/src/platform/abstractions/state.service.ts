@@ -1,7 +1,10 @@
 import { BiometricKey } from "../../auth/types/biometric-key";
-import { GeneratorOptions } from "../../tools/generator/generator-options";
-import { GeneratedPasswordHistory, PasswordGeneratorOptions } from "../../tools/generator/password";
-import { UsernameGeneratorOptions } from "../../tools/generator/username";
+import { GeneratorOptions } from "../../tools/generator-old/generator-options";
+import {
+  GeneratedPasswordHistory,
+  PasswordGeneratorOptions,
+} from "../../tools/generator-old/password";
+import { UsernameGeneratorOptions } from "../../tools/generator-old/username";
 import { UserId } from "../../types/guid";
 import { Account } from "../models/domain/account";
 import { StorageOptions } from "../models/domain/storage-options";

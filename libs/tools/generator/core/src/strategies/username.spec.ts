@@ -1,21 +1,21 @@
 import { mock } from "jest-mock-extended";
 import { of, firstValueFrom } from "rxjs";
 
+import {
+  EffUsernameGeneratorStrategy,
+  UsernameGenerationServiceAbstraction,
+} from "@bitwarden/common/src/tools/generator-old/username";
+
 import { PolicyType } from "../../../../../common/src/admin-console/enums";
 // FIXME: use index.ts imports once policy abstractions and models
 // implement ADR-0002
 import { Policy } from "../../../../../common/src/admin-console/models/domain/policy";
 import { StateProvider } from "../../../../../common/src/platform/state";
-import {
-  EffUsernameGeneratorStrategy,
-  UsernameGenerationServiceAbstraction,
-} from "../../../../../common/src/tools/generator/username";
 import { UserId } from "../../../../../common/src/types/guid";
 import { DefaultPolicyEvaluator } from "../default-policy-evaluator";
 import { EFF_USERNAME_SETTINGS } from "../key-definitions";
 
 import { DefaultEffUsernameOptions } from "./eff-username-generator-options";
-
 
 const SomeUser = "some user" as UserId;
 const SomePolicy = mock<Policy>({

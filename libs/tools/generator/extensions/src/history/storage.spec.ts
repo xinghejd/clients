@@ -1,6 +1,6 @@
 import { mock } from "jest-mock-extended";
 
-import { GeneratedPasswordHistory } from "@bitwarden/common/tools/generator/password/generated-password-history";
+import { GeneratedPasswordHistory } from "../legacy/types";
 
 import { LegacyPasswordHistoryDecryptor } from "./crypto";
 import { GENERATOR_HISTORY, GENERATOR_HISTORY_BUFFER } from "./storage";

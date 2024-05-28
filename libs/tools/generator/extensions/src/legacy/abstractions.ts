@@ -1,10 +1,13 @@
 import { Observable } from "rxjs";
 
-import { PasswordGeneratorPolicyOptions } from "../../../admin-console/models/domain/password-generator-policy-options";
-import { GeneratedPasswordHistory } from "../password/generated-password-history";
-import { PasswordGeneratorOptions } from "../password/password-generator-options";
+import { PasswordGeneratorPolicyOptions } from "@bitwarden/common/src/admin-console/models/domain/password-generator-policy-options";
 
-/** @deprecated Use {@link GeneratorService} with a password or passphrase {@link GeneratorStrategy} instead. */
+import {
+  PasswordGeneratorOptions,
+  UsernameGeneratorOptions,
+  GeneratedPasswordHistory,
+} from "./types";
+
 export abstract class PasswordGenerationServiceAbstraction {
   generatePassword: (options: PasswordGeneratorOptions) => Promise<string>;
   generatePassphrase: (options: PasswordGeneratorOptions) => Promise<string>;
@@ -19,11 +22,6 @@ export abstract class PasswordGenerationServiceAbstraction {
   clear: (userId?: string) => Promise<GeneratedPasswordHistory[]>;
 }
 
-import { Observable } from "rxjs";
-
-import { UsernameGeneratorOptions } from "../username/username-generation-options";
-
-/** @deprecated Use {@link GeneratorService} with a username {@link GeneratorStrategy} instead. */
 export abstract class UsernameGenerationServiceAbstraction {
   generateUsername: (options: UsernameGeneratorOptions) => Promise<string>;
   generateWord: (options: UsernameGeneratorOptions) => Promise<string>;

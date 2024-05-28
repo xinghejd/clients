@@ -8,11 +8,10 @@ import { EncryptService } from "@bitwarden/common/src/platform/abstractions/encr
 import { I18nService } from "@bitwarden/common/src/platform/abstractions/i18n.service";
 import { StateProvider } from "@bitwarden/common/src/platform/state";
 import {
-  GeneratorNavigationService,
-  DefaultGeneratorService,
+  services,
+  strategies,
   GeneratorService,
   NoPolicy,
-  UsernameGeneratorOptions,
   CatchallGenerationOptions,
   RequestOptions,
   EffUsernameGenerationOptions,
@@ -22,25 +21,28 @@ import {
   SelfHostedApiOptions,
   SubaddressGenerationOptions,
   Forwarders,
-  AddyIoForwarder,
-  DuckDuckGoForwarder,
-  FastmailForwarder,
-  FirefoxRelayForwarder,
-  ForwardEmailForwarder,
-  SimpleLoginForwarder,
-  UsernameGenerationService,
+  createRandomizer,
 } from "@bitwarden/generator";
-import {
-  CatchallGeneratorStrategy,
-  SubaddressGeneratorStrategy,
-  EffUsernameGeneratorStrategy,
-} from "@bitwarden/generator/strategies";
 
 import {
-  UsernameGenerationServiceAbstraction,
-  DefaultGeneratorNavigationService,
   GeneratorNavigation,
+  GeneratorNavigationService,
+  DefaultGeneratorNavigationService,
 } from "../workflow";
+
+import { UsernameGenerationServiceAbstraction } from "./abstractions";
+import { UsernameGeneratorOptions } from "./types";
+
+const CatchallGeneratorStrategy = strategies.CatchallGeneratorStrategy;
+const SubaddressGeneratorStrategy = strategies.SubaddressGeneratorStrategy;
+const EffUsernameGeneratorStrategy = strategies.EffUsernameGeneratorStrategy;
+const AddyIoForwarder = strategies.AddyIoForwarder;
+const DuckDuckGoForwarder = strategies.DuckDuckGoForwarder;
+const FastmailForwarder = strategies.FastmailForwarder;
+const FirefoxRelayForwarder = strategies.FirefoxRelayForwarder;
+const ForwardEmailForwarder = strategies.ForwardEmailForwarder;
+const SimpleLoginForwarder = strategies.SimpleLoginForwarder;
+const DefaultGeneratorService = services.DefaultGeneratorService;
 
 type MappedOptions = {
   generator: GeneratorNavigation;
@@ -59,7 +61,7 @@ type MappedOptions = {
   };
 };
 
-export function legacyUsernameGenerationServiceFactory(
+export function createUsernameGenerationService(
   apiService: ApiService,
   i18nService: I18nService,
   cryptoService: CryptoService,
@@ -68,22 +70,20 @@ export function legacyUsernameGenerationServiceFactory(
   accountService: AccountService,
   stateProvider: StateProvider,
 ): UsernameGenerationServiceAbstraction {
-  // FIXME: Once the username generation service is replaced with this service
-  // in the clients, factor out the deprecated service in its entirety.
-  const deprecatedService = new UsernameGenerationService(cryptoService, null, null);
+  const randomizer = createRandomizer(cryptoService);
 
   const effUsername = new DefaultGeneratorService(
-    new EffUsernameGeneratorStrategy(deprecatedService, stateProvider),
+    new EffUsernameGeneratorStrategy(randomizer, stateProvider),
     policyService,
   );
 
   const subaddress = new DefaultGeneratorService(
-    new SubaddressGeneratorStrategy(deprecatedService, stateProvider),
+    new SubaddressGeneratorStrategy(randomizer, stateProvider),
     policyService,
   );
 
   const catchall = new DefaultGeneratorService(
-    new CatchallGeneratorStrategy(deprecatedService, stateProvider),
+    new CatchallGeneratorStrategy(randomizer, stateProvider),
     policyService,
   );
 
@@ -233,7 +233,7 @@ export class LegacyUsernameGenerationService implements UsernameGenerationServic
           this.forwardEmail.defaults$(account.id),
           this.simpleLogin.options$(account.id),
           this.simpleLogin.defaults$(account.id),
-        ]),
+        ] as const),
       ),
       map(
         ([

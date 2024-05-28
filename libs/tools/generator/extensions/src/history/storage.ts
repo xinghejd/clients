@@ -1,10 +1,11 @@
 import { Jsonify } from "type-fest";
 
 import { GENERATOR_DISK } from "@bitwarden/common/platform/state";
-import { GeneratedPasswordHistory } from "@bitwarden/common/tools/generator/password/generated-password-history";
-import { BufferedKeyDefinition } from "@bitwarden/common/tools/generator/state/buffered-key-definition";
-import { SecretClassifier } from "@bitwarden/common/tools/generator/state/secret-classifier";
-import { SecretKeyDefinition } from "@bitwarden/common/tools/generator/state/secret-key-definition";
+import { BufferedKeyDefinition } from "@bitwarden/common/tools/state/buffered-key-definition";
+import { SecretClassifier } from "@bitwarden/common/tools/state/secret-classifier";
+import { SecretKeyDefinition } from "@bitwarden/common/tools/state/secret-key-definition";
+
+import { GeneratedPasswordHistory } from "../legacy/types";
 
 import { LegacyPasswordHistoryDecryptor } from "./crypto";
 import { GeneratedCredential } from "./types";

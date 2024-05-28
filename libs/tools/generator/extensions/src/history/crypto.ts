@@ -1,8 +1,9 @@
-import { CryptoService } from "../../../platform/abstractions/crypto.service";
-import { EncryptService } from "../../../platform/abstractions/encrypt.service";
-import { EncString } from "../../../platform/models/domain/enc-string";
-import { UserId } from "../../../types/guid";
-import { GeneratedPasswordHistory } from "../password/generated-password-history";
+import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
+import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
+import { EncString } from "@bitwarden/common/platform/models/domain/enc-string";
+import { UserId } from "@bitwarden/common/types/guid";
+
+import { GeneratedPasswordHistory } from "../legacy/types";
 
 /** Strategy that decrypts a password history */
 export class LegacyPasswordHistoryDecryptor {

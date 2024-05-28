@@ -4,10 +4,8 @@ import { of } from "rxjs";
 import { mockAccountServiceWith } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/src/types/guid";
 import {
-  GeneratorNavigationService,
   GeneratorService,
   NoPolicy,
-  UsernameGeneratorOptions,
   CatchallGenerationOptions,
   DefaultCatchallOptions,
   DefaultEffUsernameOptions,
@@ -25,25 +23,28 @@ import {
   DefaultSubaddressOptions,
   SubaddressGenerationOptions,
   Forwarders,
+  policies,
 } from "@bitwarden/generator";
-import { DefaultPolicyEvaluator } from "@bitwarden/generator/policy";
 
 import {
   DefaultGeneratorNavigation,
   GeneratorNavigation,
+  GeneratorNavigationService,
   GeneratorNavigationEvaluator,
   GeneratorNavigationPolicy,
 } from "../workflow";
 
+import { UsernameGeneratorOptions } from "./types";
 import { LegacyUsernameGenerationService } from "./username";
 
+const PolicyEvaluator = policies.DefaultPolicyEvaluator;
 const SomeUser = "userId" as UserId;
 
 function createGenerator<Options>(options: Options, defaults: Options) {
   let savedOptions = options;
   const generator = mock<GeneratorService<Options, NoPolicy>>({
     evaluator$(id: UserId) {
-      const evaluator = new DefaultPolicyEvaluator<Options>();
+      const evaluator = new PolicyEvaluator<Options>();
       return of(evaluator);
     },
     options$(id: UserId) {

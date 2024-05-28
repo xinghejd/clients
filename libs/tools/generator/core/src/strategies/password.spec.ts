@@ -6,22 +6,22 @@
 import { mock } from "jest-mock-extended";
 import { of, firstValueFrom } from "rxjs";
 
-import { PolicyType } from "../../../../../common/src/admin-console/enums";
-// FIXME: use index.ts imports once policy abstractions and models
-// implement ADR-0002
-import { Policy } from "../../../../../common/src/admin-console/models/domain/policy";
-import { StateProvider } from "../../../../../common/src/platform/state";
 import {
   DefaultPasswordGenerationOptions,
   PasswordGenerationServiceAbstraction,
   PasswordGeneratorOptionsEvaluator,
   PasswordGeneratorStrategy,
-} from "../../../../../common/src/tools/generator/password";
+} from "@bitwarden/common/src/tools/generator-old/password";
+
+import { PolicyType } from "../../../../../common/src/admin-console/enums";
+// FIXME: use index.ts imports once policy abstractions and models
+// implement ADR-0002
+import { Policy } from "../../../../../common/src/admin-console/models/domain/policy";
+import { StateProvider } from "../../../../../common/src/platform/state";
 import { UserId } from "../../../../../common/src/types/guid";
 import { PASSWORD_SETTINGS } from "../key-definitions";
 
 import { DisabledPasswordGeneratorPolicy } from "./password-generator-policy";
-
 
 const SomeUser = "some user" as UserId;
 

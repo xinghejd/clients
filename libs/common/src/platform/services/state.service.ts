@@ -4,9 +4,12 @@ import { Jsonify, JsonValue } from "type-fest";
 import { AccountService } from "../../auth/abstractions/account.service";
 import { TokenService } from "../../auth/abstractions/token.service";
 import { BiometricKey } from "../../auth/types/biometric-key";
-import { GeneratorOptions } from "../../tools/generator/generator-options";
-import { GeneratedPasswordHistory, PasswordGeneratorOptions } from "../../tools/generator/password";
-import { UsernameGeneratorOptions } from "../../tools/generator/username";
+import { GeneratorOptions } from "../../tools/generator-old/generator-options";
+import {
+  GeneratedPasswordHistory,
+  PasswordGeneratorOptions,
+} from "../../tools/generator-old/password";
+import { UsernameGeneratorOptions } from "../../tools/generator-old/username";
 import { UserId } from "../../types/guid";
 import { EnvironmentService } from "../abstractions/environment.service";
 import { LogService } from "../abstractions/log.service";

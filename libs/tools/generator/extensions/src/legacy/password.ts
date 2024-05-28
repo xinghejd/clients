@@ -50,7 +50,7 @@ type MappedOptions = {
   policyUpdated: boolean;
 };
 
-export function legacyPasswordGenerationServiceFactory(
+export function createPasswordGenerationService(
   encryptService: EncryptService,
   cryptoService: CryptoService,
   policyService: PolicyService,

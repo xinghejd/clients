@@ -8,17 +8,19 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { GeneratorType } from "@bitwarden/common/tools/generator/generator-type";
 import {
-  PasswordGenerationServiceAbstraction,
-  PasswordGeneratorOptions,
-} from "@bitwarden/common/tools/generator/password";
-import { DefaultBoundaries } from "@bitwarden/common/tools/generator/password/password-generator-options-evaluator";
-import {
-  UsernameGenerationServiceAbstraction,
-  UsernameGeneratorOptions,
-} from "@bitwarden/common/tools/generator/username";
-import { EmailForwarderOptions } from "@bitwarden/common/tools/models/domain/email-forwarder-options";
+  GeneratorType,
+  DefaultPasswordGeneratorBoundaries as DefaultBoundaries,
+} from "@bitwarden/generator";
+import { legacy } from "@bitwarden/generator-extensions";
+
+type PasswordGenerationServiceAbstraction = legacy.PasswordGenerationServiceAbstraction;
+type PasswordGeneratorOptions = legacy.PasswordGeneratorOptions;
+
+type UsernameGenerationServiceAbstraction = legacy.UsernameGenerationServiceAbstraction;
+type UsernameGeneratorOptions = legacy.UsernameGeneratorOptions;
+
+type EmailForwarderOptions = legacy.EmailForwarderOptions;
 
 @Directive()
 export class GeneratorComponent implements OnInit, OnDestroy {

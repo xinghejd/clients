@@ -1,12 +1,12 @@
 import { Jsonify } from "type-fest";
 
 import { UriMatchStrategySetting } from "../../../models/domain/domain-service";
-import { GeneratorOptions } from "../../../tools/generator/generator-options";
+import { GeneratorOptions } from "../../../tools/generator-old/generator-options";
 import {
   GeneratedPasswordHistory,
   PasswordGeneratorOptions,
-} from "../../../tools/generator/password";
-import { UsernameGeneratorOptions } from "../../../tools/generator/username/username-generation-options";
+} from "../../../tools/generator-old/password";
+import { UsernameGeneratorOptions } from "../../../tools/generator-old/username/username-generation-options";
 import { DeepJsonify } from "../../../types/deep-jsonify";
 import { KdfType } from "../../enums";
 import { Utils } from "../../misc/utils";
