@@ -12,6 +12,7 @@ import { FieldView } from "../models/view/field.view";
 import { AddEditCipherInfo } from "../types/add-edit-cipher-info";
 
 export abstract class CipherService {
+  cipherViews$: Observable<Record<CipherId, CipherView>>;
   /**
    *  An observable monitoring the add/edit cipher info saved to memory.
    */
@@ -33,7 +34,12 @@ export abstract class CipherService {
     url: string,
     includeOtherTypes?: CipherType[],
     defaultMatch?: UriMatchStrategySetting,
-    reindexCiphers?: boolean,
+  ) => Promise<CipherView[]>;
+  filterCiphersForUrl: (
+    ciphers: CipherView[],
+    url: string,
+    includeOtherTypes?: CipherType[],
+    defaultMatch?: UriMatchStrategySetting,
   ) => Promise<CipherView[]>;
   getAllFromApiForOrganization: (organizationId: string) => Promise<CipherView[]>;
   /**
@@ -133,11 +139,7 @@ export abstract class CipherService {
     cipher: { id: string; revisionDate: string } | { id: string; revisionDate: string }[],
   ) => Promise<any>;
   restoreWithServer: (id: string, asAdmin?: boolean) => Promise<any>;
-  restoreManyWithServer: (
-    ids: string[],
-    organizationId?: string,
-    asAdmin?: boolean,
-  ) => Promise<void>;
+  restoreManyWithServer: (ids: string[], orgId?: string) => Promise<void>;
   getKeyForCipherKeyDecryption: (cipher: Cipher) => Promise<any>;
   setAddEditCipherInfo: (value: AddEditCipherInfo) => Promise<void>;
 }

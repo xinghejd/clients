@@ -6,13 +6,14 @@ import { of } from "rxjs";
 
 import { LockComponent as BaseLockComponent } from "@bitwarden/angular/auth/components/lock.component";
 import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
-import { PinCryptoServiceAbstraction } from "@bitwarden/auth/common";
+import { PinServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout-settings.service";
 import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeout/vault-timeout.service";
 import { PolicyApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/policy/policy-api.service.abstraction";
 import { InternalPolicyService } from "@bitwarden/common/admin-console/abstractions/policy/policy.service.abstraction";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { DeviceTrustServiceAbstraction } from "@bitwarden/common/auth/abstractions/device-trust.service.abstraction";
 import { KdfConfigService } from "@bitwarden/common/auth/abstractions/kdf-config.service";
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
@@ -50,7 +51,7 @@ describe("LockComponent", () => {
   let component: LockComponent;
   let fixture: ComponentFixture<LockComponent>;
   let stateServiceMock: MockProxy<StateService>;
-  const biometricStateService = mock<BiometricStateService>();
+  let biometricStateService: MockProxy<BiometricStateService>;
   let messagingServiceMock: MockProxy<MessagingService>;
   let broadcasterServiceMock: MockProxy<BroadcasterService>;
   let platformUtilsServiceMock: MockProxy<PlatformUtilsService>;
@@ -62,7 +63,6 @@ describe("LockComponent", () => {
 
   beforeEach(async () => {
     stateServiceMock = mock<StateService>();
-    stateServiceMock.activeAccount$ = of(null);
 
     messagingServiceMock = mock<MessagingService>();
     broadcasterServiceMock = mock<BroadcasterService>();
@@ -73,6 +73,7 @@ describe("LockComponent", () => {
 
     mockMasterPasswordService = new FakeMasterPasswordService();
 
+    biometricStateService = mock();
     biometricStateService.dismissedRequirePasswordOnStartCallout$ = of(false);
     biometricStateService.promptAutomatically$ = of(false);
     biometricStateService.promptCancelled$ = of(false);
@@ -154,8 +155,8 @@ describe("LockComponent", () => {
           useValue: mock<UserVerificationService>(),
         },
         {
-          provide: PinCryptoServiceAbstraction,
-          useValue: mock<PinCryptoServiceAbstraction>(),
+          provide: PinServiceAbstraction,
+          useValue: mock<PinServiceAbstraction>(),
         },
         {
           provide: BiometricStateService,
@@ -164,6 +165,10 @@ describe("LockComponent", () => {
         {
           provide: AccountService,
           useValue: accountService,
+        },
+        {
+          provide: AuthService,
+          useValue: mock(),
         },
         {
           provide: KdfConfigService,

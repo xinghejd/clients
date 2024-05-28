@@ -16,6 +16,7 @@ import { IconModule, LayoutComponent, NavigationModule } from "@bitwarden/compon
 import { PaymentMethodWarningsModule } from "../billing/shared";
 
 import { PasswordManagerLogo } from "./password-manager-logo";
+import { ProductSwitcherModule } from "./product-switcher/product-switcher.module";
 import { ToggleWidthComponent } from "./toggle-width.component";
 
 @Component({
@@ -31,6 +32,7 @@ import { ToggleWidthComponent } from "./toggle-width.component";
     NavigationModule,
     PaymentMethodWarningsModule,
     ToggleWidthComponent,
+    ProductSwitcherModule,
   ],
 })
 export class UserLayoutComponent implements OnInit {
@@ -40,7 +42,6 @@ export class UserLayoutComponent implements OnInit {
 
   protected showPaymentMethodWarningBanners$ = this.configService.getFeatureFlag$(
     FeatureFlag.ShowPaymentMethodWarningBanners,
-    false,
   );
 
   constructor(

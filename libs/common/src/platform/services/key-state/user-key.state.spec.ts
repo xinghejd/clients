@@ -1,14 +1,12 @@
 import { mock } from "jest-mock-extended";
 
 import { makeStaticByteArray } from "../../../../spec";
-import { UserId } from "../../../types/guid";
 import { UserKey, UserPrivateKey, UserPublicKey } from "../../../types/key";
 import { CryptoFunctionService } from "../../abstractions/crypto-function.service";
 import { EncryptService } from "../../abstractions/encrypt.service";
 import { EncryptionType } from "../../enums";
 import { Utils } from "../../misc/utils";
 import { EncString } from "../../models/domain/enc-string";
-import { CryptoService } from "../crypto.service";
 
 import {
   USER_ENCRYPTED_PRIVATE_KEY,
@@ -71,7 +69,6 @@ describe("User public key", () => {
 
 describe("Derived decrypted private key", () => {
   const sut = USER_PRIVATE_KEY;
-  const userId = "userId" as UserId;
   const userKey = mock<UserKey>();
   const encryptedPrivateKey = makeEncString().encryptedString;
   const decryptedPrivateKey = makeStaticByteArray(64, 1);
@@ -89,40 +86,31 @@ describe("Derived decrypted private key", () => {
   });
 
   it("should derive decrypted private key", async () => {
-    const cryptoService = mock<CryptoService>();
-    cryptoService.getUserKey.mockResolvedValue(userKey);
     const encryptService = mock<EncryptService>();
     encryptService.decryptToBytes.mockResolvedValue(decryptedPrivateKey);
 
-    const result = await sut.derive([userId, encryptedPrivateKey], {
+    const result = await sut.derive([encryptedPrivateKey, userKey], {
       encryptService,
-      cryptoService,
     });
 
     expect(result).toEqual(decryptedPrivateKey);
   });
 
-  it("should handle null input values", async () => {
-    const cryptoService = mock<CryptoService>();
-    cryptoService.getUserKey.mockResolvedValue(userKey);
+  it("should handle null encryptedPrivateKey", async () => {
     const encryptService = mock<EncryptService>();
 
-    const result = await sut.derive([userId, null], {
+    const result = await sut.derive([null, userKey], {
       encryptService,
-      cryptoService,
     });
 
     expect(result).toEqual(null);
   });
 
-  it("should handle null user key", async () => {
-    const cryptoService = mock<CryptoService>();
-    cryptoService.getUserKey.mockResolvedValue(null);
+  it("should handle null userKey", async () => {
     const encryptService = mock<EncryptService>();
 
-    const result = await sut.derive([userId, encryptedPrivateKey], {
+    const result = await sut.derive([encryptedPrivateKey, null], {
       encryptService,
-      cryptoService,
     });
 
     expect(result).toEqual(null);

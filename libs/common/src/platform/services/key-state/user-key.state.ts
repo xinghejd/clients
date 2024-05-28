@@ -4,7 +4,6 @@ import { EncryptService } from "../../abstractions/encrypt.service";
 import { EncString, EncryptedString } from "../../models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../models/domain/symmetric-crypto-key";
 import { CRYPTO_DISK, DeriveDefinition, CRYPTO_MEMORY, UserKeyDefinition } from "../../state";
-import { CryptoService } from "../crypto.service";
 
 export const USER_EVER_HAD_USER_KEY = new UserKeyDefinition<boolean>(
   CRYPTO_DISK,
@@ -24,20 +23,14 @@ export const USER_ENCRYPTED_PRIVATE_KEY = new UserKeyDefinition<EncryptedString>
   },
 );
 
-export const USER_PRIVATE_KEY = DeriveDefinition.fromWithUserId<
-  EncryptedString,
+export const USER_PRIVATE_KEY = new DeriveDefinition<
+  [EncryptedString, UserKey],
   UserPrivateKey,
-  // TODO: update cryptoService to user key directly
-  { encryptService: EncryptService; cryptoService: CryptoService }
->(USER_ENCRYPTED_PRIVATE_KEY, {
+  { encryptService: EncryptService }
+>(CRYPTO_MEMORY, "privateKey", {
   deserializer: (obj) => new Uint8Array(Object.values(obj)) as UserPrivateKey,
-  derive: async ([userId, encPrivateKeyString], { encryptService, cryptoService }) => {
-    if (encPrivateKeyString == null) {
-      return null;
-    }
-
-    const userKey = await cryptoService.getUserKey(userId);
-    if (userKey == null) {
+  derive: async ([encPrivateKeyString, userKey], { encryptService }) => {
+    if (encPrivateKeyString == null || userKey == null) {
       return null;
     }
 
@@ -64,6 +57,7 @@ export const USER_PUBLIC_KEY = DeriveDefinition.from<
     return (await cryptoFunctionService.rsaExtractPublicKey(privateKey)) as UserPublicKey;
   },
 });
+
 export const USER_KEY = new UserKeyDefinition<UserKey>(CRYPTO_MEMORY, "userKey", {
   deserializer: (obj) => SymmetricCryptoKey.fromJSON(obj) as UserKey,
   clearOn: ["logout", "lock"],

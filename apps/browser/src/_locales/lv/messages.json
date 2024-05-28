@@ -3,11 +3,11 @@
     "message": "Bitwarden"
   },
   "extName": {
-    "message": "Bitwarden Password Manager",
+    "message": "Bitwarden paroļu pārvaldnieks",
     "description": "Extension name, MUST be less than 40 characters (Safari restriction)"
   },
   "extDesc": {
-    "message": "At home, at work, or on the go, Bitwarden easily secures all your passwords, passkeys, and sensitive information",
+    "message": "Bitwarden viegli aizsargā visas paroles, paroļu atslēgas un jutīgu informāciju mājās, darbā vai ceļā",
     "description": "Extension description, MUST be less than 112 characters (Safari restriction)"
   },
   "loginOrCreateNewAccount": {
@@ -166,14 +166,20 @@
   "confirmIdentity": {
     "message": "Jāapstiprina identitāte, lai turpinātu."
   },
-  "account": {
-    "message": "Konts"
-  },
   "changeMasterPassword": {
     "message": "Mainīt galveno paroli"
   },
   "continueToWebApp": {
     "message": "Pāriet uz tīmekļa lietotni?"
+  },
+  "continueToWebAppDesc": {
+    "message": "Vairāk sava Bitwarden konta iespēju var izpētīt tīmekļa vietnē."
+  },
+  "continueToHelpCenter": {
+    "message": "Pāriet uz palīdzības centru?"
+  },
+  "continueToHelpCenterDesc": {
+    "message": "Vairāk par to, kā izmantot Bitwarden, var uzzināt palīdzības centrā."
   },
   "changeMasterPasswordOnWebConfirmation": {
     "message": "Savu galveno paroli var mainīt Bitwarden tīmekļa lietotnē."
@@ -192,8 +198,44 @@
   "logOut": {
     "message": "Atteikties"
   },
+  "aboutBitwarden": {
+    "message": "Par Bitwarden"
+  },
   "about": {
     "message": "Par"
+  },
+  "moreFromBitwarden": {
+    "message": "Vairāk no Bitwarden"
+  },
+  "continueToBitwardenDotCom": {
+    "message": "Pāriet uz bitwarden.com?"
+  },
+  "bitwardenForBusiness": {
+    "message": "Bitwarden uzņēmējdarbībai"
+  },
+  "bitwardenAuthenticator": {
+    "message": "Bitwarden autentificētājs"
+  },
+  "continueToAuthenticatorPageDesc": {
+    "message": "Bitwarden autentificētājs ļauj glabāt autentificētāja atslēgas un izveidot TOTP kodus divpakāpju apliecināšanas plūsmām. Vairāk var uzzināt tīmekļvietnē bitwarden.com"
+  },
+  "bitwardenSecretsManager": {
+    "message": "Bitwarden noslēpumu pārvaldnieks"
+  },
+  "continueToSecretsManagerPageDesc": {
+    "message": "Droša izstrādātāju noslēpumu uzglabāšana, pārvaldīšana un kopīgošana ar Bitwarden noslēpumu pārvaldnieku. Vairāk var uzzināt tīmekļvietnē bitwarden.com."
+  },
+  "passwordlessDotDev": {
+    "message": "Passwordless.dev"
+  },
+  "continueToPasswordlessDotDevPageDesc": {
+    "message": "Plūdenu un drošu pieteikšanās pieredžu, kas ir brīvas no ierastajām parolēm, izveidošana ar Passwordless.dev. Vairāk var uzzināt tīmekļvietnē bitwarden.com."
+  },
+  "freeBitwardenFamilies": {
+    "message": "Bezmaksas Bitwarden ģimenēm"
+  },
+  "freeBitwardenFamiliesPageDesc": {
+    "message": "Tev ir tiesības uz bezmaksas Bitwarden ģimenēm. Šo piedāvājumu šodien var pieņemt tīmekļa lietotnē."
   },
   "version": {
     "message": "Laidiens"
@@ -253,8 +295,8 @@
   "passGenInfo": {
     "message": "Automātiski veido spēcīgas, neatkārtojamas paroles visiem pieteikšanās vienumiem."
   },
-  "bitWebVault": {
-    "message": "Bitwarden tīmekļa glabātava"
+  "bitWebVaultApp": {
+    "message": "Bitwarden tīmekļa lietotne"
   },
   "importItems": {
     "message": "Ievietot vienumus"
@@ -374,11 +416,20 @@
   "other": {
     "message": "Cits"
   },
+  "unlockMethods": {
+    "message": "Atslēgšanas iespējas"
+  },
   "unlockMethodNeededToChangeTimeoutActionDesc": {
     "message": "Jāuzstāda atslēgšanas veids, lai mainītu glabātavas noildzes darbību."
   },
   "unlockMethodNeeded": {
     "message": "Jāuzstāda atslēgšanas veids iestatījumos"
+  },
+  "sessionTimeoutHeader": {
+    "message": "Sesijas noildze"
+  },
+  "otherOptions": {
+    "message": "Citas iespējas"
   },
   "rateExtension": {
     "message": "Novērtēt paplašinājumu"
@@ -770,11 +821,8 @@
   "shared": {
     "message": "Kopīgots"
   },
-  "learnOrg": {
-    "message": "Uzzināt par apvienībām"
-  },
-  "learnOrgConfirmation": {
-    "message": "Bitwarden nodrošina iespēju kopīgot glabātavas vienumus ar citiem, kad tiek izmantota apvienība. Vai apmeklēt bitwarden.com tīmekļvietni, lai uzzinātu vairāk?"
+  "bitwardenForBusinessPageDesc": {
+    "message": "Bitwarden uzņēmējdarbībai nodrošina iespēju kopīgot savas glabātavas vienumus ar citiem, kad tiek izmantota apvienība. Vairāk var uzzināt tīmekļvietnē bitwarden.com."
   },
   "moveToOrganization": {
     "message": "Pārvietot uz apvienību"
@@ -1119,9 +1167,6 @@
   },
   "commandLockVaultDesc": {
     "message": "Aizslēgt glabātavu"
-  },
-  "privateModeWarning": {
-    "message": "Personiskā stāvokļa atbalsts ir izmēģinājuma, un dažas iespējas ir ierobežotas."
   },
   "customFields": {
     "message": "Pielāgoti lauki"
@@ -1708,6 +1753,12 @@
   "biometricsNotSupportedDesc": {
     "message": "Šajā ierīcē netiek atbalstīta pārlūka biometrija."
   },
+  "biometricsNotUnlockedTitle": {
+    "message": "Lietotājs aizslēgts vai izrakstījies"
+  },
+  "biometricsNotUnlockedDesc": {
+    "message": "Lūgums atslēgt šo lietotāju darbvirsmas lietotnē un mēģināt vēlreiz."
+  },
   "biometricsFailedTitle": {
     "message": "Biometrija neizdevās"
   },
@@ -2170,6 +2221,108 @@
   },
   "forwardedEmailDesc": {
     "message": "Izveidot e-pastu aizstājvārdu ar ārēju pārvirzīšanas pakalpojumu."
+  },
+  "forwarderError": {
+    "message": "$SERVICENAME$ kļūda: $ERRORMESSAGE$",
+    "description": "Reports an error returned by a forwarding service to the user.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Invalid characters in domain name."
+      }
+    }
+  },
+  "forwarderGeneratedBy": {
+    "message": "Izveidoja Bitwarden.",
+    "description": "Displayed with the address on the forwarding service's configuration screen."
+  },
+  "forwarderGeneratedByWithWebsite": {
+    "message": "Tīmekļvietne: $WEBSITE$. Izveidoja Bitwarden.",
+    "description": "Displayed with the address on the forwarding service's configuration screen.",
+    "placeholders": {
+      "WEBSITE": {
+        "content": "$1",
+        "example": "www.example.com"
+      }
+    }
+  },
+  "forwaderInvalidToken": {
+    "message": "Nederīga $SERVICENAME$ API pilnvara",
+    "description": "Displayed when the user's API token is empty or rejected by the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwaderInvalidTokenWithMessage": {
+    "message": "Nederīga $SERVICENAME$ API pilnvara: $ERRORMESSAGE$",
+    "description": "Displayed when the user's API token is rejected by the forwarding service with an error message.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      },
+      "errormessage": {
+        "content": "$2",
+        "example": "Please verify your email address to continue."
+      }
+    }
+  },
+  "forwarderNoAccountId": {
+    "message": "Neizdevās iegūt $SERVICENAME$ aizsegta e-pasta konta Id.",
+    "description": "Displayed when the forwarding service fails to return an account ID.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderNoDomain": {
+    "message": "Nederīgs $SERVICENAME$ domēna vārds.",
+    "description": "Displayed when the domain is empty or domain authorization failed at the forwarding service.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderNoUrl": {
+    "message": "Nederīgs $SERVICENAME$ URL.",
+    "description": "Displayed when the url of the forwarding service wasn't supplied.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderUnknownError": {
+    "message": "Atgadījās nezināma $SERVICENAME$ kļūda.",
+    "description": "Displayed when the forwarding service failed due to an unknown error.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "SimpleLogin"
+      }
+    }
+  },
+  "forwarderUnknownForwarder": {
+    "message": "Nezināms pārsūtītājs: '$SERVICENAME$'.",
+    "description": "Displayed when the forwarding service is not supported.",
+    "placeholders": {
+      "servicename": {
+        "content": "$1",
+        "example": "JustTrust.us"
+      }
+    }
   },
   "hostname": {
     "message": "Resursdatora nosaukums",
@@ -3023,13 +3176,90 @@
     "message": "lai padarītu tos redzamus.",
     "description": "This will be part of a larger sentence, which will read like so: Assign these items to a collection from the Admin Console to make them visible."
   },
+  "autofillSuggestions": {
+    "message": "Ieteikumi automātiskajai aizpildei"
+  },
+  "autofillSuggestionsTip": {
+    "message": "Saglabāt pieteikšanās vienumi, ko automātiski aizpildīt šajā vietnē"
+  },
+  "yourVaultIsEmpty": {
+    "message": "Glabātava ir tukša"
+  },
+  "noItemsMatchSearch": {
+    "message": "Neviens vienums neatbilst meklētajam"
+  },
+  "clearFiltersOrTryAnother": {
+    "message": "Jānotīra atlases vērtības vai jāmēģina cits meklēšanas vaicājums"
+  },
+  "copyInfo": {
+    "message": "Kopēt informāciju, $ITEMNAME$",
+    "description": "Aria label for a button that opens a menu with options to copy information from an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "moreOptions": {
+    "message": "Vairāk iespēju, $ITEMNAME$",
+    "description": "Aria label for a button that opens a menu with more options for an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
   "adminConsole": {
     "message": "pārvaldības konsolē,"
+  },
+  "accountSecurity": {
+    "message": "Konta drošība"
+  },
+  "notifications": {
+    "message": "Paziņojumi"
+  },
+  "appearance": {
+    "message": "Izskats"
   },
   "errorAssigningTargetCollection": {
     "message": "Kļūda mērķa krājuma piešķiršanā."
   },
   "errorAssigningTargetFolder": {
     "message": "Kļūda mērķa mapes piešķiršanā."
+  },
+  "viewItemsIn": {
+    "message": "View items in $NAME$",
+    "description": "Button to view the contents of a folder or collection",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "backTo": {
+    "message": "Back to $NAME$",
+    "description": "Navigate back to a previous folder or collection",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
+  },
+  "new": {
+    "message": "Jauns"
+  },
+  "removeItem": {
+    "message": "Remove $NAME$",
+    "description": "Remove a selected option, such as a folder or collection",
+    "placeholders": {
+      "name": {
+        "content": "$1",
+        "example": "Work"
+      }
+    }
   }
 }
