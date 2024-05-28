@@ -101,3 +101,16 @@ export const RejectedPromise: ObservableStory = {
     template: `<app-rejected-promise-example></app-rejected-promise-example>`,
   }),
 };
+
+export const WithContext: ObservableStory = {
+  render: (args) => ({
+    template: `
+      <button bitButton buttonType="primary" class="tw-mr-2" [bitAction]="action" context="example">
+        Perform action
+      </button>
+      <button bitIconButton="bwi-trash" buttonType="danger" [bitAction]="action" context="example"></button>`,
+    props: {
+      action: () => new Promise((resolve) => setTimeout(resolve, 2000)),
+    },
+  }),
+};
