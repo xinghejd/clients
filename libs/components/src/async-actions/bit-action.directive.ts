@@ -7,6 +7,8 @@ import { ValidationService } from "@bitwarden/common/platform/abstractions/valid
 import { ButtonLikeAbstraction } from "../shared/button-like.abstraction";
 import { FunctionReturningAwaitable, functionToObservable } from "../utils/function-to-observable";
 
+import { ContextProvider } from "./context-provider.abstraction";
+
 /**
  * Allow a single button to perform async actions on click and reflect the progress in the UI by automatically
  * activating the loading effect while the action is processed.
@@ -26,6 +28,7 @@ export class BitActionDirective implements OnDestroy {
 
   constructor(
     private buttonComponent: ButtonLikeAbstraction,
+    @Optional() private contextProvider?: ContextProvider,
     @Optional() private validationService?: ValidationService,
     @Optional() private logService?: LogService,
   ) {}

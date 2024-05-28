@@ -10,6 +10,7 @@ import { ButtonModule } from "../button";
 import { IconButtonModule } from "../icon-button";
 
 import { BitActionDirective } from "./bit-action.directive";
+import { BitContextProviderDirective } from "./context-provider.directive";
 
 const template = `
   <button bitButton buttonType="primary" [bitAction]="action" class="tw-mr-2">
@@ -57,6 +58,7 @@ export default {
     moduleMetadata({
       declarations: [
         BitActionDirective,
+        BitContextProviderDirective,
         PromiseExampleComponent,
         ObservableExampleComponent,
         RejectedPromiseExampleComponent,
