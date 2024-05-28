@@ -77,7 +77,11 @@ module.exports = {
       alt2: rgba("--color-text-alt2"),
       code: rgba("--color-text-code"),
       success: rgba("--color-success-600"),
-      danger: rgba("--color-danger-600"),
+      danger: {
+        DEFAULT: rgba("--color-danger-600"),
+        600: rgba("--color-danger-600"),
+        700: rgba("--color-danger-700"),
+      },
       warning: rgba("--color-warning-600"),
       info: rgba("--color-info-600"),
       primary: {
@@ -123,6 +127,19 @@ module.exports = {
         },
         {},
       );
+    }),
+    plugin(function ({ addVariant }) {
+      for (const state of [
+        "active",
+        "hover",
+        "focus",
+        "focus-within",
+        "focus-visible",
+        "target",
+        "visited",
+      ]) {
+        addVariant(state, [`&:${state}`, `&.test-${state}`]);
+      }
     }),
   ],
 };
