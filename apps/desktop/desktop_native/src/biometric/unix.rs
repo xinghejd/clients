@@ -27,7 +27,6 @@ impl super::BiometricTrait for Biometric {
     async fn available() -> Result<bool> {
         let connection = Connection::system().await?;
         let proxy = AuthorityProxy::new(&connection).await?;
-        let subject = Subject::new_for_owner(std::process::id(), None, None)?;
         let res = proxy.enumerate_actions("en").await?;
         for action in res {
             if action.action_id == "com.bitwarden.Bitwarden.unlock" {
