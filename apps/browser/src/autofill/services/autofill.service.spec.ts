@@ -1,6 +1,8 @@
-import { mock, mockReset } from "jest-mock-extended";
-import { of } from "rxjs";
+import { mock, MockProxy, mockReset } from "jest-mock-extended";
+import { BehaviorSubject, of } from "rxjs";
 
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { UserVerificationService } from "@bitwarden/common/auth/services/user-verification/user-verification.service";
 import { AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsService } from "@bitwarden/common/autofill/services/autofill-settings.service";
@@ -76,9 +78,14 @@ describe("AutofillService", () => {
   const userVerificationService = mock<UserVerificationService>();
   const billingAccountProfileStateService = mock<BillingAccountProfileStateService>();
   const platformUtilsService = mock<PlatformUtilsService>();
+  let activeAccountStatusMock$: BehaviorSubject<AuthenticationStatus>;
+  let authService: MockProxy<AuthService>;
 
   beforeEach(() => {
     scriptInjectorService = new BrowserScriptInjectorService(platformUtilsService, logService);
+    activeAccountStatusMock$ = new BehaviorSubject(AuthenticationStatus.Unlocked);
+    authService = mock<AuthService>();
+    authService.activeAccountStatus$ = activeAccountStatusMock$;
     autofillService = new AutofillService(
       cipherService,
       autofillSettingsService,
@@ -90,6 +97,7 @@ describe("AutofillService", () => {
       billingAccountProfileStateService,
       scriptInjectorService,
       accountService,
+      authService,
     );
 
     domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider);

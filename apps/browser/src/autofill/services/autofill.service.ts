@@ -2,7 +2,9 @@ import { firstValueFrom } from "rxjs";
 
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
 import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
+import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
@@ -59,6 +61,7 @@ export default class AutofillService implements AutofillServiceInterface {
     private billingAccountProfileStateService: BillingAccountProfileStateService,
     private scriptInjectorService: ScriptInjectorService,
     private accountService: AccountService,
+    private authService: AuthService,
   ) {}
 
   /**
@@ -109,6 +112,8 @@ export default class AutofillService implements AutofillServiceInterface {
     // Autofill user settings loaded from state can await the active account state indefinitely
     // if not guarded by an active account check (e.g. the user is logged in)
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
+    const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
+    const accountIsUnlocked = authStatus === AuthenticationStatus.Unlocked;
 
     let autoFillOnPageLoadIsEnabled = false;
     const overlayVisibility = await this.getOverlayVisibility();
@@ -119,7 +124,7 @@ export default class AutofillService implements AutofillServiceInterface {
 
     const injectedScripts = [mainAutofillScript];
 
-    if (activeAccount) {
+    if (activeAccount && accountIsUnlocked) {
       autoFillOnPageLoadIsEnabled = await this.getAutofillOnPageLoad();
     }
 

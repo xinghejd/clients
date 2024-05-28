@@ -853,6 +853,7 @@ export default class MainBackground {
       this.billingAccountProfileStateService,
       this.scriptInjectorService,
       this.accountService,
+      this.authService,
     );
     this.auditService = new AuditService(this.cryptoFunctionService, this.apiService);
 
