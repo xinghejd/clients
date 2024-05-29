@@ -1,4 +1,4 @@
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { StateService } from "@bitwarden/common/src/platform/abstractions/state.service";
 import {
   DefaultPasswordGenerationOptions,
   DefaultPassphraseGenerationOptions,
