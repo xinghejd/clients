@@ -218,5 +218,10 @@ export default class BiometricWindowsMain implements OsBiometricService {
   async osBiometricsNeedsSetup() {
     return false;
   }
+
+  async osBiometricsCanAutoSetup(): Promise<boolean> {
+    return false;
+  }
+
   osBiometricsSetup: () => Promise<void>;
 }

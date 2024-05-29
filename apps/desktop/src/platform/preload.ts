@@ -56,6 +56,10 @@ const biometric = {
     ipcRenderer.invoke("biometric", {
       action: BiometricAction.Setup,
     } satisfies BiometricMessage),
+  biometricsCanAutoSetup: (): Promise<boolean> =>
+    ipcRenderer.invoke("biometric", {
+      action: BiometricAction.CanAutoSetup,
+    } satisfies BiometricMessage),
   authenticate: (): Promise<boolean> =>
     ipcRenderer.invoke("biometric", {
       action: BiometricAction.Authenticate,

@@ -139,6 +139,10 @@ export class ElectronPlatformUtilsService implements PlatformUtilsService {
     return await ipc.platform.biometric.biometricsNeedsSetup();
   }
 
+  async biometricsSupportsAutoSetup(): Promise<boolean> {
+    return await ipc.platform.biometric.biometricsCanAutoSetup();
+  }
+
   async biometricsSetup(): Promise<void> {
     return await ipc.platform.biometric.biometricsSetup();
   }

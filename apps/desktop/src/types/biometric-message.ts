@@ -4,6 +4,7 @@ export enum BiometricAction {
   Authenticate = "authenticate",
   NeedsSetup = "needsSetup",
   Setup = "setup",
+  CanAutoSetup = "canAutoSetup",
 }
 
 export type BiometricMessage = {

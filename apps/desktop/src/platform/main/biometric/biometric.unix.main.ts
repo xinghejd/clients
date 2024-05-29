@@ -1,10 +1,10 @@
 import { spawn } from "child_process";
-import { existsSync } from "fs";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { biometrics, passwords } from "@bitwarden/desktop-native";
 
 import { WindowMain } from "../../../main/window.main";
+import { isFlatpak, isLinux, isSnapStore } from "../../../utils";
 
 import { OsBiometricService } from "./biometrics.service.abstraction";
 
@@ -58,23 +58,47 @@ export default class BiometricUnixMain implements OsBiometricService {
   }
 
   async osSupportsBiometric(): Promise<boolean> {
-    return existsSync(policyPath);
+    return true;
   }
 
   async osBiometricsNeedsSetup(): Promise<boolean> {
-    return !existsSync(policyPath + policyFileName);
+    // check whether the polkit policy is loaded via dbus call to polkit
+    return !(await biometrics.available());
+  }
+
+  async osBiometricsCanAutoSetup(): Promise<boolean> {
+    return isLinux() && !isSnapStore() && !isFlatpak();
   }
 
   async osBiometricsSetup(): Promise<void> {
-    const process = spawn("pkexec", [
+    let process = spawn("pkexec", [
       "bash",
       "-c",
       `echo '${polkitPolicy}' > ${policyPath + policyFileName}`,
     ]);
-    process.on("close", (code) => {
-      if (code !== 0) {
-        throw new Error("Failed to set up polkit policy");
-      }
+
+    await new Promise((resolve, reject) => {
+      process.on("close", (code) => {
+        if (code !== 0) {
+          reject("Failed to set up polkit policy");
+        } else {
+          process = spawn("pkexec", ["chown", "root:root", policyPath + policyFileName]);
+          process.on("close", (code) => {
+            if (code !== 0) {
+              reject("Failed to change polkit policy permissions");
+            } else {
+              // selinux requires labeling
+              process = spawn("pkexec", [
+                "chcon",
+                "system_u:object_r:usr_t:s0",
+                policyPath + policyFileName,
+              ]);
+              // fail silently
+              resolve(null);
+            }
+          });
+        }
+      });
     });
   }
 }

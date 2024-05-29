@@ -75,6 +75,10 @@ export class BiometricsService implements BiometricsServiceAbstraction {
     return await this.platformSpecificService.osBiometricsNeedsSetup();
   }
 
+  async osBiometricsCanAutoSetup() {
+    return await this.platformSpecificService.osBiometricsCanAutoSetup();
+  }
+
   async osBiometricsSetup() {
     await this.platformSpecificService.osBiometricsSetup();
   }

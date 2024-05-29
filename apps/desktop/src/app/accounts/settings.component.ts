@@ -488,6 +488,27 @@ export class SettingsComponent implements OnInit {
         return;
       }
 
+      const needsSetup = await this.platformUtilsService.biometricsNeedsSetup();
+      const supportsBiometricAutoSetup =
+        await this.platformUtilsService.biometricsSupportsAutoSetup();
+
+      if (needsSetup) {
+        if (supportsBiometricAutoSetup) {
+          await this.platformUtilsService.biometricsSetup();
+        } else {
+          const confirmed = await this.dialogService.openSimpleDialog({
+            title: { key: "biometricsManualSetupTitle" },
+            content: { key: "biometricsManualSetupDesc" },
+            type: "warning",
+          });
+          if (confirmed) {
+            // TODO: replace this with a link to an article on how to setup biometrics
+            this.platformUtilsService.launchUri("https://bitwarden.com/help");
+          }
+          return;
+        }
+      }
+
       await this.biometricStateService.setBiometricUnlockEnabled(true);
       if (this.isWindows) {
         // Recommended settings for Windows Hello
