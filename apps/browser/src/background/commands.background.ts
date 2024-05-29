@@ -2,7 +2,7 @@ import { VaultTimeoutService } from "@bitwarden/common/abstractions/vault-timeou
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
+import { legacy } from "@bitwarden/generator-extensions";
 
 import { openUnlockPopout } from "../auth/popup/utils/auth-popout-window";
 import { LockedVaultPendingNotificationsData } from "../autofill/background/abstractions/notification.background";
@@ -16,7 +16,7 @@ export default class CommandsBackground {
 
   constructor(
     private main: MainBackground,
-    private passwordGenerationService: PasswordGenerationServiceAbstraction,
+    private passwordGenerationService: legacy.PasswordGenerationServiceAbstraction,
     private platformUtilsService: PlatformUtilsService,
     private vaultTimeoutService: VaultTimeoutService,
     private authService: AuthService,

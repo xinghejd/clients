@@ -13,8 +13,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 import { DialogService } from "@bitwarden/components";
+import { legacy } from "@bitwarden/generator-extensions";
 
 @Component({
   selector: "app-register",
@@ -34,7 +34,7 @@ export class RegisterComponent extends BaseRegisterComponent {
     apiService: ApiService,
     stateService: StateService,
     platformUtilsService: PlatformUtilsService,
-    passwordGenerationService: PasswordGenerationServiceAbstraction,
+    passwordGenerationService: legacy.PasswordGenerationServiceAbstraction,
     environmentService: EnvironmentService,
     logService: LogService,
     auditService: AuditService,

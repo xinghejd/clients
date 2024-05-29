@@ -10,7 +10,7 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
+import { legacy } from "@bitwarden/generator-extensions";
 
 import { DialogService } from "../../../../components/src/dialog";
 import { ClientInfo, Vault } from "../../importers/lastpass/access";
@@ -36,7 +36,7 @@ export class LastPassDirectImportService {
     private appIdService: AppIdService,
     private lastPassDirectImportUIService: LastPassDirectImportUIService,
     private platformUtilsService: PlatformUtilsService,
-    private passwordGenerationService: PasswordGenerationServiceAbstraction,
+    private passwordGenerationService: legacy.PasswordGenerationServiceAbstraction,
     private broadcasterService: BroadcasterService,
     private ngZone: NgZone,
     private dialogService: DialogService,

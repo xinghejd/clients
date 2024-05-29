@@ -193,12 +193,6 @@ import { SearchService } from "@bitwarden/common/services/search.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/services/vault-timeout/vault-timeout-settings.service";
 import { VaultTimeoutService } from "@bitwarden/common/services/vault-timeout/vault-timeout.service";
 import {
-  legacyPasswordGenerationServiceFactory,
-  legacyUsernameGenerationServiceFactory,
-} from "@bitwarden/common/tools/generator";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
-import { UsernameGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/username";
-import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
 } from "@bitwarden/common/tools/password-strength";
@@ -232,6 +226,7 @@ import { SyncNotifierService } from "@bitwarden/common/vault/services/sync/sync-
 import { SyncService } from "@bitwarden/common/vault/services/sync/sync.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/services/vault-settings/vault-settings.service";
+import { legacy } from "@bitwarden/generator-extensions";
 import {
   ImportApiService,
   ImportApiServiceAbstraction,
@@ -556,8 +551,8 @@ const safeProviders: SafeProvider[] = [
     deps: [],
   }),
   safeProvider({
-    provide: PasswordGenerationServiceAbstraction,
-    useFactory: legacyPasswordGenerationServiceFactory,
+    provide: legacy.PasswordGenerationServiceAbstraction,
+    useFactory: legacy.createPasswordGenerationService,
     deps: [
       EncryptService,
       CryptoServiceAbstraction,
@@ -567,8 +562,8 @@ const safeProviders: SafeProvider[] = [
     ],
   }),
   safeProvider({
-    provide: UsernameGenerationServiceAbstraction,
-    useFactory: legacyUsernameGenerationServiceFactory,
+    provide: legacy.UsernameGenerationServiceAbstraction,
+    useFactory: legacy.createUsernameGenerationService,
     deps: [
       ApiServiceAbstraction,
       I18nServiceAbstraction,

@@ -22,7 +22,7 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
+import { legacy } from "@bitwarden/generator-extensions";
 
 import {
   AllValidationErrors,
@@ -73,7 +73,7 @@ export class LoginComponent extends CaptchaProtectedComponent implements OnInit,
     i18nService: I18nService,
     protected stateService: StateService,
     environmentService: EnvironmentService,
-    protected passwordGenerationService: PasswordGenerationServiceAbstraction,
+    protected passwordGenerationService: legacy.PasswordGenerationServiceAbstraction,
     protected cryptoFunctionService: CryptoFunctionService,
     protected logService: LogService,
     protected ngZone: NgZone,

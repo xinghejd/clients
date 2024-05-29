@@ -27,8 +27,8 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 import { PasswordStrengthServiceAbstraction } from "@bitwarden/common/tools/password-strength";
+import { legacy } from "@bitwarden/generator-extensions";
 
 import { flagEnabled } from "../../../utils/flags";
 import { RouterService, StateService } from "../../core";
@@ -53,7 +53,7 @@ export class LoginComponent extends BaseLoginComponent implements OnInit {
     route: ActivatedRoute,
     platformUtilsService: PlatformUtilsService,
     environmentService: EnvironmentService,
-    passwordGenerationService: PasswordGenerationServiceAbstraction,
+    passwordGenerationService: legacy.PasswordGenerationServiceAbstraction,
     private passwordStrengthService: PasswordStrengthServiceAbstraction,
     cryptoFunctionService: CryptoFunctionService,
     private policyApiService: PolicyApiServiceAbstraction,

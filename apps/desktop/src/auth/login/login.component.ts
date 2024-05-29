@@ -22,8 +22,8 @@ import { LogService } from "@bitwarden/common/platform/abstractions/log.service"
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { legacy } from "@bitwarden/generator-extensions";
 
 import { EnvironmentComponent } from "../environment.component";
 
@@ -59,7 +59,7 @@ export class LoginComponent extends BaseLoginComponent implements OnDestroy {
     platformUtilsService: PlatformUtilsService,
     stateService: StateService,
     environmentService: EnvironmentService,
-    passwordGenerationService: PasswordGenerationServiceAbstraction,
+    passwordGenerationService: legacy.PasswordGenerationServiceAbstraction,
     cryptoFunctionService: CryptoFunctionService,
     private broadcasterService: BroadcasterService,
     ngZone: NgZone,

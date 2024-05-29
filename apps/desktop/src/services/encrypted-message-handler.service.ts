@@ -6,13 +6,13 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 import { LoginUriView } from "@bitwarden/common/vault/models/view/login-uri.view";
 import { LoginView } from "@bitwarden/common/vault/models/view/login.view";
+import { legacy } from "@bitwarden/generator-extensions";
 
 import { DecryptedCommandData } from "../models/native-messaging/decrypted-command-data";
 import { CredentialCreatePayload } from "../models/native-messaging/encrypted-message-payloads/credential-create-payload";
@@ -34,7 +34,7 @@ export class EncryptedMessageHandlerService {
     private cipherService: CipherService,
     private policyService: PolicyService,
     private messagingService: MessagingService,
-    private passwordGenerationService: PasswordGenerationServiceAbstraction,
+    private passwordGenerationService: legacy.PasswordGenerationServiceAbstraction,
   ) {}
 
   async responseDataForCommand(commandData: DecryptedCommandData): Promise<MessageResponseData> {

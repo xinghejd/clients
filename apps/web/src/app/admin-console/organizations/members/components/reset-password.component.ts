@@ -17,8 +17,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 import { DialogService } from "@bitwarden/components";
+import { legacy } from "@bitwarden/generator-extensions";
 
 import { OrganizationUserResetPasswordService } from "../services/organization-user-reset-password/organization-user-reset-password.service";
 
@@ -46,7 +46,7 @@ export class ResetPasswordComponent implements OnInit, OnDestroy {
     private resetPasswordService: OrganizationUserResetPasswordService,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
-    private passwordGenerationService: PasswordGenerationServiceAbstraction,
+    private passwordGenerationService: legacy.PasswordGenerationServiceAbstraction,
     private policyService: PolicyService,
     private logService: LogService,
     private dialogService: DialogService,

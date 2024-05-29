@@ -56,10 +56,10 @@ import { SystemService } from "@bitwarden/common/platform/services/system.servic
 import { GlobalStateProvider, StateProvider } from "@bitwarden/common/platform/state";
 // eslint-disable-next-line import/no-restricted-paths -- Implementation for memory storage
 import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@bitwarden/common/platform/state/storage/memory-storage.service";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 import { VaultTimeoutStringType } from "@bitwarden/common/types/vault-timeout.type";
 import { CipherService as CipherServiceAbstraction } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { DialogService } from "@bitwarden/components";
+import { legacy } from "@bitwarden/generator-extensions";
 
 import { PinServiceAbstraction } from "../../../../../libs/auth/src/common/abstractions";
 import { DesktopAutofillSettingsService } from "../../autofill/services/desktop-autofill-settings.service";
@@ -234,7 +234,7 @@ const safeProviders: SafeProvider[] = [
       CipherServiceAbstraction,
       PolicyServiceAbstraction,
       MessagingServiceAbstraction,
-      PasswordGenerationServiceAbstraction,
+      legacy.PasswordGenerationServiceAbstraction,
     ],
   }),
   safeProvider({

@@ -21,8 +21,8 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 import { SyncService } from "@bitwarden/common/vault/abstractions/sync/sync.service.abstraction";
+import { legacy } from "@bitwarden/generator-extensions";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 
@@ -41,7 +41,7 @@ export class SsoComponent extends BaseSsoComponent {
     platformUtilsService: PlatformUtilsService,
     apiService: ApiService,
     cryptoFunctionService: CryptoFunctionService,
-    passwordGenerationService: PasswordGenerationServiceAbstraction,
+    passwordGenerationService: legacy.PasswordGenerationServiceAbstraction,
     syncService: SyncService,
     environmentService: EnvironmentService,
     logService: LogService,

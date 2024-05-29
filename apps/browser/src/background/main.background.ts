@@ -144,12 +144,6 @@ import { NotificationsService } from "@bitwarden/common/services/notifications.s
 import { SearchService } from "@bitwarden/common/services/search.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/services/vault-timeout/vault-timeout-settings.service";
 import {
-  legacyPasswordGenerationServiceFactory,
-  legacyUsernameGenerationServiceFactory,
-} from "@bitwarden/common/tools/generator";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
-import { UsernameGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/username";
-import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
 } from "@bitwarden/common/tools/password-strength";
@@ -179,6 +173,7 @@ import { SyncNotifierService } from "@bitwarden/common/vault/services/sync/sync-
 import { SyncService } from "@bitwarden/common/vault/services/sync/sync.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
 import { VaultSettingsService } from "@bitwarden/common/vault/services/vault-settings/vault-settings.service";
+import { legacy } from "@bitwarden/generator-extensions";
 import {
   ImportApiService,
   ImportApiServiceAbstraction,
@@ -268,7 +263,7 @@ export default class MainBackground {
   vaultTimeoutService: VaultTimeoutService;
   vaultTimeoutSettingsService: VaultTimeoutSettingsServiceAbstraction;
   syncService: SyncServiceAbstraction;
-  passwordGenerationService: PasswordGenerationServiceAbstraction;
+  passwordGenerationService: legacy.PasswordGenerationServiceAbstraction;
   passwordStrengthService: PasswordStrengthServiceAbstraction;
   totpService: TotpServiceAbstraction;
   autofillService: AutofillServiceAbstraction;
@@ -299,7 +294,7 @@ export default class MainBackground {
   keyConnectorService: KeyConnectorServiceAbstraction;
   userVerificationService: UserVerificationServiceAbstraction;
   vaultFilterService: VaultFilterService;
-  usernameGenerationService: UsernameGenerationServiceAbstraction;
+  usernameGenerationService: legacy.UsernameGenerationServiceAbstraction;
   encryptService: EncryptService;
   folderApiService: FolderApiServiceAbstraction;
   policyApiService: PolicyApiServiceAbstraction;
@@ -647,7 +642,7 @@ export default class MainBackground {
 
     this.passwordStrengthService = new PasswordStrengthService();
 
-    this.passwordGenerationService = legacyPasswordGenerationServiceFactory(
+    this.passwordGenerationService = legacy.createPasswordGenerationService(
       this.encryptService,
       this.cryptoService,
       this.policyService,
@@ -1098,7 +1093,7 @@ export default class MainBackground {
       this.vaultTimeoutSettingsService,
     );
 
-    this.usernameGenerationService = legacyUsernameGenerationServiceFactory(
+    this.usernameGenerationService = legacy.createUsernameGenerationService(
       this.apiService,
       this.i18nService,
       this.cryptoService,
