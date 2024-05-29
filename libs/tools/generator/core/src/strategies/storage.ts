@@ -1,5 +1,5 @@
 import { GENERATOR_DISK, UserKeyDefinition } from "@bitwarden/common/platform/state";
-import { BufferedKeyDefinition } from "@bitwarden/common/tools/generator/state/buffered-key-definition";
+import { BufferedKeyDefinition } from "@bitwarden/common/src/tools/state/buffered-key-definition";
 
 import {
   PassphraseGenerationOptions,
@@ -11,8 +11,7 @@ import {
   EmailDomainOptions,
   EmailPrefixOptions,
   SelfHostedApiOptions,
- } from "../types";
-
+} from "../types";
 
 /** plaintext password generation options */
 export const PASSWORD_SETTINGS = new UserKeyDefinition<PasswordGenerationOptions>(

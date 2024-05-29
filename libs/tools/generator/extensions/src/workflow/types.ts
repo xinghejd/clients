@@ -1,4 +1,4 @@
-import { GeneratorType, UsernameGeneratorType, ForwarderId } from "@bitwarden/generator/types";
+import { GeneratorType, UsernameGeneratorType, ForwarderId } from "@bitwarden/generator";
 
 /** Stores credential generator UI state. */
 export type GeneratorNavigation = {

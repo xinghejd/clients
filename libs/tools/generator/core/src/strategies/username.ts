@@ -2,10 +2,8 @@ import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { EFFLongWordList } from "@bitwarden/common/platform/misc/wordlist";
 import { StateProvider } from "@bitwarden/common/platform/state";
 
-
-import { GeneratorStrategy } from "../abstractions";
+import { GeneratorStrategy, Randomizer } from "../abstractions";
 import { DefaultEffUsernameOptions } from "../data";
-import { Randomizer } from "../engine/random";
 import { newDefaultEvaluator } from "../rx";
 import { EffUsernameGenerationOptions, NoPolicy } from "../types";
 import { clone$PerUserId, sharedStateByUserId as sharedStateByUserId } from "../util";

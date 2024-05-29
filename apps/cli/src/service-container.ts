@@ -103,8 +103,6 @@ import { EventUploadService } from "@bitwarden/common/services/event/event-uploa
 import { SearchService } from "@bitwarden/common/services/search.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/services/vault-timeout/vault-timeout-settings.service";
 import { VaultTimeoutService } from "@bitwarden/common/services/vault-timeout/vault-timeout.service";
-import { legacyPasswordGenerationServiceFactory } from "@bitwarden/common/tools/generator";
-import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
@@ -123,6 +121,7 @@ import { FolderService } from "@bitwarden/common/vault/services/folder/folder.se
 import { SyncNotifierService } from "@bitwarden/common/vault/services/sync/sync-notifier.service";
 import { SyncService } from "@bitwarden/common/vault/services/sync/sync.service";
 import { TotpService } from "@bitwarden/common/vault/services/totp.service";
+import { legacy } from "@bitwarden/generator-extensions";
 import {
   ImportApiService,
   ImportApiServiceAbstraction,
@@ -181,7 +180,7 @@ export class ServiceContainer {
   syncService: SyncService;
   eventCollectionService: EventCollectionServiceAbstraction;
   eventUploadService: EventUploadServiceAbstraction;
-  passwordGenerationService: PasswordGenerationServiceAbstraction;
+  passwordGenerationService: legacy.PasswordGenerationServiceAbstraction;
   passwordStrengthService: PasswordStrengthServiceAbstraction;
   userDecryptionOptionsService: InternalUserDecryptionOptionsServiceAbstraction;
   totpService: TotpService;
@@ -497,7 +496,7 @@ export class ServiceContainer {
 
     this.passwordStrengthService = new PasswordStrengthService();
 
-    this.passwordGenerationService = legacyPasswordGenerationServiceFactory(
+    this.passwordGenerationService = legacy.createPasswordGenerationService(
       this.encryptService,
       this.cryptoService,
       this.policyService,

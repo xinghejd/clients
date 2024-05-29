@@ -1,17 +1,18 @@
 import { Jsonify } from "type-fest";
 
+import { legacy, workflow } from "@bitwarden/generator-extensions";
+
 import { UriMatchStrategySetting } from "../../../models/domain/domain-service";
-import { GeneratorOptions } from "../../../tools/generator-old/generator-options";
-import {
-  GeneratedPasswordHistory,
-  PasswordGeneratorOptions,
-} from "../../../tools/generator-old/password";
-import { UsernameGeneratorOptions } from "../../../tools/generator-old/username/username-generation-options";
 import { DeepJsonify } from "../../../types/deep-jsonify";
 import { KdfType } from "../../enums";
 import { Utils } from "../../misc/utils";
 
 import { SymmetricCryptoKey } from "./symmetric-crypto-key";
+
+type GeneratedPasswordHistory = legacy.GeneratedPasswordHistory;
+type PasswordGeneratorOptions = legacy.PasswordGeneratorOptions;
+type UsernameGeneratorOptions = legacy.UsernameGeneratorOptions;
+type GeneratorNavigation = workflow.GeneratorNavigation;
 
 export class EncryptionPair<TEncrypted, TDecrypted> {
   encrypted?: TEncrypted;
@@ -146,7 +147,7 @@ export class AccountSettings {
   minimizeOnCopyToClipboard?: boolean;
   passwordGenerationOptions?: PasswordGeneratorOptions;
   usernameGenerationOptions?: UsernameGeneratorOptions;
-  generatorOptions?: GeneratorOptions;
+  generatorOptions?: GeneratorNavigation;
 
   static fromJSON(obj: Jsonify<AccountSettings>): AccountSettings {
     if (obj == null) {

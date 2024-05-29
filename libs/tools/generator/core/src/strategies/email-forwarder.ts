@@ -3,16 +3,19 @@ import { map } from "rxjs";
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
-import { SingleUserState, StateProvider, UserKeyDefinition } from "@bitwarden/common/platform/state";
-import { BufferedKeyDefinition } from "@bitwarden/common/tools/generator/state/buffered-key-definition";
-import { BufferedState } from "@bitwarden/common/tools/generator/state/buffered-state";
-import { PaddedDataPacker } from "@bitwarden/common/tools/generator/state/padded-data-packer";
-import { SecretClassifier } from "@bitwarden/common/tools/generator/state/secret-classifier";
-import { SecretKeyDefinition } from "@bitwarden/common/tools/generator/state/secret-key-definition";
-import { SecretState } from "@bitwarden/common/tools/generator/state/secret-state";
-import { UserKeyEncryptor } from "@bitwarden/common/tools/generator/state/user-key-encryptor";
-import { UserId } from "@bitwarden/common/types/guid";
-
+import {
+  SingleUserState,
+  StateProvider,
+  UserKeyDefinition,
+} from "@bitwarden/common/platform/state";
+import { BufferedKeyDefinition } from "@bitwarden/common/src/tools/state/buffered-key-definition";
+import { BufferedState } from "@bitwarden/common/src/tools/state/buffered-state";
+import { PaddedDataPacker } from "@bitwarden/common/src/tools/state/padded-data-packer";
+import { SecretClassifier } from "@bitwarden/common/src/tools/state/secret-classifier";
+import { SecretKeyDefinition } from "@bitwarden/common/src/tools/state/secret-key-definition";
+import { SecretState } from "@bitwarden/common/src/tools/state/secret-state";
+import { UserKeyEncryptor } from "@bitwarden/common/src/tools/state/user-key-encryptor";
+import { UserId } from "@bitwarden/common/src/types/guid";
 
 import { GeneratorStrategy } from "../abstractions";
 import { newDefaultEvaluator } from "../rx";

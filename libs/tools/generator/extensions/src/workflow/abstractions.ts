@@ -1,10 +1,9 @@
 import { Observable } from "rxjs";
 
-import { UserId } from "../../../types/guid";
-import { GeneratorNavigation } from "../navigation/generator-navigation";
-import { GeneratorNavigationPolicy } from "../navigation/generator-navigation-policy";
+import { UserId } from "@bitwarden/common/src/types/guid";
+import { PolicyEvaluator } from "@bitwarden/generator";
 
-import { PolicyEvaluator } from "./policy-evaluator.abstraction";
+import { GeneratorNavigation, GeneratorNavigationPolicy } from "./types";
 
 /** Loads and stores generator navigational data
  */

@@ -1,9 +1,8 @@
 import { PolicyType } from "@bitwarden/common/admin-console/enums";
 import { StateProvider } from "@bitwarden/common/platform/state";
 
-import { GeneratorStrategy } from "../abstractions";
+import { GeneratorStrategy, Randomizer } from "../abstractions";
 import { DefaultCatchallOptions } from "../data";
-import { Randomizer } from "../engine/random";
 import { newDefaultEvaluator } from "../rx";
 import { CatchallGenerationOptions, NoPolicy } from "../types";
 import { clone$PerUserId, sharedStateByUserId } from "../util";
@@ -21,8 +20,7 @@ export class CatchallGeneratorStrategy
     private random: Randomizer,
     private stateProvider: StateProvider,
     private defaultOptions: CatchallGenerationOptions = DefaultCatchallOptions,
-  ) {
-  }
+  ) {}
 
   durableState = sharedStateByUserId(CATCHALL_SETTINGS, this.stateProvider);
   defaults$ = clone$PerUserId(this.defaultOptions);
