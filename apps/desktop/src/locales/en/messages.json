@@ -1420,7 +1420,7 @@
     "message": "Verify for Bitwarden."
   },
   "polkitConsentMessage": {
-    "message": "Verify for Bitwarden."
+    "message": "Authenticate to unlock Bitwarden."
   },
   "unlockWithTouchId": {
     "message": "Unlock with Touch ID"
