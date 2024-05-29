@@ -60,5 +60,5 @@ export default class BiometricDarwinMain implements OsBiometricService {
     return false;
   }
 
-  osBiometricsSetup: () => Promise<void>;
+  async osBiometricsSetup(): Promise<void> {}
 }

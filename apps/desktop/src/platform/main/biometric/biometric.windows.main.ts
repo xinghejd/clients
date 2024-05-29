@@ -223,5 +223,5 @@ export default class BiometricWindowsMain implements OsBiometricService {
     return false;
   }
 
-  osBiometricsSetup: () => Promise<void>;
+  async osBiometricsSetup(): Promise<void> {}
 }
