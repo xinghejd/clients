@@ -57,17 +57,25 @@ export class AsyncActionsService implements OnDestroy {
    * - Regular functions are also supported, but the loading state will not be set. This is useful for functions that might
    *   need to return early.
    *
+   * NOTE: The handler will not be executed if another action is already active in the same context.
+   *
    * @param context A string that will be used to group the loading state of multiple async actions.
    * @param origin The object that the action originated from.
    * @param handler The function to execute.
    * @param until An observable that will cause the action to be cancelled when it emits.
    */
   async execute(
-    context: string | undefined,
+    context: string,
     origin: unknown,
     handler: FunctionReturningAwaitable,
     until?: Observable<unknown>,
   ): Promise<void> {
+    // Access the current state directly, otherwise you can execute multiple actions in the same context
+    // by not awaiting the promise returned by this method.
+    if (this.states$.value?.[context]?.status === "active") {
+      return;
+    }
+
     this.updateState((state) => ({ ...state, [context]: { status: "active", origin } }));
 
     try {

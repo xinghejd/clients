@@ -126,7 +126,17 @@ describe("AsyncActionsService", () => {
       expect(action.observed).toBe(false);
     });
 
-    it("ignores EmptyError and completes the action", async () => {});
+    it("does not execute the handler if another action is already active in the same context", async () => {
+      const first_action = new Subject();
+      const second_action = new Subject();
+      const origin = Symbol();
+
+      void service.execute("context", origin, () => first_action);
+      void service.execute("context", origin, () => second_action);
+
+      expect(first_action.observed).toBe(true);
+      expect(second_action.observed).toBe(false);
+    });
   });
 });
 
