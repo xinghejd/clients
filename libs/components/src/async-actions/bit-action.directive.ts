@@ -7,7 +7,7 @@ import { ButtonLikeAbstraction } from "../shared/button-like.abstraction";
 import { FunctionReturningAwaitable } from "../utils/function-to-observable";
 
 import { AsyncActionsService } from "./async-actions.service";
-import { ContextProvider } from "./context-provider.abstraction";
+import { AsyncContextProvider } from "./async-context-provider.abstraction";
 
 type State = "idle" | "loading" | "disabled";
 
@@ -29,7 +29,7 @@ export class BitActionDirective implements OnInit, OnDestroy {
   constructor(
     private buttonComponent: ButtonLikeAbstraction,
     private asyncActionsService: AsyncActionsService,
-    @Optional() private contextProvider?: ContextProvider,
+    @Optional() private contextProvider?: AsyncContextProvider,
   ) {}
 
   ngOnInit(): void {

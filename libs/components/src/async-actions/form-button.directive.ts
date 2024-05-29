@@ -3,8 +3,8 @@ import { Subject, takeUntil } from "rxjs";
 
 import { ButtonLikeAbstraction } from "../shared/button-like.abstraction";
 
+import { AsyncContextProvider } from "./async-context-provider.abstraction";
 import { BitSubmitDirective } from "./bit-submit.directive";
-import { ContextProvider } from "./context-provider.abstraction";
 
 /**
  * This directive has two purposes:
@@ -22,9 +22,9 @@ import { ContextProvider } from "./context-provider.abstraction";
  */
 @Directive({
   selector: "button[bitFormButton]",
-  providers: [{ provide: ContextProvider, useExisting: BitFormButtonDirective }],
+  providers: [{ provide: AsyncContextProvider, useExisting: BitFormButtonDirective }],
 })
-export class BitFormButtonDirective implements ContextProvider, OnInit, OnDestroy {
+export class BitFormButtonDirective implements AsyncContextProvider, OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   @Input("bitAction") private bitAction: unknown;
 

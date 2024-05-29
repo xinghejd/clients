@@ -5,6 +5,6 @@
  * the currently active action displays a loading state, while other buttons in the
  * same context are disabled.
  */
-export abstract class ContextProvider {
+export abstract class AsyncContextProvider {
   abstract readonly context: string;
 }
