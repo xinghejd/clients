@@ -287,6 +287,10 @@ export abstract class BrowserPlatformUtilsService implements PlatformUtilsServic
     return false;
   }
 
+  async biometricsSupportsAutoSetup(): Promise<boolean> {
+    return false;
+  }
+
   async biometricsSetup(): Promise<void> {
     return;
   }
