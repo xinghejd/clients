@@ -13,10 +13,12 @@ impl super::BiometricTrait for Biometric {
         let connection = Connection::system().await?;
         let proxy = AuthorityProxy::new(&connection).await?;
         let subject = Subject::new_for_owner(std::process::id(), None, None)?;
+        let mut details = std::collections::HashMap::new();
+        details.insert("polkit.message", _message.as_str());
         let result = proxy.check_authorization(
             &subject,
             "com.bitwarden.Bitwarden.unlock",
-            &std::collections::HashMap::new(),
+            &details,
             CheckAuthorizationFlags::AllowUserInteraction.into(),
             "",
         ).await?;
