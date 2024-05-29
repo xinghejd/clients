@@ -1,11 +1,14 @@
-import { Directive, Input, OnDestroy, OnInit, Optional } from "@angular/core";
+import { Directive, Input, OnDestroy, OnInit } from "@angular/core";
 import { FormGroupDirective } from "@angular/forms";
-import { BehaviorSubject, catchError, filter, of, Subject, switchMap, takeUntil } from "rxjs";
+import { filter, map, Observable, Subject, switchMap, takeUntil, withLatestFrom } from "rxjs";
 
-import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { ValidationService } from "@bitwarden/common/platform/abstractions/validation.service";
+import { Utils } from "@bitwarden/common/platform/misc/utils";
 
 import { FunctionReturningAwaitable, functionToObservable } from "../utils/function-to-observable";
+
+import { AsyncActionsService } from "./async-actions.service";
+
+type State = "idle" | "loading" | "disabled";
 
 /**
  * Allow a form to perform async actions on submit, disabling the form while the action is processing.
@@ -14,74 +17,56 @@ import { FunctionReturningAwaitable, functionToObservable } from "../utils/funct
   selector: "[formGroup][bitSubmit]",
 })
 export class BitSubmitDirective implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
-  private _loading$ = new BehaviorSubject<boolean>(false);
-  private _disabled$ = new BehaviorSubject<boolean>(false);
+  private readonly destroy$ = new Subject<void>();
+
+  state$!: Observable<State>;
+  readonly context = Utils.newGuid();
 
   @Input("bitSubmit") handler: FunctionReturningAwaitable;
-
   @Input() allowDisabledFormSubmit?: boolean = false;
 
-  readonly loading$ = this._loading$.asObservable();
-  readonly disabled$ = this._disabled$.asObservable();
+  // TODO: Migrate `import.component.ts` to use the new `AsyncActionsService`.
+  loading$!: Observable<boolean>;
+  disabled$!: Observable<boolean>;
 
   constructor(
     private formGroupDirective: FormGroupDirective,
-    @Optional() validationService?: ValidationService,
-    @Optional() logService?: LogService,
-  ) {
-    formGroupDirective.ngSubmit
+    private asyncActionsService: AsyncActionsService,
+  ) {}
+
+  ngOnInit(): void {
+    this.state$ = this.asyncActionsService.state$(this.context).pipe(
+      map((state) => {
+        if (state.status === "active" && state.origin === this) {
+          return "loading";
+        } else if (state.status === "active") {
+          return "disabled";
+        }
+
+        return "idle";
+      }),
+    );
+
+    this.formGroupDirective.ngSubmit
       .pipe(
-        filter(() => !this.disabled),
+        withLatestFrom(this.state$),
+        filter(([_, state]) => state === "idle"),
         switchMap(() => {
-          // Calling functionToObservable executes the sync part of the handler
-          // allowing the function to check form validity before it gets disabled.
           const awaitable = functionToObservable(this.handler);
 
-          // Disable form
-          this.loading = true;
-
-          return awaitable.pipe(
-            catchError((err: unknown) => {
-              logService?.error(`Async submit exception: ${err}`);
-              validationService?.showError(err);
-              return of(undefined);
-            }),
+          return this.asyncActionsService.execute(
+            this.context,
+            this,
+            () => awaitable,
+            this.destroy$,
           );
         }),
         takeUntil(this.destroy$),
       )
-      .subscribe({
-        next: () => (this.loading = false),
-        complete: () => (this.loading = false),
-      });
-  }
+      .subscribe();
 
-  ngOnInit(): void {
-    this.formGroupDirective.statusChanges.pipe(takeUntil(this.destroy$)).subscribe((c) => {
-      if (this.allowDisabledFormSubmit) {
-        this._disabled$.next(false);
-      } else {
-        this._disabled$.next(c === "DISABLED");
-      }
-    });
-  }
-
-  get disabled() {
-    return this._disabled$.value;
-  }
-
-  set disabled(value: boolean) {
-    this._disabled$.next(value);
-  }
-
-  get loading() {
-    return this._loading$.value;
-  }
-
-  set loading(value: boolean) {
-    this.disabled = value;
-    this._loading$.next(value);
+    this.loading$ = this.state$.pipe(map((state) => state === "loading"));
+    this.disabled$ = this.state$.pipe(map((state) => state === "disabled"));
   }
 
   ngOnDestroy(): void {
