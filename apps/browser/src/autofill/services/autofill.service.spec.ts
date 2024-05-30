@@ -16,6 +16,7 @@ import { EventType } from "@bitwarden/common/enums";
 import { UriMatchStrategy } from "@bitwarden/common/models/domain/domain-service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { MessageListener } from "@bitwarden/common/platform/messaging";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { EventCollectionService } from "@bitwarden/common/services/event/event-collection.service";
 import {
@@ -82,6 +83,7 @@ describe("AutofillService", () => {
   const platformUtilsService = mock<PlatformUtilsService>();
   let activeAccountStatusMock$: BehaviorSubject<AuthenticationStatus>;
   let authService: MockProxy<AuthService>;
+  let messageListener: MockProxy<MessageListener>;
 
   beforeEach(() => {
     scriptInjectorService = new BrowserScriptInjectorService(platformUtilsService, logService);
@@ -91,6 +93,7 @@ describe("AutofillService", () => {
     activeAccountStatusMock$ = new BehaviorSubject(AuthenticationStatus.Unlocked);
     authService = mock<AuthService>();
     authService.activeAccountStatus$ = activeAccountStatusMock$;
+    messageListener = mock<MessageListener>();
     autofillService = new AutofillService(
       cipherService,
       autofillSettingsService,
@@ -103,6 +106,7 @@ describe("AutofillService", () => {
       scriptInjectorService,
       accountService,
       authService,
+      messageListener,
     );
 
     domainSettingsService = new DefaultDomainSettingsService(fakeStateProvider);

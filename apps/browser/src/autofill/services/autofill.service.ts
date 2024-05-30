@@ -1,4 +1,4 @@
-import { firstValueFrom, startWith } from "rxjs";
+import { filter, firstValueFrom, Observable, scan, startWith } from "rxjs";
 import { pairwise } from "rxjs/operators";
 
 import { EventCollectionService } from "@bitwarden/common/abstractions/event/event-collection.service";
@@ -17,6 +17,7 @@ import {
   UriMatchStrategy,
 } from "@bitwarden/common/models/domain/domain-service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
+import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
 import { TotpService } from "@bitwarden/common/vault/abstractions/totp.service";
 import { FieldType, CipherType } from "@bitwarden/common/vault/enums";
@@ -45,6 +46,16 @@ import {
   IdentityAutoFillConstants,
 } from "./autofill-constants";
 
+export type CollectPageDetailsResponseMessage = {
+  tab: chrome.tabs.Tab;
+  details: AutofillPageDetails;
+  webExtSender: chrome.runtime.MessageSender;
+  sender?: string;
+};
+
+export const COLLECT_PAGE_DETAILS_RESPONSE =
+  new CommandDefinition<CollectPageDetailsResponseMessage>("collectPageDetailsResponse");
+
 export default class AutofillService implements AutofillServiceInterface {
   private openVaultItemPasswordRepromptPopout = openVaultItemPasswordRepromptPopout;
   private openPasswordRepromptPopoutDebounce: number | NodeJS.Timeout;
@@ -64,7 +75,31 @@ export default class AutofillService implements AutofillServiceInterface {
     private scriptInjectorService: ScriptInjectorService,
     private accountService: AccountService,
     private authService: AuthService,
+    private messageListener: MessageListener,
   ) {}
+
+  async pageDetailsFromTab$(tab?: chrome.tabs.Tab): Promise<Observable<PageDetail[]>> {
+    let collectFromTab = tab;
+    if (!collectFromTab) {
+      collectFromTab = await this.getActiveTab();
+    }
+
+    const pageDetailsFromTab$ = this.messageListener.messages$(COLLECT_PAGE_DETAILS_RESPONSE).pipe(
+      filter((message) => message.tab === collectFromTab),
+      scan((acc, message) => {
+        acc.push({
+          frameId: message.webExtSender.frameId,
+          tab: message.tab,
+          details: message.details,
+        });
+        return acc;
+      }, [] as PageDetail[]),
+    );
+
+    await BrowserApi.tabSendMessage(collectFromTab, { command: "collectPageDetails" });
+
+    return pageDetailsFromTab$;
+  }
 
   /**
    * Triggers on installation of the extension Handles injecting

@@ -1,3 +1,5 @@
+import { Observable } from "rxjs";
+
 import { UriMatchStrategySetting } from "@bitwarden/common/models/domain/domain-service";
 import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
@@ -45,6 +47,7 @@ export interface GenerateFillScriptOptions {
 }
 
 export abstract class AutofillService {
+  pageDetailsFromTab$: (tab?: chrome.tabs.Tab) => Promise<Observable<PageDetail[]>>;
   loadAutofillScriptsOnInstall: () => Promise<void>;
   reloadAutofillScripts: () => Promise<void>;
   injectAutofillScripts: (

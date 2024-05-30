@@ -266,6 +266,11 @@ export class CurrentTabComponent implements OnInit, OnDestroy {
   protected async load() {
     this.isLoading = false;
     this.tab = await BrowserApi.getTabFromCurrentWindow();
+
+    // const pageDetailsFromTab$ = await this.autofillService.pageDetailsFromTab$(this.tab);
+    // const pageDetails = await firstValueFrom(pageDetailsFromTab$);
+    // console.log(pageDetails);
+
     if (this.tab != null) {
       this.url = this.tab.url;
     } else {
