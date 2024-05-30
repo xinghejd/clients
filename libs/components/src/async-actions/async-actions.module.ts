@@ -15,6 +15,11 @@ import { BitFormButtonDirective } from "./form-button.directive";
     BitSubmitDirective,
     BitAsyncContextDirective,
   ],
-  exports: [BitActionDirective, BitFormButtonDirective, BitSubmitDirective],
+  exports: [
+    BitActionDirective,
+    BitFormButtonDirective,
+    BitSubmitDirective,
+    BitAsyncContextDirective,
+  ],
 })
 export class AsyncActionsModule {}

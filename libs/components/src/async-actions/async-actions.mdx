@@ -1,0 +1,138 @@
+import { Meta, Story } from "@storybook/addon-docs";
+
+import * as stories from "./async-actions.stories";
+
+<Meta of={stories} />
+
+# Async Actions
+
+The directives in this module make it easier for developers to reflect the progress of async actions
+(long running tasks) in the UI when using buttons, while also providing robust and standardized
+error handling.
+
+These buttons can be either
+
+- Standalone: Refresh buttons
+- Grouped: Buttons in a popover menu, or a table
+- In a form: A special type of group for forms
+
+These directives replace the older `appApiAction` directive, providing the option to use
+`observables` and reduce clutter inside our view `components`.
+
+## Common
+
+### Adding handler function in `Component`
+
+Implementing async actions always starts with defining a handler function in the component. A
+handler is a function that returns a promise or an observable. Functions that return `void` are also
+supported which is useful because `return;` can be used to abort an action.
+
+**NOTE:** Defining the handlers as arrow-functions assigned to variables is mandatory if the handler
+needs access to the parent component using the variable `this`.
+
+**NOTE:** Handlers do not need to check if any previous requests have finished because the
+directives have built in protection against users attempting to trigger new actions before the
+previous ones have finished.
+
+```ts
+@Component({...})
+class PromiseExampleComponent {
+  handler = async () => {
+    await this.apiService.post(/* ... */);
+  };
+}
+```
+
+a handler can also return an observable
+
+```ts
+@Component({...})
+class Component {
+  handler = () => {
+    return this.apiService.post$(/* ... */);
+  };
+}
+```
+
+or throw an error. The error will be caught by the directive and displayed in the UI.
+
+```ts
+@Component({...})
+class Component {
+  handler = () => {
+    throw new Error("This will be displayed in the UI");
+  };
+}
+```
+
+## Standalone
+
+Standalone async action buttons are used to perform a single action. They are usually used in
+isolation, e.g. a refresh button. To use them simply add the `bitAction` directive and supply a
+handler.
+
+**NOTE:** The `directive` is defined using the input syntax: `[input]="handler"`. This is different
+from how click handlers are usually defined with the output syntax `(click)="handler()"`.
+
+**NOTE:** `[bitAction]` replaces `(click)`. Using both is not supported.
+
+```html
+<button bitButton [bitAction]="handler">Perform action</button>
+
+<button bitIconButton="bwi-trash" [bitAction]="handler"></button>
+```
+
+<Story of={stories.SingleStandalone} />
+
+Multiple standalone buttons can be used in the same view and they will not interfere with each
+other.
+
+<Story of={stories.MultipleStandalone} />
+
+## Grouped
+
+Grouped async action buttons work the same way as standalone buttons, but they are assinged an
+"async context" which is used to manage the state of all buttons in the group. This is useful when
+you have multiple buttons that all act on the same data.
+
+```html
+<button bitButton [bitAction]="handler" context="emergency-contact">Accept</button>
+
+<button bitButton [bitAction]="handler" context="emergency-contact">Reject</button>
+```
+
+<Story of={stories.GroupedWithContext} />
+
+Context can also be used to group buttons in a popover menu
+
+{/* TODO: Add ButtonLikeAbstraction to bitMenuButton */}
+{/* <Story of={stories.GroupedInMenu} /> */}
+
+## In a form
+
+Async actions also supports forms using the same underlying mechanisms as grouped buttons, but uses
+a different set of directives for better ergonomics.
+
+The `bitSubmit` directive is used to define the form and provide a submission handler. The
+`bitFormButton` directive makes the button reflect the state of the submission
+
+```html
+<form [formGroup]="formGroup" [bitSubmit]="handler">
+  <button bitButton bitFormButton type="submit">Submit</button>
+</form>
+```
+
+You can also add additional buttons to the form that do not submit the form by using the
+`bitFormButton` directive with the `type="button"` attribute. These can use both `bitAction` and
+regular `(click)` outputs. The `bitFormButton` directive replaces the need for a `context` directive
+on the buttons, and automatically groups them with the form.
+
+```html
+<form [formGroup]="formGroup" [bitSubmit]="handler">
+  <button bitButton bitFormButton type="submit">Submit</button>
+  <button bitButton bitFormButton type="button">Cancel</button>
+  <button bitButton bitFormButton type="button" [bitAction]="delete">Delete</button>
+</form>
+```
+
+<Story of={stories.Form} />
