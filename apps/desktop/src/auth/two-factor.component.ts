@@ -99,6 +99,11 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
     };
   }
 
+  async ngOnInit(): Promise<void> {
+    await super.ngOnInit();
+    await this.init();
+  }
+
   async anotherMethod() {
     const [modal, childComponent] = await this.modalService.openViewRef(
       TwoFactorOptionsComponent,
