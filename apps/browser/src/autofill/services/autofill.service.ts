@@ -78,25 +78,28 @@ export default class AutofillService implements AutofillServiceInterface {
     private messageListener: MessageListener,
   ) {}
 
-  async pageDetailsFromTab$(tab?: chrome.tabs.Tab): Promise<Observable<PageDetail[]>> {
-    let collectFromTab = tab;
-    if (!collectFromTab) {
-      collectFromTab = await this.getActiveTab();
-    }
-
+  collectPageDetailsFromTab$(tab: chrome.tabs.Tab): Observable<PageDetail[]> {
+    const senderIdentifier = "pageDetailsForTabObservable";
     const pageDetailsFromTab$ = this.messageListener.messages$(COLLECT_PAGE_DETAILS_RESPONSE).pipe(
-      filter((message) => message.tab === collectFromTab),
-      scan((acc, message) => {
-        acc.push({
-          frameId: message.webExtSender.frameId,
-          tab: message.tab,
-          details: message.details,
-        });
-        return acc;
-      }, [] as PageDetail[]),
+      filter((message) => message.tab.id === tab.id && message.sender === senderIdentifier),
+      scan(
+        (acc, message) => [
+          ...acc,
+          {
+            frameId: message.webExtSender.frameId,
+            tab: message.tab,
+            details: message.details,
+          },
+        ],
+        [] as PageDetail[],
+      ),
     );
 
-    await BrowserApi.tabSendMessage(collectFromTab, { command: "collectPageDetails" });
+    void BrowserApi.tabSendMessage(tab, {
+      command: "collectPageDetails",
+      tab: tab,
+      sender: senderIdentifier,
+    });
 
     return pageDetailsFromTab$;
   }

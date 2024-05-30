@@ -47,7 +47,7 @@ export interface GenerateFillScriptOptions {
 }
 
 export abstract class AutofillService {
-  pageDetailsFromTab$: (tab?: chrome.tabs.Tab) => Promise<Observable<PageDetail[]>>;
+  collectPageDetailsFromTab$: (tab: chrome.tabs.Tab) => Observable<PageDetail[]>;
   loadAutofillScriptsOnInstall: () => Promise<void>;
   reloadAutofillScripts: () => Promise<void>;
   injectAutofillScripts: (

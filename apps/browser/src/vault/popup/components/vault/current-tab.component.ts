@@ -100,15 +100,6 @@ export class CurrentTabComponent implements OnInit, OnDestroy {
               }, 500);
             }
             break;
-          case "collectPageDetailsResponse":
-            if (message.sender === BroadcasterSubscriptionId) {
-              this.pageDetails.push({
-                frameId: message.webExtSender.frameId,
-                tab: message.tab,
-                details: message.details,
-              });
-            }
-            break;
           default:
             break;
         }
@@ -266,10 +257,11 @@ export class CurrentTabComponent implements OnInit, OnDestroy {
   protected async load() {
     this.isLoading = false;
     this.tab = await BrowserApi.getTabFromCurrentWindow();
-
-    // const pageDetailsFromTab$ = await this.autofillService.pageDetailsFromTab$(this.tab);
-    // const pageDetails = await firstValueFrom(pageDetailsFromTab$);
-    // console.log(pageDetails);
+    this.pageDetails = [];
+    this.autofillService
+      .collectPageDetailsFromTab$(this.tab)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((pageDetails) => (this.pageDetails = pageDetails));
 
     if (this.tab != null) {
       this.url = this.tab.url;
@@ -280,7 +272,6 @@ export class CurrentTabComponent implements OnInit, OnDestroy {
     }
 
     this.hostname = Utils.getHostname(this.url);
-    this.pageDetails = [];
     const otherTypes: CipherType[] = [];
     const dontShowCards = !(await firstValueFrom(this.vaultSettingsService.showCardsCurrentTab$));
     const dontShowIdentities = !(await firstValueFrom(
@@ -328,7 +319,6 @@ export class CurrentTabComponent implements OnInit, OnDestroy {
     }
 
     this.isLoading = this.loaded = true;
-    this.collectTabPageDetails();
   }
 
   async goToSettings() {
@@ -365,20 +355,5 @@ export class CurrentTabComponent implements OnInit, OnDestroy {
     } else {
       this.autofillCalloutText = this.i18nService.t("autofillSelectInfoWithoutCommand");
     }
-  }
-
-  private collectTabPageDetails() {
-    void BrowserApi.tabSendMessage(this.tab, {
-      command: "collectPageDetails",
-      tab: this.tab,
-      sender: BroadcasterSubscriptionId,
-    });
-
-    window.clearTimeout(this.initPageDetailsTimeout);
-    this.initPageDetailsTimeout = window.setTimeout(() => {
-      if (this.pageDetails.length === 0) {
-        this.collectTabPageDetails();
-      }
-    }, 250);
   }
 }
