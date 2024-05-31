@@ -16,7 +16,7 @@ pub async fn authenticate(challenge: String, origin: String) -> String {
 
     let mut auth = get_authenticator(&pinentry).await;
     let options = serde_json::from_str(challenge.as_str()).unwrap();
-    let origin = Url::parse("https://localhost:8080").unwrap();
+    let origin = Url::parse(origin.as_str()).unwrap();
     let res = auth.perform_auth(origin, options, 60000);
     println!("res {:?}", res);
     let pkcred = res.unwrap();
