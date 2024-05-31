@@ -98,7 +98,6 @@ class AutofillInit implements AutofillInitInterface {
   ): Promise<AutofillPageDetails | void> {
     const pageDetails: AutofillPageDetails =
       await this.collectAutofillContentService.getPageDetails();
-
     if (sendDetailsInResponse) {
       return pageDetails;
     }

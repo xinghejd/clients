@@ -72,17 +72,14 @@ describe("CollectAutofillContentService", () => {
     it("returns an object with empty forms and fields if no fields were found on a previous iteration", async () => {
       collectAutofillContentService["domRecentlyMutated"] = false;
       collectAutofillContentService["noFieldsFound"] = true;
-      jest.spyOn(collectAutofillContentService as any, "buildFormattedPageDetails");
+      jest.spyOn(collectAutofillContentService as any, "getFormattedPageDetails");
       jest.spyOn(collectAutofillContentService as any, "queryAutofillFormAndFieldElements");
       jest.spyOn(collectAutofillContentService as any, "buildAutofillFormsData");
       jest.spyOn(collectAutofillContentService as any, "buildAutofillFieldsData");
 
       await collectAutofillContentService.getPageDetails();
 
-      expect(collectAutofillContentService["buildFormattedPageDetails"]).toHaveBeenCalledWith(
-        {},
-        [],
-      );
+      expect(collectAutofillContentService["getFormattedPageDetails"]).toHaveBeenCalledWith({}, []);
       expect(
         collectAutofillContentService["queryAutofillFormAndFieldElements"],
       ).not.toHaveBeenCalled();
@@ -159,7 +156,7 @@ describe("CollectAutofillContentService", () => {
       collectAutofillContentService["autofillFieldElements"] = new Map([
         [fieldElement, autofillField],
       ]);
-      jest.spyOn(collectAutofillContentService as any, "buildFormattedPageDetails");
+      jest.spyOn(collectAutofillContentService as any, "getFormattedPageDetails");
       jest.spyOn(collectAutofillContentService as any, "getFormattedAutofillFormsData");
       jest.spyOn(collectAutofillContentService as any, "getFormattedAutofillFieldsData");
       jest.spyOn(collectAutofillContentService as any, "queryAutofillFormAndFieldElements");
@@ -168,7 +165,7 @@ describe("CollectAutofillContentService", () => {
 
       await collectAutofillContentService.getPageDetails();
 
-      expect(collectAutofillContentService["buildFormattedPageDetails"]).toHaveBeenCalled();
+      expect(collectAutofillContentService["getFormattedPageDetails"]).toHaveBeenCalled();
       expect(collectAutofillContentService["getFormattedAutofillFormsData"]).toHaveBeenCalled();
       expect(collectAutofillContentService["getFormattedAutofillFieldsData"]).toHaveBeenCalled();
       expect(
