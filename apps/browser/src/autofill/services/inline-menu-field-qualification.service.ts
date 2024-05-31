@@ -6,7 +6,7 @@ import { AutoFillConstants } from "./autofill-constants";
 export class InlineMenuFieldQualificationService {
   private searchFieldNamesSet = new Set(AutoFillConstants.SearchFieldNames);
   private excludedAutofillLoginTypesSet = new Set(AutoFillConstants.ExcludedAutofillLoginTypes);
-  private usernameFieldTypes = new Set(["text", "email", "tel"]);
+  private usernameFieldTypes = new Set(["text", "email", "number", "tel"]);
   private fieldIgnoreListString = AutoFillConstants.FieldIgnoreList.join(",");
   private passwordFieldExcludeListString = AutoFillConstants.PasswordFieldExcludeList.join(",");
   private autofillFieldKeywordsMap: WeakMap<AutofillField, string> = new WeakMap();
