@@ -43,9 +43,9 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
   private intersectionObserver: IntersectionObserver;
   private elementInitializingIntersectionObserver: Set<Element> = new Set();
   private mutationObserver: MutationObserver;
-  private updateAutofillElementsAfterMutationTimeout: number | NodeJS.Timeout;
   private mutationsQueue: MutationRecord[][] = [];
-  private readonly updateAfterMutationTimeoutDelay = 1000;
+  private currentlyUpdatingPageDetails = false;
+  private readonly updateAfterMutationTimeout = 1000;
   private readonly formFieldQueryString;
   private readonly nonInputFormFieldTags = new Set(["textarea", "select"]);
   private readonly ignoredInputTypes = new Set([
@@ -1223,13 +1223,19 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
    * @private
    */
   private updateAutofillElementsAfterMutation() {
-    if (this.updateAutofillElementsAfterMutationTimeout) {
-      clearTimeout(this.updateAutofillElementsAfterMutationTimeout);
+    if (this.currentlyUpdatingPageDetails) {
+      return;
     }
 
-    this.updateAutofillElementsAfterMutationTimeout = setTimeout(
-      this.getPageDetails.bind(this),
-      this.updateAfterMutationTimeoutDelay,
+    this.currentlyUpdatingPageDetails = true;
+    globalThis.requestIdleCallback(
+      async () => {
+        await this.getPageDetails();
+        this.currentlyUpdatingPageDetails = false;
+      },
+      {
+        timeout: this.updateAfterMutationTimeout,
+      },
     );
   }
 
@@ -1451,9 +1457,6 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
    * timeouts and disconnects the mutation observer.
    */
   destroy() {
-    if (this.updateAutofillElementsAfterMutationTimeout) {
-      clearTimeout(this.updateAutofillElementsAfterMutationTimeout);
-    }
     this.mutationObserver?.disconnect();
     this.intersectionObserver?.disconnect();
   }
