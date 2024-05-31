@@ -100,6 +100,7 @@ import { Message, MessageListener, MessageSender } from "@bitwarden/common/platf
 // eslint-disable-next-line no-restricted-imports -- Used for dependency creation
 import { SubjectMessageSender } from "@bitwarden/common/platform/messaging/internal";
 import { Lazy } from "@bitwarden/common/platform/misc/lazy";
+import { clearCaches } from "@bitwarden/common/platform/misc/sequentialize";
 import { GlobalState } from "@bitwarden/common/platform/models/domain/global-state";
 import { SymmetricCryptoKey } from "@bitwarden/common/platform/models/domain/symmetric-crypto-key";
 import { AppIdService } from "@bitwarden/common/platform/services/app-id.service";
@@ -108,6 +109,7 @@ import { DefaultConfigService } from "@bitwarden/common/platform/services/config
 import { ConsoleLogService } from "@bitwarden/common/platform/services/console-log.service";
 import { ContainerService } from "@bitwarden/common/platform/services/container.service";
 import { EncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/encrypt.service.implementation";
+import { MultithreadEncryptServiceImplementation } from "@bitwarden/common/platform/services/cryptography/multithread-encrypt.service.implementation";
 import { Fido2AuthenticatorService } from "@bitwarden/common/platform/services/fido2/fido2-authenticator.service";
 import { Fido2ClientService } from "@bitwarden/common/platform/services/fido2/fido2-client.service";
 import { FileUploadService } from "@bitwarden/common/platform/services/file-upload/file-upload.service";
@@ -142,13 +144,11 @@ import { NotificationsService } from "@bitwarden/common/services/notifications.s
 import { SearchService } from "@bitwarden/common/services/search.service";
 import { VaultTimeoutSettingsService } from "@bitwarden/common/services/vault-timeout/vault-timeout-settings.service";
 import {
-  PasswordGenerationService,
-  PasswordGenerationServiceAbstraction,
-} from "@bitwarden/common/tools/generator/password";
-import {
-  UsernameGenerationService,
-  UsernameGenerationServiceAbstraction,
-} from "@bitwarden/common/tools/generator/username";
+  legacyPasswordGenerationServiceFactory,
+  legacyUsernameGenerationServiceFactory,
+} from "@bitwarden/common/tools/generator";
+import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
+import { UsernameGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/username";
 import {
   PasswordStrengthService,
   PasswordStrengthServiceAbstraction,
@@ -219,7 +219,6 @@ import { BrowserCryptoService } from "../platform/services/browser-crypto.servic
 import { BrowserEnvironmentService } from "../platform/services/browser-environment.service";
 import BrowserLocalStorageService from "../platform/services/browser-local-storage.service";
 import BrowserMemoryStorageService from "../platform/services/browser-memory-storage.service";
-import { BrowserMultithreadEncryptServiceImplementation } from "../platform/services/browser-multithread-encrypt.service.implementation";
 import { BrowserScriptInjectorService } from "../platform/services/browser-script-injector.service";
 import { DefaultBrowserStateService } from "../platform/services/default-browser-state.service";
 import I18nService from "../platform/services/i18n.service";
@@ -229,6 +228,8 @@ import { BrowserPlatformUtilsService } from "../platform/services/platform-utils
 import { BackgroundMemoryStorageService } from "../platform/storage/background-memory-storage.service";
 import { BrowserStorageServiceProvider } from "../platform/storage/browser-storage-service.provider";
 import { ForegroundMemoryStorageService } from "../platform/storage/foreground-memory-storage.service";
+import { ForegroundSyncService } from "../platform/sync/foreground-sync.service";
+import { SyncServiceListener } from "../platform/sync/sync-service.listener";
 import { fromChromeRuntimeMessaging } from "../platform/utils/from-chrome-runtime-messaging";
 import VaultTimeoutService from "../services/vault-timeout/vault-timeout.service";
 import FilelessImporterBackground from "../tools/background/fileless-importer.background";
@@ -333,11 +334,12 @@ export default class MainBackground {
   ssoLoginService: SsoLoginServiceAbstraction;
   billingAccountProfileStateService: BillingAccountProfileStateService;
   // eslint-disable-next-line rxjs/no-exposed-subjects -- Needed to give access to services module
-  intraprocessMessagingSubject: Subject<Message<object>>;
+  intraprocessMessagingSubject: Subject<Message<Record<string, unknown>>>;
   userAutoUnlockKeyService: UserAutoUnlockKeyService;
   scriptInjectorService: BrowserScriptInjectorService;
   kdfConfigService: kdfConfigServiceAbstraction;
   offscreenDocumentService: OffscreenDocumentService;
+  syncServiceListener: SyncServiceListener;
 
   onUpdatedRan: boolean;
   onReplacedRan: boolean;
@@ -376,12 +378,13 @@ export default class MainBackground {
     const logoutCallback = async (expired: boolean, userId?: UserId) =>
       await this.logout(expired, userId);
 
-    this.logService = new ConsoleLogService(false);
+    const isDev = process.env.ENV === "development";
+    this.logService = new ConsoleLogService(isDev);
     this.cryptoFunctionService = new WebCryptoFunctionService(self);
     this.keyGenerationService = new KeyGenerationService(this.cryptoFunctionService);
     this.storageService = new BrowserLocalStorageService();
 
-    this.intraprocessMessagingSubject = new Subject<Message<object>>();
+    this.intraprocessMessagingSubject = new Subject<Message<Record<string, unknown>>>();
 
     this.messagingService = MessageSender.combine(
       new SubjectMessageSender(this.intraprocessMessagingSubject),
@@ -395,7 +398,7 @@ export default class MainBackground {
       ),
     );
 
-    this.offscreenDocumentService = new DefaultOffscreenDocumentService();
+    this.offscreenDocumentService = new DefaultOffscreenDocumentService(this.logService);
 
     this.platformUtilsService = new BackgroundPlatformUtilsService(
       this.messagingService,
@@ -474,14 +477,14 @@ export default class MainBackground {
       storageServiceProvider,
     );
 
-    this.encryptService = flagEnabled("multithreadDecryption")
-      ? new BrowserMultithreadEncryptServiceImplementation(
-          this.cryptoFunctionService,
-          this.logService,
-          true,
-          this.offscreenDocumentService,
-        )
-      : new EncryptServiceImplementation(this.cryptoFunctionService, this.logService, true);
+    this.encryptService =
+      flagEnabled("multithreadDecryption") && BrowserApi.isManifestVersion(2)
+        ? new MultithreadEncryptServiceImplementation(
+            this.cryptoFunctionService,
+            this.logService,
+            true,
+          )
+        : new EncryptServiceImplementation(this.cryptoFunctionService, this.logService, true);
 
     this.singleUserStateProvider = new DefaultSingleUserStateProvider(
       storageServiceProvider,
@@ -644,10 +647,12 @@ export default class MainBackground {
 
     this.passwordStrengthService = new PasswordStrengthService();
 
-    this.passwordGenerationService = new PasswordGenerationService(
+    this.passwordGenerationService = legacyPasswordGenerationServiceFactory(
+      this.encryptService,
       this.cryptoService,
       this.policyService,
-      this.stateService,
+      this.accountService,
+      this.stateProvider,
     );
 
     this.userDecryptionOptionsService = new UserDecryptionOptionsService(this.stateProvider);
@@ -791,31 +796,57 @@ export default class MainBackground {
 
     this.providerService = new ProviderService(this.stateProvider);
 
-    this.syncService = new SyncService(
-      this.masterPasswordService,
-      this.accountService,
-      this.apiService,
-      this.domainSettingsService,
-      this.folderService,
-      this.cipherService,
-      this.cryptoService,
-      this.collectionService,
-      this.messagingService,
-      this.policyService,
-      this.sendService,
-      this.logService,
-      this.keyConnectorService,
-      this.stateService,
-      this.providerService,
-      this.folderApiService,
-      this.organizationService,
-      this.sendApiService,
-      this.userDecryptionOptionsService,
-      this.avatarService,
-      logoutCallback,
-      this.billingAccountProfileStateService,
-      this.tokenService,
-    );
+    if (this.popupOnlyContext) {
+      this.syncService = new ForegroundSyncService(
+        this.stateService,
+        this.folderService,
+        this.folderApiService,
+        this.messagingService,
+        this.logService,
+        this.cipherService,
+        this.collectionService,
+        this.apiService,
+        this.accountService,
+        this.authService,
+        this.sendService,
+        this.sendApiService,
+        messageListener,
+      );
+    } else {
+      this.syncService = new SyncService(
+        this.masterPasswordService,
+        this.accountService,
+        this.apiService,
+        this.domainSettingsService,
+        this.folderService,
+        this.cipherService,
+        this.cryptoService,
+        this.collectionService,
+        this.messagingService,
+        this.policyService,
+        this.sendService,
+        this.logService,
+        this.keyConnectorService,
+        this.stateService,
+        this.providerService,
+        this.folderApiService,
+        this.organizationService,
+        this.sendApiService,
+        this.userDecryptionOptionsService,
+        this.avatarService,
+        logoutCallback,
+        this.billingAccountProfileStateService,
+        this.tokenService,
+        this.authService,
+      );
+
+      this.syncServiceListener = new SyncServiceListener(
+        this.syncService,
+        messageListener,
+        this.messagingService,
+        this.logService,
+      );
+    }
     this.eventUploadService = new EventUploadService(
       this.apiService,
       this.stateProvider,
@@ -846,6 +877,7 @@ export default class MainBackground {
       this.billingAccountProfileStateService,
       this.scriptInjectorService,
       this.accountService,
+      this.authService,
     );
     this.auditService = new AuditService(this.cryptoFunctionService, this.apiService);
 
@@ -1066,10 +1098,14 @@ export default class MainBackground {
       this.vaultTimeoutSettingsService,
     );
 
-    this.usernameGenerationService = new UsernameGenerationService(
-      this.cryptoService,
-      this.stateService,
+    this.usernameGenerationService = legacyUsernameGenerationServiceFactory(
       this.apiService,
+      this.i18nService,
+      this.cryptoService,
+      this.encryptService,
+      this.policyService,
+      this.accountService,
+      this.stateProvider,
     );
 
     if (!this.popupOnlyContext) {
@@ -1139,6 +1175,7 @@ export default class MainBackground {
     this.contextMenusBackground?.init();
     await this.idleBackground.init();
     this.webRequestBackground?.startListening();
+    this.syncServiceListener?.listener$().subscribe();
 
     return new Promise<void>((resolve) => {
       setTimeout(async () => {
@@ -1151,7 +1188,7 @@ export default class MainBackground {
   }
 
   async refreshBadge() {
-    await new UpdateBadge(self).run({ existingServices: this as any });
+    await new UpdateBadge(self, this).run();
   }
 
   async refreshMenu(forLocked = false) {
@@ -1180,13 +1217,31 @@ export default class MainBackground {
    * Switch accounts to indicated userId -- null is no active user
    */
   async switchAccount(userId: UserId) {
+    let nextAccountStatus: AuthenticationStatus;
     try {
       const currentlyActiveAccount = await firstValueFrom(
         this.accountService.activeAccount$.pipe(map((account) => account?.id)),
       );
       // can be removed once password generation history is migrated to state providers
       await this.stateService.clearDecryptedData(currentlyActiveAccount);
+      // HACK to ensure account is switched before proceeding
+      const switchPromise = firstValueFrom(
+        this.accountService.activeAccount$.pipe(
+          filter((account) => (account?.id ?? null) === (userId ?? null)),
+          timeout({
+            first: 1_000,
+            with: () => {
+              throw new Error(
+                "The account switch process did not complete in a reasonable amount of time.",
+              );
+            },
+          }),
+        ),
+      );
       await this.accountService.switchAccount(userId);
+      await switchPromise;
+      // Clear sequentialized caches
+      clearCaches();
 
       if (userId == null) {
         this.loginEmailService.setRememberEmail(false);
@@ -1194,11 +1249,12 @@ export default class MainBackground {
 
         await this.refreshBadge();
         await this.refreshMenu();
-        await this.overlayBackground.updateOverlayCiphers();
+        await this.overlayBackground?.updateOverlayCiphers(); // null in popup only contexts
+        this.messagingService.send("goHome");
         return;
       }
 
-      const status = await this.authService.getAuthStatus(userId);
+      nextAccountStatus = await this.authService.getAuthStatus(userId);
       const forcePasswordReset =
         (await firstValueFrom(this.masterPasswordService.forceSetPasswordReason$(userId))) !=
         ForceSetPasswordReason.None;
@@ -1206,7 +1262,9 @@ export default class MainBackground {
       await this.systemService.clearPendingClipboard();
       await this.notificationsService.updateConnection(false);
 
-      if (status === AuthenticationStatus.Locked) {
+      if (nextAccountStatus === AuthenticationStatus.LoggedOut) {
+        this.messagingService.send("goHome");
+      } else if (nextAccountStatus === AuthenticationStatus.Locked) {
         this.messagingService.send("locked", { userId: userId });
       } else if (forcePasswordReset) {
         this.messagingService.send("update-temp-password", { userId: userId });
@@ -1214,11 +1272,14 @@ export default class MainBackground {
         this.messagingService.send("unlocked", { userId: userId });
         await this.refreshBadge();
         await this.refreshMenu();
-        await this.overlayBackground.updateOverlayCiphers();
+        await this.overlayBackground?.updateOverlayCiphers(); // null in popup only contexts
         await this.syncService.fullSync(false);
       }
     } finally {
-      this.messagingService.send("switchAccountFinish", { userId: userId });
+      this.messagingService.send("switchAccountFinish", {
+        userId: userId,
+        status: nextAccountStatus,
+      });
     }
   }
 
@@ -1238,6 +1299,13 @@ export default class MainBackground {
     const userBeingLoggedOut = userId ?? activeUserId;
 
     await this.eventUploadService.uploadEvents(userBeingLoggedOut);
+
+    const newActiveUser =
+      userBeingLoggedOut === activeUserId
+        ? await firstValueFrom(this.accountService.nextUpAccount$.pipe(map((a) => a?.id)))
+        : null;
+
+    await this.switchAccount(newActiveUser);
 
     // HACK: We shouldn't wait for the authentication status to change but instead subscribe to the
     // authentication status to do various actions.
@@ -1259,7 +1327,6 @@ export default class MainBackground {
       this.cipherService.clear(userBeingLoggedOut),
       this.folderService.clear(userBeingLoggedOut),
       this.collectionService.clear(userBeingLoggedOut),
-      this.passwordGenerationService.clear(userBeingLoggedOut),
       this.vaultTimeoutSettingsService.clear(userBeingLoggedOut),
       this.vaultFilterService.clear(),
       this.biometricStateService.logout(userBeingLoggedOut),
@@ -1271,12 +1338,7 @@ export default class MainBackground {
     ]);
 
     //Needs to be checked before state is cleaned
-    const needStorageReseed = await this.needsStorageReseed(userId);
-
-    const newActiveUser =
-      userBeingLoggedOut === activeUserId
-        ? await firstValueFrom(this.accountService.nextUpAccount$.pipe(map((a) => a?.id)))
-        : null;
+    const needStorageReseed = await this.needsStorageReseed(userBeingLoggedOut);
 
     await this.stateService.clean({ userId: userBeingLoggedOut });
     await this.accountService.clean(userBeingLoggedOut);
@@ -1286,16 +1348,10 @@ export default class MainBackground {
     // HACK: Wait for the user logging outs authentication status to transition to LoggedOut
     await logoutPromise;
 
-    await this.switchAccount(newActiveUser);
-    if (newActiveUser != null) {
-      // we have a new active user, do not continue tearing down application
-      this.messagingService.send("switchAccountFinish");
-    } else {
-      this.messagingService.send("doneLoggingOut", {
-        expired: expired,
-        userId: userBeingLoggedOut,
-      });
-    }
+    this.messagingService.send("doneLoggingOut", {
+      expired: expired,
+      userId: userBeingLoggedOut,
+    });
 
     if (needStorageReseed) {
       await this.reseedStorage();
@@ -1308,9 +1364,7 @@ export default class MainBackground {
     }
     await this.refreshBadge();
     await this.mainContextMenuHandler?.noAccess();
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.notificationsService.updateConnection(false);
+    await this.notificationsService.updateConnection(false);
     await this.systemService.clearPendingClipboard();
     await this.systemService.startProcessReload(this.authService);
   }

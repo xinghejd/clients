@@ -38,6 +38,7 @@ import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/pl
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { SystemService } from "@bitwarden/common/platform/abstractions/system.service";
 import { BiometricStateService } from "@bitwarden/common/platform/biometrics/biometric-state.service";
+import { clearCaches } from "@bitwarden/common/platform/misc/sequentialize";
 import { StateEventRunnerService } from "@bitwarden/common/platform/state";
 import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/generator/password";
 import { UserId } from "@bitwarden/common/types/guid";
@@ -56,7 +57,7 @@ import { PremiumComponent } from "../vault/app/accounts/premium.component";
 import { FolderAddEditComponent } from "../vault/app/vault/folder-add-edit.component";
 
 import { SettingsComponent } from "./accounts/settings.component";
-import { ExportComponent } from "./tools/export/export.component";
+import { ExportDesktopComponent } from "./tools/export/export-desktop.component";
 import { GeneratorComponent } from "./tools/generator.component";
 import { ImportDesktopComponent } from "./tools/import/import-desktop.component";
 import { PasswordGeneratorHistoryComponent } from "./tools/password-generator-history.component";
@@ -365,7 +366,7 @@ export class AppComponent implements OnInit, OnDestroy {
             await this.dialogService.open(ImportDesktopComponent);
             break;
           case "exportVault":
-            await this.openExportVault();
+            await this.dialogService.open(ExportDesktopComponent);
             break;
           case "newLogin":
             this.routeToVault("add", CipherType.Login);
@@ -396,6 +397,8 @@ export class AppComponent implements OnInit, OnDestroy {
             this.router.navigate(["/remove-password"]);
             break;
           case "switchAccount": {
+            // Clear sequentialized caches
+            clearCaches();
             if (message.userId != null) {
               await this.stateService.clearDecryptedData(message.userId);
               await this.accountService.switchAccount(message.userId);
@@ -408,7 +411,8 @@ export class AppComponent implements OnInit, OnDestroy {
                 this.masterPasswordService.forceSetPasswordReason$(message.userId),
               )) != ForceSetPasswordReason.None;
             if (locked) {
-              this.messagingService.send("locked", { userId: message.userId });
+              this.modalService.closeAll();
+              await this.router.navigate(["lock"]);
             } else if (forcedPasswordReset) {
               // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
               // eslint-disable-next-line @typescript-eslint/no-floating-promises
@@ -457,26 +461,6 @@ export class AppComponent implements OnInit, OnDestroy {
     this.destroy$.next();
     this.destroy$.complete();
     this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
-  }
-
-  async openExportVault() {
-    this.modalService.closeAll();
-
-    const [modal, childComponent] = await this.modalService.openViewRef(
-      ExportComponent,
-      this.exportVaultModalRef,
-    );
-    this.modal = modal;
-
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    childComponent.onSaved.subscribe(() => {
-      this.modal.close();
-    });
-
-    // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-    this.modal.onClosed.subscribe(() => {
-      this.modal = null;
-    });
   }
 
   async addFolder() {
@@ -604,7 +588,6 @@ export class AppComponent implements OnInit, OnDestroy {
       await this.cipherService.clear(userBeingLoggedOut);
       await this.folderService.clear(userBeingLoggedOut);
       await this.collectionService.clear(userBeingLoggedOut);
-      await this.passwordGenerationService.clear(userBeingLoggedOut);
       await this.vaultTimeoutSettingsService.clear(userBeingLoggedOut);
       await this.biometricStateService.logout(userBeingLoggedOut);
 

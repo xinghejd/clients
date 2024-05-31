@@ -3,7 +3,7 @@
     type="checkbox"
     bitCheckbox
     appStopProp
-    *ngIf="canDeleteCollection"
+    *ngIf="showCheckbox"
     [disabled]="disabled"
     [checked]="checked"
     (change)="$event ? this.checkedToggled.next() : null"
@@ -30,12 +30,7 @@
   >
     <span class="tw-truncate tw-mr-1">{{ collection.name }}</span>
     <div>
-      <span
-        *ngIf="collection.addAccess && collection.id !== Unassigned"
-        bitBadge
-        variant="warning"
-        >{{ "addAccess" | i18n }}</span
-      >
+      <span *ngIf="showAddAccess" bitBadge variant="warning">{{ "addAccess" | i18n }}</span>
     </div>
   </button>
 </td>
