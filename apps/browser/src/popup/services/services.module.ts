@@ -321,8 +321,8 @@ const safeProviders: SafeProvider[] = [
   }),
   safeProvider({
     provide: AbstractStorageService,
-    useClass: BrowserLocalStorageService,
-    deps: [],
+    useFactory: (ngZone: NgZone) => new BrowserLocalStorageService(runInsideAngular(ngZone)),
+    deps: [NgZone],
   }),
   safeProvider({
     provide: AutofillServiceAbstraction,

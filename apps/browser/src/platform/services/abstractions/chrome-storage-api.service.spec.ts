@@ -1,9 +1,15 @@
+import { identity } from "rxjs";
+
 import AbstractChromeStorageService, {
   objToStore,
   serializationIndicator,
 } from "./abstract-chrome-storage-api.service";
 
-class TestChromeStorageApiService extends AbstractChromeStorageService {}
+class TestChromeStorageApiService extends AbstractChromeStorageService {
+  constructor(area: chrome.storage.StorageArea) {
+    super(area, identity);
+  }
+}
 
 describe("objectToStore", () => {
   it("converts an object to a tagged string", () => {

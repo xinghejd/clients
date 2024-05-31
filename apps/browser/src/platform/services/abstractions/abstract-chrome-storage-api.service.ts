@@ -1,8 +1,9 @@
-import { filter, mergeMap } from "rxjs";
+import { MonoTypeOperatorFunction, filter, mergeMap } from "rxjs";
 
 import {
   AbstractStorageService,
   ObservableStorageService,
+  StorageUpdate,
   StorageUpdateType,
 } from "@bitwarden/common/platform/abstractions/storage.service";
 
@@ -32,7 +33,10 @@ export default abstract class AbstractChromeStorageService
 {
   updates$;
 
-  constructor(protected chromeStorageApi: chrome.storage.StorageArea) {
+  constructor(
+    protected chromeStorageApi: chrome.storage.StorageArea,
+    private readonly updatesCustomization: MonoTypeOperatorFunction<StorageUpdate>,
+  ) {
     this.updates$ = fromChromeEvent(this.chromeStorageApi.onChanged).pipe(
       filter(([changes]) => {
         // Our storage services support changing only one key at a time. If more are changed, it's due to
@@ -57,6 +61,7 @@ export default abstract class AbstractChromeStorageService
           };
         });
       }),
+      this.updatesCustomization,
     );
   }
 
