@@ -41,6 +41,8 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
 
   showingModal = false;
   duoCallbackSubscriptionEnabled: boolean = false;
+  pinRequired = true;
+  pin?: string;
 
   constructor(
     loginStrategyService: LoginStrategyServiceAbstraction,
@@ -127,6 +129,14 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
   }
 
   async submit() {
+    if (this.selectedProviderType === TwoFactorProviderType.WebAuthn) {
+      await this.authWebAuthn();
+    } else {
+      await this.submit_final();
+    }
+  }
+
+  async submit_final() {
     await super.submit();
     if (this.captchaSiteKey) {
       const content = document.getElementById("content") as HTMLDivElement;
@@ -174,10 +184,21 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
     });
     const providerDataString = JSON.stringify(providerData);
     const env = await firstValueFrom(this.environmentService.environment$);
-    const res = await ipc.platform.webauthn.authenticate(providerDataString, env.getWebVaultUrl());
+    if (this.pin === "") {
+      this.pin = undefined;
+    }
+    const res = await ipc.platform.webauthn.authenticate(
+      providerDataString,
+      env.getWebVaultUrl(),
+      this.pin,
+    );
+    if (res === "pin-required") {
+      this.pinRequired = true;
+      return;
+    }
     this.logService.info("WebAuthn response: ", res);
     this.token = res;
-    await this.submit();
+    await this.submit_final();
     this.logService.info("WebAuthn finished: ");
   }
 

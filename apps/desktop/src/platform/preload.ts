@@ -60,8 +60,8 @@ const clipboard = {
 };
 
 const webauthn = {
-  authenticate: (challenge: string, origin: string): Promise<string> => {
-    return ipcRenderer.invoke("webauthn.authenticate", { challenge, origin });
+  authenticate: (challenge: string, origin: string, pin?: string): Promise<string> => {
+    return ipcRenderer.invoke("webauthn.authenticate", { challenge, origin, pin });
   },
 };
 

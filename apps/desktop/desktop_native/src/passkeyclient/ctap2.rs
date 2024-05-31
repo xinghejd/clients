@@ -1,35 +1,35 @@
-use webauthn_authenticator_rs::{ctap2::{self, Ctap20Authenticator, CtapAuthenticator}, transport::{AnyTransport, Token, TokenEvent, Transport}, types::{CableRequestType, CableState, EnrollSampleStatus}, ui::UiCallback, AuthenticatorBackend};
+use webauthn_authenticator_rs::{ctap2::CtapAuthenticator, transport::{AnyTransport, Token, TokenEvent, Transport}, types::{CableRequestType, CableState, EnrollSampleStatus}, ui::UiCallback, AuthenticatorBackend};
 use webauthn_rs::prelude::Url;
 use core::panic;
-use std::{borrow::Borrow, env, f32::consts::E, fs::OpenOptions, pin};
+use std::{any::Any, borrow::Borrow, env, sync::{Arc, Mutex}};
 use futures::StreamExt;
 
-pub async fn authenticate(challenge: String, origin: String) -> String {
-    println!("Challenge: {}", challenge);
-    println!("Origin: {}", origin);
-    let pin = env::var("PIN").unwrap_or_else(|_| "1234".to_string());
-    println!("PIN: {}", pin);
-
+pub async fn authenticate(challenge: String, origin: String, pin: Option<String>) -> Result<String, anyhow::Error> {
     let pinentry = Pinentry {
-        pin: pin.to_string(),
+        pin: Arc::new(Mutex::new(pin)),
+        pin_required: Arc::new(Mutex::new(false)),
     };
 
     let mut auth = get_authenticator(&pinentry).await;
-    let options = serde_json::from_str(challenge.as_str()).unwrap();
-    let origin = Url::parse(origin.as_str()).unwrap();
+    
+    let options = serde_json::from_str(challenge.as_str())?;
+    let origin = Url::parse(origin.as_str())?;
     let res = auth.perform_auth(origin, options, 60000);
-    println!("res {:?}", res);
-    let pkcred = res.unwrap();
-    let pkcred_string = serde_json::to_string(&pkcred).unwrap()
-            .replace("\"appid\":null,\"hmac_get_secret\":null", "\"appid\":false")
-            .replace("clientDataJSON", "clientDataJson");
-    pkcred_string
+    if res.is_err() && *pinentry.pin_required.lock().unwrap() {
+        return Err(anyhow::Error::msg("Pin required"));
+    }
+    println!("res: {:?}", res);
+    let res = res.map_err(|e| anyhow::Error::msg(format!("Error: {:?}", e)))?;
+    Ok(serde_json::to_string(&res)?
+        .replace("\"appid\":null,\"hmac_get_secret\":null", "\"appid\":false")
+        .replace("clientDataJSON", "clientDataJson"))
 }
 
 
 #[derive(Debug)]
 struct Pinentry {
-    pin: String,
+    pin: Arc<Mutex<Option<String>>>,
+    pin_required: Arc<Mutex<bool>>,
 }
 
 async fn get_authenticator<U: UiCallback>(ui: &U) -> impl AuthenticatorBackend + '_ {
@@ -61,16 +61,20 @@ async fn get_authenticator<U: UiCallback>(ui: &U) -> impl AuthenticatorBackend +
 
 impl UiCallback for Pinentry {
     fn request_pin(&self) -> Option<String> {
-        println!("Requesting pin: {}", self.pin);
-        Some(self.pin.clone())
+        let mut pin_required = self.pin_required.lock().unwrap();
+        *pin_required = true;
+
+        let pin = self.pin.lock().unwrap().clone();
+        println!("ui callback pin: {:?}", pin);
+        pin
     }
 
     fn request_touch(&self) {
-        println!("Called unimplemented method: request_touch")
+        println!("Please touch your authenticator.")
     }
 
     fn processing(&self) {
-        println!("Called unimplemented method: processing")
+        println!("Unimplemented method processing called")
     }
     
     fn fingerprint_enrollment_feedback(

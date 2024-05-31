@@ -127,9 +127,11 @@ pub mod clipboards {
 
 #[napi]
 pub mod passkeyclients {
+
     #[napi]
-    pub async fn authenticate(challenge: String, origin: String) -> napi::Result<String> {
-        let test = super::passkeyclient::authenticate(challenge, origin).await;
-        Ok(test)     
+    pub async fn authenticate(challenge: String, origin: String, pin: Option<String>) -> napi::Result<String> {
+        super::passkeyclient::authenticate(challenge, origin, pin)
+            .await
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
 }

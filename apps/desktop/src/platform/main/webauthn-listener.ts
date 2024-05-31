@@ -10,15 +10,12 @@ export class WebauthnListener {
     ipcMain.handle("webauthn.authenticate", async (event: any, message: any) => {
       try {
         this.logService.info("Webauthn authenticate ipc handler", message);
-        return await passkeyclients.authenticate(message.challenge, message.origin);
+        return await passkeyclients.authenticate(message.challenge, message.origin, message.pin);
       } catch (e) {
-        if (
-          e.message === "Password not found." ||
-          e.message === "The specified item could not be found in the keychain."
-        ) {
-          return null;
+        this.logService.error("Webauthn authenticate ipc handler error", e);
+        if ("Pin required" === e.message) {
+          return "pin-required";
         }
-        this.logService.info(e);
       }
     });
   }
