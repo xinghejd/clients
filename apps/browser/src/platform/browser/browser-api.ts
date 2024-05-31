@@ -176,16 +176,16 @@ export class BrowserApi {
     return BrowserApi.tabSendMessage(tab, obj);
   }
 
-  static async tabSendMessage<T>(
+  static async tabSendMessage<T, TResponse = unknown>(
     tab: chrome.tabs.Tab,
     obj: T,
     options: chrome.tabs.MessageSendOptions = null,
-  ): Promise<any> {
+  ): Promise<TResponse> {
     if (!tab || !tab.id) {
       return;
     }
 
-    return new Promise<any>((resolve) => {
+    return new Promise<TResponse>((resolve) => {
       chrome.tabs.sendMessage(tab.id, obj, options, (response) => {
         if (chrome.runtime.lastError) {
           // Some error happened
