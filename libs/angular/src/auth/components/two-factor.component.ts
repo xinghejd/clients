@@ -26,6 +26,7 @@ import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/ide
 import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two-factor-email.request";
 import { TwoFactorProviders } from "@bitwarden/common/auth/services/two-factor.service";
 import { WebAuthnIFrame } from "@bitwarden/common/auth/webauthn-iframe";
+import { ClientType } from "@bitwarden/common/enums";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -47,6 +48,7 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
   selectedProviderType: TwoFactorProviderType = TwoFactorProviderType.Authenticator;
   webAuthnSupported = false;
   webAuthn: WebAuthnIFrame = null;
+
   title = "";
   twoFactorEmail: string = null;
   formPromise: Promise<any>;
@@ -120,29 +122,35 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
     }
 
     if (this.win != null && this.webAuthnSupported) {
-      const env = await firstValueFrom(this.environmentService.environment$);
-      const webVaultUrl = env.getWebVaultUrl();
-      this.webAuthn = new WebAuthnIFrame(
-        this.win,
-        webVaultUrl,
-        this.webAuthnNewTab,
-        this.platformUtilsService,
-        this.i18nService,
-        (token: string) => {
-          this.token = token;
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          this.submit();
-        },
-        (error: string) => {
-          this.platformUtilsService.showToast("error", this.i18nService.t("errorOccurred"), error);
-        },
-        (info: string) => {
-          if (info === "ready") {
-            this.webAuthnReady = true;
-          }
-        },
-      );
+      if (this.platformUtilsService.getClientType() !== ClientType.Desktop) {
+        const env = await firstValueFrom(this.environmentService.environment$);
+        const webVaultUrl = env.getWebVaultUrl();
+        this.webAuthn = new WebAuthnIFrame(
+          this.win,
+          webVaultUrl,
+          this.webAuthnNewTab,
+          this.platformUtilsService,
+          this.i18nService,
+          (token: string) => {
+            this.token = token;
+            // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+            // eslint-disable-next-line @typescript-eslint/no-floating-promises
+            this.submit();
+          },
+          (error: string) => {
+            this.platformUtilsService.showToast(
+              "error",
+              this.i18nService.t("errorOccurred"),
+              error,
+            );
+          },
+          (info: string) => {
+            if (info === "ready") {
+              this.webAuthnReady = true;
+            }
+          },
+        );
+      }
     }
 
     this.selectedProviderType = await this.twoFactorService.getDefaultProvider(
@@ -240,7 +248,7 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
     if (this.selectedProviderType === TwoFactorProviderType.WebAuthn) {
       if (this.webAuthn != null) {
         this.webAuthn.stop();
-      } else {
+      } else if ((await this.platformUtilsService.getClientType()) !== ClientType.Desktop) {
         return;
       }
     } else if (

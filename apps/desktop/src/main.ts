@@ -31,7 +31,6 @@ import { DefaultSingleUserStateProvider } from "@bitwarden/common/platform/state
 import { DefaultStateProvider } from "@bitwarden/common/platform/state/implementations/default-state.provider";
 import { StateEventRegistrarService } from "@bitwarden/common/platform/state/state-event-registrar.service";
 import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@bitwarden/common/platform/state/storage/memory-storage.service";
-import { passkeyclients } from "@bitwarden/desktop-native";
 /* eslint-enable import/no-restricted-paths */
 
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
@@ -47,6 +46,7 @@ import { BiometricsService, BiometricsServiceAbstraction } from "./platform/main
 import { ClipboardMain } from "./platform/main/clipboard.main";
 import { DesktopCredentialStorageListener } from "./platform/main/desktop-credential-storage-listener";
 import { MainCryptoFunctionService } from "./platform/main/main-crypto-function.service";
+import { WebauthnListener } from "./platform/main/webauthn-listener";
 import { DesktopSettingsService } from "./platform/services/desktop-settings.service";
 import { ElectronLogMainService } from "./platform/services/electron-log.main.service";
 import { ELECTRON_SUPPORTS_SECURE_STORAGE } from "./platform/services/electron-platform-utils.service";
@@ -68,6 +68,7 @@ export class Main {
   environmentService: DefaultEnvironmentService;
   mainCryptoFunctionService: MainCryptoFunctionService;
   desktopCredentialStorageListener: DesktopCredentialStorageListener;
+  webauthnListener: WebauthnListener;
   desktopSettingsService: DesktopSettingsService;
   migrationRunner: MigrationRunner;
   tokenService: TokenServiceAbstraction;
@@ -259,6 +260,8 @@ export class Main {
       this.logService,
     );
 
+    this.webauthnListener = new WebauthnListener(this.logService);
+
     this.nativeMessagingMain = new NativeMessagingMain(
       this.logService,
       this.windowMain,
@@ -271,16 +274,11 @@ export class Main {
     this.clipboardMain = new ClipboardMain();
     this.clipboardMain.init();
     this.logService.info("Clipboard service initialized");
-    setTimeout(async () => {
-      this.logService.info("Delayed bootstrap");
-      const chall = `test chall here`;
-      const res = await passkeyclients.authenticate(chall, "https://vault.bitwarden.com");
-      this.logService.info("Authenticated", res);
-    }, 20000);
   }
 
   bootstrap() {
     this.desktopCredentialStorageListener.init();
+    this.webauthnListener.init();
     // Run migrations first, then other things
     this.migrationRunner.run().then(
       async () => {

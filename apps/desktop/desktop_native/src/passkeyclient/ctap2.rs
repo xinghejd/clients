@@ -20,7 +20,9 @@ pub async fn authenticate(challenge: String, origin: String) -> String {
     let res = auth.perform_auth(origin, options, 60000);
     println!("res {:?}", res);
     let pkcred = res.unwrap();
-    let pkcred_string = serde_json::to_string(&pkcred).unwrap();
+    let pkcred_string = serde_json::to_string(&pkcred).unwrap()
+            .replace("\"appid\":null,\"hmac_get_secret\":null", "\"appid\":false")
+            .replace("clientDataJSON", "clientDataJson");
     pkcred_string
 }
 

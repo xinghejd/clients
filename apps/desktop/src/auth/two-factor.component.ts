@@ -168,6 +168,19 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
     this.platformUtilsService.launchUri(launchUrl);
   }
 
+  override async authWebAuthn() {
+    const providerData = await this.twoFactorService.getProviders().then((providers) => {
+      return providers.get(this.selectedProviderType);
+    });
+    const providerDataString = JSON.stringify(providerData);
+    const env = await firstValueFrom(this.environmentService.environment$);
+    const res = await ipc.platform.webauthn.authenticate(providerDataString, env.getWebVaultUrl());
+    this.logService.info("WebAuthn response: ", res);
+    this.token = res;
+    await this.submit();
+    this.logService.info("WebAuthn finished: ");
+  }
+
   ngOnDestroy(): void {
     if (this.duoCallbackSubscriptionEnabled) {
       this.broadcasterService.unsubscribe(BroadcasterSubscriptionId);
