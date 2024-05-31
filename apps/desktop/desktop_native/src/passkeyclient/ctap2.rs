@@ -1,7 +1,7 @@
-use webauthn_authenticator_rs::{ctap2::CtapAuthenticator, transport::{AnyTransport, Token, TokenEvent, Transport}, types::{CableRequestType, CableState, EnrollSampleStatus}, ui::UiCallback, AuthenticatorBackend};
+use webauthn_authenticator_rs::{ctap2::CtapAuthenticator, transport::{AnyTransport, TokenEvent, Transport}, types::{CableRequestType, CableState, EnrollSampleStatus}, ui::UiCallback, AuthenticatorBackend};
 use webauthn_rs::prelude::Url;
 use core::panic;
-use std::{any::Any, borrow::Borrow, env, sync::{Arc, Mutex}};
+use std::sync::{Arc, Mutex};
 use futures::StreamExt;
 
 pub async fn authenticate(challenge: String, origin: String, pin: Option<String>) -> Result<String, anyhow::Error> {
@@ -18,8 +18,7 @@ pub async fn authenticate(challenge: String, origin: String, pin: Option<String>
     if res.is_err() && *pinentry.pin_required.lock().unwrap() {
         return Err(anyhow::Error::msg("Pin required"));
     }
-    println!("res: {:?}", res);
-    let res = res.map_err(|e| anyhow::Error::msg(format!("Error: {:?}", e)))?;
+    let res: webauthn_rs::prelude::PublicKeyCredential = res.map_err(|e| anyhow::Error::msg(format!("Error: {:?}", e)))?;
     Ok(serde_json::to_string(&res)?
         .replace("\"appid\":null,\"hmac_get_secret\":null", "\"appid\":false")
         .replace("clientDataJSON", "clientDataJson"))
@@ -33,7 +32,7 @@ struct Pinentry {
 }
 
 async fn get_authenticator<U: UiCallback>(ui: &U) -> impl AuthenticatorBackend + '_ {
-    let mut trans = AnyTransport::new().await.unwrap();
+    let trans = AnyTransport::new().await.unwrap();
     match trans.watch().await {
         Ok(mut tokens) => {
             while let Some(event) = tokens.next().await {
@@ -65,7 +64,6 @@ impl UiCallback for Pinentry {
         *pin_required = true;
 
         let pin = self.pin.lock().unwrap().clone();
-        println!("ui callback pin: {:?}", pin);
         pin
     }
 
