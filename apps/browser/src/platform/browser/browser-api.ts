@@ -263,16 +263,26 @@ export class BrowserApi {
     );
   }
 
+  /**
+   * Gathers the details for a specified sub-frame of a tab.
+   *
+   * @param details - The details of the frame to get.
+   */
   static async getFrameDetails(
     details: chrome.webNavigation.GetFrameDetails,
   ): Promise<chrome.webNavigation.GetFrameResultDetails> {
     return new Promise((resolve) => chrome.webNavigation.getFrame(details, resolve));
   }
 
-  static async getAllFrames(
-    details: chrome.webNavigation.GetAllFrameDetails,
+  /**
+   * Gets all frames associated with a tab.
+   *
+   * @param tabId - The id of the tab to get the frames for.
+   */
+  static async getAllFrameDetails(
+    tabId: chrome.tabs.Tab["id"],
   ): Promise<chrome.webNavigation.GetAllFrameResultDetails[]> {
-    return new Promise((resolve) => chrome.webNavigation.getAllFrames(details, resolve));
+    return new Promise((resolve) => chrome.webNavigation.getAllFrames({ tabId }, resolve));
   }
 
   // Keep track of all the events registered in a Safari popup so we can remove

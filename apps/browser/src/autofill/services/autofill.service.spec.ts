@@ -125,7 +125,7 @@ describe("AutofillService", () => {
       tab3 = createChromeTabMock({ id: 3, url: "chrome-extension://some-extension-route" });
       jest.spyOn(BrowserApi, "tabsQuery").mockResolvedValueOnce([tab1, tab2]);
       jest
-        .spyOn(BrowserApi, "getAllFrames")
+        .spyOn(BrowserApi, "getAllFrameDetails")
         .mockResolvedValue([mock<chrome.webNavigation.GetAllFrameResultDetails>({ frameId: 0 })]);
       jest
         .spyOn(autofillService, "getInlineMenuVisibility")
