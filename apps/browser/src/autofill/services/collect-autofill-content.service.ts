@@ -125,21 +125,6 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
     return pageDetails;
   }
 
-  private setupInlineMenuListeners(pageDetails: AutofillPageDetails) {
-    if (!this.autofillOverlayContentService) {
-      return;
-    }
-
-    const formFieldElements = Array.from(this.autofillFieldElements.keys());
-    for (const element of formFieldElements) {
-      void this.autofillOverlayContentService.setupAutofillOverlayListenerOnField(
-        element,
-        this.autofillFieldElements.get(element),
-        pageDetails,
-      );
-    }
-  }
-
   /**
    * Find an AutofillField element by its opid, will only return the first
    * element if there are multiple elements with the same opid. If no
@@ -470,10 +455,6 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
 
     if (elementIsSpanElement(element)) {
       this.cacheAutofillFieldElement(index, element, autofillFieldBase);
-      // void this.autofillOverlayContentService?.setupAutofillOverlayListenerOnField(
-      //   element,
-      //   autofillFieldBase,
-      // );
       return autofillFieldBase;
     }
 
@@ -513,10 +494,6 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
     };
 
     this.cacheAutofillFieldElement(index, element, autofillField);
-    // void this.autofillOverlayContentService?.setupAutofillOverlayListenerOnField(
-    //   element,
-    //   autofillField,
-    // );
     return autofillField;
   };
 
@@ -1454,6 +1431,20 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
       this.intersectionObserver?.unobserve(entry.target);
     }
   };
+
+  private setupInlineMenuListeners(pageDetails: AutofillPageDetails) {
+    if (!this.autofillOverlayContentService) {
+      return;
+    }
+
+    this.autofillFieldElements.forEach((autofillField, formFieldElement) => {
+      void this.autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+        formFieldElement,
+        autofillField,
+        pageDetails,
+      );
+    });
+  }
 
   /**
    * Destroys the CollectAutofillContentService. Clears all
