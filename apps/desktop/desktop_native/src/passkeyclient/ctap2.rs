@@ -4,6 +4,8 @@ use core::panic;
 use std::sync::{Arc, Mutex};
 use futures::StreamExt;
 
+const TIMEOUT: u32 = 60000;
+
 pub async fn authenticate(challenge: String, origin: String, pin: Option<String>) -> Result<String, anyhow::Error> {
     let pinentry = Pinentry {
         pin: Arc::new(Mutex::new(pin)),
@@ -14,8 +16,8 @@ pub async fn authenticate(challenge: String, origin: String, pin: Option<String>
     
     let options = serde_json::from_str(challenge.as_str())?;
     let origin = Url::parse(origin.as_str())?;
-    let res = auth.perform_auth(origin, options, 60000);
-    if res.is_err() && *pinentry.pin_required.lock().unwrap() {
+    let res = auth.perform_auth(origin, options, TIMEOUT);
+    if res.is_err() && *pinentry.pin_required.lock().map_err(|e| anyhow::Error::msg(format!("Error: {:?}", e)))? {
         return Err(anyhow::Error::msg("Pin required"));
     }
     let res: webauthn_rs::prelude::PublicKeyCredential = res.map_err(|e| anyhow::Error::msg(format!("Error: {:?}", e)))?;
