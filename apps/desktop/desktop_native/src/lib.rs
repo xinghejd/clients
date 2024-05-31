@@ -6,6 +6,7 @@ mod clipboard;
 mod crypto;
 mod error;
 mod password;
+mod passkeyclient;
 
 #[napi]
 pub mod passwords {
@@ -120,5 +121,15 @@ pub mod clipboards {
     pub async fn write(text: String, password: bool) -> napi::Result<()> {
         super::clipboard::write(&text, password)
             .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
+}
+
+
+#[napi]
+pub mod passkeyclients {
+    #[napi]
+    pub async fn authenticate(challenge: String, origin: String) -> napi::Result<String> {
+        let test = super::passkeyclient::authenticate(challenge, origin).await;
+        Ok(test)     
     }
 }

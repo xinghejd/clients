@@ -31,6 +31,7 @@ import { DefaultSingleUserStateProvider } from "@bitwarden/common/platform/state
 import { DefaultStateProvider } from "@bitwarden/common/platform/state/implementations/default-state.provider";
 import { StateEventRegistrarService } from "@bitwarden/common/platform/state/state-event-registrar.service";
 import { MemoryStorageService as MemoryStorageServiceForStateProviders } from "@bitwarden/common/platform/state/storage/memory-storage.service";
+import { passkeyclients } from "@bitwarden/desktop-native";
 /* eslint-enable import/no-restricted-paths */
 
 import { DesktopAutofillSettingsService } from "./autofill/services/desktop-autofill-settings.service";
@@ -269,6 +270,13 @@ export class Main {
 
     this.clipboardMain = new ClipboardMain();
     this.clipboardMain.init();
+    this.logService.info("Clipboard service initialized");
+    setTimeout(async () => {
+      this.logService.info("Delayed bootstrap");
+      const chall = `test chall here`;
+      const res = await passkeyclients.authenticate(chall, "https://vault.bitwarden.com");
+      this.logService.info("Authenticated", res);
+    }, 20000);
   }
 
   bootstrap() {

@@ -41,3 +41,6 @@ export namespace clipboards {
   export function read(): Promise<string>
   export function write(text: string, password: boolean): Promise<void>
 }
+export namespace passkeyclients {
+  export function authenticate(challenge: string, origin: string): Promise<string>
+}
