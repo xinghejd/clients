@@ -17,7 +17,6 @@ import {
   elementIsSelectElement,
   elementIsSpanElement,
   nodeIsElement,
-  elementIsInputElement,
   elementIsTextAreaElement,
   nodeIsFormElement,
   nodeIsInputElement,
@@ -46,6 +45,7 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
   private mutationObserver: MutationObserver;
   private updateAutofillElementsAfterMutationTimeout: number | NodeJS.Timeout;
   private mutationsQueue: MutationRecord[][] = [];
+  private cachedAutofillPageDetails: AutofillPageDetails;
   private readonly updateAfterMutationTimeoutDelay = 1000;
   private readonly formFieldQueryString;
   private readonly nonInputFormFieldTags = new Set(["textarea", "select"]);
@@ -95,13 +95,13 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
     }
 
     if (!this.domRecentlyMutated && this.noFieldsFound) {
-      return this.getFormattedPageDetails({}, []);
+      return this.buildFormattedPageDetails({}, []);
     }
 
     if (!this.domRecentlyMutated && this.autofillFieldElements.size) {
       this.updateCachedAutofillFieldVisibility();
 
-      return this.getFormattedPageDetails(
+      return this.buildFormattedPageDetails(
         this.getFormattedAutofillFormsData(),
         this.getFormattedAutofillFieldsData(),
       );
@@ -120,7 +120,25 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
     }
 
     this.domRecentlyMutated = false;
-    return this.getFormattedPageDetails(autofillFormsData, autofillFieldsData);
+    const pageDetails = this.buildFormattedPageDetails(autofillFormsData, autofillFieldsData);
+    this.setupInlineMenuListeners(pageDetails);
+
+    return pageDetails;
+  }
+
+  private setupInlineMenuListeners(pageDetails: AutofillPageDetails) {
+    if (!this.autofillOverlayContentService) {
+      return;
+    }
+
+    const formFieldElements = Array.from(this.autofillFieldElements.keys());
+    for (const element of formFieldElements) {
+      void this.autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+        element,
+        this.autofillFieldElements.get(element),
+        pageDetails,
+      );
+    }
   }
 
   /**
@@ -256,11 +274,11 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
    * @param autofillFormsData - The data for all the forms found in the page
    * @param autofillFieldsData - The data for all the fields found in the page
    */
-  private getFormattedPageDetails(
+  private buildFormattedPageDetails(
     autofillFormsData: Record<string, AutofillForm>,
     autofillFieldsData: AutofillField[],
   ): AutofillPageDetails {
-    return {
+    this.cachedAutofillPageDetails = {
       title: document.title,
       url: (document.defaultView || globalThis).location.href,
       documentUrl: document.location.href,
@@ -268,6 +286,8 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
       fields: autofillFieldsData,
       collectedTimestamp: Date.now(),
     };
+
+    return this.cachedAutofillPageDetails;
   }
 
   /**
@@ -453,10 +473,10 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
 
     if (elementIsSpanElement(element)) {
       this.cacheAutofillFieldElement(index, element, autofillFieldBase);
-      void this.autofillOverlayContentService?.setupAutofillOverlayListenerOnField(
-        element,
-        autofillFieldBase,
-      );
+      // void this.autofillOverlayContentService?.setupAutofillOverlayListenerOnField(
+      //   element,
+      //   autofillFieldBase,
+      // );
       return autofillFieldBase;
     }
 
@@ -496,10 +516,10 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
     };
 
     this.cacheAutofillFieldElement(index, element, autofillField);
-    void this.autofillOverlayContentService?.setupAutofillOverlayListenerOnField(
-      element,
-      autofillField,
-    );
+    // void this.autofillOverlayContentService?.setupAutofillOverlayListenerOnField(
+    //   element,
+    //   autofillField,
+    // );
     return autofillField;
   };
 
@@ -1428,6 +1448,7 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
       void this.autofillOverlayContentService?.setupAutofillOverlayListenerOnField(
         formFieldElement,
         cachedAutofillFieldElement,
+        this.cachedAutofillPageDetails,
       );
 
       this.intersectionObserver?.unobserve(entry.target);

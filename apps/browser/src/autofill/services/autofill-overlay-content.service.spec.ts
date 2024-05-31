@@ -4,6 +4,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { EVENTS, AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
 
 import AutofillField from "../models/autofill-field";
+import AutofillPageDetails from "../models/autofill-page-details";
 import { createAutofillFieldMock } from "../spec/autofill-mocks";
 import { flushPromises } from "../spec/testing-utils";
 import { ElementWithOpId, FormFieldElement } from "../types";
@@ -26,6 +27,8 @@ function createMutationRecordMock(customFields = {}): MutationRecord {
     ...customFields,
   };
 }
+
+const temporaryPageDetailsMock = mock<AutofillPageDetails>();
 
 const defaultWindowReadyState = document.readyState;
 const defaultDocumentVisibilityState = document.visibilityState;
@@ -179,6 +182,7 @@ describe("AutofillOverlayContentService", () => {
         await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
           autofillFieldData,
+          temporaryPageDetailsMock,
         );
 
         expect(autofillFieldElement.addEventListener).not.toHaveBeenCalled();
@@ -190,6 +194,7 @@ describe("AutofillOverlayContentService", () => {
         await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
           autofillFieldData,
+          temporaryPageDetailsMock,
         );
 
         expect(autofillFieldElement.addEventListener).not.toHaveBeenCalled();
@@ -201,6 +206,7 @@ describe("AutofillOverlayContentService", () => {
         await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
           autofillFieldData,
+          temporaryPageDetailsMock,
         );
 
         expect(autofillFieldElement.addEventListener).not.toHaveBeenCalled();
@@ -213,6 +219,7 @@ describe("AutofillOverlayContentService", () => {
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
             autofillFieldData,
+            temporaryPageDetailsMock,
           );
 
           expect(autofillFieldElement.addEventListener).not.toHaveBeenCalled();
@@ -225,6 +232,7 @@ describe("AutofillOverlayContentService", () => {
         await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
           autofillFieldData,
+          temporaryPageDetailsMock,
         );
 
         expect(autofillFieldElement.addEventListener).not.toHaveBeenCalled();
@@ -236,6 +244,7 @@ describe("AutofillOverlayContentService", () => {
         await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
           autofillFieldData,
+          temporaryPageDetailsMock,
         );
 
         expect(autofillFieldElement.addEventListener).not.toHaveBeenCalled();
@@ -247,6 +256,7 @@ describe("AutofillOverlayContentService", () => {
         await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
           autofillFieldData,
+          temporaryPageDetailsMock,
         );
 
         expect(autofillFieldElement.addEventListener).not.toHaveBeenCalled();
@@ -259,6 +269,7 @@ describe("AutofillOverlayContentService", () => {
       await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
         autofillFieldElement,
         autofillFieldData,
+        temporaryPageDetailsMock,
       );
 
       expect(autofillFieldElement.addEventListener).not.toHaveBeenCalled();
@@ -272,6 +283,7 @@ describe("AutofillOverlayContentService", () => {
         await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
           autofillFieldData,
+          temporaryPageDetailsMock,
         );
 
         expect(sendExtensionMessageSpy).toHaveBeenCalledWith("getAutofillOverlayVisibility");
@@ -287,6 +299,7 @@ describe("AutofillOverlayContentService", () => {
         await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
           autofillFieldData,
+          temporaryPageDetailsMock,
         );
 
         expect(autofillOverlayContentService["autofillOverlayVisibility"]).toEqual(
@@ -310,6 +323,7 @@ describe("AutofillOverlayContentService", () => {
         await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
           autofillFieldElement,
           autofillFieldData,
+          temporaryPageDetailsMock,
         );
 
         expect(autofillFieldElement.removeEventListener).toHaveBeenNthCalledWith(
@@ -334,6 +348,7 @@ describe("AutofillOverlayContentService", () => {
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
             autofillFieldData,
+            temporaryPageDetailsMock,
           );
         });
 
@@ -357,6 +372,7 @@ describe("AutofillOverlayContentService", () => {
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
             autofillFieldData,
+            temporaryPageDetailsMock,
           );
           jest.spyOn(globalThis.customElements, "define").mockImplementation();
         });
@@ -440,6 +456,7 @@ describe("AutofillOverlayContentService", () => {
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             spanAutofillFieldElement,
             autofillFieldData,
+            temporaryPageDetailsMock,
           );
 
           spanAutofillFieldElement.dispatchEvent(new Event("input"));
@@ -451,6 +468,7 @@ describe("AutofillOverlayContentService", () => {
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
             autofillFieldData,
+            temporaryPageDetailsMock,
           );
           autofillFieldElement.dispatchEvent(new Event("input"));
 
@@ -467,6 +485,7 @@ describe("AutofillOverlayContentService", () => {
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             passwordFieldElement,
             autofillFieldData,
+            temporaryPageDetailsMock,
           );
           passwordFieldElement.dispatchEvent(new Event("input"));
 
@@ -486,6 +505,7 @@ describe("AutofillOverlayContentService", () => {
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
             autofillFieldData,
+            temporaryPageDetailsMock,
           );
           autofillFieldElement.dispatchEvent(new Event("input"));
 
@@ -504,6 +524,7 @@ describe("AutofillOverlayContentService", () => {
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
             autofillFieldData,
+            temporaryPageDetailsMock,
           );
           autofillFieldElement.dispatchEvent(new Event("input"));
 
@@ -517,6 +538,7 @@ describe("AutofillOverlayContentService", () => {
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
             autofillFieldData,
+            temporaryPageDetailsMock,
           );
           autofillFieldElement.dispatchEvent(new Event("input"));
 
@@ -531,6 +553,7 @@ describe("AutofillOverlayContentService", () => {
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
             autofillFieldData,
+            temporaryPageDetailsMock,
           );
           autofillFieldElement.dispatchEvent(new Event("input"));
 
@@ -546,6 +569,7 @@ describe("AutofillOverlayContentService", () => {
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
             autofillFieldData,
+            temporaryPageDetailsMock,
           );
           autofillFieldElement.dispatchEvent(new Event("input"));
 
@@ -563,6 +587,7 @@ describe("AutofillOverlayContentService", () => {
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
             autofillFieldData,
+            temporaryPageDetailsMock,
           );
         });
 
@@ -613,6 +638,7 @@ describe("AutofillOverlayContentService", () => {
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
             autofillFieldData,
+            temporaryPageDetailsMock,
           );
 
           autofillFieldElement.dispatchEvent(new Event("focus"));
@@ -624,6 +650,7 @@ describe("AutofillOverlayContentService", () => {
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
             autofillFieldData,
+            temporaryPageDetailsMock,
           );
 
           autofillFieldElement.dispatchEvent(new Event("focus"));
@@ -641,6 +668,7 @@ describe("AutofillOverlayContentService", () => {
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
             autofillFieldData,
+            temporaryPageDetailsMock,
           );
 
           autofillFieldElement.dispatchEvent(new Event("focus"));
@@ -660,6 +688,7 @@ describe("AutofillOverlayContentService", () => {
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
             autofillFieldData,
+            temporaryPageDetailsMock,
           );
 
           autofillFieldElement.dispatchEvent(new Event("focus"));
@@ -678,6 +707,7 @@ describe("AutofillOverlayContentService", () => {
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
             autofillFieldData,
+            temporaryPageDetailsMock,
           );
 
           autofillFieldElement.dispatchEvent(new Event("focus"));
@@ -695,6 +725,7 @@ describe("AutofillOverlayContentService", () => {
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
             autofillFieldData,
+            temporaryPageDetailsMock,
           );
 
           autofillFieldElement.dispatchEvent(new Event("focus"));
@@ -711,6 +742,7 @@ describe("AutofillOverlayContentService", () => {
           await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
             autofillFieldElement,
             autofillFieldData,
+            temporaryPageDetailsMock,
           );
 
           autofillFieldElement.dispatchEvent(new Event("focus"));
@@ -733,6 +765,7 @@ describe("AutofillOverlayContentService", () => {
       await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
         autofillFieldElement,
         autofillFieldData,
+        temporaryPageDetailsMock,
       );
 
       expect(sendExtensionMessageSpy).toHaveBeenCalledWith("openAutofillOverlay");
@@ -747,6 +780,7 @@ describe("AutofillOverlayContentService", () => {
       await autofillOverlayContentService.setupAutofillOverlayListenerOnField(
         autofillFieldElement,
         autofillFieldData,
+        temporaryPageDetailsMock,
       );
 
       expect(autofillOverlayContentService["mostRecentlyFocusedField"]).toEqual(
@@ -1613,6 +1647,7 @@ describe("AutofillOverlayContentService", () => {
       autofillOverlayContentService.setupAutofillOverlayListenerOnField(
         autofillFieldElement,
         autofillFieldData,
+        temporaryPageDetailsMock,
       );
       autofillOverlayContentService["mostRecentlyFocusedField"] = autofillFieldElement;
     });

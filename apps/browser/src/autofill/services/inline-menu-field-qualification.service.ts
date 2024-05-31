@@ -3,7 +3,7 @@ import AutofillPageDetails from "../models/autofill-page-details";
 
 import { AutoFillConstants } from "./autofill-constants";
 
-export class AutofillFieldQualificationService {
+export class InlineMenuFieldQualificationService {
   private searchFieldNamesSet = new Set(AutoFillConstants.SearchFieldNames);
   private excludedAutofillLoginTypesSet = new Set(AutoFillConstants.ExcludedAutofillLoginTypes);
   private usernameFieldTypes = new Set(["text", "email", "tel"]);
@@ -13,13 +13,8 @@ export class AutofillFieldQualificationService {
   private invalidAutocompleteValuesSet = new Set(["off", "false"]);
 
   isFieldForLoginForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean {
-    // TODO: Determine whether it makes sense to even incorporate this.
-    if (!field.viewable) {
-      return false;
-    }
-
-    const isExistingPasswordField = this.isExistingPasswordField(field);
-    if (isExistingPasswordField) {
+    const isCurrentPasswordField = this.isCurrentPasswordField(field);
+    if (isCurrentPasswordField) {
       return this.isPasswordFieldForLoginForm(field, pageDetails);
     }
 
@@ -43,7 +38,7 @@ export class AutofillFieldQualificationService {
     // Check if the field has a form parent
     const parentForm = pageDetails.forms[field.form];
     const usernameFieldsInPageDetails = pageDetails.fields.filter(this.isUsernameField);
-    const passwordFieldsInPageDetails = pageDetails.fields.filter(this.isExistingPasswordField);
+    const passwordFieldsInPageDetails = pageDetails.fields.filter(this.isCurrentPasswordField);
     // If no form parent is found, check if a username field exists and no other password fields are found in the page details, if so treat this as a password field
     if (
       !parentForm &&
@@ -100,7 +95,7 @@ export class AutofillFieldQualificationService {
 
     // Check if the field has a form parent
     const parentForm = pageDetails.forms[field.form];
-    const passwordFieldsInPageDetails = pageDetails.fields.filter(this.isExistingPasswordField);
+    const passwordFieldsInPageDetails = pageDetails.fields.filter(this.isCurrentPasswordField);
     // console.log(passwordFieldsInPageDetails);
 
     // If no form parent is found, check if a single password field is found in the page details, if so treat this as a username field
@@ -177,7 +172,7 @@ export class AutofillFieldQualificationService {
     return this.keywordsFoundInFieldData(field, AutoFillConstants.UsernameFieldNames);
   };
 
-  isExistingPasswordField = (field: AutofillField): boolean => {
+  isCurrentPasswordField = (field: AutofillField): boolean => {
     if (field.autoCompleteType === "new-password") {
       return false;
     }

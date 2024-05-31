@@ -7,6 +7,7 @@ import { EVENTS, AutofillOverlayVisibility } from "@bitwarden/common/autofill/co
 
 import { FocusedFieldData } from "../background/abstractions/overlay.background";
 import AutofillField from "../models/autofill-field";
+import AutofillPageDetails from "../models/autofill-page-details";
 import AutofillOverlayButtonIframe from "../overlay/iframe-content/autofill-overlay-button-iframe";
 import AutofillOverlayListIframe from "../overlay/iframe-content/autofill-overlay-list-iframe";
 import { ElementWithOpId, FillableFormFieldElement, FormFieldElement } from "../types";
@@ -23,8 +24,10 @@ import {
   OpenAutofillOverlayOptions,
 } from "./abstractions/autofill-overlay-content.service";
 import { AutoFillConstants } from "./autofill-constants";
+import { InlineMenuFieldQualificationService } from "./inline-menu-field-qualification.service";
 
 class AutofillOverlayContentService implements AutofillOverlayContentServiceInterface {
+  private readonly inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
   isFieldCurrentlyFocused = false;
   isCurrentlyFilling = false;
   isOverlayCiphersPopulated = false;
@@ -62,6 +65,10 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
     zIndex: "2147483647",
   };
 
+  constructor() {
+    this.inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
+  }
+
   /**
    * Initializes the autofill overlay content service by setting up the mutation observers.
    * The observers will be instantiated on DOMContentLoaded if the page is current loading.
@@ -81,12 +88,17 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
    *
    * @param formFieldElement - Form field elements identified during the page details collection process.
    * @param autofillFieldData - Autofill field data captured from the form field element.
+   * @param pageDetails - The collected page details from the tab.
    */
   async setupAutofillOverlayListenerOnField(
     formFieldElement: ElementWithOpId<FormFieldElement>,
     autofillFieldData: AutofillField,
+    pageDetails: AutofillPageDetails,
   ) {
-    if (this.isIgnoredField(autofillFieldData) || this.formFieldElements.has(formFieldElement)) {
+    if (
+      this.formFieldElements.has(formFieldElement) ||
+      !this.inlineMenuFieldQualificationService.isFieldForLoginForm(autofillFieldData, pageDetails)
+    ) {
       return;
     }
 
@@ -745,15 +757,15 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       autofillFieldData.readonly ||
       autofillFieldData.disabled ||
       !autofillFieldData.viewable ||
-      this.ignoredFieldTypes.has(autofillFieldData.type) ||
-      this.keywordsFoundInFieldData(autofillFieldData, ["search", "captcha"])
+      this.ignoredFieldTypes.has(autofillFieldData.type)
+      // || this.keywordsFoundInFieldData(autofillFieldData, ["search", "captcha"])
     ) {
       return true;
     }
 
     const isLoginCipherField =
-      autofillFieldData.type === "password" ||
-      this.keywordsFoundInFieldData(autofillFieldData, AutoFillConstants.UsernameFieldNames);
+      this.inlineMenuFieldQualificationService.isCurrentPasswordField(autofillFieldData) ||
+      this.inlineMenuFieldQualificationService.isUsernameField(autofillFieldData);
 
     return !isLoginCipherField;
   }
