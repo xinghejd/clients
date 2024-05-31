@@ -41,7 +41,7 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
 
   showingModal = false;
   duoCallbackSubscriptionEnabled: boolean = false;
-  pinRequired = true;
+  pinRequired = false;
   pin?: string;
 
   constructor(
