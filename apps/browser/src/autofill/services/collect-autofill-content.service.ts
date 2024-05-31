@@ -44,7 +44,7 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
   private elementInitializingIntersectionObserver: Set<Element> = new Set();
   private mutationObserver: MutationObserver;
   private mutationsQueue: MutationRecord[][] = [];
-  private currentlyUpdatingPageDetails = false;
+  private updateAfterMutationIdleCallback: number;
   private readonly updateAfterMutationTimeout = 1000;
   private readonly formFieldQueryString;
   private readonly nonInputFormFieldTags = new Set(["textarea", "select"]);
@@ -1223,19 +1223,13 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
    * @private
    */
   private updateAutofillElementsAfterMutation() {
-    if (this.currentlyUpdatingPageDetails) {
-      return;
+    if (this.updateAfterMutationIdleCallback) {
+      globalThis.cancelIdleCallback(this.updateAfterMutationIdleCallback);
     }
 
-    this.currentlyUpdatingPageDetails = true;
-    globalThis.requestIdleCallback(
-      async () => {
-        await this.getPageDetails();
-        this.currentlyUpdatingPageDetails = false;
-      },
-      {
-        timeout: this.updateAfterMutationTimeout,
-      },
+    this.updateAfterMutationIdleCallback = globalThis.requestIdleCallback(
+      this.getPageDetails.bind(this),
+      { timeout: this.updateAfterMutationTimeout },
     );
   }
 
@@ -1457,6 +1451,9 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
    * timeouts and disconnects the mutation observer.
    */
   destroy() {
+    if (this.updateAfterMutationIdleCallback) {
+      globalThis.cancelIdleCallback(this.updateAfterMutationIdleCallback);
+    }
     this.mutationObserver?.disconnect();
     this.intersectionObserver?.disconnect();
   }
