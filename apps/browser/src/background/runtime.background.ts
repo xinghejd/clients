@@ -342,7 +342,20 @@ export default class RuntimeBackground {
             await this.environmentService.setUrlsToManagedEnvironment();
           }
         }
-
+        const installLog = await chrome.storage.local.get("INSTALL_LOG");
+        if (!installLog || Object.keys(installLog).length === 0) {
+          await chrome.storage.local.set({
+            INSTALL_LOG: [
+              { installReason: this.onInstalledReason, timestamp: new Date().toString() },
+            ],
+          });
+        } else {
+          installLog["INSTALL_LOG"].push({
+            installReason: this.onInstalledReason,
+            timestamp: new Date().toString(),
+          });
+          await chrome.storage.local.set({ INSTALL_LOG: installLog["INSTALL_LOG"] });
+        }
         this.onInstalledReason = null;
       }
     }, 100);
