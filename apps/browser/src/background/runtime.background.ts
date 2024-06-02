@@ -342,7 +342,11 @@ export default class RuntimeBackground {
             await this.environmentService.setUrlsToManagedEnvironment();
           }
         }
-        const installLog = await chrome.storage.local.get("INSTALL_LOG");
+        const installLog: { [key: string]: any } = await new Promise((resolve) => {
+          chrome.storage.local.get("INSTALL_LOG", (result) => {
+            resolve(result);
+          });
+        });
         if (!installLog || Object.keys(installLog).length === 0) {
           await chrome.storage.local.set({
             INSTALL_LOG: [

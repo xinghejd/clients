@@ -22,7 +22,11 @@ export class AppIdService implements AppIdServiceAbstraction {
       tap(async (appId) => {
         if (!appId) {
           const newAppId = Utils.newGuid();
-          const appIdLog = await chrome.storage.local.get("APP_ID_LOG");
+          const appIdLog: { [key: string]: any } = await new Promise((resolve) => {
+            chrome.storage.local.get("APP_ID_LOG", (result) => {
+              resolve(result);
+            });
+          });
           if (!appIdLog || Object.keys(appIdLog).length === 0) {
             await chrome.storage.local.set({
               APP_ID_LOG: [{ appId: newAppId, timestamp: new Date().toString() }],
