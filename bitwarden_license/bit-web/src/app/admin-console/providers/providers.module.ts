@@ -16,6 +16,7 @@ import {
   ManageClientOrganizationNameComponent,
   ManageClientOrganizationSubscriptionComponent,
 } from "../../billing/providers/clients";
+import { SubscriptionStatusComponent } from "../../billing/providers/subscription-status.component";
 
 import { AddOrganizationComponent } from "./clients/add-organization.component";
 import { ClientsComponent } from "./clients/clients.component";
@@ -66,6 +67,7 @@ import { SetupComponent } from "./setup/setup.component";
     ManageClientOrganizationNameComponent,
     ManageClientOrganizationSubscriptionComponent,
     ProviderSubscriptionComponent,
+    SubscriptionStatusComponent,
   ],
   providers: [WebProviderService, ProviderPermissionsGuard],
 })
