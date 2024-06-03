@@ -187,6 +187,7 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
     if (this.pin === "") {
       this.pin = undefined;
     }
+    this.pinRequired = false;
     const res = await ipc.platform.webauthn.authenticate(
       providerDataString,
       env.getWebVaultUrl(),

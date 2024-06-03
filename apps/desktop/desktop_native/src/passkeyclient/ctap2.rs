@@ -54,7 +54,7 @@ async fn get_authenticator<U: UiCallback>(ui: &U) -> Result<impl AuthenticatorBa
             }
         }
         Err(e) => {
-            println!("Error: {:?}", e);
+            return Err(anyhow::Error::msg(format!("Error: {:?}", e)));
         }
     }
     Err(anyhow::Error::msg("No authenticator found"))
@@ -62,10 +62,12 @@ async fn get_authenticator<U: UiCallback>(ui: &U) -> Result<impl AuthenticatorBa
 
 impl UiCallback for Pinentry {
     fn request_pin(&self) -> Option<String> {
+        println!("Requesting pin {:?}", self.pin.lock().unwrap());
         let mut pin_required = self.pin_required.lock().unwrap();
         *pin_required = true;
 
         let pin = self.pin.lock().unwrap().clone();
+        println!("Requesting pin {:?}", pin);
         pin
     }
 
@@ -103,7 +105,7 @@ fn serialize_publickeycredential(credential: webauthn_rs::prelude::PublicKeyCred
         id: credential.id,
         raw_id: credential.raw_id,
         type_: credential.type_,
-        authenticator_data: WebauthnResponseData {
+        response: WebauthnResponseData {
             authenticator_data: credential.response.authenticator_data,
             client_data_json: credential.response.client_data_json,
             signature: credential.response.signature,
@@ -136,7 +138,7 @@ struct TwoFactorAuthToken {
     raw_id: Base64UrlSafeData,
     #[serde(rename = "type")]
     type_: String,
-    #[serde(rename = "authenticatorData")]
-    authenticator_data: WebauthnResponseData,
+    #[serde(rename = "response")]
+    response: WebauthnResponseData,
     extensions: WebauthnExtensions,
 }
