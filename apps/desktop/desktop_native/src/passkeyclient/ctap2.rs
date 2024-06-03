@@ -1,5 +1,7 @@
+use serde::{Deserialize, Serialize};
+use serde;
 use webauthn_authenticator_rs::{ctap2::CtapAuthenticator, transport::{AnyTransport, TokenEvent, Transport}, types::{CableRequestType, CableState, EnrollSampleStatus}, ui::UiCallback, AuthenticatorBackend};
-use webauthn_rs::prelude::Url;
+use webauthn_rs::prelude::{Base64UrlSafeData, Url};
 use core::panic;
 use std::sync::{Arc, Mutex};
 use futures::StreamExt;
@@ -21,11 +23,8 @@ pub async fn authenticate(challenge: String, origin: String, pin: Option<String>
         return Err(anyhow::Error::msg("Pin required"));
     }
     let res: webauthn_rs::prelude::PublicKeyCredential = res.map_err(|e| anyhow::Error::msg(format!("Error: {:?}", e)))?;
-    Ok(serde_json::to_string(&res)?
-        .replace("\"appid\":null,\"hmac_get_secret\":null", "\"appid\":false")
-        .replace("clientDataJSON", "clientDataJson"))
+    serialize_publickeycredential(res)
 }
-
 
 #[derive(Debug)]
 struct Pinentry {
@@ -96,4 +95,47 @@ impl UiCallback for Pinentry {
     fn cable_status_update(&self, state: CableState) {
         println!("Unimplemented method cable_status_update called")
     }
+}
+
+fn serialize_publickeycredential(credential: webauthn_rs::prelude::PublicKeyCredential) -> Result<String, anyhow::Error> {
+    serde_json::to_string(&TwoFactorAuthToken {
+        id: credential.id,
+        raw_id: credential.raw_id,
+        type_: credential.type_,
+        authenticator_data: WebauthnResponseData {
+            authenticator_data: credential.response.authenticator_data,
+            client_data_json: credential.response.client_data_json,
+            signature: credential.response.signature,
+        },
+        extensions: WebauthnExtensions {
+            appid: Some(false),
+        },
+    }).map_err(|e| anyhow::Error::msg(format!("Error: {:?}", e)))
+}
+
+// json
+#[derive(Debug, Serialize, Deserialize)]
+struct WebauthnResponseData {
+    #[serde(rename = "authenticatorData")]
+    authenticator_data: Base64UrlSafeData,
+    #[serde(rename = "clientDataJson")]
+    client_data_json: Base64UrlSafeData,
+    signature: Base64UrlSafeData,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct WebauthnExtensions {
+    appid: Option<bool>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct TwoFactorAuthToken {
+    id: String,
+    #[serde(rename = "rawId")]
+    raw_id: Base64UrlSafeData,
+    #[serde(rename = "type")]
+    type_: String,
+    #[serde(rename = "authenticatorData")]
+    authenticator_data: WebauthnResponseData,
+    extensions: WebauthnExtensions,
 }
