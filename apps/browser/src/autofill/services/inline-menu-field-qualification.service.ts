@@ -36,52 +36,43 @@ export class InlineMenuFieldQualificationService {
       return true;
     }
 
-    // Check if the field has a form parent
-    const parentForm = pageDetails.forms[field.form];
+    // If a single username and a single password field exists on the page, we should
+    // assume that this field is part of a login form
     const usernameFieldsInPageDetails = pageDetails.fields.filter(this.isUsernameField);
     const passwordFieldsInPageDetails = pageDetails.fields.filter(this.isCurrentPasswordField);
-    // If no form parent is found, check if a username field exists and no other password fields are found in the page details, if so treat this as a password field
-    if (
-      !parentForm &&
-      usernameFieldsInPageDetails.length === 1 &&
-      passwordFieldsInPageDetails.length === 1
-    ) {
+    if (usernameFieldsInPageDetails.length === 1 && passwordFieldsInPageDetails.length === 1) {
       return true;
     }
 
     // If no form parent is found and the autocomplete attribute is set to "off" or "false", this is not a password field
-    if (!parentForm && this.autocompleteDisabledValues.has(field.autoCompleteType)) {
+    const parentForm = pageDetails.forms[field.form];
+    if (!parentForm) {
+      // If no parent form is found, and multiple password fields are present, this is likely a login creation form.
+      if (passwordFieldsInPageDetails.length > 1) {
+        return false;
+      }
+
+      return !this.autocompleteDisabledValues.has(field.autoCompleteType);
+    }
+
+    // If the field has a form parent and there are multiple visible password fields in the form, this is not a login form field
+    const visiblePasswordFieldsInPageDetails = passwordFieldsInPageDetails.filter(
+      (f) => f.form === field.form && f.viewable,
+    );
+    if (visiblePasswordFieldsInPageDetails.length > 1) {
       return false;
     }
 
-    // If the field has a form parent and if the form has  username field and no other password fields exist, if so treat this as a password field
-    if (
-      parentForm &&
-      usernameFieldsInPageDetails.length === 1 &&
-      passwordFieldsInPageDetails.length === 1
-    ) {
+    // If the form has any visible username fields, we should treat the field as part of a login form
+    const visibleUsernameFields = usernameFieldsInPageDetails.filter(
+      (f) => f.form === field.form && f.viewable,
+    );
+    if (visibleUsernameFields.length > 0) {
       return true;
     }
 
-    // TODO: Need to keep in consideration that other pass fields might exist outside the form. Need to check that.
-    // If the field has a form parent and there are multiple visible password fields in the form, this is not a username field
-    const visiblePasswordFieldsInPageDetails = passwordFieldsInPageDetails.filter(
-      (f) => f.viewable && f.form === field.form,
-    );
-    if (parentForm && visiblePasswordFieldsInPageDetails.length > 1) {
-      return false;
-    }
-
     // If the field has a form parent a no username field exists and the field has an autocomplete attribute set to "off" or "false", this is not a password field
-    if (
-      parentForm &&
-      usernameFieldsInPageDetails.length === 0 &&
-      this.autocompleteDisabledValues.has(field.autoCompleteType)
-    ) {
-      return false;
-    }
-
-    return true;
+    return !this.autocompleteDisabledValues.has(field.autoCompleteType);
   }
 
   private isUsernameFieldForLoginForm(
@@ -94,6 +85,7 @@ export class InlineMenuFieldQualificationService {
       return true;
     }
 
+    // TODO: Assert whether this is worth it... this could be very risky.
     // If any keywords in the field's data indicates that this is a field for a "new" or "changed"
     // username, we should assume that this field is not for a login form.
     if (this.keywordsFoundInFieldData(field, [...this.newUsernameKeywords])) {
