@@ -279,11 +279,14 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
    * @private
    */
   private updateCachedAutofillFieldVisibility() {
-    this.autofillFieldElements.forEach(
-      async (autofillField, element) =>
-        (autofillField.viewable =
-          await this.domElementVisibilityService.isFormFieldViewable(element)),
-    );
+    this.autofillFieldElements.forEach(async (autofillField, element) => {
+      const previouslyViewable = autofillField.viewable;
+      autofillField.viewable = await this.domElementVisibilityService.isFormFieldViewable(element);
+
+      if (!previouslyViewable && autofillField.viewable) {
+        this.setupAutofillOverlayListenerOnField(element, autofillField);
+      }
+    });
   }
 
   /**
@@ -1419,14 +1422,7 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
 
       cachedAutofillFieldElement.viewable = true;
 
-      void this.autofillOverlayContentService?.setupAutofillOverlayListenerOnField(
-        formFieldElement,
-        cachedAutofillFieldElement,
-        this.getFormattedPageDetails(
-          this.getFormattedAutofillFormsData(),
-          this.getFormattedAutofillFieldsData(),
-        ),
-      );
+      this.setupAutofillOverlayListenerOnField(formFieldElement, cachedAutofillFieldElement);
 
       this.intersectionObserver?.unobserve(entry.target);
     }
@@ -1438,12 +1434,31 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
     }
 
     this.autofillFieldElements.forEach((autofillField, formFieldElement) => {
-      void this.autofillOverlayContentService.setupAutofillOverlayListenerOnField(
-        formFieldElement,
-        autofillField,
-        pageDetails,
-      );
+      this.setupAutofillOverlayListenerOnField(formFieldElement, autofillField, pageDetails);
     });
+  }
+
+  private setupAutofillOverlayListenerOnField(
+    formFieldElement: ElementWithOpId<FormFieldElement>,
+    autofillField: AutofillField,
+    pageDetails?: AutofillPageDetails,
+  ) {
+    if (!this.autofillOverlayContentService) {
+      return;
+    }
+
+    const autofillPageDetails =
+      pageDetails ||
+      this.getFormattedPageDetails(
+        this.getFormattedAutofillFormsData(),
+        this.getFormattedAutofillFieldsData(),
+      );
+
+    void this.autofillOverlayContentService.setupAutofillOverlayListenerOnField(
+      formFieldElement,
+      autofillField,
+      autofillPageDetails,
+    );
   }
 
   /**
