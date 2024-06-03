@@ -21,10 +21,10 @@
           {{ displayedStatus }}
         </span>
       </dd>
-      <dt>
+      <dt [ngClass]="{ 'tw-text-danger': isExpired }">
         {{ data.date.label | titlecase }}
       </dt>
-      <dd>
+      <dd [ngClass]="{ 'tw-text-danger': isExpired }">
         {{ data.date.value | date: "mediumDate" }}
       </dd>
     </ng-container>

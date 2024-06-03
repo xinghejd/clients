@@ -1,4 +1,3 @@
-import { DatePipe } from "@angular/common";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 
 import { ProviderSubscriptionResponse } from "@bitwarden/common/billing/models/response/provider-subscription-response";
@@ -29,10 +28,7 @@ export class SubscriptionStatusComponent {
   @Input({ required: true }) providerSubscriptionResponse: ProviderSubscriptionResponse;
   @Output() reinstatementRequested = new EventEmitter<void>();
 
-  constructor(
-    private datePipe: DatePipe,
-    private i18nService: I18nService,
-  ) {}
+  constructor(private i18nService: I18nService) {}
 
   get displayedStatus(): string {
     return this.data.status.value;
@@ -44,6 +40,10 @@ export class SubscriptionStatusComponent {
 
   get status(): string {
     return this.subscription.status;
+  }
+
+  get isExpired() {
+    return this.subscription.status !== "active";
   }
 
   get subscription() {
