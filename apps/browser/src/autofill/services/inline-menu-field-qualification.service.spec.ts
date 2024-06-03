@@ -11,7 +11,10 @@ describe("InlineMenuFieldQualificationService", () => {
   let inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
 
   beforeEach(() => {
-    pageDetails = mock<AutofillPageDetails>();
+    pageDetails = mock<AutofillPageDetails>({
+      forms: {},
+      fields: [],
+    });
     inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
   });
 
@@ -68,9 +71,35 @@ describe("InlineMenuFieldQualificationService", () => {
             false,
           );
         });
+
+        it("has a of `text` without an attribute that indicates the field is a password field", () => {
+          const field = mock<AutofillField>({
+            type: "text",
+            htmlID: "something-else",
+            htmlName: "something-else",
+            placeholder: "something-else",
+          });
+
+          expect(inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails)).toBe(
+            false,
+          );
+        });
       });
 
-      describe("a valid password field", () => {});
+      describe("a valid password field", () => {
+        it("has a type of `text` with an attribute that indicates the field is a password field", () => {
+          const field = mock<AutofillField>({
+            type: "text",
+            htmlID: null,
+            htmlName: "user-password",
+            placeholder: "user-password",
+          });
+
+          expect(inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails)).toBe(
+            true,
+          );
+        });
+      });
     });
 
     describe("validating a username field for a login form", () => {});
