@@ -19,26 +19,54 @@ describe("InlineMenuFieldQualificationService", () => {
     describe("validating a password field for a login form", () => {
       describe("an invalid password field", () => {
         it("has a `new-password` autoCompleteType", () => {
-          const newPasswordField = mock<AutofillField>({
+          const field = mock<AutofillField>({
             type: "password",
             autoCompleteType: "new-password",
           });
 
-          expect(
-            inlineMenuFieldQualificationService.isFieldForLoginForm(newPasswordField, pageDetails),
-          ).toBe(false);
+          expect(inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails)).toBe(
+            false,
+          );
         });
 
         it("has a type that is an excluded type", () => {
           AutoFillConstants.ExcludedAutofillLoginTypes.forEach((excludedType) => {
-            const excludedField = mock<AutofillField>({
+            const field = mock<AutofillField>({
               type: excludedType,
             });
 
             expect(
-              inlineMenuFieldQualificationService.isFieldForLoginForm(excludedField, pageDetails),
+              inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
             ).toBe(false);
           });
+        });
+
+        it("has an attribute present on the FieldIgnoreList, indicating that the field is a captcha", () => {
+          AutoFillConstants.FieldIgnoreList.forEach((attribute, index) => {
+            const field = mock<AutofillField>({
+              type: "password",
+              htmlID: index === 0 ? attribute : "",
+              htmlName: index === 1 ? attribute : "",
+              placeholder: index > 1 ? attribute : "",
+            });
+
+            expect(
+              inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
+            ).toBe(false);
+          });
+        });
+
+        it("has a type other than `password` or `text`", () => {
+          const field = mock<AutofillField>({
+            type: "number",
+            htmlID: "not-password",
+            htmlName: "not-password",
+            placeholder: "not-password",
+          });
+
+          expect(inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails)).toBe(
+            false,
+          );
         });
       });
 
