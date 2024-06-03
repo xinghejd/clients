@@ -14,7 +14,7 @@ pub async fn authenticate(challenge: String, origin: String, pin: Option<String>
         pin_required: Arc::new(Mutex::new(false)),
     };
 
-    let mut auth = get_authenticator(&pinentry).await;
+    let mut auth = get_authenticator(&pinentry).await?;
     
     let options = serde_json::from_str(challenge.as_str())?;
     let origin = Url::parse(origin.as_str())?;
@@ -32,7 +32,7 @@ struct Pinentry {
     pin_required: Arc<Mutex<bool>>,
 }
 
-async fn get_authenticator<U: UiCallback>(ui: &U) -> impl AuthenticatorBackend + '_ {
+async fn get_authenticator<U: UiCallback>(ui: &U) -> Result<impl AuthenticatorBackend + '_, anyhow::Error> {
     let trans = AnyTransport::new().await.unwrap();
     match trans.watch().await {
         Ok(mut tokens) => {
@@ -42,7 +42,7 @@ async fn get_authenticator<U: UiCallback>(ui: &U) -> impl AuthenticatorBackend +
                         let auth = CtapAuthenticator::new(token, ui).await;
 
                         if let Some(auth) = auth {
-                            return auth;
+                            return Ok(auth);
                         }
                     }
 
@@ -54,9 +54,11 @@ async fn get_authenticator<U: UiCallback>(ui: &U) -> impl AuthenticatorBackend +
                 }
             }
         }
-        Err(e) => panic!("Error: {e:?}"),
+        Err(e) => {
+            println!("Error: {:?}", e);
+        }
     }
-    panic!("No authenticator found");
+    Err(anyhow::Error::msg("No authenticator found"))
 }
 
 impl UiCallback for Pinentry {
