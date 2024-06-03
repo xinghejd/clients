@@ -2,7 +2,6 @@ use serde::{Deserialize, Serialize};
 use serde;
 use webauthn_authenticator_rs::{ctap2::CtapAuthenticator, transport::{AnyTransport, TokenEvent, Transport}, types::{CableRequestType, CableState, EnrollSampleStatus}, ui::UiCallback, AuthenticatorBackend};
 use webauthn_rs::prelude::{Base64UrlSafeData, Url};
-use core::panic;
 use std::sync::{Arc, Mutex};
 use futures::StreamExt;
 
@@ -80,13 +79,13 @@ impl UiCallback for Pinentry {
     
     fn fingerprint_enrollment_feedback(
         &self,
-        remaining_samples: u32,
-        feedback: Option<EnrollSampleStatus>,
+        _remaining_samples: u32,
+        _feedback: Option<EnrollSampleStatus>,
     ) {
         println!("Unimplemented method fingerprint_enrollment_feedback called")
     }
     
-    fn cable_qr_code(&self, request_type: CableRequestType, url: String) {
+    fn cable_qr_code(&self, _request_type: CableRequestType, _url: String) {
         println!("Unimplemented method cable_qr_code called")
     }
     
@@ -94,7 +93,7 @@ impl UiCallback for Pinentry {
         println!("Unimplemented method dismiss_qr_code called")
     }
     
-    fn cable_status_update(&self, state: CableState) {
+    fn cable_status_update(&self, _state: CableState) {
         println!("Unimplemented method cable_status_update called")
     }
 }
