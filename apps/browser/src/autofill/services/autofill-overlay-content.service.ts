@@ -537,18 +537,6 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   }
 
   /**
-   * Identifies if the autofill field's data contains any of
-   * the keyboards matching the passed list of keywords.
-   *
-   * @param autofillFieldData - Autofill field data captured from the form field element.
-   * @param keywords - Keywords to search for in the autofill field data.
-   */
-  private keywordsFoundInFieldData(autofillFieldData: AutofillField, keywords: string[]) {
-    const searchedString = this.getAutofillFieldDataKeywords(autofillFieldData);
-    return keywords.some((keyword) => searchedString.includes(keyword));
-  }
-
-  /**
    * Aggregates the autofill field's data into a single string
    * that can be used to search for keywords.
    *
@@ -743,31 +731,6 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       );
       intersectionObserver.observe(formFieldElement);
     });
-  }
-
-  /**
-   * Identifies if the field should have the autofill overlay setup on it. Currently, this is mainly
-   * determined by whether the field correlates with a login cipher. This method will need to be
-   * updated in the future to support other types of forms.
-   *
-   * @param autofillFieldData - Autofill field data captured from the form field element.
-   */
-  private isIgnoredField(autofillFieldData: AutofillField): boolean {
-    if (
-      autofillFieldData.readonly ||
-      autofillFieldData.disabled ||
-      !autofillFieldData.viewable ||
-      this.ignoredFieldTypes.has(autofillFieldData.type)
-      // || this.keywordsFoundInFieldData(autofillFieldData, ["search", "captcha"])
-    ) {
-      return true;
-    }
-
-    const isLoginCipherField =
-      this.inlineMenuFieldQualificationService.isCurrentPasswordField(autofillFieldData) ||
-      this.inlineMenuFieldQualificationService.isUsernameField(autofillFieldData);
-
-    return !isLoginCipherField;
   }
 
   /**
