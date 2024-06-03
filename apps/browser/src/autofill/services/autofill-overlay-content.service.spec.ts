@@ -184,7 +184,12 @@ describe("AutofillOverlayContentService", () => {
 
     describe("skips setup for ignored form fields", () => {
       beforeEach(() => {
-        autofillFieldData = mock<AutofillField>();
+        autofillFieldData = mock<AutofillField>({
+          type: "text",
+          htmlName: "username",
+          htmlID: "username",
+          placeholder: "username",
+        });
       });
 
       it("ignores fields that are readonly", async () => {

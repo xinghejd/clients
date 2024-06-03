@@ -97,7 +97,7 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   ) {
     if (
       this.formFieldElements.has(formFieldElement) ||
-      !this.inlineMenuFieldQualificationService.isFieldForLoginForm(autofillFieldData, pageDetails)
+      this.isIgnoredField(autofillFieldData, pageDetails)
     ) {
       return;
     }
@@ -698,6 +698,33 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
       );
       intersectionObserver.observe(formFieldElement);
     });
+  }
+
+  /**
+   * Identifies if the field should have the autofill overlay setup on it. Currently, this is mainly
+   * determined by whether the field correlates with a login cipher. This method will need to be
+   * updated in the future to support other types of forms.
+   *
+   * @param autofillFieldData - Autofill field data captured from the form field element.
+   * @param pageDetails - The collected page details from the tab.
+   */
+  private isIgnoredField(
+    autofillFieldData: AutofillField,
+    pageDetails: AutofillPageDetails,
+  ): boolean {
+    if (
+      autofillFieldData.readonly ||
+      autofillFieldData.disabled ||
+      !autofillFieldData.viewable ||
+      this.ignoredFieldTypes.has(autofillFieldData.type)
+    ) {
+      return true;
+    }
+
+    return !this.inlineMenuFieldQualificationService.isFieldForLoginForm(
+      autofillFieldData,
+      pageDetails,
+    );
   }
 
   /**

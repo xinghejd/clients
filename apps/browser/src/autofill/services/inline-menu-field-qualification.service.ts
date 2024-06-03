@@ -1,9 +1,12 @@
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 
+import { InlineMenuFieldQualificationsService as InlineMenuFieldQualificationsServiceInterface } from "./abstractions/inline-menu-field-qualifications.service";
 import { AutoFillConstants } from "./autofill-constants";
 
-export class InlineMenuFieldQualificationService {
+export class InlineMenuFieldQualificationService
+  implements InlineMenuFieldQualificationsServiceInterface
+{
   private searchFieldNamesSet = new Set(AutoFillConstants.SearchFieldNames);
   private excludedAutofillLoginTypesSet = new Set(AutoFillConstants.ExcludedAutofillLoginTypes);
   private usernameFieldTypes = new Set(["text", "email", "number", "tel"]);
@@ -14,6 +17,12 @@ export class InlineMenuFieldQualificationService {
   private autocompleteDisabledValues = new Set(["off", "false"]);
   private newFieldKeywords = new Set(["new", "change", "neue", "ändern"]);
 
+  /**
+   * Validates the provided field as a field for a login form.
+   *
+   * @param field - The field to validate, should be a username or password field.
+   * @param pageDetails - The details of the page that the field is on.
+   */
   isFieldForLoginForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean {
     const isCurrentPasswordField = this.isCurrentPasswordField(field);
     if (isCurrentPasswordField) {
@@ -28,6 +37,12 @@ export class InlineMenuFieldQualificationService {
     return this.isUsernameFieldForLoginForm(field, pageDetails);
   }
 
+  /**
+   * Validates the provided field as a password field for a login form.
+   *
+   * @param field - The field to validate
+   * @param pageDetails - The details of the page that the field is on.
+   */
   private isPasswordFieldForLoginForm(
     field: AutofillField,
     pageDetails: AutofillPageDetails,
@@ -91,6 +106,12 @@ export class InlineMenuFieldQualificationService {
     return !this.autocompleteDisabledValues.has(field.autoCompleteType);
   }
 
+  /**
+   * Validates the provided field as a username field for a login form.
+   *
+   * @param field - The field to validate
+   * @param pageDetails - The details of the page that the field is on.
+   */
   private isUsernameFieldForLoginForm(
     field: AutofillField,
     pageDetails: AutofillPageDetails,
@@ -171,7 +192,12 @@ export class InlineMenuFieldQualificationService {
     return visiblePasswordFieldsInPageDetails.length === 1;
   }
 
-  isUsernameField = (field: AutofillField): boolean => {
+  /**
+   * Validates the provided field as a username field.
+   *
+   * @param field - The field to validate
+   */
+  private isUsernameField = (field: AutofillField): boolean => {
     if (
       !this.usernameFieldTypes.has(field.type) ||
       this.isExcludedFieldType(field, this.excludedAutofillLoginTypesSet)
@@ -182,7 +208,12 @@ export class InlineMenuFieldQualificationService {
     return this.keywordsFoundInFieldData(field, AutoFillConstants.UsernameFieldNames);
   };
 
-  isCurrentPasswordField = (field: AutofillField): boolean => {
+  /**
+   * Validates the provided field as a current password field.
+   *
+   * @param field - The field to validate
+   */
+  private isCurrentPasswordField = (field: AutofillField): boolean => {
     if (field.autoCompleteType === "new-password") {
       return false;
     }
@@ -190,7 +221,12 @@ export class InlineMenuFieldQualificationService {
     return this.isPasswordField(field);
   };
 
-  isNewPasswordField = (field: AutofillField): boolean => {
+  /**
+   * Validates the provided field as a new password field.
+   *
+   * @param field - The field to validate
+   */
+  private isNewPasswordField = (field: AutofillField): boolean => {
     if (field.autoCompleteType === "current-password") {
       return false;
     }
@@ -198,11 +234,16 @@ export class InlineMenuFieldQualificationService {
     return this.isPasswordField(field);
   };
 
-  isPasswordField = (field: AutofillField): boolean => {
+  /**
+   * Validates the provided field as a password field.
+   *
+   * @param field - The field to validate
+   */
+  private isPasswordField = (field: AutofillField): boolean => {
     const isInputPasswordType = field.type === "password";
     if (
-      !isInputPasswordType ||
-      this.isExcludedFieldType(field, this.excludedAutofillLoginTypesSet) ||
+      (!isInputPasswordType &&
+        this.isExcludedFieldType(field, this.excludedAutofillLoginTypesSet)) ||
       this.fieldHasDisqualifyingAttributeValue(field)
     ) {
       return false;
@@ -211,6 +252,12 @@ export class InlineMenuFieldQualificationService {
     return isInputPasswordType || this.isLikePasswordField(field);
   };
 
+  /**
+   * Validates the provided field as a field to indicate if the
+   * field potentially acts as a password field.
+   *
+   * @param field - The field to validate
+   */
   private isLikePasswordField(field: AutofillField): boolean {
     if (field.type !== "text") {
       return false;
@@ -226,6 +273,11 @@ export class InlineMenuFieldQualificationService {
     return false;
   }
 
+  /**
+   * Validates the provided value to indicate if the value is like a password.
+   *
+   * @param value - The value to validate
+   */
   private valueIsLikePassword(value: string): boolean {
     if (value == null) {
       return false;
@@ -240,6 +292,12 @@ export class InlineMenuFieldQualificationService {
     return !(this.passwordFieldExcludeListString.indexOf(cleanedValue) > -1);
   }
 
+  /**
+   * Validates the provided field to indicate if the field has a
+   * disqualifying attribute that would impede autofill entirely.
+   *
+   * @param field - The field to validate
+   */
   private fieldHasDisqualifyingAttributeValue(field: AutofillField): boolean {
     const checkedAttributeValues = [field.htmlID, field.htmlName, field.placeholder];
 
@@ -255,6 +313,12 @@ export class InlineMenuFieldQualificationService {
     return false;
   }
 
+  /**
+   * Validates the provided field to indicate if the field is excluded from autofill.
+   *
+   * @param field - The field to validate
+   * @param excludedTypes - The set of excluded types
+   */
   private isExcludedFieldType(field: AutofillField, excludedTypes: Set<string>): boolean {
     if (excludedTypes.has(field.type)) {
       return true;
@@ -263,6 +327,11 @@ export class InlineMenuFieldQualificationService {
     return this.isSearchField(field);
   }
 
+  /**
+   * Validates the provided field to indicate if the field is a search field.
+   *
+   * @param field - The field to validate
+   */
   private isSearchField(field: AutofillField): boolean {
     const matchFieldAttributeValues = [field.type, field.htmlName, field.htmlID, field.placeholder];
     for (let attrIndex = 0; attrIndex < matchFieldAttributeValues.length; attrIndex++) {
@@ -287,11 +356,22 @@ export class InlineMenuFieldQualificationService {
     return false;
   }
 
+  /**
+   * Validates the provided field to indicate if the field has any of the provided keywords.
+   *
+   * @param autofillFieldData - The field data to search for keywords
+   * @param keywords - The keywords to search for
+   */
   private keywordsFoundInFieldData(autofillFieldData: AutofillField, keywords: string[]) {
     const searchedString = this.getAutofillFieldDataKeywords(autofillFieldData);
     return keywords.some((keyword) => searchedString.includes(keyword));
   }
 
+  /**
+   * Retrieves the keywords from the provided autofill field data.
+   *
+   * @param autofillFieldData - The field data to search for keywords
+   */
   private getAutofillFieldDataKeywords(autofillFieldData: AutofillField) {
     if (this.autofillFieldKeywordsMap.has(autofillFieldData)) {
       return this.autofillFieldKeywordsMap.get(autofillFieldData);
