@@ -537,39 +537,6 @@ class AutofillOverlayContentService implements AutofillOverlayContentServiceInte
   }
 
   /**
-   * Aggregates the autofill field's data into a single string
-   * that can be used to search for keywords.
-   *
-   * @param autofillFieldData - Autofill field data captured from the form field element.
-   */
-  private getAutofillFieldDataKeywords(autofillFieldData: AutofillField) {
-    if (this.autofillFieldKeywordsMap.has(autofillFieldData)) {
-      return this.autofillFieldKeywordsMap.get(autofillFieldData);
-    }
-
-    const keywordValues = [
-      autofillFieldData.htmlID,
-      autofillFieldData.htmlName,
-      autofillFieldData.htmlClass,
-      autofillFieldData.type,
-      autofillFieldData.title,
-      autofillFieldData.placeholder,
-      autofillFieldData.autoCompleteType,
-      autofillFieldData["label-data"],
-      autofillFieldData["label-aria"],
-      autofillFieldData["label-left"],
-      autofillFieldData["label-right"],
-      autofillFieldData["label-tag"],
-      autofillFieldData["label-top"],
-    ]
-      .join(",")
-      .toLowerCase();
-    this.autofillFieldKeywordsMap.set(autofillFieldData, keywordValues);
-
-    return keywordValues;
-  }
-
-  /**
    * Validates that the most recently focused field is currently
    * focused within the root node relative to the field.
    */
