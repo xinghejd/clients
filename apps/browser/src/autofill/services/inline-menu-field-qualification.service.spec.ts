@@ -72,7 +72,7 @@ describe("InlineMenuFieldQualificationService", () => {
           );
         });
 
-        it("has a of `text` without an attribute that indicates the field is a password field", () => {
+        it("has a type of `text` without an attribute that indicates the field is a password field", () => {
           const field = mock<AutofillField>({
             type: "text",
             htmlID: "something-else",
@@ -84,9 +84,36 @@ describe("InlineMenuFieldQualificationService", () => {
             false,
           );
         });
+
+        it("has a type of `text` and contains attributes that indicates the field is a search field", () => {
+          const field = mock<AutofillField>({
+            type: "text",
+            htmlID: "search",
+            htmlName: "something-else",
+            placeholder: "something-else",
+          });
+
+          expect(inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails)).toBe(
+            false,
+          );
+        });
       });
 
       describe("a valid password field", () => {
+        it("has an autoCompleteType of `current-password`", () => {
+          const field = mock<AutofillField>({
+            type: "password",
+            autoCompleteType: "current-password",
+            htmlID: "user-password",
+            htmlName: "user-password",
+            placeholder: "user-password",
+          });
+
+          expect(inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails)).toBe(
+            true,
+          );
+        });
+
         it("has a type of `text` with an attribute that indicates the field is a password field", () => {
           const field = mock<AutofillField>({
             type: "text",
