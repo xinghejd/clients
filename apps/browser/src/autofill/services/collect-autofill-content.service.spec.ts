@@ -248,11 +248,16 @@ describe("CollectAutofillContentService", () => {
       const isFormFieldViewableSpy = jest
         .spyOn(collectAutofillContentService["domElementVisibilityService"], "isFormFieldViewable")
         .mockResolvedValue(true);
+      const setupAutofillOverlayListenerOnFieldSpy = jest.spyOn(
+        collectAutofillContentService["autofillOverlayContentService"],
+        "setupAutofillOverlayListenerOnField",
+      );
 
       await collectAutofillContentService.getPageDetails();
 
       expect(autofillField.viewable).toBe(true);
       expect(isFormFieldViewableSpy).toHaveBeenCalledWith(fieldElement);
+      expect(setupAutofillOverlayListenerOnFieldSpy).toHaveBeenCalled();
     });
 
     it("returns an object containing information about the current page as well as autofill data for the forms and fields of the page", async () => {
