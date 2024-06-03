@@ -284,7 +284,7 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
       autofillField.viewable = await this.domElementVisibilityService.isFormFieldViewable(element);
 
       if (!previouslyViewable && autofillField.viewable) {
-        this.setupAutofillOverlayListenerOnField(element, autofillField);
+        this.setupInlineMenuListenerOnField(element, autofillField);
       }
     });
   }
@@ -1422,23 +1422,35 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
 
       cachedAutofillFieldElement.viewable = true;
 
-      this.setupAutofillOverlayListenerOnField(formFieldElement, cachedAutofillFieldElement);
+      this.setupInlineMenuListenerOnField(formFieldElement, cachedAutofillFieldElement);
 
       this.intersectionObserver?.unobserve(entry.target);
     }
   };
 
+  /**
+   * Iterates over all cached field elements and sets up the inline menu listeners on each field.
+   *
+   * @param pageDetails - The page details to use for the inline menu listeners
+   */
   private setupInlineMenuListeners(pageDetails: AutofillPageDetails) {
     if (!this.autofillOverlayContentService) {
       return;
     }
 
     this.autofillFieldElements.forEach((autofillField, formFieldElement) => {
-      this.setupAutofillOverlayListenerOnField(formFieldElement, autofillField, pageDetails);
+      this.setupInlineMenuListenerOnField(formFieldElement, autofillField, pageDetails);
     });
   }
 
-  private setupAutofillOverlayListenerOnField(
+  /**
+   * Sets up the inline menu listener on the passed field element.
+   *
+   * @param formFieldElement - The form field element to set up the inline menu listener on
+   * @param autofillField - The metadata for the form field
+   * @param pageDetails - The page details to use for the inline menu listeners
+   */
+  private setupInlineMenuListenerOnField(
     formFieldElement: ElementWithOpId<FormFieldElement>,
     autofillField: AutofillField,
     pageDetails?: AutofillPageDetails,
