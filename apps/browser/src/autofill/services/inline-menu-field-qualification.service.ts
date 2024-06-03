@@ -7,11 +7,12 @@ export class InlineMenuFieldQualificationService {
   private searchFieldNamesSet = new Set(AutoFillConstants.SearchFieldNames);
   private excludedAutofillLoginTypesSet = new Set(AutoFillConstants.ExcludedAutofillLoginTypes);
   private usernameFieldTypes = new Set(["text", "email", "number", "tel"]);
+  private usernameAutocompleteValues = new Set(["username", "email"]);
   private fieldIgnoreListString = AutoFillConstants.FieldIgnoreList.join(",");
   private passwordFieldExcludeListString = AutoFillConstants.PasswordFieldExcludeList.join(",");
   private autofillFieldKeywordsMap: WeakMap<AutofillField, string> = new WeakMap();
   private autocompleteDisabledValues = new Set(["off", "false"]);
-  private newUsernameKeywords = new Set(["new", "change", "neue", "ändern"]);
+  private newFieldKeywords = new Set(["new", "change", "neue", "ändern"]);
 
   isFieldForLoginForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean {
     const isCurrentPasswordField = this.isCurrentPasswordField(field);
@@ -31,31 +32,46 @@ export class InlineMenuFieldQualificationService {
     field: AutofillField,
     pageDetails: AutofillPageDetails,
   ): boolean {
-    // Check if the autocomplete attribute is set to "current-password", if so treat this as a password field
+    // If the provided field is set with an autocomplete value of "current-password", we should assume that
+    // the page developer intends for this field to be interpreted as a password field for a login form.
     if (field.autoCompleteType === "current-password") {
       return true;
     }
 
-    // If a single username and a single password field exists on the page, we should
-    // assume that this field is part of a login form
     const usernameFieldsInPageDetails = pageDetails.fields.filter(this.isUsernameField);
     const passwordFieldsInPageDetails = pageDetails.fields.filter(this.isCurrentPasswordField);
+
+    // If a single username and a single password field exists on the page, we
+    // should assume that this field is part of a login form.
     if (usernameFieldsInPageDetails.length === 1 && passwordFieldsInPageDetails.length === 1) {
       return true;
     }
 
-    // If no form parent is found and the autocomplete attribute is set to "off" or "false", this is not a password field
+    // If the field is not structured within a form, we need to identify if the field is present on
+    // a page with multiple password fields. If that isn't the case, we can assume this is a login form field.
     const parentForm = pageDetails.forms[field.form];
     if (!parentForm) {
-      // If no parent form is found, and multiple password fields are present, this is likely a login creation form.
+      // If no parent form is found, and multiple password fields are present, we should assume that
+      // the passed field belongs to a user account creation form.
       if (passwordFieldsInPageDetails.length > 1) {
         return false;
       }
 
+      // If multiple username fields exist on the page, we should assume that
+      // the provided field is part of an account creation form.
+      const visibleUsernameFields = usernameFieldsInPageDetails.filter((f) => f.viewable);
+      if (visibleUsernameFields.length > 1) {
+        return false;
+      }
+
+      // If a single username field or less is present on the page, then we can assume that the
+      // provided field is for a login form. This will only be the case if the field does not
+      // explicitly have its autocomplete attribute set to "off" or "false".
       return !this.autocompleteDisabledValues.has(field.autoCompleteType);
     }
 
-    // If the field has a form parent and there are multiple visible password fields in the form, this is not a login form field
+    // If the field has a form parent and there are multiple visible password fields
+    // in the form, this is not a login form field
     const visiblePasswordFieldsInPageDetails = passwordFieldsInPageDetails.filter(
       (f) => f.form === field.form && f.viewable,
     );
@@ -81,14 +97,14 @@ export class InlineMenuFieldQualificationService {
   ): boolean {
     // If the provided field is set with an autocomplete of "username", we should assume that
     // the page developer intends for this field to be interpreted as a username field.
-    if (field.autoCompleteType === "username") {
-      return true;
+    if (this.usernameAutocompleteValues.has(field.autoCompleteType)) {
+      const newPasswordFieldsInPageDetails = pageDetails.fields.filter(this.isNewPasswordField);
+      return newPasswordFieldsInPageDetails.length === 0;
     }
 
-    // TODO: Assert whether this is worth it... this could be very risky.
     // If any keywords in the field's data indicates that this is a field for a "new" or "changed"
     // username, we should assume that this field is not for a login form.
-    if (this.keywordsFoundInFieldData(field, [...this.newUsernameKeywords])) {
+    if (this.keywordsFoundInFieldData(field, [...this.newFieldKeywords])) {
       return false;
     }
 
@@ -168,6 +184,14 @@ export class InlineMenuFieldQualificationService {
 
   isCurrentPasswordField = (field: AutofillField): boolean => {
     if (field.autoCompleteType === "new-password") {
+      return false;
+    }
+
+    return this.isPasswordField(field);
+  };
+
+  isNewPasswordField = (field: AutofillField): boolean => {
+    if (field.autoCompleteType === "current-password") {
       return false;
     }
 
