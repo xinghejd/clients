@@ -10,7 +10,6 @@ import { EnvironmentService } from "@bitwarden/common/platform/abstractions/envi
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
 import { Utils } from "@bitwarden/common/platform/misc/utils";
 import { ThemeStateService } from "@bitwarden/common/platform/theming/theme-state.service";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
@@ -128,7 +127,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     private authService: AuthService,
     private environmentService: EnvironmentService,
     private domainSettingsService: DomainSettingsService,
-    private stateService: StateService,
     private autofillSettingsService: AutofillSettingsServiceAbstraction,
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
@@ -261,6 +259,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     pageDetailsMap.set(sender.frameId, pageDetails);
   }
 
+  /**
+   * Handles sub frame offset calculations for the given tab and frame id.
+   * Is used in setting the position of the inline menu list and button.
+   *
+   * @param message - The message received from the `updateSubFrameData` command
+   * @param sender - The sender of the message
+   */
   private updateSubFrameData(
     message: OverlayBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
