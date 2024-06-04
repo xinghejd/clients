@@ -320,6 +320,237 @@ describe("InlineMenuFieldQualificationService", () => {
       });
     });
 
-    describe("validating a username field for a login form", () => {});
+    describe("qualifying a username field for a login form", () => {
+      describe("an invalid username field", () => {
+        ["username", "email"].forEach((autoCompleteType) => {
+          it(`has a ${autoCompleteType} 'autoCompleteType' value when structured on a page with new password fields`, () => {
+            const field = mock<AutofillField>({
+              type: "text",
+              autoCompleteType,
+              htmlID: "user-username",
+              htmlName: "user-username",
+              placeholder: "user-username",
+            });
+            const passwordField = mock<AutofillField>({
+              type: "password",
+              autoCompleteType: "new-password",
+              htmlID: "user-password",
+              htmlName: "user-password",
+              placeholder: "user-password",
+            });
+            pageDetails.fields = [field, passwordField];
+
+            expect(
+              inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
+            ).toBe(false);
+          });
+        });
+
+        ["new", "change", "neue", "ändern"].forEach((keyword) => {
+          it(`has a keyword of ${keyword} that indicates a 'new or changed' username is being filled`, () => {
+            const field = mock<AutofillField>({
+              type: "text",
+              autoCompleteType: "",
+              htmlID: "user-username",
+              htmlName: "user-username",
+              placeholder: `${keyword} username`,
+            });
+
+            expect(
+              inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
+            ).toBe(false);
+          });
+        });
+
+        describe("does not have a parent form element", () => {
+          beforeEach(() => {
+            pageDetails.forms = {};
+          });
+
+          it("is structured on a page with multiple password fields", () => {
+            const field = mock<AutofillField>({
+              type: "text",
+              autoCompleteType: "",
+              htmlID: "user-username",
+              htmlName: "user-username",
+              placeholder: "user-username",
+            });
+            const passwordField = mock<AutofillField>({
+              type: "password",
+              autoCompleteType: "current-password",
+              htmlID: "user-password",
+              htmlName: "user-password",
+              placeholder: "user-password",
+            });
+            const secondPasswordField = mock<AutofillField>({
+              type: "password",
+              autoCompleteType: "current-password",
+              htmlID: "some-other-password",
+              htmlName: "some-other-password",
+              placeholder: "some-other-password",
+            });
+            pageDetails.fields = [field, passwordField, secondPasswordField];
+
+            expect(
+              inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
+            ).toBe(false);
+          });
+        });
+
+        describe("has a parent form element", () => {
+          let form: MockProxy<AutofillForm>;
+
+          beforeEach(() => {
+            form = mock<AutofillForm>({ opid: "validFormId" });
+            pageDetails.forms = {
+              validFormId: form,
+            };
+          });
+
+          it("is structured on a page with no password fields and has a disabled `autoCompleteType` value", () => {
+            const field = mock<AutofillField>({
+              type: "text",
+              autoCompleteType: "off",
+              htmlID: "user-username",
+              htmlName: "user-username",
+              placeholder: "user-username",
+              form: "validFormId",
+            });
+            pageDetails.fields = [field];
+
+            expect(
+              inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
+            ).toBe(false);
+          });
+
+          it("is structured on a page with no password fields but has other types of fields in the form", () => {
+            const field = mock<AutofillField>({
+              type: "text",
+              autoCompleteType: "",
+              htmlID: "user-username",
+              htmlName: "user-username",
+              placeholder: "user-username",
+              form: "validFormId",
+            });
+            const otherField = mock<AutofillField>({
+              type: "number",
+              autoCompleteType: "",
+              htmlID: "some-other-field",
+              htmlName: "some-other-field",
+              placeholder: "some-other-field",
+              form: "validFormId",
+            });
+            pageDetails.fields = [field, otherField];
+
+            expect(
+              inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
+            ).toBe(false);
+          });
+        });
+      });
+
+      describe("a valid username field", () => {
+        ["username", "email"].forEach((autoCompleteType) => {
+          it(`has a ${autoCompleteType} 'autoCompleteType' value`, () => {
+            const field = mock<AutofillField>({
+              type: "text",
+              autoCompleteType,
+              htmlID: "user-username",
+              htmlName: "user-username",
+              placeholder: "user-username",
+            });
+            const passwordField = mock<AutofillField>({
+              type: "password",
+              autoCompleteType: "current-password",
+              htmlID: "user-password",
+              htmlName: "user-password",
+              placeholder: "user-password",
+            });
+            pageDetails.fields = [field, passwordField];
+
+            expect(
+              inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
+            ).toBe(true);
+          });
+        });
+
+        describe("does not have a parent form element", () => {
+          beforeEach(() => {
+            pageDetails.forms = {};
+          });
+
+          it("is structured on a page with a single password field", () => {
+            const field = mock<AutofillField>({
+              type: "text",
+              autoCompleteType: "off",
+              htmlID: "user-username",
+              htmlName: "user-username",
+              placeholder: "user-username",
+            });
+            const passwordField = mock<AutofillField>({
+              type: "password",
+              autoCompleteType: "current-password",
+              htmlID: "user-password",
+              htmlName: "user-password",
+              placeholder: "user-password",
+            });
+            pageDetails.fields = [field, passwordField];
+
+            expect(
+              inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
+            ).toBe(true);
+          });
+
+          it("has a non-disabled autoCompleteType and is structured on a page with no other password fields", () => {
+            const field = mock<AutofillField>({
+              type: "text",
+              autoCompleteType: "",
+              htmlID: "user-username",
+              htmlName: "user-username",
+              placeholder: "user-username",
+            });
+
+            expect(
+              inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
+            ).toBe(true);
+          });
+        });
+
+        describe("has a parent form element", () => {
+          let form: MockProxy<AutofillForm>;
+
+          beforeEach(() => {
+            form = mock<AutofillForm>({ opid: "validFormId" });
+            pageDetails.forms = {
+              validFormId: form,
+            };
+          });
+
+          it("is structured on a page with a single password field", () => {
+            const field = mock<AutofillField>({
+              type: "text",
+              autoCompleteType: "",
+              htmlID: "user-username",
+              htmlName: "user-username",
+              placeholder: "user-username",
+              form: "validFormId",
+            });
+            const passwordField = mock<AutofillField>({
+              type: "password",
+              autoCompleteType: "current-password",
+              htmlID: "user-password",
+              htmlName: "user-password",
+              placeholder: "user-password",
+              form: "validFormId",
+            });
+            pageDetails.fields = [field, passwordField];
+
+            expect(
+              inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
+            ).toBe(true);
+          });
+        });
+      });
+    });
   });
 });

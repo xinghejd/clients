@@ -140,15 +140,15 @@ export class InlineMenuFieldQualificationService
     if (!parentForm) {
       // If a formless field is present in a webpage with a single password field, we
       // should assume that it is part of a login workflow.
-      if (passwordFieldsInPageDetails.length === 1) {
+      const visiblePasswordFieldsInPageDetails = passwordFieldsInPageDetails.filter(
+        (passwordField) => passwordField.viewable,
+      );
+      if (visiblePasswordFieldsInPageDetails.length === 1) {
         return true;
       }
 
       // If more than a single password field exists on the page, we should assume that the field
       // is part of an account creation form.
-      const visiblePasswordFieldsInPageDetails = passwordFieldsInPageDetails.filter(
-        (passwordField) => passwordField.viewable,
-      );
       if (visiblePasswordFieldsInPageDetails.length > 1) {
         return false;
       }
@@ -178,13 +178,6 @@ export class InlineMenuFieldQualificationService
 
     // If a single password field exists within the page details, and that password field is part of
     // the same form as the provided field, we should assume that the field is part of a login form.
-    if (
-      passwordFieldsInPageDetails.length === 1 &&
-      field.form === passwordFieldsInPageDetails[0].form
-    ) {
-      return true;
-    }
-
     // If multiple visible password fields exist within the page details, we need to assume that the
     // provided field is part of an account creation form.
     const visiblePasswordFieldsInPageDetails = passwordFieldsInPageDetails.filter(
