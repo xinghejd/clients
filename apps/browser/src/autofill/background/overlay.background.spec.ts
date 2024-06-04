@@ -30,6 +30,7 @@ import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.servi
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserPlatformUtilsService } from "../../platform/services/platform-utils/browser-platform-utils.service";
+import { AutofillOverlayElement } from "../enums/autofill-overlay.enum";
 import { AutofillService } from "../services/abstractions/autofill.service";
 import { createChromeTabMock, createAutofillPageDetailsMock } from "../spec/autofill-mocks";
 import { flushPromises, sendMockExtensionMessage } from "../spec/testing-utils";
@@ -259,33 +260,33 @@ describe("OverlayBackground", () => {
   });
 
   describe("re-positioning the inline menu within sub frames", () => {
-    describe("rebuildSubFrameOffsets", () => {
-      const tabId = 1;
-      const topFrameId = 0;
-      const middleFrameId = 10;
-      const bottomFrameId = 20;
-      let tab: chrome.tabs.Tab;
+    const tabId = 1;
+    const topFrameId = 0;
+    const middleFrameId = 10;
+    const bottomFrameId = 20;
+    let tab: chrome.tabs.Tab;
 
-      beforeEach(() => {
-        tab = createChromeTabMock({ id: tabId });
-        overlayBackground["focusedFieldData"] = mock<FocusedFieldData>({
-          tabId,
-          frameId: bottomFrameId,
-        });
-        subFrameOffsetsSpy[tabId] = new Map([
-          [topFrameId, { left: 1, top: 1, url: "https://top-frame.com" }],
-          [middleFrameId, { left: 2, top: 2, url: "https://middle-frame.com" }],
-          [bottomFrameId, { left: 3, top: 3, url: "https://bottom-frame.com" }],
-        ]);
-        tabsSendMessageSpy.mockResolvedValue(
-          mock<SubFrameOffsetData>({
-            left: getFrameCounter,
-            top: getFrameCounter,
-            url: "url",
-          }),
-        );
+    beforeEach(() => {
+      tab = createChromeTabMock({ id: tabId });
+      overlayBackground["focusedFieldData"] = mock<FocusedFieldData>({
+        tabId,
+        frameId: bottomFrameId,
       });
+      subFrameOffsetsSpy[tabId] = new Map([
+        [topFrameId, { left: 1, top: 1, url: "https://top-frame.com" }],
+        [middleFrameId, { left: 2, top: 2, url: "https://middle-frame.com" }],
+        [bottomFrameId, { left: 3, top: 3, url: "https://bottom-frame.com" }],
+      ]);
+      tabsSendMessageSpy.mockResolvedValue(
+        mock<SubFrameOffsetData>({
+          left: getFrameCounter,
+          top: getFrameCounter,
+          url: "url",
+        }),
+      );
+    });
 
+    describe("rebuildSubFrameOffsets", () => {
       it("skips rebuilding sub frame offsets if the sender contains the currently focused field", () => {
         const sender = mock<chrome.runtime.MessageSender>({ tab, frameId: bottomFrameId });
 
@@ -318,7 +319,7 @@ describe("OverlayBackground", () => {
 
       it("triggers an update of the inline menu position after rebuilding sub frames", async () => {
         jest.useFakeTimers();
-        overlayBackground["updateInlineMenuPositionTimeout"] = 1;
+        overlayBackground["updateInlineMenuPositionTimeout"] = setTimeout(jest.fn, 650);
         const sender = mock<chrome.runtime.MessageSender>({ tab, frameId: middleFrameId });
         jest.spyOn(overlayBackground as any, "updateInlineMenuPositionAfterSubFrameRebuild");
 
@@ -332,6 +333,96 @@ describe("OverlayBackground", () => {
       });
     });
 
-    describe("updateInlineMenuPositionAfterSubFrameRebuild", () => {});
+    describe("updateInlineMenuPositionAfterSubFrameRebuild", () => {
+      let sender: chrome.runtime.MessageSender;
+
+      async function flushInlineMenuUpdatePromises() {
+        await flushPromises();
+        jest.advanceTimersByTime(650);
+        await flushPromises();
+      }
+
+      beforeEach(() => {
+        sender = mock<chrome.runtime.MessageSender>({ tab, frameId: middleFrameId });
+        jest.useFakeTimers();
+        overlayBackground["isFieldCurrentlyFocused"] = true;
+      });
+
+      it("skips updating the position of either inline menu element if a field is not currently focused", async () => {
+        overlayBackground["isFieldCurrentlyFocused"] = false;
+
+        sendMockExtensionMessage({ command: "rebuildSubFrameOffsets" }, sender);
+        await flushInlineMenuUpdatePromises();
+
+        expect(tabsSendMessageSpy).not.toHaveBeenCalledWith(
+          sender.tab,
+          {
+            command: "appendInlineMenuElementsToDom",
+            overlayElement: AutofillOverlayElement.Button,
+          },
+          { frameId: 0 },
+        );
+        expect(tabsSendMessageSpy).not.toHaveBeenCalledWith(
+          sender.tab,
+          {
+            command: "appendInlineMenuElementsToDom",
+            overlayElement: AutofillOverlayElement.List,
+          },
+          { frameId: 0 },
+        );
+      });
+
+      it("updates the position of the inline menu elements", async () => {
+        sendMockExtensionMessage({ command: "rebuildSubFrameOffsets" }, sender);
+        await flushInlineMenuUpdatePromises();
+
+        expect(tabsSendMessageSpy).toHaveBeenCalledWith(
+          sender.tab,
+          {
+            command: "appendInlineMenuElementsToDom",
+            overlayElement: AutofillOverlayElement.Button,
+          },
+          { frameId: 0 },
+        );
+        expect(tabsSendMessageSpy).toHaveBeenCalledWith(
+          sender.tab,
+          {
+            command: "appendInlineMenuElementsToDom",
+            overlayElement: AutofillOverlayElement.List,
+          },
+          { frameId: 0 },
+        );
+      });
+
+      it("skips updating the inline menu list if the focused field has a value and the user status is not unlocked", async () => {
+        overlayBackground["userAuthStatus"] = AuthenticationStatus.Locked;
+        tabsSendMessageSpy.mockImplementation((_tab, message, _options) => {
+          if (message.command === "checkMostRecentlyFocusedFieldHasValue") {
+            return Promise.resolve(true);
+          }
+          return Promise.resolve();
+        });
+
+        sendMockExtensionMessage({ command: "rebuildSubFrameOffsets" }, sender);
+        await flushInlineMenuUpdatePromises();
+
+        expect(tabsSendMessageSpy).toHaveBeenCalledWith(
+          sender.tab,
+          {
+            command: "appendInlineMenuElementsToDom",
+            overlayElement: AutofillOverlayElement.Button,
+          },
+          { frameId: 0 },
+        );
+        expect(tabsSendMessageSpy).not.toHaveBeenCalledWith(
+          sender.tab,
+          {
+            command: "appendInlineMenuElementsToDom",
+            overlayElement: AutofillOverlayElement.List,
+          },
+          { frameId: 0 },
+        );
+      });
+    });
   });
 });

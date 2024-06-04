@@ -371,6 +371,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     );
   }
 
+  /**
+   * Handles updating the inline menu's position after rebuilding the sub frames
+   * for the provided tab. Will skip repositioning the inline menu if the field
+   * is not currently focused, or if the focused field has a value.
+   *
+   * @param sender - The sender of the message
+   */
   private async updateInlineMenuPositionAfterSubFrameRebuild(sender: chrome.runtime.MessageSender) {
     if (!this.isFieldCurrentlyFocused) {
       return;
