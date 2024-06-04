@@ -276,6 +276,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
   }
 
+  /**
+   * Builds the offset data for a sub frame of a tab. The offset data is used
+   * to calculate the position of the inline menu list and button.
+   *
+   * @param tab - The tab that the sub frame is associated with
+   * @param frameId - The frame ID of the sub frame
+   * @param url - The URL of the sub frame
+   */
   private async buildSubFrameOffsets(tab: chrome.tabs.Tab, frameId: number, url: string) {
     const tabId = tab.id;
     let subFrameOffsetsForTab = this.subFrameOffsetsForTab[tabId];
@@ -291,7 +299,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const subFrameData = { url, top: 0, left: 0 };
     let frameDetails = await BrowserApi.getFrameDetails({ tabId, frameId });
 
-    while (frameDetails && frameDetails.parentFrameId !== -1) {
+    while (frameDetails && frameDetails.parentFrameId > -1) {
       const subFrameOffset: SubFrameOffsetData = await BrowserApi.tabSendMessage(
         tab,
         {
@@ -324,6 +332,15 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     subFrameOffsetsForTab.set(frameId, subFrameData);
   }
 
+  /**
+   * Handles rebuilding the sub frame offsets when the tab is repositioned or scrolled.
+   * Will trigger a re-positioning of the inline menu list and button. Note that we
+   * do not trigger an update to sub frame data if the sender is the frame that has
+   * the field currently focused. We trigger a re-calculation of the field's position
+   * and as a result, the sub frame offsets of that frame will be updated.
+   *
+   * @param sender - The sender of the message
+   */
   private async rebuildSubFrameOffsets(sender: chrome.runtime.MessageSender) {
     if (sender.frameId === this.focusedFieldData?.frameId) {
       return;
@@ -338,8 +355,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       clearTimeout(this.updateInlineMenuPositionTimeout);
     }
 
-    const frameTabs = Array.from(subFrameOffsetsForTab.keys());
-    for (const frameId of frameTabs) {
+    const tabFrameIds = Array.from(subFrameOffsetsForTab.keys());
+    for (const frameId of tabFrameIds) {
       if (frameId === sender.frameId) {
         continue;
       }

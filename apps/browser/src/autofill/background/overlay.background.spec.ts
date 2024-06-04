@@ -35,6 +35,7 @@ import { createChromeTabMock, createAutofillPageDetailsMock } from "../spec/auto
 import { flushPromises, sendMockExtensionMessage } from "../spec/testing-utils";
 
 import {
+  FocusedFieldData,
   PageDetailsForTab,
   SubFrameOffsetData,
   SubFrameOffsetsForTab,
@@ -66,6 +67,7 @@ describe("OverlayBackground", () => {
   let subFrameOffsetsSpy: SubFrameOffsetsForTab;
   let getFrameDetailsSpy: jest.SpyInstance;
   let tabsSendMessageSpy: jest.SpyInstance;
+  let getFrameCounter: number = 2;
 
   beforeEach(() => {
     accountService = mockAccountServiceWith(mockUserId);
@@ -112,13 +114,21 @@ describe("OverlayBackground", () => {
     pageDetailsForTabSpy = overlayBackground["pageDetailsForTab"];
     subFrameOffsetsSpy = overlayBackground["subFrameOffsetsForTab"];
     getFrameDetailsSpy = jest.spyOn(BrowserApi, "getFrameDetails");
+    getFrameDetailsSpy.mockImplementation((_details: chrome.webNavigation.GetFrameDetails) => {
+      getFrameCounter--;
+      return mock<chrome.webNavigation.GetFrameResultDetails>({
+        parentFrameId: getFrameCounter,
+      });
+    });
     tabsSendMessageSpy = jest.spyOn(BrowserApi, "tabSendMessage");
 
     void overlayBackground.init();
   });
 
   afterEach(() => {
+    getFrameCounter = 2;
     jest.clearAllMocks();
+    jest.useRealTimers();
     mockReset(cipherService);
   });
 
@@ -141,23 +151,17 @@ describe("OverlayBackground", () => {
     });
 
     describe("building sub frame offsets", () => {
-      let getFrameCounter: number = 2;
-
       beforeEach(() => {
-        getFrameDetailsSpy.mockImplementation((_details: chrome.webNavigation.GetFrameDetails) => {
-          getFrameCounter--;
-          return mock<chrome.webNavigation.GetFrameResultDetails>({
-            parentFrameId: getFrameCounter,
-          });
-        });
-        tabsSendMessageSpy.mockResolvedValue(mock<SubFrameOffsetData>());
+        tabsSendMessageSpy.mockResolvedValue(
+          mock<SubFrameOffsetData>({
+            left: getFrameCounter,
+            top: getFrameCounter,
+            url: "url",
+          }),
+        );
       });
 
-      afterEach(() => {
-        getFrameCounter = 2;
-      });
-
-      it("builds the offset values for a sub frame within the tab", () => {
+      it("builds the offset values for a sub frame within the tab", async () => {
         sendMockExtensionMessage(
           { command: "collectPageDetailsResponse", details: createAutofillPageDetailsMock() },
           mock<chrome.runtime.MessageSender>({
@@ -165,8 +169,11 @@ describe("OverlayBackground", () => {
             frameId: 1,
           }),
         );
+        await flushPromises();
 
-        expect(subFrameOffsetsSpy[tabId]).toBeDefined();
+        expect(subFrameOffsetsSpy[tabId]).toStrictEqual(
+          new Map([[1, { left: 4, top: 4, url: "url" }]]),
+        );
         expect(pageDetailsForTabSpy[tabId].size).toBe(2);
       });
 
@@ -202,10 +209,7 @@ describe("OverlayBackground", () => {
         tabsSendMessageSpy.mockResolvedValueOnce(null);
         sendMockExtensionMessage(
           { command: "collectPageDetailsResponse", details: createAutofillPageDetailsMock() },
-          mock<chrome.runtime.MessageSender>({
-            tab,
-            frameId,
-          }),
+          mock<chrome.runtime.MessageSender>({ tab, frameId }),
         );
         await flushPromises();
 
@@ -218,6 +222,22 @@ describe("OverlayBackground", () => {
           { frameId },
         );
         expect(subFrameOffsetsSpy[tabId]).toStrictEqual(new Map([[frameId, null]]));
+      });
+
+      it("updates sub frame data that has been calculated using window messages", async () => {
+        const tab = createChromeTabMock({ id: tabId });
+        const frameId = 1;
+        const subFrameData = mock<SubFrameOffsetData>({ frameId, left: 10, top: 10, url: "url" });
+        tabsSendMessageSpy.mockResolvedValueOnce(null);
+        subFrameOffsetsSpy[tabId] = new Map([[frameId, null]]);
+
+        sendMockExtensionMessage(
+          { command: "updateSubFrameData", subFrameData },
+          mock<chrome.runtime.MessageSender>({ tab, frameId }),
+        );
+        await flushPromises();
+
+        expect(subFrameOffsetsSpy[tabId]).toStrictEqual(new Map([[frameId, subFrameData]]));
       });
     });
   });
@@ -236,5 +256,82 @@ describe("OverlayBackground", () => {
       expect(subFrameOffsetsSpy[tabId]).toBeUndefined();
       expect(portKeyForTabSpy[tabId]).toBeUndefined();
     });
+  });
+
+  describe("re-positioning the inline menu within sub frames", () => {
+    describe("rebuildSubFrameOffsets", () => {
+      const tabId = 1;
+      const topFrameId = 0;
+      const middleFrameId = 10;
+      const bottomFrameId = 20;
+      let tab: chrome.tabs.Tab;
+
+      beforeEach(() => {
+        tab = createChromeTabMock({ id: tabId });
+        overlayBackground["focusedFieldData"] = mock<FocusedFieldData>({
+          tabId,
+          frameId: bottomFrameId,
+        });
+        subFrameOffsetsSpy[tabId] = new Map([
+          [topFrameId, { left: 1, top: 1, url: "https://top-frame.com" }],
+          [middleFrameId, { left: 2, top: 2, url: "https://middle-frame.com" }],
+          [bottomFrameId, { left: 3, top: 3, url: "https://bottom-frame.com" }],
+        ]);
+        tabsSendMessageSpy.mockResolvedValue(
+          mock<SubFrameOffsetData>({
+            left: getFrameCounter,
+            top: getFrameCounter,
+            url: "url",
+          }),
+        );
+      });
+
+      it("skips rebuilding sub frame offsets if the sender contains the currently focused field", () => {
+        const sender = mock<chrome.runtime.MessageSender>({ tab, frameId: bottomFrameId });
+
+        sendMockExtensionMessage({ command: "rebuildSubFrameOffsets" }, sender);
+
+        expect(getFrameDetailsSpy).not.toHaveBeenCalled();
+      });
+
+      it("skips rebuilding sub frame offsets if the tab does not contain sub frames", () => {
+        const sender = mock<chrome.runtime.MessageSender>({
+          tab: createChromeTabMock({ id: 15 }),
+          frameId: 0,
+        });
+
+        sendMockExtensionMessage({ command: "rebuildSubFrameOffsets" }, sender);
+
+        expect(getFrameDetailsSpy).not.toHaveBeenCalled();
+      });
+
+      it("rebuilds the sub frame offsets for a given tab", async () => {
+        const sender = mock<chrome.runtime.MessageSender>({ tab, frameId: middleFrameId });
+
+        sendMockExtensionMessage({ command: "rebuildSubFrameOffsets" }, sender);
+        await flushPromises();
+
+        expect(getFrameDetailsSpy).toHaveBeenCalledWith({ tabId, frameId: topFrameId });
+        expect(getFrameDetailsSpy).toHaveBeenCalledWith({ tabId, frameId: bottomFrameId });
+        expect(getFrameDetailsSpy).not.toHaveBeenCalledWith({ tabId, frameId: middleFrameId });
+      });
+
+      it("triggers an update of the inline menu position after rebuilding sub frames", async () => {
+        jest.useFakeTimers();
+        overlayBackground["updateInlineMenuPositionTimeout"] = 1;
+        const sender = mock<chrome.runtime.MessageSender>({ tab, frameId: middleFrameId });
+        jest.spyOn(overlayBackground as any, "updateInlineMenuPositionAfterSubFrameRebuild");
+
+        sendMockExtensionMessage({ command: "rebuildSubFrameOffsets" }, sender);
+        await flushPromises();
+        jest.advanceTimersByTime(650);
+
+        expect(
+          overlayBackground["updateInlineMenuPositionAfterSubFrameRebuild"],
+        ).toHaveBeenCalled();
+      });
+    });
+
+    describe("updateInlineMenuPositionAfterSubFrameRebuild", () => {});
   });
 });
