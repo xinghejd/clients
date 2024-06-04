@@ -54,7 +54,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private subFrameOffsetsForTab: SubFrameOffsetsForTab = {};
   private updateInlineMenuPositionTimeout: number | NodeJS.Timeout;
   private inlineMenuFadeInTimeout: number | NodeJS.Timeout;
-  private userAuthStatus: AuthenticationStatus = AuthenticationStatus.LoggedOut;
   private inlineMenuButtonPort: chrome.runtime.Port;
   private inlineMenuListPort: chrome.runtime.Port;
   private expiredPorts: chrome.runtime.Port[] = [];
@@ -393,7 +392,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     if (
       mostRecentlyFocusedFieldHasValue &&
       (this.checkIsOverlayLoginCiphersPopulated(sender) ||
-        this.userAuthStatus !== AuthenticationStatus.Unlocked)
+        (await this.getAuthStatus()) !== AuthenticationStatus.Unlocked)
     ) {
       return;
     }
@@ -742,27 +741,16 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * and the inline menu list's ciphers will be updated.
    */
   private async getAuthStatus() {
-    const formerAuthStatus = this.userAuthStatus;
-    this.userAuthStatus = await firstValueFrom(this.authService.activeAccountStatus$);
-
-    if (
-      this.userAuthStatus !== formerAuthStatus &&
-      this.userAuthStatus === AuthenticationStatus.Unlocked
-    ) {
-      this.updateInlineMenuButtonAuthStatus();
-      await this.updateOverlayCiphers();
-    }
-
-    return this.userAuthStatus;
+    return await firstValueFrom(this.authService.activeAccountStatus$);
   }
 
   /**
    * Sends a message to the inline menu button to update its authentication status.
    */
-  private updateInlineMenuButtonAuthStatus() {
+  private async updateInlineMenuButtonAuthStatus() {
     this.inlineMenuButtonPort?.postMessage({
       command: "updateInlineMenuButtonAuthStatus",
-      authStatus: this.userAuthStatus,
+      authStatus: await this.getAuthStatus(),
     });
   }
 
@@ -773,13 +761,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    *
    * @param port - The port of the inline menu button
    */
-  private handleInlineMenuButtonClicked(port: chrome.runtime.Port) {
-    if (this.userAuthStatus !== AuthenticationStatus.Unlocked) {
-      void this.unlockVault(port);
+  private async handleInlineMenuButtonClicked(port: chrome.runtime.Port) {
+    if ((await this.getAuthStatus()) !== AuthenticationStatus.Unlocked) {
+      await this.unlockVault(port);
       return;
     }
 
-    void this.openInlineMenu(false, true);
+    await this.openInlineMenu(false, true);
   }
 
   /**
@@ -839,6 +827,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    */
   private async unlockCompleted(message: OverlayBackgroundExtensionMessage) {
     await this.getAuthStatus();
+    await this.updateInlineMenuButtonAuthStatus();
+    await this.updateOverlayCiphers();
 
     if (message.data?.commandToRetry?.message?.command === "openAutofillInlineMenu") {
       await this.openInlineMenu(true);

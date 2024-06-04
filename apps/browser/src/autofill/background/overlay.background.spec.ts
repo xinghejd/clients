@@ -395,7 +395,7 @@ describe("OverlayBackground", () => {
       });
 
       it("skips updating the inline menu list if the focused field has a value and the user status is not unlocked", async () => {
-        overlayBackground["userAuthStatus"] = AuthenticationStatus.Locked;
+        activeAccountStatusMock$.next(AuthenticationStatus.Locked);
         tabsSendMessageSpy.mockImplementation((_tab, message, _options) => {
           if (message.command === "checkMostRecentlyFocusedFieldHasValue") {
             return Promise.resolve(true);
@@ -425,4 +425,6 @@ describe("OverlayBackground", () => {
       });
     });
   });
+
+  describe("updateOverlayCiphers", () => {});
 });
