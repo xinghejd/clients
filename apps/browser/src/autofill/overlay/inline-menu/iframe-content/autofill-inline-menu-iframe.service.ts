@@ -248,7 +248,6 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     }
 
     this.updateElementStyles(this.iframe, position);
-    // setTimeout(() => this.updateElementStyles(this.iframe, { opacity: "1" }), 0);
     this.announceAriaAlert();
   }
 

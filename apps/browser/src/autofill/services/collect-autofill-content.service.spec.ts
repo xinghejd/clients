@@ -2579,9 +2579,11 @@ describe("CollectAutofillContentService", () => {
 
     it("skips setting up the overlay listeners on a field that is not viewable", async () => {
       const formFieldElement = document.createElement("input") as ElementWithOpId<FormFieldElement>;
+      const autofillField = mock<AutofillField>();
       const entries = [
         { target: formFieldElement, isIntersecting: true },
       ] as unknown as IntersectionObserverEntry[];
+      collectAutofillContentService["autofillFieldElements"].set(formFieldElement, autofillField);
       isFormFieldViewableSpy.mockReturnValueOnce(false);
 
       await collectAutofillContentService["handleFormElementIntersection"](entries);

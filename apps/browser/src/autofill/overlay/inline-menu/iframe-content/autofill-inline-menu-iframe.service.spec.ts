@@ -193,7 +193,7 @@ describe("AutofillInlineMenuIframeService", () => {
       });
 
       it("handles port messages that are registered with the message handlers and does not pass the message on to the iframe", () => {
-        jest.spyOn(autofillInlineMenuIframeService as any, "updateInlineMenuIframePosition");
+        jest.spyOn(autofillInlineMenuIframeService as any, "updateIframePosition");
 
         sendPortMessage(portSpy, { command: "updateInlineMenuIframePosition" });
 
@@ -361,20 +361,6 @@ describe("AutofillInlineMenuIframeService", () => {
 
           expect(autofillInlineMenuIframeService["iframe"].style.top).toBe(styles.top);
           expect(autofillInlineMenuIframeService["iframe"].style.left).toBe(styles.left);
-        });
-
-        it("fades the iframe element in after positioning the element", () => {
-          jest.useFakeTimers();
-          const styles = { top: "100px", left: "100px" };
-
-          sendPortMessage(portSpy, {
-            command: "updateInlineMenuIframePosition",
-            styles,
-          });
-
-          expect(autofillInlineMenuIframeService["iframe"].style.opacity).toBe("0");
-          jest.advanceTimersByTime(10);
-          expect(autofillInlineMenuIframeService["iframe"].style.opacity).toBe("1");
         });
 
         it("announces the opening of the iframe using an aria alert", () => {
