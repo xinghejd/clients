@@ -18,7 +18,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
   private ariaAlertTimeout: number | NodeJS.Timeout;
   private delayedCloseTimeout: number | NodeJS.Timeout;
   private readonly fadeInOpacityTransition = "opacity 125ms ease-out 0s";
-  private readonly fadeOutOpacityTransition = "opacity 60ms ease-out 0s";
+  private readonly fadeOutOpacityTransition = "opacity 65ms ease-out 0s";
   private iframeStyles: Partial<CSSStyleDeclaration> = {
     all: "initial",
     position: "fixed",

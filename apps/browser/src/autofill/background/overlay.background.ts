@@ -99,7 +99,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   };
   private readonly inlineMenuButtonPortMessageHandlers: InlineMenuButtonPortMessageHandlers = {
     autofillInlineMenuButtonClicked: ({ port }) => this.handleInlineMenuButtonClicked(port),
-    triggerDelayedInlineMenuClosure: ({ port }) =>
+    triggerDelayedAutofillInlineMenuClosure: ({ port }) =>
       this.triggerDelayedInlineMenuClosure(port.sender),
     autofillInlineMenuBlurred: () => this.checkInlineMenuListFocused(),
     redirectAutofillInlineMenuFocusOut: ({ message, port }) =>

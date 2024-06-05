@@ -1326,6 +1326,8 @@ describe("OverlayBackground", () => {
         );
       });
     });
+
+    describe("triggerDelayedAutofillInlineMenuClosure", () => {});
   });
 
   describe("inline menu list message handlers", () => {});
