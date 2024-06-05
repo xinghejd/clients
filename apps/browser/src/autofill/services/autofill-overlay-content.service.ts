@@ -460,11 +460,13 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     this.clearUserInteractionEventTimeout();
     const initiallyFocusedField = this.mostRecentlyFocusedField;
     await this.updateMostRecentlyFocusedField(formFieldElement);
-    const formElementHasValue = Boolean((formFieldElement as HTMLInputElement).value);
 
     if (
       this.inlineMenuVisibility === AutofillOverlayVisibility.OnButtonClick ||
-      (formElementHasValue && initiallyFocusedField !== this.mostRecentlyFocusedField)
+      (initiallyFocusedField !== this.mostRecentlyFocusedField &&
+        (await this.hideAutofillInlineMenuListOnFilledField(
+          formFieldElement as FillableFormFieldElement,
+        )))
     ) {
       await this.sendExtensionMessage("closeAutofillInlineMenu", {
         overlayElement: AutofillOverlayElement.List,
@@ -1035,6 +1037,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       formFieldElement.removeEventListener(EVENTS.KEYUP, this.handleFormFieldKeyupEvent);
       this.formFieldElements.delete(formFieldElement);
     });
+    globalThis.removeEventListener(EVENTS.MESSAGE, this.handleWindowMessageEvent);
     globalThis.document.removeEventListener(
       EVENTS.VISIBILITYCHANGE,
       this.handleVisibilityChangeEvent,
