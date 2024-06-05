@@ -1170,7 +1170,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     message: OverlayBackgroundExtensionMessage,
     port: chrome.runtime.Port,
   ) => {
-    if (this.portKeyForTab[port.sender.tab.id] !== message?.portKey) {
+    const tabPortKey = this.portKeyForTab[port.sender.tab.id];
+    if (!tabPortKey || tabPortKey !== message?.portKey) {
       return;
     }
 

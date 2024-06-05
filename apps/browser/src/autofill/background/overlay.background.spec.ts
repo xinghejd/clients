@@ -3,7 +3,10 @@ import { BehaviorSubject } from "rxjs";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
+import {
+  AutofillOverlayVisibility,
+  SHOW_AUTOFILL_BUTTON,
+} from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction as AutofillSettingsService } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import {
   DefaultDomainSettingsService,
@@ -44,7 +47,14 @@ import {
   createPortSpyMock,
   createFocusedFieldDataMock,
 } from "../spec/autofill-mocks";
-import { flushPromises, sendMockExtensionMessage, sendPortMessage } from "../spec/testing-utils";
+import {
+  flushPromises,
+  sendMockExtensionMessage,
+  sendPortMessage,
+  triggerPortOnConnectEvent,
+  triggerPortOnDisconnectEvent,
+  triggerPortOnMessageEvent,
+} from "../spec/testing-utils";
 
 import {
   FocusedFieldData,
@@ -93,19 +103,19 @@ describe("OverlayBackground", () => {
   async function initOverlayElementPorts(options = { initList: true, initButton: true }) {
     const { initList, initButton } = options;
     if (initButton) {
-      await overlayBackground["handlePortOnConnect"](createPortSpyMock(AutofillOverlayPort.Button));
+      triggerPortOnConnectEvent(createPortSpyMock(AutofillOverlayPort.Button));
       buttonPortSpy = overlayBackground["inlineMenuButtonPort"];
 
       buttonMessageConnectorSpy = createPortSpyMock(AutofillOverlayPort.ButtonMessageConnector);
-      await overlayBackground["handlePortOnConnect"](buttonMessageConnectorSpy);
+      triggerPortOnConnectEvent(buttonMessageConnectorSpy);
     }
 
     if (initList) {
-      await overlayBackground["handlePortOnConnect"](createPortSpyMock(AutofillOverlayPort.List));
+      triggerPortOnConnectEvent(createPortSpyMock(AutofillOverlayPort.List));
       listPortSpy = overlayBackground["inlineMenuListPort"];
 
       listMessageConnectorSpy = createPortSpyMock(AutofillOverlayPort.ListMessageConnector);
-      await overlayBackground["handlePortOnConnect"](listMessageConnectorSpy);
+      triggerPortOnConnectEvent(listMessageConnectorSpy);
     }
 
     return { buttonPortSpy, listPortSpy };
@@ -1269,6 +1279,25 @@ describe("OverlayBackground", () => {
     });
   });
 
+  describe("handle extension onMessage", () => {
+    it("will return early if the message command is not present within the extensionMessageHandlers", () => {
+      const message = {
+        command: "not-a-command",
+      };
+      const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
+      const sendResponse = jest.fn();
+
+      const returnValue = overlayBackground["handleExtensionMessage"](
+        message,
+        sender,
+        sendResponse,
+      );
+
+      expect(returnValue).toBe(undefined);
+      expect(sendResponse).not.toHaveBeenCalled();
+    });
+  });
+
   describe("inline menu button message handlers", () => {
     let sender: chrome.runtime.MessageSender;
     const portKey = "inlineMenuButtonPort";
@@ -1612,6 +1641,153 @@ describe("OverlayBackground", () => {
           { frameId: sender.frameId },
         );
       });
+    });
+
+    describe("viewSelectedCipher message handler", () => {
+      let openViewVaultItemPopoutSpy: jest.SpyInstance;
+
+      beforeEach(() => {
+        openViewVaultItemPopoutSpy = jest
+          .spyOn(overlayBackground as any, "openViewVaultItemPopout")
+          .mockImplementation();
+      });
+
+      it("returns early if the passed cipher ID does not match one of the inline menu ciphers", async () => {
+        overlayBackground["inlineMenuCiphers"] = new Map([
+          ["overlay-cipher-0", mock<CipherView>({ id: "overlay-cipher-0" })],
+        ]);
+
+        sendPortMessage(listMessageConnectorSpy, {
+          command: "viewSelectedCipher",
+          overlayCipherId: "overlay-cipher-1",
+          portKey,
+        });
+        await flushPromises();
+
+        expect(openViewVaultItemPopoutSpy).not.toHaveBeenCalled();
+      });
+
+      it("will open the view vault item popout with the selected cipher", async () => {
+        const cipher = mock<CipherView>({ id: "overlay-cipher-1" });
+        overlayBackground["inlineMenuCiphers"] = new Map([
+          ["overlay-cipher-0", mock<CipherView>({ id: "overlay-cipher-0" })],
+          ["overlay-cipher-1", cipher],
+        ]);
+
+        sendPortMessage(listMessageConnectorSpy, {
+          command: "viewSelectedCipher",
+          overlayCipherId: "overlay-cipher-1",
+          portKey,
+        });
+        await flushPromises();
+
+        expect(openViewVaultItemPopoutSpy).toHaveBeenCalledWith(sender.tab, {
+          cipherId: cipher.id,
+          action: SHOW_AUTOFILL_BUTTON,
+        });
+      });
+    });
+
+    describe("redirectAutofillInlineMenuFocusOut message handler", () => {
+      it("redirects focus out of the inline menu list", async () => {
+        sendPortMessage(listMessageConnectorSpy, {
+          command: "redirectAutofillInlineMenuFocusOut",
+          direction: RedirectFocusDirection.Next,
+          portKey,
+        });
+        await flushPromises();
+
+        expect(tabSendMessageDataSpy).toHaveBeenCalledWith(
+          sender.tab,
+          "redirectAutofillInlineMenuFocusOut",
+          { direction: RedirectFocusDirection.Next },
+        );
+      });
+    });
+
+    describe("updateAutofillInlineMenuListHeight message handler", () => {
+      it("sends a message to the list port to update the menu iframe position", () => {
+        sendPortMessage(listMessageConnectorSpy, {
+          command: "updateAutofillInlineMenuListHeight",
+          styles: { height: "100px" },
+          portKey,
+        });
+
+        expect(listPortSpy.postMessage).toHaveBeenCalledWith({
+          command: "updateInlineMenuIframePosition",
+          styles: { height: "100px" },
+        });
+      });
+    });
+  });
+
+  describe("handle port onConnect", () => {
+    it("skips setting up the overlay port if the port connection is not for an overlay element", async () => {
+      const port = createPortSpyMock("not-an-overlay-element");
+
+      triggerPortOnConnectEvent(port);
+      await flushPromises();
+
+      expect(port.onMessage.addListener).not.toHaveBeenCalled();
+      expect(port.postMessage).not.toHaveBeenCalled();
+    });
+
+    it("stores an existing overlay port so that it can be disconnected at a later time", async () => {
+      overlayBackground["inlineMenuButtonPort"] = mock<chrome.runtime.Port>();
+
+      await initOverlayElementPorts({ initList: false, initButton: true });
+      await flushPromises();
+
+      expect(overlayBackground["expiredPorts"].length).toBe(1);
+    });
+  });
+
+  describe("handle overlay element port onMessage", () => {
+    let sender: chrome.runtime.MessageSender;
+    const portKey = "inlineMenuListPort";
+
+    beforeEach(async () => {
+      sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
+      portKeyForTabSpy[sender.tab.id] = portKey;
+      activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+      await initOverlayElementPorts();
+      listMessageConnectorSpy.sender = sender;
+      openUnlockPopoutSpy.mockImplementation();
+    });
+
+    it("ignores messages that do not contain a valid portKey", async () => {
+      triggerPortOnMessageEvent(buttonMessageConnectorSpy, {
+        command: "autofillInlineMenuBlurred",
+      });
+      await flushPromises();
+
+      expect(listPortSpy.postMessage).not.toHaveBeenCalledWith({
+        command: "checkAutofillInlineMenuListFocused",
+      });
+    });
+
+    it("ignores messages from ports that are not listened to", () => {
+      triggerPortOnMessageEvent(buttonPortSpy, {
+        command: "autofillInlineMenuBlurred",
+        portKey,
+      });
+
+      expect(listPortSpy.postMessage).not.toHaveBeenCalledWith({
+        command: "checkAutofillInlineMenuListFocused",
+      });
+    });
+  });
+
+  describe("handle port onDisconnect", () => {
+    it("sets the disconnected port to a `null` value", async () => {
+      await initOverlayElementPorts();
+
+      triggerPortOnDisconnectEvent(buttonPortSpy);
+      triggerPortOnDisconnectEvent(listPortSpy);
+      await flushPromises();
+
+      expect(overlayBackground["inlineMenuListPort"]).toBeNull();
+      expect(overlayBackground["inlineMenuButtonPort"]).toBeNull();
     });
   });
 });
