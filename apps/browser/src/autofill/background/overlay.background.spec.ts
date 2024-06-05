@@ -742,7 +742,7 @@ describe("OverlayBackground", () => {
       });
     });
 
-    describe("openAutofillInlineMenu", () => {
+    describe("openAutofillInlineMenu message handler", () => {
       let sender: chrome.runtime.MessageSender;
 
       beforeEach(() => {
@@ -785,6 +785,161 @@ describe("OverlayBackground", () => {
           },
           { frameId: 10 },
         );
+      });
+    });
+
+    describe("closeAutofillInlineMenu", () => {
+      let sender: chrome.runtime.MessageSender;
+
+      beforeEach(() => {
+        sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
+        sendMockExtensionMessage({
+          command: "updateIsFieldCurrentlyFilling",
+          isFieldCurrentlyFilling: false,
+        });
+        sendMockExtensionMessage({
+          command: "updateIsFieldCurrentlyFocused",
+          isFieldCurrentlyFocused: false,
+        });
+      });
+
+      it("sends a message to close the inline menu without checking field focus state if forcing the closure", async () => {
+        sendMockExtensionMessage({
+          command: "updateIsFieldCurrentlyFocused",
+          isFieldCurrentlyFocused: true,
+        });
+        await flushPromises();
+
+        sendMockExtensionMessage(
+          {
+            command: "closeAutofillInlineMenu",
+            forceCloseAutofillInlineMenu: true,
+            overlayElement: AutofillOverlayElement.Button,
+          },
+          sender,
+        );
+        await flushPromises();
+
+        expect(tabsSendMessageSpy).toHaveBeenCalledWith(
+          sender.tab,
+          {
+            command: "closeInlineMenu",
+            overlayElement: AutofillOverlayElement.Button,
+          },
+          { frameId: 0 },
+        );
+      });
+
+      it("skips sending a message to close the inline menu if a form field is currently focused", async () => {
+        sendMockExtensionMessage({
+          command: "updateIsFieldCurrentlyFocused",
+          isFieldCurrentlyFocused: true,
+        });
+        await flushPromises();
+
+        sendMockExtensionMessage(
+          {
+            command: "closeAutofillInlineMenu",
+            forceCloseAutofillInlineMenu: false,
+            overlayElement: AutofillOverlayElement.Button,
+          },
+          sender,
+        );
+        await flushPromises();
+
+        expect(tabsSendMessageSpy).not.toHaveBeenCalled();
+      });
+
+      it("sends a message to close the inline menu list only if the field is currently filling", async () => {
+        sendMockExtensionMessage({
+          command: "updateIsFieldCurrentlyFilling",
+          isFieldCurrentlyFilling: true,
+        });
+        await flushPromises();
+
+        sendMockExtensionMessage({ command: "closeAutofillInlineMenu" }, sender);
+        await flushPromises();
+
+        expect(tabsSendMessageSpy).toHaveBeenCalledWith(
+          sender.tab,
+          {
+            command: "closeInlineMenu",
+            overlayElement: AutofillOverlayElement.List,
+          },
+          { frameId: 0 },
+        );
+        expect(tabsSendMessageSpy).not.toHaveBeenCalledWith(
+          sender.tab,
+          {
+            command: "closeInlineMenu",
+            overlayElement: AutofillOverlayElement.Button,
+          },
+          { frameId: 0 },
+        );
+      });
+
+      it("sends a message to close the inline menu if the form field is not focused and not filling", async () => {
+        sendMockExtensionMessage({ command: "closeAutofillInlineMenu" }, sender);
+        await flushPromises();
+
+        expect(tabsSendMessageSpy).toHaveBeenCalledWith(
+          sender.tab,
+          {
+            command: "closeInlineMenu",
+            overlayElement: undefined,
+          },
+          { frameId: 0 },
+        );
+      });
+    });
+
+    describe("checkAutofillInlineMenuFocused message handler", () => {
+      beforeEach(async () => {
+        await initOverlayElementPorts();
+      });
+
+      it("will check if the inline menu list is focused if the list port is open", () => {
+        sendMockExtensionMessage({ command: "checkAutofillInlineMenuFocused" });
+
+        expect(listPortSpy.postMessage).toHaveBeenCalledWith({
+          command: "checkAutofillInlineMenuListFocused",
+        });
+        expect(buttonPortSpy.postMessage).not.toHaveBeenCalledWith({
+          command: "checkAutofillInlineMenuButtonFocused",
+        });
+      });
+
+      it("will check if the overlay button is focused if the list port is not open", () => {
+        overlayBackground["inlineMenuListPort"] = undefined;
+
+        sendMockExtensionMessage({ command: "checkAutofillInlineMenuFocused" });
+
+        expect(buttonPortSpy.postMessage).toHaveBeenCalledWith({
+          command: "checkAutofillInlineMenuButtonFocused",
+        });
+        expect(listPortSpy.postMessage).not.toHaveBeenCalledWith({
+          command: "checkAutofillInlineMenuListFocused",
+        });
+      });
+    });
+
+    describe("extension messages that trigger an update of the inline menu ciphers", () => {
+      const extensionMessages = [
+        "addedCipher",
+        "addEditCipherSubmitted",
+        "editedCipher",
+        "deletedCipher",
+      ];
+
+      beforeEach(() => {
+        jest.spyOn(overlayBackground, "updateOverlayCiphers").mockImplementation();
+      });
+
+      extensionMessages.forEach((message) => {
+        it(`triggers an update of the overlay ciphers when the ${message} message is received`, () => {
+          sendMockExtensionMessage({ command: message });
+          expect(overlayBackground.updateOverlayCiphers).toHaveBeenCalled();
+        });
       });
     });
   });

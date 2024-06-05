@@ -43,6 +43,7 @@ import {
   PageDetailsForTab,
   SubFrameOffsetData,
   SubFrameOffsetsForTab,
+  CloseInlineMenuMessage,
 } from "./abstractions/overlay.background";
 
 export class OverlayBackground implements OverlayBackgroundInterface {
@@ -91,7 +92,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     rebuildSubFrameOffsets: ({ sender }) => this.rebuildSubFrameOffsets(sender),
     collectPageDetailsResponse: ({ message, sender }) => this.storePageDetails(message, sender),
     unlockCompleted: ({ message }) => this.unlockCompleted(message),
+    addedCipher: () => this.updateOverlayCiphers(),
     addEditCipherSubmitted: () => this.updateOverlayCiphers(),
+    editedCipher: () => this.updateOverlayCiphers(),
     deletedCipher: () => this.updateOverlayCiphers(),
   };
   private readonly inlineMenuButtonPortMessageHandlers: InlineMenuButtonPortMessageHandlers = {
@@ -470,10 +473,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    */
   private closeInlineMenu(
     sender: chrome.runtime.MessageSender,
-    {
-      forceCloseAutofillInlineMenu,
-      overlayElement,
-    }: { forceCloseAutofillInlineMenu?: boolean; overlayElement?: string } = {},
+    { forceCloseAutofillInlineMenu, overlayElement }: CloseInlineMenuMessage = {},
   ) {
     if (forceCloseAutofillInlineMenu) {
       void BrowserApi.tabSendMessage(
@@ -507,6 +507,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     );
   }
 
+  /**
+   * Sends a message to the sender tab to trigger a delayed closure of the inline menu.
+   * This is used to ensure that we capture click events on the inline menu in the case
+   * that some on page programmatic method attempts to force focus redirection.
+   *
+   * @param sender - The sender of the port message
+   */
   private triggerDelayedInlineMenuClosure(sender: chrome.runtime.MessageSender) {
     if (this.isFieldCurrentlyFocused) {
       return;
@@ -589,6 +596,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     });
   }
 
+  /**
+   * Handles updating the opacity of both the inline menu button and list.
+   * This is used to simultaneously fade in the inline menu elements.
+   */
   private setInlineMenuFadeInTimeout() {
     if (this.inlineMenuFadeInTimeout) {
       globalThis.clearTimeout(this.inlineMenuFadeInTimeout);
@@ -598,7 +609,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     this.inlineMenuFadeInTimeout = globalThis.setTimeout(() => {
       this.inlineMenuButtonPort?.postMessage(message);
       this.inlineMenuListPort?.postMessage(message);
-    }, 75);
+    }, 50);
   }
 
   /**
@@ -977,6 +988,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     return this.isFieldCurrentlyFilling;
   }
 
+  /**
+   * Sends a message to the top level frame of the sender to check if the inline menu button is visible.
+   *
+   * @param sender - The sender of the message
+   */
   private async checkIsAutofillInlineMenuButtonVisible(sender: chrome.runtime.MessageSender) {
     return await BrowserApi.tabSendMessage(
       sender.tab,
@@ -985,6 +1001,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     );
   }
 
+  /**
+   * Sends a message to the top level frame of the sender to check if the inline menu list is visible.
+   *
+   * @param sender - The sender of the message
+   */
   private async checkIsAutofillInlineMenuListVisible(sender: chrome.runtime.MessageSender) {
     return await BrowserApi.tabSendMessage(
       sender.tab,
@@ -993,16 +1014,34 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     );
   }
 
+  /**
+   * Responds to the content script's request to check if the inline menu ciphers are populated.
+   * This will return true only if the sender is the focused field's tab and the inline menu
+   * ciphers are populated.
+   *
+   * @param sender - The sender of the message
+   */
   private checkIsInlineMenuCiphersPopulated(sender: chrome.runtime.MessageSender) {
     return sender.tab.id === this.focusedFieldData.tabId && this.inlineMenuCiphers.size > 0;
   }
 
+  /**
+   * Triggers an update in the meta "color-scheme" value within the inline menu button.
+   * This is done to ensure that the button element has a transparent background, which
+   * is accomplished by setting the "color-scheme" meta value of the button iframe to
+   * the same value as the page's meta "color-scheme" value.
+   */
   private updateInlineMenuButtonColorScheme() {
     this.inlineMenuButtonPort?.postMessage({
       command: "updateAutofillInlineMenuColorScheme",
     });
   }
 
+  /**
+   * Triggers an update in the inline menu list's height.
+   *
+   * @param message - Contains the dimensions of the inline menu list
+   */
   private updateInlineMenuListHeight(message: OverlayBackgroundExtensionMessage) {
     this.inlineMenuListPort?.postMessage({
       command: "updateInlineMenuIframePosition",
@@ -1160,6 +1199,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     handler({ message, port });
   };
 
+  /**
+   * Ensures that the inline menu list and button port
+   * references are reset when they are disconnected.
+   *
+   * @param port - The port that was disconnected
+   */
   private handlePortOnDisconnect = (port: chrome.runtime.Port) => {
     if (port.name === AutofillOverlayPort.List) {
       this.inlineMenuListPort = null;

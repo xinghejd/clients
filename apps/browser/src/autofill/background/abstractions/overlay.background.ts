@@ -30,6 +30,13 @@ export type WebsiteIconData = {
   icon: string;
 };
 
+export type FocusedFieldData = {
+  focusedFieldStyles: Partial<CSSStyleDeclaration>;
+  focusedFieldRects: Partial<DOMRect>;
+  tabId?: number;
+  frameId?: number;
+};
+
 export type OverlayAddNewItemMessage = {
   login?: {
     uri?: string;
@@ -39,11 +46,9 @@ export type OverlayAddNewItemMessage = {
   };
 };
 
-export type FocusedFieldData = {
-  focusedFieldStyles: Partial<CSSStyleDeclaration>;
-  focusedFieldRects: Partial<DOMRect>;
-  tabId?: number;
-  frameId?: number;
+export type CloseInlineMenuMessage = {
+  forceCloseAutofillInlineMenu?: boolean;
+  overlayElement?: string;
 };
 
 export type OverlayBackgroundExtensionMessage = {
@@ -52,8 +57,6 @@ export type OverlayBackgroundExtensionMessage = {
   tab?: chrome.tabs.Tab;
   sender?: string;
   details?: AutofillPageDetails;
-  overlayElement?: string;
-  forceCloseAutofillInlineMenu?: boolean;
   isAutofillInlineMenuHidden?: boolean;
   setTransparentInlineMenu?: boolean;
   isFieldCurrentlyFocused?: boolean;
@@ -62,7 +65,8 @@ export type OverlayBackgroundExtensionMessage = {
   focusedFieldData?: FocusedFieldData;
   styles?: Partial<CSSStyleDeclaration>;
   data?: LockedVaultPendingNotificationsData;
-} & OverlayAddNewItemMessage;
+} & OverlayAddNewItemMessage &
+  CloseInlineMenuMessage;
 
 export type OverlayPortMessage = {
   [key: string]: any;
@@ -116,7 +120,9 @@ export type OverlayBackgroundExtensionMessageHandlers = {
   rebuildSubFrameOffsets: ({ sender }: BackgroundSenderParam) => void;
   collectPageDetailsResponse: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   unlockCompleted: ({ message }: BackgroundMessageParam) => void;
+  addedCipher: () => void;
   addEditCipherSubmitted: () => void;
+  editedCipher: () => void;
   deletedCipher: () => void;
 };
 
