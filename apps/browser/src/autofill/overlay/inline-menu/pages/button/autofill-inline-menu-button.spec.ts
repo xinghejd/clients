@@ -74,7 +74,7 @@ describe("AutofillInlineMenuButton", () => {
       await flushPromises();
 
       expect(globalThis.parent.postMessage).not.toHaveBeenCalledWith({
-        command: "closeAutofillInlineMenu",
+        command: "triggerDelayedInlineMenuClosure",
       });
     });
 
@@ -85,7 +85,7 @@ describe("AutofillInlineMenuButton", () => {
       await flushPromises();
 
       expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-        { command: "closeAutofillInlineMenu", portKey },
+        { command: "triggerDelayedInlineMenuClosure", portKey },
         "*",
       );
     });

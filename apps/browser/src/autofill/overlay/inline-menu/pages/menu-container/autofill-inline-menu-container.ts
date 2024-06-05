@@ -69,8 +69,6 @@ export class AutofillInlineMenuContainer {
 
   private setupPortMessageListener = (message: InitInlineMenuElementMessage) => {
     this.port = chrome.runtime.connect({ name: this.portName });
-    this.port.onMessage.addListener(this.handlePortMessage);
-
     this.postMessageToInlineMenuPage(message);
   };
 
@@ -89,14 +87,6 @@ export class AutofillInlineMenuContainer {
 
     this.port.postMessage(message);
   }
-
-  private handlePortMessage = (message: any, port: chrome.runtime.Port) => {
-    if (port.name !== this.portName) {
-      return;
-    }
-
-    this.postMessageToInlineMenuPage(message);
-  };
 
   private handleWindowMessage = (event: MessageEvent) => {
     const message = event.data;

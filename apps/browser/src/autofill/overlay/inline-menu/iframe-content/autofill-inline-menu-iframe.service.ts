@@ -16,6 +16,8 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
   private iframe: HTMLIFrameElement;
   private ariaAlertElement: HTMLDivElement;
   private ariaAlertTimeout: number | NodeJS.Timeout;
+  private delayedCloseTimeout: number | NodeJS.Timeout;
+  private readonly defaultOpacityTransition = "opacity 125ms ease-out 0s";
   private iframeStyles: Partial<CSSStyleDeclaration> = {
     all: "initial",
     position: "fixed",
@@ -23,7 +25,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     zIndex: "2147483647",
     lineHeight: "0",
     overflow: "hidden",
-    transition: "opacity 125ms ease-out 0s",
+    transition: this.defaultOpacityTransition,
     visibility: "visible",
     clipPath: "none",
     pointerEvents: "auto",
@@ -47,6 +49,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     updateInlineMenuIframePosition: ({ message }) => this.updateIframePosition(message.styles),
     updateInlineMenuHidden: ({ message }) => this.updateElementStyles(this.iframe, message.styles),
     updateAutofillInlineMenuColorScheme: () => this.updateAutofillInlineMenuColorScheme(),
+    triggerDelayedAutofillInlineMenuClosure: () => this.handleDelayedAutofillInlineMenuClosure(),
   };
 
   constructor(
@@ -402,5 +405,25 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     }
 
     return false;
+  }
+
+  private handleDelayedAutofillInlineMenuClosure() {
+    if (this.delayedCloseTimeout) {
+      clearTimeout(this.delayedCloseTimeout);
+    }
+
+    this.updateElementStyles(this.iframe, {
+      opacity: "0",
+      transition: "none",
+      pointerEvents: "none",
+    });
+
+    this.delayedCloseTimeout = globalThis.setTimeout(() => {
+      this.updateElementStyles(this.iframe, {
+        transition: this.defaultOpacityTransition,
+        pointerEvents: "auto",
+      });
+      this.forceCloseAutofillInlineMenu();
+    }, 250);
   }
 }

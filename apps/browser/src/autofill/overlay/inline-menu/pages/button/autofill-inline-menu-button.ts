@@ -121,7 +121,7 @@ class AutofillInlineMenuButton extends AutofillInlineMenuPageElement {
       return;
     }
 
-    this.postMessageToParent({ command: "closeAutofillInlineMenu" });
+    this.postMessageToParent({ command: "triggerDelayedInlineMenuClosure" });
   }
 }
 

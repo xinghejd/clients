@@ -96,9 +96,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   };
   private readonly inlineMenuButtonPortMessageHandlers: InlineMenuButtonPortMessageHandlers = {
     autofillInlineMenuButtonClicked: ({ port }) => this.handleInlineMenuButtonClicked(port),
-    closeAutofillInlineMenu: ({ port }) => this.closeInlineMenu(port.sender),
-    forceCloseAutofillInlineMenu: ({ port }) =>
-      this.closeInlineMenu(port.sender, { forceCloseAutofillInlineMenu: true }),
+    triggerDelayedInlineMenuClosure: ({ port }) =>
+      this.triggerDelayedInlineMenuClosure(port.sender),
     autofillInlineMenuBlurred: () => this.checkInlineMenuListFocused(),
     redirectAutofillInlineMenuFocusOut: ({ message, port }) =>
       this.redirectInlineMenuFocusOut(message, port),
@@ -106,8 +105,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   };
   private readonly inlineMenuListPortMessageHandlers: InlineMenuListPortMessageHandlers = {
     checkAutofillInlineMenuButtonFocused: () => this.checkInlineMenuButtonFocused(),
-    forceCloseAutofillInlineMenu: ({ port }) =>
-      this.closeInlineMenu(port.sender, { forceCloseAutofillInlineMenu: true }),
     autofillInlineMenuBlurred: () => this.checkInlineMenuButtonFocused(),
     unlockVault: ({ port }) => this.unlockVault(port),
     fillSelectedAutofillInlineMenuListItem: ({ message, port }) =>
@@ -508,6 +505,16 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       { command: "closeInlineMenu", overlayElement },
       { frameId: 0 },
     );
+  }
+
+  private triggerDelayedInlineMenuClosure(sender: chrome.runtime.MessageSender) {
+    if (this.isFieldCurrentlyFocused) {
+      return;
+    }
+
+    const message = { command: "triggerDelayedAutofillInlineMenuClosure" };
+    this.inlineMenuButtonPort?.postMessage(message);
+    this.inlineMenuListPort?.postMessage(message);
   }
 
   /**

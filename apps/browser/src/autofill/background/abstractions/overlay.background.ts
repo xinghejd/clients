@@ -131,8 +131,7 @@ export type PortOnMessageHandlerParams = PortMessageParam & PortConnectionParam;
 export type InlineMenuButtonPortMessageHandlers = {
   [key: string]: CallableFunction;
   autofillInlineMenuButtonClicked: ({ port }: PortConnectionParam) => void;
-  closeAutofillInlineMenu: ({ port }: PortConnectionParam) => void;
-  forceCloseAutofillInlineMenu: ({ port }: PortConnectionParam) => void;
+  triggerDelayedInlineMenuClosure: ({ port }: PortConnectionParam) => void;
   autofillInlineMenuBlurred: () => void;
   redirectAutofillInlineMenuFocusOut: ({ message, port }: PortOnMessageHandlerParams) => void;
   updateAutofillInlineMenuColorScheme: () => void;
@@ -141,7 +140,6 @@ export type InlineMenuButtonPortMessageHandlers = {
 export type InlineMenuListPortMessageHandlers = {
   [key: string]: CallableFunction;
   checkAutofillInlineMenuButtonFocused: () => void;
-  forceCloseAutofillInlineMenu: ({ port }: PortConnectionParam) => void;
   autofillInlineMenuBlurred: () => void;
   unlockVault: ({ port }: PortConnectionParam) => void;
   fillSelectedAutofillInlineMenuListItem: ({ message, port }: PortOnMessageHandlerParams) => void;
