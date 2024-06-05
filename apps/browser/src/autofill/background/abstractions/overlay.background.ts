@@ -94,7 +94,7 @@ export type OverlayBackgroundExtensionMessageHandlers = {
   [key: string]: CallableFunction;
   autofillOverlayElementClosed: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   autofillOverlayAddNewVaultItem: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
-  checkIsOverlayLoginCiphersPopulated: ({ sender }: BackgroundSenderParam) => void;
+  checkIsInlineMenuCiphersPopulated: ({ sender }: BackgroundSenderParam) => void;
   updateFocusedFieldData: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   updateIsFieldCurrentlyFocused: ({ message }: BackgroundMessageParam) => void;
   checkIsFieldCurrentlyFocused: () => boolean;

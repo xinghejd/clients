@@ -1022,7 +1022,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   }
 
   private async isInlineMenuCiphersPopulated() {
-    return (await this.sendExtensionMessage("checkIsOverlayLoginCiphersPopulated")) === true;
+    return (await this.sendExtensionMessage("checkIsInlineMenuCiphersPopulated")) === true;
   }
 
   /**

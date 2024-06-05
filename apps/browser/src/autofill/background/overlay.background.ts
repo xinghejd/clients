@@ -49,7 +49,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private readonly openUnlockPopout = openUnlockPopout;
   private readonly openViewVaultItemPopout = openViewVaultItemPopout;
   private readonly openAddEditVaultItemPopout = openAddEditVaultItemPopout;
-  private overlayLoginCiphers: Map<string, CipherView> = new Map();
+  private inlineMenuCiphers: Map<string, CipherView> = new Map();
   private pageDetailsForTab: PageDetailsForTab = {};
   private subFrameOffsetsForTab: SubFrameOffsetsForTab = {};
   private updateInlineMenuPositionTimeout: number | NodeJS.Timeout;
@@ -67,8 +67,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     autofillOverlayElementClosed: ({ message, sender }) =>
       this.overlayElementClosed(message, sender),
     autofillOverlayAddNewVaultItem: ({ message, sender }) => this.addNewVaultItem(message, sender),
-    checkIsOverlayLoginCiphersPopulated: ({ sender }) =>
-      this.checkIsOverlayLoginCiphersPopulated(sender),
+    checkIsInlineMenuCiphersPopulated: ({ sender }) =>
+      this.checkIsInlineMenuCiphersPopulated(sender),
     updateFocusedFieldData: ({ message, sender }) => this.setFocusedFieldData(message, sender),
     updateIsFieldCurrentlyFocused: ({ message }) => this.updateIsFieldCurrentlyFocused(message),
     checkIsFieldCurrentlyFocused: () => this.checkIsFieldCurrentlyFocused(),
@@ -179,12 +179,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    this.overlayLoginCiphers = new Map();
+    this.inlineMenuCiphers = new Map();
     const ciphersViews = (await this.cipherService.getAllDecryptedForUrl(currentTab.url)).sort(
       (a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b),
     );
     for (let cipherIndex = 0; cipherIndex < ciphersViews.length; cipherIndex++) {
-      this.overlayLoginCiphers.set(`overlay-cipher-${cipherIndex}`, ciphersViews[cipherIndex]);
+      this.inlineMenuCiphers.set(`overlay-cipher-${cipherIndex}`, ciphersViews[cipherIndex]);
     }
 
     const ciphers = await this.getOverlayCipherData();
@@ -200,7 +200,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    */
   private async getOverlayCipherData(): Promise<OverlayCipherData[]> {
     const showFavicons = await firstValueFrom(this.domainSettingsService.showFavicons$);
-    const overlayCiphersArray = Array.from(this.overlayLoginCiphers);
+    const overlayCiphersArray = Array.from(this.inlineMenuCiphers);
     const overlayCipherData: OverlayCipherData[] = [];
 
     for (let cipherIndex = 0; cipherIndex < overlayCiphersArray.length; cipherIndex++) {
@@ -388,7 +388,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     );
     if (
       mostRecentlyFocusedFieldHasValue &&
-      (this.checkIsOverlayLoginCiphersPopulated(sender) ||
+      (this.checkIsInlineMenuCiphersPopulated(sender) ||
         (await this.getAuthStatus()) !== AuthenticationStatus.Unlocked)
     ) {
       return;
@@ -401,7 +401,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Triggers autofill for the selected cipher in the inline menu list. Also places
    * the selected cipher at the top of the list of ciphers.
    *
-   * @param overlayCipherId - Cipher ID corresponding to the overlayLoginCiphers map. Does not correspond to the actual cipher's ID.
+   * @param overlayCipherId - Cipher ID corresponding to the inlineMenuCiphers map. Does not correspond to the actual cipher's ID.
    * @param sender - The sender of the port message
    */
   private async fillSelectedInlineMenuListItem(
@@ -413,7 +413,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    const cipher = this.overlayLoginCiphers.get(overlayCipherId);
+    const cipher = this.inlineMenuCiphers.get(overlayCipherId);
 
     if (await this.autofillService.isPasswordRepromptRequired(cipher, sender.tab)) {
       return;
@@ -430,7 +430,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       this.platformUtilsService.copyToClipboard(totpCode);
     }
 
-    this.overlayLoginCiphers = new Map([[overlayCipherId, cipher], ...this.overlayLoginCiphers]);
+    this.inlineMenuCiphers = new Map([[overlayCipherId, cipher], ...this.inlineMenuCiphers]);
   }
 
   /**
@@ -801,14 +801,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   /**
    * Triggers the opening of a vault item popout window associated
    * with the passed cipher ID.
-   * @param overlayCipherId - Cipher ID corresponding to the overlayLoginCiphers map. Does not correspond to the actual cipher's ID.
+   * @param overlayCipherId - Cipher ID corresponding to the inlineMenuCiphers map. Does not correspond to the actual cipher's ID.
    * @param sender - The sender of the port message
    */
   private async viewSelectedCipher(
     { overlayCipherId }: OverlayPortMessage,
     { sender }: chrome.runtime.Port,
   ) {
-    const cipher = this.overlayLoginCiphers.get(overlayCipherId);
+    const cipher = this.inlineMenuCiphers.get(overlayCipherId);
     if (!cipher) {
       return;
     }
@@ -945,18 +945,34 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     await BrowserApi.sendMessage("inlineAutofillMenuRefreshAddEditCipher");
   }
 
+  /**
+   * Updates the property that identifies if a form field set up for the inline menu is currently focused.
+   *
+   * @param message - The message received from the web page
+   */
   private updateIsFieldCurrentlyFocused(message: OverlayBackgroundExtensionMessage) {
     this.isFieldCurrentlyFocused = message.isFieldCurrentlyFocused;
   }
 
+  /**
+   * Allows a content script to check if a form field setup for the inline menu is currently focused.
+   */
   private checkIsFieldCurrentlyFocused() {
     return this.isFieldCurrentlyFocused;
   }
 
+  /**
+   * Updates the property that identifies if a form field is currently being autofilled.
+   *
+   * @param message - The message received from the web page
+   */
   private updateIsFieldCurrentlyFilling(message: OverlayBackgroundExtensionMessage) {
     this.isFieldCurrentlyFilling = message.isFieldCurrentlyFilling;
   }
 
+  /**
+   * Allows a content script to check if a form field is currently being autofilled.
+   */
   private checkIsFieldCurrentlyFilling() {
     return this.isFieldCurrentlyFilling;
   }
@@ -977,8 +993,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     );
   }
 
-  private checkIsOverlayLoginCiphersPopulated(sender: chrome.runtime.MessageSender) {
-    return sender.tab.id === this.focusedFieldData.tabId && this.overlayLoginCiphers.size > 0;
+  private checkIsInlineMenuCiphersPopulated(sender: chrome.runtime.MessageSender) {
+    return sender.tab.id === this.focusedFieldData.tabId && this.inlineMenuCiphers.size > 0;
   }
 
   private updateInlineMenuButtonColorScheme() {
