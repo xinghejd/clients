@@ -40,7 +40,7 @@ import {
   createPortSpyMock,
   createFocusedFieldDataMock,
 } from "../spec/autofill-mocks";
-import { flushPromises, sendMockExtensionMessage } from "../spec/testing-utils";
+import { flushPromises, sendMockExtensionMessage, sendPortMessage } from "../spec/testing-utils";
 
 import {
   FocusedFieldData,
@@ -76,10 +76,13 @@ describe("OverlayBackground", () => {
   let subFrameOffsetsSpy: SubFrameOffsetsForTab;
   let getFrameDetailsSpy: jest.SpyInstance;
   let tabsSendMessageSpy: jest.SpyInstance;
+  let tabSendMessageDataSpy: jest.SpyInstance;
   let sendMessageSpy: jest.SpyInstance;
   let getTabFromCurrentWindowIdSpy: jest.SpyInstance;
   let buttonPortSpy: chrome.runtime.Port;
+  let buttonMessageConnectorSpy: chrome.runtime.Port;
   let listPortSpy: chrome.runtime.Port;
+  let listMessageConnectorSpy: chrome.runtime.Port;
 
   let getFrameCounter: number = 2;
   async function initOverlayElementPorts(options = { initList: true, initButton: true }) {
@@ -87,11 +90,17 @@ describe("OverlayBackground", () => {
     if (initButton) {
       await overlayBackground["handlePortOnConnect"](createPortSpyMock(AutofillOverlayPort.Button));
       buttonPortSpy = overlayBackground["inlineMenuButtonPort"];
+
+      buttonMessageConnectorSpy = createPortSpyMock(AutofillOverlayPort.ButtonMessageConnector);
+      await overlayBackground["handlePortOnConnect"](buttonMessageConnectorSpy);
     }
 
     if (initList) {
       await overlayBackground["handlePortOnConnect"](createPortSpyMock(AutofillOverlayPort.List));
       listPortSpy = overlayBackground["inlineMenuListPort"];
+
+      listMessageConnectorSpy = createPortSpyMock(AutofillOverlayPort.ListMessageConnector);
+      await overlayBackground["handlePortOnConnect"](listMessageConnectorSpy);
     }
 
     return { buttonPortSpy, listPortSpy };
@@ -149,6 +158,7 @@ describe("OverlayBackground", () => {
       });
     });
     tabsSendMessageSpy = jest.spyOn(BrowserApi, "tabSendMessage");
+    tabSendMessageDataSpy = jest.spyOn(BrowserApi, "tabSendMessageData");
     sendMessageSpy = jest.spyOn(BrowserApi, "sendMessage");
     getTabFromCurrentWindowIdSpy = jest.spyOn(BrowserApi, "getTabFromCurrentWindowId");
 
@@ -1253,7 +1263,70 @@ describe("OverlayBackground", () => {
     });
   });
 
-  describe("inline menu button message handlers", () => {});
+  describe("inline menu button message handlers", () => {
+    let sender: chrome.runtime.MessageSender;
+    const portKey = "inlineMenuButtonPort";
+    let openUnlockPopoutSpy: jest.SpyInstance;
+
+    beforeEach(async () => {
+      sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
+      portKeyForTabSpy[sender.tab.id] = portKey;
+      activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+      await initOverlayElementPorts();
+      buttonMessageConnectorSpy.sender = sender;
+      openUnlockPopoutSpy = jest
+        .spyOn(overlayBackground as any, "openUnlockPopout")
+        .mockImplementation();
+    });
+
+    describe("autofillInlineMenuButtonClicked message handler", () => {
+      it("opens the unlock vault popout if the user auth status is not unlocked", async () => {
+        activeAccountStatusMock$.next(AuthenticationStatus.Locked);
+        tabsSendMessageSpy.mockImplementation();
+
+        sendPortMessage(buttonMessageConnectorSpy, {
+          command: "autofillInlineMenuButtonClicked",
+          portKey,
+        });
+        await flushPromises();
+
+        expect(tabsSendMessageSpy).toHaveBeenCalledWith(
+          sender.tab,
+          { command: "closeInlineMenu", overlayElement: undefined },
+          { frameId: 0 },
+        );
+        expect(tabSendMessageDataSpy).toBeCalledWith(
+          sender.tab,
+          "addToLockedVaultPendingNotifications",
+          {
+            commandToRetry: { message: { command: "openAutofillInlineMenu" }, sender },
+            target: "overlay.background",
+          },
+        );
+        expect(openUnlockPopoutSpy).toHaveBeenCalled();
+      });
+
+      it("opens the inline menu if the user auth status is unlocked", async () => {
+        getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(sender.tab);
+        sendPortMessage(buttonMessageConnectorSpy, {
+          command: "autofillInlineMenuButtonClicked",
+          portKey,
+        });
+        await flushPromises();
+
+        expect(tabsSendMessageSpy).toHaveBeenCalledWith(
+          sender.tab,
+          {
+            command: "openAutofillInlineMenu",
+            isFocusingFieldElement: false,
+            isOpeningFullAutofillInlineMenu: true,
+            authStatus: AuthenticationStatus.Unlocked,
+          },
+          { frameId: 0 },
+        );
+      });
+    });
+  });
 
   describe("inline menu list message handlers", () => {});
 });
