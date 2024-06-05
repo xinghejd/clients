@@ -1,3 +1,4 @@
+import { DatePipe } from "@angular/common";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
 
 import { ProviderSubscriptionResponse } from "@bitwarden/common/billing/models/response/provider-subscription-response";
@@ -28,7 +29,10 @@ export class SubscriptionStatusComponent {
   @Input({ required: true }) providerSubscriptionResponse: ProviderSubscriptionResponse;
   @Output() reinstatementRequested = new EventEmitter<void>();
 
-  constructor(private i18nService: I18nService) {}
+  constructor(
+    private datePipe: DatePipe,
+    private i18nService: I18nService,
+  ) {}
 
   get displayedStatus(): string {
     return this.data.status.value;
@@ -82,6 +86,41 @@ export class SubscriptionStatusComponent {
           date: {
             label: nextChargeDateLabel,
             value: this.subscription.currentPeriodEndDate.toDateString(),
+          },
+        };
+      }
+      case "past_due": {
+        const pastDueText = this.i18nService.t("pastDue");
+        const suspensionDate = this.datePipe.transform(
+          this.subscription.suspensionDate,
+          "mediumDate",
+        );
+        const calloutBody =
+          this.subscription.collectionMethod === "charge_automatically"
+            ? this.i18nService.t(
+                "pastDueWarningForChargeAutomatically",
+                this.subscription.gracePeriod,
+                suspensionDate,
+              )
+            : this.i18nService.t(
+                "pastDueWarningForSendInvoice",
+                this.subscription.gracePeriod,
+                suspensionDate,
+              );
+        return {
+          status: {
+            label: defaultStatusLabel,
+            value: pastDueText,
+          },
+          date: {
+            label: subscriptionExpiredDateLabel,
+            value: this.subscription.unpaidPeriodEndDate,
+          },
+          callout: {
+            severity: "warning",
+            header: pastDueText,
+            body: calloutBody,
+            showReinstatementButton: false,
           },
         };
       }
