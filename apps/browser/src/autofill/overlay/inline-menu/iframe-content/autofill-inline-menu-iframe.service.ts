@@ -17,7 +17,8 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
   private ariaAlertElement: HTMLDivElement;
   private ariaAlertTimeout: number | NodeJS.Timeout;
   private delayedCloseTimeout: number | NodeJS.Timeout;
-  private readonly defaultOpacityTransition = "opacity 125ms ease-out 0s";
+  private readonly fadeInOpacityTransition = "opacity 125ms ease-out 0s";
+  private readonly fadeOutOpacityTransition = "opacity 75ms ease-in 0s";
   private iframeStyles: Partial<CSSStyleDeclaration> = {
     all: "initial",
     position: "fixed",
@@ -25,7 +26,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     zIndex: "2147483647",
     lineHeight: "0",
     overflow: "hidden",
-    transition: this.defaultOpacityTransition,
+    transition: this.fadeInOpacityTransition,
     visibility: "visible",
     clipPath: "none",
     pointerEvents: "auto",
@@ -412,10 +413,13 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
       clearTimeout(this.delayedCloseTimeout);
     }
 
-    this.updateElementStyles(this.iframe, { opacity: "0", transition: "none" });
+    this.updateElementStyles(this.iframe, {
+      transition: this.fadeOutOpacityTransition,
+      opacity: "0",
+    });
 
     this.delayedCloseTimeout = globalThis.setTimeout(() => {
-      this.updateElementStyles(this.iframe, { transition: this.defaultOpacityTransition });
+      this.updateElementStyles(this.iframe, { transition: this.fadeInOpacityTransition });
       this.forceCloseAutofillInlineMenu();
     }, 100);
   }
