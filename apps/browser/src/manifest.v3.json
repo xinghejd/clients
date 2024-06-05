@@ -131,5 +131,11 @@
   },
   "storage": {
     "managed_schema": "managed_schema.json"
+  },
+  "cross_origin_embedder_policy": {
+    "value": "require-corp"
+  },
+  "cross_origin_opener_policy": {
+    "value": "same-origin"
   }
 }
