@@ -1585,5 +1585,33 @@ describe("OverlayBackground", () => {
         expect(copyToClipboardSpy).toHaveBeenCalledWith("totp-code");
       });
     });
+
+    describe("addNewVaultItem message handler", () => {
+      it("skips sending the `addNewVaultItemFromOverlay` message if the sender tab does not contain the focused field", async () => {
+        const focusedFieldData = createFocusedFieldDataMock({ tabId: 2 });
+        sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData });
+        await flushPromises();
+
+        sendPortMessage(listMessageConnectorSpy, { command: "addNewVaultItem", portKey });
+        await flushPromises();
+
+        expect(tabsSendMessageSpy).not.toHaveBeenCalled();
+      });
+
+      it("sends a message to the tab to add a new vault item", async () => {
+        const focusedFieldData = createFocusedFieldDataMock();
+        sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData }, sender);
+        await flushPromises();
+
+        sendPortMessage(listMessageConnectorSpy, { command: "addNewVaultItem", portKey });
+        await flushPromises();
+
+        expect(tabsSendMessageSpy).toHaveBeenCalledWith(
+          sender.tab,
+          { command: "addNewVaultItemFromOverlay" },
+          { frameId: sender.frameId },
+        );
+      });
+    });
   });
 });
