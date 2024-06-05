@@ -27,12 +27,16 @@ import {
 } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
-import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherRepromptType, CipherType } from "@bitwarden/common/vault/enums";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserPlatformUtilsService } from "../../platform/services/platform-utils/browser-platform-utils.service";
-import { AutofillOverlayElement, AutofillOverlayPort } from "../enums/autofill-overlay.enum";
+import {
+  AutofillOverlayElement,
+  AutofillOverlayPort,
+  RedirectFocusDirection,
+} from "../enums/autofill-overlay.enum";
 import { AutofillService } from "../services/abstractions/autofill.service";
 import {
   createChromeTabMock,
@@ -79,6 +83,7 @@ describe("OverlayBackground", () => {
   let tabSendMessageDataSpy: jest.SpyInstance;
   let sendMessageSpy: jest.SpyInstance;
   let getTabFromCurrentWindowIdSpy: jest.SpyInstance;
+  let openUnlockPopoutSpy: jest.SpyInstance;
   let buttonPortSpy: chrome.runtime.Port;
   let buttonMessageConnectorSpy: chrome.runtime.Port;
   let listPortSpy: chrome.runtime.Port;
@@ -161,6 +166,7 @@ describe("OverlayBackground", () => {
     tabSendMessageDataSpy = jest.spyOn(BrowserApi, "tabSendMessageData");
     sendMessageSpy = jest.spyOn(BrowserApi, "sendMessage");
     getTabFromCurrentWindowIdSpy = jest.spyOn(BrowserApi, "getTabFromCurrentWindowId");
+    openUnlockPopoutSpy = jest.spyOn(overlayBackground as any, "openUnlockPopout");
 
     void overlayBackground.init();
   });
@@ -1266,7 +1272,6 @@ describe("OverlayBackground", () => {
   describe("inline menu button message handlers", () => {
     let sender: chrome.runtime.MessageSender;
     const portKey = "inlineMenuButtonPort";
-    let openUnlockPopoutSpy: jest.SpyInstance;
 
     beforeEach(async () => {
       sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
@@ -1274,9 +1279,7 @@ describe("OverlayBackground", () => {
       activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
       await initOverlayElementPorts();
       buttonMessageConnectorSpy.sender = sender;
-      openUnlockPopoutSpy = jest
-        .spyOn(overlayBackground as any, "openUnlockPopout")
-        .mockImplementation();
+      openUnlockPopoutSpy.mockImplementation();
     });
 
     describe("autofillInlineMenuButtonClicked message handler", () => {
@@ -1327,8 +1330,260 @@ describe("OverlayBackground", () => {
       });
     });
 
-    describe("triggerDelayedAutofillInlineMenuClosure", () => {});
+    describe("triggerDelayedAutofillInlineMenuClosure message handler", () => {
+      it("skips triggering the delayed closure of the inline menu if a field is currently focused", async () => {
+        sendMockExtensionMessage({
+          command: "updateIsFieldCurrentlyFocused",
+          isFieldCurrentlyFocused: true,
+        });
+        await flushPromises();
+
+        sendPortMessage(buttonMessageConnectorSpy, {
+          command: "triggerDelayedAutofillInlineMenuClosure",
+          portKey,
+        });
+        await flushPromises();
+
+        const message = { command: "triggerDelayedAutofillInlineMenuClosure" };
+        expect(buttonPortSpy.postMessage).not.toHaveBeenCalledWith(message);
+        expect(listPortSpy.postMessage).not.toHaveBeenCalledWith(message);
+      });
+
+      it("sends a message to the button and list ports that triggers a delayed closure of the inline menu", async () => {
+        sendPortMessage(buttonMessageConnectorSpy, {
+          command: "triggerDelayedAutofillInlineMenuClosure",
+          portKey,
+        });
+        await flushPromises();
+
+        const message = { command: "triggerDelayedAutofillInlineMenuClosure" };
+        expect(buttonPortSpy.postMessage).toHaveBeenCalledWith(message);
+        expect(listPortSpy.postMessage).toHaveBeenCalledWith(message);
+      });
+    });
+
+    describe("autofillInlineMenuBlurred message handler", () => {
+      it("sends a message to the inline menu list to check if the element is focused", async () => {
+        sendPortMessage(buttonMessageConnectorSpy, {
+          command: "autofillInlineMenuBlurred",
+          portKey,
+        });
+        await flushPromises();
+
+        expect(listPortSpy.postMessage).toHaveBeenCalledWith({
+          command: "checkAutofillInlineMenuListFocused",
+        });
+      });
+    });
+
+    describe("redirectAutofillInlineMenuFocusOut message handler", () => {
+      it("ignores the redirect message if the direction is not provided", () => {
+        sendPortMessage(buttonMessageConnectorSpy, {
+          command: "redirectAutofillInlineMenuFocusOut",
+          portKey,
+        });
+
+        expect(tabSendMessageDataSpy).not.toHaveBeenCalled();
+      });
+
+      it("sends the redirect message if the direction is provided", () => {
+        sendPortMessage(buttonMessageConnectorSpy, {
+          command: "redirectAutofillInlineMenuFocusOut",
+          direction: RedirectFocusDirection.Next,
+          portKey,
+        });
+
+        expect(tabSendMessageDataSpy).toHaveBeenCalledWith(
+          sender.tab,
+          "redirectAutofillInlineMenuFocusOut",
+          { direction: RedirectFocusDirection.Next },
+        );
+      });
+    });
+
+    describe("updateAutofillInlineMenuColorScheme message handler", () => {
+      it("sends a message to the button port to update the inline menu color scheme", async () => {
+        sendPortMessage(buttonMessageConnectorSpy, {
+          command: "updateAutofillInlineMenuColorScheme",
+          portKey,
+        });
+        await flushPromises();
+
+        expect(buttonPortSpy.postMessage).toHaveBeenCalledWith({
+          command: "updateAutofillInlineMenuColorScheme",
+        });
+      });
+    });
   });
 
-  describe("inline menu list message handlers", () => {});
+  describe("inline menu list message handlers", () => {
+    let sender: chrome.runtime.MessageSender;
+    const portKey = "inlineMenuListPort";
+
+    beforeEach(async () => {
+      sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
+      portKeyForTabSpy[sender.tab.id] = portKey;
+      activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+      await initOverlayElementPorts();
+      listMessageConnectorSpy.sender = sender;
+      openUnlockPopoutSpy.mockImplementation();
+    });
+
+    describe("checkAutofillInlineMenuButtonFocused message handler", () => {
+      it("sends a message to the inline menu button to check if the element is focused", async () => {
+        sendPortMessage(listMessageConnectorSpy, {
+          command: "checkAutofillInlineMenuButtonFocused",
+          portKey,
+        });
+
+        expect(buttonPortSpy.postMessage).toHaveBeenCalledWith({
+          command: "checkAutofillInlineMenuButtonFocused",
+        });
+      });
+    });
+
+    describe("autofillInlineMenuBlurred message handler", () => {
+      it("sends a message to the inline menu button to check if the element is focused", async () => {
+        sendPortMessage(listMessageConnectorSpy, {
+          command: "autofillInlineMenuBlurred",
+          portKey,
+        });
+
+        expect(buttonPortSpy.postMessage).toHaveBeenCalledWith({
+          command: "checkAutofillInlineMenuButtonFocused",
+        });
+      });
+    });
+
+    describe("unlockVault message handler", () => {
+      it("opens the unlock vault popout", async () => {
+        activeAccountStatusMock$.next(AuthenticationStatus.Locked);
+        tabsSendMessageSpy.mockImplementation();
+
+        sendPortMessage(listMessageConnectorSpy, { command: "unlockVault", portKey });
+        await flushPromises();
+
+        expect(openUnlockPopoutSpy).toHaveBeenCalled();
+      });
+    });
+
+    describe("fillSelectedAutofillInlineMenuListItem message handler", () => {
+      const pageDetails = createAutofillPageDetailsMock({
+        login: { username: "username1", password: "password1" },
+      });
+
+      it("ignores the fill request if the overlay cipher id is not provided", async () => {
+        sendPortMessage(listMessageConnectorSpy, {
+          command: "fillSelectedAutofillInlineMenuListItem",
+          portKey,
+        });
+        await flushPromises();
+
+        expect(autofillService.isPasswordRepromptRequired).not.toHaveBeenCalled();
+        expect(autofillService.doAutoFill).not.toHaveBeenCalled();
+      });
+
+      it("ignores the fill request if the tab does not contain any identified page details", async () => {
+        sendPortMessage(listMessageConnectorSpy, {
+          command: "fillSelectedAutofillInlineMenuListItem",
+          overlayCipherId: "overlay-cipher-1",
+          portKey,
+        });
+        await flushPromises();
+
+        expect(autofillService.isPasswordRepromptRequired).not.toHaveBeenCalled();
+        expect(autofillService.doAutoFill).not.toHaveBeenCalled();
+      });
+
+      it("ignores the fill request if a master password reprompt is required", async () => {
+        const cipher = mock<CipherView>({
+          reprompt: CipherRepromptType.Password,
+          type: CipherType.Login,
+        });
+        overlayBackground["inlineMenuCiphers"] = new Map([["overlay-cipher-1", cipher]]);
+        overlayBackground["pageDetailsForTab"][sender.tab.id] = new Map([
+          [sender.frameId, { frameId: sender.frameId, tab: sender.tab, details: pageDetails }],
+        ]);
+        autofillService.isPasswordRepromptRequired.mockResolvedValue(true);
+
+        sendPortMessage(listMessageConnectorSpy, {
+          command: "fillSelectedAutofillInlineMenuListItem",
+          overlayCipherId: "overlay-cipher-1",
+          portKey,
+        });
+        await flushPromises();
+
+        expect(autofillService.isPasswordRepromptRequired).toHaveBeenCalledWith(cipher, sender.tab);
+        expect(autofillService.doAutoFill).not.toHaveBeenCalled();
+      });
+
+      it("auto-fills the selected cipher and move it to the top of the front of the ciphers map", async () => {
+        const cipher1 = mock<CipherView>({ id: "overlay-cipher-1" });
+        const cipher2 = mock<CipherView>({ id: "overlay-cipher-2" });
+        const cipher3 = mock<CipherView>({ id: "overlay-cipher-3" });
+        overlayBackground["inlineMenuCiphers"] = new Map([
+          ["overlay-cipher-1", cipher1],
+          ["overlay-cipher-2", cipher2],
+          ["overlay-cipher-3", cipher3],
+        ]);
+        const pageDetailsForTab = {
+          frameId: sender.frameId,
+          tab: sender.tab,
+          details: pageDetails,
+        };
+        overlayBackground["pageDetailsForTab"][sender.tab.id] = new Map([
+          [sender.frameId, pageDetailsForTab],
+        ]);
+        autofillService.isPasswordRepromptRequired.mockResolvedValue(false);
+
+        sendPortMessage(listMessageConnectorSpy, {
+          command: "fillSelectedAutofillInlineMenuListItem",
+          overlayCipherId: "overlay-cipher-2",
+          portKey,
+        });
+        await flushPromises();
+
+        expect(autofillService.isPasswordRepromptRequired).toHaveBeenCalledWith(
+          cipher2,
+          sender.tab,
+        );
+        expect(autofillService.doAutoFill).toHaveBeenCalledWith({
+          tab: sender.tab,
+          cipher: cipher2,
+          pageDetails: [pageDetailsForTab],
+          fillNewPassword: true,
+          allowTotpAutofill: true,
+        });
+        expect(overlayBackground["inlineMenuCiphers"].entries()).toStrictEqual(
+          new Map([
+            ["overlay-cipher-2", cipher2],
+            ["overlay-cipher-1", cipher1],
+            ["overlay-cipher-3", cipher3],
+          ]).entries(),
+        );
+      });
+
+      it("copies the cipher's totp code to the clipboard after filling", async () => {
+        const cipher1 = mock<CipherView>({ id: "overlay-cipher-1" });
+        overlayBackground["inlineMenuCiphers"] = new Map([["overlay-cipher-1", cipher1]]);
+        overlayBackground["pageDetailsForTab"][sender.tab.id] = new Map([
+          [sender.frameId, { frameId: sender.frameId, tab: sender.tab, details: pageDetails }],
+        ]);
+        autofillService.isPasswordRepromptRequired.mockResolvedValue(false);
+        const copyToClipboardSpy = jest
+          .spyOn(overlayBackground["platformUtilsService"], "copyToClipboard")
+          .mockImplementation();
+        autofillService.doAutoFill.mockResolvedValue("totp-code");
+
+        sendPortMessage(listMessageConnectorSpy, {
+          command: "fillSelectedAutofillInlineMenuListItem",
+          overlayCipherId: "overlay-cipher-2",
+          portKey,
+        });
+        await flushPromises();
+
+        expect(copyToClipboardSpy).toHaveBeenCalledWith("totp-code");
+      });
+    });
+  });
 });
