@@ -693,6 +693,39 @@ describe("OverlayBackground", () => {
       });
     });
 
+    describe("updateFocusedFieldData message handler", () => {
+      it("sends a message to the sender frame to unset the most recently focused field data when the currently focused field does not belong to the sender", async () => {
+        const tab = createChromeTabMock({ id: 2 });
+        const firstSender = mock<chrome.runtime.MessageSender>({ tab, frameId: 100 });
+        const focusedFieldData = createFocusedFieldDataMock({
+          tabId: tab.id,
+          frameId: firstSender.frameId,
+        });
+        sendMockExtensionMessage(
+          { command: "updateFocusedFieldData", focusedFieldData },
+          firstSender,
+        );
+        await flushPromises();
+
+        const secondSender = mock<chrome.runtime.MessageSender>({ tab, frameId: 10 });
+        const otherFocusedFieldData = createFocusedFieldDataMock({
+          tabId: tab.id,
+          frameId: secondSender.frameId,
+        });
+        sendMockExtensionMessage(
+          { command: "updateFocusedFieldData", focusedFieldData: otherFocusedFieldData },
+          secondSender,
+        );
+        await flushPromises();
+
+        expect(tabsSendMessageSpy).toHaveBeenCalledWith(
+          tab,
+          { command: "unsetMostRecentlyFocusedField" },
+          { frameId: firstSender.frameId },
+        );
+      });
+    });
+
     describe("checkIsFieldCurrentlyFocused message handler", () => {
       it("returns true when a form field is currently focused", async () => {
         sendMockExtensionMessage({
@@ -919,6 +952,204 @@ describe("OverlayBackground", () => {
         });
         expect(listPortSpy.postMessage).not.toHaveBeenCalledWith({
           command: "checkAutofillInlineMenuListFocused",
+        });
+      });
+    });
+
+    describe("focusAutofillInlineMenuList message handler", () => {
+      it("will send a `focusInlineMenuList` message to the overlay list port", async () => {
+        await initOverlayElementPorts({ initList: true, initButton: false });
+
+        sendMockExtensionMessage({ command: "focusAutofillInlineMenuList" });
+
+        expect(listPortSpy.postMessage).toHaveBeenCalledWith({ command: "focusInlineMenuList" });
+      });
+    });
+
+    describe("updateAutofillInlineMenuPosition message handler", () => {
+      beforeEach(async () => {
+        await initOverlayElementPorts();
+      });
+
+      it("ignores updating the position if the overlay element type is not provided", () => {
+        sendMockExtensionMessage({ command: "updateAutofillInlineMenuPosition" });
+
+        expect(listPortSpy.postMessage).not.toHaveBeenCalledWith({
+          command: "updateIframePosition",
+          styles: expect.anything(),
+        });
+        expect(buttonPortSpy.postMessage).not.toHaveBeenCalledWith({
+          command: "updateIframePosition",
+          styles: expect.anything(),
+        });
+      });
+
+      it("skips updating the position if the most recently focused field is different than the message sender", () => {
+        const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
+        const focusedFieldData = createFocusedFieldDataMock({ tabId: 2 });
+        sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData });
+
+        sendMockExtensionMessage({ command: "updateAutofillInlineMenuPosition" }, sender);
+
+        expect(listPortSpy.postMessage).not.toHaveBeenCalledWith({
+          command: "updateIframePosition",
+          styles: expect.anything(),
+        });
+        expect(buttonPortSpy.postMessage).not.toHaveBeenCalledWith({
+          command: "updateIframePosition",
+          styles: expect.anything(),
+        });
+      });
+
+      it("updates the inline menu button's position", async () => {
+        const focusedFieldData = createFocusedFieldDataMock();
+        sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData });
+
+        sendMockExtensionMessage({
+          command: "updateAutofillInlineMenuPosition",
+          overlayElement: AutofillOverlayElement.Button,
+        });
+        await flushPromises();
+
+        expect(buttonPortSpy.postMessage).toHaveBeenCalledWith({
+          command: "updateInlineMenuIframePosition",
+          styles: { height: "2px", left: "4px", top: "2px", width: "2px" },
+        });
+      });
+
+      it("modifies the inline menu button's height for medium sized input elements", async () => {
+        const focusedFieldData = createFocusedFieldDataMock({
+          focusedFieldRects: { top: 1, left: 2, height: 35, width: 4 },
+        });
+        sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData });
+
+        sendMockExtensionMessage({
+          command: "updateAutofillInlineMenuPosition",
+          overlayElement: AutofillOverlayElement.Button,
+        });
+        await flushPromises();
+
+        expect(buttonPortSpy.postMessage).toHaveBeenCalledWith({
+          command: "updateInlineMenuIframePosition",
+          styles: { height: "20px", left: "-22px", top: "8px", width: "20px" },
+        });
+      });
+
+      it("modifies the inline menu button's height for large sized input elements", async () => {
+        const focusedFieldData = createFocusedFieldDataMock({
+          focusedFieldRects: { top: 1, left: 2, height: 50, width: 4 },
+        });
+        sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData });
+
+        sendMockExtensionMessage({
+          command: "updateAutofillInlineMenuPosition",
+          overlayElement: AutofillOverlayElement.Button,
+        });
+        await flushPromises();
+
+        expect(buttonPortSpy.postMessage).toHaveBeenCalledWith({
+          command: "updateInlineMenuIframePosition",
+          styles: { height: "27px", left: "-32px", top: "13px", width: "27px" },
+        });
+      });
+
+      it("takes into account the right padding of the focused field in positioning the button if the right padding of the field is larger than the left padding", async () => {
+        const focusedFieldData = createFocusedFieldDataMock({
+          focusedFieldStyles: { paddingRight: "20px", paddingLeft: "6px" },
+        });
+        sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData });
+
+        sendMockExtensionMessage({
+          command: "updateAutofillInlineMenuPosition",
+          overlayElement: AutofillOverlayElement.Button,
+        });
+        await flushPromises();
+
+        expect(buttonPortSpy.postMessage).toHaveBeenCalledWith({
+          command: "updateInlineMenuIframePosition",
+          styles: { height: "2px", left: "-18px", top: "2px", width: "2px" },
+        });
+      });
+
+      it("updates the inline menu list's position", async () => {
+        const focusedFieldData = createFocusedFieldDataMock();
+        sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData });
+
+        sendMockExtensionMessage({
+          command: "updateAutofillInlineMenuPosition",
+          overlayElement: AutofillOverlayElement.List,
+        });
+        await flushPromises();
+
+        expect(listPortSpy.postMessage).toHaveBeenCalledWith({
+          command: "updateInlineMenuIframePosition",
+          styles: { left: "2px", top: "4px", width: "4px" },
+        });
+      });
+
+      it("sends a message that triggers a simultaneous fade in for both inline menu elements", async () => {
+        jest.useFakeTimers();
+        const focusedFieldData = createFocusedFieldDataMock();
+        sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData });
+
+        sendMockExtensionMessage({
+          command: "updateAutofillInlineMenuPosition",
+          overlayElement: AutofillOverlayElement.List,
+        });
+        await flushPromises();
+        jest.advanceTimersByTime(50);
+
+        expect(buttonPortSpy.postMessage).toHaveBeenCalledWith({
+          command: "updateInlineMenuIframePosition",
+          styles: { opacity: "1" },
+        });
+        expect(listPortSpy.postMessage).toHaveBeenCalledWith({
+          command: "updateInlineMenuIframePosition",
+          styles: { opacity: "1" },
+        });
+      });
+    });
+
+    describe("updateAutofillInlineMenuHidden message handler", () => {
+      beforeEach(async () => {
+        await initOverlayElementPorts();
+      });
+
+      it("returns early if the display value is not provided", async () => {
+        const message = {
+          command: "updateAutofillInlineMenuHidden",
+        };
+
+        sendMockExtensionMessage(message);
+        await flushPromises();
+
+        expect(buttonPortSpy.postMessage).not.toHaveBeenCalledWith(message);
+        expect(listPortSpy.postMessage).not.toHaveBeenCalledWith(message);
+      });
+
+      it("posts a message to the overlay button and list which hides the menu", async () => {
+        const message = {
+          command: "updateAutofillInlineMenuHidden",
+          isAutofillInlineMenuHidden: true,
+          setTransparentInlineMenu: false,
+        };
+
+        sendMockExtensionMessage(message);
+        await flushPromises();
+
+        expect(buttonPortSpy.postMessage).toHaveBeenCalledWith({
+          command: "updateInlineMenuHidden",
+          styles: {
+            display: "none",
+            opacity: 1,
+          },
+        });
+        expect(listPortSpy.postMessage).toHaveBeenCalledWith({
+          command: "updateInlineMenuHidden",
+          styles: {
+            display: "none",
+            opacity: 1,
+          },
         });
       });
     });
