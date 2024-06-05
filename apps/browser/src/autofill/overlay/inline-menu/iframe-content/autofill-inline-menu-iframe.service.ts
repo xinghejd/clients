@@ -412,18 +412,11 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
       clearTimeout(this.delayedCloseTimeout);
     }
 
-    this.updateElementStyles(this.iframe, {
-      opacity: "0",
-      transition: "none",
-      pointerEvents: "none",
-    });
+    this.updateElementStyles(this.iframe, { opacity: "0", transition: "none" });
 
     this.delayedCloseTimeout = globalThis.setTimeout(() => {
-      this.updateElementStyles(this.iframe, {
-        transition: this.defaultOpacityTransition,
-        pointerEvents: "auto",
-      });
+      this.updateElementStyles(this.iframe, { transition: this.defaultOpacityTransition });
       this.forceCloseAutofillInlineMenu();
-    }, 250);
+    }, 100);
   }
 }
