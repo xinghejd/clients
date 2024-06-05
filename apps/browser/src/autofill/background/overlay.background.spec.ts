@@ -794,7 +794,7 @@ describe("OverlayBackground", () => {
             command: "openAutofillInlineMenu",
             isFocusingFieldElement: false,
             isOpeningFullAutofillInlineMenu: false,
-            authStatus: 2,
+            authStatus: AuthenticationStatus.Unlocked,
           },
           { frameId: 0 },
         );
@@ -814,7 +814,7 @@ describe("OverlayBackground", () => {
             command: "openAutofillInlineMenu",
             isFocusingFieldElement: false,
             isOpeningFullAutofillInlineMenu: false,
-            authStatus: 2,
+            authStatus: AuthenticationStatus.Unlocked,
           },
           { frameId: 10 },
         );
@@ -1151,6 +1151,84 @@ describe("OverlayBackground", () => {
             opacity: 1,
           },
         });
+      });
+    });
+
+    describe("checkIsAutofillInlineMenuButtonVisible", () => {
+      it("sends a message to the top frame of the tab to identify if the inline menu button is visible", () => {
+        const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
+
+        sendMockExtensionMessage({ command: "checkIsAutofillInlineMenuButtonVisible" }, sender);
+
+        expect(tabsSendMessageSpy).toHaveBeenCalledWith(
+          sender.tab,
+          { command: "checkIsAutofillInlineMenuButtonVisible" },
+          { frameId: 0 },
+        );
+      });
+    });
+
+    describe("checkIsAutofillInlineMenuListVisible", () => {
+      it("sends a message to the top frame of the tab to identify if the inline menu list is visible", () => {
+        const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
+
+        sendMockExtensionMessage({ command: "checkIsAutofillInlineMenuListVisible" }, sender);
+
+        expect(tabsSendMessageSpy).toHaveBeenCalledWith(
+          sender.tab,
+          { command: "checkIsAutofillInlineMenuListVisible" },
+          { frameId: 0 },
+        );
+      });
+    });
+
+    describe("unlockCompleted", () => {
+      let updateOverlayCiphersSpy: jest.SpyInstance;
+
+      beforeEach(async () => {
+        updateOverlayCiphersSpy = jest.spyOn(overlayBackground, "updateOverlayCiphers");
+        await initOverlayElementPorts();
+      });
+
+      it("updates the inline menu button auth status", async () => {
+        sendMockExtensionMessage({ command: "unlockCompleted" });
+        await flushPromises();
+
+        expect(buttonPortSpy.postMessage).toHaveBeenCalledWith({
+          command: "updateInlineMenuButtonAuthStatus",
+          authStatus: AuthenticationStatus.Unlocked,
+        });
+      });
+
+      it("updates the overlay ciphers", async () => {
+        const updateOverlayCiphersSpy = jest.spyOn(overlayBackground, "updateOverlayCiphers");
+        sendMockExtensionMessage({ command: "unlockCompleted" });
+        await flushPromises();
+
+        expect(updateOverlayCiphersSpy).toHaveBeenCalled();
+      });
+
+      it("opens the inline menu if a retry command is present in the message", async () => {
+        updateOverlayCiphersSpy.mockImplementation();
+        getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(createChromeTabMock({ id: 1 }));
+        sendMockExtensionMessage({
+          command: "unlockCompleted",
+          data: {
+            commandToRetry: { message: { command: "openAutofillInlineMenu" } },
+          },
+        });
+        await flushPromises();
+
+        expect(tabsSendMessageSpy).toHaveBeenCalledWith(
+          expect.any(Object),
+          {
+            command: "openAutofillInlineMenu",
+            isFocusingFieldElement: true,
+            isOpeningFullAutofillInlineMenu: false,
+            authStatus: AuthenticationStatus.Unlocked,
+          },
+          { frameId: 0 },
+        );
       });
     });
 

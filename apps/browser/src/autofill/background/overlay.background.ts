@@ -140,8 +140,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     this.setupExtensionMessageListeners();
     const env = await firstValueFrom(this.environmentService.environment$);
     this.iconsServerUrl = env.getIconsUrl();
-    await this.getInlineMenuVisibility();
-    await this.getAuthStatus();
   }
 
   /**
@@ -836,7 +834,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param message - Extension message received from the `unlockCompleted` command
    */
   private async unlockCompleted(message: OverlayBackgroundExtensionMessage) {
-    await this.getAuthStatus();
     await this.updateInlineMenuButtonAuthStatus();
     await this.updateOverlayCiphers();
 
@@ -985,7 +982,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    *
    * @param sender - The sender of the message
    */
-  private async checkIsAutofillInlineMenuButtonVisible(sender: chrome.runtime.MessageSender) {
+  private async checkIsAutofillInlineMenuButtonVisible(
+    sender: chrome.runtime.MessageSender,
+  ): Promise<boolean> {
     return await BrowserApi.tabSendMessage(
       sender.tab,
       { command: "checkIsAutofillInlineMenuButtonVisible" },
@@ -998,7 +997,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    *
    * @param sender - The sender of the message
    */
-  private async checkIsAutofillInlineMenuListVisible(sender: chrome.runtime.MessageSender) {
+  private async checkIsAutofillInlineMenuListVisible(
+    sender: chrome.runtime.MessageSender,
+  ): Promise<boolean> {
     return await BrowserApi.tabSendMessage(
       sender.tab,
       { command: "checkIsAutofillInlineMenuListVisible" },
