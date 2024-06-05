@@ -27,6 +27,8 @@ import {
 } from "@bitwarden/common/spec";
 import { UserId } from "@bitwarden/common/types/guid";
 import { CipherService } from "@bitwarden/common/vault/abstractions/cipher.service";
+import { CipherType } from "@bitwarden/common/vault/enums";
+import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
 import { BrowserApi } from "../../platform/browser/browser-api";
 import { BrowserPlatformUtilsService } from "../../platform/services/platform-utils/browser-platform-utils.service";
@@ -68,6 +70,7 @@ describe("OverlayBackground", () => {
   let subFrameOffsetsSpy: SubFrameOffsetsForTab;
   let getFrameDetailsSpy: jest.SpyInstance;
   let tabsSendMessageSpy: jest.SpyInstance;
+  let getTabFromCurrentWindowIdSpy: jest.SpyInstance;
   let getFrameCounter: number = 2;
 
   beforeEach(() => {
@@ -122,6 +125,7 @@ describe("OverlayBackground", () => {
       });
     });
     tabsSendMessageSpy = jest.spyOn(BrowserApi, "tabSendMessage");
+    getTabFromCurrentWindowIdSpy = jest.spyOn(BrowserApi, "getTabFromCurrentWindowId");
 
     void overlayBackground.init();
   });
@@ -426,5 +430,109 @@ describe("OverlayBackground", () => {
     });
   });
 
-  describe("updateOverlayCiphers", () => {});
+  describe("updateOverlayCiphers", () => {
+    const url = "https://jest-testing-website.com";
+    const tab = createChromeTabMock({ url });
+    const cipher1 = mock<CipherView>({
+      id: "id-1",
+      localData: { lastUsedDate: 222 },
+      name: "name-1",
+      type: CipherType.Login,
+      login: { username: "username-1", uri: url },
+    });
+    const cipher2 = mock<CipherView>({
+      id: "id-2",
+      localData: { lastUsedDate: 222 },
+      name: "name-2",
+      type: CipherType.Card,
+      card: { subTitle: "subtitle-2" },
+    });
+
+    beforeEach(() => {
+      activeAccountStatusMock$.next(AuthenticationStatus.Unlocked);
+    });
+
+    it("skips updating the overlay ciphers if the user's auth status is not unlocked", async () => {
+      activeAccountStatusMock$.next(AuthenticationStatus.Locked);
+
+      await overlayBackground.updateOverlayCiphers();
+
+      expect(getTabFromCurrentWindowIdSpy).not.toHaveBeenCalled();
+      expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
+    });
+
+    it("ignores updating the overlay ciphers if the tab is undefined", async () => {
+      getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(undefined);
+
+      await overlayBackground.updateOverlayCiphers();
+
+      expect(getTabFromCurrentWindowIdSpy).toHaveBeenCalled();
+      expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
+    });
+
+    it("queries all ciphers for the given url, sort them by last used, and format them for usage in the overlay", async () => {
+      getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(tab);
+      cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher1, cipher2]);
+      cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
+
+      await overlayBackground.updateOverlayCiphers();
+
+      expect(BrowserApi.getTabFromCurrentWindowId).toHaveBeenCalled();
+      expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url);
+      expect(cipherService.sortCiphersByLastUsedThenName).toHaveBeenCalled();
+      expect(overlayBackground["overlayLoginCiphers"]).toStrictEqual(
+        new Map([
+          ["overlay-cipher-0", cipher2],
+          ["overlay-cipher-1", cipher1],
+        ]),
+      );
+    });
+
+    it("posts an `updateOverlayListCiphers` message to the overlay list port, and send a `updateIsOverlayCiphersPopulated` message to the tab indicating that the list of ciphers is populated", async () => {
+      overlayBackground["inlineMenuListPort"] = mock<chrome.runtime.Port>();
+      cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher1, cipher2]);
+      cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
+      getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(tab);
+
+      await overlayBackground.updateOverlayCiphers();
+
+      expect(overlayBackground["inlineMenuListPort"].postMessage).toHaveBeenCalledWith({
+        command: "updateAutofillInlineMenuListCiphers",
+        ciphers: [
+          {
+            card: cipher2.card.subTitle,
+            favorite: cipher2.favorite,
+            icon: {
+              fallbackImage: "",
+              icon: "bwi-credit-card",
+              image: undefined,
+              imageEnabled: true,
+            },
+            id: "overlay-cipher-0",
+            login: null,
+            name: "name-2",
+            reprompt: cipher2.reprompt,
+            type: 3,
+          },
+          {
+            card: null,
+            favorite: cipher1.favorite,
+            icon: {
+              fallbackImage: "images/bwi-globe.png",
+              icon: "bwi-globe",
+              image: "https://icons.bitwarden.com//jest-testing-website.com/icon.png",
+              imageEnabled: true,
+            },
+            id: "overlay-cipher-1",
+            login: {
+              username: "username-1",
+            },
+            name: "name-1",
+            reprompt: cipher1.reprompt,
+            type: 1,
+          },
+        ],
+      });
+    });
+  });
 });
