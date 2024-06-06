@@ -81,7 +81,10 @@
 
         <!-- WebAuthn -->
         <ng-container
-          *ngIf="selectedProviderType === providerType.WebAuthn && !pinRequired && touchRequired"
+          *ngIf="
+            selectedProviderType === providerType.WebAuthn &&
+            webauthnState === TwoFactorWebauthnState.TouchRequired
+          "
         >
           <div class="box last">
             <div class="box-content">
@@ -92,7 +95,10 @@
           </div>
         </ng-container>
         <ng-container
-          *ngIf="selectedProviderType === providerType.WebAuthn && pinRequired && !touchRequired"
+          *ngIf="
+            selectedProviderType === providerType.WebAuthn &&
+            webauthnState === TwoFactorWebauthnState.PinRequired
+          "
         >
           <div class="box last">
             <div class="box-content">
@@ -112,7 +118,24 @@
           </div>
         </ng-container>
         <ng-container
-          *ngIf="selectedProviderType === providerType.WebAuthn && !pinRequired && !touchRequired"
+          *ngIf="
+            selectedProviderType === providerType.WebAuthn &&
+            webauthnState === TwoFactorWebauthnState.DeviceRequired
+          "
+        >
+          <div class="box last">
+            <div class="box-content">
+              <div class="box-content-row" appBoxRow>
+                <label>No device found... please plug in...</label>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+        <ng-container
+          *ngIf="
+            selectedProviderType === providerType.WebAuthn &&
+            webauthnState === TwoFactorWebauthnState.Processing
+          "
         >
           <div class="box last">
             <div class="box-content">

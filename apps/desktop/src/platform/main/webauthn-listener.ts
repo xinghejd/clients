@@ -13,7 +13,6 @@ export class WebauthnListener {
   init() {
     ipcMain.handle("webauthn.authenticate", async (event: any, message: any) => {
       try {
-        this.logService.info("Webauthn authenticate ipc handler", message);
         return await passkeyclients.authenticate(
           message.challenge,
           message.origin,
@@ -23,6 +22,12 @@ export class WebauthnListener {
               throw err;
             }
             this.messagingService.send("webauthn.touch-required");
+          },
+          (err: Error) => {
+            if (err) {
+              throw err;
+            }
+            this.messagingService.send("webauthn.device-required");
           },
         );
       } catch (e) {

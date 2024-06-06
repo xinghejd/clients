@@ -123,14 +123,13 @@ pub mod clipboards {
     }
 }
 
-
 #[napi]
 pub mod passkeyclients {
     use napi::threadsafe_function::{ErrorStrategy::CalleeHandled, ThreadsafeFunction};
 
     #[napi]
-    pub async fn authenticate(challenge: String, origin: String, pin: Option<String>, touch_required_callback: ThreadsafeFunction<(), CalleeHandled>) -> napi::Result<String> {
-        super::passkeyclient::authenticate(challenge, origin, pin, touch_required_callback)
+    pub async fn authenticate(challenge: String, origin: String, pin: Option<String>, touch_required_callback: ThreadsafeFunction<(), CalleeHandled>, no_devices_callback: ThreadsafeFunction<(), CalleeHandled>) -> napi::Result<String> {
+        super::passkeyclient::authenticate(challenge, origin, pin, touch_required_callback, no_devices_callback)
             .await
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }

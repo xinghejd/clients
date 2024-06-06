@@ -8,13 +8,15 @@ use std::fmt::Debug;
 use std::sync::{Arc, Mutex};
 use futures::StreamExt;
 
-const TIMEOUT: u32 = 60000;
+// 10 minutes
+const TIMEOUT: u32 = 10 * 60_000;
 
-pub async fn authenticate(challenge: String, origin: String, pin: Option<String>, touch_required_callback: ThreadsafeFunction<(), CalleeHandled>) -> Result<String, anyhow::Error> {
+pub async fn authenticate(challenge: String, origin: String, pin: Option<String>, touch_required_callback: ThreadsafeFunction<(), CalleeHandled>, no_devices_callback: ThreadsafeFunction<(), CalleeHandled>) -> Result<String, anyhow::Error> {
     let pinentry = Pinentry {
         pin: Arc::new(Mutex::new(pin)),
         pin_required: Arc::new(Mutex::new(false)),
         touch_required_callback: touch_required_callback,
+        no_devices_callback: no_devices_callback,
     };
 
     let mut auth = get_authenticator(&pinentry).await?;
@@ -22,6 +24,7 @@ pub async fn authenticate(challenge: String, origin: String, pin: Option<String>
     let options = serde_json::from_str(challenge.as_str())?;
     let origin = Url::parse(origin.as_str())?;
     let res = auth.perform_auth(origin, options, TIMEOUT);
+
     if res.is_err() && *pinentry.pin_required.lock().map_err(|e| anyhow::Error::msg(format!("Error: {:?}", e)))? {
         return Err(anyhow::Error::msg("Pin required"));
     }
@@ -33,6 +36,7 @@ struct Pinentry {
     pin: Arc<Mutex<Option<String>>>,
     pin_required: Arc<Mutex<bool>>,
     touch_required_callback: ThreadsafeFunction<(), CalleeHandled>,
+    no_devices_callback: ThreadsafeFunction<(), CalleeHandled>,
 }
 
 impl Debug for Pinentry {
@@ -44,7 +48,7 @@ impl Debug for Pinentry {
     }
 }
 
-async fn get_authenticator<U: UiCallback>(ui: &U) -> Result<impl AuthenticatorBackend + '_, anyhow::Error> {
+async fn get_authenticator(ui: &Pinentry) -> Result<impl AuthenticatorBackend + '_, anyhow::Error> {
     let trans = AnyTransport::new().await.unwrap();
     match trans.watch().await {
         Ok(mut tokens) => {
@@ -60,7 +64,7 @@ async fn get_authenticator<U: UiCallback>(ui: &U) -> Result<impl AuthenticatorBa
                     }
 
                     TokenEvent::EnumerationComplete => {
-                        println!("device enumeration completed without detecting a FIDO2 authenticator, connect one to authenticate!");
+                        ui.no_devices_callback.call(Ok(()), napi::threadsafe_function::ThreadsafeFunctionCallMode::NonBlocking);
                     }
 
                     TokenEvent::Removed(_) => {}

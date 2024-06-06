@@ -41,11 +41,11 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
   twoFactorOptionsModal: ViewContainerRef;
 
   private destroyed$: Subject<void> = new Subject();
+  readonly TwoFactorWebauthnState = TwoFactorWebauthnState;
 
   showingModal = false;
   duoCallbackSubscriptionEnabled: boolean = false;
-  touchRequired = false;
-  pinRequired = false;
+  webauthnState: TwoFactorWebauthnState = TwoFactorWebauthnState.Processing;
   pin?: string;
 
   constructor(
@@ -109,7 +109,13 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
       .messages$(new CommandDefinition("webauthn.touch-required"))
       .pipe(takeUntil(this.destroyed$))
       .subscribe(() => {
-        this.touchRequired = true;
+        this.webauthnState = TwoFactorWebauthnState.TouchRequired;
+      });
+    this.messageListener
+      .messages$(new CommandDefinition("webauthn.device-required"))
+      .pipe(takeUntil(this.destroyed$))
+      .subscribe(() => {
+        this.webauthnState = TwoFactorWebauthnState.DeviceRequired;
       });
   }
 
@@ -199,17 +205,17 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
     if (this.pin === "") {
       this.pin = undefined;
     }
-    this.pinRequired = false;
+    this.webauthnState = TwoFactorWebauthnState.Processing;
     const res = await ipc.platform.webauthn.authenticate(
       providerDataString,
       env.getWebVaultUrl(),
       this.pin,
     );
     if (res === "pin-required") {
-      this.pinRequired = true;
+      this.webauthnState = TwoFactorWebauthnState.PinRequired;
       return;
     }
-    this.touchRequired = false;
+    this.webauthnState = TwoFactorWebauthnState.Processing;
     this.token = res;
     await this.submit_final();
   }
@@ -222,4 +228,11 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
     this.destroyed$.next();
     this.destroyed$.complete();
   }
+}
+
+enum TwoFactorWebauthnState {
+  DeviceRequired,
+  TouchRequired,
+  PinRequired,
+  Processing,
 }
