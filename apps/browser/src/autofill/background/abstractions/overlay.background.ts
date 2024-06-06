@@ -12,10 +12,11 @@ export type PageDetailsForTab = Record<
 >;
 
 export type SubFrameOffsetData = {
-  frameId?: number;
-  url?: string;
   top: number;
   left: number;
+  url?: string;
+  frameId?: number;
+  parentFrameIds?: number[];
 } | null;
 
 export type SubFrameOffsetsForTab = Record<
@@ -116,6 +117,8 @@ export type OverlayBackgroundExtensionMessageHandlers = {
   updateAutofillInlineMenuHidden: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   checkIsAutofillInlineMenuButtonVisible: ({ sender }: BackgroundSenderParam) => void;
   checkIsAutofillInlineMenuListVisible: ({ sender }: BackgroundSenderParam) => void;
+  checkShouldRepositionInlineMenu: ({ sender }: BackgroundSenderParam) => boolean;
+  getCurrentTabFrameId: ({ sender }: BackgroundSenderParam) => number;
   updateSubFrameData: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   rebuildSubFrameOffsets: ({ sender }: BackgroundSenderParam) => void;
   collectPageDetailsResponse: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;

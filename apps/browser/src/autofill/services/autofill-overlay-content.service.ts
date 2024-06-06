@@ -765,17 +765,18 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     globalThis.removeEventListener(EVENTS.RESIZE, this.handleOverlayRepositionEvent);
   }
 
+  private overlayRepositionTimeout: number | NodeJS.Timeout;
+
   /**
    * Handles the resize or scroll events that enact
    * repositioning of existing overlay elements.
    */
   private handleOverlayRepositionEvent = async () => {
-    this.rebuildSubFrameOffsets();
-
-    if (!(await this.isInlineMenuButtonVisible()) && !(await this.isInlineMenuListVisible())) {
+    if (!(await this.sendExtensionMessage("checkShouldRepositionInlineMenu"))) {
       return;
     }
 
+    this.rebuildSubFrameOffsets();
     this.toggleAutofillInlineMenuHidden(true);
     this.clearUserInteractionEventTimeout();
     this.userInteractionEventTimeout = setTimeout(this.triggerOverlayRepositionUpdates, 750);
@@ -957,6 +958,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
           frameId: message.subFrameId,
           left: 0,
           top: 0,
+          parentFrameIds: [],
         },
       },
       "*",
@@ -968,10 +970,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    this.calculateSubFramePositioning(event);
+    void this.calculateSubFramePositioning(event);
   };
 
-  private calculateSubFramePositioning = (event: MessageEvent) => {
+  private calculateSubFramePositioning = async (event: MessageEvent) => {
     const subFrameData = event.data.subFrameData;
     let subFrameOffsets: SubFrameOffsetData;
     const iframes = document.querySelectorAll("iframe");
@@ -983,9 +985,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
           subFrameData.url,
           subFrameData.frameId,
         );
+        const parentFrameId = await this.sendExtensionMessage("getCurrentTabFrameId");
 
         subFrameData.top += subFrameOffsets.top;
         subFrameData.left += subFrameOffsets.left;
+        subFrameData.parentFrameIds.push(parentFrameId);
 
         break;
       }

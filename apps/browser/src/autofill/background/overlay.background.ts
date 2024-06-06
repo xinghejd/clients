@@ -88,6 +88,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       this.checkIsAutofillInlineMenuButtonVisible(sender),
     checkIsAutofillInlineMenuListVisible: ({ sender }) =>
       this.checkIsAutofillInlineMenuListVisible(sender),
+    checkShouldRepositionInlineMenu: ({ sender }) => this.checkShouldRepositionInlineMenu(sender),
+    getCurrentTabFrameId: ({ sender }) => this.getCurrentFrameId(sender),
     updateSubFrameData: ({ message, sender }) => this.updateSubFrameData(message, sender),
     rebuildSubFrameOffsets: ({ sender }) => this.rebuildSubFrameOffsets(sender),
     collectPageDetailsResponse: ({ message, sender }) => this.storePageDetails(message, sender),
@@ -256,6 +258,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     pageDetailsMap.set(sender.frameId, pageDetails);
   }
 
+  private getCurrentFrameId(sender: chrome.runtime.MessageSender) {
+    return sender.frameId;
+  }
+
   /**
    * Handles sub frame offset calculations for the given tab and frame id.
    * Is used in setting the position of the inline menu list and button.
@@ -293,7 +299,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    const subFrameData = { url, top: 0, left: 0 };
+    const subFrameData: SubFrameOffsetData = { url, top: 0, left: 0, parentFrameIds: [] };
     let frameDetails = await BrowserApi.getFrameDetails({ tabId, frameId });
 
     while (frameDetails && frameDetails.parentFrameId > -1) {
@@ -319,6 +325,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
       subFrameData.top += subFrameOffset.top;
       subFrameData.left += subFrameOffset.left;
+      subFrameData.parentFrameIds.push(frameDetails.parentFrameId);
 
       frameDetails = await BrowserApi.getFrameDetails({
         tabId,
@@ -1003,6 +1010,34 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       { command: "checkIsAutofillInlineMenuListVisible" },
       { frameId: 0 },
     );
+  }
+
+  private checkShouldRepositionInlineMenu(sender: chrome.runtime.MessageSender): boolean {
+    if (
+      !this.focusedFieldData ||
+      sender.tab.id !== this.focusedFieldData.tabId ||
+      !this.isFieldCurrentlyFocused
+    ) {
+      return false;
+    }
+
+    if (this.focusedFieldData.frameId === sender.frameId) {
+      return true;
+    }
+
+    const subFrameOffsetsForTab = this.subFrameOffsetsForTab[sender.tab.id];
+    if (!subFrameOffsetsForTab) {
+      return false;
+    }
+
+    const parentFrameIds = new Set();
+    subFrameOffsetsForTab.forEach((subFrameOffsetData) =>
+      subFrameOffsetData.parentFrameIds.forEach((parentFrameId) =>
+        parentFrameIds.add(parentFrameId),
+      ),
+    );
+
+    return parentFrameIds.has(sender.frameId);
   }
 
   /**
