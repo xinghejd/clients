@@ -343,23 +343,21 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    const subFrameOffsetsForTab = this.subFrameOffsetsForTab[sender.tab.id];
-    if (!subFrameOffsetsForTab) {
-      return;
-    }
-
     if (this.updateInlineMenuPositionTimeout) {
       clearTimeout(this.updateInlineMenuPositionTimeout);
     }
 
-    const tabFrameIds = Array.from(subFrameOffsetsForTab.keys());
-    for (const frameId of tabFrameIds) {
-      if (frameId === sender.frameId) {
-        continue;
-      }
+    const subFrameOffsetsForTab = this.subFrameOffsetsForTab[sender.tab.id];
+    if (subFrameOffsetsForTab) {
+      const tabFrameIds = Array.from(subFrameOffsetsForTab.keys());
+      for (const frameId of tabFrameIds) {
+        if (frameId === sender.frameId) {
+          continue;
+        }
 
-      subFrameOffsetsForTab.delete(frameId);
-      await this.buildSubFrameOffsets(sender.tab, frameId, sender.url);
+        subFrameOffsetsForTab.delete(frameId);
+        await this.buildSubFrameOffsets(sender.tab, frameId, sender.url);
+      }
     }
 
     this.updateInlineMenuPositionTimeout = setTimeout(
