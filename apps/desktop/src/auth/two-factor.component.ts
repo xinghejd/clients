@@ -210,10 +210,8 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
       return;
     }
     this.touchRequired = false;
-    this.logService.info("WebAuthn response: ", res);
     this.token = res;
     await this.submit_final();
-    this.logService.info("WebAuthn finished: ");
   }
 
   ngOnDestroy(): void {
