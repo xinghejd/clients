@@ -1078,8 +1078,7 @@ describe("AutofillOverlayContentService", () => {
   });
 
   describe("handleOverlayRepositionEvent", () => {
-    let isInlineMenuButtonVisibleSpy: jest.SpyInstance;
-    let isInlineMenuListVisibleSpy: jest.SpyInstance;
+    let checkShouldRepositionInlineMenuSpy: jest.SpyInstance;
 
     beforeEach(() => {
       document.body.innerHTML = `
@@ -1093,11 +1092,8 @@ describe("AutofillOverlayContentService", () => {
       ) as ElementWithOpId<HTMLInputElement>;
       autofillOverlayContentService["mostRecentlyFocusedField"] = usernameField;
       autofillOverlayContentService["setOverlayRepositionEventListeners"]();
-      isInlineMenuButtonVisibleSpy = jest
-        .spyOn(autofillOverlayContentService as any, "isInlineMenuButtonVisible")
-        .mockResolvedValue(true);
-      isInlineMenuListVisibleSpy = jest
-        .spyOn(autofillOverlayContentService as any, "isInlineMenuListVisible")
+      checkShouldRepositionInlineMenuSpy = jest
+        .spyOn(autofillOverlayContentService as any, "checkShouldRepositionInlineMenu")
         .mockResolvedValue(true);
       jest
         .spyOn(autofillOverlayContentService as any, "recentlyFocusedFieldIsCurrentlyFocused")
@@ -1105,8 +1101,7 @@ describe("AutofillOverlayContentService", () => {
     });
 
     it("skips handling the overlay reposition event if the overlay button and list elements are not visible", async () => {
-      isInlineMenuButtonVisibleSpy.mockResolvedValue(false);
-      isInlineMenuListVisibleSpy.mockResolvedValue(false);
+      checkShouldRepositionInlineMenuSpy.mockResolvedValue(false);
 
       globalThis.dispatchEvent(new Event(EVENTS.RESIZE));
       await flushPromises();
@@ -1124,12 +1119,13 @@ describe("AutofillOverlayContentService", () => {
       });
     });
 
-    it("clears the user interaction timeout", () => {
+    it("clears the user interaction timeout", async () => {
       jest.useFakeTimers();
       const clearTimeoutSpy = jest.spyOn(globalThis, "clearTimeout");
       autofillOverlayContentService["userInteractionEventTimeout"] = setTimeout(jest.fn(), 123);
 
       globalThis.dispatchEvent(new Event(EVENTS.SCROLL));
+      await flushPromises();
 
       expect(clearTimeoutSpy).toHaveBeenCalledWith(expect.anything());
     });

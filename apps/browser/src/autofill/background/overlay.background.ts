@@ -89,7 +89,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     checkIsAutofillInlineMenuListVisible: ({ sender }) =>
       this.checkIsAutofillInlineMenuListVisible(sender),
     checkShouldRepositionInlineMenu: ({ sender }) => this.checkShouldRepositionInlineMenu(sender),
-    getCurrentTabFrameId: ({ sender }) => this.getCurrentFrameId(sender),
+    getCurrentTabFrameId: ({ sender }) => this.getSenderFrameId(sender),
     updateSubFrameData: ({ message, sender }) => this.updateSubFrameData(message, sender),
     rebuildSubFrameOffsets: ({ sender }) => this.rebuildSubFrameOffsets(sender),
     collectPageDetailsResponse: ({ message, sender }) => this.storePageDetails(message, sender),
@@ -258,7 +258,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     pageDetailsMap.set(sender.frameId, pageDetails);
   }
 
-  private getCurrentFrameId(sender: chrome.runtime.MessageSender) {
+  /**
+   * Returns the frameId, called when calculating sub frame offsets within the tab.
+   * Is used to determine if we should reposition the inline menu when a resize event
+   * occurs within a frame.
+   *
+   * @param sender - The sender of the message
+   */
+  private getSenderFrameId(sender: chrome.runtime.MessageSender) {
     return sender.frameId;
   }
 
@@ -1012,6 +1019,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     );
   }
 
+  /**
+   * Handles verifying whether the inline menu should be repositioned. This is used to
+   * guard against removing the inline menu when other frames trigger a resize event.
+   *
+   * @param sender - The sender of the message
+   */
   private checkShouldRepositionInlineMenu(sender: chrome.runtime.MessageSender): boolean {
     if (
       !this.focusedFieldData ||

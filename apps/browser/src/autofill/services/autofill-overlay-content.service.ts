@@ -772,7 +772,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * repositioning of existing overlay elements.
    */
   private handleOverlayRepositionEvent = async () => {
-    if (!(await this.sendExtensionMessage("checkShouldRepositionInlineMenu"))) {
+    if (!(await this.checkShouldRepositionInlineMenu())) {
       return;
     }
 
@@ -1027,6 +1027,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
   private async isInlineMenuCiphersPopulated() {
     return (await this.sendExtensionMessage("checkIsInlineMenuCiphersPopulated")) === true;
+  }
+
+  private async checkShouldRepositionInlineMenu() {
+    return (await this.sendExtensionMessage("checkShouldRepositionInlineMenu")) === true;
   }
 
   /**

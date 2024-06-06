@@ -228,7 +228,7 @@ describe("OverlayBackground", () => {
         await flushPromises();
 
         expect(subFrameOffsetsSpy[tabId]).toStrictEqual(
-          new Map([[1, { left: 4, top: 4, url: "url" }]]),
+          new Map([[1, { left: 4, top: 4, url: "url", parentFrameIds: [1, 0] }]]),
         );
         expect(pageDetailsForTabSpy[tabId].size).toBe(2);
       });
@@ -255,7 +255,7 @@ describe("OverlayBackground", () => {
 
         expect(getFrameDetailsSpy).toHaveBeenCalledTimes(1);
         expect(subFrameOffsetsSpy[tabId]).toStrictEqual(
-          new Map([[1, { left: 0, top: 0, url: "url" }]]),
+          new Map([[1, { left: 0, top: 0, url: "url", parentFrameIds: [] }]]),
         );
       });
 
@@ -1194,7 +1194,7 @@ describe("OverlayBackground", () => {
       });
     });
 
-    describe("checkIsAutofillInlineMenuListVisible", () => {
+    describe("checkIsAutofillInlineMenuListVisible message handler", () => {
       it("sends a message to the top frame of the tab to identify if the inline menu list is visible", () => {
         const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
 
@@ -1205,6 +1205,131 @@ describe("OverlayBackground", () => {
           { command: "checkIsAutofillInlineMenuListVisible" },
           { frameId: 0 },
         );
+      });
+    });
+
+    describe("checkShouldRepositionInlineMenu message handler", () => {
+      const tabId = 1;
+      const frameId = 1;
+      const sender = mock<chrome.runtime.MessageSender>({
+        tab: createChromeTabMock({ id: tabId }),
+        frameId,
+      });
+      const otherSender = mock<chrome.runtime.MessageSender>({
+        tab: createChromeTabMock({ id: tabId }),
+        frameId: 2,
+      });
+
+      beforeEach(() => {
+        sendMockExtensionMessage({
+          command: "updateIsFieldCurrentlyFocused",
+          isFieldCurrentlyFocused: true,
+        });
+      });
+
+      it("returns false if the focused field data is not set", async () => {
+        sendMockExtensionMessage(
+          { command: "checkShouldRepositionInlineMenu" },
+          sender,
+          sendResponse,
+        );
+        await flushPromises();
+
+        expect(sendResponse).toHaveBeenCalledWith(false);
+      });
+
+      it("returns false if the sender is from a different tab than the focused field", async () => {
+        const focusedFieldData = createFocusedFieldDataMock();
+        const otherSender = mock<chrome.runtime.MessageSender>({ frameId: 1, tab: { id: 2 } });
+        sendMockExtensionMessage(
+          { command: "updateFocusedFieldData", focusedFieldData },
+          otherSender,
+        );
+
+        sendMockExtensionMessage(
+          { command: "checkShouldRepositionInlineMenu" },
+          sender,
+          sendResponse,
+        );
+        await flushPromises();
+
+        expect(sendResponse).toHaveBeenCalledWith(false);
+      });
+
+      it("returns false if the field is not currently focused", async () => {
+        sendMockExtensionMessage({
+          command: "updateIsFieldCurrentlyFocused",
+          isFieldCurrentlyFocused: false,
+        });
+        const focusedFieldData = createFocusedFieldDataMock();
+        sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData }, sender);
+
+        sendMockExtensionMessage(
+          { command: "checkShouldRepositionInlineMenu" },
+          sender,
+          sendResponse,
+        );
+        await flushPromises();
+
+        expect(sendResponse).toHaveBeenCalledWith(false);
+      });
+
+      it("returns true if the focused field's frame id is equal to the sender's frame id", async () => {
+        const focusedFieldData = createFocusedFieldDataMock();
+        sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData }, sender);
+
+        sendMockExtensionMessage(
+          { command: "checkShouldRepositionInlineMenu" },
+          sender,
+          sendResponse,
+        );
+        await flushPromises();
+
+        expect(sendResponse).toHaveBeenCalledWith(true);
+      });
+
+      describe("when the focused field is in a different frame than the sender", () => {
+        it("returns false if the tab does not contain and sub frame offset data", async () => {
+          const focusedFieldData = createFocusedFieldDataMock({ frameId: 2 });
+          sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData }, sender);
+
+          sendMockExtensionMessage(
+            { command: "checkShouldRepositionInlineMenu" },
+            otherSender,
+            sendResponse,
+          );
+          await flushPromises();
+
+          expect(sendResponse).toHaveBeenCalledWith(false);
+        });
+
+        it("returns true if the sender's frameId is present in any of the parentFrameIds of the tab's sub frames", async () => {
+          const focusedFieldData = createFocusedFieldDataMock();
+          subFrameOffsetsSpy[tabId] = new Map([
+            [frameId, { left: 1, top: 1, url: "https://top-frame.com", parentFrameIds: [2, 0] }],
+          ]);
+          sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData }, sender);
+
+          sendMockExtensionMessage(
+            { command: "checkShouldRepositionInlineMenu" },
+            otherSender,
+            sendResponse,
+          );
+          await flushPromises();
+
+          expect(sendResponse).toHaveBeenCalledWith(true);
+        });
+      });
+    });
+
+    describe("getCurrentTabFrameId message handler", () => {
+      it("returns the sender's frame id", async () => {
+        const sender = mock<chrome.runtime.MessageSender>({ frameId: 1 });
+
+        sendMockExtensionMessage({ command: "getCurrentTabFrameId" }, sender, sendResponse);
+        await flushPromises();
+
+        expect(sendResponse).toHaveBeenCalledWith(1);
       });
     });
 
