@@ -206,17 +206,18 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
       this.pin = undefined;
     }
     this.webauthnState = TwoFactorWebauthnState.Processing;
-    const res = await ipc.platform.webauthn.authenticate(
+    const authenticatorResponse = await ipc.platform.webauthn.authenticate(
       providerDataString,
       env.getWebVaultUrl(),
       this.pin,
     );
-    if (res === "pin-required") {
+    // returns "pin-required" instead if the user needs to enter a pin
+    if (authenticatorResponse === "pin-required") {
       this.webauthnState = TwoFactorWebauthnState.PinRequired;
       return;
     }
     this.webauthnState = TwoFactorWebauthnState.Processing;
-    this.token = res;
+    this.token = authenticatorResponse;
     await this.submit_final();
   }
 

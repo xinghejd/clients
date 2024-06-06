@@ -31,9 +31,10 @@ export class WebauthnListener {
           },
         );
       } catch (e) {
-        this.logService.error("Webauthn authenticate ipc handler error", e);
         if ("Pin required" === e.message) {
           return "pin-required";
+        } else {
+          this.logService.error("Webauthn authenticate ipc handler error", e);
         }
       }
     });

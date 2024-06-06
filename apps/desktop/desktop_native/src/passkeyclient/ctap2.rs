@@ -8,8 +8,8 @@ use std::fmt::Debug;
 use std::sync::{Arc, Mutex};
 use futures::StreamExt;
 
-// 10 minutes
-const TIMEOUT: u32 = 10 * 60_000;
+// 3 minutes
+const TIMEOUT: u32 = 3 * 60_000;
 
 pub async fn authenticate(challenge: String, origin: String, pin: Option<String>, touch_required_callback: ThreadsafeFunction<(), CalleeHandled>, no_devices_callback: ThreadsafeFunction<(), CalleeHandled>) -> Result<String, anyhow::Error> {
     let pinentry = Pinentry {
@@ -21,15 +21,13 @@ pub async fn authenticate(challenge: String, origin: String, pin: Option<String>
 
     let mut auth = get_authenticator(&pinentry).await?;
     
-    let options = serde_json::from_str(challenge.as_str())?;
     let origin = Url::parse(origin.as_str())?;
-    let res = auth.perform_auth(origin, options, TIMEOUT);
-
-    if res.is_err() && *pinentry.pin_required.lock().map_err(|e| anyhow::Error::msg(format!("Error: {:?}", e)))? {
+    let options = serde_json::from_str(challenge.as_str())?;
+    let auth_result = auth.perform_auth(origin, options, TIMEOUT);
+    if auth_result.is_err() && *pinentry.pin_required.lock().map_err(|e| anyhow::Error::msg(format!("Error: {:?}", e)))? {
         return Err(anyhow::Error::msg("Pin required"));
     }
-    let res: webauthn_rs::prelude::PublicKeyCredential = res.map_err(|e| anyhow::Error::msg(format!("Error: {:?}", e)))?;
-    serialize_publickeycredential(res)
+    serialize_publickeycredential(auth_result.map_err(|e| anyhow::Error::msg(format!("Error: {:?}", e)))?)
 }
 
 struct Pinentry {
@@ -39,6 +37,7 @@ struct Pinentry {
     no_devices_callback: ThreadsafeFunction<(), CalleeHandled>,
 }
 
+// can't derive Debug because of the callbacks
 impl Debug for Pinentry {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("Pinentry")
@@ -67,7 +66,8 @@ async fn get_authenticator(ui: &Pinentry) -> Result<impl AuthenticatorBackend + 
                         ui.no_devices_callback.call(Ok(()), napi::threadsafe_function::ThreadsafeFunctionCallMode::NonBlocking);
                     }
 
-                    TokenEvent::Removed(_) => {}
+                    TokenEvent::Removed(_) => {
+                    }
                 }
             }
         }
@@ -132,7 +132,6 @@ fn serialize_publickeycredential(credential: webauthn_rs::prelude::PublicKeyCred
     }).map_err(|e| anyhow::Error::msg(format!("Error: {:?}", e)))
 }
 
-// json
 #[derive(Debug, Serialize, Deserialize)]
 struct WebauthnResponseData {
     #[serde(rename = "authenticatorData")]
