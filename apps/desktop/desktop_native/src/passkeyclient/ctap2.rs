@@ -1,16 +1,20 @@
+use napi::threadsafe_function::ErrorStrategy::CalleeHandled;
+use napi::threadsafe_function::ThreadsafeFunction;
 use serde::{Deserialize, Serialize};
 use serde;
 use webauthn_authenticator_rs::{ctap2::CtapAuthenticator, transport::{AnyTransport, TokenEvent, Transport}, types::{CableRequestType, CableState, EnrollSampleStatus}, ui::UiCallback, AuthenticatorBackend};
 use webauthn_rs::prelude::{Base64UrlSafeData, Url};
+use std::fmt::Debug;
 use std::sync::{Arc, Mutex};
 use futures::StreamExt;
 
 const TIMEOUT: u32 = 60000;
 
-pub async fn authenticate(challenge: String, origin: String, pin: Option<String>) -> Result<String, anyhow::Error> {
+pub async fn authenticate(challenge: String, origin: String, pin: Option<String>, touch_required_callback: ThreadsafeFunction<(), CalleeHandled>) -> Result<String, anyhow::Error> {
     let pinentry = Pinentry {
         pin: Arc::new(Mutex::new(pin)),
         pin_required: Arc::new(Mutex::new(false)),
+        touch_required_callback: touch_required_callback,
     };
 
     let mut auth = get_authenticator(&pinentry).await?;
@@ -25,17 +29,27 @@ pub async fn authenticate(challenge: String, origin: String, pin: Option<String>
     serialize_publickeycredential(res)
 }
 
-#[derive(Debug)]
 struct Pinentry {
     pin: Arc<Mutex<Option<String>>>,
     pin_required: Arc<Mutex<bool>>,
+    touch_required_callback: ThreadsafeFunction<(), CalleeHandled>,
+}
+
+impl Debug for Pinentry {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Pinentry")
+            .field("pin", &self.pin)
+            .field("pin_required", &self.pin_required)
+            .finish()
+    }
 }
 
 async fn get_authenticator<U: UiCallback>(ui: &U) -> Result<impl AuthenticatorBackend + '_, anyhow::Error> {
     let trans = AnyTransport::new().await.unwrap();
     match trans.watch().await {
         Ok(mut tokens) => {
-            while let Some(event) = tokens.next().await {
+            while let Some(event) =
+            tokens.next().await {
                 match event {
                     TokenEvent::Added(token) => {
                         let auth = CtapAuthenticator::new(token, ui).await;
@@ -62,17 +76,15 @@ async fn get_authenticator<U: UiCallback>(ui: &U) -> Result<impl AuthenticatorBa
 
 impl UiCallback for Pinentry {
     fn request_pin(&self) -> Option<String> {
-        println!("Requesting pin {:?}", self.pin.lock().unwrap());
         let mut pin_required = self.pin_required.lock().unwrap();
         *pin_required = true;
 
         let pin = self.pin.lock().unwrap().clone();
-        println!("Requesting pin {:?}", pin);
         pin
     }
 
     fn request_touch(&self) {
-        println!("Please touch your authenticator.")
+        self.touch_required_callback.call(Ok(()), napi::threadsafe_function::ThreadsafeFunctionCallMode::NonBlocking);
     }
 
     fn processing(&self) {

@@ -80,7 +80,9 @@
         </ng-container>
 
         <!-- WebAuthn -->
-        <ng-container *ngIf="selectedProviderType === providerType.WebAuthn && !pinRequired">
+        <ng-container
+          *ngIf="selectedProviderType === providerType.WebAuthn && !pinRequired && touchRequired"
+        >
           <div class="box last">
             <div class="box-content">
               <div class="box-content-row" appBoxRow>
@@ -89,7 +91,9 @@
             </div>
           </div>
         </ng-container>
-        <ng-container *ngIf="selectedProviderType === providerType.WebAuthn && pinRequired">
+        <ng-container
+          *ngIf="selectedProviderType === providerType.WebAuthn && pinRequired && !touchRequired"
+        >
           <div class="box last">
             <div class="box-content">
               <div class="box-content-row" appBoxRow>
@@ -104,6 +108,15 @@
                   appInputVerbatim
                 />
               </div>
+            </div>
+          </div>
+        </ng-container>
+        <ng-container
+          *ngIf="selectedProviderType === providerType.WebAuthn && !pinRequired && !touchRequired"
+        >
+          <div class="box last">
+            <div class="box-content">
+              <div class="box-content-row" appBoxRow>Processing...</div>
             </div>
           </div>
         </ng-container>

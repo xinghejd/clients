@@ -260,7 +260,7 @@ export class Main {
       this.logService,
     );
 
-    this.webauthnListener = new WebauthnListener(this.logService);
+    this.webauthnListener = new WebauthnListener(this.logService, this.messagingService);
 
     this.nativeMessagingMain = new NativeMessagingMain(
       this.logService,
