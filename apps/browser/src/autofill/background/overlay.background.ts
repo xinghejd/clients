@@ -605,8 +605,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       globalThis.clearTimeout(this.inlineMenuFadeInTimeout);
     }
 
-    const message = { command: "updateInlineMenuIframePosition", styles: { opacity: "1" } };
     this.inlineMenuFadeInTimeout = globalThis.setTimeout(() => {
+      const message = { command: "updateInlineMenuIframePosition", styles: { opacity: "1" } };
       this.inlineMenuButtonPort?.postMessage(message);
       this.inlineMenuListPort?.postMessage(message);
     }, 50);
