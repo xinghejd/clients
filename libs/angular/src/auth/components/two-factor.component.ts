@@ -47,6 +47,7 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
   providerType = TwoFactorProviderType;
   selectedProviderType: TwoFactorProviderType = TwoFactorProviderType.Authenticator;
   webAuthnSupported = false;
+  useIframeWebAuthn = true;
   webAuthn: WebAuthnIFrame = null;
 
   title = "";
@@ -122,7 +123,7 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
     }
 
     if (this.win != null && this.webAuthnSupported) {
-      if (this.platformUtilsService.getClientType() !== ClientType.Desktop) {
+      if (this.useIframeWebAuthn) {
         const env = await firstValueFrom(this.environmentService.environment$);
         const webVaultUrl = env.getWebVaultUrl();
         this.webAuthn = new WebAuthnIFrame(

@@ -63,6 +63,7 @@ const webauthn = {
   authenticate: (challenge: string, origin: string, pin?: string): Promise<string> => {
     return ipcRenderer.invoke("webauthn.authenticate", { challenge, origin, pin });
   },
+  supportsNative: (): Promise<boolean> => ipcRenderer.invoke("webauthn.supports-native"),
 };
 
 const nativeMessaging = {

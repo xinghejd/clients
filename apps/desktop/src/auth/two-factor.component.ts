@@ -119,6 +119,14 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
       });
   }
 
+  async ngOnInit(): Promise<void> {
+    const isNativeWebauthnSupported = await ipc.platform.webauthn.supportsNative();
+    if (isNativeWebauthnSupported) {
+      this.useIframeWebAuthn = false;
+    }
+    await super.ngOnInit();
+  }
+
   async anotherMethod() {
     const [modal, childComponent] = await this.modalService.openViewRef(
       TwoFactorOptionsComponent,

@@ -43,4 +43,5 @@ export namespace clipboards {
 }
 export namespace passkeyclients {
   export function authenticate(challenge: string, origin: string, pin: string | undefined | null, touchRequiredCallback: (err: Error | null, ) => any, noDevicesCallback: (err: Error | null, ) => any): Promise<string>
+  export function supportsNativeWebauthn(): Promise<boolean>
 }

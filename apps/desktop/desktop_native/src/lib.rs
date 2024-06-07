@@ -133,4 +133,11 @@ pub mod passkeyclients {
             .await
             .map_err(|e| napi::Error::from_reason(e.to_string()))
     }
+
+    #[napi]
+    pub async fn supports_native_webauthn() -> napi::Result<bool> {
+        super::passkeyclient::supports_native_webauthn()
+            .await
+            .map_err(|e| napi::Error::from_reason(e.to_string()))
+    }
 }

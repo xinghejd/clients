@@ -38,5 +38,9 @@ export class WebauthnListener {
         }
       }
     });
+
+    ipcMain.handle("webauthn.supports-native", async () => {
+      return await passkeyclients.supportsNativeWebauthn();
+    });
   }
 }

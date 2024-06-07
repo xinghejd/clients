@@ -157,3 +157,7 @@ struct TwoFactorAuthToken {
     response: WebauthnResponseData,
     extensions: WebauthnExtensions,
 }
+
+pub async fn supports_native_webauthn() -> Result<bool, anyhow::Error> {
+    Ok(true)
+}
