@@ -484,12 +484,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     sender: chrome.runtime.MessageSender,
     { forceCloseAutofillInlineMenu, overlayElement }: CloseInlineMenuMessage = {},
   ) {
+    const command = "closeInlineMenu";
+    const sendOptions = { frameId: 0 };
     if (forceCloseAutofillInlineMenu) {
-      void BrowserApi.tabSendMessage(
-        sender.tab,
-        { command: "closeInlineMenu", overlayElement },
-        { frameId: 0 },
-      );
+      void BrowserApi.tabSendMessage(sender.tab, { command, overlayElement }, sendOptions);
       return;
     }
 
@@ -500,20 +498,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     if (this.isFieldCurrentlyFilling) {
       void BrowserApi.tabSendMessage(
         sender.tab,
-        {
-          command: "closeInlineMenu",
-          overlayElement: AutofillOverlayElement.List,
-        },
-        { frameId: 0 },
+        { command, overlayElement: AutofillOverlayElement.List },
+        sendOptions,
       );
       return;
     }
 
-    void BrowserApi.tabSendMessage(
-      sender.tab,
-      { command: "closeInlineMenu", overlayElement },
-      { frameId: 0 },
-    );
+    void BrowserApi.tabSendMessage(sender.tab, { command, overlayElement }, sendOptions);
   }
 
   /**
