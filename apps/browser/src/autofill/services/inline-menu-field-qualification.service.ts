@@ -102,7 +102,7 @@ export class InlineMenuFieldQualificationService
       return true;
     }
 
-    // If the field has a form parent a no username field exists and the field has an
+    // If the field has a form parent and no username field exists and the field has an
     // autocomplete attribute set to "off" or "false", this is not a password field
     return !this.autocompleteDisabledValues.has(field.autoCompleteType);
   }
