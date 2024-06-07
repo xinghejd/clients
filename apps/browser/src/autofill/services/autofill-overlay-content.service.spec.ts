@@ -3,10 +3,11 @@ import { mock } from "jest-mock-extended";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EVENTS, AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
 
+import AutofillInit from "../content/autofill-init";
 import { AutofillOverlayElement, RedirectFocusDirection } from "../enums/autofill-overlay.enum";
 import AutofillField from "../models/autofill-field";
 import { createAutofillFieldMock } from "../spec/autofill-mocks";
-import { flushPromises } from "../spec/testing-utils";
+import { flushPromises, sendMockExtensionMessage } from "../spec/testing-utils";
 import { ElementWithOpId, FormFieldElement } from "../types";
 
 import { AutoFillConstants } from "./autofill-constants";
@@ -15,11 +16,14 @@ import { AutofillOverlayContentService } from "./autofill-overlay-content.servic
 const defaultWindowReadyState = document.readyState;
 const defaultDocumentVisibilityState = document.visibilityState;
 describe("AutofillOverlayContentService", () => {
+  let autofillInit: AutofillInit;
   let autofillOverlayContentService: AutofillOverlayContentService;
   let sendExtensionMessageSpy: jest.SpyInstance;
 
   beforeEach(() => {
     autofillOverlayContentService = new AutofillOverlayContentService();
+    autofillInit = new AutofillInit(autofillOverlayContentService);
+    autofillInit.init();
     sendExtensionMessageSpy = jest
       .spyOn(autofillOverlayContentService as any, "sendExtensionMessage")
       .mockResolvedValue(undefined);
@@ -1310,6 +1314,48 @@ describe("AutofillOverlayContentService", () => {
       expect(autofillOverlayContentService["formFieldElements"].delete).toHaveBeenCalledWith(
         autofillFieldElement,
       );
+    });
+  });
+
+  describe("extension onMessage handlers", () => {
+    describe("openAutofillInlineMenu message handler", () => {
+      it("sends a message to the background to trigger an update in the inline menu's position", async () => {
+        autofillOverlayContentService["mostRecentlyFocusedField"] =
+          mock<ElementWithOpId<FormFieldElement>>();
+
+        sendMockExtensionMessage({
+          command: "openAutofillInlineMenu",
+        });
+
+        expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillInlineMenuPosition", {
+          overlayElement: AutofillOverlayElement.Button,
+        });
+        expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillInlineMenuPosition", {
+          overlayElement: AutofillOverlayElement.List,
+        });
+      });
+    });
+
+    describe("addNewVaultItemFromOverlay message handler", () => {
+      it("sends an extension message with the cipher login details to add to the user's vault", async () => {
+        jest
+          .spyOn(autofillOverlayContentService as any, "isInlineMenuListVisible")
+          .mockResolvedValue(true);
+
+        sendMockExtensionMessage({
+          command: "addNewVaultItemFromOverlay",
+        });
+        await flushPromises();
+
+        expect(sendExtensionMessageSpy).toHaveBeenCalledWith("autofillOverlayAddNewVaultItem", {
+          login: {
+            username: "",
+            password: "",
+            uri: "http://localhost/",
+            hostname: "localhost",
+          },
+        });
+      });
     });
   });
 });
