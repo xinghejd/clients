@@ -1450,5 +1450,31 @@ describe("AutofillOverlayContentService", () => {
         expect(sendResponseSpy).toHaveBeenCalledWith(null);
       });
     });
+
+    describe("getSubFrameOffsetsFromWindowMessage", () => {
+      it("sends a message to the parent to calculate the sub frame positioning", () => {
+        jest.spyOn(globalThis.parent, "postMessage");
+        const subFrameId = 10;
+
+        sendMockExtensionMessage({
+          command: "getSubFrameOffsetsFromWindowMessage",
+          subFrameId,
+        });
+
+        expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
+          {
+            command: "calculateSubFramePositioning",
+            subFrameData: {
+              url: window.location.href,
+              frameId: subFrameId,
+              left: 0,
+              top: 0,
+              parentFrameIds: [],
+            },
+          },
+          "*",
+        );
+      });
+    });
   });
 });
