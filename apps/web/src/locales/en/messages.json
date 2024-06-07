@@ -8355,6 +8355,9 @@
   "verified": {
     "message": "Verified"
   },
+  "viewSecret": {
+    "message": "View secret"
+  },
   "licenseAndBillingManagementDesc": {
     "message": "After making updates in the Bitwarden cloud server, upload your license file to apply the most recent changes."
   }
