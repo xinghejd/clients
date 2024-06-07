@@ -271,7 +271,7 @@ describe("AutofillInit", () => {
         it("removes the overlay when filling the form", async () => {
           const blurAndRemoveOverlaySpy = jest.spyOn(
             autofillInit as any,
-            "blurAndRemoveInlineMenu",
+            "blurFocusedFieldAndRemoveInlineMenu",
           );
           sendMockExtensionMessage({
             command: "fillForm",

@@ -123,7 +123,7 @@ class AutofillInit implements AutofillInitInterface {
       return;
     }
 
-    this.blurAndRemoveInlineMenu();
+    this.blurFocusedFieldAndRemoveInlineMenu();
     await this.sendExtensionMessage("updateIsFieldCurrentlyFilling", {
       isFieldCurrentlyFilling: true,
     });
@@ -143,7 +143,7 @@ class AutofillInit implements AutofillInitInterface {
    * in cases where the background unlock or vault item reprompt popout
    * is opened.
    */
-  private blurAndRemoveInlineMenu() {
+  private blurFocusedFieldAndRemoveInlineMenu() {
     this.autofillOverlayContentService?.blurMostRecentlyFocusedField(true);
   }
 
