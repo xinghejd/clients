@@ -112,7 +112,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     checkAutofillInlineMenuButtonFocused: () => this.checkInlineMenuButtonFocused(),
     autofillInlineMenuBlurred: () => this.checkInlineMenuButtonFocused(),
     unlockVault: ({ port }) => this.unlockVault(port),
-    fillSelectedAutofillInlineMenuListItem: ({ message, port }) =>
+    fillAutofillInlineMenuCipher: ({ message, port }) =>
       this.fillSelectedInlineMenuListItem(message, port),
     addNewVaultItem: ({ port }) => this.getNewVaultItemDetails(port),
     viewSelectedCipher: ({ message, port }) => this.viewSelectedCipher(message, port),

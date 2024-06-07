@@ -140,7 +140,7 @@ describe("AutofillInlineMenuList", () => {
           fillCipherButton.dispatchEvent(new Event("click"));
 
           expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-            { command: "fillSelectedAutofillInlineMenuListItem", inlineMenuCipherId: "1", portKey },
+            { command: "fillAutofillInlineMenuCipher", inlineMenuCipherId: "1", portKey },
             "*",
           );
         });

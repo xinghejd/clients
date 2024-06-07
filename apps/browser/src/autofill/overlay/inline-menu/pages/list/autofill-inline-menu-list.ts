@@ -285,7 +285,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     return this.useEventHandlersMemo(
       () =>
         this.postMessageToParent({
-          command: "fillSelectedAutofillInlineMenuListItem",
+          command: "fillAutofillInlineMenuCipher",
           inlineMenuCipherId: cipher.id,
         }),
       `${cipher.id}-fill-cipher-button-click-handler`,

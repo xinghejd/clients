@@ -1621,14 +1621,14 @@ describe("OverlayBackground", () => {
       });
     });
 
-    describe("fillSelectedAutofillInlineMenuListItem message handler", () => {
+    describe("fillAutofillInlineMenuCipher message handler", () => {
       const pageDetails = createAutofillPageDetailsMock({
         login: { username: "username1", password: "password1" },
       });
 
       it("ignores the fill request if the overlay cipher id is not provided", async () => {
         sendPortMessage(listMessageConnectorSpy, {
-          command: "fillSelectedAutofillInlineMenuListItem",
+          command: "fillAutofillInlineMenuCipher",
           portKey,
         });
         await flushPromises();
@@ -1639,7 +1639,7 @@ describe("OverlayBackground", () => {
 
       it("ignores the fill request if the tab does not contain any identified page details", async () => {
         sendPortMessage(listMessageConnectorSpy, {
-          command: "fillSelectedAutofillInlineMenuListItem",
+          command: "fillAutofillInlineMenuCipher",
           inlineMenuCipherId: "inline-menu-cipher-1",
           portKey,
         });
@@ -1661,7 +1661,7 @@ describe("OverlayBackground", () => {
         autofillService.isPasswordRepromptRequired.mockResolvedValue(true);
 
         sendPortMessage(listMessageConnectorSpy, {
-          command: "fillSelectedAutofillInlineMenuListItem",
+          command: "fillAutofillInlineMenuCipher",
           inlineMenuCipherId: "inline-menu-cipher-1",
           portKey,
         });
@@ -1691,7 +1691,7 @@ describe("OverlayBackground", () => {
         autofillService.isPasswordRepromptRequired.mockResolvedValue(false);
 
         sendPortMessage(listMessageConnectorSpy, {
-          command: "fillSelectedAutofillInlineMenuListItem",
+          command: "fillAutofillInlineMenuCipher",
           inlineMenuCipherId: "inline-menu-cipher-2",
           portKey,
         });
@@ -1730,7 +1730,7 @@ describe("OverlayBackground", () => {
         autofillService.doAutoFill.mockResolvedValue("totp-code");
 
         sendPortMessage(listMessageConnectorSpy, {
-          command: "fillSelectedAutofillInlineMenuListItem",
+          command: "fillAutofillInlineMenuCipher",
           inlineMenuCipherId: "inline-menu-cipher-2",
           portKey,
         });
