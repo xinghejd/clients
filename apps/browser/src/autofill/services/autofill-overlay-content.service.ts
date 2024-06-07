@@ -205,7 +205,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
     if (direction === RedirectFocusDirection.Current) {
       this.focusMostRecentlyFocusedField();
-      setTimeout(() => void this.sendExtensionMessage("closeAutofillInlineMenu"), 100);
+      globalThis.setTimeout(() => void this.sendExtensionMessage("closeAutofillInlineMenu"), 100);
       return;
     }
 
@@ -343,7 +343,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     if (this.mostRecentlyFocusedField && !(await this.isInlineMenuListVisible())) {
       await this.updateMostRecentlyFocusedField(this.mostRecentlyFocusedField);
       this.openAutofillInlineMenu({ isOpeningFullAutofillInlineMenu: true });
-      setTimeout(() => this.sendExtensionMessage("focusAutofillInlineMenuList"), 125);
+      globalThis.setTimeout(() => this.sendExtensionMessage("focusAutofillInlineMenuList"), 125);
       return;
     }
 
@@ -808,7 +808,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     this.rebuildSubFrameOffsets();
     this.toggleAutofillInlineMenuHidden(true);
     this.clearUserInteractionEventTimeout();
-    this.userInteractionEventTimeout = setTimeout(this.triggerOverlayRepositionUpdates, 750);
+    this.userInteractionEventTimeout = globalThis.setTimeout(
+      this.triggerOverlayRepositionUpdates,
+      750,
+    );
   };
 
   /**
@@ -816,7 +819,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   private rebuildSubFrameOffsets() {
     this.clearRecalculateSubFrameOffsetsTimeout();
-    this.recalculateSubFrameOffsetsTimeout = setTimeout(
+    this.recalculateSubFrameOffsetsTimeout = globalThis.setTimeout(
       () => void this.sendExtensionMessage("rebuildSubFrameOffsets"),
       150,
     );
@@ -837,7 +840,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
     await this.updateMostRecentlyFocusedField(this.mostRecentlyFocusedField);
     this.updateAutofillInlineMenuElementsPosition();
-    setTimeout(async () => {
+    globalThis.setTimeout(async () => {
       this.toggleAutofillInlineMenuHidden(false, true);
       if (
         await this.hideAutofillInlineMenuListOnFilledField(
@@ -931,7 +934,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * autofill overlay if the document is not visible.
    */
   private handleVisibilityChangeEvent = () => {
-    if (!this.mostRecentlyFocusedField || document.visibilityState === "visible") {
+    if (!this.mostRecentlyFocusedField || globalThis.document.visibilityState === "visible") {
       return;
     }
 
@@ -968,7 +971,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     const subFrameUrlWithoutTrailingSlash = subFrameUrl?.replace(/\/$/, "");
 
     let iframeElement: HTMLIFrameElement | null = null;
-    const iframeElements = document.querySelectorAll(
+    const iframeElements = globalThis.document.querySelectorAll(
       `iframe[src="${subFrameUrl}"], iframe[src="${subFrameUrlWithoutTrailingSlash}"]`,
     ) as NodeListOf<HTMLIFrameElement>;
     if (iframeElements.length === 1) {
@@ -1052,7 +1055,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private calculateSubFramePositioning = async (event: MessageEvent) => {
     const subFrameData = event.data.subFrameData;
     let subFrameOffsets: SubFrameOffsetData;
-    const iframes = document.querySelectorAll("iframe");
+    const iframes = globalThis.document.querySelectorAll("iframe");
     for (let i = 0; i < iframes.length; i++) {
       if (iframes[i].contentWindow === event.source) {
         const iframeElement = iframes[i];
@@ -1061,11 +1064,14 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
           subFrameData.url,
           subFrameData.frameId,
         );
-        const parentFrameId = await this.sendExtensionMessage("getCurrentTabFrameId");
 
         subFrameData.top += subFrameOffsets.top;
         subFrameData.left += subFrameOffsets.left;
-        subFrameData.parentFrameIds.push(parentFrameId);
+
+        const parentFrameId = await this.sendExtensionMessage("getCurrentTabFrameId");
+        if (typeof parentFrameId !== "undefined") {
+          subFrameData.parentFrameIds.push(parentFrameId);
+        }
 
         break;
       }
@@ -1076,7 +1082,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    void sendExtensionMessage("updateSubFrameData", {
+    void this.sendExtensionMessage("updateSubFrameData", {
       subFrameData,
     });
   };
