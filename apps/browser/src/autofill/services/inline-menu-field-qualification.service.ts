@@ -20,7 +20,7 @@ export class InlineMenuFieldQualificationService
   private useBasicInlineMenuFieldQualificationFlagSet = false;
 
   constructor() {
-    void sendExtensionMessage("getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag").then(
+    void sendExtensionMessage("getUseBasicInlineMenuFieldQualificationFeatureFlag").then(
       (getUseBasicInlineMenuFieldQualificationFlag) =>
         (this.useBasicInlineMenuFieldQualificationFlagSet =
           !!getUseBasicInlineMenuFieldQualificationFlag?.result),

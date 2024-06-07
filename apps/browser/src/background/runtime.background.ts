@@ -69,6 +69,7 @@ export default class RuntimeBackground {
       const messagesWithResponse = [
         "biometricUnlock",
         "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag",
+        "getUseBasicInlineMenuFieldQualificationFeatureFlag",
       ];
 
       if (messagesWithResponse.includes(msg.command)) {
