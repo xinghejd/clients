@@ -34,6 +34,6 @@ export interface AutofillOverlayContentService {
     autofillFieldElement: ElementWithOpId<FormFieldElement>,
     autofillFieldData: AutofillField,
   ): Promise<void>;
-  blurMostRecentlyFocusedField(isRemovingInlineMenu?: boolean): void;
+  blurMostRecentlyFocusedField(isClosingInlineMenu?: boolean): void;
   destroy(): void;
 }

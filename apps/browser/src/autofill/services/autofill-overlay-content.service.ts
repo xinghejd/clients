@@ -157,14 +157,17 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   /**
    * Removes focus from the most recently focused field element.
    */
-  blurMostRecentlyFocusedField(isRemovingInlineMenu: boolean = false) {
+  blurMostRecentlyFocusedField(isClosingInlineMenu: boolean = false) {
     this.mostRecentlyFocusedField?.blur();
 
-    if (isRemovingInlineMenu) {
-      void sendExtensionMessage("closeAutofillInlineMenu");
+    if (isClosingInlineMenu) {
+      void this.sendExtensionMessage("closeAutofillInlineMenu");
     }
   }
 
+  /**
+   * Sets the most recently focused field within the current frame to a `null` value.
+   */
   unsetMostRecentlyFocusedField() {
     this.mostRecentlyFocusedField = null;
   }
@@ -694,6 +697,14 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     return !isLoginCipherField;
   }
 
+  /**
+   * Validates whether a field is considered to be "hidden" based on the field's attributes.
+   * If the field is hidden, a fallback listener will be set up to ensure that the
+   * field will have the inline menu set up on it when it becomes visible.
+   *
+   * @param formFieldElement - The form field element that triggered the focus event.
+   * @param autofillFieldData - Autofill field data captured from the form field element.
+   */
   private isHiddenField(
     formFieldElement: ElementWithOpId<FormFieldElement>,
     autofillFieldData: AutofillField,
@@ -708,6 +719,13 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     return true;
   }
 
+  /**
+   * Sets up a fallback listener that will facilitate setting up the
+   * inline menu on the field when it becomes visible and focused.
+   *
+   * @param formFieldElement - The form field element that triggered the focus event.
+   * @param autofillFieldData - Autofill field data captured from the form field element.
+   */
   private setupHiddenFieldFallbackListener(
     formFieldElement: ElementWithOpId<FormFieldElement>,
     autofillFieldData: AutofillField,
@@ -716,11 +734,23 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     formFieldElement.addEventListener(EVENTS.FOCUS, this.handleHiddenFieldFocusEvent);
   }
 
+  /**
+   * Removes the fallback listener that facilitates setting up the inline
+   *  menu on the field when it becomes visible and focused.
+   *
+   * @param formFieldElement - The form field element that triggered the focus event.
+   */
   private removeHiddenFieldFallbackListener(formFieldElement: ElementWithOpId<FormFieldElement>) {
     formFieldElement.removeEventListener(EVENTS.FOCUS, this.handleHiddenFieldFocusEvent);
     this.hiddenFormFieldElements.delete(formFieldElement);
   }
 
+  /**
+   * Handles the focus event on a hidden field. When
+   * triggered, the inline menu is set up on the field.
+   *
+   * @param event - The focus event.
+   */
   private handleHiddenFieldFocusEvent = (event: FocusEvent) => {
     const formFieldElement = event.target as ElementWithOpId<FormFieldElement>;
     const autofillFieldData = this.hiddenFormFieldElements.get(formFieldElement);
@@ -766,8 +796,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     globalThis.removeEventListener(EVENTS.RESIZE, this.handleOverlayRepositionEvent);
   }
 
-  private overlayRepositionTimeout: number | NodeJS.Timeout;
-
   /**
    * Handles the resize or scroll events that enact
    * repositioning of existing overlay elements.
@@ -783,6 +811,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     this.userInteractionEventTimeout = setTimeout(this.triggerOverlayRepositionUpdates, 750);
   };
 
+  /**
+   * Triggers a rebuild of a sub frame's offsets within the tab.
+   */
   private rebuildSubFrameOffsets() {
     this.clearRecalculateSubFrameOffsetsTimeout();
     this.recalculateSubFrameOffsetsTimeout = setTimeout(
@@ -840,12 +871,19 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
   }
 
+  /**
+   * Clears the timeout that facilitates recalculating the sub frame offsets.
+   */
   private clearRecalculateSubFrameOffsetsTimeout() {
     if (this.recalculateSubFrameOffsetsTimeout) {
       clearTimeout(this.recalculateSubFrameOffsetsTimeout);
     }
   }
 
+  /**
+   * Checks if the focused field is present within the bounds of the viewport.
+   * If not present, the inline menu will be closed.
+   */
   private isFocusedFieldWithinViewportBounds() {
     const focusedFieldRectsTop = this.focusedFieldData?.focusedFieldRects?.top;
     return (
@@ -855,6 +893,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     );
   }
 
+  /**
+   * Returns a value that indicates if we should hide the inline menu list due to a filled field.
+   *
+   * @param formFieldElement - The form field element that triggered the focus event.
+   */
   private async hideAutofillInlineMenuListOnFilledField(
     formFieldElement?: FillableFormFieldElement,
   ): Promise<boolean> {
@@ -864,6 +907,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     );
   }
 
+  /**
+   * Indicates whether the most recently focused field has a value.
+   */
   private mostRecentlyFocusedFieldHasValue() {
     return Boolean((this.mostRecentlyFocusedField as FillableFormFieldElement)?.value);
   }
@@ -889,7 +935,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    this.mostRecentlyFocusedField = null;
+    this.unsetMostRecentlyFocusedField();
     void this.sendExtensionMessage("closeAutofillInlineMenu", {
       forceCloseAutofillInlineMenu: true,
     });
@@ -909,6 +955,12 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     return documentRoot?.activeElement;
   }
 
+  /**
+   * Queries all iframe elements within the document and returns the
+   * sub frame offsets for each iframe element.
+   *
+   * @param message - The message object from the extension.
+   */
   private async getSubFrameOffsets(
     message: AutofillExtensionMessage,
   ): Promise<SubFrameOffsetData | null> {
@@ -930,6 +982,14 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     return this.calculateSubFrameOffsets(iframeElement, subFrameUrl);
   }
 
+  /**
+   * Calculates the bounding rect for the queried frame and returns the
+   * offset data for the sub frame.
+   *
+   * @param iframeElement - The iframe element to calculate the sub frame offsets for.
+   * @param subFrameUrl - The URL of the sub frame.
+   * @param frameId - The frame ID of the sub frame.
+   */
   private calculateSubFrameOffsets(
     iframeElement: HTMLIFrameElement,
     subFrameUrl?: string,
@@ -950,6 +1010,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     };
   }
 
+  /**
+   * Posts a message to the parent frame to calculate the sub frame offset of the current frame.
+   *
+   * @param message - The message object from the extension.
+   */
   private getSubFrameOffsetsFromWindowMessage(message: any) {
     globalThis.parent.postMessage(
       {
@@ -966,14 +1031,24 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     );
   }
 
+  /**
+   * Handles window messages that are sent to the current frame. Will trigger a
+   * calculation of the sub frame offsets through the parent frame.
+   *
+   * @param event - The message event.
+   */
   private handleWindowMessageEvent = (event: MessageEvent) => {
-    if (event.data?.command !== "calculateSubFramePositioning") {
-      return;
+    if (event.data?.command === "calculateSubFramePositioning") {
+      void this.calculateSubFramePositioning(event);
     }
-
-    void this.calculateSubFramePositioning(event);
   };
 
+  /**
+   * Calculates the sub frame positioning for the current frame
+   * through all parent frames until the top frame is reached.
+   *
+   * @param event - The message event.
+   */
   private calculateSubFramePositioning = async (event: MessageEvent) => {
     const subFrameData = event.data.subFrameData;
     let subFrameOffsets: SubFrameOffsetData;
@@ -1006,30 +1081,49 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     });
   };
 
+  /**
+   * Updates the local reference to the inline menu visibility setting.
+   *
+   * @param data - The data object from the extension message.
+   */
   private updateAutofillInlineMenuVisibility({ data }: AutofillExtensionMessage) {
-    if (isNaN(data?.inlineMenuVisibility)) {
-      return;
+    if (!isNaN(data?.inlineMenuVisibility)) {
+      this.inlineMenuVisibility = data.inlineMenuVisibility;
     }
-
-    this.inlineMenuVisibility = data.inlineMenuVisibility;
   }
 
+  /**
+   * Checks if a field is currently filling within an frame in the tab.
+   */
   private async isFieldCurrentlyFilling() {
     return (await this.sendExtensionMessage("checkIsFieldCurrentlyFilling")) === true;
   }
 
+  /**
+   * Checks if the inline menu button is visible at the top frame.
+   */
   private async isInlineMenuButtonVisible() {
     return (await this.sendExtensionMessage("checkIsAutofillInlineMenuButtonVisible")) === true;
   }
 
+  /**
+   * Checks if the inline menu list if visible at the top frame.
+   */
   private async isInlineMenuListVisible() {
     return (await this.sendExtensionMessage("checkIsAutofillInlineMenuListVisible")) === true;
   }
 
+  /**
+   * Checks if the current tab contains ciphers that can be used to populate the inline menu.
+   */
   private async isInlineMenuCiphersPopulated() {
     return (await this.sendExtensionMessage("checkIsInlineMenuCiphersPopulated")) === true;
   }
 
+  /**
+   * Triggers a validation to ensure that the inline menu is repositioned only when the
+   * current frame contains the focused field at any given depth level.
+   */
   private async checkShouldRepositionInlineMenu() {
     return (await this.sendExtensionMessage("checkShouldRepositionInlineMenu")) === true;
   }
