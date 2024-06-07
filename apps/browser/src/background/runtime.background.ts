@@ -186,6 +186,11 @@ export default class RuntimeBackground {
           FeatureFlag.UseTreeWalkerApiForPageDetailsCollection,
         );
       }
+      case "getUseBasicInlineMenuFieldQualificationFeatureFlag": {
+        return await this.configService.getFeatureFlag(
+          FeatureFlag.UseBasicInlineMenuFieldQualification,
+        );
+      }
     }
   }
 

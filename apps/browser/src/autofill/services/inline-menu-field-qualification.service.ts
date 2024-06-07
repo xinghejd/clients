@@ -1,5 +1,6 @@
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
+import { sendExtensionMessage } from "../utils";
 
 import { InlineMenuFieldQualificationsService as InlineMenuFieldQualificationsServiceInterface } from "./abstractions/inline-menu-field-qualifications.service";
 import { AutoFillConstants } from "./autofill-constants";
@@ -16,6 +17,15 @@ export class InlineMenuFieldQualificationService
   private autofillFieldKeywordsMap: WeakMap<AutofillField, string> = new WeakMap();
   private autocompleteDisabledValues = new Set(["off", "false"]);
   private newFieldKeywords = new Set(["new", "change", "neue", "ändern"]);
+  private useBasicInlineMenuFieldQualificationFlagSet = false;
+
+  constructor() {
+    void sendExtensionMessage("getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag").then(
+      (getUseBasicInlineMenuFieldQualificationFlag) =>
+        (this.useBasicInlineMenuFieldQualificationFlagSet =
+          !!getUseBasicInlineMenuFieldQualificationFlag?.result),
+    );
+  }
 
   /**
    * Validates the provided field as a field for a login form.
@@ -24,6 +34,10 @@ export class InlineMenuFieldQualificationService
    * @param pageDetails - The details of the page that the field is on.
    */
   isFieldForLoginForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean {
+    if (this.useBasicInlineMenuFieldQualificationFlagSet) {
+      return this.isFieldForLoginFormFallback(field);
+    }
+
     const isCurrentPasswordField = this.isCurrentPasswordField(field);
     if (isCurrentPasswordField) {
       return this.isPasswordFieldForLoginForm(field, pageDetails);
@@ -391,5 +405,19 @@ export class InlineMenuFieldQualificationService
     this.autofillFieldKeywordsMap.set(autofillFieldData, keywordValues);
 
     return keywordValues;
+  }
+
+  /**
+   * This method represents the previous rudimentary approach to qualifying fields for login forms.
+   *
+   * @param field - The field to validate
+   * @deprecated - This method will only be used when the fallback flag is set to true.
+   */
+  private isFieldForLoginFormFallback(field: AutofillField): boolean {
+    if (field.type === "password") {
+      return true;
+    }
+
+    return this.isUsernameField(field);
   }
 }
