@@ -50,19 +50,19 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private readonly openUnlockPopout = openUnlockPopout;
   private readonly openViewVaultItemPopout = openViewVaultItemPopout;
   private readonly openAddEditVaultItemPopout = openAddEditVaultItemPopout;
-  private inlineMenuCiphers: Map<string, CipherView> = new Map();
   private pageDetailsForTab: PageDetailsForTab = {};
   private subFrameOffsetsForTab: SubFrameOffsetsForTab = {};
-  private updateInlineMenuPositionTimeout: number | NodeJS.Timeout;
-  private inlineMenuFadeInTimeout: number | NodeJS.Timeout;
+  private portKeyForTab: Record<number, string> = {};
+  private expiredPorts: chrome.runtime.Port[] = [];
   private inlineMenuButtonPort: chrome.runtime.Port;
   private inlineMenuListPort: chrome.runtime.Port;
-  private expiredPorts: chrome.runtime.Port[] = [];
-  private portKeyForTab: Record<number, string> = {};
+  private inlineMenuCiphers: Map<string, CipherView> = new Map();
+  private inlineMenuPageTranslations: Record<string, string>;
+  private inlineMenuFadeInTimeout: number | NodeJS.Timeout;
+  private updateInlineMenuPositionTimeout: number | NodeJS.Timeout;
   private focusedFieldData: FocusedFieldData;
   private isFieldCurrentlyFocused: boolean = false;
   private isFieldCurrentlyFilling: boolean = false;
-  private inlineMenuPageTranslations: Record<string, string>;
   private iconsServerUrl: string;
   private readonly extensionMessageHandlers: OverlayBackgroundExtensionMessageHandlers = {
     autofillOverlayElementClosed: ({ message, sender }) =>
