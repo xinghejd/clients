@@ -997,10 +997,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   ): SubFrameOffsetData {
     const iframeRect = iframeElement.getBoundingClientRect();
     const iframeStyles = globalThis.getComputedStyle(iframeElement);
-    const paddingLeft = parseInt(iframeStyles.getPropertyValue("padding-left"));
-    const paddingTop = parseInt(iframeStyles.getPropertyValue("padding-top"));
-    const borderWidthLeft = parseInt(iframeStyles.getPropertyValue("border-left-width"));
-    const borderWidthTop = parseInt(iframeStyles.getPropertyValue("border-top-width"));
+    const paddingLeft = parseInt(iframeStyles.getPropertyValue("padding-left")) || 0;
+    const paddingTop = parseInt(iframeStyles.getPropertyValue("padding-top")) || 0;
+    const borderWidthLeft = parseInt(iframeStyles.getPropertyValue("border-left-width")) || 0;
+    const borderWidthTop = parseInt(iframeStyles.getPropertyValue("border-top-width")) || 0;
 
     return {
       url: subFrameUrl,

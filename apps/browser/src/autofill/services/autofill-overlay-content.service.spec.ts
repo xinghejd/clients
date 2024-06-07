@@ -19,6 +19,7 @@ describe("AutofillOverlayContentService", () => {
   let autofillInit: AutofillInit;
   let autofillOverlayContentService: AutofillOverlayContentService;
   let sendExtensionMessageSpy: jest.SpyInstance;
+  const sendResponseSpy = jest.fn();
 
   beforeEach(() => {
     autofillOverlayContentService = new AutofillOverlayContentService();
@@ -200,9 +201,8 @@ describe("AutofillOverlayContentService", () => {
         expect(autofillFieldElement.addEventListener).not.toHaveBeenCalled();
       });
 
-      // CG - Test is invalid due to the fallback listener we set up for fields that are not visible
-      it.skip("ignores fields that do not appear as a login field", async () => {
-        autofillFieldData.placeholder = "not-a-login-field";
+      it("ignores fields that do not appear as a login field", async () => {
+        autofillFieldData.placeholder = "another-type-of-field";
 
         await autofillOverlayContentService.setupAutofillInlineMenuListenerOnField(
           autofillFieldElement,
@@ -256,8 +256,7 @@ describe("AutofillOverlayContentService", () => {
     });
 
     describe("sets up form field element listeners", () => {
-      // TODO - Seems like we're setting up a focus listener on this when it is in a non-viewable state. This test needs to be updated.
-      it.skip("removes all cached event listeners from the form field element", async () => {
+      it("removes all cached event listeners from the form field element", async () => {
         jest.spyOn(autofillFieldElement, "removeEventListener");
         const inputHandler = jest.fn();
         const clickHandler = jest.fn();
@@ -275,16 +274,21 @@ describe("AutofillOverlayContentService", () => {
 
         expect(autofillFieldElement.removeEventListener).toHaveBeenNthCalledWith(
           1,
+          "focus",
+          expect.any(Function),
+        );
+        expect(autofillFieldElement.removeEventListener).toHaveBeenNthCalledWith(
+          2,
           "input",
           inputHandler,
         );
         expect(autofillFieldElement.removeEventListener).toHaveBeenNthCalledWith(
-          2,
+          3,
           "click",
           clickHandler,
         );
         expect(autofillFieldElement.removeEventListener).toHaveBeenNthCalledWith(
-          3,
+          4,
           "focus",
           focusHandler,
         );
@@ -893,6 +897,11 @@ describe("AutofillOverlayContentService", () => {
   });
 
   describe("handleVisibilityChangeEvent", () => {
+    beforeEach(() => {
+      autofillOverlayContentService["mostRecentlyFocusedField"] =
+        mock<ElementWithOpId<FormFieldElement>>();
+    });
+
     it("skips removing the overlay if the document is visible", () => {
       autofillOverlayContentService["handleVisibilityChangeEvent"]();
 
@@ -901,8 +910,7 @@ describe("AutofillOverlayContentService", () => {
       });
     });
 
-    // TODO CG = This test is failing, not entirely sure why but skipping to verify coverage on other files
-    it.skip("removes the overlay if the document is not visible", () => {
+    it("removes the overlay if the document is not visible", () => {
       Object.defineProperty(document, "visibilityState", {
         value: "hidden",
         writable: true,
@@ -1379,6 +1387,67 @@ describe("AutofillOverlayContentService", () => {
         expect(autofillOverlayContentService["inlineMenuVisibility"]).toEqual(
           AutofillOverlayVisibility.OnButtonClick,
         );
+      });
+    });
+
+    describe("getSubFrameOffsets message handler", () => {
+      const iframeSource = "https://example.com/";
+
+      beforeEach(() => {
+        document.body.innerHTML = `<iframe id="subframe" src="${iframeSource}"></iframe>`;
+      });
+
+      it("calculates the sub frame's offsets if a single frame with the referenced url exists", async () => {
+        sendMockExtensionMessage(
+          {
+            command: "getSubFrameOffsets",
+            subFrameUrl: iframeSource,
+          },
+          mock<chrome.runtime.MessageSender>(),
+          sendResponseSpy,
+        );
+        await flushPromises();
+
+        expect(sendResponseSpy).toHaveBeenCalledWith({
+          frameId: undefined,
+          left: 2,
+          top: 2,
+          url: "https://example.com/",
+        });
+      });
+
+      it("returns null if no iframe is found", async () => {
+        document.body.innerHTML = "";
+        sendMockExtensionMessage(
+          {
+            command: "getSubFrameOffsets",
+            subFrameUrl: "https://example.com/",
+          },
+          mock<chrome.runtime.MessageSender>(),
+          sendResponseSpy,
+        );
+        await flushPromises();
+
+        expect(sendResponseSpy).toHaveBeenCalledWith(null);
+      });
+
+      it("returns null if two or more iframes are found with the same src", async () => {
+        document.body.innerHTML = `
+        <iframe src="${iframeSource}"></iframe>
+        <iframe src="${iframeSource}"></iframe>
+        `;
+
+        sendMockExtensionMessage(
+          {
+            command: "getSubFrameOffsets",
+            subFrameUrl: iframeSource,
+          },
+          mock<chrome.runtime.MessageSender>(),
+          sendResponseSpy,
+        );
+        await flushPromises();
+
+        expect(sendResponseSpy).toHaveBeenCalledWith(null);
       });
     });
   });
