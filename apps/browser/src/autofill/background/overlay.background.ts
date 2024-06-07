@@ -37,7 +37,7 @@ import {
   OverlayBackgroundExtensionMessage,
   OverlayBackgroundExtensionMessageHandlers,
   InlineMenuButtonPortMessageHandlers,
-  OverlayCipherData,
+  InlineMenuCipherData,
   InlineMenuListPortMessageHandlers,
   OverlayPortMessage,
   PageDetailsForTab,
@@ -94,15 +94,15 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     rebuildSubFrameOffsets: ({ sender }) => this.rebuildSubFrameOffsets(sender),
     collectPageDetailsResponse: ({ message, sender }) => this.storePageDetails(message, sender),
     unlockCompleted: ({ message }) => this.unlockCompleted(message),
-    addedCipher: () => this.updateOverlayCiphers(),
-    addEditCipherSubmitted: () => this.updateOverlayCiphers(),
-    editedCipher: () => this.updateOverlayCiphers(),
-    deletedCipher: () => this.updateOverlayCiphers(),
+    addedCipher: () => this.updateInlineMenuCiphers(),
+    addEditCipherSubmitted: () => this.updateInlineMenuCiphers(),
+    editedCipher: () => this.updateInlineMenuCiphers(),
+    deletedCipher: () => this.updateInlineMenuCiphers(),
   };
   private readonly inlineMenuButtonPortMessageHandlers: InlineMenuButtonPortMessageHandlers = {
-    autofillInlineMenuButtonClicked: ({ port }) => this.handleInlineMenuButtonClicked(port),
     triggerDelayedAutofillInlineMenuClosure: ({ port }) =>
       this.triggerDelayedInlineMenuClosure(port.sender),
+    autofillInlineMenuButtonClicked: ({ port }) => this.handleInlineMenuButtonClicked(port),
     autofillInlineMenuBlurred: () => this.checkInlineMenuListFocused(),
     redirectAutofillInlineMenuFocusOut: ({ message, port }) =>
       this.redirectInlineMenuFocusOut(message, port),
@@ -171,7 +171,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Queries all ciphers for the given url, and sorts them by last used. Will not update the
    * list of ciphers if the extension is not unlocked.
    */
-  async updateOverlayCiphers() {
+  async updateInlineMenuCiphers() {
     const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
     if (authStatus !== AuthenticationStatus.Unlocked) {
       return;
@@ -187,10 +187,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       (a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b),
     );
     for (let cipherIndex = 0; cipherIndex < ciphersViews.length; cipherIndex++) {
-      this.inlineMenuCiphers.set(`overlay-cipher-${cipherIndex}`, ciphersViews[cipherIndex]);
+      this.inlineMenuCiphers.set(`inline-menu-cipher-${cipherIndex}`, ciphersViews[cipherIndex]);
     }
 
-    const ciphers = await this.getOverlayCipherData();
+    const ciphers = await this.getInlineMenuCipherData();
     this.inlineMenuListPort?.postMessage({
       command: "updateAutofillInlineMenuListCiphers",
       ciphers,
@@ -201,16 +201,16 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Strips out unnecessary data from the ciphers and returns an array of
    * objects that contain the cipher data needed for the inline menu list.
    */
-  private async getOverlayCipherData(): Promise<OverlayCipherData[]> {
+  private async getInlineMenuCipherData(): Promise<InlineMenuCipherData[]> {
     const showFavicons = await firstValueFrom(this.domainSettingsService.showFavicons$);
-    const overlayCiphersArray = Array.from(this.inlineMenuCiphers);
-    const overlayCipherData: OverlayCipherData[] = [];
+    const inlineMenuCiphersArray = Array.from(this.inlineMenuCiphers);
+    const inlineMenuCipherData: InlineMenuCipherData[] = [];
 
-    for (let cipherIndex = 0; cipherIndex < overlayCiphersArray.length; cipherIndex++) {
-      const [overlayCipherId, cipher] = overlayCiphersArray[cipherIndex];
+    for (let cipherIndex = 0; cipherIndex < inlineMenuCiphersArray.length; cipherIndex++) {
+      const [inlineMenuCipherId, cipher] = inlineMenuCiphersArray[cipherIndex];
 
-      overlayCipherData.push({
-        id: overlayCipherId,
+      inlineMenuCipherData.push({
+        id: inlineMenuCipherId,
         name: cipher.name,
         type: cipher.type,
         reprompt: cipher.reprompt,
@@ -221,7 +221,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       });
     }
 
-    return overlayCipherData;
+    return inlineMenuCipherData;
   }
 
   /**
@@ -414,19 +414,19 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Triggers autofill for the selected cipher in the inline menu list. Also places
    * the selected cipher at the top of the list of ciphers.
    *
-   * @param overlayCipherId - Cipher ID corresponding to the inlineMenuCiphers map. Does not correspond to the actual cipher's ID.
+   * @param inlineMenuCipherId - Cipher ID corresponding to the inlineMenuCiphers map. Does not correspond to the actual cipher's ID.
    * @param sender - The sender of the port message
    */
   private async fillSelectedInlineMenuListItem(
-    { overlayCipherId }: OverlayPortMessage,
+    { inlineMenuCipherId }: OverlayPortMessage,
     { sender }: chrome.runtime.Port,
   ) {
     const pageDetails = this.pageDetailsForTab[sender.tab.id];
-    if (!overlayCipherId || !pageDetails?.size) {
+    if (!inlineMenuCipherId || !pageDetails?.size) {
       return;
     }
 
-    const cipher = this.inlineMenuCiphers.get(overlayCipherId);
+    const cipher = this.inlineMenuCiphers.get(inlineMenuCipherId);
 
     if (await this.autofillService.isPasswordRepromptRequired(cipher, sender.tab)) {
       return;
@@ -443,7 +443,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       this.platformUtilsService.copyToClipboard(totpCode);
     }
 
-    this.inlineMenuCiphers = new Map([[overlayCipherId, cipher], ...this.inlineMenuCiphers]);
+    this.inlineMenuCiphers = new Map([[inlineMenuCipherId, cipher], ...this.inlineMenuCiphers]);
   }
 
   /**
@@ -814,14 +814,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   /**
    * Triggers the opening of a vault item popout window associated
    * with the passed cipher ID.
-   * @param overlayCipherId - Cipher ID corresponding to the inlineMenuCiphers map. Does not correspond to the actual cipher's ID.
+   * @param inlineMenuCipherId - Cipher ID corresponding to the inlineMenuCiphers map. Does not correspond to the actual cipher's ID.
    * @param sender - The sender of the port message
    */
   private async viewSelectedCipher(
-    { overlayCipherId }: OverlayPortMessage,
+    { inlineMenuCipherId }: OverlayPortMessage,
     { sender }: chrome.runtime.Port,
   ) {
-    const cipher = this.inlineMenuCiphers.get(overlayCipherId);
+    const cipher = this.inlineMenuCiphers.get(inlineMenuCipherId);
     if (!cipher) {
       return;
     }
@@ -847,7 +847,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    */
   private async unlockCompleted(message: OverlayBackgroundExtensionMessage) {
     await this.updateInlineMenuButtonAuthStatus();
-    await this.updateOverlayCiphers();
+    await this.updateInlineMenuCiphers();
 
     if (message.data?.commandToRetry?.message?.command === "openAutofillInlineMenu") {
       await this.openInlineMenu(true);
@@ -1159,7 +1159,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       ),
       theme: await firstValueFrom(this.themeStateService.selectedTheme$),
       translations: this.getInlineMenuTranslations(),
-      ciphers: isInlineMenuListPort ? await this.getOverlayCipherData() : null,
+      ciphers: isInlineMenuListPort ? await this.getInlineMenuCipherData() : null,
       portKey: this.portKeyForTab[port.sender.tab.id],
       portName: isInlineMenuListPort
         ? AutofillOverlayPort.ListMessageConnector

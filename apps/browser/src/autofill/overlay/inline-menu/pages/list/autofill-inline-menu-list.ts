@@ -3,7 +3,7 @@ import "lit/polyfill-support.js";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
-import { OverlayCipherData } from "../../../../background/abstractions/overlay.background";
+import { InlineMenuCipherData } from "../../../../background/abstractions/overlay.background";
 import { buildSvgDomElement } from "../../../../utils";
 import { globeIcon, lockIcon, plusIcon, viewCipherIcon } from "../../../../utils/svg-icons";
 import {
@@ -16,7 +16,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
   private inlineMenuListContainer: HTMLDivElement;
   private resizeObserver: ResizeObserver;
   private eventHandlersMemo: { [key: string]: EventListener } = {};
-  private ciphers: OverlayCipherData[] = [];
+  private ciphers: InlineMenuCipherData[] = [];
   private ciphersList: HTMLUListElement;
   private cipherListScrollIsDebounced = false;
   private cipherListScrollDebounceTimeout: number | NodeJS.Timeout;
@@ -122,7 +122,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    *
    * @param ciphers - The ciphers to display in the inline menu list.
    */
-  private updateListItems(ciphers: OverlayCipherData[]) {
+  private updateListItems(ciphers: InlineMenuCipherData[]) {
     this.ciphers = ciphers;
     this.currentCipherIndex = 0;
     if (this.inlineMenuListContainer) {
@@ -231,7 +231,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    *
    * @param cipher - The cipher to build the list item for.
    */
-  private buildInlineMenuListActionsItem(cipher: OverlayCipherData) {
+  private buildInlineMenuListActionsItem(cipher: InlineMenuCipherData) {
     const fillCipherElement = this.buildFillCipherElement(cipher);
     const viewCipherElement = this.buildViewCipherElement(cipher);
 
@@ -253,7 +253,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    *
    * @param cipher - The cipher to build the fill cipher button for.
    */
-  private buildFillCipherElement(cipher: OverlayCipherData) {
+  private buildFillCipherElement(cipher: InlineMenuCipherData) {
     const cipherIcon = this.buildCipherIconElement(cipher);
     const cipherDetailsElement = this.buildCipherDetailsElement(cipher);
 
@@ -281,12 +281,12 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    *
    * @param cipher - The cipher to fill.
    */
-  private handleFillCipherClickEvent = (cipher: OverlayCipherData) => {
+  private handleFillCipherClickEvent = (cipher: InlineMenuCipherData) => {
     return this.useEventHandlersMemo(
       () =>
         this.postMessageToParent({
           command: "fillSelectedAutofillInlineMenuListItem",
-          overlayCipherId: cipher.id,
+          inlineMenuCipherId: cipher.id,
         }),
       `${cipher.id}-fill-cipher-button-click-handler`,
     );
@@ -326,7 +326,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    *
    * @param cipher - The cipher to view.
    */
-  private buildViewCipherElement(cipher: OverlayCipherData) {
+  private buildViewCipherElement(cipher: InlineMenuCipherData) {
     const viewCipherElement = globalThis.document.createElement("button");
     viewCipherElement.tabIndex = -1;
     viewCipherElement.classList.add("view-cipher-button");
@@ -347,9 +347,10 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    *
    * @param cipher - The cipher to view.
    */
-  private handleViewCipherClickEvent = (cipher: OverlayCipherData) => {
+  private handleViewCipherClickEvent = (cipher: InlineMenuCipherData) => {
     return this.useEventHandlersMemo(
-      () => this.postMessageToParent({ command: "viewSelectedCipher", overlayCipherId: cipher.id }),
+      () =>
+        this.postMessageToParent({ command: "viewSelectedCipher", inlineMenuCipherId: cipher.id }),
       `${cipher.id}-view-cipher-button-click-handler`,
     );
   };
@@ -394,7 +395,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    *
    * @param cipher - The cipher to build the icon for.
    */
-  private buildCipherIconElement(cipher: OverlayCipherData) {
+  private buildCipherIconElement(cipher: InlineMenuCipherData) {
     const cipherIcon = globalThis.document.createElement("span");
     cipherIcon.classList.add("cipher-icon");
     cipherIcon.setAttribute("aria-hidden", "true");
@@ -432,7 +433,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    *
    * @param cipher - The cipher to build the details for.
    */
-  private buildCipherDetailsElement(cipher: OverlayCipherData) {
+  private buildCipherDetailsElement(cipher: InlineMenuCipherData) {
     const cipherNameElement = this.buildCipherNameElement(cipher);
     const cipherUserLoginElement = this.buildCipherUserLoginElement(cipher);
 
@@ -453,7 +454,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    *
    * @param cipher - The cipher to build the name element for.
    */
-  private buildCipherNameElement(cipher: OverlayCipherData): HTMLSpanElement | null {
+  private buildCipherNameElement(cipher: InlineMenuCipherData): HTMLSpanElement | null {
     if (!cipher.name) {
       return null;
     }
@@ -471,7 +472,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
    *
    * @param cipher - The cipher to build the username login element for.
    */
-  private buildCipherUserLoginElement(cipher: OverlayCipherData): HTMLSpanElement | null {
+  private buildCipherUserLoginElement(cipher: InlineMenuCipherData): HTMLSpanElement | null {
     if (!cipher.login?.username) {
       return null;
     }

@@ -8,6 +8,6 @@ export type AutofillInlineMenuPageElementWindowMessageHandlers =
 export type AutofillInlineMenuPageElementWindowMessage = {
   [key: string]: any;
   command: string;
-  overlayCipherId?: string;
+  inlineMenuCipherId?: string;
   height?: number;
 };

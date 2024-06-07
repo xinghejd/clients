@@ -140,7 +140,7 @@ describe("AutofillInlineMenuList", () => {
           fillCipherButton.dispatchEvent(new Event("click"));
 
           expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-            { command: "fillSelectedAutofillInlineMenuListItem", overlayCipherId: "1", portKey },
+            { command: "fillSelectedAutofillInlineMenuListItem", inlineMenuCipherId: "1", portKey },
             "*",
           );
         });
@@ -236,7 +236,7 @@ describe("AutofillInlineMenuList", () => {
           viewCipherButton.dispatchEvent(new Event("click"));
 
           expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
-            { command: "viewSelectedCipher", overlayCipherId: "1", portKey },
+            { command: "viewSelectedCipher", inlineMenuCipherId: "1", portKey },
             "*",
           );
         });

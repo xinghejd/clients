@@ -73,10 +73,10 @@ export type OverlayPortMessage = {
   [key: string]: any;
   command: string;
   direction?: string;
-  overlayCipherId?: string;
+  inlineMenuCipherId?: string;
 };
 
-export type OverlayCipherData = {
+export type InlineMenuCipherData = {
   id: string;
   name: string;
   type: CipherType;
@@ -139,8 +139,8 @@ export type PortOnMessageHandlerParams = PortMessageParam & PortConnectionParam;
 
 export type InlineMenuButtonPortMessageHandlers = {
   [key: string]: CallableFunction;
-  autofillInlineMenuButtonClicked: ({ port }: PortConnectionParam) => void;
   triggerDelayedAutofillInlineMenuClosure: ({ port }: PortConnectionParam) => void;
+  autofillInlineMenuButtonClicked: ({ port }: PortConnectionParam) => void;
   autofillInlineMenuBlurred: () => void;
   redirectAutofillInlineMenuFocusOut: ({ message, port }: PortOnMessageHandlerParams) => void;
   updateAutofillInlineMenuColorScheme: () => void;
@@ -161,5 +161,5 @@ export type InlineMenuListPortMessageHandlers = {
 export interface OverlayBackground {
   init(): Promise<void>;
   removePageDetails(tabId: number): void;
-  updateOverlayCiphers(): void;
+  updateInlineMenuCiphers(): void;
 }

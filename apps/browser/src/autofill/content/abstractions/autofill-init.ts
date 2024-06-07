@@ -18,7 +18,6 @@ export type AutofillExtensionMessage = {
   authStatus?: AuthenticationStatus;
   isOpeningFullAutofillInlineMenu?: boolean;
   data?: {
-    isOverlayCiphersPopulated?: boolean;
     direction?: "previous" | "next" | "current";
     forceCloseAutofillInlineMenu?: boolean;
     inlineMenuVisibility?: number;

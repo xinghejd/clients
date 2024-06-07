@@ -512,7 +512,7 @@ describe("OverlayBackground", () => {
     it("skips updating the overlay ciphers if the user's auth status is not unlocked", async () => {
       activeAccountStatusMock$.next(AuthenticationStatus.Locked);
 
-      await overlayBackground.updateOverlayCiphers();
+      await overlayBackground.updateInlineMenuCiphers();
 
       expect(getTabFromCurrentWindowIdSpy).not.toHaveBeenCalled();
       expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
@@ -521,7 +521,7 @@ describe("OverlayBackground", () => {
     it("ignores updating the overlay ciphers if the tab is undefined", async () => {
       getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(undefined);
 
-      await overlayBackground.updateOverlayCiphers();
+      await overlayBackground.updateInlineMenuCiphers();
 
       expect(getTabFromCurrentWindowIdSpy).toHaveBeenCalled();
       expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
@@ -532,26 +532,26 @@ describe("OverlayBackground", () => {
       cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher1, cipher2]);
       cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
 
-      await overlayBackground.updateOverlayCiphers();
+      await overlayBackground.updateInlineMenuCiphers();
 
       expect(BrowserApi.getTabFromCurrentWindowId).toHaveBeenCalled();
       expect(cipherService.getAllDecryptedForUrl).toHaveBeenCalledWith(url);
       expect(cipherService.sortCiphersByLastUsedThenName).toHaveBeenCalled();
       expect(overlayBackground["inlineMenuCiphers"]).toStrictEqual(
         new Map([
-          ["overlay-cipher-0", cipher2],
-          ["overlay-cipher-1", cipher1],
+          ["inline-menu-cipher-0", cipher2],
+          ["inline-menu-cipher-1", cipher1],
         ]),
       );
     });
 
-    it("posts an `updateOverlayListCiphers` message to the overlay list port, and send a `updateIsOverlayCiphersPopulated` message to the tab indicating that the list of ciphers is populated", async () => {
+    it("posts an `updateOverlayListCiphers` message to the overlay list port, and send a `updateAutofillInlineMenuListCiphers` message to the tab indicating that the list of ciphers is populated", async () => {
       overlayBackground["inlineMenuListPort"] = mock<chrome.runtime.Port>();
       cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher1, cipher2]);
       cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
       getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(tab);
 
-      await overlayBackground.updateOverlayCiphers();
+      await overlayBackground.updateInlineMenuCiphers();
 
       expect(overlayBackground["inlineMenuListPort"].postMessage).toHaveBeenCalledWith({
         command: "updateAutofillInlineMenuListCiphers",
@@ -565,7 +565,7 @@ describe("OverlayBackground", () => {
               image: undefined,
               imageEnabled: true,
             },
-            id: "overlay-cipher-0",
+            id: "inline-menu-cipher-0",
             login: null,
             name: "name-2",
             reprompt: cipher2.reprompt,
@@ -580,7 +580,7 @@ describe("OverlayBackground", () => {
               image: "https://icons.bitwarden.com//jest-testing-website.com/icon.png",
               imageEnabled: true,
             },
-            id: "overlay-cipher-1",
+            id: "inline-menu-cipher-1",
             login: {
               username: "username-1",
             },
@@ -705,7 +705,7 @@ describe("OverlayBackground", () => {
 
       it("returns true if the overlay login ciphers are populated", async () => {
         overlayBackground["inlineMenuCiphers"] = new Map([
-          ["overlay-cipher-0", mock<CipherView>()],
+          ["inline-menu-cipher-0", mock<CipherView>()],
         ]);
 
         sendMockExtensionMessage(
@@ -1334,10 +1334,10 @@ describe("OverlayBackground", () => {
     });
 
     describe("unlockCompleted", () => {
-      let updateOverlayCiphersSpy: jest.SpyInstance;
+      let updateInlineMenuCiphersSpy: jest.SpyInstance;
 
       beforeEach(async () => {
-        updateOverlayCiphersSpy = jest.spyOn(overlayBackground, "updateOverlayCiphers");
+        updateInlineMenuCiphersSpy = jest.spyOn(overlayBackground, "updateInlineMenuCiphers");
         await initOverlayElementPorts();
       });
 
@@ -1352,15 +1352,15 @@ describe("OverlayBackground", () => {
       });
 
       it("updates the overlay ciphers", async () => {
-        const updateOverlayCiphersSpy = jest.spyOn(overlayBackground, "updateOverlayCiphers");
+        const updateInlineMenuCiphersSpy = jest.spyOn(overlayBackground, "updateInlineMenuCiphers");
         sendMockExtensionMessage({ command: "unlockCompleted" });
         await flushPromises();
 
-        expect(updateOverlayCiphersSpy).toHaveBeenCalled();
+        expect(updateInlineMenuCiphersSpy).toHaveBeenCalled();
       });
 
       it("opens the inline menu if a retry command is present in the message", async () => {
-        updateOverlayCiphersSpy.mockImplementation();
+        updateInlineMenuCiphersSpy.mockImplementation();
         getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(createChromeTabMock({ id: 1 }));
         sendMockExtensionMessage({
           command: "unlockCompleted",
@@ -1392,13 +1392,13 @@ describe("OverlayBackground", () => {
       ];
 
       beforeEach(() => {
-        jest.spyOn(overlayBackground, "updateOverlayCiphers").mockImplementation();
+        jest.spyOn(overlayBackground, "updateInlineMenuCiphers").mockImplementation();
       });
 
       extensionMessages.forEach((message) => {
         it(`triggers an update of the overlay ciphers when the ${message} message is received`, () => {
           sendMockExtensionMessage({ command: message });
-          expect(overlayBackground.updateOverlayCiphers).toHaveBeenCalled();
+          expect(overlayBackground.updateInlineMenuCiphers).toHaveBeenCalled();
         });
       });
     });
@@ -1640,7 +1640,7 @@ describe("OverlayBackground", () => {
       it("ignores the fill request if the tab does not contain any identified page details", async () => {
         sendPortMessage(listMessageConnectorSpy, {
           command: "fillSelectedAutofillInlineMenuListItem",
-          overlayCipherId: "overlay-cipher-1",
+          inlineMenuCipherId: "inline-menu-cipher-1",
           portKey,
         });
         await flushPromises();
@@ -1654,7 +1654,7 @@ describe("OverlayBackground", () => {
           reprompt: CipherRepromptType.Password,
           type: CipherType.Login,
         });
-        overlayBackground["inlineMenuCiphers"] = new Map([["overlay-cipher-1", cipher]]);
+        overlayBackground["inlineMenuCiphers"] = new Map([["inline-menu-cipher-1", cipher]]);
         overlayBackground["pageDetailsForTab"][sender.tab.id] = new Map([
           [sender.frameId, { frameId: sender.frameId, tab: sender.tab, details: pageDetails }],
         ]);
@@ -1662,7 +1662,7 @@ describe("OverlayBackground", () => {
 
         sendPortMessage(listMessageConnectorSpy, {
           command: "fillSelectedAutofillInlineMenuListItem",
-          overlayCipherId: "overlay-cipher-1",
+          inlineMenuCipherId: "inline-menu-cipher-1",
           portKey,
         });
         await flushPromises();
@@ -1672,13 +1672,13 @@ describe("OverlayBackground", () => {
       });
 
       it("auto-fills the selected cipher and move it to the top of the front of the ciphers map", async () => {
-        const cipher1 = mock<CipherView>({ id: "overlay-cipher-1" });
-        const cipher2 = mock<CipherView>({ id: "overlay-cipher-2" });
-        const cipher3 = mock<CipherView>({ id: "overlay-cipher-3" });
+        const cipher1 = mock<CipherView>({ id: "inline-menu-cipher-1" });
+        const cipher2 = mock<CipherView>({ id: "inline-menu-cipher-2" });
+        const cipher3 = mock<CipherView>({ id: "inline-menu-cipher-3" });
         overlayBackground["inlineMenuCiphers"] = new Map([
-          ["overlay-cipher-1", cipher1],
-          ["overlay-cipher-2", cipher2],
-          ["overlay-cipher-3", cipher3],
+          ["inline-menu-cipher-1", cipher1],
+          ["inline-menu-cipher-2", cipher2],
+          ["inline-menu-cipher-3", cipher3],
         ]);
         const pageDetailsForTab = {
           frameId: sender.frameId,
@@ -1692,7 +1692,7 @@ describe("OverlayBackground", () => {
 
         sendPortMessage(listMessageConnectorSpy, {
           command: "fillSelectedAutofillInlineMenuListItem",
-          overlayCipherId: "overlay-cipher-2",
+          inlineMenuCipherId: "inline-menu-cipher-2",
           portKey,
         });
         await flushPromises();
@@ -1710,16 +1710,16 @@ describe("OverlayBackground", () => {
         });
         expect(overlayBackground["inlineMenuCiphers"].entries()).toStrictEqual(
           new Map([
-            ["overlay-cipher-2", cipher2],
-            ["overlay-cipher-1", cipher1],
-            ["overlay-cipher-3", cipher3],
+            ["inline-menu-cipher-2", cipher2],
+            ["inline-menu-cipher-1", cipher1],
+            ["inline-menu-cipher-3", cipher3],
           ]).entries(),
         );
       });
 
       it("copies the cipher's totp code to the clipboard after filling", async () => {
-        const cipher1 = mock<CipherView>({ id: "overlay-cipher-1" });
-        overlayBackground["inlineMenuCiphers"] = new Map([["overlay-cipher-1", cipher1]]);
+        const cipher1 = mock<CipherView>({ id: "inline-menu-cipher-1" });
+        overlayBackground["inlineMenuCiphers"] = new Map([["inline-menu-cipher-1", cipher1]]);
         overlayBackground["pageDetailsForTab"][sender.tab.id] = new Map([
           [sender.frameId, { frameId: sender.frameId, tab: sender.tab, details: pageDetails }],
         ]);
@@ -1731,7 +1731,7 @@ describe("OverlayBackground", () => {
 
         sendPortMessage(listMessageConnectorSpy, {
           command: "fillSelectedAutofillInlineMenuListItem",
-          overlayCipherId: "overlay-cipher-2",
+          inlineMenuCipherId: "inline-menu-cipher-2",
           portKey,
         });
         await flushPromises();
@@ -1779,12 +1779,12 @@ describe("OverlayBackground", () => {
 
       it("returns early if the passed cipher ID does not match one of the inline menu ciphers", async () => {
         overlayBackground["inlineMenuCiphers"] = new Map([
-          ["overlay-cipher-0", mock<CipherView>({ id: "overlay-cipher-0" })],
+          ["inline-menu-cipher-0", mock<CipherView>({ id: "inline-menu-cipher-0" })],
         ]);
 
         sendPortMessage(listMessageConnectorSpy, {
           command: "viewSelectedCipher",
-          overlayCipherId: "overlay-cipher-1",
+          inlineMenuCipherId: "inline-menu-cipher-1",
           portKey,
         });
         await flushPromises();
@@ -1793,15 +1793,15 @@ describe("OverlayBackground", () => {
       });
 
       it("will open the view vault item popout with the selected cipher", async () => {
-        const cipher = mock<CipherView>({ id: "overlay-cipher-1" });
+        const cipher = mock<CipherView>({ id: "inline-menu-cipher-1" });
         overlayBackground["inlineMenuCiphers"] = new Map([
-          ["overlay-cipher-0", mock<CipherView>({ id: "overlay-cipher-0" })],
-          ["overlay-cipher-1", cipher],
+          ["inline-menu-cipher-0", mock<CipherView>({ id: "inline-menu-cipher-0" })],
+          ["inline-menu-cipher-1", cipher],
         ]);
 
         sendPortMessage(listMessageConnectorSpy, {
           command: "viewSelectedCipher",
-          overlayCipherId: "overlay-cipher-1",
+          inlineMenuCipherId: "inline-menu-cipher-1",
           portKey,
         });
         await flushPromises();

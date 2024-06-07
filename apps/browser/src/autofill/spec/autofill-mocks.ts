@@ -7,7 +7,7 @@ import { CipherType } from "@bitwarden/common/vault/enums";
 import { CipherRepromptType } from "@bitwarden/common/vault/enums/cipher-reprompt-type";
 import { CipherView } from "@bitwarden/common/vault/models/view/cipher.view";
 
-import { OverlayCipherData } from "../background/abstractions/overlay.background";
+import { InlineMenuCipherData } from "../background/abstractions/overlay.background";
 import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
 import AutofillPageDetails from "../models/autofill-page-details";
@@ -177,7 +177,10 @@ function createInitAutofillInlineMenuButtonMessageMock(
     ...customFields,
   };
 }
-function createAutofillOverlayCipherDataMock(index: number, customFields = {}): OverlayCipherData {
+function createAutofillOverlayCipherDataMock(
+  index: number,
+  customFields = {},
+): InlineMenuCipherData {
   return {
     id: String(index),
     name: `website login ${index}`,

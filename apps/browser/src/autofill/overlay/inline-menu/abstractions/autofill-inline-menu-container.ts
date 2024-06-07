@@ -1,6 +1,6 @@
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
-import { OverlayCipherData } from "../../../background/abstractions/overlay.background";
+import { InlineMenuCipherData } from "../../../background/abstractions/overlay.background";
 
 type AutofillInlineMenuMenuContainerMessage = {
   command: string;
@@ -14,7 +14,7 @@ export type InitInlineMenuElementMessage = AutofillInlineMenuMenuContainerMessag
   styleSheetUrl?: string;
   theme?: string;
   translations?: Record<string, string>;
-  ciphers?: OverlayCipherData[];
+  ciphers?: InlineMenuCipherData[];
   portName?: string;
 };
 
