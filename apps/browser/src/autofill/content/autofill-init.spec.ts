@@ -155,6 +155,24 @@ describe("AutofillInit", () => {
         autofillInit.init();
       });
 
+      it("triggers extension message handlers from the AutofillOverlayContentService", () => {
+        autofillOverlayContentService.extensionMessageHandlers.messageHandler = jest.fn();
+
+        sendMockExtensionMessage({ command: "messageHandler" }, sender, sendResponse);
+
+        expect(
+          autofillOverlayContentService.extensionMessageHandlers.messageHandler,
+        ).toHaveBeenCalled();
+      });
+
+      it("triggers extension message handlers from the AutofillInlineMenuContentService", () => {
+        inlineMenuElements.extensionMessageHandlers.messageHandler = jest.fn();
+
+        sendMockExtensionMessage({ command: "messageHandler" }, sender, sendResponse);
+
+        expect(inlineMenuElements.extensionMessageHandlers.messageHandler).toHaveBeenCalled();
+      });
+
       describe("collectPageDetails", () => {
         it("sends the collected page details for autofill using a background script message", async () => {
           const pageDetails: AutofillPageDetails = {
