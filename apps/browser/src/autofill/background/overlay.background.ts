@@ -112,8 +112,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     checkAutofillInlineMenuButtonFocused: () => this.checkInlineMenuButtonFocused(),
     autofillInlineMenuBlurred: () => this.checkInlineMenuButtonFocused(),
     unlockVault: ({ port }) => this.unlockVault(port),
-    fillAutofillInlineMenuCipher: ({ message, port }) =>
-      this.fillSelectedInlineMenuListItem(message, port),
+    fillAutofillInlineMenuCipher: ({ message, port }) => this.fillInlineMenuCipher(message, port),
     addNewVaultItem: ({ port }) => this.getNewVaultItemDetails(port),
     viewSelectedCipher: ({ message, port }) => this.viewSelectedCipher(message, port),
     redirectAutofillInlineMenuFocusOut: ({ message, port }) =>
@@ -417,7 +416,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param inlineMenuCipherId - Cipher ID corresponding to the inlineMenuCiphers map. Does not correspond to the actual cipher's ID.
    * @param sender - The sender of the port message
    */
-  private async fillSelectedInlineMenuListItem(
+  private async fillInlineMenuCipher(
     { inlineMenuCipherId }: OverlayPortMessage,
     { sender }: chrome.runtime.Port,
   ) {
