@@ -120,6 +120,7 @@ describe("AutofillOverlayContentService", () => {
       ) as ElementWithOpId<FormFieldElement>;
       autofillFieldElement.opid = "op-1";
       jest.spyOn(autofillFieldElement, "addEventListener");
+      jest.spyOn(autofillFieldElement, "removeEventListener");
       autofillFieldData = createAutofillFieldMock({
         opid: "username-field",
         form: "validFormId",
@@ -425,6 +426,23 @@ describe("AutofillOverlayContentService", () => {
           expect(autofillOverlayContentService["storeModifiedFormElement"]).not.toHaveBeenCalled();
         });
 
+        it("sets the field as the most recently focused form field element", async () => {
+          autofillOverlayContentService["mostRecentlyFocusedField"] =
+            mock<ElementWithOpId<FormFieldElement>>();
+
+          await autofillOverlayContentService.setupAutofillInlineMenuListenerOnField(
+            autofillFieldElement,
+            autofillFieldData,
+          );
+
+          autofillFieldElement.dispatchEvent(new Event("input"));
+          await flushPromises();
+
+          expect(autofillOverlayContentService["mostRecentlyFocusedField"]).toEqual(
+            autofillFieldElement,
+          );
+        });
+
         it("stores the field as a user filled field if the form field data indicates that it is for a username", async () => {
           await autofillOverlayContentService.setupAutofillInlineMenuListenerOnField(
             autofillFieldElement,
@@ -717,6 +735,70 @@ describe("AutofillOverlayContentService", () => {
           expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillInlineMenuPosition", {
             overlayElement: AutofillOverlayElement.Button,
           });
+        });
+      });
+
+      describe("hidden form field focus event", () => {
+        it("sets up the inline menu listeners if the autofill field data is in the cache", async () => {
+          autofillFieldData.viewable = false;
+          await autofillOverlayContentService.setupAutofillInlineMenuListenerOnField(
+            autofillFieldElement,
+            autofillFieldData,
+          );
+
+          autofillFieldElement.dispatchEvent(new Event("focus"));
+          await flushPromises();
+
+          expect(autofillFieldElement.addEventListener).toHaveBeenCalledWith(
+            EVENTS.BLUR,
+            expect.any(Function),
+          );
+          expect(autofillFieldElement.addEventListener).toHaveBeenCalledWith(
+            EVENTS.KEYUP,
+            expect.any(Function),
+          );
+          expect(autofillFieldElement.addEventListener).toHaveBeenCalledWith(
+            EVENTS.INPUT,
+            expect.any(Function),
+          );
+          expect(autofillFieldElement.addEventListener).toHaveBeenCalledWith(
+            EVENTS.CLICK,
+            expect.any(Function),
+          );
+          expect(autofillFieldElement.addEventListener).toHaveBeenCalledWith(
+            EVENTS.FOCUS,
+            expect.any(Function),
+          );
+          expect(autofillFieldElement.removeEventListener).toHaveBeenCalled();
+        });
+
+        it("skips setting up the inline menu listeners if the autofill field data is not in the cache", async () => {
+          autofillFieldData.viewable = false;
+          await autofillOverlayContentService.setupAutofillInlineMenuListenerOnField(
+            autofillFieldElement,
+            autofillFieldData,
+          );
+          autofillOverlayContentService["formFieldElements"].delete(autofillFieldElement);
+
+          autofillFieldElement.dispatchEvent(new Event("focus"));
+
+          expect(autofillFieldElement.addEventListener).not.toHaveBeenCalledWith(
+            EVENTS.BLUR,
+            expect.any(Function),
+          );
+          expect(autofillFieldElement.addEventListener).not.toHaveBeenCalledWith(
+            EVENTS.KEYUP,
+            expect.any(Function),
+          );
+          expect(autofillFieldElement.addEventListener).not.toHaveBeenCalledWith(
+            EVENTS.INPUT,
+            expect.any(Function),
+          );
+          expect(autofillFieldElement.addEventListener).not.toHaveBeenCalledWith(
+            EVENTS.CLICK,
+            expect.any(Function),
+          );
+          expect(autofillFieldElement.removeEventListener).toHaveBeenCalled();
         });
       });
     });
@@ -1474,6 +1556,25 @@ describe("AutofillOverlayContentService", () => {
           },
           "*",
         );
+      });
+    });
+
+    describe("checkMostRecentlyFocusedFieldHasValue", () => {
+      it("returns true if the most recently focused field has a truthy value", async () => {
+        autofillOverlayContentService["mostRecentlyFocusedField"] = mock<
+          ElementWithOpId<FormFieldElement>
+        >({ value: "test" });
+
+        sendMockExtensionMessage(
+          {
+            command: "checkMostRecentlyFocusedFieldHasValue",
+          },
+          mock<chrome.runtime.MessageSender>(),
+          sendResponseSpy,
+        );
+        await flushPromises();
+
+        expect(sendResponseSpy).toHaveBeenCalledWith(true);
       });
     });
   });
