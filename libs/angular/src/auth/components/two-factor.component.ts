@@ -26,7 +26,6 @@ import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/ide
 import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two-factor-email.request";
 import { TwoFactorProviders } from "@bitwarden/common/auth/services/two-factor.service";
 import { WebAuthnIFrame } from "@bitwarden/common/auth/webauthn-iframe";
-import { ClientType } from "@bitwarden/common/enums";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -49,7 +48,6 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
   webAuthnSupported = false;
   useIframeWebAuthn = true;
   webAuthn: WebAuthnIFrame = null;
-
   title = "";
   twoFactorEmail: string = null;
   formPromise: Promise<any>;
@@ -249,7 +247,7 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
     if (this.selectedProviderType === TwoFactorProviderType.WebAuthn) {
       if (this.webAuthn != null) {
         this.webAuthn.stop();
-      } else if ((await this.platformUtilsService.getClientType()) !== ClientType.Desktop) {
+      } else if (this.useIframeWebAuthn) {
         return;
       }
     } else if (

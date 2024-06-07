@@ -155,7 +155,7 @@ export class TwoFactorComponent extends BaseTwoFactorComponent {
   }
 
   async submit() {
-    if (this.selectedProviderType === TwoFactorProviderType.WebAuthn) {
+    if (this.selectedProviderType === TwoFactorProviderType.WebAuthn && !this.useIframeWebAuthn) {
       await this.authWebAuthn();
     } else {
       await this.submit_final();
