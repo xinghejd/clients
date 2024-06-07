@@ -2592,7 +2592,21 @@ describe("CollectAutofillContentService", () => {
       expect(setupAutofillOverlayListenerOnFieldSpy).not.toHaveBeenCalled();
     });
 
-    it("sets up the overlay listeners on a viewable field", async () => {
+    it("skips setting up the inline menu listeners if the observed form field is not present in the cache", async () => {
+      const formFieldElement = document.createElement("input") as ElementWithOpId<FormFieldElement>;
+      const entries = [
+        { target: formFieldElement, isIntersecting: true },
+      ] as unknown as IntersectionObserverEntry[];
+      isFormFieldViewableSpy.mockReturnValueOnce(true);
+      collectAutofillContentService["intersectionObserver"] = mockIntersectionObserver;
+
+      await collectAutofillContentService["handleFormElementIntersection"](entries);
+
+      expect(isFormFieldViewableSpy).not.toHaveBeenCalled();
+      expect(setupAutofillOverlayListenerOnFieldSpy).not.toHaveBeenCalled();
+    });
+
+    it("sets up the inline menu listeners on a viewable field", async () => {
       const formFieldElement = document.createElement("input") as ElementWithOpId<FormFieldElement>;
       const autofillField = mock<AutofillField>();
       const entries = [
@@ -2608,6 +2622,22 @@ describe("CollectAutofillContentService", () => {
       expect(setupAutofillOverlayListenerOnFieldSpy).toHaveBeenCalledWith(
         formFieldElement,
         autofillField,
+      );
+    });
+  });
+
+  describe("destroy", () => {
+    it("clears the updateAutofillElementsAfterMutationTimeout", () => {
+      jest.spyOn(window, "clearTimeout");
+      collectAutofillContentService["updateAutofillElementsAfterMutationTimeout"] = setTimeout(
+        jest.fn,
+        100,
+      );
+
+      collectAutofillContentService.destroy();
+
+      expect(clearTimeout).toHaveBeenCalledWith(
+        collectAutofillContentService["updateAutofillElementsAfterMutationTimeout"],
       );
     });
   });
