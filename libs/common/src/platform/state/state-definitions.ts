@@ -102,6 +102,7 @@ export const APPLICATION_ID_DISK = new StateDefinition("applicationId", "disk", 
   web: "disk-local",
 });
 export const BIOMETRIC_SETTINGS_DISK = new StateDefinition("biometricSettings", "disk");
+export const DIRTY_FORM_MEMORY = new StateDefinition("dirtyForm", "memory");
 export const CLEAR_EVENT_DISK = new StateDefinition("clearEvent", "disk");
 export const CONFIG_DISK = new StateDefinition("config", "disk", {
   web: "disk-local",

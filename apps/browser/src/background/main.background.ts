@@ -221,6 +221,7 @@ import BrowserLocalStorageService from "../platform/services/browser-local-stora
 import BrowserMemoryStorageService from "../platform/services/browser-memory-storage.service";
 import { BrowserScriptInjectorService } from "../platform/services/browser-script-injector.service";
 import { DefaultBrowserStateService } from "../platform/services/default-browser-state.service";
+import { DirtyFormStateService } from "../platform/services/dirty-form-state.service";
 import I18nService from "../platform/services/i18n.service";
 import { LocalBackedSessionStorageService } from "../platform/services/local-backed-session-storage.service";
 import { BackgroundPlatformUtilsService } from "../platform/services/platform-utils/background-platform-utils.service";
@@ -357,6 +358,8 @@ export default class MainBackground {
   private syncTimeout: any;
   private isSafari: boolean;
   private nativeMessagingBackground: NativeMessagingBackground;
+
+  private dirtyFormBackgroundService: DirtyFormStateService;
 
   constructor(public popupOnlyContext: boolean = false) {
     // Services
@@ -533,6 +536,11 @@ export default class MainBackground {
       this.logService,
       logoutCallback,
     );
+
+    this.dirtyFormBackgroundService = new DirtyFormStateService(
+      messageListener,
+      this.activeUserStateProvider
+    )
 
     const migrationRunner = new MigrationRunner(
       this.storageService,
@@ -1170,6 +1178,8 @@ export default class MainBackground {
 
     await (this.i18nService as I18nService).init();
     (this.eventUploadService as EventUploadService).init(true);
+
+    this.dirtyFormBackgroundService.init();
 
     if (this.popupOnlyContext) {
       return;
