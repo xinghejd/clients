@@ -13,10 +13,10 @@ import { ConfigService } from "@bitwarden/common/platform/abstractions/config/co
 import {
   GlobalStateProvider,
   KeyDefinition,
-  POPUP_HISTORY_MEMORY,
+  POPUP_VIEW_MEMORY,
 } from "@bitwarden/common/platform/state";
 
-const POPUP_HISTORY_KEY = new KeyDefinition<string[]>(POPUP_HISTORY_MEMORY, "history", {
+const POPUP_HISTORY_KEY = new KeyDefinition<string[]>(POPUP_VIEW_MEMORY, "route-history", {
   deserializer: (obj) => obj,
 });
 
@@ -25,7 +25,7 @@ const POPUP_HISTORY_KEY = new KeyDefinition<string[]>(POPUP_HISTORY_MEMORY, "his
 })
 export class PopupHistoryService {
   private router = inject(Router);
-  private history = inject(GlobalStateProvider).get(POPUP_HISTORY_KEY);
+  private state = inject(GlobalStateProvider).get(POPUP_HISTORY_KEY);
 
   constructor() {
     this.router.events
@@ -47,7 +47,7 @@ export class PopupHistoryService {
   }
 
   async getHistory(): Promise<string[]> {
-    return firstValueFrom(this.history.state$);
+    return firstValueFrom(this.state.state$);
   }
 
   /** Get the last item in the history stack */
@@ -66,7 +66,7 @@ export class PopupHistoryService {
     if (url === (await this.last())) {
       return false;
     }
-    await this.history.update((prevState) => (prevState === null ? [url] : prevState.concat(url)));
+    await this.state.update((prevState) => (prevState === null ? [url] : prevState.concat(url)));
     return true;
   }
 
@@ -79,7 +79,7 @@ export class PopupHistoryService {
       return false;
     }
 
-    await this.history.update((prevState) => {
+    await this.state.update((prevState) => {
       return prevState.slice(0, -1);
     });
 

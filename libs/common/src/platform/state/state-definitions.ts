@@ -102,7 +102,6 @@ export const APPLICATION_ID_DISK = new StateDefinition("applicationId", "disk", 
   web: "disk-local",
 });
 export const BIOMETRIC_SETTINGS_DISK = new StateDefinition("biometricSettings", "disk");
-export const DIRTY_FORM_MEMORY = new StateDefinition("dirtyForm", "memory");
 export const CLEAR_EVENT_DISK = new StateDefinition("clearEvent", "disk");
 export const CONFIG_DISK = new StateDefinition("config", "disk", {
   web: "disk-local",
@@ -112,7 +111,7 @@ export const CRYPTO_MEMORY = new StateDefinition("crypto", "memory");
 export const DESKTOP_SETTINGS_DISK = new StateDefinition("desktopSettings", "disk");
 export const ENVIRONMENT_DISK = new StateDefinition("environment", "disk");
 export const ENVIRONMENT_MEMORY = new StateDefinition("environment", "memory");
-export const POPUP_HISTORY_MEMORY = new StateDefinition("popupHistory", "memory");
+export const POPUP_VIEW_MEMORY = new StateDefinition("popupView", "memory");
 export const THEMING_DISK = new StateDefinition("theming", "disk", { web: "disk-local" });
 export const TRANSLATION_DISK = new StateDefinition("translation", "disk");
 

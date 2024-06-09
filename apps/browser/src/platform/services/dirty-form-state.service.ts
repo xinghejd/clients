@@ -1,8 +1,8 @@
-import { switchMap, firstValueFrom, Subject, delay, merge, tap } from "rxjs";
+import { switchMap, firstValueFrom, Subject, delay } from "rxjs";
 
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
 import {
-  DIRTY_FORM_MEMORY,
+  POPUP_VIEW_MEMORY,
   ActiveUserStateProvider,
   UserKeyDefinition,
 } from "@bitwarden/common/platform/state";
@@ -13,27 +13,25 @@ type DirtyFormState = {
 };
 
 export class DirtyFormStateService {
-  private static readonly KEY_DEF = UserKeyDefinition.record(DIRTY_FORM_MEMORY, "dirty-form-record", {
-    deserializer: (jsonValue) => jsonValue,
-    clearOn: ["lock", "logout"],
-  });
+  private static readonly KEY_DEF = UserKeyDefinition.record(
+    POPUP_VIEW_MEMORY,
+    "dirty-form-record",
+    {
+      deserializer: (jsonValue) => jsonValue,
+      clearOn: ["lock", "logout"],
+    },
+  );
 
   static readonly COMMANDS = {
-    SAVE: new CommandDefinition<DirtyFormState>(
-        "dirtyForm_saveState",
-    ),
-    CLEAR: new CommandDefinition<DirtyFormState>(
-        "dirtyForm_clearState",
-    ),
+    SAVE: new CommandDefinition<DirtyFormState>("dirtyForm_saveState"),
+    CLEAR: new CommandDefinition<DirtyFormState>("dirtyForm_clearState"),
   } as const;
 
   private readonly state = this.activeUserStateProvider.get(DirtyFormStateService.KEY_DEF);
 
   /** Clear state after 2min */
   private clearTimerSub = new Subject<void>();
-  private clearTimer$ = this.clearTimerSub.pipe(
-    delay(120000)
-  );
+  private clearTimer$ = this.clearTimerSub.pipe(delay(120000));
 
   constructor(
     private messageListener: MessageListener,
