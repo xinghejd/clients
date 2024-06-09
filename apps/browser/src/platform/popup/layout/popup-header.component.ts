@@ -1,9 +1,11 @@
 import { BooleanInput, coerceBooleanProperty } from "@angular/cdk/coercion";
-import { CommonModule, Location } from "@angular/common";
-import { Component, Input } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { Component, Input, inject } from "@angular/core";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { IconButtonModule, TypographyModule } from "@bitwarden/components";
+
+import { PopupHistoryService } from "../services/popup-history.service";
 
 @Component({
   selector: "popup-header",
@@ -12,6 +14,8 @@ import { IconButtonModule, TypographyModule } from "@bitwarden/components";
   imports: [TypographyModule, CommonModule, IconButtonModule, JslibModule],
 })
 export class PopupHeaderComponent {
+  private popupHistoryService = inject(PopupHistoryService);
+
   /** Display the back button, which uses Location.back() to go back one page in history */
   @Input()
   get showBackButton() {
@@ -26,9 +30,7 @@ export class PopupHeaderComponent {
   /** Title string that will be inserted as an h1 */
   @Input({ required: true }) pageTitle: string;
 
-  constructor(private location: Location) {}
-
-  back() {
-    this.location.back();
+  async back() {
+    return this.popupHistoryService.back();
   }
 }
