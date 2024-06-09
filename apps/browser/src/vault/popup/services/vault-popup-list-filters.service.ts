@@ -29,6 +29,8 @@ import { FolderView } from "@bitwarden/common/vault/models/view/folder.view";
 import { ServiceUtils } from "@bitwarden/common/vault/service-utils";
 import { ChipSelectOption } from "@bitwarden/components";
 
+import { DirtyFormService } from "../../../platform/popup/services/dirty-form.service";
+
 /** All available cipher filters */
 export type PopupListFilter = {
   organization: Organization | null;
@@ -88,7 +90,10 @@ export class VaultPopupListFiltersService {
     private i18nService: I18nService,
     private collectionService: CollectionService,
     private formBuilder: FormBuilder,
+    private dirtyFormService: DirtyFormService,
   ) {
+    void this.dirtyFormService.register(this.filterForm, { key: "vault-list-filters-form" });
+
     this.filterForm.controls.organization.valueChanges
       .pipe(takeUntilDestroyed())
       .subscribe(this.validateOrganizationChange.bind(this));

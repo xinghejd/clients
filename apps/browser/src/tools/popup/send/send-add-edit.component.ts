@@ -1,5 +1,5 @@
 import { DatePipe, Location } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, inject } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { first } from "rxjs/operators";
@@ -18,6 +18,7 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service.
 import { DialogService } from "@bitwarden/components";
 
 import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
+import { DirtyFormService } from "../../../platform/popup/services/dirty-form.service";
 import { BrowserStateService } from "../../../platform/services/abstractions/browser-state.service";
 import { FilePopoutUtilsService } from "../services/file-popout-utils.service";
 
@@ -27,6 +28,8 @@ import { FilePopoutUtilsService } from "../services/file-popout-utils.service";
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class SendAddEditComponent extends BaseAddEditComponent {
+  protected dirtyFormService = inject(DirtyFormService);
+
   // Options header
   showOptions = false;
   // File visibility
@@ -96,6 +99,8 @@ export class SendAddEditComponent extends BaseAddEditComponent {
       }
       await super.ngOnInit();
     });
+
+    await this.dirtyFormService.register(this.formGroup, { key: "browser-send-add-edit" });
 
     window.setTimeout(() => {
       if (!this.editMode) {
