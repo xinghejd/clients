@@ -8,6 +8,8 @@ import {
 } from "@angular/router";
 import { filter, firstValueFrom } from "rxjs";
 
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import {
   GlobalStateProvider,
   KeyDefinition,
@@ -89,8 +91,13 @@ export class PopupHistoryService {
 /** Redirect to the last visited route. Should be applied to root route. */
 export const resumePopupGuard = (): CanActivateFn => {
   return async () => {
+    const configService = inject(ConfigService);
     const popupHistoryService = inject(PopupHistoryService);
     const urlSerializer = inject(UrlSerializer);
+
+    if (!(await configService.getFeatureFlag(FeatureFlag.ExtensionRefresh))) {
+      return true;
+    }
 
     const url = await popupHistoryService.last();
 
