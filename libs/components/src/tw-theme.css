@@ -1,13 +1,5 @@
 @import "./reset.css";
 
-/** 
-  Note that the value of the *-600 colors is currently equivalent to the value 
-  of the *-500 variant of that color. This is a temporary change to make BW-42
-  updates easier. 
-
-  TODO remove comment when the color palette portion of BW-42 is completed.
-*/
-
 :root {
   --color-transparent-hover: rgb(0 0 0 / 0.03);
 
@@ -20,7 +12,7 @@
   --color-primary-100: 200 217 249;
   --color-primary-300: 107 154 240;
   --color-primary-500: 23 93 220;
-  --color-primary-600: 18 74 175;
+  --color-primary-600: 20 82 193;
   --color-primary-700: 14 55 129;
 
   --color-secondary-100: 230 233 239;
@@ -29,15 +21,19 @@
   --color-secondary-600: 83 99 131;
   --color-secondary-700: 63 75 99;
 
+  --color-info-100: 182 244 247;
   --color-info-600: 16 148 157;
   --color-info-700: 12 105 111;
 
+  --color-warning-100: 255 229 190;
   --color-warning-600: 214 129 0;
   --color-warning-700: 138 82 0;
 
+  --color-danger-100: 255 226 229;
   --color-danger-600: 184 0 23;
   --color-danger-700: 133 0 17;
 
+  --color-success-100: 186 248 192;
   --color-success-600: 12 130 24;
   --color-success-700: 8 84 15;
 
@@ -76,15 +72,19 @@
   --color-secondary-600: 143 152 166;
   --color-secondary-700: 158 167 181;
 
+  --color-success-100: 7 64 13;
   --color-success-600: 107 241 120;
   --color-success-700: 152 245 161;
 
+  --color-danger-100: 82 0 10;
   --color-danger-600: 255 82 103;
   --color-danger-700: 255 133 148;
 
+  --color-warning-100: 87 52 0;
   --color-warning-600: 255 187 87;
   --color-warning-700: 255 207 138;
 
+  --color-info-100: 7 61 65;
   --color-info-600: 89 228 238;
   --color-info-700: 135 236 242;
 

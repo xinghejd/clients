@@ -38,18 +38,22 @@ module.exports = {
         700: rgba("--color-secondary-700"),
       },
       success: {
+        100: rgba("--color-success-100"),
         600: rgba("--color-success-600"),
         700: rgba("--color-success-700"),
       },
       danger: {
+        100: rgba("--color-danger-100"),
         600: rgba("--color-danger-600"),
         700: rgba("--color-danger-700"),
       },
       warning: {
+        100: rgba("--color-warning-100"),
         600: rgba("--color-warning-600"),
         700: rgba("--color-warning-700"),
       },
       info: {
+        100: rgba("--color-info-100"),
         600: rgba("--color-info-600"),
         700: rgba("--color-info-700"),
       },
