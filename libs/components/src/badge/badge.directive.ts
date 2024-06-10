@@ -42,10 +42,10 @@ export class BadgeDirective implements FocusableElement {
       "tw-whitespace-nowrap",
       "tw-text-xs",
       "hover:tw-no-underline",
-      "focus:tw-outline-none",
-      "focus:tw-ring",
-      "focus:tw-ring-offset-2",
-      "focus:tw-ring-primary-700",
+      "focus-visible:tw-outline-none",
+      "focus-visible:tw-ring",
+      "focus-visible:tw-ring-offset-2",
+      "focus-visible:tw-ring-primary-700",
     ]
       .concat(styles[this.variant])
       .concat(this.hasHoverEffects ? hoverStyles[this.variant] : [])
