@@ -114,10 +114,4 @@ apps/web/src/locales/en/messages.json
 .github/workflows/release-desktop.yml @bitwarden/dept-bre
 .github/workflows/release-cli.yml @bitwarden/dept-bre
 .github/workflows/release-browser.yml @bitwarden/dept-bre
-
-# BRE for release workflow changes
-.github/workflows/release-desktop-beta.yml @bitwarden/dept-bre
-.github/workflows/release-web.yml @bitwarden/dept-bre
-.github/workflows/release-desktop.yml @bitwarden/dept-bre
-.github/workflows/release-cli.yml @bitwarden/dept-bre
-.github/workflows/release-browser.yml @bitwarden/dept-bre
+.github/workflows/staged-rollout-desktop.yml @bitwarden/dept-bre
