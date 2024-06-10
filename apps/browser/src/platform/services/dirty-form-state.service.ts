@@ -1,10 +1,10 @@
-import { switchMap, firstValueFrom, Subject, delay } from "rxjs";
+import { switchMap, firstValueFrom } from "rxjs";
 
 import { CommandDefinition, MessageListener } from "@bitwarden/common/platform/messaging";
 import {
   POPUP_VIEW_MEMORY,
-  ActiveUserStateProvider,
-  UserKeyDefinition,
+  KeyDefinition,
+  GlobalStateProvider,
 } from "@bitwarden/common/platform/state";
 
 type DirtyFormState = {
@@ -12,39 +12,49 @@ type DirtyFormState = {
   value: string;
 };
 
+/**
+ * When to save state:
+ * - when a form is made dirty
+ *
+ * When to clear all state:
+ * - 2min after the popup window closes
+ * - lock
+ * - logout
+ * - when a form is made pristine?
+ */
+
 export class DirtyFormStateService {
-  private static readonly KEY_DEF = UserKeyDefinition.record(
-    POPUP_VIEW_MEMORY,
-    "dirty-form-record",
-    {
-      deserializer: (jsonValue) => jsonValue,
-      clearOn: ["lock", "logout"],
-    },
-  );
+  /** We cannot use `UserKeyDefinition` because we must be able to store state when there is no active user. */
+  private static readonly KEY_DEF = KeyDefinition.record(POPUP_VIEW_MEMORY, "dirty-form-record", {
+    deserializer: (jsonValue) => jsonValue,
+  });
 
   static readonly COMMANDS = {
-    SAVE: new CommandDefinition<DirtyFormState>("dirtyForm_saveState"),
-    CLEAR: new CommandDefinition<DirtyFormState>("dirtyForm_clearState"),
+    UPDATE: new CommandDefinition<DirtyFormState>("dirtyForm_saveState"),
+    CLEAR_ALL: new CommandDefinition("dirtyForm_clearState"),
   } as const;
 
-  private readonly state = this.activeUserStateProvider.get(DirtyFormStateService.KEY_DEF);
-
-  /** Clear state after 2min */
-  private clearTimerSub = new Subject<void>();
-  private clearTimer$ = this.clearTimerSub.pipe(delay(120000));
+  // TODO clear on
+  private readonly dirtyFormState = this.globalStateProvider.get(DirtyFormStateService.KEY_DEF);
 
   constructor(
     private messageListener: MessageListener,
-
-    // would it be fine to instead use global state and just clear on lock/logout?
-    private activeUserStateProvider: ActiveUserStateProvider,
+    private globalStateProvider: GlobalStateProvider,
   ) {}
 
   /** Initialize MessageListeners */
   init() {
     this.messageListener
-      .messages$(DirtyFormStateService.COMMANDS.SAVE)
-      .pipe(switchMap(async (command) => this.updateState(command)))
+      .messages$(DirtyFormStateService.COMMANDS.UPDATE)
+      .pipe(switchMap(async (command) => this.updateDirtyFormStateByKey(command)))
+      .subscribe();
+
+    this.messageListener
+      .messages$(DirtyFormStateService.COMMANDS.CLEAR_ALL)
+      .pipe
+      // tap(() => bg.conso),
+      // switchMap(async () => this.clearAll())
+      ()
       .subscribe();
 
     // merge([
@@ -56,25 +66,24 @@ export class DirtyFormStateService {
     // ).subscribe();
   }
 
+  async clearAll() {
+    await this.dirtyFormState.update(() => ({}));
+  }
+
   /** Update state and set a timer to erase said state */
-  private async updateState({ key, value }: DirtyFormState) {
-    await this.state.update((state) => ({ ...state, [key]: value }));
-    this.clearTimerSub.next();
+  private async updateDirtyFormStateByKey({ key, value }: DirtyFormState) {
+    await this.dirtyFormState.update((state) => ({ ...state, [key]: value }));
   }
 
-  private async clearAll() {
-    await this.state.update(() => ({}));
-  }
+  // static hasDirtyFormState = (
+  //   globalStateProvider: GlobalStateProvider,
+  // ): Promise<boolean> => {
+  //   const state = globalStateProvider.get(DirtyFormStateService.KEY_DEF);
+  //   return firstValueFrom(state.state$).then((state) => state != null);
+  // };
 
-  static hasDirtyFormState = (
-    activeUserStateProvider: ActiveUserStateProvider,
-  ): Promise<boolean> => {
-    const state = activeUserStateProvider.get(DirtyFormStateService.KEY_DEF);
-    return firstValueFrom(state.state$).then((state) => state != null);
-  };
-
-  static getDirtyFormState = (key: string, activeUserStateProvider: ActiveUserStateProvider) => {
-    const state = activeUserStateProvider.get(DirtyFormStateService.KEY_DEF);
+  static getDirtyFormStateByKey = (key: string, globalStateProvider: GlobalStateProvider) => {
+    const state = globalStateProvider.get(DirtyFormStateService.KEY_DEF);
     return firstValueFrom(state.state$).then((state) => state?.[key]);
   };
 }

@@ -20,6 +20,7 @@ const POPUP_HISTORY_KEY = new KeyDefinition<string[]>(POPUP_VIEW_MEMORY, "route-
   deserializer: (obj) => obj,
 });
 
+// TODO: look into 2fa auth persitence, deeplinkguard
 @Injectable({
   providedIn: "root",
 })
@@ -79,12 +80,11 @@ export class PopupHistoryService {
       return false;
     }
 
-    await this.state.update((prevState) => {
+    const newState = await this.state.update((prevState) => {
       return prevState.slice(0, -1);
     });
 
-    const url = await this.last();
-    return this.router.navigateByUrl(url);
+    return this.router.navigateByUrl(newState[newState.length - 1]);
   }
 }
 

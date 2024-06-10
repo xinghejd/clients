@@ -359,7 +359,7 @@ export default class MainBackground {
   private isSafari: boolean;
   private nativeMessagingBackground: NativeMessagingBackground;
 
-  private dirtyFormBackgroundService: DirtyFormStateService;
+  private dirtyFormStateService: DirtyFormStateService;
 
   constructor(public popupOnlyContext: boolean = false) {
     // Services
@@ -375,6 +375,8 @@ export default class MainBackground {
         await this.systemService.clearPendingClipboard();
         await this.systemService.startProcessReload(this.authService);
       }
+
+      await this.dirtyFormStateService.clearAll();
     };
 
     const logoutCallback = async (logoutReason: LogoutReason, userId?: UserId) =>
@@ -537,10 +539,10 @@ export default class MainBackground {
       logoutCallback,
     );
 
-    this.dirtyFormBackgroundService = new DirtyFormStateService(
+    this.dirtyFormStateService = new DirtyFormStateService(
       messageListener,
-      this.activeUserStateProvider
-    )
+      this.activeUserStateProvider,
+    );
 
     const migrationRunner = new MigrationRunner(
       this.storageService,
@@ -1179,7 +1181,7 @@ export default class MainBackground {
     await (this.i18nService as I18nService).init();
     (this.eventUploadService as EventUploadService).init(true);
 
-    this.dirtyFormBackgroundService.init();
+    this.dirtyFormStateService.init();
 
     if (this.popupOnlyContext) {
       return;
@@ -1243,8 +1245,11 @@ export default class MainBackground {
       const currentlyActiveAccount = await firstValueFrom(
         this.accountService.activeAccount$.pipe(map((account) => account?.id)),
       );
-      // can be removed once password generation history is migrated to state providers
-      await this.stateService.clearDecryptedData(currentlyActiveAccount);
+      await Promise.all([
+        this.dirtyFormStateService.clearAll(),
+        // can be removed once password generation history is migrated to state providers
+        this.stateService.clearDecryptedData(currentlyActiveAccount),
+      ]);
       // HACK to ensure account is switched before proceeding
       const switchPromise = firstValueFrom(
         this.accountService.activeAccount$.pipe(
@@ -1351,6 +1356,7 @@ export default class MainBackground {
       this.vaultTimeoutSettingsService.clear(userBeingLoggedOut),
       this.vaultFilterService.clear(),
       this.biometricStateService.logout(userBeingLoggedOut),
+      this.dirtyFormStateService.clearAll(),
       /* We intentionally do not clear:
        *  - autofillSettingsService
        *  - badgeSettingsService

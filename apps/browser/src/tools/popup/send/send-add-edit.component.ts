@@ -19,6 +19,7 @@ import { DialogService } from "@bitwarden/components";
 
 import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
 import { DirtyFormService } from "../../../platform/popup/services/dirty-form.service";
+import { PopupHistoryService } from "../../../platform/popup/services/popup-history.service";
 import { BrowserStateService } from "../../../platform/services/abstractions/browser-state.service";
 import { FilePopoutUtilsService } from "../services/file-popout-utils.service";
 
@@ -29,6 +30,7 @@ import { FilePopoutUtilsService } from "../services/file-popout-utils.service";
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class SendAddEditComponent extends BaseAddEditComponent {
   protected dirtyFormService = inject(DirtyFormService);
+  protected popupHistoryService = inject(PopupHistoryService);
 
   // Options header
   showOptions = false;
@@ -100,7 +102,9 @@ export class SendAddEditComponent extends BaseAddEditComponent {
       await super.ngOnInit();
     });
 
-    await this.dirtyFormService.register(this.formGroup, { key: "browser-send-add-edit" });
+    await this.dirtyFormService.register(this.formGroup, {
+      key: "browser-send-add-edit",
+    });
 
     window.setTimeout(() => {
       if (!this.editMode) {
@@ -129,12 +133,12 @@ export class SendAddEditComponent extends BaseAddEditComponent {
 
   cancel() {
     // If true, the window was pop'd out on the add-send page. location.back will not work
-    if ((window as any).previousPopupUrl.startsWith("/add-send")) {
+    if ((window as any).previousPopupUrl?.startsWith("/add-send")) {
       // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["tabs/send"]);
     } else {
-      this.location.back();
+      void this.popupHistoryService.back();
     }
   }
 }
