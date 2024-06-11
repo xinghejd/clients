@@ -34,7 +34,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     display: "block",
     zIndex: "2147483647",
   };
-  private readonly _extensionMessageHandlers: InlineMenuExtensionMessageHandlers = {
+  private readonly extensionMessageHandlers: InlineMenuExtensionMessageHandlers = {
     closeAutofillInlineMenu: ({ message }) => this.removeInlineMenu(message),
     appendAutofillInlineMenuToDom: ({ message }) => this.appendInlineMenuElements(message),
     toggleAutofillInlineMenuHidden: ({ message }) => this.toggleInlineMenuHidden(message),
@@ -46,8 +46,8 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     this.setupMutationObserver();
   }
 
-  get extensionMessageHandlers() {
-    return this._extensionMessageHandlers;
+  get messageHandlers() {
+    return this.extensionMessageHandlers;
   }
 
   isElementInlineMenu(element: HTMLElement) {

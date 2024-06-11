@@ -40,7 +40,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private recalculateSubFrameOffsetsTimeout: number | NodeJS.Timeout;
   private autofillFieldKeywordsMap: WeakMap<AutofillField, string> = new WeakMap();
   private eventHandlersMemo: { [key: string]: EventListener } = {};
-  readonly extensionMessageHandlers: AutofillOverlayContentExtensionMessageHandlers = {
+  private readonly extensionMessageHandlers: AutofillOverlayContentExtensionMessageHandlers = {
     openAutofillInlineMenu: ({ message }) => this.openAutofillInlineMenu(message),
     addNewVaultItemFromOverlay: () => this.addNewVaultItem(),
     blurMostRecentlyFocusedField: () => this.blurMostRecentlyFocusedField(),
@@ -68,6 +68,14 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     this.setupGlobalEventListeners();
+  }
+
+  /**
+   * Getter used to access the extension message handlers associated
+   * with the autofill overlay content service.
+   */
+  get messageHandlers(): AutofillOverlayContentExtensionMessageHandlers {
+    return this.extensionMessageHandlers;
   }
 
   /**

@@ -196,12 +196,12 @@ class AutofillInit implements AutofillInitInterface {
    * @param command - The extension message command.
    */
   private getExtensionMessageHandler(command: string): CallableFunction | undefined {
-    if (this.autofillOverlayContentService?.extensionMessageHandlers?.[command]) {
-      return this.autofillOverlayContentService.extensionMessageHandlers[command];
+    if (this.autofillOverlayContentService?.messageHandlers?.[command]) {
+      return this.autofillOverlayContentService.messageHandlers[command];
     }
 
-    if (this.autofillInlineMenuContentService?.extensionMessageHandlers?.[command]) {
-      return this.autofillInlineMenuContentService.extensionMessageHandlers[command];
+    if (this.autofillInlineMenuContentService?.messageHandlers?.[command]) {
+      return this.autofillInlineMenuContentService.messageHandlers[command];
     }
 
     return this.extensionMessageHandlers[command];

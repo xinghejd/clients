@@ -28,7 +28,7 @@ export type AutofillOverlayContentExtensionMessageHandlers = {
 
 export interface AutofillOverlayContentService {
   pageDetailsUpdateRequired: boolean;
-  extensionMessageHandlers: AutofillOverlayContentExtensionMessageHandlers;
+  messageHandlers: AutofillOverlayContentExtensionMessageHandlers;
   init(): void;
   setupAutofillInlineMenuListenerOnField(
     autofillFieldElement: ElementWithOpId<FormFieldElement>,

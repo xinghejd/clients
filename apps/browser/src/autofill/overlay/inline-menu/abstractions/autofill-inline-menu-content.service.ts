@@ -10,7 +10,7 @@ export type InlineMenuExtensionMessageHandlers = {
 };
 
 export interface AutofillInlineMenuContentService {
-  extensionMessageHandlers: InlineMenuExtensionMessageHandlers;
+  messageHandlers: InlineMenuExtensionMessageHandlers;
   isElementInlineMenu(element: HTMLElement): boolean;
   destroy(): void;
 }

@@ -156,21 +156,19 @@ describe("AutofillInit", () => {
       });
 
       it("triggers extension message handlers from the AutofillOverlayContentService", () => {
-        autofillOverlayContentService.extensionMessageHandlers.messageHandler = jest.fn();
+        autofillOverlayContentService.messageHandlers.messageHandler = jest.fn();
 
         sendMockExtensionMessage({ command: "messageHandler" }, sender, sendResponse);
 
-        expect(
-          autofillOverlayContentService.extensionMessageHandlers.messageHandler,
-        ).toHaveBeenCalled();
+        expect(autofillOverlayContentService.messageHandlers.messageHandler).toHaveBeenCalled();
       });
 
       it("triggers extension message handlers from the AutofillInlineMenuContentService", () => {
-        inlineMenuElements.extensionMessageHandlers.messageHandler = jest.fn();
+        inlineMenuElements.messageHandlers.messageHandler = jest.fn();
 
         sendMockExtensionMessage({ command: "messageHandler" }, sender, sendResponse);
 
-        expect(inlineMenuElements.extensionMessageHandlers.messageHandler).toHaveBeenCalled();
+        expect(inlineMenuElements.messageHandlers.messageHandler).toHaveBeenCalled();
       });
 
       describe("collectPageDetails", () => {
