@@ -819,7 +819,7 @@ describe("OverlayBackground", () => {
           {
             command: "openAutofillInlineMenu",
             isFocusingFieldElement: false,
-            isOpeningFullAutofillInlineMenu: false,
+            isOpeningFullInlineMenu: false,
             authStatus: AuthenticationStatus.Unlocked,
           },
           { frameId: 0 },
@@ -839,7 +839,7 @@ describe("OverlayBackground", () => {
           {
             command: "openAutofillInlineMenu",
             isFocusingFieldElement: false,
-            isOpeningFullAutofillInlineMenu: false,
+            isOpeningFullInlineMenu: false,
             authStatus: AuthenticationStatus.Unlocked,
           },
           { frameId: 10 },
@@ -872,7 +872,7 @@ describe("OverlayBackground", () => {
         sendMockExtensionMessage(
           {
             command: "closeAutofillInlineMenu",
-            forceCloseAutofillInlineMenu: true,
+            forceCloseInlineMenu: true,
             overlayElement: AutofillOverlayElement.Button,
           },
           sender,
@@ -899,7 +899,7 @@ describe("OverlayBackground", () => {
         sendMockExtensionMessage(
           {
             command: "closeAutofillInlineMenu",
-            forceCloseAutofillInlineMenu: false,
+            forceCloseInlineMenu: false,
             overlayElement: AutofillOverlayElement.Button,
           },
           sender,
@@ -1156,7 +1156,7 @@ describe("OverlayBackground", () => {
       it("posts a message to the overlay button and list which hides the menu", async () => {
         const message = {
           command: "toggleAutofillInlineMenuHidden",
-          isAutofillInlineMenuHidden: true,
+          isInlineMenuHidden: true,
           setTransparentInlineMenu: false,
         };
 
@@ -1375,7 +1375,7 @@ describe("OverlayBackground", () => {
           {
             command: "openAutofillInlineMenu",
             isFocusingFieldElement: true,
-            isOpeningFullAutofillInlineMenu: false,
+            isOpeningFullInlineMenu: false,
             authStatus: AuthenticationStatus.Unlocked,
           },
           { frameId: 0 },
@@ -1476,7 +1476,7 @@ describe("OverlayBackground", () => {
           {
             command: "openAutofillInlineMenu",
             isFocusingFieldElement: false,
-            isOpeningFullAutofillInlineMenu: true,
+            isOpeningFullInlineMenu: true,
             authStatus: AuthenticationStatus.Unlocked,
           },
           { frameId: 0 },

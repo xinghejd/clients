@@ -48,7 +48,7 @@ export type OverlayAddNewItemMessage = {
 };
 
 export type CloseInlineMenuMessage = {
-  forceCloseAutofillInlineMenu?: boolean;
+  forceCloseInlineMenu?: boolean;
   overlayElement?: string;
 };
 
@@ -58,7 +58,7 @@ export type OverlayBackgroundExtensionMessage = {
   tab?: chrome.tabs.Tab;
   sender?: string;
   details?: AutofillPageDetails;
-  isAutofillInlineMenuHidden?: boolean;
+  isInlineMenuHidden?: boolean;
   setTransparentInlineMenu?: boolean;
   isFieldCurrentlyFocused?: boolean;
   isFieldCurrentlyFilling?: boolean;

@@ -41,7 +41,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private autofillFieldKeywordsMap: WeakMap<AutofillField, string> = new WeakMap();
   private eventHandlersMemo: { [key: string]: EventListener } = {};
   private readonly extensionMessageHandlers: AutofillOverlayContentExtensionMessageHandlers = {
-    openAutofillInlineMenu: ({ message }) => this.openAutofillInlineMenu(message),
+    openAutofillInlineMenu: ({ message }) => this.openInlineMenu(message),
     addNewVaultItemFromOverlay: () => this.addNewVaultItem(),
     blurMostRecentlyFocusedField: () => this.blurMostRecentlyFocusedField(),
     unsetMostRecentlyFocusedField: () => this.unsetMostRecentlyFocusedField(),
@@ -49,8 +49,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     bgVaultItemRepromptPopoutOpened: () => this.blurMostRecentlyFocusedField(true),
     redirectAutofillInlineMenuFocusOut: ({ message }) =>
       this.redirectInlineMenuFocusOut(message?.data?.direction),
-    updateAutofillInlineMenuVisibility: ({ message }) =>
-      this.updateAutofillInlineMenuVisibility(message),
+    updateAutofillInlineMenuVisibility: ({ message }) => this.updateInlineMenuVisibility(message),
     getSubFrameOffsets: ({ message }) => this.getSubFrameOffsets(message),
     getSubFrameOffsetsFromWindowMessage: ({ message }) =>
       this.getSubFrameOffsetsFromWindowMessage(message),
@@ -85,7 +84,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * @param formFieldElement - Form field elements identified during the page details collection process.
    * @param autofillFieldData - Autofill field data captured from the form field element.
    */
-  async setupAutofillInlineMenuListenerOnField(
+  async setupInlineMenuListenerOnField(
     formFieldElement: ElementWithOpId<FormFieldElement>,
     autofillFieldData: AutofillField,
   ) {
@@ -104,7 +103,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     if (!this.inlineMenuVisibility) {
-      await this.getAutofillInlineMenuVisibility();
+      await this.getInlineMenuVisibility();
     }
 
     this.setupFormFieldElementEventListeners(formFieldElement);
@@ -122,8 +121,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    *
    * @param options - Options for opening the autofill inline menu.
    */
-  openAutofillInlineMenu(options: OpenAutofillInlineMenuOptions = {}) {
-    const { isFocusingFieldElement, isOpeningFullAutofillInlineMenu, authStatus } = options;
+  openInlineMenu(options: OpenAutofillInlineMenuOptions = {}) {
+    const { isFocusingFieldElement, isOpeningFullInlineMenu, authStatus } = options;
     // TODO: It's likely that this method functions more cleanly from the scope of the background. Will address this in a future PR when time allows.
     if (!this.mostRecentlyFocusedField) {
       return;
@@ -146,13 +145,13 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
     if (
       this.inlineMenuVisibility === AutofillOverlayVisibility.OnButtonClick &&
-      !isOpeningFullAutofillInlineMenu
+      !isOpeningFullInlineMenu
     ) {
-      this.updateAutofillInlineMenuButtonPosition();
+      this.updateInlineMenuButtonPosition();
       return;
     }
 
-    this.updateAutofillInlineMenuElementsPosition();
+    this.updateInlineMenuElementsPosition();
   }
 
   /**
@@ -324,7 +323,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     const eventCode = event.code;
     if (eventCode === "Escape") {
       void this.sendExtensionMessage("closeAutofillInlineMenu", {
-        forceCloseAutofillInlineMenu: true,
+        forceCloseInlineMenu: true,
       });
       return;
     }
@@ -350,7 +349,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private async focusInlineMenuList() {
     if (this.mostRecentlyFocusedField && !(await this.isInlineMenuListVisible())) {
       await this.updateMostRecentlyFocusedField(this.mostRecentlyFocusedField);
-      this.openAutofillInlineMenu({ isOpeningFullAutofillInlineMenu: true });
+      this.openInlineMenu({ isOpeningFullInlineMenu: true });
       globalThis.setTimeout(() => this.sendExtensionMessage("focusAutofillInlineMenuList"), 125);
       return;
     }
@@ -384,15 +383,15 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
     this.storeModifiedFormElement(formFieldElement);
 
-    if (await this.hideAutofillInlineMenuListOnFilledField(formFieldElement)) {
+    if (await this.hideInlineMenuListOnFilledField(formFieldElement)) {
       void this.sendExtensionMessage("closeAutofillInlineMenu", {
         overlayElement: AutofillOverlayElement.List,
-        forceCloseAutofillInlineMenu: true,
+        forceCloseInlineMenu: true,
       });
       return;
     }
 
-    this.openAutofillInlineMenu();
+    this.openInlineMenu();
   }
 
   /**
@@ -476,22 +475,16 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     if (
       this.inlineMenuVisibility === AutofillOverlayVisibility.OnButtonClick ||
       (initiallyFocusedField !== this.mostRecentlyFocusedField &&
-        (await this.hideAutofillInlineMenuListOnFilledField(
-          formFieldElement as FillableFormFieldElement,
-        )))
+        (await this.hideInlineMenuListOnFilledField(formFieldElement as FillableFormFieldElement)))
     ) {
       await this.sendExtensionMessage("closeAutofillInlineMenu", {
         overlayElement: AutofillOverlayElement.List,
-        forceCloseAutofillInlineMenu: true,
+        forceCloseInlineMenu: true,
       });
     }
 
-    if (
-      await this.hideAutofillInlineMenuListOnFilledField(
-        formFieldElement as FillableFormFieldElement,
-      )
-    ) {
-      this.updateAutofillInlineMenuButtonPosition();
+    if (await this.hideInlineMenuListOnFilledField(formFieldElement as FillableFormFieldElement)) {
+      this.updateInlineMenuButtonPosition();
       return;
     }
 
@@ -563,15 +556,15 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   /**
    * Updates the position of both the inline menu button and list.
    */
-  private updateAutofillInlineMenuElementsPosition() {
-    this.updateAutofillInlineMenuButtonPosition();
-    this.updateAutofillInlineMenuListPosition();
+  private updateInlineMenuElementsPosition() {
+    this.updateInlineMenuButtonPosition();
+    this.updateInlineMenuListPosition();
   }
 
   /**
    * Updates the position of the inline menu button.
    */
-  private updateAutofillInlineMenuButtonPosition() {
+  private updateInlineMenuButtonPosition() {
     void this.sendExtensionMessage("updateAutofillInlineMenuPosition", {
       overlayElement: AutofillOverlayElement.Button,
     });
@@ -580,7 +573,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   /**
    * Updates the position of the inline menu list.
    */
-  private updateAutofillInlineMenuListPosition() {
+  private updateInlineMenuListPosition() {
     void this.sendExtensionMessage("updateAutofillInlineMenuPosition", {
       overlayElement: AutofillOverlayElement.List,
     });
@@ -592,12 +585,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * @param isHidden - Indicates if the inline menu elements should be hidden.
    * @param setTransparentInlineMenu - Indicates if the inline menu is closing.
    */
-  private toggleAutofillInlineMenuHidden(
-    isHidden: boolean,
-    setTransparentInlineMenu: boolean = false,
-  ) {
+  private toggleInlineMenuHidden(isHidden: boolean, setTransparentInlineMenu: boolean = false) {
     void this.sendExtensionMessage("toggleAutofillInlineMenuHidden", {
-      isAutofillInlineMenuHidden: isHidden,
+      isInlineMenuHidden: isHidden,
       setTransparentInlineMenu,
     });
   }
@@ -766,7 +756,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       autofillFieldData.readonly = getAttributeBoolean(formFieldElement, "disabled");
       autofillFieldData.disabled = getAttributeBoolean(formFieldElement, "disabled");
       autofillFieldData.viewable = true;
-      void this.setupAutofillInlineMenuListenerOnField(formFieldElement, autofillFieldData);
+      void this.setupInlineMenuListenerOnField(formFieldElement, autofillFieldData);
     }
 
     this.removeHiddenFieldFallbackListener(formFieldElement);
@@ -777,7 +767,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * If the setting is not found, a default value of OnFieldFocus will be used
    * @private
    */
-  private async getAutofillInlineMenuVisibility() {
+  private async getInlineMenuVisibility() {
     const inlineMenuVisibility = await this.sendExtensionMessage("getAutofillInlineMenuVisibility");
     this.inlineMenuVisibility = inlineMenuVisibility || AutofillOverlayVisibility.OnFieldFocus;
   }
@@ -814,7 +804,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     this.rebuildSubFrameOffsets();
-    this.toggleAutofillInlineMenuHidden(true);
+    this.toggleInlineMenuHidden(true);
     this.clearUserInteractionEventTimeout();
     this.userInteractionEventTimeout = globalThis.setTimeout(
       this.triggerOverlayRepositionUpdates,
@@ -839,25 +829,25 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   private triggerOverlayRepositionUpdates = async () => {
     if (!this.recentlyFocusedFieldIsCurrentlyFocused()) {
-      this.toggleAutofillInlineMenuHidden(false, true);
+      this.toggleInlineMenuHidden(false, true);
       void this.sendExtensionMessage("closeAutofillInlineMenu", {
-        forceCloseAutofillInlineMenu: true,
+        forceCloseInlineMenu: true,
       });
       return;
     }
 
     await this.updateMostRecentlyFocusedField(this.mostRecentlyFocusedField);
-    this.updateAutofillInlineMenuElementsPosition();
+    this.updateInlineMenuElementsPosition();
     globalThis.setTimeout(async () => {
-      this.toggleAutofillInlineMenuHidden(false, true);
+      this.toggleInlineMenuHidden(false, true);
       if (
-        await this.hideAutofillInlineMenuListOnFilledField(
+        await this.hideInlineMenuListOnFilledField(
           this.mostRecentlyFocusedField as FillableFormFieldElement,
         )
       ) {
         void this.sendExtensionMessage("closeAutofillInlineMenu", {
           overlayElement: AutofillOverlayElement.List,
-          forceCloseAutofillInlineMenu: true,
+          forceCloseInlineMenu: true,
         });
       }
     }, 50);
@@ -868,7 +858,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     void this.sendExtensionMessage("closeAutofillInlineMenu", {
-      forceCloseAutofillInlineMenu: true,
+      forceCloseInlineMenu: true,
     });
   };
 
@@ -909,7 +899,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    *
    * @param formFieldElement - The form field element that triggered the focus event.
    */
-  private async hideAutofillInlineMenuListOnFilledField(
+  private async hideInlineMenuListOnFilledField(
     formFieldElement?: FillableFormFieldElement,
   ): Promise<boolean> {
     return (
@@ -948,7 +938,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
     this.unsetMostRecentlyFocusedField();
     void this.sendExtensionMessage("closeAutofillInlineMenu", {
-      forceCloseAutofillInlineMenu: true,
+      forceCloseInlineMenu: true,
     });
   };
 
@@ -1100,7 +1090,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    *
    * @param data - The data object from the extension message.
    */
-  private updateAutofillInlineMenuVisibility({ data }: AutofillExtensionMessage) {
+  private updateInlineMenuVisibility({ data }: AutofillExtensionMessage) {
     if (!isNaN(data?.inlineMenuVisibility)) {
       this.inlineMenuVisibility = data.inlineMenuVisibility;
     }

@@ -476,16 +476,16 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Sends a message to the sender tab to close the autofill inline menu.
    *
    * @param sender - The sender of the port message
-   * @param forceCloseAutofillInlineMenu - Identifies whether the inline menu should be forced closed
+   * @param forceCloseInlineMenu - Identifies whether the inline menu should be forced closed
    * @param overlayElement - The overlay element to close, either the list or button
    */
   private closeInlineMenu(
     sender: chrome.runtime.MessageSender,
-    { forceCloseAutofillInlineMenu, overlayElement }: CloseInlineMenuMessage = {},
+    { forceCloseInlineMenu, overlayElement }: CloseInlineMenuMessage = {},
   ) {
     const command = "closeAutofillInlineMenu";
     const sendOptions = { frameId: 0 };
-    if (forceCloseAutofillInlineMenu) {
+    if (forceCloseInlineMenu) {
       void BrowserApi.tabSendMessage(sender.tab, { command, overlayElement }, sendOptions);
       return;
     }
@@ -688,10 +688,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param sender - The sender of the extension message
    */
   private updateInlineMenuHidden(
-    { isAutofillInlineMenuHidden, setTransparentInlineMenu }: OverlayBackgroundExtensionMessage,
+    { isInlineMenuHidden, setTransparentInlineMenu }: OverlayBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
-    const display = isAutofillInlineMenuHidden ? "none" : "block";
+    const display = isInlineMenuHidden ? "none" : "block";
     let styles: { display: string; opacity?: number } = { display };
 
     if (typeof setTransparentInlineMenu !== "undefined") {
@@ -701,7 +701,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     void BrowserApi.tabSendMessage(
       sender.tab,
-      { command: "toggleAutofillInlineMenuHidden", isInlineMenuHidden: isAutofillInlineMenuHidden },
+      { command: "toggleAutofillInlineMenuHidden", isInlineMenuHidden },
       { frameId: 0 },
     );
 
@@ -714,12 +714,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Sends a message to the currently active tab to open the autofill inline menu.
    *
    * @param isFocusingFieldElement - Identifies whether the field element should be focused when the inline menu is opened
-   * @param isOpeningFullAutofillInlineMenu - Identifies whether the full inline menu should be forced open regardless of other states
+   * @param isOpeningFullInlineMenu - Identifies whether the full inline menu should be forced open regardless of other states
    */
-  private async openInlineMenu(
-    isFocusingFieldElement = false,
-    isOpeningFullAutofillInlineMenu = false,
-  ) {
+  private async openInlineMenu(isFocusingFieldElement = false, isOpeningFullInlineMenu = false) {
     const currentTab = await BrowserApi.getTabFromCurrentWindowId();
 
     await BrowserApi.tabSendMessage(
@@ -727,7 +724,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       {
         command: "openAutofillInlineMenu",
         isFocusingFieldElement,
-        isOpeningFullAutofillInlineMenu,
+        isOpeningFullInlineMenu,
         authStatus: await this.getAuthStatus(),
       },
       {

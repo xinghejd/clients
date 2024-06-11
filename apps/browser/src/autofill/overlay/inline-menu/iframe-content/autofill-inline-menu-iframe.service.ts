@@ -327,7 +327,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
    * Triggers a forced closure of the autofill inline menu. This is used when the
    * mutation observer is triggered excessively.
    */
-  private forceCloseAutofillInlineMenu() {
+  private forceCloseInlineMenu() {
     void this.sendExtensionMessage("closeAutofillInlineMenu", { forceClose: true });
   }
 
@@ -347,7 +347,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
 
     this.delayedCloseTimeout = globalThis.setTimeout(() => {
       this.updateElementStyles(this.iframe, { transition: this.fadeInOpacityTransition });
-      this.forceCloseAutofillInlineMenu();
+      this.forceCloseInlineMenu();
     }, 100);
   }
 
@@ -366,7 +366,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
       }
 
       if (this.foreignMutationsCount >= 10) {
-        this.forceCloseAutofillInlineMenu();
+        this.forceCloseInlineMenu();
         break;
       }
 
@@ -421,7 +421,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     if (this.mutationObserverIterations > 20) {
       clearTimeout(this.mutationObserverIterationsResetTimeout);
       resetCounters();
-      this.forceCloseAutofillInlineMenu();
+      this.forceCloseInlineMenu();
 
       return true;
     }

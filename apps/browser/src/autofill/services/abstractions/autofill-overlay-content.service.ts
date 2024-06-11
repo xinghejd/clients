@@ -7,7 +7,7 @@ import { ElementWithOpId, FormFieldElement } from "../../types";
 
 export type OpenAutofillInlineMenuOptions = {
   isFocusingFieldElement?: boolean;
-  isOpeningFullAutofillInlineMenu?: boolean;
+  isOpeningFullInlineMenu?: boolean;
   authStatus?: AuthenticationStatus;
 };
 
@@ -30,7 +30,7 @@ export interface AutofillOverlayContentService {
   pageDetailsUpdateRequired: boolean;
   messageHandlers: AutofillOverlayContentExtensionMessageHandlers;
   init(): void;
-  setupAutofillInlineMenuListenerOnField(
+  setupInlineMenuListenerOnField(
     autofillFieldElement: ElementWithOpId<FormFieldElement>,
     autofillFieldData: AutofillField,
   ): Promise<void>;
