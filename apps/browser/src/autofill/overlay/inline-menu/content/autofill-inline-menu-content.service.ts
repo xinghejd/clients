@@ -35,7 +35,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     zIndex: "2147483647",
   };
   private readonly extensionMessageHandlers: InlineMenuExtensionMessageHandlers = {
-    closeAutofillInlineMenu: ({ message }) => this.removeInlineMenu(message),
+    closeAutofillInlineMenu: ({ message }) => this.closeInlineMenu(message),
     appendAutofillInlineMenuToDom: ({ message }) => this.appendInlineMenuElements(message),
     toggleAutofillInlineMenuHidden: ({ message }) => this.toggleInlineMenuHidden(message),
     checkIsAutofillInlineMenuButtonVisible: () => this.isInlineMenuButtonVisible(),
@@ -46,18 +46,32 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     this.setupMutationObserver();
   }
 
+  /**
+   * Returns the message handlers for the autofill inline menu content service.
+   */
   get messageHandlers() {
     return this.extensionMessageHandlers;
   }
 
+  /**
+   * Identifies if the passed element corresponds to the inline menu button or list.
+   *
+   * @param element  - The element being checked
+   */
   isElementInlineMenu(element: HTMLElement) {
     return element === this.buttonElement || element === this.listElement;
   }
 
+  /**
+   * Identifies if the inline menu button is currently visible.
+   */
   private isInlineMenuButtonVisible() {
     return this.isButtonVisible;
   }
 
+  /**
+   * Identifies if the inline menu list is currently visible.
+   */
   private isInlineMenuListVisible() {
     return this.isListVisible;
   }
@@ -78,27 +92,27 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * unobserve the body element to ensure the mutation observer no
    * longer triggers.
    */
-  private removeInlineMenu = (message?: AutofillExtensionMessage) => {
+  private closeInlineMenu = (message?: AutofillExtensionMessage) => {
     if (message?.overlayElement === AutofillOverlayElement.Button) {
-      this.removeInlineMenuButton();
+      this.closeInlineMenuButton();
       return;
     }
 
     if (message?.overlayElement === AutofillOverlayElement.List) {
-      this.removeInlineMenuList();
+      this.closeInlineMenuList();
       return;
     }
 
     this.removeBodyElementObserver();
-    this.removeInlineMenuButton();
-    this.removeInlineMenuList();
+    this.closeInlineMenuButton();
+    this.closeInlineMenuList();
   };
 
   /**
    * Removes the inline menu button from the DOM if it is currently present. Will
    * also remove the inline menu reposition event listeners.
    */
-  private removeInlineMenuButton() {
+  private closeInlineMenuButton() {
     if (!this.buttonElement) {
       return;
     }
@@ -113,7 +127,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   /**
    * Removes the inline menu list from the DOM if it is currently present.
    */
-  private removeInlineMenuList() {
+  private closeInlineMenuList() {
     if (!this.listElement) {
       return;
     }
@@ -412,7 +426,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       clearTimeout(this.mutationObserverIterationsResetTimeout);
       this.mutationObserverIterations = 0;
       void this.sendExtensionMessage("blurMostRecentlyFocusedField");
-      this.removeInlineMenu();
+      this.closeInlineMenu();
 
       return true;
     }
@@ -420,8 +434,11 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     return false;
   }
 
+  /**
+   * Disconnects the mutation observers and removes the inline menu elements from the DOM.
+   */
   destroy() {
     this.documentElementMutationObserver?.disconnect();
-    this.removeInlineMenu();
+    this.closeInlineMenu();
   }
 }
