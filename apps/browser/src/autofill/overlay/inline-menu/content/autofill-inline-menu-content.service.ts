@@ -113,30 +113,26 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * also remove the inline menu reposition event listeners.
    */
   private closeInlineMenuButton() {
-    if (!this.buttonElement) {
-      return;
+    if (this.buttonElement) {
+      this.buttonElement.remove();
+      this.isButtonVisible = false;
+      void this.sendExtensionMessage("autofillOverlayElementClosed", {
+        overlayElement: AutofillOverlayElement.Button,
+      });
     }
-
-    this.buttonElement.remove();
-    this.isButtonVisible = false;
-    void this.sendExtensionMessage("autofillOverlayElementClosed", {
-      overlayElement: AutofillOverlayElement.Button,
-    });
   }
 
   /**
    * Removes the inline menu list from the DOM if it is currently present.
    */
   private closeInlineMenuList() {
-    if (!this.listElement) {
-      return;
+    if (this.listElement) {
+      this.listElement.remove();
+      this.isListVisible = false;
+      void this.sendExtensionMessage("autofillOverlayElementClosed", {
+        overlayElement: AutofillOverlayElement.List,
+      });
     }
-
-    this.listElement.remove();
-    this.isListVisible = false;
-    void this.sendExtensionMessage("autofillOverlayElementClosed", {
-      overlayElement: AutofillOverlayElement.List,
-    });
   }
 
   /**
@@ -388,6 +384,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     const secondToLastChildIsInlineMenuButton = secondToLastChild === this.buttonElement;
 
     if (
+      !lastChild ||
       (lastChildIsInlineMenuList && secondToLastChildIsInlineMenuButton) ||
       (lastChildIsInlineMenuButton && !this.isListVisible)
     ) {
