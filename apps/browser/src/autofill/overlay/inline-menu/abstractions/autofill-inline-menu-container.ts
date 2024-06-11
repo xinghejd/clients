@@ -8,14 +8,14 @@ type AutofillInlineMenuContainerMessage = {
 };
 
 export type InitAutofillInlineMenuElementMessage = AutofillInlineMenuContainerMessage & {
-  iframeUrl?: string;
-  pageTitle?: string;
-  authStatus?: AuthenticationStatus;
-  styleSheetUrl?: string;
-  theme?: string;
-  translations?: Record<string, string>;
-  ciphers?: InlineMenuCipherData[];
-  portName?: string;
+  iframeUrl: string;
+  pageTitle: string;
+  authStatus: AuthenticationStatus;
+  styleSheetUrl: string;
+  theme: string;
+  translations: Record<string, string>;
+  ciphers: InlineMenuCipherData[] | null;
+  portName: string;
 };
 
 export type AutofillInlineMenuContainerWindowMessageHandlers = {
