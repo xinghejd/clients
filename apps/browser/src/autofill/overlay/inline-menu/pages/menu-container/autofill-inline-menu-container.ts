@@ -4,9 +4,12 @@ import { setElementStyles } from "../../../../utils";
 import {
   InitAutofillInlineMenuElementMessage,
   AutofillInlineMenuContainerWindowMessageHandlers,
+  AutofillInlineMenuContainerWindowMessage,
+  AutofillInlineMenuContainerPortMessage,
 } from "../../abstractions/autofill-inline-menu-container";
 
 export class AutofillInlineMenuContainer {
+  private setElementStyles = setElementStyles;
   private extensionOriginsSet: Set<string>;
   private port: chrome.runtime.Port | null = null;
   private portName: string;
@@ -37,8 +40,8 @@ export class AutofillInlineMenuContainer {
     tabIndex: "-1",
   };
   private windowMessageHandlers: AutofillInlineMenuContainerWindowMessageHandlers = {
-    initAutofillInlineMenuList: (message) => this.handleInitInlineMenuIframe(message),
     initAutofillInlineMenuButton: (message) => this.handleInitInlineMenuIframe(message),
+    initAutofillInlineMenuList: (message) => this.handleInitInlineMenuIframe(message),
   };
 
   constructor() {
@@ -50,44 +53,67 @@ export class AutofillInlineMenuContainer {
     globalThis.addEventListener("message", this.handleWindowMessage);
   }
 
+  /**
+   * Handles initialization of the iframe used to display the inline menu.
+   *
+   * @param message - The message containing the iframe url and page title.
+   */
   private handleInitInlineMenuIframe(message: InitAutofillInlineMenuElementMessage) {
     this.defaultIframeAttributes.src = message.iframeUrl;
     this.defaultIframeAttributes.title = message.pageTitle;
     this.portName = message.portName;
 
     this.inlineMenuPageIframe = globalThis.document.createElement("iframe");
-    setElementStyles(this.inlineMenuPageIframe, this.iframeStyles, true);
+    this.setElementStyles(this.inlineMenuPageIframe, this.iframeStyles, true);
     for (const [attribute, value] of Object.entries(this.defaultIframeAttributes)) {
       this.inlineMenuPageIframe.setAttribute(attribute, value);
     }
-    this.inlineMenuPageIframe.addEventListener(EVENTS.LOAD, () =>
-      this.setupPortMessageListener(message),
-    );
+    const handleInlineMenuPageIframeLoad = () => {
+      this.inlineMenuPageIframe.removeEventListener(EVENTS.LOAD, handleInlineMenuPageIframeLoad);
+      this.setupPortMessageListener(message);
+    };
+    this.inlineMenuPageIframe.addEventListener(EVENTS.LOAD, handleInlineMenuPageIframeLoad);
 
     globalThis.document.body.appendChild(this.inlineMenuPageIframe);
   }
 
+  /**
+   * Sets up the port message listener for the inline menu page.
+   *
+   * @param message - The message containing the port name.
+   */
   private setupPortMessageListener = (message: InitAutofillInlineMenuElementMessage) => {
     this.port = chrome.runtime.connect({ name: this.portName });
     this.postMessageToInlineMenuPage(message);
   };
 
-  private postMessageToInlineMenuPage(message: any) {
-    if (!this.inlineMenuPageIframe?.contentWindow) {
-      return;
+  /**
+   * Posts a message to the inline menu page iframe.
+   *
+   * @param message - The message to post.
+   */
+  private postMessageToInlineMenuPage(message: AutofillInlineMenuContainerWindowMessage) {
+    if (this.inlineMenuPageIframe?.contentWindow) {
+      this.inlineMenuPageIframe.contentWindow.postMessage(message, "*");
     }
-
-    this.inlineMenuPageIframe.contentWindow.postMessage(message, "*");
   }
 
-  private postMessageToBackground(message: any) {
-    if (!this.port) {
-      return;
+  /**
+   * Posts a message from the inline menu iframe to the background script.
+   *
+   * @param message - The message to post.
+   */
+  private postMessageToBackground(message: AutofillInlineMenuContainerPortMessage) {
+    if (this.port) {
+      this.port.postMessage(message);
     }
-
-    this.port.postMessage(message);
   }
 
+  /**
+   * Handles window messages, routing them to the appropriate handler.
+   *
+   * @param event - The message event.
+   */
   private handleWindowMessage = (event: MessageEvent) => {
     const message = event.data;
     if (this.isForeignWindowMessage(event)) {
@@ -107,6 +133,13 @@ export class AutofillInlineMenuContainer {
     this.postMessageToBackground(message);
   };
 
+  /**
+   * Identifies if the message is from a foreign window. A foreign window message is
+   * considered as any message that does not have a portKey, is not from the parent window,
+   * or is not from the inline menu page iframe.
+   *
+   * @param event - The message event.
+   */
   private isForeignWindowMessage(event: MessageEvent) {
     if (!event.data.portKey) {
       return true;
@@ -119,10 +152,20 @@ export class AutofillInlineMenuContainer {
     return !this.isMessageFromInlineMenuPageIframe(event);
   }
 
+  /**
+   * Identifies if the message is from the parent window.
+   *
+   * @param event - The message event.
+   */
   private isMessageFromParentWindow(event: MessageEvent): boolean {
     return globalThis.parent === event.source;
   }
 
+  /**
+   * Identifies if the message is from the inline menu page iframe.
+   *
+   * @param event - The message event.
+   */
   private isMessageFromInlineMenuPageIframe(event: MessageEvent): boolean {
     if (!this.inlineMenuPageIframe) {
       return false;

@@ -2,7 +2,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 
 import { InlineMenuCipherData } from "../../../background/abstractions/overlay.background";
 
-type AutofillInlineMenuContainerMessage = {
+export type AutofillInlineMenuContainerMessage = {
   command: string;
   portKey: string;
 };
@@ -18,8 +18,14 @@ export type InitAutofillInlineMenuElementMessage = AutofillInlineMenuContainerMe
   portName: string;
 };
 
+export type AutofillInlineMenuContainerWindowMessage = AutofillInlineMenuContainerMessage &
+  Record<string, unknown>;
+
+export type AutofillInlineMenuContainerPortMessage = AutofillInlineMenuContainerMessage &
+  Record<string, unknown>;
+
 export type AutofillInlineMenuContainerWindowMessageHandlers = {
   [key: string]: CallableFunction;
-  initAutofillInlineMenuList: (message: InitAutofillInlineMenuElementMessage) => void;
   initAutofillInlineMenuButton: (message: InitAutofillInlineMenuElementMessage) => void;
+  initAutofillInlineMenuList: (message: InitAutofillInlineMenuElementMessage) => void;
 };
