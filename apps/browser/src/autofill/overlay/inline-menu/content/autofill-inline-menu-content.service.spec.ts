@@ -82,9 +82,9 @@ describe("AutofillInlineMenuContentService", () => {
       });
 
       it("closes both inline menu elements and removes the body element mutation observer", async () => {
-        const removeBodyElementObserverSpy = jest.spyOn(
+        const unobserveBodyElementSpy = jest.spyOn(
           autofillInlineMenuContentService as any,
-          "removeBodyElementObserver",
+          "unobserveBodyElement",
         );
         sendMockExtensionMessage({
           command: "appendAutofillInlineMenuToDom",
@@ -99,7 +99,7 @@ describe("AutofillInlineMenuContentService", () => {
           command: "closeAutofillInlineMenu",
         });
 
-        expect(removeBodyElementObserverSpy).toHaveBeenCalled();
+        expect(unobserveBodyElementSpy).toHaveBeenCalled();
         expect(sendExtensionMessageSpy).toHaveBeenCalledWith("autofillOverlayElementClosed", {
           overlayElement: AutofillOverlayElement.Button,
         });
@@ -423,6 +423,22 @@ describe("AutofillInlineMenuContentService", () => {
       await flushPromises();
 
       expect(closeInlineMenuSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe("destroy", () => {
+    it("closes the inline menu", () => {
+      autofillInlineMenuContentService["buttonElement"] = document.createElement("div");
+      autofillInlineMenuContentService["listElement"] = document.createElement("div");
+
+      autofillInlineMenuContentService.destroy();
+
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("autofillOverlayElementClosed", {
+        overlayElement: AutofillOverlayElement.Button,
+      });
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("autofillOverlayElementClosed", {
+        overlayElement: AutofillOverlayElement.List,
+      });
     });
   });
 });

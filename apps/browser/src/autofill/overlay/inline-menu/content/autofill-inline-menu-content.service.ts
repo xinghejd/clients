@@ -103,7 +103,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       return;
     }
 
-    this.removeBodyElementObserver();
+    this.unobserveBodyElement();
     this.closeInlineMenuButton();
     this.closeInlineMenuList();
   };
@@ -304,7 +304,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   /**
    * Disconnects the mutation observer for the body element.
    */
-  private removeBodyElementObserver() {
+  private unobserveBodyElement() {
     this.bodyElementMutationObserver?.disconnect();
   }
 
@@ -427,7 +427,6 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * Disconnects the mutation observers and removes the inline menu elements from the DOM.
    */
   destroy() {
-    this.documentElementMutationObserver?.disconnect();
     this.closeInlineMenu();
   }
 }
