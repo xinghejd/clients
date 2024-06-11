@@ -80,18 +80,34 @@ module.exports = {
       headers: rgba("--color-text-headers"),
       alt2: rgba("--color-text-alt2"),
       code: rgba("--color-text-code"),
-      success: rgba("--color-success-600"),
+      black: colors.black,
+      success: {
+        DEFAULT: rgba("--color-success-600"),
+        600: rgba("--color-success-600"),
+        700: rgba("--color-success-700"),
+      },
       danger: {
         DEFAULT: rgba("--color-danger-600"),
         600: rgba("--color-danger-600"),
         700: rgba("--color-danger-700"),
       },
-      warning: rgba("--color-warning-600"),
-      info: rgba("--color-info-600"),
+      warning: {
+        DEFAULT: rgba("--color-warning-600"),
+        600: rgba("--color-warning-600"),
+        700: rgba("--color-warning-700"),
+      },
+      info: {
+        DEFAULT: rgba("--color-info-600"),
+        600: rgba("--color-info-600"),
+        700: rgba("--color-info-700"),
+      },
       primary: {
         300: rgba("--color-primary-300"),
         600: rgba("--color-primary-600"),
         700: rgba("--color-primary-700"),
+      },
+      secondary: {
+        700: rgba("--color-secondary-700"),
       },
     },
     ringOffsetColor: ({ theme }) => ({
