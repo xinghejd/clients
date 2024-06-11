@@ -2,11 +2,11 @@ import { AutofillExtensionMessageParam } from "../../../content/abstractions/aut
 
 export type InlineMenuExtensionMessageHandlers = {
   [key: string]: CallableFunction;
-  closeInlineMenu: ({ message }: AutofillExtensionMessageParam) => void;
-  appendInlineMenuElementsToDom: ({ message }: AutofillExtensionMessageParam) => Promise<void>;
-  toggleInlineMenuHidden: ({ message }: AutofillExtensionMessageParam) => void;
-  checkIsInlineMenuButtonVisible: () => boolean;
-  checkIsInlineMenuListVisible: () => boolean;
+  closeAutofillInlineMenu: ({ message }: AutofillExtensionMessageParam) => void;
+  appendAutofillInlineMenuToDom: ({ message }: AutofillExtensionMessageParam) => Promise<void>;
+  toggleAutofillInlineMenuHidden: ({ message }: AutofillExtensionMessageParam) => void;
+  checkIsAutofillInlineMenuButtonVisible: () => boolean;
+  checkIsAutofillInlineMenuListVisible: () => boolean;
 };
 
 export interface AutofillInlineMenuContentService {

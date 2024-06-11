@@ -483,7 +483,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     sender: chrome.runtime.MessageSender,
     { forceCloseAutofillInlineMenu, overlayElement }: CloseInlineMenuMessage = {},
   ) {
-    const command = "closeInlineMenu";
+    const command = "closeAutofillInlineMenu";
     const sendOptions = { frameId: 0 };
     if (forceCloseAutofillInlineMenu) {
       void BrowserApi.tabSendMessage(sender.tab, { command, overlayElement }, sendOptions);
@@ -568,7 +568,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     await BrowserApi.tabSendMessage(
       sender.tab,
-      { command: "appendInlineMenuElementsToDom", overlayElement },
+      { command: "appendAutofillInlineMenuToDom", overlayElement },
       { frameId: 0 },
     );
 
@@ -703,7 +703,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     void BrowserApi.tabSendMessage(
       sender.tab,
-      { command: "toggleInlineMenuHidden", isInlineMenuHidden: isAutofillInlineMenuHidden },
+      { command: "toggleAutofillInlineMenuHidden", isInlineMenuHidden: isAutofillInlineMenuHidden },
       { frameId: 0 },
     );
 
@@ -988,7 +988,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   ): Promise<boolean> {
     return await BrowserApi.tabSendMessage(
       sender.tab,
-      { command: "checkIsInlineMenuButtonVisible" },
+      { command: "checkIsAutofillInlineMenuButtonVisible" },
       { frameId: 0 },
     );
   }
@@ -1003,7 +1003,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   ): Promise<boolean> {
     return await BrowserApi.tabSendMessage(
       sender.tab,
-      { command: "checkIsInlineMenuListVisible" },
+      { command: "checkIsAutofillInlineMenuListVisible" },
       { frameId: 0 },
     );
   }

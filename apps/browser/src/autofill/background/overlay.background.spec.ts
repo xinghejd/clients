@@ -418,7 +418,7 @@ describe("OverlayBackground", () => {
         expect(tabsSendMessageSpy).not.toHaveBeenCalledWith(
           sender.tab,
           {
-            command: "appendInlineMenuElementsToDom",
+            command: "appendAutofillInlineMenuToDom",
             overlayElement: AutofillOverlayElement.Button,
           },
           { frameId: 0 },
@@ -426,7 +426,7 @@ describe("OverlayBackground", () => {
         expect(tabsSendMessageSpy).not.toHaveBeenCalledWith(
           sender.tab,
           {
-            command: "appendInlineMenuElementsToDom",
+            command: "appendAutofillInlineMenuToDom",
             overlayElement: AutofillOverlayElement.List,
           },
           { frameId: 0 },
@@ -440,7 +440,7 @@ describe("OverlayBackground", () => {
         expect(tabsSendMessageSpy).toHaveBeenCalledWith(
           sender.tab,
           {
-            command: "appendInlineMenuElementsToDom",
+            command: "appendAutofillInlineMenuToDom",
             overlayElement: AutofillOverlayElement.Button,
           },
           { frameId: 0 },
@@ -448,7 +448,7 @@ describe("OverlayBackground", () => {
         expect(tabsSendMessageSpy).toHaveBeenCalledWith(
           sender.tab,
           {
-            command: "appendInlineMenuElementsToDom",
+            command: "appendAutofillInlineMenuToDom",
             overlayElement: AutofillOverlayElement.List,
           },
           { frameId: 0 },
@@ -470,7 +470,7 @@ describe("OverlayBackground", () => {
         expect(tabsSendMessageSpy).toHaveBeenCalledWith(
           sender.tab,
           {
-            command: "appendInlineMenuElementsToDom",
+            command: "appendAutofillInlineMenuToDom",
             overlayElement: AutofillOverlayElement.Button,
           },
           { frameId: 0 },
@@ -478,7 +478,7 @@ describe("OverlayBackground", () => {
         expect(tabsSendMessageSpy).not.toHaveBeenCalledWith(
           sender.tab,
           {
-            command: "appendInlineMenuElementsToDom",
+            command: "appendAutofillInlineMenuToDom",
             overlayElement: AutofillOverlayElement.List,
           },
           { frameId: 0 },
@@ -882,7 +882,7 @@ describe("OverlayBackground", () => {
         expect(tabsSendMessageSpy).toHaveBeenCalledWith(
           sender.tab,
           {
-            command: "closeInlineMenu",
+            command: "closeAutofillInlineMenu",
             overlayElement: AutofillOverlayElement.Button,
           },
           { frameId: 0 },
@@ -922,7 +922,7 @@ describe("OverlayBackground", () => {
         expect(tabsSendMessageSpy).toHaveBeenCalledWith(
           sender.tab,
           {
-            command: "closeInlineMenu",
+            command: "closeAutofillInlineMenu",
             overlayElement: AutofillOverlayElement.List,
           },
           { frameId: 0 },
@@ -930,7 +930,7 @@ describe("OverlayBackground", () => {
         expect(tabsSendMessageSpy).not.toHaveBeenCalledWith(
           sender.tab,
           {
-            command: "closeInlineMenu",
+            command: "closeAutofillInlineMenu",
             overlayElement: AutofillOverlayElement.Button,
           },
           { frameId: 0 },
@@ -944,7 +944,7 @@ describe("OverlayBackground", () => {
         expect(tabsSendMessageSpy).toHaveBeenCalledWith(
           sender.tab,
           {
-            command: "closeInlineMenu",
+            command: "closeAutofillInlineMenu",
             overlayElement: undefined,
           },
           { frameId: 0 },
@@ -1188,7 +1188,7 @@ describe("OverlayBackground", () => {
 
         expect(tabsSendMessageSpy).toHaveBeenCalledWith(
           sender.tab,
-          { command: "checkIsInlineMenuButtonVisible" },
+          { command: "checkIsAutofillInlineMenuButtonVisible" },
           { frameId: 0 },
         );
       });
@@ -1202,7 +1202,7 @@ describe("OverlayBackground", () => {
 
         expect(tabsSendMessageSpy).toHaveBeenCalledWith(
           sender.tab,
-          { command: "checkIsInlineMenuListVisible" },
+          { command: "checkIsAutofillInlineMenuListVisible" },
           { frameId: 0 },
         );
       });
@@ -1449,7 +1449,7 @@ describe("OverlayBackground", () => {
 
         expect(tabsSendMessageSpy).toHaveBeenCalledWith(
           sender.tab,
-          { command: "closeInlineMenu", overlayElement: undefined },
+          { command: "closeAutofillInlineMenu", overlayElement: undefined },
           { frameId: 0 },
         );
         expect(tabSendMessageDataSpy).toBeCalledWith(

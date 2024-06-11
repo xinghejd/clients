@@ -35,12 +35,12 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     zIndex: "2147483647",
   };
   private readonly _extensionMessageHandlers: InlineMenuExtensionMessageHandlers = {
-    closeInlineMenu: ({ message }) => this.removeInlineMenu(message),
-    appendInlineMenuElementsToDom: ({ message }) => this.appendInlineMenuElements(message),
-    toggleInlineMenuHidden: ({ message }) =>
+    closeAutofillInlineMenu: ({ message }) => this.removeInlineMenu(message),
+    appendAutofillInlineMenuToDom: ({ message }) => this.appendInlineMenuElements(message),
+    toggleAutofillInlineMenuHidden: ({ message }) =>
       this.toggleInlineMenuHidden(message.isInlineMenuHidden),
-    checkIsInlineMenuButtonVisible: () => this.isInlineMenuButtonVisible(),
-    checkIsInlineMenuListVisible: () => this.isInlineMenuListVisible(),
+    checkIsAutofillInlineMenuButtonVisible: () => this.isInlineMenuButtonVisible(),
+    checkIsAutofillInlineMenuListVisible: () => this.isInlineMenuListVisible(),
   };
 
   constructor() {
