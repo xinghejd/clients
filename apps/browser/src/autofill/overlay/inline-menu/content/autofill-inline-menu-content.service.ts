@@ -37,8 +37,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   private readonly _extensionMessageHandlers: InlineMenuExtensionMessageHandlers = {
     closeAutofillInlineMenu: ({ message }) => this.removeInlineMenu(message),
     appendAutofillInlineMenuToDom: ({ message }) => this.appendInlineMenuElements(message),
-    toggleAutofillInlineMenuHidden: ({ message }) =>
-      this.toggleInlineMenuHidden(message.isInlineMenuHidden),
+    toggleAutofillInlineMenuHidden: ({ message }) => this.toggleInlineMenuHidden(message),
     checkIsAutofillInlineMenuButtonVisible: () => this.isInlineMenuButtonVisible(),
     checkIsAutofillInlineMenuListVisible: () => this.isInlineMenuListVisible(),
   };
@@ -66,11 +65,12 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   /**
    * Sends a message that facilitates hiding the inline menu elements.
    *
-   * @param isHidden - Indicates if the inline menu elements should be hidden.
+   * @param message - The message that contains the visibility state of the inline menu elements.
    */
-  private toggleInlineMenuHidden(isHidden: boolean) {
-    this.isButtonVisible = !!this.buttonElement && !isHidden;
-    this.isListVisible = !!this.listElement && !isHidden;
+  private toggleInlineMenuHidden(message: AutofillExtensionMessage) {
+    const { isInlineMenuHidden } = message;
+    this.isButtonVisible = !!this.buttonElement && !isInlineMenuHidden;
+    this.isListVisible = !!this.listElement && !isInlineMenuHidden;
   }
 
   /**
@@ -419,6 +419,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
 
     return false;
   }
+
   destroy() {
     this.documentElementMutationObserver?.disconnect();
     this.removeInlineMenu();
