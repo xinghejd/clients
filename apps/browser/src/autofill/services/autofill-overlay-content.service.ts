@@ -596,7 +596,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     isHidden: boolean,
     setTransparentInlineMenu: boolean = false,
   ) {
-    void this.sendExtensionMessage("updateAutofillInlineMenuHidden", {
+    void this.sendExtensionMessage("toggleAutofillInlineMenuHidden", {
       isAutofillInlineMenuHidden: isHidden,
       setTransparentInlineMenu,
     });

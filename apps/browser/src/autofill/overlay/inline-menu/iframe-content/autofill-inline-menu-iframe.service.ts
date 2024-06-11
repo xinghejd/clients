@@ -47,8 +47,9 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
   private readonly backgroundPortMessageHandlers: BackgroundPortMessageHandlers = {
     initAutofillInlineMenuButton: ({ message }) => this.initAutofillInlineMenu(message),
     initAutofillInlineMenuList: ({ message }) => this.initAutofillInlineMenu(message),
-    updateInlineMenuIframePosition: ({ message }) => this.updateIframePosition(message.styles),
-    updateInlineMenuHidden: ({ message }) => this.updateElementStyles(this.iframe, message.styles),
+    updateAutofillInlineMenuPosition: ({ message }) => this.updateIframePosition(message.styles),
+    toggleAutofillInlineMenuHidden: ({ message }) =>
+      this.updateElementStyles(this.iframe, message.styles),
     updateAutofillInlineMenuColorScheme: () => this.updateAutofillInlineMenuColorScheme(),
     triggerDelayedAutofillInlineMenuClosure: () => this.handleDelayedAutofillInlineMenuClosure(),
   };

@@ -15,10 +15,12 @@ export type BackgroundPortMessageHandlers = {
     message,
   }: AutofillInlineMenuIframeExtensionMessageParam) => void;
   initAutofillInlineMenuList: ({ message }: AutofillInlineMenuIframeExtensionMessageParam) => void;
-  updateInlineMenuIframePosition: ({
+  updateAutofillInlineMenuPosition: ({
     message,
   }: AutofillInlineMenuIframeExtensionMessageParam) => void;
-  updateInlineMenuHidden: ({ message }: AutofillInlineMenuIframeExtensionMessageParam) => void;
+  toggleAutofillInlineMenuHidden: ({
+    message,
+  }: AutofillInlineMenuIframeExtensionMessageParam) => void;
   updateAutofillInlineMenuColorScheme: () => void;
 };
 

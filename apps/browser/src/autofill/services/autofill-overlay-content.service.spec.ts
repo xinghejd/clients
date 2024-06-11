@@ -882,7 +882,7 @@ describe("AutofillOverlayContentService", () => {
       globalThis.dispatchEvent(new Event(EVENTS.SCROLL));
       await flushPromises();
 
-      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillInlineMenuHidden", {
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("toggleAutofillInlineMenuHidden", {
         isAutofillInlineMenuHidden: true,
         setTransparentInlineMenu: false,
       });
@@ -911,7 +911,7 @@ describe("AutofillOverlayContentService", () => {
       await flushPromises();
       jest.advanceTimersByTime(800);
 
-      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillInlineMenuHidden", {
+      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("toggleAutofillInlineMenuHidden", {
         isAutofillInlineMenuHidden: false,
         setTransparentInlineMenu: true,
       });

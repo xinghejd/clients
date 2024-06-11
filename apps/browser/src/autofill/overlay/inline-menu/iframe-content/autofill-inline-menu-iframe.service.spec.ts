@@ -195,7 +195,7 @@ describe("AutofillInlineMenuIframeService", () => {
       it("handles port messages that are registered with the message handlers and does not pass the message on to the iframe", () => {
         jest.spyOn(autofillInlineMenuIframeService as any, "updateIframePosition");
 
-        sendPortMessage(portSpy, { command: "updateInlineMenuIframePosition" });
+        sendPortMessage(portSpy, { command: "updateAutofillInlineMenuPosition" });
 
         expect(
           autofillInlineMenuIframeService["iframe"].contentWindow.postMessage,
@@ -344,7 +344,7 @@ describe("AutofillInlineMenuIframeService", () => {
           jest.spyOn(globalThis.document, "hasFocus").mockReturnValue(false);
 
           sendPortMessage(portSpy, {
-            command: "updateInlineMenuIframePosition",
+            command: "updateAutofillInlineMenuPosition",
             styles: { top: 100, left: 100 },
           });
 
@@ -355,7 +355,7 @@ describe("AutofillInlineMenuIframeService", () => {
           const styles = { top: "100px", left: "100px" };
 
           sendPortMessage(portSpy, {
-            command: "updateInlineMenuIframePosition",
+            command: "updateAutofillInlineMenuPosition",
             styles,
           });
 
@@ -368,7 +368,7 @@ describe("AutofillInlineMenuIframeService", () => {
           const styles = { top: "100px", left: "100px" };
 
           sendPortMessage(portSpy, {
-            command: "updateInlineMenuIframePosition",
+            command: "updateAutofillInlineMenuPosition",
             styles,
           });
 
@@ -381,7 +381,7 @@ describe("AutofillInlineMenuIframeService", () => {
 
       it("updates the visibility of the iframe", () => {
         sendPortMessage(portSpy, {
-          command: "updateInlineMenuHidden",
+          command: "toggleAutofillInlineMenuHidden",
           styles: { display: "none" },
         });
 

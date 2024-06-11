@@ -38,7 +38,7 @@ describe("generateRandomCustomElementName", () => {
 
 describe("sendExtensionMessage", () => {
   it("sends a message to the extension", async () => {
-    const extensionMessagePromise = sendExtensionMessage("updateAutofillInlineMenuHidden", {
+    const extensionMessagePromise = sendExtensionMessage("toggleAutofillInlineMenuHidden", {
       display: "none",
     });
 

@@ -1038,7 +1038,7 @@ describe("OverlayBackground", () => {
         await flushPromises();
 
         expect(buttonPortSpy.postMessage).toHaveBeenCalledWith({
-          command: "updateInlineMenuIframePosition",
+          command: "updateAutofillInlineMenuPosition",
           styles: { height: "2px", left: "4px", top: "2px", width: "2px" },
         });
       });
@@ -1056,7 +1056,7 @@ describe("OverlayBackground", () => {
         await flushPromises();
 
         expect(buttonPortSpy.postMessage).toHaveBeenCalledWith({
-          command: "updateInlineMenuIframePosition",
+          command: "updateAutofillInlineMenuPosition",
           styles: { height: "20px", left: "-22px", top: "8px", width: "20px" },
         });
       });
@@ -1074,7 +1074,7 @@ describe("OverlayBackground", () => {
         await flushPromises();
 
         expect(buttonPortSpy.postMessage).toHaveBeenCalledWith({
-          command: "updateInlineMenuIframePosition",
+          command: "updateAutofillInlineMenuPosition",
           styles: { height: "27px", left: "-32px", top: "13px", width: "27px" },
         });
       });
@@ -1092,7 +1092,7 @@ describe("OverlayBackground", () => {
         await flushPromises();
 
         expect(buttonPortSpy.postMessage).toHaveBeenCalledWith({
-          command: "updateInlineMenuIframePosition",
+          command: "updateAutofillInlineMenuPosition",
           styles: { height: "2px", left: "-18px", top: "2px", width: "2px" },
         });
       });
@@ -1108,7 +1108,7 @@ describe("OverlayBackground", () => {
         await flushPromises();
 
         expect(listPortSpy.postMessage).toHaveBeenCalledWith({
-          command: "updateInlineMenuIframePosition",
+          command: "updateAutofillInlineMenuPosition",
           styles: { left: "2px", top: "4px", width: "4px" },
         });
       });
@@ -1126,24 +1126,24 @@ describe("OverlayBackground", () => {
         jest.advanceTimersByTime(50);
 
         expect(buttonPortSpy.postMessage).toHaveBeenCalledWith({
-          command: "updateInlineMenuIframePosition",
+          command: "updateAutofillInlineMenuPosition",
           styles: { opacity: "1" },
         });
         expect(listPortSpy.postMessage).toHaveBeenCalledWith({
-          command: "updateInlineMenuIframePosition",
+          command: "updateAutofillInlineMenuPosition",
           styles: { opacity: "1" },
         });
       });
     });
 
-    describe("updateAutofillInlineMenuHidden message handler", () => {
+    describe("toggleAutofillInlineMenuHidden message handler", () => {
       beforeEach(async () => {
         await initOverlayElementPorts();
       });
 
       it("returns early if the display value is not provided", async () => {
         const message = {
-          command: "updateAutofillInlineMenuHidden",
+          command: "toggleAutofillInlineMenuHidden",
         };
 
         sendMockExtensionMessage(message);
@@ -1155,7 +1155,7 @@ describe("OverlayBackground", () => {
 
       it("posts a message to the overlay button and list which hides the menu", async () => {
         const message = {
-          command: "updateAutofillInlineMenuHidden",
+          command: "toggleAutofillInlineMenuHidden",
           isAutofillInlineMenuHidden: true,
           setTransparentInlineMenu: false,
         };
@@ -1164,14 +1164,14 @@ describe("OverlayBackground", () => {
         await flushPromises();
 
         expect(buttonPortSpy.postMessage).toHaveBeenCalledWith({
-          command: "updateInlineMenuHidden",
+          command: "toggleAutofillInlineMenuHidden",
           styles: {
             display: "none",
             opacity: 1,
           },
         });
         expect(listPortSpy.postMessage).toHaveBeenCalledWith({
-          command: "updateInlineMenuHidden",
+          command: "toggleAutofillInlineMenuHidden",
           styles: {
             display: "none",
             opacity: 1,
@@ -1839,7 +1839,7 @@ describe("OverlayBackground", () => {
         });
 
         expect(listPortSpy.postMessage).toHaveBeenCalledWith({
-          command: "updateInlineMenuIframePosition",
+          command: "updateAutofillInlineMenuPosition",
           styles: { height: "100px" },
         });
       });

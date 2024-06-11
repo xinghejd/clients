@@ -82,7 +82,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     focusAutofillInlineMenuList: () => this.focusInlineMenuList(),
     updateAutofillInlineMenuPosition: ({ message, sender }) =>
       this.updateInlineMenuPosition(message, sender),
-    updateAutofillInlineMenuHidden: ({ message, sender }) =>
+    toggleAutofillInlineMenuHidden: ({ message, sender }) =>
       this.updateInlineMenuHidden(message, sender),
     checkIsAutofillInlineMenuButtonVisible: ({ sender }) =>
       this.checkIsInlineMenuButtonVisible(sender),
@@ -582,7 +582,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     if (overlayElement === AutofillOverlayElement.Button) {
       this.inlineMenuButtonPort?.postMessage({
-        command: "updateInlineMenuIframePosition",
+        command: "updateAutofillInlineMenuPosition",
         styles: this.getInlineMenuButtonPosition(subFrameOffsets),
       });
 
@@ -590,7 +590,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     this.inlineMenuListPort?.postMessage({
-      command: "updateInlineMenuIframePosition",
+      command: "updateAutofillInlineMenuPosition",
       styles: this.getInlineMenuListPosition(subFrameOffsets),
     });
   }
@@ -605,7 +605,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     this.inlineMenuFadeInTimeout = globalThis.setTimeout(() => {
-      const message = { command: "updateInlineMenuIframePosition", styles: { opacity: "1" } };
+      const message = { command: "updateAutofillInlineMenuPosition", styles: { opacity: "1" } };
       this.inlineMenuButtonPort?.postMessage(message);
       this.inlineMenuListPort?.postMessage(message);
     }, 50);
@@ -699,14 +699,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       styles = { ...styles, opacity };
     }
 
-    const portMessage = { command: "updateInlineMenuHidden", styles };
-
     void BrowserApi.tabSendMessage(
       sender.tab,
       { command: "toggleAutofillInlineMenuHidden", isInlineMenuHidden: isAutofillInlineMenuHidden },
       { frameId: 0 },
     );
 
+    const portMessage = { command: "toggleAutofillInlineMenuHidden", styles };
     this.inlineMenuButtonPort?.postMessage(portMessage);
     this.inlineMenuListPort?.postMessage(portMessage);
   }
@@ -1072,7 +1071,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    */
   private updateInlineMenuListHeight(message: OverlayBackgroundExtensionMessage) {
     this.inlineMenuListPort?.postMessage({
-      command: "updateInlineMenuIframePosition",
+      command: "updateAutofillInlineMenuPosition",
       styles: message.styles,
     });
   }

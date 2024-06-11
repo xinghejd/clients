@@ -114,7 +114,7 @@ export type OverlayBackgroundExtensionMessageHandlers = {
     message,
     sender,
   }: BackgroundOnMessageHandlerParams) => Promise<void>;
-  updateAutofillInlineMenuHidden: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
+  toggleAutofillInlineMenuHidden: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   checkIsAutofillInlineMenuButtonVisible: ({ sender }: BackgroundSenderParam) => void;
   checkIsAutofillInlineMenuListVisible: ({ sender }: BackgroundSenderParam) => void;
   checkShouldRepositionInlineMenu: ({ sender }: BackgroundSenderParam) => boolean;
