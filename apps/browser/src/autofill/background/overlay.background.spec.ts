@@ -988,7 +988,9 @@ describe("OverlayBackground", () => {
 
         sendMockExtensionMessage({ command: "focusAutofillInlineMenuList" });
 
-        expect(listPortSpy.postMessage).toHaveBeenCalledWith({ command: "focusInlineMenuList" });
+        expect(listPortSpy.postMessage).toHaveBeenCalledWith({
+          command: "focusAutofillInlineMenuList",
+        });
       });
     });
 

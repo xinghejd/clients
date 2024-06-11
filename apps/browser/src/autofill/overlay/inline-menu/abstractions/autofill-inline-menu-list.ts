@@ -26,5 +26,5 @@ export type AutofillInlineMenuListWindowMessageHandlers = {
   }: {
     message: UpdateAutofillInlineMenuListCiphersMessage;
   }) => void;
-  focusInlineMenuList: () => void;
+  focusAutofillInlineMenuList: () => void;
 };

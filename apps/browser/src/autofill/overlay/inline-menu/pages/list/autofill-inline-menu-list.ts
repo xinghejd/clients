@@ -27,7 +27,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       initAutofillInlineMenuList: ({ message }) => this.initAutofillInlineMenuList(message),
       checkAutofillInlineMenuListFocused: () => this.checkInlineMenuListFocused(),
       updateAutofillInlineMenuListCiphers: ({ message }) => this.updateListItems(message.ciphers),
-      focusInlineMenuList: () => this.focusInlineMenuList(),
+      focusAutofillInlineMenuList: () => this.focusInlineMenuList(),
     };
 
   constructor() {

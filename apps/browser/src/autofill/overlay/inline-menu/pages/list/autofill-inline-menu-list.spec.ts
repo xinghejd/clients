@@ -338,7 +338,7 @@ describe("AutofillInlineMenuList", () => {
           "setAttribute",
         );
 
-        postWindowMessage({ command: "focusInlineMenuList" });
+        postWindowMessage({ command: "focusAutofillInlineMenuList" });
 
         expect(inlineMenuContainerSetAttributeSpy).toHaveBeenCalledWith("role", "dialog");
         expect(inlineMenuContainerSetAttributeSpy).toHaveBeenCalledWith("aria-modal", "true");
@@ -356,7 +356,7 @@ describe("AutofillInlineMenuList", () => {
           autofillInlineMenuList["inlineMenuListContainer"].querySelector("#unlock-button");
         jest.spyOn(unlockButton as HTMLElement, "focus");
 
-        postWindowMessage({ command: "focusInlineMenuList" });
+        postWindowMessage({ command: "focusAutofillInlineMenuList" });
 
         expect((unlockButton as HTMLElement).focus).toBeCalled();
       });
@@ -368,7 +368,7 @@ describe("AutofillInlineMenuList", () => {
           autofillInlineMenuList["inlineMenuListContainer"].querySelector("#new-item-button");
         jest.spyOn(newItemButton as HTMLElement, "focus");
 
-        postWindowMessage({ command: "focusInlineMenuList" });
+        postWindowMessage({ command: "focusAutofillInlineMenuList" });
 
         expect((newItemButton as HTMLElement).focus).toBeCalled();
       });
@@ -379,7 +379,7 @@ describe("AutofillInlineMenuList", () => {
           autofillInlineMenuList["inlineMenuListContainer"].querySelector(".fill-cipher-button");
         jest.spyOn(firstCipherItem as HTMLElement, "focus");
 
-        postWindowMessage({ command: "focusInlineMenuList" });
+        postWindowMessage({ command: "focusAutofillInlineMenuList" });
 
         expect((firstCipherItem as HTMLElement).focus).toBeCalled();
       });

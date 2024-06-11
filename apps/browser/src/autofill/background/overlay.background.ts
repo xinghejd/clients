@@ -821,7 +821,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Facilitates redirecting focus to the inline menu list.
    */
   private focusInlineMenuList() {
-    this.inlineMenuListPort?.postMessage({ command: "focusInlineMenuList" });
+    this.inlineMenuListPort?.postMessage({ command: "focusAutofillInlineMenuList" });
   }
 
   /**
