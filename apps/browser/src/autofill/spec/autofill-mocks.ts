@@ -16,7 +16,7 @@ import { InitAutofillInlineMenuButtonMessage } from "../overlay/inline-menu/abst
 import { InitAutofillInlineMenuListMessage } from "../overlay/inline-menu/abstractions/autofill-inline-menu-list";
 import { GenerateFillScriptOptions, PageDetail } from "../services/abstractions/autofill.service";
 
-function createAutofillFormMock(customFields = {}): AutofillForm {
+export function createAutofillFormMock(customFields = {}): AutofillForm {
   return {
     opid: "default-form-opid",
     htmlID: "default-htmlID",
@@ -27,7 +27,7 @@ function createAutofillFormMock(customFields = {}): AutofillForm {
   };
 }
 
-function createAutofillFieldMock(customFields = {}): AutofillField {
+export function createAutofillFieldMock(customFields = {}): AutofillField {
   return {
     opid: "default-input-field-opid",
     elementNumber: 0,
@@ -57,7 +57,7 @@ function createAutofillFieldMock(customFields = {}): AutofillField {
   };
 }
 
-function createPageDetailMock(customFields = {}): PageDetail {
+export function createPageDetailMock(customFields = {}): PageDetail {
   return {
     frameId: 0,
     tab: createChromeTabMock(),
@@ -66,7 +66,7 @@ function createPageDetailMock(customFields = {}): PageDetail {
   };
 }
 
-function createAutofillPageDetailsMock(customFields = {}): AutofillPageDetails {
+export function createAutofillPageDetailsMock(customFields = {}): AutofillPageDetails {
   return {
     title: "title",
     url: "url",
@@ -86,7 +86,7 @@ function createAutofillPageDetailsMock(customFields = {}): AutofillPageDetails {
   };
 }
 
-function createChromeTabMock(customFields = {}): chrome.tabs.Tab {
+export function createChromeTabMock(customFields = {}): chrome.tabs.Tab {
   return {
     id: 1,
     index: 1,
@@ -104,7 +104,7 @@ function createChromeTabMock(customFields = {}): chrome.tabs.Tab {
   };
 }
 
-function createGenerateFillScriptOptionsMock(customFields = {}): GenerateFillScriptOptions {
+export function createGenerateFillScriptOptionsMock(customFields = {}): GenerateFillScriptOptions {
   return {
     skipUsernameOnlyFill: false,
     onlyEmptyFields: false,
@@ -118,7 +118,7 @@ function createGenerateFillScriptOptionsMock(customFields = {}): GenerateFillScr
   };
 }
 
-function createAutofillScriptMock(
+export function createAutofillScriptMock(
   customFields = {},
   scriptTypes?: Record<string, string>,
 ): AutofillScript {
@@ -165,7 +165,7 @@ const overlayPagesTranslations = {
   newItem: "newItem",
   addNewVaultItem: "addNewVaultItem",
 };
-function createInitAutofillInlineMenuButtonMessageMock(
+export function createInitAutofillInlineMenuButtonMessageMock(
   customFields = {},
 ): InitAutofillInlineMenuButtonMessage {
   return {
@@ -177,7 +177,7 @@ function createInitAutofillInlineMenuButtonMessageMock(
     ...customFields,
   };
 }
-function createAutofillOverlayCipherDataMock(
+export function createAutofillOverlayCipherDataMock(
   index: number,
   customFields = {},
 ): InlineMenuCipherData {
@@ -198,7 +198,7 @@ function createAutofillOverlayCipherDataMock(
   };
 }
 
-function createInitAutofillInlineMenuListMessageMock(
+export function createInitAutofillInlineMenuListMessageMock(
   customFields = {},
 ): InitAutofillInlineMenuListMessage {
   return {
@@ -242,7 +242,7 @@ function createInitAutofillInlineMenuListMessageMock(
   };
 }
 
-function createFocusedFieldDataMock(customFields = {}) {
+export function createFocusedFieldDataMock(customFields = {}) {
   return {
     focusedFieldRects: {
       top: 1,
@@ -260,7 +260,7 @@ function createFocusedFieldDataMock(customFields = {}) {
   };
 }
 
-function createPortSpyMock(name: string) {
+export function createPortSpyMock(name: string) {
   return mock<chrome.runtime.Port>({
     name,
     onMessage: {
@@ -279,7 +279,7 @@ function createPortSpyMock(name: string) {
   });
 }
 
-function createMutationRecordMock(customFields = {}): MutationRecord {
+export function createMutationRecordMock(customFields = {}): MutationRecord {
   return {
     addedNodes: mock<NodeList>(),
     attributeName: "default-attributeName",
@@ -293,18 +293,3 @@ function createMutationRecordMock(customFields = {}): MutationRecord {
     ...customFields,
   };
 }
-
-export {
-  createAutofillFormMock,
-  createAutofillFieldMock,
-  createPageDetailMock,
-  createAutofillPageDetailsMock,
-  createChromeTabMock,
-  createGenerateFillScriptOptionsMock,
-  createAutofillScriptMock,
-  createInitAutofillInlineMenuButtonMessageMock,
-  createInitAutofillInlineMenuListMessageMock,
-  createFocusedFieldDataMock,
-  createPortSpyMock,
-  createMutationRecordMock,
-};
