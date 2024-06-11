@@ -9,7 +9,8 @@ import {
 } from "../abstractions/autofill-inline-menu-iframe.service";
 
 export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframeServiceInterface {
-  private sendExtensionMessage = sendExtensionMessage;
+  private readonly setElementStyles = setElementStyles;
+  private readonly sendExtensionMessage = sendExtensionMessage;
   private port: chrome.runtime.Port | null = null;
   private portKey: string;
   private iframeMutationObserver: MutationObserver;
@@ -288,10 +289,40 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
 
     this.unobserveIframe();
 
-    setElementStyles(customElement, styles, true);
-    this.iframeStyles = { ...this.iframeStyles, ...styles };
+    this.setElementStyles(customElement, styles, true);
+    if (customElement === this.iframe) {
+      this.iframeStyles = { ...this.iframeStyles, ...styles };
+    }
 
     this.observeIframe();
+  }
+
+  /**
+   * Triggers a forced closure of the autofill inline menu. This is used when the
+   * mutation observer is triggered excessively.
+   */
+  private forceCloseInlineMenu() {
+    void this.sendExtensionMessage("closeAutofillInlineMenu", { forceClose: true });
+  }
+
+  /**
+   * Triggers a delayed closure of the inline menu to ensure that click events are
+   * caught if focus is programmatically redirected away from the inline menu.
+   */
+  private handleDelayedAutofillInlineMenuClosure() {
+    if (this.delayedCloseTimeout) {
+      clearTimeout(this.delayedCloseTimeout);
+    }
+
+    this.updateElementStyles(this.iframe, {
+      transition: this.fadeOutOpacityTransition,
+      opacity: "0",
+    });
+
+    this.delayedCloseTimeout = globalThis.setTimeout(() => {
+      this.updateElementStyles(this.iframe, { transition: this.fadeInOpacityTransition });
+      this.forceCloseInlineMenu();
+    }, 100);
   }
 
   /**
@@ -322,34 +353,6 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
       this.updateElementStyles(this.iframe, this.iframeStyles);
     }
   };
-
-  /**
-   * Triggers a forced closure of the autofill inline menu. This is used when the
-   * mutation observer is triggered excessively.
-   */
-  private forceCloseInlineMenu() {
-    void this.sendExtensionMessage("closeAutofillInlineMenu", { forceClose: true });
-  }
-
-  /**
-   * Triggers a delayed closure of the inline menu to ensure that click events are
-   * caught if focus is programmatically redirected away from the inline menu.
-   */
-  private handleDelayedAutofillInlineMenuClosure() {
-    if (this.delayedCloseTimeout) {
-      clearTimeout(this.delayedCloseTimeout);
-    }
-
-    this.updateElementStyles(this.iframe, {
-      transition: this.fadeOutOpacityTransition,
-      opacity: "0",
-    });
-
-    this.delayedCloseTimeout = globalThis.setTimeout(() => {
-      this.updateElementStyles(this.iframe, { transition: this.fadeInOpacityTransition });
-      this.forceCloseInlineMenu();
-    }, 100);
-  }
 
   /**
    * Handles mutations to the iframe element's attributes. This ensures that
