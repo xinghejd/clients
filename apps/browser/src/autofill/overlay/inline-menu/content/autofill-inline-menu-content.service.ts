@@ -193,10 +193,6 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * to create the element if it already exists in the DOM.
    */
   private createButton() {
-    if (this.buttonElement) {
-      return;
-    }
-
     if (this.isFirefoxBrowser) {
       this.buttonElement = globalThis.document.createElement("div");
       new AutofillInlineMenuButtonIframe(this.buttonElement);
@@ -222,10 +218,6 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * to create the element if it already exists in the DOM.
    */
   private createList() {
-    if (this.listElement) {
-      return;
-    }
-
     if (this.isFirefoxBrowser) {
       this.listElement = globalThis.document.createElement("div");
       new AutofillInlineMenuListIframe(this.listElement);
