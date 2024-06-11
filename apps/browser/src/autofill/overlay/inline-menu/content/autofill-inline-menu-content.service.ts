@@ -151,7 +151,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    */
   private async appendButtonElement(): Promise<void> {
     if (!this.buttonElement) {
-      this.createButton();
+      this.createButtonElement();
       this.updateCustomElementDefaultStyles(this.buttonElement);
     }
 
@@ -166,7 +166,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    */
   private async appendListElement(): Promise<void> {
     if (!this.listElement) {
-      this.createList();
+      this.createListElement();
       this.updateCustomElementDefaultStyles(this.listElement);
     }
 
@@ -192,7 +192,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * Creates the autofill inline menu button element. Will not attempt
    * to create the element if it already exists in the DOM.
    */
-  private createButton() {
+  private createButtonElement() {
     if (this.isFirefoxBrowser) {
       this.buttonElement = globalThis.document.createElement("div");
       new AutofillInlineMenuButtonIframe(this.buttonElement);
@@ -217,7 +217,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * Creates the autofill inline menu list element. Will not attempt
    * to create the element if it already exists in the DOM.
    */
-  private createList() {
+  private createListElement() {
     if (this.isFirefoxBrowser) {
       this.listElement = globalThis.document.createElement("div");
       new AutofillInlineMenuListIframe(this.listElement);
