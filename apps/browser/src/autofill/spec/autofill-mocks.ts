@@ -159,7 +159,7 @@ const overlayPagesTranslations = {
   unlockYourAccount: "unlockYourAccount",
   unlockAccount: "unlockAccount",
   fillCredentialsFor: "fillCredentialsFor",
-  partialUsername: "partialUsername",
+  username: "username",
   view: "view",
   noItemsToShow: "noItemsToShow",
   newItem: "newItem",

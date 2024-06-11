@@ -266,7 +266,7 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     );
     fillCipherElement.setAttribute(
       "aria-description",
-      `${this.getTranslation("partialUsername")}, ${cipher.login.username}`,
+      `${this.getTranslation("username")}, ${cipher.login.username}`,
     );
     fillCipherElement.append(cipherIcon, cipherDetailsElement);
     fillCipherElement.addEventListener(EVENTS.CLICK, this.handleFillCipherClickEvent(cipher));

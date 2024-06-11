@@ -853,7 +853,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         unlockYourAccount: this.i18nService.translate("unlockYourAccountToViewMatchingLogins"),
         unlockAccount: this.i18nService.translate("unlockAccount"),
         fillCredentialsFor: this.i18nService.translate("fillCredentialsFor"),
-        partialUsername: this.i18nService.translate("partialUsername"),
+        username: this.i18nService.translate("username")?.toLowerCase(),
         view: this.i18nService.translate("view"),
         noItemsToShow: this.i18nService.translate("noItemsToShow"),
         newItem: this.i18nService.translate("newItem"),
