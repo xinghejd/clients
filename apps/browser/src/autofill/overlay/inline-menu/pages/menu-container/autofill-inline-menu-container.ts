@@ -9,12 +9,12 @@ import {
 } from "../../abstractions/autofill-inline-menu-container";
 
 export class AutofillInlineMenuContainer {
-  private setElementStyles = setElementStyles;
-  private extensionOriginsSet: Set<string>;
+  private readonly setElementStyles = setElementStyles;
+  private readonly extensionOriginsSet: Set<string>;
   private port: chrome.runtime.Port | null = null;
   private portName: string;
   private inlineMenuPageIframe: HTMLIFrameElement;
-  private iframeStyles: Partial<CSSStyleDeclaration> = {
+  private readonly iframeStyles: Partial<CSSStyleDeclaration> = {
     all: "initial",
     position: "fixed",
     top: "0",
@@ -32,14 +32,14 @@ export class AutofillInlineMenuContainer {
     padding: "0",
     colorScheme: "normal",
   };
-  private defaultIframeAttributes: Record<string, string> = {
+  private readonly defaultIframeAttributes: Record<string, string> = {
     src: "",
     title: "",
     sandbox: "allow-scripts",
     allowtransparency: "true",
     tabIndex: "-1",
   };
-  private windowMessageHandlers: AutofillInlineMenuContainerWindowMessageHandlers = {
+  private readonly windowMessageHandlers: AutofillInlineMenuContainerWindowMessageHandlers = {
     initAutofillInlineMenuButton: (message) => this.handleInitInlineMenuIframe(message),
     initAutofillInlineMenuList: (message) => this.handleInitInlineMenuIframe(message),
   };
