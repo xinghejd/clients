@@ -3,7 +3,7 @@ import { EVENTS } from "@bitwarden/common/autofill/constants";
 import { setElementStyles } from "../../../../utils";
 import {
   InitInlineMenuElementMessage,
-  AutofillInlineMenuMenuContainerWindowMessageHandlers,
+  AutofillInlineMenuContainerWindowMessageHandlers,
 } from "../../abstractions/autofill-inline-menu-container";
 
 export class AutofillInlineMenuContainer {
@@ -36,7 +36,7 @@ export class AutofillInlineMenuContainer {
     allowtransparency: "true",
     tabIndex: "-1",
   };
-  private windowMessageHandlers: AutofillInlineMenuMenuContainerWindowMessageHandlers = {
+  private windowMessageHandlers: AutofillInlineMenuContainerWindowMessageHandlers = {
     initAutofillInlineMenuList: (message) => this.handleInitInlineMenuIframe(message),
     initAutofillInlineMenuButton: (message) => this.handleInitInlineMenuIframe(message),
   };
