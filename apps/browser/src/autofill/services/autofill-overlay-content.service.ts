@@ -123,7 +123,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   openInlineMenu(options: OpenAutofillInlineMenuOptions = {}) {
     const { isFocusingFieldElement, isOpeningFullInlineMenu, authStatus } = options;
-    // TODO: It's likely that this method functions more cleanly from the scope of the background. Will address this in a future PR when time allows.
     if (!this.mostRecentlyFocusedField) {
       return;
     }
