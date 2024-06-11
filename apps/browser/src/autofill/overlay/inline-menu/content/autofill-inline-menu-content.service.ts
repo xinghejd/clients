@@ -39,8 +39,8 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     appendInlineMenuElementsToDom: ({ message }) => this.appendInlineMenuElements(message),
     toggleInlineMenuHidden: ({ message }) =>
       this.toggleInlineMenuHidden(message.isInlineMenuHidden),
-    checkIsAutofillInlineMenuButtonVisible: () => this.isInlineMenuButtonVisible(),
-    checkIsAutofillInlineMenuListVisible: () => this.isInlineMenuListVisible(),
+    checkIsInlineMenuButtonVisible: () => this.isInlineMenuButtonVisible(),
+    checkIsInlineMenuListVisible: () => this.isInlineMenuListVisible(),
   };
 
   constructor() {

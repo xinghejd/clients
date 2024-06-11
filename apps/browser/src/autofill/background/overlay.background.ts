@@ -85,9 +85,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     updateAutofillInlineMenuHidden: ({ message, sender }) =>
       this.updateInlineMenuHidden(message, sender),
     checkIsAutofillInlineMenuButtonVisible: ({ sender }) =>
-      this.checkIsAutofillInlineMenuButtonVisible(sender),
-    checkIsAutofillInlineMenuListVisible: ({ sender }) =>
-      this.checkIsAutofillInlineMenuListVisible(sender),
+      this.checkIsInlineMenuButtonVisible(sender),
+    checkIsAutofillInlineMenuListVisible: ({ sender }) => this.checkIsInlineMenuListVisible(sender),
     checkShouldRepositionInlineMenu: ({ sender }) => this.checkShouldRepositionInlineMenu(sender),
     getCurrentTabFrameId: ({ sender }) => this.getSenderFrameId(sender),
     updateSubFrameData: ({ message, sender }) => this.updateSubFrameData(message, sender),
@@ -984,12 +983,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    *
    * @param sender - The sender of the message
    */
-  private async checkIsAutofillInlineMenuButtonVisible(
+  private async checkIsInlineMenuButtonVisible(
     sender: chrome.runtime.MessageSender,
   ): Promise<boolean> {
     return await BrowserApi.tabSendMessage(
       sender.tab,
-      { command: "checkIsAutofillInlineMenuButtonVisible" },
+      { command: "checkIsInlineMenuButtonVisible" },
       { frameId: 0 },
     );
   }
@@ -999,12 +998,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    *
    * @param sender - The sender of the message
    */
-  private async checkIsAutofillInlineMenuListVisible(
+  private async checkIsInlineMenuListVisible(
     sender: chrome.runtime.MessageSender,
   ): Promise<boolean> {
     return await BrowserApi.tabSendMessage(
       sender.tab,
-      { command: "checkIsAutofillInlineMenuListVisible" },
+      { command: "checkIsInlineMenuListVisible" },
       { frameId: 0 },
     );
   }

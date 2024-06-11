@@ -1188,7 +1188,7 @@ describe("OverlayBackground", () => {
 
         expect(tabsSendMessageSpy).toHaveBeenCalledWith(
           sender.tab,
-          { command: "checkIsAutofillInlineMenuButtonVisible" },
+          { command: "checkIsInlineMenuButtonVisible" },
           { frameId: 0 },
         );
       });
@@ -1202,7 +1202,7 @@ describe("OverlayBackground", () => {
 
         expect(tabsSendMessageSpy).toHaveBeenCalledWith(
           sender.tab,
-          { command: "checkIsAutofillInlineMenuListVisible" },
+          { command: "checkIsInlineMenuListVisible" },
           { frameId: 0 },
         );
       });
