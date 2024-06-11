@@ -160,14 +160,14 @@ export default class AutofillService implements AutofillServiceInterface {
     const activeAccount = await firstValueFrom(this.accountService.activeAccount$);
     const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
     const accountIsUnlocked = authStatus === AuthenticationStatus.Unlocked;
-    let overlayVisibility: InlineMenuVisibilitySetting = AutofillOverlayVisibility.Off;
+    let inlineMenuVisibility: InlineMenuVisibilitySetting = AutofillOverlayVisibility.Off;
     let autoFillOnPageLoadIsEnabled = false;
 
     if (activeAccount) {
-      overlayVisibility = await this.getInlineMenuVisibility();
+      inlineMenuVisibility = await this.getInlineMenuVisibility();
     }
 
-    const mainAutofillScript = overlayVisibility
+    const mainAutofillScript = inlineMenuVisibility
       ? "bootstrap-autofill-overlay.js"
       : "bootstrap-autofill.js";
 
