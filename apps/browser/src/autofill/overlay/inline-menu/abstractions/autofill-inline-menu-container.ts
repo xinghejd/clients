@@ -7,7 +7,7 @@ type AutofillInlineMenuContainerMessage = {
   portKey: string;
 };
 
-export type InitInlineMenuElementMessage = AutofillInlineMenuContainerMessage & {
+export type InitAutofillInlineMenuElementMessage = AutofillInlineMenuContainerMessage & {
   iframeUrl?: string;
   pageTitle?: string;
   authStatus?: AuthenticationStatus;
@@ -20,6 +20,6 @@ export type InitInlineMenuElementMessage = AutofillInlineMenuContainerMessage & 
 
 export type AutofillInlineMenuContainerWindowMessageHandlers = {
   [key: string]: CallableFunction;
-  initAutofillInlineMenuList: (message: InitInlineMenuElementMessage) => void;
-  initAutofillInlineMenuButton: (message: InitInlineMenuElementMessage) => void;
+  initAutofillInlineMenuList: (message: InitAutofillInlineMenuElementMessage) => void;
+  initAutofillInlineMenuButton: (message: InitAutofillInlineMenuElementMessage) => void;
 };

@@ -2,7 +2,7 @@ import { EVENTS } from "@bitwarden/common/autofill/constants";
 
 import { setElementStyles } from "../../../../utils";
 import {
-  InitInlineMenuElementMessage,
+  InitAutofillInlineMenuElementMessage,
   AutofillInlineMenuContainerWindowMessageHandlers,
 } from "../../abstractions/autofill-inline-menu-container";
 
@@ -50,7 +50,7 @@ export class AutofillInlineMenuContainer {
     globalThis.addEventListener("message", this.handleWindowMessage);
   }
 
-  private handleInitInlineMenuIframe(message: InitInlineMenuElementMessage) {
+  private handleInitInlineMenuIframe(message: InitAutofillInlineMenuElementMessage) {
     this.defaultIframeAttributes.src = message.iframeUrl;
     this.defaultIframeAttributes.title = message.pageTitle;
     this.portName = message.portName;
@@ -67,7 +67,7 @@ export class AutofillInlineMenuContainer {
     globalThis.document.body.appendChild(this.inlineMenuPageIframe);
   }
 
-  private setupPortMessageListener = (message: InitInlineMenuElementMessage) => {
+  private setupPortMessageListener = (message: InitAutofillInlineMenuElementMessage) => {
     this.port = chrome.runtime.connect({ name: this.portName });
     this.postMessageToInlineMenuPage(message);
   };
