@@ -331,6 +331,26 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
   }
 
   /**
+   * Triggers a delayed closure of the inline menu to ensure that click events are
+   * caught if focus is programmatically redirected away from the inline menu.
+   */
+  private handleDelayedAutofillInlineMenuClosure() {
+    if (this.delayedCloseTimeout) {
+      clearTimeout(this.delayedCloseTimeout);
+    }
+
+    this.updateElementStyles(this.iframe, {
+      transition: this.fadeOutOpacityTransition,
+      opacity: "0",
+    });
+
+    this.delayedCloseTimeout = globalThis.setTimeout(() => {
+      this.updateElementStyles(this.iframe, { transition: this.fadeInOpacityTransition });
+      this.forceCloseAutofillInlineMenu();
+    }, 100);
+  }
+
+  /**
    * Handles mutations to the iframe element's attributes. This ensures that
    * the iframe element's attributes are not modified by a third party source.
    *
@@ -406,21 +426,5 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     }
 
     return false;
-  }
-
-  private handleDelayedAutofillInlineMenuClosure() {
-    if (this.delayedCloseTimeout) {
-      clearTimeout(this.delayedCloseTimeout);
-    }
-
-    this.updateElementStyles(this.iframe, {
-      transition: this.fadeOutOpacityTransition,
-      opacity: "0",
-    });
-
-    this.delayedCloseTimeout = globalThis.setTimeout(() => {
-      this.updateElementStyles(this.iframe, { transition: this.fadeInOpacityTransition });
-      this.forceCloseAutofillInlineMenu();
-    }, 100);
   }
 }

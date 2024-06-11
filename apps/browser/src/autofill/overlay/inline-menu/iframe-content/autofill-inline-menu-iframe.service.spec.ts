@@ -403,6 +403,27 @@ describe("AutofillInlineMenuIframeService", () => {
           "*",
         );
       });
+
+      it("triggers a delayed closure of the inline menu", () => {
+        jest.useFakeTimers();
+        jest.spyOn(globalThis, "clearTimeout");
+        autofillInlineMenuIframeService["delayedCloseTimeout"] = setTimeout(jest.fn, 100);
+
+        sendPortMessage(portSpy, { command: "triggerDelayedAutofillInlineMenuClosure" });
+        expect(clearTimeout).toHaveBeenCalled();
+        expect(autofillInlineMenuIframeService["iframe"].style.opacity).toBe("0");
+        expect(autofillInlineMenuIframeService["iframe"].style.transition).toBe(
+          "opacity 65ms ease-out 0s",
+        );
+
+        jest.advanceTimersByTime(100);
+        expect(autofillInlineMenuIframeService["iframe"].style.transition).toBe(
+          "opacity 125ms ease-out 0s",
+        );
+        expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu", {
+          forceClose: true,
+        });
+      });
     });
   });
 
