@@ -12,7 +12,7 @@ import {
 } from "../../abstractions/autofill-inline-menu-button";
 import { AutofillInlineMenuPageElement } from "../shared/autofill-inline-menu-page-element";
 
-class AutofillInlineMenuButton extends AutofillInlineMenuPageElement {
+export class AutofillInlineMenuButton extends AutofillInlineMenuPageElement {
   private authStatus: AuthenticationStatus = AuthenticationStatus.LoggedOut;
   private readonly buttonElement: HTMLButtonElement;
   private readonly logoIconElement: HTMLElement;
@@ -124,5 +124,3 @@ class AutofillInlineMenuButton extends AutofillInlineMenuPageElement {
     this.postMessageToParent({ command: "triggerDelayedAutofillInlineMenuClosure" });
   }
 }
-
-export default AutofillInlineMenuButton;

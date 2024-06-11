@@ -3,7 +3,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { createInitAutofillInlineMenuButtonMessageMock } from "../../../../spec/autofill-mocks";
 import { flushPromises, postWindowMessage } from "../../../../spec/testing-utils";
 
-import AutofillInlineMenuButton from "./autofill-inline-menu-button";
+import { AutofillInlineMenuButton } from "./autofill-inline-menu-button";
 
 describe("AutofillInlineMenuButton", () => {
   globalThis.customElements.define("autofill-inline-menu-button", AutofillInlineMenuButton);
