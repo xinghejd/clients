@@ -32,6 +32,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     position: "fixed",
     display: "block",
     zIndex: "2147483647",
+    isolation: "isolate",
   };
   private readonly extensionMessageHandlers: InlineMenuExtensionMessageHandlers = {
     closeAutofillInlineMenu: ({ message }) => this.closeInlineMenu(message),
@@ -387,14 +388,10 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     }
 
     if (!lastChildIsInlineMenuList && !lastChildIsInlineMenuButton) {
-      if (this.buttonElement && this.isButtonVisible) {
-        globalThis.document.documentElement.appendChild(this.buttonElement);
+      const lastChildZIndex = parseInt((lastChild as HTMLElement).style.zIndex);
+      if (lastChildZIndex >= 2147483647) {
+        (lastChild as HTMLElement).style.zIndex = "2147483646";
       }
-
-      if (this.listElement && this.isListVisible) {
-        globalThis.document.documentElement.appendChild(this.listElement);
-      }
-
       return;
     }
 
