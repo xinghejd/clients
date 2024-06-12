@@ -38,6 +38,7 @@ import { BrowserPlatformUtilsService } from "../../platform/services/platform-ut
 import {
   AutofillOverlayElement,
   AutofillOverlayPort,
+  MAX_SUB_FRAME_DEPTH,
   RedirectFocusDirection,
 } from "../enums/autofill-overlay.enum";
 import { AutofillService } from "../services/abstractions/autofill.service";
@@ -214,6 +215,25 @@ describe("OverlayBackground", () => {
             top: getFrameCounter,
             url: "url",
           }),
+        );
+      });
+
+      it("triggers a destruction of the inline menu listeners if the max frame depth is exceeded ", async () => {
+        getFrameCounter = MAX_SUB_FRAME_DEPTH + 1;
+        const tab = createChromeTabMock({ id: tabId });
+        sendMockExtensionMessage(
+          { command: "collectPageDetailsResponse", details: createAutofillPageDetailsMock() },
+          mock<chrome.runtime.MessageSender>({
+            tab,
+            frameId: 1,
+          }),
+        );
+        await flushPromises();
+
+        expect(tabsSendMessageSpy).toHaveBeenCalledWith(
+          tab,
+          { command: "destroyAutofillInlineMenuListeners" },
+          { frameId: 1 },
         );
       });
 

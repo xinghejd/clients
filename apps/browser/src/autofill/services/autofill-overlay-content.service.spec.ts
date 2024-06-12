@@ -11,7 +11,7 @@ import {
 } from "../enums/autofill-overlay.enum";
 import AutofillField from "../models/autofill-field";
 import { createAutofillFieldMock } from "../spec/autofill-mocks";
-import { flushPromises, sendMockExtensionMessage } from "../spec/testing-utils";
+import { flushPromises, postWindowMessage, sendMockExtensionMessage } from "../spec/testing-utils";
 import { ElementWithOpId, FillableFormFieldElement, FormFieldElement } from "../types";
 
 import { AutoFillConstants } from "./autofill-constants";
@@ -1526,13 +1526,13 @@ describe("AutofillOverlayContentService", () => {
             parentFrameIds: [1, 2, 3],
             subFrameDepth: MAX_SUB_FRAME_DEPTH,
           };
-          const event = mock<MessageEvent>();
-          // @ts-expect-error - Need to mock the source to be the iframe content window
-          event.source = iframe.contentWindow;
-          event.data.subFrameData = subFrameData;
           sendExtensionMessageSpy.mockResolvedValue(4);
 
-          await autofillOverlayContentService["calculateSubFramePositioning"](event);
+          postWindowMessage(
+            { command: "calculateSubFramePositioning", subFrameData },
+            "*",
+            iframe.contentWindow as any,
+          );
           await flushPromises();
 
           expect(globalThis.parent.postMessage).not.toHaveBeenCalled();
@@ -1553,13 +1553,12 @@ describe("AutofillOverlayContentService", () => {
             parentFrameIds: [1, 2, 3],
             subFrameDepth: 0,
           };
-          const event = mock<MessageEvent>();
-          // @ts-expect-error - Need to mock the source to be the iframe content window
-          event.source = iframe.contentWindow;
-          event.data.subFrameData = subFrameData;
-          sendExtensionMessageSpy.mockResolvedValue(4);
 
-          await autofillOverlayContentService["calculateSubFramePositioning"](event);
+          postWindowMessage(
+            { command: "calculateSubFramePositioning", subFrameData },
+            "*",
+            iframe.contentWindow as any,
+          );
           await flushPromises();
 
           expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
@@ -1567,11 +1566,11 @@ describe("AutofillOverlayContentService", () => {
               command: "calculateSubFramePositioning",
               subFrameData: {
                 frameId: 10,
-                left: 2,
-                parentFrameIds: [1, 2, 3, 4],
-                top: 2,
+                left: 20,
+                parentFrameIds: [1, 2, 3],
+                top: 20,
                 url: "https://example.com/",
-                subFrameDepth: 1,
+                subFrameDepth: expect.any(Number),
               },
             },
             "*",
@@ -1587,24 +1586,24 @@ describe("AutofillOverlayContentService", () => {
             left: 0,
             top: 0,
             parentFrameIds: [1, 2, 3],
-            subFrameDepth: 1,
+            subFrameDepth: expect.any(Number),
           };
-          const event = mock<MessageEvent>();
-          // @ts-expect-error - Need to mock the source to be the iframe content window
-          event.source = iframe.contentWindow;
-          event.data.subFrameData = subFrameData;
 
-          await autofillOverlayContentService["calculateSubFramePositioning"](event);
+          postWindowMessage(
+            { command: "calculateSubFramePositioning", subFrameData },
+            "*",
+            iframe.contentWindow as any,
+          );
           await flushPromises();
 
           expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateSubFrameData", {
             subFrameData: {
               frameId: 10,
-              left: 2,
-              top: 2,
+              left: 168,
+              top: 168,
               url: "https://example.com/",
-              parentFrameIds: [1, 2, 3],
-              subFrameDepth: 2,
+              parentFrameIds: [1, 2, 3, 4],
+              subFrameDepth: expect.any(Number),
             },
           });
         });

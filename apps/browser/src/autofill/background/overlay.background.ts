@@ -314,10 +314,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const subFrameData: SubFrameOffsetData = { url, top: 0, left: 0, parentFrameIds: [] };
     let frameDetails = await BrowserApi.getFrameDetails({ tabId, frameId });
 
-    while (
-      (frameDetails && frameDetails.parentFrameId > -1) ||
-      subFrameDepth > MAX_SUB_FRAME_DEPTH
-    ) {
+    while (frameDetails && frameDetails.parentFrameId > -1) {
+      subFrameDepth++;
+      if (subFrameDepth >= MAX_SUB_FRAME_DEPTH) {
+        subFrameOffsetsForTab.set(frameId, null);
+        this.triggerDestroyInlineMenuListeners(tab, frameId);
+        return;
+      }
+
       const subFrameOffset: SubFrameOffsetData = await BrowserApi.tabSendMessage(
         tab,
         {
@@ -346,13 +350,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         tabId,
         frameId: frameDetails.parentFrameId,
       });
-      subFrameDepth++;
-    }
-
-    if (subFrameDepth > MAX_SUB_FRAME_DEPTH) {
-      subFrameOffsetsForTab.set(frameId, null);
-      this.triggerDestroyInlineMenuListeners(tab, frameId);
-      return;
     }
 
     subFrameOffsetsForTab.set(frameId, subFrameData);
