@@ -121,6 +121,10 @@ export type OverlayBackgroundExtensionMessageHandlers = {
   getCurrentTabFrameId: ({ sender }: BackgroundSenderParam) => number;
   updateSubFrameData: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   rebuildSubFrameOffsets: ({ sender }: BackgroundSenderParam) => void;
+  destroyAutofillInlineMenuListeners: ({
+    message,
+    sender,
+  }: BackgroundOnMessageHandlerParams) => void;
   collectPageDetailsResponse: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   unlockCompleted: ({ message }: BackgroundMessageParam) => void;
   addedCipher: () => void;

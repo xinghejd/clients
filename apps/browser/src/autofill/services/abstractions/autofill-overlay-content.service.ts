@@ -11,6 +11,10 @@ export type OpenAutofillInlineMenuOptions = {
   authStatus?: AuthenticationStatus;
 };
 
+export type SubFrameDataFromWindowMessage = SubFrameOffsetData & {
+  subFrameDepth: number;
+};
+
 export type AutofillOverlayContentExtensionMessageHandlers = {
   [key: string]: CallableFunction;
   openAutofillInlineMenu: ({ message }: AutofillExtensionMessageParam) => void;
@@ -24,6 +28,7 @@ export type AutofillOverlayContentExtensionMessageHandlers = {
   getSubFrameOffsets: ({ message }: AutofillExtensionMessageParam) => Promise<SubFrameOffsetData>;
   getSubFrameOffsetsFromWindowMessage: ({ message }: AutofillExtensionMessageParam) => void;
   checkMostRecentlyFocusedFieldHasValue: () => boolean;
+  destroyAutofillInlineMenuListeners: () => void;
 };
 
 export interface AutofillOverlayContentService {
