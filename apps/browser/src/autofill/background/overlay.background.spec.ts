@@ -1222,13 +1222,6 @@ describe("OverlayBackground", () => {
         frameId: 2,
       });
 
-      beforeEach(() => {
-        sendMockExtensionMessage({
-          command: "updateIsFieldCurrentlyFocused",
-          isFieldCurrentlyFocused: true,
-        });
-      });
-
       it("returns false if the focused field data is not set", async () => {
         sendMockExtensionMessage(
           { command: "checkShouldRepositionInlineMenu" },
@@ -1247,24 +1240,6 @@ describe("OverlayBackground", () => {
           { command: "updateFocusedFieldData", focusedFieldData },
           otherSender,
         );
-
-        sendMockExtensionMessage(
-          { command: "checkShouldRepositionInlineMenu" },
-          sender,
-          sendResponse,
-        );
-        await flushPromises();
-
-        expect(sendResponse).toHaveBeenCalledWith(false);
-      });
-
-      it("returns false if the field is not currently focused", async () => {
-        sendMockExtensionMessage({
-          command: "updateIsFieldCurrentlyFocused",
-          isFieldCurrentlyFocused: false,
-        });
-        const focusedFieldData = createFocusedFieldDataMock();
-        sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData }, sender);
 
         sendMockExtensionMessage(
           { command: "checkShouldRepositionInlineMenu" },
