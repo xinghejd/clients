@@ -1488,6 +1488,7 @@ describe("OverlayBackground", () => {
 
     describe("triggerDelayedAutofillInlineMenuClosure message handler", () => {
       it("skips triggering the delayed closure of the inline menu if a field is currently focused", async () => {
+        jest.useFakeTimers();
         sendMockExtensionMessage({
           command: "updateIsFieldCurrentlyFocused",
           isFieldCurrentlyFocused: true,
@@ -1499,6 +1500,7 @@ describe("OverlayBackground", () => {
           portKey,
         });
         await flushPromises();
+        jest.advanceTimersByTime(100);
 
         const message = { command: "triggerDelayedAutofillInlineMenuClosure" };
         expect(buttonPortSpy.postMessage).not.toHaveBeenCalledWith(message);
@@ -1506,15 +1508,41 @@ describe("OverlayBackground", () => {
       });
 
       it("sends a message to the button and list ports that triggers a delayed closure of the inline menu", async () => {
+        jest.useFakeTimers();
         sendPortMessage(buttonMessageConnectorSpy, {
           command: "triggerDelayedAutofillInlineMenuClosure",
           portKey,
         });
         await flushPromises();
+        jest.advanceTimersByTime(100);
 
         const message = { command: "triggerDelayedAutofillInlineMenuClosure" };
         expect(buttonPortSpy.postMessage).toHaveBeenCalledWith(message);
         expect(listPortSpy.postMessage).toHaveBeenCalledWith(message);
+      });
+
+      it("triggers a single delayed closure if called again within a 100ms threshold", async () => {
+        jest.useFakeTimers();
+        sendPortMessage(buttonMessageConnectorSpy, {
+          command: "triggerDelayedAutofillInlineMenuClosure",
+          portKey,
+        });
+        await flushPromises();
+        jest.advanceTimersByTime(50);
+        sendPortMessage(buttonMessageConnectorSpy, {
+          command: "triggerDelayedAutofillInlineMenuClosure",
+          portKey,
+        });
+        await flushPromises();
+        jest.advanceTimersByTime(100);
+
+        const message = { command: "triggerDelayedAutofillInlineMenuClosure" };
+        expect(buttonPortSpy.postMessage).toHaveBeenCalledTimes(2);
+        expect(buttonPortSpy.postMessage).not.toHaveBeenNthCalledWith(1, message);
+        expect(buttonPortSpy.postMessage).toHaveBeenNthCalledWith(2, message);
+        expect(listPortSpy.postMessage).toHaveBeenCalledTimes(2);
+        expect(listPortSpy.postMessage).not.toHaveBeenNthCalledWith(1, message);
+        expect(listPortSpy.postMessage).toHaveBeenNthCalledWith(2, message);
       });
     });
 

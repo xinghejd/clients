@@ -416,7 +416,7 @@ describe("AutofillInlineMenuIframeService", () => {
           "opacity 65ms ease-out 0s",
         );
 
-        jest.advanceTimersByTime(200);
+        jest.advanceTimersByTime(100);
         expect(autofillInlineMenuIframeService["iframe"].style.transition).toBe(
           "opacity 125ms ease-out 0s",
         );

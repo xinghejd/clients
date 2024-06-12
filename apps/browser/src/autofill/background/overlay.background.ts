@@ -60,6 +60,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private inlineMenuPageTranslations: Record<string, string>;
   private inlineMenuFadeInTimeout: number | NodeJS.Timeout;
   private updateInlineMenuPositionTimeout: number | NodeJS.Timeout;
+  private delayedCloseTimeout: number | NodeJS.Timeout;
   private focusedFieldData: FocusedFieldData;
   private isFieldCurrentlyFocused: boolean = false;
   private isFieldCurrentlyFilling: boolean = false;
@@ -99,8 +100,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     deletedCipher: () => this.updateInlineMenuCiphers(),
   };
   private readonly inlineMenuButtonPortMessageHandlers: InlineMenuButtonPortMessageHandlers = {
-    triggerDelayedAutofillInlineMenuClosure: ({ port }) =>
-      this.triggerDelayedInlineMenuClosure(port.sender),
+    triggerDelayedAutofillInlineMenuClosure: ({ port }) => this.triggerDelayedInlineMenuClosure(),
     autofillInlineMenuButtonClicked: ({ port }) => this.handleInlineMenuButtonClicked(port),
     autofillInlineMenuBlurred: () => this.checkInlineMenuListFocused(),
     redirectAutofillInlineMenuFocusOut: ({ message, port }) =>
@@ -372,7 +372,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       }
     }
 
-    this.updateInlineMenuPositionTimeout = setTimeout(
+    this.updateInlineMenuPositionTimeout = globalThis.setTimeout(
       () => this.updateInlineMenuPositionAfterSubFrameRebuild(sender),
       650,
     );
@@ -510,17 +510,29 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Sends a message to the sender tab to trigger a delayed closure of the inline menu.
    * This is used to ensure that we capture click events on the inline menu in the case
    * that some on page programmatic method attempts to force focus redirection.
-   *
-   * @param sender - The sender of the port message
    */
-  private triggerDelayedInlineMenuClosure(sender: chrome.runtime.MessageSender) {
+  private triggerDelayedInlineMenuClosure() {
     if (this.isFieldCurrentlyFocused) {
       return;
     }
 
-    const message = { command: "triggerDelayedAutofillInlineMenuClosure" };
-    this.inlineMenuButtonPort?.postMessage(message);
-    this.inlineMenuListPort?.postMessage(message);
+    this.clearDelayedInlineMenuClosure();
+
+    this.delayedCloseTimeout = globalThis.setTimeout(() => {
+      const message = { command: "triggerDelayedAutofillInlineMenuClosure" };
+      this.inlineMenuButtonPort?.postMessage(message);
+      this.inlineMenuListPort?.postMessage(message);
+    }, 100);
+  }
+
+  /**
+   * Clears the delayed closure timeout for the inline menu, effectively
+   * cancelling the event from occurring.
+   */
+  private clearDelayedInlineMenuClosure() {
+    if (this.delayedCloseTimeout) {
+      clearTimeout(this.delayedCloseTimeout);
+    }
   }
 
   /**
@@ -772,6 +784,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
+    this.clearDelayedInlineMenuClosure();
     await this.openInlineMenu(false, true);
   }
 
