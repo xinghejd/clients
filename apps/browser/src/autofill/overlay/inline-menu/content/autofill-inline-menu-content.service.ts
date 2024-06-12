@@ -25,7 +25,6 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   private isListVisible = false;
   private inlineMenuElementsMutationObserver: MutationObserver;
   private bodyElementMutationObserver: MutationObserver;
-  private documentElementMutationObserver: MutationObserver;
   private mutationObserverIterations = 0;
   private mutationObserverIterationsResetTimeout: number | NodeJS.Timeout;
   private readonly customElementDefaultStyles: Partial<CSSStyleDeclaration> = {
