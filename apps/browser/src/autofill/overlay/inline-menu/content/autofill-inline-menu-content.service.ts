@@ -25,7 +25,6 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   private isListVisible = false;
   private inlineMenuElementsMutationObserver: MutationObserver;
   private bodyElementMutationObserver: MutationObserver;
-  private documentElementMutationObserver: MutationObserver;
   private mutationObserverIterations = 0;
   private mutationObserverIterationsResetTimeout: number | NodeJS.Timeout;
   private readonly customElementDefaultStyles: Partial<CSSStyleDeclaration> = {
@@ -369,14 +368,37 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       return;
     }
 
+    globalThis.requestIdleCallback(this.processBodyElementMutation);
+  };
+
+  /**
+   * Processes the mutation of the body element. Will trigger when an
+   * idle moment in the execution of the main thread is detected.
+   */
+  private processBodyElementMutation = async () => {
     const lastChild = globalThis.document.body.lastElementChild;
     const secondToLastChild = lastChild?.previousElementSibling;
     const lastChildIsInlineMenuList = lastChild === this.listElement;
     const lastChildIsInlineMenuButton = lastChild === this.buttonElement;
     const secondToLastChildIsInlineMenuButton = secondToLastChild === this.buttonElement;
 
+    if (!lastChild) {
+      return;
+    }
+
+    if (!lastChildIsInlineMenuList && !lastChildIsInlineMenuButton) {
+      if (this.buttonElement) {
+        globalThis.document.documentElement.appendChild(this.buttonElement);
+      }
+
+      if (this.listElement) {
+        globalThis.document.documentElement.appendChild(this.listElement);
+      }
+
+      return;
+    }
+
     if (
-      !lastChild ||
       (lastChildIsInlineMenuList && secondToLastChildIsInlineMenuButton) ||
       (lastChildIsInlineMenuButton && !this.isListVisible)
     ) {
