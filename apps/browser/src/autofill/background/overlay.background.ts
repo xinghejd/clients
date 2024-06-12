@@ -1073,7 +1073,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     const parentFrameIds = new Set();
     subFrameOffsetsForTab.forEach((subFrameOffsetData) =>
-      subFrameOffsetData.parentFrameIds.forEach((parentFrameId) =>
+      subFrameOffsetData?.parentFrameIds.forEach((parentFrameId) =>
         parentFrameIds.add(parentFrameId),
       ),
     );

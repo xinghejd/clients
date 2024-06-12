@@ -16,4 +16,4 @@ export const RedirectFocusDirection = {
   Next: "next",
 } as const;
 
-export const MAX_SUB_FRAME_DEPTH = 10;
+export const MAX_SUB_FRAME_DEPTH = 8;

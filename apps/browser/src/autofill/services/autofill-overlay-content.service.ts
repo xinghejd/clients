@@ -1060,7 +1060,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     const subFrameData: SubFrameDataFromWindowMessage = event.data.subFrameData;
 
     subFrameData.subFrameDepth++;
-    if (subFrameData.subFrameDepth > MAX_SUB_FRAME_DEPTH) {
+    if (subFrameData.subFrameDepth >= MAX_SUB_FRAME_DEPTH) {
       void this.sendExtensionMessage("destroyAutofillInlineMenuListeners", { subFrameData });
       return;
     }
