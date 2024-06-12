@@ -436,7 +436,6 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     if (this.mutationObserverIterations > 100) {
       clearTimeout(this.mutationObserverIterationsResetTimeout);
       this.mutationObserverIterations = 0;
-      void this.sendExtensionMessage("blurMostRecentlyFocusedField");
       this.closeInlineMenu();
 
       return true;
