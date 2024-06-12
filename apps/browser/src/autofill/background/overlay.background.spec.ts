@@ -1310,6 +1310,23 @@ describe("OverlayBackground", () => {
       });
     });
 
+    describe("destroyAutofillInlineMenuListeners", () => {
+      it("sends a message to the passed frameId that triggers a destruction of the inline menu listeners on that frame", () => {
+        const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 }, frameId: 0 });
+
+        sendMockExtensionMessage(
+          { command: "destroyAutofillInlineMenuListeners", subFrameData: { frameId: 10 } },
+          sender,
+        );
+
+        expect(tabsSendMessageSpy).toHaveBeenCalledWith(
+          sender.tab,
+          { command: "destroyAutofillInlineMenuListeners" },
+          { frameId: 10 },
+        );
+      });
+    });
+
     describe("unlockCompleted", () => {
       let updateInlineMenuCiphersSpy: jest.SpyInstance;
 
