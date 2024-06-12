@@ -1024,11 +1024,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param sender - The sender of the message
    */
   private checkShouldRepositionInlineMenu(sender: chrome.runtime.MessageSender): boolean {
-    if (
-      !this.focusedFieldData ||
-      sender.tab.id !== this.focusedFieldData.tabId ||
-      !this.isFieldCurrentlyFocused
-    ) {
+    if (!this.focusedFieldData || sender.tab.id !== this.focusedFieldData.tabId) {
       return false;
     }
 
