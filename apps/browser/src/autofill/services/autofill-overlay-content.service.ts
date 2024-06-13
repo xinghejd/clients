@@ -43,6 +43,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private focusedFieldData: FocusedFieldData;
   private userInteractionEventTimeout: number | NodeJS.Timeout;
   private recalculateSubFrameOffsetsTimeout: number | NodeJS.Timeout;
+  private performanceObserver: PerformanceObserver;
   private autofillFieldKeywordsMap: WeakMap<AutofillField, string> = new WeakMap();
   private eventHandlersMemo: { [key: string]: EventListener } = {};
   private readonly extensionMessageHandlers: AutofillOverlayContentExtensionMessageHandlers = {
@@ -786,6 +787,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       capture: true,
     });
     globalThis.addEventListener(EVENTS.RESIZE, this.handleOverlayRepositionEvent);
+    this.performanceObserver = new PerformanceObserver(() => this.rebuildSubFrameOffsets(0, false));
+    this.performanceObserver.observe({ type: "layout-shift", buffered: true });
   }
 
   /**
@@ -820,11 +823,14 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   /**
    * Triggers a rebuild of a sub frame's offsets within the tab.
    */
-  private rebuildSubFrameOffsets() {
+  private rebuildSubFrameOffsets(delay: number = 150, triggerInlineMenuPositionUpdate = true) {
     this.clearRecalculateSubFrameOffsetsTimeout();
     this.recalculateSubFrameOffsetsTimeout = globalThis.setTimeout(
-      () => void this.sendExtensionMessage("rebuildSubFrameOffsets"),
-      150,
+      () =>
+        void this.sendExtensionMessage("rebuildSubFrameOffsets", {
+          triggerInlineMenuPositionUpdate,
+        }),
+      delay,
     );
   }
 
@@ -1161,6 +1167,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       this.handleVisibilityChangeEvent,
     );
     globalThis.removeEventListener(EVENTS.FOCUSOUT, this.handleFormFieldBlurEvent);
+    this.performanceObserver?.disconnect();
     this.removeOverlayRepositionEventListeners();
   }
 }

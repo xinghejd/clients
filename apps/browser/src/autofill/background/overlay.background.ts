@@ -95,7 +95,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     checkShouldRepositionInlineMenu: ({ sender }) => this.checkShouldRepositionInlineMenu(sender),
     getCurrentTabFrameId: ({ sender }) => this.getSenderFrameId(sender),
     updateSubFrameData: ({ message, sender }) => this.updateSubFrameData(message, sender),
-    rebuildSubFrameOffsets: ({ sender }) => this.rebuildSubFrameOffsets(sender),
+    rebuildSubFrameOffsets: ({ message, sender }) => this.rebuildSubFrameOffsets(message, sender),
     destroyAutofillInlineMenuListeners: ({ message, sender }) =>
       this.triggerDestroyInlineMenuListeners(sender.tab, message.subFrameData.frameId),
     collectPageDetailsResponse: ({ message, sender }) => this.storePageDetails(message, sender),
@@ -382,9 +382,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * the field currently focused. We trigger a re-calculation of the field's position
    * and as a result, the sub frame offsets of that frame will be updated.
    *
+   * @param message - The message received from the `rebuildSubFrameOffsets` command
    * @param sender - The sender of the message
    */
-  private async rebuildSubFrameOffsets(sender: chrome.runtime.MessageSender) {
+  private async rebuildSubFrameOffsets(
+    message: OverlayBackgroundExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+  ) {
     if (sender.frameId === this.focusedFieldData?.frameId) {
       return;
     }
@@ -406,10 +410,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       }
     }
 
-    this.updateInlineMenuPositionTimeout = globalThis.setTimeout(
-      () => this.updateInlineMenuPositionAfterSubFrameRebuild(sender),
-      650,
-    );
+    if (message.triggerInlineMenuPositionUpdate) {
+      this.updateInlineMenuPositionTimeout = globalThis.setTimeout(
+        () => this.updateInlineMenuPositionAfterSubFrameRebuild(sender),
+        650,
+      );
+    }
   }
 
   /**
