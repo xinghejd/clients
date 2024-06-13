@@ -64,6 +64,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private inlineMenuPageTranslations: Record<string, string>;
   private inlineMenuFadeInTimeout: number | NodeJS.Timeout;
   private updateInlineMenuPositionTimeout: number | NodeJS.Timeout;
+  private isReflowUpdatingSubFrames: boolean = false;
   private delayedCloseTimeout: number | NodeJS.Timeout;
   private focusedFieldData: FocusedFieldData;
   private isFieldCurrentlyFocused: boolean = false;
@@ -95,7 +96,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     checkShouldRepositionInlineMenu: ({ sender }) => this.checkShouldRepositionInlineMenu(sender),
     getCurrentTabFrameId: ({ sender }) => this.getSenderFrameId(sender),
     updateSubFrameData: ({ message, sender }) => this.updateSubFrameData(message, sender),
-    rebuildSubFrameOffsets: ({ message, sender }) => this.rebuildSubFrameOffsets(message, sender),
+    updateSubFrameOffsetsForReflowEvent: ({ sender }) => this.rebuildSubFrameOffsets(sender),
+    repositionAutofillInlineMenuForSubFrame: ({ sender }) =>
+      this.repositionInlineMenuForSubFrame(sender),
     destroyAutofillInlineMenuListeners: ({ message, sender }) =>
       this.triggerDestroyInlineMenuListeners(sender.tab, message.subFrameData.frameId),
     collectPageDetailsResponse: ({ message, sender }) => this.storePageDetails(message, sender),
@@ -376,26 +379,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
-   * Handles rebuilding the sub frame offsets when the tab is repositioned or scrolled.
-   * Will trigger a re-positioning of the inline menu list and button. Note that we
-   * do not trigger an update to sub frame data if the sender is the frame that has
-   * the field currently focused. We trigger a re-calculation of the field's position
-   * and as a result, the sub frame offsets of that frame will be updated.
+   * Rebuilds the sub frame offsets for the tab associated with the sender.
    *
-   * @param message - The message received from the `rebuildSubFrameOffsets` command
    * @param sender - The sender of the message
    */
-  private async rebuildSubFrameOffsets(
-    message: OverlayBackgroundExtensionMessage,
-    sender: chrome.runtime.MessageSender,
-  ) {
-    if (sender.frameId === this.focusedFieldData?.frameId) {
-      return;
-    }
-
-    if (this.updateInlineMenuPositionTimeout) {
-      clearTimeout(this.updateInlineMenuPositionTimeout);
-    }
+  private async rebuildSubFrameOffsets(sender: chrome.runtime.MessageSender) {
+    this.clearDelayedInlineMenuClosure();
 
     const subFrameOffsetsForTab = this.subFrameOffsetsForTab[sender.tab.id];
     if (subFrameOffsetsForTab) {
@@ -409,13 +398,32 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         await this.buildSubFrameOffsets(sender.tab, frameId, sender.url);
       }
     }
+  }
 
-    if (message.triggerInlineMenuPositionUpdate) {
-      this.updateInlineMenuPositionTimeout = globalThis.setTimeout(
-        () => this.updateInlineMenuPositionAfterSubFrameRebuild(sender),
-        650,
-      );
+  /**
+   * Handles rebuilding the sub frame offsets when the tab is repositioned or scrolled.
+   * Will trigger a re-positioning of the inline menu list and button. Note that we
+   * do not trigger an update to sub frame data if the sender is the frame that has
+   * the field currently focused. We trigger a re-calculation of the field's position
+   * and as a result, the sub frame offsets of that frame will be updated.
+   *
+   * @param sender - The sender of the message
+   */
+  private async repositionInlineMenuForSubFrame(sender: chrome.runtime.MessageSender) {
+    if (sender.frameId === this.focusedFieldData?.frameId) {
+      return;
     }
+
+    if (this.updateInlineMenuPositionTimeout) {
+      clearTimeout(this.updateInlineMenuPositionTimeout);
+    }
+
+    await this.rebuildSubFrameOffsets(sender);
+
+    this.updateInlineMenuPositionTimeout = globalThis.setTimeout(
+      () => this.updateInlineMenuPositionAfterSubFrameRebuild(sender),
+      650,
+    );
   }
 
   /**

@@ -787,7 +787,16 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       capture: true,
     });
     globalThis.addEventListener(EVENTS.RESIZE, this.handleOverlayRepositionEvent);
-    this.performanceObserver = new PerformanceObserver(() => this.rebuildSubFrameOffsets(0, false));
+    this.performanceObserver = new PerformanceObserver((list) => {
+      const entries: any = list.getEntries();
+      for (let index = 0; index < entries.length; index++) {
+        const entry = entries[index];
+        if (entry.sources?.length > 0) {
+          void this.sendExtensionMessage("updateSubFrameOffsetsForReflowEvent");
+          return;
+        }
+      }
+    });
     this.performanceObserver.observe({ type: "layout-shift", buffered: true });
   }
 
@@ -811,7 +820,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    this.rebuildSubFrameOffsets();
+    this.repositionInlineMenuForSubFrame();
     this.toggleInlineMenuHidden(true);
     this.clearUserInteractionEventTimeout();
     this.userInteractionEventTimeout = globalThis.setTimeout(
@@ -823,14 +832,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   /**
    * Triggers a rebuild of a sub frame's offsets within the tab.
    */
-  private rebuildSubFrameOffsets(delay: number = 150, triggerInlineMenuPositionUpdate = true) {
+  private repositionInlineMenuForSubFrame() {
     this.clearRecalculateSubFrameOffsetsTimeout();
     this.recalculateSubFrameOffsetsTimeout = globalThis.setTimeout(
-      () =>
-        void this.sendExtensionMessage("rebuildSubFrameOffsets", {
-          triggerInlineMenuPositionUpdate,
-        }),
-      delay,
+      () => void this.sendExtensionMessage("repositionAutofillInlineMenuForSubFrame"),
+      150,
     );
   }
 

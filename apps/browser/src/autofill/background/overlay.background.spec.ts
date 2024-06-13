@@ -361,11 +361,11 @@ describe("OverlayBackground", () => {
       );
     });
 
-    describe("rebuildSubFrameOffsets", () => {
+    describe("repositionInlineMenuForSubFrame", () => {
       it("skips rebuilding sub frame offsets if the sender contains the currently focused field", () => {
         const sender = mock<chrome.runtime.MessageSender>({ tab, frameId: bottomFrameId });
 
-        sendMockExtensionMessage({ command: "rebuildSubFrameOffsets" }, sender);
+        sendMockExtensionMessage({ command: "repositionInlineMenuForSubFrame" }, sender);
 
         expect(getFrameDetailsSpy).not.toHaveBeenCalled();
       });
@@ -376,7 +376,7 @@ describe("OverlayBackground", () => {
           frameId: 0,
         });
 
-        sendMockExtensionMessage({ command: "rebuildSubFrameOffsets" }, sender);
+        sendMockExtensionMessage({ command: "repositionInlineMenuForSubFrame" }, sender);
 
         expect(getFrameDetailsSpy).not.toHaveBeenCalled();
       });
@@ -384,7 +384,7 @@ describe("OverlayBackground", () => {
       it("rebuilds the sub frame offsets for a given tab", async () => {
         const sender = mock<chrome.runtime.MessageSender>({ tab, frameId: middleFrameId });
 
-        sendMockExtensionMessage({ command: "rebuildSubFrameOffsets" }, sender);
+        sendMockExtensionMessage({ command: "repositionInlineMenuForSubFrame" }, sender);
         await flushPromises();
 
         expect(getFrameDetailsSpy).toHaveBeenCalledWith({ tabId, frameId: topFrameId });
@@ -399,7 +399,7 @@ describe("OverlayBackground", () => {
         jest.spyOn(overlayBackground as any, "updateInlineMenuPositionAfterSubFrameRebuild");
 
         sendMockExtensionMessage(
-          { command: "rebuildSubFrameOffsets", triggerInlineMenuPositionUpdate: true },
+          { command: "repositionInlineMenuForSubFrame", triggerInlineMenuPositionUpdate: true },
           sender,
         );
         await flushPromises();
@@ -435,7 +435,7 @@ describe("OverlayBackground", () => {
           isFieldCurrentlyFocused: false,
         });
 
-        sendMockExtensionMessage({ command: "rebuildSubFrameOffsets" }, sender);
+        sendMockExtensionMessage({ command: "repositionInlineMenuForSubFrame" }, sender);
         await flushInlineMenuUpdatePromises();
 
         expect(tabsSendMessageSpy).not.toHaveBeenCalledWith(
@@ -458,7 +458,7 @@ describe("OverlayBackground", () => {
 
       it("updates the position of the inline menu elements", async () => {
         sendMockExtensionMessage(
-          { command: "rebuildSubFrameOffsets", triggerInlineMenuPositionUpdate: true },
+          { command: "repositionInlineMenuForSubFrame", triggerInlineMenuPositionUpdate: true },
           sender,
         );
         await flushInlineMenuUpdatePromises();
@@ -491,7 +491,7 @@ describe("OverlayBackground", () => {
         });
 
         sendMockExtensionMessage(
-          { command: "rebuildSubFrameOffsets", triggerInlineMenuPositionUpdate: true },
+          { command: "repositionInlineMenuForSubFrame", triggerInlineMenuPositionUpdate: true },
           sender,
         );
         await flushInlineMenuUpdatePromises();

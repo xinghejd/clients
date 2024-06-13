@@ -65,7 +65,6 @@ export type OverlayBackgroundExtensionMessage = {
   subFrameData?: SubFrameOffsetData;
   focusedFieldData?: FocusedFieldData;
   styles?: Partial<CSSStyleDeclaration>;
-  triggerInlineMenuPositionUpdate?: boolean;
   data?: LockedVaultPendingNotificationsData;
 } & OverlayAddNewItemMessage &
   CloseInlineMenuMessage;
@@ -121,7 +120,8 @@ export type OverlayBackgroundExtensionMessageHandlers = {
   checkShouldRepositionInlineMenu: ({ sender }: BackgroundSenderParam) => boolean;
   getCurrentTabFrameId: ({ sender }: BackgroundSenderParam) => number;
   updateSubFrameData: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
-  rebuildSubFrameOffsets: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
+  updateSubFrameOffsetsForReflowEvent: ({ sender }: BackgroundSenderParam) => void;
+  repositionAutofillInlineMenuForSubFrame: ({ sender }: BackgroundSenderParam) => void;
   destroyAutofillInlineMenuListeners: ({
     message,
     sender,
