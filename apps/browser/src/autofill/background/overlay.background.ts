@@ -25,7 +25,11 @@ import {
   openAddEditVaultItemPopout,
   openViewVaultItemPopout,
 } from "../../vault/popup/utils/vault-popout-window";
-import { AutofillOverlayElement, AutofillOverlayPort } from "../enums/autofill-overlay.enum";
+import {
+  AutofillOverlayElement,
+  AutofillOverlayPort,
+  MAX_SUB_FRAME_DEPTH,
+} from "../enums/autofill-overlay.enum";
 import { AutofillService } from "../services/abstractions/autofill.service";
 import { generateRandomChars } from "../utils";
 
@@ -92,6 +96,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     getCurrentTabFrameId: ({ sender }) => this.getSenderFrameId(sender),
     updateSubFrameData: ({ message, sender }) => this.updateSubFrameData(message, sender),
     rebuildSubFrameOffsets: ({ sender }) => this.rebuildSubFrameOffsets(sender),
+    destroyAutofillInlineMenuListeners: ({ message, sender }) =>
+      this.triggerDestroyInlineMenuListeners(sender.tab, message.subFrameData.frameId),
     collectPageDetailsResponse: ({ message, sender }) => this.storePageDetails(message, sender),
     unlockCompleted: ({ message }) => this.unlockCompleted(message),
     addedCipher: () => this.updateInlineMenuCiphers(),
@@ -293,6 +299,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param url - The URL of the sub frame
    */
   private async buildSubFrameOffsets(tab: chrome.tabs.Tab, frameId: number, url: string) {
+    let subFrameDepth = 0;
     const tabId = tab.id;
     let subFrameOffsetsForTab = this.subFrameOffsetsForTab[tabId];
     if (!subFrameOffsetsForTab) {
@@ -308,6 +315,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     let frameDetails = await BrowserApi.getFrameDetails({ tabId, frameId });
 
     while (frameDetails && frameDetails.parentFrameId > -1) {
+      subFrameDepth++;
+      if (subFrameDepth >= MAX_SUB_FRAME_DEPTH) {
+        subFrameOffsetsForTab.set(frameId, null);
+        this.triggerDestroyInlineMenuListeners(tab, frameId);
+        return;
+      }
+
       const subFrameOffset: SubFrameOffsetData = await BrowserApi.tabSendMessage(
         tab,
         {
@@ -323,7 +337,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         void BrowserApi.tabSendMessage(
           tab,
           { command: "getSubFrameOffsetsFromWindowMessage", subFrameId: frameId },
-          { frameId: frameId },
+          { frameId },
         );
         return;
       }
@@ -339,6 +353,26 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     subFrameOffsetsForTab.set(frameId, subFrameData);
+  }
+
+  /**
+   * Triggers a removal and destruction of all
+   *
+   * @param tab - The tab that the sub frame is associated with
+   * @param frameId - The frame ID of the sub frame
+   */
+  private triggerDestroyInlineMenuListeners(tab: chrome.tabs.Tab, frameId: number) {
+    this.logService.error(
+      "Excessive frame depth encountered, destroying inline menu on field within frame",
+      tab,
+      frameId,
+    );
+
+    void BrowserApi.tabSendMessage(
+      tab,
+      { command: "destroyAutofillInlineMenuListeners" },
+      { frameId },
+    );
   }
 
   /**
@@ -1039,7 +1073,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     const parentFrameIds = new Set();
     subFrameOffsetsForTab.forEach((subFrameOffsetData) =>
-      subFrameOffsetData.parentFrameIds.forEach((parentFrameId) =>
+      subFrameOffsetData?.parentFrameIds.forEach((parentFrameId) =>
         parentFrameIds.add(parentFrameId),
       ),
     );

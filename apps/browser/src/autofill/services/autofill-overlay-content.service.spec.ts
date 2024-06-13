@@ -4,10 +4,14 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { AutofillOverlayVisibility, EVENTS } from "@bitwarden/common/autofill/constants";
 
 import AutofillInit from "../content/autofill-init";
-import { AutofillOverlayElement, RedirectFocusDirection } from "../enums/autofill-overlay.enum";
+import {
+  AutofillOverlayElement,
+  MAX_SUB_FRAME_DEPTH,
+  RedirectFocusDirection,
+} from "../enums/autofill-overlay.enum";
 import AutofillField from "../models/autofill-field";
 import { createAutofillFieldMock } from "../spec/autofill-mocks";
-import { flushPromises, sendMockExtensionMessage } from "../spec/testing-utils";
+import { flushPromises, postWindowMessage, sendMockExtensionMessage } from "../spec/testing-utils";
 import { ElementWithOpId, FillableFormFieldElement, FormFieldElement } from "../types";
 
 import { AutoFillConstants } from "./autofill-constants";
@@ -1034,89 +1038,6 @@ describe("AutofillOverlayContentService", () => {
     });
   });
 
-  describe("destroy", () => {
-    let autofillFieldElement: ElementWithOpId<FormFieldElement>;
-    let autofillFieldData: AutofillField;
-
-    beforeEach(() => {
-      document.body.innerHTML = `
-      <form id="validFormId">
-        <input type="text" id="username-field" placeholder="username" />
-        <input type="password" id="password-field" placeholder="password" />
-      </form>
-      `;
-
-      autofillFieldElement = document.getElementById(
-        "username-field",
-      ) as ElementWithOpId<FormFieldElement>;
-      autofillFieldElement.opid = "op-1";
-      autofillFieldData = createAutofillFieldMock({
-        opid: "username-field",
-        form: "validFormId",
-        placeholder: "username",
-        elementNumber: 1,
-      });
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      autofillOverlayContentService.setupInlineMenuListenerOnField(
-        autofillFieldElement,
-        autofillFieldData,
-      );
-      autofillOverlayContentService["mostRecentlyFocusedField"] = autofillFieldElement;
-    });
-
-    it("clears the user interaction event timeout", () => {
-      jest.spyOn(autofillOverlayContentService as any, "clearUserInteractionEventTimeout");
-
-      autofillOverlayContentService.destroy();
-
-      expect(autofillOverlayContentService["clearUserInteractionEventTimeout"]).toHaveBeenCalled();
-    });
-
-    it("de-registers all global event listeners", () => {
-      jest.spyOn(globalThis.document, "removeEventListener");
-      jest.spyOn(globalThis, "removeEventListener");
-      jest.spyOn(autofillOverlayContentService as any, "removeOverlayRepositionEventListeners");
-
-      autofillOverlayContentService.destroy();
-
-      expect(globalThis.document.removeEventListener).toHaveBeenCalledWith(
-        EVENTS.VISIBILITYCHANGE,
-        autofillOverlayContentService["handleVisibilityChangeEvent"],
-      );
-      expect(globalThis.removeEventListener).toHaveBeenCalledWith(
-        EVENTS.FOCUSOUT,
-        autofillOverlayContentService["handleFormFieldBlurEvent"],
-      );
-      expect(
-        autofillOverlayContentService["removeOverlayRepositionEventListeners"],
-      ).toHaveBeenCalled();
-    });
-
-    it("de-registers any event listeners that are attached to the form field elements", () => {
-      jest.spyOn(autofillOverlayContentService as any, "removeCachedFormFieldEventListeners");
-      jest.spyOn(autofillFieldElement, "removeEventListener");
-      jest.spyOn(autofillOverlayContentService["formFieldElements"], "delete");
-
-      autofillOverlayContentService.destroy();
-
-      expect(
-        autofillOverlayContentService["removeCachedFormFieldEventListeners"],
-      ).toHaveBeenCalledWith(autofillFieldElement);
-      expect(autofillFieldElement.removeEventListener).toHaveBeenCalledWith(
-        EVENTS.BLUR,
-        autofillOverlayContentService["handleFormFieldBlurEvent"],
-      );
-      expect(autofillFieldElement.removeEventListener).toHaveBeenCalledWith(
-        EVENTS.KEYUP,
-        autofillOverlayContentService["handleFormFieldKeyupEvent"],
-      );
-      expect(autofillOverlayContentService["formFieldElements"].delete).toHaveBeenCalledWith(
-        autofillFieldElement,
-      );
-    });
-  });
-
   describe("extension onMessage handlers", () => {
     describe("openAutofillInlineMenu message handler", () => {
       let autofillFieldElement: ElementWithOpId<FormFieldElement>;
@@ -1563,7 +1484,7 @@ describe("AutofillOverlayContentService", () => {
 
     describe("getSubFrameOffsetsFromWindowMessage", () => {
       it("sends a message to the parent to calculate the sub frame positioning", () => {
-        jest.spyOn(globalThis.parent, "postMessage");
+        jest.spyOn(globalThis.parent, "postMessage").mockImplementation();
         const subFrameId = 10;
 
         sendMockExtensionMessage({
@@ -1580,6 +1501,7 @@ describe("AutofillOverlayContentService", () => {
               left: 0,
               top: 0,
               parentFrameIds: [],
+              subFrameDepth: 0,
             },
           },
           "*",
@@ -1591,6 +1513,29 @@ describe("AutofillOverlayContentService", () => {
           autofillOverlayContentService.init();
           jest.spyOn(globalThis.parent, "postMessage");
           document.body.innerHTML = ``;
+        });
+
+        it("destroys the inline menu listeners on the origin frame if the depth exceeds the threshold", async () => {
+          document.body.innerHTML = `<iframe id="subframe" src="https://example.com/"></iframe>`;
+          const iframe = document.querySelector("iframe") as HTMLIFrameElement;
+          const subFrameData = {
+            url: "https://example.com/",
+            frameId: 10,
+            left: 0,
+            top: 0,
+            parentFrameIds: [1, 2, 3],
+            subFrameDepth: MAX_SUB_FRAME_DEPTH,
+          };
+          sendExtensionMessageSpy.mockResolvedValue(4);
+
+          postWindowMessage(
+            { command: "calculateSubFramePositioning", subFrameData },
+            "*",
+            iframe.contentWindow as any,
+          );
+          await flushPromises();
+
+          expect(globalThis.parent.postMessage).not.toHaveBeenCalled();
         });
 
         it("calculates the sub frame offset for the current frame and sends those values to the parent if not in the top frame", async () => {
@@ -1606,14 +1551,14 @@ describe("AutofillOverlayContentService", () => {
             left: 0,
             top: 0,
             parentFrameIds: [1, 2, 3],
+            subFrameDepth: 0,
           };
-          const event = mock<MessageEvent>();
-          // @ts-expect-error - Need to mock the source to be the iframe content window
-          event.source = iframe.contentWindow;
-          event.data.subFrameData = subFrameData;
-          sendExtensionMessageSpy.mockResolvedValue(4);
 
-          await autofillOverlayContentService["calculateSubFramePositioning"](event);
+          postWindowMessage(
+            { command: "calculateSubFramePositioning", subFrameData },
+            "*",
+            iframe.contentWindow as any,
+          );
           await flushPromises();
 
           expect(globalThis.parent.postMessage).toHaveBeenCalledWith(
@@ -1621,10 +1566,11 @@ describe("AutofillOverlayContentService", () => {
               command: "calculateSubFramePositioning",
               subFrameData: {
                 frameId: 10,
-                left: 2,
-                parentFrameIds: [1, 2, 3, 4],
-                top: 2,
+                left: 20,
+                parentFrameIds: [1, 2, 3],
+                top: 20,
                 url: "https://example.com/",
+                subFrameDepth: expect.any(Number),
               },
             },
             "*",
@@ -1640,29 +1586,31 @@ describe("AutofillOverlayContentService", () => {
             left: 0,
             top: 0,
             parentFrameIds: [1, 2, 3],
+            subFrameDepth: expect.any(Number),
           };
-          const event = mock<MessageEvent>();
-          // @ts-expect-error - Need to mock the source to be the iframe content window
-          event.source = iframe.contentWindow;
-          event.data.subFrameData = subFrameData;
 
-          await autofillOverlayContentService["calculateSubFramePositioning"](event);
+          postWindowMessage(
+            { command: "calculateSubFramePositioning", subFrameData },
+            "*",
+            iframe.contentWindow as any,
+          );
           await flushPromises();
 
           expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateSubFrameData", {
             subFrameData: {
               frameId: 10,
-              left: 2,
-              top: 2,
+              left: 168,
+              top: 168,
               url: "https://example.com/",
-              parentFrameIds: [1, 2, 3],
+              parentFrameIds: [1, 2, 3, 4],
+              subFrameDepth: expect.any(Number),
             },
           });
         });
       });
     });
 
-    describe("checkMostRecentlyFocusedFieldHasValue", () => {
+    describe("checkMostRecentlyFocusedFieldHasValue message handler", () => {
       it("returns true if the most recently focused field has a truthy value", async () => {
         autofillOverlayContentService["mostRecentlyFocusedField"] = mock<
           ElementWithOpId<FormFieldElement>
@@ -1679,6 +1627,99 @@ describe("AutofillOverlayContentService", () => {
 
         expect(sendResponseSpy).toHaveBeenCalledWith(true);
       });
+    });
+
+    describe("destroyAutofillInlineMenuListeners message handler", () => {
+      it("destroys the inline menu listeners", () => {
+        jest.spyOn(autofillOverlayContentService, "destroy");
+
+        sendMockExtensionMessage({ command: "destroyAutofillInlineMenuListeners" });
+
+        expect(autofillOverlayContentService.destroy).toHaveBeenCalled();
+      });
+    });
+  });
+
+  describe("destroy", () => {
+    let autofillFieldElement: ElementWithOpId<FormFieldElement>;
+    let autofillFieldData: AutofillField;
+
+    beforeEach(() => {
+      document.body.innerHTML = `
+      <form id="validFormId">
+        <input type="text" id="username-field" placeholder="username" />
+        <input type="password" id="password-field" placeholder="password" />
+      </form>
+      `;
+
+      autofillFieldElement = document.getElementById(
+        "username-field",
+      ) as ElementWithOpId<FormFieldElement>;
+      autofillFieldElement.opid = "op-1";
+      autofillFieldData = createAutofillFieldMock({
+        opid: "username-field",
+        form: "validFormId",
+        placeholder: "username",
+        elementNumber: 1,
+      });
+      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      autofillOverlayContentService.setupInlineMenuListenerOnField(
+        autofillFieldElement,
+        autofillFieldData,
+      );
+      autofillOverlayContentService["mostRecentlyFocusedField"] = autofillFieldElement;
+    });
+
+    it("clears the user interaction event timeout", () => {
+      jest.spyOn(autofillOverlayContentService as any, "clearUserInteractionEventTimeout");
+
+      autofillOverlayContentService.destroy();
+
+      expect(autofillOverlayContentService["clearUserInteractionEventTimeout"]).toHaveBeenCalled();
+    });
+
+    it("de-registers all global event listeners", () => {
+      jest.spyOn(globalThis.document, "removeEventListener");
+      jest.spyOn(globalThis, "removeEventListener");
+      jest.spyOn(autofillOverlayContentService as any, "removeOverlayRepositionEventListeners");
+
+      autofillOverlayContentService.destroy();
+
+      expect(globalThis.document.removeEventListener).toHaveBeenCalledWith(
+        EVENTS.VISIBILITYCHANGE,
+        autofillOverlayContentService["handleVisibilityChangeEvent"],
+      );
+      expect(globalThis.removeEventListener).toHaveBeenCalledWith(
+        EVENTS.FOCUSOUT,
+        autofillOverlayContentService["handleFormFieldBlurEvent"],
+      );
+      expect(
+        autofillOverlayContentService["removeOverlayRepositionEventListeners"],
+      ).toHaveBeenCalled();
+    });
+
+    it("de-registers any event listeners that are attached to the form field elements", () => {
+      jest.spyOn(autofillOverlayContentService as any, "removeCachedFormFieldEventListeners");
+      jest.spyOn(autofillFieldElement, "removeEventListener");
+      jest.spyOn(autofillOverlayContentService["formFieldElements"], "delete");
+
+      autofillOverlayContentService.destroy();
+
+      expect(
+        autofillOverlayContentService["removeCachedFormFieldEventListeners"],
+      ).toHaveBeenCalledWith(autofillFieldElement);
+      expect(autofillFieldElement.removeEventListener).toHaveBeenCalledWith(
+        EVENTS.BLUR,
+        autofillOverlayContentService["handleFormFieldBlurEvent"],
+      );
+      expect(autofillFieldElement.removeEventListener).toHaveBeenCalledWith(
+        EVENTS.KEYUP,
+        autofillOverlayContentService["handleFormFieldKeyupEvent"],
+      );
+      expect(autofillOverlayContentService["formFieldElements"].delete).toHaveBeenCalledWith(
+        autofillFieldElement,
+      );
     });
   });
 });

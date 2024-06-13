@@ -10,7 +10,11 @@ import {
   SubFrameOffsetData,
 } from "../background/abstractions/overlay.background";
 import { AutofillExtensionMessage } from "../content/abstractions/autofill-init";
-import { AutofillOverlayElement, RedirectFocusDirection } from "../enums/autofill-overlay.enum";
+import {
+  AutofillOverlayElement,
+  MAX_SUB_FRAME_DEPTH,
+  RedirectFocusDirection,
+} from "../enums/autofill-overlay.enum";
 import AutofillField from "../models/autofill-field";
 import { ElementWithOpId, FillableFormFieldElement, FormFieldElement } from "../types";
 import { elementIsFillableFormField, getAttributeBoolean, sendExtensionMessage } from "../utils";
@@ -19,6 +23,7 @@ import {
   AutofillOverlayContentExtensionMessageHandlers,
   AutofillOverlayContentService as AutofillOverlayContentServiceInterface,
   OpenAutofillInlineMenuOptions,
+  SubFrameDataFromWindowMessage,
 } from "./abstractions/autofill-overlay-content.service";
 import { AutoFillConstants } from "./autofill-constants";
 
@@ -54,6 +59,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     getSubFrameOffsetsFromWindowMessage: ({ message }) =>
       this.getSubFrameOffsetsFromWindowMessage(message),
     checkMostRecentlyFocusedFieldHasValue: () => this.mostRecentlyFocusedFieldHasValue(),
+    destroyAutofillInlineMenuListeners: () => this.destroy(),
   };
 
   /**
@@ -1025,7 +1031,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
           left: 0,
           top: 0,
           parentFrameIds: [],
-        },
+          subFrameDepth: 0,
+        } as SubFrameDataFromWindowMessage,
       },
       "*",
     );
@@ -1050,7 +1057,14 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * @param event - The message event.
    */
   private calculateSubFramePositioning = async (event: MessageEvent) => {
-    const subFrameData = event.data.subFrameData;
+    const subFrameData: SubFrameDataFromWindowMessage = event.data.subFrameData;
+
+    subFrameData.subFrameDepth++;
+    if (subFrameData.subFrameDepth >= MAX_SUB_FRAME_DEPTH) {
+      void this.sendExtensionMessage("destroyAutofillInlineMenuListeners", { subFrameData });
+      return;
+    }
+
     let subFrameOffsets: SubFrameOffsetData;
     const iframes = globalThis.document.querySelectorAll("iframe");
     for (let i = 0; i < iframes.length; i++) {
@@ -1079,9 +1093,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    void this.sendExtensionMessage("updateSubFrameData", {
-      subFrameData,
-    });
+    void this.sendExtensionMessage("updateSubFrameData", { subFrameData });
   };
 
   /**
