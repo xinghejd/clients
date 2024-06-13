@@ -145,9 +145,10 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
       );
     }
 
-    this.selectedProviderType = await this.twoFactorService.getDefaultProvider(
-      this.webAuthnSupported,
-    );
+    // this.selectedProviderType = await this.twoFactorService.getDefaultProvider(
+    //   this.webAuthnSupported,
+    // );
+    this.selectedProviderType = TwoFactorProviderType.Authenticator;
     await this.init();
   }
 

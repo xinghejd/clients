@@ -55,6 +55,8 @@ import { TwoFactorWebAuthnComponent } from "../auth/settings/two-factor-webauthn
 import { TwoFactorYubiKeyComponent } from "../auth/settings/two-factor-yubikey.component";
 import { UserVerificationModule } from "../auth/shared/components/user-verification";
 import { SsoComponent } from "../auth/sso.component";
+import { TwoFactorAuthAuthenticatorComponent } from "../auth/two-factor-auth-authenticator.component";
+import { TwoFactorAuthEmailComponent } from "../auth/two-factor-auth-email.component";
 import { TwoFactorOptionsComponent } from "../auth/two-factor-options.component";
 import { TwoFactorComponent } from "../auth/two-factor.component";
 import { UpdatePasswordComponent } from "../auth/update-password.component";
@@ -141,6 +143,8 @@ import { SharedModule } from "./shared.module";
     FrontendLayoutComponent,
     HintComponent,
     LockComponent,
+    TwoFactorAuthEmailComponent,
+    TwoFactorAuthAuthenticatorComponent,
     OrgAddEditComponent,
     OrgAttachmentsComponent,
     OrgCollectionsComponent,
@@ -227,6 +231,8 @@ import { SharedModule } from "./shared.module";
     OrgWeakPasswordsReportComponent,
     GeneratorComponent,
     PasswordGeneratorHistoryComponent,
+    TwoFactorAuthEmailComponent,
+    TwoFactorAuthAuthenticatorComponent,
     PreferencesComponent,
     PremiumBadgeComponent,
     ProfileComponent,

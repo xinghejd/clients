@@ -1,33 +1,14 @@
 <form [bitSubmit]="submitForm" [formGroup]="formGroup" autocomplete="off">
   <div class="tw-min-w-96">
-    <ng-container
-      *ngIf="
-        selectedProviderType === providerType.Email ||
-        selectedProviderType === providerType.Authenticator
-      "
-    >
-      <p bitTypography="body1" *ngIf="selectedProviderType === providerType.Authenticator">
-        {{ "enterVerificationCodeApp" | i18n }}
-      </p>
-      <p bitTypography="body1" *ngIf="selectedProviderType === providerType.Email">
-        {{ "enterVerificationCodeEmail" | i18n: twoFactorEmail }}
-      </p>
-      <bit-form-field>
-        <bit-label>{{ "verificationCode" | i18n }}</bit-label>
-        <input bitInput type="text" formControlName="token" appAutofocus appInputVerbatim />
-        <bit-hint *ngIf="selectedProviderType === providerType.Email">
-          <a
-            bitLink
-            href="#"
-            appStopClick
-            (click)="sendEmail(true)"
-            *ngIf="selectedProviderType === providerType.Email"
-          >
-            {{ "sendVerificationCodeEmailAgain" | i18n }}
-          </a></bit-hint
-        >
-      </bit-form-field>
-    </ng-container>
+    TokenOuter: {{ tk }}
+    <app-two-factor-auth-email
+      (token)="tk = $event"
+      *ngIf="selectedProviderType === providerType.Email"
+    />
+    <app-two-factor-auth-authenticator
+      (token)="tk = $event"
+      *ngIf="selectedProviderType === providerType.Authenticator"
+    />
     <ng-container *ngIf="selectedProviderType === providerType.Yubikey">
       <p bitTypography="body1" class="tw-text-center">{{ "insertYubiKey" | i18n }}</p>
       <picture>
