@@ -253,6 +253,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     if (pageDetails.frameId !== 0 && pageDetails.details.fields.length) {
       void this.buildSubFrameOffsets(pageDetails.tab, pageDetails.frameId, pageDetails.details.url);
+      void BrowserApi.tabSendMessage(pageDetails.tab, {
+        command: "setupAutofillInlineMenuReflowObserver",
+      });
     }
 
     const pageDetailsMap = this.pageDetailsForTab[sender.tab.id];
@@ -780,6 +783,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param isOpeningFullInlineMenu - Identifies whether the full inline menu should be forced open regardless of other states
    */
   private async openInlineMenu(isFocusingFieldElement = false, isOpeningFullInlineMenu = false) {
+    this.clearDelayedInlineMenuClosure();
     const currentTab = await BrowserApi.getTabFromCurrentWindowId();
 
     await BrowserApi.tabSendMessage(

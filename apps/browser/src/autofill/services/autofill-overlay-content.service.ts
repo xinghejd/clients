@@ -66,6 +66,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     getSubFrameOffsetsFromWindowMessage: ({ message }) =>
       this.getSubFrameOffsetsFromWindowMessage(message),
     checkMostRecentlyFocusedFieldHasValue: () => this.mostRecentlyFocusedFieldHasValue(),
+    setupAutofillInlineMenuReflowObserver: () => this.setupPageReflowEventListeners(),
     destroyAutofillInlineMenuListeners: () => this.destroy(),
   };
 
@@ -480,7 +481,13 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     await this.sendExtensionMessage("updateIsFieldCurrentlyFocused", {
       isFieldCurrentlyFocused: true,
     });
-    this.clearUserInteractionEventTimeout();
+    if (this.userInteractionEventTimeout) {
+      this.clearUserInteractionEventTimeout();
+      void this.toggleInlineMenuHidden(false, true);
+      void this.sendExtensionMessage("closeAutofillInlineMenu", {
+        forceCloseInlineMenu: true,
+      });
+    }
     const initiallyFocusedField = this.mostRecentlyFocusedField;
     await this.updateMostRecentlyFocusedField(formFieldElement);
 
@@ -785,6 +792,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   }
 
   private setupPageReflowEventListeners() {
+    if (this.reflowPerformanceObserver || this.reflowMutationObserver) {
+      return;
+    }
+
     if ("PerformanceObserver" in window && "LayoutShift" in window) {
       this.reflowPerformanceObserver = new PerformanceObserver(
         throttle(this.updateSubFrameOffsetsFromLayoutShiftEvent.bind(this), 10),
@@ -795,7 +806,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     this.reflowMutationObserver = new MutationObserver(
-      throttle(this.updateSubFrameOffsetsFromDomMutationEvent.bind(this), 10),
+      throttle(this.updateSubFrameForReflow.bind(this), 10),
     );
     this.reflowMutationObserver.observe(globalThis.document.documentElement, {
       childList: true,
@@ -809,17 +820,20 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     for (let index = 0; index < entries.length; index++) {
       const entry = entries[index];
       if (entry.sources?.length) {
-        this.clearUserInteractionEventTimeout();
-        this.clearRecalculateSubFrameOffsetsTimeout();
-        void this.sendExtensionMessage("updateSubFrameOffsetsForReflowEvent");
+        this.updateSubFrameForReflow();
         return;
       }
     }
   };
 
-  private updateSubFrameOffsetsFromDomMutationEvent = async () => {
-    this.clearUserInteractionEventTimeout();
-    this.clearRecalculateSubFrameOffsetsTimeout();
+  private updateSubFrameForReflow = () => {
+    if (this.userInteractionEventTimeout) {
+      this.clearUserInteractionEventTimeout();
+      void this.toggleInlineMenuHidden(false, true);
+      void this.sendExtensionMessage("closeAutofillInlineMenu", {
+        forceCloseInlineMenu: true,
+      });
+    }
     void this.sendExtensionMessage("updateSubFrameOffsetsForReflowEvent");
   };
 
@@ -920,6 +934,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private clearUserInteractionEventTimeout() {
     if (this.userInteractionEventTimeout) {
       clearTimeout(this.userInteractionEventTimeout);
+      this.userInteractionEventTimeout = null;
     }
   }
 
@@ -975,7 +990,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     globalThis.addEventListener(EVENTS.MESSAGE, this.handleWindowMessageEvent);
     globalThis.document.addEventListener(EVENTS.VISIBILITYCHANGE, this.handleVisibilityChangeEvent);
     globalThis.addEventListener(EVENTS.FOCUSOUT, this.handleFormFieldBlurEvent);
-    this.setupPageReflowEventListeners();
     this.setOverlayRepositionEventListeners();
   };
 
