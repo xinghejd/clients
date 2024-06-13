@@ -17,7 +17,12 @@ import {
 } from "../enums/autofill-overlay.enum";
 import AutofillField from "../models/autofill-field";
 import { ElementWithOpId, FillableFormFieldElement, FormFieldElement } from "../types";
-import { elementIsFillableFormField, getAttributeBoolean, sendExtensionMessage } from "../utils";
+import {
+  elementIsFillableFormField,
+  getAttributeBoolean,
+  sendExtensionMessage,
+  throttle,
+} from "../utils";
 
 import {
   AutofillOverlayContentExtensionMessageHandlers,
@@ -43,7 +48,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private focusedFieldData: FocusedFieldData;
   private userInteractionEventTimeout: number | NodeJS.Timeout;
   private recalculateSubFrameOffsetsTimeout: number | NodeJS.Timeout;
-  private performanceObserver: PerformanceObserver;
+  private reflowPerformanceObserver: PerformanceObserver;
+  private reflowMutationObserver: MutationObserver;
   private autofillFieldKeywordsMap: WeakMap<AutofillField, string> = new WeakMap();
   private eventHandlersMemo: { [key: string]: EventListener } = {};
   private readonly extensionMessageHandlers: AutofillOverlayContentExtensionMessageHandlers = {
@@ -778,6 +784,45 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     this.inlineMenuVisibility = inlineMenuVisibility || AutofillOverlayVisibility.OnFieldFocus;
   }
 
+  private setupPageReflowEventListeners() {
+    if ("PerformanceObserver" in window && "LayoutShift" in window) {
+      this.reflowPerformanceObserver = new PerformanceObserver(
+        throttle(this.updateSubFrameOffsetsFromLayoutShiftEvent.bind(this), 10),
+      );
+      this.reflowPerformanceObserver.observe({ type: "layout-shift", buffered: true });
+
+      return;
+    }
+
+    this.reflowMutationObserver = new MutationObserver(
+      throttle(this.updateSubFrameOffsetsFromDomMutationEvent.bind(this), 10),
+    );
+    this.reflowMutationObserver.observe(globalThis.document.documentElement, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+    });
+  }
+
+  private updateSubFrameOffsetsFromLayoutShiftEvent = (list: any) => {
+    const entries: any[] = list.getEntries();
+    for (let index = 0; index < entries.length; index++) {
+      const entry = entries[index];
+      if (entry.sources?.length) {
+        this.clearUserInteractionEventTimeout();
+        this.clearRecalculateSubFrameOffsetsTimeout();
+        void this.sendExtensionMessage("updateSubFrameOffsetsForReflowEvent");
+        return;
+      }
+    }
+  };
+
+  private updateSubFrameOffsetsFromDomMutationEvent = async () => {
+    this.clearUserInteractionEventTimeout();
+    this.clearRecalculateSubFrameOffsetsTimeout();
+    void this.sendExtensionMessage("updateSubFrameOffsetsForReflowEvent");
+  };
+
   /**
    * Sets up event listeners that facilitate repositioning
    * the overlay elements on scroll or resize.
@@ -787,17 +832,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       capture: true,
     });
     globalThis.addEventListener(EVENTS.RESIZE, this.handleOverlayRepositionEvent);
-    this.performanceObserver = new PerformanceObserver((list) => {
-      const entries: any = list.getEntries();
-      for (let index = 0; index < entries.length; index++) {
-        const entry = entries[index];
-        if (entry.sources?.length > 0) {
-          void this.sendExtensionMessage("updateSubFrameOffsetsForReflowEvent");
-          return;
-        }
-      }
-    });
-    this.performanceObserver.observe({ type: "layout-shift", buffered: true });
   }
 
   /**
@@ -941,6 +975,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     globalThis.addEventListener(EVENTS.MESSAGE, this.handleWindowMessageEvent);
     globalThis.document.addEventListener(EVENTS.VISIBILITYCHANGE, this.handleVisibilityChangeEvent);
     globalThis.addEventListener(EVENTS.FOCUSOUT, this.handleFormFieldBlurEvent);
+    this.setupPageReflowEventListeners();
     this.setOverlayRepositionEventListeners();
   };
 
@@ -1173,7 +1208,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       this.handleVisibilityChangeEvent,
     );
     globalThis.removeEventListener(EVENTS.FOCUSOUT, this.handleFormFieldBlurEvent);
-    this.performanceObserver?.disconnect();
+    this.reflowPerformanceObserver?.disconnect();
+    this.reflowMutationObserver?.disconnect();
     this.removeOverlayRepositionEventListeners();
   }
 }

@@ -64,7 +64,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private inlineMenuPageTranslations: Record<string, string>;
   private inlineMenuFadeInTimeout: number | NodeJS.Timeout;
   private updateInlineMenuPositionTimeout: number | NodeJS.Timeout;
-  private isReflowUpdatingSubFrames: boolean = false;
   private delayedCloseTimeout: number | NodeJS.Timeout;
   private focusedFieldData: FocusedFieldData;
   private isFieldCurrentlyFocused: boolean = false;
@@ -414,9 +413,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    if (this.updateInlineMenuPositionTimeout) {
-      clearTimeout(this.updateInlineMenuPositionTimeout);
-    }
+    this.clearUpdateInlineMenuPositionTimeout();
 
     await this.rebuildSubFrameOffsets(sender);
 
@@ -580,6 +577,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private clearDelayedInlineMenuClosure() {
     if (this.delayedCloseTimeout) {
       clearTimeout(this.delayedCloseTimeout);
+    }
+  }
+
+  private clearUpdateInlineMenuPositionTimeout() {
+    if (this.updateInlineMenuPositionTimeout) {
+      clearTimeout(this.updateInlineMenuPositionTimeout);
     }
   }
 
