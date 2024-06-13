@@ -9,30 +9,14 @@
       (token)="tk = $event"
       *ngIf="selectedProviderType === providerType.Authenticator"
     />
-    <ng-container *ngIf="selectedProviderType === providerType.Yubikey">
-      <p bitTypography="body1" class="tw-text-center">{{ "insertYubiKey" | i18n }}</p>
-      <picture>
-        <source srcset="../../images/yubikey.avif" type="image/avif" />
-        <source srcset="../../images/yubikey.webp" type="image/webp" />
-        <img src="../../images/yubikey.jpg" class="tw-rounded img-fluid tw-mb-3" alt="" />
-      </picture>
-      <bit-form-field>
-        <bit-label class="tw-sr-only">{{ "verificationCode" | i18n }}</bit-label>
-        <input
-          type="text"
-          bitInput
-          formControlName="token"
-          appAutofocus
-          appInputVerbatim
-          autocomplete="new-password"
-        />
-      </bit-form-field>
-    </ng-container>
-    <ng-container *ngIf="selectedProviderType === providerType.WebAuthn">
-      <div id="web-authn-frame" class="tw-mb-3">
-        <iframe id="webauthn_iframe" sandbox="allow-scripts allow-same-origin"></iframe>
-      </div>
-    </ng-container>
+    <app-two-factor-auth-yubikey
+      (token)="tk = $event"
+      *ngIf="selectedProviderType === providerType.Yubikey"
+    />
+    <app-two-factor-auth-webauthn
+      (token)="tk = $event"
+      *ngIf="selectedProviderType === providerType.WebAuthn"
+    />
     <!-- Duo -->
     <ng-container *ngIf="isDuoProvider">
       <ng-container *ngIf="duoFrameless">
