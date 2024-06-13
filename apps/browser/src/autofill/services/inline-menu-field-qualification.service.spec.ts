@@ -536,7 +536,7 @@ describe("InlineMenuFieldQualificationService", () => {
             pageDetails.forms = {};
           });
 
-          it("is structured on a page with a single password field", () => {
+          it("is structured on a page with a single visible password field", () => {
             const field = mock<AutofillField>({
               type: "text",
               autoCompleteType: "off",
@@ -550,6 +550,29 @@ describe("InlineMenuFieldQualificationService", () => {
               htmlID: "user-password",
               htmlName: "user-password",
               placeholder: "user-password",
+            });
+            pageDetails.fields = [field, passwordField];
+
+            expect(
+              inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
+            ).toBe(true);
+          });
+
+          it("is structured on a page with a single non-visible password field", () => {
+            const field = mock<AutofillField>({
+              type: "text",
+              autoCompleteType: "off",
+              htmlID: "user-username",
+              htmlName: "user-username",
+              placeholder: "user-username",
+            });
+            const passwordField = mock<AutofillField>({
+              type: "password",
+              autoCompleteType: "current-password",
+              htmlID: "user-password",
+              htmlName: "user-password",
+              placeholder: "user-password",
+              viewable: false,
             });
             pageDetails.fields = [field, passwordField];
 
