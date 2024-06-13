@@ -35,7 +35,6 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     padding: "0",
     colorScheme: "normal",
     opacity: "0",
-    isolation: "isolate",
   };
   private defaultIframeAttributes: Record<string, string> = {
     src: "",

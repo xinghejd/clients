@@ -32,7 +32,6 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     position: "fixed",
     display: "block",
     zIndex: "2147483647",
-    isolation: "isolate",
   };
   private readonly extensionMessageHandlers: InlineMenuExtensionMessageHandlers = {
     closeAutofillInlineMenu: ({ message }) => this.closeInlineMenu(message),
