@@ -100,7 +100,7 @@ const sampleMembers = itemsFactory(10, AccessItemType.Member);
 const sampleGroups = itemsFactory(6, AccessItemType.Group);
 
 const StandaloneAccessSelectorTemplate: Story<AccessSelectorComponent> = (
-  args: AccessSelectorComponent
+  args: AccessSelectorComponent,
 ) => ({
   props: {
     items: [],
@@ -126,7 +126,7 @@ const StandaloneAccessSelectorTemplate: Story<AccessSelectorComponent> = (
 });
 
 const DialogAccessSelectorTemplate: Story<AccessSelectorComponent> = (
-  args: AccessSelectorComponent
+  args: AccessSelectorComponent,
 ) => ({
   props: {
     items: [],
@@ -253,7 +253,6 @@ MemberGroupAccess.args = {
       type: AccessItemType.Group,
       listName: "Admin Group",
       labelName: "Admin Group",
-      accessAllItems: true,
     },
   ]),
 };
@@ -309,7 +308,6 @@ CollectionAccess.args = {
       type: AccessItemType.Group,
       listName: "Admin Group",
       labelName: "Admin Group",
-      accessAllItems: true,
       readonly: true,
     },
     {
@@ -320,7 +318,6 @@ CollectionAccess.args = {
       status: OrganizationUserStatusType.Confirmed,
       role: OrganizationUserType.Admin,
       email: "admin@email.com",
-      accessAllItems: true,
       readonly: true,
     },
   ]),
@@ -338,7 +335,7 @@ GroupMembersAccess.story = {
 const fb = new FormBuilder();
 
 const ReactiveFormAccessSelectorTemplate: Story<AccessSelectorComponent> = (
-  args: AccessSelectorComponent
+  args: AccessSelectorComponent,
 ) => ({
   props: {
     items: [],

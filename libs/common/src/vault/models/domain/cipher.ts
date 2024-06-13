@@ -1,6 +1,7 @@
 import { Jsonify } from "type-fest";
 
 import { Decryptable } from "../../../platform/interfaces/decryptable.interface";
+import { Utils } from "../../../platform/misc/utils";
 import Domain from "../../../platform/models/domain/domain-base";
 import { EncString } from "../../../platform/models/domain/enc-string";
 import { SymmetricCryptoKey } from "../../../platform/models/domain/symmetric-crypto-key";
@@ -45,6 +46,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
   creationDate: Date;
   deletedDate: Date;
   reprompt: CipherRepromptType;
+  key: EncString;
 
   constructor(obj?: CipherData, localData: LocalData = null) {
     super();
@@ -61,8 +63,9 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
         folderId: null,
         name: null,
         notes: null,
+        key: null,
       },
-      ["id", "organizationId", "folderId"]
+      ["id", "organizationId", "folderId"],
     );
 
     this.type = obj.type;
@@ -117,8 +120,18 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     }
   }
 
-  async decrypt(encKey?: SymmetricCryptoKey): Promise<CipherView> {
+  // We are passing the organizationId into the EncString.decrypt() method here, but because the encKey will always be
+  // present and so the organizationId will not be used.
+  // We will refactor the EncString.decrypt() in https://bitwarden.atlassian.net/browse/PM-3762 to remove the dependency on the organizationId.
+  async decrypt(encKey: SymmetricCryptoKey): Promise<CipherView> {
     const model = new CipherView(this);
+    let bypassValidation = true;
+
+    if (this.key != null) {
+      const encryptService = Utils.getContainerService().getEncryptService();
+      encKey = new SymmetricCryptoKey(await encryptService.decryptToBytes(this.key, encKey));
+      bypassValidation = false;
+    }
 
     await this.decryptObj(
       model,
@@ -127,12 +140,12 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
         notes: null,
       },
       this.organizationId,
-      encKey
+      encKey,
     );
 
     switch (this.type) {
       case CipherType.Login:
-        model.login = await this.login.decrypt(this.organizationId, encKey);
+        model.login = await this.login.decrypt(this.organizationId, bypassValidation, encKey);
         break;
       case CipherType.SecureNote:
         model.secureNote = await this.secureNote.decrypt(this.organizationId, encKey);
@@ -147,14 +160,12 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
         break;
     }
 
-    const orgId = this.organizationId;
-
     if (this.attachments != null && this.attachments.length > 0) {
       const attachments: any[] = [];
       await this.attachments.reduce((promise, attachment) => {
         return promise
           .then(() => {
-            return attachment.decrypt(orgId, encKey);
+            return attachment.decrypt(this.organizationId, encKey);
           })
           .then((decAttachment) => {
             attachments.push(decAttachment);
@@ -168,7 +179,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       await this.fields.reduce((promise, field) => {
         return promise
           .then(() => {
-            return field.decrypt(orgId, encKey);
+            return field.decrypt(this.organizationId, encKey);
           })
           .then((decField) => {
             fields.push(decField);
@@ -182,7 +193,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       await this.passwordHistory.reduce((promise, ph) => {
         return promise
           .then(() => {
-            return ph.decrypt(orgId, encKey);
+            return ph.decrypt(this.organizationId, encKey);
           })
           .then((decPh) => {
             passwordHistory.push(decPh);
@@ -209,6 +220,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     c.creationDate = this.creationDate != null ? this.creationDate.toISOString() : null;
     c.deletedDate = this.deletedDate != null ? this.deletedDate.toISOString() : null;
     c.reprompt = this.reprompt;
+    c.key = this.key?.encryptedString;
 
     this.buildDataModel(this, c, {
       name: null,
@@ -257,6 +269,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
     const attachments = obj.attachments?.map((a: any) => Attachment.fromJSON(a));
     const fields = obj.fields?.map((f: any) => Field.fromJSON(f));
     const passwordHistory = obj.passwordHistory?.map((ph: any) => Password.fromJSON(ph));
+    const key = EncString.fromJSON(obj.key);
 
     Object.assign(domain, obj, {
       name,
@@ -266,6 +279,7 @@ export class Cipher extends Domain implements Decryptable<CipherView> {
       attachments,
       fields,
       passwordHistory,
+      key,
     });
 
     switch (obj.type) {

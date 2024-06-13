@@ -26,6 +26,7 @@ export class ProjectsListComponent {
 
   @Input()
   set search(search: string) {
+    this.selection.clear();
     this.dataSource.filter = search;
   }
 
@@ -36,24 +37,29 @@ export class ProjectsListComponent {
   selection = new SelectionModel<string>(true, []);
   protected dataSource = new TableDataSource<ProjectListView>();
   protected hasWriteAccessOnSelected$ = this.selection.changed.pipe(
-    map((_) => this.selectedHasWriteAccess())
+    map((_) => this.selectedHasWriteAccess()),
   );
 
   constructor(
     private i18nService: I18nService,
-    private platformUtilsService: PlatformUtilsService
+    private platformUtilsService: PlatformUtilsService,
   ) {}
 
   isAllSelected() {
-    const numSelected = this.selection.selected.length;
-    const numRows = this.projects.length;
-    return numSelected === numRows;
+    if (this.selection.selected?.length > 0) {
+      const numSelected = this.selection.selected.length;
+      const numRows = this.dataSource.filteredData.length;
+      return numSelected === numRows;
+    }
+    return false;
   }
 
   toggleAll() {
-    this.isAllSelected()
-      ? this.selection.clear()
-      : this.selection.select(...this.projects.map((s) => s.id));
+    if (this.isAllSelected()) {
+      this.selection.clear();
+    } else {
+      this.selection.select(...this.dataSource.filteredData.map((s) => s.id));
+    }
   }
 
   deleteProject(projectId: string) {
@@ -63,20 +69,20 @@ export class ProjectsListComponent {
   bulkDeleteProjects() {
     if (this.selection.selected.length >= 1) {
       this.deleteProjectEvent.emit(
-        this.projects.filter((project) => this.selection.isSelected(project.id))
+        this.projects.filter((project) => this.selection.isSelected(project.id)),
       );
     } else {
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccurred"),
-        this.i18nService.t("nothingSelected")
+        this.i18nService.t("nothingSelected"),
       );
     }
   }
 
   private selectedHasWriteAccess() {
     const selectedProjects = this.projects.filter((project) =>
-      this.selection.isSelected(project.id)
+      this.selection.isSelected(project.id),
     );
     if (selectedProjects.some((project) => project.write)) {
       return true;

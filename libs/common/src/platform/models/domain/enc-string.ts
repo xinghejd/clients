@@ -1,13 +1,13 @@
-import { Jsonify } from "type-fest";
+import { Jsonify, Opaque } from "type-fest";
 
-import { EncryptionType, EXPECTED_NUM_PARTS_BY_ENCRYPTION_TYPE } from "../../../enums";
-import { Utils } from "../../../platform/misc/utils";
+import { EncryptionType, EXPECTED_NUM_PARTS_BY_ENCRYPTION_TYPE } from "../../enums";
 import { Encrypted } from "../../interfaces/encrypted";
+import { Utils } from "../../misc/utils";
 
 import { SymmetricCryptoKey } from "./symmetric-crypto-key";
 
 export class EncString implements Encrypted {
-  encryptedString?: string;
+  encryptedString?: EncryptedString;
   encryptionType?: EncryptionType;
   decryptedValue?: string;
   data?: string;
@@ -18,7 +18,7 @@ export class EncString implements Encrypted {
     encryptedStringOrType: string | EncryptionType,
     data?: string,
     iv?: string,
-    mac?: string
+    mac?: string,
   ) {
     if (data != null) {
       this.initFromData(encryptedStringOrType as EncryptionType, data, iv, mac);
@@ -27,20 +27,20 @@ export class EncString implements Encrypted {
     }
   }
 
-  get ivBytes(): ArrayBuffer {
-    return this.iv == null ? null : Utils.fromB64ToArray(this.iv).buffer;
+  get ivBytes(): Uint8Array {
+    return this.iv == null ? null : Utils.fromB64ToArray(this.iv);
   }
 
-  get macBytes(): ArrayBuffer {
-    return this.mac == null ? null : Utils.fromB64ToArray(this.mac).buffer;
+  get macBytes(): Uint8Array {
+    return this.mac == null ? null : Utils.fromB64ToArray(this.mac);
   }
 
-  get dataBytes(): ArrayBuffer {
-    return this.data == null ? null : Utils.fromB64ToArray(this.data).buffer;
+  get dataBytes(): Uint8Array {
+    return this.data == null ? null : Utils.fromB64ToArray(this.data);
   }
 
   toJSON() {
-    return this.encryptedString;
+    return this.encryptedString as string;
   }
 
   static fromJSON(obj: Jsonify<EncString>): EncString {
@@ -53,14 +53,14 @@ export class EncString implements Encrypted {
 
   private initFromData(encType: EncryptionType, data: string, iv: string, mac: string) {
     if (iv != null) {
-      this.encryptedString = encType + "." + iv + "|" + data;
+      this.encryptedString = (encType + "." + iv + "|" + data) as EncryptedString;
     } else {
-      this.encryptedString = encType + "." + data;
+      this.encryptedString = (encType + "." + data) as EncryptedString;
     }
 
     // mac
     if (mac != null) {
-      this.encryptedString += "|" + mac;
+      this.encryptedString = (this.encryptedString + "|" + mac) as EncryptedString;
     }
 
     this.encryptionType = encType;
@@ -70,12 +70,13 @@ export class EncString implements Encrypted {
   }
 
   private initFromEncryptedString(encryptedString: string) {
-    this.encryptedString = encryptedString as string;
+    this.encryptedString = encryptedString as EncryptedString;
     if (!this.encryptedString) {
       return;
     }
 
     const { encType, encPieces } = EncString.parseEncryptedString(this.encryptedString);
+
     this.encryptionType = encType;
 
     if (encPieces.length !== EXPECTED_NUM_PARTS_BY_ENCRYPTION_TYPE[encType]) {
@@ -97,6 +98,11 @@ export class EncString implements Encrypted {
       case EncryptionType.Rsa2048_OaepSha1_B64:
         this.data = encPieces[0];
         break;
+      case EncryptionType.Rsa2048_OaepSha256_HmacSha256_B64:
+      case EncryptionType.Rsa2048_OaepSha1_HmacSha256_B64:
+        this.data = encPieces[0];
+        this.mac = encPieces[1];
+        break;
       default:
         return;
     }
@@ -115,7 +121,7 @@ export class EncString implements Encrypted {
         encType = parseInt(headerPieces[0], null);
         encPieces = headerPieces[1].split("|");
       } catch (e) {
-        return;
+        return { encType: NaN, encPieces: [] };
       }
     } else {
       encPieces = encryptedString.split("|");
@@ -132,7 +138,15 @@ export class EncString implements Encrypted {
   }
 
   static isSerializedEncString(s: string): boolean {
+    if (s == null) {
+      return false;
+    }
+
     const { encType, encPieces } = this.parseEncryptedString(s);
+
+    if (isNaN(encType) || encPieces.length === 0) {
+      return false;
+    }
 
     return EXPECTED_NUM_PARTS_BY_ENCRYPTION_TYPE[encType] === encPieces.length;
   }
@@ -162,6 +176,8 @@ export class EncString implements Encrypted {
     const cryptoService = Utils.getContainerService().getCryptoService();
     return orgId != null
       ? await cryptoService.getOrgKey(orgId)
-      : await cryptoService.getKeyForUserEncryption();
+      : await cryptoService.getUserKeyWithLegacySupport();
   }
 }
+
+export type EncryptedString = Opaque<string, "EncString">;

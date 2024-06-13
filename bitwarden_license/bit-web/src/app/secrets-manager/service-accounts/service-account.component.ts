@@ -1,19 +1,12 @@
 import { Component, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
-import {
-  EMPTY,
-  Subject,
-  catchError,
-  combineLatest,
-  filter,
-  startWith,
-  switchMap,
-  takeUntil,
-} from "rxjs";
+import { Subject, combineLatest, filter, startWith, switchMap, takeUntil } from "rxjs";
 
-import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { DialogService } from "@bitwarden/components";
+
+import { ServiceAccountView } from "../models/view/service-account.view";
 
 import { AccessTokenCreateDialogComponent } from "./access/dialogs/access-token-create-dialog.component";
 import { ServiceAccountService } from "./service-account.service";
@@ -29,41 +22,31 @@ export class ServiceAccountComponent implements OnInit, OnDestroy {
 
   private onChange$ = this.serviceAccountService.serviceAccount$.pipe(
     filter((sa) => sa?.id === this.serviceAccountId),
-    startWith(null)
+    startWith(null),
   );
 
+  private serviceAccountView: ServiceAccountView;
   protected serviceAccount$ = combineLatest([this.route.params, this.onChange$]).pipe(
     switchMap(([params, _]) =>
       this.serviceAccountService.getByServiceAccountId(
         params.serviceAccountId,
-        params.organizationId
-      )
+        params.organizationId,
+      ),
     ),
-    catchError(() => {
-      this.router.navigate(["/sm", this.organizationId, "service-accounts"]).then(() => {
-        this.platformUtilsService.showToast(
-          "error",
-          null,
-          this.i18nService.t("notFound", this.i18nService.t("serviceAccount"))
-        );
-      });
-      return EMPTY;
-    })
   );
 
   constructor(
     private route: ActivatedRoute,
     private serviceAccountService: ServiceAccountService,
-    private dialogService: DialogServiceAbstraction,
+    private dialogService: DialogService,
     private router: Router,
     private platformUtilsService: PlatformUtilsService,
-    private i18nService: I18nService
+    private i18nService: I18nService,
   ) {}
 
   ngOnInit(): void {
-    this.route.params.pipe(takeUntil(this.destroy$)).subscribe((params) => {
-      this.serviceAccountId = params.serviceAccountId;
-      this.organizationId = params.organizationId;
+    this.serviceAccount$.pipe(takeUntil(this.destroy$)).subscribe((serviceAccountView) => {
+      this.serviceAccountView = serviceAccountView;
     });
   }
 
@@ -75,8 +58,7 @@ export class ServiceAccountComponent implements OnInit, OnDestroy {
   protected openNewAccessTokenDialog() {
     AccessTokenCreateDialogComponent.openNewAccessTokenDialog(
       this.dialogService,
-      this.serviceAccountId,
-      this.organizationId
+      this.serviceAccountView,
     );
   }
 }

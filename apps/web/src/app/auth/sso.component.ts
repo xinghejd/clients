@@ -1,15 +1,22 @@
 import { Component } from "@angular/core";
+import { FormControl, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { first } from "rxjs/operators";
 
 import { SsoComponent as BaseSsoComponent } from "@bitwarden/angular/auth/components/sso.component";
+import {
+  LoginStrategyServiceAbstraction,
+  UserDecryptionOptionsServiceAbstraction,
+} from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/abstractions/organization-domain/org-domain-api.service.abstraction";
-import { OrganizationDomainSsoDetailsResponse } from "@bitwarden/common/abstractions/organization-domain/responses/organization-domain-sso-details.response";
-import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
-import { LoginService } from "@bitwarden/common/auth/abstractions/login.service";
+import { OrgDomainApiServiceAbstraction } from "@bitwarden/common/admin-console/abstractions/organization-domain/org-domain-api.service.abstraction";
+import { OrganizationDomainSsoDetailsResponse } from "@bitwarden/common/admin-console/abstractions/organization-domain/responses/organization-domain-sso-details.response";
+import { AccountService } from "@bitwarden/common/auth/abstractions/account.service";
+import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
+import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { HttpStatusCode } from "@bitwarden/common/enums";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoFunctionService } from "@bitwarden/common/platform/abstractions/crypto-function.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
@@ -25,8 +32,17 @@ import { PasswordGenerationServiceAbstraction } from "@bitwarden/common/tools/ge
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class SsoComponent extends BaseSsoComponent {
+  protected formGroup = new FormGroup({
+    identifier: new FormControl(null, [Validators.required]),
+  });
+
+  get identifierFormControl() {
+    return this.formGroup.controls.identifier;
+  }
+
   constructor(
-    authService: AuthService,
+    ssoLoginService: SsoLoginServiceAbstraction,
+    loginStrategyService: LoginStrategyServiceAbstraction,
     router: Router,
     i18nService: I18nService,
     route: ActivatedRoute,
@@ -38,11 +54,15 @@ export class SsoComponent extends BaseSsoComponent {
     passwordGenerationService: PasswordGenerationServiceAbstraction,
     logService: LogService,
     private orgDomainApiService: OrgDomainApiServiceAbstraction,
-    private loginService: LoginService,
-    private validationService: ValidationService
+    private validationService: ValidationService,
+    userDecryptionOptionsService: UserDecryptionOptionsServiceAbstraction,
+    configService: ConfigService,
+    masterPasswordService: InternalMasterPasswordServiceAbstraction,
+    accountService: AccountService,
   ) {
     super(
-      authService,
+      ssoLoginService,
+      loginStrategyService,
       router,
       i18nService,
       route,
@@ -52,35 +72,26 @@ export class SsoComponent extends BaseSsoComponent {
       cryptoFunctionService,
       environmentService,
       passwordGenerationService,
-      logService
+      logService,
+      userDecryptionOptionsService,
+      configService,
+      masterPasswordService,
+      accountService,
     );
     this.redirectUri = window.location.origin + "/sso-connector.html";
     this.clientId = "web";
   }
 
   async ngOnInit() {
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     super.ngOnInit();
-
-    // if we have an emergency access invite, redirect to emergency access
-    const emergencyAccessInvite = await this.stateService.getEmergencyAccessInvitation();
-    if (emergencyAccessInvite != null) {
-      this.onSuccessfulLoginNavigate = async () => {
-        this.router.navigate(["/accept-emergency"], {
-          queryParams: {
-            id: emergencyAccessInvite.id,
-            name: emergencyAccessInvite.name,
-            email: emergencyAccessInvite.email,
-            token: emergencyAccessInvite.token,
-          },
-        });
-      };
-    }
 
     // eslint-disable-next-line rxjs-angular/prefer-takeuntil, rxjs/no-async-subscribe
     this.route.queryParams.pipe(first()).subscribe(async (qParams) => {
       if (qParams.identifier != null) {
         // SSO Org Identifier in query params takes precedence over claimed domains
-        this.identifier = qParams.identifier;
+        this.identifierFormControl.setValue(qParams.identifier);
       } else {
         // Note: this flow is written for web but both browser and desktop
         // redirect here on SSO button click.
@@ -94,7 +105,7 @@ export class SsoComponent extends BaseSsoComponent {
               await this.orgDomainApiService.getClaimedOrgDomainByEmail(qParams.email);
 
             if (response?.ssoAvailable) {
-              this.identifier = response.organizationIdentifier;
+              this.identifierFormControl.setValue(response.organizationIdentifier);
               await this.submit();
               return;
             }
@@ -106,9 +117,9 @@ export class SsoComponent extends BaseSsoComponent {
         }
 
         // Fallback to state svc if domain is unclaimed
-        const storedIdentifier = await this.stateService.getSsoOrgIdentifier();
+        const storedIdentifier = await this.ssoLoginService.getOrganizationSsoIdentifier();
         if (storedIdentifier != null) {
-          this.identifier = storedIdentifier;
+          this.identifierFormControl.setValue(storedIdentifier);
         }
       }
     });
@@ -129,11 +140,12 @@ export class SsoComponent extends BaseSsoComponent {
     }
   }
 
-  async submit() {
-    await this.stateService.setSsoOrganizationIdentifier(this.identifier);
+  submit = async () => {
+    this.identifier = this.identifierFormControl.value;
+    await this.ssoLoginService.setOrganizationSsoIdentifier(this.identifier);
     if (this.clientId === "browser") {
       document.cookie = `ssoHandOffMessage=${this.i18nService.t("ssoHandOff")};SameSite=strict`;
     }
-    super.submit();
-  }
+    await Object.getPrototypeOf(this).submit.call(this);
+  };
 }

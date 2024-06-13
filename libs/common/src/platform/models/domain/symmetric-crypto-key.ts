@@ -1,12 +1,12 @@
-import { Jsonify, Opaque } from "type-fest";
+import { Jsonify } from "type-fest";
 
-import { EncryptionType } from "../../../enums";
 import { Utils } from "../../../platform/misc/utils";
+import { EncryptionType } from "../../enums";
 
 export class SymmetricCryptoKey {
-  key: ArrayBuffer;
-  encKey?: ArrayBuffer;
-  macKey?: ArrayBuffer;
+  key: Uint8Array;
+  encKey?: Uint8Array;
+  macKey?: Uint8Array;
   encType: EncryptionType;
 
   keyB64: string;
@@ -15,7 +15,7 @@ export class SymmetricCryptoKey {
 
   meta: any;
 
-  constructor(key: ArrayBuffer, encType?: EncryptionType) {
+  constructor(key: Uint8Array, encType?: EncryptionType) {
     if (key == null) {
       throw new Error("Must provide key");
     }
@@ -67,7 +67,7 @@ export class SymmetricCryptoKey {
       return null;
     }
 
-    const arrayBuffer = Utils.fromB64ToArray(s).buffer;
+    const arrayBuffer = Utils.fromB64ToArray(s);
     return new SymmetricCryptoKey(arrayBuffer);
   }
 
@@ -75,6 +75,3 @@ export class SymmetricCryptoKey {
     return SymmetricCryptoKey.fromString(obj?.keyB64);
   }
 }
-
-// Setup all separate key types as opaque types
-export type DeviceKey = Opaque<SymmetricCryptoKey, "DeviceKey">;

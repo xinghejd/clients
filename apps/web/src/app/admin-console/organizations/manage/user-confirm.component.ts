@@ -1,37 +1,52 @@
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { DIALOG_DATA, DialogConfig, DialogRef } from "@angular/cdk/dialog";
+import { Component, Inject, OnInit } from "@angular/core";
+import { FormControl, FormGroup } from "@angular/forms";
 
+import { OrganizationManagementPreferencesService } from "@bitwarden/common/admin-console/abstractions/organization-management-preferences/organization-management-preferences.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
-import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
+import { DialogService } from "@bitwarden/components";
+
+export type UserConfirmDialogData = {
+  name: string;
+  userId: string;
+  publicKey: Uint8Array;
+  confirmUser: (publicKey: Uint8Array) => Promise<void>;
+};
 
 @Component({
   selector: "app-user-confirm",
   templateUrl: "user-confirm.component.html",
 })
 export class UserConfirmComponent implements OnInit {
-  @Input() name: string;
-  @Input() userId: string;
-  @Input() publicKey: Uint8Array;
-  @Output() onConfirmedUser = new EventEmitter();
+  name: string;
+  userId: string;
+  publicKey: Uint8Array;
 
-  dontAskAgain = false;
   loading = true;
   fingerprint: string;
   formPromise: Promise<any>;
 
+  formGroup = new FormGroup({
+    dontAskAgain: new FormControl(false),
+  });
+
   constructor(
+    @Inject(DIALOG_DATA) protected data: UserConfirmDialogData,
+    private dialogRef: DialogRef,
     private cryptoService: CryptoService,
     private logService: LogService,
-    private stateService: StateService
-  ) {}
+    private organizationManagementPreferencesService: OrganizationManagementPreferencesService,
+  ) {
+    this.name = data.name;
+    this.userId = data.userId;
+    this.publicKey = data.publicKey;
+  }
 
   async ngOnInit() {
     try {
       if (this.publicKey != null) {
-        const fingerprint = await this.cryptoService.getFingerprint(
-          this.userId,
-          this.publicKey.buffer
-        );
+        const fingerprint = await this.cryptoService.getFingerprint(this.userId, this.publicKey);
         if (fingerprint != null) {
           this.fingerprint = fingerprint.join("-");
         }
@@ -42,15 +57,21 @@ export class UserConfirmComponent implements OnInit {
     this.loading = false;
   }
 
-  async submit() {
+  submit = async () => {
     if (this.loading) {
       return;
     }
 
-    if (this.dontAskAgain) {
-      await this.stateService.setAutoConfirmFingerprints(true);
+    if (this.formGroup.value.dontAskAgain) {
+      await this.organizationManagementPreferencesService.autoConfirmFingerPrints.set(true);
     }
 
-    this.onConfirmedUser.emit();
+    await this.data.confirmUser(this.publicKey);
+
+    this.dialogRef.close();
+  };
+
+  static open(dialogService: DialogService, config: DialogConfig<UserConfirmDialogData>) {
+    return dialogService.open(UserConfirmComponent, config);
   }
 }

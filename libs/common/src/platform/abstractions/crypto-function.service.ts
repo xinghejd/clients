@@ -3,68 +3,85 @@ import { DecryptParameters } from "../models/domain/decrypt-parameters";
 import { SymmetricCryptoKey } from "../models/domain/symmetric-crypto-key";
 
 export abstract class CryptoFunctionService {
-  pbkdf2: (
-    password: string | ArrayBuffer,
-    salt: string | ArrayBuffer,
+  abstract pbkdf2(
+    password: string | Uint8Array,
+    salt: string | Uint8Array,
     algorithm: "sha256" | "sha512",
-    iterations: number
-  ) => Promise<ArrayBuffer>;
-  argon2: (
-    password: string | ArrayBuffer,
-    salt: string | ArrayBuffer,
+    iterations: number,
+  ): Promise<Uint8Array>;
+  abstract argon2(
+    password: string | Uint8Array,
+    salt: string | Uint8Array,
     iterations: number,
     memory: number,
-    parallelism: number
-  ) => Promise<ArrayBuffer>;
-  hkdf: (
-    ikm: ArrayBuffer,
-    salt: string | ArrayBuffer,
-    info: string | ArrayBuffer,
+    parallelism: number,
+  ): Promise<Uint8Array>;
+  abstract hkdf(
+    ikm: Uint8Array,
+    salt: string | Uint8Array,
+    info: string | Uint8Array,
     outputByteSize: number,
-    algorithm: "sha256" | "sha512"
-  ) => Promise<ArrayBuffer>;
-  hkdfExpand: (
-    prk: ArrayBuffer,
-    info: string | ArrayBuffer,
+    algorithm: "sha256" | "sha512",
+  ): Promise<Uint8Array>;
+  abstract hkdfExpand(
+    prk: Uint8Array,
+    info: string | Uint8Array,
     outputByteSize: number,
-    algorithm: "sha256" | "sha512"
-  ) => Promise<ArrayBuffer>;
-  hash: (
-    value: string | ArrayBuffer,
-    algorithm: "sha1" | "sha256" | "sha512" | "md5"
-  ) => Promise<ArrayBuffer>;
-  hmac: (
-    value: ArrayBuffer,
-    key: ArrayBuffer,
-    algorithm: "sha1" | "sha256" | "sha512"
-  ) => Promise<ArrayBuffer>;
-  compare: (a: ArrayBuffer, b: ArrayBuffer) => Promise<boolean>;
-  hmacFast: (
-    value: ArrayBuffer | string,
-    key: ArrayBuffer | string,
-    algorithm: "sha1" | "sha256" | "sha512"
-  ) => Promise<ArrayBuffer | string>;
-  compareFast: (a: ArrayBuffer | string, b: ArrayBuffer | string) => Promise<boolean>;
-  aesEncrypt: (data: ArrayBuffer, iv: ArrayBuffer, key: ArrayBuffer) => Promise<ArrayBuffer>;
-  aesDecryptFastParameters: (
+    algorithm: "sha256" | "sha512",
+  ): Promise<Uint8Array>;
+  abstract hash(
+    value: string | Uint8Array,
+    algorithm: "sha1" | "sha256" | "sha512" | "md5",
+  ): Promise<Uint8Array>;
+  abstract hmac(
+    value: Uint8Array,
+    key: Uint8Array,
+    algorithm: "sha1" | "sha256" | "sha512",
+  ): Promise<Uint8Array>;
+  abstract compare(a: Uint8Array, b: Uint8Array): Promise<boolean>;
+  abstract hmacFast(
+    value: Uint8Array | string,
+    key: Uint8Array | string,
+    algorithm: "sha1" | "sha256" | "sha512",
+  ): Promise<Uint8Array | string>;
+  abstract compareFast(a: Uint8Array | string, b: Uint8Array | string): Promise<boolean>;
+  abstract aesEncrypt(data: Uint8Array, iv: Uint8Array, key: Uint8Array): Promise<Uint8Array>;
+  abstract aesDecryptFastParameters(
     data: string,
     iv: string,
     mac: string,
-    key: SymmetricCryptoKey
-  ) => DecryptParameters<ArrayBuffer | string>;
-  aesDecryptFast: (parameters: DecryptParameters<ArrayBuffer | string>) => Promise<string>;
-  aesDecrypt: (data: ArrayBuffer, iv: ArrayBuffer, key: ArrayBuffer) => Promise<ArrayBuffer>;
-  rsaEncrypt: (
-    data: ArrayBuffer,
-    publicKey: ArrayBuffer,
-    algorithm: "sha1" | "sha256"
-  ) => Promise<ArrayBuffer>;
-  rsaDecrypt: (
-    data: ArrayBuffer,
-    privateKey: ArrayBuffer,
-    algorithm: "sha1" | "sha256"
-  ) => Promise<ArrayBuffer>;
-  rsaExtractPublicKey: (privateKey: ArrayBuffer) => Promise<ArrayBuffer>;
-  rsaGenerateKeyPair: (length: 1024 | 2048 | 4096) => Promise<[ArrayBuffer, ArrayBuffer]>;
-  randomBytes: (length: number) => Promise<CsprngArray>;
+    key: SymmetricCryptoKey,
+  ): DecryptParameters<Uint8Array | string>;
+  abstract aesDecryptFast(
+    parameters: DecryptParameters<Uint8Array | string>,
+    mode: "cbc" | "ecb",
+  ): Promise<string>;
+  abstract aesDecrypt(
+    data: Uint8Array,
+    iv: Uint8Array,
+    key: Uint8Array,
+    mode: "cbc" | "ecb",
+  ): Promise<Uint8Array>;
+  abstract rsaEncrypt(
+    data: Uint8Array,
+    publicKey: Uint8Array,
+    algorithm: "sha1" | "sha256",
+  ): Promise<Uint8Array>;
+  abstract rsaDecrypt(
+    data: Uint8Array,
+    privateKey: Uint8Array,
+    algorithm: "sha1" | "sha256",
+  ): Promise<Uint8Array>;
+  abstract rsaExtractPublicKey(privateKey: Uint8Array): Promise<Uint8Array>;
+  abstract rsaGenerateKeyPair(length: 1024 | 2048 | 4096): Promise<[Uint8Array, Uint8Array]>;
+  /**
+   * Generates a key of the given length suitable for use in AES encryption
+   */
+  abstract aesGenerateKey(bitLength: 128 | 192 | 256 | 512): Promise<CsprngArray>;
+  /**
+   * Generates a random array of bytes of the given length. Uses a cryptographically secure random number generator.
+   *
+   * Do not use this for generating encryption keys. Use aesGenerateKey or rsaGenerateKeyPair instead.
+   */
+  abstract randomBytes(length: number): Promise<CsprngArray>;
 }

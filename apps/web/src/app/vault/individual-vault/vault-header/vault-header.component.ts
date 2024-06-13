@@ -1,10 +1,21 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from "@angular/core";
+import {
+  ChangeDetectionStrategy,
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+} from "@angular/core";
+import { firstValueFrom } from "rxjs";
 
 import { Organization } from "@bitwarden/common/admin-console/models/domain/organization";
-import { TreeNode } from "@bitwarden/common/models/domain/tree-node";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { TreeNode } from "@bitwarden/common/vault/models/domain/tree-node";
 import { CollectionView } from "@bitwarden/common/vault/models/view/collection.view";
 
+import { CollectionDialogTabType } from "../../components/collection-dialog";
 import {
   All,
   RoutedVaultFilterModel,
@@ -16,9 +27,10 @@ import {
   templateUrl: "./vault-header.component.html",
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class VaultHeaderComponent {
+export class VaultHeaderComponent implements OnInit {
   protected Unassigned = Unassigned;
   protected All = All;
+  protected CollectionDialogTabType = CollectionDialogTabType;
 
   /**
    * Boolean to determine the loading state of the header.
@@ -29,22 +41,42 @@ export class VaultHeaderComponent {
   /** Current active filter */
   @Input() filter: RoutedVaultFilterModel;
 
-  /**
-   * All organizations that can be shown
-   */
+  /** All organizations that can be shown */
   @Input() organizations: Organization[] = [];
 
-  /**
-   * Currently selected collection
-   */
+  /** Currently selected collection */
   @Input() collection?: TreeNode<CollectionView>;
 
-  /**
-   * Emits an event when the new item button is clicked in the header
-   */
+  /** Whether 'Collection' option is shown in the 'New' dropdown */
+  @Input() canCreateCollections: boolean;
+
+  /** Emits an event when the new item button is clicked in the header */
   @Output() onAddCipher = new EventEmitter<void>();
 
-  constructor(private i18nService: I18nService) {}
+  /** Emits an event when the new collection button is clicked in the 'New' dropdown menu */
+  @Output() onAddCollection = new EventEmitter<null>();
+
+  /** Emits an event when the new folder button is clicked in the 'New' dropdown menu */
+  @Output() onAddFolder = new EventEmitter<null>();
+
+  /** Emits an event when the edit collection button is clicked in the header */
+  @Output() onEditCollection = new EventEmitter<{ tab: CollectionDialogTabType }>();
+
+  /** Emits an event when the delete collection button is clicked in the header */
+  @Output() onDeleteCollection = new EventEmitter<void>();
+
+  private flexibleCollectionsV1Enabled = false;
+
+  constructor(
+    private i18nService: I18nService,
+    private configService: ConfigService,
+  ) {}
+
+  async ngOnInit() {
+    this.flexibleCollectionsV1Enabled = await firstValueFrom(
+      this.configService.getFeatureFlag$(FeatureFlag.FlexibleCollectionsV1),
+    );
+  }
 
   /**
    * The id of the organization that is currently being filtered on.
@@ -92,6 +124,10 @@ export class VaultHeaderComponent {
     return this.i18nService.t("allVaults");
   }
 
+  protected get icon() {
+    return this.filter.collectionId && this.filter.collectionId !== All ? "bwi-collection" : "";
+  }
+
   /**
    * A list of collection filters that form a chain from the organization root to currently selected collection.
    * Begins from the organization root and excludes the currently selected collection.
@@ -112,7 +148,50 @@ export class VaultHeaderComponent {
       .map((treeNode) => treeNode.node);
   }
 
+  get canEditCollection(): boolean {
+    // Only edit collections if not editing "Unassigned"
+    if (this.collection == null) {
+      return false;
+    }
+
+    // Otherwise, check if we can edit the specified collection
+    const organization = this.organizations.find(
+      (o) => o.id === this.collection?.node.organizationId,
+    );
+    return this.collection.node.canEdit(organization, this.flexibleCollectionsV1Enabled);
+  }
+
+  async editCollection(tab: CollectionDialogTabType): Promise<void> {
+    this.onEditCollection.emit({ tab });
+  }
+
+  get canDeleteCollection(): boolean {
+    // Only delete collections if not deleting "Unassigned"
+    if (this.collection === undefined) {
+      return false;
+    }
+
+    // Otherwise, check if we can delete the specified collection
+    const organization = this.organizations.find(
+      (o) => o.id === this.collection?.node.organizationId,
+    );
+
+    return this.collection.node.canDelete(organization, this.flexibleCollectionsV1Enabled);
+  }
+
+  deleteCollection() {
+    this.onDeleteCollection.emit();
+  }
+
   protected addCipher() {
     this.onAddCipher.emit();
+  }
+
+  async addFolder(): Promise<void> {
+    this.onAddFolder.emit();
+  }
+
+  async addCollection(): Promise<void> {
+    this.onAddCollection.emit();
   }
 }

@@ -7,7 +7,6 @@ import { CollectionView } from "@bitwarden/common/vault/models/view/collection.v
 import { TableDataSource } from "@bitwarden/components";
 
 import { GroupView } from "../../../admin-console/organizations/core";
-import { CollectionAdminView } from "../../core/views/collection-admin.view";
 import { Unassigned } from "../../individual-vault/vault-filter/shared/models/routed-vault-filter.model";
 
 import { VaultItem } from "./vault-item";
@@ -33,14 +32,22 @@ export class VaultItemsComponent {
   @Input() showCollections: boolean;
   @Input() showGroups: boolean;
   @Input() useEvents: boolean;
-  @Input() editableCollections: boolean;
-  @Input() cloneableOrganizationCiphers: boolean;
   @Input() showPremiumFeatures: boolean;
   @Input() showBulkMove: boolean;
   @Input() showBulkTrashOptions: boolean;
+  // Encompasses functionality only available from the organization vault context
+  @Input() showAdminActions = false;
   @Input() allOrganizations: Organization[] = [];
   @Input() allCollections: CollectionView[] = [];
   @Input() allGroups: GroupView[] = [];
+  @Input() showBulkEditCollectionAccess = false;
+  @Input() showBulkAddToCollections = false;
+  @Input() showPermissionsColumn = false;
+  @Input() viewingOrgVault: boolean;
+  @Input({ required: true }) flexibleCollectionsV1Enabled = false;
+  @Input() addAccessStatus: number;
+  @Input() addAccessToggle: boolean;
+  @Input() restrictProviderAccess: boolean;
 
   private _ciphers?: CipherView[] = [];
   @Input() get ciphers(): CipherView[] {
@@ -80,44 +87,41 @@ export class VaultItemsComponent {
     return this.dataSource.data.length === 0;
   }
 
-  protected canEditCollection(collection: CollectionView): boolean {
-    // We currently don't support editing collections from individual vault
-    if (!(collection instanceof CollectionAdminView)) {
-      return false;
-    }
-
-    // Only allow allow deletion if collection editing is enabled and not deleting "Unassigned"
-    if (!this.editableCollections || collection.id === Unassigned) {
-      return false;
-    }
-
-    const organization = this.allOrganizations.find((o) => o.id === collection.organizationId);
-
-    // Otherwise, check if we can edit the specified collection
+  get bulkMoveAllowed() {
     return (
-      organization?.canEditAnyCollection ||
-      (organization?.canEditAssignedCollections && collection.assigned)
+      this.showBulkMove && this.selection.selected.filter((item) => item.collection).length === 0
     );
   }
 
-  protected canDeleteCollection(collection: CollectionView): boolean {
-    // We currently don't support editing collections from individual vault
-    if (!(collection instanceof CollectionAdminView)) {
-      return false;
-    }
+  get bulkAssignToCollectionsAllowed() {
+    return this.showBulkAddToCollections && this.ciphers.length > 0;
+  }
 
+  protected canEditCollection(collection: CollectionView): boolean {
     // Only allow allow deletion if collection editing is enabled and not deleting "Unassigned"
-    if (!this.editableCollections || collection.id === Unassigned) {
+    if (collection.id === Unassigned) {
       return false;
     }
 
     const organization = this.allOrganizations.find((o) => o.id === collection.organizationId);
 
-    // Otherwise, check if we can delete the specified collection
-    return (
-      organization?.canDeleteAnyCollection ||
-      (organization?.canDeleteAssignedCollections && collection.assigned)
-    );
+    return collection.canEdit(organization, this.flexibleCollectionsV1Enabled);
+  }
+
+  protected canDeleteCollection(collection: CollectionView): boolean {
+    // Only allow allow deletion if collection editing is enabled and not deleting "Unassigned"
+    if (collection.id === Unassigned) {
+      return false;
+    }
+
+    const organization = this.allOrganizations.find((o) => o.id === collection.organizationId);
+
+    return collection.canDelete(organization, this.flexibleCollectionsV1Enabled);
+  }
+
+  protected canViewCollectionInfo(collection: CollectionView) {
+    const organization = this.allOrganizations.find((o) => o.id === collection.organizationId);
+    return collection.canViewCollectionInfo(organization, this.flexibleCollectionsV1Enabled);
   }
 
   protected toggleAll() {
@@ -164,17 +168,71 @@ export class VaultItemsComponent {
     });
   }
 
+  protected canClone(vaultItem: VaultItem) {
+    if (vaultItem.cipher.organizationId == null) {
+      return true;
+    }
+
+    const org = this.allOrganizations.find((o) => o.id === vaultItem.cipher.organizationId);
+
+    // Admins and custom users can always clone in the Org Vault
+    if (this.viewingOrgVault && (org.isAdmin || org.permissions.editAnyCollection)) {
+      return true;
+    }
+
+    // Check if the cipher belongs to a collection with canManage permission
+    const orgCollections = this.allCollections.filter((c) => c.organizationId === org.id);
+
+    for (const collection of orgCollections) {
+      if (vaultItem.cipher.collectionIds.includes(collection.id) && collection.manage) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   private refreshItems() {
     const collections: VaultItem[] = this.collections.map((collection) => ({ collection }));
     const ciphers: VaultItem[] = this.ciphers.map((cipher) => ({ cipher }));
     const items: VaultItem[] = [].concat(collections).concat(ciphers);
 
     this.selection.clear();
-    this.editableItems = items.filter(
-      (item) =>
-        item.cipher !== undefined ||
-        (item.collection !== undefined && this.canDeleteCollection(item.collection))
-    );
+
+    if (this.flexibleCollectionsV1Enabled) {
+      // Every item except for the Unassigned collection is selectable, individual bulk actions check the user's permission
+      this.editableItems = items.filter(
+        (item) =>
+          item.cipher !== undefined ||
+          (item.collection !== undefined && item.collection.id !== Unassigned),
+      );
+    } else {
+      // only collections the user can delete are selectable
+      this.editableItems = items.filter(
+        (item) =>
+          item.cipher !== undefined ||
+          (item.collection !== undefined && this.canDeleteCollection(item.collection)),
+      );
+    }
+
     this.dataSource.data = items;
+  }
+
+  protected bulkEditCollectionAccess() {
+    this.event({
+      type: "bulkEditCollectionAccess",
+      items: this.selection.selected
+        .filter((item) => item.collection !== undefined)
+        .map((item) => item.collection),
+    });
+  }
+
+  protected assignToCollections() {
+    this.event({
+      type: "assignToCollections",
+      items: this.selection.selected
+        .filter((item) => item.cipher !== undefined)
+        .map((item) => item.cipher),
+    });
   }
 }

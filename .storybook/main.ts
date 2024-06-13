@@ -4,10 +4,14 @@ import remarkGfm from "remark-gfm";
 
 const config: StorybookConfig = {
   stories: [
+    "../libs/auth/src/**/*.mdx",
+    "../libs/auth/src/**/*.stories.@(js|jsx|ts|tsx)",
     "../libs/components/src/**/*.mdx",
     "../libs/components/src/**/*.stories.@(js|jsx|ts|tsx)",
     "../apps/web/src/**/*.mdx",
     "../apps/web/src/**/*.stories.@(js|jsx|ts|tsx)",
+    "../apps/browser/src/**/*.mdx",
+    "../apps/browser/src/**/*.stories.@(js|jsx|ts|tsx)",
     "../bitwarden_license/bit-web/src/**/*.mdx",
     "../bitwarden_license/bit-web/src/**/*.stories.@(js|jsx|ts|tsx)",
   ],
@@ -15,6 +19,8 @@ const config: StorybookConfig = {
     "@storybook/addon-links",
     "@storybook/addon-essentials",
     "@storybook/addon-a11y",
+    "@storybook/addon-designs",
+    "@storybook/addon-interactions",
     {
       name: "@storybook/addon-docs",
       options: {
@@ -35,9 +41,7 @@ const config: StorybookConfig = {
   },
   env: (config) => ({
     ...config,
-    FLAGS: JSON.stringify({
-      secretsManager: true,
-    }),
+    FLAGS: JSON.stringify({}),
   }),
   webpackFinal: async (config, { configType }) => {
     if (config.resolve) {

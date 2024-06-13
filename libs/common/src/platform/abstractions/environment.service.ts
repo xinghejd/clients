@@ -1,5 +1,7 @@
 import { Observable } from "rxjs";
 
+import { UserId } from "../../types/guid";
+
 export type Urls = {
   base?: string;
   webVault?: string;
@@ -12,43 +14,119 @@ export type Urls = {
   scim?: string;
 };
 
-export type PayPalConfig = {
-  businessId?: string;
-  buttonAction?: string;
-};
-
+/**
+ * A subset of available regions, additional regions can be loaded through configuration.
+ */
 export enum Region {
   US = "US",
   EU = "EU",
   SelfHosted = "Self-hosted",
 }
 
-export abstract class EnvironmentService {
-  urls: Observable<void>;
-  usUrls: Urls;
-  euUrls: Urls;
-  selectedRegion?: Region;
-  initialized = true;
+/**
+ * The possible cloud regions.
+ */
+export type CloudRegion = Exclude<Region, Region.SelfHosted>;
 
-  hasBaseUrl: () => boolean;
-  getNotificationsUrl: () => string;
-  getWebVaultUrl: () => string;
-  getSendUrl: () => string;
-  getIconsUrl: () => string;
-  getApiUrl: () => string;
-  getIdentityUrl: () => string;
-  getEventsUrl: () => string;
-  getKeyConnectorUrl: () => string;
-  getScimUrl: () => string;
-  setUrlsFromStorage: () => Promise<void>;
-  setUrls: (urls: Urls) => Promise<Urls>;
-  setRegion: (region: Region) => Promise<void>;
-  getUrls: () => Urls;
-  isCloud: () => boolean;
-  isEmpty: () => boolean;
+export type RegionConfig = {
+  // Beware this isn't completely true, it's actually a string for custom environments,
+  // which are currently only supported in web where it doesn't matter.
+  key: Region;
+  domain: string;
+  urls: Urls;
+};
+
+/**
+ * The Environment interface represents a server environment.
+ *
+ * It provides methods to retrieve the URLs of the different services.
+ */
+export interface Environment {
   /**
-   * @remarks For desktop and browser use only.
-   * For web, use PlatformUtilsService.isSelfHost()
+   * Retrieve the current region.
    */
-  isSelfHosted: () => boolean;
+  getRegion(): Region;
+  /**
+   * Retrieve the urls, should only be used when configuring the environment.
+   */
+  getUrls(): Urls;
+
+  /**
+   * Identify if the region is a cloud environment.
+   *
+   * @returns true if the environment is a cloud environment, false otherwise.
+   */
+  isCloud(): boolean;
+
+  getApiUrl(): string;
+  getEventsUrl(): string;
+  getIconsUrl(): string;
+  getIdentityUrl(): string;
+
+  /**
+   * @deprecated This is currently only used by the CLI. This functionality should be extracted since
+   * the CLI relies on changing environment mid-login.
+   *
+   * @remarks
+   * Expect this to be null unless the CLI has explicitly set it during the login flow.
+   */
+  getKeyConnectorUrl(): string | null;
+  getNotificationsUrl(): string;
+  getScimUrl(): string;
+  getSendUrl(): string;
+  getWebVaultUrl(): string;
+
+  /**
+   * Get a friendly hostname for the environment.
+   *
+   * - For self-hosted this is the web vault url without protocol prefix.
+   * - For cloud environments it's the domain key.
+   */
+  getHostname(): string;
+
+  // Not sure why we provide this, evaluate if we can remove it.
+  hasBaseUrl(): boolean;
+}
+
+/**
+ * The environment service. Provides access to set the current environment urls and region.
+ */
+export abstract class EnvironmentService {
+  abstract environment$: Observable<Environment>;
+  abstract cloudWebVaultUrl$: Observable<string>;
+
+  /**
+   * Retrieve all the available regions for environment selectors.
+   *
+   * This currently relies on compile time provided constants, and will not change at runtime.
+   * Expect all builds to include production environments, QA builds to also include QA
+   * environments and dev builds to include localhost.
+   */
+  abstract availableRegions(): RegionConfig[];
+
+  /**
+   * Set the global environment.
+   */
+  abstract setEnvironment(region: Region, urls?: Urls): Promise<Urls>;
+
+  /**
+   * Seed the environment state for a given user based on the global environment.
+   *
+   * @remarks
+   * Expected to be called only by the StateService when adding a new account.
+   */
+  abstract seedUserEnvironment(userId: UserId): Promise<void>;
+
+  /**
+   * Sets the URL of the cloud web vault app based on the region parameter.
+   *
+   * @param userId - The user id to set the cloud web vault app URL for. If null or undefined the global environment is set.
+   * @param region - The region of the cloud web vault app.
+   */
+  abstract setCloudRegion(userId: UserId, region: Region): Promise<void>;
+
+  /**
+   * Get the environment from state. Useful if you need to get the environment for another user.
+   */
+  abstract getEnvironment(userId?: string): Promise<Environment | undefined>;
 }

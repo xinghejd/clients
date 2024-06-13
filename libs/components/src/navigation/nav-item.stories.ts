@@ -61,26 +61,26 @@ export const WithChildButtons: Story = {
     template: `
       <bit-nav-item text="Hello World" [route]="['']" icon="bwi-collection">
         <button
-          slot-start
+          slot="start"
           class="tw-ml-auto"
           [bitIconButton]="'bwi-clone'"
-          [buttonType]="'contrast'"
+          [buttonType]="'light'"
           size="small"
           aria-label="option 1"
         ></button>
         <button
-          slot-end
+          slot="end"
           class="tw-ml-auto"
           [bitIconButton]="'bwi-pencil-square'"
-          [buttonType]="'contrast'"
+          [buttonType]="'light'"
           size="small"
           aria-label="option 2"
         ></button>
         <button
-          slot-end
+          slot="end"
           class="tw-ml-auto"
           [bitIconButton]="'bwi-check'"
-          [buttonType]="'contrast'"
+          [buttonType]="'light'"
           size="small"
           aria-label="option 3"
         ></button>
@@ -98,6 +98,17 @@ export const MultipleItemsWithDivider: Story = {
       <bit-nav-divider></bit-nav-divider>
       <bit-nav-item text="Hello World" icon="bwi-collection"></bit-nav-item>
       <bit-nav-item text="Hello World" icon="bwi-collection"></bit-nav-item>
+    `,
+  }),
+};
+
+export const ForceActiveStyles: Story = {
+  render: (args: NavItemComponent) => ({
+    props: args,
+    template: `
+      <bit-nav-item text="First Nav" icon="bwi-collection"></bit-nav-item>
+      <bit-nav-item text="Active Nav" icon="bwi-collection" [forceActiveStyles]="true"></bit-nav-item>
+      <bit-nav-item text="Third Nav" icon="bwi-collection"></bit-nav-item>
     `,
   }),
 };

@@ -1,5 +1,7 @@
 import { Jsonify } from "type-fest";
 
+import { AllowedFeatureFlagTypes } from "../../../enums/feature-flag.enum";
+import { Region } from "../../abstractions/environment.service";
 import {
   ServerConfigResponse,
   ThirdPartyServerConfigResponse,
@@ -12,7 +14,7 @@ export class ServerConfigData {
   server?: ThirdPartyServerConfigData;
   environment?: EnvironmentServerConfigData;
   utcDate: string;
-  featureStates: { [key: string]: string } = {};
+  featureStates: { [key: string]: AllowedFeatureFlagTypes } = {};
 
   constructor(serverConfigResponse: Partial<ServerConfigResponse>) {
     this.version = serverConfigResponse?.version;
@@ -50,6 +52,7 @@ export class ThirdPartyServerConfigData {
 }
 
 export class EnvironmentServerConfigData {
+  cloudRegion: Region;
   vault: string;
   api: string;
   identity: string;
@@ -57,6 +60,7 @@ export class EnvironmentServerConfigData {
   sso: string;
 
   constructor(response: Partial<EnvironmentServerConfigResponse>) {
+    this.cloudRegion = response.cloudRegion;
     this.vault = response.vault;
     this.api = response.api;
     this.identity = response.identity;

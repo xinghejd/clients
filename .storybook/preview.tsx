@@ -48,7 +48,7 @@ const decorator = componentWrapperDecorator(
   },
   ({ globals }) => {
     return { theme: `${globals["theme"]}` };
-  }
+  },
 );
 
 const preview: Preview = {
@@ -101,6 +101,7 @@ const preview: Preview = {
     },
     options: {
       storySort: {
+        method: "alphabetical",
         order: ["Documentation", ["Introduction", "Colors", "Icons"], "Component Library"],
       },
     },

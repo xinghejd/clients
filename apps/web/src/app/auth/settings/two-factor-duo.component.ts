@@ -1,8 +1,7 @@
 import { Component } from "@angular/core";
 
-import { DialogServiceAbstraction } from "@bitwarden/angular/services/dialog";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
-import { UserVerificationService } from "@bitwarden/common/abstractions/userVerification/userVerification.service.abstraction";
+import { UserVerificationService } from "@bitwarden/common/auth/abstractions/user-verification/user-verification.service.abstraction";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { UpdateTwoFactorDuoRequest } from "@bitwarden/common/auth/models/request/update-two-factor-duo.request";
 import { TwoFactorDuoResponse } from "@bitwarden/common/auth/models/response/two-factor-duo.response";
@@ -10,6 +9,7 @@ import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { DialogService } from "@bitwarden/components";
 
 import { TwoFactorBaseComponent } from "./two-factor-base.component";
 
@@ -19,8 +19,8 @@ import { TwoFactorBaseComponent } from "./two-factor-base.component";
 })
 export class TwoFactorDuoComponent extends TwoFactorBaseComponent {
   type = TwoFactorProviderType.Duo;
-  ikey: string;
-  skey: string;
+  clientId: string;
+  clientSecret: string;
   host: string;
   formPromise: Promise<TwoFactorDuoResponse>;
 
@@ -32,7 +32,7 @@ export class TwoFactorDuoComponent extends TwoFactorBaseComponent {
     platformUtilsService: PlatformUtilsService,
     logService: LogService,
     userVerificationService: UserVerificationService,
-    dialogService: DialogServiceAbstraction
+    dialogService: DialogService,
   ) {
     super(
       apiService,
@@ -40,7 +40,7 @@ export class TwoFactorDuoComponent extends TwoFactorBaseComponent {
       platformUtilsService,
       logService,
       userVerificationService,
-      dialogService
+      dialogService,
     );
   }
 
@@ -59,15 +59,15 @@ export class TwoFactorDuoComponent extends TwoFactorBaseComponent {
 
   protected async enable() {
     const request = await this.buildRequestModel(UpdateTwoFactorDuoRequest);
-    request.integrationKey = this.ikey;
-    request.secretKey = this.skey;
+    request.integrationKey = this.clientId;
+    request.secretKey = this.clientSecret;
     request.host = this.host;
 
     return super.enable(async () => {
       if (this.organizationId != null) {
         this.formPromise = this.apiService.putTwoFactorOrganizationDuo(
           this.organizationId,
-          request
+          request,
         );
       } else {
         this.formPromise = this.apiService.putTwoFactorDuo(request);
@@ -78,8 +78,8 @@ export class TwoFactorDuoComponent extends TwoFactorBaseComponent {
   }
 
   private processResponse(response: TwoFactorDuoResponse) {
-    this.ikey = response.integrationKey;
-    this.skey = response.secretKey;
+    this.clientId = response.integrationKey;
+    this.clientSecret = response.secretKey;
     this.host = response.host;
     this.enabled = response.enabled;
   }

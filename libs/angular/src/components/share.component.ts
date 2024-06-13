@@ -35,7 +35,7 @@ export class ShareComponent implements OnInit, OnDestroy {
     protected i18nService: I18nService,
     protected cipherService: CipherService,
     private logService: LogService,
-    protected organizationService: OrganizationService
+    protected organizationService: OrganizationService,
   ) {}
 
   async ngOnInit() {
@@ -56,19 +56,20 @@ export class ShareComponent implements OnInit, OnDestroy {
         return orgs
           .filter((o) => o.enabled && o.status === OrganizationUserStatusType.Confirmed)
           .sort(Utils.getSortFunction(this.i18nService, "name"));
-      })
+      }),
     );
 
     this.organizations$.pipe(takeUntil(this._destroy)).subscribe((orgs) => {
       if (this.organizationId == null && orgs.length > 0) {
         this.organizationId = orgs[0].id;
+        this.filterCollections();
       }
     });
 
     const cipherDomain = await this.cipherService.get(this.cipherId);
-    this.cipher = await cipherDomain.decrypt();
-
-    this.filterCollections();
+    this.cipher = await cipherDomain.decrypt(
+      await this.cipherService.getKeyForCipherKeyDecryption(cipherDomain),
+    );
   }
 
   filterCollections() {
@@ -77,7 +78,7 @@ export class ShareComponent implements OnInit, OnDestroy {
       this.collections = [];
     } else {
       this.collections = this.writeableCollections.filter(
-        (c) => c.organizationId === this.organizationId
+        (c) => c.organizationId === this.organizationId,
       );
     }
   }
@@ -88,13 +89,15 @@ export class ShareComponent implements OnInit, OnDestroy {
       this.platformUtilsService.showToast(
         "error",
         this.i18nService.t("errorOccurred"),
-        this.i18nService.t("selectOneCollection")
+        this.i18nService.t("selectOneCollection"),
       );
       return;
     }
 
     const cipherDomain = await this.cipherService.get(this.cipherId);
-    const cipherView = await cipherDomain.decrypt();
+    const cipherView = await cipherDomain.decrypt(
+      await this.cipherService.getKeyForCipherKeyDecryption(cipherDomain),
+    );
     const orgs = await firstValueFrom(this.organizations$);
     const orgName =
       orgs.find((o) => o.id === this.organizationId)?.name ?? this.i18nService.t("organization");
@@ -107,7 +110,7 @@ export class ShareComponent implements OnInit, OnDestroy {
           this.platformUtilsService.showToast(
             "success",
             null,
-            this.i18nService.t("movedItemToOrg", cipherView.name, orgName)
+            this.i18nService.t("movedItemToOrg", cipherView.name, orgName),
           );
         });
       await this.formPromise;
