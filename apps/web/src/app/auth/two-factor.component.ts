@@ -170,8 +170,6 @@ export class TwoFactorComponent extends BaseTwoFactorComponent implements OnDest
   }
 
   async ngOnDestroy() {
-    super.ngOnDestroy();
-
     if (this.duoResultChannel) {
       // clean up duo listener if it was initialized.
       this.duoResultChannel.removeEventListener("message", this.handleDuoResultMessage);

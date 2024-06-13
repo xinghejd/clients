@@ -25,7 +25,6 @@ import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/for
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
 import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two-factor-email.request";
 import { TwoFactorProviders } from "@bitwarden/common/auth/services/two-factor.service";
-import { WebAuthnIFrame } from "@bitwarden/common/auth/webauthn-iframe";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -40,13 +39,9 @@ import { CaptchaProtectedComponent } from "./captcha-protected.component";
 export class TwoFactorComponent extends CaptchaProtectedComponent implements OnInit, OnDestroy {
   token = "";
   remember = false;
-  webAuthnReady = false;
-  webAuthnNewTab = false;
   providers = TwoFactorProviders;
   providerType = TwoFactorProviderType;
   selectedProviderType: TwoFactorProviderType = TwoFactorProviderType.Authenticator;
-  webAuthnSupported = false;
-  webAuthn: WebAuthnIFrame = null;
   title = "";
   twoFactorEmail: string = null;
   formPromise: Promise<any>;
@@ -98,8 +93,9 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
     protected accountService: AccountService,
   ) {
     super(environmentService, i18nService, platformUtilsService);
-    this.webAuthnSupported = this.platformUtilsService.supportsWebAuthn(win);
   }
+
+  ngOnDestroy(): void {}
 
   async ngOnInit() {
     if (!(await this.authing()) || (await this.twoFactorService.getProviders()) == null) {
@@ -119,42 +115,11 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
       this.successRoute = "lock";
     }
 
-    if (this.win != null && this.webAuthnSupported) {
-      const env = await firstValueFrom(this.environmentService.environment$);
-      const webVaultUrl = env.getWebVaultUrl();
-      this.webAuthn = new WebAuthnIFrame(
-        this.win,
-        webVaultUrl,
-        this.webAuthnNewTab,
-        this.platformUtilsService,
-        this.i18nService,
-        (token: string) => {
-          this.token = token;
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          this.submit();
-        },
-        (error: string) => {
-          this.platformUtilsService.showToast("error", this.i18nService.t("errorOccurred"), error);
-        },
-        (info: string) => {
-          if (info === "ready") {
-            this.webAuthnReady = true;
-          }
-        },
-      );
-    }
-
     // this.selectedProviderType = await this.twoFactorService.getDefaultProvider(
     //   this.webAuthnSupported,
     // );
     this.selectedProviderType = TwoFactorProviderType.Authenticator;
     await this.init();
-  }
-
-  ngOnDestroy(): void {
-    this.cleanupWebAuthn();
-    this.webAuthn = null;
   }
 
   async init() {
@@ -163,18 +128,18 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
       return;
     }
 
-    this.cleanupWebAuthn();
+    // this.cleanupWebAuthn();
     this.title = (TwoFactorProviders as any)[this.selectedProviderType].name;
     const providerData = await this.twoFactorService.getProviders().then((providers) => {
       return providers.get(this.selectedProviderType);
     });
     switch (this.selectedProviderType) {
       case TwoFactorProviderType.WebAuthn:
-        if (!this.webAuthnNewTab) {
-          setTimeout(async () => {
-            await this.authWebAuthn();
-          }, 500);
-        }
+        // if (!this.webAuthnNewTab) {
+        //   setTimeout(async () => {
+        //     await this.authWebAuthn();
+        //   }, 500);
+        // }
         break;
       case TwoFactorProviderType.Duo:
       case TwoFactorProviderType.OrganizationDuo:
@@ -239,11 +204,11 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
     }
 
     if (this.selectedProviderType === TwoFactorProviderType.WebAuthn) {
-      if (this.webAuthn != null) {
-        this.webAuthn.stop();
-      } else {
-        return;
-      }
+      // if (this.webAuthn != null) {
+      //   this.webAuthn.stop();
+      // } else {
+      //   return;
+      // }
     } else if (
       this.selectedProviderType === TwoFactorProviderType.Email ||
       this.selectedProviderType === TwoFactorProviderType.Authenticator
@@ -254,9 +219,9 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
     try {
       await this.doSubmit();
     } catch {
-      if (this.selectedProviderType === TwoFactorProviderType.WebAuthn && this.webAuthn != null) {
-        this.webAuthn.start();
-      }
+      // if (this.selectedProviderType === TwoFactorProviderType.WebAuthn && this.webAuthn != null) {
+      //   this.webAuthn.start();
+      // }
     }
   }
 
@@ -477,25 +442,6 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
     }
 
     this.emailPromise = null;
-  }
-
-  async authWebAuthn() {
-    const providerData = await this.twoFactorService.getProviders().then((providers) => {
-      return providers.get(this.selectedProviderType);
-    });
-
-    if (!this.webAuthnSupported || this.webAuthn == null) {
-      return;
-    }
-
-    this.webAuthn.init(providerData);
-  }
-
-  private cleanupWebAuthn() {
-    if (this.webAuthn != null) {
-      this.webAuthn.stop();
-      this.webAuthn.cleanup();
-    }
   }
 
   private async authing(): Promise<boolean> {
