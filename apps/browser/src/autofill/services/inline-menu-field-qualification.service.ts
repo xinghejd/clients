@@ -192,12 +192,22 @@ export class InlineMenuFieldQualificationService
 
     // If a single password field exists within the page details, and that password field is part of
     // the same form as the provided field, we should assume that the field is part of a login form.
-    // If multiple visible password fields exist within the page details, we need to assume that the
-    // provided field is part of an account creation form.
     const visiblePasswordFieldsInPageDetails = passwordFieldsInPageDetails.filter(
       (passwordField) => passwordField.form === field.form && passwordField.viewable,
     );
-    return visiblePasswordFieldsInPageDetails.length === 1;
+    if (visiblePasswordFieldsInPageDetails.length === 1) {
+      return true;
+    }
+
+    // If multiple visible password fields exist within the page details, we need to assume that the
+    // provided field is part of an account creation form.
+    if (visiblePasswordFieldsInPageDetails.length > 1) {
+      return false;
+    }
+
+    // If no visible password fields are found, this field might be part of a multipart form.
+    // Check for an invalid autocompleteType to determine if the field is part of a login form.
+    return !this.autocompleteDisabledValues.has(field.autoCompleteType);
   }
 
   /**

@@ -446,6 +446,63 @@ describe("InlineMenuFieldQualificationService", () => {
               inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
             ).toBe(false);
           });
+
+          it("is structured on a page with multiple viewable password field", () => {
+            const field = mock<AutofillField>({
+              type: "text",
+              autoCompleteType: "",
+              htmlID: "user-username",
+              htmlName: "user-username",
+              placeholder: "user-username",
+              form: "validFormId",
+            });
+            const passwordField = mock<AutofillField>({
+              type: "password",
+              autoCompleteType: "current-password",
+              htmlID: "user-password",
+              htmlName: "user-password",
+              placeholder: "user-password",
+              form: "validFormId",
+            });
+            const secondPasswordField = mock<AutofillField>({
+              type: "password",
+              autoCompleteType: "current-password",
+              htmlID: "some-other-password",
+              htmlName: "some-other-password",
+              placeholder: "some-other-password",
+              form: "validFormId",
+            });
+            pageDetails.fields = [field, passwordField, secondPasswordField];
+
+            expect(
+              inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
+            ).toBe(false);
+          });
+
+          it("is structured on a page with a with no visible password fields and but contains a disabled autocomplete type", () => {
+            const field = mock<AutofillField>({
+              type: "text",
+              autoCompleteType: "off",
+              htmlID: "user-username",
+              htmlName: "user-username",
+              placeholder: "user-username",
+              form: "validFormId",
+            });
+            const passwordField = mock<AutofillField>({
+              type: "password",
+              autoCompleteType: "current-password",
+              htmlID: "user-password",
+              htmlName: "user-password",
+              placeholder: "user-password",
+              form: "validFormId",
+              viewable: false,
+            });
+            pageDetails.fields = [field, passwordField];
+
+            expect(
+              inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
+            ).toBe(false);
+          });
         });
       });
 
@@ -542,6 +599,31 @@ describe("InlineMenuFieldQualificationService", () => {
               htmlName: "user-password",
               placeholder: "user-password",
               form: "validFormId",
+            });
+            pageDetails.fields = [field, passwordField];
+
+            expect(
+              inlineMenuFieldQualificationService.isFieldForLoginForm(field, pageDetails),
+            ).toBe(true);
+          });
+
+          it("is structured on a page with a with no visible password fields and a non-disabled autocomplete type", () => {
+            const field = mock<AutofillField>({
+              type: "text",
+              autoCompleteType: "",
+              htmlID: "user-username",
+              htmlName: "user-username",
+              placeholder: "user-username",
+              form: "validFormId",
+            });
+            const passwordField = mock<AutofillField>({
+              type: "password",
+              autoCompleteType: "current-password",
+              htmlID: "user-password",
+              htmlName: "user-password",
+              placeholder: "user-password",
+              form: "validFormId",
+              viewable: false,
             });
             pageDetails.fields = [field, passwordField];
 
