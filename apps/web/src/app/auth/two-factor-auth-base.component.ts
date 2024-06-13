@@ -1,7 +1,8 @@
-import { Input, OnDestroy } from "@angular/core";
+import { Directive, OnDestroy } from "@angular/core";
 
-export class TwoFactorAuthenticatorLoginComponent implements OnDestroy {
-  @Input() onSubmit: () => void;
+@Directive()
+export class TwoFactorAuthBaseComponent implements OnDestroy {
+  tokenValue: string = "";
 
   constructor() {}
 

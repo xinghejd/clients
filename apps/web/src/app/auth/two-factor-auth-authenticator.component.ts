@@ -1,12 +1,11 @@
-import { Component, EventEmitter, OnDestroy, Output } from "@angular/core";
+import { Component, EventEmitter, Output } from "@angular/core";
+
+import { TwoFactorAuthBaseComponent } from "./two-factor-auth-base.component";
 
 @Component({
   selector: "app-two-factor-auth-authenticator",
   templateUrl: "two-factor-auth-authenticator.component.html",
 })
-export class TwoFactorAuthAuthenticatorComponent implements OnDestroy {
+export class TwoFactorAuthAuthenticatorComponent extends TwoFactorAuthBaseComponent {
   @Output() token = new EventEmitter<string>();
-  tokenValue: string = "";
-
-  ngOnDestroy(): void {}
 }
