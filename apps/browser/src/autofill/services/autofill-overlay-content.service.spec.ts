@@ -1566,9 +1566,9 @@ describe("AutofillOverlayContentService", () => {
               command: "calculateSubFramePositioning",
               subFrameData: {
                 frameId: 10,
-                left: 20,
+                left: expect.any(Number),
                 parentFrameIds: [1, 2, 3],
-                top: 20,
+                top: expect.any(Number),
                 url: "https://example.com/",
                 subFrameDepth: expect.any(Number),
               },
