@@ -167,6 +167,12 @@ export class InlineMenuFieldQualificationService
         return false;
       }
 
+      // If no visible fields are found on the page, but we have a single password
+      // field we should assume that the field is part of a login form.
+      if (passwordFieldsInPageDetails.length === 1) {
+        return true;
+      }
+
       // If the page does not contain any password fields, it might be part of a multistep login form.
       // That will only be the case if the field does not explicitly have its autocomplete attribute
       // set to "off" or "false".
