@@ -134,13 +134,6 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
       return providers.get(this.selectedProviderType);
     });
     switch (this.selectedProviderType) {
-      case TwoFactorProviderType.WebAuthn:
-        // if (!this.webAuthnNewTab) {
-        //   setTimeout(async () => {
-        //     await this.authWebAuthn();
-        //   }, 500);
-        // }
-        break;
       case TwoFactorProviderType.Duo:
       case TwoFactorProviderType.OrganizationDuo:
         // 2 Duo 2FA flows available
