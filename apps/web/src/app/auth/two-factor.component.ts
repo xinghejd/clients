@@ -107,7 +107,8 @@ export class TwoFactorComponent extends BaseTwoFactorComponent implements OnDest
   submitForm = async () => {
     if (
       this.selectedProviderType === TwoFactorProviderType.Authenticator ||
-      this.selectedProviderType === TwoFactorProviderType.Email
+      this.selectedProviderType === TwoFactorProviderType.Email ||
+      this.selectedProviderType === TwoFactorProviderType.WebAuthn
     ) {
       this.token = this.tk;
     }

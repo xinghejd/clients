@@ -14,7 +14,7 @@
       *ngIf="selectedProviderType === providerType.Yubikey"
     />
     <app-two-factor-auth-webauthn
-      (token)="tk = $event"
+      (token)="tk = $event; submitForm()"
       *ngIf="selectedProviderType === providerType.WebAuthn"
     />
     <!-- todo: <app-two-factor-auth-duo -->
