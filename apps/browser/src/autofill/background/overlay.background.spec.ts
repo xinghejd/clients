@@ -398,7 +398,10 @@ describe("OverlayBackground", () => {
         const sender = mock<chrome.runtime.MessageSender>({ tab, frameId: middleFrameId });
         jest.spyOn(overlayBackground as any, "updateInlineMenuPositionAfterSubFrameRebuild");
 
-        sendMockExtensionMessage({ command: "rebuildSubFrameOffsets" }, sender);
+        sendMockExtensionMessage(
+          { command: "rebuildSubFrameOffsets", triggerInlineMenuPositionUpdate: true },
+          sender,
+        );
         await flushPromises();
         jest.advanceTimersByTime(650);
 
@@ -454,7 +457,10 @@ describe("OverlayBackground", () => {
       });
 
       it("updates the position of the inline menu elements", async () => {
-        sendMockExtensionMessage({ command: "rebuildSubFrameOffsets" }, sender);
+        sendMockExtensionMessage(
+          { command: "rebuildSubFrameOffsets", triggerInlineMenuPositionUpdate: true },
+          sender,
+        );
         await flushInlineMenuUpdatePromises();
 
         expect(tabsSendMessageSpy).toHaveBeenCalledWith(
@@ -484,7 +490,10 @@ describe("OverlayBackground", () => {
           return Promise.resolve();
         });
 
-        sendMockExtensionMessage({ command: "rebuildSubFrameOffsets" }, sender);
+        sendMockExtensionMessage(
+          { command: "rebuildSubFrameOffsets", triggerInlineMenuPositionUpdate: true },
+          sender,
+        );
         await flushInlineMenuUpdatePromises();
 
         expect(tabsSendMessageSpy).toHaveBeenCalledWith(

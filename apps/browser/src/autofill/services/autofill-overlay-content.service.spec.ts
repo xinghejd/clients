@@ -24,6 +24,15 @@ describe("AutofillOverlayContentService", () => {
   let autofillOverlayContentService: AutofillOverlayContentService;
   let sendExtensionMessageSpy: jest.SpyInstance;
   const sendResponseSpy = jest.fn();
+  beforeAll(() => {
+    const mockPerformanceObserver = jest.fn();
+    mockPerformanceObserver.mockReturnValue({
+      observe: jest.fn(),
+      disconnect: jest.fn(),
+    });
+    // @ts-expect-error Need to mock the performance observer
+    global.PerformanceObserver = mockPerformanceObserver;
+  });
 
   beforeEach(() => {
     autofillOverlayContentService = new AutofillOverlayContentService();
