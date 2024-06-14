@@ -1168,11 +1168,12 @@ jobs:
           mkdir PlugIns
           cp -r $GITHUB_WORKSPACE/browser-build-artifacts/Safari/masdev/build/Release/safari.appex PlugIns/safari.appex
 
-      - name: Build dev application for App Store
+      - name: Build dev application
         run: npm run pack:mac:masdev
         env:
           APPLE_ID_USERNAME: ${{ secrets.APPLE_ID_USERNAME }}
           APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+        CSC_FOR_PULL_REQUEST: true
 
       - name: Zip masdev asset
         run: |
