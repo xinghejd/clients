@@ -47,7 +47,7 @@ export function tdeDecryptionRequiredGuard(): CanActivateFn {
     if (await configService.getFeatureFlag(FeatureFlag.DeviceTrustLogging)) {
       logService.info(
         "Sending user to TDE decryption options. AuthStatus is %s. TDE support is %s. Ever had user key is %s.",
-        authStatus,
+        AuthenticationStatus[authStatus],
         tdeEnabled,
         everHadUserKey,
       );

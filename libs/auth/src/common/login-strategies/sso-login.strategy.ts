@@ -91,7 +91,8 @@ export class SsoLoginStrategy extends LoginStrategy {
     data.userEnteredEmail = credentials.email;
 
     const deviceRequest = await this.buildDeviceRequest();
-    this.logService.info("Logging in with appId ", deviceRequest.identifier);
+
+    await this.logDeviceTrustInfo("Logging in with appId " + deviceRequest.identifier);
 
     data.tokenRequest = new SsoTokenRequest(
       credentials.code,
