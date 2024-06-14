@@ -17,6 +17,7 @@ export enum FeatureFlag {
   RestrictProviderAccess = "restrict-provider-access",
   UseTreeWalkerApiForPageDetailsCollection = "use-tree-walker-api-for-page-details-collection",
   BulkDeviceApproval = "bulk-device-approval",
+  DeviceTrustLogging = "device-trust-logging",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;

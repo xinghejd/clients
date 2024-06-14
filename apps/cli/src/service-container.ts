@@ -541,6 +541,15 @@ export class ServiceContainer {
       this.stateProvider,
     );
 
+    this.configApiService = new ConfigApiService(this.apiService, this.tokenService);
+
+    this.configService = new DefaultConfigService(
+      this.configApiService,
+      this.environmentService,
+      this.logService,
+      this.stateProvider,
+    );
+
     this.loginStrategyService = new LoginStrategyService(
       this.accountService,
       this.masterPasswordService,
@@ -566,6 +575,7 @@ export class ServiceContainer {
       this.billingAccountProfileStateService,
       this.vaultTimeoutSettingsService,
       this.kdfConfigService,
+      this.configService,
     );
 
     this.authService = new AuthService(
@@ -575,15 +585,6 @@ export class ServiceContainer {
       this.apiService,
       this.stateService,
       this.tokenService,
-    );
-
-    this.configApiService = new ConfigApiService(this.apiService, this.tokenService);
-
-    this.configService = new DefaultConfigService(
-      this.configApiService,
-      this.environmentService,
-      this.logService,
-      this.stateProvider,
     );
 
     this.cipherService = new CipherService(

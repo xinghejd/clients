@@ -9,7 +9,9 @@ import { SsoTokenRequest } from "@bitwarden/common/auth/models/request/identity-
 import { AuthRequestResponse } from "@bitwarden/common/auth/models/response/auth-request.response";
 import { IdentityTokenResponse } from "@bitwarden/common/auth/models/response/identity-token.response";
 import { HttpStatusCode } from "@bitwarden/common/enums";
+import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { UserId } from "@bitwarden/common/types/guid";
 
@@ -71,6 +73,7 @@ export class SsoLoginStrategy extends LoginStrategy {
     private deviceTrustService: DeviceTrustServiceAbstraction,
     private authRequestService: AuthRequestServiceAbstraction,
     private i18nService: I18nService,
+    private configService: ConfigService,
     ...sharedDeps: ConstructorParameters<typeof LoginStrategy>
   ) {
     super(...sharedDeps);
@@ -87,12 +90,15 @@ export class SsoLoginStrategy extends LoginStrategy {
 
     data.userEnteredEmail = credentials.email;
 
+    const deviceRequest = await this.buildDeviceRequest();
+    this.logService.info("Logging in with appId ", deviceRequest.identifier);
+
     data.tokenRequest = new SsoTokenRequest(
       credentials.code,
       credentials.codeVerifier,
       credentials.redirectUrl,
       await this.buildTwoFactor(credentials.twoFactor, credentials.email),
-      await this.buildDeviceRequest(),
+      deviceRequest,
     );
 
     this.cache.next(data);
@@ -195,12 +201,18 @@ export class SsoLoginStrategy extends LoginStrategy {
 
     // Note: TDE and key connector are mutually exclusive
     if (userDecryptionOptions?.trustedDeviceOption) {
+      await this.logDeviceTrustInfo("Attempting to set user key with approved admin auth request.");
+
+      // Try to use the user key from an approved admin request if it exists.
+      // Using it will clear it from state and future requests will use the device key.
       await this.trySetUserKeyWithApprovedAdminRequestIfExists(userId);
 
       const hasUserKey = await this.cryptoService.hasUserKey(userId);
 
-      // Only try to set user key with device key if admin approval request was not successful
+      // Only try to set user key with device key if admin approval request was not successful.
       if (!hasUserKey) {
+        await this.logDeviceTrustInfo("Attempting to set user key with device key.");
+
         await this.trySetUserKeyWithDeviceKey(tokenResponse, userId);
       }
     } else if (
@@ -275,11 +287,29 @@ export class SsoLoginStrategy extends LoginStrategy {
   ): Promise<void> {
     const trustedDeviceOption = tokenResponse.userDecryptionOptions?.trustedDeviceOption;
 
+    if (!trustedDeviceOption) {
+      this.logService.error("Unable to set user key due to missing trustedDeviceOption.");
+      return;
+    }
+
     const deviceKey = await this.deviceTrustService.getDeviceKey(userId);
     const encDevicePrivateKey = trustedDeviceOption?.encryptedPrivateKey;
     const encUserKey = trustedDeviceOption?.encryptedUserKey;
 
     if (!deviceKey || !encDevicePrivateKey || !encUserKey) {
+      if (!deviceKey) {
+        await this.logDeviceTrustWarning("Unable to set user key due to missing device key.");
+      }
+      if (!encDevicePrivateKey) {
+        await this.logDeviceTrustWarning(
+          "Unable to set user key due to missing encrypted device private key.",
+        );
+      }
+      if (!encUserKey) {
+        await this.logDeviceTrustWarning(
+          "Unable to set user key due to missing encrypted user key.",
+        );
+      }
       return;
     }
 
@@ -292,6 +322,8 @@ export class SsoLoginStrategy extends LoginStrategy {
 
     if (userKey) {
       await this.cryptoService.setUserKey(userKey);
+    } else {
+      this.logService.error("Unable to set user key due to decryption failure.");
     }
   }
 
@@ -328,5 +360,17 @@ export class SsoLoginStrategy extends LoginStrategy {
     return {
       sso: this.cache.value,
     };
+  }
+
+  async logDeviceTrustWarning(message: string) {
+    if (await this.configService.getFeatureFlag(FeatureFlag.DeviceTrustLogging)) {
+      this.logService.warning(message);
+    }
+  }
+
+  async logDeviceTrustInfo(message: string) {
+    if (await this.configService.getFeatureFlag(FeatureFlag.DeviceTrustLogging)) {
+      this.logService.info(message);
+    }
   }
 }

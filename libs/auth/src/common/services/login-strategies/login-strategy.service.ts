@@ -65,6 +65,7 @@ import {
   CACHE_EXPIRATION_KEY,
   CACHE_KEY,
 } from "./login-strategy.state";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 const sessionTimeoutLength = 2 * 60 * 1000; // 2 minutes
 
@@ -111,6 +112,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
     protected billingAccountProfileStateService: BillingAccountProfileStateService,
     protected vaultTimeoutSettingsService: VaultTimeoutSettingsService,
     protected kdfConfigService: KdfConfigService,
+    protected configService: ConfigService,
   ) {
     this.currentAuthnTypeState = this.stateProvider.get(CURRENT_LOGIN_STRATEGY_KEY);
     this.loginStrategyCacheState = this.stateProvider.get(CACHE_KEY);
@@ -334,6 +336,7 @@ export class LoginStrategyService implements LoginStrategyServiceAbstraction {
               this.deviceTrustService,
               this.authRequestService,
               this.i18nService,
+              this.configService,
               ...sharedDeps,
             );
           case AuthenticationType.UserApiKey:

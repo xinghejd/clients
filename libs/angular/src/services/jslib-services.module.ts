@@ -405,6 +405,7 @@ const safeProviders: SafeProvider[] = [
       BillingAccountProfileStateService,
       VaultTimeoutSettingsServiceAbstraction,
       KdfConfigServiceAbstraction,
+      ConfigService,
     ],
   }),
   safeProvider({
