@@ -329,8 +329,6 @@ export class SsoLoginStrategy extends LoginStrategy {
 
     if (userKey) {
       await this.cryptoService.setUserKey(userKey);
-    } else {
-      this.logService.error("Unable to set user key due to decryption failure.");
     }
   }
 
