@@ -2,3 +2,5 @@ dist-safari/
 *.nupkg
 *.env
 PlugIns/safari.appex/
+.flatpak-builder/
+repo/
