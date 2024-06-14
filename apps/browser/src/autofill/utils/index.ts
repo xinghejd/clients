@@ -1,6 +1,14 @@
 import { AutofillPort } from "../enums/autofill-port.enums";
 import { FillableFormFieldElement, FormFieldElement } from "../types";
 
+export function requestIdleCallbackPolyfill(callback: () => void, options?: Record<string, any>) {
+  if ("requestIdleCallback" in globalThis) {
+    return globalThis.requestIdleCallback(() => callback(), options);
+  }
+
+  return globalThis.setTimeout(() => callback(), 1);
+}
+
 /**
  * Generates a random string of characters that formatted as a custom element name.
  */
