@@ -18,6 +18,7 @@ export enum FeatureFlag {
   UseTreeWalkerApiForPageDetailsCollection = "use-tree-walker-api-for-page-details-collection",
   BulkDeviceApproval = "bulk-device-approval",
   DeviceTrustLogging = "device-trust-logging",
+  EmailVerification = "email-verification",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -46,6 +47,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
   [FeatureFlag.BulkDeviceApproval]: FALSE,
   [FeatureFlag.DeviceTrustLogging]: FALSE,
+  [FeatureFlag.EmailVerification]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

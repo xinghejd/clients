@@ -487,6 +487,7 @@ const safeProviders: SafeProvider[] = [
       UserVerificationServiceAbstraction,
       LogService,
       InternalAccountService,
+      EnvironmentService,
     ],
   }),
   safeProvider({
