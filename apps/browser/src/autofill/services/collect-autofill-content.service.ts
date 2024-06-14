@@ -21,7 +21,6 @@ import {
   nodeIsFormElement,
   nodeIsInputElement,
   // sendExtensionMessage,
-  requestIdleCallbackPolyfill,
 } from "../utils";
 
 import { AutofillOverlayContentService } from "./abstractions/autofill-overlay-content.service";
