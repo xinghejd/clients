@@ -13,6 +13,7 @@ import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
+import { LogLevelType } from "@bitwarden/common/platform/enums";
 import { UserId } from "@bitwarden/common/types/guid";
 
 import { AuthRequestServiceAbstraction } from "../abstractions";
@@ -92,7 +93,7 @@ export class SsoLoginStrategy extends LoginStrategy {
 
     const deviceRequest = await this.buildDeviceRequest();
 
-    await this.logDeviceTrustInfo("Logging in with appId " + deviceRequest.identifier);
+    await this.logDeviceTrust("Logging in with appId " + deviceRequest.identifier);
 
     data.tokenRequest = new SsoTokenRequest(
       credentials.code,
@@ -202,7 +203,7 @@ export class SsoLoginStrategy extends LoginStrategy {
 
     // Note: TDE and key connector are mutually exclusive
     if (userDecryptionOptions?.trustedDeviceOption) {
-      await this.logDeviceTrustInfo("Attempting to set user key with approved admin auth request.");
+      await this.logDeviceTrust("Attempting to set user key with approved admin auth request.");
 
       // Try to use the user key from an approved admin request if it exists.
       // Using it will clear it from state and future requests will use the device key.
@@ -212,7 +213,7 @@ export class SsoLoginStrategy extends LoginStrategy {
 
       // Only try to set user key with device key if admin approval request was not successful.
       if (!hasUserKey) {
-        await this.logDeviceTrustInfo("Attempting to set user key with device key.");
+        await this.logDeviceTrust("Attempting to set user key with device key.");
 
         await this.trySetUserKeyWithDeviceKey(tokenResponse, userId);
       }
@@ -299,16 +300,21 @@ export class SsoLoginStrategy extends LoginStrategy {
 
     if (!deviceKey || !encDevicePrivateKey || !encUserKey) {
       if (!deviceKey) {
-        await this.logDeviceTrustWarning("Unable to set user key due to missing device key.");
+        await this.logDeviceTrust(
+          "Unable to set user key due to missing device key.",
+          LogLevelType.Warning,
+        );
       }
       if (!encDevicePrivateKey) {
-        await this.logDeviceTrustWarning(
+        await this.logDeviceTrust(
           "Unable to set user key due to missing encrypted device private key.",
+          LogLevelType.Warning,
         );
       }
       if (!encUserKey) {
-        await this.logDeviceTrustWarning(
+        await this.logDeviceTrust(
           "Unable to set user key due to missing encrypted user key.",
+          LogLevelType.Warning,
         );
       }
       return;
@@ -363,15 +369,19 @@ export class SsoLoginStrategy extends LoginStrategy {
     };
   }
 
-  async logDeviceTrustWarning(message: string) {
+  async logDeviceTrust(
+    message: string,
+    level: LogLevelType.Warning | LogLevelType.Info = LogLevelType.Info,
+  ) {
     if (await this.configService.getFeatureFlag(FeatureFlag.DeviceTrustLogging)) {
-      this.logService.warning(message);
-    }
-  }
-
-  async logDeviceTrustInfo(message: string) {
-    if (await this.configService.getFeatureFlag(FeatureFlag.DeviceTrustLogging)) {
-      this.logService.info(message);
+      switch (level) {
+        case LogLevelType.Info:
+          this.logService.info(message);
+          break;
+        case LogLevelType.Warning:
+          this.logService.warning(message);
+          break;
+      }
     }
   }
 }
