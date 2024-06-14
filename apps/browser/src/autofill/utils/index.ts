@@ -7,12 +7,23 @@ import { FillableFormFieldElement, FormFieldElement } from "../types";
  * @param callback - The callback function to run when the browser is idle.
  * @param options - The options to pass to the requestIdleCallback function.
  */
-export function requestIdleCallbackPolyfill(callback: () => void, options?: Record<string, any>) {
+export function requestIdleCallbackPolyfill(
+  callback: () => void,
+  options?: Record<string, any>,
+): number | NodeJS.Timeout {
   if ("requestIdleCallback" in globalThis) {
     return globalThis.requestIdleCallback(() => callback(), options);
   }
 
   return globalThis.setTimeout(() => callback(), 1);
+}
+
+export function cancelIdleCallbackPolyfill(id: NodeJS.Timeout | number) {
+  if ("cancelIdleCallback" in globalThis) {
+    return globalThis.cancelIdleCallback(id as number);
+  }
+
+  return globalThis.clearTimeout(id);
 }
 
 /**

@@ -22,6 +22,7 @@ import {
   nodeIsInputElement,
   sendExtensionMessage,
   requestIdleCallbackPolyfill,
+  cancelIdleCallbackPolyfill,
 } from "../utils";
 
 import { AutofillOverlayContentService } from "./abstractions/autofill-overlay-content.service";
@@ -45,7 +46,7 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
   private elementInitializingIntersectionObserver: Set<Element> = new Set();
   private mutationObserver: MutationObserver;
   private mutationsQueue: MutationRecord[][] = [];
-  private updateAfterMutationIdleCallback: number;
+  private updateAfterMutationIdleCallback: NodeJS.Timeout | number;
   private readonly updateAfterMutationTimeout = 1000;
   private readonly formFieldQueryString;
   private readonly nonInputFormFieldTags = new Set(["textarea", "select"]);
@@ -1228,10 +1229,10 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
    */
   private updateAutofillElementsAfterMutation() {
     if (this.updateAfterMutationIdleCallback) {
-      globalThis.cancelIdleCallback(this.updateAfterMutationIdleCallback);
+      cancelIdleCallbackPolyfill(this.updateAfterMutationIdleCallback);
     }
 
-    this.updateAfterMutationIdleCallback = globalThis.requestIdleCallback(
+    this.updateAfterMutationIdleCallback = requestIdleCallbackPolyfill(
       this.getPageDetails.bind(this),
       { timeout: this.updateAfterMutationTimeout },
     );
@@ -1480,7 +1481,7 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
    */
   destroy() {
     if (this.updateAfterMutationIdleCallback) {
-      globalThis.cancelIdleCallback(this.updateAfterMutationIdleCallback);
+      cancelIdleCallbackPolyfill(this.updateAfterMutationIdleCallback);
     }
     this.mutationObserver?.disconnect();
     this.intersectionObserver?.disconnect();
