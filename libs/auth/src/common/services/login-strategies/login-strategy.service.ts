@@ -28,6 +28,7 @@ import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abs
 import { PreloginRequest } from "@bitwarden/common/models/request/prelogin.request";
 import { ErrorResponse } from "@bitwarden/common/models/response/error.response";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
+import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 import { CryptoService } from "@bitwarden/common/platform/abstractions/crypto.service";
 import { EncryptService } from "@bitwarden/common/platform/abstractions/encrypt.service";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
@@ -65,7 +66,6 @@ import {
   CACHE_EXPIRATION_KEY,
   CACHE_KEY,
 } from "./login-strategy.state";
-import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
 
 const sessionTimeoutLength = 2 * 60 * 1000; // 2 minutes
 
