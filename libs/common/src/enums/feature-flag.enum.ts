@@ -45,6 +45,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.RestrictProviderAccess]: FALSE,
   [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
   [FeatureFlag.BulkDeviceApproval]: FALSE,
+  [FeatureFlag.DeviceTrustLogging]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;
