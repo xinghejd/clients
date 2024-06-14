@@ -1,6 +1,12 @@
 import { AutofillPort } from "../enums/autofill-port.enums";
 import { FillableFormFieldElement, FormFieldElement } from "../types";
 
+/**
+ * Polyfills the requestIdleCallback API with a setTimeout fallback.
+ *
+ * @param callback - The callback function to run when the browser is idle.
+ * @param options - The options to pass to the requestIdleCallback function.
+ */
 export function requestIdleCallbackPolyfill(callback: () => void, options?: Record<string, any>) {
   if ("requestIdleCallback" in globalThis) {
     return globalThis.requestIdleCallback(() => callback(), options);
