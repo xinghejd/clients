@@ -392,9 +392,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     if (subFrameOffsetsForTab) {
       const tabFrameIds = Array.from(subFrameOffsetsForTab.keys());
       for (const frameId of tabFrameIds) {
-        if (frameId === sender.frameId) {
-          continue;
-        }
+        // if (frameId === sender.frameId) {
+        //   continue;
+        // }
 
         subFrameOffsetsForTab.delete(frameId);
         await this.buildSubFrameOffsets(sender.tab, frameId, sender.url);

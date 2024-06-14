@@ -13,13 +13,16 @@ export const EVENTS = {
   BLUR: "blur",
   CLICK: "click",
   FOCUS: "focus",
+  FOCUSIN: "focusin",
+  FOCUSOUT: "focusout",
   SCROLL: "scroll",
   RESIZE: "resize",
   DOMCONTENTLOADED: "DOMContentLoaded",
   LOAD: "load",
   MESSAGE: "message",
   VISIBILITYCHANGE: "visibilitychange",
-  FOCUSOUT: "focusout",
+  MOUSEENTER: "mouseenter",
+  MOUSELEAVE: "mouseleave",
 } as const;
 
 export const ClearClipboardDelay = {

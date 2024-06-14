@@ -798,21 +798,16 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
     if ("PerformanceObserver" in window && "LayoutShift" in window) {
       this.reflowPerformanceObserver = new PerformanceObserver(
-        throttle(this.updateSubFrameOffsetsFromLayoutShiftEvent.bind(this), 10),
+        throttle(this.updateSubFrameOffsetsFromLayoutShiftEvent.bind(this), 100),
       );
       this.reflowPerformanceObserver.observe({ type: "layout-shift", buffered: true });
 
       return;
     }
 
-    this.reflowMutationObserver = new MutationObserver(
-      throttle(this.updateSubFrameForReflow.bind(this), 10),
-    );
-    this.reflowMutationObserver.observe(globalThis.document.documentElement, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-    });
+    if (globalThis.window.top !== globalThis.window && this.formFieldElements.size > 0) {
+      this.setupRebuildSubFrameOffsetsEventListeners();
+    }
   }
 
   private updateSubFrameOffsetsFromLayoutShiftEvent = (list: any) => {
@@ -827,6 +822,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   };
 
   private updateSubFrameForReflow = () => {
+    // console.log("update sub frame reflow");
     if (this.userInteractionEventTimeout) {
       this.clearUserInteractionEventTimeout();
       void this.toggleInlineMenuHidden(false, true);
@@ -1021,6 +1017,30 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     const documentRoot = element.getRootNode() as ShadowRoot | Document;
     return documentRoot?.activeElement;
   }
+
+  private setupRebuildSubFrameOffsetsEventListeners = () => {
+    // console.log("setting up listeners");
+    globalThis.addEventListener(EVENTS.FOCUS, this.handleSubFrameFocusInEvent);
+    globalThis.document.body.addEventListener(EVENTS.MOUSEENTER, this.handleSubFrameFocusInEvent);
+  };
+
+  private handleSubFrameFocusInEvent = (event: FocusEvent) => {
+    // console.log("removing listeners", event);
+    this.updateSubFrameForReflow();
+
+    globalThis.removeEventListener(EVENTS.FOCUS, this.handleSubFrameFocusInEvent);
+    globalThis.document.body.removeEventListener(
+      EVENTS.MOUSEENTER,
+      this.handleSubFrameFocusInEvent,
+    );
+    globalThis.addEventListener(EVENTS.BLUR, this.handleSubFrameFocusOutEvent);
+    globalThis.document.body.addEventListener(EVENTS.MOUSELEAVE, this.handleSubFrameFocusOutEvent);
+  };
+
+  handleSubFrameFocusOutEvent = (event: FocusEvent) => {
+    // console.log(event);
+    this.setupRebuildSubFrameOffsetsEventListeners();
+  };
 
   /**
    * Queries all iframe elements within the document and returns the

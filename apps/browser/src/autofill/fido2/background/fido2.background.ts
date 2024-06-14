@@ -299,7 +299,7 @@ export class Fido2Background implements Fido2BackgroundInterface {
     }
 
     const messageResponse = handler({ message, sender });
-    if (!messageResponse) {
+    if (typeof messageResponse === "undefined") {
       return;
     }
 
