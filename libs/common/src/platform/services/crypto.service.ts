@@ -89,10 +89,14 @@ export class CryptoService implements CryptoServiceAbstraction {
     );
   }
 
-  async setUserKey(key: UserKey, userId?: UserId): Promise<void> {
+  async setUserKey(key: UserKey, userId: UserId): Promise<void> {
     if (key == null) {
       throw new Error("No key provided. Lock the user to clear the key");
     }
+    if (userId == null) {
+      throw new Error("No userId provided.");
+    }
+
     // Set userId to ensure we have one for the account status update
     [userId, key] = await this.stateProvider.setUserState(USER_KEY, key, userId);
     await this.stateProvider.setUserState(USER_EVER_HAD_USER_KEY, true, userId);
@@ -519,6 +523,7 @@ export class CryptoService implements CryptoServiceAbstraction {
     await this.clearProviderKeys(userId);
     await this.clearKeyPair(userId);
     await this.clearPinKeys(userId);
+    await this.stateProvider.setUserState(USER_EVER_HAD_USER_KEY, null, userId);
   }
 
   async rsaEncrypt(data: Uint8Array, publicKey: Uint8Array): Promise<EncString> {
