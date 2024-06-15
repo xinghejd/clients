@@ -519,7 +519,6 @@ export class CryptoService implements CryptoServiceAbstraction {
     await this.clearProviderKeys(userId);
     await this.clearKeyPair(userId);
     await this.clearPinKeys(userId);
-    await this.stateProvider.setUserState(USER_EVER_HAD_USER_KEY, null, userId);
   }
 
   async rsaEncrypt(data: Uint8Array, publicKey: Uint8Array): Promise<EncString> {
