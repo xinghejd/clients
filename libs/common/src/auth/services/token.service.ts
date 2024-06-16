@@ -419,6 +419,7 @@ export class TokenService implements TokenServiceAbstraction {
       ACCESS_TOKEN_MEMORY,
     );
     if (accessTokenMemory != null) {
+      this.logService.info("Returning %s access token from memory", accessTokenMemory.slice(-5));
       return accessTokenMemory;
     }
 
@@ -447,6 +448,10 @@ export class TokenService implements TokenServiceAbstraction {
         // was stored unencrypted on disk. We can return the access token as is.
         // Note: this is likely to only be hit for linux users who don't
         // have a secure storage provider configured.
+        this.logService.info(
+          "Returning %s access token from disk after trying secure storage",
+          accessTokenDisk.slice(-5),
+        );
         return accessTokenDisk;
       }
 
@@ -464,6 +469,10 @@ export class TokenService implements TokenServiceAbstraction {
         }
 
         // We know this is an unencrypted access token
+        this.logService.info(
+          "Retrieved unencrypted %s access token from disk",
+          accessTokenDisk.slice(-5),
+        );
         return accessTokenDisk;
       }
 
@@ -473,6 +482,10 @@ export class TokenService implements TokenServiceAbstraction {
         const decryptedAccessToken = await this.decryptAccessToken(
           accessTokenKey,
           encryptedAccessTokenEncString,
+        );
+        this.logService.info(
+          "Returning decrypted %s access token from secure storage",
+          decryptedAccessToken.slice(-5),
         );
         return decryptedAccessToken;
       } catch (error) {
@@ -486,6 +499,7 @@ export class TokenService implements TokenServiceAbstraction {
         return null;
       }
     }
+    this.logService.info("Returning %s access token from disk", accessTokenDisk.slice(-5));
     return accessTokenDisk;
   }
 
