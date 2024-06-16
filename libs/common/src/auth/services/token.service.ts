@@ -309,6 +309,10 @@ export class TokenService implements TokenServiceAbstraction {
           );
 
           // Save the encrypted access token to disk
+          this.logService.info(
+            "Storing encrypted %s access token in secure storage",
+            accessToken.slice(-5),
+          );
           await this.singleUserStateProvider
             .get(userId, ACCESS_TOKEN_DISK)
             .update((_) => encryptedAccessToken.encryptedString);
@@ -323,6 +327,10 @@ export class TokenService implements TokenServiceAbstraction {
             error,
           );
 
+          this.logService.info(
+            "Fallback - storing unencrypted %s access token on disk",
+            accessToken.slice(-5),
+          );
           // Fall back to disk storage for unecrypted access token
           await this.singleUserStateProvider
             .get(userId, ACCESS_TOKEN_DISK)
@@ -333,11 +341,13 @@ export class TokenService implements TokenServiceAbstraction {
       }
       case TokenStorageLocation.Disk:
         // Access token stored on disk unencrypted as platform does not support secure storage
+        this.logService.info("Storing %s access token on disk", accessToken.slice(-5));
         await this.singleUserStateProvider
           .get(userId, ACCESS_TOKEN_DISK)
           .update((_) => accessToken);
         return;
       case TokenStorageLocation.Memory:
+        this.logService.info("Storing %s access token in memory", accessToken.slice(-5));
         // Access token stored in memory due to vault timeout settings
         await this.singleUserStateProvider
           .get(userId, ACCESS_TOKEN_MEMORY)

@@ -1568,6 +1568,10 @@ export class ApiService implements ApiServiceAbstraction {
     if (await this.tokenService.tokenNeedsRefresh()) {
       await this.doAuthRefresh();
       accessToken = await this.tokenService.getAccessToken();
+      this.logService.info("Refreshed access token to %s", accessToken.slice(-5));
+      if (accessToken === accessToken) {
+        this.logService.error("Failed to refresh access token.");
+      }
     }
     return accessToken;
   }
