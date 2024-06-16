@@ -247,9 +247,9 @@ export class ApiService implements ApiServiceAbstraction {
     return Promise.reject(new ErrorResponse(responseJson, response.status, true));
   }
 
-  async refreshIdentityToken(): Promise<any> {
+  async refreshIdentityToken(): Promise<string> {
     try {
-      await this.doAuthRefresh();
+      return await this.refreshToken();
     } catch (e) {
       this.logService.error("Error refreshing access token: ", e);
       throw e;
@@ -1566,8 +1566,7 @@ export class ApiService implements ApiServiceAbstraction {
   async getActiveBearerToken(): Promise<string> {
     let accessToken = await this.tokenService.getAccessToken();
     if (await this.tokenService.tokenNeedsRefresh()) {
-      await this.doAuthRefresh();
-      accessToken = await this.tokenService.getAccessToken();
+      accessToken = await this.refreshToken();
     }
     return accessToken;
   }
@@ -1707,16 +1706,16 @@ export class ApiService implements ApiServiceAbstraction {
     );
   }
 
-  protected async doAuthRefresh(): Promise<void> {
+  protected async refreshToken(): Promise<string> {
     const refreshToken = await this.tokenService.getRefreshToken();
     if (refreshToken != null && refreshToken !== "") {
-      return this.doRefreshToken();
+      return this.refreshAccessToken();
     }
 
     const clientId = await this.tokenService.getClientId();
     const clientSecret = await this.tokenService.getClientSecret();
     if (!Utils.isNullOrWhitespace(clientId) && !Utils.isNullOrWhitespace(clientSecret)) {
-      return this.doApiTokenRefresh();
+      return this.refreshApiToken();
     }
 
     this.refreshAccessTokenErrorCallback();
@@ -1724,7 +1723,7 @@ export class ApiService implements ApiServiceAbstraction {
     throw new Error("Cannot refresh access token, no refresh token or api keys are stored.");
   }
 
-  protected async doRefreshToken(): Promise<void> {
+  protected async refreshAccessToken(): Promise<string> {
     const refreshToken = await this.tokenService.getRefreshToken();
     if (refreshToken == null || refreshToken === "") {
       throw new Error();
@@ -1776,13 +1775,14 @@ export class ApiService implements ApiServiceAbstraction {
         vaultTimeout,
         tokenResponse.refreshToken,
       );
+      return tokenResponse.accessToken;
     } else {
       const error = await this.handleError(response, true, true);
       return Promise.reject(error);
     }
   }
 
-  protected async doApiTokenRefresh(): Promise<void> {
+  protected async refreshApiToken(): Promise<string> {
     const clientId = await this.tokenService.getClientId();
     const clientSecret = await this.tokenService.getClientSecret();
 
@@ -1815,6 +1815,7 @@ export class ApiService implements ApiServiceAbstraction {
       vaultTimeoutAction as VaultTimeoutAction,
       vaultTimeout,
     );
+    return response.accessToken;
   }
 
   async send(
