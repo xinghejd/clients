@@ -1133,10 +1133,14 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   private isFocusedFieldWithinViewportBounds() {
     const focusedFieldRectsTop = this.focusedFieldData?.focusedFieldRects?.top;
+    const focusedFieldRectsBottom =
+      focusedFieldRectsTop + this.focusedFieldData?.focusedFieldRects?.height;
+    const viewportHeight = globalThis.innerHeight + globalThis.scrollY;
     return (
       focusedFieldRectsTop &&
       focusedFieldRectsTop > 0 &&
-      focusedFieldRectsTop < globalThis.innerHeight + globalThis.scrollY
+      focusedFieldRectsTop < viewportHeight &&
+      focusedFieldRectsBottom < viewportHeight
     );
   }
 
