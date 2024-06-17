@@ -12,7 +12,7 @@
     (input)="token.emit(tokenValue)"
   />
   <bit-hint>
-    <a bitLink href="#" appStopClick>
+    <a bitLink href="#" appStopClick (click)="sendEmail(true)">
       {{ "sendVerificationCodeEmailAgain" | i18n }}
     </a></bit-hint
   >
