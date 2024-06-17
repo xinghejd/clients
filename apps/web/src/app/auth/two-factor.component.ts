@@ -15,7 +15,6 @@ import { AccountService } from "@bitwarden/common/auth/abstractions/account.serv
 import { InternalMasterPasswordServiceAbstraction } from "@bitwarden/common/auth/abstractions/master-password.service.abstraction";
 import { SsoLoginServiceAbstraction } from "@bitwarden/common/auth/abstractions/sso-login.service.abstraction";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
-import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -51,7 +50,6 @@ export class TwoFactorComponent extends BaseTwoFactorComponent implements OnDest
     remember: [false],
   });
   private destroy$ = new Subject<void>();
-  tk: string = "";
 
   constructor(
     loginStrategyService: LoginStrategyServiceAbstraction,
@@ -105,13 +103,6 @@ export class TwoFactorComponent extends BaseTwoFactorComponent implements OnDest
     });
   }
   submitForm = async () => {
-    if (
-      this.selectedProviderType === TwoFactorProviderType.Authenticator ||
-      this.selectedProviderType === TwoFactorProviderType.Email ||
-      this.selectedProviderType === TwoFactorProviderType.WebAuthn
-    ) {
-      this.token = this.tk;
-    }
     await this.submit();
   };
 
