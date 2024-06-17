@@ -686,15 +686,19 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * This is used to simultaneously fade in the inline menu elements.
    */
   private setInlineMenuFadeInTimeout() {
+    this.clearInlineMenuFadeInTimeout();
+
+    this.inlineMenuFadeInTimeout = globalThis.setTimeout(() => {
+      const message = { command: "fadeInAutofillInlineMenuIframe" };
+      this.inlineMenuButtonPort?.postMessage(message);
+      this.inlineMenuListPort?.postMessage(message);
+    }, 125);
+  }
+
+  private clearInlineMenuFadeInTimeout() {
     if (this.inlineMenuFadeInTimeout) {
       globalThis.clearTimeout(this.inlineMenuFadeInTimeout);
     }
-
-    this.inlineMenuFadeInTimeout = globalThis.setTimeout(() => {
-      const message = { command: "updateAutofillInlineMenuPosition", styles: { opacity: "1" } };
-      this.inlineMenuButtonPort?.postMessage(message);
-      this.inlineMenuListPort?.postMessage(message);
-    }, 50);
   }
 
   /**
@@ -777,11 +781,19 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     { isInlineMenuHidden, setTransparentInlineMenu }: OverlayBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
+    if (isInlineMenuHidden) {
+      this.clearInlineMenuFadeInTimeout();
+    }
+
+    if (setTransparentInlineMenu) {
+      this.setInlineMenuFadeInTimeout();
+    }
+
     const display = isInlineMenuHidden ? "none" : "block";
-    let styles: { display: string; opacity?: number } = { display };
+    let styles: { display: string; opacity?: string } = { display };
 
     if (typeof setTransparentInlineMenu !== "undefined") {
-      const opacity = setTransparentInlineMenu ? 0 : 1;
+      const opacity = setTransparentInlineMenu ? "0" : "1";
       styles = { ...styles, opacity };
     }
 
