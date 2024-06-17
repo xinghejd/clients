@@ -41,7 +41,6 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
   providerType = TwoFactorProviderType;
   selectedProviderType: TwoFactorProviderType = TwoFactorProviderType.Authenticator;
   title = "";
-  twoFactorEmail: string = null;
   formPromise: Promise<any>;
   orgIdentifier: string = null;
 
@@ -108,10 +107,8 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
       this.successRoute = "lock";
     }
 
-    // this.selectedProviderType = await this.twoFactorService.getDefaultProvider(
-    //   this.webAuthnSupported,
-    // );
-    this.selectedProviderType = TwoFactorProviderType.Authenticator;
+    const webAuthnSupported = this.platformUtilsService.supportsWebAuthn(this.win);
+    this.selectedProviderType = await this.twoFactorService.getDefaultProvider(webAuthnSupported);
     await this.init();
   }
 
