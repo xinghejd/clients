@@ -57,7 +57,8 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
     "image",
     "file",
   ]);
-  private useTreeWalkerStrategyFlagSet = true;
+  // private useTreeWalkerStrategyFlagSet = true;
+  private useTreeWalkerStrategyFlagSet = false;
 
   constructor(
     domElementVisibilityService: DomElementVisibilityService,
@@ -372,9 +373,11 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
   ): FormFieldElement[] {
     let formFieldElements = previouslyFoundFormFieldElements;
     if (!formFieldElements) {
-      formFieldElements = this.useTreeWalkerStrategyFlagSet
-        ? this.queryTreeWalkerForAutofillFormFieldElements()
-        : this.deepQueryElements(document, this.formFieldQueryString, true);
+      // formFieldElements = this.useTreeWalkerStrategyFlagSet
+      //   ? this.queryTreeWalkerForAutofillFormFieldElements()
+      //   : this.deepQueryElements(document, this.formFieldQueryString, true);
+
+      formFieldElements = this.queryTreeWalkerForAutofillFormFieldElements();
     }
 
     if (!fieldsLimit || formFieldElements.length <= fieldsLimit) {
@@ -946,30 +949,32 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
     formElements: HTMLFormElement[];
     formFieldElements: FormFieldElement[];
   } {
-    if (this.useTreeWalkerStrategyFlagSet) {
-      return this.queryTreeWalkerForAutofillFormAndFieldElements();
-    }
+    // if (this.useTreeWalkerStrategyFlagSet) {
+    // return this.queryTreeWalkerForAutofillFormAndFieldElements();
+    // }
 
-    const queriedElements = this.deepQueryElements<HTMLElement>(
-      document,
-      `form, ${this.formFieldQueryString}`,
-      true,
-    );
-    const formElements: HTMLFormElement[] = [];
-    const formFieldElements: FormFieldElement[] = [];
-    for (let index = 0; index < queriedElements.length; index++) {
-      const element = queriedElements[index];
-      if (elementIsFormElement(element)) {
-        formElements.push(element);
-        continue;
-      }
+    // const queriedElements = this.deepQueryElements<HTMLElement>(
+    //   document,
+    //   `form, ${this.formFieldQueryString}`,
+    //   true,
+    // );
+    // const formElements: HTMLFormElement[] = [];
+    // const formFieldElements: FormFieldElement[] = [];
+    // for (let index = 0; index < queriedElements.length; index++) {
+    //   const element = queriedElements[index];
+    //   if (elementIsFormElement(element)) {
+    //     formElements.push(element);
+    //     continue;
+    //   }
+    //
+    //   if (this.isNodeFormFieldElement(element)) {
+    //     formFieldElements.push(element);
+    //   }
+    // }
+    //
+    // return { formElements, formFieldElements };
 
-      if (this.isNodeFormFieldElement(element)) {
-        formFieldElements.push(element);
-      }
-    }
-
-    return { formElements, formFieldElements };
+    return this.queryTreeWalkerForAutofillFormAndFieldElements();
   }
 
   /**
@@ -1583,11 +1588,13 @@ class CollectAutofillContentService implements CollectAutofillContentServiceInte
    * @deprecated - This method remains as a fallback in the case that the deepQuery implementation fails.
    */
   isPasswordFieldWithinDocument(): boolean {
-    if (this.useTreeWalkerStrategyFlagSet) {
-      return Boolean(this.queryTreeWalkerForPasswordElements()?.length);
-    }
+    // if (this.useTreeWalkerStrategyFlagSet) {
+    // return Boolean(this.queryTreeWalkerForPasswordElements()?.length);
+    // }
 
-    return Boolean(this.deepQueryElements(document, `input[type="password"]`)?.length);
+    // return Boolean(this.deepQueryElements(document, `input[type="password"]`)?.length);
+
+    return Boolean(this.queryTreeWalkerForPasswordElements()?.length);
   }
 }
 
