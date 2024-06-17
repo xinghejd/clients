@@ -30,12 +30,14 @@ export class TwoFactorAuthWebAuthnComponent extends TwoFactorAuthBaseComponent {
     protected environmentService: EnvironmentService,
     protected twoFactorService: TwoFactorService,
   ) {
-    super();
+    super(i18nService);
 
     this.webAuthnSupported = this.platformUtilsService.supportsWebAuthn(win);
   }
 
   async ngOnInit(): Promise<void> {
+    this.cleanupWebAuthn();
+
     if (this.win != null && this.webAuthnSupported) {
       const env = await firstValueFrom(this.environmentService.environment$);
       const webVaultUrl = env.getWebVaultUrl();
