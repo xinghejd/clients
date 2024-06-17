@@ -252,7 +252,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     };
 
     if (pageDetails.frameId !== 0 && pageDetails.details.fields.length) {
-      void this.buildSubFrameOffsets(sender, pageDetails.details.url);
+      void this.buildSubFrameOffsets(
+        pageDetails.tab,
+        pageDetails.frameId,
+        pageDetails.details.url,
+        sender,
+      );
       void BrowserApi.tabSendMessage(pageDetails.tab, {
         command: "setupRebuildSubFrameOffsetsListeners",
       });
@@ -300,12 +305,18 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Builds the offset data for a sub frame of a tab. The offset data is used
    * to calculate the position of the inline menu list and button.
    *
-   * @param sender - The sender of the message
+   * @param tab - The tab that the sub frame is associated with
+   * @param frameId - The frame ID of the sub frame
    * @param url - The URL of the sub frame
+   * @param sender - The sender of the message
    */
-  private async buildSubFrameOffsets(sender: chrome.runtime.MessageSender, url: string) {
+  private async buildSubFrameOffsets(
+    tab: chrome.tabs.Tab,
+    frameId: number,
+    url: string,
+    sender: chrome.runtime.MessageSender,
+  ) {
     let subFrameDepth = 0;
-    const { tab, frameId } = sender;
     const tabId = tab.id;
     let subFrameOffsetsForTab = this.subFrameOffsetsForTab[tabId];
     if (!subFrameOffsetsForTab) {
@@ -395,7 +406,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       const tabFrameIds = Array.from(subFrameOffsetsForTab.keys());
       for (const frameId of tabFrameIds) {
         subFrameOffsetsForTab.delete(frameId);
-        await this.buildSubFrameOffsets(sender, sender.url);
+        await this.buildSubFrameOffsets(sender.tab, frameId, sender.url, sender);
       }
     }
   }
@@ -442,7 +453,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const mostRecentlyFocusedFieldHasValue = await BrowserApi.tabSendMessage(
       sender.tab,
       { command: "checkMostRecentlyFocusedFieldHasValue" },
-      { frameId: this.focusedFieldData.frameId },
+      { frameId: this.focusedFieldData?.frameId },
     );
     if (
       mostRecentlyFocusedFieldHasValue &&
