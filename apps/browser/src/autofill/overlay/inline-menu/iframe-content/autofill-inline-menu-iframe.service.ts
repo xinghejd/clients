@@ -255,6 +255,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
       return;
     }
 
+    this.clearFadeInTimeout();
     this.updateElementStyles(this.iframe, position);
     this.announceAriaAlert();
   }
@@ -308,13 +309,16 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
   }
 
   private handleFadeInInlineMenuIframe() {
+    this.clearFadeInTimeout();
+    this.fadeInTimeout = globalThis.setTimeout(() => {
+      this.updateElementStyles(this.iframe, { display: "block", opacity: "1" });
+    }, 10);
+  }
+
+  private clearFadeInTimeout() {
     if (this.fadeInTimeout) {
       clearTimeout(this.fadeInTimeout);
     }
-
-    this.fadeInTimeout = globalThis.setTimeout(() => {
-      this.updateElementStyles(this.iframe, { display: "block", opacity: "1" });
-    }, 25);
   }
 
   /**

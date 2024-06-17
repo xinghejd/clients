@@ -661,6 +661,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
+    this.clearInlineMenuFadeInTimeout();
+
     await BrowserApi.tabSendMessage(
       sender.tab,
       { command: "appendAutofillInlineMenuToDom", overlayElement },
@@ -673,13 +675,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       subFrameOffsets = subFrameOffsetsForTab.get(this.focusedFieldData.frameId);
     }
 
-    this.setInlineMenuFadeInTimeout();
-
     if (overlayElement === AutofillOverlayElement.Button) {
       this.inlineMenuButtonPort?.postMessage({
         command: "updateAutofillInlineMenuPosition",
         styles: this.getInlineMenuButtonPosition(subFrameOffsets),
       });
+      this.setInlineMenuFadeInTimeout();
 
       return;
     }
@@ -688,6 +689,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       command: "updateAutofillInlineMenuPosition",
       styles: this.getInlineMenuListPosition(subFrameOffsets),
     });
+    this.setInlineMenuFadeInTimeout();
   }
 
   /**
@@ -789,17 +791,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param display - The display property of the inline menu, either "block" or "none"
    * @param sender - The sender of the extension message
    */
-  private updateInlineMenuHidden(
+  private async updateInlineMenuHidden(
     { isInlineMenuHidden, setTransparentInlineMenu }: OverlayBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
-    if (isInlineMenuHidden) {
-      this.clearInlineMenuFadeInTimeout();
-    }
-
-    if (setTransparentInlineMenu) {
-      this.setInlineMenuFadeInTimeout();
-    }
+    this.clearInlineMenuFadeInTimeout();
 
     const display = isInlineMenuHidden ? "none" : "block";
     let styles: { display: string; opacity?: string } = { display };
@@ -809,7 +805,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       styles = { ...styles, opacity };
     }
 
-    void BrowserApi.tabSendMessage(
+    await BrowserApi.tabSendMessage(
       sender.tab,
       { command: "toggleAutofillInlineMenuHidden", isInlineMenuHidden },
       { frameId: 0 },
@@ -818,6 +814,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const portMessage = { command: "toggleAutofillInlineMenuHidden", styles };
     this.inlineMenuButtonPort?.postMessage(portMessage);
     this.inlineMenuListPort?.postMessage(portMessage);
+
+    if (setTransparentInlineMenu) {
+      this.setInlineMenuFadeInTimeout();
+    }
   }
 
   /**
