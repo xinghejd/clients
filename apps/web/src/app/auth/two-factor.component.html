@@ -2,21 +2,32 @@
   <div class="tw-min-w-96">
     <app-two-factor-auth-email
       (token)="token = $event"
+      (activeButtonTextChange)="actionButtonText = $event"
       *ngIf="selectedProviderType === providerType.Email"
     />
     <app-two-factor-auth-authenticator
       (token)="token = $event"
+      (activeButtonTextChange)="actionButtonText = $event"
       *ngIf="selectedProviderType === providerType.Authenticator"
     />
     <app-two-factor-auth-yubikey
       (token)="token = $event"
+      (activeButtonTextChange)="actionButtonText = $event"
       *ngIf="selectedProviderType === providerType.Yubikey"
     />
     <app-two-factor-auth-webauthn
       (token)="token = $event; submitForm()"
+      (activeButtonTextChange)="actionButtonText = $event"
       *ngIf="selectedProviderType === providerType.WebAuthn"
     />
-    <!-- todo: <app-two-factor-auth-duo -->
+    <app-two-factor-auth-duo
+      (activeButtonTextChange)="actionButtonText = $event"
+      [providerData]="providerData"
+      *ngIf="
+        selectedProviderType === providerType.OrganizationDuo ||
+        selectedProviderType === providerType.Duo
+      "
+    />
     <bit-form-control *ngIf="selectedProviderType != null">
       <bit-label>{{ "rememberMe" | i18n }}</bit-label>
       <input type="checkbox" bitCheckbox formControlName="remember" />
@@ -36,24 +47,20 @@
         buttonType="primary"
         bitButton
         bitFormButton
-        *ngIf="
-          selectedProviderType != null &&
-          !isDuoProvider &&
-          selectedProviderType !== providerType.WebAuthn
-        "
+        *ngIf="selectedProviderType != null && selectedProviderType !== providerType.WebAuthn"
       >
-        <span> <i class="bwi bwi-sign-in" aria-hidden="true"></i> {{ "continue" | i18n }} </span>
+        <span> <i class="bwi bwi-sign-in" aria-hidden="true"></i> {{ actionButtonText }} </span>
       </button>
-      <button
-        (click)="launchDuoFrameless()"
-        type="button"
-        buttonType="primary"
-        bitButton
-        bitFormButton
-        *ngIf="duoFrameless && isDuoProvider"
-      >
-        <span> {{ "launchDuo" | i18n }} </span>
-      </button>
+      <!-- <button -->
+      <!--   (click)="launchDuoFrameless()" -->
+      <!--   type="button" -->
+      <!--   buttonType="primary" -->
+      <!--   bitButton -->
+      <!--   bitFormButton -->
+      <!--   *ngIf="duoFrameless && isDuoProvider" -->
+      <!-- > -->
+      <!--   <span> {{ "launchDuo" | i18n }} </span> -->
+      <!-- </button> -->
       <a routerLink="/login" bitButton buttonType="secondary">
         {{ "cancel" | i18n }}
       </a>

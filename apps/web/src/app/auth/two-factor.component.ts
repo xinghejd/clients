@@ -50,6 +50,8 @@ export class TwoFactorComponent extends BaseTwoFactorComponent implements OnDest
     remember: [false],
   });
   private destroy$ = new Subject<void>();
+  providerData: any;
+  actionButtonText = "";
 
   constructor(
     loginStrategyService: LoginStrategyServiceAbstraction,
@@ -95,13 +97,16 @@ export class TwoFactorComponent extends BaseTwoFactorComponent implements OnDest
     );
     this.onSuccessfulLoginNavigate = this.goAfterLogIn;
   }
+
   async ngOnInit() {
+    this.actionButtonText = this.i18nService.t("continue");
     await super.ngOnInit();
     this.formGroup.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((value) => {
       this.token = value.token;
       this.remember = value.remember;
     });
   }
+
   submitForm = async () => {
     await this.submit();
   };
@@ -111,6 +116,10 @@ export class TwoFactorComponent extends BaseTwoFactorComponent implements OnDest
     const response: TwoFactorOptionsDialogResultType = await lastValueFrom(dialogRef.closed);
     if (response.result === TwoFactorOptionsDialogResult.Provider) {
       this.selectedProviderType = response.type;
+      const providerData = await this.twoFactorService.getProviders().then((providers) => {
+        return providers.get(this.selectedProviderType);
+      });
+      this.providerData = providerData;
       await this.init();
     }
   }
@@ -135,37 +144,4 @@ export class TwoFactorComponent extends BaseTwoFactorComponent implements OnDest
       },
     });
   };
-
-  private duoResultChannel: BroadcastChannel;
-
-  protected override setupDuoResultListener() {
-    if (!this.duoResultChannel) {
-      this.duoResultChannel = new BroadcastChannel("duoResult");
-      this.duoResultChannel.addEventListener("message", this.handleDuoResultMessage);
-    }
-  }
-
-  private handleDuoResultMessage = async (msg: { data: { code: string; state: string } }) => {
-    this.token = msg.data.code + "|" + msg.data.state;
-    await this.submit();
-  };
-
-  override async launchDuoFrameless() {
-    const duoHandOffMessage = {
-      title: this.i18nService.t("youSuccessfullyLoggedIn"),
-      message: this.i18nService.t("thisWindowWillCloseIn5Seconds"),
-      buttonText: this.i18nService.t("close"),
-      isCountdown: true,
-    };
-    document.cookie = `duoHandOffMessage=${JSON.stringify(duoHandOffMessage)}; SameSite=strict;`;
-    this.platformUtilsService.launchUri(this.duoFramelessUrl);
-  }
-
-  async ngOnDestroy() {
-    if (this.duoResultChannel) {
-      // clean up duo listener if it was initialized.
-      this.duoResultChannel.removeEventListener("message", this.handleDuoResultMessage);
-      this.duoResultChannel.close();
-    }
-  }
 }

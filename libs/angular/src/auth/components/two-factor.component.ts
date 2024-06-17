@@ -1,6 +1,5 @@
 import { Directive, Inject, OnDestroy, OnInit } from "@angular/core";
 import { ActivatedRoute, NavigationExtras, Router } from "@angular/router";
-import * as DuoWebSDK from "duo_web_sdk";
 import { firstValueFrom } from "rxjs";
 import { first } from "rxjs/operators";
 
@@ -23,7 +22,6 @@ import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-p
 import { AuthResult } from "@bitwarden/common/auth/models/domain/auth-result";
 import { ForceSetPasswordReason } from "@bitwarden/common/auth/models/domain/force-set-password-reason";
 import { TokenTwoFactorRequest } from "@bitwarden/common/auth/models/request/identity-token/token-two-factor.request";
-import { TwoFactorEmailRequest } from "@bitwarden/common/auth/models/request/two-factor-email.request";
 import { TwoFactorProviders } from "@bitwarden/common/auth/services/two-factor.service";
 import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.service";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
@@ -45,12 +43,7 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
   title = "";
   twoFactorEmail: string = null;
   formPromise: Promise<any>;
-  emailPromise: Promise<any>;
   orgIdentifier: string = null;
-
-  duoFrameless = false;
-  duoFramelessUrl: string = null;
-  duoResultListenerInitialized = false;
 
   onSuccessfulLogin: () => Promise<void>;
   onSuccessfulLoginNavigate: () => Promise<void>;
@@ -128,60 +121,7 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
       return;
     }
 
-    // this.cleanupWebAuthn();
     this.title = (TwoFactorProviders as any)[this.selectedProviderType].name;
-    const providerData = await this.twoFactorService.getProviders().then((providers) => {
-      return providers.get(this.selectedProviderType);
-    });
-    switch (this.selectedProviderType) {
-      case TwoFactorProviderType.Duo:
-      case TwoFactorProviderType.OrganizationDuo:
-        // 2 Duo 2FA flows available
-        // 1. Duo Web SDK (iframe) - existing, to be deprecated
-        // 2. Duo Frameless (new tab) - new
-
-        // AuthUrl only exists for new Duo Frameless flow
-        if (providerData.AuthUrl) {
-          this.duoFrameless = true;
-          // Setup listener for duo-redirect.ts connector to send back the code
-
-          if (!this.duoResultListenerInitialized) {
-            // setup client specific duo result listener
-            this.setupDuoResultListener();
-            this.duoResultListenerInitialized = true;
-          }
-
-          // flow must be launched by user so they can choose to remember the device or not.
-          this.duoFramelessUrl = providerData.AuthUrl;
-        } else {
-          // Duo Web SDK (iframe) flow
-          // TODO: remove when we remove the "duo-redirect" feature flag
-          setTimeout(() => {
-            DuoWebSDK.init({
-              iframe: undefined,
-              host: providerData.Host,
-              sig_request: providerData.Signature,
-              submit_callback: async (f: HTMLFormElement) => {
-                const sig = f.querySelector('input[name="sig_response"]') as HTMLInputElement;
-                if (sig != null) {
-                  this.token = sig.value;
-                  await this.submit();
-                }
-              },
-            });
-          }, 0);
-        }
-
-        break;
-      case TwoFactorProviderType.Email:
-        this.twoFactorEmail = providerData.Email;
-        if ((await this.twoFactorService.getProviders()).size > 1) {
-          await this.sendEmail(false);
-        }
-        break;
-      default:
-        break;
-    }
   }
 
   async submit() {
@@ -196,25 +136,10 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
       return;
     }
 
-    if (this.selectedProviderType === TwoFactorProviderType.WebAuthn) {
-      // if (this.webAuthn != null) {
-      //   this.webAuthn.stop();
-      // } else {
-      //   return;
-      // }
-    } else if (
-      this.selectedProviderType === TwoFactorProviderType.Email ||
-      this.selectedProviderType === TwoFactorProviderType.Authenticator
-    ) {
-      this.token = this.token.replace(" ", "").trim();
-    }
-
     try {
       await this.doSubmit();
     } catch {
-      // if (this.selectedProviderType === TwoFactorProviderType.WebAuthn && this.webAuthn != null) {
-      //   this.webAuthn.start();
-      // }
+      this.logService.error("Error submitting two factor token");
     }
   }
 
@@ -394,49 +319,6 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
     }
   }
 
-  async sendEmail(doToast: boolean) {
-    if (this.selectedProviderType !== TwoFactorProviderType.Email) {
-      return;
-    }
-
-    if (this.emailPromise != null) {
-      return;
-    }
-
-    if ((await this.loginStrategyService.getEmail()) == null) {
-      this.platformUtilsService.showToast(
-        "error",
-        this.i18nService.t("errorOccurred"),
-        this.i18nService.t("sessionTimeout"),
-      );
-      return;
-    }
-
-    try {
-      const request = new TwoFactorEmailRequest();
-      request.email = await this.loginStrategyService.getEmail();
-      request.masterPasswordHash = await this.loginStrategyService.getMasterPasswordHash();
-      request.ssoEmail2FaSessionToken =
-        await this.loginStrategyService.getSsoEmail2FaSessionToken();
-      request.deviceIdentifier = await this.appIdService.getAppId();
-      request.authRequestAccessCode = await this.loginStrategyService.getAccessCode();
-      request.authRequestId = await this.loginStrategyService.getAuthRequestId();
-      this.emailPromise = this.apiService.postTwoFactorEmail(request);
-      await this.emailPromise;
-      if (doToast) {
-        this.platformUtilsService.showToast(
-          "success",
-          null,
-          this.i18nService.t("verificationCodeEmailSent", this.twoFactorEmail),
-        );
-      }
-    } catch (e) {
-      this.logService.error(e);
-    }
-
-    this.emailPromise = null;
-  }
-
   private async authing(): Promise<boolean> {
     return (await firstValueFrom(this.loginStrategyService.currentAuthType$)) !== null;
   }
@@ -445,7 +327,4 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
     const authType = await firstValueFrom(this.loginStrategyService.currentAuthType$);
     return authType == AuthenticationType.Sso || authType == AuthenticationType.UserApiKey;
   }
-
-  // implemented in clients
-  async launchDuoFrameless() {}
 }
