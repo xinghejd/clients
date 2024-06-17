@@ -282,7 +282,7 @@ describe("OverlayBackground", () => {
       it("will attempt to build the sub frame offsets by posting window messages if a set of offsets is not returned", async () => {
         const tab = createChromeTabMock({ id: tabId });
         const frameId = 1;
-        tabsSendMessageSpy.mockResolvedValueOnce(null);
+        tabsSendMessageSpy.mockResolvedValue(null);
         sendMockExtensionMessage(
           { command: "collectPageDetailsResponse", details: createAutofillPageDetailsMock() },
           mock<chrome.runtime.MessageSender>({ tab, frameId }),
@@ -384,12 +384,12 @@ describe("OverlayBackground", () => {
       it("rebuilds the sub frame offsets for a given tab", async () => {
         const sender = mock<chrome.runtime.MessageSender>({ tab, frameId: middleFrameId });
 
-        sendMockExtensionMessage({ command: "repositionInlineMenuForSubFrame" }, sender);
+        sendMockExtensionMessage({ command: "repositionAutofillInlineMenuForSubFrame" }, sender);
         await flushPromises();
 
         expect(getFrameDetailsSpy).toHaveBeenCalledWith({ tabId, frameId: topFrameId });
         expect(getFrameDetailsSpy).toHaveBeenCalledWith({ tabId, frameId: bottomFrameId });
-        expect(getFrameDetailsSpy).not.toHaveBeenCalledWith({ tabId, frameId: middleFrameId });
+        expect(getFrameDetailsSpy).toHaveBeenCalledWith({ tabId, frameId: middleFrameId });
       });
 
       it("triggers an update of the inline menu position after rebuilding sub frames", async () => {
@@ -399,7 +399,10 @@ describe("OverlayBackground", () => {
         jest.spyOn(overlayBackground as any, "updateInlineMenuPositionAfterSubFrameRebuild");
 
         sendMockExtensionMessage(
-          { command: "repositionInlineMenuForSubFrame", triggerInlineMenuPositionUpdate: true },
+          {
+            command: "repositionAutofillInlineMenuForSubFrame",
+            triggerInlineMenuPositionUpdate: true,
+          },
           sender,
         );
         await flushPromises();
@@ -458,7 +461,10 @@ describe("OverlayBackground", () => {
 
       it("updates the position of the inline menu elements", async () => {
         sendMockExtensionMessage(
-          { command: "repositionInlineMenuForSubFrame", triggerInlineMenuPositionUpdate: true },
+          {
+            command: "repositionAutofillInlineMenuForSubFrame",
+            triggerInlineMenuPositionUpdate: true,
+          },
           sender,
         );
         await flushInlineMenuUpdatePromises();
@@ -491,7 +497,10 @@ describe("OverlayBackground", () => {
         });
 
         sendMockExtensionMessage(
-          { command: "repositionInlineMenuForSubFrame", triggerInlineMenuPositionUpdate: true },
+          {
+            command: "repositionAutofillInlineMenuForSubFrame",
+            triggerInlineMenuPositionUpdate: true,
+          },
           sender,
         );
         await flushInlineMenuUpdatePromises();
@@ -1154,15 +1163,13 @@ describe("OverlayBackground", () => {
           overlayElement: AutofillOverlayElement.List,
         });
         await flushPromises();
-        jest.advanceTimersByTime(50);
+        jest.advanceTimersByTime(150);
 
         expect(buttonPortSpy.postMessage).toHaveBeenCalledWith({
-          command: "updateAutofillInlineMenuPosition",
-          styles: { opacity: "1" },
+          command: "fadeInAutofillInlineMenuIframe",
         });
         expect(listPortSpy.postMessage).toHaveBeenCalledWith({
-          command: "updateAutofillInlineMenuPosition",
-          styles: { opacity: "1" },
+          command: "fadeInAutofillInlineMenuIframe",
         });
       });
     });
@@ -1198,14 +1205,14 @@ describe("OverlayBackground", () => {
           command: "toggleAutofillInlineMenuHidden",
           styles: {
             display: "none",
-            opacity: 1,
+            opacity: "1",
           },
         });
         expect(listPortSpy.postMessage).toHaveBeenCalledWith({
           command: "toggleAutofillInlineMenuHidden",
           styles: {
             display: "none",
-            opacity: 1,
+            opacity: "1",
           },
         });
       });
@@ -1441,7 +1448,7 @@ describe("OverlayBackground", () => {
         sendResponse,
       );
 
-      expect(returnValue).toBe(undefined);
+      expect(returnValue).toBe(null);
       expect(sendResponse).not.toHaveBeenCalled();
     });
   });
