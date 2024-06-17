@@ -394,7 +394,7 @@ describe("OverlayBackground", () => {
 
       it("triggers an update of the inline menu position after rebuilding sub frames", async () => {
         jest.useFakeTimers();
-        overlayBackground["updateInlineMenuPositionTimeout"] = setTimeout(jest.fn, 650);
+        overlayBackground["delayedUpdateInlineMenuPositionTimeout"] = setTimeout(jest.fn, 650);
         const sender = mock<chrome.runtime.MessageSender>({ tab, frameId: middleFrameId });
         jest.spyOn(overlayBackground as any, "updateInlineMenuPositionAfterSubFrameRebuild");
 

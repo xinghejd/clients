@@ -330,14 +330,3 @@ export function getPropertyOrAttribute(element: HTMLElement, attributeName: stri
 
   return element.getAttribute(attributeName);
 }
-
-export function throttle(callback: () => void, limit: number) {
-  let waitingDelay = false;
-  return function (...args: unknown[]) {
-    if (!waitingDelay) {
-      callback.apply(this, args);
-      waitingDelay = true;
-      globalThis.setTimeout(() => (waitingDelay = false), limit);
-    }
-  };
-}

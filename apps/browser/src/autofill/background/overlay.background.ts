@@ -63,7 +63,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private inlineMenuCiphers: Map<string, CipherView> = new Map();
   private inlineMenuPageTranslations: Record<string, string>;
   private inlineMenuFadeInTimeout: number | NodeJS.Timeout;
-  private updateInlineMenuPositionTimeout: number | NodeJS.Timeout;
+  private delayedUpdateInlineMenuPositionTimeout: number | NodeJS.Timeout;
   private delayedCloseTimeout: number | NodeJS.Timeout;
   private focusedFieldData: FocusedFieldData;
   private isFieldCurrentlyFocused: boolean = false;
@@ -252,9 +252,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     };
 
     if (pageDetails.frameId !== 0 && pageDetails.details.fields.length) {
-      void this.buildSubFrameOffsets(pageDetails.tab, pageDetails.frameId, pageDetails.details.url);
+      void this.buildSubFrameOffsets(sender, pageDetails.details.url);
       void BrowserApi.tabSendMessage(pageDetails.tab, {
-        command: "setupAutofillInlineMenuReflowObserver",
+        command: "setupRebuildSubFrameOffsetsListeners",
       });
     }
 
@@ -292,6 +292,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const subFrameOffsetsForTab = this.subFrameOffsetsForTab[sender.tab.id];
     if (subFrameOffsetsForTab) {
       subFrameOffsetsForTab.set(message.subFrameData.frameId, message.subFrameData);
+      this.delayedUpdateInlineMenuPosition(sender);
     }
   }
 
@@ -299,12 +300,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Builds the offset data for a sub frame of a tab. The offset data is used
    * to calculate the position of the inline menu list and button.
    *
-   * @param tab - The tab that the sub frame is associated with
-   * @param frameId - The frame ID of the sub frame
+   * @param sender - The sender of the message
    * @param url - The URL of the sub frame
    */
-  private async buildSubFrameOffsets(tab: chrome.tabs.Tab, frameId: number, url: string) {
+  private async buildSubFrameOffsets(sender: chrome.runtime.MessageSender, url: string) {
     let subFrameDepth = 0;
+    const { tab, frameId } = sender;
     const tabId = tab.id;
     let subFrameOffsetsForTab = this.subFrameOffsetsForTab[tabId];
     if (!subFrameOffsetsForTab) {
@@ -358,6 +359,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     subFrameOffsetsForTab.set(frameId, subFrameData);
+    this.delayedUpdateInlineMenuPosition(sender);
   }
 
   /**
@@ -392,12 +394,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     if (subFrameOffsetsForTab) {
       const tabFrameIds = Array.from(subFrameOffsetsForTab.keys());
       for (const frameId of tabFrameIds) {
-        // if (frameId === sender.frameId) {
-        //   continue;
-        // }
-
         subFrameOffsetsForTab.delete(frameId);
-        await this.buildSubFrameOffsets(sender.tab, frameId, sender.url);
+        await this.buildSubFrameOffsets(sender, sender.url);
       }
     }
   }
@@ -416,14 +414,15 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    this.clearUpdateInlineMenuPositionTimeout();
-
     await this.rebuildSubFrameOffsets(sender);
+  }
 
-    this.updateInlineMenuPositionTimeout = globalThis.setTimeout(
-      () => this.updateInlineMenuPositionAfterSubFrameRebuild(sender),
-      650,
-    );
+  private delayedUpdateInlineMenuPosition(sender: chrome.runtime.MessageSender) {
+    this.clearDelayedUpdateInlineMenuPositionTimeout();
+    this.delayedUpdateInlineMenuPositionTimeout = globalThis.setTimeout(async () => {
+      this.clearDelayedUpdateInlineMenuPositionTimeout();
+      await this.updateInlineMenuPositionAfterSubFrameRebuild(sender);
+    }, 650);
   }
 
   /**
@@ -583,9 +582,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
   }
 
-  private clearUpdateInlineMenuPositionTimeout() {
-    if (this.updateInlineMenuPositionTimeout) {
-      clearTimeout(this.updateInlineMenuPositionTimeout);
+  private clearDelayedUpdateInlineMenuPositionTimeout() {
+    if (this.delayedUpdateInlineMenuPositionTimeout) {
+      clearTimeout(this.delayedUpdateInlineMenuPositionTimeout);
+      this.delayedUpdateInlineMenuPositionTimeout = null;
     }
   }
 
@@ -628,7 +628,16 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     { overlayElement }: { overlayElement?: string },
     sender: chrome.runtime.MessageSender,
   ) {
-    if (!overlayElement || sender.tab.id !== this.focusedFieldData?.tabId) {
+    if (this.delayedUpdateInlineMenuPositionTimeout && this.isFieldCurrentlyFocused) {
+      this.closeInlineMenu(sender, { forceCloseInlineMenu: true });
+      return;
+    }
+
+    if (
+      !overlayElement ||
+      sender.tab.id !== this.focusedFieldData?.tabId ||
+      this.delayedUpdateInlineMenuPositionTimeout
+    ) {
       return;
     }
 
@@ -1159,12 +1168,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   ) => {
     const handler: CallableFunction | undefined = this.extensionMessageHandlers[message?.command];
     if (!handler) {
-      return;
+      return null;
     }
 
     const messageResponse = handler({ message, sender });
     if (typeof messageResponse === "undefined") {
-      return;
+      return null;
     }
 
     Promise.resolve(messageResponse)

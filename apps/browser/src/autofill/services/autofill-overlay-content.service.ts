@@ -18,12 +18,7 @@ import {
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import { ElementWithOpId, FillableFormFieldElement, FormFieldElement } from "../types";
-import {
-  elementIsFillableFormField,
-  getAttributeBoolean,
-  sendExtensionMessage,
-  throttle,
-} from "../utils";
+import { elementIsFillableFormField, getAttributeBoolean, sendExtensionMessage } from "../utils";
 
 import {
   AutofillOverlayContentExtensionMessageHandlers,
@@ -67,7 +62,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     getSubFrameOffsetsFromWindowMessage: ({ message }) =>
       this.getSubFrameOffsetsFromWindowMessage(message),
     checkMostRecentlyFocusedFieldHasValue: () => this.mostRecentlyFocusedFieldHasValue(),
-    setupAutofillInlineMenuReflowObserver: () => this.setupPageReflowEventListeners(),
+    setupRebuildSubFrameOffsetsListeners: () => this.setupRebuildSubFrameOffsetsListeners(),
     destroyAutofillInlineMenuListeners: () => this.destroy(),
   };
 
@@ -759,46 +754,248 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     this.inlineMenuVisibility = inlineMenuVisibility || AutofillOverlayVisibility.OnFieldFocus;
   }
 
-  private setupPageReflowEventListeners() {
-    if (this.reflowPerformanceObserver || this.reflowMutationObserver) {
-      return;
-    }
+  /**
+   * Returns a value that indicates if we should hide the inline menu list due to a filled field.
+   *
+   * @param formFieldElement - The form field element that triggered the focus event.
+   */
+  private async hideInlineMenuListOnFilledField(
+    formFieldElement?: FillableFormFieldElement,
+  ): Promise<boolean> {
+    return (
+      formFieldElement?.value &&
+      ((await this.isInlineMenuCiphersPopulated()) || !this.isUserAuthed())
+    );
+  }
 
-    if ("PerformanceObserver" in window && "LayoutShift" in window) {
-      this.reflowPerformanceObserver = new PerformanceObserver(
-        throttle(this.updateSubFrameOffsetsFromLayoutShiftEvent.bind(this), 100),
-      );
-      this.reflowPerformanceObserver.observe({ type: "layout-shift", buffered: true });
+  /**
+   * Indicates whether the most recently focused field has a value.
+   */
+  private mostRecentlyFocusedFieldHasValue() {
+    return Boolean((this.mostRecentlyFocusedField as FillableFormFieldElement)?.value);
+  }
 
-      return;
-    }
-
-    if (globalThis.window.top !== globalThis.window && this.formFieldElements.size > 0) {
-      this.setupRebuildSubFrameOffsetsEventListeners();
+  /**
+   * Updates the local reference to the inline menu visibility setting.
+   *
+   * @param data - The data object from the extension message.
+   */
+  private updateInlineMenuVisibility({ data }: AutofillExtensionMessage) {
+    if (!isNaN(data?.inlineMenuVisibility)) {
+      this.inlineMenuVisibility = data.inlineMenuVisibility;
     }
   }
 
-  private updateSubFrameOffsetsFromLayoutShiftEvent = (list: any) => {
-    const entries: any[] = list.getEntries();
-    for (let index = 0; index < entries.length; index++) {
-      const entry = entries[index];
-      if (entry.sources?.length) {
-        this.updateSubFrameForReflow();
-        return;
+  /**
+   * Checks if a field is currently filling within an frame in the tab.
+   */
+  private async isFieldCurrentlyFilling() {
+    return (await this.sendExtensionMessage("checkIsFieldCurrentlyFilling")) === true;
+  }
+
+  /**
+   * Checks if the inline menu button is visible at the top frame.
+   */
+  private async isInlineMenuButtonVisible() {
+    return (await this.sendExtensionMessage("checkIsAutofillInlineMenuButtonVisible")) === true;
+  }
+
+  /**
+   * Checks if the inline menu list if visible at the top frame.
+   */
+  private async isInlineMenuListVisible() {
+    return (await this.sendExtensionMessage("checkIsAutofillInlineMenuListVisible")) === true;
+  }
+
+  /**
+   * Checks if the current tab contains ciphers that can be used to populate the inline menu.
+   */
+  private async isInlineMenuCiphersPopulated() {
+    return (await this.sendExtensionMessage("checkIsInlineMenuCiphersPopulated")) === true;
+  }
+
+  /**
+   * Triggers a validation to ensure that the inline menu is repositioned only when the
+   * current frame contains the focused field at any given depth level.
+   */
+  private async checkShouldRepositionInlineMenu() {
+    return (await this.sendExtensionMessage("checkShouldRepositionInlineMenu")) === true;
+  }
+
+  /**
+   * Gets the root node of the passed element and returns the active element within that root node.
+   *
+   * @param element - The element to get the root node active element for.
+   */
+  private getRootNodeActiveElement(element: Element): Element {
+    if (!element) {
+      return null;
+    }
+
+    const documentRoot = element.getRootNode() as ShadowRoot | Document;
+    return documentRoot?.activeElement;
+  }
+
+  /**
+   * Queries all iframe elements within the document and returns the
+   * sub frame offsets for each iframe element.
+   *
+   * @param message - The message object from the extension.
+   */
+  private async getSubFrameOffsets(
+    message: AutofillExtensionMessage,
+  ): Promise<SubFrameOffsetData | null> {
+    const { subFrameUrl } = message;
+    const subFrameUrlWithoutTrailingSlash = subFrameUrl?.replace(/\/$/, "");
+
+    let iframeElement: HTMLIFrameElement | null = null;
+    const iframeElements = globalThis.document.querySelectorAll(
+      `iframe[src="${subFrameUrl}"], iframe[src="${subFrameUrlWithoutTrailingSlash}"]`,
+    ) as NodeListOf<HTMLIFrameElement>;
+    if (iframeElements.length === 1) {
+      iframeElement = iframeElements[0];
+    }
+
+    if (!iframeElement) {
+      return null;
+    }
+
+    return this.calculateSubFrameOffsets(iframeElement, subFrameUrl);
+  }
+
+  /**
+   * Posts a message to the parent frame to calculate the sub frame offset of the current frame.
+   *
+   * @param message - The message object from the extension.
+   */
+  private getSubFrameOffsetsFromWindowMessage(message: any) {
+    globalThis.parent.postMessage(
+      {
+        command: "calculateSubFramePositioning",
+        subFrameData: {
+          url: window.location.href,
+          frameId: message.subFrameId,
+          left: 0,
+          top: 0,
+          parentFrameIds: [],
+          subFrameDepth: 0,
+        } as SubFrameDataFromWindowMessage,
+      },
+      "*",
+    );
+  }
+
+  /**
+   * Calculates the bounding rect for the queried frame and returns the
+   * offset data for the sub frame.
+   *
+   * @param iframeElement - The iframe element to calculate the sub frame offsets for.
+   * @param subFrameUrl - The URL of the sub frame.
+   * @param frameId - The frame ID of the sub frame.
+   */
+  private calculateSubFrameOffsets(
+    iframeElement: HTMLIFrameElement,
+    subFrameUrl?: string,
+    frameId?: number,
+  ): SubFrameOffsetData {
+    const iframeRect = iframeElement.getBoundingClientRect();
+    const iframeStyles = globalThis.getComputedStyle(iframeElement);
+    const paddingLeft = parseInt(iframeStyles.getPropertyValue("padding-left")) || 0;
+    const paddingTop = parseInt(iframeStyles.getPropertyValue("padding-top")) || 0;
+    const borderWidthLeft = parseInt(iframeStyles.getPropertyValue("border-left-width")) || 0;
+    const borderWidthTop = parseInt(iframeStyles.getPropertyValue("border-top-width")) || 0;
+
+    return {
+      url: subFrameUrl,
+      frameId,
+      top: iframeRect.top + paddingTop + borderWidthTop,
+      left: iframeRect.left + paddingLeft + borderWidthLeft,
+    };
+  }
+
+  /**
+   * Calculates the sub frame positioning for the current frame
+   * through all parent frames until the top frame is reached.
+   *
+   * @param event - The message event.
+   */
+  private calculateSubFramePositioning = async (event: MessageEvent) => {
+    const subFrameData: SubFrameDataFromWindowMessage = event.data.subFrameData;
+
+    subFrameData.subFrameDepth++;
+    if (subFrameData.subFrameDepth >= MAX_SUB_FRAME_DEPTH) {
+      void this.sendExtensionMessage("destroyAutofillInlineMenuListeners", { subFrameData });
+      return;
+    }
+
+    let subFrameOffsets: SubFrameOffsetData;
+    const iframes = globalThis.document.querySelectorAll("iframe");
+    for (let i = 0; i < iframes.length; i++) {
+      if (iframes[i].contentWindow === event.source) {
+        const iframeElement = iframes[i];
+        subFrameOffsets = this.calculateSubFrameOffsets(
+          iframeElement,
+          subFrameData.url,
+          subFrameData.frameId,
+        );
+
+        subFrameData.top += subFrameOffsets.top;
+        subFrameData.left += subFrameOffsets.left;
+
+        const parentFrameId = await this.sendExtensionMessage("getCurrentTabFrameId");
+        if (typeof parentFrameId !== "undefined") {
+          subFrameData.parentFrameIds.push(parentFrameId);
+        }
+
+        break;
       }
+    }
+
+    if (globalThis.window.self !== globalThis.window.top) {
+      globalThis.parent.postMessage({ command: "calculateSubFramePositioning", subFrameData }, "*");
+      return;
+    }
+
+    void this.sendExtensionMessage("updateSubFrameData", { subFrameData });
+  };
+
+  /**
+   * Sets up global event listeners and the mutation
+   * observer to facilitate required changes to the
+   * overlay elements.
+   */
+  private setupGlobalEventListeners = () => {
+    globalThis.addEventListener(EVENTS.MESSAGE, this.handleWindowMessageEvent);
+    globalThis.document.addEventListener(EVENTS.VISIBILITYCHANGE, this.handleVisibilityChangeEvent);
+    globalThis.addEventListener(EVENTS.FOCUSOUT, this.handleFormFieldBlurEvent);
+    this.setOverlayRepositionEventListeners();
+  };
+
+  /**
+   * Handles window messages that are sent to the current frame. Will trigger a
+   * calculation of the sub frame offsets through the parent frame.
+   *
+   * @param event - The message event.
+   */
+  private handleWindowMessageEvent = (event: MessageEvent) => {
+    if (event.data?.command === "calculateSubFramePositioning") {
+      void this.calculateSubFramePositioning(event);
     }
   };
 
-  private updateSubFrameForReflow = () => {
-    // console.log("update sub frame reflow");
-    if (this.userInteractionEventTimeout) {
-      this.clearUserInteractionEventTimeout();
-      void this.toggleInlineMenuHidden(false, true);
-      void this.sendExtensionMessage("closeAutofillInlineMenu", {
-        forceCloseInlineMenu: true,
-      });
+  /**
+   * Handles the visibility change event. This method will remove the
+   * autofill overlay if the document is not visible.
+   */
+  private handleVisibilityChangeEvent = () => {
+    if (!this.mostRecentlyFocusedField || globalThis.document.visibilityState === "visible") {
+      return;
     }
-    void this.sendExtensionMessage("updateSubFrameOffsetsForReflowEvent");
+
+    this.unsetMostRecentlyFocusedField();
+    void this.sendExtensionMessage("closeAutofillInlineMenu", {
+      forceCloseInlineMenu: true,
+    });
   };
 
   /**
@@ -911,6 +1108,36 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
   }
 
+  private setupRebuildSubFrameOffsetsListeners = () => {
+    if (globalThis.window.top === globalThis.window || this.formFieldElements.size < 1) {
+      return;
+    }
+
+    globalThis.addEventListener(EVENTS.FOCUS, this.handleSubFrameFocusInEvent);
+    globalThis.document.body.addEventListener(EVENTS.MOUSEENTER, this.handleSubFrameFocusInEvent);
+  };
+
+  private handleSubFrameFocusInEvent = () => {
+    this.updateSubFrameForReflow();
+
+    globalThis.removeEventListener(EVENTS.FOCUS, this.handleSubFrameFocusInEvent);
+    globalThis.document.body.removeEventListener(
+      EVENTS.MOUSEENTER,
+      this.handleSubFrameFocusInEvent,
+    );
+    globalThis.addEventListener(EVENTS.BLUR, this.setupRebuildSubFrameOffsetsListeners);
+    globalThis.document.body.addEventListener(
+      EVENTS.MOUSELEAVE,
+      this.setupRebuildSubFrameOffsetsListeners,
+    );
+  };
+
+  private updateSubFrameForReflow = () => {
+    this.clearUserInteractionEventTimeout();
+    this.clearRecalculateSubFrameOffsetsTimeout();
+    void this.sendExtensionMessage("updateSubFrameOffsetsForReflowEvent");
+  };
+
   /**
    * Checks if the focused field is present within the bounds of the viewport.
    * If not present, the inline menu will be closed.
@@ -922,274 +1149,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       focusedFieldRectsTop > 0 &&
       focusedFieldRectsTop < globalThis.innerHeight + globalThis.scrollY
     );
-  }
-
-  /**
-   * Returns a value that indicates if we should hide the inline menu list due to a filled field.
-   *
-   * @param formFieldElement - The form field element that triggered the focus event.
-   */
-  private async hideInlineMenuListOnFilledField(
-    formFieldElement?: FillableFormFieldElement,
-  ): Promise<boolean> {
-    return (
-      formFieldElement?.value &&
-      ((await this.isInlineMenuCiphersPopulated()) || !this.isUserAuthed())
-    );
-  }
-
-  /**
-   * Indicates whether the most recently focused field has a value.
-   */
-  private mostRecentlyFocusedFieldHasValue() {
-    return Boolean((this.mostRecentlyFocusedField as FillableFormFieldElement)?.value);
-  }
-
-  /**
-   * Sets up global event listeners and the mutation
-   * observer to facilitate required changes to the
-   * overlay elements.
-   */
-  private setupGlobalEventListeners = () => {
-    globalThis.addEventListener(EVENTS.MESSAGE, this.handleWindowMessageEvent);
-    globalThis.document.addEventListener(EVENTS.VISIBILITYCHANGE, this.handleVisibilityChangeEvent);
-    globalThis.addEventListener(EVENTS.FOCUSOUT, this.handleFormFieldBlurEvent);
-    this.setOverlayRepositionEventListeners();
-  };
-
-  /**
-   * Handles the visibility change event. This method will remove the
-   * autofill overlay if the document is not visible.
-   */
-  private handleVisibilityChangeEvent = () => {
-    if (!this.mostRecentlyFocusedField || globalThis.document.visibilityState === "visible") {
-      return;
-    }
-
-    this.unsetMostRecentlyFocusedField();
-    void this.sendExtensionMessage("closeAutofillInlineMenu", {
-      forceCloseInlineMenu: true,
-    });
-  };
-
-  /**
-   * Gets the root node of the passed element and returns the active element within that root node.
-   *
-   * @param element - The element to get the root node active element for.
-   */
-  private getRootNodeActiveElement(element: Element): Element {
-    if (!element) {
-      return null;
-    }
-
-    const documentRoot = element.getRootNode() as ShadowRoot | Document;
-    return documentRoot?.activeElement;
-  }
-
-  private setupRebuildSubFrameOffsetsEventListeners = () => {
-    // console.log("setting up listeners");
-    globalThis.addEventListener(EVENTS.FOCUS, this.handleSubFrameFocusInEvent);
-    globalThis.document.body.addEventListener(EVENTS.MOUSEENTER, this.handleSubFrameFocusInEvent);
-  };
-
-  private handleSubFrameFocusInEvent = (event: FocusEvent) => {
-    // console.log("removing listeners", event);
-    this.updateSubFrameForReflow();
-
-    globalThis.removeEventListener(EVENTS.FOCUS, this.handleSubFrameFocusInEvent);
-    globalThis.document.body.removeEventListener(
-      EVENTS.MOUSEENTER,
-      this.handleSubFrameFocusInEvent,
-    );
-    globalThis.addEventListener(EVENTS.BLUR, this.handleSubFrameFocusOutEvent);
-    globalThis.document.body.addEventListener(EVENTS.MOUSELEAVE, this.handleSubFrameFocusOutEvent);
-  };
-
-  handleSubFrameFocusOutEvent = (event: FocusEvent) => {
-    // console.log(event);
-    this.setupRebuildSubFrameOffsetsEventListeners();
-  };
-
-  /**
-   * Queries all iframe elements within the document and returns the
-   * sub frame offsets for each iframe element.
-   *
-   * @param message - The message object from the extension.
-   */
-  private async getSubFrameOffsets(
-    message: AutofillExtensionMessage,
-  ): Promise<SubFrameOffsetData | null> {
-    const { subFrameUrl } = message;
-    const subFrameUrlWithoutTrailingSlash = subFrameUrl?.replace(/\/$/, "");
-
-    let iframeElement: HTMLIFrameElement | null = null;
-    const iframeElements = globalThis.document.querySelectorAll(
-      `iframe[src="${subFrameUrl}"], iframe[src="${subFrameUrlWithoutTrailingSlash}"]`,
-    ) as NodeListOf<HTMLIFrameElement>;
-    if (iframeElements.length === 1) {
-      iframeElement = iframeElements[0];
-    }
-
-    if (!iframeElement) {
-      return null;
-    }
-
-    return this.calculateSubFrameOffsets(iframeElement, subFrameUrl);
-  }
-
-  /**
-   * Calculates the bounding rect for the queried frame and returns the
-   * offset data for the sub frame.
-   *
-   * @param iframeElement - The iframe element to calculate the sub frame offsets for.
-   * @param subFrameUrl - The URL of the sub frame.
-   * @param frameId - The frame ID of the sub frame.
-   */
-  private calculateSubFrameOffsets(
-    iframeElement: HTMLIFrameElement,
-    subFrameUrl?: string,
-    frameId?: number,
-  ): SubFrameOffsetData {
-    const iframeRect = iframeElement.getBoundingClientRect();
-    const iframeStyles = globalThis.getComputedStyle(iframeElement);
-    const paddingLeft = parseInt(iframeStyles.getPropertyValue("padding-left")) || 0;
-    const paddingTop = parseInt(iframeStyles.getPropertyValue("padding-top")) || 0;
-    const borderWidthLeft = parseInt(iframeStyles.getPropertyValue("border-left-width")) || 0;
-    const borderWidthTop = parseInt(iframeStyles.getPropertyValue("border-top-width")) || 0;
-
-    return {
-      url: subFrameUrl,
-      frameId,
-      top: iframeRect.top + paddingTop + borderWidthTop,
-      left: iframeRect.left + paddingLeft + borderWidthLeft,
-    };
-  }
-
-  /**
-   * Posts a message to the parent frame to calculate the sub frame offset of the current frame.
-   *
-   * @param message - The message object from the extension.
-   */
-  private getSubFrameOffsetsFromWindowMessage(message: any) {
-    globalThis.parent.postMessage(
-      {
-        command: "calculateSubFramePositioning",
-        subFrameData: {
-          url: window.location.href,
-          frameId: message.subFrameId,
-          left: 0,
-          top: 0,
-          parentFrameIds: [],
-          subFrameDepth: 0,
-        } as SubFrameDataFromWindowMessage,
-      },
-      "*",
-    );
-  }
-
-  /**
-   * Handles window messages that are sent to the current frame. Will trigger a
-   * calculation of the sub frame offsets through the parent frame.
-   *
-   * @param event - The message event.
-   */
-  private handleWindowMessageEvent = (event: MessageEvent) => {
-    if (event.data?.command === "calculateSubFramePositioning") {
-      void this.calculateSubFramePositioning(event);
-    }
-  };
-
-  /**
-   * Calculates the sub frame positioning for the current frame
-   * through all parent frames until the top frame is reached.
-   *
-   * @param event - The message event.
-   */
-  private calculateSubFramePositioning = async (event: MessageEvent) => {
-    const subFrameData: SubFrameDataFromWindowMessage = event.data.subFrameData;
-
-    subFrameData.subFrameDepth++;
-    if (subFrameData.subFrameDepth >= MAX_SUB_FRAME_DEPTH) {
-      void this.sendExtensionMessage("destroyAutofillInlineMenuListeners", { subFrameData });
-      return;
-    }
-
-    let subFrameOffsets: SubFrameOffsetData;
-    const iframes = globalThis.document.querySelectorAll("iframe");
-    for (let i = 0; i < iframes.length; i++) {
-      if (iframes[i].contentWindow === event.source) {
-        const iframeElement = iframes[i];
-        subFrameOffsets = this.calculateSubFrameOffsets(
-          iframeElement,
-          subFrameData.url,
-          subFrameData.frameId,
-        );
-
-        subFrameData.top += subFrameOffsets.top;
-        subFrameData.left += subFrameOffsets.left;
-
-        const parentFrameId = await this.sendExtensionMessage("getCurrentTabFrameId");
-        if (typeof parentFrameId !== "undefined") {
-          subFrameData.parentFrameIds.push(parentFrameId);
-        }
-
-        break;
-      }
-    }
-
-    if (globalThis.window.self !== globalThis.window.top) {
-      globalThis.parent.postMessage({ command: "calculateSubFramePositioning", subFrameData }, "*");
-      return;
-    }
-
-    void this.sendExtensionMessage("updateSubFrameData", { subFrameData });
-  };
-
-  /**
-   * Updates the local reference to the inline menu visibility setting.
-   *
-   * @param data - The data object from the extension message.
-   */
-  private updateInlineMenuVisibility({ data }: AutofillExtensionMessage) {
-    if (!isNaN(data?.inlineMenuVisibility)) {
-      this.inlineMenuVisibility = data.inlineMenuVisibility;
-    }
-  }
-
-  /**
-   * Checks if a field is currently filling within an frame in the tab.
-   */
-  private async isFieldCurrentlyFilling() {
-    return (await this.sendExtensionMessage("checkIsFieldCurrentlyFilling")) === true;
-  }
-
-  /**
-   * Checks if the inline menu button is visible at the top frame.
-   */
-  private async isInlineMenuButtonVisible() {
-    return (await this.sendExtensionMessage("checkIsAutofillInlineMenuButtonVisible")) === true;
-  }
-
-  /**
-   * Checks if the inline menu list if visible at the top frame.
-   */
-  private async isInlineMenuListVisible() {
-    return (await this.sendExtensionMessage("checkIsAutofillInlineMenuListVisible")) === true;
-  }
-
-  /**
-   * Checks if the current tab contains ciphers that can be used to populate the inline menu.
-   */
-  private async isInlineMenuCiphersPopulated() {
-    return (await this.sendExtensionMessage("checkIsInlineMenuCiphersPopulated")) === true;
-  }
-
-  /**
-   * Triggers a validation to ensure that the inline menu is repositioned only when the
-   * current frame contains the focused field at any given depth level.
-   */
-  private async checkShouldRepositionInlineMenu() {
-    return (await this.sendExtensionMessage("checkShouldRepositionInlineMenu")) === true;
   }
 
   /**
