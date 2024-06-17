@@ -1346,6 +1346,31 @@ describe("OverlayBackground", () => {
       });
     });
 
+    describe("rebuildSubFrameOffsets", () => {
+      it("triggers a rebuild of the sub frame offsets of the sender", async () => {
+        const buildSubFrameOffsetsSpy = jest.spyOn(
+          overlayBackground as any,
+          "buildSubFrameOffsets",
+        );
+        const tab = mock<chrome.tabs.Tab>({ id: 1 });
+        const frameId = 10;
+        subFrameOffsetsSpy[tab.id] = new Map([
+          [frameId, { left: 1, top: 1, url: "https://top-frame.com" }],
+        ]);
+        const sender = mock<chrome.runtime.MessageSender>({ tab, frameId });
+
+        sendMockExtensionMessage({ command: "rebuildSubFrameOffsets" }, sender);
+        await flushPromises();
+
+        expect(buildSubFrameOffsetsSpy).toHaveBeenCalledWith(
+          sender.tab,
+          frameId,
+          sender.url,
+          sender,
+        );
+      });
+    });
+
     describe("destroyAutofillInlineMenuListeners", () => {
       it("sends a message to the passed frameId that triggers a destruction of the inline menu listeners on that frame", () => {
         const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 }, frameId: 0 });

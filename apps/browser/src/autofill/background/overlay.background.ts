@@ -428,6 +428,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     await this.rebuildSubFrameOffsets(sender);
   }
 
+  /**
+   * Triggers a delayed repositioning of the inline menu. Used in cases where the page in some way
+   * is resized, scrolled, or when a sub frame is interacted with.
+   *
+   * @param sender - The sender of the message
+   */
   private delayedUpdateInlineMenuPosition(sender: chrome.runtime.MessageSender) {
     this.clearDelayedUpdateInlineMenuPositionTimeout();
     this.delayedUpdateInlineMenuPositionTimeout = globalThis.setTimeout(async () => {
@@ -593,6 +599,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
   }
 
+  /**
+   * Clears the timeout used to trigger a delayed update of the inline menu position.
+   */
   private clearDelayedUpdateInlineMenuPositionTimeout() {
     if (this.delayedUpdateInlineMenuPositionTimeout) {
       clearTimeout(this.delayedUpdateInlineMenuPositionTimeout);
@@ -695,6 +704,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }, 150);
   }
 
+  /**
+   * Clears the timeout used to fade in the inline menu elements.
+   */
   private clearInlineMenuFadeInTimeout() {
     if (this.inlineMenuFadeInTimeout) {
       globalThis.clearTimeout(this.inlineMenuFadeInTimeout);
