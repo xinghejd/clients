@@ -49,9 +49,6 @@ export class TwoFactorAuthWebAuthnComponent extends TwoFactorAuthBaseComponent {
         this.i18nService,
         (token: string) => {
           this.token.emit(token);
-          // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-          // eslint-disable-next-line @typescript-eslint/no-floating-promises
-          // this.submit();
         },
         (error: string) => {
           this.platformUtilsService.showToast("error", this.i18nService.t("errorOccurred"), error);
