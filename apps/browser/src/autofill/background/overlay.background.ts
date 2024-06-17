@@ -692,7 +692,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       const message = { command: "fadeInAutofillInlineMenuIframe" };
       this.inlineMenuButtonPort?.postMessage(message);
       this.inlineMenuListPort?.postMessage(message);
-    }, 125);
+    }, 150);
   }
 
   private clearInlineMenuFadeInTimeout() {
