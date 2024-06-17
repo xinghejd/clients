@@ -18,7 +18,7 @@ export enum FeatureFlag {
   UseTreeWalkerApiForPageDetailsCollection = "use-tree-walker-api-for-page-details-collection",
   BulkDeviceApproval = "bulk-device-approval",
   EmailVerification = "email-verification",
-  UseBasicInlineMenuFieldQualification = "use-basic-inline-menu-field-qualification",
+  InlineMenuFieldQualification = "inline-menu-field-qualification",
 }
 
 export type AllowedFeatureFlagTypes = boolean | number | string;
@@ -47,7 +47,7 @@ export const DefaultFeatureFlagValue = {
   [FeatureFlag.UseTreeWalkerApiForPageDetailsCollection]: FALSE,
   [FeatureFlag.BulkDeviceApproval]: FALSE,
   [FeatureFlag.EmailVerification]: FALSE,
-  [FeatureFlag.UseBasicInlineMenuFieldQualification]: FALSE,
+  [FeatureFlag.InlineMenuFieldQualification]: FALSE,
 } satisfies Record<FeatureFlag, AllowedFeatureFlagTypes>;
 
 export type DefaultFeatureFlagValueType = typeof DefaultFeatureFlagValue;

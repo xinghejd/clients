@@ -17,13 +17,12 @@ export class InlineMenuFieldQualificationService
   private autofillFieldKeywordsMap: WeakMap<AutofillField, string> = new WeakMap();
   private autocompleteDisabledValues = new Set(["off", "false"]);
   private newFieldKeywords = new Set(["new", "change", "neue", "ändern"]);
-  private useBasicInlineMenuFieldQualificationFlagSet = false;
+  private inlineMenuFieldQualificationFlagSet = false;
 
   constructor() {
-    void sendExtensionMessage("getUseBasicInlineMenuFieldQualificationFeatureFlag").then(
-      (getUseBasicInlineMenuFieldQualificationFlag) =>
-        (this.useBasicInlineMenuFieldQualificationFlagSet =
-          !!getUseBasicInlineMenuFieldQualificationFlag?.result),
+    void sendExtensionMessage("getInlineMenuFieldQualificationFeatureFlag").then(
+      (getInlineMenuFieldQualificationFlag) =>
+        (this.inlineMenuFieldQualificationFlagSet = !!getInlineMenuFieldQualificationFlag?.result),
     );
   }
 
@@ -34,7 +33,7 @@ export class InlineMenuFieldQualificationService
    * @param pageDetails - The details of the page that the field is on.
    */
   isFieldForLoginForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean {
-    if (this.useBasicInlineMenuFieldQualificationFlagSet) {
+    if (!this.inlineMenuFieldQualificationFlagSet) {
       return this.isFieldForLoginFormFallback(field);
     }
 

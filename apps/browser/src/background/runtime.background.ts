@@ -69,7 +69,7 @@ export default class RuntimeBackground {
       const messagesWithResponse = [
         "biometricUnlock",
         "getUseTreeWalkerApiForPageDetailsCollectionFeatureFlag",
-        "getUseBasicInlineMenuFieldQualificationFeatureFlag",
+        "getInlineMenuFieldQualificationFeatureFlag",
       ];
 
       if (messagesWithResponse.includes(msg.command)) {
@@ -187,10 +187,8 @@ export default class RuntimeBackground {
           FeatureFlag.UseTreeWalkerApiForPageDetailsCollection,
         );
       }
-      case "getUseBasicInlineMenuFieldQualificationFeatureFlag": {
-        return await this.configService.getFeatureFlag(
-          FeatureFlag.UseBasicInlineMenuFieldQualification,
-        );
+      case "getInlineMenuFieldQualificationFeatureFlag": {
+        return await this.configService.getFeatureFlag(FeatureFlag.InlineMenuFieldQualification);
       }
     }
   }
