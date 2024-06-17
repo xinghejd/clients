@@ -120,7 +120,7 @@ export type OverlayBackgroundExtensionMessageHandlers = {
   checkShouldRepositionInlineMenu: ({ sender }: BackgroundSenderParam) => boolean;
   getCurrentTabFrameId: ({ sender }: BackgroundSenderParam) => number;
   updateSubFrameData: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
-  updateSubFrameOffsetsForReflowEvent: ({ sender }: BackgroundSenderParam) => void;
+  rebuildSubFrameOffsets: ({ sender }: BackgroundSenderParam) => void;
   repositionAutofillInlineMenuForSubFrame: ({ sender }: BackgroundSenderParam) => void;
   destroyAutofillInlineMenuListeners: ({
     message,

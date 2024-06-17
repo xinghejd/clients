@@ -45,8 +45,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private focusedFieldData: FocusedFieldData;
   private userInteractionEventTimeout: number | NodeJS.Timeout;
   private recalculateSubFrameOffsetsTimeout: number | NodeJS.Timeout;
-  private reflowPerformanceObserver: PerformanceObserver;
-  private reflowMutationObserver: MutationObserver;
   private eventHandlersMemo: { [key: string]: EventListener } = {};
   private readonly extensionMessageHandlers: AutofillOverlayContentExtensionMessageHandlers = {
     openAutofillInlineMenu: ({ message }) => this.openInlineMenu(message),
@@ -1118,7 +1116,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   };
 
   private handleSubFrameFocusInEvent = () => {
-    this.updateSubFrameForReflow();
+    this.rebuildSubFrameOffsets();
 
     globalThis.removeEventListener(EVENTS.FOCUS, this.handleSubFrameFocusInEvent);
     globalThis.document.body.removeEventListener(
@@ -1132,10 +1130,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     );
   };
 
-  private updateSubFrameForReflow = () => {
+  private rebuildSubFrameOffsets = () => {
     this.clearUserInteractionEventTimeout();
     this.clearRecalculateSubFrameOffsetsTimeout();
-    void this.sendExtensionMessage("updateSubFrameOffsetsForReflowEvent");
+    void this.sendExtensionMessage("rebuildSubFrameOffsets");
   };
 
   /**
@@ -1169,8 +1167,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       this.handleVisibilityChangeEvent,
     );
     globalThis.removeEventListener(EVENTS.FOCUSOUT, this.handleFormFieldBlurEvent);
-    this.reflowPerformanceObserver?.disconnect();
-    this.reflowMutationObserver?.disconnect();
     this.removeOverlayRepositionEventListeners();
   }
 }

@@ -95,7 +95,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     checkShouldRepositionInlineMenu: ({ sender }) => this.checkShouldRepositionInlineMenu(sender),
     getCurrentTabFrameId: ({ sender }) => this.getSenderFrameId(sender),
     updateSubFrameData: ({ message, sender }) => this.updateSubFrameData(message, sender),
-    updateSubFrameOffsetsForReflowEvent: ({ sender }) => this.rebuildSubFrameOffsets(sender),
+    rebuildSubFrameOffsets: ({ sender }) => this.rebuildSubFrameOffsets(sender),
     repositionAutofillInlineMenuForSubFrame: ({ sender }) =>
       this.repositionInlineMenuForSubFrame(sender),
     destroyAutofillInlineMenuListeners: ({ message, sender }) =>
@@ -628,7 +628,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     { overlayElement }: { overlayElement?: string },
     sender: chrome.runtime.MessageSender,
   ) {
-    if (this.delayedUpdateInlineMenuPositionTimeout && this.isFieldCurrentlyFocused) {
+    if (this.isFieldCurrentlyFocused && this.delayedUpdateInlineMenuPositionTimeout) {
       this.closeInlineMenu(sender, { forceCloseInlineMenu: true });
       return;
     }
