@@ -56,6 +56,7 @@ import { TwoFactorYubiKeyComponent } from "../auth/settings/two-factor-yubikey.c
 import { UserVerificationModule } from "../auth/shared/components/user-verification";
 import { SsoComponent } from "../auth/sso.component";
 import { TwoFactorAuthAuthenticatorComponent } from "../auth/two-factor-auth-authenticator.component";
+import { TwoFactorAuthDuoComponent } from "../auth/two-factor-auth-duo.component";
 import { TwoFactorAuthEmailComponent } from "../auth/two-factor-auth-email.component";
 import { TwoFactorAuthWebAuthnComponent } from "../auth/two-factor-auth-webauthn.component";
 import { TwoFactorAuthYubikeyComponent } from "../auth/two-factor-auth-yubikey.component";
@@ -149,6 +150,7 @@ import { SharedModule } from "./shared.module";
     TwoFactorAuthAuthenticatorComponent,
     TwoFactorAuthYubikeyComponent,
     TwoFactorAuthWebAuthnComponent,
+    TwoFactorAuthDuoComponent,
     OrgAddEditComponent,
     OrgAttachmentsComponent,
     OrgCollectionsComponent,
@@ -267,6 +269,7 @@ import { SharedModule } from "./shared.module";
     TwoFactorVerifyComponent,
     TwoFactorWebAuthnComponent,
     TwoFactorYubiKeyComponent,
+    TwoFactorAuthDuoComponent,
     UpdatePasswordComponent,
     UpdateTempPasswordComponent,
     UserLayoutComponent,
