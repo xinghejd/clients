@@ -8,4 +8,8 @@ import { TwoFactorAuthBaseComponent } from "./two-factor-auth-base.component";
 })
 export class TwoFactorAuthAuthenticatorComponent extends TwoFactorAuthBaseComponent {
   @Output() token = new EventEmitter<string>();
+
+  async ngOnInit(): Promise<void> {
+    this.activeButtonTextChange.emit(this.i18nService.t("continue"));
+  }
 }
