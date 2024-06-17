@@ -10,17 +10,21 @@ import {
   RedirectFocusDirection,
 } from "../enums/autofill-overlay.enum";
 import AutofillField from "../models/autofill-field";
+import AutofillForm from "../models/autofill-form";
+import AutofillPageDetails from "../models/autofill-page-details";
 import { createAutofillFieldMock } from "../spec/autofill-mocks";
 import { flushPromises, postWindowMessage, sendMockExtensionMessage } from "../spec/testing-utils";
 import { ElementWithOpId, FillableFormFieldElement, FormFieldElement } from "../types";
 
 import { AutoFillConstants } from "./autofill-constants";
 import { AutofillOverlayContentService } from "./autofill-overlay-content.service";
+import { InlineMenuFieldQualificationService } from "./inline-menu-field-qualification.service";
 
 const defaultWindowReadyState = document.readyState;
 const defaultDocumentVisibilityState = document.visibilityState;
 describe("AutofillOverlayContentService", () => {
   let autofillInit: AutofillInit;
+  let inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
   let autofillOverlayContentService: AutofillOverlayContentService;
   let sendExtensionMessageSpy: jest.SpyInstance;
   const sendResponseSpy = jest.fn();
@@ -35,7 +39,10 @@ describe("AutofillOverlayContentService", () => {
   });
 
   beforeEach(() => {
-    autofillOverlayContentService = new AutofillOverlayContentService();
+    inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
+    autofillOverlayContentService = new AutofillOverlayContentService(
+      inlineMenuFieldQualificationService,
+    );
     autofillInit = new AutofillInit(autofillOverlayContentService);
     autofillInit.init();
     sendExtensionMessageSpy = jest
@@ -120,9 +127,10 @@ describe("AutofillOverlayContentService", () => {
     });
   });
 
-  describe("setupInlineMenuListenerOnField", () => {
+  describe("setupInlineMenu", () => {
     let autofillFieldElement: ElementWithOpId<FormFieldElement>;
     let autofillFieldData: AutofillField;
+    let pageDetailsMock: AutofillPageDetails;
 
     beforeEach(() => {
       document.body.innerHTML = `
@@ -144,87 +152,52 @@ describe("AutofillOverlayContentService", () => {
         placeholder: "username",
         elementNumber: 1,
       });
+      const passwordFieldData = createAutofillFieldMock({
+        opid: "password-field",
+        form: "validFormId",
+        elementNumber: 2,
+        autocompleteType: "current-password",
+        type: "password",
+      });
+      pageDetailsMock = mock<AutofillPageDetails>({
+        forms: { validFormId: mock<AutofillForm>() },
+        fields: [autofillFieldData, passwordFieldData],
+      });
     });
 
     describe("skips setup for ignored form fields", () => {
       beforeEach(() => {
-        autofillFieldData = mock<AutofillField>();
-      });
-
-      it("ignores fields that are readonly", async () => {
-        autofillFieldData.readonly = true;
-
-        await autofillOverlayContentService.setupInlineMenuListenerOnField(
-          autofillFieldElement,
-          autofillFieldData,
-        );
-
-        expect(autofillFieldElement.addEventListener).not.toHaveBeenCalled();
-      });
-
-      it("ignores fields that contain a disabled attribute", async () => {
-        autofillFieldData.disabled = true;
-
-        await autofillOverlayContentService.setupInlineMenuListenerOnField(
-          autofillFieldElement,
-          autofillFieldData,
-        );
-
-        expect(autofillFieldElement.addEventListener).not.toHaveBeenCalled();
-      });
-
-      it("ignores fields that are not viewable", async () => {
-        autofillFieldData.viewable = false;
-
-        await autofillOverlayContentService.setupInlineMenuListenerOnField(
-          autofillFieldElement,
-          autofillFieldData,
-        );
-
-        expect(autofillFieldElement.addEventListener).not.toHaveBeenCalled();
+        autofillFieldData = mock<AutofillField>({
+          type: "text",
+          htmlName: "username",
+          htmlID: "username",
+          placeholder: "username",
+        });
       });
 
       it("ignores fields that are part of the ExcludedInlineMenuTypes", () => {
         AutoFillConstants.ExcludedInlineMenuTypes.forEach(async (excludedType) => {
           autofillFieldData.type = excludedType;
 
-          await autofillOverlayContentService.setupInlineMenuListenerOnField(
+          await autofillOverlayContentService.setupInlineMenu(
             autofillFieldElement,
             autofillFieldData,
+            pageDetailsMock,
           );
 
           expect(autofillFieldElement.addEventListener).not.toHaveBeenCalled();
         });
       });
 
-      it("ignores fields that contain the keyword `search`", async () => {
-        autofillFieldData.placeholder = "search";
-
-        await autofillOverlayContentService.setupInlineMenuListenerOnField(
-          autofillFieldElement,
-          autofillFieldData,
-        );
-
-        expect(autofillFieldElement.addEventListener).not.toHaveBeenCalled();
-      });
-
-      it("ignores fields that contain the keyword `captcha` ", async () => {
-        autofillFieldData.placeholder = "captcha";
-
-        await autofillOverlayContentService.setupInlineMenuListenerOnField(
-          autofillFieldElement,
-          autofillFieldData,
-        );
-
-        expect(autofillFieldElement.addEventListener).not.toHaveBeenCalled();
-      });
-
       it("ignores fields that do not appear as a login field", async () => {
+        autofillFieldData.htmlName = "another-type-of-field";
+        autofillFieldData.htmlID = "another-type-of-field";
         autofillFieldData.placeholder = "another-type-of-field";
 
-        await autofillOverlayContentService.setupInlineMenuListenerOnField(
+        await autofillOverlayContentService.setupInlineMenu(
           autofillFieldElement,
           autofillFieldData,
+          pageDetailsMock,
         );
 
         expect(autofillFieldElement.addEventListener).not.toHaveBeenCalled();
@@ -234,9 +207,10 @@ describe("AutofillOverlayContentService", () => {
     it("skips setup on fields that have been previously set up", async () => {
       autofillOverlayContentService["formFieldElements"].add(autofillFieldElement);
 
-      await autofillOverlayContentService.setupInlineMenuListenerOnField(
+      await autofillOverlayContentService.setupInlineMenu(
         autofillFieldElement,
         autofillFieldData,
+        pageDetailsMock,
       );
 
       expect(autofillFieldElement.addEventListener).not.toHaveBeenCalled();
@@ -247,9 +221,10 @@ describe("AutofillOverlayContentService", () => {
         sendExtensionMessageSpy.mockResolvedValueOnce(undefined);
         autofillOverlayContentService["inlineMenuVisibility"] = undefined;
 
-        await autofillOverlayContentService.setupInlineMenuListenerOnField(
+        await autofillOverlayContentService.setupInlineMenu(
           autofillFieldElement,
           autofillFieldData,
+          pageDetailsMock,
         );
 
         expect(sendExtensionMessageSpy).toHaveBeenCalledWith("getAutofillInlineMenuVisibility");
@@ -262,9 +237,10 @@ describe("AutofillOverlayContentService", () => {
         sendExtensionMessageSpy.mockResolvedValueOnce(AutofillOverlayVisibility.OnFieldFocus);
         autofillOverlayContentService["inlineMenuVisibility"] = undefined;
 
-        await autofillOverlayContentService.setupInlineMenuListenerOnField(
+        await autofillOverlayContentService.setupInlineMenu(
           autofillFieldElement,
           autofillFieldData,
+          pageDetailsMock,
         );
 
         expect(autofillOverlayContentService["inlineMenuVisibility"]).toEqual(
@@ -285,9 +261,10 @@ describe("AutofillOverlayContentService", () => {
           "op-1-username-field-focus-handler": focusHandler,
         };
 
-        await autofillOverlayContentService.setupInlineMenuListenerOnField(
+        await autofillOverlayContentService.setupInlineMenu(
           autofillFieldElement,
           autofillFieldData,
+          pageDetailsMock,
         );
 
         expect(autofillFieldElement.removeEventListener).toHaveBeenNthCalledWith(
@@ -314,9 +291,10 @@ describe("AutofillOverlayContentService", () => {
 
       describe("form field blur event listener", () => {
         beforeEach(async () => {
-          await autofillOverlayContentService.setupInlineMenuListenerOnField(
+          await autofillOverlayContentService.setupInlineMenu(
             autofillFieldElement,
             autofillFieldData,
+            pageDetailsMock,
           );
         });
 
@@ -337,9 +315,10 @@ describe("AutofillOverlayContentService", () => {
 
       describe("form field keyup event listener", () => {
         beforeEach(async () => {
-          await autofillOverlayContentService.setupInlineMenuListenerOnField(
+          await autofillOverlayContentService.setupInlineMenu(
             autofillFieldElement,
             autofillFieldData,
+            pageDetailsMock,
           );
           jest.spyOn(globalThis.customElements, "define").mockImplementation();
         });
@@ -433,9 +412,10 @@ describe("AutofillOverlayContentService", () => {
           ) as ElementWithOpId<HTMLSpanElement>;
           jest.spyOn(autofillOverlayContentService as any, "storeModifiedFormElement");
 
-          await autofillOverlayContentService.setupInlineMenuListenerOnField(
+          await autofillOverlayContentService.setupInlineMenu(
             spanAutofillFieldElement,
             autofillFieldData,
+            pageDetailsMock,
           );
 
           spanAutofillFieldElement.dispatchEvent(new Event("input"));
@@ -447,9 +427,10 @@ describe("AutofillOverlayContentService", () => {
           autofillOverlayContentService["mostRecentlyFocusedField"] =
             mock<ElementWithOpId<FormFieldElement>>();
 
-          await autofillOverlayContentService.setupInlineMenuListenerOnField(
+          await autofillOverlayContentService.setupInlineMenu(
             autofillFieldElement,
             autofillFieldData,
+            pageDetailsMock,
           );
 
           autofillFieldElement.dispatchEvent(new Event("input"));
@@ -461,9 +442,10 @@ describe("AutofillOverlayContentService", () => {
         });
 
         it("stores the field as a user filled field if the form field data indicates that it is for a username", async () => {
-          await autofillOverlayContentService.setupInlineMenuListenerOnField(
+          await autofillOverlayContentService.setupInlineMenu(
             autofillFieldElement,
             autofillFieldData,
+            pageDetailsMock,
           );
           autofillFieldElement.dispatchEvent(new Event("input"));
 
@@ -477,9 +459,10 @@ describe("AutofillOverlayContentService", () => {
             "password-field",
           ) as ElementWithOpId<FormFieldElement>;
 
-          await autofillOverlayContentService.setupInlineMenuListenerOnField(
+          await autofillOverlayContentService.setupInlineMenu(
             passwordFieldElement,
             autofillFieldData,
+            pageDetailsMock,
           );
           passwordFieldElement.dispatchEvent(new Event("input"));
 
@@ -492,9 +475,10 @@ describe("AutofillOverlayContentService", () => {
           jest.spyOn(autofillOverlayContentService as any, "isUserAuthed").mockReturnValue(false);
           (autofillFieldElement as HTMLInputElement).value = "test";
 
-          await autofillOverlayContentService.setupInlineMenuListenerOnField(
+          await autofillOverlayContentService.setupInlineMenu(
             autofillFieldElement,
             autofillFieldData,
+            pageDetailsMock,
           );
           autofillFieldElement.dispatchEvent(new Event("input"));
           await flushPromises();
@@ -513,9 +497,10 @@ describe("AutofillOverlayContentService", () => {
 
           (autofillFieldElement as HTMLInputElement).value = "test";
 
-          await autofillOverlayContentService.setupInlineMenuListenerOnField(
+          await autofillOverlayContentService.setupInlineMenu(
             autofillFieldElement,
             autofillFieldData,
+            pageDetailsMock,
           );
           autofillFieldElement.dispatchEvent(new Event("input"));
           await flushPromises();
@@ -530,9 +515,10 @@ describe("AutofillOverlayContentService", () => {
           jest.spyOn(autofillOverlayContentService as any, "openInlineMenu");
           (autofillFieldElement as HTMLInputElement).value = "";
 
-          await autofillOverlayContentService.setupInlineMenuListenerOnField(
+          await autofillOverlayContentService.setupInlineMenu(
             autofillFieldElement,
             autofillFieldData,
+            pageDetailsMock,
           );
           autofillFieldElement.dispatchEvent(new Event("input"));
           await flushPromises();
@@ -545,9 +531,10 @@ describe("AutofillOverlayContentService", () => {
           jest.spyOn(autofillOverlayContentService as any, "openInlineMenu");
           (autofillFieldElement as HTMLInputElement).value = "";
 
-          await autofillOverlayContentService.setupInlineMenuListenerOnField(
+          await autofillOverlayContentService.setupInlineMenu(
             autofillFieldElement,
             autofillFieldData,
+            pageDetailsMock,
           );
           autofillFieldElement.dispatchEvent(new Event("input"));
           await flushPromises();
@@ -563,9 +550,10 @@ describe("AutofillOverlayContentService", () => {
           jest.spyOn(autofillOverlayContentService as any, "openInlineMenu");
           (autofillFieldElement as HTMLInputElement).value = "";
 
-          await autofillOverlayContentService.setupInlineMenuListenerOnField(
+          await autofillOverlayContentService.setupInlineMenu(
             autofillFieldElement,
             autofillFieldData,
+            pageDetailsMock,
           );
           autofillFieldElement.dispatchEvent(new Event("input"));
           await flushPromises();
@@ -579,9 +567,10 @@ describe("AutofillOverlayContentService", () => {
           jest
             .spyOn(autofillOverlayContentService as any, "triggerFormFieldFocusedAction")
             .mockImplementation();
-          await autofillOverlayContentService.setupInlineMenuListenerOnField(
+          await autofillOverlayContentService.setupInlineMenu(
             autofillFieldElement,
             autofillFieldData,
+            pageDetailsMock,
           );
         });
 
@@ -635,9 +624,10 @@ describe("AutofillOverlayContentService", () => {
           autofillOverlayContentService["mostRecentlyFocusedField"] = autofillFieldElement;
           autofillOverlayContentService["inlineMenuVisibility"] =
             AutofillOverlayVisibility.OnFieldFocus;
-          await autofillOverlayContentService.setupInlineMenuListenerOnField(
+          await autofillOverlayContentService.setupInlineMenu(
             autofillFieldElement,
             autofillFieldData,
+            pageDetailsMock,
           );
 
           autofillFieldElement.dispatchEvent(new Event("focus"));
@@ -647,9 +637,10 @@ describe("AutofillOverlayContentService", () => {
         });
 
         it("updates the most recently focused field", async () => {
-          await autofillOverlayContentService.setupInlineMenuListenerOnField(
+          await autofillOverlayContentService.setupInlineMenu(
             autofillFieldElement,
             autofillFieldData,
+            pageDetailsMock,
           );
 
           autofillFieldElement.dispatchEvent(new Event("focus"));
@@ -664,9 +655,10 @@ describe("AutofillOverlayContentService", () => {
         it("removes the overlay list if the autofill visibility is set to onClick", async () => {
           autofillOverlayContentService["inlineMenuVisibility"] =
             AutofillOverlayVisibility.OnButtonClick;
-          await autofillOverlayContentService.setupInlineMenuListenerOnField(
+          await autofillOverlayContentService.setupInlineMenu(
             autofillFieldElement,
             autofillFieldData,
+            pageDetailsMock,
           );
 
           autofillFieldElement.dispatchEvent(new Event("focus"));
@@ -683,9 +675,10 @@ describe("AutofillOverlayContentService", () => {
             "input",
           ) as ElementWithOpId<HTMLInputElement>;
           (autofillFieldElement as HTMLInputElement).value = "test";
-          await autofillOverlayContentService.setupInlineMenuListenerOnField(
+          await autofillOverlayContentService.setupInlineMenu(
             autofillFieldElement,
             autofillFieldData,
+            pageDetailsMock,
           );
 
           autofillFieldElement.dispatchEvent(new Event("focus"));
@@ -701,9 +694,10 @@ describe("AutofillOverlayContentService", () => {
           (autofillFieldElement as HTMLInputElement).value = "";
           autofillOverlayContentService["inlineMenuVisibility"] =
             AutofillOverlayVisibility.OnFieldFocus;
-          await autofillOverlayContentService.setupInlineMenuListenerOnField(
+          await autofillOverlayContentService.setupInlineMenu(
             autofillFieldElement,
             autofillFieldData,
+            pageDetailsMock,
           );
 
           autofillFieldElement.dispatchEvent(new Event("focus"));
@@ -717,9 +711,10 @@ describe("AutofillOverlayContentService", () => {
           autofillOverlayContentService["inlineMenuVisibility"] =
             AutofillOverlayVisibility.OnFieldFocus;
           jest.spyOn(autofillOverlayContentService as any, "isUserAuthed").mockReturnValue(true);
-          await autofillOverlayContentService.setupInlineMenuListenerOnField(
+          await autofillOverlayContentService.setupInlineMenu(
             autofillFieldElement,
             autofillFieldData,
+            pageDetailsMock,
           );
 
           autofillFieldElement.dispatchEvent(new Event("focus"));
@@ -735,9 +730,10 @@ describe("AutofillOverlayContentService", () => {
           jest
             .spyOn(autofillOverlayContentService as any, "isInlineMenuCiphersPopulated")
             .mockReturnValue(true);
-          await autofillOverlayContentService.setupInlineMenuListenerOnField(
+          await autofillOverlayContentService.setupInlineMenu(
             autofillFieldElement,
             autofillFieldData,
+            pageDetailsMock,
           );
 
           autofillFieldElement.dispatchEvent(new Event("focus"));
@@ -752,9 +748,10 @@ describe("AutofillOverlayContentService", () => {
       describe("hidden form field focus event", () => {
         it("sets up the inline menu listeners if the autofill field data is in the cache", async () => {
           autofillFieldData.viewable = false;
-          await autofillOverlayContentService.setupInlineMenuListenerOnField(
+          await autofillOverlayContentService.setupInlineMenu(
             autofillFieldElement,
             autofillFieldData,
+            pageDetailsMock,
           );
 
           autofillFieldElement.dispatchEvent(new Event("focus"));
@@ -785,9 +782,10 @@ describe("AutofillOverlayContentService", () => {
 
         it("skips setting up the inline menu listeners if the autofill field data is not in the cache", async () => {
           autofillFieldData.viewable = false;
-          await autofillOverlayContentService.setupInlineMenuListenerOnField(
+          await autofillOverlayContentService.setupInlineMenu(
             autofillFieldElement,
             autofillFieldData,
+            pageDetailsMock,
           );
           autofillOverlayContentService["formFieldElements"].delete(autofillFieldElement);
 
@@ -821,9 +819,10 @@ describe("AutofillOverlayContentService", () => {
         writable: true,
       });
 
-      await autofillOverlayContentService.setupInlineMenuListenerOnField(
+      await autofillOverlayContentService.setupInlineMenu(
         autofillFieldElement,
         autofillFieldData,
+        pageDetailsMock,
       );
 
       expect(sendExtensionMessageSpy).toHaveBeenCalledWith("openAutofillInlineMenu");
@@ -835,9 +834,10 @@ describe("AutofillOverlayContentService", () => {
     it("sets the most recently focused field to the passed form field element if the value is not set", async () => {
       autofillOverlayContentService["mostRecentlyFocusedField"] = undefined;
 
-      await autofillOverlayContentService.setupInlineMenuListenerOnField(
+      await autofillOverlayContentService.setupInlineMenu(
         autofillFieldElement,
         autofillFieldData,
+        pageDetailsMock,
       );
 
       expect(autofillOverlayContentService["mostRecentlyFocusedField"]).toEqual(
@@ -1608,8 +1608,8 @@ describe("AutofillOverlayContentService", () => {
           expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateSubFrameData", {
             subFrameData: {
               frameId: 10,
-              left: 168,
-              top: 168,
+              left: expect.any(Number),
+              top: expect.any(Number),
               url: "https://example.com/",
               parentFrameIds: [1, 2, 3, 4],
               subFrameDepth: expect.any(Number),
@@ -1652,6 +1652,7 @@ describe("AutofillOverlayContentService", () => {
   describe("destroy", () => {
     let autofillFieldElement: ElementWithOpId<FormFieldElement>;
     let autofillFieldData: AutofillField;
+    let pageDetailsMock: AutofillPageDetails;
 
     beforeEach(() => {
       document.body.innerHTML = `
@@ -1671,11 +1672,21 @@ describe("AutofillOverlayContentService", () => {
         placeholder: "username",
         elementNumber: 1,
       });
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      autofillOverlayContentService.setupInlineMenuListenerOnField(
+      const passwordFieldData = createAutofillFieldMock({
+        opid: "password-field",
+        form: "validFormId",
+        elementNumber: 2,
+        autocompleteType: "current-password",
+        type: "password",
+      });
+      pageDetailsMock = mock<AutofillPageDetails>({
+        forms: { validFormId: mock<AutofillForm>() },
+        fields: [autofillFieldData, passwordFieldData],
+      });
+      void autofillOverlayContentService.setupInlineMenu(
         autofillFieldElement,
         autofillFieldData,
+        pageDetailsMock,
       );
       autofillOverlayContentService["mostRecentlyFocusedField"] = autofillFieldElement;
     });

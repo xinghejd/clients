@@ -16,6 +16,7 @@ import {
   RedirectFocusDirection,
 } from "../enums/autofill-overlay.enum";
 import AutofillField from "../models/autofill-field";
+import AutofillPageDetails from "../models/autofill-page-details";
 import { ElementWithOpId, FillableFormFieldElement, FormFieldElement } from "../types";
 import {
   elementIsFillableFormField,
@@ -30,6 +31,7 @@ import {
   OpenAutofillInlineMenuOptions,
   SubFrameDataFromWindowMessage,
 } from "./abstractions/autofill-overlay-content.service";
+import { InlineMenuFieldQualificationService } from "./abstractions/inline-menu-field-qualifications.service";
 import { AutoFillConstants } from "./autofill-constants";
 
 export class AutofillOverlayContentService implements AutofillOverlayContentServiceInterface {
@@ -50,7 +52,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private recalculateSubFrameOffsetsTimeout: number | NodeJS.Timeout;
   private reflowPerformanceObserver: PerformanceObserver;
   private reflowMutationObserver: MutationObserver;
-  private autofillFieldKeywordsMap: WeakMap<AutofillField, string> = new WeakMap();
   private eventHandlersMemo: { [key: string]: EventListener } = {};
   private readonly extensionMessageHandlers: AutofillOverlayContentExtensionMessageHandlers = {
     openAutofillInlineMenu: ({ message }) => this.openInlineMenu(message),
@@ -69,6 +70,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     setupAutofillInlineMenuReflowObserver: () => this.setupPageReflowEventListeners(),
     destroyAutofillInlineMenuListeners: () => this.destroy(),
   };
+
+  constructor(private inlineMenuFieldQualificationService: InlineMenuFieldQualificationService) {}
 
   /**
    * Initializes the autofill overlay content service by setting up the mutation observers.
@@ -97,12 +100,17 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    *
    * @param formFieldElement - Form field elements identified during the page details collection process.
    * @param autofillFieldData - Autofill field data captured from the form field element.
+   * @param pageDetails - The collected page details from the tab.
    */
-  async setupInlineMenuListenerOnField(
+  async setupInlineMenu(
     formFieldElement: ElementWithOpId<FormFieldElement>,
     autofillFieldData: AutofillField,
+    pageDetails: AutofillPageDetails,
   ) {
-    if (this.isIgnoredField(autofillFieldData) || this.formFieldElements.has(formFieldElement)) {
+    if (
+      this.formFieldElements.has(formFieldElement) ||
+      this.isIgnoredField(autofillFieldData, pageDetails)
+    ) {
       return;
     }
 
@@ -110,6 +118,12 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
+    await this.setupInlineMenuOnQualifiedField(formFieldElement);
+  }
+
+  private async setupInlineMenuOnQualifiedField(
+    formFieldElement: ElementWithOpId<FormFieldElement>,
+  ) {
     this.formFieldElements.add(formFieldElement);
 
     if (!this.mostRecentlyFocusedField) {
@@ -518,51 +532,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   }
 
   /**
-   * Identifies if the autofill field's data contains any of
-   * the keyboards matching the passed list of keywords.
-   *
-   * @param autofillFieldData - Autofill field data captured from the form field element.
-   * @param keywords - Keywords to search for in the autofill field data.
-   */
-  private keywordsFoundInFieldData(autofillFieldData: AutofillField, keywords: string[]) {
-    const searchedString = this.getAutofillFieldDataKeywords(autofillFieldData);
-    return keywords.some((keyword) => searchedString.includes(keyword));
-  }
-
-  /**
-   * Aggregates the autofill field's data into a single string
-   * that can be used to search for keywords.
-   *
-   * @param autofillFieldData - Autofill field data captured from the form field element.
-   */
-  private getAutofillFieldDataKeywords(autofillFieldData: AutofillField) {
-    if (this.autofillFieldKeywordsMap.has(autofillFieldData)) {
-      return this.autofillFieldKeywordsMap.get(autofillFieldData);
-    }
-
-    const keywordValues = [
-      autofillFieldData.htmlID,
-      autofillFieldData.htmlName,
-      autofillFieldData.htmlClass,
-      autofillFieldData.type,
-      autofillFieldData.title,
-      autofillFieldData.placeholder,
-      autofillFieldData.autoCompleteType,
-      autofillFieldData["label-data"],
-      autofillFieldData["label-aria"],
-      autofillFieldData["label-left"],
-      autofillFieldData["label-right"],
-      autofillFieldData["label-tag"],
-      autofillFieldData["label-top"],
-    ]
-      .join(",")
-      .toLowerCase();
-    this.autofillFieldKeywordsMap.set(autofillFieldData, keywordValues);
-
-    return keywordValues;
-  }
-
-  /**
    * Validates that the most recently focused field is currently
    * focused within the root node relative to the field.
    */
@@ -698,20 +667,20 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * updated in the future to support other types of forms.
    *
    * @param autofillFieldData - Autofill field data captured from the form field element.
+   * @param pageDetails - The collected page details from the tab.
    */
-  private isIgnoredField(autofillFieldData: AutofillField): boolean {
-    if (
-      this.ignoredFieldTypes.has(autofillFieldData.type) ||
-      this.keywordsFoundInFieldData(autofillFieldData, ["search", "captcha"])
-    ) {
+  private isIgnoredField(
+    autofillFieldData: AutofillField,
+    pageDetails: AutofillPageDetails,
+  ): boolean {
+    if (this.ignoredFieldTypes.has(autofillFieldData.type)) {
       return true;
     }
 
-    const isLoginCipherField =
-      autofillFieldData.type === "password" ||
-      this.keywordsFoundInFieldData(autofillFieldData, AutoFillConstants.UsernameFieldNames);
-
-    return !isLoginCipherField;
+    return !this.inlineMenuFieldQualificationService.isFieldForLoginForm(
+      autofillFieldData,
+      pageDetails,
+    );
   }
 
   /**
@@ -732,7 +701,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     this.setupHiddenFieldFallbackListener(formFieldElement, autofillFieldData);
-
     return true;
   }
 
@@ -775,7 +743,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       autofillFieldData.readonly = getAttributeBoolean(formFieldElement, "disabled");
       autofillFieldData.disabled = getAttributeBoolean(formFieldElement, "disabled");
       autofillFieldData.viewable = true;
-      void this.setupInlineMenuListenerOnField(formFieldElement, autofillFieldData);
+      void this.setupInlineMenuOnQualifiedField(formFieldElement);
     }
 
     this.removeHiddenFieldFallbackListener(formFieldElement);

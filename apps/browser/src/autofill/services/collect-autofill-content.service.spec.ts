@@ -11,6 +11,7 @@ import {
   FormElementWithAttribute,
 } from "../types";
 
+import { InlineMenuFieldQualificationService } from "./abstractions/inline-menu-field-qualifications.service";
 import { AutofillOverlayContentService } from "./autofill-overlay-content.service";
 import CollectAutofillContentService from "./collect-autofill-content.service";
 import DomElementVisibilityService from "./dom-element-visibility.service";
@@ -28,13 +29,17 @@ const waitForIdleCallback = () => new Promise((resolve) => globalThis.requestIdl
 
 describe("CollectAutofillContentService", () => {
   const domElementVisibilityService = new DomElementVisibilityService();
-  const autofillOverlayContentService = new AutofillOverlayContentService();
+  const inlineMenuFieldQualificationService = mock<InlineMenuFieldQualificationService>();
+  const autofillOverlayContentService = new AutofillOverlayContentService(
+    inlineMenuFieldQualificationService,
+  );
   let collectAutofillContentService: CollectAutofillContentService;
   const mockIntersectionObserver = mock<IntersectionObserver>();
   const mockQuerySelectorAll = mockQuerySelectorAllDefinedCall();
 
   beforeEach(() => {
     globalThis.requestIdleCallback = jest.fn((cb, options) => setTimeout(cb, 100));
+    globalThis.cancelIdleCallback = jest.fn((id) => clearTimeout(id));
     document.body.innerHTML = mockLoginForm;
     collectAutofillContentService = new CollectAutofillContentService(
       domElementVisibilityService,
@@ -247,11 +252,16 @@ describe("CollectAutofillContentService", () => {
       const isFormFieldViewableSpy = jest
         .spyOn(collectAutofillContentService["domElementVisibilityService"], "isFormFieldViewable")
         .mockResolvedValue(true);
+      const setupAutofillOverlayListenerOnFieldSpy = jest.spyOn(
+        collectAutofillContentService["autofillOverlayContentService"],
+        "setupInlineMenu",
+      );
 
       await collectAutofillContentService.getPageDetails();
 
       expect(autofillField.viewable).toBe(true);
       expect(isFormFieldViewableSpy).toHaveBeenCalledWith(fieldElement);
+      expect(setupAutofillOverlayListenerOnFieldSpy).toHaveBeenCalled();
     });
 
     it("returns an object containing information about the current page as well as autofill data for the forms and fields of the page", async () => {
@@ -1191,7 +1201,7 @@ describe("CollectAutofillContentService", () => {
         "aria-disabled": false,
         "aria-haspopup": false,
         "aria-hidden": false,
-        autoCompleteType: null,
+        autoCompleteType: "off",
         checked: false,
         "data-stripe": hiddenField.dataStripe,
         disabled: false,
@@ -2558,7 +2568,7 @@ describe("CollectAutofillContentService", () => {
       );
       setupAutofillOverlayListenerOnFieldSpy = jest.spyOn(
         collectAutofillContentService["autofillOverlayContentService"],
-        "setupInlineMenuListenerOnField",
+        "setupInlineMenu",
       );
     });
 
@@ -2622,22 +2632,20 @@ describe("CollectAutofillContentService", () => {
       expect(setupAutofillOverlayListenerOnFieldSpy).toHaveBeenCalledWith(
         formFieldElement,
         autofillField,
+        expect.anything(),
       );
     });
   });
 
   describe("destroy", () => {
-    it("clears the updateAutofillElementsAfterMutationTimeout", () => {
+    it("clears the updateAfterMutationIdleCallback", () => {
       jest.spyOn(window, "clearTimeout");
-      collectAutofillContentService["updateAutofillElementsAfterMutationTimeout"] = setTimeout(
-        jest.fn,
-        100,
-      );
+      collectAutofillContentService["updateAfterMutationIdleCallback"] = setTimeout(jest.fn, 100);
 
       collectAutofillContentService.destroy();
 
       expect(clearTimeout).toHaveBeenCalledWith(
-        collectAutofillContentService["updateAutofillElementsAfterMutationTimeout"],
+        collectAutofillContentService["updateAfterMutationIdleCallback"],
       );
     });
   });

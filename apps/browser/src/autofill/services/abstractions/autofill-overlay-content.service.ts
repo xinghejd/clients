@@ -3,6 +3,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { SubFrameOffsetData } from "../../background/abstractions/overlay.background";
 import { AutofillExtensionMessageParam } from "../../content/abstractions/autofill-init";
 import AutofillField from "../../models/autofill-field";
+import AutofillPageDetails from "../../models/autofill-page-details";
 import { ElementWithOpId, FormFieldElement } from "../../types";
 
 export type OpenAutofillInlineMenuOptions = {
@@ -36,9 +37,10 @@ export interface AutofillOverlayContentService {
   pageDetailsUpdateRequired: boolean;
   messageHandlers: AutofillOverlayContentExtensionMessageHandlers;
   init(): void;
-  setupInlineMenuListenerOnField(
+  setupInlineMenu(
     autofillFieldElement: ElementWithOpId<FormFieldElement>,
     autofillFieldData: AutofillField,
+    pageDetails: AutofillPageDetails,
   ): Promise<void>;
   blurMostRecentlyFocusedField(isClosingInlineMenu?: boolean): void;
   destroy(): void;
