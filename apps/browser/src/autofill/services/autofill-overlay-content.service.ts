@@ -45,6 +45,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private focusedFieldData: FocusedFieldData;
   private userInteractionEventTimeout: number | NodeJS.Timeout;
   private recalculateSubFrameOffsetsTimeout: number | NodeJS.Timeout;
+  private closeInlineMenuOnRedirectTimeout: number | NodeJS.Timeout;
+  private focusInlineMenuListTimeout: number | NodeJS.Timeout;
+  private closeInlineMenuOnFilledFieldTimeout: number | NodeJS.Timeout;
   private eventHandlersMemo: { [key: string]: EventListener } = {};
   private readonly extensionMessageHandlers: AutofillOverlayContentExtensionMessageHandlers = {
     openAutofillInlineMenu: ({ message }) => this.openInlineMenu(message),
@@ -232,7 +235,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
     if (direction === RedirectFocusDirection.Current) {
       this.focusMostRecentlyFocusedField();
-      globalThis.setTimeout(() => void this.sendExtensionMessage("closeAutofillInlineMenu"), 100);
+      this.closeInlineMenuOnRedirectTimeout = globalThis.setTimeout(
+        () => void this.sendExtensionMessage("closeAutofillInlineMenu"),
+        100,
+      );
       return;
     }
 
@@ -368,9 +374,13 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   private async focusInlineMenuList() {
     if (this.mostRecentlyFocusedField && !(await this.isInlineMenuListVisible())) {
+      this.clearFocusInlineMenuListTimeout();
       await this.updateMostRecentlyFocusedField(this.mostRecentlyFocusedField);
       this.openInlineMenu({ isOpeningFullInlineMenu: true });
-      globalThis.setTimeout(() => this.sendExtensionMessage("focusAutofillInlineMenuList"), 125);
+      this.focusInlineMenuListTimeout = globalThis.setTimeout(
+        () => this.sendExtensionMessage("focusAutofillInlineMenuList"),
+        125,
+      );
       return;
     }
 
@@ -1062,7 +1072,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
     await this.updateMostRecentlyFocusedField(this.mostRecentlyFocusedField);
     this.updateInlineMenuElementsPosition();
-    globalThis.setTimeout(async () => {
+    this.clearCloseInlineMenuOnFilledFieldTimeout();
+    this.closeInlineMenuOnFilledFieldTimeout = globalThis.setTimeout(async () => {
       this.toggleInlineMenuHidden(false, true);
       if (
         await this.hideInlineMenuListOnFilledField(
@@ -1085,26 +1096,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       forceCloseInlineMenu: true,
     });
   };
-
-  /**
-   * Clears the user interaction event timeout. This is used to ensure that
-   * the overlay is not repositioned while the user is interacting with it.
-   */
-  private clearUserInteractionEventTimeout() {
-    if (this.userInteractionEventTimeout) {
-      clearTimeout(this.userInteractionEventTimeout);
-      this.userInteractionEventTimeout = null;
-    }
-  }
-
-  /**
-   * Clears the timeout that facilitates recalculating the sub frame offsets.
-   */
-  private clearRecalculateSubFrameOffsetsTimeout() {
-    if (this.recalculateSubFrameOffsetsTimeout) {
-      clearTimeout(this.recalculateSubFrameOffsetsTimeout);
-    }
-  }
 
   private setupRebuildSubFrameOffsetsListeners = () => {
     if (globalThis.window.top === globalThis.window || this.formFieldElements.size < 1) {
@@ -1150,11 +1141,57 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   }
 
   /**
+   * Clears the user interaction event timeout. This is used to ensure that
+   * the overlay is not repositioned while the user is interacting with it.
+   */
+  private clearUserInteractionEventTimeout() {
+    if (this.userInteractionEventTimeout) {
+      globalThis.clearTimeout(this.userInteractionEventTimeout);
+      this.userInteractionEventTimeout = null;
+    }
+  }
+
+  private clearCloseInlineMenuOnFilledFieldTimeout() {
+    if (this.closeInlineMenuOnFilledFieldTimeout) {
+      globalThis.clearTimeout(this.closeInlineMenuOnFilledFieldTimeout);
+    }
+  }
+
+  /**
+   * Clears the timeout that facilitates recalculating the sub frame offsets.
+   */
+  private clearRecalculateSubFrameOffsetsTimeout() {
+    if (this.recalculateSubFrameOffsetsTimeout) {
+      globalThis.clearTimeout(this.recalculateSubFrameOffsetsTimeout);
+    }
+  }
+
+  private clearFocusInlineMenuListTimeout() {
+    if (this.focusInlineMenuListTimeout) {
+      globalThis.clearTimeout(this.focusInlineMenuListTimeout);
+    }
+  }
+
+  private clearCloseInlineMenuOnRedirectTimeout() {
+    if (this.closeInlineMenuOnRedirectTimeout) {
+      globalThis.clearTimeout(this.closeInlineMenuOnRedirectTimeout);
+    }
+  }
+
+  private clearAllTimeouts() {
+    this.clearUserInteractionEventTimeout();
+    this.clearCloseInlineMenuOnFilledFieldTimeout();
+    this.clearRecalculateSubFrameOffsetsTimeout();
+    this.clearFocusInlineMenuListTimeout();
+    this.clearCloseInlineMenuOnRedirectTimeout();
+  }
+
+  /**
    * Destroys the autofill overlay content service. This method will
    * disconnect the mutation observers and remove all event listeners.
    */
   destroy() {
-    this.clearUserInteractionEventTimeout();
+    this.clearAllTimeouts();
     this.formFieldElements.forEach((formFieldElement) => {
       this.removeCachedFormFieldEventListeners(formFieldElement);
       formFieldElement.removeEventListener(EVENTS.BLUR, this.handleFormFieldBlurEvent);
