@@ -59,3 +59,6 @@ export const AutofillOverlayVisibility = {
   OnButtonClick: 1,
   OnFieldFocus: 2,
 } as const;
+
+export const AUTOFILL_OVERLAY_ON_SCROLL = "autofill-overlay-scroll-event";
+export const AUTOFILL_OVERLAY_ON_RESIZE = "autofill-overlay-resize-event";
