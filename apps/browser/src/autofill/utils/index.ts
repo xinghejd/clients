@@ -18,6 +18,11 @@ export function requestIdleCallbackPolyfill(
   return globalThis.setTimeout(() => callback(), 1);
 }
 
+/**
+ * Polyfills the cancelIdleCallback API with a clearTimeout fallback.
+ *
+ * @param id - The ID of the idle callback to cancel.
+ */
 export function cancelIdleCallbackPolyfill(id: NodeJS.Timeout | number) {
   if ("cancelIdleCallback" in globalThis) {
     return globalThis.cancelIdleCallback(id as number);
