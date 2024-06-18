@@ -5,6 +5,7 @@ import { ReactiveFormsModule, FormsModule } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
@@ -19,7 +20,6 @@ import {
   FormFieldModule,
   AsyncActionsModule,
 } from "@bitwarden/components";
-import { I18nPipe } from "@bitwarden/components/src/shared/i18n.pipe";
 
 import { TwoFactorAuthBaseComponent } from "./two-factor-auth-base.component";
 

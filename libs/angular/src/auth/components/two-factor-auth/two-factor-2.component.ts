@@ -68,6 +68,7 @@ import {
     TwoFactorAuthAuthenticatorComponent,
     TwoFactorAuthWebAuthnComponent,
     TwoFactorAuthDuoComponent,
+    TwoFactorOptionsComponent,
   ],
   providers: [I18nPipe],
 })
