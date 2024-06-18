@@ -28,10 +28,10 @@
         selectedProviderType === providerType.Duo
       "
     />
-    <!-- <bit-form-control *ngIf="selectedProviderType != null"> -->
-    <!-- <div>{{ "rememberMe" | i18n }}</div> -->
-    <!-- <input type="checkbox" bitCheckbox formControlName="remember" /> -->
-    <!-- </bit-form-control> -->
+    <bit-form-control *ngIf="selectedProviderType != null">
+      <bit-label>{{ "rememberMe" | i18n }}</bit-label>
+      <input type="checkbox" bitCheckbox formControlName="remember" />
+    </bit-form-control>
     <ng-container *ngIf="selectedProviderType == null">
       <p bitTypography="body1">{{ "noTwoStepProviders" | i18n }}</p>
       <p bitTypography="body1">{{ "noTwoStepProviders2" | i18n }}</p>

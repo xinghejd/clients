@@ -29,9 +29,11 @@ import { StateService } from "@bitwarden/common/platform/abstractions/state.serv
 import {
   AsyncActionsModule,
   ButtonModule,
+  CheckboxModule,
   DialogModule,
   DialogService,
   FormFieldModule,
+  IconModule,
   LinkModule,
   TypographyModule,
 } from "@bitwarden/components";
@@ -70,6 +72,12 @@ import {
     TwoFactorAuthWebAuthnComponent,
     TwoFactorAuthDuoComponent,
     TwoFactorOptionsComponent,
+    FormFieldModule,
+    AsyncActionsModule,
+    CheckboxModule,
+    ButtonModule,
+    LinkModule,
+    IconModule,
   ],
   providers: [I18nPipe],
 })
