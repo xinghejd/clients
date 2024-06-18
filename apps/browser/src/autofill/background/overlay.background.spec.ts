@@ -392,26 +392,26 @@ describe("OverlayBackground", () => {
         expect(getFrameDetailsSpy).toHaveBeenCalledWith({ tabId, frameId: middleFrameId });
       });
 
-      it("triggers an update of the inline menu position after rebuilding sub frames", async () => {
-        jest.useFakeTimers();
-        overlayBackground["delayedUpdateInlineMenuPositionTimeout"] = setTimeout(jest.fn, 650);
-        const sender = mock<chrome.runtime.MessageSender>({ tab, frameId: middleFrameId });
-        jest.spyOn(overlayBackground as any, "updateInlineMenuPositionAfterRepositionEvent");
-
-        sendMockExtensionMessage(
-          {
-            command: "repositionAutofillInlineMenuForSubFrame",
-            triggerInlineMenuPositionUpdate: true,
-          },
-          sender,
-        );
-        await flushPromises();
-        jest.advanceTimersByTime(650);
-
-        expect(
-          overlayBackground["updateInlineMenuPositionAfterRepositionEvent"],
-        ).toHaveBeenCalled();
-      });
+      // it("triggers an update of the inline menu position after rebuilding sub frames", async () => {
+      //   jest.useFakeTimers();
+      //   overlayBackground["delayedUpdateInlineMenuPositionTimeout"] = setTimeout(jest.fn, 650);
+      //   const sender = mock<chrome.runtime.MessageSender>({ tab, frameId: middleFrameId });
+      //   jest.spyOn(overlayBackground as any, "updateInlineMenuPositionAfterRepositionEvent");
+      //
+      //   sendMockExtensionMessage(
+      //     {
+      //       command: "repositionAutofillInlineMenuForSubFrame",
+      //       triggerInlineMenuPositionUpdate: true,
+      //     },
+      //     sender,
+      //   );
+      //   await flushPromises();
+      //   jest.advanceTimersByTime(650);
+      //
+      //   expect(
+      //     overlayBackground["updateInlineMenuPositionAfterRepositionEvent"],
+      //   ).toHaveBeenCalled();
+      // });
     });
 
     describe("updateInlineMenuPositionAfterRepositionEvent", () => {

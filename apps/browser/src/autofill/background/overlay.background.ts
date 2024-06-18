@@ -1,4 +1,4 @@
-import { firstValueFrom, Subject, throttleTime } from "rxjs";
+import { firstValueFrom, merge, Subject, throttleTime } from "rxjs";
 import { debounceTime, switchMap } from "rxjs/operators";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
@@ -64,8 +64,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private inlineMenuListPort: chrome.runtime.Port;
   private inlineMenuCiphers: Map<string, CipherView> = new Map();
   private inlineMenuPageTranslations: Record<string, string>;
-  private inlineMenuFadeInTimeout: number | NodeJS.Timeout;
   private delayedCloseTimeout: number | NodeJS.Timeout;
+  private startInlineMenuFadeInSubject = new Subject<void>();
+  private cancelInlineMenuFadeInSubject = new Subject<boolean>();
   private repositionInlineMenuSubject = new Subject<chrome.runtime.MessageSender>();
   private rebuildSubFrameOffsetsSubject = new Subject<chrome.runtime.MessageSender>();
   private focusedFieldData: FocusedFieldData;
@@ -140,6 +141,20 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     private platformUtilsService: PlatformUtilsService,
     private themeStateService: ThemeStateService,
   ) {
+    this.initOverlayObservables();
+  }
+
+  /**
+   * Sets up the extension message listeners and gets the settings for the
+   * overlay's visibility and the user's authentication status.
+   */
+  async init() {
+    this.setupExtensionMessageListeners();
+    const env = await firstValueFrom(this.environmentService.environment$);
+    this.iconsServerUrl = env.getIconsUrl();
+  }
+
+  private initOverlayObservables() {
     this.repositionInlineMenuSubject
       .pipe(
         debounceTime(500),
@@ -152,16 +167,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         switchMap((sender) => this.rebuildSubFrameOffsets(sender)),
       )
       .subscribe();
-  }
 
-  /**
-   * Sets up the extension message listeners and gets the settings for the
-   * overlay's visibility and the user's authentication status.
-   */
-  async init() {
-    this.setupExtensionMessageListeners();
-    const env = await firstValueFrom(this.environmentService.environment$);
-    this.iconsServerUrl = env.getIconsUrl();
+    // FadeIn Observable behavior
+    merge(
+      this.startInlineMenuFadeInSubject.pipe(debounceTime(150)),
+      this.cancelInlineMenuFadeInSubject,
+    )
+      .pipe(switchMap((cancelSignal) => this.triggerInlineMenuFadeIn(!!cancelSignal)))
+      .subscribe();
   }
 
   /**
@@ -623,7 +636,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    this.clearInlineMenuFadeInTimeout();
+    this.cancelInlineMenuFadeIn();
 
     await BrowserApi.tabSendMessage(
       sender.tab,
@@ -642,7 +655,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         command: "updateAutofillInlineMenuPosition",
         styles: this.getInlineMenuButtonPosition(subFrameOffsets),
       });
-      this.setInlineMenuFadeInTimeout();
+      this.startInlineMenuFadeIn();
 
       return;
     }
@@ -651,30 +664,33 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       command: "updateAutofillInlineMenuPosition",
       styles: this.getInlineMenuListPosition(subFrameOffsets),
     });
-    this.setInlineMenuFadeInTimeout();
+    this.startInlineMenuFadeIn();
   }
 
   /**
    * Handles updating the opacity of both the inline menu button and list.
    * This is used to simultaneously fade in the inline menu elements.
    */
-  private setInlineMenuFadeInTimeout() {
-    this.clearInlineMenuFadeInTimeout();
-
-    this.inlineMenuFadeInTimeout = globalThis.setTimeout(() => {
-      const message = { command: "fadeInAutofillInlineMenuIframe" };
-      this.inlineMenuButtonPort?.postMessage(message);
-      this.inlineMenuListPort?.postMessage(message);
-    }, 150);
+  private startInlineMenuFadeIn() {
+    this.cancelInlineMenuFadeIn();
+    this.startInlineMenuFadeInSubject.next();
   }
 
   /**
    * Clears the timeout used to fade in the inline menu elements.
    */
-  private clearInlineMenuFadeInTimeout() {
-    if (this.inlineMenuFadeInTimeout) {
-      globalThis.clearTimeout(this.inlineMenuFadeInTimeout);
+  private cancelInlineMenuFadeIn() {
+    this.cancelInlineMenuFadeInSubject.next(true);
+  }
+
+  private async triggerInlineMenuFadeIn(cancelFadeIn: boolean = false) {
+    if (cancelFadeIn) {
+      return;
     }
+
+    const message = { command: "fadeInAutofillInlineMenuIframe" };
+    this.inlineMenuButtonPort?.postMessage(message);
+    this.inlineMenuListPort?.postMessage(message);
   }
 
   /**
@@ -757,7 +773,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     { isInlineMenuHidden, setTransparentInlineMenu }: ToggleInlineMenuHiddenMessage,
     sender: chrome.runtime.MessageSender,
   ) {
-    this.clearInlineMenuFadeInTimeout();
+    this.cancelInlineMenuFadeIn();
 
     const display = isInlineMenuHidden ? "none" : "block";
     let styles: { display: string; opacity?: string } = { display };
@@ -778,7 +794,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     this.inlineMenuListPort?.postMessage(portMessage);
 
     if (setTransparentInlineMenu) {
-      this.setInlineMenuFadeInTimeout();
+      this.startInlineMenuFadeIn();
     }
   }
 
