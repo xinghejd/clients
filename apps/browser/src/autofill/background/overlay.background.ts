@@ -66,8 +66,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private inlineMenuPageTranslations: Record<string, string>;
   private inlineMenuFadeInTimeout: number | NodeJS.Timeout;
   private delayedCloseTimeout: number | NodeJS.Timeout;
-  private repositionInlineMenuDebounce$ = new Subject<chrome.runtime.MessageSender>();
-  private rebuildSubFrameOffsetsThrottle$ = new Subject<chrome.runtime.MessageSender>();
+  private repositionInlineMenuSubject = new Subject<chrome.runtime.MessageSender>();
+  private rebuildSubFrameOffsetsSubject = new Subject<chrome.runtime.MessageSender>();
   private focusedFieldData: FocusedFieldData;
   private isFieldCurrentlyFocused: boolean = false;
   private isFieldCurrentlyFilling: boolean = false;
@@ -140,13 +140,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     private platformUtilsService: PlatformUtilsService,
     private themeStateService: ThemeStateService,
   ) {
-    this.repositionInlineMenuDebounce$
+    this.repositionInlineMenuSubject
       .pipe(
         debounceTime(500),
         switchMap((sender) => this.repositionInlineMenu(sender)),
       )
       .subscribe();
-    this.rebuildSubFrameOffsetsThrottle$
+    this.rebuildSubFrameOffsetsSubject
       .pipe(
         throttleTime(600),
         switchMap((sender) => this.rebuildSubFrameOffsets(sender)),
@@ -1315,13 +1315,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private async triggerOverlayReposition(sender: chrome.runtime.MessageSender) {
     if (await this.checkShouldRepositionInlineMenu(sender)) {
       await this.toggleInlineMenuHidden({ isInlineMenuHidden: true }, sender);
-      this.repositionInlineMenuDebounce$.next(sender);
+      this.repositionInlineMenuSubject.next(sender);
     }
   }
 
   private async triggerSubFrameFocusInRebuild(sender: chrome.runtime.MessageSender) {
-    this.rebuildSubFrameOffsetsThrottle$.next(sender);
-    this.repositionInlineMenuDebounce$.next(sender);
+    this.rebuildSubFrameOffsetsSubject.next(sender);
+    this.repositionInlineMenuSubject.next(sender);
   }
 
   private repositionInlineMenu = async (sender: chrome.runtime.MessageSender) => {
@@ -1341,7 +1341,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     if (this.focusedFieldData.frameId > 0 && sender.frameId !== this.focusedFieldData.frameId) {
-      this.rebuildSubFrameOffsetsThrottle$.next(sender);
+      this.rebuildSubFrameOffsetsSubject.next(sender);
     }
 
     await this.updateInlineMenuPositionAfterRepositionEvent(sender);
