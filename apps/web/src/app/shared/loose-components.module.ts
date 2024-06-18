@@ -55,13 +55,6 @@ import { TwoFactorWebAuthnComponent } from "../auth/settings/two-factor-webauthn
 import { TwoFactorYubiKeyComponent } from "../auth/settings/two-factor-yubikey.component";
 import { UserVerificationModule } from "../auth/shared/components/user-verification";
 import { SsoComponent } from "../auth/sso.component";
-import { TwoFactorAuthAuthenticatorComponent } from "../auth/two-factor-auth-authenticator.component";
-import { TwoFactorAuthDuoComponent } from "../auth/two-factor-auth-duo.component";
-import { TwoFactorAuthEmailComponent } from "../auth/two-factor-auth-email.component";
-import { TwoFactorAuthWebAuthnComponent } from "../auth/two-factor-auth-webauthn.component";
-import { TwoFactorAuthYubikeyComponent } from "../auth/two-factor-auth-yubikey.component";
-import { TwoFactorOptionsComponent } from "../auth/two-factor-options.component";
-import { TwoFactorComponent } from "../auth/two-factor.component";
 import { UpdatePasswordComponent } from "../auth/update-password.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
 import { VerifyEmailTokenComponent } from "../auth/verify-email-token.component";
@@ -146,11 +139,6 @@ import { SharedModule } from "./shared.module";
     FrontendLayoutComponent,
     HintComponent,
     LockComponent,
-    TwoFactorAuthEmailComponent,
-    TwoFactorAuthAuthenticatorComponent,
-    TwoFactorAuthYubikeyComponent,
-    TwoFactorAuthWebAuthnComponent,
-    TwoFactorAuthDuoComponent,
     OrgAddEditComponent,
     OrgAttachmentsComponent,
     OrgCollectionsComponent,
@@ -182,10 +170,8 @@ import { SharedModule } from "./shared.module";
     SponsoringOrgRowComponent,
     SsoComponent,
     TwoFactorAuthenticatorComponent,
-    TwoFactorComponent,
     TwoFactorDuoComponent,
     TwoFactorEmailComponent,
-    TwoFactorOptionsComponent,
     TwoFactorRecoveryComponent,
     TwoFactorSetupComponent,
     TwoFactorVerifyComponent,
@@ -237,10 +223,6 @@ import { SharedModule } from "./shared.module";
     OrgWeakPasswordsReportComponent,
     GeneratorComponent,
     PasswordGeneratorHistoryComponent,
-    TwoFactorAuthEmailComponent,
-    TwoFactorAuthAuthenticatorComponent,
-    TwoFactorAuthYubikeyComponent,
-    TwoFactorAuthWebAuthnComponent,
     PreferencesComponent,
     PremiumBadgeComponent,
     ProfileComponent,
@@ -260,16 +242,13 @@ import { SharedModule } from "./shared.module";
     SponsoringOrgRowComponent,
     SsoComponent,
     TwoFactorAuthenticatorComponent,
-    TwoFactorComponent,
     TwoFactorDuoComponent,
     TwoFactorEmailComponent,
-    TwoFactorOptionsComponent,
     TwoFactorRecoveryComponent,
     TwoFactorSetupComponent,
     TwoFactorVerifyComponent,
     TwoFactorWebAuthnComponent,
     TwoFactorYubiKeyComponent,
-    TwoFactorAuthDuoComponent,
     UpdatePasswordComponent,
     UpdateTempPasswordComponent,
     UserLayoutComponent,

@@ -2,7 +2,9 @@ import { Directive, EventEmitter, OnDestroy, Output } from "@angular/core";
 
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 
-@Directive()
+@Directive({
+  standalone: true,
+})
 export class TwoFactorAuthBaseComponent implements OnDestroy {
   tokenValue: string = "";
 

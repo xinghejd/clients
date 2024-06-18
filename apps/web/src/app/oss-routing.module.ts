@@ -11,6 +11,7 @@ import {
 } from "@bitwarden/angular/auth/guards";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/auth/angular";
 
+import { TwoFactorComponent } from "../../../../libs/angular/src/auth/components/two-factor-auth/two-factor-2.component";
 import { flagEnabled, Flags } from "../utils/flags";
 
 import { VerifyRecoverDeleteOrgComponent } from "./admin-console/organizations/manage/verify-recover-delete-org.component";
@@ -37,7 +38,6 @@ import { EmergencyAccessViewComponent } from "./auth/settings/emergency-access/v
 import { SecurityRoutingModule } from "./auth/settings/security/security-routing.module";
 import { SsoComponent } from "./auth/sso.component";
 import { TrialInitiationComponent } from "./auth/trial-initiation/trial-initiation.component";
-import { TwoFactorComponent } from "./auth/two-factor.component";
 import { UpdatePasswordComponent } from "./auth/update-password.component";
 import { UpdateTempPasswordComponent } from "./auth/update-temp-password.component";
 import { VerifyEmailTokenComponent } from "./auth/verify-email-token.component";
@@ -214,7 +214,12 @@ const routes: Routes = [
       },
       {
         path: "2fa",
-        component: TwoFactorComponent,
+        children: [
+          {
+            path: "",
+            component: TwoFactorComponent,
+          },
+        ],
         canActivate: [unauthGuardFn()],
         data: {
           pageTitle: "verifyIdentity",

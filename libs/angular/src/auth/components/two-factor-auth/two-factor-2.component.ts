@@ -1,9 +1,12 @@
+import { CommonModule } from "@angular/common";
 import { Component, Inject, OnDestroy, ViewChild, ViewContainerRef } from "@angular/core";
-import { FormBuilder, Validators } from "@angular/forms";
+import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Subject, takeUntil, lastValueFrom } from "rxjs";
 
 import { TwoFactorComponent as BaseTwoFactorComponent } from "@bitwarden/angular/auth/components/two-factor.component";
+import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import {
   LoginStrategyServiceAbstraction,
@@ -23,17 +26,50 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import { StateService } from "@bitwarden/common/platform/abstractions/state.service";
-import { DialogService } from "@bitwarden/components";
+import {
+  AsyncActionsModule,
+  ButtonModule,
+  DialogModule,
+  DialogService,
+  FormFieldModule,
+  LinkModule,
+  TypographyModule,
+} from "@bitwarden/components";
 
+import { TwoFactorAuthAuthenticatorComponent } from "./two-factor-auth-authenticator.component";
+import { TwoFactorAuthBaseComponent } from "./two-factor-auth-base.component";
+import { TwoFactorAuthDuoComponent } from "./two-factor-auth-duo.component";
+import { TwoFactorAuthEmailComponent } from "./two-factor-auth-email.component";
+import { TwoFactorAuthWebAuthnComponent } from "./two-factor-auth-webauthn.component";
+import { TwoFactorAuthYubikeyComponent } from "./two-factor-auth-yubikey.component";
 import {
   TwoFactorOptionsDialogResult,
   TwoFactorOptionsComponent,
   TwoFactorOptionsDialogResultType,
-} from "./two-factor-options.component";
+} from "./two-factor-options-2.component";
 
 @Component({
+  standalone: true,
   selector: "app-two-factor",
-  templateUrl: "two-factor.component.html",
+  templateUrl: "two-factor-2.component.html",
+  imports: [
+    CommonModule,
+    JslibModule,
+    DialogModule,
+    ButtonModule,
+    LinkModule,
+    TypographyModule,
+    ReactiveFormsModule,
+    FormFieldModule,
+    AsyncActionsModule,
+    TwoFactorAuthBaseComponent,
+    TwoFactorAuthEmailComponent,
+    TwoFactorAuthYubikeyComponent,
+    TwoFactorAuthAuthenticatorComponent,
+    TwoFactorAuthWebAuthnComponent,
+    TwoFactorAuthDuoComponent,
+  ],
+  providers: [I18nPipe],
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class TwoFactorComponent extends BaseTwoFactorComponent implements OnDestroy {

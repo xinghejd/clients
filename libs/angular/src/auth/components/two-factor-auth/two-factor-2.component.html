@@ -1,0 +1,93 @@
+<!-- <form [bitSubmit]="submitForm" [formGroup]="formGroup" autocomplete="off"> -->
+<!--   <div class="tw-min-w-96"> -->
+<!--     <app-two-factor-auth-email -->
+<!--       (token)="token = $event" -->
+<!--       (activeButtonTextChange)="actionButtonText = $event" -->
+<!--       *ngIf="selectedProviderType === providerType.Email" -->
+<!--     /> -->
+<!--     <app-two-factor-auth-authenticator -->
+<!--       (token)="token = $event" -->
+<!--       (activeButtonTextChange)="actionButtonText = $event" -->
+<!--       *ngIf="selectedProviderType === providerType.Authenticator" -->
+<!--     /> -->
+<!--     <app-two-factor-auth-yubikey -->
+<!--       (token)="token = $event" -->
+<!--       (activeButtonTextChange)="actionButtonText = $event" -->
+<!--       *ngIf="selectedProviderType === providerType.Yubikey" -->
+<!--     /> -->
+<!--     <app-two-factor-auth-webauthn -->
+<!--       (token)="token = $event; submitForm()" -->
+<!--       (activeButtonTextChange)="actionButtonText = $event" -->
+<!--       *ngIf="selectedProviderType === providerType.WebAuthn" -->
+<!--     /> -->
+<!--     <app-two-factor-auth-duo -->
+<!--       (activeButtonTextChange)="actionButtonText = $event" -->
+<!--       [providerData]="providerData" -->
+<!--       *ngIf=" -->
+<!--         selectedProviderType === providerType.OrganizationDuo || -->
+<!--         selectedProviderType === providerType.Duo -->
+<!--       " -->
+<!--     /> -->
+<!--     <bit-form-control *ngIf="selectedProviderType != null"> -->
+<!--       <div>{{ "rememberMe" | i18n }}</div> -->
+<!--       <input type="checkbox" bitCheckbox formControlName="remember" /> -->
+<!--     </bit-form-control> -->
+<!--     <ng-container *ngIf="selectedProviderType == null"> -->
+<!--       <p bitTypography="body1">{{ "noTwoStepProviders" | i18n }}</p> -->
+<!--       <p bitTypography="body1">{{ "noTwoStepProviders2" | i18n }}</p> -->
+<!--     </ng-container> -->
+<!--     <hr /> -->
+<!--     <div [hidden]="!showCaptcha()"> -->
+<!--       <iframe id="hcaptcha_iframe" height="80" sandbox="allow-scripts allow-same-origin"></iframe> -->
+<!--     </div> -->
+<!--     <!-- Buttons -->
+-->
+<!--     <div class="tw-flex tw-flex-col tw-space-y-2.5 tw-mb-3"> -->
+<!--       <button -->
+<!--         type="submit" -->
+<!--         buttonType="primary" -->
+<!--         bitButton -->
+<!--         bitFormButton -->
+<!--         *ngIf="selectedProviderType != null && selectedProviderType !== providerType.WebAuthn" -->
+<!--       > -->
+<!--         <span> <i class="bwi bwi-sign-in" aria-hidden="true"></i> {{ actionButtonText }} </span> -->
+<!--       </button> -->
+<!--       <!-- <button -->
+-->
+<!--       <!--   (click)="launchDuoFrameless()" -->
+-->
+<!--       <!--   type="button" -->
+-->
+<!--       <!--   buttonType="primary" -->
+-->
+<!--       <!--   bitButton -->
+-->
+<!--       <!--   bitFormButton -->
+-->
+<!--       <!--   *ngIf="duoFrameless && isDuoProvider" -->
+-->
+<!--       <!-- > -->
+-->
+<!--       <!--   <span> {{ "launchDuo" | i18n }} </span> -->
+-->
+<!--       <!-- </button> -->
+-->
+<!--       <a routerLink="/login" bitButton buttonType="secondary"> -->
+<!--         {{ "cancel" | i18n }} -->
+<!--       </a> -->
+<!--     </div> -->
+<!--     <div class="text-center"> -->
+<!--       <a bitLink href="#" appStopClick (click)="anotherMethod()">{{ -->
+<!--         "useAnotherTwoStepMethod" | i18n -->
+<!--       }}</a> -->
+<!--     </div> -->
+<!--   </div> -->
+<!-- </form> -->
+Testtwofactor2start
+{{ "continue" | i18n }}
+Testtwofactor2middle
+<app-two-factor-auth-email />
+<app-two-factor-auth-authenticator />
+<app-two-factor-auth-yubikey />
+<app-two-factor-auth-webauthn />
+Testtwofactor2end

@@ -21,8 +21,9 @@ export type TwoFactorOptionsDialogResultType = {
 };
 
 @Component({
+  standalone: true,
   selector: "app-two-factor-options",
-  templateUrl: "two-factor-options.component.html",
+  templateUrl: "two-factor-options-2.component.html",
 })
 export class TwoFactorOptionsComponent extends BaseTwoFactorOptionsComponent {
   constructor(

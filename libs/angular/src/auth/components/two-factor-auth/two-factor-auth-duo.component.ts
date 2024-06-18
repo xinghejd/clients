@@ -1,14 +1,40 @@
+import { DialogModule } from "@angular/cdk/dialog";
+import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Input, Output } from "@angular/core";
+import { ReactiveFormsModule, FormsModule } from "@angular/forms";
 import * as DuoWebSDK from "duo_web_sdk";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import {
+  ButtonModule,
+  LinkModule,
+  TypographyModule,
+  FormFieldModule,
+  AsyncActionsModule,
+} from "@bitwarden/components";
 
 import { TwoFactorAuthBaseComponent } from "./two-factor-auth-base.component";
 
 @Component({
+  standalone: true,
   selector: "app-two-factor-auth-duo",
   templateUrl: "two-factor-auth-duo.component.html",
+  imports: [
+    CommonModule,
+    JslibModule,
+    DialogModule,
+    ButtonModule,
+    LinkModule,
+    TypographyModule,
+    ReactiveFormsModule,
+    FormFieldModule,
+    AsyncActionsModule,
+    FormsModule,
+  ],
+  providers: [I18nPipe],
 })
 export class TwoFactorAuthDuoComponent extends TwoFactorAuthBaseComponent {
   @Output() token = new EventEmitter<string>();
