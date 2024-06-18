@@ -1,12 +1,15 @@
 import { NgModule } from "@angular/core";
 import { RouterModule, Routes } from "@angular/router";
 
+import { TwoFactorAuthComponent } from "@bitwarden/angular/auth/components/two-factor-auth/two-factor-auth.component";
 import {
   AuthGuard,
   lockGuard,
   redirectGuard,
   tdeDecryptionRequiredGuard,
+  unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
+import { AnonLayoutWrapperComponent } from "@bitwarden/auth/angular";
 
 import { AccessibilityCookieComponent } from "../auth/accessibility-cookie.component";
 import { maxAccountsGuardFn } from "../auth/guards/max-accounts.guard";
@@ -19,7 +22,6 @@ import { RegisterComponent } from "../auth/register.component";
 import { RemovePasswordComponent } from "../auth/remove-password.component";
 import { SetPasswordComponent } from "../auth/set-password.component";
 import { SsoComponent } from "../auth/sso.component";
-import { TwoFactorComponent } from "../auth/two-factor.component";
 import { UpdateTempPasswordComponent } from "../auth/update-temp-password.component";
 import { VaultComponent } from "../vault/app/vault/vault.component";
 
@@ -50,7 +52,25 @@ const routes: Routes = [
     path: "admin-approval-requested",
     component: LoginViaAuthRequestComponent,
   },
-  { path: "2fa", component: TwoFactorComponent },
+  {
+    path: "2fa",
+    component: AnonLayoutWrapperComponent,
+    children: [
+      {
+        path: "",
+        children: [
+          {
+            path: "",
+            component: TwoFactorAuthComponent,
+          },
+        ],
+        canActivate: [unauthGuardFn()],
+        data: {
+          pageTitle: "verifyIdentity",
+        },
+      },
+    ],
+  },
   {
     path: "login-initiated",
     component: LoginDecryptionOptionsComponent,

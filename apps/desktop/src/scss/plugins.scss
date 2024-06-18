@@ -1,0 +1,8 @@
+@import "variables.scss";
+
+@each $mfaType in $mfaTypes {
+  .mfaType#{$mfaType} {
+    content: url("../images/two-factor/" + $mfaType + ".png");
+    max-width: 100px;
+  }
+}

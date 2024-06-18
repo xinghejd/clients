@@ -82,7 +82,7 @@ import {
   providers: [I18nPipe],
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
-export class TwoFactorComponent extends BaseTwoFactorComponent implements OnDestroy {
+export class TwoFactorAuthComponent extends BaseTwoFactorComponent implements OnDestroy {
   @ViewChild("twoFactorOptions", { read: ViewContainerRef, static: true })
   twoFactorOptionsModal: ViewContainerRef;
   formGroup = this.formBuilder.group({
