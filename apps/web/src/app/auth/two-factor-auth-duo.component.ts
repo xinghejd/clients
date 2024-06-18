@@ -67,7 +67,7 @@ export class TwoFactorAuthDuoComponent extends TwoFactorAuthBaseComponent {
       }, 0);
     }
 
-    await this.launchDuoFrameless();
+    // await this.launchDuoFrameless();
   }
 
   protected setupDuoResultListener() {
