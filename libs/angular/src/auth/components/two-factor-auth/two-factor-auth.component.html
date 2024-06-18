@@ -41,21 +41,21 @@
       <iframe id="hcaptcha_iframe" height="80" sandbox="allow-scripts allow-same-origin"></iframe>
     </div>
     <!-- <!-- Buttons -->
-    <!-- <div class="tw-flex tw-flex-col tw-space-y-2.5 tw-mb-3"> -->
-    <!--   <button -->
-    <!--     type="submit" -->
-    <!--     buttonType="primary" -->
-    <!--     bitButton -->
-    <!--     bitFormButton -->
-    <!--     *ngIf="selectedProviderType != null && selectedProviderType !== providerType.WebAuthn" -->
-    <!--   > -->
-    <!--     <span> <i class="bwi bwi-sign-in" aria-hidden="true"></i> {{ actionButtonText }} </span> -->
-    <!--   </button> -->
+    <div class="tw-flex tw-flex-col tw-space-y-2.5 tw-mb-3">
+      <button
+        type="submit"
+        buttonType="primary"
+        bitButton
+        bitFormButton
+        *ngIf="selectedProviderType != null && selectedProviderType !== providerType.WebAuthn"
+      >
+        <span> <i class="bwi bwi-sign-in" aria-hidden="true"></i> {{ actionButtonText }} </span>
+      </button>
 
-    <!--   <a routerLink="/login" bitButton buttonType="secondary"> -->
-    <!--     {{ "cancel" | i18n }} -->
-    <!--   </a> -->
-    <!-- </div> -->
+      <a routerLink="/login" bitButton buttonType="secondary">
+        {{ "cancel" | i18n }}
+      </a>
+    </div>
     <div class="text-center">
       <a bitLink href="#" appStopClick (click)="anotherMethod()">{{
         "useAnotherTwoStepMethod" | i18n

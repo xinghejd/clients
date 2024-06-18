@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, Inject, OnDestroy, ViewChild, ViewContainerRef } from "@angular/core";
 import { FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { Subject, takeUntil, lastValueFrom } from "rxjs";
 
 import { TwoFactorComponent as BaseTwoFactorComponent } from "@bitwarden/angular/auth/components/two-factor.component";
@@ -46,12 +46,12 @@ import {
   TwoFactorOptionsDialogResult,
   TwoFactorOptionsComponent,
   TwoFactorOptionsDialogResultType,
-} from "./two-factor-options-2.component";
+} from "./two-factor-options.component";
 
 @Component({
   standalone: true,
-  selector: "app-two-factor",
-  templateUrl: "two-factor-2.component.html",
+  selector: "app-two-factor-auth",
+  templateUrl: "two-factor-auth.component.html",
   imports: [
     CommonModule,
     JslibModule,
@@ -62,6 +62,7 @@ import {
     ReactiveFormsModule,
     FormFieldModule,
     AsyncActionsModule,
+    RouterLink,
     TwoFactorAuthBaseComponent,
     TwoFactorAuthEmailComponent,
     TwoFactorAuthYubikeyComponent,

@@ -75,6 +75,8 @@ export class TwoFactorAuthDuoComponent extends TwoFactorAuthBaseComponent {
 
       // flow must be launched by user so they can choose to remember the device or not.
       this.duoFramelessUrl = this.providerData.AuthUrl;
+
+      await this.launchDuoFrameless();
     } else {
       // Duo Web SDK (iframe) flow
       // TODO: remove when we remove the "duo-redirect" feature flag
@@ -92,21 +94,19 @@ export class TwoFactorAuthDuoComponent extends TwoFactorAuthBaseComponent {
         });
       }, 0);
     }
-
-    // await this.launchDuoFrameless();
   }
 
   protected setupDuoResultListener() {
     if (!this.duoResultChannel) {
       this.duoResultChannel = new BroadcastChannel("duoResult");
-      // this.duoResultChannel.addEventListener("message", this.handleDuoResultMessage);
+      this.duoResultChannel.addEventListener("message", this.handleDuoResultMessage);
     }
   }
-  //
-  // private handleDuoResultMessage = async (msg: { data: { code: string; state: string } }) => {
-  //   this.token.emit(msg.data.code + "|" + msg.data.state);
-  // };
-  //
+
+  private handleDuoResultMessage = async (msg: { data: { code: string; state: string } }) => {
+    this.token.emit(msg.data.code + "|" + msg.data.state);
+  };
+
   protected launchDuoFrameless() {
     const duoHandOffMessage = {
       title: this.i18nService.t("youSuccessfullyLoggedIn"),
@@ -117,12 +117,12 @@ export class TwoFactorAuthDuoComponent extends TwoFactorAuthBaseComponent {
     document.cookie = `duoHandOffMessage=${JSON.stringify(duoHandOffMessage)}; SameSite=strict;`;
     this.platformUtilsService.launchUri(this.duoFramelessUrl);
   }
-  //
-  // async ngOnDestroy() {
-  //   if (this.duoResultChannel) {
-  //     // clean up duo listener if it was initialized.
-  //     this.duoResultChannel.removeEventListener("message", this.handleDuoResultMessage);
-  //     this.duoResultChannel.close();
-  //   }
-  // }
+
+  async ngOnDestroy() {
+    if (this.duoResultChannel) {
+      // clean up duo listener if it was initialized.
+      this.duoResultChannel.removeEventListener("message", this.handleDuoResultMessage);
+      this.duoResultChannel.close();
+    }
+  }
 }

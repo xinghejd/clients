@@ -11,7 +11,7 @@ import {
 } from "@bitwarden/angular/auth/guards";
 import { AnonLayoutWrapperComponent, AnonLayoutWrapperData } from "@bitwarden/auth/angular";
 
-import { TwoFactorComponent } from "../../../../libs/angular/src/auth/components/two-factor-auth/two-factor-2.component";
+import { TwoFactorComponent } from "../../../../libs/angular/src/auth/components/two-factor-auth/two-factor-auth.component";
 import { flagEnabled, Flags } from "../utils/flags";
 
 import { VerifyRecoverDeleteOrgComponent } from "./admin-console/organizations/manage/verify-recover-delete-org.component";

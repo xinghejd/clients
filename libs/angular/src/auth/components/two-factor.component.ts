@@ -163,9 +163,6 @@ export class TwoFactorComponent extends CaptchaProtectedComponent implements OnI
     return true;
   }
 
-  // Each client will have own implementation
-  protected setupDuoResultListener(): void {}
-
   private async handleLoginResponse(authResult: AuthResult) {
     if (this.handleCaptchaRequired(authResult)) {
       return;
