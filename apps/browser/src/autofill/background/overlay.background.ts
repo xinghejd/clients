@@ -65,10 +65,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private inlineMenuCiphers: Map<string, CipherView> = new Map();
   private inlineMenuPageTranslations: Record<string, string>;
   private inlineMenuFadeInTimeout: number | NodeJS.Timeout;
-  private delayedUpdateInlineMenuPositionTimeout: number | NodeJS.Timeout;
   private delayedCloseTimeout: number | NodeJS.Timeout;
   private repositionInlineMenu$ = new Subject<chrome.runtime.MessageSender>();
-  private rebuildSubFrameOffsets$ = new Subject<chrome.runtime.MessageSender>();
   private focusedFieldData: FocusedFieldData;
   private isFieldCurrentlyFocused: boolean = false;
   private isFieldCurrentlyFilling: boolean = false;
@@ -145,12 +143,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       .pipe(
         debounceTime(500),
         switchMap((sender) => this.repositionInlineMenu(sender)),
-      )
-      .subscribe();
-    this.rebuildSubFrameOffsets$
-      .pipe(
-        debounceTime(200),
-        switchMap((sender) => this.rebuildSubFrameOffsets(sender)),
       )
       .subscribe();
   }
@@ -312,7 +304,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const subFrameOffsetsForTab = this.subFrameOffsetsForTab[sender.tab.id];
     if (subFrameOffsetsForTab) {
       subFrameOffsetsForTab.set(message.subFrameData.frameId, message.subFrameData);
-      this.delayedUpdateInlineMenuPosition(sender);
     }
   }
 
@@ -385,7 +376,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     subFrameOffsetsForTab.set(frameId, subFrameData);
-    this.delayedUpdateInlineMenuPosition(sender);
   }
 
   /**
@@ -424,20 +414,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         await this.buildSubFrameOffsets(sender.tab, frameId, sender.url, sender);
       }
     }
-  }
-
-  /**
-   * Triggers a delayed repositioning of the inline menu. Used in cases where the page in some way
-   * is resized, scrolled, or when a sub frame is interacted with.
-   *
-   * @param sender - The sender of the message
-   */
-  private delayedUpdateInlineMenuPosition(sender: chrome.runtime.MessageSender) {
-    this.clearDelayedUpdateInlineMenuPositionTimeout();
-    this.delayedUpdateInlineMenuPositionTimeout = globalThis.setTimeout(async () => {
-      this.clearDelayedUpdateInlineMenuPositionTimeout();
-      await this.updateInlineMenuPositionAfterRepositionEvent(sender);
-    }, 650);
   }
 
   /**
@@ -598,16 +574,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
-   * Clears the timeout used to trigger a delayed update of the inline menu position.
-   */
-  private clearDelayedUpdateInlineMenuPositionTimeout() {
-    if (this.delayedUpdateInlineMenuPositionTimeout) {
-      clearTimeout(this.delayedUpdateInlineMenuPositionTimeout);
-      this.delayedUpdateInlineMenuPositionTimeout = null;
-    }
-  }
-
-  /**
    * Handles cleanup when an overlay element is closed. Disconnects
    * the list and button ports and sets them to null.
    *
@@ -646,16 +612,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     { overlayElement }: { overlayElement?: string },
     sender: chrome.runtime.MessageSender,
   ) {
-    if (this.isFieldCurrentlyFocused && this.delayedUpdateInlineMenuPositionTimeout) {
-      this.closeInlineMenu(sender, { forceCloseInlineMenu: true });
-      return;
-    }
-
-    if (
-      !overlayElement ||
-      sender.tab.id !== this.focusedFieldData?.tabId ||
-      this.delayedUpdateInlineMenuPositionTimeout
-    ) {
+    if (!overlayElement || sender.tab.id !== this.focusedFieldData?.tabId) {
       return;
     }
 
@@ -1371,9 +1328,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    if (this.focusedFieldData.frameId > 0 && sender.frameId !== this.focusedFieldData.frameId) {
-      this.rebuildSubFrameOffsets$.next(sender);
-      return;
+    if (this.focusedFieldData.frameId > 0) {
+      await this.rebuildSubFrameOffsets(sender);
     }
 
     await this.updateInlineMenuPositionAfterRepositionEvent(sender);
