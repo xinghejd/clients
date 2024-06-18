@@ -22,6 +22,7 @@ export type AutofillOverlayContentExtensionMessageHandlers = {
   addNewVaultItemFromOverlay: () => void;
   blurMostRecentlyFocusedField: () => void;
   unsetMostRecentlyFocusedField: () => void;
+  checkIsMostRecentlyFocusedFieldWithinViewport: () => Promise<boolean>;
   bgUnlockPopoutOpened: () => void;
   bgVaultItemRepromptPopoutOpened: () => void;
   redirectAutofillInlineMenuFocusOut: ({ message }: AutofillExtensionMessageParam) => void;

@@ -396,7 +396,7 @@ describe("OverlayBackground", () => {
         jest.useFakeTimers();
         overlayBackground["delayedUpdateInlineMenuPositionTimeout"] = setTimeout(jest.fn, 650);
         const sender = mock<chrome.runtime.MessageSender>({ tab, frameId: middleFrameId });
-        jest.spyOn(overlayBackground as any, "updateInlineMenuPositionAfterSubFrameRebuild");
+        jest.spyOn(overlayBackground as any, "updateInlineMenuPositionAfterRepositionEvent");
 
         sendMockExtensionMessage(
           {
@@ -409,12 +409,12 @@ describe("OverlayBackground", () => {
         jest.advanceTimersByTime(650);
 
         expect(
-          overlayBackground["updateInlineMenuPositionAfterSubFrameRebuild"],
+          overlayBackground["updateInlineMenuPositionAfterRepositionEvent"],
         ).toHaveBeenCalled();
       });
     });
 
-    describe("updateInlineMenuPositionAfterSubFrameRebuild", () => {
+    describe("updateInlineMenuPositionAfterRepositionEvent", () => {
       let sender: chrome.runtime.MessageSender;
 
       async function flushInlineMenuUpdatePromises() {

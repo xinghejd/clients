@@ -64,6 +64,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     addNewVaultItemFromOverlay: () => this.addNewVaultItem(),
     blurMostRecentlyFocusedField: () => this.blurMostRecentlyFocusedField(),
     unsetMostRecentlyFocusedField: () => this.unsetMostRecentlyFocusedField(),
+    checkIsMostRecentlyFocusedFieldWithinViewport: () =>
+      this.checkIsMostRecentlyFocusedFieldWithinViewport(),
     bgUnlockPopoutOpened: () => this.blurMostRecentlyFocusedField(true),
     bgVaultItemRepromptPopoutOpened: () => this.blurMostRecentlyFocusedField(true),
     redirectAutofillInlineMenuFocusOut: ({ message }) =>
@@ -615,7 +617,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       focusedFieldRects: { width, height, top, left },
     };
 
-    void this.sendExtensionMessage("updateFocusedFieldData", {
+    await this.sendExtensionMessage("updateFocusedFieldData", {
       focusedFieldData: this.focusedFieldData,
     });
   }
@@ -1024,7 +1026,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     globalThis.addEventListener(
       EVENTS.SCROLL,
       this.useEventHandlersMemo(
-        throttle(this.handleOverlayRepositionEvent, 150),
+        throttle(this.handleOverlayRepositionEvent, 200),
         AUTOFILL_OVERLAY_ON_SCROLL,
       ),
       {
@@ -1034,7 +1036,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     globalThis.addEventListener(
       EVENTS.RESIZE,
       this.useEventHandlersMemo(
-        throttle(this.handleOverlayRepositionEvent, 150),
+        throttle(this.handleOverlayRepositionEvent, 200),
         AUTOFILL_OVERLAY_ON_RESIZE,
       ),
     );
@@ -1066,68 +1068,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * repositioning of existing overlay elements.
    */
   private handleOverlayRepositionEvent = async () => {
-    if (!(await this.checkShouldRepositionInlineMenu())) {
-      return;
-    }
-
-    this.repositionInlineMenuForSubFrame();
-    this.toggleInlineMenuHidden(true);
-    this.clearUserInteractionEventTimeout();
-    this.userInteractionEventTimeout = globalThis.setTimeout(
-      this.triggerOverlayRepositionUpdates,
-      750,
-    );
-  };
-
-  /**
-   * Triggers a rebuild of a sub frame's offsets within the tab.
-   */
-  private repositionInlineMenuForSubFrame() {
-    this.clearRecalculateSubFrameOffsetsTimeout();
-    this.recalculateSubFrameOffsetsTimeout = globalThis.setTimeout(
-      () => void this.sendExtensionMessage("repositionAutofillInlineMenuForSubFrame"),
-      150,
-    );
-  }
-
-  /**
-   * Triggers the overlay reposition updates. This method ensures that the overlay elements
-   * are correctly positioned when the viewport scrolls or repositions.
-   */
-  private triggerOverlayRepositionUpdates = async () => {
-    if (!this.recentlyFocusedFieldIsCurrentlyFocused()) {
-      this.toggleInlineMenuHidden(false, true);
-      void this.sendExtensionMessage("closeAutofillInlineMenu", {
-        forceCloseInlineMenu: true,
-      });
-      return;
-    }
-
-    await this.updateMostRecentlyFocusedField(this.mostRecentlyFocusedField);
-    this.updateInlineMenuElementsPosition();
-    this.clearCloseInlineMenuOnFilledFieldTimeout();
-    this.closeInlineMenuOnFilledFieldTimeout = globalThis.setTimeout(async () => {
-      this.toggleInlineMenuHidden(false, true);
-      if (
-        await this.hideInlineMenuListOnFilledField(
-          this.mostRecentlyFocusedField as FillableFormFieldElement,
-        )
-      ) {
-        void this.sendExtensionMessage("closeAutofillInlineMenu", {
-          overlayElement: AutofillOverlayElement.List,
-          forceCloseInlineMenu: true,
-        });
-      }
-    }, 50);
-    this.clearUserInteractionEventTimeout();
-
-    if (this.isFocusedFieldWithinViewportBounds()) {
-      return;
-    }
-
-    void this.sendExtensionMessage("closeAutofillInlineMenu", {
-      forceCloseInlineMenu: true,
-    });
+    await this.sendExtensionMessage("triggerAutofillOverlayReposition");
   };
 
   private setupRebuildSubFrameOffsetsListeners = () => {
@@ -1140,7 +1081,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   };
 
   private handleSubFrameFocusInEvent = () => {
-    this.rebuildSubFrameOffsets();
+    void this.sendExtensionMessage("triggerSubFrameFocusInRebuild");
 
     globalThis.removeEventListener(EVENTS.FOCUS, this.handleSubFrameFocusInEvent);
     globalThis.document.body.removeEventListener(
@@ -1154,11 +1095,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     );
   };
 
-  private rebuildSubFrameOffsets = () => {
-    this.clearUserInteractionEventTimeout();
-    this.clearRecalculateSubFrameOffsetsTimeout();
-    void this.sendExtensionMessage("rebuildSubFrameOffsets");
-  };
+  private async checkIsMostRecentlyFocusedFieldWithinViewport() {
+    await this.updateMostRecentlyFocusedField(this.mostRecentlyFocusedField);
+
+    return this.isFocusedFieldWithinViewportBounds();
+  }
 
   /**
    * Checks if the focused field is present within the bounds of the viewport.

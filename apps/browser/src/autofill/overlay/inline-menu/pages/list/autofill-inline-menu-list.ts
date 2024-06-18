@@ -211,7 +211,10 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
     if (this.cipherListScrollDebounceTimeout) {
       clearTimeout(this.cipherListScrollDebounceTimeout);
     }
-    this.cipherListScrollDebounceTimeout = setTimeout(this.handleDebouncedScrollEvent, 300);
+    this.cipherListScrollDebounceTimeout = globalThis.setTimeout(
+      this.handleDebouncedScrollEvent,
+      300,
+    );
   };
 
   /**
