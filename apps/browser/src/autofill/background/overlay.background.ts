@@ -1388,6 +1388,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   private async triggerSubFrameFocusInRebuild(sender: chrome.runtime.MessageSender) {
-    this.rebuildSubFrameOffsets$.next(sender);
+    this.repositionInlineMenu$.next(sender);
   }
 }
