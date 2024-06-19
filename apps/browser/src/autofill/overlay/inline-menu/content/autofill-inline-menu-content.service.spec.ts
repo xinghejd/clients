@@ -1,15 +1,14 @@
 import { mock } from "jest-mock-extended";
 
 import AutofillInit from "../../../content/autofill-init";
-import { AutofillOverlayElement, AutofillOverlayPort } from "../../../enums/autofill-overlay.enum";
-import { createMutationRecordMock, createPortSpyMock } from "../../../spec/autofill-mocks";
+import { AutofillOverlayElement } from "../../../enums/autofill-overlay.enum";
+import { createMutationRecordMock } from "../../../spec/autofill-mocks";
 import { flushPromises, sendMockExtensionMessage } from "../../../spec/testing-utils";
 import { ElementWithOpId } from "../../../types";
 
 import { AutofillInlineMenuContentService } from "./autofill-inline-menu-content.service";
 
 describe("AutofillInlineMenuContentService", () => {
-  let overlayPort: chrome.runtime.Port;
   let autofillInlineMenuContentService: AutofillInlineMenuContentService;
   let autofillInit: AutofillInit;
   let sendExtensionMessageSpy: jest.SpyInstance;
@@ -18,8 +17,7 @@ describe("AutofillInlineMenuContentService", () => {
 
   beforeEach(() => {
     globalThis.document.body.innerHTML = "";
-    overlayPort = createPortSpyMock(AutofillOverlayPort.ContentScript);
-    autofillInlineMenuContentService = new AutofillInlineMenuContentService(overlayPort);
+    autofillInlineMenuContentService = new AutofillInlineMenuContentService();
     autofillInit = new AutofillInit(null, autofillInlineMenuContentService);
     autofillInit.init();
     observeBodyMutationsSpy = jest.spyOn(

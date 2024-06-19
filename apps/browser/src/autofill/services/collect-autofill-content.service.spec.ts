@@ -1,13 +1,8 @@
 import { mock } from "jest-mock-extended";
 
-import { AutofillOverlayPort } from "../enums/autofill-overlay.enum";
 import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
-import {
-  createAutofillFieldMock,
-  createAutofillFormMock,
-  createPortSpyMock,
-} from "../spec/autofill-mocks";
+import { createAutofillFieldMock, createAutofillFormMock } from "../spec/autofill-mocks";
 import { mockQuerySelectorAllDefinedCall } from "../spec/testing-utils";
 import {
   ElementWithOpId,
@@ -33,11 +28,9 @@ const mockLoginForm = `
 const waitForIdleCallback = () => new Promise((resolve) => globalThis.requestIdleCallback(resolve));
 
 describe("CollectAutofillContentService", () => {
-  const overlayPort = createPortSpyMock(AutofillOverlayPort.ContentScript);
   const domElementVisibilityService = new DomElementVisibilityService();
   const inlineMenuFieldQualificationService = mock<InlineMenuFieldQualificationService>();
   const autofillOverlayContentService = new AutofillOverlayContentService(
-    overlayPort,
     inlineMenuFieldQualificationService,
   );
   let collectAutofillContentService: CollectAutofillContentService;

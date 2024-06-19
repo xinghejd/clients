@@ -50,7 +50,6 @@ import {
   SubFrameOffsetsForTab,
   CloseInlineMenuMessage,
   ToggleInlineMenuHiddenMessage,
-  OverlayContentScriptPortMessageHandlers,
 } from "./abstractions/overlay.background";
 
 export class OverlayBackground implements OverlayBackgroundInterface {
@@ -77,6 +76,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private isFieldCurrentlyFilling: boolean = false;
   private iconsServerUrl: string;
   private readonly extensionMessageHandlers: OverlayBackgroundExtensionMessageHandlers = {
+    autofillOverlayElementClosed: ({ message, sender }) =>
+      this.overlayElementClosed(message, sender),
     autofillOverlayAddNewVaultItem: ({ message, sender }) => this.addNewVaultItem(message, sender),
     triggerAutofillOverlayReposition: ({ sender }) => this.triggerOverlayReposition(sender),
     checkIsInlineMenuCiphersPopulated: ({ sender }) =>
@@ -109,9 +110,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     addEditCipherSubmitted: () => this.updateInlineMenuCiphers(),
     editedCipher: () => this.updateInlineMenuCiphers(),
     deletedCipher: () => this.updateInlineMenuCiphers(),
-  };
-  private readonly contentScriptPortMessageHandlers: OverlayContentScriptPortMessageHandlers = {
-    autofillOverlayElementClosed: ({ message, port }) => this.overlayElementClosed(message, port),
   };
   private readonly inlineMenuButtonPortMessageHandlers: InlineMenuButtonPortMessageHandlers = {
     triggerDelayedAutofillInlineMenuClosure: ({ port }) => this.triggerDelayedInlineMenuClosure(),
@@ -618,13 +616,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * the list and button ports and sets them to null.
    *
    * @param overlayElement - The overlay element that was closed, either the list or button
-   * @param port - The port that sent the message
+   * @param sender - The sender of the port message
    */
   private overlayElementClosed(
     { overlayElement }: OverlayBackgroundExtensionMessage,
-    port: chrome.runtime.Port,
+    sender: chrome.runtime.MessageSender,
   ) {
-    if (port.sender.tab.id !== this.focusedFieldData?.tabId) {
+    if (sender.tab.id !== this.focusedFieldData?.tabId) {
       this.expiredPorts.forEach((port) => port.disconnect());
       this.expiredPorts = [];
       return;
@@ -1224,11 +1222,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param port - The port that connected to the extension background
    */
   private handlePortOnConnect = async (port: chrome.runtime.Port) => {
-    if (port.name === AutofillOverlayPort.ContentScript) {
-      port.onMessage.addListener(this.handleContentScriptPortMessage);
-      return;
-    }
-
     const isInlineMenuListMessageConnector = port.name === AutofillOverlayPort.ListMessageConnector;
     const isInlineMenuButtonMessageConnector =
       port.name === AutofillOverlayPort.ButtonMessageConnector;
@@ -1305,21 +1298,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
   }
 
-  private handleContentScriptPortMessage = (
-    message: OverlayPortMessage,
-    port: chrome.runtime.Port,
-  ) => {
-    if (port.name !== AutofillOverlayPort.ContentScript) {
-      return;
-    }
-
-    const handler: CallableFunction | undefined =
-      this.contentScriptPortMessageHandlers[message.command];
-    if (handler) {
-      handler({ message, port });
-    }
-  };
-
   /**
    * Handles messages sent to the overlay list or button ports.
    *
@@ -1327,7 +1305,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param port - The port that sent the message
    */
   private handleOverlayElementPortMessage = (
-    message: OverlayPortMessage,
+    message: OverlayBackgroundExtensionMessage,
     port: chrome.runtime.Port,
   ) => {
     const tabPortKey = this.portKeyForTab[port.sender.tab.id];

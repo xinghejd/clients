@@ -4,7 +4,6 @@ export const AutofillOverlayElement = {
 } as const;
 
 export const AutofillOverlayPort = {
-  ContentScript: "autofill-overlay-content-script-port",
   Button: "autofill-inline-menu-button-port",
   ButtonMessageConnector: "autofill-inline-menu-button-message-connector",
   List: "autofill-inline-menu-list-port",

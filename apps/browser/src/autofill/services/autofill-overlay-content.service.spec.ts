@@ -6,14 +6,13 @@ import { AutofillOverlayVisibility, EVENTS } from "@bitwarden/common/autofill/co
 import AutofillInit from "../content/autofill-init";
 import {
   AutofillOverlayElement,
-  AutofillOverlayPort,
   MAX_SUB_FRAME_DEPTH,
   RedirectFocusDirection,
 } from "../enums/autofill-overlay.enum";
 import AutofillField from "../models/autofill-field";
 import AutofillForm from "../models/autofill-form";
 import AutofillPageDetails from "../models/autofill-page-details";
-import { createAutofillFieldMock, createPortSpyMock } from "../spec/autofill-mocks";
+import { createAutofillFieldMock } from "../spec/autofill-mocks";
 import { flushPromises, postWindowMessage, sendMockExtensionMessage } from "../spec/testing-utils";
 import { ElementWithOpId, FillableFormFieldElement, FormFieldElement } from "../types";
 
@@ -26,7 +25,6 @@ const defaultDocumentVisibilityState = document.visibilityState;
 describe("AutofillOverlayContentService", () => {
   let autofillInit: AutofillInit;
   let inlineMenuFieldQualificationService: InlineMenuFieldQualificationService;
-  let overlayPort: chrome.runtime.Port;
   let autofillOverlayContentService: AutofillOverlayContentService;
   let sendExtensionMessageSpy: jest.SpyInstance;
   const sendResponseSpy = jest.fn();
@@ -41,10 +39,8 @@ describe("AutofillOverlayContentService", () => {
   });
 
   beforeEach(() => {
-    overlayPort = createPortSpyMock(AutofillOverlayPort.ContentScript);
     inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
     autofillOverlayContentService = new AutofillOverlayContentService(
-      overlayPort,
       inlineMenuFieldQualificationService,
     );
     autofillInit = new AutofillInit(autofillOverlayContentService);

@@ -2,9 +2,7 @@ import { mock } from "jest-mock-extended";
 
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 
-import { AutofillOverlayPort } from "../enums/autofill-overlay.enum";
 import AutofillScript, { FillScript, FillScriptActions } from "../models/autofill-script";
-import { createPortSpyMock } from "../spec/autofill-mocks";
 import { mockQuerySelectorAllDefinedCall } from "../spec/testing-utils";
 import { FillableFormFieldElement, FormElementWithAttribute, FormFieldElement } from "../types";
 
@@ -69,11 +67,9 @@ function setMockWindowLocation({
 }
 
 describe("InsertAutofillContentService", () => {
-  const overlayPort = createPortSpyMock(AutofillOverlayPort.ContentScript);
   const inlineMenuFieldQualificationService = mock<InlineMenuFieldQualificationService>();
   const domElementVisibilityService = new DomElementVisibilityService();
   const autofillOverlayContentService = new AutofillOverlayContentService(
-    overlayPort,
     inlineMenuFieldQualificationService,
   );
   const collectAutofillContentService = new CollectAutofillContentService(

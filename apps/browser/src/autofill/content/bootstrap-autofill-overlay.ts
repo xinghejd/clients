@@ -1,4 +1,3 @@
-import { AutofillOverlayPort } from "../enums/autofill-overlay.enum";
 import { AutofillInlineMenuContentService } from "../overlay/inline-menu/content/autofill-inline-menu-content.service";
 import { AutofillOverlayContentService } from "../services/autofill-overlay-content.service";
 import { InlineMenuFieldQualificationService } from "../services/inline-menu-field-qualification.service";
@@ -8,19 +7,17 @@ import AutofillInit from "./autofill-init";
 
 (function (windowContext) {
   if (!windowContext.bitwardenAutofillInit) {
-    const overlayPort = chrome.runtime.connect({ name: AutofillOverlayPort.ContentScript });
     const inlineMenuFieldQualificationService = new InlineMenuFieldQualificationService();
     const autofillOverlayContentService = new AutofillOverlayContentService(
-      overlayPort,
       inlineMenuFieldQualificationService,
     );
-    let autofillInlineMenuContentService: AutofillInlineMenuContentService;
+    let inlineMenuElements: AutofillInlineMenuContentService;
     if (globalThis.self === globalThis.top) {
-      autofillInlineMenuContentService = new AutofillInlineMenuContentService(overlayPort);
+      inlineMenuElements = new AutofillInlineMenuContentService();
     }
     windowContext.bitwardenAutofillInit = new AutofillInit(
       autofillOverlayContentService,
-      autofillInlineMenuContentService,
+      inlineMenuElements,
     );
     setupAutofillInitDisconnectAction(windowContext);
 
