@@ -1147,6 +1147,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       this.handleVisibilityChangeEvent,
     );
     globalThis.removeEventListener(EVENTS.FOCUSOUT, this.handleFormFieldBlurEvent);
+    globalThis.removeEventListener(EVENTS.FOCUS, this.handleSubFrameFocusInEvent);
+    globalThis.document.body.removeEventListener(
+      EVENTS.MOUSEENTER,
+      this.handleSubFrameFocusInEvent,
+    );
     this.removeOverlayRepositionEventListeners();
   }
 }
