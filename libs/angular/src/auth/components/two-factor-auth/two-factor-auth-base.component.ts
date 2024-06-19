@@ -6,8 +6,6 @@ import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.servic
   standalone: true,
 })
 export class TwoFactorAuthBaseComponent implements OnDestroy {
-  tokenValue: string = "";
-
   @Output() activeButtonTextChange = new EventEmitter<string>();
 
   constructor(protected i18nService: I18nService) {}
