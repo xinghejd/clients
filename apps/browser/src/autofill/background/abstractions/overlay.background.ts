@@ -94,21 +94,15 @@ export type BackgroundOnMessageHandlerParams = BackgroundMessageParam & Backgrou
 
 export type OverlayBackgroundExtensionMessageHandlers = {
   [key: string]: CallableFunction;
+  closeAutofillInlineMenu: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   checkIsInlineMenuCiphersPopulated: ({ sender }: BackgroundSenderParam) => void;
   updateIsFieldCurrentlyFilling: ({ message }: BackgroundMessageParam) => void;
   checkIsFieldCurrentlyFilling: () => boolean;
   getAutofillInlineMenuVisibility: () => void;
-
-  toggleAutofillInlineMenuHidden: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   checkIsAutofillInlineMenuButtonVisible: ({ sender }: BackgroundSenderParam) => void;
   checkIsAutofillInlineMenuListVisible: ({ sender }: BackgroundSenderParam) => void;
   getCurrentTabFrameId: ({ sender }: BackgroundSenderParam) => number;
-  updateSubFrameData: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
-  triggerSubFrameFocusInRebuild: ({ sender }: BackgroundSenderParam) => void;
-  destroyAutofillInlineMenuListeners: ({
-    message,
-    sender,
-  }: BackgroundOnMessageHandlerParams) => void;
+
   collectPageDetailsResponse: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   unlockCompleted: ({ message }: BackgroundMessageParam) => void;
   addedCipher: () => void;
@@ -137,18 +131,19 @@ export type OverlayContentScriptPortMessageHandlers = {
   updateFocusedFieldData: ({ message, port }: PortOnMessageHandlerParams) => void;
   updateIsFieldCurrentlyFocused: ({ message }: PortMessageParam) => void;
   openAutofillInlineMenu: () => void;
-  closeAutofillInlineMenu: ({ message, port }: PortOnMessageHandlerParams) => void;
   checkAutofillInlineMenuFocused: () => void;
   focusAutofillInlineMenuList: () => void;
   updateAutofillInlineMenuPosition: ({
     message,
     port,
   }: PortOnMessageHandlerParams) => Promise<void>;
+  updateSubFrameData: ({ message, port }: PortOnMessageHandlerParams) => void;
+  triggerSubFrameFocusInRebuild: ({ port }: PortConnectionParam) => void;
+  destroyAutofillInlineMenuListeners: ({ message, port }: PortOnMessageHandlerParams) => void;
 };
 
 export type InlineMenuButtonPortMessageHandlers = {
   [key: string]: CallableFunction;
-  closeAutofillInlineMenu: ({ message, port }: PortOnMessageHandlerParams) => void;
   triggerDelayedAutofillInlineMenuClosure: ({ port }: PortConnectionParam) => void;
   autofillInlineMenuButtonClicked: ({ port }: PortConnectionParam) => void;
   autofillInlineMenuBlurred: () => void;
@@ -158,7 +153,6 @@ export type InlineMenuButtonPortMessageHandlers = {
 
 export type InlineMenuListPortMessageHandlers = {
   [key: string]: CallableFunction;
-  closeAutofillInlineMenu: ({ message, port }: PortOnMessageHandlerParams) => void;
   checkAutofillInlineMenuButtonFocused: () => void;
   autofillInlineMenuBlurred: () => void;
   unlockVault: ({ port }: PortConnectionParam) => void;

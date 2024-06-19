@@ -76,22 +76,16 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private isFieldCurrentlyFilling: boolean = false;
   private iconsServerUrl: string;
   private readonly extensionMessageHandlers: OverlayBackgroundExtensionMessageHandlers = {
+    closeAutofillInlineMenu: ({ message, sender }) => this.closeInlineMenu(sender, message),
     checkIsInlineMenuCiphersPopulated: ({ sender }) =>
       this.checkIsInlineMenuCiphersPopulated(sender),
     updateIsFieldCurrentlyFilling: ({ message }) => this.updateIsFieldCurrentlyFilling(message),
     checkIsFieldCurrentlyFilling: () => this.checkIsFieldCurrentlyFilling(),
     getAutofillInlineMenuVisibility: () => this.getInlineMenuVisibility(),
-
-    toggleAutofillInlineMenuHidden: ({ message, sender }) =>
-      this.toggleInlineMenuHidden(message, sender),
     checkIsAutofillInlineMenuButtonVisible: ({ sender }) =>
       this.checkIsInlineMenuButtonVisible(sender),
     checkIsAutofillInlineMenuListVisible: ({ sender }) => this.checkIsInlineMenuListVisible(sender),
     getCurrentTabFrameId: ({ sender }) => this.getSenderFrameId(sender),
-    updateSubFrameData: ({ message, sender }) => this.updateSubFrameData(message, sender),
-    triggerSubFrameFocusInRebuild: ({ sender }) => this.triggerSubFrameFocusInRebuild(sender),
-    destroyAutofillInlineMenuListeners: ({ message, sender }) =>
-      this.triggerDestroyInlineMenuListeners(sender.tab, message.subFrameData.frameId),
     collectPageDetailsResponse: ({ message, sender }) => this.storePageDetails(message, sender),
     unlockCompleted: ({ message }) => this.unlockCompleted(message),
     addedCipher: () => this.updateInlineMenuCiphers(),
@@ -106,14 +100,16 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     updateFocusedFieldData: ({ message, port }) => this.setFocusedFieldData(message, port),
     updateIsFieldCurrentlyFocused: ({ message }) => this.updateIsFieldCurrentlyFocused(message),
     openAutofillInlineMenu: () => this.openInlineMenu(false),
-    closeAutofillInlineMenu: ({ message, port }) => this.closeInlineMenu(port.sender, message),
     checkAutofillInlineMenuFocused: () => this.checkInlineMenuFocused(),
     focusAutofillInlineMenuList: () => this.focusInlineMenuList(),
     updateAutofillInlineMenuPosition: ({ message, port }) =>
       this.updateInlineMenuPosition(message, port.sender),
+    updateSubFrameData: ({ message, port }) => this.updateSubFrameData(message, port),
+    triggerSubFrameFocusInRebuild: ({ port }) => this.triggerSubFrameFocusInRebuild(port),
+    destroyAutofillInlineMenuListeners: ({ message, port }) =>
+      this.triggerDestroyInlineMenuListeners(port.sender.tab, message.subFrameData.frameId),
   };
   private readonly inlineMenuButtonPortMessageHandlers: InlineMenuButtonPortMessageHandlers = {
-    closeAutofillInlineMenu: ({ message, port }) => this.closeInlineMenu(port.sender, message),
     triggerDelayedAutofillInlineMenuClosure: ({ port }) => this.triggerDelayedInlineMenuClosure(),
     autofillInlineMenuButtonClicked: ({ port }) => this.handleInlineMenuButtonClicked(port),
     autofillInlineMenuBlurred: () => this.checkInlineMenuListFocused(),
@@ -122,7 +118,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     updateAutofillInlineMenuColorScheme: () => this.updateInlineMenuButtonColorScheme(),
   };
   private readonly inlineMenuListPortMessageHandlers: InlineMenuListPortMessageHandlers = {
-    closeAutofillInlineMenu: ({ message, port }) => this.closeInlineMenu(port.sender, message),
     checkAutofillInlineMenuButtonFocused: () => this.checkInlineMenuButtonFocused(),
     autofillInlineMenuBlurred: () => this.checkInlineMenuButtonFocused(),
     unlockVault: ({ port }) => this.unlockVault(port),
@@ -330,7 +325,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    */
   private updateSubFrameData(
     message: OverlayBackgroundExtensionMessage,
-    sender: chrome.runtime.MessageSender,
+    { sender }: chrome.runtime.Port,
   ) {
     const subFrameOffsetsForTab = this.subFrameOffsetsForTab[sender.tab.id];
     if (subFrameOffsetsForTab) {
@@ -1366,7 +1361,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
   }
 
-  private async triggerSubFrameFocusInRebuild(sender: chrome.runtime.MessageSender) {
+  private async triggerSubFrameFocusInRebuild({ sender }: chrome.runtime.Port) {
     this.rebuildSubFrameOffsetsSubject.next(sender);
     this.calculateInlineMenuPositionSubject.next(sender);
   }

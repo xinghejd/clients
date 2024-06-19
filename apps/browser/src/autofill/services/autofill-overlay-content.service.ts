@@ -204,7 +204,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     this.mostRecentlyFocusedField?.blur();
 
     if (isClosingInlineMenu) {
-      this.sendPortMessage("closeAutofillInlineMenu");
+      void this.sendExtensionMessage("closeAutofillInlineMenu");
     }
   }
 
@@ -249,7 +249,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     if (direction === RedirectFocusDirection.Current) {
       this.focusMostRecentlyFocusedField();
       this.closeInlineMenuOnRedirectTimeout = globalThis.setTimeout(
-        () => this.sendPortMessage("closeAutofillInlineMenu"),
+        () => this.sendExtensionMessage("closeAutofillInlineMenu"),
         100,
       );
       return;
@@ -361,7 +361,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private handleFormFieldKeyupEvent = async (event: KeyboardEvent) => {
     const eventCode = event.code;
     if (eventCode === "Escape") {
-      this.sendPortMessage("closeAutofillInlineMenu", {
+      void this.sendExtensionMessage("closeAutofillInlineMenu", {
         forceCloseInlineMenu: true,
       });
       return;
@@ -427,7 +427,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     this.storeModifiedFormElement(formFieldElement);
 
     if (await this.hideInlineMenuListOnFilledField(formFieldElement)) {
-      this.sendPortMessage("closeAutofillInlineMenu", {
+      void this.sendExtensionMessage("closeAutofillInlineMenu", {
         overlayElement: AutofillOverlayElement.List,
         forceCloseInlineMenu: true,
       });
@@ -519,7 +519,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       (initiallyFocusedField !== this.mostRecentlyFocusedField &&
         (await this.hideInlineMenuListOnFilledField(formFieldElement as FillableFormFieldElement)))
     ) {
-      this.sendPortMessage("closeAutofillInlineMenu", {
+      void this.sendExtensionMessage("closeAutofillInlineMenu", {
         overlayElement: AutofillOverlayElement.List,
         forceCloseInlineMenu: true,
       });
@@ -573,19 +573,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private updateInlineMenuListPosition() {
     this.sendPortMessage("updateAutofillInlineMenuPosition", {
       overlayElement: AutofillOverlayElement.List,
-    });
-  }
-
-  /**
-   * Sends a message that facilitates hiding the inline menu elements.
-   *
-   * @param isHidden - Indicates if the inline menu elements should be hidden.
-   * @param setTransparentInlineMenu - Indicates if the inline menu is closing.
-   */
-  private toggleInlineMenuHidden(isHidden: boolean, setTransparentInlineMenu: boolean = false) {
-    void this.sendExtensionMessage("toggleAutofillInlineMenuHidden", {
-      isInlineMenuHidden: isHidden,
-      setTransparentInlineMenu,
     });
   }
 
@@ -938,7 +925,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
 
     subFrameData.subFrameDepth++;
     if (subFrameData.subFrameDepth >= MAX_SUB_FRAME_DEPTH) {
-      void this.sendExtensionMessage("destroyAutofillInlineMenuListeners", { subFrameData });
+      this.sendPortMessage("destroyAutofillInlineMenuListeners", { subFrameData });
       return;
     }
 
@@ -970,7 +957,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    void this.sendExtensionMessage("updateSubFrameData", { subFrameData });
+    this.sendPortMessage("updateSubFrameData", { subFrameData });
   };
 
   /**
@@ -1007,7 +994,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     this.unsetMostRecentlyFocusedField();
-    this.sendPortMessage("closeAutofillInlineMenu", {
+    void this.sendExtensionMessage("closeAutofillInlineMenu", {
       forceCloseInlineMenu: true,
     });
   };
@@ -1075,7 +1062,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   };
 
   private handleSubFrameFocusInEvent = () => {
-    void this.sendExtensionMessage("triggerSubFrameFocusInRebuild");
+    this.sendPortMessage("triggerSubFrameFocusInRebuild");
 
     globalThis.removeEventListener(EVENTS.FOCUS, this.handleSubFrameFocusInEvent);
     globalThis.document.body.removeEventListener(
