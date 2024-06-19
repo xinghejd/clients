@@ -72,6 +72,7 @@ export class TwoFactorAuthEmailComponent extends TwoFactorAuthEmailBaseComponent
       });
       if (confirmed) {
         await BrowserPopupUtils.openCurrentPagePopout(window);
+        return;
       }
     }
 
