@@ -53,11 +53,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private focusableElements: FocusableElement[] = [];
   private mostRecentlyFocusedField: ElementWithOpId<FormFieldElement>;
   private focusedFieldData: FocusedFieldData;
-  private userInteractionEventTimeout: number | NodeJS.Timeout;
-  private recalculateSubFrameOffsetsTimeout: number | NodeJS.Timeout;
   private closeInlineMenuOnRedirectTimeout: number | NodeJS.Timeout;
   private focusInlineMenuListTimeout: number | NodeJS.Timeout;
-  private closeInlineMenuOnFilledFieldTimeout: number | NodeJS.Timeout;
   private eventHandlersMemo: { [key: string]: EventListener } = {};
   private readonly extensionMessageHandlers: AutofillOverlayContentExtensionMessageHandlers = {
     openAutofillInlineMenu: ({ message }) => this.openInlineMenu(message),
@@ -510,13 +507,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     await this.sendExtensionMessage("updateIsFieldCurrentlyFocused", {
       isFieldCurrentlyFocused: true,
     });
-    if (this.userInteractionEventTimeout) {
-      this.clearUserInteractionEventTimeout();
-      void this.toggleInlineMenuHidden(false, true);
-      void this.sendExtensionMessage("closeAutofillInlineMenu", {
-        forceCloseInlineMenu: true,
-      });
-    }
     const initiallyFocusedField = this.mostRecentlyFocusedField;
     await this.updateMostRecentlyFocusedField(formFieldElement);
 
@@ -579,19 +569,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private updateInlineMenuListPosition() {
     void this.sendExtensionMessage("updateAutofillInlineMenuPosition", {
       overlayElement: AutofillOverlayElement.List,
-    });
-  }
-
-  /**
-   * Sends a message that facilitates hiding the inline menu elements.
-   *
-   * @param isHidden - Indicates if the inline menu elements should be hidden.
-   * @param setTransparentInlineMenu - Indicates if the inline menu is closing.
-   */
-  private toggleInlineMenuHidden(isHidden: boolean, setTransparentInlineMenu: boolean = false) {
-    void this.sendExtensionMessage("toggleAutofillInlineMenuHidden", {
-      isInlineMenuHidden: isHidden,
-      setTransparentInlineMenu,
     });
   }
 
@@ -1118,32 +1095,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     );
   }
 
-  /**
-   * Clears the user interaction event timeout. This is used to ensure that
-   * the overlay is not repositioned while the user is interacting with it.
-   */
-  private clearUserInteractionEventTimeout() {
-    if (this.userInteractionEventTimeout) {
-      globalThis.clearTimeout(this.userInteractionEventTimeout);
-      this.userInteractionEventTimeout = null;
-    }
-  }
-
-  private clearCloseInlineMenuOnFilledFieldTimeout() {
-    if (this.closeInlineMenuOnFilledFieldTimeout) {
-      globalThis.clearTimeout(this.closeInlineMenuOnFilledFieldTimeout);
-    }
-  }
-
-  /**
-   * Clears the timeout that facilitates recalculating the sub frame offsets.
-   */
-  private clearRecalculateSubFrameOffsetsTimeout() {
-    if (this.recalculateSubFrameOffsetsTimeout) {
-      globalThis.clearTimeout(this.recalculateSubFrameOffsetsTimeout);
-    }
-  }
-
   private clearFocusInlineMenuListTimeout() {
     if (this.focusInlineMenuListTimeout) {
       globalThis.clearTimeout(this.focusInlineMenuListTimeout);
@@ -1157,9 +1108,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   }
 
   private clearAllTimeouts() {
-    this.clearUserInteractionEventTimeout();
-    this.clearCloseInlineMenuOnFilledFieldTimeout();
-    this.clearRecalculateSubFrameOffsetsTimeout();
     this.clearFocusInlineMenuListTimeout();
     this.clearCloseInlineMenuOnRedirectTimeout();
   }
