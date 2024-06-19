@@ -43,7 +43,9 @@ import {
 
 import { CaptchaProtectedComponent } from "../captcha-protected.component";
 
+import { TwoFactorAuthAuthenticatorComponent } from "./two-factor-auth-authenticator.component";
 import { TwoFactorAuthBaseComponent } from "./two-factor-auth-base.component";
+import { TwoFactorAuthEmailComponent } from "./two-factor-auth-email.component";
 import { TwoFactorAuthModule } from "./two-factor-auth.module";
 import {
   TwoFactorOptionsDialogResult,
@@ -75,6 +77,8 @@ import {
     LinkModule,
     IconModule,
     TwoFactorAuthModule,
+    TwoFactorAuthAuthenticatorComponent,
+    TwoFactorAuthEmailComponent,
   ],
   providers: [I18nPipe],
 })

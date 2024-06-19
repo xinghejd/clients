@@ -13,9 +13,7 @@ import {
   AsyncActionsModule,
 } from "@bitwarden/components";
 
-import { TwoFactorAuthAuthenticatorComponent } from "./two-factor-auth-authenticator.component";
 import { TwoFactorAuthDuoComponent } from "./two-factor-auth-duo.component";
-import { TwoFactorAuthEmailComponent } from "./two-factor-auth-email.component";
 import { TwoFactorAuthWebAuthnComponent } from "./two-factor-auth-webauthn.component";
 import { TwoFactorAuthYubikeyComponent } from "./two-factor-auth-yubikey.component";
 
@@ -35,15 +33,11 @@ import { TwoFactorAuthYubikeyComponent } from "./two-factor-auth-yubikey.compone
   providers: [I18nPipe],
   declarations: [
     TwoFactorAuthDuoComponent,
-    TwoFactorAuthAuthenticatorComponent,
-    TwoFactorAuthEmailComponent,
     TwoFactorAuthWebAuthnComponent,
     TwoFactorAuthYubikeyComponent,
   ],
   exports: [
     TwoFactorAuthDuoComponent,
-    TwoFactorAuthAuthenticatorComponent,
-    TwoFactorAuthEmailComponent,
     TwoFactorAuthWebAuthnComponent,
     TwoFactorAuthYubikeyComponent,
   ],
