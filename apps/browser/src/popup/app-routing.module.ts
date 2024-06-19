@@ -9,6 +9,8 @@ import {
   unauthGuardFn,
 } from "@bitwarden/angular/auth/guards";
 
+import { TwoFactorAuthComponent } from "../../../../libs/angular/src/auth/components/two-factor-auth/two-factor-auth.component";
+import { AnonLayoutWrapperComponent } from "../../../../libs/auth/src/angular/anon-layout/anon-layout-wrapper.component";
 import { fido2AuthGuard } from "../auth/guards/fido2-auth.guard";
 import { AccountSwitcherComponent } from "../auth/popup/account-switching/account-switcher.component";
 import { EnvironmentComponent } from "../auth/popup/environment.component";
@@ -23,8 +25,6 @@ import { RemovePasswordComponent } from "../auth/popup/remove-password.component
 import { SetPasswordComponent } from "../auth/popup/set-password.component";
 import { AccountSecurityComponent } from "../auth/popup/settings/account-security.component";
 import { SsoComponent } from "../auth/popup/sso.component";
-import { TwoFactorOptionsComponent } from "../auth/popup/two-factor-options.component";
-import { TwoFactorComponent } from "../auth/popup/two-factor.component";
 import { UpdateTempPasswordComponent } from "../auth/popup/update-temp-password.component";
 import { AutofillComponent } from "../autofill/popup/settings/autofill.component";
 import { ExcludedDomainsComponent } from "../autofill/popup/settings/excluded-domains.component";
@@ -128,16 +128,22 @@ const routes: Routes = [
   },
   {
     path: "2fa",
-    component: TwoFactorComponent,
+    component: AnonLayoutWrapperComponent,
     canActivate: [unauthGuardFn(unauthRouteOverrides)],
     data: { state: "2fa" },
+    children: [
+      {
+        path: "",
+        component: TwoFactorAuthComponent,
+      },
+    ],
   },
-  {
-    path: "2fa-options",
-    component: TwoFactorOptionsComponent,
-    canActivate: [unauthGuardFn(unauthRouteOverrides)],
-    data: { state: "2fa-options" },
-  },
+  // {
+  //   path: "2fa-options",
+  //   component: TwoFactorOptionsComponent,
+  //   canActivate: [unauthGuardFn(unauthRouteOverrides)],
+  //   data: { state: "2fa-options" },
+  // },
   {
     path: "login-initiated",
     component: LoginDecryptionOptionsComponent,
