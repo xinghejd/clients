@@ -80,6 +80,15 @@ import {
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class TwoFactorAuthComponent extends CaptchaProtectedComponent implements OnInit {
+  token = "";
+  remember = false;
+  orgIdentifier: string = null;
+
+  providers = TwoFactorProviders;
+  providerType = TwoFactorProviderType;
+  selectedProviderType: TwoFactorProviderType = TwoFactorProviderType.Authenticator;
+  providerData: any;
+
   @ViewChild("twoFactorOptions", { read: ViewContainerRef, static: true })
   twoFactorOptionsModal: ViewContainerRef;
   formGroup = this.formBuilder.group({
@@ -92,17 +101,11 @@ export class TwoFactorAuthComponent extends CaptchaProtectedComponent implements
     ],
     remember: [false],
   });
-  private destroy$ = new Subject<void>();
-  providerData: any;
   actionButtonText = "";
-  token = "";
-  remember = false;
-  providers = TwoFactorProviders;
-  providerType = TwoFactorProviderType;
-  selectedProviderType: TwoFactorProviderType = TwoFactorProviderType.Authenticator;
   title = "";
   formPromise: Promise<any>;
-  orgIdentifier: string = null;
+
+  private destroy$ = new Subject<void>();
 
   onSuccessfulLogin: () => Promise<void>;
   onSuccessfulLoginNavigate: () => Promise<void>;
@@ -110,19 +113,26 @@ export class TwoFactorAuthComponent extends CaptchaProtectedComponent implements
   onSuccessfulLoginTde: () => Promise<void>;
   onSuccessfulLoginTdeNavigate: () => Promise<void>;
 
+  submitForm = async () => {
+    await this.submit();
+  };
+  goAfterLogIn = async () => {
+    this.loginEmailService.clearValues();
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    this.router.navigate([this.successRoute], {
+      queryParams: {
+        identifier: this.orgIdentifier,
+      },
+    });
+  };
+
   protected loginRoute = "login";
 
   protected trustedDeviceEncRoute = "login-initiated";
   protected changePasswordRoute = "set-password";
   protected forcePasswordResetRoute = "update-temp-password";
   protected successRoute = "vault";
-
-  get isDuoProvider(): boolean {
-    return (
-      this.selectedProviderType === TwoFactorProviderType.Duo ||
-      this.selectedProviderType === TwoFactorProviderType.OrganizationDuo
-    );
-  }
 
   constructor(
     protected loginStrategyService: LoginStrategyServiceAbstraction,
@@ -168,73 +178,13 @@ export class TwoFactorAuthComponent extends CaptchaProtectedComponent implements
 
     const webAuthnSupported = this.platformUtilsService.supportsWebAuthn(this.win);
     this.selectedProviderType = await this.twoFactorService.getDefaultProvider(webAuthnSupported);
-    await this.init();
+    await this.updateUIToProviderData();
 
     this.actionButtonText = this.i18nService.t("continue");
     this.formGroup.valueChanges.pipe(takeUntil(this.destroy$)).subscribe((value) => {
       this.token = value.token;
       this.remember = value.remember;
     });
-  }
-
-  submitForm = async () => {
-    await this.submit();
-  };
-
-  async anotherMethod() {
-    const dialogRef = TwoFactorOptionsComponent.open(this.dialogService);
-    const response: TwoFactorOptionsDialogResultType = await lastValueFrom(dialogRef.closed);
-    if (response.result === TwoFactorOptionsDialogResult.Provider) {
-      this.selectedProviderType = response.type;
-      const providerData = await this.twoFactorService.getProviders().then((providers) => {
-        return providers.get(this.selectedProviderType);
-      });
-      this.providerData = providerData;
-      await this.init();
-    }
-  }
-
-  protected handleMigrateEncryptionKey(result: AuthResult): boolean {
-    if (!result.requiresEncryptionKeyMigration) {
-      return false;
-    }
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.router.navigate(["migrate-legacy-encryption"]);
-    return true;
-  }
-
-  // protected handleMigrateEncryptionKey(result: AuthResult): boolean {
-  //   if (!result.requiresEncryptionKeyMigration) {
-  //     return false;
-  //   }
-  //
-  //   this.platformUtilsService.showToast(
-  //     "error",
-  //     this.i18nService.t("errorOccured"),
-  //     this.i18nService.t("encryptionKeyMigrationRequired"),
-  //   );
-  //   return true;
-  // }
-
-  goAfterLogIn = async () => {
-    this.loginEmailService.clearValues();
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.router.navigate([this.successRoute], {
-      queryParams: {
-        identifier: this.orgIdentifier,
-      },
-    });
-  };
-
-  async init() {
-    if (this.selectedProviderType == null) {
-      this.title = this.i18nService.t("loginUnavailable");
-      return;
-    }
-
-    this.title = (TwoFactorProviders as any)[this.selectedProviderType].name;
   }
 
   async submit() {
@@ -259,6 +209,38 @@ export class TwoFactorAuthComponent extends CaptchaProtectedComponent implements
     } catch {
       this.logService.error("Error submitting two factor token");
     }
+  }
+
+  async selectOtherTwofactorMethod() {
+    const dialogRef = TwoFactorOptionsComponent.open(this.dialogService);
+    const response: TwoFactorOptionsDialogResultType = await lastValueFrom(dialogRef.closed);
+    if (response.result === TwoFactorOptionsDialogResult.Provider) {
+      this.selectedProviderType = response.type;
+      const providerData = await this.twoFactorService.getProviders().then((providers) => {
+        return providers.get(this.selectedProviderType);
+      });
+      this.providerData = providerData;
+      await this.updateUIToProviderData();
+    }
+  }
+
+  protected handleMigrateEncryptionKey(result: AuthResult): boolean {
+    if (!result.requiresEncryptionKeyMigration) {
+      return false;
+    }
+    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+    this.router.navigate(["migrate-legacy-encryption"]);
+    return true;
+  }
+
+  async updateUIToProviderData() {
+    if (this.selectedProviderType == null) {
+      this.title = this.i18nService.t("loginUnavailable");
+      return;
+    }
+
+    this.title = (TwoFactorProviders as any)[this.selectedProviderType].name;
   }
 
   private async handleLoginResponse(authResult: AuthResult) {
