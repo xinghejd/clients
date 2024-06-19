@@ -68,7 +68,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private delayedCloseTimeout: number | NodeJS.Timeout;
   private startInlineMenuFadeInSubject = new Subject<void>();
   private cancelInlineMenuFadeInSubject = new Subject<boolean>();
-  private calculateInlineMenuPositionSubject = new Subject<chrome.runtime.MessageSender>();
+  private repositionInlineMenuSubject = new Subject<chrome.runtime.MessageSender>();
   private updateInlineMenuPositionSubject = new Subject<chrome.runtime.MessageSender>();
   private rebuildSubFrameOffsetsSubject = new Subject<chrome.runtime.MessageSender>();
   private focusedFieldData: FocusedFieldData;
@@ -155,7 +155,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   private initOverlayObservables() {
-    this.calculateInlineMenuPositionSubject
+    this.repositionInlineMenuSubject
       .pipe(
         debounceTime(500),
         switchMap((sender) => this.repositionInlineMenu(sender)),
@@ -830,7 +830,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         authStatus: await this.getAuthStatus(),
       },
       {
-        frameId: this.focusedFieldData?.tabId === currentTab.id ? this.focusedFieldData.frameId : 0,
+        frameId:
+          this.focusedFieldData?.tabId === currentTab?.id ? this.focusedFieldData.frameId : 0,
       },
     );
   }
@@ -1357,13 +1358,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private async triggerOverlayReposition({ sender }: chrome.runtime.Port) {
     if (await this.checkShouldRepositionInlineMenu(sender)) {
       await this.toggleInlineMenuHidden({ isInlineMenuHidden: true }, sender);
-      this.calculateInlineMenuPositionSubject.next(sender);
+      this.repositionInlineMenuSubject.next(sender);
     }
   }
 
   private async triggerSubFrameFocusInRebuild({ sender }: chrome.runtime.Port) {
     this.rebuildSubFrameOffsetsSubject.next(sender);
-    this.calculateInlineMenuPositionSubject.next(sender);
+    this.repositionInlineMenuSubject.next(sender);
   }
 
   private repositionInlineMenu = async (sender: chrome.runtime.MessageSender) => {
