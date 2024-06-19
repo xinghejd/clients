@@ -68,8 +68,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private delayedCloseTimeout: number | NodeJS.Timeout;
   private startInlineMenuFadeInSubject = new Subject<void>();
   private cancelInlineMenuFadeInSubject = new Subject<boolean>();
+  private startUpdateInlineMenuPositionSubject = new Subject<chrome.runtime.MessageSender>();
+  private cancelUpdateInlineMenuPositionSubject = new Subject<void>();
   private repositionInlineMenuSubject = new Subject<chrome.runtime.MessageSender>();
-  private updateInlineMenuPositionSubject = new Subject<chrome.runtime.MessageSender>();
   private rebuildSubFrameOffsetsSubject = new Subject<chrome.runtime.MessageSender>();
   private focusedFieldData: FocusedFieldData;
   private isFieldCurrentlyFocused: boolean = false;
@@ -161,17 +162,18 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         switchMap((sender) => this.repositionInlineMenu(sender)),
       )
       .subscribe();
-    this.updateInlineMenuPositionSubject
-      .pipe(
-        debounceTime(250),
-        switchMap((sender) => this.updateInlineMenuPositionAfterRepositionEvent(sender)),
-      )
-      .subscribe();
     this.rebuildSubFrameOffsetsSubject
       .pipe(
-        throttleTime(600),
+        throttleTime(650),
         switchMap((sender) => this.rebuildSubFrameOffsets(sender)),
       )
+      .subscribe();
+
+    merge(
+      this.startUpdateInlineMenuPositionSubject.pipe(debounceTime(150)),
+      this.cancelUpdateInlineMenuPositionSubject,
+    )
+      .pipe(switchMap((sender) => this.updateInlineMenuPositionAfterRepositionEvent(sender)))
       .subscribe();
 
     // FadeIn Observable behavior
@@ -449,8 +451,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    *
    * @param sender - The sender of the message
    */
-  private async updateInlineMenuPositionAfterRepositionEvent(sender: chrome.runtime.MessageSender) {
-    if (!this.isFieldCurrentlyFocused) {
+  private async updateInlineMenuPositionAfterRepositionEvent(
+    sender: chrome.runtime.MessageSender | void,
+  ) {
+    if (!sender || !this.isFieldCurrentlyFocused) {
       return;
     }
 
@@ -1363,7 +1367,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   private async triggerSubFrameFocusInRebuild({ sender }: chrome.runtime.Port) {
-    this.rebuildSubFrameOffsetsSubject.next(sender);
+    await this.rebuildSubFrameOffsets(sender);
+    this.cancelUpdateInlineMenuPositionSubject.next();
     this.repositionInlineMenuSubject.next(sender);
   }
 
@@ -1387,7 +1392,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       this.rebuildSubFrameOffsetsSubject.next(sender);
     }
 
-    this.updateInlineMenuPositionSubject.next(sender);
+    this.startUpdateInlineMenuPositionSubject.next(sender);
   };
 
   private async closeInlineMenuAfterReposition(sender: chrome.runtime.MessageSender) {
