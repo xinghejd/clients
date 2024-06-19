@@ -77,11 +77,16 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private isFieldCurrentlyFilling: boolean = false;
   private iconsServerUrl: string;
   private readonly extensionMessageHandlers: OverlayBackgroundExtensionMessageHandlers = {
+    triggerAutofillOverlayReposition: ({ sender }) => this.triggerOverlayReposition(sender),
     checkIsInlineMenuCiphersPopulated: ({ sender }) =>
       this.checkIsInlineMenuCiphersPopulated(sender),
+    updateFocusedFieldData: ({ message, sender }) => this.setFocusedFieldData(message, sender),
+    updateIsFieldCurrentlyFocused: ({ message }) => this.updateIsFieldCurrentlyFocused(message),
+    checkIsFieldCurrentlyFocused: () => this.checkIsFieldCurrentlyFocused(),
     updateIsFieldCurrentlyFilling: ({ message }) => this.updateIsFieldCurrentlyFilling(message),
     checkIsFieldCurrentlyFilling: () => this.checkIsFieldCurrentlyFilling(),
     getAutofillInlineMenuVisibility: () => this.getInlineMenuVisibility(),
+    openAutofillInlineMenu: () => this.openInlineMenu(false),
     closeAutofillInlineMenu: ({ message, sender }) => this.closeInlineMenu(sender, message),
     checkAutofillInlineMenuFocused: () => this.checkInlineMenuFocused(),
     focusAutofillInlineMenuList: () => this.focusInlineMenuList(),
@@ -107,10 +112,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private readonly contentScriptPortMessageHandlers: OverlayContentScriptPortMessageHandlers = {
     autofillOverlayElementClosed: ({ message, port }) => this.overlayElementClosed(message, port),
     autofillOverlayAddNewVaultItem: ({ message, port }) => this.addNewVaultItem(message, port),
-    triggerAutofillOverlayReposition: ({ port }) => this.triggerOverlayReposition(port),
-    updateFocusedFieldData: ({ message, port }) => this.setFocusedFieldData(message, port),
-    updateIsFieldCurrentlyFocused: ({ message }) => this.updateIsFieldCurrentlyFocused(message),
-    openAutofillInlineMenu: () => this.openInlineMenu(false),
   };
   private readonly inlineMenuButtonPortMessageHandlers: InlineMenuButtonPortMessageHandlers = {
     triggerDelayedAutofillInlineMenuClosure: ({ port }) => this.triggerDelayedInlineMenuClosure(),
@@ -617,13 +618,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * the list and button ports and sets them to null.
    *
    * @param overlayElement - The overlay element that was closed, either the list or button
-   * @param sender - The sender of the port message
+   * @param port - The port that sent the message
    */
   private overlayElementClosed(
     { overlayElement }: OverlayBackgroundExtensionMessage,
-    { sender }: chrome.runtime.Port,
+    port: chrome.runtime.Port,
   ) {
-    if (sender.tab.id !== this.focusedFieldData?.tabId) {
+    if (port.sender.tab.id !== this.focusedFieldData?.tabId) {
       this.expiredPorts.forEach((port) => port.disconnect());
       this.expiredPorts = [];
       return;
@@ -765,11 +766,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Sets the focused field data to the data passed in the extension message.
    *
    * @param focusedFieldData - Contains the rects and styles of the focused field.
-   * @param sender - The sender of the port message
+   * @param sender - The sender of the extension message
    */
   private setFocusedFieldData(
     { focusedFieldData }: OverlayBackgroundExtensionMessage,
-    { sender }: chrome.runtime.Port,
+    sender: chrome.runtime.MessageSender,
   ) {
     if (this.focusedFieldData?.frameId && this.focusedFieldData.frameId !== sender.frameId) {
       void BrowserApi.tabSendMessage(
@@ -1019,12 +1020,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * data captured in the extension message.
    *
    * @param login - The login data captured from the extension message
-   * @param sender - The sender of the port message
+   * @param port - The content script port
    */
-  private async addNewVaultItem(
-    { login }: OverlayAddNewItemMessage,
-    { sender }: chrome.runtime.Port,
-  ) {
+  private async addNewVaultItem({ login }: OverlayAddNewItemMessage, port: chrome.runtime.Port) {
     if (!login) {
       return;
     }
@@ -1048,7 +1046,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       collectionIds: cipherView.collectionIds,
     });
 
-    await this.openAddEditVaultItemPopout(sender.tab, { cipherId: cipherView.id });
+    await this.openAddEditVaultItemPopout(port.sender.tab, { cipherId: cipherView.id });
     await BrowserApi.sendMessage("inlineAutofillMenuRefreshAddEditCipher");
   }
 
@@ -1059,6 +1057,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    */
   private updateIsFieldCurrentlyFocused(message: OverlayBackgroundExtensionMessage) {
     this.isFieldCurrentlyFocused = message.isFieldCurrentlyFocused;
+  }
+
+  /**
+   * Allows a content script to check if a form field setup for the inline menu is currently focused.
+   */
+  private checkIsFieldCurrentlyFocused() {
+    return this.isFieldCurrentlyFocused;
   }
 
   /**
@@ -1361,7 +1366,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
   };
 
-  private async triggerOverlayReposition({ sender }: chrome.runtime.Port) {
+  private async triggerOverlayReposition(sender: chrome.runtime.MessageSender) {
     if (await this.checkShouldRepositionInlineMenu(sender)) {
       await this.toggleInlineMenuHidden({ isInlineMenuHidden: true }, sender);
       this.repositionInlineMenuSubject.next(sender);

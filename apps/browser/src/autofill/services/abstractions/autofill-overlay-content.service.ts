@@ -1,7 +1,6 @@
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
 import {
-  FocusedFieldData,
   OverlayAddNewItemMessage,
   SubFrameOffsetData,
 } from "../../background/abstractions/overlay.background";
@@ -42,8 +41,6 @@ export type AutofillOverlayContentExtensionMessageHandlers = {
 export type AutofillOverlayContentExtensionMessage = {
   command: string;
   overlayElement?: AutofillOverlayElementType;
-  focusedFieldData?: FocusedFieldData;
-  isFieldCurrentlyFocused?: boolean;
 } & OverlayAddNewItemMessage;
 
 export interface AutofillOverlayContentService {

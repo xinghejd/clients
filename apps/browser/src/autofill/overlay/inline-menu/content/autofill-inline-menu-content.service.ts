@@ -425,7 +425,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    */
   private sendPortMessage(
     command: string,
-    message: Omit<AutofillOverlayContentExtensionMessage, "command"> = {},
+    message: Omit<AutofillOverlayContentExtensionMessage, "command">,
   ) {
     this.port.postMessage({ command, ...message });
   }
