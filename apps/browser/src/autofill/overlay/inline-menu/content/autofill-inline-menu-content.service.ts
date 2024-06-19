@@ -1,10 +1,7 @@
 import { AutofillExtensionMessage } from "../../../content/abstractions/autofill-init";
 import { AutofillOverlayElement } from "../../../enums/autofill-overlay.enum";
-import {
-  sendExtensionMessage,
-  generateRandomCustomElementName,
-  setElementStyles,
-} from "../../../utils";
+import { AutofillOverlayContentExtensionMessage } from "../../../services/abstractions/autofill-overlay-content.service";
+import { generateRandomCustomElementName, setElementStyles } from "../../../utils";
 import {
   InlineMenuExtensionMessageHandlers,
   AutofillInlineMenuContentService as AutofillInlineMenuContentServiceInterface,
@@ -13,7 +10,6 @@ import { AutofillInlineMenuButtonIframe } from "../iframe-content/autofill-inlin
 import { AutofillInlineMenuListIframe } from "../iframe-content/autofill-inline-menu-list-iframe";
 
 export class AutofillInlineMenuContentService implements AutofillInlineMenuContentServiceInterface {
-  private readonly sendExtensionMessage = sendExtensionMessage;
   private readonly generateRandomCustomElementName = generateRandomCustomElementName;
   private readonly setElementStyles = setElementStyles;
   private isFirefoxBrowser =
@@ -427,7 +423,10 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * @param command - The command to send through the port.
    * @param message - The message to send through the port.
    */
-  private sendPortMessage(command: string, message: Omit<AutofillExtensionMessage, "command">) {
+  private sendPortMessage(
+    command: string,
+    message: Omit<AutofillOverlayContentExtensionMessage, "command">,
+  ) {
     this.port.postMessage({ command, ...message });
   }
 

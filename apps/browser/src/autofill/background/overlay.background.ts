@@ -76,7 +76,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private isFieldCurrentlyFilling: boolean = false;
   private iconsServerUrl: string;
   private readonly extensionMessageHandlers: OverlayBackgroundExtensionMessageHandlers = {
-    autofillOverlayAddNewVaultItem: ({ message, sender }) => this.addNewVaultItem(message, sender),
     triggerAutofillOverlayReposition: ({ sender }) => this.triggerOverlayReposition(sender),
     checkIsInlineMenuCiphersPopulated: ({ sender }) =>
       this.checkIsInlineMenuCiphersPopulated(sender),
@@ -111,6 +110,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   };
   private readonly contentScriptPortMessageHandlers: OverlayContentScriptPortMessageHandlers = {
     autofillOverlayElementClosed: ({ message, port }) => this.overlayElementClosed(message, port),
+    autofillOverlayAddNewVaultItem: ({ message, port }) => this.addNewVaultItem(message, port),
   };
   private readonly inlineMenuButtonPortMessageHandlers: InlineMenuButtonPortMessageHandlers = {
     triggerDelayedAutofillInlineMenuClosure: ({ port }) => this.triggerDelayedInlineMenuClosure(),
@@ -1015,12 +1015,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * data captured in the extension message.
    *
    * @param login - The login data captured from the extension message
-   * @param sender - The sender of the extension message
+   * @param port - The content script port
    */
-  private async addNewVaultItem(
-    { login }: OverlayAddNewItemMessage,
-    sender: chrome.runtime.MessageSender,
-  ) {
+  private async addNewVaultItem({ login }: OverlayAddNewItemMessage, port: chrome.runtime.Port) {
     if (!login) {
       return;
     }
@@ -1044,7 +1041,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       collectionIds: cipherView.collectionIds,
     });
 
-    await this.openAddEditVaultItemPopout(sender.tab, { cipherId: cipherView.id });
+    await this.openAddEditVaultItemPopout(port.sender.tab, { cipherId: cipherView.id });
     await BrowserApi.sendMessage("inlineAutofillMenuRefreshAddEditCipher");
   }
 

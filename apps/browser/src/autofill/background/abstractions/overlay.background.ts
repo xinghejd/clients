@@ -94,8 +94,6 @@ export type BackgroundOnMessageHandlerParams = BackgroundMessageParam & Backgrou
 
 export type OverlayBackgroundExtensionMessageHandlers = {
   [key: string]: CallableFunction;
-
-  autofillOverlayAddNewVaultItem: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   triggerAutofillOverlayReposition: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   checkIsInlineMenuCiphersPopulated: ({ sender }: BackgroundSenderParam) => void;
   updateFocusedFieldData: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
@@ -146,6 +144,7 @@ export type PortOnMessageHandlerParams = PortMessageParam & PortConnectionParam;
 export type OverlayContentScriptPortMessageHandlers = {
   [key: string]: CallableFunction;
   autofillOverlayElementClosed: ({ message, port }: PortOnMessageHandlerParams) => void;
+  autofillOverlayAddNewVaultItem: ({ message, port }: PortOnMessageHandlerParams) => void;
 };
 
 export type InlineMenuButtonPortMessageHandlers = {
