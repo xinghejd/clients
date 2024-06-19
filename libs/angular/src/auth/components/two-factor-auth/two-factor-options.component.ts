@@ -1,17 +1,14 @@
 import { DialogRef } from "@angular/cdk/dialog";
 import { CommonModule } from "@angular/common";
-import { Component } from "@angular/core";
+import { Component, EventEmitter, OnInit, Output } from "@angular/core";
 import { ReactiveFormsModule, FormsModule } from "@angular/forms";
-import { Router } from "@angular/router";
+import { firstValueFrom } from "rxjs";
 
-import { TwoFactorOptionsComponent as BaseTwoFactorOptionsComponent } from "@bitwarden/angular/auth/components/two-factor-options.component";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
-import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
 import {
   AsyncActionsModule,
   ButtonModule,
@@ -50,25 +47,33 @@ export type TwoFactorOptionsDialogResultType = {
   ],
   providers: [I18nPipe],
 })
-export class TwoFactorOptionsComponent extends BaseTwoFactorOptionsComponent {
+export class TwoFactorOptionsComponent implements OnInit {
+  @Output() onProviderSelected = new EventEmitter<TwoFactorProviderType>();
+  @Output() onRecoverSelected = new EventEmitter();
+
+  providers: any[] = [];
+  platformUtilsService: any;
+
   constructor(
-    twoFactorService: TwoFactorService,
-    router: Router,
-    i18nService: I18nService,
-    platformUtilsService: PlatformUtilsService,
-    environmentService: EnvironmentService,
+    private twoFactorService: TwoFactorService,
+    private environmentService: EnvironmentService,
     private dialogRef: DialogRef,
-  ) {
-    super(twoFactorService, router, i18nService, platformUtilsService, window, environmentService);
+  ) {}
+
+  async ngOnInit() {
+    this.providers = await this.twoFactorService.getSupportedProviders(window);
   }
 
   async choose(p: any) {
-    await super.choose(p);
+    this.onProviderSelected.emit(p.type);
     this.dialogRef.close({ result: TwoFactorOptionsDialogResult.Provider, type: p.type });
   }
 
   async recover() {
-    await super.recover();
+    const env = await firstValueFrom(this.environmentService.environment$);
+    const webVault = env.getWebVaultUrl();
+    this.platformUtilsService.launchUri(webVault + "/#/recover-2fa");
+    this.onRecoverSelected.emit();
     this.dialogRef.close({ result: TwoFactorOptionsDialogResult.Recover });
   }
 
