@@ -181,6 +181,14 @@ export class DefaultEnvironmentService implements EnvironmentService {
     return PRODUCTION_REGIONS.concat(additionalRegions);
   }
 
+  userEnvironment$(userId: UserId): Observable<Environment> {
+    return this.stateProvider
+      .getUser(userId, USER_ENVIRONMENT_KEY)
+      .state$.pipe(
+        map((environment) => this.buildEnvironment(environment?.region, environment?.urls)),
+      );
+  }
+
   /**
    * Get the region configuration for the given region.
    */
