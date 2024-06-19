@@ -94,15 +94,10 @@ export type BackgroundOnMessageHandlerParams = BackgroundMessageParam & Backgrou
 
 export type OverlayBackgroundExtensionMessageHandlers = {
   [key: string]: CallableFunction;
-  triggerAutofillOverlayReposition: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   checkIsInlineMenuCiphersPopulated: ({ sender }: BackgroundSenderParam) => void;
-  updateFocusedFieldData: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
-  updateIsFieldCurrentlyFocused: ({ message }: BackgroundMessageParam) => void;
-  checkIsFieldCurrentlyFocused: () => boolean;
   updateIsFieldCurrentlyFilling: ({ message }: BackgroundMessageParam) => void;
   checkIsFieldCurrentlyFilling: () => boolean;
   getAutofillInlineMenuVisibility: () => void;
-  openAutofillInlineMenu: () => void;
   closeAutofillInlineMenu: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   checkAutofillInlineMenuFocused: () => void;
   focusAutofillInlineMenuList: () => void;
@@ -132,7 +127,6 @@ export type OverlayPortMessage = OverlayBackgroundExtensionMessage & {
   direction?: string;
   inlineMenuCipherId?: string;
 };
-
 export type PortMessageParam = {
   message: OverlayPortMessage;
 };
@@ -145,6 +139,10 @@ export type OverlayContentScriptPortMessageHandlers = {
   [key: string]: CallableFunction;
   autofillOverlayElementClosed: ({ message, port }: PortOnMessageHandlerParams) => void;
   autofillOverlayAddNewVaultItem: ({ message, port }: PortOnMessageHandlerParams) => void;
+  triggerAutofillOverlayReposition: ({ port }: PortConnectionParam) => void;
+  updateFocusedFieldData: ({ message, port }: PortOnMessageHandlerParams) => void;
+  updateIsFieldCurrentlyFocused: ({ message }: PortMessageParam) => void;
+  openAutofillInlineMenu: () => void;
 };
 
 export type InlineMenuButtonPortMessageHandlers = {

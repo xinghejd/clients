@@ -347,7 +347,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * is currently focused.
    */
   private handleFormFieldBlurEvent = () => {
-    void this.sendExtensionMessage("updateIsFieldCurrentlyFocused", {
+    this.sendPortMessage("updateIsFieldCurrentlyFocused", {
       isFieldCurrentlyFocused: false,
     });
     void this.sendExtensionMessage("checkAutofillInlineMenuFocused");
@@ -371,7 +371,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     if (eventCode === "Enter" && !(await this.isFieldCurrentlyFilling())) {
-      void this.handleOverlayRepositionEvent();
+      this.handleOverlayRepositionEvent();
       return;
     }
 
@@ -511,7 +511,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    await this.sendExtensionMessage("updateIsFieldCurrentlyFocused", {
+    this.sendPortMessage("updateIsFieldCurrentlyFocused", {
       isFieldCurrentlyFocused: true,
     });
     if (this.userInteractionEventTimeout) {
@@ -540,7 +540,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    void this.sendExtensionMessage("openAutofillInlineMenu");
+    this.sendPortMessage("openAutofillInlineMenu");
   }
 
   /**
@@ -621,7 +621,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       focusedFieldRects: { width, height, top, left },
     };
 
-    await this.sendExtensionMessage("updateFocusedFieldData", {
+    this.sendPortMessage("updateFocusedFieldData", {
       focusedFieldData: this.focusedFieldData,
     });
   }
@@ -1071,8 +1071,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * Handles the resize or scroll events that enact
    * repositioning of existing overlay elements.
    */
-  private handleOverlayRepositionEvent = async () => {
-    await this.sendExtensionMessage("triggerAutofillOverlayReposition");
+  private handleOverlayRepositionEvent = () => {
+    this.sendPortMessage("triggerAutofillOverlayReposition");
   };
 
   private setupRebuildSubFrameOffsetsListeners = () => {
@@ -1130,7 +1130,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   private sendPortMessage(
     command: string,
-    message: Omit<AutofillOverlayContentExtensionMessage, "command">,
+    message: Omit<AutofillOverlayContentExtensionMessage, "command"> = {},
   ) {
     this.port.postMessage({ command, ...message });
   }

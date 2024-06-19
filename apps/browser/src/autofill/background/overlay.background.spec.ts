@@ -790,24 +790,6 @@ describe("OverlayBackground", () => {
       });
     });
 
-    describe("checkIsFieldCurrentlyFocused message handler", () => {
-      it("returns true when a form field is currently focused", async () => {
-        sendMockExtensionMessage({
-          command: "updateIsFieldCurrentlyFocused",
-          isFieldCurrentlyFocused: true,
-        });
-
-        sendMockExtensionMessage(
-          { command: "checkIsFieldCurrentlyFocused" },
-          mock<chrome.runtime.MessageSender>(),
-          sendResponse,
-        );
-        await flushPromises();
-
-        expect(sendResponse).toHaveBeenCalledWith(true);
-      });
-    });
-
     describe("checkIsFieldCurrentlyFilling message handler", () => {
       it("returns true if autofill is currently running", async () => {
         sendMockExtensionMessage({
