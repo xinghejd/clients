@@ -1,19 +1,47 @@
+import { DialogModule } from "@angular/cdk/dialog";
+import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Inject, Output } from "@angular/core";
+import { ReactiveFormsModule, FormsModule } from "@angular/forms";
+import { ActivatedRoute } from "@angular/router";
 import { firstValueFrom } from "rxjs";
 
+import { JslibModule } from "@bitwarden/angular/jslib.module";
+import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { WINDOW } from "@bitwarden/angular/services/injection-tokens";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
 import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import { WebAuthnIFrame } from "@bitwarden/common/auth/webauthn-iframe";
+import { ClientType } from "@bitwarden/common/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import {
+  ButtonModule,
+  LinkModule,
+  TypographyModule,
+  FormFieldModule,
+  AsyncActionsModule,
+} from "@bitwarden/components";
 
 import { TwoFactorAuthBaseComponent } from "./two-factor-auth-base.component";
 
 @Component({
+  standalone: true,
   selector: "app-two-factor-auth-webauthn",
   templateUrl: "two-factor-auth-webauthn.component.html",
+  imports: [
+    CommonModule,
+    JslibModule,
+    DialogModule,
+    ButtonModule,
+    LinkModule,
+    TypographyModule,
+    ReactiveFormsModule,
+    FormFieldModule,
+    AsyncActionsModule,
+    FormsModule,
+  ],
+  providers: [I18nPipe],
 })
 export class TwoFactorAuthWebAuthnComponent extends TwoFactorAuthBaseComponent {
   @Output() token = new EventEmitter<string>();
@@ -29,13 +57,23 @@ export class TwoFactorAuthWebAuthnComponent extends TwoFactorAuthBaseComponent {
     @Inject(WINDOW) protected win: Window,
     protected environmentService: EnvironmentService,
     protected twoFactorService: TwoFactorService,
+    protected route: ActivatedRoute,
   ) {
     super(i18nService);
 
     this.webAuthnSupported = this.platformUtilsService.supportsWebAuthn(win);
+
+    if (this.platformUtilsService.getClientType() == ClientType.Browser) {
+      // FIXME: Chromium 110 has broken WebAuthn support in extensions via an iframe
+      this.webAuthnNewTab = true;
+    }
   }
 
   async ngOnInit(): Promise<void> {
+    if (this.route.snapshot.paramMap.has("webAuthnResponse")) {
+      this.token.emit(this.route.snapshot.paramMap.get("webAuthnResponse"));
+    }
+
     this.cleanupWebAuthn();
 
     if (this.win != null && this.webAuthnSupported) {

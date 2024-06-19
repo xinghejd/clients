@@ -45,8 +45,10 @@ import { CaptchaProtectedComponent } from "../captcha-protected.component";
 
 import { TwoFactorAuthAuthenticatorComponent } from "./two-factor-auth-authenticator.component";
 import { TwoFactorAuthBaseComponent } from "./two-factor-auth-base.component";
+import { TwoFactorAuthDuoComponent } from "./two-factor-auth-duo.component";
 import { TwoFactorAuthEmailComponent } from "./two-factor-auth-email.component";
-import { TwoFactorAuthModule } from "./two-factor-auth.module";
+import { TwoFactorAuthWebAuthnComponent } from "./two-factor-auth-webauthn.component";
+import { TwoFactorAuthYubikeyComponent } from "./two-factor-auth-yubikey.component";
 import {
   TwoFactorOptionsDialogResult,
   TwoFactorOptionsComponent,
@@ -76,9 +78,11 @@ import {
     ButtonModule,
     LinkModule,
     IconModule,
-    TwoFactorAuthModule,
     TwoFactorAuthAuthenticatorComponent,
     TwoFactorAuthEmailComponent,
+    TwoFactorAuthDuoComponent,
+    TwoFactorAuthYubikeyComponent,
+    TwoFactorAuthWebAuthnComponent,
   ],
   providers: [I18nPipe],
 })

@@ -6,8 +6,10 @@ import { RouterLink } from "@angular/router";
 
 import { TwoFactorAuthAuthenticatorComponent } from "@bitwarden/angular/auth/components/two-factor-auth/two-factor-auth-authenticator.component";
 import { TwoFactorAuthBaseComponent } from "@bitwarden/angular/auth/components/two-factor-auth/two-factor-auth-base.component";
+import { TwoFactorAuthDuoComponent } from "@bitwarden/angular/auth/components/two-factor-auth/two-factor-auth-duo.component";
+import { TwoFactorAuthWebAuthnComponent } from "@bitwarden/angular/auth/components/two-factor-auth/two-factor-auth-webauthn.component";
+import { TwoFactorAuthYubikeyComponent } from "@bitwarden/angular/auth/components/two-factor-auth/two-factor-auth-yubikey.component";
 import { TwoFactorAuthComponent as BaseTwoFactorAuthComponent } from "@bitwarden/angular/auth/components/two-factor-auth/two-factor-auth.component";
-import { TwoFactorAuthModule } from "@bitwarden/angular/auth/components/two-factor-auth/two-factor-auth.module";
 import { TwoFactorOptionsComponent } from "@bitwarden/angular/auth/components/two-factor-auth/two-factor-options.component";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
@@ -49,7 +51,9 @@ import { TwoFactorAuthEmailComponent } from "./two-factor-auth-email.component";
     IconModule,
     TwoFactorAuthEmailComponent,
     TwoFactorAuthAuthenticatorComponent,
-    TwoFactorAuthModule,
+    TwoFactorAuthYubikeyComponent,
+    TwoFactorAuthDuoComponent,
+    TwoFactorAuthWebAuthnComponent,
   ],
   providers: [I18nPipe],
 })
