@@ -79,7 +79,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     destroyAutofillInlineMenuListeners: () => this.destroy(),
   };
 
-  constructor(private inlineMenuFieldQualificationService: InlineMenuFieldQualificationService) {}
+  constructor(
+    private port: chrome.runtime.Port,
+    private inlineMenuFieldQualificationService: InlineMenuFieldQualificationService,
+  ) {}
 
   /**
    * Initializes the autofill overlay content service by setting up the mutation observers.

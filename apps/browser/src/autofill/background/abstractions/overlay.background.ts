@@ -73,13 +73,6 @@ export type OverlayBackgroundExtensionMessage = {
   CloseInlineMenuMessage &
   ToggleInlineMenuHiddenMessage;
 
-export type OverlayPortMessage = {
-  [key: string]: any;
-  command: string;
-  direction?: string;
-  inlineMenuCipherId?: string;
-};
-
 export type InlineMenuCipherData = {
   id: string;
   name: string;
@@ -101,7 +94,7 @@ export type BackgroundOnMessageHandlerParams = BackgroundMessageParam & Backgrou
 
 export type OverlayBackgroundExtensionMessageHandlers = {
   [key: string]: CallableFunction;
-  autofillOverlayElementClosed: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
+
   autofillOverlayAddNewVaultItem: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   triggerAutofillOverlayReposition: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   checkIsInlineMenuCiphersPopulated: ({ sender }: BackgroundSenderParam) => void;
@@ -137,6 +130,11 @@ export type OverlayBackgroundExtensionMessageHandlers = {
   deletedCipher: () => void;
 };
 
+export type OverlayPortMessage = OverlayBackgroundExtensionMessage & {
+  direction?: string;
+  inlineMenuCipherId?: string;
+};
+
 export type PortMessageParam = {
   message: OverlayPortMessage;
 };
@@ -144,6 +142,11 @@ export type PortConnectionParam = {
   port: chrome.runtime.Port;
 };
 export type PortOnMessageHandlerParams = PortMessageParam & PortConnectionParam;
+
+export type OverlayContentScriptPortMessageHandlers = {
+  [key: string]: CallableFunction;
+  autofillOverlayElementClosed: ({ message, port }: PortOnMessageHandlerParams) => void;
+};
 
 export type InlineMenuButtonPortMessageHandlers = {
   [key: string]: CallableFunction;

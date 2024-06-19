@@ -41,7 +41,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     checkIsAutofillInlineMenuListVisible: () => this.isInlineMenuListVisible(),
   };
 
-  constructor() {
+  constructor(private port: chrome.runtime.Port) {
     this.setupMutationObserver();
   }
 
@@ -115,7 +115,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     if (this.buttonElement) {
       this.buttonElement.remove();
       this.isButtonVisible = false;
-      void this.sendExtensionMessage("autofillOverlayElementClosed", {
+      this.sendPortMessage("autofillOverlayElementClosed", {
         overlayElement: AutofillOverlayElement.Button,
       });
     }
@@ -128,7 +128,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     if (this.listElement) {
       this.listElement.remove();
       this.isListVisible = false;
-      void this.sendExtensionMessage("autofillOverlayElementClosed", {
+      this.sendPortMessage("autofillOverlayElementClosed", {
         overlayElement: AutofillOverlayElement.List,
       });
     }
@@ -419,6 +419,16 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     }
 
     return false;
+  }
+
+  /**
+   * Sends a message through the port to the background script.
+   *
+   * @param command - The command to send through the port.
+   * @param message - The message to send through the port.
+   */
+  private sendPortMessage(command: string, message: Omit<AutofillExtensionMessage, "command">) {
+    this.port.postMessage({ command, ...message });
   }
 
   /**
