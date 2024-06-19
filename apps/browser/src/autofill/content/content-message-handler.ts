@@ -94,21 +94,19 @@ function handleWindowMessageEvent(event: MessageEvent) {
 }
 
 /**
- * Handles messages from BroadcastChannel. Consumers must
- * send a reference to the source window in the messsage data.
+ * Handles messages from BroadcastChannel.
  *
  * @param event - The channel message event
  */
 function handleChannelMessage(event: MessageEvent) {
   const { data } = event;
-  const referrer = data?.source?.location?.hostname;
-  if (!data?.command || !referrer) {
+  if (!data?.command) {
     return;
   }
 
   const handler = windowMessageHandlers[data.command];
   if (handler) {
-    handler({ data, referrer: data.referrer });
+    handler({ data, referrer: data.source });
   }
 }
 

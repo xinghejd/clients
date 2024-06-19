@@ -30,7 +30,7 @@ function initiateBrowserSso(code: string, state: string, lastpass: boolean) {
     code: code,
     state: state,
     lastpass: lastpass,
-    source: window,
+    source: window.location.hostname,
   });
   channel.close();
 
