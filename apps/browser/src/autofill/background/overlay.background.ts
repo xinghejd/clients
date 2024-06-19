@@ -83,6 +83,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     checkIsFieldCurrentlyFilling: () => this.checkIsFieldCurrentlyFilling(),
     getAutofillInlineMenuVisibility: () => this.getInlineMenuVisibility(),
 
+    updateAutofillInlineMenuPosition: ({ message, sender }) =>
+      this.updateInlineMenuPosition(message, sender),
     toggleAutofillInlineMenuHidden: ({ message, sender }) =>
       this.toggleInlineMenuHidden(message, sender),
     checkIsAutofillInlineMenuButtonVisible: ({ sender }) =>
@@ -110,8 +112,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     closeAutofillInlineMenu: ({ message, port }) => this.closeInlineMenu(port.sender, message),
     checkAutofillInlineMenuFocused: () => this.checkInlineMenuFocused(),
     focusAutofillInlineMenuList: () => this.focusInlineMenuList(),
-    updateAutofillInlineMenuPosition: ({ message, port }) =>
-      this.updateInlineMenuPosition(message, port.sender),
   };
   private readonly inlineMenuButtonPortMessageHandlers: InlineMenuButtonPortMessageHandlers = {
     closeAutofillInlineMenu: ({ message, port }) => this.closeInlineMenu(port.sender, message),

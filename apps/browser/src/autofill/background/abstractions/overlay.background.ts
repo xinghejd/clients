@@ -99,6 +99,10 @@ export type OverlayBackgroundExtensionMessageHandlers = {
   checkIsFieldCurrentlyFilling: () => boolean;
   getAutofillInlineMenuVisibility: () => void;
 
+  updateAutofillInlineMenuPosition: ({
+    message,
+    sender,
+  }: BackgroundOnMessageHandlerParams) => Promise<void>;
   toggleAutofillInlineMenuHidden: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   checkIsAutofillInlineMenuButtonVisible: ({ sender }: BackgroundSenderParam) => void;
   checkIsAutofillInlineMenuListVisible: ({ sender }: BackgroundSenderParam) => void;
@@ -140,10 +144,6 @@ export type OverlayContentScriptPortMessageHandlers = {
   closeAutofillInlineMenu: ({ message, port }: PortOnMessageHandlerParams) => void;
   checkAutofillInlineMenuFocused: () => void;
   focusAutofillInlineMenuList: () => void;
-  updateAutofillInlineMenuPosition: ({
-    message,
-    port,
-  }: PortOnMessageHandlerParams) => Promise<void>;
 };
 
 export type InlineMenuButtonPortMessageHandlers = {

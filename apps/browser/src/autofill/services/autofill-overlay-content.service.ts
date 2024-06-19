@@ -562,7 +562,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * Updates the position of the inline menu button.
    */
   private updateInlineMenuButtonPosition() {
-    this.sendPortMessage("updateAutofillInlineMenuPosition", {
+    void this.sendExtensionMessage("updateAutofillInlineMenuPosition", {
       overlayElement: AutofillOverlayElement.Button,
     });
   }
@@ -571,7 +571,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * Updates the position of the inline menu list.
    */
   private updateInlineMenuListPosition() {
-    this.sendPortMessage("updateAutofillInlineMenuPosition", {
+    void this.sendExtensionMessage("updateAutofillInlineMenuPosition", {
       overlayElement: AutofillOverlayElement.List,
     });
   }
