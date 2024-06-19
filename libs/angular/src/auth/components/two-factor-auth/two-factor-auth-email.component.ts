@@ -54,7 +54,7 @@ export class TwoFactorAuthEmailComponent extends TwoFactorAuthBaseComponent {
 
   constructor(
     protected i18nService: I18nService,
-    private twoFactorService: TwoFactorService,
+    protected twoFactorService: TwoFactorService,
     protected loginStrategyService: LoginStrategyServiceAbstraction,
     protected platformUtilsService: PlatformUtilsService,
     protected logService: LogService,
