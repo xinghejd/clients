@@ -38,12 +38,8 @@ import {
   TypographyModule,
 } from "@bitwarden/components";
 
-import { TwoFactorAuthAuthenticatorComponent } from "./two-factor-auth-authenticator.component";
 import { TwoFactorAuthBaseComponent } from "./two-factor-auth-base.component";
-import { TwoFactorAuthDuoComponent } from "./two-factor-auth-duo.component";
-import { TwoFactorAuthEmailComponent } from "./two-factor-auth-email.component";
-import { TwoFactorAuthWebAuthnComponent } from "./two-factor-auth-webauthn.component";
-import { TwoFactorAuthYubikeyComponent } from "./two-factor-auth-yubikey.component";
+import { TwoFactorAuthModule } from "./two-factor-auth.module";
 import {
   TwoFactorOptionsDialogResult,
   TwoFactorOptionsComponent,
@@ -66,11 +62,6 @@ import {
     AsyncActionsModule,
     RouterLink,
     TwoFactorAuthBaseComponent,
-    TwoFactorAuthEmailComponent,
-    TwoFactorAuthYubikeyComponent,
-    TwoFactorAuthAuthenticatorComponent,
-    TwoFactorAuthWebAuthnComponent,
-    TwoFactorAuthDuoComponent,
     TwoFactorOptionsComponent,
     FormFieldModule,
     AsyncActionsModule,
@@ -78,6 +69,7 @@ import {
     ButtonModule,
     LinkModule,
     IconModule,
+    TwoFactorAuthModule,
   ],
   providers: [I18nPipe],
 })

@@ -1,9 +1,5 @@
-import { CommonModule } from "@angular/common";
 import { Component, EventEmitter, Output } from "@angular/core";
-import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 
-import { JslibModule } from "@bitwarden/angular/jslib.module";
-import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
 import { LoginStrategyServiceAbstraction } from "@bitwarden/auth/common";
 import { ApiService } from "@bitwarden/common/abstractions/api.service";
 import { TwoFactorService } from "@bitwarden/common/auth/abstractions/two-factor.service";
@@ -13,34 +9,12 @@ import { AppIdService } from "@bitwarden/common/platform/abstractions/app-id.ser
 import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
-import {
-  AsyncActionsModule,
-  ButtonModule,
-  DialogModule,
-  FormFieldModule,
-  LinkModule,
-  TypographyModule,
-} from "@bitwarden/components";
 
 import { TwoFactorAuthBaseComponent } from "./two-factor-auth-base.component";
 
 @Component({
-  standalone: true,
   selector: "app-two-factor-auth-email",
   templateUrl: "two-factor-auth-email.component.html",
-  imports: [
-    CommonModule,
-    JslibModule,
-    DialogModule,
-    ButtonModule,
-    LinkModule,
-    TypographyModule,
-    ReactiveFormsModule,
-    FormFieldModule,
-    AsyncActionsModule,
-    FormsModule,
-  ],
-  providers: [I18nPipe],
 })
 export class TwoFactorAuthEmailComponent extends TwoFactorAuthBaseComponent {
   @Output() token = new EventEmitter<string>();
