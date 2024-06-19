@@ -19,6 +19,4 @@ export class TwoFactorAuthYubikeyComponent extends TwoFactorAuthBaseComponent {
   async ngOnInit(): Promise<void> {
     this.activeButtonTextChange.emit(this.i18nService.t("continue"));
   }
-
-  ngOnDestroy(): void {}
 }
