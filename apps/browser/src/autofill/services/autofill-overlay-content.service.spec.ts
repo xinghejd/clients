@@ -905,17 +905,6 @@ describe("AutofillOverlayContentService", () => {
       });
     });
 
-    it("clears the user interaction timeout", async () => {
-      jest.useFakeTimers();
-      const clearTimeoutSpy = jest.spyOn(globalThis, "clearTimeout");
-      autofillOverlayContentService["userInteractionEventTimeout"] = setTimeout(jest.fn(), 123);
-
-      globalThis.dispatchEvent(new Event(EVENTS.SCROLL));
-      await flushPromises();
-
-      expect(clearTimeoutSpy).toHaveBeenCalledWith(expect.anything());
-    });
-
     it("removes the overlay completely if the field is not focused", async () => {
       jest.useFakeTimers();
       jest
@@ -1693,14 +1682,6 @@ describe("AutofillOverlayContentService", () => {
         pageDetailsMock,
       );
       autofillOverlayContentService["mostRecentlyFocusedField"] = autofillFieldElement;
-    });
-
-    it("clears the user interaction event timeout", () => {
-      jest.spyOn(autofillOverlayContentService as any, "clearUserInteractionEventTimeout");
-
-      autofillOverlayContentService.destroy();
-
-      expect(autofillOverlayContentService["clearUserInteractionEventTimeout"]).toHaveBeenCalled();
     });
 
     it("de-registers all global event listeners", () => {
