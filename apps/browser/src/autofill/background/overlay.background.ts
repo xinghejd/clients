@@ -82,7 +82,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     updateIsFieldCurrentlyFilling: ({ message }) => this.updateIsFieldCurrentlyFilling(message),
     checkIsFieldCurrentlyFilling: () => this.checkIsFieldCurrentlyFilling(),
     getAutofillInlineMenuVisibility: () => this.getInlineMenuVisibility(),
-
+    closeAutofillInlineMenu: ({ message, sender }) => this.closeInlineMenu(sender, message),
+    checkAutofillInlineMenuFocused: () => this.checkInlineMenuFocused(),
+    focusAutofillInlineMenuList: () => this.focusInlineMenuList(),
     updateAutofillInlineMenuPosition: ({ message, sender }) =>
       this.updateInlineMenuPosition(message, sender),
     toggleAutofillInlineMenuHidden: ({ message, sender }) =>
@@ -109,12 +111,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     updateFocusedFieldData: ({ message, port }) => this.setFocusedFieldData(message, port),
     updateIsFieldCurrentlyFocused: ({ message }) => this.updateIsFieldCurrentlyFocused(message),
     openAutofillInlineMenu: () => this.openInlineMenu(false),
-    closeAutofillInlineMenu: ({ message, port }) => this.closeInlineMenu(port.sender, message),
-    checkAutofillInlineMenuFocused: () => this.checkInlineMenuFocused(),
-    focusAutofillInlineMenuList: () => this.focusInlineMenuList(),
   };
   private readonly inlineMenuButtonPortMessageHandlers: InlineMenuButtonPortMessageHandlers = {
-    closeAutofillInlineMenu: ({ message, port }) => this.closeInlineMenu(port.sender, message),
     triggerDelayedAutofillInlineMenuClosure: ({ port }) => this.triggerDelayedInlineMenuClosure(),
     autofillInlineMenuButtonClicked: ({ port }) => this.handleInlineMenuButtonClicked(port),
     autofillInlineMenuBlurred: () => this.checkInlineMenuListFocused(),
@@ -123,7 +121,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     updateAutofillInlineMenuColorScheme: () => this.updateInlineMenuButtonColorScheme(),
   };
   private readonly inlineMenuListPortMessageHandlers: InlineMenuListPortMessageHandlers = {
-    closeAutofillInlineMenu: ({ message, port }) => this.closeInlineMenu(port.sender, message),
     checkAutofillInlineMenuButtonFocused: () => this.checkInlineMenuButtonFocused(),
     autofillInlineMenuBlurred: () => this.checkInlineMenuButtonFocused(),
     unlockVault: ({ port }) => this.unlockVault(port),

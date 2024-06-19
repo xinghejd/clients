@@ -44,7 +44,6 @@ export type AutofillOverlayContentExtensionMessage = {
   overlayElement?: AutofillOverlayElementType;
   focusedFieldData?: FocusedFieldData;
   isFieldCurrentlyFocused?: boolean;
-  forceCloseInlineMenu?: boolean;
 } & OverlayAddNewItemMessage;
 
 export interface AutofillOverlayContentService {

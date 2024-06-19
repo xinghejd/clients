@@ -54,8 +54,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private focusableElements: FocusableElement[] = [];
   private mostRecentlyFocusedField: ElementWithOpId<FormFieldElement>;
   private focusedFieldData: FocusedFieldData;
+  private userInteractionEventTimeout: number | NodeJS.Timeout;
+  private recalculateSubFrameOffsetsTimeout: number | NodeJS.Timeout;
   private closeInlineMenuOnRedirectTimeout: number | NodeJS.Timeout;
   private focusInlineMenuListTimeout: number | NodeJS.Timeout;
+  private closeInlineMenuOnFilledFieldTimeout: number | NodeJS.Timeout;
   private eventHandlersMemo: { [key: string]: EventListener } = {};
   private readonly extensionMessageHandlers: AutofillOverlayContentExtensionMessageHandlers = {
     openAutofillInlineMenu: ({ message }) => this.openInlineMenu(message),
@@ -204,7 +207,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     this.mostRecentlyFocusedField?.blur();
 
     if (isClosingInlineMenu) {
-      this.sendPortMessage("closeAutofillInlineMenu");
+      void this.sendExtensionMessage("closeAutofillInlineMenu");
     }
   }
 
@@ -249,7 +252,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     if (direction === RedirectFocusDirection.Current) {
       this.focusMostRecentlyFocusedField();
       this.closeInlineMenuOnRedirectTimeout = globalThis.setTimeout(
-        () => this.sendPortMessage("closeAutofillInlineMenu"),
+        () => void this.sendExtensionMessage("closeAutofillInlineMenu"),
         100,
       );
       return;
@@ -347,7 +350,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     this.sendPortMessage("updateIsFieldCurrentlyFocused", {
       isFieldCurrentlyFocused: false,
     });
-    this.sendPortMessage("checkAutofillInlineMenuFocused");
+    void this.sendExtensionMessage("checkAutofillInlineMenuFocused");
   };
 
   /**
@@ -361,7 +364,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private handleFormFieldKeyupEvent = async (event: KeyboardEvent) => {
     const eventCode = event.code;
     if (eventCode === "Escape") {
-      this.sendPortMessage("closeAutofillInlineMenu", {
+      void this.sendExtensionMessage("closeAutofillInlineMenu", {
         forceCloseInlineMenu: true,
       });
       return;
@@ -391,13 +394,13 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       await this.updateMostRecentlyFocusedField(this.mostRecentlyFocusedField);
       this.openInlineMenu({ isOpeningFullInlineMenu: true });
       this.focusInlineMenuListTimeout = globalThis.setTimeout(
-        () => this.sendPortMessage("focusAutofillInlineMenuList"),
+        () => this.sendExtensionMessage("focusAutofillInlineMenuList"),
         125,
       );
       return;
     }
 
-    this.sendPortMessage("focusAutofillInlineMenuList");
+    void this.sendExtensionMessage("focusAutofillInlineMenuList");
   }
 
   /**
@@ -427,7 +430,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     this.storeModifiedFormElement(formFieldElement);
 
     if (await this.hideInlineMenuListOnFilledField(formFieldElement)) {
-      this.sendPortMessage("closeAutofillInlineMenu", {
+      void this.sendExtensionMessage("closeAutofillInlineMenu", {
         overlayElement: AutofillOverlayElement.List,
         forceCloseInlineMenu: true,
       });
@@ -511,6 +514,13 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     this.sendPortMessage("updateIsFieldCurrentlyFocused", {
       isFieldCurrentlyFocused: true,
     });
+    if (this.userInteractionEventTimeout) {
+      this.clearUserInteractionEventTimeout();
+      void this.toggleInlineMenuHidden(false, true);
+      void this.sendExtensionMessage("closeAutofillInlineMenu", {
+        forceCloseInlineMenu: true,
+      });
+    }
     const initiallyFocusedField = this.mostRecentlyFocusedField;
     await this.updateMostRecentlyFocusedField(formFieldElement);
 
@@ -519,7 +529,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       (initiallyFocusedField !== this.mostRecentlyFocusedField &&
         (await this.hideInlineMenuListOnFilledField(formFieldElement as FillableFormFieldElement)))
     ) {
-      this.sendPortMessage("closeAutofillInlineMenu", {
+      await this.sendExtensionMessage("closeAutofillInlineMenu", {
         overlayElement: AutofillOverlayElement.List,
         forceCloseInlineMenu: true,
       });
@@ -1007,7 +1017,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     this.unsetMostRecentlyFocusedField();
-    this.sendPortMessage("closeAutofillInlineMenu", {
+    void this.sendExtensionMessage("closeAutofillInlineMenu", {
       forceCloseInlineMenu: true,
     });
   };
@@ -1125,6 +1135,32 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     this.port.postMessage({ command, ...message });
   }
 
+  /**
+   * Clears the user interaction event timeout. This is used to ensure that
+   * the overlay is not repositioned while the user is interacting with it.
+   */
+  private clearUserInteractionEventTimeout() {
+    if (this.userInteractionEventTimeout) {
+      globalThis.clearTimeout(this.userInteractionEventTimeout);
+      this.userInteractionEventTimeout = null;
+    }
+  }
+
+  private clearCloseInlineMenuOnFilledFieldTimeout() {
+    if (this.closeInlineMenuOnFilledFieldTimeout) {
+      globalThis.clearTimeout(this.closeInlineMenuOnFilledFieldTimeout);
+    }
+  }
+
+  /**
+   * Clears the timeout that facilitates recalculating the sub frame offsets.
+   */
+  private clearRecalculateSubFrameOffsetsTimeout() {
+    if (this.recalculateSubFrameOffsetsTimeout) {
+      globalThis.clearTimeout(this.recalculateSubFrameOffsetsTimeout);
+    }
+  }
+
   private clearFocusInlineMenuListTimeout() {
     if (this.focusInlineMenuListTimeout) {
       globalThis.clearTimeout(this.focusInlineMenuListTimeout);
@@ -1138,6 +1174,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   }
 
   private clearAllTimeouts() {
+    this.clearUserInteractionEventTimeout();
+    this.clearCloseInlineMenuOnFilledFieldTimeout();
+    this.clearRecalculateSubFrameOffsetsTimeout();
     this.clearFocusInlineMenuListTimeout();
     this.clearCloseInlineMenuOnRedirectTimeout();
   }

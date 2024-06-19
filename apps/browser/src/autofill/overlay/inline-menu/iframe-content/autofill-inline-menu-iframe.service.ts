@@ -1,7 +1,7 @@
 import { EVENTS } from "@bitwarden/common/autofill/constants";
 import { ThemeType } from "@bitwarden/common/platform/enums";
 
-import { setElementStyles } from "../../../utils";
+import { sendExtensionMessage, setElementStyles } from "../../../utils";
 import {
   BackgroundPortMessageHandlers,
   AutofillInlineMenuIframeService as AutofillInlineMenuIframeServiceInterface,
@@ -10,6 +10,7 @@ import {
 
 export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframeServiceInterface {
   private readonly setElementStyles = setElementStyles;
+  private readonly sendExtensionMessage = sendExtensionMessage;
   private port: chrome.runtime.Port | null = null;
   private portKey: string;
   private iframeMutationObserver: MutationObserver;
@@ -304,7 +305,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
    * mutation observer is triggered excessively.
    */
   private forceCloseInlineMenu() {
-    void this.port.postMessage({ command: "closeAutofillInlineMenu", forceClose: true });
+    void this.sendExtensionMessage("closeAutofillInlineMenu", { forceClose: true });
   }
 
   private handleFadeInInlineMenuIframe() {
