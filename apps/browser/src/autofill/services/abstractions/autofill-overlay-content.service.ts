@@ -1,11 +1,7 @@
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
-import {
-  OverlayAddNewItemMessage,
-  SubFrameOffsetData,
-} from "../../background/abstractions/overlay.background";
+import { SubFrameOffsetData } from "../../background/abstractions/overlay.background";
 import { AutofillExtensionMessageParam } from "../../content/abstractions/autofill-init";
-import { AutofillOverlayElementType } from "../../enums/autofill-overlay.enum";
 import AutofillField from "../../models/autofill-field";
 import AutofillPageDetails from "../../models/autofill-page-details";
 import { ElementWithOpId, FormFieldElement } from "../../types";
@@ -37,11 +33,6 @@ export type AutofillOverlayContentExtensionMessageHandlers = {
   setupRebuildSubFrameOffsetsListeners: () => void;
   destroyAutofillInlineMenuListeners: () => void;
 };
-
-export type AutofillOverlayContentExtensionMessage = {
-  command: string;
-  overlayElement?: AutofillOverlayElementType;
-} & OverlayAddNewItemMessage;
 
 export interface AutofillOverlayContentService {
   pageDetailsUpdateRequired: boolean;

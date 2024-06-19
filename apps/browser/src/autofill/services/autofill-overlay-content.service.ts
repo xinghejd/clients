@@ -31,7 +31,6 @@ import {
 } from "../utils";
 
 import {
-  AutofillOverlayContentExtensionMessage,
   AutofillOverlayContentExtensionMessageHandlers,
   AutofillOverlayContentService as AutofillOverlayContentServiceInterface,
   OpenAutofillInlineMenuOptions,
@@ -234,7 +233,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       hostname: globalThis.document.location.hostname,
     };
 
-    this.sendPortMessage("autofillOverlayAddNewVaultItem", { login });
+    void this.sendExtensionMessage("autofillOverlayAddNewVaultItem", { login });
   }
 
   /**
@@ -1120,19 +1119,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       focusedFieldRectsTop < viewportHeight &&
       focusedFieldRectsBottom < viewportHeight
     );
-  }
-
-  /**
-   * Sends a message through the port to the background script.
-   *
-   * @param command - The command to send through the port.
-   * @param message - The message to send through the port.
-   */
-  private sendPortMessage(
-    command: string,
-    message: Omit<AutofillOverlayContentExtensionMessage, "command">,
-  ) {
-    this.port.postMessage({ command, ...message });
   }
 
   /**
