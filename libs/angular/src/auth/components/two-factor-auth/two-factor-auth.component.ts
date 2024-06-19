@@ -205,9 +205,15 @@ export class TwoFactorAuthComponent extends CaptchaProtectedComponent implements
         this.captchaToken,
       );
       const authResult: AuthResult = await this.formPromise;
+      this.logService.info("Successfully submitted two factor token");
       await this.handleLoginResponse(authResult);
     } catch {
       this.logService.error("Error submitting two factor token");
+      this.platformUtilsService.showToast(
+        "error",
+        this.i18nService.t("errorOccurred"),
+        this.i18nService.t("invalidVerificationCode"),
+      );
     }
   }
 
