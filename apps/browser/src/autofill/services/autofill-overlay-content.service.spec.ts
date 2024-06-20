@@ -14,7 +14,7 @@ import AutofillForm from "../models/autofill-form";
 import AutofillPageDetails from "../models/autofill-page-details";
 import { createAutofillFieldMock } from "../spec/autofill-mocks";
 import { flushPromises, postWindowMessage, sendMockExtensionMessage } from "../spec/testing-utils";
-import { ElementWithOpId, FillableFormFieldElement, FormFieldElement } from "../types";
+import { ElementWithOpId, FormFieldElement } from "../types";
 
 import { AutoFillConstants } from "./autofill-constants";
 import { AutofillOverlayContentService } from "./autofill-overlay-content.service";
@@ -861,149 +861,13 @@ describe("AutofillOverlayContentService", () => {
   });
 
   describe("handleOverlayRepositionEvent", () => {
-    let checkShouldRepositionInlineMenuSpy: jest.SpyInstance;
+    const repositionEvents = [EVENTS.SCROLL, EVENTS.RESIZE];
+    repositionEvents.forEach((repositionEvent) => {
+      it(`sends a message trigger overlay reposition message to the background when a ${repositionEvent} event occurs`, async () => {
+        globalThis.dispatchEvent(new Event(repositionEvent));
+        await flushPromises();
 
-    beforeEach(() => {
-      document.body.innerHTML = `
-      <form id="validFormId">
-        <input type="text" id="username-field" placeholder="username" />
-        <input type="password" id="password-field" placeholder="password" />
-      </form>
-      `;
-      autofillOverlayContentService["mostRecentlyFocusedField"] = document.getElementById(
-        "username-field",
-      ) as ElementWithOpId<HTMLInputElement>;
-      autofillOverlayContentService["setOverlayRepositionEventListeners"]();
-      checkShouldRepositionInlineMenuSpy = jest
-        .spyOn(autofillOverlayContentService as any, "checkShouldRepositionInlineMenu")
-        .mockResolvedValue(true);
-      jest
-        .spyOn(autofillOverlayContentService as any, "recentlyFocusedFieldIsCurrentlyFocused")
-        .mockReturnValue(true);
-    });
-
-    it("skips handling the overlay reposition event if the overlay button and list elements are not visible", async () => {
-      checkShouldRepositionInlineMenuSpy.mockResolvedValue(false);
-
-      globalThis.dispatchEvent(new Event(EVENTS.RESIZE));
-      await flushPromises();
-
-      expect(sendExtensionMessageSpy).not.toHaveBeenCalled();
-    });
-
-    it("hides the overlay elements", async () => {
-      globalThis.dispatchEvent(new Event(EVENTS.SCROLL));
-      await flushPromises();
-
-      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("toggleAutofillInlineMenuHidden", {
-        isInlineMenuHidden: true,
-        setTransparentInlineMenu: false,
-      });
-    });
-
-    it("removes the overlay completely if the field is not focused", async () => {
-      jest.useFakeTimers();
-      jest
-        .spyOn(autofillOverlayContentService as any, "recentlyFocusedFieldIsCurrentlyFocused")
-        .mockReturnValue(false);
-
-      autofillOverlayContentService["mostRecentlyFocusedField"] = undefined;
-
-      globalThis.dispatchEvent(new Event(EVENTS.SCROLL));
-      await flushPromises();
-      jest.advanceTimersByTime(800);
-
-      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("toggleAutofillInlineMenuHidden", {
-        isInlineMenuHidden: false,
-        setTransparentInlineMenu: true,
-      });
-      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu", {
-        forceCloseInlineMenu: true,
-      });
-    });
-
-    it("updates the overlay position if the most recently focused field is still within the viewport", async () => {
-      jest.useFakeTimers();
-      jest
-        .spyOn(autofillOverlayContentService as any, "updateMostRecentlyFocusedField")
-        .mockImplementation(() => {
-          autofillOverlayContentService["focusedFieldData"] = {
-            focusedFieldRects: {
-              top: 100,
-            },
-            focusedFieldStyles: {},
-          };
-        });
-      const clearUserInteractionEventTimeoutSpy = jest.spyOn(
-        autofillOverlayContentService as any,
-        "clearUserInteractionEventTimeout",
-      );
-
-      globalThis.dispatchEvent(new Event(EVENTS.SCROLL));
-      await flushPromises();
-      jest.advanceTimersByTime(750);
-      await flushPromises();
-      jest.advanceTimersByTime(50);
-      await flushPromises();
-
-      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillInlineMenuPosition", {
-        overlayElement: AutofillOverlayElement.Button,
-      });
-      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("updateAutofillInlineMenuPosition", {
-        overlayElement: AutofillOverlayElement.List,
-      });
-      expect(clearUserInteractionEventTimeoutSpy).toHaveBeenCalled();
-    });
-
-    it("removes the inline menu list if the focused field has a value", async () => {
-      jest.useFakeTimers();
-      jest
-        .spyOn(autofillOverlayContentService as any, "updateMostRecentlyFocusedField")
-        .mockImplementation(() => {
-          autofillOverlayContentService["focusedFieldData"] = {
-            focusedFieldRects: {
-              top: 100,
-            },
-            focusedFieldStyles: {},
-          };
-        });
-      (
-        autofillOverlayContentService["mostRecentlyFocusedField"] as FillableFormFieldElement
-      ).value = "test";
-
-      globalThis.dispatchEvent(new Event(EVENTS.SCROLL));
-      await flushPromises();
-      jest.advanceTimersByTime(750);
-      await flushPromises();
-      jest.advanceTimersByTime(50);
-      await flushPromises();
-
-      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu", {
-        overlayElement: AutofillOverlayElement.List,
-        forceCloseInlineMenu: true,
-      });
-    });
-
-    it("removes the autofill inline menu if the focused field is outside of the viewport", async () => {
-      jest.useFakeTimers();
-      jest
-        .spyOn(autofillOverlayContentService as any, "updateMostRecentlyFocusedField")
-        .mockImplementation(() => {
-          autofillOverlayContentService["focusedFieldData"] = {
-            focusedFieldRects: {
-              top: 4000,
-            },
-            focusedFieldStyles: {},
-          };
-        });
-
-      globalThis.dispatchEvent(new Event(EVENTS.SCROLL));
-      await flushPromises();
-      jest.advanceTimersByTime(800);
-      await flushPromises();
-
-      expect(sendExtensionMessageSpy).toHaveBeenCalledWith("closeAutofillInlineMenu", {
-        forceCloseInlineMenu: true,
+        expect(sendExtensionMessageSpy).toHaveBeenCalledWith("triggerAutofillOverlayReposition");
       });
     });
   });
