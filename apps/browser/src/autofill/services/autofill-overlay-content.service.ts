@@ -1075,6 +1075,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     );
   };
 
+  /**
+   * Removes the listeners that facilitate a rebuild of the sub frame offsets.
+   */
   private removeRebuildSubFrameOffsetsListeners = () => {
     globalThis.removeEventListener(
       EVENTS.FOCUS,
@@ -1089,6 +1092,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     delete this.eventHandlersMemo[AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_ENTER];
   };
 
+  /**
+   * Re-establishes listeners that handle the sub frame offsets rebuild of the frame
+   * based on user interaction with the sub frame.
+   */
   private setupSubFrameFocusOutListeners = () => {
     globalThis.addEventListener(
       EVENTS.BLUR,
@@ -1106,6 +1113,9 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     );
   };
 
+  /**
+   * Removes the listeners that trigger when a user focuses away from the sub frame.
+   */
   private removeSubFrameFocusOutListeners = () => {
     globalThis.removeEventListener(
       EVENTS.BLUR,
