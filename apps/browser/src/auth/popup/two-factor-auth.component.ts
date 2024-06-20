@@ -13,6 +13,7 @@ import { TwoFactorAuthComponent as BaseTwoFactorAuthComponent } from "@bitwarden
 import { TwoFactorOptionsComponent } from "@bitwarden/angular/auth/components/two-factor-auth/two-factor-options.component";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
+import { TwoFactorProviderType } from "@bitwarden/common/auth/enums/two-factor-provider-type";
 import {
   ButtonModule,
   LinkModule,
@@ -22,6 +23,8 @@ import {
   CheckboxModule,
   IconModule,
 } from "@bitwarden/components";
+
+import BrowserPopupUtils from "../../platform/popup/browser-popup-utils";
 
 import { TwoFactorAuthEmailComponent } from "./two-factor-auth-email.component";
 
@@ -57,4 +60,11 @@ import { TwoFactorAuthEmailComponent } from "./two-factor-auth-email.component";
   ],
   providers: [I18nPipe],
 })
-export class TwoFactorAuthComponent extends BaseTwoFactorAuthComponent implements OnInit {}
+export class TwoFactorAuthComponent extends BaseTwoFactorAuthComponent implements OnInit {
+  async ngOnInit(): Promise<void> {
+    await super.ngOnInit();
+    if (await BrowserPopupUtils.inPopout(this.win)) {
+      this.selectedProviderType = TwoFactorProviderType.Email;
+    }
+  }
+}
