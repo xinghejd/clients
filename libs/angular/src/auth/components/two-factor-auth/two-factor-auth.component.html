@@ -2,32 +2,28 @@
   <div class="tw-min-w-96">
     <app-two-factor-auth-email
       (token)="token = $event"
-      (activeButtonTextChange)="actionButtonText = $event"
       *ngIf="selectedProviderType === providerType.Email"
     />
     <app-two-factor-auth-authenticator
       (token)="token = $event"
-      (activeButtonTextChange)="actionButtonText = $event"
       *ngIf="selectedProviderType === providerType.Authenticator"
     />
     <app-two-factor-auth-yubikey
       (token)="token = $event"
-      (activeButtonTextChange)="actionButtonText = $event"
       *ngIf="selectedProviderType === providerType.Yubikey"
     />
     <app-two-factor-auth-webauthn
       (token)="token = $event; submitForm()"
-      (activeButtonTextChange)="actionButtonText = $event"
       *ngIf="selectedProviderType === providerType.WebAuthn"
     />
     <app-two-factor-auth-duo
       (token)="token = $event; submitForm()"
-      (activeButtonTextChange)="actionButtonText = $event"
       [providerData]="providerData"
       *ngIf="
         selectedProviderType === providerType.OrganizationDuo ||
         selectedProviderType === providerType.Duo
       "
+      #duoComponent
     />
     <bit-form-control *ngIf="selectedProviderType != null">
       <bit-label>{{ "rememberMe" | i18n }}</bit-label>
@@ -48,9 +44,26 @@
         buttonType="primary"
         bitButton
         bitFormButton
-        *ngIf="selectedProviderType != null && selectedProviderType !== providerType.WebAuthn"
+        *ngIf="
+          selectedProviderType != null &&
+          selectedProviderType !== providerType.WebAuthn &&
+          selectedProviderType !== providerType.Duo &&
+          selectedProviderType !== providerType.OrganizationDuo
+        "
       >
         <span> <i class="bwi bwi-sign-in" aria-hidden="true"></i> {{ actionButtonText }} </span>
+      </button>
+      <button
+        type="button"
+        buttonType="primary"
+        bitButton
+        (click)="launchDuo()"
+        *ngIf="
+          selectedProviderType === providerType.Duo ||
+          selectedProviderType === providerType.OrganizationDuo
+        "
+      >
+        <span> <i class="bwi bwi-sign-in" aria-hidden="true"></i> {{ "launchDuo" | i18n }}</span>
       </button>
 
       <a routerLink="/login" bitButton buttonType="secondary">

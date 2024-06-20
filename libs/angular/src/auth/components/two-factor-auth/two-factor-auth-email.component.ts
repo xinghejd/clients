@@ -22,8 +22,6 @@ import {
   AsyncActionsModule,
 } from "@bitwarden/components";
 
-import { TwoFactorAuthBaseComponent } from "./two-factor-auth-base.component";
-
 @Component({
   standalone: true,
   selector: "app-two-factor-auth-email",
@@ -42,7 +40,7 @@ import { TwoFactorAuthBaseComponent } from "./two-factor-auth-base.component";
   ],
   providers: [I18nPipe],
 })
-export class TwoFactorAuthEmailComponent extends TwoFactorAuthBaseComponent {
+export class TwoFactorAuthEmailComponent {
   @Output() token = new EventEmitter<string>();
 
   twoFactorEmail: string = null;
@@ -57,13 +55,9 @@ export class TwoFactorAuthEmailComponent extends TwoFactorAuthBaseComponent {
     protected logService: LogService,
     protected apiService: ApiService,
     protected appIdService: AppIdService,
-  ) {
-    super(i18nService);
-  }
+  ) {}
 
   async ngOnInit(): Promise<void> {
-    this.activeButtonTextChange.emit(this.i18nService.t("continue"));
-
     const providerData = await this.twoFactorService.getProviders().then((providers) => {
       return providers.get(TwoFactorProviderType.Email);
     });

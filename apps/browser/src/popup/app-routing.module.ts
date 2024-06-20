@@ -138,12 +138,6 @@ const routes: Routes = [
       },
     ],
   },
-  // {
-  //   path: "2fa-options",
-  //   component: TwoFactorOptionsComponent,
-  //   canActivate: [unauthGuardFn(unauthRouteOverrides)],
-  //   data: { state: "2fa-options" },
-  // },
   {
     path: "login-initiated",
     component: LoginDecryptionOptionsComponent,

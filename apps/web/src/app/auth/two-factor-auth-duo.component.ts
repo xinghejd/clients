@@ -62,7 +62,6 @@ export class TwoFactorAuthDuoComponent extends TwoFactorAuthDuoBaseComponent {
   }
 
   async ngOnDestroy() {
-    await super.ngOnDestroy();
     if (this.duoResultChannel) {
       // clean up duo listener if it was initialized.
       this.duoResultChannel.removeEventListener("message", this.handleDuoResultMessage);

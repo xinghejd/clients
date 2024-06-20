@@ -23,8 +23,6 @@ import {
   AsyncActionsModule,
 } from "@bitwarden/components";
 
-import { TwoFactorAuthBaseComponent } from "./two-factor-auth-base.component";
-
 @Component({
   standalone: true,
   selector: "app-two-factor-auth-webauthn",
@@ -43,7 +41,7 @@ import { TwoFactorAuthBaseComponent } from "./two-factor-auth-base.component";
   ],
   providers: [I18nPipe],
 })
-export class TwoFactorAuthWebAuthnComponent extends TwoFactorAuthBaseComponent {
+export class TwoFactorAuthWebAuthnComponent {
   @Output() token = new EventEmitter<string>();
 
   webAuthnReady = false;
@@ -59,8 +57,6 @@ export class TwoFactorAuthWebAuthnComponent extends TwoFactorAuthBaseComponent {
     protected twoFactorService: TwoFactorService,
     protected route: ActivatedRoute,
   ) {
-    super(i18nService);
-
     this.webAuthnSupported = this.platformUtilsService.supportsWebAuthn(win);
 
     if (this.platformUtilsService.getClientType() == ClientType.Browser) {

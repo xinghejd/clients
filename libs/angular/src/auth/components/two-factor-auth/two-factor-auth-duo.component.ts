@@ -16,8 +16,6 @@ import {
   AsyncActionsModule,
 } from "@bitwarden/components";
 
-import { TwoFactorAuthBaseComponent } from "./two-factor-auth-base.component";
-
 @Component({
   standalone: true,
   selector: "app-two-factor-auth-duo",
@@ -36,7 +34,7 @@ import { TwoFactorAuthBaseComponent } from "./two-factor-auth-base.component";
   ],
   providers: [I18nPipe],
 })
-export class TwoFactorAuthDuoComponent extends TwoFactorAuthBaseComponent {
+export class TwoFactorAuthDuoComponent {
   @Output() token = new EventEmitter<string>();
   @Input() providerData: any;
 
@@ -47,12 +45,9 @@ export class TwoFactorAuthDuoComponent extends TwoFactorAuthBaseComponent {
   constructor(
     protected i18nService: I18nService,
     protected platformUtilsService: PlatformUtilsService,
-  ) {
-    super(i18nService);
-  }
+  ) {}
 
   async ngOnInit(): Promise<void> {
-    this.activeButtonTextChange.emit(this.i18nService.t("launchDuo"));
     await this.init();
   }
 
@@ -97,5 +92,5 @@ export class TwoFactorAuthDuoComponent extends TwoFactorAuthBaseComponent {
 
   // Each client will have own implementation
   protected setupDuoResultListener(): void {}
-  protected async launchDuoFrameless(): Promise<void> {}
+  async launchDuoFrameless(): Promise<void> {}
 }

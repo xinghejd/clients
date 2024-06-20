@@ -5,7 +5,6 @@ import { ReactiveFormsModule, FormsModule } from "@angular/forms";
 
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { I18nPipe } from "@bitwarden/angular/platform/pipes/i18n.pipe";
-import { I18nService } from "@bitwarden/common/platform/abstractions/i18n.service";
 import {
   ButtonModule,
   LinkModule,
@@ -13,8 +12,6 @@ import {
   FormFieldModule,
   AsyncActionsModule,
 } from "@bitwarden/components";
-
-import { TwoFactorAuthBaseComponent } from "./two-factor-auth-base.component";
 
 @Component({
   standalone: true,
@@ -34,15 +31,7 @@ import { TwoFactorAuthBaseComponent } from "./two-factor-auth-base.component";
   ],
   providers: [I18nPipe],
 })
-export class TwoFactorAuthYubikeyComponent extends TwoFactorAuthBaseComponent {
+export class TwoFactorAuthYubikeyComponent {
   tokenValue: string = "";
   @Output() token = new EventEmitter<string>();
-
-  constructor(i18nService: I18nService) {
-    super(i18nService);
-  }
-
-  async ngOnInit(): Promise<void> {
-    this.activeButtonTextChange.emit(this.i18nService.t("continue"));
-  }
 }
