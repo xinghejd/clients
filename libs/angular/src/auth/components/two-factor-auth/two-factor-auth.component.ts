@@ -146,7 +146,7 @@ export class TwoFactorAuthComponent extends CaptchaProtectedComponent implements
     platformUtilsService: PlatformUtilsService,
     environmentService: EnvironmentService,
     private dialogService: DialogService,
-    private route: ActivatedRoute,
+    protected route: ActivatedRoute,
     private logService: LogService,
     protected twoFactorService: TwoFactorService,
     private loginEmailService: LoginEmailServiceAbstraction,
