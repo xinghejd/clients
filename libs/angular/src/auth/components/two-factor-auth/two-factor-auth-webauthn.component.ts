@@ -89,7 +89,11 @@ export class TwoFactorAuthWebAuthnComponent extends TwoFactorAuthBaseComponent {
           this.token.emit(token);
         },
         (error: string) => {
-          this.platformUtilsService.showToast("error", this.i18nService.t("errorOccurred"), error);
+          this.platformUtilsService.showToast(
+            "error",
+            this.i18nService.t("errorOccurred"),
+            this.i18nService.t("webauthnCancelOrTimeout"),
+          );
         },
         (info: string) => {
           if (info === "ready") {
