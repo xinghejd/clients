@@ -106,15 +106,15 @@ describe("AutofillInit", () => {
       sender = mock<chrome.runtime.MessageSender>();
     });
 
-    it("returns a undefined value if a extension message handler is not found with the given message command", () => {
+    it("returns a null value if a extension message handler is not found with the given message command", () => {
       message.command = "unknownCommand";
 
       const response = autofillInit["handleExtensionMessage"](message, sender, sendResponse);
 
-      expect(response).toBe(undefined);
+      expect(response).toBe(null);
     });
 
-    it("returns a undefined value if the message handler does not return a response", async () => {
+    it("returns a null value if the message handler does not return a response", async () => {
       const response1 = await autofillInit["handleExtensionMessage"](message, sender, sendResponse);
       await flushPromises();
 
@@ -126,7 +126,7 @@ describe("AutofillInit", () => {
       const response2 = autofillInit["handleExtensionMessage"](message, sender, sendResponse);
       await flushPromises();
 
-      expect(response2).toBe(undefined);
+      expect(response2).toBe(null);
     });
 
     it("returns a true value and calls sendResponse if the message handler returns a response", async () => {

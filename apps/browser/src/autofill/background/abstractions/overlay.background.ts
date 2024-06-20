@@ -64,14 +64,17 @@ export type CloseInlineMenuMessage = {
   overlayElement?: string;
 };
 
+export type ToggleInlineMenuHiddenMessage = {
+  isInlineMenuHidden?: boolean;
+  setTransparentInlineMenu?: boolean;
+};
+
 export type OverlayBackgroundExtensionMessage = {
   command: string;
   portKey?: string;
   tab?: chrome.tabs.Tab;
   sender?: string;
   details?: AutofillPageDetails;
-  isInlineMenuHidden?: boolean;
-  setTransparentInlineMenu?: boolean;
   isFieldCurrentlyFocused?: boolean;
   isFieldCurrentlyFilling?: boolean;
   subFrameData?: SubFrameOffsetData;
@@ -79,7 +82,8 @@ export type OverlayBackgroundExtensionMessage = {
   styles?: Partial<CSSStyleDeclaration>;
   data?: LockedVaultPendingNotificationsData;
 } & OverlayAddNewItemMessage &
-  CloseInlineMenuMessage;
+  CloseInlineMenuMessage &
+  ToggleInlineMenuHiddenMessage;
 
 export type OverlayPortMessage = {
   [key: string]: any;
@@ -111,6 +115,7 @@ export type OverlayBackgroundExtensionMessageHandlers = {
   [key: string]: CallableFunction;
   autofillOverlayElementClosed: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   autofillOverlayAddNewVaultItem: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
+  triggerAutofillOverlayReposition: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   checkIsInlineMenuCiphersPopulated: ({ sender }: BackgroundSenderParam) => void;
   updateFocusedFieldData: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   updateIsFieldCurrentlyFocused: ({ message }: BackgroundMessageParam) => void;
@@ -130,10 +135,9 @@ export type OverlayBackgroundExtensionMessageHandlers = {
   toggleAutofillInlineMenuHidden: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   checkIsAutofillInlineMenuButtonVisible: ({ sender }: BackgroundSenderParam) => void;
   checkIsAutofillInlineMenuListVisible: ({ sender }: BackgroundSenderParam) => void;
-  checkShouldRepositionInlineMenu: ({ sender }: BackgroundSenderParam) => boolean;
   getCurrentTabFrameId: ({ sender }: BackgroundSenderParam) => number;
   updateSubFrameData: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
-  rebuildSubFrameOffsets: ({ sender }: BackgroundSenderParam) => void;
+  triggerSubFrameFocusInRebuild: ({ sender }: BackgroundSenderParam) => void;
   destroyAutofillInlineMenuListeners: ({
     message,
     sender,

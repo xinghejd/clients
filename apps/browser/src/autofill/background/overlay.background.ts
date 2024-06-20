@@ -1,4 +1,5 @@
-import { firstValueFrom } from "rxjs";
+import { firstValueFrom, merge, Subject, throttleTime } from "rxjs";
+import { debounceTime, switchMap } from "rxjs/operators";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
@@ -49,6 +50,7 @@ import {
   SubFrameOffsetsForTab,
   CloseInlineMenuMessage,
   InlineMenuPosition,
+  ToggleInlineMenuHiddenMessage,
 } from "./abstractions/overlay.background";
 
 export class OverlayBackground implements OverlayBackgroundInterface {
@@ -63,10 +65,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private inlineMenuListPort: chrome.runtime.Port;
   private inlineMenuCiphers: Map<string, CipherView> = new Map();
   private inlineMenuPageTranslations: Record<string, string>;
-  private inlineMenuFadeInTimeout: number | NodeJS.Timeout;
   private inlineMenuPosition: InlineMenuPosition = {};
-  private updateInlineMenuPositionTimeout: number | NodeJS.Timeout;
   private delayedCloseTimeout: number | NodeJS.Timeout;
+  private startInlineMenuFadeInSubject = new Subject<void>();
+  private cancelInlineMenuFadeInSubject = new Subject<boolean>();
+  private startUpdateInlineMenuPositionSubject = new Subject<chrome.runtime.MessageSender>();
+  private cancelUpdateInlineMenuPositionSubject = new Subject<void>();
+  private repositionInlineMenuSubject = new Subject<chrome.runtime.MessageSender>();
+  private rebuildSubFrameOffsetsSubject = new Subject<chrome.runtime.MessageSender>();
   private focusedFieldData: FocusedFieldData;
   private isFieldCurrentlyFocused: boolean = false;
   private isFieldCurrentlyFilling: boolean = false;
@@ -75,6 +81,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     autofillOverlayElementClosed: ({ message, sender }) =>
       this.overlayElementClosed(message, sender),
     autofillOverlayAddNewVaultItem: ({ message, sender }) => this.addNewVaultItem(message, sender),
+    triggerAutofillOverlayReposition: ({ sender }) => this.triggerOverlayReposition(sender),
     checkIsInlineMenuCiphersPopulated: ({ sender }) =>
       this.checkIsInlineMenuCiphersPopulated(sender),
     updateFocusedFieldData: ({ message, sender }) => this.setFocusedFieldData(message, sender),
@@ -91,14 +98,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       this.updateInlineMenuPosition(message, sender),
     getAutofillInlineMenuPosition: () => this.getInlineMenuPosition(),
     toggleAutofillInlineMenuHidden: ({ message, sender }) =>
-      this.updateInlineMenuHidden(message, sender),
+      this.toggleInlineMenuHidden(message, sender),
     checkIsAutofillInlineMenuButtonVisible: ({ sender }) =>
       this.checkIsInlineMenuButtonVisible(sender),
     checkIsAutofillInlineMenuListVisible: ({ sender }) => this.checkIsInlineMenuListVisible(sender),
-    checkShouldRepositionInlineMenu: ({ sender }) => this.checkShouldRepositionInlineMenu(sender),
     getCurrentTabFrameId: ({ sender }) => this.getSenderFrameId(sender),
     updateSubFrameData: ({ message, sender }) => this.updateSubFrameData(message, sender),
-    rebuildSubFrameOffsets: ({ sender }) => this.rebuildSubFrameOffsets(sender),
+    triggerSubFrameFocusInRebuild: ({ sender }) => this.triggerSubFrameFocusInRebuild(sender),
     destroyAutofillInlineMenuListeners: ({ message, sender }) =>
       this.triggerDestroyInlineMenuListeners(sender.tab, message.subFrameData.frameId),
     collectPageDetailsResponse: ({ message, sender }) => this.storePageDetails(message, sender),
@@ -139,7 +145,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     private i18nService: I18nService,
     private platformUtilsService: PlatformUtilsService,
     private themeStateService: ThemeStateService,
-  ) {}
+  ) {
+    this.initOverlayObservables();
+  }
 
   /**
    * Sets up the extension message listeners and gets the settings for the
@@ -149,6 +157,36 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     this.setupExtensionMessageListeners();
     const env = await firstValueFrom(this.environmentService.environment$);
     this.iconsServerUrl = env.getIconsUrl();
+  }
+
+  private initOverlayObservables() {
+    this.repositionInlineMenuSubject
+      .pipe(
+        debounceTime(500),
+        switchMap((sender) => this.repositionInlineMenu(sender)),
+      )
+      .subscribe();
+    this.rebuildSubFrameOffsetsSubject
+      .pipe(
+        throttleTime(650),
+        switchMap((sender) => this.rebuildSubFrameOffsets(sender)),
+      )
+      .subscribe();
+
+    merge(
+      this.startUpdateInlineMenuPositionSubject.pipe(debounceTime(150)),
+      this.cancelUpdateInlineMenuPositionSubject,
+    )
+      .pipe(switchMap((sender) => this.updateInlineMenuPositionAfterRepositionEvent(sender)))
+      .subscribe();
+
+    // FadeIn Observable behavior
+    merge(
+      this.startInlineMenuFadeInSubject.pipe(debounceTime(150)),
+      this.cancelInlineMenuFadeInSubject,
+    )
+      .pipe(switchMap((cancelSignal) => this.triggerInlineMenuFadeIn(!!cancelSignal)))
+      .subscribe();
   }
 
   /**
@@ -253,7 +291,15 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     };
 
     if (pageDetails.frameId !== 0 && pageDetails.details.fields.length) {
-      void this.buildSubFrameOffsets(pageDetails.tab, pageDetails.frameId, pageDetails.details.url);
+      void this.buildSubFrameOffsets(
+        pageDetails.tab,
+        pageDetails.frameId,
+        pageDetails.details.url,
+        sender,
+      );
+      void BrowserApi.tabSendMessage(pageDetails.tab, {
+        command: "setupRebuildSubFrameOffsetsListeners",
+      });
     }
 
     const pageDetailsMap = this.pageDetailsForTab[sender.tab.id];
@@ -300,8 +346,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param tab - The tab that the sub frame is associated with
    * @param frameId - The frame ID of the sub frame
    * @param url - The URL of the sub frame
+   * @param sender - The sender of the message
    */
-  private async buildSubFrameOffsets(tab: chrome.tabs.Tab, frameId: number, url: string) {
+  private async buildSubFrameOffsets(
+    tab: chrome.tabs.Tab,
+    frameId: number,
+    url: string,
+    sender: chrome.runtime.MessageSender,
+  ) {
     let subFrameDepth = 0;
     const tabId = tab.id;
     let subFrameOffsetsForTab = this.subFrameOffsetsForTab[tabId];
@@ -379,40 +431,21 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
-   * Handles rebuilding the sub frame offsets when the tab is repositioned or scrolled.
-   * Will trigger a re-positioning of the inline menu list and button. Note that we
-   * do not trigger an update to sub frame data if the sender is the frame that has
-   * the field currently focused. We trigger a re-calculation of the field's position
-   * and as a result, the sub frame offsets of that frame will be updated.
+   * Rebuilds the sub frame offsets for the tab associated with the sender.
    *
    * @param sender - The sender of the message
    */
   private async rebuildSubFrameOffsets(sender: chrome.runtime.MessageSender) {
-    if (sender.frameId === this.focusedFieldData?.frameId) {
-      return;
-    }
-
-    if (this.updateInlineMenuPositionTimeout) {
-      clearTimeout(this.updateInlineMenuPositionTimeout);
-    }
+    this.clearDelayedInlineMenuClosure();
 
     const subFrameOffsetsForTab = this.subFrameOffsetsForTab[sender.tab.id];
     if (subFrameOffsetsForTab) {
       const tabFrameIds = Array.from(subFrameOffsetsForTab.keys());
       for (const frameId of tabFrameIds) {
-        if (frameId === sender.frameId) {
-          continue;
-        }
-
         subFrameOffsetsForTab.delete(frameId);
-        await this.buildSubFrameOffsets(sender.tab, frameId, sender.url);
+        await this.buildSubFrameOffsets(sender.tab, frameId, sender.url, sender);
       }
     }
-
-    this.updateInlineMenuPositionTimeout = globalThis.setTimeout(
-      () => this.updateInlineMenuPositionAfterSubFrameRebuild(sender),
-      650,
-    );
   }
 
   /**
@@ -422,9 +455,18 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    *
    * @param sender - The sender of the message
    */
-  private async updateInlineMenuPositionAfterSubFrameRebuild(sender: chrome.runtime.MessageSender) {
-    if (!this.isFieldCurrentlyFocused) {
+  private async updateInlineMenuPositionAfterRepositionEvent(
+    sender: chrome.runtime.MessageSender | void,
+  ) {
+    if (!sender || !this.isFieldCurrentlyFocused) {
       return;
+    }
+
+    if (!(await this.checkIsInlineMenuButtonVisible(sender))) {
+      await this.toggleInlineMenuHidden(
+        { isInlineMenuHidden: false, setTransparentInlineMenu: true },
+        sender,
+      );
     }
 
     void this.updateInlineMenuPosition({ overlayElement: AutofillOverlayElement.Button }, sender);
@@ -432,7 +474,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const mostRecentlyFocusedFieldHasValue = await BrowserApi.tabSendMessage(
       sender.tab,
       { command: "checkMostRecentlyFocusedFieldHasValue" },
-      { frameId: this.focusedFieldData.frameId },
+      { frameId: this.focusedFieldData?.frameId },
     );
     if (
       mostRecentlyFocusedFieldHasValue &&
@@ -615,6 +657,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
+    this.cancelInlineMenuFadeIn();
+
     await BrowserApi.tabSendMessage(
       sender.tab,
       { command: "appendAutofillInlineMenuToDom", overlayElement },
@@ -627,13 +671,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       subFrameOffsets = subFrameOffsetsForTab.get(this.focusedFieldData.frameId);
     }
 
-    this.setInlineMenuFadeInTimeout();
-
     if (overlayElement === AutofillOverlayElement.Button) {
       this.inlineMenuButtonPort?.postMessage({
         command: "updateAutofillInlineMenuPosition",
         styles: this.getInlineMenuButtonPosition(subFrameOffsets),
       });
+      this.startInlineMenuFadeIn();
 
       return;
     }
@@ -642,6 +685,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       command: "updateAutofillInlineMenuPosition",
       styles: this.getInlineMenuListPosition(subFrameOffsets),
     });
+    this.startInlineMenuFadeIn();
   }
 
   /**
@@ -655,16 +699,26 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Handles updating the opacity of both the inline menu button and list.
    * This is used to simultaneously fade in the inline menu elements.
    */
-  private setInlineMenuFadeInTimeout() {
-    if (this.inlineMenuFadeInTimeout) {
-      globalThis.clearTimeout(this.inlineMenuFadeInTimeout);
+  private startInlineMenuFadeIn() {
+    this.cancelInlineMenuFadeIn();
+    this.startInlineMenuFadeInSubject.next();
+  }
+
+  /**
+   * Clears the timeout used to fade in the inline menu elements.
+   */
+  private cancelInlineMenuFadeIn() {
+    this.cancelInlineMenuFadeInSubject.next(true);
+  }
+
+  private async triggerInlineMenuFadeIn(cancelFadeIn: boolean = false) {
+    if (cancelFadeIn) {
+      return;
     }
 
-    this.inlineMenuFadeInTimeout = globalThis.setTimeout(() => {
-      const message = { command: "updateAutofillInlineMenuPosition", styles: { opacity: "1" } };
-      this.inlineMenuButtonPort?.postMessage(message);
-      this.inlineMenuListPort?.postMessage(message);
-    }, 50);
+    const message = { command: "fadeInAutofillInlineMenuIframe" };
+    this.inlineMenuButtonPort?.postMessage(message);
+    this.inlineMenuListPort?.postMessage(message);
   }
 
   /**
@@ -758,19 +812,21 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param display - The display property of the inline menu, either "block" or "none"
    * @param sender - The sender of the extension message
    */
-  private updateInlineMenuHidden(
-    { isInlineMenuHidden, setTransparentInlineMenu }: OverlayBackgroundExtensionMessage,
+  private async toggleInlineMenuHidden(
+    { isInlineMenuHidden, setTransparentInlineMenu }: ToggleInlineMenuHiddenMessage,
     sender: chrome.runtime.MessageSender,
   ) {
+    this.cancelInlineMenuFadeIn();
+
     const display = isInlineMenuHidden ? "none" : "block";
-    let styles: { display: string; opacity?: number } = { display };
+    let styles: { display: string; opacity?: string } = { display };
 
     if (typeof setTransparentInlineMenu !== "undefined") {
-      const opacity = setTransparentInlineMenu ? 0 : 1;
+      const opacity = setTransparentInlineMenu ? "0" : "1";
       styles = { ...styles, opacity };
     }
 
-    void BrowserApi.tabSendMessage(
+    await BrowserApi.tabSendMessage(
       sender.tab,
       { command: "toggleAutofillInlineMenuHidden", isInlineMenuHidden },
       { frameId: 0 },
@@ -779,6 +835,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const portMessage = { command: "toggleAutofillInlineMenuHidden", styles };
     this.inlineMenuButtonPort?.postMessage(portMessage);
     this.inlineMenuListPort?.postMessage(portMessage);
+
+    if (setTransparentInlineMenu) {
+      this.startInlineMenuFadeIn();
+    }
   }
 
   /**
@@ -788,6 +848,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param isOpeningFullInlineMenu - Identifies whether the full inline menu should be forced open regardless of other states
    */
   private async openInlineMenu(isFocusingFieldElement = false, isOpeningFullInlineMenu = false) {
+    this.clearDelayedInlineMenuClosure();
     const currentTab = await BrowserApi.getTabFromCurrentWindowId();
 
     await BrowserApi.tabSendMessage(
@@ -799,7 +860,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         authStatus: await this.getAuthStatus(),
       },
       {
-        frameId: this.focusedFieldData?.tabId === currentTab.id ? this.focusedFieldData.frameId : 0,
+        frameId:
+          this.focusedFieldData?.tabId === currentTab?.id ? this.focusedFieldData.frameId : 0,
       },
     );
   }
@@ -1082,13 +1144,15 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    *
    * @param sender - The sender of the message
    */
-  private checkShouldRepositionInlineMenu(sender: chrome.runtime.MessageSender): boolean {
+  private async checkShouldRepositionInlineMenu(
+    sender: chrome.runtime.MessageSender,
+  ): Promise<boolean> {
     if (!this.focusedFieldData || sender.tab.id !== this.focusedFieldData.tabId) {
       return false;
     }
 
     if (this.focusedFieldData.frameId === sender.frameId) {
-      return true;
+      return await this.checkIsInlineMenuButtonVisible(sender);
     }
 
     const subFrameOffsetsForTab = this.subFrameOffsetsForTab[sender.tab.id];
@@ -1168,12 +1232,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   ) => {
     const handler: CallableFunction | undefined = this.extensionMessageHandlers[message?.command];
     if (!handler) {
-      return;
+      return null;
     }
 
     const messageResponse = handler({ message, sender });
     if (typeof messageResponse === "undefined") {
-      return;
+      return null;
     }
 
     Promise.resolve(messageResponse)
@@ -1314,4 +1378,47 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       this.inlineMenuPosition.button = null;
     }
   };
+
+  private async triggerOverlayReposition(sender: chrome.runtime.MessageSender) {
+    if (await this.checkShouldRepositionInlineMenu(sender)) {
+      await this.toggleInlineMenuHidden({ isInlineMenuHidden: true }, sender);
+      this.repositionInlineMenuSubject.next(sender);
+    }
+  }
+
+  private async triggerSubFrameFocusInRebuild(sender: chrome.runtime.MessageSender) {
+    await this.rebuildSubFrameOffsets(sender);
+    this.repositionInlineMenuSubject.next(sender);
+  }
+
+  private repositionInlineMenu = async (sender: chrome.runtime.MessageSender) => {
+    if (!this.isFieldCurrentlyFocused) {
+      await this.closeInlineMenuAfterReposition(sender);
+      return;
+    }
+
+    const isFieldWithinViewport = await BrowserApi.tabSendMessage(
+      sender.tab,
+      { command: "checkIsMostRecentlyFocusedFieldWithinViewport" },
+      { frameId: this.focusedFieldData.frameId },
+    );
+    if (!isFieldWithinViewport) {
+      await this.closeInlineMenuAfterReposition(sender);
+      return;
+    }
+
+    if (this.focusedFieldData.frameId > 0 && sender.frameId !== this.focusedFieldData.frameId) {
+      this.rebuildSubFrameOffsetsSubject.next(sender);
+    }
+
+    this.startUpdateInlineMenuPositionSubject.next(sender);
+  };
+
+  private async closeInlineMenuAfterReposition(sender: chrome.runtime.MessageSender) {
+    await this.toggleInlineMenuHidden(
+      { isInlineMenuHidden: false, setTransparentInlineMenu: true },
+      sender,
+    );
+    this.closeInlineMenu(sender, { forceCloseInlineMenu: true });
+  }
 }

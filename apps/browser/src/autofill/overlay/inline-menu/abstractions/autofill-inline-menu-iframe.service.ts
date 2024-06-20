@@ -22,6 +22,7 @@ export type BackgroundPortMessageHandlers = {
     message,
   }: AutofillInlineMenuIframeExtensionMessageParam) => void;
   updateAutofillInlineMenuColorScheme: () => void;
+  fadeInAutofillInlineMenuIframe: () => void;
 };
 
 export interface AutofillInlineMenuIframeService {

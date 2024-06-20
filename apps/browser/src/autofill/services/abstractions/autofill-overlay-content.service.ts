@@ -3,6 +3,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import { SubFrameOffsetData } from "../../background/abstractions/overlay.background";
 import { AutofillExtensionMessageParam } from "../../content/abstractions/autofill-init";
 import AutofillField from "../../models/autofill-field";
+import AutofillPageDetails from "../../models/autofill-page-details";
 import { ElementWithOpId, FormFieldElement } from "../../types";
 
 export type OpenAutofillInlineMenuOptions = {
@@ -21,6 +22,7 @@ export type AutofillOverlayContentExtensionMessageHandlers = {
   addNewVaultItemFromOverlay: () => void;
   blurMostRecentlyFocusedField: () => void;
   unsetMostRecentlyFocusedField: () => void;
+  checkIsMostRecentlyFocusedFieldWithinViewport: () => Promise<boolean>;
   bgUnlockPopoutOpened: () => void;
   bgVaultItemRepromptPopoutOpened: () => void;
   redirectAutofillInlineMenuFocusOut: ({ message }: AutofillExtensionMessageParam) => void;
@@ -28,6 +30,7 @@ export type AutofillOverlayContentExtensionMessageHandlers = {
   getSubFrameOffsets: ({ message }: AutofillExtensionMessageParam) => Promise<SubFrameOffsetData>;
   getSubFrameOffsetsFromWindowMessage: ({ message }: AutofillExtensionMessageParam) => void;
   checkMostRecentlyFocusedFieldHasValue: () => boolean;
+  setupRebuildSubFrameOffsetsListeners: () => void;
   destroyAutofillInlineMenuListeners: () => void;
 };
 
@@ -35,9 +38,10 @@ export interface AutofillOverlayContentService {
   pageDetailsUpdateRequired: boolean;
   messageHandlers: AutofillOverlayContentExtensionMessageHandlers;
   init(): void;
-  setupInlineMenuListenerOnField(
+  setupInlineMenu(
     autofillFieldElement: ElementWithOpId<FormFieldElement>,
     autofillFieldData: AutofillField,
+    pageDetails: AutofillPageDetails,
   ): Promise<void>;
   blurMostRecentlyFocusedField(isClosingInlineMenu?: boolean): void;
   destroy(): void;

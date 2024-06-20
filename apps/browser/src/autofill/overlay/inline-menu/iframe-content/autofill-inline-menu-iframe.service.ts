@@ -18,6 +18,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
   private ariaAlertElement: HTMLDivElement;
   private ariaAlertTimeout: number | NodeJS.Timeout;
   private delayedCloseTimeout: number | NodeJS.Timeout;
+  private fadeInTimeout: number | NodeJS.Timeout;
   private readonly fadeInOpacityTransition = "opacity 125ms ease-out 0s";
   private readonly fadeOutOpacityTransition = "opacity 65ms ease-out 0s";
   private iframeStyles: Partial<CSSStyleDeclaration> = {
@@ -53,6 +54,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
       this.updateElementStyles(this.iframe, message.styles),
     updateAutofillInlineMenuColorScheme: () => this.updateAutofillInlineMenuColorScheme(),
     triggerDelayedAutofillInlineMenuClosure: () => this.handleDelayedAutofillInlineMenuClosure(),
+    fadeInAutofillInlineMenuIframe: () => this.handleFadeInInlineMenuIframe(),
   };
 
   constructor(
@@ -156,7 +158,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
       return;
     }
 
-    this.updateElementStyles(this.iframe, { opacity: "0", height: "0px", display: "block" });
+    this.updateElementStyles(this.iframe, { opacity: "0", height: "0px" });
     this.unobserveIframe();
     this.port?.onMessage.removeListener(this.handlePortMessage);
     this.port?.onDisconnect.removeListener(this.handlePortDisconnect);
@@ -253,6 +255,7 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
       return;
     }
 
+    this.clearFadeInTimeout();
     this.updateElementStyles(this.iframe, position);
     this.announceAriaAlert();
   }
@@ -303,6 +306,19 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
    */
   private forceCloseInlineMenu() {
     void this.sendExtensionMessage("closeAutofillInlineMenu", { forceClose: true });
+  }
+
+  private handleFadeInInlineMenuIframe() {
+    this.clearFadeInTimeout();
+    this.fadeInTimeout = globalThis.setTimeout(() => {
+      this.updateElementStyles(this.iframe, { display: "block", opacity: "1" });
+    }, 10);
+  }
+
+  private clearFadeInTimeout() {
+    if (this.fadeInTimeout) {
+      clearTimeout(this.fadeInTimeout);
+    }
   }
 
   /**

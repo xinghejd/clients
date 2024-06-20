@@ -13,13 +13,16 @@ export const EVENTS = {
   BLUR: "blur",
   CLICK: "click",
   FOCUS: "focus",
+  FOCUSIN: "focusin",
+  FOCUSOUT: "focusout",
   SCROLL: "scroll",
   RESIZE: "resize",
   DOMCONTENTLOADED: "DOMContentLoaded",
   LOAD: "load",
   MESSAGE: "message",
   VISIBILITYCHANGE: "visibilitychange",
-  FOCUSOUT: "focusout",
+  MOUSEENTER: "mouseenter",
+  MOUSELEAVE: "mouseleave",
 } as const;
 
 export const ClearClipboardDelay = {
@@ -56,3 +59,6 @@ export const AutofillOverlayVisibility = {
   OnButtonClick: 1,
   OnFieldFocus: 2,
 } as const;
+
+export const AUTOFILL_OVERLAY_ON_SCROLL = "autofill-overlay-scroll-event";
+export const AUTOFILL_OVERLAY_ON_RESIZE = "autofill-overlay-resize-event";

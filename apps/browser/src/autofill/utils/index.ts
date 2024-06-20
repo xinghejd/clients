@@ -16,6 +16,36 @@ export function generateRandomChars(length: number): string {
 }
 
 /**
+ * Polyfills the requestIdleCallback API with a setTimeout fallback.
+ *
+ * @param callback - The callback function to run when the browser is idle.
+ * @param options - The options to pass to the requestIdleCallback function.
+ */
+export function requestIdleCallbackPolyfill(
+  callback: () => void,
+  options?: Record<string, any>,
+): number | NodeJS.Timeout {
+  if ("requestIdleCallback" in globalThis) {
+    return globalThis.requestIdleCallback(() => callback(), options);
+  }
+
+  return globalThis.setTimeout(() => callback(), 1);
+}
+
+/**
+ * Polyfills the cancelIdleCallback API with a clearTimeout fallback.
+ *
+ * @param id - The ID of the idle callback to cancel.
+ */
+export function cancelIdleCallbackPolyfill(id: NodeJS.Timeout | number) {
+  if ("cancelIdleCallback" in globalThis) {
+    return globalThis.cancelIdleCallback(id as number);
+  }
+
+  return globalThis.clearTimeout(id);
+}
+
+/**
  * Generates a random string of characters that formatted as a custom element name.
  */
 export function generateRandomCustomElementName(): string {
@@ -299,4 +329,15 @@ export function getPropertyOrAttribute(element: HTMLElement, attributeName: stri
   }
 
   return element.getAttribute(attributeName);
+}
+
+export function throttle(callback: () => void, limit: number) {
+  let waitingDelay = false;
+  return function (...args: unknown[]) {
+    if (!waitingDelay) {
+      callback.apply(this, args);
+      waitingDelay = true;
+      globalThis.setTimeout(() => (waitingDelay = false), limit);
+    }
+  };
 }
