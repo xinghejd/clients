@@ -26,7 +26,7 @@ const BroadcasterSubscriptionId = "TwoFactorComponent";
   standalone: true,
   selector: "app-two-factor-auth-duo",
   templateUrl:
-    "../../../../../libs/angular/src/auth/components/two-factor-auth/two-factor-auth-duo.component.html",
+    "../../../../libs/angular/src/auth/components/two-factor-auth/two-factor-auth-duo.component.html",
   imports: [
     CommonModule,
     JslibModule,
