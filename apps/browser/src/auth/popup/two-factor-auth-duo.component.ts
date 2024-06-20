@@ -3,7 +3,7 @@ import { CommonModule } from "@angular/common";
 import { Component } from "@angular/core";
 import { ReactiveFormsModule, FormsModule } from "@angular/forms";
 
-import { TwoFactorAuthEmailComponent as TwoFactorAuthEmailBaseComponent } from "@bitwarden/angular/auth/components/two-factor-auth/two-factor-auth-email.component";
+import { TwoFactorAuthDuoComponent as TwoFactorAuthDuoBaseComponent } from "@bitwarden/angular/auth/components/two-factor-auth/two-factor-auth-duo.component";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 
 import { AsyncActionsModule } from "../../../../../libs/components/src/async-actions";
@@ -15,9 +15,9 @@ import { TypographyModule } from "../../../../../libs/components/src/typography"
 
 @Component({
   standalone: true,
-  selector: "app-two-factor-auth-email",
+  selector: "app-two-factor-auth-duo",
   templateUrl:
-    "../../../../../libs/angular/src/auth/components/two-factor-auth/two-factor-auth-email.component.html",
+    "../../../../../libs/angular/src/auth/components/two-factor-auth/two-factor-auth-duo.component.html",
   imports: [
     CommonModule,
     JslibModule,
@@ -32,4 +32,8 @@ import { TypographyModule } from "../../../../../libs/components/src/typography"
   ],
   providers: [I18nPipe],
 })
-export class TwoFactorAuthEmailComponent extends TwoFactorAuthEmailBaseComponent {}
+export class TwoFactorAuthDuoComponent extends TwoFactorAuthDuoBaseComponent {
+  async ngOnInit(): Promise<void> {
+    await super.ngOnInit();
+  }
+}
