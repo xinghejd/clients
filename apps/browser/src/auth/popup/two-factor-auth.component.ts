@@ -65,20 +65,4 @@ export class TwoFactorAuthComponent extends BaseTwoFactorAuthComponent implement
       this.selectedProviderType = TwoFactorProviderType.Email;
     }
   }
-
-  async selectOtherTwofactorMethod(): Promise<void> {
-    const sso = this.route.snapshot.queryParamMap.get("sso") === "true";
-
-    if (sso) {
-      // We must persist this so when the user returns to the 2FA comp, the
-      // proper onSuccessfulLogin logic is executed.
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.router.navigate(["2fa-options"], { queryParams: { sso: true } });
-    } else {
-      // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.router.navigate(["2fa-options"]);
-    }
-  }
 }
