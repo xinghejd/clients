@@ -43,7 +43,6 @@ export class TwoFactorAuthDuoComponent extends TwoFactorAuthBaseComponent {
   duoFrameless = false;
   duoFramelessUrl: string = null;
   duoResultListenerInitialized = false;
-  private duoResultChannel: BroadcastChannel;
 
   constructor(
     protected i18nService: I18nService,
@@ -96,33 +95,7 @@ export class TwoFactorAuthDuoComponent extends TwoFactorAuthBaseComponent {
     }
   }
 
-  protected setupDuoResultListener() {
-    if (!this.duoResultChannel) {
-      this.duoResultChannel = new BroadcastChannel("duoResult");
-      this.duoResultChannel.addEventListener("message", this.handleDuoResultMessage);
-    }
-  }
-
-  private handleDuoResultMessage = async (msg: { data: { code: string; state: string } }) => {
-    this.token.emit(msg.data.code + "|" + msg.data.state);
-  };
-
-  protected launchDuoFrameless() {
-    const duoHandOffMessage = {
-      title: this.i18nService.t("youSuccessfullyLoggedIn"),
-      message: this.i18nService.t("thisWindowWillCloseIn5Seconds"),
-      buttonText: this.i18nService.t("close"),
-      isCountdown: true,
-    };
-    document.cookie = `duoHandOffMessage=${JSON.stringify(duoHandOffMessage)}; SameSite=strict;`;
-    this.platformUtilsService.launchUri(this.duoFramelessUrl);
-  }
-
-  async ngOnDestroy() {
-    if (this.duoResultChannel) {
-      // clean up duo listener if it was initialized.
-      this.duoResultChannel.removeEventListener("message", this.handleDuoResultMessage);
-      this.duoResultChannel.close();
-    }
-  }
+  // Each client will have own implementation
+  protected setupDuoResultListener(): void {}
+  protected async launchDuoFrameless(): Promise<void> {}
 }

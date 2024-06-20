@@ -186,6 +186,10 @@ export class TwoFactorAuthComponent extends CaptchaProtectedComponent implements
 
     const webAuthnSupported = this.platformUtilsService.supportsWebAuthn(this.win);
     this.selectedProviderType = await this.twoFactorService.getDefaultProvider(webAuthnSupported);
+    const providerData = await this.twoFactorService.getProviders().then((providers) => {
+      return providers.get(this.selectedProviderType);
+    });
+    this.providerData = providerData;
     await this.updateUIToProviderData();
 
     this.actionButtonText = this.i18nService.t("continue");

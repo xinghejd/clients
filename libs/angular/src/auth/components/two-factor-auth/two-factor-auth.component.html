@@ -21,6 +21,7 @@
       *ngIf="selectedProviderType === providerType.WebAuthn"
     />
     <app-two-factor-auth-duo
+      (token)="token = $event; submitForm()"
       (activeButtonTextChange)="actionButtonText = $event"
       [providerData]="providerData"
       *ngIf="
