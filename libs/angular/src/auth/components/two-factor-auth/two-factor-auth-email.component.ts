@@ -49,9 +49,6 @@ export class TwoFactorAuthEmailComponent extends TwoFactorAuthBaseComponent {
   emailPromise: Promise<any>;
   tokenValue: string = "";
 
-  inPoput = false;
-  isBrowserExtension = false;
-
   constructor(
     protected i18nService: I18nService,
     protected twoFactorService: TwoFactorService,
@@ -75,20 +72,7 @@ export class TwoFactorAuthEmailComponent extends TwoFactorAuthBaseComponent {
     if ((await this.twoFactorService.getProviders()).size > 1) {
       await this.sendEmail(false);
     }
-
-    // const confirmed = await this.dialogService.openSimpleDialog({
-    //   title: { key: "warning" },
-    //   content: { key: "popup2faCloseMessage" },
-    //   type: "warning",
-    // });
-    // if (confirmed) {
-    // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    // BrowserPopupUtils.openCurrentPagePopout(window);
-    // }
   }
-
-  ngOnDestroy(): void {}
 
   async sendEmail(doToast: boolean) {
     if (this.emailPromise != null) {
