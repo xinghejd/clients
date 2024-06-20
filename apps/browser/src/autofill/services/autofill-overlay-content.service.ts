@@ -8,6 +8,10 @@ import {
   AutofillOverlayVisibility,
   AUTOFILL_OVERLAY_ON_SCROLL,
   AUTOFILL_OVERLAY_ON_RESIZE,
+  AUTOFILL_OVERLAY_SUB_FRAME_ON_FOCUS,
+  AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_ENTER,
+  AUTOFILL_OVERLAY_SUB_FRAME_ON_BLUR,
+  AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_LEAVE,
 } from "@bitwarden/common/autofill/constants";
 
 import {
@@ -1053,9 +1057,67 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     if (globalThis.window.top === globalThis.window || this.formFieldElements.size < 1) {
       return;
     }
+    this.removeSubFrameFocusOutListeners();
 
-    globalThis.addEventListener(EVENTS.FOCUS, this.handleSubFrameFocusInEvent);
-    globalThis.document.body.addEventListener(EVENTS.MOUSEENTER, this.handleSubFrameFocusInEvent);
+    globalThis.addEventListener(
+      EVENTS.FOCUS,
+      this.useEventHandlersMemo(
+        throttle(this.handleSubFrameFocusInEvent, 100),
+        AUTOFILL_OVERLAY_SUB_FRAME_ON_FOCUS,
+      ),
+    );
+    globalThis.document.body.addEventListener(
+      EVENTS.MOUSEENTER,
+      this.useEventHandlersMemo(
+        throttle(this.handleSubFrameFocusInEvent, 100),
+        AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_ENTER,
+      ),
+    );
+  };
+
+  private removeRebuildSubFrameOffsetsListeners = () => {
+    globalThis.removeEventListener(
+      EVENTS.FOCUS,
+      this.eventHandlersMemo[AUTOFILL_OVERLAY_SUB_FRAME_ON_FOCUS],
+    );
+    globalThis.document.body.removeEventListener(
+      EVENTS.MOUSEENTER,
+      this.eventHandlersMemo[AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_ENTER],
+    );
+
+    delete this.eventHandlersMemo[AUTOFILL_OVERLAY_SUB_FRAME_ON_FOCUS];
+    delete this.eventHandlersMemo[AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_ENTER];
+  };
+
+  private setupSubFrameFocusOutListeners = () => {
+    globalThis.addEventListener(
+      EVENTS.BLUR,
+      this.useEventHandlersMemo(
+        throttle(this.setupRebuildSubFrameOffsetsListeners, 100),
+        AUTOFILL_OVERLAY_SUB_FRAME_ON_BLUR,
+      ),
+    );
+    globalThis.document.body.addEventListener(
+      EVENTS.MOUSELEAVE,
+      this.useEventHandlersMemo(
+        throttle(this.setupRebuildSubFrameOffsetsListeners, 100),
+        AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_LEAVE,
+      ),
+    );
+  };
+
+  private removeSubFrameFocusOutListeners = () => {
+    globalThis.removeEventListener(
+      EVENTS.BLUR,
+      this.eventHandlersMemo[AUTOFILL_OVERLAY_SUB_FRAME_ON_BLUR],
+    );
+    globalThis.document.body.removeEventListener(
+      EVENTS.MOUSELEAVE,
+      this.eventHandlersMemo[AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_LEAVE],
+    );
+
+    delete this.eventHandlersMemo[AUTOFILL_OVERLAY_SUB_FRAME_ON_BLUR];
+    delete this.eventHandlersMemo[AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_LEAVE];
   };
 
   /**
@@ -1066,16 +1128,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   private handleSubFrameFocusInEvent = () => {
     void this.sendExtensionMessage("triggerSubFrameFocusInRebuild");
 
-    globalThis.removeEventListener(EVENTS.FOCUS, this.handleSubFrameFocusInEvent);
-    globalThis.document.body.removeEventListener(
-      EVENTS.MOUSEENTER,
-      this.handleSubFrameFocusInEvent,
-    );
-    globalThis.addEventListener(EVENTS.BLUR, this.setupRebuildSubFrameOffsetsListeners);
-    globalThis.document.body.addEventListener(
-      EVENTS.MOUSELEAVE,
-      this.setupRebuildSubFrameOffsetsListeners,
-    );
+    this.removeRebuildSubFrameOffsetsListeners();
+    this.setupSubFrameFocusOutListeners();
   };
 
   /**
@@ -1135,11 +1189,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       this.handleVisibilityChangeEvent,
     );
     globalThis.removeEventListener(EVENTS.FOCUSOUT, this.handleFormFieldBlurEvent);
-    globalThis.removeEventListener(EVENTS.FOCUS, this.handleSubFrameFocusInEvent);
-    globalThis.document.body.removeEventListener(
-      EVENTS.MOUSEENTER,
-      this.handleSubFrameFocusInEvent,
-    );
     this.removeOverlayRepositionEventListeners();
+    this.removeRebuildSubFrameOffsetsListeners();
+    this.removeSubFrameFocusOutListeners();
   }
 }
