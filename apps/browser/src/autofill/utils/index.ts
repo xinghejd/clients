@@ -347,28 +347,3 @@ export function throttle(callback: () => void, limit: number) {
     }
   };
 }
-
-/**
- * Debounces a callback function to run after a certain amount of time has passed.
- *
- * @param callback - The callback function to debounce.
- * @param wait - The time in milliseconds to wait before running the callback.
- * @param immediate - Determines whether the callback should run immediately.
- */
-export function debounce(callback: () => void, wait: number, immediate?: boolean) {
-  let timeoutId: NodeJS.Timeout | number | null = null;
-
-  return (...args: unknown[]) => {
-    if (immediate && !timeoutId) {
-      callback.apply(this, args);
-    }
-
-    if (timeoutId) {
-      globalThis.clearTimeout(timeoutId);
-    }
-    timeoutId = globalThis.setTimeout(() => {
-      callback.apply(this, args);
-      timeoutId = null;
-    }, wait);
-  };
-}
