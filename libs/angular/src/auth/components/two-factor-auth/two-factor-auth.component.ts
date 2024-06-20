@@ -233,11 +233,11 @@ export class TwoFactorAuthComponent extends CaptchaProtectedComponent implements
     const dialogRef = TwoFactorOptionsComponent.open(this.dialogService);
     const response: TwoFactorOptionsDialogResultType = await lastValueFrom(dialogRef.closed);
     if (response.result === TwoFactorOptionsDialogResult.Provider) {
-      this.selectedProviderType = response.type;
       const providerData = await this.twoFactorService.getProviders().then((providers) => {
-        return providers.get(this.selectedProviderType);
+        return providers.get(response.type);
       });
       this.providerData = providerData;
+      this.selectedProviderType = response.type;
       await this.updateUIToProviderData();
     }
   }
