@@ -1000,7 +1000,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     globalThis.addEventListener(
       EVENTS.SCROLL,
       this.useEventHandlersMemo(
-        throttle(this.handleOverlayRepositionEvent, 200),
+        throttle(this.handleOverlayRepositionEvent, 150),
         AUTOFILL_OVERLAY_ON_SCROLL,
       ),
       {
@@ -1010,7 +1010,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     globalThis.addEventListener(
       EVENTS.RESIZE,
       this.useEventHandlersMemo(
-        throttle(this.handleOverlayRepositionEvent, 200),
+        throttle(this.handleOverlayRepositionEvent, 150),
         AUTOFILL_OVERLAY_ON_RESIZE,
       ),
     );

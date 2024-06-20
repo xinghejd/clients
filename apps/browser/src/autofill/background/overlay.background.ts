@@ -159,13 +159,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private initOverlayObservables() {
     this.repositionInlineMenuSubject
       .pipe(
-        debounceTime(500),
+        debounceTime(1000),
         switchMap((sender) => this.repositionInlineMenu(sender)),
       )
       .subscribe();
     this.rebuildSubFrameOffsetsSubject
       .pipe(
-        throttleTime(650),
+        throttleTime(100),
         switchMap((sender) => this.rebuildSubFrameOffsets(sender)),
       )
       .subscribe();
@@ -433,6 +433,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param sender - The sender of the message
    */
   private async rebuildSubFrameOffsets(sender: chrome.runtime.MessageSender) {
+    this.cancelUpdateInlineMenuPositionSubject.next();
     this.clearDelayedInlineMenuClosure();
 
     const subFrameOffsetsForTab = this.subFrameOffsetsForTab[sender.tab.id];
@@ -460,7 +461,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     if (!(await this.checkIsInlineMenuButtonVisible(sender))) {
-      await this.toggleInlineMenuHidden(
+      void this.toggleInlineMenuHidden(
         { isInlineMenuHidden: false, setTransparentInlineMenu: true },
         sender,
       );
@@ -1119,30 +1120,25 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    *
    * @param sender - The sender of the message
    */
-  private async checkShouldRepositionInlineMenu(
-    sender: chrome.runtime.MessageSender,
-  ): Promise<boolean> {
+  private checkShouldRepositionInlineMenu(sender: chrome.runtime.MessageSender): boolean {
     if (!this.focusedFieldData || sender.tab.id !== this.focusedFieldData.tabId) {
       return false;
     }
 
     if (this.focusedFieldData.frameId === sender.frameId) {
-      return await this.checkIsInlineMenuButtonVisible(sender);
+      return true;
     }
 
     const subFrameOffsetsForTab = this.subFrameOffsetsForTab[sender.tab.id];
-    if (!subFrameOffsetsForTab) {
-      return false;
+    if (subFrameOffsetsForTab) {
+      for (const value of subFrameOffsetsForTab.values()) {
+        if (value?.parentFrameIds.includes(sender.frameId)) {
+          return true;
+        }
+      }
     }
 
-    const parentFrameIds = new Set();
-    subFrameOffsetsForTab.forEach((subFrameOffsetData) =>
-      subFrameOffsetData?.parentFrameIds.forEach((parentFrameId) =>
-        parentFrameIds.add(parentFrameId),
-      ),
-    );
-
-    return parentFrameIds.has(sender.frameId);
+    return false;
   }
 
   /**
@@ -1348,18 +1344,20 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   };
 
   private async triggerOverlayReposition(sender: chrome.runtime.MessageSender) {
-    if (await this.checkShouldRepositionInlineMenu(sender)) {
-      await this.toggleInlineMenuHidden({ isInlineMenuHidden: true }, sender);
+    if (this.checkShouldRepositionInlineMenu(sender)) {
+      this.cancelUpdateInlineMenuPositionSubject.next();
+      void this.toggleInlineMenuHidden({ isInlineMenuHidden: true }, sender);
       this.repositionInlineMenuSubject.next(sender);
     }
   }
 
   private async triggerSubFrameFocusInRebuild(sender: chrome.runtime.MessageSender) {
-    await this.rebuildSubFrameOffsets(sender);
+    this.rebuildSubFrameOffsetsSubject.next(sender);
     this.repositionInlineMenuSubject.next(sender);
   }
 
   private repositionInlineMenu = async (sender: chrome.runtime.MessageSender) => {
+    this.cancelUpdateInlineMenuPositionSubject.next();
     if (!this.isFieldCurrentlyFocused) {
       await this.closeInlineMenuAfterReposition(sender);
       return;
@@ -1375,10 +1373,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    if (this.focusedFieldData.frameId > 0 && sender.frameId !== this.focusedFieldData.frameId) {
+    if (this.focusedFieldData.frameId > 0) {
       this.rebuildSubFrameOffsetsSubject.next(sender);
     }
 
+    this.cancelUpdateInlineMenuPositionSubject.next();
     this.startUpdateInlineMenuPositionSubject.next(sender);
   };
 
