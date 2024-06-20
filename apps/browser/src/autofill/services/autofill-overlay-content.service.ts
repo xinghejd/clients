@@ -126,26 +126,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     await this.setupInlineMenuOnQualifiedField(formFieldElement);
   }
 
-  private async setupInlineMenuOnQualifiedField(
-    formFieldElement: ElementWithOpId<FormFieldElement>,
-  ) {
-    this.formFieldElements.add(formFieldElement);
-
-    if (!this.mostRecentlyFocusedField) {
-      await this.updateMostRecentlyFocusedField(formFieldElement);
-    }
-
-    if (!this.inlineMenuVisibility) {
-      await this.getInlineMenuVisibility();
-    }
-
-    this.setupFormFieldElementEventListeners(formFieldElement);
-
-    if (this.getRootNodeActiveElement(formFieldElement) === formFieldElement) {
-      await this.triggerFormFieldFocusedAction(formFieldElement);
-    }
-  }
-
   /**
    * Handles opening the autofill inline menu. Will conditionally open
    * the inline menu based on the current inline menu visibility setting.
@@ -742,6 +722,31 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   };
 
   /**
+   * Sets up the inline menu on a qualified form field element.
+   *
+   * @param formFieldElement - The form field element to set up the inline menu on.
+   */
+  private async setupInlineMenuOnQualifiedField(
+    formFieldElement: ElementWithOpId<FormFieldElement>,
+  ) {
+    this.formFieldElements.add(formFieldElement);
+
+    if (!this.mostRecentlyFocusedField) {
+      await this.updateMostRecentlyFocusedField(formFieldElement);
+    }
+
+    if (!this.inlineMenuVisibility) {
+      await this.getInlineMenuVisibility();
+    }
+
+    this.setupFormFieldElementEventListeners(formFieldElement);
+
+    if (this.getRootNodeActiveElement(formFieldElement) === formFieldElement) {
+      await this.triggerFormFieldFocusedAction(formFieldElement);
+    }
+  }
+
+  /**
    * Queries the background script for the autofill inline menu visibility setting.
    * If the setting is not found, a default value of OnFieldFocus will be used
    * @private
@@ -809,14 +814,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   private async isInlineMenuCiphersPopulated() {
     return (await this.sendExtensionMessage("checkIsInlineMenuCiphersPopulated")) === true;
-  }
-
-  /**
-   * Triggers a validation to ensure that the inline menu is repositioned only when the
-   * current frame contains the focused field at any given depth level.
-   */
-  private async checkShouldRepositionInlineMenu() {
-    return (await this.sendExtensionMessage("checkShouldRepositionInlineMenu")) === true;
   }
 
   /**
@@ -1048,6 +1045,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     await this.sendExtensionMessage("triggerAutofillOverlayReposition");
   };
 
+  /**
+   * Sets up listeners that facilitate a rebuild of the sub frame offsets
+   * when a user interacts or focuses an element within the frame.
+   */
   private setupRebuildSubFrameOffsetsListeners = () => {
     if (globalThis.window.top === globalThis.window || this.formFieldElements.size < 1) {
       return;
@@ -1057,6 +1058,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     globalThis.document.body.addEventListener(EVENTS.MOUSEENTER, this.handleSubFrameFocusInEvent);
   };
 
+  /**
+   * Sends a message to the background script to trigger a rebuild of the sub frame
+   * offsets. Will deregister the listeners to ensure that other focus and mouse
+   * events do not unnecessarily re-trigger a sub frame rebuild.
+   */
   private handleSubFrameFocusInEvent = () => {
     void this.sendExtensionMessage("triggerSubFrameFocusInRebuild");
 
@@ -1072,17 +1078,14 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     );
   };
 
+  /**
+   * Triggers an update in the most recently focused field's data and returns
+   * whether the field is within the viewport bounds. If not within the bounds
+   * of the viewport, the inline menu will be closed.
+   */
   private async checkIsMostRecentlyFocusedFieldWithinViewport() {
     await this.updateMostRecentlyFocusedField(this.mostRecentlyFocusedField);
 
-    return this.isFocusedFieldWithinViewportBounds();
-  }
-
-  /**
-   * Checks if the focused field is present within the bounds of the viewport.
-   * If not present, the inline menu will be closed.
-   */
-  private isFocusedFieldWithinViewportBounds() {
     const focusedFieldRectsTop = this.focusedFieldData?.focusedFieldRects?.top;
     const focusedFieldRectsBottom =
       focusedFieldRectsTop + this.focusedFieldData?.focusedFieldRects?.height;
@@ -1095,21 +1098,22 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     );
   }
 
+  /**
+   * Clears the timeout that triggers a debounced focus of the inline menu list.
+   */
   private clearFocusInlineMenuListTimeout() {
     if (this.focusInlineMenuListTimeout) {
       globalThis.clearTimeout(this.focusInlineMenuListTimeout);
     }
   }
 
+  /**
+   * Clears the timeout that triggers the closing of the inline menu on a focus redirection.
+   */
   private clearCloseInlineMenuOnRedirectTimeout() {
     if (this.closeInlineMenuOnRedirectTimeout) {
       globalThis.clearTimeout(this.closeInlineMenuOnRedirectTimeout);
     }
-  }
-
-  private clearAllTimeouts() {
-    this.clearFocusInlineMenuListTimeout();
-    this.clearCloseInlineMenuOnRedirectTimeout();
   }
 
   /**
@@ -1117,7 +1121,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * disconnect the mutation observers and remove all event listeners.
    */
   destroy() {
-    this.clearAllTimeouts();
+    this.clearFocusInlineMenuListTimeout();
+    this.clearCloseInlineMenuOnRedirectTimeout();
     this.formFieldElements.forEach((formFieldElement) => {
       this.removeCachedFormFieldEventListeners(formFieldElement);
       formFieldElement.removeEventListener(EVENTS.BLUR, this.handleFormFieldBlurEvent);
