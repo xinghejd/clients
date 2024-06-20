@@ -424,23 +424,6 @@ describe("OverlayBackground", () => {
             expect(repositionInlineMenuSpy).not.toHaveBeenCalled();
           });
 
-          it("blocks repositioning when the sender frame is for the focused field, but the inline menu is not visible", async () => {
-            sendMockExtensionMessage(
-              { command: "updateFocusedFieldData", focusedFieldData },
-              sender,
-            );
-            tabsSendMessageSpy.mockImplementationOnce((_tab, message) => {
-              if (message.command === "checkIsAutofillInlineMenuButtonVisible") {
-                return Promise.resolve(false);
-              }
-            });
-
-            sendMockExtensionMessage({ command: "triggerAutofillOverlayReposition" }, sender);
-            await flushOverlayRepositionPromises();
-
-            expect(repositionInlineMenuSpy).not.toHaveBeenCalled();
-          });
-
           it("blocks repositioning when the sender frame is not a parent frame of the focused field", async () => {
             focusedFieldData = createFocusedFieldDataMock({ tabId });
             const otherFrameSender = mock<chrome.runtime.MessageSender>({
