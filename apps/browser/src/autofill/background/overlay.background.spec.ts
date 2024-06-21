@@ -1284,6 +1284,25 @@ describe("OverlayBackground", () => {
       });
     });
 
+    describe("getAutofillInlineMenuPosition", () => {
+      it("returns the current inline menu position", async () => {
+        overlayBackground["inlineMenuPosition"] = {
+          button: { left: 1, top: 2, width: 3, height: 4 },
+        };
+
+        sendMockExtensionMessage(
+          { command: "getAutofillInlineMenuPosition" },
+          mock<chrome.runtime.MessageSender>(),
+          sendResponse,
+        );
+        await flushPromises();
+
+        expect(sendResponse).toHaveBeenCalledWith({
+          button: { left: 1, top: 2, width: 3, height: 4 },
+        });
+      });
+    });
+
     describe("toggleAutofillInlineMenuHidden message handler", () => {
       beforeEach(async () => {
         await initOverlayElementPorts();
