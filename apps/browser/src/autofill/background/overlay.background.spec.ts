@@ -1941,6 +1941,22 @@ describe("OverlayBackground", () => {
           styles: { height: "100px" },
         });
       });
+
+      it("updates the inline menu position property's list height value", () => {
+        overlayBackground["inlineMenuPosition"] = {
+          list: { height: 50, top: 1, left: 2, width: 3 },
+        };
+
+        sendPortMessage(listMessageConnectorSpy, {
+          command: "updateAutofillInlineMenuListHeight",
+          styles: { height: "100px" },
+          portKey,
+        });
+
+        expect(overlayBackground["inlineMenuPosition"]).toStrictEqual({
+          list: { height: 100, top: 1, left: 2, width: 3 },
+        });
+      });
     });
   });
 
