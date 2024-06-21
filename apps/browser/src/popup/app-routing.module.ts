@@ -31,8 +31,7 @@ import { ExcludedDomainsComponent } from "../autofill/popup/settings/excluded-do
 import { NotificationsSettingsComponent } from "../autofill/popup/settings/notifications.component";
 import { PremiumComponent } from "../billing/popup/settings/premium.component";
 import BrowserPopupUtils from "../platform/popup/browser-popup-utils";
-import { dirtyFormGuard } from "../platform/popup/services/dirty-form.service";
-import { resumePopupGuard } from "../platform/popup/services/popup-history.service";
+import { resumePopupGuard } from "../platform/popup/view-cache/popup-history.service";
 import { GeneratorComponent } from "../tools/popup/generator/generator.component";
 import { PasswordGeneratorHistoryComponent } from "../tools/popup/generator/password-generator-history.component";
 import { SendAddEditComponent } from "../tools/popup/send/send-add-edit.component";
@@ -333,7 +332,6 @@ const routes: Routes = [
     path: "add-send",
     component: SendAddEditComponent,
     canActivate: [AuthGuard],
-    canDeactivate: [dirtyFormGuard],
     data: { state: "add-send" },
   },
   {

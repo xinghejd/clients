@@ -10,23 +10,21 @@ import { filter, firstValueFrom } from "rxjs";
 
 import { FeatureFlag } from "@bitwarden/common/enums/feature-flag.enum";
 import { ConfigService } from "@bitwarden/common/platform/abstractions/config/config.service";
-import {
-  GlobalStateProvider,
-  KeyDefinition,
-  POPUP_VIEW_MEMORY,
-} from "@bitwarden/common/platform/state";
+import { GlobalStateProvider } from "@bitwarden/common/platform/state";
 
-const POPUP_HISTORY_KEY = new KeyDefinition<string[]>(POPUP_VIEW_MEMORY, "route-history", {
-  deserializer: (obj) => obj,
-});
+import { POPUP_ROUTE_HISTORY_KEY } from "../../services/popup-view-cache-background.service";
 
-// TODO: look into 2fa auth persitence, deeplinkguard
+/**
+ * Preserves route history when opening and closing the popup
+ *
+ * Routes marked with `doNotSaveUrl` will not be stored
+ **/
 @Injectable({
   providedIn: "root",
 })
 export class PopupHistoryService {
   private router = inject(Router);
-  private state = inject(GlobalStateProvider).get(POPUP_HISTORY_KEY);
+  private state = inject(GlobalStateProvider).get(POPUP_ROUTE_HISTORY_KEY);
 
   constructor() {
     this.router.events
@@ -47,11 +45,11 @@ export class PopupHistoryService {
       });
   }
 
-  async getHistory(): Promise<string[]> {
+  private async getHistory(): Promise<string[]> {
     return firstValueFrom(this.state.state$);
   }
 
-  /** Get the last item in the history stack */
+  /** Get the last item from the history stack */
   async last(): Promise<string> {
     const history = await this.getHistory();
     if (!history || history.length === 0) {
@@ -61,9 +59,9 @@ export class PopupHistoryService {
   }
 
   /**
-   * Push new URL onto history stack
+   * Push new route onto history stack
    */
-  async push(url: string): Promise<boolean> {
+  private async push(url: string): Promise<boolean> {
     if (url === (await this.last())) {
       return false;
     }
@@ -88,14 +86,18 @@ export class PopupHistoryService {
   }
 }
 
-/** Redirect to the last visited route. Should be applied to root route. */
+/**
+ * Redirect to the last visited route. Should be applied to root route.
+ *
+ * If `FeatureFlag.PersistPopupView` is disabled, do nothing.
+ **/
 export const resumePopupGuard = (): CanActivateFn => {
   return async () => {
     const configService = inject(ConfigService);
     const popupHistoryService = inject(PopupHistoryService);
     const urlSerializer = inject(UrlSerializer);
 
-    if (!(await configService.getFeatureFlag(FeatureFlag.ExtensionRefresh))) {
+    if (!(await configService.getFeatureFlag(FeatureFlag.PersistPopupView))) {
       return true;
     }
 

@@ -221,11 +221,11 @@ import BrowserLocalStorageService from "../platform/services/browser-local-stora
 import BrowserMemoryStorageService from "../platform/services/browser-memory-storage.service";
 import { BrowserScriptInjectorService } from "../platform/services/browser-script-injector.service";
 import { DefaultBrowserStateService } from "../platform/services/default-browser-state.service";
-import { DirtyFormStateService } from "../platform/services/dirty-form-state.service";
 import I18nService from "../platform/services/i18n.service";
 import { LocalBackedSessionStorageService } from "../platform/services/local-backed-session-storage.service";
 import { BackgroundPlatformUtilsService } from "../platform/services/platform-utils/background-platform-utils.service";
 import { BrowserPlatformUtilsService } from "../platform/services/platform-utils/browser-platform-utils.service";
+import { PopupViewCacheBackgroundService } from "../platform/services/popup-view-cache-background.service";
 import { BackgroundMemoryStorageService } from "../platform/storage/background-memory-storage.service";
 import { BrowserStorageServiceProvider } from "../platform/storage/browser-storage-service.provider";
 import { ForegroundMemoryStorageService } from "../platform/storage/foreground-memory-storage.service";
@@ -359,7 +359,7 @@ export default class MainBackground {
   private isSafari: boolean;
   private nativeMessagingBackground: NativeMessagingBackground;
 
-  private dirtyFormStateService: DirtyFormStateService;
+  private popupViewCacheBackgroundService: PopupViewCacheBackgroundService;
 
   constructor(public popupOnlyContext: boolean = false) {
     // Services
@@ -375,8 +375,6 @@ export default class MainBackground {
         await this.systemService.clearPendingClipboard();
         await this.systemService.startProcessReload(this.authService);
       }
-
-      await this.dirtyFormStateService.clearAll();
     };
 
     const logoutCallback = async (logoutReason: LogoutReason, userId?: UserId) =>
@@ -539,9 +537,9 @@ export default class MainBackground {
       logoutCallback,
     );
 
-    this.dirtyFormStateService = new DirtyFormStateService(
+    this.popupViewCacheBackgroundService = new PopupViewCacheBackgroundService(
       messageListener,
-      this.activeUserStateProvider,
+      this.globalStateProvider,
     );
 
     const migrationRunner = new MigrationRunner(
@@ -1181,7 +1179,7 @@ export default class MainBackground {
     await (this.i18nService as I18nService).init();
     (this.eventUploadService as EventUploadService).init(true);
 
-    this.dirtyFormStateService.init();
+    await this.popupViewCacheBackgroundService.init();
 
     if (this.popupOnlyContext) {
       return;
@@ -1246,7 +1244,7 @@ export default class MainBackground {
         this.accountService.activeAccount$.pipe(map((account) => account?.id)),
       );
       await Promise.all([
-        this.dirtyFormStateService.clearAll(),
+        this.popupViewCacheBackgroundService.clearState(),
         // can be removed once password generation history is migrated to state providers
         this.stateService.clearDecryptedData(currentlyActiveAccount),
       ]);
@@ -1356,7 +1354,7 @@ export default class MainBackground {
       this.vaultTimeoutSettingsService.clear(userBeingLoggedOut),
       this.vaultFilterService.clear(),
       this.biometricStateService.logout(userBeingLoggedOut),
-      this.dirtyFormStateService.clearAll(),
+      this.popupViewCacheBackgroundService.clearState(),
       /* We intentionally do not clear:
        *  - autofillSettingsService
        *  - badgeSettingsService

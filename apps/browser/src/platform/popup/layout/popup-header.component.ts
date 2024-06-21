@@ -5,7 +5,7 @@ import { Component, Input, inject } from "@angular/core";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { IconButtonModule, TypographyModule } from "@bitwarden/components";
 
-import { PopupHistoryService } from "../services/popup-history.service";
+import { PopupHistoryService } from "../view-cache/popup-history.service";
 
 @Component({
   selector: "popup-header",

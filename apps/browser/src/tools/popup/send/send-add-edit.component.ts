@@ -18,8 +18,11 @@ import { SendService } from "@bitwarden/common/tools/send/services/send.service.
 import { DialogService } from "@bitwarden/components";
 
 import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
-import { DirtyFormService } from "../../../platform/popup/services/dirty-form.service";
-import { PopupHistoryService } from "../../../platform/popup/services/popup-history.service";
+import {
+  DirtyFormRef,
+  PopupViewCacheService,
+} from "../../../platform/popup/view-cache/popup-view-cache.service";
+import { PopupHistoryService } from "../../../platform/popup/view-cache/popup-history.service";
 import { BrowserStateService } from "../../../platform/services/abstractions/browser-state.service";
 import { FilePopoutUtilsService } from "../services/file-popout-utils.service";
 
@@ -29,11 +32,13 @@ import { FilePopoutUtilsService } from "../services/file-popout-utils.service";
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class SendAddEditComponent extends BaseAddEditComponent {
-  protected dirtyFormService = inject(DirtyFormService);
+  protected dirtyFormService = inject(PopupViewCacheService);
   protected popupHistoryService = inject(PopupHistoryService);
 
+  private dirtyFormRef: DirtyFormRef;
+
   // Options header
-  showOptions = false;
+  showOptions: boolean;
   // File visibility
   isFirefox = false;
   inPopout = false;
@@ -100,10 +105,12 @@ export class SendAddEditComponent extends BaseAddEditComponent {
         this.type = type;
       }
       await super.ngOnInit();
-    });
 
-    await this.dirtyFormService.register(this.formGroup, {
-      key: "browser-send-add-edit",
+      // this.dirtyFormRef = this.dirtyFormService.cacheForm({
+      //   form: this.formGroup,
+      //   key: "browser-send-add-edit",
+      //   initialValue: null
+      // });
     });
 
     window.setTimeout(() => {
@@ -115,6 +122,7 @@ export class SendAddEditComponent extends BaseAddEditComponent {
 
   async submit(): Promise<boolean> {
     if (await super.submit()) {
+      this.dirtyFormRef.clear();
       this.cancel();
       return true;
     }
@@ -124,6 +132,7 @@ export class SendAddEditComponent extends BaseAddEditComponent {
 
   async delete(): Promise<boolean> {
     if (await super.delete()) {
+      this.dirtyFormRef.clear();
       this.cancel();
       return true;
     }
