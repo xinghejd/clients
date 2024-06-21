@@ -8,6 +8,7 @@ import {
   sendExtensionMessage,
   generateRandomCustomElementName,
   setElementStyles,
+  requestIdleCallbackPolyfill,
 } from "../../../utils";
 import {
   InlineMenuExtensionMessageHandlers,
@@ -373,7 +374,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       return;
     }
 
-    globalThis.requestIdleCallback(this.processBodyElementMutation);
+    requestIdleCallbackPolyfill(this.processBodyElementMutation, { timeout: 500 });
   };
 
   /**

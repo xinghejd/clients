@@ -342,6 +342,15 @@ describe("AutofillInlineMenuContentService", () => {
       expect(globalThis.document.body.insertBefore).not.toHaveBeenCalled();
     });
 
+    it("skips re-arranging the DOM elements if the last child of the body is non-existent", async () => {
+      document.body.innerHTML = "";
+
+      autofillInlineMenuContentService["handleBodyElementMutationObserverUpdate"]();
+      await waitForIdleCallback();
+
+      expect(globalThis.document.body.insertBefore).not.toHaveBeenCalled();
+    });
+
     it("skips re-arranging the DOM elements if the last child of the body is the overlay list and the second to last child of the body is the overlay button", async () => {
       autofillInlineMenuContentService["handleBodyElementMutationObserverUpdate"]();
       await waitForIdleCallback();
@@ -384,8 +393,7 @@ describe("AutofillInlineMenuContentService", () => {
       );
     });
 
-    // TODO FIX THIS TEST
-    it.skip("positions the last child before the overlay button if it is not the overlay list", async () => {
+    it("positions the last child before the overlay button if it is not the overlay list", async () => {
       const injectedElement = document.createElement("div");
       document.body.appendChild(injectedElement);
 
@@ -396,6 +404,52 @@ describe("AutofillInlineMenuContentService", () => {
         injectedElement,
         buttonElement,
       );
+    });
+
+    describe("handling an element that attempts to force itself as the last child", () => {
+      let persistentLastChild: HTMLElement;
+
+      beforeEach(() => {
+        persistentLastChild = document.createElement("div");
+        persistentLastChild.style.setProperty("z-index", "2147483647");
+        document.body.appendChild(persistentLastChild);
+        autofillInlineMenuContentService["lastElementOverrides"].set(persistentLastChild, 3);
+      });
+
+      it("sets the z-index of to a lower value", async () => {
+        autofillInlineMenuContentService["handleBodyElementMutationObserverUpdate"]();
+        await waitForIdleCallback();
+
+        expect(persistentLastChild.style.getPropertyValue("z-index")).toBe("2147483646");
+      });
+
+      it("closes the inline menu if the persistent last child overlays the inline menu button", async () => {
+        sendExtensionMessageSpy.mockResolvedValue({
+          button: { top: 0, left: 0, width: 0, height: 0 },
+        });
+        globalThis.document.elementFromPoint = jest.fn(() => persistentLastChild);
+
+        autofillInlineMenuContentService["handleBodyElementMutationObserverUpdate"]();
+        await waitForIdleCallback();
+
+        expect(sendExtensionMessageSpy).toHaveBeenCalledWith("autofillOverlayElementClosed", {
+          overlayElement: AutofillOverlayElement.Button,
+        });
+      });
+
+      it("closes the inline menu if the persistent last child overlays the inline menu list", async () => {
+        sendExtensionMessageSpy.mockResolvedValue({
+          list: { top: 0, left: 0, width: 0, height: 0 },
+        });
+        globalThis.document.elementFromPoint = jest.fn(() => persistentLastChild);
+
+        autofillInlineMenuContentService["handleBodyElementMutationObserverUpdate"]();
+        await waitForIdleCallback();
+
+        expect(sendExtensionMessageSpy).toHaveBeenCalledWith("autofillOverlayElementClosed", {
+          overlayElement: AutofillOverlayElement.List,
+        });
+      });
     });
   });
 
