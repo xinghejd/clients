@@ -8,6 +8,10 @@ import {
   AutofillOverlayVisibility,
   AUTOFILL_OVERLAY_ON_SCROLL,
   AUTOFILL_OVERLAY_ON_RESIZE,
+  AUTOFILL_OVERLAY_SUB_FRAME_ON_FOCUS,
+  AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_ENTER,
+  AUTOFILL_OVERLAY_SUB_FRAME_ON_BLUR,
+  AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_LEAVE,
 } from "@bitwarden/common/autofill/constants";
 
 import {
@@ -124,26 +128,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     await this.setupInlineMenuOnQualifiedField(formFieldElement);
-  }
-
-  private async setupInlineMenuOnQualifiedField(
-    formFieldElement: ElementWithOpId<FormFieldElement>,
-  ) {
-    this.formFieldElements.add(formFieldElement);
-
-    if (!this.mostRecentlyFocusedField) {
-      await this.updateMostRecentlyFocusedField(formFieldElement);
-    }
-
-    if (!this.inlineMenuVisibility) {
-      await this.getInlineMenuVisibility();
-    }
-
-    this.setupFormFieldElementEventListeners(formFieldElement);
-
-    if (this.getRootNodeActiveElement(formFieldElement) === formFieldElement) {
-      await this.triggerFormFieldFocusedAction(formFieldElement);
-    }
   }
 
   /**
@@ -742,6 +726,31 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   };
 
   /**
+   * Sets up the inline menu on a qualified form field element.
+   *
+   * @param formFieldElement - The form field element to set up the inline menu on.
+   */
+  private async setupInlineMenuOnQualifiedField(
+    formFieldElement: ElementWithOpId<FormFieldElement>,
+  ) {
+    this.formFieldElements.add(formFieldElement);
+
+    if (!this.mostRecentlyFocusedField) {
+      await this.updateMostRecentlyFocusedField(formFieldElement);
+    }
+
+    if (!this.inlineMenuVisibility) {
+      await this.getInlineMenuVisibility();
+    }
+
+    this.setupFormFieldElementEventListeners(formFieldElement);
+
+    if (this.getRootNodeActiveElement(formFieldElement) === formFieldElement) {
+      await this.triggerFormFieldFocusedAction(formFieldElement);
+    }
+  }
+
+  /**
    * Queries the background script for the autofill inline menu visibility setting.
    * If the setting is not found, a default value of OnFieldFocus will be used
    * @private
@@ -809,14 +818,6 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   private async isInlineMenuCiphersPopulated() {
     return (await this.sendExtensionMessage("checkIsInlineMenuCiphersPopulated")) === true;
-  }
-
-  /**
-   * Triggers a validation to ensure that the inline menu is repositioned only when the
-   * current frame contains the focused field at any given depth level.
-   */
-  private async checkShouldRepositionInlineMenu() {
-    return (await this.sendExtensionMessage("checkShouldRepositionInlineMenu")) === true;
   }
 
   /**
@@ -1003,7 +1004,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     globalThis.addEventListener(
       EVENTS.SCROLL,
       this.useEventHandlersMemo(
-        throttle(this.handleOverlayRepositionEvent, 200),
+        throttle(this.handleOverlayRepositionEvent, 150),
         AUTOFILL_OVERLAY_ON_SCROLL,
       ),
       {
@@ -1013,7 +1014,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     globalThis.addEventListener(
       EVENTS.RESIZE,
       this.useEventHandlersMemo(
-        throttle(this.handleOverlayRepositionEvent, 200),
+        throttle(this.handleOverlayRepositionEvent, 150),
         AUTOFILL_OVERLAY_ON_RESIZE,
       ),
     );
@@ -1048,41 +1049,107 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     await this.sendExtensionMessage("triggerAutofillOverlayReposition");
   };
 
+  /**
+   * Sets up listeners that facilitate a rebuild of the sub frame offsets
+   * when a user interacts or focuses an element within the frame.
+   */
   private setupRebuildSubFrameOffsetsListeners = () => {
     if (globalThis.window.top === globalThis.window || this.formFieldElements.size < 1) {
       return;
     }
+    this.removeSubFrameFocusOutListeners();
 
-    globalThis.addEventListener(EVENTS.FOCUS, this.handleSubFrameFocusInEvent);
-    globalThis.document.body.addEventListener(EVENTS.MOUSEENTER, this.handleSubFrameFocusInEvent);
+    globalThis.addEventListener(
+      EVENTS.FOCUS,
+      this.useEventHandlersMemo(
+        throttle(this.handleSubFrameFocusInEvent, 100),
+        AUTOFILL_OVERLAY_SUB_FRAME_ON_FOCUS,
+      ),
+    );
+    globalThis.document.body.addEventListener(
+      EVENTS.MOUSEENTER,
+      this.useEventHandlersMemo(
+        throttle(this.handleSubFrameFocusInEvent, 100),
+        AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_ENTER,
+      ),
+    );
   };
 
+  /**
+   * Removes the listeners that facilitate a rebuild of the sub frame offsets.
+   */
+  private removeRebuildSubFrameOffsetsListeners = () => {
+    globalThis.removeEventListener(
+      EVENTS.FOCUS,
+      this.eventHandlersMemo[AUTOFILL_OVERLAY_SUB_FRAME_ON_FOCUS],
+    );
+    globalThis.document.body.removeEventListener(
+      EVENTS.MOUSEENTER,
+      this.eventHandlersMemo[AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_ENTER],
+    );
+
+    delete this.eventHandlersMemo[AUTOFILL_OVERLAY_SUB_FRAME_ON_FOCUS];
+    delete this.eventHandlersMemo[AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_ENTER];
+  };
+
+  /**
+   * Re-establishes listeners that handle the sub frame offsets rebuild of the frame
+   * based on user interaction with the sub frame.
+   */
+  private setupSubFrameFocusOutListeners = () => {
+    globalThis.addEventListener(
+      EVENTS.BLUR,
+      this.useEventHandlersMemo(
+        throttle(this.setupRebuildSubFrameOffsetsListeners, 100),
+        AUTOFILL_OVERLAY_SUB_FRAME_ON_BLUR,
+      ),
+    );
+    globalThis.document.body.addEventListener(
+      EVENTS.MOUSELEAVE,
+      this.useEventHandlersMemo(
+        throttle(this.setupRebuildSubFrameOffsetsListeners, 100),
+        AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_LEAVE,
+      ),
+    );
+  };
+
+  /**
+   * Removes the listeners that trigger when a user focuses away from the sub frame.
+   */
+  private removeSubFrameFocusOutListeners = () => {
+    globalThis.removeEventListener(
+      EVENTS.BLUR,
+      this.eventHandlersMemo[AUTOFILL_OVERLAY_SUB_FRAME_ON_BLUR],
+    );
+    globalThis.document.body.removeEventListener(
+      EVENTS.MOUSELEAVE,
+      this.eventHandlersMemo[AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_LEAVE],
+    );
+
+    delete this.eventHandlersMemo[AUTOFILL_OVERLAY_SUB_FRAME_ON_BLUR];
+    delete this.eventHandlersMemo[AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_LEAVE];
+  };
+
+  /**
+   * Sends a message to the background script to trigger a rebuild of the sub frame
+   * offsets. Will deregister the listeners to ensure that other focus and mouse
+   * events do not unnecessarily re-trigger a sub frame rebuild.
+   */
   private handleSubFrameFocusInEvent = () => {
     void this.sendExtensionMessage("triggerSubFrameFocusInRebuild");
 
-    globalThis.removeEventListener(EVENTS.FOCUS, this.handleSubFrameFocusInEvent);
-    globalThis.document.body.removeEventListener(
-      EVENTS.MOUSEENTER,
-      this.handleSubFrameFocusInEvent,
-    );
-    globalThis.addEventListener(EVENTS.BLUR, this.setupRebuildSubFrameOffsetsListeners);
-    globalThis.document.body.addEventListener(
-      EVENTS.MOUSELEAVE,
-      this.setupRebuildSubFrameOffsetsListeners,
-    );
+    this.removeRebuildSubFrameOffsetsListeners();
+    this.setupSubFrameFocusOutListeners();
   };
 
+  /**
+   * Triggers an update in the most recently focused field's data and returns
+   * whether the field is within the viewport bounds. If not within the bounds
+   * of the viewport, the inline menu will be closed.
+   */
   private async checkIsMostRecentlyFocusedFieldWithinViewport() {
     await this.updateMostRecentlyFocusedField(this.mostRecentlyFocusedField);
 
-    return this.isFocusedFieldWithinViewportBounds();
-  }
-
-  /**
-   * Checks if the focused field is present within the bounds of the viewport.
-   * If not present, the inline menu will be closed.
-   */
-  private isFocusedFieldWithinViewportBounds() {
     const focusedFieldRectsTop = this.focusedFieldData?.focusedFieldRects?.top;
     const focusedFieldRectsBottom =
       focusedFieldRectsTop + this.focusedFieldData?.focusedFieldRects?.height;
@@ -1095,21 +1162,22 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     );
   }
 
+  /**
+   * Clears the timeout that triggers a debounced focus of the inline menu list.
+   */
   private clearFocusInlineMenuListTimeout() {
     if (this.focusInlineMenuListTimeout) {
       globalThis.clearTimeout(this.focusInlineMenuListTimeout);
     }
   }
 
+  /**
+   * Clears the timeout that triggers the closing of the inline menu on a focus redirection.
+   */
   private clearCloseInlineMenuOnRedirectTimeout() {
     if (this.closeInlineMenuOnRedirectTimeout) {
       globalThis.clearTimeout(this.closeInlineMenuOnRedirectTimeout);
     }
-  }
-
-  private clearAllTimeouts() {
-    this.clearFocusInlineMenuListTimeout();
-    this.clearCloseInlineMenuOnRedirectTimeout();
   }
 
   /**
@@ -1117,7 +1185,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * disconnect the mutation observers and remove all event listeners.
    */
   destroy() {
-    this.clearAllTimeouts();
+    this.clearFocusInlineMenuListTimeout();
+    this.clearCloseInlineMenuOnRedirectTimeout();
     this.formFieldElements.forEach((formFieldElement) => {
       this.removeCachedFormFieldEventListeners(formFieldElement);
       formFieldElement.removeEventListener(EVENTS.BLUR, this.handleFormFieldBlurEvent);
@@ -1130,11 +1199,8 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       this.handleVisibilityChangeEvent,
     );
     globalThis.removeEventListener(EVENTS.FOCUSOUT, this.handleFormFieldBlurEvent);
-    globalThis.removeEventListener(EVENTS.FOCUS, this.handleSubFrameFocusInEvent);
-    globalThis.document.body.removeEventListener(
-      EVENTS.MOUSEENTER,
-      this.handleSubFrameFocusInEvent,
-    );
     this.removeOverlayRepositionEventListeners();
+    this.removeRebuildSubFrameOffsetsListeners();
+    this.removeSubFrameFocusOutListeners();
   }
 }

@@ -146,7 +146,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     private platformUtilsService: PlatformUtilsService,
     private themeStateService: ThemeStateService,
   ) {
-    this.initOverlayObservables();
+    this.initOverlayEventObservables();
   }
 
   /**
@@ -159,16 +159,19 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     this.iconsServerUrl = env.getIconsUrl();
   }
 
-  private initOverlayObservables() {
+  /**
+   * Initializes event observables that handle events which affect the overlay's behavior.
+   */
+  private initOverlayEventObservables() {
     this.repositionInlineMenuSubject
       .pipe(
-        debounceTime(500),
+        debounceTime(1000),
         switchMap((sender) => this.repositionInlineMenu(sender)),
       )
       .subscribe();
     this.rebuildSubFrameOffsetsSubject
       .pipe(
-        throttleTime(650),
+        throttleTime(100),
         switchMap((sender) => this.rebuildSubFrameOffsets(sender)),
       )
       .subscribe();
@@ -436,6 +439,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param sender - The sender of the message
    */
   private async rebuildSubFrameOffsets(sender: chrome.runtime.MessageSender) {
+    this.cancelUpdateInlineMenuPositionSubject.next();
     this.clearDelayedInlineMenuClosure();
 
     const subFrameOffsetsForTab = this.subFrameOffsetsForTab[sender.tab.id];
@@ -463,7 +467,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     if (!(await this.checkIsInlineMenuButtonVisible(sender))) {
-      await this.toggleInlineMenuHidden(
+      void this.toggleInlineMenuHidden(
         { isInlineMenuHidden: false, setTransparentInlineMenu: true },
         sender,
       );
@@ -596,7 +600,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     this.clearDelayedInlineMenuClosure();
-
     this.delayedCloseTimeout = globalThis.setTimeout(() => {
       const message = { command: "triggerDelayedAutofillInlineMenuClosure" };
       this.inlineMenuButtonPort?.postMessage(message);
@@ -711,6 +714,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     this.cancelInlineMenuFadeInSubject.next(true);
   }
 
+  /**
+   * Posts a message to the inline menu elements to trigger a fade in of the inline menu.
+   *
+   * @param cancelFadeIn - Signal passed to debounced observable to cancel the fade in
+   */
   private async triggerInlineMenuFadeIn(cancelFadeIn: boolean = false) {
     if (cancelFadeIn) {
       return;
@@ -1139,38 +1147,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
-   * Handles verifying whether the inline menu should be repositioned. This is used to
-   * guard against removing the inline menu when other frames trigger a resize event.
-   *
-   * @param sender - The sender of the message
-   */
-  private async checkShouldRepositionInlineMenu(
-    sender: chrome.runtime.MessageSender,
-  ): Promise<boolean> {
-    if (!this.focusedFieldData || sender.tab.id !== this.focusedFieldData.tabId) {
-      return false;
-    }
-
-    if (this.focusedFieldData.frameId === sender.frameId) {
-      return await this.checkIsInlineMenuButtonVisible(sender);
-    }
-
-    const subFrameOffsetsForTab = this.subFrameOffsetsForTab[sender.tab.id];
-    if (!subFrameOffsetsForTab) {
-      return false;
-    }
-
-    const parentFrameIds = new Set();
-    subFrameOffsetsForTab.forEach((subFrameOffsetData) =>
-      subFrameOffsetData?.parentFrameIds.forEach((parentFrameId) =>
-        parentFrameIds.add(parentFrameId),
-      ),
-    );
-
-    return parentFrameIds.has(sender.frameId);
-  }
-
-  /**
    * Responds to the content script's request to check if the inline menu ciphers are populated.
    * This will return true only if the sender is the focused field's tab and the inline menu
    * ciphers are populated.
@@ -1208,6 +1184,102 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       command: "updateAutofillInlineMenuPosition",
       styles: message.styles,
     });
+  }
+
+  /**
+   * Handles verifying whether the inline menu should be repositioned. This is used to
+   * guard against removing the inline menu when other frames trigger a resize event.
+   *
+   * @param sender - The sender of the message
+   */
+  private checkShouldRepositionInlineMenu(sender: chrome.runtime.MessageSender): boolean {
+    if (!this.focusedFieldData || sender.tab.id !== this.focusedFieldData.tabId) {
+      return false;
+    }
+
+    if (this.focusedFieldData.frameId === sender.frameId) {
+      return true;
+    }
+
+    const subFrameOffsetsForTab = this.subFrameOffsetsForTab[sender.tab.id];
+    if (subFrameOffsetsForTab) {
+      for (const value of subFrameOffsetsForTab.values()) {
+        if (value?.parentFrameIds.includes(sender.frameId)) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Triggers when a scroll or resize event occurs within a tab. Will reposition the inline menu
+   * if the focused field is within the viewport.
+   *
+   * @param sender - The sender of the message
+   */
+  private async triggerOverlayReposition(sender: chrome.runtime.MessageSender) {
+    if (this.checkShouldRepositionInlineMenu(sender)) {
+      this.cancelUpdateInlineMenuPositionSubject.next();
+      void this.toggleInlineMenuHidden({ isInlineMenuHidden: true }, sender);
+      this.repositionInlineMenuSubject.next(sender);
+    }
+  }
+
+  /**
+   * Triggers when a focus event occurs within a tab. Will reposition the inline menu
+   * if the focused field is within the viewport.
+   *
+   * @param sender - The sender of the message
+   */
+  private async triggerSubFrameFocusInRebuild(sender: chrome.runtime.MessageSender) {
+    this.rebuildSubFrameOffsetsSubject.next(sender);
+    this.repositionInlineMenuSubject.next(sender);
+  }
+
+  /**
+   * Handles determining if the inline menu should be repositioned or closed, and initiates
+   * the process of calculating the new position of the inline menu.
+   *
+   * @param sender - The sender of the message
+   */
+  private repositionInlineMenu = async (sender: chrome.runtime.MessageSender) => {
+    this.cancelUpdateInlineMenuPositionSubject.next();
+    if (!this.isFieldCurrentlyFocused) {
+      await this.closeInlineMenuAfterReposition(sender);
+      return;
+    }
+
+    const isFieldWithinViewport = await BrowserApi.tabSendMessage(
+      sender.tab,
+      { command: "checkIsMostRecentlyFocusedFieldWithinViewport" },
+      { frameId: this.focusedFieldData.frameId },
+    );
+    if (!isFieldWithinViewport) {
+      await this.closeInlineMenuAfterReposition(sender);
+      return;
+    }
+
+    if (this.focusedFieldData.frameId > 0) {
+      this.rebuildSubFrameOffsetsSubject.next(sender);
+    }
+
+    this.cancelUpdateInlineMenuPositionSubject.next();
+    this.startUpdateInlineMenuPositionSubject.next(sender);
+  };
+
+  /**
+   * Triggers a closure of the inline menu during a reposition event.
+   *
+   * @param sender - The sender of the message
+|   */
+  private async closeInlineMenuAfterReposition(sender: chrome.runtime.MessageSender) {
+    await this.toggleInlineMenuHidden(
+      { isInlineMenuHidden: false, setTransparentInlineMenu: true },
+      sender,
+    );
+    this.closeInlineMenu(sender, { forceCloseInlineMenu: true });
   }
 
   /**
@@ -1378,47 +1450,4 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       this.inlineMenuPosition.button = null;
     }
   };
-
-  private async triggerOverlayReposition(sender: chrome.runtime.MessageSender) {
-    if (await this.checkShouldRepositionInlineMenu(sender)) {
-      await this.toggleInlineMenuHidden({ isInlineMenuHidden: true }, sender);
-      this.repositionInlineMenuSubject.next(sender);
-    }
-  }
-
-  private async triggerSubFrameFocusInRebuild(sender: chrome.runtime.MessageSender) {
-    await this.rebuildSubFrameOffsets(sender);
-    this.repositionInlineMenuSubject.next(sender);
-  }
-
-  private repositionInlineMenu = async (sender: chrome.runtime.MessageSender) => {
-    if (!this.isFieldCurrentlyFocused) {
-      await this.closeInlineMenuAfterReposition(sender);
-      return;
-    }
-
-    const isFieldWithinViewport = await BrowserApi.tabSendMessage(
-      sender.tab,
-      { command: "checkIsMostRecentlyFocusedFieldWithinViewport" },
-      { frameId: this.focusedFieldData.frameId },
-    );
-    if (!isFieldWithinViewport) {
-      await this.closeInlineMenuAfterReposition(sender);
-      return;
-    }
-
-    if (this.focusedFieldData.frameId > 0 && sender.frameId !== this.focusedFieldData.frameId) {
-      this.rebuildSubFrameOffsetsSubject.next(sender);
-    }
-
-    this.startUpdateInlineMenuPositionSubject.next(sender);
-  };
-
-  private async closeInlineMenuAfterReposition(sender: chrome.runtime.MessageSender) {
-    await this.toggleInlineMenuHidden(
-      { isInlineMenuHidden: false, setTransparentInlineMenu: true },
-      sender,
-    );
-    this.closeInlineMenu(sender, { forceCloseInlineMenu: true });
-  }
 }

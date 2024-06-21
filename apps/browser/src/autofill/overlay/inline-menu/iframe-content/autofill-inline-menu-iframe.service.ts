@@ -308,6 +308,9 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     void this.sendExtensionMessage("closeAutofillInlineMenu", { forceClose: true });
   }
 
+  /**
+   * Triggers a fade in effect for the inline menu iframe. Initialized by the background context.
+   */
   private handleFadeInInlineMenuIframe() {
     this.clearFadeInTimeout();
     this.fadeInTimeout = globalThis.setTimeout(() => {
@@ -315,6 +318,9 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
     }, 10);
   }
 
+  /**
+   * Clears the fade in timeout for the inline menu iframe.
+   */
   private clearFadeInTimeout() {
     if (this.fadeInTimeout) {
       clearTimeout(this.fadeInTimeout);

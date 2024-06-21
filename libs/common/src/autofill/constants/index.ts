@@ -54,11 +54,17 @@ export const SEPARATOR_ID = "separator";
 
 export const NOTIFICATION_BAR_LIFESPAN_MS = 150000; // 150 seconds
 
+export const AUTOFILL_OVERLAY_ON_SCROLL = "autofill-overlay-scroll-event";
+export const AUTOFILL_OVERLAY_ON_RESIZE = "autofill-overlay-resize-event";
+export const AUTOFILL_OVERLAY_SUB_FRAME_ON_FOCUS = "autofill-overlay-sub-frame-focus-event";
+export const AUTOFILL_OVERLAY_SUB_FRAME_ON_BLUR = "autofill-overlay-sub-frame-blur-event";
+export const AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_ENTER =
+  "autofill-overlay-sub-frame-on-mouse-enter-event";
+export const AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_LEAVE =
+  "autofill-overlay-sub-frame-on-mouse-leave-event";
+
 export const AutofillOverlayVisibility = {
   Off: 0,
   OnButtonClick: 1,
   OnFieldFocus: 2,
 } as const;
-
-export const AUTOFILL_OVERLAY_ON_SCROLL = "autofill-overlay-scroll-event";
-export const AUTOFILL_OVERLAY_ON_RESIZE = "autofill-overlay-resize-event";

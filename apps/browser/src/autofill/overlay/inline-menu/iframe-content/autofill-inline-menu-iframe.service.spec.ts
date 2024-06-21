@@ -424,6 +424,19 @@ describe("AutofillInlineMenuIframeService", () => {
           forceClose: true,
         });
       });
+
+      it("triggers a fade in of the inline menu", () => {
+        jest.useFakeTimers();
+        jest.spyOn(globalThis, "clearTimeout");
+        autofillInlineMenuIframeService["fadeInTimeout"] = setTimeout(jest.fn, 10);
+
+        sendPortMessage(portSpy, { command: "fadeInAutofillInlineMenuIframe" });
+        expect(clearTimeout).toHaveBeenCalled();
+        expect(autofillInlineMenuIframeService["iframe"].style.opacity).toBe("0");
+
+        jest.advanceTimersByTime(10);
+        expect(autofillInlineMenuIframeService["iframe"].style.opacity).toBe("1");
+      });
     });
   });
 
