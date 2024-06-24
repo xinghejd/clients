@@ -66,6 +66,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private inlineMenuCiphers: Map<string, CipherView> = new Map();
   private inlineMenuPageTranslations: Record<string, string>;
   private inlineMenuPosition: InlineMenuPosition = {};
+  private cardAndIdentityCiphers: CipherView[] = [];
   private delayedCloseTimeout: number | NodeJS.Timeout;
   private startInlineMenuFadeInSubject = new Subject<void>();
   private cancelInlineMenuFadeInSubject = new Subject<boolean>();
@@ -219,7 +220,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Queries all ciphers for the given url, and sorts them by last used. Will not update the
    * list of ciphers if the extension is not unlocked.
    */
-  async updateInlineMenuCiphers() {
+  async updateInlineMenuCiphers(updateAllCipherTypes = true) {
     const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
     if (authStatus !== AuthenticationStatus.Unlocked) {
       return;
@@ -231,18 +232,42 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     this.inlineMenuCiphers = new Map();
-    const ciphersViews = (await this.cipherService.getAllDecryptedForUrl(currentTab.url)).sort(
-      (a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b),
-    );
+    const ciphersViews = await this.getCipherViews(currentTab, updateAllCipherTypes);
     for (let cipherIndex = 0; cipherIndex < ciphersViews.length; cipherIndex++) {
       this.inlineMenuCiphers.set(`inline-menu-cipher-${cipherIndex}`, ciphersViews[cipherIndex]);
     }
 
-    const ciphers = await this.getInlineMenuCipherData();
-    this.inlineMenuListPort?.postMessage({
-      command: "updateAutofillInlineMenuListCiphers",
-      ciphers,
-    });
+    // TODO: Consider the implication of this, going to comment it out for now...
+    // const ciphers = await this.getInlineMenuCipherData();
+    // this.inlineMenuListPort?.postMessage({
+    //   command: "updateAutofillInlineMenuListCiphers",
+    //   ciphers,
+    // });
+  }
+
+  private async getCipherViews(
+    currentTab: chrome.tabs.Tab,
+    updateAllCipherTypes: boolean,
+  ): Promise<CipherView[]> {
+    if (updateAllCipherTypes) {
+      const cipherViews = (
+        await this.cipherService.getAllDecryptedForUrl(currentTab.url, [CipherType.Card])
+      ).sort((a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b));
+      for (let cipherIndex = 0; cipherIndex < cipherViews.length; cipherIndex++) {
+        const cipherView = cipherViews[cipherIndex];
+        if (cipherView.type === CipherType.Card) {
+          this.cardAndIdentityCiphers.push(cipherView);
+        }
+      }
+
+      return cipherViews;
+    }
+
+    const cipherViews = (await this.cipherService.getAllDecryptedForUrl(currentTab.url)).sort(
+      (a, b) => this.cipherService.sortCiphersByLastUsedThenName(a, b),
+    );
+
+    return cipherViews.concat(this.cardAndIdentityCiphers);
   }
 
   /**

@@ -267,10 +267,12 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       "aria-label",
       `${this.getTranslation("fillCredentialsFor")} ${cipher.name}`,
     );
-    fillCipherElement.setAttribute(
-      "aria-description",
-      `${this.getTranslation("username")}, ${cipher.login.username}`,
-    );
+    if (cipher.login) {
+      fillCipherElement.setAttribute(
+        "aria-description",
+        `${this.getTranslation("username")}, ${cipher.login.username}`,
+      );
+    }
     fillCipherElement.append(cipherIcon, cipherDetailsElement);
     fillCipherElement.addEventListener(EVENTS.CLICK, this.handleFillCipherClickEvent(cipher));
     fillCipherElement.addEventListener(EVENTS.KEYUP, this.handleFillCipherKeyUpEvent);
@@ -412,7 +414,8 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
         dummyImageElement.src = url.href;
         dummyImageElement.addEventListener("error", () => {
           cipherIcon.style.backgroundImage = "";
-          cipherIcon.classList.add("cipher-icon", "bwi", cipher.icon.icon);
+          const iconClasses = cipher.icon.icon.split(" ");
+          cipherIcon.classList.add("cipher-icon", "bwi", ...iconClasses);
         });
         dummyImageElement.remove();
 
@@ -422,8 +425,9 @@ export class AutofillInlineMenuList extends AutofillInlineMenuPageElement {
       }
     }
 
+    const iconClasses = cipher.icon.icon.split(" ");
     if (cipher.icon?.icon) {
-      cipherIcon.classList.add("cipher-icon", "bwi", cipher.icon.icon);
+      cipherIcon.classList.add("cipher-icon", "bwi", ...iconClasses);
       return cipherIcon;
     }
 
