@@ -13,6 +13,7 @@ import {
   AUTOFILL_OVERLAY_SUB_FRAME_ON_BLUR,
   AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_LEAVE,
 } from "@bitwarden/common/autofill/constants";
+import { CipherType } from "@bitwarden/common/vault/enums";
 
 import {
   FocusedFieldData,
@@ -48,7 +49,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   inlineMenuVisibility: number;
   private readonly findTabs = tabbable;
   private readonly sendExtensionMessage = sendExtensionMessage;
-  private formFieldElements: Set<ElementWithOpId<FormFieldElement>> = new Set([]);
+  private formFieldElements: Map<ElementWithOpId<FormFieldElement>, AutofillField> = new Map();
   private hiddenFormFieldElements: WeakMap<ElementWithOpId<FormFieldElement>, AutofillField> =
     new WeakMap();
   private ignoredFieldTypes: Set<string> = new Set(AutoFillConstants.ExcludedInlineMenuTypes);
@@ -127,7 +128,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return;
     }
 
-    await this.setupInlineMenuOnQualifiedField(formFieldElement);
+    await this.setupInlineMenuOnQualifiedField(formFieldElement, autofillFieldData);
   }
 
   /**
@@ -573,9 +574,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     const { paddingRight, paddingLeft } = globalThis.getComputedStyle(formFieldElement);
     const { width, height, top, left } =
       await this.getMostRecentlyFocusedFieldRects(formFieldElement);
+    const autofillFieldData = this.formFieldElements.get(formFieldElement);
     this.focusedFieldData = {
       focusedFieldStyles: { paddingRight, paddingLeft },
       focusedFieldRects: { width, height, top, left },
+      filledByCipherType: autofillFieldData.filledByCipherType,
     };
 
     await this.sendExtensionMessage("updateFocusedFieldData", {
@@ -653,10 +656,14 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       return true;
     }
 
-    return !this.inlineMenuFieldQualificationService.isFieldForLoginForm(
-      autofillFieldData,
-      pageDetails,
-    );
+    if (
+      this.inlineMenuFieldQualificationService.isFieldForLoginForm(autofillFieldData, pageDetails)
+    ) {
+      autofillFieldData.filledByCipherType = CipherType.Login;
+      return false;
+    }
+
+    return true;
   }
 
   /**
@@ -719,7 +726,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
       autofillFieldData.readonly = getAttributeBoolean(formFieldElement, "disabled");
       autofillFieldData.disabled = getAttributeBoolean(formFieldElement, "disabled");
       autofillFieldData.viewable = true;
-      void this.setupInlineMenuOnQualifiedField(formFieldElement);
+      void this.setupInlineMenuOnQualifiedField(formFieldElement, autofillFieldData);
     }
 
     this.removeHiddenFieldFallbackListener(formFieldElement);
@@ -729,11 +736,13 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * Sets up the inline menu on a qualified form field element.
    *
    * @param formFieldElement - The form field element to set up the inline menu on.
+   * @param autofillFieldData - Autofill field data captured from the form field element.
    */
   private async setupInlineMenuOnQualifiedField(
     formFieldElement: ElementWithOpId<FormFieldElement>,
+    autofillFieldData: AutofillField,
   ) {
-    this.formFieldElements.add(formFieldElement);
+    this.formFieldElements.set(formFieldElement, autofillFieldData);
 
     if (!this.mostRecentlyFocusedField) {
       await this.updateMostRecentlyFocusedField(formFieldElement);
@@ -1187,7 +1196,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
   destroy() {
     this.clearFocusInlineMenuListTimeout();
     this.clearCloseInlineMenuOnRedirectTimeout();
-    this.formFieldElements.forEach((formFieldElement) => {
+    this.formFieldElements.forEach((_autofillField, formFieldElement) => {
       this.removeCachedFormFieldEventListeners(formFieldElement);
       formFieldElement.removeEventListener(EVENTS.BLUR, this.handleFormFieldBlurEvent);
       formFieldElement.removeEventListener(EVENTS.KEYUP, this.handleFormFieldKeyupEvent);

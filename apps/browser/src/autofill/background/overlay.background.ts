@@ -281,6 +281,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     for (let cipherIndex = 0; cipherIndex < inlineMenuCiphersArray.length; cipherIndex++) {
       const [inlineMenuCipherId, cipher] = inlineMenuCiphersArray[cipherIndex];
+      if (this.focusedFieldData.filledByCipherType !== cipher.type) {
+        continue;
+      }
 
       inlineMenuCipherData.push({
         id: inlineMenuCipherId,
