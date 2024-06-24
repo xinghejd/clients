@@ -151,7 +151,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * overlay's visibility and the user's authentication status.
    */
   async init() {
-    this.setupExtensionMessageListeners();
+    this.setupExtensionListeners();
     const env = await firstValueFrom(this.environmentService.environment$);
     this.iconsServerUrl = env.getIconsUrl();
   }
@@ -199,11 +199,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     if (this.pageDetailsForTab[tabId]) {
       this.pageDetailsForTab[tabId].clear();
       delete this.pageDetailsForTab[tabId];
-    }
-
-    if (this.subFrameOffsetsForTab[tabId]) {
-      this.subFrameOffsetsForTab[tabId].clear();
-      delete this.subFrameOffsetsForTab[tabId];
     }
 
     if (this.portKeyForTab[tabId]) {
@@ -1255,8 +1250,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   /**
    * Sets up the extension message listeners for the overlay.
    */
-  private setupExtensionMessageListeners() {
+  private setupExtensionListeners() {
     BrowserApi.messageListener("overlay.background", this.handleExtensionMessage);
+    BrowserApi.addListener(chrome.webNavigation.onCommitted, this.handleWebNavigationOnCommitted);
     BrowserApi.addListener(chrome.runtime.onConnect, this.handlePortOnConnect);
   }
 
@@ -1286,6 +1282,25 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       .then((response) => sendResponse(response))
       .catch(this.logService.error);
     return true;
+  };
+
+  private handleWebNavigationOnCommitted = (
+    details: chrome.webNavigation.WebNavigationTransitionCallbackDetails,
+  ) => {
+    const { frameId, tabId } = details;
+    const subFrames = this.subFrameOffsetsForTab[tabId];
+    if (frameId === 0) {
+      this.removePageDetails(tabId);
+      if (subFrames) {
+        subFrames.clear();
+        delete this.subFrameOffsetsForTab[tabId];
+      }
+      return;
+    }
+
+    if (subFrames && subFrames.has(frameId)) {
+      subFrames.delete(frameId);
+    }
   };
 
   /**

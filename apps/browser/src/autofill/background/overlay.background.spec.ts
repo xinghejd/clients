@@ -319,7 +319,7 @@ describe("OverlayBackground", () => {
   });
 
   describe("removing pageDetails", () => {
-    it("removes the page details, sub frame details, and port key for a specific tab from the pageDetailsForTab object", () => {
+    it("removes the page details and port key for a specific tab from the pageDetailsForTab object", () => {
       const tabId = 1;
       sendMockExtensionMessage(
         { command: "collectPageDetailsResponse", details: createAutofillPageDetailsMock() },
@@ -329,7 +329,6 @@ describe("OverlayBackground", () => {
       overlayBackground.removePageDetails(tabId);
 
       expect(pageDetailsForTabSpy[tabId]).toBeUndefined();
-      expect(subFrameOffsetsSpy[tabId]).toBeUndefined();
       expect(portKeyForTabSpy[tabId]).toBeUndefined();
     });
   });
