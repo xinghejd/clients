@@ -286,12 +286,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     };
 
     if (pageDetails.frameId !== 0 && pageDetails.details.fields.length) {
-      void this.buildSubFrameOffsets(
-        pageDetails.tab,
-        pageDetails.frameId,
-        pageDetails.details.url,
-        sender,
-      );
+      void this.buildSubFrameOffsets(pageDetails.tab, pageDetails.frameId, pageDetails.details.url);
       void BrowserApi.tabSendMessage(pageDetails.tab, {
         command: "setupRebuildSubFrameOffsetsListeners",
       });
@@ -341,13 +336,13 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param tab - The tab that the sub frame is associated with
    * @param frameId - The frame ID of the sub frame
    * @param url - The URL of the sub frame
-   * @param sender - The sender of the message
+   * @param forceRebuild - Identifies whether the sub frame offsets should be rebuilt
    */
   private async buildSubFrameOffsets(
     tab: chrome.tabs.Tab,
     frameId: number,
     url: string,
-    sender: chrome.runtime.MessageSender,
+    forceRebuild: boolean = false,
   ) {
     let subFrameDepth = 0;
     const tabId = tab.id;
@@ -357,7 +352,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       subFrameOffsetsForTab = this.subFrameOffsetsForTab[tabId];
     }
 
-    if (subFrameOffsetsForTab.get(frameId)) {
+    if (!forceRebuild && subFrameOffsetsForTab.get(frameId)) {
       return;
     }
 
@@ -438,8 +433,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     if (subFrameOffsetsForTab) {
       const tabFrameIds = Array.from(subFrameOffsetsForTab.keys());
       for (const frameId of tabFrameIds) {
-        subFrameOffsetsForTab.delete(frameId);
-        await this.buildSubFrameOffsets(sender.tab, frameId, sender.url, sender);
+        await this.buildSubFrameOffsets(sender.tab, frameId, sender.url, true);
       }
     }
   }
@@ -664,6 +658,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     let subFrameOffsets: SubFrameOffsetData;
     if (subFrameOffsetsForTab) {
       subFrameOffsets = subFrameOffsetsForTab.get(this.focusedFieldData.frameId);
+      if (subFrameOffsets === null) {
+        this.cancelUpdateInlineMenuPositionSubject.next();
+        this.startUpdateInlineMenuPositionSubject.next(sender);
+        return;
+      }
     }
 
     if (overlayElement === AutofillOverlayElement.Button) {

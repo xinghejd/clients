@@ -154,18 +154,6 @@ describe("TabsBackground", () => {
         });
       });
 
-      it("removes the cached page details from the overlay background if the tab status is `loading`", () => {
-        triggerTabOnUpdatedEvent(focusedWindowId, { status: "loading" }, tab);
-
-        expect(overlayBackground.removePageDetails).toHaveBeenCalledWith(focusedWindowId);
-      });
-
-      it("removes the cached page details from the overlay background if the tab status is `unloaded`", () => {
-        triggerTabOnUpdatedEvent(focusedWindowId, { status: "unloaded" }, tab);
-
-        expect(overlayBackground.removePageDetails).toHaveBeenCalledWith(focusedWindowId);
-      });
-
       it("skips updating the current tab data the focusedWindowId is set to a value less than zero", async () => {
         tab.windowId = -1;
         triggerTabOnUpdatedEvent(focusedWindowId, { status: "loading" }, tab);

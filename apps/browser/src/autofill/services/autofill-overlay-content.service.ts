@@ -844,14 +844,26 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     message: AutofillExtensionMessage,
   ): Promise<SubFrameOffsetData | null> {
     const { subFrameUrl } = message;
-    const subFrameUrlWithoutTrailingSlash = subFrameUrl?.replace(/\/$/, "");
+
+    const subFrameUrlVariations = this.getSubFrameUrlVariations(subFrameUrl);
+    if (!subFrameUrlVariations) {
+      return null;
+    }
 
     let iframeElement: HTMLIFrameElement | null = null;
-    const iframeElements = globalThis.document.querySelectorAll(
-      `iframe[src="${subFrameUrl}"], iframe[src="${subFrameUrlWithoutTrailingSlash}"]`,
-    ) as NodeListOf<HTMLIFrameElement>;
-    if (iframeElements.length === 1) {
-      iframeElement = iframeElements[0];
+    const iframeElements = globalThis.document.getElementsByTagName("iframe");
+
+    for (let iframeIndex = 0; iframeIndex < iframeElements.length; iframeIndex++) {
+      const iframe = iframeElements[iframeIndex];
+      if (!subFrameUrlVariations.has(iframe.src)) {
+        continue;
+      }
+
+      if (iframeElement) {
+        return null;
+      }
+
+      iframeElement = iframe;
     }
 
     if (!iframeElement) {
@@ -859,6 +871,50 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     return this.calculateSubFrameOffsets(iframeElement, subFrameUrl);
+  }
+
+  private getSubFrameUrlVariations(subFrameUrl: string) {
+    try {
+      const url = new URL(subFrameUrl, globalThis.location.href);
+      const pathAndHash = url.pathname + url.hash;
+      const pathAndSearch = url.pathname + url.search;
+      const pathSearchAndHash = pathAndSearch + url.hash;
+      const pathNameWithoutTrailingSlash = url.pathname.replace(/\/$/, "");
+      const pathWithoutTrailingSlashAndHash = pathNameWithoutTrailingSlash + url.hash;
+      const pathWithoutTrailingSlashAndSearch = pathNameWithoutTrailingSlash + url.search;
+      const pathWithoutTrailingSlashSearchAndHash = pathWithoutTrailingSlashAndSearch + url.hash;
+
+      return new Set([
+        url.href,
+        url.href.replace(/\/$/, ""),
+        url.pathname,
+        pathAndHash,
+        pathAndSearch,
+        pathSearchAndHash,
+        pathNameWithoutTrailingSlash,
+        pathWithoutTrailingSlashAndHash,
+        pathWithoutTrailingSlashAndSearch,
+        pathWithoutTrailingSlashSearchAndHash,
+        url.hostname + url.pathname,
+        url.hostname + pathAndHash,
+        url.hostname + pathAndSearch,
+        url.hostname + pathSearchAndHash,
+        url.hostname + pathNameWithoutTrailingSlash,
+        url.hostname + pathWithoutTrailingSlashAndHash,
+        url.hostname + pathWithoutTrailingSlashAndSearch,
+        url.hostname + pathWithoutTrailingSlashSearchAndHash,
+        url.origin + url.pathname,
+        url.origin + pathAndHash,
+        url.origin + pathAndSearch,
+        url.origin + pathSearchAndHash,
+        url.origin + pathNameWithoutTrailingSlash,
+        url.origin + pathWithoutTrailingSlashAndHash,
+        url.origin + pathWithoutTrailingSlashAndSearch,
+        url.origin + pathWithoutTrailingSlashSearchAndHash,
+      ]);
+    } catch (_error) {
+      return null;
+    }
   }
 
   /**
