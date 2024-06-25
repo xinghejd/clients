@@ -96,6 +96,7 @@ describe("OverlayBackground", () => {
   let tabSendMessageDataSpy: jest.SpyInstance;
   let sendMessageSpy: jest.SpyInstance;
   let getTabFromCurrentWindowIdSpy: jest.SpyInstance;
+  let getTabSpy: jest.SpyInstance;
   let openUnlockPopoutSpy: jest.SpyInstance;
   let buttonPortSpy: chrome.runtime.Port;
   let buttonMessageConnectorSpy: chrome.runtime.Port;
@@ -179,6 +180,7 @@ describe("OverlayBackground", () => {
     tabSendMessageDataSpy = jest.spyOn(BrowserApi, "tabSendMessageData");
     sendMessageSpy = jest.spyOn(BrowserApi, "sendMessage");
     getTabFromCurrentWindowIdSpy = jest.spyOn(BrowserApi, "getTabFromCurrentWindowId");
+    getTabSpy = jest.spyOn(BrowserApi, "getTab");
     openUnlockPopoutSpy = jest.spyOn(overlayBackground as any, "openUnlockPopout");
 
     void overlayBackground.init();
@@ -689,6 +691,21 @@ describe("OverlayBackground", () => {
       expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
     });
 
+    it("closes the inline menu on the focused field's tab if the user's auth status is not unlocked", async () => {
+      activeAccountStatusMock$.next(AuthenticationStatus.Locked);
+      const previousTab = mock<chrome.tabs.Tab>({ id: 1 });
+      overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({ tabId: 1 });
+      getTabSpy.mockResolvedValueOnce(previousTab);
+
+      await overlayBackground.updateInlineMenuCiphers();
+
+      expect(tabsSendMessageSpy).toHaveBeenCalledWith(
+        previousTab,
+        { command: "closeAutofillInlineMenu", overlayElement: undefined },
+        { frameId: 0 },
+      );
+    });
+
     it("ignores updating the overlay ciphers if the tab is undefined", async () => {
       getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(undefined);
 
@@ -696,6 +713,23 @@ describe("OverlayBackground", () => {
 
       expect(getTabFromCurrentWindowIdSpy).toHaveBeenCalled();
       expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
+    });
+
+    it("closes the inline menu on the focused field's tab if current tab is different", async () => {
+      getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(tab);
+      cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher1, cipher2]);
+      cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
+      const previousTab = mock<chrome.tabs.Tab>({ id: 15 });
+      overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({ tabId: 15 });
+      getTabSpy.mockResolvedValueOnce(previousTab);
+
+      await overlayBackground.updateInlineMenuCiphers();
+
+      expect(tabsSendMessageSpy).toHaveBeenCalledWith(
+        previousTab,
+        { command: "closeAutofillInlineMenu", overlayElement: undefined },
+        { frameId: 0 },
+      );
     });
 
     it("queries all ciphers for the given url, sort them by last used, and format them for usage in the overlay", async () => {
