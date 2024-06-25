@@ -102,10 +102,6 @@ export class DefaultNotificationsService implements NotificationsService {
     );
   }
 
-  /**
-   * Legacy method to internally subscribe to and process notifications.
-   * @returns A subscription that can be unsubscribed to and have notificatons processing stopped.
-   */
   start(): Subscription {
     return this.startInternal().subscribe();
   }
