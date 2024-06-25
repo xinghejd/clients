@@ -313,9 +313,10 @@ export class AutofillInlineMenuIframeService implements AutofillInlineMenuIframe
    */
   private handleFadeInInlineMenuIframe() {
     this.clearFadeInTimeout();
-    this.fadeInTimeout = globalThis.setTimeout(() => {
-      this.updateElementStyles(this.iframe, { display: "block", opacity: "1" });
-    }, 10);
+    this.fadeInTimeout = globalThis.setTimeout(
+      () => this.updateElementStyles(this.iframe, { display: "block", opacity: "1" }),
+      10,
+    );
   }
 
   /**

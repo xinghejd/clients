@@ -3,7 +3,10 @@ import {
   InlineMenuPosition,
 } from "../../../background/abstractions/overlay.background";
 import { AutofillExtensionMessage } from "../../../content/abstractions/autofill-init";
-import { AutofillOverlayElement } from "../../../enums/autofill-overlay.enum";
+import {
+  AutofillOverlayElement,
+  AutofillOverlayElementType,
+} from "../../../enums/autofill-overlay.enum";
 import {
   sendExtensionMessage,
   generateRandomCustomElementName,
@@ -26,8 +29,6 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
     globalThis.navigator.userAgent.indexOf(" Gecko/") !== -1;
   private buttonElement: HTMLElement;
   private listElement: HTMLElement;
-  private isButtonVisible = false;
-  private isListVisible = false;
   private inlineMenuElementsMutationObserver: MutationObserver;
   private bodyElementMutationObserver: MutationObserver;
   private mutationObserverIterations = 0;
@@ -42,9 +43,6 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   private readonly extensionMessageHandlers: InlineMenuExtensionMessageHandlers = {
     closeAutofillInlineMenu: ({ message }) => this.closeInlineMenu(message),
     appendAutofillInlineMenuToDom: ({ message }) => this.appendInlineMenuElements(message),
-    toggleAutofillInlineMenuHidden: ({ message }) => this.toggleInlineMenuHidden(message),
-    checkIsAutofillInlineMenuButtonVisible: () => this.isInlineMenuButtonVisible(),
-    checkIsAutofillInlineMenuListVisible: () => this.isInlineMenuListVisible(),
   };
 
   constructor() {
@@ -68,28 +66,23 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   }
 
   /**
-   * Identifies if the inline menu button is currently visible.
+   * Checks if the inline menu button is visible at the top frame.
    */
-  private isInlineMenuButtonVisible() {
-    return this.isButtonVisible;
+  private async isInlineMenuButtonVisible() {
+    return (
+      !!this.buttonElement &&
+      (await this.sendExtensionMessage("checkIsAutofillInlineMenuButtonVisible")) === true
+    );
   }
 
   /**
-   * Identifies if the inline menu list is currently visible.
+   * Checks if the inline menu list if visible at the top frame.
    */
-  private isInlineMenuListVisible() {
-    return this.isListVisible;
-  }
-
-  /**
-   * Sends a message that facilitates hiding the inline menu elements.
-   *
-   * @param message - The message that contains the visibility state of the inline menu elements.
-   */
-  private toggleInlineMenuHidden(message: AutofillExtensionMessage) {
-    const { isInlineMenuHidden } = message;
-    this.isButtonVisible = !!this.buttonElement && !isInlineMenuHidden;
-    this.isListVisible = !!this.listElement && !isInlineMenuHidden;
+  private async isInlineMenuListVisible() {
+    return (
+      !!this.listElement &&
+      (await this.sendExtensionMessage("checkIsAutofillInlineMenuListVisible")) === true
+    );
   }
 
   /**
@@ -120,7 +113,6 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   private closeInlineMenuButton() {
     if (this.buttonElement) {
       this.buttonElement.remove();
-      this.isButtonVisible = false;
       void this.sendExtensionMessage("autofillOverlayElementClosed", {
         overlayElement: AutofillOverlayElement.Button,
       });
@@ -133,7 +125,6 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
   private closeInlineMenuList() {
     if (this.listElement) {
       this.listElement.remove();
-      this.isListVisible = false;
       void this.sendExtensionMessage("autofillOverlayElementClosed", {
         overlayElement: AutofillOverlayElement.List,
       });
@@ -160,9 +151,9 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       this.updateCustomElementDefaultStyles(this.buttonElement);
     }
 
-    if (!this.isButtonVisible) {
+    if (!(await this.isInlineMenuButtonVisible())) {
       this.appendInlineMenuElementToBody(this.buttonElement);
-      this.isButtonVisible = true;
+      this.updateInlineMenuElementIsVisibleStatus(AutofillOverlayElement.Button, true);
     }
   }
 
@@ -175,10 +166,26 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
       this.updateCustomElementDefaultStyles(this.listElement);
     }
 
-    if (!this.isListVisible) {
+    if (!(await this.isInlineMenuListVisible())) {
       this.appendInlineMenuElementToBody(this.listElement);
-      this.isListVisible = true;
+      this.updateInlineMenuElementIsVisibleStatus(AutofillOverlayElement.List, true);
     }
+  }
+
+  /**
+   * Updates the visibility status of the inline menu element within the background script.
+   *
+   * @param overlayElement - The inline menu element to update the visibility status for.
+   * @param isVisible - The visibility status to update the inline menu element to.
+   */
+  private updateInlineMenuElementIsVisibleStatus(
+    overlayElement: AutofillOverlayElementType,
+    isVisible: boolean,
+  ) {
+    void this.sendExtensionMessage("updateAutofillInlineMenuElementIsVisibleStatus", {
+      overlayElement,
+      isVisible,
+    });
   }
 
   /**
@@ -366,7 +373,7 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * ensure that the inline menu elements are always present at the bottom of the
    * body element.
    */
-  private handleBodyElementMutationObserverUpdate = () => {
+  private handleBodyElementMutationObserverUpdate = async () => {
     if (
       (!this.buttonElement && !this.listElement) ||
       this.isTriggeringExcessiveMutationObserverIterations()
@@ -405,14 +412,14 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
 
     if (
       (lastChildIsInlineMenuList && secondToLastChildIsInlineMenuButton) ||
-      (lastChildIsInlineMenuButton && !this.isListVisible)
+      (lastChildIsInlineMenuButton && !(await this.isInlineMenuListVisible()))
     ) {
       return;
     }
 
     if (
       (lastChildIsInlineMenuList && !secondToLastChildIsInlineMenuButton) ||
-      (lastChildIsInlineMenuButton && this.isListVisible)
+      (lastChildIsInlineMenuButton && (await this.isInlineMenuListVisible()))
     ) {
       globalThis.document.body.insertBefore(this.buttonElement, this.listElement);
       return;

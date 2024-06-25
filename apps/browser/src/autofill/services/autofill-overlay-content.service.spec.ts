@@ -1303,9 +1303,27 @@ describe("AutofillOverlayContentService", () => {
 
     describe("getSubFrameOffsets message handler", () => {
       const iframeSource = "https://example.com/";
+      const originalLocation = globalThis.location;
 
       beforeEach(() => {
+        globalThis.location = originalLocation;
         document.body.innerHTML = `<iframe id="subframe" src="${iframeSource}"></iframe>`;
+      });
+
+      it("returns null if the sub frame URL cannot be parsed correctly", async () => {
+        delete globalThis.location;
+        globalThis.location = { href: "invalid-base" } as Location;
+        sendMockExtensionMessage(
+          {
+            command: "getSubFrameOffsets",
+            subFrameUrl: iframeSource,
+          },
+          mock<chrome.runtime.MessageSender>(),
+          sendResponseSpy,
+        );
+        await flushPromises();
+
+        expect(sendResponseSpy).toHaveBeenCalledWith(null);
       });
 
       it("calculates the sub frame's offsets if a single frame with the referenced url exists", async () => {
@@ -1323,16 +1341,16 @@ describe("AutofillOverlayContentService", () => {
           frameId: undefined,
           left: 2,
           top: 2,
-          url: "https://example.com/",
+          url: iframeSource,
         });
       });
 
-      it("returns null if no iframe is found", async () => {
-        document.body.innerHTML = "";
+      it("returns null if a matching iframe is not found", async () => {
+        document.body.innerHTML = "<iframe src='https://some-other-source.com/'></iframe>";
         sendMockExtensionMessage(
           {
             command: "getSubFrameOffsets",
-            subFrameUrl: "https://example.com/",
+            subFrameUrl: iframeSource,
           },
           mock<chrome.runtime.MessageSender>(),
           sendResponseSpy,
@@ -1380,7 +1398,7 @@ describe("AutofillOverlayContentService", () => {
               frameId: subFrameId,
               left: 0,
               top: 0,
-              parentFrameIds: [],
+              parentFrameIds: [0],
               subFrameDepth: 0,
             },
           },

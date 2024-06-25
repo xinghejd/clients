@@ -77,6 +77,7 @@ export type OverlayBackgroundExtensionMessage = {
   details?: AutofillPageDetails;
   isFieldCurrentlyFocused?: boolean;
   isFieldCurrentlyFilling?: boolean;
+  isVisible?: boolean;
   subFrameData?: SubFrameOffsetData;
   focusedFieldData?: FocusedFieldData;
   styles?: Partial<CSSStyleDeclaration>;
@@ -125,16 +126,19 @@ export type OverlayBackgroundExtensionMessageHandlers = {
   getAutofillInlineMenuVisibility: () => void;
   openAutofillInlineMenu: () => void;
   closeAutofillInlineMenu: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
-  checkAutofillInlineMenuFocused: () => void;
+  checkAutofillInlineMenuFocused: ({ sender }: BackgroundSenderParam) => void;
   focusAutofillInlineMenuList: () => void;
   updateAutofillInlineMenuPosition: ({
     message,
     sender,
   }: BackgroundOnMessageHandlerParams) => Promise<void>;
   getAutofillInlineMenuPosition: () => InlineMenuPosition;
-  toggleAutofillInlineMenuHidden: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
-  checkIsAutofillInlineMenuButtonVisible: ({ sender }: BackgroundSenderParam) => void;
-  checkIsAutofillInlineMenuListVisible: ({ sender }: BackgroundSenderParam) => void;
+  updateAutofillInlineMenuElementIsVisibleStatus: ({
+    message,
+    sender,
+  }: BackgroundOnMessageHandlerParams) => void;
+  checkIsAutofillInlineMenuButtonVisible: () => void;
+  checkIsAutofillInlineMenuListVisible: () => void;
   getCurrentTabFrameId: ({ sender }: BackgroundSenderParam) => number;
   updateSubFrameData: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
   triggerSubFrameFocusInRebuild: ({ sender }: BackgroundSenderParam) => void;
