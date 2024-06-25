@@ -1255,7 +1255,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    */
   private repositionInlineMenu = async (sender: chrome.runtime.MessageSender) => {
     this.cancelInlineMenuFadeInAndPositionUpdate();
-    if (!this.isFieldCurrentlyFocused) {
+    if (!this.isFieldCurrentlyFocused && !this.isInlineMenuListVisible) {
       await this.closeInlineMenuAfterReposition(sender);
       return;
     }
