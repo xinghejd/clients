@@ -873,6 +873,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     return this.calculateSubFrameOffsets(iframeElement, subFrameUrl);
   }
 
+  /**
+   * Returns a set of all possible URL variations for the sub frame URL.
+   *
+   * @param subFrameUrl - The URL of the sub frame.
+   */
   private getSubFrameUrlVariations(subFrameUrl: string) {
     try {
       const url = new URL(subFrameUrl, globalThis.location.href);
