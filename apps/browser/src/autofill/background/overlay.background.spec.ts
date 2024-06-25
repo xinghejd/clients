@@ -47,6 +47,7 @@ import {
   createAutofillPageDetailsMock,
   createPortSpyMock,
   createFocusedFieldDataMock,
+  createPageDetailMock,
 } from "../spec/autofill-mocks";
 import {
   flushPromises,
@@ -55,6 +56,7 @@ import {
   triggerPortOnConnectEvent,
   triggerPortOnDisconnectEvent,
   triggerPortOnMessageEvent,
+  triggerWebNavigationOnCommittedEvent,
 } from "../spec/testing-utils";
 
 import {
@@ -94,6 +96,7 @@ describe("OverlayBackground", () => {
   let tabSendMessageDataSpy: jest.SpyInstance;
   let sendMessageSpy: jest.SpyInstance;
   let getTabFromCurrentWindowIdSpy: jest.SpyInstance;
+  let getTabSpy: jest.SpyInstance;
   let openUnlockPopoutSpy: jest.SpyInstance;
   let buttonPortSpy: chrome.runtime.Port;
   let buttonMessageConnectorSpy: chrome.runtime.Port;
@@ -177,6 +180,7 @@ describe("OverlayBackground", () => {
     tabSendMessageDataSpy = jest.spyOn(BrowserApi, "tabSendMessageData");
     sendMessageSpy = jest.spyOn(BrowserApi, "sendMessage");
     getTabFromCurrentWindowIdSpy = jest.spyOn(BrowserApi, "getTabFromCurrentWindowId");
+    getTabSpy = jest.spyOn(BrowserApi, "getTab");
     openUnlockPopoutSpy = jest.spyOn(overlayBackground as any, "openUnlockPopout");
 
     void overlayBackground.init();
@@ -248,7 +252,7 @@ describe("OverlayBackground", () => {
         await flushPromises();
 
         expect(subFrameOffsetsSpy[tabId]).toStrictEqual(
-          new Map([[1, { left: 4, top: 4, url: "url", parentFrameIds: [1, 0] }]]),
+          new Map([[1, { left: 4, top: 4, url: "url", parentFrameIds: [0, 1] }]]),
         );
         expect(pageDetailsForTabSpy[tabId].size).toBe(2);
       });
@@ -275,7 +279,7 @@ describe("OverlayBackground", () => {
 
         expect(getFrameDetailsSpy).toHaveBeenCalledTimes(1);
         expect(subFrameOffsetsSpy[tabId]).toStrictEqual(
-          new Map([[1, { left: 0, top: 0, url: "url", parentFrameIds: [] }]]),
+          new Map([[1, { left: 0, top: 0, url: "url", parentFrameIds: [0] }]]),
         );
       });
 
@@ -319,7 +323,7 @@ describe("OverlayBackground", () => {
   });
 
   describe("removing pageDetails", () => {
-    it("removes the page details, sub frame details, and port key for a specific tab from the pageDetailsForTab object", () => {
+    it("removes the page details and port key for a specific tab from the pageDetailsForTab object", () => {
       const tabId = 1;
       sendMockExtensionMessage(
         { command: "collectPageDetailsResponse", details: createAutofillPageDetailsMock() },
@@ -329,7 +333,6 @@ describe("OverlayBackground", () => {
       overlayBackground.removePageDetails(tabId);
 
       expect(pageDetailsForTabSpy[tabId]).toBeUndefined();
-      expect(subFrameOffsetsSpy[tabId]).toBeUndefined();
       expect(portKeyForTabSpy[tabId]).toBeUndefined();
     });
   });
@@ -514,13 +517,14 @@ describe("OverlayBackground", () => {
           async function flushUpdateInlineMenuPromises() {
             await flushOverlayRepositionPromises();
             await flushPromises();
-            jest.advanceTimersByTime(150);
+            jest.advanceTimersByTime(250);
             await flushPromises();
           }
 
-          beforeEach(() => {
+          beforeEach(async () => {
             sender = mock<chrome.runtime.MessageSender>({ tab, frameId: middleFrameId });
             jest.useFakeTimers();
+            await initOverlayElementPorts();
           });
 
           it("skips updating the position of either inline menu element if a field is not currently focused", async () => {
@@ -558,11 +562,10 @@ describe("OverlayBackground", () => {
             sendMockExtensionMessage({ command: "triggerAutofillOverlayReposition" }, sender);
             await flushUpdateInlineMenuPromises();
 
-            expect(tabsSendMessageSpy).toHaveBeenCalledWith(
-              sender.tab,
-              { command: "toggleAutofillInlineMenuHidden", isInlineMenuHidden: true },
-              { frameId: 0 },
-            );
+            expect(buttonPortSpy.postMessage).toHaveBeenCalledWith({
+              command: "toggleAutofillInlineMenuHidden",
+              styles: { display: "none" },
+            });
             expect(tabsSendMessageSpy).toHaveBeenCalledWith(
               sender.tab,
               {
@@ -632,6 +635,28 @@ describe("OverlayBackground", () => {
           expect(repositionInlineMenuSpy).toHaveBeenCalled();
         });
       });
+
+      describe("toggleInlineMenuHidden", () => {
+        beforeEach(async () => {
+          await initOverlayElementPorts();
+        });
+
+        it("skips adjusting the hidden status of the inline menu if the sender tab does not contain the focused field", async () => {
+          const focusedFieldData = createFocusedFieldDataMock({ tabId: 2 });
+          sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData }, sender);
+          const otherSender = mock<chrome.runtime.MessageSender>({ tab: { id: 2 } });
+
+          await overlayBackground["toggleInlineMenuHidden"](
+            { isInlineMenuHidden: true },
+            otherSender,
+          );
+
+          expect(buttonPortSpy.postMessage).not.toHaveBeenCalledWith({
+            command: "toggleAutofillInlineMenuHidden",
+            styles: { display: "none" },
+          });
+        });
+      });
     });
   });
 
@@ -666,6 +691,21 @@ describe("OverlayBackground", () => {
       expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
     });
 
+    it("closes the inline menu on the focused field's tab if the user's auth status is not unlocked", async () => {
+      activeAccountStatusMock$.next(AuthenticationStatus.Locked);
+      const previousTab = mock<chrome.tabs.Tab>({ id: 1 });
+      overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({ tabId: 1 });
+      getTabSpy.mockResolvedValueOnce(previousTab);
+
+      await overlayBackground.updateInlineMenuCiphers();
+
+      expect(tabsSendMessageSpy).toHaveBeenCalledWith(
+        previousTab,
+        { command: "closeAutofillInlineMenu", overlayElement: undefined },
+        { frameId: 0 },
+      );
+    });
+
     it("ignores updating the overlay ciphers if the tab is undefined", async () => {
       getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(undefined);
 
@@ -673,6 +713,23 @@ describe("OverlayBackground", () => {
 
       expect(getTabFromCurrentWindowIdSpy).toHaveBeenCalled();
       expect(cipherService.getAllDecryptedForUrl).not.toHaveBeenCalled();
+    });
+
+    it("closes the inline menu on the focused field's tab if current tab is different", async () => {
+      getTabFromCurrentWindowIdSpy.mockResolvedValueOnce(tab);
+      cipherService.getAllDecryptedForUrl.mockResolvedValue([cipher1, cipher2]);
+      cipherService.sortCiphersByLastUsedThenName.mockReturnValue(-1);
+      const previousTab = mock<chrome.tabs.Tab>({ id: 15 });
+      overlayBackground["focusedFieldData"] = createFocusedFieldDataMock({ tabId: 15 });
+      getTabSpy.mockResolvedValueOnce(previousTab);
+
+      await overlayBackground.updateInlineMenuCiphers();
+
+      expect(tabsSendMessageSpy).toHaveBeenCalledWith(
+        previousTab,
+        { command: "closeAutofillInlineMenu", overlayElement: undefined },
+        { frameId: 0 },
+      );
     });
 
     it("queries all ciphers for the given url, sort them by last used, and format them for usage in the overlay", async () => {
@@ -1086,6 +1143,9 @@ describe("OverlayBackground", () => {
       });
 
       it("sends a message to close the inline menu if the form field is not focused and not filling", async () => {
+        overlayBackground["isInlineMenuButtonVisible"] = true;
+        overlayBackground["isInlineMenuListVisible"] = true;
+
         sendMockExtensionMessage({ command: "closeAutofillInlineMenu" }, sender);
         await flushPromises();
 
@@ -1097,12 +1157,53 @@ describe("OverlayBackground", () => {
           },
           { frameId: 0 },
         );
+        expect(overlayBackground["isInlineMenuButtonVisible"]).toBe(false);
+        expect(overlayBackground["isInlineMenuListVisible"]).toBe(false);
+      });
+
+      it("sets a property indicating that the inline menu button is not visible", async () => {
+        overlayBackground["isInlineMenuButtonVisible"] = true;
+
+        sendMockExtensionMessage(
+          { command: "closeAutofillInlineMenu", overlayElement: AutofillOverlayElement.Button },
+          sender,
+        );
+        await flushPromises();
+
+        expect(overlayBackground["isInlineMenuButtonVisible"]).toBe(false);
+      });
+
+      it("sets a property indicating that the inline menu list is not visible", async () => {
+        overlayBackground["isInlineMenuListVisible"] = true;
+
+        sendMockExtensionMessage(
+          { command: "closeAutofillInlineMenu", overlayElement: AutofillOverlayElement.List },
+          sender,
+        );
+        await flushPromises();
+
+        expect(overlayBackground["isInlineMenuListVisible"]).toBe(false);
       });
     });
 
     describe("checkAutofillInlineMenuFocused message handler", () => {
       beforeEach(async () => {
         await initOverlayElementPorts();
+      });
+
+      it("skips checking if the inline menu is focused if the sender does not contain the focused field", async () => {
+        const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
+        const focusedFieldData = createFocusedFieldDataMock();
+        sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData });
+
+        sendMockExtensionMessage({ command: "checkAutofillInlineMenuFocused" }, sender);
+
+        expect(listPortSpy.postMessage).not.toHaveBeenCalledWith({
+          command: "checkAutofillInlineMenuListFocused",
+        });
+        expect(buttonPortSpy.postMessage).not.toHaveBeenCalledWith({
+          command: "checkAutofillInlineMenuButtonFocused",
+        });
       });
 
       it("will check if the inline menu list is focused if the list port is open", () => {
@@ -1282,96 +1383,149 @@ describe("OverlayBackground", () => {
           command: "fadeInAutofillInlineMenuIframe",
         });
       });
-    });
 
-    describe("getAutofillInlineMenuPosition", () => {
-      it("returns the current inline menu position", async () => {
-        overlayBackground["inlineMenuPosition"] = {
-          button: { left: 1, top: 2, width: 3, height: 4 },
-        };
+      describe("getAutofillInlineMenuPosition", () => {
+        it("returns the current inline menu position", async () => {
+          overlayBackground["inlineMenuPosition"] = {
+            button: { left: 1, top: 2, width: 3, height: 4 },
+          };
+
+          sendMockExtensionMessage(
+            { command: "getAutofillInlineMenuPosition" },
+            mock<chrome.runtime.MessageSender>(),
+            sendResponse,
+          );
+          await flushPromises();
+
+          expect(sendResponse).toHaveBeenCalledWith({
+            button: { left: 1, top: 2, width: 3, height: 4 },
+          });
+        });
+      });
+
+      it("triggers a debounced reposition of the inline menu if the sender frame has a `null` sub frame offsets value", async () => {
+        jest.useFakeTimers();
+        const focusedFieldData = createFocusedFieldDataMock();
+        const sender = mock<chrome.runtime.MessageSender>({
+          tab: { id: focusedFieldData.tabId },
+          frameId: focusedFieldData.frameId,
+        });
+        sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData }, sender);
+        overlayBackground["subFrameOffsetsForTab"][focusedFieldData.tabId] = new Map([
+          [focusedFieldData.frameId, null],
+        ]);
+        tabsSendMessageSpy.mockImplementation();
+        jest.spyOn(overlayBackground as any, "updateInlineMenuPositionAfterRepositionEvent");
 
         sendMockExtensionMessage(
-          { command: "getAutofillInlineMenuPosition" },
-          mock<chrome.runtime.MessageSender>(),
+          {
+            command: "updateAutofillInlineMenuPosition",
+            overlayElement: AutofillOverlayElement.List,
+          },
+          sender,
+        );
+        await flushPromises();
+        jest.advanceTimersByTime(150);
+
+        expect(
+          overlayBackground["updateInlineMenuPositionAfterRepositionEvent"],
+        ).toHaveBeenCalled();
+      });
+    });
+
+    describe("updateAutofillInlineMenuElementIsVisibleStatus message handler", () => {
+      let sender: chrome.runtime.MessageSender;
+      let focusedFieldData: FocusedFieldData;
+
+      beforeEach(() => {
+        sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
+        focusedFieldData = createFocusedFieldDataMock();
+        overlayBackground["isInlineMenuButtonVisible"] = true;
+        overlayBackground["isInlineMenuListVisible"] = false;
+      });
+
+      it("skips updating the inline menu visibility status if the sender tab does not contain the focused field", async () => {
+        const otherSender = mock<chrome.runtime.MessageSender>({ tab: { id: 2 } });
+        sendMockExtensionMessage(
+          { command: "updateFocusedFieldData", focusedFieldData },
+          otherSender,
+        );
+
+        sendMockExtensionMessage(
+          {
+            command: "updateAutofillInlineMenuElementIsVisibleStatus",
+            overlayElement: AutofillOverlayElement.Button,
+            isVisible: false,
+          },
+          sender,
+        );
+
+        expect(overlayBackground["isInlineMenuButtonVisible"]).toBe(true);
+        expect(overlayBackground["isInlineMenuListVisible"]).toBe(false);
+      });
+
+      it("updates the visibility status of the inline menu button", async () => {
+        sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData }, sender);
+
+        sendMockExtensionMessage(
+          {
+            command: "updateAutofillInlineMenuElementIsVisibleStatus",
+            overlayElement: AutofillOverlayElement.Button,
+            isVisible: false,
+          },
+          sender,
+        );
+
+        expect(overlayBackground["isInlineMenuButtonVisible"]).toBe(false);
+        expect(overlayBackground["isInlineMenuListVisible"]).toBe(false);
+      });
+
+      it("updates the visibility status of the inline menu list", async () => {
+        sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData }, sender);
+
+        sendMockExtensionMessage(
+          {
+            command: "updateAutofillInlineMenuElementIsVisibleStatus",
+            overlayElement: AutofillOverlayElement.List,
+            isVisible: true,
+          },
+          sender,
+        );
+
+        expect(overlayBackground["isInlineMenuButtonVisible"]).toBe(true);
+        expect(overlayBackground["isInlineMenuListVisible"]).toBe(true);
+      });
+    });
+
+    describe("checkIsAutofillInlineMenuButtonVisible message handler", () => {
+      it("returns true when the inline menu button is visible", async () => {
+        overlayBackground["isInlineMenuButtonVisible"] = true;
+        const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
+
+        sendMockExtensionMessage(
+          { command: "checkIsAutofillInlineMenuButtonVisible" },
+          sender,
           sendResponse,
         );
         await flushPromises();
 
-        expect(sendResponse).toHaveBeenCalledWith({
-          button: { left: 1, top: 2, width: 3, height: 4 },
-        });
-      });
-    });
-
-    describe("toggleAutofillInlineMenuHidden message handler", () => {
-      beforeEach(async () => {
-        await initOverlayElementPorts();
-      });
-
-      it("returns early if the display value is not provided", async () => {
-        const message = {
-          command: "toggleAutofillInlineMenuHidden",
-        };
-
-        sendMockExtensionMessage(message);
-        await flushPromises();
-
-        expect(buttonPortSpy.postMessage).not.toHaveBeenCalledWith(message);
-        expect(listPortSpy.postMessage).not.toHaveBeenCalledWith(message);
-      });
-
-      it("posts a message to the overlay button and list which hides the menu", async () => {
-        const message = {
-          command: "toggleAutofillInlineMenuHidden",
-          isInlineMenuHidden: true,
-          setTransparentInlineMenu: false,
-        };
-
-        sendMockExtensionMessage(message);
-        await flushPromises();
-
-        expect(buttonPortSpy.postMessage).toHaveBeenCalledWith({
-          command: "toggleAutofillInlineMenuHidden",
-          styles: {
-            display: "none",
-            opacity: "1",
-          },
-        });
-        expect(listPortSpy.postMessage).toHaveBeenCalledWith({
-          command: "toggleAutofillInlineMenuHidden",
-          styles: {
-            display: "none",
-            opacity: "1",
-          },
-        });
-      });
-    });
-
-    describe("checkIsAutofillInlineMenuButtonVisible", () => {
-      it("sends a message to the top frame of the tab to identify if the inline menu button is visible", () => {
-        const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
-
-        sendMockExtensionMessage({ command: "checkIsAutofillInlineMenuButtonVisible" }, sender);
-
-        expect(tabsSendMessageSpy).toHaveBeenCalledWith(
-          sender.tab,
-          { command: "checkIsAutofillInlineMenuButtonVisible" },
-          { frameId: 0 },
-        );
+        expect(sendResponse).toHaveBeenCalledWith(true);
       });
     });
 
     describe("checkIsAutofillInlineMenuListVisible message handler", () => {
-      it("sends a message to the top frame of the tab to identify if the inline menu list is visible", () => {
+      it("returns true when the inline menu list is visible", async () => {
+        overlayBackground["isInlineMenuListVisible"] = true;
         const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
 
-        sendMockExtensionMessage({ command: "checkIsAutofillInlineMenuListVisible" }, sender);
-
-        expect(tabsSendMessageSpy).toHaveBeenCalledWith(
-          sender.tab,
+        sendMockExtensionMessage(
           { command: "checkIsAutofillInlineMenuListVisible" },
-          { frameId: 0 },
+          sender,
+          sendResponse,
         );
+        await flushPromises();
+
+        expect(sendResponse).toHaveBeenCalledWith(true);
       });
     });
 
@@ -1956,6 +2110,58 @@ describe("OverlayBackground", () => {
         expect(overlayBackground["inlineMenuPosition"]).toStrictEqual({
           list: { height: 100, top: 1, left: 2, width: 3 },
         });
+      });
+    });
+  });
+
+  describe("handle web navigation on committed events", () => {
+    describe("navigation event occurs in the top frame of the tab", () => {
+      it("removes the collected page details", async () => {
+        const sender = mock<chrome.webNavigation.WebNavigationFramedCallbackDetails>({
+          tabId: 1,
+          frameId: 0,
+        });
+        overlayBackground["pageDetailsForTab"][sender.tabId] = new Map([
+          [sender.frameId, createPageDetailMock()],
+        ]);
+
+        triggerWebNavigationOnCommittedEvent(sender);
+        await flushPromises();
+
+        expect(overlayBackground["pageDetailsForTab"][sender.tabId]).toBe(undefined);
+      });
+
+      it("clears the sub frames associated with the tab", () => {
+        const sender = mock<chrome.webNavigation.WebNavigationFramedCallbackDetails>({
+          tabId: 1,
+          frameId: 0,
+        });
+        const subFrameId = 10;
+        overlayBackground["subFrameOffsetsForTab"][sender.tabId] = new Map([
+          [subFrameId, mock<SubFrameOffsetData>()],
+        ]);
+
+        triggerWebNavigationOnCommittedEvent(sender);
+
+        expect(overlayBackground["subFrameOffsetsForTab"][sender.tabId]).toBe(undefined);
+      });
+    });
+
+    describe("navigation event occurs within sub frame", () => {
+      it("clears the sub frame offsets for the current frame", () => {
+        const sender = mock<chrome.webNavigation.WebNavigationFramedCallbackDetails>({
+          tabId: 1,
+          frameId: 1,
+        });
+        overlayBackground["subFrameOffsetsForTab"][sender.tabId] = new Map([
+          [sender.frameId, mock<SubFrameOffsetData>()],
+        ]);
+
+        triggerWebNavigationOnCommittedEvent(sender);
+
+        expect(overlayBackground["subFrameOffsetsForTab"][sender.tabId].get(sender.frameId)).toBe(
+          undefined,
+        );
       });
     });
   });

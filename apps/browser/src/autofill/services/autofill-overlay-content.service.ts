@@ -6,12 +6,7 @@ import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authenticatio
 import {
   EVENTS,
   AutofillOverlayVisibility,
-  AUTOFILL_OVERLAY_ON_SCROLL,
-  AUTOFILL_OVERLAY_ON_RESIZE,
-  AUTOFILL_OVERLAY_SUB_FRAME_ON_FOCUS,
-  AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_ENTER,
-  AUTOFILL_OVERLAY_SUB_FRAME_ON_BLUR,
-  AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_LEAVE,
+  AUTOFILL_OVERLAY_HANDLE_REPOSITION,
 } from "@bitwarden/common/autofill/constants";
 import { CipherType } from "@bitwarden/common/vault/enums";
 
@@ -853,14 +848,26 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     message: AutofillExtensionMessage,
   ): Promise<SubFrameOffsetData | null> {
     const { subFrameUrl } = message;
-    const subFrameUrlWithoutTrailingSlash = subFrameUrl?.replace(/\/$/, "");
+
+    const subFrameUrlVariations = this.getSubFrameUrlVariations(subFrameUrl);
+    if (!subFrameUrlVariations) {
+      return null;
+    }
 
     let iframeElement: HTMLIFrameElement | null = null;
-    const iframeElements = globalThis.document.querySelectorAll(
-      `iframe[src="${subFrameUrl}"], iframe[src="${subFrameUrlWithoutTrailingSlash}"]`,
-    ) as NodeListOf<HTMLIFrameElement>;
-    if (iframeElements.length === 1) {
-      iframeElement = iframeElements[0];
+    const iframeElements = globalThis.document.getElementsByTagName("iframe");
+
+    for (let iframeIndex = 0; iframeIndex < iframeElements.length; iframeIndex++) {
+      const iframe = iframeElements[iframeIndex];
+      if (!subFrameUrlVariations.has(iframe.src)) {
+        continue;
+      }
+
+      if (iframeElement) {
+        return null;
+      }
+
+      iframeElement = iframe;
     }
 
     if (!iframeElement) {
@@ -868,6 +875,55 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
 
     return this.calculateSubFrameOffsets(iframeElement, subFrameUrl);
+  }
+
+  /**
+   * Returns a set of all possible URL variations for the sub frame URL.
+   *
+   * @param subFrameUrl - The URL of the sub frame.
+   */
+  private getSubFrameUrlVariations(subFrameUrl: string) {
+    try {
+      const url = new URL(subFrameUrl, globalThis.location.href);
+      const pathAndHash = url.pathname + url.hash;
+      const pathAndSearch = url.pathname + url.search;
+      const pathSearchAndHash = pathAndSearch + url.hash;
+      const pathNameWithoutTrailingSlash = url.pathname.replace(/\/$/, "");
+      const pathWithoutTrailingSlashAndHash = pathNameWithoutTrailingSlash + url.hash;
+      const pathWithoutTrailingSlashAndSearch = pathNameWithoutTrailingSlash + url.search;
+      const pathWithoutTrailingSlashSearchAndHash = pathWithoutTrailingSlashAndSearch + url.hash;
+
+      return new Set([
+        url.href,
+        url.href.replace(/\/$/, ""),
+        url.pathname,
+        pathAndHash,
+        pathAndSearch,
+        pathSearchAndHash,
+        pathNameWithoutTrailingSlash,
+        pathWithoutTrailingSlashAndHash,
+        pathWithoutTrailingSlashAndSearch,
+        pathWithoutTrailingSlashSearchAndHash,
+        url.hostname + url.pathname,
+        url.hostname + pathAndHash,
+        url.hostname + pathAndSearch,
+        url.hostname + pathSearchAndHash,
+        url.hostname + pathNameWithoutTrailingSlash,
+        url.hostname + pathWithoutTrailingSlashAndHash,
+        url.hostname + pathWithoutTrailingSlashAndSearch,
+        url.hostname + pathWithoutTrailingSlashSearchAndHash,
+        url.origin + url.pathname,
+        url.origin + pathAndHash,
+        url.origin + pathAndSearch,
+        url.origin + pathSearchAndHash,
+        url.origin + pathNameWithoutTrailingSlash,
+        url.origin + pathWithoutTrailingSlashAndHash,
+        url.origin + pathWithoutTrailingSlashAndSearch,
+        url.origin + pathWithoutTrailingSlashSearchAndHash,
+      ]);
+    } catch (_error) {
+      return null;
+    }
   }
 
   /**
@@ -884,7 +940,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
           frameId: message.subFrameId,
           left: 0,
           top: 0,
-          parentFrameIds: [],
+          parentFrameIds: [0],
           subFrameDepth: 0,
         } as SubFrameDataFromWindowMessage,
       },
@@ -1010,23 +1066,15 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * the overlay elements on scroll or resize.
    */
   private setOverlayRepositionEventListeners() {
-    globalThis.addEventListener(
-      EVENTS.SCROLL,
-      this.useEventHandlersMemo(
-        throttle(this.handleOverlayRepositionEvent, 150),
-        AUTOFILL_OVERLAY_ON_SCROLL,
-      ),
-      {
-        capture: true,
-      },
+    const handler = this.useEventHandlersMemo(
+      throttle(this.handleOverlayRepositionEvent, 900),
+      AUTOFILL_OVERLAY_HANDLE_REPOSITION,
     );
-    globalThis.addEventListener(
-      EVENTS.RESIZE,
-      this.useEventHandlersMemo(
-        throttle(this.handleOverlayRepositionEvent, 150),
-        AUTOFILL_OVERLAY_ON_RESIZE,
-      ),
-    );
+    globalThis.addEventListener(EVENTS.SCROLL, handler, {
+      capture: true,
+      passive: true,
+    });
+    globalThis.addEventListener(EVENTS.RESIZE, handler);
   }
 
   /**
@@ -1034,20 +1082,13 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * the overlay elements on scroll or resize.
    */
   private removeOverlayRepositionEventListeners() {
-    globalThis.removeEventListener(
-      EVENTS.SCROLL,
-      this.eventHandlersMemo[AUTOFILL_OVERLAY_ON_SCROLL],
-      {
-        capture: true,
-      },
-    );
-    globalThis.removeEventListener(
-      EVENTS.RESIZE,
-      this.eventHandlersMemo[AUTOFILL_OVERLAY_ON_RESIZE],
-    );
+    const handler = this.eventHandlersMemo[AUTOFILL_OVERLAY_HANDLE_REPOSITION];
+    globalThis.removeEventListener(EVENTS.SCROLL, handler, {
+      capture: true,
+    });
+    globalThis.removeEventListener(EVENTS.RESIZE, handler);
 
-    delete this.eventHandlersMemo[AUTOFILL_OVERLAY_ON_SCROLL];
-    delete this.eventHandlersMemo[AUTOFILL_OVERLAY_ON_RESIZE];
+    delete this.eventHandlersMemo[AUTOFILL_OVERLAY_HANDLE_REPOSITION];
   }
 
   /**
@@ -1068,37 +1109,19 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
     this.removeSubFrameFocusOutListeners();
 
-    globalThis.addEventListener(
-      EVENTS.FOCUS,
-      this.useEventHandlersMemo(
-        throttle(this.handleSubFrameFocusInEvent, 100),
-        AUTOFILL_OVERLAY_SUB_FRAME_ON_FOCUS,
-      ),
-    );
-    globalThis.document.body.addEventListener(
-      EVENTS.MOUSEENTER,
-      this.useEventHandlersMemo(
-        throttle(this.handleSubFrameFocusInEvent, 100),
-        AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_ENTER,
-      ),
-    );
+    globalThis.addEventListener(EVENTS.FOCUS, this.handleSubFrameFocusInEvent);
+    globalThis.document.body.addEventListener(EVENTS.MOUSEENTER, this.handleSubFrameFocusInEvent);
   };
 
   /**
    * Removes the listeners that facilitate a rebuild of the sub frame offsets.
    */
   private removeRebuildSubFrameOffsetsListeners = () => {
-    globalThis.removeEventListener(
-      EVENTS.FOCUS,
-      this.eventHandlersMemo[AUTOFILL_OVERLAY_SUB_FRAME_ON_FOCUS],
-    );
+    globalThis.removeEventListener(EVENTS.FOCUS, this.handleSubFrameFocusInEvent);
     globalThis.document.body.removeEventListener(
       EVENTS.MOUSEENTER,
-      this.eventHandlersMemo[AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_ENTER],
+      this.handleSubFrameFocusInEvent,
     );
-
-    delete this.eventHandlersMemo[AUTOFILL_OVERLAY_SUB_FRAME_ON_FOCUS];
-    delete this.eventHandlersMemo[AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_ENTER];
   };
 
   /**
@@ -1106,19 +1129,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * based on user interaction with the sub frame.
    */
   private setupSubFrameFocusOutListeners = () => {
-    globalThis.addEventListener(
-      EVENTS.BLUR,
-      this.useEventHandlersMemo(
-        throttle(this.setupRebuildSubFrameOffsetsListeners, 100),
-        AUTOFILL_OVERLAY_SUB_FRAME_ON_BLUR,
-      ),
-    );
+    globalThis.addEventListener(EVENTS.BLUR, this.setupRebuildSubFrameOffsetsListeners);
     globalThis.document.body.addEventListener(
       EVENTS.MOUSELEAVE,
-      this.useEventHandlersMemo(
-        throttle(this.setupRebuildSubFrameOffsetsListeners, 100),
-        AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_LEAVE,
-      ),
+      this.setupRebuildSubFrameOffsetsListeners,
     );
   };
 
@@ -1126,17 +1140,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * Removes the listeners that trigger when a user focuses away from the sub frame.
    */
   private removeSubFrameFocusOutListeners = () => {
-    globalThis.removeEventListener(
-      EVENTS.BLUR,
-      this.eventHandlersMemo[AUTOFILL_OVERLAY_SUB_FRAME_ON_BLUR],
-    );
+    globalThis.removeEventListener(EVENTS.BLUR, this.setupRebuildSubFrameOffsetsListeners);
     globalThis.document.body.removeEventListener(
       EVENTS.MOUSELEAVE,
-      this.eventHandlersMemo[AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_LEAVE],
+      this.setupRebuildSubFrameOffsetsListeners,
     );
-
-    delete this.eventHandlersMemo[AUTOFILL_OVERLAY_SUB_FRAME_ON_BLUR];
-    delete this.eventHandlersMemo[AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_LEAVE];
   };
 
   /**

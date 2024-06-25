@@ -1,5 +1,3 @@
-import { mock } from "jest-mock-extended";
-
 import AutofillInit from "../../../content/autofill-init";
 import { AutofillOverlayElement } from "../../../enums/autofill-overlay.enum";
 import { createMutationRecordMock } from "../../../spec/autofill-mocks";
@@ -13,7 +11,6 @@ describe("AutofillInlineMenuContentService", () => {
   let autofillInit: AutofillInit;
   let sendExtensionMessageSpy: jest.SpyInstance;
   let observeBodyMutationsSpy: jest.SpyInstance;
-  const sendResponseSpy = jest.fn();
   const waitForIdleCallback = () =>
     new Promise((resolve) => globalThis.requestIdleCallback(resolve));
 
@@ -114,7 +111,17 @@ describe("AutofillInlineMenuContentService", () => {
     });
 
     describe("appendAutofillInlineMenuToDom message handler", () => {
+      let isInlineMenuButtonVisibleSpy: jest.SpyInstance;
+      let isInlineMenuListVisibleSpy: jest.SpyInstance;
+
       beforeEach(() => {
+        isInlineMenuButtonVisibleSpy = jest
+          .spyOn(autofillInlineMenuContentService as any, "isInlineMenuButtonVisible")
+          .mockResolvedValue(true);
+        isInlineMenuListVisibleSpy = jest
+          .spyOn(autofillInlineMenuContentService as any, "isInlineMenuListVisible")
+          .mockResolvedValue(true);
+        jest.spyOn(globalThis.document.body, "appendChild");
         observeBodyMutationsSpy.mockImplementation();
       });
 
@@ -129,6 +136,27 @@ describe("AutofillInlineMenuContentService", () => {
 
           expect(autofillInlineMenuContentService["buttonElement"]).toBeInstanceOf(HTMLDivElement);
         });
+
+        it("appends the inline menu button to the DOM if the button is not visible", async () => {
+          isInlineMenuButtonVisibleSpy.mockResolvedValue(false);
+
+          sendMockExtensionMessage({
+            command: "appendAutofillInlineMenuToDom",
+            overlayElement: AutofillOverlayElement.Button,
+          });
+          await flushPromises();
+
+          expect(globalThis.document.body.appendChild).toHaveBeenCalledWith(
+            autofillInlineMenuContentService["buttonElement"],
+          );
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith(
+            "updateAutofillInlineMenuElementIsVisibleStatus",
+            {
+              overlayElement: AutofillOverlayElement.Button,
+              isVisible: true,
+            },
+          );
+        });
       });
 
       describe("creating the inline menu list", () => {
@@ -142,76 +170,27 @@ describe("AutofillInlineMenuContentService", () => {
 
           expect(autofillInlineMenuContentService["listElement"]).toBeInstanceOf(HTMLDivElement);
         });
-      });
-    });
 
-    describe("toggleAutofillInlineMenuHidden message handler", () => {
-      it("sets the inline elements as hidden if the elements do not exist", () => {
-        sendMockExtensionMessage({
-          command: "toggleAutofillInlineMenuHidden",
-          isInlineMenuHidden: false,
+        it("appends the inline menu list to the DOM if the button is not visible", async () => {
+          isInlineMenuListVisibleSpy.mockResolvedValue(false);
+
+          sendMockExtensionMessage({
+            command: "appendAutofillInlineMenuToDom",
+            overlayElement: AutofillOverlayElement.List,
+          });
+          await flushPromises();
+
+          expect(globalThis.document.body.appendChild).toHaveBeenCalledWith(
+            autofillInlineMenuContentService["listElement"],
+          );
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith(
+            "updateAutofillInlineMenuElementIsVisibleStatus",
+            {
+              overlayElement: AutofillOverlayElement.List,
+              isVisible: true,
+            },
+          );
         });
-
-        expect(autofillInlineMenuContentService["isButtonVisible"]).toBe(false);
-        expect(autofillInlineMenuContentService["isListVisible"]).toBe(false);
-      });
-
-      it("sets the inline elements as visible", () => {
-        autofillInlineMenuContentService["buttonElement"] = document.createElement("div");
-        autofillInlineMenuContentService["listElement"] = document.createElement("div");
-
-        sendMockExtensionMessage({
-          command: "toggleAutofillInlineMenuHidden",
-          isInlineMenuHidden: false,
-        });
-
-        expect(autofillInlineMenuContentService["isButtonVisible"]).toBe(true);
-        expect(autofillInlineMenuContentService["isListVisible"]).toBe(true);
-      });
-
-      it("sets the inline elements as hidden", () => {
-        autofillInlineMenuContentService["buttonElement"] = document.createElement("div");
-        autofillInlineMenuContentService["listElement"] = document.createElement("div");
-        autofillInlineMenuContentService["isButtonVisible"] = true;
-        autofillInlineMenuContentService["isListVisible"] = true;
-
-        sendMockExtensionMessage({
-          command: "toggleAutofillInlineMenuHidden",
-          isInlineMenuHidden: true,
-        });
-
-        expect(autofillInlineMenuContentService["isButtonVisible"]).toBe(false);
-        expect(autofillInlineMenuContentService["isListVisible"]).toBe(false);
-      });
-    });
-
-    describe("checkIsAutofillInlineMenuButtonVisible message handler", () => {
-      it("returns true if the inline menu button is visible", async () => {
-        autofillInlineMenuContentService["isButtonVisible"] = true;
-
-        sendMockExtensionMessage(
-          { command: "checkIsAutofillInlineMenuButtonVisible" },
-          mock<chrome.runtime.MessageSender>(),
-          sendResponseSpy,
-        );
-        await flushPromises();
-
-        expect(sendResponseSpy).toHaveBeenCalledWith(true);
-      });
-    });
-
-    describe("checkIsAutofillInlineMenuListVisible message handler", () => {
-      it("returns true if the inline menu list is visible", async () => {
-        autofillInlineMenuContentService["isListVisible"] = true;
-
-        sendMockExtensionMessage(
-          { command: "checkIsAutofillInlineMenuListVisible" },
-          mock<chrome.runtime.MessageSender>(),
-          sendResponseSpy,
-        );
-        await flushPromises();
-
-        expect(sendResponseSpy).toHaveBeenCalledWith(true);
       });
     });
   });
@@ -298,6 +277,7 @@ describe("AutofillInlineMenuContentService", () => {
   describe("handleBodyElementMutationObserverUpdate", () => {
     let buttonElement: HTMLElement;
     let listElement: HTMLElement;
+    let isInlineMenuListVisibleSpy: jest.SpyInstance;
 
     beforeEach(() => {
       document.body.innerHTML = `
@@ -308,7 +288,9 @@ describe("AutofillInlineMenuContentService", () => {
       listElement = document.querySelector(".overlay-list") as HTMLElement;
       autofillInlineMenuContentService["buttonElement"] = buttonElement;
       autofillInlineMenuContentService["listElement"] = listElement;
-      autofillInlineMenuContentService["isListVisible"] = true;
+      isInlineMenuListVisibleSpy = jest
+        .spyOn(autofillInlineMenuContentService as any, "isInlineMenuListVisible")
+        .mockResolvedValue(true);
       jest.spyOn(globalThis.document.body, "insertBefore");
       jest
         .spyOn(
@@ -322,7 +304,7 @@ describe("AutofillInlineMenuContentService", () => {
       autofillInlineMenuContentService["buttonElement"] = undefined;
       autofillInlineMenuContentService["listElement"] = undefined;
 
-      autofillInlineMenuContentService["handleBodyElementMutationObserverUpdate"]();
+      await autofillInlineMenuContentService["handleBodyElementMutationObserverUpdate"]();
       await waitForIdleCallback();
 
       expect(globalThis.document.body.insertBefore).not.toHaveBeenCalled();
@@ -336,7 +318,7 @@ describe("AutofillInlineMenuContentService", () => {
         )
         .mockReturnValue(true);
 
-      autofillInlineMenuContentService["handleBodyElementMutationObserverUpdate"]();
+      await autofillInlineMenuContentService["handleBodyElementMutationObserverUpdate"]();
       await waitForIdleCallback();
 
       expect(globalThis.document.body.insertBefore).not.toHaveBeenCalled();
@@ -345,14 +327,14 @@ describe("AutofillInlineMenuContentService", () => {
     it("skips re-arranging the DOM elements if the last child of the body is non-existent", async () => {
       document.body.innerHTML = "";
 
-      autofillInlineMenuContentService["handleBodyElementMutationObserverUpdate"]();
+      await autofillInlineMenuContentService["handleBodyElementMutationObserverUpdate"]();
       await waitForIdleCallback();
 
       expect(globalThis.document.body.insertBefore).not.toHaveBeenCalled();
     });
 
     it("skips re-arranging the DOM elements if the last child of the body is the overlay list and the second to last child of the body is the overlay button", async () => {
-      autofillInlineMenuContentService["handleBodyElementMutationObserverUpdate"]();
+      await autofillInlineMenuContentService["handleBodyElementMutationObserverUpdate"]();
       await waitForIdleCallback();
 
       expect(globalThis.document.body.insertBefore).not.toHaveBeenCalled();
@@ -360,9 +342,9 @@ describe("AutofillInlineMenuContentService", () => {
 
     it("skips re-arranging the DOM elements if the last child is the overlay button and the overlay list is not visible", async () => {
       listElement.remove();
-      autofillInlineMenuContentService["isListVisible"] = false;
+      isInlineMenuListVisibleSpy.mockResolvedValue(false);
 
-      autofillInlineMenuContentService["handleBodyElementMutationObserverUpdate"]();
+      await autofillInlineMenuContentService["handleBodyElementMutationObserverUpdate"]();
       await waitForIdleCallback();
 
       expect(globalThis.document.body.insertBefore).not.toHaveBeenCalled();
@@ -372,7 +354,7 @@ describe("AutofillInlineMenuContentService", () => {
       const injectedElement = document.createElement("div");
       document.body.insertBefore(injectedElement, listElement);
 
-      autofillInlineMenuContentService["handleBodyElementMutationObserverUpdate"]();
+      await autofillInlineMenuContentService["handleBodyElementMutationObserverUpdate"]();
       await waitForIdleCallback();
 
       expect(globalThis.document.body.insertBefore).toHaveBeenCalledWith(
@@ -384,7 +366,7 @@ describe("AutofillInlineMenuContentService", () => {
     it("positions the overlay button before the overlay list if the elements have inserted in incorrect order", async () => {
       document.body.appendChild(buttonElement);
 
-      autofillInlineMenuContentService["handleBodyElementMutationObserverUpdate"]();
+      await autofillInlineMenuContentService["handleBodyElementMutationObserverUpdate"]();
       await waitForIdleCallback();
 
       expect(globalThis.document.body.insertBefore).toHaveBeenCalledWith(
@@ -397,7 +379,7 @@ describe("AutofillInlineMenuContentService", () => {
       const injectedElement = document.createElement("div");
       document.body.appendChild(injectedElement);
 
-      autofillInlineMenuContentService["handleBodyElementMutationObserverUpdate"]();
+      await autofillInlineMenuContentService["handleBodyElementMutationObserverUpdate"]();
       await waitForIdleCallback();
 
       expect(globalThis.document.body.insertBefore).toHaveBeenCalledWith(
@@ -417,7 +399,7 @@ describe("AutofillInlineMenuContentService", () => {
       });
 
       it("sets the z-index of to a lower value", async () => {
-        autofillInlineMenuContentService["handleBodyElementMutationObserverUpdate"]();
+        await autofillInlineMenuContentService["handleBodyElementMutationObserverUpdate"]();
         await waitForIdleCallback();
 
         expect(persistentLastChild.style.getPropertyValue("z-index")).toBe("2147483646");
@@ -429,7 +411,7 @@ describe("AutofillInlineMenuContentService", () => {
         });
         globalThis.document.elementFromPoint = jest.fn(() => persistentLastChild);
 
-        autofillInlineMenuContentService["handleBodyElementMutationObserverUpdate"]();
+        await autofillInlineMenuContentService["handleBodyElementMutationObserverUpdate"]();
         await waitForIdleCallback();
 
         expect(sendExtensionMessageSpy).toHaveBeenCalledWith("autofillOverlayElementClosed", {
@@ -443,7 +425,7 @@ describe("AutofillInlineMenuContentService", () => {
         });
         globalThis.document.elementFromPoint = jest.fn(() => persistentLastChild);
 
-        autofillInlineMenuContentService["handleBodyElementMutationObserverUpdate"]();
+        await autofillInlineMenuContentService["handleBodyElementMutationObserverUpdate"]();
         await waitForIdleCallback();
 
         expect(sendExtensionMessageSpy).toHaveBeenCalledWith("autofillOverlayElementClosed", {
