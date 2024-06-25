@@ -1398,7 +1398,7 @@ describe("AutofillOverlayContentService", () => {
               frameId: subFrameId,
               left: 0,
               top: 0,
-              parentFrameIds: [],
+              parentFrameIds: [0],
               subFrameDepth: 0,
             },
           },

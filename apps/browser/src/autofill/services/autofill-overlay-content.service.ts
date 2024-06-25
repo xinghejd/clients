@@ -922,7 +922,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
           frameId: message.subFrameId,
           left: 0,
           top: 0,
-          parentFrameIds: [],
+          parentFrameIds: [0],
           subFrameDepth: 0,
         } as SubFrameDataFromWindowMessage,
       },

@@ -373,7 +373,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    const subFrameData: SubFrameOffsetData = { url, top: 0, left: 0, parentFrameIds: [] };
+    const subFrameData: SubFrameOffsetData = { url, top: 0, left: 0, parentFrameIds: [0] };
     let frameDetails = await BrowserApi.getFrameDetails({ tabId, frameId });
 
     while (frameDetails && frameDetails.parentFrameId > -1) {
@@ -406,7 +406,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
       subFrameData.top += subFrameOffset.top;
       subFrameData.left += subFrameOffset.left;
-      subFrameData.parentFrameIds.push(frameDetails.parentFrameId);
+      if (!subFrameData.parentFrameIds.includes(frameDetails.parentFrameId)) {
+        subFrameData.parentFrameIds.push(frameDetails.parentFrameId);
+      }
 
       frameDetails = await BrowserApi.getFrameDetails({
         tabId,

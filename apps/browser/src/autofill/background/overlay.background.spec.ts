@@ -252,7 +252,7 @@ describe("OverlayBackground", () => {
         await flushPromises();
 
         expect(subFrameOffsetsSpy[tabId]).toStrictEqual(
-          new Map([[1, { left: 4, top: 4, url: "url", parentFrameIds: [1, 0] }]]),
+          new Map([[1, { left: 4, top: 4, url: "url", parentFrameIds: [0, 1] }]]),
         );
         expect(pageDetailsForTabSpy[tabId].size).toBe(2);
       });
@@ -279,7 +279,7 @@ describe("OverlayBackground", () => {
 
         expect(getFrameDetailsSpy).toHaveBeenCalledTimes(1);
         expect(subFrameOffsetsSpy[tabId]).toStrictEqual(
-          new Map([[1, { left: 0, top: 0, url: "url", parentFrameIds: [] }]]),
+          new Map([[1, { left: 0, top: 0, url: "url", parentFrameIds: [0] }]]),
         );
       });
 
