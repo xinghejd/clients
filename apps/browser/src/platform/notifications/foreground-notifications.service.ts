@@ -20,13 +20,13 @@ export class ForegroundNotificationsService implements NotificationsService {
     );
   }
 
-  reconnectFromActivity(): Promise<void> {
+  reconnectFromActivity(): void {
     throw new Error(
       "NotificationsService should only ever be interacted with in browser background.",
     );
   }
 
-  disconnectFromInactivity(): Promise<void> {
+  disconnectFromInactivity(): void {
     throw new Error(
       "NotificationsService should only ever be interacted with in browser background.",
     );
