@@ -108,7 +108,17 @@ describe("AutofillInlineMenuContentService", () => {
     });
 
     describe("appendAutofillInlineMenuToDom message handler", () => {
+      let isInlineMenuButtonVisibleSpy: jest.SpyInstance;
+      let isInlineMenuListVisibleSpy: jest.SpyInstance;
+
       beforeEach(() => {
+        isInlineMenuButtonVisibleSpy = jest
+          .spyOn(autofillInlineMenuContentService as any, "isInlineMenuButtonVisible")
+          .mockResolvedValue(true);
+        isInlineMenuListVisibleSpy = jest
+          .spyOn(autofillInlineMenuContentService as any, "isInlineMenuListVisible")
+          .mockResolvedValue(true);
+        jest.spyOn(globalThis.document.body, "appendChild");
         observeBodyMutationsSpy.mockImplementation();
       });
 
@@ -123,6 +133,27 @@ describe("AutofillInlineMenuContentService", () => {
 
           expect(autofillInlineMenuContentService["buttonElement"]).toBeInstanceOf(HTMLDivElement);
         });
+
+        it("appends the inline menu button to the DOM if the button is not visible", async () => {
+          isInlineMenuButtonVisibleSpy.mockResolvedValue(false);
+
+          sendMockExtensionMessage({
+            command: "appendAutofillInlineMenuToDom",
+            overlayElement: AutofillOverlayElement.Button,
+          });
+          await flushPromises();
+
+          expect(globalThis.document.body.appendChild).toHaveBeenCalledWith(
+            autofillInlineMenuContentService["buttonElement"],
+          );
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith(
+            "updateAutofillInlineMenuElementIsVisibleStatus",
+            {
+              overlayElement: AutofillOverlayElement.Button,
+              isVisible: true,
+            },
+          );
+        });
       });
 
       describe("creating the inline menu list", () => {
@@ -135,6 +166,27 @@ describe("AutofillInlineMenuContentService", () => {
           });
 
           expect(autofillInlineMenuContentService["listElement"]).toBeInstanceOf(HTMLDivElement);
+        });
+
+        it("appends the inline menu list to the DOM if the button is not visible", async () => {
+          isInlineMenuListVisibleSpy.mockResolvedValue(false);
+
+          sendMockExtensionMessage({
+            command: "appendAutofillInlineMenuToDom",
+            overlayElement: AutofillOverlayElement.List,
+          });
+          await flushPromises();
+
+          expect(globalThis.document.body.appendChild).toHaveBeenCalledWith(
+            autofillInlineMenuContentService["listElement"],
+          );
+          expect(sendExtensionMessageSpy).toHaveBeenCalledWith(
+            "updateAutofillInlineMenuElementIsVisibleStatus",
+            {
+              overlayElement: AutofillOverlayElement.List,
+              isVisible: true,
+            },
+          );
         });
       });
     });

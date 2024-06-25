@@ -722,14 +722,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    const { overlayElement, isInlineMenuElementVisible } = message;
+    const { overlayElement, isVisible } = message;
     if (overlayElement === AutofillOverlayElement.Button) {
-      this.isInlineMenuButtonVisible = isInlineMenuElementVisible;
+      this.isInlineMenuButtonVisible = isVisible;
       return;
     }
 
     if (overlayElement === AutofillOverlayElement.List) {
-      this.isInlineMenuListVisible = isInlineMenuElementVisible;
+      this.isInlineMenuListVisible = isVisible;
     }
   }
 

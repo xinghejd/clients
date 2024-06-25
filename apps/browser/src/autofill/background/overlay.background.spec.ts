@@ -1402,7 +1402,7 @@ describe("OverlayBackground", () => {
           {
             command: "updateAutofillInlineMenuElementIsVisibleStatus",
             overlayElement: AutofillOverlayElement.Button,
-            isInlineMenuElementVisible: false,
+            isVisible: false,
           },
           sender,
         );
@@ -1418,7 +1418,7 @@ describe("OverlayBackground", () => {
           {
             command: "updateAutofillInlineMenuElementIsVisibleStatus",
             overlayElement: AutofillOverlayElement.Button,
-            isInlineMenuElementVisible: false,
+            isVisible: false,
           },
           sender,
         );
@@ -1434,7 +1434,7 @@ describe("OverlayBackground", () => {
           {
             command: "updateAutofillInlineMenuElementIsVisibleStatus",
             overlayElement: AutofillOverlayElement.List,
-            isInlineMenuElementVisible: true,
+            isVisible: true,
           },
           sender,
         );

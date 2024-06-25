@@ -170,15 +170,15 @@ export class AutofillInlineMenuContentService implements AutofillInlineMenuConte
    * Updates the visibility status of the inline menu element within the background script.
    *
    * @param overlayElement - The inline menu element to update the visibility status for.
-   * @param isInlineMenuElementVisible - The visibility status to update the inline menu element to.
+   * @param isVisible - The visibility status to update the inline menu element to.
    */
   private updateInlineMenuElementIsVisibleStatus(
     overlayElement: AutofillOverlayElementType,
-    isInlineMenuElementVisible: boolean,
+    isVisible: boolean,
   ) {
     void this.sendExtensionMessage("updateAutofillInlineMenuElementIsVisibleStatus", {
       overlayElement,
-      isInlineMenuElementVisible,
+      isVisible,
     });
   }
 

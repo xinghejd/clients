@@ -65,7 +65,7 @@ export type OverlayBackgroundExtensionMessage = {
   details?: AutofillPageDetails;
   isFieldCurrentlyFocused?: boolean;
   isFieldCurrentlyFilling?: boolean;
-  isInlineMenuElementVisible?: boolean;
+  isVisible?: boolean;
   subFrameData?: SubFrameOffsetData;
   focusedFieldData?: FocusedFieldData;
   styles?: Partial<CSSStyleDeclaration>;
