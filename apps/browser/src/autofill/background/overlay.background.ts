@@ -926,6 +926,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
+    this.closeInlineMenu(sender);
     await this.openViewVaultItemPopout(sender.tab, {
       cipherId: cipher.id,
       action: SHOW_AUTOFILL_BUTTON,
@@ -1034,6 +1035,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
+    this.closeInlineMenu(sender);
     const uriView = new LoginUriView();
     uriView.uri = login.uri;
 
@@ -1097,21 +1099,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private async checkIsInlineMenuButtonVisible(
     sender: chrome.runtime.MessageSender,
   ): Promise<boolean> {
-    const isVisible = !!(await BrowserApi.tabSendMessage(
+    return await BrowserApi.tabSendMessage(
       sender.tab,
       { command: "checkIsAutofillInlineMenuButtonVisible" },
       { frameId: 0 },
-    ));
-
-    // If the element is visible in the DOM, ensure that it is not hidden by CSS.
-    if (isVisible) {
-      void this.toggleInlineMenuHidden(
-        { isInlineMenuHidden: false, setTransparentInlineMenu: false },
-        sender,
-      );
-    }
-
-    return isVisible;
+    );
   }
 
   /**
