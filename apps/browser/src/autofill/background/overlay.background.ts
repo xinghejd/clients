@@ -273,6 +273,9 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     return inlineMenuCipherData;
   }
 
+  /**
+   * Gets the currently focused field and closes the inline menu on that tab.
+   */
   private async closeInlineMenuAfterCiphersUpdate() {
     const focusedFieldTab = await BrowserApi.getTab(this.focusedFieldData.tabId);
     this.closeInlineMenu({ tab: focusedFieldTab }, { forceCloseInlineMenu: true });
