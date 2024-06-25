@@ -515,7 +515,7 @@ describe("OverlayBackground", () => {
           async function flushUpdateInlineMenuPromises() {
             await flushOverlayRepositionPromises();
             await flushPromises();
-            jest.advanceTimersByTime(150);
+            jest.advanceTimersByTime(250);
             await flushPromises();
           }
 

@@ -163,7 +163,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private initOverlayEventObservables() {
     this.repositionInlineMenuSubject
       .pipe(
-        debounceTime(800),
+        debounceTime(950),
         switchMap((sender) => this.repositionInlineMenu(sender)),
       )
       .subscribe();
@@ -176,7 +176,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     // Debounce used to update inline menu position
     merge(
-      this.startUpdateInlineMenuPositionSubject.pipe(debounceTime(150)),
+      this.startUpdateInlineMenuPositionSubject.pipe(debounceTime(250)),
       this.cancelUpdateInlineMenuPositionSubject,
     )
       .pipe(switchMap((sender) => this.updateInlineMenuPositionAfterRepositionEvent(sender)))
