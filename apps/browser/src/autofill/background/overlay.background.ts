@@ -163,7 +163,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private initOverlayEventObservables() {
     this.repositionInlineMenuSubject
       .pipe(
-        debounceTime(950),
+        debounceTime(1000),
         switchMap((sender) => this.repositionInlineMenu(sender)),
       )
       .subscribe();
@@ -176,7 +176,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
 
     // Debounce used to update inline menu position
     merge(
-      this.startUpdateInlineMenuPositionSubject.pipe(debounceTime(250)),
+      this.startUpdateInlineMenuPositionSubject.pipe(debounceTime(150)),
       this.cancelUpdateInlineMenuPositionSubject,
     )
       .pipe(switchMap((sender) => this.updateInlineMenuPositionAfterRepositionEvent(sender)))
@@ -216,12 +216,19 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   async updateInlineMenuCiphers() {
     const authStatus = await firstValueFrom(this.authService.activeAccountStatus$);
     if (authStatus !== AuthenticationStatus.Unlocked) {
+      if (this.focusedFieldData) {
+        void this.closeInlineMenuAfterCiphersUpdate();
+      }
       return;
     }
 
     const currentTab = await BrowserApi.getTabFromCurrentWindowId();
     if (!currentTab?.url) {
       return;
+    }
+
+    if (this.focusedFieldData && currentTab.id !== this.focusedFieldData.tabId) {
+      void this.closeInlineMenuAfterCiphersUpdate();
     }
 
     this.inlineMenuCiphers = new Map();
@@ -264,6 +271,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     return inlineMenuCipherData;
+  }
+
+  private async closeInlineMenuAfterCiphersUpdate() {
+    const focusedFieldTab = await BrowserApi.getTab(this.focusedFieldData.tabId);
+    this.closeInlineMenu({ tab: focusedFieldTab }, { forceCloseInlineMenu: true });
   }
 
   /**
