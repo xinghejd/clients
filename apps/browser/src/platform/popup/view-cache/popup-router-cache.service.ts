@@ -1,3 +1,4 @@
+import { Location } from "@angular/common";
 import { Injectable, inject } from "@angular/core";
 import {
   ActivatedRouteSnapshot,
@@ -25,6 +26,8 @@ import { POPUP_ROUTE_HISTORY_KEY } from "../../services/popup-view-cache-backgro
 export class PopupRouterCacheService {
   private router = inject(Router);
   private state = inject(GlobalStateProvider).get(POPUP_ROUTE_HISTORY_KEY);
+  private configService = inject(ConfigService);
+  private location = inject(Location);
 
   constructor() {
     this.router.events
@@ -73,6 +76,11 @@ export class PopupRouterCacheService {
    * Navigate back to the prior URL in the history stack
    */
   async back(): Promise<boolean> {
+    if (!(await this.configService.getFeatureFlag(FeatureFlag.PersistPopupView))) {
+      this.location.back();
+      return true;
+    }
+
     const length = (await this.getHistory())?.length;
     if (!length) {
       return false;
