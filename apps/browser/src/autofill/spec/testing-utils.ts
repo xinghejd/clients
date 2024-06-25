@@ -114,6 +114,17 @@ export function triggerTabOnRemovedEvent(tabId: number, removeInfo: chrome.tabs.
   });
 }
 
+export function triggerWebNavigationOnCommittedEvent(
+  details: chrome.webNavigation.WebNavigationFramedCallbackDetails,
+) {
+  (chrome.webNavigation.onCommitted.addListener as unknown as jest.SpyInstance).mock.calls.forEach(
+    (call) => {
+      const callback = call[0];
+      callback(details);
+    },
+  );
+}
+
 export function mockQuerySelectorAllDefinedCall() {
   const originalDocumentQuerySelectorAll = document.querySelectorAll;
   document.querySelectorAll = function (selector: string) {

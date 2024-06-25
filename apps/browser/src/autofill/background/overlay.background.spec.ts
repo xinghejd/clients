@@ -47,6 +47,7 @@ import {
   createAutofillPageDetailsMock,
   createPortSpyMock,
   createFocusedFieldDataMock,
+  createPageDetailMock,
 } from "../spec/autofill-mocks";
 import {
   flushPromises,
@@ -55,6 +56,7 @@ import {
   triggerPortOnConnectEvent,
   triggerPortOnDisconnectEvent,
   triggerPortOnMessageEvent,
+  triggerWebNavigationOnCommittedEvent,
 } from "../spec/testing-utils";
 
 import {
@@ -1281,6 +1283,33 @@ describe("OverlayBackground", () => {
           command: "fadeInAutofillInlineMenuIframe",
         });
       });
+
+      it("triggers a debounced reposition of the inline menu if the sender frame has a `null` sub frame offsets value", async () => {
+        jest.useFakeTimers();
+        const focusedFieldData = createFocusedFieldDataMock();
+        const sender = mock<chrome.runtime.MessageSender>({
+          tab: { id: focusedFieldData.tabId },
+          frameId: focusedFieldData.frameId,
+        });
+        sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData }, sender);
+        overlayBackground["subFrameOffsetsForTab"][focusedFieldData.tabId] = new Map([
+          [focusedFieldData.frameId, null],
+        ]);
+        tabsSendMessageSpy.mockImplementation();
+        jest.spyOn(overlayBackground as any, "repositionInlineMenu");
+
+        sendMockExtensionMessage(
+          {
+            command: "updateAutofillInlineMenuPosition",
+            overlayElement: AutofillOverlayElement.List,
+          },
+          sender,
+        );
+        await flushPromises();
+        jest.advanceTimersByTime(1000);
+
+        expect(overlayBackground["repositionInlineMenu"]).toHaveBeenCalled();
+      });
     });
 
     describe("toggleAutofillInlineMenuHidden message handler", () => {
@@ -1288,16 +1317,14 @@ describe("OverlayBackground", () => {
         await initOverlayElementPorts();
       });
 
-      it("returns early if the display value is not provided", async () => {
-        const message = {
-          command: "toggleAutofillInlineMenuHidden",
-        };
+      it("returns early if the sender tab is not equal to the focused field tab", async () => {
+        const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
+        const focusedFieldData = createFocusedFieldDataMock({ tabId: 2 });
+        sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData });
 
-        sendMockExtensionMessage(message);
-        await flushPromises();
+        sendMockExtensionMessage({ command: "toggleAutofillInlineMenuHidden" }, sender);
 
-        expect(buttonPortSpy.postMessage).not.toHaveBeenCalledWith(message);
-        expect(listPortSpy.postMessage).not.toHaveBeenCalledWith(message);
+        expect(tabsSendMessageSpy).not.toHaveBeenCalled();
       });
 
       it("posts a message to the overlay button and list which hides the menu", async () => {
@@ -1920,6 +1947,58 @@ describe("OverlayBackground", () => {
           command: "updateAutofillInlineMenuPosition",
           styles: { height: "100px" },
         });
+      });
+    });
+  });
+
+  describe("handle web navigation on committed events", () => {
+    describe("navigation event occurs in the top frame of the tab", () => {
+      it("removes the collected page details", async () => {
+        const sender = mock<chrome.webNavigation.WebNavigationFramedCallbackDetails>({
+          tabId: 1,
+          frameId: 0,
+        });
+        overlayBackground["pageDetailsForTab"][sender.tabId] = new Map([
+          [sender.frameId, createPageDetailMock()],
+        ]);
+
+        triggerWebNavigationOnCommittedEvent(sender);
+        await flushPromises();
+
+        expect(overlayBackground["pageDetailsForTab"][sender.tabId]).toBe(undefined);
+      });
+
+      it("clears the sub frames associated with the tab", () => {
+        const sender = mock<chrome.webNavigation.WebNavigationFramedCallbackDetails>({
+          tabId: 1,
+          frameId: 0,
+        });
+        const subFrameId = 10;
+        overlayBackground["subFrameOffsetsForTab"][sender.tabId] = new Map([
+          [subFrameId, mock<SubFrameOffsetData>()],
+        ]);
+
+        triggerWebNavigationOnCommittedEvent(sender);
+
+        expect(overlayBackground["subFrameOffsetsForTab"][sender.tabId]).toBe(undefined);
+      });
+    });
+
+    describe("navigation event occurs within sub frame", () => {
+      it("clears the sub frame offsets for the current frame", () => {
+        const sender = mock<chrome.webNavigation.WebNavigationFramedCallbackDetails>({
+          tabId: 1,
+          frameId: 1,
+        });
+        overlayBackground["subFrameOffsetsForTab"][sender.tabId] = new Map([
+          [sender.frameId, mock<SubFrameOffsetData>()],
+        ]);
+
+        triggerWebNavigationOnCommittedEvent(sender);
+
+        expect(overlayBackground["subFrameOffsetsForTab"][sender.tabId].get(sender.frameId)).toBe(
+          undefined,
+        );
       });
     });
   });

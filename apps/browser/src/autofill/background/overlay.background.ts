@@ -647,7 +647,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    this.cancelInlineMenuFadeIn();
+    this.cancelInlineMenuFadeInAndPositionUpdate();
 
     await BrowserApi.tabSendMessage(
       sender.tab,
@@ -660,8 +660,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     if (subFrameOffsetsForTab) {
       subFrameOffsets = subFrameOffsetsForTab.get(this.focusedFieldData.frameId);
       if (subFrameOffsets === null) {
-        this.cancelUpdateInlineMenuPositionSubject.next();
-        this.startUpdateInlineMenuPositionSubject.next(sender);
+        this.repositionInlineMenuSubject.next(sender);
         return;
       }
     }
