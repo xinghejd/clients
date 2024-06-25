@@ -1,4 +1,13 @@
-import { effect, inject, Injectable, Injector, signal, WritableSignal } from "@angular/core";
+import {
+  DestroyRef,
+  effect,
+  inject,
+  Injectable,
+  Injector,
+  signal,
+  WritableSignal,
+} from "@angular/core";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 import { AbstractControl } from "@angular/forms";
 import { firstValueFrom } from "rxjs";
 import { Jsonify } from "type-fest";
@@ -35,7 +44,9 @@ export type FormCacheOptions<
   form: AbstractControl<ControlValue, ControlRawValue>;
 };
 
-/** Saves dirty form values to state */
+/**
+ * Persist view state when opening/closing the extension popup
+ */
 @Injectable({
   providedIn: "root",
 })
@@ -52,7 +63,7 @@ export class PopupViewCacheService {
     this.featureFlagEnabled = await this.configService.getFeatureFlag(FeatureFlag.PersistPopupView);
 
     const initialState = await firstValueFrom(this.state.state$);
-    this.cacheMap = new Map(Object.entries(initialState));
+    this.cacheMap = new Map(Object.entries(initialState ?? {}));
   }
 
   /**
@@ -110,16 +121,23 @@ export class PopupViewCacheService {
     if (!this.featureFlagEnabled) {
       return dirtyFormRef;
     }
-    const cache = this.cacheSignal({ ...options, initialValue: undefined });
 
-    if (cache()) {
-      form.patchValue(cache());
-      form.markAsDirty();
+    const cache = this.cacheSignal({ ...options, initialValue: form.getRawValue() });
+
+    const value = cache();
+    if (value != null && value !== form.getRawValue()) {
+      /** Timeout needed to trigger change detection */
+      setTimeout(() => {
+        form.setValue(value);
+        form.markAsDirty();
+      });
     }
 
-    form.valueChanges.subscribe(() => {
-      cache.set(form.getRawValue());
-    });
+    form.valueChanges
+      .pipe(takeUntilDestroyed(options.injector ? options.injector.get(DestroyRef) : undefined))
+      .subscribe(() => {
+        cache.set(form.getRawValue());
+      });
 
     return dirtyFormRef;
   }
@@ -130,3 +148,19 @@ export class PopupViewCacheService {
     });
   }
 }
+
+export const cacheSignal = <T>(options: SignalCacheOptions<T>): WritableSignal<T> => {
+  const service = options.injector
+    ? options.injector.get(PopupViewCacheService)
+    : inject(PopupViewCacheService);
+  return service.cacheSignal(options);
+};
+
+export const cacheForm = <ControlValue, ControlRawValue extends ControlValue>(
+  options: FormCacheOptions<ControlValue, ControlRawValue>,
+): DirtyFormRef => {
+  const service = options.injector
+    ? options.injector.get(PopupViewCacheService)
+    : inject(PopupViewCacheService);
+  return service.cacheForm(options);
+};

@@ -22,7 +22,7 @@ import { POPUP_ROUTE_HISTORY_KEY } from "../../services/popup-view-cache-backgro
 @Injectable({
   providedIn: "root",
 })
-export class PopupHistoryService {
+export class PopupRouterCacheService {
   private router = inject(Router);
   private state = inject(GlobalStateProvider).get(POPUP_ROUTE_HISTORY_KEY);
 
@@ -91,22 +91,20 @@ export class PopupHistoryService {
  *
  * If `FeatureFlag.PersistPopupView` is disabled, do nothing.
  **/
-export const resumePopupGuard = (): CanActivateFn => {
-  return async () => {
-    const configService = inject(ConfigService);
-    const popupHistoryService = inject(PopupHistoryService);
-    const urlSerializer = inject(UrlSerializer);
+export const popupRouterCacheGuard = (async () => {
+  const configService = inject(ConfigService);
+  const popupHistoryService = inject(PopupRouterCacheService);
+  const urlSerializer = inject(UrlSerializer);
 
-    if (!(await configService.getFeatureFlag(FeatureFlag.PersistPopupView))) {
-      return true;
-    }
+  if (!(await configService.getFeatureFlag(FeatureFlag.PersistPopupView))) {
+    return true;
+  }
 
-    const url = await popupHistoryService.last();
+  const url = await popupHistoryService.last();
 
-    if (!url) {
-      return true;
-    }
+  if (!url) {
+    return true;
+  }
 
-    return urlSerializer.parse(url);
-  };
-};
+  return urlSerializer.parse(url);
+}) satisfies CanActivateFn;

@@ -5,7 +5,7 @@ import { Component, Input, inject } from "@angular/core";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { IconButtonModule, TypographyModule } from "@bitwarden/components";
 
-import { PopupHistoryService } from "../view-cache/popup-history.service";
+import { PopupRouterCacheService } from "../view-cache/popup-router-cache.service";
 
 @Component({
   selector: "popup-header",
@@ -14,7 +14,7 @@ import { PopupHistoryService } from "../view-cache/popup-history.service";
   imports: [TypographyModule, CommonModule, IconButtonModule, JslibModule],
 })
 export class PopupHeaderComponent {
-  private popupHistoryService = inject(PopupHistoryService);
+  private popupRouterCacheService = inject(PopupRouterCacheService);
 
   /** Display the back button, which uses Location.back() to go back one page in history */
   @Input()
@@ -31,6 +31,6 @@ export class PopupHeaderComponent {
   @Input({ required: true }) pageTitle: string;
 
   async back() {
-    return this.popupHistoryService.back();
+    return this.popupRouterCacheService.back();
   }
 }

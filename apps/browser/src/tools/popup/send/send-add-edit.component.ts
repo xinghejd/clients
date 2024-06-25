@@ -1,5 +1,5 @@
 import { DatePipe, Location } from "@angular/common";
-import { Component, inject } from "@angular/core";
+import { Component, Injector, inject } from "@angular/core";
 import { FormBuilder } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { first } from "rxjs/operators";
@@ -20,9 +20,8 @@ import { DialogService } from "@bitwarden/components";
 import BrowserPopupUtils from "../../../platform/popup/browser-popup-utils";
 import {
   DirtyFormRef,
-  PopupViewCacheService,
+  cacheForm,
 } from "../../../platform/popup/view-cache/popup-view-cache.service";
-import { PopupHistoryService } from "../../../platform/popup/view-cache/popup-history.service";
 import { BrowserStateService } from "../../../platform/services/abstractions/browser-state.service";
 import { FilePopoutUtilsService } from "../services/file-popout-utils.service";
 
@@ -32,10 +31,8 @@ import { FilePopoutUtilsService } from "../services/file-popout-utils.service";
 })
 // eslint-disable-next-line rxjs-angular/prefer-takeuntil
 export class SendAddEditComponent extends BaseAddEditComponent {
-  protected dirtyFormService = inject(PopupViewCacheService);
-  protected popupHistoryService = inject(PopupHistoryService);
-
   private dirtyFormRef: DirtyFormRef;
+  private injector = inject(Injector);
 
   // Options header
   showOptions: boolean;
@@ -106,11 +103,11 @@ export class SendAddEditComponent extends BaseAddEditComponent {
       }
       await super.ngOnInit();
 
-      // this.dirtyFormRef = this.dirtyFormService.cacheForm({
-      //   form: this.formGroup,
-      //   key: "browser-send-add-edit",
-      //   initialValue: null
-      // });
+      this.dirtyFormRef = cacheForm({
+        form: this.formGroup,
+        key: "browser-send-add-edit",
+        injector: this.injector,
+      });
     });
 
     window.setTimeout(() => {
@@ -147,7 +144,7 @@ export class SendAddEditComponent extends BaseAddEditComponent {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.router.navigate(["tabs/send"]);
     } else {
-      void this.popupHistoryService.back();
+      this.location.back();
     }
   }
 }
