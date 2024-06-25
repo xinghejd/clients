@@ -173,6 +173,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       )
       .subscribe();
 
+    // Debounce used to update inline menu position
     merge(
       this.startUpdateInlineMenuPositionSubject.pipe(debounceTime(150)),
       this.cancelUpdateInlineMenuPositionSubject,
@@ -793,8 +794,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     { isInlineMenuHidden, setTransparentInlineMenu }: ToggleInlineMenuHiddenMessage,
     sender: chrome.runtime.MessageSender,
   ) {
-    this.cancelInlineMenuFadeIn();
+    if (sender.tab.id !== this.focusedFieldData?.tabId) {
+      return;
+    }
 
+    this.cancelInlineMenuFadeIn();
     const display = isInlineMenuHidden ? "none" : "block";
     let styles: { display: string; opacity?: string } = { display };
 
@@ -1199,6 +1203,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    */
   private async triggerSubFrameFocusInRebuild(sender: chrome.runtime.MessageSender) {
     this.rebuildSubFrameOffsetsSubject.next(sender);
+    this.cancelUpdateInlineMenuPositionSubject.next();
     this.repositionInlineMenuSubject.next(sender);
   }
 
@@ -1209,7 +1214,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param sender - The sender of the message
    */
   private repositionInlineMenu = async (sender: chrome.runtime.MessageSender) => {
-    this.cancelUpdateInlineMenuPositionSubject.next();
     if (!this.isFieldCurrentlyFocused) {
       await this.closeInlineMenuAfterReposition(sender);
       return;
@@ -1229,7 +1233,6 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       this.rebuildSubFrameOffsetsSubject.next(sender);
     }
 
-    this.cancelUpdateInlineMenuPositionSubject.next();
     this.startUpdateInlineMenuPositionSubject.next(sender);
   };
 
