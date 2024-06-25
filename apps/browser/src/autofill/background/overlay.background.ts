@@ -1097,11 +1097,21 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private async checkIsInlineMenuButtonVisible(
     sender: chrome.runtime.MessageSender,
   ): Promise<boolean> {
-    return await BrowserApi.tabSendMessage(
+    const isVisible = !!(await BrowserApi.tabSendMessage(
       sender.tab,
       { command: "checkIsAutofillInlineMenuButtonVisible" },
       { frameId: 0 },
-    );
+    ));
+
+    // If the element is visible in the DOM, ensure that it is not hidden by CSS.
+    if (isVisible) {
+      void this.toggleInlineMenuHidden(
+        { isInlineMenuHidden: false, setTransparentInlineMenu: false },
+        sender,
+      );
+    }
+
+    return isVisible;
   }
 
   /**
