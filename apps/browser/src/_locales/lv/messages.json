@@ -16,6 +16,12 @@
   "createAccount": {
     "message": "Izveidot kontu"
   },
+  "setAStrongPassword": {
+    "message": "Jāiestata droša parole"
+  },
+  "finishCreatingYourAccountBySettingAPassword": {
+    "message": "Jāpabeidz sava konta izveida ar paroles iestatīšanu"
+  },
   "login": {
     "message": "Pieteikties"
   },
@@ -42,6 +48,19 @@
   },
   "masterPassHintDesc": {
     "message": "Galvenās paroles norāde var palīdzēt atcerēties paroli, ja tā ir aizmirsta."
+  },
+  "masterPassHintText": {
+    "message": "If you forget your password, the password hint can be sent to your email. $CURRENT$/$MAXIMUM$ character maximum.",
+    "placeholders": {
+      "current": {
+        "content": "$1",
+        "example": "0"
+      },
+      "maximum": {
+        "content": "$2",
+        "example": "50"
+      }
+    }
   },
   "reTypeMasterPass": {
     "message": "Atkārtoti ievadīt galveno paroli "
@@ -389,6 +408,15 @@
   "favorite": {
     "message": "Izlasē"
   },
+  "unfavorite": {
+    "message": "Noņemt no izlases"
+  },
+  "itemAddedToFavorites": {
+    "message": "Vienums pievienots izlasē"
+  },
+  "itemRemovedFromFavorites": {
+    "message": "Vienums noņemts no izlases"
+  },
   "notes": {
     "message": "Piezīmes"
   },
@@ -409,6 +437,9 @@
   },
   "launch": {
     "message": "Palaist"
+  },
+  "launchWebsite": {
+    "message": "Atvērt tīmekļvietni"
   },
   "website": {
     "message": "Tīmekļa vietne"
@@ -598,6 +629,9 @@
   },
   "loggedOut": {
     "message": "Atteicies"
+  },
+  "loggedOutDesc": {
+    "message": "Notika izrakstīšanās no Tava konta."
   },
   "loginExpired": {
     "message": "Pieteikšanās sesija ir beigusies."
@@ -1107,6 +1141,15 @@
   "selfHostedEnvironmentFooter": {
     "message": "Norādīt pašuzstādīta Bitwarden pamata URL."
   },
+  "selfHostedBaseUrlHint": {
+    "message": "Jānorāda sava pašizvietotā Bitward servera pamata URL. Piemērs: https://bitwarden.uznemums.lv"
+  },
+  "selfHostedCustomEnvHeader": {
+    "message": "Papildu konfigurācijā ir iespējams norādīt URL katram pakalpojumam atsevišķi."
+  },
+  "selfHostedEnvFormInvalid": {
+    "message": "Jāpievieno vai no servera pamata URL vai vismaz viena pielāgota vide."
+  },
   "customEnvironment": {
     "message": "Pielāgota vide"
   },
@@ -1410,6 +1453,24 @@
   "typeIdentity": {
     "message": "Identitāte"
   },
+  "newItemHeader": {
+    "message": "Jauns/a $TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
+  },
+  "editItemHeader": {
+    "message": "Labot $TYPE$",
+    "placeholders": {
+      "type": {
+        "content": "$1",
+        "example": "Login"
+      }
+    }
+  },
   "passwordHistory": {
     "message": "Paroļu vēsture"
   },
@@ -1418,6 +1479,15 @@
   },
   "collections": {
     "message": "Krājumi"
+  },
+  "nCollections": {
+    "message": "$COUNT$ krājumi",
+    "placeholders": {
+      "count": {
+        "content": "$1",
+        "example": "2"
+      }
+    }
   },
   "favorites": {
     "message": "Izlase"
@@ -1648,6 +1718,9 @@
   "autoFillAndSave": {
     "message": "Automātiski aizpildīt un saglabāt"
   },
+  "fillAndSave": {
+    "message": "Aizpildīt un saglabāt"
+  },
   "autoFillSuccessAndSavedUri": {
     "message": "Automātiski aizpildīts vienums un saglabāts URI"
   },
@@ -1726,6 +1799,21 @@
   "masterPasswordPolicyRequirementsNotMet": {
     "message": "Jaunā galvenā parole neatbilst nosacījumu prasībām."
   },
+  "receiveMarketingEmails": {
+    "message": "Saņemt e-pasta ziņojumus no Bitwarden par paziņojumiem, padomiem un izpētes iespējām."
+  },
+  "unsubscribe": {
+    "message": "Atteikt abonēšanu"
+  },
+  "atAnyTime": {
+    "message": "jebkurā laikā."
+  },
+  "byContinuingYouAgreeToThe": {
+    "message": "Turpinot tiek sniegta piekrišana"
+  },
+  "and": {
+    "message": "un"
+  },
   "acceptPolicies": {
     "message": "Ar šīs rūtiņas atzīmēšanu tiek piekrists sekojošajam:"
   },
@@ -1743,6 +1831,12 @@
   },
   "ok": {
     "message": "Labi"
+  },
+  "errorRefreshingAccessToken": {
+    "message": "Piekļuves pilnvaras atsvaizināšanas kļūda"
+  },
+  "errorRefreshingAccessTokenDesc": {
+    "message": "Netika atrastas atsvaidzināšanas pilnvaras vai API atslēgas. Lūgums mēģināt izrakstīties un atkal pieteikties."
   },
   "desktopSyncVerificationTitle": {
     "message": "Darbvirsmas sinhronizācijas apstiprinājums"
@@ -2795,6 +2889,9 @@
     "message": "Jāizslēdz galvenās paroles pārvaicāšana, lai labotu šo lauku",
     "description": "Message appearing below the autofill on load message when master password reprompt is set for a vault item."
   },
+  "toggleSideNavigation": {
+    "message": "Toggle side navigation"
+  },
   "skipToContent": {
     "message": "Pāriet uz saturu"
   },
@@ -3263,9 +3360,9 @@
   "clearFiltersOrTryAnother": {
     "message": "Jānotīra atlases vērtības vai jāmēģina cits meklēšanas vaicājums"
   },
-  "copyInfo": {
-    "message": "Kopēt informāciju, $ITEMNAME$",
-    "description": "Aria label for a button that opens a menu with options to copy information from an item.",
+  "copyInfoTitle": {
+    "message": "Ievietot starpliktuvē informāciju - $ITEMNAME$",
+    "description": "Title for a button that opens a menu with options to copy information from an item.",
     "placeholders": {
       "itemname": {
         "content": "$1",
@@ -3273,7 +3370,17 @@
       }
     }
   },
-  "moreOptions": {
+  "copyNoteTitle": {
+    "message": "Ievietot starpliktuvē piezīmi - $ITEMNAME$",
+    "description": "Title for a button copies a note to the clipboard.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Note Item"
+      }
+    }
+  },
+  "moreOptionsLabel": {
     "message": "Vairāk iespēju, $ITEMNAME$",
     "description": "Aria label for a button that opens a menu with more options for an item.",
     "placeholders": {
@@ -3282,6 +3389,51 @@
         "example": "Secret Item"
       }
     }
+  },
+  "moreOptionsTitle": {
+    "message": "Vairāk iespēju - $ITEMNAME$",
+    "description": "Title for a button that opens a menu with more options for an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "viewItemTitle": {
+    "message": "Skatīt vienumu - $ITEMNAME$",
+    "description": "Title for a link that opens a view for an item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "autofillTitle": {
+    "message": "Automātiski aizpildīt - $ITEMNAME$",
+    "description": "Title for a button that auto-fills a login item.",
+    "placeholders": {
+      "itemname": {
+        "content": "$1",
+        "example": "Secret Item"
+      }
+    }
+  },
+  "noValuesToCopy": {
+    "message": "Nav vērtību, ko ievietot starpliktuvē"
+  },
+  "assignCollections": {
+    "message": "Piešķirt krājumus"
+  },
+  "copyEmail": {
+    "message": "Ievietot starpliktuvē e-pasta adresi"
+  },
+  "copyPhone": {
+    "message": "Ievietot starpliktuvē tālruņa numuru"
+  },
+  "copyAddress": {
+    "message": "Ievietot starpliktuvē adresi"
   },
   "adminConsole": {
     "message": "pārvaldības konsolē,"
@@ -3333,5 +3485,17 @@
         "example": "Work"
       }
     }
+  },
+  "itemsWithNoFolder": {
+    "message": "Vienumi bez mapes"
+  },
+  "organizationIsDeactivated": {
+    "message": "Apvienība ir atspējota"
+  },
+  "contactYourOrgAdmin": {
+    "message": "Atspējotu apvienību vienumiem nevar piekļūt. Jāsazinās ar apvienības īpašnieku, lai iegūtu palīdzību."
+  },
+  "filters": {
+    "message": "Atlases"
   }
 }

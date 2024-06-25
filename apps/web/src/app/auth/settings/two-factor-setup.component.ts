@@ -17,7 +17,7 @@ import { TwoFactorYubiKeyResponse } from "@bitwarden/common/auth/models/response
 import { TwoFactorProviders } from "@bitwarden/common/auth/services/two-factor.service";
 import { AuthResponse } from "@bitwarden/common/auth/types/auth-response";
 import { BillingAccountProfileStateService } from "@bitwarden/common/billing/abstractions/account/billing-account-profile-state.service";
-import { ProductType } from "@bitwarden/common/enums";
+import { ProductTierType } from "@bitwarden/common/billing/enums";
 import { MessagingService } from "@bitwarden/common/platform/abstractions/messaging.service";
 import { DialogService } from "@bitwarden/components";
 
@@ -34,15 +34,11 @@ import { TwoFactorYubiKeyComponent } from "./two-factor-yubikey.component";
   templateUrl: "two-factor-setup.component.html",
 })
 export class TwoFactorSetupComponent implements OnInit, OnDestroy {
-  @ViewChild("authenticatorTemplate", { read: ViewContainerRef, static: true })
-  authenticatorModalRef: ViewContainerRef;
   @ViewChild("yubikeyTemplate", { read: ViewContainerRef, static: true })
   yubikeyModalRef: ViewContainerRef;
   @ViewChild("duoTemplate", { read: ViewContainerRef, static: true }) duoModalRef: ViewContainerRef;
   @ViewChild("emailTemplate", { read: ViewContainerRef, static: true })
   emailModalRef: ViewContainerRef;
-  @ViewChild("webAuthnTemplate", { read: ViewContainerRef, static: true })
-  webAuthnModalRef: ViewContainerRef;
 
   organizationId: string;
   organization: Organization;
@@ -137,12 +133,11 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
         if (!result) {
           return;
         }
-        const authComp = await this.openModal(
-          this.authenticatorModalRef,
-          TwoFactorAuthenticatorComponent,
+        const authComp: DialogRef<boolean, any> = TwoFactorAuthenticatorComponent.open(
+          this.dialogService,
+          { data: result },
         );
-        await authComp.auth(result);
-        authComp.onUpdated.pipe(takeUntil(this.destroy$)).subscribe((enabled: boolean) => {
+        authComp.componentInstance.onChangeStatus.subscribe((enabled: boolean) => {
           this.updateStatus(enabled, TwoFactorProviderType.Authenticator);
         });
         break;
@@ -195,12 +190,11 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
         if (!result) {
           return;
         }
-        const webAuthnComp = await this.openModal(
-          this.webAuthnModalRef,
-          TwoFactorWebAuthnComponent,
+        const webAuthnComp: DialogRef<boolean, any> = TwoFactorWebAuthnComponent.open(
+          this.dialogService,
+          { data: result },
         );
-        webAuthnComp.auth(result);
-        webAuthnComp.onUpdated.pipe(takeUntil(this.destroy$)).subscribe((enabled: boolean) => {
+        webAuthnComp.componentInstance.onChangeStatus.subscribe((enabled: boolean) => {
           this.updateStatus(enabled, TwoFactorProviderType.WebAuthn);
         });
         break;
@@ -261,6 +255,6 @@ export class TwoFactorSetupComponent implements OnInit, OnDestroy {
   }
 
   get isEnterpriseOrg() {
-    return this.organization?.planProductType === ProductType.Enterprise;
+    return this.organization?.productTierType === ProductTierType.Enterprise;
   }
 }
