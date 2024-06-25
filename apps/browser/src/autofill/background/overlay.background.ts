@@ -1191,7 +1191,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    */
   private async triggerOverlayReposition(sender: chrome.runtime.MessageSender) {
     if (this.checkShouldRepositionInlineMenu(sender)) {
-      this.cancelUpdateInlineMenuPositionSubject.next();
+      this.cancelInlineMenuFadeInAndPositionUpdate();
       void this.toggleInlineMenuHidden({ isInlineMenuHidden: true }, sender);
       this.repositionInlineMenuSubject.next(sender);
     }
@@ -1205,7 +1205,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    */
   private async triggerSubFrameFocusInRebuild(sender: chrome.runtime.MessageSender) {
     this.rebuildSubFrameOffsetsSubject.next(sender);
-    this.cancelUpdateInlineMenuPositionSubject.next();
+    this.cancelInlineMenuFadeInAndPositionUpdate();
     this.repositionInlineMenuSubject.next(sender);
   }
 
@@ -1216,6 +1216,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param sender - The sender of the message
    */
   private repositionInlineMenu = async (sender: chrome.runtime.MessageSender) => {
+    this.cancelInlineMenuFadeInAndPositionUpdate();
     if (!this.isFieldCurrentlyFocused) {
       await this.closeInlineMenuAfterReposition(sender);
       return;
@@ -1249,6 +1250,14 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       sender,
     );
     this.closeInlineMenu(sender, { forceCloseInlineMenu: true });
+  }
+
+  /**
+   * Cancels the observables that update the position and fade in of the inline menu.
+   */
+  private cancelInlineMenuFadeInAndPositionUpdate() {
+    this.cancelInlineMenuFadeIn();
+    this.cancelUpdateInlineMenuPositionSubject.next();
   }
 
   /**
@@ -1288,6 +1297,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     return true;
   };
 
+  /**
+   * Handles clearing page details and sub frame offsets when a frame or tab navigation event occurs.
+   *
+   * @param details - The details of the web navigation event
+   */
   private handleWebNavigationOnCommitted = (
     details: chrome.webNavigation.WebNavigationTransitionCallbackDetails,
   ) => {
