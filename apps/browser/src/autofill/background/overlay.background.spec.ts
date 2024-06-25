@@ -633,6 +633,28 @@ describe("OverlayBackground", () => {
           expect(repositionInlineMenuSpy).toHaveBeenCalled();
         });
       });
+
+      describe("toggleInlineMenuHidden", () => {
+        beforeEach(async () => {
+          await initOverlayElementPorts();
+        });
+
+        it("skips adjusting the hidden status of the inline menu if the sender tab does not contain the focused field", async () => {
+          const focusedFieldData = createFocusedFieldDataMock({ tabId: 2 });
+          sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData }, sender);
+          const otherSender = mock<chrome.runtime.MessageSender>({ tab: { id: 2 } });
+
+          await overlayBackground["toggleInlineMenuHidden"](
+            { isInlineMenuHidden: true },
+            otherSender,
+          );
+
+          expect(buttonPortSpy.postMessage).not.toHaveBeenCalledWith({
+            command: "toggleAutofillInlineMenuHidden",
+            styles: { display: "none" },
+          });
+        });
+      });
     });
   });
 
@@ -1087,6 +1109,9 @@ describe("OverlayBackground", () => {
       });
 
       it("sends a message to close the inline menu if the form field is not focused and not filling", async () => {
+        overlayBackground["isInlineMenuButtonVisible"] = true;
+        overlayBackground["isInlineMenuListVisible"] = true;
+
         sendMockExtensionMessage({ command: "closeAutofillInlineMenu" }, sender);
         await flushPromises();
 
@@ -1098,12 +1123,53 @@ describe("OverlayBackground", () => {
           },
           { frameId: 0 },
         );
+        expect(overlayBackground["isInlineMenuButtonVisible"]).toBe(false);
+        expect(overlayBackground["isInlineMenuListVisible"]).toBe(false);
+      });
+
+      it("sets a property indicating that the inline menu button is not visible", async () => {
+        overlayBackground["isInlineMenuButtonVisible"] = true;
+
+        sendMockExtensionMessage(
+          { command: "closeAutofillInlineMenu", overlayElement: AutofillOverlayElement.Button },
+          sender,
+        );
+        await flushPromises();
+
+        expect(overlayBackground["isInlineMenuButtonVisible"]).toBe(false);
+      });
+
+      it("sets a property indicating that the inline menu list is not visible", async () => {
+        overlayBackground["isInlineMenuListVisible"] = true;
+
+        sendMockExtensionMessage(
+          { command: "closeAutofillInlineMenu", overlayElement: AutofillOverlayElement.List },
+          sender,
+        );
+        await flushPromises();
+
+        expect(overlayBackground["isInlineMenuListVisible"]).toBe(false);
       });
     });
 
     describe("checkAutofillInlineMenuFocused message handler", () => {
       beforeEach(async () => {
         await initOverlayElementPorts();
+      });
+
+      it("skips checking if the inline menu is focused if the sender does not contain the focused field", async () => {
+        const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
+        const focusedFieldData = createFocusedFieldDataMock();
+        sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData });
+
+        sendMockExtensionMessage({ command: "checkAutofillInlineMenuFocused" }, sender);
+
+        expect(listPortSpy.postMessage).not.toHaveBeenCalledWith({
+          command: "checkAutofillInlineMenuListFocused",
+        });
+        expect(buttonPortSpy.postMessage).not.toHaveBeenCalledWith({
+          command: "checkAutofillInlineMenuButtonFocused",
+        });
       });
 
       it("will check if the inline menu list is focused if the list port is open", () => {
@@ -1311,6 +1377,70 @@ describe("OverlayBackground", () => {
         expect(
           overlayBackground["updateInlineMenuPositionAfterRepositionEvent"],
         ).toHaveBeenCalled();
+      });
+    });
+
+    describe("updateAutofillInlineMenuElementIsVisibleStatus message handler", () => {
+      let sender: chrome.runtime.MessageSender;
+      let focusedFieldData: FocusedFieldData;
+
+      beforeEach(() => {
+        sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
+        focusedFieldData = createFocusedFieldDataMock();
+        overlayBackground["isInlineMenuButtonVisible"] = true;
+        overlayBackground["isInlineMenuListVisible"] = false;
+      });
+
+      it("skips updating the inline menu visibility status if the sender tab does not contain the focused field", async () => {
+        const otherSender = mock<chrome.runtime.MessageSender>({ tab: { id: 2 } });
+        sendMockExtensionMessage(
+          { command: "updateFocusedFieldData", focusedFieldData },
+          otherSender,
+        );
+
+        sendMockExtensionMessage(
+          {
+            command: "updateAutofillInlineMenuElementIsVisibleStatus",
+            overlayElement: AutofillOverlayElement.Button,
+            isInlineMenuElementVisible: false,
+          },
+          sender,
+        );
+
+        expect(overlayBackground["isInlineMenuButtonVisible"]).toBe(true);
+        expect(overlayBackground["isInlineMenuListVisible"]).toBe(false);
+      });
+
+      it("updates the visibility status of the inline menu button", async () => {
+        sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData }, sender);
+
+        sendMockExtensionMessage(
+          {
+            command: "updateAutofillInlineMenuElementIsVisibleStatus",
+            overlayElement: AutofillOverlayElement.Button,
+            isInlineMenuElementVisible: false,
+          },
+          sender,
+        );
+
+        expect(overlayBackground["isInlineMenuButtonVisible"]).toBe(false);
+        expect(overlayBackground["isInlineMenuListVisible"]).toBe(false);
+      });
+
+      it("updates the visibility status of the inline menu list", async () => {
+        sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData }, sender);
+
+        sendMockExtensionMessage(
+          {
+            command: "updateAutofillInlineMenuElementIsVisibleStatus",
+            overlayElement: AutofillOverlayElement.List,
+            isInlineMenuElementVisible: true,
+          },
+          sender,
+        );
+
+        expect(overlayBackground["isInlineMenuButtonVisible"]).toBe(true);
+        expect(overlayBackground["isInlineMenuListVisible"]).toBe(true);
       });
     });
 

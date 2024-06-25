@@ -589,6 +589,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       this.isInlineMenuListVisible = false;
     }
 
+    if (!overlayElement) {
+      this.isInlineMenuButtonVisible = false;
+      this.isInlineMenuListVisible = false;
+    }
+
     void BrowserApi.tabSendMessage(sender.tab, { command, overlayElement }, sendOptions);
   }
 
@@ -1233,13 +1238,23 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    if (this.focusedFieldData.frameId > 0 && this.subFrameOffsetsForTab[sender.tab.id]) {
-      this.subFrameOffsetsForTab[sender.tab.id].set(this.focusedFieldData.frameId, null);
-    }
-
+    this.resetFocusedFieldSubFrameOffsets(sender);
     this.cancelInlineMenuFadeInAndPositionUpdate();
     void this.toggleInlineMenuHidden({ isInlineMenuHidden: true }, sender);
     this.repositionInlineMenuSubject.next(sender);
+  }
+
+  /**
+   * Sets the sub frame offsets for the currently focused field's frame to a null value .
+   * This ensures that we can delay presentation of the inline menu after a reposition
+   * event if the user clicks on a field before the sub frames can be rebuilt.
+   *
+   * @param sender
+   */
+  private resetFocusedFieldSubFrameOffsets(sender: chrome.runtime.MessageSender) {
+    if (this.focusedFieldData.frameId > 0 && this.subFrameOffsetsForTab[sender.tab.id]) {
+      this.subFrameOffsetsForTab[sender.tab.id].set(this.focusedFieldData.frameId, null);
+    }
   }
 
   /**
