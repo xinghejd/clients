@@ -90,7 +90,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     getAutofillInlineMenuVisibility: () => this.getInlineMenuVisibility(),
     openAutofillInlineMenu: () => this.openInlineMenu(false),
     closeAutofillInlineMenu: ({ message, sender }) => this.closeInlineMenu(sender, message),
-    checkAutofillInlineMenuFocused: () => this.checkInlineMenuFocused(),
+    checkAutofillInlineMenuFocused: ({ sender }) => this.checkInlineMenuFocused(sender),
     focusAutofillInlineMenuList: () => this.focusInlineMenuList(),
     updateAutofillInlineMenuPosition: ({ message, sender }) =>
       this.updateInlineMenuPosition(message, sender),
@@ -518,7 +518,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * Checks if the inline menu is focused. Will check the inline menu list
    * if it is open, otherwise it will check the inline menu button.
    */
-  private checkInlineMenuFocused() {
+  private checkInlineMenuFocused(sender: chrome.runtime.MessageSender) {
+    if (sender.tab.id !== this.focusedFieldData?.tabId) {
+      return;
+    }
+
     if (this.inlineMenuListPort) {
       this.checkInlineMenuListFocused();
 

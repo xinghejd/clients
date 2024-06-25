@@ -113,7 +113,7 @@ export type OverlayBackgroundExtensionMessageHandlers = {
   getAutofillInlineMenuVisibility: () => void;
   openAutofillInlineMenu: () => void;
   closeAutofillInlineMenu: ({ message, sender }: BackgroundOnMessageHandlerParams) => void;
-  checkAutofillInlineMenuFocused: () => void;
+  checkAutofillInlineMenuFocused: ({ sender }: BackgroundSenderParam) => void;
   focusAutofillInlineMenuList: () => void;
   updateAutofillInlineMenuPosition: ({
     message,
