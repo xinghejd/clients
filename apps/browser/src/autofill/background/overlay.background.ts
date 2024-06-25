@@ -679,7 +679,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     if (subFrameOffsetsForTab) {
       subFrameOffsets = subFrameOffsetsForTab.get(this.focusedFieldData.frameId);
       if (subFrameOffsets === null) {
-        this.repositionInlineMenuSubject.next(sender);
+        this.rebuildSubFrameOffsetsSubject.next(sender);
+        this.startUpdateInlineMenuPositionSubject.next(sender);
         return;
       }
     }
@@ -1196,7 +1197,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return false;
     }
 
-    if (this.focusedFieldData.frameId === sender.frameId) {
+    if (this.focusedFieldData?.frameId === sender.frameId) {
       return true;
     }
 
@@ -1228,11 +1229,17 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param sender - The sender of the message
    */
   private async triggerOverlayReposition(sender: chrome.runtime.MessageSender) {
-    if (this.checkShouldRepositionInlineMenu(sender)) {
-      this.cancelInlineMenuFadeInAndPositionUpdate();
-      void this.toggleInlineMenuHidden({ isInlineMenuHidden: true }, sender);
-      this.repositionInlineMenuSubject.next(sender);
+    if (!this.checkShouldRepositionInlineMenu(sender)) {
+      return;
     }
+
+    if (this.focusedFieldData.frameId > 0 && this.subFrameOffsetsForTab[sender.tab.id]) {
+      this.subFrameOffsetsForTab[sender.tab.id].set(this.focusedFieldData.frameId, null);
+    }
+
+    this.cancelInlineMenuFadeInAndPositionUpdate();
+    void this.toggleInlineMenuHidden({ isInlineMenuHidden: true }, sender);
+    this.repositionInlineMenuSubject.next(sender);
   }
 
   /**
@@ -1242,8 +1249,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param sender - The sender of the message
    */
   private async triggerSubFrameFocusInRebuild(sender: chrome.runtime.MessageSender) {
-    this.rebuildSubFrameOffsetsSubject.next(sender);
     this.cancelInlineMenuFadeInAndPositionUpdate();
+    this.rebuildSubFrameOffsetsSubject.next(sender);
     this.repositionInlineMenuSubject.next(sender);
   }
 

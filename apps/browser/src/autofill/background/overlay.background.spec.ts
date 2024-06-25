@@ -1296,7 +1296,7 @@ describe("OverlayBackground", () => {
           [focusedFieldData.frameId, null],
         ]);
         tabsSendMessageSpy.mockImplementation();
-        jest.spyOn(overlayBackground as any, "repositionInlineMenu");
+        jest.spyOn(overlayBackground as any, "updateInlineMenuPositionAfterRepositionEvent");
 
         sendMockExtensionMessage(
           {
@@ -1306,9 +1306,11 @@ describe("OverlayBackground", () => {
           sender,
         );
         await flushPromises();
-        jest.advanceTimersByTime(1000);
+        jest.advanceTimersByTime(150);
 
-        expect(overlayBackground["repositionInlineMenu"]).toHaveBeenCalled();
+        expect(
+          overlayBackground["updateInlineMenuPositionAfterRepositionEvent"],
+        ).toHaveBeenCalled();
       });
     });
 
