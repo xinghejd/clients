@@ -3,16 +3,7 @@ import "lit/polyfill-support.js";
 import { FocusableElement, tabbable } from "tabbable";
 
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import {
-  EVENTS,
-  AutofillOverlayVisibility,
-  AUTOFILL_OVERLAY_ON_SCROLL,
-  AUTOFILL_OVERLAY_ON_RESIZE,
-  AUTOFILL_OVERLAY_SUB_FRAME_ON_FOCUS,
-  AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_ENTER,
-  AUTOFILL_OVERLAY_SUB_FRAME_ON_BLUR,
-  AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_LEAVE,
-} from "@bitwarden/common/autofill/constants";
+import { EVENTS, AutofillOverlayVisibility } from "@bitwarden/common/autofill/constants";
 
 import {
   FocusedFieldData,
@@ -27,12 +18,7 @@ import {
 import AutofillField from "../models/autofill-field";
 import AutofillPageDetails from "../models/autofill-page-details";
 import { ElementWithOpId, FillableFormFieldElement, FormFieldElement } from "../types";
-import {
-  elementIsFillableFormField,
-  getAttributeBoolean,
-  sendExtensionMessage,
-  throttle,
-} from "../utils";
+import { elementIsFillableFormField, getAttributeBoolean, sendExtensionMessage } from "../utils";
 
 import {
   AutofillOverlayContentExtensionMessageHandlers,
@@ -1062,23 +1048,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * the overlay elements on scroll or resize.
    */
   private setOverlayRepositionEventListeners() {
-    globalThis.addEventListener(
-      EVENTS.SCROLL,
-      this.useEventHandlersMemo(
-        throttle(this.handleOverlayRepositionEvent, 150),
-        AUTOFILL_OVERLAY_ON_SCROLL,
-      ),
-      {
-        capture: true,
-      },
-    );
-    globalThis.addEventListener(
-      EVENTS.RESIZE,
-      this.useEventHandlersMemo(
-        throttle(this.handleOverlayRepositionEvent, 150),
-        AUTOFILL_OVERLAY_ON_RESIZE,
-      ),
-    );
+    globalThis.addEventListener(EVENTS.SCROLL, this.handleOverlayRepositionEvent, {
+      capture: true,
+    });
+    globalThis.addEventListener(EVENTS.RESIZE, this.handleOverlayRepositionEvent);
   }
 
   /**
@@ -1086,20 +1059,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * the overlay elements on scroll or resize.
    */
   private removeOverlayRepositionEventListeners() {
-    globalThis.removeEventListener(
-      EVENTS.SCROLL,
-      this.eventHandlersMemo[AUTOFILL_OVERLAY_ON_SCROLL],
-      {
-        capture: true,
-      },
-    );
-    globalThis.removeEventListener(
-      EVENTS.RESIZE,
-      this.eventHandlersMemo[AUTOFILL_OVERLAY_ON_RESIZE],
-    );
-
-    delete this.eventHandlersMemo[AUTOFILL_OVERLAY_ON_SCROLL];
-    delete this.eventHandlersMemo[AUTOFILL_OVERLAY_ON_RESIZE];
+    globalThis.removeEventListener(EVENTS.SCROLL, this.handleOverlayRepositionEvent, {
+      capture: true,
+    });
+    globalThis.removeEventListener(EVENTS.RESIZE, this.handleOverlayRepositionEvent);
   }
 
   /**
@@ -1120,37 +1083,19 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
     }
     this.removeSubFrameFocusOutListeners();
 
-    globalThis.addEventListener(
-      EVENTS.FOCUS,
-      this.useEventHandlersMemo(
-        throttle(this.handleSubFrameFocusInEvent, 100),
-        AUTOFILL_OVERLAY_SUB_FRAME_ON_FOCUS,
-      ),
-    );
-    globalThis.document.body.addEventListener(
-      EVENTS.MOUSEENTER,
-      this.useEventHandlersMemo(
-        throttle(this.handleSubFrameFocusInEvent, 100),
-        AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_ENTER,
-      ),
-    );
+    globalThis.addEventListener(EVENTS.FOCUS, this.handleSubFrameFocusInEvent);
+    globalThis.document.body.addEventListener(EVENTS.MOUSEENTER, this.handleSubFrameFocusInEvent);
   };
 
   /**
    * Removes the listeners that facilitate a rebuild of the sub frame offsets.
    */
   private removeRebuildSubFrameOffsetsListeners = () => {
-    globalThis.removeEventListener(
-      EVENTS.FOCUS,
-      this.eventHandlersMemo[AUTOFILL_OVERLAY_SUB_FRAME_ON_FOCUS],
-    );
+    globalThis.removeEventListener(EVENTS.FOCUS, this.handleSubFrameFocusInEvent);
     globalThis.document.body.removeEventListener(
       EVENTS.MOUSEENTER,
-      this.eventHandlersMemo[AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_ENTER],
+      this.handleSubFrameFocusInEvent,
     );
-
-    delete this.eventHandlersMemo[AUTOFILL_OVERLAY_SUB_FRAME_ON_FOCUS];
-    delete this.eventHandlersMemo[AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_ENTER];
   };
 
   /**
@@ -1158,19 +1103,10 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * based on user interaction with the sub frame.
    */
   private setupSubFrameFocusOutListeners = () => {
-    globalThis.addEventListener(
-      EVENTS.BLUR,
-      this.useEventHandlersMemo(
-        throttle(this.setupRebuildSubFrameOffsetsListeners, 100),
-        AUTOFILL_OVERLAY_SUB_FRAME_ON_BLUR,
-      ),
-    );
+    globalThis.addEventListener(EVENTS.BLUR, this.setupRebuildSubFrameOffsetsListeners);
     globalThis.document.body.addEventListener(
       EVENTS.MOUSELEAVE,
-      this.useEventHandlersMemo(
-        throttle(this.setupRebuildSubFrameOffsetsListeners, 100),
-        AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_LEAVE,
-      ),
+      this.setupRebuildSubFrameOffsetsListeners,
     );
   };
 
@@ -1178,17 +1114,11 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    * Removes the listeners that trigger when a user focuses away from the sub frame.
    */
   private removeSubFrameFocusOutListeners = () => {
-    globalThis.removeEventListener(
-      EVENTS.BLUR,
-      this.eventHandlersMemo[AUTOFILL_OVERLAY_SUB_FRAME_ON_BLUR],
-    );
+    globalThis.removeEventListener(EVENTS.BLUR, this.setupRebuildSubFrameOffsetsListeners);
     globalThis.document.body.removeEventListener(
       EVENTS.MOUSELEAVE,
-      this.eventHandlersMemo[AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_LEAVE],
+      this.setupRebuildSubFrameOffsetsListeners,
     );
-
-    delete this.eventHandlersMemo[AUTOFILL_OVERLAY_SUB_FRAME_ON_BLUR];
-    delete this.eventHandlersMemo[AUTOFILL_OVERLAY_SUB_FRAME_ON_MOUSE_LEAVE];
   };
 
   /**
