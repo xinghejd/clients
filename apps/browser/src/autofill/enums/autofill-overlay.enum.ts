@@ -3,6 +3,9 @@ export const AutofillOverlayElement = {
   List: "autofill-inline-menu-list",
 } as const;
 
+export type AutofillOverlayElementType =
+  (typeof AutofillOverlayElement)[keyof typeof AutofillOverlayElement];
+
 export const AutofillOverlayPort = {
   Button: "autofill-inline-menu-button-port",
   ButtonMessageConnector: "autofill-inline-menu-button-message-connector",

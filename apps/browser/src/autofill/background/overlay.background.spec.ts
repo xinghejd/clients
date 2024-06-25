@@ -519,9 +519,10 @@ describe("OverlayBackground", () => {
             await flushPromises();
           }
 
-          beforeEach(() => {
+          beforeEach(async () => {
             sender = mock<chrome.runtime.MessageSender>({ tab, frameId: middleFrameId });
             jest.useFakeTimers();
+            await initOverlayElementPorts();
           });
 
           it("skips updating the position of either inline menu element if a field is not currently focused", async () => {
@@ -559,11 +560,10 @@ describe("OverlayBackground", () => {
             sendMockExtensionMessage({ command: "triggerAutofillOverlayReposition" }, sender);
             await flushUpdateInlineMenuPromises();
 
-            expect(tabsSendMessageSpy).toHaveBeenCalledWith(
-              sender.tab,
-              { command: "toggleAutofillInlineMenuHidden", isInlineMenuHidden: true },
-              { frameId: 0 },
-            );
+            expect(buttonPortSpy.postMessage).toHaveBeenCalledWith({
+              command: "toggleAutofillInlineMenuHidden",
+              styles: { display: "none" },
+            });
             expect(tabsSendMessageSpy).toHaveBeenCalledWith(
               sender.tab,
               {
@@ -1312,73 +1312,35 @@ describe("OverlayBackground", () => {
       });
     });
 
-    describe("toggleAutofillInlineMenuHidden message handler", () => {
-      beforeEach(async () => {
-        await initOverlayElementPorts();
-      });
-
-      it("returns early if the sender tab is not equal to the focused field tab", async () => {
+    describe("checkIsAutofillInlineMenuButtonVisible message handler", () => {
+      it("returns true when the inline menu button is visible", async () => {
+        overlayBackground["isInlineMenuButtonVisible"] = true;
         const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
-        const focusedFieldData = createFocusedFieldDataMock({ tabId: 2 });
-        sendMockExtensionMessage({ command: "updateFocusedFieldData", focusedFieldData });
 
-        sendMockExtensionMessage({ command: "toggleAutofillInlineMenuHidden" }, sender);
-
-        expect(tabsSendMessageSpy).not.toHaveBeenCalled();
-      });
-
-      it("posts a message to the overlay button and list which hides the menu", async () => {
-        const message = {
-          command: "toggleAutofillInlineMenuHidden",
-          isInlineMenuHidden: true,
-          setTransparentInlineMenu: false,
-        };
-
-        sendMockExtensionMessage(message);
+        sendMockExtensionMessage(
+          { command: "checkIsAutofillInlineMenuButtonVisible" },
+          sender,
+          sendResponse,
+        );
         await flushPromises();
 
-        expect(buttonPortSpy.postMessage).toHaveBeenCalledWith({
-          command: "toggleAutofillInlineMenuHidden",
-          styles: {
-            display: "none",
-            opacity: "1",
-          },
-        });
-        expect(listPortSpy.postMessage).toHaveBeenCalledWith({
-          command: "toggleAutofillInlineMenuHidden",
-          styles: {
-            display: "none",
-            opacity: "1",
-          },
-        });
-      });
-    });
-
-    describe("checkIsAutofillInlineMenuButtonVisible", () => {
-      it("sends a message to the top frame of the tab to identify if the inline menu button is visible", () => {
-        const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
-
-        sendMockExtensionMessage({ command: "checkIsAutofillInlineMenuButtonVisible" }, sender);
-
-        expect(tabsSendMessageSpy).toHaveBeenCalledWith(
-          sender.tab,
-          { command: "checkIsAutofillInlineMenuButtonVisible" },
-          { frameId: 0 },
-        );
+        expect(sendResponse).toHaveBeenCalledWith(true);
       });
     });
 
     describe("checkIsAutofillInlineMenuListVisible message handler", () => {
-      it("sends a message to the top frame of the tab to identify if the inline menu list is visible", () => {
+      it("returns true when the inline menu list is visible", async () => {
+        overlayBackground["isInlineMenuListVisible"] = true;
         const sender = mock<chrome.runtime.MessageSender>({ tab: { id: 1 } });
 
-        sendMockExtensionMessage({ command: "checkIsAutofillInlineMenuListVisible" }, sender);
-
-        expect(tabsSendMessageSpy).toHaveBeenCalledWith(
-          sender.tab,
+        sendMockExtensionMessage(
           { command: "checkIsAutofillInlineMenuListVisible" },
-          { frameId: 0 },
+          sender,
+          sendResponse,
         );
+        await flushPromises();
+
+        expect(sendResponse).toHaveBeenCalledWith(true);
       });
     });
 

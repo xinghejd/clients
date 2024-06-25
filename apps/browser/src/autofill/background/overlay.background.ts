@@ -74,6 +74,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private focusedFieldData: FocusedFieldData;
   private isFieldCurrentlyFocused: boolean = false;
   private isFieldCurrentlyFilling: boolean = false;
+  private isInlineMenuButtonVisible: boolean = false;
+  private isInlineMenuListVisible: boolean = false;
   private iconsServerUrl: string;
   private readonly extensionMessageHandlers: OverlayBackgroundExtensionMessageHandlers = {
     autofillOverlayElementClosed: ({ message, sender }) =>
@@ -94,11 +96,10 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     focusAutofillInlineMenuList: () => this.focusInlineMenuList(),
     updateAutofillInlineMenuPosition: ({ message, sender }) =>
       this.updateInlineMenuPosition(message, sender),
-    toggleAutofillInlineMenuHidden: ({ message, sender }) =>
-      this.toggleInlineMenuHidden(message, sender),
-    checkIsAutofillInlineMenuButtonVisible: ({ sender }) =>
-      this.checkIsInlineMenuButtonVisible(sender),
-    checkIsAutofillInlineMenuListVisible: ({ sender }) => this.checkIsInlineMenuListVisible(sender),
+    updateAutofillInlineMenuElementIsVisibleStatus: ({ message, sender }) =>
+      this.updateInlineMenuElementIsVisibleStatus(message, sender),
+    checkIsAutofillInlineMenuButtonVisible: () => this.checkIsInlineMenuButtonVisible(),
+    checkIsAutofillInlineMenuListVisible: () => this.checkIsInlineMenuListVisible(),
     getCurrentTabFrameId: ({ sender }) => this.getSenderFrameId(sender),
     updateSubFrameData: ({ message, sender }) => this.updateSubFrameData(message, sender),
     triggerSubFrameFocusInRebuild: ({ sender }) => this.triggerSubFrameFocusInRebuild(sender),
@@ -453,7 +454,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       return;
     }
 
-    if (!(await this.checkIsInlineMenuButtonVisible(sender))) {
+    if (!this.checkIsInlineMenuButtonVisible()) {
       void this.toggleInlineMenuHidden(
         { isInlineMenuHidden: false, setTransparentInlineMenu: true },
         sender,
@@ -519,7 +520,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * if it is open, otherwise it will check the inline menu button.
    */
   private checkInlineMenuFocused(sender: chrome.runtime.MessageSender) {
-    if (sender.tab.id !== this.focusedFieldData?.tabId) {
+    if (!this.senderTabHasFocusedField(sender)) {
       return;
     }
 
@@ -561,6 +562,8 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     const sendOptions = { frameId: 0 };
     if (forceCloseInlineMenu) {
       void BrowserApi.tabSendMessage(sender.tab, { command, overlayElement }, sendOptions);
+      this.isInlineMenuButtonVisible = false;
+      this.isInlineMenuListVisible = false;
       return;
     }
 
@@ -574,7 +577,16 @@ export class OverlayBackground implements OverlayBackgroundInterface {
         { command, overlayElement: AutofillOverlayElement.List },
         sendOptions,
       );
+      this.isInlineMenuListVisible = false;
       return;
+    }
+
+    if (overlayElement === AutofillOverlayElement.Button) {
+      this.isInlineMenuButtonVisible = false;
+    }
+
+    if (overlayElement === AutofillOverlayElement.List) {
+      this.isInlineMenuListVisible = false;
     }
 
     void BrowserApi.tabSendMessage(sender.tab, { command, overlayElement }, sendOptions);
@@ -619,21 +631,24 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     { overlayElement }: OverlayBackgroundExtensionMessage,
     sender: chrome.runtime.MessageSender,
   ) {
-    if (sender.tab.id !== this.focusedFieldData?.tabId) {
+    if (!this.senderTabHasFocusedField(sender)) {
       this.expiredPorts.forEach((port) => port.disconnect());
       this.expiredPorts = [];
+
       return;
     }
 
     if (overlayElement === AutofillOverlayElement.Button) {
       this.inlineMenuButtonPort?.disconnect();
       this.inlineMenuButtonPort = null;
+      this.isInlineMenuButtonVisible = false;
 
       return;
     }
 
     this.inlineMenuListPort?.disconnect();
     this.inlineMenuListPort = null;
+    this.isInlineMenuListVisible = false;
   }
 
   /**
@@ -647,7 +662,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     { overlayElement }: { overlayElement?: string },
     sender: chrome.runtime.MessageSender,
   ) {
-    if (!overlayElement || sender.tab.id !== this.focusedFieldData?.tabId) {
+    if (!overlayElement || !this.senderTabHasFocusedField(sender)) {
       return;
     }
 
@@ -684,6 +699,32 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       styles: this.getInlineMenuListPosition(subFrameOffsets),
     });
     this.startInlineMenuFadeIn();
+  }
+
+  /**
+   * Triggers an update of the inline menu's visibility after the top level frame
+   * appends the element to the DOM.
+   *
+   * @param message - The message received from the content script
+   * @param sender - The sender of the port message
+   */
+  private updateInlineMenuElementIsVisibleStatus(
+    message: OverlayBackgroundExtensionMessage,
+    sender: chrome.runtime.MessageSender,
+  ) {
+    if (!this.senderTabHasFocusedField(sender)) {
+      return;
+    }
+
+    const { overlayElement, isInlineMenuElementVisible } = message;
+    if (overlayElement === AutofillOverlayElement.Button) {
+      this.isInlineMenuButtonVisible = isInlineMenuElementVisible;
+      return;
+    }
+
+    if (overlayElement === AutofillOverlayElement.List) {
+      this.isInlineMenuListVisible = isInlineMenuElementVisible;
+    }
   }
 
   /**
@@ -797,7 +838,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     { isInlineMenuHidden, setTransparentInlineMenu }: ToggleInlineMenuHiddenMessage,
     sender: chrome.runtime.MessageSender,
   ) {
-    if (sender.tab.id !== this.focusedFieldData?.tabId) {
+    if (!this.senderTabHasFocusedField(sender)) {
       return;
     }
 
@@ -810,15 +851,16 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       styles = { ...styles, opacity };
     }
 
-    await BrowserApi.tabSendMessage(
-      sender.tab,
-      { command: "toggleAutofillInlineMenuHidden", isInlineMenuHidden },
-      { frameId: 0 },
-    );
-
     const portMessage = { command: "toggleAutofillInlineMenuHidden", styles };
-    this.inlineMenuButtonPort?.postMessage(portMessage);
-    this.inlineMenuListPort?.postMessage(portMessage);
+    if (this.inlineMenuButtonPort) {
+      this.isInlineMenuButtonVisible = !isInlineMenuHidden;
+      this.inlineMenuButtonPort.postMessage(portMessage);
+    }
+
+    if (this.inlineMenuListPort) {
+      this.isInlineMenuListVisible = !isInlineMenuHidden;
+      this.inlineMenuListPort.postMessage(portMessage);
+    }
 
     if (setTransparentInlineMenu) {
       this.startInlineMenuFadeIn();
@@ -1010,7 +1052,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param sender - The sender of the port message
    */
   private getNewVaultItemDetails({ sender }: chrome.runtime.Port) {
-    if (sender.tab.id !== this.focusedFieldData.tabId) {
+    if (!this.senderTabHasFocusedField(sender)) {
       return;
     }
 
@@ -1095,33 +1137,17 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   }
 
   /**
-   * Sends a message to the top level frame of the sender to check if the inline menu button is visible.
-   *
-   * @param sender - The sender of the message
+   * Returns the visibility status of the inline menu button.
    */
-  private async checkIsInlineMenuButtonVisible(
-    sender: chrome.runtime.MessageSender,
-  ): Promise<boolean> {
-    return await BrowserApi.tabSendMessage(
-      sender.tab,
-      { command: "checkIsAutofillInlineMenuButtonVisible" },
-      { frameId: 0 },
-    );
+  private checkIsInlineMenuButtonVisible(): boolean {
+    return this.isInlineMenuButtonVisible;
   }
 
   /**
-   * Sends a message to the top level frame of the sender to check if the inline menu list is visible.
-   *
-   * @param sender - The sender of the message
+   * Returns the visibility status of the inline menu list.
    */
-  private async checkIsInlineMenuListVisible(
-    sender: chrome.runtime.MessageSender,
-  ): Promise<boolean> {
-    return await BrowserApi.tabSendMessage(
-      sender.tab,
-      { command: "checkIsAutofillInlineMenuListVisible" },
-      { frameId: 0 },
-    );
+  private checkIsInlineMenuListVisible(): boolean {
+    return this.isInlineMenuListVisible;
   }
 
   /**
@@ -1132,7 +1158,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param sender - The sender of the message
    */
   private checkIsInlineMenuCiphersPopulated(sender: chrome.runtime.MessageSender) {
-    return sender.tab.id === this.focusedFieldData.tabId && this.inlineMenuCiphers.size > 0;
+    return this.senderTabHasFocusedField(sender) && this.inlineMenuCiphers.size > 0;
   }
 
   /**
@@ -1166,7 +1192,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    * @param sender - The sender of the message
    */
   private checkShouldRepositionInlineMenu(sender: chrome.runtime.MessageSender): boolean {
-    if (!this.focusedFieldData || sender.tab.id !== this.focusedFieldData.tabId) {
+    if (!this.focusedFieldData || !this.senderTabHasFocusedField(sender)) {
       return false;
     }
 
@@ -1184,6 +1210,15 @@ export class OverlayBackground implements OverlayBackgroundInterface {
     }
 
     return false;
+  }
+
+  /**
+   * Identifies if the sender tab is the same as the focused field's tab.
+   *
+   * @param sender - The sender of the message
+   */
+  private senderTabHasFocusedField(sender: chrome.runtime.MessageSender) {
+    return sender.tab.id === this.focusedFieldData?.tabId;
   }
 
   /**
@@ -1448,10 +1483,12 @@ export class OverlayBackground implements OverlayBackgroundInterface {
   private handlePortOnDisconnect = (port: chrome.runtime.Port) => {
     if (port.name === AutofillOverlayPort.List) {
       this.inlineMenuListPort = null;
+      this.isInlineMenuListVisible = false;
     }
 
     if (port.name === AutofillOverlayPort.Button) {
       this.inlineMenuButtonPort = null;
+      this.isInlineMenuButtonVisible = false;
     }
   };
 }

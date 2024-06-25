@@ -1,5 +1,6 @@
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
 
+import { AutofillOverlayElementType } from "../../enums/autofill-overlay.enum";
 import AutofillScript from "../../models/autofill-script";
 
 export type AutofillExtensionMessage = {
@@ -13,7 +14,7 @@ export type AutofillExtensionMessage = {
   pageDetailsUrl?: string;
   ciphers?: any;
   isInlineMenuHidden?: boolean;
-  overlayElement?: string;
+  overlayElement?: AutofillOverlayElementType;
   isFocusingFieldElement?: boolean;
   authStatus?: AuthenticationStatus;
   isOpeningFullInlineMenu?: boolean;
