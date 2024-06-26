@@ -1,6 +1,11 @@
 import { AutofillPort } from "../enums/autofill-port.enum";
 import { FillableFormFieldElement, FormElementWithAttribute, FormFieldElement } from "../types";
 
+/**
+ * Generates a random string of characters.
+ *
+ * @param length - The length of the random string to generate.
+ */
 export function generateRandomChars(length: number): string {
   const chars = "abcdefghijklmnopqrstuvwxyz";
   const randomChars = [];
