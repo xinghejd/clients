@@ -52,7 +52,7 @@ class AutofillOverlayList extends AutofillOverlayPageElement {
     authStatus,
     ciphers,
   }: InitAutofillOverlayListMessage) {
-    const linkElement = this.initOverlayPage("button", styleSheetUrl, translations);
+    const linkElement = this.initOverlayPage("list", styleSheetUrl, translations);
 
     const themeClass = `theme_${theme}`;
     globalThis.document.documentElement.classList.add(themeClass);
