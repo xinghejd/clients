@@ -1259,7 +1259,7 @@ export default class MainBackground {
 
         await this.refreshBadge();
         await this.refreshMenu();
-        await this.overlayBackground?.updateInlineMenuCiphers(); // null in popup only contexts
+        await this.overlayBackground?.updateOverlayCiphers(); // null in popup only contexts
         this.messagingService.send("goHome");
         return;
       }
@@ -1282,7 +1282,7 @@ export default class MainBackground {
         this.messagingService.send("unlocked", { userId: userId });
         await this.refreshBadge();
         await this.refreshMenu();
-        await this.overlayBackground?.updateInlineMenuCiphers(); // null in popup only contexts
+        await this.overlayBackground?.updateOverlayCiphers(); // null in popup only contexts
         await this.syncService.fullSync(false);
       }
     } finally {
