@@ -6,7 +6,9 @@ import { firstValueFrom } from "rxjs";
 import { JslibModule } from "@bitwarden/angular/jslib.module";
 import { DeviceType } from "@bitwarden/common/enums";
 import { EnvironmentService } from "@bitwarden/common/platform/abstractions/environment.service";
+import { LogService } from "@bitwarden/common/platform/abstractions/log.service";
 import { PlatformUtilsService } from "@bitwarden/common/platform/abstractions/platform-utils.service";
+import { MessageSender } from "@bitwarden/common/platform/messaging";
 import { DialogService } from "@bitwarden/components";
 
 import { BrowserApi } from "../../../../platform/browser/browser-api";
@@ -37,6 +39,8 @@ export class AboutPageComponent {
     private dialogService: DialogService,
     private environmentService: EnvironmentService,
     private platformUtilsService: PlatformUtilsService,
+    private logService: LogService,
+    private messageSender: MessageSender,
   ) {}
 
   about() {
@@ -80,5 +84,10 @@ export class AboutPageComponent {
       const deviceType = this.platformUtilsService.getDevice();
       await BrowserApi.createNewTab((RateUrls as any)[deviceType]);
     }
+  }
+
+  async onLogLevelUpdated(e) {
+    this.logService.updateFilter((level) => level >= e.level);
+    this.messageSender.send("logLevelUpdated", { level: e.level });
   }
 }
