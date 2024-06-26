@@ -93,7 +93,7 @@ export default class TabsBackground {
     );
     const removePageDetailsStatus = new Set(["loading", "unloaded"]);
     if (!!overlayImprovementsFlag && removePageDetailsStatus.has(changeInfo.status)) {
-      this.overlayBackground?.removePageDetails(tabId);
+      this.overlayBackground.removePageDetails(tabId);
     }
 
     if (this.focusedWindowId > 0 && tab.windowId !== this.focusedWindowId) {
@@ -104,7 +104,7 @@ export default class TabsBackground {
       return;
     }
 
-    await this.overlayBackground?.updateOverlayCiphers();
+    await this.overlayBackground.updateOverlayCiphers();
 
     if (this.main.onUpdatedRan) {
       return;
@@ -123,7 +123,7 @@ export default class TabsBackground {
    * @param tabId - The ID of the tab that was removed.
    */
   private handleTabOnRemoved = async (tabId: number) => {
-    this.overlayBackground?.removePageDetails(tabId);
+    this.overlayBackground.removePageDetails(tabId);
   };
 
   /**
@@ -134,7 +134,7 @@ export default class TabsBackground {
     await Promise.all([
       this.main.refreshBadge(),
       this.main.refreshMenu(),
-      this.overlayBackground?.updateOverlayCiphers(),
+      this.overlayBackground.updateOverlayCiphers(),
     ]);
   };
 }
