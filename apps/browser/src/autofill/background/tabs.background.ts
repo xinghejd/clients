@@ -94,7 +94,7 @@ export default class TabsBackground {
       return;
     }
 
-    this.overlayBackground.updateOverlayCiphers();
+    await this.overlayBackground.updateOverlayCiphers();
 
     if (this.main.onUpdatedRan) {
       return;
@@ -121,7 +121,10 @@ export default class TabsBackground {
    * for the current tab. Also updates the overlay ciphers.
    */
   private updateCurrentTabData = async () => {
-    this.overlayBackground.updateOverlayCiphers();
-    await Promise.all([this.main.refreshBadge(), this.main.refreshMenu()]);
+    await Promise.all([
+      this.main.refreshBadge(),
+      this.main.refreshMenu(),
+      this.overlayBackground.updateOverlayCiphers(),
+    ]);
   };
 }
