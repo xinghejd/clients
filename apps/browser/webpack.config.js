@@ -116,6 +116,11 @@ const plugins = [
     chunks: ["overlay/list"],
   }),
   new HtmlWebpackPlugin({
+    template: "./src/autofill/overlay/inline-menu/pages/menu-container/menu-container.html",
+    filename: "overlay/menu.html",
+    chunks: ["overlay/menu"],
+  }),
+  new HtmlWebpackPlugin({
     template: "./src/autofill/deprecated/overlay/pages/button/legacy-button.html",
     filename: "overlay/legacy-button.html",
     chunks: ["overlay/legacy-button"],
@@ -124,11 +129,6 @@ const plugins = [
     template: "./src/autofill/deprecated/overlay/pages/list/legacy-list.html",
     filename: "overlay/legacy-list.html",
     chunks: ["overlay/legacy-list"],
-  }),
-  new HtmlWebpackPlugin({
-    template: "./src/autofill/overlay/inline-menu/pages/menu-container/menu-container.html",
-    filename: "overlay/menu.html",
-    chunks: ["overlay/menu"],
   }),
   new CopyWebpackPlugin({
     patterns: [
