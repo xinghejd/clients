@@ -111,12 +111,6 @@ type OverlayListPortMessageHandlers = {
   redirectOverlayFocusOut: ({ message, port }: PortOnMessageHandlerParams) => void;
 };
 
-interface OverlayBackground {
-  init(): Promise<void>;
-  removePageDetails(tabId: number): void;
-  updateOverlayCiphers(): Promise<void>;
-}
-
 export {
   WebsiteIconData,
   OverlayBackgroundExtensionMessage,
@@ -127,5 +121,4 @@ export {
   OverlayBackgroundExtensionMessageHandlers,
   OverlayButtonPortMessageHandlers,
   OverlayListPortMessageHandlers,
-  OverlayBackground,
 };

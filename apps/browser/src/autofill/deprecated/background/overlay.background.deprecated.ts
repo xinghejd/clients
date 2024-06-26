@@ -25,6 +25,7 @@ import {
   openAddEditVaultItemPopout,
 } from "../../../vault/popup/utils/vault-popout-window";
 import { LockedVaultPendingNotificationsData } from "../../background/abstractions/notification.background";
+import { OverlayBackground as OverlayBackgroundInterface } from "../../background/abstractions/overlay.background";
 import { AutofillOverlayElement, AutofillOverlayPort } from "../../enums/autofill-overlay.enum";
 import { AutofillService, PageDetail } from "../../services/abstractions/autofill.service";
 
@@ -34,7 +35,6 @@ import {
   OverlayButtonPortMessageHandlers,
   OverlayCipherData,
   OverlayListPortMessageHandlers,
-  OverlayBackground as OverlayBackgroundInterface,
   OverlayBackgroundExtensionMessage,
   OverlayAddNewItemMessage,
   OverlayPortMessage,
