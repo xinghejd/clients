@@ -3,7 +3,7 @@ import AutofillPageDetails from "../models/autofill-page-details";
 import { sendExtensionMessage } from "../utils";
 
 import { InlineMenuFieldQualificationService as InlineMenuFieldQualificationServiceInterface } from "./abstractions/inline-menu-field-qualifications.service";
-import { AutoFillConstants } from "./autofill-constants";
+import { AutoFillConstants, CreditCardAutoFillConstants } from "./autofill-constants";
 
 export class InlineMenuFieldQualificationService
   implements InlineMenuFieldQualificationServiceInterface
@@ -14,9 +14,19 @@ export class InlineMenuFieldQualificationService
   private usernameAutocompleteValues = new Set(["username", "email"]);
   private fieldIgnoreListString = AutoFillConstants.FieldIgnoreList.join(",");
   private passwordFieldExcludeListString = AutoFillConstants.PasswordFieldExcludeList.join(",");
+  private passwordAutoCompleteValues = new Set(["new-password", "current-password"]);
   private autofillFieldKeywordsMap: WeakMap<AutofillField, string> = new WeakMap();
   private autocompleteDisabledValues = new Set(["off", "false"]);
   private newFieldKeywords = new Set(["new", "change", "neue", "ändern"]);
+  private creditCardFieldTypes = new Set(["text", "tel", "number"]);
+  private creditCardFieldKeywords = new Set([
+    ...CreditCardAutoFillConstants.CardHolderFieldNames,
+    ...CreditCardAutoFillConstants.CardNumberFieldNames,
+    ...CreditCardAutoFillConstants.CardExpiryFieldNames,
+    ...CreditCardAutoFillConstants.ExpiryMonthFieldNames,
+    ...CreditCardAutoFillConstants.CVVFieldNames,
+    ...CreditCardAutoFillConstants.CardBrandFieldNames,
+  ]);
   private inlineMenuFieldQualificationFlagSet = false;
 
   constructor() {
@@ -48,6 +58,26 @@ export class InlineMenuFieldQualificationService
     }
 
     return this.isUsernameFieldForLoginForm(field, pageDetails);
+  }
+
+  isFieldForCreditCardForm(field: AutofillField, pageDetails: AutofillPageDetails): boolean {
+    if (!this.creditCardFieldTypes.has(field.type)) {
+      return false;
+    }
+
+    if (this.usernameAutocompleteValues.has(field.autoCompleteType)) {
+      return false;
+    }
+
+    if (this.passwordAutoCompleteValues.has(field.autoCompleteType)) {
+      return false;
+    }
+
+    if (this.keywordsFoundInFieldData(field, [...this.newFieldKeywords])) {
+      return false;
+    }
+
+    return this.keywordsFoundInFieldData(field, [...this.creditCardFieldKeywords]);
   }
 
   /**
