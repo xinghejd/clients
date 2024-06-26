@@ -1043,44 +1043,6 @@ export default class MainBackground {
         this.configService,
       );
 
-      this.configService
-        .getFeatureFlag(FeatureFlag.AutofillInlineMenuImprovements)
-        .then((enabled) => {
-          if (!enabled) {
-            this.overlayBackground = new LegacyOverlayBackground(
-              this.cipherService,
-              this.autofillService,
-              this.authService,
-              this.environmentService,
-              this.domainSettingsService,
-              this.autofillSettingsService,
-              this.i18nService,
-              this.platformUtilsService,
-              themeStateService,
-            );
-          } else {
-            this.overlayBackground = new OverlayBackground(
-              this.logService,
-              this.cipherService,
-              this.autofillService,
-              this.authService,
-              this.environmentService,
-              this.domainSettingsService,
-              this.autofillSettingsService,
-              this.i18nService,
-              this.platformUtilsService,
-              themeStateService,
-            );
-          }
-
-          this.tabsBackground = new TabsBackground(
-            this,
-            this.notificationBackground,
-            this.overlayBackground,
-          );
-        })
-        .catch((error) => this.logService.error(`Error initializing OverlayBackground: ${error}`));
-
       this.filelessImporterBackground = new FilelessImporterBackground(
         this.configService,
         this.authService,
@@ -1170,6 +1132,47 @@ export default class MainBackground {
     }
 
     this.userAutoUnlockKeyService = new UserAutoUnlockKeyService(this.cryptoService);
+
+    this.configService
+      .getFeatureFlag(FeatureFlag.AutofillInlineMenuImprovements)
+      .then(async (enabled) => {
+        if (!enabled) {
+          this.overlayBackground = new LegacyOverlayBackground(
+            this.cipherService,
+            this.autofillService,
+            this.authService,
+            this.environmentService,
+            this.domainSettingsService,
+            this.autofillSettingsService,
+            this.i18nService,
+            this.platformUtilsService,
+            themeStateService,
+          );
+        } else {
+          this.overlayBackground = new OverlayBackground(
+            this.logService,
+            this.cipherService,
+            this.autofillService,
+            this.authService,
+            this.environmentService,
+            this.domainSettingsService,
+            this.autofillSettingsService,
+            this.i18nService,
+            this.platformUtilsService,
+            themeStateService,
+          );
+        }
+
+        this.tabsBackground = new TabsBackground(
+          this,
+          this.notificationBackground,
+          this.overlayBackground,
+        );
+
+        await this.overlayBackground.init();
+        await this.tabsBackground.init();
+      })
+      .catch((error) => this.logService.error(`Error initializing OverlayBackground: ${error}`));
   }
 
   async bootstrap() {
@@ -1206,8 +1209,6 @@ export default class MainBackground {
     await this.notificationBackground.init();
     this.filelessImporterBackground.init();
     await this.commandsBackground.init();
-    await this.overlayBackground?.init();
-    await this.tabsBackground?.init();
     this.contextMenusBackground?.init();
     await this.idleBackground.init();
     this.webRequestBackground?.startListening();
