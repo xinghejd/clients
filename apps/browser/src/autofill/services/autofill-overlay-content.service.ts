@@ -1058,7 +1058,7 @@ export class AutofillOverlayContentService implements AutofillOverlayContentServ
    */
   private setOverlayRepositionEventListeners() {
     const handler = this.useEventHandlersMemo(
-      throttle(this.handleOverlayRepositionEvent, 900),
+      throttle(this.handleOverlayRepositionEvent, 250),
       AUTOFILL_OVERLAY_HANDLE_REPOSITION,
     );
     globalThis.addEventListener(EVENTS.SCROLL, handler, {
