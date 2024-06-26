@@ -12,8 +12,6 @@ import { NotificationsService } from "@bitwarden/common/platform/notifications";
  * all notifications would need to be deserializable.
  */
 export class ForegroundNotificationsService implements NotificationsService {
-  constructor() {}
-
   start(): Subscription {
     throw new Error(
       "NotificationsService should only ever be interacted with in browser background.",
