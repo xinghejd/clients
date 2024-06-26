@@ -111,9 +111,19 @@ const plugins = [
     chunks: ["overlay/button"],
   }),
   new HtmlWebpackPlugin({
+    template: "./src/autofill/deprecated/overlay/pages/button/button.html",
+    filename: "overlay/legacy-button.html",
+    chunks: ["overlay/legacy-button"],
+  }),
+  new HtmlWebpackPlugin({
     template: "./src/autofill/overlay/inline-menu/pages/list/list.html",
     filename: "overlay/list.html",
     chunks: ["overlay/list"],
+  }),
+  new HtmlWebpackPlugin({
+    template: "./src/autofill/deprecated/overlay/pages/list/list.html",
+    filename: "overlay/legacy-list.html",
+    chunks: ["overlay/legacy-list"],
   }),
   new HtmlWebpackPlugin({
     template: "./src/autofill/overlay/inline-menu/pages/menu-container/menu-container.html",
@@ -177,6 +187,12 @@ const mainConfig = {
       "./src/autofill/overlay/inline-menu/pages/button/bootstrap-autofill-inline-menu-button.ts",
     "overlay/list":
       "./src/autofill/overlay/inline-menu/pages/list/bootstrap-autofill-inline-menu-list.ts",
+
+    "overlay/legacy-button":
+      "./src/autofill/deprecated/overlay/pages/button/bootstrap-autofill-overlay-button.deprecated.ts",
+    "overlay/legacy-list":
+      "./src/autofill/deprecated/overlay/pages/button/bootstrap-autofill-overlay-button.deprecated.ts",
+
     "overlay/menu":
       "./src/autofill/overlay/inline-menu/pages/menu-container/bootstrap-autofill-inline-menu-container.ts",
     "encrypt-worker": "../../libs/common/src/platform/services/cryptography/encrypt.worker.ts",
