@@ -111,14 +111,14 @@ const plugins = [
     chunks: ["overlay/button"],
   }),
   new HtmlWebpackPlugin({
-    template: "./src/autofill/deprecated/overlay/pages/button/legacy-button.html",
-    filename: "overlay/legacy-button.html",
-    chunks: ["overlay/legacy-button"],
-  }),
-  new HtmlWebpackPlugin({
     template: "./src/autofill/overlay/inline-menu/pages/list/list.html",
     filename: "overlay/list.html",
     chunks: ["overlay/list"],
+  }),
+  new HtmlWebpackPlugin({
+    template: "./src/autofill/deprecated/overlay/pages/button/legacy-button.html",
+    filename: "overlay/legacy-button.html",
+    chunks: ["overlay/legacy-button"],
   }),
   new HtmlWebpackPlugin({
     template: "./src/autofill/deprecated/overlay/pages/list/legacy-list.html",
