@@ -689,12 +689,12 @@ class LegacyOverlayBackground implements OverlayBackgroundInterface {
   ) => {
     const handler: CallableFunction | undefined = this.extensionMessageHandlers[message?.command];
     if (!handler) {
-      return;
+      return null;
     }
 
     const messageResponse = handler({ message, sender });
     if (!messageResponse) {
-      return;
+      return null;
     }
 
     // FIXME: Verify that this floating promise is intentional. If it is, add an explanatory comment and ensure there is proper error handling.

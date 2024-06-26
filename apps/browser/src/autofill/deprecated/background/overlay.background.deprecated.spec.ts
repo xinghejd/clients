@@ -494,7 +494,7 @@ describe("OverlayBackground", () => {
         sendResponse,
       );
 
-      expect(returnValue).toBe(undefined);
+      expect(returnValue).toBe(null);
       expect(sendResponse).not.toHaveBeenCalled();
     });
 
@@ -512,7 +512,7 @@ describe("OverlayBackground", () => {
         sendResponse,
       );
 
-      expect(returnValue).toBe(undefined);
+      expect(returnValue).toBe(null);
       expect(sendResponse).not.toHaveBeenCalled();
       expect(overlayBackground["overlayElementClosed"]).toHaveBeenCalledWith(message, sender);
     });
