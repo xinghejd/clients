@@ -3,7 +3,10 @@ import { debounceTime, switchMap } from "rxjs/operators";
 
 import { AuthService } from "@bitwarden/common/auth/abstractions/auth.service";
 import { AuthenticationStatus } from "@bitwarden/common/auth/enums/authentication-status";
-import { SHOW_AUTOFILL_BUTTON } from "@bitwarden/common/autofill/constants";
+import {
+  AutofillOverlayVisibility,
+  SHOW_AUTOFILL_BUTTON,
+} from "@bitwarden/common/autofill/constants";
 import { AutofillSettingsServiceAbstraction } from "@bitwarden/common/autofill/services/autofill-settings.service";
 import { DomainSettingsService } from "@bitwarden/common/autofill/services/domain-settings.service";
 import { InlineMenuVisibilitySetting } from "@bitwarden/common/autofill/types";
@@ -485,6 +488,11 @@ export class OverlayBackground implements OverlayBackgroundInterface {
       { command: "checkMostRecentlyFocusedFieldHasValue" },
       { frameId: this.focusedFieldData?.frameId },
     );
+
+    if ((await this.getInlineMenuVisibility()) === AutofillOverlayVisibility.OnButtonClick) {
+      return;
+    }
+
     if (
       mostRecentlyFocusedFieldHasValue &&
       (this.checkIsInlineMenuCiphersPopulated(sender) ||
@@ -1294,7 +1302,7 @@ export class OverlayBackground implements OverlayBackgroundInterface {
    */
   private repositionInlineMenu = async (sender: chrome.runtime.MessageSender) => {
     this.cancelInlineMenuFadeInAndPositionUpdate();
-    if (!this.isFieldCurrentlyFocused && !this.isInlineMenuListVisible) {
+    if (!this.isFieldCurrentlyFocused && !this.isInlineMenuButtonVisible) {
       await this.closeInlineMenuAfterReposition(sender);
       return;
     }
