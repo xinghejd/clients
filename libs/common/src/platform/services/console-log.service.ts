@@ -6,8 +6,16 @@ export class ConsoleLogService implements LogServiceAbstraction {
 
   constructor(
     protected isDev: boolean,
-    protected filter: (level: LogLevelType) => boolean = null,
+    protected _filter: (level: LogLevelType) => boolean = null,
   ) {}
+
+  protected get filter(): (level: LogLevelType) => boolean {
+    return this._filter ?? (() => true);
+  }
+
+  updateFilter(filter: (level: LogLevelType) => boolean) {
+    this._filter = filter;
+  }
 
   debug(message?: any, ...optionalParams: any[]) {
     if (!this.isDev) {

@@ -17,12 +17,13 @@ describe("ConsoleLogService", () => {
     logService = new ConsoleLogService(true);
   });
 
-  afterAll(() => {
+  afterEach(() => {
     restoreConsole();
+    jest.resetAllMocks();
   });
 
   it("filters messages below the set threshold", () => {
-    logService = new ConsoleLogService(true, () => true);
+    logService = new ConsoleLogService(true, () => false);
     logService.debug("debug", error, obj);
     logService.info("info", error, obj);
     logService.warning("warning", error, obj);
@@ -31,6 +32,32 @@ describe("ConsoleLogService", () => {
     expect(consoleSpy.log).not.toHaveBeenCalled();
     expect(consoleSpy.warn).not.toHaveBeenCalled();
     expect(consoleSpy.error).not.toHaveBeenCalled();
+  });
+
+  it("writes messages when no filter is set", () => {
+    logService = new ConsoleLogService(true, null);
+    logService.debug("debug", error, obj);
+    logService.info("info", error, obj);
+    logService.warning("warning", error, obj);
+    logService.error("error", error, obj);
+
+    expect(consoleSpy.log).toHaveBeenCalledTimes(2);
+    expect(consoleSpy.warn).toHaveBeenCalledTimes(1);
+    expect(consoleSpy.error).toHaveBeenCalledTimes;
+  });
+
+  describe("updateFilter", () => {
+    it("updates filter behavior", () => {
+      logService = new ConsoleLogService(true, () => false);
+      logService.debug("debug", error, obj);
+
+      expect(consoleSpy.log).not.toHaveBeenCalled();
+
+      logService.updateFilter(() => true);
+
+      logService.debug("debug", error, obj);
+      expect(consoleSpy.log).toHaveBeenCalledTimes(1);
+    });
   });
 
   it("only writes debug messages in dev mode", () => {

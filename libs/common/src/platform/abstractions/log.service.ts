@@ -6,4 +6,5 @@ export abstract class LogService {
   abstract warning(message?: any, ...optionalParams: any[]): void;
   abstract error(message?: any, ...optionalParams: any[]): void;
   abstract write(level: LogLevelType, message?: any, ...optionalParams: any[]): void;
+  abstract updateFilter(filter: (level: LogLevelType) => boolean): void;
 }
