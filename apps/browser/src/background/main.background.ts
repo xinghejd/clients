@@ -994,7 +994,7 @@ export default class MainBackground {
         this,
         this.autofillService,
         this.platformUtilsService as BrowserPlatformUtilsService,
-        this.notificationsService,
+        this.syncService,
         this.autofillSettingsService,
         this.systemService,
         this.environmentService,
